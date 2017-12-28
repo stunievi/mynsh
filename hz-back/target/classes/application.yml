@@ -1,0 +1,43 @@
+db1:
+  jdbc:
+    driverClassName: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/test?zeroDateTimeBehavior=convertToNull&useUnicode=true&characterEncoding=utf-8
+    username: root
+    password: 1q2w3e4r
+
+mybatis:
+  mapperLocations: classpath:hzadmin/src/main/resources/mybatis.mapper/*.xml
+  typeAliasesPackage: com.beeasy.hzback.entity
+
+
+spring:
+    mvc:
+        view:
+            prefix: /views/
+            suffix: .ftl
+
+    freemarker:
+        cache: false
+        request-context-attribute: request
+
+    datasource:
+        name: test
+        url: jdbc:mysql://localhost:3306/test
+        username: root
+        password: 1q2w3e4r
+        # 使用druid数据源
+        type: com.alibaba.druid.pool.DruidDataSource
+        driver-class-name: com.mysql.jdbc.Driver
+        filters: stat
+        maxActive: 20
+        initialSize: 1
+        maxWait: 60000
+        minIdle: 1
+        timeBetweenEvictionRunsMillis: 60000
+        minEvictableIdleTimeMillis: 300000
+        validationQuery: select 'x'
+        testWhileIdle: true
+        testOnBorrow: false
+        testOnReturn: false
+        poolPreparedStatements: true
+        maxOpenPreparedStatements: 20
