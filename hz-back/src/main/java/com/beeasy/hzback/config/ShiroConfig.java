@@ -65,6 +65,7 @@ public class ShiroConfig{
         shiroFilterFactoryBean.setUnauthorizedUrl("/403");
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
 
+
         return shiroFilterFactoryBean;
     }
 

@@ -2,10 +2,8 @@ package com.beeasy.hzback.shiro;
 
 import com.beeasy.hzback.dao.IUserDao;
 import com.beeasy.hzback.entity.User;
-import org.apache.shiro.authc.AuthenticationException;
-import org.apache.shiro.authc.AuthenticationInfo;
-import org.apache.shiro.authc.AuthenticationToken;
-import org.apache.shiro.authc.SimpleAuthenticationInfo;
+import com.beeasy.hzback.util.CrUtils;
+import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
@@ -46,15 +44,22 @@ public class MyShiroRealm extends AuthorizingRealm {
 
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException {
-        String userName = (String) authenticationToken.getPrincipal();
+        UsernamePasswordToken token = (UsernamePasswordToken )authenticationToken;
+
+        String userName = token.getUsername();
+        String password = String.valueOf(token.getPassword());
 
         User user = userDao.findByUsername(userName);
         if(user == null){
             return null;
         }
+        if(!CrUtils.md5(password.getBytes()).equals(user.getPassword())){
+            return null;
+        }
+
         SimpleAuthenticationInfo authenticationInfo = new SimpleAuthenticationInfo(
-            user,
-            user.getPassword(),
+            user.getUsername(),
+            password,
             getName()
         );
         return authenticationInfo;

@@ -2,6 +2,7 @@ package com.beeasy.hzback.entity;
 
 
 import lombok.Data;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
 
@@ -13,9 +14,9 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-//    @NotEmpty(message = "用户名不能为空")
+    @NotEmpty(message = "用户名不能为空")
     private String username;
-//    @NotEmpty(message = "密码不能为空")
+    @NotEmpty(message = "密码不能为空")
     private String password;
 //    @ManyToMany(fetch=FetchType.EAGER)
 //    @JoinTable(name = "t_user_role", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = {
