@@ -1,23 +1,25 @@
-package com.beeasy.hzback.controller;
+package com.beeasy.hzback.modules.setting.controller;
 
 
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
+@RequestMapping("/admin")
 public class index {
 
-    @RequestMapping("/fuck")
-    public ModelAndView index(){
-        ModelAndView result = new ModelAndView("index");
-        return result;
+    @RequestMapping("/")
+    public String index(){
+        return "redirect:/admin/index.html";
     }
 
-    @RequestMapping("/ri")
-    public String test(){
-        return "fuck";
+    @RequestMapping("/index.html")
+    public String indexHTML(Model model){
+        return "index";
     }
+
 
 //    @RequestMapping(value="/login",method= RequestMethod.POST)
 //    public String login(@Valid User user, BindingResult bindingResult, RedirectAttributes redirectAttributes) {

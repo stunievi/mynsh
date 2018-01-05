@@ -1,9 +1,8 @@
-package com.beeasy.hzback.controller;
+package com.beeasy.hzback.modules.setting.controller;
 
 
 
-import com.beeasy.hzback.entity.User;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.beeasy.hzback.modules.setting.entity.User;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 

@@ -1,6 +1,6 @@
-package com.beeasy.hzback.dao;
+package com.beeasy.hzback.modules.setting.dao;
 
-import com.beeasy.hzback.entity.User;
+import com.beeasy.hzback.modules.setting.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface IUserDao extends JpaRepository<User,Integer> {

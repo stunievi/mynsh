@@ -1,7 +1,7 @@
 package com.beeasy.hzback.shiro;
 
-import com.beeasy.hzback.dao.IUserDao;
-import com.beeasy.hzback.entity.User;
+import com.beeasy.hzback.modules.setting.dao.IUserDao;
+import com.beeasy.hzback.modules.setting.entity.User;
 import com.beeasy.hzback.util.CrUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
@@ -10,9 +10,9 @@ import org.apache.shiro.subject.PrincipalCollection;
 import org.springframework.beans.factory.annotation.Autowired;
 
 //
-//import com.beeasy.hzback.dao.IUserDao;
-//import com.beeasy.hzback.entity.Role;
-//import com.beeasy.hzback.entity.User;
+//import com.beeasy.hzback.modules.setting.dao.IUserDao;
+//import com.beeasy.hzback.modules.setting.entity.Role;
+//import com.beeasy.hzback.modules.setting.entity.User;
 //import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 //import org.apache.commons.lang.builder.ToStringStyle;
 //import org.apache.shiro.authc.*;

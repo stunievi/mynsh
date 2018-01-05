@@ -1,4 +1,4 @@
-package com.beeasy.hzback.entity;
+package com.beeasy.hzback.modules.setting.entity;
 
 
 import lombok.Data;

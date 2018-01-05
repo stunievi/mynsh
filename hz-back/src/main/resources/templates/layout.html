@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div>
+    <div class="left">
+            <%
+            for(map in adminMenu){
+            %>
+            <dl>
+                <dt>
+                    ${map.title}
+                </dt>
+                <%
+                for(child in map.children){
+                %>
+                <dd>
+                    <a href="${child.href}">
+                        ${child.title}
+                    </a>
+                </dd>
+                <% } %>
+            </dl>
+            <%
+            }
+            %>
+    </div>
+    <div class="right">
+        ${RIGHTHTML}
+    </div>
+</div>
+</body>
+</html>

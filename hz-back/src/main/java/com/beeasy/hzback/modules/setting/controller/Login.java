@@ -1,6 +1,7 @@
-package com.beeasy.hzback.controller;
+package com.beeasy.hzback.modules.setting.controller;
 
-import com.beeasy.hzback.entity.User;
+import com.beeasy.hzback.modules.setting.entity.User;
+import com.beeasy.hzback.util.CrUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.springframework.stereotype.Controller;
@@ -10,7 +11,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.security.auth.Subject;
 import javax.validation.Valid;
 
 @Controller
@@ -34,12 +34,13 @@ public class Login {
             return "login";
         }
         String username = user.getUsername();
+        String password = user.getPassword();
         org.apache.shiro.subject.Subject currentUser = SecurityUtils.getSubject();
         if(currentUser.isAuthenticated()){
             return "redirect:/admin";
         }
         try{
-            UsernamePasswordToken token = new UsernamePasswordToken(user.getUsername(), user.getPassword());
+            UsernamePasswordToken token = new UsernamePasswordToken(user.getUsername(), CrUtils.md5(password.getBytes()));
             currentUser.login(token);
         }
         catch (Exception e){
@@ -47,7 +48,7 @@ public class Login {
         }
 
         if(currentUser.isAuthenticated()){
-
+            return "redirect:/admin/index.html";
         }
         return "login";
     }

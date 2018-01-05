@@ -7,7 +7,7 @@ db1:
 
 mybatis:
   mapperLocations: classpath:hzadmin/src/main/resources/mybatis.mapper/*.xml
-  typeAliasesPackage: com.beeasy.hzback.entity
+  typeAliasesPackage: com.beeasy.hzback.modules.setting.entity
 
 
 spring:
@@ -55,3 +55,25 @@ spring:
                min-idle: 0
     session:
         store-type: none
+
+
+
+adminMenu:
+  -
+    title: 系统配置
+    children:
+      -
+        title: 角色设置
+        href:
+      -
+        title: 部门设置
+        href:
+      -
+        title: 业务设置
+        href:
+      -
+        title: 节点配置
+        href:
+      -
+        title: 流程配置
+        href:
