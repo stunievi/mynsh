@@ -40,7 +40,7 @@ public class Login {
             return "redirect:/admin";
         }
         try{
-            UsernamePasswordToken token = new UsernamePasswordToken(user.getUsername(), CrUtils.md5(password.getBytes()));
+            UsernamePasswordToken token = new UsernamePasswordToken(user.getUsername(), password);
             currentUser.login(token);
         }
         catch (Exception e){

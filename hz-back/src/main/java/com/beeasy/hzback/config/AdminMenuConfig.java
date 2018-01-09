@@ -2,6 +2,8 @@ package com.beeasy.hzback.config;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -11,7 +13,7 @@ import java.util.List;
 @ConfigurationProperties()
 @Data
 public class AdminMenuConfig {
-    private List<AdminMenuItem> adminMenu = new ArrayList<AdminMenuItem>();
+    private AdminMenuItem[] adminMenu;
 
     @Data
     public static class AdminMenuItem{

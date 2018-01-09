@@ -1,0 +1,35 @@
+<%
+var RIGHTHTML = {
+%>
+<form action="">
+    <p>
+        用户名：<input type="text" name="username">
+    </p>
+    <p>
+        密码：<input type="password" name="password">
+    </p>
+    <p>
+        <a href="javascript:;" class="submit">提交</a>
+    </p>
+</form>
+
+<script>
+    $('.submit').click(function () {
+        var form = $(this).closest('form');
+        $.post("/admin/setting/user/add",{
+            username: form.find("[name=username]").val(),
+            password: form.find("[name=password]").val()
+        },function (json) {
+            if(json.success){
+                location.href = '/admin/setting/user/list';
+            }
+            console.log(json)
+        },'json')
+    });
+</script>
+
+<% }; %>
+
+<%
+include("../layout.html",{RIGHTHTML:RIGHTHTML}){}
+%>

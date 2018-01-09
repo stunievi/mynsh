@@ -3,11 +3,15 @@ package com.beeasy.hzback.modules.setting.entity;
 
 import lombok.Data;
 import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 @Table(name = "t_user")
+@EntityListeners(AuditingEntityListener.class)
 @Data
 public class User {
 
@@ -18,6 +22,9 @@ public class User {
     private String username;
     @NotEmpty(message = "密码不能为空")
     private String password;
+
+    @CreatedDate
+    private Date addTime;
 //    @ManyToMany(fetch=FetchType.EAGER)
 //    @JoinTable(name = "t_user_role", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = {
 //            @JoinColumn(name = "role_id") })

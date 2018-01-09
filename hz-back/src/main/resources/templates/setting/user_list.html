@@ -1,0 +1,38 @@
+<%
+var RIGHTHTML = {
+%>
+<a href="/admin/setting/user/add">新增</a>
+<table>
+    <thead>
+        <th>编号</th>
+        <th>用户名</th>
+        <th>添加时间</th>
+        <th>
+            操作
+        </th>
+    </thead>
+
+    <%
+    for(item in list.content){
+    %>
+    <tr>
+        <td>${item.id}</td>
+        <td>
+            ${item.username}
+        </td>
+        <td>
+            ${item.addTime}
+        </td>
+        <td>
+            <a href="javascript:;">编辑</a>
+            <a href="javascript:;">删除</a>
+        </td>
+    </tr>
+    <% }%>
+</table>
+
+<% }; %>
+
+<%
+include("../layout.html",{RIGHTHTML:RIGHTHTML}){}
+%>

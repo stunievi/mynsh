@@ -63,6 +63,9 @@ adminMenu:
     title: 系统配置
     children:
       -
+        title: 用户管理
+        href: /admin/setting/user/list
+      -
         title: 角色设置
         href:
       -
