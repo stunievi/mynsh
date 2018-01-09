@@ -1,9 +1,7 @@
-package com.beeasy.hzback.filter;
+package com.beeasy.hzback.core.filter;
 
-import com.beeasy.hzback.shiro.StatelessToken;
-import com.beeasy.hzback.shiro.TokenManager;
-import freemarker.template.utility.StringUtil;
-import org.apache.commons.lang.StringUtils;
+import com.beeasy.hzback.core.shiro.StatelessToken;
+import com.beeasy.hzback.core.shiro.TokenManager;
 import org.apache.shiro.web.filter.AccessControlFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 

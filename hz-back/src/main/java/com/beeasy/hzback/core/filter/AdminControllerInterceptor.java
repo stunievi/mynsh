@@ -1,21 +1,12 @@
-package com.beeasy.hzback.filter;
+package com.beeasy.hzback.core.filter;
 
-import com.beeasy.hzback.config.AdminMenuConfig;
-import com.sun.org.apache.xpath.internal.operations.Mod;
+import com.beeasy.hzback.core.config.AdminMenuConfig;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
-import org.springframework.web.servlet.ModelAndView;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @Aspect
 @Component

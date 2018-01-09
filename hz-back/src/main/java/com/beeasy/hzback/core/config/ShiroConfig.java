@@ -1,7 +1,7 @@
-package com.beeasy.hzback.config;
+package com.beeasy.hzback.core.config;
 //
-//import com.beeasy.hzback.shiro.MShiroFilterFactoryBean;
-//import com.beeasy.hzback.shiro.MyShiroRealm;
+//import com.beeasy.hzback.core.shiro.MShiroFilterFactoryBean;
+//import com.beeasy.hzback.core.shiro.MyShiroRealm;
 //import org.apache.shiro.cache.ehcache.EhCacheManager;
 //import org.apache.shiro.spring.LifecycleBeanPostProcessor;
 //import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
@@ -17,13 +17,10 @@ package com.beeasy.hzback.config;
 //import java.util.Map;
 //
 
-import com.beeasy.hzback.filter.StatelessAuthcFilter;
-import com.beeasy.hzback.shiro.MyShiroRealm;
-import com.beeasy.hzback.shiro.StatelessDefaultSubjectFactory;
-import com.beeasy.hzback.shiro.TokenManager;
-import org.apache.shiro.authc.pam.AtLeastOneSuccessfulStrategy;
-import org.apache.shiro.mgt.DefaultSessionStorageEvaluator;
-import org.apache.shiro.mgt.DefaultSubjectDAO;
+import com.beeasy.hzback.core.filter.StatelessAuthcFilter;
+import com.beeasy.hzback.core.shiro.MyShiroRealm;
+import com.beeasy.hzback.core.shiro.StatelessDefaultSubjectFactory;
+import com.beeasy.hzback.core.shiro.TokenManager;
 import org.apache.shiro.session.mgt.DefaultSessionManager;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;

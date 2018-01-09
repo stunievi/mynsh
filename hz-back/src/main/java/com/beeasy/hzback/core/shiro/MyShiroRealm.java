@@ -1,8 +1,8 @@
-package com.beeasy.hzback.shiro;
+package com.beeasy.hzback.core.shiro;
 
 import com.beeasy.hzback.modules.setting.dao.IUserDao;
 import com.beeasy.hzback.modules.setting.entity.User;
-import com.beeasy.hzback.util.CrUtils;
+import com.beeasy.hzback.core.util.CrUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;

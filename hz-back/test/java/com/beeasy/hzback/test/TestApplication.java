@@ -2,7 +2,7 @@ package com.beeasy.hzback.test;
 
 import com.beeasy.hzback.modules.setting.dao.IUserDao;
 import com.beeasy.hzback.modules.setting.entity.User;
-import com.beeasy.hzback.util.CrUtils;
+import com.beeasy.hzback.core.util.CrUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

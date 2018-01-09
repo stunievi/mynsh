@@ -1,7 +1,7 @@
 package com.beeasy.hzback.modules.setting.controller;
 
 import com.beeasy.hzback.modules.setting.entity.User;
-import com.beeasy.hzback.util.CrUtils;
+import com.beeasy.hzback.core.util.CrUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.springframework.stereotype.Controller;

@@ -3,6 +3,7 @@ package com.beeasy.hzback.modules.setting.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -15,7 +16,7 @@ public class index {
         return "redirect:/admin/index.html";
     }
 
-    @RequestMapping("/index.html")
+    @GetMapping("/index.html")
     public String indexHTML(Model model){
         return "index";
     }

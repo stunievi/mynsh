@@ -1,4 +1,4 @@
-package com.beeasy.hzback.util;
+package com.beeasy.hzback.core.util;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

@@ -1,4 +1,4 @@
-package com.beeasy.hzback.shiro;
+package com.beeasy.hzback.core.shiro;
 
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.filter.mgt.FilterChainManager;

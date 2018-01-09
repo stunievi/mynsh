@@ -1,4 +1,4 @@
-package com.beeasy.hzback.config;
+package com.beeasy.hzback.core.config;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;

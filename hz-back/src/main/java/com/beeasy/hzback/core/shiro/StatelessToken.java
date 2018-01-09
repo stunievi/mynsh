@@ -1,6 +1,5 @@
-package com.beeasy.hzback.shiro;
+package com.beeasy.hzback.core.shiro;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.shiro.authc.AuthenticationToken;

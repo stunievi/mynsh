@@ -2,7 +2,7 @@ package com.beeasy.hzback.modules.setting.service;
 
 import com.beeasy.hzback.modules.setting.dao.IUserDao;
 import com.beeasy.hzback.modules.setting.entity.User;
-import com.beeasy.hzback.util.CrUtils;
+import com.beeasy.hzback.core.util.CrUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

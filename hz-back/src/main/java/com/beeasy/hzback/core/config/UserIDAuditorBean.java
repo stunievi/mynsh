@@ -1,4 +1,4 @@
-package com.beeasy.hzback.config;
+package com.beeasy.hzback.core.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
