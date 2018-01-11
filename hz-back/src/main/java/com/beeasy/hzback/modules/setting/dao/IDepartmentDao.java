@@ -3,6 +3,9 @@ package com.beeasy.hzback.modules.setting.dao;
 import com.beeasy.hzback.modules.setting.entity.Department;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface IDepartmentDao extends JpaRepository<Department,Integer> {
+import java.util.Set;
 
+public interface IDepartmentDao extends JpaRepository<Department,Integer> {
+    Set<Department> findAllByParent(Department department);
+    Department findByName(String name);
 }

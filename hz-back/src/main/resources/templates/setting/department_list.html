@@ -14,8 +14,8 @@ var RIGHTHTML = {
     <wbr ms-widget="{is:'tree',tree: @data.list}" />
 </div>
 <div>
-    <a href="">添加</a>
-    <a href="">编辑</a>
+    <a href="">添加</a> -
+    <a href="">编辑</a> -
     <a href="">删除</a>
 </div>
 <script>
@@ -77,13 +77,13 @@ var RIGHTHTML = {
         }
 
         function walk(item) {
-            if(item.childrenDeparment && item.childrenDeparment.length){
-                for(var i = 0; i < item.childrenDeparment.length; i++){
-                    walk(item.childrenDeparment[i]);
+            if(item.departments.length){
+                for(var i = 0; i < item.departments.length; i++){
+                    walk(item.departments[i]);
                 }
             }
             else{
-                item.childrenDeparment = [];
+                item.departments = [];
             }
             item.open = 0;
             item.selected = 0;
