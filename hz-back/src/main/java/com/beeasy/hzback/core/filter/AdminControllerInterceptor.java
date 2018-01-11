@@ -5,6 +5,7 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
 
@@ -30,5 +31,15 @@ public class AdminControllerInterceptor  {
         }
         //根据权限处理掉不需要的菜单选项
         model.addAttribute("adminMenu",adminMenu.getAdminMenu());
+        //处理分页
+        if(model.containsAttribute("list")){
+            Page<?> p = (Page<?>) model.asMap().get("list");
+            model.addAttribute("totalPage",p.getTotalPages());
+            model.addAttribute("currentPage",p.getNumber());
+        }
+        else{
+            model.addAttribute("totalPage",0);
+            model.addAttribute("currentPage",0);
+        }
     }
 }

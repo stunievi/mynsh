@@ -2,7 +2,8 @@
 var RIGHTHTML = {
 %>
 <a href="/admin/setting/user/add">新增</a>
-<table>
+
+<table data-url="/admin/setting/user/">
     <thead>
         <th>编号</th>
         <th>用户名</th>
@@ -23,9 +24,9 @@ var RIGHTHTML = {
         <td>
             ${item.addTime}
         </td>
-        <td>
-            <a href="javascript:;">编辑</a>
-            <a href="javascript:;">删除</a>
+        <td data-id="${item.id}">
+            <a href="javascript:;" class="edit">编辑</a>
+            <a href="javascript:;" class="delete">删除</a>
         </td>
     </tr>
     <% }%>

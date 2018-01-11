@@ -1,9 +1,11 @@
 package com.beeasy.hzback.modules.setting.controller;
 
 import com.beeasy.hzback.core.helper.Result;
+import com.beeasy.hzback.core.util.CrUtils;
 import com.beeasy.hzback.modules.setting.dao.IUserDao;
 import com.beeasy.hzback.modules.setting.entity.User;
 import com.beeasy.hzback.modules.setting.service.UserService;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -39,6 +41,20 @@ public class Users {
 
     @GetMapping("/add")
     public String userAdd(Model model){
+        model.addAttribute("item",new User());
+        return "setting/user_edit";
+    }
+
+    @GetMapping("/edit")
+    public String userEdit(Model model,Integer id){
+        User user = null;
+        if(id != null){
+             user = userDao.findOne(id);
+            if(user == null){
+                user = (User) new Object();
+            }
+        }
+        model.addAttribute("item",user);
         return "setting/user_edit";
     }
 
@@ -58,6 +74,26 @@ public class Users {
         }
         boolean flag = userService.add(user);
         return flag ? Result.ok() : Result.error("添加失败");
+    }
+
+    /**
+     * 修改用户
+     */
+    @PostMapping("/edit")
+    @ResponseBody
+    public Result userEdit(@Valid User user,BindingResult bindingResult){
+        boolean flag = userService.edit(user);
+        return flag? Result.ok() : Result.error("修改失败");
+    }
+
+    /**
+     * 删除用户
+     */
+    @PostMapping("/delete")
+    @ResponseBody
+    public Result userDelete(Integer id){
+        boolean flag = userService.delete(id);
+        return flag ? Result.ok() : Result.error("删除失败");
     }
 
 

@@ -1,32 +1,20 @@
 <%
 var RIGHTHTML = {
 %>
-<form action="">
+<form action="" data-url="/admin/setting/user/">
+    <input type="hidden" name="id" value="${item.id}">
     <p>
-        用户名：<input type="text" name="username">
+        用户名：<input type="text" name="username" value="${item.username}">
     </p>
     <p>
         密码：<input type="password" name="password">
     </p>
     <p>
-        <a href="javascript:;" class="submit">提交</a>
+        <a href="javascript:;" class="save">提交</a>
     </p>
 </form>
 
-<script>
-    $('.submit').click(function () {
-        var form = $(this).closest('form');
-        $.post("/admin/setting/user/add",{
-            username: form.find("[name=username]").val(),
-            password: form.find("[name=password]").val()
-        },function (json) {
-            if(json.success){
-                location.href = '/admin/setting/user/list';
-            }
-            console.log(json)
-        },'json')
-    });
-</script>
+
 
 <% }; %>
 
