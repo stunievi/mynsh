@@ -1,0 +1,120 @@
+<%
+var RIGHTHTML = {
+%>
+<script>
+
+</script>
+
+<style>
+    .selected{
+        color : red;
+    }
+</style>
+<div ms-controller="tree">
+    <wbr ms-widget="{is:'tree',tree: @data.list}" />
+</div>
+<div>
+    <a href="">添加</a>
+    <a href="">编辑</a>
+    <a href="">删除</a>
+</div>
+<script>
+    function heredoc(fn) {
+        return fn.toString().replace(/^[^\/]+\/\*!?\s?/, '').
+        replace(/\*\/[^\/]+$/, '').trim().replace(/>\s*</g, '><')
+    }
+    var treeID = 0;
+    var lastSelected = null;
+    avalon.component('tree', {
+        template: heredoc(function () {
+            /*
+             <ul>
+             <li ms-for="(index, el) in @tree | get(0)">
+             <span ms-click='el.open = !el.open' ms-if='el.childrenDeparment && el.childrenDeparment.length'>
+                {{el.open ? '[-]' : '[+]'}}
+             </span>
+             <span ms-click='@select(el)' :class="el.selected == 1 ? 'selected' : ''" >
+                {{el.name}}
+             </span>
+             <div ms-if='el.open'>
+                <wbr ms-widget="{is:'tree',tree: el.childrenDeparment}" />
+             </div>
+             </li>
+             </ul>
+             */
+        }),
+        defaults: {
+            tree: [],
+            select : function (el) {
+                if(lastSelected && lastSelected != el){
+                    lastSelected.selected = 0;
+                }
+                el.selected = !el.selected;
+                //0 - 1
+                if(el.selected == 1){
+                    lastSelected = el;
+                }
+                //1 - 0
+                else{
+                    lastSelected = null;
+                }
+
+            }
+        }
+    })
+
+    var data;
+
+    ;(function () {
+        var jsonstr = '${tree}';
+        try{
+            data = eval("(" + jsonstr + ")");
+        }catch(e){
+
+        }
+        if(data == null){
+            return;
+        }
+
+        function walk(item) {
+            if(item.childrenDeparment && item.childrenDeparment.length){
+                for(var i = 0; i < item.childrenDeparment.length; i++){
+                    walk(item.childrenDeparment[i]);
+                }
+            }
+            else{
+                item.childrenDeparment = [];
+            }
+            item.open = 0;
+            item.selected = 0;
+        }
+
+        if(data && data.length){
+            for(var i = 0; i < data.length; i++){
+                walk(data[i]);
+            }
+        }
+
+        console.log(data)
+
+
+    })();
+
+
+    var app = avalon.define({
+        $id: "tree",
+        data: {
+            list: data,
+            selected:''
+        }
+
+    });
+</script>
+
+
+
+<% }; %>
+
+<%
+include("../layout.html",{RIGHTHTML:RIGHTHTML}){}
+%>

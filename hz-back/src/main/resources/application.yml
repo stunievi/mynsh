@@ -67,7 +67,7 @@ adminMenu:
         href: /admin/setting/user/list
       -
         title: 角色设置
-        href:
+        href: /admin/setting/department/list
       -
         title: 部门设置
         href:
