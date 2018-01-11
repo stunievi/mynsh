@@ -56,6 +56,10 @@ public class MyShiroRealm extends AuthorizingRealm {
         if(!CrUtils.md5(password.getBytes()).equals(user.getPassword())){
             return null;
         }
+        //如果用户被禁用
+        if(user.isBaned()){
+            return null;
+        }
 
         SimpleAuthenticationInfo authenticationInfo = new SimpleAuthenticationInfo(
             user.getUsername(),

@@ -25,6 +25,8 @@ public class User {
 
     @CreatedDate
     private Date addTime;
+
+    private boolean baned;
 //    @ManyToMany(fetch=FetchType.EAGER)
 //    @JoinTable(name = "t_user_role", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = {
 //            @JoinColumn(name = "role_id") })

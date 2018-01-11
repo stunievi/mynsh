@@ -37,6 +37,7 @@ public class UserService {
         if(StringUtils.isEmpty(user.getPassword())){
             baseUser.setPassword(CrUtils.md5(user.getPassword().getBytes()));
         }
+        baseUser.setBaned(user.isBaned());
         userDao.save(baseUser);
         return true;
     }
