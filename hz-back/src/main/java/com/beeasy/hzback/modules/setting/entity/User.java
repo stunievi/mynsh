@@ -19,6 +19,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @NotEmpty(message = "用户名不能为空")
+    @Column(unique = true)
     private String username;
     @NotEmpty(message = "密码不能为空")
     private String password;

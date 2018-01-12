@@ -1,6 +1,7 @@
 package com.beeasy.hzback.core.helper;
 
 import lombok.Data;
+import org.springframework.validation.BindingResult;
 
 @Data
 public class Result {
@@ -25,6 +26,9 @@ public class Result {
     }
 
     public static Result error(Object item){
+        if(item instanceof BindingResult){
+            item = ((BindingResult) item).getAllErrors();
+        }
         return new Result(false,item);
     }
 }

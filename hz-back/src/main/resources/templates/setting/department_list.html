@@ -14,11 +14,31 @@ var RIGHTHTML = {
     <wbr ms-widget="{is:'tree',tree: @data.list}" />
 </div>
 <div>
-    <a href="">添加</a> -
-    <a href="">编辑</a> -
+    <a class="_add" href="/admin/setting/department/add">添加</a> -
+    <a class="_edit" href="javascript:;">编辑</a> -
     <a href="">删除</a>
 </div>
 <script>
+    $('._add').click(function () {
+        if(lastSelected == null){
+            location.href = '/admin/setting/department/add';
+        }
+        else{
+            location.href = '/admin/setting/department/add?parentId=' + lastSelected.id;
+        }
+        return false;
+    });
+
+    $("._edit").click(function () {
+        if(lastSelected == null){
+            alert("请先选择要编辑的部门");
+        }
+        else{
+            location.href = '/admin/setting/department/edit?id=' + lastSelected.id;
+        }
+    });
+
+
     function heredoc(fn) {
         return fn.toString().replace(/^[^\/]+\/\*!?\s?/, '').
         replace(/\*\/[^\/]+$/, '').trim().replace(/>\s*</g, '><')
@@ -30,14 +50,14 @@ var RIGHTHTML = {
             /*
              <ul>
              <li ms-for="(index, el) in @tree | get(0)">
-             <span ms-click='el.open = !el.open' ms-if='el.childrenDeparment && el.childrenDeparment.length'>
+             <span ms-click='el.open = !el.open' ms-if='el.departments && el.departments.length'>
                 {{el.open ? '[-]' : '[+]'}}
              </span>
              <span ms-click='@select(el)' :class="el.selected == 1 ? 'selected' : ''" >
                 {{el.name}}
              </span>
              <div ms-if='el.open'>
-                <wbr ms-widget="{is:'tree',tree: el.childrenDeparment}" />
+                <wbr ms-widget="{is:'tree',tree: el.departments}" />
              </div>
              </li>
              </ul>

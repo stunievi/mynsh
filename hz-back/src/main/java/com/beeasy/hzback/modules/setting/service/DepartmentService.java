@@ -16,10 +16,8 @@ public class DepartmentService {
     private IDepartmentDao departmentDao;
 
     public Set<Department> listAsTree(){
+        return departmentDao.findOne(1).getDepartments();
         //得到所有部门
-        Department top = departmentDao.findOne(1);
-        makeChildren(top);
-        return top.getDepartments();
 //        return new HashSet<Department>({top});
 //        return top.getDepartments();
 //
@@ -56,6 +54,22 @@ public class DepartmentService {
             makeChildren(child);
         }
         department.setDepartments(children);
+    }
+
+
+    public boolean add(Department department,Integer parentId){
+        Department parent = departmentDao.findOne(parentId);
+        if(parent == null) return false;
+        Department d = new Department();
+        d.setName(department.getName());
+        d.setParent(parent);
+        departmentDao.save(d);
+        return d.getId() > 0;
+    }
+
+    public boolean edit(Department department){
+        departmentDao.save(department);
+        return true;
     }
 
 

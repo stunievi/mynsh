@@ -67,16 +67,18 @@ adminMenu:
         href: /admin/setting/user/list
       -
         title: 角色设置
-        href: /admin/setting/department/list
+        href:
       -
         title: 部门设置
-        href:
+        href: /admin/setting/department/list
       -
         title: 业务设置
-        href:
+        href: /admin/setting/department/list
+
       -
         title: 节点配置
-        href:
+        href: /admin/setting/node/list
+
       -
         title: 流程配置
         href:

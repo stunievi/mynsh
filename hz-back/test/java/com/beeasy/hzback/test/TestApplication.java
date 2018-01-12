@@ -6,6 +6,7 @@ import com.beeasy.hzback.modules.setting.entity.Department;
 import com.beeasy.hzback.modules.setting.entity.User;
 import com.beeasy.hzback.core.util.CrUtils;
 import com.beeasy.hzback.modules.setting.service.DepartmentService;
+import com.beeasy.hzback.modules.setting.service.UserService;
 import org.hibernate.Hibernate;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,6 +34,16 @@ public class TestApplication {
     @Autowired
     DepartmentService departmentService;
 
+    @Autowired
+    UserService userService;
+
+    @Test
+    public void addAdminUser(){
+        User user = new User();
+        user.setUsername("1");
+        user.setPassword("2");
+        userService.add(user);
+    }
     @Test
     public void contextLoads() {
         User user = new User();

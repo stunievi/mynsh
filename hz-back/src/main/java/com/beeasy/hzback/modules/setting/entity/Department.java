@@ -22,7 +22,6 @@ public class Department implements Serializable{
     private Integer id;
 
     @NotEmpty(message = "部门名字不能为空")
-    @Column(unique = true)
     private String name;
 
 //    private Integer parentId;
@@ -34,7 +33,7 @@ public class Department implements Serializable{
     @JsonBackReference
     public Department parent;
 
-    @OneToMany(fetch = FetchType.LAZY,mappedBy = "parent")
+    @OneToMany(fetch = FetchType.EAGER,mappedBy = "parent")
     private Set<Department> departments = new HashSet<Department>(0);
 
 
