@@ -31,4 +31,7 @@ public class Result {
         }
         return new Result(false,item);
     }
+    public static Result error(){
+        return error(null);
+    }
 }

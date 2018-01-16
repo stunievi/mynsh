@@ -18,6 +18,8 @@ public class DepartmentService {
     public Set<Department> listAsTree(){
         return departmentDao.findOne(1).getDepartments();
         //得到所有部门
+
+
 //        return new HashSet<Department>({top});
 //        return top.getDepartments();
 //

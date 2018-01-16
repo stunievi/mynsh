@@ -1,6 +1,7 @@
 package com.beeasy.hzback.modules.setting.entity;
 
 
+import com.beeasy.hzback.core.helper.BaseEntity;
 import lombok.Data;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.data.annotation.CreatedDate;
@@ -12,12 +13,13 @@ import java.util.Date;
 @Entity
 @Table(name = "t_user")
 @EntityListeners(AuditingEntityListener.class)
-@Data
-public class User {
+public class User extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
+
     @NotEmpty(message = "用户名不能为空")
     @Column(unique = true)
     private String username;
@@ -45,14 +47,44 @@ public class User {
 
     // 省略 get set 方法
 
-//    @Transient
-//    public Set<String> getRolesName() {
-//        List<Role> roles = getRoleList();
-//        Set<String> set = new HashSet<String>();
-//        for (Role role : roles) {
-//            set.add(role.getRolename());
-//        }
-//        return set;
-//    }
 
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public Date getAddTime() {
+        return addTime;
+    }
+
+    public void setAddTime(Date addTime) {
+        this.addTime = addTime;
+    }
+
+    public boolean isBaned() {
+        return baned;
+    }
+
+    public void setBaned(boolean baned) {
+        this.baned = baned;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
 }
