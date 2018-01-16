@@ -81,4 +81,4 @@ adminMenu:
 
       -
         title: 流程配置
-        href:
+        href: /admin/setting/work/list
