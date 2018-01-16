@@ -2,9 +2,13 @@ package com.beeasy.hzback.test;
 
 import com.beeasy.hzback.modules.setting.dao.IDepartmentDao;
 import com.beeasy.hzback.modules.setting.dao.IUserDao;
+import com.beeasy.hzback.modules.setting.dao.IWorkDao;
+import com.beeasy.hzback.modules.setting.dao.IWorkNodeDao;
 import com.beeasy.hzback.modules.setting.entity.Department;
 import com.beeasy.hzback.modules.setting.entity.User;
 import com.beeasy.hzback.core.util.CrUtils;
+import com.beeasy.hzback.modules.setting.entity.Work;
+import com.beeasy.hzback.modules.setting.entity.WorkNode;
 import com.beeasy.hzback.modules.setting.service.DepartmentService;
 import com.beeasy.hzback.modules.setting.service.UserService;
 import org.hibernate.Hibernate;
@@ -17,6 +21,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceContextType;
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -36,6 +41,11 @@ public class TestApplication {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    IWorkNodeDao workNodeDao;
+    @Autowired
+    IWorkDao workDao;
 
     @Test
     public void addAdminUser(){
@@ -68,6 +78,21 @@ public class TestApplication {
         departmentDao.save(top);
 
 
+    }
+
+
+    @Test
+    public void testWorkdNode(){
+        Work work = workDao.findOne(1);
+        WorkNode workNode = new WorkNode();
+        List list = new ArrayList<WorkNode.Node>();
+        WorkNode.Node n = new WorkNode.Node();
+        n.test = "fuck";
+        list.add(n);
+        workNode.setNode(list);
+        workNode.setPosition(0);
+        workNode.setWork(work);
+        workNodeDao.save(workNode);
     }
 
     @Test
