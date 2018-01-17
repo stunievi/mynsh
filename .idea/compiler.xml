@@ -10,8 +10,8 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="hz" target="1.5" />
-      <module name="hz-back" target="1.6" />
+      <module name="hz" target="1.8" />
+      <module name="hz-back" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

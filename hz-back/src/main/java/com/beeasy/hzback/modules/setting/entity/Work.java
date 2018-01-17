@@ -4,6 +4,7 @@ import com.beeasy.hzback.core.helper.BaseEntity;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "t_work")
@@ -20,6 +21,9 @@ public class Work extends BaseEntity{
 
     @NotEmpty(message = "流程说明不能为空")
     private String info;
+
+    @OneToMany(fetch = FetchType.EAGER,mappedBy = "work")
+    private List<WorkNode> nodeList;
 
     public String getName() {
         return name;

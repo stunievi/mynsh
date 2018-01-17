@@ -7,6 +7,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.io.IOException;
 import java.util.List;
 
 @Entity
@@ -50,7 +51,11 @@ public class WorkNode {
 
         @Override
         public List<Node> convertToEntityAttribute(String s) {
-            return null;
+            try {
+                return objectMapper.readValue(s,List.class);
+            } catch (IOException e) {
+                return null;
+            }
         }
     }
 

@@ -1,5 +1,6 @@
 package com.beeasy.hzback.test;
 
+import com.beeasy.hzback.core.helper.SpringContextUtils;
 import com.beeasy.hzback.modules.setting.dao.IDepartmentDao;
 import com.beeasy.hzback.modules.setting.dao.IUserDao;
 import com.beeasy.hzback.modules.setting.dao.IWorkDao;
@@ -12,11 +13,13 @@ import com.beeasy.hzback.modules.setting.entity.WorkNode;
 import com.beeasy.hzback.modules.setting.service.DepartmentService;
 import com.beeasy.hzback.modules.setting.service.UserService;
 import org.hibernate.Hibernate;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceContextType;
@@ -97,9 +100,13 @@ public class TestApplication {
 
     @Test
     public void test(){
+        Assert.assertNotNull(SpringContextUtils.getContext());
+        List<Work> list = workDao.findAll();
+
+
         Department top = departmentDao.findByName("cubi");
-        Set<?> set = top.getDepartments();
-        System.out.println(set.size());
+//        Set<?> set = top.getDepartments();
+//        System.out.println(set.size());
     }
 
 }
