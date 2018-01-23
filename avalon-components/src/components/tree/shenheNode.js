@@ -8,7 +8,7 @@ component("shenheNode",{
         },
 
         getType: function () {
-            return this.num == 1 ? "审核" : "会签"
+            return "审核"
         },
 
         onNumChange(){

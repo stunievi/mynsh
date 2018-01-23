@@ -5,10 +5,10 @@ component("ziliaoNode",{
         data : {
             fields:[]
         },
-        addField:function () {
+        addField:function (type) {
             this.data.fields.push({
                 name:"",
-                type:"text",
+                type:type,
                 required:false,
                 data: {
                     value: ""

@@ -108,7 +108,9 @@ var RIGHTHTML = {
         </div>
 
         <div id="switchTab" :if="@data.current > -1">
-            <wbr :widget="{is:@data.nodeList[@data.current].type + 'Node',data:@data.nodeList[@data.current]}" />
+            <div :for="(index,el) in @data.nodeList" :visible="@data.current == index">
+                <wbr :widget="{is:el.type + 'Node',data:el}" />
+            </div>
             <a :click="@removeNode()" class="btn black">删除该节点</a>
         </div>
     </div>

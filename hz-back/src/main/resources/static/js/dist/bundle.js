@@ -21083,6 +21083,8 @@ __webpack_require__(82);
 
 __webpack_require__(75);
 
+__webpack_require__(84);
+
 /***/ }),
 /* 50 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -21215,10 +21217,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
         data: {
             fields: []
         },
-        addField: function addField() {
+        addField: function addField(type) {
             this.data.fields.push({
                 name: "",
-                type: "text",
+                type: type,
                 required: false,
                 data: {
                     value: ""
@@ -21256,7 +21258,7 @@ module.exports = "<ul>\r    <li ms-for=\"(index, el) in @tree | get(0)\">\r    <
 /* 81 */
 /***/ (function(module, exports) {
 
-module.exports = "<script src=\"shenheNode.js\"></script>\r<div >\r    <p>\r        <b>节点类型</b>\r    </p>\r    <p>\r        资料\r    </p>\r    <p>\r        <b>节点属性</b>\r    </p>\r    <div>\r        <a :click=\"@addField()\" class=\"btn blue\">添加字段</a>\r        <table>\r            <thead>\r                <th>字段名称</th>\r                <th>字段类型</th>\r                <th>是否必填</th>\r                <th>字段信息</th>\r                <th>操作</th>\r            </thead>\r            <tr :for=\"(index,el) in @data.fields\">\r                <td class=\"\">\r                    <input type=\"text\" :duplex=\"el.name\">\r                </td>\r                <td class=\"\">\r                    <select name=\"\" :duplex=\"el.type\" id=\"\">\r                        <option value=\"text\">单行文本</option>\r                        <option value=\"textarea\">多行文本</option>\r                        <option value=\"radio\">单选框</option>\r                        <option value=\"checkbox\">多选框</option>\r                        <option value=\"file\">文件上传</option>\r                    </select>\r                    <!--<input type=\"text\">-->\r                </td>\r                <td>\r                    <input type=\"checkbox\" :duplex=\"el.required\">\r                </td>\r                <td class=\"\">\r                    <wbr :widget=\"{is: el.type,data:el.data}\"/>\r                </td>\r                <td>\r                    <a href=\"javascript:;\" :click=\"@removeField(index)\">删除字段</a>\r                </td>\r            </div>\r        </table>\r\r    </div>\r</div>"
+module.exports = "<div >\r    <p>\r        <b>节点类型</b>\r    </p>\r    <p>\r        资料\r    </p>\r    <p>\r        <b>节点属性</b>\r    </p>\r    <tr>\r        <a :click=\"@addField('text')\" class=\"btn blue\">添加单行文本</a>\r        <a :click=\"@addField('textarea')\" class=\"btn blue\">添加多行文本</a>\r        <a :click=\"@addField('radio')\" class=\"btn blue\">添加单选框</a>\r        <a :click=\"@addField('textarea')\" class=\"btn blue\">添加多行文本</a>\r        <a :click=\"@addField('textarea')\" class=\"btn blue\">添加多行文本</a>\r        <table>\r            <thead>\r                <th>字段名称</th>\r                <th>字段类型</th>\r                <th>是否必填</th>\r                <th>字段信息</th>\r                <th>操作</th>\r            </thead>\r            <tr :for=\"(index,el) in @data.fields\">\r                <td class=\"\">\r                    <input type=\"text\" :duplex=\"el.name\">\r                </td>\r                <td class=\"\">\r                    <b :if=\"el.type == 'text'\">单行文本</b>\r                    <b :if=\"el.type == 'textarea'\">多行文本</b>\r                    <b :if=\"el.type == 'radio'\">单选框</b>\r                    <b :if=\"el.type == 'checkbox'\">多选框</b>\r                    <b :if=\"el.type == 'file'\">文件上传</b>\r                </td>\r                <td>\r                    <input type=\"checkbox\" :duplex=\"el.required\">\r                </td>\r                <td class=\"\">\r                    <wbr :widget=\"{is: el.type,data:el.data}\"/>\r                </td>\r                <td>\r                    <a href=\"javascript:;\" :click=\"@removeField(index)\">删除字段</a>\r                </td>\r            </tr>\r        </table>\r\r    </div>\r</div>"
 
 /***/ }),
 /* 82 */
@@ -21280,7 +21282,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
         },
 
         getType: function getType() {
-            return this.num == 1 ? "审核" : "会签";
+            return "审核";
         },
 
         onNumChange: function onNumChange() {
@@ -21304,6 +21306,34 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 /***/ (function(module, exports) {
 
 module.exports = "<div>\r    <p>\r        <b>节点类型</b>\r    </p>\r    <p>\r        审核\r    </p>\r    <p>\r        <b>节点属性</b>\r    </p>\r    <div>\r        <p>\r            审核人数：\r            <input type=\"text\" :duplex=\"@data.num\" :change=\"@onNumChange\">\r        </p>\r        <p>\r            通过人数\r            <input type=\"text\" :duplex=\"@data.passNum\" :change=\"@onPassNumChange\">\r        </p>\r    </div>\r</div>"
+
+/***/ }),
+/* 84 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _avalon = __webpack_require__(3);
+
+var _avalon2 = _interopRequireDefault(_avalon);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+(0, _avalon.component)("textarea", {
+    template: __webpack_require__(85),
+    defaults: {
+        data: {
+            value: ""
+        }
+    }
+});
+
+/***/ }),
+/* 85 */
+/***/ (function(module, exports) {
+
+module.exports = "<div>\r    <textarea :duplex=\"@data.value\" type=\"text\" placeholder=\"填写默认值\"></textarea>\r</div>"
 
 /***/ })
 /******/ ]);

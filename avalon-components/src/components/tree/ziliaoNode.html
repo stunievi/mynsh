@@ -1,4 +1,3 @@
-<script src="shenheNode.js"></script>
 <div >
     <p>
         <b>节点类型</b>
@@ -9,8 +8,12 @@
     <p>
         <b>节点属性</b>
     </p>
-    <div>
-        <a :click="@addField()" class="btn blue">添加字段</a>
+    <tr>
+        <a :click="@addField('text')" class="btn blue">添加单行文本</a>
+        <a :click="@addField('textarea')" class="btn blue">添加多行文本</a>
+        <a :click="@addField('radio')" class="btn blue">添加单选框</a>
+        <a :click="@addField('textarea')" class="btn blue">添加多行文本</a>
+        <a :click="@addField('textarea')" class="btn blue">添加多行文本</a>
         <table>
             <thead>
                 <th>字段名称</th>
@@ -24,14 +27,11 @@
                     <input type="text" :duplex="el.name">
                 </td>
                 <td class="">
-                    <select name="" :duplex="el.type" id="">
-                        <option value="text">单行文本</option>
-                        <option value="textarea">多行文本</option>
-                        <option value="radio">单选框</option>
-                        <option value="checkbox">多选框</option>
-                        <option value="file">文件上传</option>
-                    </select>
-                    <!--<input type="text">-->
+                    <b :if="el.type == 'text'">单行文本</b>
+                    <b :if="el.type == 'textarea'">多行文本</b>
+                    <b :if="el.type == 'radio'">单选框</b>
+                    <b :if="el.type == 'checkbox'">多选框</b>
+                    <b :if="el.type == 'file'">文件上传</b>
                 </td>
                 <td>
                     <input type="checkbox" :duplex="el.required">
@@ -42,7 +42,7 @@
                 <td>
                     <a href="javascript:;" :click="@removeField(index)">删除字段</a>
                 </td>
-            </div>
+            </tr>
         </table>
 
     </div>
