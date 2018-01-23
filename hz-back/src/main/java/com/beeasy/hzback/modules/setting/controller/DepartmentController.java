@@ -87,6 +87,7 @@ public class DepartmentController {
         if(bindingResult.hasErrors()){
             return Result.error(bindingResult);
         }
+        boolean success = departmentService.edit(department);
         return Result.ok();
     }
 

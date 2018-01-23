@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/avalon-components/avalon-components.iml" filepath="$PROJECT_DIR$/avalon-components/avalon-components.iml" />
       <module fileurl="file://$PROJECT_DIR$/hz.iml" filepath="$PROJECT_DIR$/hz.iml" />
       <module fileurl="file://$PROJECT_DIR$/hz-back/hz-back.iml" filepath="$PROJECT_DIR$/hz-back/hz-back.iml" />
     </modules>

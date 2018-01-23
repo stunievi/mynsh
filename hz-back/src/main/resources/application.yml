@@ -82,3 +82,18 @@ adminMenu:
       -
         title: 流程配置
         href: /admin/setting/work/list
+
+  -
+    title: 工作台
+    children:
+      -
+        title: 未处理工作
+        href:
+
+      -
+        title: 已处理工作
+        href:
+
+      -
+        title: 我的消息
+        href:

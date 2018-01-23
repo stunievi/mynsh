@@ -1,0 +1,49 @@
+<script src="shenheNode.js"></script>
+<div >
+    <p>
+        <b>节点类型</b>
+    </p>
+    <p>
+        资料
+    </p>
+    <p>
+        <b>节点属性</b>
+    </p>
+    <div>
+        <a :click="@addField()" class="btn blue">添加字段</a>
+        <table>
+            <thead>
+                <th>字段名称</th>
+                <th>字段类型</th>
+                <th>是否必填</th>
+                <th>字段信息</th>
+                <th>操作</th>
+            </thead>
+            <tr :for="(index,el) in @data.fields">
+                <td class="">
+                    <input type="text" :duplex="el.name">
+                </td>
+                <td class="">
+                    <select name="" :duplex="el.type" id="">
+                        <option value="text">单行文本</option>
+                        <option value="textarea">多行文本</option>
+                        <option value="radio">单选框</option>
+                        <option value="checkbox">多选框</option>
+                        <option value="file">文件上传</option>
+                    </select>
+                    <!--<input type="text">-->
+                </td>
+                <td>
+                    <input type="checkbox" :duplex="el.required">
+                </td>
+                <td class="">
+                    <wbr :widget="{is: el.type,data:el.data}"/>
+                </td>
+                <td>
+                    <a href="javascript:;" :click="@removeField(index)">删除字段</a>
+                </td>
+            </div>
+        </table>
+
+    </div>
+</div>

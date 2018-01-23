@@ -1,0 +1,21 @@
+<div>
+    <p>
+        <b>节点类型</b>
+    </p>
+    <p>
+        审核
+    </p>
+    <p>
+        <b>节点属性</b>
+    </p>
+    <div>
+        <p>
+            审核人数：
+            <input type="text" :duplex="@data.num" :change="@onNumChange">
+        </p>
+        <p>
+            通过人数
+            <input type="text" :duplex="@data.passNum" :change="@onPassNumChange">
+        </p>
+    </div>
+</div>

@@ -2,6 +2,7 @@ package com.beeasy.hzback.modules.setting.service;
 
 import com.beeasy.hzback.modules.setting.dao.IDepartmentDao;
 import com.beeasy.hzback.modules.setting.entity.Department;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,7 +71,14 @@ public class DepartmentService {
     }
 
     public boolean edit(Department department){
-        departmentDao.save(department);
+        Department target = departmentDao.findOne(department.getId());
+        if(target == null){
+            return false;
+        }
+        if(!StringUtils.isEmpty(department.getName())){
+            target.setName(department.getName());
+        }
+        departmentDao.save(target);
         return true;
     }
 
