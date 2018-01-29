@@ -113,9 +113,26 @@ var RIGHTHTML = {
             for(var i = 0; i < data.length; i++){
                 walk(data[i]);
             }
+
+            data = [{
+                id:-1,
+                name:"顶级部门",
+                departments:data,
+                open:1
+            }]
+        }
+        else{
+            data = [
+                {
+                    id:-1,
+                    name:"顶级部门",
+                    departments:[],
+                    open:1
+                }
+            ]
         }
 
-        console.log(data)
+        return;
 
 
     })();
