@@ -4,14 +4,15 @@ import com.beeasy.hzback.core.helper.SpringContextUtils;
 import com.beeasy.hzback.modules.setting.dao.IDepartmentDao;
 import com.beeasy.hzback.modules.setting.dao.IUserDao;
 import com.beeasy.hzback.modules.setting.dao.IWorkDao;
-import com.beeasy.hzback.modules.setting.dao.IWorkNodeDao;
+//import com.beeasy.hzback.modules.setting.dao.IWorkNodeDao;
 import com.beeasy.hzback.modules.setting.entity.Department;
 import com.beeasy.hzback.modules.setting.entity.User;
 import com.beeasy.hzback.core.util.CrUtils;
 import com.beeasy.hzback.modules.setting.entity.Work;
-import com.beeasy.hzback.modules.setting.entity.WorkNode;
+//import com.beeasy.hzback.modules.setting.entity.WorkNode;
 import com.beeasy.hzback.modules.setting.service.DepartmentService;
 import com.beeasy.hzback.modules.setting.service.UserService;
+import com.beeasy.hzback.modules.setting.work_engine.ShenheNode;
 import org.hibernate.Hibernate;
 import org.junit.Assert;
 import org.junit.Test;
@@ -45,8 +46,8 @@ public class TestApplication {
     @Autowired
     UserService userService;
 
-    @Autowired
-    IWorkNodeDao workNodeDao;
+//    @Autowired
+//    IWorkNodeDao workNodeDao;
     @Autowired
     IWorkDao workDao;
 
@@ -86,16 +87,21 @@ public class TestApplication {
 
     @Test
     public void testWorkdNode(){
-        Work work = workDao.findOne(1);
-        WorkNode workNode = new WorkNode();
-        List list = new ArrayList<WorkNode.Node>();
-        WorkNode.Node n = new WorkNode.Node();
-        n.test = "fuck";
-        list.add(n);
-        workNode.setNode(list);
-        workNode.setPosition(0);
-        workNode.setWork(work);
-        workNodeDao.save(workNode);
+//        Work work = workDao.findOne(1);
+//        WorkNode workNode = new WorkNode();
+//        List list = new ArrayList<WorkNode.Node>();
+//        WorkNode.Node n = new WorkNode.Node();
+//        n.test = "fuck";
+//        list.add(n);
+//        WorkNode workNode = new WorkNode();
+////        workNode.setType("ri");
+//        workNode.setData(new ShenheNode());
+//        workNodeDao.save(workNode);
+
+//        workNode.setNode(list);
+//        workNode.setPosition(0);
+//        workNode.setWork(work);
+//        workNodeDao.save(workNode);
     }
 
     @Test

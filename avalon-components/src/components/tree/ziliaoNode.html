@@ -12,8 +12,8 @@
         <a :click="@addField('text')" class="btn blue">添加单行文本</a>
         <a :click="@addField('textarea')" class="btn blue">添加多行文本</a>
         <a :click="@addField('radio')" class="btn blue">添加单选框</a>
-        <a :click="@addField('textarea')" class="btn blue">添加多行文本</a>
-        <a :click="@addField('textarea')" class="btn blue">添加多行文本</a>
+        <a :click="@addField('checkbox')" class="btn blue">添加多选框</a>
+        <a :click="@addField('file')" class="btn blue">添加文件上传（未完成）</a>
         <table>
             <thead>
                 <th>字段名称</th>
@@ -37,7 +37,7 @@
                     <input type="checkbox" :duplex="el.required">
                 </td>
                 <td class="">
-                    <wbr :widget="{is: el.type,data:el.data}"/>
+                    <wbr :widget="{is: el.type,data:el}"/>
                 </td>
                 <td>
                     <a href="javascript:;" :click="@removeField(index)">删除字段</a>

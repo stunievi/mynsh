@@ -1,4 +1,9 @@
 <div>
+    <div>
+        至少选择
+        <input type="text" :duplex="@data.atLeast" :change="@onAtLeastChange">
+        项
+    </div>
     <a href="javascript:;" :click="@data.items.push('')">添加新选项</a>
     <ul>
         <li :for="(index,el) in @data.items">

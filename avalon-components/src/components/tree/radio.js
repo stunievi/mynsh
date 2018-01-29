@@ -3,7 +3,11 @@ component("radio",{
     template: require("./radio.html"),
     defaults:{
         data:{
-            value: ""
+            items: []
+        },
+        addItem:function () {
+            console.log(this)
+            this.data.items.push("");
         }
     }
 })

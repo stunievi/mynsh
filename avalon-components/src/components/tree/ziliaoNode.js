@@ -6,14 +6,15 @@ component("ziliaoNode",{
             fields:[]
         },
         addField:function (type) {
-            this.data.fields.push({
+            var data = {
                 name:"",
                 type:type,
                 required:false,
-                data: {
-                    value: ""
-                }
-            });
+            };
+            for(var i in   avalon.components[type].defaults.data){
+                data[i] = avalon.components[type].defaults.data[i];
+            }
+            this.data.fields.push(data);
         },
         getType: function () {
             return "资料"

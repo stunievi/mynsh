@@ -8,10 +8,19 @@
     <title>Document</title>
 </head>
 <body>
-<form action="/login" method="post">
-    <input type="text" name="username">
-    <input type="password" name="password">
-    <input type="submit" >
-</form>
+<center>
+    <form action="/login" method="post" >
+        <div>
+            用户名：
+            <input type="text" name="username">
+        </div>
+        <div>
+            密码：
+            <input type="password" name="password">
+        </div>
+        <input type="submit" >
+    </form>
+</center>
+
 </body>
 </html>

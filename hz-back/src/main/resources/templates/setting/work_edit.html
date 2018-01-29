@@ -67,16 +67,17 @@ var RIGHTHTML = {
 
 
 <!--业务设置-->
-<form action="" data-url="/admin/setting/work/">
-    <input type="hidden" name="id" value="${item.id}">
+<form action="" data-url="/admin/setting/work/" :controller="app">
+    <input type="hidden" name="id" :duplex="@data.id">
     <p>
-        业务名称：<input type="text" name="name" value="${item.name}">
+        业务名称：
+        <input type="text" :duplex="@data.name">
     </p>
     <p>
         业务说明：
-        <textarea name="info">${item.info}</textarea>
+        <textarea name="info" :duplex="@data.info"></textarea>
     </p>
-    <div id="app" :controller="app">
+    <div id="app" >
 
         业务流程（节点设置）：
 
@@ -116,7 +117,7 @@ var RIGHTHTML = {
     </div>
 
     <p style="padding-top: 300px">
-        <a href="javascript:;" class="save">提交</a>
+        <a href="javascript:;" class="_save">提交</a>
     </p>
 </form>
 
@@ -150,6 +151,8 @@ var RIGHTHTML = {
     //     }
     // })
 
+    var str = '${item}';
+
 
     var NodeType = {
         ziliao:'ziliao',
@@ -157,21 +160,19 @@ var RIGHTHTML = {
         // huiqian:'huiqian',
         end:'end'
     };
-    var Node = function () {
-        this.type = NodeType.end
-    };
-    Node.prototype = {
-        constructor: Node
-    }
+
 
     var app = avalon.define({
         $id:"app",
         data:{
+            id:-1,
+            name:"",
+            info:"",
             nodeList:[],
             current: -1
         },
         addNode : function (nodeType) {
-            var node = new Node();
+            var node = {};
             switch (nodeType){
                 case 'ziliao':
                     node.type = NodeType.ziliao;
@@ -205,7 +206,47 @@ var RIGHTHTML = {
             console.log(el)
             this.data.current = el;
         }
-    })
+    });
+
+    if(str != ''){
+        do{
+            try{
+                var data = eval("(" + str + ")");
+                for(var i in data){
+                    app.data[i] = data[i];
+                }
+            }catch (e){
+                break;
+            }
+        }while(0);
+    }
+
+    $('._save').click(function () {
+        var data = app.data.$model;
+        if(data.name == ""){
+            return alert("业务名称不能为空")
+        }
+        if(data.info == ""){
+            return alert("业务说明不能为空")
+        }
+        if(!data.nodeList || data.nodeList.length == 0){
+            return alert("业务节点操作列表不能为空")
+        }
+
+        var url;
+            url = "/admin/setting/work/edit";
+        data.list = (JSON).stringify(data.nodeList);
+        delete data.nodeList;
+
+        $.post(url,data,function (msg) {
+            if(msg.success){
+                location.href = 'list';
+            }
+            else{
+
+            }
+        },'json');
+    });
 </script>
 
 

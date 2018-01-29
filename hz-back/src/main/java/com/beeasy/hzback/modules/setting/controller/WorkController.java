@@ -1,8 +1,17 @@
 package com.beeasy.hzback.modules.setting.controller;
 
+import com.alibaba.druid.sql.visitor.functions.Bin;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.modules.setting.dao.IWorkDao;
 import com.beeasy.hzback.modules.setting.entity.Work;
+//import com.beeasy.hzback.modules.setting.entity.WorkNode;
+import com.beeasy.hzback.modules.setting.work_engine.BaseWorkNode;
+import com.beeasy.hzback.modules.setting.work_engine.ShenheNode;
+import com.beeasy.hzback.modules.setting.work_engine.ZiliaoNode;
+import com.sun.tools.internal.xjc.reader.xmlschema.BindRed;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -17,6 +26,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.List;
 
 @Controller
 @RequestMapping("/admin/setting/work")
@@ -49,26 +59,33 @@ public class WorkController {
         if (id == null) return failedUrl;
         Work work = workDao.findOne(id);
         if (work == null) return failedUrl;
-        model.addAttribute("item", work);
+        model.addAttribute("item", JSON.toJSONString(work));
         return "setting/work_edit";
     }
 
 
     /**
-     * 编辑
+     * 新增
+     * @param work
+     * @param bindingResult
+     * @return
      */
     @PostMapping("/edit")
     @ResponseBody
-    public Result edit(
+    public Result add(
             @Valid Work work,
-            BindingResult bindingResult
-    ) {
-        if (bindingResult.hasErrors()) {
+            BindingResult bindingResult,
+            //单独处理nodelist
+            String list
+    ){
+        if(bindingResult.hasErrors()){
             return Result.error(bindingResult);
         }
 
-        return Result.ok();
+        boolean flag = workDao.updateNodeList(work,list);
+        return flag?Result.ok() : Result.error("提交失败");
     }
+
 
     /**
      * 修改
@@ -82,7 +99,7 @@ public class WorkController {
     @ResponseBody
     public Result delete(Integer id) {
         if (id == null) return Result.error();
-
+        workDao.delete(id);
         return Result.ok();
     }
 }

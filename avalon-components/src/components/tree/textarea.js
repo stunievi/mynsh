@@ -4,6 +4,6 @@ component("textarea",{
     defaults:{
         data:{
             value: ""
-        }
+        },
     }
 })
