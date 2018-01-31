@@ -23,7 +23,7 @@ import javax.validation.Valid;
 
 @Controller
 @RequestMapping("/admin/setting/user")
-public class Users {
+public class UserController {
 
     @Autowired
     IUserDao userDao;
