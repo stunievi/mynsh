@@ -27,6 +27,7 @@ public class Role {
     @Min(message = "需要最少一个职位", value = 1)
     private Integer max;
 
+    @JsonIgnore
     @ManyToMany()
     @JoinTable(name = "t_USER_ROLE",joinColumns = {
             @JoinColumn(name = "ROLE_ID", referencedColumnName = "ID")}, inverseJoinColumns = {
