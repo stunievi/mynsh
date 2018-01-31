@@ -7,5 +7,6 @@ import java.util.Set;
 
 public interface IDepartmentDao extends JpaRepository<Department,Integer> {
     Set<Department> findAllByParent(Department department);
+    Department findByParent(Department department);
     Department findByName(String name);
 }

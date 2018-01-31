@@ -18,6 +18,10 @@ component('tree', {
                 lastSelected = null;
             }
 
+            //
+            if(window.onDepartmentClick){
+                window.onDepartmentClick();
+            }
         }
     }
 })

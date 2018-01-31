@@ -1,6 +1,8 @@
 package com.beeasy.hzback.modules.setting.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import org.hibernate.annotations.LazyToOne;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -27,15 +29,16 @@ public class Department implements Serializable{
 //    private Integer parentId;
 
 
-
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
-    @JsonBackReference
-    public Department parent;
+    private Department parent;
 
     @OneToMany(fetch = FetchType.EAGER,mappedBy = "parent")
     private Set<Department> departments = new HashSet<Department>(0);
 
+    @OneToMany(fetch = FetchType.EAGER,mappedBy = "department")
+    private Set<Role> roles = new HashSet<>();
 
     public Integer getId() {
         return id;
@@ -67,5 +70,13 @@ public class Department implements Serializable{
 
     public void setDepartments(Set<Department> departments) {
         this.departments = departments;
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
     }
 }

@@ -37,9 +37,9 @@ module.exports = {
             filename: 'index.html',
             inject: true
         }),
-        new TransferWebpackPlugin([
-            { from: 'common/hack', to: 'js' }
-        ], path.join(__dirname, 'src'))
+        // new TransferWebpackPlugin([
+        //     { from: 'common/hack', to: 'js' }
+        // ], path.join(__dirname, 'src'))
     ],
     devServer: {
         contentBase: path.join(__dirname, 'dist'),

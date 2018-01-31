@@ -17,7 +17,7 @@ public class DepartmentService {
     private IDepartmentDao departmentDao;
 
     public Set<Department> listAsTree(){
-        return departmentDao.findOne(1).getDepartments();
+        return departmentDao.findByParent(null).getDepartments();
         //得到所有部门
 
 

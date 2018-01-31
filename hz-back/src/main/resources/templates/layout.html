@@ -6,7 +6,16 @@
     <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
     <script src="/static/js/laypage/1.2/laypage.js"></script>
     <!--<script src="/static/js/avalon/avalon.min.js"></script>-->
-    <script src="/static/js/dist/bundle.js"></script>
+    <!--<script src=""></script>-->
+
+    <script>
+        var elem = document.createElement("script");
+        elem.src = '/static/js/dist/bundle.js?v=' + Math.random();
+        var box = document.createElement("div");
+        box.appendChild(elem);
+        document.write(box.innerHTML);
+        // document.head.appendChild(elem);
+    </script>
 </head>
 <body>
 <div id="main">
