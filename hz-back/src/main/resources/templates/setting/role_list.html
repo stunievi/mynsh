@@ -195,7 +195,16 @@ var RIGHTHTML = {
                     app.data.show = false;
                 }
                 else {
-                    alert("保存失败");
+                    if(typeof ret.message == 'object'){
+                        var msg = [];
+                        for(var i = 0; i < ret.message.length; i++){
+                            msg.push(ret.message[i].defaultMessage);
+                        }
+                        alert(msg.join("\n"))
+                    }
+                    else{
+                        alert("保存失败");
+                    }
                 }
             }, 'json')
         },
