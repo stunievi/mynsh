@@ -9,6 +9,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.Set;
 
 @Entity
 @Table(name = "t_user")
@@ -34,6 +35,10 @@ public class User extends BaseEntity{
 //    @JoinTable(name = "t_user_role", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = {
 //            @JoinColumn(name = "role_id") })
 ////    private List<Role> roleList;// 一个用户具有多个角色
+
+
+    @ManyToMany(mappedBy = "users")
+    private Set<Role> roles;
 
     public User() {
         super();
@@ -86,5 +91,13 @@ public class User extends BaseEntity{
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
     }
 }

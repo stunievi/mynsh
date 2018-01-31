@@ -66,22 +66,24 @@ adminMenu:
         title: 用户管理
         href: /admin/setting/user/list
       -
-        title: 角色设置
-        href: /admin/setting/role/list
-      -
         title: 部门设置
-        href: /admin/setting/department/list
-      -
-        title: 业务设置
         href: /admin/setting/department/list
 
       -
-        title: 节点配置
-        href: /admin/setting/node/list
+        title: 角色设置
+        href: /admin/setting/role/list
 
       -
         title: 流程配置
         href: /admin/setting/work/list
+
+      -
+        title: 业务部署
+        href: /admin/setting/department/list
+
+      -
+        title: 权限配置
+        href: /admin/setting/permission/list
 
   -
     title: 工作台

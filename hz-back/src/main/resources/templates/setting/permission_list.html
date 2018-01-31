@@ -1,0 +1,41 @@
+<%
+var RIGHTHTML = {
+%>
+
+<table data-url="/admin/setting/user/">
+    <thead>
+    <th>编号</th>
+    <th>用户名</th>
+    <th>添加时间</th>
+    <th>
+        操作
+    </th>
+    </thead>
+
+    <%
+    for(item in list.content){
+    %>
+    <tr>
+        <td>${item.id}</td>
+        <td>
+            ${item.username}
+        </td>
+        <td>
+            ${item.addTime}
+        </td>
+        <td data-id="${item.id}">
+            <a href="javascript:;" class="edit" >权限编辑</a>
+        </td>
+    </tr>
+    <% }%>
+</table>
+
+<div id="pager"></div>
+
+
+
+<% }; %>
+
+<%
+include("../layout.html",{RIGHTHTML:RIGHTHTML}){}
+%>

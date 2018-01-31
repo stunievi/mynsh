@@ -6,6 +6,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import javax.persistence.*;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.Min;
+import java.util.Set;
 
 @Entity
 @Table(name = "t_role")
@@ -25,6 +26,12 @@ public class Role {
 
     @Min(message = "需要最少一个职位", value = 1)
     private Integer max;
+
+    @ManyToMany()
+    @JoinTable(name = "t_USER_ROLE",joinColumns = {
+            @JoinColumn(name = "ROLE_ID", referencedColumnName = "ID")}, inverseJoinColumns = {
+            @JoinColumn(name = "USER_ID", referencedColumnName = "ID")})
+    private Set<User> users;
 
     public Integer getId() {
         return id;
@@ -56,5 +63,13 @@ public class Role {
 
     public void setMax(Integer max) {
         this.max = max;
+    }
+
+    public Set<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(Set<User> users) {
+        this.users = users;
     }
 }
