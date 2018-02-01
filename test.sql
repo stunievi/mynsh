@@ -27,7 +27,7 @@ CREATE TABLE `photo` (
   `views` int(11) NOT NULL,
   `isPublished` tinyint(1) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of photo
@@ -45,7 +45,7 @@ CREATE TABLE `t_department` (
   `parent_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `FKjoxpd0y26uhuy0j085jvqmlo8` (`parent_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=13 DEFAULT CHARSET=latin1;
+) ENGINE=Innodb AUTO_INCREMENT=13 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of t_department
@@ -66,7 +66,7 @@ CREATE TABLE `t_permission` (
   `role_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `FK1rwkq1j8auw69w9t99r1wsamf` (`role_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=Innodb DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of t_permission
@@ -84,7 +84,7 @@ CREATE TABLE `t_role` (
   `department_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `FK76b2dy511g6mxmmkl8d8vryhk` (`department_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
+) ENGINE=Innodb AUTO_INCREMENT=11 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of t_role
@@ -108,7 +108,7 @@ CREATE TABLE `t_user` (
   `add_time` varchar(255) DEFAULT NULL,
   `baned` bit(1) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
+) ENGINE=Innodb AUTO_INCREMENT=11 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of t_user
@@ -126,7 +126,7 @@ CREATE TABLE `t_user_role` (
   `user_id` int(11) NOT NULL,
   PRIMARY KEY (`role_id`,`user_id`),
   KEY `FKq5un6x7ecoef5w1n39cop66kl` (`user_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+) ENGINE=Innodb DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------
 -- Records of t_user_role
@@ -146,7 +146,7 @@ CREATE TABLE `t_work` (
   `node_list` text,
   PRIMARY KEY (`id`),
   KEY `FKgynp7sffhox5l3v4mud8x10qe` (`work_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=42 DEFAULT CHARSET=latin1;
+) ENGINE=Innodb AUTO_INCREMENT=42 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of t_work
@@ -166,7 +166,7 @@ CREATE TABLE `t_work_node` (
   `type` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `FK8o0boco6i701kgrml07cyk8h3` (`work_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=69 DEFAULT CHARSET=latin1;
+) ENGINE=Innodb AUTO_INCREMENT=69 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of t_work_node

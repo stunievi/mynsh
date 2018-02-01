@@ -1,0 +1,293 @@
+<%
+var RIGHTHTML = {
+%>
+<style>
+    .fieldKey{
+        display: inline-block;
+    }
+    .fieldValue{
+        display: inline-block;
+    }
+    .btn{
+        display: inline-block;
+        padding: 5px 10px;
+        margin: 5px;
+    }
+    .red{
+        background: red;
+        color: white;
+    }
+    .blue{
+        background: lightblue;
+    }
+    .black{
+        background: black;
+        color: white;
+    }
+
+    #app{
+        position: relative;
+    }
+
+    .nodeList{
+        position: relative;
+        height: 80px;
+    }
+    #switchTab{
+    }
+    .node{
+        border:1px solid #ddd;
+        width: 60px;
+        height: 60px;
+        text-align: center;
+        line-height: 60px;
+        border-radius: 100%;
+        display: inline-block;
+        position: absolute;
+        z-index: 2;
+        cursor: pointer;
+        background: lightblue;
+    }
+    .nodeLine{
+        z-index: 1;
+        top:29px;
+        left:0px;
+        width: 100px;
+        height: 5px;
+        border:  1px solid #ddd;
+        position: absolute;
+        background: lightblue;
+    }
+    .selected{
+        background: deepskyblue;
+        color: white;
+    }
+
+</style>
+
+
+<!--业务设置-->
+<form action="" data-url="/admin/setting/work/" :controller="app">
+
+    <dl>
+        <dt>选择所属部门</dt>
+        <dd>
+            <wbr ms-widget="{is:'tree',tree:@data.departments}"/>
+
+
+            <p>
+                已选择部门：{{@data.target_department}}
+            </p>
+        </dd>
+    </dl>
+    <dl>
+        <dt>选择业务模型</dt>
+        <dd>
+
+        </dd>
+    </dl>
+
+    <input type="hidden" name="id" :duplex="@data.id">
+    <p>
+        业务名称：
+        <input type="text" :duplex="@data.name">
+    </p>
+    <p>
+        业务说明：
+        <textarea name="info" :duplex="@data.info"></textarea>
+    </p>
+    <div id="app" >
+
+        业务流程（节点设置）：
+
+        <div>
+            <a href="javascript:;" :click="@addNode('ziliao')">新增资料节点</a> -
+            <a href="javascript:;" :click="@addNode('shenhe')">新增审核节点</a> -
+            <!--<a href="javascript:;" :click="@addNode('huiqian')">新增会签节点</a>-->
+        </div>
+        <div class="nodeList">
+            <div :for="(index,el) in @data.nodeList"
+                 class="node"
+                 :class="[index == @data.current && 'selected']"
+                 :css="{left:(60 + 100) * index}"
+                 :click="@switchTab(index)"
+            >
+                {{avalon.components[el.type + 'Node'].defaults.getType() }}
+
+                <!--<div>-->
+                <!---->
+                <!--</div>-->
+            </div>
+            <div class="nodeLine" :css="{width:@data.nodeList.length * 160}"></div>
+
+            <div class="node"
+                 :css="{left:(60 + 100) * @data.nodeList.length}"
+            >
+                结束
+            </div>
+        </div>
+
+        <div id="switchTab" :if="@data.current > -1">
+            <div :for="(index,el) in @data.nodeList" :visible="@data.current == index">
+                <wbr :widget="{is:el.type + 'Node',data:el}" />
+            </div>
+            <a :click="@removeNode()" class="btn black">删除该节点</a>
+        </div>
+    </div>
+
+    <p style="padding-top: 300px">
+        <a href="javascript:;" class="_save">提交</a>
+    </p>
+</form>
+
+
+<!--表单元素-->
+
+
+<script>
+    // function heredoc(fn) {
+    //     return fn.toString().replace(/^[^\/]+\/\*!?\s?/, '').
+    //     replace(/\*\/[^\/]+$/, '').trim().replace(/>\s*</g, '><')
+    // }
+    //
+    // //input text
+    // avalon.component("text",{
+    //     template: $("#formText").html(),
+    //     defaults:{
+    //         data:{
+    //             value: ""
+    //         }
+    //     }
+    // });
+
+    //textarea
+    // avalon.component("textarea",{
+    //     template: $("#formTextarea").html(),
+    //     defaults:{
+    //         data:{
+    //             value: ""
+    //         }
+    //     }
+    // })
+
+
+    var departmentstr = '${departments}';
+    var worksstr = '${works}';
+    var departments;
+    var works
+    do{
+        try{
+            departments = eval("(" + departmentstr + ")");
+            works = eval("(" + worksstr + ")");
+        }
+        catch(e){
+            //转换失败，回到上一夜
+            break;
+        }
+    }while(0);
+
+    var lastSelected = null;
+    window.onDepartmentClick = function () {
+        if(!lastSelected){
+            return;
+        }
+        app.data.target_department = lastSelected.name;
+    };
+
+
+    var app = avalon.define({
+        $id:"app",
+        data:{
+            id:-1,
+            name:"",
+            info:"",
+            nodeList:[],
+            current: -1,
+
+            target_department:"",
+            departments:departments
+        },
+        addNode : function (nodeType) {
+            var node = {};
+            switch (nodeType){
+                case 'ziliao':
+                    node.type = NodeType.ziliao;
+                    node.fields = [];
+                    break;
+
+                case 'shenhe':
+                    node.type = NodeType.shenhe;
+                    node.num = 1;
+                    node.passNum = 1;
+                    break;
+
+                case 'huiqian':
+                    node.type = NodeType.huiqian;
+                    break;
+
+                default:
+                    throw new Error();
+                    break;
+            }
+            console.log(app)
+            app.data.nodeList.push(node);
+
+        },
+        removeNode : function (index) {
+            if(this.data.current == -1) return;
+            this.data.nodeList.splice(this.data.current,1);
+            this.data.current = -1;
+        },
+        switchTab: function (el) {
+            console.log(el)
+            this.data.current = el;
+        }
+    });
+
+    if(str != ''){
+        do{
+            try{
+                var data = eval("(" + str + ")");
+                for(var i in data){
+                    app.data[i] = data[i];
+                }
+            }catch (e){
+                break;
+            }
+        }while(0);
+    }
+
+    $('._save').click(function () {
+        var data = app.data.$model;
+        if(data.name == ""){
+            return alert("业务名称不能为空")
+        }
+        if(data.info == ""){
+            return alert("业务说明不能为空")
+        }
+        if(!data.nodeList || data.nodeList.length == 0){
+            return alert("业务节点操作列表不能为空")
+        }
+
+        var url;
+        url = "/admin/setting/work/edit";
+        data.list = (JSON).stringify(data.nodeList);
+        delete data.nodeList;
+
+        $.post(url,data,function (msg) {
+            if(msg.success){
+                location.href = 'list';
+            }
+            else{
+
+            }
+        },'json');
+    });
+</script>
+
+
+<% }; %>
+
+<%
+include("../layout.html",{RIGHTHTML:RIGHTHTML}){}
+%>

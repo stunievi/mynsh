@@ -79,7 +79,7 @@ adminMenu:
 
       -
         title: 业务部署
-        href: /admin/setting/department/list
+        href: /admin/setting/workflow/list
 
       -
         title: 权限配置

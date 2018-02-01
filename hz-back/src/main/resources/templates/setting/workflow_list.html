@@ -1,0 +1,114 @@
+<%
+var RIGHTHTML = {
+%>
+<script>
+
+</script>
+
+<style>
+    .selected{
+        color : red;
+    }
+</style>
+<div data-url="/admin/setting/workflow/">
+    <a class="add" href="add">添加</a>
+    <table >
+        <thead>
+        <th></th>
+        <th>业务名</th>
+        <th>业务说明</th>
+        </thead>
+        <% for(work in list.content){ %>
+        <tr>
+            <td></td>
+            <td>${work.model.name}</td>
+            <td>${work.model.info}</td>
+            <td data-id="${work.id}">
+                <a class="edit" href="javascript:;">编辑</a>
+                <a href="javascript:;" class="delete">删除</a>
+            </td>
+        </tr>
+        <% } %>
+    </table>
+
+</div>
+
+<script>
+    $('._add').click(function () {
+        if(lastSelected == null){
+            location.href = '/admin/setting/department/add';
+        }
+        else{
+            location.href = '/admin/setting/department/add?parentId=' + lastSelected.id;
+        }
+        return false;
+    });
+
+    $("._edit").click(function () {
+        if(lastSelected == null){
+            alert("请先选择要编辑的部门");
+        }
+        else{
+            location.href = '/admin/setting/department/edit?id=' + lastSelected.id;
+        }
+    });
+
+
+    function heredoc(fn) {
+        return fn.toString().replace(/^[^\/]+\/\*!?\s?/, '').
+        replace(/\*\/[^\/]+$/, '').trim().replace(/>\s*</g, '><')
+    }
+    var treeID = 0;
+    var lastSelected = null;
+    avalon.component('tree', {
+        template: heredoc(function () {
+            /*
+             <ul>
+             <li ms-for="(index, el) in @tree | get(0)">
+             <span ms-click='el.open = !el.open' ms-if='el.departments && el.departments.length'>
+                {{el.open ? '[-]' : '[+]'}}
+             </span>
+             <span ms-click='@select(el)' :class="el.selected == 1 ? 'selected' : ''" >
+                {{el.name}}
+             </span>
+             <div ms-if='el.open'>
+                <wbr ms-widget="{is:'tree',tree: el.departments}" />
+             </div>
+             </li>
+             </ul>
+             */
+        }),
+        defaults: {
+            tree: [],
+            select : function (el) {
+                if(lastSelected && lastSelected != el){
+                    lastSelected.selected = 0;
+                }
+                el.selected = !el.selected;
+                //0 - 1
+                if(el.selected == 1){
+                    lastSelected = el;
+                }
+                //1 - 0
+                else{
+                    lastSelected = null;
+                }
+
+            }
+        }
+    })
+
+    var data;
+
+
+
+
+</script>
+
+
+
+<% }; %>
+
+<%
+include("../layout.html",{RIGHTHTML:RIGHTHTML}){}
+%>

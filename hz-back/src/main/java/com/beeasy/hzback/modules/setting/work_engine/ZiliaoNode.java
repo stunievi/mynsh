@@ -1,6 +1,6 @@
 package com.beeasy.hzback.modules.setting.work_engine;
 
-import com.beeasy.hzback.modules.setting.entity.WorkNode;
+//import com.beeasy.hzback.modules.setting.entity.WorkNode;
 import lombok.Data;
 
 import javax.persistence.Column;
