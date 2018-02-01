@@ -74,66 +74,106 @@ var RIGHTHTML = {
         <dd>
             <wbr ms-widget="{is:'tree',tree:@data.departments}"/>
 
-
             <p>
-                已选择部门：{{@data.target_department}}
+                已选择部门：{{@data.target_department.name}}
             </p>
         </dd>
     </dl>
     <dl>
         <dt>选择业务模型</dt>
         <dd>
+            <table>
+                <tr>
+                    <th>
+                        模型名称：
+                    </th>
+                    <th>
+                        模型说明
+                    </th>
+                    <th>
+                        操作
+                    </th>
+                </tr>
+                <tr :for="(index,el) in @data.works">
+                    <td :html="el.name">
+                    </td>
+                    <td :html="el.info"></td>
+                    <td>
+                        <a href="javascript:;"
+                            :click="@onWorkClick(index)"
+                        >
+                            选择该项
+                        </a>
+                    </td>
+                </tr>
+            </table>
+            <p>
+                已选择业务：{{@data.target_work > -1 ? @data.works[@data.target_work].name : "还未选择"}}
+            </p>
+        </dd>
+    </dl>
+    <div>
+        <dl :for="(indexx,ell) in @data.works" :if="@data.target_work == indexx">
+            <dt>业务节点编辑</dt>
+            <dd>
+                <div class="nodeList">
+                    <div :for="(index,el) in @ell.nodeList"
+                         class="node"
+                         :class="[index == @data.current && 'selected']"
+                         :css="{left:(60 + 100) * index}"
+                         :click="@switchTab(index)"
+                    >
+                        {{avalon.components[el.type + 'Node'].defaults.getType() }}
 
+                        <!--<div>-->
+                        <!---->
+                        <!--</div>-->
+                    </div>
+                    <div class="nodeLine" :css="{width:ell.nodeList.length * 160}"></div>
+
+                    <div class="node"
+                         :css="{left:(60 + 100) * ell.nodeList.length}"
+                    >
+                        结束
+                    </div>
+                </div>
+            </dd>
+        </dl>
+    </div>
+
+    <div :if="@data.users.length > 0 && @data.current > -1 && @data.target_department && @data.target_work > -1">
+        <table>
+            <tr>
+                <th>姓名</th>
+                <th>职位</th>
+                <th>选中</th>
+            </tr>
+            <tr :for="(index,el) in @data.users">
+                <td :html="el.username">
+                </td>
+                <td :html="@getRoles(el)">
+                </td>
+                <td>
+                    <input type="checkbox"
+                        :duplex="@data.selectedUsers[@data.current]"
+                        :attr="{value:el.id}"
+                    >
+                </td>
+                <!--<td :html="el.name"></td>-->
+            </tr>
+        </table>
+    </div>
+
+    <dl>
+        <dt>版本</dt>
+        <dd>
+            <input type="text" :duplex="@data.version">
         </dd>
     </dl>
 
-    <input type="hidden" name="id" :duplex="@data.id">
-    <p>
-        业务名称：
-        <input type="text" :duplex="@data.name">
-    </p>
-    <p>
-        业务说明：
-        <textarea name="info" :duplex="@data.info"></textarea>
-    </p>
-    <div id="app" >
 
-        业务流程（节点设置）：
 
-        <div>
-            <a href="javascript:;" :click="@addNode('ziliao')">新增资料节点</a> -
-            <a href="javascript:;" :click="@addNode('shenhe')">新增审核节点</a> -
-            <!--<a href="javascript:;" :click="@addNode('huiqian')">新增会签节点</a>-->
-        </div>
-        <div class="nodeList">
-            <div :for="(index,el) in @data.nodeList"
-                 class="node"
-                 :class="[index == @data.current && 'selected']"
-                 :css="{left:(60 + 100) * index}"
-                 :click="@switchTab(index)"
-            >
-                {{avalon.components[el.type + 'Node'].defaults.getType() }}
 
-                <!--<div>-->
-                <!---->
-                <!--</div>-->
-            </div>
-            <div class="nodeLine" :css="{width:@data.nodeList.length * 160}"></div>
-
-            <div class="node"
-                 :css="{left:(60 + 100) * @data.nodeList.length}"
-            >
-                结束
-            </div>
-        </div>
-
-        <div id="switchTab" :if="@data.current > -1">
-            <div :for="(index,el) in @data.nodeList" :visible="@data.current == index">
-                <wbr :widget="{is:el.type + 'Node',data:el}" />
-            </div>
-            <a :click="@removeNode()" class="btn black">删除该节点</a>
-        </div>
-    </div>
 
     <p style="padding-top: 300px">
         <a href="javascript:;" class="_save">提交</a>
@@ -145,36 +185,12 @@ var RIGHTHTML = {
 
 
 <script>
-    // function heredoc(fn) {
-    //     return fn.toString().replace(/^[^\/]+\/\*!?\s?/, '').
-    //     replace(/\*\/[^\/]+$/, '').trim().replace(/>\s*</g, '><')
-    // }
-    //
-    // //input text
-    // avalon.component("text",{
-    //     template: $("#formText").html(),
-    //     defaults:{
-    //         data:{
-    //             value: ""
-    //         }
-    //     }
-    // });
-
-    //textarea
-    // avalon.component("textarea",{
-    //     template: $("#formTextarea").html(),
-    //     defaults:{
-    //         data:{
-    //             value: ""
-    //         }
-    //     }
-    // })
 
 
     var departmentstr = '${departments}';
     var worksstr = '${works}';
     var departments;
-    var works
+    var works;
     do{
         try{
             departments = eval("(" + departmentstr + ")");
@@ -184,16 +200,71 @@ var RIGHTHTML = {
             //转换失败，回到上一夜
             break;
         }
+
+        if(departments == null){
+            break;
+        }
+
+        function walk(item) {
+            if(item.departments.length){
+                for(var i = 0; i < item.departments.length; i++){
+                    walk(item.departments[i]);
+                }
+            }
+            else{
+                item.departments = [];
+            }
+            item.open = 0;
+            item.selected = 0;
+        }
+        for(var i = 0; i < departments.length; i++){
+            walk(departments[i]);
+        }
     }while(0);
 
     var lastSelected = null;
+    function init() {
+        //必须同时存在部门和业务的时候才可以触发初始化
+        if(app.data.target_department && app.data.target_work > -1){
+            app.data.selectedUsers = [];
+            var nodeList = app.data.works[app.data.target_work].nodeList;
+            for(var i = 0; i < nodeList.length; i++){
+                app.data.selectedUsers.push([]);
+            }
+        }
+    }
     window.onDepartmentClick = function () {
         if(!lastSelected){
             return;
         }
-        app.data.target_department = lastSelected.name;
+        app.data.target_department = lastSelected;
+        app.data.selectedUsers = [];
+
+        //如果是先点击的业务，在这里初始化被选择项
+        init();
+
+        if(workers[lastSelected.id]){
+            app.data.users = workers[app.data.target_department.id];
+            return;
+        }
+        var id = app.data.target_department.id
+        $.ajax({
+            url : 'department_users',
+            async:false,
+            method: "post",
+            data: "departmentId=" + app.data.target_department.id,
+            dataType: 'json',
+            success: function (data) {
+                if(data.success){
+                    workers[id] = data.message;
+                    app.data.users = workers[id];
+                }
+            }
+        })
     };
 
+
+    var workers = {};
 
     var app = avalon.define({
         $id:"app",
@@ -203,85 +274,123 @@ var RIGHTHTML = {
             info:"",
             nodeList:[],
             current: -1,
-
             target_department:"",
-            departments:departments
+            target_work: -1,
+            departments:departments,
+            works: works,
+            users: [],
+            selectedUsers:[],
+            version: ''
         },
-        addNode : function (nodeType) {
-            var node = {};
-            switch (nodeType){
-                case 'ziliao':
-                    node.type = NodeType.ziliao;
-                    node.fields = [];
-                    break;
 
-                case 'shenhe':
-                    node.type = NodeType.shenhe;
-                    node.num = 1;
-                    node.passNum = 1;
-                    break;
-
-                case 'huiqian':
-                    node.type = NodeType.huiqian;
-                    break;
-
-                default:
-                    throw new Error();
-                    break;
-            }
-            console.log(app)
-            app.data.nodeList.push(node);
-
-        },
-        removeNode : function (index) {
-            if(this.data.current == -1) return;
-            this.data.nodeList.splice(this.data.current,1);
+        onWorkClick: function (index) {
             this.data.current = -1;
+            this.data.target_work = index;
+            //如果是先点击的部门，在这里初始化
+            init();
         },
+
+        getRoles: function (el) {
+            var buf = [];
+            if(el.roles){
+                for(var i = 0; i < el.roles.length; i++){
+                    buf.push(el.roles[i].name);
+                }
+            }
+            return buf.join("、");
+        },
+
+
         switchTab: function (el) {
+
+            if(!this.data.target_department){
+                return alert("请先选择部门");
+            }
+
             console.log(el)
             this.data.current = el;
+            var id = this.data.works[this.data.target_work].id;
+
+            //得到该部门的人员
+            // if(workers[id]){
+            //     app.data.users = workers[id]
+            // }
+            // else{
+            //     app.data.users = [];
+            // }
         }
     });
 
-    if(str != ''){
-        do{
-            try{
-                var data = eval("(" + str + ")");
-                for(var i in data){
-                    app.data[i] = data[i];
-                }
-            }catch (e){
-                break;
-            }
-        }while(0);
-    }
-
+    // if(str != ''){
+    //     do{
+    //         try{
+    //             var data = eval("(" + str + ")");
+    //             for(var i in data){
+    //                 app.data[i] = data[i];
+    //             }
+    //         }catch (e){
+    //             break;
+    //         }
+    //     }while(0);
+    // }
+    //
     $('._save').click(function () {
-        var data = app.data.$model;
-        if(data.name == ""){
-            return alert("业务名称不能为空")
+        //部门
+        var departmentId = -1;
+        //业务
+        var workId = -1;
+        //节点相关人员
+        var workflowNodeList = [];
+        try{
+            departmentId = app.data.target_department.id;
+            workId = app.data.works[app.data.target_work].id;
+            workflowNodeList = app.data.selectedUsers;
+        }catch(e){
+            alert("提交出现错误！");
+            return;
         }
-        if(data.info == ""){
-            return alert("业务说明不能为空")
+        if(departmentId == -1){
+            return alert("错误")
         }
-        if(!data.nodeList || data.nodeList.length == 0){
-            return alert("业务节点操作列表不能为空")
+        if(workId == -1){
+            return alert("错误")
+        }
+        if(!workflowNodeList || !workflowNodeList.length){
+            return alert("错误")
         }
 
-        var url;
-        url = "/admin/setting/work/edit";
-        data.list = (JSON).stringify(data.nodeList);
-        delete data.nodeList;
+        $.post("add",{
+            departmentId:departmentId,
+            workId:workId,
+            workflowNodeList:workflowNodeList
+        },function () {
 
-        $.post(url,data,function (msg) {
-            if(msg.success){
-                location.href = 'list';
-            }
-            else{
+        })
 
-            }
-        },'json');
+        // var data = app.data.$model;
+        // if(data.name == ""){
+        //     return alert("业务名称不能为空")
+        // }
+        // if(data.info == ""){
+        //     return alert("业务说明不能为空")
+        // }
+        // if(!data.nodeList || data.nodeList.length == 0){
+        //     return alert("业务节点操作列表不能为空")
+        // }
+        //
+        // var url;
+        // url = "/admin/setting/work/edit";
+        // data.list = (JSON).stringify(data.nodeList);
+        // delete data.nodeList;
+        //
+        // $.post(url,data,function (msg) {
+        //     if(msg.success){
+        //         location.href = 'list';
+        //     }
+        //     else{
+        //
+        //     }
+        // },'json');
     });
 </script>
 

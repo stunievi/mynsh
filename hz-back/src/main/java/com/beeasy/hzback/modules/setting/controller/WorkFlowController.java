@@ -1,7 +1,10 @@
 package com.beeasy.hzback.modules.setting.controller;
 
+import com.beeasy.hzback.core.helper.Result;
+import com.beeasy.hzback.modules.setting.dao.IDepartmentDao;
 import com.beeasy.hzback.modules.setting.dao.IWorkDao;
 import com.beeasy.hzback.modules.setting.dao.IWorkFlowDao;
+import com.beeasy.hzback.modules.setting.entity.Department;
 import com.beeasy.hzback.modules.setting.service.DepartmentService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,7 +15,9 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 @RequestMapping("/admin/setting/workflow")
@@ -25,6 +30,9 @@ public class WorkFlowController {
     DepartmentService departmentService;
 
     @Autowired
+    IDepartmentDao departmentDao;
+
+    @Autowired
     IWorkDao workDao;
 
     static ObjectMapper objectMapper = new ObjectMapper();
@@ -32,30 +40,63 @@ public class WorkFlowController {
     @GetMapping("/list")
     public String list(
             Model model,
-           @PageableDefault(value = 15, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable){
-        model.addAttribute("list",workFlowDao.findAll(pageable));
+            @PageableDefault(value = 15, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable) {
+        model.addAttribute("list", workFlowDao.findAll(pageable));
         return "setting/workflow_list";
     }
 
 
     /**
      * 新增，需查出所有的部门
+     *
      * @param model
      * @return
      */
     @GetMapping("/add")
     public String add(
             Model model
-    ){
+    ) {
         try {
-            model.addAttribute("departments",objectMapper.writeValueAsString(departmentService.listAsTree()));
+            model.addAttribute("departments", objectMapper.writeValueAsString(departmentService.listAsTree()));
             //列出所有业务模型
-            model.addAttribute("works",objectMapper.writeValueAsString(workDao.findAll()));
+            model.addAttribute("works", objectMapper.writeValueAsString(workDao.findAll()));
         } catch (JsonProcessingException e) {
-            model.addAttribute("departments","[]");
-            model.addAttribute("works","[]");
+            model.addAttribute("departments", "[]");
+            model.addAttribute("works", "[]");
             e.printStackTrace();
         }
         return "setting/workflow_edit";
+    }
+
+
+    /**
+     * 查询该部门所有的人员
+     */
+    @PostMapping("/department_users")
+    @ResponseBody
+    public Result searchDepartmentUsers(
+            Integer departmentId
+    ) {
+        //得到该部门所有的角色
+        if (departmentId == null) {
+            return Result.error();
+        }
+        Department department = departmentDao.findOne(departmentId);
+        if (department == null) {
+            return Result.error();
+        }
+
+        return Result.ok(department.getUsers());
+    }
+
+
+    @PostMapping("/add")
+    public Result add(
+            Integer departmentId,
+            Integer workId,
+            String workflowNodeList
+    ) {
+        workFlowDao.deployWork(departmentId, workId, workflowNodeList);
+        return Result.ok();
     }
 }

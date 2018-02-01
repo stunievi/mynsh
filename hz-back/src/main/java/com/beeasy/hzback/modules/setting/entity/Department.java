@@ -40,6 +40,17 @@ public class Department implements Serializable{
     @OneToMany(fetch = FetchType.EAGER,mappedBy = "department")
     private Set<Role> roles = new HashSet<>();
 
+    @Transient
+    public Set<User> getUsers(){
+        Set<Role> roles = this.getRoles();
+        Set<User> result = new HashSet<>();
+        for(Role role : roles){
+            result.addAll(role.getUsers());
+        }
+        return result;
+    }
+
+
     public Integer getId() {
         return id;
     }
