@@ -3,8 +3,10 @@ package com.beeasy.hzback.core.shiro;
 import com.beeasy.hzback.modules.setting.dao.IUserDao;
 import com.beeasy.hzback.modules.setting.entity.User;
 import com.beeasy.hzback.core.util.CrUtils;
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
+import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +41,10 @@ public class MyShiroRealm extends AuthorizingRealm {
 
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
+        SimpleAuthorizationInfo authorizationInfo = new SimpleAuthorizationInfo();
+        Object o = principalCollection.getPrimaryPrincipal();
+//        UserInfo userInfo  = (UserInfo)principals.getPrimaryPrincipal();
+
         return null;
     }
 
@@ -62,7 +68,7 @@ public class MyShiroRealm extends AuthorizingRealm {
         }
 
         SimpleAuthenticationInfo authenticationInfo = new SimpleAuthenticationInfo(
-            user.getUsername(),
+            user,
             password,
             getName()
         );

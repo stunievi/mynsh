@@ -4,16 +4,21 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Component
 @ConfigurationProperties()
 @Data
 public class AdminMenuConfig {
-    private AdminMenuItem[] adminMenu;
+    private List<AdminMenuItem> adminMenu;
 
     @Data
     public static class AdminMenuItem{
         private String title;
         private String href;
-        private AdminMenuItem[] children;
+        private List<AdminMenuItem> children = new ArrayList<>();
     }
+
+
 }

@@ -1,11 +1,20 @@
 package com.beeasy.hzback.modules.setting.entity;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
+import com.beeasy.hzback.core.helper.Result;
+import com.beeasy.hzback.core.helper.SpringContextUtils;
+import com.beeasy.hzback.modules.setting.dao.IRoleDao;
 import com.beeasy.hzback.modules.setting.work_engine.BaseWorkNode;
+import javafx.print.Collation;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "t_work_flow")
@@ -16,6 +25,7 @@ public class WorkFlow {
     private Integer id;
 
     @NotNull(message = "所属部门不能为空")
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "department_id")
     private Department department;
 
@@ -32,12 +42,38 @@ public class WorkFlow {
      */
     @Column(columnDefinition = "TEXT")
     @Convert(converter = Work.NodeConverter.class)
-    private List<Set<User>> dealers;
+    private List<Set<Integer>> dealers;
 
     /**
      * 工作流版本
      */
     private Double version;
+
+    /**
+     * 工作流名字，和版本一起用于区分具体的业务
+     */
+    private String name;
+
+
+
+    /** converter **/
+//    public static class NodeConverter implements AttributeConverter<List<Set<Integer>>,String>{
+//
+//        @Override
+//        public String convertToDatabaseColumn(List<Set<Integer>> dealers) {
+//            return JSON.toJSONString(dealers);
+//        }
+//
+//
+//        @Override
+//        public List<Set<Integer>>convertToEntityAttribute(String s) {
+//            IRoleDao roleDao = (IRoleDao) SpringContextUtils.getBean(IRoleDao.class);
+//            TypeReference<List<Set<Integer>>> type = new TypeReference<List<Set<Integer>>>(){};
+//            List<Set<Integer>> list = JSON.parseObject(s,type);
+//
+//            return list.stream().map(set -> roleDao.findAll(set)).collect(Collectors.toList());
+//        }
+//    }
 
 
 
@@ -67,13 +103,6 @@ public class WorkFlow {
         this.model = model;
     }
 
-    public List<Set<User>> getDealers() {
-        return dealers;
-    }
-
-    public void setDealers(List<Set<User>> dealers) {
-        this.dealers = dealers;
-    }
 
     public Double getVersion() {
         return version;
@@ -83,5 +112,19 @@ public class WorkFlow {
         this.version = version;
     }
 
+    public String getName() {
+        return name;
+    }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public List<Set<Integer>> getDealers() {
+        return dealers;
+    }
+
+    public void setDealers(List<Set<Integer>> dealers) {
+        this.dealers = dealers;
+    }
 }

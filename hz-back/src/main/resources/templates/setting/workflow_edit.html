@@ -141,24 +141,29 @@ var RIGHTHTML = {
         </dl>
     </div>
 
-    <div :if="@data.users.length > 0 && @data.current > -1 && @data.target_department && @data.target_work > -1">
+    <div :if="@data.current > -1 && @data.target_department && @data.target_work > -1">
         <table>
             <tr>
-                <th>姓名</th>
                 <th>职位</th>
                 <th>选中</th>
             </tr>
-            <tr :for="(index,el) in @data.users">
-                <td :html="el.username">
-                </td>
-                <td :html="@getRoles(el)">
+            <tr :for="(index,el) in @data.target_department.roles">
+                <td :html="el.name">
                 </td>
                 <td>
                     <input type="checkbox"
-                        :duplex="@data.selectedUsers[@data.current]"
+                        :duplex="@data.selectedRoles[@data.current]"
                         :attr="{value:el.id}"
                     >
                 </td>
+                <!--<td :html="@getRoles(el)">-->
+                <!--</td>-->
+                <!--<td>-->
+                    <!--<input type="checkbox"-->
+                        <!--:duplex="@data.selectedUsers[@data.current]"-->
+                        <!--:attr="{value:el.id}"-->
+                    <!--&gt;-->
+                <!--</td>-->
                 <!--<td :html="el.name"></td>-->
             </tr>
         </table>
@@ -226,10 +231,10 @@ var RIGHTHTML = {
     function init() {
         //必须同时存在部门和业务的时候才可以触发初始化
         if(app.data.target_department && app.data.target_work > -1){
-            app.data.selectedUsers = [];
+            app.data.selectedRoles = [];
             var nodeList = app.data.works[app.data.target_work].nodeList;
             for(var i = 0; i < nodeList.length; i++){
-                app.data.selectedUsers.push([]);
+                app.data.selectedRoles.push([]);
             }
         }
     }
@@ -238,29 +243,31 @@ var RIGHTHTML = {
             return;
         }
         app.data.target_department = lastSelected;
-        app.data.selectedUsers = [];
+        app.data.selectedRoles = [];
 
         //如果是先点击的业务，在这里初始化被选择项
         init();
 
-        if(workers[lastSelected.id]){
-            app.data.users = workers[app.data.target_department.id];
-            return;
-        }
-        var id = app.data.target_department.id
-        $.ajax({
-            url : 'department_users',
-            async:false,
-            method: "post",
-            data: "departmentId=" + app.data.target_department.id,
-            dataType: 'json',
-            success: function (data) {
-                if(data.success){
-                    workers[id] = data.message;
-                    app.data.users = workers[id];
-                }
-            }
-        })
+        // app.data.roles = lastSelected.roles;
+
+        // if(workers[lastSelected.id]){
+        //     app.data.users = workers[app.data.target_department.id];
+        //     return;
+        // }
+        // var id = app.data.target_department.id
+        // $.ajax({
+        //     url : 'department_users',
+        //     async:false,
+        //     method: "post",
+        //     data: "departmentId=" + app.data.target_department.id,
+        //     dataType: 'json',
+        //     success: function (data) {
+        //         if(data.success){
+        //             workers[id] = data.message;
+        //             app.data.users = workers[id];
+        //         }
+        //     }
+        // })
     };
 
 
@@ -279,7 +286,8 @@ var RIGHTHTML = {
             departments:departments,
             works: works,
             users: [],
-            selectedUsers:[],
+            // selectedUsers:[],
+            selectedRoles:[],
             version: ''
         },
 
@@ -341,10 +349,13 @@ var RIGHTHTML = {
         var workId = -1;
         //节点相关人员
         var workflowNodeList = [];
+        var version = 1.0;
+
         try{
             departmentId = app.data.target_department.id;
             workId = app.data.works[app.data.target_work].id;
-            workflowNodeList = app.data.selectedUsers;
+            workflowNodeList = app.data.selectedRoles;
+            version = app.data.version
         }catch(e){
             alert("提交出现错误！");
             return;
@@ -362,7 +373,8 @@ var RIGHTHTML = {
         $.post("add",{
             departmentId:departmentId,
             workId:workId,
-            workflowNodeList:workflowNodeList
+            workflowNodeList: JSON.stringify(workflowNodeList),
+            version: version
         },function () {
 
         })

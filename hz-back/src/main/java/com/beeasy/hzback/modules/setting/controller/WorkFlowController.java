@@ -91,12 +91,14 @@ public class WorkFlowController {
 
 
     @PostMapping("/add")
+    @ResponseBody
     public Result add(
             Integer departmentId,
             Integer workId,
-            String workflowNodeList
+            String workflowNodeList,
+            Double version
     ) {
-        workFlowDao.deployWork(departmentId, workId, workflowNodeList);
+        workFlowDao.deployWork(departmentId, workId, workflowNodeList,version);
         return Result.ok();
     }
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
+import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.LazyToOne;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -40,6 +41,9 @@ public class Department implements Serializable{
     @OneToMany(fetch = FetchType.EAGER,mappedBy = "department")
     private Set<Role> roles = new HashSet<>();
 
+    @OneToMany(fetch = FetchType.LAZY,mappedBy = "department")
+    private Set<WorkFlow> workFlows = new HashSet<>();
+
     @Transient
     public Set<User> getUsers(){
         Set<Role> roles = this.getRoles();
@@ -48,6 +52,39 @@ public class Department implements Serializable{
             result.addAll(role.getUsers());
         }
         return result;
+    }
+
+    @Transient
+    public boolean hasRole(String roleName){
+        Set<Role> roles = this.getRoles();
+        for(Role role : roles){
+            if(role.getName().equals(roleName)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Transient
+    public boolean hasRole(Integer roleId){
+        Set<Role> roles = this.getRoles();
+        for(Role role : roles){
+            if(role.getId().equals(roleId)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Transient
+    public Role getRole(Integer roleId){
+        Set<Role> roles = this.getRoles();
+        for(Role role : roles){
+            if(role.getId().equals(roleId)){
+                return role;
+            }
+        }
+        return null;
     }
 
 
@@ -89,5 +126,13 @@ public class Department implements Serializable{
 
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
+    }
+
+    public Set<WorkFlow> getWorkFlows() {
+        return workFlows;
+    }
+
+    public void setWorkFlows(Set<WorkFlow> workFlows) {
+        this.workFlows = workFlows;
     }
 }
