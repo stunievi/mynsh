@@ -6,11 +6,15 @@ import com.beeasy.hzback.core.helper.BaseEntity;
 import com.beeasy.hzback.modules.setting.work_engine.BaseWorkNode;
 import com.beeasy.hzback.modules.setting.work_engine.ShenheNode;
 import com.beeasy.hzback.modules.setting.work_engine.ZiliaoNode;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
 import java.util.List;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "t_work")
 public class Work extends BaseEntity{
@@ -56,36 +60,4 @@ public class Work extends BaseEntity{
         }
     }
 
-
-    public String getName() {
-        return name;
     }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getInfo() {
-        return info;
-    }
-
-    public void setInfo(String info) {
-        this.info = info;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public List<BaseWorkNode> getNodeList() {
-        return nodeList;
-    }
-
-    public void setNodeList(List<BaseWorkNode> nodeList) {
-        this.nodeList = nodeList;
-    }
-}

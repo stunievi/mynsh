@@ -1,16 +1,17 @@
 package com.beeasy.hzback.modules.setting.entity;
 
 import com.alibaba.fastjson.annotation.JSONField;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.dom4j.io.SAXEventRecorder;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
-import javax.validation.constraints.Digits;
 import javax.validation.constraints.Min;
 import java.io.Serializable;
 import java.util.Set;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "t_role")
 public class Role implements Serializable{
@@ -38,43 +39,4 @@ public class Role implements Serializable{
             @JoinColumn(name = "USER_ID", referencedColumnName = "ID")})
     private Set<User> users;
 
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Department getDepartment() {
-        return department;
-    }
-
-    public void setDepartment(Department department) {
-        this.department = department;
-    }
-
-    public Integer getMax() {
-        return max;
-    }
-
-    public void setMax(Integer max) {
-        this.max = max;
-    }
-
-    public Set<User> getUsers() {
-        return users;
-    }
-
-    public void setUsers(Set<User> users) {
-        this.users = users;
-    }
 }

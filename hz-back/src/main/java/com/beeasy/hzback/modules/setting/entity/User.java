@@ -2,6 +2,8 @@ package com.beeasy.hzback.modules.setting.entity;
 
 
 import com.alibaba.fastjson.annotation.JSONField;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -13,6 +15,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+
+@Getter
+@Setter
 @Entity
 @Table(name = "t_user")
 @EntityListeners(AuditingEntityListener.class)
@@ -70,54 +75,5 @@ public class User implements Serializable{
         this.password = password;
     }
 
-    // 省略 get set 方法
 
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public Date getAddTime() {
-        return addTime;
-    }
-
-    public void setAddTime(Date addTime) {
-        this.addTime = addTime;
-    }
-
-    public boolean isBaned() {
-        return baned;
-    }
-
-    public void setBaned(boolean baned) {
-        this.baned = baned;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Set<Role> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(Set<Role> roles) {
-        this.roles = roles;
-    }
 }

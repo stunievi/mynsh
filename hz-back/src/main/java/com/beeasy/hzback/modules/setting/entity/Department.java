@@ -4,7 +4,8 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.LazyToOne;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -16,6 +17,8 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "t_department")
 @EntityListeners(AuditingEntityListener.class)
@@ -90,51 +93,5 @@ public class Department implements Serializable{
     }
 
 
-    public Integer getId() {
-        return id;
-    }
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Department getParent() {
-        return parent;
-    }
-
-    public void setParent(Department parent) {
-        this.parent = parent;
-    }
-
-    public List<Department> getDepartments() {
-        return departments;
-    }
-
-    public void setDepartments(List<Department> departments) {
-        this.departments = departments;
-    }
-
-    public List<Role> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(List<Role> roles) {
-        this.roles = roles;
-    }
-
-    public Set<WorkFlow> getWorkFlows() {
-        return workFlows;
-    }
-
-    public void setWorkFlows(Set<WorkFlow> workFlows) {
-        this.workFlows = workFlows;
-    }
 }
