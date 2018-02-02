@@ -1,5 +1,6 @@
 package com.beeasy.hzback.modules.setting.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.modules.setting.dao.IDepartmentDao;
 import com.beeasy.hzback.modules.setting.dao.IWorkDao;
@@ -35,7 +36,6 @@ public class WorkFlowController {
     @Autowired
     IWorkDao workDao;
 
-    static ObjectMapper objectMapper = new ObjectMapper();
 
     @GetMapping("/list")
     public String list(
@@ -57,10 +57,11 @@ public class WorkFlowController {
             Model model
     ) {
         try {
-            model.addAttribute("departments", objectMapper.writeValueAsString(departmentService.listAsTree()));
             //列出所有业务模型
-            model.addAttribute("works", objectMapper.writeValueAsString(workDao.findAll()));
-        } catch (JsonProcessingException e) {
+            model.addAttribute("works", JSON.toJSONString(workDao.findAll()));
+            model.addAttribute("departments", JSON.toJSONString(departmentService.listAsTree()));
+
+        } catch (Exception e) {
             model.addAttribute("departments", "[]");
             model.addAttribute("works", "[]");
             e.printStackTrace();

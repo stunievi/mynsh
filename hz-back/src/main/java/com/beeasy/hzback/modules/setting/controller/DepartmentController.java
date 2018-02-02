@@ -1,5 +1,6 @@
 package com.beeasy.hzback.modules.setting.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.modules.setting.dao.IDepartmentDao;
 import com.beeasy.hzback.modules.setting.entity.Department;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import sun.reflect.annotation.ExceptionProxy;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -34,9 +36,9 @@ public class DepartmentController {
     @GetMapping("/list")
     public String list(Model model){
         try {
-            Set<Department> set = departmentService.listAsTree();
-            model.addAttribute("tree",mapper.writeValueAsString(set));
-        } catch (JsonProcessingException e) {
+            List<Department> set = departmentService.listAsTree();
+            model.addAttribute("tree", JSON.toJSONString(set));
+        } catch (Exception e) {
             model.addAttribute("tree","[]");
             e.printStackTrace();
         }

@@ -1,5 +1,6 @@
 package com.beeasy.hzback.modules.setting.entity;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -12,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -30,20 +32,21 @@ public class Department implements Serializable{
 //    private Integer parentId;
 
 
-    @JsonIgnore
+    @JSONField(serialize = false)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     private Department parent;
 
     @OneToMany(fetch = FetchType.EAGER,mappedBy = "parent")
-    private Set<Department> departments = new HashSet<Department>(0);
+    private List<Department> departments = new ArrayList<>(0);
 
     @OneToMany(fetch = FetchType.EAGER,mappedBy = "department")
     private Set<Role> roles = new HashSet<>();
 
-    @OneToMany(fetch = FetchType.LAZY,mappedBy = "department")
+    @OneToMany(fetch = FetchType.EAGER,mappedBy = "department")
     private Set<WorkFlow> workFlows = new HashSet<>();
 
+    @JSONField(serialize = false)
     @Transient
     public Set<User> getUsers(){
         Set<Role> roles = this.getRoles();
@@ -112,11 +115,11 @@ public class Department implements Serializable{
         this.parent = parent;
     }
 
-    public Set<Department> getDepartments() {
+    public List<Department> getDepartments() {
         return departments;
     }
 
-    public void setDepartments(Set<Department> departments) {
+    public void setDepartments(List<Department> departments) {
         this.departments = departments;
     }
 

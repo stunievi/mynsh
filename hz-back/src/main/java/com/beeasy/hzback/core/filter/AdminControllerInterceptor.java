@@ -1,6 +1,7 @@
 package com.beeasy.hzback.core.filter;
 
 import com.beeasy.hzback.core.config.AdminMenuConfig;
+import com.beeasy.hzback.modules.setting.dao.IRoleDao;
 import com.beeasy.hzback.modules.setting.entity.Role;
 import com.beeasy.hzback.modules.setting.entity.User;
 import com.beeasy.hzback.modules.setting.entity.WorkFlow;
@@ -27,6 +28,7 @@ public class AdminControllerInterceptor  {
     @Autowired
     private AdminMenuConfig adminMenu;
 
+
     @AfterReturning(value = "execution(* com.beeasy.hzback.modules.*.controller..*(..)) && @annotation(org.springframework.web.bind.annotation.GetMapping)",returning = "keys")
     public void doAfterReturningAdvice1(JoinPoint joinPoint, Object keys){
         Object[] os = joinPoint.getArgs();
@@ -45,9 +47,9 @@ public class AdminControllerInterceptor  {
         User user = (User) subject.getPrincipal();
         Set<Role> roles = user.getRoles();
         Set<WorkFlow> workFlows = new HashSet<>();
-        for(Role role : roles){
-            workFlows.addAll(role.getDepartment().getWorkFlows());
-        }
+//        for(Role role : roles){
+//            workFlows.addAll(role.getDepartment().getWorkFlows());
+//        }
 //        Object fuck = SecurityUtils.getSubject().getPrincipal();
 //        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
 //        request.getSession().getAttribute("fuck");

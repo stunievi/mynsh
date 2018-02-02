@@ -16,7 +16,7 @@ public class DepartmentService {
     @Autowired
     private IDepartmentDao departmentDao;
 
-    public Set<Department> listAsTree(){
+    public List<Department> listAsTree(){
         return departmentDao.findByParent(null).getDepartments();
         //得到所有部门
 
@@ -51,13 +51,7 @@ public class DepartmentService {
 //        }
     }
 
-    private void makeChildren(Department department){
-        Set<Department> children = department.getDepartments();
-        for (Department child : children) {
-            makeChildren(child);
-        }
-        department.setDepartments(children);
-    }
+
 
 
     public boolean add(Department department,Integer parentId){

@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.Set;
 
 @Controller
@@ -33,14 +34,13 @@ public class RoleController {
     @Autowired
     IRoleDao roleDao;
 
-    static ObjectMapper mapper = new ObjectMapper();
 
     @GetMapping("/list")
     public String list(Model model){
-        Set<Department> set = departmentService.listAsTree();
+        List<Department> set = departmentService.listAsTree();
         try {
-            model.addAttribute("tree", mapper.writeValueAsString(set));
-        } catch (JsonProcessingException e) {
+            model.addAttribute("tree", JSON.toJSONString(set));
+        } catch (Exception e) {
             model.addAttribute("tree","[]");
         };
         return "setting/role_list";

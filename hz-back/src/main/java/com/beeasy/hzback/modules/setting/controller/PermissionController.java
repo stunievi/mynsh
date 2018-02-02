@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.List;
 import java.util.Set;
 
 @Controller
@@ -39,7 +40,6 @@ public class PermissionController {
 
     static String failedUrl = "redirect:list";
 
-    static ObjectMapper mapper = new ObjectMapper();
 
     @GetMapping("/list")
     public String userList(Model model, @PageableDefault(value = 15, sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable){
@@ -58,10 +58,10 @@ public class PermissionController {
             return failedUrl;
         }
         try {
-            Set<Department> set = departmentService.listAsTree();
-            model.addAttribute("tree",mapper.writeValueAsString(set));
-            model.addAttribute("json",mapper.writeValueAsString(user));
-        } catch (JsonProcessingException e) {
+            List<Department> set = departmentService.listAsTree();
+            model.addAttribute("tree",JSON.toJSONString(set));
+            model.addAttribute("json",JSON.toJSONString(user));
+        } catch (Exception e) {
             return failedUrl;
         }
         return "setting/permission_edit";

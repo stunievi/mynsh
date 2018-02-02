@@ -15,7 +15,7 @@ import java.util.Set;
 @Entity
 @Table(name = "t_user")
 @EntityListeners(AuditingEntityListener.class)
-public class User extends BaseEntity implements Serializable{
+public class User implements Serializable{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,7 +38,7 @@ public class User extends BaseEntity implements Serializable{
 ////    private List<Role> roleList;// 一个用户具有多个角色
 
 
-    @ManyToMany(mappedBy = "users")
+    @ManyToMany(fetch = FetchType.EAGER,mappedBy = "users")
     private Set<Role> roles;
 
     public User() {

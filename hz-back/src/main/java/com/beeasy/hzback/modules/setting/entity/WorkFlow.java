@@ -2,10 +2,12 @@ package com.beeasy.hzback.modules.setting.entity;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
+import com.alibaba.fastjson.annotation.JSONField;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.helper.SpringContextUtils;
 import com.beeasy.hzback.modules.setting.dao.IRoleDao;
 import com.beeasy.hzback.modules.setting.work_engine.BaseWorkNode;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import javafx.print.Collation;
 
 import javax.persistence.*;
@@ -24,6 +26,7 @@ public class WorkFlow {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @JSONField(serialize = false)
     @NotNull(message = "所属部门不能为空")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "department_id")
