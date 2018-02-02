@@ -58,8 +58,7 @@ public class PermissionController {
             return failedUrl;
         }
         try {
-            List<Department> set = departmentService.listAsTree();
-            model.addAttribute("tree",JSON.toJSONString(set));
+            model.addAttribute("tree",JSON.toJSONString(departmentService.listAsTree()));
             model.addAttribute("json",JSON.toJSONString(user));
         } catch (Exception e) {
             return failedUrl;

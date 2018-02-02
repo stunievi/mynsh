@@ -9,9 +9,11 @@ import com.beeasy.hzback.modules.setting.dao.IRoleDao;
 import com.beeasy.hzback.modules.setting.work_engine.BaseWorkNode;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import javafx.print.Collation;
+import lombok.Data;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -20,7 +22,9 @@ import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "t_work_flow")
-public class WorkFlow {
+public class WorkFlow implements Serializable{
+
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -106,6 +110,13 @@ public class WorkFlow {
         this.model = model;
     }
 
+    public List<Set<Integer>> getDealers() {
+        return dealers;
+    }
+
+    public void setDealers(List<Set<Integer>> dealers) {
+        this.dealers = dealers;
+    }
 
     public Double getVersion() {
         return version;
@@ -121,13 +132,5 @@ public class WorkFlow {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public List<Set<Integer>> getDealers() {
-        return dealers;
-    }
-
-    public void setDealers(List<Set<Integer>> dealers) {
-        this.dealers = dealers;
     }
 }

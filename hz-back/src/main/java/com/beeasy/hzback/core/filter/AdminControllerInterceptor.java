@@ -2,6 +2,7 @@ package com.beeasy.hzback.core.filter;
 
 import com.beeasy.hzback.core.config.AdminMenuConfig;
 import com.beeasy.hzback.modules.setting.dao.IRoleDao;
+import com.beeasy.hzback.modules.setting.dao.IUserDao;
 import com.beeasy.hzback.modules.setting.entity.Role;
 import com.beeasy.hzback.modules.setting.entity.User;
 import com.beeasy.hzback.modules.setting.entity.WorkFlow;
@@ -17,6 +18,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -28,6 +30,8 @@ public class AdminControllerInterceptor  {
     @Autowired
     private AdminMenuConfig adminMenu;
 
+    @Autowired
+    private IUserDao userDao;
 
     @AfterReturning(value = "execution(* com.beeasy.hzback.modules.*.controller..*(..)) && @annotation(org.springframework.web.bind.annotation.GetMapping)",returning = "keys")
     public void doAfterReturningAdvice1(JoinPoint joinPoint, Object keys){
@@ -45,16 +49,24 @@ public class AdminControllerInterceptor  {
         //根据权限处理掉不需要的菜单选项
         org.apache.shiro.subject.Subject subject = SecurityUtils.getSubject();
         User user = (User) subject.getPrincipal();
-        Set<Role> roles = user.getRoles();
-        Set<WorkFlow> workFlows = new HashSet<>();
-//        for(Role role : roles){
-//            workFlows.addAll(role.getDepartment().getWorkFlows());
-//        }
+
+        //增加自己配置的工作流菜单
+        List<WorkFlow> workFlowList = user.getWorkFlows();
+
+
 //        Object fuck = SecurityUtils.getSubject().getPrincipal();
 //        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
 //        request.getSession().getAttribute("fuck");
         List<AdminMenuConfig.AdminMenuItem> adminMenuItem = adminMenu.getAdminMenu();
-//        Subject subject = Subject.getSubject()
+        AdminMenuConfig.AdminMenuItem target = (AdminMenuConfig.AdminMenuItem) adminMenuItem.stream().filter(item -> item.getTitle().equals("工作台")).toArray()[0];
+        List<AdminMenuConfig.AdminMenuItem> children = target.getChildren();
+        for(WorkFlow workFlow : workFlowList){
+            AdminMenuConfig.AdminMenuItem item = new AdminMenuConfig.AdminMenuItem();
+            item.setChildren(new ArrayList<>());
+            item.setTitle(workFlow.getName());
+            item.setHref("/admin/workflow/" + workFlow.getId());
+            children.add(item);
+        }
         model.addAttribute("adminMenu",adminMenuItem);
         //处理分页
         if(model.containsAttribute("list")){

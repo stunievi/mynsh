@@ -36,8 +36,7 @@ public class DepartmentController {
     @GetMapping("/list")
     public String list(Model model){
         try {
-            List<Department> set = departmentService.listAsTree();
-            model.addAttribute("tree", JSON.toJSONString(set));
+            model.addAttribute("tree", JSON.toJSONString(departmentService.listAsTree()));
         } catch (Exception e) {
             model.addAttribute("tree","[]");
             e.printStackTrace();

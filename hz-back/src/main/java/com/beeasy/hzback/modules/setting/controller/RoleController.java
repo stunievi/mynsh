@@ -37,9 +37,8 @@ public class RoleController {
 
     @GetMapping("/list")
     public String list(Model model){
-        List<Department> set = departmentService.listAsTree();
         try {
-            model.addAttribute("tree", JSON.toJSONString(set));
+            model.addAttribute("tree", JSON.toJSONString(departmentService.listAsTree()));
         } catch (Exception e) {
             model.addAttribute("tree","[]");
         };

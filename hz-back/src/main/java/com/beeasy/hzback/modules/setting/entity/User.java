@@ -1,8 +1,7 @@
 package com.beeasy.hzback.modules.setting.entity;
 
 
-import com.beeasy.hzback.core.helper.BaseEntity;
-import lombok.Data;
+import com.alibaba.fastjson.annotation.JSONField;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -10,12 +9,16 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "t_user")
 @EntityListeners(AuditingEntityListener.class)
 public class User implements Serializable{
+
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,6 +43,22 @@ public class User implements Serializable{
 
     @ManyToMany(fetch = FetchType.EAGER,mappedBy = "users")
     private Set<Role> roles;
+
+
+    /**
+     * 得到一个用户所有的工作留
+     * @return
+     */
+    @JSONField(serialize = false)
+    public List<WorkFlow> getWorkFlows(){
+        return this
+                .getRoles()
+                .stream()
+                .map(role -> role.getDepartment().getWorkFlows())
+                .flatMap(Set::stream)
+                .distinct()
+                .collect(Collectors.toList());
+    }
 
     public User() {
         super();

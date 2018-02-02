@@ -14,6 +14,7 @@ import java.util.Set;
 @Entity
 @Table(name = "t_role")
 public class Role implements Serializable{
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue
@@ -23,7 +24,7 @@ public class Role implements Serializable{
     private String name;
 
     @JSONField(serialize = false)
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "department_id")
     private Department department;
 

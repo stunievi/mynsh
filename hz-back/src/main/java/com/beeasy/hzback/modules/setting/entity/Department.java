@@ -13,15 +13,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "t_department")
 @EntityListeners(AuditingEntityListener.class)
 public class Department implements Serializable{
+
+    private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue
     private Integer id;
@@ -38,28 +39,26 @@ public class Department implements Serializable{
     private Department parent;
 
     @OneToMany(fetch = FetchType.EAGER,mappedBy = "parent")
-    private List<Department> departments = new ArrayList<>(0);
+    private List<Department> departments = new ArrayList<>();
 
     @OneToMany(fetch = FetchType.EAGER,mappedBy = "department")
-    private Set<Role> roles = new HashSet<>();
+    private List<Role> roles;
 
     @OneToMany(fetch = FetchType.EAGER,mappedBy = "department")
-    private Set<WorkFlow> workFlows = new HashSet<>();
+    private Set<WorkFlow> workFlows;
 
     @JSONField(serialize = false)
     @Transient
     public Set<User> getUsers(){
-        Set<Role> roles = this.getRoles();
-        Set<User> result = new HashSet<>();
-        for(Role role : roles){
-            result.addAll(role.getUsers());
-        }
-        return result;
+        return this.getRoles().stream()
+                .map(role -> role.getUsers())
+                .flatMap(Set::stream)
+                .collect(Collectors.toSet());
     }
 
     @Transient
     public boolean hasRole(String roleName){
-        Set<Role> roles = this.getRoles();
+        List<Role> roles = this.getRoles();
         for(Role role : roles){
             if(role.getName().equals(roleName)){
                 return true;
@@ -70,7 +69,7 @@ public class Department implements Serializable{
 
     @Transient
     public boolean hasRole(Integer roleId){
-        Set<Role> roles = this.getRoles();
+        List<Role> roles = this.getRoles();
         for(Role role : roles){
             if(role.getId().equals(roleId)){
                 return true;
@@ -81,7 +80,7 @@ public class Department implements Serializable{
 
     @Transient
     public Role getRole(Integer roleId){
-        Set<Role> roles = this.getRoles();
+        List<Role> roles = this.getRoles();
         for(Role role : roles){
             if(role.getId().equals(roleId)){
                 return role;
@@ -123,11 +122,11 @@ public class Department implements Serializable{
         this.departments = departments;
     }
 
-    public Set<Role> getRoles() {
+    public List<Role> getRoles() {
         return roles;
     }
 
-    public void setRoles(Set<Role> roles) {
+    public void setRoles(List<Role> roles) {
         this.roles = roles;
     }
 

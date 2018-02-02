@@ -1,15 +1,15 @@
 package com.beeasy.hzback.modules.setting.dao;
 
 import com.beeasy.hzback.core.helper.SpringContextUtils;
+import com.beeasy.hzback.modules.setting.entity.Department;
 import com.beeasy.hzback.modules.setting.entity.Role;
 import com.beeasy.hzback.modules.setting.entity.User;
+import com.beeasy.hzback.modules.setting.entity.WorkFlow;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.beans.Transient;
+import java.util.*;
 
 public interface IUserDao extends JpaRepository<User,Integer> {
 //    User findByName(String userName);
@@ -61,4 +61,20 @@ public interface IUserDao extends JpaRepository<User,Integer> {
         User result = this.save(user);
         return result != null && result.getRoles().size() > 0;
     }
+
+    /**
+     * 得到一个用户所有的工作流
+     * @return
+     */
+//    default List<WorkFlow> getWorkFlows(User user){
+//        IDepartmentDao departmentDao = (IDepartmentDao) SpringContextUtils.getBean(IDepartmentDao.class);
+//        Set<Role> roles = user.getRoles();
+//        List<WorkFlow> workFlows = new ArrayList<>();
+//        for(Role role : roles){
+//            Department department = role.getDepartment();
+////            Department department = departmentDao.findOne();
+//            workFlows.addAll(department.getWorkFlows());
+//        }
+//        return workFlows;
+//    }
 }
