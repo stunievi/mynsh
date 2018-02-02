@@ -17,6 +17,7 @@ import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 public interface IWorkDao extends JpaRepository<Work,Integer> {
@@ -39,34 +40,37 @@ public interface IWorkDao extends JpaRepository<Work,Integer> {
          * 非常重要！！！！！！！！！！！！
          */
 //        workNodeDao.deleteAllByWork(work);
-        List<BaseWorkNode> nodeList = new ArrayList<>();
+        List<BaseWorkNode> nodeList;
         try{
             JSONArray arr = JSON.parseArray(list);
-            for(Object item : arr){
-                JSONObject it = (JSONObject)item;
-                BaseWorkNode workNode;
+            nodeList = arr.stream().map(o -> {
+                JSONObject it = (JSONObject)o;
+                return it.getString("type").equals("shenhe") ? it.toJavaObject(ShenheNode.class) : it.toJavaObject(ZiliaoNode.class);
+            }).collect(Collectors.toList());
 
-//                workNode.setType(it.getString("type"));
-                if(it.getString("type").equals("shenhe")){
-                    workNode = it.toJavaObject(ShenheNode.class);
-                }
-                else{
-                    workNode = it.toJavaObject(ZiliaoNode.class);
-                }
-                nodeList.add(workNode);
-            }
+//            for(Object item : arr){
+//                JSONObject it = (JSONObject)item;
+//                BaseWorkNode workNode;
+//
+////                workNode.setType(it.getString("type"));
+//                if(it.getString("type").equals("shenhe")){
+//                    workNode = it.toJavaObject(ShenheNode.class);
+//                }
+//                else{
+//                    workNode = it.toJavaObject(ZiliaoNode.class);
+//                }
+//                nodeList.add(workNode);
+//            }
         }
         catch (Exception e){
             return false;
         }
-        finally {
             work.setNodeList(nodeList);
             Work result = this.save(work);
             if(result.getId() == null || result.getId() <= 0){
                 return false;
             }
             return true;
-        }
 
     }
 
