@@ -65,15 +65,13 @@ public class User implements Serializable{
                 .collect(Collectors.toList());
     }
 
-    public User() {
-        super();
+    /**
+     * 是否属于某个部门
+     */
+    public boolean isBelongToDepartment(Department department){
+        return this.getRoles().stream().anyMatch(role -> role.getDepartment().getId().equals(department.getId()));
     }
 
-    public User(String username, String password) {
-        super();
-        this.username = username;
-        this.password = password;
-    }
 
 
 }

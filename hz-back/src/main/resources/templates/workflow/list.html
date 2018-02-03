@@ -1,0 +1,39 @@
+<%
+var RIGHTHTML = {
+%>
+
+<div :controller="app">
+    <h3 :html="@data.title"></h3>
+</div>
+
+<script>
+    var workflowstr = '${workflow}';
+    var userstr = '${user}';
+    var workflow;
+    do{
+        try{
+            workflow = eval("(" + workflowstr + ")");
+        }catch (e){
+
+            break;
+        }
+    }while(0);
+
+
+    var app = avalon.define({
+        $id: 'app',
+        data : {
+            title: "",
+
+        }
+    });
+
+    app.data.title = workflow.name;
+
+</script>
+
+<% }; %>
+
+<%
+include("../layout.html",{RIGHTHTML:RIGHTHTML}){}
+%>

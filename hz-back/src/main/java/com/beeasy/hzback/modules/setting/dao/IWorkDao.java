@@ -20,14 +20,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 
-public interface IWorkDao extends JpaRepository<Work,Integer> {
-
+public interface IWorkDao extends JpaRepository<Work, Integer> {
 
 
     @Transactional
-    default boolean updateNodeList(Work work,String list) throws RuntimeException {
+    default boolean updateNodeList(Work work, String list) throws RuntimeException {
 //        IWorkNodeDao workNodeDao = (IWorkNodeDao) SpringContextUtils.getBean(IWorkNodeDao.class);
-        if(work.getId() > 0) {
+        if (work.getId() > 0) {
             Work target = this.findOne(work.getId());
             if (target == null) {
                 return false;
@@ -41,10 +40,10 @@ public interface IWorkDao extends JpaRepository<Work,Integer> {
          */
 //        workNodeDao.deleteAllByWork(work);
         List<BaseWorkNode> nodeList;
-        try{
+        try {
             JSONArray arr = JSON.parseArray(list);
             nodeList = arr.stream().map(o -> {
-                JSONObject it = (JSONObject)o;
+                JSONObject it = (JSONObject) o;
                 return it.getString("type").equals("shenhe") ? it.toJavaObject(ShenheNode.class) : it.toJavaObject(ZiliaoNode.class);
             }).collect(Collectors.toList());
 
@@ -61,16 +60,15 @@ public interface IWorkDao extends JpaRepository<Work,Integer> {
 //                }
 //                nodeList.add(workNode);
 //            }
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             return false;
         }
-            work.setNodeList(nodeList);
-            Work result = this.save(work);
-            if(result.getId() == null || result.getId() <= 0){
-                return false;
-            }
-            return true;
+        work.setNodeList(nodeList);
+        Work result = this.save(work);
+        if (result.getId() == null || result.getId() <= 0) {
+            return false;
+        }
+        return true;
 
     }
 
