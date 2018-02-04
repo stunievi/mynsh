@@ -69,8 +69,9 @@ public class MyShiroRealm extends AuthorizingRealm {
             return null;
         }
 
-        user.setRoles(user.getRoles());
-        log.info(user.getRoles().size() + "");
+        //强制初始化
+        log.info(String.valueOf(user.getRoles().size()));
+
         SimpleAuthenticationInfo authenticationInfo = new SimpleAuthenticationInfo(
             user,
             password,

@@ -5,6 +5,7 @@ import com.beeasy.hzback.modules.setting.entity.Department;
 import com.beeasy.hzback.modules.setting.entity.Role;
 import com.beeasy.hzback.modules.setting.entity.User;
 import com.beeasy.hzback.modules.setting.entity.WorkFlow;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -85,4 +86,7 @@ public interface IUserDao extends JpaRepository<User,Integer> {
 //        }
 //        return workFlows;
     }
+
+
+
 }

@@ -82,6 +82,11 @@ public class Department implements Serializable{
     }
 
     @Transient
+    public boolean hasRole(Role role){
+        return this.hasRole(role.getId());
+    }
+
+    @Transient
     public Role getRole(Integer roleId){
         List<Role> roles = this.getRoles();
         for(Role role : roles){
@@ -91,6 +96,8 @@ public class Department implements Serializable{
         }
         return null;
     }
+
+
 
 
 

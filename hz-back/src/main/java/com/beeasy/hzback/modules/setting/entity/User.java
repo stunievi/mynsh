@@ -4,6 +4,8 @@ package com.beeasy.hzback.modules.setting.entity;
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Hibernate;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -16,6 +18,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 
+@Slf4j
 @Getter
 @Setter
 @Entity
@@ -69,7 +72,8 @@ public class User implements Serializable{
      * 是否属于某个部门
      */
     public boolean isBelongToDepartment(Department department){
-        return this.getRoles().stream().anyMatch(role -> role.getDepartment().getId().equals(department.getId()));
+        log.info(this.getRoles().toString());
+        return this.getRoles().stream().anyMatch(role -> department.hasRole(role));
     }
 
 
