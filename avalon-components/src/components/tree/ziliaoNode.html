@@ -9,22 +9,26 @@
         <b>节点属性</b>
     </p>
     <tr>
-        <a :click="@addField('text')" class="btn blue">添加单行文本</a>
-        <a :click="@addField('textarea')" class="btn blue">添加多行文本</a>
-        <a :click="@addField('radio')" class="btn blue">添加单选框</a>
-        <a :click="@addField('checkbox')" class="btn blue">添加多选框</a>
-        <a :click="@addField('file')" class="btn blue">添加文件上传（未完成）</a>
+        <div :if="@edit">
+            <a :click="@addField('text')" class="btn blue">添加单行文本</a>
+            <a :click="@addField('textarea')" class="btn blue">添加多行文本</a>
+            <a :click="@addField('radio')" class="btn blue">添加单选框</a>
+            <a :click="@addField('checkbox')" class="btn blue">添加多选框</a>
+            <a :click="@addField('file')" class="btn blue">添加文件上传（未完成）</a>
+        </div>
+
         <table>
             <thead>
                 <th>字段名称</th>
                 <th>字段类型</th>
                 <th>是否必填</th>
                 <th>字段信息</th>
-                <th>操作</th>
+                <th :if="@edit">操作</th>
             </thead>
             <tr :for="(index,el) in @data.fields">
                 <td class="">
-                    <input type="text" :duplex="el.name">
+                    <b :if="!@edit" :html="el.name"></b>
+                    <input type="text" :duplex="el.name" :if="@edit">
                 </td>
                 <td class="">
                     <b :if="el.type == 'text'">单行文本</b>
@@ -34,12 +38,14 @@
                     <b :if="el.type == 'file'">文件上传</b>
                 </td>
                 <td>
-                    <input type="checkbox" :duplex="el.required">
+                    <span :if="!@edit && el.required">是</span>
+                    <span :if="!@edit && !el.required">否</span>
+                    <input :if="@edit" type="checkbox" :duplex="el.required">
                 </td>
                 <td class="">
-                    <wbr :widget="{is: el.type,data:el}"/>
+                    <wbr :widget="{is: el.type,data:el,edit: @edit}"/>
                 </td>
-                <td>
+                <td :if="@edit">
                     <a href="javascript:;" :click="@removeField(index)">删除字段</a>
                 </td>
             </tr>

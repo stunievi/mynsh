@@ -4,6 +4,7 @@ component("text",{
     defaults:{
         data:{
             value: ""
-        }
+        },
+        edit: true
     }
 })

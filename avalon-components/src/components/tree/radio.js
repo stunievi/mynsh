@@ -5,6 +5,7 @@ component("radio",{
         data:{
             items: []
         },
+        edit:true,
         addItem:function () {
             console.log(this)
             this.data.items.push("");

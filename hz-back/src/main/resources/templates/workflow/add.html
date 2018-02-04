@@ -1,0 +1,51 @@
+<%
+var RIGHTHTML = {
+%>
+
+<div :controller="app">
+    <h3 :html="@data.title"></h3>
+
+    <div>
+        <h4>选择业务版本</h4>
+        <select name="" id="">
+            <option value="">选择业务版本</option>
+            <option :attr="{value:@data.workflow.version}" :html="@data.workflow.version"></option>
+        </select>
+    </div>
+
+    <div :for="(index,el) in @data.workflow.model" :if="index == @data.step">
+        <wbr :widget="{is: el.type + 'Node',data: el, edit:false }"/>
+    </div>
+</div>
+
+<script>
+    var workflowstr = '${workflow}';
+    var userstr = '${user}';
+    var workflow;
+    var user;
+    do{
+        try{
+            workflow = eval("(" + workflowstr + ")");
+            user = eval("(" + userstr + ")");
+        }catch (e){
+            break;
+        }
+    }while(0);
+
+
+    var app = avalon.define({
+        $id: 'app',
+        data: {
+            title: workflow.name,
+            workflow : workflow,
+            step:0
+            // user
+        },
+    });
+</script>
+
+<% }; %>
+
+<%
+include("../layout.html",{RIGHTHTML:RIGHTHTML}){}
+%>

@@ -4,17 +4,19 @@ var RIGHTHTML = {
 
 <div :controller="app">
     <h3 :html="@data.title"></h3>
+    <a href="javascript:;" :click="@pubNew" :if="@canPub()">发起新业务</a>
 </div>
 
 <script>
     var workflowstr = '${workflow}';
     var userstr = '${user}';
     var workflow;
+    var user;
     do{
         try{
             workflow = eval("(" + workflowstr + ")");
+            user = eval("(" + userstr + ")");
         }catch (e){
-
             break;
         }
     }while(0);
@@ -24,7 +26,21 @@ var RIGHTHTML = {
         $id: 'app',
         data : {
             title: "",
+            // workflow,
+            // user
+        },
+        canPub:function(){
+            var data = this.data;
+            for(var i = 0; i < user.roles.length; i++){
+                if(workflow.dealers[0].indexOf(user.roles[i].id) > -1){
+                    return true;
+                }
+            }
+            return false;
+        },
 
+        pubNew:function () {
+            location.href = 'add/' + workflow.id;
         }
     });
 

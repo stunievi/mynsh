@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 10);
+/******/ 	return __webpack_require__(__webpack_require__.s = 19);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -8117,7 +8117,7 @@ https://github.com/RubyLouvre/avalon/tree/2.2.9
 
     return avalon;
 });
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10)))
 
 /***/ }),
 /* 1 */
@@ -8126,22 +8126,65 @@ https://github.com/RubyLouvre/avalon/tree/2.2.9
 "use strict";
 
 
-__webpack_require__(8);
+__webpack_require__(16);
 
-__webpack_require__(4);
+__webpack_require__(12);
 
-__webpack_require__(9);
+__webpack_require__(17);
 
-__webpack_require__(5);
+__webpack_require__(13);
 
-__webpack_require__(6);
+__webpack_require__(14);
 
-__webpack_require__(7);
+__webpack_require__(15);
 
-__webpack_require__(3);
+__webpack_require__(11);
 
 /***/ }),
 /* 2 */
+/***/ (function(module, exports) {
+
+module.exports = "<div>\r    <div>\r        至少选择\r        <input type=\"text\" :duplex=\"@data.atLeast\" :change=\"@onAtLeastChange\">\r        项\r    </div>\r    <a href=\"javascript:;\" :click=\"@data.items.push('')\">添加新选项</a>\r    <ul>\r        <li :for=\"(index,el) in @data.items\">\r            <input type=\"text\" :duplex=\"el\">\r            <a href=\"javascript:;\" :click=\"@data.items.splice(index,1)\">删除该项</a>\r        </li>\r    </ul>\r</div>"
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports) {
+
+module.exports = "<div>\r    <div :if=\"@edit\">\r        <a href=\"javascript:;\" :click=\"@data.items.push('')\">添加新选项</a>\r        <ul>\r            <li :for=\"(index,el) in @data.items\">\r                <input type=\"text\" :duplex=\"el\">\r                <a href=\"javascript:;\" :click=\"@data.items.splice(index,1)\">删除该项</a>\r            </li>\r        </ul>\r    </div>\r\r</div>"
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports) {
+
+module.exports = "<div>\r    <p>\r        <b>节点类型</b>\r    </p>\r    <p>\r        审核\r    </p>\r    <p>\r        <b>节点属性</b>\r    </p>\r    <div>\r        <p>\r            审核人数：\r            <input type=\"text\" :duplex=\"@data.num\" :change=\"@onNumChange\">\r        </p>\r        <p>\r            通过人数\r            <input type=\"text\" :duplex=\"@data.passNum\" :change=\"@onPassNumChange\">\r        </p>\r    </div>\r</div>"
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports) {
+
+module.exports = "<div>\r    <input :if=\"@edit\" :duplex=\"@data.value\" type=\"text\" placeholder=\"填写默认值\">\r\r    <input :if=\"!@edit\" :attr=\"{placeholder: @data.value}\" type=\"text\">\r</div>"
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports) {
+
+module.exports = "<div>\r    <textarea :duplex=\"@data.value\" type=\"text\" placeholder=\"填写默认值\"></textarea>\r</div>"
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports) {
+
+module.exports = "<ul>\r    <li ms-for=\"(index, el) in @tree | get(0)\">\r    <span ms-click='el.open = !el.open' ms-if='el.departments && el.departments.length'>\r    {{el.open ? '[-]' : '[+]'}}\r</span>\r        <span ms-click='@select(el)' :class=\"el.selected == 1 ? 'selected' : ''\" >\r    {{el.name}}\r</span>\r        <div ms-if='el.open'>\r            <wbr ms-widget=\"{is:'tree',tree: el.departments}\" />\r        </div>\r    </li>\r</ul>"
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports) {
+
+module.exports = "<div >\r    <p>\r        <b>节点类型</b>\r    </p>\r    <p>\r        资料\r    </p>\r    <p>\r        <b>节点属性</b>\r    </p>\r    <tr>\r        <div :if=\"@edit\">\r            <a :click=\"@addField('text')\" class=\"btn blue\">添加单行文本</a>\r            <a :click=\"@addField('textarea')\" class=\"btn blue\">添加多行文本</a>\r            <a :click=\"@addField('radio')\" class=\"btn blue\">添加单选框</a>\r            <a :click=\"@addField('checkbox')\" class=\"btn blue\">添加多选框</a>\r            <a :click=\"@addField('file')\" class=\"btn blue\">添加文件上传（未完成）</a>\r        </div>\r\r        <table>\r            <thead>\r                <th>字段名称</th>\r                <th>字段类型</th>\r                <th>是否必填</th>\r                <th>字段信息</th>\r                <th :if=\"@edit\">操作</th>\r            </thead>\r            <tr :for=\"(index,el) in @data.fields\">\r                <td class=\"\">\r                    <b :if=\"!@edit\" :html=\"el.name\"></b>\r                    <input type=\"text\" :duplex=\"el.name\" :if=\"@edit\">\r                </td>\r                <td class=\"\">\r                    <b :if=\"el.type == 'text'\">单行文本</b>\r                    <b :if=\"el.type == 'textarea'\">多行文本</b>\r                    <b :if=\"el.type == 'radio'\">单选框</b>\r                    <b :if=\"el.type == 'checkbox'\">多选框</b>\r                    <b :if=\"el.type == 'file'\">文件上传</b>\r                </td>\r                <td>\r                    <span :if=\"!@edit && el.required\">是</span>\r                    <span :if=\"!@edit && !el.required\">否</span>\r                    <input :if=\"@edit\" type=\"checkbox\" :duplex=\"el.required\">\r                </td>\r                <td class=\"\">\r                    <wbr :widget=\"{is: el.type,data:el,edit: @edit}\"/>\r                </td>\r                <td :if=\"@edit\">\r                    <a href=\"javascript:;\" :click=\"@removeField(index)\">删除字段</a>\r                </td>\r            </tr>\r        </table>\r\r    </div>\r</div>"
+
+/***/ }),
+/* 9 */,
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8171,7 +8214,7 @@ try {
 module.exports = g;
 
 /***/ }),
-/* 3 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8184,7 +8227,7 @@ var _avalon2 = _interopRequireDefault(_avalon);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 (0, _avalon.component)("checkbox", {
-    template: __webpack_require__(11),
+    template: __webpack_require__(2),
     defaults: {
         data: {
             items: [],
@@ -8200,7 +8243,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 });
 
 /***/ }),
-/* 4 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8213,11 +8256,12 @@ var _avalon2 = _interopRequireDefault(_avalon);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 (0, _avalon.component)("radio", {
-    template: __webpack_require__(12),
+    template: __webpack_require__(3),
     defaults: {
         data: {
             items: []
         },
+        edit: true,
         addItem: function addItem() {
             console.log(this);
             this.data.items.push("");
@@ -8226,7 +8270,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 });
 
 /***/ }),
-/* 5 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8239,7 +8283,7 @@ var _avalon2 = _interopRequireDefault(_avalon);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 (0, _avalon.component)("shenheNode", {
-    template: __webpack_require__(13),
+    template: __webpack_require__(4),
     defaults: {
         data: {
             num: 1,
@@ -8267,7 +8311,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 });
 
 /***/ }),
-/* 6 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8280,16 +8324,17 @@ var _avalon2 = _interopRequireDefault(_avalon);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 (0, _avalon.component)("text", {
-    template: __webpack_require__(14),
+    template: __webpack_require__(5),
     defaults: {
         data: {
             value: ""
-        }
+        },
+        edit: true
     }
 });
 
 /***/ }),
-/* 7 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8302,7 +8347,7 @@ var _avalon2 = _interopRequireDefault(_avalon);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 (0, _avalon.component)("textarea", {
-    template: __webpack_require__(15),
+    template: __webpack_require__(6),
     defaults: {
         data: {
             value: ""
@@ -8311,7 +8356,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 });
 
 /***/ }),
-/* 8 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8325,7 +8370,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 
 window.lastSelected = null;
 (0, _avalon.component)('tree', {
-    template: __webpack_require__(16),
+    template: __webpack_require__(7),
     defaults: {
         tree: [],
         select: function select(el) {
@@ -8351,7 +8396,7 @@ window.lastSelected = null;
 });
 
 /***/ }),
-/* 9 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8364,11 +8409,13 @@ var _avalon2 = _interopRequireDefault(_avalon);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 (0, _avalon.component)("ziliaoNode", {
-    template: __webpack_require__(17),
+    template: __webpack_require__(8),
     defaults: {
         data: {
             fields: []
         },
+        edit: true,
+
         addField: function addField(type) {
             var data = {
                 name: "",
@@ -8390,55 +8437,14 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 });
 
 /***/ }),
-/* 10 */
+/* 18 */,
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 __webpack_require__(1);
-
-/***/ }),
-/* 11 */
-/***/ (function(module, exports) {
-
-module.exports = "<div>\r    <div>\r        至少选择\r        <input type=\"text\" :duplex=\"@data.atLeast\" :change=\"@onAtLeastChange\">\r        项\r    </div>\r    <a href=\"javascript:;\" :click=\"@data.items.push('')\">添加新选项</a>\r    <ul>\r        <li :for=\"(index,el) in @data.items\">\r            <input type=\"text\" :duplex=\"el\">\r            <a href=\"javascript:;\" :click=\"@data.items.splice(index,1)\">删除该项</a>\r        </li>\r    </ul>\r</div>"
-
-/***/ }),
-/* 12 */
-/***/ (function(module, exports) {
-
-module.exports = "<div>\r    <a href=\"javascript:;\" :click=\"@data.items.push('')\">添加新选项</a>\r    <ul>\r        <li :for=\"(index,el) in @data.items\">\r            <input type=\"text\" :duplex=\"el\">\r            <a href=\"javascript:;\" :click=\"@data.items.splice(index,1)\">删除该项</a>\r        </li>\r    </ul>\r</div>"
-
-/***/ }),
-/* 13 */
-/***/ (function(module, exports) {
-
-module.exports = "<div>\r    <p>\r        <b>节点类型</b>\r    </p>\r    <p>\r        审核\r    </p>\r    <p>\r        <b>节点属性</b>\r    </p>\r    <div>\r        <p>\r            审核人数：\r            <input type=\"text\" :duplex=\"@data.num\" :change=\"@onNumChange\">\r        </p>\r        <p>\r            通过人数\r            <input type=\"text\" :duplex=\"@data.passNum\" :change=\"@onPassNumChange\">\r        </p>\r    </div>\r</div>"
-
-/***/ }),
-/* 14 */
-/***/ (function(module, exports) {
-
-module.exports = "<div>\r    <input :duplex=\"@data.value\" type=\"text\" placeholder=\"填写默认值\">\r</div>"
-
-/***/ }),
-/* 15 */
-/***/ (function(module, exports) {
-
-module.exports = "<div>\r    <textarea :duplex=\"@data.value\" type=\"text\" placeholder=\"填写默认值\"></textarea>\r</div>"
-
-/***/ }),
-/* 16 */
-/***/ (function(module, exports) {
-
-module.exports = "<ul>\r    <li ms-for=\"(index, el) in @tree | get(0)\">\r    <span ms-click='el.open = !el.open' ms-if='el.departments && el.departments.length'>\r    {{el.open ? '[-]' : '[+]'}}\r</span>\r        <span ms-click='@select(el)' :class=\"el.selected == 1 ? 'selected' : ''\" >\r    {{el.name}}\r</span>\r        <div ms-if='el.open'>\r            <wbr ms-widget=\"{is:'tree',tree: el.departments}\" />\r        </div>\r    </li>\r</ul>"
-
-/***/ }),
-/* 17 */
-/***/ (function(module, exports) {
-
-module.exports = "<div >\r    <p>\r        <b>节点类型</b>\r    </p>\r    <p>\r        资料\r    </p>\r    <p>\r        <b>节点属性</b>\r    </p>\r    <tr>\r        <a :click=\"@addField('text')\" class=\"btn blue\">添加单行文本</a>\r        <a :click=\"@addField('textarea')\" class=\"btn blue\">添加多行文本</a>\r        <a :click=\"@addField('radio')\" class=\"btn blue\">添加单选框</a>\r        <a :click=\"@addField('checkbox')\" class=\"btn blue\">添加多选框</a>\r        <a :click=\"@addField('file')\" class=\"btn blue\">添加文件上传（未完成）</a>\r        <table>\r            <thead>\r                <th>字段名称</th>\r                <th>字段类型</th>\r                <th>是否必填</th>\r                <th>字段信息</th>\r                <th>操作</th>\r            </thead>\r            <tr :for=\"(index,el) in @data.fields\">\r                <td class=\"\">\r                    <input type=\"text\" :duplex=\"el.name\">\r                </td>\r                <td class=\"\">\r                    <b :if=\"el.type == 'text'\">单行文本</b>\r                    <b :if=\"el.type == 'textarea'\">多行文本</b>\r                    <b :if=\"el.type == 'radio'\">单选框</b>\r                    <b :if=\"el.type == 'checkbox'\">多选框</b>\r                    <b :if=\"el.type == 'file'\">文件上传</b>\r                </td>\r                <td>\r                    <input type=\"checkbox\" :duplex=\"el.required\">\r                </td>\r                <td class=\"\">\r                    <wbr :widget=\"{is: el.type,data:el}\"/>\r                </td>\r                <td>\r                    <a href=\"javascript:;\" :click=\"@removeField(index)\">删除字段</a>\r                </td>\r            </tr>\r        </table>\r\r    </div>\r</div>"
 
 /***/ })
 /******/ ]);

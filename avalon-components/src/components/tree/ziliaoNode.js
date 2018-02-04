@@ -5,6 +5,8 @@ component("ziliaoNode",{
         data : {
             fields:[]
         },
+        edit: true,
+
         addField:function (type) {
             var data = {
                 name:"",

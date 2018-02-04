@@ -27,6 +27,7 @@ public class TaskController {
 
     static String failedUrl = "";
 
+
     @GetMapping("/{id}")
     public String index(
         Model model,
@@ -49,6 +50,30 @@ public class TaskController {
         model.addAttribute("workflow", JSON.toJSONString(workFlow));
         model.addAttribute("user",JSON.toJSONString(user));
         return "workflow/list";
+    }
+
+    @GetMapping("/add/{id}")
+    public String add(
+            Model model,
+            @PathVariable(value = "id") Integer id
+    ){
+        //检查该任务是否存在
+        if(id == null){
+            return failedUrl;
+        }
+        WorkFlow workFlow = workFlowDao.findOne(id);
+        if(workFlow == null){
+            return failedUrl;
+        }
+        //检查该任务是否属于我
+        org.apache.shiro.subject.Subject subject = SecurityUtils.getSubject();
+        User user = (User) subject.getPrincipal();
+        if(!user.isBelongToDepartment(workFlow.getDepartment())){
+            return failedUrl;
+        }
+        model.addAttribute("workflow", JSON.toJSONString(workFlow));
+        model.addAttribute("user",JSON.toJSONString(user));
+        return "workflow/add";
     }
 
 }
