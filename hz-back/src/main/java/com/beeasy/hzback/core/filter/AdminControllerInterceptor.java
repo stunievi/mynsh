@@ -50,8 +50,7 @@ public class AdminControllerInterceptor  {
         User user = (User) subject.getPrincipal();
 
         //增加自己配置的工作流菜单
-        List<WorkFlow> workFlowList = user.getWorkFlows();
-
+        List<WorkFlow> workFlowList = userDao.getUserWorkFlows(user);
 
         //将菜单列表进行深拷贝（每一个人的菜单项实际上是不同的）
         TypeReference<List<AdminMenuConfig.AdminMenuItem>> type = new TypeReference<List<AdminMenuConfig.AdminMenuItem>>(){};

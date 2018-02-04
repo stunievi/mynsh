@@ -41,13 +41,13 @@ public class Department implements Serializable{
     @JoinColumn(name = "parent_id")
     private Department parent;
 
-    @OneToMany(fetch = FetchType.EAGER,mappedBy = "parent")
+    @OneToMany(fetch = FetchType.LAZY,mappedBy = "parent")
     private List<Department> departments = new ArrayList<>();
 
-    @OneToMany(fetch = FetchType.EAGER,mappedBy = "department")
+    @OneToMany(fetch = FetchType.LAZY,mappedBy = "department")
     private List<Role> roles;
 
-    @OneToMany(fetch = FetchType.EAGER,mappedBy = "department")
+    @OneToMany(fetch = FetchType.LAZY,mappedBy = "department")
     private Set<WorkFlow> workFlows;
 
     @JSONField(serialize = false)

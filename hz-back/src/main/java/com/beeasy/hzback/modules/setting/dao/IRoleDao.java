@@ -6,6 +6,7 @@ import com.beeasy.hzback.modules.setting.entity.Role;
 import com.beeasy.hzback.modules.setting.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Set;
 
 public interface IRoleDao extends JpaRepository<Role,Integer> {
@@ -28,5 +29,5 @@ public interface IRoleDao extends JpaRepository<Role,Integer> {
         return result;
     }
 
-    Set<Role> findAllByUsers(Set<User> users);
+    List<Role> findAllByUsers(List<User> users);
 }

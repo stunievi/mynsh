@@ -30,8 +30,6 @@ public class Work extends BaseEntity{
     @NotEmpty(message = "流程说明不能为空")
     private String info;
 
-//    @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER,mappedBy = "work")
-//    @NotNull(message = "流程节点列表不能为空")
 
     @Column(columnDefinition = "TEXT")
     @Convert(converter = NodeConverter.class)

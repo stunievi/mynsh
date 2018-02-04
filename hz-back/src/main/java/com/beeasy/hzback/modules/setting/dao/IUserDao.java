@@ -8,8 +8,10 @@ import com.beeasy.hzback.modules.setting.entity.WorkFlow;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.swing.*;
 import java.beans.Transient;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public interface IUserDao extends JpaRepository<User,Integer> {
 //    User findByName(String userName);
@@ -66,8 +68,14 @@ public interface IUserDao extends JpaRepository<User,Integer> {
      * 得到一个用户所有的工作流
      * @return
      */
-//    default List<WorkFlow> getWorkFlows(User user){
-//        IDepartmentDao departmentDao = (IDepartmentDao) SpringContextUtils.getBean(IDepartmentDao.class);
+    default List<WorkFlow> getUserWorkFlows(User user){
+        IDepartmentDao departmentDao = (IDepartmentDao) SpringContextUtils.getBean(IDepartmentDao.class);
+        IRoleDao roleDao = (IRoleDao) SpringContextUtils.getBean(IRoleDao.class);
+        List<Role> roles = roleDao.findAllByUsers(Arrays.asList(new User[]{user}));
+        return roles.stream()
+                .map(role -> role.getDepartment().getWorkFlows())
+                .flatMap(Set::stream)
+                .distinct().collect(Collectors.toList());
 //        Set<Role> roles = user.getRoles();
 //        List<WorkFlow> workFlows = new ArrayList<>();
 //        for(Role role : roles){
@@ -76,5 +84,5 @@ public interface IUserDao extends JpaRepository<User,Integer> {
 //            workFlows.addAll(department.getWorkFlows());
 //        }
 //        return workFlows;
-//    }
+    }
 }

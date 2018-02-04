@@ -3,6 +3,7 @@ package com.beeasy.hzback.core.shiro;
 import com.beeasy.hzback.modules.setting.dao.IUserDao;
 import com.beeasy.hzback.modules.setting.entity.User;
 import com.beeasy.hzback.core.util.CrUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
@@ -35,6 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 // * @myblog  http://blog.csdn.net/catoop/
 // * @create    2016年1月13日
 // */
+@Slf4j
 public class MyShiroRealm extends AuthorizingRealm {
     @Autowired
     private IUserDao userDao;
@@ -67,6 +69,8 @@ public class MyShiroRealm extends AuthorizingRealm {
             return null;
         }
 
+        user.setRoles(user.getRoles());
+        log.info(user.getRoles().size() + "");
         SimpleAuthenticationInfo authenticationInfo = new SimpleAuthenticationInfo(
             user,
             password,

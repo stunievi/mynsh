@@ -46,7 +46,7 @@ public class User implements Serializable{
 ////    private List<Role> roleList;// 一个用户具有多个角色
 
 
-    @ManyToMany(fetch = FetchType.EAGER,mappedBy = "users")
+    @ManyToMany(fetch = FetchType.LAZY,mappedBy = "users")
     private Set<Role> roles;
 
 
@@ -54,16 +54,16 @@ public class User implements Serializable{
      * 得到一个用户所有的工作留
      * @return
      */
-    @JSONField(serialize = false)
-    public List<WorkFlow> getWorkFlows(){
-        return this
-                .getRoles()
-                .stream()
-                .map(role -> role.getDepartment().getWorkFlows())
-                .flatMap(Set::stream)
-                .distinct()
-                .collect(Collectors.toList());
-    }
+//    @JSONField(serialize = false)
+//    public List<WorkFlow> getWorkFlows(){
+//        return this
+//                .getRoles()
+//                .stream()
+//                .map(role -> role.getDepartment().getWorkFlows())
+//                .flatMap(Set::stream)
+//                .distinct()
+//                .collect(Collectors.toList());
+//    }
 
     /**
      * 是否属于某个部门

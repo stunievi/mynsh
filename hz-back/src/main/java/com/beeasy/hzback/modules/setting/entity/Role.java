@@ -25,7 +25,7 @@ public class Role implements Serializable{
     private String name;
 
     @JSONField(serialize = false)
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne()
     @JoinColumn(name = "department_id")
     private Department department;
 
