@@ -11,6 +11,12 @@ component("checkbox",{
             if(this.data.atLeast !== this.data.atLeast || this.data.atLeast < 1){
                 this.data.atLeast = 1;
             }
+        },
+        add:function () {
+            this.data.items.push("")
+        },
+        remove:function (index) {
+            this.data.splice(index,1);
         }
     }
 })

@@ -47,6 +47,7 @@ public class Department implements Serializable{
     @OneToMany(fetch = FetchType.LAZY,mappedBy = "department")
     private List<Role> roles;
 
+    @JSONField(serialize = false)
     @OneToMany(fetch = FetchType.LAZY,mappedBy = "department")
     private Set<WorkFlow> workFlows;
 

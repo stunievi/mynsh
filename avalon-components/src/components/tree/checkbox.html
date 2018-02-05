@@ -4,11 +4,11 @@
         <input type="text" :duplex="@data.atLeast" :change="@onAtLeastChange">
         项
     </div>
-    <a href="javascript:;" :click="@data.items.push('')">添加新选项</a>
+    <a href="javascript:;" :click="@add()">添加新选项</a>
     <ul>
         <li :for="(index,el) in @data.items">
             <input type="text" :duplex="el">
-            <a href="javascript:;" :click="@data.items.splice(index,1)">删除该项</a>
+            <a href="javascript:;" :click="@remove(index)">删除该项</a>
         </li>
     </ul>
 </div>

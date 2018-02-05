@@ -3,14 +3,11 @@
   <component name="ChangeListManager">
     <list default="true" id="b35ecf90-065f-4718-a00d-a7cd57cce90e" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/avalon-components/src/components/tree/radio.html" afterPath="$PROJECT_DIR$/avalon-components/src/components/tree/radio.html" />
-      <change beforePath="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/dao/IRoleDao.java" afterPath="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/dao/IRoleDao.java" />
-      <change beforePath="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/dao/IUserDao.java" afterPath="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/dao/IUserDao.java" />
+      <change beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
+      <change beforePath="$PROJECT_DIR$/avalon-components/src/components/tree/checkbox.html" afterPath="$PROJECT_DIR$/avalon-components/src/components/tree/checkbox.html" />
+      <change beforePath="$PROJECT_DIR$/avalon-components/src/components/tree/checkbox.js" afterPath="$PROJECT_DIR$/avalon-components/src/components/tree/checkbox.js" />
       <change beforePath="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/entity/Department.java" afterPath="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/entity/Department.java" />
-      <change beforePath="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/entity/User.java" afterPath="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/entity/User.java" />
-      <change beforePath="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/workflow/controller/TaskController.java" afterPath="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/workflow/controller/TaskController.java" />
       <change beforePath="$PROJECT_DIR$/hz-back/src/main/resources/static/js/dist/bundle.js" afterPath="$PROJECT_DIR$/hz-back/src/main/resources/static/js/dist/bundle.js" />
-      <change beforePath="$PROJECT_DIR$/hz-back/src/main/resources/templates/setting/workflow_list.html" afterPath="$PROJECT_DIR$/hz-back/src/main/resources/templates/setting/workflow_list.html" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/target/" />
@@ -33,7 +30,7 @@
     </SUITE>
   </component>
   <component name="FileEditorManager">
-    <splitter split-orientation="horizontal" split-proportion="0.5086262">
+    <splitter split-orientation="horizontal" split-proportion="0.49747476">
       <split-first>
         <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
           <file leaf-file-name="TaskController.java" pinned="false" current-in-tab="false">
@@ -57,16 +54,6 @@
                     <element signature="e#1970#1971#0" expanded="true" />
                     <marker date="1517827173429" expanded="true" signature="1470:1822" ph="..." />
                   </folding>
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="Predicate.java" pinned="false" current-in-tab="false">
-            <entry file="jar://C:/Program Files/Java/jdk1.8.0_101/src.zip!/java/util/function/Predicate.java">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="202">
-                  <caret line="48" column="12" lean-forward="false" selection-start-line="48" selection-start-column="12" selection-end-line="48" selection-end-column="12" />
-                  <folding />
                 </state>
               </provider>
             </entry>
@@ -103,16 +90,6 @@
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="RoleController.java" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/controller/RoleController.java">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="364">
-                  <caret line="66" column="5" lean-forward="true" selection-start-line="66" selection-start-column="5" selection-end-line="66" selection-end-column="5" />
-                  <folding />
-                </state>
-              </provider>
-            </entry>
-          </file>
           <file leaf-file-name="WorkFlowController.java" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/controller/WorkFlowController.java">
               <provider selected="true" editor-type-id="text-editor">
@@ -123,10 +100,10 @@
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="list.html" pinned="false" current-in-tab="true">
+          <file leaf-file-name="list.html" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/hz-back/src/main/resources/templates/workflow/list.html">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="396">
+                <state relative-caret-position="792">
                   <caret line="36" column="17" lean-forward="false" selection-start-line="36" selection-start-column="17" selection-end-line="36" selection-end-column="17" />
                   <folding />
                 </state>
@@ -136,13 +113,36 @@
           <file leaf-file-name="Department.java" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/entity/Department.java">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="253">
-                  <caret line="109" column="0" lean-forward="false" selection-start-line="109" selection-start-column="0" selection-end-line="109" selection-end-column="0" />
+                <state relative-caret-position="512">
+                  <caret line="49" column="32" lean-forward="false" selection-start-line="49" selection-start-column="32" selection-end-line="49" selection-end-column="32" />
                   <folding>
                     <element signature="imports" expanded="true" />
-                    <element signature="e#2362#2363#0" expanded="true" />
-                    <element signature="e#2411#2412#0" expanded="true" />
+                    <element signature="e#2396#2397#0" expanded="true" />
+                    <element signature="e#2445#2446#0" expanded="true" />
                   </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="README.md" pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/README.md">
+              <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+                <state split_layout="SPLIT">
+                  <first_editor relative-caret-position="440">
+                    <caret line="20" column="24" lean-forward="false" selection-start-line="20" selection-start-column="24" selection-end-line="20" selection-end-column="24" />
+                    <folding />
+                  </first_editor>
+                  <second_editor />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="checkbox.js" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/avalon-components/src/components/tree/checkbox.js">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="308">
+                  <caret line="14" column="25" lean-forward="true" selection-start-line="14" selection-start-column="25" selection-end-line="14" selection-end-column="25" />
+                  <folding />
                 </state>
               </provider>
             </entry>
@@ -151,11 +151,11 @@
       </split-first>
       <split-second>
         <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-          <file leaf-file-name="workflow_list.html" pinned="false" current-in-tab="true">
+          <file leaf-file-name="workflow_list.html" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/hz-back/src/main/resources/templates/setting/workflow_list.html">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="374">
-                  <caret line="26" column="30" lean-forward="false" selection-start-line="26" selection-start-column="30" selection-end-line="26" selection-end-column="30" />
+                <state relative-caret-position="264">
+                  <caret line="21" column="38" lean-forward="false" selection-start-line="21" selection-start-column="38" selection-end-line="21" selection-end-column="38" />
                   <folding />
                 </state>
               </provider>
@@ -174,8 +174,8 @@
           <file leaf-file-name="ziliaoNode.html" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/avalon-components/src/components/tree/ziliaoNode.html">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="528">
-                  <caret line="24" column="24" lean-forward="false" selection-start-line="24" selection-start-column="24" selection-end-line="24" selection-end-column="24" />
+                <state relative-caret-position="380">
+                  <caret line="48" column="63" lean-forward="false" selection-start-line="48" selection-start-column="52" selection-end-line="48" selection-end-column="63" />
                   <folding />
                 </state>
               </provider>
@@ -214,8 +214,8 @@
           <file leaf-file-name="checkbox.html" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/avalon-components/src/components/tree/checkbox.html">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="0">
-                  <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+                <state relative-caret-position="220">
+                  <caret line="10" column="36" lean-forward="false" selection-start-line="10" selection-start-column="36" selection-end-line="10" selection-end-column="36" />
                   <folding />
                 </state>
               </provider>
@@ -231,11 +231,11 @@
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="ziliaoNode.js" pinned="false" current-in-tab="false">
+          <file leaf-file-name="ziliaoNode.js" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/avalon-components/src/components/tree/ziliaoNode.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="154">
-                  <caret line="7" column="17" lean-forward="false" selection-start-line="7" selection-start-column="17" selection-end-line="7" selection-end-column="17" />
+                <state relative-caret-position="528">
+                  <caret line="24" column="24" lean-forward="false" selection-start-line="24" selection-start-column="24" selection-end-line="24" selection-end-column="24" />
                   <folding />
                 </state>
               </provider>
@@ -323,8 +323,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/hz-back/src/main/resources/templates/setting/work_edit.html" />
-        <option value="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/controller/WorkController.java" />
         <option value="$PROJECT_DIR$/avalon-components/src/index.js" />
         <option value="$PROJECT_DIR$/avalon-components/webpack.config.js" />
         <option value="$PROJECT_DIR$/hz-back/src/main/resources/templates/layout.html" />
@@ -349,7 +347,6 @@
         <option value="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/controller/index.java" />
         <option value="$PROJECT_DIR$/hz-back/src/main/resources/application.properties" />
         <option value="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/dao/IDepartmentDao.java" />
-        <option value="$PROJECT_DIR$/README.md" />
         <option value="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/dao/IWorkDao.java" />
         <option value="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/workflow/controller/WorkflowController.java" />
         <option value="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/core/config/AdminMenuConfig.java" />
@@ -369,11 +366,14 @@
         <option value="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/core/shiro/MyShiroRealm.java" />
         <option value="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/dao/IRoleDao.java" />
         <option value="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/dao/IUserDao.java" />
-        <option value="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/entity/Department.java" />
         <option value="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/entity/User.java" />
         <option value="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/workflow/controller/TaskController.java" />
         <option value="$PROJECT_DIR$/avalon-components/src/components/tree/radio.html" />
         <option value="$PROJECT_DIR$/hz-back/src/main/resources/templates/setting/workflow_list.html" />
+        <option value="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/entity/Department.java" />
+        <option value="$PROJECT_DIR$/avalon-components/src/components/tree/checkbox.js" />
+        <option value="$PROJECT_DIR$/avalon-components/src/components/tree/checkbox.html" />
+        <option value="$PROJECT_DIR$/README.md" />
       </list>
     </option>
   </component>
@@ -442,205 +442,6 @@
             <path>
               <item name="hznsh" type="b2602c69:ProjectViewProjectNode" />
               <item name="hznsh" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="hznsh" type="b2602c69:ProjectViewProjectNode" />
-              <item name="hznsh" type="462c0819:PsiDirectoryNode" />
-              <item name="avalon-components" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="hznsh" type="b2602c69:ProjectViewProjectNode" />
-              <item name="hznsh" type="462c0819:PsiDirectoryNode" />
-              <item name="avalon-components" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="hznsh" type="b2602c69:ProjectViewProjectNode" />
-              <item name="hznsh" type="462c0819:PsiDirectoryNode" />
-              <item name="avalon-components" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="components" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="hznsh" type="b2602c69:ProjectViewProjectNode" />
-              <item name="hznsh" type="462c0819:PsiDirectoryNode" />
-              <item name="avalon-components" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="components" type="462c0819:PsiDirectoryNode" />
-              <item name="tree" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="hznsh" type="b2602c69:ProjectViewProjectNode" />
-              <item name="hznsh" type="462c0819:PsiDirectoryNode" />
-              <item name="hz-back" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="hznsh" type="b2602c69:ProjectViewProjectNode" />
-              <item name="hznsh" type="462c0819:PsiDirectoryNode" />
-              <item name="hz-back" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="hznsh" type="b2602c69:ProjectViewProjectNode" />
-              <item name="hznsh" type="462c0819:PsiDirectoryNode" />
-              <item name="hz-back" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="hznsh" type="b2602c69:ProjectViewProjectNode" />
-              <item name="hznsh" type="462c0819:PsiDirectoryNode" />
-              <item name="hz-back" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="hznsh" type="b2602c69:ProjectViewProjectNode" />
-              <item name="hznsh" type="462c0819:PsiDirectoryNode" />
-              <item name="hz-back" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="hzback" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="hznsh" type="b2602c69:ProjectViewProjectNode" />
-              <item name="hznsh" type="462c0819:PsiDirectoryNode" />
-              <item name="hz-back" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="hzback" type="462c0819:PsiDirectoryNode" />
-              <item name="core" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="hznsh" type="b2602c69:ProjectViewProjectNode" />
-              <item name="hznsh" type="462c0819:PsiDirectoryNode" />
-              <item name="hz-back" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="hzback" type="462c0819:PsiDirectoryNode" />
-              <item name="core" type="462c0819:PsiDirectoryNode" />
-              <item name="filter" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="hznsh" type="b2602c69:ProjectViewProjectNode" />
-              <item name="hznsh" type="462c0819:PsiDirectoryNode" />
-              <item name="hz-back" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="hzback" type="462c0819:PsiDirectoryNode" />
-              <item name="core" type="462c0819:PsiDirectoryNode" />
-              <item name="helper" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="hznsh" type="b2602c69:ProjectViewProjectNode" />
-              <item name="hznsh" type="462c0819:PsiDirectoryNode" />
-              <item name="hz-back" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="hzback" type="462c0819:PsiDirectoryNode" />
-              <item name="core" type="462c0819:PsiDirectoryNode" />
-              <item name="shiro" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="hznsh" type="b2602c69:ProjectViewProjectNode" />
-              <item name="hznsh" type="462c0819:PsiDirectoryNode" />
-              <item name="hz-back" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="hzback" type="462c0819:PsiDirectoryNode" />
-              <item name="modules" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="hznsh" type="b2602c69:ProjectViewProjectNode" />
-              <item name="hznsh" type="462c0819:PsiDirectoryNode" />
-              <item name="hz-back" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="hzback" type="462c0819:PsiDirectoryNode" />
-              <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="setting" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="hznsh" type="b2602c69:ProjectViewProjectNode" />
-              <item name="hznsh" type="462c0819:PsiDirectoryNode" />
-              <item name="hz-back" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="hzback" type="462c0819:PsiDirectoryNode" />
-              <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="setting" type="462c0819:PsiDirectoryNode" />
-              <item name="entity" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="hznsh" type="b2602c69:ProjectViewProjectNode" />
-              <item name="hznsh" type="462c0819:PsiDirectoryNode" />
-              <item name="hz-back" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="hzback" type="462c0819:PsiDirectoryNode" />
-              <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="setting" type="462c0819:PsiDirectoryNode" />
-              <item name="service" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="hznsh" type="b2602c69:ProjectViewProjectNode" />
-              <item name="hznsh" type="462c0819:PsiDirectoryNode" />
-              <item name="hz-back" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="hzback" type="462c0819:PsiDirectoryNode" />
-              <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="setting" type="462c0819:PsiDirectoryNode" />
-              <item name="work_engine" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="hznsh" type="b2602c69:ProjectViewProjectNode" />
-              <item name="hznsh" type="462c0819:PsiDirectoryNode" />
-              <item name="hz-back" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="hzback" type="462c0819:PsiDirectoryNode" />
-              <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="controller" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="hznsh" type="b2602c69:ProjectViewProjectNode" />
-              <item name="hznsh" type="462c0819:PsiDirectoryNode" />
-              <item name="hz-back" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="resources" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="hznsh" type="b2602c69:ProjectViewProjectNode" />
-              <item name="hznsh" type="462c0819:PsiDirectoryNode" />
-              <item name="hz-back" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="resources" type="462c0819:PsiDirectoryNode" />
-              <item name="templates" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="hznsh" type="b2602c69:ProjectViewProjectNode" />
-              <item name="hznsh" type="462c0819:PsiDirectoryNode" />
-              <item name="hz-back" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="resources" type="462c0819:PsiDirectoryNode" />
-              <item name="templates" type="462c0819:PsiDirectoryNode" />
-              <item name="workflow" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -954,7 +755,7 @@
       <workItem from="1517643658576" duration="4568000" />
       <workItem from="1517726607474" duration="6067000" />
       <workItem from="1517822751580" duration="389000" />
-      <workItem from="1517825004514" duration="2666000" />
+      <workItem from="1517825004514" duration="3400000" />
     </task>
     <task id="LOCAL-00001" summary="shiro 授权配置">
       <created>1514539888662</created>
@@ -1187,7 +988,14 @@
       <option name="project" value="LOCAL" />
       <updated>1517732465531</updated>
     </task>
-    <option name="localTasksCounter" value="34" />
+    <task id="LOCAL-00034" summary="增加请假业务的测试用例">
+      <created>1517827783606</created>
+      <option name="number" value="00034" />
+      <option name="presentableId" value="LOCAL-00034" />
+      <option name="project" value="LOCAL" />
+      <updated>1517827783606</updated>
+    </task>
+    <option name="localTasksCounter" value="35" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -1223,7 +1031,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="190712000" />
+    <option name="totallyTimeSpent" value="191446000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -1260,7 +1068,7 @@
       <window_info id="Spring" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3297062" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.20130576" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Problems" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3297062" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.16577825" sideWeight="0.4942857" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.15565032" sideWeight="0.4942857" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Bean Validation" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Web" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.19083156" sideWeight="0.5057143" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Theme Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -1298,7 +1106,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="shiro" />
     <MESSAGE value="增加用户管理、单元测试的支持" />
     <MESSAGE value="调整结构，增加分页" />
     <MESSAGE value="增加编辑删除的通用操作" />
@@ -1323,7 +1130,8 @@
     <MESSAGE value="修复工作流部署后会出现多个的问题" />
     <MESSAGE value="新增：工作部署后的节点提交" />
     <MESSAGE value="关联修改为懒加载，大概节省了资源吧" />
-    <option name="LAST_COMMIT_MESSAGE" value="关联修改为懒加载，大概节省了资源吧" />
+    <MESSAGE value="增加请假业务的测试用例" />
+    <option name="LAST_COMMIT_MESSAGE" value="增加请假业务的测试用例" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1501,13 +1309,6 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/core/helper/BaseEntity.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="88">
-          <caret line="6" column="22" lean-forward="false" selection-start-line="6" selection-start-column="22" selection-end-line="6" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/hz-back/src/main/resources/application.yml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-296">
@@ -1610,16 +1411,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/README.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="242">
-            <caret line="11" column="0" lean-forward="true" selection-start-line="11" selection-start-column="0" selection-end-line="11" selection-end-column="0" />
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/controller/CommonAPI.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="132">
@@ -1680,26 +1471,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/avalon-components/src/components/tree/ziliaoNode.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="154">
-          <caret line="7" column="17" lean-forward="false" selection-start-line="7" selection-start-column="17" selection-end-line="7" selection-end-column="17" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/hz-back/src/main/resources/templates/workflow/add.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="616">
           <caret line="28" column="33" lean-forward="false" selection-start-line="28" selection-start-column="33" selection-end-line="28" selection-end-column="33" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/avalon-components/src/components/tree/ziliaoNode.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="528">
-          <caret line="24" column="24" lean-forward="false" selection-start-line="24" selection-start-column="24" selection-end-line="24" selection-end-column="24" />
           <folding />
         </state>
       </provider>
@@ -1766,14 +1541,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/avalon-components/src/components/tree/checkbox.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/core/shiro/MyShiroRealm.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-220">
@@ -1813,18 +1580,6 @@
         <state relative-caret-position="220">
           <caret line="10" column="23" lean-forward="false" selection-start-line="10" selection-start-column="23" selection-end-line="10" selection-end-column="23" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/entity/Department.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="253">
-          <caret line="109" column="0" lean-forward="false" selection-start-line="109" selection-start-column="0" selection-end-line="109" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#2362#2363#0" expanded="true" />
-            <element signature="e#2411#2412#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1891,17 +1646,72 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/hz-back/src/main/resources/templates/workflow/list.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="396">
+        <state relative-caret-position="792">
           <caret line="36" column="17" lean-forward="false" selection-start-line="36" selection-start-column="17" selection-end-line="36" selection-end-column="17" />
           <folding />
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/entity/Department.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="512">
+          <caret line="49" column="32" lean-forward="false" selection-start-line="49" selection-start-column="32" selection-end-line="49" selection-end-column="32" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#2396#2397#0" expanded="true" />
+            <element signature="e#2445#2446#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/hz-back/src/main/resources/templates/setting/workflow_list.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="374">
-          <caret line="26" column="30" lean-forward="false" selection-start-line="26" selection-start-column="30" selection-end-line="26" selection-end-column="30" />
+        <state relative-caret-position="264">
+          <caret line="21" column="38" lean-forward="false" selection-start-line="21" selection-start-column="38" selection-end-line="21" selection-end-column="38" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/avalon-components/src/components/tree/checkbox.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="220">
+          <caret line="10" column="36" lean-forward="false" selection-start-line="10" selection-start-column="36" selection-end-line="10" selection-end-column="36" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/avalon-components/src/components/tree/checkbox.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="308">
+          <caret line="14" column="25" lean-forward="true" selection-start-line="14" selection-start-column="25" selection-end-line="14" selection-end-column="25" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/avalon-components/src/components/tree/ziliaoNode.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="380">
+          <caret line="48" column="63" lean-forward="false" selection-start-line="48" selection-start-column="52" selection-end-line="48" selection-end-column="63" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/avalon-components/src/components/tree/ziliaoNode.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="528">
+          <caret line="24" column="24" lean-forward="false" selection-start-line="24" selection-start-column="24" selection-end-line="24" selection-end-column="24" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/README.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="440">
+            <caret line="20" column="24" lean-forward="false" selection-start-line="20" selection-start-column="24" selection-end-line="20" selection-end-column="24" />
+            <folding />
+          </first_editor>
+          <second_editor />
         </state>
       </provider>
     </entry>

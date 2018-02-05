@@ -8144,7 +8144,7 @@ __webpack_require__(10);
 /* 2 */
 /***/ (function(module, exports) {
 
-module.exports = "<div>\r    <div>\r        至少选择\r        <input type=\"text\" :duplex=\"@data.atLeast\" :change=\"@onAtLeastChange\">\r        项\r    </div>\r    <a href=\"javascript:;\" :click=\"@data.items.push('')\">添加新选项</a>\r    <ul>\r        <li :for=\"(index,el) in @data.items\">\r            <input type=\"text\" :duplex=\"el\">\r            <a href=\"javascript:;\" :click=\"@data.items.splice(index,1)\">删除该项</a>\r        </li>\r    </ul>\r</div>"
+module.exports = "<div>\r    <div>\r        至少选择\r        <input type=\"text\" :duplex=\"@data.atLeast\" :change=\"@onAtLeastChange\">\r        项\r    </div>\r    <a href=\"javascript:;\" :click=\"@add()\">添加新选项</a>\r    <ul>\r        <li :for=\"(index,el) in @data.items\">\r            <input type=\"text\" :duplex=\"el\">\r            <a href=\"javascript:;\" :click=\"@remove(index)\">删除该项</a>\r        </li>\r    </ul>\r</div>"
 
 /***/ }),
 /* 3 */
@@ -8237,6 +8237,12 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
             if (this.data.atLeast !== this.data.atLeast || this.data.atLeast < 1) {
                 this.data.atLeast = 1;
             }
+        },
+        add: function add() {
+            this.data.items.push("");
+        },
+        remove: function remove(index) {
+            this.data.splice(index, 1);
         }
     }
 });
