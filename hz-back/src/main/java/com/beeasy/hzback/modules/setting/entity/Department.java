@@ -86,6 +86,7 @@ public class Department implements Serializable{
         return this.hasRole(role.getId());
     }
 
+
     @Transient
     public Role getRole(Integer roleId){
         List<Role> roles = this.getRoles();
@@ -97,6 +98,19 @@ public class Department implements Serializable{
         return null;
     }
 
+
+    /**
+     * 该部门是否拥有这个职员
+     * @param user
+     * @return
+     */
+    @Transient
+    public boolean hasUser(User user){
+        for(Role role : this.getRoles()){
+            int a = 1;
+        }
+        return this.getRoles().stream().anyMatch(role -> user.hasRole(role));
+    }
 
 
 

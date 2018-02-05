@@ -68,12 +68,10 @@ public class User implements Serializable{
 //                .collect(Collectors.toList());
 //    }
 
-    /**
-     * 是否属于某个部门
-     */
-    public boolean isBelongToDepartment(Department department){
-        log.info(this.getRoles().toString());
-        return this.getRoles().stream().anyMatch(role -> department.hasRole(role));
+
+    @Transient
+    public boolean hasRole(Role role){
+        return this.getRoles().stream().anyMatch(r -> r.getId().equals(role.getId()));
     }
 
 

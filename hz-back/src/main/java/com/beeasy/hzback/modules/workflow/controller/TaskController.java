@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.security.auth.Subject;
+import java.beans.Transient;
 
 
 @Slf4j
@@ -44,9 +46,10 @@ public class TaskController {
         //检查该任务是否属于我
         org.apache.shiro.subject.Subject subject = SecurityUtils.getSubject();
         User user = (User) subject.getPrincipal();
-        if(!user.isBelongToDepartment(workFlow.getDepartment())){
+        if(!workFlow.getDepartment().hasUser(user)){
             return failedUrl;
         }
+
         model.addAttribute("workflow", JSON.toJSONString(workFlow));
         model.addAttribute("user",JSON.toJSONString(user));
         return "workflow/list";
@@ -68,7 +71,7 @@ public class TaskController {
         //检查该任务是否属于我
         org.apache.shiro.subject.Subject subject = SecurityUtils.getSubject();
         User user = (User) subject.getPrincipal();
-        if(!user.isBelongToDepartment(workFlow.getDepartment())){
+        if(!workFlow.getDepartment().hasUser(user)){
             return failedUrl;
         }
         model.addAttribute("workflow", JSON.toJSONString(workFlow));

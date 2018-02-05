@@ -9,4 +9,14 @@
         </ul>
     </div>
 
+    <div :if="!@edit">
+        <li :for="(index,el) in @data.items">
+            <label>
+                <input type="radio" :attr="{value:el,name:@data.name}">
+                {{el}}
+            </label>
+            <!--<a href="javascript:;" :click="@data.items.splice(index,1)">删除该项</a>-->
+        </li>
+    </div>
+
 </div>

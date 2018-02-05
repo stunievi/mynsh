@@ -17,12 +17,14 @@ var RIGHTHTML = {
         <th></th>
         <th>业务名</th>
         <th>业务说明</th>
+        <th>业务版本</th>
         </thead>
         <% for(work in list.content){ %>
         <tr>
             <td></td>
             <td>${work.name}</td>
             <td></td>
+            <td>${work.version}</td>
             <td data-id="${work.id}">
                 <a class="edit" href="javascript:;">编辑</a>
                 <a href="javascript:;" class="delete">删除</a>

@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 19);
+/******/ 	return __webpack_require__(__webpack_require__.s = 17);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -8117,7 +8117,7 @@ https://github.com/RubyLouvre/avalon/tree/2.2.9
 
     return avalon;
 });
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9)))
 
 /***/ }),
 /* 1 */
@@ -8126,19 +8126,19 @@ https://github.com/RubyLouvre/avalon/tree/2.2.9
 "use strict";
 
 
+__webpack_require__(15);
+
+__webpack_require__(11);
+
 __webpack_require__(16);
 
 __webpack_require__(12);
-
-__webpack_require__(17);
 
 __webpack_require__(13);
 
 __webpack_require__(14);
 
-__webpack_require__(15);
-
-__webpack_require__(11);
+__webpack_require__(10);
 
 /***/ }),
 /* 2 */
@@ -8150,7 +8150,7 @@ module.exports = "<div>\r    <div>\r        至少选择\r        <input type=\"
 /* 3 */
 /***/ (function(module, exports) {
 
-module.exports = "<div>\r    <div :if=\"@edit\">\r        <a href=\"javascript:;\" :click=\"@data.items.push('')\">添加新选项</a>\r        <ul>\r            <li :for=\"(index,el) in @data.items\">\r                <input type=\"text\" :duplex=\"el\">\r                <a href=\"javascript:;\" :click=\"@data.items.splice(index,1)\">删除该项</a>\r            </li>\r        </ul>\r    </div>\r\r</div>"
+module.exports = "<div>\r    <div :if=\"@edit\">\r        <a href=\"javascript:;\" :click=\"@data.items.push('')\">添加新选项</a>\r        <ul>\r            <li :for=\"(index,el) in @data.items\">\r                <input type=\"text\" :duplex=\"el\">\r                <a href=\"javascript:;\" :click=\"@data.items.splice(index,1)\">删除该项</a>\r            </li>\r        </ul>\r    </div>\r\r    <div :if=\"!@edit\">\r        <li :for=\"(index,el) in @data.items\">\r            <label>\r                <input type=\"radio\" :attr=\"{value:el,name:@data.name}\">\r                {{el}}\r            </label>\r            <!--<a href=\"javascript:;\" :click=\"@data.items.splice(index,1)\">删除该项</a>-->\r        </li>\r    </div>\r\r</div>"
 
 /***/ }),
 /* 4 */
@@ -8183,8 +8183,7 @@ module.exports = "<ul>\r    <li ms-for=\"(index, el) in @tree | get(0)\">\r    <
 module.exports = "<div >\r    <p>\r        <b>节点类型</b>\r    </p>\r    <p>\r        资料\r    </p>\r    <p>\r        <b>节点属性</b>\r    </p>\r    <tr>\r        <div :if=\"@edit\">\r            <a :click=\"@addField('text')\" class=\"btn blue\">添加单行文本</a>\r            <a :click=\"@addField('textarea')\" class=\"btn blue\">添加多行文本</a>\r            <a :click=\"@addField('radio')\" class=\"btn blue\">添加单选框</a>\r            <a :click=\"@addField('checkbox')\" class=\"btn blue\">添加多选框</a>\r            <a :click=\"@addField('file')\" class=\"btn blue\">添加文件上传（未完成）</a>\r        </div>\r\r        <table>\r            <thead>\r                <th>字段名称</th>\r                <th>字段类型</th>\r                <th>是否必填</th>\r                <th>字段信息</th>\r                <th :if=\"@edit\">操作</th>\r            </thead>\r            <tr :for=\"(index,el) in @data.fields\">\r                <td class=\"\">\r                    <b :if=\"!@edit\" :html=\"el.name\"></b>\r                    <input type=\"text\" :duplex=\"el.name\" :if=\"@edit\">\r                </td>\r                <td class=\"\">\r                    <b :if=\"el.type == 'text'\">单行文本</b>\r                    <b :if=\"el.type == 'textarea'\">多行文本</b>\r                    <b :if=\"el.type == 'radio'\">单选框</b>\r                    <b :if=\"el.type == 'checkbox'\">多选框</b>\r                    <b :if=\"el.type == 'file'\">文件上传</b>\r                </td>\r                <td>\r                    <span :if=\"!@edit && el.required\">是</span>\r                    <span :if=\"!@edit && !el.required\">否</span>\r                    <input :if=\"@edit\" type=\"checkbox\" :duplex=\"el.required\">\r                </td>\r                <td class=\"\">\r                    <wbr :widget=\"{is: el.type,data:el,edit: @edit}\"/>\r                </td>\r                <td :if=\"@edit\">\r                    <a href=\"javascript:;\" :click=\"@removeField(index)\">删除字段</a>\r                </td>\r            </tr>\r        </table>\r\r    </div>\r</div>"
 
 /***/ }),
-/* 9 */,
-/* 10 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8214,7 +8213,7 @@ try {
 module.exports = g;
 
 /***/ }),
-/* 11 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8243,7 +8242,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 });
 
 /***/ }),
-/* 12 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8270,7 +8269,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 });
 
 /***/ }),
-/* 13 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8311,7 +8310,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 });
 
 /***/ }),
-/* 14 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8334,7 +8333,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 });
 
 /***/ }),
-/* 15 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8356,7 +8355,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 });
 
 /***/ }),
-/* 16 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8396,7 +8395,7 @@ window.lastSelected = null;
 });
 
 /***/ }),
-/* 17 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8437,8 +8436,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 });
 
 /***/ }),
-/* 18 */,
-/* 19 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";

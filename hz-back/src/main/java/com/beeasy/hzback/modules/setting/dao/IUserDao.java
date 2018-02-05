@@ -67,10 +67,11 @@ public interface IUserDao extends JpaRepository<User,Integer> {
 
     /**
      * 得到一个用户所有的工作流
+     * 被序列化的用户无法使用这个懒加载，所以在这里重新取出一次，否则会丢失当时的session
      * @return
      */
     default List<WorkFlow> getUserWorkFlows(User user){
-        IDepartmentDao departmentDao = (IDepartmentDao) SpringContextUtils.getBean(IDepartmentDao.class);
+//        IDepartmentDao departmentDao = (IDepartmentDao) SpringContextUtils.getBean(IDepartmentDao.class);
         IRoleDao roleDao = (IRoleDao) SpringContextUtils.getBean(IRoleDao.class);
         List<Role> roles = roleDao.findAllByUsers(Arrays.asList(new User[]{user}));
         return roles.stream()
@@ -86,6 +87,9 @@ public interface IUserDao extends JpaRepository<User,Integer> {
 //        }
 //        return workFlows;
     }
+
+
+
 
 
 

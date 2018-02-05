@@ -1,5 +1,6 @@
 package com.beeasy.hzback.modules.setting.dao;
 
+import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.helper.SpringContextUtils;
 import com.beeasy.hzback.modules.setting.entity.Department;
 import com.beeasy.hzback.modules.setting.entity.Role;
@@ -10,6 +11,8 @@ import java.util.List;
 import java.util.Set;
 
 public interface IRoleDao extends JpaRepository<Role,Integer> {
+
+    Role findByNameAndDepartment(String name,Department department);
 
     default Role editByDepartmentId(Role role,Integer departmentId){
         IDepartmentDao departmentDao = (IDepartmentDao) SpringContextUtils.getBean(IDepartmentDao.class);
@@ -24,6 +27,11 @@ public interface IRoleDao extends JpaRepository<Role,Integer> {
         role.setDepartment(department);
         if(role.getId() == 0){
             role.setId(null);
+        }
+        //验证是否存在同名角色，禁止添加相同的角色
+        Role existRole = this.findByNameAndDepartment(role.getName(),department);
+        if(existRole != null){
+            return null;
         }
         Role result = this.save(role);
         return result;
