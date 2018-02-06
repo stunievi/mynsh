@@ -15,11 +15,12 @@
 
 <script>
     import config from "../common/config";
-
+    // import {Slider} from "iview";
     export default{
         data(){
             return {
-                list: []
+                list: [],
+                value:[20,50]
             }
         },
 
@@ -34,6 +35,8 @@
             go(item){
                 this.$router.push(item.href)
             }
-        }
+        },
+
+        // components:{Slider}
     }
 </script>

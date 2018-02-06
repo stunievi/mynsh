@@ -1,18 +1,24 @@
 <template>
   <div id="app">
+      <Layout>
+          <Sider>
+              <LeftMenu></LeftMenu>
+          </Sider>
+          <Content>
+              <router-view/>
+          </Content>
+      </Layout>
     <!--<img src="./assets/logo.png">-->
-      <Menu></Menu>
-    <router-view/>
   </div>
 </template>
 
 <script>
 
-    import Menu from "@/components/Menu"
+    import LeftMenu from "@/components/Menu"
 export default {
   name: 'App',
     components:{
-      Menu
+        LeftMenu
     }
 }
 </script>
