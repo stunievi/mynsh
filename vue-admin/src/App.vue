@@ -1,13 +1,19 @@
 <template>
   <div id="app">
-    <img src="./assets/logo.png">
+    <!--<img src="./assets/logo.png">-->
+      <Menu></Menu>
     <router-view/>
   </div>
 </template>
 
 <script>
+
+    import Menu from "@/components/Menu"
 export default {
-  name: 'App'
+  name: 'App',
+    components:{
+      Menu
+    }
 }
 </script>
 
@@ -20,4 +26,7 @@ export default {
   color: #2c3e50;
   margin-top: 60px;
 }
+    .menu{
+        float: left;
+    }
 </style>
