@@ -1,6 +1,7 @@
 package com.beeasy.hzback.modules.workflow.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.modules.setting.dao.IWorkFlowDao;
 import com.beeasy.hzback.modules.setting.entity.User;
 import com.beeasy.hzback.modules.setting.entity.WorkFlow;
@@ -10,10 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import javax.security.auth.Subject;
 import java.beans.Transient;
@@ -77,6 +75,37 @@ public class TaskController {
         model.addAttribute("workflow", JSON.toJSONString(workFlow));
         model.addAttribute("user",JSON.toJSONString(user));
         return "workflow/add";
+    }
+
+
+    /**
+     * 启动新的工作流实体业务流程
+     * @return
+     */
+    @PostMapping("/pub")
+    @ResponseBody
+    public Result pub(
+            Integer workflowId,
+            String version,
+            String content
+    ){
+        if(workflowId == null){
+            return Result.error();
+        }
+        WorkFlow workFlow = workFlowDao.findOne(workflowId);
+        if(workFlow == null){
+            return Result.error();
+        }
+        //检查该任务是否属于我
+        org.apache.shiro.subject.Subject subject = SecurityUtils.getSubject();
+        User user = (User) subject.getPrincipal();
+        if(!workFlow.getDepartment().hasUser(user)){
+            return Result.error();
+        }
+
+        //TODO
+        return Result.ok();
+
     }
 
 }

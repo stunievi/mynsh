@@ -70,4 +70,13 @@ public interface IWorkFlowDao extends JpaRepository<WorkFlow, Integer> {
 
         return true;
     }
+
+
+    /**
+     * 发布一个工作流新实体
+     * 通常，进行如此操作的情况下会填写第一个节点
+     */
+    default void pubNewEntity(){
+
+    }
 }
