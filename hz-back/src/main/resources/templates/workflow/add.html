@@ -7,15 +7,18 @@ var RIGHTHTML = {
 
     <div>
         <h4>选择业务版本</h4>
-        <select name="" id="">
+        <select name="" id="" :duplex="version">
             <option value="">选择业务版本</option>
             <option :attr="{value:@data.workflow.version}" :html="@data.workflow.version"></option>
         </select>
     </div>
 
-    <div :for="(index,el) in @data.workflow.model" :if="index == @data.step">
+    <div :for="(index,el) in @data.workflow.model" :if="index == @data.step" class="step_form">
         <wbr :widget="{is: el.type + 'Node',data: el, edit:false }"/>
     </div>
+
+
+    <a href="javascript:;" :click="submit()">提交</a>
 </div>
 
 <script>
@@ -38,9 +41,17 @@ var RIGHTHTML = {
         data: {
             title: workflow.name,
             workflow : workflow,
-            step:0
+            step:0,
+            version:""
             // user
         },
+        submit:function(){
+            //当前需要填写的节点
+            var model = this.data.workflow.model[this.data.step];
+            if(model.type == 'ziliao'){
+
+            }
+        }
     });
 </script>
 
