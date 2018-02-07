@@ -1,6 +1,9 @@
 package com.beeasy.hzback.test;
 
 import com.beeasy.hzback.core.helper.SpringContextUtils;
+//import com.beeasy.hzback.lib.zed.ClassScanner;
+//import com.beeasy.hzback.lib.zed.ScanPackageTest;
+import com.beeasy.hzback.lib.zed.Zed;
 import com.beeasy.hzback.modules.setting.dao.IDepartmentDao;
 import com.beeasy.hzback.modules.setting.dao.IUserDao;
 import com.beeasy.hzback.modules.setting.dao.IWorkDao;
@@ -12,21 +15,15 @@ import com.beeasy.hzback.modules.setting.entity.Work;
 //import com.beeasy.hzback.modules.setting.entity.WorkNode;
 import com.beeasy.hzback.modules.setting.service.DepartmentService;
 import com.beeasy.hzback.modules.setting.service.UserService;
-import com.beeasy.hzback.modules.setting.work_engine.ShenheNode;
-import org.hibernate.Hibernate;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
-import javax.persistence.PersistenceContext;
-import javax.persistence.PersistenceContextType;
-import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.HashSet;
+import javax.persistence.Entity;
+import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.Set;
 
@@ -113,6 +110,34 @@ public class TestApplication {
         Department top = departmentDao.findByName("cubi");
 //        Set<?> set = top.getDepartments();
 //        System.out.println(set.size());
+    }
+
+    @Autowired
+    private EntityManager entityManager;
+
+    @Autowired
+    Zed zed;
+
+    @Test
+    public void testsql(){
+
+        zed.init();
+
+//        Set<?> set = ClassScanner.getClasses("com.beeasy");
+//        Set<?> set = ScanPackageTest.findPackageAnnotationClass("com.beeasy.hzback", Entity.class);
+//        String sql = "select now()";
+//        CriteriaBuilder builder = entityManagerFactory.getNativeEntityManagerFactory().getCriteriaBuilder();
+//        CriteriaQuery<Object> query = builder.createQuery();
+//        query.from()
+//                entityManagerFactory
+//        builder.and()
+
+//        EntityManager em = entityManagerFactory.getNativeEntityManagerFactory().createEntityManager();
+//        em.createQuery(query);
+//        Query query = em.createNativeQuery(sql);
+//        List<?> result = query.getResultList();
+
+        Zed.register(User.class);
     }
 
 }

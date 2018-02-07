@@ -3,19 +3,14 @@ package com.beeasy.hzback.modules.setting.dao;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.beeasy.hzback.core.helper.SpringContextUtils;
-import com.beeasy.hzback.modules.setting.entity.User;
 import com.beeasy.hzback.modules.setting.entity.Work;
 //import com.beeasy.hzback.modules.setting.entity.WorkNode;
 import com.beeasy.hzback.modules.setting.work_engine.BaseWorkNode;
 import com.beeasy.hzback.modules.setting.work_engine.ShenheNode;
 import com.beeasy.hzback.modules.setting.work_engine.ZiliaoNode;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 

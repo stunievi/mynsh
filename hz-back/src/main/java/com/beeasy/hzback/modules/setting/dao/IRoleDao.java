@@ -1,6 +1,5 @@
 package com.beeasy.hzback.modules.setting.dao;
 
-import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.helper.SpringContextUtils;
 import com.beeasy.hzback.modules.setting.entity.Department;
 import com.beeasy.hzback.modules.setting.entity.Role;
@@ -8,7 +7,6 @@ import com.beeasy.hzback.modules.setting.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
-import java.util.Set;
 
 public interface IRoleDao extends JpaRepository<Role,Integer> {
 
