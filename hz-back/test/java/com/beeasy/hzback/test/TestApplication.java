@@ -1,5 +1,6 @@
 package com.beeasy.hzback.test;
 
+import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.core.helper.SpringContextUtils;
 //import com.beeasy.hzback.lib.zed.ClassScanner;
 //import com.beeasy.hzback.lib.zed.ScanPackageTest;
@@ -136,6 +137,14 @@ public class TestApplication {
 //        em.createQuery(query);
 //        Query query = em.createNativeQuery(sql);
 //        List<?> result = query.getResultList();
+
+
+        JSONObject obj = new JSONObject();
+        JSONObject user = new JSONObject();
+        user.put("id",1);
+        obj.put("User",user);
+
+        zed.parseGet(obj);
 
         Zed.register(User.class);
     }
