@@ -2,15 +2,12 @@ package com.beeasy.hzback.modules.setting.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
-import com.beeasy.hzback.core.helper.Result;
+import com.beeasy.hzback.lib.zed.Result;
 import com.beeasy.hzback.modules.setting.dao.IUserDao;
-import com.beeasy.hzback.modules.setting.entity.Department;
 import com.beeasy.hzback.modules.setting.entity.Role;
 import com.beeasy.hzback.modules.setting.entity.User;
 import com.beeasy.hzback.modules.setting.service.DepartmentService;
 import com.beeasy.hzback.modules.setting.service.UserService;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,7 +20,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.List;
 import java.util.Set;
 
 @Controller

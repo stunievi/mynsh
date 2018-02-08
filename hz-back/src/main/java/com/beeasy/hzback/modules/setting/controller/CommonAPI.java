@@ -1,12 +1,11 @@
 package com.beeasy.hzback.modules.setting.controller;
 
-import com.beeasy.hzback.core.helper.Result;
+import com.beeasy.hzback.lib.zed.Result;
 import com.beeasy.hzback.modules.setting.entity.User;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 

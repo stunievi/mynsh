@@ -1,11 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="b35ecf90-065f-4718-a00d-a7cd57cce90e" name="Default" comment="">
-      <change beforePath="" afterPath="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/lib/zed/SQLUtil.java" />
+    <list default="true" id="b35ecf90-065f-4718-a00d-a7cd57cce90e" name="Default" comment="zed version0.0.1">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change beforePath="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/api/controller/CommonController.java" afterPath="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/api/controller/CommonController.java" />
+      <change beforePath="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/api/controller/UserAPI.java" afterPath="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/api/controller/UserAPI.java" />
+      <change beforePath="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/core/helper/Result.java" afterPath="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/lib/zed/Result.java" />
       <change beforePath="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/lib/zed/Zed.java" afterPath="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/lib/zed/Zed.java" />
-      <change beforePath="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/lib/zed/ZedConfiguration.java" afterPath="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/lib/zed/ZedConfiguration.java" />
+      <change beforePath="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/controller/CommonAPI.java" afterPath="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/controller/CommonAPI.java" />
+      <change beforePath="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/controller/DepartmentController.java" afterPath="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/controller/DepartmentController.java" />
+      <change beforePath="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/controller/PermissionController.java" afterPath="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/controller/PermissionController.java" />
+      <change beforePath="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/controller/RoleController.java" afterPath="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/controller/RoleController.java" />
+      <change beforePath="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/controller/UserController.java" afterPath="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/controller/UserController.java" />
+      <change beforePath="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/controller/WorkController.java" afterPath="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/controller/WorkController.java" />
+      <change beforePath="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/controller/WorkFlowController.java" afterPath="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/controller/WorkFlowController.java" />
+      <change beforePath="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/workflow/controller/TaskController.java" afterPath="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/workflow/controller/TaskController.java" />
       <change beforePath="$PROJECT_DIR$/hz-back/test/java/com/beeasy/hzback/test/TestApplication.java" afterPath="$PROJECT_DIR$/hz-back/test/java/com/beeasy/hzback/test/TestApplication.java" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
@@ -30,14 +39,14 @@
     </SUITE>
   </component>
   <component name="FileEditorManager">
-    <splitter split-orientation="horizontal" split-proportion="0.7136986">
+    <splitter split-orientation="horizontal" split-proportion="0.5130137">
       <split-first>
         <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
           <file leaf-file-name="Zed.java" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/lib/zed/Zed.java">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="291">
-                  <caret line="50" column="0" lean-forward="false" selection-start-line="50" selection-start-column="0" selection-end-line="50" selection-end-column="0" />
+                <state relative-caret-position="392">
+                  <caret line="63" column="41" lean-forward="true" selection-start-line="63" selection-start-column="41" selection-end-line="63" selection-end-column="41" />
                   <folding>
                     <element signature="imports" expanded="true" />
                   </folding>
@@ -205,7 +214,7 @@
             <entry file="file://$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/controller/UserController.java">
               <provider selected="true" editor-type-id="text-editor">
                 <state relative-caret-position="0">
-                  <caret line="36" column="43" lean-forward="false" selection-start-line="36" selection-start-column="43" selection-end-line="36" selection-end-column="43" />
+                  <caret line="34" column="43" lean-forward="false" selection-start-line="34" selection-start-column="43" selection-end-line="34" selection-end-column="43" />
                   <folding />
                 </state>
               </provider>
@@ -243,16 +252,6 @@
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="index.vue" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/vue-admin/src/pages/index.vue">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="0">
-                  <caret line="5" column="9" lean-forward="false" selection-start-line="5" selection-start-column="9" selection-end-line="5" selection-end-column="9" />
-                  <folding />
-                </state>
-              </provider>
-            </entry>
-          </file>
           <file leaf-file-name="Login.java" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/controller/Login.java">
               <provider selected="true" editor-type-id="text-editor">
@@ -268,8 +267,20 @@
           <file leaf-file-name="TestApplication.java" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/hz-back/test/java/com/beeasy/hzback/test/TestApplication.java">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="-8">
-                  <caret line="147" column="0" lean-forward="false" selection-start-line="147" selection-start-column="0" selection-end-line="147" selection-end-column="0" />
+                <state relative-caret-position="-33">
+                  <caret line="134" column="0" lean-forward="true" selection-start-line="134" selection-start-column="0" selection-end-line="134" selection-end-column="0" />
+                  <folding>
+                    <element signature="imports" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="Result.java" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/lib/zed/Result.java">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="44">
+                  <caret line="2" column="7" lean-forward="true" selection-start-line="2" selection-start-column="7" selection-end-line="2" selection-end-column="7" />
                   <folding>
                     <element signature="imports" expanded="true" />
                   </folding>
@@ -280,8 +291,8 @@
           <file leaf-file-name="CommonController.java" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/api/controller/CommonController.java">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="561">
-                  <caret line="40" column="0" lean-forward="false" selection-start-line="40" selection-start-column="0" selection-end-line="40" selection-end-column="0" />
+                <state relative-caret-position="297">
+                  <caret line="28" column="14" lean-forward="true" selection-start-line="28" selection-start-column="14" selection-end-line="28" selection-end-column="14" />
                   <folding />
                 </state>
               </provider>
@@ -358,7 +369,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/avalon-components/src/components/tree/text.html" />
         <option value="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/entity/Work.java" />
         <option value="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/core/filter/AdminControllerInterceptor.java" />
         <option value="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/core/shiro/MyShiroRealm.java" />
@@ -398,16 +408,17 @@
         <option value="$PROJECT_DIR$/vue-admin/src/pages/user.vue" />
         <option value="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/lib/zed/SpringContextUtils.java" />
         <option value="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/core/helper/SpringContextUtils.java" />
-        <option value="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/api/controller/CommonController.java" />
         <option value="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/lib/zed/metadata/ZedEntity.java" />
         <option value="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/lib/zed/aa.java" />
         <option value="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/lib/zed/AnnotationScannerConfigurer.java" />
         <option value="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/lib/zed/ScanPackageUtil.java" />
         <option value="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/lib/zed/ScanPackageTest.java" />
         <option value="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/lib/zed/ClassScanner.java" />
-        <option value="$PROJECT_DIR$/hz-back/test/java/com/beeasy/hzback/test/TestApplication.java" />
         <option value="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/lib/zed/ZedConfiguration.java" />
         <option value="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/lib/zed/SQLUtil.java" />
+        <option value="$PROJECT_DIR$/hz-back/test/java/com/beeasy/hzback/test/TestApplication.java" />
+        <option value="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/lib/zed/Result.java" />
+        <option value="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/api/controller/CommonController.java" />
         <option value="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/lib/zed/Zed.java" />
       </list>
     </option>
@@ -567,6 +578,17 @@
               <item name="main" type="462c0819:PsiDirectoryNode" />
               <item name="java" type="462c0819:PsiDirectoryNode" />
               <item name="hzback" type="462c0819:PsiDirectoryNode" />
+              <item name="core" type="462c0819:PsiDirectoryNode" />
+              <item name="util" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="hznsh" type="b2602c69:ProjectViewProjectNode" />
+              <item name="hznsh" type="462c0819:PsiDirectoryNode" />
+              <item name="hz-back" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="hzback" type="462c0819:PsiDirectoryNode" />
               <item name="zed" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
@@ -693,7 +715,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Spring Boot.Application">
+  <component name="RunManager" selected="JUnit.TestApplication.testsql">
     <configuration default="true" type="Applet" factoryName="Applet">
       <option name="HTML_USED" value="false" />
       <option name="WIDTH" value="400" />
@@ -891,8 +913,8 @@
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Spring Boot.Application" />
-        <item index="1" class="java.lang.String" itemvalue="JUnit.TestApplication.testsql" />
+        <item index="0" class="java.lang.String" itemvalue="JUnit.TestApplication.testsql" />
+        <item index="1" class="java.lang.String" itemvalue="Spring Boot.Application" />
         <item index="2" class="java.lang.String" itemvalue="JUnit.TestApplication.testWorkdNode" />
         <item index="3" class="java.lang.String" itemvalue="JUnit.TestApplication.test" />
         <item index="4" class="java.lang.String" itemvalue="JUnit.TestApplication.addAdminUser" />
@@ -948,7 +970,7 @@
       <workItem from="1517974085578" duration="6638000" />
       <workItem from="1517988430940" duration="6782000" />
       <workItem from="1518001195543" duration="2316000" />
-      <workItem from="1518069351569" duration="13160000" />
+      <workItem from="1518069351569" duration="13483000" />
     </task>
     <task id="LOCAL-00001" summary="shiro 授权配置">
       <created>1514539888662</created>
@@ -1244,13 +1266,17 @@
       <option name="project" value="LOCAL" />
       <updated>1518003439209</updated>
     </task>
-    <option name="localTasksCounter" value="43" />
+    <task id="LOCAL-00043" summary="zed version0.0.1">
+      <created>1518084564499</created>
+      <option name="number" value="00043" />
+      <option name="presentableId" value="LOCAL-00043" />
+      <option name="project" value="LOCAL" />
+      <updated>1518084564500</updated>
+    </task>
+    <option name="localTasksCounter" value="44" />
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="TestApplication_testsql - 2018.02.07 at 19h 11m 48s.xml">
-      <configuration name="TestApplication.testsql" configurationId="JUnit" />
-    </history-entry>
     <history-entry file="TestApplication_testsql - 2018.02.07 at 19h 17m 30s.xml">
       <configuration name="TestApplication.testsql" configurationId="JUnit" />
     </history-entry>
@@ -1278,9 +1304,12 @@
     <history-entry file="TestApplication_testsql - 2018.02.07 at 19h 36m 43s.xml">
       <configuration name="TestApplication.testsql" configurationId="JUnit" />
     </history-entry>
+    <history-entry file="TestApplication_testsql - 2018.02.08 at 18h 11m 36s.xml">
+      <configuration name="TestApplication.testsql" configurationId="JUnit" />
+    </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="232155000" />
+    <option name="totallyTimeSpent" value="232478000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -1293,6 +1322,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2992383" sideWeight="0.50586355" order="7" side_tool="true" content_ui="tabs" />
@@ -1306,12 +1336,12 @@
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.20348205" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3297062" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2383025" sideWeight="0.49570817" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2383025" sideWeight="0.49570817" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Image Layers" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Java Enterprise" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3297062" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.28182808" sideWeight="0.49413645" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.343852" sideWeight="0.49413645" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Spring" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3297062" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.21762785" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -1354,7 +1384,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="追加部分节点的编辑" />
     <MESSAGE value="节点项的提交" />
     <MESSAGE value="avalon组件编译" />
     <MESSAGE value="节点编辑补完" />
@@ -1379,7 +1408,8 @@
     <MESSAGE value="更新部分vue" />
     <MESSAGE value="新增zed（未完待续）" />
     <MESSAGE value="zed补充" />
-    <option name="LAST_COMMIT_MESSAGE" value="zed补充" />
+    <MESSAGE value="zed version0.0.1" />
+    <option name="LAST_COMMIT_MESSAGE" value="zed version0.0.1" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1416,13 +1446,13 @@
         </line-breakpoint>
         <line-breakpoint type="java-line">
           <url>file://$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/controller/UserController.java</url>
-          <line>84</line>
+          <line>82</line>
           <properties />
           <option name="timeStamp" value="45" />
         </line-breakpoint>
         <line-breakpoint type="java-line">
           <url>file://$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/controller/DepartmentController.java</url>
-          <line>77</line>
+          <line>72</line>
           <properties />
           <option name="timeStamp" value="63" />
         </line-breakpoint>
@@ -1440,7 +1470,7 @@
         </line-breakpoint>
         <line-breakpoint type="java-line">
           <url>file://$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/controller/WorkController.java</url>
-          <line>61</line>
+          <line>52</line>
           <properties />
           <option name="timeStamp" value="115" />
         </line-breakpoint>
@@ -1482,25 +1512,25 @@
         </line-breakpoint>
         <line-breakpoint type="java-line">
           <url>file://$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/controller/DepartmentController.java</url>
-          <line>40</line>
+          <line>35</line>
           <properties />
           <option name="timeStamp" value="187" />
         </line-breakpoint>
         <line-breakpoint type="java-line">
           <url>file://$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/controller/PermissionController.java</url>
-          <line>53</line>
+          <line>49</line>
           <properties />
           <option name="timeStamp" value="188" />
         </line-breakpoint>
         <line-breakpoint type="java-line">
           <url>file://$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/controller/PermissionController.java</url>
-          <line>57</line>
+          <line>53</line>
           <properties />
           <option name="timeStamp" value="189" />
         </line-breakpoint>
         <line-breakpoint type="java-line">
           <url>file://$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/controller/PermissionController.java</url>
-          <line>63</line>
+          <line>59</line>
           <properties />
           <option name="timeStamp" value="190" />
         </line-breakpoint>
@@ -1526,7 +1556,7 @@
         </line-breakpoint>
         <line-breakpoint type="java-line">
           <url>file://$PROJECT_DIR$/hz-back/test/java/com/beeasy/hzback/test/TestApplication.java</url>
-          <line>149</line>
+          <line>165</line>
           <properties />
           <option name="timeStamp" value="225" />
         </line-breakpoint>
@@ -1538,13 +1568,13 @@
         </line-breakpoint>
         <line-breakpoint type="java-line">
           <url>file://$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/lib/zed/Zed.java</url>
-          <line>113</line>
+          <line>115</line>
           <properties />
           <option name="timeStamp" value="230" />
         </line-breakpoint>
         <line-breakpoint type="java-line">
           <url>file://$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/lib/zed/Zed.java</url>
-          <line>116</line>
+          <line>118</line>
           <properties />
           <option name="timeStamp" value="231" />
         </line-breakpoint>
@@ -1581,13 +1611,6 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/avalon-components/src/components/tree/ziliaoNode.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="352">
-          <caret line="16" column="26" lean-forward="false" selection-start-line="16" selection-start-column="26" selection-end-line="16" selection-end-column="26" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/avalon-components/src/components/tree/ziliaoNode.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="660">
@@ -1761,7 +1784,7 @@
     <entry file="file://$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/controller/UserController.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
-          <caret line="36" column="43" lean-forward="false" selection-start-line="36" selection-start-column="43" selection-end-line="36" selection-end-column="43" />
+          <caret line="34" column="43" lean-forward="false" selection-start-line="34" selection-start-column="43" selection-end-line="34" selection-end-column="43" />
           <folding />
         </state>
       </provider>
@@ -1965,16 +1988,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/hz-back/test/java/com/beeasy/hzback/test/TestApplication.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-8">
-          <caret line="147" column="0" lean-forward="false" selection-start-line="147" selection-start-column="0" selection-end-line="147" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/lib/zed/ZedConfiguration.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-8">
@@ -1982,14 +1995,6 @@
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/api/controller/CommonController.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="561">
-          <caret line="40" column="0" lean-forward="false" selection-start-line="40" selection-start-column="0" selection-end-line="40" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -2020,10 +2025,38 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/hz-back/test/java/com/beeasy/hzback/test/TestApplication.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-33">
+          <caret line="134" column="0" lean-forward="true" selection-start-line="134" selection-start-column="0" selection-end-line="134" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/lib/zed/Result.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="44">
+          <caret line="2" column="7" lean-forward="true" selection-start-line="2" selection-start-column="7" selection-end-line="2" selection-end-column="7" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/api/controller/CommonController.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="297">
+          <caret line="28" column="14" lean-forward="true" selection-start-line="28" selection-start-column="14" selection-end-line="28" selection-end-column="14" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/lib/zed/Zed.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="291">
-          <caret line="50" column="0" lean-forward="false" selection-start-line="50" selection-start-column="0" selection-end-line="50" selection-end-column="0" />
+        <state relative-caret-position="392">
+          <caret line="63" column="41" lean-forward="true" selection-start-line="63" selection-start-column="41" selection-end-line="63" selection-end-column="41" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>

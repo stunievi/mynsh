@@ -1,11 +1,9 @@
 package com.beeasy.hzback.modules.setting.controller;
 
-import com.beeasy.hzback.core.helper.Result;
-import com.beeasy.hzback.core.util.CrUtils;
+import com.beeasy.hzback.lib.zed.Result;
 import com.beeasy.hzback.modules.setting.dao.IUserDao;
 import com.beeasy.hzback.modules.setting.entity.User;
 import com.beeasy.hzback.modules.setting.service.UserService;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

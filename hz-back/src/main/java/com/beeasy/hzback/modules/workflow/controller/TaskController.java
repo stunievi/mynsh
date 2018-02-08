@@ -1,7 +1,7 @@
 package com.beeasy.hzback.modules.workflow.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.beeasy.hzback.core.helper.Result;
+import com.beeasy.hzback.lib.zed.Result;
 import com.beeasy.hzback.modules.setting.dao.IWorkFlowDao;
 import com.beeasy.hzback.modules.setting.entity.User;
 import com.beeasy.hzback.modules.setting.entity.WorkFlow;
@@ -9,12 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
-import javax.security.auth.Subject;
-import java.beans.Transient;
 
 
 @Slf4j

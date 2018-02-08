@@ -2,14 +2,11 @@ package com.beeasy.hzback.modules.setting.controller;
 
 
 import com.alibaba.fastjson.JSON;
-import com.beeasy.hzback.core.helper.Result;
+import com.beeasy.hzback.lib.zed.Result;
 import com.beeasy.hzback.modules.setting.dao.IDepartmentDao;
 import com.beeasy.hzback.modules.setting.dao.IRoleDao;
-import com.beeasy.hzback.modules.setting.entity.Department;
 import com.beeasy.hzback.modules.setting.entity.Role;
 import com.beeasy.hzback.modules.setting.service.DepartmentService;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,8 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.validation.Valid;
-import java.util.List;
-import java.util.Set;
 
 @Controller
 @RequestMapping("/admin/setting/role")

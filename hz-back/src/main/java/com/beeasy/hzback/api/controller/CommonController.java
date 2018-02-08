@@ -2,7 +2,7 @@ package com.beeasy.hzback.api.controller;
 
 
 import com.beeasy.hzback.core.config.AdminMenuConfig;
-import com.beeasy.hzback.core.helper.Result;
+import com.beeasy.hzback.lib.zed.Result;
 import com.beeasy.hzback.lib.zed.Zed;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,11 +38,11 @@ public class CommonController {
             log.info(body);
 //        log.info();
         try {
-            (zed).parse(body);
+            return (zed).parse(body);
         } catch (Exception e) {
-            e.printStackTrace();
+            return Result.error();
         }
 //        request.get
-        return Result.ok();
+//        return Result.ok();
     }
 }

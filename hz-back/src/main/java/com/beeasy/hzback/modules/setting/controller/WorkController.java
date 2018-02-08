@@ -1,17 +1,10 @@
 package com.beeasy.hzback.modules.setting.controller;
 
-import com.alibaba.druid.sql.visitor.functions.Bin;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.beeasy.hzback.core.helper.Result;
+import com.beeasy.hzback.lib.zed.Result;
 import com.beeasy.hzback.modules.setting.dao.IWorkDao;
 import com.beeasy.hzback.modules.setting.entity.Work;
 //import com.beeasy.hzback.modules.setting.entity.WorkNode;
-import com.beeasy.hzback.modules.setting.work_engine.BaseWorkNode;
-import com.beeasy.hzback.modules.setting.work_engine.ShenheNode;
-import com.beeasy.hzback.modules.setting.work_engine.ZiliaoNode;
-import com.sun.tools.internal.xjc.reader.xmlschema.BindRed;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -25,8 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
 
 @Controller
 @RequestMapping("/admin/setting/work")

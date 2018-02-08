@@ -47,7 +47,7 @@ public class Zed {
         }
     }
 
-    public void parse(String json) throws Exception {
+    public Result parse(String json) throws Exception {
         JSONObject obj = JSON.parseObject(json);
         if (obj == null) {
             throw new Exception();
@@ -61,8 +61,10 @@ public class Zed {
             case "get":
                 Map<?,?> result = this.parseGet(obj);
                 log.info(JSON.toJSONString(result));
-                break;
+                return Result.ok(result);
         }
+
+        return Result.error();
     }
 
 

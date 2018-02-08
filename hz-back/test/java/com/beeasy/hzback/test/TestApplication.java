@@ -120,7 +120,7 @@ public class TestApplication {
     Zed zed;
 
     @Test
-    public void testsql(){
+    public void testsql() throws Exception {
 
         zed.init();
 
@@ -138,15 +138,31 @@ public class TestApplication {
 //        Query query = em.createNativeQuery(sql);
 //        List<?> result = query.getResultList();
 
+        String testStr = "{\n" +
+                "    \"User\": {\n" +
+                "         \"id\":1000,\n" +
+                "\n" +
+                "          \"or\": {\n" +
+                "               \"id\":1\n" +
+                "\n" +
+                "\n" +
+                "\n" +
+                "             }\n" +
+                "    },\n" +
+                "   \"Work\":{\"name\":1}\n" +
+                "}";
 
-        JSONObject obj = new JSONObject();
-        JSONObject user = new JSONObject();
-        user.put("id",1);
-        obj.put("User",user);
+        (zed).parse(testStr);
+
+
+//        JSONObject obj = new JSONObject();
+//        JSONObject user = new JSONObject();
+//        user.put("id",1);
+//        obj.put("User",user);
 
 //        zed.parseGet(obj);
 
-        Zed.register(User.class);
+//        Zed.register(User.class);
     }
 
 }
