@@ -9,7 +9,8 @@ public class ZedConfiguration {
 
     @Bean
     public Zed zed(){
-
-        return new Zed();
+        Zed zed = new Zed();
+        zed.init();
+        return zed;
     }
 }

@@ -144,7 +144,7 @@ public class TestApplication {
         user.put("id",1);
         obj.put("User",user);
 
-        zed.parseGet(obj);
+//        zed.parseGet(obj);
 
         Zed.register(User.class);
     }

@@ -2,17 +2,12 @@ package com.beeasy.hzback.lib.zed;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.beeasy.hzback.core.helper.SpringContextUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.Hibernate;
-import org.hibernate.SessionFactory;
-import org.hibernate.internal.SessionFactoryImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
-import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import java.lang.reflect.Field;
@@ -24,6 +19,9 @@ public class Zed {
 
     @Autowired
     EntityManager entityManager;
+
+    @Autowired
+    SQLUtil sqlUtil;
 
     static boolean init = false;
 
@@ -61,7 +59,8 @@ public class Zed {
         method = method.trim().toLowerCase();
         switch (method) {
             case "get":
-                this.parseGet(obj);
+                Map<?,?> result = this.parseGet(obj);
+                log.info(JSON.toJSONString(result));
                 break;
         }
     }
@@ -75,10 +74,11 @@ public class Zed {
 
     }
 
-    public void parseGet(JSONObject obj) {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+    public Map<String,Object> parseGet(JSONObject obj) throws Exception {
+
 
         Set<String> entityKeys = obj.keySet();
+        Map<String,Object> map = new HashMap<>();
         for (String entityKey : entityKeys) {
             log.info(entityKey);
             //不存在该表的情况直接略过
@@ -93,44 +93,31 @@ public class Zed {
             Set<String> keys = item.keySet();
             log.info(keys.toString());
 
-            CriteriaQuery<?> query = cb.createQuery(clz);
+//            CriteriaUpdate<?> update = cb.createCriteriaUpdate(clz);
+//            update.
+            CriteriaQuery<?> query = sqlUtil.buildWhere(clz,item);
+//                    cb.createQuery(clz);
 
 
-            Root<?> root = query.from(clz);
-            List<Predicate> predicateList = new ArrayList<>();
+
+//            Root<?> root = query.from(clz);
+//            List<Predicate> predicateList = new ArrayList<>();
             //检查是否存在这个字段
-            for (String fieldName : keys) {
-                try {
-                    Field field = clz.getDeclaredField(fieldName);
-                    field.setAccessible(true);
-                    Path<?> path = root.get(fieldName);
-//                    String s = item.getString(fieldName);
-//                    Integer i = item.getInteger(fieldName);
-//                    boolean b = item.get
-                    predicateList.add(
-                            cb.equal(path,item.getString(fieldName))
-                    );
-
-                    log.info("has this field");
-                } catch (NoSuchFieldException e) {
-                    e.printStackTrace();
-                }
-
-            }
 
 
 
-            Predicate[] predicates = new Predicate[predicateList.size()];
-            predicates = predicateList.toArray(predicates);
+
 //            query.select(root.get("id"));
-            query.where(predicates);
+//            query.where(predicates);
 
             TypedQuery<?> q = entityManager.createQuery(query);
             List<?> result = q.getResultList();
 
+            map.put(entityKey,result);
             log.info(result.size() + "");
-
         }
+
+        return map;
 //        cb.and()
 //        SpringContextUtils.getContext().
     }
