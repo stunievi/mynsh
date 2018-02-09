@@ -113,6 +113,8 @@ public class Zed {
 //            query.where(predicates);
 
             TypedQuery<?> q = entityManager.createQuery(query);
+            q.setFirstResult(100);
+            q.setMaxResults(10);
             List<?> result = q.getResultList();
 
             map.put(entityKey,result);

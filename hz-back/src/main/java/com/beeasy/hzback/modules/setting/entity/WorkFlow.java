@@ -32,16 +32,16 @@ public class WorkFlow implements Serializable{
     /**
      * 工作流模型原型
      */
-    @Column(columnDefinition = "TEXT")
-    @Convert(converter = Work.NodeConverter.class)
+    @Column(columnDefinition = "BLOB")
+    @Convert(converter = Work.ByteConverter.class)
     private List<BaseWorkNode> model;
 
 
     /**
      * 工作流每个节点对应的可操作人，需和模型原型对应
      */
-    @Column(columnDefinition = "TEXT")
-    @Convert(converter = Work.NodeConverter.class)
+    @Column(columnDefinition = "BLOB")
+    @Convert(converter = Work.ByteConverter.class)
     private List<Set<Integer>> dealers;
 
     /**

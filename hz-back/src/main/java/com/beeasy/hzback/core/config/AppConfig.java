@@ -11,5 +11,5 @@ import javax.servlet.Filter;
 @Configuration
 @Component
 public class AppConfig {
-
+   public static String TEXT_FILED_TYPE = "long varchar";
 }

@@ -120,6 +120,13 @@ public class TestApplication {
     Zed zed;
 
     @Test
+    public void initUser(){
+        User u = new User();
+        u.setUsername("1");
+        u.setPassword(CrUtils.md5("1".getBytes()));
+        userDao.save(u);
+    }
+    @Test
     public void testsql() throws Exception {
 
         zed.init();
