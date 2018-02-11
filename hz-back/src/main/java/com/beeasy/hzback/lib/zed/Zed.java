@@ -2,9 +2,12 @@ package com.beeasy.hzback.lib.zed;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
@@ -25,6 +28,8 @@ public class Zed {
 
     static boolean init = false;
 
+    @Setter
+    @Getter
     static Map<String, Class<?>> entityMap = new HashMap<>();
 
     public void init() {
@@ -79,9 +84,20 @@ public class Zed {
     public Map<String,Object> parseGet(JSONObject obj) throws Exception {
 
 
+        sqlUtil.select(obj);
+        if(!!true){
+            return new HashMap<>();
+        }
         Set<String> entityKeys = obj.keySet();
         Map<String,Object> map = new HashMap<>();
         for (String entityKey : entityKeys) {
+            boolean multipul = false;
+            //单独查询
+            if(entityKey.indexOf("[]") > -1){
+                multipul = true;
+                entityKey = entityKey.replace("[]","");
+            }
+            //多个查询
             log.info(entityKey);
             //不存在该表的情况直接略过
             if (!entityMap.containsKey(entityKey)) {
@@ -116,6 +132,14 @@ public class Zed {
             q.setFirstResult(100);
             q.setMaxResults(10);
             List<?> result = q.getResultList();
+
+            if(multipul){
+
+            }
+            else{
+
+            }
+
 
             map.put(entityKey,result);
             log.info(result.size() + "");

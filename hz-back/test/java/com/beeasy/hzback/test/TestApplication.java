@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.core.helper.SpringContextUtils;
 //import com.beeasy.hzback.lib.zed.ClassScanner;
 //import com.beeasy.hzback.lib.zed.ScanPackageTest;
+import com.beeasy.hzback.lib.zed.JPAUtil;
 import com.beeasy.hzback.lib.zed.Zed;
 import com.beeasy.hzback.modules.setting.dao.IDepartmentDao;
 import com.beeasy.hzback.modules.setting.dao.IUserDao;
@@ -14,8 +15,10 @@ import com.beeasy.hzback.modules.setting.entity.User;
 import com.beeasy.hzback.core.util.CrUtils;
 import com.beeasy.hzback.modules.setting.entity.Work;
 //import com.beeasy.hzback.modules.setting.entity.WorkNode;
+import com.beeasy.hzback.modules.setting.entity.WorkNode;
 import com.beeasy.hzback.modules.setting.service.DepartmentService;
 import com.beeasy.hzback.modules.setting.service.UserService;
+import org.hibernate.jpa.internal.metamodel.SingularAttributeImpl;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,6 +28,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
+import javax.persistence.criteria.Root;
+import javax.persistence.metamodel.Attribute;
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Set;
 
@@ -126,9 +132,32 @@ public class TestApplication {
         u.setPassword(CrUtils.md5("1".getBytes()));
         userDao.save(u);
     }
+
+    @Autowired
+    JPAUtil jpaUtil;
+
     @Test
     public void testsql() throws Exception {
 
+//    Root root =
+//        entityManager.getCriteriaBuilder().createQuery(WorkNode.class).from(WorkNode.class);
+//    String idName = jpaUtil.getIdName(root);
+//        System.out.println(idName);
+//        Set<Attribute> attributes = root.getModel().getDeclaredAttributes();
+//        for(Attribute attribute : attributes){
+//            if(attribute instanceof SingularAttributeImpl){
+//                boolean b =  ((SingularAttributeImpl) attribute).isId();
+//
+//                System.out.println(b);
+//            }
+//            System.out.println(attribute.getClass().getName());;
+//            String name = attribute.getDeclaringType().getAttribute("id").getName();
+//            System.out.println(name);
+//            Field field = attribute.getClass().getField("isIdentifier");
+//            field.setAccessible(true);
+//            boolean b = field.getBoolean(attribute);
+//            System.out.println(b);
+//        }
         zed.init();
 
 //        Set<?> set = ClassScanner.getClasses("com.beeasy");
@@ -146,17 +175,12 @@ public class TestApplication {
 //        List<?> result = query.getResultList();
 
         String testStr = "{\n" +
-                "    \"User\": {\n" +
-                "         \"id\":1000,\n" +
-                "\n" +
-                "          \"or\": {\n" +
-                "               \"id\":1\n" +
-                "\n" +
-                "\n" +
-                "\n" +
-                "             }\n" +
-                "    },\n" +
-                "   \"Work\":{\"name\":1}\n" +
+                "\t\"User\":{\n" +
+                "\t\t\"roles\":{},\n" +
+                "\t\t\"$where\":{\n" +
+                "\t\t\t\"id\":1\n" +
+                "\t\t}\n" +
+                "\t}\n" +
                 "}";
 
         (zed).parse(testStr);

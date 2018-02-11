@@ -1,25 +1,29 @@
-//package com.beeasy.hzback.modules.setting.entity;
+package com.beeasy.hzback.modules.setting.entity;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.beeasy.hzback.modules.setting.work_engine.BaseWorkNode;
+import com.beeasy.hzback.modules.setting.work_engine.ShenheNode;
+import com.beeasy.hzback.modules.setting.work_engine.ZiliaoNode;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sun.xml.internal.rngom.parse.host.Base;
+import org.beetl.ext.fn.Json;
+import org.hibernate.validator.constraints.NotEmpty;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.io.IOException;
+import java.util.List;
 //
-//import com.alibaba.fastjson.JSON;
-//import com.alibaba.fastjson.JSONObject;
-//import com.beeasy.hzback.modules.setting.work_engine.BaseWorkNode;
-//import com.beeasy.hzback.modules.setting.work_engine.ShenheNode;
-//import com.beeasy.hzback.modules.setting.work_engine.ZiliaoNode;
-//import com.fasterxml.jackson.annotation.JsonBackReference;
-//import com.fasterxml.jackson.core.JsonProcessingException;
-//import com.fasterxml.jackson.databind.ObjectMapper;
-//import com.sun.xml.internal.rngom.parse.host.Base;
-//import org.beetl.ext.fn.Json;
-//import org.hibernate.validator.constraints.NotEmpty;
-//
-//import javax.persistence.*;
-//import javax.validation.constraints.NotNull;
-//import java.io.IOException;
-//import java.util.List;
-//
-//@Entity
-//@Table(name = "t_work_node")
-//public class WorkNode {
+@Entity
+@Table(name = "t_work_node")
+public class WorkNode {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer cubiid;
+}
 //
 //    @Id
 //    @GeneratedValue(strategy = GenerationType.IDENTITY)
