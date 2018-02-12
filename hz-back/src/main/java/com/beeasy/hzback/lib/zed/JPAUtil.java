@@ -11,6 +11,7 @@ import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.PluralAttribute;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 public class JPAUtil {
@@ -70,6 +71,20 @@ public class JPAUtil {
 
     public Set<Attribute> getNormalFields(Root root){
         return root.getModel().getDeclaredAttributes();
+    }
+
+
+    /**
+     * 得到合法的附加字段
+     * @return
+     */
+    public Set<String> getAvaExternFields(Class clz, Set<String> fields){
+        Root root = getRoot(clz);
+        Set<PluralAttribute> linkFields = getLinkFields(root);
+        return linkFields.stream()
+                .filter(item -> fields.contains(item.getName()))
+                .map(item -> item.getName())
+                .collect(Collectors.toSet());
     }
 
 

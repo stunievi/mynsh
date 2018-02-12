@@ -49,6 +49,7 @@ public class User implements Serializable{
 ////    private List<Role> roleList;// 一个用户具有多个角色
 
 
+    @JSONField(serialize = false)
     @ManyToMany(fetch = FetchType.LAZY,mappedBy = "users")
     private Set<Role> roles;
 

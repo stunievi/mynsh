@@ -28,6 +28,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Root;
 import javax.persistence.metamodel.Attribute;
 import java.lang.reflect.Field;
@@ -137,6 +141,23 @@ public class TestApplication {
     JPAUtil jpaUtil;
 
     @Test
+    public void testmultipulSelect(){
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery query = cb.createQuery();
+        Root root = query.from(Department.class);
+        Join a = root.join("parent");
+        Join b = root.join("departments");
+        query.where(cb.equal(root.get("id"),1));
+//        query.multiselect(a,b);
+//        query.select(b);
+        query.multiselect(root,a);
+//        root.fetch().
+        TypedQuery result = entityManager.createQuery(query);
+        List list = result.getResultList();
+        int aa = 1;
+    }
+
+    @Test
     public void testsql() throws Exception {
 
 //    Root root =
@@ -176,7 +197,7 @@ public class TestApplication {
 
         String testStr = "{\n" +
                 "\t\"User\":{\n" +
-                "\t\t\"roles\":{},\n" +
+                "\t\t\"roles\":{\"$rows\":1},\n" +
                 "\t\t\"$where\":{\n" +
                 "\t\t\t\"id\":1\n" +
                 "\t\t}\n" +
