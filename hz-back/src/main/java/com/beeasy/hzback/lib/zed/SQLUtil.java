@@ -3,33 +3,16 @@ package com.beeasy.hzback.lib.zed;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.serializer.PropertyFilter;
-import com.alibaba.fastjson.serializer.SerializeFilter;
-import com.alibaba.fastjson.support.spring.JSONPResponseBodyAdvice;
-import com.beeasy.hzback.core.helper.SpringContextUtils;
-import com.beeasy.hzback.modules.setting.entity.Department;
-import com.beeasy.hzback.modules.setting.entity.Role;
-import com.beeasy.hzback.modules.setting.entity.User;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.proxy.HibernateProxy;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
+import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
-import javax.persistence.metamodel.Attribute;
-import javax.persistence.metamodel.EntityType;
-import javax.persistence.metamodel.PluralAttribute;
-import javax.transaction.NotSupportedException;
-import javax.transaction.SystemException;
-import javax.transaction.TransactionManager;
-import javax.transaction.Transactional;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.*;
@@ -42,6 +25,8 @@ public class SQLUtil {
     @Autowired
     EntityManager entityManager;
 
+    @Autowired
+    EntityManagerFactory entityManagerFactory;
 
     @Autowired
     JPAUtil jpaUtil;
@@ -100,7 +85,7 @@ public class SQLUtil {
         return q.executeUpdate() > 0;
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public Map<String, Boolean> delete(JSONObject deleteObject) {
         Map<String, Class<?>> entityMap = Zed.getEntityMap();
         Set<String> entityKeys = deleteObject.keySet();
@@ -210,15 +195,7 @@ public class SQLUtil {
         //检查是否有附加字段
         Set<String> externFields = jpaUtil.getAvaExternFields(clz, entityValue.keySet());
 
-        //得到这个模型的所有附加字段
-//        Root root = jpaUtil.getRoot(clz);
-//        Set<Attribute> normalFields = jpaUtil.getNormalFields(root);
-//        Set<String> fieldNames = normalFields.stream().map(field -> field.getName()).collect(Collectors.toSet());
 
-//        Set<String> allFields = normalFields.stream().map(item -> item.getName()).collect(Collectors.toSet());
-//        linkFields.forEach(field -> {
-//            allFields.add(field.getName());
-//        });
 
         //需要保留的字段
 
@@ -228,22 +205,7 @@ public class SQLUtil {
         if (externFields.size() == 0) {
             return jsonArray;
         }
-//        String jsonString = JSON.toJSONString(result,new PropertyFilter(){
-//
-//            @Override
-//            public boolean apply(Object o, String name, Object value) {
-//                return fieldNames.contains(name);
-//            }
-//
-//        });
-//        JSONArray jsonResult = JSON.parseArray(jsonString);
-////        result = result
-////                .stream()
-////                .map(singleItem -> {
-////                    return singleItem
-////                })
-////                .collect(Collectors.toList());
-//        JSONArray jsonArray = (JSONArray) JSON.toJSON(result);
+
 
         String idName = jpaUtil.getIdName(clz);
         Field idField = clz.getDeclaredField(idName);
@@ -276,27 +238,6 @@ public class SQLUtil {
 
                     Object ret = selectSingle(clz, externEntity, externField, multipul, idName, idValue);
                     singleJSONObject.put(externField, ret);
-
-//                    if (multipul) {
-//                        //是SET的情况
-//                        if (fieldType.equals(Set.class)) {
-//                            if (ret instanceof List) {
-//                                field.set(singleResult, new LinkedHashSet<>((Collection) ret));
-//                            } else {
-//                                field.set(singleResult, ret);
-//                            }
-//                        }
-//                        //如果应该是LIST
-//                        else if (fieldType.equals(List.class)) {
-//                            if (ret instanceof Set) {
-//                                field.set(singleResult, new ArrayList((Set) ret));
-//                            } else {
-//                                field.set(singleResult, ret);
-//                            }
-//                        }
-//                    } else {
-//                        field.set(singleResult, ret);
-//                    }
 
                 }
             } catch (Exception e) {

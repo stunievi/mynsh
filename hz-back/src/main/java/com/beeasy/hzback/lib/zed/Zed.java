@@ -2,6 +2,7 @@ package com.beeasy.hzback.lib.zed;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.beeasy.hzback.modules.setting.entity.User;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -9,6 +10,7 @@ import org.hibernate.jpa.internal.metamodel.EntityTypeImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import javax.persistence.Entity;
@@ -107,7 +109,14 @@ public class Zed {
     }
 
 
-    public Map<String,Boolean> parseDelete(JSONObject obj) {
+    public Map<String,Boolean> parseDelete(JSONObject obj) throws Exception{
         return sqlUtil.delete(obj);
+    }
+
+    @Transactional
+    public Object test(User u){
+        Object o = null;
+        o = entityManager.merge(u);
+        return o;
     }
 }

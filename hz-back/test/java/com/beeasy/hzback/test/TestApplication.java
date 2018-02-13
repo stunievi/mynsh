@@ -26,16 +26,20 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.jpa.repository.JpaContext;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.support.JpaRepositoryFactory;
+import org.springframework.data.jpa.repository.support.JpaRepositoryFactoryBean;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.Entity;
-import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
+import javax.persistence.*;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Root;
 import javax.persistence.metamodel.Attribute;
+import javax.persistence.metamodel.ManagedType;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Set;
@@ -245,4 +249,37 @@ public class TestApplication {
         zed.parse(testStr);
     }
 
+@Autowired
+EntityManagerFactory factory;
+
+    @Test
+    public void testAdd(){
+//        EntityManagerFactory factory;
+        EntityManager manager;
+        EntityTransaction transaction;
+//        factory = Persistence.createEntityManagerFactory("JPA");
+        manager = factory.createEntityManager();
+        transaction = manager.getTransaction();
+        transaction.begin();
+
+        User customer = new User();
+        customer.setUsername("f");
+        customer.setPassword("f");
+        manager.persist(customer);
+        transaction.commit();
+        manager.close();
+        factory.close();
+    }
+
+    @Test
+    public void testAdd2(){
+     User customer = new User();
+        customer.setUsername("f");
+        try{
+            Object result = zed.test(customer);
+        }catch (Exception e){
+
+        }
+        int a = 1;
+    }
 }

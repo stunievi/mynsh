@@ -32,18 +32,16 @@
     </SUITE>
   </component>
   <component name="FileEditorManager">
-    <splitter split-orientation="horizontal" split-proportion="0.38019803">
+    <splitter split-orientation="horizontal" split-proportion="0.46006602">
       <split-first>
         <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
           <file leaf-file-name="Zed.java" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/lib/zed/Zed.java">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="398">
-                  <caret line="108" column="0" lean-forward="true" selection-start-line="108" selection-start-column="0" selection-end-line="108" selection-end-column="0" />
+                <state relative-caret-position="135">
+                  <caret line="113" column="5" lean-forward="true" selection-start-line="113" selection-start-column="5" selection-end-line="113" selection-end-column="5" />
                   <folding>
                     <element signature="imports" expanded="true" />
-                    <element signature="e#2726#2727#0" expanded="true" />
-                    <element signature="e#2768#2769#0" expanded="true" />
                   </folding>
                 </state>
               </provider>
@@ -62,9 +60,11 @@
           <file leaf-file-name="SQLUtil.java" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/lib/zed/SQLUtil.java">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="-190">
-                  <caret line="100" column="0" lean-forward="false" selection-start-line="100" selection-start-column="0" selection-end-line="100" selection-end-column="0" />
-                  <folding />
+                <state relative-caret-position="-1452">
+                  <caret line="106" column="20" lean-forward="false" selection-start-line="106" selection-start-column="20" selection-end-line="106" selection-end-column="20" />
+                  <folding>
+                    <marker date="1518501494833" expanded="true" signature="6588:6672" ph="//..." />
+                  </folding>
                 </state>
               </provider>
             </entry>
@@ -268,8 +268,8 @@
           <file leaf-file-name="EntityManager.class" pinned="false" current-in-tab="false">
             <entry file="jar://$MAVEN_REPOSITORY$/org/hibernate/javax/persistence/hibernate-jpa-2.1-api/1.0.0.Final/hibernate-jpa-2.1-api-1.0.0.Final.jar!/javax/persistence/EntityManager.class">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="93">
-                  <caret line="102" column="21" lean-forward="false" selection-start-line="102" selection-start-column="4" selection-end-line="102" selection-end-column="21" />
+                <state relative-caret-position="154">
+                  <caret line="16" column="9" lean-forward="false" selection-start-line="16" selection-start-column="9" selection-end-line="16" selection-end-column="9" />
                   <folding>
                     <marker date="1517451960929" expanded="false" signature="0:104" ph="/.../" />
                     <marker date="1517451960929" expanded="false" signature="141:424" ph="..." />
@@ -297,8 +297,8 @@
           <file leaf-file-name="TestApplication.java" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/hz-back/test/java/com/beeasy/hzback/test/TestApplication.java">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="143">
-                  <caret line="221" column="25" lean-forward="false" selection-start-line="221" selection-start-column="25" selection-end-line="221" selection-end-column="25" />
+                <state relative-caret-position="2665">
+                  <caret line="280" column="0" lean-forward="true" selection-start-line="280" selection-start-column="0" selection-end-line="280" selection-end-column="0" />
                   <folding>
                     <element signature="imports" expanded="true" />
                   </folding>
@@ -309,8 +309,8 @@
           <file leaf-file-name="Department.java" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/entity/Department.java">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="308">
-                  <caret line="44" column="40" lean-forward="false" selection-start-line="44" selection-start-column="29" selection-end-line="44" selection-end-column="40" />
+                <state relative-caret-position="-440">
+                  <caret line="46" column="54" lean-forward="false" selection-start-line="46" selection-start-column="54" selection-end-line="46" selection-end-column="54" />
                   <folding />
                 </state>
               </provider>
@@ -319,7 +319,7 @@
           <file leaf-file-name="Attribute.java" pinned="false" current-in-tab="false">
             <entry file="jar://C:/Program Files/Java/jdk1.8.0_101/src.zip!/javax/management/Attribute.java">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="330">
+                <state relative-caret-position="352">
                   <caret line="38" column="13" lean-forward="false" selection-start-line="38" selection-start-column="13" selection-end-line="38" selection-end-column="13" />
                   <folding>
                     <element signature="e#1740#1741#0" expanded="true" />
@@ -344,21 +344,11 @@
           <file leaf-file-name="SQLUtil.java" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/lib/zed/SQLUtil.java">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="942">
-                  <caret line="123" column="0" lean-forward="false" selection-start-line="123" selection-start-column="0" selection-end-line="123" selection-end-column="0" />
+                <state relative-caret-position="-3935">
+                  <caret line="240" column="0" lean-forward="true" selection-start-line="240" selection-start-column="0" selection-end-line="240" selection-end-column="0" />
                   <folding>
                     <element signature="imports" expanded="true" />
                   </folding>
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="Query.class" pinned="false" current-in-tab="false">
-            <entry file="jar://$MAVEN_REPOSITORY$/org/hibernate/javax/persistence/hibernate-jpa-2.1-api/1.0.0.Final/hibernate-jpa-2.1-api-1.0.0.Final.jar!/javax/persistence/Query.class">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="170">
-                  <caret line="18" column="8" lean-forward="false" selection-start-line="18" selection-start-column="8" selection-end-line="18" selection-end-column="8" />
-                  <folding />
                 </state>
               </provider>
             </entry>
@@ -525,8 +515,8 @@
         <option value="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/entity/User.java" />
         <option value="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/lib/zed/ZedConfiguration.java" />
         <option value="$PROJECT_DIR$/hz-back/test/java/com/beeasy/hzback/test/TestApplication.java" />
-        <option value="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/lib/zed/SQLUtil.java" />
         <option value="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/lib/zed/Zed.java" />
+        <option value="$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/lib/zed/SQLUtil.java" />
       </list>
     </option>
   </component>
@@ -854,7 +844,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="JUnit.TestApplication.testZedDelete">
+  <component name="RunManager" selected="JUnit.TestApplication.testAdd2">
     <configuration default="true" type="Applet" factoryName="Applet">
       <option name="HTML_USED" value="false" />
       <option name="WIDTH" value="400" />
@@ -875,6 +865,56 @@
       <option name="PASS_PARENT_ENVS" value="true" />
       <module name="" />
       <envs />
+    </configuration>
+    <configuration name="TestApplication.testAdd" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
+        <pattern>
+          <option name="PATTERN" value="com.beeasy.hzback.test.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <module name="hz-back" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PACKAGE_NAME" value="com.beeasy.hzback.test" />
+      <option name="MAIN_CLASS_NAME" value="com.beeasy.hzback.test.TestApplication" />
+      <option name="METHOD_NAME" value="testAdd" />
+      <option name="TEST_OBJECT" value="method" />
+      <option name="VM_PARAMETERS" value="-ea" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="%MODULE_WORKING_DIR%" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="singleModule" />
+      </option>
+      <envs />
+      <patterns />
+    </configuration>
+    <configuration name="TestApplication.testAdd2" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
+        <pattern>
+          <option name="PATTERN" value="com.beeasy.hzback.test.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <module name="hz-back" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PACKAGE_NAME" value="com.beeasy.hzback.test" />
+      <option name="MAIN_CLASS_NAME" value="com.beeasy.hzback.test.TestApplication" />
+      <option name="METHOD_NAME" value="testAdd2" />
+      <option name="TEST_OBJECT" value="method" />
+      <option name="VM_PARAMETERS" value="-ea" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="%MODULE_WORKING_DIR%" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="singleModule" />
+      </option>
+      <envs />
+      <patterns />
     </configuration>
     <configuration name="TestApplication.testZedDelete" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
@@ -914,31 +954,6 @@
       <option name="PACKAGE_NAME" value="com.beeasy.hzback.test" />
       <option name="MAIN_CLASS_NAME" value="com.beeasy.hzback.test.TestApplication" />
       <option name="METHOD_NAME" value="testjpa" />
-      <option name="TEST_OBJECT" value="method" />
-      <option name="VM_PARAMETERS" value="-ea" />
-      <option name="PARAMETERS" />
-      <option name="WORKING_DIRECTORY" value="%MODULE_WORKING_DIR%" />
-      <option name="ENV_VARIABLES" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <option name="TEST_SEARCH_SCOPE">
-        <value defaultName="singleModule" />
-      </option>
-      <envs />
-      <patterns />
-    </configuration>
-    <configuration name="TestApplication.testmultipulSelect" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
-        <pattern>
-          <option name="PATTERN" value="com.beeasy.hzback.test.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <module name="hz-back" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="PACKAGE_NAME" value="com.beeasy.hzback.test" />
-      <option name="MAIN_CLASS_NAME" value="com.beeasy.hzback.test.TestApplication" />
-      <option name="METHOD_NAME" value="testmultipulSelect" />
       <option name="TEST_OBJECT" value="method" />
       <option name="VM_PARAMETERS" value="-ea" />
       <option name="PARAMETERS" />
@@ -1003,13 +1018,6 @@
       <option name="HOST" value="localhost" />
       <option name="PORT" value="5005" />
     </configuration>
-    <configuration name="Application" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" temporary="true" nameIsGenerated="true">
-      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
-      <option name="SPRING_BOOT_MAIN_CLASS" value="com.beeasy.hzback.Application" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <module name="hz-back" />
-      <envs />
-    </configuration>
     <configuration default="true" type="TestNG" factoryName="TestNG">
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
       <module name="" />
@@ -1044,19 +1052,19 @@
       <predefined_log_file id="idea.log" enabled="true" />
     </configuration>
     <list size="5">
-      <item index="0" class="java.lang.String" itemvalue="Spring Boot.Application" />
-      <item index="1" class="java.lang.String" itemvalue="JUnit.TestApplication.testsql" />
-      <item index="2" class="java.lang.String" itemvalue="JUnit.TestApplication.testmultipulSelect" />
-      <item index="3" class="java.lang.String" itemvalue="JUnit.TestApplication.testjpa" />
-      <item index="4" class="java.lang.String" itemvalue="JUnit.TestApplication.testZedDelete" />
+      <item index="0" class="java.lang.String" itemvalue="JUnit.TestApplication.testsql" />
+      <item index="1" class="java.lang.String" itemvalue="JUnit.TestApplication.testjpa" />
+      <item index="2" class="java.lang.String" itemvalue="JUnit.TestApplication.testZedDelete" />
+      <item index="3" class="java.lang.String" itemvalue="JUnit.TestApplication.testAdd" />
+      <item index="4" class="java.lang.String" itemvalue="JUnit.TestApplication.testAdd2" />
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="JUnit.TestApplication.testZedDelete" />
-        <item index="1" class="java.lang.String" itemvalue="JUnit.TestApplication.testsql" />
-        <item index="2" class="java.lang.String" itemvalue="JUnit.TestApplication.testjpa" />
-        <item index="3" class="java.lang.String" itemvalue="JUnit.TestApplication.testmultipulSelect" />
-        <item index="4" class="java.lang.String" itemvalue="Spring Boot.Application" />
+        <item index="0" class="java.lang.String" itemvalue="JUnit.TestApplication.testAdd2" />
+        <item index="1" class="java.lang.String" itemvalue="JUnit.TestApplication.testZedDelete" />
+        <item index="2" class="java.lang.String" itemvalue="JUnit.TestApplication.testAdd" />
+        <item index="3" class="java.lang.String" itemvalue="JUnit.TestApplication.testsql" />
+        <item index="4" class="java.lang.String" itemvalue="JUnit.TestApplication.testjpa" />
       </list>
     </recent_temporary>
   </component>
@@ -1113,14 +1121,7 @@
       <workItem from="1518147324192" duration="11553000" />
       <workItem from="1518319095452" duration="12418000" />
       <workItem from="1518412877015" duration="8769000" />
-      <workItem from="1518490019650" duration="8233000" />
-    </task>
-    <task id="LOCAL-00001" summary="shiro 授权配置">
-      <created>1514539888662</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1514539888662</updated>
+      <workItem from="1518490019650" duration="11145000" />
     </task>
     <task id="LOCAL-00002" summary="shiro">
       <created>1514563540713</created>
@@ -1458,43 +1459,50 @@
       <option name="project" value="LOCAL" />
       <updated>1518493177960</updated>
     </task>
-    <option name="localTasksCounter" value="50" />
+    <task id="LOCAL-00050" summary="增加zed 删除命令">
+      <created>1518499220106</created>
+      <option name="number" value="00050" />
+      <option name="presentableId" value="LOCAL-00050" />
+      <option name="project" value="LOCAL" />
+      <updated>1518499220107</updated>
+    </task>
+    <option name="localTasksCounter" value="51" />
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="TestApplication_testZedDelete - 2018.02.13 at 13h 03m 25s.xml">
-      <configuration name="TestApplication.testZedDelete" configurationId="JUnit" />
+    <history-entry file="TestApplication_testAdd - 2018.02.13 at 13h 32m 10s.xml">
+      <configuration name="TestApplication.testAdd" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="TestApplication_testZedDelete - 2018.02.13 at 13h 04m 06s.xml">
-      <configuration name="TestApplication.testZedDelete" configurationId="JUnit" />
+    <history-entry file="TestApplication_testAdd - 2018.02.13 at 13h 32m 42s.xml">
+      <configuration name="TestApplication.testAdd" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="TestApplication_testZedDelete - 2018.02.13 at 13h 05m 23s.xml">
-      <configuration name="TestApplication.testZedDelete" configurationId="JUnit" />
+    <history-entry file="TestApplication_testAdd2 - 2018.02.13 at 13h 39m 20s.xml">
+      <configuration name="TestApplication.testAdd2" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="TestApplication_testZedDelete - 2018.02.13 at 13h 06m 01s.xml">
-      <configuration name="TestApplication.testZedDelete" configurationId="JUnit" />
+    <history-entry file="TestApplication_testAdd2 - 2018.02.13 at 13h 40m 53s.xml">
+      <configuration name="TestApplication.testAdd2" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="TestApplication_testZedDelete - 2018.02.13 at 13h 07m 36s.xml">
-      <configuration name="TestApplication.testZedDelete" configurationId="JUnit" />
+    <history-entry file="TestApplication_testAdd2 - 2018.02.13 at 13h 44m 58s.xml">
+      <configuration name="TestApplication.testAdd2" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="TestApplication_testZedDelete - 2018.02.13 at 13h 09m 19s.xml">
-      <configuration name="TestApplication.testZedDelete" configurationId="JUnit" />
+    <history-entry file="TestApplication_testAdd2 - 2018.02.13 at 13h 45m 42s.xml">
+      <configuration name="TestApplication.testAdd2" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="TestApplication_testZedDelete - 2018.02.13 at 13h 11m 11s.xml">
-      <configuration name="TestApplication.testZedDelete" configurationId="JUnit" />
+    <history-entry file="TestApplication_testAdd2 - 2018.02.13 at 13h 45m 51s.xml">
+      <configuration name="TestApplication.testAdd2" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="TestApplication_testZedDelete - 2018.02.13 at 13h 15m 03s.xml">
-      <configuration name="TestApplication.testZedDelete" configurationId="JUnit" />
+    <history-entry file="TestApplication_testAdd2 - 2018.02.13 at 13h 47m 23s.xml">
+      <configuration name="TestApplication.testAdd2" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="TestApplication_testZedDelete - 2018.02.13 at 13h 17m 39s.xml">
-      <configuration name="TestApplication.testZedDelete" configurationId="JUnit" />
+    <history-entry file="TestApplication_testAdd2 - 2018.02.13 at 13h 52m 17s.xml">
+      <configuration name="TestApplication.testAdd2" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="TestApplication_testZedDelete - 2018.02.13 at 13h 18m 22s.xml">
+    <history-entry file="TestApplication_testZedDelete - 2018.02.13 at 13h 37m 41s.xml">
       <configuration name="TestApplication.testZedDelete" configurationId="JUnit" />
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="273491000" />
+    <option name="totallyTimeSpent" value="276403000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -1519,7 +1527,7 @@
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24964234" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2491839" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.43960828" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3297062" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.35146898" sideWeight="0.49570817" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -1527,7 +1535,7 @@
       <window_info id="Java Enterprise" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3297062" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3601741" sideWeight="0.49413645" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3297062" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Spring" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3297062" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.21762785" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.1924307" sideWeight="0.4942857" order="0" side_tool="false" content_ui="combo" />
@@ -1569,7 +1577,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="增加用户角色的编辑" />
     <MESSAGE value="用户角色编辑补完" />
     <MESSAGE value="增加业务模型部署的操作" />
     <MESSAGE value="业务模型部署补充" />
@@ -1594,7 +1601,8 @@
     <MESSAGE value="zed search查询补充" />
     <MESSAGE value="zed 查询增加排序功能" />
     <MESSAGE value="修改zed包检索规则" />
-    <option name="LAST_COMMIT_MESSAGE" value="修改zed包检索规则" />
+    <MESSAGE value="增加zed 删除命令" />
+    <option name="LAST_COMMIT_MESSAGE" value="增加zed 删除命令" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1643,7 +1651,7 @@
         </line-breakpoint>
         <line-breakpoint type="java-line">
           <url>file://$PROJECT_DIR$/hz-back/test/java/com/beeasy/hzback/test/TestApplication.java</url>
-          <line>123</line>
+          <line>127</line>
           <properties />
           <option name="timeStamp" value="72" />
         </line-breakpoint>
@@ -1741,69 +1749,75 @@
         </line-breakpoint>
         <line-breakpoint type="java-line">
           <url>file://$PROJECT_DIR$/hz-back/test/java/com/beeasy/hzback/test/TestApplication.java</url>
-          <line>232</line>
+          <line>236</line>
           <properties />
           <option name="timeStamp" value="225" />
         </line-breakpoint>
         <line-breakpoint type="java-line">
           <url>file://$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/lib/zed/Zed.java</url>
-          <line>64</line>
+          <line>66</line>
           <properties />
           <option name="timeStamp" value="227" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/hz-back/test/java/com/beeasy/hzback/test/TestApplication.java</url>
-          <line>191</line>
+          <line>195</line>
           <properties />
           <option name="timeStamp" value="285" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/hz-back/test/java/com/beeasy/hzback/test/TestApplication.java</url>
-          <line>190</line>
+          <line>194</line>
           <properties />
           <option name="timeStamp" value="286" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/hz-back/test/java/com/beeasy/hzback/test/TestApplication.java</url>
-          <line>189</line>
+          <line>193</line>
           <properties />
           <option name="timeStamp" value="287" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/hz-back/test/java/com/beeasy/hzback/test/TestApplication.java</url>
-          <line>181</line>
+          <line>185</line>
           <properties />
           <option name="timeStamp" value="288" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/hz-back/test/java/com/beeasy/hzback/test/TestApplication.java</url>
-          <line>159</line>
+          <line>163</line>
           <properties />
           <option name="timeStamp" value="296" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/lib/zed/SQLUtil.java</url>
-          <line>156</line>
+          <line>141</line>
           <properties />
           <option name="timeStamp" value="301" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/lib/zed/SQLUtil.java</url>
-          <line>124</line>
+          <line>109</line>
           <properties />
           <option name="timeStamp" value="325" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/lib/zed/SQLUtil.java</url>
-          <line>122</line>
+          <url>file://$PROJECT_DIR$/hz-back/test/java/com/beeasy/hzback/test/TestApplication.java</url>
+          <line>270</line>
           <properties />
-          <option name="timeStamp" value="326" />
+          <option name="timeStamp" value="329" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/hz-back/test/java/com/beeasy/hzback/test/TestApplication.java</url>
+          <line>282</line>
+          <properties />
+          <option name="timeStamp" value="331" />
         </line-breakpoint>
       </breakpoints>
       <breakpoints-dialog>
         <breakpoints-dialog />
       </breakpoints-dialog>
-      <option name="time" value="327" />
+      <option name="time" value="333" />
     </breakpoint-manager>
     <watches-manager>
       <configuration name="SpringBootApplicationConfigurationType">
@@ -1916,6 +1930,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="198">
           <caret line="9" column="22" lean-forward="false" selection-start-line="9" selection-start-column="22" selection-end-line="9" selection-end-column="22" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1923,6 +1938,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="176">
           <caret line="8" column="13" lean-forward="false" selection-start-line="8" selection-start-column="13" selection-end-line="8" selection-end-column="13" />
+          <folding>
+            <element signature="imports" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -1944,6 +1962,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="880">
           <caret line="40" column="9" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="159" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1951,6 +1970,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="264">
           <caret line="12" column="31" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="164" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -2087,17 +2107,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="jar://C:/Program Files/Java/jdk1.8.0_101/src.zip!/javax/management/Attribute.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="330">
-          <caret line="38" column="13" lean-forward="false" selection-start-line="38" selection-start-column="13" selection-end-line="38" selection-end-column="13" />
-          <folding>
-            <element signature="e#1740#1741#0" expanded="true" />
-            <element signature="e#1768#1769#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$MAVEN_REPOSITORY$/org/hibernate/javax/persistence/hibernate-jpa-2.1-api/1.0.0.Final/hibernate-jpa-2.1-api-1.0.0.Final.jar!/javax/persistence/metamodel/Attribute.class">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="149">
@@ -2120,16 +2129,6 @@
           <folding>
             <marker date="1517451960929" expanded="false" signature="0:104" ph="/.../" />
             <marker date="1517451960929" expanded="false" signature="150:187" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/lib/zed/Result.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="242">
-          <caret line="12" column="28" lean-forward="false" selection-start-line="12" selection-start-column="28" selection-end-line="12" selection-end-column="28" />
-          <folding>
-            <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -2347,33 +2346,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="jar://$MAVEN_REPOSITORY$/org/hibernate/javax/persistence/hibernate-jpa-2.1-api/1.0.0.Final/hibernate-jpa-2.1-api-1.0.0.Final.jar!/javax/persistence/Query.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="18" column="8" lean-forward="false" selection-start-line="18" selection-start-column="8" selection-end-line="18" selection-end-column="8" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$MAVEN_REPOSITORY$/org/hibernate/javax/persistence/hibernate-jpa-2.1-api/1.0.0.Final/hibernate-jpa-2.1-api-1.0.0.Final.jar!/javax/persistence/EntityManager.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="93">
-          <caret line="102" column="21" lean-forward="false" selection-start-line="102" selection-start-column="4" selection-end-line="102" selection-end-column="21" />
-          <folding>
-            <marker date="1517451960929" expanded="false" signature="0:104" ph="/.../" />
-            <marker date="1517451960929" expanded="false" signature="141:424" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/entity/Department.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="308">
-          <caret line="44" column="40" lean-forward="false" selection-start-line="44" selection-start-column="29" selection-end-line="44" selection-end-column="40" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/entity/Role.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-137">
@@ -2382,10 +2354,58 @@
         </state>
       </provider>
     </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/hibernate/javax/persistence/hibernate-jpa-2.1-api/1.0.0.Final/hibernate-jpa-2.1-api-1.0.0.Final.jar!/javax/persistence/Query.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="170">
+          <caret line="18" column="8" lean-forward="false" selection-start-line="18" selection-start-column="8" selection-end-line="18" selection-end-column="8" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/lib/zed/Result.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="242">
+          <caret line="12" column="28" lean-forward="false" selection-start-line="12" selection-start-column="28" selection-end-line="12" selection-end-column="28" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/hibernate/javax/persistence/hibernate-jpa-2.1-api/1.0.0.Final/hibernate-jpa-2.1-api-1.0.0.Final.jar!/javax/persistence/EntityManager.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="154">
+          <caret line="16" column="9" lean-forward="false" selection-start-line="16" selection-start-column="9" selection-end-line="16" selection-end-column="9" />
+          <folding>
+            <marker date="1517451960929" expanded="false" signature="0:104" ph="/.../" />
+            <marker date="1517451960929" expanded="false" signature="141:424" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://C:/Program Files/Java/jdk1.8.0_101/src.zip!/javax/management/Attribute.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="352">
+          <caret line="38" column="13" lean-forward="false" selection-start-line="38" selection-start-column="13" selection-end-line="38" selection-end-column="13" />
+          <folding>
+            <element signature="e#1740#1741#0" expanded="true" />
+            <element signature="e#1768#1769#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/modules/setting/entity/Department.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-440">
+          <caret line="46" column="54" lean-forward="false" selection-start-line="46" selection-start-column="54" selection-end-line="46" selection-end-column="54" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/hz-back/test/java/com/beeasy/hzback/test/TestApplication.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="143">
-          <caret line="221" column="25" lean-forward="false" selection-start-line="221" selection-start-column="25" selection-end-line="221" selection-end-column="25" />
+        <state relative-caret-position="2665">
+          <caret line="280" column="0" lean-forward="true" selection-start-line="280" selection-start-column="0" selection-end-line="280" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
@@ -2394,20 +2414,20 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/lib/zed/SQLUtil.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-190">
-          <caret line="100" column="0" lean-forward="false" selection-start-line="100" selection-start-column="0" selection-end-line="100" selection-end-column="0" />
-          <folding />
+        <state relative-caret-position="-1452">
+          <caret line="106" column="20" lean-forward="false" selection-start-line="106" selection-start-column="20" selection-end-line="106" selection-end-column="20" />
+          <folding>
+            <marker date="1518501494833" expanded="true" signature="6588:6672" ph="//..." />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/hz-back/src/main/java/com/beeasy/hzback/lib/zed/Zed.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="398">
-          <caret line="108" column="0" lean-forward="true" selection-start-line="108" selection-start-column="0" selection-end-line="108" selection-end-column="0" />
+        <state relative-caret-position="135">
+          <caret line="113" column="5" lean-forward="true" selection-start-line="113" selection-start-column="5" selection-end-line="113" selection-end-column="5" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#2726#2727#0" expanded="true" />
-            <element signature="e#2768#2769#0" expanded="true" />
           </folding>
         </state>
       </provider>
