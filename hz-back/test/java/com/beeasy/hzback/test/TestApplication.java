@@ -18,6 +18,8 @@ import com.beeasy.hzback.modules.setting.entity.Work;
 import com.beeasy.hzback.modules.setting.entity.WorkNode;
 import com.beeasy.hzback.modules.setting.service.DepartmentService;
 import com.beeasy.hzback.modules.setting.service.UserService;
+import lombok.extern.slf4j.Slf4j;
+import org.hibernate.jpa.internal.metamodel.EntityTypeImpl;
 import org.hibernate.jpa.internal.metamodel.SingularAttributeImpl;
 import org.junit.Assert;
 import org.junit.Test;
@@ -38,6 +40,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Set;
 
+@Slf4j
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class TestApplication {
@@ -158,6 +161,18 @@ public class TestApplication {
     }
 
     @Test
+    public void testjpa(){
+        Set set = entityManager.getMetamodel().getEntities();
+        int a = 1;
+        for(Object type : set){
+            EntityTypeImpl impl = (EntityTypeImpl) type;
+            log.info(impl.getName());
+            log.info(impl.getBindableJavaType().getSimpleName());
+            log.info(impl.getJavaType().getSimpleName());
+        }
+    }
+
+    @Test
     public void testsql() throws Exception {
 
 //    Root root =
@@ -179,7 +194,7 @@ public class TestApplication {
 //            boolean b = field.getBoolean(attribute);
 //            System.out.println(b);
 //        }
-        zed.init();
+//        zed.init();
 
 //        Set<?> set = ClassScanner.getClasses("com.beeasy");
 //        Set<?> set = ScanPackageTest.findPackageAnnotationClass("com.beeasy.hzback", Entity.class);

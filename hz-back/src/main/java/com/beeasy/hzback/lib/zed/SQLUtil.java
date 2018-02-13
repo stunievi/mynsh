@@ -12,6 +12,7 @@ import com.beeasy.hzback.modules.setting.entity.User;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityManager;
@@ -53,6 +54,8 @@ public class SQLUtil {
     final static String ROWS = "$rows";
     final static String ORDER = "$order";
 
+
+
 //    final static String WHERE = "$where";
 
 //    final static         String LT = "lt";
@@ -71,6 +74,14 @@ public class SQLUtil {
 //    public Map<String,Object> select(Class clz,JSONObject object,String joinName) throws Exception {
 //        return select(object,null);
 //    }
+
+    public void delete(){
+        entityManager.getMetamodel().getEntities();
+
+//        jpaRepository.save()
+//        entityManager.getCriteriaBuilder().
+//        entityManager.getCriteriaBuilder().createCriteriaDelete()
+    }
 
     public Map<String, Object> select(JSONObject object) throws Exception {
         Map<String, Class<?>> entityMap = Zed.getEntityMap();
