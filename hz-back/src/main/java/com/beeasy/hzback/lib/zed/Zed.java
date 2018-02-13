@@ -28,6 +28,7 @@ public class Zed {
     final static String POST = "post";
     final static String PUT = "put";
     final static String DELETE = "delete";
+    final static String METHOD = "method";
 
     @Autowired
     EntityManager entityManager;
@@ -60,11 +61,16 @@ public class Zed {
         if (obj == null) {
             throw new Exception();
         }
-        String method = obj.getString("method");
+        //删除被影响的字段
+        String method = obj.getString(METHOD);
+        obj.remove(METHOD);
+
         if (method == null) {
             method = "get";
         }
         method = method.trim().toLowerCase();
+
+
         switch (method) {
             case GET:
                 Map<?, ?> result = this.parseGet(obj);
@@ -78,6 +84,7 @@ public class Zed {
                 break;
 
             case DELETE:
+                parseDelete(obj);
                 break;
 
 
@@ -100,7 +107,7 @@ public class Zed {
     }
 
 
-    public void parseDelete() {
-
+    public Map<String,Boolean> parseDelete(JSONObject obj) {
+        return sqlUtil.delete(obj);
     }
 }

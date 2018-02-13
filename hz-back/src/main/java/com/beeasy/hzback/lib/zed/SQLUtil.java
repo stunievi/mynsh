@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.PropertyFilter;
 import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.support.spring.JSONPResponseBodyAdvice;
+import com.beeasy.hzback.core.helper.SpringContextUtils;
 import com.beeasy.hzback.modules.setting.entity.Department;
 import com.beeasy.hzback.modules.setting.entity.Role;
 import com.beeasy.hzback.modules.setting.entity.User;
@@ -13,25 +14,34 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.PluralAttribute;
+import javax.transaction.NotSupportedException;
+import javax.transaction.SystemException;
+import javax.transaction.TransactionManager;
+import javax.transaction.Transactional;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
-@Component
+@Service
 public class SQLUtil {
 
     @Autowired
     EntityManager entityManager;
+
 
     @Autowired
     JPAUtil jpaUtil;
@@ -55,7 +65,6 @@ public class SQLUtil {
     final static String ORDER = "$order";
 
 
-
 //    final static String WHERE = "$where";
 
 //    final static         String LT = "lt";
@@ -74,13 +83,46 @@ public class SQLUtil {
 //    public Map<String,Object> select(Class clz,JSONObject object,String joinName) throws Exception {
 //        return select(object,null);
 //    }
+    protected boolean deleteSingleItem(Class clz, String idName, Object idValue){
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaDelete query = cb.createCriteriaDelete(clz);
+        Root root = query.from(clz);
+        //批量删除
+        if (idValue instanceof JSONArray) {
+            Set<Object> ids = ((JSONArray) idValue)
+                    .stream()
+                    .collect(Collectors.toSet());
+            query.where(root.get(idName).in(ids));
+        } else {
+            query.where(cb.equal(root.get(idName), idValue));
+        }
+        Query q = entityManager.createQuery(query);
+        return q.executeUpdate() > 0;
+    }
 
-    public void delete(){
-        entityManager.getMetamodel().getEntities();
-
-//        jpaRepository.save()
-//        entityManager.getCriteriaBuilder().
-//        entityManager.getCriteriaBuilder().createCriteriaDelete()
+    @Transactional
+    public Map<String, Boolean> delete(JSONObject deleteObject) {
+        Map<String, Class<?>> entityMap = Zed.getEntityMap();
+        Set<String> entityKeys = deleteObject.keySet();
+        Map<String, Boolean> map = new HashMap<>();
+        for (String entityKey : entityKeys) {
+            if (!entityMap.containsKey(entityKey)) {
+                map.put(entityKey, false);
+                continue;
+            }
+            //每个被删除的实体必须要求有主键，其他所有条件都被无视
+            Class clz = entityMap.get(entityKey);
+            String idName = jpaUtil.getIdName(clz);
+            JSONObject singleDeleteItem = deleteObject.getJSONObject(entityKey);
+            if (!singleDeleteItem.containsKey(idName)) {
+                map.put(entityKey, false);
+                continue;
+            }
+            Object idValue = singleDeleteItem.get(idName);
+            boolean success = deleteSingleItem(clz, idName, idValue);
+            map.put(entityKey,success);
+        }
+        return map;
     }
 
     public Map<String, Object> select(JSONObject object) throws Exception {
@@ -129,7 +171,7 @@ public class SQLUtil {
             condition = new JSONObject();
         }
         //得到需要查询的字段
-        CriteriaQuery<?> query = buildWhere(clz, condition,entityValue.containsKey(ORDER) ? entityValue.getJSONObject(ORDER) : null , joinName, joinIdName, joinIdValue);
+        CriteriaQuery<?> query = buildWhere(clz, condition, entityValue.containsKey(ORDER) ? entityValue.getJSONObject(ORDER) : null, joinName, joinIdName, joinIdValue);
 
         //TODO: 分组还没有做
         //TODO: 将来可能附加的功能：字段运算、分组
@@ -216,7 +258,7 @@ public class SQLUtil {
                 Class fieldType = field.getType();
 
                 for (Object singleResult : jsonArray) {
-                    JSONObject singleJSONObject = (JSONObject)singleResult;
+                    JSONObject singleJSONObject = (JSONObject) singleResult;
 
                     log.info(field.getType().getSimpleName());
 
@@ -233,7 +275,7 @@ public class SQLUtil {
                     }
 
                     Object ret = selectSingle(clz, externEntity, externField, multipul, idName, idValue);
-                    singleJSONObject.put(externField,ret);
+                    singleJSONObject.put(externField, ret);
 
 //                    if (multipul) {
 //                        //是SET的情况
@@ -273,7 +315,7 @@ public class SQLUtil {
      * @param object
      * @return
      */
-    public CriteriaQuery<?> buildWhere(Class<?> clz, JSONObject object,JSONObject orderObject, String joinName, String joinIdName, Object joinIdValue) throws Exception {
+    public CriteriaQuery<?> buildWhere(Class<?> clz, JSONObject object, JSONObject orderObject, String joinName, String joinIdName, Object joinIdValue) throws Exception {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<?> query = cb.createQuery(clz);
 
@@ -295,15 +337,14 @@ public class SQLUtil {
         }
 
         //排序
-        if(orderObject != null){
+        if (orderObject != null) {
             List<Order> orders = new ArrayList<>();
             Set<String> orderKeys = orderObject.keySet();
-            for(String orderKey : orderKeys){
+            for (String orderKey : orderKeys) {
                 String orderType = orderObject.getString(orderKey).toLowerCase();
-                if(orderType.equals("asc")){
+                if (orderType.equals("asc")) {
                     orders.add(cb.asc(join == null ? root.get(orderKey) : join.get(orderKey)));
-                }
-                else{
+                } else {
                     orders.add(cb.desc(join == null ? root.get(orderKey) : join.get(orderKey)));
                 }
             }
