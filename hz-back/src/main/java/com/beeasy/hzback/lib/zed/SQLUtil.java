@@ -68,6 +68,58 @@ public class SQLUtil {
 //    public Map<String,Object> select(Class clz,JSONObject object,String joinName) throws Exception {
 //        return select(object,null);
 //    }
+
+
+    protected boolean putSingleItem(Class clz,String idName,Object idValue,JSONObject update){
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaUpdate query = cb.createCriteriaUpdate(clz);
+        Root root = query.from(clz);
+        Set<String> keySet = update.keySet();
+        keySet.forEach(key -> {
+            query.set(root.get(key),update.get(key));
+        });
+
+        //拼装条件
+        if (idValue instanceof JSONArray) {
+            Set<Object> ids = ((JSONArray) idValue)
+                    .stream()
+                    .collect(Collectors.toSet());
+            query.where(root.get(idName).in(ids));
+        } else {
+            query.where(cb.equal(root.get(idName), idValue));
+        }
+
+        Query q = entityManager.createQuery(query);
+        return q.executeUpdate() > 0;
+    }
+
+    @Transactional
+    public Map<String,Boolean> put(JSONObject putObject){
+        Map<String, Class<?>> entityMap = Zed.getEntityMap();
+        Set<String> entityKeys = putObject.keySet();
+        Map<String, Boolean> map = new HashMap<>();
+        for (String entityKey : entityKeys) {
+            if (!entityMap.containsKey(entityKey)) {
+                map.put(entityKey, false);
+                continue;
+            }
+            //每个被修改的实体必须要求有主键，其他所有条件都被无视
+            Class clz = entityMap.get(entityKey);
+            String idName = jpaUtil.getIdName(clz);
+            JSONObject singlePutItem = putObject.getJSONObject(entityKey);
+            if (!singlePutItem.containsKey(idName)) {
+                map.put(entityKey, false);
+                continue;
+            }
+            Object idValue = singlePutItem.get(idName);
+            //删除主键字段
+            singlePutItem.remove(idName);
+            boolean success = putSingleItem(clz, idName, idValue,singlePutItem);
+            map.put(entityKey,success);
+        }
+        return map;
+    }
+
     protected boolean deleteSingleItem(Class clz, String idName, Object idValue){
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaDelete query = cb.createCriteriaDelete(clz);
@@ -85,7 +137,7 @@ public class SQLUtil {
         return q.executeUpdate() > 0;
     }
 
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public Map<String, Boolean> delete(JSONObject deleteObject) {
         Map<String, Class<?>> entityMap = Zed.getEntityMap();
         Set<String> entityKeys = deleteObject.keySet();

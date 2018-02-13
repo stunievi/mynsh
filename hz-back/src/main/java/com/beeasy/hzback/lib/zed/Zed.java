@@ -83,6 +83,7 @@ public class Zed {
                 break;
 
             case PUT:
+                parsePut(obj);
                 break;
 
             case DELETE:
@@ -111,6 +112,11 @@ public class Zed {
 
     public Map<String,Boolean> parseDelete(JSONObject obj) throws Exception{
         return sqlUtil.delete(obj);
+    }
+
+
+    public Map<String,Boolean> parsePut(JSONObject obj) throws Exception{
+        return sqlUtil.put(obj);
     }
 
     @Transactional

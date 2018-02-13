@@ -249,6 +249,21 @@ public class TestApplication {
         zed.parse(testStr);
     }
 
+
+    @Test
+    public void testZedPut() throws Exception {
+        String testStr = "{\n" +
+                "\t\"method\":\"put\",\n" +
+                "\t\"User\":{\n" +
+                "\t\t\"id\":\"41\"\n," +
+                "\"username\" : \"cccccccccccc\"" +
+                "\t}\n" +
+                "}";
+
+
+        zed.parse(testStr);
+    }
+
 @Autowired
 EntityManagerFactory factory;
 
