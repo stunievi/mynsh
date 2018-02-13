@@ -197,7 +197,7 @@ public class TestApplication {
 
         String testStr = "{\n" +
                 "\t\"User\":{\n" +
-                "\t\t\"roles\":{\"$rows\":1},\n" +
+                "\t\t\"roles\":{\"$rows\":10,\"$order\":{\"id\":\"desc\"}},\n" +
                 "\t\t\"$where\":{\n" +
                 "\t\t\t\"id\":1\n" +
                 "\t\t}\n" +

@@ -118,13 +118,11 @@ public class SQLUtil {
             condition = new JSONObject();
         }
         //得到需要查询的字段
-        CriteriaQuery<?> query = buildWhere(clz, condition, joinName, joinIdName, joinIdValue);
+        CriteriaQuery<?> query = buildWhere(clz, condition,entityValue.containsKey(ORDER) ? entityValue.getJSONObject(ORDER) : null , joinName, joinIdName, joinIdValue);
 
-        //TODO: 排序以及分组还没有做
+        //TODO: 分组还没有做
         //TODO: 将来可能附加的功能：字段运算、分组
-        if(entityValue.containsKey(ORDER)){
-            
-        }
+
 
         TypedQuery<?> q = entityManager.createQuery(query);
 
@@ -264,7 +262,7 @@ public class SQLUtil {
      * @param object
      * @return
      */
-    public CriteriaQuery<?> buildWhere(Class<?> clz, JSONObject object, String joinName, String joinIdName, Object joinIdValue) throws Exception {
+    public CriteriaQuery<?> buildWhere(Class<?> clz, JSONObject object,JSONObject orderObject, String joinName, String joinIdName, Object joinIdValue) throws Exception {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<?> query = cb.createQuery(clz);
 
@@ -285,6 +283,21 @@ public class SQLUtil {
             condition = cb.and(cb.equal(root.get(joinIdName), joinIdValue), condition);
         }
 
+        //排序
+        if(orderObject != null){
+            List<Order> orders = new ArrayList<>();
+            Set<String> orderKeys = orderObject.keySet();
+            for(String orderKey : orderKeys){
+                String orderType = orderObject.getString(orderKey).toLowerCase();
+                if(orderType.equals("asc")){
+                    orders.add(cb.asc(join == null ? root.get(orderKey) : join.get(orderKey)));
+                }
+                else{
+                    orders.add(cb.desc(join == null ? root.get(orderKey) : join.get(orderKey)));
+                }
+            }
+            query.orderBy(orders);
+        }
 
         query.where(condition);
 
