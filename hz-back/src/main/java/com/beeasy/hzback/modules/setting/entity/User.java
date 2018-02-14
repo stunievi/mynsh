@@ -50,7 +50,7 @@ public class User implements Serializable{
 
 
     @JSONField(serialize = false)
-    @ManyToMany(fetch = FetchType.LAZY,mappedBy = "users")
+    @OneToMany(fetch = FetchType.LAZY,mappedBy = "users")
     private Set<Role> roles;
 
 

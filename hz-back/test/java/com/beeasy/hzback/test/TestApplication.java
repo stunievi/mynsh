@@ -236,18 +236,7 @@ public class TestApplication {
 //        Zed.register(User.class);
     }
 
-    @Test
-    public void testZedDelete() throws Exception {
-        String testStr = "{\n" +
-                "\t\"method\":\"delete\",\n" +
-                "\t\"User\":{\n" +
-                "\t\t\"id\":\"10\"\n" +
-                "\t}\n" +
-                "}";
 
-
-        zed.parse(testStr);
-    }
 
 
     @Test

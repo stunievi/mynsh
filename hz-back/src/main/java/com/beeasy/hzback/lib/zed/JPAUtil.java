@@ -80,6 +80,10 @@ public class JPAUtil {
      */
     public Set<String> getAvaExternFields(Class clz, Set<String> fields){
         Root root = getRoot(clz);
+        return getAvaExternFields(root,fields);
+    }
+
+    public Set<String> getAvaExternFields(Root root, Set<String> fields){
         Set<PluralAttribute> linkFields = getLinkFields(root);
         return linkFields.stream()
                 .filter(item -> fields.contains(item.getName()))
@@ -87,5 +91,22 @@ public class JPAUtil {
                 .collect(Collectors.toSet());
     }
 
+
+    public Set<String> getAllFields(Class clz){
+        return getAllFields(getRoot(clz));
+    }
+
+    public Set<String> getAllFields(Root root){
+        Set<Attribute> normalFields = getNormalFields(root);
+        Set<PluralAttribute> linkFields = getLinkFields(root);
+        Set<String> result = normalFields
+                .stream()
+                .map(field -> field.getName())
+                .collect(Collectors.toSet());
+        linkFields.forEach(field -> {
+            result.add(field.getName());
+        });
+        return result;
+    }
 
 }

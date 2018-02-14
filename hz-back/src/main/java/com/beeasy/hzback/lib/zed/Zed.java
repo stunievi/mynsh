@@ -58,11 +58,15 @@ public class Zed {
         init = true;
     }
 
-    public Result parse(String json) throws Exception {
+    public Map<?,?> parseSingle(String json) throws Exception {
         JSONObject obj = JSON.parseObject(json);
         if (obj == null) {
             throw new Exception();
         }
+        return parseSingle(obj);
+    }
+
+    public Map<?,?> parseSingle(JSONObject obj) throws Exception {
         //删除被影响的字段
         String method = obj.getString(METHOD);
         obj.remove(METHOD);
@@ -72,28 +76,45 @@ public class Zed {
         }
         method = method.trim().toLowerCase();
 
+        Map<?,?> result = null;
 
         switch (method) {
             case GET:
-                Map<?, ?> result = this.parseGet(obj);
+                result = this.parseGet(obj);
                 log.info(JSON.toJSONString(result));
-                return Result.ok(result);
+                return (result);
 
             case POST:
-                break;
+                result = parsePost(obj);
+                log.info(JSON.toJSONString(result));
+                return (result);
 
             case PUT:
-                parsePut(obj);
-                break;
+                result = parsePut(obj);
+                log.info(JSON.toJSONString(result));
+                return (result);
 
             case DELETE:
-                parseDelete(obj);
-                break;
-
+                result = parseDelete(obj);
+                log.info(JSON.toJSONString(result));
+                return (result);
 
         }
 
-        return Result.error();
+        throw  new Exception();
+    }
+
+    public Result parse(String json) throws Exception {
+        JSONObject obj = JSON.parseObject(json);
+        if (obj == null) {
+            return Result.error();
+        }
+        try{
+            return Result.ok(parseSingle(obj));
+        }
+        catch (Exception e){
+            return Result.error();
+        }
     }
 
 
@@ -117,6 +138,11 @@ public class Zed {
 
     public Map<String,Boolean> parsePut(JSONObject obj) throws Exception{
         return sqlUtil.put(obj);
+    }
+
+
+    public Map<String,Object> parsePost(JSONObject obj) throws Exception {
+        return sqlUtil.post(obj);
     }
 
     @Transactional

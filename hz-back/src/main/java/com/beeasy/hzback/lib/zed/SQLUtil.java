@@ -13,6 +13,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
+import javax.xml.stream.events.Attribute;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.*;
@@ -50,33 +51,83 @@ public class SQLUtil {
     final static String ORDER = "$order";
 
 
-//    final static String WHERE = "$where";
+    public Object postSingleItem(Class clz, Root root, JSONObject obj) throws Exception {
+        Set<String> allFields = jpaUtil.getAllFields(root);
+        Object instance = clz.newInstance();
+        Set<String> keys = obj.keySet();
+        String idName = jpaUtil.getIdName(root);
+        for (String key : keys) {
+            //消去不存在的字段
+            if (!allFields.contains(key)) {
+                continue;
+            }
+            //禁止设置主键
+            if (idName.equals(key)) {
+                continue;
+            }
+            Field field = clz.getDeclaredField(key);
+            if (!field.isAccessible()) {
+                field.setAccessible(true);
+            }
+            field.set(instance, obj.get(key));
+        }
+        Object result = entityManager.merge(instance);
+        if (result == null) {
+            return -1;
+        }
+        Field idField = result.getClass().getDeclaredField(idName);
+        if (!idField.isAccessible()) {
+            idField.setAccessible(true);
+        }
+        return idField.get(result);
+    }
 
-//    final static         String LT = "lt";
+    @Transactional
+    public Map<String, Object> post(JSONObject postObject) {
+        Map<String, Class<?>> entityMap = Zed.getEntityMap();
+        Set<String> entityKeys = postObject.keySet();
+        Map<String, Object> map = new HashMap<>();
+
+        for (String entityKey : entityKeys) {
+            if (!entityMap.containsKey(entityKey)) {
+                map.put(entityKey, Long.valueOf(-1));
+                continue;
+            }
+            Class clz = entityMap.get(entityKey);
+            Root root = jpaUtil.getRoot(clz);
+            Object entityValue = postObject.get(entityKey);
+            //批量增加
+            if (entityValue instanceof JSONArray) {
+                List ids = ((JSONArray) entityValue).stream().map(item -> {
+                    try {
+                        return postSingleItem(clz, root, (JSONObject) item);
+                    } catch (Exception e) {
+                        return -1;
+                    }
+                }).collect(Collectors.toList());
+                map.put(entityKey, ids);
+            } else if (entityValue instanceof JSONObject) {
+                Object ret;
+                try {
+                    ret = postSingleItem(clz, root, (JSONObject) entityValue);
+                } catch (Exception e) {
+                    ret = -1;
+                }
+                map.put(entityKey, ret);
+            }
+        }
+
+        return map;
+    }
 
 
-//    static String OP_IN = "in";
-//    static String OP_GET = "get";
-//    static String OP_LET = "let";
-//    static String OP_IN = "in";
-
-
-//    public Map<String,Object> select(JSONObject object) throws Exception {
-//        return select(object,null);
-//    }
-
-//    public Map<String,Object> select(Class clz,JSONObject object,String joinName) throws Exception {
-//        return select(object,null);
-//    }
-
-
-    protected boolean putSingleItem(Class clz,String idName,Object idValue,JSONObject update){
+    protected boolean putSingleItem(Class clz, String idName, Object idValue, JSONObject update) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaUpdate query = cb.createCriteriaUpdate(clz);
         Root root = query.from(clz);
         Set<String> keySet = update.keySet();
         keySet.forEach(key -> {
-            query.set(root.get(key),update.get(key));
+            query.set(root.get(key), update.get(key));
         });
 
         //拼装条件
@@ -94,7 +145,7 @@ public class SQLUtil {
     }
 
     @Transactional
-    public Map<String,Boolean> put(JSONObject putObject){
+    public Map<String, Boolean> put(JSONObject putObject) {
         Map<String, Class<?>> entityMap = Zed.getEntityMap();
         Set<String> entityKeys = putObject.keySet();
         Map<String, Boolean> map = new HashMap<>();
@@ -114,13 +165,13 @@ public class SQLUtil {
             Object idValue = singlePutItem.get(idName);
             //删除主键字段
             singlePutItem.remove(idName);
-            boolean success = putSingleItem(clz, idName, idValue,singlePutItem);
-            map.put(entityKey,success);
+            boolean success = putSingleItem(clz, idName, idValue, singlePutItem);
+            map.put(entityKey, success);
         }
         return map;
     }
 
-    protected boolean deleteSingleItem(Class clz, String idName, Object idValue){
+    protected boolean deleteSingleItem(Class clz, String idName, Object idValue) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaDelete query = cb.createCriteriaDelete(clz);
         Root root = query.from(clz);
@@ -157,7 +208,7 @@ public class SQLUtil {
             }
             Object idValue = singleDeleteItem.get(idName);
             boolean success = deleteSingleItem(clz, idName, idValue);
-            map.put(entityKey,success);
+            map.put(entityKey, success);
         }
         return map;
     }
@@ -246,7 +297,6 @@ public class SQLUtil {
     private JSONArray fetchExtendFields(Class clz, List result, JSONObject entityValue) throws Exception {
         //检查是否有附加字段
         Set<String> externFields = jpaUtil.getAvaExternFields(clz, entityValue.keySet());
-
 
 
         //需要保留的字段
