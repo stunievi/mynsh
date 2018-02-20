@@ -19,6 +19,22 @@ public class ZedConfiguration implements ApplicationListener<ContextRefreshedEve
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
         log.info("start ok");
         zed.init();
+
+
+        /**
+         *
+         *
+         * zed.addRole(roleName,checkRole,
+         */
+        zed.addRole("admin",(token) -> {
+            return token.equals("su");
+        },(role) -> {
+            log.info("fuck");
+            role.allowAllGet();
+            role.allowAllPost();
+            role.allowAllPut();
+            role.allowAllDelete();
+        });
     }
 
 //    @Bean

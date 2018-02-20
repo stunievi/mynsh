@@ -2,6 +2,8 @@ package com.beeasy.hzback.lib.zed;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.beeasy.hzback.lib.zed.metadata.ICheckPermission;
+import com.beeasy.hzback.lib.zed.metadata.IPermission;
 import com.beeasy.hzback.modules.setting.entity.User;
 import lombok.Getter;
 import lombok.Setter;
@@ -26,10 +28,10 @@ import java.util.*;
 @Component
 public class Zed {
 
-    final static String GET = "get";
-    final static String POST = "post";
-    final static String PUT = "put";
-    final static String DELETE = "delete";
+    public final static String GET = "get";
+    public final static String POST = "post";
+    public final static String PUT = "put";
+    public final static String DELETE = "delete";
     final static String METHOD = "method";
 
     @Autowired
@@ -66,6 +68,7 @@ public class Zed {
         return parseSingle(obj);
     }
 
+    
     public Map<?,?> parseSingle(JSONObject obj) throws Exception {
         //删除被影响的字段
         String method = obj.getString(METHOD);
@@ -104,7 +107,7 @@ public class Zed {
         throw  new Exception();
     }
 
-    public Result parse(String json) throws Exception {
+    public Result parse(String json,Object token){
         JSONObject obj = JSON.parseObject(json);
         if (obj == null) {
             return Result.error();
@@ -115,6 +118,14 @@ public class Zed {
         catch (Exception e){
             return Result.error();
         }
+    }
+
+    public Result parse(String json) throws Exception {
+        return parse(json,"su");
+    }
+
+    public void addRole(String roleName, ICheckPermission checkFunc, IPermission permissionFunc){
+
     }
 
 
