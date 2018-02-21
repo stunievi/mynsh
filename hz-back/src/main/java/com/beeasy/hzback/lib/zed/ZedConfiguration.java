@@ -1,5 +1,6 @@
 package com.beeasy.hzback.lib.zed;
 
+import com.beeasy.hzback.modules.setting.entity.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
@@ -27,13 +28,29 @@ public class ZedConfiguration implements ApplicationListener<ContextRefreshedEve
          * zed.addRole(roleName,checkRole,
          */
         zed.addRole("admin",(token) -> {
-            return token.equals("su");
+            return token.equals("SU");
         },(role) -> {
             log.info("fuck");
             role.allowAllGet();
             role.allowAllPost();
             role.allowAllPut();
             role.allowAllDelete();
+        });
+
+        zed.addRole("unknown",token -> {
+            return token.equals("UNKNOWN");
+        },role -> {
+            role.disallowAllGet();
+            role.disallowAllPut();
+            role.disallowAllPost();
+            role.disallowAllDelete();
+        });
+
+
+        zed.addRole("test",token -> {
+            return token.equals("TEST");
+        },role -> {
+//            role.createEntityPermission(User.class);
         });
     }
 

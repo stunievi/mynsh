@@ -1,8 +1,12 @@
 package com.beeasy.hzback.lib.zed;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.beeasy.hzback.lib.zed.metadata.ICheckPermission;
+import com.beeasy.hzback.lib.zed.metadata.IPermission;
+import lombok.Data;
 
+import java.util.*;
+
+@Data
 public class RolePermission {
 
 
@@ -12,6 +16,13 @@ public class RolePermission {
     private Map<String,Boolean> allowMap = new HashMap<>();
     private Map<String,Boolean> disallowMap = new HashMap<>();
 
+    private ICheckPermission checkPermission;
+
+    private IPermission permission;
+
+    private String roleName;
+
+    private Map<Class,EntityPermission> entityPermissionMap = new HashMap();
 
     public void allowAllGet(){
         disallowMap.remove(Zed.GET);
@@ -51,5 +62,16 @@ public class RolePermission {
     public void disallowAllDelete(){
         allowMap.remove(Zed.DELETE);
         disallowMap.put(Zed.DELETE,true);
+    }
+
+
+    public EntityPermission createEntityPermission(Class clz){
+        EntityPermission entityPermission = new EntityPermission(clz);
+        entityPermissionMap.put(clz,entityPermission);
+        return entityPermission;
+    }
+
+    public Optional<EntityPermission> getEntityPermission(Class clz){
+        return Optional.ofNullable(entityPermissionMap.get(clz));
     }
 }

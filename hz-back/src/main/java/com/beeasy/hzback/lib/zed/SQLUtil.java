@@ -3,6 +3,9 @@ package com.beeasy.hzback.lib.zed;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.beeasy.hzback.lib.zed.exception.NoEntityException;
+import com.beeasy.hzback.lib.zed.exception.NoPermissionException;
+import com.beeasy.hzback.lib.zed.metadata.RoleEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -213,8 +216,14 @@ public class SQLUtil {
         return map;
     }
 
-    public Map<String, Object> select(JSONObject object) throws Exception {
+    public Map<String, Object> select(JSONObject object, Set<RoleEntity> roleEntities) throws Exception {
         Map<String, Class<?>> entityMap = Zed.getEntityMap();
+
+        //如果有任何一个权限允许查询所有表（拥有SU权限）那么不再验证
+        boolean isSuperAdmin = false;
+        if(roleEntities.stream().anyMatch(roleEntity -> roleEntity.getRolePermission().getAllowMap().containsKey(Zed.GET))){
+            isSuperAdmin = true;
+        }
 
         Set<String> entityKeys = object.keySet();
         Map<String, Object> map = new HashMap<>();
@@ -232,13 +241,29 @@ public class SQLUtil {
             log.info(entityKey);
             //不存在该表的情况直接略过
             if (!entityMap.containsKey(entityKey)) {
-                log.info("no entity " + entityKey);
-                continue;
+                throw new NoEntityException();
             }
+
+
 
             //得到需要查询的表
             Class<?> clz = entityMap.get(entityKey);
 
+            //验证是否拥有查询权限
+            if(!isSuperAdmin){
+                Set<RoleEntity> newRoleEntities = roleEntities
+                        .stream()
+                        .filter(roleEntity -> {
+                            Optional<EntityPermission> entityPermission = roleEntity
+                                    .getRolePermission()
+                                    .getEntityPermission(clz);
+                            return entityPermission.isPresent() && entityPermission.get().isGet();
+                        })
+                        .collect(Collectors.toSet());
+                if(newRoleEntities.size() == 0){
+                    throw new NoPermissionException();
+                }
+            }
             map.put(sourceKey, selectSingle(clz, entityValue, null, multipul));
         }
 

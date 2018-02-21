@@ -96,5 +96,39 @@ public class TestZed {
     }
 
 
+    @Test
+    public void test5_permissionError(){
+        String testStr = "{\n" +
+                "\t\"method\":\"delete\",\n" +
+                "\t\"User\":{\n" +
+                "\t\t\"id\":\""+id+"\"\n" +
+                "\t}\n" +
+                "}";
+
+
+        try {
+            zed.parseSingle(testStr,"UNKNOWN");
+        } catch (Exception e) {
+            Assert.assertNotEquals(e,null);
+        }
+    }
+
+    @Test
+    public void test6_noGetPermission(){
+        String testStr = "{\n" +
+                "\t\"method\":\"get\",\n" +
+                "\t\"User\":{\n" +
+                "\t}\n" +
+                "}";
+
+
+        try {
+            zed.parseSingle(testStr,"TEST");
+        } catch (Exception e) {
+            Assert.assertNotEquals(e,null);
+        }
+    }
+
+
 
 }
