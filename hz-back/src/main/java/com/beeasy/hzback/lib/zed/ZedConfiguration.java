@@ -60,12 +60,16 @@ public class ZedConfiguration implements ApplicationListener<ContextRefreshedEve
                     .allowGet()
                     .setGetReturnFields(new String[]{"id","username"});
         });
+
+        zed.addRole("test3",token -> {
+            return token.equals("TEST3");
+        },role -> {
+            role.createEntityPermission(User.class)
+                    .allowGet()
+                    .setUniqueWhereFields(new String[]{"username"});
+
+        });
     }
 
-//    @Bean
-//    public Zed zed(){
-//        Zed zed = new Zed();
-//        zed.init();
-//        return zed;
-//    }
+
 }

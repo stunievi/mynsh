@@ -3,6 +3,7 @@ package com.beeasy.hzback.test;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.lib.zed.Result;
 import com.beeasy.hzback.lib.zed.Zed;
+import com.beeasy.hzback.lib.zed.exception.ErrorWhereFieldsException;
 import com.beeasy.hzback.modules.setting.entity.User;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
@@ -149,6 +150,40 @@ public class TestZed {
             Assert.assertEquals(e,null);
         }
     }
+
+
+    @Test
+    public void test8_getUniqueWherePermission(){
+        String testStr1 = "{\n" +
+                "\t\"method\":\"get\",\n" +
+                "\t\"User\":{\n" +
+                "\t}\n" +
+                "}";
+
+        try {
+            Map<?,?> ret = zed.parseSingle(testStr1,"TEST3");
+        } catch (ErrorWhereFieldsException e) {
+            Assert.assertNotNull(e);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        String testStr2 = "{\n" +
+                "\t\"method\":\"get\",\n" +
+                "\t\"User\":{\n" +
+                "\"$where\":{\"username\":1}" +
+                "\t}\n" +
+                "}";
+        try {
+            Map<?,?> ret = zed.parseSingle(testStr2,"TEST3");
+        } catch (ErrorWhereFieldsException e) {
+            Assert.assertEquals(e,null);
+        } catch (Exception e) {
+            Assert.assertEquals(e,null);
+        }
+    }
+
+
 
 
 

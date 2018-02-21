@@ -3,6 +3,7 @@ package com.beeasy.hzback.lib.zed;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.beeasy.hzback.lib.zed.exception.ErrorWhereFieldsException;
 import com.beeasy.hzback.lib.zed.exception.NoEntityException;
 import com.beeasy.hzback.lib.zed.exception.NoPermissionException;
 import com.beeasy.hzback.lib.zed.metadata.RoleEntity;
@@ -339,6 +340,47 @@ public class SQLUtil {
         } else {
             condition = new JSONObject();
         }
+
+        /**
+         * 目前只拿出权限组的其中一个
+         */
+        RoleEntity roleEntity = roleEntities.stream().findFirst().get();
+        Optional<EntityPermission> opRolePermission = roleEntity.getRolePermission().getEntityPermission(clz);
+
+        //检查字段
+        if(opRolePermission.isPresent()){
+            EntityPermission rolePermission = opRolePermission.get();
+
+            //如果设定了只能提交的字段
+            //禁止提交别的字段
+            Set<String> uniqueWhereFields = rolePermission.getUniqueWhereFields();
+            //删除无用的字段
+            Set<String> removeKeys = condition
+                    .entrySet()
+                    .stream()
+                    .filter(entity -> !uniqueWhereFields.contains(entity.getKey()))
+                    .map(entity -> entity.getKey())
+                    .collect(Collectors.toSet());
+            removeKeys.forEach(key -> {
+                condition.remove(key);
+            });
+
+            Set<String> requiredWhereFields = rolePermission.getRequiredWhereFields();
+            //只能提交的字段同时也是必须提交的
+            requiredWhereFields.addAll(uniqueWhereFields);
+
+            //如果设定了必须提交的字段
+            if(requiredWhereFields.size() > 0){
+                //检查，如果不存在该有的字段，那么直接报错
+                for (String key : requiredWhereFields) {
+                    if(!condition.containsKey(key)){
+                        throw new ErrorWhereFieldsException();
+                    }
+                }
+            }
+
+        }
+
         //得到需要查询的字段
         CriteriaQuery<?> query = buildWhere(clz, condition, entityValue.containsKey(ORDER) ? entityValue.getJSONObject(ORDER) : null, joinName, joinIdName, joinIdValue);
 
@@ -361,13 +403,7 @@ public class SQLUtil {
             return result;
         }
 
-        /**
-         * 目前只拿出权限组的其中一个
-         */
 
-        RoleEntity roleEntity = roleEntities.stream().findFirst().get();
-        //限定字段
-        Optional<EntityPermission> opRolePermission = roleEntity.getRolePermission().getEntityPermission(clz);
 
         if (multipul) {
             //如果声明了附加字段

@@ -3,6 +3,7 @@ package com.beeasy.hzback.lib.zed;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
 public class EntityPermission {
@@ -19,6 +20,13 @@ public class EntityPermission {
 
     @Getter
     private Set<String> getReturnFields = new HashSet<>();
+
+    @Getter
+    private Set<String> requiredWhereFields = new HashSet<>();
+
+    @Getter
+    private Set<String> uniqueWhereFields = new HashSet<>();
+
 
     EntityPermission(Class clz){
         entityClass = clz;
@@ -61,6 +69,37 @@ public class EntityPermission {
     }
     public EntityPermission setGetReturnFields(String[] fields){
         return setGetReturnFields(Arrays.asList(fields));
+    }
+
+    /**
+     * 限制提交的condition字段（必须提交的字段）
+     */
+    public EntityPermission setRequiredWhereFields(Set<String> fields){
+        requiredWhereFields = fields;
+        return this;
+    }
+    public EntityPermission setRequiredWhereFields(List<String> fields){
+        requiredWhereFields = new HashSet<>(fields);
+        return this;
+    }
+    public EntityPermission setRequiredWhereFields(String[] fields){
+        return setRequiredWhereFields(Arrays.asList(fields));
+    }
+
+    /**
+     * 限制提交的condition字段（只能提交的字段）
+     */
+    public EntityPermission setUniqueWhereFields(Set<String> fields){
+        uniqueWhereFields = fields;
+        return this;
+    }
+    public EntityPermission setUniqueWhereFields(List<String> fields){
+        uniqueWhereFields = new HashSet<>(fields);
+        return this;
+    }
+    public EntityPermission setUniqueWhereFields(String[] fields){
+        setUniqueWhereFields(Arrays.asList(fields));
+        return this;
     }
 
 
