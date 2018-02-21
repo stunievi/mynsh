@@ -52,6 +52,14 @@ public class ZedConfiguration implements ApplicationListener<ContextRefreshedEve
         },role -> {
 //            role.createEntityPermission(User.class);
         });
+
+        zed.addRole("test2",token -> {
+            return token.equals("TEST2");
+        },role -> {
+            role.createEntityPermission(User.class)
+                    .allowGet();
+//            role.createEntityPermission(User.class);
+        });
     }
 
 //    @Bean

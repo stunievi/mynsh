@@ -86,10 +86,12 @@ public class SQLUtil {
     }
 
     @Transactional
-    public Map<String, Object> post(JSONObject postObject) {
+    public Map<String, Object> post(JSONObject postObject,Set<RoleEntity> roleEntities) throws NoPermissionException {
         Map<String, Class<?>> entityMap = Zed.getEntityMap();
         Set<String> entityKeys = postObject.keySet();
         Map<String, Object> map = new HashMap<>();
+
+        boolean isSU = isSuperAdmin(roleEntities);
 
         for (String entityKey : entityKeys) {
             if (!entityMap.containsKey(entityKey)) {
@@ -97,6 +99,23 @@ public class SQLUtil {
                 continue;
             }
             Class clz = entityMap.get(entityKey);
+
+            Set<RoleEntity> newRoleEntities = roleEntities;
+            if(!isSU){
+                newRoleEntities = roleEntities
+                        .stream()
+                        .filter(roleEntity -> {
+                            Optional<EntityPermission> entityPermission = roleEntity
+                                    .getRolePermission()
+                                    .getEntityPermission(clz);
+                            return entityPermission.isPresent() && entityPermission.get().isPost();
+                        })
+                        .collect(Collectors.toSet());
+                if(newRoleEntities.size() == 0){
+                    throw new NoPermissionException();
+                }
+            }
+
             Root root = jpaUtil.getRoot(clz);
             Object entityValue = postObject.get(entityKey);
             //批量增加
@@ -123,6 +142,9 @@ public class SQLUtil {
         return map;
     }
 
+    protected boolean isSuperAdmin(Set<RoleEntity> roleEntities){
+        return (roleEntities.stream().anyMatch(roleEntity -> roleEntity.getRolePermission().getAllowMap().containsKey(Zed.GET)));
+    }
 
     protected boolean putSingleItem(Class clz, String idName, Object idValue, JSONObject update) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
@@ -148,10 +170,13 @@ public class SQLUtil {
     }
 
     @Transactional
-    public Map<String, Boolean> put(JSONObject putObject) {
+    public Map<String, Boolean> put(JSONObject putObject,Set<RoleEntity> roleEntities) throws NoPermissionException {
         Map<String, Class<?>> entityMap = Zed.getEntityMap();
         Set<String> entityKeys = putObject.keySet();
         Map<String, Boolean> map = new HashMap<>();
+
+        boolean isSU = isSuperAdmin(roleEntities);
+
         for (String entityKey : entityKeys) {
             if (!entityMap.containsKey(entityKey)) {
                 map.put(entityKey, false);
@@ -159,6 +184,22 @@ public class SQLUtil {
             }
             //每个被修改的实体必须要求有主键，其他所有条件都被无视
             Class clz = entityMap.get(entityKey);
+            Set<RoleEntity> newRoleEntities = roleEntities;
+            if(!isSU){
+                newRoleEntities = roleEntities
+                        .stream()
+                        .filter(roleEntity -> {
+                            Optional<EntityPermission> entityPermission = roleEntity
+                                    .getRolePermission()
+                                    .getEntityPermission(clz);
+                            return entityPermission.isPresent() && entityPermission.get().isPut();
+                        })
+                        .collect(Collectors.toSet());
+                if(newRoleEntities.size() == 0){
+                    throw new NoPermissionException();
+                }
+            }
+
             String idName = jpaUtil.getIdName(clz);
             JSONObject singlePutItem = putObject.getJSONObject(entityKey);
             if (!singlePutItem.containsKey(idName)) {
@@ -192,10 +233,13 @@ public class SQLUtil {
     }
 
     @Transactional
-    public Map<String, Boolean> delete(JSONObject deleteObject) {
+    public Map<String, Boolean> delete(JSONObject deleteObject,Set<RoleEntity> roleEntities) throws NoPermissionException {
         Map<String, Class<?>> entityMap = Zed.getEntityMap();
         Set<String> entityKeys = deleteObject.keySet();
         Map<String, Boolean> map = new HashMap<>();
+
+        boolean isSuperAdmin = isSuperAdmin(roleEntities);
+
         for (String entityKey : entityKeys) {
             if (!entityMap.containsKey(entityKey)) {
                 map.put(entityKey, false);
@@ -203,6 +247,22 @@ public class SQLUtil {
             }
             //每个被删除的实体必须要求有主键，其他所有条件都被无视
             Class clz = entityMap.get(entityKey);
+            Set<RoleEntity> newRoleEntities = roleEntities;
+            if(!isSuperAdmin) {
+                 newRoleEntities = roleEntities
+                        .stream()
+                        .filter(roleEntity -> {
+                            Optional<EntityPermission> entityPermission = roleEntity
+                                    .getRolePermission()
+                                    .getEntityPermission(clz);
+                            return entityPermission.isPresent() && entityPermission.get().isDelete();
+                        })
+                        .collect(Collectors.toSet());
+                if(newRoleEntities.size() == 0){
+                    throw new NoPermissionException();
+                }
+            }
+
             String idName = jpaUtil.getIdName(clz);
             JSONObject singleDeleteItem = deleteObject.getJSONObject(entityKey);
             if (!singleDeleteItem.containsKey(idName)) {
@@ -220,10 +280,8 @@ public class SQLUtil {
         Map<String, Class<?>> entityMap = Zed.getEntityMap();
 
         //如果有任何一个权限允许查询所有表（拥有SU权限）那么不再验证
-        boolean isSuperAdmin = false;
-        if(roleEntities.stream().anyMatch(roleEntity -> roleEntity.getRolePermission().getAllowMap().containsKey(Zed.GET))){
-            isSuperAdmin = true;
-        }
+        boolean isSuperAdmin = isSuperAdmin(roleEntities);
+
 
         Set<String> entityKeys = object.keySet();
         Map<String, Object> map = new HashMap<>();
@@ -243,8 +301,6 @@ public class SQLUtil {
             if (!entityMap.containsKey(entityKey)) {
                 throw new NoEntityException();
             }
-
-
 
             //得到需要查询的表
             Class<?> clz = entityMap.get(entityKey);

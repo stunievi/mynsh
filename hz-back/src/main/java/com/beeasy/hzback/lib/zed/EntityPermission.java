@@ -36,4 +36,11 @@ public class EntityPermission {
         delete = true;
         return this;
     }
+
+    public EntityPermission addGetCondition(){
+
+        return this;
+    }
+
+
 }

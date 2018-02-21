@@ -193,17 +193,17 @@ public class Zed {
 
 
     public Map<String,Boolean> parseDelete(JSONObject obj,Set<RoleEntity> roleEntities) throws Exception{
-        return sqlUtil.delete(obj);
+        return sqlUtil.delete(obj,roleEntities);
     }
 
 
     public Map<String,Boolean> parsePut(JSONObject obj,Set<RoleEntity> roleEntities) throws Exception{
-        return sqlUtil.put(obj);
+        return sqlUtil.put(obj,roleEntities);
     }
 
 
     public Map<String,Object> parsePost(JSONObject obj,Set<RoleEntity> roleEntities) throws Exception {
-        return sqlUtil.post(obj);
+        return sqlUtil.post(obj,roleEntities);
     }
 
     @Transactional

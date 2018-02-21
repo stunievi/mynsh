@@ -129,6 +129,21 @@ public class TestZed {
         }
     }
 
+    @Test
+    public void test7_hasGetPermission(){
+        String testStr = "{\n" +
+                "\t\"method\":\"get\",\n" +
+                "\t\"User\":{\n" +
+                "\t}\n" +
+                "}";
+
+        try {
+            zed.parseSingle(testStr,"TEST2");
+        } catch (Exception e) {
+            Assert.assertEquals(e,null);
+        }
+    }
+
 
 
 }
