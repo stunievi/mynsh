@@ -1,7 +1,9 @@
 package com.beeasy.hzback.test;
 
+import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.lib.zed.Result;
 import com.beeasy.hzback.lib.zed.Zed;
+import com.beeasy.hzback.modules.setting.entity.User;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
@@ -138,7 +140,11 @@ public class TestZed {
                 "}";
 
         try {
-            zed.parseSingle(testStr,"TEST2");
+            Map<?,?> ret = zed.parseSingle(testStr,"TEST2");
+            Assert.assertTrue(ret.size() > 0);
+            JSONObject o = (JSONObject) ret.get("User");
+            Assert.assertNotNull(o);
+            Assert.assertTrue(!o.containsKey("password"));
         } catch (Exception e) {
             Assert.assertEquals(e,null);
         }

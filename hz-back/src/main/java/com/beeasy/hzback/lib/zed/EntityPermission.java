@@ -1,6 +1,9 @@
 package com.beeasy.hzback.lib.zed;
 
 import lombok.Getter;
+import lombok.Setter;
+
+import java.util.*;
 
 public class EntityPermission {
 
@@ -13,6 +16,9 @@ public class EntityPermission {
     private boolean put = false;
     @Getter
     private boolean delete = false;
+
+    @Getter
+    private Set<String> getReturnFields = new HashSet<>();
 
     EntityPermission(Class clz){
         entityClass = clz;
@@ -41,6 +47,23 @@ public class EntityPermission {
 
         return this;
     }
+
+    /**
+     * 限制返回字段
+     */
+    public EntityPermission setGetReturnFields(Set<String> fields){
+        getReturnFields = fields;
+        return this;
+    }
+    public EntityPermission setGetReturnFields(List<String> fields){
+        getReturnFields = new LinkedHashSet<>(fields);
+        return this;
+    }
+    public EntityPermission setGetReturnFields(String[] fields){
+        return setGetReturnFields(Arrays.asList(fields));
+    }
+
+
 
 
 }

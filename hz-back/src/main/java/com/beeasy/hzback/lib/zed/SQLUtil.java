@@ -305,10 +305,10 @@ public class SQLUtil {
             //得到需要查询的表
             Class<?> clz = entityMap.get(entityKey);
 
+            Set<RoleEntity> newRoleEntities = roleEntities;
             //验证是否拥有查询权限
             if(!isSuperAdmin){
-                Set<RoleEntity> newRoleEntities = roleEntities
-                        .stream()
+                newRoleEntities = newRoleEntities.stream()
                         .filter(roleEntity -> {
                             Optional<EntityPermission> entityPermission = roleEntity
                                     .getRolePermission()
@@ -320,18 +320,18 @@ public class SQLUtil {
                     throw new NoPermissionException();
                 }
             }
-            map.put(sourceKey, selectSingle(clz, entityValue, null, multipul));
+            map.put(sourceKey, selectSingle(newRoleEntities,clz, entityValue, null, multipul));
         }
 
         return map;
     }
 
-    private Object selectSingle(Class clz, JSONObject entityValue, String joinName, boolean multipul) throws Exception {
-        return selectSingle(clz, entityValue, joinName, multipul, null, null);
+    private Object selectSingle(Set<RoleEntity> roleEntities,Class clz, JSONObject entityValue, String joinName, boolean multipul) throws Exception {
+        return selectSingle(roleEntities,clz, entityValue, joinName, multipul, null, null);
 
     }
 
-    private Object selectSingle(Class clz, JSONObject entityValue, String joinName, boolean multipul, String joinIdName, Object joinIdValue) throws Exception {
+    private Object selectSingle(Set<RoleEntity> roleEntities,Class clz, JSONObject entityValue, String joinName, boolean multipul, String joinIdName, Object joinIdValue) throws Exception {
         JSONObject condition;
         //得到检索条件，如果没有，则为空
         if (entityValue.containsKey(WHERE)) {
@@ -360,13 +360,51 @@ public class SQLUtil {
         if (result.size() == 0) {
             return result;
         }
+
+        /**
+         * 目前只拿出权限组的其中一个
+         */
+
+        RoleEntity roleEntity = roleEntities.stream().findFirst().get();
+        //限定字段
+        Optional<EntityPermission> opRolePermission = roleEntity.getRolePermission().getEntityPermission(clz);
+
         if (multipul) {
             //如果声明了附加字段
-            JSONArray ret = fetchExtendFields(clz, result, entityValue);
+            JSONArray ret = fetchExtendFields(roleEntities,clz, result, entityValue);
+            opRolePermission.ifPresent(rolePermission -> {
+                if(rolePermission.getGetReturnFields().size() > 0){
+                    ret.forEach(obj -> {
+                        Set<String> removeKeys = ((JSONObject)obj)
+                                .entrySet()
+                                .stream()
+                                .filter(e -> !rolePermission.getGetReturnFields().contains(e.getKey()))
+                                .map(item -> item.getKey())
+                                .collect(Collectors.toSet());
+                        removeKeys.forEach(k -> {
+                            ((JSONObject) obj).remove(k);
+                        });
+                    });
+                }
+            });
             return ret;
         } else {
             result = result.subList(0, 1);
-            JSONArray ret = fetchExtendFields(clz, result, entityValue);
+            JSONArray ret = fetchExtendFields(roleEntities,clz, result, entityValue);
+            opRolePermission.ifPresent(rolePermission -> {
+                if(rolePermission.getGetReturnFields().size() > 0){
+                    JSONObject obj = (JSONObject) ret.get(0);
+                    Set<String> removeKeys = obj
+                            .entrySet()
+                            .stream()
+                            .filter(e -> !rolePermission.getGetReturnFields().contains(e.getKey()))
+                            .map(item -> item.getKey())
+                            .collect(Collectors.toSet());
+                    removeKeys.forEach(k -> {
+                        obj.remove(k);
+                    });
+                }
+            });
             return ret.get(0);
         }
     }
@@ -375,7 +413,7 @@ public class SQLUtil {
     /**
      * 查找一个模型的附加字段
      */
-    private JSONArray fetchExtendFields(Class clz, List result, JSONObject entityValue) throws Exception {
+    private JSONArray fetchExtendFields(Set<RoleEntity> roleEntities,Class clz, List result, JSONObject entityValue) throws Exception {
         //检查是否有附加字段
         Set<String> externFields = jpaUtil.getAvaExternFields(clz, entityValue.keySet());
 
@@ -419,7 +457,7 @@ public class SQLUtil {
                         continue;
                     }
 
-                    Object ret = selectSingle(clz, externEntity, externField, multipul, idName, idValue);
+                    Object ret = selectSingle(roleEntities,clz, externEntity, externField, multipul, idName, idValue);
                     singleJSONObject.put(externField, ret);
 
                 }

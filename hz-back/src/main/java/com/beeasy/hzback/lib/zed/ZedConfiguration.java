@@ -57,8 +57,8 @@ public class ZedConfiguration implements ApplicationListener<ContextRefreshedEve
             return token.equals("TEST2");
         },role -> {
             role.createEntityPermission(User.class)
-                    .allowGet();
-//            role.createEntityPermission(User.class);
+                    .allowGet()
+                    .setGetReturnFields(new String[]{"id","username"});
         });
     }
 
