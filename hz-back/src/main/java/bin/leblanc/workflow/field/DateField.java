@@ -1,6 +1,5 @@
 package bin.leblanc.workflow.field;
 
-import bin.leblanc.workflow.node.InformationField;
 import lombok.Getter;
 import lombok.Setter;
 
