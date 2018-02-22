@@ -1,4 +1,4 @@
-package bin.leblanc.zed;
+package com.beeasy.hzback.core.helper;
 
 import lombok.Data;
 import org.springframework.validation.BindingResult;

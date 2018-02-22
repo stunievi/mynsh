@@ -1,6 +1,6 @@
 package com.beeasy.hzback.modules.setting.controller;
 
-import bin.leblanc.zed.Result;
+import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.modules.setting.dao.IUserDao;
 import com.beeasy.hzback.modules.setting.entity.User;
 import com.beeasy.hzback.modules.setting.service.UserService;

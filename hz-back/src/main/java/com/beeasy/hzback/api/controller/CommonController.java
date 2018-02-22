@@ -1,8 +1,10 @@
 package com.beeasy.hzback.api.controller;
 
 
+import bin.leblanc.zed.exception.NoMethodException;
+import bin.leblanc.zed.exception.NoPermissionException;
 import com.beeasy.hzback.core.config.AdminMenuConfig;
-import bin.leblanc.zed.Result;
+import com.beeasy.hzback.core.helper.Result;
 import bin.leblanc.zed.Zed;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,20 +31,23 @@ public class CommonController {
     @Autowired
     Zed zed;
 
-    @RequestMapping("/aa")
+    @RequestMapping("/zed")
     public Result menu2(
             HttpServletRequest request,
             @RequestBody String body
     ){
-//        request.get
-            log.info(body);
-//        log.info();
-        try {
-            return (zed).parse(body);
-        } catch (Exception e) {
+        log.info(body);
+        try{
+            return Result.ok(zed.parse(body));
+        }
+        catch (NoMethodException e){
+            return Result.error("error method");
+        }
+        catch (NoPermissionException e){
+            return Result.error("permission error");
+        }
+        catch (Exception e){
             return Result.error();
         }
-//        request.get
-//        return Result.ok();
     }
 }

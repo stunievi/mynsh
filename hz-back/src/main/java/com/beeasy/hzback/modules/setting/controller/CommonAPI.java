@@ -1,6 +1,6 @@
 package com.beeasy.hzback.modules.setting.controller;
 
-import bin.leblanc.zed.Result;
+import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.modules.setting.entity.User;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;

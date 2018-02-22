@@ -7,6 +7,7 @@ import bin.leblanc.zed.exception.NoPermissionException;
 import bin.leblanc.zed.metadata.ICheckPermission;
 import bin.leblanc.zed.metadata.IPermission;
 import bin.leblanc.zed.metadata.RoleEntity;
+import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.modules.setting.entity.User;
 import lombok.Getter;
 import lombok.Setter;
@@ -127,26 +128,12 @@ public class Zed {
         throw  new NoMethodException();
     }
 
-    public Result parse(String json,Object token){
+    public Map<?,?> parse(String json, Object token) throws Exception{
         JSONObject obj = JSON.parseObject(json);
-        if (obj == null) {
-            return Result.error();
-        }
-        try{
-            return Result.ok(parseSingle(obj,token));
-        }
-        catch (NoMethodException e){
-            return Result.error("error method");
-        }
-        catch (NoPermissionException e){
-            return Result.error("permission error");
-        }
-        catch (Exception e){
-            return Result.error();
-        }
+        return parseSingle(obj,token);
     }
 
-    public Result parse(String json) throws Exception {
+    public Map<?,?> parse(String json) throws Exception {
         return parse(json,"SU");
     }
 

@@ -2,7 +2,7 @@ package com.beeasy.hzback.modules.setting.controller;
 
 
 import com.alibaba.fastjson.JSON;
-import bin.leblanc.zed.Result;
+import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.modules.setting.dao.IDepartmentDao;
 import com.beeasy.hzback.modules.setting.dao.IRoleDao;
 import com.beeasy.hzback.modules.setting.entity.Role;
