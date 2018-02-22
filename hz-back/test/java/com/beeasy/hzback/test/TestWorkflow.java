@@ -1,10 +1,7 @@
 package com.beeasy.hzback.test;
 
-import com.beeasy.hzback.lib.workflow.WorkflowEngine;
-import com.beeasy.hzback.lib.workflow.WorkflowModel;
-import com.beeasy.hzback.lib.workflow.WorkflowNode;
-import com.beeasy.hzback.lib.workflow.exception.ErrorNodeTypeException;
-import com.beeasy.hzback.lib.workflow.node.InformationField;
+import bin.leblanc.workflow.WorkflowEngine;
+import bin.leblanc.workflow.WorkflowModel;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.FixMethodOrder;
 import org.junit.Test;

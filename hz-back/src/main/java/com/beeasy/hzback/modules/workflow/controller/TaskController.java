@@ -1,7 +1,7 @@
 package com.beeasy.hzback.modules.workflow.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.beeasy.hzback.lib.zed.Result;
+import bin.leblanc.zed.Result;
 import com.beeasy.hzback.modules.setting.dao.IWorkFlowDao;
 import com.beeasy.hzback.modules.setting.entity.User;
 import com.beeasy.hzback.modules.setting.entity.WorkFlow;

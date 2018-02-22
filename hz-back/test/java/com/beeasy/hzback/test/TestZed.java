@@ -1,10 +1,8 @@
 package com.beeasy.hzback.test;
 
 import com.alibaba.fastjson.JSONObject;
-import com.beeasy.hzback.lib.zed.Result;
-import com.beeasy.hzback.lib.zed.Zed;
-import com.beeasy.hzback.lib.zed.exception.ErrorWhereFieldsException;
-import com.beeasy.hzback.modules.setting.entity.User;
+import bin.leblanc.zed.Zed;
+import bin.leblanc.zed.exception.ErrorWhereFieldsException;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;

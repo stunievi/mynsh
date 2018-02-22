@@ -1,7 +1,7 @@
 package com.beeasy.hzback.modules.setting.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.beeasy.hzback.lib.zed.Result;
+import bin.leblanc.zed.Result;
 import com.beeasy.hzback.modules.setting.dao.IWorkDao;
 import com.beeasy.hzback.modules.setting.entity.Work;
 //import com.beeasy.hzback.modules.setting.entity.WorkNode;

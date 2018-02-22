@@ -2,8 +2,8 @@ package com.beeasy.hzback.api.controller;
 
 
 import com.beeasy.hzback.core.config.AdminMenuConfig;
-import com.beeasy.hzback.lib.zed.Result;
-import com.beeasy.hzback.lib.zed.Zed;
+import bin.leblanc.zed.Result;
+import bin.leblanc.zed.Zed;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;

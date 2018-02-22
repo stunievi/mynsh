@@ -1,11 +1,10 @@
 package com.beeasy.hzback.test;
 
-import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.core.helper.SpringContextUtils;
 //import com.beeasy.hzback.lib.zed.ClassScanner;
 //import com.beeasy.hzback.lib.zed.ScanPackageTest;
-import com.beeasy.hzback.lib.zed.JPAUtil;
-import com.beeasy.hzback.lib.zed.Zed;
+import bin.leblanc.zed.JPAUtil;
+import bin.leblanc.zed.Zed;
 import com.beeasy.hzback.modules.setting.dao.IDepartmentDao;
 import com.beeasy.hzback.modules.setting.dao.IUserDao;
 import com.beeasy.hzback.modules.setting.dao.IWorkDao;
@@ -15,32 +14,22 @@ import com.beeasy.hzback.modules.setting.entity.User;
 import com.beeasy.hzback.core.util.CrUtils;
 import com.beeasy.hzback.modules.setting.entity.Work;
 //import com.beeasy.hzback.modules.setting.entity.WorkNode;
-import com.beeasy.hzback.modules.setting.entity.WorkNode;
 import com.beeasy.hzback.modules.setting.service.DepartmentService;
 import com.beeasy.hzback.modules.setting.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.jpa.internal.metamodel.EntityTypeImpl;
-import org.hibernate.jpa.internal.metamodel.SingularAttributeImpl;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.jpa.repository.JpaContext;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.support.JpaRepositoryFactory;
-import org.springframework.data.jpa.repository.support.JpaRepositoryFactoryBean;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Root;
-import javax.persistence.metamodel.Attribute;
-import javax.persistence.metamodel.ManagedType;
-import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Set;
 
