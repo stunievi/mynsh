@@ -1,10 +1,8 @@
 package com.beeasy.hzback.lib.zed;
 
-import com.beeasy.hzback.lib.zed.metadata.IWhereLimit;
+import com.beeasy.hzback.lib.zed.metadata.IGetWhereLimit;
 import lombok.Getter;
-import lombok.Setter;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 public class EntityPermission {
@@ -29,7 +27,11 @@ public class EntityPermission {
     private Set<String> uniqueWhereFields = new HashSet<>();
 
     @Getter
-    private IWhereLimit whereLimit = null;
+    private IGetWhereLimit getWhereLimit = null;
+    @Getter
+    private IGetWhereLimit putWhereLimit = null;
+    @Getter
+    private IGetWhereLimit deleteWhereLimit = null;
 
 
     EntityPermission(Class clz){
@@ -55,10 +57,6 @@ public class EntityPermission {
         return this;
     }
 
-    public EntityPermission addGetCondition(){
-
-        return this;
-    }
 
     /**
      * 限制返回字段
@@ -107,10 +105,24 @@ public class EntityPermission {
     }
 
     /**
-     * 限制提交条件
+     * 限制GET提交条件
      */
-    public EntityPermission setWhereLimit(IWhereLimit whereLimit){
-        this.whereLimit = whereLimit;
+    public EntityPermission setGetWhereLimit(IGetWhereLimit whereLimit){
+        this.getWhereLimit = whereLimit;
+        return this;
+    }
+
+
+    /**
+     * 限制PUT DELETE id条件
+     */
+    public EntityPermission setPutIdLimit(IGetWhereLimit whereLimit){
+        putWhereLimit = whereLimit;
+        return this;
+    }
+
+    public EntityPermission setDeleteLimit(IGetWhereLimit whereLimit){
+        deleteWhereLimit = whereLimit;
         return this;
     }
 

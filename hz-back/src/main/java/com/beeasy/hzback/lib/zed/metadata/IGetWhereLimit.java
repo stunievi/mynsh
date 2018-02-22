@@ -5,6 +5,6 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-public interface IWhereLimit {
+public interface IGetWhereLimit {
     Predicate call(CriteriaBuilder cb, Path root, Predicate condition);
 }

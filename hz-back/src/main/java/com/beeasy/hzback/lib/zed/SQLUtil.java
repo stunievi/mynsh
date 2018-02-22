@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.lib.zed.exception.ErrorWhereFieldsException;
 import com.beeasy.hzback.lib.zed.exception.NoEntityException;
 import com.beeasy.hzback.lib.zed.exception.NoPermissionException;
+import com.beeasy.hzback.lib.zed.metadata.IGetWhereLimit;
 import com.beeasy.hzback.lib.zed.metadata.RoleEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,6 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
-import javax.xml.stream.events.Attribute;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.*;
@@ -147,7 +147,7 @@ public class SQLUtil {
         return (roleEntities.stream().anyMatch(roleEntity -> roleEntity.getRolePermission().getAllowMap().containsKey(Zed.GET)));
     }
 
-    protected boolean putSingleItem(Class clz, String idName, Object idValue, JSONObject update) {
+    protected boolean putSingleItem(RoleEntity roleEntity, Class clz, String idName, Object idValue, JSONObject update) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaUpdate query = cb.createCriteriaUpdate(clz);
         Root root = query.from(clz);
@@ -157,14 +157,19 @@ public class SQLUtil {
         });
 
         //拼装条件
+        Predicate condition;
         if (idValue instanceof JSONArray) {
             Set<Object> ids = ((JSONArray) idValue)
                     .stream()
                     .collect(Collectors.toSet());
-            query.where(root.get(idName).in(ids));
+            condition = root.get(idName).in(ids);
         } else {
-            query.where(cb.equal(root.get(idName), idValue));
+            condition = cb.equal(root.get(idName), idValue);
         }
+
+        condition = addConditionLimit(roleEntity,Zed.PUT,clz,cb,root,condition);
+
+        query.where(condition);
 
         Query q = entityManager.createQuery(query);
         return q.executeUpdate() > 0;
@@ -200,6 +205,7 @@ public class SQLUtil {
                     throw new NoPermissionException();
                 }
             }
+            RoleEntity roleEntity = newRoleEntities.stream().findFirst().get();
 
             String idName = jpaUtil.getIdName(clz);
             JSONObject singlePutItem = putObject.getJSONObject(entityKey);
@@ -210,25 +216,29 @@ public class SQLUtil {
             Object idValue = singlePutItem.get(idName);
             //删除主键字段
             singlePutItem.remove(idName);
-            boolean success = putSingleItem(clz, idName, idValue, singlePutItem);
+            boolean success = putSingleItem(roleEntity,clz, idName, idValue, singlePutItem);
             map.put(entityKey, success);
         }
         return map;
     }
 
-    protected boolean deleteSingleItem(Class clz, String idName, Object idValue) {
+    protected boolean deleteSingleItem(RoleEntity roleEntity, Class clz, String idName, Object idValue) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaDelete query = cb.createCriteriaDelete(clz);
         Root root = query.from(clz);
         //批量删除
+        Predicate condition;
         if (idValue instanceof JSONArray) {
             Set<Object> ids = ((JSONArray) idValue)
                     .stream()
                     .collect(Collectors.toSet());
-            query.where(root.get(idName).in(ids));
+            condition = root.get(idName).in(ids);
         } else {
-            query.where(cb.equal(root.get(idName), idValue));
+            condition = cb.equal(root.get(idName), idValue);
         }
+        addConditionLimit(roleEntity,Zed.DELETE,clz,cb,root,condition);
+
+        query.where(condition);
         Query q = entityManager.createQuery(query);
         return q.executeUpdate() > 0;
     }
@@ -264,6 +274,8 @@ public class SQLUtil {
                 }
             }
 
+            RoleEntity roleEntity = roleEntities.stream().findFirst().get();
+
             String idName = jpaUtil.getIdName(clz);
             JSONObject singleDeleteItem = deleteObject.getJSONObject(entityKey);
             if (!singleDeleteItem.containsKey(idName)) {
@@ -271,7 +283,7 @@ public class SQLUtil {
                 continue;
             }
             Object idValue = singleDeleteItem.get(idName);
-            boolean success = deleteSingleItem(clz, idName, idValue);
+            boolean success = deleteSingleItem(roleEntity,clz, idName, idValue);
             map.put(entityKey, success);
         }
         return map;
@@ -509,6 +521,36 @@ public class SQLUtil {
     }
 
 
+
+    protected Predicate addConditionLimit(RoleEntity roleEntity, String method, Class clz, CriteriaBuilder cb, Path path, Predicate condition){
+        Optional<EntityPermission> opRolePermission = roleEntity.getRolePermission().getEntityPermission(clz);
+        if(opRolePermission.isPresent()){
+            EntityPermission rolePermission = opRolePermission.get();
+            IGetWhereLimit whereLimit = null;
+            switch (method){
+                case Zed.GET:
+                    whereLimit = rolePermission.getGetWhereLimit();
+                    break;
+
+                case Zed.PUT:
+                    whereLimit = rolePermission.getPutWhereLimit();
+                    break;
+
+                case Zed.DELETE:
+                    whereLimit = rolePermission.getDeleteWhereLimit();
+                    break;
+            }
+            if(whereLimit != null){
+                Predicate newCondition = rolePermission.getGetWhereLimit().call(cb,path,condition);
+                //如果更改了条件，那么需要拼装新的条件
+                if(newCondition != condition){
+                    condition = cb.and(newCondition,condition);
+                }
+            }
+        }
+        return condition;
+    }
+
     /**
      * 拼装where条件
      *
@@ -538,17 +580,7 @@ public class SQLUtil {
         }
 
         //如果限定了检索条件
-        Optional<EntityPermission> opRolePermission = roleEntity.getRolePermission().getEntityPermission(clz);
-        if(opRolePermission.isPresent()){
-            EntityPermission rolePermission = opRolePermission.get();
-            if(rolePermission.getWhereLimit() != null){
-                Predicate newCondition = rolePermission.getWhereLimit().call(cb,join == null ? root : join,condition);
-                //如果更改了条件，那么需要拼装新的条件
-                if(newCondition != condition){
-                    condition = cb.and(newCondition,condition);
-                }
-            }
-        }
+        condition = addConditionLimit(roleEntity,Zed.GET,clz,cb,join == null ? root : join,condition);
 
         //排序
         if (orderObject != null) {
