@@ -1,5 +1,6 @@
-package com.beeasy.hzback.lib.zed;
+package com.beeasy.hzback.lib.zed.config;
 
+import com.beeasy.hzback.lib.zed.Zed;
 import com.beeasy.hzback.modules.setting.entity.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
+
+import javax.persistence.criteria.Predicate;
+import java.util.Arrays;
 
 @Configuration
 @Slf4j
@@ -68,6 +72,18 @@ public class ZedConfiguration implements ApplicationListener<ContextRefreshedEve
                     .allowGet()
                     .setUniqueWhereFields(new String[]{"username"});
 
+        });
+
+        zed.addRole("test4",token -> {
+            return token.equals("TEST4");
+        },role -> {
+            role.createEntityPermission(User.class)
+                    .allowGet()
+                    .setWhereLimit((cb,root,condition) -> {
+                        //限制ID只能在1和10之间取
+                        Predicate c = root.get("id").in(Arrays.asList(new Integer[]{9}));
+                        return c;
+                    });
         });
     }
 

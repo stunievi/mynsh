@@ -1,5 +1,6 @@
 package com.beeasy.hzback.lib.zed;
 
+import com.beeasy.hzback.lib.zed.metadata.IWhereLimit;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -26,6 +27,9 @@ public class EntityPermission {
 
     @Getter
     private Set<String> uniqueWhereFields = new HashSet<>();
+
+    @Getter
+    private IWhereLimit whereLimit = null;
 
 
     EntityPermission(Class clz){
@@ -102,6 +106,13 @@ public class EntityPermission {
         return this;
     }
 
+    /**
+     * 限制提交条件
+     */
+    public EntityPermission setWhereLimit(IWhereLimit whereLimit){
+        this.whereLimit = whereLimit;
+        return this;
+    }
 
 
 

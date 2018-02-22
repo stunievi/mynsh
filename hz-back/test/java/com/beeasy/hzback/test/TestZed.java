@@ -183,6 +183,24 @@ public class TestZed {
         }
     }
 
+    @Test
+    public void test9_getWhereLimit(){
+        String testStr2 = "{\n" +
+                "\t\"method\":\"get\",\n" +
+                "\t\"User\":{\n" +
+                "\"$where\":{\"username\":12}" +
+                "\t}\n" +
+                "}";
+        try {
+            Map<?,?> ret = zed.parseSingle(testStr2,"TEST4");
+        } catch (ErrorWhereFieldsException e) {
+            Assert.assertEquals(e,null);
+        } catch (Exception e) {
+            Assert.assertEquals(e,null);
+        }
+    }
+
+
 
 
 

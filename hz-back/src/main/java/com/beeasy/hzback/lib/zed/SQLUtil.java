@@ -355,15 +355,18 @@ public class SQLUtil {
             //禁止提交别的字段
             Set<String> uniqueWhereFields = rolePermission.getUniqueWhereFields();
             //删除无用的字段
-            Set<String> removeKeys = condition
-                    .entrySet()
-                    .stream()
-                    .filter(entity -> !uniqueWhereFields.contains(entity.getKey()))
-                    .map(entity -> entity.getKey())
-                    .collect(Collectors.toSet());
-            removeKeys.forEach(key -> {
-                condition.remove(key);
-            });
+            if(uniqueWhereFields.size() > 0){
+                Set<String> removeKeys = condition
+                        .entrySet()
+                        .stream()
+                        .filter(entity -> !uniqueWhereFields.contains(entity.getKey()))
+                        .map(entity -> entity.getKey())
+                        .collect(Collectors.toSet());
+                removeKeys.forEach(key -> {
+                    condition.remove(key);
+                });
+
+            }
 
             Set<String> requiredWhereFields = rolePermission.getRequiredWhereFields();
             //只能提交的字段同时也是必须提交的
@@ -382,7 +385,7 @@ public class SQLUtil {
         }
 
         //得到需要查询的字段
-        CriteriaQuery<?> query = buildWhere(clz, condition, entityValue.containsKey(ORDER) ? entityValue.getJSONObject(ORDER) : null, joinName, joinIdName, joinIdValue);
+        CriteriaQuery<?> query = buildWhere(roleEntity,clz, condition, entityValue.containsKey(ORDER) ? entityValue.getJSONObject(ORDER) : null, joinName, joinIdName, joinIdValue);
 
         //TODO: 分组还没有做
         //TODO: 将来可能附加的功能：字段运算、分组
@@ -400,7 +403,7 @@ public class SQLUtil {
 
         List<?> result = q.getResultList();
         if (result.size() == 0) {
-            return result;
+            return multipul ? result : new JSONObject();
         }
 
 
@@ -513,7 +516,7 @@ public class SQLUtil {
      * @param object
      * @return
      */
-    public CriteriaQuery<?> buildWhere(Class<?> clz, JSONObject object, JSONObject orderObject, String joinName, String joinIdName, Object joinIdValue) throws Exception {
+    public CriteriaQuery<?> buildWhere(RoleEntity roleEntity,  Class<?> clz, JSONObject object, JSONObject orderObject, String joinName, String joinIdName, Object joinIdValue) throws Exception {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<?> query = cb.createQuery(clz);
 
@@ -532,6 +535,19 @@ public class SQLUtil {
 
         if (joinIdName != null) {
             condition = cb.and(cb.equal(root.get(joinIdName), joinIdValue), condition);
+        }
+
+        //如果限定了检索条件
+        Optional<EntityPermission> opRolePermission = roleEntity.getRolePermission().getEntityPermission(clz);
+        if(opRolePermission.isPresent()){
+            EntityPermission rolePermission = opRolePermission.get();
+            if(rolePermission.getWhereLimit() != null){
+                Predicate newCondition = rolePermission.getWhereLimit().call(cb,join == null ? root : join,condition);
+                //如果更改了条件，那么需要拼装新的条件
+                if(newCondition != condition){
+                    condition = cb.and(newCondition,condition);
+                }
+            }
         }
 
         //排序

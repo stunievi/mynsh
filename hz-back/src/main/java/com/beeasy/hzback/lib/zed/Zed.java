@@ -7,25 +7,17 @@ import com.beeasy.hzback.lib.zed.exception.NoPermissionException;
 import com.beeasy.hzback.lib.zed.metadata.ICheckPermission;
 import com.beeasy.hzback.lib.zed.metadata.IPermission;
 import com.beeasy.hzback.lib.zed.metadata.RoleEntity;
-import com.beeasy.hzback.lib.zed.metadata.RoleMap;
 import com.beeasy.hzback.modules.setting.entity.User;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.jpa.internal.metamodel.EntityTypeImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.SessionAttributes;
 
-import javax.persistence.Entity;
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.*;
 import javax.persistence.metamodel.EntityType;
-import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -164,7 +156,7 @@ public class Zed {
             return;
         }
         RolePermission rolePermission = new RolePermission();
-        permissionFunc.func(rolePermission);
+        permissionFunc.call(rolePermission);
         rolePermission.setCheckPermission(checkFunc);
         rolePermission.setPermission(permissionFunc);
         rolePermission.setRoleName(roleName);
@@ -176,7 +168,7 @@ public class Zed {
         //验证权限
         Set<RoleEntity> set = new LinkedHashSet<>();
         roleMap.forEach((roleName,rolePermission) -> {
-            if(rolePermission.getCheckPermission().check(token)){
+            if(rolePermission.getCheckPermission().call(token)){
                 RoleEntity entity = new RoleEntity();
                 entity.setRolePermission(rolePermission);
                 entity.setToken(token);
