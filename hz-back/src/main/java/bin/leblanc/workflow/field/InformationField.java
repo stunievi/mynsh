@@ -8,4 +8,6 @@ import lombok.Setter;
 public class InformationField {
     private String name;
     private String description;
+
+    private boolean required = false;
 }
