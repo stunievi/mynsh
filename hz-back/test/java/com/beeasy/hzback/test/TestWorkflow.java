@@ -3,8 +3,11 @@ package com.beeasy.hzback.test;
 import bin.leblanc.workflow.WorkflowEngine;
 import bin.leblanc.workflow.WorkflowModel;
 import bin.leblanc.workflow.WorkflowTask;
-import bin.leblanc.workflow.exception.StartTaskException;
+import bin.leblanc.workflow.enums.DealType;
+import bin.leblanc.workflow.exception.*;
+import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,8 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -39,7 +42,7 @@ public class TestWorkflow {
                 .addDateField(field -> {
                     field.setName("请假时间");
                     field.setPlaceholder("填写请假时间");
-                    field.setRequired(true);
+                    field.setRequired(false);
                 })
                 .addRadioField(field -> {
                     field.setName("请假类型");
@@ -63,10 +66,12 @@ public class TestWorkflow {
                     return true;
                 })
                 .then(1)
-                .addElseExpression(() -> {
-                    return false;
-                })
-                .then(1);
+                .addElse(1);
+
+        model.createReviewNode()
+                .setPassNum(1)
+                .setMaxNum(1)
+                .addDealers(new Integer[]{4,5,6});
 
         model.createEndNode();
 
@@ -74,8 +79,60 @@ public class TestWorkflow {
          * 开启新任务
          */
         try {
+
+            //提交第一个资料
+            Map<String,String> data = new HashMap<>();
+            data.put("请假标题","测试请假标题");
+            data.put("请假内容","测试请假内容");
+            data.put("请假类型","事假");
+
+            /**
+             * 测试成功的提交
+             */
+            log.info("测试工作流程1");
             WorkflowTask task = model.startNewTask(1);
+            //提交信息
+            task.submitData(1,data);
+            //审批
+            task.submitData(4, DealType.SUCCESS);
+            task.submitData(4,DealType.SUCCESS);
+            Assert.assertEquals(task.isFinished(),true);
+
+            /**
+             * 测试失败的提交（退回上一级）
+             */
+            log.info("测试工作流程2");
+            WorkflowTask task2 = model.startNewTask(1);
+            task2.submitData(1,data);
+            task2.submitData(4,DealType.SUCCESS);
+            task2.submitData(4,DealType.BACK_TO_LAST);
+
+            Assert.assertEquals(task2.getCurrentIndex(),1);
+            log.info(JSON.toJSONString(task2.getMoveList()));
+
+
+            /**
+             * 测试失败提交（废弃）
+             */
+            log.info("测试工作流程3");
+            WorkflowTask task3 = model.startNewTask(1);
+            task3.submitData(1,data);
+            task3.submitData(4,DealType.SUCCESS);
+            task3.submitData(4,DealType.STOP);
+
+            Assert.assertEquals(task3.isStoped(),true);
+
         } catch (StartTaskException e) {
+            e.printStackTrace();
+        } catch (ReviewFailedException e) {
+            e.printStackTrace();
+        } catch (NoPermissionException e) {
+            e.printStackTrace();
+        } catch (NoRequiredFieldException e) {
+            e.printStackTrace();
+        } catch (NoElseExpressionException e) {
+            e.printStackTrace();
+        } catch (NoWorkflowNodeException e) {
             e.printStackTrace();
         }
     }

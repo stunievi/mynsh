@@ -20,7 +20,7 @@ public class WorkflowModel implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Getter
-    List<WorkflowNode> nodeList = new ArrayList<>();
+    private List<WorkflowNode> nodeList = new ArrayList<>();
 
     @Getter
     @Setter
