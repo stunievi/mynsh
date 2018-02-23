@@ -1,14 +1,8 @@
 package bin.leblanc.workflow.node;
 
 import bin.leblanc.workflow.WorkflowNode;
-import bin.leblanc.workflow.field.DateField;
-import bin.leblanc.workflow.field.RadioField;
-import bin.leblanc.workflow.field.TextField;
-import bin.leblanc.workflow.field.TextareaField;
-import bin.leblanc.workflow.metadata.IDateField;
-import bin.leblanc.workflow.metadata.IRadioField;
-import bin.leblanc.workflow.metadata.ITextField;
-import bin.leblanc.workflow.metadata.ITextareaField;
+import bin.leblanc.workflow.field.*;
+import bin.leblanc.workflow.metadata.*;
 
 public class InformationNode extends WorkflowNode {
 
@@ -37,6 +31,11 @@ public class InformationNode extends WorkflowNode {
         return this;
     }
 
+    public InformationNode addCheckboxField(ICheckboxField field){
+        CheckboxField checkboxField = new CheckboxField();
+        field.call(checkboxField);
+        return this;
+    }
 
 
 

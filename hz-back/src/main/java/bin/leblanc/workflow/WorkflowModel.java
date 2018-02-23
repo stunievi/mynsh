@@ -1,42 +1,43 @@
 package bin.leblanc.workflow;
 
+import bin.leblanc.workflow.node.EndNode;
 import bin.leblanc.workflow.node.InformationNode;
 import bin.leblanc.workflow.node.LogicNode;
 import bin.leblanc.workflow.node.ReviewNode;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 public class WorkflowModel {
 
-//    public WorkflowNode createNode(int nodeType) throws ErrorNodeTypeException {
-//        WorkflowNode node = null;
-//        switch (nodeType){
-//            case WorkflowNode.INFOMATION_NODE:
-//                node = new InformationNode();
-//                break;
-//
-//            case WorkflowNode.REVIEW_NODE:
-//                node = new ReviewNode();
-//                break;
-//
-//            case WorkflowNode.LOGIC_NODE:
-//                node = new LogicNode();
-//                break;
-//
-//            default:
-//                throw new ErrorNodeTypeException();
-//        }
-//        return node;
-//    }
+    @Getter
+    Set<WorkflowNode> nodeList = new LinkedHashSet<>();
+
 
     public InformationNode createInformationNode(){
-        return new InformationNode();
+        InformationNode node = new InformationNode();
+        nodeList.add(node);
+        return node;
     }
 
     public ReviewNode createReviewNode(){
-        return new ReviewNode();
+        ReviewNode node = new ReviewNode();
+        nodeList.add(node);
+        return node;
     }
 
     public LogicNode createLogicNode(){
-        return new LogicNode();
+        LogicNode node = new LogicNode();
+        nodeList.add(node);
+        return node;
+    }
+
+    public EndNode createEndNode(){
+        EndNode node = new EndNode();
+        nodeList.add(node);
+        return node;
     }
 
 }
