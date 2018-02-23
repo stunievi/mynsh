@@ -205,7 +205,7 @@ public class WorkflowTask implements Serializable{
              * 逻辑节点是指针对于当前节点的偏移，而不是真正的节点位置
              */
             //从第一个表达式开始判断
-            logic : do{
+            logic : {
                 for (Map.Entry<ILogicExpression, Integer> iLogicExpressionIntegerEntry : ((LogicNode) node).getLogicMap().entrySet()) {
                       ILogicExpression logicExpression = iLogicExpressionIntegerEntry.getKey();
                       int successOffset = iLogicExpressionIntegerEntry.getValue();
@@ -222,7 +222,7 @@ public class WorkflowTask implements Serializable{
                 currentIndex = currentIndex + ((LogicNode) node).getElseOffset() - 1;
                 this.goNextNode();
 
-            }while(false);
+            }
 
         }
 

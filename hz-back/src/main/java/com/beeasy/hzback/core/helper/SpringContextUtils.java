@@ -6,7 +6,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SpringContextUtils<T> implements ApplicationContextAware {
+public class SpringContextUtils implements ApplicationContextAware {
     private static ApplicationContext context;
 
     @Override
@@ -19,7 +19,7 @@ public class SpringContextUtils<T> implements ApplicationContextAware {
     }
 
 
-    public static Object getBean(Class<?> type){
-        return getContext().getBean(type.getSimpleName());
+    public static <T> T getBean(Class<T> type){
+        return getContext().getBean(type);
     }
 }
