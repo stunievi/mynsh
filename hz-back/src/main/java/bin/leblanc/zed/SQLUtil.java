@@ -73,7 +73,17 @@ public class SQLUtil {
             if (!field.isAccessible()) {
                 field.setAccessible(true);
             }
-            field.set(instance, obj.get(key));
+            Object val = obj.get(key);
+
+            //TODO: 关联添加的时候，需要处理一些特殊的关联数据 暂时不推荐使用post方法
+            //有些特殊字段类型需要特殊处理
+            if(field.getType().equals(BigDecimal.class)){
+                field.set(instance,BigDecimal.valueOf(Double.valueOf(String.valueOf(val))));
+            }
+            else{
+                field.set(instance, obj.get(key));
+            }
+
         }
         Object result = entityManager.merge(instance);
         if (result == null) {
