@@ -142,6 +142,10 @@ public class Zed {
         if(roleMap.containsKey(roleName)){
             return;
         }
+        editRole(roleName,checkFunc,permissionFunc);
+    }
+
+    public void editRole(String roleName,  ICheckPermission checkFunc, IPermission permissionFunc){
         RolePermission rolePermission = new RolePermission();
         permissionFunc.call(rolePermission);
         rolePermission.setCheckPermission(checkFunc);
