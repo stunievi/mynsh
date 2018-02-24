@@ -26,6 +26,17 @@ public class ZedConfiguration implements ApplicationListener<ContextRefreshedEve
     @Override
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
         zed.init();
+
+        //基础需要注册超级管理员权限
+        zed.addRole("admin",(token) -> {
+            return token.equals("SU");
+        },(role) -> {
+            role.allowAllGet();
+            role.allowAllPost();
+            role.allowAllPut();
+            role.allowAllDelete();
+        });
+
         applicationContext.publishEvent(new ZedInitializedEvent(this));
 
 

@@ -174,6 +174,9 @@
 }
 ```
 
+## 权限分配
+参见 bin.leblanc.zed.permission.ZedPermission
+
 # bin.leblanc.workflow
 
 被剥离出来的工作流，具体使用请参见TestWorkflow.java文件

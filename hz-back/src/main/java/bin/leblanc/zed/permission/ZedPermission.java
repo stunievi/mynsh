@@ -27,15 +27,7 @@ public class ZedPermission implements ApplicationListener<ZedInitializedEvent>{
          *
          * zed.addRole(roleName,checkRole,
          */
-        zed.addRole("admin",(token) -> {
-            return token.equals("SU");
-        },(role) -> {
-            log.info("fuck");
-            role.allowAllGet();
-            role.allowAllPost();
-            role.allowAllPut();
-            role.allowAllDelete();
-        });
+
 
         zed.addRole("unknown",token -> {
             return token.equals("UNKNOWN");
