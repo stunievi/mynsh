@@ -182,4 +182,59 @@
 被剥离出来的工作流，具体使用请参见TestWorkflow.java文件
 
 
+# bin.leblanc.message
+
+消息中心
+
+数据结构
+
+## 信息主体
+```
+id int primary key
+title varchar 信息标题
+from_user int 发送人
+to_user int 收件人 type为0的时候是用户ID type为1的时候是群组ID
+type enum 信息类型 0为普通消息 1为群发消息
+send_time 发送时间
+```
+
+## 信息详情
+```
+id int primary key
+msg_id int 信息主表主键
+content blob 信息主表内容
+```
+
+## 信息已读表
+```
+id int primary key
+msg_id int 信息主表主键
+user_id int 用户表主键
+is_read int 0为未读 1为已读 //为了节省空间，实际上0的时候不插入
+read_time 阅读时间
+```
+
+## 信息群组主体
+用于存储群发消息的临时群组，也可以当成永久讨论组使用
+```
+id int primary key
+type enum 0为临时讨论组 1位永久讨论组（群组）
+name varchar 群组名字
+info varchar 群组说明
+create_time 创建时间
+```
+
+## 信息群组成员
+```
+id int primary key
+group_id int 信息群组主键
+user_id int 用户主键
+join_time 用户加入时间
+```
+
+
+
+
+
+
 
