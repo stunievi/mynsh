@@ -7,7 +7,7 @@ import bin.leblanc.zed.exception.NoPermissionException;
 import bin.leblanc.zed.metadata.ICheckPermission;
 import bin.leblanc.zed.metadata.IPermission;
 import bin.leblanc.zed.metadata.RoleEntity;
-import com.beeasy.hzback.core.helper.Result;
+import com.beeasy.hzback.modules.setting.entity.Role;
 import com.beeasy.hzback.modules.setting.entity.User;
 import lombok.Getter;
 import lombok.Setter;
@@ -43,10 +43,13 @@ public class Zed {
 
     @Setter
     @Getter
-    protected static Map<String, Class<?>> entityMap = new HashMap<>();
+    protected Map<String, Class<?>> entityMap = new HashMap<>();
 
     @Getter
-    protected static Map<String,RolePermission> roleMap = new HashMap<>();
+    protected Map<String,RolePermission> roleMap = new HashMap<>();
+
+    @Getter
+    protected Set<ICheckPermission> roleHandlers = new LinkedHashSet();
 
 
     public void init() {
@@ -137,36 +140,49 @@ public class Zed {
         return parse(json,"SU");
     }
 
-    public void addRole(String roleName, ICheckPermission checkFunc, IPermission permissionFunc){
+    public void addRole(String roleName, IPermission permissionFunc){
         //禁止重复注册
         if(roleMap.containsKey(roleName)){
             return;
         }
-        editRole(roleName,checkFunc,permissionFunc);
+        editRole(roleName,permissionFunc);
     }
 
-    public void editRole(String roleName,  ICheckPermission checkFunc, IPermission permissionFunc){
+    public void editRole(String roleName, IPermission permissionFunc){
         RolePermission rolePermission = new RolePermission();
         permissionFunc.call(rolePermission);
-        rolePermission.setCheckPermission(checkFunc);
         rolePermission.setPermission(permissionFunc);
         rolePermission.setRoleName(roleName);
         this.roleMap.put(roleName,rolePermission);
+    }
+
+    /**
+     * 增加授权信息
+     * @param checkPermission
+     */
+    public void addRoleHandler(ICheckPermission checkPermission){
+        roleHandlers.add(checkPermission);
     }
 
 
     protected Set<RoleEntity> authRole(Object token){
         //验证权限
         Set<RoleEntity> set = new LinkedHashSet<>();
-        roleMap.forEach((roleName,rolePermission) -> {
-            if(rolePermission.getCheckPermission().call(token)){
-                RoleEntity entity = new RoleEntity();
-                entity.setRolePermission(rolePermission);
-                entity.setToken(token);
-                set.add(entity);
+        roleHandlers.forEach(roleHandler -> {
+            String roleName = roleHandler.call(token);
+            //如果是null 表示略过这个权限
+            if(roleName == null){
+                return;
             }
+            //添加到权限组
+            RoleEntity entity = new RoleEntity(token,roleMap.get(roleName));
+            set.add(entity);
         });
-
+        //至少保证有一个合法的权限
+        if(set.size() == 0){
+            RoleEntity entity = new RoleEntity(null,roleMap.get(RolePermission.UNKNOWN));
+            set.add(entity);
+        }
         return set;
     }
 

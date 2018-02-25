@@ -29,42 +29,32 @@ public class ZedPermission implements ApplicationListener<ZedInitializedEvent>{
          */
 
 
-        zed.addRole("unknown",token -> {
-            return token.equals("UNKNOWN");
-        },role -> {
-            role.disallowAllGet();
-            role.disallowAllPut();
-            role.disallowAllPost();
-            role.disallowAllDelete();
+        //注册角色检查
+        zed.addRoleHandler(token -> {
+            String tokenStr = (String) token;
+            if(tokenStr.indexOf("TEST") == 0){
+                return tokenStr.toLowerCase();
+            }
+            return null;
         });
-
-
-        zed.addRole("test",token -> {
-            return token.equals("TEST");
-        },role -> {
+        zed.addRole("test",role -> {
 //            role.createEntityPermission(User.class);
         });
 
-        zed.addRole("test2",token -> {
-            return token.equals("TEST2");
-        },role -> {
+        zed.addRole("test2",role -> {
             role.createEntityPermission(User.class)
                     .allowGet()
                     .setGetReturnFields(new String[]{"id","username"});
         });
 
-        zed.addRole("test3",token -> {
-            return token.equals("TEST3");
-        },role -> {
+        zed.addRole("test3",role -> {
             role.createEntityPermission(User.class)
                     .allowGet()
                     .setUniqueWhereFields(new String[]{"username"});
 
         });
 
-        zed.addRole("test4",token -> {
-            return token.equals("TEST4");
-        },role -> {
+        zed.addRole("test4",role -> {
             role.createEntityPermission(User.class)
                     .allowGet()
                     .setGetWhereLimit((cb, root, condition) -> {

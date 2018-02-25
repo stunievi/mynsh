@@ -9,6 +9,9 @@ import java.util.*;
 @Data
 public class RolePermission {
 
+    public final static String SUPERUSER = "SU";
+    public final static String UNKNOWN = "UNKNOWN";
+
 
     /**
      * 全局权限注册
@@ -16,7 +19,7 @@ public class RolePermission {
     private Map<String,Boolean> allowMap = new HashMap<>();
     private Map<String,Boolean> disallowMap = new HashMap<>();
 
-    private ICheckPermission checkPermission;
+//    private ICheckPermission checkPermission;
 
     private IPermission permission;
 

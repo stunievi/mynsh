@@ -5,6 +5,7 @@ import com.beeasy.hzback.core.helper.SpringContextUtils;
 //import com.beeasy.hzback.lib.zed.ScanPackageTest;
 import bin.leblanc.zed.JPAUtil;
 import bin.leblanc.zed.Zed;
+import com.beeasy.hzback.lib.fuck.AsyncTask;
 import com.beeasy.hzback.modules.setting.dao.IDepartmentDao;
 import com.beeasy.hzback.modules.setting.dao.IUserDao;
 import com.beeasy.hzback.modules.setting.dao.IWorkDao;
@@ -275,4 +276,9 @@ EntityManagerFactory factory;
         }
         int a = 1;
     }
+
+
+
+
+
 }
