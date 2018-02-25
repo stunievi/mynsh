@@ -49,7 +49,7 @@ public class Zed {
     protected Map<String,RolePermission> roleMap = new HashMap<>();
 
     @Getter
-    protected Set<ICheckPermission> roleHandlers = new LinkedHashSet();
+    protected List<ICheckPermission> roleHandlers = new ArrayList<>();
 
 
     public void init() {
@@ -160,8 +160,22 @@ public class Zed {
      * 增加授权信息
      * @param checkPermission
      */
-    public void addRoleHandler(ICheckPermission checkPermission){
+    public int addRoleHandler(ICheckPermission checkPermission){
         roleHandlers.add(checkPermission);
+        return roleHandlers.size() - 1;
+    }
+
+    /**
+     * 在实际系统运行中需要动态授权，所以可以更改自己的授权方式
+     */
+    public boolean modifyRoleHandler(int index,ICheckPermission checkPermission){
+        ICheckPermission roleHandler = roleHandlers.get(index);
+        //如果没有就不能更改
+        if(roleHandler == null){
+            return false;
+        }
+        roleHandlers.set(index,checkPermission);
+        return true;
     }
 
 
