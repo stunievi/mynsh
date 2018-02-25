@@ -19,10 +19,10 @@ public class Login {
 
     @GetMapping("/login")
     public Object login(){
-        org.apache.shiro.subject.Subject currentUser = SecurityUtils.getSubject();
-        if(currentUser.isAuthenticated()){
-            return "redirect:/admin";
-        }
+//        org.apache.shiro.subject.Subject currentUser = SecurityUtils.getSubject();
+//        if(currentUser.isAuthenticated()){
+//            return "redirect:/admin";
+//        }
         ModelAndView ret = new ModelAndView("login");
         return ret;
     }

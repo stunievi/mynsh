@@ -228,6 +228,13 @@
             <artifactId>spring-boot-test</artifactId>
         </dependency>
         <!--test end-->
+
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+            <version>RELEASE</version>
+        </dependency>
     </dependencies>
 
     <build>

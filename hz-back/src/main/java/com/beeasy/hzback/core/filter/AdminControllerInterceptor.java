@@ -3,6 +3,7 @@ package com.beeasy.hzback.core.filter;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.beeasy.hzback.core.config.AdminMenuConfig;
+import com.beeasy.hzback.core.security.SecurityUser;
 import com.beeasy.hzback.modules.setting.dao.IRoleDao;
 import com.beeasy.hzback.modules.setting.dao.IUserDao;
 import com.beeasy.hzback.modules.setting.entity.Role;
@@ -14,6 +15,7 @@ import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -46,11 +48,12 @@ public class AdminControllerInterceptor  {
             return;
         }
         //根据权限处理掉不需要的菜单选项
-        org.apache.shiro.subject.Subject subject = SecurityUtils.getSubject();
-        User user = (User) subject.getPrincipal();
+//        org.apache.shiro.subject.Subject subject = SecurityUtils.getSubject();
+//        User user = (User) subject.getPrincipal();
 
         //增加自己配置的工作流菜单
-        List<WorkFlow> workFlowList = userDao.getUserWorkFlows(user);
+        SecurityUser su = (SecurityUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        List<WorkFlow> workFlowList = userDao.getUserWorkFlows(su.getUser());
 
         //将菜单列表进行深拷贝（每一个人的菜单项实际上是不同的）
         TypeReference<List<AdminMenuConfig.AdminMenuItem>> type = new TypeReference<List<AdminMenuConfig.AdminMenuItem>>(){};

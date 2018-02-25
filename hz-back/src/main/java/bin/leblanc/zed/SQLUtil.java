@@ -36,6 +36,9 @@ public class SQLUtil {
     @Autowired
     JPAUtil jpaUtil;
 
+    @Autowired
+    Zed zed;
+
     final static String GT = "gt";
     final static String GTE = "gte";
     final static String LT = "lt";
@@ -98,7 +101,7 @@ public class SQLUtil {
 
     @Transactional
     public Map<String, Object> post(JSONObject postObject,Set<RoleEntity> roleEntities) throws NoPermissionException {
-        Map<String, Class<?>> entityMap = Zed.getEntityMap();
+        Map<String, Class<?>> entityMap = zed.getEntityMap();
         Set<String> entityKeys = postObject.keySet();
         Map<String, Object> map = new HashMap<>();
 
@@ -187,7 +190,7 @@ public class SQLUtil {
 
     @Transactional
     public Map<String, Boolean> put(JSONObject putObject,Set<RoleEntity> roleEntities) throws NoPermissionException {
-        Map<String, Class<?>> entityMap = Zed.getEntityMap();
+        Map<String, Class<?>> entityMap = zed.getEntityMap();
         Set<String> entityKeys = putObject.keySet();
         Map<String, Boolean> map = new HashMap<>();
 
@@ -255,7 +258,7 @@ public class SQLUtil {
 
     @Transactional
     public Map<String, Boolean> delete(JSONObject deleteObject,Set<RoleEntity> roleEntities) throws NoPermissionException {
-        Map<String, Class<?>> entityMap = Zed.getEntityMap();
+        Map<String, Class<?>> entityMap = zed.getEntityMap();
         Set<String> entityKeys = deleteObject.keySet();
         Map<String, Boolean> map = new HashMap<>();
 
@@ -300,7 +303,7 @@ public class SQLUtil {
     }
 
     public Map<String, Object> select(JSONObject object, Set<RoleEntity> roleEntities) throws Exception {
-        Map<String, Class<?>> entityMap = Zed.getEntityMap();
+        Map<String, Class<?>> entityMap = zed.getEntityMap();
 
         //如果有任何一个权限允许查询所有表（拥有SU权限）那么不再验证
         boolean isSuperAdmin = isSuperAdmin(roleEntities);
