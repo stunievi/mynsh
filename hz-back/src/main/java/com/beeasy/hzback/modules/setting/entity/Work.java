@@ -3,7 +3,6 @@ package com.beeasy.hzback.modules.setting.entity;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.core.config.AppConfig;
-import com.beeasy.hzback.core.helper.BaseEntity;
 import com.beeasy.hzback.modules.setting.work_engine.BaseWorkNode;
 import com.beeasy.hzback.modules.setting.work_engine.ShenheNode;
 import com.beeasy.hzback.modules.setting.work_engine.ZiliaoNode;
@@ -18,7 +17,7 @@ import java.util.List;
 @Setter
 @Entity
 @Table(name = "t_work")
-public class Work extends BaseEntity{
+public class Work{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

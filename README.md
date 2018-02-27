@@ -191,7 +191,7 @@
 ### 信息主体
 ```
 id int primary key
-title varchar 信息标题
+#title varchar 信息标题
 from_user int 发送人
 to_user int 收件人 type为0的时候是用户ID type为1的时候是群组ID
 type enum 信息类型 0为普通消息 1为群发消息

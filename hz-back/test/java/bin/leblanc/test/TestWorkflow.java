@@ -1,4 +1,4 @@
-package com.beeasy.hzback.test;
+package bin.leblanc.test;
 
 import bin.leblanc.workflow.WorkflowEngine;
 import bin.leblanc.workflow.WorkflowModel;
@@ -6,6 +6,7 @@ import bin.leblanc.workflow.WorkflowTask;
 import bin.leblanc.workflow.enums.DealType;
 import bin.leblanc.workflow.exception.*;
 import com.alibaba.fastjson.JSON;
+import com.beeasy.hzback.Application;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
@@ -21,7 +22,7 @@ import java.util.Map;
 
 @Slf4j
 @RunWith(SpringRunner.class)
-@SpringBootTest
+@SpringBootTest(classes = Application.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TestWorkflow {
 
