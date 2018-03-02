@@ -15,6 +15,7 @@ public class SecurityUser implements UserDetails {
     @Getter
     private User user;
 
+    @Getter
     private Collection<SimpleGrantedAuthority> authorities;
 
 

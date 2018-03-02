@@ -36,7 +36,7 @@ public class JwtTokenUtil implements Serializable {
      * @param token 令牌
      * @return 数据声明
      */
-    private Claims getClaimsFromToken(String token) {
+    public Claims getClaimsFromToken(String token) {
         Claims claims;
         try {
             claims = Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
@@ -53,9 +53,10 @@ public class JwtTokenUtil implements Serializable {
      * @return 令牌
      */
     public String generateToken(UserDetails userDetails) {
-        Map<String, Object> claims = new HashMap<>(2);
+        Map<String, Object> claims = new HashMap<>(3);
         claims.put("sub", userDetails.getUsername());
         claims.put("created", new Date());
+        claims.put("auths",userDetails.getAuthorities());
         return generateToken(claims);
     }
 

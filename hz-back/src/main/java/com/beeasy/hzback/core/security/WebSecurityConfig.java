@@ -19,9 +19,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 //    private MyFilterSecurityInterceptor myFilterSecurityInterceptor;
 
 
-    public final static String SIGNKEY = "MyJwtSecret";
-
-
     @Bean
     UserDetailsService customUserService(){ //注册UserDetailsService 的bean
         return new CustomUserService();
@@ -32,6 +29,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return new Md5PasswordEncoder();
     }
 
+    @Bean
+    public JwtTokenUtil jwtTokenUtil(){
+        return new JwtTokenUtil();
+    }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -53,24 +54,22 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 //.antMatchers("/admin/**").authenticated()
                 //.anyRequest().authenticated()
 //                .anyRequest().permitAll()
-//                .anyRequest().authenticated() //任何请求,登录后可以访问
+                .anyRequest().authenticated() //任何请求,登录后可以访问
+                .and()
+                .addFilter(new JWTAuthenticationFilter(authenticationManager(),jwtTokenUtil()))
 //                .and()
 //                .openidLogin()
 //                .loginPage("/api/login")
 //                .defaultSuccessUrl("/admin")
 //                .failureUrl("/login?error")
 //                .permitAll() //登录页面用户任意访问
-                .and()
+
                 //.addFilter(new JWTLoginFilter(authenticationManager()))
                 //.addFilter(new JWTAuthenticationFilter(authenticationManager()))
 
-                .logout()
-                .permitAll() //注销行为任意访问
-                .and()
                 .csrf().disable();
 
         //http.addFilter(new JWTLoginFilter(authenticationManager()));
-        //http.addFilter(new JWTAuthenticationFilter(authenticationManager()));
         /**
          * 如果跨域失败，尝试开启自定义filter
          */
