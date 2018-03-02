@@ -37,6 +37,8 @@ public class ZedPermission implements ApplicationListener<ZedInitializedEvent>{
             }
             return null;
         });
+
+
         zed.addRole("test",role -> {
 //            role.createEntityPermission(User.class);
         });

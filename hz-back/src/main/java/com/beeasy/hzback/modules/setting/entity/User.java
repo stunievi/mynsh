@@ -2,6 +2,7 @@ package com.beeasy.hzback.modules.setting.entity;
 
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.beeasy.hzback.modules.system.entity.SystemMenu;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -54,6 +55,9 @@ public class User implements Serializable{
     private Set<Role> roles;
 
 
+    @JSONField(serialize = false)
+    @ManyToMany(mappedBy = "users")
+    private List<SystemMenu> systemMenus;
     /**
      * 得到一个用户所有的工作留
      * @return
