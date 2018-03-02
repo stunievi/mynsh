@@ -20,7 +20,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 
     @Bean
-    UserDetailsService customUserService(){ //注册UserDetailsService 的bean
+    CustomUserService customUserService(){ //注册UserDetailsService 的bean
         return new CustomUserService();
     }
 
@@ -56,7 +56,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 //                .anyRequest().permitAll()
                 .anyRequest().authenticated() //任何请求,登录后可以访问
                 .and()
-                .addFilter(new JWTAuthenticationFilter(authenticationManager(),jwtTokenUtil()))
+                .addFilter(new JWTAuthenticationFilter(authenticationManager(),jwtTokenUtil(),customUserService()))
 //                .and()
 //                .openidLogin()
 //                .loginPage("/api/login")

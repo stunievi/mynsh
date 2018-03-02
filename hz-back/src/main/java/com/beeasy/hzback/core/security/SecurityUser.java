@@ -15,13 +15,12 @@ public class SecurityUser implements UserDetails {
     @Getter
     private User user;
 
-    @Getter
     private Collection<SimpleGrantedAuthority> authorities;
 
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        return authorities;
     }
 
     @Override

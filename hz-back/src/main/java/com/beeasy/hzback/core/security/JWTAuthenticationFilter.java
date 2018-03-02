@@ -20,10 +20,12 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
 
 
     private JwtTokenUtil jwtTokenUtil;
+    private CustomUserService customUserService;
 
-    public JWTAuthenticationFilter(AuthenticationManager authenticationManager,JwtTokenUtil jwtTokenUtil) {
+    public JWTAuthenticationFilter(AuthenticationManager authenticationManager,JwtTokenUtil jwtTokenUtil, CustomUserService customUserService) {
         super(authenticationManager);
         this.jwtTokenUtil = jwtTokenUtil;
+        this.customUserService = customUserService;
     }
 
     @Override
@@ -45,12 +47,13 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
     private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
         if (token != null) {
-            Claims claims = jwtTokenUtil.getClaimsFromToken(token);
-            if(claims != null){
-                return new UsernamePasswordAuthenticationToken(claims.getSubject(), null, (Collection<? extends GrantedAuthority>) claims.get("auths"));
+            String userName = jwtTokenUtil.getUsernameFromToken(token);
+            if(userName != null){
+                SecurityUser su = (SecurityUser) customUserService.loadUserByUsername(userName);
+                if(su != null){
+                    return new UsernamePasswordAuthenticationToken(su.getUser(), su.getPassword(), su.getAuthorities());
+                }
             }
-
-            return null;
         }
         return null;
     }

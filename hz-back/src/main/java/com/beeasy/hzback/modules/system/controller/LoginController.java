@@ -4,6 +4,7 @@ import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.security.CustomUserService;
 import com.beeasy.hzback.core.security.JwtTokenUtil;
 import com.beeasy.hzback.core.security.SecurityUser;
+import com.beeasy.hzback.modules.setting.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -44,8 +45,9 @@ public class LoginController {
 
     @RequestMapping("/test")
     public Result test(){
-        String user = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Object details = SecurityContextHolder.getContext().getAuthentication().getDetails();
         Collection<GrantedAuthority> auths = (Collection<GrantedAuthority>) SecurityContextHolder.getContext().getAuthentication().getAuthorities();
-        return Result.ok("当前登录用户是" + user);
+        return Result.ok("当前登录用户是" + user.getUsername());
     }
 }
