@@ -37,11 +37,10 @@ public class ZedCustomPermission implements ApplicationListener<ZedInitializedEv
         });
 
         zed.addRole("admin",role -> {
-//            role.allowAllGet();
-
-
             role.createEntityPermission(SystemMenu.class)
+                    //只允许查询权限
                     .allowGet()
+                    //限定查找范围，只能查找自己的菜单
                     .setGetWhereLimit((cb,root,condition) -> {
                         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
                         log.info(user.getUsername());
