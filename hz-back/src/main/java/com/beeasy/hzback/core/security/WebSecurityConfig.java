@@ -54,29 +54,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests()
                 .antMatchers("/static/**").permitAll()
                 .antMatchers("/api/login").permitAll()
-                //.antMatchers("/admin/**").authenticated()
-                //.anyRequest().authenticated()
-//                .anyRequest().permitAll()
                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                 .anyRequest().authenticated() //任何请求,登录后可以访问
                 .and()
                 .addFilter(new JWTAuthenticationFilter(authenticationManager(),jwtTokenUtil(),customUserService()))
-//                .and()
-//                .openidLogin()
-//                .loginPage("/api/login")
-//                .defaultSuccessUrl("/admin")
-//                .failureUrl("/login?error")
-//                .permitAll() //登录页面用户任意访问
-
-                //.addFilter(new JWTLoginFilter(authenticationManager()))
-                //.addFilter(new JWTAuthenticationFilter(authenticationManager()))
 
                 .csrf().disable();
 
-        //http.addFilter(new JWTLoginFilter(authenticationManager()));
-        /**
-         * 如果跨域失败，尝试开启自定义filter
-         */
     }
 
 
