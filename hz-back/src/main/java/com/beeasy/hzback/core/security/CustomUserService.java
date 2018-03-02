@@ -26,16 +26,6 @@ public class CustomUserService implements UserDetailsService { //自定义UserDe
     public UserDetails loadUserByUsername(String username) {
         com.beeasy.hzback.modules.setting.entity.User user = userDao.findByUsername(username);
         if (user != null) {
-//            List<Permission> permissions = permissionDao.findByAdminUserId(user.getId());
-//            List<GrantedAuthority> grantedAuthorities = new ArrayList <>();
-//            for (Permission permission : permissions) {
-//                if (permission != null && permission.getName()!=null) {
-//
-//                    GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(permission.getName());
-//                    //1：此处将权限信息添加到 GrantedAuthority 对象中，在后面进行全权限验证时会使用GrantedAuthority 对象。
-//                    grantedAuthorities.add(grantedAuthority);
-//                }
-//            }
             Collection<SimpleGrantedAuthority> authorities = new ArrayList<SimpleGrantedAuthority>();
             authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
             SecurityUser su = new SecurityUser(user,authorities);

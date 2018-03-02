@@ -6,6 +6,7 @@ import com.beeasy.hzback.core.security.JwtTokenUtil;
 import com.beeasy.hzback.core.security.SecurityUser;
 import com.beeasy.hzback.modules.setting.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -16,6 +17,7 @@ import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.security.RolesAllowed;
 import java.util.Collection;
 
 @RestController
@@ -46,8 +48,21 @@ public class LoginController {
     @RequestMapping("/test")
     public Result test(){
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Object details = SecurityContextHolder.getContext().getAuthentication().getDetails();
         Collection<GrantedAuthority> auths = (Collection<GrantedAuthority>) SecurityContextHolder.getContext().getAuthentication().getAuthorities();
         return Result.ok("当前登录用户是" + user.getUsername());
     }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @RequestMapping("/test2")
+    public Result testNoPermission(){
+        return Result.ok();
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN2')")
+    @RequestMapping("/test3")
+    public Result testNoPermission2(){
+        return Result.ok();
+    }
+
+
 }
