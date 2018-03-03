@@ -131,6 +131,14 @@ public class Zed {
         throw  new NoMethodException();
     }
 
+    public Map<?,?> parse(JSONObject json) throws Exception{
+        return parseSingle(json,"SU");
+    }
+
+    public Map<?,?> parse(JSONObject json, Object token) throws Exception{
+        return parseSingle(json,token);
+    }
+
     public Map<?,?> parse(String json, Object token) throws Exception{
         JSONObject obj = JSON.parseObject(json);
         return parseSingle(obj,token);

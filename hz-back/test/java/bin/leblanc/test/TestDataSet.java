@@ -2,6 +2,7 @@ package bin.leblanc.test;
 
 import bin.leblanc.dataset.DataSet;
 import bin.leblanc.dataset.DataSetFactory;
+import bin.leblanc.dataset.DataSetResult;
 import com.beeasy.hzback.Application;
 import com.beeasy.hzback.modules.setting.entity.Department;
 import com.beeasy.hzback.modules.setting.entity.Role;
@@ -29,14 +30,19 @@ public class TestDataSet {
                     model.setMultipul(false);
                 })
                 .addExtern(Role.class,model -> {
-                    model.setMultipul(true);
-                    model.setLinkField("roles");
+                    model.setMultipul(true)
+                        .setLinkField("roles");
                 })
                 .addExtern(Department.class,model -> {
                     model.setMultipul(true)
                         .setLinkField("department")
                         .setPath("roles");
                 });
+        DataSetResult result = dataSet.newSearch();
+        result
+                .addCondition("id",1)
+                .search();
+
 
     }
 

@@ -35,9 +35,9 @@ public class LoginController {
 
     @RequestMapping("/login")
     public Result login(String username,String password){
-        //UsernamePasswordAuthenticationToken upToken = new UsernamePasswordAuthenticationToken(username, password);
-        //Authentication authentication = authenticationManager.authenticate(upToken);
-        //SecurityContextHolder.getContext().setAuthentication(authentication);
+        if(username == null || password == null){
+            return Result.error();
+        }
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
         if (!userDetails.getPassword().equals(DigestUtils.md5DigestAsHex(password.getBytes()))) {
             return Result.error();

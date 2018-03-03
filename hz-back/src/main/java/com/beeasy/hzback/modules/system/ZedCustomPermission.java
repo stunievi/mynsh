@@ -24,6 +24,9 @@ public class ZedCustomPermission implements ApplicationListener<ZedInitializedEv
     public void onApplicationEvent(ZedInitializedEvent zedInitializedEvent) {
 
         zed.addRoleHandler(token -> {
+            if(token.equals("SU")){
+                return "SU";
+            }
             /**
              * 因为已经做过验证了，token就不需要了
               */

@@ -3,6 +3,7 @@ package bin.leblanc.dataset;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -17,9 +18,9 @@ public class DataModel {
     //类模型
     private Class clz;
     //是否返回多个
-    private boolean multipul;
+    private boolean multipul = false;
     //查找路径
-    private List<String> path;
+    private List<String> path = new ArrayList<>();
 
     //关联字段名
     private String linkField;
