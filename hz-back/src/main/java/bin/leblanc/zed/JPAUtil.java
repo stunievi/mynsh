@@ -1,5 +1,8 @@
 package bin.leblanc.zed;
 
+import lombok.extern.slf4j.Slf4j;
+import org.hibernate.jpa.internal.metamodel.EntityTypeImpl;
+import org.hibernate.jpa.internal.metamodel.PluralAttributeImpl;
 import org.hibernate.jpa.internal.metamodel.SingularAttributeImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -14,6 +17,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
+@Slf4j
 public class JPAUtil {
 
     @Autowired
@@ -51,12 +55,28 @@ public class JPAUtil {
      * @param clz
      * @return
      */
-    public Set<PluralAttribute> getLinkFields(Class clz){
+    public Set<Attribute> getLinkFields(Class clz){
         Root root = getRoot(clz);
         return getLinkFields(root);
     }
-    public Set<PluralAttribute> getLinkFields(Root root){
-        return root.getModel().getDeclaredPluralAttributes();
+    public Set<Attribute> getLinkFields(Root root){
+        Set<Attribute> result = (Set<Attribute>) root.getModel().getDeclaredAttributes()
+                .stream()
+                .filter(attribute -> {
+                    if (attribute instanceof PluralAttributeImpl) {
+                        Attribute.PersistentAttributeType type = ((PluralAttributeImpl) attribute).getPersistentAttributeType();
+                        return type == Attribute.PersistentAttributeType.MANY_TO_MANY || type == Attribute.PersistentAttributeType.MANY_TO_ONE || type == Attribute.PersistentAttributeType.ONE_TO_MANY || type == Attribute.PersistentAttributeType.ONE_TO_ONE;
+                    } else if (attribute instanceof SingularAttributeImpl) {
+                        Attribute.PersistentAttributeType type = ((SingularAttributeImpl) attribute).getPersistentAttributeType();
+                        return type == Attribute.PersistentAttributeType.MANY_TO_MANY || type == Attribute.PersistentAttributeType.MANY_TO_ONE || type == Attribute.PersistentAttributeType.ONE_TO_MANY || type == Attribute.PersistentAttributeType.ONE_TO_ONE;
+                    }
+                    return false;
+                }).collect(Collectors.toSet());
+        return result;
+    }
+
+    public Set<Attribute> getAllFields(Root root){
+        return root.getModel().getDeclaredAttributes();
     }
 
     /**
@@ -84,7 +104,7 @@ public class JPAUtil {
     }
 
     public Set<String> getAvaExternFields(Root root, Set<String> fields){
-        Set<PluralAttribute> linkFields = getLinkFields(root);
+        Set<Attribute> linkFields = getLinkFields(root);
         return linkFields.stream()
                 .filter(item -> fields.contains(item.getName()))
                 .map(item -> item.getName())
@@ -92,21 +112,21 @@ public class JPAUtil {
     }
 
 
-    public Set<String> getAllFields(Class clz){
-        return getAllFields(getRoot(clz));
-    }
-
-    public Set<String> getAllFields(Root root){
-        Set<Attribute> normalFields = getNormalFields(root);
-        Set<PluralAttribute> linkFields = getLinkFields(root);
-        Set<String> result = normalFields
-                .stream()
-                .map(field -> field.getName())
-                .collect(Collectors.toSet());
-        linkFields.forEach(field -> {
-            result.add(field.getName());
-        });
-        return result;
-    }
+//    public Set<String> getAllFields(Class clz){
+//        return getAllFields(getRoot(clz));
+//    }
+//
+//    public Set<String> getAllFields(Root root){
+//        Set<Attribute> normalFields = getNormalFields(root);
+//        Set<PluralAttribute> linkFields = getLinkFields(root);
+//        Set<String> result = normalFields
+//                .stream()
+//                .map(field -> field.getName())
+//                .collect(Collectors.toSet());
+//        linkFields.forEach(field -> {
+//            result.add(field.getName());
+//        });
+//        return result;
+//    }
 
 }

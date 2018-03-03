@@ -7,6 +7,7 @@ import com.beeasy.hzback.Application;
 import com.beeasy.hzback.modules.setting.entity.Department;
 import com.beeasy.hzback.modules.setting.entity.Role;
 import com.beeasy.hzback.modules.setting.entity.User;
+import com.beeasy.hzback.modules.system.entity.SystemMenu;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,17 +28,21 @@ public class TestDataSet {
         DataSet dataSet = dataSetFactory.createDataSet();
         dataSet
                 .addMain(User.class,model -> {
-                    model.setMultipul(false);
                 })
                 .addExtern(Role.class,model -> {
-                    model.setMultipul(true)
+                    model
                         .setLinkField("roles");
                 })
                 .addExtern(Department.class,model -> {
-                    model.setMultipul(true)
+                    model
                         .setLinkField("department")
                         .setPath("roles");
+                })
+                .addExtern(SystemMenu.class,model -> {
+                    model.setLinkField("systemMenus")
+                        .setAlias("menus");
                 });
+
         DataSetResult result = dataSet.newSearch();
         result
                 .addCondition("id",1)

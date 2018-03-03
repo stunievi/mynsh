@@ -18,6 +18,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
+import javax.persistence.metamodel.Attribute;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.*;
@@ -59,7 +60,7 @@ public class SQLUtil {
 
 
     public Object postSingleItem(Class clz, Root root, JSONObject obj) throws Exception {
-        Set<String> allFields = jpaUtil.getAllFields(root);
+        Set<String> allFields = jpaUtil.getAllFields(root).stream().map(item -> item.getName()).collect(Collectors.toSet());
         Object instance = clz.newInstance();
         Set<String> keys = obj.keySet();
         String idName = jpaUtil.getIdName(root);
@@ -415,7 +416,6 @@ public class SQLUtil {
         //TODO: 分组还没有做
         //TODO: 将来可能附加的功能：字段运算、分组
 
-
         TypedQuery<?> q = entityManager.createQuery(query);
 
         //分页
@@ -426,16 +426,19 @@ public class SQLUtil {
         q.setFirstResult((page - 1) * rows);
         q.setMaxResults(rows);
 
+        if(!multipul){
+            q.setFirstResult(0);
+            q.setMaxResults(1);
+        }
+
         List<?> result = q.getResultList();
         if (result.size() == 0) {
             return multipul ? result : new JSONObject();
         }
 
-
-
         if (multipul) {
             //如果声明了附加字段
-            JSONArray ret = fetchExtendFields(roleEntities,clz, result, entityValue);
+            JSONArray ret = fetchExtendFields(roleEntities,result.get(0).getClass(), result, entityValue);
             opRolePermission.ifPresent(rolePermission -> {
                 if(rolePermission.getGetReturnFields().size() > 0){
                     ret.forEach(obj -> {
@@ -454,7 +457,7 @@ public class SQLUtil {
             return ret;
         } else {
             result = result.subList(0, 1);
-            JSONArray ret = fetchExtendFields(roleEntities,clz, result, entityValue);
+            JSONArray ret = fetchExtendFields(roleEntities,result.get(0).getClass(), result, entityValue);
             opRolePermission.ifPresent(rolePermission -> {
                 if(rolePermission.getGetReturnFields().size() > 0){
                     JSONObject obj = (JSONObject) ret.get(0);
@@ -479,18 +482,31 @@ public class SQLUtil {
      */
     private JSONArray fetchExtendFields(Set<RoleEntity> roleEntities,Class clz, List result, JSONObject entityValue) throws Exception {
         //检查是否有附加字段
-        Set<String> externFields = jpaUtil.getAvaExternFields(clz, entityValue.keySet());
+        Set<Attribute> linkFields = jpaUtil.getLinkFields(clz);
+//        Set<String> externFields = jpaUtil.getAvaExternFields(clz, entityValue.keySet());
 
 
         //需要保留的字段
 
         //过滤掉所有附加字段
-        //暂时使用JSONFIELD过滤，因为有些时候并不需要过滤所有的字段
         JSONArray jsonArray = (JSONArray) JSON.toJSON(result);
+        for (Object object : jsonArray) {
+            JSONObject item = (JSONObject) object;
+            linkFields.forEach(linkField -> {
+                item.remove(linkField.getName());
+            });
+        }
+        Set<String> needKeys = entityValue.keySet();
+
+        //重新检索需要的字段
+        Set<String> externFields = linkFields.stream()
+                .filter(item -> needKeys.contains(item.getName()))
+                .map(item -> item.getName())
+                .collect(Collectors.toSet());
+
         if (externFields.size() == 0) {
             return jsonArray;
         }
-
 
         String idName = jpaUtil.getIdName(clz);
         Field idField = clz.getDeclaredField(idName);

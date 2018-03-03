@@ -66,7 +66,7 @@ public class DataSetResult {
             log.info(JSON.toJSONString(request));
         }
         catch (Exception e){
-
+e.printStackTrace();
         }
         log.info(JSON.toJSONString(request));
     }

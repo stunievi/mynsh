@@ -18,9 +18,11 @@ public class DataModel {
     //类模型
     private Class clz;
     //是否返回多个
-    private boolean multipul = false;
+//    private boolean multipul = false;
     //查找路径
     private List<String> path = new ArrayList<>();
+
+    private String alias = "";
 
     //关联字段名
     private String linkField;
@@ -34,15 +36,22 @@ public class DataModel {
         return this;
     }
 
-    public DataModel setMultipul(boolean multipul){
-        this.multipul = multipul;
-        return this;
-    }
+//    public DataModel setMultipul(boolean multipul){
+//        this.multipul = multipul;
+//        return this;
+//    }
 
     public DataModel setPath(String ...path){
         this.path = Arrays.asList(path);
         return this;
     }
+
+    public DataModel setAlias(String alias){
+        this.alias = alias;
+        return this;
+    }
+
+
 
 
 
