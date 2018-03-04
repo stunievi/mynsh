@@ -3,6 +3,8 @@ package bin.leblanc.test;
 import bin.leblanc.dataset.DataSet;
 import bin.leblanc.dataset.DataSetFactory;
 import bin.leblanc.dataset.DataSetResult;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.Application;
 import com.beeasy.hzback.modules.setting.entity.Department;
 import com.beeasy.hzback.modules.setting.entity.Role;
@@ -29,24 +31,27 @@ public class TestDataSet {
         dataSet
                 .addMain(User.class,model -> {
                 })
-                .addExtern(Role.class,model -> {
+                .addExtern("rs",Role.class,model -> {
                     model
                         .setLinkField("roles");
                 })
-                .addExtern(Department.class,model -> {
+                .addExtern("ds",Department.class,model -> {
                     model
                         .setLinkField("department")
                         .setPath("roles");
                 })
-                .addExtern(SystemMenu.class,model -> {
-                    model.setLinkField("systemMenus")
-                        .setAlias("menus");
+                .addExtern("menus",SystemMenu.class,model -> {
+                    model.setLinkField("systemMenus");
                 });
 
         DataSetResult result = dataSet.newSearch();
-        result
+        JSONObject ret = result
+                .clearCondition()
                 .addCondition("id",1)
+                .addCondition("ds","id",9)
                 .search();
+
+        log.info(JSON.toJSONString(ret));
 
 
     }

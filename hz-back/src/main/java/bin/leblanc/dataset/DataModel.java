@@ -3,10 +3,7 @@ package bin.leblanc.dataset;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Getter
 @Setter
@@ -20,9 +17,9 @@ public class DataModel {
     //是否返回多个
 //    private boolean multipul = false;
     //查找路径
-    private List<String> path = new ArrayList<>();
+    private LinkedList<String> path = new LinkedList<>();
 
-    private String alias = "";
+//    private String alias = "";
 
     //关联字段名
     private String linkField;
@@ -42,14 +39,14 @@ public class DataModel {
 //    }
 
     public DataModel setPath(String ...path){
-        this.path = Arrays.asList(path);
+        this.path.addAll(Arrays.asList(path));
         return this;
     }
-
-    public DataModel setAlias(String alias){
-        this.alias = alias;
-        return this;
-    }
+//
+//    public DataModel setAlias(String alias){
+//        this.alias = alias;
+//        return this;
+//    }
 
 
 

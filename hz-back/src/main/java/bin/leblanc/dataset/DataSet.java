@@ -5,13 +5,12 @@ import bin.leblanc.zed.Zed;
 import lombok.Getter;
 import org.aspectj.asm.IModelFilter;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class DataSet {
 
     @Getter
-    private List<DataModel> models = new ArrayList<>();
+    private Map<String,DataModel> models = new LinkedHashMap<>();
 
     @Getter
     private Zed zed;
@@ -23,14 +22,14 @@ public class DataSet {
     public DataSet addMain(Class clz, IDataModel func){
         DataModel model = new DataModel(clz);
         func.call(model);
-        models.add(model);
+        models.put("$$main",model);
         return this;
     }
 
-    public DataSet addExtern(Class clz, IDataModel func){
+    public DataSet addExtern(String alias, Class clz, IDataModel func){
         DataModel model = new DataModel(clz);
         func.call(model);
-        models.add(model);
+        models.put(alias,model);
         return this;
     }
 
