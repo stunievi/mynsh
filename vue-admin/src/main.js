@@ -7,14 +7,16 @@ import router from './router'
 import iView from 'iview';
 import 'iview/dist/styles/iview.css';
 
+import "../static/1.less";
+
 Vue.use(iView);
 
 Vue.config.productionTip = false
 
 /* eslint-disable no-new */
 new Vue({
-  el: '#app',
-  router,
-  components: { App },
-  template: '<App/>'
+    el: '#app',
+    router,
+    components: { App },
+    template: '<App/>'
 })

@@ -46,7 +46,7 @@ public class DataSetResult {
     }
 
     public DataSetResult clearCondition(){
-
+        condition.clear();
         return this;
     }
 
