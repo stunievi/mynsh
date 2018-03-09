@@ -10,11 +10,15 @@ import com.beeasy.hzback.modules.setting.entity.Role;
 import com.beeasy.hzback.modules.setting.entity.User;
 import com.beeasy.hzback.modules.system.entity.SystemMenu;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -58,15 +62,24 @@ public class TestDataSet {
     @Test
     public void testNativeDataset() throws NullParamValueException {
         NativeDataSet nativeDataSet = dataSetFactory.createNativeDataSet();
-        nativeDataSet.setBaseSql("select * from t_user where id = $id and username = $name")
+        nativeDataSet.setBaseSql("select * from t_user where id > $id and username = $name")
                 .setParamType("id","int",null)
-                .setParamType("name","string",null);
+                .setParamType("name","string",null)
+                .setResultFileter(item -> {
+                    item.remove("baned");
+                    return item;
+                });
 
         NativeDataSetResult result = nativeDataSet.newSearch();
-        result
-                .setParam("id",1)
-                .setParam("name","2")
+        List list = result
+                .setParam("id",0)
+                .setParam("name","1")
                 .search();
+
+        Assert.assertTrue(list.size() > 0);
+        Assert.assertTrue(!((Map)list.get(0)).containsKey("baned"));
+
+        log.info(list.toString());
 
 
     }
