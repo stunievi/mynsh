@@ -14,7 +14,7 @@ public class Testdb {
     @Test
     public void bitcask(){
         BitcaskOptions options = new BitcaskOptions();
-        options.setDirPath("E:/cubicask");
+        options.setDirPath("/tmp/cubicask");
         Bitcask bitcask = new Bitcask(options);
         bitcask.put("fuck",1);
         int a = (int) bitcask.get("fuck").orElse(2);

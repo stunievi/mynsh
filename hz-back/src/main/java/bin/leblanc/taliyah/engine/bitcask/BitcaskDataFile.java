@@ -14,26 +14,24 @@ import java.util.zip.CRC32;
 @Slf4j
 public class BitcaskDataFile {
 
-    private Bitcask context;
+    protected Bitcask context;
     @Getter
-    private long fileId;
-    private FileOutputStream os;
-    private CRC32 crc32 = new CRC32();
-
-    @Getter
-    private int fileSize = 0;
-
-    private RandomAccessFile raf;
-    private FileChannel channel;
-
-    @Setter
-    @Getter
-    private boolean active = false;
+    protected long fileId;
+    protected CRC32 crc32 = new CRC32();
 
     @Getter
-    private String filePath;
+    protected int fileSize = 0;
 
-    private FileLock lock = null;
+    protected RandomAccessFile raf;
+    protected FileChannel channel;
+
+    @Getter
+    protected boolean active = false;
+
+    @Getter
+    protected String filePath;
+
+    protected FileLock lock = null;
 
     public BitcaskDataFile(Bitcask context, boolean active) {
         this(context,active,System.currentTimeMillis());
@@ -41,13 +39,14 @@ public class BitcaskDataFile {
 
     public BitcaskDataFile(Bitcask context, boolean active, long fileId) {
         this.context = context;
-        this.active = active;
         this.fileId = fileId;
+        this.setActive(active);
         init();
     }
 
-    private void init() {
-        os = null;
+    protected void init() {
+        context.getDataFiles().put(fileId,this);
+
         filePath = context.getOptions().getDirPath() + File.separator + fileId + context.getOptions().getDataExtension();
         try {
             raf = new RandomAccessFile(filePath, "rw");
@@ -63,13 +62,12 @@ public class BitcaskDataFile {
     }
 
     public Object read(BitcaskIndex index) {
-//        os.getFD().sync();
-        ByteBuffer byteBuffer = ByteBuffer.allocate(index.getSize());
+        ByteBuffer byteBuffer = ByteBuffer.allocate(index.getValueSize());
         boolean hasException = false;
         Object result = null;
         try {
             lock = channel.lock();
-            raf.seek(index.getStartPos());
+            raf.seek(index.getValuePos());
             channel.read(byteBuffer);
             result = Serializer.unserialize(byteBuffer.array());
         } catch (IOException e) {
@@ -84,8 +82,6 @@ public class BitcaskDataFile {
     }
 
     public BitcaskIndex write(final byte[] key, final byte[] value) {
-//        os.getFD().sync();
-
         //只有活动文件可写
         if (!active) {
             return null;
@@ -149,10 +145,15 @@ public class BitcaskDataFile {
         } finally {
             releaseLock();
         }
-        return hasException ? null : new BitcaskIndex(fileId, valuePos, value == null ? 0 : value.length);
+        return hasException ? null : new BitcaskIndex(
+                timestamp,
+                fileId,
+                value == null ? 0 : value.length,
+                valuePos
+                ,key);
     }
 
-    private void releaseLock(){
+    protected void releaseLock(){
         if(lock != null){
             try {
                 lock.release();
@@ -160,6 +161,13 @@ public class BitcaskDataFile {
                 e.printStackTrace();
             }
             lock = null;
+        }
+    }
+
+    protected void setActive(boolean active){
+        this.active = active;
+        if(true == active){
+            context.setActiveDataFileId(fileId);
         }
     }
 

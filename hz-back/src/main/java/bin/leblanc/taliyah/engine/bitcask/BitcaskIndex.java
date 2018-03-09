@@ -6,7 +6,9 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class BitcaskIndex {
+    private long timestamp;
     private long fileId;
-    private int startPos;
-    private int size;
+    private int valueSize;
+    private int valuePos;
+    private byte[] key;
 }
