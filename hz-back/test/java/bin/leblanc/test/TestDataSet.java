@@ -1,8 +1,7 @@
 package bin.leblanc.test;
 
-import bin.leblanc.dataset.DataSet;
-import bin.leblanc.dataset.DataSetFactory;
-import bin.leblanc.dataset.DataSetResult;
+import bin.leblanc.dataset.*;
+import bin.leblanc.dataset.exception.NullParamValueException;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.Application;
@@ -56,4 +55,19 @@ public class TestDataSet {
 
     }
 
+    @Test
+    public void testNativeDataset() throws NullParamValueException {
+        NativeDataSet nativeDataSet = dataSetFactory.createNativeDataSet();
+        nativeDataSet.setBaseSql("select * from t_user where id = $id and username = $name")
+                .setParamType("id","int",null)
+                .setParamType("name","string",null);
+
+        NativeDataSetResult result = nativeDataSet.newSearch();
+        result
+                .setParam("id",1)
+                .setParam("name","2")
+                .search();
+
+
+    }
 }
