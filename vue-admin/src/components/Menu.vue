@@ -1,5 +1,5 @@
 <template>
-    <div class="box" @top_menu_click="test">
+    <div class="box">
         <div class="left"></div>
         <div class="right">
             <b>{{title}}</b>
@@ -8,25 +8,13 @@
                 default-active="2"
                 class="el-menu-vertical-demo"
                 >
-                <el-menu-item index="1" v-for="item in menu">
+                <el-menu-item v-for="item in menu">
                     {{item.title}}
                 </el-menu-item>
             </el-menu>
 
         </div>
     </div>
-    <!--<div class="menu">-->
-        <!--<dl  v-for="item in list">-->
-           <!--<dt v-text="item.title"></dt>-->
-            <!--<dd>-->
-                <!--<ul>-->
-                    <!--<li v-for="child in item.children">-->
-                        <!--<a v-text="child.title" @click="go(child)"></a>-->
-                    <!--</li>-->
-                <!--</ul>-->
-            <!--</dd>-->
-        <!--</dl>-->
-    <!--</div>-->
 </template>
 
 <script>
