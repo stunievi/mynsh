@@ -1,5 +1,20 @@
 <template>
-    <Tree :data="list" v-on:on-select-change="href" ></Tree>
+    <div class="box" @top_menu_click="test">
+        <div class="left"></div>
+        <div class="right">
+            <b>{{title}}</b>
+
+            <el-menu
+                default-active="2"
+                class="el-menu-vertical-demo"
+                >
+                <el-menu-item index="1" v-for="item in menu">
+                    {{item.title}}
+                </el-menu-item>
+            </el-menu>
+
+        </div>
+    </div>
     <!--<div class="menu">-->
         <!--<dl  v-for="item in list">-->
            <!--<dt v-text="item.title"></dt>-->
@@ -20,20 +35,35 @@
     export default{
         data(){
             return {
-                list: [],
-                value:[20,50]
+                title: "",
+                menu:[
+                    {
+                        title: "我的工作台"
+                    },
+                    {
+                        title: "待办事项"
+                    }
+                ]
             }
         },
 
 
         created(){
-            this.$http
-                .get(config.server + "/api/admin/menu")
-                .then(res => res.json())
-                .then(data => {this.initData(data.message)} )
+            eventBus.$on("top_menu_click",(e) => {
+                this.title = e.title;
+                if(e.children.length){
+                    this.menu = e.children;
+                }
+
+            });
+
         },
 
         methods:{
+
+            test(){
+              alert(13)
+            },
             go(item){
                 this.$router.push(item.href)
             },
@@ -61,7 +91,24 @@
     }
 </script>
 
-<style >
+<style scoped>
+    .box{
+        height: 100%;
+        overflow: hidden;
+    }
+    .left{
+        background: #3a3a3a;
+        width: 60px;
+        height: 100%;
+        float: left;
+    }
+    .right{
+        display: inline-block;
+        width: 180px;
+        height: 100%;
+        background: #ddd;
+        float: left;
+    }
     .ivu-tree-title{
         color: white;
     }
