@@ -22,25 +22,35 @@ public class DataModel {
 //    private String alias = "";
 
     //关联字段名
-    private String linkField;
+//    private String linkField;
 
     public DataModel(Class clz){
         this.clz = clz;
     }
 
-    public DataModel setLinkField(String linkField){
-        this.linkField = linkField;
-        return this;
-    }
+//    public DataModel setLinkField(String linkField){
+//        this.linkField = linkField;
+//        return this;
+//    }
 
 //    public DataModel setMultipul(boolean multipul){
 //        this.multipul = multipul;
 //        return this;
 //    }
 
+    /**
+     * path的最后一项表示关联字段
+     * @param path
+     * @return
+     */
     public DataModel setPath(String ...path){
         this.path.addAll(Arrays.asList(path));
+        //
         return this;
+    }
+
+    public String getLinkField(){
+        return path.getLast();
     }
 //
 //    public DataModel setAlias(String alias){

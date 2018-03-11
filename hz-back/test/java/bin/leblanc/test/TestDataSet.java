@@ -36,15 +36,14 @@ public class TestDataSet {
                 })
                 .addExtern("rs",Role.class,model -> {
                     model
-                        .setLinkField("roles");
+                        .setPath("roles");
                 })
                 .addExtern("ds",Department.class,model -> {
                     model
-                        .setLinkField("department")
-                        .setPath("roles");
+                        .setPath("roles","department");
                 })
                 .addExtern("menus",SystemMenu.class,model -> {
-                    model.setLinkField("systemMenus");
+                    model.setPath("systemMenus");
                 });
 
         DataSetResult result = dataSet.newSearch();

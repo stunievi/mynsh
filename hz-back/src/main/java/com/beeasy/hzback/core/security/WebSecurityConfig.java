@@ -57,9 +57,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                 .anyRequest().authenticated() //任何请求,登录后可以访问
                 .and()
+                .csrf().disable()
                 .addFilter(new JWTAuthenticationFilter(authenticationManager(),jwtTokenUtil(),customUserService()))
-
-                .csrf().disable();
+                ;
+//                .csrf().disable();
 
     }
 
