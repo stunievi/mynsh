@@ -58,6 +58,10 @@ public class User implements Serializable{
     @JSONField(serialize = false)
     @ManyToMany(mappedBy = "users")
     private List<SystemMenu> systemMenus;
+
+    @JSONField(serialize = false)
+    @OneToOne(mappedBy = "user")
+    private UserProfile profile;
     /**
      * 得到一个用户所有的工作留
      * @return

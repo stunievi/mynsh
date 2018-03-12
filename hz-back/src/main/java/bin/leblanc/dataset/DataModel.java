@@ -15,7 +15,7 @@ public class DataModel {
     //类模型
     private Class clz;
     //是否返回多个
-//    private boolean multipul = false;
+    private boolean multipul = true;
     //查找路径
     private LinkedList<String> path = new LinkedList<>();
 
@@ -33,10 +33,10 @@ public class DataModel {
 //        return this;
 //    }
 
-//    public DataModel setMultipul(boolean multipul){
-//        this.multipul = multipul;
-//        return this;
-//    }
+    public DataModel setMultipul(boolean multipul){
+        this.multipul = multipul;
+        return this;
+    }
 
     /**
      * path的最后一项表示关联字段

@@ -50,7 +50,6 @@ public class TestDataSet {
         JSONObject ret = result
                 .clearCondition()
                 .addCondition("id",1)
-                .addCondition("ds","id",9)
                 .search();
 
         log.info(JSON.toJSONString(ret));

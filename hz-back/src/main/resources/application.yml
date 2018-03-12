@@ -9,6 +9,8 @@ mybatis:
   mapperLocations: classpath:hzadmin/src/main/resources/mybatis.mapper/*.xml
   typeAliasesPackage: com.beeasy.hzback.modules.setting.entity
 
+server:
+  port: 8070
 
 spring:
     mvc:

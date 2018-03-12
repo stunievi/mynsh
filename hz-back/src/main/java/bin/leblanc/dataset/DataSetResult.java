@@ -143,7 +143,9 @@ public class DataSetResult {
                         if (!((JSONObject) o).containsKey(dataModel.getLinkField())) {
                             continue;
                         }
-                        deleteItems.add(new DeleteItem(o, dataModel.getLinkField()));
+                        if(!stringDataModelEntry.getKey().equals(dataModel.getLinkField())){
+                            deleteItems.add(new DeleteItem(o, dataModel.getLinkField()));
+                        }
 
                         Object item = ((JSONObject) o).get(dataModel.getLinkField());
                         if (item instanceof JSONArray) {
@@ -159,7 +161,13 @@ public class DataSetResult {
                         }
 //                        exts.add(((JSONObject) o).get(dataModel.getLinkField()));
                     }
-                    ret.put(dataModel.getLinkField(), exts);
+                    //返回单个的情况
+                    if(!dataModel.isMultipul()){
+                        ret.put(dataModel.getLinkField(),exts.get(0));
+                    }
+                    else{
+                        ret.put(dataModel.getLinkField(), exts);
+                    }
                     log.info("fuck");
                 }
             }

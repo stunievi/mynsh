@@ -26,9 +26,14 @@ public class DataSet {
         return this;
     }
 
+    public DataSet addExtern(String alias, Class clz){
+        return addExtern(alias,clz,null);
+    }
     public DataSet addExtern(String alias, Class clz, IDataModel func){
         DataModel model = new DataModel(clz);
-        func.call(model);
+        if(func != null){
+            func.call(model);
+        }
         models.put(alias,model);
         return this;
     }
