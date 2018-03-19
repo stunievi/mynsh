@@ -11,6 +11,8 @@ mybatis:
 
 server:
   port: 8070
+  context-path: /
+  address: 192.168.31.201
 
 spring:
     mvc:
