@@ -212,6 +212,10 @@ public class TestZed {
         Optional<Map> test(String a, String b);
     }
 
+    @MethodFile("/Users/bin/work/zed_template.yaml")
+    class fuck{
+
+    }
 
     @Test
     public void testX(){
