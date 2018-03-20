@@ -1,5 +1,7 @@
 package bin.leblanc.zed;
 
+import bin.leblanc.zed.proxy.MethodFile;
+import bin.leblanc.zed.proxy.ZedProxyHandler;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import bin.leblanc.zed.exception.NoMethodException;
@@ -9,16 +11,21 @@ import bin.leblanc.zed.metadata.IPermission;
 import bin.leblanc.zed.metadata.RoleEntity;
 import com.beeasy.hzback.modules.setting.entity.Role;
 import com.beeasy.hzback.modules.setting.entity.User;
+import lombok.Cleanup;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.jpa.internal.metamodel.EntityTypeImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.json.YamlJsonParser;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.yaml.snakeyaml.Yaml;
 
 import javax.persistence.EntityManager;
 import javax.persistence.metamodel.EntityType;
+import java.io.*;
+import java.lang.reflect.Proxy;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -225,6 +232,53 @@ public class Zed {
 
     public Map<String,Object> parsePost(JSONObject obj,Set<RoleEntity> roleEntities) throws Exception {
         return sqlUtil.post(obj,roleEntities);
+    }
+
+
+    /**
+     * 需要打开 -parameters 参数！！！！！！！！！！
+     * @param yaml
+     * @param inter
+     * @param <T>
+     * @return
+     */
+    public synchronized static <T> T createProxy(String yaml, Class<T> inter){
+        String template = null;
+        Map<String,Object> obj = null;
+        readFile: try {
+            if(yaml == null){
+                break readFile;
+            }
+            @Cleanup InputStream is = new FileInputStream(yaml);
+            byte[] bytes = new byte[1024];
+            int len;
+            StringBuffer sb = new StringBuffer();
+            while((len = is.read(bytes)) != -1){
+                sb.append(new String(bytes,0,len));
+            }
+            template = sb.toString();
+            Yaml parser = new Yaml();
+            obj = (Map<String, Object>) parser.load(template);
+        } catch (IOException e) {
+            e.printStackTrace();
+            obj = new HashMap<>();
+        }
+        return createProxy(obj,inter);
+    }
+
+    public static <T> T createProxy(Map template, Class<T> inter){
+        ZedProxyHandler handler = new ZedProxyHandler(template);
+        Class<T>[] inters = new Class[]{inter};
+        return (T) Proxy.newProxyInstance(inter.getClassLoader(),inters,handler);
+    }
+
+    public static <T> T createProxy(Class<T> inter){
+        MethodFile annotation = inter.getDeclaredAnnotation(MethodFile.class);
+        String fileName = null;
+        if(annotation != null){
+            fileName = annotation.value();
+        }
+        return createProxy(fileName,inter);
     }
 
     @Transactional

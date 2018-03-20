@@ -19,6 +19,10 @@
 
     <repositories>
         <repository>
+            <id>oschina</id>
+            <url>http://maven.aliyun.com/nexus/content/groups/public/</url>
+        </repository>
+        <repository>
             <id>com.ibm.db2.jcc</id>
             <url>https://artifacts.alfresco.com/nexus/content/repositories/public/</url>
         </repository>
@@ -37,7 +41,7 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-jetty</artifactId>
+            <artifactId>spring-boot-starter-undertow</artifactId>
         </dependency>
 
         <!-- mybatis-plus begin -->
@@ -184,6 +188,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-redis</artifactId>
+            <version>1.4.7.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.session</groupId>
@@ -252,6 +257,15 @@
             <artifactId>jjwt</artifactId>
             <version>0.7.0</version>
         </dependency>
+
+
+        <!--snakeyaml-->
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>1.17</version>
+        </dependency>
+
     </dependencies>
 
     <build>

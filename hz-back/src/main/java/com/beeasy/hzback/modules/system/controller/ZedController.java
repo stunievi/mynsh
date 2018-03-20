@@ -8,9 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.util.Map;
 
 @RestController
@@ -34,21 +32,19 @@ public class ZedController {
 
     @RequestMapping("/config")
     public synchronized Result getConfig(){
+        String str = null;
         try {
-            RandomAccessFile raf = new RandomAccessFile("/Users/bin/work/configlist.yaml","rw");
-            String line ;
+            InputStream is = new FileInputStream("/Users/bin/work/configlist.yaml");
             StringBuffer sb = new StringBuffer();
-            while((line = raf.readLine()) != null){
-                sb.append(new String(line.getBytes("iso8859-1")));
+            byte[] bytes = new byte[1024];
+            int len;
+            while((len = is.read(bytes)) != -1){
+                sb.append(new String(bytes,0,len));
                 sb.append("\n");
             }
-            raf.close();
-            String str = sb.toString();
-            return Result.ok(str);
-
+            str = sb.toString();
         } catch (IOException e) {
         }
-        return Result.error();
-
+        return Result.ok(str);
     }
 }

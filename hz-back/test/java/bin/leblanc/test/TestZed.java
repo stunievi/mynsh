@@ -1,5 +1,6 @@
 package bin.leblanc.test;
 
+import bin.leblanc.zed.proxy.MethodFile;
 import com.alibaba.fastjson.JSONObject;
 import bin.leblanc.zed.Zed;
 import bin.leblanc.zed.exception.ErrorWhereFieldsException;
@@ -15,6 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -197,6 +199,32 @@ public class TestZed {
         } catch (Exception e) {
             Assert.assertEquals(e,null);
         }
+    }
+
+
+
+    public interface Cubi{
+        Optional<Map> test(String a, String b);
+    }
+
+    @MethodFile("/Users/bin/work/zed_template.yaml")
+    public interface Cubi2{
+        Optional<Map> test(String a, String b);
+    }
+
+
+    @Test
+    public void testX(){
+        Cubi ttt = Zed.createProxy("/Users/bin/work/zed_template.yaml",Cubi.class);
+        Map ret = ttt.test("1","2").orElse(null);
+        Assert.assertNotEquals(ret,null);
+    }
+
+    @Test
+    public void testXX(){
+        Cubi2 ttt = Zed.createProxy(Cubi2.class);
+        Map ret = ttt.test("1","2").orElse(null);
+        Assert.assertNotEquals(ret,null);
     }
 
 
