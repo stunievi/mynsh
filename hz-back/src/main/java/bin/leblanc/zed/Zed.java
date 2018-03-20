@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.json.YamlJsonParser;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ResourceUtils;
 import org.yaml.snakeyaml.Yaml;
 
 import javax.persistence.EntityManager;
@@ -249,7 +250,14 @@ public class Zed {
             if(yaml == null){
                 break readFile;
             }
-            @Cleanup InputStream is = new FileInputStream(yaml);
+            File file;
+            if(yaml.contains("classpath")){
+                file = ResourceUtils.getFile(yaml);
+            }
+            else{
+                file = new File(yaml);
+            }
+            @Cleanup InputStream is = new FileInputStream(file);
             byte[] bytes = new byte[1024];
             int len;
             StringBuffer sb = new StringBuffer();

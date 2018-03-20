@@ -1,0 +1,6 @@
+test:
+  method: get
+  User:
+    $where:
+      id: $a
+fuck: 日了狗了

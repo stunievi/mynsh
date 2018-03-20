@@ -207,7 +207,7 @@ public class TestZed {
         Optional<Map> test(String a, String b);
     }
 
-    @MethodFile("/Users/bin/work/zed_template.yaml")
+    @MethodFile("classpath:zed/zed_template.yaml")
     public interface Cubi2{
         Optional<Map> test(String a, String b);
     }
