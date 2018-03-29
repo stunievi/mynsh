@@ -2,8 +2,12 @@ package com.beeasy.hzback.modules.setting.entity;
 
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.beeasy.hzback.modules.system.entity.Quarters;
 import com.beeasy.hzback.modules.system.entity.SystemMenu;
+import com.fasterxml.jackson.annotation.JsonFilter;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Hibernate;
@@ -13,6 +17,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -22,6 +27,8 @@ import java.util.stream.Collectors;
 @Slf4j
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "t_user")
 @EntityListeners(AuditingEntityListener.class)
@@ -33,12 +40,12 @@ public class User implements Serializable{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-
-    @NotEmpty(message = "用户名不能为空")
     @Column(unique = true)
     private String username;
-    @NotEmpty(message = "密码不能为空")
     private String password;
+
+    private String phone;
+    private String email;
 
     @CreatedDate
     private Date addTime;
@@ -50,18 +57,26 @@ public class User implements Serializable{
 ////    private List<Role> roleList;// 一个用户具有多个角色
 
 
-    @JSONField(serialize = false)
     @ManyToMany(fetch = FetchType.LAZY,mappedBy = "users")
-    private Set<Role> roles;
-
+    private transient Set<Role> roles;
 
     @JSONField(serialize = false)
+    @ManyToMany
+    @JoinTable(name = "t_USER_QUARTERS",
+            joinColumns = {
+                    @JoinColumn(name = "USER_ID", referencedColumnName = "ID")
+            },
+            inverseJoinColumns = {
+                    @JoinColumn(name = "QUARTERS_ID", referencedColumnName = "ID")
+            })
+    private List<Quarters> quarters = new ArrayList<>();
+
+
     @ManyToMany(mappedBy = "users")
-    private List<SystemMenu> systemMenus;
+    private transient List<SystemMenu> systemMenus;
 
-    @JSONField(serialize = false)
     @OneToOne(mappedBy = "user")
-    private UserProfile profile;
+    private transient UserProfile profile;
     /**
      * 得到一个用户所有的工作留
      * @return

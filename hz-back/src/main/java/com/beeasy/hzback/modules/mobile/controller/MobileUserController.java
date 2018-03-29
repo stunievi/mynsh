@@ -22,35 +22,35 @@ public class MobileUserController {
     @Autowired
     DataSetFactory dataSetFactory;
 
-    @RequestMapping("/userInfo")
-    public Result getUserInfo(){
-        DataSet dataSet = dataSetFactory.createDataSet();
-        dataSet
-                .addMain(User.class, model -> {
-                })
-                .addExtern("profile", UserProfile.class,model -> {
-                    model.setPath("profile")
-                        .setMultipul(false);
-                })
-                .addExtern("rs",Role.class, model -> {
-                    model
-                            .setPath("roles");
-                })
-                .addExtern("ds",Department.class, model -> {
-                    model
-                            .setPath("roles","department");
-                })
-                .addExtern("menus",SystemMenu.class, model -> {
-                    model.setPath("systemMenus");
-                });
-        User user = Utils.getCurrentUser();
-        if(user == null) return Result.error();
-
-        DataSetResult result = dataSet.newSearch();
-        JSONObject ret = result
-                .clearCondition()
-                .addCondition("id",user.getId())
-                .search();
-        return Result.ok(ret);
-    }
+//    @RequestMapping("/userInfo")
+//    public Result getUserInfo(){
+//        DataSet dataSet = dataSetFactory.createDataSet();
+//        dataSet
+//                .addMain(User.class, model -> {
+//                })
+//                .addExtern("profile", UserProfile.class,model -> {
+//                    model.setPath("profile")
+//                        .setMultipul(false);
+//                })
+//                .addExtern("rs",Role.class, model -> {
+//                    model
+//                            .setPath("roles");
+//                })
+//                .addExtern("ds",Department.class, model -> {
+//                    model
+//                            .setPath("roles","department");
+//                })
+//                .addExtern("menus",SystemMenu.class, model -> {
+//                    model.setPath("systemMenus");
+//                });
+//        User user = Utils.getCurrentUser();
+//        if(user == null) return Result.error();
+//
+//        DataSetResult result = dataSet.newSearch();
+//        JSONObject ret = result
+//                .clearCondition()
+//                .addCondition("id",user.getId())
+//                .search();
+//        return Result.ok(ret);
+//    }
 }

@@ -2,15 +2,16 @@ package com.beeasy.hzback.modules.system.controller;
 
 import bin.leblanc.zed.Zed;
 import com.beeasy.hzback.core.helper.Result;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
 import java.util.Map;
 
+@Api(tags = "通用API", description = "通用API测试类")
 @RestController
 @RequestMapping("/api")
 public class ZedController {
@@ -18,7 +19,8 @@ public class ZedController {
     @Autowired
     Zed zed;
 
-    @PostMapping("/")
+    @ApiOperation(value = "通用查询API", notes = "需要校验身份授权")
+    @PostMapping
     public Result zed(String request){
         try {
             Map<?,?> result = zed.parse(request,"");
@@ -30,21 +32,20 @@ public class ZedController {
     }
 
 
-    @RequestMapping("/config")
+    @ApiOperation(value = "系统设置", notes = "得到系统的设置列表")
+    @GetMapping("/config")
     public synchronized Result getConfig(){
-        String str = null;
         try {
-            InputStream is = new FileInputStream("/Users/bin/work/configlist.yaml");
-            StringBuffer sb = new StringBuffer();
-            byte[] bytes = new byte[1024];
-            int len;
-            while((len = is.read(bytes)) != -1){
-                sb.append(new String(bytes,0,len));
-                sb.append("\n");
-            }
-            str = sb.toString();
+            Reader r = new FileReader("/Users/bin/work/configlist.yaml");
+            Yaml yaml = new Yaml();
+            Object o = yaml.load(r);
+            r.close();
+            return Result.ok(o);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         } catch (IOException e) {
+            e.printStackTrace();
         }
-        return Result.ok(str);
+        return Result.error();
     }
 }

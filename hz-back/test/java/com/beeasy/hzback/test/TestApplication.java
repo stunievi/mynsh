@@ -17,6 +17,8 @@ import com.beeasy.hzback.modules.setting.entity.Work;
 //import com.beeasy.hzback.modules.setting.entity.WorkNode;
 import com.beeasy.hzback.modules.setting.service.DepartmentService;
 import com.beeasy.hzback.modules.setting.service.UserService;
+import com.beeasy.hzback.modules.system.dao.IQuartersDao;
+import com.beeasy.hzback.modules.system.entity.Quarters;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.jpa.internal.metamodel.EntityTypeImpl;
 import org.junit.Assert;
@@ -25,12 +27,14 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Root;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -70,6 +74,34 @@ public class TestApplication {
         user.setPassword(CrUtils.md5("123456".getBytes()));
         userDao.save(user);
 
+    }
+
+
+    @Autowired
+    IQuartersDao quartersDao;
+
+    @Test
+    public void testQ(){
+//        userDao.test2(1);
+        List list = new ArrayList();
+        Quarters q = quartersDao.findOne(1);
+        list.add(q);
+
+//        userDao.test(list,1);
+
+        User user = userDao.findOne(1);
+        List uList = new ArrayList();
+        uList.add(user);
+        user.getQuarters().clear();;
+        q.setUsers(uList);
+//        user.setQuarters(list);;
+
+        //user.getQuarters().add(q);
+//        entityManager.merge(user);
+//        quartersDao.save(q);
+        userDao.save(user);
+
+//        userDao.test(list,1);
     }
 
     @Test

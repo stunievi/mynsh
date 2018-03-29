@@ -6,6 +6,7 @@ import com.beeasy.hzback.modules.setting.entity.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.criteria.Predicate;
@@ -32,6 +33,10 @@ public class ZedPermission implements ApplicationListener<ZedInitializedEvent>{
         //注册角色检查
         zed.addRoleHandler(token -> {
             String tokenStr = (String) token;
+            User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            if(user.getId() == 1){
+                return "SU";
+            }
             if(tokenStr.indexOf("TEST") == 0){
                 return tokenStr.toLowerCase();
             }

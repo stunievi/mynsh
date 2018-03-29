@@ -56,7 +56,7 @@ public class RedisConfig extends CachingConfigurerSupport {
         return cacheManager;
     }
     @Bean
-    public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory factory){
+    public RedisTemplate<?, ?> redisTemplate(RedisConnectionFactory factory){
         StringRedisTemplate template = new StringRedisTemplate(factory);
         setSerializer(template);//设置序列化工具
         template.afterPropertiesSet();

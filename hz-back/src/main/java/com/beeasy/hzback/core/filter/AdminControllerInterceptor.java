@@ -14,7 +14,7 @@
 //import org.aspectj.lang.annotation.AfterReturning;
 //import org.aspectj.lang.annotation.Aspect;
 //import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.data.domain.Page;
+//import org.springframework.data.domain.Pager;
 //import org.springframework.security.core.context.SecurityContextHolder;
 //import org.springframework.stereotype.Component;
 //import org.springframework.ui.Model;
@@ -71,7 +71,7 @@
 //
 //        //处理分页
 //        if(model.containsAttribute("list")){
-//            Page<?> p = (Page<?>) model.asMap().get("list");
+//            Pager<?> p = (Pager<?>) model.asMap().get("list");
 //            model.addAttribute("totalPage",p.getTotalPages());
 //            model.addAttribute("currentPage",p.getNumber());
 //        }

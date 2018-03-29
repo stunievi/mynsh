@@ -3,18 +3,20 @@ package com.beeasy.hzback.core.helper;
 import lombok.Data;
 import org.springframework.validation.BindingResult;
 
+import java.util.stream.Collectors;
+
 @Data
-public class Result {
-    private boolean success;
-    private Object message;
+public class Result <T> {
+    protected boolean success;
+    protected T message;
 
 
-    private Result(boolean success,Object item) {
+    protected Result(boolean success,T item) {
         this.success = success;
         this.message = item;
     }
 
-    private Result(boolean success) {
+    protected Result(boolean success) {
         this.success = success;
     }
 
@@ -27,7 +29,7 @@ public class Result {
 
     public static Result error(Object item){
         if(item instanceof BindingResult){
-            item = ((BindingResult) item).getAllErrors();
+            item = ((BindingResult) item).getAllErrors().stream().map(i -> i.getDefaultMessage()).collect(Collectors.toSet());
         }
         return new Result(false,item);
     }

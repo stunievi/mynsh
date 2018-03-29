@@ -9,6 +9,7 @@ import lombok.Setter;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.LazyToOne;
 import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +31,6 @@ public class Department implements Serializable{
     @GeneratedValue
     private Integer id;
 
-    @NotEmpty(message = "部门名字不能为空")
     private String name;
 
 //    private Integer parentId;
@@ -40,6 +40,9 @@ public class Department implements Serializable{
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     private Department parent;
+
+    @CreatedDate
+    private Date addTime;
 
     @OneToMany(fetch = FetchType.LAZY,mappedBy = "parent")
     private List<Department> departments = new ArrayList<>();

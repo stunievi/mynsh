@@ -4,3 +4,11 @@ test:
     $where:
       id: $a
 fuck: 日了狗了
+checkUser:
+  method: get
+  User:
+    $where:
+      username: $username
+      or:
+        phone: $phone
+

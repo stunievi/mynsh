@@ -35,5 +35,5 @@ public interface IRoleDao extends JpaRepository<Role,Integer> {
         return result;
     }
 
-    List<Role> findAllByUsers(List<User> users);
+//    List<Role> findAllByUsers(List<User> users);
 }

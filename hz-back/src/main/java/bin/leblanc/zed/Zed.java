@@ -244,7 +244,6 @@ public class Zed {
      * @return
      */
     public synchronized static <T> T createProxy(String yaml, Class<T> inter){
-        String template = null;
         Map<String,Object> obj = null;
         readFile: try {
             if(yaml == null){
@@ -257,16 +256,17 @@ public class Zed {
             else{
                 file = new File(yaml);
             }
-            @Cleanup InputStream is = new FileInputStream(file);
-            byte[] bytes = new byte[1024];
-            int len;
-            StringBuffer sb = new StringBuffer();
-            while((len = is.read(bytes)) != -1){
-                sb.append(new String(bytes,0,len));
-            }
-            template = sb.toString();
+            @Cleanup Reader reader = new FileReader(file);
+//            @Cleanup InputStream is = new FileInputStream(file);
+//            byte[] bytes = new byte[1024];
+//            int len;
+//            StringBuffer sb = new StringBuffer();
+//            while((len = is.read(bytes)) != -1){
+//                sb.append(new String(bytes,0,len));
+//            }
+//            template = sb.toString();
             Yaml parser = new Yaml();
-            obj = (Map<String, Object>) parser.load(template);
+            obj = (Map<String, Object>) parser.load(reader);
         } catch (IOException e) {
             e.printStackTrace();
             obj = new HashMap<>();
