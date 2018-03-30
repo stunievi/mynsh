@@ -2,7 +2,6 @@ package com.beeasy.hzback.modules.system.controller;
 
 import bin.leblanc.classtranslate.Transformer;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.helper.Utils;
@@ -30,11 +29,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Api(tags = "工作流API", value = "编辑模型需要管理员权限")
 @Transactional
@@ -65,15 +62,15 @@ public class WorkFlowController {
         Map<String,Map> map = (Map) cache.getConfig();
         Map model = (Map) map.get("workflow").get(modelName);
         if(model == null) return Result.error("没有这个模型!");
-        List flow = (List) model.get("flow");
-        if(model == null) return Result.error("没有这个模型!");
+        Map flow = (Map) model.get("flow");
+        if(flow == null) return Result.error("没有这个模型!");
 
         List same = workflowModelDao.findAllByNameAndVersion(add.getName(),add.getVersion());
         if(same.size() > 0){
             return Result.error("已经有同名同版本的工作流");
         }
         WorkflowModel workflowModel = Transformer.transform(add,WorkflowModel.class);
-        workflowModel.setModel(flow);
+        workflowModel.setModel(model);
         workflowModel.setOpen(false);
         workflowModel.setFirstOpen(false);
 
@@ -128,36 +125,28 @@ public class WorkFlowController {
         if(workflowModel.isFirstOpen() || workflowModel.isOpen()) return Result.ok("无法编辑该工作流");
 
         try{
-            List<Map<String, Object>> nodes = workflowModel.getModel();
-            JSONArray newNodes = JSON.parseArray(node);
+            Map<String, Map> nodes = workflowModel.getModel();
+            JSONObject newNodes = JSON.parseObject(node);
             //开始和结束节点禁止编辑
-            String startName = (String) nodes.stream().filter(n -> n.containsKey("start") && n.get("start").equals(true)).findFirst().get().get("name");
-            String endName = (String) nodes.stream().filter(n -> n.containsKey("end") && n.get("end").equals(true)).findFirst().get().get("name");
-
-            List newNodesList = newNodes
-                    .stream()
-                    .filter(n -> {
-                        if(!((JSONObject)n).containsKey("name")){
-                            return false;
-                        }
-                        String name = ((JSONObject)n).getString("name");
-                        if(name.equals(startName) || name.equals(endName)){
-                            return false;
-                        }
-                        return true;
-                    })
-                    .collect(Collectors.toList());
-
-            nodes = nodes
-                    .stream()
-                    .filter(n -> {
-                        return newNodesList
-                                .stream()
-                                .anyMatch(nn -> !((Map)nn).get("name").equals( ((Map)n).get("name") ));
-                    })
-                    .collect(Collectors.toList());
-            nodes.addAll(newNodesList);
-            workflowModel.setModel(nodes);
+            AtomicReference<String> startName = new AtomicReference<>();
+            AtomicReference<String> endName = new AtomicReference<>();
+            nodes.forEach((k,v) -> {
+                Map map = (Map) v;
+                if(((Map) v).get("start") != null){
+                    startName.set((String) ((Map) v).get("name"));
+                }
+                if(((Map) v).get("end") != null){
+                    endName.set((String) ((Map) v).get("name"));
+                }
+            });
+            newNodes.keySet().forEach(k -> {
+                if(k.equals(startName.get()) || k.equals(endName.get())){
+                    newNodes.remove(k);
+                }
+            });
+            newNodes.forEach((k,v) -> {
+                nodes.put(k,(Map)v);
+            });
             workflowModelDao.save(workflowModel);
             return Result.ok();
         }catch (Exception e){
@@ -178,38 +167,46 @@ public class WorkFlowController {
         if(modelId == null) return Result.ok("无法编辑该工作流");
         WorkflowModel workflowModel = workflowModelDao.findOne(modelId);
         if(workflowModel.isFirstOpen() || workflowModel.isOpen()) return Result.ok("无法编辑该工作流");
-        List<Map<String, Object>> nodes = workflowModel.getModel();
-        List deleteList = Arrays.asList(nodeName);
+        Map<String, Map> nodes = workflowModel.getModel();
+//        List deleteList = Arrays.asList(nodeName);
         //开始和结束禁止删除
-        List<Map<String, Object>> finalNodes = nodes;
-        deleteList = (List) deleteList
-                .stream()
-                .filter(nName -> {
-                    Optional<Map<String, Object>> target = finalNodes
-                            .stream()
-                            .filter(n -> n.get("name").equals(nName))
-                            .findFirst();
-                    if (target.isPresent()) {
-                        if((target.get().get("start")) != null || target.get().get("end") != null){
-                            return false;
-                        }
-                    }
-                    return true;
-                })
-                .collect(Collectors.toList());
-
-        List finalDeleteList = deleteList;
-        nodes = nodes
-                .stream()
-                .filter(n -> {
-                    String name = (String) n.get("name");
-                    if(!finalDeleteList.contains(name.trim())){
-                        return true;
-                    }
-                    return false;
-                })
-                .collect(Collectors.toList());
-        workflowModel.setModel(nodes);
+        for (String name : nodeName) {
+            if((nodes.containsKey(name) && (nodes.get(name).get("start") != null) ||
+                    nodes.get(name).get("end") != null )
+                    ){
+                continue;
+            }
+            nodes.remove(name);
+        }
+//        List<Map<String, Object>> finalNodes = nodes;
+//        deleteList = (List) deleteList
+//                .stream()
+//                .filter(nName -> {
+//                    Optional<Map<String, Object>> target = finalNodes
+//                            .stream()
+//                            .filter(n -> n.get("name").equals(nName))
+//                            .findFirst();
+//                    if (target.isPresent()) {
+//                        if((target.get().get("start")) != null || target.get().get("end") != null){
+//                            return false;
+//                        }
+//                    }
+//                    return true;
+//                })
+//                .collect(Collectors.toList());
+//
+//        List finalDeleteList = deleteList;
+//        nodes = nodes
+//                .stream()
+//                .filter(n -> {
+//                    String name = (String) n.get("name");
+//                    if(!finalDeleteList.contains(name.trim())){
+//                        return true;
+//                    }
+//                    return false;
+//                })
+//                .collect(Collectors.toList());
+//        workflowModel.setModel(nodes);
         workflowModelDao.save(workflowModel);
         return Result.ok();
     }
@@ -224,10 +221,9 @@ public class WorkFlowController {
         WorkflowModel workflowModel = workflowModelDao.findOne(edit.getModelId());
         if(workflowModel == null || workflowModel.isFirstOpen() || workflowModel.isOpen()) return Result.error();
         //如果没有这个节点
-        if(workflowModel
+        if(!workflowModel
                 .getModel()
-                .stream()
-                .allMatch(n -> !n.equals(edit.getName()))
+                .containsKey(edit.getName())
                 ){
             return Result.error("没有找到这个节点");
         }

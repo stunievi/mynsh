@@ -25,7 +25,7 @@ public class WorkflowModel {
 
     @Column(columnDefinition = "BLOB")
     @Convert(converter = ObjectConverter.class)
-    List<Map<String,Object>> model;
+    Map<String,Map> model;
 
     String name;
 
