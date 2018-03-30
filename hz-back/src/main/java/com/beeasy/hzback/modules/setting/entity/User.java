@@ -4,14 +4,11 @@ package com.beeasy.hzback.modules.setting.entity;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.beeasy.hzback.modules.system.entity.Quarters;
 import com.beeasy.hzback.modules.system.entity.SystemMenu;
-import com.fasterxml.jackson.annotation.JsonFilter;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.Hibernate;
-import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -21,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -96,6 +92,12 @@ public class User implements Serializable{
     @Transient
     public boolean hasRole(Role role){
         return this.getRoles().stream().anyMatch(r -> r.getId().equals(role.getId()));
+    }
+
+    @Transient
+    public boolean hasQuarters(Integer id){
+        return getQuarters().stream()
+                    .anyMatch(q -> q.getId().equals(id));
     }
 
 

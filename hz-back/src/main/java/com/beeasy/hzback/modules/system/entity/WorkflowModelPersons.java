@@ -1,7 +1,6 @@
 package com.beeasy.hzback.modules.system.entity;
 
 import com.alibaba.fastjson.annotation.JSONField;
-import com.beeasy.hzback.modules.setting.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,6 +26,8 @@ public class WorkflowModelPersons {
     @Id
     @GeneratedValue
     Integer id;
+
+    String name;
 
     @JSONField(serialize = false)
     @ManyToOne

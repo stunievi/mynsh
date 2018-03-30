@@ -1,18 +1,17 @@
 package com.beeasy.hzback.modules.system.entity;
 
 import com.beeasy.hzback.core.helper.ObjectConverter;
-import com.beeasy.hzback.core.helper.StringConverter;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -26,11 +25,13 @@ public class WorkflowModel {
 
     @Column(columnDefinition = "BLOB")
     @Convert(converter = ObjectConverter.class)
-    Map<String,Map> model;
+    List<Map<String,Object>> model;
 
     String name;
 
     BigDecimal version;
+
+    String info;
 
     boolean open;
 
