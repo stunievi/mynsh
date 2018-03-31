@@ -3,12 +3,10 @@ package com.beeasy.hzback.modules.system.cache;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ResourceUtils;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
+import java.io.*;
 
 @CacheConfig(cacheNames = "system_config")
 @Component
@@ -17,7 +15,9 @@ public class SystemConfigCache {
     @Cacheable(key = "'config'")
     public Object getConfig(){
         try {
-            Reader r = new FileReader("/Users/bin/work/configlist.yaml");
+            String filePath = "classpath:workflow/config.yaml";
+            File file = ResourceUtils.getFile(filePath);
+            Reader r = new FileReader(file);
             Yaml yaml = new Yaml();
             Object o = yaml.load(r);
             r.close();

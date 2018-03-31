@@ -37,11 +37,14 @@ public class WorkflowModel {
 
     boolean firstOpen;
 
+    @CreatedDate
+    Date addTime;
+
+
     @OneToMany(mappedBy = "workflowModel")
     List<WorkflowModelPersons> persons = new ArrayList<>();
 
-    @CreatedDate
-    Date addTime;
+
 
 //    @Getter
 //    @Setter

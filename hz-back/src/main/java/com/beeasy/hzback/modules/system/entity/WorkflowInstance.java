@@ -26,5 +26,6 @@ public class WorkflowInstance {
     @CreatedDate
     Date addTime;
 
+    String state;
 
 }

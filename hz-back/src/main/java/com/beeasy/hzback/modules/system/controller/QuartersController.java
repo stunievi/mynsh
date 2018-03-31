@@ -9,7 +9,10 @@ import com.beeasy.hzback.modules.system.entity.Quarters;
 import com.beeasy.hzback.modules.system.form.Pager;
 import com.beeasy.hzback.modules.system.form.QuartersAdd;
 import com.beeasy.hzback.modules.system.form.QuartersEdit;
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
@@ -17,9 +20,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import javax.management.Query;
 import javax.validation.Valid;
-import java.awt.print.Pageable;
 
 @Api(tags = "岗位API", description = "需要管理员权限")
 @RestController
@@ -34,10 +35,17 @@ public class QuartersController {
 
     @GetMapping("")
     @ApiOperation(value = "岗位列表", notes = "查找岗位列表")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "departmentId", value = "部门ID")
+    })
     public Result<Page<Quarters>> list(
             Pager pager,
+            Integer departmentId,
             @PageableDefault(value = 15, sort = { "id" }, direction = Sort.Direction.DESC) org.springframework.data.domain.Pageable pageable
     ){
+        if(departmentId != null){
+            return Result.ok(quartersDao.findAllByDepartment_Id(departmentId,pageable));
+        }
         return Result.ok(quartersDao.findAll(pageable));
     }
 
