@@ -1,5 +1,6 @@
 package com.beeasy.hzback.modules.system.controller;
 
+import com.beeasy.hzback.core.exception.RestException;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.modules.system.dao.IWorkflowModelDao;
@@ -45,7 +46,7 @@ public class WorkFlowController {
             String modelName,
             @Valid WorkflowModelAdd add,
             BindingResult bindingResult
-            ){
+            ) throws RestException {
         return workflowService.createWorkflow(modelName,add);
     }
 

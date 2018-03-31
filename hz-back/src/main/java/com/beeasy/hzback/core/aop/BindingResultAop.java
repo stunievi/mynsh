@@ -3,6 +3,7 @@ package com.beeasy.hzback.core.aop;
 import bin.leblanc.zed.JPAUtil;
 import bin.leblanc.zed.Zed;
 import com.alibaba.fastjson.JSON;
+import com.beeasy.hzback.core.exception.RestException;
 import com.beeasy.hzback.core.helper.Result;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
@@ -76,7 +77,12 @@ public class BindingResultAop {
                 result = result.equals(true) ? Result.ok() : Result.error();
             }
         } catch (Throwable throwable) {
-            throwable.printStackTrace();
+            if(throwable instanceof RestException){
+                return Result.error(((RestException) throwable).getSimpleMessage());
+            }
+            else {
+                throwable.printStackTrace();
+            }
         }
         return result;
     }

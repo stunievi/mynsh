@@ -3,6 +3,7 @@ package com.beeasy.hzback.modules.system.service;
 import bin.leblanc.classtranslate.Transformer;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.beeasy.hzback.core.exception.RestException;
 import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.modules.setting.entity.User;
 import com.beeasy.hzback.modules.system.cache.SystemConfigCache;
@@ -201,13 +202,13 @@ public class WorkflowService {
      * @param add
      * @return
      */
-    public boolean createWorkflow(String modelName, WorkflowModelAdd add){
+    public boolean createWorkflow(String modelName, WorkflowModelAdd add) throws RestException {
         Map<String,Map> map = (Map) cache.getConfig();
         Map model = (Map) map.get("workflow").get(modelName);
         Map flow = (Map) model.get("flow");
         if(flow == null) return false;
         WorkflowModel same = modelDao.findFirstByNameAndVersion(add.getName(),add.getVersion());
-        if(same != null) return false;
+        if(same != null) throw new RestException("已经有相同版本的工作流");
 
         Map<String,BaseNode> nodes = new HashMap<>();
         flow.forEach((k,v) -> {
