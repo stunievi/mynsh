@@ -22,7 +22,7 @@ var RIGHTHTML = {
         <% for(work in list.content){ %>
         <tr>
             <td></td>
-            <td>${work.name}</td>
+            <td>${work.nodeName}</td>
             <td></td>
             <td>${work.version}</td>
             <td data-id="${work.id}">
@@ -71,7 +71,7 @@ var RIGHTHTML = {
                 {{el.open ? '[-]' : '[+]'}}
              </span>
              <span ms-click='@select(el)' :class="el.selected == 1 ? 'selected' : ''" >
-                {{el.name}}
+                {{el.nodeName}}
              </span>
              <div ms-if='el.open'>
                 <wbr ms-widget="{is:'tree',tree: el.departments}" />

@@ -82,7 +82,7 @@
 ////
 ////        public boolean isCandidateComponent(AnnotatedBeanDefinition beanDefinition) {
 ////            return super.isCandidateComponent(beanDefinition) && beanDefinition.getMetadata()
-////                    .hasAnnotation(Entity.class.getName());
+////                    .hasAnnotation(Entity.class.getNodeName());
 ////        }
 ////
 ////    }
@@ -129,7 +129,7 @@
 ////    public static class InterfaceProxy implements InvocationHandler {
 ////
 ////        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-////            System.out.println("ObjectProxy execute:" + method.getName());
+////            System.out.println("ObjectProxy execute:" + method.getNodeName());
 ////            return method.invoke(proxy, args);
 ////        }
 ////
@@ -144,7 +144,7 @@
 ////    public static class MethodInterceptorImpl implements MethodInterceptor {
 ////
 ////        public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
-////            System.out.println("MethodInterceptorImpl:" + method.getName());
+////            System.out.println("MethodInterceptorImpl:" + method.getNodeName());
 ////            return methodProxy.invokeSuper(o, objects);
 ////        }
 ////    }

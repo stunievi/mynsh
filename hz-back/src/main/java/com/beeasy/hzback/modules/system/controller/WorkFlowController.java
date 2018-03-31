@@ -10,7 +10,6 @@ import com.beeasy.hzback.modules.system.dao.IWorkflowInstanceDao;
 import com.beeasy.hzback.modules.system.dao.IWorkflowModelDao;
 import com.beeasy.hzback.modules.system.dao.IWorkflowModelPersonsDao;
 import com.beeasy.hzback.modules.system.entity.WorkflowModel;
-import com.beeasy.hzback.modules.system.entity.WorkflowModelPersons;
 import com.beeasy.hzback.modules.system.form.Pager;
 import com.beeasy.hzback.modules.system.form.WorkflowModelAdd;
 import com.beeasy.hzback.modules.system.form.WorkflowQuartersEdit;
@@ -171,51 +170,8 @@ public class WorkFlowController {
             Integer modelId,
             String[] nodeName
     ){
-        if(modelId == null) return Result.ok("无法编辑该工作流");
-        WorkflowModel workflowModel = workflowModelDao.findOne(modelId);
-        if(workflowModel.isFirstOpen() || workflowModel.isOpen()) return Result.ok("无法编辑该工作流");
-        Map<String, Map> nodes = workflowModel.getModel();
-//        List deleteList = Arrays.asList(nodeName);
-        //开始和结束禁止删除
-        for (String name : nodeName) {
-            if((nodes.containsKey(name) && (nodes.get(name).get("start") != null) ||
-                    nodes.get(name).get("end") != null )
-                    ){
-                continue;
-            }
-            nodes.remove(name);
-        }
-//        List<Map<String, Object>> finalNodes = nodes;
-//        deleteList = (List) deleteList
-//                .stream()
-//                .filter(nName -> {
-//                    Optional<Map<String, Object>> target = finalNodes
-//                            .stream()
-//                            .filter(n -> n.get("name").equals(nName))
-//                            .findFirst();
-//                    if (target.isPresent()) {
-//                        if((target.get().get("start")) != null || target.get().get("end") != null){
-//                            return false;
-//                        }
-//                    }
-//                    return true;
-//                })
-//                .collect(Collectors.toList());
-//
-//        List finalDeleteList = deleteList;
-//        nodes = nodes
-//                .stream()
-//                .filter(n -> {
-//                    String name = (String) n.get("name");
-//                    if(!finalDeleteList.contains(name.trim())){
-//                        return true;
-//                    }
-//                    return false;
-//                })
-//                .collect(Collectors.toList());
-//        workflowModel.setModel(nodes);
-        workflowModelDao.save(workflowModel);
-        return Result.ok();
+        boolean ret = workflowService.deleteNode(modelId,nodeName);
+        return ret ? Result.ok() : Result.error();
     }
 
 
@@ -225,33 +181,8 @@ public class WorkFlowController {
             @Valid WorkflowQuartersEdit edit,
             BindingResult bindingResult
             ){
-        WorkflowModel workflowModel = workflowModelDao.findOne(edit.getModelId());
-        if(workflowModel == null || workflowModel.isFirstOpen() || workflowModel.isOpen()) return Result.error();
-        //如果没有这个节点
-        if(!workflowModel
-                .getModel()
-                .containsKey(edit.getName())
-                ){
-            return Result.error("没有找到这个节点");
-        }
-        workflowModelPersonsDao.deleteAllByWorkflowModel(workflowModel);
-        for (Integer integer : edit.getMainQuarters()) {
-            WorkflowModelPersons persons = new WorkflowModelPersons(null,edit.getName(),workflowModel, WorkflowModelPersons.Type.MAIN_QUARTERS,integer);
-            workflowModelPersonsDao.save(persons);
-        }
-        for (Integer integer : edit.getMainUser()) {
-            WorkflowModelPersons persons = new WorkflowModelPersons(null,edit.getName(),workflowModel, WorkflowModelPersons.Type.MAIN_USER,integer);
-            workflowModelPersonsDao.save(persons);
-        }
-        for (Integer integer : edit.getSupportQuarters()) {
-            WorkflowModelPersons persons = new WorkflowModelPersons(null,edit.getName(),workflowModel, WorkflowModelPersons.Type.SUPPORT_QUARTERS,integer);
-            workflowModelPersonsDao.save(persons);
-        }
-        for (Integer integer : edit.getSupportUser()) {
-            WorkflowModelPersons persons = new WorkflowModelPersons(null, edit.getName(), workflowModel, WorkflowModelPersons.Type.SUPPORT_USER,integer);
-            workflowModelPersonsDao.save(persons);
-        }
-        return Result.error();
+        boolean ret = workflowService.setPersons(edit);
+        return ret ? Result.ok() : Result.error();
     }
 
     @ApiOperation(value = "启用/停用工作流", notes = "一经启用, 禁止再编辑, 只能新增新版本")
@@ -260,14 +191,8 @@ public class WorkFlowController {
             Integer modelId,
             boolean open
     ){
-        WorkflowModel workflowModel = workflowModelDao.findOne(modelId);
-        if(workflowModel == null) return Result.error();
-        workflowModel.setOpen(open);
-        if(open){
-            workflowModel.setFirstOpen(true);
-        }
-        workflowModelDao.save(workflowModel);
-        return Result.ok();
+        boolean ret = workflowService.changeOpen(modelId,open);
+        return ret ? Result.ok() : Result.error();
     }
 
     @ApiOperation(value = "发起工作流", notes = "")
@@ -280,36 +205,6 @@ public class WorkFlowController {
     ){
         boolean ret = workflowService.startNewTask(Utils.getCurrentUser(),modelId);
         return ret ? Result.ok() : Result.error();
-//        if(modelId == null) return Result.error("无法找到这个模型");
-//        WorkflowModel workflowModel = workflowModelDao.findOne(modelId);
-//        //没有开启的流程无法执行
-//        if(!workflowModel.isOpen()){
-//            return Result.error("无法开始没有打开的模型");
-//        }
-//        //检查是否符合发起人的条件
-//        User user = Utils.getCurrentUser();
-//        List<WorkflowModelPersons> persons = workflowModel.getPersons();
-//        if(!persons
-//                .stream()
-//                .anyMatch(p -> {
-//                    return
-//                            //该人符合个人用户的条件
-//                            (p.getType().equals(WorkflowModelPersons.Type.MAIN_USER) && p.getUid() == user.getId())
-//                            ||
-//                            //该人所属的岗位符合条件
-//                            (p.getType().equals(WorkflowModelPersons.Type.MAIN_QUARTERS) && user.hasQuarters(p.getUid()));
-//                } )){
-//
-//            return Result.error("你没有权限发起这个业务流程");
-//        }
-//
-//        WorkflowInstance workflowInstance = new WorkflowInstance();
-//        workflowInstance.setWorkflowModel(workflowModel);
-//        //插入第一个节点
-
-
-//        return Result.error();
-
     }
 
 

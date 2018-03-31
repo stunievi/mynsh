@@ -1,18 +1,14 @@
 package bin.leblanc.zed;
 
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.jpa.internal.metamodel.EntityTypeImpl;
 import org.hibernate.jpa.internal.metamodel.PluralAttributeImpl;
 import org.hibernate.jpa.internal.metamodel.SingularAttributeImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import javax.persistence.metamodel.Attribute;
-import javax.persistence.metamodel.PluralAttribute;
-import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -121,10 +117,10 @@ public class JPAUtil {
 //        Set<PluralAttribute> linkFields = getLinkFields(root);
 //        Set<String> result = normalFields
 //                .stream()
-//                .map(field -> field.getName())
+//                .map(field -> field.getNodeName())
 //                .collect(Collectors.toSet());
 //        linkFields.forEach(field -> {
-//            result.add(field.getName());
+//            result.add(field.getNodeName());
 //        });
 //        return result;
 //    }

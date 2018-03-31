@@ -18,7 +18,7 @@ public class WorkflowNodeAttribute {
 
     @ManyToOne
     @JoinColumn(name = "node_id")
-    WorkflowNodeInstance workflowNodeInstance;
+    WorkflowNodeInstance nodeInstance;
 
     String attrKey;
     String attrValue;

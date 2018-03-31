@@ -43,10 +43,8 @@ workflow:
           客户经理: manager,User,y
           文件标签: fileTags,string,n,
           备注说明: info,string,n,
-          收集文件:
-            type: files,
-            multipul: true,
-            required: false
+          收集文件: files,files,n
+
 
       是否拒贷:
         type: check

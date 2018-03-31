@@ -27,7 +27,7 @@ public class WorkflowModelPersons {
     @GeneratedValue
     Integer id;
 
-    String name;
+    String nodeName;
 
     @JSONField(serialize = false)
     @ManyToOne

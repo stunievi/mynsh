@@ -23,7 +23,7 @@ var RIGHTHTML = {
                 <div :if="@data.roles.length">
                     <ul :for="(index,el) in @data.roles">
                         <li>
-                            {{el.name}}({{el.max}}人)
+                            {{el.nodeName}}({{el.max}}人)
                             <a href="javascript:;" :click="@edit(el)">编辑</a>
                             <a href="javascript:;" :click="@remove()">删除</a>
 

@@ -1,20 +1,15 @@
 package com.beeasy.hzback.test;
 
-import com.beeasy.hzback.core.helper.SpringContextUtils;
-//import com.beeasy.hzback.lib.zed.ClassScanner;
-//import com.beeasy.hzback.lib.zed.ScanPackageTest;
 import bin.leblanc.zed.JPAUtil;
 import bin.leblanc.zed.Zed;
-import com.beeasy.hzback.lib.fuck.AsyncTask;
+import com.beeasy.hzback.core.helper.SpringContextUtils;
+import com.beeasy.hzback.core.util.CrUtils;
 import com.beeasy.hzback.modules.setting.dao.IDepartmentDao;
 import com.beeasy.hzback.modules.setting.dao.IUserDao;
 import com.beeasy.hzback.modules.setting.dao.IWorkDao;
-//import com.beeasy.hzback.modules.setting.dao.IWorkNodeDao;
 import com.beeasy.hzback.modules.setting.entity.Department;
 import com.beeasy.hzback.modules.setting.entity.User;
-import com.beeasy.hzback.core.util.CrUtils;
 import com.beeasy.hzback.modules.setting.entity.Work;
-//import com.beeasy.hzback.modules.setting.entity.WorkNode;
 import com.beeasy.hzback.modules.setting.service.DepartmentService;
 import com.beeasy.hzback.modules.setting.service.UserService;
 import com.beeasy.hzback.modules.system.dao.IQuartersDao;
@@ -27,9 +22,11 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.*;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
@@ -37,6 +34,11 @@ import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
+//import com.beeasy.hzback.lib.zed.ClassScanner;
+//import com.beeasy.hzback.lib.zed.ScanPackageTest;
+//import com.beeasy.hzback.modules.setting.dao.IWorkNodeDao;
+//import com.beeasy.hzback.modules.setting.entity.WorkNode;
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -212,9 +214,9 @@ public class TestApplication {
 //
 //                System.out.println(b);
 //            }
-//            System.out.println(attribute.getClass().getName());;
-//            String name = attribute.getDeclaringType().getAttribute("id").getName();
-//            System.out.println(name);
+//            System.out.println(attribute.getClass().getNodeName());;
+//            String nodeName = attribute.getDeclaringType().getAttribute("id").getNodeName();
+//            System.out.println(nodeName);
 //            Field field = attribute.getClass().getField("isIdentifier");
 //            field.setAccessible(true);
 //            boolean b = field.getBoolean(attribute);

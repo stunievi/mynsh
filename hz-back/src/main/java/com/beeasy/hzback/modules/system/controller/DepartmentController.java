@@ -1,27 +1,21 @@
 package com.beeasy.hzback.modules.system.controller;
 
 import bin.leblanc.classtranslate.Transformer;
-import com.alibaba.fastjson.JSON;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.modules.setting.dao.IDepartmentDao;
 import com.beeasy.hzback.modules.setting.entity.Department;
 import com.beeasy.hzback.modules.setting.service.DepartmentService;
 import com.beeasy.hzback.modules.system.form.DepartmentAdd;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sun.tools.internal.xjc.reader.xmlschema.BindRed;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import javax.xml.ws.RespectBinding;
 
 @Api(tags = "部门API", description = "部分接口不需要管理员权限")
 @RestController
@@ -120,7 +114,7 @@ public class DepartmentController {
 //            return "redirect:list";
 //        }
 //        model.addAttribute("parent_id",department.getId());
-//        model.addAttribute("parent_name",department.getName());
+//        model.addAttribute("parent_name",department.getNodeName());
 //        model.addAttribute("item",new Department());
 //        return "setting/department_edit";
 //    }
@@ -135,7 +129,7 @@ public class DepartmentController {
 //            return "redirect:list";
 //        }
 //        model.addAttribute("parent_id",department.getParent().getId());
-//        model.addAttribute("parent_name",department.getParent().getName());
+//        model.addAttribute("parent_name",department.getParent().getNodeName());
 //        model.addAttribute("item",department);
 //        return "setting/department_edit";
 //    }

@@ -14,7 +14,6 @@ import com.beeasy.hzback.modules.setting.entity.UserProfile;
 import com.beeasy.hzback.modules.system.entity.SystemMenu;
 import com.beeasy.hzback.modules.system.response.UserInfoResponse;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,7 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 
 
@@ -70,5 +68,11 @@ public class SystemCommonController {
     public Result test(){
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
         return Result.ok("method is " + request.getMethod());
+    }
+
+    @ApiOperation(value = "测试接口2", notes = "该接口无实际作用")
+    @RequestMapping("/open/test2")
+    public Object test2(){
+        return Math.random() > 0.5 ? true : false;
     }
 }

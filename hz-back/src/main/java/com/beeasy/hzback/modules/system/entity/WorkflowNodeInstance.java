@@ -18,7 +18,7 @@ public class WorkflowNodeInstance {
 
     @ManyToOne
     @JoinColumn(name = "instance_id")
-    WorkflowInstance workflowInstance;
+    WorkflowInstance instance;
 
     String nodeName;
 

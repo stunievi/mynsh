@@ -63,7 +63,7 @@
 //        for(WorkFlow workFlow : workFlowList){
 //            AdminMenuConfig.AdminMenuItem item = new AdminMenuConfig.AdminMenuItem();
 //            item.setChildren(new ArrayList<>());
-//            item.setTitle(workFlow.getName());
+//            item.setTitle(workFlow.getNodeName());
 //            item.setHref("/admin/workflow/task/" + workFlow.getId());
 //            children.add(item);
 //        }

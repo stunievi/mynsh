@@ -7,6 +7,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -27,5 +29,8 @@ public class WorkflowInstance {
     Date addTime;
 
     String state;
+    
+    @OneToMany(mappedBy = "instance")
+    List<WorkflowNodeInstance> nodeList = new LinkedList<>();
 
 }

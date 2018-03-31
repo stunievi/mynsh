@@ -38,8 +38,8 @@ public class RedisConfig extends CachingConfigurerSupport {
 //            @Override
 //            public Object generate(Object target, java.lang.reflect.Method method, Object... params) {
 //                StringBuffer sb = new StringBuffer();
-//                sb.append(target.getClass().getName());
-//                sb.append(method.getName());
+//                sb.append(target.getClass().getNodeName());
+//                sb.append(method.getNodeName());
 //                for(Object obj:params){
 //                    sb.append(obj.toString());
 //                }

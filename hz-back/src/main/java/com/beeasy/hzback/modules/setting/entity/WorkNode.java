@@ -1,21 +1,8 @@
 package com.beeasy.hzback.modules.setting.entity;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.beeasy.hzback.modules.setting.work_engine.BaseWorkNode;
-import com.beeasy.hzback.modules.setting.work_engine.ShenheNode;
-import com.beeasy.hzback.modules.setting.work_engine.ZiliaoNode;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-//import com.sun.xml.internal.rngom.parse.host.Base;
-import org.beetl.ext.fn.Json;
-import org.hibernate.validator.constraints.NotEmpty;
-
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import java.io.IOException;
-import java.util.List;
+
+//import com.sun.xml.internal.rngom.parse.host.Base;
 //
 @Entity
 @Table(name = "t_work_node")
@@ -36,7 +23,7 @@ public class WorkNode {
 //    private BaseWorkNode data;
 //
 //    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "work_id")
+//    @JoinColumn(nodeName = "work_id")
 //    @JsonBackReference
 //    private Work work;
 //

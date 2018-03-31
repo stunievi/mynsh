@@ -48,8 +48,8 @@ public class User implements Serializable{
 
     private boolean baned;
 //    @ManyToMany(fetch=FetchType.EAGER)
-//    @JoinTable(name = "t_user_role", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = {
-//            @JoinColumn(name = "role_id") })
+//    @JoinTable(nodeName = "t_user_role", joinColumns = { @JoinColumn(nodeName = "user_id") }, inverseJoinColumns = {
+//            @JoinColumn(nodeName = "role_id") })
 ////    private List<Role> roleList;// 一个用户具有多个角色
 
 

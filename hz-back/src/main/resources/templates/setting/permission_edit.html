@@ -17,7 +17,7 @@ var RIGHTHTML = {
         <div :if="@data.roles.length">
             <ul :for="(index,el) in @data.roles">
                 <li>
-                    {{el.name}}({{el.max}}人)
+                    {{el.nodeName}}({{el.max}}人)
                     <a href="javascript:;" :click="@add(el)">添加该角色</a>
                 </li>
             </ul>
@@ -37,7 +37,7 @@ var RIGHTHTML = {
         <tr :for="(index,el) in @data.user.roles">
 
             <td>
-                {{el.name}}
+                {{el.nodeName}}
             </td>
             <td>
                 <a href="javascript:;" :click="@remove(index)">删除</a>

@@ -60,7 +60,7 @@ public class TestDataSet {
     @Test
     public void testNativeDataset() throws NullParamValueException {
         NativeDataSet nativeDataSet = dataSetFactory.createNativeDataSet();
-        nativeDataSet.setBaseSql("select * from t_user where id > $id and username = $name")
+        nativeDataSet.setBaseSql("select * from t_user where id > $id and username = $nodeName")
                 .setParamType("id","int",null)
                 .setParamType("name","string",null)
                 .setResultFileter(item -> {

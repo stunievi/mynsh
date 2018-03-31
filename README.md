@@ -219,7 +219,7 @@ read_time 阅读时间
 ```
 id int primary key
 type enum 0为临时讨论组 1位永久讨论组（群组）
-name varchar 群组名字
+nodeName varchar 群组名字
 info varchar 群组说明
 create_time 创建时间
 ```

@@ -75,7 +75,7 @@ var RIGHTHTML = {
             <wbr ms-widget="{is:'tree',tree:@data.departments}"/>
 
             <p>
-                已选择部门：{{@data.target_department.name}}
+                已选择部门：{{@data.target_department.nodeName}}
             </p>
         </dd>
     </dl>
@@ -95,7 +95,7 @@ var RIGHTHTML = {
                     </th>
                 </tr>
                 <tr :for="(index,el) in @data.works">
-                    <td :html="el.name">
+                    <td :html="el.nodeName">
                     </td>
                     <td :html="el.info"></td>
                     <td>
@@ -108,7 +108,7 @@ var RIGHTHTML = {
                 </tr>
             </table>
             <p>
-                已选择业务：{{@data.target_work > -1 ? @data.works[@data.target_work].name : "还未选择"}}
+                已选择业务：{{@data.target_work > -1 ? @data.works[@data.target_work].nodeName : "还未选择"}}
             </p>
         </dd>
     </dl>
@@ -148,7 +148,7 @@ var RIGHTHTML = {
                 <th>选中</th>
             </tr>
             <tr :for="(index,el) in @data.target_department.roles">
-                <td :html="el.name">
+                <td :html="el.nodeName">
                 </td>
                 <td>
                     <input type="checkbox"
@@ -164,7 +164,7 @@ var RIGHTHTML = {
                         <!--:attr="{value:el.id}"-->
                     <!--&gt;-->
                 <!--</td>-->
-                <!--<td :html="el.name"></td>-->
+                <!--<td :html="el.nodeName"></td>-->
             </tr>
         </table>
     </div>
@@ -380,7 +380,7 @@ var RIGHTHTML = {
         })
 
         // var data = app.data.$model;
-        // if(data.name == ""){
+        // if(data.nodeName == ""){
         //     return alert("业务名称不能为空")
         // }
         // if(data.info == ""){

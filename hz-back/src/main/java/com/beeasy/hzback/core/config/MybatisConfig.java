@@ -33,7 +33,7 @@
 ////    private Environment env;
 ////
 ////
-////    @Bean(name = "dataSource")
+////    @Bean(nodeName = "dataSource")
 ////    public DataSource dateSource() throws Exception {
 ////        Properties props = new Properties();
 ////        props.put("driverClassName",env.getProperty("db1.jdbc.driverClassName"));

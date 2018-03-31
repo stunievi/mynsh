@@ -152,8 +152,8 @@ CREATE TABLE `t_work` (
 -- Records of t_work
 -- ----------------------------
 INSERT INTO `t_work` VALUES ('39', '2', '1', null, null);
-INSERT INTO `t_work` VALUES ('40', '2', '1', null, '[{\"fields\":[{\"name\":\"\",\"value\":\"\",\"required\":false},{\"name\":\"\",\"items\":[],\"required\":false}],\"type\":\"ziliao\"},{\"num\":1,\"type\":\"shenhe\",\"passNum\":1}]');
-INSERT INTO `t_work` VALUES ('41', '23', '13', null, '[{\"fields\":[{\"name\":\"4\",\"type\":\"text\",\"value\":\"\",\"required\":false},{\"name\":\"\",\"type\":\"radio\",\"items\":[\"\"],\"required\":false},{\"name\":\"\",\"type\":\"text\",\"value\":\"\",\"required\":false}],\"type\":\"ziliao\"},{\"num\":1,\"type\":\"shenhe\",\"passNum\":1}]');
+INSERT INTO `t_work` VALUES ('40', '2', '1', null, '[{\"fields\":[{\"nodeName\":\"\",\"value\":\"\",\"required\":false},{\"nodeName\":\"\",\"items\":[],\"required\":false}],\"type\":\"ziliao\"},{\"num\":1,\"type\":\"shenhe\",\"passNum\":1}]');
+INSERT INTO `t_work` VALUES ('41', '23', '13', null, '[{\"fields\":[{\"nodeName\":\"4\",\"type\":\"text\",\"value\":\"\",\"required\":false},{\"nodeName\":\"\",\"type\":\"radio\",\"items\":[\"\"],\"required\":false},{\"nodeName\":\"\",\"type\":\"text\",\"value\":\"\",\"required\":false}],\"type\":\"ziliao\"},{\"num\":1,\"type\":\"shenhe\",\"passNum\":1}]');
 
 -- ----------------------------
 -- Table structure for t_work_node
@@ -171,6 +171,6 @@ CREATE TABLE `t_work_node` (
 -- ----------------------------
 -- Records of t_work_node
 -- ----------------------------
-INSERT INTO `t_work_node` VALUES ('68', '39', '{\"fields\":[{\"name\":\"123\",\"required\":false,\"type\":\"text\",\"value\":\"\"}],\"type\":\"ziliao\"}', null);
-INSERT INTO `t_work_node` VALUES ('66', '38', '{\"fields\":[{\"name\":\"\",\"required\":false,\"type\":\"text\",\"value\":\"\"}],\"type\":\"ziliao\"}', null);
+INSERT INTO `t_work_node` VALUES ('68', '39', '{\"fields\":[{\"nodeName\":\"123\",\"required\":false,\"type\":\"text\",\"value\":\"\"}],\"type\":\"ziliao\"}', null);
+INSERT INTO `t_work_node` VALUES ('66', '38', '{\"fields\":[{\"nodeName\":\"\",\"required\":false,\"type\":\"text\",\"value\":\"\"}],\"type\":\"ziliao\"}', null);
 INSERT INTO `t_work_node` VALUES ('67', '38', '{\"num\":1,\"passNum\":1,\"type\":\"shenhe\"}', null);
