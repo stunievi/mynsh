@@ -1,6 +1,5 @@
 package com.beeasy.hzback.modules.system.controller;
 
-import bin.leblanc.classtranslate.Transformer;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.core.helper.Result;
@@ -29,7 +28,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -60,29 +58,43 @@ public class WorkFlowController {
             @ApiImplicitParam(name = "modelName", value = "要创建的标准模型", required = true)
     })
     @PostMapping("/model")
-    public Result createNewWorkFlow(
+    public Object createNewWorkFlow(
             String modelName,
             @Valid WorkflowModelAdd add,
             BindingResult bindingResult
             ){
-        Map<String,Map> map = (Map) cache.getConfig();
-        Map model = (Map) map.get("workflow").get(modelName);
-        if(model == null) return Result.error("没有这个模型!");
-        Map flow = (Map) model.get("flow");
-        if(flow == null) return Result.error("没有这个模型!");
-
-        List same = workflowModelDao.findAllByNameAndVersion(add.getName(),add.getVersion());
-        if(same.size() > 0){
-            return Result.error("已经有同名同版本的工作流");
-        }
-        WorkflowModel workflowModel = Transformer.transform(add,WorkflowModel.class);
-        workflowModel.setModel(flow);
-        workflowModel.setOpen(false);
-        workflowModel.setFirstOpen(false);
-
-
-        WorkflowModel result = workflowModelDao.save(workflowModel);
-        return result.getId() > 0 ? Result.ok(result.getId()) : Result.error();
+        return workflowService.createWorkflow(modelName,add);
+//        Map<String,Map> map = (Map) cache.getConfig();
+//        Map model = (Map) map.get("workflow").get(modelName);
+//        if(model == null) return Result.error("没有这个模型!");
+//        Map flow = (Map) model.get("flow");
+//        if(flow == null) return Result.error("没有这个模型!");
+//
+//        List same = workflowModelDao.findAllByNameAndVersion(add.getName(),add.getVersion());
+//        if(same.size() > 0){
+//            return Result.error("已经有同名同版本的工作流");
+//        }
+//
+//        Map<String,BaseNode> nodes = new HashMap<>();
+//        flow.forEach((k,v) -> {
+//            v = (Map)v;
+//            switch ((String)((Map) v).get("type")){
+//                case "check":
+//                    nodes.put((String) k,JSON.parseObject(JSON.toJSONString(v), CheckNode.class));
+//                    break;
+//
+//                case "input":
+//                    nodes.put((String) k,JSON.parseObject(JSON.toJSONString(v), InputNode.class));
+//            }
+//        });
+//
+//        WorkflowModel workflowModel = Transformer.transform(add,WorkflowModel.class);
+//        workflowModel.setModel(flow);
+//        workflowModel.setOpen(false);
+//        workflowModel.setFirstOpen(false);
+//
+//        WorkflowModel result = workflowModelDao.save(workflowModel);
+//        return result.getId() > 0 ? Result.ok(result.getId()) : Result.error();
     }
 
     @ApiOperation(value = "删除工作流模型", notes = "当一个工作流启用后, 视为正式上线, 无法再进行删除, 只能停用")

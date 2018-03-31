@@ -9,6 +9,6 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public interface IWorkflowModelDao extends JpaRepository<WorkflowModel,Integer>{
-    List<WorkflowModel> findAllByNameAndVersion(String name, BigDecimal version);
+    WorkflowModel findFirstByNameAndVersion(String name, BigDecimal version);
     Page<List<WorkflowModel>> findAllByName(String name, Pageable pageable);
 }

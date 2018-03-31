@@ -1,15 +1,23 @@
 package com.beeasy.hzback.modules.system.service;
 
+import bin.leblanc.classtranslate.Transformer;
+import com.alibaba.fastjson.JSON;
 import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.modules.setting.entity.User;
+import com.beeasy.hzback.modules.system.cache.SystemConfigCache;
 import com.beeasy.hzback.modules.system.dao.*;
 import com.beeasy.hzback.modules.system.entity.*;
+import com.beeasy.hzback.modules.system.form.WorkflowModelAdd;
 import com.beeasy.hzback.modules.system.form.WorkflowQuartersEdit;
+import com.beeasy.hzback.modules.system.node.BaseNode;
+import com.beeasy.hzback.modules.system.node.CheckNode;
+import com.beeasy.hzback.modules.system.node.InputNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +39,9 @@ public class WorkflowService {
 
     @Autowired
     IWorkflowNodeAttributeDao attributeDao;
+
+    @Autowired
+    SystemConfigCache cache;
 
 
     /**
@@ -170,6 +181,37 @@ public class WorkflowService {
         }
         modelDao.save(workflowModel);
         return true;
+    }
+
+    public boolean createWorkflow(String modelName, WorkflowModelAdd add){
+        Map<String,Map> map = (Map) cache.getConfig();
+        Map model = (Map) map.get("workflow").get(modelName);
+        Map flow = (Map) model.get("flow");
+        if(flow == null) return false;
+        WorkflowModel same = modelDao.findFirstByNameAndVersion(add.getName(),add.getVersion());
+        if(same != null) return false;
+
+        Map<String,BaseNode> nodes = new HashMap<>();
+        flow.forEach((k,v) -> {
+            v = (Map)v;
+            switch ((String)((Map) v).get("type")){
+                case "check":
+                    nodes.put((String) k, JSON.parseObject(JSON.toJSONString(v), CheckNode.class));
+                    break;
+
+                case "input":
+                    nodes.put((String) k,JSON.parseObject(JSON.toJSONString(v), InputNode.class));
+            }
+        });
+
+        WorkflowModel workflowModel = Transformer.transform(add,WorkflowModel.class);
+        workflowModel.setModel(flow);
+        workflowModel.setOpen(false);
+        workflowModel.setFirstOpen(false);
+
+        WorkflowModel result = modelDao.save(workflowModel);
+        return result.getId() > 0;
+
     }
 
 
