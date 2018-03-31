@@ -1,13 +1,8 @@
 package com.beeasy.hzback.modules.system.controller;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.helper.Utils;
-import com.beeasy.hzback.modules.system.cache.SystemConfigCache;
-import com.beeasy.hzback.modules.system.dao.IWorkflowInstanceDao;
 import com.beeasy.hzback.modules.system.dao.IWorkflowModelDao;
-import com.beeasy.hzback.modules.system.dao.IWorkflowModelPersonsDao;
 import com.beeasy.hzback.modules.system.entity.WorkflowModel;
 import com.beeasy.hzback.modules.system.form.Pager;
 import com.beeasy.hzback.modules.system.form.WorkflowModelAdd;
@@ -28,8 +23,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Api(tags = "工作流API", value = "编辑模型需要管理员权限")
 @Transactional
@@ -41,17 +34,7 @@ public class WorkFlowController {
     IWorkflowModelDao workflowModelDao;
 
     @Autowired
-    IWorkflowModelPersonsDao workflowModelPersonsDao;
-
-    @Autowired
-    IWorkflowInstanceDao workflowInstance;
-
-    @Autowired
     WorkflowService workflowService;
-
-    @Autowired
-    SystemConfigCache cache;
-
 
     @ApiOperation(value = "创建工作流", notes = "根据已有的模型创建一个新的工作流实体,可选模型: 资料收集")
     @ApiImplicitParams({
@@ -64,37 +47,6 @@ public class WorkFlowController {
             BindingResult bindingResult
             ){
         return workflowService.createWorkflow(modelName,add);
-//        Map<String,Map> map = (Map) cache.getConfig();
-//        Map model = (Map) map.get("workflow").get(modelName);
-//        if(model == null) return Result.error("没有这个模型!");
-//        Map flow = (Map) model.get("flow");
-//        if(flow == null) return Result.error("没有这个模型!");
-//
-//        List same = workflowModelDao.findAllByNameAndVersion(add.getName(),add.getVersion());
-//        if(same.size() > 0){
-//            return Result.error("已经有同名同版本的工作流");
-//        }
-//
-//        Map<String,BaseNode> nodes = new HashMap<>();
-//        flow.forEach((k,v) -> {
-//            v = (Map)v;
-//            switch ((String)((Map) v).get("type")){
-//                case "check":
-//                    nodes.put((String) k,JSON.parseObject(JSON.toJSONString(v), CheckNode.class));
-//                    break;
-//
-//                case "input":
-//                    nodes.put((String) k,JSON.parseObject(JSON.toJSONString(v), InputNode.class));
-//            }
-//        });
-//
-//        WorkflowModel workflowModel = Transformer.transform(add,WorkflowModel.class);
-//        workflowModel.setModel(flow);
-//        workflowModel.setOpen(false);
-//        workflowModel.setFirstOpen(false);
-//
-//        WorkflowModel result = workflowModelDao.save(workflowModel);
-//        return result.getId() > 0 ? Result.ok(result.getId()) : Result.error();
     }
 
     @ApiOperation(value = "删除工作流模型", notes = "当一个工作流启用后, 视为正式上线, 无法再进行删除, 只能停用")
@@ -102,14 +54,10 @@ public class WorkFlowController {
             @ApiImplicitParam(name = "modelId", value = "模型ID")
     })
     @DeleteMapping("/model")
-    public Result delete(
+    public Object delete(
             Integer modelId
     ){
-        if(modelId == null) return Result.error();
-        WorkflowModel workflowModel = workflowModelDao.findOne(modelId);
-        if(workflowModel.isFirstOpen() || workflowModel.isOpen()) return Result.ok("无法删除该工作流");
-        workflowModelDao.delete(modelId);
-        return Result.ok();
+        return workflowService.deleteWorkflow(modelId);
     }
 
     @ApiOperation(value = "模型列表", notes = "查询已经存在的工作模型列表")
@@ -131,45 +79,14 @@ public class WorkFlowController {
     @ApiOperation(value = "添加工作流节点", notes = "")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "modelId", value = "工作流模型ID", required = true),
-            @ApiImplicitParam(name = "node", value = "节点内容, map格式, 同名节点会直接覆盖(等同于编辑)", required = true)
+            @ApiImplicitParam(name = "node", value = "节点内容, map格式, 同名节点会直接覆盖(等同于编辑)", required = true),
     })
     @RequestMapping(value = "/model/node", method = {RequestMethod.POST,RequestMethod.PUT})
-    public Result createNode(
+    public Object createNode(
             Integer modelId,
             String node
     ){
-        if(modelId == null) return Result.error("无法编辑该工作流");
-        WorkflowModel workflowModel = workflowModelDao.findOne(modelId);
-        if(workflowModel.isFirstOpen() || workflowModel.isOpen()) return Result.error("无法编辑该工作流");
-
-        try{
-            Map<String, Map> nodes = workflowModel.getModel();
-            JSONObject newNodes = JSON.parseObject(node);
-            //开始和结束节点禁止编辑
-            AtomicReference<String> startName = new AtomicReference<>();
-            AtomicReference<String> endName = new AtomicReference<>();
-            nodes.forEach((k,v) -> {
-                Map map = (Map) v;
-                if(((Map) v).get("start") != null){
-                    startName.set((String) ((Map) v).get("name"));
-                }
-                if(((Map) v).get("end") != null){
-                    endName.set((String) ((Map) v).get("name"));
-                }
-            });
-            newNodes.keySet().forEach(k -> {
-                if(k.equals(startName.get()) || k.equals(endName.get())){
-                    newNodes.remove(k);
-                }
-            });
-            newNodes.forEach((k,v) -> {
-                nodes.put(k,(Map)v);
-            });
-            workflowModelDao.save(workflowModel);
-            return Result.ok();
-        }catch (Exception e){
-        }
-        return Result.error();
+        return workflowService.createNode(modelId,node);
     }
 
     @ApiOperation(value = "删除节点")
@@ -178,33 +95,30 @@ public class WorkFlowController {
             @ApiImplicitParam(name = "nodeName", value = "要删除的名字数组", required = true, allowMultiple = true)
     })
     @DeleteMapping("/model/node")
-    public Result deleteNode(
+    public Object deleteNode(
             Integer modelId,
             String[] nodeName
     ){
-        boolean ret = workflowService.deleteNode(modelId,nodeName);
-        return ret ? Result.ok() : Result.error();
+        return workflowService.deleteNode(modelId,nodeName);
     }
 
 
     @ApiOperation(value = "设置主办或者协办的岗位",notes = "目前协办只可以查看, 在资料节点, 只要有一个主办提交了资料, 就可以继续下一步")
     @PutMapping("/model/setPersons")
-    public Result setQuarters(
+    public Object setQuarters(
             @Valid WorkflowQuartersEdit edit,
             BindingResult bindingResult
             ){
-        boolean ret = workflowService.setPersons(edit);
-        return ret ? Result.ok() : Result.error();
+        return workflowService.setPersons(edit);
     }
 
     @ApiOperation(value = "启用/停用工作流", notes = "一经启用, 禁止再编辑, 只能新增新版本")
     @PutMapping("/model/open")
-    public Result changeOpen(
+    public Object changeOpen(
             Integer modelId,
             boolean open
     ){
-        boolean ret = workflowService.changeOpen(modelId,open);
-        return ret ? Result.ok() : Result.error();
+        return workflowService.changeOpen(modelId,open);
     }
 
     @ApiOperation(value = "发起工作流", notes = "")
@@ -212,11 +126,10 @@ public class WorkFlowController {
             @ApiImplicitParam(name = "modelId", value = "工作流模型ID")
     })
     @PostMapping("/newTask")
-    public Result newTask(
+    public Object newTask(
             Integer modelId
     ){
-        boolean ret = workflowService.startNewTask(Utils.getCurrentUser(),modelId);
-        return ret ? Result.ok() : Result.error();
+        return workflowService.startNewTask(Utils.getCurrentUser(),modelId);
     }
 
 

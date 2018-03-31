@@ -8,7 +8,7 @@ import java.io.Serializable;
 @Getter
 @Setter
 abstract public class BaseNode implements Serializable {
-    private static final long serialVersionUID = 1L;
+    protected static final long serialVersionUID = 1L;
 
     protected String type;
     protected boolean start = false;

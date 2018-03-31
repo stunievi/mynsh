@@ -1,6 +1,7 @@
 package com.beeasy.hzback.modules.system.entity;
 
 import com.beeasy.hzback.core.helper.ObjectConverter;
+import com.beeasy.hzback.modules.system.node.BaseNode;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
@@ -25,7 +26,7 @@ public class WorkflowModel {
 
     @Column(columnDefinition = "BLOB")
     @Convert(converter = ObjectConverter.class)
-    Map<String,Map> model;
+    Map<String,BaseNode> model;
 
     String name;
 
@@ -42,7 +43,7 @@ public class WorkflowModel {
 
 
     @OneToMany(mappedBy = "workflowModel")
-    List<WorkflowModelPersons> persons = new ArrayList<>();
+    transient List<WorkflowModelPersons> persons = new ArrayList<>();
 
 
 

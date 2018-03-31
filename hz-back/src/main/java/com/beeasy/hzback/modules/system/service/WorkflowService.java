@@ -2,6 +2,7 @@ package com.beeasy.hzback.modules.system.service;
 
 import bin.leblanc.classtranslate.Transformer;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.modules.setting.entity.User;
 import com.beeasy.hzback.modules.system.cache.SystemConfigCache;
@@ -11,6 +12,7 @@ import com.beeasy.hzback.modules.system.form.WorkflowModelAdd;
 import com.beeasy.hzback.modules.system.form.WorkflowQuartersEdit;
 import com.beeasy.hzback.modules.system.node.BaseNode;
 import com.beeasy.hzback.modules.system.node.CheckNode;
+import com.beeasy.hzback.modules.system.node.EndNode;
 import com.beeasy.hzback.modules.system.node.InputNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -61,9 +63,6 @@ public class WorkflowService {
             return false;
         }
 
-//        if(checkAuth(workflowModel,workflowModel.getModel().keySet()))
-
-
         //任务主体
         WorkflowInstance workflowInstance = new WorkflowInstance();
         workflowInstance.setWorkflowModel(workflowModel);
@@ -93,7 +92,7 @@ public class WorkflowService {
         if(workflowNodeInstance.isFinished()){
             return false;
         }
-        Map nodeModel = workflowInstance.getWorkflowModel().getModel().get(workflowNodeInstance.getNodeName());
+        BaseNode nodeModel = workflowInstance.getWorkflowModel().getModel().get(workflowNodeInstance.getNodeName());
         if(nodeModel == null) return false;
         //验证是否有权限处理
         List<WorkflowModelPersons> persons = workflowInstance.getWorkflowModel().getPersons();
@@ -103,13 +102,19 @@ public class WorkflowService {
 
         //处理必填数据
         //对于资料节点来讲, 必填数据的全部传递视为走向下一个节点
-        switch ((String)nodeModel.get("type")){
-            case "input":
-                return submitInputData(user, workflowInstance, workflowNodeInstance, nodeModel, (Map) data);
-
-            case "check":
-                return submitCheckData(user, workflowInstance, workflowNodeInstance, nodeModel, (String) data);
+        if(nodeModel instanceof InputNode){
+            return submitInputData(user, workflowInstance, workflowNodeInstance, (InputNode) nodeModel, (Map) data);
         }
+        else if(nodeModel instanceof CheckNode){
+            return submitCheckData(user, workflowInstance, workflowNodeInstance, (CheckNode) nodeModel, (String) data);
+        }
+//        switch ((String)nodeModel.get("type")){
+//            case "input":
+//                return submitInputData(user, workflowInstance, workflowNodeInstance, nodeModel, (Map) data);
+//
+//            case "check":
+//                return submitCheckData(user, workflowInstance, workflowNodeInstance, nodeModel, (String) data);
+//        }
 
         return false;
     }
@@ -165,15 +170,22 @@ public class WorkflowService {
     }
 
 
+    /**
+     * 删除节点
+     * @param modelId
+     * @param nodeName
+     * @return
+     */
     public boolean deleteNode(Integer modelId, String[] nodeName){
         WorkflowModel workflowModel = modelDao.findOne(modelId);
+        if(workflowModel == null) return false;
         if(workflowModel.isFirstOpen() || workflowModel.isOpen()) return false;
-        Map<String, Map> nodes = workflowModel.getModel();
+        Map<String, BaseNode> nodes = workflowModel.getModel();
 //        List deleteList = Arrays.asList(nodeName);
         //开始和结束禁止删除
         for (String name : nodeName) {
-            if((nodes.containsKey(name) && (nodes.get(name).get("start") != null) ||
-                    nodes.get(name).get("end") != null )
+            if((nodes.containsKey(name) && (nodes.get(name).isStart()) ||
+                    nodes.get(name).isEnd())
                     ){
                 continue;
             }
@@ -183,6 +195,12 @@ public class WorkflowService {
         return true;
     }
 
+    /**
+     * 根据已有模型创建新工作流模型
+     * @param modelName
+     * @param add
+     * @return
+     */
     public boolean createWorkflow(String modelName, WorkflowModelAdd add){
         Map<String,Map> map = (Map) cache.getConfig();
         Map model = (Map) map.get("workflow").get(modelName);
@@ -198,14 +216,19 @@ public class WorkflowService {
                 case "check":
                     nodes.put((String) k, JSON.parseObject(JSON.toJSONString(v), CheckNode.class));
                     break;
-
+//
                 case "input":
                     nodes.put((String) k,JSON.parseObject(JSON.toJSONString(v), InputNode.class));
+                    break;
+
+                case "end":
+                    nodes.put((String) k,JSON.parseObject(JSON.toJSONString(v), EndNode.class));
+
             }
         });
 
         WorkflowModel workflowModel = Transformer.transform(add,WorkflowModel.class);
-        workflowModel.setModel(flow);
+        workflowModel.setModel(nodes);
         workflowModel.setOpen(false);
         workflowModel.setFirstOpen(false);
 
@@ -215,14 +238,50 @@ public class WorkflowService {
     }
 
 
+    public boolean deleteWorkflow(Integer id){
+        WorkflowModel model = modelDao.findOne(id);
+        if(model == null) return false;
+        if(model.isFirstOpen() || model.isOpen()) return false;
+        modelDao.delete(id);
+        return true;
+    }
+
+    /**
+     * 创建节点
+     * @return
+     */
+    public boolean createNode(Integer modelId, String node){
+        WorkflowModel workflowModel = modelDao.findOne(modelId);
+        if(workflowModel.isFirstOpen() || workflowModel.isOpen()) return false;
+        JSONObject newNodes = JSON.parseObject(node);
+        newNodes.forEach((k,v) -> {
+            v = (Map)v;
+            BaseNode b = null;
+            switch ((String)((Map) v).get("type")){
+                case "check":
+                    b = JSON.toJavaObject((JSONObject)v,CheckNode.class);
+                    break;
+
+                case "input":
+                    InputNode inputNode = JSON.toJavaObject((JSONObject)v,InputNode.class);
+                    break;
+            }
+            if(b == null) return;
+            if(b.isEnd() || b.isStart()) return;
+            workflowModel.getModel().put(k,b);
+        });
+        modelDao.save(workflowModel);
+        return true;
+    }
+
 
     /**
      * 提交资料节点的数据
      * @return
      */
-    private boolean submitInputData(User user, WorkflowInstance wInstance, WorkflowNodeInstance wNInstance, Map nodeModel, Map data){
-        Map<String,Object> model = (Map<String, Object>) nodeModel.get("content");
-        for (Map.Entry<String, Object> entry : model.entrySet()) {
+    private boolean submitInputData(User user, WorkflowInstance wInstance, WorkflowNodeInstance wNInstance, InputNode nodeModel, Map data){
+        Map<String,String> model = nodeModel.getContent();
+        for (Map.Entry<String, String> entry : model.entrySet()) {
             String k = entry.getKey();
             Object v = entry.getValue();
             List<String> args = Utils.splitByComma((String) v);
@@ -252,16 +311,16 @@ public class WorkflowService {
         return true;
     }
 
-    private boolean submitCheckData(User user, WorkflowInstance wInstance, WorkflowNodeInstance wNInstance, Map nodeModel, String item){
-        Map<String,Object> model = (Map<String, Object>) nodeModel.get("content");
+    private boolean submitCheckData(User user, WorkflowInstance wInstance, WorkflowNodeInstance wNInstance, CheckNode nodeModel, String item){
+//        Map<String,Object> model = (Map<String, Object>) nodeModel.getContent();
 
         return false;
     }
 
 
     private String getFirstNodeName(WorkflowModel workflowModel){
-        for (Map.Entry<String, Map> entry : workflowModel.getModel().entrySet()) {
-            if(entry.getValue().containsKey("start")){
+        for (Map.Entry<String, BaseNode> entry : workflowModel.getModel().entrySet()) {
+            if(entry.getValue().isStart()){
                 return entry.getKey();
             }
         }
@@ -269,8 +328,8 @@ public class WorkflowService {
     }
 
     private String getLastNodeName(WorkflowModel workflowModel){
-        for (Map.Entry<String, Map> entry : workflowModel.getModel().entrySet()) {
-            if(entry.getValue().containsKey("end")){
+        for (Map.Entry<String, BaseNode> entry : workflowModel.getModel().entrySet()) {
+            if(entry.getValue().isEnd()){
                 return entry.getKey();
             }
         }
