@@ -1,9 +1,6 @@
 package com.beeasy.hzback.modules.setting.dao;
 
-import com.beeasy.hzback.core.helper.SpringContextUtils;
-import com.beeasy.hzback.modules.setting.entity.Role;
 import com.beeasy.hzback.modules.setting.entity.User;
-import com.beeasy.hzback.modules.setting.entity.WorkFlow;
 import com.beeasy.hzback.modules.system.entity.Quarters;
 import feign.Param;
 import org.springframework.data.domain.Page;
@@ -11,16 +8,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.security.access.method.P;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
 
 public interface IUserDao extends JpaRepository<User,Integer> {
 //    User findByName(String userName);
     User findByUsername(String userName);
-    List<User> findByUsernameOrPhone(String userName, String phone);
+    User findFirstByUsernameOrPhone(String userName, String phone);
+    void deleteAllByIdIsGreaterThan(Integer id);
     Page<User> findAllByUsername(String userName, Pageable pageable);
 
 

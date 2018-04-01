@@ -1,5 +1,6 @@
 package com.beeasy.hzback.modules.system.entity;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
@@ -21,6 +22,7 @@ public class WorkflowInstance {
     @GeneratedValue
     Long id;
 
+    @JSONField(serialize = false)
     @ManyToOne
     @JoinColumn(name = "workflow_id")
     WorkflowModel workflowModel;
@@ -29,7 +31,8 @@ public class WorkflowInstance {
     Date addTime;
 
     String state;
-    
+
+    @JSONField(serialize = false)
     @OneToMany(mappedBy = "instance")
     List<WorkflowNodeInstance> nodeList = new LinkedList<>();
 

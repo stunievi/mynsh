@@ -1,6 +1,7 @@
 package com.beeasy.hzback.modules.system.entity;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.beeasy.hzback.modules.system.service.WorkflowService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,13 +17,6 @@ import javax.persistence.*;
 @NoArgsConstructor
 public class WorkflowModelPersons {
 
-    public enum Type {
-        MAIN_QUARTERS,
-        MAIN_USER,
-        SUPPORT_QUARTERS,
-        SUPPORT_USER
-    }
-
     @Id
     @GeneratedValue
     Integer id;
@@ -35,7 +29,7 @@ public class WorkflowModelPersons {
     WorkflowModel workflowModel;
 
     @Enumerated
-    Type type;
+    WorkflowService.Type type;
 
     Integer uid;
 

@@ -130,7 +130,7 @@ public class WorkFlowController {
     public Object newTask(
             Integer modelId
     ){
-        return workflowService.startNewTask(Utils.getCurrentUser(),modelId);
+        return workflowService.startNewInstance(Utils.getCurrentUser(),modelId);
     }
 
 

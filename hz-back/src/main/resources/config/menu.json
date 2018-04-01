@@ -1,0 +1,178 @@
+[
+  {
+    "name": "工作台",
+    "children": [
+      {
+        "name": "我的工作台",
+        "href": "http://localhost:8070/#/workbench"
+      },
+      {
+        "name": "消息通知",
+        "href": "http://localhost:8070/#/notification/list"
+      },
+      {
+        "name": "待办事项",
+        "href": "http://localhost:8070/#/todoitems"
+      },
+      {
+        "name": "已办事项",
+        "href": "http://localhost:8070/#/manageditems"
+      },
+      {
+        "name": "审核历史",
+        "href": "http://localhost:8070/#/audithis"
+      },
+      {
+        "name": "修改密码",
+        "href": "http://localhost:8070/#/changepwd"
+      }
+    ]
+  },
+  {
+    "name": "信贷系统管理",
+    "children": [
+      {
+        "name": "导入",
+        "children": [
+          {
+            "name": "客户资料",
+            "children": [
+              {
+                "name": "数据导入",
+                "href": "http://localhost:8070/#/creditdata/customer/import"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "台账",
+        "children": [
+          {
+            "name": "贷款台账",
+            "children": [
+              {
+                "name": "台账列表",
+                "href": "/htmlsrc/creditDataManage/ledger/loan/list.html"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "贷前管理",
+    "children": [
+      {
+        "name": "检查",
+        "children": [
+          {
+            "name": "指派移交",
+            "children": [
+              {
+                "name": "指派申请",
+                "href": "http://localhost:8070/#/PreLendingManage/Check/AssignmentHandover/AssignedApply"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "客户管理",
+    "children": [
+      {
+        "name": "对公客户",
+        "children": [
+          {
+            "name": "客户列表",
+            "href": "/htmlsrc/clientManage/company/list.html"
+          }
+        ]
+      },
+      {
+        "name": "对私客户",
+        "children": [
+          {
+            "name": "客户列表",
+            "href": "/htmlsrc/clientManage/private/list.html"
+          }
+        ]
+      },
+      {
+        "name": "担保人",
+        "children": [
+          {
+            "name": "担保人列表",
+            "href": "/htmlsrc/clientManage/guarantor/list.html"
+          }
+        ]
+      },
+      {
+        "name": "抵押物",
+        "children": [
+          {
+            "name": "抵押物列表",
+            "href": "/htmlsrc/clientManage/pawn/list.html"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "系统管理",
+    "children": [
+      {
+        "name": "设置",
+        "children": [
+          {
+            "name": "基础设置",
+            "children": [
+              {
+                "name": "基础设置",
+                "href": "/htmlsrc/setting/baseSet/base.html"
+              },
+              {
+                "name": "系统信息",
+                "href": "/htmlsrc/setting/baseSet/sysInfo.html"
+              }
+            ]
+          },
+          {
+            "name": "组织机构",
+            "children": [
+              {
+                "name": "用户管理",
+                "href": "/htmlsrc/setting/organization/user.list.html"
+              }
+            ]
+          },
+          {
+            "name": "安全设置",
+            "children": [
+              {
+                "name": "用户在线管理",
+                "href": "/htmlsrc/setting/safe/onlineUser.html"
+              }
+            ]
+          },
+          {
+            "name": "流程相关",
+            "children": [
+              {
+                "name": "流程管理",
+                "href": "/htmlsrc/setting/flowRelated/flowManage.html"
+              },
+              {
+                "name": "工作流程列表",
+                "href": "/htmlsrc/setting/flowRelated/workFlow.list.html"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

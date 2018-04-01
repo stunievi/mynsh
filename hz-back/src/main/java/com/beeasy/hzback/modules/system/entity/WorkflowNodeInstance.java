@@ -16,7 +16,7 @@ public class WorkflowNodeInstance {
     @GeneratedValue
     Long id;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     @JoinColumn(name = "instance_id")
     WorkflowInstance instance;
 

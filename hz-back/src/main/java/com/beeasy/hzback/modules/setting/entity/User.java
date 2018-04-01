@@ -2,6 +2,7 @@ package com.beeasy.hzback.modules.setting.entity;
 
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.beeasy.hzback.modules.system.entity.MenuPermission;
 import com.beeasy.hzback.modules.system.entity.Quarters;
 import com.beeasy.hzback.modules.system.entity.SystemMenu;
 import lombok.AllArgsConstructor;
@@ -72,7 +73,10 @@ public class User implements Serializable{
     private transient List<SystemMenu> systemMenus;
 
     @OneToOne(mappedBy = "user")
-    private transient UserProfile profile;
+    private UserProfile profile;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private MenuPermission menuPermission;
     /**
      * 得到一个用户所有的工作留
      * @return

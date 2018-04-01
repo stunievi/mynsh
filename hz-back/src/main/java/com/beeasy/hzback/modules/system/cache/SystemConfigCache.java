@@ -1,5 +1,7 @@
 package com.beeasy.hzback.modules.system.cache;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
@@ -28,5 +30,31 @@ public class SystemConfigCache {
             e.printStackTrace();
         }
         return null;
+    }
+
+    @Cacheable(key = "'full_menu'")
+    public JSONArray getFullMenu() throws IOException {
+        String filePath = "classpath:config/menu.json";
+        File file = ResourceUtils.getFile(filePath);
+        Long fileLength = file.length();
+        byte[] filecontent = new byte[fileLength.intValue()];
+        try {
+            FileInputStream in = new FileInputStream(file);
+            in.read(filecontent);
+            in.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            String menu = new String(filecontent, "utf8");
+            JSONArray arr = JSON.parseArray(menu);
+            return arr;
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return null;
+        }
+
     }
 }

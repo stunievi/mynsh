@@ -1,18 +1,18 @@
 package com.beeasy.hzback.modules.system.controller;
 
-import bin.leblanc.classtranslate.Transformer;
 import bin.leblanc.zed.Zed;
+import com.beeasy.hzback.core.exception.RestException;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.util.CrUtils;
 import com.beeasy.hzback.modules.setting.dao.IUserDao;
 import com.beeasy.hzback.modules.setting.entity.User;
-import com.beeasy.hzback.modules.setting.service.UserService;
 import com.beeasy.hzback.modules.system.dao.IQuartersDao;
 import com.beeasy.hzback.modules.system.entity.Quarters;
 import com.beeasy.hzback.modules.system.form.ChangePassword;
 import com.beeasy.hzback.modules.system.form.Pager;
 import com.beeasy.hzback.modules.system.form.UserAdd;
 import com.beeasy.hzback.modules.system.form.UserEdit;
+import com.beeasy.hzback.modules.system.service.UserService;
 import com.beeasy.hzback.modules.system.zed.UserZed;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -48,34 +48,23 @@ public class UserController {
     @Autowired
     IQuartersDao quartersDao;
 
-    @Autowired
-    UserService userService;
 
     UserZed userZed = Zed.createProxy(UserZed.class);
 
     @Autowired
     EntityManager entityManager;
 
+    @Autowired
+    UserService userService;
 
     @ApiOperation(value = "添加用户",notes = "")
     @PostMapping
-    public Result add(
+    public Object add(
             @Valid UserAdd edit,
             BindingResult bindingResult
-            ){
-        if(bindingResult.hasErrors()){
-            return Result.error(bindingResult);
-        }
-        //验证用户名和手机是否重复
-        List<User> users = userDao.findByUsernameOrPhone(edit.getUsername(),edit.getPhone());
-        if(users.size() > 0){
-            return Result.error("已有相同的用户名或手机号");
-        }
+            ) throws RestException {
 
-        User u = Transformer.transform(edit,User.class);
-        User ret = entityManager.merge(u);
-
-        return ret.getId() > 0 ? Result.ok() : Result.error();
+        return userService.createUser(edit).getId() > 0;
     }
 
     @ApiOperation(value = "修改用户", notes = "")
@@ -84,19 +73,25 @@ public class UserController {
             @Valid UserEdit edit,
             BindingResult bindingResult
     ){
-        if(bindingResult.hasErrors()) return Result.error(bindingResult);
         //验证用户名和手机是否重复
-        List<User> users = userDao.findByUsernameOrPhone(null,edit.getPhone());
-        if(users.size() > 0){
-            //如果当前用户的手机号一样,那么不改
-            if(users.stream().allMatch(u -> !u.getPhone().equals(edit.getPhone()))){
-                return Result.error("已有相同的手机号");
-            }
-        }
-        User u = entityManager.find(User.class,edit.getId());
-        u = Transformer.transform(edit,u);
-        User ret = entityManager.merge(u);
-        return ret.getId() > 0 ? Result.ok() : Result.error();
+        User users = userDao.findFirstByUsernameOrPhone(null,edit.getPhone());
+//        if(users == null){
+//
+//        }
+//        if(users.getPhone().equals(edit.getPhone())){
+//        }
+//
+//        if(users.size() > 0){
+//            //如果当前用户的手机号一样,那么不改
+//            if(users.stream().allMatch(u -> !u.getPhone().equals(edit.getPhone()))){
+//                return Result.error("已有相同的手机号");
+//            }
+//        }
+//        User u = entityManager.find(User.class,edit.getId());
+//        u = Transformer.transform(edit,u);
+//        User ret = entityManager.merge(u);
+//        return ret.getId() > 0 ? Result.ok() : Result.error();
+        return Result.error();
     }
 
     @ApiOperation(value = "用户列表", notes = "查找用户列表，当传递用户名的时候，只会查找出符合条件的用户")

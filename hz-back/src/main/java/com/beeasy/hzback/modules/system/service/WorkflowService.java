@@ -16,17 +16,22 @@ import com.beeasy.hzback.modules.system.node.CheckNode;
 import com.beeasy.hzback.modules.system.node.EndNode;
 import com.beeasy.hzback.modules.system.node.InputNode;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
-public class WorkflowService {
+public class WorkflowService implements IWorkflowService{
+
+
+
+
 
     @Autowired
     IWorkflowModelDao modelDao;
@@ -53,7 +58,7 @@ public class WorkflowService {
      * @param modelId
      * @return
      */
-    public boolean startNewTask(User user, Integer modelId){
+    public boolean startNewInstance(User user, Integer modelId){
         WorkflowModel workflowModel = modelDao.findOne(modelId);
         if(workflowModel == null || !workflowModel.isOpen()){
             return false;
@@ -109,14 +114,6 @@ public class WorkflowService {
         else if(nodeModel instanceof CheckNode){
             return submitCheckData(user, workflowInstance, workflowNodeInstance, (CheckNode) nodeModel, (String) data);
         }
-//        switch ((String)nodeModel.get("type")){
-//            case "input":
-//                return submitInputData(user, workflowInstance, workflowNodeInstance, nodeModel, (Map) data);
-//
-//            case "check":
-//                return submitCheckData(user, workflowInstance, workflowNodeInstance, nodeModel, (String) data);
-//        }
-
         return false;
     }
 
@@ -152,19 +149,19 @@ public class WorkflowService {
         }
         personsDao.deleteAllByWorkflowModel(workflowModel);
         for (Integer integer : edit.getMainQuarters()) {
-            WorkflowModelPersons persons = new WorkflowModelPersons(null,edit.getName(),workflowModel, WorkflowModelPersons.Type.MAIN_QUARTERS,integer);
+            WorkflowModelPersons persons = new WorkflowModelPersons(null,edit.getName(),workflowModel,Type.MAIN_QUARTERS,integer);
             personsDao.save(persons);
         }
         for (Integer integer : edit.getMainUser()) {
-            WorkflowModelPersons persons = new WorkflowModelPersons(null,edit.getName(),workflowModel, WorkflowModelPersons.Type.MAIN_USER,integer);
+            WorkflowModelPersons persons = new WorkflowModelPersons(null,edit.getName(),workflowModel, Type.MAIN_USER,integer);
             personsDao.save(persons);
         }
         for (Integer integer : edit.getSupportQuarters()) {
-            WorkflowModelPersons persons = new WorkflowModelPersons(null,edit.getName(),workflowModel, WorkflowModelPersons.Type.SUPPORT_QUARTERS,integer);
+            WorkflowModelPersons persons = new WorkflowModelPersons(null,edit.getName(),workflowModel, Type.SUPPORT_QUARTERS,integer);
             personsDao.save(persons);
         }
         for (Integer integer : edit.getSupportUser()) {
-            WorkflowModelPersons persons = new WorkflowModelPersons(null, edit.getName(), workflowModel, WorkflowModelPersons.Type.SUPPORT_USER,integer);
+            WorkflowModelPersons persons = new WorkflowModelPersons(null, edit.getName(), workflowModel, Type.SUPPORT_USER,integer);
             personsDao.save(persons);
         }
         return true;
@@ -275,6 +272,39 @@ public class WorkflowService {
         return true;
     }
 
+    /**
+     * 列出指定用户的所有工作流
+     */
+    public Page<WorkflowInstance> getUserWorkflows(User user, Status status, Pageable pageable){
+        boolean isFinished = false;
+        switch (status){
+            case DID:
+                isFinished = true;
+                break;
+
+            case DOING:
+                isFinished = false;
+                break;
+        }
+        Set<WorkflowModelPersons> persons = personsDao.findPersonsByUser(user.getQuarters().stream().map(q -> q.getId()).collect(Collectors.toList()), Arrays.asList(user.getId()));
+
+        Set<WorkflowModel> workflowModels = persons
+                .stream()
+                .map(p -> p.getWorkflowModel())
+                .collect(Collectors.toSet());
+        Set<String> nodeNames = persons
+                .stream()
+                .map(p -> p.getNodeName())
+                .collect(Collectors.toSet());
+        if(workflowModels.size() == 0){
+            return null;
+        }
+
+        Page<WorkflowInstance> list = nodeInstanceDao.getInstanceList(workflowModels,nodeNames,false, pageable);
+
+        return list;
+    }
+
 
     /**
      * 提交资料节点的数据
@@ -346,9 +376,9 @@ public class WorkflowService {
                     return
                             p.getNodeName().equals(nodeName) && (
                                     //该人符合个人用户的条件
-                                    (p.getType().equals(WorkflowModelPersons.Type.MAIN_USER) && p.getUid() == user.getId()) ||
+                                    (p.getType().equals(Type.MAIN_USER) && p.getUid() == user.getId()) ||
                                             //该人所属的岗位符合条件
-                                            (p.getType().equals(WorkflowModelPersons.Type.MAIN_QUARTERS) && user.hasQuarters(p.getUid()))
+                                            (p.getType().equals(Type.MAIN_QUARTERS) && user.hasQuarters(p.getUid()))
                             );
 
                 } );
