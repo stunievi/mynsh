@@ -1,18 +1,30 @@
 package bin.leblanc.test;
 
 import bin.leblanc.zed.Zed;
-import bin.leblanc.zed.proxy.Method;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
 
+@Slf4j
 public class NormalTest {
 
     public interface Cubi{
         void test(String a,String b);
+    }
+
+    enum fuck{
+        test("fff");
+
+        private String value;
+        fuck(String value){
+           this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
     }
 
     @Test
@@ -46,5 +58,14 @@ public class NormalTest {
         os.close();
 //        os.flush();
 
+    }
+
+
+    @Test
+    public void testEnum(){
+
+        if(fuck.test.equals("fff")){
+            log.info("fufff");
+        }
     }
 }

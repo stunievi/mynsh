@@ -19,7 +19,7 @@ public class DepartmentAdd {
     @ApiModelProperty(value = "部门父级ID,顶级部门请写0",required = true)
     @Min(value = 0,message = "父级ID不能小于0")
     @NotNull(message = "父级ID不能为空")
-    private int parentId;
+    private Long parentId;
 
     @ApiModelProperty(value = "部门描述")
     private String info;

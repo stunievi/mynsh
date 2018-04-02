@@ -15,10 +15,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 
 @Slf4j
@@ -35,7 +32,7 @@ public class User implements Serializable{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Column(unique = true)
     private String username;
@@ -58,19 +55,11 @@ public class User implements Serializable{
     private transient Set<Role> roles;
 
     @JSONField(serialize = false)
-    @ManyToMany
-    @JoinTable(name = "t_USER_QUARTERS",
-            joinColumns = {
-                    @JoinColumn(name = "USER_ID", referencedColumnName = "ID")
-            },
-            inverseJoinColumns = {
-                    @JoinColumn(name = "QUARTERS_ID", referencedColumnName = "ID")
-            })
-    private List<Quarters> quarters = new ArrayList<>();
-
+    @ManyToMany(mappedBy = "users", cascade = CascadeType.ALL)
+    private Set<Quarters> quarters = new LinkedHashSet<>();
 
     @ManyToMany(mappedBy = "users")
-    private transient List<SystemMenu> systemMenus;
+    private transient List<SystemMenu> systemMenus = new ArrayList<>();
 
     @OneToOne(mappedBy = "user")
     private UserProfile profile;
@@ -99,7 +88,7 @@ public class User implements Serializable{
     }
 
     @Transient
-    public boolean hasQuarters(Integer id){
+    public boolean hasQuarters(long id){
         return getQuarters().stream()
                     .anyMatch(q -> q.getId().equals(id));
     }

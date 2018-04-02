@@ -19,14 +19,14 @@ public class WorkflowQuartersEdit {
     String name;
 
     @ApiModelProperty(value = "主办岗位")
-    Integer[] mainQuarters;
+    Long[] mainQuarters;
 
     @ApiModelProperty(value = "主办用户")
-    Integer[] supportQuarters;
+    Long[] supportQuarters;
 
     @ApiModelProperty(value = "协办岗位")
-    Integer[] mainUser;
+    Long[] mainUser;
 
     @ApiModelProperty(value = "协办用户")
-    Integer[] supportUser;
+    Long[] supportUser;
 }

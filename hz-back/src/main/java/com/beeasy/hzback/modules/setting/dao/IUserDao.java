@@ -12,18 +12,18 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-public interface IUserDao extends JpaRepository<User,Integer> {
+public interface IUserDao extends JpaRepository<User,Long> {
 //    User findByName(String userName);
     User findByUsername(String userName);
     User findFirstByUsernameOrPhone(String userName, String phone);
-    void deleteAllByIdIsGreaterThan(Integer id);
+    void deleteAllByIdIsGreaterThan(long id);
     Page<User> findAllByUsername(String userName, Pageable pageable);
 
 
     @Modifying
     @Query("update User set baned = :baned where id in :ids")
     void updateBanedByIds(
-            @Param(value = "ids") Integer[] ids,
+            @Param(value = "ids") long[] ids,
             @Param(value = "baned") boolean baned);
 
     @Modifying

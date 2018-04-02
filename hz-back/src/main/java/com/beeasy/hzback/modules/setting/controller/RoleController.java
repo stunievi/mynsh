@@ -6,7 +6,7 @@ import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.modules.setting.dao.IDepartmentDao;
 import com.beeasy.hzback.modules.setting.dao.IRoleDao;
 import com.beeasy.hzback.modules.setting.entity.Role;
-import com.beeasy.hzback.modules.setting.service.DepartmentService;
+import com.beeasy.hzback.modules.setting.service.DepartmentService2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,7 +24,7 @@ public class RoleController {
     @Autowired
     IDepartmentDao departmentDao;
     @Autowired
-    DepartmentService departmentService;
+    DepartmentService2 departmentService;
 
     @Autowired
     IRoleDao roleDao;

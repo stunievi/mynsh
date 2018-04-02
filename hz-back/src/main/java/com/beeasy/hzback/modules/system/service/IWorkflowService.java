@@ -54,13 +54,35 @@ public interface IWorkflowService {
      */
     public boolean startNewInstance(User user, Integer modelId);
 
+    /**
+     * 如果是资料节点, 应该是键值对map
+     * 如果是审核节点, 则只需要提交一个处理结果(通常为string)
+     * @param user
+     * @param instanceId
+     * @param data
+     * @return
+     */
     public boolean submitData(User user, Long instanceId, Object data);
-    public boolean changeOpen(Integer modelId, boolean open);
+    /**
+     * 一经启用, 禁止再编辑
+     * @param modelId
+     * @param open
+     * @return
+     */
+    boolean changeOpen(Integer modelId, boolean open);
     public boolean setPersons(WorkflowQuartersEdit edit);
     public boolean deleteNode(Integer modelId, String[] nodeName);
     public boolean createWorkflow(String modelName, WorkflowModelAdd add) throws RestException;
     public boolean deleteWorkflow(Integer id);
     public boolean createNode(Integer modelId, String node);
-    public Page<WorkflowInstance> getUserWorkflows(User user, Status status, Pageable pageable);
+    Page<WorkflowInstance> getUserWorkflows(long uid, Status status, Pageable pageable);
+
+    /**
+     * 只允许在资料节点前进下一步, 审核节点的判定应该在每次节点提交的时候
+     * @param user
+     * @param instanceId
+     * @return
+     */
+    boolean goNext(int uid, Long instanceId);
 
 }

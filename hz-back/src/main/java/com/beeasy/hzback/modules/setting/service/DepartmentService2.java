@@ -7,11 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.List;
 
 @Service
 @Transactional
-public class DepartmentService {
+public class DepartmentService2 {
 
     @Autowired
     private IDepartmentDao departmentDao;
@@ -54,7 +54,7 @@ public class DepartmentService {
 
 
 
-    public boolean add(Department department,Integer parentId){
+    public boolean add(Department department,long parentId){
         Department parent = departmentDao.findOne(parentId);
         if(parent == null) return false;
         Department d = new Department();

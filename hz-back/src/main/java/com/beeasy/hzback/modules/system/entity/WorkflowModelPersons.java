@@ -1,7 +1,7 @@
 package com.beeasy.hzback.modules.system.entity;
 
 import com.alibaba.fastjson.annotation.JSONField;
-import com.beeasy.hzback.modules.system.service.WorkflowService;
+import com.beeasy.hzback.modules.system.service.IWorkflowService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,7 +19,7 @@ public class WorkflowModelPersons {
 
     @Id
     @GeneratedValue
-    Integer id;
+    Long id;
 
     String nodeName;
 
@@ -29,8 +29,8 @@ public class WorkflowModelPersons {
     WorkflowModel workflowModel;
 
     @Enumerated
-    WorkflowService.Type type;
+    IWorkflowService.Type type;
 
-    Integer uid;
+    Long uid;
 
 }

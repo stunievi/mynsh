@@ -16,7 +16,7 @@ public class QuartersAdd {
 
     @ApiModelProperty(value = "岗位所属部门", required = true)
     @NotNull(message = "岗位所属部门不能为空")
-    private Integer departmentId;
+    private Long departmentId;
 
     @ApiModelProperty(value = "岗位描述")
     private String info;

@@ -1,17 +1,11 @@
 package com.beeasy.hzback.modules.setting.entity;
 
 import com.alibaba.fastjson.annotation.JSONField;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.beeasy.hzback.modules.system.entity.Quarters;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.LazyToOne;
-import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -29,7 +23,7 @@ public class Department implements Serializable{
 
     @Id
     @GeneratedValue
-    private Integer id;
+    private Long id;
 
     private String name;
 
@@ -47,12 +41,11 @@ public class Department implements Serializable{
     @OneToMany(fetch = FetchType.LAZY,mappedBy = "parent")
     private List<Department> departments = new ArrayList<>();
 
+    @OneToMany(mappedBy = "department", cascade = CascadeType.ALL)
+    private Set<Quarters> quarters = new LinkedHashSet<>();
+
     @OneToMany(fetch = FetchType.LAZY,mappedBy = "department")
     private List<Role> roles;
-
-    @JSONField(serialize = false)
-    @OneToMany(fetch = FetchType.LAZY,mappedBy = "department")
-    private Set<WorkFlow> workFlows;
 
     @JSONField(serialize = false)
     @Transient

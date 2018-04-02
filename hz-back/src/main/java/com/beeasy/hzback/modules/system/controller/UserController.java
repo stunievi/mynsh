@@ -7,7 +7,6 @@ import com.beeasy.hzback.core.util.CrUtils;
 import com.beeasy.hzback.modules.setting.dao.IUserDao;
 import com.beeasy.hzback.modules.setting.entity.User;
 import com.beeasy.hzback.modules.system.dao.IQuartersDao;
-import com.beeasy.hzback.modules.system.entity.Quarters;
 import com.beeasy.hzback.modules.system.form.ChangePassword;
 import com.beeasy.hzback.modules.system.form.Pager;
 import com.beeasy.hzback.modules.system.form.UserAdd;
@@ -31,9 +30,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Api(tags = "用户API", description = "后台管理用户相关接口，需要有管理员权限")
@@ -117,12 +113,12 @@ public class UserController {
             @ApiImplicitParam(name = "isBaned",value = "是否禁用", required = true)
     })
     @PutMapping("/updateBaned")
-    public Result<Boolean> updateBaned(
-            Integer[] userIds,
+    public Object updateBaned(
+            long[] userIds,
             boolean isBaned
     ){
         userDao.updateBanedByIds(userIds,isBaned);
-        return Result.ok();
+        return true;
     }
 
     @ApiOperation(value = "设置用户岗位", notes = "岗位设置, 需一次性传递所有岗位的ID, 无效的岗位会被略过")
@@ -132,22 +128,22 @@ public class UserController {
     })
     @PutMapping("/setQuarters")
     public Result setQuarters(
-            Integer userId,
-            Integer[] quartersIds
+            long userId,
+            long[] quartersIds
     ){
-        if(userId == null || quartersIds == null){
-            return Result.error();
-        }
-        User user = userDao.findOne(userId);
-        if(user == null) return Result.error("没有找到这个用户");
-        List<Quarters> list = Arrays.asList(quartersIds)
-                .stream()
-                .map(id -> quartersDao.findOne(id))
-                .filter(item -> item != null)
-                .collect(Collectors.toList());
-        user.setQuarters(list);
-        userDao.save(user);
+        userService.setQuarters(userId,quartersIds);
         return Result.ok();
+//
+//        User user = userDao.findOne(userId);
+//        if(user == null) return Result.error("没有找到这个用户");
+//        List<Quarters> list = Arrays.asList(quartersIds)
+//                .stream()
+//                .map(id -> quartersDao.findOne(id))
+//                .filter(item -> item != null)
+//                .collect(Collectors.toList());
+////        user.setQuarters(list);
+//        userDao.save(user);
+//        return Result.ok();
     }
 
     @ApiOperation(value = "修改用户密码", notes = "只要登录都可以调用")

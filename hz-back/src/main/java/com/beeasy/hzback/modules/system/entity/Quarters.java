@@ -4,14 +4,12 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.beeasy.hzback.core.entity.AbstractBaseEntity;
 import com.beeasy.hzback.modules.setting.entity.Department;
 import com.beeasy.hzback.modules.setting.entity.User;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 
 @Getter
@@ -22,7 +20,7 @@ public class Quarters extends AbstractBaseEntity {
 
     @Id
     @GeneratedValue
-    Integer id;
+    Long id;
 
     @JSONField(serialize = false)
     @ManyToOne
@@ -34,8 +32,16 @@ public class Quarters extends AbstractBaseEntity {
     String info;
 
     @JSONField(serialize = false)
-    @ManyToMany(mappedBy = "quarters")
+    @ManyToMany()
+    @JoinTable(name = "t_USER_QUARTERS",
+            joinColumns = {
+                    @JoinColumn(name = "USER_ID", referencedColumnName = "ID")
+            },
+            inverseJoinColumns = {
+                    @JoinColumn(name = "QUARTERS_ID", referencedColumnName = "ID")
+            }
+    )
 //    @LazyCollection(LazyCollectionOption.EXTRA)
-    List<User> users;
+    Set<User> users = new LinkedHashSet<>();
 
 }

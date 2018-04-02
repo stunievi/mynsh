@@ -30,9 +30,6 @@ import java.util.stream.Collectors;
 public class WorkflowService implements IWorkflowService{
 
 
-
-
-
     @Autowired
     IWorkflowModelDao modelDao;
 
@@ -47,6 +44,9 @@ public class WorkflowService implements IWorkflowService{
 
     @Autowired
     IWorkflowNodeAttributeDao attributeDao;
+
+    @Autowired
+    UserService userService;
 
     @Autowired
     SystemConfigCache cache;
@@ -117,18 +117,22 @@ public class WorkflowService implements IWorkflowService{
         return false;
     }
 
+
 //    public boolean goNext(User user, )
 
 
-    /**
-     * 一经启用, 禁止再编辑
-     * @param modelId
-     * @param open
-     * @return
-     */
+    @Override
+    public boolean goNext(int uid, Long instanceId) {
+        WorkflowInstance instance = instanceDao.findOne(instanceId);
+        if(instance == null) return false;
+
+        return true;
+    }
+
+
+
     public boolean changeOpen(Integer modelId, boolean open){
         WorkflowModel workflowModel = modelDao.findOne(modelId);
-        if(workflowModel == null) return false;
         workflowModel.setOpen(open);
         if(open){
             workflowModel.setFirstOpen(true);
@@ -148,20 +152,20 @@ public class WorkflowService implements IWorkflowService{
             return false;
         }
         personsDao.deleteAllByWorkflowModel(workflowModel);
-        for (Integer integer : edit.getMainQuarters()) {
-            WorkflowModelPersons persons = new WorkflowModelPersons(null,edit.getName(),workflowModel,Type.MAIN_QUARTERS,integer);
+        for (long integer : edit.getMainQuarters()) {
+            WorkflowModelPersons persons = new WorkflowModelPersons(null,edit.getName(),workflowModel,IWorkflowService.Type.MAIN_QUARTERS,integer);
             personsDao.save(persons);
         }
-        for (Integer integer : edit.getMainUser()) {
-            WorkflowModelPersons persons = new WorkflowModelPersons(null,edit.getName(),workflowModel, Type.MAIN_USER,integer);
+        for (long integer : edit.getMainUser()) {
+            WorkflowModelPersons persons = new WorkflowModelPersons(null,edit.getName(),workflowModel, IWorkflowService.Type.MAIN_USER,integer);
             personsDao.save(persons);
         }
-        for (Integer integer : edit.getSupportQuarters()) {
-            WorkflowModelPersons persons = new WorkflowModelPersons(null,edit.getName(),workflowModel, Type.SUPPORT_QUARTERS,integer);
+        for (long integer : edit.getSupportQuarters()) {
+            WorkflowModelPersons persons = new WorkflowModelPersons(null,edit.getName(),workflowModel, IWorkflowService.Type.SUPPORT_QUARTERS,integer);
             personsDao.save(persons);
         }
-        for (Integer integer : edit.getSupportUser()) {
-            WorkflowModelPersons persons = new WorkflowModelPersons(null, edit.getName(), workflowModel, Type.SUPPORT_USER,integer);
+        for (long integer : edit.getSupportUser()) {
+            WorkflowModelPersons persons = new WorkflowModelPersons(null, edit.getName(), workflowModel, IWorkflowService.Type.SUPPORT_USER,integer);
             personsDao.save(persons);
         }
         return true;
@@ -275,7 +279,9 @@ public class WorkflowService implements IWorkflowService{
     /**
      * 列出指定用户的所有工作流
      */
-    public Page<WorkflowInstance> getUserWorkflows(User user, Status status, Pageable pageable){
+    @Override
+    public Page<WorkflowInstance> getUserWorkflows(long uid, Status status, Pageable pageable){
+        User user = userService.find(uid);
         boolean isFinished = false;
         switch (status){
             case DID:
@@ -376,9 +382,9 @@ public class WorkflowService implements IWorkflowService{
                     return
                             p.getNodeName().equals(nodeName) && (
                                     //该人符合个人用户的条件
-                                    (p.getType().equals(Type.MAIN_USER) && p.getUid() == user.getId()) ||
+                                    (p.getType().equals(IWorkflowService.Type.MAIN_USER) && p.getUid() == user.getId()) ||
                                             //该人所属的岗位符合条件
-                                            (p.getType().equals(Type.MAIN_QUARTERS) && user.hasQuarters(p.getUid()))
+                                            (p.getType().equals(IWorkflowService.Type.MAIN_QUARTERS) && user.hasQuarters(p.getUid()))
                             );
 
                 } );

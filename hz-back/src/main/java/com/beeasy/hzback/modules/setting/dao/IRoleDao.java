@@ -3,20 +3,14 @@ package com.beeasy.hzback.modules.setting.dao;
 import com.beeasy.hzback.core.helper.SpringContextUtils;
 import com.beeasy.hzback.modules.setting.entity.Department;
 import com.beeasy.hzback.modules.setting.entity.Role;
-import com.beeasy.hzback.modules.setting.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
-
-import java.util.List;
 
 public interface IRoleDao extends JpaRepository<Role,Integer> {
 
     Role findByNameAndDepartment(String name,Department department);
 
-    default Role editByDepartmentId(Role role,Integer departmentId){
+    default Role editByDepartmentId(Role role,long departmentId){
         IDepartmentDao departmentDao = (IDepartmentDao) SpringContextUtils.getBean(IDepartmentDao.class);
-        if(departmentId == null){
-            return null;
-        }
         //验证是否存在着个部门
         Department department = departmentDao.findOne(departmentId);
         if(department == null){

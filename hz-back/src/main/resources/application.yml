@@ -27,7 +27,7 @@ spring:
     datasource:
         name: test
 #        mysql
-        url: jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=utf-8
+        url: jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=utf-8&useSSL=false
         username: root
         password: 123
         driver-class-name: com.mysql.jdbc.Driver
@@ -39,7 +39,8 @@ spring:
 #        driver-class-nodeName: com.ibm.db2.jcc.DB2Driver
 #        db2-end
         # 使用druid数据源
-        type: com.alibaba.druid.pool.DruidDataSource
+        type: org.springframework.jdbc.datasource.DriverManagerDataSource
+#        type: com.alibaba.druid.pool.DruidDataSource
         filters: stat
         maxActive: 20
         initialSize: 1

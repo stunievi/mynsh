@@ -1,14 +1,15 @@
 package com.beeasy.hzback.modules.system.controller;
 
 import bin.leblanc.classtranslate.Transformer;
+import com.beeasy.hzback.core.exception.RestException;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.modules.setting.dao.IDepartmentDao;
-import com.beeasy.hzback.modules.setting.entity.Department;
 import com.beeasy.hzback.modules.system.dao.IQuartersDao;
 import com.beeasy.hzback.modules.system.entity.Quarters;
 import com.beeasy.hzback.modules.system.form.Pager;
 import com.beeasy.hzback.modules.system.form.QuartersAdd;
 import com.beeasy.hzback.modules.system.form.QuartersEdit;
+import com.beeasy.hzback.modules.system.service.QuartersService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -27,6 +28,8 @@ import javax.validation.Valid;
 @RequestMapping("/api/quarters")
 public class QuartersController {
 
+    @Autowired
+    QuartersService quartersService;
     @Autowired
     IQuartersDao quartersDao;
 
@@ -51,16 +54,13 @@ public class QuartersController {
 
     @ApiOperation(value = "添加岗位", notes = "添加一个岗位")
     @PostMapping("")
-    public Result add(
+    public Object add(
             @Valid QuartersAdd add,
             BindingResult bindingResult
-            ){
-        Department department = departmentDao.findOne(add.getDepartmentId());
-        if(department == null) return Result.error("所属部门填写错误");
-        Quarters quarters = Transformer.transform(add,Quarters.class);
-        quarters.setDepartment(department);
-        Quarters ret = quartersDao.save(quarters);
-        return ret.getId() > 0 ? Result.ok() : Result.error("添加失败");
+            ) throws RestException {
+
+        Quarters quarters = quartersService.createQuarters(add);
+        return quarters != null && quarters.getId() > 0;
     }
 
     /**
