@@ -19,7 +19,10 @@ public class CheckNode extends BaseNode{
         String question;
         Set<String> items;
         String passItem;
-        int count;
-        int pass;
+        String key;
+        String ps;
+        int count = 1;
+        int pass = 1;
+        int fail = 1;
     }
 }

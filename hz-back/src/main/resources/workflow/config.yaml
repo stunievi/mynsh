@@ -56,11 +56,14 @@ workflow:
         quarters: []
         order: 1
         content:
+          key: key
+          ps: ps
           question: 是否拒贷
           items: [是,否]
           passItem: 是
           count: 1
           pass: 1
+          fail: 1
 
       结束:
         type: end

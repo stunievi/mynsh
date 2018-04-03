@@ -2,6 +2,7 @@ package com.beeasy.hzback.modules.system.entity;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.beeasy.hzback.modules.system.node.BaseNode;
+import com.beeasy.hzback.modules.system.node.EndNode;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
@@ -37,20 +38,47 @@ public class WorkflowInstance {
     List<WorkflowNodeInstance> nodeList = new LinkedList<>();
 
     boolean finished = false;
+    Date finishedDate;
 
     @Transient
     public WorkflowNodeInstance getCurrentNode(){
+        //选择当前最后一个不为空的节点返回
         Optional<WorkflowNodeInstance> currentNode = getNodeList()
                 .stream()
                 .filter(n -> !n.isFinished())
                 .findAny();
-        return currentNode.orElse(null);
+        return currentNode.orElse(getNodeList().get(getNodeList().size() - 1));
+    }
+
+    @Transient
+    public BaseNode getStartNode(){
+        //start一定存在
+        return getWorkflowModel()
+                .getModel()
+                .entrySet()
+                .stream()
+                .filter(entry -> entry.getValue().isStart())
+                .map(stringBaseNodeEntry -> stringBaseNodeEntry.getValue())
+                .findFirst()
+                .get();
+    }
+
+    @Transient
+    public BaseNode getEndNode(){
+        //end元素一定存在
+        return (EndNode) getWorkflowModel().getModel()
+                .entrySet()
+                .stream()
+                .filter(entry -> entry.getValue().isEnd())
+                .map(entry -> entry.getValue())
+                .findAny()
+                .get();
     }
 
     @Transient
     public BaseNode getNextNode(){
         WorkflowNodeInstance nodeInstance = (getCurrentNode());
-        if(nodeInstance == null) return null;
+//        if(nodeInstance)
         //暂时先用order排序的算
         //过滤掉开始和结束节点
         List<BaseNode> list = getWorkflowModel()
@@ -67,9 +95,9 @@ public class WorkflowInstance {
         Collections.sort(list,Comparator.comparingInt(BaseNode::getOrder));
         for(int i = 0; i < list.size(); i++){
             if(list.get(i).getName().equals(nodeInstance.getNodeName())){
-                return list.get(i + 1);
+                return i >= list.size() - 1 ? getEndNode() : list.get(i);
             }
         }
-        return null;
+        return getEndNode();
     }
 }

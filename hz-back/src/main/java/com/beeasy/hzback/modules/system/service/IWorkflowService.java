@@ -60,9 +60,10 @@ public interface IWorkflowService {
      * @param user
      * @param instanceId
      * @param data
+     * @param ps 审核说明, 可写可不写
      * @return
      */
-    WorkflowInstance submitData(long uid, long instanceId, Object data);
+    WorkflowInstance submitData(long uid, long instanceId, Object data, String ps) throws RestException;
     /**
      * 一经启用, 禁止再编辑
      * @param modelId
@@ -70,7 +71,9 @@ public interface IWorkflowService {
      * @return
      */
     boolean setOpen(long modelId, boolean open);
-    boolean setPersons(long modelId, WorkflowQuartersEdit edit);
+
+    WorkflowModel setPersons(long modelId, WorkflowQuartersEdit... edits);
+
     public boolean deleteNode(long modelId, String[] nodeName);
     WorkflowModel createWorkflow(String modelName, WorkflowModelAdd add) throws RestException;
     public boolean deleteWorkflow(long id, boolean force);
@@ -83,7 +86,7 @@ public interface IWorkflowService {
      * @param instanceId
      * @return
      */
-    WorkflowInstance goNext(long uid, long instanceId);
+    WorkflowInstance goNext(long uid, long instanceId) throws RestException;
 
     WorkflowModel findModel(long id);
 

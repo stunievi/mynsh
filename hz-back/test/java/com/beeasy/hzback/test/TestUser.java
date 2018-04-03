@@ -117,14 +117,25 @@ public class TestUser {
             WorkflowQuartersEdit edit = new WorkflowQuartersEdit();
             edit.setName("资料收集");
             edit.getMainQuarters().add(quarters.getId());
-            workflowService.setPersons(workflowModel.getId(),edit);
+//            workflowModel = workflowService.setPersons(workflowModel.getId(),edit);
+            WorkflowQuartersEdit edit1 = new WorkflowQuartersEdit();
+            edit1.setName("是否拒贷");
+            edit1.getMainQuarters().add(quarters.getId());
+            workflowModel = workflowService.setPersons(workflowModel.getId(),edit,edit1);
 
-            WorkflowModel fm = workflowService.findModel(workflowModel.getId());
-            assertTrue(fm.getPersons().size() > 0);
-            assertTrue(fm.getPersons().get(0).getUid() > 0);
+            assertTrue(workflowModel.getPersons().size() > 0);
+            assertTrue(workflowModel.getPersons().get(0).getUid() > 0);
 
             //打开工作流
             workflowService.setOpen(workflowModel.getId(),true);
+            workflowService.setOpen(workflowModel.getId(),false);
+
+            //打开一次后就不能再删除
+            boolean success = workflowService.deleteWorkflow(workflowModel.getId(),false);
+            assertFalse(success);
+
+            workflowService.setOpen(workflowModel.getId(),true);
+
 
             //发起工作流
             WorkflowInstance instance = workflowService.startNewInstance(u.getId(),workflowModel.getId());
@@ -135,8 +146,8 @@ public class TestUser {
             Map<String,String> data = new HashMap<>();
             data.put("clientName",Faker.getName());
             data.put("manager",Faker.getName());
-            instance = workflowService.submitData(u.getId(),instance.getId(),data);
-            instance = workflowService.submitData(u.getId(),instance.getId(),data);
+            instance = workflowService.submitData(u.getId(),instance.getId(),data,null);
+            instance = workflowService.submitData(u.getId(),instance.getId(),data,null);
             assertNotNull(instance);
             assertTrue(instance.getNodeList().size() > 0);
             assertTrue(instance.getNodeList().get(0).getAttributeList().size() < 3);
@@ -148,7 +159,11 @@ public class TestUser {
 
             //提交审核数据
             String ret = "是";
-            instance = workflowService.submitData(u.getId(),instance.getId(),ret);
+            instance = workflowService.submitData(u.getId(),instance.getId(),ret,"tt");
+            assertNotNull(instance);
+
+            //确认
+            instance = workflowService.goNext(u.getId(), instance.getId());
             assertNotNull(instance);
 
 

@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
+import java.util.Optional;
 
 @Slf4j
 public class NormalTest {
@@ -63,9 +64,8 @@ public class NormalTest {
 
     @Test
     public void testEnum(){
+        Optional<Object> op = Optional.empty();
+        op.get();
 
-        if(fuck.test.equals("fff")){
-            log.info("fufff");
-        }
     }
 }
