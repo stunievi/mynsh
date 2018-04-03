@@ -4,6 +4,7 @@ import com.beeasy.hzback.core.exception.RestException;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.modules.system.dao.IWorkflowModelDao;
+import com.beeasy.hzback.modules.system.entity.WorkflowInstance;
 import com.beeasy.hzback.modules.system.entity.WorkflowModel;
 import com.beeasy.hzback.modules.system.form.Pager;
 import com.beeasy.hzback.modules.system.form.WorkflowModelAdd;
@@ -58,7 +59,7 @@ public class WorkFlowController {
     public Object delete(
             Integer modelId
     ){
-        return workflowService.deleteWorkflow(modelId);
+        return workflowService.deleteWorkflow(modelId,false);
     }
 
     @ApiOperation(value = "模型列表", notes = "查询已经存在的工作模型列表")
@@ -105,12 +106,16 @@ public class WorkFlowController {
 
 
     @ApiOperation(value = "设置主办或者协办的岗位",notes = "目前协办只可以查看, 在资料节点, 只要有一个主办提交了资料, 就可以继续下一步")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "modelId", value = "模型ID")
+    })
     @PutMapping("/model/setPersons")
     public Object setQuarters(
+            long modelId,
             @Valid WorkflowQuartersEdit edit,
             BindingResult bindingResult
             ){
-        return workflowService.setPersons(edit);
+        return workflowService.setPersons(modelId, edit);
     }
 
     @ApiOperation(value = "启用/停用工作流", notes = "一经启用, 禁止再编辑, 只能新增新版本")
@@ -119,7 +124,7 @@ public class WorkFlowController {
             Integer modelId,
             boolean open
     ){
-        return workflowService.changeOpen(modelId,open);
+        return workflowService.setOpen(modelId,open);
     }
 
     @ApiOperation(value = "发起工作流", notes = "")
@@ -128,9 +133,10 @@ public class WorkFlowController {
     })
     @PostMapping("/newTask")
     public Object newTask(
-            Integer modelId
+            Long modelId
     ){
-        return workflowService.startNewInstance(Utils.getCurrentUser(),modelId);
+        WorkflowInstance instance = workflowService.startNewInstance(Utils.getCurrentUser().getId(),modelId);
+        return  instance != null && instance.getId() > 0;
     }
 
 

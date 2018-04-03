@@ -10,10 +10,11 @@ import java.io.Serializable;
 abstract public class BaseNode implements Serializable {
     protected static final long serialVersionUID = 1L;
 
+    protected String name;
     protected String type;
     protected boolean start = false;
     protected boolean end = false;
-    protected int order;
+    protected int order = 0;
 
 
 }

@@ -22,7 +22,7 @@ import java.util.Map;
 public class WorkflowModel {
     @Id
     @GeneratedValue
-    Integer id;
+    Long id;
 
     @Column(columnDefinition = "BLOB")
     @Convert(converter = ObjectConverter.class)
@@ -42,8 +42,8 @@ public class WorkflowModel {
     Date addTime;
 
 
-    @OneToMany(mappedBy = "workflowModel")
-    transient List<WorkflowModelPersons> persons = new ArrayList<>();
+    @OneToMany(mappedBy = "workflowModel",cascade = CascadeType.ALL)
+    List<WorkflowModelPersons> persons = new ArrayList<>();
 
 
 

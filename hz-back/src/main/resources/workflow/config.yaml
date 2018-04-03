@@ -30,6 +30,8 @@ workflow:
       客户经理:
       检查状态:
 
+    flowType: clientManager
+
     flow:
       资料收集:
         type: input
@@ -43,7 +45,10 @@ workflow:
           客户经理: manager,User,y
           文件标签: fileTags,string,n,
           备注说明: info,string,n,
-          收集文件: files,files,n
+          收集文件:
+            name: files,
+            type: files,
+            required: n
 
 
       是否拒贷:

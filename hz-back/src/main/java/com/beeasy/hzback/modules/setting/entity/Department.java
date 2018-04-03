@@ -10,7 +10,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -50,10 +49,11 @@ public class Department implements Serializable{
     @JSONField(serialize = false)
     @Transient
     public Set<User> getUsers(){
-        return this.getRoles().stream()
-                .map(role -> role.getUsers())
-                .flatMap(Set::stream)
-                .collect(Collectors.toSet());
+        return null;
+//        return this.getRoles().stream()
+//                .map(role -> role.getUsers())
+//                .flatMap(Set::stream)
+//                .collect(Collectors.toSet());
     }
 
     @Transient

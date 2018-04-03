@@ -1,8 +1,8 @@
 package com.beeasy.hzback.modules.system.service;
 
 import com.beeasy.hzback.core.exception.RestException;
-import com.beeasy.hzback.modules.setting.entity.User;
 import com.beeasy.hzback.modules.system.entity.WorkflowInstance;
+import com.beeasy.hzback.modules.system.entity.WorkflowModel;
 import com.beeasy.hzback.modules.system.form.WorkflowModelAdd;
 import com.beeasy.hzback.modules.system.form.WorkflowQuartersEdit;
 import org.springframework.data.domain.Page;
@@ -48,11 +48,11 @@ public interface IWorkflowService {
 
     /**
      * 开启一条新的工作流实例
-     * @param user
+     * @param uid
      * @param modelId
      * @return
      */
-    public boolean startNewInstance(User user, Integer modelId);
+    WorkflowInstance startNewInstance(long uid, long modelId);
 
     /**
      * 如果是资料节点, 应该是键值对map
@@ -62,27 +62,29 @@ public interface IWorkflowService {
      * @param data
      * @return
      */
-    public boolean submitData(User user, Long instanceId, Object data);
+    WorkflowInstance submitData(long uid, long instanceId, Object data);
     /**
      * 一经启用, 禁止再编辑
      * @param modelId
      * @param open
      * @return
      */
-    boolean changeOpen(Integer modelId, boolean open);
-    public boolean setPersons(WorkflowQuartersEdit edit);
-    public boolean deleteNode(Integer modelId, String[] nodeName);
-    public boolean createWorkflow(String modelName, WorkflowModelAdd add) throws RestException;
-    public boolean deleteWorkflow(Integer id);
-    public boolean createNode(Integer modelId, String node);
+    boolean setOpen(long modelId, boolean open);
+    boolean setPersons(long modelId, WorkflowQuartersEdit edit);
+    public boolean deleteNode(long modelId, String[] nodeName);
+    WorkflowModel createWorkflow(String modelName, WorkflowModelAdd add) throws RestException;
+    public boolean deleteWorkflow(long id, boolean force);
+    public boolean createNode(long modelId, String node);
     Page<WorkflowInstance> getUserWorkflows(long uid, Status status, Pageable pageable);
 
     /**
      * 只允许在资料节点前进下一步, 审核节点的判定应该在每次节点提交的时候
-     * @param user
+     * @param
      * @param instanceId
      * @return
      */
-    boolean goNext(int uid, Long instanceId);
+    WorkflowInstance goNext(long uid, long instanceId);
+
+    WorkflowModel findModel(long id);
 
 }

@@ -1,15 +1,15 @@
 package com.beeasy.hzback.modules.system.entity;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.beeasy.hzback.modules.system.node.BaseNode;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -33,7 +33,43 @@ public class WorkflowInstance {
     String state;
 
     @JSONField(serialize = false)
-    @OneToMany(mappedBy = "instance")
+    @OneToMany(mappedBy = "instance", cascade = CascadeType.ALL)
     List<WorkflowNodeInstance> nodeList = new LinkedList<>();
 
+    boolean finished = false;
+
+    @Transient
+    public WorkflowNodeInstance getCurrentNode(){
+        Optional<WorkflowNodeInstance> currentNode = getNodeList()
+                .stream()
+                .filter(n -> !n.isFinished())
+                .findAny();
+        return currentNode.orElse(null);
+    }
+
+    @Transient
+    public BaseNode getNextNode(){
+        WorkflowNodeInstance nodeInstance = (getCurrentNode());
+        if(nodeInstance == null) return null;
+        //暂时先用order排序的算
+        //过滤掉开始和结束节点
+        List<BaseNode> list = getWorkflowModel()
+                .getModel()
+                .entrySet()
+                .stream()
+                .map(item -> item.getValue())
+                .filter(item -> !item.isStart() && !item.isEnd())
+                .collect(Collectors.toList());
+        //如果当前节点是开始节点
+        if(nodeInstance.getNodeModel().isStart()){
+            return list.get(0);
+        }
+        Collections.sort(list,Comparator.comparingInt(BaseNode::getOrder));
+        for(int i = 0; i < list.size(); i++){
+            if(list.get(i).getName().equals(nodeInstance.getNodeName())){
+                return list.get(i + 1);
+            }
+        }
+        return null;
+    }
 }

@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import java.io.IOException;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,19 +39,17 @@ public class UserService implements IUserService {
 
 
     @Override
-    public boolean bindMenus(long uid, List<String> menus) {
+    public User bindMenus(long uid, List<String> menus) {
         User user = userDao.findOne(uid);
         user.getMenuPermission().getUnbinds().removeAll(menus);
-        menuPermissionDao.save(user.getMenuPermission());
-        return true;
+        return saveUser(user);
     }
 
     @Override
-    public boolean unbindMenus(long uid, List<String> menus) {
+    public User unbindMenus(long uid, List<String> menus) {
         User user = userDao.findOne(uid);
         user.getMenuPermission().getUnbinds().addAll(menus);
-        menuPermissionDao.save(user.getMenuPermission());
-        return true;
+        return saveUser(user);
     }
 
 
@@ -102,11 +99,6 @@ public class UserService implements IUserService {
         menuPermission.setUser(u);
         u.setMenuPermission(menuPermission);
         User ret = userDao.save(u);
-
-        //创建menu permission
-//        MenuPermission menuPermission = new MenuPermission();
-//        menuPermission.setUser(ret);
-//        menuPermissionDao.save(menuPermission);
         return ret;
     }
 
@@ -117,7 +109,7 @@ public class UserService implements IUserService {
         user.getQuarters().forEach(q -> {
             q.getUsers().remove(user);
         });
-        user.setQuarters(new LinkedHashSet<>());
+//        user.setQuarters(new LinkedHashSet<>());
         userDao.delete(user);
         return true;
     }
@@ -128,37 +120,34 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public boolean addQuarters(long uid, long... qids) {
+    public User addQuarters(long uid, long... qids) {
         User user = userDao.findOne(uid);
         List<Quarters> qs = quartersDao.findAllByIdIn(qids);
-        user.getQuarters().addAll(qs);
+//        user.getQuarters().addAll(qs);
         for (Quarters q : qs) {
             q.getUsers().add(user);
         }
-        userDao.save(user);
-        return true;
+        return saveUser(user);
     }
 
     @Override
-    public boolean removeQuarters(long uid, long... qids) {
+    public User removeQuarters(long uid, long... qids) {
         User user = userDao.findOne(uid);
         List<Quarters> qs = quartersDao.findAllByIdIn(qids);
 //        user.getQuarters().removeAll(qs);
         qs.forEach(q -> {
             q.getUsers().remove(user);
         });
-        userDao.save(user);
-        return true;
+        return saveUser(user);
     }
 
 
     @Override
-    public boolean setQuarters(long uid, long... qids) {
+    public User setQuarters(long uid, long... qids) {
         User user = find(uid);
         List<Quarters> qs = quartersDao.findAllByIdIn(qids);
         qs.forEach(q -> q.getUsers().add(user));
-        userDao.save(user);
-        return true;
+        return saveUser(user);
     }
 
     public User find(long id){

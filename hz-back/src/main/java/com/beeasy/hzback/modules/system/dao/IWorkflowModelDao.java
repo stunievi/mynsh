@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.math.BigDecimal;
 import java.util.List;
 
-public interface IWorkflowModelDao extends JpaRepository<WorkflowModel,Integer>{
+public interface IWorkflowModelDao extends JpaRepository<WorkflowModel,Long>{
     WorkflowModel findFirstByNameAndVersion(String name, BigDecimal version);
     Page<List<WorkflowModel>> findAllByName(String name, Pageable pageable);
 }

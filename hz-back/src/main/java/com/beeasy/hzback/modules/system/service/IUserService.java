@@ -15,8 +15,8 @@ public interface IUserService {
      * @param menus
      * @return
      */
-    boolean bindMenus(long uid, List<String> menus);
-    boolean unbindMenus(long uid, List<String> menus);
+    User bindMenus(long uid, List<String> menus);
+    User unbindMenus(long uid, List<String> menus);
 
     JSONArray getMenus(long uid);
 
@@ -26,14 +26,14 @@ public interface IUserService {
 
     User saveUser(User user);
 
-    boolean addQuarters(long uid, long ...qids);
-    boolean removeQuarters(long uid, long ...qids);
+    User addQuarters(long uid, long ...qids);
+    User removeQuarters(long uid, long ...qids);
 
     /**
      * 设置岗位, 会清空之前的内容
      * @param uid
      * @param qids
      */
-    boolean setQuarters(long uid, long ...qids);
+    User setQuarters(long uid, long ...qids);
 
 }

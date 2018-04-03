@@ -1,9 +1,9 @@
 package com.beeasy.hzback.modules.system.node;
 
+import com.beeasy.hzback.core.entity.AbstractBaseEntity;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.io.Serializable;
 import java.util.Set;
 
 @Getter
@@ -15,9 +15,7 @@ public class CheckNode extends BaseNode{
 
     @Getter
     @Setter
-    public static class Content implements Serializable{
-        private static final long serialVersionUID = 1L;
-
+    public static class Content extends AbstractBaseEntity{
         String question;
         Set<String> items;
         String passItem;

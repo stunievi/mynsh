@@ -54,19 +54,19 @@ public class WorkflowService implements IWorkflowService{
 
     /**
      * 开始一个新的工作流任务
-     * @param user
+     * @param uid
      * @param modelId
      * @return
      */
-    public boolean startNewInstance(User user, Integer modelId){
+    public WorkflowInstance startNewInstance(long uid , long modelId){
+        User user = userService.find(uid);
         WorkflowModel workflowModel = modelDao.findOne(modelId);
         if(workflowModel == null || !workflowModel.isOpen()){
-            return false;
+            return null;
         }
         String firstName = getFirstNodeName(workflowModel);
-        if(firstName == null) return false;
         if(!checkAuth(workflowModel,firstName,user)){
-            return false;
+            return null;
         }
 
         //任务主体
@@ -81,7 +81,7 @@ public class WorkflowService implements IWorkflowService{
         workflowNodeInstance.setFinished(false);
         nodeInstanceDao.save(workflowNodeInstance);
 
-        return true;
+        return workflowInstance;
     }
 
     /**
@@ -90,20 +90,24 @@ public class WorkflowService implements IWorkflowService{
      * @param data
      * @return
      */
-    public boolean submitData(User user, Long instanceId, Object data){
+    @Override
+    public WorkflowInstance submitData(long uid , long instanceId, Object data){
+        User user = userService.find(uid);
+        if(user == null) return null;
         WorkflowInstance workflowInstance = instanceDao.findOne(instanceId);
-        if(workflowInstance == null) return false;
+        if(null == workflowInstance || workflowInstance.isFinished()){
+            return null;
+        }
         //得到当前应处理的节点
-        WorkflowNodeInstance workflowNodeInstance = workflowInstance.getNodeList().get(workflowInstance.getNodeList().size() - 1);
-        if(workflowNodeInstance.isFinished()){
-            return false;
+        WorkflowNodeInstance workflowNodeInstance = workflowInstance.getCurrentNode();
+        if(null == workflowNodeInstance){
+            return null;
         }
         BaseNode nodeModel = workflowInstance.getWorkflowModel().getModel().get(workflowNodeInstance.getNodeName());
-        if(nodeModel == null) return false;
+        if(nodeModel == null) return null;
         //验证是否有权限处理
-        List<WorkflowModelPersons> persons = workflowInstance.getWorkflowModel().getPersons();
-        if(checkAuth(workflowInstance.getWorkflowModel(),workflowNodeInstance.getNodeName(),user)){
-            return false;
+        if(!checkAuth(workflowInstance.getWorkflowModel(),workflowNodeInstance.getNodeName(),user)){
+            return null;
         }
 
         //处理必填数据
@@ -114,24 +118,43 @@ public class WorkflowService implements IWorkflowService{
         else if(nodeModel instanceof CheckNode){
             return submitCheckData(user, workflowInstance, workflowNodeInstance, (CheckNode) nodeModel, (String) data);
         }
-        return false;
+        return null;
     }
 
 
-//    public boolean goNext(User user, )
 
 
     @Override
-    public boolean goNext(int uid, Long instanceId) {
-        WorkflowInstance instance = instanceDao.findOne(instanceId);
-        if(instance == null) return false;
+    public WorkflowInstance goNext(long uid, long instanceId) {
+        WorkflowInstance instance = findInstance(instanceId);
+        if(null == instance || instance.isFinished()){
+            return null;
+        }
+        //得到当前节点
+        WorkflowNodeInstance currentNode = (instance.getCurrentNode());
+        if(currentNode == null) return null;
 
-        return true;
+        //当前节点处理完毕
+        BaseNode nextNode = instance.getNextNode();
+        //如果找不到下一个节点, 那么走最后的结束节点
+        if(null == nextNode){
+            return null;
+        }
+        WorkflowNodeInstance newNode = new WorkflowNodeInstance();
+        newNode.setNodeName(nextNode.getName());
+        newNode.setInstance(instance);
+        newNode.setFinished(false);
+        instance.getNodeList().add(newNode);
+
+        currentNode.setFinished(true);
+        currentNode.setDealDate(new Date());
+
+        return instanceDao.save(instance);
     }
 
 
-
-    public boolean changeOpen(Integer modelId, boolean open){
+    @Override
+    public boolean setOpen(long modelId, boolean open){
         WorkflowModel workflowModel = modelDao.findOne(modelId);
         workflowModel.setOpen(open);
         if(open){
@@ -141,8 +164,8 @@ public class WorkflowService implements IWorkflowService{
         return true;
     }
 
-    public boolean setPersons(WorkflowQuartersEdit edit){
-        WorkflowModel workflowModel = modelDao.findOne(edit.getModelId());
+    public boolean setPersons(long modelId, WorkflowQuartersEdit edit){
+        WorkflowModel workflowModel = modelDao.findOne(modelId);
         if(workflowModel == null || workflowModel.isFirstOpen() || workflowModel.isOpen()) return false;
         //如果没有这个节点
         if(!workflowModel
@@ -152,22 +175,20 @@ public class WorkflowService implements IWorkflowService{
             return false;
         }
         personsDao.deleteAllByWorkflowModel(workflowModel);
-        for (long integer : edit.getMainQuarters()) {
-            WorkflowModelPersons persons = new WorkflowModelPersons(null,edit.getName(),workflowModel,IWorkflowService.Type.MAIN_QUARTERS,integer);
-            personsDao.save(persons);
-        }
-        for (long integer : edit.getMainUser()) {
-            WorkflowModelPersons persons = new WorkflowModelPersons(null,edit.getName(),workflowModel, IWorkflowService.Type.MAIN_USER,integer);
-            personsDao.save(persons);
-        }
-        for (long integer : edit.getSupportQuarters()) {
-            WorkflowModelPersons persons = new WorkflowModelPersons(null,edit.getName(),workflowModel, IWorkflowService.Type.SUPPORT_QUARTERS,integer);
-            personsDao.save(persons);
-        }
-        for (long integer : edit.getSupportUser()) {
-            WorkflowModelPersons persons = new WorkflowModelPersons(null, edit.getName(), workflowModel, IWorkflowService.Type.SUPPORT_USER,integer);
-            personsDao.save(persons);
-        }
+        edit.getMainQuarters().forEach(l -> {
+            workflowModel.getPersons().add(new WorkflowModelPersons(null,edit.getName(),workflowModel,IWorkflowService.Type.MAIN_QUARTERS,l));
+        });
+        edit.getMainUser().forEach(l -> {
+            workflowModel.getPersons().add(new WorkflowModelPersons(null,edit.getName(),workflowModel, Type.MAIN_USER,l));
+        });
+        edit.getSupportQuarters().forEach(l -> {
+            workflowModel.getPersons().add(new WorkflowModelPersons(null,edit.getName(),workflowModel, Type.SUPPORT_QUARTERS,l));
+        });
+        edit.getSupportUser().forEach(l -> {
+            workflowModel.getPersons().add(new WorkflowModelPersons(null,edit.getName(),workflowModel, Type.SUPPORT_USER,l));
+        });
+
+        modelDao.save(workflowModel);
         return true;
     }
 
@@ -178,7 +199,7 @@ public class WorkflowService implements IWorkflowService{
      * @param nodeName
      * @return
      */
-    public boolean deleteNode(Integer modelId, String[] nodeName){
+    public boolean deleteNode(long modelId, String[] nodeName){
         WorkflowModel workflowModel = modelDao.findOne(modelId);
         if(workflowModel == null) return false;
         if(workflowModel.isFirstOpen() || workflowModel.isOpen()) return false;
@@ -203,30 +224,21 @@ public class WorkflowService implements IWorkflowService{
      * @param add
      * @return
      */
-    public boolean createWorkflow(String modelName, WorkflowModelAdd add) throws RestException {
+    public WorkflowModel createWorkflow(String modelName, WorkflowModelAdd add) throws RestException {
         Map<String,Map> map = (Map) cache.getConfig();
         Map model = (Map) map.get("workflow").get(modelName);
         Map flow = (Map) model.get("flow");
-        if(flow == null) return false;
+        if(flow == null) return null;
         WorkflowModel same = modelDao.findFirstByNameAndVersion(add.getName(),add.getVersion());
         if(same != null) throw new RestException("已经有相同版本的工作流");
 
         Map<String,BaseNode> nodes = new HashMap<>();
         flow.forEach((k,v) -> {
-            v = (Map)v;
-            switch ((String)((Map) v).get("type")){
-                case "check":
-                    nodes.put((String) k, JSON.parseObject(JSON.toJSONString(v), CheckNode.class));
-                    break;
-//
-                case "input":
-                    nodes.put((String) k,JSON.parseObject(JSON.toJSONString(v), InputNode.class));
-                    break;
+                v = (Map)v;
+                BaseNode baseNode = parseNode(String.valueOf(k),(Map)v);
+                if(null == baseNode) return;
+                nodes.put(String.valueOf(k),baseNode);
 
-                case "end":
-                    nodes.put((String) k,JSON.parseObject(JSON.toJSONString(v), EndNode.class));
-
-            }
         });
 
         WorkflowModel workflowModel = Transformer.transform(add,WorkflowModel.class);
@@ -235,14 +247,16 @@ public class WorkflowService implements IWorkflowService{
         workflowModel.setFirstOpen(false);
 
         WorkflowModel result = modelDao.save(workflowModel);
-        return result.getId() > 0;
-
+        return result;
     }
 
 
-    public boolean deleteWorkflow(Integer id){
+    public boolean deleteWorkflow(long id, boolean force){
+        if(force) {
+            modelDao.delete(id);
+            return true;
+        }
         WorkflowModel model = modelDao.findOne(id);
-        if(model == null) return false;
         if(model.isFirstOpen() || model.isOpen()) return false;
         modelDao.delete(id);
         return true;
@@ -252,7 +266,7 @@ public class WorkflowService implements IWorkflowService{
      * 创建节点
      * @return
      */
-    public boolean createNode(Integer modelId, String node){
+    public boolean createNode(long modelId, String node){
         WorkflowModel workflowModel = modelDao.findOne(modelId);
         if(workflowModel.isFirstOpen() || workflowModel.isOpen()) return false;
         JSONObject newNodes = JSON.parseObject(node);
@@ -306,7 +320,7 @@ public class WorkflowService implements IWorkflowService{
             return null;
         }
 
-        Page<WorkflowInstance> list = nodeInstanceDao.getInstanceList(workflowModels,nodeNames,false, pageable);
+        Page<WorkflowInstance> list = nodeInstanceDao.getInstanceList(workflowModels,nodeNames, isFinished, pageable);
 
         return list;
     }
@@ -316,19 +330,16 @@ public class WorkflowService implements IWorkflowService{
      * 提交资料节点的数据
      * @return
      */
-    private boolean submitInputData(User user, WorkflowInstance wInstance, WorkflowNodeInstance wNInstance, InputNode nodeModel, Map data){
-        Map<String,String> model = nodeModel.getContent();
-        for (Map.Entry<String, String> entry : model.entrySet()) {
+    private WorkflowInstance submitInputData(User user, WorkflowInstance wInstance, WorkflowNodeInstance wNInstance, InputNode nodeModel, Map data){
+        Map<String,InputNode.Content> model = nodeModel.getContent();
+        for (Map.Entry<String, InputNode.Content> entry : model.entrySet()) {
             String k = entry.getKey();
-            Object v = entry.getValue();
-            List<String> args = Utils.splitByComma((String) v);
-            if(args.size() != 2) throw new RuntimeException();
+            InputNode.Content v = entry.getValue();
+
             //如果是必填字段, 却没有传递
-            String attrKey = args.get(0);
-            if(args.get(2).equals("y")){
-                if(!data.containsKey(attrKey) || StringUtils.isEmpty(data.get(attrKey))) {
+            String attrKey = v.getEname();
+            if(v.isRequired() && StringUtils.isEmpty(data.get(attrKey))) {
                     throw new RuntimeException();
-                }
             }
             //不论是否必填, 空属性就略过
             if(StringUtils.isEmpty(data.get(attrKey))){
@@ -337,21 +348,29 @@ public class WorkflowService implements IWorkflowService{
             //验证属性格式
             //TODO: 这里需要验证属性的格式
 
-            WorkflowNodeAttribute attribute = attributeDao.findFirstByNodeInstanceAndAttrKey(wNInstance,attrKey).orElse(new WorkflowNodeAttribute());
+
+            //覆盖旧节点的信息
+            Optional<WorkflowNodeAttribute> target = wNInstance.getAttributeList()
+                    .stream()
+                    .filter(attr -> attr.getAttrKey().equals(attrKey))
+                    .findFirst();
+            WorkflowNodeAttribute attribute = target.orElse(new WorkflowNodeAttribute());
             attribute.setAttrKey(attrKey);
             attribute.setAttrValue((String) data.get(attrKey));
             attribute.setDealUser(user);
             attribute.setNodeInstance(wNInstance);
             attributeDao.save(attribute);
-        }
 
-        return true;
+            wNInstance.getAttributeList().add(attribute);
+        }
+//        nodeInstanceDao.save(wNInstance);
+        return instanceDao.save(wInstance);
     }
 
-    private boolean submitCheckData(User user, WorkflowInstance wInstance, WorkflowNodeInstance wNInstance, CheckNode nodeModel, String item){
+    private WorkflowInstance submitCheckData(User user, WorkflowInstance wInstance, WorkflowNodeInstance wNInstance, CheckNode nodeModel, String item){
 //        Map<String,Object> model = (Map<String, Object>) nodeModel.getContent();
 
-        return false;
+        return null;
     }
 
 
@@ -388,6 +407,91 @@ public class WorkflowService implements IWorkflowService{
                             );
 
                 } );
+    }
+
+    private BaseNode parseNode(String k, Map v){
+        switch ((String)((Map) v).get("type")){
+            case "check":
+                return (parseCheckNode(k,v));
+//
+            case "input":
+                return (parseInputNode(k,v));
+
+            case "end":
+                return (JSON.parseObject(JSON.toJSONString(v), EndNode.class));
+        }
+        return null;
+    }
+
+    private CheckNode parseCheckNode(String name, Map v){
+        v.put("name",name);
+        return JSON.parseObject(JSON.toJSONString(v),CheckNode.class);
+    }
+
+    private InputNode parseInputNode(String name, Map<String,Object> v){
+        v.put("name",name);
+        InputNode inputNode = new InputNode();
+        inputNode.setName(name);
+        inputNode.setType("input");
+        Object order = v.get("order");
+        if(null != order){
+            if(order instanceof Integer){
+                inputNode.setOrder((Integer) order);
+            }
+        }
+        //起始和结束禁止编辑
+        //start和end不能同时存在
+        if(v.containsKey("start")){
+            inputNode.setStart(true);
+        }
+        else if(v.containsKey("end")){
+            inputNode.setEnd(true);
+        }
+        Map content = (Map) v.get("content");
+        content.forEach((ck,cv) -> {
+            InputNode.Content cnt = new InputNode.Content();
+            cnt.setCname(String.valueOf(ck));
+
+            if(cv instanceof Map){
+                cnt.setType((String) ((Map) cv).get("map"));
+                cnt.setEname((String) ((Map) cv).get("name"));
+                cnt.setRequired(((Map) cv).get("required").equals("y"));
+            }
+            else if(cv instanceof String){
+                List<String> args = Utils.splitByComma(String.valueOf(cv));
+                if(args.size() != 3){
+                    return;
+                }
+                cnt.setEname(args.get(0));
+                cnt.setType(args.get(1));
+                cnt.setRequired(args.get(2).equals("y"));
+            }
+            else{
+                return;
+            }
+            inputNode.getContent().put(cnt.getEname(),cnt);
+        });
+        return inputNode;
+    }
+
+//    private WorkflowNodeInstance getCurrentNode(WorkflowInstance instance){
+//        Optional<WorkflowNodeInstance> currentNode = instance.getNodeList()
+//                .stream()
+//                .filter(n -> !n.isFinished())
+//                .findAny();
+//        if(!currentNode.isPresent()) return null;
+//        return currentNode.get();
+//    }
+
+
+
+    @Override
+    public WorkflowModel findModel(long id) {
+        return modelDao.findOne(id);
+    }
+
+    public WorkflowInstance findInstance(long id){
+        return instanceDao.findOne(id);
     }
 
 }
