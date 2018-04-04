@@ -8,6 +8,8 @@ import com.beeasy.hzback.modules.system.form.WorkflowQuartersEdit;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.Optional;
+
 public interface IWorkflowService {
     public static enum Type {
         MAIN_QUARTERS(0),
@@ -52,7 +54,7 @@ public interface IWorkflowService {
      * @param modelId
      * @return
      */
-    WorkflowInstance startNewInstance(long uid, long modelId);
+    WorkflowInstance startNewInstance(long uid, long modelId) throws RestException;
 
     /**
      * 如果是资料节点, 应该是键值对map
@@ -88,6 +90,6 @@ public interface IWorkflowService {
      */
     WorkflowInstance goNext(long uid, long instanceId) throws RestException;
 
-    WorkflowModel findModel(long id);
+    Optional<WorkflowModel> findModel(long id);
 
 }

@@ -134,7 +134,7 @@ public class WorkFlowController {
     @PostMapping("/newTask")
     public Object newTask(
             Long modelId
-    ){
+    ) throws RestException {
         WorkflowInstance instance = workflowService.startNewInstance(Utils.getCurrentUser().getId(),modelId);
         return  instance != null && instance.getId() > 0;
     }

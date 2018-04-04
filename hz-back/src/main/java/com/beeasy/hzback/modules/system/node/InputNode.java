@@ -10,9 +10,12 @@ import java.util.Map;
 @Getter
 @Setter
 public class InputNode extends BaseNode{
-    String type = "input";
     boolean start;
     Map<String,Content> content = new HashMap<>();
+
+    public InputNode(String name) {
+        super(name, "input");
+    }
 
     @Getter
     @Setter

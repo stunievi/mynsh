@@ -39,8 +39,8 @@ workflow:
       资料收集:
         type: input
         start: true
-        quarters: [] #允许经办的岗位ID
-        user: [] #允许经办的用户ID
+#        quarters: [] #允许经办的岗位ID #无用项
+#        user: [] #允许经办的用户ID
         content:
           文件编号: fileId,string,n
           客户号: clientId,string,n
@@ -57,24 +57,24 @@ workflow:
 
       是否拒贷:
         type: check
-        quarters: []
-        order: 1 #order项无用
-        content:
-          key: key
-          ps: ps
-          question: 是否拒贷
-          states: #定义状态
-            ok: #状态名OK
-              item: 是 #状态选项
-              condition: 1 #有一个人选了就生成该状态
-              behaviour: go('结束') #状态为该项的时候, 调用go函数 走向结束节点
-            nonono: #状态名nonono
-              item: 否
-              condition: 1 #有一个人选了否就是该状态
-              behaviour: go('资料收集')
+#        quarters: []
+#        order: 1 #order项无用
+#        content:
+        key: key #保存状态和备注时所用的键名, 通畅默认为key就可以
+        ps: ps #是否需要备注, 如果没有, 则为空
+        question: 是否拒贷
+        states: #定义状态
+          ok: #状态名OK
+            item: 是 #状态选项
+            condition: 1 #有一个人选了就生成该状态
+            behaviour: go('结束') #状态为该项的时候, 调用go函数 走向结束节点
+          nonono: #状态名nonono
+            item: 否
+            condition: 1 #有一个人选了否就是该状态
+            behaviour: go('资料收集')
 #          items: [是,否]
 #          passItem: 是
-          count: 1 #几个人审核
+        count: 1 #几个人审核
 #          pass: 1
 #          fail: 1
         next: [资料收集,结束] #有可能的走向, 即树的子叶
@@ -105,7 +105,7 @@ workflow:
 
       判断表内/表外:
         type: logic
-        condition: #判断条件
+        condition: getLastNode('发起权限申请').get('type') #判断条件
         time: #循环触发周期
         result: #条件处理, 只在不为null的时候才处理
           表内:

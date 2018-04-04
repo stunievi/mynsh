@@ -18,7 +18,7 @@ public class SystemConfigCache {
     @Cacheable(key = "'config'")
     public Object getConfig(){
         try {
-            String filePath = "classpath:/config/workflow.yaml";
+            String filePath = "classpath:config/workflow.yaml";
             File file = ResourceUtils.getFile(filePath);
             Reader r = new FileReader(file);
             Yaml yaml = new Yaml();
