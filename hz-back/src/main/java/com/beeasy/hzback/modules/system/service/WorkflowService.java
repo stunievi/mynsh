@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import javax.script.ScriptEngine;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -31,6 +32,8 @@ import java.util.stream.Collectors;
 @Transactional
 public class WorkflowService implements IWorkflowService {
 
+    @Autowired
+    ScriptEngine engine;
 
     @Autowired
     IWorkflowModelDao modelDao;

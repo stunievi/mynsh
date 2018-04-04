@@ -6,6 +6,7 @@ import com.beeasy.hzback.core.exception.RestException;
 import com.beeasy.hzback.modules.setting.dao.IUserDao;
 import com.beeasy.hzback.modules.setting.entity.Department;
 import com.beeasy.hzback.modules.setting.entity.User;
+import com.beeasy.hzback.modules.system.cache.SystemConfigCache;
 import com.beeasy.hzback.modules.system.entity.Quarters;
 import com.beeasy.hzback.modules.system.entity.WorkflowInstance;
 import com.beeasy.hzback.modules.system.entity.WorkflowModel;
@@ -21,6 +22,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.script.Bindings;
+import javax.script.ScriptContext;
+import javax.script.ScriptEngine;
+import javax.script.ScriptException;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -44,14 +49,43 @@ public class TestUser {
     QuartersService quartersService;
     @Autowired
     WorkflowService workflowService;
+    @Autowired
+    ScriptEngine engine;
+    @Autowired
+    ScriptContext context;
+    @Autowired
+    SystemConfigCache cache;
+
+
+    User u = null;
+    Department department = null;
+    Quarters quarters = null;
+    WorkflowModel workflowModel = null;
+
+    public void testgo(){
+        log.info("fuck go");
+    }
+
+    @Test
+    public void test1(){
+        Bindings bindings = engine.createBindings();
+//        engine.put("a",this);
+        try {
+//            SimpleScriptContext context = new SimpleScriptContext();
+//            bindings.put("a",this);
+//            context.setBindings(bindings,ScriptContext.ENGINE_SCOPE);
+            context.setAttribute("a",this, ScriptContext.ENGINE_SCOPE);
+//            engine.eval(cache.getBehaviourLibrary(),context);
+            engine.eval("go()",context);
+        } catch (ScriptException e) {
+            e.printStackTrace();
+        }
+    }
 
 
     @Test
     public void test() throws RestException {
-        User u = null;
-        Department department = null;
-        Quarters quarters = null;
-        WorkflowModel workflowModel = null;
+
         try {
             //创建用户
             UserAdd userAdd = new UserAdd();
@@ -165,7 +199,6 @@ public class TestUser {
             //确认
             instance = workflowService.goNext(u.getId(), instance.getId());
             assertNotNull(instance);
-
 
             //检查流程是否结束
             assertTrue(instance.isFinished());
