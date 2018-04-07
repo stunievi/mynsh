@@ -15,10 +15,10 @@ import java.io.*;
 @Component
 public class SystemConfigCache {
 
-    @Cacheable(key = "'config'")
-    public Object getConfig(){
+    @Cacheable(key = "'workflow'")
+    public Object getWorkflowConfig(){
         try {
-            String filePath = "classpath:config/workflow.yaml";
+            String filePath = "classpath:config/workflow.yml";
             File file = ResourceUtils.getFile(filePath);
             Reader r = new FileReader(file);
             Yaml yaml = new Yaml();
@@ -33,10 +33,10 @@ public class SystemConfigCache {
         return null;
     }
 
-    @Cacheable(key = "'behaviour.js'")
-    public String getBehaviourLibrary(){
+    @Cacheable(key = "'behavior.js'")
+    public String getbehaviorLibrary(){
         try {
-            return Utils.readFile("classpath:config/behaviour.js");
+            return Utils.readFile("classpath:config/behavior.js");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (UnsupportedEncodingException e) {

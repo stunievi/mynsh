@@ -4,7 +4,6 @@ import bin.leblanc.classtranslate.Transformer;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.modules.setting.dao.IDepartmentDao;
 import com.beeasy.hzback.modules.setting.entity.Department;
-import com.beeasy.hzback.modules.setting.service.DepartmentService2;
 import com.beeasy.hzback.modules.system.form.DepartmentAdd;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -23,8 +22,8 @@ public class DepartmentController {
 
     @Autowired
     IDepartmentDao departmentDao;
-    @Autowired
-    DepartmentService2 departmentService;
+//    @Autowired
+//    DepartmentService2 departmentService;
 
 
     @ApiOperation(value = "部门列表", notes = "获得所有部门列表，开放API")

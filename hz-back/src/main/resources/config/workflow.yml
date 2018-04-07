@@ -1,0 +1,455 @@
+#配置文件编写说明
+
+#定义一个基础工作流模型的方法如下
+#
+#模型名字:
+#  flow:
+#    .... 节点内容
+
+#节点内容的格式如下
+#
+#节点名字:
+#  type: 节点类别
+#  start: 是否开始节点
+#  end: 是否结束节点
+#  ... 私有节点属性
+
+#节点类别示例如下
+
+#信息节点: 用于表单的填写提交
+#  type: input
+#  next: 提交表单后, 转向下一个节点的名字
+#  content: 表单内容
+#    表单项1: f1,string,y 字段名为f1 文本类型 y表示必填 n表示不必填
+#    表单项2: 第二种写法同上
+#      name: f1
+#      type: string
+#      required: y
+
+#审核节点: 用于审核
+#  type: check
+#  ps: 审核节点的备注名, 通常也为ps
+#  key: 审核节点存储值的key名, 通常为key
+#  question: 给用户看的文字提示, 通常为一个问题, 例如: 是否通过申请?
+#  count: 审核节点参与的人数, 如果为单人审批为1, 如果为会签则为具体的人数
+#  states: 审核后的状态
+#    状态名1:
+#      item: 触发状态的关键字
+#      condition: 满足该状态的人数
+#      behavior: 满足状态后执行的动作, 参见flowscript
+
+#逻辑节点: 用户逻辑判断
+#  type: logic
+#  condition: 用于判断的脚本, 参见flowscript, 当该行返回null的时候, 放到下一个时间点处理
+#  time: 循环触发周期, 单位为秒
+#  result: 定义返回的状态, 与审核节点的state类似, 但不同的是, 状态只需要声明要处理的行为即可
+#    返回值1: go('xxxx')
+#    else: 如果没有任何命中, 则执行else
+
+#子流程审核节点: 用于流程嵌套间的审核
+#  type: checkprocess
+#  id:
+#  result:
+#该节点继承于审核节点, 逻辑上不与实际流程关联, 只是多了一个任务ID和任务处理结果的表单填写
+#具体属性和审核节点相同, 不再赘述
+
+#flowscript
+#用于工作流行为处理的脚本, 基本语法同JS
+
+#flowscript 内置函数库
+
+# go(string nodeName) 跳转到指定名字的节点
+# getLastNode(string nodeName) 从记录中读取当前节点最邻近的一个节点, 注意: 是按照处理的顺序而不是定义的顺序向上读取
+
+
+资料收集:
+  flowType: clientManager
+
+  flow:
+    资料收集:
+      type: input
+      start: true
+#        quarters: [] #允许经办的岗位ID #无用项
+#        user: [] #允许经办的用户ID
+      content:
+        文件编号: fileId,string,n
+        客户号: clientId,string,n
+        客户名称: clientName,string,y
+        客户经理: manager,User,y
+        文件标签: fileTags,string,n,
+        备注说明: info,string,n,
+        收集文件:
+          name: files,
+          type: files,
+          required: n
+      next: 是否拒贷
+
+
+    是否拒贷:
+      type: check
+#        quarters: []
+#        order: 1 #order项无用
+#        content:
+      key: key #保存状态和备注时所用的键名, 通畅默认为key就可以
+      ps: ps #是否需要备注, 如果没有, 则为空
+      question: 是否拒贷
+      states: #定义状态
+        ok: #状态名OK
+          item: 是 #状态选项
+          condition: 1 #有一个人选了就生成该状态
+          behavior: go('结束') #状态为该项的时候, 调用go函数 走向结束节点
+        nonono: #状态名nonono
+          item: 否
+          condition: 1 #有一个人选了否就是该状态
+          behavior: go('资料收集')
+#          items: [是,否]
+#          passItem: 是
+      count: 1 #几个人审核
+#          pass: 1
+#          fail: 1
+      next: [资料收集,结束] #有可能的走向, 即树的子叶
+
+    结束:
+      type: end
+      end: true
+
+菜单权限申请:
+  flow:
+    发起权限申请:
+      type: input
+      start: true
+      content:
+        申请说明: apply,textarea,y
+
+        资产类型:
+          name: type
+          type: select
+          items: [表内,表外]
+          required: y
+
+        申请附件:
+          type: files
+          name: files
+          required: n
+      next: 判断表内/表外
+
+    判断表内/表外:
+      type: logic
+      condition: getLastNode('发起权限申请').get('type') #判断条件
+      time: 1 #循环触发周期
+      result: #条件处理, 只在不为null的时候才处理
+        表内: go('授信管理部审核')
+
+        表外: go('风险资产管理部审核')
+
+        else: #其余的走项
+
+      next: [授信管理部审核,风险资产管理部审核]
+
+    授信管理部审核:
+      type: check
+      key: key
+      ps: ps
+      question: 是否通过
+      states:
+        pass:
+          item: 是
+          condition: 1
+          behavior: go('合规部审核')
+        fail:
+          item: 否
+          condition: 1
+          behavior: go('发起权限申请')
+      count: 1
+      next: []
+
+    风险资产管理部审核:
+      type: check
+      key: key
+      ps: ps
+      question: 是否通过
+      states:
+        pass:
+          item: 是
+          condition: 1
+          behavior: go('合规部审核')
+        fail:
+          item: 否
+          condition: 1
+          behavior: go('发起权限申请')
+      count: 1
+      next: []
+
+    合规部审核:
+      type: check
+      key: key
+      ps: ps
+      question: 是否通过
+      states:
+        pass:
+          item: 是
+          condition: 1
+          behavior: go('总领导班子审核')
+        fail:
+          item: 否
+          condition: 1
+          behavior: go('发起权限申请')
+      count: 1
+      next: []
+
+    运营部审核:
+      type: check
+      key: key
+      ps: ps
+      question: 是否通过
+      states:
+        pass:
+          item: 是
+          condition: 1
+          behavior: go('电子银行部确认')
+        fail:
+          item: 否
+          condition: 1
+          behavior: go('发起权限申请')
+      count: 1
+      next: []
+
+    电子银行部确认:
+      type: check
+      key: key
+      ps: ps
+      question: 是否通过
+      states:
+        pass:
+          item: 是
+          condition: 1
+          behavior: go('结束')
+
+      count: 1
+      next: []
+
+    总领导班子审核:
+      type: check
+      key: key
+      ps: ps
+      question: 是否通过
+      states:
+        pass:
+          item: 是
+          condition: 1
+          behavior: go('运营部审核')
+        fail:
+          item: 否
+          condition: 1
+          behavior: go('发起权限申请')
+      count: 1
+      next: []
+
+    结束:
+      type: end
+      end: true
+
+
+贷后检查:
+    flow:
+      发起贷后流程:
+        type: input #输入信息节点
+        content:
+          - 任务编号: "string,y" #英文ID为空，字符串类型，必填
+            客户号: "string" #英文ID为空，字符串，不必填
+            客户名称: "clientName,string,y" #英文ID为
+            要求完成时间: "date,n" #日期时间类型 不必填
+            要求完成时间2: "datetime,n" #精确时间类型，不必填
+            客户类型: "radio,y" #单选类型
+            业务类型: "checkbox,y" #多选类型
+            t1: "client,y" #选择客户
+            t2: "department" #选择部门
+            t3: "user,n" #选择角色
+            t4: "post" #选择岗位
+      贷后检查填写:
+        tpye: input #输入信息节点
+        content:
+          - ....
+
+      审查:
+        type: check #审核节点
+        content:
+          count: 2 #2人审核
+          pass: 1 #1人同意即通过
+      结束:
+        type: end
+
+
+
+      #逻辑节点示意
+      test:
+        type: logic
+        if1:
+          condition: #填写需要检查的REST请求地址
+            ...
+          action: #需要执行的行为（预先定义好）
+            ...
+        if2: #else if
+          condition:
+            ...
+          action:
+            ...
+        if3:
+        if4:
+        else:
+          action: #else没有行为条件，如果只有一个else而没有前置的if，那么视为没有
+
+贷后跟踪:
+  flow:
+    填写贷后检查表:
+      type: input
+      start: true
+      next: 判断贷款额度
+      content:
+        借款人全称: f1,string,n
+        担保人全称: f2,string,n
+        借款合同号: f3,string,n
+        担保方式: f4,string,n
+        贷款额度: f5,money,n
+        贷款余额: f6,string,n
+        贷款用途: f7,string,n
+        七级分类: f8,string,n
+        生产经营情况: f9,string,n
+        还款意愿: f10,string,n
+        偿还能力: f11,string,n
+        抵押物情况: f12,string,n
+        担保人情况: f13,string,n
+        总体评价: f14,string,n
+        其他说明: f15,string,n
+
+    判断贷款额度:
+      type: logic
+      time: 0
+      condition: "getLastNode('填写贷后检查表').get('f5') > 10000000 ? 'yeah' : 'ohno'"
+      result:
+        yeah: go('上传报告')
+        ohno: go('审核签署')
+      next: []
+
+    上传报告:
+      type: input
+      next: 审核签署
+      content:
+        审核报告: report,file,n
+
+    审核签署:
+      type: check
+      key: key
+      ps: ps
+      question: 是否通过
+      states:
+        pass:
+          item: 是
+          condition: 1
+          behavior: go('结束')
+        fail:
+          item: 否
+          condition: 1
+          behavior: go('填写贷后检查表')
+      count: 1
+      next: []
+
+    结束:
+      type: end
+
+催收:
+  flow:
+    签收催收通知函:
+      type: input
+      start: true
+      next: 是否可以还款
+      content:
+        还款人: f1,string,n
+
+    是否可以还款:
+      type: check
+      ps: ps
+      key: key
+      count: 1
+      question: 是否可以还款?
+      states:
+        pass:
+          item: 是
+          condition: 1
+          behavior: go('结束')
+
+        fail:
+          item: 否
+          condition: 1
+          behavior: go('结束')
+
+    结束:
+      type: end
+      behavior:
+
+
+不良资产管理流程:
+  flow:
+    不良资产登记:
+      type: input
+      next: 是否满足利息减免条件
+      content:
+        登记任务编号: f1,string,y
+        登记任务结果: f2,string,y
+
+    是否满足利息减免条件:
+      type: check
+      ps: ps,
+      key: key,
+      question: 是否满足减免条件?
+      count: 1
+      states:
+        pass:
+          item: 是
+          condition: 1
+          behavior: go('是否发起减免申请')
+        fail:
+          item: 否
+          condition: 1
+          behavior: go('资产抵债流程')
+
+    是否发起减免申请:
+      type: check
+      ps: ps
+      key: key
+      question: 客户是否已发起减免申请?
+      count: 1
+      states:
+        pass:
+          item: 是
+          condition: 1
+          behavior: go('利息减免流程')
+        fail:
+          item: 否
+          condition: 1
+          behavior: go('资产抵债流程');
+
+
+    利息减免流程:
+      type: checkprocess
+      key: key
+      question: 填写任务的处理结果
+      count: 1
+      states:
+        pass:
+          item: 是
+          condition: 1
+          behavior: go('结束')
+        fail:
+          item: 否
+          condition: 1
+          behavior: go('是否满足利息减免条件')
+
+    资产抵债流程:
+
+
+
+
+
+
+

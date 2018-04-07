@@ -1,5 +1,6 @@
 package com.beeasy.hzback.modules.system.entity;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.beeasy.hzback.core.helper.ObjectConverter;
 import com.beeasy.hzback.modules.system.node.BaseNode;
 import lombok.Getter;
@@ -34,6 +35,9 @@ public class WorkflowModel {
 
     String info;
 
+    //任务的原始名称
+    String baseName;
+
     boolean open;
 
     boolean firstOpen;
@@ -44,6 +48,10 @@ public class WorkflowModel {
 
     @OneToMany(mappedBy = "workflowModel",cascade = CascadeType.ALL)
     List<WorkflowModelPersons> persons = new ArrayList<>();
+
+    @JSONField(serialize = false)
+    @OneToMany(mappedBy = "workflowModel",cascade = CascadeType.REMOVE)
+    List<WorkflowInstance> workflowInstances = new ArrayList<>();
 
 
 

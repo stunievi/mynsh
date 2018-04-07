@@ -2,10 +2,12 @@ package com.beeasy.hzback.modules.system.service;
 
 import com.alibaba.fastjson.JSONArray;
 import com.beeasy.hzback.core.exception.RestException;
+import com.beeasy.hzback.modules.exception.CannotFindEntityException;
 import com.beeasy.hzback.modules.setting.entity.User;
 import com.beeasy.hzback.modules.system.form.UserAdd;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface IUserService {
 
@@ -22,18 +24,21 @@ public interface IUserService {
 
     User createUser(UserAdd add) throws RestException;
 
-    boolean deleteUser(long id);
+    boolean deleteUser(long id) throws CannotFindEntityException;
 
     User saveUser(User user);
 
-    User addQuarters(long uid, long ...qids);
-    User removeQuarters(long uid, long ...qids);
+    User addQuarters(long uid, long ...qids) throws CannotFindEntityException;
+    User removeQuarters(long uid, long ...qids) throws CannotFindEntityException;
 
     /**
      * 设置岗位, 会清空之前的内容
      * @param uid
      * @param qids
      */
-    User setQuarters(long uid, long ...qids);
+    User setQuarters(long uid, long ...qids) throws CannotFindEntityException;
 
+    Optional<User> findUser(long id);
+
+    User findUserE(long id) throws CannotFindEntityException;
 }

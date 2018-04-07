@@ -93,7 +93,7 @@ public class WorkflowInstance {
         if(node.isEnd()){
             return Optional.empty();
         }
-        //只有资料节点允许查找下一个, 其余应根据behaviour走
+        //只有资料节点允许查找下一个, 其余应根据behavior走
         if(node instanceof InputNode){
             return findNode(node.getNext().iterator().next());
         }

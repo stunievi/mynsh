@@ -84,7 +84,7 @@ public class LeblancConfig implements ApplicationListener<ContextRefreshedEvent>
 
         try {
             Bindings bindings = engine.getBindings(ScriptContext.GLOBAL_SCOPE);
-            engine.eval(Utils.getReader("classpath:config/behaviour.js"),bindings);
+            engine.eval(Utils.getReader("classpath:config/behavior.js"),bindings);
         } catch (ScriptException e) {
             e.printStackTrace();
         } catch (FileNotFoundException e) {

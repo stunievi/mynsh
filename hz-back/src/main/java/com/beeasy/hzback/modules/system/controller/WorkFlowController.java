@@ -3,6 +3,7 @@ package com.beeasy.hzback.modules.system.controller;
 import com.beeasy.hzback.core.exception.RestException;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.helper.Utils;
+import com.beeasy.hzback.modules.exception.CannotFindEntityException;
 import com.beeasy.hzback.modules.system.dao.IWorkflowModelDao;
 import com.beeasy.hzback.modules.system.entity.WorkflowInstance;
 import com.beeasy.hzback.modules.system.entity.WorkflowModel;
@@ -59,7 +60,7 @@ public class WorkFlowController {
     public Object delete(
             Integer modelId
     ){
-        return workflowService.deleteWorkflow(modelId,false);
+        return workflowService.deleteWorkflowModel(modelId,false);
     }
 
     @ApiOperation(value = "模型列表", notes = "查询已经存在的工作模型列表")
@@ -100,7 +101,7 @@ public class WorkFlowController {
     public Object deleteNode(
             Integer modelId,
             String[] nodeName
-    ){
+    ) throws CannotFindEntityException {
         return workflowService.deleteNode(modelId,nodeName);
     }
 
@@ -123,7 +124,7 @@ public class WorkFlowController {
     public Object changeOpen(
             Integer modelId,
             boolean open
-    ){
+    ) throws CannotFindEntityException {
         return workflowService.setOpen(modelId,open);
     }
 

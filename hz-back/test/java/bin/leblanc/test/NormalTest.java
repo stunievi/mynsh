@@ -2,6 +2,7 @@ package bin.leblanc.test;
 
 import bin.leblanc.zed.Zed;
 import com.beeasy.hzback.core.helper.Utils;
+import com.beeasy.hzback.modules.system.entity.InspectTask;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -63,8 +64,10 @@ public class NormalTest {
 
     }
 
-    public void ccc(int c, String d){
-        int ccc =1;
+    @Test
+    public void ccc(){
+        InspectTask task = new InspectTask();
+//        int ccc =1;
     }
 
     @Test

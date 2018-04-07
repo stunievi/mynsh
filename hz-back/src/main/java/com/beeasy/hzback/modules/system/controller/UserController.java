@@ -4,6 +4,7 @@ import bin.leblanc.zed.Zed;
 import com.beeasy.hzback.core.exception.RestException;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.util.CrUtils;
+import com.beeasy.hzback.modules.exception.CannotFindEntityException;
 import com.beeasy.hzback.modules.setting.dao.IUserDao;
 import com.beeasy.hzback.modules.setting.entity.User;
 import com.beeasy.hzback.modules.system.dao.IQuartersDao;
@@ -83,7 +84,7 @@ public class UserController {
 //                return Result.error("已有相同的手机号");
 //            }
 //        }
-//        User u = entityManager.find(User.class,edit.getId());
+//        User u = entityManager.findUser(User.class,edit.getId());
 //        u = Transformer.transform(edit,u);
 //        User ret = entityManager.merge(u);
 //        return ret.getId() > 0 ? Result.ok() : Result.error();
@@ -130,7 +131,7 @@ public class UserController {
     public Result setQuarters(
             long userId,
             long[] quartersIds
-    ){
+    ) throws CannotFindEntityException {
         userService.setQuarters(userId,quartersIds);
         return Result.ok();
 //

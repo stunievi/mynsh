@@ -40,6 +40,6 @@ public class ZedController {
     @ApiOperation(value = "系统设置", notes = "得到系统的设置列表")
     @GetMapping("/config")
     public synchronized Result getConfig(){
-        return Result.ok(cache.getConfig());
+        return Result.ok(cache.getWorkflowConfig());
     }
 }

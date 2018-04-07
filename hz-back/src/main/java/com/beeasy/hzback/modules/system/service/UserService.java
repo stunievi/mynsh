@@ -4,6 +4,7 @@ import bin.leblanc.classtranslate.Transformer;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.core.exception.RestException;
+import com.beeasy.hzback.modules.exception.CannotFindEntityException;
 import com.beeasy.hzback.modules.setting.dao.IUserDao;
 import com.beeasy.hzback.modules.setting.entity.User;
 import com.beeasy.hzback.modules.system.cache.SystemConfigCache;
@@ -104,8 +105,8 @@ public class UserService implements IUserService {
 
 
     @Override
-    public boolean deleteUser(long uid){
-        User user = userDao.findOne(uid);
+    public boolean deleteUser(long uid) throws CannotFindEntityException {
+        User user = findUserE(uid);
         user.getQuarters().forEach(q -> {
             q.getUsers().remove(user);
         });
@@ -120,8 +121,8 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public User addQuarters(long uid, long... qids) {
-        User user = userDao.findOne(uid);
+    public User addQuarters(long uid, long... qids) throws CannotFindEntityException {
+        User user = findUserE(uid);
         List<Quarters> qs = quartersDao.findAllByIdIn(qids);
 //        user.getQuarters().addAll(qs);
         for (Quarters q : qs) {
@@ -131,8 +132,8 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public User removeQuarters(long uid, long... qids) {
-        User user = userDao.findOne(uid);
+    public User removeQuarters(long uid, long... qids) throws CannotFindEntityException {
+        User user = findUserE(uid);
         List<Quarters> qs = quartersDao.findAllByIdIn(qids);
 //        user.getQuarters().removeAll(qs);
         qs.forEach(q -> {
@@ -143,15 +144,21 @@ public class UserService implements IUserService {
 
 
     @Override
-    public User setQuarters(long uid, long... qids) {
-        User user = find(uid);
+    public User setQuarters(long uid, long... qids) throws CannotFindEntityException {
+        User user = findUserE(uid);
         List<Quarters> qs = quartersDao.findAllByIdIn(qids);
         qs.forEach(q -> q.getUsers().add(user));
         return saveUser(user);
     }
 
-    public User find(long id){
-        return userDao.findOne(id);
+    @Override
+    public Optional<User> findUser(long id){
+        return Optional.of(userDao.findOne(id));
+    }
+
+    @Override
+    public User findUserE(long id) throws CannotFindEntityException {
+        return findUser(id).orElseThrow(() -> new CannotFindEntityException(User.class,id));
     }
 
 }

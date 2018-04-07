@@ -67,11 +67,11 @@ workflow:
           ok: #状态名OK
             item: 是 #状态选项
             condition: 1 #有一个人选了就生成该状态
-            behaviour: go('结束') #状态为该项的时候, 调用go函数 走向结束节点
+            behavior: go('结束') #状态为该项的时候, 调用go函数 走向结束节点
           nonono: #状态名nonono
             item: 否
             condition: 1 #有一个人选了否就是该状态
-            behaviour: go('资料收集')
+            behavior: go('资料收集')
 #          items: [是,否]
 #          passItem: 是
         count: 1 #几个人审核
@@ -102,114 +102,121 @@ workflow:
             type: files
             name: files
             required: n
+        next: 判断表内/表外
 
       判断表内/表外:
         type: logic
         condition: getLastNode('发起权限申请').get('type') #判断条件
-        time: #循环触发周期
+        time: 1 #循环触发周期
         result: #条件处理, 只在不为null的时候才处理
-          表内:
-            behaviour: go('授信资产部审核')
+          表内: go('授信管理部审核')
 
-          表外:
-            behaviour: go('授信资产部审核')
+          表外: go('风险资产管理部审核')
 
           else: #其余的走项
-#          -
-#            behaviour: if(getLastNode('发起权限申请').get('type') == '表内') return go('授信资产部审核')
-#            type: if
-#          -
-#            behaviour: if(getLastNode('发起权限申请').get('type') == '表外') return go('授信资产部审核')
-#            type: if
-#          -
-#            behaviour:
-#            type: else
+
+        next: [授信管理部审核,风险资产管理部审核]
 
       授信管理部审核:
         type: check
-        content:
-          key: key
-          ps: ps
-          question: 是否通过
-          items: [是,否]
-          passItem: 是
-          count: 1
-          pass: 1
-          fail: 1
+        key: key
+        ps: ps
+        question: 是否通过
+        states:
+          pass:
+            item: 是
+            condition: 1
+            behavior: go('合规部审核')
+          fail:
+            item: 否
+            condition: 1
+            behavior: go('发起权限申请')
+        count: 1
+        next: []
 
       风险资产管理部审核:
         type: check
-        content:
-          key: key
-          ps: ps
-          question: 是否通过
-          items: [是,否]
-          passItem: 是
-          count: 1
-          pass: 1
-          fail: 1
+        key: key
+        ps: ps
+        question: 是否通过
+        states:
+          pass:
+            item: 是
+            condition: 1
+            behavior: go('合规部审核')
+          fail:
+            item: 否
+            condition: 1
+            behavior: go('发起权限申请')
+        count: 1
+        next: []
 
       合规部审核:
         type: check
-        content:
-          key: key
-          ps: ps
-          question: 是否通过
-          items: [是,否]
-          passItem: 是
-          count: 1
-          pass: 1
-          fail: 1
+        key: key
+        ps: ps
+        question: 是否通过
+        states:
+          pass:
+            item: 是
+            condition: 1
+            behavior: go('总领导班子审核')
+          fail:
+            item: 否
+            condition: 1
+            behavior: go('发起权限申请')
+        count: 1
+        next: []
 
       运营部审核:
         type: check
-        content:
-          key: key
-          ps: ps
-          question: 是否通过
-          items: [是,否]
-          passItem: 是
-          count: 1
-          pass: 1
-          fail: 1
+        key: key
+        ps: ps
+        question: 是否通过
+        states:
+          pass:
+            item: 是
+            condition: 1
+            behavior: go('电子银行部确认')
+          fail:
+            item: 否
+            condition: 1
+            behavior: go('发起权限申请')
+        count: 1
+        next: []
 
-      电子银行部审核:
+      电子银行部确认:
         type: check
-        content:
-          key: key
-          ps: ps
-          question: 是否通过
-          items: [是,否]
-          passItem: 是
-          count: 1
-          pass: 1
-          fail: 1
+        key: key
+        ps: ps
+        question: 是否通过
+        states:
+          pass:
+            item: 是
+            condition: 1
+            behavior: go('结束')
 
-      运营部审核:
-        type: check
-        content:
-          key: key
-          ps: ps
-          question: 是否通过
-          items: [是,否]
-          passItem: 是
-          count: 1
-          pass: 1
-          fail: 1
+        count: 1
+        next: []
 
       总领导班子审核:
         type: check
-        content:
-          key: key
-          ps: ps
-          question: 是否通过
-          items: [是,否]
-          passItem: 是
-          count: 1
-          pass: 1
-          fail: 1
+        key: key
+        ps: ps
+        question: 是否通过
+        states:
+          pass:
+            item: 是
+            condition: 1
+            behavior: go('运营部审核')
+          fail:
+            item: 否
+            condition: 1
+            behavior: go('发起权限申请')
+        count: 1
+        next: []
 
-      执行并确认:
+      结束:
         type: end
         end: true
 
@@ -278,6 +285,11 @@ workflow:
           if4:
           else:
             action: #else没有行为条件，如果只有一个else而没有前置的if，那么视为没有
+
+  贷后跟踪:
+    flow:
+
+
 manage:
   - cubi
 
