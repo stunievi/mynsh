@@ -69,13 +69,8 @@ public class LeblancConfig implements ApplicationListener<ContextRefreshedEvent>
             role.disallowAllPut();
         });
 
-        zed.addRoleHandler(token -> {
-            //暂时用SU
-            if(token.equals("SU")){
-                return RolePermission.SUPERUSER;
-            }
-            return null;
-        });
+
+
 
         applicationContext.publishEvent(new ZedInitializedEvent(this));
 

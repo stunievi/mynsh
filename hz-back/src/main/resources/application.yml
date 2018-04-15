@@ -5,6 +5,9 @@
 #    username: root
 #    password: 1q2w3e4r
 
+upload:
+  path: /Users/bin/work/uploads
+
 workflow:
   timeStep: 1
   lockTimeout: 10

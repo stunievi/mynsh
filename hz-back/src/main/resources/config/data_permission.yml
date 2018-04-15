@@ -1,0 +1,19 @@
+#预定义变量
+# $user 当前用户
+# $level.xxx 当前表分类层级
+# $time 当前时间
+
+CloudDirectoryIndex:
+  whereLimit: #强制施加的条件
+    user:
+      eq: $user #只能查看我的目录层级
+  returnFields: $level.xxx #限制返回的字段
+  requiredWhereFields: #必须提交的检索字段
+  uniqueWhereFields: #只能提交的检索字段
+
+CloudFileIndex:
+  whereLimit:
+    directoryIndex.user: $user #只能查看属于我的文件
+
+
+

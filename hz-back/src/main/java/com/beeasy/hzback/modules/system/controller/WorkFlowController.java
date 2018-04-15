@@ -9,6 +9,7 @@ import com.beeasy.hzback.modules.system.entity.WorkflowInstance;
 import com.beeasy.hzback.modules.system.entity.WorkflowModel;
 import com.beeasy.hzback.modules.system.form.Pager;
 import com.beeasy.hzback.modules.system.form.WorkflowModelAdd;
+import com.beeasy.hzback.modules.system.form.WorkflowModelEdit;
 import com.beeasy.hzback.modules.system.form.WorkflowQuartersEdit;
 import com.beeasy.hzback.modules.system.service.WorkflowService;
 import io.swagger.annotations.Api;
@@ -119,14 +120,22 @@ public class WorkFlowController {
         return workflowService.setPersons(modelId, edit);
     }
 
-    @ApiOperation(value = "启用/停用工作流", notes = "一经启用, 禁止再编辑, 只能新增新版本")
-    @PutMapping("/model/open")
-    public Object changeOpen(
-            Integer modelId,
-            boolean open
-    ) throws CannotFindEntityException {
-        return workflowService.setOpen(modelId,open);
+    @PutMapping("/model")
+    public Object edit(
+            @Valid  WorkflowModelEdit edit,
+            BindingResult bindingResult
+    ) throws RestException {
+        return workflowService.editWorkflowModel(edit.getId(),edit.getInfo(),edit.getOpen());
     }
+
+//    @ApiOperation(value = "启用/停用工作流", notes = "一经启用, 禁止再编辑, 只能新增新版本")
+//    @PutMapping("/model/open")
+//    public Object changeOpen(
+//            Integer modelId,
+//            boolean open
+//    ) throws CannotFindEntityException {
+//        return workflowService.setOpen(modelId,open);
+//    }
 
     @ApiOperation(value = "发起工作流", notes = "")
     @ApiImplicitParams({

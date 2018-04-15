@@ -25,6 +25,9 @@ public class WorkflowNodeInstance {
 
     String nodeName;
 
+    //节点类型
+    String type;
+
     Date dealDate;
 
     //是否已经处理完成
@@ -36,5 +39,15 @@ public class WorkflowNodeInstance {
     @Transient
     public BaseNode getNodeModel(){
         return getInstance().getWorkflowModel().getModel().get(nodeName);
+    }
+
+    public void setFinished(boolean finished) {
+        this.finished = finished;
+        if(finished){
+            setDealDate(new Date());
+        }
+        else{
+            setDealDate(null);
+        }
     }
 }

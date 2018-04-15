@@ -6,18 +6,27 @@ import feign.Param;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
-public interface IUserDao extends JpaRepository<User,Long> {
+public interface IUserDao extends JpaRepository<User,Long> ,JpaSpecificationExecutor {
 //    User findByName(String userName);
     User findByUsername(String userName);
     User findFirstByUsernameOrPhone(String userName, String phone);
     void deleteAllByIdIsGreaterThan(long id);
     Page<User> findAllByUsername(String userName, Pageable pageable);
+
+    Optional<User> findFirstByPhone(String phone);
+
+    @Modifying
+    @Transactional
+    @Query(value = "delete from t_user_quarters WHERE user_id = :uid",nativeQuery = true)
+    void deleteUserQuarters(long uid);
 
 
     @Modifying

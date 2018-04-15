@@ -6,8 +6,6 @@ import lombok.Data;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
 import javax.validation.constraints.Pattern;
 
 @ApiModel
@@ -21,6 +19,10 @@ public class UserAdd {
     @ApiModelProperty(value = "密码",required = true)
     @NotEmpty(message = "密码不能为空")
     private String password;
+
+    @ApiModelProperty(value = "真实姓名",required = true)
+    @NotEmpty(message = "真实姓名不能为空")
+    private String trueName;
 
     @ApiModelProperty(value = "手机号",required = true)
     @NotEmpty(message = "手机不能为空")

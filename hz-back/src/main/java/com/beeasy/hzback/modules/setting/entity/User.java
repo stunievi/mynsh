@@ -2,9 +2,10 @@ package com.beeasy.hzback.modules.setting.entity;
 
 
 import com.alibaba.fastjson.annotation.JSONField;
-import com.beeasy.hzback.modules.system.entity.MenuPermission;
 import com.beeasy.hzback.modules.system.entity.Quarters;
+import com.beeasy.hzback.modules.system.entity.RolePermission;
 import com.beeasy.hzback.modules.system.entity.SystemMenu;
+import com.beeasy.hzback.modules.system.service.IUserService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -38,6 +39,7 @@ public class User implements Serializable{
     private String username;
     private String password;
 
+    private String trueName;
     private String phone;
     private String email;
 
@@ -64,8 +66,12 @@ public class User implements Serializable{
     @OneToOne(mappedBy = "user")
     private UserProfile profile;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    private MenuPermission menuPermission;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<RolePermission> permissions = new ArrayList<>();
+
+//    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
+//    private List<CloudDirectoryIndex> folders = new ArrayList<>();
+
     /**
      * 得到一个用户所有的工作留
      * @return
@@ -92,6 +98,23 @@ public class User implements Serializable{
         return getQuarters().stream()
                     .anyMatch(q -> q.getId().equals(id));
     }
+
+    @Transient
+    public Optional<RolePermission> getMethodPermission(){
+        return getPermissions()
+                .stream()
+                .filter(rolePermission -> rolePermission.getType().equals(IUserService.PermissionType.METHOD))
+                .findAny();
+    }
+
+    @Transient
+    public Optional<RolePermission> getMenuPermission(){
+        return getPermissions()
+                .stream()
+                .filter(rolePermission -> rolePermission.getType().equals(IUserService.PermissionType.MENU))
+                .findAny();
+    }
+
 
 
 

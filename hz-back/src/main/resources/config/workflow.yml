@@ -26,6 +26,7 @@
 #      type: string
 #      required: y
 
+
 #审核节点: 用于审核
 #  type: check
 #  ps: 审核节点的备注名, 通常也为ps
@@ -38,10 +39,25 @@
 #      condition: 满足该状态的人数
 #      behavior: 满足状态后执行的动作, 参见flowscript
 
+
+#万能节点: 整合了审核和信息功能的节点
+#  type: universal
+#  next: 同信息节点
+#  count: #允许处理该节点的人数, 当大于1的时候, next默认的行为失效, 必须自定义后续的跳转流程
+#  content: 同信息节点
+#  states: 部分同审核节点
+#    状态1:
+#      key: 触发状态的key
+#      value: 触发状态的value
+#      condition: 满足该状态的人数
+#      behavior: 满足该状态后执行的动作
+#
+#  behavior: #flowscript表达式, 用于返回处理审核的结果, 当该项存在的时候, 默认的审核行为失效, 该表达式每次提交都会生效
+
 #逻辑节点: 用户逻辑判断
 #  type: logic
 #  condition: 用于判断的脚本, 参见flowscript, 当该行返回null的时候, 放到下一个时间点处理
-#  time: 循环触发周期, 单位为秒
+#  interval: 循环触发周期, 单位为秒
 #  result: 定义返回的状态, 与审核节点的state类似, 但不同的是, 状态只需要声明要处理的行为即可
 #    返回值1: go('xxxx')
 #    else: 如果没有任何命中, 则执行else
@@ -136,7 +152,7 @@
     判断表内/表外:
       type: logic
       condition: getLastNode('发起权限申请').get('type') #判断条件
-      time: 1 #循环触发周期
+      interval: 1 #循环触发周期
       result: #条件处理, 只在不为null的时候才处理
         表内: go('授信管理部审核')
 
@@ -324,7 +340,7 @@
 
     判断贷款额度:
       type: logic
-      time: 0
+      interval: 0
       condition: "getLastNode('填写贷后检查表').get('f5') > 10000000 ? 'yeah' : 'ohno'"
       result:
         yeah: go('上传报告')

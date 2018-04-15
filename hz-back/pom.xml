@@ -20,7 +20,11 @@
     <repositories>
         <repository>
             <id>oschina</id>
-            <url>http://maven.aliyun.com/nexus/content/groups/public/</url>
+            <url>http://maven.oschina.net/content/groups/public/</url>
+        </repository>
+        <repository>
+            <id>aliyun</id>
+            <url>http://maven.aliyun.com/nexus/content/groups/public</url>
         </repository>
         <repository>
             <id>com.ibm.db2.jcc</id>
@@ -32,17 +36,17 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-            <!--<exclusions>-->
-                <!--<exclusion>-->
-                    <!--<groupId>org.springframework.boot </groupId>-->
-                    <!--<artifactId>spring-boot-starter-tomcat</artifactId>-->
-                <!--</exclusion>-->
-            <!--</exclusions>-->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot </groupId>
+                    <artifactId>spring-boot-starter-tomcat</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.springframework.boot</groupId>-->
-            <!--<artifactId>spring-boot-starter-undertow</artifactId>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-undertow</artifactId>
+        </dependency>
 
         <!-- mybatis-plus begin -->
         <!--<dependency>-->
@@ -73,10 +77,7 @@
             <artifactId>db2jcc4</artifactId>
             <version>10.1</version>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-        </dependency>
+
 
 
         <!--mysql-->
@@ -158,11 +159,11 @@
 
 
         <!--shiro-->
-        <dependency>
-            <groupId>org.apache.shiro</groupId>
-            <artifactId>shiro-spring</artifactId>
-            <version>1.2.2</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.shiro</groupId>-->
+            <!--<artifactId>shiro-spring</artifactId>-->
+            <!--<version>1.2.2</version>-->
+        <!--</dependency>-->
         <!--shiro end-->
 
         <!--<dependency>-->
@@ -213,11 +214,11 @@
             <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>com.ibeetl</groupId>
-            <artifactId>beetl</artifactId>
-            <version>2.7.23</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>com.ibeetl</groupId>-->
+            <!--<artifactId>beetl</artifactId>-->
+            <!--<version>2.7.23</version>-->
+        <!--</dependency>-->
 
         <!--fastjson-->
         <dependency>
@@ -285,6 +286,39 @@
             <version>1.7.0.RELEASE</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.liferay</groupId>
+            <artifactId>org.apache.commons.fileupload</artifactId>
+            <version>1.2.2.LIFERAY-PATCHED-1</version>
+        </dependency>
+
+
+    <dependency>
+        <groupId>com.itextpdf</groupId>
+        <artifactId>itextpdf</artifactId>
+        <version>5.5.13</version>
+    </dependency>
+    <dependency>
+        <groupId>com.itextpdf.tool</groupId>
+        <artifactId>xmlworker</artifactId>
+        <version>5.5.13</version>
+    </dependency>
+        <dependency>
+            <groupId>org.xhtmlrenderer</groupId>
+            <artifactId>core-renderer</artifactId>
+            <version>R8</version>
+        </dependency>
+
+
+        <!--<dependency>-->
+            <!--<groupId>org.springframework.boot</groupId>-->
+            <!--<artifactId>spring-boot-starter-cache</artifactId>-->
+        <!--</dependency>-->
+
+        <!--<dependency>-->
+            <!--<groupId>net.sf.ehcache</groupId>-->
+            <!--<artifactId>ehcache</artifactId>-->
+        <!--</dependency>-->
 
 
     </dependencies>

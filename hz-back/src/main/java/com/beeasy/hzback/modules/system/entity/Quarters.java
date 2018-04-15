@@ -35,10 +35,10 @@ public class Quarters extends AbstractBaseEntity {
     @ManyToMany()
     @JoinTable(name = "t_USER_QUARTERS",
             joinColumns = {
-                    @JoinColumn(name = "USER_ID", referencedColumnName = "ID")
+                    @JoinColumn(name = "QUARTERS_ID", referencedColumnName = "ID")
             },
             inverseJoinColumns = {
-                    @JoinColumn(name = "QUARTERS_ID", referencedColumnName = "ID")
+                    @JoinColumn(name = "USER_ID", referencedColumnName = "ID")
             }
     )
 //    @LazyCollection(LazyCollectionOption.EXTRA)

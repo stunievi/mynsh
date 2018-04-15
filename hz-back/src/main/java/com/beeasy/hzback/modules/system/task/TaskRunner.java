@@ -1,22 +1,19 @@
 package com.beeasy.hzback.modules.system.task;
 
-import com.beeasy.hzback.core.exception.RestException;
-import com.beeasy.hzback.core.helper.SpringContextUtils;
+import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.modules.system.dao.ISystemTaskDao;
-import com.beeasy.hzback.modules.system.entity.SystemTask;
+import com.beeasy.hzback.modules.system.dao.IWorkflowNodeInstanceDao;
+import com.beeasy.hzback.modules.system.entity.WorkflowNodeInstance;
+import com.beeasy.hzback.modules.system.service.WorkflowService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Date;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Transactional
 @Component
@@ -27,53 +24,49 @@ public class TaskRunner{
     int lockTimeout;
 
     @Autowired
+    IWorkflowNodeInstanceDao nodeInstanceDao;
+    @Autowired
     ISystemTaskDao systemTaskDao;
+    @Autowired
+    WorkflowService workflowService;
 
-    protected void lockTasks(Set<Long> ids) {
-        systemTaskDao.lockByIds(ids,new Date());
+    @Autowired
+    RedisTemplate redisTemplate;
+    @Autowired
+    Utils utils;
+
+    final static String LOGIC_NODE_LOCK = "LOGIC_NODE_LOCK";
+
+
+    private void doLogicNodeTask(){
+        Page<WorkflowNodeInstance> nodeInstances = nodeInstanceDao.findAllByTypeAndFinishedIsFalse("logic",new PageRequest(0,200));
+        if(nodeInstances.getContent().size() == 0) return;
+
+        nodeInstances.getContent().forEach(nodeInstance -> {
+            workflowService.runLogicNode(nodeInstance.getInstance(),nodeInstance);
+        });
+
     }
 
-    protected void deleteTasks(Set<Long> ids) {
-        systemTaskDao.deleteAllByIdIn(ids);
-    }
 
-    protected boolean doSingleTask(SystemTask task) {
-        try {
-            Class clz = Class.forName(task.getClassName());
-            if (!ITask.class.isAssignableFrom(clz)) {
-                throw new ClassNotFoundException();
-            }
-            ITask taskInstance = (ITask) SpringContextUtils.getBeanObject(clz);
-            taskInstance.doTask(task.getTaskKey(), task.getParams());
-            return true;
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (RestException e) {
-            e.printStackTrace();
-            return true;
-        }
-        return false;
-    }
-
-    @Scheduled(fixedRate = 1000)
+    @Scheduled(fixedRate = 5000)
     public void doTask() {
-        //清理锁定时间超过10秒的任务
-        systemTaskDao.deleteFailedLock(new Date(System.currentTimeMillis() - lockTimeout));
+        if(utils.isLockingOrLockFailed(LOGIC_NODE_LOCK,10)){
+            return;
+        }
 
-        Pageable pageable = new PageRequest(0, 200);
-        Page<SystemTask> tasks = systemTaskDao.findAllByRunTimeBeforeAndThreadLock(new Date(),false,pageable);
-        if(tasks.getContent().size() == 0) return;
-
-        //锁定
-        lockTasks(tasks.getContent().stream().map(SystemTask::getId).collect(Collectors.toSet()));
-
-        Set<Long> ids = tasks.getContent().stream()
-                .filter(task -> doSingleTask(task))
-                .map(SystemTask::getId)
-                .collect(Collectors.toSet());
-
-
-        deleteTasks(ids);
+        try{
+            //争抢线程
+            doLogicNodeTask();
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        finally {
+            utils.unlock(LOGIC_NODE_LOCK);
+        }
     }
+
+
 
 }

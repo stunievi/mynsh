@@ -36,4 +36,8 @@ public class Result <T> {
     public static Result error(){
         return error(null);
     }
+
+    public static Result finish(boolean b){
+        return b ? ok() : error();
+    }
 }

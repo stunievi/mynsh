@@ -1,0 +1,20 @@
+user:
+  main:
+    sql: select ${t_user.fields} from t_user where user_id = :uid
+
+  profile:
+    sql: select ${t_user_profile.fields} from t_user_profile where user_id = :uid
+
+  quarters:
+    sql: "select ${t_quarters.fields} from t_quarters q
+            join t_user_quarters uq
+              on uq.quarters_id = ${quarters}
+          where uq.user_id = :uid"
+  departments:
+    sql: "select ${t._department.fields} from t_department d
+            join t_quarters q
+              on q.department_id = d.id
+            join t_user_quarters uq
+              on uq.quarters_id = q.id
+          where uq.user_id = :uid
+          "

@@ -16,4 +16,6 @@ public interface IWorkflowNodeInstanceDao extends JpaRepository<WorkflowNodeInst
             value = "select node.instance from WorkflowNodeInstance node join node.instance instance where instance.workflowModel in :models and node.nodeName in :names and node.finished = :finished group by node.instance",
             countQuery = "select count(node) from WorkflowNodeInstance node join node.instance instance where instance.workflowModel in :models and node.nodeName in :names and node.finished = :finished group by node.instance")
     Page<WorkflowInstance> getInstanceList(Set<WorkflowModel> models, Set<String> names, boolean finished, Pageable pageable);
+
+    Page<WorkflowNodeInstance> findAllByTypeAndFinishedIsFalse(String type, Pageable pageable);
 }

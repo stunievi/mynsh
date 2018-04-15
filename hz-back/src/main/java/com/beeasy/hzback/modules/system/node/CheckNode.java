@@ -3,15 +3,17 @@ package com.beeasy.hzback.modules.system.node;
 import com.alibaba.druid.util.StringUtils;
 import com.beeasy.hzback.core.entity.AbstractBaseEntity;
 import com.beeasy.hzback.modules.setting.entity.User;
-import com.beeasy.hzback.modules.system.entity.WorkflowNodeAttribute;
 import com.beeasy.hzback.modules.system.entity.WorkflowNodeInstance;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.apache.commons.lang.math.NumberUtils;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+//import org.beetl.core.misc.NumberUtil;
 
 @Getter
 @Setter
@@ -29,7 +31,7 @@ public class CheckNode extends BaseNode{
         super(name, "check", v);
 
         if (v.containsKey("count")) {
-            setCount((Integer) v.get("count"));
+            setCount(NumberUtils.toInt(String.valueOf(v.get("count"))));
         }
         if (v.containsKey("ps")) {
             setPs(String.valueOf(v.get("ps")));
@@ -54,18 +56,7 @@ public class CheckNode extends BaseNode{
         }
     }
 
-    protected void addNode(User user, WorkflowNodeInstance wNInstance, String key, String value){
-        WorkflowNodeAttribute attribute = wNInstance.getAttributeList()
-                .stream()
-                .filter(a -> a.getDealUser().getId().equals(user.getId()) && a.getAttrKey().equals(key))
-                .findAny()
-                .orElse(new WorkflowNodeAttribute());
-        attribute.setDealUser(user);
-        attribute.setAttrKey(key);
-        attribute.setAttrValue(value);
-        attribute.setNodeInstance(wNInstance);
-        wNInstance.getAttributeList().add(attribute);
-    }
+
 
     @Override
     public void submit(User user, WorkflowNodeInstance wNInstance, Map data) {

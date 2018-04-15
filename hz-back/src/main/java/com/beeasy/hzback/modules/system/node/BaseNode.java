@@ -1,6 +1,7 @@
 package com.beeasy.hzback.modules.system.node;
 
 import com.beeasy.hzback.modules.setting.entity.User;
+import com.beeasy.hzback.modules.system.entity.WorkflowNodeAttribute;
 import com.beeasy.hzback.modules.system.entity.WorkflowNodeInstance;
 import lombok.Getter;
 import lombok.Setter;
@@ -55,6 +56,9 @@ abstract public class BaseNode implements Serializable {
             case "logic":
                 return new LogicNode(k,v);
 
+            case "universal":
+                return new UniversalNode(k,v);
+
             case "end":
                 NormalNode node = new NormalNode(k,v);
                 node.setEnd(true);
@@ -65,4 +69,17 @@ abstract public class BaseNode implements Serializable {
     }
 
     public  void submit(User user, WorkflowNodeInstance wNInstance, Map<String, Object> data){}
+
+    protected void addNode(User user, WorkflowNodeInstance wNInstance, String key, String value){
+        WorkflowNodeAttribute attribute = wNInstance.getAttributeList()
+                .stream()
+                .filter(a -> a.getDealUser().getId().equals(user.getId()) && a.getAttrKey().equals(key))
+                .findAny()
+                .orElse(new WorkflowNodeAttribute());
+        attribute.setDealUser(user);
+        attribute.setAttrKey(key);
+        attribute.setAttrValue(value);
+        attribute.setNodeInstance(wNInstance);
+        wNInstance.getAttributeList().add(attribute);
+    }
 }

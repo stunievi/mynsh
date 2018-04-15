@@ -1,13 +1,13 @@
 package bin.leblanc.zed;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import bin.leblanc.zed.exception.ErrorWhereFieldsException;
 import bin.leblanc.zed.exception.NoEntityException;
 import bin.leblanc.zed.exception.NoPermissionException;
 import bin.leblanc.zed.metadata.IGetWhereLimit;
 import bin.leblanc.zed.metadata.RoleEntity;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -106,7 +106,7 @@ public class SQLUtil {
         Set<String> entityKeys = postObject.keySet();
         Map<String, Object> map = new HashMap<>();
 
-        boolean isSU = isSuperAdmin(roleEntities);
+        boolean isSU = false; //isSuperAdmin(roleEntities);
 
         for (String entityKey : entityKeys) {
             if (!entityMap.containsKey(entityKey)) {
@@ -157,8 +157,8 @@ public class SQLUtil {
         return map;
     }
 
-    protected boolean isSuperAdmin(Set<RoleEntity> roleEntities){
-        return (roleEntities.stream().anyMatch(roleEntity -> roleEntity.getRolePermission().getAllowMap().containsKey(Zed.GET)));
+    protected boolean isSuperAdmin(RoleEntity ...roleEntities){
+        return (Arrays.asList(roleEntities).stream().anyMatch(roleEntity -> ((RoleEntity)roleEntity).getRolePermission().getAllowMap().containsKey(Zed.GET)));
     }
 
     protected boolean putSingleItem(RoleEntity roleEntity, Class clz, String idName, Object idValue, JSONObject update) {
@@ -195,7 +195,7 @@ public class SQLUtil {
         Set<String> entityKeys = putObject.keySet();
         Map<String, Boolean> map = new HashMap<>();
 
-        boolean isSU = isSuperAdmin(roleEntities);
+        boolean isSU = false;//isSuperAdmin(roleEntities);
 
         for (String entityKey : entityKeys) {
             if (!entityMap.containsKey(entityKey)) {
@@ -263,7 +263,7 @@ public class SQLUtil {
         Set<String> entityKeys = deleteObject.keySet();
         Map<String, Boolean> map = new HashMap<>();
 
-        boolean isSuperAdmin = isSuperAdmin(roleEntities);
+        boolean isSuperAdmin = false;//isSuperAdmin(roleEntities);
 
         for (String entityKey : entityKeys) {
             if (!entityMap.containsKey(entityKey)) {
@@ -303,12 +303,11 @@ public class SQLUtil {
         return map;
     }
 
-    public Map<String, Object> select(JSONObject object, Set<RoleEntity> roleEntities) throws Exception {
+    public Map<String, Object> select(JSONObject object, RoleEntity roleEntity) throws Exception {
         Map<String, Class<?>> entityMap = zed.getEntityMap();
 
         //如果有任何一个权限允许查询所有表（拥有SU权限）那么不再验证
-        boolean isSuperAdmin = isSuperAdmin(roleEntities);
-
+        boolean isSuperAdmin = isSuperAdmin(roleEntity);//isSuperAdmin(roleEntities);
 
         Set<String> entityKeys = object.keySet();
         Map<String, Object> map = new HashMap<>();
@@ -324,6 +323,7 @@ public class SQLUtil {
             }
             //多个查询
             log.info(entityKey);
+
             //不存在该表的情况直接略过
             if (!entityMap.containsKey(entityKey)) {
                 throw new NoEntityException();
@@ -332,33 +332,38 @@ public class SQLUtil {
             //得到需要查询的表
             Class<?> clz = entityMap.get(entityKey);
 
-            Set<RoleEntity> newRoleEntities = roleEntities;
+//            Set<RoleEntity> newRoleEntities = roleEntities;
             //验证是否拥有查询权限
             if(!isSuperAdmin){
-                newRoleEntities = newRoleEntities.stream()
-                        .filter(roleEntity -> {
-                            Optional<EntityPermission> entityPermission = roleEntity
-                                    .getRolePermission()
-                                    .getEntityPermission(clz);
-                            return entityPermission.isPresent() && entityPermission.get().isGet();
-                        })
-                        .collect(Collectors.toSet());
-                if(newRoleEntities.size() == 0){
+                Optional<EntityPermission> entityPermission = roleEntity
+                        .getRolePermission()
+                        .getEntityPermission(clz);
+                if(!entityPermission.isPresent() || !entityPermission.get().isGet()){
                     throw new NoPermissionException();
                 }
+//                newRoleEntities = newRoleEntities.stream()
+//                        .filter(roleEntity -> {
+//                            Optional<EntityPermission> entityPermission = roleEntity
+//                                    .getRolePermission()
+//                                    .getEntityPermission(clz);
+//                            return entityPermission.isPresent() && entityPermission.get().isGet();
+//                        })
+//                        .collect(Collectors.toSet());
+//                if(newRoleEntities.size() == 0){
+//                    throw new NoPermissionException();
+//                }
             }
-            map.put(sourceKey, selectSingle(newRoleEntities,clz, entityValue, null, multipul));
+            map.put(sourceKey, selectSingle(roleEntity,clz, entityValue, null, multipul));
         }
 
         return map;
     }
 
-    private Object selectSingle(Set<RoleEntity> roleEntities,Class clz, JSONObject entityValue, String joinName, boolean multipul) throws Exception {
-        return selectSingle(roleEntities,clz, entityValue, joinName, multipul, null, null);
-
+    private Object selectSingle(RoleEntity roleEntity,Class clz, JSONObject entityValue, String joinName, boolean multipul) throws Exception {
+        return selectSingle(roleEntity,clz, entityValue, joinName, multipul, null, null);
     }
 
-    private Object selectSingle(Set<RoleEntity> roleEntities,Class clz, JSONObject entityValue, String joinName, boolean multipul, String joinIdName, Object joinIdValue) throws Exception {
+    private Object selectSingle(RoleEntity roleEntity,Class clz, JSONObject entityValue, String joinName, boolean multipul, String joinIdName, Object joinIdValue) throws Exception {
         JSONObject condition;
         //得到检索条件，如果没有，则为空
         if (entityValue.containsKey(WHERE)) {
@@ -370,7 +375,6 @@ public class SQLUtil {
         /**
          * 目前只拿出权限组的其中一个
          */
-        RoleEntity roleEntity = roleEntities.stream().findFirst().get();
         Optional<EntityPermission> opRolePermission = roleEntity.getRolePermission().getEntityPermission(clz);
 
         //检查字段
@@ -438,7 +442,7 @@ public class SQLUtil {
 
         if (multipul) {
             //如果声明了附加字段
-            JSONArray ret = fetchExtendFields(roleEntities,result.get(0).getClass(), result, entityValue);
+            JSONArray ret = fetchExtendFields(roleEntity,result.get(0).getClass(), result, entityValue);
             opRolePermission.ifPresent(rolePermission -> {
                 if(rolePermission.getGetReturnFields().size() > 0){
                     ret.forEach(obj -> {
@@ -457,7 +461,7 @@ public class SQLUtil {
             return ret;
         } else {
             result = result.subList(0, 1);
-            JSONArray ret = fetchExtendFields(roleEntities,result.get(0).getClass(), result, entityValue);
+            JSONArray ret = fetchExtendFields(roleEntity,result.get(0).getClass(), result, entityValue);
             opRolePermission.ifPresent(rolePermission -> {
                 if(rolePermission.getGetReturnFields().size() > 0){
                     JSONObject obj = (JSONObject) ret.get(0);
@@ -480,7 +484,7 @@ public class SQLUtil {
     /**
      * 查找一个模型的附加字段
      */
-    private JSONArray fetchExtendFields(Set<RoleEntity> roleEntities,Class clz, List result, JSONObject entityValue) throws Exception {
+    private JSONArray fetchExtendFields(RoleEntity roleEntity, Class clz, List result, JSONObject entityValue) throws Exception {
         //检查是否有附加字段
         Set<Attribute> linkFields = jpaUtil.getLinkFields(clz);
 //        Set<String> externFields = jpaUtil.getAvaExternFields(clz, entityValue.keySet());
@@ -499,9 +503,12 @@ public class SQLUtil {
         Set<String> needKeys = entityValue.keySet();
 
         //重新检索需要的字段
-        Set<String> externFields = linkFields.stream()
-                .filter(item -> needKeys.contains(item.getName()))
-                .map(item -> item.getName())
+//        Set<String> externFields = linkFields.stream()
+//                .filter(item -> needKeys.contains(item.getName()) || needKeys.contains("&" + item.getName()))
+//                .map(item -> item.getName())
+//                .collect(Collectors.toSet());
+        Set<String> externFields = needKeys.stream()
+                .filter(item -> linkFields.stream().filter(link -> link.getName().equals(item) || item.equals("&"+link.getName())).count() > 0)
                 .collect(Collectors.toSet());
 
         if (externFields.size() == 0) {
@@ -512,10 +519,15 @@ public class SQLUtil {
         Field idField = clz.getDeclaredField(idName);
         idField.setAccessible(true);
 
-        for (String externField : externFields) {
-            fieldIterator:
+        for (String sourceField : externFields) {
             //如果有任何报错，过直接滤掉这个字段
             try {
+                boolean loop = false;
+                String externField = sourceField;
+                if(sourceField.startsWith("&")){
+                    externField = externField.substring(1);
+                    loop = true;
+                }
                 Field field = clz.getDeclaredField(externField);
                 field.setAccessible(true);
                 Class fieldType = field.getType();
@@ -526,7 +538,7 @@ public class SQLUtil {
                     log.info(field.getType().getSimpleName());
 
                     //得到附加字段的检索条件
-                    JSONObject externEntity = entityValue.getJSONObject(externField);
+                    JSONObject externEntity = entityValue.getJSONObject(sourceField);
                     boolean multipul = false;
                     if (fieldType.equals(Set.class) || fieldType.equals(List.class)) {
                         multipul = true;
@@ -536,13 +548,15 @@ public class SQLUtil {
                     if (idValue == null) {
                         continue;
                     }
-
-                    Object ret = selectSingle(roleEntities,clz, externEntity, externField, multipul, idName, idValue);
+                    if(loop){
+                        externEntity.put(sourceField,new JSONObject());
+                    }
+                    Object ret = selectSingle(roleEntity,clz, externEntity, externField, multipul, idName, idValue);
                     singleJSONObject.put(externField, ret);
 
                 }
             } catch (Exception e) {
-                break fieldIterator;
+                e.printStackTrace();
             }
         }
 

@@ -1,6 +1,5 @@
 package com.beeasy.hzback.modules.system.async;
 
-import com.alibaba.fastjson.JSON;
 import com.beeasy.hzback.modules.setting.entity.User;
 import com.beeasy.hzback.modules.system.dao.ISystemLogDao;
 import com.beeasy.hzback.modules.system.entity.SystemLog;
@@ -37,7 +36,7 @@ public class SystemLogAsync {
         return ip;
     }
 
-    @Async
+    @Async("taskExecutor")
     public void saveLog(User user, HttpServletRequest request, MethodSignature methodSignature) {
         String className = methodSignature.getDeclaringTypeName();
         className = className.substring(className.lastIndexOf(".") + 1);

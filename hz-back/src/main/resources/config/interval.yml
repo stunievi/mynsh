@@ -1,0 +1,15 @@
+logicNodeTask:
+  interval: 5
+
+  before:
+    sql: delete from t_system_task where thread_lock = 1 and lock_time < :expr
+    params:
+      expr: new Date().getInterval() - 5000
+  target:
+    sql: select * from t_system_task where thread_lock = 0 and run_time < :now
+    params:
+      now: new Date().getInterval()
+    return:
+
+  after: "cdddd"
+    sql

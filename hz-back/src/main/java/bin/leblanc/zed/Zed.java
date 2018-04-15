@@ -1,15 +1,13 @@
 package bin.leblanc.zed;
 
+import bin.leblanc.zed.exception.NoMethodException;
+import bin.leblanc.zed.exception.NoPermissionException;
+import bin.leblanc.zed.metadata.IPermission;
+import bin.leblanc.zed.metadata.RoleEntity;
 import bin.leblanc.zed.proxy.MethodFile;
 import bin.leblanc.zed.proxy.ZedProxyHandler;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import bin.leblanc.zed.exception.NoMethodException;
-import bin.leblanc.zed.exception.NoPermissionException;
-import bin.leblanc.zed.metadata.ICheckPermission;
-import bin.leblanc.zed.metadata.IPermission;
-import bin.leblanc.zed.metadata.RoleEntity;
-import com.beeasy.hzback.modules.setting.entity.Role;
 import com.beeasy.hzback.modules.setting.entity.User;
 import lombok.Cleanup;
 import lombok.Getter;
@@ -17,7 +15,6 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.jpa.internal.metamodel.EntityTypeImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.json.YamlJsonParser;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ResourceUtils;
@@ -25,10 +22,13 @@ import org.yaml.snakeyaml.Yaml;
 
 import javax.persistence.EntityManager;
 import javax.persistence.metamodel.EntityType;
-import java.io.*;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
 import java.lang.reflect.Proxy;
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.function.Function;
 
 
 @Slf4j
@@ -57,7 +57,7 @@ public class Zed {
     protected Map<String,RolePermission> roleMap = new HashMap<>();
 
     @Getter
-    protected List<ICheckPermission> roleHandlers = new ArrayList<>();
+    protected List<Function<Object,String>> roleHandlers = new ArrayList<>();
 
 
     public void init() {
@@ -101,38 +101,33 @@ public class Zed {
         method = method.trim().toLowerCase();
 
         Map<?,?> result;
-        Set<RoleEntity> roleEntities = authRole(token);
+        RoleEntity roleEntity = authRole(token);
 
         //过滤掉不存在的权限
-        String finalMethod = method;
-        roleEntities = roleEntities.stream().filter(roleEntity ->{
-            return !roleEntity.getRolePermission().getDisallowMap().containsKey(finalMethod);
-        }).collect(Collectors.toSet());
-
-        if(roleEntities.size() == 0){
+        if(roleEntity.getRolePermission().getDisallowMap().containsKey(method)){
             throw new NoPermissionException();
         }
 
         switch (method) {
             case GET:
-                result = this.parseGet(obj,roleEntities);
+                result = this.parseGet(obj,roleEntity);
                 log.info(JSON.toJSONString(result));
                 return (result);
 
-            case POST:
-                result = parsePost(obj,roleEntities);
-                log.info(JSON.toJSONString(result));
-                return (result);
-
-            case PUT:
-                result = parsePut(obj,roleEntities);
-                log.info(JSON.toJSONString(result));
-                return (result);
-
-            case DELETE:
-                result = parseDelete(obj,roleEntities);
-                log.info(JSON.toJSONString(result));
-                return (result);
+//            case POST:
+//                result = parsePost(obj,roleEntities);
+//                log.info(JSON.toJSONString(result));
+//                return (result);
+//
+//            case PUT:
+//                result = parsePut(obj,roleEntities);
+//                log.info(JSON.toJSONString(result));
+//                return (result);
+//
+//            case DELETE:
+//                result = parseDelete(obj,roleEntities);
+//                log.info(JSON.toJSONString(result));
+//                return (result);
 
         }
 
@@ -176,48 +171,36 @@ public class Zed {
      * 增加授权信息
      * @param checkPermission
      */
-    public int addRoleHandler(ICheckPermission checkPermission){
+    public void addRoleHandler(Function<Object,String> checkPermission){
         roleHandlers.add(checkPermission);
-        return roleHandlers.size() - 1;
     }
 
     /**
      * 在实际系统运行中需要动态授权，所以可以更改自己的授权方式
      */
-    public boolean modifyRoleHandler(int index,ICheckPermission checkPermission){
-        ICheckPermission roleHandler = roleHandlers.get(index);
-        //如果没有就不能更改
-        if(roleHandler == null){
-            return false;
-        }
-        roleHandlers.set(index,checkPermission);
-        return true;
-    }
+//    public boolean modifyRoleHandler(int index,ICheckPermission checkPermission){
+//        ICheckPermission roleHandler = roleHandlers.get(index);
+//        //如果没有就不能更改
+//        if(roleHandler == null){
+//            return false;
+//        }
+//        roleHandlers.set(index,checkPermission);
+//        return true;
+//    }
 
 
-    protected Set<RoleEntity> authRole(Object token){
-        //验证权限
-        Set<RoleEntity> set = new LinkedHashSet<>();
-        roleHandlers.forEach(roleHandler -> {
-            String roleName = roleHandler.call(token);
-            //如果是null 表示略过这个权限
-            if(roleName == null){
-                return;
+    protected RoleEntity authRole(Object token){
+        for (Function<Object, String> roleHandler : roleHandlers) {
+            String roleName = roleHandler.apply(token);
+            if(roleName != null){
+                return new RoleEntity(token,roleMap.get(roleName));
             }
-            //添加到权限组
-            RoleEntity entity = new RoleEntity(token,roleMap.get(roleName));
-            set.add(entity);
-        });
-        //至少保证有一个合法的权限
-        if(set.size() == 0){
-            RoleEntity entity = new RoleEntity(null,roleMap.get(RolePermission.UNKNOWN));
-            set.add(entity);
         }
-        return set;
+        return new RoleEntity(null,roleMap.get(RolePermission.UNKNOWN));
     }
 
-    public Map<String, Object> parseGet(JSONObject obj,Set<RoleEntity> roleEntities) throws Exception {
-        return sqlUtil.select(obj,roleEntities);
+    public Map<String, Object> parseGet(JSONObject obj,RoleEntity roleEntity) throws Exception {
+        return sqlUtil.select(obj,roleEntity);
     }
 
 

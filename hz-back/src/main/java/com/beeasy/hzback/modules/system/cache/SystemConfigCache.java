@@ -1,61 +1,81 @@
 package com.beeasy.hzback.modules.system.cache;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.beeasy.hzback.core.helper.Utils;
-import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
-import org.springframework.util.ResourceUtils;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.*;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
-@CacheConfig(cacheNames = "system_config")
+//@CacheConfig(cacheNames = "system_config")
 @Component
 public class SystemConfigCache {
 
-    @Cacheable(key = "'workflow'")
+    public static final String DEMO_CACHE_NAME = "system_config";
+
+    @Cacheable(value = DEMO_CACHE_NAME, key = "'workflow'")
+    public String getWorkflowString() throws IOException {
+        String filePath = "classpath:config/workflow.yml";
+        return Utils.readFile(filePath);
+    }
+
     public Object getWorkflowConfig(){
         try {
-            String filePath = "classpath:config/workflow.yml";
-            File file = ResourceUtils.getFile(filePath);
-            Reader r = new FileReader(file);
+            String str = getWorkflowString();
             Yaml yaml = new Yaml();
-            Object o = yaml.load(r);
-            r.close();
+            Object o = yaml.load(str);
             return o;
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    @Cacheable(key = "'behavior.js'")
-    public String getbehaviorLibrary(){
+    @Cacheable(value = DEMO_CACHE_NAME, key = "'behavior.js'")
+    public String getBehaviorString() throws IOException {
+        return Utils.readFile("classpath:config/behavior.js");
+    }
+
+    public String getBehaviorLibrary(){
         try {
-            return Utils.readFile("classpath:config/behavior.js");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
+            return getBehaviorString();
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return "";
     }
 
-    @Cacheable(key = "'full_menu'")
-    public JSONArray getFullMenu() throws IOException {
-        String filePath = "classpath:config/menu.json";
+    @Cacheable(value = DEMO_CACHE_NAME, key = "'full_method_permission'")
+    public Map<String,Map> getFullMethodPermission(){
         try {
-            String menu = Utils.readFile(filePath);
-            JSONArray arr = JSON.parseArray(menu);
-            return arr;
-        } catch (UnsupportedEncodingException e) {
+            Yaml yaml = new Yaml();
+            String str = Utils.readFile("classpath:config/method_permission.yml");
+            Object o = yaml.load(str);
+            return (Map<String, Map>) o;
+        } catch (IOException e) {
             e.printStackTrace();
-            return null;
         }
-
+        return new HashMap<>();
     }
+
+//    @Cacheable(value = DEMO_CACHE_NAME, key = "'full_menu'")
+//    public String getFullMenuString() throws IOException {
+//        String filePath = "classpath:config/menu.json";
+//        String menu = Utils.readFile(filePath);
+//        return menu;
+//    }
+//
+//    public JSONArray getFullMenu(){
+//        try {
+//            JSONArray arr = JSON.parseArray(getFullMenuString());
+//            return arr;
+//        } catch (UnsupportedEncodingException e) {
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        return null;
+//    }
 }

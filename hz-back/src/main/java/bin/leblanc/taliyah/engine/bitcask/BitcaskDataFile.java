@@ -2,10 +2,12 @@ package bin.leblanc.taliyah.engine.bitcask;
 
 import bin.leblanc.taliyah.util.Serializer;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
@@ -112,7 +114,7 @@ public class BitcaskDataFile {
             channel.write(ByteBuffer.wrap(BitConverter.getBytes(crc32.getValue())));
             fileSize += Long.BYTES;
 
-            //time
+            //interval
             channel.write(ByteBuffer.wrap(timestampByte));
             fileSize += timestampByte.length;
 

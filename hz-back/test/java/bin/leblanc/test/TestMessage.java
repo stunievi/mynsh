@@ -1,8 +1,6 @@
 package bin.leblanc.test;
 
 import com.beeasy.hzback.Application;
-import com.beeasy.hzback.modules.message.dao.IMessageContentDao;
-import com.beeasy.hzback.modules.message.dao.IMessageDao;
 import com.beeasy.hzback.modules.setting.dao.IUserDao;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -20,10 +18,10 @@ public class TestMessage {
     IUserDao userDao;
 
     @Autowired
-    IMessageDao messageDao;
-
-    @Autowired
-    IMessageContentDao messageContentDao;
+//    IMessageDao messageDao;
+//
+//    @Autowired
+//    IMessageContentDao messageContentDao;
 
     @Test
     public void test1(){

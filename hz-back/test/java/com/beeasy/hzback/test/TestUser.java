@@ -1,7 +1,6 @@
 package com.beeasy.hzback.test;
 
 import bin.leblanc.faker.Faker;
-import com.alibaba.fastjson.JSONArray;
 import com.beeasy.hzback.core.exception.RestException;
 import com.beeasy.hzback.modules.exception.CannotFindEntityException;
 import com.beeasy.hzback.modules.setting.dao.IDepartmentDao;
@@ -31,7 +30,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.script.ScriptContext;
@@ -40,6 +38,9 @@ import java.math.BigDecimal;
 import java.util.*;
 
 import static org.junit.Assert.*;
+
+//import net.sf.ehcache.CacheManager;
+//import org.springframework.data.redis.core.RedisTemplate;
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -63,8 +64,8 @@ public class TestUser {
     ScriptContext context;
     @Autowired
     SystemConfigCache cache;
-    @Autowired
-    RedisTemplate redisTemplate;
+//    @Autowired
+//    RedisTemplate redisTemplate;
 
     User u = null;
     Department department = null;
@@ -81,6 +82,16 @@ public class TestUser {
     }
 
     @Test
+    public void createAdminUser() throws RestException {
+        UserAdd userAdd = new UserAdd();
+        userAdd.setPassword("2");
+        userAdd.setUsername("1");
+        User u = userDao.findByUsername("1");
+        userService.deleteUser(u.getId());
+        userService.createUser(userAdd);
+    }
+
+    @Test
     public void prepare() throws RestException {
 
         //创建用户
@@ -88,18 +99,19 @@ public class TestUser {
         userAdd.setUsername(Faker.getName());
         userAdd.setPassword(Faker.getName());
         userAdd.setPhone(Faker.getPhone());
+        userAdd.setTrueName(Faker.getName());
         u = userService.createUser(userAdd);
         assertTrue(u.getId() > 0);
         users.add(u.getId());
 
         //unbind menu
         //限制菜单
-        u = userService.unbindMenus(u.getId(), Arrays.asList("工作台"));
-        assertNotNull(u);
+//        boolean success = userService.unbindMenus(u.getId(), Arrays.asList("工作台"));
+//        assertTrue(success);
 
-        JSONArray menu = userService.getMenus(u.getId());
-        assertTrue(menu.size() > 0);
-        assertNotEquals(menu.getJSONObject(0).getString("name"), "工作台");
+//        JSONArray menu = userService.getMenus(u.getId());
+//        assertTrue(menu.size() > 0);
+//        assertNotEquals(menu.getJSONObject(0).getString("name"), "工作台");
 
     }
 
@@ -131,7 +143,7 @@ public class TestUser {
         assertNotNull(quarters);
         assertTrue(quarters.getId() > 0);
         quarterss.add(quarters.getId());
-        u = userService.addQuarters(user.getId(), quarters.getId());
+//        userService.addQuarters(user.getId(), quarters.getId());
         return quarters;
     }
 
@@ -174,13 +186,18 @@ public class TestUser {
         quarters = createQuarters(u,department,Faker.getName());
 
         //删除角色
-        u = userService.removeQuarters(u.getId(), quarters.getId());
-        assertNotNull(u);
-        assertTrue(u.getQuarters().size() == 0);
+        UserEdit userEdit = new UserEdit();
+        userEdit.setId(u.getId());
+        userEdit.setQuarters(Collections.singleton(quarters.getId()));
+
+//        userService.removeQuarters(u.getId(), quarters.getId());
+        userService.editUser(userEdit);
+        u = userService.findUserE(u.getId());
+        assertTrue(u.getQuarters().size() > 0);
 
         //重新绑定
-        u = userService.setQuarters(u.getId(), quarters.getId());
-        assertTrue(u.getQuarters().size() > 0);
+//        u = userService.setQuarters(u.getId(), quarters.getId());
+//        assertTrue(u.getQuarters().size() > 0);
 
         //添加工作流
         workflowModel = createWorkflow("资料收集");
@@ -200,14 +217,16 @@ public class TestUser {
         assertTrue(workflowModel.getPersons().get(0).getUid() > 0);
 
         //打开工作流
-        workflowService.setOpen(workflowModel.getId(), true);
-        workflowService.setOpen(workflowModel.getId(), false);
+        workflowService.editWorkflowModel(workflowModel.getId(),null,true);
+        workflowService.editWorkflowModel(workflowModel.getId(),null,true);
+//        workflowService.setOpen(workflowModel.getId(), true);
+//        workflowService.setOpen(workflowModel.getId(), false);
 
         //打开一次后就不能再删除
         boolean success = workflowService.deleteWorkflowModel(workflowModel.getId(), false);
         assertFalse(success);
 
-        workflowService.setOpen(workflowModel.getId(), true);
+//        workflowService.setOpen(workflowModel.getId(), true);
 
 
         //发起工作流
@@ -249,22 +268,16 @@ public class TestUser {
     @Test
     public void test_权限申请() throws RestException {
         workflowModel = createWorkflow("菜单权限申请");
-//        String[] nodes = {"发起权限申请","判断表内/表外","授信管理部审核","合规部审核","电子银行部确认","菜运营部审","总领导班子审核"};
-//        WorkflowQuartersEdit[] edits = new WorkflowQuartersEdit[nodes.length];
-//        int count = 0;
-//        for (String node : nodes) {
-//            WorkflowQuartersEdit edit = new WorkflowQuartersEdit();
-//            edit.setName(node);
-//            edit.getMainUser().add(u.getId());
-//            edits[count++] = edit;
-//        }
-//        workflowModel = workflowService.setPersons(workflowModel.getId(),edits);
+        assertNotNull(workflowModel.getId());
+
+
 
         assertTrue(workflowModel.getId() > 0);
         assertTrue(workflowModel.getPersons().size() > 0);
 
         //打开工作流
-        workflowService.setOpen(workflowModel.getId(),true);
+        workflowService.editWorkflowModel(workflowModel.getId(),null,true);
+
 
         //发起工作流
         WorkflowInstance instance = workflowService.startNewInstance(u.getId(),workflowModel.getId());
@@ -278,7 +291,7 @@ public class TestUser {
         assertTrue(instance.getNodeList().size() > 0);
 
         instance = workflowService.goNext(u.getId(),instance.getId());
-        assertEquals(instance.getCurrentNode().getNodeName(),"判断表内/表外");
+//        assertEquals(instance.getCurrentNode().getNodeName(),"判断表内/表外");
         //等待验证
         int limit = 10;
         while(true){
@@ -335,7 +348,7 @@ public class TestUser {
 
     public void test_贷后跟踪() throws RestException {
         workflowModel = createWorkflow("贷后跟踪");
-        workflowModel = workflowService.setOpen(workflowModel.getId(),true);
+        workflowService.editWorkflowModel(workflowModel.getId(),null, true);
 
         //系统发布任务
         InspectTask task = workflowService.createInspectTask("贷后跟踪",u.getId(),true);
@@ -406,10 +419,14 @@ public class TestUser {
     @Autowired
     IInspectTaskDao inspectTaskDao;
 
+//    @Autowired
+//    CacheManager cacheManager;
+
     @Test
     public void clear() throws CannotFindEntityException {
-        redisTemplate.delete("workflow");
-        redisTemplate.delete("behavior.js");
+//        redisTemplate.delete("workflow");
+//        redisTemplate.delete("behavior.js");
+//        cacheManager.clearAll();
 
         modelDao.deleteAll();
 //        inspectTaskDao.deleteAll();
@@ -417,12 +434,9 @@ public class TestUser {
 //        workflowModels.forEach(wid -> {
 //            workflowService.deleteWorkflowModel(wid, true);
 //        });
+//        users.forEach(UserService::dele);
         users.forEach(uid -> {
-            try {
                 userService.deleteUser(uid);
-            } catch (CannotFindEntityException e) {
-                e.printStackTrace();
-            }
         });
 
         departmentDao.deleteAll();
@@ -439,6 +453,51 @@ public class TestUser {
 //        assertTrue(flag);
     }
 
+    @Test
+    public void createAdmin() throws RestException {
+        User user = userDao.findByUsername("1");
+        if(user != null){
+            userDao.delete(user);
+        }
+        UserAdd add = new UserAdd();
+        add.setPhone(Faker.getPhone());
+        add.setUsername("1");
+        add.setPassword("2");
+        add.setTrueName("管理员");
+//        add.setTrueName(Faker);
+        add.setBaned(false);
+        userService.createUser(add);
+
+
+
+
+//        user = new User();
+//        user.setPassword("2");
+//        user.setUsername("1");
+//        user.setPhone(Faker.getPhone());
+//        userDao.save(user);
+
+    }
+
+    @Test
+    public void testQuarters() throws RestException {
+        User user = userDao.findByUsername("1");
+
+        Department department = createDepartment(Faker.getName());
+        Quarters quarters = createQuarters(user,department,Faker.getName());
+
+        UserEdit edit = new UserEdit();
+        edit.setId(user.getId());
+        edit.setQuarters(Collections.singleton(quarters.getId()));
+
+        userService.editUser(edit);
+        assertTrue(userService.findUserE(user.getId()).getQuarters().size() > 0);
+
+        edit.setQuarters(new HashSet<>());
+        userService.editUser(edit);
+        assertTrue(userService.findUserE(user.getId()).getQuarters().size() == 0);
+    }
+
 
 
     @Test
@@ -449,6 +508,7 @@ public class TestUser {
             test_权限申请();
             test_贷后跟踪();
         }catch (RestException e){
+            log.info(e.getSimpleMessage());
            e.printStackTrace();
         }
         finally {
