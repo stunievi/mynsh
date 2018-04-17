@@ -416,6 +416,23 @@ public class WorkflowService implements IWorkflowService {
                 }).orElse(Result.error());
     }
 
+    public Optional<BaseNode> getCurrentNode(long userId, long instanceId){
+        AtomicReference<User> userAtomicReference = new AtomicReference<>();
+        return userService.findUser(userId)
+                .flatMap(user -> {
+                    userAtomicReference.set(user);
+                    return findInstance(instanceId);
+                })
+                .map(instance -> {
+
+                    //是否我处理
+                    if(!checkAuth(instance.getWorkflowModel(),instance.getCurrentNode().getNodeModel(),userAtomicReference.get())){
+                        return null;
+                    }
+
+                    return instance.getCurrentNode().getNodeModel();
+                });
+    }
 
 
     @Override

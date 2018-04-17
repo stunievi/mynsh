@@ -10,6 +10,7 @@ import com.beeasy.hzback.modules.system.form.Pager;
 import com.beeasy.hzback.modules.system.form.WorkflowModelAdd;
 import com.beeasy.hzback.modules.system.form.WorkflowModelEdit;
 import com.beeasy.hzback.modules.system.form.WorkflowQuartersEdit;
+import com.beeasy.hzback.modules.system.node.BaseNode;
 import com.beeasy.hzback.modules.system.service.WorkflowService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.Map;
+import java.util.Optional;
 
 @Api(tags = "工作流API", value = "编辑模型需要管理员权限")
 @Transactional
@@ -192,6 +194,12 @@ public class WorkFlowController {
         return workflowService.acceptInspectTask(Utils.getCurrentUserId(),taskId);
     }
 
+
+    @GetMapping("/currentNode")
+    public Result getCurrentNode(Long instanceId){
+        Optional<BaseNode> optional = workflowService.getCurrentNode(Utils.getCurrentUserId(),instanceId);
+        return optional.isPresent() ? Result.ok(optional.get()) : Result.error();
+    }
 
 
 
