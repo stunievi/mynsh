@@ -5,7 +5,6 @@ import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.modules.exception.CannotFindEntityException;
 import com.beeasy.hzback.modules.system.dao.IWorkflowModelDao;
-import com.beeasy.hzback.modules.system.entity.WorkflowInstance;
 import com.beeasy.hzback.modules.system.entity.WorkflowModel;
 import com.beeasy.hzback.modules.system.form.Pager;
 import com.beeasy.hzback.modules.system.form.WorkflowModelAdd;
@@ -27,6 +26,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Map;
 
 @Api(tags = "工作流API", value = "编辑模型需要管理员权限")
 @Transactional
@@ -120,6 +120,7 @@ public class WorkFlowController {
         return workflowService.setPersons(modelId, edit);
     }
 
+    @ApiOperation(value = "编辑工作流")
     @PutMapping("/model")
     public Object edit(
             @Valid  WorkflowModelEdit edit,
@@ -137,17 +138,65 @@ public class WorkFlowController {
 //        return workflowService.setOpen(modelId,open);
 //    }
 
+
     @ApiOperation(value = "发起工作流", notes = "")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "modelId", value = "工作流模型ID")
+            @ApiImplicitParam(name = "modelId", value = "工作流模型ID",required = true
+            )
     })
-    @PostMapping("/newTask")
-    public Object newTask(
+    @PostMapping("/newFlow")
+    public Result newTask(
             Long modelId
     ) throws RestException {
-        WorkflowInstance instance = workflowService.startNewInstance(Utils.getCurrentUser().getId(),modelId);
-        return  instance != null && instance.getId() > 0;
+        workflowService.startNewInstance(Utils.getCurrentUser().getId(),modelId);
+        return Result.ok();
     }
+
+    @ApiOperation(value = "向当前节点提交数据", notes = "不会进行下一步操作, 即使是节点的必填字段也可以为空, 重复提交视为草稿箱保存信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "instanceId", value = "工作流实例ID",required = true),
+            @ApiImplicitParam(name = "data",value = "提交的map, 键和值都必须是字符串",required = true)
+    })
+    @PostMapping("/submitData")
+    public Result submitData(
+            Long instanceId,
+            Map data
+    ) throws RestException {
+            workflowService.submitData(Utils.getCurrentUserId(),instanceId,data);
+            return Result.ok();
+    }
+
+    @ApiOperation(value = "提交当前节点信息", notes = "会校验所有传入的信息, 例如节点的必填字段")
+    @PostMapping("/goNextNode")
+    public Result goNext(
+            Long instanceId
+    ) throws RestException {
+        workflowService.goNext(Utils.getCurrentUserId(), instanceId);
+        return Result.ok();
+    }
+
+
+    @ApiOperation(value = "创建一条任务", notes = "当处理人为自己的时候,自动开启相关流程")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "modelName", value = "关联流程模型名称",required = true),
+            @ApiImplicitParam(name = "dealUserId",value = "处理人")
+    })
+    @PostMapping("/task/create")
+    public Result createInspectTask(String modelName, Long dealUserId){
+        return workflowService.createInspectTask(Utils.getCurrentUserId(),modelName,dealUserId,false);
+    }
+
+    @ApiOperation(value = "接受一条任务")
+    @PostMapping("/task/accept")
+    public Result acceptInspectTask(Long taskId) {
+        return workflowService.acceptInspectTask(Utils.getCurrentUserId(),taskId);
+    }
+
+
+
+
+
+
 
 
 

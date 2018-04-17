@@ -2,6 +2,7 @@ package com.beeasy.hzback.test;
 
 import bin.leblanc.faker.Faker;
 import com.beeasy.hzback.core.exception.RestException;
+import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.modules.exception.CannotFindEntityException;
 import com.beeasy.hzback.modules.setting.dao.IDepartmentDao;
 import com.beeasy.hzback.modules.setting.dao.IUserDao;
@@ -152,8 +153,10 @@ public class TestUser {
         modelAdd.setName(Faker.getName());
         modelAdd.setInfo("");
         modelAdd.setVersion(BigDecimal.valueOf(1.0));
-        WorkflowModel workflowModel = workflowService.createWorkflow(name, modelAdd);
-        assertTrue(workflowModel.getId() > 0);
+
+        WorkflowModel workflowModel =  workflowService.createWorkflow(name,modelAdd).orElse(null);
+        assertNotNull(workflowModel);
+
         workflowModels.add(workflowModel.getId());
 
 //        workflowModel = createWorkflow("菜单权限申请");
@@ -230,7 +233,7 @@ public class TestUser {
 
 
         //发起工作流
-        WorkflowInstance instance = workflowService.startNewInstance(u.getId(), workflowModel.getId());
+        WorkflowInstance instance = workflowService.startNewInstance(u.getId(), workflowModel.getId()).orElse(null);
         assertNotNull(instance);
         assertTrue(instance.getId() > 0);
 
@@ -280,7 +283,7 @@ public class TestUser {
 
 
         //发起工作流
-        WorkflowInstance instance = workflowService.startNewInstance(u.getId(),workflowModel.getId());
+        WorkflowInstance instance = workflowService.startNewInstance(u.getId(),workflowModel.getId()).orElse(null);
         assertTrue(instance.getId() > 0);
 
         //提交处理数据
@@ -351,12 +354,16 @@ public class TestUser {
         workflowService.editWorkflowModel(workflowModel.getId(),null, true);
 
         //系统发布任务
-        InspectTask task = workflowService.createInspectTask("贷后跟踪",u.getId(),true);
-        assertTrue(task.getId() > 0);
+        Result<InspectTask> result = workflowService.createInspectTask(0,"贷后跟踪",u.getId(),true);
+        InspectTask task = result.getData();
+        assertTrue(result.isSuccess());
 
         //接受任务
-        WorkflowInstance instance = workflowService.acceptInspectTask(u.getId(),task.getId());
-        assertTrue(instance.getId() > 0);
+        result = workflowService.acceptInspectTask(u.getId(),task.getId());
+        assertTrue(result.isSuccess());
+        task = result.getData();
+
+        WorkflowInstance instance = task.getInstance();
 
         //测试查询
         Page<InspectTask> list = workflowService.getInspectTaskList(u.getId(),"",null,new PageRequest(0,100,new Sort(Sort.Direction.DESC,"id")));
@@ -390,7 +397,8 @@ public class TestUser {
         Map data = new HashMap();
         data.put("f1","123");
 
-        WorkflowInstance instance = workflowService.startNewInstance(u.getId(),workflowModel.getId());
+        WorkflowInstance instance = workflowService.startNewInstance(u.getId(),workflowModel.getId()).orElse(null);
+        assertNotNull(instance);
         assertTrue(instance.getId() > 0);
 
         data.clear();

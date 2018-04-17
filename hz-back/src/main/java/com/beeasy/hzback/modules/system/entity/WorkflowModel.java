@@ -34,7 +34,7 @@ public class WorkflowModel {
     String info;
 
     //任务的原始名称
-    String baseName;
+    String modelName;
 
     boolean open;
 

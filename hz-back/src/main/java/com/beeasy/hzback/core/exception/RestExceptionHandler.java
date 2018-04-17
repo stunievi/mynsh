@@ -11,6 +11,9 @@ public class RestExceptionHandler{
 
     @ExceptionHandler(Exception.class)
     public Result handleException(Exception e) {
+        if(e instanceof RestException){
+            return Result.error(((RestException) e).getSimpleMessage());
+        }
         e.printStackTrace();
         return Result.error();
     }

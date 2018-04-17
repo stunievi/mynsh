@@ -1,6 +1,7 @@
 package com.beeasy.hzback.modules.system.service;
 
 import com.beeasy.hzback.core.exception.RestException;
+import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.modules.exception.CannotFindEntityException;
 import com.beeasy.hzback.modules.system.entity.InspectTask;
 import com.beeasy.hzback.modules.system.entity.WorkflowInstance;
@@ -78,17 +79,16 @@ public interface IWorkflowService {
      * @param modelId
      * @return
      */
-    WorkflowInstance startNewInstance(long uid, long modelId) throws RestException;
+    Optional<WorkflowInstance> startNewInstance(long uid, long modelId);
 
     WorkflowInstance closeInstance(long instanceId) throws CannotFindEntityException;
 
     /**
      * 如果是资料节点, 应该是键值对map
      * 如果是审核节点, 则只需要提交一个处理结果(通常为string)
-     * @param user
+     * @param uid
      * @param instanceId
      * @param data
-     * @param ps 审核说明, 可写可不写
      * @return
      */
     WorkflowInstance submitData(long uid, long instanceId, Map data) throws RestException;
@@ -99,7 +99,7 @@ public interface IWorkflowService {
     WorkflowModel setPersons(long modelId, WorkflowQuartersEdit... edits);
 
     public WorkflowModel deleteNode(long modelId, String[] nodeName) throws CannotFindEntityException;
-    WorkflowModel createWorkflow(String modelName, WorkflowModelAdd add) throws RestException;
+    Result<WorkflowModel> createWorkflow(String modelName, WorkflowModelAdd add) throws RestException;
 
     boolean deleteWorkflowModel(long id, boolean force);
 
@@ -122,7 +122,9 @@ public interface IWorkflowService {
      * @param isAuto
      * @return
      */
-    InspectTask createInspectTask(String modelName, long userId, boolean isAuto);
+//    Optional<InspectTask> createInspectTask(String modelName, long userId, boolean isAuto);
+
+    Result<InspectTask> createInspectTask(long createUserId, String modelName, long userId, boolean isAuto) throws RestException;
 
     /**
      * 接受检查任务, 创建一条新的工作流任务
@@ -131,7 +133,7 @@ public interface IWorkflowService {
      * @return
      * @throws RestException
      */
-    WorkflowInstance acceptInspectTask(long userId, long taskId) throws RestException;
+    Result<InspectTask> acceptInspectTask(long userId, long taskId) throws RestException;
 
 
     Optional<WorkflowModel> findModel(long id);
