@@ -52,7 +52,7 @@ public class BindingResultAop {
             Object arg = args[i];
             if(arg instanceof BindingResult){
                 if(((BindingResult) arg).hasErrors()){
-                    return Result.error(arg);
+                    return Result.error((BindingResult) arg);
                 }
             }
 

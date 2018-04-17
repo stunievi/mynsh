@@ -117,13 +117,6 @@ public class RestExceptionHandler{
 //        return ReturnFormat.retParam(406, null);
 //    }
     
-    
-    static class ReturnFormat{
-        public static Result retParam(int code, Object param){
-            if(param != null) return Result.error(param);
-            return Result.error();   
-        }
-    }
 
 
 }
