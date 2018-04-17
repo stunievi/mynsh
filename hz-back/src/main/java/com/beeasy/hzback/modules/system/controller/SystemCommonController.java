@@ -7,11 +7,10 @@ import bin.leblanc.dataset.DataSetResult;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.helper.Utils;
-import com.beeasy.hzback.modules.setting.entity.Department;
-import com.beeasy.hzback.modules.setting.entity.Role;
-import com.beeasy.hzback.modules.setting.entity.User;
 import com.beeasy.hzback.modules.setting.entity.UserProfile;
+import com.beeasy.hzback.modules.system.entity.Department;
 import com.beeasy.hzback.modules.system.entity.SystemMenu;
+import com.beeasy.hzback.modules.system.entity.User;
 import com.beeasy.hzback.modules.system.response.UserInfoResponse;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,9 +41,9 @@ public class SystemCommonController {
                     model.setPath("profile")
                             .setMultipul(false);
                 })
-                .addExtern("rs",Role.class, model -> {
-                    model.setPath("roles");
-                })
+//                .addExtern("rs",Role.class, model -> {
+//                    model.setPath("roles");
+//                })
                 .addExtern("ds",Department.class, model -> {
                     model.setPath("roles","department");
                 })

@@ -1,8 +1,8 @@
 //package com.beeasy.hzback.modules.setting.service;
 //
 //import com.beeasy.hzback.core.util.CrUtils;
-//import com.beeasy.hzback.modules.setting.dao.IUserDao;
-//import com.beeasy.hzback.modules.setting.entity.User;
+//import com.beeasy.hzback.modules.system.dao.IUserDao;
+//import com.beeasy.hzback.modules.system.entity.User;
 //import org.apache.commons.lang.StringUtils;
 //import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.stereotype.Service;

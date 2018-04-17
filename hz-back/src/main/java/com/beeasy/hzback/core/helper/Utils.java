@@ -3,7 +3,7 @@ package com.beeasy.hzback.core.helper;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.beeasy.hzback.core.exception.RestException;
-import com.beeasy.hzback.modules.setting.entity.User;
+import com.beeasy.hzback.modules.system.entity.User;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;

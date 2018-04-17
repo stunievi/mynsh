@@ -3,9 +3,9 @@
 //import com.alibaba.fastjson.JSON;
 //import com.alibaba.fastjson.TypeReference;
 //import com.beeasy.hzback.core.helper.Result;
-//import com.beeasy.hzback.modules.setting.dao.IUserDao;
+//import com.beeasy.hzback.modules.system.dao.IUserDao;
 //import com.beeasy.hzback.modules.setting.entity.Role;
-//import com.beeasy.hzback.modules.setting.entity.User;
+//import com.beeasy.hzback.modules.system.entity.User;
 //import com.beeasy.hzback.modules.setting.service.DepartmentService;
 //import com.beeasy.hzback.modules.setting.service.UserService;
 //import org.springframework.beans.factory.annotation.Autowired;

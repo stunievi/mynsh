@@ -1,7 +1,7 @@
 //package com.beeasy.hzback.modules.setting.service;
 //
 //import com.beeasy.hzback.modules.setting.dao.IDepartmentDao;
-//import com.beeasy.hzback.modules.setting.entity.Department;
+//import com.beeasy.hzback.modules.system.entity.Department;
 //import org.apache.commons.lang.StringUtils;
 //import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.stereotype.Service;

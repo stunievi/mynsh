@@ -1,8 +1,8 @@
 package com.beeasy.hzback.modules.system.dao;
 
-import com.beeasy.hzback.modules.setting.entity.User;
 import com.beeasy.hzback.modules.system.entity.CloudFileIndex;
 import com.beeasy.hzback.modules.system.entity.CloudShare;
+import com.beeasy.hzback.modules.system.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

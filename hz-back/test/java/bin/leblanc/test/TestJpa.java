@@ -1,7 +1,7 @@
 package bin.leblanc.test;
 
 import com.beeasy.hzback.Application;
-import com.beeasy.hzback.modules.setting.entity.User;
+import com.beeasy.hzback.modules.system.entity.User;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;

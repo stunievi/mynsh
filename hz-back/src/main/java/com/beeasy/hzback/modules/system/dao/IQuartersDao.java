@@ -1,6 +1,6 @@
 package com.beeasy.hzback.modules.system.dao;
 
-import com.beeasy.hzback.modules.setting.entity.Department;
+import com.beeasy.hzback.modules.system.entity.Department;
 import com.beeasy.hzback.modules.system.entity.Quarters;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

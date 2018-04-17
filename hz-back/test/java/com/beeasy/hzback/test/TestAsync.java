@@ -2,8 +2,8 @@ package com.beeasy.hzback.test;
 
 import bin.leblanc.faker.Faker;
 import com.beeasy.hzback.core.exception.RestException;
-import com.beeasy.hzback.modules.setting.entity.User;
 import com.beeasy.hzback.modules.system.entity.CloudDirectoryIndex;
+import com.beeasy.hzback.modules.system.entity.User;
 import com.beeasy.hzback.modules.system.form.UserAdd;
 import com.beeasy.hzback.modules.system.service.MessageService;
 import com.beeasy.hzback.modules.system.service.UserService;

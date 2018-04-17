@@ -1,7 +1,7 @@
 package com.beeasy.hzback.modules.system.dao;
 
-import com.beeasy.hzback.modules.setting.entity.User;
 import com.beeasy.hzback.modules.system.entity.Message;
+import com.beeasy.hzback.modules.system.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 

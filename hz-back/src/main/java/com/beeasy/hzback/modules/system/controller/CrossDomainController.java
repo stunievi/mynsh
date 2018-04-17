@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@Api(tags = "用于给IE10以下的浏览器提供跨域支持")
+@Api(tags = "跨域API",description = "用于给IE10以下的浏览器提供跨域支持",hidden = true)
 @Controller
 public class CrossDomainController {
     @GetMapping("/open/cross_domain")

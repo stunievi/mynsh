@@ -79,7 +79,7 @@ public interface IWorkflowService {
      * @param modelId
      * @return
      */
-    Optional<WorkflowInstance> startNewInstance(long uid, long modelId);
+    Result<WorkflowInstance> startNewInstance(long uid, long modelId);
 
     WorkflowInstance closeInstance(long instanceId) throws CannotFindEntityException;
 
@@ -96,7 +96,7 @@ public interface IWorkflowService {
 
     boolean editWorkflowModel(long modelId, String info, Boolean open);
 
-    WorkflowModel setPersons(long modelId, WorkflowQuartersEdit... edits);
+    Result setPersons(long modelId, WorkflowQuartersEdit... edits);
 
     public WorkflowModel deleteNode(long modelId, String[] nodeName) throws CannotFindEntityException;
     Result<WorkflowModel> createWorkflow(String modelName, WorkflowModelAdd add) throws RestException;

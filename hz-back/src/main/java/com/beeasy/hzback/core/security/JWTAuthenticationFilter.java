@@ -2,8 +2,8 @@ package com.beeasy.hzback.core.security;
 
 import com.alibaba.fastjson.JSON;
 import com.beeasy.hzback.core.helper.Result;
-import com.beeasy.hzback.modules.setting.entity.User;
 import com.beeasy.hzback.modules.system.entity.RolePermission;
+import com.beeasy.hzback.modules.system.entity.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

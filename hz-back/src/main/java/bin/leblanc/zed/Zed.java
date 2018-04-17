@@ -8,7 +8,7 @@ import bin.leblanc.zed.proxy.MethodFile;
 import bin.leblanc.zed.proxy.ZedProxyHandler;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.beeasy.hzback.modules.setting.entity.User;
+import com.beeasy.hzback.modules.system.entity.User;
 import lombok.Cleanup;
 import lombok.Getter;
 import lombok.Setter;

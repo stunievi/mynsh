@@ -2,7 +2,7 @@ package com.beeasy.hzback.modules.system.service;
 
 import com.beeasy.hzback.core.exception.RestException;
 import com.beeasy.hzback.modules.exception.CannotFindEntityException;
-import com.beeasy.hzback.modules.setting.entity.User;
+import com.beeasy.hzback.modules.system.entity.User;
 import com.beeasy.hzback.modules.system.form.UserAdd;
 
 import java.util.Optional;

@@ -1,7 +1,7 @@
 package com.beeasy.hzback.modules.system.service;
 
 import com.beeasy.hzback.core.exception.RestException;
-import com.beeasy.hzback.modules.setting.entity.Department;
+import com.beeasy.hzback.modules.system.entity.Department;
 import com.beeasy.hzback.modules.system.form.DepartmentAdd;
 
 public interface IDepartmentService {

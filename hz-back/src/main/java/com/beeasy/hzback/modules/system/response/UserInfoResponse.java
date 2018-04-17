@@ -1,15 +1,13 @@
 package com.beeasy.hzback.modules.system.response;
 
-import com.beeasy.hzback.core.helper.Result;
-import com.beeasy.hzback.modules.setting.entity.Department;
-import com.beeasy.hzback.modules.setting.entity.Role;
 import com.beeasy.hzback.modules.setting.entity.UserProfile;
+import com.beeasy.hzback.modules.system.entity.Department;
 import lombok.Data;
 
 @Data
 public class UserInfoResponse{
 
-    private Role[] rs;
+//    private Role[] rs;
     private Department[] ds;
     private UserProfile profile;
 

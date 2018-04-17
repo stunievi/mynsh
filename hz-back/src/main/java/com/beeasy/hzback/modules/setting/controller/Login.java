@@ -1,6 +1,6 @@
 //package com.beeasy.hzback.modules.setting.controller;
 //
-//import com.beeasy.hzback.modules.setting.entity.User;
+//import com.beeasy.hzback.modules.system.entity.User;
 //import com.beeasy.hzback.core.util.CrUtils;
 //import org.apache.shiro.SecurityUtils;
 //import org.apache.shiro.authc.UsernamePasswordToken;

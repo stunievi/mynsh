@@ -4,17 +4,12 @@ import bin.leblanc.faker.Faker;
 import com.beeasy.hzback.core.exception.RestException;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.modules.exception.CannotFindEntityException;
-import com.beeasy.hzback.modules.setting.dao.IDepartmentDao;
-import com.beeasy.hzback.modules.setting.dao.IUserDao;
-import com.beeasy.hzback.modules.setting.entity.Department;
-import com.beeasy.hzback.modules.setting.entity.User;
 import com.beeasy.hzback.modules.system.cache.SystemConfigCache;
+import com.beeasy.hzback.modules.system.dao.IDepartmentDao;
 import com.beeasy.hzback.modules.system.dao.IInspectTaskDao;
+import com.beeasy.hzback.modules.system.dao.IUserDao;
 import com.beeasy.hzback.modules.system.dao.IWorkflowModelDao;
-import com.beeasy.hzback.modules.system.entity.InspectTask;
-import com.beeasy.hzback.modules.system.entity.Quarters;
-import com.beeasy.hzback.modules.system.entity.WorkflowInstance;
-import com.beeasy.hzback.modules.system.entity.WorkflowModel;
+import com.beeasy.hzback.modules.system.entity.*;
 import com.beeasy.hzback.modules.system.form.*;
 import com.beeasy.hzback.modules.system.service.DepartmentService;
 import com.beeasy.hzback.modules.system.service.QuartersService;
@@ -172,7 +167,8 @@ public class TestUser {
         WorkflowQuartersEdit[] edits = new WorkflowQuartersEdit[list.size()];
         edits = list.toArray(edits);
 
-        workflowModel = workflowService.setPersons(workflowModel.getId(),edits);
+        workflowModel = workflowService.setPersons(workflowModel.getId(),edits).orElse(null);
+        assertNotNull(workflowModel);
 
         return workflowModel;
     }
@@ -214,7 +210,7 @@ public class TestUser {
         WorkflowQuartersEdit edit1 = new WorkflowQuartersEdit();
         edit1.setName("是否拒贷");
         edit1.getMainQuarters().add(quarters.getId());
-        workflowModel = workflowService.setPersons(workflowModel.getId(), edit, edit1);
+        workflowModel = workflowService.setPersons(workflowModel.getId(), edit, edit1).orElse(null);
 
         assertTrue(workflowModel.getPersons().size() > 0);
         assertTrue(workflowModel.getPersons().get(0).getUid() > 0);

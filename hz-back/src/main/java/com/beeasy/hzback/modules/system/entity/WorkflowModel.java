@@ -51,6 +51,7 @@ public class WorkflowModel {
     @OneToMany(mappedBy = "workflowModel",cascade = CascadeType.REMOVE)
     List<WorkflowInstance> workflowInstances = new ArrayList<>();
 
+    @JSONField(serialize = false)
     @Transient
     public BaseNode getStartNode(){
         //start一定存在
@@ -65,6 +66,7 @@ public class WorkflowModel {
     }
 
 
+    @JSONField(serialize = false)
     @Transient
     public BaseNode getEndNode(){
         //end元素一定存在
@@ -77,6 +79,7 @@ public class WorkflowModel {
                 .get();
     }
 
+    @JSONField(serialize = false)
     @Transient
     public Optional<BaseNode> findNode(String nodeName){
         return getModel().entrySet()

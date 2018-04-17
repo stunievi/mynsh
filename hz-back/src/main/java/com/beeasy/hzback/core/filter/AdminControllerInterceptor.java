@@ -5,9 +5,9 @@
 //import com.beeasy.hzback.core.config.AdminMenuConfig;
 //import com.beeasy.hzback.core.security.SecurityUser;
 //import com.beeasy.hzback.modules.setting.dao.IRoleDao;
-//import com.beeasy.hzback.modules.setting.dao.IUserDao;
+//import com.beeasy.hzback.modules.system.dao.IUserDao;
 //import com.beeasy.hzback.modules.setting.entity.Role;
-//import com.beeasy.hzback.modules.setting.entity.User;
+//import com.beeasy.hzback.modules.system.entity.User;
 //import com.beeasy.hzback.modules.setting.entity.WorkFlow;
 //import org.apache.shiro.SecurityUtils;
 //import org.aspectj.lang.JoinPoint;

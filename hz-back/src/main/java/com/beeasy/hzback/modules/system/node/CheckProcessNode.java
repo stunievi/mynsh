@@ -1,6 +1,6 @@
 package com.beeasy.hzback.modules.system.node;
 
-import com.beeasy.hzback.modules.setting.entity.User;
+import com.beeasy.hzback.modules.system.entity.User;
 import com.beeasy.hzback.modules.system.entity.WorkflowNodeInstance;
 import lombok.Getter;
 import lombok.Setter;

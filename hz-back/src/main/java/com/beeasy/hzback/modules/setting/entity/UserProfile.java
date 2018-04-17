@@ -1,5 +1,6 @@
 package com.beeasy.hzback.modules.setting.entity;
 
+import com.beeasy.hzback.modules.system.entity.User;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;

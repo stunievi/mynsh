@@ -7,7 +7,6 @@ import com.beeasy.hzback.core.exception.RestException;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.modules.exception.CannotFindEntityException;
-import com.beeasy.hzback.modules.setting.entity.User;
 import com.beeasy.hzback.modules.system.cache.SystemConfigCache;
 import com.beeasy.hzback.modules.system.dao.*;
 import com.beeasy.hzback.modules.system.entity.*;
@@ -92,21 +91,21 @@ public class WorkflowService implements IWorkflowService {
      * @return
      */
     @Override
-    public Optional<WorkflowInstance> startNewInstance(long uid, long modelId) {
+    public Result<WorkflowInstance> startNewInstance(long uid, long modelId) {
         AtomicReference<User> userAtomicReference = new AtomicReference<>();
         return userService.findUser(uid)
                 .flatMap(user -> {
                     userAtomicReference.set(user);
                     return findModel(modelId);
                 })
-                .flatMap(workflowModel -> {
+                .map(workflowModel -> {
                     if (!workflowModel.isOpen()) {
-                        return Optional.empty();
+                        return Result.error("工作流没有开启");
                     }
 
                     BaseNode firstNode = workflowModel.getStartNode();
                     if (!checkAuth(workflowModel, firstNode, userAtomicReference.get())) {
-                        return Optional.empty();
+                        return Result.error("你没有权限发起这个工作流");
                     }
 
                     //任务主体
@@ -117,8 +116,8 @@ public class WorkflowService implements IWorkflowService {
                     workflowInstance.addNode(firstNode);
 
                     workflowInstance = saveWorkflowInstance(workflowInstance);
-                    return workflowInstance.getId() == null ? Optional.empty() : Optional.of(workflowInstance);
-                });
+                    return workflowInstance.getId() == null ? Result.error() : Result.ok(workflowInstance);
+                }).orElse(Result.error());
     }
 
     @Override
@@ -231,9 +230,9 @@ public class WorkflowService implements IWorkflowService {
     }
 
     @Override
-    public WorkflowModel setPersons(long modelId, WorkflowQuartersEdit... edits) {
+    public Result<WorkflowModel> setPersons(long modelId, WorkflowQuartersEdit... edits) {
         WorkflowModel workflowModel = modelDao.findOne(modelId);
-        if (workflowModel == null || workflowModel.isFirstOpen() || workflowModel.isOpen()) return null;
+        if (workflowModel == null || workflowModel.isFirstOpen() || workflowModel.isOpen()) return Result.error("已经上线的工作流无法编辑");;
         for (WorkflowQuartersEdit edit : edits) {
             //如果没有这个节点
             if (!workflowModel
@@ -251,7 +250,7 @@ public class WorkflowService implements IWorkflowService {
             addWorkflowPersons(edit.getSupportUser(), workflowModel, edit.getName(), Type.SUPPORT_USER);
 
         }
-        return saveWorkflowModel(workflowModel);
+        return Result.ok(saveWorkflowModel(workflowModel));
     }
 
 
@@ -456,7 +455,7 @@ public class WorkflowService implements IWorkflowService {
                     task.setAcceptDate(new Date());
 
                     //创建一条新的工作流任务
-                    List<WorkflowModel> models = modelDao.findRecentVersions(task.getModelName());
+                    List<WorkflowModel> models = modelDao.findAllByModelNameAndOpenIsTrueOrderByVersionDesc(task.getModelName());
                     if (models.size() == 0) {
                         return Result.error("没找到符合条件的工作流模型");
                     }

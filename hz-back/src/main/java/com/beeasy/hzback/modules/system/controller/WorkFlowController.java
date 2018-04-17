@@ -70,7 +70,7 @@ public class WorkFlowController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "modelName", value = "模型名字")
     })
-    @GetMapping("/model")
+    @GetMapping("/models")
     public Result<Page<WorkflowModel>> list(
             Pager pager,
             @PageableDefault(value = 15, sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable,
@@ -80,6 +80,13 @@ public class WorkFlowController {
             return Result.ok(workflowModelDao.findAll(pageable));
         }
         return Result.ok(workflowModelDao.findAllByName(modelName,pageable));
+    }
+
+    @ApiOperation(value = "查找指定模型", notes = "")
+    @GetMapping("/model/id")
+    public Result getModelInfo(Long modelId){
+        Optional<WorkflowModel> optional = workflowService.findModel(modelId);
+        return optional.isPresent() ? Result.ok(optional.get()) : Result.error();
     }
 
     @ApiOperation(value = "添加工作流节点", notes = "")
@@ -114,7 +121,7 @@ public class WorkFlowController {
             @ApiImplicitParam(name = "modelId", value = "模型ID")
     })
     @PutMapping("/model/setPersons")
-    public Object setQuarters(
+    public Result setQuarters(
             long modelId,
             @Valid WorkflowQuartersEdit edit,
             BindingResult bindingResult
@@ -150,8 +157,7 @@ public class WorkFlowController {
     public Result newTask(
             Long modelId
     ) throws RestException {
-        workflowService.startNewInstance(Utils.getCurrentUser().getId(),modelId);
-        return Result.ok();
+       return workflowService.startNewInstance(Utils.getCurrentUser().getId(),modelId);
     }
 
     @ApiOperation(value = "向当前节点提交数据", notes = "不会进行下一步操作, 即使是节点的必填字段也可以为空, 重复提交视为草稿箱保存信息")
@@ -195,11 +201,14 @@ public class WorkFlowController {
     }
 
 
+    @ApiOperation(value = "当前应处理的节点")
     @GetMapping("/currentNode")
     public Result getCurrentNode(Long instanceId){
         Optional<BaseNode> optional = workflowService.getCurrentNode(Utils.getCurrentUserId(),instanceId);
         return optional.isPresent() ? Result.ok(optional.get()) : Result.error();
     }
+
+
 
 
 

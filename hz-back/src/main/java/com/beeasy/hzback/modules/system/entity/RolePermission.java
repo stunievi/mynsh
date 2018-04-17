@@ -1,7 +1,6 @@
 package com.beeasy.hzback.modules.system.entity;
 
 import com.beeasy.hzback.core.helper.ObjectConverter;
-import com.beeasy.hzback.modules.setting.entity.User;
 import com.beeasy.hzback.modules.system.service.IUserService;
 import lombok.Getter;
 import lombok.Setter;

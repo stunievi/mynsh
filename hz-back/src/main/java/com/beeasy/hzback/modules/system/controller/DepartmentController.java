@@ -2,8 +2,8 @@ package com.beeasy.hzback.modules.system.controller;
 
 import bin.leblanc.classtranslate.Transformer;
 import com.beeasy.hzback.core.helper.Result;
-import com.beeasy.hzback.modules.setting.dao.IDepartmentDao;
-import com.beeasy.hzback.modules.setting.entity.Department;
+import com.beeasy.hzback.modules.system.dao.IDepartmentDao;
+import com.beeasy.hzback.modules.system.entity.Department;
 import com.beeasy.hzback.modules.system.form.DepartmentAdd;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;

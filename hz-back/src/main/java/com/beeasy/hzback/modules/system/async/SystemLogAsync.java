@@ -1,8 +1,8 @@
 package com.beeasy.hzback.modules.system.async;
 
-import com.beeasy.hzback.modules.setting.entity.User;
 import com.beeasy.hzback.modules.system.dao.ISystemLogDao;
 import com.beeasy.hzback.modules.system.entity.SystemLog;
+import com.beeasy.hzback.modules.system.entity.User;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;

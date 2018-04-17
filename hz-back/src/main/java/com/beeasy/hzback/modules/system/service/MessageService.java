@@ -1,9 +1,9 @@
 package com.beeasy.hzback.modules.system.service;
 
-import com.beeasy.hzback.modules.setting.entity.User;
 import com.beeasy.hzback.modules.system.dao.IMessageDao;
 import com.beeasy.hzback.modules.system.entity.Message;
 import com.beeasy.hzback.modules.system.entity.MessageFile;
+import com.beeasy.hzback.modules.system.entity.User;
 import com.beeasy.hzback.modules.system.form.MessageAdd;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;

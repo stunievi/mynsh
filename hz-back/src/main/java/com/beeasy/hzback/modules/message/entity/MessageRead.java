@@ -1,7 +1,7 @@
 package com.beeasy.hzback.modules.message.entity;
 
 import bin.leblanc.message.type.MessageReadType;
-import com.beeasy.hzback.modules.setting.entity.User;
+import com.beeasy.hzback.modules.system.entity.User;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;

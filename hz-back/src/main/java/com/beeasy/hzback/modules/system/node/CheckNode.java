@@ -2,7 +2,7 @@ package com.beeasy.hzback.modules.system.node;
 
 import com.alibaba.druid.util.StringUtils;
 import com.beeasy.hzback.core.entity.AbstractBaseEntity;
-import com.beeasy.hzback.modules.setting.entity.User;
+import com.beeasy.hzback.modules.system.entity.User;
 import com.beeasy.hzback.modules.system.entity.WorkflowNodeInstance;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
