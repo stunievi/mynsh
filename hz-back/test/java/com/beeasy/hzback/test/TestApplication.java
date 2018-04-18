@@ -170,7 +170,7 @@
 //
 //
 //        Department top = departmentDao.findByName("cubi");
-////        Set<?> set = top.getDepartments();
+////        Set<?> set = top.getChildren();
 ////        System.out.println(set.size());
 //    }
 //
@@ -197,7 +197,7 @@
 //        CriteriaQuery query = cb.createQuery();
 //        Root root = query.from(Department.class);
 //        Join a = root.join("parent");
-//        Join b = root.join("departments");
+//        Join b = root.join("children");
 //        query.where(cb.equal(root.get("id"),1));
 ////        query.multiselect(a,b);
 ////        query.select(b);

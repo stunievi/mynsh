@@ -34,9 +34,8 @@ public class DepartmentController {
     @GetMapping("/open/department")
     public Result list(
             String name,
-            Integer parentId
+            long parentId
     ){
-        if(parentId == null) parentId = 0;
         //name比parent优先
         if(!StringUtils.isEmpty(name)){
             return Result.ok(departmentDao.findAllByName(name));

@@ -72,7 +72,7 @@ var RIGHTHTML = {
     <dl>
         <dt>选择所属部门</dt>
         <dd>
-            <wbr ms-widget="{is:'tree',tree:@data.departments}"/>
+            <wbr ms-widget="{is:'tree',tree:@data.children}"/>
 
             <p>
                 已选择部门：{{@data.target_department.nodeName}}
@@ -194,7 +194,7 @@ var RIGHTHTML = {
 
     var departmentstr = '${departments}';
     var worksstr = '${works}';
-    var departments;
+    var children;
     var works;
     do{
         try{

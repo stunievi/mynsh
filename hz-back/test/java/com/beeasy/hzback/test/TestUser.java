@@ -445,7 +445,7 @@ public class TestUser {
 
         departmentDao.deleteAll();
 
-//        departments.forEach(did -> {
+//        children.forEach(did -> {
 //            departmentService.deleteDepartment(did);
 //        });
 

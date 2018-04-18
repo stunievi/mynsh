@@ -38,7 +38,7 @@
 //    private Date addTime;
 //
 //    @OneToMany(fetch = FetchType.LAZY,mappedBy = "parent")
-//    private List<Department> departments = new ArrayList<>();
+//    private List<Department> children = new ArrayList<>();
 //
 //    @OneToMany(mappedBy = "department", cascade = CascadeType.ALL)
 //    private Set<Quarters> quarters = new LinkedHashSet<>();

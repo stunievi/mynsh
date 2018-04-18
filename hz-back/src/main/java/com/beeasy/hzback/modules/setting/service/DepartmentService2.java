@@ -17,12 +17,12 @@
 //    private IDepartmentDao departmentDao;
 //
 //    public List<Department> listAsTree(){
-//        return departmentDao.findByParent(null).getDepartments();
+//        return departmentDao.findByParent(null).getChildren();
 //        //得到所有部门
 //
 //
 ////        return new HashSet<Department>({top});
-////        return top.getDepartments();
+////        return top.getChildren();
 ////
 ////        List<Department> all = departmentDao.findAll();
 ////        if(all.size() == 0){

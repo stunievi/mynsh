@@ -248,7 +248,7 @@ public class UserService implements IUserService {
             @Override
             public Predicate toPredicate(Root root, CriteriaQuery query, CriteriaBuilder cb) {
                 List<Predicate> predicates = new ArrayList<>();
-                if (StringUtils.isEmpty(search.getName())) {
+                if (!StringUtils.isEmpty(search.getName())) {
                     predicates.add(
                             cb.or(
                                     cb.like(root.get("username"), search.getName()),
@@ -320,6 +320,10 @@ public class UserService implements IUserService {
     @Override
     public Optional<User> findUser(long id) {
         return Optional.of(userDao.findOne(id));
+    }
+
+    public List<User> findUserByIds(Set<Long> ids){
+        return userDao.findAllByIdIn(ids);
     }
 
     @Override

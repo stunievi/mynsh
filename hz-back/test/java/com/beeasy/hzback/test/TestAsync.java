@@ -2,6 +2,7 @@ package com.beeasy.hzback.test;
 
 import bin.leblanc.faker.Faker;
 import com.beeasy.hzback.core.exception.RestException;
+import com.beeasy.hzback.modules.system.dao.IUserDao;
 import com.beeasy.hzback.modules.system.entity.CloudDirectoryIndex;
 import com.beeasy.hzback.modules.system.entity.User;
 import com.beeasy.hzback.modules.system.form.UserAdd;
@@ -38,9 +39,12 @@ public class TestAsync {
     UserService userService;
     @Autowired
     MessageService messageService;
+    @Autowired
+    IUserDao userDao;
 
     @Test
     public void test2() throws RestException {
+
         UserAdd userAdd = new UserAdd();
         userAdd.setPassword("f");
         userAdd.setUsername(Faker.getName());

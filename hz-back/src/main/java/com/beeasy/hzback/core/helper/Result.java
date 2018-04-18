@@ -1,11 +1,17 @@
 package com.beeasy.hzback.core.helper;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.PropertyFilter;
 import lombok.Data;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -67,5 +73,32 @@ public class Result <T> {
 
     public static Result finish(boolean b){
         return b ? ok() : error();
+    }
+
+
+    @Data
+    public static class Entry{
+        private Class clz;
+        private List<String> fields;
+
+        public Entry(Class clz, String ...fields){
+            this.clz = clz;
+            this.fields = Arrays.asList(fields);
+        }
+    }
+
+    public static String okJson(Object obj, Entry ...entries){
+        HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
+        response.setHeader("content-type","application/json");
+
+        PropertyFilter propertyFilter = (source, name, value) -> {
+            for (Entry entry : entries) {
+                if(source.getClass().equals(entry.getClz()) && entry.getFields().contains(name)){
+                    return false;
+                }
+            }
+            return true;
+        };
+        return JSON.toJSONString(Result.ok(obj),propertyFilter);
     }
 }

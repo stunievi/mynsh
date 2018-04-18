@@ -88,6 +88,7 @@ public class Utils {
     }
 
 
+
     @Autowired
     RedisTemplate redisTemplate;
 
@@ -114,7 +115,6 @@ public class Utils {
         if(isLocking(key)) return false;
         return !lock(key,exprTime);
     }
-
 
 
 }

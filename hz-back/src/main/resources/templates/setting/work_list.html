@@ -65,14 +65,14 @@ var RIGHTHTML = {
             /*
              <ul>
              <li ms-for="(index, el) in @tree | get(0)">
-             <span ms-click='el.open = !el.open' ms-if='el.departments && el.departments.length'>
+             <span ms-click='el.open = !el.open' ms-if='el.children && el.children.length'>
                 {{el.open ? '[-]' : '[+]'}}
              </span>
              <span ms-click='@select(el)' :class="el.selected == 1 ? 'selected' : ''" >
                 {{el.nodeName}}
              </span>
              <div ms-if='el.open'>
-                <wbr ms-widget="{is:'tree',tree: el.departments}" />
+                <wbr ms-widget="{is:'tree',tree: el.children}" />
              </div>
              </li>
              </ul>

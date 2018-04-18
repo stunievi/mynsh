@@ -6,6 +6,7 @@ import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.modules.system.cache.SystemConfigCache;
 import com.beeasy.hzback.modules.system.dao.IQuartersDao;
 import com.beeasy.hzback.modules.system.dao.IUserDao;
+import com.beeasy.hzback.modules.system.entity.Department;
 import com.beeasy.hzback.modules.system.entity.User;
 import com.beeasy.hzback.modules.system.form.UserAdd;
 import com.beeasy.hzback.modules.system.form.UserEdit;
@@ -17,7 +18,6 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -27,6 +27,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
+import java.util.List;
+import java.util.Set;
 
 
 @Api(tags = "用户API", description = "后台管理用户相关接口，需要有管理员权限")
@@ -74,17 +76,39 @@ public class UserController {
 
     @ApiOperation(value = "用户列表", notes = "查找用户列表，当传递用户名的时候，只会查找出符合条件的用户")
     @GetMapping
-    public Result<Page<User>> list(
+    public String list(
             @PageableDefault(value = 15, sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable,
             UserSearch search
 //            String userName
     ){
-        return Result.ok(userService.searchUser(search,pageable));
+        return Result.okJson(userService.searchUser(search,pageable),
+                new Result.Entry(Department.class,"children"),
+                new Result.Entry(User.class,"departments","password")
+                );
+//        Department::getChildren;
+//        PropertyFilter propertyFilter = (source,name,value) -> {
+//            if(source instanceof Department){
+//                if(name.equals("children")) return false;
+//            }
+//            else if(source)
+//            return true;
+//        };
+//        return JSON.toJSONString(Result.ok(userService.searchUser(search,pageable)),propertyFilter);
+//        String json = JSON.toJSONString(userService.searchUser(search,pageable),propertyFilter);
+//        return Result.ok(userService.searchUser(search,pageable));
+    }
+
+
+    @GetMapping("/ids")
+    public String getList(Set<Long> ids){
+        List<User> users = userService.findUserByIds(ids);
+        return Result.okJson(users,
+                new Result.Entry(Department.class,"children"));
     }
 
     @ApiOperation(value = "禁用/启用", notes = "批量更新状态")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "userIds",value = "用户主键", required = true),
+            @ApiImplicitParam(name = "userIds",value = "用户主键", required = true,allowMultiple = true),
             @ApiImplicitParam(name = "isBaned",value = "是否禁用", required = true)
     })
     @PutMapping("/updateBaned")
