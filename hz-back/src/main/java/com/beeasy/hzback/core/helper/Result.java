@@ -9,10 +9,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Data
@@ -74,7 +71,9 @@ public class Result <T> {
     public static Result finish(boolean b){
         return b ? ok() : error();
     }
-
+    public static Result finish(Optional optional){
+        return optional.isPresent() ? ok(optional.get()) : error();
+    }
 
     @Data
     public static class Entry{

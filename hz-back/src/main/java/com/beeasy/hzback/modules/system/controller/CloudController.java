@@ -17,7 +17,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Api(tags = "个人文件柜API")
@@ -70,10 +71,21 @@ public class CloudController {
     })
     @GetMapping("/files")
     public Result listFolders(Long dirId){
-        Map<String,List> files = new HashMap<>();
-        files.put("dirs",cloudDiskService.getDirectories(Utils.getCurrentUserId(), ICloudDiskService.DirType.USER,dirId));
-        files.put("files",cloudDiskService.getFiles(Utils.getCurrentUserId(), ICloudDiskService.DirType.USER,dirId));
-        return Result.ok(files);
+        return Result.ok(cloudDiskService.getDirectories(Utils.getCurrentUserId(), ICloudDiskService.DirType.USER));
+//        Map<String,List> files = new HashMap<>();
+//        files.put("dirs",cloudDiskService.getDirectories(Utils.getCurrentUserId(), ICloudDiskService.DirType.USER,dirId));
+//        files.put("files",cloudDiskService.getFiles(Utils.getCurrentUserId(), ICloudDiskService.DirType.USER,dirId));
+//        return Result.ok(files);
+    }
+
+    @ApiOperation(value = "上传单独文件")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "dirId",value = "文件夹ID",required = true),
+            @ApiImplicitParam(name = "file", value = "文件信息", required = true)
+    })
+    @PostMapping("/file/uploadSingle")
+    public Result upload(Long dirId, @RequestParam  MultipartFile file){
+        return Result.finish(cloudDiskService.uploadFile(Utils.getCurrentUserId(), ICloudDiskService.DirType.USER,dirId,file));
     }
 
     @ApiOperation(value = "创建文件夹")
@@ -84,7 +96,7 @@ public class CloudController {
     @PostMapping("/createDir")
     public Result createFolder(Long dirId, String dirName){
         Optional<CloudDirectoryIndex> optionalCloudDirectoryIndex = cloudDiskService.createDirectory(Utils.getCurrentUser().getId(), ICloudDiskService.DirType.USER,dirId,dirName);
-        return optionalCloudDirectoryIndex.isPresent() ? Result.ok() : Result.error();
+        return Result.finish(optionalCloudDirectoryIndex);
     }
 
     @ApiOperation(value = "删除文件夹", notes = "会同时删除该文件夹下所有的文件, 根文件夹不允许删除")

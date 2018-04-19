@@ -66,6 +66,66 @@ public class CloudDiskService implements ICloudDiskService {
     }
 
 
+    public Optional<CloudFileIndex> uploadFile(long uid, DirType type, long dirId, MultipartFile file){
+        return findDirectory(uid,type,dirId)
+            .map(directoryIndex -> {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy_MM_dd");
+                String today = sdf.format(new Date());
+
+                Path path = Paths.get(AREA_DIR + File.separator + today);
+                if (Files.notExists(path)) {
+                    try {
+                        Files.createDirectory(path);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        return null;
+                    }
+                }
+
+                RandomAccessFile raFile = null;
+                BufferedInputStream inputStream = null;
+                CloudFileIndex fileIndex = new CloudFileIndex();
+                try {
+                    String uuid = UUID.randomUUID().toString();
+                    String filePath = AREA_DIR + File.separator + today + File.separator + uuid;
+                    File dirFile = new File(filePath);
+                    //以读写的方式打开目标文件
+                    raFile = new RandomAccessFile(dirFile, "rw");
+                    raFile.seek(raFile.length());
+                    inputStream = new BufferedInputStream(file.getInputStream());
+                    byte[] buf = new byte[1024];
+                    int length = 0;
+                    while ((length = inputStream.read(buf)) != -1) {
+                        raFile.write(buf, 0, length);
+                    }
+
+                    fileIndex.setDirectoryIndex(directoryIndex);
+                    fileIndex.setFilePath(filePath);
+                    fileIndex.setFileName(file.getName());
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    try {
+                        if (inputStream != null) {
+                            inputStream.close();
+                        }
+                        if (raFile != null) {
+                            raFile.close();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                if(null != fileIndex.getFilePath()){
+                    return cloudFileIndexDao.save(fileIndex);
+                }
+
+                return null;
+            });
+    }
+
     public boolean uploadFile(String sign, MultipartFile file) {
         return uploadFileTempDao.findFirstByUuid(sign).map(uploadFileTemp -> {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy_MM_dd");
@@ -136,15 +196,23 @@ public class CloudDiskService implements ICloudDiskService {
                 .orElse(new ArrayList<CloudDirectoryIndex>());
     }
 
+    public List<CloudDirectoryIndex> getDirectories(long uid, DirType type){
+        return cloudDirectoryIndexDao.findFirstByTypeAndLinkIdAndParent(type,uid,null)
+                .map(directoryIndex -> getDirectories(uid,type,directoryIndex.getId()))
+                .orElse(new ArrayList<>());
+    }
+
     public List<CloudFileIndex> getFiles(long uid, DirType type, long dirId) {
         return findDirectory(uid, type, dirId)
                 .map(directoryIndex -> cloudFileIndexDao.findAllByDirectoryIndex(directoryIndex))
                 .orElse(new ArrayList<>());
     }
 
+//    public List<CloudFileIndex>
+
     public Optional<CloudDirectoryIndex> createDirectory(long uid, DirType type, long dirId, String dirName) {
         Optional<CloudDirectoryIndex> optional = findDirectory(uid, type, dirId);
-        if (optional.isPresent()) {
+        if (!optional.isPresent()) {
             return Optional.empty();
         }
         String finalFolderName1 = dirName;

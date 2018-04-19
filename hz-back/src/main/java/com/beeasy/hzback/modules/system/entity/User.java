@@ -102,6 +102,7 @@ public class User implements Serializable{
                 .findAny();
     }
 
+    @JSONField(serialize = false)
     @Transient
     public List<Department> getDepartments(){
         List<Department> departments = getQuarters().stream()

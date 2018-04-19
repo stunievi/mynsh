@@ -28,7 +28,6 @@ import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Set;
 
 
 @Api(tags = "用户API", description = "后台管理用户相关接口，需要有管理员权限")
@@ -100,7 +99,7 @@ public class UserController {
 
 
     @GetMapping("/ids")
-    public String getList(Set<Long> ids){
+    public String getList(Long[] ids){
         List<User> users = userService.findUserByIds(ids);
         return Result.okJson(users,
                 new Result.Entry(Department.class,"children"));

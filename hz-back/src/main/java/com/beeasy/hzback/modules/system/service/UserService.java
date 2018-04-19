@@ -6,6 +6,7 @@ import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.core.util.CrUtils;
 import com.beeasy.hzback.modules.exception.CannotFindEntityException;
 import com.beeasy.hzback.modules.system.cache.SystemConfigCache;
+import com.beeasy.hzback.modules.system.dao.ICloudDirectoryIndexDao;
 import com.beeasy.hzback.modules.system.dao.IQuartersDao;
 import com.beeasy.hzback.modules.system.dao.IRolePermissionDao;
 import com.beeasy.hzback.modules.system.dao.IUserDao;
@@ -46,7 +47,8 @@ public class UserService implements IUserService {
     @Autowired
     EntityManager entityManager;
 
-
+    @Autowired
+    ICloudDirectoryIndexDao cloudDirectoryIndexDao;
 //    @Override
 //    public boolean bindMenus(long uid, List<String> menus) {
 //        return findUser(uid)
@@ -176,6 +178,7 @@ public class UserService implements IUserService {
         cloudDirectoryIndex.setDirName("/");
         cloudDirectoryIndex.setType(ICloudDiskService.DirType.USER);
         cloudDirectoryIndex.setLinkId(u.getId());
+        cloudDirectoryIndexDao.save(cloudDirectoryIndex);
 //        u.getFolders().add(cloudDirectoryIndex);
 
         return ret;
@@ -324,6 +327,9 @@ public class UserService implements IUserService {
 
     public List<User> findUserByIds(Set<Long> ids){
         return userDao.findAllByIdIn(ids);
+    }
+    public List<User> findUserByIds(Long ...ids){
+        return findUserByIds(new HashSet<Long>(Arrays.asList(ids)));
     }
 
     @Override

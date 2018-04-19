@@ -20,7 +20,6 @@ public class Quarters extends AbstractBaseEntity {
     @GeneratedValue
     Long id;
 
-    @JSONField(serialize = false)
     @ManyToOne
     @JoinColumn(name = "department_id")
     Department department;

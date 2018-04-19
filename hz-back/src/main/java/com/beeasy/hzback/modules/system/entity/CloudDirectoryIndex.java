@@ -34,9 +34,11 @@ public class CloudDirectoryIndex extends AbstractBaseEntity{
     @ManyToOne
     CloudDirectoryIndex parent;
 
-    @JSONField(serialize = false)
     @OneToMany(mappedBy = "parent")
     List<CloudDirectoryIndex> children = new ArrayList<>();
+
+    @OneToMany(mappedBy = "directoryIndex")
+    List<CloudFileIndex> files = new ArrayList<>();
 
 
 
