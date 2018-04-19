@@ -18,15 +18,15 @@ import javax.validation.constraints.Min;
 @NoArgsConstructor
 public class CheckNodeState extends AbstractBaseEntity {
 
-    @ApiModelProperty
+    @ApiModelProperty(required = true)
     @NotEmpty(message = "状态选项不能为空")
     private String item;
 
-    @ApiModelProperty
+    @ApiModelProperty(required = true)
     @Min(value = 1,message = "状态满足条件格式错误")
     private int condition;
 
-    @ApiModelProperty
+    @ApiModelProperty(required = true)
     @NotEmpty(message = "状态触发行为不能为空")
     private String behavior;
 }

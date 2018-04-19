@@ -25,7 +25,7 @@ import java.util.Map;
 @NoArgsConstructor
 public class CheckNode extends BaseNode{
 
-    @ApiModelProperty
+    @ApiModelProperty(required = true)
     @NotEmpty(message = "问题不能为空")
     String question;
 
@@ -34,14 +34,14 @@ public class CheckNode extends BaseNode{
     @ApiModelProperty(hidden = true)
     String ps = "ps";
 
-    @ApiModelProperty
+    @ApiModelProperty(required = true)
     @Min(value = 1,message = "审批人数格式错误")
     int count = 1;
 
     @ApiModelProperty(hidden = true)
     String type = "check";
 
-    @ApiModelProperty
+    @ApiModelProperty(required = true)
     @NotNull(message = "状态不能为空")
     @Valid
     private ArrayList<CheckNodeState> states;
