@@ -63,7 +63,32 @@
         <!--<button id="ctlBtn" class="btn btn-default">开始上传</button>-->
     </div>
 </div>
+<form action="http://192.168.1.104:8080/api/workflow/model/node/addCheck" method="post">
+    <input type="text" name="states[0].item" value="1">
+    <input type="text" name="states[0].condition" value="2">
+    <input type="text" name="states[0].behavior" value="3">
+    <input type="text" name="states[1].item" value="1">
+    <input type="text" name="states[2].condition" value="2">
+    <input type="text" name="states[3].behavior" value="3">
+    <input type="hidden" name="Authorization" value="su"/>
+    <input type="submit">
+</form>
+
 <script>
+    // $.ajax({
+    //     url:"http://192.168.1.104:8080/api/workflow/model/node/addCheck",
+    //     headers:{
+    //         Authorization: "su"
+    //     },
+    //     type:"post",
+    //     data:[
+    //         {
+    //             item:1
+    //         }
+    //     ]
+    // });
+
+
     var ajax = function (url,data,method) {
         return new Promise(function (resole,reject) {
             $.ajax({

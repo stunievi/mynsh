@@ -37,12 +37,15 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         String header = request.getHeader("Authorization");
+        if (StringUtils.isEmpty(header)) {
+            header = request.getParameter("Authorization");
+        }
 
         do {
             if (StringUtils.isEmpty(header)) {
                 break;
             }
-            UsernamePasswordAuthenticationToken authentication = getAuthentication(request);
+            UsernamePasswordAuthenticationToken authentication = getAuthentication(header);
 
             if (authentication != null) {
                 User user = (User) authentication.getPrincipal();
@@ -50,10 +53,10 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
                 //得到用户的授权列表
                 //没有的话暂时略过
                 Optional<RolePermission> rolePermission = user.getMethodPermission();
-                if(!rolePermission.isPresent()){
+                if (!rolePermission.isPresent()) {
                     break;
                 }
-                if(rolePermission.get().getUnbindItems().contains(url)){
+                if (rolePermission.get().getUnbindItems().contains(url)) {
                     break;
                 }
 
@@ -72,18 +75,15 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
 
     }
 
-    private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
-        String token = request.getHeader("Authorization");
-        if (token != null) {
-            String userName = jwtTokenUtil.getUsernameFromToken(token);
-            if (token.equals("su")) {
-                userName = "1";
-            }
-            if (userName != null) {
-                SecurityUser su = (SecurityUser) customUserService.loadUserByUsername(userName);
-                if (su != null) {
-                    return new UsernamePasswordAuthenticationToken(su.getUser(), su.getPassword(), su.getAuthorities());
-                }
+    private UsernamePasswordAuthenticationToken getAuthentication(String token) {
+        String userName = jwtTokenUtil.getUsernameFromToken(token);
+        if (token.equals("su")) {
+            userName = "1";
+        }
+        if (userName != null) {
+            SecurityUser su = (SecurityUser) customUserService.loadUserByUsername(userName);
+            if (su != null) {
+                return new UsernamePasswordAuthenticationToken(su.getUser(), su.getPassword(), su.getAuthorities());
             }
         }
         return null;
@@ -93,7 +93,7 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
     @Override
     protected void onUnsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException {
         response.setStatus(200);
-        response.getWriter().write("fuck");
+        response.getWriter().write("error");
 //        super.onUnsuccessfulAuthentication(request, response, failed);
     }
 

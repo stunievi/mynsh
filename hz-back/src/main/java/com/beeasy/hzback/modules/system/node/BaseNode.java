@@ -3,7 +3,10 @@ package com.beeasy.hzback.modules.system.node;
 import com.beeasy.hzback.modules.system.entity.User;
 import com.beeasy.hzback.modules.system.entity.WorkflowNodeAttribute;
 import com.beeasy.hzback.modules.system.entity.WorkflowNodeInstance;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
@@ -11,6 +14,8 @@ import java.util.*;
 
 @Getter
 @Setter
+@ApiModel
+@NoArgsConstructor
 abstract public class BaseNode implements Serializable {
     protected static final long serialVersionUID = 1L;
 
@@ -30,11 +35,15 @@ abstract public class BaseNode implements Serializable {
 
     }
 
+    @ApiModelProperty
     protected String name;
+    @ApiModelProperty
     protected String type;
+
+    @ApiModelProperty(hidden = true)
     protected boolean start = false;
+    @ApiModelProperty(hidden = true)
     protected boolean end = false;
-    protected int order = 0;
 
 
     //下一个节点, 通畅只有资料节点有, 其他则用behavior执行

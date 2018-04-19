@@ -232,7 +232,9 @@ public class WorkflowService implements IWorkflowService {
     @Override
     public Result<WorkflowModel> setPersons(long modelId, WorkflowQuartersEdit... edits) {
         WorkflowModel workflowModel = modelDao.findOne(modelId);
-        if (workflowModel == null || workflowModel.isFirstOpen() || workflowModel.isOpen()) return Result.error("已经上线的工作流无法编辑");;
+        if (workflowModel == null || workflowModel.isFirstOpen() || workflowModel.isOpen())
+            return Result.error("已经上线的工作流无法编辑");
+        ;
         for (WorkflowQuartersEdit edit : edits) {
             //如果没有这个节点
             if (!workflowModel
@@ -288,7 +290,7 @@ public class WorkflowService implements IWorkflowService {
      * @param add
      * @return
      */
-    public Result<WorkflowModel> createWorkflow(String modelName, WorkflowModelAdd add){
+    public Result<WorkflowModel> createWorkflow(String modelName, WorkflowModelAdd add) {
         Map<String, Map> map = (Map) cache.getWorkflowConfig();
         if (!map.containsKey(modelName)) {
             return Result.error("没找到工作流模型");
@@ -312,7 +314,7 @@ public class WorkflowService implements IWorkflowService {
         workflowModel.setModelName(modelName);
 
         WorkflowModel result = modelDao.save(workflowModel);
-        if(null != result.getId()){
+        if (null != result.getId()) {
             return Result.ok(result);
         }
         return Result.error();
@@ -348,6 +350,18 @@ public class WorkflowService implements IWorkflowService {
         });
         modelDao.save(workflowModel);
         return true;
+    }
+
+    public boolean createCheckNode(long modelId, CheckNode checkNode){
+        return findModel(modelId)
+                .filter(workflowModel -> (!workflowModel.isOpen() && !workflowModel.isFirstOpen()))
+                .filter(workflowModel -> {
+                    if(checkNode.isStart() || checkNode.isEnd()) {
+                        return false;
+                    }
+                    workflowModel.getModel().put(checkNode.getName(),checkNode);
+                    return true;
+                }).isPresent();
     }
 
     /**
@@ -387,7 +401,7 @@ public class WorkflowService implements IWorkflowService {
 
 
     @Override
-    public Result<InspectTask> createInspectTask(long createUserId, String modelName, long userId, boolean isAuto){
+    public Result<InspectTask> createInspectTask(long createUserId, String modelName, long userId, boolean isAuto) {
         AtomicReference<User> createUser = new AtomicReference<>();
         return userService.findUser(createUserId)
                 .map(user -> {
@@ -407,7 +421,7 @@ public class WorkflowService implements IWorkflowService {
                     //如果是自己创建的任务,那么自己接受任务
                     if (createUserId == userId) {
                         Result result = acceptInspectTask(userId, task.getId());
-                        if(!result.isSuccess()){
+                        if (!result.isSuccess()) {
                             return result;
                         }
                     }
@@ -415,7 +429,7 @@ public class WorkflowService implements IWorkflowService {
                 }).orElse(Result.error());
     }
 
-    public Optional<BaseNode> getCurrentNode(long userId, long instanceId){
+    public Optional<BaseNode> getCurrentNode(long userId, long instanceId) {
         AtomicReference<User> userAtomicReference = new AtomicReference<>();
         return userService.findUser(userId)
                 .flatMap(user -> {
@@ -425,7 +439,7 @@ public class WorkflowService implements IWorkflowService {
                 .map(instance -> {
 
                     //是否我处理
-                    if(!checkAuth(instance.getWorkflowModel(),instance.getCurrentNode().getNodeModel(),userAtomicReference.get())){
+                    if (!checkAuth(instance.getWorkflowModel(), instance.getCurrentNode().getNodeModel(), userAtomicReference.get())) {
                         return null;
                     }
 
@@ -619,19 +633,25 @@ public class WorkflowService implements IWorkflowService {
             throw new RestException("你还没有提交信息");
         }
 
-        CheckNode.State targetState = null;
-        for (Map.Entry<String, CheckNode.State> entry : ((CheckNode) nodeModel).getStates().entrySet()) {
-            String name = entry.getKey();
-            CheckNode.State state = entry.getValue();
-            long count = currentNode.getAttributeList()
-                    .stream()
-                    .filter(a -> a.getAttrKey().equals(nodeModel.getKey()) && a.getAttrValue().equals(state.getItem()))
-                    .count();
-            if (count >= state.getCondition()) {
-                targetState = state;
-                break;
-            }
-        }
+        CheckNodeState targetState = nodeModel.getStates()
+                .stream()
+                .filter(state -> {
+                    return currentNode.getAttributeList()
+                            .stream()
+                            .filter(a -> a.getAttrKey().equals(nodeModel.getKey()) && a.getAttrValue().equals(state.getItem()))
+                            .count() >= state.getCondition();
+                })
+                .findAny()
+                .orElse(null);
+//        for (CheckNodeState state : nodeModel.getStates()) {
+//            long count = currentNode.getAttributeList()
+//                    .stream()
+//                    .count();
+//            if (count >= state.getCondition()) {
+//                targetState = state;
+//                break;
+//            }
+//        }
 
         if (targetState != null) {
 
@@ -705,7 +725,6 @@ public class WorkflowService implements IWorkflowService {
             return ret;
         }
     }
-
 
 
     private boolean checkAuth(WorkflowModel workflowModel, BaseNode node, User user) {

@@ -11,6 +11,7 @@ import com.beeasy.hzback.modules.system.form.WorkflowModelAdd;
 import com.beeasy.hzback.modules.system.form.WorkflowModelEdit;
 import com.beeasy.hzback.modules.system.form.WorkflowQuartersEdit;
 import com.beeasy.hzback.modules.system.node.BaseNode;
+import com.beeasy.hzback.modules.system.node.CheckNode;
 import com.beeasy.hzback.modules.system.service.WorkflowService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -89,18 +90,33 @@ public class WorkFlowController {
         return optional.isPresent() ? Result.ok(optional.get()) : Result.error();
     }
 
-    @ApiOperation(value = "添加工作流节点", notes = "")
+//    @ApiOperation(value = "添加工作流节点", notes = "")
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(name = "modelId", value = "工作流模型ID", required = true),
+//            @ApiImplicitParam(name = "node", value = "节点内容, map格式, 同名节点会直接覆盖(等同于编辑)", required = true),
+//    })
+//    @RequestMapping(value = "/model/node", method = {RequestMethod.POST,RequestMethod.PUT})
+//    public Object createNode(
+//            Integer modelId,
+//            String node
+//    ){
+//        return workflowService.createNode(modelId,node);
+//    }
+
+
+    @ApiOperation(value = "添加审核节点", notes = "同名视为修改")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "modelId", value = "工作流模型ID", required = true),
-            @ApiImplicitParam(name = "node", value = "节点内容, map格式, 同名节点会直接覆盖(等同于编辑)", required = true),
+            @ApiImplicitParam(name = "modelId", value = "模型ID", required = true)
     })
-    @RequestMapping(value = "/model/node", method = {RequestMethod.POST,RequestMethod.PUT})
-    public Object createNode(
-            Integer modelId,
-            String node
+    @PostMapping("/model/node/addCheck")
+    public Result createCheckNode(
+            @RequestParam Long modelId,
+            @Valid CheckNode node,
+            BindingResult bindingResult
     ){
-        return workflowService.createNode(modelId,node);
+        return Result.finish(workflowService.createCheckNode(modelId,node));
     }
+
 
     @ApiOperation(value = "删除节点")
     @ApiImplicitParams({

@@ -110,19 +110,19 @@
       ps: ps #是否需要备注, 如果没有, 则为空
       question: 是否拒贷
       states: #定义状态
-        ok: #状态名OK
+        - #状态名OK
           item: 是 #状态选项
           condition: 1 #有一个人选了就生成该状态
           behavior: go('结束') #状态为该项的时候, 调用go函数 走向结束节点
-        nonono: #状态名nonono
+        - #状态名nonono
           item: 否
           condition: 1 #有一个人选了否就是该状态
           behavior: go('资料收集')
 #          items: [是,否]
 #          passItem: 是
       count: 1 #几个人审核
-#          pass: 1
-#          fail: 1
+#          - 1
+#          - 1
       next: [资料收集,结束] #有可能的走向, 即树的子叶
 
     结束:
@@ -168,11 +168,11 @@
       ps: ps
       question: 是否通过
       states:
-        pass:
+        -
           item: 是
           condition: 1
           behavior: go('合规部审核')
-        fail:
+        -
           item: 否
           condition: 1
           behavior: go('发起权限申请')
@@ -185,11 +185,11 @@
       ps: ps
       question: 是否通过
       states:
-        pass:
+        -
           item: 是
           condition: 1
           behavior: go('合规部审核')
-        fail:
+        -
           item: 否
           condition: 1
           behavior: go('发起权限申请')
@@ -202,11 +202,11 @@
       ps: ps
       question: 是否通过
       states:
-        pass:
+        -
           item: 是
           condition: 1
           behavior: go('总领导班子审核')
-        fail:
+        -
           item: 否
           condition: 1
           behavior: go('发起权限申请')
@@ -219,11 +219,11 @@
       ps: ps
       question: 是否通过
       states:
-        pass:
+        -
           item: 是
           condition: 1
           behavior: go('电子银行部确认')
-        fail:
+        -
           item: 否
           condition: 1
           behavior: go('发起权限申请')
@@ -236,7 +236,7 @@
       ps: ps
       question: 是否通过
       states:
-        pass:
+        -
           item: 是
           condition: 1
           behavior: go('结束')
@@ -250,11 +250,11 @@
       ps: ps
       question: 是否通过
       states:
-        pass:
+        -
           item: 是
           condition: 1
           behavior: go('运营部审核')
-        fail:
+        -
           item: 否
           condition: 1
           behavior: go('发起权限申请')
@@ -291,7 +291,7 @@
         type: check #审核节点
         content:
           count: 2 #2人审核
-          pass: 1 #1人同意即通过
+          - 1 #1人同意即通过
       结束:
         type: end
 
@@ -359,11 +359,11 @@
       ps: ps
       question: 是否通过
       states:
-        pass:
+        -
           item: 是
           condition: 1
           behavior: go('结束')
-        fail:
+        -
           item: 否
           condition: 1
           behavior: go('填写贷后检查表')
@@ -389,12 +389,12 @@
       count: 1
       question: 是否可以还款?
       states:
-        pass:
+        -
           item: 是
           condition: 1
           behavior: go('结束')
 
-        fail:
+        -
           item: 否
           condition: 1
           behavior: go('结束')
@@ -420,11 +420,11 @@
       question: 是否满足减免条件?
       count: 1
       states:
-        pass:
+        -
           item: 是
           condition: 1
           behavior: go('是否发起减免申请')
-        fail:
+        -
           item: 否
           condition: 1
           behavior: go('资产抵债流程')
@@ -436,11 +436,11 @@
       question: 客户是否已发起减免申请?
       count: 1
       states:
-        pass:
+        -
           item: 是
           condition: 1
           behavior: go('利息减免流程')
-        fail:
+        -
           item: 否
           condition: 1
           behavior: go('资产抵债流程');
@@ -452,11 +452,11 @@
       question: 填写任务的处理结果
       count: 1
       states:
-        pass:
+        -
           item: 是
           condition: 1
           behavior: go('结束')
-        fail:
+        -
           item: 否
           condition: 1
           behavior: go('是否满足利息减免条件')
