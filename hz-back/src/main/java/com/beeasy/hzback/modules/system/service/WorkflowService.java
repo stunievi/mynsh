@@ -61,6 +61,9 @@ public class WorkflowService implements IWorkflowService {
     IWorkflowNodeInstanceDao nodeInstanceDao;
 
     @Autowired
+    IWorkflowNodeDao nodeDao;
+
+    @Autowired
     IWorkflowModelPersonsDao personsDao;
     @Autowired
     ITaskCheckLogDao taskCheckLogDao;
@@ -300,18 +303,30 @@ public class WorkflowService implements IWorkflowService {
         WorkflowModel same = modelDao.findFirstByNameAndVersion(add.getName(), add.getVersion());
         if (same != null) return Result.error("已经有相同版本的工作流");
 
+
+
+        WorkflowModel workflowModel = Transformer.transform(add, WorkflowModel.class);
         Map<String, BaseNode> nodes = new HashMap<>();
         flow.forEach((k, v) -> {
             v = (Map) v;
             BaseNode baseNode = BaseNode.create(String.valueOf(k), (Map) v);
             nodes.put(String.valueOf(k), baseNode);
+
+            //nodelist
+            WorkflowNode node = new WorkflowNode();
+            node.setModel(workflowModel);
+            node.setName(String.valueOf(k));
+            node.setType(String.valueOf(((Map) v).get("type")));
+            nodeDao.save(node);
+
+            workflowModel.getNodeList().add(node);
         });
 
-        WorkflowModel workflowModel = Transformer.transform(add, WorkflowModel.class);
         workflowModel.setModel(nodes);
         workflowModel.setOpen(false);
         workflowModel.setFirstOpen(false);
         workflowModel.setModelName(modelName);
+
 
         WorkflowModel result = modelDao.save(workflowModel);
         if (null != result.getId()) {

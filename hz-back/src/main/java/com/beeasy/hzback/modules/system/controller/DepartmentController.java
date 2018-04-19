@@ -42,6 +42,9 @@ public class DepartmentController {
         if(!StringUtils.isEmpty(name)){
             return Result.ok(departmentDao.findAllByName(name));
         }
+        if(parentId == 0){
+            parentId = null;
+        }
         return Result.ok(departmentDao.findAllByParentId(parentId));
     }
 

@@ -27,6 +27,9 @@ public class WorkflowModel {
     @Convert(converter = ObjectConverter.class)
     Map<String,BaseNode> model;
 
+    @OneToMany(mappedBy = "model", cascade = CascadeType.ALL)
+    List<WorkflowNode> nodeList = new ArrayList<>();
+
     String name;
 
     BigDecimal version;
