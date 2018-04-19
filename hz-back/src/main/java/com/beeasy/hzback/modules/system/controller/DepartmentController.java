@@ -1,10 +1,10 @@
 package com.beeasy.hzback.modules.system.controller;
 
-import bin.leblanc.classtranslate.Transformer;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.modules.system.dao.IDepartmentDao;
-import com.beeasy.hzback.modules.system.entity.Department;
 import com.beeasy.hzback.modules.system.form.DepartmentAdd;
+import com.beeasy.hzback.modules.system.form.DepartmentEdit;
+import com.beeasy.hzback.modules.system.service.DepartmentService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -19,6 +19,8 @@ import javax.validation.Valid;
 @Api(tags = "部门API", description = "部分接口不需要管理员权限")
 @RestController
 public class DepartmentController {
+    @Autowired
+    DepartmentService departmentService;
 
     @Autowired
     IDepartmentDao departmentDao;
@@ -34,14 +36,11 @@ public class DepartmentController {
     @GetMapping("/open/department")
     public Result list(
             String name,
-            long parentId
+            Long parentId
     ){
         //name比parent优先
         if(!StringUtils.isEmpty(name)){
             return Result.ok(departmentDao.findAllByName(name));
-        }
-        if(parentId == 0){
-            return Result.ok(departmentDao.findAllByParent(null));
         }
         return Result.ok(departmentDao.findAllByParentId(parentId));
     }
@@ -53,15 +52,7 @@ public class DepartmentController {
             @Valid DepartmentAdd departmentAdd,
             BindingResult bindingResult
     ){
-        Department same = departmentDao.findByName(departmentAdd.getName());
-        if(same != null)
-            return Result.error("已有同名部门");
-
-        Department department = Transformer.transform(departmentAdd,Department.class);
-        Department result = departmentDao.save(department);
-
-        return result.getId() > 0 ? Result.ok() : Result.error("添加失败");
-
+        return departmentService.createDepartment(departmentAdd);
     }
 
 
@@ -71,11 +62,14 @@ public class DepartmentController {
      * @return
      */
     @ApiOperation(value = "删除部门", notes = "删除部门,需要管理员权限")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "departmentId", value = "部门ID", required = true)
+    })
     @DeleteMapping("/api/department")
     public Result del(
-            Integer departmentId
+            Long departmentId
     ){
-        return Result.error();
+        return departmentService.deleteDepartment(departmentId);
     }
 
     /**
@@ -84,8 +78,10 @@ public class DepartmentController {
      */
     @ApiOperation(value = "编辑部门资料", notes = "编辑部门, 需要管理员权限")
     @PutMapping("/api/department")
-    public Result edit(){
-        return Result.error();
+    public Result edit(
+            @Valid DepartmentEdit edit
+            ){
+        return departmentService.editDepartment(edit);
     }
 
 

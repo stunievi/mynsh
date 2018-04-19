@@ -23,6 +23,7 @@ public class Department extends AbstractBaseEntity{
     private Long id;
 
     private String name;
+    private String info;
 
 
     @JSONField(serialize = false)

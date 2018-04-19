@@ -169,7 +169,7 @@
 //        List<Work> list = workDao.findAll();
 //
 //
-//        Department top = departmentDao.findByName("cubi");
+//        Department top = departmentDao.findFirstByName("cubi");
 ////        Set<?> set = top.getChildren();
 ////        System.out.println(set.size());
 //    }

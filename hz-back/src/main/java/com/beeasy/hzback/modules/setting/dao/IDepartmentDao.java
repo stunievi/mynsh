@@ -9,7 +9,7 @@
 //    List<Department> findAllByParent(Department department);
 //    List<Department> findAllByParentId(Integer parentId);
 //    Department findByParent(Department department);
-//    Department findByName(String name);
+//    Department findFirstByName(String name);
 //    List<Department> findAllByName(String name);
 //
 //}

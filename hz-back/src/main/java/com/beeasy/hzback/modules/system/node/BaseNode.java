@@ -10,7 +10,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -26,18 +29,18 @@ abstract public class BaseNode implements Serializable {
         if(map.containsKey("next")){
             Object next = map.get("next");
             if(next instanceof Collections){
-                setNext(new HashSet((Collection) next));
+                setNext(new LinkedHashSet((Collection) next));
             }
             else{
-                setNext(new HashSet(Collections.singleton(next)));
+                setNext(new LinkedHashSet(Collections.singleton(next)));
             }
         }
 
     }
 
-    @ApiModelProperty
+    @ApiModelProperty(required = true)
     protected String name;
-    @ApiModelProperty
+
     protected String type;
 
     @ApiModelProperty(hidden = true)
@@ -47,7 +50,8 @@ abstract public class BaseNode implements Serializable {
 
 
     //下一个节点, 通畅只有资料节点有, 其他则用behavior执行
-    protected Set<String> next = new LinkedHashSet<>();
+    @ApiModelProperty(required = true)
+    protected LinkedHashSet<String> next = new LinkedHashSet<>();
 
 
 

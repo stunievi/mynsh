@@ -15,6 +15,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 //import org.beetl.core.misc.NumberUtil;
@@ -67,7 +68,7 @@ public class CheckNode extends BaseNode{
 
         //状态机
         if (v.containsKey("states")) {
-            ((Map<String, Map>) (v.get("states"))).forEach((kk, vv) -> {
+            ((List<Map>) (v.get("states"))).forEach((vv) -> {
                 CheckNodeState state = new CheckNodeState(
                         String.valueOf(vv.get("item")),
                         (Integer) vv.get("condition"),

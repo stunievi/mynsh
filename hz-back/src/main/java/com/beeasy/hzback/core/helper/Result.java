@@ -74,6 +74,9 @@ public class Result <T> {
     public static Result finish(Optional optional){
         return optional.isPresent() ? ok(optional.get()) : error();
     }
+    public static Result finish(boolean flag, Object object){
+        return flag ? ok(object) : error();
+    }
 
     @Data
     public static class Entry{

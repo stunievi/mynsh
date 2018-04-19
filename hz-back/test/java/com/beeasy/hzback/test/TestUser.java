@@ -115,9 +115,9 @@ public class TestUser {
         DepartmentAdd departmentAdd = new DepartmentAdd();
         departmentAdd.setName(Faker.getName());
         departmentAdd.setInfo("");
-        department = departmentService.createDepartment(departmentAdd);
-        assertNotNull(department);
-        assertTrue(department.getId() > 0);
+        Result<Department> resutlt = departmentService.createDepartment(departmentAdd);
+        assertTrue(resutlt.isSuccess());
+        department = resutlt.getData();
         departments.add(department.getId());
         return department;
     }

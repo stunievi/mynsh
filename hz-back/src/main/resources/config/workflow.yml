@@ -34,7 +34,7 @@
 #  question: 给用户看的文字提示, 通常为一个问题, 例如: 是否通过申请?
 #  count: 审核节点参与的人数, 如果为单人审批为1, 如果为会签则为具体的人数
 #  states: 审核后的状态
-#    状态名1:
+#     -
 #      item: 触发状态的关键字
 #      condition: 满足该状态的人数
 #      behavior: 满足状态后执行的动作, 参见flowscript
@@ -265,55 +265,6 @@
       type: end
       end: true
 
-
-贷后检查:
-    flow:
-      发起贷后流程:
-        type: input #输入信息节点
-        content:
-          - 任务编号: "string,y" #英文ID为空，字符串类型，必填
-            客户号: "string" #英文ID为空，字符串，不必填
-            客户名称: "clientName,string,y" #英文ID为
-            要求完成时间: "date,n" #日期时间类型 不必填
-            要求完成时间2: "datetime,n" #精确时间类型，不必填
-            客户类型: "radio,y" #单选类型
-            业务类型: "checkbox,y" #多选类型
-            t1: "client,y" #选择客户
-            t2: "department" #选择部门
-            t3: "user,n" #选择角色
-            t4: "post" #选择岗位
-      贷后检查填写:
-        tpye: input #输入信息节点
-        content:
-          - ....
-
-      审查:
-        type: check #审核节点
-        content:
-          count: 2 #2人审核
-          - 1 #1人同意即通过
-      结束:
-        type: end
-
-
-
-      #逻辑节点示意
-      test:
-        type: logic
-        if1:
-          condition: #填写需要检查的REST请求地址
-            ...
-          action: #需要执行的行为（预先定义好）
-            ...
-        if2: #else if
-          condition:
-            ...
-          action:
-            ...
-        if3:
-        if4:
-        else:
-          action: #else没有行为条件，如果只有一个else而没有前置的if，那么视为没有
 
 贷后跟踪:
   flow:

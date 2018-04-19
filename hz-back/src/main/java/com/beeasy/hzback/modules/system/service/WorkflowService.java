@@ -402,16 +402,12 @@ public class WorkflowService implements IWorkflowService {
 
     @Override
     public Result<InspectTask> createInspectTask(long createUserId, String modelName, long userId, boolean isAuto) {
-        AtomicReference<User> createUser = new AtomicReference<>();
-        return userService.findUser(createUserId)
-                .map(user -> {
-                    createUser.set(user);
-                    return userService.findUser(userId);
-                })
+//        AtomicReference<User> createUser = new AtomicReference<>();
+        return userService.findUser(userId)
                 .map(user -> {
                     InspectTask task = new InspectTask();
                     task.setModelName(modelName);
-                    task.setDealUser(createUser.get());
+                    task.setDealUser(user);
                     task.setState(InspectTaskState.CREATED);
                     task.setType(isAuto ? InspectTaskType.AUTO : InspectTaskType.MANUAL);
                     task = inspectTaskDao.save(task);

@@ -322,7 +322,7 @@ public class UserService implements IUserService {
 
     @Override
     public Optional<User> findUser(long id) {
-        return Optional.of(userDao.findOne(id));
+        return Optional.ofNullable(userDao.findOne(id));
     }
 
     public List<User> findUserByIds(Set<Long> ids){

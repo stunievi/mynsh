@@ -16,7 +16,7 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface IUserDao extends JpaRepository<User,Long> ,JpaSpecificationExecutor {
-//    User findByName(String userName);
+//    User findFirstByName(String userName);
     User findByUsername(String userName);
     User findFirstByUsernameOrPhone(String userName, String phone);
     void deleteAllByIdIsGreaterThan(long id);

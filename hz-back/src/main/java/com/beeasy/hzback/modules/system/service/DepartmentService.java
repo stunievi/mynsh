@@ -1,46 +1,108 @@
 package com.beeasy.hzback.modules.system.service;
 
 
-import bin.leblanc.classtranslate.Transformer;
-import com.beeasy.hzback.core.exception.RestException;
+import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.modules.system.dao.IDepartmentDao;
 import com.beeasy.hzback.modules.system.entity.Department;
 import com.beeasy.hzback.modules.system.form.DepartmentAdd;
+import com.beeasy.hzback.modules.system.form.DepartmentEdit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+
+import java.util.Optional;
 
 @Service
 @Transactional
-public class DepartmentService implements IDepartmentService{
+public class DepartmentService implements IDepartmentService {
 
     @Autowired
     IDepartmentDao departmentDao;
 
     @Override
-    public Department createDepartment(DepartmentAdd add) throws RestException {
-        Department same = departmentDao.findByName(add.getName());
-        if(same != null) throw new RestException("已有同名部门");
-
-        Department department = Transformer.transform(add,Department.class);
-        //parent
-
-        if(add.getParentId() != null && add.getParentId() > 0){
-            Department parent = departmentDao.findOne(add.getParentId());
-            if(parent == null){
-                return null;
-            }
-            department.setParent(parent);
+    public Result<Department> createDepartment(DepartmentAdd add) {
+        Optional<Department> same;
+        Department parent = null;
+        if (null == add.getParentId()) {
+            same = departmentDao.findFirstByParentAndName(null, add.getName());
+        } else {
+            same = departmentDao.findFirstByParentAndName(parent = findDepartment(add.getParentId()).orElse(null), add.getName());
         }
-        Department result = departmentDao.save(department);
+        if (!same.isPresent()) return Result.error("已有同名部门");
+
+        Department department = new Department();
+        department.setName(add.getName());
+        department.setParent(parent);
+        department.setInfo(add.getInfo());
+
+        department = departmentDao.save(department);
+        return Result.finish(department.getId() != null, department);
+    }
+
+
+    public Result<Department> editDepartment(DepartmentEdit edit) {
+        Result result = Result.error();
+        findDepartment(edit.getId()).ifPresent(department -> {
+            if (!StringUtils.isEmpty(edit.getName())) {
+                //校验是否同名
+                Optional<Department> same = departmentDao.findFirstByParentAndName(department, edit.getName());
+                if (same.isPresent()) {
+                    result.setErrMessage("已经存在同名部门");
+                    return;
+                }
+                department.setName(edit.getName());
+            }
+
+            if (!StringUtils.isEmpty(edit.getInfo())) {
+                department.setInfo(edit.getInfo());
+            }
+
+            if (edit.getParentId() != null) {
+                Optional<Department> newParent = findDepartment(edit.getParentId());
+                if (!newParent.isPresent()) {
+                    result.setErrMessage("没找到要设置的父部门");
+                    return;
+                }
+                if (department.getChildren().size() > 0) {
+                    result.setErrMessage("还有子部门, 无法移动");
+                    return;
+                }
+                if (department.getQuarters().size() > 0) {
+                    result.setErrMessage("还有岗位存在, 无法移动");
+                    return;
+                }
+                department.setParent(newParent.get());
+            }
+
+            result.setSuccess(true);
+            result.setData(departmentDao.save(department));
+        });
         return result;
     }
 
 
     @Override
-    public void deleteDepartment(long id){
-        departmentDao.delete(id);
+    public Result deleteDepartment(long id) {
+        return findDepartment(id).map(department -> {
+            //如果还要岗位 不能删除
+            if (department.getQuarters().size() > 0) {
+                return Result.error("该部门还有岗位, 无法删除");
+            }
+
+            if (department.getChildren().size() > 0) {
+                return Result.error("该部门还有子部门, 无法删除");
+            }
+
+            departmentDao.delete(id);
+
+            return Result.ok();
+
+        }).orElse(Result.error());
     }
 
 
+    public Optional<Department> findDepartment(long id) {
+        return Optional.ofNullable(departmentDao.findOne(id));
+    }
 }
