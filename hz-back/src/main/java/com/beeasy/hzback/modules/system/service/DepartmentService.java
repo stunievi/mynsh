@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -29,7 +30,7 @@ public class DepartmentService implements IDepartmentService {
         } else {
             same = departmentDao.findFirstByParentAndName(parent = findDepartment(add.getParentId()).orElse(null), add.getName());
         }
-        if (!same.isPresent()) return Result.error("已有同名部门");
+        if (same.isPresent()) return Result.error("已有同名部门");
 
         Department department = new Department();
         department.setName(add.getName());
@@ -44,9 +45,13 @@ public class DepartmentService implements IDepartmentService {
     public Result<Department> editDepartment(DepartmentEdit edit) {
         Result result = Result.error();
         findDepartment(edit.getId()).ifPresent(department -> {
-            if (!StringUtils.isEmpty(edit.getName())) {
+            if(null == department.getParent()){
+                result.setErrMessage("顶级部门禁止编辑");
+                return;
+            }
+            if (!StringUtils.isEmpty(edit.getName()) && !department.getName().equals(edit.getName())) {
                 //校验是否同名
-                Optional<Department> same = departmentDao.findFirstByParentAndName(department, edit.getName());
+                Optional<Department> same = departmentDao.findFirstByParentAndName(department.getParent(), edit.getName());
                 if (same.isPresent()) {
                     result.setErrMessage("已经存在同名部门");
                     return;
@@ -58,7 +63,7 @@ public class DepartmentService implements IDepartmentService {
                 department.setInfo(edit.getInfo());
             }
 
-            if (edit.getParentId() != null) {
+            if (edit.getParentId() != null && !department.getParent().getId().equals(edit.getParentId())) {
                 Optional<Department> newParent = findDepartment(edit.getParentId());
                 if (!newParent.isPresent()) {
                     result.setErrMessage("没找到要设置的父部门");
@@ -85,6 +90,9 @@ public class DepartmentService implements IDepartmentService {
     @Override
     public Result deleteDepartment(long id) {
         return findDepartment(id).map(department -> {
+            if(department.getParent() == null){
+                return Result.error("顶级部门禁止删除");
+            }
             //如果还要岗位 不能删除
             if (department.getQuarters().size() > 0) {
                 return Result.error("该部门还有岗位, 无法删除");
@@ -99,6 +107,17 @@ public class DepartmentService implements IDepartmentService {
             return Result.ok();
 
         }).orElse(Result.error());
+    }
+
+    public List<Department> findDepartments(String name, Long parentId){
+        //name比parent优先
+        if(!StringUtils.isEmpty(name)){
+            return (departmentDao.findAllByName(name));
+        }
+        if(parentId != null && parentId.equals(0)){
+            parentId = null;
+        }
+        return departmentDao.findAllByParent_Id(parentId);
     }
 
 

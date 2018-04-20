@@ -1,4 +1,4 @@
-//package com.beeasy.hzback.test;
+//package test;
 //
 //import bin.leblanc.faker.Faker;
 //import com.beeasy.hzback.core.exception.RestException;

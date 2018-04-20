@@ -303,8 +303,6 @@ public class WorkflowService implements IWorkflowService {
         WorkflowModel same = modelDao.findFirstByNameAndVersion(add.getName(), add.getVersion());
         if (same != null) return Result.error("已经有相同版本的工作流");
 
-
-
         WorkflowModel workflowModel = Transformer.transform(add, WorkflowModel.class);
         Map<String, BaseNode> nodes = new HashMap<>();
         flow.forEach((k, v) -> {
@@ -313,13 +311,33 @@ public class WorkflowService implements IWorkflowService {
             nodes.put(String.valueOf(k), baseNode);
 
             //nodelist
+            /**
+             * 如果需要 再启用
             WorkflowNode node = new WorkflowNode();
             node.setModel(workflowModel);
             node.setName(String.valueOf(k));
             node.setType(String.valueOf(((Map) v).get("type")));
+            Object next = ((Map)v).get("next");
+            //start
+            if(((Map) v).containsKey("start")){
+                node.setStart(true);
+            }
+            if(((Map) v).containsKey("end")){
+                node.setEnd(true);
+            }
+            //next
+            if(next instanceof Collection){
+                ((Collection) next).forEach(n -> node.getNext().add(String.valueOf(n)));
+            }
+            else if(next instanceof String){
+                if(!StringUtils.isEmpty(next)){
+                    node.getNext().add(String.valueOf(next));
+                }
+            }
             nodeDao.save(node);
 
             workflowModel.getNodeList().add(node);
+             */
         });
 
         workflowModel.setModel(nodes);

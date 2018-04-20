@@ -1,4 +1,4 @@
-//package bin.leblanc.test;
+//package test;
 //
 //import com.beeasy.hzback.Application;
 //import com.beeasy.hzback.modules.setting.dao.IUserDao;

@@ -1,4 +1,4 @@
-//package com.beeasy.hzback.test;
+//package test;
 //
 //import bin.leblanc.zed.JPAUtil;
 //import bin.leblanc.zed.Zed;

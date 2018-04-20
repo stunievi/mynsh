@@ -1,4 +1,4 @@
-//package bin.leblanc.test;
+//package test;
 //
 //import bin.leblanc.dataset.*;
 //import bin.leblanc.dataset.exception.NullParamValueException;

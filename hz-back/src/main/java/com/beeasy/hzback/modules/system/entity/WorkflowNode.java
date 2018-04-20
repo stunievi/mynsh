@@ -1,5 +1,6 @@
 package com.beeasy.hzback.modules.system.entity;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.beeasy.hzback.core.entity.AbstractBaseEntity;
 import com.beeasy.hzback.core.helper.ObjectConverter;
 import com.beeasy.hzback.core.helper.StringCommaConverter;
@@ -20,6 +21,7 @@ public class WorkflowNode extends AbstractBaseEntity{
     @GeneratedValue
     Long id;
 
+    @JSONField(serialize = false)
     @ManyToOne
     WorkflowModel model;
 

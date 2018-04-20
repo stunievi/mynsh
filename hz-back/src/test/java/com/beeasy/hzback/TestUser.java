@@ -1,4 +1,4 @@
-package com.beeasy.hzback.test;
+package com.beeasy.hzback;
 
 import bin.leblanc.faker.Faker;
 import com.beeasy.hzback.core.exception.RestException;
@@ -115,9 +115,9 @@ public class TestUser {
         DepartmentAdd departmentAdd = new DepartmentAdd();
         departmentAdd.setName(Faker.getName());
         departmentAdd.setInfo("");
-        Result<Department> resutlt = departmentService.createDepartment(departmentAdd);
-        assertTrue(resutlt.isSuccess());
-        department = resutlt.getData();
+        Result<Department> result = departmentService.createDepartment(departmentAdd);
+        assertTrue(result.isSuccess());
+        department = result.getData();
         departments.add(department.getId());
         return department;
     }

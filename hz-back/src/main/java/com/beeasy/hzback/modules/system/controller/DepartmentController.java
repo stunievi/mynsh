@@ -10,7 +10,6 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,13 +38,7 @@ public class DepartmentController {
             Long parentId
     ){
         //name比parent优先
-        if(!StringUtils.isEmpty(name)){
-            return Result.ok(departmentDao.findAllByName(name));
-        }
-        if(parentId == 0){
-            parentId = null;
-        }
-        return Result.ok(departmentDao.findAllByParentId(parentId));
+        return Result.ok(departmentService.findDepartments(name,parentId));
     }
 
 

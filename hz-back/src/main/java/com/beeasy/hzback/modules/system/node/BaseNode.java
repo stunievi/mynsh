@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -29,10 +30,12 @@ abstract public class BaseNode implements Serializable {
         if(map.containsKey("next")){
             Object next = map.get("next");
             if(next instanceof Collections){
-                setNext(new LinkedHashSet((Collection) next));
+                this.next.addAll((Collection<? extends String>) next);
             }
-            else{
-                setNext(new LinkedHashSet(Collections.singleton(next)));
+            else if(next instanceof String){
+                if(!StringUtils.isEmpty(next)){
+                   this.next.add(String.valueOf(next));
+                }
             }
         }
 

@@ -28,7 +28,7 @@ public class WorkflowModel {
     Map<String,BaseNode> model;
 
     @OneToMany(mappedBy = "model", cascade = CascadeType.ALL)
-    List<WorkflowNode> nodeList = new ArrayList<>();
+    List<WorkflowNode> nodeModels = new ArrayList<>();
 
     String name;
 
