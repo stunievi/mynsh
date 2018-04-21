@@ -20,16 +20,15 @@ public class InputNode extends BaseNode{
     boolean start;
     Map<String,Content> content = new HashMap<>();
 
-    public InputNode(String name, Map v) {
-        super(name, "input", v);
+    public InputNode(Map v) {
 
         //起始和结束禁止编辑
         //start和end不能同时存在
-        if (v.containsKey("start")) {
-            setStart(true);
-        } else if (v.containsKey("end")) {
-            setEnd(true);
-        }
+//        if (v.containsKey("start")) {
+//            setStart(true);
+//        } else if (v.containsKey("end")) {
+//            setEnd(true);
+//        }
 
         //内容
         Map content = (Map) v.get("content");

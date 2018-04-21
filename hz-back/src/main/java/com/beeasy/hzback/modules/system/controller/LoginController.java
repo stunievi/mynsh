@@ -14,9 +14,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -54,7 +52,7 @@ public class LoginController {
             @ApiImplicitParam(name = "username", value = "用户名", required = true),
             @ApiImplicitParam(name = "password", value = "密码", required = true)
     })
-    @PostMapping("/login")
+    @RequestMapping(value = "/login", method = {RequestMethod.GET, RequestMethod.POST})
     public Result login(
             String username,
             String password){

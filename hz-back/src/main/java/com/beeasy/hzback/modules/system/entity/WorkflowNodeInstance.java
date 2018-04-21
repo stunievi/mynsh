@@ -1,5 +1,7 @@
 package com.beeasy.hzback.modules.system.entity;
 
+import com.beeasy.hzback.core.helper.SpringContextUtils;
+import com.beeasy.hzback.modules.system.dao.IWorkflowNodeDao;
 import com.beeasy.hzback.modules.system.node.BaseNode;
 import lombok.Getter;
 import lombok.Setter;
@@ -36,11 +38,6 @@ public class WorkflowNodeInstance {
     @OneToMany(mappedBy = "nodeInstance",cascade = CascadeType.ALL)
     Set<WorkflowNodeAttribute> attributeList = new LinkedHashSet<>();
 
-    @Transient
-    public BaseNode getNodeModel(){
-        return getInstance().getWorkflowModel().getModel().get(nodeName);
-    }
-
     public void setFinished(boolean finished) {
         this.finished = finished;
         if(finished){
@@ -49,5 +46,10 @@ public class WorkflowNodeInstance {
         else{
             setDealDate(null);
         }
+    }
+
+    @Transient
+    public WorkflowNode getNodeModel(){
+         return SpringContextUtils.getBean(IWorkflowNodeDao.class).findFirstByModelAndName(getInstance().getWorkflowModel(),getNodeName()).orElse(null);
     }
 }

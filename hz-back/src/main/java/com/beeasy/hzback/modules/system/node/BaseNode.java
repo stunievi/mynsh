@@ -23,61 +23,44 @@ import java.util.Map;
 abstract public class BaseNode implements Serializable {
     protected static final long serialVersionUID = 1L;
 
-    public BaseNode(String name, String type, Map map) {
-        this.name = name;
-        this.type = type;
 
-        if(map.containsKey("next")){
-            Object next = map.get("next");
-            if(next instanceof Collections){
-                this.next.addAll((Collection<? extends String>) next);
-            }
-            else if(next instanceof String){
-                if(!StringUtils.isEmpty(next)){
-                   this.next.add(String.valueOf(next));
-                }
-            }
-        }
+//    @ApiModelProperty(required = true)
+//    protected String name;
 
-    }
+//    protected String type;
 
-    @ApiModelProperty(required = true)
-    protected String name;
-
-    protected String type;
-
-    @ApiModelProperty(hidden = true)
-    protected boolean start = false;
-    @ApiModelProperty(hidden = true)
-    protected boolean end = false;
+//    @ApiModelProperty(hidden = true)
+//    protected boolean start = false;
+//    @ApiModelProperty(hidden = true)
+//    protected boolean end = false;
 
 
     //下一个节点, 通畅只有资料节点有, 其他则用behavior执行
-    @ApiModelProperty(required = true)
-    protected LinkedHashSet<String> next = new LinkedHashSet<>();
+//    @ApiModelProperty(required = true)
+//    protected LinkedHashSet<String> next = new LinkedHashSet<>();
 
 
 
-    public static BaseNode create(String k, Map v){
+    public static BaseNode create(Map v){
         switch (String.valueOf(v.get("type"))){
             case "check":
-                return new CheckNode(k,v);
+                return new CheckNode(v);
 
             case "checkprocess":
-                return new CheckProcessNode(k,v);
+                return new CheckProcessNode(v);
 
             case "input":
-                return new InputNode(k,v);
+                return new InputNode(v);
 
             case "logic":
-                return new LogicNode(k,v);
+                return new LogicNode(v);
 
             case "universal":
-                return new UniversalNode(k,v);
+                return new UniversalNode(v);
 
             case "end":
-                NormalNode node = new NormalNode(k,v);
-                node.setEnd(true);
+                NormalNode node = new NormalNode(v);
+//                node.setEnd(true);
                 return node;
         }
 

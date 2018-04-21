@@ -6,6 +6,7 @@ import com.beeasy.hzback.modules.exception.CannotFindEntityException;
 import com.beeasy.hzback.modules.system.entity.InspectTask;
 import com.beeasy.hzback.modules.system.entity.WorkflowInstance;
 import com.beeasy.hzback.modules.system.entity.WorkflowModel;
+import com.beeasy.hzback.modules.system.entity.WorkflowNode;
 import com.beeasy.hzback.modules.system.form.WorkflowModelAdd;
 import com.beeasy.hzback.modules.system.form.WorkflowQuartersEdit;
 import org.springframework.data.domain.Page;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 public interface IWorkflowService {
     WorkflowModel findModelE(long id) throws CannotFindEntityException;
@@ -96,14 +98,15 @@ public interface IWorkflowService {
 
     boolean editWorkflowModel(long modelId, String info, Boolean open);
 
-    Result setPersons(long modelId, WorkflowQuartersEdit... edits);
+
+    Result<Set<WorkflowNode>> setPersons(WorkflowQuartersEdit... edits);
 
     public WorkflowModel deleteNode(long modelId, String[] nodeName) throws CannotFindEntityException;
     Result<WorkflowModel> createWorkflow(String modelName, WorkflowModelAdd add) throws RestException;
 
     boolean deleteWorkflowModel(long id, boolean force);
 
-    public boolean createNode(long modelId, String node);
+    public Optional<WorkflowNode> createNode(long modelId, String node);
     Page<WorkflowInstance> getUserWorkflows(long uid, Status status, Pageable pageable) throws CannotFindEntityException;
 
 

@@ -22,6 +22,8 @@ public class WorkflowNodeAttribute {
     String attrKey;
     String attrValue;
 
+    boolean file = false;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     User dealUser;

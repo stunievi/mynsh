@@ -37,20 +37,16 @@ public class CheckNode extends BaseNode{
 
     @ApiModelProperty(required = true)
     @Min(value = 1,message = "审批人数格式错误")
-    int count = 1;
-
-    @ApiModelProperty(hidden = true)
-    String type = "check";
+    @NotNull(message = "审批人数不能为空")
+    Integer count = 1;
 
     @ApiModelProperty(required = true)
     @NotNull(message = "状态不能为空")
     @Valid
-    private ArrayList<CheckNodeState> states;
+    protected ArrayList<CheckNodeState> states;
 
 
-    public CheckNode(String name, Map<String,Object> v) {
-        super(name, "check", v);
-
+    public CheckNode(Map<String,Object> v) {
         states = new ArrayList<>();
 
         if (v.containsKey("count")) {

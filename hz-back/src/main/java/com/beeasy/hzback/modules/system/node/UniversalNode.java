@@ -18,8 +18,8 @@ public class UniversalNode extends InputNode {
     private String behavior = "";
 
 
-    public UniversalNode(String name, Map v) {
-        super("universal", v);
+    public UniversalNode(Map v) {
+        super(v);
 
         count = (int) v.getOrDefault("count",1);
         if(count < 1){

@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Set;
 
 public interface IWorkflowModelPersonsDao extends JpaRepository<WorkflowModelPersons,Long> {
-    void deleteAllByWorkflowModel(WorkflowModel workflowModel);
 
     @Query("select s from WorkflowModelPersons s where (s.type = 0 and s.uid in :quartersIds) or (s.type = 1 and s.uid in :userIds)")
     Set<WorkflowModelPersons> findPersonsByUser(List<Long> quartersIds, List<Long> userIds);

@@ -23,14 +23,20 @@ public class WorkflowModelPersons {
 
     String nodeName;
 
+//    @JSONField(serialize = false)
+//    @ManyToOne
+//    @JoinColumn(name = "workflow_id")
+//    WorkflowModel workflowModel;
+
     @JSONField(serialize = false)
     @ManyToOne
-    @JoinColumn(name = "workflow_id")
-    WorkflowModel workflowModel;
+    WorkflowNode workflowNode;
 
     @Enumerated
     IWorkflowService.Type type;
 
     Long uid;
+
+    String title;
 
 }

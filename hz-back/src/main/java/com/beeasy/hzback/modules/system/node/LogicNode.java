@@ -15,8 +15,7 @@ public class LogicNode extends BaseNode {
     private int interval;
     private Map<String,String> result = new LinkedHashMap<>();
 
-    public LogicNode(String name, Map map) {
-        super(name, "logic", map);
+    public LogicNode(Map map) {
         if (map.containsKey("condition")) {
             setCondition(String.valueOf(map.get("condition")));
         }

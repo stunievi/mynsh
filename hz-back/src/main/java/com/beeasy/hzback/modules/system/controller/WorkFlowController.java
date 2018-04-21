@@ -6,10 +6,9 @@ import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.modules.exception.CannotFindEntityException;
 import com.beeasy.hzback.modules.system.dao.IWorkflowModelDao;
 import com.beeasy.hzback.modules.system.entity.WorkflowModel;
-import com.beeasy.hzback.modules.system.form.Pager;
-import com.beeasy.hzback.modules.system.form.WorkflowModelAdd;
-import com.beeasy.hzback.modules.system.form.WorkflowModelEdit;
-import com.beeasy.hzback.modules.system.form.WorkflowQuartersEdit;
+import com.beeasy.hzback.modules.system.entity.WorkflowNode;
+import com.beeasy.hzback.modules.system.entity.WorkflowNodeInstance;
+import com.beeasy.hzback.modules.system.form.*;
 import com.beeasy.hzback.modules.system.node.BaseNode;
 import com.beeasy.hzback.modules.system.node.CheckNode;
 import com.beeasy.hzback.modules.system.service.WorkflowService;
@@ -105,16 +104,12 @@ public class WorkFlowController {
 
 
     @ApiOperation(value = "添加审核节点", notes = "同名视为修改")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "modelId", value = "模型ID", required = true)
-    })
     @PostMapping("/model/node/addCheck")
-    public Result createCheckNode(
-            @RequestParam Long modelId,
-            @Valid CheckNode node,
+    public Result<WorkflowNode> createCheckNode(
+            @Valid @RequestBody CheckNodeModel node,
             BindingResult bindingResult
     ){
-        return Result.finish(workflowService.createCheckNode(modelId,node));
+        return Result.finish(workflowService.createCheckNode(node));
     }
 
 
@@ -138,11 +133,10 @@ public class WorkFlowController {
     })
     @PutMapping("/model/setPersons")
     public Result setQuarters(
-            long modelId,
-            @Valid WorkflowQuartersEdit edit,
+            @Valid @RequestBody WorkflowQuartersEdit edit,
             BindingResult bindingResult
             ){
-        return workflowService.setPersons(modelId, edit);
+        return workflowService.setPersons(edit);
     }
 
     @ApiOperation(value = "编辑工作流")
@@ -220,7 +214,7 @@ public class WorkFlowController {
     @ApiOperation(value = "当前应处理的节点")
     @GetMapping("/currentNode")
     public Result getCurrentNode(Long instanceId){
-        Optional<BaseNode> optional = workflowService.getCurrentNode(Utils.getCurrentUserId(),instanceId);
+        Optional<WorkflowNodeInstance> optional = workflowService.getCurrentNodeInstance(Utils.getCurrentUserId(),instanceId);
         return optional.isPresent() ? Result.ok(optional.get()) : Result.error();
     }
 

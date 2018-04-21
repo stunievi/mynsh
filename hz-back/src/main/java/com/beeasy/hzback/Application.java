@@ -14,7 +14,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 @EnableJpaAuditing
 //@EnableCaching
-@SpringBootApplication(scanBasePackages = {"com.beeasy.hzback"})
+@SpringBootApplication
 public class Application{
 
     public static void main(String[] args){

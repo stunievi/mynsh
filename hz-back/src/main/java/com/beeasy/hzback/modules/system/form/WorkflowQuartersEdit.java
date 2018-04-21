@@ -5,15 +5,16 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.validation.constraints.NotNull;
 import java.util.HashSet;
 import java.util.Set;
 
 @ApiModel
 @Data
 public class WorkflowQuartersEdit {
-//    @NotNull(message = "模型ID不能为空")
-//    @ApiModelProperty(value = "工作流模型ID", required = true)
-//    Long modelId;
+    @NotNull(message = "节点ID不能为空")
+    @ApiModelProperty(value = "节点ID", required = true)
+    Long nodeId;
 
     @NotEmpty(message = "节点名不能为空")
     @ApiModelProperty(value = "节点名字", required = true)

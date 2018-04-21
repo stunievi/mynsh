@@ -11,6 +11,7 @@ import com.beeasy.hzback.modules.system.dao.IQuartersDao;
 import com.beeasy.hzback.modules.system.dao.IRolePermissionDao;
 import com.beeasy.hzback.modules.system.dao.IUserDao;
 import com.beeasy.hzback.modules.system.entity.CloudDirectoryIndex;
+import com.beeasy.hzback.modules.system.entity.Quarters;
 import com.beeasy.hzback.modules.system.entity.RolePermission;
 import com.beeasy.hzback.modules.system.entity.User;
 import com.beeasy.hzback.modules.system.form.UserAdd;
@@ -323,6 +324,10 @@ public class UserService implements IUserService {
     @Override
     public Optional<User> findUser(long id) {
         return Optional.ofNullable(userDao.findOne(id));
+    }
+
+    public Optional<Quarters> findQuarters(long id){
+        return Optional.ofNullable(quartersDao.findOne(id));
     }
 
     public List<User> findUserByIds(Set<Long> ids){

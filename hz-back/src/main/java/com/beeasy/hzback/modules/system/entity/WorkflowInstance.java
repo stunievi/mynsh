@@ -52,7 +52,7 @@ public class WorkflowInstance {
     }
 
     @Transient
-    public WorkflowNodeInstance addNode(BaseNode node){
+    public WorkflowNodeInstance addNode(WorkflowNode node){
         WorkflowNodeInstance workflowNodeInstance = new WorkflowNodeInstance();
         workflowNodeInstance.setNodeName(node.getName());
         workflowNodeInstance.setInstance(this);

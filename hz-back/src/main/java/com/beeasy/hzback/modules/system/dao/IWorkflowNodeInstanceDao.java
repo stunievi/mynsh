@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.Optional;
 import java.util.Set;
 
 public interface IWorkflowNodeInstanceDao extends JpaRepository<WorkflowNodeInstance,Long> {
@@ -18,4 +19,7 @@ public interface IWorkflowNodeInstanceDao extends JpaRepository<WorkflowNodeInst
     Page<WorkflowInstance> getInstanceList(Set<WorkflowModel> models, Set<String> names, boolean finished, Pageable pageable);
 
     Page<WorkflowNodeInstance> findAllByTypeAndFinishedIsFalse(String type, Pageable pageable);
+
+
+    Optional<WorkflowNodeInstance> findFirstByInstanceAndFinishedIsFalse(WorkflowInstance instance);
 }

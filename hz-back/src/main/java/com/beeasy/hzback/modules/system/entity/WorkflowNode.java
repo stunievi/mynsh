@@ -9,7 +9,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -29,13 +31,18 @@ public class WorkflowNode extends AbstractBaseEntity{
     @Convert(converter = ObjectConverter.class)
     BaseNode node;
 
+    @OneToMany(mappedBy = "workflowNode",cascade = CascadeType.ALL)
+    List<WorkflowModelPersons> persons = new ArrayList<>();
+
     String name;
     String type;
 
     @Convert(converter = StringCommaConverter.class)
-    Set<String> next = new LinkedHashSet<>();
+    List<String> next = new ArrayList<>();
 
     boolean start = false;
     boolean end = false;
+
+
 
 }

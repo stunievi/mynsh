@@ -16,9 +16,7 @@ public class CheckProcessNode extends CheckNode{
     //关联任务处理结果
     private String result;
 
-    public CheckProcessNode(String name, Map v) {
-        super(name,v);
-        type = "checkprocess";
+    public CheckProcessNode(Map v) {
 
         if(v.containsKey("id")){
             id = String.valueOf(v.get("id"));
