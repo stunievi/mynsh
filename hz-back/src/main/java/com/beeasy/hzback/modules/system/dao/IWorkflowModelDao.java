@@ -13,4 +13,7 @@ public interface IWorkflowModelDao extends JpaRepository<WorkflowModel,Long>{
     Page<List<WorkflowModel>> findAllByName(String name, Pageable pageable);
 
     List<WorkflowModel> findAllByModelNameAndOpenIsTrueOrderByVersionDesc(String modelName);
+
+    //查找可用的版本列表
+    List<WorkflowModel> findAllByOpenIsTrue();
 }

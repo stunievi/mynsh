@@ -244,16 +244,17 @@ public class WorkflowService implements IWorkflowService {
             if(node.getModel().isFirstOpen()){
                 return Result.error("已经上线的工作流无法编辑");
             }
-            //如果没有这个节点
-            //删除没用的部分
-//            workflowModel.getPersons().removeIf(p -> p.getNodeName().equals(edit.getName()));
 
-            node.getPersons().clear();
+            if(node.isEnd()) continue;
+
+            //解除关联
+            personsDao.deleteAllByWorkflowNode(node);
 
             addWorkflowPersons(edit.getMainQuarters(), node, edit.getName(), Type.MAIN_QUARTERS);
             addWorkflowPersons(edit.getMainUser(),node, edit.getName(), Type.MAIN_USER);
             addWorkflowPersons(edit.getSupportQuarters(),  node,edit.getName(), Type.SUPPORT_QUARTERS);
             addWorkflowPersons(edit.getSupportUser(),  node,edit.getName(), Type.SUPPORT_USER);
+
             set.add(nodeDao.save(node));
         }
         return Result.ok(set);
@@ -802,7 +803,7 @@ public class WorkflowService implements IWorkflowService {
                     title = quarters.getName();
                     break;
             }
-            node.getPersons().add(new WorkflowModelPersons(null, name,node, type, l,title));
+            personsDao.save(new WorkflowModelPersons(null, name,node, type, l,title));
         });
     }
 //    private WorkflowNodeInstance getCurrentNode(WorkflowInstance instance){
@@ -835,6 +836,33 @@ public class WorkflowService implements IWorkflowService {
 
     }
 
+    public List<String> getAvaliableModelNames(){
+        return modelDao.findAllByOpenIsTrue().stream()
+                .map(item -> item.getName())
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    public List<WorkflowModel> getAllWorkflows(){
+        List<WorkflowModel> models = modelDao.findAllByOpenIsTrue();
+        Map<String,WorkflowModel> map = new HashMap<>();
+        models.forEach(model -> {
+            WorkflowModel exist = map.get(model.getName());
+            if(null == exist){
+                map.put(model.getName(),model);
+            }
+            else{
+                if(model.getVersion().compareTo(exist.getVersion()) > 0){
+                    map.put(model.getName(),model);
+                }
+            }
+        });
+
+        return map.entrySet().stream()
+                .map(entry -> entry.getValue())
+                .collect(Collectors.toList());
+    }
+
 
     public Optional<WorkflowNode> findNode(WorkflowModel model, String nodeName){
         return nodeDao.findFirstByModelAndName(model,nodeName);
@@ -843,6 +871,11 @@ public class WorkflowService implements IWorkflowService {
     @Override
     public Optional<WorkflowModel> findModel(long id) {
         return Optional.ofNullable(modelDao.findOne(id));
+    }
+
+
+    public Optional<WorkflowNode> findNode(long id){
+        return Optional.ofNullable(nodeDao.findOne(id));
     }
 
     @Override

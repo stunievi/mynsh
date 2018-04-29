@@ -42,15 +42,15 @@ public class Department extends AbstractBaseEntity{
 
 
 
-    @JSONField(serialize = false)
-    @Transient
-    public Set<User> getUsers(){
-        return null;
-//        return this.getRoles().stream()
-//                .map(role -> role.getUsers())
+//    @Transient
+//    public List<User> getUsers(){
+//        return getQuarters()
+//                .stream()
+//                .map(q -> q.getUsers())
 //                .flatMap(Set::stream)
-//                .collect(Collectors.toSet());
-    }
+//                .distinct()
+//                .collect(Collectors.toList());
+//    }
 
 
 

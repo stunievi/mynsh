@@ -2,21 +2,22 @@ package com.beeasy.hzback;
 
 import bin.leblanc.faker.Faker;
 import com.beeasy.hzback.core.exception.RestException;
-import com.beeasy.hzback.modules.system.dao.IUserDao;
+import com.beeasy.hzback.core.helper.Result;
+import com.beeasy.hzback.modules.system.dao.*;
 import com.beeasy.hzback.modules.system.entity.CloudDirectoryIndex;
+import com.beeasy.hzback.modules.system.entity.Department;
+import com.beeasy.hzback.modules.system.entity.Quarters;
 import com.beeasy.hzback.modules.system.entity.User;
-import com.beeasy.hzback.modules.system.form.UserAdd;
-import com.beeasy.hzback.modules.system.service.MessageService;
-import com.beeasy.hzback.modules.system.service.UserService;
+import com.beeasy.hzback.modules.system.form.*;
+import com.beeasy.hzback.modules.system.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.SQLQuery;
 import org.hibernate.transform.Transformers;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.persistence.EntityManager;
@@ -25,8 +26,10 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import java.util.Collections;
+import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -41,21 +44,95 @@ public class TestAsync {
     MessageService messageService;
     @Autowired
     IUserDao userDao;
+    @Autowired
+    WorkflowService workflowService;
+    @Autowired
+    IWorkflowModelDao workflowModelDao;
+    @Autowired
+    IDepartmentDao departmentDao;
+    @Autowired
+    QuartersService quartersService;
 
     @Test
-    public void test2() throws RestException {
+    public void createWorkflows(){
+        workflowModelDao.deleteAll();
+        WorkflowModelAdd edit = new WorkflowModelAdd();
+        edit.setName("资料收集");
+        edit.setVersion(BigDecimal.valueOf(1.0));
+        workflowService.createWorkflow("资料收集",edit);
+    }
 
-        UserAdd userAdd = new UserAdd();
-        userAdd.setPassword("f");
-        userAdd.setUsername(Faker.getName());
-        userAdd.setPhone(Faker.getPhone());
-        User user = userService.createUser(userAdd);
 
-        messageService.sendMessage(1, Collections.singleton(user.getId()),"fuck","you",null);
-        Page<?> page = messageService.getMessages(1,null,new PageRequest(0,100));
-        int b = 1;
+    @Autowired
+    DepartmentService departmentService;
+    @Autowired
+    IQuartersDao quartersDao;
+    @Autowired
+    ISystemFileDao systemFileDao;
+
+
+    @Test
+    public void createAdmin() throws RestException {
+        User user = userDao.findByUsername("1");
+        if(user != null){
+            userDao.delete(user);
+        }
+        UserAdd add = new UserAdd();
+        add.setPhone(Faker.getPhone());
+        add.setUsername("1");
+        add.setPassword("2");
+        add.setTrueName("管理员");
+//        add.setTrueName(Faker);
+        add.setBaned(false);
+        userService.createUser(add);
+
 
     }
+
+    @Test
+    public void createDepartments() throws RestException {
+        systemFileDao.deleteAll();
+        userDao.clearUsers("1");
+        createAdmin();
+        departmentDao.deleteAll();
+        quartersDao.deleteAll();
+        String[] departments = {"部门1","部门2","部门3","部门4"};
+        String[] quarters = {"岗位1","岗位2","岗位3","岗位4"};
+        for (String department : departments) {
+            DepartmentAdd departmentAdd = new DepartmentAdd();
+            departmentAdd.setName(department);
+            Result<Department> result  = departmentService.createDepartment(departmentAdd);
+
+            Assert.assertTrue(result.isSuccess());
+            for (String quarter : quarters) {
+                QuartersAdd quartersAdd = new QuartersAdd();
+                quartersAdd.setDepartmentId(result.getData().getId());
+                quartersAdd.setName(quarter);
+                Result<Quarters> ret = userService.createQuarters(quartersAdd);
+                Assert.assertTrue(ret.isSuccess());
+                for(int i = 0; i< 10; i++){
+                    UserAdd userAdd = new UserAdd();
+                    userAdd.setPhone(Faker.getPhone());
+                    userAdd.setTrueName(Faker.getTrueName());
+                    userAdd.setUsername(Faker.getName());
+                    userAdd.setPassword("2");
+                    userAdd.setBaned(false);
+                    Result<User> r = userService.createUser(userAdd);
+                    Assert.assertTrue(r.isSuccess());
+
+                    UserEdit edit = new UserEdit();
+                    Set<Long> qs = new HashSet<>();
+                    qs.add(ret.getData().getId());
+                    edit.setQuarters(qs);
+                    edit.setId(r.getData().getId());
+                    userService.editUser(edit);
+                }
+            }
+        }
+
+    }
+
+
 
     @Test
     public void test(){

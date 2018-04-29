@@ -5,12 +5,10 @@ import bin.leblanc.zed.event.ZedInitializedEvent;
 import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.modules.system.entity.CloudDirectoryIndex;
 import com.beeasy.hzback.modules.system.entity.CloudFileIndex;
-import com.beeasy.hzback.modules.system.entity.SystemMenu;
 import com.beeasy.hzback.modules.system.entity.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.criteria.Root;
@@ -62,16 +60,16 @@ public class ZedCustomPermission implements ApplicationListener<ZedInitializedEv
         });
 
         zed.addRole("admin",role -> {
-            role.createEntityPermission(SystemMenu.class)
-                    //只允许查询权限
-                    .allowGet()
-                    //限定查找范围，只能查找自己的菜单
-                    .setGetWhereLimit((cb,root,condition) -> {
-                        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-                        log.info(user.getUsername());
-                        Root r = (Root)root;
-                        return cb.and(r.join("users").in(user.getId()));
-                    });
+//            role.createEntityPermission(SystemMenu.class)
+//                    //只允许查询权限
+//                    .allowGet()
+//                    //限定查找范围，只能查找自己的菜单
+//                    .setGetWhereLimit((cb,root,condition) -> {
+//                        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//                        log.info(user.getUsername());
+//                        Root r = (Root)root;
+//                        return cb.and(r.join("users").in(user.getId()));
+//                    });
         });
     }
 }

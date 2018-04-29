@@ -2,45 +2,54 @@ package com.beeasy.hzback.modules.system.service;
 
 import bin.leblanc.classtranslate.Transformer;
 import com.beeasy.hzback.core.exception.RestException;
+import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.core.util.CrUtils;
 import com.beeasy.hzback.modules.exception.CannotFindEntityException;
 import com.beeasy.hzback.modules.system.cache.SystemConfigCache;
-import com.beeasy.hzback.modules.system.dao.ICloudDirectoryIndexDao;
-import com.beeasy.hzback.modules.system.dao.IQuartersDao;
-import com.beeasy.hzback.modules.system.dao.IRolePermissionDao;
-import com.beeasy.hzback.modules.system.dao.IUserDao;
-import com.beeasy.hzback.modules.system.entity.CloudDirectoryIndex;
-import com.beeasy.hzback.modules.system.entity.Quarters;
-import com.beeasy.hzback.modules.system.entity.RolePermission;
-import com.beeasy.hzback.modules.system.entity.User;
+import com.beeasy.hzback.modules.system.dao.*;
+import com.beeasy.hzback.modules.system.entity.*;
+import com.beeasy.hzback.modules.system.form.QuartersAdd;
 import com.beeasy.hzback.modules.system.form.UserAdd;
 import com.beeasy.hzback.modules.system.form.UserEdit;
 import com.beeasy.hzback.modules.system.form.UserSearch;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ResourceUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 @Transactional
 public class UserService implements IUserService {
     @Autowired
+    ISystemFileDao systemFileDao;
+    @Autowired
     IQuartersDao quartersDao;
+    @Autowired
+    IDepartmentDao departmentDao;
     @Autowired
     IUserDao userDao;
     @Autowired
     IRolePermissionDao rolePermissionDao;
+    @Autowired
+    IUserProfileDao userProfileDao;
 
     @Autowired
     SystemConfigCache cache;
@@ -149,16 +158,39 @@ public class UserService implements IUserService {
 //    }
 
     @Override
-    public User createUser(UserAdd add) throws RestException {
-        Utils.validate(add);
+    public Result<User> createUser(UserAdd add){
+        Result result = Utils.validate(add);
+        if(!result.isSuccess()){
+            return result;
+        }
         User users = userDao.findFirstByUsernameOrPhone(add.getUsername(), add.getPhone());
         if (users != null) {
-            throw new RestException("已有相同的用户名或手机号");
+            return Result.error("已有相同的用户名或手机号");
         }
 
         add.setPassword(CrUtils.md5(add.getPassword().getBytes()));
         User u = Transformer.transform(add, User.class);
 
+        //profile
+        UserProfile userProfile = new UserProfile();
+        userProfile.setUser(u);
+        SystemFile systemFile = new SystemFile();
+        try {
+            File face = ResourceUtils.getFile("classpath:static/default_face.jpg");
+            systemFile.setFile(FileUtils.readFileToByteArray(face));
+            systemFile.setType(SystemFile.FileType.FACE);
+            systemFile = systemFileDao.save(systemFile);
+            if(systemFile.getId() == null){
+                throw new IOException();
+            }
+            userProfile.setFaceId(systemFile.getId());
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return Result.error("保存头像失败");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        userProfileDao.save(userProfile);
 
         //添加permission
         RolePermission rolePermission = new RolePermission();
@@ -182,8 +214,7 @@ public class UserService implements IUserService {
         cloudDirectoryIndexDao.save(cloudDirectoryIndex);
 //        u.getFolders().add(cloudDirectoryIndex);
 
-        return ret;
-
+        return Result.ok(ret);
     }
 
 
@@ -195,6 +226,32 @@ public class UserService implements IUserService {
                     userDao.delete(user);
                     return true;
                 }).isPresent();
+    }
+
+    public Optional<Long> updateUserFace(long uid, MultipartFile file){
+        AtomicReference<User> userAtomicReference = new AtomicReference<>();
+        return findUser(uid)
+            .map(user -> {
+                userAtomicReference.set(user);
+                return user;
+            })
+            .flatMap(user -> findFile(user.getProfile().getFaceId()))
+            .map(systemFile -> {
+                systemFile.setRemoved(true);
+                systemFileDao.save(systemFile);
+                SystemFile face = new SystemFile();
+                face.setType(SystemFile.FileType.FACE);
+                try {
+                    face.setFile(file.getBytes());
+                    face = systemFileDao.save(systemFile);
+                    userAtomicReference.get().getProfile().setFaceId(face.getId());
+                    userProfileDao.save(userAtomicReference.get().getProfile());
+                    if(face.getId() != null) return face.getId();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            });
     }
 
     @Override
@@ -274,14 +331,15 @@ public class UserService implements IUserService {
         return userDao.findAll(query, pageable);
     }
 
-    public boolean editUser(UserEdit edit) throws RestException {
-        Utils.validate(edit);
-        String errerMsg = findUser(edit.getId())
+    public Result<User> editUser(UserEdit edit) throws RestException {
+        Result ret = Utils.validate(edit);
+        if(!ret.isSuccess()) return ret;
+        return findUser(edit.getId())
                 .map(user -> {
                     if (!StringUtils.isEmpty(edit.getPhone())) {
                         Optional<User> sameUser = userDao.findFirstByPhone(edit.getPhone());
                         if (sameUser.isPresent() && !sameUser.get().getId().equals(user.getId())) {
-                            return "已经有相同的手机号";
+                            return Result.error("已经有相同的手机号");
                         }
                         user.setPhone(edit.getPhone());
                     }
@@ -312,22 +370,35 @@ public class UserService implements IUserService {
                     if (null != edit.getUnbindMethods()) {
                         setUnbindMethods(user, edit.getUnbindMethods());
                     }
-                    saveUser(user);
-                    return "";
-                }).orElse("");
-        if (!StringUtils.isEmpty(errerMsg)) {
-            throw new RestException(errerMsg);
-        }
-        return true;
+                    return Result.ok(saveUser(user));
+                }).orElse(Result.error());
     }
 
     @Override
+    public Result<Quarters> createQuarters(QuartersAdd add) {
+        Department department = departmentDao.findOne(add.getDepartmentId());
+        if (department == null) return Result.error("没有该部门");
+        //同部门不能有同名的岗位
+        Quarters same = quartersDao.findFirstByDepartmentAndName(department, add.getName());
+        if (same != null) return Result.error("已经有同名的岗位");
+
+        Quarters quarters = Transformer.transform(add, Quarters.class);
+        quarters.setDepartment(department);
+        Quarters ret = quartersDao.save(quarters);
+        return Result.ok(ret);
+    }
+
+        @Override
     public Optional<User> findUser(long id) {
         return Optional.ofNullable(userDao.findOne(id));
     }
 
     public Optional<Quarters> findQuarters(long id){
         return Optional.ofNullable(quartersDao.findOne(id));
+    }
+
+    public Optional<SystemFile> findFile(long id){
+        return Optional.ofNullable(systemFileDao.findOne(id));
     }
 
     public List<User> findUserByIds(Set<Long> ids){

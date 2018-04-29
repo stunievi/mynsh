@@ -1,9 +1,9 @@
 package com.beeasy.hzback.core.helper;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.beeasy.hzback.core.exception.RestException;
+import bin.leblanc.faker.Faker;
 import com.beeasy.hzback.modules.system.entity.User;
+import com.beeasy.hzback.modules.system.form.UserAdd;
+import com.beeasy.hzback.modules.system.service.UserService;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -17,6 +17,7 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -25,6 +26,20 @@ import java.util.stream.Collectors;
 
 @Component
 public class Utils {
+
+    @Autowired
+    UserService userService;
+
+    public User createFaker(){
+        UserAdd userAdd = new UserAdd();
+        userAdd.setPhone(Faker.getPhone());
+        userAdd.setTrueName(Faker.getTrueName());
+        userAdd.setUsername(Faker.getName());
+        userAdd.setPassword("2");
+        userAdd.setBaned(false);
+        Result<User> r = userService.createUser(userAdd);
+        return r.orElse(null);
+    }
 
     public static String readFile(String filePath) throws IOException {
         File f;
@@ -74,17 +89,18 @@ public class Utils {
                 .collect(Collectors.toList());
     }
 
-    public static <T>  void validate(T t) throws RestException{
+    public static <T>  Result validate(T t){
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();
         Set<ConstraintViolation<T>> violations = validator.validate(t);
         if(violations.size() > 0){
-            JSONArray arr = new JSONArray();
+            List<String> arr = new ArrayList<>();
             violations.forEach(tConstraintViolation -> {
                 arr.add(tConstraintViolation.getMessage());
             });
-            throw new RestException(JSON.toJSONString(arr));
+            return Result.error(String.join(",",arr));
         }
+        return Result.ok();
     }
 
 

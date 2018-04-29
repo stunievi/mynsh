@@ -2,7 +2,6 @@ package com.beeasy.hzback.modules.system.entity;
 
 
 import com.alibaba.fastjson.annotation.JSONField;
-import com.beeasy.hzback.modules.setting.entity.UserProfile;
 import com.beeasy.hzback.modules.system.service.IUserService;
 import lombok.Getter;
 import lombok.Setter;
@@ -32,6 +31,7 @@ public class User implements Serializable{
 
     @Column(unique = true)
     private String username;
+    @JSONField(serialize = false)
     private String password;
 
     private String trueName;
@@ -53,11 +53,14 @@ public class User implements Serializable{
     @ManyToMany(mappedBy = "users", cascade = CascadeType.ALL)
     private Set<Quarters> quarters = new LinkedHashSet<>();
 
-    @OneToOne(mappedBy = "user")
+    @OneToOne(mappedBy = "user",cascade = CascadeType.ALL)
     private UserProfile profile;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<RolePermission> permissions = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user")
+    private List<MessageRead> readList = new ArrayList<>();
 
 //    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
 //    private List<CloudDirectoryIndex> folders = new ArrayList<>();

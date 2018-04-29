@@ -56,6 +56,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/v2/api-docs").permitAll()
                 .antMatchers("/static/**").permitAll()
                 .antMatchers("/api/login").permitAll()
+                .antMatchers("/api/mobile/login").permitAll()
                 //所有开放的API放到这里
                 .antMatchers("/open/**").permitAll()
                 .antMatchers("/swagger-ui.html").permitAll()

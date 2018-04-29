@@ -5,7 +5,10 @@ import com.beeasy.hzback.modules.system.service.ICloudDiskService;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Entity
 @Getter
@@ -16,8 +19,8 @@ public class MessageFile extends AbstractBaseEntity{
     @GeneratedValue
     Long id;
 
-    @ManyToOne
-    Message message;
+//    @ManyToOne
+//    Message message;
 
     ICloudDiskService.DirType type;
     Long linkId;

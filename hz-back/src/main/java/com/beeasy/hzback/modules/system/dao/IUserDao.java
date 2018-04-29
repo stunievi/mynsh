@@ -46,6 +46,11 @@ public interface IUserDao extends JpaRepository<User,Long> ,JpaSpecificationExec
     @Query(value = "delete from t_user_quarters where user_id = :id", nativeQuery = true)
     void test2(@Param("id") int id);
 
+    @Transactional
+    @Modifying
+    @Query(value = "delete from User where username <> :username")
+    void clearUsers(String username);
+
 //    User findByUserNameOrEmail(String username, String email);
 
 //    @Transactional

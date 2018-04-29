@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="./js/go.js">
+    </script>
+</head>
+<body>
+<style>
+    html,body{
+        width:100%;
+        height: 100%;
+    }
+    #box{
+        width: 100%;
+        height: 100%;
+    }
+</style>
+    <div id="box">
+
+    </div>
+
+    <script>
+        var $ = go.GraphObject.make;//
+        var myDiagram =$(go.Diagram, //定义的画布
+            "box",//要渲染的DIV 的Id 名称,1中html中的id
+            {
+                initialAutoScale: go.Diagram.Uniform,
+                contentAlignment: go.Spot.Center,//对齐方式
+            });
+        var jsonList = {
+            nodeKeyProperty: "key", //关联的主键
+            nodeDataArray: [{key:1,text:"节点1"},
+                {key:2,text:"节点2"},
+                {key:3,text:"节点3"},
+                {key:4,text:"节点4"},
+                {key:5,text:"节点5"},
+                {key:6,text:"节点6",stroke:"red"}],//节点数据
+            linkDataArray: [{from:1,to:2},
+                {from:2,to:3},
+                {from:2,to:5},
+                {from:3,to:6},
+                {from:5,to:4}]//点对应关系数据 ，上面from 和to 即 开始节点的主键指向结束节点的主键
+        };
+        myDiagram.nodeTemplate = $(go.Node, "Auto",
+            $(go.Shape, "RoundedRectangle",//形状:一个 圆角矩形 ，默认填充色为 白色，边框颜色为 红色
+                {
+                    fill: "white",
+                    stroke: "black"
+                },
+                new go.Binding("fill", "color")
+            ),
+            $(go.TextBlock,//文本
+                {
+                    font: "bold 10pt helvetica, bold arial, sans-serif",
+                    margin: 4,
+
+                },
+                new go.Binding("text", "text"),
+                new go.Binding("stroke","stroke")
+            )//申明动态绑定text属性，将数据源中提供text字段的值赋值给当前的text属性
+
+        );
+        //
+        // myDiagram.linkTemplate =
+        //     $(go.Link,
+        //         {  adjusting: go.Link.Stretch, reshapable: true },
+        //         new go.Binding("points").makeTwoWay(),
+        //         $(go.Shape,  //用来画线
+        //             {
+        //                 isPanelMain: true,
+        //                 stroke: "black"
+        //             }),
+        //         $(go.Shape,  //用来画箭头
+        //             {
+        //                 toArrow: "standard",
+        //                 stroke: null
+        //             }),
+        //         $(go.TextBlock,  //用来显示线上的label
+        //             {
+        //                 textAlign: "center",
+        //                 segmentOffset: new go.Point(0, -10),
+        //                 font: "10pt helvetica, arial, sans-serif",
+        //                 stroke: "#555555",
+        //                 margin: 4
+        //             },
+        //             new go.Binding("text", "text")
+        //         )
+        //     );
+        myDiagram.model = go.Model.fromJson(jsonList);
+    </script>
+</body>
+</html>

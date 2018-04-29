@@ -1,6 +1,5 @@
 package com.beeasy.hzback.modules.system.entity;
 
-import com.alibaba.fastjson.annotation.JSONField;
 import com.beeasy.hzback.core.entity.AbstractBaseEntity;
 import com.beeasy.hzback.core.helper.ObjectConverter;
 import lombok.Getter;
@@ -23,25 +22,30 @@ public class Message extends AbstractBaseEntity{
     @GeneratedValue
     Long id;
 
-    @JSONField(serialize = false)
-    @ManyToOne
-    User fromUser;
+    Long fromUserId;
 
-    @ManyToOne
-    User toUser;
+//    @JSONField(serialize = false)
+//
+//    @ManyToOne
+//    User toUser;
 
     @CreatedDate
-    Date addTime;
+    Date sendTime;
 
-    String title;
+//    String title;
 
     @Column(columnDefinition = "BLOB")
     @Convert(converter = ObjectConverter.class)
     String content;
 
-    @OneToMany(mappedBy = "message")
-    Set<MessageFile> files = new LinkedHashSet<>();
+    @OneToMany
+    Set<SystemFile> files = new LinkedHashSet<>();
 
-    boolean checked = false;
+    @ManyToOne
+    MessageSession session;
+
+//    boolean checked = false;
+
+
 
 }

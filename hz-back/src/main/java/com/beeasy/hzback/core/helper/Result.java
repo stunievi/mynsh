@@ -89,6 +89,9 @@ public class Result <T> {
         }
     }
 
+    public static String okJson(Object obj){
+        return okJson(obj,new Entry[0]);
+    }
     public static String okJson(Object obj, Entry ...entries){
         HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
         response.setHeader("content-type","application/json");

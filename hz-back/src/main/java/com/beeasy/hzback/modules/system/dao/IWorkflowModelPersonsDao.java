@@ -1,7 +1,7 @@
 package com.beeasy.hzback.modules.system.dao;
 
-import com.beeasy.hzback.modules.system.entity.WorkflowModel;
 import com.beeasy.hzback.modules.system.entity.WorkflowModelPersons;
+import com.beeasy.hzback.modules.system.entity.WorkflowNode;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -12,4 +12,6 @@ public interface IWorkflowModelPersonsDao extends JpaRepository<WorkflowModelPer
 
     @Query("select s from WorkflowModelPersons s where (s.type = 0 and s.uid in :quartersIds) or (s.type = 1 and s.uid in :userIds)")
     Set<WorkflowModelPersons> findPersonsByUser(List<Long> quartersIds, List<Long> userIds);
+
+    void deleteAllByWorkflowNode(WorkflowNode node);
 }

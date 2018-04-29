@@ -1,7 +1,7 @@
 package com.beeasy.hzback.modules.system.response;
 
-import com.beeasy.hzback.modules.setting.entity.UserProfile;
 import com.beeasy.hzback.modules.system.entity.Department;
+import com.beeasy.hzback.modules.system.entity.UserProfile;
 import lombok.Data;
 
 @Data

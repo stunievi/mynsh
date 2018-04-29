@@ -56,12 +56,12 @@ public class UserController {
 
     @ApiOperation(value = "添加用户",notes = "")
     @PostMapping
-    public Object add(
+    public Result<User> add(
             @Valid UserAdd edit,
             BindingResult bindingResult
             ) throws RestException {
 
-        return userService.createUser(edit).getId() > 0;
+        return userService.createUser(edit);
     }
 
     @ApiOperation(value = "修改用户", notes = "")

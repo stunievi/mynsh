@@ -96,7 +96,9 @@ public class TestUser {
         userAdd.setPassword(Faker.getName());
         userAdd.setPhone(Faker.getPhone());
         userAdd.setTrueName(Faker.getName());
-        u = userService.createUser(userAdd);
+        Result<User> result = userService.createUser(userAdd);
+        assertTrue(result.isSuccess());
+        u = result.getData();
         assertTrue(u.getId() > 0);
         users.add(u.getId());
 
@@ -167,8 +169,14 @@ public class TestUser {
         WorkflowQuartersEdit[] edits = new WorkflowQuartersEdit[list.size()];
         edits = list.toArray(edits);
 
-        workflowModel = workflowService.setPersons(workflowModel.getId(),edits).orElse(null);
-        assertNotNull(workflowModel);
+        workflowService.setPersons(edits);
+
+        workflowModel = workflowService.findModel(workflowModel.getId()).orElse(null);
+       assertNotNull(workflowModel);
+//        Result<Set<WorkflowNode>> result = workflowService.setPersons(edits).orElse(null);
+//        assertTrue(result.isSuccess());
+
+
 
         return workflowModel;
     }
@@ -210,7 +218,9 @@ public class TestUser {
         WorkflowQuartersEdit edit1 = new WorkflowQuartersEdit();
         edit1.setName("是否拒贷");
         edit1.getMainQuarters().add(quarters.getId());
-        workflowModel = workflowService.setPersons(workflowModel.getId(), edit, edit1).orElse(null);
+        Set<WorkflowNode> result = workflowService.setPersons(edit, edit1).orElse(null);
+        assertNotNull(result);
+
 
 //        assertTrue(workflowModel.getPersons().size() > 0);
 //        assertTrue(workflowModel.getPersons().get(0).getUid() > 0);
@@ -458,31 +468,7 @@ public class TestUser {
 //        assertTrue(flag);
     }
 
-    @Test
-    public void createAdmin() throws RestException {
-        User user = userDao.findByUsername("1");
-        if(user != null){
-            userDao.delete(user);
-        }
-        UserAdd add = new UserAdd();
-        add.setPhone(Faker.getPhone());
-        add.setUsername("1");
-        add.setPassword("2");
-        add.setTrueName("管理员");
-//        add.setTrueName(Faker);
-        add.setBaned(false);
-        userService.createUser(add);
 
-
-
-
-//        user = new User();
-//        user.setPassword("2");
-//        user.setUsername("1");
-//        user.setPhone(Faker.getPhone());
-//        userDao.save(user);
-
-    }
 
     @Test
     public void testQuarters() throws RestException {
