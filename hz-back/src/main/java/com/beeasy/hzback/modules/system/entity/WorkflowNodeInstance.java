@@ -1,8 +1,6 @@
 package com.beeasy.hzback.modules.system.entity;
 
-import com.beeasy.hzback.core.helper.SpringContextUtils;
-import com.beeasy.hzback.modules.system.dao.IWorkflowNodeDao;
-import com.beeasy.hzback.modules.system.node.BaseNode;
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,15 +19,24 @@ public class WorkflowNodeInstance {
     @GeneratedValue
     Long id;
 
+    //任务主体实例
+    @JSONField(serialize = false)
     @ManyToOne(optional = false)
-    @JoinColumn(name = "instance_id")
     WorkflowInstance instance;
 
     String nodeName;
 
-    //节点类型
-    String type;
+    //节点模型
+    @JSONField(serialize = false)
+    @ManyToOne
+    WorkflowNode nodeModel;
 
+    //节点处理人
+    @JSONField(serialize = false)
+    @ManyToOne
+    User dealer;
+
+    //任务完成时间
     Date dealDate;
 
     //是否已经处理完成
@@ -49,7 +56,19 @@ public class WorkflowNodeInstance {
     }
 
     @Transient
-    public WorkflowNode getNodeModel(){
-         return SpringContextUtils.getBean(IWorkflowNodeDao.class).findFirstByModelAndName(getInstance().getWorkflowModel(),getNodeName()).orElse(null);
+    public String getNodeName(){
+        return getNodeModel().getName();
     }
+
+    @Transient
+    public Long getNodeModelId(){
+        return nodeModel == null ? 0 : getNodeModel().getId();
+    }
+
+    @Transient
+    public Long getDealerId(){ return dealer == null ? 0 : dealer.getId();}
+//    @Transient
+//    public WorkflowNode getNodeModel(){
+//         return SpringContextUtils.getBean(IWorkflowNodeDao.class).findFirstByModelAndName(getInstance().getWorkflowModel(),getNodeName()).orElse(null);
+//    }
 }

@@ -1,7 +1,6 @@
 package com.beeasy.hzback.modules.system.entity;
 
 import com.beeasy.hzback.core.entity.AbstractBaseEntity;
-import com.beeasy.hzback.core.helper.ObjectConverter;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
@@ -9,8 +8,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.util.Date;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 @Entity
 @Getter
@@ -18,34 +15,68 @@ import java.util.Set;
 @Table(name = "t_message")
 @EntityListeners(AuditingEntityListener.class)
 public class Message extends AbstractBaseEntity{
+
     @Id
     @GeneratedValue
     Long id;
 
-    Long fromUserId;
+    Long fromId;
+    Long toId;
 
-//    @JSONField(serialize = false)
-//
-//    @ManyToOne
-//    User toUser;
+    @Enumerated
+    LinkType fromType;
+    @Enumerated
+    LinkType toType;
+
+
+    //消息类型, 文本/图片/文件/小视频/定位 等
+    @Enumerated
+    Type type = Type.TEXT;
+    Long linkId;
 
     @CreatedDate
     Date sendTime;
 
-//    String title;
+    String content = "";
+    String uuid;
 
-    @Column(columnDefinition = "BLOB")
-    @Convert(converter = ObjectConverter.class)
-    String content;
-
-    @OneToMany
-    Set<SystemFile> files = new LinkedHashSet<>();
-
-    @ManyToOne
-    MessageSession session;
-
-//    boolean checked = false;
+    //PC端公共的UUID
+    String commonUUID;
 
 
+    public enum LinkType{
+        USER(0);
+
+        private int value;
+        LinkType(int value){
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        public void setValue(int value) {
+            this.value = value;
+        }
+    }
+
+    public enum Type{
+        TEXT(0),
+        FILE(1);
+
+        private int value;
+        Type(int value){
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        public void setValue(int value) {
+            this.value = value;
+        }
+    }
 
 }

@@ -3,6 +3,8 @@ package com.beeasy.hzback.core.helper;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.PropertyFilter;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -12,7 +14,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Data
+@Getter
+@Setter
 public class Result <T> {
     protected boolean success;
     protected String errMessage = "";
@@ -32,8 +35,6 @@ public class Result <T> {
 
     public Result<T> map(){ return this;}
     public Result<T> flatMap(){ return this;}
-
-
 
     protected Result(){}
 
@@ -89,13 +90,15 @@ public class Result <T> {
         }
     }
 
-    public static String okJson(Object obj){
-        return okJson(obj,new Entry[0]);
-    }
-    public static String okJson(Object obj, Entry ...entries){
+    public String toJson(){
         HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
         response.setHeader("content-type","application/json");
+        return JSON.toJSONString(this);
+    }
 
+    public String toJson(Entry ...entries) {
+        HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
+        response.setHeader("content-type","application/json");
         PropertyFilter propertyFilter = (source, name, value) -> {
             for (Entry entry : entries) {
                 if(source.getClass().equals(entry.getClz()) && entry.getFields().contains(name)){
@@ -104,6 +107,18 @@ public class Result <T> {
             }
             return true;
         };
-        return JSON.toJSONString(Result.ok(obj),propertyFilter);
+        return JSON.toJSONString(this,propertyFilter);
+    }
+
+    public static String okJson(Object obj){
+        return okJson(obj,new Entry[0]);
+    }
+    public static String okJson(Object obj, Entry ...entries){
+        return Result.ok(obj).toJson(entries);
+    }
+
+    @Override
+    public String toString() {
+        return toJson();
     }
 }

@@ -39,6 +39,8 @@ import java.util.concurrent.atomic.AtomicReference;
 @Transactional
 public class UserService implements IUserService {
     @Autowired
+    IUserExternalPermissionDao externalPermissionDao;
+    @Autowired
     ISystemFileDao systemFileDao;
     @Autowired
     IQuartersDao quartersDao;
@@ -59,7 +61,7 @@ public class UserService implements IUserService {
 
     @Autowired
     ICloudDirectoryIndexDao cloudDirectoryIndexDao;
-//    @Override
+//    
 //    public boolean bindMenus(long uid, List<String> menus) {
 //        return findUser(uid)
 //                .flatMap(User::getMenuPermission)
@@ -70,7 +72,7 @@ public class UserService implements IUserService {
 //                }).isPresent();
 //    }
 //
-//    @Override
+//    
 //    public boolean unbindMenus(long uid, List<String> menus) {
 //        return findUser(uid)
 //                .flatMap(User::getMenuPermission)
@@ -125,7 +127,7 @@ public class UserService implements IUserService {
     }
 
 
-//    @Override
+//    
 //    public JSONArray getMenus(long uid) {
 //        return findUser(uid)
 //                .flatMap(user -> rolePermissionDao.findFirstByUserAndType(user,PermissionType.MENU))
@@ -157,7 +159,7 @@ public class UserService implements IUserService {
 //                .orElse(new JSONArray());
 //    }
 
-    @Override
+    
     public Result<User> createUser(UserAdd add){
         Result result = Utils.validate(add);
         if(!result.isSuccess()){
@@ -178,7 +180,7 @@ public class UserService implements IUserService {
         try {
             File face = ResourceUtils.getFile("classpath:static/default_face.jpg");
             systemFile.setFile(FileUtils.readFileToByteArray(face));
-            systemFile.setType(SystemFile.FileType.FACE);
+            systemFile.setType(SystemFile.Type.FACE);
             systemFile = systemFileDao.save(systemFile);
             if(systemFile.getId() == null){
                 throw new IOException();
@@ -218,7 +220,7 @@ public class UserService implements IUserService {
     }
 
 
-    @Override
+    
     public boolean deleteUser(long uid) {
         return findUser(uid)
                 .filter(user -> {
@@ -240,7 +242,7 @@ public class UserService implements IUserService {
                 systemFile.setRemoved(true);
                 systemFileDao.save(systemFile);
                 SystemFile face = new SystemFile();
-                face.setType(SystemFile.FileType.FACE);
+                face.setType(SystemFile.Type.FACE);
                 try {
                     face.setFile(file.getBytes());
                     face = systemFileDao.save(systemFile);
@@ -254,12 +256,12 @@ public class UserService implements IUserService {
             });
     }
 
-    @Override
+    
     public User saveUser(User user) {
         return userDao.save(user);
     }
 
-//    @Override
+//    
 //    public boolean addQuarters(long uid, long... qids){
 //        return findUser(uid)
 //                .filter(user -> {
@@ -270,7 +272,7 @@ public class UserService implements IUserService {
 //                }).isPresent();
 //    }
 //
-//    @Override
+//    
 //    public boolean removeQuarters(long uid, long... qids){
 //        return findUser(uid)
 //                .filter(user -> {
@@ -282,7 +284,7 @@ public class UserService implements IUserService {
 //    }
 //
 //
-//    @Override
+//    
 //    public User setQuarters(long uid, long... qids) throws CannotFindEntityException {
 //        User user = findUserE(uid);
 //        List<Quarters> qs = quartersDao.findAllByIdIn(qids);
@@ -306,7 +308,7 @@ public class UserService implements IUserService {
 
     public Page<User> searchUser(UserSearch search, Pageable pageable) {
         Specification query = new Specification() {
-            @Override
+            
             public Predicate toPredicate(Root root, CriteriaQuery query, CriteriaBuilder cb) {
                 List<Predicate> predicates = new ArrayList<>();
                 if (!StringUtils.isEmpty(search.getName())) {
@@ -374,7 +376,7 @@ public class UserService implements IUserService {
                 }).orElse(Result.error());
     }
 
-    @Override
+    
     public Result<Quarters> createQuarters(QuartersAdd add) {
         Department department = departmentDao.findOne(add.getDepartmentId());
         if (department == null) return Result.error("没有该部门");
@@ -388,7 +390,46 @@ public class UserService implements IUserService {
         return Result.ok(ret);
     }
 
-        @Override
+
+    /**
+     * 增加用户特殊权限
+     * @param uid
+     * @param permissions
+     * @return
+     */
+    public boolean addExternalPermission(Long uid, UserExternalPermission.Permission ...permissions){
+        //防止冲突
+        User user = findUser(uid).orElse(null);
+        if(null == user) return false;
+        removeExternalPermission(uid,permissions);
+        for (UserExternalPermission.Permission permission : permissions) {
+            UserExternalPermission userExternalPermission = new UserExternalPermission();
+            userExternalPermission.setUser(user);
+            userExternalPermission.setPermission(permission);
+            externalPermissionDao.save(userExternalPermission);
+        }
+        return true;
+    }
+
+
+    /**
+     * 删除用户特殊权限
+     * @param uid
+     * @param permissions
+     * @return
+     */
+    public boolean removeExternalPermission(Long uid, UserExternalPermission.Permission ...permissions){
+        for (UserExternalPermission.Permission permission : permissions) {
+            externalPermissionDao.deleteAllByUser_IdAndPermission(uid,permission);
+        }
+        return true;
+    }
+
+    public List<User> findUser(List<Long> ids){
+        return userDao.findAllByIdIn(ids);
+    }
+
+    
     public Optional<User> findUser(long id) {
         return Optional.ofNullable(userDao.findOne(id));
     }
@@ -408,7 +449,7 @@ public class UserService implements IUserService {
         return findUserByIds(new HashSet<Long>(Arrays.asList(ids)));
     }
 
-    @Override
+    
     public User findUserE(long id) throws CannotFindEntityException {
         return findUser(id).orElseThrow(() -> new CannotFindEntityException(User.class, id));
     }

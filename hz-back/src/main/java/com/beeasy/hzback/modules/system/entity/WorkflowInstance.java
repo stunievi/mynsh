@@ -1,7 +1,6 @@
 package com.beeasy.hzback.modules.system.entity;
 
 import com.alibaba.fastjson.annotation.JSONField;
-import com.beeasy.hzback.modules.system.node.BaseNode;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
@@ -20,27 +19,56 @@ import java.util.Optional;
 @EntityListeners(AuditingEntityListener.class)
 public class WorkflowInstance {
 
+    public enum State{
+
+        UNRECEIVED(0),
+        DEALING(1),
+        CANCELED(2);
+
+        private int value;
+       State(int value){
+            this.value = value;
+       }
+
+        public int getValue() {
+            return value;
+        }
+    }
+
     @Id
     @GeneratedValue
     Long id;
 
     @JSONField(serialize = false)
     @ManyToOne
-    @JoinColumn(name = "workflow_id")
     WorkflowModel workflowModel;
 
     @CreatedDate
     Date addTime;
 
-    String state;
+    @Enumerated
+    State state;
 
+    String title;
+    String info;
+
+    //任务执行人
     @JSONField(serialize = false)
+    @ManyToOne
+    User dealUser;
+
+    //任务发布人(指派者)
+    @JSONField(serialize = false)
+    @ManyToOne
+    User pubUser;
+
     @OneToMany(mappedBy = "instance", cascade = CascadeType.ALL)
     List<WorkflowNodeInstance> nodeList = new LinkedList<>();
 
     boolean finished = false;
     Date finishedDate;
 
+    @JSONField(serialize = false)
     @Transient
     public WorkflowNodeInstance getCurrentNode(){
         //选择当前最后一个不为空的节点返回
@@ -54,6 +82,7 @@ public class WorkflowInstance {
     @Transient
     public WorkflowNodeInstance addNode(WorkflowNode node){
         WorkflowNodeInstance workflowNodeInstance = new WorkflowNodeInstance();
+        workflowNodeInstance.setNodeModel(node);
         workflowNodeInstance.setNodeName(node.getName());
         workflowNodeInstance.setInstance(this);
         workflowNodeInstance.setFinished(false);
@@ -62,4 +91,20 @@ public class WorkflowInstance {
     }
 
 
+    @Transient
+    public Long getModelId(){
+        return workflowModel.getId();
+    }
+
+    @Transient
+    public Long getDealUserId(){
+        return dealUser.getId();
+    }
+
+    @Transient
+    public Long getPubUserId(){return pubUser.getId();}
+
+//    public Long getCurrentNodeId(){
+//        return getCurrentNode().getId();
+//    }
 }

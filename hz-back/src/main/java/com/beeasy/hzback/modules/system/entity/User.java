@@ -11,7 +11,10 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -42,16 +45,9 @@ public class User implements Serializable{
     private Date addTime;
 
     private boolean baned;
-//    @ManyToMany(fetch=FetchType.EAGER)
-//    @JoinTable(nodeName = "t_user_role", joinColumns = { @JoinColumn(nodeName = "user_id") }, inverseJoinColumns = {
-//            @JoinColumn(nodeName = "role_id") })
-////    private List<Role> roleList;// 一个用户具有多个角色
-
-
-
 
     @ManyToMany(mappedBy = "users", cascade = CascadeType.ALL)
-    private Set<Quarters> quarters = new LinkedHashSet<>();
+    private List<Quarters> quarters = new ArrayList<>();
 
     @OneToOne(mappedBy = "user",cascade = CascadeType.ALL)
     private UserProfile profile;
@@ -59,26 +55,12 @@ public class User implements Serializable{
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<RolePermission> permissions = new ArrayList<>();
 
+    @JSONField(serialize = false)
     @OneToMany(mappedBy = "user")
     private List<MessageRead> readList = new ArrayList<>();
 
-//    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
-//    private List<CloudDirectoryIndex> folders = new ArrayList<>();
-
-    /**
-     * 得到一个用户所有的工作留
-     * @return
-     */
-//    @JSONField(serialize = false)
-//    public List<WorkFlow> getWorkFlows(){
-//        return this
-//                .getRoles()
-//                .stream()
-//                .map(role -> role.getDepartment().getWorkFlows())
-//                .flatMap(Set::stream)
-//                .distinct()
-//                .collect(Collectors.toList());
-//    }
+    @OneToMany(mappedBy = "user")
+    private List<UserExternalPermission> externalPermissions = new ArrayList<>();
 
     @JSONField(serialize = false)
     @Transient
@@ -86,6 +68,7 @@ public class User implements Serializable{
         return getQuarters().stream()
                     .anyMatch(q -> q.getId().equals(id));
     }
+
 
     @JSONField(serialize = false)
     @Transient
@@ -105,15 +88,26 @@ public class User implements Serializable{
                 .findAny();
     }
 
-    @JSONField(serialize = false)
     @Transient
     public List<Department> getDepartments(){
         List<Department> departments = getQuarters().stream()
                .map(q -> q.getDepartment())
-                .distinct()
                 .collect(Collectors.toList());
         return departments;
     }
+
+//    @Transient
+//    public List<Long> getDepartmentIds(){
+//        return getQuarters().stream()
+//                .map(q -> q.getDepartment().getId())
+//                .collect(Collectors.toList());
+//    }
+//
+//    @Transient
+//    public List<Long> getQuartersIds(){
+//        return getQuarters().stream().map(Quarters::getId).collect(Collectors.toList());
+//    }
+
 
 
 

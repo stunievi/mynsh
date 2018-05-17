@@ -91,13 +91,13 @@
         文件编号: fileId,string,n
         客户号: clientId,string,n
         客户名称: clientName,string,y
-        客户经理: manager,User,y
-        文件标签: fileTags,string,n,
+#        客户经理: manager,User,y
+#        文件标签: fileTags,string,n,
         备注说明: info,string,n,
-        收集文件:
-          name: files,
-          type: files,
-          required: n
+#        收集文件:
+#          name: files,
+#          type: files,
+#          required: n
       next: 是否拒贷
 
 
@@ -117,13 +117,13 @@
         - #状态名nonono
           item: 否
           condition: 1 #有一个人选了否就是该状态
-          behavior: go('资料收集')
+          behavior: go('结束')
 #          items: [是,否]
 #          passItem: 是
       count: 1 #几个人审核
 #          - 1
 #          - 1
-      next: [资料收集,结束] #有可能的走向, 即树的子叶
+      next: [结束] #有可能的走向, 即树的子叶
 
     结束:
       type: end
@@ -143,10 +143,10 @@
           items: [表内,表外]
           required: y
 
-        申请附件:
-          type: files
-          name: files
-          required: n
+#        申请附件:
+#          type: files
+#          name: files
+#          required: n
       next: 判断表内/表外
 
     判断表内/表外:
@@ -177,7 +177,7 @@
           condition: 1
           behavior: go('发起权限申请')
       count: 1
-      next: []
+      next: [合规部审核,发起权限申请]
 
     风险资产管理部审核:
       type: check
@@ -194,7 +194,7 @@
           condition: 1
           behavior: go('发起权限申请')
       count: 1
-      next: []
+      next: [合规部审核,发起权限申请]
 
     合规部审核:
       type: check
@@ -211,7 +211,7 @@
           condition: 1
           behavior: go('发起权限申请')
       count: 1
-      next: []
+      next: [总领导班子审核,发起权限申请]
 
     运营部审核:
       type: check
@@ -228,7 +228,7 @@
           condition: 1
           behavior: go('发起权限申请')
       count: 1
-      next: []
+      next: [电子银行部确认,发起权限申请]
 
     电子银行部确认:
       type: check
@@ -242,7 +242,7 @@
           behavior: go('结束')
 
       count: 1
-      next: []
+      next: [结束]
 
     总领导班子审核:
       type: check
@@ -259,7 +259,7 @@
           condition: 1
           behavior: go('发起权限申请')
       count: 1
-      next: []
+      next: [运营部审核,发起权限申请]
 
     结束:
       type: end

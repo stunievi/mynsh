@@ -4,14 +4,11 @@ import bin.leblanc.zed.Zed;
 import bin.leblanc.zed.event.ZedInitializedEvent;
 import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.modules.system.entity.CloudDirectoryIndex;
-import com.beeasy.hzback.modules.system.entity.CloudFileIndex;
 import com.beeasy.hzback.modules.system.entity.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
-
-import javax.persistence.criteria.Root;
 
 @Slf4j
 @Component
@@ -51,12 +48,12 @@ public class ZedCustomPermission implements ApplicationListener<ZedInitializedEv
                     .setGetWhereLimit((cb,root,condition) -> {
                         return cb.equal(root.get("user"),(Utils.getCurrentUser()));
                     });
-            role.createEntityPermission(CloudFileIndex.class)
-                    .allowGet()
-                    .setGetWhereLimit((cb,root,condition) -> {
-                        root = (Root) root;
-                        return cb.equal(((Root) root).get("directoryIndex").get("user"),Utils.getCurrentUser());
-                    });
+//            role.createEntityPermission(CloudFileIndex.class)
+//                    .allowGet()
+//                    .setGetWhereLimit((cb,root,condition) -> {
+//                        root = (Root) root;
+//                        return cb.equal(((Root) root).get("directoryIndex").get("user"),Utils.getCurrentUser());
+//                    });
         });
 
         zed.addRole("admin",role -> {

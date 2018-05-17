@@ -21,7 +21,7 @@ public class CloudShare extends AbstractBaseEntity{
     Long id;
 
     @ManyToOne
-    CloudFileIndex fileIndex;
+    CloudDirectoryIndex fileIndex;
 
     @JSONField(serialize = false)
     @ManyToOne

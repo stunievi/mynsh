@@ -15,4 +15,7 @@ public interface IMessageService {
         Long num;
         Long sessionId;
     }
+
+
+
 }

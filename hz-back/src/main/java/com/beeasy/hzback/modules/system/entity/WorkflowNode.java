@@ -10,9 +10,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -43,6 +41,7 @@ public class WorkflowNode extends AbstractBaseEntity{
     boolean start = false;
     boolean end = false;
 
+//    public
 
 
 }

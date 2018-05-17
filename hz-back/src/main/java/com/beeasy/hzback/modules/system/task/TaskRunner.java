@@ -39,7 +39,7 @@ public class TaskRunner{
 
 
     private void doLogicNodeTask(){
-        Page<WorkflowNodeInstance> nodeInstances = nodeInstanceDao.findAllByTypeAndFinishedIsFalse("logic",new PageRequest(0,200));
+        Page<WorkflowNodeInstance> nodeInstances = nodeInstanceDao.getCurrentNode("logic",new PageRequest(0,200));
         if(nodeInstances.getContent().size() == 0) return;
 
         nodeInstances.getContent().forEach(nodeInstance -> {

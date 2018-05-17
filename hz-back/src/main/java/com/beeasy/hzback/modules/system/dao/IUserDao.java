@@ -18,12 +18,15 @@ import java.util.Set;
 public interface IUserDao extends JpaRepository<User,Long> ,JpaSpecificationExecutor {
 //    User findFirstByName(String userName);
     User findByUsername(String userName);
+    Optional<User> findFirstByUsername(String userName);
     User findFirstByUsernameOrPhone(String userName, String phone);
     void deleteAllByIdIsGreaterThan(long id);
     Page<User> findAllByUsername(String userName, Pageable pageable);
     List<User> findAllByIdIn(Set<Long> ids);
 
     Optional<User> findFirstByPhone(String phone);
+
+    List<User> findAllByIdIn(List<Long> ids);
 
     @Modifying
     @Transactional
@@ -50,6 +53,13 @@ public interface IUserDao extends JpaRepository<User,Long> ,JpaSpecificationExec
     @Modifying
     @Query(value = "delete from User where username <> :username")
     void clearUsers(String username);
+
+
+    @Query(value = "select u.id,u.trueName,u.phone,u.profile.faceId from User u where u.quarters.size > 0 and u.baned = false ")
+    List getNormalUsers();
+
+    @Query(value = "select u.id,u.trueName,u.phone,u.profile.faceId from User u join u.quarters q join q.department d where d.id = :id")
+    List getSimpleUsersFromDepartment(long id);
 
 //    User findByUserNameOrEmail(String username, String email);
 

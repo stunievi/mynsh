@@ -52,13 +52,10 @@ public class Department extends AbstractBaseEntity{
 //                .collect(Collectors.toList());
 //    }
 
-
-
-
-
-
-
-
+    @Transient
+    public Long getParentId(){
+        return getParent() == null ? 0 : getParent().getId();
+    }
 
 
 }

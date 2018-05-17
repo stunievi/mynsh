@@ -14,17 +14,22 @@ import javax.persistence.*;
 public class MessageRead extends AbstractBaseEntity {
     @Id
     @GeneratedValue
-    Long id;
+    Long id = 0L;
 
-    //用户ID(这里不需要使用关联)
+//    用户ID(这里不需要使用关联)
     @JSONField(serialize = false)
     @ManyToOne
     User user;
 
-    //已经读到最末的信息ID, 同样不使用关联
-    Long messageId;
+//    Long fromId = 0L;
+    Long toId = 0L;
+//    Message.LinkType fromType = Message.LinkType.USER;
+    Message.LinkType toType = Message.LinkType.USER;
+
+
+    int unreadNum = 0;
 
     //会话ID, 不使用关联
-    @ManyToOne
-    MessageSession session;
+//    @ManyToOne
+//    MessageSession session;
 }

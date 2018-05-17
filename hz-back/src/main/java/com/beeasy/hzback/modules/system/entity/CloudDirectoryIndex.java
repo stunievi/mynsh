@@ -34,13 +34,14 @@ public class CloudDirectoryIndex extends AbstractBaseEntity{
     @ManyToOne
     CloudDirectoryIndex parent;
 
-    @OneToMany(mappedBy = "parent")
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.REMOVE)
     List<CloudDirectoryIndex> children = new ArrayList<>();
 
-    @OneToMany(mappedBy = "directoryIndex")
-    List<CloudFileIndex> files = new ArrayList<>();
+    @OrderBy(value = "DESC")
+    boolean dir = false;
 
-
+    @OneToOne(cascade = CascadeType.REMOVE)
+    SystemFile file;
 
 
 }

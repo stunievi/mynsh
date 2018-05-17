@@ -3,6 +3,7 @@ package com.beeasy.hzback.modules.system.service;
 import com.beeasy.hzback.core.exception.RestException;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.modules.exception.CannotFindEntityException;
+import com.beeasy.hzback.modules.mobile.request.ApplyTaskRequest;
 import com.beeasy.hzback.modules.system.entity.InspectTask;
 import com.beeasy.hzback.modules.system.entity.WorkflowInstance;
 import com.beeasy.hzback.modules.system.entity.WorkflowModel;
@@ -78,12 +79,11 @@ public interface IWorkflowService {
     /**
      * 开启一条新的工作流实例
      * @param uid
-     * @param modelId
      * @return
      */
-    Result<WorkflowInstance> startNewInstance(long uid, long modelId);
+    Result<WorkflowInstance> startNewInstance(long uid, ApplyTaskRequest request);
 
-    WorkflowInstance closeInstance(long instanceId) throws CannotFindEntityException;
+//    WorkflowInstance closeInstance(long instanceId) throws CannotFindEntityException;
 
     /**
      * 如果是资料节点, 应该是键值对map

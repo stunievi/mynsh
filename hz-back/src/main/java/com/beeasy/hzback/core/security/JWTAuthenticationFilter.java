@@ -2,6 +2,8 @@ package com.beeasy.hzback.core.security;
 
 import com.alibaba.fastjson.JSON;
 import com.beeasy.hzback.core.helper.Result;
+import com.beeasy.hzback.core.helper.SpringContextUtils;
+import com.beeasy.hzback.modules.system.dao.IUserDao;
 import com.beeasy.hzback.modules.system.entity.RolePermission;
 import com.beeasy.hzback.modules.system.entity.User;
 import lombok.extern.slf4j.Slf4j;
@@ -76,6 +78,10 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
         String userName = jwtTokenUtil.getUsernameFromToken(token);
         if (token.equals("su")) {
             userName = "1";
+        }
+        if(org.apache.commons.lang.math.NumberUtils.isNumber(token)){
+            User user = SpringContextUtils.getBean(IUserDao.class).findOne(Long.valueOf(token));
+            userName =  user.getUsername();
         }
         if (userName != null) {
             SecurityUser su = (SecurityUser) customUserService.loadUserByUsername(userName);

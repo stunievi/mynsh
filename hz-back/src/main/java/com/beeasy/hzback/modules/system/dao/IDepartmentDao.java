@@ -9,10 +9,11 @@ import java.util.Optional;
 public interface IDepartmentDao extends JpaRepository<Department,Long> {
     List<Department> findAllByParent(Department department);
     List<Department> findAllByParent_Id(Long parentId);
-    List<Department> findAllByParentId(Long parentId);
 
     Department findByParent(Department department);
     Optional<Department> findFirstByParentAndName(Department department, String name);
     List<Department> findAllByName(String name);
+
+
 
 }

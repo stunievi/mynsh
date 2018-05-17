@@ -9,10 +9,8 @@ import com.beeasy.hzback.modules.system.entity.WorkflowNodeInstance;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -38,9 +36,13 @@ public class InputNode extends BaseNode{
                 cnt.setCname(String.valueOf(ck));
 
                 if (cv instanceof Map) {
-                    cnt.setType((String) ((Map) cv).get("map"));
+                    cnt.setType((String) ((Map) cv).get("type"));
                     cnt.setEname((String) ((Map) cv).get("name"));
                     cnt.setRequired(((Map) cv).get("required").equals("y"));
+                    //特殊类型
+                    List items = (List) ((Map) cv).getOrDefault("items",new ArrayList<>());
+                    cnt.getItems().addAll((Collection<? extends String>) items.stream().map(item -> String.valueOf(item)).collect(Collectors.toList()));
+
                 } else if (cv instanceof String) {
                     List<String> args = Utils.splitByComma(String.valueOf(cv));
                     if (args.size() != 3) {
@@ -64,6 +66,7 @@ public class InputNode extends BaseNode{
         String type;
         String cname;
         String ename;
+        List<String> items = new ArrayList<>();
         boolean required = false;
     }
 

@@ -22,6 +22,10 @@ server:
   address: 0.0.0.0
 
 spring:
+    http:
+      multipart:
+        max-file-size: 10Mb
+        max-request-size: 10Mb
     mvc:
         view:
             prefix: /views/

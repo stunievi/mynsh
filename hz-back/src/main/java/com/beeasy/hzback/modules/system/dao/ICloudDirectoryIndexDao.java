@@ -11,11 +11,15 @@ public interface ICloudDirectoryIndexDao extends JpaRepository<CloudDirectoryInd
 
 //    Optional<CloudDirectoryIndex> findFirstByUserAndParentAndFolderName(User user, CloudDirectoryIndex parent, String folderName);
 //    Optional<CloudDirectoryIndex> findFirstByTypeAndLinkIdAndDirPath(ICloudDiskService.DirType type, long linkId, String dirPath);
-    Optional<CloudDirectoryIndex> findFirstByTypeAndLinkIdAndParent(ICloudDiskService.DirType type, long linkId, CloudDirectoryIndex parent);
+Optional<CloudDirectoryIndex> findFirstByTypeAndLinkIdAndParent(ICloudDiskService.DirType type, long linkId, CloudDirectoryIndex parent);
+    Optional<CloudDirectoryIndex> findFirstByTypeAndLinkIdAndParentAndDirName(ICloudDiskService.DirType type, long linkId, CloudDirectoryIndex parent,String dirName);
 
     Optional<CloudDirectoryIndex> findFirstByTypeAndLinkIdAndId(ICloudDiskService.DirType type, long linkId, long id);
     Optional<CloudDirectoryIndex> findFirstByTypeAndLinkIdAndDirName(ICloudDiskService.DirType type, long linkId, String dirName);
     List<CloudDirectoryIndex> findAllByTypeAndLinkId(ICloudDiskService.DirType type, long linkId);
+    List<CloudDirectoryIndex> findAllByTypeAndLinkIdAndParent(ICloudDiskService.DirType type, long linkId, CloudDirectoryIndex parent);
 
     List<CloudDirectoryIndex> findAllByParent(CloudDirectoryIndex parent);
+
+    void deleteByTypeAndLinkIdAndId(ICloudDiskService.DirType type, long linkId, long id);
 }

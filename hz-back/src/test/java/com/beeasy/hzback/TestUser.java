@@ -4,6 +4,7 @@ import bin.leblanc.faker.Faker;
 import com.beeasy.hzback.core.exception.RestException;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.modules.exception.CannotFindEntityException;
+import com.beeasy.hzback.modules.mobile.request.ApplyTaskRequest;
 import com.beeasy.hzback.modules.system.cache.SystemConfigCache;
 import com.beeasy.hzback.modules.system.dao.IDepartmentDao;
 import com.beeasy.hzback.modules.system.dao.IInspectTaskDao;
@@ -239,7 +240,8 @@ public class TestUser {
 
 
         //发起工作流
-        WorkflowInstance instance = workflowService.startNewInstance(u.getId(), workflowModel.getId()).orElse(null);
+        ApplyTaskRequest request = new ApplyTaskRequest(workflowModel.getId(),"cc","",null);
+        WorkflowInstance instance = workflowService.startNewInstance(u.getId(),request).orElse(null);
         assertNotNull(instance);
         assertTrue(instance.getId() > 0);
 
@@ -289,7 +291,8 @@ public class TestUser {
 
 
         //发起工作流
-        WorkflowInstance instance = workflowService.startNewInstance(u.getId(),workflowModel.getId()).orElse(null);
+        ApplyTaskRequest request = new ApplyTaskRequest(workflowModel.getId(),"cc","",null);
+        WorkflowInstance instance = workflowService.startNewInstance(u.getId(),request).orElse(null);
         assertTrue(instance.getId() > 0);
 
         //提交处理数据
@@ -403,7 +406,8 @@ public class TestUser {
         Map data = new HashMap();
         data.put("f1","123");
 
-        WorkflowInstance instance = workflowService.startNewInstance(u.getId(),workflowModel.getId()).orElse(null);
+        ApplyTaskRequest request = new ApplyTaskRequest(workflowModel.getId(),"cc","",null);
+        WorkflowInstance instance = workflowService.startNewInstance(u.getId(),request).orElse(null);
         assertNotNull(instance);
         assertTrue(instance.getId() > 0);
 

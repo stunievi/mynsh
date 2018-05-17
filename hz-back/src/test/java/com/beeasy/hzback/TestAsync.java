@@ -4,10 +4,7 @@ import bin.leblanc.faker.Faker;
 import com.beeasy.hzback.core.exception.RestException;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.modules.system.dao.*;
-import com.beeasy.hzback.modules.system.entity.CloudDirectoryIndex;
-import com.beeasy.hzback.modules.system.entity.Department;
-import com.beeasy.hzback.modules.system.entity.Quarters;
-import com.beeasy.hzback.modules.system.entity.User;
+import com.beeasy.hzback.modules.system.entity.*;
 import com.beeasy.hzback.modules.system.form.*;
 import com.beeasy.hzback.modules.system.service.*;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +24,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -54,12 +52,44 @@ public class TestAsync {
     QuartersService quartersService;
 
     @Test
-    public void createWorkflows(){
+    public void createWorkflows() {
         workflowModelDao.deleteAll();
-        WorkflowModelAdd edit = new WorkflowModelAdd();
-        edit.setName("资料收集");
-        edit.setVersion(BigDecimal.valueOf(1.0));
-        workflowService.createWorkflow("资料收集",edit);
+        //列出4个版本
+        for (int i = 0; i < 4; i++) {
+            String[] modelNames = {"菜单权限申请","资料收集"};
+            for (String modelName : modelNames) {
+                WorkflowModelAdd edit = new WorkflowModelAdd();
+                edit.setName(modelName);
+                edit.setVersion(BigDecimal.valueOf(1.0 + i * 0.01));
+                Result<WorkflowModel> result = workflowService.createWorkflow(modelName, edit);
+
+                WorkflowModel workflowModel = result.getData();
+                //附加人员
+                List<Department> departments = departmentDao.findAllByName("部门1");
+                Assert.assertTrue(departments.size() > 0);
+                Department department = departments.get(0);
+
+                String[] qnames = {"岗位1", "岗位2", "岗位3", "岗位4"};
+
+                List<WorkflowQuartersEdit> list = new ArrayList<>();
+                workflowModel.getNodeModels().forEach((v) -> {
+                    WorkflowQuartersEdit qedit = new WorkflowQuartersEdit();
+                    qedit.setNodeId(v.getId());
+                    qedit.setName(v.getName());
+                    for (String qname : qnames) {
+                        Quarters quarters = quartersDao.findFirstByDepartmentAndName(department, qname);
+                        qedit.getMainQuarters().add(quarters.getId());
+                    }
+                    list.add(qedit);
+                });
+                WorkflowQuartersEdit[] edits = new WorkflowQuartersEdit[list.size()];
+                edits = list.toArray(edits);
+                workflowService.setPersons(edits);
+
+                //打开工作流
+                workflowService.editWorkflowModel(workflowModel.getId(), "", true);
+            }
+        }
     }
 
 
@@ -74,7 +104,7 @@ public class TestAsync {
     @Test
     public void createAdmin() throws RestException {
         User user = userDao.findByUsername("1");
-        if(user != null){
+        if (user != null) {
             userDao.delete(user);
         }
         UserAdd add = new UserAdd();
@@ -96,12 +126,12 @@ public class TestAsync {
         createAdmin();
         departmentDao.deleteAll();
         quartersDao.deleteAll();
-        String[] departments = {"部门1","部门2","部门3","部门4"};
-        String[] quarters = {"岗位1","岗位2","岗位3","岗位4"};
+        String[] departments = {"部门1", "部门2", "部门3", "部门4"};
+        String[] quarters = {"岗位1", "岗位2", "岗位3", "岗位4"};
         for (String department : departments) {
             DepartmentAdd departmentAdd = new DepartmentAdd();
             departmentAdd.setName(department);
-            Result<Department> result  = departmentService.createDepartment(departmentAdd);
+            Result<Department> result = departmentService.createDepartment(departmentAdd);
 
             Assert.assertTrue(result.isSuccess());
             for (String quarter : quarters) {
@@ -110,7 +140,7 @@ public class TestAsync {
                 quartersAdd.setName(quarter);
                 Result<Quarters> ret = userService.createQuarters(quartersAdd);
                 Assert.assertTrue(ret.isSuccess());
-                for(int i = 0; i< 10; i++){
+                for (int i = 0; i < 10; i++) {
                     UserAdd userAdd = new UserAdd();
                     userAdd.setPhone(Faker.getPhone());
                     userAdd.setTrueName(Faker.getTrueName());
@@ -133,9 +163,14 @@ public class TestAsync {
     }
 
 
+    @Test
+    public void test2() {
+        List list = workflowModelDao.getAllWorkflows();
+        Assert.assertTrue(list.size() == 1);
+    }
 
     @Test
-    public void test(){
+    public void test() {
         log.info("f");
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<CloudDirectoryIndex> query = cb.createQuery(CloudDirectoryIndex.class);
@@ -146,12 +181,25 @@ public class TestAsync {
         List<CloudDirectoryIndex> result = q.getResultList();
 
         Query query2 = entityManager.createNativeQuery("SELECT * FROM t_user WHERE username = :a");
-        query2.setParameter("a","1");
+        query2.setParameter("a", "1");
         query2.unwrap(SQLQuery.class).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
         query2.setMaxResults(10);
         List list = query2.getResultList();
         int c = 1;
 
+    }
+
+
+    @Autowired
+    IWorkflowInstanceDao instanceDao;
+    @Test
+    public void testUserSelect(){
+//        userService.findUser(559).ifPresent(user -> {
+//            userService.addExternalPermission(user.getId(), UserExternalPermission.Permission.COMMON_CLOUD_DISK);
+//        });
+
+//       List s = instanceDao.findTest();
+//       int c = 1;
     }
 
 }

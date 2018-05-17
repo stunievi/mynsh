@@ -9,8 +9,6 @@ import com.beeasy.hzback.modules.system.entity.WorkflowModel;
 import com.beeasy.hzback.modules.system.entity.WorkflowNode;
 import com.beeasy.hzback.modules.system.entity.WorkflowNodeInstance;
 import com.beeasy.hzback.modules.system.form.*;
-import com.beeasy.hzback.modules.system.node.BaseNode;
-import com.beeasy.hzback.modules.system.node.CheckNode;
 import com.beeasy.hzback.modules.system.service.WorkflowService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -158,17 +156,17 @@ public class WorkFlowController {
 //    }
 
 
-    @ApiOperation(value = "发起工作流", notes = "")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "modelId", value = "工作流模型ID",required = true
-            )
-    })
-    @PostMapping("/newFlow")
-    public Result newTask(
-            Long modelId
-    ) throws RestException {
-       return workflowService.startNewInstance(Utils.getCurrentUser().getId(),modelId);
-    }
+//    @ApiOperation(value = "发起工作流", notes = "")
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(name = "modelId", value = "工作流模型ID",required = true
+//            )
+//    })
+//    @PostMapping("/newFlow")
+//    public Result newTask(
+//            Long modelId
+//    ) throws RestException {
+//       return workflowService.startNewInstance(Utils.getCurrentUser().getId(),modelId);
+//    }
 
     @ApiOperation(value = "向当前节点提交数据", notes = "不会进行下一步操作, 即使是节点的必填字段也可以为空, 重复提交视为草稿箱保存信息")
     @ApiImplicitParams({
