@@ -65,9 +65,11 @@ abstract public class BaseNode implements Serializable {
 
     @Deprecated
     public void submit(User user, WorkflowNodeInstance wNInstance, Map<String, Object> data){}
-    public void submit(User user, WorkflowNodeInstance wNInstance, Map<String,Object> data, IWorkflowNodeAttributeDao attributeDao){}
+    public void submit(User user, WorkflowNodeInstance wNInstance, Map<String,Object> data, IWorkflowNodeAttributeDao attributeDao){
 
-    protected void addNode(User user, WorkflowNodeInstance wNInstance, String key, String value){
+    }
+
+    protected WorkflowNodeAttribute addAttribute(User user, WorkflowNodeInstance wNInstance, String key, String value){
         WorkflowNodeAttribute attribute = wNInstance.getAttributeList()
                 .stream()
                 .filter(a -> a.getDealUser().getId().equals(user.getId()) && a.getAttrKey().equals(key))
@@ -77,7 +79,9 @@ abstract public class BaseNode implements Serializable {
         attribute.setAttrKey(key);
         attribute.setAttrValue(value);
         attribute.setNodeInstance(wNInstance);
+
+        return attribute;
         //因为改成了list 这里需要去重
-        wNInstance.getAttributeList().add(attribute);
+//        wNInstance.getAttributeList().add(attribute);
     }
 }

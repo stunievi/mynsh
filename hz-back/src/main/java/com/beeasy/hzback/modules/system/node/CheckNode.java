@@ -1,7 +1,9 @@
 package com.beeasy.hzback.modules.system.node;
 
 import com.alibaba.druid.util.StringUtils;
+import com.beeasy.hzback.modules.system.dao.IWorkflowNodeAttributeDao;
 import com.beeasy.hzback.modules.system.entity.User;
+import com.beeasy.hzback.modules.system.entity.WorkflowNodeAttribute;
 import com.beeasy.hzback.modules.system.entity.WorkflowNodeInstance;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -78,7 +80,7 @@ public class CheckNode extends BaseNode{
 
 
     @Override
-    public void submit(User user, WorkflowNodeInstance wNInstance, Map data) {
+    public void submit(User user, WorkflowNodeInstance wNInstance, Map data, IWorkflowNodeAttributeDao attributeDao) {
         String item = String.valueOf(data.get(getKey()));
         String ps = String.valueOf(data.get(getPs()));
         //如果可选项不在选项里面, 那么无视
@@ -89,13 +91,17 @@ public class CheckNode extends BaseNode{
             return;
         }
         //每个审批节点只允许审批一次
-        addNode(user,wNInstance,getKey(),item);
+        WorkflowNodeAttribute attribute = addAttribute(user,wNInstance,getKey(),item);
+        attributeDao.save(attribute);
 
         //如果填写了审核说明
         if (!StringUtils.isEmpty(ps)) {
-            addNode(user,wNInstance,getPs(),ps);
+            attribute = addAttribute(user,wNInstance,getPs(),ps);
+            attributeDao.save(attribute);
         }
     }
+
+
 
 
     //    @Getter

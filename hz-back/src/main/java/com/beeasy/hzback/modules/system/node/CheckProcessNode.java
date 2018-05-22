@@ -33,10 +33,10 @@ public class CheckProcessNode extends CheckNode{
 
         //补充私有字段
         if(data.containsKey(getId())){
-            addNode(user,wNInstance,getId(),String.valueOf(data.get("id")));
+            addAttribute(user,wNInstance,getId(),String.valueOf(data.get("id")));
         }
         if(data.containsKey(getResult())){
-            addNode(user,wNInstance,getResult(),String.valueOf(data.get("result")));
+            addAttribute(user,wNInstance,getResult(),String.valueOf(data.get("result")));
         }
 
     }
