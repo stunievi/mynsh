@@ -1,19 +1,15 @@
 package com.beeasy.hzback.modules.system.node;
 
+import com.beeasy.hzback.modules.system.dao.IWorkflowNodeAttributeDao;
 import com.beeasy.hzback.modules.system.entity.User;
 import com.beeasy.hzback.modules.system.entity.WorkflowNodeAttribute;
 import com.beeasy.hzback.modules.system.entity.WorkflowNodeInstance;
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.Map;
 
 @Getter
@@ -67,7 +63,9 @@ abstract public class BaseNode implements Serializable {
         throw new RuntimeException();
     }
 
-    public  void submit(User user, WorkflowNodeInstance wNInstance, Map<String, Object> data){}
+    @Deprecated
+    public void submit(User user, WorkflowNodeInstance wNInstance, Map<String, Object> data){}
+    public void submit(User user, WorkflowNodeInstance wNInstance, Map<String,Object> data, IWorkflowNodeAttributeDao attributeDao){}
 
     protected void addNode(User user, WorkflowNodeInstance wNInstance, String key, String value){
         WorkflowNodeAttribute attribute = wNInstance.getAttributeList()
@@ -79,6 +77,7 @@ abstract public class BaseNode implements Serializable {
         attribute.setAttrKey(key);
         attribute.setAttrValue(value);
         attribute.setNodeInstance(wNInstance);
+        //因为改成了list 这里需要去重
         wNInstance.getAttributeList().add(attribute);
     }
 }

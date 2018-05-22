@@ -30,9 +30,9 @@ public interface IWorkflowService {
 
     public static enum Type {
         MAIN_QUARTERS(0),
-        MAIN_USER(1),
-        SUPPORT_QUARTERS(2),
-        SUPPORT_USER(3);
+//        MAIN_USER(1),
+        SUPPORT_QUARTERS(2);
+//        SUPPORT_USER(3);
 
         private int value = 0;
 

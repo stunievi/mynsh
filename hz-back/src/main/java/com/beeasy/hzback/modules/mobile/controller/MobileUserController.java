@@ -42,6 +42,7 @@ public class MobileUserController {
     @Autowired
     IDepartmentDao departmentDao;
 
+
     private Result.Entry[] userEntries = {
             new Result.Entry(Department.class,"departments","quarters"),
             new Result.Entry(Quarters.class,"department","users")
@@ -108,6 +109,7 @@ public class MobileUserController {
                 new Result.Entry(Department.class,"parent","departments"),
                 new Result.Entry(Quarters.class,"department","users"));
     }
+
 
 //    @RequestMapping("/userInfo")
 //    public Result getUserInfo(){

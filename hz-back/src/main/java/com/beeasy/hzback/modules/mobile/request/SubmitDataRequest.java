@@ -13,6 +13,9 @@ public class SubmitDataRequest  {
     @NotNull(message = "任务ID不能为空")
     Long instanceId;
 
+    @NotNull(message = "提交的节点ID不能为空")
+    Long nodeId;
+
     @NotNull(message = "提交的数据不能为空")
     JSONObject data;
 }

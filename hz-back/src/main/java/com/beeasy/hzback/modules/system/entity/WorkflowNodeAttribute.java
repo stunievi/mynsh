@@ -1,5 +1,6 @@
 package com.beeasy.hzback.modules.system.entity;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,16 +16,24 @@ public class WorkflowNodeAttribute {
     @GeneratedValue
     Long id;
 
+    @JSONField(serialize = false)
     @ManyToOne
     @JoinColumn(name = "node_id")
     WorkflowNodeInstance nodeInstance;
 
     String attrKey;
     String attrValue;
+    String attrCname;
 
     boolean file = false;
 
+    @JSONField(serialize = false)
     @ManyToOne
-    @JoinColumn(name = "user_id")
     User dealUser;
+
+    @Transient
+    public Long getDealerUserId(){
+        return dealUser == null ? 0 : dealUser.getId();
+    }
+
 }

@@ -6,13 +6,16 @@ import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.modules.exception.CannotFindEntityException;
 import com.beeasy.hzback.modules.mobile.request.ApplyTaskRequest;
+import com.beeasy.hzback.modules.mobile.request.SubmitDataRequest;
 import com.beeasy.hzback.modules.system.cache.SystemConfigCache;
 import com.beeasy.hzback.modules.system.dao.*;
 import com.beeasy.hzback.modules.system.entity.*;
 import com.beeasy.hzback.modules.system.form.CheckNodeModel;
+import com.beeasy.hzback.modules.system.form.WorkflowExtPermissionEdit;
 import com.beeasy.hzback.modules.system.form.WorkflowModelAdd;
 import com.beeasy.hzback.modules.system.form.WorkflowQuartersEdit;
 import com.beeasy.hzback.modules.system.node.*;
+import com.beeasy.hzback.modules.system.response.FetchWorkflowInstanceResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +52,8 @@ public class WorkflowService implements IWorkflowService {
 
     private int c = 1;
 
+    @Autowired
+    IWorkflowExtPermissionDao extPermissionDao;
     @Autowired
     Utils utils;
     @Autowired
@@ -158,11 +163,7 @@ public class WorkflowService implements IWorkflowService {
     public boolean closeInstance(long uid, long instanceId) {
         User user = userService.findUser(uid).orElse(null);
         return findInstance(instanceId).filter(workflowInstance -> {
-            //取消任务的限制
-            //1.这是我自己的任务
-            //2.任务只有一个节点
-            //3.任务也是我发布的
-            if(workflowInstance.getDealUserId().equals(uid) && workflowInstance.getPubUser().getId().equals(uid) && workflowInstance.getNodeList().size() <= 1){
+            if(canCancel(workflowInstance,user)){
                 workflowInstance.setState(WorkflowInstance.State.CANCELED);
                 instanceDao.save(workflowInstance);
                 if(null != user){
@@ -174,6 +175,99 @@ public class WorkflowService implements IWorkflowService {
         }).isPresent();
     }
 
+    public boolean recallInstance(long uid, long instanceId){
+        User user = userService.findUser(uid).orElse(null);
+        if(null == user) return false;
+        return findInstance(instanceId).filter(workflowInstance -> {
+            //撤回任务的限制
+            if(canRecall(workflowInstance,user)){
+                workflowInstance.setState(WorkflowInstance.State.CANCELED);
+                instanceDao.save(workflowInstance);
+                logService.addLog(SystemTextLog.Type.WORKFLOW, workflowInstance.getId(), uid, "撤回了任务");
+                return true;
+            }
+            return false;
+        }).isPresent();
+    }
+
+    public boolean transformInstance(long uid, long instanceId, long dealerId){
+        User user = userService.findUser(uid).orElse(null);
+        if(null == user) return false;
+        User dealer = userService.findUser(dealerId).orElse(null);
+        if(null == dealer) return false;
+        WorkflowInstance instance = findInstance(instanceId).orElse(null);
+        if(null == instance) return false;
+        //移交任务的限制
+        if(canTransform(instance,user)
+                //3.被指派的人在任务的第一个节点的主办岗位上
+
+                ){
+            instance.setDealUser(dealer);
+            instanceDao.save(instance);
+            logService.addLog(SystemTextLog.Type.WORKFLOW, instance.getId(), uid, "移交任务给 " + dealer.getTrueName());
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 是否可以处理
+     * @param instance
+     * @param user
+     * @return
+     */
+    private boolean canDeal(WorkflowInstance instance, User user){
+        return instance.getState().equals(WorkflowInstance.State.DEALING) && checkNodeAuth(instance.getCurrentNode(),user);
+    }
+
+
+    /**
+     * 是否可以取消
+     * @param instance
+     * @param user
+     * @return
+     */
+    private boolean canCancel(WorkflowInstance instance, User user){
+        //取消任务的限制
+        //1.这是我自己的任务
+        //2.任务只有一个节点
+        //3.任务也是我发布的
+        //4.任务在进行中
+        return instance.getDealUserId().equals(user.getId()) && instance.getPubUser().getId().equals(user.getId()) && instance.getNodeList().size() <= 1 && instance.getState().equals(WorkflowInstance.State.DEALING);
+    }
+
+    /**
+     * 是否可以撤回
+     * @param instance
+     * @param user
+     * @return
+     */
+    private boolean canRecall(WorkflowInstance instance, User user){
+        //1.这是我发布的任务
+        return instance.getPubUserId().equals(user.getId())
+                //2.任务只有一个节点
+                && instance.getNodeList().size() <= 1
+                //3.任务在进行中
+                && instance.getState().equals(WorkflowInstance.State.DEALING)
+                //4.拥有撤回的权限
+                && instance.getWorkflowModel().getPermissions().stream().anyMatch(p -> p.getType().equals(WorkflowExtPermission.Type.POINTER) && user.hasQuarters(p.getQid()));
+    }
+
+    /**
+     * 是否可以移交
+     * @param instance
+     * @param user
+     * @return
+     */
+    private boolean canTransform(WorkflowInstance instance, User user){
+        WorkflowNode firstNode = nodeDao.findAllByModelAndStartIsTrue(instance.getWorkflowModel()).get(0);
+        return
+                //1.任务正在进行中
+                instance.getState().equals(WorkflowInstance.State.DEALING)
+                //2.拥有指派该任务的权利
+                && instance.getWorkflowModel().getPermissions().stream().anyMatch(p -> p.getType().equals(WorkflowExtPermission.Type.POINTER) && user.hasQuarters(p.getQid()));
+//                && firstNode.getPersons().stream().anyMatch(p -> p.getType().equals(Type.MAIN_QUARTERS) && dealer.hasQuarters(p.getUid()))
+    }
 
     /**
      * 得到用户所执行的工作流(所有人)
@@ -189,6 +283,7 @@ public class WorkflowService implements IWorkflowService {
         }
     }
 
+
     /**
      * 向一个节点提交数据
      *
@@ -196,6 +291,7 @@ public class WorkflowService implements IWorkflowService {
      * @param data
      * @return
      */
+    @Deprecated
     @Override
     public WorkflowInstance submitData(long uid, long instanceId, Map data) throws RestException {
         User user = userService.findUserE(uid);
@@ -235,8 +331,55 @@ public class WorkflowService implements IWorkflowService {
         return saveWorkflowInstance(workflowInstance);
     }
 
+    /**
+     * 提交数据
+     * @param uid
+     * @param request
+     * @return
+     */
+    public Result submitData(long uid, SubmitDataRequest request){
+        WorkflowInstance instance = findInstance(request.getInstanceId()).orElse(null);
+        if(null == instance || !instance.getState().equals(WorkflowInstance.State.DEALING)){
+            return Result.error("找不到符合条件的任务");
+        }
+        User user = userService.findUser(uid).orElse(null);
+        if(null == user){
+            return Result.error("权限错误");
+        }
+        WorkflowNodeInstance nodeInstance = findNodeInstance(request.getNodeId()).orElse(null);
+        if(null == nodeInstance || nodeInstance.isFinished()){
+            return Result.error("找不到符合条件的节点");
+        }
+        if(!checkNodeAuth(nodeInstance,user)){
+            return Result.error("权限验证错误");
+        }
 
-    @Override
+        WorkflowNode nodeModel = nodeInstance.getNodeModel();
+        switch (nodeModel.getType()) {
+            case "input":
+                nodeModel.getNode().submit(user, nodeInstance, request.getData(),attributeDao);
+                break;
+
+            case "check":
+                nodeModel.getNode().submit(user, nodeInstance, request.getData(),attributeDao);
+                break;
+
+            case "universal":
+                nodeModel.getNode().submit(user, nodeInstance, request.getData(),attributeDao);
+                break;
+
+            case "checkprocess":
+                nodeModel.getNode().submit(user, nodeInstance, request.getData(),attributeDao);
+                break;
+        }
+
+        logService.addLog(SystemTextLog.Type.WORKFLOW,instance.getId(),uid,"向 "+nodeInstance.getNodeModel().getName()+" 节点提交了数据");
+        return Result.ok();
+//        return Result.ok(findInstance(instance.getId()).orElse(null));
+    }
+
+
+    @Deprecated
     public WorkflowInstance goNext(long uid, long instanceId) throws RestException {
         WorkflowInstance instance = findInstanceE(instanceId);
         if (instance.isFinished()) {
@@ -266,6 +409,57 @@ public class WorkflowService implements IWorkflowService {
     }
 
 
+    /**
+     * 提交节点到下一步
+     * @param uid
+     * @param instanceId
+     * @param nodeId
+     * @return
+     */
+    public Result goNext(long uid, long instanceId, long nodeId){
+        WorkflowNodeInstance nodeInstance = findNodeInstance(nodeId).orElse(null);
+        if(null == nodeInstance){
+            return Result.error("没有找到符合条件的任务");
+        }
+        User user = userService.findUser(uid).orElse(null);
+        if(null == user){
+            return Result.error("授权错误");
+        }
+        WorkflowInstance instance = nodeInstance.getInstance();
+        //验证权限
+        if (!checkAuth(instance.getWorkflowModel(), nodeInstance.getNodeModel(), user)) {
+            return Result.error("授权失败");
+        }
+
+        //如果当前节点是资料节点
+        WorkflowNode nodeModel = nodeInstance.getNodeModel();
+        try{
+            switch (nodeModel.getType()) {
+                case "input":
+                    fromInputNodeToGo(instance, nodeInstance, (InputNode) nodeModel.getNode());
+                    break;
+
+                case "check":
+                    fromCheckNodeToGo(user, instance, nodeInstance, (CheckNode) nodeModel.getNode());
+                    break;
+
+                case "universal":
+                    fromUniversalNodeToGo(instance, nodeInstance, (UniversalNode) nodeModel.getNode());
+                    break;
+            }
+        }
+        catch (RestException e){
+            e.printStackTrace();
+            return Result.error(e.getSimpleMessage());
+        }
+
+        logService.addLog(SystemTextLog.Type.WORKFLOW,instance.getId(),uid,"向" + nodeModel.getName() + "提交了下一步" );
+        return Result.ok();
+    }
+
+
+
+
     @Override
     public boolean editWorkflowModel(long modelId, String info, Boolean open) {
 //        Utils.validate(edit);
@@ -287,6 +481,7 @@ public class WorkflowService implements IWorkflowService {
                 }).isPresent();
     }
 
+
     @Override
     public Result<Set<WorkflowNode>> setPersons(WorkflowQuartersEdit... edits) {
         Set<WorkflowNode> set = new LinkedHashSet<>();
@@ -304,9 +499,9 @@ public class WorkflowService implements IWorkflowService {
             personsDao.deleteAllByWorkflowNode(node);
 
             addWorkflowPersons(edit.getMainQuarters(), node, edit.getName(), Type.MAIN_QUARTERS);
-            addWorkflowPersons(edit.getMainUser(),node, edit.getName(), Type.MAIN_USER);
+//            addWorkflowPersons(edit.getMainUser(),node, edit.getName(), Type.MAIN_USER);
             addWorkflowPersons(edit.getSupportQuarters(),  node,edit.getName(), Type.SUPPORT_QUARTERS);
-            addWorkflowPersons(edit.getSupportUser(),  node,edit.getName(), Type.SUPPORT_USER);
+//            addWorkflowPersons(edit.getSupportUser(),  node,edit.getName(), Type.SUPPORT_USER);
 
             set.add(nodeDao.save(node));
         }
@@ -314,14 +509,37 @@ public class WorkflowService implements IWorkflowService {
     }
 
 
+    /**
+     * 设置工作流的额外权限, 因为不涉及更改工作流内容, 所以任何时候都可以进行
+     * @param edits
+     * @return
+     */
+    public Set<Long> setExtPermissions(WorkflowExtPermissionEdit ...edits){
+        Set<Long> result = new HashSet<>();
+        for (WorkflowExtPermissionEdit edit : edits) {
+            extPermissionDao.deleteAllByWorkflowModel_IdAndType(edit.getModelId(),edit.getType());
+            WorkflowModel workflowModel = findModel(edit.getModelId()).orElse(null);
+            if(null == workflowModel) continue;
+            for (Long qid : edit.getQids()) {
+                WorkflowExtPermission extPermission = new WorkflowExtPermission(null,workflowModel,edit.getType(),qid);
+                extPermissionDao.save(extPermission);
+            }
+            result.add(workflowModel.getId());
+        }
+        return result;
+    }
+
+
+
 
     /**
-     * 删除节点
+     * 删除节点(已废弃)
      *
      * @param modelId
      * @param nodeName
      * @return
      */
+    @Deprecated
     @Override
     public WorkflowModel deleteNode(long modelId, String[] nodeName) throws CannotFindEntityException {
         WorkflowModel workflowModel = findModelE(modelId);
@@ -337,6 +555,23 @@ public class WorkflowService implements IWorkflowService {
                     .ifPresent(n -> nodeDao.delete(n));
         }
         return saveWorkflowModel(workflowModel);
+    }
+
+    /**
+     * 删除节点
+     * @param modelId
+     * @param nodeId
+     * @return
+     */
+    public boolean deleteNode(long modelId, Long nodeId){
+        try{
+           nodeDao.deleteAllByModel_IdAndIdAndStartIsFalseAndEndIsFalse(modelId,nodeId);
+           return true;
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            return false;
+        }
     }
 
     /**
@@ -418,10 +653,11 @@ public class WorkflowService implements IWorkflowService {
     }
 
     /**
-     * 创建节点
+     * 创建节点, 已废弃
      *
      * @return
      */
+    @Deprecated
     public Optional<WorkflowNode> createNode(long modelId, String node) {
         return Optional.empty();
 //       return findModel(modelId)
@@ -454,6 +690,8 @@ public class WorkflowService implements IWorkflowService {
             node.setStart(false);
             node.setNext(nodeModel.getNext());
             node.setType("check");
+            node.setName(nodeModel.getName());
+            node.setModel(model);
             node = nodeDao.save(node);
             return node.getId() == null ? null: node;
         });
@@ -463,6 +701,7 @@ public class WorkflowService implements IWorkflowService {
     /**
      * 列出指定用户的所有工作流
      */
+    @Deprecated
     @Override
     public Page<WorkflowInstance> getUserWorkflows(long uid, Status status, Pageable pageable) throws CannotFindEntityException {
         User user = userService.findUserE(uid);
@@ -496,6 +735,7 @@ public class WorkflowService implements IWorkflowService {
     }
 
 
+    @Deprecated
     @Override
     public Result<InspectTask> createInspectTask(long createUserId, String modelName, long userId, boolean isAuto) {
 //        AtomicReference<User> createUser = new AtomicReference<>();
@@ -540,6 +780,7 @@ public class WorkflowService implements IWorkflowService {
     }
 
 
+    @Deprecated
     @Override
     public Result<InspectTask> acceptInspectTask(long userId, long taskId) {
         AtomicReference<User> userAtomicReference = new AtomicReference<>();
@@ -577,6 +818,7 @@ public class WorkflowService implements IWorkflowService {
     }
 
 
+    @Deprecated
     //如果userid为0,则指定为公共任务
     public Page<InspectTask> getInspectTaskList(long uid, String modelName, InspectTaskState state, Pageable pageable) {
         Specification querySpecifi = new Specification() {
@@ -824,18 +1066,26 @@ public class WorkflowService implements IWorkflowService {
     }
 
 
+    private boolean checkNodeAuth(WorkflowNodeInstance nodeInstance, User user){
+        List<WorkflowModelPersons> persons = nodeInstance.getNodeModel().getPersons();
+        return persons.stream().anyMatch(p -> p.getType().equals(Type.MAIN_QUARTERS) && user.hasQuarters(p.getUid()));
+    }
+
+    @Deprecated
     private boolean checkAuth(WorkflowModel workflowModel, WorkflowNode node, User user) {
         List<WorkflowModelPersons> persons = node.getPersons();
         return persons
                 .stream()
                 .anyMatch(p -> {
-                    return
-                            p.getNodeName().equals(node.getName()) && (
-                                    //该人符合个人用户的条件
-                                    (p.getType().equals(IWorkflowService.Type.MAIN_USER) && p.getUid().equals(user.getId())) ||
-                                            //该人所属的岗位符合条件
-                                            (p.getType().equals(IWorkflowService.Type.MAIN_QUARTERS) && user.hasQuarters(p.getUid()))
-                            );
+                    return p.getWorkflowNode().getId().equals(node.getId()) && (p.getType().equals(Type.MAIN_QUARTERS) && user.hasQuarters(p.getUid()));
+
+//                    return
+//                            p.getNodeName().equals(node.getName()) && (
+//                                    //该人符合个人用户的条件
+////                                    (p.getType().equals(IWorkflowService.Type.MAIN_USER) && p.getUid().equals(user.getId())) ||
+//                                            //该人所属的岗位符合条件
+//                                            (p.getType().equals(IWorkflowService.Type.MAIN_QUARTERS) && user.hasQuarters(p.getUid()))
+//                            );
 
                 });
     }
@@ -845,12 +1095,12 @@ public class WorkflowService implements IWorkflowService {
         list.forEach(l -> {
             String title = "";
             switch (type){
-                case MAIN_USER:
-                case SUPPORT_USER:
-                    User user = userService.findUser(l).orElse(null);
-                    if(null == user) return;
-                    title = user.getTrueName();
-                    break;
+//                case MAIN_USER:
+//                case SUPPORT_USER:
+//                    User user = userService.findUser(l).orElse(null);
+//                    if(null == user) return;
+//                    title = user.getTrueName();
+//                    break;
                 case MAIN_QUARTERS:
                 case SUPPORT_QUARTERS:
                     Quarters quarters = userService.findQuarters(l).orElse(null);
@@ -899,26 +1149,25 @@ public class WorkflowService implements IWorkflowService {
                 .collect(Collectors.toList());
     }
 
-    public List<WorkflowModel> getAllWorkflows(){
-        return modelDao.getAllWorkflows();
-//        List<WorkflowModel> models = modelDao.findAllByOpenIsTrue();
-//        Map<String,WorkflowModel> map = new HashMap<>();
-//        models.forEach(model -> {
-//            WorkflowModel exist = map.get(model.getName());
-//            if(null == exist){
-//                map.put(model.getName(),model);
-//            }
-//            else{
-//                if(model.getVersion().compareTo(exist.getVersion()) > 0){
-//                    map.put(model.getName(),model);
-//                }
-//            }
-//        });
-//
-//        return map.entrySet().stream()
-//                .map(entry -> entry.getValue())
-//                .collect(Collectors.toList());
+
+    public Optional<FetchWorkflowInstanceResponse> fetchWorkflowInstance(long uid, long id){
+        User user = userService.findUser(uid).orElse(null);
+        if(null == user) return Optional.empty();
+        return findInstance(id).map(workflowInstance -> {
+            FetchWorkflowInstanceResponse response = new FetchWorkflowInstanceResponse();
+            response.setInstance(workflowInstance);
+            response.setCurrentNodeModel(workflowInstance.getCurrentNode().getNodeModel());
+            response.setDeal(canDeal(workflowInstance,user));
+            response.setCancel(canCancel(workflowInstance,user));
+            response.setRecall(canRecall(workflowInstance,user));
+            response.setTransform(canTransform(workflowInstance,user));
+            response.setLogs(systemTextLogDao.findAllByTypeAndLinkIdOrderByAddTimeDesc(SystemTextLog.Type.WORKFLOW,id));
+            response.setTransformUsers(modelDao.getFirstNodeUsers(workflowInstance.getWorkflowModel().getId()));
+
+            return response;
+        });
     }
+
 
 
     public Optional<WorkflowNode> findNode(WorkflowModel model, String nodeName){
@@ -933,6 +1182,10 @@ public class WorkflowService implements IWorkflowService {
 
     public Optional<WorkflowNode> findNode(long id){
         return Optional.ofNullable(nodeDao.findOne(id));
+    }
+
+    public Optional<WorkflowNodeInstance> findNodeInstance(long id){
+        return Optional.ofNullable(nodeInstanceDao.findOne(id));
     }
 
     @Override

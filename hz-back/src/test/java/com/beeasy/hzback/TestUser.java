@@ -164,7 +164,7 @@ public class TestUser {
         workflowModel.getNodeModels().forEach((v) -> {
                 WorkflowQuartersEdit edit = new WorkflowQuartersEdit();
                 edit.setName(v.getName());
-                edit.getMainUser().add(u.getId());
+//                edit.getMainUser().add(u.getId());
                 list.add(edit);
         });
         WorkflowQuartersEdit[] edits = new WorkflowQuartersEdit[list.size()];

@@ -1,6 +1,5 @@
 package com.beeasy.hzback.modules.mobile.controller;
 
-import com.beeasy.hzback.core.exception.RestException;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.modules.mobile.request.ApplyTaskRequest;
@@ -8,10 +7,7 @@ import com.beeasy.hzback.modules.mobile.request.SubmitDataRequest;
 import com.beeasy.hzback.modules.system.dao.ISystemTextLogDao;
 import com.beeasy.hzback.modules.system.dao.IWorkflowInstanceDao;
 import com.beeasy.hzback.modules.system.dao.IWorkflowModelDao;
-import com.beeasy.hzback.modules.system.entity.SystemTextLog;
-import com.beeasy.hzback.modules.system.entity.WorkflowInstance;
-import com.beeasy.hzback.modules.system.entity.WorkflowNode;
-import com.beeasy.hzback.modules.system.entity.WorkflowNodeInstance;
+import com.beeasy.hzback.modules.system.entity.*;
 import com.beeasy.hzback.modules.system.service.WorkflowService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +47,7 @@ public class MobileWorkflowController {
 
     @GetMapping("/all")
     public String getAllWorkflows(){
-        return Result.okJson(workflowService.getAllWorkflows(),
+        return Result.okJson(workflowModelDao.getAllWorkflows(),
                 entries
                 );
     }
@@ -98,34 +94,52 @@ public class MobileWorkflowController {
         }
     }
 
-    //可能会变动
+    @ApiOperation(value = "撤回任务")
+    @PostMapping("/recall")
+    public Result recallTask(
+            @RequestParam Long instanceId
+    ){
+        boolean flag = workflowService .recallInstance(Utils.getCurrentUserId(),instanceId);
+        if(!flag){
+            return Result.error("撤回任务失败, 没有权限或该任务已经变动");
+        }
+        else{
+            return Result.ok();
+        }
+    }
+
+    @ApiOperation(value = "移交任务")
+    @PostMapping("/transform")
+    public Result transformTask(
+            @RequestParam Long instanceId,
+            @RequestParam Long dealerId
+    ){
+        boolean flag = workflowService.transformInstance(Utils.getCurrentUserId(),instanceId,dealerId);
+        if(!flag){
+            return Result.error("移交任务失败, 没有权限或该任务已变动");
+        }
+        else{
+            return Result.ok();
+        }
+    }
+
     @ApiOperation(value = "保存草稿")
     @PostMapping("/submitData")
     public Result submitData(
             @Valid @RequestBody SubmitDataRequest request,
             BindingResult bindingResult
             ){
-        try {
-            workflowService.submitData(Utils.getCurrentUserId(),request.getInstanceId(),request.getData());
-            return Result.ok();
-        } catch (RestException e) {
-            return Result.error(e.getSimpleMessage());
-        }
+        return workflowService.submitData(Utils.getCurrentUserId(),request);
     }
 
     //可能会变动
     @ApiOperation(value = "提交下一步")
     @PostMapping("/goNext")
     public Result goNext(
-            @RequestParam Long instanceId
+            @RequestParam Long instanceId,
+            @RequestParam Long nodeId
     ){
-        try {
-            workflowService.goNext(Utils.getCurrentUserId(),instanceId);
-            return Result.ok();
-        } catch (RestException e) {
-            e.printStackTrace();
-            return Result.error(e.getSimpleMessage());
-        }
+            return workflowService.goNext(Utils.getCurrentUserId(),instanceId,nodeId);
     }
 
     @ApiOperation(value = "我执行的任务")
@@ -178,4 +192,13 @@ public class MobileWorkflowController {
         return Result.ok(systemTextLogDao.findAllByTypeAndLinkIdOrderByAddTimeDesc(SystemTextLog.Type.WORKFLOW,instanceId));
     }
 
+
+
+    @ApiOperation(value = "查询一个任务的所有明细")
+    @GetMapping("/instance/fetch/{id}")
+    public String fetchInstance(@PathVariable Long id){
+        return Result.finish(workflowService.fetchWorkflowInstance(Utils.getCurrentUserId(),id)).toJson(
+                new Result.Entry(User.class,"departments","quarters"),
+                new Result.Entry(WorkflowNode.class,"persons"));
+    }
 }

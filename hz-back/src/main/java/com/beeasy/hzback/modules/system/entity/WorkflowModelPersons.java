@@ -21,6 +21,7 @@ public class WorkflowModelPersons {
     @GeneratedValue
     Long id;
 
+    //废弃字段
     String nodeName;
 
 //    @JSONField(serialize = false)

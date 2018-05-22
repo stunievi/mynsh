@@ -3,6 +3,7 @@ package com.beeasy.hzback.modules.system.node;
 import com.alibaba.druid.util.StringUtils;
 import com.beeasy.hzback.core.entity.AbstractBaseEntity;
 import com.beeasy.hzback.core.helper.Utils;
+import com.beeasy.hzback.modules.system.dao.IWorkflowNodeAttributeDao;
 import com.beeasy.hzback.modules.system.entity.User;
 import com.beeasy.hzback.modules.system.entity.WorkflowNodeAttribute;
 import com.beeasy.hzback.modules.system.entity.WorkflowNodeInstance;
@@ -71,7 +72,7 @@ public class InputNode extends BaseNode{
     }
 
     @Override
-    public void submit(User user, WorkflowNodeInstance wNInstance, Map<String, Object> data) {
+    public void submit(User user, WorkflowNodeInstance wNInstance, Map<String, Object> data, IWorkflowNodeAttributeDao attributeDao) {
         Map<String, InputNode.Content> model = getContent();
         for (Map.Entry<String, InputNode.Content> entry : model.entrySet()) {
             String k = entry.getKey();
@@ -89,7 +90,6 @@ public class InputNode extends BaseNode{
             //验证属性格式
             //TODO: 这里需要验证属性的格式
 
-
             //覆盖旧节点的信息
             Optional<WorkflowNodeAttribute> target = wNInstance.getAttributeList()
                     .stream()
@@ -98,10 +98,12 @@ public class InputNode extends BaseNode{
             WorkflowNodeAttribute attribute = target.orElse(new WorkflowNodeAttribute());
             attribute.setAttrKey(attrKey);
             attribute.setAttrValue(String.valueOf(data.get(attrKey)));
+            attribute.setAttrCname(v.getCname());
             attribute.setDealUser(user);
             attribute.setNodeInstance(wNInstance);
 
-            wNInstance.getAttributeList().add(attribute);
+            attributeDao.save(attribute);
+//            wNInstance.getAttributeList().add(attribute);
         }
     }
 }

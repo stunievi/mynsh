@@ -30,11 +30,16 @@ public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Lon
             "( (nl.dealer is not null and nl.dealer.id in :uids) or" +
             //为空的情况,寻找可以处理的人
             "(nl.dealer is null and ((ps.type = 1 and ps.uid in :uids) or (ps.type = 0 and ps.uid in :qids))) ) and " +
+            //该节点任务未完成
             "nl.finished = false and " +
+            //任务进行中
             "i.state = 1 and " +
+            //分页
             "i.id < :lessId " +
             "group by i.id order by i.addTime desc")
     List<WorkflowInstance> findNeedToDealWorks(List<Long> uids, List<Long> qids, Long lessId, Pageable pageable);
 
     //我已执行过的任务
+
+
 }

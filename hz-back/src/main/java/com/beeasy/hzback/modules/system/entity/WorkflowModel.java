@@ -1,9 +1,5 @@
 package com.beeasy.hzback.modules.system.entity;
 
-import com.alibaba.fastjson.annotation.JSONField;
-import com.beeasy.hzback.core.helper.ObjectConverter;
-import com.beeasy.hzback.modules.system.node.BaseNode;
-import com.beeasy.hzback.modules.system.node.InputNode;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
@@ -11,7 +7,9 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -45,6 +43,10 @@ public class WorkflowModel {
 
     @CreatedDate
     Date addTime;
+
+    //额外的权限配置
+    @OneToMany(mappedBy = "workflowModel")
+    List<WorkflowExtPermission> permissions = new ArrayList<>();
 
 
 //    @OneToMany(mappedBy = "workflowModel",cascade = CascadeType.ALL)

@@ -5,9 +5,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.List;
 
 @Getter
 @Setter
@@ -43,7 +43,7 @@ public class WorkflowNodeInstance {
     boolean finished = false;
 
     @OneToMany(mappedBy = "nodeInstance",cascade = CascadeType.ALL)
-    Set<WorkflowNodeAttribute> attributeList = new LinkedHashSet<>();
+    List<WorkflowNodeAttribute> attributeList = new ArrayList<>();
 
     public void setFinished(boolean finished) {
         this.finished = finished;
