@@ -20,10 +20,10 @@ import java.util.Optional;
 public class WorkflowInstance {
 
     public enum State{
-
         UNRECEIVED(0),
         DEALING(1),
-        CANCELED(2);
+        CANCELED(2),
+        FINISHED(3);
 
         private int value;
        State(int value){

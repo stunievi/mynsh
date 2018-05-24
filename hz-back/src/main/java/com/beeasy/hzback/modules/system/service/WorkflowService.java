@@ -27,6 +27,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -36,6 +37,7 @@ import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 import javax.script.SimpleScriptContext;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -52,6 +54,10 @@ public class WorkflowService implements IWorkflowService {
 
     private int c = 1;
 
+    @Autowired
+    IWorkflowNodeFileDao nodeFileDao;
+    @Autowired
+    ISystemFileDao systemFileDao;
     @Autowired
     IWorkflowExtPermissionDao extPermissionDao;
     @Autowired
@@ -457,7 +463,73 @@ public class WorkflowService implements IWorkflowService {
         return Result.ok();
     }
 
+    /**
+     * 删除节点附件
+     * @param uid
+     * @param nodeFileId
+     * @return
+     */
+    public boolean deleteNodeFile(long uid, long nodeFileId){
+        User user = userService.findUser(uid).orElse(null);
+        if(null == user){
+            return false;
+        }
+        WorkflowNodeFile nodeFile = findNodeFile(nodeFileId).orElse(null);
+        if(null == nodeFile){
+            return false;
+        }
+        if(!checkNodeAuth(nodeFile.getNodeInstance(),user)){
+            return false;
+        }
+        nodeFileDao.delete(nodeFileId);
+        return true;
+    }
 
+    /**
+     * 上传节点文件
+     * @param uid
+     * @param instanceId
+     * @param nodeId
+     * @param fileType
+     * @param file
+     * @return
+     * @throws IOException
+     */
+    public Result uploadNodeFile(long uid, long instanceId, long nodeId, WorkflowNodeFile.Type fileType, MultipartFile file,String content)  {
+        User user = userService.findUser(uid).orElse(null);
+        if(null == user){
+            return Result.error();
+        }
+        WorkflowNodeInstance nodeInstance = instanceDao.getCurrentNodeInstance(instanceId).orElse(null);
+        if(null == nodeInstance || !nodeInstance.getId().equals(nodeId) || !nodeInstance.getInstance().getState().equals(WorkflowInstance.State.DEALING)){
+            return Result.error("找不到对应的节点实例");
+        }
+        //是否该我处理
+        if(!checkNodeAuth(nodeInstance,user)){
+            return Result.error("权限错误");
+        }
+        SystemFile systemFile = new SystemFile();
+        try {
+            systemFile.setFile(file.getBytes());
+        } catch (IOException e) {
+            return Result.error("保存文件错误");
+        }
+        systemFile.setType(SystemFile.Type.WORKFLOW);
+        systemFile.setFileName(file.getOriginalFilename());
+        systemFile = systemFileDao.save(systemFile);
+
+        WorkflowNodeFile nodeFile = new WorkflowNodeFile();
+        nodeFile.setFileName(systemFile.getFileName());
+        nodeFile.setFileId(systemFile.getId());
+        nodeFile.setNodeInstance(nodeInstance);
+        nodeFile.setType(fileType);
+        nodeFile.setUserId(user.getId());
+        if(fileType.equals(WorkflowNodeFile.Type.SIGN)){
+            nodeFile.setContent(content);
+        }
+
+        return Result.ok(nodeFileDao.save(nodeFile));
+    }
 
 
     @Override
@@ -873,6 +945,7 @@ public class WorkflowService implements IWorkflowService {
 
         if (nextNode.isEnd()) {
             instance.setFinishedDate(new Date());
+            instance.setState(WorkflowInstance.State.FINISHED);
             instance.setFinished(true);
         }
 
@@ -1186,6 +1259,10 @@ public class WorkflowService implements IWorkflowService {
 
     public Optional<WorkflowNodeInstance> findNodeInstance(long id){
         return Optional.ofNullable(nodeInstanceDao.findOne(id));
+    }
+
+    public Optional<WorkflowNodeFile> findNodeFile(long id){
+        return Optional.ofNullable(nodeFileDao.findOne(id));
     }
 
     @Override

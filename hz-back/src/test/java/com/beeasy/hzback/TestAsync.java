@@ -198,8 +198,11 @@ public class TestAsync {
 //            userService.addExternalPermission(user.getId(), UserExternalPermission.Permission.COMMON_CLOUD_DISK);
 //        });
 
+//        List s = instanceDao.findDealedWorks(Collections.singletonList(559L),new PageRequest(0,200));
 //       List s = instanceDao.findTest();
 //       int c = 1;
+//        List s = instanceDao.findObserveredWorks(Collections.singletonList(559L),Long.MAX_VALUE);
+//        int c = 1;
     }
 
 }

@@ -15,7 +15,8 @@ public class SystemFile extends AbstractBaseEntity{
     public enum Type {
         FACE,
         MESSAGE,
-        CLOUDDISK
+        CLOUDDISK,
+        WORKFLOW
     }
 
     @Id
@@ -24,7 +25,8 @@ public class SystemFile extends AbstractBaseEntity{
 
     String fileName;
 
-    @Column(columnDefinition = "BLOB")
+    //TODO: 字段类型长度可能错误
+    @Column(columnDefinition = "LONGBLOB")
     byte[] file;
 
     @Enumerated

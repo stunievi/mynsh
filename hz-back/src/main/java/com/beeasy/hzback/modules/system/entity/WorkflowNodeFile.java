@@ -1,5 +1,6 @@
 package com.beeasy.hzback.modules.system.entity;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.beeasy.hzback.core.entity.AbstractBaseEntity;
 import lombok.Getter;
 import lombok.Setter;
@@ -36,7 +37,15 @@ public class WorkflowNodeFile extends AbstractBaseEntity{
     @Enumerated
     Type type;
 
+    @JSONField(serialize = false)
+    @ManyToOne
+    WorkflowNodeInstance nodeInstance;
+
+    //关联用户ID
+    Long userId;
+
     String fileName;
+    String content;
 
     //关联文件ID
     Long fileId;

@@ -14,11 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RequestMapping("/api/mobile/workflow")
 @RestController
@@ -123,6 +123,26 @@ public class MobileWorkflowController {
         }
     }
 
+    @ApiOperation(value = "上传节点附件")
+    @PostMapping("/file/upload")
+    public Result uploadNodeFile(
+            @RequestParam Long instanceId,
+            @RequestParam Long nodeId,
+            MultipartFile file,
+            @RequestParam WorkflowNodeFile.Type fileType,
+            String content
+            ){
+        return workflowService.uploadNodeFile(Utils.getCurrentUserId(),instanceId,nodeId,fileType,file,content);
+    }
+
+    @ApiOperation(value = "删除节点附件")
+    @PostMapping("/file/delete")
+    public Result deleteUploadFile(
+            @RequestParam Long nodeFileId
+    ){
+        return Result.finish(workflowService.deleteNodeFile(Utils.getCurrentUserId(),nodeFileId));
+    }
+
     @ApiOperation(value = "保存草稿")
     @PostMapping("/submitData")
     public Result submitData(
@@ -178,8 +198,34 @@ public class MobileWorkflowController {
         if(lessId == 0){
             lessId = Long.MAX_VALUE;
         }
-        List<Long> qids = Utils.getCurrentUser().getQuarters().stream().map(q -> q.getId()).collect(Collectors.toList());
-        return Result.ok(instanceDao.findNeedToDealWorks(Collections.singletonList(Utils.getCurrentUserId()),qids,lessId,pageRequest));
+        return Result.ok(instanceDao.findNeedToDealWorks(Collections.singletonList(Utils.getCurrentUserId()),lessId,pageRequest));
+    }
+
+    @ApiOperation(value = "我处理过的任务")
+    @GetMapping("/myDealedWorks")
+    public Result getMyDealedWorks(Long lessId){
+        PageRequest pageRequest = new PageRequest(0,20);
+        if(null == lessId){
+            lessId = 0L;
+        }
+        if(lessId == 0){
+            lessId = Long.MAX_VALUE;
+        }
+        return Result.ok(instanceDao.findDealedWorks(Collections.singletonList(Utils.getCurrentUserId()),lessId,pageRequest));
+
+    }
+
+    @ApiOperation(value = "我观察的任务")
+    @GetMapping("/myObserveredWorks")
+    public Result getMyObserveredWorks(Long lessId){
+        PageRequest pageRequest = new PageRequest(0,20);
+        if(null == lessId){
+            lessId = 0L;
+        }
+        if(lessId == 0){
+            lessId = Long.MAX_VALUE;
+        }
+        return Result.ok(instanceDao.findObserveredWorks(Collections.singletonList(Utils.getCurrentUserId()),lessId,pageRequest));
     }
 
 

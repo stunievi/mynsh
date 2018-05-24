@@ -91,12 +91,16 @@ public class CheckNode extends BaseNode{
             return;
         }
         //每个审批节点只允许审批一次
-        WorkflowNodeAttribute attribute = addAttribute(user,wNInstance,getKey(),item);
+        WorkflowNodeAttribute attribute = addAttribute(user,wNInstance,getKey(),item,question);
         attributeDao.save(attribute);
 
         //如果填写了审核说明
+        //valueof会格式化null
+        if(ps.equals("null")){
+           ps = "";
+        }
         if (!StringUtils.isEmpty(ps)) {
-            attribute = addAttribute(user,wNInstance,getPs(),ps);
+            attribute = addAttribute(user,wNInstance,getPs(),ps,"备注");
             attributeDao.save(attribute);
         }
     }

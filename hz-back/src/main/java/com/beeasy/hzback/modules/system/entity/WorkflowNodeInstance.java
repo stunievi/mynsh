@@ -44,6 +44,8 @@ public class WorkflowNodeInstance {
 
     @OneToMany(mappedBy = "nodeInstance",cascade = CascadeType.ALL)
     List<WorkflowNodeAttribute> attributeList = new ArrayList<>();
+    @OneToMany(mappedBy = "nodeInstance",cascade = CascadeType.REMOVE)
+    List<WorkflowNodeFile> fileList = new ArrayList<>();
 
     public void setFinished(boolean finished) {
         this.finished = finished;
