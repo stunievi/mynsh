@@ -153,7 +153,6 @@ public class WorkFlowController {
         return workflowService.editWorkflowModel(edit.getId(),edit.getInfo(),edit.isOpen());
     }
 
-    @Deprecated
     @ApiOperation(value = "编辑工作流")
     @PutMapping("/model/edit")
     public Result edit2(

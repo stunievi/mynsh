@@ -19,19 +19,26 @@ import java.util.Optional;
 @EntityListeners(AuditingEntityListener.class)
 public class WorkflowInstance {
 
-    public enum State{
-        UNRECEIVED(0),
-        DEALING(1),
-        CANCELED(2),
-        FINISHED(3);
+    public enum State {
+        UNRECEIVED(0, "公共任务"),
+        DEALING(1, "处理中"),
+        CANCELED(2, "已取消"),
+        FINISHED(3, "已完成");
 
         private int value;
-       State(int value){
+        private String str;
+
+        State(int value, String str) {
             this.value = value;
-       }
+            this.str = str;
+        }
 
         public int getValue() {
             return value;
+        }
+
+        public String toString() {
+            return str;
         }
     }
 
@@ -43,13 +50,18 @@ public class WorkflowInstance {
     @ManyToOne
     WorkflowModel workflowModel;
 
+    //任务创建日期
     @CreatedDate
     Date addTime;
 
+    //任务状态
     @Enumerated
     State state;
 
+    //任务标题
     String title;
+
+    //任务内容说明
     String info;
 
     //任务执行人
@@ -62,15 +74,16 @@ public class WorkflowInstance {
     @ManyToOne(optional = false)
     User pubUser;
 
+    //处理节点列表
     @OneToMany(mappedBy = "instance", cascade = CascadeType.ALL)
     List<WorkflowNodeInstance> nodeList = new LinkedList<>();
 
-    boolean finished = false;
+    //任务完成日期
     Date finishedDate;
 
     @JSONField(serialize = false)
     @Transient
-    public WorkflowNodeInstance getCurrentNode(){
+    public WorkflowNodeInstance getCurrentNode() {
         //选择当前最后一个不为空的节点返回
         Optional<WorkflowNodeInstance> currentNode = getNodeList()
                 .stream()
@@ -80,7 +93,7 @@ public class WorkflowInstance {
     }
 
     @Transient
-    public WorkflowNodeInstance addNode(WorkflowNode node){
+    public WorkflowNodeInstance addNode(WorkflowNode node) {
         WorkflowNodeInstance workflowNodeInstance = new WorkflowNodeInstance();
         workflowNodeInstance.setNodeModel(node);
         workflowNodeInstance.setNodeName(node.getName());
@@ -92,19 +105,37 @@ public class WorkflowInstance {
 
 
     @Transient
-    public Long getModelId(){
+    public Long getModelId() {
         return workflowModel.getId();
     }
 
     @Transient
-    public Long getDealUserId(){
-        return dealUser.getId();
+    public Long getDealUserId() {
+        return isCommon() ? 0 : dealUser.getId();
     }
 
     @Transient
-    public Long getPubUserId(){return pubUser.getId();}
+    public long getPubUserId() {
+        return isAutoCreated() ? 0 : pubUser.getId();
+    }
 
-//    public Long getCurrentNodeId(){
-//        return getCurrentNode().getId();
-//    }
+    /**
+     * 是否自动创建的任务
+     *
+     * @return
+     */
+    @Transient
+    public boolean isAutoCreated() {
+        return null == pubUser ? true : false;
+    }
+
+    /**
+     * 是否公共任务
+     *
+     * @return
+     */
+    @Transient
+    public boolean isCommon() {
+        return state == State.UNRECEIVED && null == dealUser;
+    }
 }

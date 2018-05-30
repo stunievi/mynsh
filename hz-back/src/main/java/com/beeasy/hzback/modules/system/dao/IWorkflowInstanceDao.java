@@ -55,6 +55,9 @@ public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Lon
     @Query(value = "select distinct ins from WorkflowInstance ins, User user join user.quarters q join ins.nodeList nl join ins.workflowModel model left join model.permissions ps join nl.nodeModel nModel join nModel.persons p where ( (ps.type = 1 and ps.qid = q.id) or (nl.finished = true and p.uid = q.id)) and ins.id < :lessId and user.id in :uids")
     List<WorkflowInstance> findObserveredWorks(@Param("uids") List<Long> uids, @Param("lessId") Long lessId, Pageable pageable);
 
+    //我可以执行的公共任务
+    @Query(value = "select distinct ins from WorkflowInstance ins, User user join user.quarters q join ins.workflowModel model join model.nodeModels nm join nm.persons ps where nm.start = true and ps.type = 0 and ps.uid = q.id and ins.state = 0 and ins.id < :lessId and user.id in :uids")
+    List<WorkflowInstance> findCommonWorks(@Param("uids") List<Long> uids, @Param("lessId") Long lessId, Pageable pageable);
 
     //任务当前应该执行的节点
     @Query(value = "select nl from WorkflowInstance ins join ins.nodeList nl where ins.state = 1 and nl.finished = false and ins.id = :instanceId")

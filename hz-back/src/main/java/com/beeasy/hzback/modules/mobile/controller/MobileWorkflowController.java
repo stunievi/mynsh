@@ -128,6 +128,35 @@ public class MobileWorkflowController {
         }
     }
 
+
+    @ApiOperation(value = "接受公共任务")
+    @PostMapping("/common/accept/{instanceId}")
+    public String acceptCommonTask(
+            @PathVariable Long instanceId
+    ){
+        boolean flag = workflowService.acceptInstance(Utils.getCurrentUserId(),instanceId);
+        if(!flag){
+            return Result.error("接受任务失败, 没有权限或者该任务已变动").toMobile();
+        }
+        else{
+            return Result.ok().toMobile();
+        }
+    }
+
+    @ApiOperation(value = "取消公共任务")
+    @PostMapping("/common/cancel/{instanceId}")
+    public String cancelCommonTask(@PathVariable Long instanceId){
+        boolean flag = workflowService.cancelCommonInstance(Utils.getCurrentUserId(),instanceId);
+        if(!flag){
+            return Result.error("接受任务失败, 没有权限或者该任务已变动").toMobile();
+        }
+        else{
+            return Result.ok().toMobile();
+        }
+    }
+
+
+
     @ApiOperation(value = "上传节点附件")
     @PostMapping("/file/upload")
     public String uploadNodeFile(
@@ -250,6 +279,17 @@ public class MobileWorkflowController {
         return Result.ok(instanceDao.findObserveredWorks(Collections.singletonList(Utils.getCurrentUserId()),lessId,pageRequest)).toMobile();
     }
 
+    @ApiOperation(value = "我可以执行的公共任务")
+    public String getCommonWorks(Long lessId){
+        PageRequest pageRequest = new PageRequest(0,20);
+        if(null == lessId){
+            lessId = 0L;
+        }
+        if(lessId == 0){
+            lessId = Long.MAX_VALUE;
+        }
+        return Result.ok(instanceDao.findCommonWorks(Collections.singletonList(Utils.getCurrentUserId()),lessId,pageRequest)).toMobile();
+    }
 
 
     @ApiOperation(value = "任务处理日志")

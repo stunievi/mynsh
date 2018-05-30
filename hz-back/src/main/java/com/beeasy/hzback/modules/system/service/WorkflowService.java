@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -40,6 +41,8 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
+import static javax.persistence.LockModeType.PESSIMISTIC_WRITE;
+
 //import com.beeasy.hzback.core.helper.Rest;
 
 @Slf4j
@@ -51,6 +54,8 @@ public class WorkflowService implements IWorkflowService {
     private int timeStep = 5;
 
 
+    @Autowired
+    EntityManager entityManager;
     @Autowired
     IGPSPositionDao gpsPositionDao;
     @Autowired
@@ -141,7 +146,7 @@ public class WorkflowService implements IWorkflowService {
 
                     //如果发布人和执行人不一样, 检查是否拥有发布该任务的权利
                     if(null == dealerUser || (null != dealerUser && dealerUser.getId() != uid)){
-                        if(!canPub(workflowModel,userAtomicReference.get())){
+                        if(!canPubOrPoint(workflowModel,userAtomicReference.get())){
                             return Result.error("你无权发布该任务");
                         }
                     }
@@ -164,8 +169,14 @@ public class WorkflowService implements IWorkflowService {
                     workflowInstance.setDealUser(dealerUser);
                     workflowInstance.setPubUser(userAtomicReference.get());
 
-                    //任务默认处于执行中的状态
-                    workflowInstance.setState(WorkflowInstance.State.DEALING);
+                    if(null == dealerUser){
+                       //公共任务
+                        workflowInstance.setState(WorkflowInstance.State.UNRECEIVED);
+                    }
+                    else{
+                        //任务默认处于执行中的状态
+                        workflowInstance.setState(WorkflowInstance.State.DEALING);
+                    }
 
                     //插入第一个节点
                     workflowInstance.addNode(firstNode);
@@ -184,6 +195,64 @@ public class WorkflowService implements IWorkflowService {
                 }).orElse(Result.error());
     }
 
+    /**
+     * 接受公共任务
+     * @param uid
+     * @param instanceId
+     * @return
+     */
+    public boolean acceptInstance(long uid, long instanceId){
+        User user = userService.findUser(uid).orElse(null);
+        if(null == user) return false;
+        WorkflowInstance instance = findInstance(instanceId).orElse(null);
+        if(null == instance) return false;
+        if(!instance.isCommon()){
+            return false;
+        }
+        //没有权限接受
+        if(!canPub(instance.getWorkflowModel(),user)){
+            return false;
+        }
+        //锁定该任务
+        entityManager.refresh(instance,PESSIMISTIC_WRITE);
+        instance.setDealUser(user);
+        instance.setState(WorkflowInstance.State.DEALING);
+        entityManager.merge(instance);
+        //写log
+        logService.addLog(SystemTextLog.Type.WORKFLOW,instance.getId(),user.getId(),"接受了任务");
+        return true;
+    }
+
+
+    /**
+     * 取消公共任务
+     * @param uid
+     * @param instanceId
+     * @return
+     */
+    public boolean cancelCommonInstance(long uid, long instanceId){
+        User user = userService.findUser(uid).orElse(null);
+        if(null == user) return false;
+        WorkflowInstance instance = findInstance(instanceId).orElse(null);
+        if(null == instance) return false;
+        //不是公共任务
+        if(!instance.isCommon()) return false;
+        //不是我自己发布的
+        if(instance.getPubUserId() != uid){
+            return false;
+        }
+        entityManager.refresh(instance,PESSIMISTIC_WRITE);
+        instance.setState(WorkflowInstance.State.CANCELED);
+        entityManager.merge(instance);
+        return true;
+    }
+
+    /**
+     * 自己取消任务
+     * @param uid
+     * @param instanceId
+     * @return
+     */
     public boolean closeInstance(long uid, long instanceId) {
         User user = userService.findUser(uid).orElse(null);
         return findInstance(instanceId).filter(workflowInstance -> {
@@ -199,6 +268,12 @@ public class WorkflowService implements IWorkflowService {
         }).isPresent();
     }
 
+    /**
+     * 撤回任务
+     * @param uid
+     * @param instanceId
+     * @return
+     */
     public boolean recallInstance(long uid, long instanceId){
         User user = userService.findUser(uid).orElse(null);
         if(null == user) return false;
@@ -214,6 +289,14 @@ public class WorkflowService implements IWorkflowService {
         }).isPresent();
     }
 
+
+    /**
+     * 移交任务
+     * @param uid
+     * @param instanceId
+     * @param dealerId
+     * @return
+     */
     public boolean transformInstance(long uid, long instanceId, long dealerId){
         User user = userService.findUser(uid).orElse(null);
         if(null == user) return false;
@@ -268,7 +351,7 @@ public class WorkflowService implements IWorkflowService {
      */
     private boolean canRecall(WorkflowInstance instance, User user){
         //1.这是我发布的任务
-        return instance.getPubUserId().equals(user.getId())
+        return instance.getPubUserId() == (user.getId())
                 //2.任务只有一个节点
                 && instance.getNodeList().size() <= 1
                 //3.任务在进行中
@@ -283,6 +366,17 @@ public class WorkflowService implements IWorkflowService {
      * @param user
      * @return
      */
+    public boolean canPubOrPoint(WorkflowModel model, User user){
+        //1.拥有该任务的指派权限
+        return canPoint(model,user) || canPub(model,user);
+    }
+
+    /**
+     * 单独检查是否可以发布这个任务(只针对执行者而言)
+     * @param model
+     * @param user
+     * @return
+     */
     public boolean canPub(WorkflowModel model, User user){
         //2.在第一个节点上
         List<WorkflowNode> fNodes = nodeDao.findAllByModelAndStartIsTrue(model);
@@ -290,9 +384,9 @@ public class WorkflowService implements IWorkflowService {
         for (WorkflowNode fNode : fNodes) {
             flag2 = flag2 && fNode.getPersons().stream().anyMatch(p -> p.getType().equals(Type.MAIN_QUARTERS) && user.hasQuarters(p.getUid()));
         }
-        //1.拥有该任务的指派权限
-        return canPoint(model,user) || flag2;
+        return flag2;
     }
+
 
     /**
      * 是否可以指派这个模型的任务
@@ -310,7 +404,7 @@ public class WorkflowService implements IWorkflowService {
      * @param user
      * @return
      */
-    private boolean canTransform(WorkflowInstance instance, User user){
+    public boolean canTransform(WorkflowInstance instance, User user){
         WorkflowNode firstNode = nodeDao.findAllByModelAndStartIsTrue(instance.getWorkflowModel()).get(0);
         return
                 //1.任务正在进行中
@@ -358,9 +452,13 @@ public class WorkflowService implements IWorkflowService {
         User user = userService.findUserE(uid);
         WorkflowInstance workflowInstance = findInstance(instanceId).orElseThrow(() -> new CannotFindEntityException(WorkflowInstance.class, instanceId));
         //已完成的禁止再提交
-        if (workflowInstance.isFinished()) {
+        //只有正在处理中的才可以提交
+        if(!workflowInstance.getState().equals(WorkflowInstance.State.DEALING)){
             return workflowInstance;
         }
+//        if (workflowInstance.isFinished()) {
+//            return workflowInstance;
+//        }
         //得到当前应处理的节点
         WorkflowNodeInstance workflowNodeInstance = workflowInstance.getCurrentNode();
         WorkflowNode nodeModel = workflowNodeInstance.getNodeModel();
@@ -443,9 +541,13 @@ public class WorkflowService implements IWorkflowService {
     @Deprecated
     public WorkflowInstance goNext(long uid, long instanceId) throws RestException {
         WorkflowInstance instance = findInstanceE(instanceId);
-        if (instance.isFinished()) {
+        //正在处理中的才可以提交
+        if(!instance.getState().equals(WorkflowInstance.State.DEALING)){
             return instance;
         }
+//        if (instance.isFinished()) {
+//            return instance;
+//        }
         //得到当前节点
         WorkflowNodeInstance currentNode = (instance.getCurrentNode());
         User user = userService.findUserE(uid);
@@ -518,6 +620,12 @@ public class WorkflowService implements IWorkflowService {
         return Result.ok();
     }
 
+    /**
+     * 上传定位信息
+     * @param uid
+     * @param request
+     * @return
+     */
     public Result addPosition(long uid, WorkflowPositionAddRequest request){
         User user = userService.findUser(uid).orElse(null);
         if(null == user){
@@ -617,6 +725,7 @@ public class WorkflowService implements IWorkflowService {
     }
 
 
+    @Deprecated
     @Override
     public boolean editWorkflowModel(long modelId, String info, Boolean open) {
 //        Utils.validate(edit);
@@ -840,19 +949,6 @@ public class WorkflowService implements IWorkflowService {
     @Deprecated
     public Optional<WorkflowNode> createNode(long modelId, String node) {
         return Optional.empty();
-//       return findModel(modelId)
-
-//        WorkflowModel workflowModel = modelDao.findOne(modelId);
-//        if (workflowModel.isFirstOpen() || workflowModel.isOpen()) return false;
-//        JSONObject newNodes = JSON.parseObject(node);
-//        newNodes.forEach((k, v) -> {
-//            v = (Map) v;
-//            BaseNode b = BaseNode.create(k, (Map) v);
-//            if (b.isEnd() || b.isStart()) return;
-//            workflowModel.getModel().put(k, b);
-//        });
-//        modelDao.save(workflowModel);
-//        return true;
     }
 
     public Optional<WorkflowNode> createCheckNode(CheckNodeModel nodeModel){
@@ -1056,7 +1152,6 @@ public class WorkflowService implements IWorkflowService {
         if (nextNode.isEnd()) {
             instance.setFinishedDate(new Date());
             instance.setState(WorkflowInstance.State.FINISHED);
-            instance.setFinished(true);
         }
 
         //如果是逻辑节点
