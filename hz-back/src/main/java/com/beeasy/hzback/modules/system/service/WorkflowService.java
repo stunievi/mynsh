@@ -7,13 +7,11 @@ import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.modules.exception.CannotFindEntityException;
 import com.beeasy.hzback.modules.mobile.request.ApplyTaskRequest;
 import com.beeasy.hzback.modules.mobile.request.SubmitDataRequest;
+import com.beeasy.hzback.modules.mobile.request.WorkflowPositionAddRequest;
 import com.beeasy.hzback.modules.system.cache.SystemConfigCache;
 import com.beeasy.hzback.modules.system.dao.*;
 import com.beeasy.hzback.modules.system.entity.*;
-import com.beeasy.hzback.modules.system.form.CheckNodeModel;
-import com.beeasy.hzback.modules.system.form.WorkflowExtPermissionEdit;
-import com.beeasy.hzback.modules.system.form.WorkflowModelAdd;
-import com.beeasy.hzback.modules.system.form.WorkflowQuartersEdit;
+import com.beeasy.hzback.modules.system.form.*;
 import com.beeasy.hzback.modules.system.node.*;
 import com.beeasy.hzback.modules.system.response.FetchWorkflowInstanceResponse;
 import lombok.AllArgsConstructor;
@@ -52,8 +50,9 @@ public class WorkflowService implements IWorkflowService {
     @Value("${workflow.timeStep}")
     private int timeStep = 5;
 
-    private int c = 1;
 
+    @Autowired
+    IGPSPositionDao gpsPositionDao;
     @Autowired
     IWorkflowNodeFileDao nodeFileDao;
     @Autowired
@@ -125,8 +124,12 @@ public class WorkflowService implements IWorkflowService {
 
                     //如果任务执行人为空,那么默认为自己
                     User dealerUser = null;
-                    if(null == request.getDealerId() || request.getDealerId().equals(userAtomicReference.get().getId())){
+                    if(request.getDealerId() == -1 || request.getDealerId().equals(uid)){
                         dealerUser = userAtomicReference.get();
+                    }
+                    //发布为公共任务
+                    else if(request.getDealerId() == 0){
+                        //默认为null
                     }
                     else{
                         dealerUser = userService.findUser(request.getDealerId()).orElse(null);
@@ -135,6 +138,18 @@ public class WorkflowService implements IWorkflowService {
                             return Result.error("找不到任务执行人");
                         }
                     }
+
+                    //如果发布人和执行人不一样, 检查是否拥有发布该任务的权利
+                    if(null == dealerUser || (null != dealerUser && dealerUser.getId() != uid)){
+                        if(!canPub(workflowModel,userAtomicReference.get())){
+                            return Result.error("你无权发布该任务");
+                        }
+                    }
+                    //如果发布了公共任务
+                    if(null == dealerUser && !canPoint(workflowModel,userAtomicReference.get())){
+                        return Result.error("你无权发布公共任务");
+                    }
+
                     //检查执行人是否拥有第一个节点的处理权限
                     WorkflowNode firstNode = nodeDao.findAllByModelAndStartIsTrue(workflowModel).get(0);
                     if (!checkAuth(workflowModel, firstNode, dealerUser)) {
@@ -161,6 +176,9 @@ public class WorkflowService implements IWorkflowService {
 
                     //记录日志
                     logService.addLog(SystemTextLog.Type.WORKFLOW,workflowInstance.getId(),uid,"发布了任务");
+                    if(null != dealerUser){
+                        logService.addLog(SystemTextLog.Type.WORKFLOW,workflowInstance.getId(),dealerUser.getId(),"接受了任务");
+                    }
 
                     return workflowInstance.getId() == null ? Result.error() : Result.ok(workflowInstance);
                 }).orElse(Result.error());
@@ -260,6 +278,33 @@ public class WorkflowService implements IWorkflowService {
     }
 
     /**
+     * 是否可以发布这个模型的任务
+     * @param model
+     * @param user
+     * @return
+     */
+    public boolean canPub(WorkflowModel model, User user){
+        //2.在第一个节点上
+        List<WorkflowNode> fNodes = nodeDao.findAllByModelAndStartIsTrue(model);
+        boolean flag2 = true;
+        for (WorkflowNode fNode : fNodes) {
+            flag2 = flag2 && fNode.getPersons().stream().anyMatch(p -> p.getType().equals(Type.MAIN_QUARTERS) && user.hasQuarters(p.getUid()));
+        }
+        //1.拥有该任务的指派权限
+        return canPoint(model,user) || flag2;
+    }
+
+    /**
+     * 是否可以指派这个模型的任务
+     * @param model
+     * @param user
+     * @return
+     */
+    public boolean canPoint(WorkflowModel model, User user){
+       return  model.getPermissions().stream().anyMatch(p -> p.getType().equals(WorkflowExtPermission.Type.POINTER) && user.hasQuarters(p.getQid()));
+    }
+
+    /**
      * 是否可以移交
      * @param instance
      * @param user
@@ -273,6 +318,16 @@ public class WorkflowService implements IWorkflowService {
                 //2.拥有指派该任务的权利
                 && instance.getWorkflowModel().getPermissions().stream().anyMatch(p -> p.getType().equals(WorkflowExtPermission.Type.POINTER) && user.hasQuarters(p.getQid()));
 //                && firstNode.getPersons().stream().anyMatch(p -> p.getType().equals(Type.MAIN_QUARTERS) && dealer.hasQuarters(p.getUid()))
+    }
+
+    /**
+     * 该模型是否可以指派
+     * @param model
+     * @param user
+     * @return
+     */
+    public boolean canTransform(WorkflowModel model, User user){
+        return model.getPermissions().stream().anyMatch(p -> p.getType().equals(WorkflowExtPermission.Type.POINTER) && user.hasQuarters(p.getQid()));
     }
 
     /**
@@ -463,6 +518,36 @@ public class WorkflowService implements IWorkflowService {
         return Result.ok();
     }
 
+    public Result addPosition(long uid, WorkflowPositionAddRequest request){
+        User user = userService.findUser(uid).orElse(null);
+        if(null == user){
+            return Result.error();
+        }
+        WorkflowNodeInstance nodeInstance = findNodeInstance(request.getNodeInstanceId()).orElse(null);
+        if(null == nodeInstance || !nodeInstance.getId().equals(request.getNodeInstanceId()) || !nodeInstance.getInstance().getState().equals(WorkflowInstance.State.DEALING)){
+            return Result.error("找不到对应的节点实例");
+        }
+        //是否该我处理
+        if(!checkNodeAuth(nodeInstance,user)){
+            return Result.error("权限错误");
+        }
+        WorkflowNodeFile file = new WorkflowNodeFile();
+        file.setUserId(uid);
+        file.setType(WorkflowNodeFile.Type.POSITION);
+        file.setNodeInstance(nodeInstance);
+        file.setFileName(request.getPosition());
+
+        GPSPosition gpsPosition = new GPSPosition();
+        gpsPosition.setLat(request.getLat());
+        gpsPosition.setLng(request.getLng());
+        gpsPosition.setPosition(request.getPosition());
+        gpsPosition.setUserId(uid);
+        gpsPosition = gpsPositionDao.save(gpsPosition);
+
+        file.setFileId(gpsPosition.getId());
+        return Result.ok(nodeFileDao.save(file));
+    }
+
     /**
      * 删除节点附件
      * @param uid
@@ -551,6 +636,26 @@ public class WorkflowService implements IWorkflowService {
                     modelDao.save(model);
                     return true;
                 }).isPresent();
+    }
+
+    public boolean editWorkflowModel(WorkflowModelEdit edit){
+        return findModel(edit.getId()).filter(model -> {
+            //描述可以随意修改
+            if (!StringUtils.isEmpty(edit.getInfo())) {
+                model.setInfo(edit.getInfo());
+            }
+            //开关也可以
+            model.setOpen(edit.isOpen());
+            if (edit.isOpen()) {
+                model.setFirstOpen(true);
+            }
+            //特殊权限
+            if(null != edit.getPermissionEdits()){
+                setExtPermissions(edit.getPermissionEdits());
+            }
+            modelDao.save(model);
+            return true;
+        }).isPresent();
     }
 
 
@@ -678,9 +783,12 @@ public class WorkflowService implements IWorkflowService {
             Object next = ((Map)v).get("next");
             //start
             if(((Map) v).containsKey("start")){
-                node.setStart(true);
+                node.setStart((Boolean) ((Map) v).getOrDefault("start",false));
             }
-            if(((Map) v).containsKey("end") || node.getType().equals("end")){
+            if(((Map) v).containsKey("end")){
+                node.setEnd((Boolean) ((Map) v).getOrDefault("end",false));
+            }
+            if(node.getType().equals("end")){
                 node.setEnd(true);
             }
             //next
@@ -764,6 +872,8 @@ public class WorkflowService implements IWorkflowService {
             node.setType("check");
             node.setName(nodeModel.getName());
             node.setModel(model);
+            //如果有ID, 则为修改
+            node.setId(nodeModel.getNodeId());
             node = nodeDao.save(node);
             return node.getId() == null ? null: node;
         });
@@ -957,8 +1067,10 @@ public class WorkflowService implements IWorkflowService {
 
     private void buildJSLibrary(ScriptContext context) {
         try {
-            engine.eval(cache.getBehaviorLibrary(), context);
+            engine.eval(cache.getBehaviorString(), context);
         } catch (ScriptException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -1141,7 +1253,11 @@ public class WorkflowService implements IWorkflowService {
 
     private boolean checkNodeAuth(WorkflowNodeInstance nodeInstance, User user){
         List<WorkflowModelPersons> persons = nodeInstance.getNodeModel().getPersons();
-        return persons.stream().anyMatch(p -> p.getType().equals(Type.MAIN_QUARTERS) && user.hasQuarters(p.getUid()));
+        //1. 处理人确认的时候, 只有该处理人可以处理
+        boolean flag1 = (null == nodeInstance.getDealer() && persons.stream().anyMatch(p -> p.getType().equals(Type.MAIN_QUARTERS) && user.hasQuarters(p.getUid())));
+        //2. 处理人不确认的时候, 拥有该权限的人都可以处理
+        boolean flag2 = (null != nodeInstance.getDealer() && user.getId().equals(nodeInstance.getDealer().getId()));
+        return flag1 || flag2;
     }
 
     @Deprecated
@@ -1263,6 +1379,12 @@ public class WorkflowService implements IWorkflowService {
 
     public Optional<WorkflowNodeFile> findNodeFile(long id){
         return Optional.ofNullable(nodeFileDao.findOne(id));
+    }
+
+    public Optional<GPSPosition> findNodeGPSPosition(long nodeFileId){
+        return findNodeFile(nodeFileId)
+                .filter(nodeFile -> nodeFile.getType().equals(WorkflowNodeFile.Type.POSITION))
+                .map(nodeFile -> gpsPositionDao.getOne(nodeFile.getFileId()));
     }
 
     @Override

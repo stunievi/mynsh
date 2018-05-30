@@ -2,13 +2,13 @@ package com.beeasy.hzback.modules.system.dao;
 
 import com.beeasy.hzback.modules.system.entity.Quarters;
 import com.beeasy.hzback.modules.system.entity.User;
-import feign.Param;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -28,10 +28,16 @@ public interface IUserDao extends JpaRepository<User,Long> ,JpaSpecificationExec
 
     List<User> findAllByIdIn(List<Long> ids);
 
+
+    @Modifying
+    @Transactional
+    @Query(value = "update User u set u.privateKey = :privateKey, u.publicKey = :publicKey where u.username = :username")
+    public void updateUserKeys(@Param("privateKey") String privateKey, @Param("publicKey") String publicKey, @Param("username") String username);
+
     @Modifying
     @Transactional
     @Query(value = "delete from t_user_quarters WHERE user_id = :uid",nativeQuery = true)
-    void deleteUserQuarters(long uid);
+    void deleteUserQuarters(@Param("uid") long uid);
 
 
     @Modifying
@@ -52,14 +58,14 @@ public interface IUserDao extends JpaRepository<User,Long> ,JpaSpecificationExec
     @Transactional
     @Modifying
     @Query(value = "delete from User where username <> :username")
-    void clearUsers(String username);
+    void clearUsers(@Param("username") String username);
 
 
-    @Query(value = "select u.id,u.trueName,u.phone,u.profile.faceId from User u where u.quarters.size > 0 and u.baned = false ")
+    @Query(value = "select u.id,u.trueName,u.phone,u.profile.faceId,q.id from User u join u.quarters q where q.id > 0 and u.baned = false ")
     List getNormalUsers();
 
     @Query(value = "select u.id,u.trueName,u.phone,u.profile.faceId from User u join u.quarters q join q.department d where d.id = :id")
-    List getSimpleUsersFromDepartment(long id);
+    List getSimpleUsersFromDepartment(@Param("id") long id);
 
 //    User findByUserNameOrEmail(String username, String email);
 

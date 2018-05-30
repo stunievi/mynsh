@@ -4,14 +4,16 @@ import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.modules.system.dao.ICloudDirectoryIndexDao;
 import com.beeasy.hzback.modules.system.dao.IMessageDao;
 import com.beeasy.hzback.modules.system.dao.ISystemFileDao;
+import com.beeasy.hzback.modules.system.dao.IWorkflowNodeFileDao;
 import com.beeasy.hzback.modules.system.entity.CloudDirectoryIndex;
 import com.beeasy.hzback.modules.system.entity.SystemFile;
+import com.beeasy.hzback.modules.system.entity.WorkflowNodeFile;
 import com.beeasy.hzback.modules.system.service.ICloudDiskService;
+import com.beeasy.hzback.modules.system.service.WorkflowService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,6 +33,19 @@ public class MobileFileController {
     ISystemFileDao systemFileDao;
     @Autowired
     IMessageDao messageDao;
+    @Autowired
+    IWorkflowNodeFileDao nodeFileDao;
+    @Autowired
+    WorkflowService workflowService;
+
+    public ResponseEntity<byte[]> output(SystemFile file){
+        if(null == file) {
+            return new ResponseEntity<byte[]>(HttpStatus.NO_CONTENT);
+        }
+        HttpHeaders headers = new HttpHeaders();
+        return new ResponseEntity<byte[]>(file.getFile(), headers, HttpStatus.OK);
+    }
+
 
     @GetMapping("/clouddisk/user/{id}")
     public ResponseEntity<byte[]> getCloudFile(@PathVariable Long id) throws IOException {
@@ -52,12 +67,7 @@ public class MobileFileController {
     @GetMapping("/download/face/{id}")
     public ResponseEntity<byte[]> getFace(@PathVariable String id) throws IOException{
         SystemFile file = systemFileDao.findFirstByIdAndType(Long.valueOf(id), SystemFile.Type.FACE).orElse(null);
-        if(null == file){
-            return new ResponseEntity<byte[]>(HttpStatus.NO_CONTENT);
-        }
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.IMAGE_PNG);
-        return new ResponseEntity<byte[]>(file.getFile(), headers, HttpStatus.OK);
+        return output(file);
     }
 
     @ApiOperation(value = "聊天文件下载")
@@ -66,13 +76,24 @@ public class MobileFileController {
         //检查这个文件是不是属于你
         Optional optional = messageDao.findContainsFileMessage(Utils.getCurrentUserId(),id);
         if(!optional.isPresent()){
-            return new ResponseEntity<byte[]>(HttpStatus.NO_CONTENT);
+            return output(null);
         }
         SystemFile file = systemFileDao.findFirstByIdAndType(id, SystemFile.Type.MESSAGE).orElse(null);
-        if(null == file){
-            return new ResponseEntity<byte[]>(HttpStatus.NO_CONTENT);
+        return output(file);
+    }
+
+
+    @ApiOperation(value = "工作流节点文件下载")
+    @GetMapping("/download/workflow/node/file/{id}")
+    public ResponseEntity<byte[]> getWorkflowNodeFile(@PathVariable Long id){
+        WorkflowNodeFile nodeFile = workflowService.findNodeFile(id).orElse(null);
+        if(null == nodeFile){
+            return output(null);
         }
-        HttpHeaders headers = new HttpHeaders();
-        return new ResponseEntity<byte[]>(file.getFile(), headers, HttpStatus.OK);
+        if(null != nodeFile.getFileId() && nodeFile.getFileId() > 0){
+            SystemFile systemFile = systemFileDao.findOne(nodeFile.getFileId());
+            return output(systemFile);
+        }
+        return output(null);
     }
 }

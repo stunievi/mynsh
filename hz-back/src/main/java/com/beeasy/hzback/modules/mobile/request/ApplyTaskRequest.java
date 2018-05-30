@@ -20,5 +20,6 @@ public class ApplyTaskRequest {
     String info;
 
     //任务执行人
+    @NotNull(message = "任务执行人不能为空")
     Long dealerId;
 }

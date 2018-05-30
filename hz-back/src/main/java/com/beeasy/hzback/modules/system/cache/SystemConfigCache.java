@@ -1,12 +1,15 @@
 package com.beeasy.hzback.modules.system.cache;
 
 import com.beeasy.hzback.core.helper.Utils;
+import org.apache.commons.io.IOUtils;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 //@CacheConfig(cacheNames = "system_config")
@@ -17,8 +20,10 @@ public class SystemConfigCache {
 
     @Cacheable(value = DEMO_CACHE_NAME, key = "'workflow'")
     public String getWorkflowString() throws IOException {
-        String filePath = "classpath:config/workflow.yml";
-        return Utils.readFile(filePath);
+//        String filePath = "classpath:config/workflow.yml";
+        ClassPathResource resource = new ClassPathResource("config/workflow.yml");
+        List<String> codes = IOUtils.readLines(resource.getInputStream());
+        return String.join("\n",codes);
     }
 
     public Object getWorkflowConfig(){
@@ -35,17 +40,20 @@ public class SystemConfigCache {
 
     @Cacheable(value = DEMO_CACHE_NAME, key = "'behavior.js'")
     public String getBehaviorString() throws IOException {
-        return Utils.readFile("classpath:config/behavior.js");
+        ClassPathResource resource = new ClassPathResource("config/behavior.js");
+        List<String> codes = IOUtils.readLines(resource.getInputStream());
+        return String.join("\n",codes);
+//        return Utils.readFile("classpath:config/behavior.js");
     }
 
-    public String getBehaviorLibrary(){
-        try {
-            return getBehaviorString();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return "";
-    }
+//    public String getBehaviorLibrary(){
+//        try {
+//            return getBehaviorString();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        return "";
+//    }
 
     @Cacheable(value = DEMO_CACHE_NAME, key = "'full_method_permission'")
     public Map<String,Map> getFullMethodPermission(){

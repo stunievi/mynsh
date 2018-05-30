@@ -17,7 +17,8 @@ public class WorkflowNodeFile extends AbstractBaseEntity{
         IMAGE(1),
         VIDEO(2),
         AUDIO(3),
-        SIGN(4)
+        SIGN(4),
+        POSITION(5)
         ;
 
         private int value;

@@ -2,6 +2,7 @@ package com.beeasy.hzback.modules.system.entity;
 
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.beeasy.hzback.core.helper.ObjectConverter;
 import com.beeasy.hzback.modules.system.service.IUserService;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -46,10 +46,21 @@ public class User implements Serializable{
 
     private boolean baned;
 
+
+    @JSONField(serialize = false)
+    @Convert(converter = ObjectConverter.class)
+    @Column(columnDefinition = "BLOB")
+    private String publicKey;
+
+    @JSONField(serialize = false)
+    @Convert(converter = ObjectConverter.class)
+    @Column(columnDefinition = "BLOB")
+    private String privateKey;
+
     @ManyToMany(mappedBy = "users", cascade = CascadeType.ALL)
     private List<Quarters> quarters = new ArrayList<>();
 
-    @OneToOne(mappedBy = "user",cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "user",cascade = CascadeType.REMOVE)
     private UserProfile profile;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
@@ -88,13 +99,13 @@ public class User implements Serializable{
                 .findAny();
     }
 
-    @Transient
-    public List<Department> getDepartments(){
-        List<Department> departments = getQuarters().stream()
-               .map(q -> q.getDepartment())
-                .collect(Collectors.toList());
-        return departments;
-    }
+//    @Transient
+//    public List<Department> getDepartments(){
+//        List<Department> departments = getQuarters().stream()
+//               .map(q -> q.getDepartment())
+//                .collect(Collectors.toList());
+//        return departments;
+//    }
 
 //    @Transient
 //    public List<Long> getDepartmentIds(){

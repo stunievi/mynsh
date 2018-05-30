@@ -9,4 +9,5 @@ import lombok.Data;
 public class UserLoginResponse {
     String token;
     User user;
+    String publicKey;
 }

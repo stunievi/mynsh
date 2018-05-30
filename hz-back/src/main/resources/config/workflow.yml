@@ -354,52 +354,540 @@
       type: end
       behavior:
 
+#不良资产管理流程:
+#  flow:
+#    不良资产登记:
+#      type: input
+#      next: 是否满足利息减免条件
+#      content:
+#        登记任务编号: f1,string,y
+#        登记任务结果: f2,string,y
+#
+#    是否满足利息减免条件:
+#      type: check
+#      ps: ps,
+#      key: key,
+#      question: 是否满足减免条件?
+#      count: 1
+#      states:
+#        -
+#          item: 是
+#          condition: 1
+#          behavior: go('是否发起减免申请')
+#        -
+#          item: 否
+#          condition: 1
+#          behavior: go('资产抵债流程')
+#
+#    是否发起减免申请:
+#      type: check
+#      ps: ps
+#      key: key
+#      question: 客户是否已发起减免申请?
+#      count: 1
+#      states:
+#        -
+#          item: 是
+#          condition: 1
+#          behavior: go('利息减免流程')
+#        -
+#          item: 否
+#          condition: 1
+#          behavior: go('资产抵债流程');
+#
+#
+#    利息减免流程:
+#      type: checkprocess
+#      key: key
+#      question: 填写任务的处理结果
+#      count: 1
+#      states:
+#        -
+#          item: 是
+#          condition: 1
+#          behavior: go('结束')
+#        -
+#          item: 否
+#          condition: 1
+#          behavior: go('是否满足利息减免条件')
+#
+#    资产抵债流程:
 
-不良资产管理流程:
+不良资产登记:
   flow:
-    不良资产登记:
+    发起申请:
       type: input
-      next: 是否满足利息减免条件
+      start: true
       content:
-        登记任务编号: f1,string,y
-        登记任务结果: f2,string,y
+        申请说明: apply,textarea,n
+      next: 责任认定
 
-    是否满足利息减免条件:
+    责任认定:
+      type: input
+      content:
+        认定说明: apply,textarea,y
+      next: 责任认定
+
+    风险资产管理部审批:
       type: check
-      ps: ps,
-      key: key,
-      question: 是否满足减免条件?
-      count: 1
+      key: key
+      ps: ps
+      question: 是否通过
       states:
         -
           item: 是
           condition: 1
-          behavior: go('是否发起减免申请')
+          behavior: go('结束')
         -
           item: 否
           condition: 1
-          behavior: go('资产抵债流程')
+          behavior: go('发起申请')
+      count: 1
+      next: []
 
-    是否发起减免申请:
+    结束:
+      type: end
+      end: true
+
+利息减免登记:
+  flow:
+    发起申请:
+      type: input
+      start: true
+      content:
+        申请说明: apply,textarea,n
+      next: 经营班子集体审议
+
+    经营班子集体审议:
       type: check
       ps: ps
       key: key
-      question: 客户是否已发起减免申请?
+      question: 审议通过/不通过?
+      count: 5
+      states:
+        -
+          item: 通过
+          condition: 1
+          behavior: go('诉前保全')
+        -
+          item: 不通过
+          condition: 1
+          behavior: go('发起申请')
+
+    诉前保全:
+      type: input
+      content:
+        说明: apply,textarea,n
+      next: 风险资产管理部审核
+
+
+    风险资产管理部审核:
+      type: check
+      key: key
+      ps: ps
+      question: 是否通过
+      states:
+        -
+          item: 是
+          condition: 1
+          behavior: go('不良资产管理委员会审批')
+        -
+          item: 否
+          condition: 1
+          behavior: go('发起申请')
+      count: 1
+
+    不良资产管理委员会审批:
+      type: check
+      key: key
+      ps: ps
+      question: 是否通过
+      states:
+        -
+          item: 是
+          condition: 1
+          behavior: go('法院立案')
+        -
+          item: 否
+          condition: 1
+          behavior: go('发起申请')
+      count: 5
+
+    法院立案:
+      type: input
+      start: false
+      content:
+        说明: apply,textarea,n
+      next: 缴费
+
+    缴费:
+      type: input
+      content:
+        说明: apply,textarea,n
+      next: 案件跟进
+
+    案件跟进:
+      type: input
+      content:
+        说明: apply,textarea,n
+      next: 诉讼过程中与客户协商一致
+
+    诉讼过程中与客户协商一致:
+      type: check
+      key: key
+      ps: ps
+      question: 是否协商一致？
+      states:
+        -
+          item: 是
+          condition: 1
+          behavior: go('立卷归档')
+        -
+          item: 否
+          condition: 1
+          behavior: go('判决生效，执行')
+      count: 1
+
+    判决生效，执行:
+      type: input
+      start: false
+      content:
+        说明: apply,textarea,n
+
+      next: 立卷归档
+
+    立卷归档:
+      type: input
+      start: false
+      content:
+        说明: apply,textarea,n
+
+      next: 结案处理
+
+    结案处理:
+      type: input
+      start: false
+      content:
+        说明: apply,textarea,n
+
+      next: 结束
+
+    结束:
+      type: end
+      end: true
+
+抵债资产接收:
+  flow:
+    是否裁定抵债:
+      start: true
+      type: check
+      ps: ps
+      key: key
+      question: 是否裁定抵债?
       count: 1
       states:
         -
           item: 是
           condition: 1
-          behavior: go('利息减免流程')
+          behavior: go('贷款单位调查')
         -
           item: 否
           condition: 1
-          behavior: go('资产抵债流程');
+          behavior: go('贷款单位调查')
 
+    贷款单位调查:
+      type: input
+      start: false
+      content:
+        说明: apply,textarea,n
+
+      next: 经营班子集体审议
+
+    信贷主管审查:
+      type: check
+      ps: ps
+      key: key
+      question: 审查通过/不通过?
+      count: 1
+      states:
+        -
+          item: 通过
+          condition: 1
+          behavior: go('风险资产管理部审查')
+        -
+          item: 不通过
+          condition: 1
+          behavior: go('贷款单位调查')
+
+    风险资产管理部审查:
+      type: check
+      ps: ps,
+      key: key,
+      question: 审查通过/不通过?
+      count: 1
+      states:
+        -
+          item: 通过
+          condition: 1
+          behavior: go('资产定价')
+        -
+          item: 不通过
+          condition: 1
+          behavior: go('贷款单位调查')
+
+    资产定价:
+      type: input
+      start: false
+      content:
+        说明: apply,textarea,n
+
+      next: 不良资产管理委员会审批
+
+
+    不良资产管理委员会审批:
+      type: check
+      key: key
+      ps: ps
+      question: 是否通过
+      states:
+        -
+          item: 是
+          condition: 1
+          behavior: go('省联社备案')
+        -
+          item: 否
+          condition: 1
+          behavior: go('发起申请')
+      count: 5
+
+    省联社备案:
+      type: input
+      start: false
+      content:
+        说明: apply,textarea,n
+      next: 与客户签订协议
+
+    与客户签订协议:
+      type: input
+      start: false
+      content:
+        说明: apply,textarea,n
+      next: 合同审查通过
+
+    合同审核通过:
+      type: check
+      key: key
+      ps: ps
+      question: 是否审核通过？
+      states:
+        -
+          item: 是
+          condition: 1
+          behavior: go('入账处理')
+        -
+          item: 否
+          condition: 1
+          behavior: go('与客户签订协议')
+      count: 1
+
+    入账处理:
+      type: input
+      start: false
+      content:
+        说明: apply,textarea,n
+      next: 结束
+
+    结束:
+      type: end
+      end: true
+
+资产处置:
+  flow:
+    制定处置方案:
+      type: input
+      start: true
+      content:
+        说明: apply,textarea,n
+      next: 信贷主管审查
+
+    信贷主管审查:
+      type: check
+      ps: ps
+      key: key
+      question: 审查通过/不通过?
+      count: 1
+      states:
+        -
+          item: 通过
+          condition: 1
+          behavior: go('经营班子集体审议')
+        -
+          item: 不通过
+          condition: 1
+          behavior: go('制定处置方案')
+
+    经营班子集体审议:
+      type: check
+      ps: ps
+      key: key
+      question: 审议通过/不通过?
+      count: 5
+      states:
+        -
+          item: 通过
+          condition: 1
+          behavior: go('风险资产管理部审核')
+        -
+          item: 不通过
+          condition: 1
+          behavior: go('制定处置方案')
+
+    风险资产管理部审核:
+      type: check
+      ps: ps
+      key: key
+      question: 审查通过/不通过?
+      count: 1
+      states:
+        -
+          item: 通过
+          condition: 1
+          behavior: go('不良资产管理委员会审批')
+        -
+          item: 不通过
+          condition: 1
+          behavior: go('制定处置方案')
+
+    不良资产管理委员会审批:
+      type: check
+      key: key
+      ps: ps
+      question: 是否通过
+      states:
+        -
+          item: 是
+          condition: 1
+          behavior: go('省联社备案')
+        -
+          item: 否
+          condition: 1
+          behavior: go('制定处置方案')
+      count: 5
+
+    省联社备案:
+      type: input
+      start: false
+      content:
+        说明: apply,textarea,n
+      next: 处置过程
+
+    处置过程:
+      type: input
+      start: false
+      content:
+        说明: apply,textarea,n
+      next: 出账处理
+
+    出账处理:
+      type: input
+      start: false
+      content:
+        说明: apply,textarea,n
+      next: 结束
+
+      结束:
+        type: end
+        end: true
+
+不良资产管理流程:
+  flow:
+    选择处理方式:
+      start: true
+      type: check
+      key: key
+      ps: ps
+      question: 利息减免/诉讼/协商抵债/不良转贷后/执转破/重组/其它
+      states:
+        -
+          item: 利息减免
+          condition: 1
+          behavior: go('利息减免流程')
+        -
+          item: 诉讼
+          condition: 1
+          behavior: go('诉讼流程')
+        -
+          item: 协商抵债
+          condition: 1
+          behavior: go('抵债资产接收流程')
+        -
+          item: 不良转贷后
+          condition: 1
+          behavior: go('不良转贷后')
+        -
+          item: 执转破
+          condition: 1
+          behavior: go('其它')
+        -
+          item: 重组
+          condition: 1
+          behavior: go('其它')
+        -
+          item: 其它
+          condition: 1
+          behavior: go('其它')
+      count: 1
+
+    不良转贷后:
+      type: input
+      start: false
+      content:
+        说明: apply,textarea,n
+      next: 结束
+
+    其它:
+      type: input
+      start: false
+      content:
+        说明: apply,textarea,n
+      next: 结束
+
+    诉讼流程:
+      type: checkprocess
+      key: key
+      ps: ps
+      question: 填写任务的处理结果
+      count: 1
+      states:
+        -
+          item: 是
+          condition: 1
+          behavior: go('抵债资产接收流程')
+        -
+          item: 否
+          condition: 1
+          behavior: go('选择处理方式')
 
     利息减免流程:
       type: checkprocess
       key: key
+      ps: ps
+      question: 填写任务的处理结果
+      count: 1
+      states:
+        -
+          item: 是
+          condition: 1
+          behavior: go('不良转贷后')
+        -
+          item: 否
+          condition: 1
+          behavior: go('选择处理方式')
+
+    资产处置流程:
+      type: checkprocess
+      key: key
+      ps: ps
       question: 填写任务的处理结果
       count: 1
       states:
@@ -410,13 +898,8 @@
         -
           item: 否
           condition: 1
-          behavior: go('是否满足利息减免条件')
+          behavior: go('结束')
 
-    资产抵债流程:
-
-
-
-
-
-
-
+    结束:
+      type: end
+      end: true

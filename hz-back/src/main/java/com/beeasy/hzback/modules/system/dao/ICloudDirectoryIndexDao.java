@@ -18,6 +18,7 @@ Optional<CloudDirectoryIndex> findFirstByTypeAndLinkIdAndParent(ICloudDiskServic
     Optional<CloudDirectoryIndex> findFirstByTypeAndLinkIdAndDirName(ICloudDiskService.DirType type, long linkId, String dirName);
     List<CloudDirectoryIndex> findAllByTypeAndLinkId(ICloudDiskService.DirType type, long linkId);
     List<CloudDirectoryIndex> findAllByTypeAndLinkIdAndParent(ICloudDiskService.DirType type, long linkId, CloudDirectoryIndex parent);
+    List<CloudDirectoryIndex> findAllByTypeAndLinkIdAndParentOrderByDirDesc(ICloudDiskService.DirType type, long linkId, CloudDirectoryIndex parent);
 
     List<CloudDirectoryIndex> findAllByParent(CloudDirectoryIndex parent);
 

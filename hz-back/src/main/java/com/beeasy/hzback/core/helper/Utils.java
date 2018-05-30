@@ -17,10 +17,7 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -73,6 +70,13 @@ public class Utils {
         }
     }
 
+    public static Optional<String> getCurrentUserPrivateKey(){
+        return Optional.ofNullable(getCurrentUser()).map(user -> user.getPrivateKey());
+    }
+    public static Optional<String> getCurrentUserPublicKey(){
+        return Optional.ofNullable(getCurrentUser()).map(user -> user.getPublicKey());
+    }
+
     public static User getCurrentUser() {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return user;
@@ -102,7 +106,6 @@ public class Utils {
         }
         return Result.ok();
     }
-
 
 
     @Autowired

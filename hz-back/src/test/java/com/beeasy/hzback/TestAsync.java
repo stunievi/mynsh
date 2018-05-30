@@ -24,10 +24,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -54,9 +51,9 @@ public class TestAsync {
     @Test
     public void createWorkflows() {
         workflowModelDao.deleteAll();
-        //列出4个版本
-        for (int i = 0; i < 4; i++) {
-            String[] modelNames = {"菜单权限申请","资料收集"};
+        //列出2个版本
+        for (int i = 0; i < 2; i++) {
+            String[] modelNames = {"菜单权限申请","资料收集","不良资产登记","利息减免登记","抵债资产接收","资产处置","不良资产管理流程"};
             for (String modelName : modelNames) {
                 WorkflowModelAdd edit = new WorkflowModelAdd();
                 edit.setName(modelName);
@@ -126,30 +123,37 @@ public class TestAsync {
         createAdmin();
         departmentDao.deleteAll();
         quartersDao.deleteAll();
-        String[] departments = {"部门1", "部门2", "部门3", "部门4"};
-        String[] quarters = {"岗位1", "岗位2", "岗位3", "岗位4"};
-        for (String department : departments) {
-            DepartmentAdd departmentAdd = new DepartmentAdd();
-            departmentAdd.setName(department);
-            Result<Department> result = departmentService.createDepartment(departmentAdd);
 
+        int qcount = 0;
+        //设立4个部门
+        for(int i = 0; i < 4; i++){
+            String dName = "部门" + (i + 1);
+            DepartmentAdd departmentAdd = new DepartmentAdd();
+            departmentAdd.setName(dName);
+            Result<Department> result = departmentService.createDepartment(departmentAdd);
             Assert.assertTrue(result.isSuccess());
-            for (String quarter : quarters) {
+
+            //每个部门4个角色
+            for(int j = 0; j < 4; j++){
+                qcount++;
+                String qName = "岗位" + qcount;
                 QuartersAdd quartersAdd = new QuartersAdd();
                 quartersAdd.setDepartmentId(result.getData().getId());
-                quartersAdd.setName(quarter);
+                quartersAdd.setName(qName);
                 Result<Quarters> ret = userService.createQuarters(quartersAdd);
                 Assert.assertTrue(ret.isSuccess());
-                for (int i = 0; i < 10; i++) {
+                for (int n = 0; n < 5; n++) {
                     UserAdd userAdd = new UserAdd();
                     userAdd.setPhone(Faker.getPhone());
-                    userAdd.setTrueName(Faker.getTrueName());
-                    userAdd.setUsername(Faker.getName());
+                    String userName = Faker.getTrueName();
+                    userAdd.setTrueName(userName);
+                    userAdd.setUsername(userName);
                     userAdd.setPassword("2");
                     userAdd.setBaned(false);
                     Result<User> r = userService.createUser(userAdd);
-                    Assert.assertTrue(r.isSuccess());
-
+                    if(!r.isSuccess()){
+                        continue;
+                    }
                     UserEdit edit = new UserEdit();
                     Set<Long> qs = new HashSet<>();
                     qs.add(ret.getData().getId());
@@ -194,8 +198,13 @@ public class TestAsync {
     IWorkflowInstanceDao instanceDao;
     @Test
     public void testUserSelect(){
+        WorkflowExtPermissionEdit edit = new WorkflowExtPermissionEdit();
+        edit.setModelId(97L);
+        edit.setQids(Collections.singletonList(100L));
+        edit.setType(WorkflowExtPermission.Type.POINTER);
+        workflowService.setExtPermissions(edit);
 //        userService.findUser(559).ifPresent(user -> {
-//            userService.addExternalPermission(user.getId(), UserExternalPermission.Permission.COMMON_CLOUD_DISK);
+//            userService.addExternalPermission(559L,UserExternalPermission.Permission.COMMON_CLOUD_DISK);
 //        });
 
 //        List s = instanceDao.findDealedWorks(Collections.singletonList(559L),new PageRequest(0,200));

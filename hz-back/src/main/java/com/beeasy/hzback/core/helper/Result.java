@@ -11,6 +11,8 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletResponse;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -110,9 +112,45 @@ public class Result <T> {
         return JSON.toJSONString(this,propertyFilter);
     }
 
-    public static String okJson(Object obj){
-        return okJson(obj,new Entry[0]);
+    private String encode(String str){
+        return Utils.getCurrentUserPrivateKey().map(key -> {
+            try {
+                return RSAUtils.privateEncrypt(str, RSAUtils.getPrivateKey(key));
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+            } catch (InvalidKeySpecException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }).orElse(str);
     }
+
+    public String toMobile(){
+        HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
+        response.setHeader("content-type","application/json");
+        String str = JSON.toJSONString(this);
+//        return str;
+        return encode(str);
+    }
+    public String toMobile(Entry ...entries){
+        HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
+        response.setHeader("content-type","application/json");
+        PropertyFilter propertyFilter = (source, name, value) -> {
+            for (Entry entry : entries) {
+                if(source.getClass().equals(entry.getClz()) && entry.getFields().contains(name)){
+                    return false;
+                }
+            }
+            return true;
+        };
+        String str =  JSON.toJSONString(this,propertyFilter);
+//        return str;
+        return encode(str);
+    }
+
+//    public static String okJson(Object obj){
+//        return okJson(obj,new Entry[0]);
+//    }
     public static String okJson(Object obj, Entry ...entries){
         return Result.ok(obj).toJson(entries);
     }

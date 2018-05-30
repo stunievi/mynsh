@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
@@ -23,13 +24,13 @@ public interface ISystemTaskDao extends JpaRepository<SystemTask,Long>{
     @Modifying
     @Transactional
     @Query("update SystemTask set threadLock = true, lockTime = :date where id in :ids")
-    void lockByIds(Set<Long> ids,Date date);
+    void lockByIds(@Param("ids") Set<Long> ids, @Param("date") Date date);
 
     void deleteAllByIdIn(Set<Long> taskIds);
 
     @Modifying
     @Transactional
     @Query("delete from SystemTask where threadLock = true and lockTime < :expr")
-    void deleteFailedLock(Date expr);
+    void deleteFailedLock(@Param("expr") Date expr);
 
 }

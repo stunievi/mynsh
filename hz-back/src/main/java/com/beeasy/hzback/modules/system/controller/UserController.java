@@ -80,7 +80,7 @@ public class UserController {
             UserSearch search
 //            String userName
     ){
-        return Result.okJson(userService.searchUser(search,pageable),
+        return Result.ok(userService.searchUser(search,pageable)).toJson(
                 new Result.Entry(Department.class,"children"),
                 new Result.Entry(User.class,"departments","password")
                 );
@@ -101,7 +101,7 @@ public class UserController {
     @GetMapping("/ids")
     public String getList(Long[] ids){
         List<User> users = userService.findUserByIds(ids);
-        return Result.okJson(users,
+        return Result.ok(users).toJson(
                 new Result.Entry(Department.class,"children"));
     }
 

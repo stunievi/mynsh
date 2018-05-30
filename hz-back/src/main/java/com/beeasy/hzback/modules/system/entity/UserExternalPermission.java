@@ -25,14 +25,19 @@ public class UserExternalPermission extends AbstractBaseEntity{
 
 
     public enum Permission{
-        COMMON_CLOUD_DISK("common_cloud_disk");
+        COMMON_CLOUD_DISK(0,"common_cloud_disk");
 
+        private int key;
         private String value;
-        Permission(String value){
+        Permission(int key, String value){
+            this.key = key;
             this.value = value;
         }
 
-        public String getValue() {
+        public int getValue() {
+            return key;
+        }
+        public String toString(){
             return value;
         }
     }

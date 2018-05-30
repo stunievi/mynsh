@@ -41,6 +41,7 @@ public class FileController {
         return new ResponseEntity<byte[]>(file.getFile(), headers, HttpStatus.OK);
     }
 
+
     @GetMapping("/api/download/message/{id}")
     public ResponseEntity<byte[]> getMessageFile(@PathVariable Long id) throws IOException{
         //检查这个文件是不是属于你

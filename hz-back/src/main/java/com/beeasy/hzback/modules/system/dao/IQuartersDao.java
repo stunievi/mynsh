@@ -16,4 +16,5 @@ public interface IQuartersDao extends JpaRepository<Quarters,Long>{
     List<Quarters> findAllByIdIn(Set<Long> ids);
     List<Quarters> findAllByIdIn(List<Long> ids);
 
+
 }

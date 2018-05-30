@@ -101,7 +101,7 @@ public class WorkFlowController {
 //    }
 
 
-    @ApiOperation(value = "添加审核节点", notes = "同名视为修改")
+    @ApiOperation(value = "添加审核节点", notes = "传递节点ID的情况下, 视为修改")
     @PostMapping("/model/node/addCheck")
     public Result<WorkflowNode> createCheckNode(
             @Valid @RequestBody CheckNodeModel node,
@@ -110,18 +110,23 @@ public class WorkFlowController {
         return Result.finish(workflowService.createCheckNode(node));
     }
 
-
+    @Deprecated
     @ApiOperation(value = "删除节点")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "modelId", value = "工作流模型ID", required = true),
-            @ApiImplicitParam(name = "nodeName", value = "要删除的名字数组", required = true, allowMultiple = true)
-    })
     @DeleteMapping("/model/node")
     public Object deleteNode(
-            Integer modelId,
-            String[] nodeName
+            @RequestParam Long modelId,
+            @RequestParam String[] nodeName
     ) throws CannotFindEntityException {
         return workflowService.deleteNode(modelId,nodeName);
+    }
+
+    @ApiOperation(value = "删除节点")
+    @PostMapping("/model/node/delete")
+    public Result deleteNode(
+            @RequestParam Long modelId,
+            @RequestParam Long nodeId
+    ) {
+        return Result.finish(workflowService.deleteNode(modelId,nodeId));
     }
 
 
@@ -137,14 +142,29 @@ public class WorkFlowController {
         return workflowService.setPersons(edit);
     }
 
+
+    @Deprecated
     @ApiOperation(value = "编辑工作流")
     @PutMapping("/model")
     public Object edit(
             @Valid  WorkflowModelEdit edit,
             BindingResult bindingResult
     ) throws RestException {
-        return workflowService.editWorkflowModel(edit.getId(),edit.getInfo(),edit.getOpen());
+        return workflowService.editWorkflowModel(edit.getId(),edit.getInfo(),edit.isOpen());
     }
+
+    @Deprecated
+    @ApiOperation(value = "编辑工作流")
+    @PutMapping("/model/edit")
+    public Result edit2(
+            @Valid @RequestBody WorkflowModelEdit edit,
+            BindingResult bindingResult
+    ){
+        return Result.finish(workflowService.editWorkflowModel(edit));
+    }
+
+
+
 
 //    @ApiOperation(value = "启用/停用工作流", notes = "一经启用, 禁止再编辑, 只能新增新版本")
 //    @PutMapping("/model/open")
@@ -168,6 +188,7 @@ public class WorkFlowController {
 //       return workflowService.startNewInstance(Utils.getCurrentUser().getId(),modelId);
 //    }
 
+    @Deprecated
     @ApiOperation(value = "向当前节点提交数据", notes = "不会进行下一步操作, 即使是节点的必填字段也可以为空, 重复提交视为草稿箱保存信息")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "instanceId", value = "工作流实例ID",required = true),
@@ -182,6 +203,7 @@ public class WorkFlowController {
             return Result.ok();
     }
 
+    @Deprecated
     @ApiOperation(value = "提交当前节点信息", notes = "会校验所有传入的信息, 例如节点的必填字段")
     @PostMapping("/goNextNode")
     public Result goNext(
@@ -192,6 +214,7 @@ public class WorkFlowController {
     }
 
 
+    @Deprecated
     @ApiOperation(value = "创建一条任务", notes = "当处理人为自己的时候,自动开启相关流程")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "modelName", value = "关联流程模型名称",required = true),
@@ -202,6 +225,7 @@ public class WorkFlowController {
         return workflowService.createInspectTask(Utils.getCurrentUserId(),modelName,dealUserId,false);
     }
 
+    @Deprecated
     @ApiOperation(value = "接受一条任务")
     @PostMapping("/task/accept")
     public Result acceptInspectTask(Long taskId) {
@@ -209,6 +233,7 @@ public class WorkFlowController {
     }
 
 
+    @Deprecated
     @ApiOperation(value = "当前应处理的节点")
     @GetMapping("/currentNode")
     public Result getCurrentNode(Long instanceId){

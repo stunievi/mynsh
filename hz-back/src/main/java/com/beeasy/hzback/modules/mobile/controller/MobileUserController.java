@@ -1,5 +1,6 @@
 package com.beeasy.hzback.modules.mobile.controller;
 
+import com.beeasy.hzback.core.helper.RSAUtils;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.core.security.CustomUserService;
@@ -23,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/mobile")
@@ -50,8 +52,8 @@ public class MobileUserController {
 
     @GetMapping("/department/list")
     public String getDepartmentsAndUsers(){
-        return Result.okJson(departmentService.findDepartments(null,null),
-                new Result.Entry(Quarters.class,"department"),
+        return Result.ok(userService.findDepartmentsByParent_Id(0)).toMobile(
+                new Result.Entry(Quarters.class,"department","users"),
                 new Result.Entry(User.class,"quarters","permissions"));
     }
 
@@ -65,27 +67,37 @@ public class MobileUserController {
             return Result.error("密码错误").toJson();
         }
         String token = jwtTokenUtil.generateToken(userDetails);
-        return Result.ok(new UserLoginResponse(token,userDao.findFirstByUsername(userDetails.getUsername()).orElse(null))).toJson(userEntries);
+        //生成秘钥对
+//        KeyPairGenerator kpg;
+//        try{
+//            kpg = KeyPairGenerator.getInstance(RSA_ALGORITHM);
+//        }catch(NoSuchAlgorithmException e){
+//            throw new IllegalArgumentException("No such algorithm-->[" + RSA_ALGORITHM + "]");
+//        }
+        Map<String,String> map = RSAUtils.createKeys(1024);
+        userDao.updateUserKeys(map.get("privateKey"),map.get("publicKey"),userDetails.getUsername());
+
+        return Result.ok(new UserLoginResponse(token,userDao.findFirstByUsername(userDetails.getUsername()).orElse(null),map.get("publicKey"))).toJson(userEntries);
     }
 
     @PostMapping("/user/face/edit")
-    public Result<Long> uploadFace(@RequestParam MultipartFile file){
-        return Result.finish(userService.updateUserFace(Utils.getCurrentUserId(),file));
+    public String uploadFace(@RequestParam MultipartFile file){
+        return Result.finish(userService.updateUserFace(Utils.getCurrentUserId(),file)).toMobile();
     }
 
     @PostMapping("/users")
     public String getUserInfo(
             @RequestBody List<Long> userIds
     ){
-        return Result.okJson(userService.findUser(userIds),
+        return Result.ok(userService.findUser(userIds)).toMobile(
             new Result.Entry(Department.class,"departments","quarters"),
             new Result.Entry(Quarters.class,"users","department")
         );
     }
 
     @GetMapping("/normalUsers")
-    public Result getNormalUsers(){
-        return Result.ok(userDao.getNormalUsers());
+    public String getNormalUsers(){
+        return Result.ok(userDao.getNormalUsers()).toMobile();
     }
 
 //    @GetMapping("/user/myself")
@@ -95,19 +107,29 @@ public class MobileUserController {
 
 
     @GetMapping("/user/department/{id}")
-    public Result getDepartmentUsers(
+    public String getDepartmentUsers(
             @PathVariable Long did
     ){
-        return Result.ok(userDao.getSimpleUsersFromDepartment(did));
+        return Result.ok(userDao.getSimpleUsersFromDepartment(did)).toMobile();
     }
 
 
     @ApiOperation(value = "同步全行组织结构")
     @GetMapping("/user/simpleDepartments")
     public String getAllDepartments(){
-        return Result.okJson(departmentDao.findAll(),
+        return Result.ok(departmentDao.findAll()).toMobile(
                 new Result.Entry(Department.class,"parent","departments"),
                 new Result.Entry(Quarters.class,"department","users"));
+    }
+
+    @ApiOperation(value = "同步全行组织架构")
+    @GetMapping("/user/department/all")
+    @Deprecated
+    public String getAllDepartments2(){
+        return Result.ok(departmentDao.findAllByParent(null)).toMobile(
+                new Result.Entry(Department.class,"parent"),
+                new Result.Entry(Quarters.class,"department"),
+                new Result.Entry(User.class,"quarters","permissions","departments"));
     }
 
 

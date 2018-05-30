@@ -21,18 +21,18 @@ public class MobileMessageController {
     MessageService messageService;
 
     @PostMapping("/sendString")
-    public Result sendStringMessage(
+    public String sendStringMessage(
             @Valid @RequestBody StringMessageRequest request
             ){
-        return Result.finish(messageService.sendMessage(Utils.getCurrentUserId(),request.getToUid(),request.getContent(),request.getUuid()));
+        return Result.finish(messageService.sendMessage(Utils.getCurrentUserId(),request.getToUid(),request.getContent(),request.getUuid())).toMobile();
     }
 
     @PostMapping("/sendFile")
-    public Result sendFile(
+    public String sendFile(
             @RequestParam Long toUid,
             @RequestParam MultipartFile file
     ) throws IOException {
-        return Result.finish(messageService.sendMessage(Utils.getCurrentUserId(),toUid,file));
+        return Result.finish(messageService.sendMessage(Utils.getCurrentUserId(),toUid,file)).toMobile();
     }
 
     @GetMapping("/userRecentMessage")

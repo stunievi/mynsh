@@ -21,7 +21,9 @@ public class WorkflowModelEdit {
     @ApiModelProperty(name = "info", value = "工作流描述")
     String info;
 
+    @NotNull(message = "工作流开关不能为空")
     @ApiModelProperty(name = "open",value = "是否打开工作流")
-    Boolean open;
+    boolean open;
 
+    WorkflowExtPermissionEdit[] permissionEdits;
 }

@@ -54,12 +54,12 @@ public class WorkflowInstance {
 
     //任务执行人
     @JSONField(serialize = false)
-    @ManyToOne
+    @ManyToOne(optional = true)
     User dealUser;
 
     //任务发布人(指派者)
     @JSONField(serialize = false)
-    @ManyToOne
+    @ManyToOne(optional = false)
     User pubUser;
 
     @OneToMany(mappedBy = "instance", cascade = CascadeType.ALL)

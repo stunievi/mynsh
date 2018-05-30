@@ -6,17 +6,20 @@ import bin.leblanc.zed.RolePermission;
 import bin.leblanc.zed.SQLUtil;
 import bin.leblanc.zed.Zed;
 import bin.leblanc.zed.event.ZedInitializedEvent;
-import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.modules.system.cache.SystemConfigCache;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.core.io.ClassPathResource;
 
 import javax.script.*;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.List;
 
 @Configuration
 public class LeblancConfig implements ApplicationListener<ContextRefreshedEvent> {
@@ -79,13 +82,17 @@ public class LeblancConfig implements ApplicationListener<ContextRefreshedEvent>
 
         try {
             Bindings bindings = engine.getBindings(ScriptContext.GLOBAL_SCOPE);
-            engine.eval(Utils.getReader("classpath:config/behavior.js"),bindings);
+            ClassPathResource resource = new ClassPathResource("config/behavior.js");
+            List<String> codes = IOUtils.readLines(resource.getInputStream());
+            engine.eval(String.join("\n",codes),bindings);
+//            engine.eval(new FileReader(resource.getFile()),bindings);
         } catch (ScriptException e) {
             e.printStackTrace();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
 
     }
 

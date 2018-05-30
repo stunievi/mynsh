@@ -3,6 +3,7 @@ package com.beeasy.hzback.modules.system.service;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.modules.system.dao.*;
 import com.beeasy.hzback.modules.system.entity.CloudDirectoryIndex;
+import com.beeasy.hzback.modules.system.entity.CloudFileTag;
 import com.beeasy.hzback.modules.system.entity.Message;
 import com.beeasy.hzback.modules.system.entity.SystemFile;
 import org.apache.commons.lang.StringUtils;
@@ -26,6 +27,8 @@ public class CloudDiskService implements ICloudDiskService {
     private String AREA_DIR;//excel临时存储文件夹
 
 
+    @Autowired
+    ICloudFileTagDao tagDao;
     @Autowired
     IUploadFileTempDao uploadFileTempDao;
     @Autowired
@@ -62,6 +65,73 @@ public class CloudDiskService implements ICloudDiskService {
 //        return optionalUploadFileTemp.get().getUuid();
 //    }
 
+    /**
+     * 增加文件标签
+     * @param uid
+     * @param type
+     * @param fileId
+     * @param tag
+     * @return
+     */
+    public Result addFileTag(long uid, DirType type, long fileId, String tag){
+        CloudDirectoryIndex file = findFile(uid,type,fileId).orElse(null);
+        if(null == file){
+            return Result.error();
+        }
+        //查找是否有同名tag
+        CloudFileTag same = tagDao.findFirstByIndexAndTag(file,tag).orElse(null);
+        if(null != same){
+            return Result.error("已经有同名标签");
+        }
+        CloudFileTag cloudFileTag = new CloudFileTag();
+        cloudFileTag.setTag(tag);
+        cloudFileTag.setIndex(file);
+        return Result.ok(tagDao.save(cloudFileTag));
+    }
+
+    /**
+     * 删除文件标签
+     * @param uid
+     * @param type
+     * @param fileId
+     * @param tag
+     * @return
+     */
+    public boolean removeFileTag(long uid, DirType type, long fileId, String tag){
+        CloudDirectoryIndex file = findFile(uid,type,fileId).orElse(null);
+        if(null == file){
+            return false;
+        }
+        tagDao.deleteByIndexAndTag(file,tag);
+        return true;
+    }
+
+    /**
+     * 设置文件标签
+     * @param uid
+     * @param type
+     * @param fileId
+     * @param tags
+     * @return
+     */
+    public boolean setFileTags(long uid, DirType type, long fileId, List<String> tags){
+        //清空tag
+        CloudDirectoryIndex file = findDirectory(uid,type,fileId).orElse(null);
+        if(null == file){
+            return false;
+        }
+        if(file.isDir()){
+            return false;
+        }
+        tagDao.deleteAllByIndex(file);
+        for (String tag : tags) {
+            CloudFileTag cloudFileTag = new CloudFileTag();
+            cloudFileTag.setIndex(file);
+            cloudFileTag.setTag(tag);
+            tagDao.save(cloudFileTag);
+        }
+        return true;
+    }
 
     /**
      * 上传文件
@@ -523,6 +593,10 @@ public class CloudDiskService implements ICloudDiskService {
 
     public Optional<CloudDirectoryIndex> findDirectory(long uid, DirType type, long dirId) {
         return cloudDirectoryIndexDao.findFirstByTypeAndLinkIdAndId(type, uid, dirId);
+    }
+
+    public Optional<CloudDirectoryIndex> findFile(long uid, DirType type, long dirId){
+        return findDirectory(uid,type,dirId).filter(file -> !file.isDir());
     }
 }
 

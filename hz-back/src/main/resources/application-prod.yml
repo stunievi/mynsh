@@ -1,0 +1,85 @@
+#db1:
+#  jdbc:
+#    driverClassName: com.mysql.jdbc.Driver
+#    url: jdbc:mysql://localhost:3306/test?zeroDateTimeBehavior=convertToNull&useUnicode=true&characterEncoding=utf-8
+#    username: root
+#    password: 1q2w3e4r
+
+upload:
+  path: /Users/bin/work/uploads
+
+workflow:
+  timeStep: 1
+  lockTimeout: 10
+
+mybatis:
+  mapperLocations: classpath:hzadmin/src/main/resources/mybatis.mapper/*.xml
+  typeAliasesPackage: com.beeasy.hzback.modules.setting.entity
+
+server:
+  port: 8070
+  context-path: /
+  address: 0.0.0.0
+
+spring:
+    http:
+      multipart:
+        max-file-size: 10Mb
+        max-request-size: 10Mb
+    mvc:
+        view:
+            prefix: /views/
+            suffix: .ftl
+
+    freemarker:
+        cache: false
+        request-context-attribute: request
+
+    datasource:
+        name: test
+#        mysql
+        url: jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=utf-8&useSSL=false
+        username: root
+        password: "!Q1q2w3e4r"
+#        password: 123
+        driver-class-name: com.mysql.jdbc.Driver
+#        mysql-end
+#        db2
+#        url: jdbc:db2://localhost:50000/sample
+#        username: db2admin
+#        password: 123
+#        driver-class-nodeName: com.ibm.db2.jcc.DB2Driver
+#        db2-end
+        # 使用druid数据源
+#        type: org.springframework.jdbc.datasource.DriverManagerDataSource
+        type: com.alibaba.druid.pool.DruidDataSource
+        filters: stat
+        maxActive: 20
+        initialSize: 1
+        maxWait: 60000
+        minIdle: 1
+        timeBetweenEvictionRunsMillis: 60000
+        minEvictableIdleTimeMillis: 300000
+        validationQuery: select 'x'
+        testWhileIdle: true
+        testOnBorrow: false
+        testOnReturn: false
+        poolPreparedStatements: true
+        maxOpenPreparedStatements: 20
+
+    redis:
+           database: 0
+           host: 127.0.0.1
+           port: 6379
+           password:
+           timeout: 0
+           pool:
+               max-active: 8
+               max-wait: -1
+               max-idle: 8
+               min-idle: 0
+    session:
+        store-type: none
+
+
+

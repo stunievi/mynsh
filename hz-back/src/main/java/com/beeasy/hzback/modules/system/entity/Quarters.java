@@ -1,5 +1,6 @@
 package com.beeasy.hzback.modules.system.entity;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.beeasy.hzback.core.entity.AbstractBaseEntity;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,6 +20,7 @@ public class Quarters extends AbstractBaseEntity {
     @GeneratedValue
     Long id;
 
+    @JSONField(serialize = false)
     @ManyToOne
     @JoinColumn(name = "department_id")
     Department department;
@@ -27,6 +29,7 @@ public class Quarters extends AbstractBaseEntity {
 
     String info;
 
+    @JSONField(serialize = false)
     @ManyToMany()
     @JoinTable(name = "t_USER_QUARTERS",
             joinColumns = {

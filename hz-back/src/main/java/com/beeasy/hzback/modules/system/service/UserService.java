@@ -209,11 +209,11 @@ public class UserService implements IUserService {
         User ret = userDao.save(u);
 
         //添加文件夹
-        CloudDirectoryIndex cloudDirectoryIndex = new CloudDirectoryIndex();
-        cloudDirectoryIndex.setDirName("/");
-        cloudDirectoryIndex.setType(ICloudDiskService.DirType.USER);
-        cloudDirectoryIndex.setLinkId(u.getId());
-        cloudDirectoryIndexDao.save(cloudDirectoryIndex);
+//        CloudDirectoryIndex cloudDirectoryIndex = new CloudDirectoryIndex();
+//        cloudDirectoryIndex.setDirName("/");
+//        cloudDirectoryIndex.setType(ICloudDiskService.DirType.USER);
+//        cloudDirectoryIndex.setLinkId(u.getId());
+//        cloudDirectoryIndexDao.save(cloudDirectoryIndex);
 //        u.getFolders().add(cloudDirectoryIndex);
 
         return Result.ok(ret);
@@ -423,6 +423,15 @@ public class UserService implements IUserService {
             externalPermissionDao.deleteAllByUser_IdAndPermission(uid,permission);
         }
         return true;
+    }
+
+    public List<Department> findDepartmentsByParent_Id(long pid){
+        if(0 == pid){
+            return departmentDao.findAllByParent(null);
+        }
+        else{
+            return departmentDao.findAllByParent_Id(pid);
+        }
     }
 
     public List<User> findUser(List<Long> ids){
