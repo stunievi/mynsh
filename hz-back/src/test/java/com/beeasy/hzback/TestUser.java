@@ -240,7 +240,7 @@ public class TestUser {
 
 
         //发起工作流
-        ApplyTaskRequest request = new ApplyTaskRequest(workflowModel.getId(),"cc","",null);
+        ApplyTaskRequest request = new ApplyTaskRequest(workflowModel.getId(),"cc","",null,false,false);
         WorkflowInstance instance = workflowService.startNewInstance(u.getId(),request).orElse(null);
         assertNotNull(instance);
         assertTrue(instance.getId() > 0);
@@ -258,7 +258,7 @@ public class TestUser {
         //处理下一步
         instance = workflowService.goNext(u.getId(), instance.getId());
         assertNotNull(instance);
-        assertEquals(instance.getCurrentNode().getNodeName(), ("是否拒贷"));
+        assertEquals(workflowService.findCurrentNodeInstance(instance.getId()).orElse(null).getNodeName(), ("是否拒贷"));
 
         //提交审核数据
         data.clear();
@@ -291,7 +291,7 @@ public class TestUser {
 
 
         //发起工作流
-        ApplyTaskRequest request = new ApplyTaskRequest(workflowModel.getId(),"cc","",null);
+        ApplyTaskRequest request = new ApplyTaskRequest(workflowModel.getId(),"cc","",null,false,false);
         WorkflowInstance instance = workflowService.startNewInstance(u.getId(),request).orElse(null);
         assertTrue(instance.getId() > 0);
 
@@ -303,7 +303,7 @@ public class TestUser {
         assertTrue(instance.getNodeList().size() > 0);
 
         instance = workflowService.goNext(u.getId(),instance.getId());
-//        assertEquals(instance.getCurrentNode().getNodeName(),"判断表内/表外");
+//        assertEquals(workflowService.findCurrentNodeInstance(instance.getId()).orElse(null).getNodeName(),"判断表内/表外");
         //等待验证
         int limit = 10;
         while(true){
@@ -316,7 +316,7 @@ public class TestUser {
                 e.printStackTrace();
             }
             instance = workflowService.findInstance(instance.getId()).get();
-            if(!instance.getCurrentNode().getNodeName().equals("判断表内/表外")){
+            if(!workflowService.findCurrentNodeInstance(instance.getId()).orElse(null).getNodeName().equals("判断表内/表外")){
                 break;
             }
         }
@@ -353,7 +353,7 @@ public class TestUser {
         instance = workflowService.goNext(u.getId(),instance.getId());
 
 //        assertTrue(instance.isFinished());
-        assertEquals(instance.getCurrentNode().getNodeName(),"结束");
+        assertEquals(workflowService.findCurrentNodeInstance(instance.getId()).orElse(null).getNodeName(),"结束");
 
 
     }
@@ -386,11 +386,11 @@ public class TestUser {
         data.put("f5",10000000 + 1);
         instance = workflowService.submitData(u.getId(),instance.getId(),data);
         instance = workflowService.goNext(u.getId(),instance.getId());
-        assertEquals(instance.getCurrentNode().getNodeName(),"上传报告");
+        assertEquals(workflowService.findCurrentNodeInstance(instance.getId()).orElse(null).getNodeName(),"上传报告");
 
         instance = workflowService.submitData(u.getId(),instance.getId(),data);
         instance = workflowService.goNext(u.getId(),instance.getId());
-        assertEquals(instance.getCurrentNode().getNodeName(),"审核签署");
+        assertEquals(workflowService.findCurrentNodeInstance(instance.getId()).orElse(null).getNodeName(),"审核签署");
 
         data.clear();
         data.put("key","是");
@@ -406,7 +406,7 @@ public class TestUser {
         Map data = new HashMap();
         data.put("f1","123");
 
-        ApplyTaskRequest request = new ApplyTaskRequest(workflowModel.getId(),"cc","",null);
+        ApplyTaskRequest request = new ApplyTaskRequest(workflowModel.getId(),"cc","",null,false,false);
         WorkflowInstance instance = workflowService.startNewInstance(u.getId(),request).orElse(null);
         assertNotNull(instance);
         assertTrue(instance.getId() > 0);
@@ -422,7 +422,7 @@ public class TestUser {
         instance = workflowService.submitData(u.getId(),instance.getId(),data);
         instance = workflowService.goNext(u.getId(),instance.getId());
 
-        assertEquals(instance.getCurrentNode().getNodeName(),"结束");
+        assertEquals(workflowService.findCurrentNodeInstance(instance.getId()).orElse(null).getNodeName(),"结束");
     }
 
     public void test_任务生成() throws RestException {

@@ -36,17 +36,17 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-tomcat</artifactId>
-                </exclusion>
-            </exclusions>
+            <!--<exclusions>-->
+                <!--<exclusion>-->
+                    <!--<groupId>org.springframework.boot</groupId>-->
+                    <!--<artifactId>spring-boot-starter-tomcat</artifactId>-->
+                <!--</exclusion>-->
+            <!--</exclusions>-->
         </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-undertow</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.springframework.boot</groupId>-->
+            <!--<artifactId>spring-boot-starter-undertow</artifactId>-->
+        <!--</dependency>-->
 
         <!-- mybatis-plus begin -->
         <!--<dependency>-->
@@ -194,16 +194,16 @@
         <!--</dependency>-->
         <!--end-->
 
-        <dependency>
-            <groupId>com.netflix.feign</groupId>
-            <artifactId>feign-core</artifactId>
-            <version>8.18.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.netflix.feign</groupId>
-            <artifactId>feign-jackson</artifactId>
-            <version>8.18.0</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>com.netflix.feign</groupId>-->
+            <!--<artifactId>feign-core</artifactId>-->
+            <!--<version>8.18.0</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>com.netflix.feign</groupId>-->
+            <!--<artifactId>feign-jackson</artifactId>-->
+            <!--<version>8.18.0</version>-->
+        <!--</dependency>-->
 
         <!--aop-->
         <dependency>
@@ -314,11 +314,17 @@
         </dependency>
 
         <!--dev-tools-->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-devtools</artifactId>
-            <version>1.5.12.RELEASE</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.springframework.boot</groupId>-->
+            <!--<artifactId>spring-boot-devtools</artifactId>-->
+            <!--<version>1.5.12.RELEASE</version>-->
+        <!--</dependency>-->
+
+        <!--<dependency>-->
+            <!--<groupId>org.springframework</groupId>-->
+            <!--<artifactId>springloaded</artifactId>-->
+            <!--<version>1.2.7.RELEASE</version>-->
+        <!--</dependency>-->
 
         <!--<dependency>-->
         <!--<groupId>org.springframework.boot</groupId>-->
@@ -330,6 +336,17 @@
         <!--<artifactId>ehcache</artifactId>-->
         <!--</dependency>-->
 
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-feign</artifactId>
+            <version>1.4.4.RELEASE</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mitre.dsmiley.httpproxy</groupId>
+            <artifactId>smiley-http-proxy-servlet</artifactId>
+            <version>1.6</version>
+        </dependency>
 
     </dependencies>
 

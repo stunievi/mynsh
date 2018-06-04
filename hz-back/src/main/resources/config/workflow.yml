@@ -30,7 +30,7 @@
 #审核节点: 用于审核
 #  type: check
 #  ps: 审核节点的备注名, 通常也为ps
-#  key: 审核节点存储值的key名, 通常为key
+#  fieldName: 审核节点存储值的key名, 通常为key
 #  question: 给用户看的文字提示, 通常为一个问题, 例如: 是否通过申请?
 #  count: 审核节点参与的人数, 如果为单人审批为1, 如果为会签则为具体的人数
 #  states: 审核后的状态
@@ -47,7 +47,7 @@
 #  content: 同信息节点
 #  states: 部分同审核节点
 #    状态1:
-#      key: 触发状态的key
+#      fieldName: 触发状态的key
 #      value: 触发状态的value
 #      condition: 满足该状态的人数
 #      behavior: 满足该状态后执行的动作
@@ -76,11 +76,13 @@
 
 # go(string nodeName) 跳转到指定名字的节点
 # getLastNode(string nodeName) 从记录中读取当前节点最邻近的一个节点, 注意: 是按照处理的顺序而不是定义的顺序向上读取
+# start_next_task(string modelName, )
 
 
 资料收集:
   flowType: clientManager
-
+  manual: true
+  subject:
   flow:
     资料收集:
       type: input
@@ -106,7 +108,7 @@
 #        quarters: []
 #        order: 1 #order项无用
 #        content:
-      key: key #保存状态和备注时所用的键名, 通畅默认为key就可以
+      key: fieldName #保存状态和备注时所用的键名, 通畅默认为key就可以
       ps: ps #是否需要备注, 如果没有, 则为空
       question: 是否拒贷
       states: #定义状态
@@ -130,6 +132,7 @@
       end: true
 
 菜单权限申请:
+  manual: true
   flow:
     发起权限申请:
       type: input
@@ -164,7 +167,7 @@
 
     授信管理部审核:
       type: check
-      key: key
+      key: fieldName
       ps: ps
       question: 是否通过
       states:
@@ -181,7 +184,7 @@
 
     风险资产管理部审核:
       type: check
-      key: key
+      key: fieldName
       ps: ps
       question: 是否通过
       states:
@@ -198,7 +201,7 @@
 
     合规部审核:
       type: check
-      key: key
+      key: fieldName
       ps: ps
       question: 是否通过
       states:
@@ -215,7 +218,7 @@
 
     运营部审核:
       type: check
-      key: key
+      key: fieldName
       ps: ps
       question: 是否通过
       states:
@@ -232,7 +235,7 @@
 
     电子银行部确认:
       type: check
-      key: key
+      key: fieldName
       ps: ps
       question: 是否通过
       states:
@@ -246,7 +249,7 @@
 
     总领导班子审核:
       type: check
-      key: key
+      key: fieldName
       ps: ps
       question: 是否通过
       states:
@@ -306,7 +309,7 @@
 
     审核签署:
       type: check
-      key: key
+      key: fieldName
       ps: ps
       question: 是否通过
       states:
@@ -336,7 +339,7 @@
     是否可以还款:
       type: check
       ps: ps
-      key: key
+      key: fieldName
       count: 1
       question: 是否可以还款?
       states:
@@ -366,7 +369,7 @@
 #    是否满足利息减免条件:
 #      type: check
 #      ps: ps,
-#      key: key,
+#      fieldName: fieldName,
 #      question: 是否满足减免条件?
 #      count: 1
 #      states:
@@ -382,7 +385,7 @@
 #    是否发起减免申请:
 #      type: check
 #      ps: ps
-#      key: key
+#      fieldName: fieldName
 #      question: 客户是否已发起减免申请?
 #      count: 1
 #      states:
@@ -398,7 +401,7 @@
 #
 #    利息减免流程:
 #      type: checkprocess
-#      key: key
+#      fieldName: fieldName
 #      question: 填写任务的处理结果
 #      count: 1
 #      states:
@@ -414,12 +417,24 @@
 #    资产抵债流程:
 
 不良资产登记:
+  manual: true
   flow:
     发起申请:
       type: input
       start: true
       content:
         申请说明: apply,textarea,n
+
+        测试固有字段1:
+          type: string
+          innate: true
+          name: innate1
+
+        测试固有字段2:
+          type: string
+          innate: true
+          name: innate2
+
       next: 责任认定
 
     责任认定:
@@ -430,7 +445,7 @@
 
     风险资产管理部审批:
       type: check
-      key: key
+      key: fieldName
       ps: ps
       question: 是否通过
       states:
@@ -448,8 +463,12 @@
     结束:
       type: end
       end: true
+      behavior: start_next_task('不良资产管理流程',get_task_dealer(),get_task_innate_data())
 
 利息减免登记:
+  manual: false
+  subject:
+
   flow:
     发起申请:
       type: input
@@ -461,7 +480,7 @@
     经营班子集体审议:
       type: check
       ps: ps
-      key: key
+      key: fieldName
       question: 审议通过/不通过?
       count: 5
       states:
@@ -483,7 +502,7 @@
 
     风险资产管理部审核:
       type: check
-      key: key
+      key: fieldName
       ps: ps
       question: 是否通过
       states:
@@ -499,7 +518,7 @@
 
     不良资产管理委员会审批:
       type: check
-      key: key
+      key: fieldName
       ps: ps
       question: 是否通过
       states:
@@ -534,7 +553,7 @@
 
     诉讼过程中与客户协商一致:
       type: check
-      key: key
+      key: fieldName
       ps: ps
       question: 是否协商一致？
       states:
@@ -577,12 +596,13 @@
       end: true
 
 抵债资产接收:
+  manual: false
   flow:
     是否裁定抵债:
       start: true
       type: check
       ps: ps
-      key: key
+      key: fieldName
       question: 是否裁定抵债?
       count: 1
       states:
@@ -606,7 +626,7 @@
     信贷主管审查:
       type: check
       ps: ps
-      key: key
+      key: fieldName
       question: 审查通过/不通过?
       count: 1
       states:
@@ -622,7 +642,7 @@
     风险资产管理部审查:
       type: check
       ps: ps,
-      key: key,
+      key: fieldName,
       question: 审查通过/不通过?
       count: 1
       states:
@@ -646,7 +666,7 @@
 
     不良资产管理委员会审批:
       type: check
-      key: key
+      key: fieldName
       ps: ps
       question: 是否通过
       states:
@@ -676,7 +696,7 @@
 
     合同审核通过:
       type: check
-      key: key
+      key: fieldName
       ps: ps
       question: 是否审核通过？
       states:
@@ -702,6 +722,7 @@
       end: true
 
 资产处置:
+  manual: false
   flow:
     制定处置方案:
       type: input
@@ -713,7 +734,7 @@
     信贷主管审查:
       type: check
       ps: ps
-      key: key
+      key: fieldName
       question: 审查通过/不通过?
       count: 1
       states:
@@ -729,7 +750,7 @@
     经营班子集体审议:
       type: check
       ps: ps
-      key: key
+      key: fieldName
       question: 审议通过/不通过?
       count: 5
       states:
@@ -745,7 +766,7 @@
     风险资产管理部审核:
       type: check
       ps: ps
-      key: key
+      key: fieldName
       question: 审查通过/不通过?
       count: 1
       states:
@@ -760,7 +781,7 @@
 
     不良资产管理委员会审批:
       type: check
-      key: key
+      key: fieldName
       ps: ps
       question: 是否通过
       states:
@@ -800,11 +821,13 @@
         end: true
 
 不良资产管理流程:
+  manual: false
+  custom: false
   flow:
     选择处理方式:
       start: true
       type: check
-      key: key
+      key: fieldName
       ps: ps
       question: 利息减免/诉讼/协商抵债/不良转贷后/执转破/重组/其它
       states:
@@ -854,10 +877,11 @@
 
     诉讼流程:
       type: checkprocess
-      key: key
+      key: fieldName
       ps: ps
       question: 填写任务的处理结果
       count: 1
+      child_task: []
       states:
         -
           item: 是
@@ -870,10 +894,11 @@
 
     利息减免流程:
       type: checkprocess
-      key: key
+      key: fieldName
       ps: ps
       question: 填写任务的处理结果
       count: 1
+      child_task: [利息减免登记]
       states:
         -
           item: 是
@@ -886,10 +911,11 @@
 
     资产处置流程:
       type: checkprocess
-      key: key
+      key: fieldName
       ps: ps
       question: 填写任务的处理结果
       count: 1
+      child_task: [资产处置]
       states:
         -
           item: 是

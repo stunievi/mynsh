@@ -26,6 +26,7 @@ public class Quarters extends AbstractBaseEntity {
     Department department;
 
     String name;
+    String dName;
 
     String info;
 

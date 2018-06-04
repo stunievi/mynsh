@@ -16,8 +16,11 @@ mybatis:
   mapperLocations: classpath:hzadmin/src/main/resources/mybatis.mapper/*.xml
   typeAliasesPackage: com.beeasy.hzback.modules.setting.entity
 
+filecloud:
+  address: "192.168.31.55:80"
+
 server:
-  port: 8070
+  port: 8080
   context-path: /
   address: 0.0.0.0
 
@@ -81,5 +84,12 @@ spring:
     session:
         store-type: none
 
+    jpa:
+      properties:
+        hibernate:
+          cache:
+            use_query_cache: false
+          archive:
+            autodetection: false
 
 

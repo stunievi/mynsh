@@ -130,7 +130,7 @@ public class BitcaskDataFile {
             }
             fileSize += Integer.BYTES;
 
-            //key
+            //fieldName
             channel.write(ByteBuffer.wrap(key));
             fileSize += key.length;
 

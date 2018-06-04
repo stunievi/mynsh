@@ -4,9 +4,7 @@ import com.alibaba.druid.util.StringUtils;
 import com.beeasy.hzback.core.entity.AbstractBaseEntity;
 import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.modules.system.dao.IWorkflowNodeAttributeDao;
-import com.beeasy.hzback.modules.system.entity.User;
-import com.beeasy.hzback.modules.system.entity.WorkflowNodeAttribute;
-import com.beeasy.hzback.modules.system.entity.WorkflowNodeInstance;
+import com.beeasy.hzback.modules.system.entity.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,7 +17,7 @@ public class InputNode extends BaseNode{
     boolean start;
     Map<String,Content> content = new HashMap<>();
 
-    public InputNode(Map v) {
+    public InputNode(WorkflowModel workflowModel, Map v) {
 
         //起始和结束禁止编辑
         //start和end不能同时存在
@@ -37,12 +35,26 @@ public class InputNode extends BaseNode{
                 cnt.setCname(String.valueOf(ck));
 
                 if (cv instanceof Map) {
+                    Map cvmap = (Map) cv;
                     cnt.setType((String) ((Map) cv).get("type"));
                     cnt.setEname((String) ((Map) cv).get("name"));
-                    cnt.setRequired(((Map) cv).get("required").equals("y"));
+
+                    String required = (String) cvmap.getOrDefault("required","n");
+                    cnt.setRequired(required.equals("y"));
                     //特殊类型
                     List items = (List) ((Map) cv).getOrDefault("items",new ArrayList<>());
                     cnt.getItems().addAll((Collection<? extends String>) items.stream().map(item -> String.valueOf(item)).collect(Collectors.toList()));
+
+                    //固有字段
+                    boolean innate = (boolean) cvmap.getOrDefault("innate",false);
+                    if(innate){
+                        WorkflowModelInnate workflowModelInnate = new WorkflowModelInnate();
+                        workflowModelInnate.setContent(cnt);
+                        workflowModelInnate.setFieldName(cnt.getEname());
+                        workflowModelInnate.setModel(workflowModel);
+                        workflowModel.getInnates().add(workflowModelInnate);
+                        return;
+                    }
 
                 } else if (cv instanceof String) {
                     List<String> args = Utils.splitByComma(String.valueOf(cv));
@@ -69,6 +81,7 @@ public class InputNode extends BaseNode{
         String ename;
         List<String> items = new ArrayList<>();
         boolean required = false;
+//        boolean innate = false;
     }
 
     @Override

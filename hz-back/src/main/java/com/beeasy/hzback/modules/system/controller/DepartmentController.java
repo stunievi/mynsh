@@ -155,4 +155,10 @@ public class DepartmentController {
 //        return Result.ok();
 //    }
 
+
+    @GetMapping("/alldepartment")
+    public Result alllist(){
+        return Result.ok(departmentDao.findAll());
+    }
+
 }

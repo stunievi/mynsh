@@ -12,6 +12,7 @@ public interface IWorkflowNodeDao extends JpaRepository<WorkflowNode,Long>{
 
     List<WorkflowNode> findAllByModelAndEndIsTrue(WorkflowModel model);
     List<WorkflowNode> findAllByModelAndStartIsTrue(WorkflowModel model);
+    Optional<WorkflowNode> findFirstByModel_IdAndStartIsTrue(long modelId);
 
     void deleteAllByModel_IdAndIdAndStartIsFalseAndEndIsFalse(long modelId, long nodeId);
 }

@@ -68,7 +68,7 @@ public class SystemConfigCache {
         return new HashMap<>();
     }
 
-//    @Cacheable(value = DEMO_CACHE_NAME, key = "'full_menu'")
+//    @Cacheable(value = DEMO_CACHE_NAME, fieldName = "'full_menu'")
 //    public String getFullMenuString() throws IOException {
 //        String filePath = "classpath:config/menu.json";
 //        String menu = Utils.readFile(filePath);

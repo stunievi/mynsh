@@ -692,7 +692,7 @@ public class SQLUtil {
             JSONObject obj = (JSONObject) object;
             Set<String> keys = obj.keySet();
             for (String operator : keys) {
-                log.info("has this key", operator);
+                log.info("has this fieldName", operator);
                 switch (operator) {
 
                     case IN:

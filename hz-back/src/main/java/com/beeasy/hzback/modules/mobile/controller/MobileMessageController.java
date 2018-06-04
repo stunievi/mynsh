@@ -50,6 +50,7 @@ public class MobileMessageController {
         return Result.ok(messageService.getUnreadNums(Utils.getCurrentUserId(),toUids));
     }
 
+
     @PostMapping("/readMessages")
     public Result<List<ReadMessageResponse>> readMessages(
             @RequestBody Long[] toUids

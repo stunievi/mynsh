@@ -31,6 +31,7 @@ public class QuartersService implements IQuartersService{
 
         Quarters quarters = Transformer.transform(add,Quarters.class);
         quarters.setDepartment(department);
+        quarters.setDName(department.getName());
         Quarters ret = quartersDao.save(quarters);
         return ret;
     }

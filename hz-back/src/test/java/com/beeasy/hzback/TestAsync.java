@@ -25,6 +25,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -47,6 +48,28 @@ public class TestAsync {
     IDepartmentDao departmentDao;
     @Autowired
     QuartersService quartersService;
+
+
+    @Test
+    public void init() throws RestException {
+        createDepartments();
+        createWorkflows();
+        give();
+    }
+
+    @Test
+    public void give(){
+        List<Quarters> qs = quartersDao.findAll();
+        List<WorkflowModel> models = workflowModelDao.findAll();
+        for (WorkflowModel model : models) {
+            WorkflowExtPermissionEdit edit = new WorkflowExtPermissionEdit();
+            edit.setType(WorkflowExtPermission.Type.POINTER);
+            edit.setModelId(model.getId());
+            edit.setQids(qs.stream().map(Quarters::getId).collect(Collectors.toList()));
+            workflowService.setExtPermissions(edit);
+        }
+    }
+
 
     @Test
     public void createWorkflows() {

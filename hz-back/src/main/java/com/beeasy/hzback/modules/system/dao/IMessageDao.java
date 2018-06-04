@@ -26,14 +26,8 @@ public interface IMessageDao extends JpaRepository<Message,Long>, JpaSpecificati
 
 
     @Query(
-            value = "select m from Message m where (m.fromType = 0 and m.toType = 0) and (m.fromId = :fromId and m.toId = :toId) or (m.fromId = :toId and m.toId = :fromId) and m.id < :messageId order by m.sendTime desc ",
-            countQuery = "select m from Message m where (m.fromType = 0 and m.toType = 0) and (m.fromId = :fromId and m.toId = :toId) or (m.fromId = :toId and m.toId = :fromId) and m.id < :messageId order by m.sendTime desc ")
+            value = "select m from Message m where (m.fromType = 0 and m.toType = 0) and ((m.fromId = :fromId and m.toId = :toId) or (m.fromId = :toId and m.toId = :fromId)) and m.id < :messageId order by m.sendTime desc ")
     List<Message> findUser2UserRecentMessages(@Param("fromId") long fromId, @Param("toId") long toId, @Param("messageId") long messageId, Pageable pageable);
-
-    @Query(
-            value = "select m from Message m where (m.fromType = 0 and m.toType = 0) and ((m.fromId = :fromId and m.toId = :toId) or (m.fromId = :toId and m.toId = :fromId)) order by m.sendTime desc ",
-            countQuery = "select m from Message m where (m.fromType = 0 and m.toType = 0) and ((m.fromId = :fromId and m.toId = :toId) or (m.fromId = :toId and m.toId = :fromId)) order by m.sendTime desc ")
-    List<Message> findUser2UserRecentMessages(@Param("fromId") long fromId, @Param("toId") long toId, Pageable pageable);
 
 
     @Query(value = "select m from Message m where (m.fromType = 0 and m.toType = 0) and ((m.fromId = :uid ) or (m.toId = :uid)) and m.type = 1 and m.linkId = :fileId")

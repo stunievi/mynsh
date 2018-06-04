@@ -23,4 +23,9 @@ Optional<CloudDirectoryIndex> findFirstByTypeAndLinkIdAndParent(ICloudDiskServic
     List<CloudDirectoryIndex> findAllByParent(CloudDirectoryIndex parent);
 
     void deleteByTypeAndLinkIdAndId(ICloudDiskService.DirType type, long linkId, long id);
+
+
+
+    ///
+    List<CloudDirectoryIndex> findAllByTypeAndLinkIdAndParent_Id(ICloudDiskService.DirType type, long linkId, Long dirId);
 }

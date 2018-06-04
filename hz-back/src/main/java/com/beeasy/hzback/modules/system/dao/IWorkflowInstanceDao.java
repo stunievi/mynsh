@@ -2,6 +2,7 @@ package com.beeasy.hzback.modules.system.dao;
 
 import com.beeasy.hzback.modules.system.entity.WorkflowInstance;
 import com.beeasy.hzback.modules.system.entity.WorkflowNodeInstance;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -13,14 +14,22 @@ import java.util.Optional;
 public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Long>{
     List<WorkflowInstance> findAllByIdIn(List<Long> ids);
 
-    //我执行的任务
+    // 根据模型名选取所有实例
+//    @Query(value = "SELECT w.* FROM t_workflow_instance w JOIN t_workflow_model m on m.id=w.workflow_model_id WHERE m.model_name='资料收集';", nativeQuery = true)
+    @Query(value = "select ins from WorkflowInstance ins where ins.workflowModel.modelName = :modelName and ins.dealUser.id = :uid")
+    Page<WorkflowInstance> getInsByModelName(@Param("modelName") String modelName, @Param("uid") Long uid, Pageable pageable);
+
+    // 手机，我执行的任务
     List<WorkflowInstance> findAllByDealUser_IdAndIdLessThanOrderByAddTimeDesc(long uid, long lessId, Pageable pageable);
+    // 我执行的任务
     List<WorkflowInstance> findAllByDealUser_IdOrderByAddTimeDesc(long uid, Pageable pageable);
+    // 我执行的任务
+    Page<WorkflowInstance> findAllByDealUser_IdAndIdIsNotNullOrderByAddTimeDesc(long uid, Pageable pageable);
 
-    //我发布的任务
+    // 手机，我发布的任务
     List<WorkflowInstance> findAllByPubUser_IdAndIdLessThanOrderByAddTimeDesc(long uid, long lessId, Pageable pageable);
-//    List<WorkflowInstance> findAllByPubUser_IdOrderByAddTimeDesc(long uid, Pageable pageable);
-
+    // 我发布的任务
+    Page<WorkflowInstance> findAllByPubUser_IdOrderByAddTimeDesc(long uid, Pageable pageable);
 
     //我观察的任务
 
@@ -56,7 +65,7 @@ public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Lon
     List<WorkflowInstance> findObserveredWorks(@Param("uids") List<Long> uids, @Param("lessId") Long lessId, Pageable pageable);
 
     //我可以执行的公共任务
-    @Query(value = "select distinct ins from WorkflowInstance ins, User user join user.quarters q join ins.workflowModel model join model.nodeModels nm join nm.persons ps where nm.start = true and ps.type = 0 and ps.uid = q.id and ins.state = 0 and ins.id < :lessId and user.id in :uids")
+    @Query(value = "select distinct ins from WorkflowInstance ins, User user join user.quarters q join ins.workflowModel model join model.nodeModels nm join nm.persons ps where nm.start = true and ps.type = 0 and ps.uid = q.id and ins.common = true and ins.id < :lessId and user.id in :uids")
     List<WorkflowInstance> findCommonWorks(@Param("uids") List<Long> uids, @Param("lessId") Long lessId, Pageable pageable);
 
     //任务当前应该执行的节点

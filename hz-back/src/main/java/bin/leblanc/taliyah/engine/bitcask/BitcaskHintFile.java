@@ -1,14 +1,11 @@
 package bin.leblanc.taliyah.engine.bitcask;
 
-import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 
 @Slf4j
 public class BitcaskHintFile extends BitcaskDataFile{
@@ -92,7 +89,7 @@ public class BitcaskHintFile extends BitcaskDataFile{
 //            //keysize
 //            //value size
 //            //valuepos
-            //key
+            //fieldName
             channel.write(ByteBuffer.wrap(index.getKey()));
         }
         catch (Exception e){

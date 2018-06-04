@@ -2,6 +2,7 @@ package com.beeasy.hzback.modules.system.node;
 
 import com.beeasy.hzback.modules.system.dao.IWorkflowNodeAttributeDao;
 import com.beeasy.hzback.modules.system.entity.User;
+import com.beeasy.hzback.modules.system.entity.WorkflowModel;
 import com.beeasy.hzback.modules.system.entity.WorkflowNodeAttribute;
 import com.beeasy.hzback.modules.system.entity.WorkflowNodeInstance;
 import io.swagger.annotations.ApiModel;
@@ -37,7 +38,7 @@ abstract public class BaseNode implements Serializable {
 
 
 
-    public static BaseNode create(Map v){
+    public static BaseNode create(WorkflowModel workflowModel, Map v){
         switch (String.valueOf(v.get("type"))){
             case "check":
                 return new CheckNode(v);
@@ -46,13 +47,13 @@ abstract public class BaseNode implements Serializable {
                 return new CheckProcessNode(v);
 
             case "input":
-                return new InputNode(v);
+                return new InputNode(workflowModel,v);
 
             case "logic":
                 return new LogicNode(v);
 
             case "universal":
-                return new UniversalNode(v);
+                return new UniversalNode(workflowModel,v);
 
             case "end":
                 NormalNode node = new NormalNode(v);

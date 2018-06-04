@@ -7,6 +7,7 @@ import com.beeasy.hzback.modules.system.cache.SystemConfigCache;
 import com.beeasy.hzback.modules.system.dao.IQuartersDao;
 import com.beeasy.hzback.modules.system.dao.IUserDao;
 import com.beeasy.hzback.modules.system.entity.Department;
+import com.beeasy.hzback.modules.system.entity.Quarters;
 import com.beeasy.hzback.modules.system.entity.User;
 import com.beeasy.hzback.modules.system.form.UserAdd;
 import com.beeasy.hzback.modules.system.form.UserEdit;
@@ -101,8 +102,10 @@ public class UserController {
     @GetMapping("/ids")
     public String getList(Long[] ids){
         List<User> users = userService.findUserByIds(ids);
-        return Result.ok(users).toJson(
-                new Result.Entry(Department.class,"children"));
+        return Result.okJson(users,
+                new Result.Entry(Department.class,"children"),
+                new Result.Entry(Quarters.class,"department","users")
+                );
     }
 
     @ApiOperation(value = "禁用/启用", notes = "批量更新状态")
@@ -172,7 +175,10 @@ public class UserController {
 //
 
 
-
+    @GetMapping("/normalUsers")
+    public Result getNormalUsers(){
+        return Result.ok(userDao.getNormalUsers());
+    }
 
 
 

@@ -2,6 +2,9 @@ package com.beeasy.hzback.modules.system.controller;
 
 import bin.leblanc.zed.Zed;
 import com.beeasy.hzback.core.helper.Result;
+import com.beeasy.hzback.modules.cloud.CloudApi;
+import com.beeasy.hzback.modules.cloud.config.FeignConfig;
+import com.beeasy.hzback.modules.cloud.response.LoginResponse;
 import com.beeasy.hzback.modules.system.cache.SystemConfigCache;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -15,7 +18,7 @@ import java.util.Map;
 
 @Api(tags = "通用API", description = "通用API测试类")
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/open")
 public class ZedController {
 
     @Autowired
@@ -43,5 +46,35 @@ public class ZedController {
         return Result.ok(cache.getWorkflowConfig());
     }
 
+//    @GetMapping("/ttt")
+//    public String test(){
+//        try {
+//            Thread.sleep(10000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//        return Thread.currentThread().getName();
+//    }
+//
+    @GetMapping("/bbb")
+    public String test22(){
+        return Thread.currentThread().getName() + "f3e3k";
+    }
 
+    @Autowired
+    CloudApi cloudApi;
+
+    @GetMapping("/f")
+    public String tes22(){
+        synchronized (FeignConfig.class){
+            LoginResponse o = cloudApi.login("llyb120","1q2w3e4r");
+            if(null != o){
+                if(o.getResponseCookies().size() > 0){
+                    FeignConfig.setCookie(String.join("; ",o.getResponseCookies()));
+                }
+            }
+        }
+//        LoginResponse oo = cloudApi.getFiles(0);
+        return "fuck u pig243";
+    }
 }

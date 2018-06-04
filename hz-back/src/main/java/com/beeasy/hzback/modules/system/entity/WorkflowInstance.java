@@ -7,10 +7,10 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 
 @Getter
 @Setter
@@ -58,6 +58,9 @@ public class WorkflowInstance {
     @Enumerated
     State state;
 
+    //原型是否公共任务
+    boolean common = false;
+
     //任务标题
     String title;
 
@@ -78,19 +81,33 @@ public class WorkflowInstance {
     @OneToMany(mappedBy = "instance", cascade = CascadeType.ALL)
     List<WorkflowNodeInstance> nodeList = new LinkedList<>();
 
+    //固有属性
+    @OneToMany(mappedBy = "instance", cascade = CascadeType.REMOVE)
+    List<WorkflowInstanceAttribute> attributes = new ArrayList<>();
+
     //任务完成日期
     Date finishedDate;
 
-    @JSONField(serialize = false)
-    @Transient
-    public WorkflowNodeInstance getCurrentNode() {
-        //选择当前最后一个不为空的节点返回
-        Optional<WorkflowNodeInstance> currentNode = getNodeList()
-                .stream()
-                .filter(n -> !n.isFinished())
-                .findAny();
-        return currentNode.orElse(getNodeList().get(getNodeList().size() - 1));
-    }
+
+    //前置任务ID
+//    Long prevTaskId;
+    @ManyToOne
+    WorkflowInstance prevInstance;
+
+    //父进程节点ID (此节点开启的子任务)
+    @ManyToOne
+    WorkflowNodeInstance parentNode;
+
+//    @JSONField(serialize = false)
+//    @Transient
+//    public WorkflowNodeInstance getCurrentNode() {
+//        //选择当前最后一个不为空的节点返回
+//        Optional<WorkflowNodeInstance> currentNode = getNodeList()
+//                .stream()
+//                .filter(n -> !n.isFinished())
+//                .findAny();
+//        return currentNode.orElse(getNodeList().get(getNodeList().size() - 1));
+//    }
 
     @Transient
     public WorkflowNodeInstance addNode(WorkflowNode node) {
@@ -111,7 +128,7 @@ public class WorkflowInstance {
 
     @Transient
     public Long getDealUserId() {
-        return isCommon() ? 0 : dealUser.getId();
+        return null == dealUser ? 0 : dealUser.getId();
     }
 
     @Transient
@@ -129,13 +146,4 @@ public class WorkflowInstance {
         return null == pubUser ? true : false;
     }
 
-    /**
-     * 是否公共任务
-     *
-     * @return
-     */
-    @Transient
-    public boolean isCommon() {
-        return state == State.UNRECEIVED && null == dealUser;
-    }
 }

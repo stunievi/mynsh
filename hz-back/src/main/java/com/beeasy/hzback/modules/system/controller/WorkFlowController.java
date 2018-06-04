@@ -4,7 +4,9 @@ import com.beeasy.hzback.core.exception.RestException;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.modules.exception.CannotFindEntityException;
+import com.beeasy.hzback.modules.system.dao.IWorkflowInstanceDao;
 import com.beeasy.hzback.modules.system.dao.IWorkflowModelDao;
+import com.beeasy.hzback.modules.system.entity.WorkflowInstance;
 import com.beeasy.hzback.modules.system.entity.WorkflowModel;
 import com.beeasy.hzback.modules.system.entity.WorkflowNode;
 import com.beeasy.hzback.modules.system.entity.WorkflowNodeInstance;
@@ -33,6 +35,9 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/workflow")
 public class WorkFlowController {
+
+    @Autowired
+    IWorkflowInstanceDao instanceDao;
 
     @Autowired
     IWorkflowModelDao workflowModelDao;
@@ -79,6 +84,24 @@ public class WorkFlowController {
         }
         return Result.ok(workflowModelDao.findAllByName(modelName,pageable));
     }
+
+
+    @ApiOperation(value = "工作流实例列表", notes = "查询已经存在的工作模型列表")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "modelName", value = "原型model名字")
+    })
+    @GetMapping("/instances")
+    public Result<Page<WorkflowInstance>> instanceList(
+            Pager pager,
+            @PageableDefault(value = 15, sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable,
+            String modelName
+    ){
+        if(StringUtils.isEmpty(modelName)){
+            return Result.error();
+        }
+        return Result.ok(instanceDao.getInsByModelName(modelName, Utils.getCurrentUser().getId(), pageable));
+    }
+
 
     @ApiOperation(value = "查找指定模型", notes = "")
     @GetMapping("/model/id")
@@ -241,9 +264,25 @@ public class WorkFlowController {
     }
 
 
+    @ApiOperation(value = "我发布的任务")
+    @GetMapping("/myPubWorks")
+    public Result getMyPubWorks(
+            Pager pager,
+            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
+    ){
+        return Result.ok(instanceDao.findAllByPubUser_IdOrderByAddTimeDesc(Utils.getCurrentUserId(), pageable));
+    }
 
 
+    @ApiOperation(value = "我执行的任务")
+    @GetMapping("/myOwnWorks")
+    public Result getMyOwnWorks(
+            Pager pager,
+            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
+    ){
 
+        return Result.ok(instanceDao.findAllByDealUser_IdAndIdIsNotNullOrderByAddTimeDesc(Utils.getCurrentUserId(), pageable));
+    }
 
 
 

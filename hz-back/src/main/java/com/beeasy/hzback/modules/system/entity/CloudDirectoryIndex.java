@@ -45,6 +45,7 @@ public class CloudDirectoryIndex extends AbstractBaseEntity{
     @OrderBy(value = "dir DESC")
     boolean dir = false;
 
+    @JSONField(serialize = false)
     @OneToOne(cascade = CascadeType.REMOVE)
     SystemFile file;
 
@@ -60,4 +61,9 @@ public class CloudDirectoryIndex extends AbstractBaseEntity{
     @LastModifiedDate
     Date modifyTime;
 
+
+//    @Transient
+//    public Long getFileId(){
+//        return null == file ? 0 : file.getId();
+//    }
 }

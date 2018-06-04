@@ -25,4 +25,5 @@ public interface IWorkflowNodeInstanceDao extends JpaRepository<WorkflowNodeInst
 
 
     Optional<WorkflowNodeInstance> findFirstByInstanceAndFinishedIsFalse(WorkflowInstance instance);
+    Optional<WorkflowNodeInstance> findFirstByInstance_IdAndFinishedIsFalse(Long instanceId);
 }

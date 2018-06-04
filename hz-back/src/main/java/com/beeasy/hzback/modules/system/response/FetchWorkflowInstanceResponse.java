@@ -31,6 +31,9 @@ public class FetchWorkflowInstanceResponse {
     //是否可以移交
     boolean transform = false;
 
+    //是否可以接受
+    boolean accept = false;
+
     //可移交对象
     List<User> transformUsers = new ArrayList<>();
 

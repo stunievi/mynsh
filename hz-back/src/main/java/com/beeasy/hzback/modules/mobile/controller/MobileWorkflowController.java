@@ -46,13 +46,23 @@ public class MobileWorkflowController {
     };
 
     @GetMapping("/availableModelNames")
+    @Deprecated
     public String getAvaliableModelList(){
          return Result.ok(workflowService.getAvaliableModelNames()).toMobile();
     }
 
+    @ApiOperation("列出可用的工作流模型")
     @GetMapping("/all")
     public String getAllWorkflows(){
-        return Result.ok(workflowModelDao.getAllWorkflows()).toMobile(
+        List<WorkflowModel> models = workflowModelDao.getAllWorkflows();
+        User user = userService.findUser(Utils.getCurrentUserId()).orElse(null);
+        if(null == user){
+            return Result.ok().toMobile();
+        }
+        for (WorkflowModel model : models) {
+            model.setPubOrPoint(workflowService.canPubOrPoint(model,user) && model.isManual());
+        }
+        return Result.ok(models).toMobile(
                 entries
                 );
     }
@@ -143,17 +153,18 @@ public class MobileWorkflowController {
         }
     }
 
-    @ApiOperation(value = "取消公共任务")
-    @PostMapping("/common/cancel/{instanceId}")
-    public String cancelCommonTask(@PathVariable Long instanceId){
-        boolean flag = workflowService.cancelCommonInstance(Utils.getCurrentUserId(),instanceId);
-        if(!flag){
-            return Result.error("接受任务失败, 没有权限或者该任务已变动").toMobile();
-        }
-        else{
-            return Result.ok().toMobile();
-        }
-    }
+//    @Deprecated
+//    @ApiOperation(value = "取消公共任务")
+//    @PostMapping("/common/cancel/{instanceId}")
+//    public String cancelCommonTask(@PathVariable Long instanceId){
+//        boolean flag = workflowService.cancelCommonInstance(Utils.getCurrentUserId(),instanceId);
+//        if(!flag){
+//            return Result.error("接受任务失败, 没有权限或者该任务已变动").toMobile();
+//        }
+//        else{
+//            return Result.ok().toMobile();
+//        }
+//    }
 
 
 
@@ -280,6 +291,7 @@ public class MobileWorkflowController {
     }
 
     @ApiOperation(value = "我可以执行的公共任务")
+    @GetMapping("/getCommonWorks")
     public String getCommonWorks(Long lessId){
         PageRequest pageRequest = new PageRequest(0,20);
         if(null == lessId){

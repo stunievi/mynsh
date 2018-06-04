@@ -1,5 +1,6 @@
 package com.beeasy.hzback.modules.system.service;
 
+import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.modules.mobile.response.ReadMessageResponse;
 import com.beeasy.hzback.modules.mobile.response.UnreadMessageResponse;
 import com.beeasy.hzback.modules.system.dao.IMessageDao;
@@ -47,7 +48,7 @@ public class MessageService implements IMessageService {
     IMessageDao messageDao;
     @Autowired
     CloudDiskService cloudDiskService;
-//    @Autowired
+    //    @Autowired
 //    IMessageSessionDao messageSessionDao;
     @Autowired
     IMessageReadDao messageReadDao;
@@ -106,25 +107,98 @@ public class MessageService implements IMessageService {
     }
 
 
+    /**
+     * PC上传文件
+     *
+     * @param uid
+     * @param file
+     * @return
+     */
+    public Optional<Long> pcUploadFile(long uid, MultipartFile file) {
+        try {
+            SystemFile systemFile = new SystemFile();
+            systemFile.setFile(file.getBytes());
+            systemFile.setType(SystemFile.Type.MESSAGE);
+            systemFile.setFileName(file.getOriginalFilename());
+            systemFile.setFile(file.getBytes());
+            systemFile = systemFileDao.save(systemFile);
+            return Optional.ofNullable(systemFile.getId());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return Optional.empty();
+        }
+    }
 
+    /**
+     * 删除临时文件
+     *
+     * @param uid
+     * @param fileId
+     * @return
+     */
+    public boolean pcRemoveFile(long uid, long fileId) {
+        SystemFile systemFile = systemFileDao.findFirstByIdAndType(fileId, SystemFile.Type.MESSAGE).orElse(null);
+        if (null == systemFile) {
+            return false;
+        }
+        systemFileDao.delete(systemFile);
+        return true;
+    }
 
-    public List<ReadMessageResponse> userReadMessage(long fromUid, Long ...toUids){
+    /**
+     * pc发送消息
+     *
+     * @param fromUid
+     * @param toUid
+     * @param content
+     * @param fileIds
+     * @return
+     */
+    public Result pcSendMessage(long fromUid, long toUid, String content, List<Long> fileIds) {
+        List<Message> result = new ArrayList<>();
+        Message mainMessage = sendMessage(fromUid, toUid, content).orElse(null);
+        if (null == mainMessage) {
+            return Result.error("发送失败");
+        }
+        String uuid = UUID.randomUUID().toString();
+        mainMessage.setCommonUUID(uuid);
+        messageDao.save(mainMessage);
+        result.add(mainMessage);
+        for (Long fileId : fileIds) {
+            int count = systemFileDao.countByIdAndType(fileId, SystemFile.Type.MESSAGE);
+            if (count == 0) {
+                continue;
+            }
+            Message message = sendMessage(fromUid, toUid, "").orElse(null);
+            if (null == message) {
+                continue;
+            }
+            message.setCommonUUID(uuid);
+            message.setType(Message.Type.FILE);
+            message.setLinkId(fileId);
+            messageDao.save(message);
+            result.add(message);
+        }
+        return Result.ok(result);
+    }
+
+    public List<ReadMessageResponse> userReadMessage(long fromUid, Long... toUids) {
         List<ReadMessageResponse> responses = new ArrayList<>();
         User user = userService.findUser(fromUid).orElse(null);
-        if(null == user){
+        if (null == user) {
             return responses;
         }
-        List<MessageRead> reads = messageReadDao.getUser2UsersRead(user,toUids);
+        List<MessageRead> reads = messageReadDao.getUser2UsersRead(user, toUids);
         return reads.stream().map(messageRead -> {
-            entityManager.refresh(messageRead,PESSIMISTIC_WRITE);
+            entityManager.refresh(messageRead, PESSIMISTIC_WRITE);
             messageRead.setUnreadNum(0);
             entityManager.merge(messageRead);
-            return new ReadMessageResponse(messageRead.getToType(),messageRead.getToId(),true);
+            return new ReadMessageResponse(messageRead.getToType(), messageRead.getToId(), true);
         }).collect(Collectors.toList());
     }
 
-    public Optional<Message> sendMessage(long fromUid, long toUid, MultipartFile file){
-        return sendMessage(fromUid,toUid,"").map(message -> {
+    public Optional<Message> sendMessage(long fromUid, long toUid, MultipartFile file) {
+        return sendMessage(fromUid, toUid, "").map(message -> {
             //保存文件
             SystemFile systemFile = new SystemFile();
             try {
@@ -143,13 +217,13 @@ public class MessageService implements IMessageService {
         });
     }
 
-    public Optional<Message> sendMessage(long fromUid, long toUid, String content,String uuid){
+    public Optional<Message> sendMessage(long fromUid, long toUid, String content, String uuid) {
         User fromUser = userService.findUser(fromUid).orElse(null);
-        if(null == fromUser) return Optional.empty();
+        if (null == fromUser) return Optional.empty();
         User toUser = userService.findUser(toUid).orElse(null);
-        if(null == toUser) return Optional.empty();
+        if (null == toUser) return Optional.empty();
 
-        if(fromUid == toUid) return Optional.empty();
+        if (fromUid == toUid) return Optional.empty();
 
         Message message = new Message();
         message.setFromType(Message.LinkType.USER);
@@ -160,14 +234,13 @@ public class MessageService implements IMessageService {
         message.setUuid(uuid);
         message = messageDao.save(message);
         //发件人的已读设置为该条信息
-        MessageRead messageRead = messageReadDao.getUser2UserRead(fromUser,toUid).orElse(null);
-        if(null != messageRead){
+        MessageRead messageRead = messageReadDao.getUser2UserRead(fromUser, toUid).orElse(null);
+        if (null != messageRead) {
 //            messageRead = entityManager.find(MessageRead.class,messageRead.getId());
-            entityManager.refresh(messageRead,PESSIMISTIC_WRITE);
+            entityManager.refresh(messageRead, PESSIMISTIC_WRITE);
             messageRead.setUnreadNum(0);
             entityManager.merge(messageRead);
-        }
-        else{
+        } else {
             messageRead = new MessageRead();
             messageRead.setUser(fromUser);
             messageRead.setToId(toUid);
@@ -183,14 +256,13 @@ public class MessageService implements IMessageService {
 //        messageRead.setUnreadNum(0);
 //        messageReadDao.save(messageRead);
 
-        messageRead = messageReadDao.getUser2UserRead(toUser,fromUid).orElse(null);
-        if(null != messageRead){
+        messageRead = messageReadDao.getUser2UserRead(toUser, fromUid).orElse(null);
+        if (null != messageRead) {
 //            messageRead = entityManager.find(MessageRead.class,messageRead.getId());
-            entityManager.refresh(messageRead,PESSIMISTIC_WRITE);
+            entityManager.refresh(messageRead, PESSIMISTIC_WRITE);
             messageRead.setUnreadNum(messageRead.getUnreadNum() + 1);
             entityManager.merge(messageRead);
-        }
-        else{
+        } else {
             messageRead = new MessageRead();
             messageRead.setUser(toUser);
             messageRead.setToId(fromUid);
@@ -200,8 +272,9 @@ public class MessageService implements IMessageService {
 
         return Optional.of(message);
     }
+
     public Optional<Message> sendMessage(long fromUid, long toUid, String content) {
-        return sendMessage(fromUid,toUid,content,"");
+        return sendMessage(fromUid, toUid, content, "");
     }
 
 //    public void readMessage(long fromUid, Set<Long> messageIds){
@@ -233,41 +306,39 @@ public class MessageService implements IMessageService {
 //        }).collect(Collectors.toList());
 //    }
 
-    public List<Message> getUserRecentMessages(long fromUid, long toUid, Long messageId){
-        PageRequest pageRequest = new PageRequest(0,20);
-        if(messageId == null){
-             return messageDao.findUser2UserRecentMessages(fromUid,toUid,pageRequest);
+    public List<Message> getUserRecentMessages(long fromUid, long toUid, Long messageId) {
+        PageRequest pageRequest = new PageRequest(0, 20);
+        if (messageId == null) {
+            messageId = Long.MAX_VALUE;
         }
-        else{
-            return messageDao.findUser2UserRecentMessages(fromUid,toUid,messageId,pageRequest);
-        }
+        return messageDao.findUser2UserRecentMessages(fromUid, toUid, messageId, pageRequest);
     }
 
-    public List<UnreadMessageResponse> getUnreadNums(Long fromUid, Long ...toUserIds){
+    public List<UnreadMessageResponse> getUnreadNums(Long fromUid, Long... toUserIds) {
         User user = userService.findUser(fromUid).orElse(null);
-        if(null == user) return new ArrayList<>();
+        if (null == user) return new ArrayList<>();
         List<MessageRead> reads = user.getReadList();
         List<Long> toIds = Arrays.asList(toUserIds);
-        PageRequest page = new PageRequest(0,1);
+        PageRequest page = new PageRequest(0, 1);
         List<UnreadMessageResponse> list = (List<UnreadMessageResponse>) reads.stream()
                 .filter(item -> {
                     //有未读信息的, 强制返回
-                    if(item.getUnreadNum() > 0) return true;
+                    if (item.getUnreadNum() > 0) return true;
                     //在查询列表里的, 强制返回
-                    if(toIds.contains(item.getToId())) return true;
+                    if (toIds.contains(item.getToId())) return true;
                     return false;
                 })
                 .map(item -> {
-            UnreadMessageResponse messageResponse = new UnreadMessageResponse();
-            messageResponse.setToId(item.getToId());
-            messageResponse.setUnreadNums(item.getUnreadNum());
-            //得到最新的未读消息
-            List<Message> messages = messageDao.findUser2UserRecentMessages(fromUid,item.getToId(),page);
-            if(messages.size() > 0){
-                messageResponse.setLastMessage(messages.get(0));
-            }
-            return messageResponse;
-        }).collect(Collectors.toList());
+                    UnreadMessageResponse messageResponse = new UnreadMessageResponse();
+                    messageResponse.setToId(item.getToId());
+                    messageResponse.setUnreadNums(item.getUnreadNum());
+                    //得到最新的未读消息
+                    List<Message> messages = messageDao.findUser2UserRecentMessages(fromUid, item.getToId(), Long.MAX_VALUE, page);
+                    if (messages.size() > 0) {
+                        messageResponse.setLastMessage(messages.get(0));
+                    }
+                    return messageResponse;
+                }).collect(Collectors.toList());
 
         return list;
     }

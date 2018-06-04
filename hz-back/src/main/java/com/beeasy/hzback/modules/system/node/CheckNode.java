@@ -33,7 +33,7 @@ public class CheckNode extends BaseNode{
     String question;
 
     @ApiModelProperty(hidden = true)
-    String key = "key";
+    String key = "fieldName";
     @ApiModelProperty(hidden = true)
     String ps = "ps";
 
@@ -57,8 +57,8 @@ public class CheckNode extends BaseNode{
         if (v.containsKey("ps")) {
             setPs(String.valueOf(v.get("ps")));
         }
-        if (v.containsKey("key")) {
-            setKey(String.valueOf(v.get("key")));
+        if (v.containsKey("fieldName")) {
+            setKey(String.valueOf(v.get("fieldName")));
         }
         if (v.containsKey("question")) {
             setQuestion(String.valueOf(v.get("question")));

@@ -22,6 +22,7 @@ public class WorkflowModelPersons {
     Long id;
 
     //废弃字段
+    @Deprecated
     String nodeName;
 
 //    @JSONField(serialize = false)

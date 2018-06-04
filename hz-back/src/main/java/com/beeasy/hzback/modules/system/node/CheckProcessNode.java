@@ -17,13 +17,14 @@ public class CheckProcessNode extends CheckNode{
     private String result;
 
     public CheckProcessNode(Map v) {
+        super(v);
 
-        if(v.containsKey("id")){
-            id = String.valueOf(v.get("id"));
-        }
-        if(v.containsKey("result")){
-            result = String.valueOf(v.get("result"));
-        }
+//        if(v.containsKey("id")){
+//            id = String.valueOf(v.get("id"));
+//        }
+//        if(v.containsKey("result")){
+//            result = String.valueOf(v.get("result"));
+//        }
     }
 
 

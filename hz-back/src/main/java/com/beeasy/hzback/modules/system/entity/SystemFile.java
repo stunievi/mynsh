@@ -3,20 +3,25 @@ package com.beeasy.hzback.modules.system.entity;
 import com.beeasy.hzback.core.entity.AbstractBaseEntity;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 @Getter
 @Setter
 @Table(name = "t_system_file")
+@EntityListeners(AuditingEntityListener.class)
 public class SystemFile extends AbstractBaseEntity{
 
     public enum Type {
         FACE,
         MESSAGE,
         CLOUDDISK,
-        WORKFLOW
+        WORKFLOW,
+        TEMP
     }
 
     @Id
@@ -31,6 +36,9 @@ public class SystemFile extends AbstractBaseEntity{
 
     @Enumerated
     Type type;
+
+    @LastModifiedDate
+    Date lastModifyTime;
 
     boolean removed = false;
 }

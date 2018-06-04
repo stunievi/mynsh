@@ -3,6 +3,7 @@ package com.beeasy.hzback.modules.system.entity;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
@@ -41,13 +42,31 @@ public class WorkflowModel {
 
     boolean firstOpen;
 
+    //是否允许手动开启
+    boolean manual;
+
+    //是否允许自定义
+    boolean custom;
+
+    //是否允许发布该任务
+    @Transient
+    boolean pubOrPoint = false;
+
     @CreatedDate
     Date addTime;
 
+    @LastModifiedDate
+    Date lastModifyTime;
+
     //额外的权限配置
-    @OneToMany(mappedBy = "workflowModel")
+    @OneToMany(mappedBy = "workflowModel", cascade = CascadeType.REMOVE)
     List<WorkflowExtPermission> permissions = new ArrayList<>();
 
+    @OneToMany(mappedBy = "model",cascade = CascadeType.REMOVE)
+    List<WorkflowModelInnate> innates = new ArrayList<>();
+
+//    @OneToOne(mappedBy = "workflowModel",cascade = CascadeType.REMOVE)
+//    WorkflowModelStart information;
 
 //    @OneToMany(mappedBy = "workflowModel",cascade = CascadeType.ALL)
 //    List<WorkflowModelPersons> persons = new ArrayList<>();

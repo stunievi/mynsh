@@ -7,6 +7,8 @@ import lombok.Setter;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
+import java.util.HashMap;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -20,9 +22,25 @@ public class ApplyTaskRequest {
     String info;
 
     //任务执行人
-    //-1 为自己
-    //0 公共任务
-    //x 指派的用户ID
-    @NotNull(message = "任务执行人不能为空")
     Long dealerId;
+
+    //是否手动任务
+    //禁止传递
+    boolean manual = true;
+
+    //是否公共任务
+    boolean common = false;
+
+    //固有字段信息
+    Map<String,String> data = new HashMap<>();
+
+
+    public ApplyTaskRequest(Long modelId, String title, String info, Long dealerId, boolean manual, boolean common) {
+        this.modelId = modelId;
+        this.title = title;
+        this.info = info;
+        this.dealerId = dealerId;
+        this.manual = manual;
+        this.common = common;
+    }
 }
