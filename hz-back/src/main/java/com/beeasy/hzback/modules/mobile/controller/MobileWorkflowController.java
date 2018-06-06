@@ -9,6 +9,7 @@ import com.beeasy.hzback.modules.system.dao.ISystemTextLogDao;
 import com.beeasy.hzback.modules.system.dao.IWorkflowInstanceDao;
 import com.beeasy.hzback.modules.system.dao.IWorkflowModelDao;
 import com.beeasy.hzback.modules.system.entity.*;
+import com.beeasy.hzback.modules.system.form.StartChildInstanceRequest;
 import com.beeasy.hzback.modules.system.response.FetchWorkflowInstanceResponse;
 import com.beeasy.hzback.modules.system.service.UserService;
 import com.beeasy.hzback.modules.system.service.WorkflowService;
@@ -43,6 +44,10 @@ public class MobileWorkflowController {
             new Result.Entry(WorkflowInstance.class,"dealUser"),
             new Result.Entry(WorkflowNode.class,"model"),
             new Result.Entry(WorkflowNodeInstance.class,"nodeModel","instance")
+    };
+
+    private Result.Entry[] myworkEntries = new Result.Entry[]{
+        new Result.Entry(WorkflowInstance.class,"nodeList","simpleChildInstances")
     };
 
     @GetMapping("/availableModelNames")
@@ -89,10 +94,19 @@ public class MobileWorkflowController {
     @ApiOperation(value = "发布新任务")
     @PostMapping("/apply")
     public String applyTask(
-            @Valid @RequestBody ApplyTaskRequest request
+            @Valid @RequestBody ApplyTaskRequest request,
+            BindingResult bindingResult
             ){
         Result result = workflowService.startNewInstance(Utils.getCurrentUserId(),request);
         return result.toMobile(entries);
+    }
+
+    @ApiOperation(value = "开启子任务")
+    @PostMapping("/child/apply")
+    public String startChildTask(
+            @Valid @RequestBody StartChildInstanceRequest request
+            ){
+        return workflowService.startChildInstance(Utils.getCurrentUserId(),request).toMobile();
     }
 
     @ApiOperation(value = "取消任务")
@@ -216,12 +230,13 @@ public class MobileWorkflowController {
 
     //可能会变动
     @ApiOperation(value = "提交下一步")
-    @PostMapping("/goNext")
+    @GetMapping("/goNext/{nodeId}")
     public String goNext(
-            @RequestParam Long instanceId,
-            @RequestParam Long nodeId
+//            @RequestParam Long instanceId,
+//            @RequestParam Long nodeId
+            @PathVariable Long nodeId
     ){
-            return workflowService.goNext(Utils.getCurrentUserId(),instanceId,nodeId).toMobile();
+            return workflowService.goNext(Utils.getCurrentUserId(),0L,nodeId).toMobile();
     }
 
     @ApiOperation(value = "我执行的任务")
@@ -232,7 +247,7 @@ public class MobileWorkflowController {
         PageRequest pageRequest = new PageRequest(0,20);
         if(lessId == null) lessId = 0L;
         if(lessId == 0) lessId = Long.MAX_VALUE;
-        return Result.ok(instanceDao.findAllByDealUser_IdAndIdLessThanOrderByAddTimeDesc(Utils.getCurrentUserId(),lessId,pageRequest)).toMobile();
+        return Result.ok(instanceDao.findAllByDealUserIdAndIdLessThanOrderByAddTimeDesc(Utils.getCurrentUserId(),lessId,pageRequest)).toMobile(myworkEntries);
     }
 
 
@@ -246,7 +261,7 @@ public class MobileWorkflowController {
         if(lessId == 0){
             lessId = Long.MAX_VALUE;
         }
-        return Result.ok(instanceDao.findAllByPubUser_IdAndIdLessThanOrderByAddTimeDesc(Utils.getCurrentUserId(),lessId,pageRequest)).toMobile();
+        return Result.ok(instanceDao.findAllByPubUserIdAndIdLessThanOrderByAddTimeDesc(Utils.getCurrentUserId(),lessId,pageRequest)).toMobile(myworkEntries);
     }
 
 
@@ -260,7 +275,7 @@ public class MobileWorkflowController {
         if(lessId == 0){
             lessId = Long.MAX_VALUE;
         }
-        return Result.ok(instanceDao.findNeedToDealWorks(Collections.singletonList(Utils.getCurrentUserId()),lessId,pageRequest)).toMobile();
+        return Result.ok(instanceDao.findNeedToDealWorks(Collections.singletonList(Utils.getCurrentUserId()),lessId,pageRequest)).toMobile(myworkEntries);
     }
 
     @ApiOperation(value = "我处理过的任务")
@@ -273,7 +288,7 @@ public class MobileWorkflowController {
         if(lessId == 0){
             lessId = Long.MAX_VALUE;
         }
-        return Result.ok(instanceDao.findDealedWorks(Collections.singletonList(Utils.getCurrentUserId()),lessId,pageRequest)).toMobile();
+        return Result.ok(instanceDao.findDealedWorks(Collections.singletonList(Utils.getCurrentUserId()),lessId,pageRequest)).toMobile(myworkEntries);
 
     }
 
@@ -287,7 +302,7 @@ public class MobileWorkflowController {
         if(lessId == 0){
             lessId = Long.MAX_VALUE;
         }
-        return Result.ok(instanceDao.findObserveredWorks(Collections.singletonList(Utils.getCurrentUserId()),lessId,pageRequest)).toMobile();
+        return Result.ok(instanceDao.findObserveredWorks(Collections.singletonList(Utils.getCurrentUserId()),lessId,pageRequest)).toMobile(myworkEntries);
     }
 
     @ApiOperation(value = "我可以执行的公共任务")
@@ -300,7 +315,7 @@ public class MobileWorkflowController {
         if(lessId == 0){
             lessId = Long.MAX_VALUE;
         }
-        return Result.ok(instanceDao.findCommonWorks(Collections.singletonList(Utils.getCurrentUserId()),lessId,pageRequest)).toMobile();
+        return Result.ok(instanceDao.findCommonWorks(Collections.singletonList(Utils.getCurrentUserId()),lessId,pageRequest)).toMobile(myworkEntries);
     }
 
 

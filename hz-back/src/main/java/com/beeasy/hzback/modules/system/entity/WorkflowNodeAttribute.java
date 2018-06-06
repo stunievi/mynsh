@@ -34,13 +34,10 @@ public class WorkflowNodeAttribute {
     @JSONField(serialize = false)
     @ManyToOne
     User dealUser;
+    @Column(name = "deal_user_id", insertable = false, updatable = false)
+    Long dealUserId;
 
     @LastModifiedDate
     Date modifyTime;
-
-    @Transient
-    public Long getDealerUserId(){
-        return dealUser == null ? 0 : dealUser.getId();
-    }
 
 }

@@ -38,6 +38,10 @@ public class WorkflowNode extends AbstractBaseEntity{
     @Convert(converter = StringCommaConverter.class)
     List<String> next = new ArrayList<>();
 
+    //允许使用的子流程
+    @Convert(converter = StringCommaConverter.class)
+    List<String> allowChildTask = new ArrayList<>();
+
     boolean start = false;
     boolean end = false;
 

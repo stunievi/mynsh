@@ -2,20 +2,23 @@ package com.beeasy.hzback.core.exception;
 
 import com.beeasy.hzback.core.helper.Result;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ControllerAdvice
 @Slf4j
 public class RestExceptionHandler{
 
     @ExceptionHandler(Exception.class)
-    public Result handleException(Exception e) {
+    @ResponseStatus(HttpStatus.OK)
+    public String handleException(Exception e) {
         if(e instanceof RestException){
-            return Result.error(((RestException) e).getSimpleMessage());
+            return Result.error(((RestException) e).getSimpleMessage()).toJson();
         }
         e.printStackTrace();
-        return Result.error();
+        return Result.error().toJson();
     }
 
 

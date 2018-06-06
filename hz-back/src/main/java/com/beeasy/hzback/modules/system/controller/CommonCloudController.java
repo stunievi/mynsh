@@ -60,18 +60,18 @@
 //
 //    }
 //
-//    @PostMapping("/file/upload/apply")
+//    @PostMapping("/bytes/upload/apply")
 //    public Result apply(Long dirId, String fileName){
 //        //fileName 前面为路径, 最后为文件名
 //        return Result.ok(cloudDiskService.createUploadSign(0, ICloudDiskService.DirType.COMMON,dirId,fileName));
 //    }
-//    @PostMapping("/file/upload/start")
-//    public Object upload(@RequestParam MultipartFile file, String uuid) {
+//    @PostMapping("/bytes/upload/start")
+//    public Object upload(@RequestParam MultipartFile bytes, String uuid) {
 //        //获取文件名
-//        return cloudDiskService.uploadFile(uuid,file);
+//        return cloudDiskService.uploadFile(uuid,bytes);
 //    }
 //
-//    @PostMapping("/file/upload/finish")
+//    @PostMapping("/bytes/upload/finish")
 //    public Result finish(String uuid) {
 //        return Result.ok(cloudDiskService.finishUpload(uuid));
 //    }

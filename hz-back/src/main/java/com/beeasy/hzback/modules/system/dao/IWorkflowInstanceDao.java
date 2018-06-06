@@ -16,20 +16,20 @@ public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Lon
 
     // 根据模型名选取所有实例
 //    @Query(value = "SELECT w.* FROM t_workflow_instance w JOIN t_workflow_model m on m.id=w.workflow_model_id WHERE m.model_name='资料收集';", nativeQuery = true)
-    @Query(value = "select ins from WorkflowInstance ins where ins.workflowModel.modelName = :modelName and ins.dealUser.id = :uid")
+    @Query(value = "select ins from WorkflowInstance ins where ins.workflowModel.modelName = :modelName and ins.dealUserId = :uid")
     Page<WorkflowInstance> getInsByModelName(@Param("modelName") String modelName, @Param("uid") Long uid, Pageable pageable);
 
     // 手机，我执行的任务
-    List<WorkflowInstance> findAllByDealUser_IdAndIdLessThanOrderByAddTimeDesc(long uid, long lessId, Pageable pageable);
+    List<WorkflowInstance> findAllByDealUserIdAndIdLessThanOrderByAddTimeDesc(long uid, long lessId, Pageable pageable);
     // 我执行的任务
-    List<WorkflowInstance> findAllByDealUser_IdOrderByAddTimeDesc(long uid, Pageable pageable);
+    List<WorkflowInstance> findAllByDealUserIdOrderByAddTimeDesc(long uid, Pageable pageable);
     // 我执行的任务
-    Page<WorkflowInstance> findAllByDealUser_IdAndIdIsNotNullOrderByAddTimeDesc(long uid, Pageable pageable);
+    Page<WorkflowInstance> findAllByDealUserIdAndIdIsNotNullOrderByAddTimeDesc(long uid, Pageable pageable);
 
     // 手机，我发布的任务
-    List<WorkflowInstance> findAllByPubUser_IdAndIdLessThanOrderByAddTimeDesc(long uid, long lessId, Pageable pageable);
+    List<WorkflowInstance> findAllByPubUserIdAndIdLessThanOrderByAddTimeDesc(long uid, long lessId, Pageable pageable);
     // 我发布的任务
-    Page<WorkflowInstance> findAllByPubUser_IdOrderByAddTimeDesc(long uid, Pageable pageable);
+    Page<WorkflowInstance> findAllByPubUserIdOrderByAddTimeDesc(long uid, Pageable pageable);
 
     //我观察的任务
 
@@ -41,9 +41,9 @@ public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Lon
             "join u.quarters q " +
             "where " +
             //节点处理人是我自己
-            "( (nl.dealer is not null and nl.dealer.id in :uids) or " +
+            "( (nl.dealerId is not null and nl.dealerId in :uids) or " +
             //为空的情况,寻找可以处理的人
-            "(nl.dealer is null and ps.type = 1 and ps.uid = q.id) ) and " +
+            "(nl.dealerId is null and ps.type = 1 and ps.uid = q.id) ) and " +
             //该节点任务未完成
             "nl.finished = false and " +
             //任务进行中

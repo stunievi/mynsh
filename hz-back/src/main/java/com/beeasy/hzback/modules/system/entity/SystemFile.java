@@ -32,7 +32,7 @@ public class SystemFile extends AbstractBaseEntity{
 
     //TODO: 字段类型长度可能错误
     @Column(columnDefinition = "LONGBLOB")
-    byte[] file;
+    byte[] bytes;
 
     @Enumerated
     Type type;

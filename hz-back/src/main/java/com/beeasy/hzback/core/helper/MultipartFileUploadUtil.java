@@ -55,7 +55,7 @@ public class MultipartFileUploadUtil {
             List<FileItem> fileItems = upload.parseRequest(request);
             for (FileItem fileItem : fileItems) {
                 System.out.println("field name has:"+fileItem.getFieldName());
-                if (!"file".equals(fileItem.getFieldName())){
+                if (!"bytes".equals(fileItem.getFieldName())){
                     System.out.println("field val has:"+fileItem.getString());
                 }
 
@@ -68,7 +68,7 @@ public class MultipartFileUploadUtil {
                     param.setChunks(NumberUtils.toInt(fileItem.getString()));
                 } else if (fileItem.getFieldName().equals("chunk")) {
                     param.setChunk(NumberUtils.toInt(fileItem.getString()));
-                } else if (fileItem.getFieldName().equals("file")) {
+                } else if (fileItem.getFieldName().equals("bytes")) {
                     param.setFileItem(fileItem);
                     param.setSize(fileItem.getSize());
                 } else{

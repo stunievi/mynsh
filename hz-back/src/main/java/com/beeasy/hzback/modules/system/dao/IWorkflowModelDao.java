@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 public interface IWorkflowModelDao extends JpaRepository<WorkflowModel,Long>{
     WorkflowModel findFirstByNameAndVersion(String name, BigDecimal version);
@@ -19,6 +20,12 @@ public interface IWorkflowModelDao extends JpaRepository<WorkflowModel,Long>{
 
     //查找可用的版本列表
     List<WorkflowModel> findAllByOpenIsTrue();
+
+
+    Optional<WorkflowModel> findFirstByModelNameAndOpenIsTrueOrderByVersionDesc(String modelName);
+
+    @Query(value = "select m.id from WorkflowModel m where m.modelName = :modelName and m.open = true order by m.version desc ")
+    List<Long> findModelId(@Param("modelName") String modelName);
 
     @Query(value = "select m from WorkflowModel m where (select count(m2) from WorkflowModel m2 where m.modelName = m2.modelName and m.version < m2.version and m2.open = true) < 1 and m.open = true order by m.version desc")
     List<WorkflowModel> getAllWorkflows();

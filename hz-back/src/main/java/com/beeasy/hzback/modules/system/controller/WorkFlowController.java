@@ -270,7 +270,7 @@ public class WorkFlowController {
             Pager pager,
             @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
     ){
-        return Result.ok(instanceDao.findAllByPubUser_IdOrderByAddTimeDesc(Utils.getCurrentUserId(), pageable));
+        return Result.ok(instanceDao.findAllByPubUserIdOrderByAddTimeDesc(Utils.getCurrentUserId(), pageable));
     }
 
 
@@ -281,7 +281,7 @@ public class WorkFlowController {
             @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
     ){
 
-        return Result.ok(instanceDao.findAllByDealUser_IdAndIdIsNotNullOrderByAddTimeDesc(Utils.getCurrentUserId(), pageable));
+        return Result.ok(instanceDao.findAllByDealUserIdAndIdIsNotNullOrderByAddTimeDesc(Utils.getCurrentUserId(), pageable));
     }
 
 

@@ -268,7 +268,7 @@
                 if(!confirm("")){return;}
                 var stack = this.dirStack.concat();
                 stack.push(item.fileName);
-                var file = "/" + stack.join("/");
+                var bytes = "/" + stack.join("/");
                 var ret = await ajax('/clouddisk/deleteFile',{file:file});
                 if(ret.success){
                     this.files.splice(index,1);
@@ -338,12 +338,12 @@
     });
 
 
-    uploader.on("uploadBeforeSend",function (file,data,headers) {
+    uploader.on("uploadBeforeSend",function (bytes,data,headers) {
         console.log(file,data,headers)
         data.uuid = uuid;
         headers.Authorization = "su";
     })
-    uploader.on( 'uploadProgress', function( file, percentage ) {
+    uploader.on( 'uploadProgress', function( bytes, percentage ) {
         var $li = $( '#'+file.id ),
             $percent = $li.find('.progress .progress-bar');
 

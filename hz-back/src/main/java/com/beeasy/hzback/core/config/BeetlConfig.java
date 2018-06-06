@@ -20,7 +20,7 @@
 //        ResourcePatternResolver patternResolver = ResourcePatternUtils.getResourcePatternResolver(new DefaultResourceLoader());
 //        try {
 //            // WebAppResourceLoader 配置root路径是关键
-//            WebAppResourceLoader webAppResourceLoader = new WebAppResourceLoader(patternResolver.getResource("classpath:/templates").getFile().getPath());
+//            WebAppResourceLoader webAppResourceLoader = new WebAppResourceLoader(patternResolver.getResource("classpath:/templates").getBytes().getPath());
 //            beetlGroupUtilConfiguration.setResourceLoader(webAppResourceLoader);
 //        } catch (IOException e) {
 //            e.printStackTrace();

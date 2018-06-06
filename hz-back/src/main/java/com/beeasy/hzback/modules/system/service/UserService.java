@@ -179,7 +179,7 @@ public class UserService implements IUserService {
         SystemFile systemFile = new SystemFile();
         try {
             File face = ResourceUtils.getFile("classpath:static/default_face.jpg");
-            systemFile.setFile(FileUtils.readFileToByteArray(face));
+            systemFile.setBytes(FileUtils.readFileToByteArray(face));
             systemFile.setType(SystemFile.Type.FACE);
             systemFile = systemFileDao.save(systemFile);
             if(systemFile.getId() == null){
@@ -244,7 +244,7 @@ public class UserService implements IUserService {
                 SystemFile face = new SystemFile();
                 face.setType(SystemFile.Type.FACE);
                 try {
-                    face.setFile(file.getBytes());
+                    face.setBytes(file.getBytes());
                     face = systemFileDao.save(systemFile);
                     userAtomicReference.get().getProfile().setFaceId(face.getId());
                     userProfileDao.save(userAtomicReference.get().getProfile());

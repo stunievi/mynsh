@@ -7,5 +7,5 @@
 //public class FileMessageRequest {
 //    Long fromUid;
 //    Long toUid;
-//    MultipartFile file;
+//    MultipartFile bytes;
 //}

@@ -9,6 +9,9 @@ import com.beeasy.hzback.modules.system.entity.SystemFile;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,7 +28,8 @@ public class CloudDiskService implements ICloudDiskService {
 
     @Value("${upload.path}")
     private String AREA_DIR;//excel临时存储文件夹
-
+    @Value("filecloud.enable")
+    private String fileCloudEnabled;
 
     @Autowired
     ICloudFileTagDao tagDao;
@@ -123,13 +127,8 @@ public class CloudDiskService implements ICloudDiskService {
         if(file.isDir()){
             return false;
         }
-        tagDao.deleteAllByIndex(file);
-        for (String tag : tags) {
-            CloudFileTag cloudFileTag = new CloudFileTag();
-            cloudFileTag.setIndex(file);
-            cloudFileTag.setTag(tag);
-            tagDao.save(cloudFileTag);
-        }
+        file.setTags(tags);
+        cloudDirectoryIndexDao.save(file);
         return true;
     }
 
@@ -150,7 +149,7 @@ public class CloudDiskService implements ICloudDiskService {
        systemFile.setFileName(file.getOriginalFilename());
        systemFile.setType(SystemFile.Type.CLOUDDISK);
         try {
-            systemFile.setFile(file.getBytes());
+            systemFile.setBytes(file.getBytes());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -158,7 +157,7 @@ public class CloudDiskService implements ICloudDiskService {
 
         CloudDirectoryIndex cloudDirectoryIndex = new CloudDirectoryIndex();
         cloudDirectoryIndex.setParent(parent);
-        cloudDirectoryIndex.setFile(systemFile);
+        cloudDirectoryIndex.setFileId(systemFile.getId());
         cloudDirectoryIndex.setDir(false);
         cloudDirectoryIndex.setType(type);
         cloudDirectoryIndex.setLinkId(uid);
@@ -166,7 +165,7 @@ public class CloudDiskService implements ICloudDiskService {
         return Optional.ofNullable(cloudDirectoryIndexDao.save(cloudDirectoryIndex));
     }
 
-//    public Optional<CloudFileIndex> uploadFile(long uid, DirType type, long dirId, MultipartFile file){
+//    public Optional<CloudFileIndex> uploadFile(long uid, DirType type, long dirId, MultipartFile bytes){
 //        return findDirectory(uid,type,dirId)
 //            .map(directoryIndex -> {
 //                SimpleDateFormat sdf = new SimpleDateFormat("yyyy_MM_dd");
@@ -192,7 +191,7 @@ public class CloudDiskService implements ICloudDiskService {
 //                    //以读写的方式打开目标文件
 //                    raFile = new RandomAccessFile(dirFile, "rw");
 //                    raFile.seek(raFile.length());
-//                    inputStream = new BufferedInputStream(file.getInputStream());
+//                    inputStream = new BufferedInputStream(bytes.getInputStream());
 //                    byte[] buf = new byte[1024];
 //                    int length = 0;
 //                    while ((length = inputStream.read(buf)) != -1) {
@@ -201,7 +200,7 @@ public class CloudDiskService implements ICloudDiskService {
 //
 //                    fileIndex.setDirectoryIndex(directoryIndex);
 //                    fileIndex.setFilePath(filePath);
-//                    fileIndex.setFileName(file.getName());
+//                    fileIndex.setFileName(bytes.getName());
 //
 //                } catch (Exception e) {
 //                    e.printStackTrace();
@@ -226,7 +225,7 @@ public class CloudDiskService implements ICloudDiskService {
 //            });
 //    }
 
-//    public boolean uploadFile(String sign, MultipartFile file) {
+//    public boolean uploadFile(String sign, MultipartFile bytes) {
 //        return uploadFileTempDao.findFirstByUuid(sign).map(uploadFileTemp -> {
 //            SimpleDateFormat sdf = new SimpleDateFormat("yyyy_MM_dd");
 //            String today = sdf.format(new Date());
@@ -249,7 +248,7 @@ public class CloudDiskService implements ICloudDiskService {
 //                //以读写的方式打开目标文件
 //                raFile = new RandomAccessFile(dirFile, "rw");
 //                raFile.seek(raFile.length());
-//                inputStream = new BufferedInputStream(file.getInputStream());
+//                inputStream = new BufferedInputStream(bytes.getInputStream());
 //                byte[] buf = new byte[1024];
 //                int length = 0;
 //                while ((length = inputStream.read(buf)) != -1) {
@@ -460,23 +459,49 @@ public class CloudDiskService implements ICloudDiskService {
             if (null == cloudDirectoryIndex) {
                 return;
             }
-            SystemFile systemFile = cloudDirectoryIndex.getFile();
-            if (null == systemFile) {
-                return;
+            //文件云
+            if(isFileCloudEnabled()){
+
             }
-            messageService.sendMessage(fromUid, toUid, "")
-                    .ifPresent(message -> {
-                        message.setType(Message.Type.FILE);
-                        message.setContent(systemFile.getFileName());
-                        message.setLinkId(systemFile.getId());
-                        messageDao.save(message);
-                        result.add(fileId);
-                    });
+            else{
+                SystemFile systemFile = systemFileDao.findOne(cloudDirectoryIndex.getFileId());
+                if (null == systemFile) {
+                    return;
+                }
+                messageService.sendMessage(fromUid, toUid, "")
+                        .ifPresent(message -> {
+                            message.setType(Message.Type.FILE);
+                            message.setContent(systemFile.getFileName());
+                            message.setLinkId(systemFile.getId());
+                            messageDao.save(message);
+                            result.add(fileId);
+                        });
+            }
         });
         return result;
     }
 
 
+    public ResponseEntity<byte[]> downloadFile(long uid, DirType type, Long linkId, Long id){
+        //检查这个文件是不是属于你
+        CloudDirectoryIndex cloudDirectoryIndex = cloudDirectoryIndexDao.findFirstByTypeAndLinkIdAndId(type,linkId, id).orElse(null);
+        if(null == cloudDirectoryIndex){
+            return new ResponseEntity<byte[]>(HttpStatus.NO_CONTENT);
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        if(isFileCloudEnabled()){
+
+        }
+        else{
+            SystemFile systemFile = systemFileDao.findOne(id);
+            if(null != systemFile){
+                return new ResponseEntity<byte[]>(systemFile.getBytes(), headers, HttpStatus.OK);
+            }
+        }
+        return new ResponseEntity<byte[]>(HttpStatus.NO_CONTENT);
+
+    }
 //    public Optional<CloudShare> shareTo(long fromUid, long toUid, DirType type, long fileId) {
 //        if (fromUid == toUid) {
 //            return Optional.empty();
@@ -597,6 +622,10 @@ public class CloudDiskService implements ICloudDiskService {
 
     public Optional<CloudDirectoryIndex> findFile(long uid, DirType type, long dirId){
         return findDirectory(uid,type,dirId).filter(file -> !file.isDir());
+    }
+
+    private boolean isFileCloudEnabled(){
+        return fileCloudEnabled.equals("true");
     }
 }
 

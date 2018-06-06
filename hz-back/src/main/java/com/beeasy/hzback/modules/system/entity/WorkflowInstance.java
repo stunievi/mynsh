@@ -50,6 +50,9 @@ public class WorkflowInstance {
     @ManyToOne
     WorkflowModel workflowModel;
 
+    @Column(name = "workflow_model_id",insertable = false,updatable = false)
+    Long workflowModelId;
+
     //任务创建日期
     @CreatedDate
     Date addTime;
@@ -68,14 +71,10 @@ public class WorkflowInstance {
     String info;
 
     //任务执行人
-    @JSONField(serialize = false)
-    @ManyToOne(optional = true)
-    User dealUser;
+    Long dealUserId;
 
     //任务发布人(指派者)
-    @JSONField(serialize = false)
-    @ManyToOne(optional = false)
-    User pubUser;
+    Long pubUserId;
 
     //处理节点列表
     @OneToMany(mappedBy = "instance", cascade = CascadeType.ALL)
@@ -91,12 +90,26 @@ public class WorkflowInstance {
 
     //前置任务ID
 //    Long prevTaskId;
-    @ManyToOne
+    @JSONField(serialize = false)
+    @JoinColumn(name = "prev_instance_id",insertable = false,updatable = false)
+    @OneToOne
     WorkflowInstance prevInstance;
 
+    @Column(name = "prev_instance_id")
+    Long prevInstanceId;
+
+    @JSONField(serialize = false)
+    @OneToOne(mappedBy = "prevInstance")
+    WorkflowInstance nextInstance;
+
     //父进程节点ID (此节点开启的子任务)
+    @JSONField(serialize = false)
     @ManyToOne
     WorkflowNodeInstance parentNode;
+
+
+
+
 
 //    @JSONField(serialize = false)
 //    @Transient
@@ -121,20 +134,29 @@ public class WorkflowInstance {
     }
 
 
-    @Transient
-    public Long getModelId() {
-        return workflowModel.getId();
-    }
+
+//    @Transient
+//    public Long getDealUserId() {
+//        return null == dealUser ? 0 : dealUser.getId();
+//    }
+//
+//    @Transient
+//    public long getPubUserId() {
+//        return isAutoCreated() ? 0 : pubUser.getId();
+//    }
 
     @Transient
-    public Long getDealUserId() {
-        return null == dealUser ? 0 : dealUser.getId();
+    public long getNextInstanceId(){
+        return null == nextInstance ? 0 : nextInstance.getId();
     }
-
     @Transient
-    public long getPubUserId() {
-        return isAutoCreated() ? 0 : pubUser.getId();
+    public String getNextInstanceTitle(){
+        return null == nextInstance ? "" : nextInstance.getTitle();
     }
+//
+//    public void setPrevInstance(WorkflowInstance prevInstance) {
+//        this.prevInstance = prevInstance;
+//    }
 
     /**
      * 是否自动创建的任务
@@ -143,7 +165,7 @@ public class WorkflowInstance {
      */
     @Transient
     public boolean isAutoCreated() {
-        return null == pubUser ? true : false;
+        return null == pubUserId ? true : false;
     }
 
 }

@@ -18,6 +18,9 @@ mybatis:
 
 filecloud:
   address: "192.168.31.55:80"
+  username: ""
+  password: ""
+  enable: false
 
 server:
   port: 8080

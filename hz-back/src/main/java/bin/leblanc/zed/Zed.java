@@ -240,7 +240,7 @@ public class Zed {
                 file = new File(yaml);
             }
             @Cleanup Reader reader = new FileReader(file);
-//            @Cleanup InputStream is = new FileInputStream(file);
+//            @Cleanup InputStream is = new FileInputStream(bytes);
 //            byte[] bytes = new byte[1024];
 //            int len;
 //            StringBuffer sb = new StringBuffer();

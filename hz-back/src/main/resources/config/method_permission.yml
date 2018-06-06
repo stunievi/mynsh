@@ -66,9 +66,9 @@
         - /api/clouddisk/files
     上传文件:
       api:
-        - /api/clouddisk/file/upload/apply
-        - /api/clouddisk/file/upload/start
-        - /api/clouddisk/file/upload/finish
+        - /api/clouddisk/bytes/upload/apply
+        - /api/clouddisk/bytes/upload/start
+        - /api/clouddisk/bytes/upload/finish
     重命名文件:
       api:
         - /api/clouddisk/renameFile
@@ -96,9 +96,9 @@
         - /api/clouddisk/common/files
     新增:
       api:
-        - /api/clouddisk/common/file/upload/apply
-        - /api/clouddisk/common/file/upload/start
-        - /api/clouddisk/common/file/upload/finish
+        - /api/clouddisk/common/bytes/upload/apply
+        - /api/clouddisk/common/bytes/upload/start
+        - /api/clouddisk/common/bytes/upload/finish
     重命名文件:
       api:
         - /api/clouddisk/common/renameFile

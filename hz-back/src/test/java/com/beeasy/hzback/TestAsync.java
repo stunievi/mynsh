@@ -15,6 +15,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.persistence.EntityManager;
@@ -221,11 +222,18 @@ public class TestAsync {
     IWorkflowInstanceDao instanceDao;
     @Test
     public void testUserSelect(){
-        WorkflowExtPermissionEdit edit = new WorkflowExtPermissionEdit();
-        edit.setModelId(97L);
-        edit.setQids(Collections.singletonList(100L));
-        edit.setType(WorkflowExtPermission.Type.POINTER);
-        workflowService.setExtPermissions(edit);
+        List s = instanceDao.findCommonWorks(Collections.singletonList(2613L),Long.MAX_VALUE,new PageRequest(0,20));
+        Result.ok(s).toJson(new Result.Entry[]{
+                new Result.Entry(WorkflowInstance.class,"nodeList","simpleChildInstances")
+        });
+//        instanceDao.
+//        List b = workflowModelDao.findModelId("资料收集");
+//        int c = 1;
+//        WorkflowExtPermissionEdit edit = new WorkflowExtPermissionEdit();
+//        edit.setModelId(97L);
+//        edit.setQids(Collections.singletonList(100L));
+//        edit.setType(WorkflowExtPermission.Type.POINTER);
+//        workflowService.setExtPermissions(edit);
 //        userService.findUser(559).ifPresent(user -> {
 //            userService.addExternalPermission(559L,UserExternalPermission.Permission.COMMON_CLOUD_DISK);
 //        });

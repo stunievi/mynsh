@@ -2,10 +2,13 @@ package com.beeasy.hzback.modules.system.entity;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.beeasy.hzback.core.entity.AbstractBaseEntity;
+import com.beeasy.hzback.core.helper.StringCommaConverter;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -50,4 +53,7 @@ public class WorkflowNodeFile extends AbstractBaseEntity{
 
     //关联文件ID
     Long fileId;
+
+    @Convert(converter = StringCommaConverter.class)
+    List<String> tags = new ArrayList<>();
 }

@@ -2,6 +2,7 @@ package com.beeasy.hzback.modules.system.entity;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.beeasy.hzback.core.entity.AbstractBaseEntity;
+import com.beeasy.hzback.core.helper.SearchableStringArrayConverter;
 import com.beeasy.hzback.modules.system.service.ICloudDiskService;
 import lombok.Getter;
 import lombok.Setter;
@@ -45,13 +46,14 @@ public class CloudDirectoryIndex extends AbstractBaseEntity{
     @OrderBy(value = "dir DESC")
     boolean dir = false;
 
-    @JSONField(serialize = false)
-    @OneToOne(cascade = CascadeType.REMOVE)
-    SystemFile file;
+//    @JSONField(serialize = false)
+//    @JoinColumn(name = "file_id", insertable = false, updatable = false)
+//    @OneToOne
+    @Column(name = "file_id")
+    Long fileId;
 
-    @JSONField(serialize = false)
-    @OneToMany(cascade = CascadeType.REMOVE)
-    List<CloudFileTag> tags = new ArrayList<>();
+    @Convert(converter = SearchableStringArrayConverter.class)
+    List<String> tags = new ArrayList<>();
 
     //创建时间
     @CreatedDate
@@ -64,6 +66,6 @@ public class CloudDirectoryIndex extends AbstractBaseEntity{
 
 //    @Transient
 //    public Long getFileId(){
-//        return null == file ? 0 : file.getId();
+//        return null == bytes ? 0 : bytes.getId();
 //    }
 }

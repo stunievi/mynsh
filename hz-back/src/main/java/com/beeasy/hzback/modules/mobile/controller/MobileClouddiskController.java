@@ -46,84 +46,153 @@ public class MobileClouddiskController {
         );
     }
 
-    @PostMapping("/user/createDir")
+    @GetMapping("/{type}/createDir/{pid}/{dirName}")
     public String createDir(
-            @RequestParam Long pid,
-            @RequestParam String dirName
+            @PathVariable String type,
+            @PathVariable Long pid,
+            @PathVariable String dirName
     ){
-        if(null == pid){
-            pid = 0L;
-        }
-        return cloudDiskService.createDirectory(Utils.getCurrentUserId(), ICloudDiskService.DirType.USER,pid,dirName).toMobile(new Result.Entry(CloudDirectoryIndex.class,"children","parent"));
-    }
-
-    @PostMapping("/user/removeDir")
-    public String removeDir(
-            @RequestBody List<Long> rids
-    ){
-        cloudDiskService.deleteDirectory(Utils.getCurrentUserId(), ICloudDiskService.DirType.USER,rids);
-        return Result.ok().toMobile();
-    }
-
-    @PostMapping("/user/renameDir")
-    public String renameDir(
-            @RequestParam Long id,
-            @RequestParam String newName
-    ){
-        String fileName = cloudDiskService.renameDirectory(Utils.getCurrentUserId(), ICloudDiskService.DirType.USER,id,newName);
-        if(fileName.isEmpty()){
-            return Result.error("修改失败").toMobile();
+        if(type.equals("user")){
+            return cloudDiskService.createDirectory(Utils.getCurrentUserId(), ICloudDiskService.DirType.USER,pid,dirName).toMobile(new Result.Entry(CloudDirectoryIndex.class,"children","parent"));
         }
         else{
-            return Result.ok(fileName).toMobile();
+            if(!checkAuth(Utils.getCurrentUserId())){
+                return Result.error().toJson();
+            }
+            return cloudDiskService.createDirectory(0, ICloudDiskService.DirType.COMMON,pid,dirName).toMobile(new Result.Entry(CloudDirectoryIndex.class,"children","parent"));
+        }
+    }
+
+    @PostMapping("/{type}/removeDir")
+    public String removeDir(
+            @PathVariable String type,
+            @RequestBody List<Long> rids
+    ){
+        if(type.equals("user")){
+            cloudDiskService.deleteDirectory(Utils.getCurrentUserId(), ICloudDiskService.DirType.USER,rids);
+            return Result.ok().toMobile();
+        }
+        else{
+            if(!checkAuth(Utils.getCurrentUserId())){
+                return Result.error("没有权限").toJson();
+            }
+            cloudDiskService.deleteDirectory(0, ICloudDiskService.DirType.COMMON,rids);
+            return Result.ok().toMobile();
+        }
+    }
+
+    @GetMapping("/type/renameDir/{id}/{newName}")
+    public String renameDir(
+            @PathVariable String type,
+            @PathVariable Long id,
+            @PathVariable String newName
+    ){
+
+        if(type.equals("user")) {
+            String fileName = cloudDiskService.renameDirectory(Utils.getCurrentUserId(), ICloudDiskService.DirType.USER,id,newName);
+            if(fileName.isEmpty()){
+                return Result.error("修改失败").toJson();
+            }
+            else{
+                return Result.ok(fileName).toMobile();
+            }
+        }
+        else {
+            if(!checkAuth(Utils.getCurrentUserId())){
+                return Result.error("没有权限").toMobile();
+            }
+            String fileName = cloudDiskService.renameDirectory(0, ICloudDiskService.DirType.COMMON,id,newName);
+            if(fileName.isEmpty()){
+                return Result.error("修改失败").toJson();
+            }
+            else{
+                return Result.ok(fileName).toMobile();
+            }
         }
     }
 
 
-    @PostMapping("/user/uploadFile")
+    @ApiOperation(value = "上传文件")
+    @PostMapping("/{type}/uploadFile/{pid}")
     public String uploadFile(
+            @PathVariable String type,
             @RequestParam MultipartFile file,
-            @RequestParam  Long id
+            @PathVariable  Long pid
             ){
-        return Result.finish(cloudDiskService.uploadFile(Utils.getCurrentUserId(), ICloudDiskService.DirType.USER,id,file)).toMobile();
+        if(type.equals("user")){
+            return Result.finish(cloudDiskService.uploadFile(Utils.getCurrentUserId(), ICloudDiskService.DirType.USER,pid,file)).toMobile();
+        }
+        else{
+            if(!checkAuth(Utils.getCurrentUserId())){
+                return Result.error("没有权限").toJson();
+            }
+            return Result.finish(cloudDiskService.uploadFile(0, ICloudDiskService.DirType.COMMON,pid,file)).toMobile();
+        }
     }
 
 
-    @PostMapping("/user/shareFile")
+    @GetMapping("/{type}/shareFile/{id}/{toUid}")
     public String shareFile(
-            @RequestParam Long id,
-            @RequestParam Long toUid
+            @PathVariable String type,
+            @PathVariable Long id,
+            @PathVariable Long toUid
     ){
-        return Result.ok(cloudDiskService.sendFileToUser(Utils.getCurrentUserId(),toUid, Utils.getCurrentUserId(), ICloudDiskService.DirType.USER, Collections.singletonList(id))).toMobile();
+        if(type.equals("user")){
+            return Result.ok(cloudDiskService.sendFileToUser(Utils.getCurrentUserId(),toUid, Utils.getCurrentUserId(), ICloudDiskService.DirType.USER, Collections.singletonList(id))).toMobile();
+        }
+        else{
+            //分享共享文件柜不需要权限
+            return Result.ok(cloudDiskService.sendFileToUser(Utils.getCurrentUserId(),toUid,0 , ICloudDiskService.DirType.COMMON, Collections.singletonList(id))).toMobile();
+        }
 //        return Result.finish(cloudDiskService.shareTo(Utils.getCurrentUserId(),toUid, ICloudDiskService.DirType.USER,id));
     }
 
-    @ApiOperation(value = "得到一个文件的标签")
-    @GetMapping("/user/tag/{fileId}")
-    public String getFileTags(@PathVariable Long fileId){
-        return Result.ok(tagDao.findAllByIndex_Id(fileId)).toMobile();
-    }
+//    @ApiOperation(value = "得到一个文件的标签")
+//    @GetMapping("/user/tag/{fileId}")
+//    public String getFileTags(@PathVariable Long fileId){
+//        return Result.ok(tagDao.findAllByIndex_Id(fileId)).toMobile();
+//    }
+//
+//    @Deprecated
+//    @ApiOperation(value = "添加文件标签")
+//    @PostMapping("/user/tag/add")
+//    public String addFileTag(
+//            @RequestParam Long fileId,
+//            @RequestParam String tag
+//    ){
+//        return cloudDiskService.addFileTag(Utils.getCurrentUserId(), ICloudDiskService.DirType.USER,fileId,tag).toMobile();
+//    }
+//
+//    @Deprecated
+//    @ApiOperation(value = "删除文件标签")
+//    @PostMapping("/user/tag/remove")
+//    public String removeFileTag(
+//            @RequestParam Long fileId,
+//            @RequestParam String tag
+//    ){
+//        return Result.finish(cloudDiskService.removeFileTag(Utils.getCurrentUserId(), ICloudDiskService.DirType.USER,fileId,tag)).toMobile();
+//    }
 
-    @ApiOperation(value = "添加文件标签")
-    @PostMapping("/user/tag/add")
-    public String addFileTag(
-            @RequestParam Long fileId,
-            @RequestParam String tag
+    @ApiOperation(value = "设置文件标签")
+    @PostMapping("/{type}/tag/{id}")
+    public String setTags(
+            @PathVariable String type,
+            @PathVariable Long id,
+            @RequestBody List<String> tags
     ){
-        return cloudDiskService.addFileTag(Utils.getCurrentUserId(), ICloudDiskService.DirType.USER,fileId,tag).toMobile();
-    }
-
-    @ApiOperation(value = "删除文件标签")
-    @PostMapping("/user/tag/remove")
-    public String removeFileTag(
-            @RequestParam Long fileId,
-            @RequestParam String tag
-    ){
-        return Result.finish(cloudDiskService.removeFileTag(Utils.getCurrentUserId(), ICloudDiskService.DirType.USER,fileId,tag)).toMobile();
+        if(type.equals("user")){
+            return Result.finish(cloudDiskService.setFileTags(Utils.getCurrentUserId(), ICloudDiskService.DirType.USER, id, tags)).toMobile();
+        }
+        else{
+            if(!checkAuth(Utils.getCurrentUserId())){
+                return Result.error().toMobile();
+            }
+            return Result.finish(cloudDiskService.setFileTags(0, ICloudDiskService.DirType.COMMON, id , tags)).toMobile();
+        }
     }
 
 //    @ApiOperation(value = "设置一个文件的标签")
-//    @PostMapping("/user/file/setTags")
+//    @PostMapping("/user/bytes/setTags")
 //    public Result setFileTags(
 //            @RequestParam Long fileId,
 //            @RequestBody List<String> tags
@@ -140,6 +209,7 @@ public class MobileClouddiskController {
     }
 
 
+
     @GetMapping("/common/all")
     public String allCommonFiles(){
         //无权限 所有人都可以看到
@@ -148,94 +218,75 @@ public class MobileClouddiskController {
         );
     }
 
-    @PostMapping("/common/createDir")
-    public String createCommonDir(
-            @RequestParam Long pid,
-            @RequestParam String dirName
-    ){
-        if(!checkAuth(Utils.getCurrentUserId())){
-            return Result.error("没有权限!").toJson();
-        }
-        if(null == pid){
-            pid = 0L;
-        }
-        return cloudDiskService.createDirectory(0, ICloudDiskService.DirType.COMMON,pid,dirName).toMobile(new Result.Entry(CloudDirectoryIndex.class,"children","parent"));
-    }
+//    @PostMapping("/common/createDir")
+//    public String createCommonDir(
+//            @RequestParam Long pid,
+//            @RequestParam String dirName
+//    ){
+//        if(!checkAuth(Utils.getCurrentUserId())){
+//            return Result.error("没有权限!").toJson();
+//        }
+//        if(null == pid){
+//            pid = 0L;
+//        }
+//    }
 
-    @PostMapping("/common/removeDir")
-    public String removeCommonDir(
-            @RequestBody List<Long> rids
-    ){
-        if(!checkAuth(Utils.getCurrentUserId())){
-            return Result.error("没有权限").toMobile();
-        }
-        cloudDiskService.deleteDirectory(0, ICloudDiskService.DirType.COMMON,rids);
-        return Result.ok().toMobile();
-    }
-
-    @PostMapping("/common/renameDir")
-    public String renameCommonDir(
-            @RequestParam Long id,
-            @RequestParam String newName
-    ){
-        if(!checkAuth(Utils.getCurrentUserId())){
-            return Result.error("没有权限").toMobile();
-        }
-        String fileName = cloudDiskService.renameDirectory(0, ICloudDiskService.DirType.COMMON,id,newName);
-        if(fileName.isEmpty()){
-            return Result.error("修改失败").toMobile();
-        }
-        else{
-            return Result.ok(fileName).toMobile();
-        }
-    }
+//    @PostMapping("/common/removeDir")
+//    public String removeCommonDir(
+//            @RequestBody List<Long> rids
+//    ){
+//    }
+//
+//    @PostMapping("/common/renameDir")
+//    public String renameCommonDir(
+//            @RequestParam Long id,
+//            @RequestParam String newName
+//    ){
+//
+//    }
 
 
-    @PostMapping("/common/uploadFile")
-    public String uploadCommonFile(
-            @RequestParam MultipartFile file,
-            @RequestParam Long id
-    ){
-        if(!checkAuth(Utils.getCurrentUserId())){
-            return Result.error("没有权限").toMobile();
-        }
-        return Result.finish(cloudDiskService.uploadFile(0, ICloudDiskService.DirType.COMMON,id,file)).toMobile();
-    }
+//    @PostMapping("/common/uploadFile")
+//    public String uploadCommonFile(
+//            @RequestParam MultipartFile file,
+//            @RequestParam Long id
+//    ){
+//    }
 
 
-    @PostMapping("/common/shareFile")
-    public String shareCommonFile(
-            @RequestParam Long id,
-            @RequestParam Long toUid
-    ){
-        if(!checkAuth(Utils.getCurrentUserId())){
-            return Result.error("没有权限").toMobile();
-        }
-        return Result.ok(cloudDiskService.sendFileToUser(Utils.getCurrentUserId(),toUid,0 , ICloudDiskService.DirType.COMMON, Collections.singletonList(id))).toMobile();
-    }
+//    @PostMapping("/common/shareFile")
+//    public String shareCommonFile(
+//            @RequestParam Long id,
+//            @RequestParam Long toUid
+//    ){
+//        if(!checkAuth(Utils.getCurrentUserId())){
+//            return Result.error("没有权限").toMobile();
+//        }
+//        return Result.ok(cloudDiskService.sendFileToUser(Utils.getCurrentUserId(),toUid,0 , ICloudDiskService.DirType.COMMON, Collections.singletonList(id))).toMobile();
+//    }
 
 
-    @ApiOperation(value = "得到一个文件的标签")
-    @GetMapping("/common/tag/{fileId}")
-    public String getCommonFileTags(@PathVariable Long fileId){
-        return Result.ok(tagDao.findAllByIndex_Id(fileId)).toMobile();
-    }
-
-    @ApiOperation(value = "添加文件标签")
-    @PostMapping("/common/tag/add")
-    public String addCommonFileTag(
-            @RequestParam Long fileId,
-            @RequestParam String tag
-    ){
-        return cloudDiskService.addFileTag(0, ICloudDiskService.DirType.COMMON,fileId,tag).toMobile();
-    }
-
-    @ApiOperation(value = "删除文件标签")
-    @PostMapping("/common/tag/remove")
-    public String removeCommonFileTag(
-            @RequestParam Long fileId,
-            @RequestParam String tag
-    ){
-        return Result.finish(cloudDiskService.removeFileTag(0, ICloudDiskService.DirType.COMMON,fileId,tag)).toMobile();
-    }
+//    @ApiOperation(value = "得到一个文件的标签")
+//    @GetMapping("/common/tag/{fileId}")
+//    public String getCommonFileTags(@PathVariable Long fileId){
+//        return Result.ok(tagDao.findAllByIndex_Id(fileId)).toMobile();
+//    }
+//
+//    @ApiOperation(value = "添加文件标签")
+//    @PostMapping("/common/tag/add")
+//    public String addCommonFileTag(
+//            @RequestParam Long fileId,
+//            @RequestParam String tag
+//    ){
+//        return cloudDiskService.addFileTag(0, ICloudDiskService.DirType.COMMON,fileId,tag).toMobile();
+//    }
+//
+//    @ApiOperation(value = "删除文件标签")
+//    @PostMapping("/common/tag/remove")
+//    public String removeCommonFileTag(
+//            @RequestParam Long fileId,
+//            @RequestParam String tag
+//    ){
+//        return Result.finish(cloudDiskService.removeFileTag(0, ICloudDiskService.DirType.COMMON,fileId,tag)).toMobile();
+//    }
 }

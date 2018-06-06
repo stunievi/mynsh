@@ -85,7 +85,7 @@ public class LeblancConfig implements ApplicationListener<ContextRefreshedEvent>
             ClassPathResource resource = new ClassPathResource("config/behavior.js");
             List<String> codes = IOUtils.readLines(resource.getInputStream());
             engine.eval(String.join("\n",codes),bindings);
-//            engine.eval(new FileReader(resource.getFile()),bindings);
+//            engine.eval(new FileReader(resource.getBytes()),bindings);
         } catch (ScriptException e) {
             e.printStackTrace();
         } catch (FileNotFoundException e) {

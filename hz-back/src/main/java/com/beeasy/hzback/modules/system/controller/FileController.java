@@ -38,7 +38,7 @@ public class FileController {
         }
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.IMAGE_PNG);
-        return new ResponseEntity<byte[]>(file.getFile(), headers, HttpStatus.OK);
+        return new ResponseEntity<byte[]>(file.getBytes(), headers, HttpStatus.OK);
     }
 
 
@@ -54,7 +54,7 @@ public class FileController {
             return new ResponseEntity<byte[]>(HttpStatus.NO_CONTENT);
         }
         HttpHeaders headers = new HttpHeaders();
-        return new ResponseEntity<byte[]>(file.getFile(), headers, HttpStatus.OK);
+        return new ResponseEntity<byte[]>(file.getBytes(), headers, HttpStatus.OK);
     }
 
 

@@ -57,6 +57,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/static/**").permitAll()
                 .antMatchers("/api/login").permitAll()
                 .antMatchers("/api/mobile/login").permitAll()
+                .antMatchers("/api/mobile/login/**").permitAll()
                 //头像
                 .antMatchers("/api/mobile/download/face/**").permitAll()
                 //所有开放的API放到这里

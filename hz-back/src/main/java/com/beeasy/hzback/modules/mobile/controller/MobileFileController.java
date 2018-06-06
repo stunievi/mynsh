@@ -5,9 +5,9 @@ import com.beeasy.hzback.modules.system.dao.ICloudDirectoryIndexDao;
 import com.beeasy.hzback.modules.system.dao.IMessageDao;
 import com.beeasy.hzback.modules.system.dao.ISystemFileDao;
 import com.beeasy.hzback.modules.system.dao.IWorkflowNodeFileDao;
-import com.beeasy.hzback.modules.system.entity.CloudDirectoryIndex;
 import com.beeasy.hzback.modules.system.entity.SystemFile;
 import com.beeasy.hzback.modules.system.entity.WorkflowNodeFile;
+import com.beeasy.hzback.modules.system.service.CloudDiskService;
 import com.beeasy.hzback.modules.system.service.ICloudDiskService;
 import com.beeasy.hzback.modules.system.service.WorkflowService;
 import io.swagger.annotations.ApiOperation;
@@ -37,30 +37,32 @@ public class MobileFileController {
     IWorkflowNodeFileDao nodeFileDao;
     @Autowired
     WorkflowService workflowService;
+    @Autowired
+    CloudDiskService cloudDiskService;
 
     public ResponseEntity<byte[]> output(SystemFile file){
         if(null == file) {
             return new ResponseEntity<byte[]>(HttpStatus.NO_CONTENT);
         }
         HttpHeaders headers = new HttpHeaders();
-        return new ResponseEntity<byte[]>(file.getFile(), headers, HttpStatus.OK);
+        return new ResponseEntity<byte[]>(file.getBytes(), headers, HttpStatus.OK);
     }
 
 
     @GetMapping("/clouddisk/user/{id}")
     public ResponseEntity<byte[]> getCloudFile(@PathVariable Long id) throws IOException {
+        return cloudDiskService.downloadFile(Utils.getCurrentUserId(), ICloudDiskService.DirType.USER, Utils.getCurrentUserId(), id);
         //检查这个文件是不是属于你
-        CloudDirectoryIndex cloudDirectoryIndex = cloudDirectoryIndexDao.findFirstByTypeAndLinkIdAndId(ICloudDiskService.DirType.USER, Utils.getCurrentUserId(),id).orElse(null);
-        if(null == cloudDirectoryIndex){
-            return new ResponseEntity<byte[]>(HttpStatus.NO_CONTENT);
-        }
-        SystemFile file = cloudDirectoryIndex.getFile();
-//        SystemFile file = systemFileDao.findFirstByIdAndType(id, SystemFile.Type.MESSAGE).orElse(null);
-//        if(null == file){
+//        CloudDirectoryIndex cloudDirectoryIndex = cloudDirectoryIndexDao.findFirstByTypeAndLinkIdAndId(ICloudDiskService.DirType.USER, Utils.getCurrentUserId(),id).orElse(null);
+//        if(null == cloudDirectoryIndex){
 //            return new ResponseEntity<byte[]>(HttpStatus.NO_CONTENT);
 //        }
-        HttpHeaders headers = new HttpHeaders();
-        return new ResponseEntity<byte[]>(file.getFile(), headers, HttpStatus.OK);
+//        SystemFile bytes = cloudDirectoryIndex.getBytes();
+//        SystemFile bytes = systemFileDao.findFirstByIdAndType(id, SystemFile.Type.MESSAGE).orElse(null);
+//        if(null == bytes){
+//            return new ResponseEntity<byte[]>(HttpStatus.NO_CONTENT);
+//        }
+//        return new ResponseEntity<byte[]>(bytes.getBytes(), headers, HttpStatus.OK);
     }
 
     @ApiOperation(value = "用户头像下载")

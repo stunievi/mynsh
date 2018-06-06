@@ -27,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -94,7 +93,7 @@ public class WorkflowService implements IWorkflowService {
     @Autowired
     IWorkflowNodeAttributeDao attributeDao;
 
-    @Resource
+    @Autowired
     UserService userService;
 
     @Autowired
@@ -131,7 +130,7 @@ public class WorkflowService implements IWorkflowService {
         }
 
         //如果是手动任务, 但是
-        if (!request.isManual() && workflowModel.isManual()) {
+        if (request.isManual() && !workflowModel.isManual()) {
             return Result.error("该任务不能手动开启");
         }
 
@@ -179,8 +178,10 @@ public class WorkflowService implements IWorkflowService {
         workflowInstance.setWorkflowModel(workflowModel);
         workflowInstance.setTitle(request.getTitle());
         workflowInstance.setInfo(request.getInfo());
-        workflowInstance.setDealUser(dealerUser);
-        workflowInstance.setPubUser(pubUser);
+//        workflowInstance.setDealUser(dealerUser);
+        workflowInstance.setDealUserId(null == dealerUser ? null : dealerUser.getId());
+        workflowInstance.setPubUserId(pubUser.getId());
+//        workflowInstance.setPubUser(pubUser);
 
         //固有字段检查
         List<WorkflowModelInnate> innates = workflowModel.getInnates();
@@ -213,7 +214,8 @@ public class WorkflowService implements IWorkflowService {
         //插入第一个节点
         workflowInstance.addNode(firstNode);
         //第一个执行人已经确定
-        workflowInstance.getNodeList().get(0).setDealer(dealerUser);
+//        workflowInstance.getNodeList().get(0).setDealer(dealerUser);
+        workflowInstance.getNodeList().get(0).setDealerId(null == dealerUser ? null : dealerUser.getId());
 
         workflowInstance = saveWorkflowInstance(workflowInstance);
 
@@ -224,6 +226,52 @@ public class WorkflowService implements IWorkflowService {
         }
 
         return workflowInstance.getId() == null ? Result.error() : Result.ok(workflowInstance);
+    }
+
+
+    /**
+     * 开启子任务
+     * @param uid
+     * @param request
+     * @return
+     */
+    public Result startChildInstance(Long uid, StartChildInstanceRequest request){
+        User user = userService.findUser(uid).orElse(null);
+        WorkflowNodeInstance nodeInstance = findNodeInstance(request.getNodeInstanceId()).orElse(null);
+        if(null == user || null == nodeInstance){
+            return Result.error("找不到合适的节点");
+        }
+        //允许开启的子流程是否存在
+        if(!nodeInstance.getNodeModel().getAllowChildTask().contains(request.getModelName())){
+            return Result.error("禁止开启子流程");
+        }
+        if(!checkNodeAuth(nodeInstance,user)){
+            return Result.error("权限错误");
+        }
+        //查找该流程的id
+        List<Long> modelIds = modelDao.findModelId(request.getModelName());
+        if(modelIds.size() == 0){
+            return Result.error("找不到对应的流程");
+        }
+        Long modelId = modelIds.get(0);
+
+        ApplyTaskRequest applyTaskRequest = new ApplyTaskRequest();
+        applyTaskRequest.setModelId(modelId);
+        applyTaskRequest.setTitle(request.getModelName());
+        applyTaskRequest.setDealerId(user.getId());
+        applyTaskRequest.setCommon(false);
+        applyTaskRequest.setManual(false);
+
+        Result<WorkflowInstance> result = startNewInstance(uid,applyTaskRequest);
+        if(!result.isSuccess()){
+            return result;
+        }
+        WorkflowInstance instance = result.getData();
+        instance.setParentNode(nodeInstance);
+        instanceDao.save(instance);
+        logService.addLog(SystemTextLog.Type.WORKFLOW, nodeInstance.getInstance().getId(), user.getId(), "接受了子任务 " + applyTaskRequest.getTitle());
+
+        return Result.ok(instance.getId());
     }
 
     /**
@@ -250,13 +298,14 @@ public class WorkflowService implements IWorkflowService {
 //        }
         //锁定该任务
         entityManager.refresh(instance, PESSIMISTIC_WRITE);
-        instance.setDealUser(user);
+        instance.setDealUserId(user.getId());
         instance.setState(WorkflowInstance.State.DEALING);
         entityManager.merge(instance);
 
         //绑定第一个节点
         WorkflowNodeInstance nodeInstance = instance.getNodeList().get(0);
-        nodeInstance.setDealer(user);
+        nodeInstance.setDealerId(user.getId());
+//        nodeInstance.setDealer(user);
         nodeInstanceDao.save(nodeInstance);
 
         //写log
@@ -354,7 +403,8 @@ public class WorkflowService implements IWorkflowService {
             //3.被指派的人在任务的第一个节点的主办岗位上
 
                 ) {
-            instance.setDealUser(dealer);
+//            instance.setDealUser(dealer);
+            instance.setDealUserId(dealerId);
             instanceDao.save(instance);
             logService.addLog(SystemTextLog.Type.WORKFLOW, instance.getId(), uid, "移交任务给 " + dealer.getTrueName());
             return true;
@@ -388,7 +438,7 @@ public class WorkflowService implements IWorkflowService {
         //2.任务只有一个节点
         //3.任务也是我发布的
         //4.任务在进行中
-        return instance.getDealUserId().equals(user.getId()) && instance.getPubUser().getId().equals(user.getId()) && instance.getNodeList().size() <= 1 && instance.getState().equals(WorkflowInstance.State.DEALING);
+        return instance.getDealUserId().equals(user.getId()) && instance.getPubUserId() == user.getId() && instance.getNodeList().size() <= 1 && instance.getState().equals(WorkflowInstance.State.DEALING);
     }
 
     /**
@@ -497,9 +547,9 @@ public class WorkflowService implements IWorkflowService {
     public List<WorkflowInstance> getMyOwnWorks(long uid, Long lessId) {
         PageRequest pageRequest = new PageRequest(0, 20);
         if (lessId == null) {
-            return instanceDao.findAllByDealUser_IdOrderByAddTimeDesc(uid, pageRequest);
+            return instanceDao.findAllByDealUserIdOrderByAddTimeDesc(uid, pageRequest);
         } else {
-            return instanceDao.findAllByDealUser_IdAndIdLessThanOrderByAddTimeDesc(uid, lessId, pageRequest);
+            return instanceDao.findAllByDealUserIdAndIdLessThanOrderByAddTimeDesc(uid, lessId, pageRequest);
         }
     }
 
@@ -583,6 +633,10 @@ public class WorkflowService implements IWorkflowService {
         WorkflowNode nodeModel = nodeInstance.getNodeModel();
         switch (nodeModel.getType()) {
             case "input":
+                //绑定节点处理人
+                nodeInstance.setDealerId(user.getId());
+//                nodeInstance.setDealer(user);
+                nodeInstance = nodeInstanceDao.save(nodeInstance);
                 nodeModel.getNode().submit(user, nodeInstance, request.getData(), attributeDao);
                 break;
 
@@ -649,7 +703,7 @@ public class WorkflowService implements IWorkflowService {
      */
     public Result goNext(long uid, long instanceId, long nodeId) {
         WorkflowNodeInstance nodeInstance = findNodeInstance(nodeId).orElse(null);
-        if (null == nodeInstance) {
+        if (null == nodeInstance || nodeInstance.isFinished()) {
             return Result.error("没有找到符合条件的任务");
         }
         User user = userService.findUser(uid).orElse(null);
@@ -773,7 +827,7 @@ public class WorkflowService implements IWorkflowService {
         }
         SystemFile systemFile = new SystemFile();
         try {
-            systemFile.setFile(file.getBytes());
+            systemFile.setBytes(file.getBytes());
         } catch (IOException e) {
             return Result.error("保存文件错误");
         }
@@ -978,6 +1032,9 @@ public class WorkflowService implements IWorkflowService {
                     node.getNext().add(String.valueOf(next));
                 }
             }
+            //允许开放的子流程
+            List<String> allowChildTask = (List<String>) ((Map) v).getOrDefault("allow_child_task",new ArrayList<>());
+            node.setAllowChildTask(allowChildTask);
             node.setNode(baseNode);
             nodeDao.save(node);
 
@@ -1413,6 +1470,7 @@ public class WorkflowService implements IWorkflowService {
     public class JSInterface {
         private WorkflowInstance instance;
         private WorkflowNodeInstance currentNode;
+//        private Long instanceId;
 
         public void go(String nodeName) {
             WorkflowNode target = findNode(instance.getWorkflowModel(), nodeName).orElse(null);
@@ -1424,14 +1482,53 @@ public class WorkflowService implements IWorkflowService {
         /**
          * 开启后续任务
          *
-         * @param nodeName
-         * @param innateData
+         * @param modelName 模型名
+         * @param dealerId 执行人ID
+         * @param innateData 固有信息
          */
-        public void start_next_task(String nodeName, long dealerId, Map<String, String> innateData) {
+        public void start_next_task(String modelName, long dealerId, Map<String, String> innateData) {
+            //查找该模型的最新版本
+//            WorkflowModel model = modelDao.findFirstByModelNameAndOpenIsTrueOrderByVersionDesc(modelName).orElse(null);
+            long modelId = 0L;
+            List<Long> ids = modelDao.findModelId(modelName);
+            if(ids.size() > 0){
+                modelId = ids.get(0);
+            }
+//            long modelId = modelDao.findModelId(modelName).orElse(0L);
+            if(0 == modelId) return;
+//            if(null == model) return;
+            //
+            if(0 == dealerId) return;
+            //
+            if(null == innateData){
+                innateData = new HashMap<>();
+            }
 
+            Map<String,String> data = convertInnates(instance.getAttributes());
+            data.putAll(innateData);
+
+            ApplyTaskRequest applyTaskRequest = new ApplyTaskRequest();
+            applyTaskRequest.setModelId(modelId);
+            applyTaskRequest.setCommon(false);
+            applyTaskRequest.setManual(false);
+            applyTaskRequest.setDealerId(dealerId);
+            applyTaskRequest.setTitle(modelName);
+            applyTaskRequest.setData(data);
+            WorkflowInstance newInstance = startNewInstance(dealerId,applyTaskRequest).orElse(null);
+            if(null != newInstance){
+                logService.addLog(SystemTextLog.Type.WORKFLOW, instance.getId(), dealerId, "创建了后续任务 " + applyTaskRequest.getTitle());
+                newInstance.setPrevInstanceId(instance.getId());
+                instanceDao.save(newInstance);
+            }
         }
 
+        public long get_task_dealer_id(){
+            return instance.getDealUserId();
+        }
 
+        public Map<String,String> get_task_innate_data(){
+            return instance.getAttributes().stream().filter(item -> item.getType().equals(WorkflowInstanceAttribute.Type.INNATE)).collect(Collectors.toMap(item -> item.getAttrKey(),item -> item.getAttrValue()));
+        }
 
         public Map getLastNode(String nodeName) {
             int idex = instance.getNodeList().indexOf(currentNode);
@@ -1458,9 +1555,9 @@ public class WorkflowService implements IWorkflowService {
     private boolean checkNodeAuth(WorkflowNodeInstance nodeInstance, User user) {
         List<WorkflowModelPersons> persons = nodeInstance.getNodeModel().getPersons();
         //1. 处理人确认的时候, 只有该处理人可以处理
-        boolean flag1 = (null == nodeInstance.getDealer() && persons.stream().anyMatch(p -> p.getType().equals(Type.MAIN_QUARTERS) && user.hasQuarters(p.getUid())));
+        boolean flag1 = (null == nodeInstance.getDealerId() && persons.stream().anyMatch(p -> p.getType().equals(Type.MAIN_QUARTERS) && user.hasQuarters(p.getUid())));
         //2. 处理人不确认的时候, 拥有该权限的人都可以处理
-        boolean flag2 = (null != nodeInstance.getDealer() && user.getId().equals(nodeInstance.getDealer().getId()));
+        boolean flag2 = (null != nodeInstance.getDealerId() && user.getId().equals(nodeInstance.getDealerId()));
         return flag1 || flag2;
     }
 
@@ -1481,6 +1578,11 @@ public class WorkflowService implements IWorkflowService {
 //                            );
 
                 });
+    }
+
+    private Map<String,String> convertInnates(List<WorkflowInstanceAttribute> attributes){
+        return attributes.stream().filter(item -> item.getType().equals(WorkflowInstanceAttribute.Type.INNATE))
+                .collect(Collectors.toMap(item -> item.getAttrKey(), item -> item.getAttrValue()));
     }
 
 
@@ -1555,7 +1657,7 @@ public class WorkflowService implements IWorkflowService {
             response.setRecall(canRecall(workflowInstance, user));
             response.setTransform(canTransform(workflowInstance, user));
             response.setAccept(canAccept(workflowInstance, user));
-            response.setLogs(systemTextLogDao.findAllByTypeAndLinkIdOrderByAddTimeDesc(SystemTextLog.Type.WORKFLOW, id));
+            response.setLogs(systemTextLogDao.findLogs(SystemTextLog.Type.WORKFLOW, id));
             response.setTransformUsers(modelDao.getFirstNodeUsers(workflowInstance.getWorkflowModel().getId()));
 
             return response;

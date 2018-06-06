@@ -154,7 +154,7 @@ public class NormalTest {
 //fontResolver.addFont("C:/Windows/Fonts/SIMSUN.TTC",
 //                BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
 // 解决图片的相对路径问题
-// renderer.getSharedContext().setBaseURL("file:/D:/z/temp/");
+// renderer.getSharedContext().setBaseURL("bytes:/D:/z/temp/");
         renderer.layout();
         renderer.createPDF(os);
         os.close();

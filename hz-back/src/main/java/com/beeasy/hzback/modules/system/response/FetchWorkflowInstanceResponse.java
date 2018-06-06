@@ -39,4 +39,5 @@ public class FetchWorkflowInstanceResponse {
 
     //当前节点模型
     WorkflowNode currentNodeModel;
+
 }

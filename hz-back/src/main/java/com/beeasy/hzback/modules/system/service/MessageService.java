@@ -64,18 +64,18 @@ public class MessageService implements IMessageService {
 //        message.setContent(content);
 //        //保存附件
 //        if (null != files) {
-//            files.forEach(file -> {
+//            files.forEach(bytes -> {
 //                //个人共享
-//                if (file.getType().equals(ICloudDiskService.DirType.USER)) {
-//                    cloudDiskService.shareTo(fromUser.getId(), toUser.getId(), ICloudDiskService.DirType.USER, file.getFileId()).ifPresent(fileIndex -> {
+//                if (bytes.getType().equals(ICloudDiskService.DirType.USER)) {
+//                    cloudDiskService.shareTo(fromUser.getId(), toUser.getId(), ICloudDiskService.DirType.USER, bytes.getFileId()).ifPresent(fileIndex -> {
 //                        MessageFile messageFile = new MessageFile();
 //                        messageFile.setType(ICloudDiskService.DirType.USER);
 //                        messageFile.setLinkId(fileIndex.getId());
 ////                        messageFile.setMessage(message);
 ////                        message.getFiles().add(messageFile);
 //                    });
-//                } else if (file.getType().equals(ICloudDiskService.DirType.COMMON)) {
-//                    cloudDiskService.findFile(0, ICloudDiskService.DirType.COMMON, file.getFileId()).ifPresent(fileIndex -> {
+//                } else if (bytes.getType().equals(ICloudDiskService.DirType.COMMON)) {
+//                    cloudDiskService.findFile(0, ICloudDiskService.DirType.COMMON, bytes.getFileId()).ifPresent(fileIndex -> {
 //                        MessageFile messageFile = new MessageFile();
 //                        messageFile.setType(ICloudDiskService.DirType.COMMON);
 //                        messageFile.setLinkId(fileIndex.getId());
@@ -117,10 +117,10 @@ public class MessageService implements IMessageService {
     public Optional<Long> pcUploadFile(long uid, MultipartFile file) {
         try {
             SystemFile systemFile = new SystemFile();
-            systemFile.setFile(file.getBytes());
+            systemFile.setBytes(file.getBytes());
             systemFile.setType(SystemFile.Type.MESSAGE);
             systemFile.setFileName(file.getOriginalFilename());
-            systemFile.setFile(file.getBytes());
+            systemFile.setBytes(file.getBytes());
             systemFile = systemFileDao.save(systemFile);
             return Optional.ofNullable(systemFile.getId());
         } catch (IOException e) {
@@ -202,7 +202,7 @@ public class MessageService implements IMessageService {
             //保存文件
             SystemFile systemFile = new SystemFile();
             try {
-                systemFile.setFile(file.getBytes());
+                systemFile.setBytes(file.getBytes());
             } catch (IOException e) {
                 e.printStackTrace();
                 return null;

@@ -57,11 +57,30 @@ public class MobileUserController {
                 new Result.Entry(User.class,"quarters","permissions"));
     }
 
+    @GetMapping("/login/{username}/{password}")
+    public String login(
+            @PathVariable String username,
+            @PathVariable String password
+    ){
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        if(!userDetails.getPassword().equals(DigestUtils.md5DigestAsHex(password.getBytes()))){
+            return Result.error("密码错误").toJson();
+        }
+        String token = jwtTokenUtil.generateToken(userDetails);
+        Map<String,String> map = RSAUtils.createKeys(1024);
+        userDao.updateUserKeys(map.get("privateKey"),map.get("publicKey"),userDetails.getUsername());
+
+        return Result.ok(new UserLoginResponse(token,userDao.findFirstByUsername(userDetails.getUsername()).orElse(null),map.get("publicKey"))).toJson(userEntries);
+    }
+
     @PostMapping("/login")
     public String login(
             @RequestBody @Valid UserLoginRequest loginRequest,
             BindingResult bindingResult
     ){
+        if(bindingResult.hasErrors()){
+            return Result.error(bindingResult).toJson();
+        }
         UserDetails userDetails = userDetailsService.loadUserByUsername(loginRequest.getUsername());
         if(!userDetails.getPassword().equals(DigestUtils.md5DigestAsHex(loginRequest.getPassword().getBytes()))){
             return Result.error("密码错误").toJson();

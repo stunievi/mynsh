@@ -42,10 +42,10 @@
 //                // 得到协议的名称
 //                String protocol = url.getProtocol();
 //                // 如果是以文件的形式保存在服务器上
-//                if ("file".equals(protocol)) {
+//                if ("bytes".equals(protocol)) {
 //                    System.err.println("file类型的扫描");
 //                    // 获取包的物理路径
-//                    String filePath = URLDecoder.decode(url.getFile(), "UTF-8");
+//                    String filePath = URLDecoder.decode(url.getBytes(), "UTF-8");
 //                    // 以文件的方式扫描整个包下的文件 并添加到集合中
 //                    findAndAddClassesInPackageByFile(packageName,
 //                            filePath, recursive, classes);
@@ -129,22 +129,22 @@
 //// 如果存在 就获取包下的所有文件 包括目录
 //        FILE[] dirfiles = dir.listFiles(new FileFilter() {
 //            // 自定义过滤规则 如果可以循环(包含子目录) 或则是以.class结尾的文件(编译好的java类文件)
-//            public boolean accept(FILE file) {
-//                return (recursive && file.isDirectory()) ||
-//                        (file.getNodeName().endsWith(".class"));
+//            public boolean accept(FILE bytes) {
+//                return (recursive && bytes.isDirectory()) ||
+//                        (bytes.getNodeName().endsWith(".class"));
 //            }
 //        });
 //// 循环所有文件
-//        for (FILE file : dirfiles) {
+//        for (FILE bytes : dirfiles) {
 //// 如果是目录 则继续扫描
-//            if (file.isDirectory()) {
+//            if (bytes.isDirectory()) {
 //                findAndAddClassesInPackageByFile(packageName + "."
-//                                + file.getNodeName(), file.getAbsolutePath(), recursive,
+//                                + bytes.getNodeName(), bytes.getAbsolutePath(), recursive,
 //                        classes);
 //            } else {
 //// 如果是java类文件 去掉后面的.class 只留下类名
-//                String className = file.getNodeName().substring(0,
-//                        file.getNodeName().length() - 6);
+//                String className = bytes.getNodeName().substring(0,
+//                        bytes.getNodeName().length() - 6);
 //                try {
 //// 添加到集合中去
 ////classes.add(Class.forName(packageName + '.' + className));

@@ -305,7 +305,7 @@
       type: input
       next: 审核签署
       content:
-        审核报告: report,file,n
+        审核报告: report,bytes,n
 
     审核签署:
       type: check
@@ -441,7 +441,7 @@
       type: input
       content:
         认定说明: apply,textarea,y
-      next: 责任认定
+      next: 风险资产管理部审批
 
     风险资产管理部审批:
       type: check
@@ -463,7 +463,7 @@
     结束:
       type: end
       end: true
-      behavior: start_next_task('不良资产管理流程',get_task_dealer(),get_task_innate_data())
+      behavior: start_next_task('不良资产管理流程',get_task_dealer_id(),get_task_innate_data())
 
 利息减免登记:
   manual: false
@@ -827,7 +827,7 @@
     选择处理方式:
       start: true
       type: check
-      key: fieldName
+      key: key
       ps: ps
       question: 利息减免/诉讼/协商抵债/不良转贷后/执转破/重组/其它
       states:
@@ -876,12 +876,12 @@
       next: 结束
 
     诉讼流程:
-      type: checkprocess
-      key: fieldName
+      type: check
+      key: key
       ps: ps
       question: 填写任务的处理结果
       count: 1
-      child_task: []
+      allow_child_task: []
       states:
         -
           item: 是
@@ -893,12 +893,12 @@
           behavior: go('选择处理方式')
 
     利息减免流程:
-      type: checkprocess
-      key: fieldName
+      type: check
+      key: key
       ps: ps
       question: 填写任务的处理结果
       count: 1
-      child_task: [利息减免登记]
+      allow_child_task: [利息减免登记]
       states:
         -
           item: 是
@@ -910,12 +910,12 @@
           behavior: go('选择处理方式')
 
     资产处置流程:
-      type: checkprocess
-      key: fieldName
+      type: check
+      key: key
       ps: ps
       question: 填写任务的处理结果
       count: 1
-      child_task: [资产处置]
+      allow_child_task: [资产处置]
       states:
         -
           item: 是
