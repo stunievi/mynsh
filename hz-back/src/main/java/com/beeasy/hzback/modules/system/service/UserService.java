@@ -13,10 +13,7 @@ import com.beeasy.hzback.modules.exception.CannotFindEntityException;
 import com.beeasy.hzback.modules.system.cache.SystemConfigCache;
 import com.beeasy.hzback.modules.system.dao.*;
 import com.beeasy.hzback.modules.system.entity.*;
-import com.beeasy.hzback.modules.system.form.QuartersAdd;
-import com.beeasy.hzback.modules.system.form.UserAdd;
-import com.beeasy.hzback.modules.system.form.UserEdit;
-import com.beeasy.hzback.modules.system.form.UserSearch;
+import com.beeasy.hzback.modules.system.form.*;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -416,6 +413,20 @@ public class UserService implements IUserService {
         quarters.setDName(department.getName());
         Quarters ret = quartersDao.save(quarters);
         return Result.ok(ret);
+    }
+
+    public Result<Quarters> updateQuarters(QuartersEdit edit){
+        //禁止编辑同名岗位
+        if(quartersDao.countSameNameFromDepartment(edit.getId(),edit.getName()) > 0){
+            return Result.error("已经有同名的岗位");
+        }
+        Quarters quarters = findQuarters(edit.getId()).orElse(null);
+        if(null == quarters){
+            return Result.error("编辑的岗位不存在");
+        }
+        quarters.setName(edit.getName());
+        quarters.setInfo(edit.getInfo());
+        return Result.ok(quartersDao.save(quarters));
     }
 
 

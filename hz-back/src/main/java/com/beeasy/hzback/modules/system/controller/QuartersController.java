@@ -71,8 +71,7 @@ public class QuartersController {
     @ApiOperation(value = "编辑岗位", notes = "编辑一个岗位")
     @PutMapping("")
     public Result edit(
-            @Valid QuartersEdit edit,
-            BindingResult bindingResult
+            @Valid QuartersEdit edit
     ){
         Quarters quarters = quartersDao.findOne(edit.getId());
         if(quarters == null) return Result.error("岗位ID不对");
