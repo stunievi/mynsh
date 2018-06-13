@@ -67,8 +67,8 @@ public class MobileWorkflowController {
         for (WorkflowModel model : models) {
             model.setPubOrPoint(workflowService.canPubOrPoint(model,user) && model.isManual());
         }
-        return Result.ok(models).toMobile(
-                entries
+        return Result.ok(models).toJson(
+                new Result.Entry(WorkflowModel.class, "nodeModels","permissions")
                 );
     }
 
@@ -202,6 +202,15 @@ public class MobileWorkflowController {
         return Result.finish(workflowService.deleteNodeFile(Utils.getCurrentUserId(),nodeFileId)).toMobile();
     }
 
+    @ApiOperation(value = "设置节点标签")
+    @GetMapping("/node/file/setTags/{id}/{tags}")
+    public String setNodeFileTags(
+            @PathVariable long id,
+            @PathVariable String tags
+    ){
+        return Result.finish(workflowService.setNodeFileTags(Utils.getCurrentUserId(), id, tags)).toJson();
+    }
+
     @ApiOperation(value = "节点添加定位信息")
     @PostMapping("/position/add")
     public String addPosition(
@@ -244,7 +253,7 @@ public class MobileWorkflowController {
     public String getMyOwnWorks(
             Long lessId
     ){
-        PageRequest pageRequest = new PageRequest(0,20);
+        PageRequest pageRequest = new PageRequest(0,10);
         if(lessId == null) lessId = 0L;
         if(lessId == 0) lessId = Long.MAX_VALUE;
         return Result.ok(instanceDao.findAllByDealUserIdAndIdLessThanOrderByAddTimeDesc(Utils.getCurrentUserId(),lessId,pageRequest)).toMobile(myworkEntries);
@@ -254,21 +263,21 @@ public class MobileWorkflowController {
     @ApiOperation(value = "我发布的任务")
     @GetMapping("/myPubWorks")
     public String getMyPubWorks(Long lessId){
-        PageRequest pageRequest = new PageRequest(0,20);
+        PageRequest pageRequest = new PageRequest(0,10);
         if(lessId == null){
             lessId = 0L;
         }
         if(lessId == 0){
             lessId = Long.MAX_VALUE;
         }
-        return Result.ok(instanceDao.findAllByPubUserIdAndIdLessThanOrderByAddTimeDesc(Utils.getCurrentUserId(),lessId,pageRequest)).toMobile(myworkEntries);
+        return Result.ok(instanceDao.findAllByPubUserIdAndIdLessThanOrderByAddTimeDesc(Utils.getCurrentUserId(),lessId,pageRequest)).toJson(myworkEntries);
     }
 
 
     @ApiOperation(value = "需要我处理的任务")
     @GetMapping("/myNeedingWorks")
     public String getMyNeedToDealWorks(Long lessId){
-        PageRequest pageRequest = new PageRequest(0,20);
+        PageRequest pageRequest = new PageRequest(0,10);
         if(lessId == null){
             lessId = 0L;
         }
@@ -281,7 +290,7 @@ public class MobileWorkflowController {
     @ApiOperation(value = "我处理过的任务")
     @GetMapping("/myDealedWorks")
     public String getMyDealedWorks(Long lessId){
-        PageRequest pageRequest = new PageRequest(0,20);
+        PageRequest pageRequest = new PageRequest(0,10);
         if(null == lessId){
             lessId = 0L;
         }
@@ -295,7 +304,7 @@ public class MobileWorkflowController {
     @ApiOperation(value = "我观察的任务")
     @GetMapping("/myObserveredWorks")
     public String getMyObserveredWorks(Long lessId){
-        PageRequest pageRequest = new PageRequest(0,20);
+        PageRequest pageRequest = new PageRequest(0,10);
         if(null == lessId){
             lessId = 0L;
         }
@@ -308,7 +317,7 @@ public class MobileWorkflowController {
     @ApiOperation(value = "我可以执行的公共任务")
     @GetMapping("/getCommonWorks")
     public String getCommonWorks(Long lessId){
-        PageRequest pageRequest = new PageRequest(0,20);
+        PageRequest pageRequest = new PageRequest(0,10);
         if(null == lessId){
             lessId = 0L;
         }
@@ -320,21 +329,18 @@ public class MobileWorkflowController {
 
 
     @ApiOperation(value = "任务处理日志")
-    @GetMapping("/logs")
+    @GetMapping("/logs/{instanceId}")
     public String getWorkflowLogs(
-            @RequestParam Long instanceId
+            @PathVariable Long instanceId
     ){
-        return Result.ok(systemTextLogDao.findAllByTypeAndLinkIdOrderByAddTimeDesc(SystemTextLog.Type.WORKFLOW,instanceId)).toMobile();
+        return Result.ok(systemTextLogDao.findLogs(SystemTextLog.Type.WORKFLOW,instanceId)).toMobile();
     }
-
 
 
     @ApiOperation(value = "查询一个任务的所有明细")
     @GetMapping("/instance/fetch/{id}")
     public String fetchInstance(@PathVariable Long id){
-        return Result.finish(workflowService.fetchWorkflowInstance(Utils.getCurrentUserId(),id)).toMobile(
-                new Result.Entry(User.class,"departments","quarters"),
-                new Result.Entry(WorkflowNode.class,"persons"));
+        return Result.finish(workflowService.fetchInstance(Utils.getCurrentUserId(),id)).toMobile();
     }
 
     @ApiOperation(value = "得到某个模型第一个节点的可执行人")

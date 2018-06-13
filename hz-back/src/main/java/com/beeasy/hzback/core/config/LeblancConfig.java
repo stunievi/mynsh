@@ -2,10 +2,8 @@ package com.beeasy.hzback.core.config;
 
 import bin.leblanc.dataset.DataSetFactory;
 import bin.leblanc.zed.JPAUtil;
-import bin.leblanc.zed.RolePermission;
 import bin.leblanc.zed.SQLUtil;
 import bin.leblanc.zed.Zed;
-import bin.leblanc.zed.event.ZedInitializedEvent;
 import com.beeasy.hzback.modules.system.cache.SystemConfigCache;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,28 +52,28 @@ public class LeblancConfig implements ApplicationListener<ContextRefreshedEvent>
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
-        Zed zed = zed();
-
-        zed.init();
-
-        //基础需要注册超级管理员权限
-        zed.addRole(RolePermission.SUPERUSER,(role) -> {
-            role.allowAllGet();
-            role.allowAllPost();
-            role.allowAllPut();
-            role.allowAllDelete();
-        });
-        zed.addRole(RolePermission.UNKNOWN, role -> {
-            role.disallowAllDelete();
-            role.disallowAllGet();
-            role.disallowAllPost();
-            role.disallowAllPut();
-        });
-
-
+//        Zed zed = zed();
+//
+//        zed.init();
+//
+//        //基础需要注册超级管理员权限
+//        zed.addRole(RolePermission.SUPERUSER,(role) -> {
+//            role.allowAllGet();
+//            role.allowAllPost();
+//            role.allowAllPut();
+//            role.allowAllDelete();
+//        });
+//        zed.addRole(RolePermission.UNKNOWN, role -> {
+//            role.disallowAllDelete();
+//            role.disallowAllGet();
+//            role.disallowAllPost();
+//            role.disallowAllPut();
+//        });
 
 
-        applicationContext.publishEvent(new ZedInitializedEvent(this));
+
+
+//        applicationContext.publishEvent(new ZedInitializedEvent(this));
 
         //初始化脚本引擎
         ScriptEngine engine = scriptEngine();

@@ -37,11 +37,15 @@ public class CloudDirectoryIndex extends AbstractBaseEntity{
     String dirName;
 
     @JSONField(serialize = false)
+    @JoinColumn(name = "parent_id", insertable = false, updatable = false)
     @ManyToOne
     CloudDirectoryIndex parent;
+    @Column(name = "parent_id")
+    Long parentId;
 
-    @OneToMany(mappedBy = "parent", cascade = CascadeType.REMOVE)
-    List<CloudDirectoryIndex> children = new ArrayList<>();
+//    @JSONField(serialize = false)
+//    @OneToMany(mappedBy = "parent", cascade = CascadeType.REMOVE)
+//    List<CloudDirectoryIndex> children = new ArrayList<>();
 
     @OrderBy(value = "dir DESC")
     boolean dir = false;

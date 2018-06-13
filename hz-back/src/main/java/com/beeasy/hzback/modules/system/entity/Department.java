@@ -28,8 +28,10 @@ public class Department extends AbstractBaseEntity{
 
     @JSONField(serialize = false)
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_id")
+    @JoinColumn(name = "parent_id", insertable = false, updatable = false)
     private Department parent;
+    @Column(name = "parent_id")
+    private Long parentId;
 
     @CreatedDate
     private Date addTime;

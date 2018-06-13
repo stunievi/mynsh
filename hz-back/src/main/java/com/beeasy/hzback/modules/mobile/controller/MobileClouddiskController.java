@@ -39,11 +39,17 @@ public class MobileClouddiskController {
 //    }
 //
     /** 个人文件柜 **/
-    @GetMapping("/user/all")
-    public String allFiles(){
-        return Result.ok(cloudDirectoryIndexDao.findAllByTypeAndLinkIdAndParentOrderByDirDesc(ICloudDiskService.DirType.USER,Utils.getCurrentUserId(),null)).toMobile(
-                new Result.Entry(CloudDirectoryIndex.class,"parent")
-        );
+    @GetMapping("/{type}/files/{pid}")
+    public String allFiles(
+            @PathVariable String type,
+            @PathVariable Long pid
+    ){
+        if(type.equals("user")){
+            return cloudDiskService.getFiles(Utils.getCurrentUserId(), ICloudDiskService.DirType.USER, pid).toMobile();
+        }
+        else{
+            return cloudDiskService.getFiles(0, ICloudDiskService.DirType.COMMON, pid).toMobile();
+        }
     }
 
     @GetMapping("/{type}/createDir/{pid}/{dirName}")
@@ -69,15 +75,13 @@ public class MobileClouddiskController {
             @RequestBody List<Long> rids
     ){
         if(type.equals("user")){
-            cloudDiskService.deleteDirectory(Utils.getCurrentUserId(), ICloudDiskService.DirType.USER,rids);
-            return Result.ok().toMobile();
+            return cloudDiskService.deleteDirectory(Utils.getCurrentUserId(), ICloudDiskService.DirType.USER,rids).toMobile();
         }
         else{
             if(!checkAuth(Utils.getCurrentUserId())){
                 return Result.error("没有权限").toJson();
             }
-            cloudDiskService.deleteDirectory(0, ICloudDiskService.DirType.COMMON,rids);
-            return Result.ok().toMobile();
+            return cloudDiskService.deleteDirectory(0, ICloudDiskService.DirType.COMMON,rids).toMobile();
         }
     }
 
@@ -89,25 +93,13 @@ public class MobileClouddiskController {
     ){
 
         if(type.equals("user")) {
-            String fileName = cloudDiskService.renameDirectory(Utils.getCurrentUserId(), ICloudDiskService.DirType.USER,id,newName);
-            if(fileName.isEmpty()){
-                return Result.error("修改失败").toJson();
-            }
-            else{
-                return Result.ok(fileName).toMobile();
-            }
+            return cloudDiskService.renameDirectory(Utils.getCurrentUserId(), ICloudDiskService.DirType.USER,id,newName).toMobile();
         }
         else {
             if(!checkAuth(Utils.getCurrentUserId())){
                 return Result.error("没有权限").toMobile();
             }
-            String fileName = cloudDiskService.renameDirectory(0, ICloudDiskService.DirType.COMMON,id,newName);
-            if(fileName.isEmpty()){
-                return Result.error("修改失败").toJson();
-            }
-            else{
-                return Result.ok(fileName).toMobile();
-            }
+            return cloudDiskService.renameDirectory(0, ICloudDiskService.DirType.COMMON,id,newName).toMobile();
         }
     }
 
@@ -120,13 +112,13 @@ public class MobileClouddiskController {
             @PathVariable  Long pid
             ){
         if(type.equals("user")){
-            return Result.finish(cloudDiskService.uploadFile(Utils.getCurrentUserId(), ICloudDiskService.DirType.USER,pid,file)).toMobile();
+            return (cloudDiskService.uploadFile(Utils.getCurrentUserId(), ICloudDiskService.DirType.USER,pid,file)).toMobile();
         }
         else{
             if(!checkAuth(Utils.getCurrentUserId())){
                 return Result.error("没有权限").toJson();
             }
-            return Result.finish(cloudDiskService.uploadFile(0, ICloudDiskService.DirType.COMMON,pid,file)).toMobile();
+            return (cloudDiskService.uploadFile(0, ICloudDiskService.DirType.COMMON,pid,file)).toMobile();
         }
     }
 
@@ -181,13 +173,13 @@ public class MobileClouddiskController {
             @RequestBody List<String> tags
     ){
         if(type.equals("user")){
-            return Result.finish(cloudDiskService.setFileTags(Utils.getCurrentUserId(), ICloudDiskService.DirType.USER, id, tags)).toMobile();
+            return (cloudDiskService.setFileTags(Utils.getCurrentUserId(), ICloudDiskService.DirType.USER, id, tags)).toMobile();
         }
         else{
             if(!checkAuth(Utils.getCurrentUserId())){
                 return Result.error().toMobile();
             }
-            return Result.finish(cloudDiskService.setFileTags(0, ICloudDiskService.DirType.COMMON, id , tags)).toMobile();
+            return (cloudDiskService.setFileTags(0, ICloudDiskService.DirType.COMMON, id , tags)).toMobile();
         }
     }
 
@@ -210,13 +202,13 @@ public class MobileClouddiskController {
 
 
 
-    @GetMapping("/common/all")
-    public String allCommonFiles(){
-        //无权限 所有人都可以看到
-        return Result.ok(cloudDirectoryIndexDao.findAllByTypeAndLinkIdAndParentOrderByDirDesc(ICloudDiskService.DirType.COMMON,0,null)).toMobile(
-                new Result.Entry(CloudDirectoryIndex.class,"parent")
-        );
-    }
+//    @GetMapping("/common/all")
+//    public String allCommonFiles(){
+//        //无权限 所有人都可以看到
+//        return Result.ok(cloudDirectoryIndexDao.findAllByTypeAndLinkIdAndParentOrderByDirDesc(ICloudDiskService.DirType.COMMON,0,null)).toMobile(
+//                new Result.Entry(CloudDirectoryIndex.class,"parent")
+//        );
+//    }
 
 //    @PostMapping("/common/createDir")
 //    public String createCommonDir(

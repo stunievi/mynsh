@@ -34,7 +34,7 @@ public class DepartmentService implements IDepartmentService {
 
         Department department = new Department();
         department.setName(add.getName());
-        department.setParent(parent);
+        department.setParentId(null == parent ? null : parent.getId());
         department.setInfo(add.getInfo());
 
         department = departmentDao.save(department);
@@ -77,7 +77,7 @@ public class DepartmentService implements IDepartmentService {
                     result.setErrMessage("还有岗位存在, 无法移动");
                     return;
                 }
-                department.setParent(newParent.get());
+                department.setParentId(newParent.get().getId());
             }
 
             result.setSuccess(true);

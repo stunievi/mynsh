@@ -2,7 +2,6 @@ package com.beeasy.hzback.modules.system;
 
 import bin.leblanc.zed.Zed;
 import bin.leblanc.zed.event.ZedInitializedEvent;
-import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.modules.system.entity.CloudDirectoryIndex;
 import com.beeasy.hzback.modules.system.entity.User;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +27,9 @@ public class ZedCustomPermission implements ApplicationListener<ZedInitializedEv
               */
 //            User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 //            Collection<GrantedAuthority> auths = (Collection<GrantedAuthority>) SecurityContextHolder.getContext().getAuthentication().getAuthorities();
-            User user = Utils.getCurrentUser();
+
+            User user = null;
+//            User user = Utils.getCurrentUser();
             if(user.getUsername().equals("1")){
                 return "fuck";
             }
@@ -46,7 +47,8 @@ public class ZedCustomPermission implements ApplicationListener<ZedInitializedEv
             role.createEntityPermission(CloudDirectoryIndex.class)
                     .allowGet()
                     .setGetWhereLimit((cb,root,condition) -> {
-                        return cb.equal(root.get("user"),(Utils.getCurrentUser()));
+                        return condition;
+//                        return cb.equal(root.get("user"),(Utils.getCurrentUser()));
                     });
 //            role.createEntityPermission(CloudFileIndex.class)
 //                    .allowGet()

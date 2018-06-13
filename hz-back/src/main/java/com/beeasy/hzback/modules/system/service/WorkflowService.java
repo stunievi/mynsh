@@ -16,29 +16,24 @@ import com.beeasy.hzback.modules.system.node.*;
 import com.beeasy.hzback.modules.system.response.FetchWorkflowInstanceResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 import javax.script.SimpleScriptContext;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static javax.persistence.LockModeType.PESSIMISTIC_WRITE;
@@ -175,7 +170,7 @@ public class WorkflowService implements IWorkflowService {
 
         //任务主体
         WorkflowInstance workflowInstance = new WorkflowInstance();
-        workflowInstance.setWorkflowModel(workflowModel);
+        workflowInstance.setModelId(workflowModel.getId());
         workflowInstance.setTitle(request.getTitle());
         workflowInstance.setInfo(request.getInfo());
 //        workflowInstance.setDealUser(dealerUser);
@@ -212,7 +207,7 @@ public class WorkflowService implements IWorkflowService {
         }
 
         //插入第一个节点
-        workflowInstance.addNode(firstNode);
+        workflowInstance.addNode(firstNode,true);
         //第一个执行人已经确定
 //        workflowInstance.getNodeList().get(0).setDealer(dealerUser);
         workflowInstance.getNodeList().get(0).setDealerId(null == dealerUser ? null : dealerUser.getId());
@@ -238,7 +233,7 @@ public class WorkflowService implements IWorkflowService {
     public Result startChildInstance(Long uid, StartChildInstanceRequest request){
         User user = userService.findUser(uid).orElse(null);
         WorkflowNodeInstance nodeInstance = findNodeInstance(request.getNodeInstanceId()).orElse(null);
-        if(null == user || null == nodeInstance){
+        if(null == user || null == nodeInstance || nodeInstance.isFinished()){
             return Result.error("找不到合适的节点");
         }
         //允许开启的子流程是否存在
@@ -848,6 +843,18 @@ public class WorkflowService implements IWorkflowService {
         return Result.ok(nodeFileDao.save(nodeFile));
     }
 
+    public boolean setNodeFileTags(long uid, long nodeId, String tags){
+        val list = Arrays.asList(tags.split(" ")).stream().filter(item -> !StringUtils.isEmpty(item))
+                .distinct()
+                .collect(Collectors.toList());
+        String str =org.apache.commons.lang.StringUtils.join(list.toArray()," ");
+        if(null == str){
+            str = "";
+        }
+        //查找是否存在这个节点
+        return nodeFileDao.updateNodeFileTags(uid,nodeId, str) > 0;
+    }
+
 
     @Deprecated
     @Override
@@ -1053,7 +1060,7 @@ public class WorkflowService implements IWorkflowService {
         boolean start = (boolean) model.getOrDefault("manual", false);
         workflowModel.setManual(start);
         boolean custom = (boolean) model.getOrDefault("custom", true);
-        workflowModel.setManual(custom);
+        workflowModel.setCustom(custom);
 
         WorkflowModel result = modelDao.save(workflowModel);
         if (null != result.getId()) {
@@ -1151,31 +1158,31 @@ public class WorkflowService implements IWorkflowService {
     }
 
 
-    @Deprecated
-    @Override
-    public Result<InspectTask> createInspectTask(long createUserId, String modelName, long userId, boolean isAuto) {
-//        AtomicReference<User> createUser = new AtomicReference<>();
-        return userService.findUser(userId)
-                .map(user -> {
-                    InspectTask task = new InspectTask();
-                    task.setModelName(modelName);
-                    task.setDealUser(user);
-                    task.setState(InspectTaskState.CREATED);
-                    task.setType(isAuto ? InspectTaskType.AUTO : InspectTaskType.MANUAL);
-                    task = inspectTaskDao.save(task);
-                    if (task.getId() == null) {
-                        return Result.error("找不到对应的任务");
-                    }
-                    //如果是自己创建的任务,那么自己接受任务
-                    if (createUserId == userId) {
-                        Result result = acceptInspectTask(userId, task.getId());
-                        if (!result.isSuccess()) {
-                            return result;
-                        }
-                    }
-                    return Result.ok(findInspectTask(task.getId()).orElse(null));
-                }).orElse(Result.error());
-    }
+//    @Deprecated
+//    @Override
+//    public Result<InspectTask> createInspectTask(long createUserId, String modelName, long userId, boolean isAuto) {
+////        AtomicReference<User> createUser = new AtomicReference<>();
+//        return userService.findUser(userId)
+//                .map(user -> {
+//                    InspectTask task = new InspectTask();
+//                    task.setModelName(modelName);
+//                    task.setDealUser(user);
+//                    task.setState(InspectTaskState.CREATED);
+//                    task.setType(isAuto ? InspectTaskType.AUTO : InspectTaskType.MANUAL);
+//                    task = inspectTaskDao.save(task);
+//                    if (task.getId() == null) {
+//                        return Result.error("找不到对应的任务");
+//                    }
+//                    //如果是自己创建的任务,那么自己接受任务
+//                    if (createUserId == userId) {
+//                        Result result = acceptInspectTask(userId, task.getId());
+//                        if (!result.isSuccess()) {
+//                            return result;
+//                        }
+//                    }
+//                    return Result.ok(findInspectTask(task.getId()).orElse(null));
+//                }).orElse(Result.error());
+//    }
 
     @Deprecated
     public Optional<WorkflowNodeInstance> getCurrentNodeInstance(long userId, long instanceId) {
@@ -1198,65 +1205,65 @@ public class WorkflowService implements IWorkflowService {
     }
 
 
-    @Deprecated
-    @Override
-    public Result<InspectTask> acceptInspectTask(long userId, long taskId) {
-        AtomicReference<User> userAtomicReference = new AtomicReference<>();
-        return userService.findUser(userId)
-                .flatMap(user -> {
-                    userAtomicReference.set(user);
-                    return findInspectTask(taskId);
-                })
-                .map(task -> {
-                    //如果这个任务已经指定了执行人员
-                    if (task.getDealUser() != null) {
-                        if (!task.getDealUser().getId().equals(userId)) {
-                            return Result.error("这个任务不属于你");
-                        }
-                    }
+//    @Deprecated
+//    @Override
+//    public Result<InspectTask> acceptInspectTask(long userId, long taskId) {
+//        AtomicReference<User> userAtomicReference = new AtomicReference<>();
+//        return userService.findUser(userId)
+//                .flatMap(user -> {
+//                    userAtomicReference.set(user);
+//                    return findInspectTask(taskId);
+//                })
+//                .map(task -> {
+//                    //如果这个任务已经指定了执行人员
+//                    if (task.getDealUser() != null) {
+//                        if (!task.getDealUser().getId().equals(userId)) {
+//                            return Result.error("这个任务不属于你");
+//                        }
+//                    }
+//
+//                    task.setDealUser(userAtomicReference.get());
+//                    task.setState(InspectTaskState.RECEIVED);
+//                    task.setAcceptDate(new Date());
+//
+//                    //创建一条新的工作流任务
+//                    List<WorkflowModel> models = modelDao.findAllByModelNameAndOpenIsTrueOrderByVersionDesc(task.getModelName());
+//                    if (models.size() == 0) {
+//                        return Result.error("没找到符合条件的工作流模型");
+//                    }
+//                    WorkflowInstance instance = null;
+////                    WorkflowInstance instance = startNewInstance(userId, models.get(0).getId()).orElse(null);
+//                    if (null == instance) {
+//                        return Result.error("自动创建任务失败");
+//                    }
+//                    task.setInstance(instance);
+//                    task = inspectTaskDao.save(task);
+//                    return Result.ok(task);
+//                }).orElse(Result.error());
+//    }
 
-                    task.setDealUser(userAtomicReference.get());
-                    task.setState(InspectTaskState.RECEIVED);
-                    task.setAcceptDate(new Date());
 
-                    //创建一条新的工作流任务
-                    List<WorkflowModel> models = modelDao.findAllByModelNameAndOpenIsTrueOrderByVersionDesc(task.getModelName());
-                    if (models.size() == 0) {
-                        return Result.error("没找到符合条件的工作流模型");
-                    }
-                    WorkflowInstance instance = null;
-//                    WorkflowInstance instance = startNewInstance(userId, models.get(0).getId()).orElse(null);
-                    if (null == instance) {
-                        return Result.error("自动创建任务失败");
-                    }
-                    task.setInstance(instance);
-                    task = inspectTaskDao.save(task);
-                    return Result.ok(task);
-                }).orElse(Result.error());
-    }
-
-
-    @Deprecated
-    //如果userid为0,则指定为公共任务
-    public Page<InspectTask> getInspectTaskList(long uid, String modelName, InspectTaskState state, Pageable pageable) {
-        Specification querySpecifi = new Specification() {
-            @Override
-            public Predicate toPredicate(Root root, CriteriaQuery query, CriteriaBuilder cb) {
-                List<Predicate> predicates = new ArrayList<>();
-                predicates.add(cb.equal(root.get("dealUser"), uid == 0 ? null : uid));
-                if (!StringUtils.isEmpty(modelName)) {
-                    predicates.add(cb.equal(root.get("modelName"), modelName));
-                }
-                if (state != null) {
-                    predicates.add(cb.equal(root.get("modelName"), state));
-                }
-                return cb.and(predicates.toArray(new Predicate[predicates.size()]));
-            }
-        };
-
-        return inspectTaskDao.findAll(querySpecifi, pageable);
-
-    }
+//    @Deprecated
+//    //如果userid为0,则指定为公共任务
+//    public Page<InspectTask> getInspectTaskList(long uid, String modelName, InspectTaskState state, Pageable pageable) {
+//        Specification querySpecifi = new Specification() {
+//            @Override
+//            public Predicate toPredicate(Root root, CriteriaQuery query, CriteriaBuilder cb) {
+//                List<Predicate> predicates = new ArrayList<>();
+//                predicates.add(cb.equal(root.get("dealUser"), uid == 0 ? null : uid));
+//                if (!StringUtils.isEmpty(modelName)) {
+//                    predicates.add(cb.equal(root.get("modelName"), modelName));
+//                }
+//                if (state != null) {
+//                    predicates.add(cb.equal(root.get("modelName"), state));
+//                }
+//                return cb.and(predicates.toArray(new Predicate[predicates.size()]));
+//            }
+//        };
+//
+//        return inspectTaskDao.findAll(querySpecifi, pageable);
+//
+//    }
 
 
     /**
@@ -1280,13 +1287,15 @@ public class WorkflowService implements IWorkflowService {
         currentNode.setFinished(true);
         currentNode.setDealDate(new Date());
 
-        WorkflowNodeInstance newNode = new WorkflowNodeInstance();
-        newNode.setNodeModel(nextNode);
-        newNode.setNodeName(nextNode.getName());
+        WorkflowNodeInstance newNode = instance.addNode(nextNode,false);
+//        WorkflowNodeInstance newNode = new WorkflowNodeInstance();
+//        newNode.setNodeModelId(nextNode.getId());
+//        newNode.setNodeModel(nextNode);
+//        newNode.setNodeName(nextNode.getName());
+//        newNode.setType(nextNode.getType());
         newNode.setFinished(nextNode.isEnd());
-        newNode.setInstance(instance);
+//        newNode.setInstance(instance);
         newNode = nodeInstanceDao.save(newNode);
-
         instance.getNodeList().add(newNode);
 
         if (null != nextNode.getNode() && (nextNode.getNode() instanceof NormalNode)) {
@@ -1561,6 +1570,10 @@ public class WorkflowService implements IWorkflowService {
         return flag1 || flag2;
     }
 
+//    private boolean CheckNodeAuth(WorkflowNodeInstance nodeInstance, long uid){
+//
+//    }
+
     @Deprecated
     private boolean checkAuth(WorkflowModel workflowModel, WorkflowNode node, User user) {
         List<WorkflowModelPersons> persons = node.getPersons();
@@ -1644,7 +1657,7 @@ public class WorkflowService implements IWorkflowService {
                 .collect(Collectors.toList());
     }
 
-
+    @Deprecated
     public Optional<FetchWorkflowInstanceResponse> fetchWorkflowInstance(long uid, long id) {
         User user = userService.findUser(uid).orElse(null);
         if (null == user) return Optional.empty();
@@ -1658,6 +1671,25 @@ public class WorkflowService implements IWorkflowService {
             response.setTransform(canTransform(workflowInstance, user));
             response.setAccept(canAccept(workflowInstance, user));
             response.setLogs(systemTextLogDao.findLogs(SystemTextLog.Type.WORKFLOW, id));
+            response.setTransformUsers(modelDao.getFirstNodeUsers(workflowInstance.getWorkflowModel().getId()));
+
+            return response;
+        });
+    }
+
+    public Optional<FetchWorkflowInstanceResponse> fetchInstance(long uid, long id) {
+        User user = userService.findUser(uid).orElse(null);
+        if (null == user) return Optional.empty();
+        return findInstance(id).map(workflowInstance -> {
+            FetchWorkflowInstanceResponse response = new FetchWorkflowInstanceResponse();
+            response.setInstance(workflowInstance);
+            response.setCurrentNodeModel(findCurrentNodeModel(id).orElse(null));
+            response.setDeal(canDeal(workflowInstance, user));
+            response.setCancel(canCancel(workflowInstance, user));
+            response.setRecall(canRecall(workflowInstance, user));
+            response.setTransform(canTransform(workflowInstance, user));
+            response.setAccept(canAccept(workflowInstance, user));
+//            response.setLogs(systemTextLogDao.findLogs(SystemTextLog.Type.WORKFLOW, id));
             response.setTransformUsers(modelDao.getFirstNodeUsers(workflowInstance.getWorkflowModel().getId()));
 
             return response;
@@ -1712,20 +1744,19 @@ public class WorkflowService implements IWorkflowService {
         return Optional.ofNullable(instanceDao.findOne(id));
     }
 
-    @Override
     public WorkflowInstance findInstanceE(long id) throws CannotFindEntityException {
         return findInstance(id).orElseThrow(() -> new CannotFindEntityException(WorkflowInstance.class, id));
     }
 
-    @Override
-    public Optional<InspectTask> findInspectTask(long id) {
-        return Optional.ofNullable(inspectTaskDao.findOne(id));
-    }
-
-    @Override
-    public InspectTask findInspectTaskE(long id) throws CannotFindEntityException {
-        return findInspectTask(id).orElseThrow(() -> new CannotFindEntityException(InspectTask.class, id));
-    }
+//    @Override
+//    public Optional<InspectTask> findInspectTask(long id) {
+//        return Optional.ofNullable(inspectTaskDao.findOne(id));
+//    }
+//
+//    @Override
+//    public InspectTask findInspectTaskE(long id) throws CannotFindEntityException {
+//        return findInspectTask(id).orElseThrow(() -> new CannotFindEntityException(InspectTask.class, id));
+//    }
 
 
     /**

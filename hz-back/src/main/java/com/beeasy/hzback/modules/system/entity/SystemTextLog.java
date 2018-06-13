@@ -43,11 +43,10 @@ public class SystemTextLog extends AbstractBaseEntity {
     Date addTime;
 
     @JSONField(serialize = false)
+    @JoinColumn(name = "user_id", insertable = false, updatable = false)
     @ManyToOne
     User user;
+    @Column(name = "user_id")
+    Long userId;
 
-    @Transient
-    public Long getUserId(){
-        return user == null ? 0 : user.getId();
-    }
 }

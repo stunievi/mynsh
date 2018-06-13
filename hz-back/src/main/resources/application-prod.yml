@@ -16,8 +16,23 @@ mybatis:
   mapperLocations: classpath:hzadmin/src/main/resources/mybatis.mapper/*.xml
   typeAliasesPackage: com.beeasy.hzback.modules.setting.entity
 
+filecloud:
+  address: "192.168.31.55:80"
+  username: "admin"
+  password: "admin"
+  enable: true
+
+  userDefaultPassword: "qwer!@34"
+
+  commonUsername: "admin"
+  commonPassword: "admin"
+  commonRootId: 1041
+
+swagger:
+  host: 47.96.98.198:8080
+
 server:
-  port: 8070
+  port: 8080
   context-path: /
   address: 0.0.0.0
 
@@ -30,6 +45,10 @@ spring:
         view:
             prefix: /views/
             suffix: .ftl
+    jpa:
+        hibernate:
+          ddl-auto: none
+        show-sql: false
 
     freemarker:
         cache: false
@@ -71,7 +90,7 @@ spring:
            database: 0
            host: 127.0.0.1
            port: 6379
-           password:
+           password: "1q2w3e4r"
            timeout: 0
            pool:
                max-active: 8

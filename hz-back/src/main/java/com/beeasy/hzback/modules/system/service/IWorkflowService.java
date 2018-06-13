@@ -3,7 +3,6 @@ package com.beeasy.hzback.modules.system.service;
 import com.beeasy.hzback.core.exception.RestException;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.modules.exception.CannotFindEntityException;
-import com.beeasy.hzback.modules.system.entity.InspectTask;
 import com.beeasy.hzback.modules.system.entity.WorkflowInstance;
 import com.beeasy.hzback.modules.system.entity.WorkflowModel;
 import com.beeasy.hzback.modules.system.entity.WorkflowNode;
@@ -21,11 +20,11 @@ public interface IWorkflowService {
 
     Optional<WorkflowInstance> findInstance(long id);
 
-    WorkflowInstance findInstanceE(long id) throws CannotFindEntityException;
+//    WorkflowInstance findInstanceE(long id) throws CannotFindEntityException;
+//
+//    Optional<InspectTask> findInspectTask(long id);
 
-    Optional<InspectTask> findInspectTask(long id);
-
-    InspectTask findInspectTaskE(long id) throws CannotFindEntityException;
+//    InspectTask findInspectTaskE(long id) throws CannotFindEntityException;
 
     public static enum Type {
         MAIN_QUARTERS(0),
@@ -117,7 +116,7 @@ public interface IWorkflowService {
      */
 //    Optional<InspectTask> createInspectTask(String modelName, long userId, boolean isAuto);
 
-    Result<InspectTask> createInspectTask(long createUserId, String modelName, long userId, boolean isAuto) throws RestException;
+//    Result<InspectTask> createInspectTask(long createUserId, String modelName, long userId, boolean isAuto) throws RestException;
 
     /**
      * 接受检查任务, 创建一条新的工作流任务
@@ -126,7 +125,7 @@ public interface IWorkflowService {
      * @return
      * @throws RestException
      */
-    Result<InspectTask> acceptInspectTask(long userId, long taskId) throws RestException;
+//    Result<InspectTask> acceptInspectTask(long userId, long taskId) throws RestException;
 
 
     Optional<WorkflowModel> findModel(long id);

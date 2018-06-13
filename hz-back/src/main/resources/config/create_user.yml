@@ -1,0 +1,43 @@
+departmentId: 0
+groupId: 0
+roleId: -10
+paixu: -1
+status: -10
+page: 0
+pageSize: 0
+operateId:
+keywords:
+state: save
+user.id: 0
+user.roleId: 3
+user.departmentId: 5
+user.occupation:
+groupIds:
+user.username: llyb123
+user.password: q3K7gmarqQ8kmrDjVrookw==
+Repeat: q3K7gmarqQ8kmrDjVrookw==
+__checkbox_user.modifyInitialPassword: true
+user.lastName: 1
+user.firstName: 2
+user.gender: -1
+phones[0].type: celPhone
+phones[0].phoneNumber:
+emails[0].type: email
+emails[0].email:
+chats[0].type: qq
+chats[0].account:
+user.idCard:
+user.userSpaceSize:
+user.sequence: 90
+user.birthdayCalendar: 0
+user.birthday:
+user.age:
+addresses[0].type: homeAddress
+addresses[0].address:
+websites[0].type: personalWebsite
+websites[0].url:
+user.description:
+userInfo.id:
+userInfo.cifsEnabled: 1
+user.status: 1
+user.validForever: 1

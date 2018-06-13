@@ -1,9 +1,12 @@
 package com.beeasy.hzback.modules.system.service;
 
 import com.beeasy.hzback.core.helper.Result;
+import com.beeasy.hzback.modules.cloud.CloudService;
+import com.beeasy.hzback.modules.cloud.response.CloudBaseResponse;
+import com.beeasy.hzback.modules.cloud.response.CreateDirResponse;
 import com.beeasy.hzback.modules.system.dao.*;
 import com.beeasy.hzback.modules.system.entity.CloudDirectoryIndex;
-import com.beeasy.hzback.modules.system.entity.CloudFileTag;
+import com.beeasy.hzback.modules.system.entity.FileCloudIndex;
 import com.beeasy.hzback.modules.system.entity.Message;
 import com.beeasy.hzback.modules.system.entity.SystemFile;
 import org.apache.commons.lang.StringUtils;
@@ -20,6 +23,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -28,8 +32,18 @@ public class CloudDiskService implements ICloudDiskService {
 
     @Value("${upload.path}")
     private String AREA_DIR;//excel临时存储文件夹
-    @Value("filecloud.enable")
-    private String fileCloudEnabled;
+    @Value("${filecloud.enable}")
+    private boolean fileCloudEnabled;
+
+    @Value("${filecloud.username}")
+    private String cloudUserName;
+    @Value("${filecloud.password}")
+    private String cloudPassword;
+
+    @Autowired
+    CloudService cloudService;
+    @Autowired
+    IFileCloudIndexDao fileCloudIndexDao;
 
     @Autowired
     ICloudFileTagDao tagDao;
@@ -77,38 +91,38 @@ public class CloudDiskService implements ICloudDiskService {
      * @param tag
      * @return
      */
-    public Result addFileTag(long uid, DirType type, long fileId, String tag){
-        CloudDirectoryIndex file = findFile(uid,type,fileId).orElse(null);
-        if(null == file){
-            return Result.error();
-        }
-        //查找是否有同名tag
-        CloudFileTag same = tagDao.findFirstByIndexAndTag(file,tag).orElse(null);
-        if(null != same){
-            return Result.error("已经有同名标签");
-        }
-        CloudFileTag cloudFileTag = new CloudFileTag();
-        cloudFileTag.setTag(tag);
-        cloudFileTag.setIndex(file);
-        return Result.ok(tagDao.save(cloudFileTag));
-    }
-
-    /**
-     * 删除文件标签
-     * @param uid
-     * @param type
-     * @param fileId
-     * @param tag
-     * @return
-     */
-    public boolean removeFileTag(long uid, DirType type, long fileId, String tag){
-        CloudDirectoryIndex file = findFile(uid,type,fileId).orElse(null);
-        if(null == file){
-            return false;
-        }
-        tagDao.deleteByIndexAndTag(file,tag);
-        return true;
-    }
+//    public Result addFileTag(long uid, DirType type, long fileId, String tag){
+//        CloudDirectoryIndex file = findFile(uid,type,fileId).orElse(null);
+//        if(null == file){
+//            return Result.error();
+//        }
+//        //查找是否有同名tag
+//        CloudFileTag same = tagDao.findFirstByIndexAndTag(file,tag).orElse(null);
+//        if(null != same){
+//            return Result.error("已经有同名标签");
+//        }
+//        CloudFileTag cloudFileTag = new CloudFileTag();
+//        cloudFileTag.setTag(tag);
+//        cloudFileTag.setIndex(file);
+//        return Result.ok(tagDao.save(cloudFileTag));
+//    }
+//
+//    /**
+//     * 删除文件标签
+//     * @param uid
+//     * @param type
+//     * @param fileId
+//     * @param tag
+//     * @return
+//     */
+//    public boolean removeFileTag(long uid, DirType type, long fileId, String tag){
+//        CloudDirectoryIndex file = findFile(uid,type,fileId).orElse(null);
+//        if(null == file){
+//            return false;
+//        }
+//        tagDao.deleteByIndexAndTag(file,tag);
+//        return true;
+//    }
 
     /**
      * 设置文件标签
@@ -118,18 +132,24 @@ public class CloudDiskService implements ICloudDiskService {
      * @param tags
      * @return
      */
-    public boolean setFileTags(long uid, DirType type, long fileId, List<String> tags){
-        //清空tag
-        CloudDirectoryIndex file = findDirectory(uid,type,fileId).orElse(null);
-        if(null == file){
-            return false;
+    public Result setFileTags(long uid, DirType type, long fileId, List<String> tags){
+        if(isFileCloudEnabled()){
+            long workId = prepareFileCloud(type, uid);
+            if(checkFile(type,uid,workId,fileId)){
+                return cloudService.editTags(fileId, tags);
+            }
+            return Result.error();
         }
-        if(file.isDir()){
-            return false;
+        else{
+            //清空tag
+            CloudDirectoryIndex file = findDirectory(uid,type,fileId).orElse(null);
+            if(null == file || file.isDir()){
+                return Result.error();
+            }
+            file.setTags(tags);
+            cloudDirectoryIndexDao.save(file);
+            return Result.ok();
         }
-        file.setTags(tags);
-        cloudDirectoryIndexDao.save(file);
-        return true;
     }
 
     /**
@@ -140,30 +160,56 @@ public class CloudDiskService implements ICloudDiskService {
      * @param file
      * @return
      */
-    public Optional<CloudDirectoryIndex> uploadFile(long uid, DirType type, long pid, MultipartFile file){
-        CloudDirectoryIndex parent = null;
-       if(pid != 0){
-           parent = cloudDirectoryIndexDao.findFirstByTypeAndLinkIdAndId(type,uid,pid).orElse(null);
-       }
-       SystemFile systemFile = new SystemFile();
-       systemFile.setFileName(file.getOriginalFilename());
-       systemFile.setType(SystemFile.Type.CLOUDDISK);
-        try {
-            systemFile.setBytes(file.getBytes());
-        } catch (IOException e) {
-            e.printStackTrace();
+    public Result uploadFile(long uid, DirType type, long pid, MultipartFile file){
+        if(isFileCloudEnabled()){
+            long wid = prepareFileCloud(type,uid);
+            //根目录
+            if(0 == pid){
+                pid = wid;
+            }
+            if((wid == pid && wid > 0) || checkFile(type,uid,wid,pid)){
+                Result<CloudBaseResponse> result = cloudService.uploadFiles(pid,file);
+//                if(result.isSuccess()){
+//                    FileCloudIndex index = new FileCloudIndex();
+//                    index.setDir(false);
+//                    index.setFileId(result.getData().getId());
+//                    index.setLinkId(uid);
+//                    index.setType(type);
+//                    fileCloudIndexDao.save(index);
+//                }
+                return result;
+            }
+            return Result.error();
         }
-        systemFile = systemFileDao.save(systemFile);
+        else{
+            CloudDirectoryIndex parent = null;
+            if(pid != 0){
+                parent = cloudDirectoryIndexDao.findFirstByTypeAndLinkIdAndId(type,uid,pid).orElse(null);
+            }
+            SystemFile systemFile = new SystemFile();
+            systemFile.setFileName(file.getOriginalFilename());
+            systemFile.setType(SystemFile.Type.CLOUDDISK);
+            try {
+                systemFile.setBytes(file.getBytes());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            systemFile = systemFileDao.save(systemFile);
 
-        CloudDirectoryIndex cloudDirectoryIndex = new CloudDirectoryIndex();
-        cloudDirectoryIndex.setParent(parent);
-        cloudDirectoryIndex.setFileId(systemFile.getId());
-        cloudDirectoryIndex.setDir(false);
-        cloudDirectoryIndex.setType(type);
-        cloudDirectoryIndex.setLinkId(uid);
-        cloudDirectoryIndex.setDirName(file.getOriginalFilename());
-        return Optional.ofNullable(cloudDirectoryIndexDao.save(cloudDirectoryIndex));
+            CloudDirectoryIndex cloudDirectoryIndex = new CloudDirectoryIndex();
+            cloudDirectoryIndex.setParentId(null == parent ? null : parent.getId());
+            cloudDirectoryIndex.setFileId(systemFile.getId());
+            cloudDirectoryIndex.setDir(false);
+            cloudDirectoryIndex.setType(type);
+            cloudDirectoryIndex.setLinkId(uid);
+            cloudDirectoryIndex.setDirName(file.getOriginalFilename());
+            return Result.finish(Optional.ofNullable(cloudDirectoryIndexDao.save(cloudDirectoryIndex)));
+        }
     }
+
+//    public Result fileSearch(String keyword){
+//
+//    }
 
 //    public Optional<CloudFileIndex> uploadFile(long uid, DirType type, long dirId, MultipartFile bytes){
 //        return findDirectory(uid,type,dirId)
@@ -310,6 +356,20 @@ public class CloudDiskService implements ICloudDiskService {
 //    public List<CloudFileIndex>
 
 
+    public Result getFiles(long uid, DirType type, long pid){
+        if(isFileCloudEnabled()){
+            long workId = prepareFileCloud(type,uid);
+            if(0 == pid && workId > 0){
+                pid = workId;
+                return cloudService.getFiles(pid);
+            }
+            return Result.error();
+        }
+        else{
+            return Result.error();
+        }
+    }
+
     /**
      * 创建文件夹
      * @param uid
@@ -318,31 +378,52 @@ public class CloudDiskService implements ICloudDiskService {
      * @param dirName
      * @return
      */
-    public Result<CloudDirectoryIndex> createDirectory(long uid, DirType type, long dirId, String dirName) {
+    public Result createDirectory(long uid, DirType type, long dirId, String dirName) {
         CloudDirectoryIndex parent = null;
-        if(StringUtils.isEmpty(dirName)){
-            return Result.error("文件夹名不能为空");
-        }
-        //禁止创建同名
-        if(dirId > 0){
-            Optional<CloudDirectoryIndex> optional = findDirectory(uid, type, dirId);
-            if (!optional.isPresent()) {
-                return Result.error("找不到父文件夹");
+        if(isFileCloudEnabled()){
+            long workIdrId = prepareFileCloud(type,uid);
+            if(dirId == 0){
+                dirId = workIdrId;
             }
-            parent = optional.get();
+            if((dirId == workIdrId && workIdrId > 0) || checkFile(type,uid,workIdrId,dirId)){
+                Result<CreateDirResponse> result = cloudService.createUserDir(dirId, dirName);
+                if(result.isSuccess()){
+                    FileCloudIndex index = new FileCloudIndex();
+                    index.setType(type);
+                    index.setLinkId(uid);
+                    index.setFileId(result.getData().getId());
+                    index.setDir(true);
+                    fileCloudIndexDao.save(index);
+                }
+                return result;
+            }
+            return Result.error();
         }
-        if(cloudDirectoryIndexDao.findFirstByTypeAndLinkIdAndParentAndDirName(DirType.USER,uid,parent,dirName).isPresent()){
-            return Result.error("无法创建同名文件夹");
+        else{
+            if(StringUtils.isEmpty(dirName)){
+                return Result.error("文件夹名不能为空");
+            }
+            //禁止创建同名
+            if(dirId > 0){
+                Optional<CloudDirectoryIndex> optional = findDirectory(uid, type, dirId);
+                if (!optional.isPresent()) {
+                    return Result.error("找不到父文件夹");
+                }
+                parent = optional.get();
+            }
+            if(cloudDirectoryIndexDao.findFirstByTypeAndLinkIdAndParentAndDirName(DirType.USER,uid,parent,dirName).isPresent()){
+                return Result.error("无法创建同名文件夹");
+            }
+            String finalFolderName1 = dirName;
+            CloudDirectoryIndex finalParent = parent;
+            CloudDirectoryIndex cloudDirectoryIndex = new CloudDirectoryIndex();
+            cloudDirectoryIndex.setDirName(finalFolderName1);
+            cloudDirectoryIndex.setType(type);
+            cloudDirectoryIndex.setLinkId(uid);
+            cloudDirectoryIndex.setDir(true);
+            cloudDirectoryIndex.setParentId(null == finalParent ? null : finalParent.getId());
+            return Result.ok(cloudDirectoryIndexDao.save(cloudDirectoryIndex));
         }
-        String finalFolderName1 = dirName;
-        CloudDirectoryIndex finalParent = parent;
-        CloudDirectoryIndex cloudDirectoryIndex = new CloudDirectoryIndex();
-        cloudDirectoryIndex.setDirName(finalFolderName1);
-        cloudDirectoryIndex.setType(type);
-        cloudDirectoryIndex.setLinkId(uid);
-        cloudDirectoryIndex.setDir(true);
-        cloudDirectoryIndex.setParent(finalParent);
-        return Result.ok(cloudDirectoryIndexDao.save(cloudDirectoryIndex));
     }
 
     /**
@@ -353,32 +434,42 @@ public class CloudDiskService implements ICloudDiskService {
      * @param newName
      * @return
      */
-    public String renameDirectory(long uid, DirType type, long dirId, String newName) {
-        Optional<CloudDirectoryIndex> optional = findDirectory(uid, type, dirId)
-                .map(directoryIndex -> {
-                    //如果是文件,不改文件拓展名
-                    String finalNewName;
-                    if(directoryIndex.isDir()){
-                        finalNewName = newName;
-                    }
-                    else{
-                        int pointIndex = directoryIndex.getDirName().lastIndexOf(".");
-                        if(pointIndex > -1){
-                            String ext = directoryIndex.getDirName().substring(pointIndex,directoryIndex.getDirName().length() - 1);
-                            finalNewName = newName + "." + ext;
-                        }
-                        else{
+    public Result renameDirectory(long uid, DirType type, long dirId, String newName) {
+        if(isFileCloudEnabled()){
+            long workId = prepareFileCloud(type, uid);
+            //禁止重命名主目录
+            if(checkFile(type,uid,workId,dirId) && workId != dirId){
+                return cloudService.renameFile(dirId,newName);
+            }
+            return Result.error();
+        }
+        else{
+            Optional<CloudDirectoryIndex> optional = findDirectory(uid, type, dirId)
+                    .map(directoryIndex -> {
+                        //如果是文件,不改文件拓展名
+                        String finalNewName;
+                        if(directoryIndex.isDir()){
                             finalNewName = newName;
                         }
-                    }
-                    Optional<CloudDirectoryIndex> optionalCloudDirectoryIndex = cloudDirectoryIndexDao.findFirstByTypeAndLinkIdAndParentAndDirName(DirType.USER, uid,directoryIndex.getParent(), finalNewName);
-                    if (optionalCloudDirectoryIndex.isPresent()) {
-                        return null;
-                    }
-                    directoryIndex.setDirName(finalNewName);
-                    return cloudDirectoryIndexDao.save(directoryIndex);
-                });
-        return optional.isPresent() ? optional.get().getDirName() : "";
+                        else{
+                            int pointIndex = directoryIndex.getDirName().lastIndexOf(".");
+                            if(pointIndex > -1){
+                                String ext = directoryIndex.getDirName().substring(pointIndex,directoryIndex.getDirName().length() - 1);
+                                finalNewName = newName + "." + ext;
+                            }
+                            else{
+                                finalNewName = newName;
+                            }
+                        }
+                        Optional<CloudDirectoryIndex> optionalCloudDirectoryIndex = cloudDirectoryIndexDao.findFirstByTypeAndLinkIdAndParentAndDirName(DirType.USER, uid,directoryIndex.getParent(), finalNewName);
+                        if (optionalCloudDirectoryIndex.isPresent()) {
+                            return null;
+                        }
+                        directoryIndex.setDirName(finalNewName);
+                        return cloudDirectoryIndexDao.save(directoryIndex);
+                    });
+            return Result.finish(optional);
+        }
     }
 
 //    public boolean renameFile(long uid, DirType type, long oldId, String newName) {
@@ -438,11 +529,25 @@ public class CloudDiskService implements ICloudDiskService {
      * @param dirIds
      * @return
      */
-    public boolean deleteDirectory(long uid, DirType type, List<Long> dirIds) {
-        for (Long dirId : dirIds) {
-           cloudDirectoryIndexDao.deleteByTypeAndLinkIdAndId(type,uid,dirId);
+    public Result deleteDirectory(long uid, DirType type, List<Long> dirIds) {
+        if(isFileCloudEnabled()){
+            long workId = prepareFileCloud(type,uid);
+            dirIds = dirIds.stream().filter(id -> checkFile(type,uid,workId,id)).collect(Collectors.toList());
+            if(dirIds.size() > 0){
+                Result result = cloudService.deleteFiles(dirIds);
+                if(result.isSuccess()){
+                    fileCloudIndexDao.deleteByTypeAndLinkIdAndFileIdIn(type,uid, dirIds);
+                }
+                return result;
+            }
+            return Result.error();
         }
-        return true;
+        else{
+            for (Long dirId : dirIds) {
+                cloudDirectoryIndexDao.deleteByTypeAndLinkIdAndId(type,uid,dirId);
+            }
+            return Result.ok();
+        }
     }
 
     /**
@@ -625,7 +730,29 @@ public class CloudDiskService implements ICloudDiskService {
     }
 
     private boolean isFileCloudEnabled(){
-        return fileCloudEnabled.equals("true");
+        return fileCloudEnabled;
+    }
+
+
+    public long prepareFileCloud(DirType type, long uid){
+        //检查是否登录
+        boolean flag = cloudService.checkOnline();
+        if(!flag){
+            flag = cloudService.login(cloudUserName,cloudPassword);
+        }
+        if(!flag){
+            return 0;
+        }
+        Result<CreateDirResponse> result = cloudService.createUserDir(0,type.toString() + "_" +  uid + "");
+        return result.isSuccess() ? result.getData().getId() : 0;
+    }
+
+    public boolean checkFile(DirType type, long uid, long workId, long fileId){
+        //目录存在
+        return workId > 0 &&
+                fileId > 0;
+                //属于我
+//                fileCloudIndexDao.countByTypeAndLinkIdAndFileId(type,uid,fileId) > 0;
     }
 }
 

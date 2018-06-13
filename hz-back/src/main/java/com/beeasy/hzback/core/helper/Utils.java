@@ -1,6 +1,7 @@
 package com.beeasy.hzback.core.helper;
 
 import bin.leblanc.faker.Faker;
+import com.beeasy.hzback.modules.system.dao.IUserDao;
 import com.beeasy.hzback.modules.system.entity.User;
 import com.beeasy.hzback.modules.system.form.UserAdd;
 import com.beeasy.hzback.modules.system.service.UserService;
@@ -26,6 +27,8 @@ public class Utils {
 
     @Autowired
     UserService userService;
+    @Autowired
+    IUserDao userDao;
 
     public User createFaker(){
         UserAdd userAdd = new UserAdd();
@@ -71,19 +74,29 @@ public class Utils {
     }
 
     public static Optional<String> getCurrentUserPrivateKey(){
-        return Optional.ofNullable(getCurrentUser()).map(user -> user.getPrivateKey());
+        IUserDao userDao = SpringContextUtils.getBean(IUserDao.class);
+        List list = userDao.getPrivateKey(Utils.getCurrentUserId());
+        if(list.size() > 0){
+            return Optional.of(String.valueOf(list.get(0)));
+        }
+        return Optional.empty();
     }
     public static Optional<String> getCurrentUserPublicKey(){
-        return Optional.ofNullable(getCurrentUser()).map(user -> user.getPublicKey());
+        IUserDao userDao = SpringContextUtils.getBean(IUserDao.class);
+        List list = userDao.getPublicKey(Utils.getCurrentUserId());
+        if(list.size() > 0){
+            return Optional.of(String.valueOf(list.get(0)));
+        }
+        return Optional.empty();
     }
 
-    public static User getCurrentUser() {
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return user;
-    }
+//    public static User getCurrentUser() {
+//        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//        return user;
+//    }
 
     public static long getCurrentUserId(){
-        return getCurrentUser().getId();
+        return (long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
     public static List<String> splitByComma(String str) {
@@ -134,6 +147,11 @@ public class Utils {
         if(isLocking(key)) return false;
         return !lock(key,exprTime);
     }
+
+
+
+
+
 
 
 }

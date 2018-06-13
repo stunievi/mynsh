@@ -112,7 +112,7 @@ public class InputNode extends BaseNode{
             attribute.setAttrKey(attrKey);
             attribute.setAttrValue(String.valueOf(data.get(attrKey)));
             attribute.setAttrCname(v.getCname());
-            attribute.setDealUser(user);
+            attribute.setDealUserId(user.getId());
             attribute.setNodeInstance(wNInstance);
 
             attributeDao.save(attribute);

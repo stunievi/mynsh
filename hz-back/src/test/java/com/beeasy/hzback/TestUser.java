@@ -24,9 +24,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.script.ScriptContext;
@@ -363,39 +360,40 @@ public class TestUser {
         workflowService.editWorkflowModel(workflowModel.getId(),null, true);
 
         //系统发布任务
-        Result<InspectTask> result = workflowService.createInspectTask(0,"贷后跟踪",u.getId(),true);
-        InspectTask task = result.getData();
-        assertTrue(result.isSuccess());
+//        Result<InspectTask> result = workflowService.createInspectTask(0,"贷后跟踪",u.getId(),true);
+//        InspectTask task = result.getData();
+//        assertTrue(result.isSuccess());
 
         //接受任务
-        result = workflowService.acceptInspectTask(u.getId(),task.getId());
-        assertTrue(result.isSuccess());
-        task = result.getData();
+//        result = workflowService.acceptInspectTask(u.getId(),task.getId());
+//        assertTrue(result.isSuccess());
+//        task = result.getData();
 
-        WorkflowInstance instance = task.getInstance();
+
+//        WorkflowInstance instance = task.getInstance();
 
         //测试查询
-        Page<InspectTask> list = workflowService.getInspectTaskList(u.getId(),"",null,new PageRequest(0,100,new Sort(Sort.Direction.DESC,"id")));
-        assertTrue(list.getContent().size() > 0);
+//        Page<InspectTask> list = workflowService.getInspectTaskList(u.getId(),"",null,new PageRequest(0,100,new Sort(Sort.Direction.DESC,"id")));
+//        assertTrue(list.getContent().size() > 0);
 
-        list = workflowService.getInspectTaskList(0,"",null,new PageRequest(0,100));
-        assertEquals(list.getContent().size(),0);
+//        list = workflowService.getInspectTaskList(0,"",null,new PageRequest(0,100));
+//        assertEquals(list.getContent().size(),0);
 
         //处理申请
-        Map data = new HashMap();
-        data.put("f5",10000000 + 1);
-        instance = workflowService.submitData(u.getId(),instance.getId(),data);
-        instance = workflowService.goNext(u.getId(),instance.getId());
-        assertEquals(workflowService.findCurrentNodeInstance(instance.getId()).orElse(null).getNodeName(),"上传报告");
+//        Map data = new HashMap();
+//        data.put("f5",10000000 + 1);
+//        instance = workflowService.submitData(u.getId(),instance.getId(),data);
+//        instance = workflowService.goNext(u.getId(),instance.getId());
+//        assertEquals(workflowService.findCurrentNodeInstance(instance.getId()).orElse(null).getNodeName(),"上传报告");
+//
+//        instance = workflowService.submitData(u.getId(),instance.getId(),data);
+//        instance = workflowService.goNext(u.getId(),instance.getId());
+//        assertEquals(workflowService.findCurrentNodeInstance(instance.getId()).orElse(null).getNodeName(),"审核签署");
 
-        instance = workflowService.submitData(u.getId(),instance.getId(),data);
-        instance = workflowService.goNext(u.getId(),instance.getId());
-        assertEquals(workflowService.findCurrentNodeInstance(instance.getId()).orElse(null).getNodeName(),"审核签署");
-
-        data.clear();
-        data.put("key","是");
-        instance = workflowService.submitData(u.getId(),instance.getId(),data);
-        instance = workflowService.goNext(u.getId(),instance.getId());
+//        data.clear();
+//        data.put("key","是");
+//        instance = workflowService.submitData(u.getId(),instance.getId(),data);
+//        instance = workflowService.goNext(u.getId(),instance.getId());
 
 
 //        assertTrue(instance.isFinished());

@@ -23,16 +23,19 @@ public class WorkflowNodeInstance {
 
     //任务主体实例
     @JSONField(serialize = false)
+    @JoinColumn(name = "instance_id")
     @ManyToOne(optional = false)
     WorkflowInstance instance;
 
     String nodeName;
+    String type;
 
     //节点模型
     @JSONField(serialize = false)
+    @JoinColumn(name = "node_model_id", insertable = false, updatable = false)
     @ManyToOne
     WorkflowNode nodeModel;
-    @Column(name = "node_model_id", insertable = false, updatable = false)
+    @Column(name = "node_model_id")
     Long nodeModelId;
 
 
@@ -62,13 +65,6 @@ public class WorkflowNodeInstance {
             setDealDate(null);
         }
     }
-
-    @JSONField(serialize = false)
-    @Transient
-    public String getNodeName(){
-        return getNodeModel().getName();
-    }
-
 
 
     //子任务

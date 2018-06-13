@@ -42,4 +42,11 @@ public class TestJpa {
 //        log.info(result.get(0).get(0).toString());
         log.info(result.get(0).equals(result.get(1)) ? "1" : "0");
     }
+
+    @Test
+    public void testSelect(){
+        List o = entityManager.createQuery("select user.id, user.quarters from User user").getResultList();
+        int c = 1;
+    }
+
 }

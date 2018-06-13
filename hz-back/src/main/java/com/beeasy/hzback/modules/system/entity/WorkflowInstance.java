@@ -47,11 +47,11 @@ public class WorkflowInstance {
     Long id;
 
     @JSONField(serialize = false)
+    @JoinColumn(name = "workflow_model_id", insertable = false, updatable = false)
     @ManyToOne
     WorkflowModel workflowModel;
-
-    @Column(name = "workflow_model_id",insertable = false,updatable = false)
-    Long workflowModelId;
+    @Column(name = "workflow_model_id")
+    Long modelId;
 
     //任务创建日期
     @CreatedDate
@@ -71,6 +71,11 @@ public class WorkflowInstance {
     String info;
 
     //任务执行人
+    @JSONField(serialize = false)
+    @JoinColumn(name = "deal_user_id", insertable = false, updatable = false)
+    @ManyToOne
+    User dealUser;
+    @Column(name = "deal_user_id")
     Long dealUserId;
 
     //任务发布人(指派者)
@@ -123,16 +128,18 @@ public class WorkflowInstance {
 //    }
 
     @Transient
-    public WorkflowNodeInstance addNode(WorkflowNode node) {
+    public WorkflowNodeInstance addNode(WorkflowNode node, boolean add) {
         WorkflowNodeInstance workflowNodeInstance = new WorkflowNodeInstance();
-        workflowNodeInstance.setNodeModel(node);
+        workflowNodeInstance.setNodeModelId(node.getId());
         workflowNodeInstance.setNodeName(node.getName());
+        workflowNodeInstance.setType(node.getType());
         workflowNodeInstance.setInstance(this);
         workflowNodeInstance.setFinished(false);
-        getNodeList().add(workflowNodeInstance);
+        if(add){
+            getNodeList().add(workflowNodeInstance);
+        }
         return workflowNodeInstance;
     }
-
 
 
 //    @Transient

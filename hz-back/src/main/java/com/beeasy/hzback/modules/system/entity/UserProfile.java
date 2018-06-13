@@ -25,5 +25,9 @@ public class UserProfile {
 
     private Long faceId;
 
+    @JSONField(serialize = false)
+    private String cloudUsername;
+    @JSONField(serialize = false)
+    private String cloudPassword;
 
 }

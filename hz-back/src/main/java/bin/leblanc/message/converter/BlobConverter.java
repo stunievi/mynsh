@@ -1,13 +1,13 @@
 package bin.leblanc.message.converter;
 
-import com.beeasy.hzback.modules.setting.work_engine.BaseWorkNode;
+//import com.beeasy.hzback.modules.setting.work_engine.BaseWorkNode;
+
 import lombok.Cleanup;
 
 import javax.persistence.AttributeConverter;
 import java.io.*;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.List;
 
 public class BlobConverter<T> implements AttributeConverter<T,byte[]> {
     @Override

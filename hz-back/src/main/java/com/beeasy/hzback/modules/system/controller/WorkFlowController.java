@@ -99,7 +99,7 @@ public class WorkFlowController {
         if(StringUtils.isEmpty(modelName)){
             return Result.error();
         }
-        return Result.ok(instanceDao.getInsByModelName(modelName, Utils.getCurrentUser().getId(), pageable));
+        return Result.ok(instanceDao.getInsByModelName(modelName, Utils.getCurrentUserId(), pageable));
     }
 
 
@@ -236,23 +236,23 @@ public class WorkFlowController {
     }
 
 
-    @Deprecated
-    @ApiOperation(value = "创建一条任务", notes = "当处理人为自己的时候,自动开启相关流程")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "modelName", value = "关联流程模型名称",required = true),
-            @ApiImplicitParam(name = "dealUserId",value = "处理人")
-    })
-    @PostMapping("/task/create")
-    public Result createInspectTask(String modelName, Long dealUserId){
-        return workflowService.createInspectTask(Utils.getCurrentUserId(),modelName,dealUserId,false);
-    }
-
-    @Deprecated
-    @ApiOperation(value = "接受一条任务")
-    @PostMapping("/task/accept")
-    public Result acceptInspectTask(Long taskId) {
-        return workflowService.acceptInspectTask(Utils.getCurrentUserId(),taskId);
-    }
+//    @Deprecated
+//    @ApiOperation(value = "创建一条任务"w, notes = "当处理人为自己的时候,自动开启相关流程")
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(name = "modelName", value = "关联流程模型名称",required = true),
+//            @ApiImplicitParam(name = "dealUserId",value = "处理人")
+//    })
+//    @PostMapping("/task/create")
+//    public Result createInspectTask(String modelName, Long dealUserId){
+//        return workflowService.createInspectTask(Utils.getCurrentUserId(),modelName,dealUserId,false);
+//    }
+//
+//    @Deprecated
+//    @ApiOperation(value = "接受一条任务")
+//    @PostMapping("/task/accept")
+//    public Result acceptInspectTask(Long taskId) {
+//        return workflowService.acceptInspectTask(Utils.getCurrentUserId(),taskId);
+//    }
 
 
     @Deprecated

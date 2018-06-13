@@ -2,7 +2,6 @@ package com.beeasy.hzback.modules.system.response;
 
 
 import com.beeasy.hzback.modules.system.entity.SystemTextLog;
-import com.beeasy.hzback.modules.system.entity.User;
 import com.beeasy.hzback.modules.system.entity.WorkflowInstance;
 import com.beeasy.hzback.modules.system.entity.WorkflowNode;
 import lombok.Data;
@@ -17,6 +16,7 @@ public class FetchWorkflowInstanceResponse {
     WorkflowInstance instance;
 
     //任务变更日志
+    @Deprecated
     List<SystemTextLog> logs = new ArrayList<>();
 
     //是否可以处理
@@ -35,7 +35,7 @@ public class FetchWorkflowInstanceResponse {
     boolean accept = false;
 
     //可移交对象
-    List<User> transformUsers = new ArrayList<>();
+    List<Long> transformUsers = new ArrayList<>();
 
     //当前节点模型
     WorkflowNode currentNodeModel;

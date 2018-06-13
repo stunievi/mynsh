@@ -12,7 +12,6 @@ import com.beeasy.hzback.modules.system.service.UserService;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collections;
 import java.util.List;
@@ -72,28 +71,28 @@ class ClouddiskController {
         return Result.ok();
     }
 
-    @PostMapping("/user/renameDir")
-    public Result renameDir(
-            @RequestParam Long id,
-            @RequestParam String newName
-    ){
-        String fileName = cloudDiskService.renameDirectory(Utils.getCurrentUserId(), ICloudDiskService.DirType.USER,id,newName);
-        if(fileName.isEmpty()){
-            return Result.error("修改失败");
-        }
-        else{
-            return Result.ok(fileName);
-        }
-    }
+//    @PostMapping("/user/renameDir")
+//    public Result renameDir(
+//            @RequestParam Long id,
+//            @RequestParam String newName
+//    ){
+//        String fileName = cloudDiskService.renameDirectory(Utils.getCurrentUserId(), ICloudDiskService.DirType.USER,id,newName);
+//        if(fileName.isEmpty()){
+//            return Result.error("修改失败");
+//        }
+//        else{
+//            return Result.ok(fileName);
+//        }
+//    }
 
 
-    @PostMapping("/user/uploadFile")
-    public Result uploadFile(
-            @RequestParam MultipartFile file,
-            @RequestParam  Long dirId
-    ){
-        return Result.finish(cloudDiskService.uploadFile(Utils.getCurrentUserId(), ICloudDiskService.DirType.USER,dirId,file));
-    }
+//    @PostMapping("/user/uploadFile")
+//    public Result uploadFile(
+//            @RequestParam MultipartFile file,
+//            @RequestParam  Long dirId
+//    ){
+//        return Result.finish(cloudDiskService.uploadFile(Utils.getCurrentUserId(), ICloudDiskService.DirType.USER,dirId,file));
+//    }
 
 
     @PostMapping("/user/shareFile")
@@ -107,13 +106,13 @@ class ClouddiskController {
 //        return Result.finish(cloudDiskService.shareTo(Utils.getCurrentUserId(),toUid, ICloudDiskService.DirType.USER,id));
     }
 
-    @PostMapping("/user/putFileTags")
-    public Result putFileTags(
-            @RequestParam Long fileId,
-            @RequestParam List<String> tags
-    ){
-        return Result.finish(cloudDiskService.setFileTags(Utils.getCurrentUserId(),ICloudDiskService.DirType.USER,fileId,tags));
-    }
+//    @PostMapping("/user/putFileTags")
+//    public Result putFileTags(
+//            @RequestParam Long fileId,
+//            @RequestParam List<String> tags
+//    ){
+//        return Result.finish(cloudDiskService.setFileTags(Utils.getCurrentUserId(),ICloudDiskService.DirType.USER,fileId,tags));
+//    }
 
 
     /** 共享文件柜 **/
@@ -163,34 +162,34 @@ class ClouddiskController {
         return Result.ok();
     }
 
-    @PostMapping("/common/renameDir")
-    public Result renameCommonDir(
-            @RequestParam Long id,
-            @RequestParam String newName
-    ){
-        if(!checkAuth(Utils.getCurrentUserId())){
-            return Result.error("没有权限");
-        }
-        String fileName = cloudDiskService.renameDirectory(0, ICloudDiskService.DirType.COMMON,id,newName);
-        if(fileName.isEmpty()){
-            return Result.error("修改失败");
-        }
-        else{
-            return Result.ok(fileName);
-        }
-    }
+//    @PostMapping("/common/renameDir")
+//    public Result renameCommonDir(
+//            @RequestParam Long id,
+//            @RequestParam String newName
+//    ){
+//        if(!checkAuth(Utils.getCurrentUserId())){
+//            return Result.error("没有权限");
+//        }
+//        String fileName = cloudDiskService.renameDirectory(0, ICloudDiskService.DirType.COMMON,id,newName);
+//        if(fileName.isEmpty()){
+//            return Result.error("修改失败");
+//        }
+//        else{
+//            return Result.ok(fileName);
+//        }
+//    }
 
 
-    @PostMapping("/common/uploadFile")
-    public Result uploadCommonFile(
-            @RequestParam MultipartFile file,
-            @RequestParam Long dirId
-    ){
-        if(!checkAuth(Utils.getCurrentUserId())){
-            return Result.error("没有权限");
-        }
-        return Result.finish(cloudDiskService.uploadFile(0, ICloudDiskService.DirType.COMMON,dirId,file));
-    }
+//    @PostMapping("/common/uploadFile")
+//    public Result uploadCommonFile(
+//            @RequestParam MultipartFile file,
+//            @RequestParam Long dirId
+//    ){
+//        if(!checkAuth(Utils.getCurrentUserId())){
+//            return Result.error("没有权限");
+//        }
+//        return Result.finish(cloudDiskService.uploadFile(0, ICloudDiskService.DirType.COMMON,dirId,file));
+//    }
 
 
     @PostMapping("/common/shareFile")
@@ -204,13 +203,13 @@ class ClouddiskController {
         return Result.ok(cloudDiskService.sendFileToUser(Utils.getCurrentUserId(),toUid,0 , ICloudDiskService.DirType.COMMON, Collections.singletonList(id)));
     }
 
-    @PostMapping("/common/putFileTags")
-    public Result putCommonFileTags(
-            @RequestParam Long fileId,
-            @RequestParam List<String> tags
-    ){
-        return Result.finish(cloudDiskService.setFileTags(0,ICloudDiskService.DirType.COMMON,fileId,tags));
-    }
+//    @PostMapping("/common/putFileTags")
+//    public Result putCommonFileTags(
+//            @RequestParam Long fileId,
+//            @RequestParam List<String> tags
+//    ){
+//        return Result.finish(cloudDiskService.setFileTags(0,ICloudDiskService.DirType.COMMON,fileId,tags));
+//    }
 
 
 }

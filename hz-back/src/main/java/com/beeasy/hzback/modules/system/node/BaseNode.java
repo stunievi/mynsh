@@ -76,7 +76,7 @@ abstract public class BaseNode implements Serializable {
                 .filter(a -> a.getDealUser().getId().equals(user.getId()) && a.getAttrKey().equals(key))
                 .findAny()
                 .orElse(new WorkflowNodeAttribute());
-        attribute.setDealUser(user);
+        attribute.setDealUserId(user.getId());
         attribute.setAttrKey(key);
         attribute.setAttrValue(value == null ? "" : value);
         attribute.setNodeInstance(wNInstance);
@@ -92,7 +92,7 @@ abstract public class BaseNode implements Serializable {
                 .filter(a -> a.getDealUser().getId().equals(user.getId()) && a.getAttrKey().equals(key))
                 .findAny()
                 .orElse(new WorkflowNodeAttribute());
-        attribute.setDealUser(user);
+        attribute.setDealUserId(user.getId());
         attribute.setAttrKey(key);
         attribute.setAttrValue(value == null ? "" : value);
         attribute.setNodeInstance(wNInstance);

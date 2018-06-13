@@ -2,6 +2,7 @@ package com.beeasy.hzback.modules.system.dao;
 
 import com.beeasy.hzback.modules.system.entity.Quarters;
 import com.beeasy.hzback.modules.system.entity.User;
+import com.beeasy.hzback.modules.system.entity.UserExternalPermission;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,12 +10,14 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+@Repository
 public interface IUserDao extends JpaRepository<User,Long> ,JpaSpecificationExecutor {
 //    User findFirstByName(String userName);
     User findByUsername(String userName);
@@ -28,6 +31,30 @@ public interface IUserDao extends JpaRepository<User,Long> ,JpaSpecificationExec
 
     List<User> findAllByIdIn(List<Long> ids);
 
+
+    Optional<User> findFirstByUsernameAndPassword(String username, String password);
+
+    //查找用户ID
+    @Query(value = "select user.id from User user where user.username = :username and user.password = :password")
+    List getUserId(@Param("username") String username, @Param("password") String password);
+
+    @Query(value = "select user.privateKey from User user where user.id = :id")
+    List getPrivateKey(@Param("id") long id);
+
+    @Query(value = "select user.privateKey from User user where user.id = :id")
+    List getPublicKey(@Param("id") long id);
+
+    int countById(Long id);
+    @Query(value = "select count(user.id) from User user join user.quarters q where q.id = :qid and user.id = :uid")
+    int countUidAndQid(@Param("uid") long uid, @Param("qid") long qid);
+
+    //查找私有云账号密码
+    @Query(value = "select user.profile.cloudUsername, user.profile.cloudPassword from User user where user.id = :uid")
+    List getUserCloudProfile(@Param("uid") long uid);
+
+    //检查是否有某个权限
+    @Query(value = "select count(user) from User user join user.externalPermissions per where per.permission = :permission and user.id = :id")
+    int checkPermission(@Param("id") long uid, @Param("permission") UserExternalPermission.Permission permission);
 
     @Modifying
     @Transactional
@@ -61,7 +88,7 @@ public interface IUserDao extends JpaRepository<User,Long> ,JpaSpecificationExec
     void clearUsers(@Param("username") String username);
 
 
-    @Query(value = "select u.id,u.trueName,u.phone,u.profile.faceId,q.id from User u join u.quarters q where q.id > 0 and u.baned = false ")
+    @Query(value = "select u.id,u.trueName,u.phone,u.profile.faceId,q.id,u.letter,u.username from User u join u.quarters q where q.id > 0 and u.baned = false ")
     List getNormalUsers();
 
     @Query(value = "select u.id,u.trueName,u.phone,u.profile.faceId from User u join u.quarters q join q.department d where d.id = :id")

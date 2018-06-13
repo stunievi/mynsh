@@ -32,9 +32,10 @@ public class WorkflowNodeAttribute {
     boolean file = false;
 
     @JSONField(serialize = false)
+    @JoinColumn(name = "deal_user_id", insertable = false, updatable = false)
     @ManyToOne
     User dealUser;
-    @Column(name = "deal_user_id", insertable = false, updatable = false)
+    @Column(name = "deal_user_id")
     Long dealUserId;
 
     @LastModifiedDate

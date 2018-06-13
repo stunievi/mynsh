@@ -18,14 +18,25 @@ mybatis:
 
 filecloud:
   address: "192.168.31.55:80"
-  username: ""
-  password: ""
-  enable: false
+  username: "admin"
+  password: "admin"
+  enable: true
+
+  userDefaultPassword: "qwer!@34"
+
+  commonUsername: "admin"
+  commonPassword: "admin"
+  commonRootId: 1041
+
+swagger:
+  host: 127.0.0.1:8080
+
 
 server:
   port: 8080
   context-path: /
   address: 0.0.0.0
+
 
 spring:
     http:
@@ -36,6 +47,17 @@ spring:
         view:
             prefix: /views/
             suffix: .ftl
+    jpa:
+      hibernate:
+        ddl-auto: update
+      show-sql: true
+      properties:
+        hibernate:
+          cache:
+            use_query_cache: false
+          archive:
+            autodetection: false
+
 
     freemarker:
         cache: false
@@ -44,7 +66,7 @@ spring:
     datasource:
         name: test
 #        mysql
-        url: jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=utf-8&useSSL=false
+        url: jdbc:mysql://127.0.0.1:3306/test?useUnicode=true&characterEncoding=utf-8&useSSL=false
         username: root
 #        password: "!Q1q2w3e4r"
         password: 123
@@ -87,12 +109,5 @@ spring:
     session:
         store-type: none
 
-    jpa:
-      properties:
-        hibernate:
-          cache:
-            use_query_cache: false
-          archive:
-            autodetection: false
 
 

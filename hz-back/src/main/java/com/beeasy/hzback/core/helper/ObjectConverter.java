@@ -13,4 +13,6 @@ public class ObjectConverter implements AttributeConverter<Object,byte[]> {
     public Object convertToEntityAttribute(byte[] bytes) {
         return Object2Array.byteArrayToObject(bytes);
     }
+
+
 }

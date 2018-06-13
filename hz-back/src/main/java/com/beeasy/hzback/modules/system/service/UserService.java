@@ -2,9 +2,13 @@ package com.beeasy.hzback.modules.system.service;
 
 import bin.leblanc.classtranslate.Transformer;
 import com.beeasy.hzback.core.exception.RestException;
+import com.beeasy.hzback.core.helper.ChineseToEnglish;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.core.util.CrUtils;
+import com.beeasy.hzback.modules.cloud.CloudApi;
+import com.beeasy.hzback.modules.cloud.CloudService;
+import com.beeasy.hzback.modules.cloud.response.LoginResponse;
 import com.beeasy.hzback.modules.exception.CannotFindEntityException;
 import com.beeasy.hzback.modules.system.cache.SystemConfigCache;
 import com.beeasy.hzback.modules.system.dao.*;
@@ -13,14 +17,15 @@ import com.beeasy.hzback.modules.system.form.QuartersAdd;
 import com.beeasy.hzback.modules.system.form.UserAdd;
 import com.beeasy.hzback.modules.system.form.UserEdit;
 import com.beeasy.hzback.modules.system.form.UserSearch;
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.ResourceUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,7 +34,6 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
@@ -38,6 +42,17 @@ import java.util.concurrent.atomic.AtomicReference;
 @Service
 @Transactional
 public class UserService implements IUserService {
+
+    @Value("${filecloud.userDefaultPassword}")
+    String cloudUserPassword;
+
+    @Value("${filecloud.commonUsername}")
+    String cloudCommonUsername;
+    @Value("${filecloud.commonPassword}")
+    String cloudCommonPassword;
+
+    @Autowired
+    CloudApi cloudApi;
     @Autowired
     IUserExternalPermissionDao externalPermissionDao;
     @Autowired
@@ -61,6 +76,8 @@ public class UserService implements IUserService {
 
     @Autowired
     ICloudDirectoryIndexDao cloudDirectoryIndexDao;
+    @Autowired
+    CloudService cloudService;
 //    
 //    public boolean bindMenus(long uid, List<String> menus) {
 //        return findUser(uid)
@@ -178,8 +195,9 @@ public class UserService implements IUserService {
         userProfile.setUser(u);
         SystemFile systemFile = new SystemFile();
         try {
-            File face = ResourceUtils.getFile("classpath:static/default_face.jpg");
-            systemFile.setBytes(FileUtils.readFileToByteArray(face));
+            ClassPathResource resource = new ClassPathResource("config/workflow.yml");
+            byte[] bytes = IOUtils.toByteArray(resource.getInputStream());
+            systemFile.setBytes((bytes));
             systemFile.setType(SystemFile.Type.FACE);
             systemFile = systemFileDao.save(systemFile);
             if(systemFile.getId() == null){
@@ -192,6 +210,14 @@ public class UserService implements IUserService {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        //创建文件云账号
+        Result r = cloudService.createUser(u.getUsername());
+        if(r.isSuccess()){
+            userProfile.setCloudUsername(u.getUsername());
+            userProfile.setCloudPassword(cloudUserPassword);
+        }
+
         userProfileDao.save(userProfile);
 
         //添加permission
@@ -206,6 +232,7 @@ public class UserService implements IUserService {
         rolePermission.setType(PermissionType.METHOD);
         u.getPermissions().add(rolePermission);
 
+        initLetter(u);
         User ret = userDao.save(u);
 
         //添加文件夹
@@ -426,6 +453,75 @@ public class UserService implements IUserService {
         return true;
     }
 
+
+    /**
+     * 登录用户对应的私有云账号
+     * @param uid
+     * @return
+     */
+    public Result loginFileCloudSystem(long uid){
+        List<Object[]> list = userDao.getUserCloudProfile(uid);
+        if(list.size() > 0){
+            Object[] objects = list.get(0);
+            //登录私有云
+            LoginResponse loginResponse = cloudApi.login(String.valueOf(objects[0]),String.valueOf(objects[1]));
+            if(null != loginResponse &&  loginResponse.getStatus().equals("SUCCESS")){
+                return Result.ok(loginResponse.getResponseCookies().get(0));
+            }
+        }
+        return Result.error();
+    }
+
+
+    /**
+     * 登录可操作公共文件柜的私有云账号, 如果没有权限, 那么依然登录原本的账号
+     * @param uid
+     * @return
+     */
+    public Result loginFileCloudCommonSystem(long uid){
+        //检查是否有共享文件云权限
+        if(userDao.checkPermission(Utils.getCurrentUserId(), UserExternalPermission.Permission.COMMON_CLOUD_DISK) == 0){
+            return loginFileCloudSystem(uid);
+        }
+        LoginResponse loginResponse = cloudApi.login(cloudCommonUsername,cloudCommonPassword);
+        if(null != loginResponse &&  loginResponse.getStatus().equals("SUCCESS")){
+            return Result.ok(loginResponse.getResponseCookies().get(0));
+        }
+        return Result.error();
+    }
+
+
+    /**
+     * 得到用户的私有云账号
+     * @param uid
+     * @return
+     */
+    public String[] getPrivateCloudUsername(long uid){
+        List<Object[]> list = userDao.getUserCloudProfile(uid);
+        if(list.size() > 0){
+            String[] result = new String[2];
+            int count = 0;
+            for (Object o : list.get(0)) {
+                result[count++] = String.valueOf(o);
+            }
+            return result;
+        }
+        return new String[]{"",""};
+    }
+
+    /**
+     * 得到公共私有云账号
+     * @param uid
+     * @return
+     */
+    public String[] getCommonCloudUsername(long uid){
+        if(userDao.checkPermission(uid, UserExternalPermission.Permission.COMMON_CLOUD_DISK) == 0){
+            return new String[]{"",""};
+        }
+        return new String[]{cloudCommonUsername,cloudCommonPassword};
+
+    }
+
     public List<Department> findDepartmentsByParent_Id(long pid){
         if(0 == pid){
             return departmentDao.findAllByParent(null);
@@ -433,6 +529,14 @@ public class UserService implements IUserService {
         else{
             return departmentDao.findAllByParent_Id(pid);
         }
+    }
+
+    public boolean hasUser(long uid){
+        return userDao.countById(uid) > 0;
+    }
+
+    public boolean userHasQuarter(long uid, long qid){
+        return userDao.countUidAndQid(uid,qid) > 0;
     }
 
     public List<User> findUser(List<Long> ids){
@@ -464,4 +568,20 @@ public class UserService implements IUserService {
         return findUser(id).orElseThrow(() -> new CannotFindEntityException(User.class, id));
     }
 
+
+    /**
+     * 初始化用户首字母
+     * @param user
+     */
+    public void initLetter(User user){
+        String letter;
+        String firstSpell = ChineseToEnglish.getFirstSpell(user.getTrueName());
+        String substring = firstSpell.substring(0, 1).toUpperCase();
+        if (substring.matches("[A-Z]")) {
+            letter = substring;
+        } else {
+            letter = "#";
+        }
+        user.setLetter(letter);
+    }
 }

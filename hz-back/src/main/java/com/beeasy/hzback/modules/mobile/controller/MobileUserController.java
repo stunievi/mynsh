@@ -5,6 +5,7 @@ import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.core.security.CustomUserService;
 import com.beeasy.hzback.core.security.JwtTokenUtil;
+import com.beeasy.hzback.modules.cloud.CloudApi;
 import com.beeasy.hzback.modules.mobile.request.UserLoginRequest;
 import com.beeasy.hzback.modules.mobile.response.UserLoginResponse;
 import com.beeasy.hzback.modules.system.dao.IDepartmentDao;
@@ -16,9 +17,8 @@ import com.beeasy.hzback.modules.system.service.DepartmentService;
 import com.beeasy.hzback.modules.system.service.UserService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.DigestUtils;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,6 +29,9 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/mobile")
 public class MobileUserController {
+    @Value("${filecloud.commonRootId}")
+    Long CLOUD_COMMON_ROOT_ID;
+
     @Autowired
     CustomUserService userDetailsService;
 
@@ -43,6 +46,8 @@ public class MobileUserController {
     IUserDao userDao;
     @Autowired
     IDepartmentDao departmentDao;
+    @Autowired
+    CloudApi cloudApi;
 
 
     private Result.Entry[] userEntries = {
@@ -62,41 +67,37 @@ public class MobileUserController {
             @PathVariable String username,
             @PathVariable String password
     ){
-        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-        if(!userDetails.getPassword().equals(DigestUtils.md5DigestAsHex(password.getBytes()))){
+        password =DigestUtils.md5DigestAsHex(password.getBytes());
+        User user = userDao.findFirstByUsernameAndPassword(username, password).orElse(null);
+        if(null == user){
             return Result.error("密码错误").toJson();
         }
-        String token = jwtTokenUtil.generateToken(userDetails);
+        String token = jwtTokenUtil.generateToken(user.getId());
         Map<String,String> map = RSAUtils.createKeys(1024);
-        userDao.updateUserKeys(map.get("privateKey"),map.get("publicKey"),userDetails.getUsername());
-
-        return Result.ok(new UserLoginResponse(token,userDao.findFirstByUsername(userDetails.getUsername()).orElse(null),map.get("publicKey"))).toJson(userEntries);
+        userDao.updateUserKeys(map.get("privateKey"),map.get("publicKey"),user.getUsername());
+        return Result.ok(new UserLoginResponse(token,user,map.get("publicKey"),CLOUD_COMMON_ROOT_ID)).toJson(userEntries);
     }
 
     @PostMapping("/login")
     public String login(
-            @RequestBody @Valid UserLoginRequest loginRequest,
-            BindingResult bindingResult
+            @RequestBody @Valid UserLoginRequest loginRequest
     ){
-        if(bindingResult.hasErrors()){
-            return Result.error(bindingResult).toJson();
-        }
-        UserDetails userDetails = userDetailsService.loadUserByUsername(loginRequest.getUsername());
-        if(!userDetails.getPassword().equals(DigestUtils.md5DigestAsHex(loginRequest.getPassword().getBytes()))){
+        loginRequest.setPassword(DigestUtils.md5DigestAsHex(loginRequest.getPassword().getBytes()));
+        User user = userDao.findFirstByUsernameAndPassword(loginRequest.getUsername(), loginRequest.getPassword()).orElse(null);
+        if(null == user){
             return Result.error("密码错误").toJson();
         }
-        String token = jwtTokenUtil.generateToken(userDetails);
-        //生成秘钥对
-//        KeyPairGenerator kpg;
-//        try{
-//            kpg = KeyPairGenerator.getInstance(RSA_ALGORITHM);
-//        }catch(NoSuchAlgorithmException e){
-//            throw new IllegalArgumentException("No such algorithm-->[" + RSA_ALGORITHM + "]");
-//        }
+        String token = jwtTokenUtil.generateToken(user.getId());
         Map<String,String> map = RSAUtils.createKeys(1024);
-        userDao.updateUserKeys(map.get("privateKey"),map.get("publicKey"),userDetails.getUsername());
-
-        return Result.ok(new UserLoginResponse(token,userDao.findFirstByUsername(userDetails.getUsername()).orElse(null),map.get("publicKey"))).toJson(userEntries);
+        userDao.updateUserKeys(map.get("privateKey"),map.get("publicKey"),user.getUsername());
+        UserLoginResponse response = new UserLoginResponse(token,user,map.get("publicKey"),CLOUD_COMMON_ROOT_ID);
+        String[] privateUser = userService.getPrivateCloudUsername(user.getId());
+        String[] commonUser = userService.getCommonCloudUsername(user.getId());
+        response.setCloudUsername(privateUser[0]);
+        response.setCloudPassword(privateUser[1]);
+        response.setCloudCommonUsername(commonUser[0]);
+        response.setCloudCommonPassword(commonUser[1]);
+        return Result.ok(response).toJson(userEntries);
     }
 
     @PostMapping("/user/face/edit")
@@ -149,6 +150,19 @@ public class MobileUserController {
                 new Result.Entry(Department.class,"parent"),
                 new Result.Entry(Quarters.class,"department"),
                 new Result.Entry(User.class,"quarters","permissions","departments"));
+    }
+
+
+    @ApiOperation(value = "登录私有云系统")
+    @GetMapping("/user/loginCloud")
+    public String loginFileCloudSystem(){
+        return userService.loginFileCloudSystem(Utils.getCurrentUserId()).toJson();
+    }
+
+    @ApiOperation(value = "登录公共文件柜")
+    @GetMapping("/user/loginCloudCommon")
+    public String loginFileCloudCommonSystem(){
+        return userService.loginFileCloudCommonSystem(Utils.getCurrentUserId()).toJson();
     }
 
 

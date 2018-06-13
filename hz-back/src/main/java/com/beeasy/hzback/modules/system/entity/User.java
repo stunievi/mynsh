@@ -41,6 +41,8 @@ public class User implements Serializable{
     private String phone;
     private String email;
 
+    private String letter;
+
     @CreatedDate
     private Date addTime;
 

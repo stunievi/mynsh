@@ -2,19 +2,22 @@ package com.beeasy.hzback.modules.cloud.config;
 
 
 import com.alibaba.fastjson.JSON;
+import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.modules.cloud.response.CloudBaseResponse;
 import feign.*;
 import feign.codec.DecodeException;
 import feign.codec.Decoder;
+import feign.codec.EncodeException;
+import feign.codec.Encoder;
+import feign.form.spring.SpringFormEncoder;
 import org.springframework.context.annotation.Bean;
-import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class FeignConfig {
 //    @Bean
@@ -27,27 +30,57 @@ public class FeignConfig {
 //        });
 //    }
 
-    public static String cookie = "";
-
-    public synchronized static String getCookie() {
-        return cookie;
-    }
-
-    public synchronized static void setCookie(String cookie) {
-        FeignConfig.cookie = cookie;
-    }
+    public static Map<Long,String> cookies = Collections.synchronizedMap(new HashMap<>());
 
     @Bean
     RequestInterceptor getRI(){
         return new RequestInterceptor() {
             @Override
             public void apply(RequestTemplate requestTemplate) {
-                if(!StringUtils.isEmpty(cookie)) {
+                String cookie = cookies.get(Utils.getCurrentUserId());
+                if(null != cookie){
                     requestTemplate.header("cookie",cookie);
                 }
             }
         };
     }
+
+    @Bean
+    public Encoder multipartFormEncoder() {
+        return new SpringFormEncoder(){
+            @Override
+            public void encode(Object object, Type bodyType, RequestTemplate template) throws EncodeException {
+                if (!bodyType.equals(MultipartFile.class)) {
+                    super.encode(object, bodyType, template);
+                } else {
+                    Map<String, Object> data = Collections.singletonMap("filedata", object);
+                    super.encode(data, MAP_STRING_WILDCARD, template);
+                }
+            }
+        };
+    }
+
+//    @Bean
+//    public MapFormHttpMessageConverter mapFormHttpMessageConverter(MultipartFileHttpMessageConverter multipartFileHttpMessageConverter) {
+//        MapFormHttpMessageConverter mapFormHttpMessageConverter = new MapFormHttpMessageConverter();
+//        mapFormHttpMessageConverter.addPartConverter(multipartFileHttpMessageConverter);
+//        return mapFormHttpMessageConverter;
+//    }
+////
+//    @Bean
+//    public MultipartFileHttpMessageConverter multipartFileHttpMessageConverter() {
+//        return new MultipartFileHttpMessageConverter();
+//    }
+//    @Bean
+//    public Encoder feignFormEncoder() {
+//        return new SpringFormEncoder();
+//    }
+
+//    @Bean
+//    public Encoder feignEncoder(ObjectFactory<HttpMessageConverters> messageConverters) {
+//        return new FeignSpringFormEncoder(messageConverters);
+//    }
+
     @Bean
     public Decoder getDecoder(){
         return new Decoder() {
@@ -75,6 +108,8 @@ public class FeignConfig {
             }
         };
     }
+
+
 
 
 

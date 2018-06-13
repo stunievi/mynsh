@@ -9,8 +9,23 @@ public interface ICloudDiskService {
     };
 
     enum DirType {
-        USER,
-        COMMON
+        USER(0, "USER"),
+        COMMON(1, "COMMON");
+
+        private int value;
+        private String name;
+        DirType(int value, String name){
+            this.value = value;
+            this.name = name;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        public String toString(){
+            return name;
+        }
     }
 
     @Data

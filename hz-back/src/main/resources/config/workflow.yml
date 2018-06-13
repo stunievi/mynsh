@@ -25,12 +25,17 @@
 #      name: f1
 #      type: string
 #      required: y
-
+#    表单项3：
+#      name: fieldName
+#      type: string/textarea/select/checkbox
+#      required: y/n
+#      innate: true
+#      items:  [q,bv,c]
 
 #审核节点: 用于审核
 #  type: check
 #  ps: 审核节点的备注名, 通常也为ps
-#  fieldName: 审核节点存储值的key名, 通常为key
+#  key: 审核节点存储值的key名, 通常为key
 #  question: 给用户看的文字提示, 通常为一个问题, 例如: 是否通过申请?
 #  count: 审核节点参与的人数, 如果为单人审批为1, 如果为会签则为具体的人数
 #  states: 审核后的状态
@@ -47,7 +52,7 @@
 #  content: 同信息节点
 #  states: 部分同审核节点
 #    状态1:
-#      fieldName: 触发状态的key
+#      key: 触发状态的key
 #      value: 触发状态的value
 #      condition: 满足该状态的人数
 #      behavior: 满足该状态后执行的动作
@@ -82,7 +87,6 @@
 资料收集:
   flowType: clientManager
   manual: true
-  subject:
   flow:
     资料收集:
       type: input
@@ -108,7 +112,7 @@
 #        quarters: []
 #        order: 1 #order项无用
 #        content:
-      key: fieldName #保存状态和备注时所用的键名, 通畅默认为key就可以
+      key: key #保存状态和备注时所用的键名, 通畅默认为key就可以
       ps: ps #是否需要备注, 如果没有, 则为空
       question: 是否拒贷
       states: #定义状态
@@ -167,7 +171,7 @@
 
     授信管理部审核:
       type: check
-      key: fieldName
+      key: key
       ps: ps
       question: 是否通过
       states:
@@ -184,7 +188,7 @@
 
     风险资产管理部审核:
       type: check
-      key: fieldName
+      key: key
       ps: ps
       question: 是否通过
       states:
@@ -201,7 +205,7 @@
 
     合规部审核:
       type: check
-      key: fieldName
+      key: key
       ps: ps
       question: 是否通过
       states:
@@ -218,7 +222,7 @@
 
     运营部审核:
       type: check
-      key: fieldName
+      key: key
       ps: ps
       question: 是否通过
       states:
@@ -235,7 +239,7 @@
 
     电子银行部确认:
       type: check
-      key: fieldName
+      key: key
       ps: ps
       question: 是否通过
       states:
@@ -249,7 +253,7 @@
 
     总领导班子审核:
       type: check
-      key: fieldName
+      key: key
       ps: ps
       question: 是否通过
       states:
@@ -305,11 +309,11 @@
       type: input
       next: 审核签署
       content:
-        审核报告: report,bytes,n
+        审核报告: report,file,n
 
     审核签署:
       type: check
-      key: fieldName
+      key: key
       ps: ps
       question: 是否通过
       states:
@@ -339,7 +343,7 @@
     是否可以还款:
       type: check
       ps: ps
-      key: fieldName
+      key: key
       count: 1
       question: 是否可以还款?
       states:
@@ -369,7 +373,7 @@
 #    是否满足利息减免条件:
 #      type: check
 #      ps: ps,
-#      fieldName: fieldName,
+#      key: key,
 #      question: 是否满足减免条件?
 #      count: 1
 #      states:
@@ -385,7 +389,7 @@
 #    是否发起减免申请:
 #      type: check
 #      ps: ps
-#      fieldName: fieldName
+#      key: key
 #      question: 客户是否已发起减免申请?
 #      count: 1
 #      states:
@@ -401,7 +405,7 @@
 #
 #    利息减免流程:
 #      type: checkprocess
-#      fieldName: fieldName
+#      key: key
 #      question: 填写任务的处理结果
 #      count: 1
 #      states:
@@ -445,7 +449,7 @@
 
     风险资产管理部审批:
       type: check
-      key: fieldName
+      key: key
       ps: ps
       question: 是否通过
       states:
@@ -458,7 +462,7 @@
           condition: 1
           behavior: go('发起申请')
       count: 1
-      next: []
+      next: [结束,发起申请]
 
     结束:
       type: end
@@ -480,7 +484,7 @@
     经营班子集体审议:
       type: check
       ps: ps
-      key: fieldName
+      key: key
       question: 审议通过/不通过?
       count: 5
       states:
@@ -492,6 +496,7 @@
           item: 不通过
           condition: 1
           behavior: go('发起申请')
+      next: [诉前保全,发起申请]
 
     诉前保全:
       type: input
@@ -502,7 +507,7 @@
 
     风险资产管理部审核:
       type: check
-      key: fieldName
+      key: key
       ps: ps
       question: 是否通过
       states:
@@ -515,22 +520,24 @@
           condition: 1
           behavior: go('发起申请')
       count: 1
+      next: [不良资产管理委员会审批,发起申请]
 
     不良资产管理委员会审批:
       type: check
-      key: fieldName
+      key: key
       ps: ps
       question: 是否通过
       states:
         -
           item: 是
-          condition: 1
+          condition: 3
           behavior: go('法院立案')
         -
           item: 否
-          condition: 1
+          condition: 3
           behavior: go('发起申请')
       count: 5
+      next: [法院立案,发起申请]
 
     法院立案:
       type: input
@@ -553,7 +560,7 @@
 
     诉讼过程中与客户协商一致:
       type: check
-      key: fieldName
+      key: key
       ps: ps
       question: 是否协商一致？
       states:
@@ -566,6 +573,7 @@
           condition: 1
           behavior: go('判决生效，执行')
       count: 1
+      next: [立卷归档,"判决生效，执行"]
 
     判决生效，执行:
       type: input
@@ -602,7 +610,7 @@
       start: true
       type: check
       ps: ps
-      key: fieldName
+      key: key
       question: 是否裁定抵债?
       count: 1
       states:
@@ -614,6 +622,7 @@
           item: 否
           condition: 1
           behavior: go('贷款单位调查')
+      next: [贷款单位调查,贷款单位调查]
 
     贷款单位调查:
       type: input
@@ -626,7 +635,7 @@
     信贷主管审查:
       type: check
       ps: ps
-      key: fieldName
+      key: key
       question: 审查通过/不通过?
       count: 1
       states:
@@ -638,11 +647,12 @@
           item: 不通过
           condition: 1
           behavior: go('贷款单位调查')
+      next: [风险资产管理部审查,贷款单位调查]
 
     风险资产管理部审查:
       type: check
       ps: ps,
-      key: fieldName,
+      key: key,
       question: 审查通过/不通过?
       count: 1
       states:
@@ -654,6 +664,7 @@
           item: 不通过
           condition: 1
           behavior: go('贷款单位调查')
+      next: [资产定价,贷款单位调查]
 
     资产定价:
       type: input
@@ -666,19 +677,20 @@
 
     不良资产管理委员会审批:
       type: check
-      key: fieldName
+      key: key
       ps: ps
       question: 是否通过
       states:
         -
           item: 是
-          condition: 1
+          condition: 3
           behavior: go('省联社备案')
         -
           item: 否
-          condition: 1
+          condition: 3
           behavior: go('发起申请')
       count: 5
+      next: [省联社备案,发起申请]
 
     省联社备案:
       type: input
@@ -696,7 +708,7 @@
 
     合同审核通过:
       type: check
-      key: fieldName
+      key: key
       ps: ps
       question: 是否审核通过？
       states:
@@ -709,6 +721,7 @@
           condition: 1
           behavior: go('与客户签订协议')
       count: 1
+      next: [入账处理,与客户签订协议]
 
     入账处理:
       type: input
@@ -734,7 +747,7 @@
     信贷主管审查:
       type: check
       ps: ps
-      key: fieldName
+      key: key
       question: 审查通过/不通过?
       count: 1
       states:
@@ -746,13 +759,14 @@
           item: 不通过
           condition: 1
           behavior: go('制定处置方案')
+      next: [经营班子集体审议,制定处置方案]
 
     经营班子集体审议:
       type: check
       ps: ps
-      key: fieldName
+      key: key
       question: 审议通过/不通过?
-      count: 5
+      count: 1
       states:
         -
           item: 通过
@@ -762,11 +776,12 @@
           item: 不通过
           condition: 1
           behavior: go('制定处置方案')
+      next: [风险资产管理部审核,制定处置方案]
 
     风险资产管理部审核:
       type: check
       ps: ps
-      key: fieldName
+      key: key
       question: 审查通过/不通过?
       count: 1
       states:
@@ -778,10 +793,11 @@
           item: 不通过
           condition: 1
           behavior: go('制定处置方案')
+      next: [不良资产管理委员会审批,制定处置方案]
 
     不良资产管理委员会审批:
       type: check
-      key: fieldName
+      key: key
       ps: ps
       question: 是否通过
       states:
@@ -794,6 +810,7 @@
           condition: 1
           behavior: go('制定处置方案')
       count: 5
+      next: [省联社备案,制定处置方案]
 
     省联社备案:
       type: input
@@ -860,6 +877,7 @@
           condition: 1
           behavior: go('其它')
       count: 1
+      next: [利息减免流程,诉讼流程,抵债资产接收流程,不良转贷后,其它]
 
     不良转贷后:
       type: input
@@ -891,6 +909,7 @@
           item: 否
           condition: 1
           behavior: go('选择处理方式')
+      next: [抵债资产接收流程,选择处理方式]
 
     利息减免流程:
       type: check
@@ -908,6 +927,7 @@
           item: 否
           condition: 1
           behavior: go('选择处理方式')
+      next: [不良转贷后,选择处理方式]
 
     资产处置流程:
       type: check
@@ -925,6 +945,7 @@
           item: 否
           condition: 1
           behavior: go('结束')
+      next: [结束]
 
     结束:
       type: end

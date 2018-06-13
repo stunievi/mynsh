@@ -1,0 +1,1 @@
+java -jar -Dloader.path=.,lib hz-back-1.5.12.RELEASE-classes.jar

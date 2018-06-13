@@ -26,6 +26,15 @@ public class SystemConfigCache {
         return String.join("\n",codes);
     }
 
+    public Map getCreateUserString() throws IOException {
+        ClassPathResource resource = new ClassPathResource("config/create_user.yml");
+        List<String> codes = IOUtils.readLines(resource.getInputStream());
+        String str = String.join("\n",codes);
+        Yaml yaml = new Yaml();
+        Object o = yaml.load(str);
+        return (Map) o;
+    }
+
     public Object getWorkflowConfig(){
         try {
             String str = getWorkflowString();

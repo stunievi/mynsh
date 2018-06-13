@@ -14,6 +14,7 @@ import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.tool.xml.XMLWorkerHelper;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.junit.Test;
 import org.springframework.util.StringUtils;
 import org.xhtmlrenderer.pdf.ITextRenderer;
@@ -44,8 +45,52 @@ public class NormalTest {
         }
     }
 
+    class d{
+        long d;
+    }
+
+    public int getPage(int count, int pageSize){
+        int p = count / pageSize;
+        int mod = count % pageSize;
+        if(mod > 0){
+            p = p + 1;
+        }
+        if(0 == p){
+            return 1;
+        }
+        return p;
+    }
     @Test
     public void test() throws IOException {
+        int count = 11;
+        int pagesize = 10;
+
+        getPage(count,pagesize);
+
+        val dd = new d();
+
+        try(
+                InputStream is = new InputStream() {
+        @Override
+        public int read() throws IOException {
+            return 0;
+        }
+    };
+            OutputStream os = new OutputStream() {
+                @Override
+                public void write(int b) throws IOException {
+
+                }
+            };
+        ){
+
+        }
+        catch (Exception e){
+
+        }
+        val a = 1;
+//        a = 2;
+
         String b = null;
         boolean bb = StringUtils.isEmpty(b);
 

@@ -34,8 +34,8 @@ public interface IWorkflowModelDao extends JpaRepository<WorkflowModel,Long>{
 
 
     //得到一个模型起始节点的可处理人
-    @Query(value = "select user from WorkflowModel m, User user join user.quarters qs join m.nodeModels nm join nm.persons ps where ps.type = 0 and nm.start = true and m.id = :id and ps.uid = qs.id")
-    List<User> getFirstNodeUsers(@Param("id") Long id);
+    @Query(value = "select user.id from WorkflowModel m, User user join user.quarters qs join m.nodeModels nm join nm.persons ps where ps.type = 0 and nm.start = true and m.id = :id and ps.uid = qs.id")
+    List<Long> getFirstNodeUsers(@Param("id") Long id);
 
     //得到当前节点的可处理人
     @Query(value = "select user from WorkflowModel m, User user join user.quarters qs join m.nodeModels nm join nm.persons ps where ps.type = 0 and nm.id = :id and ps.uid = qs.id")

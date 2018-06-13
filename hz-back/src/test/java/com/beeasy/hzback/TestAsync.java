@@ -3,6 +3,10 @@ package com.beeasy.hzback;
 import bin.leblanc.faker.Faker;
 import com.beeasy.hzback.core.exception.RestException;
 import com.beeasy.hzback.core.helper.Result;
+import com.beeasy.hzback.modules.cloud.CloudAdminApi;
+import com.beeasy.hzback.modules.cloud.CloudApi;
+import com.beeasy.hzback.modules.cloud.CloudService;
+import com.beeasy.hzback.modules.system.cache.SystemConfigCache;
 import com.beeasy.hzback.modules.system.dao.*;
 import com.beeasy.hzback.modules.system.entity.*;
 import com.beeasy.hzback.modules.system.form.*;
@@ -14,8 +18,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.persistence.EntityManager;
@@ -25,7 +29,10 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -220,12 +227,145 @@ public class TestAsync {
 
     @Autowired
     IWorkflowInstanceDao instanceDao;
+    @Autowired
+    IWorkflowNodeDao workflowNodeDao;
+
+    @Autowired
+    CloudService cloudService;
+
+    @Autowired
+    CloudDiskService cloudDiskService;
+    @Autowired
+    SystemConfigCache systemConfigCache;
+
+    @Autowired
+    CloudApi cloudApi;
+    @Autowired
+    CloudAdminApi cloudAdminApi;
+    @Autowired
+    IUserProfileDao profileDao;
+
+    @Value("${filecloud.userDefaultPassword}")
+    String cloudUserPassword;
+
+    @Autowired
+    IWorkflowNodeFileDao nodeFileDao;
+
+    @Test
+    public void testtags(){
+ Query q =        entityManager.createQuery("select user.quarters from User user where user.id = 2613");
+ q.setMaxResults(10);
+ q.setFirstResult(0);
+ List list = q.getResultList();
+ int c = 1;
+//        nodeFileDao.updateNodeFileTags(559,14, "cubi 123");
+//        int d = 0;
+    }
     @Test
     public void testUserSelect(){
-        List s = instanceDao.findCommonWorks(Collections.singletonList(2613L),Long.MAX_VALUE,new PageRequest(0,20));
-        Result.ok(s).toJson(new Result.Entry[]{
-                new Result.Entry(WorkflowInstance.class,"nodeList","simpleChildInstances")
+//        URL urls = new URL(url);
+//        HttpURLConnection connection = null;
+//        OutputStream outputStream = null;
+//        String rs = null;
+//        try {
+//            connection = (HttpURLConnection) urls.openConnection();
+//            connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=----footfoodapplicationrequestnetwork");
+//            connection.setDoOutput(true);
+//            connection.setDoInput(true);
+//            connection.setRequestProperty("Accept-Language", "zh-CN,zh;q=0.8");
+//            connection.setRequestProperty("Accept", "*/*");
+//            connection.setRequestProperty("Range", "bytes="+"");
+//            connection.setConnectTimeout(8000);
+//            connection.setReadTimeout(20000);
+//            connection.setRequestMethod("POST");
+//
+//            StringBuffer buffer = new StringBuffer();
+//            int len = 0;
+//            if(parameter != null)
+//                len = parameter.size();
+//
+//            for(int i = 0; i < len; i++) {
+//                buffer.append("------footfoodapplicationrequestnetwork\r\n");
+//                buffer.append("Content-Disposition: form-data; name=\"");
+//                buffer.append(parameter.getKey(i));
+//                buffer.append("\"\r\n\r\n");
+//                buffer.append(parameter.getValue(i));
+//                buffer.append("\r\n");
+//            }
+//            if(parameter != null)
+//                buffer.append("------footfoodapplicationrequestnetwork--\r\n");
+//            outputStream = connection.getOutputStream();
+//            outputStream.write(buffer.toString().getBytes());
+//            try {
+//                connection.connect();
+//                if(connection.getResponseCode() == 200) {
+//                    rs = getWebSource(connection.getInputStream());
+//                }
+//            }
+//            catch (Exception e) {
+//                rs = null;
+//            }
+//
+//            return rs;
+//        }
+//        finally {
+//            try {
+//                outputStream.close();
+//            }
+//            catch (Exception e) {
+//            }
+//            outputStream = null;
+//
+//            if(connection != null)
+//                connection.disconnect();
+//            connection = null;
+//        }
+
+        List<User> users = userDao.findAll();
+        users.forEach(user -> {
+            user.getProfile().setCloudUsername(user.getUsername());
+            user.getProfile().setCloudPassword(cloudUserPassword);
+            profileDao.save(user.getProfile());
+//
+//            cloudService.adminCreateUser(user.getUsername());
+            cloudService.createUser(user.getUsername());
         });
+//        try {
+//            LoginResponse loginResponse = cloudApi.login("admin","admin");
+//            CloudAdminApi.Config.setCookie(loginResponse.getResponseCookies().get(0));
+//            Map map = systemConfigCache.getCreateUserString();
+//            map.put("user.username","fuckfei234");
+//            Object result = cloudAdminApi.adminCreateUser(map);
+//            int c = 1;
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        boolean flag = cloudService.login("llyb120","1q2w3e4r");
+//        Assert.assertTrue(flag);
+//
+//        flag = cloudService.checkOnline();
+//        long dirId = cloudDiskService.prepareFileCloud(2189);
+//        Assert.assertTrue(dirId > 0);
+//        List<WorkflowNode> workflowNodes = workflowNodeDao.findAll();
+//        for (WorkflowNode workflowNode : workflowNodes) {
+//            if(workflowNode.getType().equals("check")){
+//                CheckNode checkNode = (CheckNode) workflowNode.getNode();
+//                if(checkNode != null){
+//                    checkNode.setKey("key");
+//                    workflowNodeDao.save(workflowNode);
+//                }
+//            }
+//        }
+//        List<User> users = userDao.findAll();
+//        for (User user : users) {
+//            userService.initLetter(user);
+//            userDao.save(user);
+//        }
+//        List s = instanceDao.findCommonWorks(Collections.singletonList(2613L),Long.MAX_VALUE,new PageRequest(0,20));
+//        Result.ok(s).toJson(new Result.Entry[]{
+//                new Result.Entry(WorkflowInstance.class,"nodeList","simpleChildInstances")
+//        });
 //        instanceDao.
 //        List b = workflowModelDao.findModelId("资料收集");
 //        int c = 1;

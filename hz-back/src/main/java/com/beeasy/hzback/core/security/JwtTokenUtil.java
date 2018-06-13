@@ -52,9 +52,17 @@ public class JwtTokenUtil implements Serializable {
      * @param userDetails 用户
      * @return 令牌
      */
+    @Deprecated
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>(3);
         claims.put("sub", userDetails.getUsername());
+        claims.put("created", new Date());
+        return generateToken(claims);
+    }
+
+    public String generateToken(Long uid){
+        Map<String, Object> claims = new HashMap<>(3);
+        claims.put("sub", uid + "");
         claims.put("created", new Date());
         return generateToken(claims);
     }
@@ -65,6 +73,7 @@ public class JwtTokenUtil implements Serializable {
      * @param token 令牌
      * @return 用户名
      */
+    @Deprecated
     public String getUsernameFromToken(String token) {
         String username;
         try {
@@ -75,6 +84,16 @@ public class JwtTokenUtil implements Serializable {
         }
         return username;
     }
+
+    public Long getUserIdFromToken(String token){
+        try {
+            Claims claims = getClaimsFromToken(token);
+            return Long.valueOf(claims.getSubject());
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
 
     /**
      * 判断令牌是否过期
