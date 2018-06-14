@@ -192,7 +192,7 @@ public class UserService implements IUserService {
         userProfile.setUser(u);
         SystemFile systemFile = new SystemFile();
         try {
-            ClassPathResource resource = new ClassPathResource("config/workflow.yml");
+            ClassPathResource resource = new ClassPathResource("static/default_face.jpg");
             byte[] bytes = IOUtils.toByteArray(resource.getInputStream());
             systemFile.setBytes((bytes));
             systemFile.setType(SystemFile.Type.FACE);

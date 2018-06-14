@@ -12,6 +12,7 @@ import com.beeasy.hzback.modules.system.entity.*;
 import com.beeasy.hzback.modules.system.form.*;
 import com.beeasy.hzback.modules.system.service.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 import org.hibernate.SQLQuery;
 import org.hibernate.transform.Transformers;
 import org.junit.Assert;
@@ -20,6 +21,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.persistence.EntityManager;
@@ -28,6 +30,7 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -84,7 +87,7 @@ public class TestAsync {
         workflowModelDao.deleteAll();
         //列出2个版本
         for (int i = 0; i < 2; i++) {
-            String[] modelNames = {"菜单权限申请","资料收集","不良资产登记","利息减免登记","抵债资产接收","资产处置","不良资产管理流程"};
+            String[] modelNames = {"菜单权限申请","资料收集","不良资产登记","利息减免登记","抵债资产接收","资产处置","不良资产管理流程","贷后跟踪-小微部公司类","贷后跟踪-小微部个人类",};
             for (String modelName : modelNames) {
                 WorkflowModelAdd edit = new WorkflowModelAdd();
                 edit.setName(modelName);
@@ -383,6 +386,19 @@ public class TestAsync {
 //       int c = 1;
 //        List s = instanceDao.findObserveredWorks(Collections.singletonList(559L),Long.MAX_VALUE);
 //        int c = 1;
+    }
+
+
+    @Test
+    public void fixFace() throws IOException {
+        for (SystemFile systemFile : systemFileDao.findAll()) {
+            if(systemFile.getType().equals(SystemFile.Type.FACE)){
+                ClassPathResource resource = new ClassPathResource("static/default_face.jpg");
+                byte[] bytes = IOUtils.toByteArray(resource.getInputStream());
+                systemFile.setBytes(bytes);
+                systemFileDao.save(systemFile);
+            }
+        }
     }
 
 }

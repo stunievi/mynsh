@@ -14,6 +14,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,6 +46,9 @@ public class MobileFileController {
             return new ResponseEntity<byte[]>(HttpStatus.NO_CONTENT);
         }
         HttpHeaders headers = new HttpHeaders();
+        if(file.getType().equals(SystemFile.Type.FACE)){
+            headers.setContentType(MediaType.IMAGE_JPEG);
+        }
         return new ResponseEntity<byte[]>(file.getBytes(), headers, HttpStatus.OK);
     }
 

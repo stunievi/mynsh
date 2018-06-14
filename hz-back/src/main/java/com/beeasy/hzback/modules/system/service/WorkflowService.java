@@ -178,15 +178,25 @@ public class WorkflowService implements IWorkflowService {
         workflowInstance.setPubUserId(pubUser.getId());
 //        workflowInstance.setPubUser(pubUser);
 
+        //滞后处理的字段
+        List<WorkflowModelInnate> afters = new ArrayList<>();
         //固有字段检查
         List<WorkflowModelInnate> innates = workflowModel.getInnates();
         for (WorkflowModelInnate innate : innates) {
+            //特殊固有字段的处理
+            if(innate.getContent().getType().equals("taskId")){
+                afters.add(innate);
+                continue;
+            }
             if(!request.getData().containsKey(innate.getFieldName())){
                 return Result.error("请填写对应的字段");
             }
         }
         //插入固有字段
         for (WorkflowModelInnate innate : innates) {
+            if(afters.contains(innate)){
+                continue;
+            }
             WorkflowInstanceAttribute attribute = new WorkflowInstanceAttribute();
             attribute.setInstance(workflowInstance);
             attribute.setType(WorkflowInstanceAttribute.Type.INNATE);
@@ -218,6 +228,23 @@ public class WorkflowService implements IWorkflowService {
         logService.addLog(SystemTextLog.Type.WORKFLOW, workflowInstance.getId(), uid, "发布了任务");
         if (null != dealerUser) {
             logService.addLog(SystemTextLog.Type.WORKFLOW, workflowInstance.getId(), dealerUser.getId(), "接受了任务");
+        }
+
+        //滞后处理
+        if(null != workflowInstance && workflowInstance.getId() > 0){
+            for (WorkflowModelInnate after : afters) {
+                switch (after.getContent().getType()){
+                    case "taskId":
+                        WorkflowInstanceAttribute attribute = new WorkflowInstanceAttribute();
+                        attribute.setInstance(workflowInstance);
+                        attribute.setType(WorkflowInstanceAttribute.Type.INNATE);
+                        attribute.setAttrCName(after.getContent().getCname());
+                        attribute.setAttrKey(after.getContent().getEname());
+                        attribute.setAttrValue(workflowInstance.getId() + "");
+                        attribute = instanceAttributeDao.save(attribute);
+                        break;
+                }
+            }
         }
 
         return workflowInstance.getId() == null ? Result.error() : Result.ok(workflowInstance);
