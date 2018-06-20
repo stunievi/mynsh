@@ -7,6 +7,7 @@ import com.beeasy.hzback.modules.system.cache.SystemConfigCache;
 import com.beeasy.hzback.modules.system.dao.IQuartersDao;
 import com.beeasy.hzback.modules.system.dao.IUserDao;
 import com.beeasy.hzback.modules.system.entity.Department;
+import com.beeasy.hzback.modules.system.entity.GlobalPermission;
 import com.beeasy.hzback.modules.system.entity.Quarters;
 import com.beeasy.hzback.modules.system.entity.User;
 import com.beeasy.hzback.modules.system.form.UserAdd;
@@ -21,6 +22,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.repository.query.Param;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -181,5 +183,29 @@ public class UserController {
     }
 
 
+    @GetMapping("/permission/add/{type}/{objectId}/{userType}/{linkId}")
+    public Result addGlobalPermission(
+            //授权类型
+            @PathVariable GlobalPermission.Type type,
+            //授权对象
+            //例如 工作流模型ID/节点ID等
+            @PathVariable long objectId,
+            //授权者类型
+            //按部门/按岗位/按人员
+            @PathVariable GlobalPermission.UserType userType,
+            //授权者ID
+            //部门ID/岗位ID/人员ID
+            @PathVariable long linkId
+            ){
+        //批量加自己写
+        return Result.ok(userService.addGlobalPermission(type,objectId,userType,linkId));
+    }
+
+    @PostMapping("/permissio/delete")
+    public Result deleteGlobalPermission(
+            @RequestBody List<Long> ids
+    ){
+        return Result.finish(userService.deleteGlobalPermission((Long[])ids.toArray()));
+    }
 
 }
