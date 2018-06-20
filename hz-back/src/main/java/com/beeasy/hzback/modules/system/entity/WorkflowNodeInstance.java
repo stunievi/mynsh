@@ -28,7 +28,9 @@ public class WorkflowNodeInstance {
     WorkflowInstance instance;
 
     String nodeName;
-    String type;
+
+    @Enumerated
+    WorkflowNode.Type type;
 
     //节点模型
     @JSONField(serialize = false)

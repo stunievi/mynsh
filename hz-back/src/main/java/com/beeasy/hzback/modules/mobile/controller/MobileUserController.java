@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -165,6 +166,11 @@ public class MobileUserController {
         return userService.loginFileCloudCommonSystem(Utils.getCurrentUserId()).toJson();
     }
 
+//    @GetMapping("/department/{did}/uids")
+//    public String getUidsFromDepartment(@PathVariable long did){
+//        System.out.println("fuck");
+//        return Result.ok(userDao.getUidsFromDepartment(Collections.singleton(did))).toJson();
+//    }
 
 //    @RequestMapping("/userInfo")
 //    public Result getUserInfo(){

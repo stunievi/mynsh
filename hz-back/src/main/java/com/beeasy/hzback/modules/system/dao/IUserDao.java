@@ -13,6 +13,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -93,6 +94,50 @@ public interface IUserDao extends JpaRepository<User,Long> ,JpaSpecificationExec
 
     @Query(value = "select u.id,u.trueName,u.phone,u.profile.faceId from User u join u.quarters q join q.department d where d.id = :id")
     List getSimpleUsersFromDepartment(@Param("id") long id);
+
+    //得到用户的岗位代码
+    @Query(value = "select q.code from User u join u.quarters q where u.id = :uid")
+    List<Object[]> getQids(@Param("uid") long uid);
+
+    //是否拥有这个岗位
+    @Query(value = "select count(q) from User u join u.quarters q where u.id = :uid and q.id = :qid")
+    int hasQuarters(@Param("uid") long uid, @Param("qid") long qid);
+
+    //是否所属这个部门
+    @Query(value = "select count(u) from User u join u.quarters q where (select count(par) from Department par where ( select count(child) from Quarters child where par.code = substring(child.code, 1, length(par.code)) and child.id = q.id and child.code <> par.code) > 0 and par.id = :did) > 0 and u.id = :uid")
+    int hasDepartment(@Param("uid") long uid, @Param("did") long did);
+
+    //得到某个部门的所有用户
+//    @Query(value = "select u.id from User u join u.quarters q where (select count(d) from Department d where q.code like concat(d.code,'%') and d.id in :dids) > 0")
+//    List getUidsFromDepartment(@Param("dids") Collection<Long> dids);
+
+    //得到某个岗位的所有用户
+    @Query(value = "select u.id from User u join u.quarters q where q.id in :qids")
+    List getUidsFromQuarters(@Param("qids") Collection<Long> qids);
+
+    //得到工作流所有可以开始处理的人
+//    List getUidsFromWorkflowWhoCanPub();
+
+    //得到工作流所有可以指派的人
+//    List getUidsFromWorkflowWhoCanPoint();
+
+    //得到工作流实例所有可以观察的人
+//    List getUidsFromWorkflowInstanceWhoCanObserve();
+
+    //得到工作流当前节点可以处理的人
+//    List getUidsFromWorkflowCurrentNodeWhoCanDeal();
+
+
+
+
+    //是否是子部门
+//    @Query(value = "select count(par) from Department par where ( select count(child) from Department child where par.code = substring(child,0,length(par.code)) and child.id = :cid and child.code <> par.code) > 0 and par.id = :pid")
+//    int departmentHasChild(@Param("pid") long pid, @Param("cid") long cid);
+//
+    //是否是子岗位
+//    @Query(value = "select count(par) from Department par where ( select count(child) from Quarters child where par.code = substring(child, 0, length(par.code)) and child.id = :cid and child.code <> par.code) > 0 and par.id = :pid")
+//    int departmentHasQuarters(@Param("pid") long pid, @Param("cid") long cid);
+
 
 //    User findByUserNameOrEmail(String username, String email);
 

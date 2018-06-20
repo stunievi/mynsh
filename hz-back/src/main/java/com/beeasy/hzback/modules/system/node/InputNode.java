@@ -49,7 +49,7 @@ public class InputNode extends BaseNode{
                     boolean innate = (boolean) cvmap.getOrDefault("innate",false);
                     if(innate){
                         WorkflowModelInnate workflowModelInnate = new WorkflowModelInnate();
-                        workflowModelInnate.setContent(cnt);
+//                        workflowModelInnate.setContent(cnt);
                         workflowModelInnate.setFieldName(cnt.getEname());
                         workflowModelInnate.setModel(workflowModel);
                         workflowModel.getInnates().add(workflowModelInnate);

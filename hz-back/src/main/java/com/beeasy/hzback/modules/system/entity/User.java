@@ -76,6 +76,10 @@ public class User implements Serializable{
     private List<UserExternalPermission> externalPermissions = new ArrayList<>();
 
     @JSONField(serialize = false)
+    @OneToMany(mappedBy = "user")
+    private List<GlobalPermissionCenter> gpCenters = new ArrayList<>();
+
+    @JSONField(serialize = false)
     @Transient
     public boolean hasQuarters(long id){
         return getQuarters().stream()

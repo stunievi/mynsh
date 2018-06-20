@@ -7,7 +7,7 @@ import com.beeasy.hzback.modules.exception.CannotFindEntityException;
 import com.beeasy.hzback.modules.mobile.request.ApplyTaskRequest;
 import com.beeasy.hzback.modules.system.cache.SystemConfigCache;
 import com.beeasy.hzback.modules.system.dao.IDepartmentDao;
-import com.beeasy.hzback.modules.system.dao.IInspectTaskDao;
+//import com.beeasy.hzback.modules.system.dao.IInspectTaskDao;
 import com.beeasy.hzback.modules.system.dao.IUserDao;
 import com.beeasy.hzback.modules.system.dao.IWorkflowModelDao;
 import com.beeasy.hzback.modules.system.entity.*;
@@ -197,7 +197,7 @@ public class TestUser {
 
 //        userService.removeQuarters(u.getId(), quarters.getId());
         userService.editUser(userEdit);
-        u = userService.findUserE(u.getId());
+        u = userService.findUser(u.getId()).orElse(null);
         assertTrue(u.getQuarters().size() > 0);
 
         //重新绑定
@@ -432,8 +432,8 @@ public class TestUser {
     IWorkflowModelDao modelDao;
     @Autowired
     IDepartmentDao departmentDao;
-    @Autowired
-    IInspectTaskDao inspectTaskDao;
+//    @Autowired
+//    IInspectTaskDao inspectTaskDao;
 
 //    @Autowired
 //    CacheManager cacheManager;
@@ -484,11 +484,11 @@ public class TestUser {
         edit.setQuarters(Collections.singleton(quarters.getId()));
 
         userService.editUser(edit);
-        assertTrue(userService.findUserE(user.getId()).getQuarters().size() > 0);
+        assertTrue(userService.findUser(user.getId()).map(User::getQuarters).orElse(null).size() > 0);
 
         edit.setQuarters(new HashSet<>());
         userService.editUser(edit);
-        assertTrue(userService.findUserE(user.getId()).getQuarters().size() == 0);
+        assertTrue(userService.findUser(user.getId()).map(User::getQuarters).orElse(null).size() == 0);
     }
 
 

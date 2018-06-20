@@ -22,8 +22,10 @@ public class Quarters extends AbstractBaseEntity {
 
     @JSONField(serialize = false)
     @ManyToOne
-    @JoinColumn(name = "department_id")
+    @JoinColumn(name = "department_id", insertable = false, updatable = false)
     Department department;
+    @Column(name = "department_id")
+    Long departmentId;
 
     String name;
     String dName;
@@ -42,5 +44,7 @@ public class Quarters extends AbstractBaseEntity {
     )
 //    @LazyCollection(LazyCollectionOption.EXTRA)
     Set<User> users = new LinkedHashSet<>();
+
+    String code;
 
 }

@@ -11,6 +11,7 @@ import com.beeasy.hzback.modules.system.dao.*;
 import com.beeasy.hzback.modules.system.entity.*;
 import com.beeasy.hzback.modules.system.form.*;
 import com.beeasy.hzback.modules.system.service.*;
+import jdk.nashorn.internal.objects.Global;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.hibernate.SQLQuery;
@@ -22,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.persistence.EntityManager;
@@ -32,14 +34,11 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
-@RunWith(SpringRunner.class)
+@RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
 public class TestAsync {
 
@@ -70,15 +69,15 @@ public class TestAsync {
 
     @Test
     public void give(){
-        List<Quarters> qs = quartersDao.findAll();
-        List<WorkflowModel> models = workflowModelDao.findAll();
-        for (WorkflowModel model : models) {
-            WorkflowExtPermissionEdit edit = new WorkflowExtPermissionEdit();
-            edit.setType(WorkflowExtPermission.Type.POINTER);
-            edit.setModelId(model.getId());
-            edit.setQids(qs.stream().map(Quarters::getId).collect(Collectors.toList()));
-            workflowService.setExtPermissions(edit);
-        }
+//        List<Quarters> qs = quartersDao.findAll();
+//        List<WorkflowModel> models = workflowModelDao.findAll();
+//        for (WorkflowModel model : models) {
+//            WorkflowExtPermissionEdit edit = new WorkflowExtPermissionEdit();
+//            edit.setType(WorkflowExtPermission.Type.POINTER);
+//            edit.setModelId(model.getId());
+//            edit.setQids(qs.stream().map(Quarters::getId).collect(Collectors.toList()));
+//            workflowService.setExtPermissions(edit);
+//        }
     }
 
 
@@ -388,6 +387,51 @@ public class TestAsync {
 //        int c = 1;
     }
 
+    @Autowired
+    IGlobalPermissionDao globalPermissionDao;
+    @Test
+    public void testtt() throws InterruptedException {
+//        boolean flag = userService.isChildDepartment(38,29);
+//        Assert.assertTrue(flag);
+//        flag = userService.isChildDepartment(29,38);
+//        Assert.assertFalse(flag);
+
+
+        long id = userService.addGlobalPermission(GlobalPermission.Type.COMMON_CLOUD_DISK,0, GlobalPermission.UserType.DEPARTMENT, 41);
+        Assert.assertTrue(id > 0);
+
+        List list = globalPermissionDao.getUids(Collections.singleton(GlobalPermission.Type.COMMON_CLOUD_DISK),0);
+        Assert.assertTrue(list.size() > 0);
+
+//        list = globalPermissionDao.getUids()
+
+        boolean count = userService.deleteGlobalPermission(id);
+        Assert.assertTrue(count);
+
+        Thread.sleep(5000);
+        if(true) return;
+
+        Assert.assertTrue(departmentDao.departmentHasChild(41,45) > 0);
+        Assert.assertTrue(departmentDao.departmentHasQuarters(42,98) > 0) ;
+
+        Assert.assertTrue(userDao.hasDepartment(414,41) > 0);
+        Assert.assertFalse(userDao.hasDepartment(414,42) > 0);
+
+        List obj = departmentDao.getChildQuartersIds(41);
+        int c = 1;
+
+//        obj = userDao.getUidsFromDepartment(Collections.singleton(41l));
+//        int d = 1;
+
+        Assert.assertTrue(obj.size() > 0);
+//        Assert.assertTrue(obj.contains(414));
+
+//        Assert.assertTrue(userService.hasQuarter(414,91));
+//        Assert.assertFalse(userService.hasQuarter(94,414));
+//
+//        Assert.assertTrue(userService.isChildQuarter(98,42));
+//        Assert.assertTrue(userService.isChildQuarter(98,29));
+    }
 
     @Test
     public void fixFace() throws IOException {

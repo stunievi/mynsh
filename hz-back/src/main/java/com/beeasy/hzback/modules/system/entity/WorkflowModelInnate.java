@@ -1,9 +1,10 @@
 package com.beeasy.hzback.modules.system.entity;
 
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.beeasy.hzback.core.entity.AbstractBaseEntity;
+import com.beeasy.hzback.core.helper.JSONConverter;
 import com.beeasy.hzback.core.helper.ObjectConverter;
-import com.beeasy.hzback.modules.system.node.InputNode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -24,8 +25,8 @@ public class WorkflowModelInnate extends AbstractBaseEntity {
 
     String fieldName;
 
-    @Column(columnDefinition = "BLOB")
-    @Convert(converter = ObjectConverter.class)
-    InputNode.Content content;
+    @Column(columnDefinition = JSONConverter.type)
+    @Convert(converter = JSONConverter.class)
+    JSONObject content;
 
 }

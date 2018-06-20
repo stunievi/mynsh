@@ -1,7 +1,9 @@
 package com.beeasy.hzback.modules.system.entity;
 
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.beeasy.hzback.core.entity.AbstractBaseEntity;
+import com.beeasy.hzback.core.helper.JSONConverter;
 import com.beeasy.hzback.core.helper.ObjectConverter;
 import com.beeasy.hzback.core.helper.StringCommaConverter;
 import com.beeasy.hzback.modules.system.node.BaseNode;
@@ -25,15 +27,17 @@ public class WorkflowNode extends AbstractBaseEntity{
     @ManyToOne
     WorkflowModel model;
 
-    @Column(columnDefinition = "BLOB")
-    @Convert(converter = ObjectConverter.class)
-    BaseNode node;
+    @Column(columnDefinition = JSONConverter.type)
+    @Convert(converter = JSONConverter.class)
+    JSONObject node;
 
-    @OneToMany(mappedBy = "workflowNode",cascade = CascadeType.ALL)
-    List<WorkflowModelPersons> persons = new ArrayList<>();
+//    @OneToMany(mappedBy = "workflowNode",cascade = CascadeType.ALL)
+//    List<WorkflowModelPersons> persons = new ArrayList<>();
 
     String name;
-    String type;
+
+    @Enumerated
+    Type type;
 
     @Convert(converter = StringCommaConverter.class)
     List<String> next = new ArrayList<>();
@@ -45,9 +49,11 @@ public class WorkflowNode extends AbstractBaseEntity{
     boolean start = false;
     boolean end = false;
 
-//    public
-
-
-
+    public enum Type{
+        input,
+        check,
+        logic,
+        end
+    }
 
 }

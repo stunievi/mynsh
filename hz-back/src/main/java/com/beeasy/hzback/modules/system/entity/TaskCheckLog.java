@@ -19,10 +19,16 @@ public class TaskCheckLog extends AbstractBaseEntity{
     @GeneratedValue
     Long id;
 
-    String type;
+    @Enumerated
+    Type type;
 
     Long linkId;
 
     @CreatedDate
     Date lastCheckDate;
+
+
+    public enum Type{
+        LOGIC_NODE
+    }
 }

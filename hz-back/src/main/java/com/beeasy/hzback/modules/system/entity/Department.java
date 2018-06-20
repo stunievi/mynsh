@@ -42,7 +42,8 @@ public class Department extends AbstractBaseEntity{
     @OneToMany(mappedBy = "department", cascade = CascadeType.ALL)
     private Set<Quarters> quarters = new LinkedHashSet<>();
 
-
+    //部门编号
+    private String code;
 
 //    @Transient
 //    public List<User> getUsers(){

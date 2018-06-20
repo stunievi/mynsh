@@ -1,6 +1,8 @@
 package com.beeasy.hzback.modules.system.service;
 
 import bin.leblanc.classtranslate.Transformer;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.core.exception.RestException;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.helper.Utils;
@@ -43,12 +45,16 @@ import static javax.persistence.LockModeType.PESSIMISTIC_WRITE;
 @Slf4j
 @Service
 @Transactional
-public class WorkflowService implements IWorkflowService {
+public class WorkflowService{
 
     @Value("${workflow.timeStep}")
     private int timeStep = 5;
 
+    @Value("permission.type")
+    private String permissionType;
 
+    @Autowired
+    IGlobalPermissionDao globalPermissionDao;
     @Autowired
     IWorkflowInstanceAttributeDao instanceAttributeDao;
     @Autowired
@@ -61,8 +67,8 @@ public class WorkflowService implements IWorkflowService {
     IWorkflowNodeFileDao nodeFileDao;
     @Autowired
     ISystemFileDao systemFileDao;
-    @Autowired
-    IWorkflowExtPermissionDao extPermissionDao;
+//    @Autowired
+//    IWorkflowExtPermissionDao extPermissionDao;
     @Autowired
     Utils utils;
     @Autowired
@@ -80,8 +86,9 @@ public class WorkflowService implements IWorkflowService {
     @Autowired
     IWorkflowNodeDao nodeDao;
 
-    @Autowired
-    IWorkflowModelPersonsDao personsDao;
+//    @Autowired
+//    IWorkflowModelPersonsDao personsDao;
+
     @Autowired
     ITaskCheckLogDao taskCheckLogDao;
 
@@ -96,8 +103,8 @@ public class WorkflowService implements IWorkflowService {
 
     @Autowired
     ISystemTaskDao systemTaskDao;
-    @Autowired
-    IInspectTaskDao inspectTaskDao;
+//    @Autowired
+//    IInspectTaskDao inspectTaskDao;
 
     @Autowired
     ScriptEngine scriptEngine;
@@ -154,7 +161,7 @@ public class WorkflowService implements IWorkflowService {
             }
         }
         //如果发布了公共任务
-        if (null == dealerUser && !canPoint(workflowModel, pubUser)) {
+        if (null == dealerUser && !canPoint(workflowModel.getId(), pubUser)) {
             return Result.error("你无权发布公共任务");
         }
 
@@ -184,7 +191,7 @@ public class WorkflowService implements IWorkflowService {
         List<WorkflowModelInnate> innates = workflowModel.getInnates();
         for (WorkflowModelInnate innate : innates) {
             //特殊固有字段的处理
-            if(innate.getContent().getType().equals("taskId")){
+            if(innate.getContent().getString("type").equals("taskId")){
                 afters.add(innate);
                 continue;
             }
@@ -200,8 +207,8 @@ public class WorkflowService implements IWorkflowService {
             WorkflowInstanceAttribute attribute = new WorkflowInstanceAttribute();
             attribute.setInstance(workflowInstance);
             attribute.setType(WorkflowInstanceAttribute.Type.INNATE);
-            attribute.setAttrCName(innate.getContent().getCname());
-            attribute.setAttrKey(innate.getContent().getEname());
+            attribute.setAttrCName(innate.getContent().getString("cname"));
+            attribute.setAttrKey(innate.getContent().getString("ename"));
             attribute.setAttrValue(request.getData().getOrDefault(attribute.getAttrKey(),""));
             attribute = instanceAttributeDao.save(attribute);
             workflowInstance.getAttributes().add(attribute);
@@ -233,15 +240,15 @@ public class WorkflowService implements IWorkflowService {
         //滞后处理
         if(null != workflowInstance && workflowInstance.getId() > 0){
             for (WorkflowModelInnate after : afters) {
-                switch (after.getContent().getType()){
+                switch (after.getContent().getString("type")){
                     case "taskId":
                         WorkflowInstanceAttribute attribute = new WorkflowInstanceAttribute();
                         attribute.setInstance(workflowInstance);
                         attribute.setType(WorkflowInstanceAttribute.Type.INNATE);
-                        attribute.setAttrCName(after.getContent().getCname());
-                        attribute.setAttrKey(after.getContent().getEname());
+                        attribute.setAttrCName(after.getContent().getString("cname"));
+                        attribute.setAttrKey(after.getContent().getString("ename"));
                         attribute.setAttrValue(workflowInstance.getId() + "");
-                        attribute = instanceAttributeDao.save(attribute);
+                        instanceAttributeDao.save(attribute);
                         break;
                 }
             }
@@ -478,7 +485,8 @@ public class WorkflowService implements IWorkflowService {
                 //3.任务在进行中 或者 未被领取
                 && (instance.getState().equals(WorkflowInstance.State.DEALING) || instance.getState().equals(WorkflowInstance.State.UNRECEIVED))
                 //4.拥有撤回的权限
-                && instance.getWorkflowModel().getPermissions().stream().anyMatch(p -> p.getType().equals(WorkflowExtPermission.Type.POINTER) && user.hasQuarters(p.getQid()));
+                && canPoint(instance.getModelId(), user);
+//        instance.getWorkflowModel().getPermissions().stream().anyMatch(p -> p.getType().equals(WorkflowExtPermission.Type.POINTER) && user.hasQuarters(p.getQid()));
     }
 
     /**
@@ -501,7 +509,7 @@ public class WorkflowService implements IWorkflowService {
      */
     public boolean canPubOrPoint(WorkflowModel model, User user) {
         //1.拥有该任务的指派权限
-        return canPoint(model, user) || canPub(model, user);
+        return canPoint(model.getId(), user) || canPub(model, user);
     }
 
     /**
@@ -512,25 +520,28 @@ public class WorkflowService implements IWorkflowService {
      * @return
      */
     public boolean canPub(WorkflowModel model, User user) {
-        //2.在第一个节点上
-        List<WorkflowNode> fNodes = nodeDao.findAllByModelAndStartIsTrue(model);
-        boolean flag2 = true;
-        for (WorkflowNode fNode : fNodes) {
-            flag2 = flag2 && fNode.getPersons().stream().anyMatch(p -> p.getType().equals(Type.MAIN_QUARTERS) && user.hasQuarters(p.getUid()));
-        }
-        return flag2;
+        return globalPermissionDao.hasPermission(user.getId(),Collections.singleton(GlobalPermission.Type.WORKFLOW_PUB), model.getId()) > 0;
+//        //2.在第一个节点上
+//        List<WorkflowNode> fNodes = nodeDao.findAllByModelAndStartIsTrue(model);
+//        boolean flag2 = true;
+//
+//        for (WorkflowNode fNode : fNodes) {
+//            flag2 = flag2 && fNode.getPersons().stream().anyMatch(p -> p.getType().equals(Type.MAIN_QUARTERS) && user.hasQuarters(p.getUid()));
+//        }
+//        return flag2;
     }
 
 
     /**
      * 是否可以指派这个模型的任务
      *
-     * @param model
+     * @param modelId
      * @param user
      * @return
      */
-    public boolean canPoint(WorkflowModel model, User user) {
-        return model.getPermissions().stream().anyMatch(p -> p.getType().equals(WorkflowExtPermission.Type.POINTER) && user.hasQuarters(p.getQid()));
+    public boolean canPoint(long modelId, User user) {
+        return globalPermissionDao.hasPermission(user.getId(), Collections.singleton(GlobalPermission.Type.WORKFLOW_POINTER), modelId) > 0;
+//        return model.getPermissions().stream().anyMatch(p -> p.getType().equals(WorkflowExtPermission.Type.POINTER) && user.hasQuarters(p.getQid()));
     }
 
     /**
@@ -544,9 +555,10 @@ public class WorkflowService implements IWorkflowService {
         WorkflowNode firstNode = nodeDao.findAllByModelAndStartIsTrue(instance.getWorkflowModel()).get(0);
         return
                 //1.任务正在进行中
-                instance.getState().equals(WorkflowInstance.State.DEALING)
+                instance.getState().equals(WorkflowInstance.State.DEALING) &&
                         //2.拥有指派该任务的权利
-                        && instance.getWorkflowModel().getPermissions().stream().anyMatch(p -> p.getType().equals(WorkflowExtPermission.Type.POINTER) && user.hasQuarters(p.getQid()));
+                        globalPermissionDao.hasPermission(user.getId(), Collections.singleton(GlobalPermission.Type.WORKFLOW_POINTER), instance.getModelId()) > 0;
+//                        && instance.getWorkflowModel().getPermissions().stream().anyMatch(p -> p.getType().equals(WorkflowExtPermission.Type.POINTER) && user.hasQuarters(p.getQid()));
 //                && firstNode.getPersons().stream().anyMatch(p -> p.getType().equals(Type.MAIN_QUARTERS) && dealer.hasQuarters(p.getUid()))
     }
 
@@ -558,7 +570,8 @@ public class WorkflowService implements IWorkflowService {
      * @return
      */
     public boolean canTransform(WorkflowModel model, User user) {
-        return model.getPermissions().stream().anyMatch(p -> p.getType().equals(WorkflowExtPermission.Type.POINTER) && user.hasQuarters(p.getQid()));
+        return canPoint(model.getId(),user);
+//        return model.getPermissions().stream().anyMatch(p -> p.getType().equals(WorkflowExtPermission.Type.POINTER) && user.hasQuarters(p.getQid()));
     }
 
     /**
@@ -584,48 +597,57 @@ public class WorkflowService implements IWorkflowService {
      * @return
      */
     @Deprecated
-    @Override
+    
     public WorkflowInstance submitData(long uid, long instanceId, Map data) throws RestException {
-        User user = userService.findUserE(uid);
-        WorkflowInstance workflowInstance = findInstance(instanceId).orElseThrow(() -> new CannotFindEntityException(WorkflowInstance.class, instanceId));
-        //已完成的禁止再提交
-        //只有正在处理中的才可以提交
-        if (!workflowInstance.getState().equals(WorkflowInstance.State.DEALING)) {
-            return workflowInstance;
-        }
-//        if (workflowInstance.isFinished()) {
+        return null;
+//        User user = userService.findUserE(uid);
+//        WorkflowInstance workflowInstance = findInstance(instanceId).orElseThrow(() -> new CannotFindEntityException(WorkflowInstance.class, instanceId));
+//        //已完成的禁止再提交
+//        //只有正在处理中的才可以提交
+//        if (!workflowInstance.getState().equals(WorkflowInstance.State.DEALING)) {
 //            return workflowInstance;
 //        }
-        //得到当前应处理的节点
-        WorkflowNodeInstance workflowNodeInstance = findCurrentNodeInstance(instanceId).orElse(null);
-//        WorkflowNodeInstance workflowNodeInstance = workflowInstance.getCurrentNode();
-        WorkflowNode nodeModel = workflowNodeInstance.getNodeModel();
-        //验证是否有权限处理
-        if (!checkAuth(workflowInstance.getWorkflowModel(), workflowNodeInstance.getNodeModel(), user)) {
-            throw new RestException("该用户没有权限提交数据");
-        }
-
-        //处理必填数据
-        //对于资料节点来讲, 必填数据的全部传递视为走向下一个节点
-        switch (nodeModel.getType()) {
-            case "input":
-                nodeModel.getNode().submit(user, workflowNodeInstance, data);
-                break;
-
-            case "check":
-                nodeModel.getNode().submit(user, workflowNodeInstance, data);
-                break;
-
-            case "universal":
-                nodeModel.getNode().submit(user, workflowNodeInstance, data);
-                break;
-
-            case "checkprocess":
-                nodeModel.getNode().submit(user, workflowNodeInstance, data);
-                break;
-        }
-
-        return saveWorkflowInstance(workflowInstance);
+////        if (workflowInstance.isFinished()) {
+////            return workflowInstance;
+////        }
+//        //得到当前应处理的节点
+//        WorkflowNodeInstance workflowNodeInstance = findCurrentNodeInstance(instanceId).orElse(null);
+////        WorkflowNodeInstance workflowNodeInstance = workflowInstance.getCurrentNode();
+//        WorkflowNode nodeModel = workflowNodeInstance.getNodeModel();
+//        //验证是否有权限处理
+//        if (!checkAuth(workflowInstance.getWorkflowModel(), workflowNodeInstance.getNodeModel(), user)) {
+//            throw new RestException("该用户没有权限提交数据");
+//        }
+//
+//        //处理必填数据
+//        //对于资料节点来讲, 必填数据的全部传递视为走向下一个节点
+//        switch (nodeModel.getType()){
+//            case input:
+//                submitInputNode();
+//                break;
+//
+//            case check:
+//                break;
+//        }
+////        switch (nodeModel.getType()) {
+////            case "input":
+////                nodeModel.getNode().submit(user, workflowNodeInstance, data);
+////                break;
+////
+////            case "check":
+////                nodeModel.getNode().submit(user, workflowNodeInstance, data);
+////                break;
+////
+////            case "universal":
+////                nodeModel.getNode().submit(user, workflowNodeInstance, data);
+////                break;
+////
+////            case "checkprocess":
+////                nodeModel.getNode().submit(user, workflowNodeInstance, data);
+////                break;
+////        }
+//
+//        return saveWorkflowInstance(workflowInstance);
     }
 
     /**
@@ -654,25 +676,32 @@ public class WorkflowService implements IWorkflowService {
 
         WorkflowNode nodeModel = nodeInstance.getNodeModel();
         switch (nodeModel.getType()) {
-            case "input":
-                //绑定节点处理人
-                nodeInstance.setDealerId(user.getId());
-//                nodeInstance.setDealer(user);
-                nodeInstance = nodeInstanceDao.save(nodeInstance);
-                nodeModel.getNode().submit(user, nodeInstance, request.getData(), attributeDao);
+            case input:
+                submitInputNode(uid, request.getNodeId(), request.getData());
                 break;
 
-            case "check":
-                nodeModel.getNode().submit(user, nodeInstance, request.getData(), attributeDao);
+            case check:
+                submitCheckNode(uid, request.getNodeId(), request.getData());
                 break;
-
-            case "universal":
-                nodeModel.getNode().submit(user, nodeInstance, request.getData(), attributeDao);
-                break;
-
-            case "checkprocess":
-                nodeModel.getNode().submit(user, nodeInstance, request.getData(), attributeDao);
-                break;
+//            case "input":
+//                //绑定节点处理人
+//                nodeInstance.setDealerId(user.getId());
+////                nodeInstance.setDealer(user);
+//                nodeInstance = nodeInstanceDao.save(nodeInstance);
+//                nodeModel.getNode().submit(user, nodeInstance, request.getData(), attributeDao);
+//                break;
+//
+//            case "check":
+//                nodeModel.getNode().submit(user, nodeInstance, request.getData(), attributeDao);
+//                break;
+//
+//            case "universal":
+//                nodeModel.getNode().submit(user, nodeInstance, request.getData(), attributeDao);
+//                break;
+//
+//            case "checkprocess":
+//                nodeModel.getNode().submit(user, nodeInstance, request.getData(), attributeDao);
+//                break;
         }
 
         logService.addLog(SystemTextLog.Type.WORKFLOW, instance.getId(), uid, "向 " + nodeInstance.getNodeModel().getName() + " 节点提交了数据");
@@ -683,35 +712,36 @@ public class WorkflowService implements IWorkflowService {
 
     @Deprecated
     public WorkflowInstance goNext(long uid, long instanceId) throws RestException {
-        WorkflowInstance instance = findInstanceE(instanceId);
-        //正在处理中的才可以提交
-        if (!instance.getState().equals(WorkflowInstance.State.DEALING)) {
-            return instance;
-        }
-//        if (instance.isFinished()) {
+        return null;
+//        WorkflowInstance instance = findInstanceE(instanceId);
+//        //正在处理中的才可以提交
+//        if (!instance.getState().equals(WorkflowInstance.State.DEALING)) {
 //            return instance;
 //        }
-        //得到当前节点
-        WorkflowNodeInstance currentNode = findCurrentNodeInstance(instanceId).orElse(null);
-        User user = userService.findUserE(uid);
-
-        //验证权限
-        if (!checkAuth(instance.getWorkflowModel(), currentNode.getNodeModel(), user)) {
-            throw new RestException("授权失败");
-        }
-
-        //如果当前节点是资料节点
-        WorkflowNode nodeModel = currentNode.getNodeModel();
-        switch (nodeModel.getType()) {
-            case "input":
-                return fromInputNodeToGo(instance, currentNode, (InputNode) nodeModel.getNode());
-            case "check":
-                return fromCheckNodeToGo(user, instance, currentNode, (CheckNode) nodeModel.getNode());
-            case "universal":
-                return fromUniversalNodeToGo(instance, currentNode, (UniversalNode) nodeModel.getNode());
-        }
-
-        return instance;
+////        if (instance.isFinished()) {
+////            return instance;
+////        }
+//        //得到当前节点
+//        WorkflowNodeInstance currentNode = findCurrentNodeInstance(instanceId).orElse(null);
+//        User user = userService.findUserE(uid);
+//
+//        //验证权限
+//        if (!checkAuth(instance.getWorkflowModel(), currentNode.getNodeModel(), user)) {
+//            throw new RestException("授权失败");
+//        }
+//
+//        //如果当前节点是资料节点
+//        WorkflowNode nodeModel = currentNode.getNodeModel();
+//        switch (nodeModel.getType()) {
+//            case "input":
+//                return fromInputNodeToGo(instance, currentNode, (InputNode) nodeModel.getNode());
+//            case "check":
+//                return fromCheckNodeToGo(user, instance, currentNode, (CheckNode) nodeModel.getNode());
+//            case "universal":
+//                return fromUniversalNodeToGo(instance, currentNode, (UniversalNode) nodeModel.getNode());
+//        }
+//
+//        return instance;
     }
 
 
@@ -742,17 +772,17 @@ public class WorkflowService implements IWorkflowService {
         WorkflowNode nodeModel = nodeInstance.getNodeModel();
         try {
             switch (nodeModel.getType()) {
-                case "input":
-                    fromInputNodeToGo(instance, nodeInstance, (InputNode) nodeModel.getNode());
+                case input:
+                    fromInputNodeToGo(instance, nodeInstance,  nodeModel.getNode());
                     break;
 
-                case "check":
-                    fromCheckNodeToGo(user, instance, nodeInstance, (CheckNode) nodeModel.getNode());
+                case check:
+                    fromCheckNodeToGo(user, instance, nodeInstance,  nodeModel.getNode());
                     break;
 
-                case "universal":
-                    fromUniversalNodeToGo(instance, nodeInstance, (UniversalNode) nodeModel.getNode());
-                    break;
+//                case "universal":
+//                    fromUniversalNodeToGo(instance, nodeInstance, (UniversalNode) nodeModel.getNode());
+//                    break;
             }
         } catch (RestException e) {
             e.printStackTrace();
@@ -884,7 +914,7 @@ public class WorkflowService implements IWorkflowService {
 
 
     @Deprecated
-    @Override
+    
     public boolean editWorkflowModel(long modelId, String info, Boolean open) {
 //        Utils.validate(edit);
         return findModel(modelId)
@@ -907,6 +937,10 @@ public class WorkflowService implements IWorkflowService {
 
     public boolean editWorkflowModel(WorkflowModelEdit edit) {
         return findModel(edit.getId()).filter(model -> {
+            //流程名字修改
+            if(!StringUtils.isEmpty(edit.getName())){
+                model.setName(edit.getName());
+            }
             //描述可以随意修改
             if (!StringUtils.isEmpty(edit.getInfo())) {
                 model.setInfo(edit.getInfo());
@@ -917,17 +951,18 @@ public class WorkflowService implements IWorkflowService {
                 model.setFirstOpen(true);
             }
             //特殊权限
-            if (null != edit.getPermissionEdits()) {
-                setExtPermissions(edit.getPermissionEdits());
-            }
+//            if (null != edit.getPermissionEdits()) {
+//                setExtPermissions(edit.getPermissionEdits());
+//            }
             modelDao.save(model);
             return true;
         }).isPresent();
     }
 
 
-    @Override
+    @Deprecated
     public Result<Set<WorkflowNode>> setPersons(WorkflowQuartersEdit... edits) {
+        if(true) return Result.error();
         Set<WorkflowNode> set = new LinkedHashSet<>();
         for (WorkflowQuartersEdit edit : edits) {
             WorkflowNode node = nodeDao.findOne(edit.getNodeId());
@@ -940,11 +975,11 @@ public class WorkflowService implements IWorkflowService {
             if (node.isEnd()) continue;
 
             //解除关联
-            personsDao.deleteAllByWorkflowNode(node);
+//            personsDao.deleteAllByWorkflowNode(node);
 
-            addWorkflowPersons(edit.getMainQuarters(), node, edit.getName(), Type.MAIN_QUARTERS);
+//            addWorkflowPersons(edit.getMainQuarters(), node, edit.getName(), Type.MAIN_QUARTERS);
 //            addWorkflowPersons(edit.getMainUser(),node, edit.getName(), Type.MAIN_USER);
-            addWorkflowPersons(edit.getSupportQuarters(), node, edit.getName(), Type.SUPPORT_QUARTERS);
+//            addWorkflowPersons(edit.getSupportQuarters(), node, edit.getName(), Type.SUPPORT_QUARTERS);
 //            addWorkflowPersons(edit.getSupportUser(),  node,edit.getName(), Type.SUPPORT_USER);
 
             set.add(nodeDao.save(node));
@@ -959,20 +994,21 @@ public class WorkflowService implements IWorkflowService {
      * @param edits
      * @return
      */
-    public Set<Long> setExtPermissions(WorkflowExtPermissionEdit... edits) {
-        Set<Long> result = new HashSet<>();
-        for (WorkflowExtPermissionEdit edit : edits) {
-            extPermissionDao.deleteAllByWorkflowModel_IdAndType(edit.getModelId(), edit.getType());
-            WorkflowModel workflowModel = findModel(edit.getModelId()).orElse(null);
-            if (null == workflowModel) continue;
-            for (Long qid : edit.getQids()) {
-                WorkflowExtPermission extPermission = new WorkflowExtPermission(null, workflowModel, edit.getType(), qid);
-                extPermissionDao.save(extPermission);
-            }
-            result.add(workflowModel.getId());
-        }
-        return result;
-    }
+//    @Deprecated
+//    public Set<Long> setExtPermissions(WorkflowExtPermissionEdit... edits) {
+//        Set<Long> result = new HashSet<>();
+//        for (WorkflowExtPermissionEdit edit : edits) {
+//            extPermissionDao.deleteAllByWorkflowModel_IdAndType(edit.getModelId(), edit.getType());
+//            WorkflowModel workflowModel = findModel(edit.getModelId()).orElse(null);
+//            if (null == workflowModel) continue;
+//            for (Long qid : edit.getQids()) {
+//                WorkflowExtPermission extPermission = new WorkflowExtPermission(null, workflowModel, edit.getType(), qid);
+//                extPermissionDao.save(extPermission);
+//            }
+//            result.add(workflowModel.getId());
+//        }
+//        return result;
+//    }
 
 
     /**
@@ -983,7 +1019,7 @@ public class WorkflowService implements IWorkflowService {
      * @return
      */
     @Deprecated
-    @Override
+    
     public WorkflowModel deleteNode(long modelId, String[] nodeName) throws CannotFindEntityException {
         WorkflowModel workflowModel = findModelE(modelId);
         if (workflowModel.isFirstOpen() || workflowModel.isOpen()) {
@@ -1039,10 +1075,30 @@ public class WorkflowService implements IWorkflowService {
         flow.forEach((k, v) -> {
             v = (Map) v;
             boolean start = (boolean) ((Map) v).getOrDefault("start",false);
-            String type = String.valueOf(((Map) v).get("type"));
+            WorkflowNode.Type type = WorkflowNode.Type.valueOf(String.valueOf(((Map) v).get("type")).toLowerCase());
 
-            BaseNode baseNode = BaseNode.create(workflowModel,(Map) v);
-//            nodes.put(String.valueOf(k), baseNode);
+//            BaseNode baseNode = BaseNode.create(workflowModel,(Map) v);
+
+            JSONObject baseNode = null;
+            switch (type){
+                case input:
+                    baseNode = buildInputNode(workflowModel, (Map)v);
+                    break;
+//                    baseNode = new JSONObject();
+
+                case check:
+                    baseNode = buildCheckNode((Map)v);
+                    break;
+
+                case logic:
+                    baseNode = buildLogicNode((Map)v);
+                    break;
+
+                case end:
+                    baseNode = buildNormalNode((Map)v);
+                    break;
+            }
+
 
             //nodelist
             WorkflowNode node = new WorkflowNode();
@@ -1097,7 +1153,7 @@ public class WorkflowService implements IWorkflowService {
     }
 
 
-    @Override
+    
     public boolean deleteWorkflowModel(long id, boolean force) {
         if (force) {
             modelDao.delete(id);
@@ -1125,23 +1181,31 @@ public class WorkflowService implements IWorkflowService {
             if (!model.isCustom()) {
                 return null;
             }
-            CheckNode checkNode = new CheckNode();
-            checkNode.setQuestion(nodeModel.getQuestion());
-            checkNode.setCount(nodeModel.getCount());
-            checkNode.setKey(nodeModel.getKey());
-            checkNode.setPs(nodeModel.getPs());
-            checkNode.setStates(nodeModel.getStates());
+            //验证是否有必填的属性
+//            CheckNode checkNode = new CheckNode();
+//            checkNode.setQuestion(nodeModel.getQuestion());
+//            checkNode.setCount(nodeModel.getCount());
+//            checkNode.setKey(nodeModel.getKey());
+//            checkNode.setPs(nodeModel.getPs());
+//            checkNode.setStates(nodeModel.getStates());
+            JSONObject checkNode = (JSONObject) JSON.toJSON(nodeModel);
 
             WorkflowNode node = new WorkflowNode();
             node.setNode(checkNode);
             node.setEnd(false);
             node.setStart(false);
             node.setNext(nodeModel.getNext());
-            node.setType("check");
+            node.setType(WorkflowNode.Type.check);
             node.setName(nodeModel.getName());
             node.setModel(model);
             //如果有ID, 则为修改
             node.setId(nodeModel.getNodeId());
+
+            //移除不必要的属性
+            checkNode.remove("next");
+            checkNode.remove("name");
+            checkNode.remove("nodeId");
+
             node = nodeDao.save(node);
             return node.getId() == null ? null : node;
         });
@@ -1151,42 +1215,42 @@ public class WorkflowService implements IWorkflowService {
     /**
      * 列出指定用户的所有工作流
      */
-    @Deprecated
-    @Override
-    public Page<WorkflowInstance> getUserWorkflows(long uid, Status status, Pageable pageable) throws CannotFindEntityException {
-        User user = userService.findUserE(uid);
-        boolean isFinished = false;
-        switch (status) {
-            case DID:
-                isFinished = true;
-                break;
-
-            case DOING:
-                isFinished = false;
-                break;
-        }
-        Set<WorkflowModelPersons> persons = personsDao.findPersonsByUser(user.getQuarters().stream().map(q -> q.getId()).collect(Collectors.toList()), Arrays.asList(user.getId()));
-
-        Set<WorkflowModel> workflowModels = persons
-                .stream()
-                .map(p -> p.getWorkflowNode().getModel())
-                .collect(Collectors.toSet());
-        Set<String> nodeNames = persons
-                .stream()
-                .map(p -> p.getNodeName())
-                .collect(Collectors.toSet());
-        if (workflowModels.size() == 0) {
-            return null;
-        }
-
-        Page<WorkflowInstance> list = nodeInstanceDao.getInstanceList(workflowModels, nodeNames, isFinished, pageable);
-
-        return list;
-    }
+//    @Deprecated
+//    public Page<WorkflowInstance> getUserWorkflows(long uid, Status status, Pageable pageable) throws CannotFindEntityException {
+//        return null;
+//        User user = userService.findUser(uid).orElse(null);
+//        boolean isFinished = false;
+//        switch (status) {
+//            case DID:
+//                isFinished = true;
+//                break;
+//
+//            case DOING:
+//                isFinished = false;
+//                break;
+//        }
+//        Set<WorkflowModelPersons> persons = personsDao.findPersonsByUser(user.getQuarters().stream().map(q -> q.getId()).collect(Collectors.toList()), Arrays.asList(user.getId()));
+//
+//        Set<WorkflowModel> workflowModels = persons
+//                .stream()
+//                .map(p -> p.getWorkflowNode().getModel())
+//                .collect(Collectors.toSet());
+//        Set<String> nodeNames = persons
+//                .stream()
+//                .map(p -> p.getNodeName())
+//                .collect(Collectors.toSet());
+//        if (workflowModels.size() == 0) {
+//            return null;
+//        }
+//
+//        Page<WorkflowInstance> list = nodeInstanceDao.getInstanceList(workflowModels, nodeNames, isFinished, pageable);
+//
+//        return list;
+//    }
 
 
 //    @Deprecated
-//    @Override
+//    
 //    public Result<InspectTask> createInspectTask(long createUserId, String modelName, long userId, boolean isAuto) {
 ////        AtomicReference<User> createUser = new AtomicReference<>();
 //        return userService.findUser(userId)
@@ -1233,7 +1297,7 @@ public class WorkflowService implements IWorkflowService {
 
 
 //    @Deprecated
-//    @Override
+//    
 //    public Result<InspectTask> acceptInspectTask(long userId, long taskId) {
 //        AtomicReference<User> userAtomicReference = new AtomicReference<>();
 //        return userService.findUser(userId)
@@ -1274,7 +1338,7 @@ public class WorkflowService implements IWorkflowService {
 //    //如果userid为0,则指定为公共任务
 //    public Page<InspectTask> getInspectTaskList(long uid, String modelName, InspectTaskState state, Pageable pageable) {
 //        Specification querySpecifi = new Specification() {
-//            @Override
+//            
 //            public Predicate toPredicate(Root root, CriteriaQuery query, CriteriaBuilder cb) {
 //                List<Predicate> predicates = new ArrayList<>();
 //                predicates.add(cb.equal(root.get("dealUser"), uid == 0 ? null : uid));
@@ -1325,22 +1389,22 @@ public class WorkflowService implements IWorkflowService {
         newNode = nodeInstanceDao.save(newNode);
         instance.getNodeList().add(newNode);
 
-        if (null != nextNode.getNode() && (nextNode.getNode() instanceof NormalNode)) {
+        if (null != nextNode.getNode() && nextNode.getType().equals(WorkflowNode.Type.end)) {
             instance.setFinishedDate(new Date());
             instance.setState(WorkflowInstance.State.FINISHED);
             //归档整理
             //处理自定义行为
-            NormalNode end = (NormalNode) nextNode.getNode();
-            if (!StringUtils.isEmpty(end.getBehavior())) {
+            JSONObject end = nextNode.getNode();
+            if (!StringUtils.isEmpty(end.getString("behavior"))) {
                 try {
-                    runJSCode(instance,currentNode,end.getBehavior());
+                    runJSCode(instance,currentNode,end.getString("behavior"));
                 } catch (ScriptException e) {
                     e.printStackTrace();
                 }
             }
         }
         //如果是逻辑节点
-        else if (nextNode.getType().equals("logic")) {
+        else if (nextNode.getType().equals(WorkflowNode.Type.logic)) {
             runLogicNode(instance, newNode);
         }
     }
@@ -1370,12 +1434,15 @@ public class WorkflowService implements IWorkflowService {
     public synchronized void runLogicNode(WorkflowInstance instance, WorkflowNodeInstance node) {
         String key = "logic_node_" + node.getId();
         try {
-            LogicNode logicNode = (LogicNode) node.getNodeModel().getNode();
+            JSONObject logicNode = getCurrentNodeModelNode(node.getId()).orElse(null);
+            if(null == logicNode){
+                return;
+            }
 
             //检查上一次执行是否在时间范围内
-            Optional<TaskCheckLog> optional = taskCheckLogDao.findFirstByTypeAndLinkIdOrderByLastCheckDateDesc("logic", node.getId());
+            Optional<TaskCheckLog> optional = taskCheckLogDao.findFirstByTypeAndLinkIdOrderByLastCheckDateDesc(TaskCheckLog.Type.LOGIC_NODE, node.getId());
             if (optional.isPresent()) {
-                if (new Date().getTime() - optional.get().getLastCheckDate().getTime() < logicNode.getInterval() * 1000) {
+                if (new Date().getTime() - optional.get().getLastCheckDate().getTime() < logicNode.getInteger("interval") * 1000) {
                     return;
                 }
             }
@@ -1385,15 +1452,15 @@ public class WorkflowService implements IWorkflowService {
             }
 
             SimpleScriptContext context = prepareJSContext(instance,findCurrentNodeInstance(instance.getId()).orElse(null));
-            Object obj = engine.eval(logicNode.getCondition(), context);
+            Object obj = engine.eval(logicNode.getString("condition"), context);
             //如果没取到值的情况, 等待下一次检测
             if (obj == null) {
                 delayRunLogicNodeTask(instance, node);
             } else {
-                String behavior = logicNode.getResult().get(obj);
+                String behavior = logicNode.getJSONObject("result").getString(String.valueOf(obj));
                 //都没有命中的情况下, 走else
-                if (behavior == null && logicNode.getResult().containsKey("else")) {
-                    behavior = logicNode.getResult().get("else");
+                if (behavior == null && logicNode.getJSONObject("result").containsKey("else")) {
+                    behavior = logicNode.getJSONObject("reuslt").getString("else");
                 }
                 if (behavior != null) {
                     engine.eval(behavior, context);
@@ -1412,19 +1479,19 @@ public class WorkflowService implements IWorkflowService {
         //只插入这次的检查记录即可
         TaskCheckLog checkLog = new TaskCheckLog();
         checkLog.setLinkId(node.getId());
-        checkLog.setType("logic_node");
+        checkLog.setType(TaskCheckLog.Type.LOGIC_NODE);
         taskCheckLogDao.save(checkLog);
     }
 
 
-    private WorkflowInstance fromInputNodeToGo(WorkflowInstance instance, WorkflowNodeInstance currentNode, InputNode nodeModel) throws RestException {
+    private WorkflowInstance fromInputNodeToGo(WorkflowInstance instance, WorkflowNodeInstance currentNode, JSONObject nodeModel) throws RestException {
         //检查所有字段, 如果有必填字段没有填写, 那么抛出异常
-        for (Map.Entry<String, InputNode.Content> entry : nodeModel.getContent().entrySet()) {
+        for (Map.Entry<String, Object> entry : nodeModel.getJSONObject("content").entrySet()) {
             String k = entry.getKey();
-            InputNode.Content v = entry.getValue();
-            if (v.isRequired()) {
+            JSONObject v = (JSONObject) entry.getValue();
+            if (v.getString("required").equals("y")) {
                 Optional<WorkflowNodeAttribute> target = currentNode.getAttributeList().stream()
-                        .filter(a -> a.getAttrKey().equals(v.getEname()))
+                        .filter(a -> a.getAttrKey().equals(v.getString("ename")))
                         .findAny();
                 if (!target.isPresent()) {
                     throw new RestException("有必填字段没有填写");
@@ -1439,20 +1506,21 @@ public class WorkflowService implements IWorkflowService {
         return saveWorkflowInstance(instance);
     }
 
-    private WorkflowInstance fromCheckNodeToGo(User user, WorkflowInstance instance, WorkflowNodeInstance currentNode, CheckNode nodeModel) throws RestException {
+    private WorkflowInstance fromCheckNodeToGo(User user, WorkflowInstance instance, WorkflowNodeInstance currentNode, JSONObject nodeModel) throws RestException {
 
         //检查当前角色是否已经提交信息
         if (currentNode.getAttributeList().stream().filter(a -> a.getDealUser().getId().equals(user.getId())).count() == 0) {
             throw new RestException("你还没有提交信息");
         }
 
-        CheckNodeState targetState = nodeModel.getStates()
+        CheckNodeState targetState = (CheckNodeState) nodeModel.getJSONArray("states")
                 .stream()
-                .filter(state -> {
+                .filter(obj -> {
+                    JSONObject state = (JSONObject) obj;
                     return currentNode.getAttributeList()
                             .stream()
-                            .filter(a -> a.getAttrKey().equals(nodeModel.getKey()) && a.getAttrValue().equals(state.getItem()))
-                            .count() >= state.getCondition();
+                            .filter(a -> a.getAttrKey().equals(nodeModel.getString("key")) && a.getAttrValue().equals(state.getString("item")))
+                            .count() >= state.getInteger("condition");
                 })
                 .findAny()
                 .orElse(null);
@@ -1477,28 +1545,28 @@ public class WorkflowService implements IWorkflowService {
         return instance;
     }
 
-    private WorkflowInstance fromUniversalNodeToGo(WorkflowInstance instance, WorkflowNodeInstance currentNode, UniversalNode nodeModel) throws RestException {
-        //检查所有字段, 要不你就别填, 填了就必须填完
-        Set<User> users = new HashSet<>();
-        currentNode.getAttributeList().forEach(attribute -> {
-            users.add(attribute.getDealUser());
-        });
-        for (User user : users) {
-            for (Map.Entry<String, InputNode.Content> entry : nodeModel.getContent().entrySet()) {
-                InputNode.Content v = entry.getValue();
-                if (v.isRequired()) {
-                    Optional<WorkflowNodeAttribute> target = currentNode.getAttributeList().stream()
-                            .filter(a -> a.getDealUser().getId().equals(user.getId()) && a.getAttrKey().equals(v.getEname()))
-                            .findAny();
-                    if (!target.isPresent()) {
-                        return instance;
-                    }
-                }
-            }
-        }
-
-        return instance;
-    }
+//    private WorkflowInstance fromUniversalNodeToGo(WorkflowInstance instance, WorkflowNodeInstance currentNode, UniversalNode nodeModel) throws RestException {
+//        //检查所有字段, 要不你就别填, 填了就必须填完
+//        Set<User> users = new HashSet<>();
+//        currentNode.getAttributeList().forEach(attribute -> {
+//            users.add(attribute.getDealUser());
+//        });
+//        for (User user : users) {
+//            for (Map.Entry<String, InputNode.Content> entry : nodeModel.getContent().entrySet()) {
+//                InputNode.Content v = entry.getValue();
+//                if (v.isRequired()) {
+//                    Optional<WorkflowNodeAttribute> target = currentNode.getAttributeList().stream()
+//                            .filter(a -> a.getDealUser().getId().equals(user.getId()) && a.getAttrKey().equals(v.getEname()))
+//                            .findAny();
+//                    if (!target.isPresent()) {
+//                        return instance;
+//                    }
+//                }
+//            }
+//        }
+//
+//        return instance;
+//    }
 
 
     /***js binding**/
@@ -1589,9 +1657,10 @@ public class WorkflowService implements IWorkflowService {
 
 
     private boolean checkNodeAuth(WorkflowNodeInstance nodeInstance, User user) {
-        List<WorkflowModelPersons> persons = nodeInstance.getNodeModel().getPersons();
+//        List<WorkflowModelPersons> persons = nodeInstance.getNodeModel().getPersons();
         //1. 处理人确认的时候, 只有该处理人可以处理
-        boolean flag1 = (null == nodeInstance.getDealerId() && persons.stream().anyMatch(p -> p.getType().equals(Type.MAIN_QUARTERS) && user.hasQuarters(p.getUid())));
+//        boolean flag1 = (null == nodeInstance.getDealerId() && persons.stream().anyMatch(p -> p.getType().equals(Type.MAIN_QUARTERS) && user.hasQuarters(p.getUid())));
+        boolean flag1 = (null == nodeInstance.getDealerId() && globalPermissionDao.hasPermission(user.getId(), Collections.singleton(GlobalPermission.Type.WORKFLOW_MAIN_QUARTER), nodeInstance.getNodeModelId()) > 0);
         //2. 处理人不确认的时候, 拥有该权限的人都可以处理
         boolean flag2 = (null != nodeInstance.getDealerId() && user.getId().equals(nodeInstance.getDealerId()));
         return flag1 || flag2;
@@ -1603,11 +1672,12 @@ public class WorkflowService implements IWorkflowService {
 
     @Deprecated
     private boolean checkAuth(WorkflowModel workflowModel, WorkflowNode node, User user) {
-        List<WorkflowModelPersons> persons = node.getPersons();
-        return persons
-                .stream()
-                .anyMatch(p -> {
-                    return p.getWorkflowNode().getId().equals(node.getId()) && (p.getType().equals(Type.MAIN_QUARTERS) && user.hasQuarters(p.getUid()));
+        return globalPermissionDao.hasPermission(user.getId(), Collections.singleton(GlobalPermission.Type.WORKFLOW_MAIN_QUARTER), node.getId()) > 0;
+//        List<WorkflowModelPersons> persons = node.getPersons();
+//        return persons
+//                .stream()
+//                .anyMatch(p -> {
+//                    return p.getWorkflowNode().getId().equals(node.getId()) && (p.getType().equals(Type.MAIN_QUARTERS) && user.hasQuarters(p.getUid()));
 
 //                    return
 //                            p.getNodeName().equals(node.getName()) && (
@@ -1617,7 +1687,7 @@ public class WorkflowService implements IWorkflowService {
 //                                            (p.getType().equals(IWorkflowService.Type.MAIN_QUARTERS) && user.hasQuarters(p.getUid()))
 //                            );
 
-                });
+//                });
     }
 
     private Map<String,String> convertInnates(List<WorkflowInstanceAttribute> attributes){
@@ -1626,26 +1696,30 @@ public class WorkflowService implements IWorkflowService {
     }
 
 
-    private void addWorkflowPersons(Set<Long> list, WorkflowNode node, String name, Type type) {
-        list.forEach(l -> {
-            String title = "";
-            switch (type) {
-//                case MAIN_USER:
-//                case SUPPORT_USER:
-//                    User user = userService.findUser(l).orElse(null);
-//                    if(null == user) return;
-//                    title = user.getTrueName();
+//    @Deprecated
+//    private void addWorkflowPersons(Set<Long> list, WorkflowNode node, String name, Type type) {
+//        if(true){
+//            return;
+//        }
+//        list.forEach(l -> {
+//            String title = "";
+//            switch (type) {
+////                case MAIN_USER:
+////                case SUPPORT_USER:
+////                    User user = userService.findUser(l).orElse(null);
+////                    if(null == user) return;
+////                    title = user.getTrueName();
+////                    break;
+//                case MAIN_QUARTERS:
+//                case SUPPORT_QUARTERS:
+//                    Quarters quarters = userService.findQuarters(l).orElse(null);
+//                    if (null == quarters) return;
+//                    title = quarters.getName();
 //                    break;
-                case MAIN_QUARTERS:
-                case SUPPORT_QUARTERS:
-                    Quarters quarters = userService.findQuarters(l).orElse(null);
-                    if (null == quarters) return;
-                    title = quarters.getName();
-                    break;
-            }
-            personsDao.save(new WorkflowModelPersons(null, name, node, type, l, title));
-        });
-    }
+//            }
+//            personsDao.save(new WorkflowModelPersons(null, name, node, type, l, title));
+//        });
+//    }
 //    private WorkflowNodeInstance getCurrentNode(WorkflowInstance instance){
 //        Optional<WorkflowNodeInstance> currentNode = instance.getNodeList()
 //                .stream()
@@ -1667,7 +1741,7 @@ public class WorkflowService implements IWorkflowService {
     public Optional<WorkflowNode> findNextNodeModel(WorkflowModel model, WorkflowNode nodeModel) {
         if (nodeModel.isEnd()) return Optional.ofNullable(nodeModel);
         if (nodeModel.getNext().size() == 0) return Optional.empty();
-        if (nodeModel.getType().equals("input")) {
+        if (nodeModel.getType().equals(WorkflowNode.Type.input)) {
             String nextName = nodeModel.getNext().get(0);
             return model.getNodeModels().stream().filter(nm -> {
                 return nm.getName().equals(nextName);
@@ -1737,7 +1811,7 @@ public class WorkflowService implements IWorkflowService {
         return nodeDao.findFirstByModelAndName(model, nodeName);
     }
 
-    @Override
+    
     public Optional<WorkflowModel> findModel(long id) {
         return Optional.ofNullable(modelDao.findOne(id));
     }
@@ -1761,12 +1835,12 @@ public class WorkflowService implements IWorkflowService {
                 .map(nodeFile -> gpsPositionDao.getOne(nodeFile.getFileId()));
     }
 
-    @Override
+    
     public WorkflowModel findModelE(long id) throws CannotFindEntityException {
         return findModel(id).orElseThrow(() -> new CannotFindEntityException(WorkflowModel.class, id));
     }
 
-    @Override
+    
     public Optional<WorkflowInstance> findInstance(long id) {
         return Optional.ofNullable(instanceDao.findOne(id));
     }
@@ -1775,12 +1849,12 @@ public class WorkflowService implements IWorkflowService {
         return findInstance(id).orElseThrow(() -> new CannotFindEntityException(WorkflowInstance.class, id));
     }
 
-//    @Override
+//    
 //    public Optional<InspectTask> findInspectTask(long id) {
 //        return Optional.ofNullable(inspectTaskDao.findOne(id));
 //    }
 //
-//    @Override
+//    
 //    public InspectTask findInspectTaskE(long id) throws CannotFindEntityException {
 //        return findInspectTask(id).orElseThrow(() -> new CannotFindEntityException(InspectTask.class, id));
 //    }
@@ -1803,4 +1877,206 @@ public class WorkflowService implements IWorkflowService {
 //        }
 //    }
 
+
+    /************ 节点提交 *************/
+
+    private JSONObject buildInputNode(WorkflowModel workflowModel, Map v){
+        JSONObject result = new JSONObject();
+        JSONObject cnt = new JSONObject();
+        result.put("content",cnt);
+        Map<String,Object> content = (Map) v.get("content");
+        if (content != null) {
+            content.entrySet().stream().forEach(entry -> {
+                String ck = entry.getKey();
+                Object cv = entry.getValue();
+
+                JSONObject object = new JSONObject();
+                object.put("cname",String.valueOf(ck));
+                if (cv instanceof Map) {
+                    Map cvmap = (Map) cv;
+                    object = (JSONObject) JSON.toJSON(cv);
+
+                    //ename
+                    object.put("ename",object.getString("name"));
+                    object.remove("name");
+
+//                    object.put("type",cvmap.get("type"));
+//                    object.put("type",cvmap.get("type"));
+//                    cnt.setType((String) ((Map) cv).get("type"));
+//                    cnt.setEname((String) ((Map) cv).get("name"));
+//
+//                    String required = (String) cvmap.getOrDefault("required","n");
+//                    cnt.setRequired(required.equals("y"));
+//                    //特殊类型
+//                    List items = (List) ((Map) cv).getOrDefault("items",new ArrayList<>());
+//                    cnt.getItems().addAll((Collection<? extends String>) items.stream().map(item -> String.valueOf(item)).collect(Collectors.toList()));
+
+                    //固有字段
+                    boolean innate = (boolean) cvmap.getOrDefault("innate",false);
+                    if(innate){
+                        WorkflowModelInnate workflowModelInnate = new WorkflowModelInnate();
+                        workflowModelInnate.setContent(object);
+                        workflowModelInnate.setFieldName(object.getString("ename"));
+                        workflowModelInnate.setModel(workflowModel);
+                        workflowModel.getInnates().add(workflowModelInnate);
+                        return;
+                    }
+
+                } else if (cv instanceof String) {
+                    List<String> args = Utils.splitByComma(String.valueOf(cv));
+                    if (args.size() != 3) {
+                        return;
+                    }
+                    object.put("ename",args.get(0));
+                    object.put("type",args.get(1));
+                    object.put("required",args.get(0).equals("y"));
+//                    cnt.setEname(args.get(0));
+//                    cnt.setType(args.get(1));
+//                    cnt.setRequired(args.get(2).equals("y"));
+                } else {
+                    return;
+                }
+                cnt.put(object.getString("ename"),object);
+            });
+        }
+        return result;
+    }
+
+    private JSONObject buildCheckNode(Map v){
+        return (JSONObject) JSON.toJSON(v);
+    }
+
+    private JSONObject buildLogicNode(Map v){
+        return (JSONObject) JSON.toJSON(v);
+    }
+
+    private JSONObject buildNormalNode(Map v){
+        return (JSONObject) JSON.toJSON(v);
+    }
+
+
+    public void submitInputNode(long uid, long nodeInstanceId, Map<String,Object> data){
+        //当前处理的
+//        WorkflowNodeInstance nodeInstance = nodeInstanceDao.findFirstByIdAndFinishedIsFalse(nodeInstanceId).orElse(null);
+//        if(null == nodeInstance){
+//            return;
+//        }
+        JSONObject node = getCurrentNodeModelNode(nodeInstanceId).orElse(null);
+        if(null == node){
+            return;
+        }
+        JSONObject content = node.getJSONObject("content");
+        for (Map.Entry<String, Object> entry : content.entrySet()) {
+            JSONObject v = (JSONObject) entry.getValue();
+            String attrKey = v.getString("ename");
+            if(!data.containsKey(attrKey)){
+                continue;
+            }
+            //不论是否必填, 空属性就略过
+            if (StringUtils.isEmpty(String.valueOf(data.get(attrKey)))) {
+                continue;
+            }
+            //验证属性格式
+            //TODO: 这里需要验证属性的格式
+
+            //覆盖旧节点的信息
+//            Optional<WorkflowNodeAttribute> target = nodeInstance.getAttributeList()
+//                    .stream()
+//                    .filter(attr -> attr.getAttrKey().equals(attrKey))
+//                    .findFirst();
+//            WorkflowNodeAttribute attribute = target.orElse(new WorkflowNodeAttribute());
+            WorkflowNodeAttribute attribute = addAttribute(uid, nodeInstanceId, attrKey, String.valueOf(data.get(attrKey)), v.getString("cname"));
+//            attribute.setAttrKey(attrKey);
+//            attribute.setAttrValue(String.valueOf(data.get(attrKey)));
+//            attribute.setAttrCname(v.getString("cname"));
+//            attribute.setDealUserId(uid);
+//            attribute.setNodeInstanceId(nodeInstanceId);
+            attributeDao.save(attribute);
+        }
+
+    }
+
+    public void submitCheckNode(long uid, long nodeInstanceId, Map data){
+        //当前处理的
+//        WorkflowNodeInstance nodeInstance = nodeInstanceDao.findFirstByIdAndFinishedIsFalse(nodeInstanceId).orElse(null);
+//        if(null == nodeInstance){
+//            return;
+//        }
+//        JSONObject node = nodeInstance.getNodeModel().getNode();
+        JSONObject node = getCurrentNodeModelNode(nodeInstanceId).orElse(null);
+        if(null == node){
+            return;
+        }
+        String item = String.valueOf(data.get(node.getString("key")));
+        String ps = String.valueOf(data.get(node.getString("ps")));
+        //如果可选项不在选项里面, 那么无视
+        boolean hasOption = node.getJSONArray("states")
+                .stream()
+                .anyMatch(state -> ((JSONObject)state).getString("item").equals(item));
+        if (!hasOption) {
+            return;
+        }
+        //每个审批节点只允许审批一次
+        WorkflowNodeAttribute attribute = addAttribute(uid, nodeInstanceId,node.getString("key"),item,node.getString("question"));
+        attributeDao.save(attribute);
+
+        //如果填写了审核说明
+        //valueof会格式化null
+        if(ps.equals("null")){
+            ps = "";
+        }
+        if (!StringUtils.isEmpty(ps)) {
+            attribute = addAttribute(uid,nodeInstanceId,node.getString("ps"),ps,"备注");
+            attributeDao.save(attribute);
+        }
+    }
+
+    private WorkflowNodeAttribute addAttribute(long uid, long nodeInstanceId, String key, String value, String cname){
+        WorkflowNodeAttribute attribute = attributeDao.findFirstByDealUserIdAndAttrKey(nodeInstanceId,key).orElse(new WorkflowNodeAttribute());
+        attribute.setDealUserId(uid);
+        attribute.setAttrKey(key);
+        attribute.setAttrValue(value == null ? "" : value);
+        attribute.setNodeInstanceId(nodeInstanceId);
+        attribute.setAttrCname(cname);
+        return attribute;
+    }
+
+
+    private boolean isGlobalPermission(){
+        return permissionType.equalsIgnoreCase("global");
+    }
+
+
+    /*** 工具类函数 ***/
+
+
+    /**
+     * 当前正在执行的模型工作流节点模型
+     * @param nodeInstanceId
+     * @return
+     */
+    public Optional<JSONObject> getCurrentNodeModelNode(long nodeInstanceId){
+        String hql = "select ni.nodeModel.node from WorkflowNodeInstance ni where ni.id = :id and ni.finished = false";
+        JSONObject ret = (JSONObject) entityManager.createQuery(hql)
+                .setParameter("id",nodeInstanceId)
+//                .setMaxResults(1)
+//                .getResultList();
+                .getSingleResult();
+//        JSONObject ret = result.size() > 0 ? (JSONObject) result.get(0) : null;
+        return Optional.ofNullable(ret);
+    }
+
+
+//    public Optional<WorkflowNodeAttribute> getNodeAttribute(long uid, String key){
+//
+//        log.info(key);
+//        log.info(uid + "");
+//        List<WorkflowNodeAttribute> list = entityManager
+//                .createQuery("select attr from WorkflowNodeAttribute attr where attr.attrKey = :k and attr.dealUserId = :uid",WorkflowNodeAttribute.class)
+//                .setParameter("uid",uid)
+//                .setParameter("k",key)
+//                .setMaxResults(1)
+//                .getResultList();
+//        return Optional.ofNullable(list.size() > 0 ? list.get(0) : null);
+//    }
 }

@@ -6,7 +6,7 @@ import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlSchemaStatVisitor;
 import com.alibaba.druid.stat.TableStat;
 import com.alibaba.druid.util.JdbcConstants;
 import com.beeasy.hzback.core.helper.Utils;
-import com.beeasy.hzback.modules.system.entity.InspectTask;
+//import com.beeasy.hzback.modules.system.entity.InspectTask;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.PageSize;
@@ -152,7 +152,7 @@ public class NormalTest {
 
     @Test
     public void ccc() {
-        InspectTask task = new InspectTask();
+//        InspectTask task = new InspectTask();
 //        int ccc =1;
     }
 

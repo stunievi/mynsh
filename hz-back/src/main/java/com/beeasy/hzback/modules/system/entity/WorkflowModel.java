@@ -59,8 +59,8 @@ public class WorkflowModel {
     Date lastModifyTime;
 
     //额外的权限配置
-    @OneToMany(mappedBy = "workflowModel", cascade = CascadeType.REMOVE)
-    List<WorkflowExtPermission> permissions = new ArrayList<>();
+//    @OneToMany(mappedBy = "workflowModel", cascade = CascadeType.REMOVE)
+//    List<WorkflowExtPermission> permissions = new ArrayList<>();
 
     @OneToMany(mappedBy = "model",cascade = CascadeType.REMOVE)
     List<WorkflowModelInnate> innates = new ArrayList<>();

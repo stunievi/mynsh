@@ -1,0 +1,37 @@
+package com.beeasy.hzback.modules.system.dao;
+
+import com.beeasy.hzback.modules.system.entity.GlobalPermission;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.util.Collection;
+import java.util.List;
+
+public interface IGlobalPermissionDao extends JpaRepository<GlobalPermission,Long>{
+    int countByTypeAndObjectIdAndUserTypeAndLinkId(GlobalPermission.Type type, long objectId, GlobalPermission.UserType userType, long linkId);
+
+    int deleteAllByIdIn(Collection<Long> ids);
+
+
+    @Query(value = "select user.id from GlobalPermission gp, User user join user.quarters uq where (" +
+            //按人授权,直接取uid
+            "(gp.userType = 2 and gp.linkId = user.id) or " +
+            //按岗位授权,拥有这个岗位
+            "(gp.userType = 1 and uq.id = gp.linkId) or " +
+            //按部门授权,岗位在这个部门里
+            "(gp.userType = 0 and (select count(d.id)  from Department d where d.id = gp.linkId and uq.code like concat(d.code,'%') ) > 0 )" +
+            " and gp.type in :types and gp.objectId = :oid)")
+    List getUids(@Param("types")Collection<GlobalPermission.Type> types, @Param("oid") long oid);
+
+
+    @Query(value = "select count(user.id) from GlobalPermission gp, User user join user.quarters uq where (" +
+            //按人授权,直接取uid
+            "(gp.userType = 2 and gp.linkId = user.id) or " +
+            //按岗位授权,拥有这个岗位
+            "(gp.userType = 1 and uq.id = gp.linkId) or " +
+            //按部门授权,岗位在这个部门里
+            "(gp.userType = 0 and (select count(d.id)  from Department d where d.id = gp.linkId and uq.code like concat(d.code,'%') ) > 0 )" +
+            " and gp.type in :types and gp.objectId = :oid and user.id = :uid)")
+    int hasPermission(@Param("uid") long uid, @Param("types") Collection<GlobalPermission.Type> types, @Param("oid") long oid);
+}

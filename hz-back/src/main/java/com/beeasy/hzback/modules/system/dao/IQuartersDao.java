@@ -22,4 +22,13 @@ public interface IQuartersDao extends JpaRepository<Quarters,Long>{
     @Query(value = "select count(q1) from Quarters q1 where ( select (q2.department) from Quarters q2 where q2.id = :id ) = q1.department and q1.name = :name")
     int countSameNameFromDepartment(@Param("id") long id, @Param("name") String name);
 
+    @Query(value = "select q.code from Quarters q where q.departmentId = :did order by q.code desc")
+    List getQuartersCodeFromDepartment(@Param("did") long did);
+
+    @Query(value = "select q.code from Quarters q where q.id = :qid")
+    List getQuartersCode(@Param("qid") long qid);
+
+
+//    @Query(value = "select count(child) from Quarters child where child.id = :cid and child.code like (select concat(par.code,'%') from Department par where par.id = :pid)")
+//    int isFromDepartment(@Param("cid") long cid, @Param("pid") long pid);
 }

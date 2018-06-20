@@ -7,6 +7,14 @@
 
 upload:
   path: /Users/bin/work/uploads
+#spring.jpa.properties.hibernate.dialect=com.beeasy.hzback.core.helper.MySQL5DialectFK
+
+#权限校验
+permission:
+  #校验类型, 使用全局授权
+  type: global
+#  type: local
+
 
 workflow:
   timeStep: 1
@@ -17,7 +25,7 @@ mybatis:
   typeAliasesPackage: com.beeasy.hzback.modules.setting.entity
 
 filecloud:
-  address: "192.168.31.55:80"
+  address: "47.93.54.105"
   username: "admin"
   password: "admin"
   enable: true
@@ -49,7 +57,7 @@ spring:
             suffix: .ftl
     jpa:
       hibernate:
-        ddl-auto: update
+        ddl-auto: none
       show-sql: true
       properties:
         hibernate:
@@ -57,6 +65,8 @@ spring:
             use_query_cache: false
           archive:
             autodetection: false
+          dialect: com.beeasy.hzback.core.helper.MySQL5DialectFK
+
 
 
     freemarker:
@@ -66,16 +76,16 @@ spring:
     datasource:
         name: test
 #        mysql
-        url: jdbc:mysql://47.96.98.198:3306/re?useUnicode=true&characterEncoding=utf-8&useSSL=false
+        url: jdbc:mysql://47.96.98.198:3306/test?useUnicode=true&characterEncoding=utf-8&useSSL=false
         username: root
         password: "!Q1q2w3e4r"
 #        password: 123
         driver-class-name: com.mysql.jdbc.Driver
 #        mysql-end
 #        db2
-#        url: jdbc:db2://localhost:50000/sample
-#        username: db2admin
-#        password: 123
+#        url: jdbc:db2://47.96.98.198:50000/sample
+#        username: db2inst1
+#        password: "!Q1q2w3e4r"
 #        driver-class-nodeName: com.ibm.db2.jcc.DB2Driver
 #        db2-end
         # 使用druid数据源

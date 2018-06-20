@@ -1,6 +1,7 @@
 package com.beeasy.hzback.modules.system.entity;
 
 import com.beeasy.hzback.core.entity.AbstractBaseEntity;
+import com.beeasy.hzback.core.helper.JSONConverter;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -31,7 +32,7 @@ public class SystemFile extends AbstractBaseEntity{
     String fileName;
 
     //TODO: 字段类型长度可能错误
-    @Column(columnDefinition = "LONGBLOB")
+    @Column(columnDefinition = JSONConverter.blobType)
     byte[] bytes;
 
     @Enumerated

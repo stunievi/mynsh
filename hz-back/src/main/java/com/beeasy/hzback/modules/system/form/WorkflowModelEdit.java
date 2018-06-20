@@ -18,6 +18,8 @@ public class WorkflowModelEdit {
     @ApiModelProperty(name = "id", value = "工作流模型ID")
     Long id;
 
+    String name;
+
     @ApiModelProperty(name = "info", value = "工作流描述")
     String info;
 
@@ -25,5 +27,5 @@ public class WorkflowModelEdit {
     @ApiModelProperty(name = "open",value = "是否打开工作流")
     boolean open;
 
-    WorkflowExtPermissionEdit[] permissionEdits;
+//    WorkflowExtPermissionEdit[] permissionEdits;
 }

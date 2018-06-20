@@ -234,7 +234,7 @@ public class MobileWorkflowController {
             @Valid @RequestBody SubmitDataRequest request,
             BindingResult bindingResult
             ){
-        return workflowService.submitData(Utils.getCurrentUserId(),request).toMobile();
+        return workflowService.submitData(Utils.getCurrentUserId(),request).toJson();
     }
 
     //可能会变动
@@ -245,7 +245,7 @@ public class MobileWorkflowController {
 //            @RequestParam Long nodeId
             @PathVariable Long nodeId
     ){
-            return workflowService.goNext(Utils.getCurrentUserId(),0L,nodeId).toMobile();
+            return workflowService.goNext(Utils.getCurrentUserId(),0L,nodeId).toJson();
     }
 
     @ApiOperation(value = "我执行的任务")
@@ -353,7 +353,7 @@ public class MobileWorkflowController {
         }
         FetchWorkflowInstanceResponse response = new FetchWorkflowInstanceResponse();
         response.setTransformUsers(workflowModelDao.getFirstNodeUsers(id));
-        response.setTransform(workflowService.canPoint(model,user));
+        response.setTransform(workflowService.canPoint(model.getId(),user));
         return Result.ok(response).toMobile(
                 new Result.Entry(User.class,"quarters","departments","permissions","externalPermissions")
         );

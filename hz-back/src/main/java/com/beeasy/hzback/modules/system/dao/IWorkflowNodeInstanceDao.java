@@ -2,6 +2,7 @@ package com.beeasy.hzback.modules.system.dao;
 
 import com.beeasy.hzback.modules.system.entity.WorkflowInstance;
 import com.beeasy.hzback.modules.system.entity.WorkflowModel;
+import com.beeasy.hzback.modules.system.entity.WorkflowNode;
 import com.beeasy.hzback.modules.system.entity.WorkflowNodeInstance;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,9 +22,15 @@ public interface IWorkflowNodeInstanceDao extends JpaRepository<WorkflowNodeInst
 
 
     @Query("select n from WorkflowNodeInstance n where n.nodeModel.type = :type and n.finished = false")
-    Page<WorkflowNodeInstance> getCurrentNode(@Param("type") String type, Pageable pageable);
+    Page<WorkflowNodeInstance> getCurrentNode(@Param("type") WorkflowNode.Type type, Pageable pageable);
 
 
     Optional<WorkflowNodeInstance> findFirstByInstanceAndFinishedIsFalse(WorkflowInstance instance);
     Optional<WorkflowNodeInstance> findFirstByInstance_IdAndFinishedIsFalse(Long instanceId);
+
+    Optional<WorkflowNodeInstance> findFirstByIdAndFinishedIsFalse(long id);
+
+
+//    @Query("select ")
+//    void test();
 }

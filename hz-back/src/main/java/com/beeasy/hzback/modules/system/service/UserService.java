@@ -1,6 +1,7 @@
 package com.beeasy.hzback.modules.system.service;
 
 import bin.leblanc.classtranslate.Transformer;
+import bin.leblanc.maho.RPCMapping;
 import com.beeasy.hzback.core.exception.RestException;
 import com.beeasy.hzback.core.helper.ChineseToEnglish;
 import com.beeasy.hzback.core.helper.Result;
@@ -14,6 +15,8 @@ import com.beeasy.hzback.modules.system.cache.SystemConfigCache;
 import com.beeasy.hzback.modules.system.dao.*;
 import com.beeasy.hzback.modules.system.entity.*;
 import com.beeasy.hzback.modules.system.form.*;
+import jdk.nashorn.internal.objects.Global;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +24,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -33,9 +37,12 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @Transactional
 public class UserService implements IUserService {
@@ -48,6 +55,13 @@ public class UserService implements IUserService {
     @Value("${filecloud.commonPassword}")
     String cloudCommonPassword;
 
+    @Autowired
+    IGlobalPermissionDao globalPermissionDao;
+    @Autowired
+    IGlobalPermissionCenterDao centerDao;
+
+    @Autowired
+    GlobalPermissionService globalPermissionService;
     @Autowired
     CloudApi cloudApi;
     @Autowired
@@ -384,8 +398,12 @@ public class UserService implements IUserService {
                     if (!StringUtils.isEmpty(edit.getTrueName())) {
                         user.setTrueName(edit.getTrueName());
                     }
+
+                    List<Long> oldIds = null;
                     //岗位设置
                     if (null != edit.getQuarters()) {
+                        //
+                        oldIds = user.getQuarters().stream().map(item -> item.getId()).collect(Collectors.toList());
                         setQuarters(user, edit.getQuarters());
                     }
                     //菜单权限
@@ -396,7 +414,12 @@ public class UserService implements IUserService {
                     if (null != edit.getUnbindMethods()) {
                         setUnbindMethods(user, edit.getUnbindMethods());
                     }
-                    return Result.ok(saveUser(user));
+                    user = saveUser(user);
+                    if(null != oldIds){
+                        globalPermissionService.syncGlobalPermissionCenterQuartersChanged(oldIds,user);
+                    }
+                    return Result.ok(user);
+//                    return Result.ok(saveUser(user));
                 }).orElse(Result.error());
     }
 
@@ -409,8 +432,23 @@ public class UserService implements IUserService {
         if (same != null) return Result.error("已经有同名的岗位");
 
         Quarters quarters = Transformer.transform(add, Quarters.class);
-        quarters.setDepartment(department);
+        quarters.setDepartmentId(department.getId());
         quarters.setDName(department.getName());
+        //查找最上层的id
+        List objs = quartersDao.getQuartersCodeFromDepartment(department.getId());
+        if(objs.size() == 0){
+            quarters.setCode(department.getCode() + "_001");
+        }
+        else{
+            String code = objs.get(0).toString();
+            int codeValue = Integer.valueOf(code.substring(code.length() - 3, code.length()));
+            codeValue++;
+            String newCode = codeValue + "";
+            for(int i = newCode.length(); i < 3; i++){
+                newCode = "0" + newCode;
+            }
+            quarters.setCode(department.getCode() + "_" + newCode);
+        }
         Quarters ret = quartersDao.save(quarters);
         return Result.ok(ret);
     }
@@ -436,6 +474,7 @@ public class UserService implements IUserService {
      * @param permissions
      * @return
      */
+    @Deprecated
     public boolean addExternalPermission(Long uid, UserExternalPermission.Permission ...permissions){
         //防止冲突
         User user = findUser(uid).orElse(null);
@@ -457,6 +496,7 @@ public class UserService implements IUserService {
      * @param permissions
      * @return
      */
+    @Deprecated
     public boolean removeExternalPermission(Long uid, UserExternalPermission.Permission ...permissions){
         for (UserExternalPermission.Permission permission : permissions) {
             externalPermissionDao.deleteAllByUser_IdAndPermission(uid,permission);
@@ -491,9 +531,12 @@ public class UserService implements IUserService {
      */
     public Result loginFileCloudCommonSystem(long uid){
         //检查是否有共享文件云权限
-        if(userDao.checkPermission(Utils.getCurrentUserId(), UserExternalPermission.Permission.COMMON_CLOUD_DISK) == 0){
-            return loginFileCloudSystem(uid);
+        if(!globalPermissionService.checkPermission(GlobalPermission.Type.COMMON_CLOUD_DISK,0,uid)){
+            return loginFileCloudCommonSystem(uid);
         }
+//        if(userDao.checkPermission(Utils.getCurrentUserId(), UserExternalPermission.Permission.COMMON_CLOUD_DISK) == 0){
+//            return loginFileCloudSystem(uid);
+//        }
         LoginResponse loginResponse = cloudApi.login(cloudCommonUsername,cloudCommonPassword);
         if(null != loginResponse &&  loginResponse.getStatus().equals("SUCCESS")){
             return Result.ok(loginResponse.getResponseCookies().get(0));
@@ -574,11 +617,6 @@ public class UserService implements IUserService {
         return findUserByIds(new HashSet<Long>(Arrays.asList(ids)));
     }
 
-    
-    public User findUserE(long id) throws CannotFindEntityException {
-        return findUser(id).orElseThrow(() -> new CannotFindEntityException(User.class, id));
-    }
-
 
     /**
      * 初始化用户首字母
@@ -595,4 +633,138 @@ public class UserService implements IUserService {
         }
         user.setLetter(letter);
     }
+
+    /************ 权限相关 *************/
+
+
+    /**
+     * 添加授权
+     * @param pType
+     * @param objectId
+     * @param uType
+     * @param linkId
+     * @return
+     */
+    public long addGlobalPermission(GlobalPermission.Type pType, long objectId, GlobalPermission.UserType uType, long linkId){
+        //检查是否已经有相同的授权
+        List list = entityManager.createQuery("select gp.id from GlobalPermission gp where gp.type = :ptype and gp.objectId = :objectId and gp.userType = :uType and gp.linkId = :linkId")
+                .setMaxResults(1)
+                .setParameter("ptype",pType)
+                .setParameter("objectId",objectId)
+                .setParameter("uType",uType)
+                .setParameter("linkId",linkId)
+                .getResultList();
+        if(list.size() > 0){
+            return (long) list.get(0);
+//            return Array.getLong(list.get(0),0);
+        }
+        GlobalPermission globalPermission = new GlobalPermission();
+        globalPermission.setType(pType);
+        globalPermission.setObjectId(objectId);
+        globalPermission.setUserType(uType);
+        globalPermission.setLinkId(linkId);
+        globalPermission = globalPermissionDao.save(globalPermission);
+        //更新授权中间表
+        globalPermissionService.syncGlobalPermissionCenterAdded(globalPermission);
+        return globalPermission.getId();
+    }
+
+    public boolean deleteGlobalPermission(Long ...gpids){
+        int count = globalPermissionDao.deleteAllByIdIn(Arrays.asList(gpids));
+        if(count > 0){
+            globalPermissionService.syncGlobalPermissionCenterDeleted(gpids);
+        }
+        return count > 0;
+    }
+
+
+
+
+
+    /*********8 工具类函数 *************/
+
+
+    /**
+     * 检查一个部门是不是另一个部门的子部门
+     * @param pid
+     * @param cid
+     * @return
+     */
+    public boolean isChildDepartment(long cid, long pid){
+        List pobj = departmentDao.getDepartmentCode(pid);
+        List cobj = departmentDao.getDepartmentCode(cid);
+        return cobj.get(0).toString().startsWith(pobj.get(0).toString());
+    }
+
+    /**
+     * 检查一个岗位是否隶属某个部门
+     * @param qid
+     * @param did
+     * @return
+     */
+    public boolean isChildQuarter(long qid, long did){
+        List pobj = departmentDao.getDepartmentCode(did);
+        List qobj = quartersDao.getQuartersCode(qid);
+        return qobj.get(0).toString().startsWith(pobj.get(0).toString());
+    }
+
+
+    /**
+     * 检查用户是否隶属于某个部门
+     * @param uid
+     * @param did
+     * @return
+     */
+    public boolean isUserFromDepartment(long uid, long did){
+        List<Object[]> qids = userDao.getQids(uid);
+        return qids.stream().anyMatch(qid -> isChildDepartment((Long) qid[0],did));
+    }
+
+    public boolean hasQuarters(long uid, long qid){
+        return userDao.hasQuarters(uid,qid) > 0;
+    }
+
+
+    public boolean departmentHasQuarters(long did, long qid){
+        return departmentDao.departmentHasQuarters(did,qid) > 0;
+//        return departmentDao.departmentHasQuarters(did,qid) > 0;
+    }
+
+
+    /**
+     * 得到某个部门的所有用户ID
+     * @param dids
+     * @return
+     */
+    public List<Long> getUidsFromDepartment(Long ...dids){
+        return entityManager.createQuery("select u.id from User u join u.quarters q where (select count(d) from Department d where q.code like concat(d.code,'%') and d.id in :dids) > 0")
+                .setParameter("dids",Arrays.asList(dids))
+                .getResultList();
+    }
+
+    /**
+     * 得到某个岗位的所有用户ID
+     * @param qids
+     * @return
+     */
+    public List<Long> getUidsFromQuarters(Long ...qids){
+        return entityManager.createQuery("select u.id from User u join u.quarters q where q.id in :qids")
+                .setParameter("qids", Arrays.asList(qids))
+                .getResultList();
+    }
+
+
+    /**
+     * 得到某个岗位的所有用户ID
+     * @param uid
+     * @return
+     */
+    public List<Long> getQidsFromUser(long uid){
+        return entityManager.createQuery("select q.id from User u join u.quarters q where u.id = :uid")
+                .setParameter("uid",uid)
+                .getResultList();
+    }
+
+
+
 }

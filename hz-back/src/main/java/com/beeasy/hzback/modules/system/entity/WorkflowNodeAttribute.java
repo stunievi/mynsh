@@ -22,8 +22,10 @@ public class WorkflowNodeAttribute {
 
     @JSONField(serialize = false)
     @ManyToOne
-    @JoinColumn(name = "node_id")
+    @JoinColumn(name = "node_id", insertable = false, updatable = false)
     WorkflowNodeInstance nodeInstance;
+    @Column(name = "node_id")
+    Long nodeInstanceId;
 
     String attrKey;
     String attrValue;

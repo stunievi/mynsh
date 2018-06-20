@@ -37,7 +37,39 @@ public class DepartmentService implements IDepartmentService {
         department.setParentId(null == parent ? null : parent.getId());
         department.setInfo(add.getInfo());
 
+        //部门编号
+        List objs;
+        if(null == department.getParentId()){
+             objs = departmentDao.getTopLastCode();
+        }
+        else{
+            objs = departmentDao.getLastCode(department.getParentId());
+        }
+        System.out.println(objs);
+        //没找到的时候,使用父编码+001
+        if(objs.size() == 0){
+            if(null == department.getParentId()){
+                department.setCode("001");
+            }
+            else{
+                List codes = departmentDao.getDepartmentCode(department.getParentId());
+                department.setCode(codes.get(0) + "001");
+            }
+        }
+        else{
+            //取后三位+1
+            String code = (String) objs.get(0);
+            int codeValue = Integer.valueOf(code.substring(code.length() - 3, code.length()));
+            codeValue++;
+            //补足3位
+            String newCode = String.valueOf(codeValue);
+            for(int i = newCode.length(); i < 3; i++){
+                newCode = "0" + newCode;
+            }
+            department.setCode(code.substring(0,code.length() - 3) + newCode);
+        }
         department = departmentDao.save(department);
+
         return Result.finish(department.getId() != null, department);
     }
 

@@ -13,6 +13,28 @@
         </sourceRoots>
       </configuration>
     </facet>
+    <facet type="JRebel" name="JRebel">
+      <configuration>
+        <option name="deleteUnindexed" value="false" />
+        <option name="httpAuthEnabled" value="false" />
+        <option name="httpPassword" />
+        <option name="httpUsername" />
+        <option name="ideModuleStorage">
+          <map>
+            <entry key="com.zeroturnaround.jrebel.FormatVersion" value="7.0.0" />
+            <entry key="com.zeroturnaround.jrebel.remoting.DeleteUnindexedFiles" value="false" />
+            <entry key="com.zeroturnaround.jrebel.remoting.ModuleRemoteServerSelection" value="off" />
+          </map>
+        </option>
+        <option name="manualXML" value="false" />
+        <option name="masterModuleName" />
+        <option name="overrideStandardXmlFolder" value="false" />
+        <option name="remotingEnabled" value="false" />
+        <option name="secure" value="true" />
+        <option name="url" />
+        <option name="xmlDir" />
+      </configuration>
+    </facet>
   </component>
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
     <output url="file://$MODULE_DIR$/target/classes" />
@@ -69,7 +91,15 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" name="Maven: com.ibm.db2.jcc:db2jcc4:10.1" level="project" />
+    <orderEntry type="module-library">
+      <library name="Maven: com.ibm.db2.jcc:db2jcc4:10.1">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/db2jcc4.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
     <orderEntry type="library" scope="RUNTIME" name="Maven: mysql:mysql-connector-java:5.1.46" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-jdbc:1.5.12.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.apache.tomcat:tomcat-jdbc:8.5.29" level="project" />
@@ -123,9 +153,8 @@
     <orderEntry type="library" name="Maven: org.springframework:spring-test:4.3.12.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-test:1.5.12.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot:1.5.12.RELEASE" level="project" />
-    <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-security:2.0.2.RELEASE" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-security:1.5.12.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.security:spring-security-config:4.2.5.RELEASE" level="project" />
-    <orderEntry type="library" name="Maven: aopalliance:aopalliance:1.0" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.security:spring-security-core:4.2.5.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.security:spring-security-web:4.2.5.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: io.jsonwebtoken:jjwt:0.7.0" level="project" />

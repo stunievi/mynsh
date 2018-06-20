@@ -7,6 +7,6 @@ import java.util.Optional;
 
 public interface ITaskCheckLogDao extends JpaRepository<TaskCheckLog,Long> {
 
-    Optional<TaskCheckLog> findFirstByTypeAndLinkIdOrderByLastCheckDateDesc(String type,Long linkId);
+    Optional<TaskCheckLog> findFirstByTypeAndLinkIdOrderByLastCheckDateDesc(TaskCheckLog.Type type, Long linkId);
 
 }
