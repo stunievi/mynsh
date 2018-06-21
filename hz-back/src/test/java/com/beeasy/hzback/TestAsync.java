@@ -394,16 +394,16 @@ public class TestAsync {
 //        Assert.assertFalse(flag);
 
 
-        long id = userService.addGlobalPermission(GlobalPermission.Type.COMMON_CLOUD_DISK,0, GlobalPermission.UserType.DEPARTMENT, 41);
-        Assert.assertTrue(id > 0);
+        userService.addGlobalPermission(GlobalPermission.Type.COMMON_CLOUD_DISK,0, GlobalPermission.UserType.DEPARTMENT, Collections.singletonList(41L), null);
+//        Assert.assertTrue(id > 0);
 
         List list = globalPermissionDao.getUids(Collections.singleton(GlobalPermission.Type.COMMON_CLOUD_DISK),0);
         Assert.assertTrue(list.size() > 0);
 
 //        list = globalPermissionDao.getUids()
 
-        boolean count = userService.deleteGlobalPermission(id);
-        Assert.assertTrue(count);
+//        boolean count = userService.deleteGlobalPermission(id);
+//        Assert.assertTrue(count);
 
         Thread.sleep(5000);
         if(true) return;
