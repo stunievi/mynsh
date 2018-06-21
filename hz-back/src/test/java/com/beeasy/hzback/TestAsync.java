@@ -69,15 +69,12 @@ public class TestAsync {
 
     @Test
     public void give(){
-//        List<Quarters> qs = quartersDao.findAll();
-//        List<WorkflowModel> models = workflowModelDao.findAll();
-//        for (WorkflowModel model : models) {
-//            WorkflowExtPermissionEdit edit = new WorkflowExtPermissionEdit();
-//            edit.setType(WorkflowExtPermission.Type.POINTER);
-//            edit.setModelId(model.getId());
-//            edit.setQids(qs.stream().map(Quarters::getId).collect(Collectors.toList()));
-//            workflowService.setExtPermissions(edit);
-//        }
+
+        List<Quarters> qs = quartersDao.findAll();
+        List<WorkflowModel> models = workflowModelDao.findAll();
+        for (WorkflowModel model : models) {
+            userService.addGlobalPermission(GlobalPermission.Type.WORKFLOW_POINTER, model.getId(), GlobalPermission.UserType.QUARTER, qs.stream().map(Quarters::getId).collect(Collectors.toList()), null);
+        }
     }
 
 

@@ -183,29 +183,5 @@ public class UserController {
     }
 
 
-    @GetMapping("/permission/add/{type}/{objectId}/{userType}/{linkId}")
-    public Result addGlobalPermission(
-            //授权类型
-            @PathVariable GlobalPermission.Type type,
-            //授权对象
-            //例如 工作流模型ID/节点ID等
-            @PathVariable long objectId,
-            //授权者类型
-            //按部门/按岗位/按人员
-            @PathVariable GlobalPermission.UserType userType,
-            //授权者ID
-            //部门ID/岗位ID/人员ID
-            @PathVariable long linkId
-            ){
-        //批量加自己写
-        return Result.ok(userService.addGlobalPermission(type,objectId,userType,linkId));
-    }
-
-    @PostMapping("/permissio/delete")
-    public Result deleteGlobalPermission(
-            @RequestBody List<Long> ids
-    ){
-        return Result.finish(userService.deleteGlobalPermission((Long[])ids.toArray()));
-    }
 
 }

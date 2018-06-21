@@ -639,34 +639,35 @@ public class UserService implements IUserService {
 
     /**
      * 添加授权
-     * @param pType
-     * @param objectId
-     * @param uType
-     * @param linkId
+     * @param pType 授权类型
+     * @param objectId 授权关联对象ID
+     * @param uType 授权方式
+     * @param linkIds 授权方式ID
+     * @Param info 授权详情, 没有为null
      * @return
      */
-    public long addGlobalPermission(GlobalPermission.Type pType, long objectId, GlobalPermission.UserType uType, long linkId){
-        //检查是否已经有相同的授权
-        List list = entityManager.createQuery("select gp.id from GlobalPermission gp where gp.type = :ptype and gp.objectId = :objectId and gp.userType = :uType and gp.linkId = :linkId")
-                .setMaxResults(1)
-                .setParameter("ptype",pType)
-                .setParameter("objectId",objectId)
-                .setParameter("uType",uType)
-                .setParameter("linkId",linkId)
-                .getResultList();
-        if(list.size() > 0){
-            return (long) list.get(0);
-//            return Array.getLong(list.get(0),0);
-        }
-        GlobalPermission globalPermission = new GlobalPermission();
-        globalPermission.setType(pType);
-        globalPermission.setObjectId(objectId);
-        globalPermission.setUserType(uType);
-        globalPermission.setLinkId(linkId);
-        globalPermission = globalPermissionDao.save(globalPermission);
-        //更新授权中间表
-        globalPermissionService.syncGlobalPermissionCenterAdded(globalPermission);
-        return globalPermission.getId();
+    public List<Long> addGlobalPermission(GlobalPermission.Type pType, long objectId, GlobalPermission.UserType uType, List<Long> linkIds, Object info){
+        return linkIds.stream().map(linkId -> {
+            //检查是否已经有相同的授权
+            Object id = entityManager.createQuery("select gp.id from GlobalPermission gp where gp.type = :ptype and gp.objectId = :objectId and gp.userType = :uType and gp.linkId = :linkId")
+                    .setParameter("ptype",pType)
+                    .setParameter("objectId",objectId)
+                    .setParameter("uType",uType)
+                    .setParameter("linkId",linkId)
+                    .getSingleResult();
+            if(null != id){
+                return (Long)id;
+            }
+            GlobalPermission globalPermission = new GlobalPermission();
+            globalPermission.setType(pType);
+            globalPermission.setObjectId(objectId);
+            globalPermission.setUserType(uType);
+            globalPermission.setLinkId(linkId);
+            globalPermission = globalPermissionDao.save(globalPermission);
+            //更新授权中间表
+            globalPermissionService.syncGlobalPermissionCenterAdded(globalPermission);
+            return globalPermission.getId();
+        }).filter(linkId -> linkId > 0).collect(Collectors.toList());
     }
 
     public boolean deleteGlobalPermission(Long ...gpids){
