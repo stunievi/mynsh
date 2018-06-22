@@ -2,6 +2,7 @@ package com.beeasy.hzback.modules.system.service;
 
 import bin.leblanc.classtranslate.Transformer;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.core.exception.RestException;
 import com.beeasy.hzback.core.helper.Result;
@@ -19,6 +20,7 @@ import com.beeasy.hzback.modules.system.response.FetchWorkflowInstanceResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -36,6 +38,8 @@ import javax.script.ScriptException;
 import javax.script.SimpleScriptContext;
 import java.io.IOException;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static javax.persistence.LockModeType.PESSIMISTIC_WRITE;
@@ -675,13 +679,14 @@ public class WorkflowService{
         }
 
         WorkflowNode nodeModel = nodeInstance.getNodeModel();
+        String errMessage = null;
         switch (nodeModel.getType()) {
             case input:
-                submitInputNode(uid, request.getNodeId(), request.getData());
+                errMessage = submitInputNode(uid, request.getNodeId(), request.getData());
                 break;
 
             case check:
-                submitCheckNode(uid, request.getNodeId(), request.getData());
+                errMessage = submitCheckNode(uid, request.getNodeId(), request.getData());
                 break;
 //            case "input":
 //                //绑定节点处理人
@@ -702,6 +707,9 @@ public class WorkflowService{
 //            case "checkprocess":
 //                nodeModel.getNode().submit(user, nodeInstance, request.getData(), attributeDao);
 //                break;
+        }
+        if(!StringUtils.isEmpty(errMessage)){
+            return Result.error(errMessage);
         }
 
         logService.addLog(SystemTextLog.Type.WORKFLOW, instance.getId(), uid, "向 " + nodeInstance.getNodeModel().getName() + " 节点提交了数据");
@@ -1484,19 +1492,116 @@ public class WorkflowService{
     }
 
 
+
+    private String validField(JSONArray rules, String value) throws RestException{
+        final String ERROR_MESSAGE = "message";
+        List<String> errorMessages = rules.stream().map(item -> {
+            JSONObject rule = (JSONObject) item;
+            boolean flag = false;
+            boolean notEmpty = null != value && !StringUtils.isEmpty(value);
+            switch (WorkflowModel.FieldRule.valueOf(rule.getString("rule"))){
+                case Null:
+                    if(notEmpty){
+                        flag = true;
+                    }
+                    break;
+
+                case NotNull:
+                    if(notEmpty){
+                        flag = true;
+                    }
+                    break;
+
+                case NotEmpty:
+                    if(notEmpty){
+                        flag = true;
+                    }
+                    break;
+
+                case AssertTrue:
+                    if(notEmpty && value.equals("true") ){
+                        flag = true;
+                    }
+                    break;
+
+                case AssertFalse:
+                    if(notEmpty && value.equals("false")){
+                        flag = true;
+                    }
+                    break;
+
+                case Min:
+                    if(NumberUtils.isNumber(value) && NumberUtils.toInt(value,0) >= rule.getInteger("value")){
+                        flag = true;
+                    }
+                    break;
+
+                case Max:
+                    if(NumberUtils.isNumber(value) && NumberUtils.toInt(value,0) <= rule.getInteger("value")){
+                        flag = true;
+                    }
+                    break;
+
+                case DecimalMax:
+                    if(NumberUtils.isNumber(value) && NumberUtils.toDouble(value,0.00) >= rule.getDouble("value")){
+                        flag = true;
+                    }
+                    break;
+
+                case DecimalMin:
+                    if(NumberUtils.isNumber(value) && NumberUtils.toDouble(value,0.00) <= rule.getDouble("value")){
+                        flag = true;
+                    }
+                    break;
+
+                case Past:
+                    break;
+
+                case Future:
+                    break;
+
+                case Length:
+                    if(notEmpty && value.length() <= rule.getInteger("value")){
+                        flag = true;
+                    }
+                    break;
+
+                case Pattern:
+                    if(notEmpty){
+                        Pattern p = Pattern.compile(rule.getString("value"));
+                        Matcher m = p.matcher(value);
+                        if(m.find()){
+                           flag = true;
+                        }
+                    }
+                    break;
+
+            }
+            if(!flag){
+                return rule.getString(ERROR_MESSAGE);
+            }
+            else{
+                return "";
+            }
+        }).filter(item -> !org.apache.commons.lang.StringUtils.isEmpty((String) item)).collect(Collectors.toList());
+        return org.apache.commons.lang.StringUtils.join(errorMessages.toArray(),"\n");
+    }
+
     private WorkflowInstance fromInputNodeToGo(WorkflowInstance instance, WorkflowNodeInstance currentNode, JSONObject nodeModel) throws RestException {
         //检查所有字段, 如果有必填字段没有填写, 那么抛出异常
         for (Map.Entry<String, Object> entry : nodeModel.getJSONObject("content").entrySet()) {
             String k = entry.getKey();
             JSONObject v = (JSONObject) entry.getValue();
-            if (v.getString("required").equals("y")) {
-                Optional<WorkflowNodeAttribute> target = currentNode.getAttributeList().stream()
-                        .filter(a -> a.getAttrKey().equals(v.getString("ename")))
-                        .findAny();
-                if (!target.isPresent()) {
-                    throw new RestException("有必填字段没有填写");
-                }
-            }
+            WorkflowNodeAttribute attribute = attributeDao.findFirstByDealUserIdAndAttrKey(currentNode.getDealerId(), k).orElse(null);
+//            if(null)
+//            if (v.getString("required").equals("y")) {
+//                Optional<WorkflowNodeAttribute> target = currentNode.getAttributeList().stream()
+//                        .filter(a -> a.getAttrKey().equals(v.getString("ename")))
+//                        .findAny();
+//                if (!target.isPresent()) {
+//                    throw new RestException("有必填字段没有填写");
+//                }
+//            }
         }
         //找不到下一个就结束了吧
 //        BaseNode nextNode = instance.getWorkflowModel().getNextNode(currentNode.getNodeName());
@@ -1955,7 +2060,7 @@ public class WorkflowService{
     }
 
 
-    public void submitInputNode(long uid, long nodeInstanceId, Map<String,Object> data){
+    public String submitInputNode(long uid, long nodeInstanceId, Map<String,Object> data){
         //当前处理的
 //        WorkflowNodeInstance nodeInstance = nodeInstanceDao.findFirstByIdAndFinishedIsFalse(nodeInstanceId).orElse(null);
 //        if(null == nodeInstance){
@@ -1963,7 +2068,7 @@ public class WorkflowService{
 //        }
         JSONObject node = getCurrentNodeModelNode(nodeInstanceId).orElse(null);
         if(null == node){
-            return;
+            return null;
         }
         JSONObject content = node.getJSONObject("content");
         for (Map.Entry<String, Object> entry : content.entrySet()) {
@@ -1973,11 +2078,25 @@ public class WorkflowService{
                 continue;
             }
             //不论是否必填, 空属性就略过
-            if (StringUtils.isEmpty(String.valueOf(data.get(attrKey)))) {
-                continue;
-            }
+//            if (StringUtils.isEmpty(String.valueOf(data.get(attrKey)))) {
+//                continue;
+//            }
             //验证属性格式
             //TODO: 这里需要验证属性的格式
+
+            //校验该字段的规则
+            if(v.containsKey("rules")){
+                try{
+                    String value = String.valueOf(data.get(attrKey));
+                    String err = validField(v.getJSONArray("rules"), value);
+                    if(!StringUtils.isEmpty(err)){
+                        throw new RestException(err);
+                    }
+                }
+                catch (Exception e){
+                    return v.getString("cname") + "格式校验错误";
+                }
+            }
 
             //覆盖旧节点的信息
 //            Optional<WorkflowNodeAttribute> target = nodeInstance.getAttributeList()
@@ -1994,18 +2113,13 @@ public class WorkflowService{
             attributeDao.save(attribute);
         }
 
+        return null;
     }
 
-    public void submitCheckNode(long uid, long nodeInstanceId, Map data){
-        //当前处理的
-//        WorkflowNodeInstance nodeInstance = nodeInstanceDao.findFirstByIdAndFinishedIsFalse(nodeInstanceId).orElse(null);
-//        if(null == nodeInstance){
-//            return;
-//        }
-//        JSONObject node = nodeInstance.getNodeModel().getNode();
+    public String submitCheckNode(long uid, long nodeInstanceId, Map data){
         JSONObject node = getCurrentNodeModelNode(nodeInstanceId).orElse(null);
         if(null == node){
-            return;
+            return "找不到该节点";
         }
         String item = String.valueOf(data.get(node.getString("key")));
         String ps = String.valueOf(data.get(node.getString("ps")));
@@ -2014,7 +2128,7 @@ public class WorkflowService{
                 .stream()
                 .anyMatch(state -> ((JSONObject)state).getString("item").equals(item));
         if (!hasOption) {
-            return;
+            return "选项内没有这个选项";
         }
         //每个审批节点只允许审批一次
         WorkflowNodeAttribute attribute = addAttribute(uid, nodeInstanceId,node.getString("key"),item,node.getString("question"));
@@ -2029,6 +2143,8 @@ public class WorkflowService{
             attribute = addAttribute(uid,nodeInstanceId,node.getString("ps"),ps,"备注");
             attributeDao.save(attribute);
         }
+
+        return "";
     }
 
     private WorkflowNodeAttribute addAttribute(long uid, long nodeInstanceId, String key, String value, String cname){

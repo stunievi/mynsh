@@ -10,4 +10,6 @@ public interface IWorkflowNodeAttributeDao extends JpaRepository<WorkflowNodeAtt
     Optional<WorkflowNodeAttribute> findFirstByNodeInstanceAndAttrKey(WorkflowNodeInstance instance, String attrKey);
 
     Optional<WorkflowNodeAttribute> findFirstByDealUserIdAndAttrKey(long uid, String key);
+
+
 }

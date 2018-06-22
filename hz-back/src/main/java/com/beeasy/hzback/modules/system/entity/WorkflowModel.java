@@ -65,6 +65,26 @@ public class WorkflowModel {
     @OneToMany(mappedBy = "model",cascade = CascadeType.REMOVE)
     List<WorkflowModelInnate> innates = new ArrayList<>();
 
+
+    /**
+     * 字段类型
+     */
+    public enum FieldRule{
+        Null,
+        NotNull,
+        AssertTrue,
+        AssertFalse,
+        Min,
+        Max,
+        DecimalMin,
+        DecimalMax,
+        Past,
+        Future,
+        Pattern,
+        Length,
+        NotEmpty
+    }
+
 //    @OneToOne(mappedBy = "workflowModel",cascade = CascadeType.REMOVE)
 //    WorkflowModelStart information;
 

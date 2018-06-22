@@ -100,6 +100,9 @@
           type: taskId
           required: y
           innate: true
+          rules:
+            - rule: NotNull
+              message: 资料编号不能为空
         客户号:
           name: CUS_ID
           type: string
