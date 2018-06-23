@@ -6,7 +6,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 @ApiModel
 @Data
-public class ChangePassword {
+public class ModifyPasswordRequest {
 
     @NotEmpty(message = "旧密码不能为空")
     private String oldPassword;

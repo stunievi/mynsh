@@ -27,6 +27,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -336,6 +337,48 @@ public class UserService implements IUserService {
                 }
                 return null;
             });
+    }
+
+    /**
+     * 修改密码, 修改规则如下
+     * 1. 必须包含数字、字母、特殊字符 三种
+     2. 长度至少8位
+     3. 不能包含3位及以上相同字符的重复【eg：x111@q& xxxx@q&1】
+     4 不能包含3位及以上字符组合的重复【eg：ab!23ab!】
+     该规则不生效 5. 不能包含3位及以上的正序及逆序连续字符【eg：123%@#aop %@#321ao efg3%@#47 3%@#47gfe】
+     6. 不能包含空格、制表符、换页符等空白字符
+     该规则不生效 7. 键盘123456789数字对应的正序逆序特殊字符：eg：12#$%pwtcp(#$%(345对应的特殊字符#$%，仍视作连续))
+     8. 支持的特殊字符范围：^$./,;:’!@#%&*|?+()[]{}
+     * @param uid
+     * @param oldPassword
+     * @param newPassword
+     * @return
+     */
+    public Result modifyPassword(long uid, String oldPassword, String newPassword){
+        //1 and 8
+        if(!(newPassword.matches("^.*[a-zA-Z]+.*$") && newPassword.matches("^.*[0-9]+.*$")
+                && newPassword.matches("^.*[/^/$/.//,;:'!@#%&/*/|/?/+/(/)/[/]/{/}]+.*$"))){
+            return Result.error("密码必须包含字母, 数字, 特殊字符");
+        }
+        //2
+        if(!newPassword.matches("^.{8,}$")){
+            return Result.error("密码长度至少8位");
+        }
+        //3
+        if(newPassword.matches("^.*(.)\\1{2,}+.*$")){
+            return Result.error("密码不能包含3位及以上相同字符的重复");
+        }
+        //4
+        if(newPassword.matches("^.*(.{3})(.*)\\1+.*$")){
+            return Result.error("密码不能包含3位及以上字符组合的重复");
+        }
+        //6
+        if(newPassword.matches("^.*[\\s]+.*$")){
+            return Result.error("密码不能包含空格、制表符、换页符等空白字符");
+        }
+
+        oldPassword = DigestUtils.md5DigestAsHex(oldPassword.getBytes());
+        return Result.finish(userDao.modifyPassword(uid, oldPassword, newPassword) > 0);
     }
 
     

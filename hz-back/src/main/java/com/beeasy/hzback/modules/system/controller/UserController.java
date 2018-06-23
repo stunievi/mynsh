@@ -3,6 +3,7 @@ package com.beeasy.hzback.modules.system.controller;
 import bin.leblanc.zed.Zed;
 import com.beeasy.hzback.core.exception.RestException;
 import com.beeasy.hzback.core.helper.Result;
+import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.modules.system.cache.SystemConfigCache;
 import com.beeasy.hzback.modules.system.dao.IQuartersDao;
 import com.beeasy.hzback.modules.system.dao.IUserDao;
@@ -10,6 +11,7 @@ import com.beeasy.hzback.modules.system.entity.Department;
 import com.beeasy.hzback.modules.system.entity.GlobalPermission;
 import com.beeasy.hzback.modules.system.entity.Quarters;
 import com.beeasy.hzback.modules.system.entity.User;
+import com.beeasy.hzback.modules.system.form.ModifyPasswordRequest;
 import com.beeasy.hzback.modules.system.form.UserAdd;
 import com.beeasy.hzback.modules.system.form.UserEdit;
 import com.beeasy.hzback.modules.system.form.UserSearch;
@@ -123,6 +125,10 @@ public class UserController {
         userDao.updateBanedByIds(userIds,isBaned);
         return true;
     }
+
+
+
+
 
 //    @ApiOperation(value = "设置用户岗位", notes = "岗位设置, 需一次性传递所有岗位的ID, 无效的岗位会被略过")
 //    @ApiImplicitParams({

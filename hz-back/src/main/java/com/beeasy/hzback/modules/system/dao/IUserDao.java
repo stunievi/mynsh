@@ -88,6 +88,10 @@ public interface IUserDao extends JpaRepository<User,Long> ,JpaSpecificationExec
     @Query(value = "delete from User where username <> :username")
     void clearUsers(@Param("username") String username);
 
+    //修改密码
+    @Modifying
+    @Query(value = "update User set password = :password where id = :id and password = :oldPassword")
+    int modifyPassword(@Param("id") long id, @Param("oldPassword") String oldPassword, @Param("password") String password);
 
     @Query(value = "select u.id,u.trueName,u.phone,u.profile.faceId,q.id,u.letter,u.username from User u join u.quarters q where q.id > 0 and u.baned = false ")
     List getNormalUsers();
