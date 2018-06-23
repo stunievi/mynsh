@@ -4,6 +4,8 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.beeasy.hzback.core.entity.AbstractBaseEntity;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -15,6 +17,8 @@ import java.util.*;
 @Entity
 @Table(name = "t_department")
 @EntityListeners(AuditingEntityListener.class)
+//@SQLDelete(sql = "update demo set deleted = 1 where id = ?")
+//@Where(clause = "deleted = 0")
 public class Department extends AbstractBaseEntity{
 
 
@@ -44,6 +48,7 @@ public class Department extends AbstractBaseEntity{
 
     //部门编号
     private String code;
+//    private boolean deleted = false;
 
 //    @Transient
 //    public List<User> getUsers(){

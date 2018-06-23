@@ -133,7 +133,7 @@ public class WorkflowInstance {
         workflowNodeInstance.setNodeModelId(node.getId());
         workflowNodeInstance.setNodeName(node.getName());
         workflowNodeInstance.setType(node.getType());
-        workflowNodeInstance.setInstance(this);
+        workflowNodeInstance.setInstanceId(getId());
         workflowNodeInstance.setFinished(false);
         if(add){
             getNodeList().add(workflowNodeInstance);

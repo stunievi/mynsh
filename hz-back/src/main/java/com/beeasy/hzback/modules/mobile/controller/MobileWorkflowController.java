@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -284,7 +285,7 @@ public class MobileWorkflowController {
         if(lessId == 0){
             lessId = Long.MAX_VALUE;
         }
-        return Result.ok(instanceDao.findNeedToDealWorks(Collections.singletonList(Utils.getCurrentUserId()),lessId,pageRequest)).toMobile(myworkEntries);
+        return Result.ok(instanceDao.findNeedToDealWorks(Collections.singleton(GlobalPermission.Type.WORKFLOW_MAIN_QUARTER),Collections.singletonList(Utils.getCurrentUserId()),lessId,pageRequest)).toMobile(myworkEntries);
     }
 
     @ApiOperation(value = "我处理过的任务")
@@ -311,7 +312,8 @@ public class MobileWorkflowController {
         if(lessId == 0){
             lessId = Long.MAX_VALUE;
         }
-        return Result.ok(instanceDao.findObserveredWorks(Collections.singletonList(Utils.getCurrentUserId()),lessId,pageRequest)).toMobile(myworkEntries);
+        return Result.ok().toJson();
+//        return Result.ok(instanceDao.findObserveredWorks(Collections.singletonList(Utils.getCurrentUserId()),lessId,pageRequest)).toMobile(myworkEntries);
     }
 
     @ApiOperation(value = "我可以执行的公共任务")
@@ -324,7 +326,8 @@ public class MobileWorkflowController {
         if(lessId == 0){
             lessId = Long.MAX_VALUE;
         }
-        return Result.ok(instanceDao.findCommonWorks(Collections.singletonList(Utils.getCurrentUserId()),lessId,pageRequest)).toMobile(myworkEntries);
+        return Result.ok().toJson();
+//        return Result.ok(instanceDao.findCommonWorks(Collections.singletonList(Utils.getCurrentUserId()),lessId,pageRequest)).toMobile(myworkEntries);
     }
 
 
@@ -352,7 +355,7 @@ public class MobileWorkflowController {
             return Result.error().toMobile();
         }
         FetchWorkflowInstanceResponse response = new FetchWorkflowInstanceResponse();
-        response.setTransformUsers(workflowModelDao.getFirstNodeUsers(id));
+        response.setTransformUsers(workflowService.getPubUids(id));
         response.setTransform(workflowService.canPoint(model.getId(),user));
         return Result.ok(response).toMobile(
                 new Result.Entry(User.class,"quarters","departments","permissions","externalPermissions")

@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,6 +18,8 @@ public interface IDepartmentDao extends JpaRepository<Department,Long> {
     Department findByParent(Department department);
     Optional<Department> findFirstByParentAndName(Department department, String name);
     List<Department> findAllByName(String name);
+
+    int deleteAllByIdIn(Collection<Long> dids);
 
     @Query(value = "select d.code from Department d where d.id = :id")
     List getDepartmentCode(@Param("id") long id);

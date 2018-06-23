@@ -23,9 +23,12 @@ public class WorkflowNodeInstance {
 
     //任务主体实例
     @JSONField(serialize = false)
-    @JoinColumn(name = "instance_id")
+    @JoinColumn(name = "instance_id", insertable = false, updatable = false)
     @ManyToOne(optional = false)
     WorkflowInstance instance;
+    @Column(name = "instance_id")
+    Long instanceId;
+
 
     String nodeName;
 

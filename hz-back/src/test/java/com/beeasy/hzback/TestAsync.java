@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -68,7 +69,7 @@ public class TestAsync {
     }
 
     @Test
-    public void give(){
+    public void give() {
 
         List<Quarters> qs = quartersDao.findAll();
         List<WorkflowModel> models = workflowModelDao.findAll();
@@ -83,7 +84,7 @@ public class TestAsync {
         workflowModelDao.deleteAll();
         //列出2个版本
         for (int i = 0; i < 2; i++) {
-            String[] modelNames = {"菜单权限申请","资料收集","不良资产登记","利息减免登记","抵债资产接收","资产处置","不良资产管理流程","贷后跟踪-小微部公司类","贷后跟踪-小微部个人类",};
+            String[] modelNames = {"菜单权限申请", "资料收集", "不良资产登记", "利息减免登记", "抵债资产接收", "资产处置", "不良资产管理流程", "贷后跟踪-小微部公司类", "贷后跟踪-小微部个人类",};
             for (String modelName : modelNames) {
                 WorkflowModelAdd edit = new WorkflowModelAdd();
                 edit.setName(modelName);
@@ -156,7 +157,7 @@ public class TestAsync {
 
         int qcount = 0;
         //设立4个部门
-        for(int i = 0; i < 4; i++){
+        for (int i = 0; i < 4; i++) {
             String dName = "部门" + (i + 1);
             DepartmentAdd departmentAdd = new DepartmentAdd();
             departmentAdd.setName(dName);
@@ -164,7 +165,7 @@ public class TestAsync {
             Assert.assertTrue(result.isSuccess());
 
             //每个部门4个角色
-            for(int j = 0; j < 4; j++){
+            for (int j = 0; j < 4; j++) {
                 qcount++;
                 String qName = "岗位" + qcount;
                 QuartersAdd quartersAdd = new QuartersAdd();
@@ -181,7 +182,7 @@ public class TestAsync {
                     userAdd.setPassword("2");
                     userAdd.setBaned(false);
                     Result<User> r = userService.createUser(userAdd);
-                    if(!r.isSuccess()){
+                    if (!r.isSuccess()) {
                         continue;
                     }
                     UserEdit edit = new UserEdit();
@@ -251,15 +252,16 @@ public class TestAsync {
     IWorkflowNodeFileDao nodeFileDao;
 
     @Test
-    public void testtags(){
- Query q =        entityManager.createQuery("select user.quarters from User user where user.id = 2613");
- q.setMaxResults(10);
- q.setFirstResult(0);
- List list = q.getResultList();
- int c = 1;
+    public void testtags() {
+        Query q = entityManager.createQuery("select user.quarters from User user where user.id = 2613");
+        q.setMaxResults(10);
+        q.setFirstResult(0);
+        List list = q.getResultList();
+        int c = 1;
 //        nodeFileDao.updateNodeFileTags(559,14, "cubi 123");
 //        int d = 0;
     }
+
     @Test
     public void testUserSelect(){
 //        URL urls = new URL(url);
@@ -393,6 +395,17 @@ public class TestAsync {
 //        flag = userService.isChildDepartment(29,38);
 //        Assert.assertFalse(flag);
 
+    List s =         instanceDao.findObserveredWorks(Collections.singletonList(GlobalPermission.Type.WORKFLOW_OBSERVER), Collections.singleton(414l), Long.MAX_VALUE, new PageRequest(0,100));
+    Assert.assertTrue(s.size() > 0);
+//        WorkflowModel model = workflowService.findModel(61).orElse(null);
+//        WorkflowModelEdit edit = new WorkflowModelEdit();
+//        edit.setId(model.getId());
+//        edit.setDepartmentIds(Collections.singletonList(43L));
+//        workflowService.editWorkflowModel(edit);
+
+//        List s = instanceDao.findNeedToDealWorks(Collections.singleton(GlobalPermission.Type.WORKFLOW_MAIN_QUARTER), Collections.singletonList(414L), Long.MAX_VALUE, new PageRequest(0,10));
+
+        if(true) return;
 
         userService.addGlobalPermission(GlobalPermission.Type.COMMON_CLOUD_DISK,0, GlobalPermission.UserType.DEPARTMENT, Collections.singletonList(41L), null);
 //        Assert.assertTrue(id > 0);

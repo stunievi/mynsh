@@ -153,17 +153,17 @@ public class WorkFlowController {
     }
 
 
-    @ApiOperation(value = "设置主办或者协办的岗位",notes = "目前协办只可以查看, 在资料节点, 只要有一个主办提交了资料, 就可以继续下一步")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "modelId", value = "模型ID")
-    })
-    @PutMapping("/model/setPersons")
-    public Result setQuarters(
-            @Valid @RequestBody WorkflowQuartersEdit edit,
-            BindingResult bindingResult
-            ){
-        return workflowService.setPersons(edit);
-    }
+//    @ApiOperation(value = "设置主办或者协办的岗位",notes = "目前协办只可以查看, 在资料节点, 只要有一个主办提交了资料, 就可以继续下一步")
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(name = "modelId", value = "模型ID")
+//    })
+//    @PutMapping("/model/setPersons")
+//    public Result setQuarters(
+//            @Valid @RequestBody WorkflowQuartersEdit edit,
+//            BindingResult bindingResult
+//            ){
+//        return workflowService.setPersons(edit);
+//    }
 
 
     @Deprecated

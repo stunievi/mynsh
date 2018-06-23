@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.List;
 
 @ApiModel
 @Data
@@ -27,5 +29,5 @@ public class WorkflowModelEdit {
     @ApiModelProperty(name = "open",value = "是否打开工作流")
     boolean open;
 
-//    WorkflowExtPermissionEdit[] permissionEdits;
+    List<Long> departmentIds = new ArrayList<>();
 }

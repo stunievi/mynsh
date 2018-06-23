@@ -1,5 +1,6 @@
 package com.beeasy.hzback.modules.system.entity;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
@@ -11,6 +12,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -65,6 +67,17 @@ public class WorkflowModel {
     @OneToMany(mappedBy = "model",cascade = CascadeType.REMOVE)
     List<WorkflowModelInnate> innates = new ArrayList<>();
 
+    @JSONField(serialize = false)
+    @ManyToMany()
+    @JoinTable(name = "t_workflowmodel_department",
+            joinColumns = {
+                    @JoinColumn(name = "MODEL_ID", referencedColumnName = "ID")
+            },
+            inverseJoinColumns = {
+                    @JoinColumn(name = "DEPARTMENT_ID", referencedColumnName = "ID")
+            }
+    )
+    List<Department> departments = new ArrayList<>();
 
     /**
      * 字段类型

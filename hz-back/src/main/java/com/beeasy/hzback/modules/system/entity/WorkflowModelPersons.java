@@ -35,10 +35,11 @@
 //    WorkflowNode workflowNode;
 //
 //    @Enumerated
-//    IWorkflowService.Type type;
+//    Type type;
 //
 //    Long uid;
 //
 //    String title;
 //
+//    public enum Type{A,B}
 //}

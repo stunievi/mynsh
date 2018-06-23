@@ -2,6 +2,7 @@ package com.beeasy.hzback.modules.system.entity;
 
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.beeasy.hzback.core.helper.JSONConverter;
 import com.beeasy.hzback.core.helper.ObjectConverter;
 import com.beeasy.hzback.modules.system.service.IUserService;
 import lombok.Getter;
@@ -50,13 +51,15 @@ public class User implements Serializable{
 
 
     @JSONField(serialize = false)
-    @Convert(converter = ObjectConverter.class)
-    @Column(columnDefinition = "BLOB")
+//    @Convert(converter = ObjectConverter.class)
+//    @Column(columnDefinition = "BLOB")
+    @Column(columnDefinition = JSONConverter.type)
     private String publicKey;
 
     @JSONField(serialize = false)
-    @Convert(converter = ObjectConverter.class)
-    @Column(columnDefinition = "BLOB")
+//    @Convert(converter = ObjectConverter.class)
+//    @Column(columnDefinition = "BLOB")
+    @Column(columnDefinition = JSONConverter.type)
     private String privateKey;
 
     @ManyToMany(mappedBy = "users", cascade = CascadeType.ALL)

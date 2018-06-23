@@ -41,5 +41,7 @@ public class SystemFile extends AbstractBaseEntity{
     @LastModifiedDate
     Date lastModifyTime;
 
-    boolean removed = false;
+    String ext;
+
+//    boolean removed = false;
 }

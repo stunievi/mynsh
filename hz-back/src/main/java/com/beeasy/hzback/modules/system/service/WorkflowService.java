@@ -592,6 +592,88 @@ public class WorkflowService{
         }
     }
 
+    /**
+     * 得到某些用户未执行的任务
+     * @param uids
+     * @param lessId
+     * @param pageable
+     * @return
+     */
+    public List<WorkflowInstance> getUserUndealedWorks(Collection<Long> uids, Long lessId, Pageable pageable){
+        if(lessId == null){
+            lessId = Long.MAX_VALUE;
+        }
+        return instanceDao.findNeedToDealWorks(Collections.singleton(GlobalPermission.Type.WORKFLOW_MAIN_QUARTER), uids, lessId, pageable);
+    }
+
+    /**
+     * 得到某些用户执行过的任务
+     * @param uids
+     * @param lessId
+     * @param pageable
+     * @return
+     */
+    public List<WorkflowInstance> getUserDealedWorks(Collection<Long> uids, Long lessId, Pageable pageable){
+        if(null == lessId){
+            lessId = Long.MAX_VALUE;
+        }
+        return instanceDao.findDealedWorks(uids,lessId,pageable);
+    }
+
+    /**
+     * 得到部门未执行的任务
+     * @param uids
+     * @param lessId
+     * @param pageable
+     * @return
+     */
+    public List<WorkflowInstance> getDepartmentUndealedWorks(Collection<Long> uids, Long lessId, Pageable pageable){
+        if(null == lessId) lessId = Long.MAX_VALUE;
+        return instanceDao.findNeedToDealWorksFromDepartments(uids, WorkflowInstance.State.DEALING, lessId, pageable);
+    }
+
+
+    /**
+     * 得到部门已执行完毕的任务
+     * @param uids
+     * @param lessId
+     * @param pageable
+     * @return
+     */
+    public List<WorkflowInstance> getDepartmentDealedWorks(Collection<Long> uids, Long lessId, Pageable pageable){
+        if(null == lessId) lessId = Long.MAX_VALUE;
+        return instanceDao.findNeedToDealWorksFromDepartments(uids, WorkflowInstance.State.FINISHED, lessId, pageable);
+    }
+
+
+    /**
+     * 得到用户可以接受的公共任务列表
+     * @param uids
+     * @param lessId
+     * @param pageable
+     * @return
+     */
+    public List<WorkflowInstance> getUserCanAcceptCommonWorks(Collection<Long> uids, Long lessId, Pageable pageable){
+        if(null == lessId) lessId = Long.MAX_VALUE;
+        return instanceDao.findCommonWorks(Collections.singleton(GlobalPermission.Type.WORKFLOW_PUB), uids, lessId, pageable);
+    }
+
+
+    /**
+     * 得到用户观察的任务列表
+     * @param uids
+     * @param lessId
+     * @param pageable
+     * @return
+     */
+    public List<WorkflowInstance> getUserObservedWorks(Collection<Long> uids, Long lessId, Pageable pageable){
+        if(null == lessId) lessId = Long.MAX_VALUE;
+        return instanceDao.findObserveredWorks(Collections.singleton(GlobalPermission.Type.WORKFLOW_OBSERVER), uids, lessId, pageable);
+    }
+
+
+
+
 
     /**
      * 向一个节点提交数据
@@ -601,7 +683,6 @@ public class WorkflowService{
      * @return
      */
     @Deprecated
-    
     public WorkflowInstance submitData(long uid, long instanceId, Map data) throws RestException {
         return null;
 //        User user = userService.findUserE(uid);
@@ -957,6 +1038,15 @@ public class WorkflowService{
             model.setOpen(edit.isOpen());
             if (edit.isOpen()) {
                 model.setFirstOpen(true);
+            }
+            if(edit.getDepartmentIds().size() > 0){
+                modelDao.deleteDepartments(Collections.singleton(edit.getId()));
+                model.getDepartments().clear();
+                for (Long aLong : edit.getDepartmentIds()) {
+                    Department department = new Department();
+                    department.setId(aLong);
+                    model.getDepartments().add(department);
+                }
             }
             //特殊权限
 //            if (null != edit.getPermissionEdits()) {
@@ -1877,7 +1967,7 @@ public class WorkflowService{
             response.setTransform(canTransform(workflowInstance, user));
             response.setAccept(canAccept(workflowInstance, user));
             response.setLogs(systemTextLogDao.findLogs(SystemTextLog.Type.WORKFLOW, id));
-            response.setTransformUsers(modelDao.getFirstNodeUsers(workflowInstance.getWorkflowModel().getId()));
+            response.setTransformUsers(getPubUids(workflowInstance.getModelId()));
 
             return response;
         });
@@ -1896,7 +1986,7 @@ public class WorkflowService{
             response.setTransform(canTransform(workflowInstance, user));
             response.setAccept(canAccept(workflowInstance, user));
 //            response.setLogs(systemTextLogDao.findLogs(SystemTextLog.Type.WORKFLOW, id));
-            response.setTransformUsers(modelDao.getFirstNodeUsers(workflowInstance.getWorkflowModel().getId()));
+            response.setTransformUsers(getPubUids(workflowInstance.getModelId()));
 
             return response;
         });
@@ -2082,8 +2172,6 @@ public class WorkflowService{
 //                continue;
 //            }
             //验证属性格式
-            //TODO: 这里需要验证属性的格式
-
             //校验该字段的规则
             if(v.containsKey("rules")){
                 try{
@@ -2173,13 +2261,17 @@ public class WorkflowService{
      */
     public Optional<JSONObject> getCurrentNodeModelNode(long nodeInstanceId){
         String hql = "select ni.nodeModel.node from WorkflowNodeInstance ni where ni.id = :id and ni.finished = false";
-        JSONObject ret = (JSONObject) entityManager.createQuery(hql)
+        List result = entityManager.createQuery(hql)
                 .setParameter("id",nodeInstanceId)
-//                .setMaxResults(1)
-//                .getResultList();
-                .getSingleResult();
-//        JSONObject ret = result.size() > 0 ? (JSONObject) result.get(0) : null;
+                .setMaxResults(1)
+                .getResultList();
+//                .getSingleResult();
+        JSONObject ret = result.size() > 0 ? (JSONObject) result.get(0) : null;
         return Optional.ofNullable(ret);
+    }
+
+    public List<Long> getPubUids(long modelId){
+        return globalPermissionDao.getUids(Collections.singleton(GlobalPermission.Type.WORKFLOW_PUB), modelId);
     }
 
 

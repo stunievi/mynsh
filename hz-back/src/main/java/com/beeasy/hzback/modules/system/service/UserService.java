@@ -210,6 +210,8 @@ public class UserService implements IUserService {
             byte[] bytes = IOUtils.toByteArray(resource.getInputStream());
             systemFile.setBytes((bytes));
             systemFile.setType(SystemFile.Type.FACE);
+            systemFile.setExt("jpg");
+            systemFile.setFileName("default_face.jpg");
             systemFile = systemFileDao.save(systemFile);
             if(systemFile.getId() == null){
                 throw new IOException();
@@ -258,7 +260,11 @@ public class UserService implements IUserService {
     }
 
 
-    
+    /**
+     * 删除用户
+     * @param uid
+     * @return
+     */
     public boolean deleteUser(long uid) {
         return findUser(uid)
                 .filter(user -> {
@@ -268,6 +274,42 @@ public class UserService implements IUserService {
                 }).isPresent();
     }
 
+    /**
+     * 批量删除部门(软删除)
+     * @param dids
+     * @return
+     */
+    public Result deleteDepartments(Long ...dids){
+        //如果部门下还有岗位, 那么不能删除
+        for (Long did : dids) {
+            if(quartersDao.countByDepartment_Id(did) > 0){
+                return Result.error("该部门下仍有岗位, 无法删除");
+            }
+        }
+        return Result.finish(departmentDao.deleteAllByIdIn(Arrays.asList(dids)) > 0);
+    }
+
+
+    /**
+     * 批量删除岗位
+     * @param qids
+     * @return
+     */
+    public Result deleteQuarters(Long ...qids){
+        for (Long qid : qids) {
+            if(getUidsFromQuarters(qid).size() > 0){
+                return Result.error("该岗位下仍有任职人员, 无法删除");
+            }
+        }
+        return Result.finish(quartersDao.deleteAllByIdIn(Arrays.asList(qids)) > 0) ;
+    }
+
+    /**
+     * 更新用户头像
+     * @param uid
+     * @param file
+     * @return
+     */
     public Optional<Long> updateUserFace(long uid, MultipartFile file){
         AtomicReference<User> userAtomicReference = new AtomicReference<>();
         return findUser(uid)
@@ -277,13 +319,15 @@ public class UserService implements IUserService {
             })
             .flatMap(user -> findFile(user.getProfile().getFaceId()))
             .map(systemFile -> {
-                systemFile.setRemoved(true);
-                systemFileDao.save(systemFile);
+                systemFileDao.delete(systemFile);
+//                systemFile.setRemoved(true);
+//                systemFileDao.save(systemFile);
                 SystemFile face = new SystemFile();
                 face.setType(SystemFile.Type.FACE);
+                face.setExt(Utils.getExt(file.getOriginalFilename()));
                 try {
                     face.setBytes(file.getBytes());
-                    face = systemFileDao.save(systemFile);
+                    face = systemFileDao.save(face);
                     userAtomicReference.get().getProfile().setFaceId(face.getId());
                     userProfileDao.save(userAtomicReference.get().getProfile());
                     if(face.getId() != null) return face.getId();
@@ -331,7 +375,7 @@ public class UserService implements IUserService {
 //    }
 
 
-    private boolean setQuarters(User user, Set<Long> qids) {
+    private boolean setQuarters(User user, Collection<Long> qids) {
 //        userDao.deleteUserQuarters(user.getId());
         //解除关联
         user.getQuarters().forEach(q -> {
@@ -343,6 +387,8 @@ public class UserService implements IUserService {
         });
         return true;
     }
+
+
 
     public Page<User> searchUser(UserSearch search, Pageable pageable) {
         Specification query = new Specification() {
@@ -467,6 +513,15 @@ public class UserService implements IUserService {
         return Result.ok(quartersDao.save(quarters));
     }
 
+    /**
+     * 更新岗位主管
+     * @param qids
+     * @param state
+     * @return
+     */
+    public boolean setManager(Collection<Long> qids, boolean state){
+        return quartersDao.updateManager(qids,state) > 0;
+    }
 
     /**
      * 增加用户特殊权限
@@ -649,14 +704,15 @@ public class UserService implements IUserService {
     public List<Long> addGlobalPermission(GlobalPermission.Type pType, long objectId, GlobalPermission.UserType uType, List<Long> linkIds, Object info){
         return linkIds.stream().map(linkId -> {
             //检查是否已经有相同的授权
-            Object id = entityManager.createQuery("select gp.id from GlobalPermission gp where gp.type = :ptype and gp.objectId = :objectId and gp.userType = :uType and gp.linkId = :linkId")
+            List ids = entityManager.createQuery("select gp.id from GlobalPermission gp where gp.type = :ptype and gp.objectId = :objectId and gp.userType = :uType and gp.linkId = :linkId")
                     .setParameter("ptype",pType)
                     .setParameter("objectId",objectId)
                     .setParameter("uType",uType)
                     .setParameter("linkId",linkId)
-                    .getSingleResult();
-            if(null != id){
-                return (Long)id;
+                    .setMaxResults(1)
+                    .getResultList();
+            if(ids.size() > 0){
+                return (Long)ids.get(0);
             }
             GlobalPermission globalPermission = new GlobalPermission();
             globalPermission.setType(pType);
@@ -665,16 +721,16 @@ public class UserService implements IUserService {
             globalPermission.setLinkId(linkId);
             globalPermission = globalPermissionDao.save(globalPermission);
             //更新授权中间表
-            globalPermissionService.syncGlobalPermissionCenterAdded(globalPermission);
+//            globalPermissionService.syncGlobalPermissionCenterAdded(globalPermission);
             return globalPermission.getId();
         }).filter(linkId -> linkId > 0).collect(Collectors.toList());
     }
 
     public boolean deleteGlobalPermission(Long ...gpids){
         int count = globalPermissionDao.deleteAllByIdIn(Arrays.asList(gpids));
-        if(count > 0){
-            globalPermissionService.syncGlobalPermissionCenterDeleted(gpids);
-        }
+//        if(count > 0){
+//            globalPermissionService.syncGlobalPermissionCenterDeleted(gpids);
+//        }
         return count > 0;
     }
 

@@ -112,8 +112,8 @@ public interface IUserDao extends JpaRepository<User,Long> ,JpaSpecificationExec
 //    List getUidsFromDepartment(@Param("dids") Collection<Long> dids);
 
     //得到某个岗位的所有用户
-    @Query(value = "select u.id from User u join u.quarters q where q.id in :qids")
-    List getUidsFromQuarters(@Param("qids") Collection<Long> qids);
+//    @Query(value = "select u.id from User u join u.quarters q where q.id in :qids")
+//    List getUidsFromQuarters(@Param("qids") Collection<Long> qids);
 
     //得到工作流所有可以开始处理的人
 //    List getUidsFromWorkflowWhoCanPub();

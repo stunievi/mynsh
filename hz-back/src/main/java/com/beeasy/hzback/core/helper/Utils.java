@@ -20,6 +20,8 @@ import javax.validation.ValidatorFactory;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Component
@@ -88,6 +90,15 @@ public class Utils {
             return Optional.of(String.valueOf(list.get(0)));
         }
         return Optional.empty();
+    }
+
+    public static String getExt(String fileName){
+        Pattern p = Pattern.compile("([^\\.]+)$");
+        Matcher m = p.matcher(fileName);
+        if(m.find()){
+            return m.group(1);
+        }
+        return "";
     }
 
 //    public static User getCurrentUser() {

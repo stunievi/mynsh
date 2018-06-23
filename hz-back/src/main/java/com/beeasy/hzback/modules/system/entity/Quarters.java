@@ -47,4 +47,7 @@ public class Quarters extends AbstractBaseEntity {
 
     String code;
 
+    //是否主管
+    boolean manager = false;
+
 }
