@@ -800,12 +800,14 @@ public class UserService implements IUserService {
             globalPermission.setLinkId(linkId);
             //更新授权内容
             globalPermission.setDescription(info);
-            globalPermission = globalPermissionDao.save(globalPermission);
 
             //更新用户授权表
             if(pType.equals(GlobalPermission.Type.USER_METHOD)){
-                cacheUserMethods(linkId, (JSONArray) info);
+                cacheUserMethods(globalPermission);
             }
+
+            globalPermission = globalPermissionDao.save(globalPermission);
+
             //更新授权中间表
 //            globalPermissionService.syncGlobalPermissionCenterAdded(globalPermission);
             return globalPermission.getId();
@@ -823,16 +825,17 @@ public class UserService implements IUserService {
 
     public JSONArray getUserMethods(long uid){
         GlobalPermission globalPermission = globalPermissionDao.findTopByTypeAndObjectIdAndUserTypeAndLinkId(GlobalPermission.Type.USER_METHOD, 0, GlobalPermission.UserType.USER, uid).orElse(null);
+        JSONObject menu = cache.getMenus();
         if(null == globalPermission){
             return new JSONArray();
         }
         return (JSONArray) globalPermission.getDescription();
     }
 
-    public void cacheUserMethods(long uid, JSONArray array){
-        userAllowApiDao.deleteAllByUserId(uid);
+    public void cacheUserMethods(GlobalPermission globalPermission){
+        userAllowApiDao.deleteAllByUserId(globalPermission.getLinkId());
         JSONObject menu = cache.getMenus();
-        for (Object o : array) {
+        for (Object o : (JSONArray)globalPermission.getDescription()) {
             if(o instanceof String){
                 String str = (String) o;
                 JSONObject item = getChildItemByIndex(menu, str);
@@ -843,7 +846,7 @@ public class UserService implements IUserService {
                     }
                     for (Object api : apis) {
                         UserAllowApi allowApi = new UserAllowApi();
-                        allowApi.setUserId(uid);
+                        allowApi.setUserId(globalPermission.getLinkId());
                         allowApi.setApi((String) api);
                         userAllowApiDao.save(allowApi);
                     }
@@ -952,6 +955,7 @@ public class UserService implements IUserService {
         }
         return result;
     }
+
 
 
 }
