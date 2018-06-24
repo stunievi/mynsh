@@ -1,7 +1,10 @@
 package com.beeasy.hzback.modules.system.cache;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.core.helper.Utils;
 import org.apache.commons.io.IOUtils;
+import org.hibernate.annotations.Cache;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
@@ -47,12 +50,33 @@ public class SystemConfigCache {
         return null;
     }
 
+    public JSONObject getMenus(){
+        try{
+            String str = getMenuString();
+            return JSON.parseObject(str);
+        }
+        catch (IOException e){
+            e.printStackTrace();
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        return new JSONObject();
+    }
+
     @Cacheable(value = DEMO_CACHE_NAME, key = "'behavior.js'")
     public String getBehaviorString() throws IOException {
         ClassPathResource resource = new ClassPathResource("config/behavior.js");
         List<String> codes = IOUtils.readLines(resource.getInputStream());
         return String.join("\n",codes);
 //        return Utils.readFile("classpath:config/behavior.js");
+    }
+
+    @Cacheable(value = DEMO_CACHE_NAME, key = "'menu.json'")
+    public String getMenuString() throws IOException {
+        ClassPathResource resource = new ClassPathResource("config/menu.json");
+        List<String> codes = IOUtils.readLines(resource.getInputStream());
+        return String.join("\n",codes);
     }
 
 //    public String getBehaviorLibrary(){

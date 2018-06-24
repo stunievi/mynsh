@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
-@Api
+@Api(tags = "系统变量API")
 @RequestMapping(value = "/api/system/var")
 @RestController
 public class SystemVariableController {

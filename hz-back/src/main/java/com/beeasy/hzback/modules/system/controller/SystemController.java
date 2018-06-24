@@ -4,12 +4,14 @@ import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.modules.system.form.GlobalPermissionEditRequest;
 import com.beeasy.hzback.modules.system.service.UserService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
+@Api(tags = "系统API")
 @RequestMapping(value = "/api/system")
 @RestController
 public class SystemController  {

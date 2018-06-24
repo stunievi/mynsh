@@ -2,6 +2,8 @@ package com.beeasy.hzback.modules.system.controller;
 
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.helper.Utils;
+import com.beeasy.hzback.modules.system.dao.IGlobalPermissionDao;
+import com.beeasy.hzback.modules.system.entity.GlobalPermission;
 import com.beeasy.hzback.modules.system.form.ModifyPasswordRequest;
 import com.beeasy.hzback.modules.system.form.ProfileEditRequest;
 import com.beeasy.hzback.modules.system.service.UserService;
@@ -16,6 +18,8 @@ import javax.validation.Valid;
 public class WebUserController  {
     @Autowired
     UserService userService;
+    @Autowired
+    IGlobalPermissionDao globalPermissionDao;
 
     @ApiOperation(value = "修改密码")
     @RequestMapping(value = "/modifyPassword", method = RequestMethod.POST)
@@ -34,5 +38,11 @@ public class WebUserController  {
     }
 
 
+    @ApiOperation(value = "得到我的功能授权")
+    @RequestMapping(value = "/myMethods", method = RequestMethod.GET)
+    public Result getMyMethods(){
+        Object obj = globalPermissionDao.findTopByTypeAndObjectIdAndUserTypeAndLinkId(GlobalPermission.Type.USER_METHOD, 0, GlobalPermission.UserType.USER, Utils.getCurrentUserId()).orElse(null);
+        return Result.ok(obj);
+    }
 
 }

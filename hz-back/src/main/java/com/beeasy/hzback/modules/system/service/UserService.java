@@ -777,7 +777,7 @@ public class UserService implements IUserService {
      * @Param info 授权详情, 没有为null
      * @return
      */
-    public List<Long> addGlobalPermission(GlobalPermission.Type pType, long objectId, GlobalPermission.UserType uType, List<Long> linkIds, Object info){
+    public List<Long> addGlobalPermission(GlobalPermission.Type pType, long objectId, GlobalPermission.UserType uType, Collection<Long> linkIds, Object info){
         return linkIds.stream().map(linkId -> {
             //检查是否已经有相同的授权
             GlobalPermission globalPermission = globalPermissionDao.findTopByTypeAndObjectIdAndUserTypeAndLinkId(pType,objectId,uType,linkId).orElse(new GlobalPermission());

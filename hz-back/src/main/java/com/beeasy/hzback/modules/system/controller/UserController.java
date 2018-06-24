@@ -1,6 +1,7 @@
 package com.beeasy.hzback.modules.system.controller;
 
 import bin.leblanc.zed.Zed;
+import com.alibaba.fastjson.JSONArray;
 import com.beeasy.hzback.core.exception.RestException;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.helper.Utils;
@@ -11,10 +12,7 @@ import com.beeasy.hzback.modules.system.entity.Department;
 import com.beeasy.hzback.modules.system.entity.GlobalPermission;
 import com.beeasy.hzback.modules.system.entity.Quarters;
 import com.beeasy.hzback.modules.system.entity.User;
-import com.beeasy.hzback.modules.system.form.ModifyPasswordRequest;
-import com.beeasy.hzback.modules.system.form.UserAdd;
-import com.beeasy.hzback.modules.system.form.UserEdit;
-import com.beeasy.hzback.modules.system.form.UserSearch;
+import com.beeasy.hzback.modules.system.form.*;
 import com.beeasy.hzback.modules.system.service.UserService;
 import com.beeasy.hzback.modules.system.zed.UserZed;
 import io.swagger.annotations.Api;
@@ -32,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -127,7 +126,13 @@ public class UserController {
     }
 
 
-
+    @ApiOperation(value = "用户功能模块授权")
+    @RequestMapping(value = "/permission/set", method = RequestMethod.POST)
+    public Result setUserMethodPermission(
+            @Valid @RequestBody JSONArray array
+    ){
+        return Result.ok(userService.addGlobalPermission(GlobalPermission.Type.USER_METHOD, 0, GlobalPermission.UserType.USER, Collections.singleton(Utils.getCurrentUserId()),array));
+    }
 
 
 //    @ApiOperation(value = "设置用户岗位", notes = "岗位设置, 需一次性传递所有岗位的ID, 无效的岗位会被略过")

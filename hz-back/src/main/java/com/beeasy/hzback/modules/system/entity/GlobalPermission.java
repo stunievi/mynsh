@@ -65,7 +65,7 @@ public class GlobalPermission extends AbstractBaseEntity{
         //用户权限授权
         USER_METHOD
 
-        
+
     }
 
     /**
