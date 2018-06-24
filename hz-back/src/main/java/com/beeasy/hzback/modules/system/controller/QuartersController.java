@@ -3,6 +3,7 @@ package com.beeasy.hzback.modules.system.controller;
 import bin.leblanc.classtranslate.Transformer;
 import com.beeasy.hzback.core.exception.RestException;
 import com.beeasy.hzback.core.helper.Result;
+import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.modules.system.dao.IDepartmentDao;
 import com.beeasy.hzback.modules.system.dao.IQuartersDao;
 import com.beeasy.hzback.modules.system.entity.Quarters;
@@ -10,6 +11,7 @@ import com.beeasy.hzback.modules.system.form.Pager;
 import com.beeasy.hzback.modules.system.form.QuartersAdd;
 import com.beeasy.hzback.modules.system.form.QuartersEdit;
 import com.beeasy.hzback.modules.system.service.QuartersService;
+import com.beeasy.hzback.modules.system.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -32,6 +34,8 @@ public class QuartersController {
     QuartersService quartersService;
     @Autowired
     IQuartersDao quartersDao;
+    @Autowired
+    UserService userService;
 
     @Autowired
     IDepartmentDao departmentDao;
@@ -85,9 +89,12 @@ public class QuartersController {
      * 删除, 需要验证这个岗位是否还有人
      * @return
      */
-    public Result delete(){
-
-        return Result.error();
+    @ApiOperation(value = "删除岗位")
+    @RequestMapping(value = "/delete", method = RequestMethod.GET)
+    public Result delete(
+            @RequestParam String id
+    ){
+        return userService.deleteQuarters((Long[])Utils.convertIds(id).toArray());
     }
 
 }

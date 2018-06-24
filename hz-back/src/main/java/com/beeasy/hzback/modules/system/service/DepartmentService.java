@@ -122,9 +122,9 @@ public class DepartmentService implements IDepartmentService {
     @Override
     public Result deleteDepartment(long id) {
         return findDepartment(id).map(department -> {
-            if(department.getParent() == null){
-                return Result.error("顶级部门禁止删除");
-            }
+//            if(department.getParent() == null){
+//                return Result.error("顶级部门禁止删除");
+//            }
             //如果还要岗位 不能删除
             if (department.getQuarters().size() > 0) {
                 return Result.error("该部门还有岗位, 无法删除");

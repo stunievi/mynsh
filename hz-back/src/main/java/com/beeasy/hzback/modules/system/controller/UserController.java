@@ -129,9 +129,10 @@ public class UserController {
     @ApiOperation(value = "用户功能模块授权")
     @RequestMapping(value = "/permission/set", method = RequestMethod.POST)
     public Result setUserMethodPermission(
-            @Valid @RequestBody UserMethodsEditRequest request
+            @RequestParam long uid,
+            @Valid @RequestBody JSONArray array
     ){
-        return Result.ok(userService.addGlobalPermission(GlobalPermission.Type.USER_METHOD, 0, GlobalPermission.UserType.USER, Collections.singleton(request.getId()),request.getArray()));
+        return Result.ok(userService.addGlobalPermission(GlobalPermission.Type.USER_METHOD, 0, GlobalPermission.UserType.USER, Collections.singleton(uid),array));
     }
 
     @ApiOperation(value = "查看某个人的功能模块授权")
