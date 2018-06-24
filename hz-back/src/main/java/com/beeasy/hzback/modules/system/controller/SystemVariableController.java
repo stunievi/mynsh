@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Map;
 
 @Api(tags = "系统变量API")
 @RequestMapping(value = "/api/system/var")
@@ -20,21 +21,24 @@ public class SystemVariableController {
     @ApiOperation(value = "设置系统变量")
     @RequestMapping(value = "/set", method = RequestMethod.POST)
     public Result set(
-            @Valid @RequestBody SystemVarEditRequest request
+            @Valid @RequestBody Map<String,String> request
             ){
-        return Result.finish(systemService.set(request.getKey(), request.getValue(), true));
+        return Result.finish(systemService.set(request));
     }
 
     @ApiOperation(value = "得到系统变量")
-    @RequestMapping(value = "/get", method = RequestMethod.GET)
-    public Result get(@RequestParam String key){
-        return Result.ok(systemService.get(key));
+    @RequestMapping(value = "/get", method = RequestMethod.POST)
+    public Result get(
+            @RequestBody String[] keys
+    ){
+
+        return Result.ok(systemService.get(keys));
     }
 
-    @ApiOperation(value = "删除系统变量")
-    @RequestMapping(value = "/delete", method = RequestMethod.GET)
-    public Result delete(@RequestParam String key){
-        return Result.ok(systemService.delete(key));
-    }
+//    @ApiOperation(value = "删除系统变量")
+//    @RequestMapping(value = "/delete", method = RequestMethod.GET)
+//    public Result delete(@RequestParam String key){
+//        return Result.ok(systemService.delete(key));
+//    }
 
 }

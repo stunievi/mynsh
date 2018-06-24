@@ -2,9 +2,13 @@ package com.beeasy.hzback.modules.system.service;
 
 import com.beeasy.hzback.modules.system.dao.ISystemVariableDao;
 import com.beeasy.hzback.modules.system.entity.SystemVariable;
+import com.beeasy.hzback.modules.system.form.SystemVarEditRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @Transactional
@@ -14,31 +18,36 @@ public class SystemService {
 
     /**
      * 变量设置
-     * @param key
-     * @param value
-     * @param canDelete
+     * @param map
      * @return
      */
-    public boolean set(String key, String value, boolean canDelete){
-        SystemVariable systemVariable = systemVariableDao.findFirstByVarName(key).orElse(new SystemVariable());
-        systemVariable.setVarName(key);
-        systemVariable.setVarValue(value);
-        systemVariable.setCanDelete(canDelete);
+    public boolean set(Map<String,String> map){
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            SystemVariable systemVariable = systemVariableDao.findFirstByVarName(entry.getKey()).orElse(new SystemVariable());
+            systemVariable.setVarName(entry.getKey());
+            systemVariable.setVarValue(entry.getValue());
+            systemVariable.setCanDelete(false);
+        }
         return true;
     }
 
 
     /**
      * 变量获取
-     * @param key
+     * @param keys
      * @return
      */
-    public String get(String key){
-        SystemVariable systemVariable = systemVariableDao.findFirstByVarName(key).orElse(null);
-        if(null != systemVariable){
-            return systemVariable.getVarValue();
+    public Map<String,String> get(String ...keys){
+        Map<String,String> map = new HashMap<>();
+        for (String key : keys) {
+            SystemVariable systemVariable = systemVariableDao.findFirstByVarName(key).orElse(null);
+            if(null != systemVariable){
+                map.put(key, systemVariable.getVarValue());
+                continue;
+            }
+            map.put(key,"");
         }
-        return "";
+        return map;
     }
 
     /**

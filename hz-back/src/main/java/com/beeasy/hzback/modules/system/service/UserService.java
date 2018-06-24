@@ -822,8 +822,11 @@ public class UserService implements IUserService {
 
 
     public JSONArray getUserMethods(long uid){
-        Object obj = globalPermissionDao.findTopByTypeAndObjectIdAndUserTypeAndLinkId(GlobalPermission.Type.USER_METHOD, 0, GlobalPermission.UserType.USER, uid).orElse(null);
-        return (JSONArray) obj;
+        GlobalPermission globalPermission = globalPermissionDao.findTopByTypeAndObjectIdAndUserTypeAndLinkId(GlobalPermission.Type.USER_METHOD, 0, GlobalPermission.UserType.USER, uid).orElse(null);
+        if(null == globalPermission){
+            return new JSONArray();
+        }
+        return (JSONArray) globalPermission.getDescription();
     }
 
     public void cacheUserMethods(long uid, JSONArray array){
