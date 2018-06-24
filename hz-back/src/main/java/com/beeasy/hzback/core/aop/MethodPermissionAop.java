@@ -5,6 +5,7 @@
 //import com.alibaba.fastjson.JSON;
 //import com.beeasy.hzback.core.exception.RestException;
 //import com.beeasy.hzback.core.helper.Result;
+//import com.beeasy.hzback.modules.system.dao.IUserAllowApiDao;
 //import org.aspectj.lang.ProceedingJoinPoint;
 //import org.aspectj.lang.Signature;
 //import org.aspectj.lang.annotation.Around;
@@ -22,18 +23,15 @@
 //
 //@Aspect
 //@Component
-//public class BindingResultAop {
-//
-//    @Autowired
-//    Zed zed;
-//    @Autowired
-//    JPAUtil jpaUtil;
+//public class MethodPermissionAop {
 //
 //    @Autowired
 //    EntityManager entityManager;
+//    @Autowired
+//    IUserAllowApiDao allowApiDao;
 //
-//    static String SUCCESS = JSON.toJSONString(Result.ok());
-//    static String ERROR = JSON.toJSONString(Result.error());
+////    static String SUCCESS = JSON.toJSONString(Result.ok());
+////    static String ERROR = JSON.toJSONString(Result.error());
 //
 //    @Pointcut(value = "execution(* com.beeasy.hzback.modules.*.controller..*(..)) ")
 //    public void point(){}
@@ -43,18 +41,12 @@
 //        ProceedingJoinPoint joinPoint
 //    ) {
 //
-//        Signature signature = joinPoint.getSignature();
-//        MethodSignature methodSignature = (MethodSignature) signature;
+////        Signature signature = joinPoint.getSignature();
+////        MethodSignature methodSignature = (MethodSignature) signature;
 //        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-//        Object[] args = joinPoint.getArgs();
+//        String url = request.getRequestURI();
+//        int a = 1;
 //
-//        for(int i = 0; i < args.length; i++){
-//            Object arg = args[i];
-//            if(arg instanceof BindingResult){
-//                if(((BindingResult) arg).hasErrors()){
-//                    return Result.error((BindingResult) arg);
-//                }
-//            }
 //
 ////            if(zed.getEntityMap().containsValue(arg.getClass())){
 ////                CriteriaBuilder cb = entityManager.getCriteriaBuilder();
@@ -68,23 +60,15 @@
 ////                Object target = q.getSingleResult();
 ////                args[i] = target;
 ////            }
+////        }
+//
+//        try {
+//            return joinPoint.proceed();
+//        } catch (Throwable throwable) {
+//            throwable.printStackTrace();
 //        }
 //
-//        Object result = null;
-//        try {
-//            result = joinPoint.proceed();
-//            if(result instanceof Boolean){
-//                result = result.equals(true) ? Result.ok() : Result.error();
-//            }
-//        } catch (Throwable throwable) {
-//            if(throwable instanceof RestException){
-//                return Result.error(((RestException) throwable).getSimpleMessage());
-//            }
-//            else {
-//                throwable.printStackTrace();
-//            }
-//        }
-//        return result;
+//        return null;
 //    }
 //
 //

@@ -1,5 +1,6 @@
 package com.beeasy.hzback.core.security;
 
+import com.beeasy.hzback.modules.system.dao.IUserAllowApiDao;
 import com.beeasy.hzback.modules.system.dao.IUserDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -22,6 +23,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     IUserDao userDao;
+    @Autowired
+    IUserAllowApiDao allowApiDao;
 
     @Bean
     CustomUserService customUserService(){ //注册UserDetailsService 的bean
@@ -83,7 +86,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .csrf().disable()
 //                .cors().disable()
-                .addFilter(new JWTAuthenticationFilter(authenticationManager(),jwtTokenUtil(),customUserService(), userDao));
+                .addFilter(new JWTAuthenticationFilter(authenticationManager(),jwtTokenUtil(),customUserService(), userDao, allowApiDao));
 
 //        .addFilterBefore(new JWTAuthenticationFilter(authenticationManager(),jwtTokenUtil(),customUserService(), userDao), UsernamePasswordAuthenticationFilter.class);
 

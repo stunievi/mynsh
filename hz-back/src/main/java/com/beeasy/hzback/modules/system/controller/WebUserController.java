@@ -41,8 +41,7 @@ public class WebUserController  {
     @ApiOperation(value = "得到我的功能授权")
     @RequestMapping(value = "/myMethods", method = RequestMethod.GET)
     public Result getMyMethods(){
-        Object obj = globalPermissionDao.findTopByTypeAndObjectIdAndUserTypeAndLinkId(GlobalPermission.Type.USER_METHOD, 0, GlobalPermission.UserType.USER, Utils.getCurrentUserId()).orElse(null);
-        return Result.ok(obj);
+        return Result.ok(userService.getUserMethods(Utils.getCurrentUserId()));
     }
 
 }

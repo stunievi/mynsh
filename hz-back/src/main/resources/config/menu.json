@@ -3,11 +3,11 @@
     "我的工作台": {
       "href": "/htmlsrc/bench/myBench.html",
       "待处理任务": {
-        "api": "/api/workflow/myPubWorks",
+        "api": ["/api/workflow/myPubWorks"],
         "id": "#taskType1-tab"
       },
       "已处理任务": {
-        "api": "/api/workflow/myOwnWorks"
+        "api": ["/api/workflow/myOwnWorks"]
       },
       "部门待处理任务": {},
       "部门已处理任务": {},

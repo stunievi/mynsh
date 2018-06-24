@@ -21,6 +21,6 @@ public class JSONConverter implements AttributeConverter<Object,String> {
 
     @Override
     public Object convertToEntityAttribute(String dbData) {
-        return JSON.parseObject(dbData);
+        return JSON.parse(dbData);
     }
 }

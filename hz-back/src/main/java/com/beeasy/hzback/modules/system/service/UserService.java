@@ -2,6 +2,7 @@ package com.beeasy.hzback.modules.system.service;
 
 import bin.leblanc.classtranslate.Transformer;
 import bin.leblanc.maho.RPCMapping;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.core.exception.RestException;
 import com.beeasy.hzback.core.helper.ChineseToEnglish;
@@ -57,6 +58,8 @@ public class UserService implements IUserService {
     @Value("${filecloud.commonPassword}")
     String cloudCommonPassword;
 
+    @Autowired
+    IUserAllowApiDao userAllowApiDao;
     @Autowired
     IGlobalPermissionDao globalPermissionDao;
     @Autowired
@@ -798,6 +801,11 @@ public class UserService implements IUserService {
             //更新授权内容
             globalPermission.setDescription(info);
             globalPermission = globalPermissionDao.save(globalPermission);
+
+            //更新用户授权表
+            if(pType.equals(GlobalPermission.Type.USER_METHOD)){
+                cacheUserMethods(linkId, (JSONArray) info);
+            }
             //更新授权中间表
 //            globalPermissionService.syncGlobalPermissionCenterAdded(globalPermission);
             return globalPermission.getId();
@@ -810,6 +818,35 @@ public class UserService implements IUserService {
 //            globalPermissionService.syncGlobalPermissionCenterDeleted(gpids);
 //        }
         return count > 0;
+    }
+
+
+    public JSONArray getUserMethods(long uid){
+        Object obj = globalPermissionDao.findTopByTypeAndObjectIdAndUserTypeAndLinkId(GlobalPermission.Type.USER_METHOD, 0, GlobalPermission.UserType.USER, uid).orElse(null);
+        return (JSONArray) obj;
+    }
+
+    public void cacheUserMethods(long uid, JSONArray array){
+        userAllowApiDao.deleteAllByUserId(uid);
+        JSONObject menu = cache.getMenus();
+        for (Object o : array) {
+            if(o instanceof String){
+                String str = (String) o;
+                JSONObject item = getChildItemByIndex(menu, str);
+                if(item.containsKey("api")){
+                    JSONArray apis = item.getJSONArray("api");
+                    if(null == apis){
+                        continue;
+                    }
+                    for (Object api : apis) {
+                        UserAllowApi allowApi = new UserAllowApi();
+                        allowApi.setUserId(uid);
+                        allowApi.setApi((String) api);
+                        userAllowApiDao.save(allowApi);
+                    }
+                }
+            }
+        }
     }
 
 
@@ -900,6 +937,18 @@ public class UserService implements IUserService {
                 .getResultList();
     }
 
+    private JSONObject getChildItemByIndex(JSONObject item, String path){
+        String[] ps = path.trim().split("\\.");
+        JSONObject result = item;
+        for (String p : ps) {
+            Object obj = result.get(p);
+            if(null == obj || !(obj instanceof JSONObject)){
+                return new JSONObject();
+            }
+            result = (JSONObject) obj;
+        }
+        return result;
+    }
 
 
 }

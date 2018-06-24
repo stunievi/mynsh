@@ -2,6 +2,7 @@ package com.beeasy.hzback.core.security;
 
 import com.alibaba.fastjson.JSON;
 import com.beeasy.hzback.core.helper.Result;
+import com.beeasy.hzback.modules.system.dao.IUserAllowApiDao;
 import com.beeasy.hzback.modules.system.dao.IUserDao;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,12 +28,14 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
     private JwtTokenUtil jwtTokenUtil;
     private CustomUserService customUserService;
     private IUserDao userDao;
+    private IUserAllowApiDao allowApiDao;
 
-    public JWTAuthenticationFilter(AuthenticationManager authenticationManager, JwtTokenUtil jwtTokenUtil, CustomUserService customUserService, IUserDao userDao) {
+    public JWTAuthenticationFilter(AuthenticationManager authenticationManager, JwtTokenUtil jwtTokenUtil, CustomUserService customUserService, IUserDao userDao, IUserAllowApiDao allowApiDao) {
         super(authenticationManager);
         this.jwtTokenUtil = jwtTokenUtil;
         this.customUserService = customUserService;
         this.userDao = userDao;
+        this.allowApiDao = allowApiDao;
     }
 
     @Override
@@ -46,7 +49,7 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
 
             if (authentication != null) {
 //                User user = (User) authentication.getPrincipal();
-//                String url = request.getServletPath();
+                String url = request.getServletPath();
                 //得到用户的授权列表
                 //没有的话暂时略过
 //                Optional<RolePermission> rolePermission = user.getMethodPermission();
@@ -56,9 +59,10 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
 //                if (rolePermission.get().getUnbindItems().contains(url)) {
 //                    break;
 //                }
-
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-                break;
+                if(allowApiDao.countByUserIdAndApi((Long)authentication.getPrincipal(), url) > 0){
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                    break;
+                }
             }
 
             //授权失败
@@ -66,6 +70,8 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
             response.setHeader("content-type", "application/json;charset=UTF-8");
             Result result = Result.error("权限验证失败");
             response.getWriter().write(JSON.toJSONString(result));
+            return;
+
         } while (false);
         chain.doFilter(request, response);
 
