@@ -599,7 +599,7 @@ public class WorkflowService{
      * @param pageable
      * @return
      */
-    public List<WorkflowInstance> getUserUndealedWorks(Collection<Long> uids, Long lessId, Pageable pageable){
+    public Page<WorkflowInstance> getUserUndealedWorks(Collection<Long> uids, Long lessId, Pageable pageable){
         if(lessId == null){
             lessId = Long.MAX_VALUE;
         }
@@ -613,7 +613,7 @@ public class WorkflowService{
      * @param pageable
      * @return
      */
-    public List<WorkflowInstance> getUserDealedWorks(Collection<Long> uids, Long lessId, Pageable pageable){
+    public Page<WorkflowInstance> getUserDealedWorks(Collection<Long> uids, Long lessId, Pageable pageable){
         if(null == lessId){
             lessId = Long.MAX_VALUE;
         }
@@ -627,7 +627,7 @@ public class WorkflowService{
      * @param pageable
      * @return
      */
-    public List<WorkflowInstance> getDepartmentUndealedWorks(Collection<Long> uids, Long lessId, Pageable pageable){
+    public Page<WorkflowInstance> getDepartmentUndealedWorks(Collection<Long> uids, Long lessId, Pageable pageable){
         if(null == lessId) lessId = Long.MAX_VALUE;
         return instanceDao.findNeedToDealWorksFromDepartments(uids, WorkflowInstance.State.DEALING, lessId, pageable);
     }
@@ -640,7 +640,7 @@ public class WorkflowService{
      * @param pageable
      * @return
      */
-    public List<WorkflowInstance> getDepartmentDealedWorks(Collection<Long> uids, Long lessId, Pageable pageable){
+    public Page<WorkflowInstance> getDepartmentDealedWorks(Collection<Long> uids, Long lessId, Pageable pageable){
         if(null == lessId) lessId = Long.MAX_VALUE;
         return instanceDao.findNeedToDealWorksFromDepartments(uids, WorkflowInstance.State.FINISHED, lessId, pageable);
     }
@@ -653,7 +653,7 @@ public class WorkflowService{
      * @param pageable
      * @return
      */
-    public List<WorkflowInstance> getUserCanAcceptCommonWorks(Collection<Long> uids, Long lessId, Pageable pageable){
+    public Page<WorkflowInstance> getUserCanAcceptCommonWorks(Collection<Long> uids, Long lessId, Pageable pageable){
         if(null == lessId) lessId = Long.MAX_VALUE;
         return instanceDao.findCommonWorks(Collections.singleton(GlobalPermission.Type.WORKFLOW_PUB), uids, lessId, pageable);
     }
@@ -666,7 +666,7 @@ public class WorkflowService{
      * @param pageable
      * @return
      */
-    public List<WorkflowInstance> getUserObservedWorks(Collection<Long> uids, Long lessId, Pageable pageable){
+    public Page<WorkflowInstance> getUserObservedWorks(Collection<Long> uids, Long lessId, Pageable pageable){
         if(null == lessId) lessId = Long.MAX_VALUE;
         return instanceDao.findObserveredWorks(Collections.singleton(GlobalPermission.Type.WORKFLOW_OBSERVER), uids, lessId, pageable);
     }

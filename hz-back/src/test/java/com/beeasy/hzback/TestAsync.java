@@ -395,8 +395,8 @@ public class TestAsync {
 //        flag = userService.isChildDepartment(29,38);
 //        Assert.assertFalse(flag);
 
-    List s =         instanceDao.findObserveredWorks(Collections.singletonList(GlobalPermission.Type.WORKFLOW_OBSERVER), Collections.singleton(414l), Long.MAX_VALUE, new PageRequest(0,100));
-    Assert.assertTrue(s.size() > 0);
+//    List s =         instanceDao.findObserveredWorks(Collections.singletonList(GlobalPermission.Type.WORKFLOW_OBSERVER), Collections.singleton(414l), Long.MAX_VALUE, new PageRequest(0,100));
+//    Assert.assertTrue(s.size() > 0);
 //        WorkflowModel model = workflowService.findModel(61).orElse(null);
 //        WorkflowModelEdit edit = new WorkflowModelEdit();
 //        edit.setId(model.getId());

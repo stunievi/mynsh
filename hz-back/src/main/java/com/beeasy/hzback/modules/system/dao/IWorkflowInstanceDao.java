@@ -55,7 +55,7 @@ public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Lon
             //分页
             "i.id <= :lessId " +
             "order by i.addTime, i.id desc")
-    List<WorkflowInstance> findNeedToDealWorks(
+    Page<WorkflowInstance> findNeedToDealWorks(
             @Param("types") Collection<GlobalPermission.Type> types,
             @Param("uids") Collection<Long> uids,
             @Param("lessId") Long lessId,
@@ -64,7 +64,7 @@ public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Lon
 
     //我已执行过的任务
     @Query(value = "select distinct ins from WorkflowInstance ins join ins.nodeList nl join nl.attributeList al where al.dealUser.id in :uids and nl.finished = true and ins.id <= :lessId order by ins.addTime desc")
-    List<WorkflowInstance> findDealedWorks(@Param("uids") Collection<Long> uids, @Param("lessId") Long lessId, Pageable pageable);
+    Page<WorkflowInstance> findDealedWorks(@Param("uids") Collection<Long> uids, @Param("lessId") Long lessId, Pageable pageable);
 
     //部门未执行任务
     @Query("select distinct i from WorkflowInstance i, User u " +
@@ -86,7 +86,7 @@ public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Lon
             //分页
             "i.id <= :lessId " +
             "order by i.addTime, i.id desc")
-    List<WorkflowInstance> findNeedToDealWorksFromDepartments(
+    Page<WorkflowInstance> findNeedToDealWorksFromDepartments(
             @Param("uids") Collection<Long> uids,
             @Param("state") WorkflowInstance.State state,
             @Param("lessId") Long lessId,
@@ -122,7 +122,7 @@ public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Lon
                     //
                     //分页
                     "ins.id <= :lessId and user.id in :uids order by ins.addTime, ins.id desc")
-    List<WorkflowInstance> findObserveredWorks(
+    Page<WorkflowInstance> findObserveredWorks(
             @Param("types") Collection<GlobalPermission.Type> types,
             @Param("uids") Collection<Long> uids,
             @Param("lessId") Long lessId,
@@ -144,7 +144,7 @@ public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Lon
                     "ins.id <= :lessId and " +
                     "user.id in :uids " +
                     "order by ins.addTime, ins.id desc ")
-    List<WorkflowInstance> findCommonWorks(
+    Page<WorkflowInstance> findCommonWorks(
             @Param("types") Collection<GlobalPermission.Type> types,
             @Param("uids") Collection<Long> uids,
             @Param("lessId") Long lessId,
