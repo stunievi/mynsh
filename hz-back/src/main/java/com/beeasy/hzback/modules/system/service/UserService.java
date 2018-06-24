@@ -382,6 +382,7 @@ public class UserService implements IUserService {
         }
 
         oldPassword = DigestUtils.md5DigestAsHex(oldPassword.getBytes());
+        newPassword = DigestUtils.md5DigestAsHex(newPassword.getBytes());
         return Result.finish(userDao.modifyPassword(uid, oldPassword, newPassword) > 0);
     }
 

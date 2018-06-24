@@ -395,7 +395,10 @@ public class TestAsync {
 //        flag = userService.isChildDepartment(29,38);
 //        Assert.assertFalse(flag);
 
-//    List s =         instanceDao.findObserveredWorks(Collections.singletonList(GlobalPermission.Type.WORKFLOW_OBSERVER), Collections.singleton(414l), Long.MAX_VALUE, new PageRequest(0,100));
+        int ccc = globalPermissionDao.hasPermission(74l,Collections.singleton(GlobalPermission.Type.WORKFLOW_PUB),29);
+
+    Object o =         instanceDao.findObserveredWorks(Collections.singletonList(GlobalPermission.Type.WORKFLOW_OBSERVER), Collections.singleton(414l), Long.MAX_VALUE, new PageRequest(0,100));
+    int c = 1;
 //    Assert.assertTrue(s.size() > 0);
 //        WorkflowModel model = workflowService.findModel(61).orElse(null);
 //        WorkflowModelEdit edit = new WorkflowModelEdit();
@@ -428,7 +431,7 @@ public class TestAsync {
         Assert.assertFalse(userDao.hasDepartment(414,42) > 0);
 
         List obj = departmentDao.getChildQuartersIds(41);
-        int c = 1;
+        int ddddc = 1;
 
 //        obj = userDao.getUidsFromDepartment(Collections.singleton(41l));
 //        int d = 1;
