@@ -93,6 +93,13 @@ public interface IUserDao extends JpaRepository<User,Long> ,JpaSpecificationExec
     @Query(value = "update User set password = :password where id = :id and password = :oldPassword")
     int modifyPassword(@Param("id") long id, @Param("oldPassword") String oldPassword, @Param("password") String password);
 
+    //检查手机号是否重复
+    @Query(value = "select count(u) from User u where u.phone = :phone and u.id <> :uid")
+    int hasThisPhone(@Param("uid") long uid, @Param("phone") String phone);
+
+    @Query(value = "select count(u) from User u where u.email = :email and u.id <> :uid")
+    int hasThisEmail(@Param("uid") long uid, @Param("email") String email);
+
     @Query(value = "select u.id,u.trueName,u.phone,u.profile.faceId,q.id,u.letter,u.username from User u join u.quarters q where q.id > 0 and u.baned = false ")
     List getNormalUsers();
 

@@ -2,6 +2,7 @@ package com.beeasy.hzback.modules.system.service;
 
 import bin.leblanc.classtranslate.Transformer;
 import bin.leblanc.maho.RPCMapping;
+import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.core.exception.RestException;
 import com.beeasy.hzback.core.helper.ChineseToEnglish;
 import com.beeasy.hzback.core.helper.Result;
@@ -18,6 +19,7 @@ import com.beeasy.hzback.modules.system.form.*;
 import jdk.nashorn.internal.objects.Global;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
@@ -28,7 +30,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityManager;
@@ -380,6 +381,38 @@ public class UserService implements IUserService {
         oldPassword = DigestUtils.md5DigestAsHex(oldPassword.getBytes());
         return Result.finish(userDao.modifyPassword(uid, oldPassword, newPassword) > 0);
     }
+
+    /**
+     * 修改用户资料
+     * @param request
+     * @return
+     */
+    public Result modifyProfile(long uid, ProfileEditRequest request){
+        User user = findUser(uid).orElse(null);
+        if(null == user){
+            return Result.error();
+        }
+        if(!StringUtils.isEmpty(request.getTrueName())){
+            user.setTrueName(request.getTrueName());
+        }
+        if(!StringUtils.isEmpty(request.getPhone())){
+            //查找是否有相同的手机号
+            if(userDao.hasThisPhone(uid, request.getPhone()) > 1){
+                return Result.error("已经有相同的手机号");
+            }
+            user.setPhone(request.getPhone());
+        }
+        if(!StringUtils.isEmpty(request.getEmail())){
+            if(userDao.hasThisEmail(uid, request.getEmail()) > 1){
+                return Result.error("已经有相同的邮箱");
+            }
+            user.setEmail(request.getEmail());
+        }
+        userDao.save(user);
+        return Result.ok();
+    }
+
+
 
     
     public User saveUser(User user) {
@@ -747,21 +780,23 @@ public class UserService implements IUserService {
     public List<Long> addGlobalPermission(GlobalPermission.Type pType, long objectId, GlobalPermission.UserType uType, List<Long> linkIds, Object info){
         return linkIds.stream().map(linkId -> {
             //检查是否已经有相同的授权
-            List ids = entityManager.createQuery("select gp.id from GlobalPermission gp where gp.type = :ptype and gp.objectId = :objectId and gp.userType = :uType and gp.linkId = :linkId")
-                    .setParameter("ptype",pType)
-                    .setParameter("objectId",objectId)
-                    .setParameter("uType",uType)
-                    .setParameter("linkId",linkId)
-                    .setMaxResults(1)
-                    .getResultList();
-            if(ids.size() > 0){
-                return (Long)ids.get(0);
-            }
-            GlobalPermission globalPermission = new GlobalPermission();
+            GlobalPermission globalPermission = globalPermissionDao.findTopByTypeAndObjectIdAndUserTypeAndLinkId(pType,objectId,uType,linkId).orElse(new GlobalPermission());
+//            List ids = entityManager.createQuery("select gp.id from GlobalPermission gp where gp.type = :ptype and gp.objectId = :objectId and gp.userType = :uType and gp.linkId = :linkId")
+//                    .setParameter("ptype",pType)
+//                    .setParameter("objectId",objectId)
+//                    .setParameter("uType",uType)
+//                    .setParameter("linkId",linkId)
+//                    .setMaxResults(1)
+//                    .getResultList();
+//            if(ids.size() > 0){
+//                return (Long)ids.get(0);
+//            }
             globalPermission.setType(pType);
             globalPermission.setObjectId(objectId);
             globalPermission.setUserType(uType);
             globalPermission.setLinkId(linkId);
+            //更新授权内容
+            globalPermission.setDescription(info);
             globalPermission = globalPermissionDao.save(globalPermission);
             //更新授权中间表
 //            globalPermissionService.syncGlobalPermissionCenterAdded(globalPermission);

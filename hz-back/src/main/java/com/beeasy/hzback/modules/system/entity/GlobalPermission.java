@@ -41,7 +41,7 @@ public class GlobalPermission extends AbstractBaseEntity{
     //授权详情说明
     @Column(columnDefinition = JSONConverter.type)
     @Convert(converter = JSONConverter.class)
-    JSONObject description;
+    Object description;
 
     /**
      * 授权类型
@@ -60,7 +60,12 @@ public class GlobalPermission extends AbstractBaseEntity{
         //业务主办
         WORKFLOW_MAIN_QUARTER,
         //业务协办
-        WORKFLOW_SUPPORT_QUARTER
+        WORKFLOW_SUPPORT_QUARTER,
+
+        //用户权限授权
+        USER_METHOD
+
+        
     }
 
     /**

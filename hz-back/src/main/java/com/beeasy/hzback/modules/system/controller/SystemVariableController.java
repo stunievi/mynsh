@@ -26,16 +26,15 @@ public class SystemVariableController {
     }
 
     @ApiOperation(value = "得到系统变量")
-    @RequestMapping(value = "/get/{key}", method = RequestMethod.GET)
-    public Result get(@PathVariable String key){
+    @RequestMapping(value = "/get", method = RequestMethod.GET)
+    public Result get(@RequestParam String key){
         return Result.ok(systemService.get(key));
     }
 
     @ApiOperation(value = "删除系统变量")
-    @RequestMapping(value = "/delete/{key}", method = RequestMethod.GET)
-    public Result delete(@PathVariable String key){
+    @RequestMapping(value = "/delete", method = RequestMethod.GET)
+    public Result delete(@RequestParam String key){
         return Result.ok(systemService.delete(key));
     }
-
 
 }

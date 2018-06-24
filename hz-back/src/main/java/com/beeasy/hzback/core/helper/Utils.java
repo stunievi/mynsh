@@ -101,6 +101,19 @@ public class Utils {
         return "";
     }
 
+    public static List<Long> convertIds(String ids){
+        List<Long> list = new ArrayList<>();
+        for (String s : ids.split(",")) {
+            try{
+                list.add(Long.valueOf(s.trim()));
+            }
+            catch (Exception e){
+
+            }
+        }
+        return list;
+    }
+
 //    public static User getCurrentUser() {
 //        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 //        return user;
