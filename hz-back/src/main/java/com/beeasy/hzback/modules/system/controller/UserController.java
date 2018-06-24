@@ -142,6 +142,31 @@ public class UserController {
     }
 
 
+    @ApiOperation(value = "修改密码")
+    @RequestMapping(value = "/modifyPassword", method = RequestMethod.POST)
+    public Result modifyPassword(
+            @Valid @RequestBody ModifyPasswordRequest request
+    ){
+        return userService.modifyPassword(Utils.getCurrentUserId(), request.getOldPassword(), request.getNewPassword());
+    }
+
+    @ApiOperation(value = "修改个人资料")
+    @RequestMapping(value = "/modifyProfile", method = RequestMethod.POST)
+    public Result modifyProfile(
+            @Valid @RequestBody ProfileEditRequest request
+    ){
+        return userService.modifyProfile(Utils.getCurrentUserId(), request);
+    }
+
+
+    @ApiOperation(value = "得到我的功能授权")
+    @RequestMapping(value = "/myMethods", method = RequestMethod.GET)
+    public Result getMyMethods(){
+        return Result.ok(userService.getUserMethods(Utils.getCurrentUserId()));
+    }
+
+
+
 
 //    @ApiOperation(value = "设置用户岗位", notes = "岗位设置, 需一次性传递所有岗位的ID, 无效的岗位会被略过")
 //    @ApiImplicitParams({

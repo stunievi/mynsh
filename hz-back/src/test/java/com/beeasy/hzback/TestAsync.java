@@ -74,7 +74,7 @@ public class TestAsync {
         List<Quarters> qs = quartersDao.findAll();
         List<WorkflowModel> models = workflowModelDao.findAll();
         for (WorkflowModel model : models) {
-            userService.addGlobalPermission(GlobalPermission.Type.WORKFLOW_POINTER, model.getId(), GlobalPermission.UserType.QUARTER, qs.stream().map(Quarters::getId).collect(Collectors.toList()), null);
+//            userService.addGlobalPermission(GlobalPermission.Type.WORKFLOW_POINTER, model.getId(), GlobalPermission.UserType.QUARTER, qs.stream().map(Quarters::getId).collect(Collectors.toList()), null);
         }
     }
 
@@ -395,9 +395,10 @@ public class TestAsync {
 //        flag = userService.isChildDepartment(29,38);
 //        Assert.assertFalse(flag);
 
-        int ccc = globalPermissionDao.hasPermission(74l,Collections.singleton(GlobalPermission.Type.WORKFLOW_PUB),29);
+        int ccc = workflowModelDao.isManagerForWorkflow(414l, 60l);
+//        int ccc = globalPermissionDao.hasPermission(74l,Collections.singleton(GlobalPermission.Type.WORKFLOW_PUB),29);
 
-    Object o =         instanceDao.findObserveredWorks(Collections.singletonList(GlobalPermission.Type.WORKFLOW_OBSERVER), Collections.singleton(414l), Long.MAX_VALUE, new PageRequest(0,100));
+//    Object o =         instanceDao.findObserveredWorks(Collections.singletonList(GlobalPermission.Type.WORKFLOW_OBSERVER), Collections.singleton(414l), Long.MAX_VALUE, new PageRequest(0,100));
     int c = 1;
 //    Assert.assertTrue(s.size() > 0);
 //        WorkflowModel model = workflowService.findModel(61).orElse(null);

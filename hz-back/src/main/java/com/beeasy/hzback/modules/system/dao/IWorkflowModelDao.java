@@ -39,6 +39,15 @@ public interface IWorkflowModelDao extends JpaRepository<WorkflowModel,Long>{
     @Query(value = "DELETE FROM t_workflowmodel_department WHERE model_id in :ids", nativeQuery = true)
     int deleteDepartments(@Param("ids") Collection<Long> ids);
 
+    //判断一个用户是不是某个工作流的主管
+    @Query(value = "select count(u.id) from WorkflowModel model, User u " +
+            "join model.departments d " +
+            "join u.quarters q " +
+            "where " +
+                "q.manager = true and model.id = :mid and u.id = :uid and " +
+                "(select count(dd) from Department dd where dd.id = d.id and q.code like concat(dd.code,'_%') ) > 0")
+    int isManagerForWorkflow(@Param("uid") long uid, @Param("mid") long mid);
+
     //得到一个模型起始节点的可处理人
 //    @Query(value = "select user.id from WorkflowModel m, User user join user.quarters qs join m.nodeModels where nm.start = true and m.id = :id")
 //    List<Long> getFirstNodeUsers(@Param("id") Long id);

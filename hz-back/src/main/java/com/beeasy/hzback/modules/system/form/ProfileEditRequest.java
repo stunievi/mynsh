@@ -14,7 +14,7 @@ public class ProfileEditRequest {
     @Pattern(regexp = "^[\\u4E00-\\u9FA5\\uf900-\\ufa2d·s]{2,20}$", message = "请输入正确的姓名")
     String trueName;
 
-    @Pattern(regexp = "^((13[0-9])|(14[5|7])|(15([0-3]|[5-9]))|(18[0,5-9]))\\\\d{8}$", message = "请输入正确的手机号码")
+    @Pattern(regexp = "^((13[0-9])|(14[5|7])|(15([0-3]|[5-9]))|(18[0,5-9]))\\d{8}$", message = "请输入正确的手机号码")
     String phone;
 
     @Email(message = "请输入正确的邮箱")

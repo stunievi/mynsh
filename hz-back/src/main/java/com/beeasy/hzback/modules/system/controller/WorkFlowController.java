@@ -6,16 +6,15 @@ import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.modules.exception.CannotFindEntityException;
 import com.beeasy.hzback.modules.system.dao.IWorkflowInstanceDao;
 import com.beeasy.hzback.modules.system.dao.IWorkflowModelDao;
-import com.beeasy.hzback.modules.system.entity.WorkflowInstance;
-import com.beeasy.hzback.modules.system.entity.WorkflowModel;
-import com.beeasy.hzback.modules.system.entity.WorkflowNode;
-import com.beeasy.hzback.modules.system.entity.WorkflowNodeInstance;
+import com.beeasy.hzback.modules.system.entity.*;
 import com.beeasy.hzback.modules.system.form.*;
+import com.beeasy.hzback.modules.system.service.UserService;
 import com.beeasy.hzback.modules.system.service.WorkflowService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import jdk.nashorn.internal.objects.Global;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,8 +26,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Api(tags = "工作流API", value = "编辑模型需要管理员权限")
 @Transactional
@@ -38,6 +36,8 @@ public class WorkFlowController {
 
     @Autowired
     IWorkflowInstanceDao instanceDao;
+    @Autowired
+    UserService userService;
 
     @Autowired
     IWorkflowModelDao workflowModelDao;
@@ -179,10 +179,37 @@ public class WorkFlowController {
     @ApiOperation(value = "编辑工作流")
     @PutMapping("/model/edit")
     public Result edit2(
-            @Valid @RequestBody WorkflowModelEdit edit,
-            BindingResult bindingResult
+            @Valid @RequestBody WorkflowModelEdit edit
     ){
         return Result.finish(workflowService.editWorkflowModel(edit));
+    }
+
+    @ApiOperation(value = "授权设置")
+    @RequestMapping(value = "/model/permission/set", method = RequestMethod.POST)
+    public Result setPermission(
+            @Valid @RequestBody GlobalPermissionEditRequest request
+    ){
+        return Result.ok(userService.addGlobalPermission(request.getType(),request.getObjectId(), request.getUserType(), request.getLinkIds(),null));
+    }
+
+    @ApiOperation(value = "授权查询")
+    @RequestMapping(value = "/model/permission/get", method = RequestMethod.POST)
+    public Result getPermissions(
+            @RequestParam GlobalPermission.Type type,
+            @RequestParam long objectId
+    ){
+        GlobalPermission.Type[] types = {
+            GlobalPermission.Type.WORKFLOW_PUB,
+            GlobalPermission.Type.WORKFLOW_OBSERVER,
+            GlobalPermission.Type.WORKFLOW_MAIN_QUARTER,
+            GlobalPermission.Type.WORKFLOW_SUPPORT_QUARTER
+        };
+        //如果不包括这些授权, 那么抛出错误
+        List<GlobalPermission.Type> list = Arrays.asList(types);
+        if(!list.contains(type)){
+            return Result.error();
+        }
+        return Result.ok(userService.getGlobalPermissions(Collections.singleton(type),objectId));
     }
 
 

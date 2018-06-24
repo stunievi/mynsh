@@ -815,6 +815,16 @@ public class UserService implements IUserService {
         }).filter(linkId -> linkId > 0).collect(Collectors.toList());
     }
 
+    /**
+     * 按类型和对象得到授权列表
+     * @param types
+     * @param objectId
+     * @return
+     */
+    public List<GlobalPermission> getGlobalPermissions(Collection<GlobalPermission.Type> types, long objectId){
+        return globalPermissionDao.findAllByTypeInAndObjectId(types, objectId);
+    }
+
     public boolean deleteGlobalPermission(Long ...gpids){
         int count = globalPermissionDao.deleteAllByIdIn(Arrays.asList(gpids));
 //        if(count > 0){

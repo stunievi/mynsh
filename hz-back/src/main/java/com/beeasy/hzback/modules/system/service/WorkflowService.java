@@ -545,7 +545,8 @@ public class WorkflowService{
      * @return
      */
     public boolean canPoint(long modelId, User user) {
-        return globalPermissionDao.hasPermission(user.getId(), Collections.singleton(GlobalPermission.Type.WORKFLOW_POINTER), modelId) > 0;
+        return modelDao.isManagerForWorkflow(user.getId(), modelId) > 0;
+//        return globalPermissionDao.hasPermission(user.getId(), Collections.singleton(GlobalPermission.Type.WORKFLOW_POINTER), modelId) > 0;
 //        return model.getPermissions().stream().anyMatch(p -> p.getType().equals(WorkflowExtPermission.Type.POINTER) && user.hasQuarters(p.getQid()));
     }
 
@@ -562,7 +563,8 @@ public class WorkflowService{
                 //1.任务正在进行中
                 instance.getState().equals(WorkflowInstance.State.DEALING) &&
                         //2.拥有指派该任务的权利
-                        globalPermissionDao.hasPermission(user.getId(), Collections.singleton(GlobalPermission.Type.WORKFLOW_POINTER), instance.getModelId()) > 0;
+                        canPoint(instance.getModelId(), user);
+//                        globalPermissionDao.hasPermission(user.getId(), Collections.singleton(GlobalPermission.Type.WORKFLOW_POINTER), instance.getModelId()) > 0;
 //                        && instance.getWorkflowModel().getPermissions().stream().anyMatch(p -> p.getType().equals(WorkflowExtPermission.Type.POINTER) && user.hasQuarters(p.getQid()));
 //                && firstNode.getPersons().stream().anyMatch(p -> p.getType().equals(Type.MAIN_QUARTERS) && dealer.hasQuarters(p.getUid()))
     }
@@ -1040,6 +1042,8 @@ public class WorkflowService{
             if (edit.isOpen()) {
                 model.setFirstOpen(true);
             }
+
+            //工作流所属部门
             if(edit.getDepartmentIds().size() > 0){
                 modelDao.deleteDepartments(Collections.singleton(edit.getId()));
                 model.getDepartments().clear();

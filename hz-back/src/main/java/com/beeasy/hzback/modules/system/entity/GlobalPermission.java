@@ -53,7 +53,7 @@ public class GlobalPermission extends AbstractBaseEntity{
         //允许观察工作流
         WORKFLOW_OBSERVER,
         //允许指派工作流
-        WORKFLOW_POINTER,
+//        WORKFLOW_POINTER,
         //允许发起工作流
         WORKFLOW_PUB,
 

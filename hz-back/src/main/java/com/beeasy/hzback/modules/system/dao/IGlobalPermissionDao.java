@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 
 import javax.swing.text.html.Option;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -49,4 +50,6 @@ public interface IGlobalPermissionDao extends JpaRepository<GlobalPermission,Lon
     int hasPermission(@Param("uid") long uid, @Param("types") Collection<GlobalPermission.Type> types, @Param("oid") long oid);
 
     Optional<GlobalPermission> findTopByTypeAndObjectIdAndUserTypeAndLinkId(GlobalPermission.Type type, long objectId, GlobalPermission.UserType userType, long linkId);
+
+    List<GlobalPermission> findAllByTypeInAndObjectId(Collection<GlobalPermission.Type> types, long objectId);
 }
