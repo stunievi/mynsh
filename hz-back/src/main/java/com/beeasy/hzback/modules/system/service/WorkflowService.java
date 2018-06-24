@@ -227,13 +227,14 @@ public class WorkflowService{
             workflowInstance.setState(WorkflowInstance.State.DEALING);
         }
 
-        //插入第一个节点
-        workflowInstance.addNode(firstNode,true);
         //第一个执行人已经确定
 //        workflowInstance.getNodeList().get(0).setDealer(dealerUser);
         workflowInstance.getNodeList().get(0).setDealerId(null == dealerUser ? null : dealerUser.getId());
-
         workflowInstance = saveWorkflowInstance(workflowInstance);
+
+        //插入第一个节点
+        WorkflowNodeInstance nodeInstance = workflowInstance.addNode(firstNode,false);
+        nodeInstanceDao.save(nodeInstance);
 
         //记录日志
         logService.addLog(SystemTextLog.Type.WORKFLOW, workflowInstance.getId(), uid, "发布了任务");

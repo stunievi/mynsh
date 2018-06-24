@@ -82,7 +82,7 @@ public class WorkflowInstance {
     Long pubUserId;
 
     //处理节点列表
-    @OneToMany(mappedBy = "instance", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "instance", cascade = CascadeType.REMOVE)
     List<WorkflowNodeInstance> nodeList = new LinkedList<>();
 
     //固有属性
