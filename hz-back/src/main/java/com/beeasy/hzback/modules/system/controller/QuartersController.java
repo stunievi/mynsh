@@ -94,7 +94,7 @@ public class QuartersController {
     public Result delete(
             @RequestParam String id
     ){
-        return userService.deleteQuarters((Long[])Utils.convertIds(id).toArray());
+        return userService.deleteQuarters(Utils.convertIds(id));
     }
 
 }

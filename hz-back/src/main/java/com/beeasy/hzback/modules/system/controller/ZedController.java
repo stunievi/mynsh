@@ -55,7 +55,7 @@ public class ZedController {
 //
     @GetMapping("/bbb")
     public String test22(){
-        return Thread.currentThread().getName() + "f3e3k";
+        return Thread.currentThread().getName() + "shaoxiadddd日了狗了";
     }
 
 }

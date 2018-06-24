@@ -101,7 +101,8 @@ public class Utils {
         return "";
     }
 
-    public static List<Long> convertIds(String ids){
+
+    public static Long[] convertIds(String ids){
         List<Long> list = new ArrayList<>();
         for (String s : ids.split(",")) {
             try{
@@ -111,7 +112,8 @@ public class Utils {
 
             }
         }
-        return list;
+        Long[] arr = new Long[list.size()];
+        return list.toArray(arr);
     }
 
 //    public static User getCurrentUser() {

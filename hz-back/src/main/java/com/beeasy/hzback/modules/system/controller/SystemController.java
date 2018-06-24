@@ -33,7 +33,7 @@ public class SystemController  {
     public Result deleteGlobalPermission(
             @RequestParam String id
     ){
-        return Result.ok(userService.deleteGlobalPermission((Long[]) Utils.convertIds(id).toArray()));
+        return Result.ok(userService.deleteGlobalPermission(Utils.convertIds(id)));
     }
 
 
