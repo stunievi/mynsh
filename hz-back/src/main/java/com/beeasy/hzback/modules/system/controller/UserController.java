@@ -129,10 +129,17 @@ public class UserController {
     @ApiOperation(value = "用户功能模块授权")
     @RequestMapping(value = "/permission/set", method = RequestMethod.POST)
     public Result setUserMethodPermission(
-            @Valid @RequestBody JSONArray array
+            @Valid @RequestBody UserMethodsEditRequest request
     ){
-        return Result.ok(userService.addGlobalPermission(GlobalPermission.Type.USER_METHOD, 0, GlobalPermission.UserType.USER, Collections.singleton(Utils.getCurrentUserId()),array));
+        return Result.ok(userService.addGlobalPermission(GlobalPermission.Type.USER_METHOD, 0, GlobalPermission.UserType.USER, Collections.singleton(request.getId()),request.getArray()));
     }
+
+    @ApiOperation(value = "查看某个人的功能模块授权")
+    @RequestMapping(value = "/permission/get", method = RequestMethod.GET)
+    public Result getUserMethodPermissions(@RequestParam long uid){
+        return Result.ok(userService.getUserMethods(uid));
+    }
+
 
 
 //    @ApiOperation(value = "设置用户岗位", notes = "岗位设置, 需一次性传递所有岗位的ID, 无效的岗位会被略过")
