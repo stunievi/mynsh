@@ -178,7 +178,6 @@ public class WorkflowService{
             }
         }
 
-
         //任务主体
         WorkflowInstance workflowInstance = new WorkflowInstance();
         workflowInstance.setModelId(workflowModel.getId());
@@ -229,11 +228,12 @@ public class WorkflowService{
 
         //第一个执行人已经确定
 //        workflowInstance.getNodeList().get(0).setDealer(dealerUser);
-        workflowInstance.getNodeList().get(0).setDealerId(null == dealerUser ? null : dealerUser.getId());
+//        workflowInstance.getNodeList().get(0).setDealerId(null == dealerUser ? null : dealerUser.getId());
         workflowInstance = saveWorkflowInstance(workflowInstance);
 
         //插入第一个节点
         WorkflowNodeInstance nodeInstance = workflowInstance.addNode(firstNode,false);
+        nodeInstance.setDealerId(null == dealerUser ? null : dealerUser.getId());
         nodeInstanceDao.save(nodeInstance);
 
         //记录日志
@@ -2087,7 +2087,6 @@ public class WorkflowService{
                 Object cv = entry.getValue();
 
                 JSONObject object = new JSONObject();
-                object.put("cname",String.valueOf(ck));
                 if (cv instanceof Map) {
                     Map cvmap = (Map) cv;
                     object = (JSONObject) JSON.toJSON(cv);
@@ -2095,6 +2094,8 @@ public class WorkflowService{
                     //ename
                     object.put("ename",object.getString("name"));
                     object.remove("name");
+
+                    object.put("cname",String.valueOf(ck));
 
 //                    object.put("type",cvmap.get("type"));
 //                    object.put("type",cvmap.get("type"));
@@ -2126,6 +2127,7 @@ public class WorkflowService{
                     object.put("ename",args.get(0));
                     object.put("type",args.get(1));
                     object.put("required",args.get(0).equals("y"));
+                    object.put("cname",String.valueOf(ck));
 //                    cnt.setEname(args.get(0));
 //                    cnt.setType(args.get(1));
 //                    cnt.setRequired(args.get(2).equals("y"));
