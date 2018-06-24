@@ -29,7 +29,7 @@ public interface IQuartersDao extends JpaRepository<Quarters,Long>{
     @Query(value = "update Quarters set manager = :state where id in :qids")
     int updateManager(@Param("qids") Collection<Long> qids, @Param("state") boolean state);
 
-    @Query(value = "select count(q1) from Quarters q1 where ( select (q2.department) from Quarters q2 where q2.id = :id ) = q1.department and q1.name = :name")
+    @Query(value = "select count(q1) from Quarters q1 where ( select (q2.department) from Quarters q2 where q2.id = :id ) = q1.department and q1.name = :name and q1.id <> :id")
     int countSameNameFromDepartment(@Param("id") long id, @Param("name") String name);
 
     @Query(value = "select q.code from Quarters q where q.departmentId = :did order by q.code desc")
