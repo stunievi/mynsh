@@ -25,14 +25,14 @@ public class GlobalPermission extends AbstractBaseEntity{
     Long id;
 
     //授权类型
-    @Enumerated
+    @Enumerated(value = EnumType.STRING)
     Type type;
 
     //授权对象ID
     Long objectId;
 
     //授权者类型
-    @Enumerated
+    @Enumerated(value = EnumType.STRING)
     UserType userType;
 
     //授权者关联ID
@@ -65,7 +65,6 @@ public class GlobalPermission extends AbstractBaseEntity{
         //用户权限授权
         USER_METHOD
 
-
     }
 
     /**
@@ -77,7 +76,9 @@ public class GlobalPermission extends AbstractBaseEntity{
         //按岗位授权
         QUARTER,
         //按人员授权
-        USER
+        USER,
+        //按角色授权
+        ROLE
     }
 
 

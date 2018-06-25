@@ -19,20 +19,20 @@ public interface IGlobalPermissionDao extends JpaRepository<GlobalPermission,Lon
     class SQL{
         public static final String GET_UIDS = "select user.id from GlobalPermission gp, User user join user.quarters uq where gp.type in :types and gp.objectId = :oid and (" +
             //按人授权,直接取uid
-            "(gp.userType = 2 and gp.linkId = user.id) or " +
+            "(gp.userType = 'USER' and gp.linkId = user.id) or " +
             //按岗位授权,拥有这个岗位
-            "(gp.userType = 1 and uq.id = gp.linkId) or " +
+            "(gp.userType = 'QUARTER' and uq.id = gp.linkId) or " +
             //按部门授权,岗位在这个部门里
-            "(gp.userType = 0 and (select count(d.id)  from Department d where d.id = gp.linkId and uq.code like concat(d.code,'_%') ) > 0 )" +
+            "(gp.userType = 'DEPARTMENT' and (select count(d.id)  from Department d where d.id = gp.linkId and uq.code like concat(d.code,'_%') ) > 0 )" +
             " )";
 
         public static final String GET_UIDS_WITHOUT_OID = "select user.id from GlobalPermission gp, User user join user.quarters uq where gp.type in :types and (" +
             //按人授权,直接取uid
-            "(gp.userType = 2 and gp.linkId = user.id) or " +
+            "(gp.userType = 'USER' and gp.linkId = user.id) or " +
             //按岗位授权,拥有这个岗位
-            "(gp.userType = 1 and uq.id = gp.linkId) or " +
+            "(gp.userType = 'QUARTER' and uq.id = gp.linkId) or " +
             //按部门授权,岗位在这个部门里
-            "(gp.userType = 0 and (select count(d.id)  from Department d where d.id = gp.linkId and uq.code like concat(d.code,'_%') ) > 0 )" +
+            "(gp.userType = 'DEPARTMENT' and (select count(d.id)  from Department d where d.id = gp.linkId and uq.code like concat(d.code,'_%') ) > 0 )" +
             " )";
     }
 
@@ -41,11 +41,11 @@ public interface IGlobalPermissionDao extends JpaRepository<GlobalPermission,Lon
 
     @Query(value = "select count(user.id) from GlobalPermission gp, User user join user.quarters uq where gp.type in :types and gp.objectId = :oid and user.id = :uid and (" +
             //按人授权,直接取uid
-            "(gp.userType = 2 and gp.linkId = user.id) or " +
+            "(gp.userType = 'USER' and gp.linkId = user.id) or " +
             //按岗位授权,拥有这个岗位
-            "(gp.userType = 1 and uq.id = gp.linkId) or " +
+            "(gp.userType = 'QUARTER' and uq.id = gp.linkId) or " +
             //按部门授权,岗位在这个部门里
-            "(gp.userType = 0 and (select count(d.id)  from Department d where d.id = gp.linkId and uq.code like concat(d.code,'_%') ) > 0 )" +
+            "(gp.userType = 'DEPARTMENT' and (select count(d.id)  from Department d where d.id = gp.linkId and uq.code like concat(d.code,'_%') ) > 0 )" +
             " )")
     int hasPermission(@Param("uid") long uid, @Param("types") Collection<GlobalPermission.Type> types, @Param("oid") long oid);
 

@@ -58,7 +58,7 @@ public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Lon
             //该节点任务未完成
             "nl.finished = false and " +
             //任务进行中
-            "i.state = 1 and " +
+            "i.state = 'DEALING' and " +
             //分页
             "i.id <= :lessId " +
             "order by i.addTime, i.id desc")
@@ -144,7 +144,8 @@ public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Lon
 //            "join nm.persons ps " +
             "where " +
                     //是公共任务
-                    "ins.common = true and " +
+//                    "ins.common = true and " +
+                    "ins.state = 'COMMON' and " +
                     //拥有执行的权限
                     "user.id in ("+IGlobalPermissionDao.SQL.GET_UIDS_WITHOUT_OID+") and " +
                     //分页
@@ -158,7 +159,7 @@ public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Lon
             Pageable pageable);
 
     //任务当前应该执行的节点
-    @Query(value = "select nl from WorkflowInstance ins join ins.nodeList nl where ins.state = 1 and nl.finished = false and ins.id = :instanceId")
+    @Query(value = "select nl from WorkflowInstance ins join ins.nodeList nl where ins.state = 'DEALING' and nl.finished = false and ins.id = :instanceId")
     Optional<WorkflowNodeInstance> getCurrentNodeInstance(@Param("instanceId") Long instanceId);
 
 }

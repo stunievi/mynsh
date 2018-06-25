@@ -206,6 +206,17 @@ public class WorkFlowController {
     public Result setPermission(
             @Valid @RequestBody GlobalPermissionEditRequest request
     ){
+        GlobalPermission.Type[] types = {
+                GlobalPermission.Type.WORKFLOW_PUB,
+                GlobalPermission.Type.WORKFLOW_OBSERVER,
+                GlobalPermission.Type.WORKFLOW_MAIN_QUARTER,
+                GlobalPermission.Type.WORKFLOW_SUPPORT_QUARTER
+        };
+        //如果不包括这些授权, 那么抛出错误
+        List<GlobalPermission.Type> list = Arrays.asList(types);
+        if(!list.contains(request.getType())){
+            return Result.error();
+        }
         return Result.ok(userService.addGlobalPermission(request.getType(),request.getObjectId(), request.getUserType(), request.getLinkIds(),null));
     }
 

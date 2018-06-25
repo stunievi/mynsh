@@ -219,8 +219,7 @@ public class WorkflowService{
 
         if (request.isCommon()) {
             //公共任务
-            workflowInstance.setState(WorkflowInstance.State.UNRECEIVED);
-            workflowInstance.setCommon(true);
+            workflowInstance.setState(WorkflowInstance.State.COMMON);
         } else {
             //任务默认处于执行中的状态
             workflowInstance.setState(WorkflowInstance.State.DEALING);
@@ -502,7 +501,7 @@ public class WorkflowService{
      * @return
      */
     public boolean canAccept(WorkflowInstance instance, User user) {
-        return instance.getState().equals(WorkflowInstance.State.UNRECEIVED) && instance.isCommon() && canPub(instance.getWorkflowModel(), user);
+        return instance.getState().equals(WorkflowInstance.State.UNRECEIVED) && canPub(instance.getWorkflowModel(), user);
     }
 
     /**

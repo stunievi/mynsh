@@ -20,26 +20,16 @@ import java.util.List;
 public class WorkflowInstance {
 
     public enum State {
-        UNRECEIVED(0, "公共任务"),
-        DEALING(1, "处理中"),
-        CANCELED(2, "已取消"),
-        FINISHED(3, "已完成");
-
-        private int value;
-        private String str;
-
-        State(int value, String str) {
-            this.value = value;
-            this.str = str;
-        }
-
-        public int getValue() {
-            return value;
-        }
-
-        public String toString() {
-            return str;
-        }
+        //公共任务
+        COMMON,
+        //待指派
+        UNRECEIVED,
+        //处理中
+        DEALING,
+        //已取消
+        CANCELED,
+        //已完成
+        FINISHED;
     }
 
     @Id
@@ -58,11 +48,11 @@ public class WorkflowInstance {
     Date addTime;
 
     //任务状态
-    @Enumerated
+    @Enumerated(value = EnumType.STRING)
     State state;
 
     //原型是否公共任务
-    boolean common = false;
+//    boolean common = false;
 
     //任务标题
     String title;

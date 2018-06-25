@@ -95,14 +95,11 @@
 #        quarters: [] #允许经办的岗位ID #无用项
 #        user: [] #允许经办的用户ID
       content:
-        资料编号:
-          name: fieldId
+        任务编号:
+          name: TASK_ID
           type: taskId
           required: y
           innate: true
-          rules:
-            - rule: NotNull
-              message: 资料编号不能为空
         客户号:
           name: CUS_ID
           type: string
@@ -110,13 +107,21 @@
         客户名称:
           name: CUS_NAME
           type: string
-          required: y
+          required: n
         联系电话:
-          name: MOBILE_NO
+          name: PHONE
+          type: string
+          required: y
+        证件类型:
+          name: CERT_TYPE
+          type: string
+          required: y
+        证件号码:
+          name: CERT_CODE
           type: string
           required: y
         客户经理代码:
-          name: CUS_MANAGER_CODE
+          name: CUST_MGR
           type: string
           required: y
         上传附件:
@@ -166,8 +171,25 @@
       type: input
       start: true
       content:
-        贷款账号:
-          name: LOAN_ACCOUNT
+        任务编号:
+          name: TASK_ID
+          type: taskId
+          required: y
+          innate: true
+        借据号:
+          name: BILL_NO
+          type: string
+          required: n
+        合同号:
+          name: CONT_NO
+          type: string
+          required: n
+        客户号:
+          name: CUS_ID
+          type: string
+          required: n
+        客户名称:
+          name: CUS_NAME
           type: string
           required: n
         申请说明:
@@ -305,7 +327,6 @@
 
 
 贷后跟踪-小微部公司类:
-  manual: true
   flow:
     填写贷后检查表:
       type: input
@@ -317,6 +338,18 @@
           type: taskId
           required: y
           innate: true
+        借据号:
+          name: BILL_NO
+          type: string
+          required: n
+        合同号:
+          name: CONT_NO
+          type: string
+          required: n
+        客户号:
+          name: CUS_ID
+          type: string
+          required: n
         借款人全称:
           name: CUST_NAME
           type: string
@@ -441,7 +474,6 @@
       type: end
 
 贷后跟踪-小微部个人类:
-  manual: true
   flow:
     填写贷后检查表:
       type: input
@@ -453,6 +485,18 @@
           type: taskId
           required: y
           innate: true
+        借据号:
+          name: BILL_NO
+          type: string
+          required: n
+        合同号:
+          name: CONT_NO
+          type: string
+          required: n
+        客户号:
+          name: CUS_ID
+          type: string
+          required: n
         借款人全称:
           name: CUST_NAME
           type: string
@@ -596,26 +640,31 @@
       start: true
       next: 是否可以还款
       content:
+        任务编号:
+          name: TASK_ID
+          type: taskId
+          required: y
+          innate: true
+        借据号:
+          name: BILL_NO
+          type: string
+          required: n
+        合同号:
+          name: CONT_NO
+          type: string
+          required: n
         客户号:
           name: CUS_ID
+          type: string
+          required: n
+        客户名称:
+          name: CUS_NAME
           type: string
           required: n
         贷款账号:
           name: LOAN_ACCOUNT
           type: string
           required: y
-        任务生成时间:
-          name: createTime
-          type: string
-          required: n
-        任务执行人:
-          name: CUS_MANAGER_CODE
-          type: string
-          required: n
-        任务执行部门:
-          name: MAIN_BR_ID
-          type: string
-          required: n
         催收方式:
           name: COL_TYPE
           type: select
@@ -714,22 +763,53 @@
       type: input
       start: true
       content:
+        任务编号:
+          name: TASK_ID
+          type: taskId
+          required: y
+          innate: true
+        借据号:
+          name: BILL_NO
+          type: string
+          required: n
+        合同号:
+          name: CONT_NO
+          type: string
+          required: n
+        客户号:
+          name: CUS_ID
+          type: string
+          required: n
+        客户名称:
+          name: CUS_NAME
+          type: string
+          required: n
+        贷款账号:
+          name: LOAN_ACCOUNT
+          type: string
+          required: y
         申请说明:
           name: apply
           type: textarea
           required: n
-        贷款账号:
-          innate: true
-          name: LOAN_ACCOUNT
-          type: string
-          required: y
+        上传附件:
+          name: files
+          type: files
+          required: n
 
       next: 责任认定
 
     责任认定:
       type: input
       content:
-        认定说明: apply,textarea,y
+        认定说明:
+          name: apply
+          type: textarea
+          required: y
+      上传附件:
+        name: files
+        type: files
+        required: n
       next: 风险资产管理部审批
 
     风险资产管理部审批:
@@ -754,7 +834,7 @@
       end: true
       behavior: start_next_task('不良资产管理流程',get_task_dealer_id(),get_task_innate_data())
 
-利息减免登记:
+利息减免:
   manual: false
   subject:
 
@@ -763,16 +843,41 @@
       type: input
       start: true
       content:
+        任务编号:
+          name: TASK_ID
+          type: taskId
+          required: y
+          innate: true
+        任务编号（不良资产管理流程）:
+          name: TASK_ID
+          type: taskId
+          required: y
+          innate: true
+        借据号:
+          name: BILL_NO
+          type: string
+          required: n
+        合同号:
+          name: CONT_NO
+          type: string
+          required: n
+        客户号:
+          name: CUS_ID
+          type: string
+          required: n
+        客户名称:
+          name: CUS_NAME
+          type: string
+          required: n
+        贷款账号:
+          name: LOAN_ACCOUNT
+          type: string
+          required: y
         申请说明:
           name: apply
           type: textarea
           required: n
-        贷款账号:
-          innate: true
-          name: LOAN_ACCOUNT
-          type: string
-          required: y
-        申请附件:
+        上传附件:
           type: files
           name: files
           required: n
@@ -978,6 +1083,36 @@
       type: input
       start: false
       content:
+        任务编号:
+          name: TASK_ID
+          type: taskId
+          required: y
+          innate: true
+        任务编号（不良资产管理流程）:
+          name: TASK_ID
+          type: taskId
+          required: y
+          innate: true
+        借据号:
+          name: BILL_NO
+          type: string
+          required: n
+        合同号:
+          name: CONT_NO
+          type: string
+          required: n
+        客户号:
+          name: CUS_ID
+          type: string
+          required: n
+        客户名称:
+          name: CUS_NAME
+          type: string
+          required: n
+        贷款账号:
+          name: LOAN_ACCOUNT
+          type: string
+          required: y
         说明:
           name: apply
           type: textarea
@@ -1127,6 +1262,36 @@
       type: input
       start: true
       content:
+        任务编号:
+          name: TASK_ID
+          type: taskId
+          required: y
+          innate: true
+        任务编号（不良资产管理流程）:
+          name: TASK_ID
+          type: taskId
+          required: y
+          innate: true
+        借据号:
+          name: BILL_NO
+          type: string
+          required: n
+        合同号:
+          name: CONT_NO
+          type: string
+          required: n
+        客户号:
+          name: CUS_ID
+          type: string
+          required: n
+        客户名称:
+          name: CUS_NAME
+          type: string
+          required: n
+        贷款账号:
+          name: LOAN_ACCOUNT
+          type: string
+          required: n
         说明:
           name: apply
           type: textarea
@@ -1349,7 +1514,7 @@
       ps: ps
       question: 填写任务的处理结果
       count: 1
-      allow_child_task: [利息减免登记]
+      allow_child_task: [利息减免]
       states:
         -
           item: 是

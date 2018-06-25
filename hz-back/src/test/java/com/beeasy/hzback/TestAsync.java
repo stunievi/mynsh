@@ -65,7 +65,7 @@ public class TestAsync {
     public void init() throws RestException {
         createDepartments();
         createWorkflows();
-        give();
+//        give();
     }
 
     @Test
@@ -82,15 +82,27 @@ public class TestAsync {
     @Test
     public void createWorkflows() {
         workflowModelDao.deleteAll();
+        String[] modelNames = {"菜单权限申请", "资料收集", "不良资产登记", "利息减免", "抵债资产接收", "资产处置", "不良资产管理流程", "贷后跟踪-小微部公司类", "贷后跟踪-小微部个人类",};
+        for (String modelName : modelNames) {
+            WorkflowModelAdd edit = new WorkflowModelAdd();
+            edit.setName(modelName);
+            edit.setVersion(BigDecimal.valueOf(1.0 + 1 * 0.01));
+            Result<WorkflowModel> result = workflowService.createWorkflow(modelName, edit);
+            Assert.assertTrue(result.isSuccess());
+        }
+        if(true) return;
+
         //列出2个版本
         for (int i = 0; i < 2; i++) {
-            String[] modelNames = {"菜单权限申请", "资料收集", "不良资产登记", "利息减免登记", "抵债资产接收", "资产处置", "不良资产管理流程", "贷后跟踪-小微部公司类", "贷后跟踪-小微部个人类",};
             for (String modelName : modelNames) {
                 WorkflowModelAdd edit = new WorkflowModelAdd();
                 edit.setName(modelName);
                 edit.setVersion(BigDecimal.valueOf(1.0 + i * 0.01));
                 Result<WorkflowModel> result = workflowService.createWorkflow(modelName, edit);
 
+                if(null == result.getData()){
+                    int d = 1;
+                }
                 WorkflowModel workflowModel = result.getData();
                 //附加人员
                 List<Department> departments = departmentDao.findAllByName("部门1");
@@ -155,6 +167,9 @@ public class TestAsync {
         departmentDao.deleteAll();
         quartersDao.deleteAll();
 
+        if(true){
+            return;
+        }
         int qcount = 0;
         //设立4个部门
         for (int i = 0; i < 4; i++) {
