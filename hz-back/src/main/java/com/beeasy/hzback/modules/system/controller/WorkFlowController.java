@@ -78,11 +78,11 @@ public class WorkFlowController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "modelId", value = "模型ID")
     })
-    @DeleteMapping("/model")
-    public Object delete(
-            Integer modelId
+    @GetMapping("/model/delete")
+    public Result delete(
+            @RequestParam long modelId
     ){
-        return workflowService.deleteWorkflowModel(modelId,false);
+        return Result.finish(workflowService.deleteWorkflowModel(modelId,false));
     }
 
     @ApiOperation(value = "模型列表", notes = "查询已经存在的工作模型列表")

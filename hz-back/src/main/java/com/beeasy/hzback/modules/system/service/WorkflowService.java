@@ -173,9 +173,10 @@ public class WorkflowService{
         //非公共任务
         //检查执行人是否拥有第一个节点的处理权限
         if (!request.isCommon()) {
-            if (!checkAuth(workflowModel, firstNode, dealerUser)) {
-                return Result.error("选择的执行人没有权限处理该任务");
-            }
+            //TODO: 验证权限
+//            if (!checkAuth(workflowModel, firstNode, dealerUser)) {
+//                return Result.error("选择的执行人没有权限处理该任务");
+//            }
         }
 
         //任务主体
@@ -854,8 +855,12 @@ public class WorkflowService{
             return Result.error("授权错误");
         }
         WorkflowInstance instance = nodeInstance.getInstance();
+        //如果是第一个节点, 并且授权人已经确认, 那么只检查pub权限即可
+        if(null != nodeInstance.getDealerId() && nodeInstance.getDealerId().equals(uid)){
+
+        }
         //验证权限
-        if (!checkAuth(instance.getWorkflowModel(), nodeInstance.getNodeModel(), user)) {
+        else if (!checkAuth(instance.getWorkflowModel(), nodeInstance.getNodeModel(), user)) {
             return Result.error("授权失败");
         }
 
@@ -1712,7 +1717,7 @@ public class WorkflowService{
             throw new RestException("你还没有提交信息");
         }
 
-        CheckNodeState targetState = (CheckNodeState) nodeModel.getJSONArray("states")
+        JSONObject targetState = (JSONObject) nodeModel.getJSONArray("states")
                 .stream()
                 .filter(obj -> {
                     JSONObject state = (JSONObject) obj;
@@ -1735,7 +1740,7 @@ public class WorkflowService{
 
         if (targetState != null) {
             try {
-                runJSCode(instance,findCurrentNodeInstance(instance.getId()).orElse(null),targetState.getBehavior());
+                runJSCode(instance,findCurrentNodeInstance(instance.getId()).orElse(null),targetState.getString("behavior"));
             } catch (ScriptException e) {
                 e.printStackTrace();
             }
@@ -2166,6 +2171,7 @@ public class WorkflowService{
         if(null == node){
             return null;
         }
+        //TODO: 权限校验
         JSONObject content = node.getJSONObject("content");
         for (Map.Entry<String, Object> entry : content.entrySet()) {
             JSONObject v = (JSONObject) entry.getValue();

@@ -17,7 +17,7 @@ public interface IGlobalPermissionDao extends JpaRepository<GlobalPermission,Lon
     int deleteAllByIdIn(Collection<Long> ids);
 
     class SQL{
-        public static final String GET_UIDS = "select user.id from GlobalPermission gp, User user join user.quarters uq where gp.type in :types and gp.objectId = :oid and (" +
+        public static final String GET_UIDS = "select user.id from GlobalPermission gp, User user left join user.quarters uq where gp.type in :types and gp.objectId = :oid and (" +
             //按人授权,直接取uid
             "(gp.userType = 'USER' and gp.linkId = user.id) or " +
             //按岗位授权,拥有这个岗位
@@ -26,7 +26,7 @@ public interface IGlobalPermissionDao extends JpaRepository<GlobalPermission,Lon
             "(gp.userType = 'DEPARTMENT' and (select count(d.id)  from Department d where d.id = gp.linkId and uq.code like concat(d.code,'_%') ) > 0 )" +
             " )";
 
-        public static final String GET_UIDS_WITHOUT_OID = "select user.id from GlobalPermission gp, User user join user.quarters uq where gp.type in :types and (" +
+        public static final String GET_UIDS_WITHOUT_OID = "select user.id from GlobalPermission gp, User user left join user.quarters uq where gp.type in :types and (" +
             //按人授权,直接取uid
             "(gp.userType = 'USER' and gp.linkId = user.id) or " +
             //按岗位授权,拥有这个岗位
@@ -39,7 +39,7 @@ public interface IGlobalPermissionDao extends JpaRepository<GlobalPermission,Lon
     @Query(value = SQL.GET_UIDS)
     List getUids(@Param("types")Collection<GlobalPermission.Type> types, @Param("oid") long oid);
 
-    @Query(value = "select count(user.id) from GlobalPermission gp, User user join user.quarters uq where gp.type in :types and gp.objectId = :oid and user.id = :uid and (" +
+    @Query(value = "select count(user.id) from GlobalPermission gp, User user left join user.quarters uq where gp.type in :types and gp.objectId = :oid and user.id = :uid and (" +
             //按人授权,直接取uid
             "(gp.userType = 'USER' and gp.linkId = user.id) or " +
             //按岗位授权,拥有这个岗位
