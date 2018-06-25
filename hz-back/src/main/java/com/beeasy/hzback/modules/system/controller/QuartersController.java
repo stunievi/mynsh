@@ -64,7 +64,7 @@ public class QuartersController {
             ) throws RestException {
 
         Quarters quarters = quartersService.createQuarters(add);
-        return quarters != null && quarters.getId() > 0;
+        return Result.finish(quarters != null && quarters.getId() > 0);
     }
 
     /**
@@ -77,11 +77,10 @@ public class QuartersController {
     public Result edit(
             @Valid QuartersEdit edit
     ){
-        Quarters quarters = quartersDao.findOne(edit.getId());
-        if(quarters == null) return Result.error("岗位ID不对");
-        quarters = Transformer.transform(edit,quarters);
-        quartersDao.save(quarters);
-        return Result.ok();
+        /*
+         * @gotomars
+         * */
+        return userService.updateQuarters(edit);
     }
 
 

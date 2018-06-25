@@ -26,6 +26,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
@@ -122,7 +123,7 @@ public class UserController {
             boolean isBaned
     ){
         userDao.updateBanedByIds(userIds,isBaned);
-        return true;
+        return Result.ok();
     }
 
 
@@ -226,6 +227,10 @@ public class UserController {
         return Result.ok(userDao.getNormalUsers());
     }
 
+    @PostMapping("/face/edit")
+    public String uploadFace(@RequestParam MultipartFile file){
+        return Result.finish(userService.updateUserFace(Utils.getCurrentUserId(),file)).toJson();
+    }
 
 
 }

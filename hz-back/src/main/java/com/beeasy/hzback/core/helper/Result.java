@@ -122,7 +122,7 @@ public class Result <T> {
                 e.printStackTrace();
             }
             return null;
-        }).orElse(str);
+        }).orElse(Result.error().toJson());
     }
 
     public String toMobile(){

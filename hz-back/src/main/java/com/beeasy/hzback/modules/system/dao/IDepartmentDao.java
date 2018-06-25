@@ -31,6 +31,7 @@ public interface IDepartmentDao extends JpaRepository<Department,Long> {
     @Query(value = "select d.code from Department d where d.parent is null order by d.code desc")
     List getTopLastCode();
 
+
     //是否是子部门
     @Query(value = "select count(par) from Department par where ( select count(child) from Department child where par.code = substring(child.code,1,length(par.code)) and child.id = :cid and child.code <> par.code) > 0 and par.id = :pid")
     int departmentHasChild(@Param("pid") long pid, @Param("cid") long cid);

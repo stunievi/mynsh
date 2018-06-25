@@ -77,10 +77,10 @@ public class DepartmentService implements IDepartmentService {
     public Result<Department> editDepartment(DepartmentEdit edit) {
         Result result = Result.error();
         findDepartment(edit.getId()).ifPresent(department -> {
-            if(null == department.getParent()){
-                result.setErrMessage("顶级部门禁止编辑");
-                return;
-            }
+//            if(null == department.getParent()){
+//                result.setErrMessage("顶级部门禁止编辑");
+//                return;
+//            }
             if (!StringUtils.isEmpty(edit.getName()) && !department.getName().equals(edit.getName())) {
                 //校验是否同名
                 Optional<Department> same = departmentDao.findFirstByParentAndName(department.getParent(), edit.getName());

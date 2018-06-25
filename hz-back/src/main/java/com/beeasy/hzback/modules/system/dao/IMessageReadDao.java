@@ -17,6 +17,8 @@ public interface IMessageReadDao extends JpaRepository<MessageRead,Long>{
     @Query(value = "select r from MessageRead r where r.user = :user and r.toType = 0 and r.toId in :toIds")
     List<MessageRead> getUser2UsersRead(@Param("user") User user, @Param("toIds") Long[] toIds);
 
+    List<MessageRead> findAllByUser_IdAndUnreadNumGreaterThan(long uid, int num);
+    
     @Query(value = "select r from MessageRead r where r.user.id = :uid and r.unreadNum > 0")
     List<MessageRead> getUnreadItems(@Param("uid") long uid);
 }

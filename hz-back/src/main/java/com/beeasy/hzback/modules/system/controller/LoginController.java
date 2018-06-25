@@ -5,6 +5,7 @@ import com.beeasy.hzback.core.security.CustomUserService;
 import com.beeasy.hzback.core.security.JwtTokenUtil;
 import com.beeasy.hzback.modules.system.dao.IUserDao;
 import com.beeasy.hzback.modules.system.entity.User;
+import com.beeasy.hzback.modules.system.response.UserInfoResponse;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -33,9 +34,10 @@ public class LoginController {
 //    RedisTemplate<String,LoginLock> redisTemplate;
 
     @Autowired
-    IUserDao userDao;
-    @Autowired
     CustomUserService userDetailsService;
+
+    @Autowired
+    IUserDao userDao;
 
     @Autowired
     AuthenticationManager authenticationManager;
@@ -91,7 +93,7 @@ public class LoginController {
             return Result.error("密码错误，您还可以尝试" + (3 - loginLock.errorCount) + "次");
         }
 
-        return Result.ok(jwtTokenUtil.generateToken(user.getId()));
+        return Result.ok(new UserInfoResponse(jwtTokenUtil.generateToken(user.getId()),user));
     }
 
 

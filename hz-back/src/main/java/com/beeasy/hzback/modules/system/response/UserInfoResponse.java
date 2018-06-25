@@ -1,15 +1,30 @@
 package com.beeasy.hzback.modules.system.response;
 
 import com.beeasy.hzback.modules.system.entity.Department;
+import com.beeasy.hzback.modules.system.entity.User;
 import com.beeasy.hzback.modules.system.entity.UserProfile;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
+@AllArgsConstructor
 public class UserInfoResponse{
 
-//    private Role[] rs;
+    String token;
+    User user;
+
+    //    private Role[] rs;
     private Department[] ds;
     private UserProfile profile;
+
+    public UserInfoResponse(String token, User user) {
+        this.token = token;
+        this.user = user;
+    }
+
+//    private Role[] rs;
+//    private Department[] ds;
+//    private UserProfile profile;
 
 //    private Message message;
 //

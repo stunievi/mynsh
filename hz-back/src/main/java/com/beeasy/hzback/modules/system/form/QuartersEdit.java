@@ -15,4 +15,7 @@ public class QuartersEdit {
 
     @ApiModelProperty(value = "岗位描述")
     private String info;
+
+    //是否主管
+    private Boolean manager = null;
 }

@@ -59,10 +59,10 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
 //                if (rolePermission.get().getUnbindItems().contains(url)) {
 //                    break;
 //                }
-                if(allowApiDao.countByUserIdAndApi((Long)authentication.getPrincipal(), url) > 0){
+//                if(allowApiDao.countByUserIdAndApi((Long)authentication.getPrincipal(), url) > 0){
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                     break;
-                }
+//                }
             }
 
             //授权失败

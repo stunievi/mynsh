@@ -23,6 +23,13 @@ public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Lon
     @Query(value = "select ins from WorkflowInstance ins where ins.workflowModel.modelName = :modelName and ins.dealUserId = :uid")
     Page<WorkflowInstance> getInsByModelName(@Param("modelName") String modelName, @Param("uid") Long uid, Pageable pageable);
 
+    /*
+    * @gotomars
+    * */
+    @Query(value = "select ins from WorkflowInstance ins where ins.dealUserId = :uid")
+    Page<WorkflowInstance> getAllIns( @Param("uid") Long uid, Pageable pageable);
+
+
     // 手机，我执行的任务
     List<WorkflowInstance> findAllByDealUserIdAndIdLessThanOrderByAddTimeDesc(long uid, long lessId, Pageable pageable);
     // 我执行的任务

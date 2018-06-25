@@ -14,7 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Api
 @RequestMapping("/api/clouddisk")
@@ -100,9 +102,13 @@ class ClouddiskController {
             @RequestParam Long id,
             @RequestParam List<Long> toUids
     ){
-        //自己还原
-        return Result.error();
-//        return Result.ok(cloudDiskService.sendFileToUsers(Utils.getCurrentUserId(),toUids, Utils.getCurrentUserId(), ICloudDiskService.DirType.USER, Collections.singletonList(id)));
+        Set<Long> result = new HashSet<>();
+        for (Long toUid : toUids) {
+            List<Long> ret = cloudDiskService.sendFileToUser(Utils.getCurrentUserId(),toUid,Utils.getCurrentUserId(), ICloudDiskService.DirType.USER,Collections.singletonList(id));
+            result.addAll(ret);
+        }
+        return Result.ok(result);
+        //return Result.ok(cloudDiskService.sendFileToUsers(Utils.getCurrentUserId(),toUids, Utils.getCurrentUserId(), ICloudDiskService.DirType.USER, Collections.singletonList(id)));
 //        return Result.finish(cloudDiskService.shareTo(Utils.getCurrentUserId(),toUid, ICloudDiskService.DirType.USER,id));
     }
 

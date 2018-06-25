@@ -18,6 +18,10 @@ public interface IQuartersDao extends JpaRepository<Quarters,Long>{
     Quarters findFirstByDepartmentAndName(Department department, String name);
     List<Quarters> findAllByIdIn(Collection<Long> ids);
 
+    /*
+     * @gotomars
+     * */
+    Quarters findFirstByDepartmentAndNameAndIdNot(Department department, String name, Long id);
     //查找部门下的岗位个数
     int countByDepartment_Id(long id);
 

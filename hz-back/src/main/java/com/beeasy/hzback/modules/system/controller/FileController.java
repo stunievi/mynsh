@@ -21,7 +21,7 @@ import java.util.Optional;
 
 @Api(tags = "系统内文件API")
 @Controller
-@RequestMapping("/")
+@RequestMapping
 public class FileController {
 
     @Autowired
@@ -37,7 +37,7 @@ public class FileController {
             return new ResponseEntity<byte[]>(HttpStatus.NO_CONTENT);
         }
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.IMAGE_PNG);
+        headers.setContentType(MediaType.IMAGE_JPEG);
         return new ResponseEntity<byte[]>(file.getBytes(), headers, HttpStatus.OK);
     }
 

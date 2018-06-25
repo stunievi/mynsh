@@ -3,6 +3,7 @@ package com.beeasy.hzback.modules.system.dao;
 import com.beeasy.hzback.modules.system.entity.CloudDirectoryIndex;
 import com.beeasy.hzback.modules.system.service.ICloudDiskService;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;

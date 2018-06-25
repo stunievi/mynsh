@@ -4,6 +4,8 @@ import com.beeasy.hzback.core.exception.RestException;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.modules.exception.CannotFindEntityException;
+import com.beeasy.hzback.modules.mobile.request.ApplyTaskRequest;
+import com.beeasy.hzback.modules.mobile.request.SubmitDataRequest;
 import com.beeasy.hzback.modules.system.dao.IWorkflowInstanceDao;
 import com.beeasy.hzback.modules.system.dao.IWorkflowModelDao;
 import com.beeasy.hzback.modules.system.entity.*;
@@ -17,6 +19,7 @@ import io.swagger.annotations.ApiOperation;
 import jdk.nashorn.internal.objects.Global;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -24,9 +27,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Api(tags = "工作流API", value = "编辑模型需要管理员权限")
 @Transactional
@@ -36,14 +41,25 @@ public class WorkFlowController {
 
     @Autowired
     IWorkflowInstanceDao instanceDao;
-    @Autowired
-    UserService userService;
+
 
     @Autowired
     IWorkflowModelDao workflowModelDao;
 
     @Autowired
     WorkflowService workflowService;
+
+    @Autowired
+    UserService userService;
+    private Result.Entry[] myworkEntries = new Result.Entry[]{
+            new Result.Entry(WorkflowInstance.class,"nodeList","simpleChildInstances")
+    };
+
+    private Result.Entry[] entries = new Result.Entry[]{
+            new Result.Entry(WorkflowInstance.class,"dealUser"),
+            new Result.Entry(WorkflowNode.class,"model"),
+            new Result.Entry(WorkflowNodeInstance.class,"nodeModel","instance")
+    };
 
     @ApiOperation(value = "创建工作流", notes = "根据已有的模型创建一个新的工作流实体,可选模型: 资料收集")
     @ApiImplicitParams({
@@ -97,9 +113,10 @@ public class WorkFlowController {
             String modelName
     ){
         if(StringUtils.isEmpty(modelName)){
-            return Result.error();
+            return Result.ok(instanceDao.getAllIns(Utils.getCurrentUserId(), pageable));
+        }else{
+            return Result.ok(instanceDao.getInsByModelName(modelName, Utils.getCurrentUserId(), pageable));
         }
-        return Result.ok(instanceDao.getInsByModelName(modelName, Utils.getCurrentUserId(), pageable));
     }
 
 
@@ -237,30 +254,30 @@ public class WorkFlowController {
 //       return workflowService.startNewInstance(Utils.getCurrentUser().getId(),modelId);
 //    }
 
-    @Deprecated
-    @ApiOperation(value = "向当前节点提交数据", notes = "不会进行下一步操作, 即使是节点的必填字段也可以为空, 重复提交视为草稿箱保存信息")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "instanceId", value = "工作流实例ID",required = true),
-            @ApiImplicitParam(name = "data",value = "提交的map, 键和值都必须是字符串",required = true)
-    })
-    @PostMapping("/submitData")
-    public Result submitData(
-            Long instanceId,
-            Map data
-    ) throws RestException {
-            workflowService.submitData(Utils.getCurrentUserId(),instanceId,data);
-            return Result.ok();
-    }
+//    @Deprecated
+//    @ApiOperation(value = "向当前节点提交数据", notes = "不会进行下一步操作, 即使是节点的必填字段也可以为空, 重复提交视为草稿箱保存信息")
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(name = "instanceId", value = "工作流实例ID",required = true),
+//            @ApiImplicitParam(name = "data",value = "提交的map, 键和值都必须是字符串",required = true)
+//    })
+//    @PostMapping("/submitData")
+//    public Result submitData(
+//            Long instanceId,
+//            Map data
+//    ) throws RestException {
+//            workflowService.submitData(Utils.getCurrentUserId(),instanceId,data);
+//            return Result.ok();
+//    }
 
-    @Deprecated
-    @ApiOperation(value = "提交当前节点信息", notes = "会校验所有传入的信息, 例如节点的必填字段")
-    @PostMapping("/goNextNode")
-    public Result goNext(
-            Long instanceId
-    ) throws RestException {
-        workflowService.goNext(Utils.getCurrentUserId(), instanceId);
-        return Result.ok();
-    }
+//    @Deprecated
+//    @ApiOperation(value = "提交当前节点信息", notes = "会校验所有传入的信息, 例如节点的必填字段")
+//    @PostMapping("/goNextNode")
+//    public Result goNext(
+//            Long instanceId
+//    ) throws RestException {
+//        workflowService.goNext(Utils.getCurrentUserId(), instanceId);
+//        return Result.ok();
+//    }
 
 
 //    @Deprecated
@@ -290,29 +307,202 @@ public class WorkFlowController {
         return optional.isPresent() ? Result.ok(optional.get()) : Result.error();
     }
 
+    @GetMapping("/all")
+    public Result getAllWorkflows(){
+        return Result.ok(workflowModelDao.getAllWorkflows());
+    }
 
-    @ApiOperation(value = "我发布的任务")
-    @GetMapping("/myPubWorks")
-    public Result getMyPubWorks(
+//    @ApiOperation(value = "我发布的任务")
+//    @GetMapping("/myPubWorks")
+//    public Result getMyPubWorks(
+//            Pager pager,
+//            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
+//    ){
+//        return Result.ok(instanceDao.findAllByPubUserIdOrderByAddTimeDesc(Utils.getCurrentUserId(), pageable));
+//    }
+
+
+//    @ApiOperation(value = "我执行的任务")
+//    @GetMapping("/myOwnWorks")
+//    public Result getMyOwnWorks(
+//            Pager pager,
+//            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
+//    ){
+//        return Result.ok(workflowService.getUserDealedWorks(Collections.singleton(Utils.getCurrentUserId()),null, pageable));
+//    }
+
+    @ApiOperation(value = "待处理任务")
+    @GetMapping("/myNeedingWorks")
+    public Result getMyNeedToDealWorks(
             Pager pager,
             @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
     ){
-        return Result.ok(instanceDao.findAllByPubUserIdOrderByAddTimeDesc(Utils.getCurrentUserId(), pageable));
+        return Result.ok(workflowService.getUserUndealedWorks(Collections.singleton(Utils.getCurrentUserId()),null, pageable));
     }
 
+    @ApiOperation(value = "已处理任务")
+    @GetMapping("/myDealedWorks")
+    public Result getMyDealedWorks(
+            Pager pager,
+            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
+    ){
+        return Result.ok(workflowService.getUserDealedWorks(Collections.singleton(Utils.getCurrentUserId()),null, pageable));
+    }
 
-    @ApiOperation(value = "我执行的任务")
-    @GetMapping("/myOwnWorks")
-    public Result getMyOwnWorks(
+    @ApiOperation(value = "我观察的任务")
+    @GetMapping("/myObserveredWorks")
+    public Result getMyObserveredWorks(
             Pager pager,
             @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
     ){
 
-        return Result.ok(instanceDao.findAllByDealUserIdAndIdIsNotNullOrderByAddTimeDesc(Utils.getCurrentUserId(), pageable));
+        return Result.ok(workflowService.getUserObservedWorks(Collections.singleton(Utils.getCurrentUserId()),null, pageable));
     }
 
+    @ApiOperation(value = "部门待处理任务")
+    @GetMapping("/deptUndealedWorks")
+    public Result getDepartmentUndealedWorks(
+            Pager pager,
+            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
+    ){
 
+        return Result.ok(workflowService.getDepartmentUndealedWorks(Collections.singleton(Utils.getCurrentUserId()),null, pageable));
+    }
 
+    @ApiOperation(value = "部门已处理任务")
+    @GetMapping("/deptDealedWorks")
+    public Result getDepartmentDealedWorks(
+            Pager pager,
+            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
+    ){
 
+        return Result.ok(workflowService.getDepartmentDealedWorks(Collections.singleton(Utils.getCurrentUserId()),null, pageable));
+    }
+
+    @ApiOperation(value = "查询一个任务的所有明细")
+    @GetMapping("/instance/fetch/{id}")
+    public String fetchInstance(@PathVariable Long id){
+        return Result.ok(workflowService.fetchWorkflowInstance(Utils.getCurrentUserId(),id)).toJson(
+                new Result.Entry(User.class,"departments","quarters"),
+                new Result.Entry(WorkflowNode.class,"persons"));
+    }
+
+    @ApiOperation(value = "取消任务")
+    @PostMapping("/cancel")
+    public String cancelTask(
+            @RequestParam Long instanceId
+    ){
+        boolean flag = workflowService.closeInstance(Utils.getCurrentUserId(),instanceId);
+        if(!flag){
+            return Result.error("取消任务失败, 没有权限或该任务已经变动").toJson();
+        }
+        else{
+            return Result.ok().toJson();
+        }
+    }
+
+    @ApiOperation(value = "撤回任务")
+    @PostMapping("/recall")
+    public String recallTask(
+            @RequestParam Long instanceId
+    ){
+        boolean flag = workflowService .recallInstance(Utils.getCurrentUserId(),instanceId);
+        if(!flag){
+            return Result.error("撤回任务失败, 没有权限或该任务已经变动").toJson();
+        }
+        else{
+            return Result.ok().toJson();
+        }
+    }
+
+    @ApiOperation(value = "发布新任务")
+    @PostMapping("/apply")
+    public String applyTask(
+            @Valid @RequestBody ApplyTaskRequest request
+    ){
+        Result result = workflowService.startNewInstance(Utils.getCurrentUserId(),request);
+        return result.toJson(entries);
+    }
+
+    @ApiOperation(value = "保存草稿")
+    @PostMapping("/submitData")
+    public String submitData(
+            @Valid @RequestBody SubmitDataRequest request,
+            BindingResult bindingResult
+    ){
+        return workflowService.submitData(Utils.getCurrentUserId(),request).toJson();
+    }
+
+    @ApiOperation(value = "提交下一步")
+    @PostMapping("/goNext")
+    public String goNext(
+            @RequestParam Long instanceId,
+            @RequestParam Long nodeId
+    ){
+        return workflowService.goNext(Utils.getCurrentUserId(),instanceId,nodeId).toJson();
+    }
+
+    @ApiOperation(value = "移交任务")
+    @PostMapping("/transform")
+    public String transformTask(
+            @RequestParam Long instanceId,
+            @RequestParam Long dealerId
+    ){
+        boolean flag = workflowService.transformInstance(Utils.getCurrentUserId(),instanceId,dealerId);
+        if(!flag){
+            return Result.error("移交任务失败, 没有权限或该任务已变动").toJson();
+        }
+        else{
+            return Result.ok().toJson();
+        }
+    }
+
+    @ApiOperation(value = "上传节点附件")
+    @PostMapping("/file/upload")
+    public String uploadNodeFile(
+            @RequestParam Long instanceId,
+            @RequestParam Long nodeId,
+            MultipartFile file,
+            @RequestParam WorkflowNodeFile.Type fileType,
+            String content
+    ){
+        return workflowService.uploadNodeFile(Utils.getCurrentUserId(),instanceId,nodeId,fileType,file,content).toJson();
+    }
+
+    @ApiOperation(value = "删除节点附件")
+    @PostMapping("/file/delete")
+    public String deleteNodeFile(
+            @RequestParam Long nodeFileId
+    ){
+        return Result.finish(workflowService.deleteNodeFile(Utils.getCurrentUserId(),nodeFileId)).toJson();
+    }
+
+    @ApiOperation(value = "开启子任务")
+    @PostMapping("/child/apply")
+    public String startChildTask(
+            @Valid @RequestBody StartChildInstanceRequest request
+    ){
+        return workflowService.startChildInstance(Utils.getCurrentUserId(),request).toJson();
+    }
+
+    @ApiOperation(value = "设置观察岗")
+    @PostMapping("/setObserverQuarters")
+    public Result setObserverQuarters(
+            @RequestParam Long workFlowId,
+            @RequestParam List<Long> quarters
+    ){
+        return Result.ok(userService.addGlobalPermission(GlobalPermission.Type.WORKFLOW_OBSERVER,workFlowId,GlobalPermission.UserType.QUARTER,quarters,null));
+//        GlobalPermission gp = new GlobalPermission();
+//        gp.setType(GlobalPermission.Type.WORKFLOW_OBSERVER);
+//        gp.setObjectId(workFlowId);
+//        gp.setUserType(GlobalPermission.UserType.QUARTER);
+//        gp.setLinkId();
+//        WorkflowExtPermissionEdit edit = new WorkflowExtPermissionEdit();
+//        edit.setType(WorkflowExtPermission.Type.OBSERVER);
+//        edit.setModelId(workFlowId);
+//        edit.setQids(quarters);
+//        workflowService.setExtPermissions(edit);
+//        return Result.ok();
+    }
 
 }

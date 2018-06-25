@@ -230,11 +230,11 @@ public class UserService implements IUserService {
         }
 
         //创建文件云账号
-        Result r = cloudService.createUser(u.getUsername());
-        if(r.isSuccess()){
-            userProfile.setCloudUsername(u.getUsername());
-            userProfile.setCloudPassword(cloudUserPassword);
-        }
+//        Result r = cloudService.createUser(u.getUsername());
+//        if(r.isSuccess()){
+//            userProfile.setCloudUsername(u.getUsername());
+//            userProfile.setCloudPassword(cloudUserPassword);
+//        }
 
         userProfileDao.save(userProfile);
 
@@ -579,6 +579,11 @@ public class UserService implements IUserService {
         return Result.ok(ret);
     }
 
+    /**
+     * 编辑岗位
+     * @param edit
+     * @return
+     */
     public Result<Quarters> updateQuarters(QuartersEdit edit){
         //禁止编辑同名岗位
         if(quartersDao.countSameNameFromDepartment(edit.getId(),edit.getName()) > 0){
@@ -588,20 +593,14 @@ public class UserService implements IUserService {
         if(null == quarters){
             return Result.error("编辑的岗位不存在");
         }
+        if(null != edit.getManager()){
+            quarters.setManager(edit.getManager());
+        }
         quarters.setName(edit.getName());
         quarters.setInfo(edit.getInfo());
         return Result.ok(quartersDao.save(quarters));
     }
 
-    /**
-     * 更新岗位主管
-     * @param qids
-     * @param state
-     * @return
-     */
-    public boolean setManager(Collection<Long> qids, boolean state){
-        return quartersDao.updateManager(qids,state) > 0;
-    }
 
     /**
      * 增加用户特殊权限
