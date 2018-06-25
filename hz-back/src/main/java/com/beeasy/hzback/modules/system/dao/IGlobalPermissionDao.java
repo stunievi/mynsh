@@ -15,6 +15,7 @@ public interface IGlobalPermissionDao extends JpaRepository<GlobalPermission,Lon
     int countByTypeAndObjectIdAndUserTypeAndLinkId(GlobalPermission.Type type, long objectId, GlobalPermission.UserType userType, long linkId);
 
     int deleteAllByIdIn(Collection<Long> ids);
+    int deleteAllByObjectId(long objectId);
 
     class SQL{
         public static final String GET_UIDS = "select user.id from GlobalPermission gp, User user left join user.quarters uq where gp.type in :types and gp.objectId = :oid and (" +

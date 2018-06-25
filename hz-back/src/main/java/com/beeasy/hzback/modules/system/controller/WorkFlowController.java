@@ -22,6 +22,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.repository.query.Param;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -204,40 +205,49 @@ public class WorkFlowController {
     @ApiOperation(value = "授权设置")
     @RequestMapping(value = "/model/permission/set", method = RequestMethod.POST)
     public Result setPermission(
-            @Valid @RequestBody GlobalPermissionEditRequest request
+            @Valid @RequestBody GlobalPermissionEditRequest[] requests
     ){
+        if(0 == requests.length){
+            return Result.ok();
+        }
+        //清空授权
+        userService.deleteGlobalPermissionByObjectId(requests[0].getObjectId());
         GlobalPermission.Type[] types = {
                 GlobalPermission.Type.WORKFLOW_PUB,
                 GlobalPermission.Type.WORKFLOW_OBSERVER,
                 GlobalPermission.Type.WORKFLOW_MAIN_QUARTER,
                 GlobalPermission.Type.WORKFLOW_SUPPORT_QUARTER
         };
-        //如果不包括这些授权, 那么抛出错误
         List<GlobalPermission.Type> list = Arrays.asList(types);
-        if(!list.contains(request.getType())){
-            return Result.error();
+        for (GlobalPermissionEditRequest request : requests) {
+            if(!list.contains(request.getType())){
+                continue;
+            }
+        userService.addGlobalPermission(request.getType(),request.getObjectId(), request.getUserType(), request.getLinkIds(),null);
         }
-        return Result.ok(userService.addGlobalPermission(request.getType(),request.getObjectId(), request.getUserType(), request.getLinkIds(),null));
+        return Result.ok();
     }
 
     @ApiOperation(value = "授权查询")
-    @RequestMapping(value = "/model/permission/get", method = RequestMethod.POST)
+    @RequestMapping(value = "/model/permission/get", method = RequestMethod.GET)
     public Result getPermissions(
-            @RequestParam GlobalPermission.Type type,
+            @RequestParam String types,
             @RequestParam long objectId
     ){
-        GlobalPermission.Type[] types = {
-            GlobalPermission.Type.WORKFLOW_PUB,
-            GlobalPermission.Type.WORKFLOW_OBSERVER,
-            GlobalPermission.Type.WORKFLOW_MAIN_QUARTER,
-            GlobalPermission.Type.WORKFLOW_SUPPORT_QUARTER
+        GlobalPermission.Type[] limitTypes = {
+                GlobalPermission.Type.WORKFLOW_PUB,
+                GlobalPermission.Type.WORKFLOW_OBSERVER,
+                GlobalPermission.Type.WORKFLOW_MAIN_QUARTER,
+                GlobalPermission.Type.WORKFLOW_SUPPORT_QUARTER
         };
         //如果不包括这些授权, 那么抛出错误
-        List<GlobalPermission.Type> list = Arrays.asList(types);
-        if(!list.contains(type)){
-            return Result.error();
-        }
-        return Result.ok(userService.getGlobalPermissions(Collections.singleton(type),objectId));
+        List<GlobalPermission.Type> limitList = Arrays.asList(limitTypes);
+        List<GlobalPermission.Type> list = Arrays.asList(types.trim().split(",")).stream()
+                .map(str -> GlobalPermission.Type.valueOf(str))
+                .filter(item -> null != item)
+                .filter(item -> limitList.contains(item))
+                .collect(Collectors.toList());
+        return Result.ok(userService.getGlobalPermissions(list,objectId));
     }
 
 

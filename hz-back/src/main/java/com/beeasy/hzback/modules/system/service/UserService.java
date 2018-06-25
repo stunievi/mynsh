@@ -832,6 +832,10 @@ public class UserService implements IUserService {
         return count > 0;
     }
 
+    public boolean deleteGlobalPermissionByObjectId(long id){
+        int count = globalPermissionDao.deleteAllByObjectId(id);
+        return count > 0;
+    }
 
     public JSONArray getUserMethods(long uid){
         GlobalPermission globalPermission = globalPermissionDao.findTopByTypeAndObjectIdAndUserTypeAndLinkId(GlobalPermission.Type.USER_METHOD, 0, GlobalPermission.UserType.USER, uid).orElse(null);
