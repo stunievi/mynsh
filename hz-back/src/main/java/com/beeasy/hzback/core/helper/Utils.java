@@ -116,13 +116,22 @@ public class Utils {
         return list.toArray(arr);
     }
 
+    public static List<String> convertLongToString(Collection<Long> list){
+        return list.stream().map(item -> item + "").collect(Collectors.toList());
+    }
+
 //    public static User getCurrentUser() {
 //        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 //        return user;
 //    }
 
     public static long getCurrentUserId(){
-        return (long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        try{
+            return (long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        }
+        catch (Exception e){
+            return 0;
+        }
     }
 
     public static List<String> splitByComma(String str) {

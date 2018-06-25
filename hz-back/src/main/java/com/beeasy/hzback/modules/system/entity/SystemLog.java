@@ -1,5 +1,6 @@
 package com.beeasy.hzback.modules.system.entity;
 
+import com.beeasy.hzback.core.helper.JSONConverter;
 import com.beeasy.hzback.core.helper.Object2Array;
 import com.beeasy.hzback.core.helper.ObjectConverter;
 import com.beeasy.hzback.core.helper.StringConverter;
@@ -23,15 +24,16 @@ public class SystemLog {
     @GeneratedValue
     Long id;
 
+    Long userId;
     String userName;
     String method;
 
-    @Column(columnDefinition = "BLOB")
-    @Convert(converter = ObjectConverter.class)
+    @Column(columnDefinition = JSONConverter.type)
+    @Convert(converter = JSONConverter.class)
     Object params;
 
     @CreatedDate
     Date addTime;
-    String ip;
+//    String ip;
 
 }

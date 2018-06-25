@@ -10,6 +10,7 @@ import com.beeasy.hzback.modules.system.dao.IWorkflowInstanceDao;
 import com.beeasy.hzback.modules.system.dao.IWorkflowModelDao;
 import com.beeasy.hzback.modules.system.entity.*;
 import com.beeasy.hzback.modules.system.form.*;
+import com.beeasy.hzback.modules.system.log.SaveLog;
 import com.beeasy.hzback.modules.system.service.UserService;
 import com.beeasy.hzback.modules.system.service.WorkflowService;
 import io.swagger.annotations.Api;
@@ -210,6 +211,9 @@ public class WorkFlowController {
         if(0 == requests.length){
             return Result.ok();
         }
+        if(Arrays.stream(requests).map(item -> item.getObjectId()).distinct().count() != 1){
+            return Result.error("参数错误");
+        }
         //清空授权
         userService.deleteGlobalPermissionByObjectId(requests[0].getObjectId());
         GlobalPermission.Type[] types = {
@@ -242,7 +246,7 @@ public class WorkFlowController {
         };
         //如果不包括这些授权, 那么抛出错误
         List<GlobalPermission.Type> limitList = Arrays.asList(limitTypes);
-        List<GlobalPermission.Type> list = Arrays.asList(types.trim().split(",")).stream()
+        List<GlobalPermission.Type> list = Arrays.stream(types.trim().split(","))
                 .map(str -> GlobalPermission.Type.valueOf(str))
                 .filter(item -> null != item)
                 .filter(item -> limitList.contains(item))
@@ -328,6 +332,7 @@ public class WorkFlowController {
         return optional.isPresent() ? Result.ok(optional.get()) : Result.error();
     }
 
+    @SaveLog(value = "获取工作流模型列表")
     @GetMapping("/all")
     public Result getAllWorkflows(){
         return Result.ok(workflowModelDao.getAllWorkflows());

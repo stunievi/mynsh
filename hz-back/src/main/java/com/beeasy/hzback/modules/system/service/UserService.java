@@ -64,6 +64,8 @@ public class UserService implements IUserService {
     IGlobalPermissionDao globalPermissionDao;
     @Autowired
     IGlobalPermissionCenterDao centerDao;
+//    @Autowired
+//    SystemTextLogService logService;
 
     @Autowired
     GlobalPermissionService globalPermissionService;
@@ -261,6 +263,8 @@ public class UserService implements IUserService {
 //        cloudDirectoryIndexDao.save(cloudDirectoryIndex);
 //        u.getFolders().add(cloudDirectoryIndex);
 
+        //日志
+//        logService.addLog(SystemTextLog.Type.SYSTEM, ret.getId(), Utils.getCurrentUserId(), "创建用户 " + ret.getId());
         return Result.ok(ret);
     }
 
@@ -271,12 +275,11 @@ public class UserService implements IUserService {
      * @return
      */
     public boolean deleteUser(long uid) {
-        return findUser(uid)
-                .filter(user -> {
-                    user.getQuarters().forEach(q -> q.getUsers().remove(user));
-                    userDao.delete(user);
-                    return true;
-                }).isPresent();
+        //解除关联
+        userDao.deleteUserQuarters(uid);
+        //删除用户
+        int count = userDao.deleteById(uid);
+        return count > 0;
     }
 
     /**
@@ -832,6 +835,11 @@ public class UserService implements IUserService {
         return count > 0;
     }
 
+    /**
+     * 删除某个对象的所有授权
+     * @param id
+     * @return
+     */
     public boolean deleteGlobalPermissionByObjectId(long id){
         int count = globalPermissionDao.deleteAllByObjectId(id);
         return count > 0;

@@ -17,16 +17,10 @@ import java.util.Date;
 @EntityListeners(AuditingEntityListener.class)
 public class SystemTextLog extends AbstractBaseEntity {
     public enum Type{
-        WORKFLOW(0);
-        private int value;
-        Type(int value){
-            this.value = value;
-        }
-        public int getValue() {
-            return value;
-        }
+        SYSTEM,
+        USER,
+        WORKFLOW
     }
-
 
     @Id
     @GeneratedValue

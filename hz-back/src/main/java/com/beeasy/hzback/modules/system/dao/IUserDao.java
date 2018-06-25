@@ -65,8 +65,9 @@ public interface IUserDao extends JpaRepository<User,Long> ,JpaSpecificationExec
     @Modifying
     @Transactional
     @Query(value = "delete from t_user_quarters WHERE user_id = :uid",nativeQuery = true)
-    void deleteUserQuarters(@Param("uid") long uid);
+    int deleteUserQuarters(@Param("uid") long uid);
 
+    int deleteById(long uid);
 
     @Modifying
     @Query("update User set baned = :baned where id in :ids")
