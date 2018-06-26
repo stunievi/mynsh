@@ -143,11 +143,15 @@ public class WorkflowService{
         }
 
         User dealerUser = null;
+        //任务主体
+        WorkflowInstance workflowInstance = new WorkflowInstance();
+
         //公共任务
         if(request.isCommon()){
             if(!canPoint(workflowModel.getId(), pubUser)){
                 return Result.error("你无权发布公共任务");
             }
+            workflowInstance.setDealUserId(null);
         }
         //不是公共任务的情况下,指定任务执行人
         else{
@@ -161,12 +165,14 @@ public class WorkflowService{
                 if(!canPub(workflowModel,pubUser)){
                     return Result.error("你无权发布该任务");
                 }
+                workflowInstance.setDealUserId(dealerUser.getId());
             }
             //指派给别人执行
             else{
                 if(!canPoint(workflowModel.getId(), pubUser)){
                     return Result.error("你无权发布该任务");
                 }
+                workflowInstance.setDealUserId(null);
             }
 
             //验证执行人是否有权限
@@ -202,13 +208,12 @@ public class WorkflowService{
 //            }
 //        }
 
-        //任务主体
-        WorkflowInstance workflowInstance = new WorkflowInstance();
+
         workflowInstance.setModelId(workflowModel.getId());
         workflowInstance.setTitle(request.getTitle());
         workflowInstance.setInfo(request.getInfo());
 //        workflowInstance.setDealUser(dealerUser);
-        workflowInstance.setDealUserId(null == dealerUser ? null : dealerUser.getId());
+//        workflowInstance.setDealUserId(null == dealerUser ? null : dealerUser.getId());
         workflowInstance.setPubUserId(pubUser.getId());
 //        workflowInstance.setPubUser(pubUser);
         workflowInstance = saveWorkflowInstance(workflowInstance);
@@ -255,7 +260,7 @@ public class WorkflowService{
                 workflowInstance.setState(WorkflowInstance.State.PAUSE);
                 //增加一条指派申请
                 WorkflowInstanceTransaction transcation = new WorkflowInstanceTransaction();
-                transcation.setFromState(WorkflowInstance.State.PAUSE);
+                transcation.setFromState(WorkflowInstance.State.UNRECEIVED);
                 transcation.setToState(WorkflowInstance.State.DEALING);
                 transcation.setInstanceId(workflowInstance.getId());
                 transcation.setUserId(dealerUser.getId());
@@ -270,7 +275,7 @@ public class WorkflowService{
 
         //插入第一个节点
         WorkflowNodeInstance nodeInstance = workflowInstance.addNode(firstNode,false);
-        nodeInstance.setDealerId(null == dealerUser ? null : dealerUser.getId());
+        nodeInstance.setDealerId(workflowInstance.getDealUserId());
         nodeInstanceDao.save(nodeInstance);
 
         //记录日志

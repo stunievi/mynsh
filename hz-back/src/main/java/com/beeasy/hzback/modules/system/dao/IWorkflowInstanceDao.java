@@ -78,13 +78,13 @@ public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Lon
     @Query("select distinct i from WorkflowInstance i, User u " +
 //            "join i.nodeList nl " +
             "join i.workflowModel model " +
-            "join model.departments d " +
+//            "join model.departments d " +
 //            "join nl.nodeModel nm " +
 //            "join nm.persons ps " +
             "join u.quarters q " +
             "where " +
             //用户的部门是这个模型归属部门的父部门
-            "( select count(dd) from Department dd where dd.id = d.id and dd.code like concat(q.department.code,'%')) > 0 and " +
+            "( select count(dd) from User uu join uu.quarters qq where uu.id = i.dealUserId and qq.code like concat(q.department.code,'%')) > 0 and " +
             //在用户之中
             "u.id in :uids and " +
             //是主管
@@ -119,7 +119,7 @@ public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Lon
                     //三者条件满足一即可
                     "(" +
                         //用户是部门主管
-                        "( select count(dd) from Department dd where dd.id = d.id and dd.code like concat(q.department.code,'%') and q.manager = true) > 0 or " +
+//                        "( select count(dd) from Department dd where dd.id = d.id and dd.code like concat(q.department.code,'%') and q.manager = true) > 0 or " +
                         //或者拥有观察岗权限
                         "user.id in (" + IGlobalPermissionDao.SQL.GET_UIDS_WITHOUT_OID + ") " +
                         //或者是曾经执行过的任务
@@ -165,7 +165,7 @@ public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Lon
 
 
     //用户可以接受的任务
-    @Query(value = "select ins from WorkflowInstance ins, User u " +
+    @Query(value = "select distinct ins from WorkflowInstance ins, User u " +
             "join ins.transactions t " +
             "where u.id in :uids and t.finished = false and " +
                 "u.id = t.userId and " +
