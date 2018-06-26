@@ -29,5 +29,5 @@ public class WorkflowModelEdit {
     @ApiModelProperty(name = "open",value = "是否打开工作流")
     boolean open;
 
-    List<Long> departmentIds = new ArrayList<>();
+//    List<Long> departmentIds = new ArrayList<>();
 }

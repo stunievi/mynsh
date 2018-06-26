@@ -5,6 +5,7 @@ import com.beeasy.hzback.modules.system.entity.GlobalPermission;
 import com.beeasy.hzback.modules.system.entity.WorkflowInstance;
 import com.beeasy.hzback.modules.system.entity.WorkflowNodeInstance;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -161,5 +162,16 @@ public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Lon
     //任务当前应该执行的节点
     @Query(value = "select nl from WorkflowInstance ins join ins.nodeList nl where ins.state = 'DEALING' and nl.finished = false and ins.id = :instanceId")
     Optional<WorkflowNodeInstance> getCurrentNodeInstance(@Param("instanceId") Long instanceId);
+
+
+    //用户可以接受的任务
+    @Query(value = "select ins from WorkflowInstance ins, User u " +
+            "join ins.transactions t " +
+            "where u.id in :uids and t.finished = false and " +
+                "u.id = t.userId and " +
+                "ins.id <= :lessId " +
+            "order by ins.addTime, ins.id desc")
+    Page<WorkflowInstance> findUserCanAcceptWorks(@Param("uids") Collection<Long> uids, @Param("lessId") long lessId, Pageable pageable);
+
 
 }

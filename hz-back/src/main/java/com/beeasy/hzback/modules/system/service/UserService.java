@@ -516,8 +516,9 @@ public class UserService implements IUserService {
                         user.setEmail(edit.getEmail());
                     }
 
+                    //修改密码
                     if (!StringUtils.isEmpty(edit.getPassword())) {
-                        user.setPassword(edit.getPassword());
+                        user.setPassword(DigestUtils.md5DigestAsHex(edit.getPassword().getBytes()));
                     }
                     //是否禁用
                     if (edit.getBaned() != null) {
@@ -532,6 +533,7 @@ public class UserService implements IUserService {
                     //岗位设置
                     if (null != edit.getQuarters()) {
                         //
+//                        userDao.deleteUserQuarters(edit.getId());
                         oldIds = user.getQuarters().stream().map(item -> item.getId()).collect(Collectors.toList());
                         setQuarters(user, edit.getQuarters());
                     }

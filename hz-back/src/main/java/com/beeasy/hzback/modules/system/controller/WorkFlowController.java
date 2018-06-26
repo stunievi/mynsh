@@ -203,6 +203,7 @@ public class WorkFlowController {
         return Result.finish(workflowService.editWorkflowModel(edit));
     }
 
+    @SaveLog(value = "设置工作流权限")
     @ApiOperation(value = "授权设置")
     @RequestMapping(value = "/model/permission/set", method = RequestMethod.POST)
     public Result setPermission(
@@ -441,6 +442,7 @@ public class WorkFlowController {
         }
     }
 
+    @SaveLog(value = "发布新任务")
     @ApiOperation(value = "发布新任务")
     @PostMapping("/apply")
     public String applyTask(
@@ -453,8 +455,7 @@ public class WorkFlowController {
     @ApiOperation(value = "保存草稿")
     @PostMapping("/submitData")
     public String submitData(
-            @Valid @RequestBody SubmitDataRequest request,
-            BindingResult bindingResult
+            @Valid @RequestBody SubmitDataRequest request
     ){
         return workflowService.submitData(Utils.getCurrentUserId(),request).toJson();
     }
@@ -529,6 +530,24 @@ public class WorkFlowController {
 //        edit.setQids(quarters);
 //        workflowService.setExtPermissions(edit);
 //        return Result.ok();
+    }
+
+    @ApiOperation(value = "得到一个模型的任务可以指派的对象")
+    @RequestMapping(value = "/model/dealers", method = RequestMethod.GET)
+    public Result getModelDealers(
+            @RequestParam long id
+    ){
+        return Result.ok(workflowService.getPubUids(id));
+    }
+
+
+    @ApiOperation(value = "得到用户可接受的任务")
+    @RequestMapping(value = "/canAccpetWorks")
+    public Result getUserCanAcceptWorks(
+            Pager pager,
+            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
+    ){
+        return Result.ok(workflowService.getUserCanAcceptWorks(Collections.singleton(Utils.getCurrentUserId()),null,pageable));
     }
 
 }

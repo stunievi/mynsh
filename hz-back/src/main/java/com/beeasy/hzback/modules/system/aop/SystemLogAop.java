@@ -98,7 +98,6 @@ public class SystemLogAop {
         }
     }
 
-    @Async
     public void writeLog(long uid, String actionName, Object[] arguments){
         User user = userService.findUser(uid).orElse(null);
         if(null != user){

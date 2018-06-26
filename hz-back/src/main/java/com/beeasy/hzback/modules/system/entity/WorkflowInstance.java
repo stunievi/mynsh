@@ -29,7 +29,9 @@ public class WorkflowInstance {
         //已取消
         CANCELED,
         //已完成
-        FINISHED;
+        FINISHED,
+        //暂停中
+        PAUSE;
     }
 
     @Id
@@ -103,6 +105,9 @@ public class WorkflowInstance {
     WorkflowNodeInstance parentNode;
 
 
+    @JSONField(serialize = false)
+    @OneToMany(mappedBy = "instance", cascade = CascadeType.REMOVE)
+    List<WorkflowInstanceTransaction> transactions;
 
 
 

@@ -70,10 +70,9 @@ public class UserController {
     }
 
     @ApiOperation(value = "修改用户", notes = "")
-    @PutMapping
-    public Object edit(
-            @Valid UserEdit edit,
-            BindingResult bindingResult
+    @RequestMapping(value = "/edit", method = RequestMethod.POST)
+    public Result edit(
+            @Valid @RequestBody UserEdit edit
     ) throws RestException {
         return userService.editUser(edit);
     }

@@ -7,8 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -27,6 +29,7 @@ public class SystemService {
             systemVariable.setVarName(entry.getKey());
             systemVariable.setVarValue(entry.getValue());
             systemVariable.setCanDelete(false);
+            systemVariableDao.save(systemVariable);
         }
         return true;
     }
@@ -38,16 +41,9 @@ public class SystemService {
      * @return
      */
     public Map<String,String> get(String ...keys){
-        Map<String,String> map = new HashMap<>();
-        for (String key : keys) {
-            SystemVariable systemVariable = systemVariableDao.findFirstByVarName(key).orElse(null);
-            if(null != systemVariable){
-                map.put(key, systemVariable.getVarValue());
-                continue;
-            }
-            map.put(key,"");
-        }
-        return map;
+        return systemVariableDao.findAllByVarNameIn(Arrays.asList(keys))
+                .stream()
+                .collect(Collectors.toMap(SystemVariable::getVarName,SystemVariable::getVarValue));
     }
 
     /**

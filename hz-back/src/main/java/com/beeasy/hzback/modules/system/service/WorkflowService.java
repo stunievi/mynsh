@@ -58,6 +58,8 @@ public class WorkflowService{
     private String permissionType;
 
     @Autowired
+    IWorkflowInstanceTransactionDao transactionDao;
+    @Autowired
     IGlobalPermissionDao globalPermissionDao;
     @Autowired
     IWorkflowInstanceAttributeDao instanceAttributeDao;
@@ -141,14 +143,37 @@ public class WorkflowService{
         }
 
         User dealerUser = null;
+        //公共任务
+        if(request.isCommon()){
+            if(!canPoint(workflowModel.getId(), pubUser)){
+                return Result.error("你无权发布公共任务");
+            }
+        }
         //不是公共任务的情况下,指定任务执行人
-        if (!request.isCommon()) {
+        else{
             dealerUser = userService.findUser(request.getDealerId()).orElse(null);
             //如果仍然为空,那么报错
             if (null == dealerUser) {
                 return Result.error("找不到任务执行人");
             }
+            //如果是给自己执行
+            if(dealerUser.getId().equals(pubUser.getId())){
+                if(!canPub(workflowModel,pubUser)){
+                    return Result.error("你无权发布该任务");
+                }
+            }
+            //指派给别人执行
+            else{
+                if(!canPoint(workflowModel.getId(), pubUser)){
+                    return Result.error("你无权发布该任务");
+                }
+            }
+
+            //验证执行人是否有权限
+            //TODO:
         }
+//        if (!request.isCommon()) {
+//        }
 //        if (request.getDealerId() == -1 || request.getDealerId().equals(uid)) {
 //            dealerUser = pubUser;
 //        }
@@ -159,25 +184,23 @@ public class WorkflowService{
 //        }
 
         //如果发布人和执行人不一样, 检查是否拥有发布该任务的权利
-        if (null == dealerUser || (null != dealerUser && dealerUser.getId() != uid)) {
-            if (!canPubOrPoint(workflowModel, pubUser)) {
-                return Result.error("你无权发布该任务");
-            }
-        }
-        //如果发布了公共任务
-        if (null == dealerUser && !canPoint(workflowModel.getId(), pubUser)) {
-            return Result.error("你无权发布公共任务");
-        }
+//        if (null == dealerUser || (null != dealerUser && dealerUser.getId() != uid)) {
+//            if (!canPubOrPoint(workflowModel, pubUser)) {
+//                return Result.error("你无权发布该任务");
+//            }
+//        }
+//        //如果发布了公共任务
+//        if (null == dealerUser && !canPoint(workflowModel.getId(), pubUser)) {
+//        }
 
         WorkflowNode firstNode = findFirstNodeModel(workflowModel.getId()).orElse(null);
         //非公共任务
         //检查执行人是否拥有第一个节点的处理权限
-        if (!request.isCommon()) {
-            //TODO: 验证权限
+//        if (!request.isCommon()) {
 //            if (!checkAuth(workflowModel, firstNode, dealerUser)) {
 //                return Result.error("选择的执行人没有权限处理该任务");
 //            }
-        }
+//        }
 
         //任务主体
         WorkflowInstance workflowInstance = new WorkflowInstance();
@@ -188,6 +211,7 @@ public class WorkflowService{
         workflowInstance.setDealUserId(null == dealerUser ? null : dealerUser.getId());
         workflowInstance.setPubUserId(pubUser.getId());
 //        workflowInstance.setPubUser(pubUser);
+        workflowInstance = saveWorkflowInstance(workflowInstance);
 
         //滞后处理的字段
         List<WorkflowModelInnate> afters = new ArrayList<>();
@@ -203,6 +227,7 @@ public class WorkflowService{
                 return Result.error("请填写对应的字段");
             }
         }
+
         //插入固有字段
         for (WorkflowModelInnate innate : innates) {
             if(afters.contains(innate)){
@@ -222,14 +247,26 @@ public class WorkflowService{
             //公共任务
             workflowInstance.setState(WorkflowInstance.State.COMMON);
         } else {
-            //任务默认处于执行中的状态
-            workflowInstance.setState(WorkflowInstance.State.DEALING);
+            if(dealerUser.getId().equals(pubUser.getId())){
+                //任务默认处于执行中的状态
+                workflowInstance.setState(WorkflowInstance.State.DEALING);
+            }
+            else{
+                workflowInstance.setState(WorkflowInstance.State.PAUSE);
+                //增加一条指派申请
+                WorkflowInstanceTransaction transcation = new WorkflowInstanceTransaction();
+                transcation.setFromState(WorkflowInstance.State.PAUSE);
+                transcation.setToState(WorkflowInstance.State.DEALING);
+                transcation.setInstanceId(workflowInstance.getId());
+                transcation.setUserId(dealerUser.getId());
+                transactionDao.save(transcation);
+            }
         }
+        workflowInstance = saveWorkflowInstance(workflowInstance);
 
         //第一个执行人已经确定
 //        workflowInstance.getNodeList().get(0).setDealer(dealerUser);
 //        workflowInstance.getNodeList().get(0).setDealerId(null == dealerUser ? null : dealerUser.getId());
-        workflowInstance = saveWorkflowInstance(workflowInstance);
 
         //插入第一个节点
         WorkflowNodeInstance nodeInstance = workflowInstance.addNode(firstNode,false);
@@ -675,7 +712,17 @@ public class WorkflowService{
     }
 
 
-
+    /**
+     * 得到用户可以接受的任务
+     * @param uids
+     * @param lessId
+     * @param pageRequest
+     * @return
+     */
+    public Page<WorkflowInstance> getUserCanAcceptWorks(Collection<Long> uids, Long lessId, Pageable pageRequest){
+        if(null == lessId) lessId = Long.MAX_VALUE;
+        return instanceDao.findUserCanAcceptWorks(uids,lessId,pageRequest);
+    }
 
 
     /**
@@ -1048,15 +1095,15 @@ public class WorkflowService{
             }
 
             //工作流所属部门
-            if(edit.getDepartmentIds().size() > 0){
-                modelDao.deleteDepartments(Collections.singleton(edit.getId()));
-                model.getDepartments().clear();
-                for (Long aLong : edit.getDepartmentIds()) {
-                    Department department = new Department();
-                    department.setId(aLong);
-                    model.getDepartments().add(department);
-                }
-            }
+//            if(edit.getDepartmentIds().size() > 0){
+//                modelDao.deleteDepartments(Collections.singleton(edit.getId()));
+//                model.getDepartments().clear();
+//                for (Long aLong : edit.getDepartmentIds()) {
+//                    Department department = new Department();
+//                    department.setId(aLong);
+//                    model.getDepartments().add(department);
+//                }
+//            }
             //特殊权限
 //            if (null != edit.getPermissionEdits()) {
 //                setExtPermissions(edit.getPermissionEdits());
