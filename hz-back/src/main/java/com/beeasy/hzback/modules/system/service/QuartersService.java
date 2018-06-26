@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
-public class QuartersService implements IQuartersService{
+public class QuartersService {
 
     @Autowired
     IDepartmentDao departmentDao;
@@ -21,22 +21,6 @@ public class QuartersService implements IQuartersService{
     @Autowired
     IQuartersDao quartersDao;
 
-    @Override
-    public Quarters createQuarters(QuartersAdd add) throws RestException {
-        Department department = departmentDao.findOne(add.getDepartmentId());
-        if(department == null) return null;
-        //同部门不能有同名的岗位
-        Quarters same = quartersDao.findFirstByDepartmentAndName(department,add.getName());
-        if(same != null) throw new RestException("已经有同名的岗位");
-
-        Quarters quarters = Transformer.transform(add,Quarters.class);
-        quarters.setDepartment(department);
-        quarters.setDName(department.getName());
-        Quarters ret = quartersDao.save(quarters);
-        return ret;
-    }
-
-    @Override
     public void deleteQuarters(long quartersId) {
         quartersDao.delete(quartersId);
     }

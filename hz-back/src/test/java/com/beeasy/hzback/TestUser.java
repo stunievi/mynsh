@@ -135,7 +135,7 @@ public class TestUser {
         QuartersAdd quartersAdd = new QuartersAdd();
         quartersAdd.setName(Faker.getName());
         quartersAdd.setDepartmentId(department.getId());
-        Quarters quarters = quartersService.createQuarters(quartersAdd);
+        Quarters quarters = userService.createQuarters(quartersAdd).orElse(null);
         assertNotNull(quarters);
         assertTrue(quarters.getId() > 0);
         quarterss.add(quarters.getId());

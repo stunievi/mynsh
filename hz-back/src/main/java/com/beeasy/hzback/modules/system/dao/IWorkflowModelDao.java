@@ -40,12 +40,21 @@ public interface IWorkflowModelDao extends JpaRepository<WorkflowModel,Long>{
     int deleteDepartments(@Param("ids") Collection<Long> ids);
 
     //判断一个用户是不是某个工作流的主管
-    @Query(value = "select count(u.id) from WorkflowModel model, User u " +
-            "join model.departments d " +
+    @Query(value = "select count(u.id) from WorkflowModel model, User u, GlobalPermission gp " +
+//            "join model.departments d " +
             "join u.quarters q " +
             "where " +
+                //声明关联
+                "gp.objectId = model.id and gp.type = 'WORKFLOW_PUB' and " +
+                //声明限制条件
                 "q.manager = true and model.id = :mid and u.id = :uid and " +
-                "(select count(dd) from Department dd where dd.id = d.id and q.code like concat(dd.code,'_%') ) > 0")
+                //
+                "(" +
+                    //该用户是否是这个岗位的主管
+                    "(gp.userType = 'QUARTER' and (select count(qq) from Quarters qq where qq.id = gp.linkId and qq.code like concat(q.department.code,'_%')) > 0 ) or " +
+                    //该用户是否是授权用户所持有的岗位的主管
+                    "(gp.userType = 'USER' and (select count(uuqq) from User uu join uu.quarters uuqq where uu.id = gp.linkId and uuqq.code like concat(q.department.code,'_%') ) > 0 )" +
+                ")")
     int isManagerForWorkflow(@Param("uid") long uid, @Param("mid") long mid);
 
     //得到一个模型起始节点的可处理人

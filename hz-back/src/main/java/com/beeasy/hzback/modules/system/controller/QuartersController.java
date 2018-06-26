@@ -63,8 +63,9 @@ public class QuartersController {
             BindingResult bindingResult
             ) throws RestException {
 
-        Quarters quarters = quartersService.createQuarters(add);
-        return Result.finish(quarters != null && quarters.getId() > 0);
+        return userService.createQuarters(add);
+//        Quarters quarters = userService.createQuarters(add);
+//        return Result.finish(quarters != null && quarters.getId() > 0);
     }
 
     /**

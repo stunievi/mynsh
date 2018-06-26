@@ -26,6 +26,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -410,7 +411,11 @@ public class TestAsync {
 //        flag = userService.isChildDepartment(29,38);
 //        Assert.assertFalse(flag);
 
-        int ccc = workflowModelDao.isManagerForWorkflow(414l, 60l);
+//        userDao.userAddQuarters(155,33);
+
+//        userService.addUsersToQuarters(Collections.singleton(155l),33);
+        int ccc = workflowModelDao.isManagerForWorkflow(155l, 8);
+        Assert.assertTrue(ccc > 0);
 //        int ccc = globalPermissionDao.hasPermission(74l,Collections.singleton(GlobalPermission.Type.WORKFLOW_PUB),29);
 
 //    Object o =         instanceDao.findObserveredWorks(Collections.singletonList(GlobalPermission.Type.WORKFLOW_OBSERVER), Collections.singleton(414l), Long.MAX_VALUE, new PageRequest(0,100));
