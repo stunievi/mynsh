@@ -25,6 +25,9 @@ public interface IQuartersDao extends JpaRepository<Quarters,Long>{
     //查找部门下的岗位个数
     int countByDepartment_Id(long id);
 
+    //查找该岗位是否存在
+    int countById(long id);
+
     //批量删除
     int deleteAllByIdIn(Collection<Long> ids);
 

@@ -103,20 +103,24 @@ public class Utils {
 
 
     public static Long[] convertIds(String ids){
-        List<Long> list = new ArrayList<>();
-        for (String s : ids.split(",")) {
-            try{
-                list.add(Long.valueOf(s.trim()));
-            }
-            catch (Exception e){
-
-            }
-        }
+        List<Long> list = convertIdsToList(ids);
         Long[] arr = new Long[list.size()];
         return list.toArray(arr);
     }
 
-    public static List<String> convertLongToString(Collection<Long> list){
+    public static List<Long> convertIdsToList(String ids) {
+        List<Long> list = new ArrayList<>();
+        for (String s : ids.split(",")) {
+            try {
+                list.add(Long.valueOf(s.trim()));
+            } catch (Exception e) {
+
+            }
+        }
+        return list;
+    }
+
+        public static List<String> convertLongToString(Collection<Long> list){
         return list.stream().map(item -> item + "").collect(Collectors.toList());
     }
 

@@ -607,6 +607,21 @@ public class UserService implements IUserService {
     }
 
 
+    public Result addUsersToQuarters(Collection<Long> uids, long qid){
+        if(quartersDao.countById(qid) == 0){
+            return Result.error();
+        }
+        List<Long> list = uids.stream()
+                .filter(uid -> {
+                    if(userDao.countById(uid) == 0) return false;
+                    if(userDao.hasQuarters(uid,qid) > 0){
+                        return true;
+                    }
+                    return userDao.userAddQuarters(uid,qid) > 0;
+                }).collect(Collectors.toList());
+        return Result.ok(list);
+    }
+
     /**
      * 增加用户特殊权限
      * @param uid

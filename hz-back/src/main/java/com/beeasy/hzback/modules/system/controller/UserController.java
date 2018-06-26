@@ -31,6 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -75,6 +76,15 @@ public class UserController {
             @Valid @RequestBody UserEdit edit
     ) throws RestException {
         return userService.editUser(edit);
+    }
+
+    @ApiOperation(value = "批量添加岗位")
+    @RequestMapping(value = "/addUsersToQuarters")
+    public Result userAddQuarter(
+            @RequestParam String uids,
+            @RequestParam long qid
+    ){
+        return userService.addUsersToQuarters(Utils.convertIdsToList(uids), qid);
     }
 
     @ApiOperation(value = "用户列表", notes = "查找用户列表，当传递用户名的时候，只会查找出符合条件的用户")
