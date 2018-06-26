@@ -84,7 +84,7 @@ public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Lon
             "join u.quarters q " +
             "where " +
             //用户的部门是这个模型归属部门的父部门
-            "( select count(dd) from User uu join uu.quarters qq where uu.id = i.dealUserId and qq.code like concat(q.department.code,'%')) > 0 and " +
+            "( select count(uu) from User uu join uu.quarters qq where uu.id = i.dealUserId and qq.code like concat(q.department.code,'%')) > 0 and " +
             //在用户之中
             "u.id in :uids and " +
             //是主管
