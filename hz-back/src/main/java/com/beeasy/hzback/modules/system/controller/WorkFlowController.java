@@ -562,7 +562,7 @@ public class WorkFlowController {
     }
 
     @ApiOperation(value = "拒绝指派/移交")
-    @RequestMapping(value = "/rejectWorks")
+    @RequestMapping(value = "/rejectWorks", method = RequestMethod.POST)
     public Result rejectTasks(
             @Valid @RequestBody RejectTaskRequest request
     ){
