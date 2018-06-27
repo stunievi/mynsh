@@ -1,10 +1,13 @@
 package com.beeasy.hzback.modules.system.controller;
 
 import com.beeasy.hzback.core.helper.Result;
+import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.core.security.CustomUserService;
 import com.beeasy.hzback.core.security.JwtTokenUtil;
 import com.beeasy.hzback.modules.system.dao.IUserDao;
+import com.beeasy.hzback.modules.system.dao.IUserTokenDao;
 import com.beeasy.hzback.modules.system.entity.User;
+import com.beeasy.hzback.modules.system.entity.UserToken;
 import com.beeasy.hzback.modules.system.response.UserInfoResponse;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -14,6 +17,7 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,6 +46,8 @@ public class LoginController {
 
     @Autowired
     AuthenticationManager authenticationManager;
+    @Autowired
+    IUserTokenDao userTokenDao;
 
     @Autowired
     JwtTokenUtil jwtTokenUtil;
@@ -55,6 +62,8 @@ public class LoginController {
         private long lastErrorDate;
     }
 
+
+    @Transactional
     @ApiOperation(value = "登录接口", notes = "根据用户名和密码换取JWT秘钥，连续3次登录失败会被锁定15分钟不可登录")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "username", value = "用户名", required = true),
@@ -93,9 +102,26 @@ public class LoginController {
             return Result.error("密码错误，您还可以尝试" + (3 - loginLock.errorCount) + "次");
         }
 
-        return Result.ok(new UserInfoResponse(jwtTokenUtil.generateToken(user.getId()),user));
+        try{
+            String token = jwtTokenUtil.generateToken(user.getId());
+            UserToken userToken = new UserToken();
+            userToken.setUserId(user.getId());
+            userToken.setToken(token);
+            userToken.setExprTime(new Date(System.currentTimeMillis() + 30 * 60 * 1000));
+            userTokenDao.save(userToken);
+            return Result.ok(new UserInfoResponse(token,user));
+        }
+        catch (Exception e){
+            return Result.error();
+        }
+
     }
 
+    @ApiOperation(value = "检查是否登录")
+    @RequestMapping(value = "/checkOnline", method = RequestMethod.GET)
+    public Result checkOnline(){
+        return Result.finish(Utils.getCurrentUserId() > 0);
+    }
 
 
 //    @PreAuthorize("hasRole('ROLE_ADMIN')")

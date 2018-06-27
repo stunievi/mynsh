@@ -23,6 +23,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -58,6 +59,8 @@ public class UserService implements IUserService {
     @Value("${filecloud.commonPassword}")
     String cloudCommonPassword;
 
+    @Autowired
+    IUserTokenDao userTokenDao;
     @Autowired
     IUserAllowApiDao userAllowApiDao;
     @Autowired
@@ -318,32 +321,33 @@ public class UserService implements IUserService {
      * @param file
      * @return
      */
-    public Optional<Long> updateUserFace(long uid, MultipartFile file){
-        AtomicReference<User> userAtomicReference = new AtomicReference<>();
-        return findUser(uid)
-            .map(user -> {
-                userAtomicReference.set(user);
-                return user;
-            })
-            .flatMap(user -> findFile(user.getProfile().getFaceId()))
-            .map(systemFile -> {
-                systemFileDao.delete(systemFile);
-//                systemFile.setRemoved(true);
-//                systemFileDao.save(systemFile);
-                SystemFile face = new SystemFile();
-                face.setType(SystemFile.Type.FACE);
-                face.setExt(Utils.getExt(file.getOriginalFilename()));
-                try {
-                    face.setBytes(file.getBytes());
-                    face = systemFileDao.save(face);
-                    userAtomicReference.get().getProfile().setFaceId(face.getId());
-                    userProfileDao.save(userAtomicReference.get().getProfile());
-                    if(face.getId() != null) return face.getId();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                return null;
-            });
+    public Result<Long> updateUserFace(long uid, MultipartFile file){
+        User user = findUser(uid).orElse(null);
+        if(null == user){
+            return Result.error();
+        }
+        SystemFile systemFile = findFile(user.getProfile().getFaceId()).orElse(null);
+        if(null == systemFile){
+            return Result.error();
+        }
+
+        String ext = Utils.getExt(file.getOriginalFilename());
+        if(ext.equalsIgnoreCase("jpg") || ext.equalsIgnoreCase("jpeg") || ext.equalsIgnoreCase("png")){
+            systemFileDao.delete(systemFile);
+            SystemFile face = new SystemFile();
+            face.setType(SystemFile.Type.FACE);
+            face.setExt(Utils.getExt(file.getOriginalFilename()));
+            try {
+                face.setBytes(file.getBytes());
+                face = systemFileDao.save(face);
+                user.getProfile().setFaceId(face.getId());
+                userProfileDao.save(user.getProfile());
+                if(face.getId() != null) return Result.ok(face.getId());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return Result.error("上传头像失败");
     }
 
     /**
@@ -620,6 +624,12 @@ public class UserService implements IUserService {
                     return userDao.userAddQuarters(uid,qid) > 0;
                 }).collect(Collectors.toList());
         return Result.ok(list);
+    }
+
+
+    @Async
+    public void updateToken(String token){
+        userTokenDao.updateToken(token, new Date(System.currentTimeMillis() + 30 * 1000 * 60));
     }
 
     /**

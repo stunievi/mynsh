@@ -425,12 +425,11 @@ public class WorkflowService{
         User user = userService.findUser(uid).orElse(null);
         return findInstance(instanceId).filter(workflowInstance -> {
             if (canCancel(workflowInstance, user)) {
-                workflowInstance.setState(WorkflowInstance.State.CANCELED);
-                instanceDao.save(workflowInstance);
-                if (null != user) {
-                    logService.addLog(SystemTextLog.Type.WORKFLOW, workflowInstance.getId(), uid, "取消了任务");
-                }
-                return true;
+                return instanceDao.deleteById(workflowInstance.getId()) > 0;
+//                if (null != user) {
+//                    logService.addLog(SystemTextLog.Type.WORKFLOW, workflowInstance.getId(), uid, "取消了任务");
+//                }
+//                return true;
             }
             return false;
         }).isPresent();

@@ -2,9 +2,12 @@ package com.beeasy.hzback.core.security;
 
 import com.beeasy.hzback.modules.system.dao.IUserAllowApiDao;
 import com.beeasy.hzback.modules.system.dao.IUserDao;
+import com.beeasy.hzback.modules.system.dao.IUserTokenDao;
+import com.beeasy.hzback.modules.system.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.encoding.Md5PasswordEncoder;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -25,6 +28,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     IUserDao userDao;
     @Autowired
     IUserAllowApiDao allowApiDao;
+    @Autowired
+    IUserTokenDao userTokenDao;
+
+    @Autowired
+    UserService userService;
 
     @Bean
     CustomUserService customUserService(){ //注册UserDetailsService 的bean
@@ -64,6 +72,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 //                .antMatchers("/static/**").permitAll()
                 .antMatchers("/crossdomain.xml").permitAll()
                 .antMatchers("/api/login").permitAll()
+                .antMatchers("/api/checkOnline").permitAll()
                 .antMatchers("/api/mobile/login").permitAll()
                 .antMatchers("/api/mobile/login/**").permitAll()
                 //错误页
@@ -87,7 +96,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .csrf().disable()
 //                .cors().disable()
-                .addFilter(new JWTAuthenticationFilter(authenticationManager(),jwtTokenUtil(),customUserService(), userDao, allowApiDao));
+                .addFilter(new JWTAuthenticationFilter(authenticationManager(),jwtTokenUtil(),customUserService(), userDao, allowApiDao, userTokenDao, userService));
 
 //        .addFilterBefore(new JWTAuthenticationFilter(authenticationManager(),jwtTokenUtil(),customUserService(), userDao), UsernamePasswordAuthenticationFilter.class);
 

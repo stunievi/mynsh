@@ -238,7 +238,7 @@ public class UserController {
 
     @PostMapping("/face/edit")
     public String uploadFace(@RequestParam MultipartFile file){
-        return Result.finish(userService.updateUserFace(Utils.getCurrentUserId(),file)).toJson();
+        return (userService.updateUserFace(Utils.getCurrentUserId(),file)).toJson();
     }
 
 

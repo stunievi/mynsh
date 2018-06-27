@@ -3,6 +3,7 @@ package com.beeasy.hzback.modules.system.controller;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.modules.system.form.GlobalPermissionEditRequest;
+import com.beeasy.hzback.modules.system.service.SystemService;
 import com.beeasy.hzback.modules.system.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -10,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 @Api(tags = "系统API")
 @RequestMapping(value = "/api/system")
@@ -17,6 +20,8 @@ import javax.validation.Valid;
 public class SystemController  {
     @Autowired
     UserService userService;
+    @Autowired
+    SystemService systemService;
 
     /************ 授权 *************/
 
@@ -37,5 +42,8 @@ public class SystemController  {
     }
 
 
-
+    @RequestMapping(value = "/information", method = RequestMethod.GET)
+    public String getSystemInfo(){
+        return systemService.getSystemInfo();
+    }
 }

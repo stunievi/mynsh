@@ -103,7 +103,7 @@ public class MobileUserController {
 
     @PostMapping("/user/face/edit")
     public String uploadFace(@RequestParam MultipartFile file){
-        return Result.finish(userService.updateUserFace(Utils.getCurrentUserId(),file)).toMobile();
+        return (userService.updateUserFace(Utils.getCurrentUserId(),file)).toMobile();
     }
 
     @PostMapping("/users")

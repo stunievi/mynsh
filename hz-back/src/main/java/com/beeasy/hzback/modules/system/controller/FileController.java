@@ -37,7 +37,12 @@ public class FileController {
             return new ResponseEntity<byte[]>(HttpStatus.NO_CONTENT);
         }
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.IMAGE_JPEG);
+        if(file.getExt().equalsIgnoreCase("jpg") || file.getExt().equalsIgnoreCase("jpeg")){
+            headers.setContentType(MediaType.IMAGE_JPEG);
+        }
+        else if(file.getExt().equalsIgnoreCase("png")){
+            headers.setContentType(MediaType.IMAGE_PNG);
+        }
         return new ResponseEntity<byte[]>(file.getBytes(), headers, HttpStatus.OK);
     }
 

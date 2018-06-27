@@ -6,6 +6,7 @@ import com.beeasy.hzback.modules.system.entity.GlobalPermissionCenter;
 import com.beeasy.hzback.modules.system.entity.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +17,8 @@ import java.util.*;
 @Service
 @Transactional
 public class GlobalPermissionService {
+
+    @Lazy
     @Autowired
     UserService userService;
     @Autowired

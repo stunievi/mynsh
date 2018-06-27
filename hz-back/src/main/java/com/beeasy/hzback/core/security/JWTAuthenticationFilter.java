@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.modules.system.dao.IUserAllowApiDao;
 import com.beeasy.hzback.modules.system.dao.IUserDao;
+import com.beeasy.hzback.modules.system.dao.IUserTokenDao;
+import com.beeasy.hzback.modules.system.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,6 +21,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -29,13 +33,17 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
     private CustomUserService customUserService;
     private IUserDao userDao;
     private IUserAllowApiDao allowApiDao;
+    private IUserTokenDao userTokenDao;
+    private UserService userService;
 
-    public JWTAuthenticationFilter(AuthenticationManager authenticationManager, JwtTokenUtil jwtTokenUtil, CustomUserService customUserService, IUserDao userDao, IUserAllowApiDao allowApiDao) {
+    public JWTAuthenticationFilter(AuthenticationManager authenticationManager, JwtTokenUtil jwtTokenUtil, CustomUserService customUserService, IUserDao userDao, IUserAllowApiDao allowApiDao, IUserTokenDao userTokenDao, UserService userService) {
         super(authenticationManager);
         this.jwtTokenUtil = jwtTokenUtil;
         this.customUserService = customUserService;
         this.userDao = userDao;
         this.allowApiDao = allowApiDao;
+        this.userTokenDao = userTokenDao;
+        this.userService = userService;
     }
 
     @Override
@@ -78,15 +86,22 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
     }
 
     private UsernamePasswordAuthenticationToken getAuthentication(String token) {
-        Long uid = jwtTokenUtil.getUserIdFromToken(token);
+//        Long uid = jwtTokenUtil.getUserIdFromToken(token);
+        Long uid = null;
         if(org.apache.commons.lang.math.NumberUtils.isNumber(token)){
             uid = Long.valueOf(token);
         }
-        if (uid != null) {
-            if(userDao.countById(uid) > 0){
-                return new UsernamePasswordAuthenticationToken(uid, "", new ArrayList<>());
+        else{
+            List objects = userTokenDao.getUidFromToken(token);
+            if(objects.size() > 0){
+                uid = (Long) objects.get(0);
+                userService.updateToken(token);
             }
         }
+        if(null != uid){
+            return new UsernamePasswordAuthenticationToken(uid, "", new ArrayList<>());
+        }
+        //验证token合法性
         return null;
     }
 

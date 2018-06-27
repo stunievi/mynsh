@@ -17,6 +17,10 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Long>{
+
+
+    int deleteById(long id);
+
     List<WorkflowInstance> findAllByIdIn(List<Long> ids);
 
     // 根据模型名选取所有实例
