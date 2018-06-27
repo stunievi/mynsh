@@ -40,8 +40,17 @@ public class WorkflowInstanceTransaction extends AbstractBaseEntity{
     Long userId;
 
     //是否已完毕
-    boolean finished = false;
+//    boolean finished = false;
+
+    @Enumerated(value = EnumType.STRING)
+    State state = State.DEALING;
 
     @CreatedDate
     Date addTime;
+
+    public enum State{
+        DEALING,
+        REJECT,
+        ACCEPT
+    }
 }

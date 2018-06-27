@@ -18,6 +18,8 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import jdk.nashorn.internal.objects.Global;
+import lombok.Data;
+import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,6 +34,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -542,12 +545,38 @@ public class WorkFlowController {
 
 
     @ApiOperation(value = "得到用户可接受的任务")
-    @RequestMapping(value = "/canAccpetWorks")
+    @RequestMapping(value = "/canAccpetWorks", method = RequestMethod.GET)
     public Result getUserCanAcceptWorks(
             Pager pager,
             @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
     ){
         return Result.ok(workflowService.getUserCanAcceptWorks(Collections.singleton(Utils.getCurrentUserId()),null,pageable));
     }
+
+    @ApiOperation(value = "接受指派/移交")
+    @RequestMapping(value = "/acceptWorks", method = RequestMethod.GET)
+    public Result acceptTasks(
+            @RequestParam String id
+    ){
+        return (workflowService.acceptTask(Utils.getCurrentUserId(), Utils.convertIds(id)));
+    }
+
+    @ApiOperation(value = "拒绝指派/移交")
+    @RequestMapping(value = "/rejectWorks")
+    public Result rejectTasks(
+            @Valid @RequestBody RejectTaskRequest request
+    ){
+        return workflowService.rejectTask(Utils.getCurrentUserId(), request.getInfo(), request.getIds());
+    }
+
+    @Data
+    public static class RejectTaskRequest{
+        @NotNull
+        Long[] ids;
+
+        @NotEmpty(message = "拒绝说明不能为空")
+        String info;
+    }
+
 
 }

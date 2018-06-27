@@ -171,7 +171,7 @@ public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Lon
     //用户可以接受的任务
     @Query(value = "select distinct ins from WorkflowInstance ins, User u " +
             "join ins.transactions t " +
-            "where u.id in :uids and t.finished = false and " +
+            "where u.id in :uids and t.state = 'DEALING' and " +
                 "u.id = t.userId and " +
                 "ins.id <= :lessId " +
             "order by ins.addTime, ins.id desc")

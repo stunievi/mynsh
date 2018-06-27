@@ -730,6 +730,59 @@ public class WorkflowService{
 
 
     /**
+     * 接受指派/移交
+     * @param uid
+     * @param taskIds
+     * @return
+     */
+    public Result acceptTask(long uid, Long ...taskIds){
+        List<Long> successIds = new ArrayList<>();
+        List<WorkflowInstanceTransaction> transactions = transactionDao.findAllByUserIdAndInstanceIdInAndStateIn(uid,Arrays.asList(taskIds),Collections.singleton(WorkflowInstanceTransaction.State.DEALING));
+        for (WorkflowInstanceTransaction transaction : transactions) {
+            transaction.setState(WorkflowInstanceTransaction.State.ACCEPT);
+            transaction.getInstance().setState(transaction.getToState());
+            transaction.getInstance().setDealUserId(uid);
+            //保存主体
+            instanceDao.save(transaction.getInstance());
+            //更新所有起始节点的经办人
+            nodeInstanceDao.updateNodeInstanceDealer(transaction.getInstanceId(), uid);
+            //更新事务
+            transactionDao.save(transaction);
+            successIds.add(transaction.getId());
+            //TODO: 发送消息
+        }
+        return Result.ok(successIds);
+    }
+
+    /**
+     * 拒绝指派/移交
+     * @param uid
+     * @param info
+     * @param taskIds
+     * @return
+     */
+    public Result rejectTask(long uid, String info, Long ...taskIds){
+        List<Long> successIds = new ArrayList<>();
+        List<WorkflowInstanceTransaction> transactions = transactionDao.findAllByUserIdAndInstanceIdInAndStateIn(uid,Arrays.asList(taskIds),Collections.singleton(WorkflowInstanceTransaction.State.DEALING));
+        for (WorkflowInstanceTransaction transaction : transactions) {
+            transaction.setState(WorkflowInstanceTransaction.State.REJECT);
+            transaction.getInstance().setState(transaction.getFromState());
+//            transaction.getInstance().setDealUserId(uid);
+//            //保存主体
+            instanceDao.save(transaction.getInstance());
+//            //更新所有起始节点的经办人
+//            nodeInstanceDao.updateNodeInstanceDealer(transaction.getInstanceId(), uid);
+//            //更新事务
+            transactionDao.save(transaction);
+            successIds.add(transaction.getId());
+            //TODO: 发送消息
+        }
+        return Result.ok(successIds);
+    }
+
+
+
+    /**
      * 向一个节点提交数据
      *
      * @param instanceId
