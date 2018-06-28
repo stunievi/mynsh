@@ -325,6 +325,7 @@ public class WorkflowService {
     }
 
 
+
     private void addExtData(WorkflowInstance instance, WorkflowModel model, Map<String, WorkflowModelInnate> modelInnates, ApplyTaskRequest request) {
         //补足系统自动产生的固有字段
         if (null != request.getDataSource()) {

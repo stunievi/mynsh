@@ -8,6 +8,8 @@ import com.beeasy.hzback.modules.mobile.request.ApplyTaskRequest;
 import com.beeasy.hzback.modules.mobile.request.SubmitDataRequest;
 import com.beeasy.hzback.modules.system.dao.IWorkflowInstanceDao;
 import com.beeasy.hzback.modules.system.dao.IWorkflowModelDao;
+import com.beeasy.hzback.modules.system.dao.IWorkflowNodeAttributeDao;
+import com.beeasy.hzback.modules.system.dao.IWorkflowNodeInstanceDao;
 import com.beeasy.hzback.modules.system.entity.*;
 import com.beeasy.hzback.modules.system.form.*;
 import com.beeasy.hzback.modules.system.log.SaveLog;
@@ -21,10 +23,8 @@ import jdk.nashorn.internal.objects.Global;
 import lombok.Data;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.data.domain.*;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,6 +46,10 @@ public class WorkFlowController {
 
     @Autowired
     IWorkflowInstanceDao instanceDao;
+    @Autowired
+    IWorkflowNodeInstanceDao nodeInstanceDao;
+    @Autowired
+    IWorkflowNodeAttributeDao attributeDao;
 
 
     @Autowired
@@ -613,6 +617,18 @@ public class WorkFlowController {
     }
 
 
+
+//    public Result searchInfoLink(){
+//
+//    }
+//
+//    public Result addInfoLink(){
+//
+//    }
+//
+//    public Result deleteInfoLink(){
+//
+//    }
 
     @Data
     public static class RejectTaskRequest{

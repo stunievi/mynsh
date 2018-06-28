@@ -178,4 +178,16 @@ public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Lon
 
     //得到预任务
     Page<WorkflowInstance> findAllByDealUserIdInAndPlanStartTimeGreaterThanAndIdLessThan(Collection<Long> uids, Date time, long lessId, Pageable pageable);
+
+    //查模型名的任务
+    Page<WorkflowInstance> findAllByWorkflowModel_ModelNameAndDealUserIdOrderByAddTimeDesc(String name, long uid, Pageable pageable);
+
+
+
+    /**********/
+//    @Query(value = "SELECT * from ACC_LOAN ORDER BY BILL_NO DESC /*#pageable*/",
+//            countQuery = "SELECT COUNT(*) FROM ACC_LOAN",
+//            nativeQuery = true)
+//    Page<Object> getAccLoanList(Pageable pageable);
+
 }
