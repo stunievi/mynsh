@@ -4,11 +4,15 @@ import com.alibaba.fastjson.JSONArray;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.core.util.SqlUtils;
+import com.beeasy.hzback.modules.mobile.request.ApplyTaskRequest;
 import com.beeasy.hzback.modules.system.dao.IInfoCollectLinkDao;
 import com.beeasy.hzback.modules.system.dao.IWorkflowInstanceDao;
 import com.beeasy.hzback.modules.system.dao.IWorkflowNodeAttributeDao;
+import com.beeasy.hzback.modules.system.entity.InfoCollectLink;
 import com.beeasy.hzback.modules.system.entity.WorkflowInstance;
 import com.beeasy.hzback.modules.system.form.Pager;
+import com.beeasy.hzback.modules.system.service.UserService;
+import com.beeasy.hzback.modules.system.service.WorkflowService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +25,10 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +47,10 @@ public class InfoCollectLinkController {
     IWorkflowNodeAttributeDao attributeDao;
     @Autowired
     IInfoCollectLinkDao linkDao;
+    @Autowired
+    UserService userService;
+    @Autowired
+    WorkflowService workflowService;
 
     @ApiOperation(value = "查询我自己的资料收集")
     @RequestMapping(value = "/getMyInfoCollect", method = RequestMethod.GET)
@@ -95,14 +105,42 @@ public class InfoCollectLinkController {
         );
     }
 
+
     @Transactional
-    public Result createLink(){
-        return Result.ok();
+    @ApiOperation(value = "绑定")
+    @RequestMapping(value = "/createLink", method = RequestMethod.GET)
+    public Result createLink(
+            @RequestParam String BILL_NO,
+            @RequestParam String id
+    ){
+        List<Long> success = new ArrayList<>();
+        for (Long aLong : Utils.convertIds(id)) {
+            InfoCollectLink infoCollectLink = new InfoCollectLink();
+            infoCollectLink.setBillNo(BILL_NO);
+            infoCollectLink.setInstanceId(aLong);
+            linkDao.save(infoCollectLink);
+
+            WorkflowInstance instance = workflowService.findInstance(aLong).orElse(null);
+            if(null == instance){
+                continue;
+            }
+            ApplyTaskRequest request = new ApplyTaskRequest();
+            request.setDataSource(ApplyTaskRequest.DataSource.ACC_LOAN);
+            request.setDataId(BILL_NO);
+            workflowService.addExtData(instance, instance.getWorkflowModel(), request);
+            success.add(aLong);
+        }
+        return Result.ok(success);
     }
 
     @Transactional
-    public Result deleteLink(){
-        return Result.ok();
+    @ApiOperation(value = "解绑")
+    @RequestMapping(value = "/deleteLink", method = RequestMethod.GET)
+    public Result deleteLink(
+            @RequestParam String BILL_NO,
+            @RequestParam String id
+    ){
+        return Result.finish(linkDao.deleteAllByBillNoAndInstanceIdIn(BILL_NO,Utils.convertIdsToList(id)) > 0);
     }
 
 }

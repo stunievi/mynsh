@@ -28,7 +28,6 @@ public class Message extends AbstractBaseEntity{
     @Enumerated
     LinkType toType;
 
-
     //消息类型, 文本/图片/文件/小视频/定位 等
     @Enumerated
     Type type = Type.TEXT;

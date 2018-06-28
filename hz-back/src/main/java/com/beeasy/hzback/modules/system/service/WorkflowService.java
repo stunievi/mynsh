@@ -318,7 +318,7 @@ public class WorkflowService {
 
                 }
             }
-            addExtData(workflowInstance, workflowModel, afters, request);
+            addExtData(workflowInstance, workflowModel, request);
         }
 
         return workflowInstance.getId() == null ? Result.error() : Result.ok(workflowInstance);
@@ -326,7 +326,7 @@ public class WorkflowService {
 
 
 
-    private void addExtData(WorkflowInstance instance, WorkflowModel model, Map<String, WorkflowModelInnate> modelInnates, ApplyTaskRequest request) {
+    public void addExtData(WorkflowInstance instance, WorkflowModel model, ApplyTaskRequest request) {
         //补足系统自动产生的固有字段
         if (null != request.getDataSource()) {
             String sql = null;
@@ -348,16 +348,16 @@ public class WorkflowService {
                 List<Map<String, String>> rs = sqlUtils.query(sql, Collections.singleton(request.getDataId()));
                 if (rs.size() > 0) {
                     //只用第一条
-                    for (Map.Entry<String, WorkflowModelInnate> entry : modelInnates.entrySet()) {
-                        if(!entry.getValue().getContent().getString("type").equals("EXT_DATA")){
+                    for (WorkflowModelInnate workflowModelInnate : model.getInnates()) {
+                        if(!workflowModelInnate.getContent().getString("type").equals("EXT_DATA")){
                             continue;
                         }
                         //插入固有字段
                         WorkflowInstanceAttribute attribute = new WorkflowInstanceAttribute();
                         attribute.setInstance(instance);
                         attribute.setType(WorkflowInstanceAttribute.Type.INNATE);
-                        attribute.setAttrCName(entry.getValue().getContent().getString("cname"));
-                        attribute.setAttrKey(entry.getValue().getContent().getString("ename"));
+                        attribute.setAttrCName(workflowModelInnate.getContent().getString("cname"));
+                        attribute.setAttrKey(workflowModelInnate.getContent().getString("ename"));
                         attribute.setAttrValue(rs.get(0).getOrDefault(attribute.getAttrKey(),""));
                         instanceAttributeDao.save(attribute);
                     }
