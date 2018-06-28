@@ -14,4 +14,5 @@ public interface IInfoCollectLinkDao extends JpaRepository<InfoCollectLink,Long>
     List<WorkflowInstance> getInstancesByBillNo(@Param("billNo") String billNo);
 
     int deleteAllByBillNoAndInstanceIdIn(String billNo, Collection<Long> ids);
+    int countByBillNoAndInstanceId(String billNo, long id);
 }

@@ -115,15 +115,19 @@ public class InfoCollectLinkController {
     ){
         List<Long> success = new ArrayList<>();
         for (Long aLong : Utils.convertIds(id)) {
+            WorkflowInstance instance = workflowService.findInstance(aLong).orElse(null);
+            if(null == instance){
+                continue;
+            }
+            if(linkDao.countByBillNoAndInstanceId(BILL_NO,aLong) > 0){
+                success.add(aLong);
+                continue;
+            }
             InfoCollectLink infoCollectLink = new InfoCollectLink();
             infoCollectLink.setBillNo(BILL_NO);
             infoCollectLink.setInstanceId(aLong);
             linkDao.save(infoCollectLink);
 
-            WorkflowInstance instance = workflowService.findInstance(aLong).orElse(null);
-            if(null == instance){
-                continue;
-            }
             ApplyTaskRequest request = new ApplyTaskRequest();
             request.setDataSource(ApplyTaskRequest.DataSource.ACC_LOAN);
             request.setDataId(BILL_NO);
