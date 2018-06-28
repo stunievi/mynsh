@@ -12,10 +12,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Long>, JpaSpecificationExecutor {
 
@@ -179,4 +176,6 @@ public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Lon
     Page<WorkflowInstance> findUserCanAcceptWorks(@Param("uids") Collection<Long> uids, @Param("lessId") long lessId, Pageable pageable);
 
 
+    //得到预任务
+    Page<WorkflowInstance> findAllByDealUserIdInAndPlanStartTimeGreaterThanAndIdLessThan(Collection<Long> uids, Date time, long lessId, Pageable pageable);
 }

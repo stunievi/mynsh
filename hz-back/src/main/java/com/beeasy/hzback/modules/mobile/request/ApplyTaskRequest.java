@@ -6,7 +6,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.validation.constraints.Future;
 import javax.validation.constraints.NotNull;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,6 +35,10 @@ public class ApplyTaskRequest {
 
     //固有字段信息
     Map<String,String> data = new HashMap<>();
+
+    //计划开始时间
+    @Future
+    Date planStartTime;
 
 
     public ApplyTaskRequest(Long modelId, String title, String info, Long dealerId, boolean manual, boolean common) {

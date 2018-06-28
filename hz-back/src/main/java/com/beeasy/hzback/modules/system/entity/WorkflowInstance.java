@@ -49,6 +49,8 @@ public class WorkflowInstance {
     @CreatedDate
     Date addTime;
 
+    Date planStartTime;
+
     //任务状态
     @Enumerated(value = EnumType.STRING)
     State state;

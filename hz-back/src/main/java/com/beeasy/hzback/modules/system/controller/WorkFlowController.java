@@ -582,6 +582,17 @@ public class WorkFlowController {
         );
     }
 
+    @ApiOperation(value = "预任务列表")
+    @RequestMapping(value = "/getPlanWorks", method = RequestMethod.GET)
+    public String getPlanWorks(
+            Pager pager,
+            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
+    ){
+        return Result.ok(workflowService.getPlanWorks(Collections.singleton(Utils.getCurrentUserId()), null, pageable)).toJson(
+                new Result.Entry(WorkflowInstance.class, "nodeList")
+        );
+    }
+
     @ApiOperation(value = "任务重指派/移交")
     @RequestMapping(value = "/pointTask", method = RequestMethod.GET)
     public Result pointTask(

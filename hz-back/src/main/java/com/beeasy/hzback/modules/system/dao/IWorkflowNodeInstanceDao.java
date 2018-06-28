@@ -37,8 +37,11 @@ public interface IWorkflowNodeInstanceDao extends JpaRepository<WorkflowNodeInst
     @Query(value = "select id from WorkflowNodeInstance where nodeModel.start = true and instanceId = :instanceId")
     List getStartNodeIds(@Param("instanceId") long instanceId);
 
+    @Query(value = "select distinct child from WorkflowNodeInstance ni join ni.childInstances child where ni.instanceId = :id and child.dealUserId = :uid")
+    List<WorkflowInstance> getAllChildInstance(@Param("id") long id, @Param("uid") long uid);
+
     @Modifying
-    @Query(value = "update WorkflowNodeInstance ni set ni.dealerId = :uid where ni.id in :ids")
+    @Query(value = "update WorkflowNodeInstance ni set ni.dealerId = :uid where ni.id in :ids ")
     int updateNodeInstanceDealer(@Param("uid") long uid, @Param("ids") Collection<Long> ids);
 
 }

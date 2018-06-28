@@ -214,11 +214,21 @@ public class WorkflowService{
         workflowInstance.setModelId(workflowModel.getId());
         workflowInstance.setTitle(request.getTitle());
         workflowInstance.setInfo(request.getInfo());
+        //开始时间
+        Date date = new Date();
+        workflowInstance.setAddTime(date);
+        if(null != request.getPlanStartTime()){
+            workflowInstance.setPlanStartTime(request.getPlanStartTime());
+        }
+        else {
+            workflowInstance.setPlanStartTime(date);
+        }
 //        workflowInstance.setDealUser(dealerUser);
 //        workflowInstance.setDealUserId(null == dealerUser ? null : dealerUser.getId());
         workflowInstance.setPubUserId(pubUser.getId());
 //        workflowInstance.setPubUser(pubUser);
         workflowInstance = saveWorkflowInstance(workflowInstance);
+
 
         //滞后处理的字段
         List<WorkflowModelInnate> afters = new ArrayList<>();
@@ -750,18 +760,36 @@ public class WorkflowService{
         for (WorkflowInstanceTransaction transaction : transactions) {
             transaction.setState(WorkflowInstanceTransaction.State.ACCEPT);
             transaction.getInstance().setState(transaction.getToState());
-            transaction.getInstance().setDealUserId(uid);
-            //保存主体
-            instanceDao.save(transaction.getInstance());
-            //更新所有起始节点的经办人
-            List ids = nodeInstanceDao.getStartNodeIds(transaction.getInstanceId());
-            nodeInstanceDao.updateNodeInstanceDealer(uid, ids);
+            updateInstanceBelongs(transaction.getInstance(), uid);
+
             //更新事务
             transactionDao.save(transaction);
             successIds.add(transaction.getId());
             //TODO: 发送消息
         }
         return Result.ok(successIds);
+    }
+
+    /**
+     * 更新任务归属
+     * @param instance
+     * @param uid
+     */
+    private void updateInstanceBelongs(WorkflowInstance instance, long uid){
+        Long fromUid = instance.getDealUserId();
+        instance.setDealUserId(uid);
+        //更新所有起始节点的经办人
+        List ids = nodeInstanceDao.getStartNodeIds(instance.getId());
+        nodeInstanceDao.updateNodeInstanceDealer(uid, ids);
+        //更新所有子流程的归属
+        if(null != fromUid){
+            List<WorkflowInstance> instances = nodeInstanceDao.getAllChildInstance(instance.getId(), fromUid);
+            for (WorkflowInstance workflowInstance : instances) {
+                updateInstanceBelongs(workflowInstance, uid);
+            }
+        }
+        //保存状态
+        saveWorkflowInstance(instance);
     }
 
     /**
@@ -825,12 +853,28 @@ public class WorkflowService{
 
                 }
                 //客户经理编号
+                if(null != request.getUserId()){
+                    predicates.add(cb.equal(root.get("dealUserId"), request.getUserId()));
+                }
 
                 return cb.and(predicates.toArray(new Predicate[predicates.size()]));
             }
         };
 
         return instanceDao.findAll(query, pageable);
+    }
+
+
+    /**
+     * 得到用户的预任务列表
+     * @param uids
+     * @param lessId
+     * @param pageable
+     * @return
+     */
+    public Page<WorkflowInstance> getPlanWorks(Collection<Long> uids, Long lessId, Pageable pageable){
+        if(null == lessId) lessId = Long.MAX_VALUE;
+        return instanceDao.findAllByDealUserIdInAndPlanStartTimeGreaterThanAndIdLessThan(uids, new Date(), lessId, pageable );
     }
 
     /**

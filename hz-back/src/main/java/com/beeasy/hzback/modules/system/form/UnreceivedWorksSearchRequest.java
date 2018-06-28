@@ -10,7 +10,7 @@ public class UnreceivedWorksSearchRequest {
     String id;
 
     //客户经理编号
-    String managerId;
+    Long userId;
 
     //任务类型
     String type;
