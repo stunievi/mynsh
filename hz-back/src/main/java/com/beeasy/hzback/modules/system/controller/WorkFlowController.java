@@ -472,6 +472,7 @@ public class WorkFlowController {
         return workflowService.goNext(Utils.getCurrentUserId(),instanceId,nodeId).toJson();
     }
 
+    @Deprecated
     @ApiOperation(value = "移交任务")
     @PostMapping("/transform")
     public String transformTask(
@@ -601,6 +602,17 @@ public class WorkFlowController {
     ){
         return Result.ok(workflowService.pointTask(Utils.getCurrentUserId(), Utils.convertIdsToList(id), toUid));
     }
+
+    @ApiOperation(value = "设置节点标签")
+    @GetMapping("/node/file/setTags")
+    public String setNodeFileTags(
+            @RequestParam long id,
+            @RequestParam String tags
+    ){
+        return Result.finish(workflowService.setNodeFileTags(Utils.getCurrentUserId(), id, tags)).toJson();
+    }
+
+
 
     @Data
     public static class RejectTaskRequest{

@@ -2,6 +2,7 @@ package com.beeasy.hzback.modules.system.controller;
 
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.helper.Utils;
+import com.beeasy.hzback.core.util.SqlUtils;
 import com.beeasy.hzback.modules.system.form.GlobalPermissionEditRequest;
 import com.beeasy.hzback.modules.system.service.SystemService;
 import com.beeasy.hzback.modules.system.service.UserService;
@@ -59,27 +60,9 @@ public class SystemController  {
     /**********测试***********/
     @Autowired
     EntityManager entityManager;
-    @Autowired
-    DataSource dataSource;
+    SqlUtils sqlUtils;
     @RequestMapping(value = "/query", method = RequestMethod.POST)
     public Result query(@RequestBody String sql){
-        List s = new ArrayList();
-        try(ResultSet rs = dataSource.getConnection().createStatement().executeQuery(sql)){
-            ResultSetMetaData rsmd = rs.getMetaData();
-            int count = rsmd.getColumnCount();
-            while(rs.next()){
-                Map<String, String> hm = new HashMap<String, String>();
-                for (int i = 1; i <= count; i++) {
-                    String key = rsmd.getColumnLabel(i);
-                    String value = rs.getString(i);
-                    hm.put(key, value);
-                }
-                s.add(hm);
-            }
-        }
-        catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return Result.ok(s);
+        return Result.ok(sqlUtils.query(sql));
     }
 }

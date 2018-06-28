@@ -40,6 +40,16 @@ public class ApplyTaskRequest {
     @Future
     Date planStartTime;
 
+    //固有数据源
+    DataSource dataSource;
+
+    //固有数据源绑定值
+    String dataId;
+
+    public enum DataSource{
+        CLIENT,
+        ACC_LOAN
+    }
 
     public ApplyTaskRequest(Long modelId, String title, String info, Long dealerId, boolean manual, boolean common) {
         this.modelId = modelId;

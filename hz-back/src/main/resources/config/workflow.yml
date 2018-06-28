@@ -98,12 +98,20 @@
         任务编号:
           name: TASK_ID
           type: taskId
-          required: y
+          innate: true
+        借据号:
+          name: BILL_NO
+          type: EXT_DATA
+          innate: true
+        合同号:
+          name: CONT_NO
+          type: EXT_DATA
           innate: true
         客户号:
           name: CUS_ID
-          type: string
-          required: n
+          type: EXT_DATA
+          innate: true
+
         客户名称:
           name: CUS_NAME
           type: string
