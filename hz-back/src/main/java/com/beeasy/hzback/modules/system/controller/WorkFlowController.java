@@ -569,6 +569,28 @@ public class WorkFlowController {
         return workflowService.rejectTask(Utils.getCurrentUserId(), request.getInfo(), request.getIds());
     }
 
+
+    @ApiOperation(value = "指派列表")
+    @RequestMapping(value = "/getUnreceivedWorks", method = RequestMethod.GET)
+    public String getUnreceivedWorks(
+            UnreceivedWorksSearchRequest request,
+            Pager pager,
+            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
+    ){
+        return Result.ok(workflowService.getUnreceivedWorks(Collections.singleton(Utils.getCurrentUserId()), request, null, pageable)).toJson(
+                new Result.Entry(WorkflowInstance.class, "nodeList")
+        );
+    }
+
+    @ApiOperation(value = "任务重指派/移交")
+    @RequestMapping(value = "/pointTask", method = RequestMethod.GET)
+    public Result pointTask(
+            @RequestParam String id,
+            @RequestParam long toUid
+    ){
+        return Result.ok(workflowService.pointTask(Utils.getCurrentUserId(), Utils.convertIdsToList(id), toUid));
+    }
+
     @Data
     public static class RejectTaskRequest{
         @NotNull

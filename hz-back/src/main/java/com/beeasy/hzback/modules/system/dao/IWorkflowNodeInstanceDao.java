@@ -11,6 +11,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -32,10 +34,11 @@ public interface IWorkflowNodeInstanceDao extends JpaRepository<WorkflowNodeInst
     Optional<WorkflowNodeInstance> findFirstByIdAndFinishedIsFalse(long id);
 
 
-    @Modifying
-    @Query(value = "update WorkflowNodeInstance set dealerId = :uid where instanceId = :instanceId and nodeModel.start = true")
-    int updateNodeInstanceDealer(@Param("instanceId") long instanceId, @Param("uid") long uid);
+    @Query(value = "select id from WorkflowNodeInstance where nodeModel.start = true and instanceId = :instanceId")
+    List getStartNodeIds(@Param("instanceId") long instanceId);
 
-//    @Query("select ")
-//    void test();
+    @Modifying
+    @Query(value = "update WorkflowNodeInstance ni set ni.dealerId = :uid where ni.id in :ids")
+    int updateNodeInstanceDealer(@Param("uid") long uid, @Param("ids") Collection<Long> ids);
+
 }

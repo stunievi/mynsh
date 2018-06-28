@@ -101,8 +101,11 @@ public class WorkflowInstance {
 
     //父进程节点ID (此节点开启的子任务)
     @JSONField(serialize = false)
+    @JoinColumn(name = "parent_node_id", insertable = false, updatable = false)
     @ManyToOne
     WorkflowNodeInstance parentNode;
+    @Column(name = "parent_node_id")
+    Long parentNodeId;
 
 
     @JSONField(serialize = false)

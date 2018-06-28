@@ -79,7 +79,7 @@ public class UserController {
     }
 
     @ApiOperation(value = "批量添加岗位")
-    @RequestMapping(value = "/addUsersToQuarters")
+    @RequestMapping(value = "/addUsersToQuarters", method = RequestMethod.GET)
     public Result userAddQuarter(
             @RequestParam String uids,
             @RequestParam long qid

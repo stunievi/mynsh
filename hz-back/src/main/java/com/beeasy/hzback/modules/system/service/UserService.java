@@ -197,10 +197,10 @@ public class UserService implements IUserService {
 //                .orElse(new JSONArray());
 //    }
 
-    
-    public Result<User> createUser(UserAdd add){
+
+    public Result<User> createUser(UserAdd add) {
         Result result = Utils.validate(add);
-        if(!result.isSuccess()){
+        if (!result.isSuccess()) {
             return result;
         }
         User users = userDao.findFirstByUsernameOrPhone(add.getUsername(), add.getPhone());
@@ -223,7 +223,7 @@ public class UserService implements IUserService {
             systemFile.setExt("jpg");
             systemFile.setFileName("default_face.jpg");
             systemFile = systemFileDao.save(systemFile);
-            if(systemFile.getId() == null){
+            if (systemFile.getId() == null) {
                 throw new IOException();
             }
             userProfile.setFaceId(systemFile.getId());
@@ -274,6 +274,7 @@ public class UserService implements IUserService {
 
     /**
      * 删除用户
+     *
      * @param uid
      * @return
      */
@@ -287,13 +288,14 @@ public class UserService implements IUserService {
 
     /**
      * 批量删除部门(软删除)
+     *
      * @param dids
      * @return
      */
-    public Result deleteDepartments(Long ...dids){
+    public Result deleteDepartments(Long... dids) {
         //如果部门下还有岗位, 那么不能删除
         for (Long did : dids) {
-            if(quartersDao.countByDepartment_Id(did) > 0){
+            if (quartersDao.countByDepartment_Id(did) > 0) {
                 return Result.error("该部门下仍有岗位, 无法删除");
             }
         }
@@ -303,36 +305,38 @@ public class UserService implements IUserService {
 
     /**
      * 批量删除岗位
+     *
      * @param qids
      * @return
      */
-    public Result deleteQuarters(Long ...qids){
+    public Result deleteQuarters(Long... qids) {
         for (Long qid : qids) {
-            if(getUidsFromQuarters(qid).size() > 0){
+            if (getUidsFromQuarters(qid).size() > 0) {
                 return Result.error("该岗位下仍有任职人员, 无法删除");
             }
         }
-        return Result.finish(quartersDao.deleteAllByIdIn(Arrays.asList(qids)) > 0) ;
+        return Result.finish(quartersDao.deleteAllByIdIn(Arrays.asList(qids)) > 0);
     }
 
     /**
      * 更新用户头像
+     *
      * @param uid
      * @param file
      * @return
      */
-    public Result<Long> updateUserFace(long uid, MultipartFile file){
+    public Result<Long> updateUserFace(long uid, MultipartFile file) {
         User user = findUser(uid).orElse(null);
-        if(null == user){
+        if (null == user) {
             return Result.error();
         }
         SystemFile systemFile = findFile(user.getProfile().getFaceId()).orElse(null);
-        if(null == systemFile){
+        if (null == systemFile) {
             return Result.error();
         }
 
         String ext = Utils.getExt(file.getOriginalFilename());
-        if(ext.equalsIgnoreCase("jpg") || ext.equalsIgnoreCase("jpeg") || ext.equalsIgnoreCase("png")){
+        if (ext.equalsIgnoreCase("jpg") || ext.equalsIgnoreCase("jpeg") || ext.equalsIgnoreCase("png")) {
             systemFileDao.delete(systemFile);
             SystemFile face = new SystemFile();
             face.setType(SystemFile.Type.FACE);
@@ -342,7 +346,7 @@ public class UserService implements IUserService {
                 face = systemFileDao.save(face);
                 user.getProfile().setFaceId(face.getId());
                 userProfileDao.save(user.getProfile());
-                if(face.getId() != null) return Result.ok(face.getId());
+                if (face.getId() != null) return Result.ok(face.getId());
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -353,68 +357,77 @@ public class UserService implements IUserService {
     /**
      * 修改密码, 修改规则如下
      * 1. 必须包含数字、字母、特殊字符 三种
-     2. 长度至少8位
-     3. 不能包含3位及以上相同字符的重复【eg：x111@q& xxxx@q&1】
-     4 不能包含3位及以上字符组合的重复【eg：ab!23ab!】
-     该规则不生效 5. 不能包含3位及以上的正序及逆序连续字符【eg：123%@#aop %@#321ao efg3%@#47 3%@#47gfe】
-     6. 不能包含空格、制表符、换页符等空白字符
-     该规则不生效 7. 键盘123456789数字对应的正序逆序特殊字符：eg：12#$%pwtcp(#$%(345对应的特殊字符#$%，仍视作连续))
-     8. 支持的特殊字符范围：^$./,;:’!@#%&*|?+()[]{}
+     * 2. 长度至少8位
+     * 3. 不能包含3位及以上相同字符的重复【eg：x111@q& xxxx@q&1】
+     * 4 不能包含3位及以上字符组合的重复【eg：ab!23ab!】
+     * 该规则不生效 5. 不能包含3位及以上的正序及逆序连续字符【eg：123%@#aop %@#321ao efg3%@#47 3%@#47gfe】
+     * 6. 不能包含空格、制表符、换页符等空白字符
+     * 该规则不生效 7. 键盘123456789数字对应的正序逆序特殊字符：eg：12#$%pwtcp(#$%(345对应的特殊字符#$%，仍视作连续))
+     * 8. 支持的特殊字符范围：^$./,;:’!@#%&*|?+()[]{}
+     *
      * @param uid
      * @param oldPassword
      * @param newPassword
      * @return
      */
-    public Result modifyPassword(long uid, String oldPassword, String newPassword){
-        //1 and 8
-        if(!(newPassword.matches("^.*[a-zA-Z]+.*$") && newPassword.matches("^.*[0-9]+.*$")
-                && newPassword.matches("^.*[/^/$/.//,;:'!@#%&/*/|/?/+/(/)/[/]/{/}]+.*$"))){
-            return Result.error("密码必须包含字母, 数字, 特殊字符");
+    public Result modifyPassword(long uid, String oldPassword, String newPassword) {
+        Result r = isValidPassword(newPassword);
+        if (!r.isSuccess()) {
+            return r;
         }
-        //2
-        if(!newPassword.matches("^.{8,}$")){
-            return Result.error("密码长度至少8位");
-        }
-        //3
-        if(newPassword.matches("^.*(.)\\1{2,}+.*$")){
-            return Result.error("密码不能包含3位及以上相同字符的重复");
-        }
-        //4
-        if(newPassword.matches("^.*(.{3})(.*)\\1+.*$")){
-            return Result.error("密码不能包含3位及以上字符组合的重复");
-        }
-        //6
-        if(newPassword.matches("^.*[\\s]+.*$")){
-            return Result.error("密码不能包含空格、制表符、换页符等空白字符");
-        }
-
         oldPassword = DigestUtils.md5DigestAsHex(oldPassword.getBytes());
         newPassword = DigestUtils.md5DigestAsHex(newPassword.getBytes());
         return Result.finish(userDao.modifyPassword(uid, oldPassword, newPassword) > 0);
     }
 
+    public Result isValidPassword(String newPassword) {
+        //1 and 8
+        if (!(newPassword.matches("^.*[a-zA-Z]+.*$") && newPassword.matches("^.*[0-9]+.*$")
+                && newPassword.matches("^.*[/^/$/.//,;:'!@#%&/*/|/?/+/(/)/[/]/{/}]+.*$"))) {
+            return Result.error("密码必须包含字母, 数字, 特殊字符");
+        }
+        //2
+        if (!newPassword.matches("^.{8,}$")) {
+            return Result.error("密码长度至少8位");
+        }
+        //3
+        if (newPassword.matches("^.*(.)\\1{2,}+.*$")) {
+            return Result.error("密码不能包含3位及以上相同字符的重复");
+        }
+        //4
+        if (newPassword.matches("^.*(.{3})(.*)\\1+.*$")) {
+            return Result.error("密码不能包含3位及以上字符组合的重复");
+        }
+        //6
+        if (newPassword.matches("^.*[\\s]+.*$")) {
+            return Result.error("密码不能包含空格、制表符、换页符等空白字符");
+        }
+        return Result.ok();
+    }
+
     /**
      * 修改用户资料
+     *
      * @param request
      * @return
      */
-    public Result modifyProfile(long uid, ProfileEditRequest request){
+    public Result modifyProfile(long uid, ProfileEditRequest request) {
         User user = findUser(uid).orElse(null);
-        if(null == user){
+        if (null == user) {
             return Result.error();
         }
-        if(!StringUtils.isEmpty(request.getTrueName())){
+        if (!StringUtils.isEmpty(request.getTrueName())) {
             user.setTrueName(request.getTrueName());
         }
-        if(!StringUtils.isEmpty(request.getPhone())){
+        if (!StringUtils.isEmpty(request.getPhone())) {
             //查找是否有相同的手机号
-            if(userDao.hasThisPhone(uid, request.getPhone()) > 1){
+            if (userDao.hasThisPhone(uid, request.getPhone()) > 1) {
                 return Result.error("已经有相同的手机号");
             }
             user.setPhone(request.getPhone());
         }
-        if(!StringUtils.isEmpty(request.getEmail())){
-            if(userDao.hasThisEmail(uid, request.getEmail()) > 1){
+        if (!StringUtils.isEmpty(request.getEmail())) {
+            if (userDao.hasThisEmail(uid, request.getEmail()) > 1) {
                 return Result.error("已经有相同的邮箱");
             }
             user.setEmail(request.getEmail());
@@ -424,8 +437,6 @@ public class UserService implements IUserService {
     }
 
 
-
-    
     public User saveUser(User user) {
         return userDao.save(user);
     }
@@ -476,10 +487,9 @@ public class UserService implements IUserService {
     }
 
 
-
     public Page<User> searchUser(UserSearch search, Pageable pageable) {
         Specification query = new Specification() {
-            
+
             public Predicate toPredicate(Root root, CriteriaQuery query, CriteriaBuilder cb) {
                 List<Predicate> predicates = new ArrayList<>();
                 if (!StringUtils.isEmpty(search.getName())) {
@@ -505,60 +515,62 @@ public class UserService implements IUserService {
     }
 
     public Result<User> editUser(UserEdit edit) throws RestException {
-        Result ret = Utils.validate(edit);
-        if(!ret.isSuccess()) return ret;
-        return findUser(edit.getId())
-                .map(user -> {
-                    if (!StringUtils.isEmpty(edit.getPhone())) {
-                        Optional<User> sameUser = userDao.findFirstByPhone(edit.getPhone());
-                        if (sameUser.isPresent() && !sameUser.get().getId().equals(user.getId())) {
-                            return Result.error("已经有相同的手机号");
-                        }
-                        user.setPhone(edit.getPhone());
-                    }
-                    if (!StringUtils.isEmpty(edit.getEmail())) {
-                        user.setEmail(edit.getEmail());
-                    }
+        User user = findUser(edit.getId()).orElse(null);
+        if (null == user) {
+            return Result.error();
+        }
+        if (!StringUtils.isEmpty(edit.getPhone())) {
+            Optional<User> sameUser = userDao.findFirstByPhone(edit.getPhone());
+            if (sameUser.isPresent() && !sameUser.get().getId().equals(user.getId())) {
+                return Result.error("已经有相同的手机号");
+            }
+            user.setPhone(edit.getPhone());
+        }
+        if (!StringUtils.isEmpty(edit.getEmail())) {
+            user.setEmail(edit.getEmail());
+        }
 
-                    //修改密码
-                    if (!StringUtils.isEmpty(edit.getPassword())) {
-                        user.setPassword(DigestUtils.md5DigestAsHex(edit.getPassword().getBytes()));
-                    }
-                    //是否禁用
-                    if (edit.getBaned() != null) {
-                        user.setBaned(edit.getBaned());
-                    }
-                    //真实姓名
-                    if (!StringUtils.isEmpty(edit.getTrueName())) {
-                        user.setTrueName(edit.getTrueName());
-                    }
+        //修改密码
+        if (!StringUtils.isEmpty(edit.getPassword())) {
+            Result r = isValidPassword(edit.getPassword());
+            if (!r.isSuccess()) {
+                return r;
+            }
+            user.setPassword(DigestUtils.md5DigestAsHex(edit.getPassword().getBytes()));
+        }
+        //是否禁用
+        if (edit.getBaned() != null) {
+            user.setBaned(edit.getBaned());
+        }
+        //真实姓名
+        if (!StringUtils.isEmpty(edit.getTrueName())) {
+            user.setTrueName(edit.getTrueName());
+        }
 
-                    List<Long> oldIds = null;
-                    //岗位设置
-                    if (null != edit.getQuarters()) {
-                        //
+        List<Long> oldIds = null;
+        //岗位设置
+        if (null != edit.getQuarters()) {
+            //
 //                        userDao.deleteUserQuarters(edit.getId());
-                        oldIds = user.getQuarters().stream().map(item -> item.getId()).collect(Collectors.toList());
-                        setQuarters(user, edit.getQuarters());
-                    }
-                    //菜单权限
-                    if (null != edit.getUnbindMenus()) {
-                        setUnbindMenus(user, edit.getUnbindMenus());
-                    }
-                    //禁用功能
-                    if (null != edit.getUnbindMethods()) {
-                        setUnbindMethods(user, edit.getUnbindMethods());
-                    }
-                    user = saveUser(user);
-                    if(null != oldIds){
-                        globalPermissionService.syncGlobalPermissionCenterQuartersChanged(oldIds,user);
-                    }
-                    return Result.ok(user);
-//                    return Result.ok(saveUser(user));
-                }).orElse(Result.error());
+            oldIds = user.getQuarters().stream().map(item -> item.getId()).collect(Collectors.toList());
+            setQuarters(user, edit.getQuarters());
+        }
+        //菜单权限
+        if (null != edit.getUnbindMenus()) {
+            setUnbindMenus(user, edit.getUnbindMenus());
+        }
+        //禁用功能
+        if (null != edit.getUnbindMethods()) {
+            setUnbindMethods(user, edit.getUnbindMethods());
+        }
+        user = saveUser(user);
+        if (null != oldIds) {
+            globalPermissionService.syncGlobalPermissionCenterQuartersChanged(oldIds, user);
+        }
+        return Result.ok(user);
     }
 
-    
+
     public Result<Quarters> createQuarters(QuartersAdd add) {
         Department department = departmentDao.findOne(add.getDepartmentId());
         if (department == null) return Result.error("没有该部门");
@@ -571,15 +583,14 @@ public class UserService implements IUserService {
         quarters.setDName(department.getName());
         //查找最上层的id
         List objs = quartersDao.getQuartersCodeFromDepartment(department.getId());
-        if(objs.size() == 0){
+        if (objs.size() == 0) {
             quarters.setCode(department.getCode() + "_001");
-        }
-        else{
+        } else {
             String code = objs.get(0).toString();
             int codeValue = Integer.valueOf(code.substring(code.length() - 3, code.length()));
             codeValue++;
             String newCode = codeValue + "";
-            for(int i = newCode.length(); i < 3; i++){
+            for (int i = newCode.length(); i < 3; i++) {
                 newCode = "0" + newCode;
             }
             quarters.setCode(department.getCode() + "_" + newCode);
@@ -590,19 +601,20 @@ public class UserService implements IUserService {
 
     /**
      * 编辑岗位
+     *
      * @param edit
      * @return
      */
-    public Result<Quarters> updateQuarters(QuartersEdit edit){
+    public Result<Quarters> updateQuarters(QuartersEdit edit) {
         //禁止编辑同名岗位
-        if(quartersDao.countSameNameFromDepartment(edit.getId(),edit.getName()) > 0){
+        if (quartersDao.countSameNameFromDepartment(edit.getId(), edit.getName()) > 0) {
             return Result.error("已经有同名的岗位");
         }
         Quarters quarters = findQuarters(edit.getId()).orElse(null);
-        if(null == quarters){
+        if (null == quarters) {
             return Result.error("编辑的岗位不存在");
         }
-        if(null != edit.getManager()){
+        if (null != edit.getManager()) {
             quarters.setManager(edit.getManager());
         }
         quarters.setName(edit.getName());
@@ -611,39 +623,40 @@ public class UserService implements IUserService {
     }
 
 
-    public Result addUsersToQuarters(Collection<Long> uids, long qid){
-        if(quartersDao.countById(qid) == 0){
+    public Result addUsersToQuarters(Collection<Long> uids, long qid) {
+        if (quartersDao.countById(qid) == 0) {
             return Result.error();
         }
         List<Long> list = uids.stream()
                 .filter(uid -> {
-                    if(userDao.countById(uid) == 0) return false;
-                    if(userDao.hasQuarters(uid,qid) > 0){
+                    if (userDao.countById(uid) == 0) return false;
+                    if (userDao.hasQuarters(uid, qid) > 0) {
                         return true;
                     }
-                    return userDao.userAddQuarters(uid,qid) > 0;
+                    return userDao.userAddQuarters(uid, qid) > 0;
                 }).collect(Collectors.toList());
         return Result.ok(list);
     }
 
 
     @Async
-    public void updateToken(String token){
+    public void updateToken(String token) {
         userTokenDao.updateToken(token, new Date(System.currentTimeMillis() + 30 * 1000 * 60));
     }
 
     /**
      * 增加用户特殊权限
+     *
      * @param uid
      * @param permissions
      * @return
      */
     @Deprecated
-    public boolean addExternalPermission(Long uid, UserExternalPermission.Permission ...permissions){
+    public boolean addExternalPermission(Long uid, UserExternalPermission.Permission... permissions) {
         //防止冲突
         User user = findUser(uid).orElse(null);
-        if(null == user) return false;
-        removeExternalPermission(uid,permissions);
+        if (null == user) return false;
+        removeExternalPermission(uid, permissions);
         for (UserExternalPermission.Permission permission : permissions) {
             UserExternalPermission userExternalPermission = new UserExternalPermission();
             userExternalPermission.setUser(user);
@@ -656,14 +669,15 @@ public class UserService implements IUserService {
 
     /**
      * 删除用户特殊权限
+     *
      * @param uid
      * @param permissions
      * @return
      */
     @Deprecated
-    public boolean removeExternalPermission(Long uid, UserExternalPermission.Permission ...permissions){
+    public boolean removeExternalPermission(Long uid, UserExternalPermission.Permission... permissions) {
         for (UserExternalPermission.Permission permission : permissions) {
-            externalPermissionDao.deleteAllByUser_IdAndPermission(uid,permission);
+            externalPermissionDao.deleteAllByUser_IdAndPermission(uid, permission);
         }
         return true;
     }
@@ -671,16 +685,17 @@ public class UserService implements IUserService {
 
     /**
      * 登录用户对应的私有云账号
+     *
      * @param uid
      * @return
      */
-    public Result loginFileCloudSystem(long uid){
+    public Result loginFileCloudSystem(long uid) {
         List<Object[]> list = userDao.getUserCloudProfile(uid);
-        if(list.size() > 0){
+        if (list.size() > 0) {
             Object[] objects = list.get(0);
             //登录私有云
-            LoginResponse loginResponse = cloudApi.login(String.valueOf(objects[0]),String.valueOf(objects[1]));
-            if(null != loginResponse &&  loginResponse.getStatus().equals("SUCCESS")){
+            LoginResponse loginResponse = cloudApi.login(String.valueOf(objects[0]), String.valueOf(objects[1]));
+            if (null != loginResponse && loginResponse.getStatus().equals("SUCCESS")) {
                 return Result.ok(loginResponse.getResponseCookies().get(0));
             }
         }
@@ -690,19 +705,20 @@ public class UserService implements IUserService {
 
     /**
      * 登录可操作公共文件柜的私有云账号, 如果没有权限, 那么依然登录原本的账号
+     *
      * @param uid
      * @return
      */
-    public Result loginFileCloudCommonSystem(long uid){
+    public Result loginFileCloudCommonSystem(long uid) {
         //检查是否有共享文件云权限
-        if(!globalPermissionService.checkPermission(GlobalPermission.Type.COMMON_CLOUD_DISK,0,uid)){
+        if (!globalPermissionService.checkPermission(GlobalPermission.Type.COMMON_CLOUD_DISK, 0, uid)) {
             return loginFileCloudCommonSystem(uid);
         }
 //        if(userDao.checkPermission(Utils.getCurrentUserId(), UserExternalPermission.Permission.COMMON_CLOUD_DISK) == 0){
 //            return loginFileCloudSystem(uid);
 //        }
-        LoginResponse loginResponse = cloudApi.login(cloudCommonUsername,cloudCommonPassword);
-        if(null != loginResponse &&  loginResponse.getStatus().equals("SUCCESS")){
+        LoginResponse loginResponse = cloudApi.login(cloudCommonUsername, cloudCommonPassword);
+        if (null != loginResponse && loginResponse.getStatus().equals("SUCCESS")) {
             return Result.ok(loginResponse.getResponseCookies().get(0));
         }
         return Result.error();
@@ -711,12 +727,13 @@ public class UserService implements IUserService {
 
     /**
      * 得到用户的私有云账号
+     *
      * @param uid
      * @return
      */
-    public String[] getPrivateCloudUsername(long uid){
+    public String[] getPrivateCloudUsername(long uid) {
         List<Object[]> list = userDao.getUserCloudProfile(uid);
-        if(list.size() > 0){
+        if (list.size() > 0) {
             String[] result = new String[2];
             int count = 0;
             for (Object o : list.get(0)) {
@@ -724,69 +741,71 @@ public class UserService implements IUserService {
             }
             return result;
         }
-        return new String[]{"",""};
+        return new String[]{"", ""};
     }
 
     /**
      * 得到公共私有云账号
+     *
      * @param uid
      * @return
      */
-    public String[] getCommonCloudUsername(long uid){
-        if(userDao.checkPermission(uid, UserExternalPermission.Permission.COMMON_CLOUD_DISK) == 0){
-            return new String[]{"",""};
+    public String[] getCommonCloudUsername(long uid) {
+        if (userDao.checkPermission(uid, UserExternalPermission.Permission.COMMON_CLOUD_DISK) == 0) {
+            return new String[]{"", ""};
         }
-        return new String[]{cloudCommonUsername,cloudCommonPassword};
+        return new String[]{cloudCommonUsername, cloudCommonPassword};
 
     }
 
-    public List<Department> findDepartmentsByParent_Id(long pid){
-        if(0 == pid){
+    public List<Department> findDepartmentsByParent_Id(long pid) {
+        if (0 == pid) {
             return departmentDao.findAllByParent(null);
-        }
-        else{
+        } else {
             return departmentDao.findAllByParent_Id(pid);
         }
     }
 
-    public boolean hasUser(long uid){
+    public boolean hasUser(long uid) {
         return userDao.countById(uid) > 0;
     }
 
-    public boolean userHasQuarter(long uid, long qid){
-        return userDao.countUidAndQid(uid,qid) > 0;
+    public boolean userHasQuarter(long uid, long qid) {
+        return userDao.countUidAndQid(uid, qid) > 0;
     }
 
-    public List<User> findUser(List<Long> ids){
+    public List<User> findUser(List<Long> ids) {
         return userDao.findAllByIdIn(ids);
     }
 
-    
+
     public Optional<User> findUser(long id) {
         return Optional.ofNullable(userDao.findOne(id));
     }
 
-    public Optional<Quarters> findQuarters(long id){
+    public Optional<Quarters> findQuarters(long id) {
         return Optional.ofNullable(quartersDao.findOne(id));
     }
 
-    public Optional<SystemFile> findFile(long id){
+    public Optional<SystemFile> findFile(long id) {
         return Optional.ofNullable(systemFileDao.findOne(id));
     }
 
-    public List<User> findUserByIds(Set<Long> ids){
+    public List<User> findUserByIds(Set<Long> ids) {
         return userDao.findAllByIdIn(ids);
     }
-    public List<User> findUserByIds(Long ...ids){
+
+    public List<User> findUserByIds(Long... ids) {
         return findUserByIds(new HashSet<Long>(Arrays.asList(ids)));
     }
 
 
     /**
      * 初始化用户首字母
+     *
      * @param user
      */
-    public void initLetter(User user){
+    public void initLetter(User user) {
         String letter;
         String firstSpell = ChineseToEnglish.getFirstSpell(user.getTrueName());
         String substring = firstSpell.substring(0, 1).toUpperCase();
@@ -803,17 +822,18 @@ public class UserService implements IUserService {
 
     /**
      * 添加授权
-     * @param pType 授权类型
+     *
+     * @param pType    授权类型
      * @param objectId 授权关联对象ID
-     * @param uType 授权方式
-     * @param linkIds 授权方式ID
-     * @Param info 授权详情, 没有为null
+     * @param uType    授权方式
+     * @param linkIds  授权方式ID
      * @return
+     * @Param info 授权详情, 没有为null
      */
-    public List<Long> addGlobalPermission(GlobalPermission.Type pType, long objectId, GlobalPermission.UserType uType, Collection<Long> linkIds, Object info){
+    public List<Long> addGlobalPermission(GlobalPermission.Type pType, long objectId, GlobalPermission.UserType uType, Collection<Long> linkIds, Object info) {
         return linkIds.stream().map(linkId -> {
             //检查是否已经有相同的授权
-            GlobalPermission globalPermission = globalPermissionDao.findTopByTypeAndObjectIdAndUserTypeAndLinkId(pType,objectId,uType,linkId).orElse(new GlobalPermission());
+            GlobalPermission globalPermission = globalPermissionDao.findTopByTypeAndObjectIdAndUserTypeAndLinkId(pType, objectId, uType, linkId).orElse(new GlobalPermission());
 //            List ids = entityManager.createQuery("select gp.id from GlobalPermission gp where gp.type = :ptype and gp.objectId = :objectId and gp.userType = :uType and gp.linkId = :linkId")
 //                    .setParameter("ptype",pType)
 //                    .setParameter("objectId",objectId)
@@ -832,7 +852,7 @@ public class UserService implements IUserService {
             globalPermission.setDescription(info);
 
             //更新用户授权表
-            if(pType.equals(GlobalPermission.Type.USER_METHOD)){
+            if (pType.equals(GlobalPermission.Type.USER_METHOD)) {
                 cacheUserMethods(globalPermission);
             }
 
@@ -846,15 +866,16 @@ public class UserService implements IUserService {
 
     /**
      * 按类型和对象得到授权列表
+     *
      * @param types
      * @param objectId
      * @return
      */
-    public List<GlobalPermission> getGlobalPermissions(Collection<GlobalPermission.Type> types, long objectId){
+    public List<GlobalPermission> getGlobalPermissions(Collection<GlobalPermission.Type> types, long objectId) {
         return globalPermissionDao.findAllByTypeInAndObjectId(types, objectId);
     }
 
-    public boolean deleteGlobalPermission(Long ...gpids){
+    public boolean deleteGlobalPermission(Long... gpids) {
         int count = globalPermissionDao.deleteAllByIdIn(Arrays.asList(gpids));
 //        if(count > 0){
 //            globalPermissionService.syncGlobalPermissionCenterDeleted(gpids);
@@ -864,33 +885,34 @@ public class UserService implements IUserService {
 
     /**
      * 删除某个对象的所有授权
+     *
      * @param id
      * @return
      */
-    public boolean deleteGlobalPermissionByObjectId(long id){
+    public boolean deleteGlobalPermissionByObjectId(long id) {
         int count = globalPermissionDao.deleteAllByObjectId(id);
         return count > 0;
     }
 
-    public JSONArray getUserMethods(long uid){
+    public JSONArray getUserMethods(long uid) {
         GlobalPermission globalPermission = globalPermissionDao.findTopByTypeAndObjectIdAndUserTypeAndLinkId(GlobalPermission.Type.USER_METHOD, 0, GlobalPermission.UserType.USER, uid).orElse(null);
         JSONObject menu = cache.getMenus();
-        if(null == globalPermission){
+        if (null == globalPermission) {
             return new JSONArray();
         }
         return (JSONArray) globalPermission.getDescription();
     }
 
-    public void cacheUserMethods(GlobalPermission globalPermission){
+    public void cacheUserMethods(GlobalPermission globalPermission) {
         userAllowApiDao.deleteAllByUserId(globalPermission.getLinkId());
         JSONObject menu = cache.getMenus();
-        for (Object o : (JSONArray)globalPermission.getDescription()) {
-            if(o instanceof String){
+        for (Object o : (JSONArray) globalPermission.getDescription()) {
+            if (o instanceof String) {
                 String str = (String) o;
                 JSONObject item = getChildItemByIndex(menu, str);
-                if(item.containsKey("api")){
+                if (item.containsKey("api")) {
                     JSONArray apis = item.getJSONArray("api");
-                    if(null == apis){
+                    if (null == apis) {
                         continue;
                     }
                     for (Object api : apis) {
@@ -905,19 +927,17 @@ public class UserService implements IUserService {
     }
 
 
-
-
-
     /*********8 工具类函数 *************/
 
 
     /**
      * 检查一个部门是不是另一个部门的子部门
+     *
      * @param pid
      * @param cid
      * @return
      */
-    public boolean isChildDepartment(long cid, long pid){
+    public boolean isChildDepartment(long cid, long pid) {
         List pobj = departmentDao.getDepartmentCode(pid);
         List cobj = departmentDao.getDepartmentCode(cid);
         return cobj.get(0).toString().startsWith(pobj.get(0).toString());
@@ -925,11 +945,12 @@ public class UserService implements IUserService {
 
     /**
      * 检查一个岗位是否隶属某个部门
+     *
      * @param qid
      * @param did
      * @return
      */
-    public boolean isChildQuarter(long qid, long did){
+    public boolean isChildQuarter(long qid, long did) {
         List pobj = departmentDao.getDepartmentCode(did);
         List qobj = quartersDao.getQuartersCode(qid);
         return qobj.get(0).toString().startsWith(pobj.get(0).toString());
@@ -938,43 +959,46 @@ public class UserService implements IUserService {
 
     /**
      * 检查用户是否隶属于某个部门
+     *
      * @param uid
      * @param did
      * @return
      */
-    public boolean isUserFromDepartment(long uid, long did){
+    public boolean isUserFromDepartment(long uid, long did) {
         List<Object[]> qids = userDao.getQids(uid);
-        return qids.stream().anyMatch(qid -> isChildDepartment((Long) qid[0],did));
+        return qids.stream().anyMatch(qid -> isChildDepartment((Long) qid[0], did));
     }
 
-    public boolean hasQuarters(long uid, long qid){
-        return userDao.hasQuarters(uid,qid) > 0;
+    public boolean hasQuarters(long uid, long qid) {
+        return userDao.hasQuarters(uid, qid) > 0;
     }
 
 
-    public boolean departmentHasQuarters(long did, long qid){
-        return departmentDao.departmentHasQuarters(did,qid) > 0;
+    public boolean departmentHasQuarters(long did, long qid) {
+        return departmentDao.departmentHasQuarters(did, qid) > 0;
 //        return departmentDao.departmentHasQuarters(did,qid) > 0;
     }
 
 
     /**
      * 得到某个部门的所有用户ID
+     *
      * @param dids
      * @return
      */
-    public List<Long> getUidsFromDepartment(Long ...dids){
+    public List<Long> getUidsFromDepartment(Long... dids) {
         return entityManager.createQuery("select u.id from User u join u.quarters q where (select count(d) from Department d where q.code like concat(d.code,'%') and d.id in :dids) > 0")
-                .setParameter("dids",Arrays.asList(dids))
+                .setParameter("dids", Arrays.asList(dids))
                 .getResultList();
     }
 
     /**
      * 得到某个岗位的所有用户ID
+     *
      * @param qids
      * @return
      */
-    public List<Long> getUidsFromQuarters(Long ...qids){
+    public List<Long> getUidsFromQuarters(Long... qids) {
         return entityManager.createQuery("select u.id from User u join u.quarters q where q.id in :qids")
                 .setParameter("qids", Arrays.asList(qids))
                 .getResultList();
@@ -983,28 +1007,28 @@ public class UserService implements IUserService {
 
     /**
      * 得到某个岗位的所有用户ID
+     *
      * @param uid
      * @return
      */
-    public List<Long> getQidsFromUser(long uid){
+    public List<Long> getQidsFromUser(long uid) {
         return entityManager.createQuery("select q.id from User u join u.quarters q where u.id = :uid")
-                .setParameter("uid",uid)
+                .setParameter("uid", uid)
                 .getResultList();
     }
 
-    private JSONObject getChildItemByIndex(JSONObject item, String path){
+    private JSONObject getChildItemByIndex(JSONObject item, String path) {
         String[] ps = path.trim().split("\\.");
         JSONObject result = item;
         for (String p : ps) {
             Object obj = result.get(p);
-            if(null == obj || !(obj instanceof JSONObject)){
+            if (null == obj || !(obj instanceof JSONObject)) {
                 return new JSONObject();
             }
             result = (JSONObject) obj;
         }
         return result;
     }
-
 
 
 }

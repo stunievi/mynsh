@@ -50,6 +50,17 @@ public interface IGlobalPermissionDao extends JpaRepository<GlobalPermission,Lon
             " )")
     int hasPermission(@Param("uid") long uid, @Param("types") Collection<GlobalPermission.Type> types, @Param("oid") long oid);
 
+
+    @Query(value = "select distinct gp.objectId from GlobalPermission gp, User user left join user.quarters uq where gp.type in :types and user.id in :uids and " +
+            //是主管
+            "uq.manager = true and " +
+            //
+            "(" +
+                "(gp.userType = 'QUARTER' and uq.departmentId in ( select qq.departmentId from Quarters qq where qq.id = gp.linkId) ) or " +
+                "(gp.userType = 'USER' and uq.departmentId in (select uuqq.departmentId from User uu join uu.quarters uuqq where uu.id = gp.linkId) )" +
+            ")")
+    List getObjectIds(@Param("types") Collection<GlobalPermission.Type> types, @Param("uids") Collection<Long> uids);
+
     Optional<GlobalPermission> findTopByTypeAndObjectIdAndUserTypeAndLinkId(GlobalPermission.Type type, long objectId, GlobalPermission.UserType userType, long linkId);
 
     List<GlobalPermission> findAllByTypeInAndObjectId(Collection<GlobalPermission.Type> types, long objectId);

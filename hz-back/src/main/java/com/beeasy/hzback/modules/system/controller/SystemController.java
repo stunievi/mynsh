@@ -14,8 +14,12 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import javax.sql.DataSource;
 import javax.validation.Valid;
-import java.util.Arrays;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Api(tags = "系统API")
@@ -55,12 +59,27 @@ public class SystemController  {
     /**********测试***********/
     @Autowired
     EntityManager entityManager;
+    @Autowired
+    DataSource dataSource;
     @RequestMapping(value = "/query", method = RequestMethod.POST)
     public Result query(@RequestBody String sql){
-        Query query =entityManager.createNativeQuery(sql);
-        query.unwrap(SQLQuery.class).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
-        return Result.ok(
-                query
-                .getResultList());
+        List s = new ArrayList();
+        try(ResultSet rs = dataSource.getConnection().createStatement().executeQuery(sql)){
+            ResultSetMetaData rsmd = rs.getMetaData();
+            int count = rsmd.getColumnCount();
+            while(rs.next()){
+                Map<String, String> hm = new HashMap<String, String>();
+                for (int i = 1; i <= count; i++) {
+                    String key = rsmd.getColumnLabel(i);
+                    String value = rs.getString(i);
+                    hm.put(key, value);
+                }
+                s.add(hm);
+            }
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return Result.ok(s);
     }
 }

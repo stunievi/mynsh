@@ -34,8 +34,12 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import javax.sql.DataSource;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -404,8 +408,32 @@ public class TestAsync {
 
     @Autowired
     IGlobalPermissionDao globalPermissionDao;
+    @Autowired
+    IWorkflowNodeInstanceDao nodeInstanceDao;
+    @Autowired
+    DataSource dataSource;
+    @Transactional
     @Test
-    public void testtt() throws InterruptedException {
+    public void testtt() throws InterruptedException, SQLException {
+
+        ResultSet rs = dataSource.getConnection().createStatement().executeQuery("SELECT * from ACC_LOAN limit 10");
+        List s=  new ArrayList();
+        while(rs.next()){
+            Map<String, String> hm = new HashMap<String, String>();
+            ResultSetMetaData rsmd = rs.getMetaData();
+            int count = rsmd.getColumnCount();
+            for (int i = 1; i <= count; i++) {
+                String key = rsmd.getColumnLabel(i);
+                String value = rs.getString(i);
+                hm.put(key, value);
+            }
+            s.add(hm);
+        }
+        List lll =  entityManager.createNativeQuery("SELECT * FROM ACC_LOAN limit 1")
+        .getResultList();
+
+        nodeInstanceDao.updateNodeInstanceDealer(1,Collections.singleton(1l));
+
 //        boolean flag = userService.isChildDepartment(38,29);
 //        Assert.assertTrue(flag);
 //        flag = userService.isChildDepartment(29,38);
@@ -413,7 +441,7 @@ public class TestAsync {
 
 //        userDao.userAddQuarters(155,33);
 
-//        userService.addUsersToQuarters(Collections.singleton(155l),33);
+//        userService.addUsersToQuarters(Collections.singleton(155l),33);w
         int ccc = workflowModelDao.isManagerForWorkflow(155l, 8);
         Assert.assertTrue(ccc > 0);
 //        int ccc = globalPermissionDao.hasPermission(74l,Collections.singleton(GlobalPermission.Type.WORKFLOW_PUB),29);

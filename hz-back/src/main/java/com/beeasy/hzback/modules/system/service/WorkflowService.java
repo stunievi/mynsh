@@ -26,12 +26,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityManager;
+import javax.persistence.criteria.*;
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
@@ -343,7 +345,7 @@ public class WorkflowService{
             return result;
         }
         WorkflowInstance instance = result.getData();
-        instance.setParentNode(nodeInstance);
+        instance.setParentNodeId(nodeInstance.getId());
         instanceDao.save(instance);
         logService.addLog(SystemTextLog.Type.WORKFLOW, nodeInstance.getInstance().getId(), user.getId(), "接受了子任务 " + applyTaskRequest.getTitle());
 
@@ -543,7 +545,7 @@ public class WorkflowService{
      * @return
      */
     public boolean canAccept(WorkflowInstance instance, User user) {
-        return instance.getState().equals(WorkflowInstance.State.UNRECEIVED) && canPub(instance.getWorkflowModel(), user);
+        return instance.getState().equals(WorkflowInstance.State.COMMON) && canPub(instance.getWorkflowModel(), user);
     }
 
     /**
@@ -576,6 +578,9 @@ public class WorkflowService{
 //        }
 //        return flag2;
     }
+    public boolean canPub(long modelId, long uid){
+        return globalPermissionDao.hasPermission(uid, Collections.singleton(GlobalPermission.Type.WORKFLOW_PUB), modelId) > 0;
+    }
 
 
     /**
@@ -589,6 +594,10 @@ public class WorkflowService{
         return modelDao.isManagerForWorkflow(user.getId(), modelId) > 0;
 //        return globalPermissionDao.hasPermission(user.getId(), Collections.singleton(GlobalPermission.Type.WORKFLOW_POINTER), modelId) > 0;
 //        return model.getPermissions().stream().anyMatch(p -> p.getType().equals(WorkflowExtPermission.Type.POINTER) && user.hasQuarters(p.getQid()));
+    }
+
+    public boolean canPoint(long modelId, long uid){
+        return modelDao.isManagerForWorkflow(uid,modelId) > 0;
     }
 
     /**
@@ -745,7 +754,8 @@ public class WorkflowService{
             //保存主体
             instanceDao.save(transaction.getInstance());
             //更新所有起始节点的经办人
-            nodeInstanceDao.updateNodeInstanceDealer(transaction.getInstanceId(), uid);
+            List ids = nodeInstanceDao.getStartNodeIds(transaction.getInstanceId());
+            nodeInstanceDao.updateNodeInstanceDealer(uid, ids);
             //更新事务
             transactionDao.save(transaction);
             successIds.add(transaction.getId());
@@ -780,6 +790,98 @@ public class WorkflowService{
         return Result.ok(successIds);
     }
 
+
+    /**
+     * 主管得到管理的任务
+     * @param uids
+     * @param request
+     * @param lessId
+     * @param pageable
+     * @return
+     */
+    public Page<WorkflowInstance> getUnreceivedWorks(Collection<Long> uids, UnreceivedWorksSearchRequest request, Long lessId, Pageable pageable){
+        if(null == lessId) lessId = Long.MAX_VALUE;
+        //得到我监管的所有模型ID
+        List oids = globalPermissionDao.getObjectIds(Collections.singleton(GlobalPermission.Type.WORKFLOW_PUB), uids);
+        Long finalLessId = lessId;
+        Specification query = new Specification() {
+
+            public Predicate toPredicate(Root root, CriteriaQuery query, CriteriaBuilder cb) {
+                List<Predicate> predicates = new ArrayList<>();
+
+                predicates.add(cb.lessThan(root.get("id"), finalLessId));
+                Join join = root.join("workflowModel");
+                //关联模型
+                predicates.add(join.get("id").in(oids));
+                if(!StringUtils.isEmpty(request.getId())){
+                    predicates.add(cb.like(root.get("id"), "%" + request.getId() + "%"));
+                }
+                //限制状态
+                if(null != request.getState()){
+                    predicates.add(cb.equal(root.get("state"), request.getState()));
+                }
+                //类型
+                if(!StringUtils.isEmpty(request.getType())){
+
+                }
+                //客户经理编号
+
+                return cb.and(predicates.toArray(new Predicate[predicates.size()]));
+            }
+        };
+
+        return instanceDao.findAll(query, pageable);
+    }
+
+    /**
+     * 指派/移交 任务
+     * @param uid
+     * @param iids
+     * @param toUid
+     * @return 处理成功的任务ID
+     */
+    public List<Long> pointTask(long uid, Collection<Long> iids, long toUid){
+        List<Long> success = new ArrayList<>();
+        for (Long iid : iids) {
+            WorkflowInstance instance = findInstance(iid).orElse(null);
+            if(null == instance){
+                continue;
+            }
+
+            //检查是否有指派权限
+            if(!canPoint(instance.getModelId(),uid)){
+                continue;
+            }
+
+            //接受人是否有执行权限
+            if(!canPub(instance.getModelId(),toUid)){
+                continue;
+            }
+
+            //任务状态是否合法
+            if(!instance.getState().equals(WorkflowInstance.State.COMMON) && !instance.getState().equals(WorkflowInstance.State.UNRECEIVED)){
+                continue;
+            }
+
+            //子任务禁止移交
+            if(instance.getParentNodeId() != null){
+                continue;
+            }
+
+            WorkflowInstanceTransaction transaction = new WorkflowInstanceTransaction();
+            transaction.setFromState(instance.getState());
+            transaction.setToState(WorkflowInstance.State.DEALING);
+            transaction.setInstanceId(instance.getId());
+            transaction.setUserId(toUid);
+            transactionDao.save(transaction);
+            instance.setState(WorkflowInstance.State.PAUSE);
+            saveWorkflowInstance(instance);
+
+            success.add(instance.getId());
+        }
+
+        return success;
+    }
 
 
     /**
