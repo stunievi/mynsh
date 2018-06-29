@@ -46,4 +46,7 @@ public interface IWorkflowNodeInstanceDao extends JpaRepository<WorkflowNodeInst
 
     Optional<WorkflowNodeInstance> findTopByNodeModel_NameAndInstanceIdOrderByIdDesc(String name, long instanceId);
 
+    //查询其实节点实例
+    List<WorkflowNodeInstance> findAllByInstanceIdAndNodeModel_StartIsTrue(long instanceId);
+
 }

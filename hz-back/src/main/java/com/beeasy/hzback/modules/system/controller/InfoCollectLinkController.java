@@ -131,7 +131,7 @@ public class InfoCollectLinkController {
             ApplyTaskRequest request = new ApplyTaskRequest();
             request.setDataSource(ApplyTaskRequest.DataSource.ACC_LOAN);
             request.setDataId(BILL_NO);
-            workflowService.addExtData(instance, instance.getWorkflowModel(), request);
+            workflowService.addExtData(instance, instance.getWorkflowModel(), request, false);
             success.add(aLong);
         }
         return Result.ok(success);

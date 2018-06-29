@@ -60,6 +60,7 @@ public class SystemController  {
     /**********测试***********/
     @Autowired
     EntityManager entityManager;
+    @Autowired
     SqlUtils sqlUtils;
     @RequestMapping(value = "/query", method = RequestMethod.POST)
     public Result query(@RequestBody String sql){

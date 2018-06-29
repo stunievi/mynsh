@@ -318,7 +318,7 @@ public class WorkflowService {
 
                 }
             }
-            addExtData(workflowInstance, workflowModel, request);
+            addExtData(workflowInstance, workflowModel, request, true);
         }
 
         return workflowInstance.getId() == null ? Result.error() : Result.ok(workflowInstance);
@@ -326,7 +326,7 @@ public class WorkflowService {
 
 
 
-    public void addExtData(WorkflowInstance instance, WorkflowModel model, ApplyTaskRequest request) {
+    public void addExtData(WorkflowInstance instance, WorkflowModel model, ApplyTaskRequest request, boolean updateFirstNode) {
         //补足系统自动产生的固有字段
         if (null != request.getDataSource()) {
             String sql = null;
@@ -360,6 +360,13 @@ public class WorkflowService {
                         attribute.setAttrKey(workflowModelInnate.getContent().getString("ename"));
                         attribute.setAttrValue(rs.get(0).getOrDefault(attribute.getAttrKey(),""));
                         instanceAttributeDao.save(attribute);
+                    }
+                    //更新第一个节点里的对应字段
+                    if(updateFirstNode){
+//                        List<WorkflowNodeInstance> nodeInstances = nodeInstanceDao.findAllByInstanceIdAndNodeModel_StartIsTrue(instance.getId());
+//                        for (WorkflowNodeInstance nodeInstance : nodeInstances) {
+//
+//                        }
                     }
 //                    for (Map.Entry<String, String> entry : rs.get(0).entrySet()) {
 //                        WorkflowModelInnate after = modelInnates.get(entry.getKey());
@@ -589,7 +596,10 @@ public class WorkflowService {
         //2.任务只有一个节点
         //3.任务也是我发布的
         //4.任务在进行中
-        return instance.getDealUserId().equals(user.getId()) && instance.getPubUserId() == user.getId() && instance.getNodeList().size() <= 1 && instance.getState().equals(WorkflowInstance.State.DEALING);
+        return instance.getDealUserId().equals(user.getId()) &&
+                (null != instance.getPubUserId() && instance.getPubUserId().equals(user.getId())) &&
+                        instance.getNodeList().size() <= 1 &&
+                        instance.getState().equals(WorkflowInstance.State.DEALING);
     }
 
     /**
