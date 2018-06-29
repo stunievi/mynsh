@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IWorkflowNodeAttributeDao extends JpaRepository<WorkflowNodeAttribute,Long> {
-    Optional<WorkflowNodeAttribute> findFirstByNodeInstanceAndAttrKey(WorkflowNodeInstance instance, String attrKey);
+    Optional<WorkflowNodeAttribute> findFirstByNodeInstanceIdAndAttrKey(long niid, String attrKey);
 
     Optional<WorkflowNodeAttribute> findFirstByDealUserIdAndAttrKey(long uid, String key);
 

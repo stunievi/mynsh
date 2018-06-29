@@ -52,6 +52,7 @@ public class WorkflowNodeFile extends AbstractBaseEntity{
 
     String fileName;
     String content;
+    String ext;
 
     //关联文件ID
     Long fileId;

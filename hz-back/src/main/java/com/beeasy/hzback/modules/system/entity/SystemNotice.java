@@ -22,7 +22,7 @@ public class SystemNotice {
     //消息内容
     String content;
 
-    @Enumerated
+    @Enumerated(value = EnumType.STRING)
     Type type;
 
     @CreatedDate
@@ -36,7 +36,7 @@ public class SystemNotice {
     @Column(name = "user_id")
     Long userId;
 
-    @Enumerated
+    @Enumerated(value = EnumType.STRING)
     State state;
 
     //消息类别

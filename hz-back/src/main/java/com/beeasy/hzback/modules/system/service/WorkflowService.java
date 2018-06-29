@@ -363,10 +363,25 @@ public class WorkflowService {
                     }
                     //更新第一个节点里的对应字段
                     if(updateFirstNode){
-//                        List<WorkflowNodeInstance> nodeInstances = nodeInstanceDao.findAllByInstanceIdAndNodeModel_StartIsTrue(instance.getId());
-//                        for (WorkflowNodeInstance nodeInstance : nodeInstances) {
-//
-//                        }
+                        List<WorkflowNodeInstance> nodeInstances = nodeInstanceDao.findAllByInstanceIdAndNodeModel_StartIsTrue(instance.getId());
+                        for (WorkflowNodeInstance nodeInstance : nodeInstances) {
+                            WorkflowNode node = findNode(nodeInstance.getNodeModelId()).orElse(null);
+                            if(null == node){
+                                continue;
+                            }
+                            JSONObject object = node.getNode();
+                            if(object.containsKey("content")){
+                                for (Map.Entry<String, Object> entry : object.getJSONObject("content").entrySet()) {
+                                    JSONObject field = (JSONObject) entry.getValue();
+                                    String value =rs.get(0).getOrDefault(field.getString("ename"),"");
+                                    if(!StringUtils.isEmpty(value)){
+
+                                        WorkflowNodeAttribute attribute = addAttribute(instance.getDealUserId(), nodeInstance.getId(), field.getString("ename"), value, field.getString("cname"));
+                                        attributeDao.save(attribute);
+                                    }
+                                }
+                            }
+                        }
                     }
 //                    for (Map.Entry<String, String> entry : rs.get(0).entrySet()) {
 //                        WorkflowModelInnate after = modelInnates.get(entry.getKey());
@@ -1319,6 +1334,7 @@ public class WorkflowService {
         }
         systemFile.setType(SystemFile.Type.WORKFLOW);
         systemFile.setFileName(file.getOriginalFilename());
+        systemFile.setExt(Utils.getExt(systemFile.getFileName()));
         systemFile = systemFileDao.save(systemFile);
 
         WorkflowNodeFile nodeFile = new WorkflowNodeFile();
@@ -1327,6 +1343,7 @@ public class WorkflowService {
         nodeFile.setNodeInstance(nodeInstance);
         nodeFile.setType(fileType);
         nodeFile.setUserId(user.getId());
+        nodeFile.setExt(systemFile.getExt());
         if (fileType.equals(WorkflowNodeFile.Type.SIGN)) {
             nodeFile.setContent(content);
         }
@@ -1344,6 +1361,19 @@ public class WorkflowService {
         }
         //查找是否存在这个节点
         return nodeFileDao.updateNodeFileTags(uid, nodeId, str) > 0;
+    }
+
+    public boolean setNodeFileName(long uid, long nodeId, String name){
+        //处理名字
+        WorkflowNodeFile nodeFile = findNodeFile(nodeId).orElse(null);
+        if(null == nodeFile){
+            return false;
+        }
+        name = name.replace("(\\..+)$", "");
+        if(!StringUtils.isEmpty(nodeFile.getExt())){
+            name = name + "." + nodeFile.getExt();
+        }
+        return nodeFileDao.updateNodeFileName(uid, nodeId, name) > 0;
     }
 
 
@@ -2583,8 +2613,8 @@ public class WorkflowService {
         return "";
     }
 
-    private WorkflowNodeAttribute addAttribute(long uid, long nodeInstanceId, String key, String value, String cname) {
-        WorkflowNodeAttribute attribute = attributeDao.findFirstByDealUserIdAndAttrKey(nodeInstanceId, key).orElse(new WorkflowNodeAttribute());
+    public WorkflowNodeAttribute addAttribute(Long uid, long nodeInstanceId, String key, String value, String cname) {
+        WorkflowNodeAttribute attribute = attributeDao.findFirstByNodeInstanceIdAndAttrKey(nodeInstanceId, key).orElse(new WorkflowNodeAttribute());
         attribute.setDealUserId(uid);
         attribute.setAttrKey(key);
         attribute.setAttrValue(value == null ? "" : value);

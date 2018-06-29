@@ -13,7 +13,10 @@ public interface IWorkflowNodeFileDao extends JpaRepository<WorkflowNodeFile,Lon
 //    int checkAuth(@Param("uid") long uid, @Param("id") long id);
 
     @Modifying
-    @Transactional
     @Query(value = "update WorkflowNodeFile f set f.tags = :tags where f.id = :id and f.userId = :uid")
     int updateNodeFileTags(@Param("uid") long uid, @Param("id") long id, @Param("tags") String tags);
+
+    @Modifying
+    @Query(value = "update WorkflowNodeFile f set f.fileName = :name where f.id = :id and f.userId = :uid")
+    int updateNodeFileName(@Param("uid") long uid, @Param("id") long id, @Param("name") String name);
 }

@@ -616,6 +616,15 @@ public class WorkFlowController {
         return Result.finish(workflowService.setNodeFileTags(Utils.getCurrentUserId(), id, tags)).toJson();
     }
 
+    @ApiOperation(value = "设置节点文件名")
+    @RequestMapping(value = "/node/file/rename", method = RequestMethod.GET)
+    public Result setNodeFileName(
+            @RequestParam long id,
+            @RequestParam String name
+    ){
+        return Result.finish(workflowService.setNodeFileName(Utils.getCurrentUserId(), id, name));
+    }
+
 
 
 //    public Result searchInfoLink(){

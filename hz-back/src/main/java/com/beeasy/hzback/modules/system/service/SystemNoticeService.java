@@ -11,6 +11,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.Transient;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -62,7 +63,7 @@ public class SystemNoticeService {
 
 
     @Data
-    public class SearchRequest{
+    public static class SearchRequest{
         SystemNotice.State state;
         SystemNotice.Type type;
     }
