@@ -184,6 +184,10 @@ public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Lon
 
 
 
+    /*******台账相关******/
+    @Query(value = "select distinct ins from WorkflowInstance ins left join ins.attributes at where at.attrKey = 'BILL_NO' and at.attrValue = :billNo and ins.workflowModel.modelName = :modelName order by ins.id desc")
+    Page<WorkflowInstance> getBindedWorks(@Param("billNo") String billNo, @Param("modelName") String modelName, Pageable pageable);
+
     /**********/
 //    @Query(value = "SELECT * from ACC_LOAN ORDER BY BILL_NO DESC /*#pageable*/",
 //            countQuery = "SELECT COUNT(*) FROM ACC_LOAN",

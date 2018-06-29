@@ -638,6 +638,17 @@ public class WorkFlowController {
     }
 
 
+    @ApiOperation(value = "查询台账相关的绑定")
+    @RequestMapping(value = "/binds", method = RequestMethod.GET)
+    public Result searchBindedWorks(
+            @RequestParam String billNo,
+            @RequestParam String modelName,
+            Pager pager,
+            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
+    ){
+        return Result.ok(instanceDao.getBindedWorks(billNo, modelName, pageable));
+    }
+
 
 //    public Result searchInfoLink(){
 //
