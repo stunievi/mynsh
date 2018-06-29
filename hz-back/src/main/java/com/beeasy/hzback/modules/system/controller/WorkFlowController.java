@@ -499,9 +499,10 @@ public class WorkFlowController {
             @RequestParam Long nodeId,
             MultipartFile file,
             @RequestParam WorkflowNodeFile.Type fileType,
-            String content
+            String content,
+            String tag
     ){
-        return workflowService.uploadNodeFile(Utils.getCurrentUserId(),instanceId,nodeId,fileType,file,content).toJson();
+        return workflowService.uploadNodeFile(Utils.getCurrentUserId(),instanceId,nodeId,fileType,file,content, tag).toJson();
     }
 
     @ApiOperation(value = "删除节点附件")

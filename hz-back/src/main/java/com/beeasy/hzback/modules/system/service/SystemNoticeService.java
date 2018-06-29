@@ -62,6 +62,19 @@ public class SystemNoticeService {
     }
 
 
+
+    public void addNotice(SystemNotice.Type type, Collection<Long> toUids, String content){
+        for (Long toUid : toUids) {
+            SystemNotice notice = new SystemNotice();
+            notice.setState(SystemNotice.State.UNREAD);
+            notice.setType(type);
+            notice.setUserId(toUid);
+            notice.setContent(content);
+            noticeDao.save(notice);
+        }
+    }
+
+
     @Data
     public static class SearchRequest{
         SystemNotice.State state;

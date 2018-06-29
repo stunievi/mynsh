@@ -10,6 +10,7 @@ import com.beeasy.hzback.modules.system.dao.IWorkflowInstanceDao;
 import com.beeasy.hzback.modules.system.dao.IWorkflowModelDao;
 import com.beeasy.hzback.modules.system.entity.*;
 import com.beeasy.hzback.modules.system.form.StartChildInstanceRequest;
+import com.beeasy.hzback.modules.system.log.SaveLog;
 import com.beeasy.hzback.modules.system.response.FetchWorkflowInstanceResponse;
 import com.beeasy.hzback.modules.system.service.UserService;
 import com.beeasy.hzback.modules.system.service.WorkflowService;
@@ -190,9 +191,10 @@ public class MobileWorkflowController {
             @RequestParam Long nodeId,
             MultipartFile file,
             @RequestParam WorkflowNodeFile.Type fileType,
-            String content
+            String content,
+            String tag
             ){
-        return workflowService.uploadNodeFile(Utils.getCurrentUserId(),instanceId,nodeId,fileType,file,content).toMobile();
+        return workflowService.uploadNodeFile(Utils.getCurrentUserId(),instanceId,nodeId,fileType,file,content,tag).toMobile();
     }
 
     @ApiOperation(value = "删除节点附件")

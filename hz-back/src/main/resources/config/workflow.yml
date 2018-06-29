@@ -862,7 +862,148 @@
       end: true
       behavior: start_next_task('不良资产管理流程',get_task_dealer_id(),get_task_innate_data())
 
+
 利息减免:
+  manual: false
+  subject:
+
+  flow:
+    发起申请:
+      type: input
+      start: true
+      content:
+        任务编号:
+          name: TASK_ID
+          type: taskId
+          required: y
+          innate: true
+        任务编号（不良资产管理流程）:
+          name: TASK_PID
+          type: taskId
+          required: y
+          innate: true
+        借据号:
+          name: BILL_NO
+          type: EXT_DATA
+          innate: true
+          required: n
+        合同号:
+          name: CONT_NO
+          type: EXT_DATA
+          innate: true
+          required: n
+        客户号:
+          name: CUS_ID
+          type: EXT_DATA
+          innate: true
+          required: n
+        客户名称:
+          name: CUS_NAME
+          type: EXT_DATA
+          innate: true
+          required: n
+        贷款账号:
+          name: LOAN_ACCOUNT
+          type: EXT_DATA
+          innate: true
+          required: y
+        申请说明:
+          name: apply
+          type: textarea
+          required: n
+        上传附件:
+          type: files
+          name: files
+          required: n
+
+      next: 经营班子集体审议
+
+    经营班子集体审议:
+      type: check
+      ps: ps
+      key: key
+      question: 审议通过/不通过?
+      count: 5
+      states:
+        -
+          item: 通过
+          condition: 1
+          behavior: go('风险资产管理部审核')
+        -
+          item: 不通过
+          condition: 1
+          behavior: go('发起申请')
+      next: [风险资产管理部审核,发起申请]
+
+    风险资产管理部审核:
+      type: check
+      key: key
+      ps: ps
+      question: 是否通过
+      states:
+        -
+          item: 是
+          condition: 1
+          behavior: go('不良资产管理委员会审批')
+        -
+          item: 否
+          condition: 1
+          behavior: go('发起申请')
+      count: 1
+      next: [不良资产管理委员会审批,发起申请]
+
+    不良资产管理委员会审批:
+      type: check
+      key: key
+      ps: ps
+      question: 是否通过
+      states:
+        -
+          item: 是
+          condition: 3
+          behavior: go('签订协议')
+        -
+          item: 否
+          condition: 3
+          behavior: go('发起申请')
+      count: 5
+      next: [签订协议,发起申请]
+
+    签订协议:
+      type: input
+      start: false
+      content:
+        说明:
+          name: apply
+          type: textarea
+          required: n
+        上传附件:
+          type: files
+          name: files
+          required: n
+
+      next: 立卷归档
+
+    立卷归档:
+      type: input
+      start: false
+      content:
+        说明:
+          name: apply
+          type: textarea
+          required: n
+        上传附件:
+          type: files
+          name: files
+          required: n
+
+      next: 结束
+
+    结束:
+      type: end
+      end: true
+
+诉讼:
   manual: false
   subject:
 
@@ -1563,6 +1704,24 @@
           condition: 1
           behavior: go('选择处理方式')
       next: [不良转贷后,选择处理方式]
+
+    抵债资产接收流程:
+          type: check
+          key: key
+          ps: ps
+          question: 填写任务的处理结果
+          count: 1
+          allow_child_task: [抵债资产接收]
+          states:
+            -
+              item: 是
+              condition: 1
+              behavior: go('资产处置流程')
+            -
+              item: 否
+              condition: 1
+              behavior: go('选择处理方式')
+          next: [资产处置流程,选择处理方式]
 
     资产处置流程:
       type: check

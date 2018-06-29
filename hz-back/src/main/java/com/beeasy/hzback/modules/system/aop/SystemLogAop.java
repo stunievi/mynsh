@@ -7,6 +7,7 @@ import com.beeasy.hzback.modules.system.entity.SystemTextLog;
 import com.beeasy.hzback.modules.system.entity.User;
 import com.beeasy.hzback.modules.system.log.SaveLog;
 import com.beeasy.hzback.modules.system.service.UserService;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.aopalliance.intercept.Joinpoint;
 import org.apache.commons.lang.StringUtils;
@@ -87,8 +88,8 @@ public class SystemLogAop {
         for (Method method : methods) {
             if (method.getName().equals(methodName)) {
                 Class[] clazzs = method.getParameterTypes();
-                if (clazzs!=null&&clazzs.length == arguments.length&&method.getAnnotation(SaveLog.class)!=null) {
-                    operationName = method.getAnnotation(SaveLog.class).value();
+                if (clazzs!=null&&clazzs.length == arguments.length&&method.getAnnotation(ApiOperation.class)!=null) {
+                    operationName = method.getAnnotation(ApiOperation.class).value();
                     break;
                 }
             }

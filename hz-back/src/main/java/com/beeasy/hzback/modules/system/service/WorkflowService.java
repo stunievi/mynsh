@@ -25,6 +25,7 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -34,6 +35,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import javax.persistence.criteria.*;
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
@@ -98,6 +100,8 @@ public class WorkflowService {
 
     @Autowired
     IWorkflowNodeDao nodeDao;
+    @Autowired
+    SystemNoticeService noticeService;
 
 //    @Autowired
 //    IWorkflowModelPersonsDao personsDao;
@@ -300,6 +304,8 @@ public class WorkflowService {
         //记录日志
         logService.addLog(SystemTextLog.Type.WORKFLOW, workflowInstance.getId(), uid, "发布了任务");
         if (null != dealerUser) {
+            //notice
+            noticeService.addNotice(SystemNotice.Type.WORKFLOW,Collections.singleton(dealerUser.getId()),"你有未处理的任务[任务编号"+workflowInstance.getId()+"]");
             logService.addLog(SystemTextLog.Type.WORKFLOW, workflowInstance.getId(), dealerUser.getId(), "接受了任务");
         }
 
@@ -379,6 +385,7 @@ public class WorkflowService {
 
                 case "不良资产登记":
                 case "利息减免":
+                case "诉讼":
                 case "抵债资产接收":
                 case "资产处置":
                     switch (request.getDataSource()){
@@ -812,7 +819,35 @@ public class WorkflowService {
         if (lessId == null) {
             lessId = Long.MAX_VALUE;
         }
-        return instanceDao.findNeedToDealWorks(Collections.singleton(GlobalPermission.Type.WORKFLOW_MAIN_QUARTER), uids, lessId, pageable);
+        String sql = "select distinct i from WorkflowInstance i, User u " +
+                "join i.nodeList nl " +
+//            "join nl.nodeModel nm " +
+//            "join nm.persons ps " +
+//            "join u.quarters q " +
+                "where " +
+                //节点处理人是我自己
+                "( (nl.dealerId is not null and nl.dealerId in :uids) or " +
+                //为空的情况,寻找可以处理的人
+                "(nl.dealerId is null and u.id in ("+ IGlobalPermissionDao.SQL.GET_UIDS.replace(":oid","nl.nodeModelId") +")) ) and " +
+                //该节点任务未完成
+                "nl.finished = false and " +
+                //任务进行中
+                "i.state = 'DEALING' and " +
+                //分页
+                "i.id <= :lessId " +
+                "order by i.addTime, i.id desc";
+        Query query = entityManager.createQuery(sql);
+        query.setParameter("types",Collections.singleton(GlobalPermission.Type.WORKFLOW_MAIN_QUARTER));
+        query.setParameter("uids",uids);
+        query.setParameter("lessId",lessId);
+        query.setFirstResult(pageable.getOffset());
+        query.setMaxResults(pageable.getPageSize());
+        PageImpl page = new PageImpl(query.getResultList(),pageable,10);
+        return page;
+//        query.setParameter()
+//        List list = entityManager.createQuery(sql).getResultList();
+//        return entityManager.createQuery(sql).getResultList();
+//        return instanceDao.findNeedToDealWorks(Collections.singleton(GlobalPermission.Type.WORKFLOW_MAIN_QUARTER), uids, lessId, pageable);
     }
 
     /**
@@ -1170,6 +1205,8 @@ public class WorkflowService {
             return Result.error("权限验证错误");
         }
 
+//        boolean needToSendMessage = ;
+
         WorkflowNode nodeModel = nodeInstance.getNodeModel();
         String errMessage = null;
         switch (nodeModel.getType()) {
@@ -1368,7 +1405,7 @@ public class WorkflowService {
      * @return
      * @throws IOException
      */
-    public Result uploadNodeFile(long uid, long instanceId, long nodeId, WorkflowNodeFile.Type fileType, MultipartFile file, String content) {
+    public Result uploadNodeFile(long uid, long instanceId, long nodeId, WorkflowNodeFile.Type fileType, MultipartFile file, String content, String tag) {
         User user = userService.findUser(uid).orElse(null);
         if (null == user) {
             return Result.error();
@@ -1402,8 +1439,11 @@ public class WorkflowService {
         if (fileType.equals(WorkflowNodeFile.Type.SIGN)) {
             nodeFile.setContent(content);
         }
-
-        return Result.ok(nodeFileDao.save(nodeFile));
+        nodeFile = nodeFileDao.save(nodeFile);
+        if(!StringUtils.isEmpty(tag)){
+            setNodeFileTags(uid, nodeFile.getId(), tag);
+        }
+        return Result.ok(nodeFile);
     }
 
     public boolean setNodeFileTags(long uid, long nodeId, String tags) {
