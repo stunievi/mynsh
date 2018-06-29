@@ -1,8 +1,10 @@
 package com.beeasy.hzback.modules.system.controller;
 
 import com.beeasy.hzback.core.helper.Utils;
+import com.beeasy.hzback.modules.system.dao.IDownloadFileTokenDao;
 import com.beeasy.hzback.modules.system.dao.IMessageDao;
 import com.beeasy.hzback.modules.system.dao.ISystemFileDao;
+import com.beeasy.hzback.modules.system.entity.DownloadFileToken;
 import com.beeasy.hzback.modules.system.entity.SystemFile;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -12,11 +14,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.Optional;
 
 @Api(tags = "系统内文件API")
@@ -28,6 +29,8 @@ public class FileController {
     ISystemFileDao systemFileDao;
     @Autowired
     IMessageDao messageDao;
+    @Autowired
+    IDownloadFileTokenDao fileTokenDao;
 
     @ApiOperation(value = "获取头像")
     @GetMapping("/open/face/{id}")
@@ -63,4 +66,17 @@ public class FileController {
     }
 
 
+    @RequestMapping(value = "/open/download", method = RequestMethod.GET)
+    public ResponseEntity<byte[]> getMessageFile(@RequestParam String token) throws IOException{
+        DownloadFileToken downloadFileToken = fileTokenDao.findTopByTokenAndExprTimeGreaterThan(token,new Date()).orElse(null);
+        if(null == downloadFileToken){
+            return new ResponseEntity<byte[]>(HttpStatus.NO_CONTENT);
+        }
+        SystemFile file = systemFileDao.findOne(downloadFileToken.getFileId());
+        if(null == file){
+            return new ResponseEntity<byte[]>(HttpStatus.NO_CONTENT);
+        }
+        HttpHeaders headers = new HttpHeaders();
+        return new ResponseEntity<byte[]>(file.getBytes(), headers, HttpStatus.OK);
+    }
 }

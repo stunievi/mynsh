@@ -61,6 +61,8 @@ public class WorkflowService {
     private String permissionType;
 
     @Autowired
+    IDownloadFileTokenDao downloadFileTokenDao;
+    @Autowired
     SqlUtils sqlUtils;
     @Autowired
     IWorkflowInstanceTransactionDao transactionDao;
@@ -334,15 +336,57 @@ public class WorkflowService {
                 case "资料收集":
                     switch (request.getDataSource()) {
                         case CLIENT:
-                            sql = "select CUS_ID,CUS_NAME,PHONE,CERT_TYPE,CERT_CODE from CUS_BASE where CUS_ID=?";
+                            sql = "select CUS_ID,CUS_NAME,PHONE,CERT_TYPE,CERT_CODE from CUS_BASE where CUS_ID = ? ";
                             break;
 
                         case ACC_LOAN:
-                            sql = "select ACC_LOAN.BILL_NO,ACC_LOAN.CONT_NO,ACC_LOAN.CUS_ID,ACC_LOAN.CUS_NAME,CUS_BASE.PHONE,CUS_BASE.CERT_TYPE,CUS_BASE.CERT_CODE,ACC_LOAN.CUS_MANAGER from ACC_LOAN,CUS_BASE where ACC_LOAN.CUS_ID=CUS_BASE.CUS_ID and ACC_LOAN.BILL_NO=?";
+                            sql = "select ACC_LOAN.BILL_NO,ACC_LOAN.CONT_NO,ACC_LOAN.CUS_ID,ACC_LOAN.CUS_NAME,CUS_BASE.PHONE,CUS_BASE.CERT_TYPE,CUS_BASE.CERT_CODE,ACC_LOAN.CUS_MANAGER from ACC_LOAN left join CUS_BASE on ACC_LOAN.CUS_ID=CUS_BASE.CUS_ID where ACC_LOAN.BILL_NO = ? ";
                             break;
                     }
                     break;
 
+                case "菜单权限申请":
+                    switch (request.getDataSource()){
+                        case ACC_LOAN:
+                            sql = "select BILL_NO,CONT_NO,CUS_ID,CUS_NAME from ACC_LOAN where BILL_NO=?";
+                            break;
+                    }
+                    break;
+
+                case "贷后跟踪-小微部公司类":
+                    switch (request.getDataSource()){
+                        case ACC_LOAN:
+                            sql = "select ACC_LOAN.BILL_NO,ACC_LOAN.CONT_NO,ACC_LOAN.CUS_ID,ACC_LOAN.CUS_NAME,ACC_LOAN.ASSURE_MEANS_MAIN,ACC_LOAN.LOAN_AMOUNT,ACC_LOAN.LOAN_BALANCE,CTR_LOAN_CONT.USE_DEC,CTR_LOAN_CONT.LOAN_TERM from ACC_LOAN left join CTR_LOAN_CONT on ACC_LOAN.CONT_NO=CTR_LOAN_CONT.CONT_NO where ACC_LOAN.BILL_NO=?";
+                            break;
+                    }
+                    break;
+
+                case "贷后跟踪-小微部个人类":
+                    switch (request.getDataSource()){
+                        case ACC_LOAN:
+                            sql = "select ACC_LOAN.BILL_NO,ACC_LOAN.CONT_NO,ACC_LOAN.CUS_ID,ACC_LOAN.CUS_NAME,ACC_LOAN.ASSURE_MEANS_MAIN,ACC_LOAN.LOAN_AMOUNT,ACC_LOAN.LOAN_BALANCE,CTR_LOAN_CONT.USE_DEC,CTR_LOAN_CONT.LOAN_TERM,GRT_GUAR_CONT.GUAR_NAME from ACC_LOAN left join CTR_LOAN_CONT on ACC_LOAN.CONT_NO=CTR_LOAN_CONT.CONT_NO left join GRT_LOANGUAR_INFO on CTR_LOAN_CONT.CONT_NO=GRT_LOANGUAR_INFO.CONT_NO left join GRT_GUAR_CONT on GRT_LOANGUAR_INFO.GUAR_CONT_NO=GRT_GUAR_CONT.GUAR_CONT_NO where ACC_LOAN.BILL_NO='20019740660711799'select ACC_LOAN.BILL_NO,ACC_LOAN.CONT_NO,ACC_LOAN.CUS_ID,ACC_LOAN.CUS_NAME,ACC_LOAN.ASSURE_MEANS_MAIN,ACC_LOAN.LOAN_AMOUNT,ACC_LOAN.LOAN_BALANCE,CTR_LOAN_CONT.USE_DEC,CTR_LOAN_CONT.LOAN_TERM,GRT_GUAR_CONT.GUAR_NAME from ACC_LOAN left join CTR_LOAN_CONT on ACC_LOAN.CONT_NO=CTR_LOAN_CONT.CONT_NO left join GRT_LOANGUAR_INFO on CTR_LOAN_CONT.CONT_NO=GRT_LOANGUAR_INFO.CONT_NO left join GRT_GUAR_CONT on GRT_LOANGUAR_INFO.GUAR_CONT_NO=GRT_GUAR_CONT.GUAR_CONT_NO where ACC_LOAN.BILL_NO=?";
+                            break;
+                    }
+                    break;
+
+                case "催收":
+                    switch (request.getDataSource()){
+                        case ACC_LOAN:
+                            sql = "select BILL_NO,CONT_NO,CUS_ID,CUS_NAME,LOAN_ACCOUNT from ACC_LOAN where BILL_NO=?";
+                            break;
+                    }
+                    break;
+
+                case "不良资产登记":
+                case "利息减免":
+                case "抵债资产接收":
+                case "资产处置":
+                    switch (request.getDataSource()){
+                        case ACC_LOAN:
+                            sql = "select BILL_NO,CONT_NO,CUS_ID,CUS_NAME,LOAN_ACCOUNT from ACC_LOAN where BILL_NO=?";
+                            break;
+                    }
+                    break;
             }
             if (null != sql) {
                 List<Map<String, String>> rs = sqlUtils.query(sql, Collections.singleton(request.getDataId()));
@@ -443,6 +487,17 @@ public class WorkflowService {
         WorkflowInstance instance = result.getData();
         instance.setParentNodeId(nodeInstance.getId());
         instanceDao.save(instance);
+
+        //补充父任务的固有字段
+//        long pid = nodeInstance.getInstanceId();
+//        WorkflowInstanceAttribute attribute = new WorkflowInstanceAttribute();
+//        attribute.setInstance(instance);
+//        attribute.setType(WorkflowInstanceAttribute.Type.INNATE);
+//        attribute.setAttrCName(after.getContent().getString("cname"));
+//        attribute.setAttrKey(after.getContent().getString("ename"));
+//        attribute.setAttrValue(workflowInstance.getId() + "");
+//        instanceAttributeDao.save(attribute);
+
         logService.addLog(SystemTextLog.Type.WORKFLOW, nodeInstance.getInstance().getId(), user.getId(), "接受了子任务 " + applyTaskRequest.getTitle());
 
         return Result.ok(instance.getId());
@@ -1376,9 +1431,20 @@ public class WorkflowService {
         return nodeFileDao.updateNodeFileName(uid, nodeId, name) > 0;
     }
 
+    public String applyDownload(long uid, long id){
+        WorkflowNodeFile nodeFile = findNodeFile(id).orElse(null);
+        if(null == nodeFile){
+            return "";
+        }
+        DownloadFileToken token = new DownloadFileToken();
+        token.setExprTime(new Date(System.currentTimeMillis() + 5 * 60 * 1000));
+        token.setToken(UUID.randomUUID().toString());
+        token.setFileId(nodeFile.getFileId());
+        downloadFileTokenDao.save(token);
+        return token.getToken();
+    }
 
     @Deprecated
-
     public boolean editWorkflowModel(long modelId, String info, Boolean open) {
 //        Utils.validate(edit);
         return findModel(modelId)

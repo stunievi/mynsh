@@ -186,19 +186,23 @@
           innate: true
         借据号:
           name: BILL_NO
-          type: string
+          type: EXT_DATA
+          innate: true
           required: n
         合同号:
           name: CONT_NO
-          type: string
+          type: EXT_DATA
+          innate: true
           required: n
         客户号:
           name: CUS_ID
-          type: string
+          type: EXT_DATA
+          innate: true
           required: n
         客户名称:
           name: CUS_NAME
-          type: string
+          type: EXT_DATA
+          innate: true
           required: n
         申请说明:
           name: apply
@@ -348,15 +352,18 @@
           innate: true
         借据号:
           name: BILL_NO
-          type: string
+          type: EXT_DATA
+          innate: true
           required: n
         合同号:
           name: CONT_NO
-          type: string
+          type: EXT_DATA
+          innate: true
           required: n
         客户号:
           name: CUS_ID
-          type: string
+          type: EXT_DATA
+          innate: true
           required: n
         借款人全称:
           name: CUST_NAME
@@ -495,15 +502,18 @@
           innate: true
         借据号:
           name: BILL_NO
-          type: string
+          type: EXT_DATA
+          innate: true
           required: n
         合同号:
           name: CONT_NO
-          type: string
+          type: EXT_DATA
+          innate: true
           required: n
         客户号:
           name: CUS_ID
-          type: string
+          type: EXT_DATA
+          innate: true
           required: n
         借款人全称:
           name: CUST_NAME
@@ -655,23 +665,28 @@
           innate: true
         借据号:
           name: BILL_NO
-          type: string
+          type: EXT_DATA
+          innate: true
           required: n
         合同号:
           name: CONT_NO
-          type: string
+          type: EXT_DATA
+          innate: true
           required: n
         客户号:
           name: CUS_ID
-          type: string
+          type: EXT_DATA
+          innate: true
           required: n
         客户名称:
           name: CUS_NAME
-          type: string
+          type: EXT_DATA
+          innate: true
           required: n
         贷款账号:
           name: LOAN_ACCOUNT
-          type: string
+          type: EXT_DATA
+          innate: true
           required: y
         催收方式:
           name: COL_TYPE
@@ -778,23 +793,28 @@
           innate: true
         借据号:
           name: BILL_NO
-          type: string
+          type: EXT_DATA
+          innate: true
           required: n
         合同号:
           name: CONT_NO
-          type: string
+          type: EXT_DATA
+          innate: true
           required: n
         客户号:
           name: CUS_ID
-          type: string
+          type: EXT_DATA
+          innate: true
           required: n
         客户名称:
           name: CUS_NAME
-          type: string
+          type: EXT_DATA
+          innate: true
           required: n
         贷款账号:
           name: LOAN_ACCOUNT
-          type: string
+          type: EXT_DATA
+          innate: true
           required: y
         申请说明:
           name: apply
@@ -857,29 +877,34 @@
           required: y
           innate: true
         任务编号（不良资产管理流程）:
-          name: TASK_ID
+          name: TASK_PID
           type: taskId
           required: y
           innate: true
         借据号:
           name: BILL_NO
-          type: string
+          type: EXT_DATA
+          innate: true
           required: n
         合同号:
           name: CONT_NO
-          type: string
+          type: EXT_DATA
+          innate: true
           required: n
         客户号:
           name: CUS_ID
-          type: string
+          type: EXT_DATA
+          innate: true
           required: n
         客户名称:
           name: CUS_NAME
-          type: string
+          type: EXT_DATA
+          innate: true
           required: n
         贷款账号:
           name: LOAN_ACCOUNT
-          type: string
+          type: EXT_DATA
+          innate: true
           required: y
         申请说明:
           name: apply
@@ -1276,29 +1301,34 @@
           required: y
           innate: true
         任务编号（不良资产管理流程）:
-          name: TASK_ID
+          name: TASK_PID
           type: taskId
           required: y
           innate: true
         借据号:
           name: BILL_NO
-          type: string
+          type: EXT_DATA
+          innate: true
           required: n
         合同号:
           name: CONT_NO
-          type: string
+          type: EXT_DATA
+          innate: true
           required: n
         客户号:
           name: CUS_ID
-          type: string
+          type: EXT_DATA
+          innate: true
           required: n
         客户名称:
           name: CUS_NAME
-          type: string
+          type: EXT_DATA
+          innate: true
           required: n
         贷款账号:
           name: LOAN_ACCOUNT
-          type: string
+          type: EXT_DATA
+          innate: true
           required: n
         说明:
           name: apply

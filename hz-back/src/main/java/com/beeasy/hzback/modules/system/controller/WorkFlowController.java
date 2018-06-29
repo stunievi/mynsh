@@ -607,7 +607,7 @@ public class WorkFlowController {
         return Result.ok(workflowService.pointTask(Utils.getCurrentUserId(), Utils.convertIdsToList(id), toUid));
     }
 
-    @ApiOperation(value = "设置节点标签")
+    @ApiOperation(value = "设置节点文件标签")
     @GetMapping("/node/file/setTags")
     public String setNodeFileTags(
             @RequestParam long id,
@@ -623,6 +623,18 @@ public class WorkFlowController {
             @RequestParam String name
     ){
         return Result.finish(workflowService.setNodeFileName(Utils.getCurrentUserId(), id, name));
+    }
+
+    @ApiOperation(value = "申请下载文件")
+    @RequestMapping(value = "/node/file/downloadApply", method = RequestMethod.GET)
+    public Result applyDownload(
+            @RequestParam long id
+    ){
+        String token = workflowService.applyDownload(Utils.getCurrentUserId(), id);
+        if(StringUtils.isEmpty(token)){
+            return Result.error();
+        }
+        return Result.ok(token);
     }
 
 

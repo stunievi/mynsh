@@ -19,4 +19,6 @@ public interface IWorkflowNodeFileDao extends JpaRepository<WorkflowNodeFile,Lon
     @Modifying
     @Query(value = "update WorkflowNodeFile f set f.fileName = :name where f.id = :id and f.userId = :uid")
     int updateNodeFileName(@Param("uid") long uid, @Param("id") long id, @Param("name") String name);
+
+
 }
