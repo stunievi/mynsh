@@ -17,6 +17,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -303,10 +304,14 @@ public class UserController {
         return userService.userDeleteRoles(Utils.getCurrentUserId(), Utils.convertIdsToList(id));
     }
 
-    @ApiOperation(value = "得到系统的所有角色")
+    @ApiOperation(value = "查询角色")
     @RequestMapping(value = "/role/getList", method = RequestMethod.GET)
-    public Result getAllRoles(){
-        return Result.ok(roleDao.findAll());
+    public Result getAllRoles(
+            UserService.RoleSearchRequest request,
+            Pager,
+            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable,
+    ){
+        return Result.ok(userService.searchRoles(request,pageable));
     }
 
     @ApiOperation(value = "通过ID查找指定用户")
@@ -337,6 +342,7 @@ public class UserController {
                 .collect(Collectors.toMap(o -> o[0],o -> o[1]));
         return Result.ok(map);
     }
+
 
 
 

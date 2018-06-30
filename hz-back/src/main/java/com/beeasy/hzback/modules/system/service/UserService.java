@@ -1049,6 +1049,24 @@ public class UserService implements IUserService {
         return Result.ok(list);
     }
 
+
+    public Page searchRoles(RoleSearchRequest request, Pageable pageable){
+        Specification query = ((root, criteriaQuery, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            if(!StringUtils.isEmpty(request.getName())){
+                predicates.add(cb.like(root.get("name"),request.getName()));
+            }
+            return cb.and(predicates.toArray(new Predicate[predicates.size()]));
+
+        });
+        return roleDao.findAll(query,pageable);
+    }
+
+    @Data
+    public static class RoleSearchRequest{
+        String name;
+    }
+
     /*********8 工具类函数 *************/
 
 
