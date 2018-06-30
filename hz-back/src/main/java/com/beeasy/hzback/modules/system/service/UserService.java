@@ -587,6 +587,9 @@ public class UserService implements IUserService {
         Quarters quarters = Transformer.transform(add, Quarters.class);
         quarters.setDepartmentId(department.getId());
         quarters.setDName(department.getName());
+        quarters.setSort(add.getSort());
+        quarters.setManager(add.isManager());
+
         //查找最上层的id
         List objs = quartersDao.getQuartersCodeFromDepartment(department.getId());
         if (objs.size() == 0) {
@@ -623,6 +626,7 @@ public class UserService implements IUserService {
         if (null != edit.getManager()) {
             quarters.setManager(edit.getManager());
         }
+        quarters.setSort(edit.getSort());
         quarters.setName(edit.getName());
         quarters.setInfo(edit.getInfo());
         return Result.ok(quartersDao.save(quarters));

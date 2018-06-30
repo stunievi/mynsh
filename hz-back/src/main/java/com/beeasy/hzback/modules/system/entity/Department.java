@@ -48,6 +48,9 @@ public class Department extends AbstractBaseEntity{
 
     //部门编号
     private String code;
+
+    @OrderBy(value = "DESC")
+    private int sort;
 //    private boolean deleted = false;
 
 //    @Transient

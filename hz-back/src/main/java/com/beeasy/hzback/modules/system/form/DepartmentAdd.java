@@ -4,9 +4,11 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.hibernate.validator.constraints.NotEmpty;
+import org.hibernate.validator.constraints.Range;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 @ApiModel
 @Data
@@ -23,4 +25,7 @@ public class DepartmentAdd {
 
     @ApiModelProperty(value = "部门描述")
     private String info;
+
+    @Range(min = 0, max = 255)
+    int sort = 0;
 }

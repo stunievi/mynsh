@@ -52,4 +52,7 @@ public class Quarters extends AbstractBaseEntity {
     //是否主管
     boolean manager = false;
 
+    @OrderBy(value = "DESC")
+    int sort;
+
 }

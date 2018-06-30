@@ -3,6 +3,7 @@ package com.beeasy.hzback.modules.system.form;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.hibernate.validator.constraints.Range;
 
 @ApiModel
 @Data
@@ -18,4 +19,7 @@ public class QuartersEdit {
 
     //是否主管
     private Boolean manager = null;
+
+    @Range(min = 0,max = 255, message = "排序在0-255之间")
+    int sort;
 }

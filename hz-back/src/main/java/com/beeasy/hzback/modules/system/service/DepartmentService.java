@@ -36,6 +36,7 @@ public class DepartmentService implements IDepartmentService {
         department.setName(add.getName());
         department.setParentId(null == parent ? null : parent.getId());
         department.setInfo(add.getInfo());
+        department.setSort(add.getSort());
 
         //部门编号
         List objs;
@@ -111,7 +112,8 @@ public class DepartmentService implements IDepartmentService {
                 }
                 department.setParentId(newParent.get().getId());
             }
-
+            //排序
+            department.setSort(edit.getSort());
             result.setSuccess(true);
             result.setData(departmentDao.save(department));
         });
