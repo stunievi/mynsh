@@ -951,6 +951,7 @@ public class UserService implements IUserService {
         Role role = new Role();
         role.setName(request.getName());
         role.setInfo(request.getInfo());
+        role.setSort(request.getSort());
         role = roleDao.save(role);
         return Result.ok(role);
     }
@@ -967,6 +968,7 @@ public class UserService implements IUserService {
         }
         role.setName(request.getName());
         role.setInfo(request.getInfo());
+        role.setSort(request.getSort());
         role = roleDao.save(role);
         return Result.ok(role);
     }
