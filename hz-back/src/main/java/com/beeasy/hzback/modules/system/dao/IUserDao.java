@@ -26,11 +26,11 @@ public interface IUserDao extends JpaRepository<User,Long> ,JpaSpecificationExec
     User findFirstByUsernameOrPhone(String userName, String phone);
     void deleteAllByIdIsGreaterThan(long id);
     Page<User> findAllByUsername(String userName, Pageable pageable);
-    List<User> findAllByIdIn(Set<Long> ids);
+
+    List<User> findAllByIdIn(Collection<Long> ids);
 
     Optional<User> findFirstByPhone(String phone);
 
-    List<User> findAllByIdIn(List<Long> ids);
 
 
     Optional<User> findFirstByUsernameAndPassword(String username, String password);
@@ -89,9 +89,11 @@ public interface IUserDao extends JpaRepository<User,Long> ,JpaSpecificationExec
     @Query(value = "delete from User where username <> :username")
     void clearUsers(@Param("username") String username);
 
+    //用户添加岗位
     @Modifying
     @Query(value = "insert into t_user_quarters(user_id,quarters_id)values(:uid,:qid)", nativeQuery = true)
     int userAddQuarters(@Param("uid") long uid, @Param("qid") long qid);
+
 
     //修改密码
     @Modifying

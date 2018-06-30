@@ -6,7 +6,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 
@@ -43,7 +45,7 @@ public class Quarters extends AbstractBaseEntity {
             }
     )
 //    @LazyCollection(LazyCollectionOption.EXTRA)
-    Set<User> users = new LinkedHashSet<>();
+    List<User> users = new ArrayList<>();
 
     String code;
 

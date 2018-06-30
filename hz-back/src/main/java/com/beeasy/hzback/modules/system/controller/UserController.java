@@ -7,11 +7,9 @@ import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.modules.system.cache.SystemConfigCache;
 import com.beeasy.hzback.modules.system.dao.IQuartersDao;
+import com.beeasy.hzback.modules.system.dao.IRoleDao;
 import com.beeasy.hzback.modules.system.dao.IUserDao;
-import com.beeasy.hzback.modules.system.entity.Department;
-import com.beeasy.hzback.modules.system.entity.GlobalPermission;
-import com.beeasy.hzback.modules.system.entity.Quarters;
-import com.beeasy.hzback.modules.system.entity.User;
+import com.beeasy.hzback.modules.system.entity.*;
 import com.beeasy.hzback.modules.system.form.*;
 import com.beeasy.hzback.modules.system.service.UserService;
 import com.beeasy.hzback.modules.system.zed.UserZed;
@@ -25,6 +23,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -34,6 +33,8 @@ import javax.validation.Valid;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @Api(tags = "用户API", description = "后台管理用户相关接口，需要有管理员权限")
@@ -44,6 +45,8 @@ public class UserController {
 
     @Autowired
     IUserDao userDao;
+    @Autowired
+    IRoleDao roleDao;
 
     @Autowired
     IQuartersDao quartersDao;
@@ -242,4 +245,105 @@ public class UserController {
     }
 
 
+    /************ 角色相关 ************/
+    @ApiOperation(value = "创建角色")
+    @RequestMapping(value = "/role/create", method = RequestMethod.POST)
+    public Result createRole(
+            @Validated(value = RoleRequest.add.class) @RequestBody RoleRequest request
+    ){
+        return userService.createRole(request);
+    }
+
+    @ApiOperation(value = "编辑角色")
+    @RequestMapping(value = "/role/edit", method = RequestMethod.POST)
+    public Result editRole(
+            @Validated(value = RoleRequest.edit.class) @RequestBody RoleRequest request
+    ){
+        return userService.editRole(request);
+    }
+
+    @ApiOperation(value = "编辑角色")
+    @RequestMapping(value = "/role/delete", method = RequestMethod.GET)
+    public Result deleteRoles(
+            @RequestParam String id
+    ){
+        return userService.deleteRoles(Utils.convertIdsToList(id));
+    }
+    @RequestMapping(value = "/role/addUsers", method = RequestMethod.GET)
+    @ApiOperation(value = "角色批量添加用户")
+    public Result roleAddUsers(
+            @RequestParam long rid,
+            @RequestParam String uid
+    ){
+        return userService.roleAddUsers(rid, Utils.convertIdsToList(uid));
+    }
+
+    @RequestMapping(value = "/role/deleteUsers", method = RequestMethod.GET)
+    @ApiOperation(value = "角色批量删除用户")
+    public Result roleDeleteUsers(
+            @RequestParam long rid,
+            @RequestParam String uid
+    ){
+        return userService.roleDeleteUsers(rid, Utils.convertIdsToList(uid));
+    }
+
+    @ApiOperation(value = "用户批量设置角色")
+    @RequestMapping(value = "/setRoles", method = RequestMethod.GET)
+    public Result userSetRoles(
+            @RequestParam String id
+    ){
+        return userService.userSetRoles(Utils.getCurrentUserId(), Utils.convertIdsToList(id));
+    }
+
+    @ApiOperation(value = "用户批量删除角色")
+    @RequestMapping(value = "/deleteRoles", method = RequestMethod.GET)
+    public Result userDeleteRoles(
+            @RequestParam String id
+    ){
+        return userService.userDeleteRoles(Utils.getCurrentUserId(), Utils.convertIdsToList(id));
+    }
+
+    @ApiOperation(value = "得到系统的所有角色")
+    @RequestMapping(value = "/role/getList", method = RequestMethod.GET)
+    public Result getAllRoles(){
+        return Result.ok(roleDao.findAll());
+    }
+
+    @ApiOperation(value = "通过ID查找指定用户")
+    @RequestMapping(value = "/role/getListById", method = RequestMethod.GET)
+    public Result getRoleByIds(
+            @RequestParam String id
+    ){
+        return Result.ok(roleDao.findAllByIdIn(Utils.convertIdsToList(id)).stream().collect(Collectors.toMap(Role::getId,item -> item)));
+    }
+
+    @ApiOperation(value = "通过用户ID查找用户所持有的角色")
+    @RequestMapping(value = "/role/getRolesByUser")
+    public Result getUserRoles(
+            @RequestParam String id
+    ){
+        Map map = userDao.findAllByIdIn(Utils.convertIdsToList(id)).stream()
+                .map(u -> new Object[]{u.getId(),u.getRoles()})
+                .collect(Collectors.toMap(o -> o[0],o -> o[1]));
+        return Result.ok(map);
+    }
+
+    @ApiOperation(value = "通过角色ID查找所有用户")
+    public Result getRoleUsers(
+            @RequestParam String id
+    ){
+        Map map = roleDao.findAllByIdIn(Utils.convertIdsToList(id)).stream()
+                .map(r -> new Object[]{r.getId(),r.getUsers()})
+                .collect(Collectors.toMap(o -> o[0],o -> o[1]));
+        return Result.ok(map);
+    }
+
+
+
+//    public Result userSetRoles(){
+//
+//    }
+//    public Result userDeleteRoles(){
+//
+//    }
 }

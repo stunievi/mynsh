@@ -1,13 +1,16 @@
 package com.beeasy.hzback.core.util;
 
+import com.alibaba.druid.pool.DruidDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import javax.sql.DataSource;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.*;
 
 @Component
@@ -15,6 +18,8 @@ public class SqlUtils {
 
     @Autowired
     DataSource dataSource;
+    @Autowired
+    EntityManager entityManager;
 
     public List<Map<String,String>> query(String sql){
         return query(sql, new ArrayList<>());
@@ -24,8 +29,10 @@ public class SqlUtils {
         List s = new ArrayList();
         PreparedStatement statement = null;
         ResultSet rs = null;
+        Connection connection = null;
         try{
-            statement = dataSource.getConnection().prepareStatement(sql);
+            connection = dataSource.getConnection();
+            statement = connection.prepareStatement(sql);
             int count = 0;
             for (String arg : args) {
                 statement.setString(++count, arg);
@@ -47,6 +54,13 @@ public class SqlUtils {
             e.printStackTrace();
         }
         finally {
+            if(null != connection){
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
             if(null != statement){
                 try {
                     statement.close();
@@ -63,6 +77,29 @@ public class SqlUtils {
             }
         }
         return s;
+    }
+
+
+    /**
+     * hql 分页查询
+     * @param sql
+     * @param params
+     * @param countStr
+     * @param pageable
+     * @return
+     */
+    public Page<Object> hqlQuery(String sql, Map<String,Object> params, String countStr, Pageable pageable){
+        Query query = entityManager.createQuery(sql);
+        if(null != params){
+            for (Map.Entry<String, Object> entry : params.entrySet()) {
+                query.setParameter(entry.getKey(),entry.getValue());
+            }
+        }
+        query.setFirstResult(pageable.getOffset());
+        query.setMaxResults(pageable.getPageSize());
+        Query countQuery = entityManager.createQuery(sql.replace(countStr, "count(" + countStr + ")"));
+        PageImpl page = new PageImpl(query.getResultList(),pageable,countQuery.getFirstResult());
+        return page;
     }
 
 

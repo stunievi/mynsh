@@ -129,10 +129,13 @@ public class TestAsync {
                 });
                 WorkflowQuartersEdit[] edits = new WorkflowQuartersEdit[list.size()];
                 edits = list.toArray(edits);
-                workflowService.setPersons(edits);
+//                workflowService.setPersons(edits);
 
                 //打开工作流
-                workflowService.editWorkflowModel(workflowModel.getId(), "", true);
+                workflowService.editWorkflowModel(new WorkflowModelEdit(){{
+                    setId(workflowModel.getId());
+                    setOpen(true);
+                }});
             }
         }
     }

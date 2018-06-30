@@ -66,6 +66,7 @@ public class FileController {
     }
 
 
+    @ApiOperation(value = "通过令牌下载文件")
     @RequestMapping(value = "/open/download", method = RequestMethod.GET)
     public ResponseEntity<byte[]> getMessageFile(@RequestParam String token) throws IOException{
         DownloadFileToken downloadFileToken = fileTokenDao.findTopByTokenAndExprTimeGreaterThan(token,new Date()).orElse(null);

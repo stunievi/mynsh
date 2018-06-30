@@ -65,6 +65,10 @@ public class User implements Serializable{
     @ManyToMany(mappedBy = "users", cascade = CascadeType.ALL)
     private List<Quarters> quarters = new ArrayList<>();
 
+    @JSONField(serialize = false)
+    @ManyToMany(mappedBy = "users")
+    private List<Role> roles = new ArrayList<>();
+
     @OneToOne(mappedBy = "user",cascade = CascadeType.REMOVE)
     private UserProfile profile;
 

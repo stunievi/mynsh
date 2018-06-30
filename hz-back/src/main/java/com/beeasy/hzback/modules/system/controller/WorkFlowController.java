@@ -159,15 +159,6 @@ public class WorkFlowController {
         return Result.finish(workflowService.createCheckNode(node));
     }
 
-    @Deprecated
-    @ApiOperation(value = "删除节点")
-    @DeleteMapping("/model/node")
-    public Object deleteNode(
-            @RequestParam Long modelId,
-            @RequestParam String[] nodeName
-    ) throws CannotFindEntityException {
-        return workflowService.deleteNode(modelId,nodeName);
-    }
 
     @ApiOperation(value = "删除节点")
     @PostMapping("/model/node/delete")
@@ -192,15 +183,6 @@ public class WorkFlowController {
 //    }
 
 
-    @Deprecated
-    @ApiOperation(value = "编辑工作流")
-    @PutMapping("/model")
-    public Object edit(
-            @Valid  WorkflowModelEdit edit,
-            BindingResult bindingResult
-    ) throws RestException {
-        return workflowService.editWorkflowModel(edit.getId(),edit.getInfo(),edit.isOpen());
-    }
 
     @ApiOperation(value = "编辑工作流")
     @PutMapping("/model/edit")
@@ -332,13 +314,13 @@ public class WorkFlowController {
 //    }
 
 
-    @Deprecated
-    @ApiOperation(value = "当前应处理的节点")
-    @GetMapping("/currentNode")
-    public Result getCurrentNode(Long instanceId){
-        Optional<WorkflowNodeInstance> optional = workflowService.getCurrentNodeInstance(Utils.getCurrentUserId(),instanceId);
-        return optional.isPresent() ? Result.ok(optional.get()) : Result.error();
-    }
+//    @Deprecated
+//    @ApiOperation(value = "当前应处理的节点")
+//    @GetMapping("/currentNode")
+//    public Result getCurrentNode(Long instanceId){
+//        Optional<WorkflowNodeInstance> optional = workflowService.getCurrentNodeInstance(Utils.getCurrentUserId(),instanceId);
+//        return optional.isPresent() ? Result.ok(optional.get()) : Result.error();
+//    }
 
     @SaveLog(value = "获取工作流模型列表")
     @GetMapping("/all")
@@ -626,7 +608,7 @@ public class WorkFlowController {
         return Result.finish(workflowService.setNodeFileName(Utils.getCurrentUserId(), id, name));
     }
 
-    @ApiOperation(value = "申请下载文件")
+    @ApiOperation(value = "申请下载文件的令牌")
     @RequestMapping(value = "/node/file/downloadApply", method = RequestMethod.GET)
     public Result applyDownload(
             @RequestParam long id

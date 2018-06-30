@@ -18,9 +18,11 @@ import com.beeasy.hzback.modules.system.dao.*;
 import com.beeasy.hzback.modules.system.entity.*;
 import com.beeasy.hzback.modules.system.form.*;
 import jdk.nashorn.internal.objects.Global;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
@@ -39,6 +41,9 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.validation.constraints.AssertFalse;
+import javax.validation.constraints.AssertTrue;
+import javax.validation.constraints.NotNull;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Array;
@@ -69,7 +74,8 @@ public class UserService implements IUserService {
     IGlobalPermissionCenterDao centerDao;
 //    @Autowired
 //    SystemTextLogService logService;
-
+    @Autowired
+    IRoleDao roleDao;
     @Autowired
     GlobalPermissionService globalPermissionService;
     @Autowired
@@ -782,6 +788,9 @@ public class UserService implements IUserService {
     public Optional<User> findUser(long id) {
         return Optional.ofNullable(userDao.findOne(id));
     }
+    public Optional<Role> findRole(long id){
+        return Optional.ofNullable(roleDao.findOne(id));
+    }
 
     public Optional<Quarters> findQuarters(long id) {
         return Optional.ofNullable(quartersDao.findOne(id));
@@ -926,6 +935,113 @@ public class UserService implements IUserService {
         }
     }
 
+
+    /********** 角色相关 *************/
+
+    /**
+     * 创建角色
+     * @param request
+     * @return
+     */
+    public Result createRole(RoleRequest request){
+        Role role = new Role();
+        role.setName(request.getName());
+        role.setInfo(request.getInfo());
+        role = roleDao.save(role);
+        return Result.ok(role);
+    }
+
+    /**
+     * 编辑角色
+     * @param request
+     * @return
+     */
+    public Result editRole(RoleRequest request){
+        Role role = findRole(request.getId()).orElse(null);
+        if(null == role){
+            return Result.error();
+        }
+        role.setName(request.getName());
+        role.setInfo(request.getInfo());
+        role = roleDao.save(role);
+        return Result.ok(role);
+    }
+
+    /**
+     * 删除角色
+     * @param ids
+     * @return
+     */
+    public Result deleteRoles(Collection<Long> ids){
+        return Result.ok(
+                ids.stream().filter(id -> roleDao.deleteById(id) > 0).collect(Collectors.toList())
+        );
+    }
+
+    /**
+     * 角色添加用户
+     * @param rid
+     * @param uids
+     * @return
+     */
+    public Result roleAddUsers(long rid, Collection<Long> uids){
+        if(roleDao.countById(rid) == 0){
+            return Result.error();
+        }
+        List list = uids.stream().filter(uid -> {
+            if(roleDao.hasPair(uid,rid) > 0){
+                return true;
+            }
+            return roleDao.addUserRole(uid,rid) > 0;
+        }).collect(Collectors.toList());
+        return Result.ok(list);
+    }
+
+    /**
+     * 角色删除用户
+     * @param rid
+     * @param uids
+     * @return
+     */
+    public Result roleDeleteUsers(long rid, Collection<Long> uids){
+        if(roleDao.countById(rid) == 0){
+            return Result.error();
+        }
+        List list = uids.stream().filter(uid -> roleDao.deleteUserRole(uid,rid) > 0).collect(Collectors.toList());
+        return Result.ok(list);
+    }
+
+    /**
+     * 用户批量设置角色
+     * @param uid
+     * @param rids
+     * @return
+     */
+    public Result userSetRoles(long uid, Collection<Long> rids){
+        if(userDao.countById(uid) == 0){
+            return Result.error();
+        }
+        //删除所有角色
+        roleDao.deleteUserRoles(uid);
+        List list = rids.stream().filter(rid -> {
+            if(roleDao.hasPair(uid,rid) > 0){
+                return true;
+            }
+            return roleDao.addUserRole(uid,rid) > 0;
+        }).collect(Collectors.toList());
+        return Result.ok(list);
+    }
+
+    /**
+     * 用户批量删除角色
+     * @param uid
+     * @param rids
+     * @return
+     */
+    public Result userDeleteRoles(long uid, Collection<Long> rids){
+        List list = rids.stream().filter(rid -> roleDao.deleteUserRole(uid,rid) > 0).collect(Collectors.toList());
+        return Result.ok(list);
+    }
 
     /*********8 工具类函数 *************/
 

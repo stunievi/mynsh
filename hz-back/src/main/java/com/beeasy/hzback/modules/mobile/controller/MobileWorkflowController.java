@@ -278,16 +278,10 @@ public class MobileWorkflowController {
 
 
     @ApiOperation(value = "需要我处理的任务")
-    @GetMapping("/myNeedingWorks")
+    @RequestMapping(value = "/myNeedingWorks", method = RequestMethod.GET)
     public String getMyNeedToDealWorks(Long lessId){
         PageRequest pageRequest = new PageRequest(0,10);
-        if(lessId == null){
-            lessId = 0L;
-        }
-        if(lessId == 0){
-            lessId = Long.MAX_VALUE;
-        }
-        return Result.ok(instanceDao.findNeedToDealWorks(Collections.singleton(GlobalPermission.Type.WORKFLOW_MAIN_QUARTER),Collections.singletonList(Utils.getCurrentUserId()),lessId,pageRequest)).toMobile(myworkEntries);
+        return Result.ok(workflowService.getUserUndealedWorks(Collections.singleton(Utils.getCurrentUserId()),lessId,pageRequest)).toMobile(myworkEntries);
     }
 
     @ApiOperation(value = "我处理过的任务")

@@ -57,7 +57,7 @@ public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Lon
             //节点处理人是我自己
             "( (nl.dealerId is not null and nl.dealerId in :uids) or " +
             //为空的情况,寻找可以处理的人
-            "(nl.dealerId is null and u.id in ("+ IGlobalPermissionDao.SQL.GET_UIDS_WITHOUT_OID +")) ) and " +
+            "(nl.dealerId is null and nl.nodeModelId in ("+ IGlobalPermissionDao.SQL.GET_OIDS_WITH_UIDS +")) ) and " +
             //该节点任务未完成
             "nl.finished = false and " +
             //任务进行中
@@ -111,7 +111,7 @@ public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Lon
             "select distinct ins from WorkflowInstance ins, User user " +
                     "join user.quarters q " +
                     "join ins.workflowModel model " +
-                    "join model.departments d " +
+//                    "join model.departments d " +
 //                    "join ins.nodeList nl " +
 //                    "join ins.workflowModel model " +
 //                    "left join model.permissions ps " +
@@ -123,7 +123,7 @@ public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Lon
                         //用户是部门主管
 //                        "( select count(dd) from Department dd where dd.id = d.id and dd.code like concat(q.department.code,'%') and q.manager = true) > 0 or " +
                         //或者拥有观察岗权限
-                        "user.id in (" + IGlobalPermissionDao.SQL.GET_UIDS_WITHOUT_OID + ") " +
+                        "model.id in (" + IGlobalPermissionDao.SQL.GET_OIDS_WITH_UIDS + ") " +
                         //或者是曾经执行过的任务
                         //暂时不这么搞
 //                        "(select count(ob) from WorkflowInstanceObserver ob where ob.userId = user.id and ob.instanceId = ins.id) > 0" +
@@ -150,7 +150,7 @@ public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Lon
 //                    "ins.common = true and " +
                     "ins.state = 'COMMON' and " +
                     //拥有执行的权限
-                    "user.id in ("+IGlobalPermissionDao.SQL.GET_UIDS_WITHOUT_OID+") and " +
+                    "model.id in ("+IGlobalPermissionDao.SQL.GET_OIDS_WITH_UIDS+") and " +
                     //分页
                     "ins.id <= :lessId and " +
                     "user.id in :uids " +

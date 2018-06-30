@@ -18,6 +18,7 @@ import com.beeasy.hzback.modules.system.entity.*;
 import com.beeasy.hzback.modules.system.form.*;
 import com.beeasy.hzback.modules.system.node.*;
 import com.beeasy.hzback.modules.system.response.FetchWorkflowInstanceResponse;
+import com.google.common.collect.ImmutableMap;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -819,35 +820,7 @@ public class WorkflowService {
         if (lessId == null) {
             lessId = Long.MAX_VALUE;
         }
-        String sql = "select distinct i from WorkflowInstance i, User u " +
-                "join i.nodeList nl " +
-//            "join nl.nodeModel nm " +
-//            "join nm.persons ps " +
-//            "join u.quarters q " +
-                "where " +
-                //节点处理人是我自己
-                "( (nl.dealerId is not null and nl.dealerId in :uids) or " +
-                //为空的情况,寻找可以处理的人
-                "(nl.dealerId is null and u.id in ("+ IGlobalPermissionDao.SQL.GET_UIDS.replace(":oid","nl.nodeModelId") +")) ) and " +
-                //该节点任务未完成
-                "nl.finished = false and " +
-                //任务进行中
-                "i.state = 'DEALING' and " +
-                //分页
-                "i.id <= :lessId " +
-                "order by i.addTime, i.id desc";
-        Query query = entityManager.createQuery(sql);
-        query.setParameter("types",Collections.singleton(GlobalPermission.Type.WORKFLOW_MAIN_QUARTER));
-        query.setParameter("uids",uids);
-        query.setParameter("lessId",lessId);
-        query.setFirstResult(pageable.getOffset());
-        query.setMaxResults(pageable.getPageSize());
-        PageImpl page = new PageImpl(query.getResultList(),pageable,10);
-        return page;
-//        query.setParameter()
-//        List list = entityManager.createQuery(sql).getResultList();
-//        return entityManager.createQuery(sql).getResultList();
-//        return instanceDao.findNeedToDealWorks(Collections.singleton(GlobalPermission.Type.WORKFLOW_MAIN_QUARTER), uids, lessId, pageable);
+        return instanceDao.findNeedToDealWorks(Collections.singleton(GlobalPermission.Type.WORKFLOW_MAIN_QUARTER), uids, lessId, pageable);
     }
 
     /**
@@ -1247,40 +1220,6 @@ public class WorkflowService {
     }
 
 
-    @Deprecated
-    public WorkflowInstance goNext(long uid, long instanceId) throws RestException {
-        return null;
-//        WorkflowInstance instance = findInstanceE(instanceId);
-//        //正在处理中的才可以提交
-//        if (!instance.getState().equals(WorkflowInstance.State.DEALING)) {
-//            return instance;
-//        }
-////        if (instance.isFinished()) {
-////            return instance;
-////        }
-//        //得到当前节点
-//        WorkflowNodeInstance currentNode = findCurrentNodeInstance(instanceId).orElse(null);
-//        User user = userService.findUserE(uid);
-//
-//        //验证权限
-//        if (!checkAuth(instance.getWorkflowModel(), currentNode.getNodeModel(), user)) {
-//            throw new RestException("授权失败");
-//        }
-//
-//        //如果当前节点是资料节点
-//        WorkflowNode nodeModel = currentNode.getNodeModel();
-//        switch (nodeModel.getType()) {
-//            case "input":
-//                return fromInputNodeToGo(instance, currentNode, (InputNode) nodeModel.getNode());
-//            case "check":
-//                return fromCheckNodeToGo(user, instance, currentNode, (CheckNode) nodeModel.getNode());
-//            case "universal":
-//                return fromUniversalNodeToGo(instance, currentNode, (UniversalNode) nodeModel.getNode());
-//        }
-//
-//        return instance;
-    }
-
 
     /**
      * 提交节点到下一步
@@ -1484,26 +1423,6 @@ public class WorkflowService {
         return token.getToken();
     }
 
-    @Deprecated
-    public boolean editWorkflowModel(long modelId, String info, Boolean open) {
-//        Utils.validate(edit);
-        return findModel(modelId)
-                .filter(model -> {
-                    //描述可以随意修改
-                    if (!StringUtils.isEmpty(info)) {
-                        model.setInfo(info);
-                    }
-                    //开关也可以
-                    if (null != open) {
-                        model.setOpen(open);
-                        if (open) {
-                            model.setFirstOpen(true);
-                        }
-                    }
-                    modelDao.save(model);
-                    return true;
-                }).isPresent();
-    }
 
     public boolean editWorkflowModel(WorkflowModelEdit edit) {
         return findModel(edit.getId()).filter(model -> {
@@ -1521,101 +1440,14 @@ public class WorkflowService {
                 model.setFirstOpen(true);
             }
 
-            //工作流所属部门
-//            if(edit.getDepartmentIds().size() > 0){
-//                modelDao.deleteDepartments(Collections.singleton(edit.getId()));
-//                model.getDepartments().clear();
-//                for (Long aLong : edit.getDepartmentIds()) {
-//                    Department department = new Department();
-//                    department.setId(aLong);
-//                    model.getDepartments().add(department);
-//                }
-//            }
-            //特殊权限
-//            if (null != edit.getPermissionEdits()) {
-//                setExtPermissions(edit.getPermissionEdits());
-//            }
             modelDao.save(model);
             return true;
         }).isPresent();
     }
 
 
-    @Deprecated
-    public Result<Set<WorkflowNode>> setPersons(WorkflowQuartersEdit... edits) {
-        if (true) return Result.error();
-        Set<WorkflowNode> set = new LinkedHashSet<>();
-        for (WorkflowQuartersEdit edit : edits) {
-            WorkflowNode node = nodeDao.findOne(edit.getNodeId());
-            if (null == node) continue;
-
-            if (node.getModel().isFirstOpen()) {
-                return Result.error("已经上线的工作流无法编辑");
-            }
-
-            if (node.isEnd()) continue;
-
-            //解除关联
-//            personsDao.deleteAllByWorkflowNode(node);
-
-//            addWorkflowPersons(edit.getMainQuarters(), node, edit.getName(), Type.MAIN_QUARTERS);
-//            addWorkflowPersons(edit.getMainUser(),node, edit.getName(), Type.MAIN_USER);
-//            addWorkflowPersons(edit.getSupportQuarters(), node, edit.getName(), Type.SUPPORT_QUARTERS);
-//            addWorkflowPersons(edit.getSupportUser(),  node,edit.getName(), Type.SUPPORT_USER);
-
-            set.add(nodeDao.save(node));
-        }
-        return Result.ok(set);
-    }
 
 
-    /**
-     * 设置工作流的额外权限, 因为不涉及更改工作流内容, 所以任何时候都可以进行
-     *
-     * @param edits
-     * @return
-     */
-//    @Deprecated
-//    public Set<Long> setExtPermissions(WorkflowExtPermissionEdit... edits) {
-//        Set<Long> result = new HashSet<>();
-//        for (WorkflowExtPermissionEdit edit : edits) {
-//            extPermissionDao.deleteAllByWorkflowModel_IdAndType(edit.getModelId(), edit.getType());
-//            WorkflowModel workflowModel = findModel(edit.getModelId()).orElse(null);
-//            if (null == workflowModel) continue;
-//            for (Long qid : edit.getQids()) {
-//                WorkflowExtPermission extPermission = new WorkflowExtPermission(null, workflowModel, edit.getType(), qid);
-//                extPermissionDao.save(extPermission);
-//            }
-//            result.add(workflowModel.getId());
-//        }
-//        return result;
-//    }
-
-
-    /**
-     * 删除节点(已废弃)
-     *
-     * @param modelId
-     * @param nodeName
-     * @return
-     */
-    @Deprecated
-
-    public WorkflowModel deleteNode(long modelId, String[] nodeName) throws CannotFindEntityException {
-        WorkflowModel workflowModel = findModelE(modelId);
-        if (workflowModel.isFirstOpen() || workflowModel.isOpen()) {
-            return workflowModel;
-        }
-//        Map<String, BaseNode> nodes = workflowModel.getModel();
-//        List deleteList = Arrays.asList(nodeName);
-        //开始和结束禁止删除
-        for (String name : nodeName) {
-            nodeDao.findFirstByModelAndName(workflowModel, name)
-                    .filter(n -> !n.isStart() && !n.isEnd())
-                    .ifPresent(n -> nodeDao.delete(n));
-        }
-        return saveWorkflowModel(workflowModel);
-    }
 
     /**
      * 删除节点
@@ -1734,6 +1566,12 @@ public class WorkflowService {
     }
 
 
+    /**
+     * 删除工作流模型
+     * @param id
+     * @param force
+     * @return
+     */
     public boolean deleteWorkflowModel(long id, boolean force) {
         if (force) {
             modelDao.delete(id);
@@ -1745,20 +1583,19 @@ public class WorkflowService {
         return true;
     }
 
+
     /**
-     * 创建节点, 已废弃
-     *
+     * 创建审核节点
+     * @param nodeModel
      * @return
      */
-    @Deprecated
-    public Optional<WorkflowNode> createNode(long modelId, String node) {
-        return Optional.empty();
-    }
-
     public Optional<WorkflowNode> createCheckNode(CheckNodeModel nodeModel) {
         return findModel(nodeModel.getModelId()).map(model -> {
             //无法自定义的流程不允许自定义
             if (!model.isCustom()) {
+                return null;
+            }
+            if(model.isFirstOpen()){
                 return null;
             }
             //验证是否有必填的属性
@@ -1792,166 +1629,7 @@ public class WorkflowService {
 
     }
 
-    /**
-     * 列出指定用户的所有工作流
-     */
-//    @Deprecated
-//    public Page<WorkflowInstance> getUserWorkflows(long uid, Status status, Pageable pageable) throws CannotFindEntityException {
-//        return null;
-//        User user = userService.findUser(uid).orElse(null);
-//        boolean isFinished = false;
-//        switch (status) {
-//            case DID:
-//                isFinished = true;
-//                break;
-//
-//            case DOING:
-//                isFinished = false;
-//                break;
-//        }
-//        Set<WorkflowModelPersons> persons = personsDao.findPersonsByUser(user.getQuarters().stream().map(q -> q.getId()).collect(Collectors.toList()), Arrays.asList(user.getId()));
-//
-//        Set<WorkflowModel> workflowModels = persons
-//                .stream()
-//                .map(p -> p.getWorkflowNode().getModel())
-//                .collect(Collectors.toSet());
-//        Set<String> nodeNames = persons
-//                .stream()
-//                .map(p -> p.getNodeName())
-//                .collect(Collectors.toSet());
-//        if (workflowModels.size() == 0) {
-//            return null;
-//        }
-//
-//        Page<WorkflowInstance> list = nodeInstanceDao.getInstanceList(workflowModels, nodeNames, isFinished, pageable);
-//
-//        return list;
-//    }
 
-
-//    @Deprecated
-//    
-//    public Result<InspectTask> createInspectTask(long createUserId, String modelName, long userId, boolean isAuto) {
-////        AtomicReference<User> createUser = new AtomicReference<>();
-//        return userService.findUser(userId)
-//                .map(user -> {
-//                    InspectTask task = new InspectTask();
-//                    task.setModelName(modelName);
-//                    task.setDealUser(user);
-//                    task.setState(InspectTaskState.CREATED);
-//                    task.setType(isAuto ? InspectTaskType.AUTO : InspectTaskType.MANUAL);
-//                    task = inspectTaskDao.save(task);
-//                    if (task.getId() == null) {
-//                        return Result.error("找不到对应的任务");
-//                    }
-//                    //如果是自己创建的任务,那么自己接受任务
-//                    if (createUserId == userId) {
-//                        Result result = acceptInspectTask(userId, task.getId());
-//                        if (!result.isSuccess()) {
-//                            return result;
-//                        }
-//                    }
-//                    return Result.ok(findInspectTask(task.getId()).orElse(null));
-//                }).orElse(Result.error());
-//    }
-    @Deprecated
-    public Optional<WorkflowNodeInstance> getCurrentNodeInstance(long userId, long instanceId) {
-        return Optional.empty();
-//        AtomicReference<User> userAtomicReference = new AtomicReference<>();
-//        return userService.findUser(userId)
-//                .flatMap(user -> {
-//                    userAtomicReference.set(user);
-//                    return findInstance(instanceId);
-//                })
-//                .map(instance -> {
-//
-//                    //是否我处理
-//                    if (!checkAuth(instance.getWorkflowModel(), instance.getCurrentNode().getNodeModel(), userAtomicReference.get())) {
-//                        return null;
-//                    }
-//
-//                    return nodeInstanceDao.findFirstByInstanceAndFinishedIsFalse(instance).orElse(null);
-//                });
-    }
-
-
-//    @Deprecated
-//    
-//    public Result<InspectTask> acceptInspectTask(long userId, long taskId) {
-//        AtomicReference<User> userAtomicReference = new AtomicReference<>();
-//        return userService.findUser(userId)
-//                .flatMap(user -> {
-//                    userAtomicReference.set(user);
-//                    return findInspectTask(taskId);
-//                })
-//                .map(task -> {
-//                    //如果这个任务已经指定了执行人员
-//                    if (task.getDealUser() != null) {
-//                        if (!task.getDealUser().getId().equals(userId)) {
-//                            return Result.error("这个任务不属于你");
-//                        }
-//                    }
-//
-//                    task.setDealUser(userAtomicReference.get());
-//                    task.setState(InspectTaskState.RECEIVED);
-//                    task.setAcceptDate(new Date());
-//
-//                    //创建一条新的工作流任务
-//                    List<WorkflowModel> models = modelDao.findAllByModelNameAndOpenIsTrueOrderByVersionDesc(task.getModelName());
-//                    if (models.size() == 0) {
-//                        return Result.error("没找到符合条件的工作流模型");
-//                    }
-//                    WorkflowInstance instance = null;
-////                    WorkflowInstance instance = startNewInstance(userId, models.get(0).getId()).orElse(null);
-//                    if (null == instance) {
-//                        return Result.error("自动创建任务失败");
-//                    }
-//                    task.setInstance(instance);
-//                    task = inspectTaskDao.save(task);
-//                    return Result.ok(task);
-//                }).orElse(Result.error());
-//    }
-
-
-//    @Deprecated
-//    //如果userid为0,则指定为公共任务
-//    public Page<InspectTask> getInspectTaskList(long uid, String modelName, InspectTaskState state, Pageable pageable) {
-//        Specification querySpecifi = new Specification() {
-//            
-//            public Predicate toPredicate(Root root, CriteriaQuery query, CriteriaBuilder cb) {
-//                List<Predicate> predicates = new ArrayList<>();
-//                predicates.add(cb.equal(root.get("dealUser"), uid == 0 ? null : uid));
-//                if (!StringUtils.isEmpty(modelName)) {
-//                    predicates.add(cb.equal(root.get("modelName"), modelName));
-//                }
-//                if (state != null) {
-//                    predicates.add(cb.equal(root.get("modelName"), state));
-//                }
-//                return cb.and(predicates.toArray(new Predicate[predicates.size()]));
-//            }
-//        };
-//
-//        return inspectTaskDao.findAll(querySpecifi, pageable);
-//
-//    }
-
-
-    /**
-     * 提交资料节点的数据
-     *
-     * @return
-     */
-//    private WorkflowInstance submitInputData(User user, WorkflowInstance wInstance, WorkflowNodeInstance wNInstance, InputNode nodeModel, Map data) {
-////        nodeModel.submit(data);
-//
-////        nodeInstanceDao.save(wNInstance);
-////        return instanceDao.save(wInstance);
-//    }
-//
-//    private WorkflowInstance submitCheckData(User user, WorkflowInstance wInstance, WorkflowNodeInstance wNInstance, CheckNode nodeModel, String item, String ps) {
-//
-//        return instanceDao.save(wInstance);
-//    }
     private void goNextNode(WorkflowInstance instance, WorkflowNodeInstance currentNode, WorkflowNode nextNode) {
         //本节点完毕
         currentNode.setFinished(true);
@@ -2220,29 +1898,6 @@ public class WorkflowService {
         return instance;
     }
 
-//    private WorkflowInstance fromUniversalNodeToGo(WorkflowInstance instance, WorkflowNodeInstance currentNode, UniversalNode nodeModel) throws RestException {
-//        //检查所有字段, 要不你就别填, 填了就必须填完
-//        Set<User> users = new HashSet<>();
-//        currentNode.getAttributeList().forEach(attribute -> {
-//            users.add(attribute.getDealUser());
-//        });
-//        for (User user : users) {
-//            for (Map.Entry<String, InputNode.Content> entry : nodeModel.getContent().entrySet()) {
-//                InputNode.Content v = entry.getValue();
-//                if (v.isRequired()) {
-//                    Optional<WorkflowNodeAttribute> target = currentNode.getAttributeList().stream()
-//                            .filter(a -> a.getDealUser().getId().equals(user.getId()) && a.getAttrKey().equals(v.getEname()))
-//                            .findAny();
-//                    if (!target.isPresent()) {
-//                        return instance;
-//                    }
-//                }
-//            }
-//        }
-//
-//        return instance;
-//    }
-
 
     /***js binding**/
     @AllArgsConstructor
@@ -2332,18 +1987,12 @@ public class WorkflowService {
 
 
     private boolean checkNodeAuth(WorkflowNodeInstance nodeInstance, User user) {
-//        List<WorkflowModelPersons> persons = nodeInstance.getNodeModel().getPersons();
-        //1. 处理人确认的时候, 只有该处理人可以处理
-//        boolean flag1 = (null == nodeInstance.getDealerId() && persons.stream().anyMatch(p -> p.getType().equals(Type.MAIN_QUARTERS) && user.hasQuarters(p.getUid())));
         boolean flag1 = (null == nodeInstance.getDealerId() && globalPermissionDao.hasPermission(user.getId(), Collections.singleton(GlobalPermission.Type.WORKFLOW_MAIN_QUARTER), nodeInstance.getNodeModelId()) > 0);
         //2. 处理人不确认的时候, 拥有该权限的人都可以处理
         boolean flag2 = (null != nodeInstance.getDealerId() && user.getId().equals(nodeInstance.getDealerId()));
         return flag1 || flag2;
     }
 
-//    private boolean CheckNodeAuth(WorkflowNodeInstance nodeInstance, long uid){
-//
-//    }
 
     @Deprecated
     private boolean checkAuth(WorkflowModel workflowModel, WorkflowNode node, User user) {

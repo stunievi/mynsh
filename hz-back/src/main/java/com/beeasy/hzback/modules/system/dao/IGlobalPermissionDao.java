@@ -35,6 +35,12 @@ public interface IGlobalPermissionDao extends JpaRepository<GlobalPermission,Lon
             //按部门授权,岗位在这个部门里
             "(gp.userType = 'DEPARTMENT' and (select count(d.id)  from Department d where d.id = gp.linkId and uq.code like concat(d.code,'_%') ) > 0 )" +
             " )";
+
+        public static final String GET_OIDS_WITH_UIDS = "select distinct gp.objectId from GlobalPermission gp, User user left join user.quarters uq where gp.type in :types and user.id in :uids and " +
+                "(" +
+                    "(gp.userType = 'QUARTER' and uq.departmentId in ( select qq.departmentId from Quarters qq where qq.id = gp.linkId) ) or " +
+                    "(gp.userType = 'USER' and uq.departmentId in (select uuqq.departmentId from User uu join uu.quarters uuqq where uu.id = gp.linkId) )" +
+                ")";
     }
 
     @Query(value = SQL.GET_UIDS)
