@@ -922,13 +922,19 @@ public class UserService implements IUserService {
         return count > 0;
     }
 
-    public JSONArray getUserMethods(long uid) {
-        GlobalPermission globalPermission = globalPermissionDao.findTopByTypeAndObjectIdAndUserTypeAndLinkId(GlobalPermission.Type.USER_METHOD, 0, GlobalPermission.UserType.USER, uid).orElse(null);
-        JSONObject menu = cache.getMenus();
-        if (null == globalPermission) {
-            return new JSONArray();
-        }
-        return (JSONArray) globalPermission.getDescription();
+    /**
+     * 得到叠加过后的最终授权结果
+     * @param uid
+     * @return
+     */
+    public List getUserMethods(long uid) {
+        List<GlobalPermission> gps = globalPermissionDao.getPermissionsByUser(Collections.singleton(GlobalPermission.Type.USER_METHOD), uid);
+        return gps.stream()
+                .map(GlobalPermission::getDescription)
+                .filter(obj -> obj instanceof JSONArray)
+                .flatMap(obj -> ((JSONArray)obj).stream())
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     public void cacheUserMethods(GlobalPermission globalPermission) {

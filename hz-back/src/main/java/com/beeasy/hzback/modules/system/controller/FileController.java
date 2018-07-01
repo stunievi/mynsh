@@ -17,6 +17,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.Optional;
 
@@ -78,6 +80,9 @@ public class FileController {
             return new ResponseEntity<byte[]>(HttpStatus.NO_CONTENT);
         }
         HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        String fileName = URLEncoder.encode(file.getFileName(),"UTF-8");
+        headers.set("Content-Disposition", "attachment; filename=\"" + fileName + "\"; filename*=utf-8''" + fileName);
         return new ResponseEntity<byte[]>(file.getBytes(), headers, HttpStatus.OK);
     }
 }
