@@ -291,9 +291,10 @@ public class UserController {
     @ApiOperation(value = "用户批量设置角色")
     @RequestMapping(value = "/setRoles", method = RequestMethod.GET)
     public Result userSetRoles(
-            @RequestParam String id
+            @RequestParam long uid,
+            @RequestParam String rid
     ){
-        return userService.userSetRoles(Utils.getCurrentUserId(), Utils.convertIdsToList(id));
+        return userService.userSetRoles(uid, Utils.convertIdsToList(rid));
     }
 
     @ApiOperation(value = "用户批量删除角色")
@@ -308,37 +309,38 @@ public class UserController {
     @RequestMapping(value = "/role/getList", method = RequestMethod.GET)
     public Result getAllRoles(
             UserService.RoleSearchRequest request,
-            Pager,
-            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable,
+            Pager pager,
+            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
     ){
         return Result.ok(userService.searchRoles(request,pageable));
     }
 
-    @ApiOperation(value = "通过ID查找指定用户")
+    @ApiOperation(value = "通过ID查找指定角色")
     @RequestMapping(value = "/role/getListById", method = RequestMethod.GET)
     public Result getRoleByIds(
             @RequestParam String id
     ){
-        return Result.ok(roleDao.findAllByIdIn(Utils.convertIdsToList(id)).stream().collect(Collectors.toMap(Role::getId,item -> item)));
+        return Result.ok(roleDao.findAllByIdIn(Utils.convertIdsToList(id)));
     }
 
     @ApiOperation(value = "通过用户ID查找用户所持有的角色")
-    @RequestMapping(value = "/role/getRolesByUser")
+    @RequestMapping(value = "/role/getRolesByUser", method = RequestMethod.GET)
     public Result getUserRoles(
             @RequestParam String id
     ){
         Map map = userDao.findAllByIdIn(Utils.convertIdsToList(id)).stream()
-                .map(u -> new Object[]{u.getId(),u.getRoles()})
+                .map(u -> new Object[]{u.getId() + "",u.getRoles()})
                 .collect(Collectors.toMap(o -> o[0],o -> o[1]));
         return Result.ok(map);
     }
 
     @ApiOperation(value = "通过角色ID查找所有用户")
+    @RequestMapping(value = "/role/getUsersByRole", method = RequestMethod.GET)
     public Result getRoleUsers(
             @RequestParam String id
     ){
         Map map = roleDao.findAllByIdIn(Utils.convertIdsToList(id)).stream()
-                .map(r -> new Object[]{r.getId(),r.getUsers()})
+                .map(r -> new Object[]{r.getId() + "",r.getUsers()})
                 .collect(Collectors.toMap(o -> o[0],o -> o[1]));
         return Result.ok(map);
     }

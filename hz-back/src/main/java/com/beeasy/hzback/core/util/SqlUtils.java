@@ -34,8 +34,11 @@ public class SqlUtils {
             connection = dataSource.getConnection();
             statement = connection.prepareStatement(sql);
             int count = 0;
-            for (String arg : args) {
-                statement.setString(++count, arg);
+            //绑定参数
+            if(null != args){
+                for (String arg : args) {
+                    statement.setString(++count, arg);
+                }
             }
             rs = statement.executeQuery();
             ResultSetMetaData rsmd = rs.getMetaData();
@@ -77,6 +80,16 @@ public class SqlUtils {
             }
         }
         return s;
+    }
+
+    public Page pageQuery(String sql, Pageable pageable){
+        String countSql = sql.replace("select(\\.+)from", "select count(*) as num from");
+        List<Map<String, String>> countList = query(countSql,null);
+        int count = Integer.valueOf(countList.get(0).getOrDefault("num","0"));
+        //添加分页
+        sql += String.format(" limit %d,%d", pageable.getOffset(), pageable.getPageSize());
+        List<Map<String, String>> list = query(sql,null);
+        return new PageImpl(list, pageable, count);
     }
 
 
