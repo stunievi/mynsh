@@ -40,4 +40,24 @@ public class SearchController {
     }
 
 
+    @ApiOperation(value = "贷款台账查询")
+    @RequestMapping(value = "/searchAccloan", method = RequestMethod.GET)
+    public Result searchAccLoan(
+            DataSearchService.AccloanRequest request,
+            Pager pager,
+            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
+    ){
+        return Result.ok(searchService.searchAccLoan(request,pageable));
+    }
+
+    @ApiOperation(value = "贷款资料查询")
+    @RequestMapping(value = "/searchAccloanData", method = RequestMethod.GET)
+    public Result searchAccLoanData(
+            DataSearchService.AccloanRequest request,
+            Pager pager,
+            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
+    ){
+        return Result.ok(searchService.searchAccLoan(request,pageable));
+    }
+
 }
