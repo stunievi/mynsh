@@ -159,6 +159,7 @@ public class DataSearchService {
     public static class SearchConditionRule{
         //查询规则
         SearchType searchType;
+        SearchValueType valueType;
         String value;
     }
 
@@ -169,7 +170,12 @@ public class DataSearchService {
     public enum SearchTargetType{
         PRIVATE_CLIENT,
         PUBLIC_CLIENT,
-        ACC_LOAN
+        ACC_LOAN,
+        ACC_LOAN_DATA
+    }
+    public enum SearchValueType{
+        BIND_VALUE,
+        CUSTOM
     }
 
     @Data
