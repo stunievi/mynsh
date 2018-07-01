@@ -216,6 +216,7 @@ public class UserService implements IUserService {
 
         add.setPassword(CrUtils.md5(add.getPassword().getBytes()));
         User u = Transformer.transform(add, User.class);
+        u.setAccCode(add.getAccCode());
 
         //profile
         UserProfile userProfile = new UserProfile();
@@ -552,6 +553,8 @@ public class UserService implements IUserService {
         if (!StringUtils.isEmpty(edit.getTrueName())) {
             user.setTrueName(edit.getTrueName());
         }
+        //信贷机构代码
+        user.setAccCode(edit.getAccCode());
 
         List<Long> oldIds = null;
         //岗位设置

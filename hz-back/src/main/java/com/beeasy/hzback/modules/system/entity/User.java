@@ -49,6 +49,8 @@ public class User implements Serializable{
 
     private boolean baned;
 
+    String accCode;
+
 
     @JSONField(serialize = false)
 //    @Convert(converter = ObjectConverter.class)

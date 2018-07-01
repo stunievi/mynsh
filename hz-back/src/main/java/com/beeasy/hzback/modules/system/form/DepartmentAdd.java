@@ -28,4 +28,6 @@ public class DepartmentAdd {
 
     @Range(min = 0, max = 255)
     int sort = 0;
+
+    String accCode = "";
 }

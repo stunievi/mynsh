@@ -29,4 +29,6 @@ public class DepartmentEdit {
 
     @Range(min = 0,max = 255, message = "排序在0-255之间")
     int sort;
+
+    String accCode = "";
 }

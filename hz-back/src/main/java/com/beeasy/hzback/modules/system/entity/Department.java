@@ -51,6 +51,8 @@ public class Department extends AbstractBaseEntity{
 
     @OrderBy(value = "DESC")
     private int sort;
+
+    String accCode;
 //    private boolean deleted = false;
 
 //    @Transient

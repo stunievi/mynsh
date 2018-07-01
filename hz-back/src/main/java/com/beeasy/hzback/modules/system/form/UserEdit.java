@@ -42,5 +42,6 @@ public class UserEdit {
     @ApiModelProperty(value = "功能黑名单")
     private Set<String> unbindMethods;
 
+    String accCode;
 }
 

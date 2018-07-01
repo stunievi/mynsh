@@ -37,6 +37,7 @@ public class DepartmentService implements IDepartmentService {
         department.setParentId(null == parent ? null : parent.getId());
         department.setInfo(add.getInfo());
         department.setSort(add.getSort());
+        department.setAccCode(add.getAccCode());
 
         //部门编号
         List objs;
@@ -95,6 +96,8 @@ public class DepartmentService implements IDepartmentService {
             if (!StringUtils.isEmpty(edit.getInfo())) {
                 department.setInfo(edit.getInfo());
             }
+
+            department.setAccCode(edit.getAccCode());
 
             if (edit.getParentId() != null && !department.getParent().getId().equals(edit.getParentId())) {
                 Optional<Department> newParent = findDepartment(edit.getParentId());

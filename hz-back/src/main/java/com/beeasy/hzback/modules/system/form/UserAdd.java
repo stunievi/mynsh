@@ -35,4 +35,7 @@ public class UserAdd {
 
     @ApiModelProperty(value = "是否禁用", required = true)
     private boolean baned;
+
+    //信贷机构代码
+    String accCode;
 }
