@@ -49,4 +49,7 @@ public interface IWorkflowNodeInstanceDao extends JpaRepository<WorkflowNodeInst
     //查询其实节点实例
     List<WorkflowNodeInstance> findAllByInstanceIdAndNodeModel_StartIsTrue(long instanceId);
 
+    //是否已经有过这个节点
+    int countByInstanceIdAndNodeModelId(long iid, long nmid);
+    Optional<WorkflowNodeInstance> findTopByInstanceIdAndNodeModelIdAndIdLessThanOrderByIdDesc(long iid, long nmid, long id);
 }

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -63,15 +64,27 @@ public class SystemNoticeService {
 
 
 
-    public void addNotice(SystemNotice.Type type, Collection<Long> toUids, String content){
+    @Async
+    public void addNotice(SystemNotice.Type type, Collection<Long> toUids, String content, Object data){
         for (Long toUid : toUids) {
             SystemNotice notice = new SystemNotice();
             notice.setState(SystemNotice.State.UNREAD);
             notice.setType(type);
             notice.setUserId(toUid);
             notice.setContent(content);
+            notice.setBindData(data);
             noticeDao.save(notice);
         }
+    }
+    @Async
+    public void addNotice(SystemNotice.Type type, long toUid, String content, Object data){
+        SystemNotice notice = new SystemNotice();
+        notice.setState(SystemNotice.State.UNREAD);
+        notice.setType(type);
+        notice.setUserId(toUid);
+        notice.setContent(content);
+        notice.setBindData(data);
+        noticeDao.save(notice);
     }
 
 

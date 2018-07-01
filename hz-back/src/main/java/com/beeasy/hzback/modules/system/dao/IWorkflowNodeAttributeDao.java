@@ -17,4 +17,8 @@ public interface IWorkflowNodeAttributeDao extends JpaRepository<WorkflowNodeAtt
 
     @Query(value = "select attr.attrValue from WorkflowNodeAttribute attr where attr.nodeInstance.instanceId = :instanceId and attr.attrKey = :kk order by attr.nodeInstanceId desc")
     List getValueByWorkflowInstance(@Param("instanceId") long instanceId, @Param("kk") String kk);
+
+    //得到所有的处理人
+    @Query(value = "select distinct at.dealUserId from WorkflowNodeAttribute  at where at.dealUserId is not null and at.nodeInstanceId = :nid")
+    List<Long> getUidsByNodeInstnce(@Param("nid") long nid);
 }

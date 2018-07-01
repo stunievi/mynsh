@@ -305,8 +305,6 @@ public class WorkflowService {
         //记录日志
         logService.addLog(SystemTextLog.Type.WORKFLOW, workflowInstance.getId(), uid, "发布了任务");
         if (null != dealerUser) {
-            //notice
-            noticeService.addNotice(SystemNotice.Type.WORKFLOW,Collections.singleton(dealerUser.getId()),"你有未处理的任务[任务编号"+workflowInstance.getId()+"]");
             logService.addLog(SystemTextLog.Type.WORKFLOW, workflowInstance.getId(), dealerUser.getId(), "接受了任务");
         }
 
@@ -545,6 +543,8 @@ public class WorkflowService {
 //        nodeInstance.setDealer(user);
         nodeInstanceDao.save(nodeInstance);
 
+        //message
+        noticeService.addNotice(SystemNotice.Type.WORKFLOW, user.getId(), "你已经接受任务${taskId}", ImmutableMap.of("taskId",instance.getId(),"taskName",instance.getTitle()));
         //写log
         logService.addLog(SystemTextLog.Type.WORKFLOW, instance.getId(), user.getId(), "接受了任务");
         return true;
@@ -1088,6 +1088,12 @@ public class WorkflowService {
             saveWorkflowInstance(instance);
 
             success.add(instance.getId());
+
+            //notice
+            noticeService.addNotice(SystemNotice.Type.WORKFLOW, toUid, "你有一条新的任务指派/移交${taskId}", ImmutableMap.of(
+                    "taskId", instance.getId(),
+                    "taskName", instance.getTitle()
+            ));
         }
 
         return success;
@@ -1660,9 +1666,65 @@ public class WorkflowService {
                 }
             }
         }
+        //资料节点的回卷, 如果曾经存在提交, 那么重新附上所有值以及文件
+        else if(newNode.getType().equals(WorkflowNode.Type.input)){
+            if(nodeInstanceDao.countByInstanceIdAndNodeModelId(newNode.getInstanceId(),newNode.getNodeModelId()) >= 2){
+                WorkflowNodeInstance lastNode = nodeInstanceDao.findTopByInstanceIdAndNodeModelIdAndIdLessThanOrderByIdDesc(newNode.getInstanceId(),newNode.getNodeModelId(), newNode.getId()).orElse(null);
+                if(null == lastNode){
+
+                }
+                else{
+                    for (WorkflowNodeAttribute attribute : lastNode.getAttributeList()) {
+                        attribute.setId(null);
+                        attribute.setNodeInstanceId(newNode.getId());
+                        attribute.setNodeInstance(null);
+                        attributeDao.save(attribute);
+                    }
+                    for (WorkflowNodeFile nodeFile : lastNode.getFileList()) {
+                        nodeFile.setId(null);
+                        nodeFile.setNodeInstance(newNode);
+                        nodeFileDao.save(nodeFile);
+                    }
+                }
+            }
+        }
         //如果是逻辑节点
         else if (nextNode.getType().equals(WorkflowNode.Type.logic)) {
             runLogicNode(instance, newNode);
+        }
+
+
+        //查找旧节点的处理人, 发送消息
+        switch (currentNode.getNodeModel().getType()){
+            case input:
+            case check:
+                List<Long> uids = attributeDao.getUidsByNodeInstnce(currentNode.getId());
+                Map map =ImmutableMap.of(
+                        "taskId",currentNode.getInstanceId(),
+                        "taskName", instance.getTitle(),
+                        "nodeId", currentNode.getId(),
+                        "nodeName", currentNode.getNodeName()
+                );
+                noticeService.addNotice(SystemNotice.Type.WORKFLOW,uids ,"你已处理完毕任务${taskId}节点${nodeId}",map);
+                //如果你在处理列表中却没有处理, 那么给你发送消息
+                List<Long> notDealedUids = globalPermissionDao.getUids(Collections.singleton(GlobalPermission.Type.WORKFLOW_MAIN_QUARTER), currentNode.getNodeModelId()).stream()
+                        .filter(uid -> !uids.contains(uid))
+                        .collect(Collectors.toList());
+                noticeService.addNotice(SystemNotice.Type.WORKFLOW,notDealedUids, "您的任务${taskId}节点${nodeId}已被别人处理",map);
+                break;
+
+        }
+        //查找当前节点的可处理人, 发送消息
+        switch (newNode.getType()){
+            case input:
+            case check:
+                List<Long> uids = globalPermissionDao.getUids(Collections.singleton(GlobalPermission.Type.WORKFLOW_MAIN_QUARTER), newNode.getNodeModelId());
+                noticeService.addNotice(SystemNotice.Type.WORKFLOW, uids, "你有新的任务${taskId}节点${nodeId}可以处理",ImmutableMap.of(
+                        "taskId",newNode.getInstanceId(),
+                        "taskName", instance.getTitle(),
+                        "nodeId", newNode.getId(),
+                        "nodeName", newNode.getNodeName()));
+                break;
         }
     }
 

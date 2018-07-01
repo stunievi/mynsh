@@ -44,7 +44,7 @@ public interface IGlobalPermissionDao extends JpaRepository<GlobalPermission,Lon
     }
 
     @Query(value = SQL.GET_UIDS)
-    List getUids(@Param("types")Collection<GlobalPermission.Type> types, @Param("oid") long oid);
+    List<Long> getUids(@Param("types")Collection<GlobalPermission.Type> types, @Param("oid") long oid);
 
     @Query(value = "select count(user.id) from GlobalPermission gp, User user left join user.quarters uq where gp.type in :types and gp.objectId = :oid and user.id = :uid and (" +
             //按人授权,直接取uid

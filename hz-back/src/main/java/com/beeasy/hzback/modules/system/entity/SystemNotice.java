@@ -1,6 +1,8 @@
 package com.beeasy.hzback.modules.system.entity;
 
+import com.alibaba.fastjson.annotation.JSONCreator;
 import com.alibaba.fastjson.annotation.JSONField;
+import com.beeasy.hzback.core.helper.JSONConverter;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
@@ -38,6 +40,10 @@ public class SystemNotice {
 
     @Enumerated(value = EnumType.STRING)
     State state;
+
+    @Column(columnDefinition = JSONConverter.type)
+    @Convert(converter = JSONConverter.class)
+    Object bindData;
 
     //消息类别
     public enum Type{
