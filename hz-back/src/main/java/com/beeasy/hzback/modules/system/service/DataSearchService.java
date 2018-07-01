@@ -1,7 +1,12 @@
 package com.beeasy.hzback.modules.system.service;
 
 
+import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.util.SqlUtils;
+import com.beeasy.hzback.modules.system.entity.GlobalPermission;
+import com.beeasy.hzback.modules.system.form.GlobalPermissionEditRequest;
+import com.google.common.collect.ImmutableList;
+import jdk.nashorn.internal.objects.Global;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -11,7 +16,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -19,6 +26,8 @@ public class DataSearchService {
 
     @Autowired
     SqlUtils sqlUtils;
+    @Autowired
+    UserService userService;
 
     /**
      * 对公客户信息查询
@@ -129,6 +138,51 @@ public class DataSearchService {
         return sqlUtils.pageQuery(sql,pageable);
     }
 
+
+    /**
+     * 设置查找条件授权
+     * @param requests
+     * @return
+     */
+    public boolean setPermissions(
+            GlobalPermissionEditRequest[] requests
+    ){
+        if(Arrays.stream(requests).map(item -> item.getType()).distinct().count() != 1){
+            return false;
+        }
+        //清空授权
+        userService.deleteGlobalPermissionByTypeAndObjectId(requests[0].getType(),0);
+        List rules;
+        for (GlobalPermissionEditRequest request : requests) {
+            switch (request.getType()){
+                case DATA_SEARCH_CONDITION:
+                     rules = request.getArray().toJavaList(SearchConditionRule.class);
+                    userService.addGlobalPermission(request.getType(),0, request.getUserType(), request.getLinkIds(), rules);
+                    break;
+
+                case DATA_SEARCH_RESULT:
+                    rules = request.getArray().toJavaList(SearchResultRule.class);
+                    userService.addGlobalPermission(request.getType(),0, request.getUserType(), request.getLinkIds(), rules);
+                    break;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * 授权查询
+     * @param types
+     * @return
+     */
+    public List<GlobalPermission> getPermissions(List<GlobalPermission.Type> types){
+        List limitList = ImmutableList.of(
+            GlobalPermission.Type.DATA_SEARCH_CONDITION,
+            GlobalPermission.Type.DATA_SEARCH_RESULT
+        );
+        types = types.stream().filter(item -> limitList.contains(item)).collect(Collectors.toList());
+        return userService.getGlobalPermissions(types,0);
+    }
+
     @Data
     public static class PublicClientRequest{
         String CUS_ID;
@@ -159,9 +213,22 @@ public class DataSearchService {
     public static class SearchConditionRule{
         //查询规则
         SearchType searchType;
+        //授权对象
+        SearchTargetType targetType;
+        //约束类型
         SearchValueType valueType;
+        //约束值
         String value;
     }
+
+    @Data
+    public static class SearchResultRule{
+        //授权对象
+        SearchTargetType searchTargetType;
+        //限制字段
+        String value;
+    }
+
 
     public enum SearchType{
         FOR_DEPARTMENT,
@@ -176,11 +243,6 @@ public class DataSearchService {
     public enum SearchValueType{
         BIND_VALUE,
         CUSTOM
-    }
-
-    @Data
-    public static class SearchFieldsRule{
-        SearchTargetType searchTargetType;
     }
 
 }

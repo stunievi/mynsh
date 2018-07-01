@@ -204,8 +204,9 @@ public class WorkFlowController {
         if(Arrays.stream(requests).map(item -> item.getObjectId()).distinct().count() != 1){
             return Result.error("参数错误");
         }
-        //清空授权
-        userService.deleteGlobalPermissionByObjectId(requests[0].getObjectId());
+        if(Arrays.stream(requests).map(item -> item.getType()).distinct().count() != 1){
+            return Result.error("参数错误");
+        }
         GlobalPermission.Type[] types = {
                 GlobalPermission.Type.WORKFLOW_PUB,
                 GlobalPermission.Type.WORKFLOW_OBSERVER,
@@ -213,11 +214,13 @@ public class WorkFlowController {
                 GlobalPermission.Type.WORKFLOW_SUPPORT_QUARTER
         };
         List<GlobalPermission.Type> list = Arrays.asList(types);
+        if(!list.contains(requests[0].getType())){
+            return Result.error("参数错误");
+        }
+        //清空授权
+        userService.deleteGlobalPermissionByTypeAndObjectId(requests[0].getType(),requests[0].getObjectId());
         for (GlobalPermissionEditRequest request : requests) {
-            if(!list.contains(request.getType())){
-                continue;
-            }
-        userService.addGlobalPermission(request.getType(),request.getObjectId(), request.getUserType(), request.getLinkIds(),null);
+            userService.addGlobalPermission(request.getType(),request.getObjectId(), request.getUserType(), request.getLinkIds(),null);
         }
         return Result.ok();
     }

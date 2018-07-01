@@ -787,7 +787,7 @@ public class UserService implements IUserService {
         return userDao.countUidAndQid(uid, qid) > 0;
     }
 
-    public List<User> findUser(List<Long> ids) {
+    public List<User> findUser(Collection<Long> ids) {
         return userDao.findAllByIdIn(ids);
     }
 
@@ -807,13 +807,6 @@ public class UserService implements IUserService {
         return Optional.ofNullable(systemFileDao.findOne(id));
     }
 
-    public List<User> findUserByIds(Set<Long> ids) {
-        return userDao.findAllByIdIn(ids);
-    }
-
-    public List<User> findUserByIds(Long... ids) {
-        return findUserByIds(new HashSet<Long>(Arrays.asList(ids)));
-    }
 
 
     /**
@@ -922,6 +915,10 @@ public class UserService implements IUserService {
         return count > 0;
     }
 
+    public boolean deleteGlobalPermissionByTypeAndObjectId(GlobalPermission.Type type, long id){
+        return globalPermissionDao.deleteAllByTypeAndObjectId(type,id) > 0;
+    }
+
     /**
      * 得到叠加过后的最终授权结果
      * @param uid
@@ -938,6 +935,7 @@ public class UserService implements IUserService {
     }
 
     public void cacheUserMethods(GlobalPermission globalPermission) {
+        if(true) return;
         userAllowApiDao.deleteAllByUserId(globalPermission.getLinkId());
         JSONObject menu = cache.getMenus();
         for (Object o : (JSONArray) globalPermission.getDescription()) {

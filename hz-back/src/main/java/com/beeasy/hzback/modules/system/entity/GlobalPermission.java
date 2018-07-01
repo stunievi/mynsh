@@ -63,8 +63,12 @@ public class GlobalPermission extends AbstractBaseEntity{
         WORKFLOW_SUPPORT_QUARTER,
 
         //用户权限授权
-        USER_METHOD
+        USER_METHOD,
 
+        //数据查询约束
+        DATA_SEARCH_CONDITION,
+        //数据查询结果
+        DATA_SEARCH_RESULT
     }
 
     /**

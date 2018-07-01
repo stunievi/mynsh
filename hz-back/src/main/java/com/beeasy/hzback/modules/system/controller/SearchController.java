@@ -1,6 +1,9 @@
 package com.beeasy.hzback.modules.system.controller;
 
 import com.beeasy.hzback.core.helper.Result;
+import com.beeasy.hzback.core.helper.Utils;
+import com.beeasy.hzback.modules.system.entity.GlobalPermission;
+import com.beeasy.hzback.modules.system.form.GlobalPermissionEditRequest;
 import com.beeasy.hzback.modules.system.form.Pager;
 import com.beeasy.hzback.modules.system.service.DataSearchService;
 import io.swagger.annotations.ApiOperation;
@@ -10,7 +13,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Arrays;
 
 @RequestMapping("/api/data")
 @RestController
@@ -59,5 +65,26 @@ public class SearchController {
     ){
         return Result.ok(searchService.searchAccLoan(request,pageable));
     }
+
+    @ApiOperation(value = "设置数据查询约束权限")
+    @RequestMapping(value = "/setConditionPermission", method = RequestMethod.POST)
+    public Result setConditionPermission(GlobalPermissionEditRequest[] requests){
+        return Result.ok(searchService.setPermissions(requests));
+    }
+
+    @ApiOperation(value = "设置数据查询的结果约束")
+    @RequestMapping(value = "/setResultPermission", method = RequestMethod.POST)
+    public Result setResultPermission(GlobalPermissionEditRequest[] requests){
+        return Result.ok(searchService.setPermissions(requests));
+    }
+
+    @ApiOperation(value = "授权查询")
+    @RequestMapping(value = "/getPermissions", method = RequestMethod.GET)
+    public Result getPermissions(
+            @RequestParam  String type
+    ){
+        return Result.ok(searchService.getPermissions(Utils.convertToList(type, GlobalPermission.Type.class)));
+    }
+
 
 }

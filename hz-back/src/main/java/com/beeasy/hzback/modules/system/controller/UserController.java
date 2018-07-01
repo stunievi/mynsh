@@ -116,9 +116,10 @@ public class UserController {
     }
 
 
-    @GetMapping("/ids")
-    public String getList(Long[] ids){
-        List<User> users = userService.findUserByIds(ids);
+    @RequestMapping(value = "/ids",method = RequestMethod.GET)
+    public String getList(
+            @RequestParam String ids){
+        List<User> users = userService.findUser(Utils.convertIdsToList(ids));
         return Result.okJson(users,
                 new Result.Entry(Department.class,"children"),
                 new Result.Entry(Quarters.class,"department","users")

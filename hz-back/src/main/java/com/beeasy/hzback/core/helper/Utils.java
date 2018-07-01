@@ -1,6 +1,8 @@
 package com.beeasy.hzback.core.helper;
 
 import bin.leblanc.faker.Faker;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.beeasy.hzback.modules.system.dao.IUserDao;
 import com.beeasy.hzback.modules.system.entity.User;
 import com.beeasy.hzback.modules.system.form.UserAdd;
@@ -118,6 +120,14 @@ public class Utils {
             }
         }
         return list;
+    }
+
+    public static <T> List<T> convertToList(String str, Class<T> clz){
+        Object object = JSON.toJSON(str.trim().split(","));
+        if(object instanceof JSONArray){
+            return ((JSONArray) object).toJavaList(clz);
+        }
+        return new ArrayList<>();
     }
 
         public static List<String> convertLongToString(Collection<Long> list){
