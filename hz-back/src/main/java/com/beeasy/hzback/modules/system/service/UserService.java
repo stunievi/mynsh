@@ -891,6 +891,18 @@ public class UserService implements IUserService {
         return globalPermissionDao.findAllByTypeInAndObjectId(types, objectId);
     }
 
+    /**
+     * 按详细参数得到授权对象
+     * @param type
+     * @param oid
+     * @param userType
+     * @param lid
+     * @return
+     */
+    public Optional<GlobalPermission> getGlobalPermission(GlobalPermission.Type type, long oid, GlobalPermission.UserType userType, long lid){
+        return globalPermissionDao.findTopByTypeAndObjectIdAndUserTypeAndLinkId(type,oid,userType, lid);
+    }
+
     public boolean deleteGlobalPermission(Long... gpids) {
         int count = globalPermissionDao.deleteAllByIdIn(Arrays.asList(gpids));
 //        if(count > 0){

@@ -152,7 +152,7 @@ public class UserController {
     @ApiOperation(value = "查看某个人的功能模块授权")
     @RequestMapping(value = "/permission/get", method = RequestMethod.GET)
     public Result getUserMethodPermissions(@RequestParam long uid){
-        return Result.ok(userService.getUserMethods(uid));
+        return Result.ok(userService.getGlobalPermission(GlobalPermission.Type.USER_METHOD,0, GlobalPermission.UserType.USER,uid));
     }
 
 
@@ -345,6 +345,23 @@ public class UserController {
         return Result.ok(map);
     }
 
+
+    @ApiOperation(value = "增加角色功能模块授权")
+    @RequestMapping(value = "/role/permission/method/set", method = RequestMethod.POST)
+    public Result setRoleMethodPermissions(
+            @RequestParam long rid,
+            @Validated @RequestBody JSONArray array
+    ){
+        return Result.ok(userService.addGlobalPermission(GlobalPermission.Type.USER_METHOD,0, GlobalPermission.UserType.ROLE, Collections.singleton(rid), array));
+    }
+
+    @ApiOperation(value = "得到指定角色的功能模块授权")
+    @RequestMapping(value = "/role/permission/method/get", method = RequestMethod.GET)
+    public Result getRoleMethodPermissions(
+            @RequestParam long rid
+    ){
+        return Result.ok(userService.getGlobalPermission(GlobalPermission.Type.USER_METHOD,0, GlobalPermission.UserType.ROLE,rid).orElse(null));
+    }
 
 
 
