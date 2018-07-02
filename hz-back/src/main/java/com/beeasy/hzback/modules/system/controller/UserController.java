@@ -82,6 +82,14 @@ public class UserController {
         return userService.editUser(edit);
     }
 
+    @ApiOperation(value = "批量删除用户")
+    @RequestMapping(value = "/delete",method = RequestMethod.GET)
+    public Result deleteUser(
+            @RequestParam String id
+    ){
+        return Result.ok(userService.deleteUser(Utils.convertIdsToList(id)));
+    }
+
     @ApiOperation(value = "批量添加岗位")
     @RequestMapping(value = "/addUsersToQuarters", method = RequestMethod.GET)
     public Result userAddQuarter(

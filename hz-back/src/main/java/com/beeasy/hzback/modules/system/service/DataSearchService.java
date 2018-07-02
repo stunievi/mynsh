@@ -154,7 +154,7 @@ public class DataSearchService {
      * @return
      */
     public Page searchAccLoan(AccloanRequest request, Pageable pageable) {
-        String sql = "select BILL_NO,CONT_NO,LOAN_ACCOUNT,CUS_ID,CUS_NAME,ASSURE_MEANS_MAIN,LOAN_AMOUNT,LOAN_BALANCE,REPAYMENT_MODE,CLA,CUS_MANAGER,MAIN_BR_ID from ACC_LOAN where 1 = 1 and ";
+        String sql = "select BILL_NO,CONT_NO,LOAN_ACCOUNT,CUS_ID,CUS_NAME,ASSURE_MEANS_MAIN,LOAN_AMOUNT,LOAN_BALANCE,REPAYMENT_MODE,CLA,CUS_MANAGER,MAIN_BR_ID from ACC_LOAN where 1 = 1 ";
         List<String> strings = new ArrayList<>();
         if (!StringUtils.isEmpty(request.getBILL_NO())) {
             strings.add(String.format(" and BILL_NO like '%%%s%%'", request.getBILL_NO()));
@@ -176,7 +176,7 @@ public class DataSearchService {
     }
 
     public Page searchAccLoanData(AccloanRequest request, Pageable pageable) {
-        String sql = "select BILL_NO,CONT_NO,LOAN_ACCOUNT,CUS_ID,CUS_NAME,ASSURE_MEANS_MAIN,LOAN_AMOUNT,LOAN_BALANCE,REPAYMENT_MODE,CLA,CUS_MANAGER,MAIN_BR_ID from ACC_LOAN where 1 = 1 and ";
+        String sql = "select BILL_NO,CONT_NO,LOAN_ACCOUNT,CUS_ID,CUS_NAME,ASSURE_MEANS_MAIN,LOAN_AMOUNT,LOAN_BALANCE,REPAYMENT_MODE,CLA,CUS_MANAGER,MAIN_BR_ID from ACC_LOAN where 1 = 1";
         List<String> strings = new ArrayList<>();
         if (!StringUtils.isEmpty(request.getBILL_NO())) {
             strings.add(String.format(" and BILL_NO like '%%%s%%'", request.getBILL_NO()));

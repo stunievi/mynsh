@@ -63,7 +63,6 @@ public interface IUserDao extends JpaRepository<User,Long> ,JpaSpecificationExec
     public void updateUserKeys(@Param("privateKey") String privateKey, @Param("publicKey") String publicKey, @Param("username") String username);
 
     @Modifying
-    @Transactional
     @Query(value = "delete from t_user_quarters WHERE user_id = :uid",nativeQuery = true)
     int deleteUserQuarters(@Param("uid") long uid);
 
@@ -79,10 +78,6 @@ public interface IUserDao extends JpaRepository<User,Long> ,JpaSpecificationExec
     @Query("update User set quarters = :quarters where id = 1 ")
     void test(@Param("quarters") List<Quarters> quarters);
 
-    @Transactional
-    @Modifying
-    @Query(value = "delete from t_user_quarters where user_id = :id", nativeQuery = true)
-    void test2(@Param("id") int id);
 
     @Transactional
     @Modifying

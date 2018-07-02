@@ -285,12 +285,14 @@ public class UserService implements IUserService {
      * @param uid
      * @return
      */
-    public boolean deleteUser(long uid) {
-        //解除关联
-        userDao.deleteUserQuarters(uid);
-        //删除用户
-        int count = userDao.deleteById(uid);
-        return count > 0;
+    public List<Long> deleteUser(Collection<Long> uids) {
+        return uids.stream().filter(uid -> {
+            //解除关联
+            userDao.deleteUserQuarters(uid);
+            //删除用户
+            int count = userDao.deleteById(uid);
+            return count > 0;
+        }).collect(Collectors.toList());
     }
 
     /**
