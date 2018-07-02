@@ -1191,6 +1191,10 @@ public class WorkflowService {
         switch (nodeModel.getType()) {
             case input:
                 errMessage = submitInputNode(uid, request.getNodeId(), request.getData());
+                if(StringUtils.isEmpty(errMessage)){
+                    nodeInstance.setDealerId(uid);
+                    nodeInstanceDao.save(nodeInstance);
+                }
                 break;
 
             case check:
@@ -1695,11 +1699,11 @@ public class WorkflowService {
 
 
         //查找旧节点的处理人, 发送消息
-        switch (currentNode.getNodeModel().getType()){
+        switch (currentNode.getType()){
             case input:
             case check:
                 List<Long> uids = attributeDao.getUidsByNodeInstnce(currentNode.getId());
-                Map map =ImmutableMap.of(
+                Map map = ImmutableMap.of(
                         "taskId",currentNode.getInstanceId(),
                         "taskName", instance.getTitle(),
                         "nodeId", currentNode.getId(),
@@ -1714,6 +1718,7 @@ public class WorkflowService {
                 break;
 
         }
+
         //查找当前节点的可处理人, 发送消息
         switch (newNode.getType()){
             case input:
@@ -1902,7 +1907,7 @@ public class WorkflowService {
         for (Map.Entry<String, Object> entry : nodeModel.getJSONObject("content").entrySet()) {
             String k = entry.getKey();
             JSONObject v = (JSONObject) entry.getValue();
-            WorkflowNodeAttribute attribute = attributeDao.findFirstByDealUserIdAndAttrKey(currentNode.getDealerId(), k).orElse(null);
+//            WorkflowNodeAttribute attribute = attributeDao.findFirstByDealUserIdAndAttrKey(currentNode.getDealerId(), k).orElse(null);
 //            if(null)
 //            if (v.getString("required").equals("y")) {
 //                Optional<WorkflowNodeAttribute> target = currentNode.getAttributeList().stream()

@@ -79,7 +79,7 @@ public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Lon
     //部门未执行任务
     @Query("select distinct i from WorkflowInstance i, User u " +
 //            "join i.nodeList nl " +
-            "join i.workflowModel model " +
+//            "join i.workflowModel model " +
 //            "join model.departments d " +
 //            "join nl.nodeModel nm " +
 //            "join nm.persons ps " +

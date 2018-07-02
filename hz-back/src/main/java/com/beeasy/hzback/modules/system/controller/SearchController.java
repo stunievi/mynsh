@@ -63,8 +63,69 @@ public class SearchController {
             Pager pager,
             @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
     ){
-        return Result.ok(searchService.searchAccLoan(request,pageable));
+        return Result.ok(searchService.searchAccLoanData(request,pageable));
     }
+
+    @ApiOperation(value = "高管信息查询")
+    @RequestMapping(value = "/searchCusComManager", method = RequestMethod.GET)
+    public Result searchCusComManager(
+            @RequestParam String CUS_ID,
+            Pager pager,
+            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
+    ){
+        return Result.ok(searchService.searchCusComManager(CUS_ID,pageable));
+    }
+
+    @ApiOperation(value = "联系信息查询")
+    @RequestMapping(value = "/searchComAddr", method = RequestMethod.GET)
+    public Result searchComAddr(
+            @RequestParam String CUS_ID,
+            Pager pager,
+            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
+    ){
+        return Result.ok(searchService.searchComAddr(CUS_ID,pageable));
+    }
+
+    @ApiOperation(value = "个人收入情况查询")
+    @RequestMapping(value = "/searchCusInDiv", method = RequestMethod.GET)
+    public Result searchCusInDiv(
+            @RequestParam String CUS_ID,
+            Pager pager,
+            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
+    ){
+        return Result.ok(searchService.searchCusInDiv(CUS_ID,pageable));
+    }
+
+    @ApiOperation(value = "贷款合同列表查询")
+    @RequestMapping(value = "/searchCrtLoan", method = RequestMethod.GET)
+    public Result searchCrtLoan(
+            @RequestParam String CONT_NO,
+            Pager pager,
+            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
+    ){
+        return Result.ok(searchService.searchCrtLoan(CONT_NO,pageable));
+    }
+
+    @ApiOperation(value = "担保合同列表查询")
+    @RequestMapping(value = "/searchGrtGuar", method = RequestMethod.GET)
+    public Result searchGrtGuar(
+            @RequestParam String CONT_NO,
+            Pager pager,
+            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
+    ){
+        return Result.ok(searchService.searchGrtGuar(CONT_NO,pageable));
+    }
+
+    @ApiOperation(value = "抵押物明细列表查询")
+    @RequestMapping(value = "/searchGRTGBasicInfo", method = RequestMethod.GET)
+    public Result searchGRTGBasicInfo(
+            @RequestParam String CONT_NO,
+            Pager pager,
+            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
+    ){
+        return Result.ok(searchService.searchGRTGBasicInfo(CONT_NO,pageable));
+    }
+
 
     @ApiOperation(value = "设置数据查询约束权限")
     @RequestMapping(value = "/setConditionPermission", method = RequestMethod.POST)

@@ -1393,11 +1393,11 @@
           required: n
       next: 合同审查通过
 
-    合同审核通过:
+    合同审查通过:
       type: check
       key: key
       ps: ps
-      question: 是否审核通过？
+      question: 是否审通过？
       states:
         -
           item: 是

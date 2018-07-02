@@ -202,6 +202,37 @@ public class DataSearchService {
     }
 
 
+    public Page searchCusComManager(String cusId, Pageable pageable){
+        String sql = String.format("select a.CUS_ID,a.COM_MRG_NAME,a.COM_MRG_CERT_TYP,a.COM_MRG_CERT_CODE,a.COM_MRG_DUTY,a.COM_MRG_EDT,a.COM_MRG_PHN,a.COM_MRG_ADRR from CUS_COM_MANAGER as a left join CUS_COM as b on a.CUS_ID=b.CUS_ID where a.CUS_ID='%s'", cusId);
+        return sqlUtils.pageQuery(sql,pageable);
+    }
+
+    public Page searchComAddr(String cusId, Pageable pageable){
+        String sql = String.format("select a.SEQ,a.COM_ADDR_TYP,a.COM_ADDR,a.COM_PHN_CODE,a.COM_FAX_CODE from CUS_COM_CONT as a left join CUS_COM as b on a.CUS_ID=b.CUS_ID where a.CUS_ID='%s'", cusId);
+        return sqlUtils.pageQuery(sql,pageable);
+    }
+
+    public Page searchCusInDiv(String cusId, Pageable pageable){
+        String sql = String.format("select a.INDIV_DEPOSITS,a.INDIV_SUR_YEAR,a.INDIV_ANN_INCM from CUS_INDIV_INCOME as a left join CUS_INDIV as b on a.CUS_ID=b.CUS_ID where a.CUS_ID='%s'", cusId);
+        return sqlUtils.pageQuery(sql,pageable);
+    }
+
+    public Page searchCrtLoan(String contNo, Pageable pageable){
+        String sql = String.format("select CONT_NO,SERNO,CONT_TYPE,CONT_AMT,AVAIL_AMT,LOAN_START_DATE,LOAN_END_DATE,CONT_STATE from CTR_LOAN_CONT where CONT_NO='%s'", contNo);
+        return sqlUtils.pageQuery(sql, pageable);
+    }
+
+    public Page searchGrtGuar(String contNo, Pageable pageable){
+        String sql = "select a.CONT_NO,b.GUAR_CONT_NO,b.GUAR_CONT_TYPE,b.GUAR_WAY,b.BORROWER_RELATION,b.GUAR_NO,b.GUAR_NAME,b.GUAR_AMT,b.GUAR_START_DATE,b.GUAR_END_DATE,b.GUAR_CONT_STATE from GRT_LOANGUAR_INFO as a left join GRT_GUAR_CONT as b on a.GUAR_CONT_NO=b.GUAR_CONT_NO where a.CONT_NO='%s'";
+        return sqlUtils.pageQuery(sql, pageable);
+    }
+
+    public Page searchGRTGBasicInfo(String contNo, Pageable pageable){
+        String sql = String.format("select a.GUARANTY_ID,a.CUS_ID,a.CUS_NAME,a.GAGE_TYPE,a.GAGE_NAME,a.RIGHT_CERT_TYPE_CODE,a.EVAL_AMT,a.MORTAGAGE_RATE,a.MAX_MORTAGAGE_AMT,a.AREA_LOCATION,a.USED_AMT,a.STATUS_CODE,a.DEPOT_STATUS from GRT_LOANGUAR_INFO as b left join GRT_GUARANTY_RE as c on b.SERNO=c.SER_NO left join GRT_G_BASIC_INFO as a on c.GUARANTY_ID=a.GUARANTY_ID left join ACC_LOAN as d on b.CONT_NO=d.CONT_NO where b.CONT_NO='%s'", contNo);
+        return sqlUtils.pageQuery(sql, pageable);
+    }
+
+
     /**
      * 设置查找条件授权
      *
