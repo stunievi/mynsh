@@ -771,7 +771,7 @@ public class WorkflowService {
      * @return
      */
     public boolean canTransform(WorkflowInstance instance, User user) {
-        WorkflowNode firstNode = nodeDao.findAllByModelAndStartIsTrue(instance.getWorkflowModel()).get(0);
+//        WorkflowNode firstNode = nodeDao.findAllByModelAndStartIsTrue(instance.getWorkflowModel()).get(0);
         return
                 //1.任务正在进行中
                 instance.getState().equals(WorkflowInstance.State.DEALING) &&
@@ -1068,8 +1068,13 @@ public class WorkflowService {
                 continue;
             }
 
+            //不能自己移交给自己
+            if(null != instance.getDealUserId() && instance.getDealUserId().equals(toUid)){
+                continue;
+            }
+
             //任务状态是否合法
-            if (!instance.getState().equals(WorkflowInstance.State.COMMON) && !instance.getState().equals(WorkflowInstance.State.UNRECEIVED)) {
+            if (!instance.getState().equals(WorkflowInstance.State.COMMON) && !instance.getState().equals(WorkflowInstance.State.UNRECEIVED) || !instance.getState().equals(WorkflowInstance.State.DEALING)) {
                 continue;
             }
 
@@ -2481,6 +2486,12 @@ public class WorkflowService {
         return globalPermissionDao.getUids(Collections.singleton(GlobalPermission.Type.WORKFLOW_PUB), modelId);
     }
 
+    public Page getPubUsers(long modelId){
+        List<Long> uids = getPubUids(modelId);
+        PageRequest pageRequest = new PageRequest(0,200);
+        List<User> users = userService.findUser(uids);
+        return new PageImpl(users,pageRequest,users.size());
+    }
 
 //    public Optional<WorkflowNodeAttribute> getNodeAttribute(long uid, String key){
 //

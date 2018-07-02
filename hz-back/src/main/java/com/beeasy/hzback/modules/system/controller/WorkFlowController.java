@@ -531,7 +531,7 @@ public class WorkFlowController {
     public Result getModelDealers(
             @RequestParam long id
     ){
-        return Result.ok(workflowService.getPubUids(id));
+        return Result.ok(workflowService.getPubUsers(id));
     }
 
 
