@@ -282,7 +282,7 @@ public class UserService implements IUserService {
     /**
      * 删除用户
      *
-     * @param uid
+     * @param uids
      * @return
      */
     public List<Long> deleteUser(Collection<Long> uids) {
