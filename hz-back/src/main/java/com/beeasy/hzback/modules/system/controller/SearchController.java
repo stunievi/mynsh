@@ -133,7 +133,7 @@ public class SearchController {
     }
 
     @ApiOperation(value = "对私客户-基本信息")
-    @RequestMapping(value = "/searchGRTGBasicInfo", method = RequestMethod.GET)
+    @RequestMapping(value = "/searchCUS_INDIV", method = RequestMethod.GET)
     public Result searchCUS_INDIV(
             @RequestParam String CUS_ID
     ){
