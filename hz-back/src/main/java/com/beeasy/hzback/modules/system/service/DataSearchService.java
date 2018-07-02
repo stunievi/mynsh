@@ -19,10 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -230,6 +227,22 @@ public class DataSearchService {
     public Page searchGRTGBasicInfo(String contNo, Pageable pageable){
         String sql = String.format("select a.GUARANTY_ID,a.CUS_ID,a.CUS_NAME,a.GAGE_TYPE,a.GAGE_NAME,a.RIGHT_CERT_TYPE_CODE,a.EVAL_AMT,a.MORTAGAGE_RATE,a.MAX_MORTAGAGE_AMT,a.AREA_LOCATION,a.USED_AMT,a.STATUS_CODE,a.DEPOT_STATUS from GRT_LOANGUAR_INFO as b left join GRT_GUARANTY_RE as c on b.SERNO=c.SER_NO left join GRT_G_BASIC_INFO as a on c.GUARANTY_ID=a.GUARANTY_ID left join ACC_LOAN as d on b.CONT_NO=d.CONT_NO where b.CONT_NO='%s'", contNo);
         return sqlUtils.pageQuery(sql, pageable);
+    }
+
+
+    public List searchCUS_COM(String cusId){
+        String sql = "select * from CUS_COM where CUS_ID = ? ";
+        return sqlUtils.query(sql, Collections.singleton(cusId));
+    }
+
+    public List searchCUS_INDIV(String cusId){
+        String sql = "select * from CUS_INDIV where CUS_ID = ?";
+        return sqlUtils.query(sql, Collections.singleton(cusId));
+    }
+
+    public List searchACC_LOAN(String billNo){
+        String sql = "select * from ACC_LOAN where BILL_NO = ?";
+        return sqlUtils.query(sql, Collections.singleton(billNo));
     }
 
 

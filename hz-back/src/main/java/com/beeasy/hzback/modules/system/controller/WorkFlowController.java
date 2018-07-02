@@ -91,7 +91,7 @@ public class WorkFlowController {
     public Result delete(
             @RequestParam long modelId
     ){
-        return Result.finish(workflowService.deleteWorkflowModel(modelId,false));
+        return Result.finish(workflowService.deleteWorkflowModel(modelId,true));
     }
 
     @ApiOperation(value = "模型列表", notes = "查询已经存在的工作模型列表")

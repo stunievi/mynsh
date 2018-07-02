@@ -3,7 +3,9 @@ package com.beeasy.hzback.modules.system.controller;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.core.util.SqlUtils;
+import com.beeasy.hzback.modules.system.entity.MessageTemplate;
 import com.beeasy.hzback.modules.system.form.GlobalPermissionEditRequest;
+import com.beeasy.hzback.modules.system.form.Pager;
 import com.beeasy.hzback.modules.system.service.SystemService;
 import com.beeasy.hzback.modules.system.service.UserService;
 import io.swagger.annotations.Api;
@@ -11,6 +13,10 @@ import io.swagger.annotations.ApiOperation;
 import org.hibernate.SQLQuery;
 import org.hibernate.transform.Transformers;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityManager;
@@ -54,6 +60,42 @@ public class SystemController  {
     @RequestMapping(value = "/information", method = RequestMethod.GET)
     public String getSystemInfo(){
         return systemService.getSystemInfo();
+    }
+
+
+    /********** 消息模板 ************/
+    @ApiOperation(value = "添加消息模板")
+    @RequestMapping(value = "/messageTemplate/add", method = RequestMethod.POST)
+    public Result addMessageTemplate(
+            @RequestBody @Validated(value = SystemService.MessageTemplateRequest.add.class)SystemService.MessageTemplateRequest request
+            ){
+        return Result.ok(systemService.addMessageTemplate(request.getTemplate()));
+    }
+
+    @ApiOperation(value = "编辑消息模板")
+    @RequestMapping(value = "/messageTemplate/edit", method = RequestMethod.POST)
+    public Result editMessageTemplate(
+            @Validated(value = SystemService.MessageTemplateRequest.edit.class) @RequestBody SystemService.MessageTemplateRequest request
+    ){
+        return Result.finish(systemService.editMessageTemplate(request));
+    }
+
+
+    @ApiOperation(value = "批量删除消息模板")
+    @RequestMapping(value = "/messageTemplate/delete", method = RequestMethod.GET)
+    public Result deleteMessageTemplate(
+            @RequestParam String id
+    ){
+        return Result.ok(systemService.deleteMessageTemplates(Utils.convertIdsToList(id)));
+    }
+
+    @ApiOperation(value = "获得消息模板列表")
+    @RequestMapping(value = "/messageTemplate/list", method = RequestMethod.GET)
+    public Result getMessageTemplateList(
+            Pager pagers,
+            @PageableDefault(value = 15, sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
+    ){
+        return Result.ok(systemService.getMessageTemplateList(pageable));
     }
 
 

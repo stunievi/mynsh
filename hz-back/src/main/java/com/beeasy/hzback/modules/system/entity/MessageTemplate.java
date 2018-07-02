@@ -11,16 +11,8 @@ import javax.persistence.*;
 @Entity
 @Table(name = "t_message_template")
 public class MessageTemplate {
-
     @Id
     @GeneratedValue
-    Integer id;
-
-    String name;
-
-    @Column(columnDefinition = "BLOB")
-    @Convert(converter = StringConverter.class)
+    Long id;
     String template;
-
-
 }

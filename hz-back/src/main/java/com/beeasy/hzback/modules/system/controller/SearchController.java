@@ -116,6 +116,38 @@ public class SearchController {
         return Result.ok(searchService.searchGrtGuar(CONT_NO,pageable));
     }
 
+    @ApiOperation(value = "贷款台账-基本信息")
+    @RequestMapping(value = "/searchACC_LOAN", method = RequestMethod.GET)
+    public Result searchACC_LOAN(
+            @RequestParam String BILL_NO
+    ){
+        return Result.ok(searchService.searchACC_LOAN(BILL_NO));
+    }
+
+    @ApiOperation(value = "对公客户-基本信息")
+    @RequestMapping(value = "/searchCUS_COM", method = RequestMethod.GET)
+    public Result searchCUS_COM(
+            @RequestParam String CUS_ID
+    ){
+        return Result.ok(searchService.searchCUS_COM(CUS_ID));
+    }
+
+    @ApiOperation(value = "对私客户-基本信息")
+    @RequestMapping(value = "/searchGRTGBasicInfo", method = RequestMethod.GET)
+    public Result searchCUS_INDIV(
+            @RequestParam String CUS_ID
+    ){
+        return Result.ok(searchService.searchCUS_INDIV(CUS_ID));
+    }
+
+
+
+    @ApiOperation(value = "设置数据查询约束权限")
+    @RequestMapping(value = "/setConditionPermission", method = RequestMethod.POST)
+    public Result setConditionPermission(GlobalPermissionEditRequest[] requests){
+        return Result.ok(searchService.setPermissions(requests, GlobalPermission.Type.DATA_SEARCH_CONDITION));
+    }
+
     @ApiOperation(value = "抵押物明细列表查询")
     @RequestMapping(value = "/searchGRTGBasicInfo", method = RequestMethod.GET)
     public Result searchGRTGBasicInfo(
@@ -124,13 +156,6 @@ public class SearchController {
             @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
     ){
         return Result.ok(searchService.searchGRTGBasicInfo(CONT_NO,pageable));
-    }
-
-
-    @ApiOperation(value = "设置数据查询约束权限")
-    @RequestMapping(value = "/setConditionPermission", method = RequestMethod.POST)
-    public Result setConditionPermission(GlobalPermissionEditRequest[] requests){
-        return Result.ok(searchService.setPermissions(requests, GlobalPermission.Type.DATA_SEARCH_CONDITION));
     }
 
     @ApiOperation(value = "设置数据查询的结果约束")

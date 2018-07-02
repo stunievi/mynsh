@@ -6,7 +6,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
-public interface IMessageTemplateDao extends JpaRepository<MessageTemplate,Integer>{
-    Page<List<MessageTemplate>> findAllByName(String name, Pageable pageable);
+public interface IMessageTemplateDao extends JpaRepository<MessageTemplate,Long>{
+    int deleteById(long id);
+    Optional<MessageTemplate> findTopById(long id);
 }

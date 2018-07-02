@@ -1,17 +1,25 @@
 package com.beeasy.hzback.modules.system.service;
 
 import com.beeasy.hzback.core.helper.Result;
+import com.beeasy.hzback.modules.system.dao.IMessageDao;
+import com.beeasy.hzback.modules.system.dao.IMessageTemplateDao;
 import com.beeasy.hzback.modules.system.dao.ISystemVariableDao;
+import com.beeasy.hzback.modules.system.entity.Message;
+import com.beeasy.hzback.modules.system.entity.MessageTemplate;
 import com.beeasy.hzback.modules.system.entity.SystemVariable;
 import com.beeasy.hzback.modules.system.form.SystemVarEditRequest;
+import lombok.Data;
+import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import javax.persistence.Id;
+import javax.validation.constraints.NotNull;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.beeasy.hzback.modules.system.cache.SystemConfigCache.DEMO_CACHE_NAME;
@@ -21,6 +29,8 @@ import static com.beeasy.hzback.modules.system.cache.SystemConfigCache.DEMO_CACH
 public class SystemService {
     @Autowired
     ISystemVariableDao systemVariableDao;
+    @Autowired
+    IMessageTemplateDao messageTemplateDao;
 
     /**
      * 变量设置
@@ -63,6 +73,31 @@ public class SystemService {
     }
 
 
+    public MessageTemplate addMessageTemplate(String template){
+        MessageTemplate messageTemplate = new MessageTemplate();
+        messageTemplate.setTemplate(template);
+        return messageTemplateDao.save(messageTemplate);
+    }
+
+    public boolean editMessageTemplate(MessageTemplateRequest request){
+        MessageTemplate messageTemplate = messageTemplateDao.findTopById(request.getId()).orElse(null);
+        if(null == messageTemplate){
+            return false;
+        }
+        messageTemplate.setTemplate(request.getTemplate());
+        messageTemplateDao.save(messageTemplate);
+        return true;
+    }
+
+    public List<Long> deleteMessageTemplates(Collection<Long> ids ){
+        return ids.stream().filter(id -> messageTemplateDao.deleteById(id) > 0).collect(Collectors.toList());
+    }
+
+    public Page<MessageTemplate> getMessageTemplateList(Pageable pageable){
+        return messageTemplateDao.findAll(pageable);
+    }
+
+
     @Cacheable(value = DEMO_CACHE_NAME, key = "'system_info'")
     public String getSystemInfo() {
         String tags = "java.version\n" +
@@ -96,5 +131,18 @@ public class SystemService {
         return Result.ok(Arrays.stream(tags.split("\\n")).map(item -> {
             return new Object[]{item, System.getProperty(item)};
         }).collect(Collectors.toMap(item -> item[0], item -> String.valueOf(item[1])))).toJson();
+    }
+
+
+    @Data
+    public static class  MessageTemplateRequest{
+        public interface add{};
+        public interface edit{};
+
+        @NotNull(groups = add.class)
+        Long id;
+
+        @NotEmpty(groups = {add.class,edit.class})
+        String template;
     }
 }
