@@ -31,7 +31,7 @@ public class SearchController {
             Pager pager,
             @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
     ){
-        return Result.ok(searchService.searchPublicClient(request, pageable));
+        return Result.ok(searchService.searchPublicClient(Utils.getCurrentUserId(), request, pageable));
     }
 
 
@@ -69,13 +69,13 @@ public class SearchController {
     @ApiOperation(value = "设置数据查询约束权限")
     @RequestMapping(value = "/setConditionPermission", method = RequestMethod.POST)
     public Result setConditionPermission(GlobalPermissionEditRequest[] requests){
-        return Result.ok(searchService.setPermissions(requests));
+        return Result.ok(searchService.setPermissions(requests, GlobalPermission.Type.DATA_SEARCH_CONDITION));
     }
 
     @ApiOperation(value = "设置数据查询的结果约束")
     @RequestMapping(value = "/setResultPermission", method = RequestMethod.POST)
     public Result setResultPermission(GlobalPermissionEditRequest[] requests){
-        return Result.ok(searchService.setPermissions(requests));
+        return Result.ok(searchService.setPermissions(requests, GlobalPermission.Type.DATA_SEARCH_RESULT));
     }
 
     @ApiOperation(value = "授权查询")
