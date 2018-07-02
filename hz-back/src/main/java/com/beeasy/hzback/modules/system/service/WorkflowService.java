@@ -1732,7 +1732,7 @@ public class WorkflowService {
                 break;
             case end:
                 noticeService.addNotice(SystemNotice.Type.WORKFLOW,instance.getDealUserId(), "您的任务${taskId}已经结束",ImmutableMap.of(
-                        "taskId", newNode.getInstance(),
+                        "taskId", newNode.getInstanceId(),
                         "taskName", instance.getTitle()
                 ));
                 break;

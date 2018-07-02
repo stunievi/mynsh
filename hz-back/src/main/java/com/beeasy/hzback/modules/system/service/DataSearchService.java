@@ -253,27 +253,21 @@ public class DataSearchService {
      * @return
      */
     public boolean setPermissions(
-            GlobalPermissionEditRequest[] requests,
-            GlobalPermission.Type type
+            GlobalPermissionEditRequest request
     ) {
-        if (Arrays.stream(requests).map(item -> item.getType()).distinct().count() > 1) {
-            return false;
-        }
         //清空授权
-        userService.deleteGlobalPermissionByTypeAndObjectId(type, 0);
+        userService.deleteGlobalPermissionByTypeAndObjectId(request.getType(), 0);
         List rules;
-        for (GlobalPermissionEditRequest request : requests) {
-            switch (request.getType()) {
-                case DATA_SEARCH_CONDITION:
-                    rules = request.getArray().toJavaList(SearchConditionRule.class);
-                    userService.addGlobalPermission(request.getType(), 0, request.getUserType(), request.getLinkIds(), rules);
-                    break;
+        switch (request.getType()) {
+            case DATA_SEARCH_CONDITION:
+                rules = request.getArray().toJavaList(SearchConditionRule.class);
+                userService.addGlobalPermission(request.getType(), 0, request.getUserType(), request.getLinkIds(), rules);
+                break;
 
-                case DATA_SEARCH_RESULT:
-                    rules = request.getArray().toJavaList(SearchResultRule.class);
-                    userService.addGlobalPermission(request.getType(), 0, request.getUserType(), request.getLinkIds(), rules);
-                    break;
-            }
+            case DATA_SEARCH_RESULT:
+                rules = request.getArray().toJavaList(SearchResultRule.class);
+                userService.addGlobalPermission(request.getType(), 0, request.getUserType(), request.getLinkIds(), rules);
+                break;
         }
         return true;
     }
@@ -281,16 +275,17 @@ public class DataSearchService {
     /**
      * 授权查询
      *
-     * @param types
      * @return
      */
-    public List<GlobalPermission> getPermissions(List<GlobalPermission.Type> types) {
+    public Optional<GlobalPermission> getPermission(GlobalPermission.Type type, GlobalPermission.UserType userType, Long linkId) {
         List limitList = ImmutableList.of(
                 GlobalPermission.Type.DATA_SEARCH_CONDITION,
                 GlobalPermission.Type.DATA_SEARCH_RESULT
         );
-        types = types.stream().filter(item -> limitList.contains(item)).collect(Collectors.toList());
-        return userService.getGlobalPermissions(types, 0);
+        if(!limitList.contains(type)){
+            return Optional.empty();
+        }
+        return userService.getGlobalPermission(type,0,userType,linkId);
     }
 
     private String initString(String str) {

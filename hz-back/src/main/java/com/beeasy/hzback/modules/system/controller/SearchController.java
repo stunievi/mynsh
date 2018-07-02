@@ -11,11 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.Arrays;
 
 @RequestMapping("/api/data")
@@ -142,10 +140,10 @@ public class SearchController {
 
 
 
-    @ApiOperation(value = "设置数据查询约束权限")
-    @RequestMapping(value = "/setConditionPermission", method = RequestMethod.POST)
-    public Result setConditionPermission(GlobalPermissionEditRequest[] requests){
-        return Result.ok(searchService.setPermissions(requests, GlobalPermission.Type.DATA_SEARCH_CONDITION));
+    @ApiOperation(value = "设置数据查询权限")
+    @RequestMapping(value = "/setPermission", method = RequestMethod.POST)
+    public Result setConditionPermission(GlobalPermissionEditRequest request){
+        return Result.ok(searchService.setPermissions(request));
     }
 
     @ApiOperation(value = "抵押物明细列表查询")
@@ -158,18 +156,20 @@ public class SearchController {
         return Result.ok(searchService.searchGRTGBasicInfo(CONT_NO,pageable));
     }
 
-    @ApiOperation(value = "设置数据查询的结果约束")
-    @RequestMapping(value = "/setResultPermission", method = RequestMethod.POST)
-    public Result setResultPermission(GlobalPermissionEditRequest[] requests){
-        return Result.ok(searchService.setPermissions(requests, GlobalPermission.Type.DATA_SEARCH_RESULT));
-    }
+//    @ApiOperation(value = "设置数据查询的结果约束")
+//    @RequestMapping(value = "/setResultPermission", method = RequestMethod.POST)
+//    public Result setResultPermission(@Valid @RequestBody GlobalPermissionEditRequest request){
+//        return Result.ok(searchService.setPermissions(request);
+//    }
 
     @ApiOperation(value = "授权查询")
     @RequestMapping(value = "/getPermissions", method = RequestMethod.GET)
     public Result getPermissions(
-            @RequestParam  String type
+            @RequestParam GlobalPermission.Type type,
+            @RequestParam GlobalPermission.UserType userType,
+            @RequestParam long linkId
     ){
-        return Result.ok(searchService.getPermissions(Utils.convertToList(type, GlobalPermission.Type.class)));
+        return Result.ok(searchService.getPermission(type,userType,linkId));
     }
 
 
