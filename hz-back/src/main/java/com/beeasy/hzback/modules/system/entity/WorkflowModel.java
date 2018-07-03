@@ -54,6 +54,14 @@ public class WorkflowModel {
     @Transient
     boolean pubOrPoint = false;
 
+    //软删除指令
+    boolean deleted;
+
+    @Transient
+    boolean pub;
+    @Transient
+    boolean point;
+
     @CreatedDate
     Date addTime;
 
@@ -95,7 +103,8 @@ public class WorkflowModel {
         Future,
         Pattern,
         Length,
-        NotEmpty
+        NotEmpty,
+        Size
     }
 
 //    @OneToOne(mappedBy = "workflowModel",cascade = CascadeType.REMOVE)

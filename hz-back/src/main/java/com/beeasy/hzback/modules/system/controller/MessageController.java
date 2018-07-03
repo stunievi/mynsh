@@ -5,6 +5,7 @@ import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.modules.mobile.request.StringMessageRequest;
 import com.beeasy.hzback.modules.system.dao.IMessageReadDao;
 import com.beeasy.hzback.modules.system.form.MessageAdd;
+import com.beeasy.hzback.modules.system.log.NotSaveLog;
 import com.beeasy.hzback.modules.system.service.MessageService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -58,6 +59,7 @@ public class MessageController {
         return  Result.ok(messageReadDao.findAllByUser_IdAndUnreadNumGreaterThan(Utils.getCurrentUserId(), 0));
     }
 
+    @NotSaveLog
     @PostMapping("/sendFile")
     public String sendFile(
             @RequestParam Long toUid,

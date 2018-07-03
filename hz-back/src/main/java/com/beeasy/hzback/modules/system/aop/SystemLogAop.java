@@ -5,6 +5,7 @@ import com.beeasy.hzback.modules.system.dao.ISystemLogDao;
 import com.beeasy.hzback.modules.system.entity.SystemLog;
 import com.beeasy.hzback.modules.system.entity.SystemTextLog;
 import com.beeasy.hzback.modules.system.entity.User;
+import com.beeasy.hzback.modules.system.log.NotSaveLog;
 import com.beeasy.hzback.modules.system.log.SaveLog;
 import com.beeasy.hzback.modules.system.service.UserService;
 import io.swagger.annotations.ApiOperation;
@@ -88,9 +89,15 @@ public class SystemLogAop {
         for (Method method : methods) {
             if (method.getName().equals(methodName)) {
                 Class[] clazzs = method.getParameterTypes();
-                if (clazzs!=null&&clazzs.length == arguments.length&&method.getAnnotation(ApiOperation.class)!=null) {
-                    operationName = method.getAnnotation(ApiOperation.class).value();
-                    break;
+                if (clazzs!=null&&clazzs.length == arguments.length){
+                    //禁止记录log
+                    if(method.getAnnotation(NotSaveLog.class) != null){
+                        continue;
+                    }
+                    if(method.getAnnotation(ApiOperation.class) != null){
+                        operationName = method.getAnnotation(ApiOperation.class).value();
+                        break;
+                    }
                 }
             }
         }

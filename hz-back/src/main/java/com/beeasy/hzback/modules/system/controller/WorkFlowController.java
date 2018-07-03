@@ -12,6 +12,7 @@ import com.beeasy.hzback.modules.system.dao.IWorkflowNodeAttributeDao;
 import com.beeasy.hzback.modules.system.dao.IWorkflowNodeInstanceDao;
 import com.beeasy.hzback.modules.system.entity.*;
 import com.beeasy.hzback.modules.system.form.*;
+import com.beeasy.hzback.modules.system.log.NotSaveLog;
 import com.beeasy.hzback.modules.system.log.SaveLog;
 import com.beeasy.hzback.modules.system.service.UserService;
 import com.beeasy.hzback.modules.system.service.WorkflowService;
@@ -91,7 +92,7 @@ public class WorkFlowController {
     public Result delete(
             @RequestParam long modelId
     ){
-        return Result.finish(workflowService.deleteWorkflowModel(modelId,true));
+        return Result.finish(workflowService.deleteWorkflowModel(modelId,false));
     }
 
     @ApiOperation(value = "模型列表", notes = "查询已经存在的工作模型列表")
@@ -102,12 +103,14 @@ public class WorkFlowController {
     public Result<Page<WorkflowModel>> list(
             Pager pager,
             @PageableDefault(value = 15, sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable,
-            String modelName
+            WorkflowService.ModelSearchRequest request
     ){
-        if(StringUtils.isEmpty(modelName)){
-            return Result.ok(workflowModelDao.findAll(pageable));
-        }
-        return Result.ok(workflowModelDao.findAllByName(modelName,pageable));
+
+        return Result.ok(workflowService.getModelList(request, pageable));
+//        if(StringUtils.isEmpty(modelName)){
+//            return Result.ok(workflowModelDao.findAll(pageable));
+//        }
+//        return Result.ok(workflowModelDao.findAllByName(modelName,pageable));
     }
 
 
@@ -331,6 +334,12 @@ public class WorkFlowController {
         return Result.ok(workflowModelDao.getAllWorkflows());
     }
 
+    @ApiOperation(value = "得到用户相关联的模型ID")
+    @RequestMapping(value = "/model/validList", method = RequestMethod.GET)
+    public Result getUserWorkflows(){
+        return Result.ok(workflowService.getUserModelList(Utils.getCurrentUserId()));
+    }
+
 //    @ApiOperation(value = "我发布的任务")
 //    @GetMapping("/myPubWorks")
 //    public Result getMyPubWorks(
@@ -477,6 +486,7 @@ public class WorkFlowController {
 //        }
 //    }
 
+    @NotSaveLog
     @ApiOperation(value = "上传节点附件")
     @PostMapping("/file/upload")
     public String uploadNodeFile(

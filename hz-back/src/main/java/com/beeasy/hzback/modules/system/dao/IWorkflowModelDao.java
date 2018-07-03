@@ -5,6 +5,7 @@ import com.beeasy.hzback.modules.system.entity.WorkflowModel;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -14,7 +15,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-public interface IWorkflowModelDao extends JpaRepository<WorkflowModel,Long>{
+public interface IWorkflowModelDao extends JpaRepository<WorkflowModel,Long>, JpaSpecificationExecutor{
     WorkflowModel findFirstByNameAndVersion(String name, BigDecimal version);
     Page<List<WorkflowModel>> findAllByName(String name, Pageable pageable);
 
@@ -29,15 +30,11 @@ public interface IWorkflowModelDao extends JpaRepository<WorkflowModel,Long>{
     @Query(value = "select m.id from WorkflowModel m where m.modelName = :modelName and m.open = true order by m.version desc ")
     List<Long> findModelId(@Param("modelName") String modelName);
 
-    @Query(value = "select m from WorkflowModel m where (select count(m2) from WorkflowModel m2 where m.modelName = m2.modelName and m.version < m2.version and m2.open = true) < 1 and m.open = true order by m.version desc")
+    @Query(value = "select m from WorkflowModel m where m.open = true order by m.version desc")
     List<WorkflowModel> getAllWorkflows();
 
     List<WorkflowModel> findAllByIdIn(List<Long> id);
 
-    //删除该工作流所属部门
-    @Modifying
-    @Query(value = "DELETE FROM t_workflowmodel_department WHERE model_id in :ids", nativeQuery = true)
-    int deleteDepartments(@Param("ids") Collection<Long> ids);
 
     //判断一个用户是不是某个工作流的主管
     @Query(value = "select count(u.id) from WorkflowModel model, User u, GlobalPermission gp " +
@@ -56,6 +53,12 @@ public interface IWorkflowModelDao extends JpaRepository<WorkflowModel,Long>{
                     "(gp.userType = 'USER' and (select count(uuqq) from User uu join uu.quarters uuqq where uu.id = gp.linkId and uuqq.code like concat(q.department.code,'_%') ) > 0 )" +
                 ")")
     int isManagerForWorkflow(@Param("uid") long uid, @Param("mid") long mid);
+
+
+    //软删除
+    @Modifying
+    @Query(value = "update WorkflowModel set deleted = true where id = :id")
+    int deleteWorkflowModel(@Param("id") long id);
 
     //得到一个模型起始节点的可处理人
 //    @Query(value = "select user.id from WorkflowModel m, User user join user.quarters qs join m.nodeModels where nm.start = true and m.id = :id")

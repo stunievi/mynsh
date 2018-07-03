@@ -20,6 +20,7 @@ import com.beeasy.hzback.modules.system.node.*;
 import com.beeasy.hzback.modules.system.response.FetchWorkflowInstanceResponse;
 import com.google.common.collect.ImmutableMap;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.commons.lang.math.NumberUtils;
@@ -968,7 +969,7 @@ public class WorkflowService {
     public Page<WorkflowInstance> getUnreceivedWorks(Collection<Long> uids, UnreceivedWorksSearchRequest request, Long lessId, Pageable pageable) {
         if (null == lessId) lessId = Long.MAX_VALUE;
         //得到我监管的所有模型ID
-        List oids = globalPermissionDao.getObjectIds(Collections.singleton(GlobalPermission.Type.WORKFLOW_PUB), uids);
+        List oids = globalPermissionDao.getManagerObjectId(Collections.singleton(GlobalPermission.Type.WORKFLOW_PUB), uids);
         Long finalLessId = lessId;
         Specification query = new Specification() {
 
@@ -1176,6 +1177,19 @@ public class WorkflowService {
         switch (nodeModel.getType()) {
             case input:
                 errMessage = submitInputNode(uid, request.getNodeId(), request.getData());
+                //如果这个任务之前处于争抢的任务
+                //如果你在处理列表中却没有处理, 那么给你发送消息
+                if(null == nodeInstance.getDealerId()){
+                    List<Long> notDealedUids = globalPermissionDao.getUids(Collections.singleton(GlobalPermission.Type.WORKFLOW_MAIN_QUARTER), nodeModel.getId()).stream()
+                            .filter(uuid -> !uuid.equals(uid))
+                            .collect(Collectors.toList());
+                    noticeService.addNotice(SystemNotice.Type.WORKFLOW,notDealedUids, "你的任务${taskId}节点${nodeId}已被别人处理",ImmutableMap.of(
+                            "taskId",instance.getId(),
+                            "taskName",instance.getTitle(),
+                            "nodeId", nodeInstance.getId(),
+                            "nodeName", nodeInstance.getNodeName()
+                    ));
+                }
                 if(StringUtils.isEmpty(errMessage)){
                     nodeInstance.setDealerId(uid);
                     nodeInstanceDao.save(nodeInstance);
@@ -1572,10 +1586,37 @@ public class WorkflowService {
             modelDao.delete(id);
             return true;
         }
-        WorkflowModel model = modelDao.findOne(id);
-        if (model.isFirstOpen() || model.isOpen()) return false;
-        modelDao.delete(id);
-        return true;
+        return modelDao.deleteWorkflowModel(id) > 0;
+    }
+
+    public Page getModelList(ModelSearchRequest request, Pageable pageable){
+        Specification query = ((root, criteriaQuery, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(cb.equal(root.get("deleted"),false));
+            if(!StringUtils.isEmpty(request.getModelName())){
+                predicates.add(cb.equal(root.get("modelName"),request.getModelName()));
+            }
+            return cb.and(predicates.toArray(new Predicate[predicates.size()]));
+        });
+        return modelDao.findAll(query,pageable);
+    }
+
+    public List<WorkflowModel> getUserModelList(long uid){
+        List<Long> pubIds = globalPermissionDao.getObjectIds(Collections.singleton(GlobalPermission.Type.WORKFLOW_PUB),Collections.singleton(uid));
+        List<Long> pointIds = globalPermissionDao.getManagerObjectId(Collections.singleton(GlobalPermission.Type.WORKFLOW_PUB),Collections.singleton(uid));
+        JSONObject object = new JSONObject();
+        List<WorkflowModel> models = modelDao.getAllWorkflows()
+                .stream()
+                .peek(model -> {
+                    model.setPub(pubIds.contains(model.getId()));
+                    model.setPoint(pointIds.contains(model.getId()));
+                }).collect(Collectors.toList());
+        return models;
+    }
+
+    @Data
+    public static class ModelSearchRequest{
+        String modelName;
     }
 
 
@@ -1626,6 +1667,8 @@ public class WorkflowService {
 
 
     private void goNextNode(WorkflowInstance instance, WorkflowNodeInstance currentNode, WorkflowNode nextNode) {
+        WorkflowNode currentNodeModel = findNode(currentNode.getNodeModelId()).orElse(null);
+
         //本节点完毕
         currentNode.setFinished(true);
         currentNode.setDealDate(new Date());
@@ -1702,11 +1745,7 @@ public class WorkflowService {
                         "nodeName", currentNode.getNodeName()
                 );
                 noticeService.addNotice(SystemNotice.Type.WORKFLOW,uids ,"你已处理完毕任务${taskId}节点${nodeId}",map);
-                //如果你在处理列表中却没有处理, 那么给你发送消息
-                List<Long> notDealedUids = globalPermissionDao.getUids(Collections.singleton(GlobalPermission.Type.WORKFLOW_MAIN_QUARTER), currentNode.getNodeModelId()).stream()
-                        .filter(uid -> !uids.contains(uid))
-                        .collect(Collectors.toList());
-                noticeService.addNotice(SystemNotice.Type.WORKFLOW,notDealedUids, "您的任务${taskId}节点${nodeId}已被别人处理",map);
+
                 break;
 
         }
@@ -1876,6 +1915,15 @@ public class WorkflowService {
 
                 case Length:
                     if (notEmpty && value.length() <= rule.getInteger("value")) {
+                        flag = true;
+                    }
+                    break;
+                case Size:
+                    Integer min = rule.getInteger("min");
+                    if(null == min) min = 0;
+                    Integer max = rule.getInteger("max");
+                    if(null == max) max = 999;
+                    if(notEmpty && value.length() >= min && value.length() <= max){
                         flag = true;
                     }
                     break;
@@ -2370,6 +2418,9 @@ public class WorkflowService {
 //            if (StringUtils.isEmpty(String.valueOf(data.get(attrKey)))) {
 //                continue;
 //            }
+            if(v.getBoolean("required") && StringUtils.isEmpty(String.valueOf(data.get(attrKey)))){
+                return v.getString("cname") + "必填";
+            }
             //验证属性格式
             //校验该字段的规则
             if (v.containsKey("rules")) {

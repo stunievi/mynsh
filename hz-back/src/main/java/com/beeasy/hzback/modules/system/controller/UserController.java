@@ -11,6 +11,7 @@ import com.beeasy.hzback.modules.system.dao.IRoleDao;
 import com.beeasy.hzback.modules.system.dao.IUserDao;
 import com.beeasy.hzback.modules.system.entity.*;
 import com.beeasy.hzback.modules.system.form.*;
+import com.beeasy.hzback.modules.system.log.NotSaveLog;
 import com.beeasy.hzback.modules.system.service.UserService;
 import com.beeasy.hzback.modules.system.zed.UserZed;
 import io.swagger.annotations.Api;
@@ -249,6 +250,7 @@ public class UserController {
         return Result.ok(userDao.getNormalUsers());
     }
 
+    @NotSaveLog
     @PostMapping("/face/edit")
     public String uploadFace(@RequestParam MultipartFile file){
         return (userService.updateUserFace(Utils.getCurrentUserId(),file)).toJson();
