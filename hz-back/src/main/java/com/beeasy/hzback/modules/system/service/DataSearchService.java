@@ -14,6 +14,7 @@ import jdk.nashorn.internal.objects.Global;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -245,6 +246,94 @@ public class DataSearchService {
         return sqlUtils.query(sql, Collections.singleton(billNo));
     }
 
+    /********* 报表 **********/
+    public Page searchYQYSBJDQ(YQYSBJDQRequest request, Pageable pageable){
+        String sql = "SELECT BILL_NO, CONT_NO, CUS_ID, CUS_NAME, LOAN_BALANCE\n" +
+                "FROM ACC_LOAN\n" +
+                "WHERE 1 = 1 ";
+        List<String> strings = new ArrayList<>();
+        if(!StringUtils.isEmpty(request.getSTART_DATE())){
+            strings.add(String.format(" and LOAN_END_DATE >= '%s'", request.getSTART_DATE()));
+        }
+        if(!StringUtils.isEmpty(request.getEND_DATE())){
+            strings.add(String.format(" and LOAN_END_DATE <= '%s'", request.getEND_DATE()));
+        }
+        if(!StringUtils.isEmpty(request.getPRD_TYPE())){
+            strings.add(String.format(" and PRD_TYPE = '%s'", request.getPRD_TYPE()));
+        }
+        if(!StringUtils.isEmpty(request.getLOAN_NATURE())){
+            strings.add(String.format(" and ASSURE_MEANS_MAIN = '%s'", request.getASSURE_MEANS_MAIN()));
+        }
+        if(!StringUtils.isEmpty(request.getACCOUNT_STATUS())){
+            strings.add(String.format(" and ACCOUNT_STATUS = '%s'", request.getACCOUNT_STATUS()));
+        }
+        if(strings.size() > 0){
+            sql += " and " + StringUtils.join(strings.toArray(), " ");
+        }
+        return sqlUtils.pageQuery(sql,pageable);
+    }
+
+    public Page searchYQYSLX(YQYSLXRequest request,Pageable pageable){
+        String sql = "SELECT a1.BILL_NO,a1.CONT_NO,a1.CUS_ID,a1.CUS_NAME,a1.LOAN_BALANCE * a1.REALITY_IR_Y / 12 * (\n" +
+                " TO_DAYS(Least(a1.LOAN_END_DATE, '%s')) - TO_DAYS(GREATEST(a1.LOAN_START_DATE, '%s'))\n" +
+                " ) / 30 as INT_CUMU\n" +
+                "FROM ACC_LOAN a1\n" +
+                "WHERE 1 = 1 ";
+        sql = String.format(sql, request.getEND_DATE(), request.getSTART_DATE());
+        if(!StringUtils.isEmpty(request.getPRD_TYPE())){
+            sql += String.format(" and PRD_TYPE = '%s'", request.getPRD_TYPE());
+        }
+        if(!StringUtils.isEmpty(request.getLOAN_NATURE())){
+            sql += String.format(" and LOAN_NATURE = '%s'", request.getLOAN_NATURE());
+        }
+        if(!StringUtils.isEmpty(request.getASSURE_MEANS_MAIN())){
+            sql += String.format(" and ASSURE_MEANS_MAIN = '%s'", request.getASSURE_MEANS_MAIN());
+        }
+        if(!StringUtils.isEmpty(request.getACCOUNT_STATUS())){
+            sql += String.format(" and ACCOUNT_STATUS = '%s'", request.getACCOUNT_STATUS());
+        }
+        return sqlUtils.pageQuery(sql, pageable);
+    }
+
+    public Page searchYuQYSBJ(YuQYSBJRequest request, Pageable pageable){
+        String sql = "SELECT BILL_NO, CONT_NO, CUS_ID, CUS_NAME, UNPD_PRIN_BAL\n" +
+                "FROM ACC_LOAN\n" +
+                "WHERE 1 = 1";
+        if(!StringUtils.isEmpty(request.getPRD_TYPE())){
+            sql += String.format(" and PRD_TYPE = '%s'", request.getPRD_TYPE());
+        }
+        if(!StringUtils.isEmpty(request.getLOAN_NATURE())){
+            sql += String.format(" and LOAN_NATURE = '%s'", request.getLOAN_NATURE());
+        }
+        if(!StringUtils.isEmpty(request.getASSURE_MEANS_MAIN())){
+            sql += String.format(" and ASSURE_MEANS_MAIN = '%s'", request.getASSURE_MEANS_MAIN());
+        }
+        if(!StringUtils.isEmpty(request.getACCOUNT_STATUS())){
+            sql += String.format(" and ACCOUNT_STATUS = '%s'", request.getACCOUNT_STATUS());
+        }
+        return sqlUtils.pageQuery(sql, pageable);
+    }
+
+    public Page searchYuQYSLX(YuQYSLXRequest request, Pageable pageable){
+        String sql = "SELECT BILL_NO, CONT_NO, CUS_ID, CUS_NAME, OVERDUE_RECE_INT,DELAY_INT_CUMU,UNPD_ARR_PRN_BAL,ACT_ARR_PRN_BAL\n" +
+                "FROM ACC_LOAN\n" +
+                "WHERE 1 = 1 ";
+        if(!StringUtils.isEmpty(request.getPRD_TYPE())){
+            sql += String.format(" and PRD_TYPE = '%s'", request.getPRD_TYPE());
+        }
+        if(!StringUtils.isEmpty(request.getLOAN_NATURE())){
+            sql += String.format(" and LOAN_NATURE = '%s'", request.getLOAN_NATURE());
+        }
+        if(!StringUtils.isEmpty(request.getASSURE_MEANS_MAIN())){
+            sql += String.format(" and ASSURE_MEANS_MAIN = '%s'", request.getASSURE_MEANS_MAIN());
+        }
+        if(!StringUtils.isEmpty(request.getACCOUNT_STATUS())){
+            sql += String.format(" and ACCOUNT_STATUS = '%s'", request.getACCOUNT_STATUS());
+        }
+        return sqlUtils.pageQuery(sql, pageable);
+    }
+
+
 
     /**
      * 设置查找条件授权
@@ -321,6 +410,42 @@ public class DataSearchService {
         String LOAN_ACCOUNT;
         String CUS_ID;
         String CUS_NAME;
+    }
+
+    @Data
+    public static class YQYSBJDQRequest{
+        @NotEmpty
+        String START_DATE;
+        @NotEmpty
+        String END_DATE;
+
+        String PRD_TYPE;
+        String LOAN_NATURE;
+        String ASSURE_MEANS_MAIN;
+        String ACCOUNT_STATUS;
+    }
+    @Data
+    public static class YQYSLXRequest{
+        String START_DATE;
+        String END_DATE;
+        String PRD_TYPE;
+        String LOAN_NATURE;
+        String ASSURE_MEANS_MAIN;
+        String ACCOUNT_STATUS;
+    }
+    @Data
+    public static class YuQYSBJRequest{
+        String PRD_TYPE;
+        String LOAN_NATURE;
+        String ASSURE_MEANS_MAIN;
+        String ACCOUNT_STATUS;
+    }
+    @Data
+    public static class YuQYSLXRequest{
+        String PRD_TYPE;
+        String LOAN_NATURE;
+        String ASSURE_MEANS_MAIN;
+        String ACCOUNT_STATUS;
     }
 
     @Data

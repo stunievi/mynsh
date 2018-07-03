@@ -138,14 +138,6 @@ public class SearchController {
         return Result.ok(searchService.searchCUS_INDIV(CUS_ID));
     }
 
-
-
-    @ApiOperation(value = "设置数据查询权限")
-    @RequestMapping(value = "/setPermission", method = RequestMethod.POST)
-    public Result setConditionPermission(GlobalPermissionEditRequest request){
-        return Result.ok(searchService.setPermissions(request));
-    }
-
     @ApiOperation(value = "抵押物明细列表查询")
     @RequestMapping(value = "/searchGRTGBasicInfo", method = RequestMethod.GET)
     public Result searchGRTGBasicInfo(
@@ -155,6 +147,15 @@ public class SearchController {
     ){
         return Result.ok(searchService.searchGRTGBasicInfo(CONT_NO,pageable));
     }
+
+
+    @ApiOperation(value = "设置数据查询权限")
+    @RequestMapping(value = "/setPermission", method = RequestMethod.POST)
+    public Result setConditionPermission(GlobalPermissionEditRequest request){
+        return Result.ok(searchService.setPermissions(request));
+    }
+
+
 
 //    @ApiOperation(value = "设置数据查询的结果约束")
 //    @RequestMapping(value = "/setResultPermission", method = RequestMethod.POST)
@@ -173,4 +174,43 @@ public class SearchController {
     }
 
 
+    /****** 报表 *******/
+    @ApiOperation(value = "预期应收本金（到期）")
+    @RequestMapping(value = "/sheet/searchYQYSBJDQ", method = RequestMethod.GET)
+    public Result searchYQYSBJDQ(
+             DataSearchService.YQYSBJDQRequest request,
+            Pager pager,
+            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
+    ){
+        return Result.ok(searchService.searchYQYSBJDQ(request,pageable));
+    }
+    @ApiOperation(value = "预期应收利息")
+    @RequestMapping(value = "/sheet/searchYQYSLX", method = RequestMethod.GET)
+    public Result searchYQYSLX(
+            DataSearchService.YQYSLXRequest request,
+            Pager pager,
+            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
+    ){
+        return Result.ok(searchService.searchYQYSLX(request,pageable));
+    }
+
+    @ApiOperation(value = "逾期应收本金")
+    @RequestMapping(value = "/sheet/searchYuQYSBJ", method = RequestMethod.GET)
+    public Result searchYuQYSBJ(
+            DataSearchService.YuQYSBJRequest request,
+            Pager pager,
+            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        return Result.ok(searchService.searchYuQYSBJ(request, pageable));
+    }
+
+    @ApiOperation(value = "逾期应收利息")
+    @RequestMapping(value = "/sheet/searchYuQYSLX", method = RequestMethod.GET)
+    public Result searchYQYSLX(
+            DataSearchService.YuQYSLXRequest request,
+            Pager pager,
+            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        return Result.ok(searchService.searchYuQYSLX(request, pageable));
+    }
 }
