@@ -89,7 +89,22 @@ public class InfoCollectLinkController {
             }
             return cb.and(predicates.toArray(new Predicate[predicates.size()]));
         });
-        return Result.ok(instanceDao.findAll(query,pageable));
+        Page page = (instanceDao.findAll(query,pageable));
+        Object ret = page.map(new Converter<WorkflowInstance, Object>() {
+            @Override
+            public Object convert(WorkflowInstance instance) {
+                //得到倒数第一个节点
+                Map<String,Object> map = new HashMap<>();
+                map.put("id",instance.getId());
+                List objs = attributeDao.getValueByWorkflowInstance(instance.getId(),"CUS_NAME");
+                map.put("CUS_NAME",objs.size() > 0 ? (String) objs.get(0) : "");
+                objs = attributeDao.getValueByWorkflowInstance(instance.getId(), "PHONE");
+                map.put("PHONE",objs.size() > 0 ? (String) objs.get(0) : "");
+                map.put("addTime", instance.getAddTime());
+                return map;
+            }
+        });
+        return Result.ok(ret);
     }
 
     @ApiOperation(value = "查询贷款台账")
