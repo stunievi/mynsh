@@ -67,11 +67,11 @@ public class InfoCollectLinkController {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.equal(root.get("modelName"),"资料收集"));
             predicates.add(cb.equal(root.get("dealUserId"),Utils.getCurrentUserId()));
-            Join at = root.join("attributes");
+            Join nl = root.join("nodeList");
+            Join at = nl.join("attributeList");
             if(!StringUtils.isEmpty(CUS_NAME)){
                 predicates.add(
                         cb.and(
-                                cb.equal(at.get("type"), WorkflowInstanceAttribute.Type.INNATE),
                                 cb.equal(at.get("attrKey"), "CUS_NAME"),
                                 cb.like(at.get("attrValue"), "%" + CUS_NAME + "%")
                         )
@@ -80,7 +80,6 @@ public class InfoCollectLinkController {
             if (!StringUtils.isEmpty(PHONE)) {
                 predicates.add(
                         cb.and(
-                                cb.equal(at.get("type"), WorkflowInstanceAttribute.Type.INNATE),
                                 cb.equal(at.get("attrKey"), "PHONE"),
                                 cb.like(at.get("attrValue"), "%" + PHONE + "%")
                         )
