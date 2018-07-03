@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -65,6 +66,7 @@ public class InfoCollectLinkController {
         Specification query = ((root, criteriaQuery, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.equal(root.get("modelName"),"资料收集"));
+            predicates.add(cb.equal(root.get("dealUserId"),Utils.getCurrentUserId()));
             Join at = root.join("attributes");
             if(!StringUtils.isEmpty(CUS_NAME)){
                 predicates.add(
