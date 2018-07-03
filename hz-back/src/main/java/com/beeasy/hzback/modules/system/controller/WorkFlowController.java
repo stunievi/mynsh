@@ -125,7 +125,7 @@ public class WorkFlowController {
             Pager pager,
             @PageableDefault(value = 15, sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
     ){
-        return Result.ok(workflowService.getInstanceList(object,pageable));
+        return Result.ok(workflowService.getInstanceList(Utils.getCurrentUserId(), object,pageable));
     }
 
 

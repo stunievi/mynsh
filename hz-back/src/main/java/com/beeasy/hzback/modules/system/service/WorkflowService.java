@@ -1601,9 +1601,11 @@ public class WorkflowService {
         return modelDao.findAll(query,pageable);
     }
 
-    public Page getInstanceList(JSONObject object, Pageable pageable){
+    public Page getInstanceList(long uid, JSONObject object, Pageable pageable){
         Specification query = ((root, criteriaQuery, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+            //限制我自己的任务
+            predicates.add(cb.equal(root.get("dealUserId"), uid));
             if(object.containsKey("modelName") && !StringUtils.isEmpty(object.getString("modelName"))){
                 predicates.add(cb.equal(root.get("modelName"),object.getString("modelName")));
             }
