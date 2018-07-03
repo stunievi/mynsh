@@ -84,9 +84,9 @@ public class SqlUtils {
 
     public Page pageQuery(String sql, Pageable pageable){
         String countSql = sql
-                .replaceFirst("select(.+)from", "select count(*) as num from")
-                .replaceFirst("SELECT(.+)FROM","SELECT count(*) as num FROM");
-        List<Map<String, String>> countList = query(countSql,null);
+                .replaceFirst("select([\\w\\W]+?)from", "select count(*) as num from")
+                .replaceFirst("SELECT([\\w\\W]+?)FROM","SELECT count(*) as num FROM");
+ .        List<Map<String, String>> countList = query(countSql,null);
         int count = Integer.valueOf(countList.get(0).getOrDefault("num","0"));
         //添加分页
         sql += String.format(" limit %d,%d", pageable.getOffset(), pageable.getPageSize());

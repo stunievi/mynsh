@@ -1,5 +1,6 @@
 package com.beeasy.hzback.modules.system.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.core.exception.RestException;
 import com.beeasy.hzback.core.helper.Result;
@@ -121,11 +122,11 @@ public class WorkFlowController {
     })
     @GetMapping("/instances")
     public Result<Page<WorkflowInstance>> instanceList(
-            JSONObject object,
+            @RequestParam Map<String,String> object,
             Pager pager,
             @PageableDefault(value = 15, sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
     ){
-        return Result.ok(workflowService.getInstanceList(Utils.getCurrentUserId(), object,pageable));
+        return Result.ok(workflowService.getInstanceList(Utils.getCurrentUserId(), (JSONObject) JSON.toJSON(object),pageable));
     }
 
 
