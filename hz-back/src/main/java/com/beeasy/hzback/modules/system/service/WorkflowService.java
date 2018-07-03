@@ -224,6 +224,7 @@ public class WorkflowService {
         workflowInstance.setModelId(workflowModel.getId());
         workflowInstance.setTitle(request.getTitle());
         workflowInstance.setInfo(request.getInfo());
+        workflowInstance.setModelName(workflowModel.getModelName());
         //开始时间
         Date date = new Date();
         workflowInstance.setAddTime(date);
@@ -282,6 +283,7 @@ public class WorkflowService {
                 workflowInstance.setState(WorkflowInstance.State.DEALING);
             } else {
                 workflowInstance.setState(WorkflowInstance.State.PAUSE);
+                workflowInstance.setSecondState(WorkflowInstance.SecondState.POINT);
                 //增加一条指派申请
                 WorkflowInstanceTransaction transcation = new WorkflowInstanceTransaction();
                 transcation.setFromState(WorkflowInstance.State.UNRECEIVED);
@@ -619,34 +621,6 @@ public class WorkflowService {
     }
 
 
-    /**
-     * 移交任务
-     *
-     * @param uid
-     * @param instanceId
-     * @param dealerId
-     * @return
-     */
-    public boolean transformInstance(long uid, long instanceId, long dealerId) {
-        User user = userService.findUser(uid).orElse(null);
-        if (null == user) return false;
-        User dealer = userService.findUser(dealerId).orElse(null);
-        if (null == dealer) return false;
-        WorkflowInstance instance = findInstance(instanceId).orElse(null);
-        if (null == instance) return false;
-        //移交任务的限制
-        if (canTransform(instance, user)
-            //3.被指派的人在任务的第一个节点的主办岗位上
-
-                ) {
-//            instance.setDealUser(dealer);
-            instance.setDealUserId(dealerId);
-            instanceDao.save(instance);
-            logService.addLog(SystemTextLog.Type.WORKFLOW, instance.getId(), uid, "移交任务给 " + dealer.getTrueName());
-            return true;
-        }
-        return false;
-    }
 
     /**
      * 是否可以处理
@@ -1090,6 +1064,12 @@ public class WorkflowService {
             transaction.setUserId(toUid);
             transactionDao.save(transaction);
             instance.setState(WorkflowInstance.State.PAUSE);
+            if(instance.getState().equals(WorkflowInstance.State.DEALING)){
+                instance.setSecondState(WorkflowInstance.SecondState.TRANSFORM);
+            }
+            else{
+                instance.setSecondState(WorkflowInstance.SecondState.POINT);
+            }
             saveWorkflowInstance(instance);
 
             success.add(instance.getId());
@@ -1676,18 +1656,25 @@ public class WorkflowService {
             }
         }
         //资料节点的回卷, 如果曾经存在提交, 那么重新附上所有值以及文件
-        else if(newNode.getType().equals(WorkflowNode.Type.input)){
+        else if(newNode.getType().equals(WorkflowNode.Type.input) || newNode.getType().equals(WorkflowNode.Type.check)){
             if(nodeInstanceDao.countByInstanceIdAndNodeModelId(newNode.getInstanceId(),newNode.getNodeModelId()) >= 2){
                 WorkflowNodeInstance lastNode = nodeInstanceDao.findTopByInstanceIdAndNodeModelIdAndIdLessThanOrderByIdDesc(newNode.getInstanceId(),newNode.getNodeModelId(), newNode.getId()).orElse(null);
                 if(null == lastNode){
 
                 }
                 else{
-                    for (WorkflowNodeAttribute attribute : lastNode.getAttributeList()) {
-                        attribute.setId(null);
-                        attribute.setNodeInstanceId(newNode.getId());
-                        attribute.setNodeInstance(null);
-                        attributeDao.save(attribute);
+                    if(null != lastNode.getDealerId()){
+                        newNode.setDealerId(lastNode.getDealerId());
+                        nodeInstanceDao.save(newNode);
+                    }
+                    //资料节点重新赋值
+                    if(newNode.getType().equals(WorkflowNode.Type.input)){
+                        for (WorkflowNodeAttribute attribute : lastNode.getAttributeList()) {
+                            attribute.setId(null);
+                            attribute.setNodeInstanceId(newNode.getId());
+                            attribute.setNodeInstance(null);
+                            attributeDao.save(attribute);
+                        }
                     }
                     for (WorkflowNodeFile nodeFile : lastNode.getFileList()) {
                         nodeFile.setId(null);

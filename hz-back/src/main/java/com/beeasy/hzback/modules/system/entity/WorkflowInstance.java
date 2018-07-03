@@ -33,6 +33,10 @@ public class WorkflowInstance {
         //暂停中
         PAUSE;
     }
+    public enum SecondState{
+        POINT,
+        TRANSFORM
+    }
 
     @Id
     @GeneratedValue
@@ -55,6 +59,9 @@ public class WorkflowInstance {
     @Enumerated(value = EnumType.STRING)
     State state;
 
+    @Enumerated(value = EnumType.STRING)
+    SecondState secondState;
+
     //原型是否公共任务
 //    boolean common = false;
 
@@ -63,6 +70,9 @@ public class WorkflowInstance {
 
     //任务内容说明
     String info;
+
+    //工作流模型名称
+    String modelName;
 
     //任务执行人
     @JSONField(serialize = false)

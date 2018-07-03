@@ -101,7 +101,7 @@ public class DataSearchService {
         }
         List<String> limitCondition = new ArrayList<>();
         if(managerCode.size() > 0){
-            limitCondition.add(String.format(" b.MAIN_BR_CODE in (%s)", joinIn(managerCode)));
+            limitCondition.add(String.format(" b.MAIN_BR_ID in (%s)", joinIn(managerCode)));
         }
         if(userCode.size() > 0){
             limitCondition.add(String.format(" b.CUST_MGR in (%s)", joinIn(userCode)));
@@ -110,7 +110,7 @@ public class DataSearchService {
             sql += StringUtils.join(strings.toArray(), " ");
         }
         if(limitCondition.size() > 0){
-            sql += " and (" + StringUtils.join(strings.toArray(), " or ") + ")";
+            sql += " and (" + StringUtils.join(limitCondition.toArray(), " or ") + ")";
         }
         log.error(sql);
         return sqlUtils.pageQuery(sql, pageable);

@@ -510,4 +510,11 @@ public class TestAsync {
         }
     }
 
+    @Test
+    public void testwork222(){
+        int a = globalPermissionDao.hasPermission(178,Collections.singleton(GlobalPermission.Type.WORKFLOW_MAIN_QUARTER), 259);
+        int c = 1;
+
+
+    }
 }

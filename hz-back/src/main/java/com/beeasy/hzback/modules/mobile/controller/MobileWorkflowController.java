@@ -139,20 +139,20 @@ public class MobileWorkflowController {
         }
     }
 
-    @ApiOperation(value = "移交任务")
-    @PostMapping("/transform")
-    public String transformTask(
-            @RequestParam Long instanceId,
-            @RequestParam Long dealerId
-    ){
-        boolean flag = workflowService.transformInstance(Utils.getCurrentUserId(),instanceId,dealerId);
-        if(!flag){
-            return Result.error("移交任务失败, 没有权限或该任务已变动").toMobile();
-        }
-        else{
-            return Result.ok().toMobile();
-        }
-    }
+//    @ApiOperation(value = "移交任务")
+//    @PostMapping("/transform")
+//    public String transformTask(
+//            @RequestParam Long instanceId,
+//            @RequestParam Long dealerId
+//    ){
+//        boolean flag = workflowService.transformInstance(Utils.getCurrentUserId(),instanceId,dealerId);
+//        if(!flag){
+//            return Result.error("移交任务失败, 没有权限或该任务已变动").toMobile();
+//        }
+//        else{
+//            return Result.ok().toMobile();
+//        }
+//    }
 
 
     @ApiOperation(value = "接受公共任务")
