@@ -1607,6 +1607,7 @@ public class WorkflowService {
         JSONObject object = new JSONObject();
         List<WorkflowModel> models = modelDao.getAllWorkflows()
                 .stream()
+                .filter(model -> pubIds.contains(model.getId()) || pointIds.contains(model.getId()))
                 .peek(model -> {
                     model.setPub(pubIds.contains(model.getId()));
                     model.setPoint(pointIds.contains(model.getId()));

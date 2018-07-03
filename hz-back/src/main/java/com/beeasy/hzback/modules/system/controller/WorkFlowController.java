@@ -336,8 +336,10 @@ public class WorkFlowController {
 
     @ApiOperation(value = "得到用户相关联的模型ID")
     @RequestMapping(value = "/model/validList", method = RequestMethod.GET)
-    public Result getUserWorkflows(){
-        return Result.ok(workflowService.getUserModelList(Utils.getCurrentUserId()));
+    public String getUserWorkflows(){
+        return Result.ok(workflowService.getUserModelList(Utils.getCurrentUserId())).toJson(
+                new Result.Entry(WorkflowModel.class, "nodeModels")
+        );
     }
 
 //    @ApiOperation(value = "我发布的任务")
