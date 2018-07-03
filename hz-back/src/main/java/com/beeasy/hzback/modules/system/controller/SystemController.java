@@ -98,6 +98,13 @@ public class SystemController  {
         return Result.ok(systemService.getMessageTemplateList(pageable));
     }
 
+    @ApiOperation(value = "通过ID得到消息详情")
+    @RequestMapping(value = "/messageTemplate/getById", method = RequestMethod.GET)
+    public Result getMessageTemplateById(
+            @RequestParam long id
+    ){
+        return Result.finish(systemService.getMessageTemplateById(id));
+    }
 
     /**********测试***********/
     @Autowired

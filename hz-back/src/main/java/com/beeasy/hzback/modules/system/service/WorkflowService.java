@@ -976,10 +976,13 @@ public class WorkflowService {
             public Predicate toPredicate(Root root, CriteriaQuery query, CriteriaBuilder cb) {
                 List<Predicate> predicates = new ArrayList<>();
 
+                predicates.add(cb.or(cb.equal(root.get("state"), WorkflowInstance.State.UNRECEIVED),cb.equal(root.get("state"),WorkflowInstance.State.DEALING),cb.equal(root.get("state"),WorkflowInstance.State.COMMON)));
                 predicates.add(cb.lessThan(root.get("id"), finalLessId));
                 Join join = root.join("workflowModel");
                 //关联模型
-                predicates.add(join.get("id").in(oids));
+                if(oids.size() > 0){
+                    predicates.add(join.get("id").in(oids));
+                }
                 if (!StringUtils.isEmpty(request.getId())) {
                     predicates.add(cb.like(root.get("id"), "%" + request.getId() + "%"));
                 }

@@ -97,6 +97,10 @@ public class SystemService {
         return messageTemplateDao.findAll(pageable);
     }
 
+    public Optional<MessageTemplate> getMessageTemplateById(long id){
+        return messageTemplateDao.findTopById(id);
+    }
+
 
     @Cacheable(value = DEMO_CACHE_NAME, key = "'system_info'")
     public String getSystemInfo() {
