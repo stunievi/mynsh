@@ -23,6 +23,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,7 +34,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityManager;
@@ -791,11 +791,34 @@ public class WorkflowService {
      * @param pageable
      * @return
      */
-    public Page<WorkflowInstance> getUserUndealedWorks(Collection<Long> uids, Long lessId, Pageable pageable) {
+    public Page getUserUndealedWorks(Collection<Long> uids, Long lessId, Pageable pageable) {
         if (lessId == null) {
             lessId = Long.MAX_VALUE;
         }
-        return instanceDao.findNeedToDealWorks(Collections.singleton(GlobalPermission.Type.WORKFLOW_MAIN_QUARTER), uids, lessId, pageable);
+        //得到所有我可以处理的模型
+        List<Long> oids = globalPermissionDao.getObjectIds(Collections.singleton(GlobalPermission.Type.WORKFLOW_MAIN_QUARTER),uids);
+        if(oids.size() == 0){
+            oids.add(-1L);
+        }
+        System.out.println(JSON.toJSONString(oids));
+        String hql = "select distinct i from WorkflowInstance i, User u " +
+                "join i.nodeList nl " +
+                "where " +
+                //节点处理人是我自己
+                "( (nl.dealerId is not null and nl.dealerId in :uids) or " +
+                //为空的情况,寻找可以处理的人
+                "(nl.dealerId is null and nl.nodeModelId in :oids ) ) and " +
+                //该节点任务未完成
+                "nl.finished = false and " +
+                //任务进行中
+                "i.state = 'DEALING' and " +
+                //分页
+                "i.id <= :lessId ";
+        return sqlUtils.hqlQuery(hql,ImmutableMap.of(
+                "oids", oids,
+                "lessId", lessId,
+                "uids",uids
+        ),"distinct i",pageable);
     }
 
     /**
@@ -976,7 +999,12 @@ public class WorkflowService {
             public Predicate toPredicate(Root root, CriteriaQuery query, CriteriaBuilder cb) {
                 List<Predicate> predicates = new ArrayList<>();
 
-                predicates.add(cb.or(cb.equal(root.get("state"), WorkflowInstance.State.UNRECEIVED),cb.equal(root.get("state"),WorkflowInstance.State.DEALING),cb.equal(root.get("state"),WorkflowInstance.State.COMMON)));
+                predicates.add(root.get("state").in(new Object[]{
+                        WorkflowInstance.State.UNRECEIVED,
+                        WorkflowInstance.State.DEALING,
+                        WorkflowInstance.State.COMMON,
+                        WorkflowInstance.State.PAUSE,
+                }));
                 predicates.add(cb.lessThan(root.get("id"), finalLessId));
                 Join join = root.join("workflowModel");
                 //关联模型
@@ -1028,36 +1056,43 @@ public class WorkflowService {
      * @param toUid
      * @return 处理成功的任务ID
      */
-    public List<Long> pointTask(long uid, Collection<Long> iids, long toUid) {
+    public Result pointTask(long uid, Collection<Long> iids, long toUid) {
         List<Long> success = new ArrayList<>();
+        List<String> errMessages = new ArrayList<>();
         for (Long iid : iids) {
             WorkflowInstance instance = findInstance(iid).orElse(null);
             if (null == instance) {
+                errMessages.add("找不到该任务");
                 continue;
             }
 
             //检查是否有指派权限
             if (!canPoint(instance.getModelId(), uid)) {
+                errMessages.add("没有指派/移交权限");
                 continue;
             }
 
             //接受人是否有执行权限
             if (!canPub(instance.getModelId(), toUid)) {
+                errMessages.add("被指定的人没有接受权限");
                 continue;
             }
 
             //不能自己移交给自己
             if(null != instance.getDealUserId() && instance.getDealUserId().equals(toUid)){
+                errMessages.add("任务无法给相同的人");
                 continue;
             }
 
             //任务状态是否合法
             if (!instance.getState().equals(WorkflowInstance.State.COMMON) && !instance.getState().equals(WorkflowInstance.State.UNRECEIVED) || !instance.getState().equals(WorkflowInstance.State.DEALING)) {
+                errMessages.add("该任务状态无法移交");
                 continue;
             }
 
             //子任务禁止移交
             if (instance.getParentNodeId() != null) {
+                errMessages.add("子任务禁止移交");
                 continue;
             }
 
@@ -1085,7 +1120,12 @@ public class WorkflowService {
             ));
         }
 
-        return success;
+        if(errMessages.size() > 0){
+            return Result.error(StringUtils.join(errMessages.toArray(),","));
+        }
+        else{
+            return Result.ok(success);
+        }
     }
 
 
@@ -1543,7 +1583,7 @@ public class WorkflowService {
             if (next instanceof Collection) {
                 ((Collection) next).forEach(n -> node.getNext().add(String.valueOf(n)));
             } else if (next instanceof String) {
-                if (!StringUtils.isEmpty(next)) {
+                if (!StringUtils.isEmpty((String) next)) {
                     node.getNext().add(String.valueOf(next));
                 }
             }
@@ -1604,26 +1644,59 @@ public class WorkflowService {
         return modelDao.findAll(query,pageable);
     }
 
-    public Page getInstanceList(long uid, JSONObject object, Pageable pageable){
+    public Page getInstanceList(long uid, Map<String,String> object, Pageable pageable){
         Specification query = ((root, criteriaQuery, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             //限制我自己的任务
             predicates.add(cb.equal(root.get("dealUserId"), uid));
-            if(object.containsKey("modelName") && !StringUtils.isEmpty(object.getString("modelName"))){
-                predicates.add(cb.equal(root.get("modelName"),object.getString("modelName")));
-            }
-            //资料收集是否拒贷
-            Integer reject = object.getInteger("reject");
-            if(null != reject){
-                Join nl = root.join("nodeList");
-                Join attr = nl.join("attributeList");
-                if(reject == 1){
-                    predicates.add(cb.and(cb.equal(attr.get("attrKey"),"key"), cb.equal(attr.get("attrValue"), "是")));
+            for (Map.Entry<String, String> entry : object.entrySet()) {
+                if(StringUtils.isEmpty(entry.getValue())){
+                    continue;
                 }
-                else{
-                    predicates.add(cb.and(cb.equal(attr.get("attrKey"),"key"), cb.equal(attr.get("attrValue"), "否")));
+                switch (entry.getKey()){
+                    case "modelName":
+                        predicates.add(cb.equal(root.get("modelName"),entry.getValue()));
+                        break;
+                    case "page":
+                    case "size":
+                    case "sort":
+                        break;
+
+                    //默认字段查询
+                    default:
+                        Join nl = root.join("nodeList");
+                        Join attr = nl.join("attributeList");
+                        if(entry.getKey().startsWith("$")){
+                            predicates.add(
+                                    cb.and(
+                                            cb.equal(attr.get("attrKey"),entry.getKey()),
+                                            cb.like(attr.get("attrValue"),"%" + entry.getValue().substring(1) + "%")
+                                    )
+                            );
+                        }
+                        else{
+                            predicates.add(
+                                    cb.and(
+                                            cb.equal(attr.get("attrKey"),entry.getKey()),
+                                            cb.equal(attr.get("attrValue"),entry.getValue())
+                                    )
+                            );
+                        }
+                        break;
                 }
             }
+//            if(object.containsKey("modelName") && !StringUtils.isEmpty(object.getString("modelName"))){
+//            }
+//            //资料收集是否拒贷
+//            Integer reject = object.getInteger("reject");
+//            if(null != reject){
+//                if(reject == 1){
+//                    predicates.add(cb.and(cb.equal(attr.get("attrKey"),"key"), cb.equal(attr.get("attrValue"), "是")));
+//                }
+//                else{
+//                    predicates.add(cb.and(cb.equal(attr.get("attrKey"),"key"), cb.equal(attr.get("attrValue"), "否")));
+//                }
+//            }
             return cb.and(predicates.toArray(new Predicate[predicates.size()]));
 
         });
@@ -1633,7 +1706,6 @@ public class WorkflowService {
     public List<WorkflowModel> getUserModelList(long uid){
         List<Long> pubIds = globalPermissionDao.getObjectIds(Collections.singleton(GlobalPermission.Type.WORKFLOW_PUB),Collections.singleton(uid));
         List<Long> pointIds = globalPermissionDao.getManagerObjectId(Collections.singleton(GlobalPermission.Type.WORKFLOW_PUB),Collections.singleton(uid));
-        JSONObject object = new JSONObject();
         List<WorkflowModel> models = modelDao.getAllWorkflows()
                 .stream()
                 .filter(model -> pubIds.contains(model.getId()) || pointIds.contains(model.getId()))

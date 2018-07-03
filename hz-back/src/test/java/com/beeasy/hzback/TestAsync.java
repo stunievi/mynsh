@@ -515,6 +515,10 @@ public class TestAsync {
         int a = globalPermissionDao.hasPermission(178,Collections.singleton(GlobalPermission.Type.WORKFLOW_MAIN_QUARTER), 259);
         int c = 1;
 
+    }
 
+    @Test
+    public void updateWorkflows(){
+//        List<WorkflowModel> models = Workflow
     }
 }

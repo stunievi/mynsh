@@ -86,7 +86,7 @@ public class SqlUtils {
         String countSql = sql
                 .replaceFirst("select([\\w\\W]+?)from", "select count(*) as num from")
                 .replaceFirst("SELECT([\\w\\W]+?)FROM","SELECT count(*) as num FROM");
- .        List<Map<String, String>> countList = query(countSql,null);
+         List<Map<String, String>> countList = query(countSql,null);
         int count = Integer.valueOf(countList.get(0).getOrDefault("num","0"));
         //添加分页
         sql += String.format(" limit %d,%d", pageable.getOffset(), pageable.getPageSize());

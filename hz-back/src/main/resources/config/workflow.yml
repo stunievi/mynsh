@@ -24,7 +24,7 @@
 #    表单项2: 第二种写法同上
 #      name: f1
 #      type: string
-#      required: y
+#      required: true
 #    表单项3：
 #      name: fieldName
 #      type: string/textarea/select/checkbox/files
@@ -111,35 +111,39 @@
           name: CUS_ID
           type: EXT_DATA
           innate: true
-
         客户名称:
           name: CUS_NAME
           type: string
-          required: n
+          required: true
         联系电话:
           name: PHONE
           type: string
-          required: y
+          required: true
+          rules:
+            - type: NotNull
+            - type: Size
+              min: 7
+              max: 15
         证件类型:
           name: CERT_TYPE
           type: string
-          required: y
+          required: false
         证件号码:
           name: CERT_CODE
           type: string
-          required: y
+          required: false
         客户经理代码:
           name: CUST_MGR
           type: string
-          required: y
+          required: false
         上传附件:
           name: files
           type: files
-          required: n
+          required: false
         备注说明:
           name: info
           type: textarea
-          required: n
+          required: false
 
       next: 是否拒贷
 
@@ -182,43 +186,43 @@
         任务编号:
           name: TASK_ID
           type: taskId
-          required: y
+          required: true
           innate: true
         借据号:
           name: BILL_NO
           type: EXT_DATA
           innate: true
-          required: n
+          required: false
         合同号:
           name: CONT_NO
           type: EXT_DATA
           innate: true
-          required: n
+          required: false
         客户号:
           name: CUS_ID
           type: EXT_DATA
           innate: true
-          required: n
+          required: false
         客户名称:
           name: CUS_NAME
           type: EXT_DATA
           innate: true
-          required: n
+          required: false
         申请说明:
           name: apply
           type: textarea
-          required: y
+          required: true
 
         资产类型:
           name: type
           type: select
           items: [表内,表外]
-          required: y
+          required: true
 
         申请附件:
           type: files
           name: files
-          required: n
+          required: false
       next: 判断表内/表外
 
     判断表内/表外:
@@ -339,6 +343,7 @@
 
 
 贷后跟踪-小微部公司类:
+  manual: true
   flow:
     填写贷后检查表:
       type: input
@@ -348,110 +353,110 @@
         任务编号:
           name: TASK_ID
           type: taskId
-          required: y
+          required: true
           innate: true
         借据号:
           name: BILL_NO
           type: EXT_DATA
           innate: true
-          required: n
+          required: false
         合同号:
           name: CONT_NO
           type: EXT_DATA
           innate: true
-          required: n
+          required: false
         客户号:
           name: CUS_ID
           type: EXT_DATA
           innate: true
-          required: n
+          required: false
         借款人全称:
           name: CUST_NAME
           type: string
-          required: y
+          required: true
         担保方式:
           name: ASSURE_MEANS_MAIN
           type: select
-          required: y
+          required: true
           items:  [信用,抵押,质押,保证]
         贷款额度（万元）:
           name: LOAN_AMT
           type: string
-          required: y
+          required: true
         贷款用途:
           name: LOAN_USE
           type: string
-          required: y
+          required: true
         贷款期限:
           name: LOAN_TERM
           type: string
-          required: y
+          required: true
         贷款余额:
           name: AVAIL_AMT
           type: string
-          required: y
+          required: true
         是否按合同约定用途使用贷款:
           name: IS_FOR_CONT
           type: select
-          required: y
+          required: true
           items:  [是,否]
         是否按约履行借款合同的其他要求:
           name: IS_FOR_CONT_OTHER
           type: select
-          required: y
+          required: true
           items:  [是,否]
         借款人内部管理情况:
           name: CUST_MANAGE_IN_B
           type: select
-          required: y
+          required: true
           items:  [良好,一般,"借款人的管理层出现重大意见分歧，或法定代表人（主要经营者）品行出现了不利于贷款偿还的变化","借款人内部管理出现问题，对正常经营构成实质损害，妨碍债务的及时足额清偿"]
         客户是否存在违法行为:
           name: IS_CUST_VIO
           type: select
-          required: y
+          required: true
           items:  [有,无]
         借款人其他基本情况说明:
           name: CUST_OTHER_DTL
           type: textarea
-          required: n
+          required: false
         经营情况:
           name: OP_STATUS
           type: select
-          required: y
+          required: true
           items:  ["借款人经营状况良好，未来仍将保持良好状况","业务量有所下降，整体盈利能力下降","经营状况出现明显不利变化，或经营由盈转亏","借款人进入清算程序","借款人处于停产、半停产状态，固定资产贷款项目处于停、缓建状态","借款人涉及对其经营财务状况产生重大不利影响的未决诉讼，影响借款人偿债能力的可能性很大"]
         税、费缴纳情况:
           name: TAX_STATUS_B
           type: select
-          required: y
+          required: true
           items:  ["正常缴纳","报告期内被税务机关或有关部门罚款(不包括滞纳金)2次(含)以内","报告期内被税务机关或有关部门罚款超过2次以上(不包括滞纳金)","存在拖欠税款超过1年未缴纳、偷税或抗税行为等"]
         还款意愿:
           name: REPAYMENT_WILL
           type: select
-          required: y
+          required: true
           items:  [优秀,良好,一般,较差,差]
         偿还能力:
           name: REPAYMENT_ABILITY
           type: select
-          required: y
+          required: true
           items:  ["诚信记录优良，在金融机构没有拖欠贷款本息的记录","借新还旧，或者通过其他融资方式偿还","不能偿还其他债权人债务","担保的有效性出现问题，抵质押物价值明显下降，或农合机构对其失去控制，明显影响贷款归还","通过拍卖抵押品、履行保证责任等途径筹集还款资金","改制后难以落实农合机构债务，或虽落实债务但不能正常还本付息","已诉诸法律追收的贷款"]
         抵押物是否变化:
           name: IS_PLEDGE_CHANGE
           type: select
-          required: y
+          required: true
           items:  [是,否]
         保证人是否变化:
           name: IS_WARRANT_CHANGE
           type: select
-          required: y
+          required: true
           items:  [是,否]
         简要评价:
           name: EVALUATE_TOTAL
           type: textarea
-          required: y
+          required: true
         上传附件:
           name: files
           type: files
-          required: n
+          required: false
 
     判断贷款额度:
       type: logic
@@ -466,7 +471,7 @@
       type: input
       next: 审核签署
       content:
-        审核报告: report,file,n
+        审核报告: report,file,false
 
     审核签署:
       type: check
@@ -489,6 +494,7 @@
       type: end
 
 贷后跟踪-小微部个人类:
+  manual: true
   flow:
     填写贷后检查表:
       type: input
@@ -498,123 +504,123 @@
         任务编号:
           name: TASK_ID
           type: taskId
-          required: y
+          required: true
           innate: true
         借据号:
           name: BILL_NO
           type: EXT_DATA
           innate: true
-          required: n
+          required: false
         合同号:
           name: CONT_NO
           type: EXT_DATA
           innate: true
-          required: n
+          required: false
         客户号:
           name: CUS_ID
           type: EXT_DATA
           innate: true
-          required: n
+          required: false
         借款人全称:
           name: CUST_NAME
           type: string
-          required: y
+          required: true
         担保人全称:
           name: GUAR_NAME_P
           type: string
-          required: y
+          required: true
         贷款额度（万元）:
           name: LOAN_AMT
           type: string
-          required: y
+          required: true
         贷款用途:
           name: LOAN_USE
           type: string
-          required: y
+          required: true
         贷款期限:
           name: LOAN_TERM
           type: string
-          required: y
+          required: true
         担保方式:
           name: ASSURE_MEANS_MAIN
           type: select
-          required: y
+          required: true
           items:  [信用,抵押,质押,保证]
         借款合同号:
           name: CONT_NO_P
           type: string
-          required: y
+          required: true
         贷款余额:
           name: AVAIL_AMT
           type: string
-          required: y
+          required: true
         是否按合同约定用途使用贷款:
           name: IS_FOR_CONT
           type: select
-          required: y
+          required: true
           items:  [是,否]
         是否按约履行借款合同的其他要求:
           name: IS_FOR_CONT_OTHER
           type: select
-          required: y
+          required: true
           items:  [是,否]
         借款人的基本资料情况是否发生改变:
           name: IS_BASIC_CHANGE_P
           type: select
-          required: y
+          required: true
           items:  [是,否]
         借款人的收入来源是否发生变化:
           name: IS_INCOME_CHANGE_P
           type: select
-          required: y
+          required: true
           items:  [是,否]
         七级分类:
           name: SEVEN_RESULT
           type: select
-          required: y
+          required: true
           items:  [正常一,正常二,关注一,关注二,次级,可疑,损失]
         客户是否存在违法行为:
           name: s7
           type: select
-          required: y
+          required: true
           items:  [有,无]
         借款人其他基本情况说明:
           name: CUST_OTHER_DTL
           type: textarea
-          required: n
+          required: false
         经营情况:
           name: OP_STATUS
           type: select
-          required: y
+          required: true
           items:  ["借款人经营状况良好，未来仍将保持良好状况","业务量有所下降，整体盈利能力下降","经营状况出现明显不利变化，或经营由盈转亏","借款人进入清算程序","借款人处于停产、半停产状态，固定资产贷款项目处于停、缓建状态","借款人涉及对其经营财务状况产生重大不利影响的未决诉讼，影响借款人偿债能力的可能性很大"]
         还款意愿:
           name: REPAYMENT_WILL
           type: select
-          required: y
+          required: true
           items:  [优秀,良好,一般,较差,差]
         偿还能力:
           name: REPAYMENT_ABILITY
           type: select
-          required: y
+          required: true
           items:  ["诚信记录优良，在金融机构没有拖欠贷款本息的记录","借新还旧，或者通过其他融资方式偿还","不能偿还其他债权人债务","担保的有效性出现问题，抵质押物价值明显下降，或农合机构对其失去控制，明显影响贷款归还","通过拍卖抵押品、履行保证责任等途径筹集还款资金","改制后难以落实农合机构债务，或虽落实债务但不能正常还本付息","已诉诸法律追收的贷款"]
         抵押物是否变化:
           name: IS_PLEDGE_CHANGE
           type: select
-          required: y
+          required: true
           items:  [是,否]
         保证人是否变化:
           name: IS_WARRANT_CHANGE
           type: select
-          required: y
+          required: true
           items:  [是,否]
         简要评价:
           name: EVALUATE_TOTAL
           type: textarea
-          required: y
+          required: true
         上传附件:
           name: files
           type: files
-          required: n
+          required: false
 
     判断贷款额度:
       type: logic
@@ -629,7 +635,7 @@
       type: input
       next: 审核签署
       content:
-        审核报告: report,file,n
+        审核报告: report,file,false
 
     审核签署:
       type: check
@@ -652,6 +658,7 @@
       type: end
 
 催收:
+  manual: true
   flow:
     签收催收通知函:
       type: input
@@ -661,42 +668,42 @@
         任务编号:
           name: TASK_ID
           type: taskId
-          required: y
+          required: true
           innate: true
         借据号:
           name: BILL_NO
           type: EXT_DATA
           innate: true
-          required: n
+          required: false
         合同号:
           name: CONT_NO
           type: EXT_DATA
           innate: true
-          required: n
+          required: false
         客户号:
           name: CUS_ID
           type: EXT_DATA
           innate: true
-          required: n
+          required: false
         客户名称:
           name: CUS_NAME
           type: EXT_DATA
           innate: true
-          required: n
+          required: false
         贷款账号:
           name: LOAN_ACCOUNT
           type: EXT_DATA
           innate: true
-          required: y
+          required: true
         催收方式:
           name: COL_TYPE
           type: select
-          required: y
+          required: true
           items:  [电话催收,书面催收,短信催收]
         催收单据:
           name: files
           type: files
-          required: n
+          required: false
 
 
     是否可以还款:
@@ -789,41 +796,41 @@
         任务编号:
           name: TASK_ID
           type: taskId
-          required: y
+          required: true
           innate: true
         借据号:
           name: BILL_NO
           type: EXT_DATA
           innate: true
-          required: n
+          required: false
         合同号:
           name: CONT_NO
           type: EXT_DATA
           innate: true
-          required: n
+          required: false
         客户号:
           name: CUS_ID
           type: EXT_DATA
           innate: true
-          required: n
+          required: false
         客户名称:
           name: CUS_NAME
           type: EXT_DATA
           innate: true
-          required: n
+          required: false
         贷款账号:
           name: LOAN_ACCOUNT
           type: EXT_DATA
           innate: true
-          required: y
+          required: false
         申请说明:
           name: apply
           type: textarea
-          required: n
+          required: false
         上传附件:
           name: files
           type: files
-          required: n
+          required: false
 
       next: 责任认定
 
@@ -833,11 +840,11 @@
         认定说明:
           name: apply
           type: textarea
-          required: y
+          required: true
       上传附件:
         name: files
         type: files
-        required: n
+        required: false
       next: 风险资产管理部审批
 
     风险资产管理部审批:
@@ -875,46 +882,46 @@
         任务编号:
           name: TASK_ID
           type: taskId
-          required: y
+          required: true
           innate: true
         任务编号（不良资产管理流程）:
           name: TASK_PID
           type: taskId
-          required: y
+          required: true
           innate: true
         借据号:
           name: BILL_NO
           type: EXT_DATA
           innate: true
-          required: n
+          required: false
         合同号:
           name: CONT_NO
           type: EXT_DATA
           innate: true
-          required: n
+          required: false
         客户号:
           name: CUS_ID
           type: EXT_DATA
           innate: true
-          required: n
+          required: false
         客户名称:
           name: CUS_NAME
           type: EXT_DATA
           innate: true
-          required: n
+          required: false
         贷款账号:
           name: LOAN_ACCOUNT
           type: EXT_DATA
           innate: true
-          required: y
+          required: false
         申请说明:
           name: apply
           type: textarea
-          required: n
+          required: false
         上传附件:
           type: files
           name: files
-          required: n
+          required: false
 
       next: 经营班子集体审议
 
@@ -976,11 +983,11 @@
         说明:
           name: apply
           type: textarea
-          required: n
+          required: false
         上传附件:
           type: files
           name: files
-          required: n
+          required: false
 
       next: 立卷归档
 
@@ -991,11 +998,11 @@
         说明:
           name: apply
           type: textarea
-          required: n
+          required: false
         上传附件:
           type: files
           name: files
-          required: n
+          required: false
 
       next: 结束
 
@@ -1015,46 +1022,46 @@
         任务编号:
           name: TASK_ID
           type: taskId
-          required: y
+          required: true
           innate: true
         任务编号（不良资产管理流程）:
           name: TASK_PID
           type: taskId
-          required: y
+          required: true
           innate: true
         借据号:
           name: BILL_NO
           type: EXT_DATA
           innate: true
-          required: n
+          required: false
         合同号:
           name: CONT_NO
           type: EXT_DATA
           innate: true
-          required: n
+          required: false
         客户号:
           name: CUS_ID
           type: EXT_DATA
           innate: true
-          required: n
+          required: false
         客户名称:
           name: CUS_NAME
           type: EXT_DATA
           innate: true
-          required: n
+          required: false
         贷款账号:
           name: LOAN_ACCOUNT
           type: EXT_DATA
           innate: true
-          required: y
+          required: true
         申请说明:
           name: apply
           type: textarea
-          required: n
+          required: false
         上传附件:
           type: files
           name: files
-          required: n
+          required: false
 
       next: 经营班子集体审议
 
@@ -1081,11 +1088,11 @@
         说明:
           name: apply
           type: textarea
-          required: n
+          required: false
         上传附件:
           type: files
           name: files
-          required: n
+          required: false
       next: 风险资产管理部审核
 
 
@@ -1130,11 +1137,11 @@
         说明:
           name: apply
           type: textarea
-          required: n
+          required: false
         上传附件:
           type: files
           name: files
-          required: n
+          required: false
 
       next: 缴费
 
@@ -1144,11 +1151,11 @@
         说明:
           name: apply
           type: textarea
-          required: n
+          required: false
         上传附件:
           type: files
           name: files
-          required: n
+          required: false
 
       next: 案件跟进
 
@@ -1158,11 +1165,11 @@
         说明:
           name: apply
           type: textarea
-          required: n
+          required: false
         上传附件:
           type: files
           name: files
-          required: n
+          required: false
 
       next: 诉讼过程中与客户协商一致
 
@@ -1190,11 +1197,11 @@
         说明:
           name: apply
           type: textarea
-          required: n
+          required: false
         上传附件:
           type: files
           name: files
-          required: n
+          required: false
 
       next: 立卷归档
 
@@ -1205,11 +1212,11 @@
         说明:
           name: apply
           type: textarea
-          required: n
+          required: false
         上传附件:
           type: files
           name: files
-          required: n
+          required: false
 
       next: 结案处理
 
@@ -1220,11 +1227,11 @@
         说明:
           name: apply
           type: textarea
-          required: n
+          required: false
         上传附件:
           type: files
           name: files
-          required: n
+          required: false
 
       next: 结束
 
@@ -1260,45 +1267,45 @@
         任务编号:
           name: TASK_ID
           type: taskId
-          required: y
+          required: true
           innate: true
         任务编号（不良资产管理流程）:
           name: TASK_ID
           type: taskId
-          required: y
+          required: true
           innate: true
         借据号:
           name: BILL_NO
           type: string
-          required: n
+          required: false
         合同号:
           name: CONT_NO
           type: string
-          required: n
+          required: false
         客户号:
           name: CUS_ID
           type: string
-          required: n
+          required: false
         客户名称:
           name: CUS_NAME
           type: string
-          required: n
+          required: false
         贷款账号:
           name: LOAN_ACCOUNT
           type: string
-          required: y
+          required: false
         说明:
           name: apply
           type: textarea
-          required: n
+          required: false
         上传附件:
           type: files
           name: files
-          required: n
+          required: false
 
       next: 经营班子集体审议
 
-    信贷主管审查:
+    经营班子集体审议:
       type: check
       ps: ps
       key: key
@@ -1339,11 +1346,11 @@
         说明:
           name: apply
           type: textarea
-          required: n
+          required: false
         上传附件:
           type: files
           name: files
-          required: n
+          required: false
 
       next: 不良资产管理委员会审批
 
@@ -1361,9 +1368,9 @@
         -
           item: 否
           condition: 3
-          behavior: go('发起申请')
+          behavior: go('贷款单位调查')
       count: 5
-      next: [省联社备案,发起申请]
+      next: [省联社备案,贷款单位调查]
 
     省联社备案:
       type: input
@@ -1372,11 +1379,11 @@
         说明:
           name: apply
           type: textarea
-          required: n
+          required: false
         上传附件:
           type: files
           name: files
-          required: n
+          required: false
       next: 与客户签订协议
 
     与客户签订协议:
@@ -1386,18 +1393,18 @@
         说明:
           name: apply
           type: textarea
-          required: n
+          required: false
         上传附件:
           type: files
           name: files
-          required: n
+          required: false
       next: 合同审查通过
 
     合同审查通过:
       type: check
       key: key
       ps: ps
-      question: 是否审通过？
+      question: 是否审查通过？
       states:
         -
           item: 是
@@ -1417,11 +1424,11 @@
         说明:
           name: apply
           type: textarea
-          required: n
+          required: false
         上传附件:
           type: files
           name: files
-          required: n
+          required: false
 
       next: 结束
 
@@ -1430,7 +1437,7 @@
       end: true
 
 资产处置:
-  manual: false
+  manual: true
   flow:
     制定处置方案:
       type: input
@@ -1439,46 +1446,46 @@
         任务编号:
           name: TASK_ID
           type: taskId
-          required: y
+          required: true
           innate: true
         任务编号（不良资产管理流程）:
           name: TASK_PID
           type: taskId
-          required: y
+          required: true
           innate: true
         借据号:
           name: BILL_NO
           type: EXT_DATA
           innate: true
-          required: n
+          required: false
         合同号:
           name: CONT_NO
           type: EXT_DATA
           innate: true
-          required: n
+          required: false
         客户号:
           name: CUS_ID
           type: EXT_DATA
           innate: true
-          required: n
+          required: false
         客户名称:
           name: CUS_NAME
           type: EXT_DATA
           innate: true
-          required: n
+          required: false
         贷款账号:
           name: LOAN_ACCOUNT
           type: EXT_DATA
           innate: true
-          required: n
+          required: false
         说明:
           name: apply
           type: textarea
-          required: n
+          required: false
         上传附件:
           type: files
           name: files
-          required: n
+          required: false
       next: 信贷主管审查
 
     信贷主管审查:
@@ -1556,11 +1563,11 @@
         说明:
           name: apply
           type: textarea
-          required: n
+          required: false
         上传附件:
           type: files
           name: files
-          required: n
+          required: false
 
       next: 处置过程
 
@@ -1571,11 +1578,11 @@
         说明:
           name: apply
           type: textarea
-          required: n
+          required: false
         上传附件:
           type: files
           name: files
-          required: n
+          required: false
 
       next: 出账处理
 
@@ -1586,15 +1593,15 @@
         说明:
           name: apply
           type: textarea
-          required: n
+          required: false
         上传附件:
           type: files
           name: files
-          required: n
+          required: false
 
       next: 结束
 
-      结束:
+    结束:
         type: end
         end: true
 
@@ -1647,11 +1654,11 @@
         说明:
           name: apply
           type: textarea
-          required: n
+          required: false
         上传附件:
           type: files
           name: files
-          required: n
+          required: false
 
       next: 结束
 
@@ -1662,11 +1669,11 @@
         说明:
           name: apply
           type: textarea
-          required: n
+          required: false
         上传附件:
           type: files
           name: files
-          required: n
+          required: false
       next: 结束
 
     诉讼流程:
@@ -1675,7 +1682,7 @@
       ps: ps
       question: 填写任务的处理结果
       count: 1
-      allow_child_task: []
+      allow_child_task: [诉讼]
       states:
         -
           item: 是

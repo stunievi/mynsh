@@ -10,17 +10,20 @@ import com.beeasy.hzback.modules.system.dao.IWorkflowInstanceDao;
 import com.beeasy.hzback.modules.system.dao.IWorkflowNodeAttributeDao;
 import com.beeasy.hzback.modules.system.entity.InfoCollectLink;
 import com.beeasy.hzback.modules.system.entity.WorkflowInstance;
+import com.beeasy.hzback.modules.system.entity.WorkflowInstanceAttribute;
 import com.beeasy.hzback.modules.system.form.Pager;
 import com.beeasy.hzback.modules.system.service.UserService;
 import com.beeasy.hzback.modules.system.service.WorkflowService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,10 +31,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Predicate;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Api(tags = "贷款台账绑定API")
@@ -55,29 +57,37 @@ public class InfoCollectLinkController {
     @ApiOperation(value = "查询我自己的资料收集")
     @RequestMapping(value = "/getMyInfoCollect", method = RequestMethod.GET)
     public Result getMyInfoCollect(
+            String CUS_NAME,
+            String PHONE,
             Pager pager,
             @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
     ){
-        Page<WorkflowInstance> page =
-                instanceDao.findAllByWorkflowModel_ModelNameAndDealUserIdOrderByAddTimeDesc("资料收集", Utils.getCurrentUserId(),pageable);
-        Object ret = page.map(new Converter<WorkflowInstance, Object>() {
-            @Override
-            public Object convert(WorkflowInstance instance) {
-                //得到倒数第一个节点
-                Map<String,Object> map = new HashMap<>();
-                map.put("id",instance.getId());
-                List objs = attributeDao.getValueByWorkflowInstance(instance.getId(),"CUS_NAME");
-                map.put("CUS_NAME",objs.size() > 0 ? (String) objs.get(0) : "");
-                objs = attributeDao.getValueByWorkflowInstance(instance.getId(), "PHONE");
-                map.put("PHONE",objs.size() > 0 ? (String) objs.get(0) : "");
-                map.put("addTime", instance.getAddTime());
-                return map;
+        Specification query = ((root, criteriaQuery, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(cb.equal(root.get("modelName"),"资料收集"));
+            Join at = root.join("attributes");
+            if(!StringUtils.isEmpty(CUS_NAME)){
+                predicates.add(
+                        cb.and(
+                                cb.equal(at.get("type"), WorkflowInstanceAttribute.Type.INNATE),
+                                cb.equal(at.get("attrKey"), "CUS_NAME"),
+                                cb.like(at.get("attrValue"), "%" + CUS_NAME + "%")
+                        )
+                );
             }
+            if (!StringUtils.isEmpty(PHONE)) {
+                predicates.add(
+                        cb.and(
+                                cb.equal(at.get("type"), WorkflowInstanceAttribute.Type.INNATE),
+                                cb.equal(at.get("attrKey"), "PHONE"),
+                                cb.like(at.get("attrValue"), "%" + PHONE + "%")
+                        )
+                );
+
+            }
+            return cb.and(predicates.toArray(new Predicate[predicates.size()]));
         });
-        //
-        return Result.ok(
-                ret
-        );
+        return Result.ok(instanceDao.findAll(query,pageable));
     }
 
     @ApiOperation(value = "查询贷款台账")
