@@ -1,5 +1,6 @@
 package com.beeasy.hzback.modules.system.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.core.exception.RestException;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.helper.Utils;
@@ -120,15 +121,11 @@ public class WorkFlowController {
     })
     @GetMapping("/instances")
     public Result<Page<WorkflowInstance>> instanceList(
+            JSONObject object,
             Pager pager,
-            @PageableDefault(value = 15, sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable,
-            String modelName
+            @PageableDefault(value = 15, sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
     ){
-        if(StringUtils.isEmpty(modelName)){
-            return Result.ok(instanceDao.getAllIns(Utils.getCurrentUserId(), pageable));
-        }else{
-            return Result.ok(instanceDao.getInsByModelName(modelName, Utils.getCurrentUserId(), pageable));
-        }
+        return Result.ok(workflowService.getInstanceList(object,pageable));
     }
 
 

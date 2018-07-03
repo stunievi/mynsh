@@ -1601,6 +1601,30 @@ public class WorkflowService {
         return modelDao.findAll(query,pageable);
     }
 
+    public Page getInstanceList(JSONObject object, Pageable pageable){
+        Specification query = ((root, criteriaQuery, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            if(object.containsKey("modelName") && !StringUtils.isEmpty(object.getString("modelName"))){
+                predicates.add(cb.equal(root.get("modelName"),object.getString("modelName")));
+            }
+            //资料收集是否拒贷
+            Integer reject = object.getInteger("reject");
+            if(null != reject){
+                Join nl = root.join("nodeList");
+                Join attr = nl.join("attributeList");
+                if(reject == 1){
+                    predicates.add(cb.and(cb.equal(attr.get("attrKey"),"key"), cb.equal(attr.get("attrValue"), "是")));
+                }
+                else{
+                    predicates.add(cb.and(cb.equal(attr.get("attrKey"),"key"), cb.equal(attr.get("attrValue"), "否")));
+                }
+            }
+            return cb.and(predicates.toArray(new Predicate[predicates.size()]));
+
+        });
+        return instanceDao.findAll(query,pageable);
+    }
+
     public List<WorkflowModel> getUserModelList(long uid){
         List<Long> pubIds = globalPermissionDao.getObjectIds(Collections.singleton(GlobalPermission.Type.WORKFLOW_PUB),Collections.singleton(uid));
         List<Long> pointIds = globalPermissionDao.getManagerObjectId(Collections.singleton(GlobalPermission.Type.WORKFLOW_PUB),Collections.singleton(uid));

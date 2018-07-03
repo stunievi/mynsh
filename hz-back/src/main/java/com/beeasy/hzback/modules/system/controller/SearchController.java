@@ -187,7 +187,7 @@ public class SearchController {
     @ApiOperation(value = "预期应收利息")
     @RequestMapping(value = "/sheet/searchYQYSLX", method = RequestMethod.GET)
     public Result searchYQYSLX(
-            DataSearchService.YQYSLXRequest request,
+            @Valid DataSearchService.YQYSLXRequest request,
             Pager pager,
             @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
     ){

@@ -251,24 +251,20 @@ public class DataSearchService {
         String sql = "SELECT BILL_NO, CONT_NO, CUS_ID, CUS_NAME, LOAN_BALANCE\n" +
                 "FROM ACC_LOAN\n" +
                 "WHERE 1 = 1 ";
-        List<String> strings = new ArrayList<>();
         if(!StringUtils.isEmpty(request.getSTART_DATE())){
-            strings.add(String.format(" and LOAN_END_DATE >= '%s'", request.getSTART_DATE()));
+            sql += (String.format(" and LOAN_END_DATE >= '%s'", request.getSTART_DATE()));
         }
         if(!StringUtils.isEmpty(request.getEND_DATE())){
-            strings.add(String.format(" and LOAN_END_DATE <= '%s'", request.getEND_DATE()));
+            sql += (String.format(" and LOAN_END_DATE <= '%s'", request.getEND_DATE()));
         }
         if(!StringUtils.isEmpty(request.getPRD_TYPE())){
-            strings.add(String.format(" and PRD_TYPE = '%s'", request.getPRD_TYPE()));
+            sql += (String.format(" and PRD_TYPE = '%s'", request.getPRD_TYPE()));
         }
         if(!StringUtils.isEmpty(request.getLOAN_NATURE())){
-            strings.add(String.format(" and ASSURE_MEANS_MAIN = '%s'", request.getASSURE_MEANS_MAIN()));
+            sql += (String.format(" and ASSURE_MEANS_MAIN = '%s'", request.getASSURE_MEANS_MAIN()));
         }
         if(!StringUtils.isEmpty(request.getACCOUNT_STATUS())){
-            strings.add(String.format(" and ACCOUNT_STATUS = '%s'", request.getACCOUNT_STATUS()));
-        }
-        if(strings.size() > 0){
-            sql += " and " + StringUtils.join(strings.toArray(), " ");
+            sql += (String.format(" and ACCOUNT_STATUS = '%s'", request.getACCOUNT_STATUS()));
         }
         return sqlUtils.pageQuery(sql,pageable);
     }
@@ -414,9 +410,7 @@ public class DataSearchService {
 
     @Data
     public static class YQYSBJDQRequest{
-        @NotEmpty
         String START_DATE;
-        @NotEmpty
         String END_DATE;
 
         String PRD_TYPE;
@@ -426,7 +420,9 @@ public class DataSearchService {
     }
     @Data
     public static class YQYSLXRequest{
+        @NotEmpty
         String START_DATE;
+        @NotEmpty
         String END_DATE;
         String PRD_TYPE;
         String LOAN_NATURE;
