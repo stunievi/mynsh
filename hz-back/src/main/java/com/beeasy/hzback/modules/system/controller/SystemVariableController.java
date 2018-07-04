@@ -53,7 +53,7 @@ public class SystemVariableController {
     @ApiOperation(value = "删除系统变量")
     @RequestMapping(value = "/delete", method = RequestMethod.GET)
     public Result delete(@RequestParam String key){
-        return Result.ok(systemService.delete(Utils.convertToList(key,String.class)));
+        return Result.finish(systemService.delete(Utils.convertToList(key,String.class)));
     }
 
 }

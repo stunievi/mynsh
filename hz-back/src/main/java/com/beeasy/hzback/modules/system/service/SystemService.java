@@ -43,7 +43,7 @@ public class SystemService {
             SystemVariable systemVariable = systemVariableDao.findFirstByVarName(entry.getKey()).orElse(new SystemVariable());
             systemVariable.setVarName(entry.getKey());
             systemVariable.setVarValue(entry.getValue());
-            systemVariable.setCanDelete(false);
+            systemVariable.setCanDelete(true);
             systemVariableDao.save(systemVariable);
         }
         return true;
@@ -68,8 +68,14 @@ public class SystemService {
      * @param keys
      * @return
      */
-    public List<String> delete(Collection<String> keys) {
-        return keys.stream().filter(key -> systemVariableDao.deleteByVarNameAndCanDeleteIsTrue(key) > 0).collect(Collectors.toList());
+    public boolean delete(Collection<String> keys) {
+        for (String key : keys) {
+           int count = systemVariableDao.deleteByVarNameAndCanDeleteIsTrue(key);
+           if(count == 0){
+               throw new RuntimeException();
+           }
+        }
+        return true;
     }
 
 
