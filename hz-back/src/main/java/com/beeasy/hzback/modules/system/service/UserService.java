@@ -242,11 +242,11 @@ public class UserService implements IUserService {
         }
 
         //创建文件云账号
-//        Result r = cloudService.createUser(u.getUsername());
-//        if(r.isSuccess()){
-//            userProfile.setCloudUsername(u.getUsername());
-//            userProfile.setCloudPassword(cloudUserPassword);
-//        }
+        Result r = cloudService.createUser(u.getUsername());
+        if(r.isSuccess()){
+            userProfile.setCloudUsername(u.getUsername());
+            userProfile.setCloudPassword(cloudUserPassword);
+        }
 
         userProfileDao.save(userProfile);
 
