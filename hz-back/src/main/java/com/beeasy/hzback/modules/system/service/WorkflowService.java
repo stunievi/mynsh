@@ -649,7 +649,7 @@ public class WorkflowService {
         //2.任务只有一个节点
         //3.任务也是我发布的
         //4.任务在进行中
-        return instance.getDealUserId().equals(user.getId()) &&
+        return null != instance.getDealUserId() && instance.getDealUserId().equals(user.getId()) &&
                 (null != instance.getPubUserId() && instance.getPubUserId().equals(user.getId())) &&
                         instance.getNodeList().size() <= 1 &&
                         instance.getState().equals(WorkflowInstance.State.DEALING);
@@ -1713,6 +1713,7 @@ public class WorkflowService {
                     model.setPub(pubIds.contains(model.getId()));
                     model.setPoint(pointIds.contains(model.getId()));
                 }).collect(Collectors.toList());
+        //过滤旧版本的工作流
         return models;
     }
 

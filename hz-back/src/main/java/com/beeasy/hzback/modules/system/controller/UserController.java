@@ -375,6 +375,14 @@ public class UserController {
     }
 
 
+    @RequestMapping(value = "/getCloudFileAccount")
+    public Result getCloudFileAccount(){
+        User user = userService.findUser(Utils.getCurrentUserId()).orElse(null);
+        if(null == user){
+            return Result.error();
+        }
+        return Result.ok(new Object[]{user.getProfile().getCloudUsername(),user.getProfile().getCloudPassword()});
+    }
 
 //    public Result userSetRoles(){
 //
