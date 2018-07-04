@@ -25,6 +25,9 @@ public interface IWorkflowModelDao extends JpaRepository<WorkflowModel,Long>, Jp
     List<WorkflowModel> findAllByOpenIsTrue();
 
 
+    //查找同名工作流是否有相同版本
+    int countByNameAndOpenIsTrue(String name);
+
     Optional<WorkflowModel> findFirstByModelNameAndOpenIsTrueOrderByVersionDesc(String modelName);
 
     @Query(value = "select m.id from WorkflowModel m where m.modelName = :modelName and m.open = true order by m.version desc ")

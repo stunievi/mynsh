@@ -190,7 +190,7 @@ public class WorkFlowController {
     public Result edit2(
             @Valid @RequestBody WorkflowModelEdit edit
     ){
-        return Result.finish(workflowService.editWorkflowModel(edit));
+        return (workflowService.editWorkflowModel(edit));
     }
 
     @SaveLog(value = "设置工作流权限")

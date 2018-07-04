@@ -44,6 +44,7 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 import javax.script.SimpleScriptContext;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -1476,25 +1477,30 @@ public class WorkflowService {
     }
 
 
-    public boolean editWorkflowModel(WorkflowModelEdit edit) {
-        return findModel(edit.getId()).filter(model -> {
-            //流程名字修改
-            if (!StringUtils.isEmpty(edit.getName())) {
-                model.setName(edit.getName());
+    public Result editWorkflowModel(WorkflowModelEdit edit) {
+        WorkflowModel model = findModel(edit.getId()).orElse(null);
+        if(null == model){
+            return Result.error("找不到这个工作流");
+        }
+        //流程名字修改
+        if (!StringUtils.isEmpty(edit.getName())) {
+            model.setName(edit.getName());
+        }
+        //描述可以随意修改
+        if (!StringUtils.isEmpty(edit.getInfo())) {
+            model.setInfo(edit.getInfo());
+        }
+        //开关也可以
+        model.setOpen(edit.isOpen());
+        if (edit.isOpen()) {
+            //查找是否有同名已开启的流程
+            if(modelDao.countByNameAndOpenIsTrue(model.getName()) > 0){
+                return Result.error("还有同名的工作流没有关闭, 无法开启");
             }
-            //描述可以随意修改
-            if (!StringUtils.isEmpty(edit.getInfo())) {
-                model.setInfo(edit.getInfo());
-            }
-            //开关也可以
-            model.setOpen(edit.isOpen());
-            if (edit.isOpen()) {
-                model.setFirstOpen(true);
-            }
-
-            modelDao.save(model);
-            return true;
-        }).isPresent();
+            model.setFirstOpen(true);
+        }
+        modelDao.save(model);
+        return Result.ok();
     }
 
 
@@ -1713,7 +1719,6 @@ public class WorkflowService {
                     model.setPub(pubIds.contains(model.getId()));
                     model.setPoint(pointIds.contains(model.getId()));
                 }).collect(Collectors.toList());
-        //过滤旧版本的工作流
         return models;
     }
 
