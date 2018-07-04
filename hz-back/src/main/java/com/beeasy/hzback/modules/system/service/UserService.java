@@ -1083,6 +1083,15 @@ public class UserService implements IUserService {
         return roleDao.findAll(query,pageable);
     }
 
+    /**
+     * 检查是否超级管理员
+     * @param uid
+     * @return
+     */
+    public boolean isSu(long uid){
+        return userDao.countByIdAndSuIsTrue(uid) > 0;
+    }
+
     @Data
     public static class RoleSearchRequest{
         String name;

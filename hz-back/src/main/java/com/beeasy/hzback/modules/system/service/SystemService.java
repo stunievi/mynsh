@@ -65,11 +65,11 @@ public class SystemService {
     /**
      * 变量删除
      *
-     * @param key
+     * @param keys
      * @return
      */
-    public boolean delete(String key) {
-        return systemVariableDao.deleteByVarNameAndCanDeleteIsTrue(key) > 0;
+    public List<String> delete(Collection<String> keys) {
+        return keys.stream().filter(key -> systemVariableDao.deleteByVarNameAndCanDeleteIsTrue(key) > 0).collect(Collectors.toList());
     }
 
 

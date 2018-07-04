@@ -2055,19 +2055,17 @@ public class WorkflowService {
         for (Map.Entry<String, Object> entry : nodeModel.getJSONObject("content").entrySet()) {
             String k = entry.getKey();
             JSONObject v = (JSONObject) entry.getValue();
-//            WorkflowNodeAttribute attribute = attributeDao.findFirstByDealUserIdAndAttrKey(currentNode.getDealerId(), k).orElse(null);
-//            if(null)
-//            if (v.getString("required").equals("y")) {
-//                Optional<WorkflowNodeAttribute> target = currentNode.getAttributeList().stream()
-//                        .filter(a -> a.getAttrKey().equals(v.getString("ename")))
-//                        .findAny();
-//                if (!target.isPresent()) {
-//                    throw new RestException("有必填字段没有填写");
-//                }
-//            }
+            //只需要校验必填属性
+            if (v.getBoolean("required")) {
+                Optional<WorkflowNodeAttribute> target = currentNode.getAttributeList().stream()
+                        .filter(a -> a.getAttrKey().equals(v.getString("ename")))
+                        .findAny();
+                if (!target.isPresent()) {
+                    throw new RestException("有必填字段没有填写");
+                }
+            }
         }
         //找不到下一个就结束了吧
-//        BaseNode nextNode = instance.getWorkflowModel().getNextNode(currentNode.getNodeName());
         WorkflowNode nextNode = findNextNodeModel(instance.getWorkflowModel(), currentNode.getNodeModel()).orElse(null);
         if (null == nextNode) return saveWorkflowInstance(instance);
         goNextNode(instance, currentNode, nextNode);
@@ -2520,20 +2518,20 @@ public class WorkflowService {
 //            if (StringUtils.isEmpty(String.valueOf(data.get(attrKey)))) {
 //                continue;
 //            }
-            if(v.getBoolean("required") && StringUtils.isEmpty(String.valueOf(data.get(attrKey)))){
-                return v.getString("cname") + "必填";
-            }
+            String value = String.valueOf(data.get(attrKey));
             //验证属性格式
             //校验该字段的规则
-            if (v.containsKey("rules")) {
-                try {
-                    String value = String.valueOf(data.get(attrKey));
-                    String err = validField(v.getJSONArray("rules"), value);
-                    if (!StringUtils.isEmpty(err)) {
-                        throw new RestException(err);
+            //只要填写了就校验
+            if(!StringUtils.isEmpty(value)){
+                if (v.containsKey("rules")) {
+                    try {
+                        String err = validField(v.getJSONArray("rules"), value);
+                        if (!StringUtils.isEmpty(err)) {
+                            throw new RestException(err);
+                        }
+                    } catch (Exception e) {
+                        return v.getString("cname") + "格式校验错误";
                     }
-                } catch (Exception e) {
-                    return v.getString("cname") + "格式校验错误";
                 }
             }
 

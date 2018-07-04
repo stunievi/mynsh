@@ -107,12 +107,16 @@ public class SystemController  {
     }
 
     /**********测试***********/
+    //该接口只有管理员可以调用
     @Autowired
     EntityManager entityManager;
     @Autowired
     SqlUtils sqlUtils;
     @RequestMapping(value = "/query", method = RequestMethod.POST)
     public Result query(@RequestBody String sql){
+        if(!userService.isSu(Utils.getCurrentUserId())){
+            return Result.error();
+        }
         return Result.ok(sqlUtils.query(sql));
     }
 }

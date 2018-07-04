@@ -1,6 +1,7 @@
 package com.beeasy.hzback.modules.system.controller;
 
 import com.beeasy.hzback.core.helper.Result;
+import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.modules.system.dao.ISystemVariableDao;
 import com.beeasy.hzback.modules.system.entity.SystemVariable;
 import com.beeasy.hzback.modules.system.form.SystemVarEditRequest;
@@ -49,10 +50,10 @@ public class SystemVariableController {
         return Result.ok(systemVariableDao.findAll().stream().collect(Collectors.toMap(SystemVariable::getVarName, SystemVariable::getVarValue)));
     }
 
-//    @ApiOperation(value = "删除系统变量")
-//    @RequestMapping(value = "/delete", method = RequestMethod.GET)
-//    public Result delete(@RequestParam String key){
-//        return Result.ok(systemService.delete(key));
-//    }
+    @ApiOperation(value = "删除系统变量")
+    @RequestMapping(value = "/delete", method = RequestMethod.GET)
+    public Result delete(@RequestParam String key){
+        return Result.ok(systemService.delete(Utils.convertToList(key,String.class)));
+    }
 
 }
