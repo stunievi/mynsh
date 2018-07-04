@@ -105,15 +105,16 @@ public class SqlUtils {
      */
     public Page<Object> hqlQuery(String sql, Map<String,Object> params, String countStr, Pageable pageable){
         Query query = entityManager.createQuery(sql);
+        Query countQuery = entityManager.createQuery(sql.replace(countStr, "count(" + countStr + ")"));
         if(null != params){
             for (Map.Entry<String, Object> entry : params.entrySet()) {
                 query.setParameter(entry.getKey(),entry.getValue());
+                countQuery.setParameter(entry.getKey(),entry.getValue());
             }
         }
         query.setFirstResult(pageable.getOffset());
         query.setMaxResults(pageable.getPageSize());
-        Query countQuery = entityManager.createQuery(sql.replace(countStr, "count(" + countStr + ")"));
-        PageImpl page = new PageImpl(query.getResultList(),pageable,countQuery.getFirstResult());
+        PageImpl page = new PageImpl(query.getResultList(),pageable, (Long) countQuery.getResultList().get(0));
         return page;
     }
 

@@ -1431,10 +1431,13 @@ public class WorkflowService {
         if (fileType.equals(WorkflowNodeFile.Type.SIGN)) {
             nodeFile.setContent(content);
         }
-        nodeFile = nodeFileDao.save(nodeFile);
         if(!StringUtils.isEmpty(tag)){
-            setNodeFileTags(uid, nodeFile.getId(), tag);
+            val list = Arrays.asList(tag.split(" ")).stream().filter(item -> !StringUtils.isEmpty(item))
+                    .distinct()
+                    .collect(Collectors.toList());
+            nodeFile.setTags(StringUtils.join(list.toArray()," "));
         }
+        nodeFile = nodeFileDao.save(nodeFile);
         return Result.ok(nodeFile);
     }
 
