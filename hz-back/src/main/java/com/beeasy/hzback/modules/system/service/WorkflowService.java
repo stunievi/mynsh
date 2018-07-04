@@ -1482,6 +1482,13 @@ public class WorkflowService {
         if(null == model){
             return Result.error("找不到这个工作流");
         }
+        if (edit.isOpen()) {
+            //查找是否有同名已开启的流程
+            if(modelDao.countByNameAndOpenIsTrue(model.getName()) > 0){
+                return Result.error("还有同名的工作流没有关闭, 无法开启");
+            }
+            model.setFirstOpen(true);
+        }
         //流程名字修改
         if (!StringUtils.isEmpty(edit.getName())) {
             model.setName(edit.getName());
@@ -1492,13 +1499,7 @@ public class WorkflowService {
         }
         //开关也可以
         model.setOpen(edit.isOpen());
-        if (edit.isOpen()) {
-            //查找是否有同名已开启的流程
-            if(modelDao.countByNameAndOpenIsTrue(model.getName()) > 0){
-                return Result.error("还有同名的工作流没有关闭, 无法开启");
-            }
-            model.setFirstOpen(true);
-        }
+
         modelDao.save(model);
         return Result.ok();
     }
