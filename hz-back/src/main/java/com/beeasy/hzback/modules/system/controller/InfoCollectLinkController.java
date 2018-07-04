@@ -60,6 +60,7 @@ public class InfoCollectLinkController {
     public Result getMyInfoCollect(
             String CUS_NAME,
             String PHONE,
+            String CERT_CODE,
             Pager pager,
             @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
     ){
@@ -85,6 +86,14 @@ public class InfoCollectLinkController {
                         )
                 );
 
+            }
+            if(!StringUtils.isEmpty(CERT_CODE)){
+                predicates.add(
+                        cb.and(
+                                cb.equal(at.get("attrKey"), "CERT_CODE"),
+                                cb.like(at.get("attrValue"), "%" + CERT_CODE + "%")
+                        )
+                );
             }
             return cb.and(predicates.toArray(new Predicate[predicates.size()]));
         });
