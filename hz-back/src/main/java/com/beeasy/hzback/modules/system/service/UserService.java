@@ -290,8 +290,8 @@ public class UserService implements IUserService {
             //解除关联
             userDao.deleteUserQuarters(uid);
             //删除用户
-            int count = userDao.deleteById(uid);
-            return count > 0;
+            userDao.deleteById(uid);
+            return true;
         }).collect(Collectors.toList());
     }
 
@@ -583,7 +583,7 @@ public class UserService implements IUserService {
 
 
     public Result<Quarters> createQuarters(QuartersAdd add) {
-        Department department = departmentDao.findOne(add.getDepartmentId());
+        Department department = departmentDao.findById(add.getDepartmentId()).orElse(null);
         if (department == null) return Result.error("没有该部门");
         //同部门不能有同名的岗位
         Quarters same = quartersDao.findFirstByDepartmentAndName(department, add.getName());
@@ -795,18 +795,18 @@ public class UserService implements IUserService {
 
 
     public Optional<User> findUser(long id) {
-        return Optional.ofNullable(userDao.findOne(id));
+        return userDao.findById(id);
     }
     public Optional<Role> findRole(long id){
-        return Optional.ofNullable(roleDao.findOne(id));
+        return roleDao.findById(id);
     }
 
     public Optional<Quarters> findQuarters(long id) {
-        return Optional.ofNullable(quartersDao.findOne(id));
+        return quartersDao.findById(id);
     }
 
     public Optional<SystemFile> findFile(long id) {
-        return Optional.ofNullable(systemFileDao.findOne(id));
+        return systemFileDao.findById(id);
     }
 
 
@@ -1001,7 +1001,7 @@ public class UserService implements IUserService {
      */
     public Result deleteRoles(Collection<Long> ids){
         return Result.ok(
-                ids.stream().filter(id -> roleDao.deleteById(id) > 0).collect(Collectors.toList())
+                ids.stream().peek(id -> roleDao.deleteById(id)).collect(Collectors.toList())
         );
     }
 

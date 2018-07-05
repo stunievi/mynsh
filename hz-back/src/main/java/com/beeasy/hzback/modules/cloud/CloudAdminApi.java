@@ -6,7 +6,7 @@ import com.beeasy.hzback.modules.cloud.response.LoginResponse;
 import feign.*;
 import feign.codec.DecodeException;
 import feign.codec.Decoder;
-import org.springframework.cloud.netflix.feign.FeignClient;
+import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
 import org.springframework.util.StringUtils;
@@ -26,18 +26,18 @@ import java.util.Map;
 @FeignClient(name = "cloud-admin-service", url = "${filecloud.address}",configuration = CloudAdminApi.Config.class)
 public interface CloudAdminApi {
 
-    @RequestMapping(value = "/system/userAdd.action", method = RequestMethod.POST,
-            produces = MediaType.TEXT_HTML_VALUE,
-            consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    String adminCreateUser(@RequestParam("") Map map);
+//    @RequestMapping(value = "/system/userAdd.action", method = RequestMethod.POST,
+//            produces = MediaType.TEXT_HTML_VALUE,
+//            consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+//    String adminCreateUser(@RequestParam("") Map map);
 
-    @GetMapping("/checkOnline.action")
+    @RequestMapping(value = "/checkOnline.action",method = RequestMethod.GET)
     CloudBaseResponse checkOnline();
 
     @RequestMapping(method = RequestMethod.GET, value = "/apiLogin.action")
     LoginResponse login(@RequestParam("username") String username, @RequestParam("password") String password);
 
-    @GetMapping("/ajax/ajaxAddUser.action?roleId=3&departmentId=1&lastName=t&firstName=t")
+    @RequestMapping(value = "/ajax/ajaxAddUser.action?roleId=3&departmentId=1&lastName=t&firstName=t", method = RequestMethod.GET)
     CloudBaseResponse createUser(@RequestParam("username") String username);
 
     class Config{

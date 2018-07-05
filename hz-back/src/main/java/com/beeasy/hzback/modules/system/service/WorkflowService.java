@@ -590,7 +590,8 @@ public class WorkflowService {
         User user = userService.findUser(uid).orElse(null);
         return findInstance(instanceId).filter(workflowInstance -> {
             if (canCancel(workflowInstance, user)) {
-                return instanceDao.deleteById(workflowInstance.getId()) > 0;
+                instanceDao.deleteById(workflowInstance.getId());
+                return true;
 //                if (null != user) {
 //                    logService.addLog(SystemTextLog.Type.WORKFLOW, workflowInstance.getId(), uid, "取消了任务");
 //                }
@@ -1382,7 +1383,7 @@ public class WorkflowService {
         if (!checkNodeAuth(nodeFile.getNodeInstance(), user)) {
             return false;
         }
-        nodeFileDao.delete(nodeFileId);
+        nodeFileDao.deleteById(nodeFileId);
         return true;
     }
 
@@ -1612,7 +1613,10 @@ public class WorkflowService {
         workflowModel.setModelName(modelName);
 
         if (workflowModel.getInnates().size() > 0) {
-            innateDao.save(workflowModel.getInnates());
+            for (WorkflowModelInnate workflowModelInnate : workflowModel.getInnates()) {
+                innateDao.save(workflowModelInnate);
+            }
+//            innateDao.save(workflowModel.getInnates());
         }
 
         //补充额外信息
@@ -1637,7 +1641,7 @@ public class WorkflowService {
      */
     public boolean deleteWorkflowModel(long id, boolean force) {
         if (force) {
-            modelDao.delete(id);
+            modelDao.deleteById(id);
             return true;
         }
         return modelDao.deleteWorkflowModel(id) > 0;
@@ -2363,20 +2367,20 @@ public class WorkflowService {
 
 
     public Optional<WorkflowModel> findModel(long id) {
-        return Optional.ofNullable(modelDao.findOne(id));
+        return modelDao.findById(id);
     }
 
 
     public Optional<WorkflowNode> findNode(long id) {
-        return Optional.ofNullable(nodeDao.findOne(id));
+        return nodeDao.findById(id);
     }
 
     public Optional<WorkflowNodeInstance> findNodeInstance(long id) {
-        return Optional.ofNullable(nodeInstanceDao.findOne(id));
+        return nodeInstanceDao.findById(id);
     }
 
     public Optional<WorkflowNodeFile> findNodeFile(long id) {
-        return Optional.ofNullable(nodeFileDao.findOne(id));
+        return nodeFileDao.findById(id);
     }
 
     public Optional<GPSPosition> findNodeGPSPosition(long nodeFileId) {
@@ -2386,28 +2390,15 @@ public class WorkflowService {
     }
 
 
-    public WorkflowModel findModelE(long id) throws CannotFindEntityException {
-        return findModel(id).orElseThrow(() -> new CannotFindEntityException(WorkflowModel.class, id));
-    }
+
 
 
     public Optional<WorkflowInstance> findInstance(long id) {
-        return Optional.ofNullable(instanceDao.findOne(id));
+        return instanceDao.findById(id);
     }
 
-    public WorkflowInstance findInstanceE(long id) throws CannotFindEntityException {
-        return findInstance(id).orElseThrow(() -> new CannotFindEntityException(WorkflowInstance.class, id));
-    }
 
-//    
-//    public Optional<InspectTask> findInspectTask(long id) {
-//        return Optional.ofNullable(inspectTaskDao.findOne(id));
-//    }
-//
-//    
-//    public InspectTask findInspectTaskE(long id) throws CannotFindEntityException {
-//        return findInspectTask(id).orElseThrow(() -> new CannotFindEntityException(InspectTask.class, id));
-//    }
+
 
 
     /**

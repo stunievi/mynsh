@@ -151,7 +151,7 @@ public class SqlUtils {
                 countQuery.setParameter(entry.getKey(),entry.getValue());
             }
         }
-        query.setFirstResult(pageable.getOffset());
+        query.setFirstResult((int) pageable.getOffset());
         query.setMaxResults(pageable.getPageSize());
         PageImpl page = new PageImpl(query.getResultList(),pageable, (Long) countQuery.getResultList().get(0));
         return page;

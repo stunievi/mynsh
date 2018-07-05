@@ -33,11 +33,12 @@ swagger:
 
 server:
   port: 8080
-  context-path: /
+  servlet:
+    context-path: /
   address: 0.0.0.0
 
 spring:
-    http:
+    servlet:
       multipart:
         max-file-size: 10Mb
         max-request-size: 10Mb
@@ -92,7 +93,7 @@ spring:
            port: 6379
            password: "1q2w3e4r"
            timeout: 0
-           pool:
+           jedis:
                max-active: 8
                max-wait: -1
                max-idle: 8

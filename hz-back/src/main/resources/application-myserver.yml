@@ -5,8 +5,8 @@
 #    username: root
 #    password: 1q2w3e4r
 
-upload:
-  path: /Users/bin/work/uploads
+#upload:
+#  path: /Users/bin/work/uploads
 #spring.jpa.properties.hibernate.dialect=com.beeasy.hzback.core.helper.MySQL5DialectFK
 
 #权限校验
@@ -36,25 +36,30 @@ filecloud:
   commonPassword: "admin"
   commonRootId: 1041
 
-swagger:
-  host: 127.0.0.1:8081
+#swagger:
+#  host: 127.0.0.1:8081
 
 
 server:
   port: 8081
-  context-path: /
   address: 0.0.0.0
+  servlet:
+    context-path: /
 
 
 spring:
-    http:
+    servlet:
       multipart:
         max-file-size: 10Mb
         max-request-size: 10Mb
-    mvc:
-        view:
-            prefix: /views/
-            suffix: .ftl
+#    http:
+#      multipart:
+#        max-file-size: 10Mb
+#        max-request-size: 10Mb
+#    mvc:
+#        view:
+#            prefix: /views/
+#            suffix: .ftl
     jpa:
       hibernate:
         ddl-auto: update
@@ -69,9 +74,9 @@ spring:
 
 
 
-    freemarker:
-        cache: false
-        request-context-attribute: request
+#    freemarker:
+#        cache: false
+#        request-context-attribute: request
 
     datasource:
         name: test
@@ -106,18 +111,15 @@ spring:
         maxOpenPreparedStatements: 20
 
     redis:
-           database: 0
-           host: 47.96.98.198
-           port: 6379
-           password: "1q2w3e4r"
-           timeout: 0
-           pool:
-               max-active: 8
-               max-wait: -1
-               max-idle: 8
-               min-idle: 0
+       database: 0
+       host: 127.0.0.1
+       port: 6379
+       password:
+       timeout: 5000
+
     session:
         store-type: none
+
 
 
 

@@ -1,14 +1,14 @@
 package com.beeasy.hzback;
 
-import com.spring4all.swagger.EnableSwagger2Doc;
+//import com.spring4all.swagger.EnableSwagger2Doc;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.netflix.feign.EnableFeignClients;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-@EnableSwagger2Doc
+//@EnableSwagger2Doc
 //@EnableWebMvc
 @EnableAsync
 @EnableScheduling

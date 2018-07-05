@@ -1,6 +1,6 @@
 package com.beeasy.hzback.modules.system.controller;
 
-import bin.leblanc.zed.Zed;
+//import bin.leblanc.zed.Zed;
 import com.alibaba.fastjson.JSONArray;
 import com.beeasy.hzback.core.exception.RestException;
 import com.beeasy.hzback.core.helper.Result;
@@ -13,7 +13,6 @@ import com.beeasy.hzback.modules.system.entity.*;
 import com.beeasy.hzback.modules.system.form.*;
 import com.beeasy.hzback.modules.system.log.NotSaveLog;
 import com.beeasy.hzback.modules.system.service.UserService;
-import com.beeasy.hzback.modules.system.zed.UserZed;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -56,8 +55,8 @@ public class UserController {
     @Autowired
     SystemConfigCache cache;
 
-
-    UserZed userZed = Zed.createProxy(UserZed.class);
+//
+//    UserZed userZed = Zed.createProxy(UserZed.class);
 
     @Autowired
     EntityManager entityManager;

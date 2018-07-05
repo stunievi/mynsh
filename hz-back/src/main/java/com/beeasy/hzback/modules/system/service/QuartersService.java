@@ -22,6 +22,6 @@ public class QuartersService {
     IQuartersDao quartersDao;
 
     public void deleteQuarters(long quartersId) {
-        quartersDao.delete(quartersId);
+        quartersDao.deleteById(quartersId);
     }
 }

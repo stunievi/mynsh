@@ -139,7 +139,7 @@ public class DepartmentService implements IDepartmentService {
                 return Result.error("该部门还有子部门, 无法删除");
             }
 
-            departmentDao.delete(id);
+            departmentDao.deleteById(id);
 
             return Result.ok();
 
@@ -159,6 +159,6 @@ public class DepartmentService implements IDepartmentService {
 
 
     public Optional<Department> findDepartment(long id) {
-        return Optional.ofNullable(departmentDao.findOne(id));
+        return departmentDao.findById(id);
     }
 }

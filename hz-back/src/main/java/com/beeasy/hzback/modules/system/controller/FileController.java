@@ -75,7 +75,7 @@ public class FileController {
         if(null == downloadFileToken){
             return new ResponseEntity<byte[]>(HttpStatus.NO_CONTENT);
         }
-        SystemFile file = systemFileDao.findOne(downloadFileToken.getFileId());
+        SystemFile file = systemFileDao.findById(downloadFileToken.getFileId()).orElse(null);
         if(null == file){
             return new ResponseEntity<byte[]>(HttpStatus.NO_CONTENT);
         }

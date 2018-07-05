@@ -1,9 +1,6 @@
 package com.beeasy.hzback.core.config;
 
-import bin.leblanc.dataset.DataSetFactory;
-import bin.leblanc.zed.JPAUtil;
-import bin.leblanc.zed.SQLUtil;
-import bin.leblanc.zed.Zed;
+
 import com.beeasy.hzback.modules.system.cache.SystemConfigCache;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,25 +19,25 @@ import java.util.List;
 @Configuration
 public class LeblancConfig implements ApplicationListener<ContextRefreshedEvent> {
 
-    @Bean
-    public DataSetFactory dataSetFactory(){
-        return new DataSetFactory();
-    }
-
-    @Bean
-    public Zed zed(){
-        return new Zed();
-    }
-
-    @Bean
-    public SQLUtil sqlUtil(){
-        return new SQLUtil();
-    }
-
-    @Bean
-    public JPAUtil jpaUtil(){
-        return new JPAUtil();
-    }
+//    @Bean
+//    public DataSetFactory dataSetFactory(){
+//        return new DataSetFactory();
+//    }
+//
+//    @Bean
+//    public Zed zed(){
+//        return new Zed();
+//    }
+//
+//    @Bean
+//    public SQLUtil sqlUtil(){
+//        return new SQLUtil();
+//    }
+//
+//    @Bean
+//    public JPAUtil jpaUtil(){
+//        return new JPAUtil();
+//    }
 
 
     @Autowired

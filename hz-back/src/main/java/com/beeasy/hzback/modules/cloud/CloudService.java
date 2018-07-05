@@ -121,21 +121,21 @@ public class CloudService {
         return Result.ok();
     }
 
-    @Deprecated
-    public Result adminCreateUser(String username){
-        Result result = loginAdmin();
-        if(result.isSuccess()){
-            try {
-                Map map = systemConfigCache.getCreateUserString();
-                map.put("user.username",username);
-                cloudAdminApi.adminCreateUser(map);
-                return Result.ok();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return Result.error();
-    }
+//    @Deprecated
+//    public Result adminCreateUser(String username){
+//        Result result = loginAdmin();
+//        if(result.isSuccess()){
+//            try {
+//                Map map = systemConfigCache.getCreateUserString();
+//                map.put("user.username",username);
+//                cloudAdminApi.adminCreateUser(map);
+//                return Result.ok();
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
+//        return Result.error();
+//    }
 
     public Result createUser(String username){
         Result result = loginAdmin();

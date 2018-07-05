@@ -96,7 +96,7 @@ public class SystemService {
     }
 
     public List<Long> deleteMessageTemplates(Collection<Long> ids ){
-        return ids.stream().filter(id -> messageTemplateDao.deleteById(id) > 0).collect(Collectors.toList());
+        return ids.stream().peek(id -> messageTemplateDao.deleteById(id)).collect(Collectors.toList());
     }
 
     public Page<MessageTemplate> getMessageTemplateList(Pageable pageable){

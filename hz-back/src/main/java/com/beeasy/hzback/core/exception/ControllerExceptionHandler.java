@@ -2,8 +2,8 @@ package com.beeasy.hzback.core.exception;
 
 import com.beeasy.hzback.core.helper.Result;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.web.AbstractErrorController;
-import org.springframework.boot.autoconfigure.web.ErrorAttributes;
+import org.springframework.boot.autoconfigure.web.servlet.error.AbstractErrorController;
+import org.springframework.boot.web.servlet.error.ErrorAttributes;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;

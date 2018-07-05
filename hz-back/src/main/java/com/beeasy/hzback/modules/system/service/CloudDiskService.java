@@ -30,8 +30,8 @@ import java.util.stream.Collectors;
 public class CloudDiskService implements ICloudDiskService {
 
 
-    @Value("${upload.path}")
-    private String AREA_DIR;//excel临时存储文件夹
+//    @Value("${upload.path}")
+//    private String AREA_DIR;//excel临时存储文件夹
     @Value("${filecloud.enable}")
     private boolean fileCloudEnabled;
 
@@ -569,7 +569,7 @@ public class CloudDiskService implements ICloudDiskService {
 
             }
             else{
-                SystemFile systemFile = systemFileDao.findOne(cloudDirectoryIndex.getFileId());
+                SystemFile systemFile = systemFileDao.findById(cloudDirectoryIndex.getFileId()).orElse(null);
                 if (null == systemFile) {
                     return;
                 }
@@ -599,7 +599,7 @@ public class CloudDiskService implements ICloudDiskService {
 
         }
         else{
-            SystemFile systemFile = systemFileDao.findOne(id);
+            SystemFile systemFile = systemFileDao.findById(id).orElse(null);
             if(null != systemFile){
                 return new ResponseEntity<byte[]>(systemFile.getBytes(), headers, HttpStatus.OK);
             }

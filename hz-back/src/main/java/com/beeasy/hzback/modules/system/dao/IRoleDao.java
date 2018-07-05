@@ -9,9 +9,9 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 public interface IRoleDao extends JpaRepository<Role,Long>, JpaSpecificationExecutor {
-
     @Query(value = "select count(*) from t_user_role where role_id = :rid and user_id = :uid", nativeQuery = true)
     int hasPair(@Param("uid") long uid, @Param("rid") long rid);
 
@@ -31,7 +31,6 @@ public interface IRoleDao extends JpaRepository<Role,Long>, JpaSpecificationExec
     int deleteUserRoles(@Param("uid") long uid);
 
     int countById(long id);
-    int deleteById(long id);
 
     List<Role> findAllByIdIn(Collection<Long> ids);
 }

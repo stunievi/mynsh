@@ -17,7 +17,6 @@ import java.util.*;
 public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Long>, JpaSpecificationExecutor {
 
 
-    int deleteById(long id);
 
     List<WorkflowInstance> findAllByIdIn(List<Long> ids);
 

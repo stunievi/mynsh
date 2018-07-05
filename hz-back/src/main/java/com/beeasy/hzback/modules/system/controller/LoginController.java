@@ -44,8 +44,8 @@ public class LoginController {
     @Autowired
     IUserDao userDao;
 
-    @Autowired
-    AuthenticationManager authenticationManager;
+//    @Autowired
+//    AuthenticationManager authenticationManager;
     @Autowired
     IUserTokenDao userTokenDao;
 

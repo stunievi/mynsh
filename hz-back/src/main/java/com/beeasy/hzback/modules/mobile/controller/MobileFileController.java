@@ -97,7 +97,7 @@ public class MobileFileController {
             return output(null);
         }
         if(null != nodeFile.getFileId() && nodeFile.getFileId() > 0){
-            SystemFile systemFile = systemFileDao.findOne(nodeFile.getFileId());
+            SystemFile systemFile = systemFileDao.findById(nodeFile.getFileId()).orElse(null);
             return output(systemFile);
         }
         return output(null);

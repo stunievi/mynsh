@@ -50,7 +50,7 @@ public class TaskRunner{
     }
 
 
-    @Scheduled(fixedRate = 5000)
+//    @Scheduled(fixedRate = 5000)
     public void doTask() {
         if(utils.isLockingOrLockFailed(LOGIC_NODE_LOCK,10)){
             return;

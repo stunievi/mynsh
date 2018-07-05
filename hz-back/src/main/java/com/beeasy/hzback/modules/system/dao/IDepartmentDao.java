@@ -20,7 +20,6 @@ public interface IDepartmentDao extends JpaRepository<Department,Long> {
     List<Department> findAllByName(String name);
 
     int deleteAllByIdIn(Collection<Long> dids);
-    int deleteById(long did);
 
     @Query(value = "select d.code from Department d where d.id = :id")
     List getDepartmentCode(@Param("id") long id);

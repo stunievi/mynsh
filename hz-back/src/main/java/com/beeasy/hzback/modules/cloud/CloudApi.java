@@ -5,7 +5,7 @@ import com.beeasy.hzback.modules.cloud.response.CloudBaseResponse;
 import com.beeasy.hzback.modules.cloud.response.CreateDirResponse;
 import com.beeasy.hzback.modules.cloud.response.GetFilesResponse;
 import com.beeasy.hzback.modules.cloud.response.LoginResponse;
-import org.springframework.cloud.netflix.feign.FeignClient;
+import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
