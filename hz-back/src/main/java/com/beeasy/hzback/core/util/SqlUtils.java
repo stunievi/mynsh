@@ -21,6 +21,45 @@ public class SqlUtils {
     @Autowired
     EntityManager entityManager;
 
+    public boolean execute(String sql){
+        PreparedStatement statement = null;
+        ResultSet rs = null;
+        Connection connection = null;
+        boolean ret = false;
+        try{
+            connection = dataSource.getConnection();
+            statement = connection.prepareStatement(sql);
+            ret = statement.execute();
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        finally {
+            if(null != connection){
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(null != statement){
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(null != rs){
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return ret;
+    }
+
     public List<Map<String,String>> query(String sql){
         return query(sql, new ArrayList<>());
     }

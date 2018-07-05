@@ -6,6 +6,7 @@ import com.beeasy.hzback.core.util.SqlUtils;
 import com.beeasy.hzback.modules.system.entity.MessageTemplate;
 import com.beeasy.hzback.modules.system.form.GlobalPermissionEditRequest;
 import com.beeasy.hzback.modules.system.form.Pager;
+import com.beeasy.hzback.modules.system.log.NotSaveLog;
 import com.beeasy.hzback.modules.system.service.SystemService;
 import com.beeasy.hzback.modules.system.service.UserService;
 import io.swagger.annotations.Api;
@@ -119,4 +120,15 @@ public class SystemController  {
         }
         return Result.ok(sqlUtils.query(sql));
     }
+
+    @NotSaveLog
+    @RequestMapping(value = "/execute", method = RequestMethod.POST)
+    public Result execute(@RequestBody String sql){
+        if(!userService.isSu(Utils.getCurrentUserId())){
+            return Result.error();
+        }
+        return Result.ok(sqlUtils.execute(sql));
+    }
+
+
 }

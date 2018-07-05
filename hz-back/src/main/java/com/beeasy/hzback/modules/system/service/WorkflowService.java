@@ -1432,7 +1432,8 @@ public class WorkflowService {
             nodeFile.setContent(content);
         }
         if(!StringUtils.isEmpty(tag)){
-            val list = Arrays.asList(tag.split(" ")).stream().filter(item -> !StringUtils.isEmpty(item))
+            List<String> list = Arrays.stream(tag.split(" "))
+                    .filter(item -> !StringUtils.isEmpty(item))
                     .distinct()
                     .collect(Collectors.toList());
             nodeFile.setTags(StringUtils.join(list.toArray()," "));
