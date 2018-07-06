@@ -1,6 +1,7 @@
 package com.beeasy.hzback.modules.system.service;
 
 import com.beeasy.hzback.core.helper.Result;
+import com.beeasy.hzback.core.helper.SpringContextUtils;
 import com.beeasy.hzback.modules.system.dao.IMessageDao;
 import com.beeasy.hzback.modules.system.dao.IMessageTemplateDao;
 import com.beeasy.hzback.modules.system.dao.ISystemVariableDao;
@@ -18,6 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.Id;
+import javax.validation.constraints.AssertFalse;
+import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotNull;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -79,17 +82,19 @@ public class SystemService {
     }
 
 
-    public MessageTemplate addMessageTemplate(String template){
+    public MessageTemplate addMessageTemplate(MessageTemplateRequest request){
         MessageTemplate messageTemplate = new MessageTemplate();
-        messageTemplate.setTemplate(template);
+        messageTemplate.setName(request.getName());
+        messageTemplate.setTemplate(request.getTemplate());
         return messageTemplateDao.save(messageTemplate);
     }
 
     public boolean editMessageTemplate(MessageTemplateRequest request){
-        MessageTemplate messageTemplate = messageTemplateDao.findTopById(request.getId()).orElse(null);
+        MessageTemplate messageTemplate = messageTemplateDao.findById(request.getId()).orElse(null);
         if(null == messageTemplate){
             return false;
         }
+        messageTemplate.setName(request.getName());
         messageTemplate.setTemplate(request.getTemplate());
         messageTemplateDao.save(messageTemplate);
         return true;
@@ -104,7 +109,7 @@ public class SystemService {
     }
 
     public Optional<MessageTemplate> getMessageTemplateById(long id){
-        return messageTemplateDao.findTopById(id);
+        return messageTemplateDao.findById(id);
     }
 
 
@@ -145,14 +150,28 @@ public class SystemService {
 
 
     @Data
-    public static class  MessageTemplateRequest{
+    public static class MessageTemplateRequest{
         public interface add{};
         public interface edit{};
 
         @NotNull(groups = add.class)
         Long id;
 
+        @NotEmpty(message = "模板名不能为空",groups = {add.class,edit.class})
+        String name;
+
         @NotEmpty(groups = {add.class,edit.class})
         String template;
+
+        //验证不同命
+        @AssertTrue(message = "已经有同名模板", groups = {add.class,edit.class})
+        public boolean checkName(){
+            if(null == id){
+                return SpringContextUtils.getBean(IMessageTemplateDao.class).countByName(name) == 0;
+            }
+            else{
+                return SpringContextUtils.getBean(IMessageTemplateDao.class).countByNameAndIdNot(name,id) == 0;
+            }
+        }
     }
 }

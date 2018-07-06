@@ -9,5 +9,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IMessageTemplateDao extends JpaRepository<MessageTemplate,Long>{
-    Optional<MessageTemplate> findTopById(long id);
+    int countByNameAndIdNot(String name, long id);
+    int countByName(String name);
 }

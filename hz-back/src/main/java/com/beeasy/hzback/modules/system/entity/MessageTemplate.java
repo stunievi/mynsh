@@ -15,4 +15,6 @@ public class MessageTemplate {
     @GeneratedValue
     Long id;
     String template;
+
+    String name;
 }

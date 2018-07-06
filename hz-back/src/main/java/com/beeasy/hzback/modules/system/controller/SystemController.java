@@ -70,7 +70,7 @@ public class SystemController  {
     public Result addMessageTemplate(
             @RequestBody @Validated(value = SystemService.MessageTemplateRequest.add.class)SystemService.MessageTemplateRequest request
             ){
-        return Result.ok(systemService.addMessageTemplate(request.getTemplate()));
+        return Result.ok(systemService.addMessageTemplate(request));
     }
 
     @ApiOperation(value = "编辑消息模板")
