@@ -11,18 +11,18 @@ import com.beeasy.hzback.modules.system.entity.SystemVariable;
 import com.beeasy.hzback.modules.system.form.SystemVarEditRequest;
 import lombok.Data;
 import org.hibernate.validator.constraints.NotEmpty;
+import org.reflections.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.Id;
-import javax.validation.constraints.AssertFalse;
-import javax.validation.constraints.AssertTrue;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import javax.persistence.criteria.Predicate;
+import javax.validation.constraints.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -105,8 +105,15 @@ public class SystemService {
         return ids.stream().peek(id -> messageTemplateDao.deleteById(id)).collect(Collectors.toList());
     }
 
-    public Page<MessageTemplate> getMessageTemplateList(Pageable pageable){
-        return messageTemplateDao.findAll(pageable);
+    public Page<MessageTemplate> getMessageTemplateList(MessageTemplateSearchRequest request, Pageable pageable){
+        Specification query = ((root, criteriaQuery, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            if(!Utils.isEmpty(request.getName())){
+                predicates.add(cb.like(root.get("name"),"%" + request.getName() + "%"));
+            }
+            return cb.and(predicates.toArray(new Predicate[predicates.size()]));
+        });
+        return messageTemplateDao.findAll(query,pageable);
     }
 
     public Optional<MessageTemplate> getMessageTemplateById(long id){
@@ -158,10 +165,12 @@ public class SystemService {
         @NotNull(groups = add.class)
         Long id;
 
-        @Size(min = 6,max = 20,message = "模板名不能为空",groups = {add.class,edit.class})
+        @NotBlank(message = "模板名不能为空", groups = {add.class,edit.class})
+        @Size(min = 2,max = 20,message = "模板名长度在2-20之间",groups = {add.class,edit.class})
         String name;
 
-        @Size(min = 6,max = 200, groups = {add.class,edit.class})
+        @NotBlank(message = "模板内容不能为空",groups = {add.class,edit.class})
+        @Size(min = 5,max = 200, message = "模板内容长度在5-200之间", groups = {add.class,edit.class})
         String template;
 
         //验证不同命
@@ -174,5 +183,10 @@ public class SystemService {
                 return SpringContextUtils.getBean(IMessageTemplateDao.class).countByNameAndIdNot(name,id) == 0;
             }
         }
+    }
+
+    @Data
+    public static class MessageTemplateSearchRequest{
+        String name;
     }
 }

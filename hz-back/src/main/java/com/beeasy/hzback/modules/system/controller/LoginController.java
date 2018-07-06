@@ -73,35 +73,38 @@ public class LoginController {
     public Result login(
             @RequestParam String username,
             @RequestParam String password){
-        if(StringUtils.isEmpty(username) || StringUtils.isEmpty(password)){
-            return Result.error();
-        }
+//        if(StringUtils.isEmpty(username) || StringUtils.isEmpty(password)){
+//            return Result.error();
+//        }
         //如果这个账号已经被锁定，那么在超时时间内不能再登录
 //        String loginLockKey = "login:lock:" + username;
-        LoginLock loginLock = loginMap.get(username);
-        if(loginLock != null){
-            if(loginLock.errorCount >= 3){
-                return Result.error("由于连续验证失败，请15分钟之后再登录");
-            }
-            if(System.currentTimeMillis() - loginLock.lastErrorDate > 15 * 60 * 1000){
-                loginMap.remove(loginLock);
-                loginLock = null;
-            }
-        }
+//        LoginLock loginLock = loginMap.get(username);
+//        if(loginLock != null){
+//            if(loginLock.errorCount >= 3){
+//                return Result.error("由于连续验证失败，请15分钟之后再登录");
+//            }
+//            if(System.currentTimeMillis() - loginLock.lastErrorDate > 15 * 60 * 1000){
+//                loginMap.remove(loginLock);
+//                loginLock = null;
+//            }
+//        }
 
         password = DigestUtils.md5DigestAsHex(password.getBytes());
         User user = userDao.findFirstByUsernameAndPassword(username, password).orElse(null);
-        if(null == user){
-            if(loginLock == null){
-                loginLock = new LoginLock(username,0,0);
-            }
-            loginLock.lastErrorDate = System.currentTimeMillis();
-            loginLock.errorCount++;
-            loginMap.put(username,loginLock);
-//            redisTemplate.opsForValue().set(loginLockKey,loginLock, 15 * 60, TimeUnit.SECONDS);
-            return Result.error("密码错误，您还可以尝试" + (3 - loginLock.errorCount) + "次");
-        }
+//        if(null == user){
+//            if(loginLock == null){
+//                loginLock = new LoginLock(username,0,0);
+//            }
+//            loginLock.lastErrorDate = System.currentTimeMillis();
+//            loginLock.errorCount++;
+//            loginMap.put(username,loginLock);
+////            redisTemplate.opsForValue().set(loginLockKey,loginLock, 15 * 60, TimeUnit.SECONDS);
+//            return Result.error("密码错误，您还可以尝试" + (3 - loginLock.errorCount) + "次");
+//        }
 
+        if(null == user){
+            return Result.error("登录失败,用户名或密码错误");
+        }
         try{
             String token = jwtTokenUtil.generateToken(user.getId());
             UserToken userToken = new UserToken();
@@ -112,7 +115,7 @@ public class LoginController {
             return Result.ok(new UserInfoResponse(token,user));
         }
         catch (Exception e){
-            return Result.error();
+            return Result.error("登录失败");
         }
 
     }
