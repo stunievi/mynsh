@@ -24,7 +24,7 @@ public class RoleRequest {
     String info;
 
     @AssertTrue(message = "已经有同名的角色", groups = {add.class,edit.class})
-    private boolean addHasName(){
+    public boolean getCheckName(){
         IRoleDao roleDao = SpringContextUtils.getBean(IRoleDao.class);
         return roleDao.countByNameAndIdNot(name,id) == 0;
     }

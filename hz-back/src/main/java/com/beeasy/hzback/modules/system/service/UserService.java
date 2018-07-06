@@ -1045,7 +1045,7 @@ public class UserService implements IUserService {
      * @return
      */
     public Result userSetRoles(long uid, Collection<Long> rids){
-        if(userDao.countById(uid) == 0){
+        if(!userDao.existsById(uid)){
             return Result.error();
         }
         //删除所有角色

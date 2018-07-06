@@ -25,4 +25,9 @@ public class SystemTextLogService {
         log.setUserId(uid);
         systemTextLogDao.save(log);
     }
+
+    @Async
+    public void handleSystemLog(){
+
+    }
 }

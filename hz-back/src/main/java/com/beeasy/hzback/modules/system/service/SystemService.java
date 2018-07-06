@@ -22,6 +22,7 @@ import javax.persistence.Id;
 import javax.validation.constraints.AssertFalse;
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -157,15 +158,15 @@ public class SystemService {
         @NotNull(groups = add.class)
         Long id;
 
-        @NotEmpty(message = "模板名不能为空",groups = {add.class,edit.class})
+        @Size(min = 6,max = 20,message = "模板名不能为空",groups = {add.class,edit.class})
         String name;
 
-        @NotEmpty(groups = {add.class,edit.class})
+        @Size(min = 6,max = 200, groups = {add.class,edit.class})
         String template;
 
         //验证不同命
         @AssertTrue(message = "已经有同名模板", groups = {add.class,edit.class})
-        public boolean checkName(){
+        public boolean getCheckName(){
             if(null == id){
                 return SpringContextUtils.getBean(IMessageTemplateDao.class).countByName(name) == 0;
             }
