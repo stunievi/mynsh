@@ -148,6 +148,15 @@ public class DataSearchService {
         return sqlUtils.pageQuery(sql, pageable);
     }
 
+    public Map searchClientBase(String CUS_ID){
+        String sql = "select CUS_ID,CUS_NAME,PHONE,CERT_TYPE,CERT_CODE from CUS_BASE where CUS_ID = ? ";
+        List<Map<String, String>> rs = sqlUtils.query(sql, Collections.singleton(CUS_ID));
+        if(rs.size() > 0){
+            return rs.get(0);
+        }
+        return new HashMap();
+    }
+
     /**
      * 贷款台账查询
      *
@@ -163,7 +172,7 @@ public class DataSearchService {
         sql += " where 1 = 1";
         if(null != request.register){
             sql += " and ins.model_name = '不良资产登记' ";
-            sql += " and (select count(*) from t_workflow_instance_attribute attr where attr.id = ins.id and attr.attr_key = 'BILL_NO' and attr.attr_value <> '')";
+            sql += " and (select count(*) from t_workflow_instance_attribute attr where attr.instance_id = ins.id and attr.attr_key = 'BILL_NO' and attr.attr_value <> '')";
             if(request.register){
                 sql += " > 0";
             }

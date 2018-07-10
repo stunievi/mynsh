@@ -6,6 +6,7 @@ import com.beeasy.hzback.modules.system.entity.GlobalPermission;
 import com.beeasy.hzback.modules.system.form.GlobalPermissionEditRequest;
 import com.beeasy.hzback.modules.system.form.Pager;
 import com.beeasy.hzback.modules.system.service.DataSearchService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -41,6 +42,15 @@ public class SearchController {
             @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
     ){
         return Result.ok(searchService.searchPrivateClient(request, pageable));
+    }
+
+
+    @ApiOperation(value = "查询单独客户的基本资料")
+    @RequestMapping(value = "/searchClientBase", method = RequestMethod.GET)
+    public Result searchClientBase(
+            @RequestParam String CUS_ID
+    ){
+        return Result.ok(searchService.searchClientBase(CUS_ID));
     }
 
 
