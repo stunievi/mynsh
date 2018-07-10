@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.hibernate.validator.constraints.NotEmpty;
+import org.hibernate.validator.constraints.Range;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -24,6 +25,6 @@ public class WorkflowModelAdd {
     @ApiModelProperty(name = "info", value = "工作流描述")
     String info;
 
-    @Size(min = 1, max = 99999, message = "处理周期在1-99999之间")
+    @Range(min = 1, max = 99999, message = "处理周期在1-99999之间")
     int processCycle = 1;
 }

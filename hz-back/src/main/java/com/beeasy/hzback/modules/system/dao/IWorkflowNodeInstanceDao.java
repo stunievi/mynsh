@@ -34,7 +34,7 @@ public interface IWorkflowNodeInstanceDao extends JpaRepository<WorkflowNodeInst
 
     //得到当前正在执行的节点
     @Query(value = "select n from WorkflowNodeInstance n where n.instanceId = :instanceId and n.instance.state = 'DEALING' and n.finished = false ")
-    Optional<WorkflowNodeInstance> getCurrentNodeInstance(long instanceId);
+    Optional<WorkflowNodeInstance> getCurrentNodeInstance(@Param("instanceId") long instanceId);
 
 
     @Query(value = "select id from WorkflowNodeInstance where nodeModel.start = true and instanceId = :instanceId")
