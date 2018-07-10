@@ -108,6 +108,8 @@ public class InfoCollectLinkController {
             objs = attributeDao.getValueByWorkflowInstance(instance.getId(), "PHONE");
             map.put("PHONE",objs.size() > 0 ? (String) objs.get(0) : "");
             map.put("addTime", instance.getAddTime());
+            //查询和台账的关联
+            map.put("billNo", linkDao.findTopByInstanceId(instance.getId()).map(item -> item.getBillNo()).orElse(""));
             return map;
         });
         return Result.ok(ret);

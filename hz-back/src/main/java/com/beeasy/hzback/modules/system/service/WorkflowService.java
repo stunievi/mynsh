@@ -2262,10 +2262,6 @@ public class WorkflowService {
 //    }
 
 
-    public WorkflowModel saveWorkflowModel(WorkflowModel workflowModel) {
-        return modelDao.save(workflowModel);
-    }
-
     public WorkflowInstance saveWorkflowInstance(WorkflowInstance workflowInstance) {
         return instanceDao.save(workflowInstance);
     }

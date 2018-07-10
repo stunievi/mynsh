@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 public interface IInfoCollectLinkDao extends JpaRepository<InfoCollectLink,Long>{
     @Query(value = "select link.instance from InfoCollectLink link where link.billNo = :billNo")
@@ -15,4 +16,6 @@ public interface IInfoCollectLinkDao extends JpaRepository<InfoCollectLink,Long>
 
     int deleteAllByBillNoAndInstanceIdIn(String billNo, Collection<Long> ids);
     int countByBillNoAndInstanceId(String billNo, long id);
+
+    Optional<InfoCollectLink> findTopByInstanceId(final long instanceId);
 }
