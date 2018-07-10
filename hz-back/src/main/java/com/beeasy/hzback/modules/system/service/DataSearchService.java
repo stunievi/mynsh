@@ -421,7 +421,7 @@ public class DataSearchService {
         String CUS_ID;
         String CUS_NAME;
 
-        Boolean register = false;
+        Boolean register;
     }
 
     @Data
