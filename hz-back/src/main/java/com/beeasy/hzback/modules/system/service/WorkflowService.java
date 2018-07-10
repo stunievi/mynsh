@@ -8,7 +8,6 @@ import com.beeasy.hzback.core.exception.RestException;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.core.util.SqlUtils;
-import com.beeasy.hzback.modules.exception.CannotFindEntityException;
 import com.beeasy.hzback.modules.mobile.request.ApplyTaskRequest;
 import com.beeasy.hzback.modules.mobile.request.SubmitDataRequest;
 import com.beeasy.hzback.modules.mobile.request.WorkflowPositionAddRequest;
@@ -38,7 +37,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
 import javax.persistence.criteria.*;
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
@@ -47,8 +45,6 @@ import javax.script.SimpleScriptContext;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.net.FileNameMap;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -504,37 +500,41 @@ public class WorkflowService {
      * 接受公共任务
      *
      * @param uid 接受人ID
-     * @param instanceId 任务ID
+     * @param ids 任务ID列表
      * @return 成功返回空字符串, 失败返回对应的失败信息
      */
-    public String acceptInstance(long uid, long instanceId) {
+    public Map<Object, Object> acceptInstance(long uid, Collection<Long> ids ) {
         if(!userService.exists(uid)){
-            return ("不存在该用户");
+            return new HashMap<>();
         }
-        WorkflowInstance instance = findInstance(instanceId).orElse(null);
-        if (null == instance){
-            return ("该任务不符合接受条件");
-        }
-        if (!canAccept(instance, uid)) {
-            return ("用户没有权限接受任务");
-        }
-        //锁定该任务
-        entityManager.refresh(instance, PESSIMISTIC_WRITE);
-        instance.setDealUserId(uid);
-        instance.setState(WorkflowInstance.State.DEALING);
-        entityManager.merge(instance);
+        return ids.stream()
+                .map(id -> {
+                    WorkflowInstance instance = findInstance(id).orElse(null);
+                    if (null == instance){
+                        return new Object[]{id,"该任务不符合接受条件"};
+                    }
+                    if (!canAccept(instance, uid)) {
+                        return new Object[]{id,"用户没有权限接受任务"};
+                    }
+                    //锁定该任务
+                    entityManager.refresh(instance, PESSIMISTIC_WRITE);
+                    instance.setDealUserId(uid);
+                    instance.setState(WorkflowInstance.State.DEALING);
+                    entityManager.merge(instance);
 
-        //绑定第一个节点
-        WorkflowNodeInstance nodeInstance = instance.getNodeList().get(0);
-        nodeInstance.setDealerId(uid);
+                    //绑定第一个节点
+                    WorkflowNodeInstance nodeInstance = instance.getNodeList().get(0);
+                    nodeInstance.setDealerId(uid);
 //        nodeInstance.setDealer(user);
-        nodeInstanceDao.save(nodeInstance);
+                    nodeInstanceDao.save(nodeInstance);
 
-        //message
-        noticeService.addNotice(SystemNotice.Type.WORKFLOW, uid, "你已经接受任务${taskId}", ImmutableMap.of("taskId",instance.getId(),"taskName",instance.getTitle()));
-        //写log
-        logService.addLog(SystemTextLog.Type.WORKFLOW, instance.getId(), uid, "接受了任务");
-        return "";
+                    //message
+                    noticeService.addNotice(SystemNotice.Type.WORKFLOW, uid, "你已经接受任务${taskId}", ImmutableMap.of("taskId",instance.getId(),"taskName",instance.getTitle()));
+                    //写log
+                    logService.addLog(SystemTextLog.Type.WORKFLOW, instance.getId(), uid, "接受了任务");
+                    return new Object[]{id,"接受成功"};
+                })
+                .collect(Collectors.toMap(item -> item[0], item -> item[1]));
     }
 
 

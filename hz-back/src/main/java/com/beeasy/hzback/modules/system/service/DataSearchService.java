@@ -156,7 +156,21 @@ public class DataSearchService {
      * @return
      */
     public Page searchAccLoan(AccloanRequest request, Pageable pageable) {
-        String sql = "select BILL_NO,CONT_NO,LOAN_ACCOUNT,CUS_ID,CUS_NAME,ASSURE_MEANS_MAIN,LOAN_AMOUNT,LOAN_BALANCE,REPAYMENT_MODE,CLA,CUS_MANAGER,MAIN_BR_ID from ACC_LOAN where 1 = 1 ";
+        String sql = "select a.BILL_NO,a.CONT_NO,a.LOAN_ACCOUNT,a.CUS_ID,a.CUS_NAME,a.ASSURE_MEANS_MAIN,a.LOAN_AMOUNT,a.LOAN_BALANCE,a.REPAYMENT_MODE,a.CLA,a.CUS_MANAGER,a.MAIN_BR_ID from ACC_LOAN a ";
+        if(null != request.register){
+            sql += " ,t_workflow_instance ins";
+        }
+        sql += " where 1 = 1";
+        if(null != request.register){
+            sql += " and ins.model_name = '不良资产登记' ";
+            sql += " and (select count(*) from t_workflow_instance_attribute attr where attr.id = ins.id and attr.attr_key = 'BILL_NO' and attr.attr_value <> '')";
+            if(request.register){
+                sql += " > 0";
+            }
+            else{
+                sql += " = 0";
+            }
+        }
         List<String> strings = new ArrayList<>();
         if (!StringUtils.isEmpty(request.getBILL_NO())) {
             strings.add(String.format(" and BILL_NO like '%%%s%%'", request.getBILL_NO()));
@@ -178,21 +192,7 @@ public class DataSearchService {
     }
 
     public Page searchAccLoanData(AccloanRequest request, Pageable pageable) {
-        String sql = "select a.BILL_NO,a.CONT_NO,a.LOAN_ACCOUNT,a.CUS_ID,a.CUS_NAME,a.ASSURE_MEANS_MAIN,a.LOAN_AMOUNT,a.LOAN_BALANCE,a.REPAYMENT_MODE,a.CLA,a.CUS_MANAGER,a.MAIN_BR_ID,a.CUS_TYPE from ACC_LOAN a";
-        if(null != request.register){
-            sql += " left join t_workflow_instance ins ";
-        }
-        sql += " where 1 = 1";
-        if(null != request.register){
-            sql += " and ins.model_name = '不良资产登记' ";
-            sql += " and (select count(*) from t_workflow_instance_attribute attr where attr.id = ins.id and attr.attr_key = 'BILL_NO' and attr.attr_value <> '')";
-            if(request.register){
-                sql += " > 0";
-            }
-            else{
-                sql += " = 0";
-            }
-        }
+        String sql = "select a.BILL_NO,a.CONT_NO,a.LOAN_ACCOUNT,a.CUS_ID,a.CUS_NAME,a.ASSURE_MEANS_MAIN,a.LOAN_AMOUNT,a.LOAN_BALANCE,a.REPAYMENT_MODE,a.CLA,a.CUS_MANAGER,a.MAIN_BR_ID,a.CUS_TYPE from ACC_LOAN a where 1 = 1";
         List<String> strings = new ArrayList<>();
         if (!StringUtils.isEmpty(request.getBILL_NO())) {
             strings.add(String.format(" and a.BILL_NO like '%%%s%%'", request.getBILL_NO()));

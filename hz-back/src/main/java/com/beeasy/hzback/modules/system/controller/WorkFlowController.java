@@ -566,6 +566,15 @@ public class WorkFlowController {
         return Result.ok(workflowService.getUserCanAcceptWorks(Collections.singleton(Utils.getCurrentUserId()),null,pageable));
     }
 
+
+    @ApiOperation(value = "接受公共任务")
+    @RequestMapping(value = "/common/accept", method = RequestMethod.GET)
+    public Result acceptCommonInstance(
+            @RequestParam String instanceId
+    ){
+        return Result.ok(workflowService.acceptInstance(Utils.getCurrentUserId(),Utils.convertIdsToList(instanceId)));
+    }
+
     @ApiOperation(value = "接受指派/移交")
     @RequestMapping(value = "/acceptWorks", method = RequestMethod.GET)
     public Result acceptTasks(

@@ -152,7 +152,7 @@ public class MobileWorkflowController {
     public Result acceptCommonTask(
             @PathVariable Long instanceId
     ){
-        return Result.finish(workflowService.acceptInstance(Utils.getCurrentUserId(),instanceId));
+        return Result.ok(workflowService.acceptInstance(Utils.getCurrentUserId(),Collections.singleton(instanceId)));
     }
 
 
