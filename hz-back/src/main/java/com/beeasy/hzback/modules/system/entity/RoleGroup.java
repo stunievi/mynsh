@@ -12,7 +12,7 @@ import javax.persistence.*;
 public class RoleGroup {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     @ManyToOne

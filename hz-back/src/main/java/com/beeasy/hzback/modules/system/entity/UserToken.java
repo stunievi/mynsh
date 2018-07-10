@@ -12,7 +12,7 @@ import java.util.Date;
 @Table(name = "t_user_token")
 public class UserToken {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     @ManyToOne

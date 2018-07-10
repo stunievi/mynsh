@@ -178,22 +178,36 @@ public class DataSearchService {
     }
 
     public Page searchAccLoanData(AccloanRequest request, Pageable pageable) {
-        String sql = "select BILL_NO,CONT_NO,LOAN_ACCOUNT,CUS_ID,CUS_NAME,ASSURE_MEANS_MAIN,LOAN_AMOUNT,LOAN_BALANCE,REPAYMENT_MODE,CLA,CUS_MANAGER,MAIN_BR_ID from ACC_LOAN where 1 = 1";
+        String sql = "select a.BILL_NO,a.CONT_NO,a.LOAN_ACCOUNT,a.CUS_ID,a.CUS_NAME,a.ASSURE_MEANS_MAIN,a.LOAN_AMOUNT,a.LOAN_BALANCE,a.REPAYMENT_MODE,a.CLA,a.CUS_MANAGER,a.MAIN_BR_ID,a.CUS_TYPE from ACC_LOAN a";
+        if(null != request.register){
+            sql += " left join t_workflow_instance ins ";
+        }
+        sql += " where 1 = 1";
+        if(null != request.register){
+            sql += " and ins.model_name = '不良资产登记' ";
+            sql += " and (select count(*) from t_workflow_instance_attribute attr where attr.id = ins.id and attr.attr_key = 'BILL_NO' and attr.attr_value <> '')";
+            if(request.register){
+                sql += " > 0";
+            }
+            else{
+                sql += " = 0";
+            }
+        }
         List<String> strings = new ArrayList<>();
         if (!StringUtils.isEmpty(request.getBILL_NO())) {
-            strings.add(String.format(" and BILL_NO like '%%%s%%'", request.getBILL_NO()));
+            strings.add(String.format(" and a.BILL_NO like '%%%s%%'", request.getBILL_NO()));
         }
         if (!StringUtils.isEmpty(request.getCONT_NO())) {
-            strings.add(String.format(" and CONT_NO like '%%%s%%'", request.getCONT_NO()));
+            strings.add(String.format(" and a.CONT_NO like '%%%s%%'", request.getCONT_NO()));
         }
         if (!StringUtils.isEmpty(request.getLOAN_ACCOUNT())) {
-            strings.add(String.format(" and LOAN_ACCOUNT like '%%%s%%'", request.getLOAN_ACCOUNT()));
+            strings.add(String.format(" and a.LOAN_ACCOUNT like '%%%s%%'", request.getLOAN_ACCOUNT()));
         }
         if (!StringUtils.isEmpty(request.getCUS_ID())) {
-            strings.add(String.format(" and CUS_ID like '%%%s%%'", request.getCUS_ID()));
+            strings.add(String.format(" and a.CUS_ID like '%%%s%%'", request.getCUS_ID()));
         }
         if (!StringUtils.isEmpty(request.getCUS_NAME())) {
-            strings.add(String.format(" and CUS_NAME like '%%%s%%'", request.getCUS_NAME()));
+            strings.add(String.format(" and a.CUS_NAME like '%%%s%%'", request.getCUS_NAME()));
         }
         sql += StringUtils.join(strings.toArray(), " ");
         return sqlUtils.pageQuery(sql, pageable);
@@ -334,7 +348,7 @@ public class DataSearchService {
     /**
      * 设置查找条件授权
      *
-     * @param requests
+     * @param request
      * @return
      */
     public boolean setPermissions(
@@ -406,6 +420,8 @@ public class DataSearchService {
         String LOAN_ACCOUNT;
         String CUS_ID;
         String CUS_NAME;
+
+        Boolean register = false;
     }
 
     @Data

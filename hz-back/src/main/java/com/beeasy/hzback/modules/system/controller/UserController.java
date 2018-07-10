@@ -13,11 +13,16 @@ import com.beeasy.hzback.modules.system.entity.*;
 import com.beeasy.hzback.modules.system.form.*;
 import com.beeasy.hzback.modules.system.log.NotSaveLog;
 import com.beeasy.hzback.modules.system.service.UserService;
+import com.github.tobato.fastdfs.domain.StorePath;
+import com.github.tobato.fastdfs.service.FastFileStorageClient;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.Data;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -27,10 +32,12 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import sun.nio.ch.IOUtil;
 
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -383,6 +390,35 @@ public class UserController {
         return Result.ok(new Object[]{user.getProfile().getCloudUsername(),user.getProfile().getCloudPassword()});
     }
 
+
+    @Autowired
+    FastFileStorageClient storageClient;
+
+    @RequestMapping(value = "/upload", method = RequestMethod.POST)
+    public Result testFile(
+            @RequestParam MultipartFile file
+    ){
+        String fileType = FilenameUtils.getExtension(file.getOriginalFilename().toLowerCase());
+        StorePath path = null;
+
+        try {
+            path = storageClient.uploadFile(file.getInputStream(), file.getSize(),fileType,null);
+            storageClient.downloadFile(path.getGroup(),path.getPath(),inputStream -> {
+                List<String> lines = IOUtils.readLines(inputStream);
+                System.out.print(StringUtils.join(lines.toArray(),""));
+                return lines;
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return Result.ok() ;
+    }
+
+//    storageClient.downloadFile("group1","M00/00/00/rBBMcltA0rSAWmYoAAAAwEXjnAQ40.json",inputStream -> {
+//        List<String> lines = IOUtils.readLines(inputStream);
+//        System.out.print(StringUtils.join(lines.toArray(),""));
+//        return lines;
+//    });
 //    public Result userSetRoles(){
 //
 //    }

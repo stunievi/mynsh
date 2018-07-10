@@ -13,7 +13,7 @@ import java.util.Date;
 public class DownloadFileToken {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     @ManyToOne

@@ -13,7 +13,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "t_workflow_instance_attribute")
 public class WorkflowInstanceAttribute extends AbstractBaseEntity {
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     Long id;
 

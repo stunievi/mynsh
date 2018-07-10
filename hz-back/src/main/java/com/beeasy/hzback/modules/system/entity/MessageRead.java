@@ -13,7 +13,7 @@ import javax.persistence.*;
 @Table(name = "t_message_read")
 public class MessageRead extends AbstractBaseEntity {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id = 0L;
 
 //    用户ID(这里不需要使用关联)

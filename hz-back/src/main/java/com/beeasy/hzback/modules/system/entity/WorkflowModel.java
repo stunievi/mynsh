@@ -21,7 +21,7 @@ import java.util.Set;
 @EntityListeners(AuditingEntityListener.class)
 public class WorkflowModel {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
 //    @Column(columnDefinition = "BLOB")

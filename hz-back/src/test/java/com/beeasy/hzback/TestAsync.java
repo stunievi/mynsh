@@ -11,6 +11,7 @@ import com.beeasy.hzback.modules.system.dao.*;
 import com.beeasy.hzback.modules.system.entity.*;
 import com.beeasy.hzback.modules.system.form.*;
 import com.beeasy.hzback.modules.system.service.*;
+import com.github.tobato.fastdfs.service.FastFileStorageClient;
 import jdk.nashorn.internal.objects.Global;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
@@ -517,8 +518,11 @@ public class TestAsync {
 
     }
 
+    @Autowired
+    FastFileStorageClient storageClient;
     @Test
     public void updateWorkflows(){
 //        List<WorkflowModel> models = Workflow
+
     }
 }

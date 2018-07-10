@@ -797,6 +797,16 @@ public class UserService implements IUserService {
     public Optional<User> findUser(long id) {
         return userDao.findById(id);
     }
+
+    /**
+     * 是否拥有这个用户
+     * @param id 用户ID
+     * @return boolean
+     */
+    public boolean exists(final long id){
+        return userDao.existsById(id);
+    }
+
     public Optional<Role> findRole(long id){
         return roleDao.findById(id);
     }
@@ -1075,7 +1085,7 @@ public class UserService implements IUserService {
         Specification query = ((root, criteriaQuery, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             if(!StringUtils.isEmpty(request.getName())){
-                predicates.add(cb.like(root.get("name"),request.getName()));
+                predicates.add(cb.like(root.get("name"),"%" + request.getName() + "%"));
             }
             return cb.and(predicates.toArray(new Predicate[predicates.size()]));
 

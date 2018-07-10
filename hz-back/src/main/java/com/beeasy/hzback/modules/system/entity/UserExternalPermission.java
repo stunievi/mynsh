@@ -13,7 +13,7 @@ import javax.persistence.*;
 @Table(name = "t_user_ext_permission")
 public class UserExternalPermission extends AbstractBaseEntity{
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     @JSONField(serialize = false)

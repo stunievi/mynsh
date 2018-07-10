@@ -39,7 +39,7 @@ public class WorkflowInstance {
     }
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     @JSONField(serialize = false)
@@ -124,6 +124,8 @@ public class WorkflowInstance {
     @OneToMany(mappedBy = "instance", cascade = CascadeType.REMOVE)
     List<WorkflowInstanceTransaction> transactions;
 
+    //特殊状态
+    boolean canDeal = false;
 
 
 //    @JSONField(serialize = false)

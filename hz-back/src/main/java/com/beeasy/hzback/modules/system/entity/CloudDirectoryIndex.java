@@ -22,7 +22,7 @@ import java.util.List;
 @EntityListeners(AuditingEntityListener.class)
 public class CloudDirectoryIndex extends AbstractBaseEntity{
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
 //    @JSONField(serialize = false)

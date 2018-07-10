@@ -39,7 +39,7 @@
 //    }
 //
 //    @Id
-//    @GeneratedValue
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
 //    Long id;
 //
 //    //关联工作流

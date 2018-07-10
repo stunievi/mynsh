@@ -17,7 +17,7 @@ import java.util.Date;
 public class Message extends AbstractBaseEntity{
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     Long fromId;

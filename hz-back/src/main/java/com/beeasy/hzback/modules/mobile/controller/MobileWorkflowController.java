@@ -52,12 +52,6 @@ public class MobileWorkflowController {
         new Result.Entry(WorkflowInstance.class,"nodeList","simpleChildInstances")
     };
 
-    @GetMapping("/availableModelNames")
-    @Deprecated
-    public String getAvaliableModelList(){
-         return Result.ok(workflowService.getAvaliableModelNames()).toMobile();
-    }
-
     @ApiOperation("列出可用的工作流模型")
     @GetMapping("/all")
     public String getAllWorkflows(){
@@ -157,31 +151,11 @@ public class MobileWorkflowController {
 
     @ApiOperation(value = "接受公共任务")
     @PostMapping("/common/accept/{instanceId}")
-    public String acceptCommonTask(
+    public Result acceptCommonTask(
             @PathVariable Long instanceId
     ){
-        boolean flag = workflowService.acceptInstance(Utils.getCurrentUserId(),instanceId);
-        if(!flag){
-            return Result.error("接受任务失败, 没有权限或者该任务已变动").toMobile();
-        }
-        else{
-            return Result.ok().toMobile();
-        }
+        return Result.finish(workflowService.acceptInstance(Utils.getCurrentUserId(),instanceId));
     }
-
-//    @Deprecated
-//    @ApiOperation(value = "取消公共任务")
-//    @PostMapping("/common/cancel/{instanceId}")
-//    public String cancelCommonTask(@PathVariable Long instanceId){
-//        boolean flag = workflowService.cancelCommonInstance(Utils.getCurrentUserId(),instanceId);
-//        if(!flag){
-//            return Result.error("接受任务失败, 没有权限或者该任务已变动").toMobile();
-//        }
-//        else{
-//            return Result.ok().toMobile();
-//        }
-//    }
-
 
 
     @ApiOperation(value = "上传节点附件")
@@ -352,7 +326,7 @@ public class MobileWorkflowController {
         }
         FetchWorkflowInstanceResponse response = new FetchWorkflowInstanceResponse();
         response.setTransformUsers(workflowService.getPubUids(id));
-        response.setTransform(workflowService.canPoint(model.getId(),user));
+        response.setTransform(workflowService.canPoint(model.getId(),user.getId()));
         return Result.ok(response).toMobile(
                 new Result.Entry(User.class,"quarters","departments","permissions","externalPermissions")
         );

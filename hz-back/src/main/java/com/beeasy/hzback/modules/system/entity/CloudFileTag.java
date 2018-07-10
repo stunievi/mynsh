@@ -14,7 +14,7 @@ import javax.persistence.*;
 public class CloudFileTag extends AbstractBaseEntity {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     @JSONField(serialize = false)

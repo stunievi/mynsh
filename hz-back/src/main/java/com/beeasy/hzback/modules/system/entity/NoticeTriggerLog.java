@@ -4,10 +4,7 @@ import com.beeasy.hzback.core.entity.AbstractBaseEntity;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Date;
 
 @Entity
@@ -16,7 +13,7 @@ import java.util.Date;
 @Table(name = "t_notice_trigger_log")
 public class NoticeTriggerLog extends AbstractBaseEntity{
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     //上次触发时间

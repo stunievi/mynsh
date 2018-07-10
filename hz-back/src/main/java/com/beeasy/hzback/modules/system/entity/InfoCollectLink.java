@@ -11,7 +11,7 @@ import javax.persistence.*;
 @Table(name = "t_info_collect_link")
 public class InfoCollectLink {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     @ManyToOne

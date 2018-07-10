@@ -17,7 +17,7 @@ import java.util.Date;
 @EntityListeners(AuditingEntityListener.class)
 public class CloudShare extends AbstractBaseEntity{
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     @ManyToOne

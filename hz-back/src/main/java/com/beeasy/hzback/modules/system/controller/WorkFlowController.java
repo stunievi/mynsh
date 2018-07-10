@@ -86,6 +86,23 @@ public class WorkFlowController {
         return workflowService.createWorkflow(modelName,add);
     }
 
+    @ApiOperation(value = "设置工作流模型关联字段")
+    @RequestMapping(value = "/model/setFields",method = RequestMethod.POST)
+    public Result setWorkflowModelFields(
+            @RequestParam long modelId,
+            @Valid @RequestBody List<WorkflowService.ModelFieldRequest> requests
+    ){
+        return workflowService.setModelFields(modelId,requests);
+    }
+
+    @ApiOperation(value = "得到工作流模型的关联字段")
+    @RequestMapping(value = "/model/getFields", method = RequestMethod.GET)
+    public Result getWorkflowModelFields(
+            @RequestParam long modelId
+    ){
+        return Result.ok(workflowService.getModelFields(modelId));
+    }
+
     @ApiOperation(value = "删除工作流模型", notes = "当一个工作流启用后, 视为正式上线, 无法再进行删除, 只能停用")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "modelId", value = "模型ID")
@@ -120,7 +137,7 @@ public class WorkFlowController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "modelName", value = "原型model名字")
     })
-    @GetMapping("/instances")
+    @RequestMapping(value = "/instances", method = RequestMethod.GET)
     public Result<Page<WorkflowInstance>> instanceList(
             @RequestParam Map<String,String> object,
             Pager pager,
@@ -410,7 +427,7 @@ public class WorkFlowController {
     @ApiOperation(value = "查询一个任务的所有明细")
     @GetMapping("/instance/fetch/{id}")
     public String fetchInstance(@PathVariable Long id){
-        return Result.ok(workflowService.fetchWorkflowInstance(Utils.getCurrentUserId(),id)).toJson(
+        return Result.ok(workflowService.fetchInstance(Utils.getCurrentUserId(),id)).toJson(
                 new Result.Entry(User.class,"departments","quarters"),
                 new Result.Entry(WorkflowNode.class,"persons"));
     }

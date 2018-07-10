@@ -19,7 +19,7 @@ import java.util.Set;
 public class Quarters extends AbstractBaseEntity {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     @JSONField(serialize = false)

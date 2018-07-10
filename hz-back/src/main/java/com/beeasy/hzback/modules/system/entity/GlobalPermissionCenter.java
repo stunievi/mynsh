@@ -14,7 +14,7 @@ import javax.persistence.*;
 public class GlobalPermissionCenter extends AbstractBaseEntity{
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
 

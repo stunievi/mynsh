@@ -71,6 +71,12 @@ public class Result <T> {
         return result;
     }
 
+    public static Result finish(String msg){
+        if(StringUtils.isEmpty(msg)){
+            return Result.ok();
+        }
+        return Result.error(msg);
+    }
     public static Result finish(boolean b){
         return b ? ok() : error();
     }

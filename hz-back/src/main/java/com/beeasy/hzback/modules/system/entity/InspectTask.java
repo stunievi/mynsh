@@ -16,7 +16,7 @@
 //@EntityListeners(AuditingEntityListener.class)
 //public class InspectTask {
 //    @Id
-//    @GeneratedValue
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
 //    Long id;
 //
 //    //流程的内置模型名, 默认以最新的版本来

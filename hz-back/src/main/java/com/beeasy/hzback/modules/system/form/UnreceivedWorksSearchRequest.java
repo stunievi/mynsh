@@ -17,4 +17,6 @@ public class UnreceivedWorksSearchRequest {
 
     //任务状态
     WorkflowInstance.State state;
+
+    String modelName;
 }

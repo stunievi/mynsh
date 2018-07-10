@@ -17,7 +17,7 @@ import java.util.Date;
 @EntityListeners(AuditingEntityListener.class)
 public class WorkflowInstanceTransaction extends AbstractBaseEntity{
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     @Enumerated(value = EnumType.STRING)

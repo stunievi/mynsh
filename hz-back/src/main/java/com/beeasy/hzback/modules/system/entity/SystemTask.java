@@ -16,7 +16,7 @@ import java.util.Map;
 @Table(name = "t_system_task")
 public class SystemTask extends AbstractBaseEntity{
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     Date runTime;

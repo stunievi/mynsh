@@ -16,7 +16,7 @@ import java.util.Date;
 @EntityListeners(AuditingEntityListener.class)
 public class TaskCheckLog extends AbstractBaseEntity{
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     @Enumerated

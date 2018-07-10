@@ -15,7 +15,7 @@
 //@Table(name = "t_message_session")
 //public class MessageSession {
 //   @Id
-//   @GeneratedValue
+//   @GeneratedValue(strategy = GenerationType.IDENTITY)
 //   Long id;
 //
 //   @JSONField(serialize = false)

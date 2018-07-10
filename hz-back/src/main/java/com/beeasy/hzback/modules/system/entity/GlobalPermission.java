@@ -21,7 +21,7 @@ import javax.persistence.*;
 public class GlobalPermission extends AbstractBaseEntity{
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     //授权类型

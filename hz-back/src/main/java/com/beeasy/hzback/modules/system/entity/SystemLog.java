@@ -21,7 +21,7 @@ import java.util.Map;
 @EntityListeners(AuditingEntityListener.class)
 public class SystemLog {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     Long userId;

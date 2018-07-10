@@ -14,7 +14,7 @@
 //@Table(name = "t_workflow_model_start")
 //public class WorkflowModelStart {
 //    @Id
-//    @GeneratedValue
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
 //    Long id;
 //
 //    @OneToOne(optional = false)
@@ -29,7 +29,7 @@
 //    @Table(name = "t_workflow_model_start_quarters")
 //    public static class Quarters{
 //        @Id
-//        @GeneratedValue
+//        @GeneratedValue(strategy = GenerationType.IDENTITY)
 //        Long id;
 //
 //        @ManyToOne(optional = false)

@@ -18,7 +18,7 @@ import java.util.Date;
 @EntityListeners(AuditingEntityListener.class)
 public class SystemNotice {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     //消息内容

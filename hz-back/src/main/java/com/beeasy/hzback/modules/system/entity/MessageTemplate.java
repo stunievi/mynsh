@@ -12,7 +12,7 @@ import javax.persistence.*;
 @Table(name = "t_message_template")
 public class MessageTemplate {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
     String template;
 

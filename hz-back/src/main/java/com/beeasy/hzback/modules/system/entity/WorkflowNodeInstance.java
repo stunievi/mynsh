@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class WorkflowNodeInstance {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     //任务主体实例

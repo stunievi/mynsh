@@ -93,10 +93,11 @@ public class SystemController  {
     @ApiOperation(value = "获得消息模板列表")
     @RequestMapping(value = "/messageTemplate/list", method = RequestMethod.GET)
     public Result getMessageTemplateList(
+            SystemService.MessageTemplateSearchRequest request,
             Pager pagers,
             @PageableDefault(value = 15, sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
     ){
-        return Result.ok(systemService.getMessageTemplateList(pageable));
+        return Result.ok(systemService.getMessageTemplateList(request,pageable));
     }
 
     @ApiOperation(value = "通过ID得到消息详情")

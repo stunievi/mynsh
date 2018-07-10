@@ -16,7 +16,7 @@ import java.util.List;
 public class Role extends AbstractBaseEntity {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     //角色名

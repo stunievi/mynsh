@@ -13,7 +13,7 @@ import javax.persistence.*;
 @Table(name = "t_file_cloud_index")
 public class FileCloudIndex extends AbstractBaseEntity {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     @Enumerated

@@ -12,7 +12,7 @@ import javax.persistence.*;
 @Table(name = "t_user_allow_api")
 public class UserAllowApi extends AbstractBaseEntity {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     @ManyToOne

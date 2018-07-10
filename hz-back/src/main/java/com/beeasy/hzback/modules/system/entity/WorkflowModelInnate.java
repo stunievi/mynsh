@@ -15,7 +15,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "t_workflow_model_innate")
 public class WorkflowModelInnate extends AbstractBaseEntity {
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     Long id;
 

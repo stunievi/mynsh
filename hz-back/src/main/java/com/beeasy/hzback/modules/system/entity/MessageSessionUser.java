@@ -14,7 +14,7 @@
 //@Entity(name = "t_message_session_user")
 //public class MessageSessionUser extends AbstractBaseEntity {
 //    @Id
-//    @GeneratedValue
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
 //    Long id;
 //
 //    @ManyToOne

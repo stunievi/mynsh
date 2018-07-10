@@ -20,7 +20,7 @@ import java.util.List;
 @Table(name = "t_workflow_node")
 public class WorkflowNode extends AbstractBaseEntity{
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     @JSONField(serialize = false)

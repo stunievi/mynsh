@@ -17,7 +17,7 @@ import java.util.Date;
 public class UploadFileTemp extends AbstractBaseEntity{
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     String uuid;

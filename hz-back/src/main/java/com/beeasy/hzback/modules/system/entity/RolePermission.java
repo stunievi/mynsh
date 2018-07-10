@@ -15,9 +15,8 @@ import java.util.Set;
 @Entity
 @Table(name = "t_user_permission")
 public class RolePermission {
-    @JSONField(serialize = false)
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     @JSONField(serialize = false)

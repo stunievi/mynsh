@@ -32,7 +32,7 @@ public class WorkflowNodeFile extends AbstractBaseEntity{
     }
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     @Enumerated

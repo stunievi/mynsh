@@ -17,7 +17,7 @@ import java.util.Date;
 public class WorkflowNodeAttribute {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     @JSONField(serialize = false)

@@ -11,7 +11,7 @@ import javax.persistence.*;
 @Table(name = "t_workflow_instance_observer")
 public class WorkflowInstanceObserver {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     @ManyToOne
