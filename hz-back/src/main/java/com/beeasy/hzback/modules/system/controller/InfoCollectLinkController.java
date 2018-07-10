@@ -1,6 +1,5 @@
 package com.beeasy.hzback.modules.system.controller;
 
-import com.alibaba.fastjson.JSONArray;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.core.util.SqlUtils;
@@ -10,7 +9,6 @@ import com.beeasy.hzback.modules.system.dao.IWorkflowInstanceDao;
 import com.beeasy.hzback.modules.system.dao.IWorkflowNodeAttributeDao;
 import com.beeasy.hzback.modules.system.entity.InfoCollectLink;
 import com.beeasy.hzback.modules.system.entity.WorkflowInstance;
-import com.beeasy.hzback.modules.system.entity.WorkflowInstanceAttribute;
 import com.beeasy.hzback.modules.system.form.Pager;
 import com.beeasy.hzback.modules.system.service.UserService;
 import com.beeasy.hzback.modules.system.service.WorkflowService;
@@ -18,7 +16,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -33,7 +30,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -136,7 +132,7 @@ public class InfoCollectLinkController {
         long count = Long.valueOf(countList.get(0).get("num"));
         PageImpl page = new PageImpl(list,pageable,count);
         return Result.ok(page).toJson(
-                new Result.Entry(WorkflowInstance.class, "nodeList")
+                new Result.DisallowEntry(WorkflowInstance.class, "nodeList")
         );
     }
 

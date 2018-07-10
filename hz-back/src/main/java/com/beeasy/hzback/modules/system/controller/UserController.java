@@ -19,26 +19,22 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import lombok.Data;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.repository.query.Param;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import sun.nio.ch.IOUtil;
 
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -114,8 +110,8 @@ public class UserController {
 //            String userName
     ){
         return Result.ok(userService.searchUser(search,pageable)).toJson(
-                new Result.Entry(Department.class,"children"),
-                new Result.Entry(User.class,"departments","password")
+                new Result.DisallowEntry(Department.class,"children"),
+                new Result.DisallowEntry(User.class,"departments","password")
                 );
 //        Department::getChildren;
 //        PropertyFilter propertyFilter = (source,name,value) -> {
@@ -136,8 +132,8 @@ public class UserController {
             @RequestParam String ids){
         List<User> users = userService.findUser(Utils.convertIdsToList(ids));
         return Result.okJson(users,
-                new Result.Entry(Department.class,"children"),
-                new Result.Entry(Quarters.class,"department","users")
+                new Result.DisallowEntry(Department.class,"children"),
+                new Result.DisallowEntry(Quarters.class,"department","users")
                 );
     }
 

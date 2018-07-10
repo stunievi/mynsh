@@ -10,7 +10,6 @@ import com.beeasy.hzback.modules.system.dao.IWorkflowInstanceDao;
 import com.beeasy.hzback.modules.system.dao.IWorkflowModelDao;
 import com.beeasy.hzback.modules.system.entity.*;
 import com.beeasy.hzback.modules.system.form.StartChildInstanceRequest;
-import com.beeasy.hzback.modules.system.log.SaveLog;
 import com.beeasy.hzback.modules.system.response.FetchWorkflowInstanceResponse;
 import com.beeasy.hzback.modules.system.service.UserService;
 import com.beeasy.hzback.modules.system.service.WorkflowService;
@@ -22,7 +21,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -42,14 +40,14 @@ public class MobileWorkflowController {
     @Autowired
     ISystemTextLogDao systemTextLogDao;
 
-    private Result.Entry[] entries = new Result.Entry[]{
-            new Result.Entry(WorkflowInstance.class,"dealUser"),
-            new Result.Entry(WorkflowNode.class,"model"),
-            new Result.Entry(WorkflowNodeInstance.class,"nodeModel","instance")
+    private Result.DisallowEntry[] entries = new Result.DisallowEntry[]{
+            new Result.DisallowEntry(WorkflowInstance.class,"dealUser"),
+            new Result.DisallowEntry(WorkflowNode.class,"model"),
+            new Result.DisallowEntry(WorkflowNodeInstance.class,"nodeModel","instance")
     };
 
-    private Result.Entry[] myworkEntries = new Result.Entry[]{
-        new Result.Entry(WorkflowInstance.class,"nodeList","simpleChildInstances")
+    private Result.DisallowEntry[] myworkEntries = new Result.DisallowEntry[]{
+        new Result.DisallowEntry(WorkflowInstance.class,"nodeList","simpleChildInstances")
     };
 
     @ApiOperation("列出可用的工作流模型")
@@ -64,7 +62,7 @@ public class MobileWorkflowController {
             model.setPubOrPoint(workflowService.canPubOrPoint(model,user) && model.isManual());
         }
         return Result.ok(models).toJson(
-                new Result.Entry(WorkflowModel.class, "nodeModels","permissions")
+                new Result.DisallowEntry(WorkflowModel.class, "nodeModels","permissions")
                 );
     }
 
@@ -328,7 +326,7 @@ public class MobileWorkflowController {
         response.setTransformUsers(workflowService.getPubUids(id));
         response.setTransform(workflowService.canPoint(model.getId(),user.getId()));
         return Result.ok(response).toMobile(
-                new Result.Entry(User.class,"quarters","departments","permissions","externalPermissions")
+                new Result.DisallowEntry(User.class,"quarters","departments","permissions","externalPermissions")
         );
     }
 }

@@ -49,6 +49,8 @@ public class WorkflowNode extends AbstractBaseEntity{
     boolean start = false;
     boolean end = false;
 
+    int processCycle = 1;
+
     public enum Type{
         input,
         check,

@@ -6,6 +6,7 @@ import com.beeasy.hzback.modules.system.dao.IUserDao;
 import com.beeasy.hzback.modules.system.entity.SystemLog;
 import com.beeasy.hzback.modules.system.entity.User;
 import com.beeasy.hzback.modules.system.log.NotSaveLog;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang.StringUtils;
 import org.aspectj.lang.JoinPoint;
@@ -25,7 +26,7 @@ public class SystemLogService {
     ISystemLogDao systemLogDao;
 
     @Async
-    public void handleLog(JoinPoint joinPoint, Object res){
+    public void handleLog(final long uid, JoinPoint joinPoint, Object res){
         if(null == res){
             return;
         }
@@ -37,6 +38,12 @@ public class SystemLogService {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
+
+        Api api = (Api) targetClass.getAnnotation(Api.class);
+        if(null == api){
+            return;
+        }
+
         Method[] methods = targetClass.getMethods();
         Object[] arguments = joinPoint.getArgs();
         String operationName = "";
@@ -55,17 +62,21 @@ public class SystemLogService {
                 }
             }
         }
+
         if(!StringUtils.isEmpty(operationName)){
-            writeLog(Utils.getCurrentUserId(), operationName, arguments);
+            if(api.tags().length > 0){
+                writeLog(uid, api.tags()[0], operationName, arguments);
+            }
         }
     }
 
-    public void writeLog(long uid, String actionName, Object[] arguments){
+    public void writeLog(final long uid, final String className, final String actionName, final Object[] arguments){
         User user = userService.findUser(uid).orElse(null);
         if(null != user){
             //写日志
             SystemLog systemLog = new SystemLog();
             systemLog.setUserId(uid);
+            systemLog.setController(className);
             systemLog.setUserName(user.getTrueName());
             systemLog.setMethod(actionName);
             systemLog.setParams(arguments);

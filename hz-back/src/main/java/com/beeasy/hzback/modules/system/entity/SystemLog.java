@@ -26,6 +26,8 @@ public class SystemLog {
 
     Long userId;
     String userName;
+
+    String controller;
     String method;
 
     @Column(columnDefinition = JSONConverter.type)

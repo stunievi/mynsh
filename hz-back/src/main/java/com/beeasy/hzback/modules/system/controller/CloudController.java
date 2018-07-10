@@ -44,11 +44,11 @@ class ClouddiskController {
     ){
         if(0 == pid){
             return Result.okJson(cloudDirectoryIndexDao.findAllByTypeAndLinkIdAndParent(ICloudDiskService.DirType.USER,Utils.getCurrentUserId(), null),
-                    new Result.Entry(CloudDirectoryIndex.class,"parent", "children")
+                    new Result.DisallowEntry(CloudDirectoryIndex.class,"parent", "children")
             );
         }else {
             return Result.okJson(cloudDirectoryIndexDao.findAllByTypeAndLinkIdAndParent_Id(ICloudDiskService.DirType.USER,Utils.getCurrentUserId(), pid),
-                    new Result.Entry(CloudDirectoryIndex.class,"parent", "children")
+                    new Result.DisallowEntry(CloudDirectoryIndex.class,"parent", "children")
             );
         }
 
@@ -62,7 +62,7 @@ class ClouddiskController {
         if(null == pid){
             pid = 0L;
         }
-        return cloudDiskService.createDirectory(Utils.getCurrentUserId(), ICloudDiskService.DirType.USER,pid,dirName).toJson(new Result.Entry(CloudDirectoryIndex.class,"children","parent"));
+        return cloudDiskService.createDirectory(Utils.getCurrentUserId(), ICloudDiskService.DirType.USER,pid,dirName).toJson(new Result.DisallowEntry(CloudDirectoryIndex.class,"children","parent"));
     }
 
     @PostMapping("/user/removeDir")
@@ -134,11 +134,11 @@ class ClouddiskController {
     ){
         if(0 == pid){
             return Result.okJson(cloudDirectoryIndexDao.findAllByTypeAndLinkIdAndParent(ICloudDiskService.DirType.COMMON, 0, null),
-                    new Result.Entry(CloudDirectoryIndex.class,"parent")
+                    new Result.DisallowEntry(CloudDirectoryIndex.class,"parent")
             );
         }else {
             return Result.okJson(cloudDirectoryIndexDao.findAllByTypeAndLinkIdAndParent_Id(ICloudDiskService.DirType.COMMON, 0, pid),
-                    new Result.Entry(CloudDirectoryIndex.class,"parent")
+                    new Result.DisallowEntry(CloudDirectoryIndex.class,"parent")
             );
         }
     }
@@ -154,7 +154,7 @@ class ClouddiskController {
         if(null == pid){
             pid = 0L;
         }
-        return cloudDiskService.createDirectory(0, ICloudDiskService.DirType.COMMON,pid,dirName).toJson(new Result.Entry(CloudDirectoryIndex.class,"children","parent"));
+        return cloudDiskService.createDirectory(0, ICloudDiskService.DirType.COMMON,pid,dirName).toJson(new Result.DisallowEntry(CloudDirectoryIndex.class,"children","parent"));
     }
 
     @PostMapping("/common/removeDir")

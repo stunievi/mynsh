@@ -59,13 +59,13 @@ public class MobileClouddiskController {
             @PathVariable String dirName
     ){
         if(type.equals("user")){
-            return cloudDiskService.createDirectory(Utils.getCurrentUserId(), ICloudDiskService.DirType.USER,pid,dirName).toMobile(new Result.Entry(CloudDirectoryIndex.class,"children","parent"));
+            return cloudDiskService.createDirectory(Utils.getCurrentUserId(), ICloudDiskService.DirType.USER,pid,dirName).toMobile(new Result.DisallowEntry(CloudDirectoryIndex.class,"children","parent"));
         }
         else{
             if(!checkAuth(Utils.getCurrentUserId())){
                 return Result.error().toJson();
             }
-            return cloudDiskService.createDirectory(0, ICloudDiskService.DirType.COMMON,pid,dirName).toMobile(new Result.Entry(CloudDirectoryIndex.class,"children","parent"));
+            return cloudDiskService.createDirectory(0, ICloudDiskService.DirType.COMMON,pid,dirName).toMobile(new Result.DisallowEntry(CloudDirectoryIndex.class,"children","parent"));
         }
     }
 
@@ -206,7 +206,7 @@ public class MobileClouddiskController {
 //    public String allCommonFiles(){
 //        //无权限 所有人都可以看到
 //        return Result.ok(cloudDirectoryIndexDao.findAllByTypeAndLinkIdAndParentOrderByDirDesc(ICloudDiskService.DirType.COMMON,0,null)).toMobile(
-//                new Result.Entry(CloudDirectoryIndex.class,"parent")
+//                new Result.DisallowEntry(CloudDirectoryIndex.class,"parent")
 //        );
 //    }
 

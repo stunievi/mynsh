@@ -388,8 +388,8 @@ public class TestAsync {
 //            userDao.save(user);
 //        }
 //        List s = instanceDao.findCommonWorks(Collections.singletonList(2613L),Long.MAX_VALUE,new PageRequest(0,20));
-//        Result.ok(s).toJson(new Result.Entry[]{
-//                new Result.Entry(WorkflowInstance.class,"nodeList","simpleChildInstances")
+//        Result.ok(s).toJson(new Result.DisallowEntry[]{
+//                new Result.DisallowEntry(WorkflowInstance.class,"nodeList","simpleChildInstances")
 //        });
 //        instanceDao.
 //        List b = workflowModelDao.findModelId("资料收集");

@@ -1,11 +1,8 @@
 package com.beeasy.hzback.modules.system.controller;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.core.exception.RestException;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.helper.Utils;
-import com.beeasy.hzback.modules.exception.CannotFindEntityException;
 import com.beeasy.hzback.modules.mobile.request.ApplyTaskRequest;
 import com.beeasy.hzback.modules.mobile.request.SubmitDataRequest;
 import com.beeasy.hzback.modules.system.dao.IWorkflowInstanceDao;
@@ -22,13 +19,10 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import jdk.nashorn.internal.objects.Global;
 import lombok.Data;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.domain.*;
-import org.springframework.data.repository.query.Param;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -63,14 +57,14 @@ public class WorkFlowController {
 
     @Autowired
     UserService userService;
-    private Result.Entry[] myworkEntries = new Result.Entry[]{
-            new Result.Entry(WorkflowInstance.class,"nodeList","simpleChildInstances")
+    private Result.DisallowEntry[] myworkEntries = new Result.DisallowEntry[]{
+            new Result.DisallowEntry(WorkflowInstance.class,"nodeList","simpleChildInstances")
     };
 
-    private Result.Entry[] entries = new Result.Entry[]{
-            new Result.Entry(WorkflowInstance.class,"dealUser"),
-            new Result.Entry(WorkflowNode.class,"model"),
-            new Result.Entry(WorkflowNodeInstance.class,"nodeModel","instance")
+    private Result.DisallowEntry[] entries = new Result.DisallowEntry[]{
+            new Result.DisallowEntry(WorkflowInstance.class,"dealUser"),
+            new Result.DisallowEntry(WorkflowNode.class,"model"),
+            new Result.DisallowEntry(WorkflowNodeInstance.class,"nodeModel","instance")
     };
 
     @ApiOperation(value = "创建工作流", notes = "根据已有的模型创建一个新的工作流实体,可选模型: 资料收集")
@@ -80,10 +74,11 @@ public class WorkFlowController {
     @PostMapping("/model")
     public Object createNewWorkFlow(
             String modelName,
-            @Valid WorkflowModelAdd add,
-            BindingResult bindingResult
-            ) throws RestException {
-        return workflowService.createWorkflow(modelName,add);
+            @Valid WorkflowModelAdd add
+    ){
+        return workflowService.createWorkflow(modelName,add).toJson(
+                new Result.DisallowEntry(WorkflowModel.class, "nodeModels")
+        );
     }
 
     @ApiOperation(value = "设置工作流模型关联字段")
@@ -353,7 +348,7 @@ public class WorkFlowController {
     @RequestMapping(value = "/model/validList", method = RequestMethod.GET)
     public String getUserWorkflows(){
         return Result.ok(workflowService.getUserModelList(Utils.getCurrentUserId())).toJson(
-                new Result.Entry(WorkflowModel.class, "nodeModels")
+                new Result.DisallowEntry(WorkflowModel.class, "nodeModels")
         );
     }
 
@@ -428,8 +423,8 @@ public class WorkFlowController {
     @GetMapping("/instance/fetch/{id}")
     public String fetchInstance(@PathVariable Long id){
         return Result.ok(workflowService.fetchInstance(Utils.getCurrentUserId(),id)).toJson(
-                new Result.Entry(User.class,"departments","quarters"),
-                new Result.Entry(WorkflowNode.class,"persons"));
+                new Result.DisallowEntry(User.class,"departments","quarters"),
+                new Result.DisallowEntry(WorkflowNode.class,"persons"));
     }
 
     @ApiOperation(value = "取消任务")
@@ -596,7 +591,7 @@ public class WorkFlowController {
             @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
     ){
         return Result.ok(workflowService.getUnreceivedWorks(Collections.singleton(Utils.getCurrentUserId()), request, null, pageable)).toJson(
-                new Result.Entry(WorkflowInstance.class, "nodeList")
+                new Result.DisallowEntry(WorkflowInstance.class, "nodeList")
         );
     }
 
@@ -607,7 +602,7 @@ public class WorkFlowController {
             @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
     ){
         return Result.ok(workflowService.getPlanWorks(Collections.singleton(Utils.getCurrentUserId()), null, pageable)).toJson(
-                new Result.Entry(WorkflowInstance.class, "nodeList")
+                new Result.DisallowEntry(WorkflowInstance.class, "nodeList")
         );
     }
 

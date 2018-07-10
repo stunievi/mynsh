@@ -2,6 +2,7 @@ package com.beeasy.hzback.core.helper;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.PropertyFilter;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -87,14 +88,29 @@ public class Result <T> {
         return flag ? ok(object) : error();
     }
 
-    @Data
-    public static class Entry{
-        private Class clz;
-        private List<String> fields;
 
+    @Data
+    @AllArgsConstructor
+    public static abstract class Entry{
+        protected Class clz;
+        protected List<String> fields;
         public Entry(Class clz, String ...fields){
             this.clz = clz;
             this.fields = Arrays.asList(fields);
+        }
+    }
+
+    @Data
+    public static class DisallowEntry extends Entry{
+        public DisallowEntry(Class clz, String ...fields) {
+            super(clz,fields);
+        }
+    }
+
+    @Data
+    public static class AllowEntry extends Entry{
+        public AllowEntry(Class clz, String ...fields) {
+            super(clz,fields);
         }
     }
 
@@ -104,13 +120,16 @@ public class Result <T> {
         return JSON.toJSONString(this);
     }
 
-    public String toJson(Entry ...entries) {
+    public String toJson(Entry...entries) {
         HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
+        if(null == response){
+            return "";
+        }
         response.setHeader("content-type","application/json");
         PropertyFilter propertyFilter = (source, name, value) -> {
             for (Entry entry : entries) {
                 if(source.getClass().equals(entry.getClz()) && entry.getFields().contains(name)){
-                    return false;
+                    return entry instanceof AllowEntry;
                 }
             }
             return true;
@@ -138,11 +157,11 @@ public class Result <T> {
 //        return str;
         return encode(str);
     }
-    public String toMobile(Entry ...entries){
+    public String toMobile(DisallowEntry...entries){
         HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
         response.setHeader("content-type","application/json");
         PropertyFilter propertyFilter = (source, name, value) -> {
-            for (Entry entry : entries) {
+            for (DisallowEntry entry : entries) {
                 if(source.getClass().equals(entry.getClz()) && entry.getFields().contains(name)){
                     return false;
                 }
@@ -155,9 +174,9 @@ public class Result <T> {
     }
 
 //    public static String okJson(Object obj){
-//        return okJson(obj,new Entry[0]);
+//        return okJson(obj,new DisallowEntry[0]);
 //    }
-    public static String okJson(Object obj, Entry ...entries){
+    public static String okJson(Object obj, DisallowEntry...entries){
         return Result.ok(obj).toJson(entries);
     }
 

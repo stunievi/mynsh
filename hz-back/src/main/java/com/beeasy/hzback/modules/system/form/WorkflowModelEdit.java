@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,5 +30,7 @@ public class WorkflowModelEdit {
     @ApiModelProperty(name = "open",value = "是否打开工作流")
     boolean open;
 
+    @Size(min = 1, max = 99999, message = "处理周期在1-99999天之间")
+    Integer processCycle;
 //    List<Long> departmentIds = new ArrayList<>();
 }

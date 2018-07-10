@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -51,16 +50,16 @@ public class MobileUserController {
     CloudApi cloudApi;
 
 
-    private Result.Entry[] userEntries = {
-            new Result.Entry(Department.class,"departments","quarters"),
-            new Result.Entry(Quarters.class,"department","users")
+    private Result.DisallowEntry[] userEntries = {
+            new Result.DisallowEntry(Department.class,"departments","quarters"),
+            new Result.DisallowEntry(Quarters.class,"department","users")
     };
 
     @GetMapping("/department/list")
     public String getDepartmentsAndUsers(){
         return Result.ok(userService.findDepartmentsByParent_Id(0)).toMobile(
-                new Result.Entry(Quarters.class,"department","users"),
-                new Result.Entry(User.class,"quarters","permissions"));
+                new Result.DisallowEntry(Quarters.class,"department","users"),
+                new Result.DisallowEntry(User.class,"quarters","permissions"));
     }
 
     @GetMapping("/login/{username}/{password}")
@@ -111,8 +110,8 @@ public class MobileUserController {
             @RequestBody List<Long> userIds
     ){
         return Result.ok(userService.findUser(userIds)).toMobile(
-            new Result.Entry(Department.class,"departments","quarters"),
-            new Result.Entry(Quarters.class,"users","department")
+            new Result.DisallowEntry(Department.class,"departments","quarters"),
+            new Result.DisallowEntry(Quarters.class,"users","department")
         );
     }
 
@@ -139,8 +138,8 @@ public class MobileUserController {
     @GetMapping("/user/simpleDepartments")
     public String getAllDepartments(){
         return Result.ok(departmentDao.findAll()).toMobile(
-                new Result.Entry(Department.class,"parent","departments"),
-                new Result.Entry(Quarters.class,"department","users"));
+                new Result.DisallowEntry(Department.class,"parent","departments"),
+                new Result.DisallowEntry(Quarters.class,"department","users"));
     }
 
     @ApiOperation(value = "同步全行组织架构")
@@ -148,9 +147,9 @@ public class MobileUserController {
     @Deprecated
     public String getAllDepartments2(){
         return Result.ok(departmentDao.findAllByParent(null)).toMobile(
-                new Result.Entry(Department.class,"parent"),
-                new Result.Entry(Quarters.class,"department"),
-                new Result.Entry(User.class,"quarters","permissions","departments"));
+                new Result.DisallowEntry(Department.class,"parent"),
+                new Result.DisallowEntry(Quarters.class,"department"),
+                new Result.DisallowEntry(User.class,"quarters","permissions","departments"));
     }
 
 

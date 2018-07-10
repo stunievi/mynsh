@@ -50,7 +50,7 @@ public class SystemLogAop {
 
     @AfterReturning(value ="point()", returning = "res")
     public void log(JoinPoint joinPoint, Object res){
-        systemLogService.handleLog(joinPoint,res);
+        systemLogService.handleLog(Utils.getCurrentUserId(),joinPoint,res);
 
 //        MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
 //        SaveLog saveLog = methodSignature.getMethod().getAnnotation(SaveLog.class);

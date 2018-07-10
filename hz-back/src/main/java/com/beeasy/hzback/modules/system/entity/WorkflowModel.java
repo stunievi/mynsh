@@ -57,10 +57,8 @@ public class WorkflowModel {
     //软删除指令
     boolean deleted;
 
-    @Transient
-    boolean pub;
-    @Transient
-    boolean point;
+    //处理周期
+    int processCycle = 1;
 
     @CreatedDate
     Date addTime;
@@ -86,6 +84,16 @@ public class WorkflowModel {
             }
     )
     List<Department> departments = new ArrayList<>();
+
+
+    /**
+     * 检索暴露
+     */
+    @Transient
+    boolean pub;
+    @Transient
+    boolean point;
+
 
     /**
      * 字段类型

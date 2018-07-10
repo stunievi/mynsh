@@ -48,7 +48,7 @@
 //    protected static boolean isMultipart(Object body, Type bodyType) {
 //        if (isFormRequest(bodyType)) {
 //            Map<String, ?> map = (Map<String, ?>) body;
-//            for (Map.Entry<String, ?> entry : map.entrySet()) {
+//            for (Map.DisallowEntry<String, ?> entry : map.entrySet()) {
 //                Object value = entry.getValue();
 //                if (isMultipartFile(value) || isMultipartFileArray(value)) {
 //                    return true;
@@ -88,7 +88,7 @@
 //            throw new EncodeException("Cannot encode request with null form.");
 //        }
 //        LinkedMultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
-//        for (Map.Entry<String, ?> entry : formMap.entrySet()) {
+//        for (Map.DisallowEntry<String, ?> entry : formMap.entrySet()) {
 //            Object value = entry.getValue();
 //            if (isMultipartFile(value)) {
 //                map.add(entry.getKey(), encodeMultipartFile((MultipartFile) value));
@@ -180,7 +180,7 @@
 //        }
 //        HttpHeaders headers = dummyRequest.getHeaders();
 //        if (headers != null) {
-//            for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
+//            for (Map.DisallowEntry<String, List<String>> entry : headers.entrySet()) {
 //                template.header(entry.getKey(), entry.getValue());
 //            }
 //        }

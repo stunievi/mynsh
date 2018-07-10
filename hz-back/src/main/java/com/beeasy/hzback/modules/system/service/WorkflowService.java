@@ -424,7 +424,7 @@ public class WorkflowService {
                             }
                         }
                     }
-//                    for (Map.Entry<String, String> entry : rs.get(0).entrySet()) {
+//                    for (Map.DisallowEntry<String, String> entry : rs.get(0).entrySet()) {
 //                        WorkflowModelInnate after = modelInnates.get(entry.getKey());
 //                        if (null == after) {
 //                            continue;
@@ -1419,7 +1419,7 @@ public class WorkflowService {
 
     /**
      * 编辑工作流模型
-     * @param edit
+     * @param edit 模型编辑详情
      * @return
      */
     public Result editWorkflowModel(WorkflowModelEdit edit) {
@@ -1442,6 +1442,9 @@ public class WorkflowService {
         if (!StringUtils.isEmpty(edit.getInfo())) {
             model.setInfo(edit.getInfo());
         }
+        if(null != edit.getProcessCycle()){
+            model.setProcessCycle(edit.getProcessCycle());
+        }
         //开关也可以
         model.setOpen(edit.isOpen());
 
@@ -1453,9 +1456,9 @@ public class WorkflowService {
     /**
      * 删除节点
      *
-     * @param modelId
-     * @param nodeId
-     * @return
+     * @param modelId 模型ID
+     * @param nodeId 节点ID
+     * @return 是否删除成功
      */
     public boolean deleteNode(long modelId, Long nodeId) {
         try {
@@ -1470,9 +1473,9 @@ public class WorkflowService {
     /**
      * 根据已有模型创建新工作流模型
      *
-     * @param modelName
-     * @param add
-     * @return
+     * @param modelName 要创建的模型名称
+     * @param add 请求明细
+     * @return 是否创建成功
      */
     public Result<WorkflowModel> createWorkflow(String modelName, WorkflowModelAdd add) {
         Map<String, Map> map = (Map) cache.getWorkflowConfig();
@@ -1548,6 +1551,7 @@ public class WorkflowService {
         workflowModel.setOpen(false);
         workflowModel.setFirstOpen(false);
         workflowModel.setModelName(modelName);
+        workflowModel.setProcessCycle(add.getProcessCycle());
 
         if (workflowModel.getInnates().size() > 0) {
             for (WorkflowModelInnate workflowModelInnate : workflowModel.getInnates()) {
