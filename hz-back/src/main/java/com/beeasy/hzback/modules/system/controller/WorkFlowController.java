@@ -566,6 +566,14 @@ public class WorkFlowController {
         return Result.ok(workflowService.getUserCanAcceptWorks(Collections.singleton(Utils.getCurrentUserId()),null,pageable));
     }
 
+    @ApiOperation(value = "得到用户可以接受的公共任务列表")
+    @RequestMapping(value = "/common/getList", method = RequestMethod.GET)
+    public Result getUserCanAcceptCommonWorks(
+            Pager pager,
+            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
+    ){
+        return Result.ok(workflowService.getUserCanAcceptCommonWorks(Collections.singleton(Utils.getCurrentUserId()),null,pageable));
+    }
 
     @ApiOperation(value = "接受公共任务")
     @RequestMapping(value = "/common/accept", method = RequestMethod.GET)

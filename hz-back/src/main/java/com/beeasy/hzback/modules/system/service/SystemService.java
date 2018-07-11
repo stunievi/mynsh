@@ -75,9 +75,6 @@ public class SystemService {
     public boolean delete(Collection<String> keys) {
         for (String key : keys) {
            int count = systemVariableDao.deleteByVarNameAndCanDeleteIsTrue(key);
-           if(count == 0){
-               throw new RuntimeException();
-           }
         }
         return true;
     }
