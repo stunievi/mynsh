@@ -65,7 +65,7 @@ public class DataSearchService {
         List<String> userCode = new ArrayList<>();
         if (!user.isSu()) {
             //查询用户所持有的所有授权
-            List<GlobalPermission> ps = globalPermissionDao.getPermissionsByUser(Collections.singleton(GlobalPermission.Type.DATA_SEARCH_CONDITION), uid);
+            List<GlobalPermission> ps = globalPermissionDao.getPermissionsByUser(Collections.singleton(GlobalPermission.Type.DATA_SEARCH_CONDITION),Collections.singleton(GlobalPermission.UserType.ROLE), uid);
             List<Quarters> qs = user.getQuarters();
             ps.stream().filter(p -> null != p.getDescription())
                     .map(p -> ((JSONArray) p.getDescription()).toJavaList(SearchConditionRule.class))
@@ -171,7 +171,7 @@ public class DataSearchService {
         }
         sql += " where 1 = 1";
         if(null != request.register){
-            sql += " and ins.model_name = '不良资产登记' ";
+            sql += " and ins.model_name = '不良资产管理流程' ";
             sql += " and (select count(*) from t_workflow_instance_attribute attr where attr.instance_id = ins.id and attr.attr_key = 'BILL_NO' and attr.attr_value <> '')";
             if(request.register){
                 sql += " > 0";

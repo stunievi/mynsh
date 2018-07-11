@@ -876,6 +876,7 @@ public class UserService implements IUserService {
             if (pType.equals(GlobalPermission.Type.USER_METHOD)) {
                 cacheUserMethods(globalPermission);
             }
+//            if(pType.equals())
 
             globalPermission = globalPermissionDao.save(globalPermission);
 
@@ -937,7 +938,7 @@ public class UserService implements IUserService {
      * @return
      */
     public List getUserMethods(long uid) {
-        List<GlobalPermission> gps = globalPermissionDao.getPermissionsByUser(Collections.singleton(GlobalPermission.Type.USER_METHOD), uid);
+        List<GlobalPermission> gps = globalPermissionDao.getPermissionsByUser(Collections.singleton(GlobalPermission.Type.USER_METHOD), Arrays.asList(GlobalPermission.UserType.USER,GlobalPermission.UserType.ROLE), uid);
         return gps.stream()
                 .map(GlobalPermission::getDescription)
                 .filter(obj -> obj instanceof JSONArray)

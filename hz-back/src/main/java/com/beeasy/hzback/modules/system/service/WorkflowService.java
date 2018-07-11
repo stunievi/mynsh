@@ -141,22 +141,63 @@ public class WorkflowService {
 
 
     /**
+     * 自动开启任务
+     * @param uid 任务开启人ID
+     * @param request 任务请求明细
+     * @return 标准REST返回
+     */
+    public Result autoStartTask(final long uid, final AutoStartTaskRequest request){
+        //查找符合条件的任务
+        ApplyTaskRequest taskRequest = new ApplyTaskRequest();
+        List<Long> mids = modelDao.findModelId(request.getModelName());
+        if(mids.size() == 0){
+            return Result.error("任务执行人没有权限");
+        }
+        taskRequest.setModelId(mids.get(0));
+        return Result.ok();
+    }
+
+    @Data
+    public static class AutoStartTaskRequest{
+        long dealerId;
+        String title;
+        String modelName;
+        //固有数据源
+        ApplyTaskRequest.DataSource dataSource;
+        //固有数据源绑定值
+        String dataId;
+        Date planStartTime;
+
+    }
+    /**
      * 开始一个新的工作流任务
      *
      * @param uid 启动该任务的用户ID
      * @return
      */
-    public Result startNewInstance(Long uid, ApplyTaskRequest request) {
-        User pubUser = uid != null ? userService.findUser(uid).orElse(null) : null;
+    public Result startNewInstance(final long uid, ApplyTaskRequest request) {
+        if(!userService.exists(uid)){
+            return Result.error("任务发布人ID错误");
+        }
         WorkflowModel workflowModel = findModel(request.getModelId()).orElse(null);
         if (null == workflowModel || !workflowModel.isOpen()) {
             return Result.error("工作流没有开启");
         }
 
-        //如果是手动任务, 但是
-        if (request.isManual() && !workflowModel.isManual()) {
-            return Result.error("该任务不能手动开启");
+        //计算任务归属部门
+        //命中岗位权限的直属上级
+        List<GlobalPermission> globalPermissions = globalPermissionDao.getPermissionsByUser(
+                Collections.singleton(GlobalPermission.Type.WORKFLOW_PUB),
+                Collections.singleton(GlobalPermission.UserType.QUARTER),uid);
+        if(globalPermissions.size() == 0){
+            return Result.error("没有权限发布这个任务");
         }
+
+
+//        //如果是手动任务, 但是
+//        if (request.isManual() && !workflowModel.isManual()) {
+//            return Result.error("该任务不能手动开启");
+//        }
 
         User dealerUser = null;
         //任务主体
@@ -164,7 +205,7 @@ public class WorkflowService {
 
         //公共任务
         if (request.isCommon()) {
-            if (!canPoint(workflowModel.getId(), pubUser.getId())) {
+            if (!canPoint(workflowModel.getId(), uid)) {
                 return Result.error("你无权发布公共任务");
             }
             workflowInstance.setDealUserId(null);
@@ -177,15 +218,15 @@ public class WorkflowService {
                 return Result.error("找不到任务执行人");
             }
             //如果是给自己执行
-            if (dealerUser.getId().equals(pubUser.getId())) {
-                if (!canPub(workflowModel, pubUser)) {
+            if (dealerUser.getId().equals(uid)) {
+                if (!canPub(workflowModel.getId(), uid)) {
                     return Result.error("你无权发布该任务");
                 }
                 workflowInstance.setDealUserId(dealerUser.getId());
             }
             //指派给别人执行
             else {
-                if (!canPoint(workflowModel.getId(), pubUser.getId())) {
+                if (!canPoint(workflowModel.getId(),uid )) {
                     return Result.error("你无权发布该任务");
                 }
                 workflowInstance.setDealUserId(null);
@@ -210,6 +251,7 @@ public class WorkflowService {
         workflowInstance.setTitle(request.getTitle());
         workflowInstance.setInfo(request.getInfo());
         workflowInstance.setModelName(workflowModel.getModelName());
+
         //开始时间
         Date date = new Date();
         workflowInstance.setAddTime(date);
@@ -220,7 +262,7 @@ public class WorkflowService {
         }
 //        workflowInstance.setDealUser(dealerUser);
 //        workflowInstance.setDealUserId(null == dealerUser ? null : dealerUser.getId());
-        workflowInstance.setPubUserId(pubUser.getId());
+        workflowInstance.setPubUserId(uid);
 //        workflowInstance.setPubUser(pubUser);
         workflowInstance = saveWorkflowInstance(workflowInstance);
 
@@ -263,7 +305,7 @@ public class WorkflowService {
             //公共任务
             workflowInstance.setState(WorkflowInstance.State.COMMON);
         } else {
-            if (dealerUser.getId().equals(pubUser.getId())) {
+            if (dealerUser.getId().equals(uid)) {
                 //任务默认处于执行中的状态
                 workflowInstance.setState(WorkflowInstance.State.DEALING);
             } else {

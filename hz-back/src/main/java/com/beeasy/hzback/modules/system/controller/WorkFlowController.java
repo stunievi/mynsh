@@ -465,6 +465,17 @@ public class WorkFlowController {
         return result.toJson(entries);
     }
 
+
+    @NotSaveLog
+    @ApiOperation(value = "给脚本调用的自动创建任务接口, 客户端禁止调用")
+    @PostMapping("/task/autoStart")
+    public Result startNewTask(
+            @RequestParam long uid,
+            @Valid @RequestBody ApplyTaskRequest request
+    ){
+        return workflowService.startNewInstance(uid, request);
+    }
+
     @ApiOperation(value = "保存草稿")
     @PostMapping("/submitData")
     public String submitData(

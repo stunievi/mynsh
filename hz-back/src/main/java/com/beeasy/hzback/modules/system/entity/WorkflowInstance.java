@@ -139,6 +139,11 @@ public class WorkflowInstance {
     @OneToMany(mappedBy = "instance")
     List<InfoCollectLink> collectLinks = new ArrayList<>();
 
+    //任务归属部门id
+    Long depId;
+    //任务归属部门name
+    Long depName;
+
 //    @JSONField(serialize = false)
 //    @Transient
 //    public WorkflowNodeInstance getCurrentNode() {

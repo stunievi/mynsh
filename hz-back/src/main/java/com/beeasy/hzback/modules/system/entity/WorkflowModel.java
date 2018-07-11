@@ -85,6 +85,8 @@ public class WorkflowModel {
     )
     List<Department> departments = new ArrayList<>();
 
+    //该模型可能归属的部门ID
+    String depIds = "";
 
     /**
      * 检索暴露
