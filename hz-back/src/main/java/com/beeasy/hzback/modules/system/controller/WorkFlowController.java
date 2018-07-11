@@ -568,11 +568,11 @@ public class WorkFlowController {
 
     @ApiOperation(value = "得到用户可以接受的公共任务列表")
     @RequestMapping(value = "/common/getList", method = RequestMethod.GET)
-    public Result getUserCanAcceptCommonWorks(
+    public String getUserCanAcceptCommonWorks(
             Pager pager,
             @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
     ){
-        return Result.ok(workflowService.getUserCanAcceptCommonWorks(Collections.singleton(Utils.getCurrentUserId()),null,pageable));
+        return Result.ok(workflowService.getUserCanAcceptCommonWorks(Collections.singleton(Utils.getCurrentUserId()),null,pageable)).toJson(new Result.DisallowEntry(WorkflowInstance.class,"nodeList"));
     }
 
     @ApiOperation(value = "接受公共任务")
