@@ -315,6 +315,13 @@ public class WorkflowService {
             addExtData(workflowInstance, workflowModel, request, true);
         }
 
+        //补充字段
+        WorkflowInstanceAttribute attribute = instanceAttributeDao.findTopByInstanceIdAndAttrKey(workflowInstance.getId(),"BILL_NO").orElse(null);
+        if(null != attribute){
+            workflowInstance.setBillNo(attribute.getAttrValue());
+            workflowInstance = instanceDao.save(workflowInstance);
+        }
+
         return workflowInstance.getId() == null ? Result.error() : Result.ok(workflowInstance);
     }
 

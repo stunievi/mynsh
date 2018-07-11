@@ -126,7 +126,14 @@ public class WorkflowInstance {
 
     //特殊状态
     boolean canDeal = false;
+    //台账编号
 
+    @Column(name = "BILL_NO")
+    String billNo;
+
+    @JSONField(serialize = false)
+    @OneToMany(mappedBy = "instance")
+    List<InfoCollectLink> collectLinks = new ArrayList<>();
 
 //    @JSONField(serialize = false)
 //    @Transient

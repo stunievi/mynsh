@@ -57,16 +57,17 @@ public class InfoCollectLinkController {
             String CUS_NAME,
             String PHONE,
             String CERT_CODE,
+            String BILL_NO,
             Pager pager,
-            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
-    ){
+            @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
+    ) {
         Specification query = ((root, criteriaQuery, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
-            predicates.add(cb.equal(root.get("modelName"),"资料收集"));
-            predicates.add(cb.equal(root.get("dealUserId"),Utils.getCurrentUserId()));
+            predicates.add(cb.equal(root.get("modelName"), "资料收集"));
+            predicates.add(cb.equal(root.get("dealUserId"), Utils.getCurrentUserId()));
             Join nl = root.join("nodeList");
             Join at = nl.join("attributeList");
-            if(!StringUtils.isEmpty(CUS_NAME)){
+            if (!StringUtils.isEmpty(CUS_NAME)) {
                 predicates.add(
                         cb.and(
                                 cb.equal(at.get("attrKey"), "CUS_NAME"),
@@ -83,7 +84,7 @@ public class InfoCollectLinkController {
                 );
 
             }
-            if(!StringUtils.isEmpty(CERT_CODE)){
+            if (!StringUtils.isEmpty(CERT_CODE)) {
                 predicates.add(
                         cb.and(
                                 cb.equal(at.get("attrKey"), "CERT_CODE"),
@@ -91,19 +92,33 @@ public class InfoCollectLinkController {
                         )
                 );
             }
+            //使用bill_no的情况下, 查询所属的关联
+            if (!StringUtils.isEmpty(BILL_NO)) {
+                Join join = root.join("collectLinks");
+                predicates.add(
+                        cb.equal(
+                                join.get("billNo"),
+                                BILL_NO
+                        )
+                );
+            }
             return cb.and(predicates.toArray(new Predicate[predicates.size()]));
         });
-        Page page = (instanceDao.findAll(query,pageable));
+        Page page = (instanceDao.findAll(query, pageable));
         Object ret = page.map(object -> {
-            WorkflowInstance instance = (WorkflowInstance)object;
+            WorkflowInstance instance = (WorkflowInstance) object;
             //得到倒数第一个节点
-            Map<String,Object> map = new HashMap<>();
-            map.put("id",instance.getId());
-            List objs = attributeDao.getValueByWorkflowInstance(instance.getId(),"CUS_NAME");
-            map.put("CUS_NAME",objs.size() > 0 ? (String) objs.get(0) : "");
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", instance.getId());
+            List objs = attributeDao.getValueByWorkflowInstance(instance.getId(), "CUS_NAME");
+            map.put("CUS_NAME", objs.size() > 0 ? (String) objs.get(0) : "");
             objs = attributeDao.getValueByWorkflowInstance(instance.getId(), "PHONE");
-            map.put("PHONE",objs.size() > 0 ? (String) objs.get(0) : "");
+            map.put("PHONE", objs.size() > 0 ? (String) objs.get(0) : "");
+            objs = attributeDao.getValueByWorkflowInstance(instance.getId(), "CERT_TYPE");
+            map.put("CERT_TYPE", objs.size());
             map.put("addTime", instance.getAddTime());
+            map.put("state", instance.getState());
+
             //查询和台账的关联
             map.put("billNo", linkDao.findTopByInstanceId(instance.getId()).map(item -> item.getBillNo()).orElse(""));
             return map;
@@ -111,30 +126,31 @@ public class InfoCollectLinkController {
         return Result.ok(ret);
     }
 
-    @ApiOperation(value = "查询贷款台账")
-    @RequestMapping(value = "/getAccLoan", method = RequestMethod.GET)
-    public String getAccLoan(
-            Pager pager,
-            @PageableDefault(direction = Sort.Direction.DESC) Pageable pageable
-    ){
-        String sql = "select * from ACC_LOAN order by BILL_NO desc limit " + pageable.getOffset() + "," + pageable.getPageSize();
-        List list = sqlUtils.query(sql).stream().map(item -> {
-            Map<String,Object> map = new HashMap<>();
-            map.put("BILL_NO", item.get("BILL_NO"));
-            map.put("CUS_ID",item.get("CUS_ID"));
-            map.put("CUS_NAME", item.get("CUS_NAME"));
-            map.put("LOAN_ACCOUNT",item.get("LOAN_ACCOUNT"));
-            map.put("links",linkDao.getInstancesByBillNo((String) map.get("BILL_NO")));
-            return map;
-        }).collect(Collectors.toList());
-        String countSql = "select count(*) as num from ACC_LOAN";
-        List<Map<String,String>> countList = sqlUtils.query(countSql);
-        long count = Long.valueOf(countList.get(0).get("num"));
-        PageImpl page = new PageImpl(list,pageable,count);
-        return Result.ok(page).toJson(
-                new Result.DisallowEntry(WorkflowInstance.class, "nodeList")
-        );
-    }
+
+//    @ApiOperation(value = "查询贷款台账")
+//    @RequestMapping(value = "/getAccLoan", method = RequestMethod.GET)
+//    public String getAccLoan(
+//            Pager pager,
+//            @PageableDefault(direction = Sort.Direction.DESC) Pageable pageable
+//    ){
+//        String sql = "select * from ACC_LOAN order by BILL_NO desc limit " + pageable.getOffset() + "," + pageable.getPageSize();
+//        List list = sqlUtils.query(sql).stream().map(item -> {
+//            Map<String,Object> map = new HashMap<>();
+//            map.put("BILL_NO", item.get("BILL_NO"));
+//            map.put("CUS_ID",item.get("CUS_ID"));
+//            map.put("CUS_NAME", item.get("CUS_NAME"));
+//            map.put("LOAN_ACCOUNT",item.get("LOAN_ACCOUNT"));
+//            map.put("links",linkDao.getInstancesByBillNo((String) map.get("BILL_NO")));
+//            return map;
+//        }).collect(Collectors.toList());
+//        String countSql = "select count(*) as num from ACC_LOAN";
+//        List<Map<String,String>> countList = sqlUtils.query(countSql);
+//        long count = Long.valueOf(countList.get(0).get("num"));
+//        PageImpl page = new PageImpl(list,pageable,count);
+//        return Result.ok(page).toJson(
+//                new Result.DisallowEntry(WorkflowInstance.class, "nodeList")
+//        );
+//    }
 
 
     @Transactional
@@ -143,14 +159,14 @@ public class InfoCollectLinkController {
     public Result createLink(
             @RequestParam String BILL_NO,
             @RequestParam String id
-    ){
+    ) {
         List<Long> success = new ArrayList<>();
         for (Long aLong : Utils.convertIds(id)) {
             WorkflowInstance instance = workflowService.findInstance(aLong).orElse(null);
-            if(null == instance){
+            if (null == instance) {
                 continue;
             }
-            if(linkDao.countByBillNoAndInstanceId(BILL_NO,aLong) > 0){
+            if (linkDao.countByBillNoAndInstanceId(BILL_NO, aLong) > 0) {
                 success.add(aLong);
                 continue;
             }
@@ -174,8 +190,8 @@ public class InfoCollectLinkController {
     public Result deleteLink(
             @RequestParam String BILL_NO,
             @RequestParam String id
-    ){
-        return Result.finish(linkDao.deleteAllByBillNoAndInstanceIdIn(BILL_NO,Utils.convertIdsToList(id)) > 0);
+    ) {
+        return Result.finish(linkDao.deleteAllByBillNoAndInstanceIdIn(BILL_NO, Utils.convertIdsToList(id)) > 0);
     }
 
 }
