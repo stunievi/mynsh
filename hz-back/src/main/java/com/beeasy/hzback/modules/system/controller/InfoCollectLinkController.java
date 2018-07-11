@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -66,8 +67,8 @@ public class InfoCollectLinkController {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.equal(root.get("modelName"), "资料收集"));
             predicates.add(cb.equal(root.get("dealUserId"), Utils.getCurrentUserId()));
-            Join nl = root.join("nodeList");
-            Join at = nl.join("attributeList");
+            Join nl = root.join("nodeList", JoinType.LEFT);
+            Join at = nl.join("attributeList", JoinType.LEFT);
             if (!StringUtils.isEmpty(CUS_NAME)) {
                 predicates.add(
                         cb.and(
