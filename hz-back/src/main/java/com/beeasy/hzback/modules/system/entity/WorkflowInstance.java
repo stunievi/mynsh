@@ -125,11 +125,15 @@ public class WorkflowInstance {
     List<WorkflowInstanceTransaction> transactions;
 
     //特殊状态
+    @Transient
     boolean canDeal = false;
-    //台账编号
 
+    //台账编号
     @Column(name = "BILL_NO")
     String billNo;
+
+    //是否属于自动生成的任务
+    boolean autoCreated = false;
 
     @JSONField(serialize = false)
     @OneToMany(mappedBy = "instance")
