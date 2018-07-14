@@ -19,36 +19,24 @@ public class WorkflowInstanceAttribute extends AbstractBaseEntity {
 
     @JSONField(serialize = false)
     @ManyToOne
+    @JoinColumn(name = "instance_id", insertable = false, updatable = false)
     WorkflowInstance instance;
 
-    @Enumerated
+    @Column(name = "instance_id")
+    Long instanceId;
+
+    @Enumerated(value = EnumType.STRING)
     Type type;
 
     String attrKey;
     String attrValue;
     String attrCName;
 
-
     public enum Type{
         //固有
-        INNATE(0,"固有");
-
-        private int value;
-        private String v;
-        Type(int k, String v){
-            this.value = k;
-            this.v = v;
-        }
-        public int getValue() {
-            return value;
-        }
-        public String toString(){
-            return v;
-        }
-    }
-
-    interface Dao extends JpaRepository<WorkflowInstanceAttribute,Long>{
-
+        INNATE,
+        //节点属性
+        NODE;
     }
 
 }

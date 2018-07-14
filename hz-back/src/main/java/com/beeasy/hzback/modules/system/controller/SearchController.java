@@ -14,6 +14,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
+import javax.rmi.CORBA.Util;
 import javax.validation.Valid;
 import java.util.Arrays;
 
@@ -41,7 +42,7 @@ public class SearchController {
             Pager pager,
             @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
     ){
-        return Result.ok(searchService.searchPrivateClient(request, pageable));
+        return Result.ok(searchService.searchPrivateClient(Utils.getCurrentUserId(), request, pageable));
     }
 
 
@@ -61,7 +62,7 @@ public class SearchController {
             Pager pager,
             @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
     ){
-        return Result.ok(searchService.searchAccLoan(request,pageable));
+        return Result.ok(searchService.searchAccLoan(Utils.getCurrentUserId(), request,pageable));
     }
 
     @ApiOperation(value = "贷款资料查询")
@@ -71,7 +72,7 @@ public class SearchController {
             Pager pager,
             @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
     ){
-        return Result.ok(searchService.searchAccLoanData(request,pageable));
+        return Result.ok(searchService.searchAccLoan(Utils.getCurrentUserId(), request,pageable));
     }
 
     @ApiOperation(value = "高管信息查询")
@@ -81,7 +82,7 @@ public class SearchController {
             Pager pager,
             @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
     ){
-        return Result.ok(searchService.searchCusComManager(CUS_ID,pageable));
+        return Result.ok(searchService.searchCusComManager(Utils.getCurrentUserId(), CUS_ID,pageable));
     }
 
     @ApiOperation(value = "联系信息查询")
@@ -91,7 +92,7 @@ public class SearchController {
             Pager pager,
             @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
     ){
-        return Result.ok(searchService.searchComAddr(CUS_ID,pageable));
+        return Result.ok(searchService.searchComAddr(Utils.getCurrentUserId(), CUS_ID,pageable));
     }
 
     @ApiOperation(value = "个人收入情况查询")
@@ -101,7 +102,7 @@ public class SearchController {
             Pager pager,
             @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
     ){
-        return Result.ok(searchService.searchCusInDiv(CUS_ID,pageable));
+        return Result.ok(searchService.searchCusInDiv(Utils.getCurrentUserId(), CUS_ID,pageable));
     }
 
     @ApiOperation(value = "贷款合同列表查询")
@@ -111,7 +112,7 @@ public class SearchController {
             Pager pager,
             @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
     ){
-        return Result.ok(searchService.searchCrtLoan(CONT_NO,pageable));
+        return Result.ok(searchService.searchCrtLoan(Utils.getCurrentUserId(), CONT_NO,pageable));
     }
 
     @ApiOperation(value = "担保合同列表查询")
@@ -121,7 +122,7 @@ public class SearchController {
             Pager pager,
             @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
     ){
-        return Result.ok(searchService.searchGrtGuar(CONT_NO,pageable));
+        return Result.ok(searchService.searchGrtGuar(Utils.getCurrentUserId(), CONT_NO,pageable));
     }
 
     @ApiOperation(value = "贷款台账-基本信息")
@@ -129,7 +130,7 @@ public class SearchController {
     public Result searchACC_LOAN(
             @RequestParam String BILL_NO
     ){
-        return Result.ok(searchService.searchACC_LOAN(BILL_NO));
+        return Result.ok(searchService.searchACC_LOAN(Utils.getCurrentUserId(), BILL_NO));
     }
 
     @ApiOperation(value = "对公客户-基本信息")
@@ -137,7 +138,7 @@ public class SearchController {
     public Result searchCUS_COM(
             @RequestParam String CUS_ID
     ){
-        return Result.ok(searchService.searchCUS_COM(CUS_ID));
+        return Result.ok(searchService.searchCUS_COM(Utils.getCurrentUserId(), CUS_ID));
     }
 
     @ApiOperation(value = "对私客户-基本信息")
@@ -145,7 +146,7 @@ public class SearchController {
     public Result searchCUS_INDIV(
             @RequestParam String CUS_ID
     ){
-        return Result.ok(searchService.searchCUS_INDIV(CUS_ID));
+        return Result.ok(searchService.searchCUS_INDIV(Utils.getCurrentUserId(), CUS_ID));
     }
 
     @ApiOperation(value = "抵押物明细列表查询")
@@ -155,13 +156,14 @@ public class SearchController {
             Pager pager,
             @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
     ){
-        return Result.ok(searchService.searchGRTGBasicInfo(CONT_NO,pageable));
+        return Result.ok(searchService.searchGRTGBasicInfo(Utils.getCurrentUserId(), CONT_NO,pageable));
     }
 
 
     @ApiOperation(value = "设置数据查询权限")
     @RequestMapping(value = "/setPermission", method = RequestMethod.POST)
-    public Result setConditionPermission(GlobalPermissionEditRequest request){
+    public Result setConditionPermission(
+            @Valid @RequestBody GlobalPermissionEditRequest request){
         return Result.ok(searchService.setPermissions(request));
     }
 

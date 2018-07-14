@@ -263,7 +263,7 @@ public class UserController {
     @ApiOperation(value = "创建角色")
     @RequestMapping(value = "/role/create", method = RequestMethod.POST)
     public Result createRole(
-            @Validated(value = RoleRequest.add.class) @RequestBody RoleRequest request
+            @Validated(RoleRequest.add.class) @RequestBody RoleRequest request
     ){
         return userService.createRole(request);
     }

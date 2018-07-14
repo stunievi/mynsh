@@ -45,6 +45,18 @@ public interface IGlobalPermissionDao extends JpaRepository<GlobalPermission,Lon
     }
 
     @Query(value = SQL.GET_UIDS)
+//    @Query(value = "select distinct user.id from GlobalPermission gp, User user, WorkflowInstance ins " +
+//                "left join user.quarters uq " +
+//                "where ins.id = :instanceId and gp.objectId and gp.type in :types and " +
+//                "(" +
+//                    "(gp.userType = 'QUARTER' and uq.id = gp.linkId and " +
+//                            "(" +
+//                                "(select count(d) from Department d where uq.department.code like concat(d.code,'%') and d.id = ins.depId) > 0 or " +
+//                                "(uq.departmentId = ins.depId) or " +
+//                                "(select count(d) from Department d where d.code like concat(uq.department.code,'%') and d.id = ins.depId) > 0" +
+//                            ") " +
+//                ")" +
+//            ")")
     List<Long> getUids(@Param("types")Collection<GlobalPermission.Type> types, @Param("oid") long oid);
 
     @Query(value = "select count(user.id) from GlobalPermission gp, User user left join user.quarters uq where gp.type in :types and gp.objectId = :oid and user.id = :uid and (" +
@@ -76,7 +88,11 @@ public interface IGlobalPermissionDao extends JpaRepository<GlobalPermission,Lon
     List<Long> getObjectIds(@Param("types") Collection<GlobalPermission.Type> types, @Param("uids") Collection<Long> uids);
 
 
-    @Query(value = "select distinct gp from GlobalPermission gp, User user left join user.quarters uq left join user.roles ur where gp.type in :types and user.id = :uid and gp.userType in :userTypes and  (" +
+    @Query(value =
+            "select distinct gp from GlobalPermission gp, User user " +
+            "left join user.quarters uq " +
+            "left join user.roles ur " +
+            "where gp.type in :types and user.id = :uid and gp.userType in :userTypes and  (" +
                 "( gp.userType = 'QUARTER' and uq.id = gp.linkId ) or " +
                 "( gp.userType = 'USER' and user.id = gp.linkId ) or " +
                 "( gp.userType = 'ROLE' and ur.id = gp.linkId )" +

@@ -43,4 +43,9 @@ public interface IDepartmentDao extends JpaRepository<Department,Long> {
     //得到该部门的所有下属子岗位ID
     @Query(value = "select child.id from Quarters child where (select count(par) from Department par where par.code = substring(child.code, 1, length(par.code)) and par.id = :did) > 0 ")
     List getChildQuartersIds(@Param("did") long did);
+
+
+    //得到某些部门所有下属子部门(包括自身)
+    @Query(value = "select distinct d.id from Department d where (select count(dd) from Department dd where d.code like concat(dd.code,'%') and dd.id = :did) > 0")
+    List<Long> getChildDepIds(@Param("did") long did);
 }

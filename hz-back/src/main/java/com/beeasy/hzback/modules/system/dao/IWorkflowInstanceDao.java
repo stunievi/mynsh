@@ -47,56 +47,57 @@ public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Lon
     //我观察的任务
 
     //我未执行的任务
-    @Query("select distinct i from WorkflowInstance i, User u " +
-            "join i.nodeList nl " +
-//            "join nl.nodeModel nm " +
-//            "join nm.persons ps " +
-//            "join u.quarters q " +
-            "where " +
-            //节点处理人是我自己
-            "( (nl.dealerId is not null and nl.dealerId in :uids) or " +
-            //为空的情况,寻找可以处理的人
-            "(nl.dealerId is null and nl.nodeModelId in ("+ IGlobalPermissionDao.SQL.GET_OIDS_WITH_UIDS +")) ) and " +
-            //该节点任务未完成
-            "nl.finished = false and " +
-            //任务进行中
-            "i.state = 'DEALING' and " +
-            //分页
-            "i.id <= :lessId " +
-            "order by i.addTime, i.id desc")
+    @Query("select distinct i from " +
+                "WorkflowInstance i " +
+                "left join i.nodeList nl " +
+                "left join nl.dealers dls " +
+//                "left join u.quarters uq " +
+                "where " +
+                "(" +
+                "   (dls.type = 'CAN_DEAL' and dls.userId in :uids) or " +
+                "   (dls.type = 'DID_DEAL' and dls.userId in :uids)" +
+                ") and " +
+                //节点处理人是我自己
+//                "( (nl.dealerId is not null and nl.dealerId in :uids) or " +
+//                为空的情况,寻找可以处理的人
+//                "(nl.dealerId is null and nl.nodeModelId in :oids ) ) and " +
+                //该节点任务未完成
+                "nl.finished = false and " +
+                //任务进行中
+                "i.state = 'DEALING' and " +
+                //分页
+                "i.id <= :lessId")
     Page<WorkflowInstance> findNeedToDealWorks(
-            @Param("types") Collection<GlobalPermission.Type> types,
             @Param("uids") Collection<Long> uids,
             @Param("lessId") Long lessId,
             Pageable pageable
     );
 
     //我已执行过的任务
-    @Query(value = "select distinct ins from WorkflowInstance ins join ins.nodeList nl join nl.attributeList al where al.dealUser.id in :uids and nl.finished = true and ins.id <= :lessId order by ins.addTime desc")
+    @Query(value = "select distinct ins from WorkflowInstance ins " +
+            "left join ins.nodeList nl " +
+            "left join nl.dealers dl " +
+            "where dl.userId in :uids and dl.type = 'DID_DEAL' and nl.finished = true and ins.id <= :lessId order by ins.addTime desc")
     Page<WorkflowInstance> findDealedWorks(@Param("uids") Collection<Long> uids, @Param("lessId") Long lessId, Pageable pageable);
 
     //部门未执行任务
-    @Query("select distinct i from WorkflowInstance i, User u " +
+    @Query("select distinct i from WorkflowInstance i " +
 //            "join i.nodeList nl " +
 //            "join i.workflowModel model " +
 //            "join model.departments d " +
 //            "join nl.nodeModel nm " +
 //            "join nm.persons ps " +
-            "join u.quarters q " +
             "where " +
             //用户的部门是这个模型归属部门的父部门
-            "( select count(uu) from User uu join uu.quarters qq where uu.id = i.dealUserId and qq.code like concat(q.department.code,'%')) > 0 and " +
+            "i.depId in :dids and " +
             //在用户之中
-            "u.id in :uids and " +
-            //是主管
-            "q.manager = true and " +
             //任务进行中
             "i.state = :state and " +
             //分页
             "i.id <= :lessId " +
             "order by i.addTime, i.id desc")
     Page<WorkflowInstance> findNeedToDealWorksFromDepartments(
-            @Param("uids") Collection<Long> uids,
+            @Param("dids") Collection<Long> dids,
             @Param("state") WorkflowInstance.State state,
             @Param("lessId") Long lessId,
             Pageable pageable
@@ -109,7 +110,7 @@ public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Lon
     @Query(value =
             "select distinct ins from WorkflowInstance ins, User user " +
                     "join user.quarters q " +
-                    "join ins.workflowModel model " +
+//                    "join ins.workflowModel model " +
 //                    "join model.departments d " +
 //                    "join ins.nodeList nl " +
 //                    "join ins.workflowModel model " +
@@ -122,7 +123,7 @@ public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Lon
                         //用户是部门主管
 //                        "( select count(dd) from Department dd where dd.id = d.id and dd.code like concat(q.department.code,'%') and q.manager = true) > 0 or " +
                         //或者拥有观察岗权限
-                        "model.id in (" + IGlobalPermissionDao.SQL.GET_OIDS_WITH_UIDS + ") " +
+                        "ins.modelId in (" + IGlobalPermissionDao.SQL.GET_OIDS_WITH_UIDS + ") " +
                         //或者是曾经执行过的任务
                         //暂时不这么搞
 //                        "(select count(ob) from WorkflowInstanceObserver ob where ob.userId = user.id and ob.instanceId = ins.id) > 0" +

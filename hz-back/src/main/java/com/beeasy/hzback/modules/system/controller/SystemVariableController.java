@@ -9,6 +9,7 @@ import com.beeasy.hzback.modules.system.log.SaveLog;
 import com.beeasy.hzback.modules.system.service.SystemService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,7 +48,10 @@ public class SystemVariableController {
     @RequestMapping(value = "/getall", method = RequestMethod.GET)
     public Result get(
     ){
-        return Result.ok(systemVariableDao.findAll().stream().collect(Collectors.toMap(SystemVariable::getVarName, SystemVariable::getVarValue)));
+        return Result.ok(systemVariableDao.findAll()
+                .stream()
+                .filter(item -> !StringUtils.isEmpty(item.getVarName()))
+                .collect(Collectors.toMap(SystemVariable::getVarName, SystemVariable::getVarValue)));
     }
 
     @ApiOperation(value = "删除系统变量")

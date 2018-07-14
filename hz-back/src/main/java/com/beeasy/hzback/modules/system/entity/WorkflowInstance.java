@@ -7,10 +7,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 @Getter
 @Setter
@@ -142,7 +139,12 @@ public class WorkflowInstance {
     //任务归属部门id
     Long depId;
     //任务归属部门name
-    Long depName;
+    String depName;
+
+
+
+    @Transient
+    Map attributeMap;
 
 //    @JSONField(serialize = false)
 //    @Transient
@@ -155,19 +157,19 @@ public class WorkflowInstance {
 //        return currentNode.orElse(getNodeList().get(getNodeList().size() - 1));
 //    }
 
-    @Transient
-    public WorkflowNodeInstance addNode(WorkflowNode node, boolean add) {
-        WorkflowNodeInstance workflowNodeInstance = new WorkflowNodeInstance();
-        workflowNodeInstance.setNodeModelId(node.getId());
-        workflowNodeInstance.setNodeName(node.getName());
-        workflowNodeInstance.setType(node.getType());
-        workflowNodeInstance.setInstanceId(getId());
-        workflowNodeInstance.setFinished(false);
-        if(add){
-            getNodeList().add(workflowNodeInstance);
-        }
-        return workflowNodeInstance;
-    }
+//    @Transient
+//    public WorkflowNodeInstance addNode(WorkflowNode node, boolean add) {
+//        WorkflowNodeInstance workflowNodeInstance = new WorkflowNodeInstance();
+//        workflowNodeInstance.setNodeModelId(node.getId());
+//        workflowNodeInstance.setNodeName(node.getName());
+//        workflowNodeInstance.setType(node.getType());
+//        workflowNodeInstance.setInstanceId(getId());
+//        workflowNodeInstance.setFinished(false);
+//        if(add){
+//            getNodeList().add(workflowNodeInstance);
+//        }
+//        return workflowNodeInstance;
+//    }
 
 
 //    @Transient

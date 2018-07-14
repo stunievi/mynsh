@@ -45,6 +45,8 @@ public interface IQuartersDao extends JpaRepository<Quarters,Long>{
     @Query(value = "select q.code from Quarters q where q.id = :qid")
     List getQuartersCode(@Param("qid") long qid);
 
+    @Query(value = "select q.departmentId from Quarters q where q.id in :qids" )
+    List<Long> getDepIds(@Param("qids") Collection<Long> qids);
 
 //    @Query(value = "select count(child) from Quarters child where child.id = :cid and child.code like (select concat(par.code,'%') from Department par where par.id = :pid)")
 //    int isFromDepartment(@Param("cid") long cid, @Param("pid") long pid);

@@ -84,6 +84,7 @@ public class SystemService {
         MessageTemplate messageTemplate = new MessageTemplate();
         messageTemplate.setName(request.getName());
         messageTemplate.setTemplate(request.getTemplate());
+        messageTemplate.setPlaceholder(request.getPlaceholder());
         return messageTemplateDao.save(messageTemplate);
     }
 
@@ -94,6 +95,7 @@ public class SystemService {
         }
         messageTemplate.setName(request.getName());
         messageTemplate.setTemplate(request.getTemplate());
+        messageTemplate.setPlaceholder(request.getPlaceholder());
         messageTemplateDao.save(messageTemplate);
         return true;
     }
@@ -169,6 +171,9 @@ public class SystemService {
         @NotBlank(message = "模板内容不能为空",groups = {add.class,edit.class})
         @Size(min = 5,max = 200, message = "模板内容长度在5-200之间", groups = {add.class,edit.class})
         String template;
+
+        @NotBlank(message = "查询语句不能为空", groups = {add.class,edit.class})
+        String placeholder;
 
         //验证不同命
         @AssertTrue(message = "已经有同名模板", groups = {add.class,edit.class})

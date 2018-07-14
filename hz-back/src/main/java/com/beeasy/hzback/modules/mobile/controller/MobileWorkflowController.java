@@ -252,7 +252,7 @@ public class MobileWorkflowController {
     @ApiOperation(value = "需要我处理的任务")
     @RequestMapping(value = "/myNeedingWorks", method = RequestMethod.GET)
     public String getMyNeedToDealWorks(Long lessId){
-        PageRequest pageRequest = new PageRequest(0,10);
+        PageRequest pageRequest = PageRequest.of(0,10);
         return Result.ok(workflowService.getUserUndealedWorks(Collections.singleton(Utils.getCurrentUserId()),lessId,pageRequest)).toMobile(myworkEntries);
     }
 
@@ -314,6 +314,7 @@ public class MobileWorkflowController {
         return Result.finish(workflowService.fetchInstance(Utils.getCurrentUserId(),id)).toMobile();
     }
 
+    @Deprecated
     @ApiOperation(value = "得到某个模型第一个节点的可执行人")
     @GetMapping("/persons/fetch/{id}")
     public String fetchModelFirstNoePersons(@PathVariable Long id){
@@ -323,7 +324,7 @@ public class MobileWorkflowController {
             return Result.error().toMobile();
         }
         FetchWorkflowInstanceResponse response = new FetchWorkflowInstanceResponse();
-        response.setTransformUsers(workflowService.getPubUids(id));
+        response.setTransformUsers(workflowService.getTransformUids(id));
         response.setTransform(workflowService.canPoint(model.getId(),user.getId()));
         return Result.ok(response).toMobile(
                 new Result.DisallowEntry(User.class,"quarters","departments","permissions","externalPermissions")

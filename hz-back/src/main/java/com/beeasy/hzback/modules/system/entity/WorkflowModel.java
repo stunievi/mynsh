@@ -28,7 +28,7 @@ public class WorkflowModel {
 //    @Convert(converter = ObjectConverter.class)
 //    Map<String,BaseNode> model;
 
-    @OneToMany(mappedBy = "model",cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "model",cascade = CascadeType.REMOVE)
     List<WorkflowNode> nodeModels = new ArrayList<>();
 
     String name;
@@ -73,17 +73,17 @@ public class WorkflowModel {
     @OneToMany(mappedBy = "model",cascade = CascadeType.REMOVE)
     List<WorkflowModelInnate> innates = new ArrayList<>();
 
-    @JSONField(serialize = false)
-    @ManyToMany()
-    @JoinTable(name = "t_workflowmodel_department",
-            joinColumns = {
-                    @JoinColumn(name = "MODEL_ID", referencedColumnName = "ID")
-            },
-            inverseJoinColumns = {
-                    @JoinColumn(name = "DEPARTMENT_ID", referencedColumnName = "ID")
-            }
-    )
-    List<Department> departments = new ArrayList<>();
+//    @JSONField(serialize = false)
+//    @ManyToMany()
+//    @JoinTable(name = "t_workflowmodel_department",
+//            joinColumns = {
+//                    @JoinColumn(name = "MODEL_ID", referencedColumnName = "ID")
+//            },
+//            inverseJoinColumns = {
+//                    @JoinColumn(name = "DEPARTMENT_ID", referencedColumnName = "ID")
+//            }
+//    )
+//    List<Department> departments = new ArrayList<>();
 
     //该模型可能归属的部门ID
     String depIds = "";

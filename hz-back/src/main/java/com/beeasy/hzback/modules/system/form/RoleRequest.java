@@ -3,6 +3,8 @@ package com.beeasy.hzback.modules.system.form;
 import com.beeasy.hzback.core.helper.SpringContextUtils;
 import com.beeasy.hzback.modules.system.dao.IRoleDao;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.hibernate.validator.constraints.Range;
 
@@ -10,13 +12,14 @@ import javax.validation.constraints.AssertFalse;
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotNull;
 
-@Data
+@Getter
+@Setter
 public class RoleRequest {
     public interface add{}
     public interface edit{}
 
-    @NotNull(groups = edit.class)
-    Long id;
+    @Range(min = 1, groups = edit.class)
+    long id = 0;
 
     @NotEmpty(groups = {edit.class,add.class})
     String name;

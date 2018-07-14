@@ -72,7 +72,7 @@ public class UserService implements IUserService {
     IGlobalPermissionDao globalPermissionDao;
     @Autowired
     IGlobalPermissionCenterDao centerDao;
-//    @Autowired
+    //    @Autowired
 //    SystemTextLogService logService;
     @Autowired
     IRoleDao roleDao;
@@ -243,7 +243,7 @@ public class UserService implements IUserService {
 
         //创建文件云账号
         Result r = cloudService.createUser(u.getUsername());
-        if(r.isSuccess()){
+        if (r.isSuccess()) {
             userProfile.setCloudUsername(u.getUsername());
             userProfile.setCloudPassword(cloudUserPassword);
         }
@@ -800,14 +800,15 @@ public class UserService implements IUserService {
 
     /**
      * 是否拥有这个用户
+     *
      * @param id 用户ID
      * @return boolean
      */
-    public boolean exists(final long id){
+    public boolean exists(final long id) {
         return userDao.existsById(id);
     }
 
-    public Optional<Role> findRole(long id){
+    public Optional<Role> findRole(long id) {
         return roleDao.findById(id);
     }
 
@@ -818,7 +819,6 @@ public class UserService implements IUserService {
     public Optional<SystemFile> findFile(long id) {
         return systemFileDao.findById(id);
     }
-
 
 
     /**
@@ -876,7 +876,6 @@ public class UserService implements IUserService {
             if (pType.equals(GlobalPermission.Type.USER_METHOD)) {
                 cacheUserMethods(globalPermission);
             }
-//            if(pType.equals())
 
             globalPermission = globalPermissionDao.save(globalPermission);
 
@@ -899,14 +898,15 @@ public class UserService implements IUserService {
 
     /**
      * 按详细参数得到授权对象
+     *
      * @param type
      * @param oid
      * @param userType
      * @param lid
      * @return
      */
-    public Optional<GlobalPermission> getGlobalPermission(GlobalPermission.Type type, long oid, GlobalPermission.UserType userType, long lid){
-        return globalPermissionDao.findTopByTypeAndObjectIdAndUserTypeAndLinkId(type,oid,userType, lid);
+    public Optional<GlobalPermission> getGlobalPermission(GlobalPermission.Type type, long oid, GlobalPermission.UserType userType, long lid) {
+        return globalPermissionDao.findTopByTypeAndObjectIdAndUserTypeAndLinkId(type, oid, userType, lid);
     }
 
     public boolean deleteGlobalPermission(Long... gpids) {
@@ -928,27 +928,28 @@ public class UserService implements IUserService {
         return count > 0;
     }
 
-    public boolean deleteGlobalPermissionByTypeAndObjectId(GlobalPermission.Type type, long id){
-        return globalPermissionDao.deleteAllByTypeAndObjectId(type,id) > 0;
+    public boolean deleteGlobalPermissionByTypeAndObjectId(GlobalPermission.Type type, long id) {
+        return globalPermissionDao.deleteAllByTypeAndObjectId(type, id) > 0;
     }
 
     /**
      * 得到叠加过后的最终授权结果
+     *
      * @param uid
      * @return
      */
     public List getUserMethods(long uid) {
-        List<GlobalPermission> gps = globalPermissionDao.getPermissionsByUser(Collections.singleton(GlobalPermission.Type.USER_METHOD), Arrays.asList(GlobalPermission.UserType.USER,GlobalPermission.UserType.ROLE), uid);
+        List<GlobalPermission> gps = globalPermissionDao.getPermissionsByUser(Collections.singleton(GlobalPermission.Type.USER_METHOD), Arrays.asList(GlobalPermission.UserType.USER, GlobalPermission.UserType.ROLE), uid);
         return gps.stream()
                 .map(GlobalPermission::getDescription)
                 .filter(obj -> obj instanceof JSONArray)
-                .flatMap(obj -> ((JSONArray)obj).stream())
+                .flatMap(obj -> ((JSONArray) obj).stream())
                 .distinct()
                 .collect(Collectors.toList());
     }
 
     public void cacheUserMethods(GlobalPermission globalPermission) {
-        if(true) return;
+        if (true) return;
         userAllowApiDao.deleteAllByUserId(globalPermission.getLinkId());
         JSONObject menu = cache.getMenus();
         for (Object o : (JSONArray) globalPermission.getDescription()) {
@@ -976,10 +977,11 @@ public class UserService implements IUserService {
 
     /**
      * 创建角色
+     *
      * @param request
      * @return
      */
-    public Result createRole(RoleRequest request){
+    public Result createRole(RoleRequest request) {
         Role role = new Role();
         role.setName(request.getName());
         role.setInfo(request.getInfo());
@@ -990,12 +992,13 @@ public class UserService implements IUserService {
 
     /**
      * 编辑角色
+     *
      * @param request
      * @return
      */
-    public Result editRole(RoleRequest request){
+    public Result editRole(RoleRequest request) {
         Role role = findRole(request.getId()).orElse(null);
-        if(null == role){
+        if (null == role) {
             return Result.error();
         }
         role.setName(request.getName());
@@ -1007,10 +1010,11 @@ public class UserService implements IUserService {
 
     /**
      * 删除角色
+     *
      * @param ids
      * @return
      */
-    public Result deleteRoles(Collection<Long> ids){
+    public Result deleteRoles(Collection<Long> ids) {
         return Result.ok(
                 ids.stream().peek(id -> roleDao.deleteById(id)).collect(Collectors.toList())
         );
@@ -1018,93 +1022,98 @@ public class UserService implements IUserService {
 
     /**
      * 角色添加用户
+     *
      * @param rid
      * @param uids
      * @return
      */
-    public Result roleAddUsers(long rid, Collection<Long> uids){
-        if(roleDao.countById(rid) == 0){
+    public Result roleAddUsers(long rid, Collection<Long> uids) {
+        if (roleDao.countById(rid) == 0) {
             return Result.error();
         }
         List list = uids.stream().filter(uid -> {
-            if(roleDao.hasPair(uid,rid) > 0){
+            if (roleDao.hasPair(uid, rid) > 0) {
                 return true;
             }
-            return roleDao.addUserRole(uid,rid) > 0;
+            return roleDao.addUserRole(uid, rid) > 0;
         }).collect(Collectors.toList());
         return Result.ok(list);
     }
 
     /**
      * 角色删除用户
+     *
      * @param rid
      * @param uids
      * @return
      */
-    public Result roleDeleteUsers(long rid, Collection<Long> uids){
-        if(roleDao.countById(rid) == 0){
+    public Result roleDeleteUsers(long rid, Collection<Long> uids) {
+        if (roleDao.countById(rid) == 0) {
             return Result.error();
         }
-        List list = uids.stream().filter(uid -> roleDao.deleteUserRole(uid,rid) > 0).collect(Collectors.toList());
+        List list = uids.stream().filter(uid -> roleDao.deleteUserRole(uid, rid) > 0).collect(Collectors.toList());
         return Result.ok(list);
     }
 
     /**
      * 用户批量设置角色
+     *
      * @param uid
      * @param rids
      * @return
      */
-    public Result userSetRoles(long uid, Collection<Long> rids){
-        if(!userDao.existsById(uid)){
+    public Result userSetRoles(long uid, Collection<Long> rids) {
+        if (!userDao.existsById(uid)) {
             return Result.error();
         }
         //删除所有角色
         roleDao.deleteUserRoles(uid);
         List list = rids.stream().filter(rid -> {
-            if(roleDao.hasPair(uid,rid) > 0){
+            if (roleDao.hasPair(uid, rid) > 0) {
                 return true;
             }
-            return roleDao.addUserRole(uid,rid) > 0;
+            return roleDao.addUserRole(uid, rid) > 0;
         }).collect(Collectors.toList());
         return Result.ok(list);
     }
 
     /**
      * 用户批量删除角色
+     *
      * @param uid
      * @param rids
      * @return
      */
-    public Result userDeleteRoles(long uid, Collection<Long> rids){
-        List list = rids.stream().filter(rid -> roleDao.deleteUserRole(uid,rid) > 0).collect(Collectors.toList());
+    public Result userDeleteRoles(long uid, Collection<Long> rids) {
+        List list = rids.stream().filter(rid -> roleDao.deleteUserRole(uid, rid) > 0).collect(Collectors.toList());
         return Result.ok(list);
     }
 
 
-    public Page searchRoles(RoleSearchRequest request, Pageable pageable){
+    public Page searchRoles(RoleSearchRequest request, Pageable pageable) {
         Specification query = ((root, criteriaQuery, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
-            if(!StringUtils.isEmpty(request.getName())){
-                predicates.add(cb.like(root.get("name"),"%" + request.getName() + "%"));
+            if (!StringUtils.isEmpty(request.getName())) {
+                predicates.add(cb.like(root.get("name"), "%" + request.getName() + "%"));
             }
             return cb.and(predicates.toArray(new Predicate[predicates.size()]));
 
         });
-        return roleDao.findAll(query,pageable);
+        return roleDao.findAll(query, pageable);
     }
 
     /**
      * 检查是否超级管理员
+     *
      * @param uid
      * @return
      */
-    public boolean isSu(long uid){
+    public boolean isSu(long uid) {
         return userDao.countByIdAndSuIsTrue(uid) > 0;
     }
 
     @Data
-    public static class RoleSearchRequest{
+    public static class RoleSearchRequest {
         String name;
     }
 
@@ -1154,7 +1163,6 @@ public class UserService implements IUserService {
         return userDao.hasQuarters(uid, qid) > 0;
     }
 
-
     public boolean departmentHasQuarters(long did, long qid) {
         return departmentDao.departmentHasQuarters(did, qid) > 0;
 //        return departmentDao.departmentHasQuarters(did,qid) > 0;
@@ -1173,6 +1181,10 @@ public class UserService implements IUserService {
                 .getResultList();
     }
 
+    public List<Long> getDidsFromDepartment(long did){
+        return departmentDao.getChildDepIds(did);
+    }
+
     /**
      * 得到某个岗位的所有用户ID
      *
@@ -1184,6 +1196,7 @@ public class UserService implements IUserService {
                 .setParameter("qids", Arrays.asList(qids))
                 .getResultList();
     }
+
 
 
     /**

@@ -50,6 +50,8 @@ public class WorkflowNode extends AbstractBaseEntity{
     boolean end = false;
 
     int processCycle = 1;
+    //节点最大处理人数
+    int maxPerson = 1;
 
     public enum Type{
         input,

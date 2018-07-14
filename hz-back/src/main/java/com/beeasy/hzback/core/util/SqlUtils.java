@@ -122,14 +122,18 @@ public class SqlUtils {
     }
 
     public Page pageQuery(String sql, Pageable pageable){
+        return pageQuery(sql,new ArrayList<>(),pageable);
+    }
+
+    public Page pageQuery(String sql, Collection<String> params, Pageable pageable){
         String countSql = sql
                 .replaceFirst("select([\\w\\W]+?)from", "select count(*) as num from")
                 .replaceFirst("SELECT([\\w\\W]+?)FROM","SELECT count(*) as num FROM");
-         List<Map<String, String>> countList = query(countSql,null);
+        List<Map<String, String>> countList = query(countSql,params);
         int count = Integer.valueOf(countList.get(0).getOrDefault("num","0"));
         //添加分页
         sql += String.format(" limit %d,%d", pageable.getOffset(), pageable.getPageSize());
-        List<Map<String, String>> list = query(sql,null);
+        List<Map<String, String>> list = query(sql,params);
         return new PageImpl(list, pageable, count);
     }
 
@@ -155,6 +159,16 @@ public class SqlUtils {
         query.setMaxResults(pageable.getPageSize());
         PageImpl page = new PageImpl(query.getResultList(),pageable, (Long) countQuery.getResultList().get(0));
         return page;
+    }
+
+    public List<Object> hqlQuery(String sql, Map<String,Object> params){
+        Query query = entityManager.createQuery(sql);
+        if(null != params){
+            for (Map.Entry<String, Object> entry : params.entrySet()) {
+                query.setParameter(entry.getKey(),entry.getValue());
+            }
+        }
+        return query.getResultList();
     }
 
 

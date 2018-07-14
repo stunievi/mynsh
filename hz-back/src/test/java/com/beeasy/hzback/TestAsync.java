@@ -446,8 +446,8 @@ public class TestAsync {
 //        userDao.userAddQuarters(155,33);
 
 //        userService.addUsersToQuarters(Collections.singleton(155l),33);w
-        int ccc = workflowModelDao.isManagerForWorkflow(155l, 8);
-        Assert.assertTrue(ccc > 0);
+//        int ccc = workflowModelDao.isManagerForWorkflow(155l, 8);
+//        Assert.assertTrue(ccc > 0);
 //        int ccc = globalPermissionDao.hasPermission(74l,Collections.singleton(GlobalPermission.Type.WORKFLOW_PUB),29);
 
 //    Object o =         instanceDao.findObserveredWorks(Collections.singletonList(GlobalPermission.Type.WORKFLOW_OBSERVER), Collections.singleton(414l), Long.MAX_VALUE, new PageRequest(0,100));
@@ -522,6 +522,11 @@ public class TestAsync {
     FastFileStorageClient storageClient;
     @Test
     public void updateWorkflows(){
+        Object objs = departmentDao.getChildDepIds(50);
+
+//        Object objs = workflowService.getCanDealUids(276l);
+//        Object objs2 = workflowService.get(180);
+        int d = 1;
 //        List<WorkflowModel> models = Workflow
 
     }

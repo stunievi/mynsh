@@ -40,6 +40,7 @@ public class Department extends AbstractBaseEntity{
     @CreatedDate
     private Date addTime;
 
+    @OrderBy(value = "sort ASC, id ASC")
     @OneToMany(fetch = FetchType.LAZY,mappedBy = "parent")
     private List<Department> children = new ArrayList<>();
 
@@ -49,7 +50,6 @@ public class Department extends AbstractBaseEntity{
     //部门编号
     private String code;
 
-    @OrderBy(value = "DESC")
     private int sort;
 
     String accCode;

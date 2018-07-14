@@ -5,10 +5,7 @@ import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.modules.mobile.request.ApplyTaskRequest;
 import com.beeasy.hzback.modules.mobile.request.SubmitDataRequest;
-import com.beeasy.hzback.modules.system.dao.IWorkflowInstanceDao;
-import com.beeasy.hzback.modules.system.dao.IWorkflowModelDao;
-import com.beeasy.hzback.modules.system.dao.IWorkflowNodeAttributeDao;
-import com.beeasy.hzback.modules.system.dao.IWorkflowNodeInstanceDao;
+import com.beeasy.hzback.modules.system.dao.*;
 import com.beeasy.hzback.modules.system.entity.*;
 import com.beeasy.hzback.modules.system.form.*;
 import com.beeasy.hzback.modules.system.log.NotSaveLog;
@@ -47,6 +44,8 @@ public class WorkFlowController {
     IWorkflowNodeInstanceDao nodeInstanceDao;
     @Autowired
     IWorkflowNodeAttributeDao attributeDao;
+    @Autowired
+    IWorkflowNodeDao nodeDao;
 
 
     @Autowired
@@ -133,12 +132,14 @@ public class WorkFlowController {
             @ApiImplicitParam(name = "modelName", value = "原型model名字")
     })
     @RequestMapping(value = "/instances", method = RequestMethod.GET)
-    public Result<Page<WorkflowInstance>> instanceList(
+    public String instanceList(
             @RequestParam Map<String,String> object,
             Pager pager,
             @PageableDefault(value = 15, sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
     ){
-        return Result.ok(workflowService.getInstanceList(Utils.getCurrentUserId(), object,pageable));
+        return Result.ok(workflowService.getInstanceList(Utils.getCurrentUserId(), object,pageable)).toJson(
+                new Result.DisallowEntry(WorkflowInstance.class,"nodeList")
+        );
     }
 
 
@@ -183,20 +184,6 @@ public class WorkFlowController {
     }
 
 
-//    @ApiOperation(value = "设置主办或者协办的岗位",notes = "目前协办只可以查看, 在资料节点, 只要有一个主办提交了资料, 就可以继续下一步")
-//    @ApiImplicitParams({
-//            @ApiImplicitParam(name = "modelId", value = "模型ID")
-//    })
-//    @PutMapping("/model/setPersons")
-//    public Result setQuarters(
-//            @Valid @RequestBody WorkflowQuartersEdit edit,
-//            BindingResult bindingResult
-//            ){
-//        return workflowService.setPersons(edit);
-//    }
-
-
-
     @ApiOperation(value = "编辑工作流")
     @PutMapping("/model/edit")
     public Result edit2(
@@ -234,6 +221,10 @@ public class WorkFlowController {
         userService.deleteGlobalPermissionByTypeAndObjectId(requests[0].getType(),requests[0].getObjectId());
         for (GlobalPermissionEditRequest request : requests) {
             userService.addGlobalPermission(request.getType(),request.getObjectId(), request.getUserType(), request.getLinkIds(),null);
+        }
+        //更新工作流所属部门
+        if(requests[0].getType().equals(GlobalPermission.Type.WORKFLOW_PUB)){
+            workflowService.updateWorkflowModelDeps(requests[0].getObjectId());
         }
         return Result.ok();
     }
@@ -348,7 +339,6 @@ public class WorkFlowController {
     @RequestMapping(value = "/model/validList", method = RequestMethod.GET)
     public String getUserWorkflows(){
         return Result.ok(workflowService.getUserModelList(Utils.getCurrentUserId())).toJson(
-                new Result.DisallowEntry(WorkflowModel.class, "nodeModels")
         );
     }
 
@@ -373,50 +363,60 @@ public class WorkFlowController {
 
     @ApiOperation(value = "待处理任务")
     @GetMapping("/myNeedingWorks")
-    public Result getMyNeedToDealWorks(
+    public String getMyNeedToDealWorks(
             Pager pager,
             @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
     ){
-        return Result.ok(workflowService.getUserUndealedWorks(Collections.singleton(Utils.getCurrentUserId()),null, pageable));
+        return Result.ok(workflowService.getUserUndealedWorks(Collections.singleton(Utils.getCurrentUserId()),null, pageable)).toJson(
+                new Result.DisallowEntry(WorkflowInstance.class,"nodeList")
+        );
     }
 
     @ApiOperation(value = "已处理任务")
     @GetMapping("/myDealedWorks")
-    public Result getMyDealedWorks(
+    public String getMyDealedWorks(
             Pager pager,
             @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
     ){
-        return Result.ok(workflowService.getUserDealedWorks(Collections.singleton(Utils.getCurrentUserId()),null, pageable));
+        return Result.ok(workflowService.getUserDealedWorks(Collections.singleton(Utils.getCurrentUserId()),null, pageable)).toJson(
+                new Result.DisallowEntry(WorkflowInstance.class,"nodeList")
+        );
     }
 
     @ApiOperation(value = "我观察的任务")
     @GetMapping("/myObserveredWorks")
-    public Result getMyObserveredWorks(
+    public String getMyObserveredWorks(
             Pager pager,
             @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
     ){
 
-        return Result.ok(workflowService.getUserObservedWorks(Collections.singleton(Utils.getCurrentUserId()),null, pageable));
+        return Result.ok(workflowService.getUserObservedWorks(Collections.singleton(Utils.getCurrentUserId()),null, pageable)).toJson(
+                new Result.DisallowEntry(WorkflowInstance.class,"nodeList")
+        );
     }
 
     @ApiOperation(value = "部门待处理任务")
     @GetMapping("/deptUndealedWorks")
-    public Result getDepartmentUndealedWorks(
+    public String getDepartmentUndealedWorks(
             Pager pager,
             @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
     ){
 
-        return Result.ok(workflowService.getDepartmentUndealedWorks(Collections.singleton(Utils.getCurrentUserId()),null, pageable));
+        return Result.ok(workflowService.getDepartmentUndealedWorks((Utils.getCurrentUserId()),null, pageable)).toJson(
+                new Result.DisallowEntry(WorkflowInstance.class,"nodeList")
+        );
     }
 
     @ApiOperation(value = "部门已处理任务")
     @GetMapping("/deptDealedWorks")
-    public Result getDepartmentDealedWorks(
+    public String getDepartmentDealedWorks(
             Pager pager,
             @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
     ){
 
-        return Result.ok(workflowService.getDepartmentDealedWorks(Collections.singleton(Utils.getCurrentUserId()),null, pageable));
+        return Result.ok(workflowService.getDepartmentDealedWorks((Utils.getCurrentUserId()),null, pageable)).toJson(
+                new Result.DisallowEntry(WorkflowInstance.class,"nodeList")
+        );
     }
 
     @ApiOperation(value = "查询一个任务的所有明细")
@@ -618,7 +618,7 @@ public class WorkFlowController {
             Pager pager,
             @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
     ){
-        return Result.ok(workflowService.getUnreceivedWorks(Collections.singleton(Utils.getCurrentUserId()), request, null, pageable)).toJson(
+        return Result.ok(workflowService.getUnreceivedWorks(Utils.getCurrentUserId(), request, null, pageable)).toJson(
                 new Result.DisallowEntry(WorkflowInstance.class, "nodeList")
         );
     }
@@ -685,6 +685,17 @@ public class WorkFlowController {
         return Result.ok(instanceDao.getBindedWorks(billNo, modelName, pageable));
     }
 
+
+    @ApiOperation(value = "查找指定模型的开始节点")
+    @RequestMapping(value = "/node/getStartNode", method = RequestMethod.GET)
+    public Result searchFirstNode(
+            @RequestParam String modelId
+    ){
+        return Result.ok(nodeDao.findAllByModelIdInAndStartIsTrue(Utils.convertIdsToList(modelId))
+                .stream()
+                .collect(Collectors.toMap(item -> item.getId() + "", item -> item))
+        );
+    }
 
 //    public Result searchInfoLink(){
 //
