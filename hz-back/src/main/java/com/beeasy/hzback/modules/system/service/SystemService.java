@@ -143,10 +143,10 @@ public class SystemService {
                 predicates.add(cb.like(root.get("message"), "%" + request.getKeyword() + "%"));
             }
             if(null != request.getStartDate()){
-                predicates.add(cb.greaterThan(root.get("add_time"), new Date(request.getStartDate())));
+                predicates.add(cb.greaterThan(root.get("addTime"), new Date(request.getStartDate())));
             }
             if(null != request.getEndDate()){
-                predicates.add(cb.lessThan(root.get("add_time"), new Date(request.getEndDate())));
+                predicates.add(cb.lessThan(root.get("addTime"), new Date(request.getEndDate())));
             }
             return cb.and(predicates.toArray(new Predicate[predicates.size()]));
         });

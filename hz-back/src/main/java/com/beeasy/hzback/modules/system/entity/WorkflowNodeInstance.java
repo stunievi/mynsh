@@ -4,6 +4,7 @@ import com.alibaba.fastjson.annotation.JSONField;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 @Setter
 @Entity
 @Table(name = "t_workflow_node_instance")
+@EntityListeners(AuditingEntityListener.class)
 public class WorkflowNodeInstance {
 
     @Id
@@ -52,6 +54,9 @@ public class WorkflowNodeInstance {
 
     //任务完成时间
     Date dealDate;
+
+    //添加时间
+    Date addTime;
 
     //是否已经处理完成
     boolean finished = false;
