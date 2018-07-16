@@ -50,6 +50,7 @@ public class WorkflowInstance {
     @CreatedDate
     Date addTime;
 
+    //预计开始时间
     Date planStartTime;
 
     //任务状态

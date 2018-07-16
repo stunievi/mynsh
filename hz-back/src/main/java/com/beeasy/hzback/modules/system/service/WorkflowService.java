@@ -1937,21 +1937,24 @@ public class WorkflowService {
                     cb.equal(join.get("attrValue"),"是")
             ));
             if(!StringUtils.isEmpty(request.getCUS_NAME())){
+                Join j1 = root.join("attributes",JoinType.LEFT);
                 predicates.add(cb.and(
-                    cb.equal(join.get("attrKey"),"CUS_NAME"),
-                    cb.like(join.get("attrValue"), "%" + request.getCUS_NAME() + "%")
+                    cb.equal(j1.get("attrKey"),"CUS_NAME"),
+                    cb.like(j1.get("attrValue"), "%" + request.getCUS_NAME() + "%")
                 ));
             }
             if(!StringUtils.isEmpty(request.getPHONE())){
+                Join j2 = root.join("attributes",JoinType.LEFT);
                 predicates.add(cb.and(
-                        cb.equal(join.get("attrKey"),"PHONE"),
-                        cb.like(join.get("attrValue"), "%" + request.getPHONE() + "%")
+                        cb.equal(j2.get("attrKey"),"PHONE"),
+                        cb.like(j2.get("attrValue"), "%" + request.getPHONE() + "%")
                 ));
             }
             if(!StringUtils.isEmpty(request.getCERT_CODE())){
+                Join j3 = root.join("attributes",JoinType.LEFT);
                 predicates.add(cb.and(
-                        cb.equal(join.get("attrKey"),"CERT_CODE"),
-                        cb.like(join.get("attrValue"), "%" + request.getCERT_CODE() + "%")
+                        cb.equal(j3.get("attrKey"),"CERT_CODE"),
+                        cb.like(j3.get("attrValue"), "%" + request.getCERT_CODE() + "%")
                 ));
             }
             if(null != request.getStartDate()){
@@ -1961,7 +1964,7 @@ public class WorkflowService {
             }
             if(null != request.getEndDate()){
                 predicates.add(
-                        cb.lessThan(root.get("finishedDate"), new Date(request.getStartDate()))
+                        cb.lessThan(root.get("finishedDate"), new Date(request.getEndDate()))
                 );
             }
             return cb.and(predicates.toArray(new Predicate[predicates.size()]));
@@ -1983,13 +1986,13 @@ public class WorkflowService {
         return page;
     }
 
-    private Optional<WorkflowInstanceAttribute> getAttributeByCname(final long instanceId, final String cname){
+    public Optional<WorkflowInstanceAttribute> getAttributeByCname(final long instanceId, final String cname){
         return instanceAttributeDao.findTopByInstanceIdAndAttrCName(instanceId, cname);
     }
-    private Optional<WorkflowInstanceAttribute> getAttributeByKey(final long instanceId, final String key){
+    public Optional<WorkflowInstanceAttribute> getAttributeByKey(final long instanceId, final String key){
         return instanceAttributeDao.findTopByInstanceIdAndAttrKey(instanceId, key);
     }
-    private String getAttributeValueByKey(final long instanceId, final String key){
+    public String getAttributeValueByKey(final long instanceId, final String key){
         return instanceAttributeDao.findTopByInstanceIdAndAttrKey(instanceId, key)
                 .map(WorkflowInstanceAttribute::getAttrValue)
                 .orElse("");
