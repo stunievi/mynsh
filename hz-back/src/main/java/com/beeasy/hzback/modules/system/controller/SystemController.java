@@ -108,6 +108,17 @@ public class SystemController  {
         return Result.finish(systemService.getMessageTemplateById(id));
     }
 
+
+    @ApiOperation(value = "短信发送历史")
+    @RequestMapping(value = "/shortMessage/getList", method = RequestMethod.GET)
+    public Result getShortMessageLog(
+            SystemService.ShortMessageSearchRequest request,
+            Pager pagers,
+            @PageableDefault(direction = Sort.Direction.DESC) Pageable pageable
+    ){
+        return Result.ok(systemService.getShortMessageLog(request,pageable));
+    }
+
     /**********测试***********/
     //该接口只有管理员可以调用
     @Autowired

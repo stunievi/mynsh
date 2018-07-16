@@ -4,12 +4,15 @@ import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.helper.SpringContextUtils;
 import com.beeasy.hzback.modules.system.dao.IMessageDao;
 import com.beeasy.hzback.modules.system.dao.IMessageTemplateDao;
+import com.beeasy.hzback.modules.system.dao.IShortMessageLogDao;
 import com.beeasy.hzback.modules.system.dao.ISystemVariableDao;
 import com.beeasy.hzback.modules.system.entity.Message;
 import com.beeasy.hzback.modules.system.entity.MessageTemplate;
 import com.beeasy.hzback.modules.system.entity.SystemVariable;
 import com.beeasy.hzback.modules.system.form.SystemVarEditRequest;
+import io.netty.util.internal.StringUtil;
 import lombok.Data;
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.reflections.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +38,8 @@ public class SystemService {
     ISystemVariableDao systemVariableDao;
     @Autowired
     IMessageTemplateDao messageTemplateDao;
+    @Autowired
+    IShortMessageLogDao shortMessageLogDao;
 
     /**
      * 变量设置
@@ -120,6 +125,34 @@ public class SystemService {
     }
 
 
+    /**
+     * 短信历史检索
+     * @param request
+     * @param pageable
+     * @return
+     */
+    public Page getShortMessageLog(ShortMessageSearchRequest request, Pageable pageable){
+        Specification query = ((root, criteriaQuery, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            if(!StringUtils.isEmpty(request.getPhone())){
+                predicates.add(
+                        cb.like(root.get("phone"),"%" + request.getPhone() + "%")
+                );
+            }
+            if(!StringUtils.isEmpty(request.getKeyword())){
+                predicates.add(cb.like(root.get("message"), "%" + request.getKeyword() + "%"));
+            }
+            if(null != request.getStartDate()){
+                predicates.add(cb.greaterThan(root.get("add_time"), new Date(request.getStartDate())));
+            }
+            if(null != request.getEndDate()){
+                predicates.add(cb.lessThan(root.get("add_time"), new Date(request.getEndDate())));
+            }
+            return cb.and(predicates.toArray(new Predicate[predicates.size()]));
+        });
+        return shortMessageLogDao.findAll(query,pageable);
+    }
+
     @Cacheable(value = DEMO_CACHE_NAME, key = "'system_info'")
     public String getSystemInfo() {
         String tags = "java.version\n" +
@@ -190,5 +223,13 @@ public class SystemService {
     @Data
     public static class MessageTemplateSearchRequest{
         String name;
+    }
+
+    @Data
+    public static class ShortMessageSearchRequest{
+        String phone;
+        String keyword;
+        Long startDate;
+        Long endDate;
     }
 }

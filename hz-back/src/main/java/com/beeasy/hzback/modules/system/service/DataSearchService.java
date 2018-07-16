@@ -56,7 +56,7 @@ public class DataSearchService {
             sql += ((String.format(" and a.CUS_NAME like '%%%s%%'", request.getCUS_NAME())));
         }
         if (!StringUtils.isEmpty(request.getCERT_CODE())) {
-            sql += String.format(" and a.CERT_CODE like %%%s%%", request.getCERT_CODE());
+            sql += String.format(" and a.CERT_CODE like '%%%s%%'", request.getCERT_CODE());
         }
         //授权
         Map<String, List<String>> limitMap = getPermissionLimit(uid, SearchTargetType.CUS_COM);
@@ -90,7 +90,7 @@ public class DataSearchService {
             sql += ((String.format(" and a.CUS_NAME like '%%%s%%'", request.getCUS_NAME())));
         }
         if (!StringUtils.isEmpty(request.getCERT_CODE())) {
-            sql += (String.format(" and a.CERT_CODE like %%%s%%", request.getCERT_CODE()));
+            sql += (String.format(" and a.CERT_CODE like '%%%s%%'", request.getCERT_CODE()));
         }
         //授权
         Map<String, List<String>> limitMap = getPermissionLimit(uid, SearchTargetType.CUS_INDIV);

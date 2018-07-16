@@ -50,7 +50,9 @@ public class SystemNotice {
         //系统通知
         SYSTEM,
         //工作流
-        WORKFLOW
+        WORKFLOW,
+        //台账信息
+        ACC_LOAN
     }
 
     public enum State{
