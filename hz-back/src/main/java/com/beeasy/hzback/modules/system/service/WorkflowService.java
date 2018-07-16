@@ -19,6 +19,7 @@ import com.beeasy.hzback.modules.system.node.*;
 import com.beeasy.hzback.modules.system.response.FetchWorkflowInstanceResponse;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import io.netty.util.internal.StringUtil;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -834,6 +835,9 @@ public class WorkflowService {
     }
 
     public boolean canPoint(final WorkflowModel model, final User user) {
+        if(StringUtils.isEmpty(model.getDepIds())){
+            return false;
+        }
         List<Long> depIds = Utils.convertIdsToList(model.getDepIds());
         List<Quarters> qs = user.getQuarters();
         return qs.stream()
@@ -1918,6 +1922,85 @@ public class WorkflowService {
         return instances;
     }
 
+    public Page getRejectCollectList(final long uid, RejectCollectRequest request, Pageable pageable){
+        Specification query = ((root, criteriaQuery, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(cb.equal(root.get("state"), WorkflowInstance.State.FINISHED));
+            predicates.add(cb.equal(root.get("modelName"),"资料收集"));
+
+            Join join = root.join("attributes",JoinType.LEFT);
+            predicates.add(cb.and(
+                    cb.equal(join.get("attrCName"),"是否拒贷"),
+                    cb.equal(join.get("attrValue"),"是")
+            ));
+            if(!StringUtils.isEmpty(request.getCUS_NAME())){
+                predicates.add(cb.and(
+                    cb.equal(join.get("attrKey"),"CUS_NAME"),
+                    cb.like(join.get("attrValue"), "%" + request.getCUS_NAME() + "%")
+                ));
+            }
+            if(!StringUtils.isEmpty(request.getPHONE())){
+                predicates.add(cb.and(
+                        cb.equal(join.get("attrKey"),"PHONE"),
+                        cb.like(join.get("attrValue"), "%" + request.getPHONE() + "%")
+                ));
+            }
+            if(!StringUtils.isEmpty(request.getCERT_CODE())){
+                predicates.add(cb.and(
+                        cb.equal(join.get("attrKey"),"CERT_CODE"),
+                        cb.like(join.get("attrValue"), "%" + request.getCERT_CODE() + "%")
+                ));
+            }
+            if(null != request.getStartDate()){
+                predicates.add(
+                        cb.greaterThan(root.get("finishedDate"), request.getStartDate())
+                );
+            }
+            if(null != request.getEndDate()){
+                predicates.add(
+                        cb.lessThan(root.get("finishedDate"), request.getStartDate())
+                );
+            }
+            return cb.and(predicates.toArray(new Predicate[predicates.size()]));
+        });
+        Page page = instanceDao.findAll(query,pageable);
+        page = page.map(obj -> {
+            WorkflowInstance ins = (WorkflowInstance) obj;
+            JSONObject object = new JSONObject();
+            object.put("id",ins.getId());
+            object.put("CUS_NAME", getAttributeValueByKey(ins.getId(),"CUS_NAME"));
+            object.put("PHONE", getAttributeValueByKey(ins.getId(),"PHONE"));
+            object.put("CERT_CODE", getAttributeValueByKey(ins.getId(),"CERT_CODE"));
+            object.put("rejectDate", ins.getFinishedDate());
+            object.put("dealerId", ins.getDealUserId());
+            object.put("depId", ins.getDepId());
+            object.put("ps", getAttributeValueByKey(ins.getId(),"ps"));
+            return object;
+        });
+        return page;
+    }
+
+    private Optional<WorkflowInstanceAttribute> getAttributeByCname(final long instanceId, final String cname){
+        return instanceAttributeDao.findTopByInstanceIdAndAttrCName(instanceId, cname);
+    }
+    private Optional<WorkflowInstanceAttribute> getAttributeByKey(final long instanceId, final String key){
+        return instanceAttributeDao.findTopByInstanceIdAndAttrKey(instanceId, key);
+    }
+    private String getAttributeValueByKey(final long instanceId, final String key){
+        return instanceAttributeDao.findTopByInstanceIdAndAttrKey(instanceId, key)
+                .map(WorkflowInstanceAttribute::getAttrValue)
+                .orElse("");
+    }
+
+    @Data
+    public static class RejectCollectRequest{
+        String CUS_NAME;
+        String PHONE;
+        String CERT_CODE;
+        Date startDate;
+        Date endDate;
+    }
+
     /**
      * 得到我可以发布的模型列表
      *
@@ -2739,10 +2822,8 @@ public class WorkflowService {
         if (ps.equals("null")) {
             ps = "";
         }
-        if (!StringUtils.isEmpty(ps)) {
-            attribute = addAttribute(uid, nodeInstanceId, node.getString("ps"), ps, "备注");
-            attributeDao.save(attribute);
-        }
+        attribute = addAttribute(uid, nodeInstanceId, node.getString("ps"), ps, "审核说明");
+        attributeDao.save(attribute);
 
         return "";
     }

@@ -586,6 +586,16 @@ public class WorkFlowController {
         return Result.ok(workflowService.getUserCanAcceptCommonWorks(Collections.singleton(Utils.getCurrentUserId()),null,pageable)).toJson(new Result.DisallowEntry(WorkflowInstance.class,"nodeList"));
     }
 
+    @ApiOperation(value = "拒贷列表")
+    @RequestMapping(value = "/getRejectCollectList", method = RequestMethod.GET)
+    public Result getRejectCollectList(
+        Pager pager,
+        @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable,
+        WorkflowService.RejectCollectRequest request
+    ){
+        return Result.ok(workflowService.getRejectCollectList(Utils.getCurrentUserId(), request, pageable));
+    }
+
     @ApiOperation(value = "接受公共任务")
     @RequestMapping(value = "/common/accept", method = RequestMethod.GET)
     public Result acceptCommonInstance(
