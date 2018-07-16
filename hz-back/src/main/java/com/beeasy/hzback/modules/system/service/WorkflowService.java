@@ -4,6 +4,7 @@ import bin.leblanc.classtranslate.Transformer;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.annotation.JSONField;
 import com.beeasy.hzback.core.exception.RestException;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.helper.Utils;
@@ -1671,6 +1672,7 @@ public class WorkflowService {
 //            BaseNode baseNode = BaseNode.create(workflowModel,(Map) v);
 
             JSONObject baseNode = null;
+            WorkflowNode node = new WorkflowNode();
             switch (type) {
                 case input:
                     baseNode = buildInputNode(workflowModel, (Map) v);
@@ -1679,6 +1681,7 @@ public class WorkflowService {
 
                 case check:
                     baseNode = buildCheckNode((Map) v);
+                    node.setMaxPerson(baseNode.getInteger("count"));
                     break;
 
                 case logic:
@@ -1692,7 +1695,6 @@ public class WorkflowService {
 
 
             //nodelist
-            WorkflowNode node = new WorkflowNode();
             node.setModel(workflowModel);
             node.setName(String.valueOf(k));
             node.setType(type);
@@ -1736,6 +1738,7 @@ public class WorkflowService {
 
         //补充额外信息
         boolean start = (boolean) model.getOrDefault("manual", false);
+        start = true;
         workflowModel.setManual(start);
         boolean custom = (boolean) model.getOrDefault("custom", true);
         workflowModel.setCustom(custom);
@@ -1953,12 +1956,12 @@ public class WorkflowService {
             }
             if(null != request.getStartDate()){
                 predicates.add(
-                        cb.greaterThan(root.get("finishedDate"), request.getStartDate())
+                        cb.greaterThan(root.get("finishedDate"), new Date(request.getStartDate()))
                 );
             }
             if(null != request.getEndDate()){
                 predicates.add(
-                        cb.lessThan(root.get("finishedDate"), request.getStartDate())
+                        cb.lessThan(root.get("finishedDate"), new Date(request.getStartDate()))
                 );
             }
             return cb.and(predicates.toArray(new Predicate[predicates.size()]));
@@ -1997,8 +2000,9 @@ public class WorkflowService {
         String CUS_NAME;
         String PHONE;
         String CERT_CODE;
-        Date startDate;
-        Date endDate;
+
+        Long startDate;
+        Long endDate;
     }
 
     /**
@@ -2061,6 +2065,7 @@ public class WorkflowService {
             node.setType(WorkflowNode.Type.check);
             node.setName(nodeModel.getName());
             node.setModel(model);
+            node.setMaxPerson(checkNode.getInteger("count"));
             //如果有ID, 则为修改
             node.setId(nodeModel.getNodeId());
 
