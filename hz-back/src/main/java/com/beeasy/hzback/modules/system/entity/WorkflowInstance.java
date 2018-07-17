@@ -6,6 +6,7 @@ import com.beeasy.hzback.modules.system.dao.IUserDao;
 import com.beeasy.hzback.modules.system.service.UserService;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import org.springframework.data.annotation.CreatedDate;
@@ -195,7 +196,7 @@ public class WorkflowInstance {
 
 
     public String getDealUserName() {
-        if(null != dealUserName){
+        if(!StringUtils.isEmpty(dealUserName)){
             return dealUserName;
         }
         else if(null != dealUserId){

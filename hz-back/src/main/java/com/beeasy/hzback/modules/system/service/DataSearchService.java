@@ -146,6 +146,9 @@ public class DataSearchService {
         if(!StringUtils.isEmpty(request.getCLA())){
             sql += String.format(" and a.CLA = '%s'", request.getCLA());
         }
+        if(!StringUtils.isEmpty(request.getACCOUNT_STATUS())){
+            sql += String.format(" and a.ACCOUNT_STATUS = '%s'", request.getACCOUNT_STATUS());
+        }
         if(request.isTimeout()){
             sql += (" and ((a.CAP_OVERDUE_DATE<>'' and a.CAP_OVERDUE_DATE is not NULL) or (a.INT_OVERDUE_DATE<>'' and a.INT_OVERDUE_DATE is not NULL))\n");
         }
@@ -603,6 +606,7 @@ public class DataSearchService {
         String LOAN_ACCOUNT;
         String CUS_ID;
         String CUS_NAME;
+        String ACCOUNT_STATUS;
         String CLA;
 
         Boolean register;
