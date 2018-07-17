@@ -265,6 +265,13 @@ public class UserService implements IUserService {
         initLetter(u);
         User ret = userDao.save(u);
 
+        //岗位
+        if(add.getQids().size() > 0){
+            for (Long aLong : add.getQids()) {
+                addUsersToQuarters(Collections.singleton(ret.getId()), aLong);
+            }
+        }
+
         //添加文件夹
 //        CloudDirectoryIndex cloudDirectoryIndex = new CloudDirectoryIndex();
 //        cloudDirectoryIndex.setDirName("/");

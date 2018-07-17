@@ -7,6 +7,7 @@ import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.Pattern;
+import java.util.List;
 
 @ApiModel
 @Data
@@ -35,6 +36,10 @@ public class UserAdd {
 
     @ApiModelProperty(value = "是否禁用", required = true)
     private boolean baned;
+
+
+    //岗位ID列表
+    List<Long> qids;
 
     //信贷机构代码
     String accCode;
