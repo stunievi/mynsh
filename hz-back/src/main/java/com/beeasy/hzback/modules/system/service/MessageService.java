@@ -273,7 +273,6 @@ public class MessageService implements IMessageService {
         return sendMessage(fromUid, toUid, content, "");
     }
 
-
     public String applyDownload(final long uid, final long id){
         Message message = messageDao.findById(id).orElse(null);
         if(null == message){

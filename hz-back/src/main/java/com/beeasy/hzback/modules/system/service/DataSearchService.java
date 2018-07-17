@@ -77,9 +77,9 @@ public class DataSearchService {
     /**
      * 对私客户列表
      *
-     * @Param uid
      * @param request
      * @param pageable * @return
+     * @Param uid
      */
     public Page searchPrivateClient(long uid, PrivateClientRequest request, Pageable pageable) {
         String sql = "select a.CUS_ID,a.CUS_NAME,a.CERT_TYPE,a.CERT_CODE,b.CUST_MGR,b.MAIN_BR_ID from CUS_BASE as a left join CUS_INDIV as b on a.CUS_ID=b.CUS_ID where (a.CUS_TYPE = '110' or a.CUS_TYPE = '120' or a.CUS_TYPE = '130')";
@@ -143,17 +143,16 @@ public class DataSearchService {
         if (!StringUtils.isEmpty(request.getLOAN_ACCOUNT())) {
             sql += String.format(" and a.LOAN_ACCOUNT like '%%%s%%'", request.getLOAN_ACCOUNT());
         }
-        if(!StringUtils.isEmpty(request.getCLA())){
+        if (!StringUtils.isEmpty(request.getCLA())) {
             sql += String.format(" and a.CLA = '%s'", request.getCLA());
         }
-        if(!StringUtils.isEmpty(request.getACCOUNT_STATUS())){
+        if (!StringUtils.isEmpty(request.getACCOUNT_STATUS())) {
             sql += String.format(" and a.ACCOUNT_STATUS = '%s'", request.getACCOUNT_STATUS());
         }
-        if(null != request.getTimeout()){
-            if(request.timeout){
+        if (null != request.getTimeout()) {
+            if (request.timeout) {
                 sql += (" and ((a.CAP_OVERDUE_DATE<>'' and a.CAP_OVERDUE_DATE is not NULL) or (a.INT_OVERDUE_DATE<>'' and a.INT_OVERDUE_DATE is not NULL))\n");
-            }
-            else{
+            } else {
                 sql += (" and not ((a.CAP_OVERDUE_DATE<>'' and a.CAP_OVERDUE_DATE is not NULL) or (a.INT_OVERDUE_DATE<>'' and a.INT_OVERDUE_DATE is not NULL))\n");
             }
         }
@@ -252,6 +251,7 @@ public class DataSearchService {
 
     /**
      * 贷款合同
+     *
      * @param uid
      * @param contNo
      * @param pageable
@@ -270,6 +270,7 @@ public class DataSearchService {
 
     /**
      * 担保合同
+     *
      * @param uid
      * @param contNo
      * @param pageable
@@ -288,6 +289,7 @@ public class DataSearchService {
 
     /**
      * 抵押物明细
+     *
      * @param uid
      * @param contNo
      * @param pageable
@@ -307,6 +309,7 @@ public class DataSearchService {
 
     /**
      * 对公客户-基本信息
+     *
      * @param uid
      * @param cusId
      * @return
@@ -320,23 +323,25 @@ public class DataSearchService {
             sql += String.format(" and ( MAIN_BR_ID in (%s) or CUST_MGR in (%s) )", joinIn(limitMap.get("dep")), joinIn(limitMap.get("user")));
         }
         List ret = sqlUtils.query(sql);
-        return getPermissionResultLimit(uid,SearchTargetType.CUS_COM, ret);
+        return getPermissionResultLimit(uid, SearchTargetType.CUS_COM, ret);
     }
 
     /**
      * 对私客户-基本信息
+     *
      * @param uid
      * @param cusId
      * @return
      */
     public List searchCUS_INDIV(final long uid, String cusId) {
         String sql = "select INNER_CUS_ID,CUS_ID,MNG_BR_ID,CUS_TYPE,CUS_NAME,INDIV_SEX,CERT_TYPE,CERT_CODE,AGRI_FLG,CUS_BANK_REL,COM_HOLD_STK_AMT,BANK_DUTY,INDIV_NTN,INDIV_BRT_PLACE,INDIV_HOUH_REG_ADD,INDIV_DT_OF_BIRTH,INDIV_POL_ST,INDIV_EDT,INDIV_MAR_ST,POST_ADDR,PHONE,FPHONE,FAX_CODE,EMAIL,INDIV_RSD_ADDR,INDIV_RSD_ST,INDIV_SOC_SCR,INDIV_COM_NAME,INDIV_COM_TYP,INDIV_COM_FLD,INDIV_COM_PHN,INDIV_COM_FAX,INDIV_COM_ADDR,INDIV_COM_CNT_NAME,INDIV_COM_JOB_TTL,INDIV_CRTFCTN,INDIV_SAL_ACC_BANK,INDIV_SAL_ACC_NO,INDIV_SPS_NAME,INDIV_SPS_ID_TYP,INDIV_SPS_ID_CODE,INDIV_SCOM_NAME,INDIV_SPS_OCC,INDIV_SPS_DUTY,INDIV_SPS_PHN,INDIV_SPS_MPHN,INDIV_SPS_JOB_DT,COM_REL_DGR,CRD_GRADE,CRD_DATE,REMARK,CUST_MGR,MAIN_BR_ID,CUS_STATUS,INDIV_COM_FLD_NAME from CUS_INDIV where CUS_ID = ?";
-        List ret =  sqlUtils.query(sql, Collections.singleton(cusId));
+        List ret = sqlUtils.query(sql, Collections.singleton(cusId));
         return getPermissionResultLimit(uid, SearchTargetType.CUS_INDIV, ret);
     }
 
     /**
      * 贷款台账-基本信息
+     *
      * @param uid
      * @param billNo
      * @return
@@ -348,23 +353,20 @@ public class DataSearchService {
     }
 
 
-    public Result searchInnateData(final long uid, final String billNo){
+    public Result searchInnateAccloanData(final long uid, final String billNo) {
         String sql = String.format("select PRD_TYPE from ACC_LOAN where BILL_NO = '%s'", billNo);
-        List<Map<String,String>> res = sqlUtils.query(sql);
-        if(res.size() == 0){
+        List<Map<String, String>> res = sqlUtils.query(sql);
+        if (res.size() == 0) {
             return Result.error("找不到这条台账信息");
         }
-            String type = res.get(0).get("PRD_TYPE");
-            if(type.equals("01")){
-                sql = String.format("select a.BILL_NO,a.CONT_NO,a.CUS_ID,a.CUS_NAME,a.ASSURE_MEANS_MAIN,a.LOAN_AMOUNT             ,a.LOAN_BALANCE            ,a.LOAN_START_DATE         ,a.LOAN_END_DATE           ,a.CLA,a.SEVEN_RESULT,a.CAP_OVERDUE_DATE,a.INT_OVERDUE_DATE,a.UNPD_PRIN_BAL,a.DELAY_INT_CUMU,a.CUS_MANAGER,a.INPUT_BR_ID,a.FINA_BR_ID,a.MAIN_BR_ID,b.PHONE,b.CONTACT_NAME,c.POST_ADDR,c.COM_CRD_GRADE,e.LOAN_TERM from ACC_LOAN as a left join CUS_BASE as b on a.CUS_ID=b.CUS_ID left join  CUS_COM as c on a.CUS_ID=c.CUS_ID left join CTR_LOAN_CONT as e on a.CONT_NO=e.CONT_NO where a.BILL_NO='%s'", billNo);
-            }
-            else if(type.equals("02")){
-                sql = String.format("select a.BILL_NO,a.CONT_NO,a.CUS_ID,a.CUS_NAME,a.ASSURE_MEANS_MAIN,a.LOAN_AMOUNT             ,a.LOAN_BALANCE            ,a.LOAN_START_DATE         ,a.LOAN_END_DATE           ,a.CLA,a.SEVEN_RESULT,a.CAP_OVERDUE_DATE,a.INT_OVERDUE_DATE,a.UNPD_PRIN_BAL,a.DELAY_INT_CUMU,a.CUS_MANAGER,a.INPUT_BR_ID,a.FINA_BR_ID,a.MAIN_BR_ID,b.PHONE,b.CONTACT_NAME,d.POST_ADDR,d.CRD_GRADE,e.LOAN_TERM from ACC_LOAN as a left join CUS_BASE as b on a.CUS_ID=b.CUS_ID left join  CUS_INDIV as d on a.CUS_ID=d.CUS_ID left join CTR_LOAN_CONT as e on a.CONT_NO=e.CONT_NO where a.BILL_NO='%s'", billNo);
-            }
-            else{
-                return Result.error("目前只可以针对对公或者对私发起任务");
-            }
-
+        String type = res.get(0).get("PRD_TYPE");
+        if (type.equals("01")) {
+            sql = String.format("select a.BILL_NO,a.CONT_NO,a.CUS_ID,a.CUS_NAME,a.ASSURE_MEANS_MAIN,a.LOAN_AMOUNT             ,a.LOAN_BALANCE            ,a.LOAN_START_DATE         ,a.LOAN_END_DATE           ,a.CLA,a.SEVEN_RESULT,a.CAP_OVERDUE_DATE,a.INT_OVERDUE_DATE,a.UNPD_PRIN_BAL,a.DELAY_INT_CUMU,a.CUS_MANAGER,a.INPUT_BR_ID,a.FINA_BR_ID,a.MAIN_BR_ID,b.PHONE,b.CONTACT_NAME,c.POST_ADDR,c.COM_CRD_GRADE,e.LOAN_TERM from ACC_LOAN as a left join CUS_BASE as b on a.CUS_ID=b.CUS_ID left join  CUS_COM as c on a.CUS_ID=c.CUS_ID left join CTR_LOAN_CONT as e on a.CONT_NO=e.CONT_NO where a.BILL_NO='%s'", billNo);
+        } else if (type.equals("02")) {
+            sql = String.format("select a.BILL_NO,a.CONT_NO,a.CUS_ID,a.CUS_NAME,a.ASSURE_MEANS_MAIN,a.LOAN_AMOUNT             ,a.LOAN_BALANCE            ,a.LOAN_START_DATE         ,a.LOAN_END_DATE           ,a.CLA,a.SEVEN_RESULT,a.CAP_OVERDUE_DATE,a.INT_OVERDUE_DATE,a.UNPD_PRIN_BAL,a.DELAY_INT_CUMU,a.CUS_MANAGER,a.INPUT_BR_ID,a.FINA_BR_ID,a.MAIN_BR_ID,b.PHONE,b.CONTACT_NAME,d.POST_ADDR,d.CRD_GRADE,e.LOAN_TERM from ACC_LOAN as a left join CUS_BASE as b on a.CUS_ID=b.CUS_ID left join  CUS_INDIV as d on a.CUS_ID=d.CUS_ID left join CTR_LOAN_CONT as e on a.CONT_NO=e.CONT_NO where a.BILL_NO='%s'", billNo);
+        } else {
+            return Result.error("目前只可以针对对公或者对私发起任务");
+        }
 
         //授权
         Map<String, List<String>> limitMap = getPermissionLimit(uid, SearchTargetType.ACC_LOAN);
@@ -374,8 +376,41 @@ public class DataSearchService {
             sql += String.format(" and ( a.MAIN_BR_ID in (%s) or a.CUS_MANAGER in (%s) )", joinIn(limitMap.get("dep")), joinIn(limitMap.get("user")));
         }
         List ret = sqlUtils.query(sql);
-        if(ret.size() == 0){
+        if (ret.size() == 0) {
             return Result.error("找不到这条台账信息");
+        }
+        return Result.ok(ret.get(0));
+    }
+
+
+    public Result searchInnateCusComData(final long uid, final String CUS_ID){
+        String sql = String.format("select a.CUS_ID,a.CUS_NAME,a.CERT_TYPE,a.CERT_CODE,a.CONTACT_NAME,a.PHONE,b.CUST_MGR from CUS_BASE as a left join CUS_COM as b on a.CUS_ID=b.CUS_ID where (a.CUS_TYPE<>'110' and a.CUS_TYPE<>'120' and a.CUS_TYPE<>'130') and a.CUS_ID = '%s'", CUS_ID);
+        //授权
+        Map<String, List<String>> limitMap = getPermissionLimit(uid, SearchTargetType.CUS_COM);
+        if (null == limitMap) {
+            return Result.error("查询不到该客户信息, 无法发起任务");
+        } else if (limitMap.size() > 0) {
+            sql += String.format(" and ( b.MAIN_BR_ID in (%s) or b.CUST_MGR in (%s) )", joinIn(limitMap.get("dep")), joinIn(limitMap.get("user")));
+        }
+        List ret = sqlUtils.query(sql);
+        if (ret.size() == 0) {
+            return Result.error("查询不到该客户信息, 无法发起任务");
+        }
+        return Result.ok(ret.get(0));
+    }
+
+    public Result searchInnateCusIndivData(final long uid, final String CUS_ID){
+        String sql = String.format("select a.CUS_ID,a.CUS_NAME,a.CERT_TYPE,a.CERT_CODE,a.CONTACT_NAME,a.PHONE,b.CUST_MGR from CUS_BASE as a left join CUS_INDIV as b on a.CUS_ID=b.CUS_ID where (a.CUS_TYPE='110' or a.CUS_TYPE='120' or a.CUS_TYPE='130') and a.CUS_ID = '%s' ", CUS_ID);
+        //授权
+        Map<String, List<String>> limitMap = getPermissionLimit(uid, SearchTargetType.CUS_INDIV);
+        if (null == limitMap) {
+            return Result.error("查询不到该客户信息, 无法发起任务");
+        } else if (limitMap.size() > 0) {
+            sql += String.format(" and ( b.MAIN_BR_ID in (%s) or b.CUST_MGR in (%s) )", joinIn(limitMap.get("dep")), joinIn(limitMap.get("user")));
+        }
+        List ret = sqlUtils.query(sql);
+        if (ret.size() == 0) {
+            return Result.error("查询不到该客户信息, 无法发起任务");
         }
         return Result.ok(ret.get(0));
     }
@@ -508,7 +543,7 @@ public class DataSearchService {
     }
 
 
-    public List getPermissionResultLimit(final long uid, SearchTargetType searchTargetType,List ret){
+    public List getPermissionResultLimit(final long uid, SearchTargetType searchTargetType, List ret) {
         //管理员默认开放所有权限
         if (userService.isSu(uid)) {
             return ret;
@@ -526,7 +561,7 @@ public class DataSearchService {
                 .collect(Collectors.toList());
         return (List) ret.stream()
                 .map(item -> {
-                    Map<String,Object> map = (Map<String, Object>) item;
+                    Map<String, Object> map = (Map<String, Object>) item;
                     return map.entrySet().stream()
                             .filter(entry -> fields.contains(entry.getKey()))
                             .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue()));
@@ -641,7 +676,7 @@ public class DataSearchService {
     @Data
     public static class AccloanRequest {
         String BILL_NO;
-//        String CONT_NO;
+        //        String CONT_NO;
         String LOAN_ACCOUNT;
         String CUS_ID;
         String CUS_NAME;

@@ -161,13 +161,28 @@ public class SearchController {
 
 
     @ApiOperation(value = "查询固有字段关联的台账信息")
-    @RequestMapping(value = "/searchInnateData", method = RequestMethod.GET)
+    @RequestMapping(value = "/searchInnateAccloanData", method = RequestMethod.GET)
     public Result searchInnateData(
             @RequestParam String BILL_NO
     ){
-        return searchService.searchInnateData(Utils.getCurrentUserId(), BILL_NO);
+        return searchService.searchInnateAccloanData(Utils.getCurrentUserId(), BILL_NO);
     }
 
+    @ApiOperation(value = "查询固有字段关联的台账信息")
+    @RequestMapping(value = "/searchInnateCusComData", method = RequestMethod.GET)
+    public Result searchInnateAccloanData(
+            @RequestParam String CUS_ID
+    ){
+        return searchService.searchInnateCusComData(Utils.getCurrentUserId(), CUS_ID);
+    }
+
+    @ApiOperation(value = "查询固有字段关联的台账信息")
+    @RequestMapping(value = "/searchInnateCusIndivData", method = RequestMethod.GET)
+    public Result searchInnateCusIndivData(
+            @RequestParam String CUS_ID
+    ){
+        return searchService.searchInnateCusIndivData(Utils.getCurrentUserId(), CUS_ID);
+    }
 
     @ApiOperation(value = "设置数据查询权限")
     @RequestMapping(value = "/setPermission", method = RequestMethod.POST)
