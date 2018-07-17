@@ -149,8 +149,13 @@ public class DataSearchService {
         if(!StringUtils.isEmpty(request.getACCOUNT_STATUS())){
             sql += String.format(" and a.ACCOUNT_STATUS = '%s'", request.getACCOUNT_STATUS());
         }
-        if(request.isTimeout()){
-            sql += (" and ((a.CAP_OVERDUE_DATE<>'' and a.CAP_OVERDUE_DATE is not NULL) or (a.INT_OVERDUE_DATE<>'' and a.INT_OVERDUE_DATE is not NULL))\n");
+        if(null != request.getTimeout()){
+            if(request.timeout){
+                sql += (" and ((a.CAP_OVERDUE_DATE<>'' and a.CAP_OVERDUE_DATE is not NULL) or (a.INT_OVERDUE_DATE<>'' and a.INT_OVERDUE_DATE is not NULL))\n");
+            }
+            else{
+                sql += (" and not ((a.CAP_OVERDUE_DATE<>'' and a.CAP_OVERDUE_DATE is not NULL) or (a.INT_OVERDUE_DATE<>'' and a.INT_OVERDUE_DATE is not NULL))\n");
+            }
         }
         //授权
         Map<String, List<String>> limitMap = getPermissionLimit(uid, SearchTargetType.ACC_LOAN);
@@ -644,7 +649,7 @@ public class DataSearchService {
         String CLA;
 
         Boolean register;
-        boolean timeout;
+        Boolean timeout;
     }
 
     @Data
@@ -709,7 +714,9 @@ public class DataSearchService {
 
     public enum SearchType {
         FOR_DEPARTMENT,
-        FOR_USER
+        FOR_USER,
+        //不做限制
+//        UNLIMITED
     }
 
     public enum SearchTargetType {
