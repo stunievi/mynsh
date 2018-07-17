@@ -22,11 +22,8 @@ public class AutoTaskLink {
     TaskType type;
 
     public enum TaskType{
-        MINI_WEI_PERSONAL,
-        MINI_WEI_COMPANY,
-        SALES_PERSONAL_MORTGAGE,
-        SALES_PERSONAL_CONSUME,
-        SALES_PERSONAL_MANAGE,
+        MINI_WEI,
+        SALES_PERSONAL,
         HOME_BANK
     }
 }

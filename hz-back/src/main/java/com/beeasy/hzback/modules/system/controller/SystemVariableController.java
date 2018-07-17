@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Api(tags = "系统变量API")
@@ -51,7 +52,7 @@ public class SystemVariableController {
         return Result.ok(systemVariableDao.findAll()
                 .stream()
                 .filter(item -> !StringUtils.isEmpty(item.getVarName()))
-                .collect(Collectors.toMap(SystemVariable::getVarName, SystemVariable::getVarValue)));
+                .collect(Collectors.toMap(SystemVariable::getVarName, item -> Optional.ofNullable(item.getVarValue()).orElse(""))));
     }
 
     @ApiOperation(value = "删除系统变量")

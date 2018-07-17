@@ -82,7 +82,7 @@ public class DataSearchService {
      * @param pageable * @return
      */
     public Page searchPrivateClient(long uid, PrivateClientRequest request, Pageable pageable) {
-        String sql = "select a.CUS_ID,a.CUS_NAME,a.CERT_TYPE,a.CERT_CODE,b.CUST_MGR,b.MAIN_BR_ID from CUS_BASE as a left join CUS_INDIV as b on a.CUS_ID=b.CUS_ID where (a.CUS_TYPE<>'110' and a.CUS_TYPE<>'120' and a.CUS_TYPE<>'130')";
+        String sql = "select a.CUS_ID,a.CUS_NAME,a.CERT_TYPE,a.CERT_CODE,b.CUST_MGR,b.MAIN_BR_ID from CUS_BASE as a left join CUS_INDIV as b on a.CUS_ID=b.CUS_ID where (a.CUS_TYPE = '110' or a.CUS_TYPE = '120' or a.CUS_TYPE = '130')";
         if (!StringUtils.isEmpty(request.getCUS_ID())) {
             sql += (String.format(" and a.CUS_ID like '%%%s%%'", request.getCUS_ID()));
         }

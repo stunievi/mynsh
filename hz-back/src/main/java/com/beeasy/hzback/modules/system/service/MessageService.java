@@ -3,14 +3,8 @@ package com.beeasy.hzback.modules.system.service;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.modules.mobile.response.ReadMessageResponse;
 import com.beeasy.hzback.modules.mobile.response.UnreadMessageResponse;
-import com.beeasy.hzback.modules.system.dao.IMessageDao;
-import com.beeasy.hzback.modules.system.dao.IMessageReadDao;
-import com.beeasy.hzback.modules.system.dao.ISystemFileDao;
-import com.beeasy.hzback.modules.system.dao.IUserDao;
-import com.beeasy.hzback.modules.system.entity.Message;
-import com.beeasy.hzback.modules.system.entity.MessageRead;
-import com.beeasy.hzback.modules.system.entity.SystemFile;
-import com.beeasy.hzback.modules.system.entity.User;
+import com.beeasy.hzback.modules.system.dao.*;
+import com.beeasy.hzback.modules.system.entity.*;
 import com.beeasy.hzback.modules.system.form.MessageAdd;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +46,8 @@ public class MessageService implements IMessageService {
 //    IMessageSessionDao messageSessionDao;
     @Autowired
     IMessageReadDao messageReadDao;
+    @Autowired
+    IDownloadFileTokenDao downloadFileTokenDao;
 
     @Autowired
     IUserDao userDao;
@@ -275,6 +271,27 @@ public class MessageService implements IMessageService {
 
     public Optional<Message> sendMessage(long fromUid, long toUid, String content) {
         return sendMessage(fromUid, toUid, content, "");
+    }
+
+
+    public String applyDownload(final long uid, final long id){
+        Message message = messageDao.findById(id).orElse(null);
+        if(null == message){
+            return "";
+        }
+        if(!(message.getFromType().equals(Message.LinkType.USER) && message.getToType().equals(Message.LinkType.USER) && (message.getFromId().equals(uid) || message.getToId().equals(uid)) )){
+            return "";
+        }
+        //如果不是文件
+        if(null == message.getLinkId()){
+            return "";
+        }
+        DownloadFileToken token = new DownloadFileToken();
+        token.setExprTime(new Date(System.currentTimeMillis() + 60 * 60 * 1000));
+        token.setToken(UUID.randomUUID().toString());
+        token.setFileId(message.getLinkId());
+        downloadFileTokenDao.save(token);
+        return token.getToken();
     }
 
 //    public void readMessage(long fromUid, Set<Long> messageIds){

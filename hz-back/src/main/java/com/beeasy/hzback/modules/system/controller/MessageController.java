@@ -10,6 +10,7 @@ import com.beeasy.hzback.modules.system.log.NotSaveLog;
 import com.beeasy.hzback.modules.system.service.MessageService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Api(tags = "消息API")
 @RestController
@@ -84,6 +86,20 @@ public class MessageController {
             Long userId
     ){
         return Result.ok(messageService.getUserRecentMessages(Utils.getCurrentUserId(),userId,messageId));
+    }
+
+
+    @ApiOperation(value = "申请下载令牌")
+    @RequestMapping(value = "/downloadApply", method = RequestMethod.GET)
+    public Result downloadApply(
+            @RequestParam String id
+    ){
+        return Result.ok(Utils.convertIdsToList(id)
+                .stream()
+                .map(i -> new Object[]{i + "", messageService.applyDownload(Utils.getCurrentUserId(),i)})
+                .collect(Collectors.toMap(obj -> obj[0], obj -> obj[1]))
+        );
+
     }
 
 }
