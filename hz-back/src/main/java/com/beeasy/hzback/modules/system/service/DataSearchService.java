@@ -342,6 +342,40 @@ public class DataSearchService {
         return getPermissionResultLimit(uid, SearchTargetType.ACC_LOAN, ret);
     }
 
+
+    public Result searchInnateData(final long uid, final String billNo){
+        String sql = String.format("select PRD_TYPE from ACC_LOAN where BILL_NO = '%s'", billNo);
+        List<Map<String,String>> res = sqlUtils.query(sql);
+        if(res.size() == 0){
+            return Result.error("找不到这条台账信息");
+        }
+            String type = res.get(0).get("PRD_TYPE");
+            if(type.equals("01")){
+                sql = String.format("select a.BILL_NO,a.CONT_NO,a.CUS_ID,a.CUS_NAME,a.ASSURE_MEANS_MAIN,a.LOAN_AMOUNT             ,a.LOAN_BALANCE            ,a.LOAN_START_DATE         ,a.LOAN_END_DATE           ,a.CLA,a.SEVEN_RESULT,a.CAP_OVERDUE_DATE,a.INT_OVERDUE_DATE,a.UNPD_PRIN_BAL,a.DELAY_INT_CUMU,a.CUS_MANAGER,a.INPUT_BR_ID,a.FINA_BR_ID,a.MAIN_BR_ID,b.PHONE,b.CONTACT_NAME,c.POST_ADDR,c.COM_CRD_GRADE,e.LOAN_TERM from ACC_LOAN as a left join CUS_BASE as b on a.CUS_ID=b.CUS_ID left join  CUS_COM as c on a.CUS_ID=c.CUS_ID left join CTR_LOAN_CONT as e on a.CONT_NO=e.CONT_NO where a.BILL_NO='%s'", billNo);
+            }
+            else if(type.equals("02")){
+                sql = String.format("select a.BILL_NO,a.CONT_NO,a.CUS_ID,a.CUS_NAME,a.ASSURE_MEANS_MAIN,a.LOAN_AMOUNT             ,a.LOAN_BALANCE            ,a.LOAN_START_DATE         ,a.LOAN_END_DATE           ,a.CLA,a.SEVEN_RESULT,a.CAP_OVERDUE_DATE,a.INT_OVERDUE_DATE,a.UNPD_PRIN_BAL,a.DELAY_INT_CUMU,a.CUS_MANAGER,a.INPUT_BR_ID,a.FINA_BR_ID,a.MAIN_BR_ID,b.PHONE,b.CONTACT_NAME,d.POST_ADDR,d.CRD_GRADE,e.LOAN_TERM from ACC_LOAN as a left join CUS_BASE as b on a.CUS_ID=b.CUS_ID left join  CUS_INDIV as d on a.CUS_ID=d.CUS_ID left join CTR_LOAN_CONT as e on a.CONT_NO=e.CONT_NO where a.BILL_NO='%s'", billNo);
+            }
+            else{
+                return Result.error("目前只可以针对对公或者对私发起任务");
+            }
+
+
+        //授权
+        Map<String, List<String>> limitMap = getPermissionLimit(uid, SearchTargetType.ACC_LOAN);
+        if (null == limitMap) {
+            return Result.error("找不到这条台账信息");
+        } else if (limitMap.size() > 0) {
+            sql += String.format(" and ( a.MAIN_BR_ID in (%s) or a.CUS_MANAGER in (%s) )", joinIn(limitMap.get("dep")), joinIn(limitMap.get("user")));
+        }
+        List ret = sqlUtils.query(sql);
+        if(ret.size() == 0){
+            return Result.error("找不到这条台账信息");
+        }
+        return Result.ok(ret.get(0));
+    }
+
+
     /********* 报表 **********/
     public Page searchYQYSBJDQ(YQYSBJDQRequest request, Pageable pageable) {
         String sql = "SELECT BILL_NO, CONT_NO, CUS_ID, CUS_NAME, LOAN_BALANCE\n" +

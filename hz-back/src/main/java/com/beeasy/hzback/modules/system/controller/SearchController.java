@@ -160,6 +160,15 @@ public class SearchController {
     }
 
 
+    @ApiOperation(value = "查询固有字段关联的台账信息")
+    @RequestMapping(value = "/searchInnateData", method = RequestMethod.GET)
+    public Result searchInnateData(
+            @RequestParam String BILL_NO
+    ){
+        return searchService.searchInnateData(Utils.getCurrentUserId(), BILL_NO);
+    }
+
+
     @ApiOperation(value = "设置数据查询权限")
     @RequestMapping(value = "/setPermission", method = RequestMethod.POST)
     public Result setConditionPermission(
