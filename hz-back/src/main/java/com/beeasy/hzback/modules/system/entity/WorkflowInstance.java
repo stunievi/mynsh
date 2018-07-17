@@ -96,7 +96,7 @@ public class WorkflowInstance {
     List<WorkflowNodeInstance> nodeList = new LinkedList<>();
 
     //固有属性
-    @OneToMany(mappedBy = "instance", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "instance")
     List<WorkflowInstanceAttribute> attributes = new ArrayList<>();
 
     //任务完成日期
