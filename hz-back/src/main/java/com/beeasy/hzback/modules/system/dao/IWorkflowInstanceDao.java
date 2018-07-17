@@ -54,8 +54,8 @@ public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Lon
 //                "left join u.quarters uq " +
                 "where " +
                 "(" +
-                "   (dls.type = 'CAN_DEAL' and dls.userId in :uids) or " +
-                "   (dls.type = 'DID_DEAL' and dls.userId in :uids)" +
+                "   (dls.type = 'CAN_DEAL' and dls.userId = :uid) or " +
+                "   (dls.type = 'DID_DEAL' and dls.userId = :uid)" +
                 ") and " +
                 //节点处理人是我自己
 //                "( (nl.dealerId is not null and nl.dealerId in :uids) or " +
@@ -68,7 +68,7 @@ public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Lon
                 //分页
                 "i.id <= :lessId")
     Page<WorkflowInstance> findNeedToDealWorks(
-            @Param("uids") Collection<Long> uids,
+            @Param("uid") long uid,
             @Param("lessId") Long lessId,
             Pageable pageable
     );

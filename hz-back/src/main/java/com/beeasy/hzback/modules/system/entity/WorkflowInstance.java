@@ -1,8 +1,13 @@
 package com.beeasy.hzback.modules.system.entity;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.beeasy.hzback.core.helper.SpringContextUtils;
+import com.beeasy.hzback.modules.system.dao.IUserDao;
+import com.beeasy.hzback.modules.system.service.UserService;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -80,6 +85,8 @@ public class WorkflowInstance {
     @Column(name = "deal_user_id")
     Long dealUserId;
 
+    String dealUserName;
+
     //任务发布人(指派者)
     Long pubUserId;
 
@@ -143,9 +150,12 @@ public class WorkflowInstance {
     String depName;
 
 
-
-    @Transient
-    Map attributeMap;
+    @JSONField(serialize = false)
+    @ElementCollection
+    @MapKeyColumn(name = "attrKey")
+    @Column(name = "attrValue")
+    @CollectionTable(name = "t_workflow_instance_attribute", joinColumns = {@JoinColumn(name = "instance_id")})
+    Map<String,String> attributeMap;
 
 //    @JSONField(serialize = false)
 //    @Transient
@@ -182,6 +192,18 @@ public class WorkflowInstance {
 //    public long getPubUserId() {
 //        return isAutoCreated() ? 0 : pubUser.getId();
 //    }
+
+
+    public String getDealUserName() {
+        if(null != dealUserName){
+            return dealUserName;
+        }
+        else if(null != dealUserId){
+            dealUserName = SpringContextUtils.getBean(UserService.class).findUser(dealUserId).map(User::getTrueName).orElse("");
+            return dealUserName;
+        }
+        return "";
+    }
 
     @Transient
     public long getNextInstanceId(){

@@ -4,6 +4,7 @@ import com.alibaba.fastjson.annotation.JSONField;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
@@ -56,6 +57,7 @@ public class WorkflowNodeInstance {
     Date dealDate;
 
     //添加时间
+    @CreatedDate
     Date addTime;
 
     //是否已经处理完成

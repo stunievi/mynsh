@@ -169,6 +169,14 @@ public class Utils {
         return Result.ok();
     }
 
+    public static Map newMap(Object ...objs){
+        Map map = new HashMap();
+        for(int i = 0; i < objs.length; i += 2){
+            map.put(objs[i], objs[i + 1]);
+        }
+        return map;
+    }
+
 
     @Autowired
     RedisTemplate redisTemplate;

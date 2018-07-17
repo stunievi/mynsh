@@ -253,7 +253,7 @@ public class MobileWorkflowController {
     @RequestMapping(value = "/myNeedingWorks", method = RequestMethod.GET)
     public String getMyNeedToDealWorks(Long lessId){
         PageRequest pageRequest = PageRequest.of(0,10);
-        return Result.ok(workflowService.getUserUndealedWorks(Collections.singleton(Utils.getCurrentUserId()),lessId,pageRequest)).toMobile(myworkEntries);
+        return Result.ok(workflowService.getUserUndealedWorks((Utils.getCurrentUserId()),lessId,pageRequest)).toMobile(myworkEntries);
     }
 
     @ApiOperation(value = "我处理过的任务")

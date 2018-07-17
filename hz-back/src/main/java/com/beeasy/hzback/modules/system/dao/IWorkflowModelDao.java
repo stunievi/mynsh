@@ -27,6 +27,7 @@ public interface IWorkflowModelDao extends JpaRepository<WorkflowModel,Long>, Jp
 
     //查找同名工作流是否有相同版本
     int countByNameAndOpenIsTrue(String name);
+    Optional<WorkflowModel> findTopByModelNameAndOpenIsTrue(final String modelName);
 
     Optional<WorkflowModel> findFirstByModelNameAndOpenIsTrueOrderByVersionDesc(String modelName);
 

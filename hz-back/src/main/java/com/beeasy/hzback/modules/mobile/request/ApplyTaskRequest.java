@@ -4,8 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.Future;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
@@ -17,8 +19,12 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ApplyTaskRequest {
-    @NotNull(message = "请选择对应的模型")
     Long modelId;
+    String modelName;
+
+    //父任务ID
+    Long parentId;
+
     @NotEmpty(message = "任务标题不能为空")
     String title;
     String info;
@@ -58,5 +64,11 @@ public class ApplyTaskRequest {
         this.dealerId = dealerId;
         this.manual = manual;
         this.common = common;
+    }
+
+
+    @AssertTrue(message = "模型ID和标准模型名至少要有一个")
+    public boolean isValidModel(){
+        return null != modelId || !StringUtils.isEmpty(modelName);
     }
 }

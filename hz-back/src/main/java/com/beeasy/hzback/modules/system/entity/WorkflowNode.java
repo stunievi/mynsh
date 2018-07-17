@@ -43,8 +43,8 @@ public class WorkflowNode extends AbstractBaseEntity{
     List<String> next = new ArrayList<>();
 
     //允许使用的子流程
-    @Convert(converter = StringCommaConverter.class)
-    List<String> allowChildTask = new ArrayList<>();
+//    @Convert(converter = StringCommaConverter.class)
+//    List<String> allowChildTask = new ArrayList<>();
 
     boolean start = false;
     boolean end = false;

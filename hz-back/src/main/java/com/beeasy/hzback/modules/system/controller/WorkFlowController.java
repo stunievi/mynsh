@@ -1,6 +1,6 @@
 package com.beeasy.hzback.modules.system.controller;
 
-import com.beeasy.hzback.core.exception.RestException;
+import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.modules.mobile.request.ApplyTaskRequest;
@@ -12,6 +12,7 @@ import com.beeasy.hzback.modules.system.log.NotSaveLog;
 import com.beeasy.hzback.modules.system.log.SaveLog;
 import com.beeasy.hzback.modules.system.service.UserService;
 import com.beeasy.hzback.modules.system.service.WorkflowService;
+import com.google.common.collect.ImmutableMap;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -363,24 +364,46 @@ public class WorkFlowController {
 
     @ApiOperation(value = "待处理任务")
     @GetMapping("/myNeedingWorks")
-    public String getMyNeedToDealWorks(
+    public Result getMyNeedToDealWorks(
             Pager pager,
             @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
     ){
-        return Result.ok(workflowService.getUserUndealedWorks(Collections.singleton(Utils.getCurrentUserId()),null, pageable)).toJson(
-                new Result.DisallowEntry(WorkflowInstance.class,"nodeList")
+        return Result.ok(
+                workflowService.getUserUndealedWorks(Utils.getCurrentUserId(),null, pageable).map(o -> {
+                    WorkflowInstance ins = (WorkflowInstance) o;
+                    Map<String,String> map = ins.getAttributeMap();
+                    return Utils.newMap(
+                            "id", ins.getId(),
+                            "CUS_NAME",map.get("CUS_NAME"),
+                            "LOAN_ACCOUNT",map.get("LOAN_ACCOUNT"),
+                            "modelName", ins.getModelName(),
+                            "state", ins.getState(),
+                            "addTime", ins.getAddTime(),
+                            "finishedDate", ins.getFinishedDate()
+                    );
+                })
         );
     }
 
     @ApiOperation(value = "已处理任务")
-    @GetMapping("/myDealedWorks")
-    public String getMyDealedWorks(
+    @RequestMapping(value = "/myDealedWorks", method = RequestMethod.GET)
+    public Result getMyDealedWorks(
             Pager pager,
             @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
     ){
-        return Result.ok(workflowService.getUserDealedWorks(Collections.singleton(Utils.getCurrentUserId()),null, pageable)).toJson(
-                new Result.DisallowEntry(WorkflowInstance.class,"nodeList")
-        );
+        return Result.ok(workflowService.getUserDealedWorks(Collections.singleton(Utils.getCurrentUserId()),null, pageable).map(o -> {
+            WorkflowInstance ins = (WorkflowInstance) o;
+            Map<String,String> map = ins.getAttributeMap();
+            return Utils.newMap(
+                    "id", ins.getId(),
+                    "CUS_NAME",map.get("CUS_NAME"),
+                    "LOAN_ACCOUNT",map.get("LOAN_ACCOUNT"),
+                    "modelName", ins.getModelName(),
+                    "state", ins.getState(),
+                    "addTime", ins.getAddTime(),
+                    "finishedDate", ins.getFinishedDate()
+            );
+        }));
     }
 
     @ApiOperation(value = "我观察的任务")
@@ -396,27 +419,53 @@ public class WorkFlowController {
     }
 
     @ApiOperation(value = "部门待处理任务")
-    @GetMapping("/deptUndealedWorks")
-    public String getDepartmentUndealedWorks(
+    @RequestMapping(value = "/deptUndealedWorks", method = RequestMethod.GET)
+    public Result getDepartmentUndealedWorks(
             Pager pager,
             @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
     ){
 
-        return Result.ok(workflowService.getDepartmentUndealedWorks((Utils.getCurrentUserId()),null, pageable)).toJson(
-                new Result.DisallowEntry(WorkflowInstance.class,"nodeList")
+        return Result.ok(
+                workflowService.getDepartmentUndealedWorks((Utils.getCurrentUserId()),null, pageable).map(o -> {
+                    WorkflowInstance ins = (WorkflowInstance) o;
+                    Map<String,String> map = ins.getAttributeMap();
+                    return Utils.newMap(
+                            "id", ins.getId(),
+                            "CUS_NAME",map.get("CUS_NAME"),
+                            "LOAN_ACCOUNT",map.get("LOAN_ACCOUNT"),
+                            "modelName", ins.getModelName(),
+                            "state", ins.getState(),
+                            "addTime", ins.getAddTime(),
+                            "finishedDate", ins.getFinishedDate(),
+                            "dealer",ins.getDealUserId(),
+                            "dealerName", ins.getDealUserName()
+                    );
+                })
         );
     }
 
     @ApiOperation(value = "部门已处理任务")
-    @GetMapping("/deptDealedWorks")
-    public String getDepartmentDealedWorks(
+    @RequestMapping(value = "/deptDealedWorks", method = RequestMethod.GET)
+    public Result getDepartmentDealedWorks(
             Pager pager,
             @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
     ){
 
-        return Result.ok(workflowService.getDepartmentDealedWorks((Utils.getCurrentUserId()),null, pageable)).toJson(
-                new Result.DisallowEntry(WorkflowInstance.class,"nodeList")
-        );
+        return Result.ok(workflowService.getDepartmentDealedWorks((Utils.getCurrentUserId()),null, pageable).map(o -> {
+            WorkflowInstance ins = (WorkflowInstance) o;
+            Map<String,String> map = ins.getAttributeMap();
+            return Utils.newMap(
+                    "id", ins.getId(),
+                    "CUS_NAME",map.get("CUS_NAME"),
+                    "LOAN_ACCOUNT",map.get("LOAN_ACCOUNT"),
+                    "modelName", ins.getModelName(),
+                    "state", ins.getState(),
+                    "addTime", ins.getAddTime(),
+                    "finishedDate", ins.getFinishedDate(),
+                    "dealer",ins.getDealUserId(),
+                    "dealerName", ins.getDealUserName()
+            );
+        }));
     }
 
     @ApiOperation(value = "查询一个任务的所有明细")

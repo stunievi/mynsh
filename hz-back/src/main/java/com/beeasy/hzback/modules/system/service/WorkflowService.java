@@ -186,20 +186,22 @@ public class WorkflowService {
         if (!userService.exists(uid)) {
             return Result.error("任务发布人ID错误");
         }
-        WorkflowModel workflowModel = findModel(request.getModelId()).orElse(null);
+        WorkflowModel workflowModel = null;
+        //如果使用了ID, 那么以ID为准
+        if(null != request.getModelId()){
+            workflowModel = findModel(request.getModelId()).orElse(null);
+        }
+        //如果使用了模型名, 那么自行查找一个合法的模型
+        else if(!StringUtils.isEmpty(request.getModelName())){
+            workflowModel = modelDao.findTopByModelNameAndOpenIsTrue(request.getModelName()).orElse(null);
+        }
         if (null == workflowModel || !workflowModel.isOpen()) {
             return Result.error("工作流没有开启");
         }
 
         //计算任务归属部门
         //命中岗位权限的直属上级
-//        List<GlobalPermission> globalPermissions = globalPermissionDao.getPermissionsByUser(
-//                Collections.singleton(GlobalPermission.Type.WORKFLOW_PUB),
-//                Collections.singleton(GlobalPermission.UserType.QUARTER),uid);
         List<GlobalPermission> globalPermissions = globalPermissionDao.findAllByTypeInAndObjectId(Collections.singleton(GlobalPermission.Type.WORKFLOW_PUB), request.getModelId());
-//        if(globalPermissions.size() == 0){
-//            return Result.error("没有权限发布这个任务");
-//        }
         Department department = globalPermissions.stream()
                 .filter(item -> item.getUserType().equals(GlobalPermission.UserType.QUARTER))
                 .filter(item -> userService.hasQuarters(uid, item.getLinkId()))
@@ -374,12 +376,18 @@ public class WorkflowService {
                 WorkflowModelInnate after = entry.getValue();
                 switch (after.getContent().getString("type")) {
                     case "taskId":
-                        WorkflowInstanceAttribute attribute = new WorkflowInstanceAttribute();
-                        attribute.setInstanceId(workflowInstance.getId());
-                        attribute.setType(WorkflowInstanceAttribute.Type.INNATE);
-                        attribute.setAttrCName(after.getContent().getString("cname"));
-                        attribute.setAttrKey(after.getContent().getString("ename"));
-                        attribute.setAttrValue(workflowInstance.getId() + "");
+                        WorkflowInstanceAttribute attribute = addAttribute(
+                                workflowInstance,
+                                WorkflowInstanceAttribute.Type.INNATE,
+                                after.getContent().getString("ename"),
+                                workflowInstance.getId() + "",
+                                after.getContent().getString("cname"));
+//                        WorkflowInstanceAttribute attribute = new WorkflowInstanceAttribute();
+//                        attribute.setInstanceId(workflowInstance.getId());
+//                        attribute.setType(WorkflowInstanceAttribute.Type.INNATE);
+//                        attribute.setAttrCName(after.getContent().getString("cname"));
+//                        attribute.setAttrKey(after.getContent().getString("ename"));
+//                        attribute.setAttrValue(workflowInstance.getId() + "");
                         instanceAttributeDao.save(attribute);
                         break;
 
@@ -499,12 +507,20 @@ public class WorkflowService {
                             continue;
                         }
                         //插入固有字段
-                        WorkflowInstanceAttribute attribute = new WorkflowInstanceAttribute();
-                        attribute.setInstanceId(instance.getId());
-                        attribute.setType(WorkflowInstanceAttribute.Type.INNATE);
-                        attribute.setAttrCName(workflowModelInnate.getContent().getString("cname"));
-                        attribute.setAttrKey(workflowModelInnate.getContent().getString("ename"));
-                        attribute.setAttrValue(rs.get(0).getOrDefault(attribute.getAttrKey(), ""));
+                        JSONObject content = workflowModelInnate.getContent();
+                        WorkflowInstanceAttribute attribute = addAttribute(
+                                instance,
+                                WorkflowInstanceAttribute.Type.INNATE,
+                                content.getString("ename"),
+                                rs.get(0).getOrDefault(content.getString("ename"),""),
+                                content.getString("cname")
+                                );
+//                        WorkflowInstanceAttribute attribute = new WorkflowInstanceAttribute();
+//                        attribute.setInstanceId(instance.getId());
+//                        attribute.setType(WorkflowInstanceAttribute.Type.INNATE);
+//                        attribute.setAttrCName(workflowModelInnate.getContent().getString("cname"));
+//                        attribute.setAttrKey(workflowModelInnate.getContent().getString("ename"));
+//                        attribute.setAttrValue(rs.get(0).getOrDefault(attribute.getAttrKey(), ""));
                         instanceAttributeDao.save(attribute);
                     }
                     //更新第一个节点里的对应字段
@@ -562,9 +578,9 @@ public class WorkflowService {
             return Result.error("找不到合适的节点");
         }
         //允许开启的子流程是否存在
-        if (!nodeInstance.getNodeModel().getAllowChildTask().contains(request.getModelName())) {
-            return Result.error("禁止开启子流程");
-        }
+//        if (!nodeInstance.getNodeModel().getAllowChildTask().contains(request.getModelName())) {
+//            return Result.error("禁止开启子流程");
+//        }
         if (!checkNodeAuth(nodeInstance, user)) {
             return Result.error("权限错误");
         }
@@ -839,10 +855,15 @@ public class WorkflowService {
         if(StringUtils.isEmpty(model.getDepIds())){
             return false;
         }
-        List<Long> depIds = Utils.convertIdsToList(model.getDepIds());
-        List<Quarters> qs = user.getQuarters();
-        return qs.stream()
-                .anyMatch(item -> item.isManager() && depIds.contains(item.getDepartmentId()));
+        try{
+            List<Long> depIds = Utils.convertIdsToList(model.getDepIds());
+            List<Quarters> qs = user.getQuarters();
+            return qs.stream()
+                    .anyMatch(item -> item.isManager() && depIds.contains(item.getDepartmentId()));
+        }
+        catch (Exception e){
+            return false;
+        }
     }
 
     /**
@@ -886,11 +907,11 @@ public class WorkflowService {
      * @param pageable
      * @return
      */
-    public Page getUserUndealedWorks(Collection<Long> uids, Long lessId, Pageable pageable) {
+    public Page getUserUndealedWorks(final long uid, Long lessId, Pageable pageable) {
         if (lessId == null) {
             lessId = Long.MAX_VALUE;
         }
-        return instanceDao.findNeedToDealWorks(uids,lessId,pageable);
+        return instanceDao.findNeedToDealWorks(uid,lessId,pageable);
         //得到所有我可以处理的模型
 //        List<Long> oids = globalPermissionDao.getObjectIds(Collections.singleton(GlobalPermission.Type.WORKFLOW_MAIN_QUARTER),uids);
 //        if(oids.size() == 0){
@@ -1715,15 +1736,16 @@ public class WorkflowService {
                     node.getNext().add(String.valueOf(next));
                 }
             }
-            //允许开放的子流程
-            List<String> allowChildTask = (List<String>) ((Map) v).getOrDefault("allow_child_task", new ArrayList<>());
-            node.setAllowChildTask(allowChildTask);
+//            node.setAllowChildTask(allowChildTask);
             node.setNode(baseNode);
             nodeDao.save(node);
 
             workflowModel.getNodeModels().add(node);
         });
 
+        //允许开放的子流程
+        List<String> allowChildTask = (List<String>) ((Map) model).getOrDefault("allow_child_task", new ArrayList<>());
+        workflowModel.setAllowChildTask(allowChildTask);
         workflowModel.setOpen(false);
         workflowModel.setFirstOpen(false);
         workflowModel.setModelName(modelName);
@@ -1974,13 +1996,13 @@ public class WorkflowService {
             WorkflowInstance ins = (WorkflowInstance) obj;
             JSONObject object = new JSONObject();
             object.put("id",ins.getId());
-            object.put("CUS_NAME", getAttributeValueByKey(ins.getId(),"CUS_NAME"));
-            object.put("PHONE", getAttributeValueByKey(ins.getId(),"PHONE"));
-            object.put("CERT_CODE", getAttributeValueByKey(ins.getId(),"CERT_CODE"));
+            object.put("CUS_NAME", ins.getAttributeMap().getOrDefault("CUS_NAME",""));
+            object.put("PHONE", ins.getAttributeMap().getOrDefault("PHONE",""));
+            object.put("CERT_CODE", ins.getAttributeMap().getOrDefault("CERT_CODE",""));
             object.put("rejectDate", ins.getFinishedDate());
             object.put("dealerId", ins.getDealUserId());
             object.put("depId", ins.getDepId());
-            object.put("ps", getAttributeValueByKey(ins.getId(),"ps"));
+            object.put("ps", ins.getAttributeMap().getOrDefault("ps",""));
             return object;
         });
         return page;

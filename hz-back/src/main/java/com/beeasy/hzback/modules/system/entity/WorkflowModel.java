@@ -1,6 +1,7 @@
 package com.beeasy.hzback.modules.system.entity;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.beeasy.hzback.core.helper.StringCommaConverter;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
@@ -87,6 +88,10 @@ public class WorkflowModel {
 
     //该模型可能归属的部门ID
     String depIds = "";
+
+    //允许使用的子流程
+    @Convert(converter = StringCommaConverter.class)
+    List<String> allowChildTask = new ArrayList<>();
 
     /**
      * 检索暴露
