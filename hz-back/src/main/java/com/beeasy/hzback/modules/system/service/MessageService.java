@@ -228,6 +228,8 @@ public class MessageService implements IMessageService {
         message.setToId(toUid);
         message.setContent(content);
         message.setUuid(uuid);
+        message.setFromName(fromUser.getTrueName());
+        message.setToName(toUser.getTrueName());
         message = messageDao.save(message);
         //发件人的已读设置为该条信息
         MessageRead messageRead = messageReadDao.getUser2UserRead(fromUser, toUid).orElse(null);
@@ -273,16 +275,12 @@ public class MessageService implements IMessageService {
         return sendMessage(fromUid, toUid, content, "");
     }
 
-    public String applyDownload(final long uid, final long id){
-        Message message = messageDao.findById(id).orElse(null);
-        if(null == message){
-            return "";
-        }
+    public String applyDownload(final long uid, Message message){
         if(!(message.getFromType().equals(Message.LinkType.USER) && message.getToType().equals(Message.LinkType.USER) && (message.getFromId().equals(uid) || message.getToId().equals(uid)) )){
             return "";
         }
         //如果不是文件
-        if(null == message.getLinkId()){
+        if(!message.getType().equals(Message.Type.FILE)){
             return "";
         }
         DownloadFileToken token = new DownloadFileToken();

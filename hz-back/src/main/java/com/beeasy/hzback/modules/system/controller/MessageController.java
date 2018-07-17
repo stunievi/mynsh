@@ -1,10 +1,13 @@
 package com.beeasy.hzback.modules.system.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.modules.mobile.request.StringMessageRequest;
 import com.beeasy.hzback.modules.mobile.response.ReadMessageResponse;
 import com.beeasy.hzback.modules.system.dao.IMessageReadDao;
+import com.beeasy.hzback.modules.system.entity.Message;
 import com.beeasy.hzback.modules.system.form.MessageAdd;
 import com.beeasy.hzback.modules.system.log.NotSaveLog;
 import com.beeasy.hzback.modules.system.service.MessageService;
@@ -85,21 +88,29 @@ public class MessageController {
             Long messageId,
             Long userId
     ){
-        return Result.ok(messageService.getUserRecentMessages(Utils.getCurrentUserId(),userId,messageId));
-    }
-
-
-    @ApiOperation(value = "申请下载令牌")
-    @RequestMapping(value = "/downloadApply", method = RequestMethod.GET)
-    public Result downloadApply(
-            @RequestParam String id
-    ){
-        return Result.ok(Utils.convertIdsToList(id)
-                .stream()
-                .map(i -> new Object[]{i + "", messageService.applyDownload(Utils.getCurrentUserId(),i)})
-                .collect(Collectors.toMap(obj -> obj[0], obj -> obj[1]))
+        return Result.ok(
+                messageService.getUserRecentMessages(Utils.getCurrentUserId(),userId,messageId).stream()
+                .map(item -> {
+                    JSONObject object = (JSONObject) JSON.toJSON(item);
+                    object.put("token", messageService.applyDownload(Utils.getCurrentUserId(),item));
+                    return object;
+                })
+                .collect(Collectors.toList())
         );
-
     }
+
+
+//    @ApiOperation(value = "申请下载令牌")
+//    @RequestMapping(value = "/downloadApply", method = RequestMethod.GET)
+//    public Result downloadApply(
+//            @RequestParam String id
+//    ){
+//        return Result.ok(Utils.convertIdsToList(id)
+//                .stream()
+//                .map(i -> new Object[]{i + "", messageService.applyDownload(Utils.getCurrentUserId(),i)})
+//                .collect(Collectors.toMap(obj -> obj[0], obj -> obj[1]))
+//        );
+//
+//    }
 
 }

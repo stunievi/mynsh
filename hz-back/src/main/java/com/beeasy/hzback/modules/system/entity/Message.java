@@ -23,6 +23,9 @@ public class Message extends AbstractBaseEntity{
     Long fromId;
     Long toId;
 
+    String fromName;
+    String toName;
+
     @Enumerated
     LinkType fromType;
     @Enumerated
