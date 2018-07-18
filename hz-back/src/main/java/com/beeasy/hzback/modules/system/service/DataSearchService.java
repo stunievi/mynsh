@@ -77,7 +77,21 @@ public class DataSearchService {
 //            sql += " and (" + StringUtils.join(limitCondition.toArray(), " or ") + ")";
 //        }
         log.error(sql);
-        return sqlUtils.pageQuery(sql, pageable);
+        User user = userService.findUser(uid).orElse(null);
+        List<WorkflowModel> models = modelDao.findAllByModelNameLikeAndOpenIsTrue(("%资料收集%"));
+        List<WorkflowModel> finalModels = models;
+        return  sqlUtils.pageQuery(sql, pageable).map(o -> {
+            Map<String,String> map = (Map<String, String>) o;
+            map.put("pubModelId","0");
+            map.put("pubModelName","");
+            if(models.size() > 0 && null != user){
+                if(workflowService.canPubOrPoint(models.get(0),user)){
+                    map.put("pubModelId", models.get(0).getId() + "");
+                    map.put("pubModelName", models.get(0).getModelName());
+                }
+            }
+            return map;
+        });
     }
 
     /**
@@ -106,7 +120,21 @@ public class DataSearchService {
             sql += String.format(" and ( b.MAIN_BR_ID in (%s) or b.CUST_MGR in (%s) )", joinIn(limitMap.get("dep")), joinIn(limitMap.get("user")));
         }
         log.info(sql);
-        return sqlUtils.pageQuery(sql, pageable);
+        User user = userService.findUser(uid).orElse(null);
+        List<WorkflowModel> models = modelDao.findAllByModelNameLikeAndOpenIsTrue(("%资料收集%"));
+        List<WorkflowModel> finalModels = models;
+        return  sqlUtils.pageQuery(sql, pageable).map(o -> {
+            Map<String,String> map = (Map<String, String>) o;
+            map.put("pubModelId","0");
+            map.put("pubModelName","");
+            if(models.size() > 0 && null != user){
+                if(workflowService.canPubOrPoint(models.get(0),user)){
+                    map.put("pubModelId", models.get(0).getId() + "");
+                    map.put("pubModelName", models.get(0).getModelName());
+                }
+            }
+            return map;
+        });
     }
 
     public Map searchClientBase(String CUS_ID) {
@@ -177,8 +205,10 @@ public class DataSearchService {
         List<WorkflowModel> finalModels = models;
         User user = userService.findUser(uid).orElse(null);
         Page page =  sqlUtils.pageQuery(sql, pageable).map(o -> {
+            Map<String,String> map = (Map<String, String>) o;
+            map.put("pubModelId","0");
+            map.put("pubModelName","");
             if(null != finalModels && finalModels.size() > 0 && null != user){
-                Map<String,String> map = (Map<String, String>) o;
                 if(request.getModelName().indexOf("贷后跟踪") > -1){
                     String name = getAutoTaskModelName(map.get("BILL_NO"));
                     for (WorkflowModel model : finalModels) {
@@ -197,11 +227,8 @@ public class DataSearchService {
                         map.put("pubModelName", finalModels.get(0).getModelName());
                     }
                 }
-                return map;
             }
-            else{
-                return o;
-            }
+            return map;
         });
         return page;
     }
@@ -428,11 +455,11 @@ public class DataSearchService {
 
 
     public Result searchInnateCusComData(final long uid, final String CUS_ID){
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            Thread.sleep(1000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
         String sql = String.format("select a.CUS_ID,a.CUS_NAME,a.CERT_TYPE,a.CERT_CODE,a.CONTACT_NAME,a.PHONE,b.CUST_MGR from CUS_BASE as a left join CUS_COM as b on a.CUS_ID=b.CUS_ID where (a.CUS_TYPE<>'110' and a.CUS_TYPE<>'120' and a.CUS_TYPE<>'130') and a.CUS_ID = '%s'", CUS_ID);
         //授权
         Map<String, List<String>> limitMap = getPermissionLimit(uid, SearchTargetType.CUS_COM);
@@ -449,11 +476,11 @@ public class DataSearchService {
     }
 
     public Result searchInnateCusIndivData(final long uid, final String CUS_ID){
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            Thread.sleep(1000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
         String sql = String.format("select a.CUS_ID,a.CUS_NAME,a.CERT_TYPE,a.CERT_CODE,a.CONTACT_NAME,a.PHONE,b.CUST_MGR from CUS_BASE as a left join CUS_INDIV as b on a.CUS_ID=b.CUS_ID where (a.CUS_TYPE='110' or a.CUS_TYPE='120' or a.CUS_TYPE='130') and a.CUS_ID = '%s' ", CUS_ID);
         //授权
         Map<String, List<String>> limitMap = getPermissionLimit(uid, SearchTargetType.CUS_INDIV);

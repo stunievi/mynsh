@@ -75,11 +75,20 @@ public class MessageController {
 
     @NotSaveLog
     @PostMapping("/sendFile")
-    public String sendFile(
+    public Result sendFile(
             @RequestParam Long toUid,
             @RequestParam MultipartFile file
     ) throws IOException {
-        return Result.okJson(messageService.sendMessage(Utils.getCurrentUserId(),toUid,file));
+        return Result.finish(
+                messageService.sendMessage(Utils.getCurrentUserId(),toUid,file).map(item -> {
+                    if(!item.getType().equals(Message.Type.FILE)){
+                        return item;
+                    }
+                    JSONObject object = (JSONObject) JSON.toJSON(item);
+                    object.put("token", messageService.applyDownload(Utils.getCurrentUserId(), item));
+                    return object;
+                })
+        );
     }
 
 
