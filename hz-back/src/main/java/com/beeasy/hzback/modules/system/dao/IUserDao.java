@@ -2,7 +2,6 @@ package com.beeasy.hzback.modules.system.dao;
 
 import com.beeasy.hzback.modules.system.entity.Quarters;
 import com.beeasy.hzback.modules.system.entity.User;
-import com.beeasy.hzback.modules.system.entity.UserExternalPermission;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -46,6 +45,8 @@ public interface IUserDao extends JpaRepository<User,Long> ,JpaSpecificationExec
     List getPublicKey(@Param("id") long id);
 
     int countById(Long id);
+    int countByUsername(String username);
+    int countByPhone(String phone);
     @Query(value = "select count(user.id) from User user join user.quarters q where q.id = :qid and user.id = :uid")
     int countUidAndQid(@Param("uid") long uid, @Param("qid") long qid);
 
@@ -53,9 +54,7 @@ public interface IUserDao extends JpaRepository<User,Long> ,JpaSpecificationExec
     @Query(value = "select user.profile.cloudUsername, user.profile.cloudPassword from User user where user.id = :uid")
     List getUserCloudProfile(@Param("uid") long uid);
 
-    //检查是否有某个权限
-    @Query(value = "select count(user) from User user join user.externalPermissions per where per.permission = :permission and user.id = :id")
-    int checkPermission(@Param("id") long uid, @Param("permission") UserExternalPermission.Permission permission);
+
 
     @Modifying
     @Transactional

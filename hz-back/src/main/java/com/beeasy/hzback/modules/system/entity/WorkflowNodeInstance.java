@@ -29,6 +29,7 @@ public class WorkflowNodeInstance {
     @JoinColumn(name = "instance_id", insertable = false, updatable = false)
     @ManyToOne(optional = false)
     WorkflowInstance instance;
+
     @Column(name = "instance_id")
     Long instanceId;
 
@@ -63,7 +64,7 @@ public class WorkflowNodeInstance {
     //是否已经处理完成
     boolean finished = false;
 
-    @OneToMany(mappedBy = "nodeInstance",cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "nodeInstance")
     List<WorkflowNodeAttribute> attributeList = new ArrayList<>();
     @OneToMany(mappedBy = "nodeInstance",cascade = CascadeType.REMOVE)
     List<WorkflowNodeFile> fileList = new ArrayList<>();

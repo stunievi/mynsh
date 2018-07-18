@@ -663,7 +663,7 @@ public class WorkFlowController {
     }
 
     @ApiOperation(value = "设置节点文件名")
-    @RequestMapping(value = "/node/file/rename", method = RequestMethod.GET)
+    @RequestMapping(value = "/node/file/rename", method = RequestMethod.POST)
     public Result setNodeFileName(
             @RequestParam long id,
             @RequestParam String name

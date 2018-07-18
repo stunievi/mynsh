@@ -6,9 +6,11 @@ import com.alibaba.fastjson.JSONArray;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.util.SqlUtils;
 import com.beeasy.hzback.modules.system.dao.IGlobalPermissionDao;
+import com.beeasy.hzback.modules.system.dao.IWorkflowModelDao;
 import com.beeasy.hzback.modules.system.entity.GlobalPermission;
 import com.beeasy.hzback.modules.system.entity.Quarters;
 import com.beeasy.hzback.modules.system.entity.User;
+import com.beeasy.hzback.modules.system.entity.WorkflowModel;
 import com.beeasy.hzback.modules.system.form.GlobalPermissionEditRequest;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -30,6 +32,10 @@ import java.util.stream.Collectors;
 @Service
 public class DataSearchService {
 
+    @Autowired
+    WorkflowService workflowService;
+    @Autowired
+    IWorkflowModelDao modelDao;
     @Autowired
     SqlUtils sqlUtils;
     @Autowired
@@ -164,10 +170,38 @@ public class DataSearchService {
             sql += String.format(" and ( a.MAIN_BR_ID in (%s) or a.CUS_MANAGER in (%s) )", joinIn(limitMap.get("dep")), joinIn(limitMap.get("user")));
         }
         log.error(sql);
+        List<WorkflowModel> models = null;
+        if(null != request.getModelName()){
+            models = modelDao.findAllByModelNameLikeAndOpenIsTrue(("%" + request.getModelName() + "%"));
+        }
+        List<WorkflowModel> finalModels = models;
+        User user = userService.findUser(uid).orElse(null);
         Page page =  sqlUtils.pageQuery(sql, pageable).map(o -> {
-            Map<String,String> map = (Map<String, String>) o;
-            map.put("PostLoanModel", getAutoTaskModelName(map.get("BILL_NO")));
-            return map;
+            if(null != finalModels && finalModels.size() > 0 && null != user){
+                Map<String,String> map = (Map<String, String>) o;
+                if(request.getModelName().indexOf("贷后跟踪") > -1){
+                    String name = getAutoTaskModelName(map.get("BILL_NO"));
+                    for (WorkflowModel model : finalModels) {
+                        if(model.getModelName().equals(name)) {
+                            if(workflowService.canPubOrPoint(model,user)){
+                                map.put("pubModelId",finalModels.get(0).getId() + "");
+                                map.put("pubModelName", finalModels.get(0).getModelName());
+                            }
+                            break;
+                        }
+                    }
+                }
+                else{
+                    if(workflowService.canPubOrPoint(finalModels.get(0), user)){
+                        map.put("pubModelId",finalModels.get(0).getId() + "");
+                        map.put("pubModelName", finalModels.get(0).getModelName());
+                    }
+                }
+                return map;
+            }
+            else{
+                return o;
+            }
         });
         return page;
     }
@@ -359,11 +393,11 @@ public class DataSearchService {
 
 
     public Result searchInnateAccloanData(final long uid, final String billNo) {
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            Thread.sleep(1000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
         String sql = String.format("select PRD_TYPE from ACC_LOAN where BILL_NO = '%s'", billNo);
         List<Map<String, String>> res = sqlUtils.query(sql);
         if (res.size() == 0) {
@@ -435,6 +469,37 @@ public class DataSearchService {
         return Result.ok(ret.get(0));
     }
 
+    public boolean isCusCom(final String CUS_ID){
+        try{
+            String sql = String.format("select count(*) as num from CUS_COM where CUS_ID = '%s'", CUS_ID);
+            List<Map<String,String>> ret = sqlUtils.query(sql);
+            if(ret.size() > 0){
+                return Integer.valueOf(ret.get(0).get("num")) > 0;
+            }
+            else{
+                return false;
+            }
+        }
+        catch (Exception e){
+            return false;
+        }
+    }
+
+    public boolean isCusIndiv(final String CUS_ID){
+        try{
+            String sql = String.format("select count(*) as num from CUS_INDIV where CUS_ID = '%s'", CUS_ID);
+            List<Map<String,String>> ret = sqlUtils.query(sql);
+            if(ret.size() > 0){
+                return Integer.valueOf(ret.get(0).get("num")) > 0;
+            }
+            else{
+                return false;
+            }
+        }
+        catch (Exception e){
+            return false;
+        }
+    }
 
     /********* 报表 **********/
     public Page searchYQYSBJDQ(YQYSBJDQRequest request, Pageable pageable) {
@@ -624,6 +689,14 @@ public class DataSearchService {
         List<String> userCode = new ArrayList<>();
         List<String> finalManagerCode = managerCode;
         List<String> finalUserCode = userCode;
+        //默认授权行为
+        for (Quarters q : qs) {
+            if(q.isManager()){
+                managerCode.add(initString(q.getDepartment().getAccCode()));
+            }
+        }
+        userCode.add(user.getAccCode());
+
         ps.stream().filter(p -> null != p.getDescription())
                 .map(p -> ((JSONArray) p.getDescription()).toJavaList(SearchConditionRule.class))
                 .flatMap(List::stream)
@@ -719,6 +792,9 @@ public class DataSearchService {
 
         Boolean register;
         Boolean timeout;
+
+        //允许发起的模型名
+        String modelName;
     }
 
     @Data

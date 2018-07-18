@@ -69,6 +69,8 @@ public class WorkflowService {
     private String permissionType;
 
     @Autowired
+    DataSearchService searchService;
+    @Autowired
     IWorkflowNodeInstanceDealerDao nodeInstanceDealersDao;
     @Autowired
     IWorkflowModelFieldDao fieldDao;
@@ -269,6 +271,7 @@ public class WorkflowService {
 
 
         workflowInstance.setModelId(workflowModel.getId());
+        workflowInstance.setWorkflowModel(workflowModel);
         workflowInstance.setTitle(request.getTitle());
         workflowInstance.setInfo(request.getInfo());
         workflowInstance.setModelName(workflowModel.getModelName());
@@ -288,39 +291,72 @@ public class WorkflowService {
         workflowInstance = saveWorkflowInstance(workflowInstance);
 
 
-        //滞后处理的字段
-        Map<String, WorkflowModelInnate> afters = new HashMap<>();
         //固有字段检查
         List<WorkflowModelInnate> innates = workflowModel.getInnates();
+//        for (WorkflowModelInnate innate : innates) {
+//            //特殊固有字段的处理
+//            if (innate.getContent().getString("type").equals("taskId")) {
+//                afters.put(innate.getFieldName(), innate);
+//                continue;
+//            }
+//            if (innate.getContent().getString("type").equalsIgnoreCase("EXT_DATA")) {
+//                afters.put(innate.getFieldName(), innate);
+//                continue;
+//            }
+//            if (!request.getData().containsKey(innate.getFieldName())) {
+//                return Result.error("请填写对应的字段");
+//            }
+//        }
+
+        //插入固有字段
+        //根据datasource和dataid整理固有字段
+        Map<String,String> innateMap = new HashMap<>();
+        innateMap.putAll(request.getData());
+        innateMap.putAll(request.getStartNode());
+        Result r = null;
+        if(null != request.getDataSource()) {
+            if(workflowModel.getModelName().indexOf("资料收集") > -1){
+                if(searchService.isCusCom(request.getDataId())){
+                    r = searchService.searchInnateCusComData(uid,request.getDataId());
+                }
+                else if(searchService.isCusIndiv(request.getDataId())){
+                    r = searchService.searchInnateCusIndivData(uid,request.getDataId());
+                }
+            }
+            else{
+                r = searchService.searchInnateAccloanData(uid,request.getDataId());
+            }
+        }
+        if(null != r && r.isSuccess()){
+            innateMap.putAll((Map<? extends String, ? extends String>) r.getData());
+        }
+        //固有字段复写
         for (WorkflowModelInnate innate : innates) {
-            //特殊固有字段的处理
-            if (innate.getContent().getString("type").equals("taskId")) {
-                afters.put(innate.getFieldName(), innate);
-                continue;
-            }
-            if (innate.getContent().getString("type").equalsIgnoreCase("EXT_DATA")) {
-                afters.put(innate.getFieldName(), innate);
-                continue;
-            }
-            if (!request.getData().containsKey(innate.getFieldName())) {
-                return Result.error("请填写对应的字段");
+            if(innateMap.containsKey(innate.getContent().getString("ename"))){
+                WorkflowInstanceAttribute attribute = addAttribute(
+                        workflowInstance,
+                        WorkflowInstanceAttribute.Type.INNATE,
+                        innate.getFieldName(),
+                        innateMap.getOrDefault(innate.getFieldName(), ""),
+                        innate.getContent().getString("cname"));
+                instanceAttributeDao.save(attribute);
             }
         }
 
-        //插入固有字段
-        for (WorkflowModelInnate innate : innates) {
-            if (afters.containsValue(innate)) {
-                continue;
-            }
-            WorkflowInstanceAttribute attribute = new WorkflowInstanceAttribute();
-            attribute.setInstanceId(workflowInstance.getId());
-            attribute.setType(WorkflowInstanceAttribute.Type.INNATE);
-            attribute.setAttrCName(innate.getContent().getString("cname"));
-            attribute.setAttrKey(innate.getContent().getString("ename"));
-            attribute.setAttrValue(request.getData().getOrDefault(attribute.getAttrKey(), ""));
-            attribute = instanceAttributeDao.save(attribute);
+//        for (WorkflowModelInnate innate : innates) {
+
+//            if (afters.containsValue(innate)) {
+//                continue;
+//            }
+//            WorkflowInstanceAttribute attribute = new WorkflowInstanceAttribute();
+//            attribute.setInstanceId(workflowInstance.getId());
+//            attribute.setType(WorkflowInstanceAttribute.Type.INNATE);
+//            attribute.setAttrCName(innate.getContent().getString("cname"));
+//            attribute.setAttrKey(innate.getContent().getString("ename"));
+//            attribute.setAttrValue(request.getData().getOrDefault(attribute.getAttrKey(), ""));
+//            attribute = instanceAttributeDao.save(attribute);
 //            workflowInstance.getAttributes().add(attribute);
-        }
+//        }
 
         if (request.isCommon()) {
             //公共任务
@@ -350,9 +386,13 @@ public class WorkflowService {
         //插入第一个节点
         WorkflowNodeInstance nodeInstance = addNode(workflowInstance, firstNode, false);
         nodeInstance.setDealerId(workflowInstance.getDealUserId());
+        //写入第一个节点的属性
         nodeInstance = nodeInstanceDao.save(nodeInstance);
+
+
+
         //写入处理人
-        if (null != workflowInstance.getDealUserId()) {
+        if (null != dealerUser) {
             WorkflowNodeInstanceDealer dealers = new WorkflowNodeInstanceDealer();
             dealers.setDepId(workflowInstance.getDepId());
             dealers.setDepName(workflowInstance.getDepName());
@@ -370,31 +410,31 @@ public class WorkflowService {
             logService.addLog(SystemTextLog.Type.WORKFLOW, workflowInstance.getId(), dealerUser.getId(), "接受了任务");
         }
 
-        //滞后处理
-        if (null != workflowInstance.getId() && workflowInstance.getId() > 0) {
-            for (Map.Entry<String, WorkflowModelInnate> entry : afters.entrySet()) {
-                WorkflowModelInnate after = entry.getValue();
-                switch (after.getContent().getString("type")) {
-                    case "taskId":
-                        WorkflowInstanceAttribute attribute = addAttribute(
-                                workflowInstance,
-                                WorkflowInstanceAttribute.Type.INNATE,
-                                after.getContent().getString("ename"),
-                                workflowInstance.getId() + "",
-                                after.getContent().getString("cname"));
-//                        WorkflowInstanceAttribute attribute = new WorkflowInstanceAttribute();
-//                        attribute.setInstanceId(workflowInstance.getId());
-//                        attribute.setType(WorkflowInstanceAttribute.Type.INNATE);
-//                        attribute.setAttrCName(after.getContent().getString("cname"));
-//                        attribute.setAttrKey(after.getContent().getString("ename"));
-//                        attribute.setAttrValue(workflowInstance.getId() + "");
-                        instanceAttributeDao.save(attribute);
-                        break;
-
-                }
-            }
-            addExtData(workflowInstance, workflowModel, request, true);
-        }
+//        //滞后处理
+//        if (null != workflowInstance.getId() && workflowInstance.getId() > 0) {
+//            for (Map.Entry<String, WorkflowModelInnate> entry : afters.entrySet()) {
+//                WorkflowModelInnate after = entry.getValue();
+//                switch (after.getContent().getString("type")) {
+//                    case "taskId":
+//                        WorkflowInstanceAttribute attribute = addAttribute(
+//                                workflowInstance,
+//                                WorkflowInstanceAttribute.Type.INNATE,
+//                                after.getContent().getString("ename"),
+//                                workflowInstance.getId() + "",
+//                                after.getContent().getString("cname"));
+////                        WorkflowInstanceAttribute attribute = new WorkflowInstanceAttribute();
+////                        attribute.setInstanceId(workflowInstance.getId());
+////                        attribute.setType(WorkflowInstanceAttribute.Type.INNATE);
+////                        attribute.setAttrCName(after.getContent().getString("cname"));
+////                        attribute.setAttrKey(after.getContent().getString("ename"));
+////                        attribute.setAttrValue(workflowInstance.getId() + "");
+//                        instanceAttributeDao.save(attribute);
+//                        break;
+//
+//                }
+//            }
+//            addExtData(workflowInstance, workflowModel, request, true);
+//        }
 
         //补充字段
         WorkflowInstanceAttribute attribute = instanceAttributeDao.findTopByInstanceIdAndAttrKey(workflowInstance.getId(), "BILL_NO").orElse(null);
@@ -403,6 +443,23 @@ public class WorkflowService {
             workflowInstance = instanceDao.save(workflowInstance);
         }
 
+        //第一个节点数据复写
+        WorkflowInstance finalWorkflowInstance = workflowInstance;
+        WorkflowNodeInstance finalNodeInstance = nodeInstance;
+        Result submitResult = submitData(uid, new SubmitDataRequest(){{
+            setData((JSONObject)JSON.toJSON(innateMap));
+            setInstanceId(finalWorkflowInstance.getId());
+            setNodeId(finalNodeInstance.getId());
+        }});
+        if(!submitResult.isSuccess()){
+            throw new RuntimeException(submitResult.getErrMessage());
+        }
+        if(request.isGoNext()){
+            Result goNextResult = goNext(uid,workflowInstance.getId(),nodeInstance.getId());
+            if(!goNextResult.isSuccess()){
+                throw new RuntimeException(goNextResult.getErrMessage());
+            }
+        }
         return workflowInstance.getId() == null ? Result.error() : Result.ok(workflowInstance);
     }
 
@@ -415,10 +472,12 @@ public class WorkflowService {
      */
     public WorkflowNodeInstance addNode(WorkflowInstance instance, WorkflowNode node, boolean add) {
         WorkflowNodeInstance workflowNodeInstance = new WorkflowNodeInstance();
+        workflowNodeInstance.setNodeModel(node);
         workflowNodeInstance.setNodeModelId(node.getId());
         workflowNodeInstance.setNodeName(node.getName());
         workflowNodeInstance.setType(node.getType());
         workflowNodeInstance.setInstanceId(instance.getId());
+        workflowNodeInstance.setInstance(instance);
         workflowNodeInstance.setFinished(false);
         if (add) {
             instance.getNodeList().add(workflowNodeInstance);
@@ -538,7 +597,7 @@ public class WorkflowService {
                                     String value = rs.get(0).getOrDefault(field.getString("ename"), "");
                                     if (!StringUtils.isEmpty(value)) {
 
-                                        WorkflowNodeAttribute attribute = addAttribute(instance.getDealUserId(), nodeInstance.getId(), field.getString("ename"), value, field.getString("cname"));
+                                        WorkflowNodeAttribute attribute = addAttribute(instance.getDealUserId(), nodeInstance, field.getString("ename"), value, field.getString("cname"));
                                         attributeDao.save(attribute);
                                     }
                                 }
@@ -902,7 +961,7 @@ public class WorkflowService {
     /**
      * 得到某些用户未执行的任务
      *
-     * @param uids
+     * @param uid
      * @param lessId
      * @param pageable
      * @return
@@ -1326,11 +1385,11 @@ public class WorkflowService {
         String errMessage = null;
         switch (nodeModel.getType()) {
             case input:
-                errMessage = submitInputNode(uid, request.getNodeId(), request.getData());
+                errMessage = submitInputNode(uid, nodeInstance, request.getData());
                 break;
 
             case check:
-                errMessage = submitCheckNode(uid, request.getNodeId(), request.getData());
+                errMessage = submitCheckNode(uid, nodeInstance, request.getData());
                 break;
         }
         switch (nodeModel.getType()){
@@ -2429,7 +2488,7 @@ public class WorkflowService {
                         .filter(a -> a.getAttrKey().equals(v.getString("ename")))
                         .findAny();
                 if (!target.isPresent()) {
-                    throw new RestException("有必填字段没有填写");
+                    throw new RestException(String.format("%s字段没有填写", v.getString("cname")));
                 }
             }
         }
@@ -2772,13 +2831,13 @@ public class WorkflowService {
     }
 
 
-    public String submitInputNode(long uid, long nodeInstanceId, Map<String, Object> data) {
+    public String submitInputNode(long uid, WorkflowNodeInstance nodeInstance, Map<String, Object> data) {
         //当前处理的
 //        WorkflowNodeInstance nodeInstance = nodeInstanceDao.findFirstByIdAndFinishedIsFalse(nodeInstanceId).orElse(null);
 //        if(null == nodeInstance){
 //            return;
 //        }
-        JSONObject node = getCurrentNodeModelNode(nodeInstanceId).orElse(null);
+        JSONObject node = getCurrentNodeModelNode(nodeInstance.getId()).orElse(null);
         if (null == node) {
             return null;
         }
@@ -2817,20 +2876,21 @@ public class WorkflowService {
 //                    .filter(attr -> attr.getAttrKey().equals(attrKey))
 //                    .findFirst();
 //            WorkflowNodeAttribute attribute = target.orElse(new WorkflowNodeAttribute());
-            WorkflowNodeAttribute attribute = addAttribute(uid, nodeInstanceId, attrKey, String.valueOf(data.get(attrKey)), v.getString("cname"));
+            WorkflowNodeAttribute attribute = addAttribute(uid, nodeInstance, attrKey, String.valueOf(data.get(attrKey)), v.getString("cname"));
 //            attribute.setAttrKey(attrKey);
 //            attribute.setAttrValue(String.valueOf(data.get(attrKey)));
 //            attribute.setAttrCname(v.getString("cname"));
 //            attribute.setDealUserId(uid);
 //            attribute.setNodeInstanceId(nodeInstanceId);
             attributeDao.save(attribute);
+            nodeInstance.getAttributeList().add(attribute);
         }
-
+        nodeInstanceDao.save(nodeInstance);
         return null;
     }
 
-    public String submitCheckNode(long uid, long nodeInstanceId, Map data) {
-        JSONObject node = getCurrentNodeModelNode(nodeInstanceId).orElse(null);
+    public String submitCheckNode(long uid, WorkflowNodeInstance nodeInstance, Map data) {
+        JSONObject node = getCurrentNodeModelNode(nodeInstance.getId()).orElse(null);
         if (null == node) {
             return "找不到该节点";
         }
@@ -2844,7 +2904,7 @@ public class WorkflowService {
             return "选项内没有这个选项";
         }
         //每个审批节点只允许审批一次
-        WorkflowNodeAttribute attribute = addAttribute(uid, nodeInstanceId, node.getString("key"), item, node.getString("question"));
+        WorkflowNodeAttribute attribute = addAttribute(uid, nodeInstance, node.getString("key"), item, node.getString("question"));
         attributeDao.save(attribute);
 
         //如果填写了审核说明
@@ -2852,18 +2912,29 @@ public class WorkflowService {
         if (ps.equals("null")) {
             ps = "";
         }
-        attribute = addAttribute(uid, nodeInstanceId, node.getString("ps"), ps, "审核说明");
+        attribute = addAttribute(uid, nodeInstance, node.getString("ps"), ps, "审核说明");
         attributeDao.save(attribute);
 
         return "";
     }
 
-    public WorkflowNodeAttribute addAttribute(Long uid, long nodeInstanceId, String key, String value, String cname) {
-        WorkflowNodeAttribute attribute = attributeDao.findFirstByNodeInstanceIdAndAttrKey(nodeInstanceId, key).orElse(new WorkflowNodeAttribute());
+//    public WorkflowNodeAttribute addAttribute(Long uid, long nodeInstanceId, String key, String value, String cname) {
+//        WorkflowNodeAttribute attribute = attributeDao.findFirstByNodeInstanceIdAndAttrKey(nodeInstanceId, key).orElse(new WorkflowNodeAttribute());
+//        attribute.setDealUserId(uid);
+//        attribute.setAttrKey(key);
+//        attribute.setAttrValue(value == null ? "" : value);
+//        attribute.setNodeInstanceId(nodeInstanceId);
+////        attribute.setNodeInstance();
+//        attribute.setAttrCname(cname);
+//        return attribute;
+//    }
+    public WorkflowNodeAttribute addAttribute(long uid, WorkflowNodeInstance nodeInstance, String key, String value, String cname){
+        WorkflowNodeAttribute attribute = attributeDao.findFirstByNodeInstanceIdAndAttrKey(nodeInstance.getId(), key).orElse(new WorkflowNodeAttribute());
         attribute.setDealUserId(uid);
         attribute.setAttrKey(key);
         attribute.setAttrValue(value == null ? "" : value);
-        attribute.setNodeInstanceId(nodeInstanceId);
+        attribute.setNodeInstance(nodeInstance);
+        attribute.setNodeInstanceId(nodeInstance.getId());
         attribute.setAttrCname(cname);
         return attribute;
     }

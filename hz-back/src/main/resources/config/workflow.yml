@@ -95,10 +95,6 @@
 #        quarters: [] #允许经办的岗位ID #无用项
 #        user: [] #允许经办的用户ID
       content:
-        任务编号:
-          name: TASK_ID
-          type: taskId
-          innate: true
         借据号:
           name: BILL_NO
           type: EXT_DATA
@@ -189,11 +185,6 @@
       type: input
       start: true
       content:
-        任务编号:
-          name: TASK_ID
-          type: taskId
-          required: true
-          innate: true
         借据号:
           name: BILL_NO
           type: EXT_DATA
@@ -361,11 +352,6 @@
       start: true
       next: 判断贷款额度
       content:
-        任务编号:
-          name: TASK_ID
-          type: taskId
-          required: true
-          innate: true
         借据号:
           name: BILL_NO
           type: EXT_DATA
@@ -520,11 +506,6 @@
       start: true
       next: 判断贷款额度
       content:
-        任务编号:
-          name: TASK_ID
-          type: taskId
-          required: true
-          innate: true
         借据号:
           name: BILL_NO
           type: EXT_DATA
@@ -693,11 +674,6 @@
       start: true
       next: 判断贷款额度
       content:
-        任务编号:
-          name: TASK_ID
-          type: taskId
-          required: true
-          innate: true
         借据号:
           name: BILL_NO
           type: EXT_DATA
@@ -914,11 +890,6 @@
       start: true
       next: 判断贷款额度
       content:
-        任务编号:
-          name: TASK_ID
-          type: taskId
-          required: true
-          innate: true
         借据号:
           name: BILL_NO
           type: EXT_DATA
@@ -1139,11 +1110,6 @@
       start: true
       next: 判断贷款额度
       content:
-        任务编号:
-          name: TASK_ID
-          type: taskId
-          required: true
-          innate: true
         借据号:
           name: BILL_NO
           type: EXT_DATA
@@ -1345,11 +1311,6 @@
       start: true
       next: 是否可以还款
       content:
-        任务编号:
-          name: TASK_ID
-          type: taskId
-          required: true
-          innate: true
         借据号:
           name: BILL_NO
           type: EXT_DATA
@@ -1474,11 +1435,6 @@
       type: input
       start: true
       content:
-        任务编号:
-          name: TASK_ID
-          type: taskId
-          required: true
-          innate: true
         借据号:
           name: BILL_NO
           type: EXT_DATA
@@ -1560,16 +1516,6 @@
       type: input
       start: true
       content:
-        任务编号:
-          name: TASK_ID
-          type: taskId
-          required: true
-          innate: true
-        任务编号（不良资产管理流程）:
-          name: TASK_PID
-          type: taskId
-          required: true
-          innate: true
         借据号:
           name: BILL_NO
           type: EXT_DATA
@@ -1700,16 +1646,6 @@
       type: input
       start: true
       content:
-        任务编号:
-          name: TASK_ID
-          type: taskId
-          required: true
-          innate: true
-        任务编号（不良资产管理流程）:
-          name: TASK_PID
-          type: taskId
-          required: true
-          innate: true
         借据号:
           name: BILL_NO
           type: EXT_DATA
@@ -1965,16 +1901,6 @@
       type: input
       start: false
       content:
-        任务编号:
-          name: TASK_ID
-          type: taskId
-          required: true
-          innate: true
-        任务编号（不良资产管理流程）:
-          name: TASK_ID
-          type: taskId
-          required: true
-          innate: true
         借据号:
           name: BILL_NO
           type: string
@@ -2156,16 +2082,6 @@
       type: input
       start: true
       content:
-        任务编号:
-          name: TASK_ID
-          type: taskId
-          required: true
-          innate: true
-        任务编号（不良资产管理流程）:
-          name: TASK_PID
-          type: taskId
-          required: true
-          innate: true
         借据号:
           name: BILL_NO
           type: EXT_DATA

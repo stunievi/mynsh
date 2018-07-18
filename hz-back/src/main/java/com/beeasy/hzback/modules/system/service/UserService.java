@@ -80,8 +80,8 @@ public class UserService implements IUserService {
     GlobalPermissionService globalPermissionService;
     @Autowired
     CloudApi cloudApi;
-    @Autowired
-    IUserExternalPermissionDao externalPermissionDao;
+//    @Autowired
+//    IUserExternalPermissionDao externalPermissionDao;
     @Autowired
     ISystemFileDao systemFileDao;
     @Autowired
@@ -90,8 +90,8 @@ public class UserService implements IUserService {
     IDepartmentDao departmentDao;
     @Autowired
     IUserDao userDao;
-    @Autowired
-    IRolePermissionDao rolePermissionDao;
+//    @Autowired
+//    IRolePermissionDao rolePermissionDao;
     @Autowired
     IUserProfileDao userProfileDao;
 
@@ -128,47 +128,47 @@ public class UserService implements IUserService {
 //    }
 
 
-    private boolean setUnbindMethods(User user, String... menus) {
-        return setUnbindMenus(user, new HashSet<>(Arrays.asList(menus)));
-    }
+//    private boolean setUnbindMethods(User user, String... menus) {
+//        return setUnbindMenus(user, new HashSet<>(Arrays.asList(menus)));
+//    }
+//
+//    private boolean setUnbindMethods(User user, Set<String> unbindMethods) {
+//        Map fullMethod = cache.getFullMethodPermission();
+//        Set<String> unbindItems = new HashSet();
+//        unbindMethods.forEach(method -> {
+//            String arr[] = method.split("\\.");
+//            Map obj = fullMethod;
+//            try {
+//                for (String s : arr) {
+//                    obj = (Map) obj.getOrDefault(s, new HashMap<>());
+//                }
+//                if (obj.containsKey("api")) {
+//                    List<String> list = (List<String>) obj.getOrDefault("api", new ArrayList<>());
+//                    unbindItems.addAll(list);
+//                }
+//            } catch (Exception e) {
+//            }
+//        });
+//        return user.getMethodPermission()
+//                .filter(menu -> {
+//                    menu.setUnbinds(unbindMethods);
+//                    //更新unbindItems
+//                    menu.setUnbindItems(unbindItems);
+//                    return true;
+//                }).isPresent();
+//    }
+//
+//    private boolean setUnbindMenus(User user, String... menus) {
+//        return setUnbindMenus(user, new HashSet<>(Arrays.asList(menus)));
+//    }
 
-    private boolean setUnbindMethods(User user, Set<String> unbindMethods) {
-        Map fullMethod = cache.getFullMethodPermission();
-        Set<String> unbindItems = new HashSet();
-        unbindMethods.forEach(method -> {
-            String arr[] = method.split("\\.");
-            Map obj = fullMethod;
-            try {
-                for (String s : arr) {
-                    obj = (Map) obj.getOrDefault(s, new HashMap<>());
-                }
-                if (obj.containsKey("api")) {
-                    List<String> list = (List<String>) obj.getOrDefault("api", new ArrayList<>());
-                    unbindItems.addAll(list);
-                }
-            } catch (Exception e) {
-            }
-        });
-        return user.getMethodPermission()
-                .filter(menu -> {
-                    menu.setUnbinds(unbindMethods);
-                    //更新unbindItems
-                    menu.setUnbindItems(unbindItems);
-                    return true;
-                }).isPresent();
-    }
-
-    private boolean setUnbindMenus(User user, String... menus) {
-        return setUnbindMenus(user, new HashSet<>(Arrays.asList(menus)));
-    }
-
-    private boolean setUnbindMenus(User user, Set<String> unbindMenus) {
-        return user.getMenuPermission()
-                .filter(menu -> {
-                    menu.setUnbinds(unbindMenus);
-                    return true;
-                }).isPresent();
-    }
+//    private boolean setUnbindMenus(User user, Set<String> unbindMenus) {
+//        return user.getMenuPermission()
+//                .filter(menu -> {
+//                    menu.setUnbinds(unbindMenus);
+//                    return true;
+//                }).isPresent();
+//    }
 
 
 //    
@@ -209,10 +209,6 @@ public class UserService implements IUserService {
         if (!result.isSuccess()) {
             return result;
         }
-        User users = userDao.findFirstByUsernameOrPhone(add.getUsername(), add.getPhone());
-        if (users != null) {
-            return Result.error("已有相同的用户名或手机号");
-        }
 
         add.setPassword(CrUtils.md5(add.getPassword().getBytes()));
         User u = Transformer.transform(add, User.class);
@@ -250,17 +246,17 @@ public class UserService implements IUserService {
 
         userProfileDao.save(userProfile);
 
-        //添加permission
-        RolePermission rolePermission = new RolePermission();
-        rolePermission.setUser(u);
-        rolePermission.setType(PermissionType.MENU);
-        u.getPermissions().add(rolePermission);
-
-        //添加功能权限
-        rolePermission = new RolePermission();
-        rolePermission.setUser(u);
-        rolePermission.setType(PermissionType.METHOD);
-        u.getPermissions().add(rolePermission);
+//        //添加permission
+//        RolePermission rolePermission = new RolePermission();
+//        rolePermission.setUser(u);
+//        rolePermission.setType(PermissionType.MENU);
+//        u.getPermissions().add(rolePermission);
+//
+//        //添加功能权限
+//        rolePermission = new RolePermission();
+//        rolePermission.setUser(u);
+//        rolePermission.setType(PermissionType.METHOD);
+//        u.getPermissions().add(rolePermission);
 
         initLetter(u);
         User ret = userDao.save(u);
@@ -573,14 +569,14 @@ public class UserService implements IUserService {
             oldIds = user.getQuarters().stream().map(item -> item.getId()).collect(Collectors.toList());
             setQuarters(user, edit.getQuarters());
         }
-        //菜单权限
-        if (null != edit.getUnbindMenus()) {
-            setUnbindMenus(user, edit.getUnbindMenus());
-        }
-        //禁用功能
-        if (null != edit.getUnbindMethods()) {
-            setUnbindMethods(user, edit.getUnbindMethods());
-        }
+//        //菜单权限
+//        if (null != edit.getUnbindMenus()) {
+//            setUnbindMenus(user, edit.getUnbindMenus());
+//        }
+//        //禁用功能
+//        if (null != edit.getUnbindMethods()) {
+//            setUnbindMethods(user, edit.getUnbindMethods());
+//        }
         user = saveUser(user);
         if (null != oldIds) {
             globalPermissionService.syncGlobalPermissionCenterQuartersChanged(oldIds, user);
@@ -666,44 +662,6 @@ public class UserService implements IUserService {
         userTokenDao.updateToken(token, new Date(System.currentTimeMillis() + 30 * 1000 * 60));
     }
 
-    /**
-     * 增加用户特殊权限
-     *
-     * @param uid
-     * @param permissions
-     * @return
-     */
-    @Deprecated
-    public boolean addExternalPermission(Long uid, UserExternalPermission.Permission... permissions) {
-        //防止冲突
-        User user = findUser(uid).orElse(null);
-        if (null == user) return false;
-        removeExternalPermission(uid, permissions);
-        for (UserExternalPermission.Permission permission : permissions) {
-            UserExternalPermission userExternalPermission = new UserExternalPermission();
-            userExternalPermission.setUser(user);
-            userExternalPermission.setPermission(permission);
-            externalPermissionDao.save(userExternalPermission);
-        }
-        return true;
-    }
-
-
-    /**
-     * 删除用户特殊权限
-     *
-     * @param uid
-     * @param permissions
-     * @return
-     */
-    @Deprecated
-    public boolean removeExternalPermission(Long uid, UserExternalPermission.Permission... permissions) {
-        for (UserExternalPermission.Permission permission : permissions) {
-            externalPermissionDao.deleteAllByUser_IdAndPermission(uid, permission);
-        }
-        return true;
-    }
-
 
     /**
      * 登录用户对应的私有云账号
@@ -773,7 +731,8 @@ public class UserService implements IUserService {
      * @return
      */
     public String[] getCommonCloudUsername(long uid) {
-        if (userDao.checkPermission(uid, UserExternalPermission.Permission.COMMON_CLOUD_DISK) == 0) {
+        User user = findUser(uid).orElse(null);
+        if(null == user || !user.isSu()){
             return new String[]{"", ""};
         }
         return new String[]{cloudCommonUsername, cloudCommonPassword};

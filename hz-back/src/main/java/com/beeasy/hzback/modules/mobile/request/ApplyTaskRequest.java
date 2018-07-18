@@ -39,8 +39,11 @@ public class ApplyTaskRequest {
     //是否公共任务
     boolean common = false;
 
+    boolean goNext = false;
+
     //固有字段信息
     Map<String,String> data = new HashMap<>();
+    Map<String,String> startNode = new HashMap<>();
 
     //计划开始时间
     @Future

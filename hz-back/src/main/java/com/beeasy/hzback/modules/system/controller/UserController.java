@@ -70,8 +70,7 @@ public class UserController {
     @ApiOperation(value = "添加用户",notes = "")
     @PostMapping
     public Result<User> add(
-            @Valid UserAdd edit,
-            BindingResult bindingResult
+            @Validated(value = {UserAdd.group1.class,UserAdd.group2.class}) @RequestBody UserAdd edit
             ) throws RestException {
 
         return userService.createUser(edit);

@@ -75,15 +75,15 @@ public class User implements Serializable{
     @OneToOne(mappedBy = "user",cascade = CascadeType.REMOVE)
     private UserProfile profile;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<RolePermission> permissions = new ArrayList<>();
+//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+//    private List<RolePermission> permissions = new ArrayList<>();
 
     @JSONField(serialize = false)
     @OneToMany(mappedBy = "user")
     private List<MessageRead> readList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user")
-    private List<UserExternalPermission> externalPermissions = new ArrayList<>();
+//    @OneToMany(mappedBy = "user")
+//    private List<UserExternalPermission> externalPermissions = new ArrayList<>();
 
     @JSONField(serialize = false)
     @OneToMany(mappedBy = "user")
@@ -97,23 +97,6 @@ public class User implements Serializable{
     }
 
 
-    @JSONField(serialize = false)
-    @Transient
-    public Optional<RolePermission> getMethodPermission(){
-        return getPermissions()
-                .stream()
-                .filter(rolePermission -> rolePermission.getType().equals(IUserService.PermissionType.METHOD))
-                .findAny();
-    }
-
-    @JSONField(serialize = false)
-    @Transient
-    public Optional<RolePermission> getMenuPermission(){
-        return getPermissions()
-                .stream()
-                .filter(rolePermission -> rolePermission.getType().equals(IUserService.PermissionType.MENU))
-                .findAny();
-    }
 
 //    @Transient
 //    public List<Department> getDepartments(){

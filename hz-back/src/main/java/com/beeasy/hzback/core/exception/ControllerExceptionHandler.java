@@ -1,6 +1,8 @@
 package com.beeasy.hzback.core.exception;
 
 import com.beeasy.hzback.core.helper.Result;
+import io.netty.util.internal.StringUtil;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.web.servlet.error.AbstractErrorController;
 import org.springframework.boot.web.servlet.error.ErrorAttributes;
@@ -61,6 +63,11 @@ public class ControllerExceptionHandler extends AbstractErrorController {
 //            String msg = mapper.writeValueAsString(BaseResponse.newFail(BaseResponse.STATUS_ERROR, "系统繁忙,请稍候重试"));
             if(ex instanceof BindException){
                 return handleJSONError(rsp, Result.error("参数格式传递错误, 请检查输入").toJson(), HttpStatus.OK);
+            }
+            else if(ex instanceof RuntimeException){
+                if(!StringUtils.isEmpty(ex.getMessage())){
+                    return handleJSONError(rsp, Result.error(ex.getMessage()).toJson(), HttpStatus.OK);
+                }
             }
             return handleJSONError(rsp, Result.error().toJson(), HttpStatus.OK);
         } else {

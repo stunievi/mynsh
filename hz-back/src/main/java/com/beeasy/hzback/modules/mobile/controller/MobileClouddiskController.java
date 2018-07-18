@@ -6,7 +6,6 @@ import com.beeasy.hzback.modules.system.dao.ICloudDirectoryIndexDao;
 import com.beeasy.hzback.modules.system.dao.ICloudFileTagDao;
 import com.beeasy.hzback.modules.system.dao.ICloudShareDao;
 import com.beeasy.hzback.modules.system.entity.CloudDirectoryIndex;
-import com.beeasy.hzback.modules.system.entity.UserExternalPermission;
 import com.beeasy.hzback.modules.system.service.CloudDiskService;
 import com.beeasy.hzback.modules.system.service.ICloudDiskService;
 import com.beeasy.hzback.modules.system.service.UserService;
@@ -195,9 +194,10 @@ public class MobileClouddiskController {
 
     /** 共享文件柜 **/
     private boolean checkAuth(long uid){
-        return userService.findUser(uid).filter(user -> {
-            return user.getExternalPermissions().stream().anyMatch(p -> p.getPermission().equals(UserExternalPermission.Permission.COMMON_CLOUD_DISK));
-        }).isPresent();
+        return false;
+//        return userService.findUser(uid).filter(user -> {
+//            return user.getExternalPermissions().stream().anyMatch(p -> p.getPermission().equals(UserExternalPermission.Permission.COMMON_CLOUD_DISK));
+//        }).isPresent();
     }
 
 
