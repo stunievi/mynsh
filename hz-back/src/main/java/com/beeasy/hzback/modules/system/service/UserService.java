@@ -267,6 +267,12 @@ public class UserService implements IUserService {
                 addUsersToQuarters(Collections.singleton(ret.getId()), aLong);
             }
         }
+        //角色
+        if(add.getRids().size() > 0){
+            for (Long aLong : add.getRids()) {
+                roleAddUsers(aLong,Collections.singleton(ret.getId()));
+            }
+        }
 
         //添加文件夹
 //        CloudDirectoryIndex cloudDirectoryIndex = new CloudDirectoryIndex();

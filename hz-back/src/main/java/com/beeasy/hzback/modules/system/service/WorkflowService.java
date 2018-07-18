@@ -316,11 +316,16 @@ public class WorkflowService {
         Result r = null;
         if(null != request.getDataSource()) {
             if(workflowModel.getModelName().indexOf("资料收集") > -1){
-                if(searchService.isCusCom(request.getDataId())){
-                    r = searchService.searchInnateCusComData(uid,request.getDataId());
+                if(request.getDataSource().equals(ApplyTaskRequest.DataSource.CLIENT)){
+                    if(searchService.isCusCom(request.getDataId())){
+                        r = searchService.searchInnateCusComData(uid,request.getDataId());
+                    }
+                    else if(searchService.isCusIndiv(request.getDataId())){
+                        r = searchService.searchInnateCusIndivData(uid,request.getDataId());
+                    }
                 }
-                else if(searchService.isCusIndiv(request.getDataId())){
-                    r = searchService.searchInnateCusIndivData(uid,request.getDataId());
+                else{
+                    r = searchService.searchInnateAccloanData(uid, request.getDataId());
                 }
             }
             else{

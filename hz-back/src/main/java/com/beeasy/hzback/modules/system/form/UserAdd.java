@@ -49,6 +49,8 @@ public class UserAdd {
 
     //岗位ID列表
     List<Long> qids = new ArrayList<>();
+    //角色ID列表
+    List<Long> rids = new ArrayList<>();
 
     //信贷机构代码
     String accCode;
