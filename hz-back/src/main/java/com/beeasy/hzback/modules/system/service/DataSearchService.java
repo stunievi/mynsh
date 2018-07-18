@@ -164,7 +164,12 @@ public class DataSearchService {
             sql += String.format(" and ( a.MAIN_BR_ID in (%s) or a.CUS_MANAGER in (%s) )", joinIn(limitMap.get("dep")), joinIn(limitMap.get("user")));
         }
         log.error(sql);
-        return sqlUtils.pageQuery(sql, pageable);
+        Page page =  sqlUtils.pageQuery(sql, pageable).map(o -> {
+            Map<String,String> map = (Map<String, String>) o;
+            map.put("PostLoanModel", getAutoTaskModelName(map.get("BILL_NO")));
+            return map;
+        });
+        return page;
     }
 
 //    public Page searchAccLoanData(AccloanRequest request, Pageable pageable) {
@@ -354,6 +359,11 @@ public class DataSearchService {
 
 
     public Result searchInnateAccloanData(final long uid, final String billNo) {
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         String sql = String.format("select PRD_TYPE from ACC_LOAN where BILL_NO = '%s'", billNo);
         List<Map<String, String>> res = sqlUtils.query(sql);
         if (res.size() == 0) {
@@ -384,6 +394,11 @@ public class DataSearchService {
 
 
     public Result searchInnateCusComData(final long uid, final String CUS_ID){
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         String sql = String.format("select a.CUS_ID,a.CUS_NAME,a.CERT_TYPE,a.CERT_CODE,a.CONTACT_NAME,a.PHONE,b.CUST_MGR from CUS_BASE as a left join CUS_COM as b on a.CUS_ID=b.CUS_ID where (a.CUS_TYPE<>'110' and a.CUS_TYPE<>'120' and a.CUS_TYPE<>'130') and a.CUS_ID = '%s'", CUS_ID);
         //授权
         Map<String, List<String>> limitMap = getPermissionLimit(uid, SearchTargetType.CUS_COM);
@@ -400,6 +415,11 @@ public class DataSearchService {
     }
 
     public Result searchInnateCusIndivData(final long uid, final String CUS_ID){
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         String sql = String.format("select a.CUS_ID,a.CUS_NAME,a.CERT_TYPE,a.CERT_CODE,a.CONTACT_NAME,a.PHONE,b.CUST_MGR from CUS_BASE as a left join CUS_INDIV as b on a.CUS_ID=b.CUS_ID where (a.CUS_TYPE='110' or a.CUS_TYPE='120' or a.CUS_TYPE='130') and a.CUS_ID = '%s' ", CUS_ID);
         //授权
         Map<String, List<String>> limitMap = getPermissionLimit(uid, SearchTargetType.CUS_INDIV);
@@ -499,6 +519,20 @@ public class DataSearchService {
         return sqlUtils.pageQuery(sql, pageable);
     }
 
+
+    /**
+     * 得到一个台账对应的任务名
+     * @param billNo
+     * @return
+     */
+    public String getAutoTaskModelName(String billNo){
+        String sql = String.format("SELECT CASE WHEN l.type = 'HOME_BANK' THEN '贷后跟踪-公司银行部' WHEN l.type = 'MINI_WEI' AND a.PRD_TYPE = '01' THEN '贷后跟踪-小微部公司类' WHEN l.type = 'MINI_WEI' AND a.PRD_TYPE = '02' THEN '贷后跟踪-小微部个人类' WHEN l.type = 'SALES_PERSONAL' AND a.PRD_TYPE = '02' AND a.MORTGAGE_FLG = '1' THEN '贷后跟踪-零售部个人按揭类' WHEN l.type = 'SALES_PERSONAL' AND a.PRD_TYPE = '02' AND a.MORTGAGE_FLG = '0' AND a.PRD_USERDF_TYPE = '1003' THEN '贷后跟踪-零售部个人消费类' WHEN L.TYPE = 'sales_personal' AND a.PRD_TYPE = '02' AND a.MORTGAGE_FLG = '0' AND a.PRD_USERDF_TYPE = '1004' THEN '贷后跟踪-零售部个人经营类' END AS modelName FROM ACC_LOAN a , t_auto_task_link l WHERE l.acc_code LIKE concat('%%(' , a.MAIN_BR_ID , ')%%') AND a.BILL_NO = '%s'", billNo);
+        List<Map<String,String>> res = sqlUtils.query(sql);
+        if(res.size() > 0){
+            return res.get(0).getOrDefault("modelName","");
+        }
+        return "";
+    }
 
     /**
      * 设置查找条件授权

@@ -24,4 +24,13 @@ public class UserToken {
     String token;
 
     Date exprTime;
+
+    @Enumerated(value = EnumType.STRING)
+    Type type;
+
+
+    public enum Type{
+        WEB,
+        ANDROID
+    }
 }

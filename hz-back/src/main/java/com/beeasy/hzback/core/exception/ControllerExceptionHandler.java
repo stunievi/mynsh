@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
@@ -58,6 +59,9 @@ public class ControllerExceptionHandler extends AbstractErrorController {
 //            ObjectMapper mapper = new ObjectMapper();
 //            mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 //            String msg = mapper.writeValueAsString(BaseResponse.newFail(BaseResponse.STATUS_ERROR, "系统繁忙,请稍候重试"));
+            if(ex instanceof BindException){
+                return handleJSONError(rsp, Result.error("参数格式传递错误, 请检查输入").toJson(), HttpStatus.OK);
+            }
             return handleJSONError(rsp, Result.error().toJson(), HttpStatus.OK);
         } else {
             throw ex;

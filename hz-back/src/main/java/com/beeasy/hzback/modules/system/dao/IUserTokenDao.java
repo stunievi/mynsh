@@ -18,4 +18,10 @@ public interface IUserTokenDao extends JpaRepository<UserToken,Long> {
     @Query(value = "update UserToken set exprTime = :exprTime where exprTime > current_time() and token = :token")
     int updateToken(@Param("token") String token, @Param("exprTime") Date exprTime);
 
+    int deleteAllByExprTimeLessThan(Date date);
+
+    @Modifying
+    @Query(value = "delete from UserToken where exprTime <= current_time() ")
+    int cleanTokens();
+
 }

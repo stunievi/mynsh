@@ -105,12 +105,15 @@ public class LoginController {
         if(null == user){
             return Result.error("登录失败,用户名或密码错误");
         }
+        //删除过期token
+        userTokenDao.cleanTokens();
         try{
             String token = jwtTokenUtil.generateToken(user.getId());
             UserToken userToken = new UserToken();
             userToken.setUserId(user.getId());
             userToken.setToken(token);
             userToken.setExprTime(new Date(System.currentTimeMillis() + 30 * 60 * 1000));
+            userToken.setType(UserToken.Type.WEB);
             userTokenDao.save(userToken);
             return Result.ok(new UserInfoResponse(token,user));
         }

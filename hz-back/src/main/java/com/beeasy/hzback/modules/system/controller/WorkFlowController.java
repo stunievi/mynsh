@@ -1,6 +1,5 @@
 package com.beeasy.hzback.modules.system.controller;
 
-import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.modules.mobile.request.ApplyTaskRequest;
@@ -12,7 +11,6 @@ import com.beeasy.hzback.modules.system.log.NotSaveLog;
 import com.beeasy.hzback.modules.system.log.SaveLog;
 import com.beeasy.hzback.modules.system.service.UserService;
 import com.beeasy.hzback.modules.system.service.WorkflowService;
-import com.google.common.collect.ImmutableMap;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -369,19 +367,7 @@ public class WorkFlowController {
             @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
     ){
         return Result.ok(
-                workflowService.getUserUndealedWorks(Utils.getCurrentUserId(),null, pageable).map(o -> {
-                    WorkflowInstance ins = (WorkflowInstance) o;
-                    Map<String,String> map = ins.getAttributeMap();
-                    return Utils.newMap(
-                            "id", ins.getId(),
-                            "CUS_NAME",map.get("CUS_NAME"),
-                            "LOAN_ACCOUNT",map.get("LOAN_ACCOUNT"),
-                            "modelName", ins.getModelName(),
-                            "state", ins.getState(),
-                            "addTime", ins.getAddTime(),
-                            "finishedDate", ins.getFinishedDate()
-                    );
-                })
+                formatNormalWorks(workflowService.getUserUndealedWorks(Utils.getCurrentUserId(),null, pageable))
         );
     }
 
@@ -391,30 +377,20 @@ public class WorkFlowController {
             Pager pager,
             @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
     ){
-        return Result.ok(workflowService.getUserDealedWorks(Collections.singleton(Utils.getCurrentUserId()),null, pageable).map(o -> {
-            WorkflowInstance ins = (WorkflowInstance) o;
-            Map<String,String> map = ins.getAttributeMap();
-            return Utils.newMap(
-                    "id", ins.getId(),
-                    "CUS_NAME",map.get("CUS_NAME"),
-                    "LOAN_ACCOUNT",map.get("LOAN_ACCOUNT"),
-                    "modelName", ins.getModelName(),
-                    "state", ins.getState(),
-                    "addTime", ins.getAddTime(),
-                    "finishedDate", ins.getFinishedDate()
-            );
-        }));
+        return Result.ok(
+                formatNormalWorks(workflowService.getUserDealedWorks(Collections.singleton(Utils.getCurrentUserId()),null, pageable))
+        );
     }
 
     @ApiOperation(value = "我观察的任务")
     @GetMapping("/myObserveredWorks")
-    public String getMyObserveredWorks(
+    public Result getMyObserveredWorks(
             Pager pager,
             @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
     ){
 
-        return Result.ok(workflowService.getUserObservedWorks(Collections.singleton(Utils.getCurrentUserId()),null, pageable)).toJson(
-                new Result.DisallowEntry(WorkflowInstance.class,"nodeList")
+        return Result.ok(
+                formatDepartmentWorks(workflowService.getUserObservedWorks(Collections.singleton(Utils.getCurrentUserId()),null, pageable))
         );
     }
 
@@ -426,21 +402,7 @@ public class WorkFlowController {
     ){
 
         return Result.ok(
-                workflowService.getDepartmentUndealedWorks((Utils.getCurrentUserId()),null, pageable).map(o -> {
-                    WorkflowInstance ins = (WorkflowInstance) o;
-                    Map<String,String> map = ins.getAttributeMap();
-                    return Utils.newMap(
-                            "id", ins.getId(),
-                            "CUS_NAME",map.get("CUS_NAME"),
-                            "LOAN_ACCOUNT",map.get("LOAN_ACCOUNT"),
-                            "modelName", ins.getModelName(),
-                            "state", ins.getState(),
-                            "addTime", ins.getAddTime(),
-                            "finishedDate", ins.getFinishedDate(),
-                            "dealer",ins.getDealUserId(),
-                            "dealerName", ins.getDealUserName()
-                    );
-                })
+                formatDepartmentWorks(workflowService.getDepartmentUndealedWorks((Utils.getCurrentUserId()),null, pageable))
         );
     }
 
@@ -451,21 +413,9 @@ public class WorkFlowController {
             @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
     ){
 
-        return Result.ok(workflowService.getDepartmentDealedWorks((Utils.getCurrentUserId()),null, pageable).map(o -> {
-            WorkflowInstance ins = (WorkflowInstance) o;
-            Map<String,String> map = ins.getAttributeMap();
-            return Utils.newMap(
-                    "id", ins.getId(),
-                    "CUS_NAME",map.get("CUS_NAME"),
-                    "LOAN_ACCOUNT",map.get("LOAN_ACCOUNT"),
-                    "modelName", ins.getModelName(),
-                    "state", ins.getState(),
-                    "addTime", ins.getAddTime(),
-                    "finishedDate", ins.getFinishedDate(),
-                    "dealer",ins.getDealUserId(),
-                    "dealerName", ins.getDealUserName()
-            );
-        }));
+        return Result.ok(
+                formatDepartmentWorks(workflowService.getDepartmentDealedWorks((Utils.getCurrentUserId()),null, pageable))
+        );
     }
 
     @ApiOperation(value = "查询一个任务的所有明细")
@@ -628,11 +578,12 @@ public class WorkFlowController {
 
     @ApiOperation(value = "得到用户可以接受的公共任务列表")
     @RequestMapping(value = "/common/getList", method = RequestMethod.GET)
-    public String getUserCanAcceptCommonWorks(
+    public Result getUserCanAcceptCommonWorks(
             Pager pager,
             @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
     ){
-        return Result.ok(workflowService.getUserCanAcceptCommonWorks(Collections.singleton(Utils.getCurrentUserId()),null,pageable)).toJson(new Result.DisallowEntry(WorkflowInstance.class,"nodeList"));
+        return Result.ok(
+                formatDepartmentWorks(workflowService.getUserCanAcceptCommonWorks(Collections.singleton(Utils.getCurrentUserId()),null,pageable)));
     }
 
     @ApiOperation(value = "拒贷列表")
@@ -777,5 +728,39 @@ public class WorkFlowController {
         String info;
     }
 
+
+    public Page formatNormalWorks(Page page){
+        return page.map(o -> {
+                    WorkflowInstance ins = (WorkflowInstance) o;
+                    Map<String,String> map = ins.getAttributeMap();
+                    return Utils.newMap(
+                            "id", ins.getId(),
+                            "CUS_NAME",map.get("CUS_NAME"),
+                            "LOAN_ACCOUNT",map.get("LOAN_ACCOUNT"),
+                            "modelName", ins.getModelName(),
+                            "state", ins.getState(),
+                            "addTime", ins.getAddTime(),
+                            "finishedDate", ins.getFinishedDate()
+                    );
+        });
+    }
+
+    public Page formatDepartmentWorks(Page page){
+        return page.map(o -> {
+                    WorkflowInstance ins = (WorkflowInstance) o;
+                    Map<String,String> map = ins.getAttributeMap();
+                    return Utils.newMap(
+                            "id", ins.getId(),
+                            "CUS_NAME",map.get("CUS_NAME"),
+                            "LOAN_ACCOUNT",map.get("LOAN_ACCOUNT"),
+                            "modelName", ins.getModelName(),
+                            "state", ins.getState(),
+                            "addTime", ins.getAddTime(),
+                            "finishedDate", ins.getFinishedDate(),
+                            "dealer",ins.getDealUserId(),
+                            "dealerName", ins.getDealUserName()
+                    );
+                });
+    }
 
 }
