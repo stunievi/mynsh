@@ -201,6 +201,8 @@ public class WorkflowService {
         if (null == workflowModel || !workflowModel.isOpen()) {
             return Result.error("工作流没有开启");
         }
+        //fix
+        updateWorkflowModelDeps(workflowModel.getId());
 
         //计算任务归属部门
         //命中岗位权限的直属上级
@@ -381,10 +383,21 @@ public class WorkflowService {
         //插入第一个节点
         WorkflowNodeInstance nodeInstance = addNode(workflowInstance, firstNode, false);
         nodeInstance.setDealerId(workflowInstance.getDealUserId());
+
+        //节点文件复写
+        for (Long aLong : request.getFiles()) {
+            WorkflowNodeFile nodeFile = nodeFileDao.findTopByIdAndNodeInstanceIsNull(aLong).orElse(null);
+            if(null == nodeFile){
+                continue;
+            }
+            //如果已经有归属
+            nodeFile.setNodeInstance(nodeInstance);
+            nodeFile = nodeFileDao.save(nodeFile);
+            nodeInstance.getFileList().add(nodeFile);
+        }
+
         //写入第一个节点的属性
         nodeInstance = nodeInstanceDao.save(nodeInstance);
-
-
 
         //写入处理人
         if (null != dealerUser) {
@@ -1334,7 +1347,7 @@ public class WorkflowService {
     public Result submitData(long uid, SubmitDataRequest request) {
         WorkflowInstance instance = findInstance(request.getInstanceId()).orElse(null);
         if (null == instance ||
-                !(instance.getState().equals(WorkflowInstance.State.DEALING) && instance.getState().equals(WorkflowInstance.State.COMMON))) {
+                (!instance.getState().equals(WorkflowInstance.State.DEALING) && !instance.getState().equals(WorkflowInstance.State.COMMON))) {
             return Result.error("找不到符合条件的任务");
         }
         User user = userService.findUser(uid).orElse(null);

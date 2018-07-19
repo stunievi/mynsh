@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 public interface IWorkflowNodeFileDao extends JpaRepository<WorkflowNodeFile,Long>{
 
 //    @Query(value = "select count(f) from WorkflowNodeFile f where f.userId = :uid and f.id = :id")
@@ -20,5 +22,6 @@ public interface IWorkflowNodeFileDao extends JpaRepository<WorkflowNodeFile,Lon
     @Query(value = "update WorkflowNodeFile f set f.fileName = :name where f.id = :id and f.userId = :uid")
     int updateNodeFileName(@Param("uid") long uid, @Param("id") long id, @Param("name") String name);
 
+    Optional<WorkflowNodeFile> findTopByIdAndNodeInstanceIsNull(long id);
 
 }

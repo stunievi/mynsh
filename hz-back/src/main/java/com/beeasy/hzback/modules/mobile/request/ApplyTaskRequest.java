@@ -10,9 +10,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.Future;
 import javax.validation.constraints.NotNull;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Getter
 @Setter
@@ -44,6 +42,9 @@ public class ApplyTaskRequest {
     //固有字段信息
     Map<String,String> data = new HashMap<>();
     Map<String,String> startNode = new HashMap<>();
+
+    //第一个节点上传的文件
+    List<Long> files = new ArrayList<>();
 
     //计划开始时间
     @Future
