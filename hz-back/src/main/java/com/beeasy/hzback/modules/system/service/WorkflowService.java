@@ -2999,7 +2999,7 @@ public class WorkflowService {
     public List<Object> getCanDealUids(final long nodeInstanceId) {
         String sql =
                 "select gp.type, gp.userType, user.id, user.trueName, uq.departmentId, uq.department.name, uq.id, uq.name, " +
-                        "   gp.linkId, ni.instance.depId, uq.department.code " +
+                        "   gp.linkId, ni.instance.depId, uq.department.code, ni.nodeModelId " +
                         "from GlobalPermission gp, User user " +
                         "left join user.quarters uq " +
                         ", WorkflowNodeInstance ni " +
@@ -3007,12 +3007,14 @@ public class WorkflowService {
                         "   gp.type = 'WORKFLOW_MAIN_QUARTER' " +
                         "group by user,gp,ni,uq having " +
                         "   (" +
-                        "       (gp.userType = 'QUARTER' and uq.id = gp.linkId and" +
+                        "       (gp.userType = 'QUARTER' and uq.id = gp.linkId and ( " +
+                                //如果只配置了一个部门, 那么无视这个权限
+                        "       ( select count(distinct qq.departmentId) from GlobalPermission gpgp, Quarters qq where gpgp.userType = 'QUARTER' and gpgp.objectId = ni.nodeModelId and gpgp.linkId = qq.id) = 1 or " +
                         "       (" +
                         "           (select count(d) from Department d where uq.department.code like concat(d.code,'%') and d.id = ni.instance.depId) > 0 or" +
-                        "           (uq.departmentId = ni.instance.depId) or " +
+//                        "           (uq.departmentId = ni.instance.depId) or " +
                         "           (select count(d) from Department d where d.code like concat(uq.department.code,'%') and d.id = ni.instance.depId) > 0" +
-                        "       )) or " +
+                        "       )) ) or " +
                         "(gp.userType = 'USER' and user.id = gp.linkId) " +
                         "" +
                         "   )";

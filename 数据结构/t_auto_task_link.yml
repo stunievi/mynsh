@@ -1,0 +1,13 @@
+id:
+  cn: 标识
+  prim
+acc_code:
+  cn: 对应部门的代码
+type:
+  cn: 部门任务类型枚举
+  enum:
+    MINI_WEI: 小微部
+    SALES_PERSONAL: 零售个人
+    HOME_BANK: 公司银行
+
+

@@ -17,6 +17,7 @@ import com.beeasy.hzback.modules.system.cache.SystemConfigCache;
 import com.beeasy.hzback.modules.system.dao.*;
 import com.beeasy.hzback.modules.system.entity.*;
 import com.beeasy.hzback.modules.system.form.*;
+import io.netty.util.internal.StringUtil;
 import jdk.nashorn.internal.objects.Global;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -565,7 +566,9 @@ public class UserService implements IUserService {
             user.setTrueName(edit.getTrueName());
         }
         //信贷机构代码
-        user.setAccCode(edit.getAccCode());
+        if(!StringUtils.isEmpty(edit.getAccCode())){
+            user.setAccCode(edit.getAccCode());
+        }
 
         List<Long> oldIds = null;
         //岗位设置
