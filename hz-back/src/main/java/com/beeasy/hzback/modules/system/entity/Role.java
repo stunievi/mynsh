@@ -29,6 +29,9 @@ public class Role extends AbstractBaseEntity {
     @OrderBy(value = "DESC")
     int sort = 0;
 
+    //是否可以删除
+    boolean canDelete = true;
+
     @JSONField(serialize = false)
     @ManyToMany()
     @JoinTable(name = "t_user_role",

@@ -26,6 +26,9 @@ public class RoleRequest {
 
     String info;
 
+//    @NotNull(groups = {add.class,edit.class}, message = "是否删除必填")
+    boolean canDelete = true;
+
     @AssertTrue(message = "已经有同名的角色", groups = {add.class,edit.class})
     public boolean getCheckName(){
         IRoleDao roleDao = SpringContextUtils.getBean(IRoleDao.class);

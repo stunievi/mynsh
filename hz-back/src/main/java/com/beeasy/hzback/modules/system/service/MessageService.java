@@ -7,6 +7,8 @@ import com.beeasy.hzback.modules.system.dao.*;
 import com.beeasy.hzback.modules.system.entity.*;
 import com.beeasy.hzback.modules.system.form.MessageAdd;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -205,6 +207,7 @@ public class MessageService implements IMessageService {
             }
             systemFile.setType(SystemFile.Type.MESSAGE);
             systemFile.setFileName(file.getOriginalFilename());
+            systemFile.setExt(FilenameUtils.getExtension(file.getOriginalFilename()).toLowerCase());
             systemFile = systemFileDao.save(systemFile);
             message.setType(Message.Type.FILE);
             message.setContent(file.getOriginalFilename());

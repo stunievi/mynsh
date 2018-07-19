@@ -958,6 +958,7 @@ public class UserService implements IUserService {
         role.setName(request.getName());
         role.setInfo(request.getInfo());
         role.setSort(request.getSort());
+        role.setCanDelete(request.isCanDelete());
         role = roleDao.save(role);
         return Result.ok(role);
     }
@@ -976,6 +977,7 @@ public class UserService implements IUserService {
         role.setName(request.getName());
         role.setInfo(request.getInfo());
         role.setSort(request.getSort());
+        role.setCanDelete(request.isCanDelete());
         role = roleDao.save(role);
         return Result.ok(role);
     }
@@ -988,7 +990,12 @@ public class UserService implements IUserService {
      */
     public Result deleteRoles(Collection<Long> ids) {
         return Result.ok(
-                ids.stream().peek(id -> roleDao.deleteById(id)).collect(Collectors.toList())
+                ids.stream()
+                        .map(id -> roleDao.findById(id).orElse(null))
+                        .filter(role -> null != role && role.isCanDelete())
+                        .peek(role -> roleDao.deleteById(role.getId()))
+                        .map(role -> role.getId())
+                        .collect(Collectors.toList())
         );
     }
 

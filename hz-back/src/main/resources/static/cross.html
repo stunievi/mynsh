@@ -17,7 +17,7 @@
     var client = function (e) {
         var data = JSON.parse(e.data);
         $.ajax({
-            type : "post",
+            type : data.data._method || "post",
             url: data.url,
             headers: data.headers || {},
             data: data.data || {},

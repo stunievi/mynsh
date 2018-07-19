@@ -53,7 +53,7 @@ public class Department extends AbstractBaseEntity{
     private int sort;
 
     String accCode;
-//    private boolean deleted = false;
+    private boolean deleted = false;
 
 //    @Transient
 //    public List<User> getUsers(){

@@ -155,14 +155,13 @@ public class DataSearchService {
      * @return
      */
     public Page searchAccLoan(final long uid, AccloanRequest request, Pageable pageable) {
-        String sql = String.format("select a.BILL_NO,a.CUS_ID,a.CUS_NAME,a.LOAN_ACCOUNT,a.ASSURE_MEANS_MAIN,a.LOAN_AMOUNT,a.LOAN_BALANCE,a.CUR_TYPE,a.LOAN_START_DATE,a.LOAN_END_DATE,a.ACCOUNT_STATUS,a.CLA,a.CUS_MANAGER,a.MAIN_BR_ID,a.CONT_NO,b.USE_DEC,b.LOAN_TERM from ACC_LOAN as a left join CTR_LOAN_CONT as b on a.CONT_NO=b.CONT_NO %s where 1 = 1 ", null != request.getRegister() ? ", t_workflow_instance ins" : "");
+        String sql = String.format("select a.BILL_NO,a.CUS_ID,a.CUS_NAME,a.LOAN_ACCOUNT,a.ASSURE_MEANS_MAIN,a.LOAN_AMOUNT,a.LOAN_BALANCE,a.CUR_TYPE,a.LOAN_START_DATE,a.LOAN_END_DATE,a.ACCOUNT_STATUS,a.CLA,a.CUS_MANAGER,a.MAIN_BR_ID,a.CONT_NO,b.USE_DEC,b.LOAN_TERM from ACC_LOAN as a left join CTR_LOAN_CONT as b on a.CONT_NO=b.CONT_NO %s where 1 = 1 ","");
         if (null != request.register) {
-            sql += " and ins.model_name = '不良资产登记' ";
-            sql += " and (select count(*) from t_workflow_instance_attribute attr where attr.instance_id = ins.id and attr.attr_key = 'BILL_NO' and attr.attr_value <> '')";
             if (request.register) {
-                sql += " > 0";
+                sql += " and (select count(*) from t_workflow_instance ins where ins.model_name in ('不良资产管理流程') and ins.state <> 'FINISHED' and ins.bill_no = a.BILL_NO) > 0";
             } else {
-                sql += " = 0";
+                sql += " and (select count(*) from t_workflow_instance ins where ins.model_name in ('不良资产登记','不良资产管理流程') and ins.state <> 'FINISHED' and ins.bill_no = a.BILL_NO) = 0";
+//                sql += " = 0";
             }
         }
         if (!StringUtils.isEmpty(request.getBILL_NO())) {
@@ -432,9 +431,9 @@ public class DataSearchService {
         }
         String type = res.get(0).get("PRD_TYPE");
         if (type.equals("01")) {
-            sql = String.format("select a.BILL_NO,a.CONT_NO,a.CUS_ID,a.CUS_NAME,a.ASSURE_MEANS_MAIN,a.LOAN_AMOUNT             ,a.LOAN_BALANCE            ,a.LOAN_START_DATE         ,a.LOAN_END_DATE           ,a.CLA,a.SEVEN_RESULT,a.CAP_OVERDUE_DATE,a.INT_OVERDUE_DATE,a.UNPD_PRIN_BAL,a.DELAY_INT_CUMU,a.CUS_MANAGER,a.INPUT_BR_ID,a.FINA_BR_ID,a.MAIN_BR_ID,b.PHONE,b.CONTACT_NAME,c.POST_ADDR,c.COM_CRD_GRADE,e.LOAN_TERM from ACC_LOAN as a left join CUS_BASE as b on a.CUS_ID=b.CUS_ID left join  CUS_COM as c on a.CUS_ID=c.CUS_ID left join CTR_LOAN_CONT as e on a.CONT_NO=e.CONT_NO where a.BILL_NO='%s'", billNo);
+            sql = String.format("select a.BILL_NO,a.CONT_NO,a.CUS_ID,a.CUS_NAME,a.ASSURE_MEANS_MAIN,a.LOAN_AMOUNT             ,a.LOAN_BALANCE,a.LOAN_ACCOUNT            ,a.LOAN_START_DATE         ,a.LOAN_END_DATE           ,a.CLA,a.SEVEN_RESULT,a.CAP_OVERDUE_DATE,a.INT_OVERDUE_DATE,a.UNPD_PRIN_BAL,a.DELAY_INT_CUMU,a.CUS_MANAGER,a.INPUT_BR_ID,a.FINA_BR_ID,a.MAIN_BR_ID,b.PHONE,b.CONTACT_NAME,c.POST_ADDR,c.COM_CRD_GRADE,e.LOAN_TERM from ACC_LOAN as a left join CUS_BASE as b on a.CUS_ID=b.CUS_ID left join  CUS_COM as c on a.CUS_ID=c.CUS_ID left join CTR_LOAN_CONT as e on a.CONT_NO=e.CONT_NO where a.BILL_NO='%s'", billNo);
         } else if (type.equals("02")) {
-            sql = String.format("select a.BILL_NO,a.CONT_NO,a.CUS_ID,a.CUS_NAME,a.ASSURE_MEANS_MAIN,a.LOAN_AMOUNT             ,a.LOAN_BALANCE            ,a.LOAN_START_DATE         ,a.LOAN_END_DATE           ,a.CLA,a.SEVEN_RESULT,a.CAP_OVERDUE_DATE,a.INT_OVERDUE_DATE,a.UNPD_PRIN_BAL,a.DELAY_INT_CUMU,a.CUS_MANAGER,a.INPUT_BR_ID,a.FINA_BR_ID,a.MAIN_BR_ID,b.PHONE,b.CONTACT_NAME,d.POST_ADDR,d.CRD_GRADE,e.LOAN_TERM from ACC_LOAN as a left join CUS_BASE as b on a.CUS_ID=b.CUS_ID left join  CUS_INDIV as d on a.CUS_ID=d.CUS_ID left join CTR_LOAN_CONT as e on a.CONT_NO=e.CONT_NO where a.BILL_NO='%s'", billNo);
+            sql = String.format("select a.BILL_NO,a.CONT_NO,a.CUS_ID,a.CUS_NAME,a.ASSURE_MEANS_MAIN,a.LOAN_AMOUNT             ,a.LOAN_BALANCE,a.LOAN_ACCOUNT            ,a.LOAN_START_DATE         ,a.LOAN_END_DATE           ,a.CLA,a.SEVEN_RESULT,a.CAP_OVERDUE_DATE,a.INT_OVERDUE_DATE,a.UNPD_PRIN_BAL,a.DELAY_INT_CUMU,a.CUS_MANAGER,a.INPUT_BR_ID,a.FINA_BR_ID,a.MAIN_BR_ID,b.PHONE,b.CONTACT_NAME,d.POST_ADDR,d.CRD_GRADE,e.LOAN_TERM from ACC_LOAN as a left join CUS_BASE as b on a.CUS_ID=b.CUS_ID left join  CUS_INDIV as d on a.CUS_ID=d.CUS_ID left join CTR_LOAN_CONT as e on a.CONT_NO=e.CONT_NO where a.BILL_NO='%s'", billNo);
         } else {
             return Result.error("目前只可以针对对公或者对私发起任务");
         }

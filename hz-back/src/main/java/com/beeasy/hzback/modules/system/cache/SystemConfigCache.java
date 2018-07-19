@@ -79,6 +79,12 @@ public class SystemConfigCache {
         return String.join("\n",codes);
     }
 
+    @Cacheable(value = DEMO_CACHE_NAME, key = "'cross.html'")
+    public String getCorssHtml() throws IOException {
+        ClassPathResource resource = new ClassPathResource("static/cross.html");
+        List<String> codes = IOUtils.readLines(resource.getInputStream());
+        return String.join("\n",codes);
+    }
 //    public String getBehaviorLibrary(){
 //        try {
 //            return getBehaviorString();

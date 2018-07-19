@@ -1,6 +1,7 @@
 package com.beeasy.hzback.modules.system.controller;
 
 import com.beeasy.hzback.core.helper.Utils;
+import com.beeasy.hzback.modules.system.cache.SystemConfigCache;
 import com.beeasy.hzback.modules.system.dao.IDownloadFileTokenDao;
 import com.beeasy.hzback.modules.system.dao.IMessageDao;
 import com.beeasy.hzback.modules.system.dao.ISystemFileDao;
@@ -28,6 +29,8 @@ import java.util.Optional;
 @RequestMapping
 public class FileController {
 
+    @Autowired
+    SystemConfigCache cache;
     @Autowired
     ISystemFileDao systemFileDao;
     @Autowired
@@ -103,5 +106,20 @@ public class FileController {
         headers.set("Content-Disposition", "attachment; filename=\"" + fileName + "\"; filename*=utf-8''" + fileName);
         return new ResponseEntity<byte[]>(file.getBytes(), headers, HttpStatus.OK);
     }
+
+    @RequestMapping(value = "/open/cross.html",
+            method = RequestMethod.GET,
+            produces = MediaType.TEXT_HTML_VALUE)
+    @ResponseBody
+    public String cross(){
+        try {
+            return cache.getCorssHtml();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "";
+        }
+    }
+
+
 }
 

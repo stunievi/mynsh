@@ -1999,18 +1999,18 @@ public class WorkflowService {
 
         });
         Page<WorkflowInstance> instances = instanceDao.findAll(query, pageable);
-        instances.getContent().forEach(instance -> {
-            instance.setCanDeal(canDeal(instance, user));
+        return instances.map(o -> {
+            WorkflowInstance instance = o;
             instance.setAttributes(null);
-            //字段补充
-            if(object.containsKey("fields")){
-                List<String> fields = Utils.splitByComma(object.get("fields"));
-                instance.setAttributeMap(instanceAttributeDao.findAllByInstanceIdAndAndAttrKeyIn(instance.getId(),fields)
-                .stream()
-                .collect(Collectors.toMap(item -> item.getAttrKey(), item -> item.getAttrValue())));
+            instance.setNodeList(null);
+            JSONObject jsonObject = (JSONObject) JSON.toJSON(o);
+            if(object.containsKey("fields")) {
+                for (String field : Utils.splitByComma(object.get("fields"))) {
+                    jsonObject.put(field,instance.getAttributeMap().getOrDefault(field,""));
+                }
             }
+            return jsonObject;
         });
-        return instances;
     }
 
     public Page getRejectCollectList(final long uid, RejectCollectRequest request, Pageable pageable){
