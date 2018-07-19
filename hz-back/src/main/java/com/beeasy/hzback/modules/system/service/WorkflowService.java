@@ -241,6 +241,8 @@ public class WorkflowService {
 //        }
 
         User dealerUser = null;
+        Map<String,String> innateMap = new HashMap<>();
+
         //任务主体
         WorkflowInstance workflowInstance = new WorkflowInstance();
         workflowInstance.setDepId(department.getId());
@@ -308,6 +310,17 @@ public class WorkflowService {
 //        workflowInstance.setDealUserId(null == dealerUser ? null : dealerUser.getId());
         workflowInstance.setPubUserId(uid);
 //        workflowInstance.setPubUser(pubUser);
+
+//        //子任务开启
+//        if(null != request.getParentId() && request.getParentId() > 0){
+//            //废除数据源
+//            request.setDataSource(null);
+//            request.setDataId(null);
+//            //废除固有字段数据和开始节点的数据
+//
+//            //子任务有明确的归属, 禁止设为公共任务
+//        }
+
         workflowInstance = saveWorkflowInstance(workflowInstance);
 
 
@@ -316,7 +329,6 @@ public class WorkflowService {
 
         //插入固有字段
         //根据datasource和dataid整理固有字段
-        Map<String,String> innateMap = new HashMap<>();
         innateMap.putAll(request.getData());
         innateMap.putAll(request.getStartNode());
         Result r = null;
@@ -2479,9 +2491,11 @@ public class WorkflowService {
             JSONObject v = (JSONObject) entry.getValue();
             //只需要校验必填属性
             if (v.getBoolean("required")) {
-                Optional<WorkflowNodeAttribute> target = currentNode.getAttributeList().stream()
-                        .filter(a -> a.getAttrKey().equals(v.getString("ename")))
-                        .findAny();
+                Optional<WorkflowNodeAttribute> target = attributeDao.findFirstByNodeInstanceIdAndAttrKey(currentNode.getId(), v.getString("ename"))
+                        .filter(a -> !StringUtils.isEmpty(a.getAttrValue()));
+//                Optional<WorkflowNodeAttribute> target = currentNode.getAttributeList().stream()
+//                        .filter(a -> a.getAttrKey().equals(v.getString("ename")))
+//                        .findAny();
                 if (!target.isPresent()) {
                     throw new RestException(String.format("%s字段没有填写", v.getString("cname")));
                 }

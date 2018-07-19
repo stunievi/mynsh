@@ -6,6 +6,7 @@ import com.beeasy.hzback.modules.system.dao.IMessageDao;
 import com.beeasy.hzback.modules.system.dao.ISystemFileDao;
 import com.beeasy.hzback.modules.system.entity.DownloadFileToken;
 import com.beeasy.hzback.modules.system.entity.SystemFile;
+import com.sun.imageio.plugins.jpeg.JPEG;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,7 +81,24 @@ public class FileController {
             return new ResponseEntity<byte[]>(HttpStatus.NO_CONTENT);
         }
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        switch (file.getExt().toLowerCase()){
+            case "jpg":
+            case "jpeg":
+            case "bmp":
+                headers.setContentType(MediaType.IMAGE_JPEG);
+                break;
+
+            case "png":
+                headers.setContentType(MediaType.IMAGE_PNG);
+                break;
+
+            case "gif":
+                headers.setContentType(MediaType.IMAGE_GIF);
+                break;
+
+            default:
+                headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        }
         String fileName = URLEncoder.encode(file.getFileName(),"UTF-8");
         headers.set("Content-Disposition", "attachment; filename=\"" + fileName + "\"; filename*=utf-8''" + fileName);
         return new ResponseEntity<byte[]>(file.getBytes(), headers, HttpStatus.OK);

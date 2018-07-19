@@ -21,7 +21,7 @@ public class ApplyTaskRequest {
     String modelName;
 
     //父任务ID
-    Long parentId;
+//    Long parentId;
 
     @NotEmpty(message = "任务标题不能为空")
     String title;

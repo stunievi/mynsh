@@ -513,8 +513,8 @@ public class UserService implements IUserService {
                 if (!StringUtils.isEmpty(search.getName())) {
                     predicates.add(
                             cb.or(
-                                    cb.like(root.get("username"), search.getName()),
-                                    cb.like(root.get("trueName"), search.getName())
+                                    cb.like(root.get("username"), "%" + search.getName() + "%"),
+                                    cb.like(root.get("trueName"), "%" + search.getName() + "%")
                             )
                     );
                 }
