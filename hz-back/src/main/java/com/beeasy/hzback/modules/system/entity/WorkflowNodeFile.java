@@ -59,4 +59,7 @@ public class WorkflowNodeFile extends AbstractBaseEntity{
 
     //标签, 空格分割
     String tags = "";
+
+    @Transient
+    String token;
 }

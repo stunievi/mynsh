@@ -21,10 +21,12 @@ public class MySQL5DialectFK extends MySQL5Dialect {
 //        return super.getAddForeignKeyConstraintString(constraintName, foreignKey, referencedTable, primaryKey, referencesPrimaryKey);
     }
 
-//    @Override
-//    public Exporter<Table> getTableExporter() {
-//        return new StandardTableExporter( this ){
-//
-//        };
-//    }
+    @Override
+    public Exporter<Table> getTableExporter() {
+        return new StandardTableExporter( this ){
+
+        };
+    }
+
+
 }

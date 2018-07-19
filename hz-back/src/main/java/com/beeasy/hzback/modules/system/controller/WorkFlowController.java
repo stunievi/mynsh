@@ -522,6 +522,18 @@ public class WorkFlowController {
         return workflowService.uploadNodeFile(Utils.getCurrentUserId(),instanceId,nodeId,fileType,file,content, tag).toJson();
     }
 
+    @NotSaveLog
+    @ApiOperation(value = "上传临时附件")
+    @PostMapping("/file/uploadTemp")
+    public Result uploadNodeFileTemp(
+            MultipartFile file,
+            @RequestParam WorkflowNodeFile.Type fileType,
+            String content,
+            String tag
+    ){
+        return workflowService.uploadNodeFile(Utils.getCurrentUserId(),null,null,fileType,file,content,tag);
+    }
+
     @ApiOperation(value = "删除节点附件")
     @PostMapping("/file/delete")
     public String deleteNodeFile(
@@ -583,7 +595,7 @@ public class WorkFlowController {
             @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
     ){
         return Result.ok(
-                formatDepartmentWorks(workflowService.getUserCanAcceptCommonWorks(Collections.singleton(Utils.getCurrentUserId()),null,pageable)));
+                formatDepartmentWorks(workflowService.getUserCanAcceptCommonWorks((Utils.getCurrentUserId()),null,pageable)));
     }
 
     @ApiOperation(value = "拒贷列表")

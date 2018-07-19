@@ -140,9 +140,9 @@ public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Lon
 
 //    //我可以执行的公共任务
     @Query(value =
-            "select distinct ins from WorkflowInstance ins, User user " +
-//            "join user.quarters q " +
-            "join ins.workflowModel model " +
+            "select distinct ins from WorkflowInstance ins, GlobalPermission gp, User user " +
+            "left join user.quarters q " +
+//            "join ins.workflowModel model " +
 //            "join model.nodeModels nm " +
 //            "join nm.persons ps " +
             "where " +
@@ -150,14 +150,17 @@ public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Lon
 //                    "ins.common = true and " +
                     "ins.state = 'COMMON' and " +
                     //拥有执行的权限
-                    "model.id in ("+IGlobalPermissionDao.SQL.GET_OIDS_WITH_UIDS+") and " +
+                    "(select count(d) from Department d where q.code like concat(d.code,'_%') and d.id = ins.depId) > 0 and " +
+                    //
+                    "(gp.type = 'WORKFLOW_PUB' and gp.linkId = q.id and gp.objectId = ins.modelId) and " +
+//                    "model.id in ("+IGlobalPermissionDao.SQL.GET_OIDS_WITH_UIDS+") and " +
                     //分页
                     "ins.id <= :lessId and " +
-                    "user.id in :uids " +
-                    "order by ins.addTime, ins.id desc ")
+                    "user.id = :uid "
+                    )
     Page<WorkflowInstance> findCommonWorks(
-            @Param("types") Collection<GlobalPermission.Type> types,
-            @Param("uids") Collection<Long> uids,
+//            @Param("types") Collection<GlobalPermission.Type> types,
+            @Param("uid") long uid,
             @Param("lessId") Long lessId,
             Pageable pageable);
 
