@@ -2256,6 +2256,15 @@ public class WorkflowService {
                     e.printStackTrace();
                 }
             }
+
+            //关闭所有子任务
+            currentNode.getInstance().getChildInstances()
+                    .stream()
+                    .filter(ins -> !ins.getState().equals(WorkflowInstance.State.FINISHED))
+                    .forEach(ins -> {
+                        ins.setState(WorkflowInstance.State.CANCELED);
+                        instanceDao.save(ins);
+                    });
         }
         //资料节点的回卷, 如果曾经存在提交, 那么重新附上所有值以及文件
         else if (newNode.getType().equals(WorkflowNode.Type.input)) {
@@ -2388,7 +2397,7 @@ public class WorkflowService {
             case logic:
                 break;
             case end:
-                noticeService.addNotice(SystemNotice.Type.WORKFLOW, instance.getDealUserId(), "您的任务${taskId}已经结束", ImmutableMap.of(
+                noticeService.addNotice(SystemNotice.Type.WORKFLOW, instance.getDealUserId(), "你的任务${taskId}已经结束", ImmutableMap.of(
                         "taskId", newNode.getInstanceId(),
                         "taskName", instance.getTitle()
                 ));
