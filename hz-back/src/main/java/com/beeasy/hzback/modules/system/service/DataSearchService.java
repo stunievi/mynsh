@@ -160,7 +160,7 @@ public class DataSearchService {
             if (request.register) {
                 sql += " and (select count(*) from t_workflow_instance ins where ins.model_name in ('不良资产管理流程') and ins.state <> 'FINISHED' and ins.bill_no = a.BILL_NO) > 0";
             } else {
-                sql += " and (select count(*) from t_workflow_instance ins where ins.model_name in ('不良资产登记','不良资产管理流程') and ins.state <> 'FINISHED' and ins.bill_no = a.BILL_NO) = 0";
+                sql += " and (select count(*) from t_workflow_instance ins where ins.model_name in ('不良资产管理流程') and ins.state <> 'FINISHED' and ins.bill_no = a.BILL_NO) = 0";
 //                sql += " = 0";
             }
         }

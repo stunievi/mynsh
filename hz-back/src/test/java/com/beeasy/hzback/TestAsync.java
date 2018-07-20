@@ -522,7 +522,8 @@ public class TestAsync {
     FastFileStorageClient storageClient;
     @Test
     public void updateWorkflows(){
-        Object instance = instanceDao.findAll();
+        Object o = workflowService.getNodeDealUids(150,318);
+//        Object instance = instanceDao.findAll();
 //        Object objs = departmentDao.getChildDepIds(50);
 
 //        Object objs = workflowService.getCanDealUids(276l);

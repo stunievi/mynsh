@@ -6,6 +6,7 @@ import lombok.Data;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.hibernate.validator.constraints.Range;
 
+import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
@@ -25,6 +26,7 @@ public class WorkflowModelAdd {
     @ApiModelProperty(name = "info", value = "工作流描述")
     String info;
 
+    @NotNull(message = "处理周期必须为数字")
     @Range(min = 1, max = 99999, message = "处理周期在1-99999之间")
-    int processCycle = 1;
+    Integer processCycle = 1;
 }

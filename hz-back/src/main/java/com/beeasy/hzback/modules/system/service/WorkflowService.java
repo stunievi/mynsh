@@ -204,6 +204,22 @@ public class WorkflowService {
         //fix
         updateWorkflowModelDeps(workflowModel.getId());
 
+
+        //校验任务特殊权限
+        //同一时间只能同时存在一个不良资产登记流程
+        switch (workflowModel.getModelName()){
+            case "不良资产登记":
+            case "不良资产管理流程":
+                if(StringUtils.isEmpty(request.getDataId())){
+                    return Result.error("没有传递台账编号");
+                }
+                //如果已经有一个相同的流程在运行
+                if(instanceDao.countByModelNameAndBillNoAndStateNotIn(workflowModel.getModelName(), request.getDataId(), Arrays.asList(WorkflowInstance.State.CANCELED, WorkflowInstance.State.FINISHED)) > 0){
+                    return Result.error("已经有一个正在运行的同类别任务");
+                }
+                break;
+        }
+
         //计算任务归属部门
         //命中岗位权限的直属上级
         List<GlobalPermission> globalPermissions = globalPermissionDao.findAllByTypeInAndObjectId(Collections.singleton(GlobalPermission.Type.WORKFLOW_PUB), request.getModelId());
@@ -1999,6 +2015,13 @@ public class WorkflowService {
 
         });
         Page<WorkflowInstance> instances = instanceDao.findAll(query, pageable);
+        //默认增加五个字段
+        String fields = object.getOrDefault("fields","");
+        if(!StringUtils.isEmpty(fields)){
+            fields += ",";
+        }
+        fields += "BILL_NO,CONT_NO,CUS_ID,CUS_NAME,LOAN_ACCOUNT";
+        object.put("fields",fields);
         return instances.map(o -> {
             WorkflowInstance instance = o;
             instance.setAttributes(null);
@@ -2205,7 +2228,7 @@ public class WorkflowService {
             }
         }
         //资料节点的回卷, 如果曾经存在提交, 那么重新附上所有值以及文件
-        else if (newNode.getType().equals(WorkflowNode.Type.input) || newNode.getType().equals(WorkflowNode.Type.check)) {
+        else if (newNode.getType().equals(WorkflowNode.Type.input)) {
             if (nodeInstanceDao.countByInstanceIdAndNodeModelId(newNode.getInstanceId(), newNode.getNodeModelId()) >= 2) {
                 WorkflowNodeInstance lastNode = nodeInstanceDao.findTopByInstanceIdAndNodeModelIdAndIdLessThanOrderByIdDesc(newNode.getInstanceId(), newNode.getNodeModelId(), newNode.getId()).orElse(null);
                 if (null == lastNode) {
@@ -2218,17 +2241,28 @@ public class WorkflowService {
                     //资料节点重新赋值
                     if (newNode.getType().equals(WorkflowNode.Type.input)) {
                         for (WorkflowNodeAttribute attribute : lastNode.getAttributeList()) {
-                            attribute.setId(null);
-                            attribute.setNodeInstanceId(newNode.getId());
-                            attribute.setNodeInstance(null);
-                            attributeDao.save(attribute);
+                            WorkflowNodeAttribute newAttr = JSON.toJavaObject((JSON) JSON.toJSON(attribute), WorkflowNodeAttribute.class);
+                            newAttr.setId(null);
+                            newAttr.setNodeInstanceId(newNode.getId());
+                            newAttr.setNodeInstance(newNode);
+                            attributeDao.save(newAttr);
                         }
                     }
-                    for (WorkflowNodeFile nodeFile : lastNode.getFileList()) {
-                        nodeFile.setId(null);
-                        nodeFile.setNodeInstance(newNode);
-                        nodeFileDao.save(nodeFile);
-                    }
+//                    for (WorkflowNodeFile nodeFile : lastNode.getFileList()) {
+//                        nodeFile.setId(null);
+//                        nodeFile.setNodeInstance(newNode);
+//                        nodeFileDao.save(nodeFile);
+//                    }
+                    //取该节点曾经的执行人重新写入
+//                    WorkflowNodeInstance finalNewNode1 = newNode;
+//                    lastNode.getDealers().stream()
+//                            .filter(dealer -> dealer.getType().equals(WorkflowNodeInstanceDealer.Type.DID_DEAL))
+//                            .forEach(dealer -> {
+//                                WorkflowNodeInstanceDealer newDealer = JSON.toJavaObject((JSON) JSON.toJSON(dealer), WorkflowNodeInstanceDealer.class);
+//                                newDealer.setUserId(dealer.getUserId());
+//                                newDealer.setNodeInstanceId(finalNewNode1.getId());
+//                                nodeInstanceDao.save(finalNewNode1);
+//                            });
                 }
             }
         }
@@ -2236,7 +2270,6 @@ public class WorkflowService {
         else if (nextNode.getType().equals(WorkflowNode.Type.logic)) {
             runLogicNode(instance, newNode);
         }
-
 
         //查找旧节点的处理人, 发送消息
         switch (currentNode.getType()) {
@@ -2260,7 +2293,28 @@ public class WorkflowService {
             case input:
             case check:
                 List<Object> objects = getCanDealUids(newNode.getId());
+                if(newNode.getNodeModel().isStart()){
+                    objects.add(new Object[]{
+                            null,
+                            GlobalPermission.UserType.QUARTER,
+                            newNode.getInstance().getDealUserId(),
+                            newNode.getInstance().getDealUserName(),
+                            newNode.getInstance().getDepId(),
+                            newNode.getInstance().getDepName()
+                    });
+                }
                 WorkflowNodeInstance finalNewNode = newNode;
+                //强制施加规则, 如果该节点只允许一个人处理, 且任务执行人拥有这个节点的权限, 那么直接确立为该用户执行
+                //如果存在多人执行的情况, 那么仍然确认该用户, 且保存多余的可执行人
+                if(newNode.getNodeModel().getMaxPerson() == 1){
+                    List<Object> newObjects = objects
+                            .stream()
+                            .filter(item -> ((Long)((Object[])item)[2]).equals(finalNewNode.getInstance().getDealUserId()) )
+                            .collect(Collectors.toList());
+                    if(newObjects.size() > 0){
+                        objects = newObjects;
+                    }
+                }
                 List<Long> uids = objects.stream()
                         .map(item -> {
                             Object[] objs = (Object[]) item;
@@ -2268,7 +2322,13 @@ public class WorkflowService {
                             String trueName = (String) objs[3];
                             GlobalPermission.UserType userType = (GlobalPermission.UserType) objs[1];
                             WorkflowNodeInstanceDealer dealers = new WorkflowNodeInstanceDealer();
-                            dealers.setType(WorkflowNodeInstanceDealer.Type.CAN_DEAL);
+                            //已经确定执行的情况
+                            if(null != finalNewNode.getInstance().getDealUserId() && finalNewNode.getInstance().getDealUserId().equals(uid)){
+                                dealers.setType(WorkflowNodeInstanceDealer.Type.DID_DEAL);
+                            }
+                            else{
+                                dealers.setType(WorkflowNodeInstanceDealer.Type.CAN_DEAL);
+                            }
                             dealers.setNodeInstanceId(finalNewNode.getId());
                             dealers.setUserId(uid);
                             dealers.setUserType(userType);
@@ -3021,6 +3081,55 @@ public class WorkflowService {
         return sqlUtils.hqlQuery(sql, ImmutableMap.of(
                 "instanceId", nodeInstanceId
         ));
+    }
+
+    public List<Object> getNodeDealUids(final long instanceId, final long nodeId){
+        WorkflowInstance instance = findInstance(instanceId).orElse(null);
+        if(null == instance){
+            return new ArrayList<>();
+        }
+        WorkflowNode node = findNode(nodeId).orElse(null);
+        if(null == node){
+            return new ArrayList<>();
+        }
+        String sql =
+                "select gp.type, gp.userType, user.id, user.trueName, uq.departmentId, uq.department.name, uq.id, uq.name, " +
+                        "   gp.linkId, ins.depId, uq.department.code, node.id as nodeModelId " +
+                        "from GlobalPermission gp, User user " +
+                        "left join user.quarters uq " +
+                        ", WorkflowInstance ins, " +
+                        "  WorkflowNode node " +
+                        "where ins.id = :instanceId and gp.objectId = node.id and " +
+                        "   gp.type = 'WORKFLOW_MAIN_QUARTER' and node.id = :nodeId " +
+                        "group by user,gp,ins,node,uq having " +
+                        "   (" +
+                        "       (gp.userType = 'QUARTER' and uq.id = gp.linkId and ( " +
+                        //如果只配置了一个部门, 那么无视这个权限
+                        "       ( select count(distinct qq.departmentId) from GlobalPermission gpgp, Quarters qq where gpgp.userType = 'QUARTER' and gpgp.objectId = node.id and gpgp.linkId = qq.id) = 1 or " +
+                        "       (" +
+                        "           (select count(d) from Department d where uq.department.code like concat(d.code,'%') and d.id = ins.depId) > 0 or" +
+//                        "           (uq.departmentId = ni.instance.depId) or " +
+                        "           (select count(d) from Department d where d.code like concat(uq.department.code,'%') and d.id = ins.depId) > 0" +
+                        "       )) ) or " +
+                        "(gp.userType = 'USER' and user.id = gp.linkId) " +
+                        "" +
+                        "   )";
+        List<Object> objects = sqlUtils.hqlQuery(sql, ImmutableMap.of(
+                "instanceId", instanceId,
+                "nodeId", nodeId
+        ));
+        //强制施加规则, 如果该节点只允许一个人处理, 且任务执行人拥有这个节点的权限, 那么直接确立为该用户执行
+        //如果存在多人执行的情况, 那么仍然确认该用户, 且保存多余的可执行人
+        if(node.getMaxPerson() == 1){
+            List<Object> newObjects = objects
+                    .stream()
+                    .filter(item -> ((Long)((Object[])item)[2]).equals(instance.getDealUserId()) )
+                    .collect(Collectors.toList());
+            if(newObjects.size() > 0){
+                objects = newObjects;
+            }
+        }
+        return objects;
     }
 
     public Page getPubUsers(long modelId) {

@@ -19,6 +19,7 @@ public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Lon
 
 
     List<WorkflowInstance> findAllByIdIn(List<Long> ids);
+    int countByModelNameAndBillNoAndStateNotIn(String modelName, String BILL_NO, Collection<WorkflowInstance.State> states);
 
     // 根据模型名选取所有实例
 //    @Query(value = "SELECT w.* FROM t_workflow_instance w JOIN t_workflow_model m on m.id=w.workflow_model_id WHERE m.model_name='资料收集';", nativeQuery = true)

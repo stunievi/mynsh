@@ -149,6 +149,36 @@ public class WorkFlowController {
         return optional.isPresent() ? Result.ok(optional.get()) : Result.error();
     }
 
+    @ApiOperation(value = "查找任务中某个模型节点的可执行人")
+    @RequestMapping(value = "/node/dealers", method = RequestMethod.GET)
+    public Result getCanNodeDealers(
+            @RequestParam long instanceId,
+            @RequestParam String nodeIds
+    ){
+        return Result.ok(Utils.convertIdsToList(nodeIds)
+                .stream()
+                .map(id -> {
+                    List<Object> objects = workflowService.getNodeDealUids(instanceId,id)
+                            .stream()
+                            .map(item -> {
+                                Object[] objs = (Object[]) item;
+                                return Utils.newMap(
+                                        "userId",objs[2],
+                                        "trueName",objs[3],
+                                        "depId",objs[4],
+                                        "depName",objs[5],
+                                        "quartersId",objs[6],
+                                        "quartersName",objs[7],
+                                        "userType",objs[1]
+                                        );
+                            })
+                            .collect(Collectors.toList());
+                    return new Object[]{id + "",objects};
+                })
+                .collect(Collectors.toMap(item -> item[0], item -> item[1] ))
+        );
+    }
+
 //    @ApiOperation(value = "添加工作流节点", notes = "")
 //    @ApiImplicitParams({
 //            @ApiImplicitParam(name = "modelId", value = "工作流模型ID", required = true),

@@ -110,13 +110,14 @@ public class FileController {
     @RequestMapping(value = "/open/cross.html",
             method = RequestMethod.GET,
             produces = MediaType.TEXT_HTML_VALUE)
-    @ResponseBody
-    public String cross(){
+    public ResponseEntity<byte[]> cross(){
         try {
-            return cache.getCorssHtml();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.TEXT_HTML);
+            return new ResponseEntity<byte[]>(cache.getCorssHtml().getBytes(), headers, HttpStatus.OK);
         } catch (IOException e) {
             e.printStackTrace();
-            return "";
+            return new ResponseEntity<byte[]>(HttpStatus.NO_CONTENT);
         }
     }
 
