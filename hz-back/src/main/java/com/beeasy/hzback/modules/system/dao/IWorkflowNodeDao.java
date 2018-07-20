@@ -10,6 +10,7 @@ import java.util.Optional;
 
 public interface IWorkflowNodeDao extends JpaRepository<WorkflowNode,Long>{
     Optional<WorkflowNode> findFirstByModelAndName(WorkflowModel model, String name);
+    Optional<WorkflowNode> findTopByModelIdAndName(long modelId, String name);
 
     List<WorkflowNode> findAllByModelAndEndIsTrue(WorkflowModel model);
     List<WorkflowNode> findAllByModelAndStartIsTrue(WorkflowModel model);

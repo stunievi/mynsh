@@ -62,7 +62,7 @@ public class ControllerExceptionHandler extends AbstractErrorController {
 //            mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 //            String msg = mapper.writeValueAsString(BaseResponse.newFail(BaseResponse.STATUS_ERROR, "系统繁忙,请稍候重试"));
             if(ex instanceof BindException){
-                return handleJSONError(rsp, Result.error("参数格式传递错误, 请检查输入").toJson(), HttpStatus.OK);
+                return handleJSONError(rsp, Result.error(((BindException) ex).getBindingResult()).toJson(), HttpStatus.OK);
             }
             else if(ex instanceof RuntimeException){
                 if(!StringUtils.isEmpty(ex.getMessage())){

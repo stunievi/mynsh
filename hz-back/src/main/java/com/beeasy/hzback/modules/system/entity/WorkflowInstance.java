@@ -118,13 +118,31 @@ public class WorkflowInstance {
     WorkflowInstance nextInstance;
 
     //父进程节点ID (此节点开启的子任务)
-    @JSONField(serialize = false)
-    @JoinColumn(name = "parent_node_id", insertable = false, updatable = false)
-    @ManyToOne
-    WorkflowNodeInstance parentNode;
-    @Column(name = "parent_node_id")
-    Long parentNodeId;
+//    @JSONField(serialize = false)
+//    @JoinColumn(name = "parent_node_id", insertable = false, updatable = false)
+//    @ManyToOne
+//    WorkflowNodeInstance parentNode;
+//    @Column(name = "parent_node_id")
+//    Long parentNodeId;
 
+    //父进程ID
+    @JSONField(serialize = false)
+    @JoinColumn(name = "parent_id")
+    @ManyToOne
+    WorkflowInstance parentInstance;
+    @Column(name = "parent_id", insertable = false, updatable = false)
+    Long parentId;
+
+    //父任务名
+    String parentTitle;
+    //父任务模型名
+    String parentModelName;
+
+
+    //子任务
+    @JSONField(serialize = false)
+    @OneToMany(mappedBy = "parentInstance")
+    List<WorkflowInstance> childInstances = new ArrayList<>();
 
     @JSONField(serialize = false)
     @OneToMany(mappedBy = "instance", cascade = CascadeType.REMOVE)
@@ -157,6 +175,7 @@ public class WorkflowInstance {
     @Column(name = "attrValue")
     @CollectionTable(name = "t_workflow_instance_attribute", joinColumns = {@JoinColumn(name = "instance_id")})
     Map<String,String> attributeMap;
+
 
 //    @JSONField(serialize = false)
 //    @Transient

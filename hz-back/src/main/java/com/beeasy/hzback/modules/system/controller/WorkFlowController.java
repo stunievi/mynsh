@@ -153,9 +153,9 @@ public class WorkFlowController {
     @RequestMapping(value = "/node/dealers", method = RequestMethod.GET)
     public Result getCanNodeDealers(
             @RequestParam long instanceId,
-            @RequestParam String nodeIds
+            @RequestParam String nodeNames
     ){
-        return Result.ok(Utils.convertIdsToList(nodeIds)
+        return Result.ok(Utils.convertToList(nodeNames,String.class)
                 .stream()
                 .map(id -> {
                     List<Object> objects = workflowService.getNodeDealUids(instanceId,id)

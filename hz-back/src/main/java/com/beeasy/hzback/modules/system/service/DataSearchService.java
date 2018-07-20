@@ -7,10 +7,7 @@ import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.util.SqlUtils;
 import com.beeasy.hzback.modules.system.dao.IGlobalPermissionDao;
 import com.beeasy.hzback.modules.system.dao.IWorkflowModelDao;
-import com.beeasy.hzback.modules.system.entity.GlobalPermission;
-import com.beeasy.hzback.modules.system.entity.Quarters;
-import com.beeasy.hzback.modules.system.entity.User;
-import com.beeasy.hzback.modules.system.entity.WorkflowModel;
+import com.beeasy.hzback.modules.system.entity.*;
 import com.beeasy.hzback.modules.system.form.GlobalPermissionEditRequest;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -226,7 +223,18 @@ public class DataSearchService {
                         map.put("pubModelName", finalModels.get(0).getModelName());
                     }
                 }
+
+                //当有任务正在进行时, 禁止发起相同的登记和不良资产管理流程
+                switch (request.getModelName()){
+                    case "不良资产登记":
+                        if(workflowService.countByModelNameAndBillNoAndStateNotIn(request.getModelName(), map.get("BILL_NO"), Arrays.asList(WorkflowInstance.State.CANCELED, WorkflowInstance.State.FINISHED)) > 0){
+                            map.put("pubModelId","0");
+                            map.put("pubModelName","");
+                        }
+                        break;
+                }
             }
+
             return map;
         });
         return page;
@@ -388,7 +396,7 @@ public class DataSearchService {
             sql += String.format(" and ( MAIN_BR_ID in (%s) or CUST_MGR in (%s) )", joinIn(limitMap.get("dep")), joinIn(limitMap.get("user")));
         }
         List ret = sqlUtils.query(sql);
-        return getPermissionResultLimit(uid, SearchTargetType.CUS_COM, ret);
+        return getPermissionResultLimit(uid, SearchTargetType.CUS_COM, ret, Arrays.asList("CUS_ID,CUS_NAME,CUS_TYPE,CERT_TYPE,CERT_CODE,INVEST_TYPE,COM_SUB_TYP,COM_SCALE,COM_HOLD_TYPE,COM_INS_CODE,COM_CLL_TYPE,COM_CLL_NAME,COM_EMPLOYEE,COM_CRD_TYP,COM_CRD_GRADE,COM_OPT_ST,CUST_MGR,MAIN_BR_ID".split(",")));
     }
 
     /**
@@ -401,7 +409,7 @@ public class DataSearchService {
     public List searchCUS_INDIV(final long uid, String cusId) {
         String sql = "select INNER_CUS_ID,CUS_ID,MNG_BR_ID,CUS_TYPE,CUS_NAME,INDIV_SEX,CERT_TYPE,CERT_CODE,AGRI_FLG,CUS_BANK_REL,COM_HOLD_STK_AMT,BANK_DUTY,INDIV_NTN,INDIV_BRT_PLACE,INDIV_HOUH_REG_ADD,INDIV_DT_OF_BIRTH,INDIV_POL_ST,INDIV_EDT,INDIV_MAR_ST,POST_ADDR,PHONE,FPHONE,FAX_CODE,EMAIL,INDIV_RSD_ADDR,INDIV_RSD_ST,INDIV_SOC_SCR,INDIV_COM_NAME,INDIV_COM_TYP,INDIV_COM_FLD,INDIV_COM_PHN,INDIV_COM_FAX,INDIV_COM_ADDR,INDIV_COM_CNT_NAME,INDIV_COM_JOB_TTL,INDIV_CRTFCTN,INDIV_SAL_ACC_BANK,INDIV_SAL_ACC_NO,INDIV_SPS_NAME,INDIV_SPS_ID_TYP,INDIV_SPS_ID_CODE,INDIV_SCOM_NAME,INDIV_SPS_OCC,INDIV_SPS_DUTY,INDIV_SPS_PHN,INDIV_SPS_MPHN,INDIV_SPS_JOB_DT,COM_REL_DGR,CRD_GRADE,CRD_DATE,REMARK,CUST_MGR,MAIN_BR_ID,CUS_STATUS,INDIV_COM_FLD_NAME from CUS_INDIV where CUS_ID = ?";
         List ret = sqlUtils.query(sql, Collections.singleton(cusId));
-        return getPermissionResultLimit(uid, SearchTargetType.CUS_INDIV, ret);
+        return getPermissionResultLimit(uid, SearchTargetType.CUS_INDIV, ret, Arrays.asList("CUS_ID,MNG_BR_ID,CUS_TYPE,CUS_NAME,INDIV_SEX,CERT_TYPE,CERT_CODE,INDIV_NTN,INDIV_BRT_PLACE,INDIV_POL_ST,INDIV_EDT,INDIV_MAR_ST,CUST_MGR,MAIN_BR_ID,CUS_STATUS".split(",")));
     }
 
     /**
@@ -414,7 +422,16 @@ public class DataSearchService {
     public List searchACC_LOAN(final long uid, String billNo) {
         String sql = "select BILL_NO,CONT_NO,PRD_PK,BIZ_TYPE,PRD_NAME,PRD_TYPE,CUS_ID,CUS_NAME,BIZ_TYPE_SUB,ACCOUNT_CLASS,LOAN_ACCOUNT,LOAN_FORM,LOAN_NATURE,LOAN_TYPE_EXT,ASSURE_MEANS_MAIN,CUR_TYPE,LOAN_AMOUNT,LOAN_BALANCE,LOAN_START_DATE,LOAN_END_DATE,TERM_TYPE,ORIG_EXPI_DATE,RECE_INT_CUMU,ACTUAL_INT_CUMU,DELAY_INT_CUMU,REPAYMENT_MODE,LOAN_DIRECTION,EXTENSION_TIMES,CAP_OVERDUE_DATE,INT_OVERDUE_DATE,OVER_TIMES_CURRENT,OVER_TIMES_TOTAL,MAX_TIMES_TOTAL,CLA,CLA_DATE,CLA_PRE,CLA_DATE_PRE,LATEST_REPAY_DATE,CUS_MANAGER,INPUT_BR_ID,FINA_BR_ID,MAIN_BR_ID,SETTL_DATE,ACCOUNT_STATUS,GL_CLASS,ISCIRCLE,RETURN_DATE,REMARK from ACC_LOAN where BILL_NO = ?";
         List ret = sqlUtils.query(sql, Collections.singleton(billNo));
-        return getPermissionResultLimit(uid, SearchTargetType.ACC_LOAN, ret);
+        return (List) getPermissionResultLimit(uid, SearchTargetType.ACC_LOAN, ret, Arrays.asList("BILL_NO,CONT_NO,PRD_NAME,PRD_TYPE,CUS_ID,CUS_NAME,LOAN_ACCOUNT,LOAN_FORM,LOAN_NATURE,ASSURE_MEANS_MAIN,CUR_TYPE,LOAN_START_DATE,LOAN_END_DATE,TERM_TYPE,ORIG_EXPI_DATE,REPAYMENT_MODE,CLA,CLA_DATE,CUS_MANAGER,INPUT_BR_ID,FINA_BR_ID,MAIN_BR_ID,ACCOUNT_STATUS,RETURN_DATE".split(","))).stream()
+                .map(item -> {
+                    Map<String,String> map = (Map<String, String>) item;
+                    String[] strs = {"诉讼","利息减免","抵债资产接收","资产处置","催收"};
+                    for (String str : strs) {
+                        map.put(str + "次数", workflowService.countByModelNameAndBillNo(str,map.get("BILL_NO")) + "");
+                    }
+                    return map;
+                })
+                .collect(Collectors.toList());
     }
 
 
@@ -668,7 +685,7 @@ public class DataSearchService {
     }
 
 
-    public List getPermissionResultLimit(final long uid, SearchTargetType searchTargetType, List ret) {
+    public List getPermissionResultLimit(final long uid, SearchTargetType searchTargetType, List ret, List<String> defaultFields) {
         //管理员默认开放所有权限
         if (userService.isSu(uid)) {
             return ret;
@@ -684,6 +701,7 @@ public class DataSearchService {
                 .filter(item -> null != item)
                 .map(item -> item.trim())
                 .collect(Collectors.toList());
+        fields.addAll(defaultFields);
         return (List) ret.stream()
                 .map(item -> {
                     Map<String, Object> map = (Map<String, Object>) item;

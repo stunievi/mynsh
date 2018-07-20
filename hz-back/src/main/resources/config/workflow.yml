@@ -2237,146 +2237,37 @@
 不良资产管理流程:
   manual: false
   custom: false
-  allow_child_task: [诉讼,利息减免,抵债资产接收,资产处置]
   flow:
-    选择处理方式:
+    发起:
+      type: input
       start: true
-      type: check
-      key: key
-      ps: ps
-      question: 利息减免/诉讼/协商抵债/不良转贷后/执转破/重组/其它
-      states:
-        -
-          item: 利息减免
-          condition: 1
-          behavior: go('利息减免流程')
-        -
-          item: 诉讼
-          condition: 1
-          behavior: go('诉讼流程')
-        -
-          item: 协商抵债
-          condition: 1
-          behavior: go('抵债资产接收流程')
-        -
-          item: 不良转贷后
-          condition: 1
-          behavior: go('不良转贷后')
-        -
-          item: 执转破
-          condition: 1
-          behavior: go('其它')
-        -
-          item: 重组
-          condition: 1
-          behavior: go('其它')
-        -
-          item: 其它
-          condition: 1
-          behavior: go('其它')
-      count: 1
-      next: [利息减免流程,诉讼流程,抵债资产接收流程,不良转贷后,其它]
-
-    不良转贷后:
-      type: input
-      start: false
       content:
-        说明:
-          name: apply
-          type: textarea
+        借据号:
+          name: BILL_NO
+          type: EXT_DATA
+          innate: true
           required: false
-        上传附件:
-          type: files
-          name: files
+        合同号:
+          name: CONT_NO
+          type: EXT_DATA
+          innate: true
           required: false
-
-      next: 结束
-
-    其它:
-      type: input
-      start: false
-      content:
-        说明:
-          name: apply
-          type: textarea
+        客户号:
+          name: CUS_ID
+          type: EXT_DATA
+          innate: true
           required: false
-        上传附件:
-          type: files
-          name: files
+        客户名称:
+          name: CUS_NAME
+          type: EXT_DATA
+          innate: true
+          required: false
+        贷款帐号:
+          name: LOAN_ACCOUNT
+          type: EXT_DATA
+          innate: true
           required: false
       next: 结束
-
-    诉讼流程:
-      type: check
-      key: key
-      ps: ps
-      question: 填写任务的处理结果
-      count: 1
-      allow_child_task: []
-      states:
-        -
-          item: 是
-          condition: 1
-          behavior: go('抵债资产接收流程')
-        -
-          item: 否
-          condition: 1
-          behavior: go('选择处理方式')
-      next: [抵债资产接收流程,选择处理方式]
-
-    利息减免流程:
-      type: check
-      key: key
-      ps: ps
-      question: 填写任务的处理结果
-      count: 1
-      allow_child_task: []
-      states:
-        -
-          item: 是
-          condition: 1
-          behavior: go('不良转贷后')
-        -
-          item: 否
-          condition: 1
-          behavior: go('选择处理方式')
-      next: [不良转贷后,选择处理方式]
-
-    抵债资产接收流程:
-          type: check
-          key: key
-          ps: ps
-          question: 填写任务的处理结果
-          count: 1
-          allow_child_task: []
-          states:
-            -
-              item: 是
-              condition: 1
-              behavior: go('资产处置流程')
-            -
-              item: 否
-              condition: 1
-              behavior: go('选择处理方式')
-          next: [资产处置流程,选择处理方式]
-
-    资产处置流程:
-      type: check
-      key: key
-      ps: ps
-      question: 填写任务的处理结果
-      count: 1
-      allow_child_task: []
-      states:
-        -
-          item: 是
-          condition: 1
-          behavior: go('结束')
-        -
-          item: 否
-          condition: 1
-          behavior: go('结束')
-      next: [结束]
 
     结束:
       type: end

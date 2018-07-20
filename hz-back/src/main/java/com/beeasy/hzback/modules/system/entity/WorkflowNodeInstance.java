@@ -69,7 +69,6 @@ public class WorkflowNodeInstance {
     @OneToMany(mappedBy = "nodeInstance",cascade = CascadeType.REMOVE)
     List<WorkflowNodeFile> fileList = new ArrayList<>();
 
-
     //处理人列表
     @OneToMany(mappedBy = "nodeInstance", cascade = CascadeType.REMOVE)
     List<WorkflowNodeInstanceDealer> dealers = new ArrayList<>();
@@ -86,24 +85,24 @@ public class WorkflowNodeInstance {
 
 
     //子任务
-    @Setter
-    @Getter
-    @AllArgsConstructor
-    public static class SimpleInstance{
-        Long id;
-        String title;
-        Date addTime;
-    }
+//    @Setter
+//    @Getter
+//    @AllArgsConstructor
+//    public static class SimpleInstance{
+//        Long id;
+//        String title;
+//        Date addTime;
+//    }
 
-    @JSONField(serialize = false)
-    @OneToMany(mappedBy = "parentNode")
-    List<WorkflowInstance> childInstances = new ArrayList<>();
-
-    @Transient
-    public List<SimpleInstance> getSimpleChildInstances(){
-        if(null == childInstances) return new ArrayList<>();
-        return childInstances.stream().map(item -> new SimpleInstance(item.getId(),item.getTitle(),item.getAddTime())).collect(Collectors.toList());
-    }
+//    @JSONField(serialize = false)
+//    @OneToMany(mappedBy = "parentNode")
+//    List<WorkflowInstance> childInstances = new ArrayList<>();
+//
+//    @Transient
+//    public List<SimpleInstance> getSimpleChildInstances(){
+//        if(null == childInstances) return new ArrayList<>();
+//        return childInstances.stream().map(item -> new SimpleInstance(item.getId(),item.getTitle(),item.getAddTime())).collect(Collectors.toList());
+//    }
 
 
 //    @Transient

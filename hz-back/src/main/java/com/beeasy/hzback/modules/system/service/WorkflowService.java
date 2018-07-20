@@ -69,6 +69,8 @@ public class WorkflowService {
     private String permissionType;
 
     @Autowired
+    IInfoCollectLinkDao linkDao;
+    @Autowired
     DataSearchService searchService;
     @Autowired
     IWorkflowNodeInstanceDealerDao nodeInstanceDealersDao;
@@ -186,10 +188,11 @@ public class WorkflowService {
      */
     public Result startNewInstance(final long uid, ApplyTaskRequest request) {
         User pubUser = userService.findUser(uid).orElse(null);
+        WorkflowModel workflowModel = null;
+        WorkflowInstance parentInstance = null;
         if (null == pubUser) {
             return Result.error("任务发布人ID错误");
         }
-        WorkflowModel workflowModel = null;
         //如果使用了ID, 那么以ID为准
         if(null != request.getModelId()){
             workflowModel = findModel(request.getModelId()).orElse(null);
@@ -211,11 +214,26 @@ public class WorkflowService {
             case "不良资产登记":
             case "不良资产管理流程":
                 if(StringUtils.isEmpty(request.getDataId())){
-                    return Result.error("没有传递台账编号");
+                    return Result.error("没有传台账编号");
                 }
                 //如果已经有一个相同的流程在运行
                 if(instanceDao.countByModelNameAndBillNoAndStateNotIn(workflowModel.getModelName(), request.getDataId(), Arrays.asList(WorkflowInstance.State.CANCELED, WorkflowInstance.State.FINISHED)) > 0){
-                    return Result.error("已经有一个正在运行的同类别任务");
+                    return Result.error("该台账已经有一个正在运行的任务");
+                }
+                break;
+
+            case "诉讼":
+            case "利息减免":
+            case "抵债资产接收":
+            case "资产处置":
+            case "催收":
+                if(StringUtils.isEmpty(request.getDataId())){
+                    return Result.error("没有传台账编号");
+                }
+                //检查是否有相同的不良资产管理任务
+                parentInstance = instanceDao.findTopByModelNameAndBillNoAndStateNotIn("不良资产管理流程", request.getDataId(), Arrays.asList(WorkflowInstance.State.CANCELED, WorkflowInstance.State.FINISHED)).orElse(null);
+                if(null == parentInstance){
+                    return Result.error("没有找到符合条件的不良资产管理流程");
                 }
                 break;
         }
@@ -263,6 +281,13 @@ public class WorkflowService {
         WorkflowInstance workflowInstance = new WorkflowInstance();
         workflowInstance.setDepId(department.getId());
         workflowInstance.setDepName(department.getName());
+        //绑定父任务的情况
+        if(null != parentInstance){
+            workflowInstance.setParentId(parentInstance.getId());
+            workflowInstance.setParentInstance(parentInstance);
+            workflowInstance.setParentTitle(parentInstance.getTitle());
+            workflowInstance.setParentModelName(parentInstance.getModelName());
+        }
 
         //公共任务
         if (request.isCommon()) {
@@ -474,6 +499,18 @@ public class WorkflowService {
             }
         }
         }
+
+        //善后工作
+        switch (workflowModel.getModelName()){
+            case "资料收集":
+                if(!StringUtils.isEmpty(workflowInstance.getBillNo())){
+                    InfoCollectLink infoCollectLink = new InfoCollectLink();
+                    infoCollectLink.setBillNo(workflowInstance.getBillNo());
+                    infoCollectLink.setInstanceId(workflowInstance.getId());
+                    linkDao.save(infoCollectLink);
+                }
+                break;
+        }
         return workflowInstance.getId() == null ? Result.error() : Result.ok(workflowInstance);
     }
 
@@ -644,6 +681,7 @@ public class WorkflowService {
      * @param request
      * @return
      */
+    @Deprecated
     public Result startChildInstance(Long uid, StartChildInstanceRequest request) {
         User user = userService.findUser(uid).orElse(null);
         WorkflowNodeInstance nodeInstance = findNodeInstance(request.getNodeInstanceId()).orElse(null);
@@ -676,7 +714,6 @@ public class WorkflowService {
             return result;
         }
         WorkflowInstance instance = result.getData();
-        instance.setParentNodeId(nodeInstance.getId());
         instanceDao.save(instance);
 
         //补充父任务的固有字段
@@ -1150,7 +1187,7 @@ public class WorkflowService {
         nodeInstanceDao.updateNodeInstanceDealer(uid, ids);
         //更新所有子流程的归属
         if (null != fromUid) {
-            List<WorkflowInstance> instances = nodeInstanceDao.getAllChildInstance(instance.getId(), fromUid);
+            List<WorkflowInstance> instances = instance.getChildInstances();
             for (WorkflowInstance workflowInstance : instances) {
                 updateInstanceBelongs(workflowInstance, uid);
             }
@@ -1329,7 +1366,7 @@ public class WorkflowService {
             }
 
             //子任务禁止移交
-            if (instance.getParentNodeId() != null) {
+            if (instance.getParentId() != null) {
                 errMessages.add("子任务禁止移交");
                 continue;
             }
@@ -1970,6 +2007,11 @@ public class WorkflowService {
                         String[] modelNames = entry.getValue().split(",");
                         predicates.add(root.get("modelName").in(modelNames));
                         break;
+
+                    case "parentId":
+                        predicates.add(cb.equal(root.get("parentId"),object.get("parentId")));
+                        break;
+
                     case "page":
                     case "size":
                     case "sort":
@@ -1979,40 +2021,28 @@ public class WorkflowService {
 
                     //默认字段查询
                     default:
-                        Join nl = root.join("nodeList");
-                        Join attr = nl.join("attributeList");
-                        if (entry.getKey().startsWith("$")) {
-                            predicates.add(
-                                    cb.and(
-                                            cb.equal(attr.get("attrKey"), entry.getKey()),
-                                            cb.like(attr.get("attrValue"), "%" + entry.getValue().substring(1) + "%")
-                                    )
-                            );
-                        } else {
-                            predicates.add(
-                                    cb.and(
-                                            cb.equal(attr.get("attrKey"), entry.getKey()),
-                                            cb.equal(attr.get("attrValue"), entry.getValue())
-                                    )
-                            );
-                        }
+//                        Join nl = root.join("nodeList");
+//                        Join attr = nl.join("attributeList");
+//                        if (entry.getKey().startsWith("$")) {
+//                            predicates.add(
+//                                    cb.and(
+//                                            cb.equal(attr.get("attrKey"), entry.getKey()),
+//                                            cb.like(attr.get("attrValue"), "%" + entry.getValue().substring(1) + "%")
+//                                    )
+//                            );
+//                        } else {
+//                            predicates.add(
+//                                    cb.and(
+//                                            cb.equal(attr.get("attrKey"), entry.getKey()),
+//                                            cb.equal(attr.get("attrValue"), entry.getValue())
+//                                    )
+//                            );
+//                        }
                         break;
                 }
             }
-//            if(object.containsKey("modelName") && !StringUtils.isEmpty(object.getString("modelName"))){
-//            }
-//            //资料收集是否拒贷
-//            Integer reject = object.getInteger("reject");
-//            if(null != reject){
-//                if(reject == 1){
-//                    predicates.add(cb.and(cb.equal(attr.get("attrKey"),"key"), cb.equal(attr.get("attrValue"), "是")));
-//                }
-//                else{
-//                    predicates.add(cb.and(cb.equal(attr.get("attrKey"),"key"), cb.equal(attr.get("attrValue"), "否")));
-//                }
-//            }
-            return cb.and(predicates.toArray(new Predicate[predicates.size()]));
 
+            return cb.and(predicates.toArray(new Predicate[predicates.size()]));
         });
         Page<WorkflowInstance> instances = instanceDao.findAll(query, pageable);
         //默认增加五个字段
@@ -2657,6 +2687,9 @@ public class WorkflowService {
             applyTaskRequest.setDealerId(dealerId);
             applyTaskRequest.setTitle(modelName);
             applyTaskRequest.setData(data);
+            applyTaskRequest.setDataId(instance.getBillNo());
+            applyTaskRequest.setDataSource(ApplyTaskRequest.DataSource.ACC_LOAN);
+            applyTaskRequest.setGoNext(false);
             WorkflowInstance newInstance = (WorkflowInstance) startNewInstance(dealerId, applyTaskRequest).orElse(null);
             if (null != newInstance) {
                 logService.addLog(SystemTextLog.Type.WORKFLOW, instance.getId(), dealerId, "创建了后续任务 " + applyTaskRequest.getTitle());
@@ -2798,6 +2831,13 @@ public class WorkflowService {
         return findNodeFile(nodeFileId)
                 .filter(nodeFile -> nodeFile.getType().equals(WorkflowNodeFile.Type.POSITION))
                 .map(nodeFile -> gpsPositionDao.getOne(nodeFile.getFileId()));
+    }
+
+    public int countByModelNameAndBillNo(String modelName, String BILL_NO){
+        return instanceDao.countByModelNameAndBillNo(modelName,BILL_NO);
+    }
+    public int countByModelNameAndBillNoAndStateNotIn(String modelName, String BILL_NO, Collection<WorkflowInstance.State> states){
+        return instanceDao.countByModelNameAndBillNoAndStateNotIn(modelName, BILL_NO, states);
     }
 
     /**
@@ -3083,12 +3123,12 @@ public class WorkflowService {
         ));
     }
 
-    public List<Object> getNodeDealUids(final long instanceId, final long nodeId){
+    public List<Object> getNodeDealUids(final long instanceId, final String nodeName){
         WorkflowInstance instance = findInstance(instanceId).orElse(null);
         if(null == instance){
             return new ArrayList<>();
         }
-        WorkflowNode node = findNode(nodeId).orElse(null);
+        WorkflowNode node = nodeDao.findTopByModelIdAndName(instance.getModelId(), nodeName).orElse(null);
         if(null == node){
             return new ArrayList<>();
         }
@@ -3100,7 +3140,7 @@ public class WorkflowService {
                         ", WorkflowInstance ins, " +
                         "  WorkflowNode node " +
                         "where ins.id = :instanceId and gp.objectId = node.id and " +
-                        "   gp.type = 'WORKFLOW_MAIN_QUARTER' and node.id = :nodeId " +
+                        "   gp.type = 'WORKFLOW_MAIN_QUARTER' and node.name = :nodeName " +
                         "group by user,gp,ins,node,uq having " +
                         "   (" +
                         "       (gp.userType = 'QUARTER' and uq.id = gp.linkId and ( " +
@@ -3114,9 +3154,9 @@ public class WorkflowService {
                         "(gp.userType = 'USER' and user.id = gp.linkId) " +
                         "" +
                         "   )";
-        List<Object> objects = sqlUtils.hqlQuery(sql, ImmutableMap.of(
+        List<Object> objects = sqlUtils.hqlQuery(sql, Utils.newMap(
                 "instanceId", instanceId,
-                "nodeId", nodeId
+                "nodeName", nodeName
         ));
         //强制施加规则, 如果该节点只允许一个人处理, 且任务执行人拥有这个节点的权限, 那么直接确立为该用户执行
         //如果存在多人执行的情况, 那么仍然确认该用户, 且保存多余的可执行人
