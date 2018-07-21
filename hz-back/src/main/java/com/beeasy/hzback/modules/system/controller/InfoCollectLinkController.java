@@ -114,7 +114,7 @@ public class InfoCollectLinkController {
                                 join.get("billNo"),
                                 BILL_NO
                         )
-                )
+                );
             }
             return cb.and(predicates.toArray(new Predicate[predicates.size()]));
         });
