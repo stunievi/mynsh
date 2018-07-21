@@ -59,6 +59,8 @@ public class InfoCollectLinkController {
             String PHONE,
             String CERT_CODE,
             String BILL_NO,
+            Long START_DATE,
+            Long END_DATE,
             Pager pager,
             @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
     ) {
@@ -94,6 +96,16 @@ public class InfoCollectLinkController {
                         )
                 );
             }
+            if(null != START_DATE){
+                predicates.add(
+                        cb.greaterThanOrEqualTo(root.get("add_time"), new Date(START_DATE))
+                );
+            }
+            if(null != END_DATE){
+                predicates.add(
+                        cb.lessThanOrEqualTo(root.get("add_time"), new Date(END_DATE))
+                );
+            }
             //使用bill_no的情况下, 查询所属的关联
             if (!StringUtils.isEmpty(BILL_NO)) {
                 Join join = root.join("collectLinks");
@@ -102,7 +114,7 @@ public class InfoCollectLinkController {
                                 join.get("billNo"),
                                 BILL_NO
                         )
-                );
+                )
             }
             return cb.and(predicates.toArray(new Predicate[predicates.size()]));
         });
