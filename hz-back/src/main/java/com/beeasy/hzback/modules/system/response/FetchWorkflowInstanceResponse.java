@@ -13,7 +13,7 @@ import java.util.List;
 public class FetchWorkflowInstanceResponse {
 
     //任务主体
-    WorkflowInstance instance;
+    Object instance;
 
     //任务变更日志
     @Deprecated

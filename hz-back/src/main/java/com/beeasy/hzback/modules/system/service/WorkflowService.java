@@ -2787,8 +2787,37 @@ public class WorkflowService {
         User user = userService.findUser(uid).orElse(null);
         if (null == user) return Optional.empty();
         return findInstance(id).map(workflowInstance -> {
+            JSONObject instance = (JSONObject) JSON.toJSON(workflowInstance);
+            instance.getJSONArray("nodeList").
+                    stream()
+                    .forEach(nobj -> {
+                        JSONObject ni = (JSONObject) nobj;
+                        JSONArray attrs = ni.getJSONArray("attributeList");
+                        ni.put("attrs", ni.getJSONArray("dealers")
+                            .stream()
+                            .filter(dobj -> {
+                                JSONObject dealer = (JSONObject) dobj;
+                                return dealer.getObject("type",WorkflowNodeInstanceDealer.Type.class).equals(WorkflowNodeInstanceDealer.Type.DID_DEAL);
+                            })
+                            .map(dobj -> {
+                                JSONObject dealer = (JSONObject) dobj;
+                                dealer.put("attrs", attrs
+                                        .stream()
+                                        .filter(aobj -> {
+                                            JSONObject attr = (JSONObject) aobj;
+                                            return attr.getLong("dealUserId").equals(dealer.getLong("userId"));
+                                        })
+                                        .collect(Collectors.toList())
+                                );
+                                ni.put("dealers",null);
+                                ni.put("attributeList", null);
+                                return new Object[]{dealer.getLong("userId") + "",dealer};
+                            })
+                            .collect(Collectors.toMap(item -> item[0],item -> item[1]))
+                        );
+                    });
             FetchWorkflowInstanceResponse response = new FetchWorkflowInstanceResponse();
-            response.setInstance(workflowInstance);
+            response.setInstance(instance);
             response.setCurrentNodeModel(findCurrentNodeModel(id).orElse(null));
             response.setDeal(canDeal(workflowInstance, user));
             response.setCancel(canCancel(workflowInstance, user));
