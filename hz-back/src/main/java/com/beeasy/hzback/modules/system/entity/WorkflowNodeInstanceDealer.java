@@ -48,6 +48,15 @@ public class WorkflowNodeInstanceDealer {
     Long depId;
     //部门NAME
     String depName;
+    //岗位id
+    Long quartersId;
+    //岗位name
+    String quartersName;
+
+    //角色ID
+    Long roleId;
+    //角色name
+    String roleName;
 
     public enum Type{
         CAN_DEAL,

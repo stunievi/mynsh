@@ -706,7 +706,7 @@ public class DataSearchService {
                 .map(item -> {
                     Map<String, Object> map = (Map<String, Object>) item;
                     return map.entrySet().stream()
-                            .filter(entry -> fields.contains(entry.getKey()))
+                            .filter(entry -> null != entry.getValue() && null != entry.getKey() && fields.contains(entry.getKey()))
                             .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue()));
 
                 })

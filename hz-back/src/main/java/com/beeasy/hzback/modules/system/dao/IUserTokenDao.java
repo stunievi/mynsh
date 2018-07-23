@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 public interface IUserTokenDao extends JpaRepository<UserToken,Long> {
 
@@ -23,5 +24,7 @@ public interface IUserTokenDao extends JpaRepository<UserToken,Long> {
     @Modifying
     @Query(value = "delete from UserToken where exprTime <= current_time() ")
     int cleanTokens();
+
+    Optional<UserToken> findTopByUserIdAndType(final long uid, UserToken.Type type);
 
 }

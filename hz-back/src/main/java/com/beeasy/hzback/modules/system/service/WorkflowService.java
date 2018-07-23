@@ -62,11 +62,6 @@ import static javax.persistence.LockModeType.PESSIMISTIC_WRITE;
 @Transactional
 public class WorkflowService {
 
-    @Value("${workflow.timeStep}")
-    private int timeStep = 5;
-
-    @Value("permission.type")
-    private String permissionType;
 
     @Autowired
     IInfoCollectLinkDao linkDao;
@@ -437,6 +432,9 @@ public class WorkflowService {
         WorkflowNodeInstance nodeInstance = addNode(workflowInstance, firstNode, false);
         nodeInstance.setDealerId(workflowInstance.getDealUserId());
 
+        //写入第一个节点的属性
+        nodeInstance = nodeInstanceDao.save(nodeInstance);
+
         //节点文件复写
         for (Long aLong : request.getFiles()) {
             WorkflowNodeFile nodeFile = nodeFileDao.findTopByIdAndNodeInstanceIsNull(aLong).orElse(null);
@@ -449,9 +447,6 @@ public class WorkflowService {
             nodeInstance.getFileList().add(nodeFile);
         }
 
-        //写入第一个节点的属性
-        nodeInstance = nodeInstanceDao.save(nodeInstance);
-
         //写入处理人
         if (null != dealerUser) {
             WorkflowNodeInstanceDealer dealers = new WorkflowNodeInstanceDealer();
@@ -461,6 +456,7 @@ public class WorkflowService {
             dealers.setType(WorkflowNodeInstanceDealer.Type.DID_DEAL);
             dealers.setUserId(dealerUser.getId());
             dealers.setUserTrueName(dealerUser.getTrueName());
+            dealers.setUserType(GlobalPermission.UserType.QUARTER);
             nodeInstanceDealersDao.save(dealers);
         }
 
@@ -764,7 +760,7 @@ public class WorkflowService {
                     nodeInstanceDao.save(nodeInstance);
 
                     //message
-                    noticeService.addNotice(SystemNotice.Type.WORKFLOW, uid, "你已经接受任务${taskId}", ImmutableMap.of("taskId", instance.getId(), "taskName", instance.getTitle()));
+                    noticeService.addNotice(SystemNotice.Type.WORKFLOW, uid, "你已经接受任务 %s".format(instance.getTitle()), ImmutableMap.of("taskId", instance.getId(), "taskName", instance.getTitle()));
                     //写log
                     logService.addLog(SystemTextLog.Type.WORKFLOW, instance.getId(), uid, "接受了任务");
                     return new Object[]{id, "接受成功"};
@@ -1388,7 +1384,7 @@ public class WorkflowService {
             success.add(instance.getId());
 
             //notice
-            noticeService.addNotice(SystemNotice.Type.WORKFLOW, toUid, "你有一条新的任务指派/移交${taskId}", ImmutableMap.of(
+            noticeService.addNotice(SystemNotice.Type.WORKFLOW, toUid, String.format("你有一条新的任务指派/移交 %s", instance.getTitle()), ImmutableMap.of(
                     "taskId", instance.getId(),
                     "taskName", instance.getTitle()
             ));
@@ -1474,7 +1470,7 @@ public class WorkflowService {
                         .filter(item -> item > 0)
                         .distinct()
                         .collect(Collectors.toList());
-                noticeService.addNotice(SystemNotice.Type.WORKFLOW, notDealUids, "你的任务${taskId}节点${nodeId}已被别人处理", ImmutableMap.of(
+                noticeService.addNotice(SystemNotice.Type.WORKFLOW, notDealUids, "你的任务 %s 节点 %s 已被别人处理".format(instance.getTitle(), nodeInstance.getNodeName()), ImmutableMap.of(
                         "taskId", instance.getId(),
                         "taskName", instance.getTitle(),
                         "nodeId", nodeInstance.getId(),
@@ -2056,7 +2052,9 @@ public class WorkflowService {
             WorkflowInstance instance = o;
             instance.setAttributes(null);
             instance.setNodeList(null);
+            instance.setCanDeal(canDeal(instance,user));
             JSONObject jsonObject = (JSONObject) JSON.toJSON(o);
+            jsonObject.put("currentNodeInstanceId", findCurrentNodeInstance(instance.getId()).map(item -> item.getId()).orElse(0l));
             if(object.containsKey("fields")) {
                 for (String field : Utils.splitByComma(object.get("fields"))) {
                     jsonObject.put(field,instance.getAttributeMap().getOrDefault(field,""));
@@ -2321,7 +2319,7 @@ public class WorkflowService {
                         "nodeId", currentNode.getId(),
                         "nodeName", currentNode.getNodeName()
                 );
-                noticeService.addNotice(SystemNotice.Type.WORKFLOW, uids, "你已处理完毕任务${taskId}节点${nodeId}", map);
+                noticeService.addNotice(SystemNotice.Type.WORKFLOW, uids, "你已处理完毕任务 %s 节点 %s".format(instance.getTitle(), currentNode.getNodeName()), map);
 
                 break;
 
@@ -2377,10 +2375,14 @@ public class WorkflowService {
                                 case QUARTER:
                                     dealers.setDepId((Long) objs[4]);
                                     dealers.setDepName((String) objs[5]);
+                                    dealers.setQuartersId((Long) objs[6]);
+                                    dealers.setQuartersName((String) objs[7]);
                                     break;
                                 case USER:
                                     break;
                                 case ROLE:
+                                    dealers.setRoleId((Long) objs[8]);
+                                    dealers.setRoleName((String) objs[9]);
                                     break;
                             }
                             return uid;
@@ -2388,7 +2390,7 @@ public class WorkflowService {
                         .distinct()
                         .collect(Collectors.toList());
 //                List<Long> uids = globalPermissionDao.getUids(Collections.singleton(GlobalPermission.Type.WORKFLOW_MAIN_QUARTER), newNode.getNodeModelId());
-                noticeService.addNotice(SystemNotice.Type.WORKFLOW, uids, "你有新的任务${taskId}节点${nodeId}可以处理", ImmutableMap.of(
+                noticeService.addNotice(SystemNotice.Type.WORKFLOW, uids, "你有新的任务 %s 节点 %s 可以处理".format(instance.getTitle(), newNode.getNodeName()), ImmutableMap.of(
                         "taskId", newNode.getInstanceId(),
                         "taskName", instance.getTitle(),
                         "nodeId", newNode.getId(),
@@ -2397,7 +2399,7 @@ public class WorkflowService {
             case logic:
                 break;
             case end:
-                noticeService.addNotice(SystemNotice.Type.WORKFLOW, instance.getDealUserId(), "你的任务${taskId}已经结束", ImmutableMap.of(
+                noticeService.addNotice(SystemNotice.Type.WORKFLOW, instance.getDealUserId(), "你的任务 %s 已经结束".format(instance.getTitle()), ImmutableMap.of(
                         "taskId", newNode.getInstanceId(),
                         "taskName", instance.getTitle()
                 ));
@@ -2809,12 +2811,13 @@ public class WorkflowService {
                                         })
                                         .collect(Collectors.toList())
                                 );
-                                ni.put("dealers",null);
-                                ni.put("attributeList", null);
+
                                 return new Object[]{dealer.getLong("userId") + "",dealer};
                             })
                             .collect(Collectors.toMap(item -> item[0],item -> item[1]))
                         );
+                        ni.put("dealers",null);
+                        ni.put("attributeList", null);
                     });
             FetchWorkflowInstanceResponse response = new FetchWorkflowInstanceResponse();
             response.setInstance(instance);
@@ -3075,14 +3078,15 @@ public class WorkflowService {
 //        attribute.setAttrCname(cname);
 //        return attribute;
 //    }
-    public WorkflowNodeAttribute addAttribute(long uid, WorkflowNodeInstance nodeInstance, String key, String value, String cname){
-        WorkflowNodeAttribute attribute = attributeDao.findFirstByNodeInstanceIdAndAttrKey(nodeInstance.getId(), key).orElse(new WorkflowNodeAttribute());
+    public WorkflowNodeAttribute addAttribute(final Long uid, WorkflowNodeInstance nodeInstance, String key, String value, String cname){
+        WorkflowNodeAttribute attribute = attributeDao.findTopByNodeInstanceIdAndDealUserIdAndAttrKey(nodeInstance.getId(), uid, key).orElse(new WorkflowNodeAttribute());
         attribute.setDealUserId(uid);
         attribute.setAttrKey(key);
         attribute.setAttrValue(value == null ? "" : value);
         attribute.setNodeInstance(nodeInstance);
         attribute.setNodeInstanceId(nodeInstance.getId());
         attribute.setAttrCname(cname);
+        attribute.setDealUserId(uid);
         return attribute;
     }
 
@@ -3136,29 +3140,51 @@ public class WorkflowService {
 
     public List<Object> getCanDealUids(final long nodeInstanceId) {
         String sql =
-                "select gp.type, gp.userType, user.id, user.trueName, uq.departmentId, uq.department.name, uq.id, uq.name, " +
-                        "   gp.linkId, ni.instance.depId, uq.department.code, ni.nodeModelId " +
+                "select gp.type, gp.userType, user.id, user.trueName, dd.id, dd.name, uq.id, uq.name, ur.id, ur.name, " +
+                        "   gp.linkId, ni.instance.depId, dd.code, ni.nodeModelId " +
                         "from GlobalPermission gp, User user " +
                         "left join user.quarters uq " +
+                        "left join uq.department dd " +
+                        "left join user.roles ur " +
                         ", WorkflowNodeInstance ni " +
                         "where ni.id = :instanceId and gp.objectId = ni.nodeModelId and " +
                         "   gp.type = 'WORKFLOW_MAIN_QUARTER' " +
-                        "group by user,gp,ni,uq having " +
+                        "and " +
                         "   (" +
                         "       (gp.userType = 'QUARTER' and uq.id = gp.linkId and ( " +
                                 //如果只配置了一个部门, 那么无视这个权限
                         "       ( select count(distinct qq.departmentId) from GlobalPermission gpgp, Quarters qq where gpgp.userType = 'QUARTER' and gpgp.objectId = ni.nodeModelId and gpgp.linkId = qq.id) = 1 or " +
                         "       (" +
-                        "           (select count(d) from Department d where uq.department.code like concat(d.code,'%') and d.id = ni.instance.depId) > 0 or" +
+                        "           (select count(d) from Department d where dd.code like concat(d.code,'%') and d.id = ni.instance.depId) > 0 or" +
 //                        "           (uq.departmentId = ni.instance.depId) or " +
-                        "           (select count(d) from Department d where d.code like concat(uq.department.code,'%') and d.id = ni.instance.depId) > 0" +
+                        "           (select count(d) from Department d where d.code like concat(dd.code,'%') and d.id = ni.instance.depId) > 0" +
                         "       )) ) or " +
-                        "(gp.userType = 'USER' and user.id = gp.linkId) " +
-                        "" +
+                        "(gp.userType = 'USER' and user.id = gp.linkId) or" +
+                        "(gp.userType = 'ROLE' and ur.id = gp.linkId)" +
                         "   )";
-        return sqlUtils.hqlQuery(sql, ImmutableMap.of(
+        List<Object> list =  sqlUtils.hqlQuery(sql, ImmutableMap.of(
                 "instanceId", nodeInstanceId
         ));
+        //过滤掉重复的部分
+        Map<GlobalPermission.UserType, Integer> orderMap = ImmutableMap.of(
+                GlobalPermission.UserType.USER, 3,
+                GlobalPermission.UserType.ROLE, 2,
+                GlobalPermission.UserType.QUARTER, 1
+        );
+//        Map<Long,Integer> keyMap = new HashMap<>();
+        Map<Long,Object> objectMap = new HashMap<>();
+        for (Object o : list) {
+            Object[] objects = (Object[]) o;
+            if(!objectMap.containsKey(objects[2])){
+                objectMap.put((Long) objects[2],objects);
+            }
+            //如果优先级更高
+            Object[] target = (Object[]) objectMap.get(objects[2]);
+            if(orderMap.get(objects[1]) > orderMap.get(target[1])){
+                objectMap.put((Long) objects[2],objects);
+            }
+        }
+        return new ArrayList<>(objectMap.values());
     }
 
     public List<Object> getNodeDealUids(final long instanceId, final String nodeName){
@@ -3191,7 +3217,7 @@ public class WorkflowService {
                         "       )) ) or " +
                         "(gp.userType = 'USER' and user.id = gp.linkId) " +
                         "" +
-                        "   )";
+                        "   ) ";
         List<Object> objects = sqlUtils.hqlQuery(sql, Utils.newMap(
                 "instanceId", instanceId,
                 "nodeName", nodeName

@@ -11,6 +11,7 @@ import java.util.Optional;
 
 public interface IWorkflowNodeAttributeDao extends JpaRepository<WorkflowNodeAttribute,Long> {
     Optional<WorkflowNodeAttribute> findFirstByNodeInstanceIdAndAttrKey(long niid, String attrKey);
+    Optional<WorkflowNodeAttribute> findTopByNodeInstanceIdAndDealUserIdAndAttrKey(long niid, long uid, String attrKey);
 
     Optional<WorkflowNodeAttribute> findFirstByDealUserIdAndAttrKey(long uid, String key);
 
