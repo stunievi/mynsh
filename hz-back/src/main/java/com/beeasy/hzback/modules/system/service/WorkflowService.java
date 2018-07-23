@@ -1998,43 +1998,54 @@ public class WorkflowService {
                 if (StringUtils.isEmpty(entry.getValue())) {
                     continue;
                 }
-                switch (entry.getKey()) {
-                    case "modelName":
-                        String[] modelNames = entry.getValue().split(",");
-                        predicates.add(root.get("modelName").in(modelNames));
-                        break;
+                try{
+                    switch (entry.getKey()) {
+                        case "modelName":
+                            String[] modelNames = entry.getValue().split(",");
+                            predicates.add(root.get("modelName").in(modelNames));
+                            break;
 
-                    case "parentId":
-                        predicates.add(cb.equal(root.get("parentId"),object.get("parentId")));
-                        break;
+                        case "parentId":
+                            predicates.add(cb.equal(root.get("parentId"),object.get("parentId")));
+                            break;
 
-                    case "page":
-                    case "size":
-                    case "sort":
-                    case "Authorization":
-                    case "fields":
-                        break;
+                        case "id":
+                            predicates.add(
+                                    cb.equal(root.get("id"), entry.getValue())
+                            );
+                            break;
 
-                    //默认字段查询
-                    default:
-//                        Join nl = root.join("nodeList");
-//                        Join attr = nl.join("attributeList");
-//                        if (entry.getKey().startsWith("$")) {
-//                            predicates.add(
-//                                    cb.and(
-//                                            cb.equal(attr.get("attrKey"), entry.getKey()),
-//                                            cb.like(attr.get("attrValue"), "%" + entry.getValue().substring(1) + "%")
-//                                    )
-//                            );
-//                        } else {
-//                            predicates.add(
-//                                    cb.and(
-//                                            cb.equal(attr.get("attrKey"), entry.getKey()),
-//                                            cb.equal(attr.get("attrValue"), entry.getValue())
-//                                    )
-//                            );
-//                        }
-                        break;
+                        case "state":
+                            predicates.add(
+                                    cb.equal(root.get("state"), WorkflowInstance.State.valueOf(entry.getValue()))
+                            );
+                            break;
+
+                        case "start_date":
+                            predicates.add(
+                                    cb.greaterThanOrEqualTo(root.get("addTime"), new Date(Long.valueOf(entry.getValue())))
+                            );
+                            break;
+
+                        case "end_date":
+                            predicates.add(
+                                    cb.lessThanOrEqualTo(root.get("addTime"), new Date(Long.valueOf(entry.getValue())))
+                            );
+                            break;
+
+                        case "CUS_NAME":
+                            Join join = root.join("attributes",JoinType.LEFT);
+                            predicates.add(
+                                    cb.and(
+                                            cb.equal(join.get("attrKey"), entry.getKey()),
+                                            cb.like(join.get("attrValue"), "%" + entry.getValue() + "%")
+                                    )
+                            );
+                            break;
+                    }
+                }
+                catch (Exception e){
+                    continue;
                 }
             }
 
