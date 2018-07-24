@@ -99,6 +99,7 @@ public class DepartmentService implements IDepartmentService {
 
             department.setAccCode(edit.getAccCode());
 
+            edit.setParentId(null);
             if (edit.getParentId() != null && !department.getParent().getId().equals(edit.getParentId())) {
                 Optional<Department> newParent = findDepartment(edit.getParentId());
                 if (!newParent.isPresent()) {

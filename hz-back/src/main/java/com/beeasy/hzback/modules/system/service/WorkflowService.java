@@ -25,9 +25,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.apache.camel.util.TimeUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -48,6 +50,7 @@ import javax.script.SimpleScriptContext;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -151,29 +154,38 @@ public class WorkflowService {
      * @param request 任务请求明细
      * @return 标准REST返回
      */
-    public Result autoStartTask(final long uid, final AutoStartTaskRequest request) {
-        //查找符合条件的任务
-        ApplyTaskRequest taskRequest = new ApplyTaskRequest();
-        List<Long> mids = modelDao.findModelId(request.getModelName());
-        if (mids.size() == 0) {
-            return Result.error("任务执行人没有权限");
+    public Result autoStartTask(final long uid, final ApplyTaskRequest request) {
+        if(!userService.isSu(uid)){
+            return Result.error("没有发布该任务的权限");
         }
-        taskRequest.setModelId(mids.get(0));
-        return Result.ok();
+        String modelName = searchService.getAutoTaskModelName(request.getDataId());
+        if(StringUtils.isEmpty(modelName)){
+            return Result.error("找不到任务模型");
+        }
+        request.setModelName(modelName);
+        //查找执行人
+        long duid = searchService.getAutoTaskDealer(request.getDataId());
+        if(duid == 0){
+            return Result.error("没有找到对应的客户经理");
+        }
+        request.setDealerId(duid);
+        request.setManual(false);
+        request.setTitle("贷后跟踪任务 " + new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
+        return startNewInstance(duid, request);
     }
 
-    @Data
-    public static class AutoStartTaskRequest {
-        long dealerId;
-        String title;
-        String modelName;
-        //固有数据源
-        ApplyTaskRequest.DataSource dataSource;
-        //固有数据源绑定值
-        String dataId;
-        Date planStartTime;
-
-    }
+//    @Data
+//    public static class AutoStartTaskRequest {
+//        long dealerId;
+//        String title;
+//        String modelName;
+//        //固有数据源
+//        ApplyTaskRequest.DataSource dataSource;
+//        //固有数据源绑定值
+//        String dataId;
+//        Date planStartTime;
+//
+//    }
 
     /**
      * 开始一个新的工作流任务
@@ -199,6 +211,8 @@ public class WorkflowService {
         if (null == workflowModel || !workflowModel.isOpen()) {
             return Result.error("工作流没有开启");
         }
+        request.setModelId(workflowModel.getId());
+        request.setModelName(workflowModel.getModelName());
         //fix
         updateWorkflowModelDeps(workflowModel.getId());
 
@@ -333,6 +347,7 @@ public class WorkflowService {
         workflowInstance.setTitle(request.getTitle());
         workflowInstance.setInfo(request.getInfo());
         workflowInstance.setModelName(workflowModel.getModelName());
+        workflowInstance.setAutoCreated(!request.isManual());
 
         //开始时间
         Date date = new Date();
@@ -2386,8 +2401,8 @@ public class WorkflowService {
                                 case QUARTER:
                                     dealers.setDepId((Long) objs[4]);
                                     dealers.setDepName((String) objs[5]);
-                                    dealers.setQuartersId((Long) objs[6]);
-                                    dealers.setQuartersName((String) objs[7]);
+//                                    dealers.setQuartersId((Long) objs[6]);
+//                                    dealers.setQuartersName((String) objs[7]);
                                     break;
                                 case USER:
                                     break;

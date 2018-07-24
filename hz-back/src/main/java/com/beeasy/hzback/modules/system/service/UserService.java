@@ -773,6 +773,10 @@ public class UserService implements IUserService {
         return userDao.findById(id);
     }
 
+    public Optional<User> findUserByAccCode(String accCode){
+        return userDao.findTopByAccCode(accCode);
+    }
+
     /**
      * 是否拥有这个用户
      *

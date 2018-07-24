@@ -29,6 +29,7 @@ public interface IUserDao extends JpaRepository<User,Long> ,JpaSpecificationExec
     List<User> findAllByIdIn(Collection<Long> ids);
 
     Optional<User> findFirstByPhone(String phone);
+    Optional<User> findTopByAccCode(String accCode);
     //检查是否超级管理员
     int countByIdAndSuIsTrue(long uid);
 

@@ -11,6 +11,7 @@ import com.beeasy.hzback.modules.system.entity.*;
 import com.beeasy.hzback.modules.system.form.GlobalPermissionEditRequest;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import io.netty.util.internal.StringUtil;
 import jdk.nashorn.internal.objects.Global;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -634,12 +635,34 @@ public class DataSearchService {
      * @return
      */
     public String getAutoTaskModelName(String billNo){
-        String sql = String.format("SELECT CASE WHEN l.type = 'HOME_BANK' THEN '贷后跟踪-公司银行部' WHEN l.type = 'MINI_WEI' AND a.PRD_TYPE = '01' THEN '贷后跟踪-小微部公司类' WHEN l.type = 'MINI_WEI' AND a.PRD_TYPE = '02' THEN '贷后跟踪-小微部个人类' WHEN l.type = 'SALES_PERSONAL' AND a.PRD_TYPE = '02' AND a.MORTGAGE_FLG = '1' THEN '贷后跟踪-零售部个人按揭类' WHEN l.type = 'SALES_PERSONAL' AND a.PRD_TYPE = '02' AND a.MORTGAGE_FLG = '0' AND a.PRD_USERDF_TYPE = '1003' THEN '贷后跟踪-零售部个人消费类' WHEN L.TYPE = 'sales_personal' AND a.PRD_TYPE = '02' AND a.MORTGAGE_FLG = '0' AND a.PRD_USERDF_TYPE = '1004' THEN '贷后跟踪-零售部个人经营类' END AS modelName FROM ACC_LOAN a , t_auto_task_link l WHERE l.acc_code LIKE concat('%%(' , a.MAIN_BR_ID , ')%%') AND a.BILL_NO = '%s'", billNo);
+        String sql = String.format("SELECT CASE WHEN l.type = 'HOME_BANK' THEN '贷后跟踪-公司银行部' WHEN l.type = 'MINI_WEI' AND a.PRD_TYPE = '01' THEN '贷后跟踪-小微部公司类' WHEN l.type = 'MINI_WEI' AND a.PRD_TYPE = '02' THEN '贷后跟踪-小微部个人类' WHEN l.type = 'SALES_PERSONAL' AND a.PRD_TYPE = '02' AND a.MORTGAGE_FLG = '1' THEN '贷后跟踪-零售部个人按揭类' WHEN l.type = 'SALES_PERSONAL' AND a.PRD_TYPE = '02' AND a.MORTGAGE_FLG = '0' AND a.PRD_USERDF_TYPE = '1003' THEN '贷后跟踪-零售部个人消费类' WHEN l.type = 'sales_personal' AND a.PRD_TYPE = '02' AND a.MORTGAGE_FLG = '0' AND a.PRD_USERDF_TYPE = '1004' THEN '贷后跟踪-零售部个人经营类' END AS modelName FROM ACC_LOAN a , t_auto_task_link l WHERE l.acc_code LIKE concat('%%(' , a.MAIN_BR_ID , ')%%') AND a.BILL_NO = '%s'", billNo);
         List<Map<String,String>> res = sqlUtils.query(sql);
         if(res.size() > 0){
             return res.get(0).getOrDefault("modelName","");
         }
         return "";
+    }
+
+    /**
+     * 得到一个台账对应的客户经理
+     * @param billNo
+     * @return
+     */
+    public long getAutoTaskDealer(String billNo){
+        String sql = String.format("select CUS_MANAGER from ACC_LOAN where BILL_NO = '%s'", billNo);
+        List<Map<String,String>> res = sqlUtils.query(sql);
+        String cusManager = "";
+        if(res.size() > 0){
+            cusManager = res.get(0).getOrDefault("CUS_MANAGER", "");
+            if(!StringUtils.isEmpty(cusManager)){
+                User user = userService.findUserByAccCode(cusManager).orElse(null);
+                if(null == user){
+                    return 0;
+                }
+                return user.getId();
+            }
+        }
+        return 0;
     }
 
     /**

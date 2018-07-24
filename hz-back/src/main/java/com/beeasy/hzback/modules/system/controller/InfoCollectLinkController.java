@@ -126,10 +126,16 @@ public class InfoCollectLinkController {
             map.put("id", instance.getId());
             List objs = attributeDao.getValueByWorkflowInstance(instance.getId(), "CUS_NAME");
             map.put("CUS_NAME", objs.size() > 0 ? (String) objs.get(0) : "");
+
             objs = attributeDao.getValueByWorkflowInstance(instance.getId(), "PHONE");
             map.put("PHONE", objs.size() > 0 ? (String) objs.get(0) : "");
+
             objs = attributeDao.getValueByWorkflowInstance(instance.getId(), "CERT_TYPE");
-            map.put("CERT_TYPE", objs.size());
+            map.put("CERT_TYPE", objs.size() > 0 ? objs.get(0) : "");
+
+            objs = attributeDao.getValueByWorkflowInstance(instance.getId(), "CERT_CODE");
+            map.put("CERT_CODE",objs.size() > 0 ? objs.get(0) : "");
+
             map.put("addTime", instance.getAddTime());
             map.put("state", instance.getState());
             map.put("title",instance.getTitle());
