@@ -64,6 +64,9 @@ public class ControllerExceptionHandler extends AbstractErrorController {
             if(ex instanceof BindException){
                 return handleJSONError(rsp, Result.error(((BindException) ex).getBindingResult()).toJson(), HttpStatus.OK);
             }
+            else if(ex instanceof RestException){
+                return handleJSONError(rsp, Result.error(((RestException) ex).getSimpleMessage()).toJson(), HttpStatus.OK);
+            }
             else if(ex instanceof RuntimeException){
                 if(!StringUtils.isEmpty(ex.getMessage())){
                     return handleJSONError(rsp, Result.error(ex.getMessage()).toJson(), HttpStatus.OK);

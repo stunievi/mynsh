@@ -85,9 +85,9 @@ public class User implements Serializable{
 //    @OneToMany(mappedBy = "user")
 //    private List<UserExternalPermission> externalPermissions = new ArrayList<>();
 
-    @JSONField(serialize = false)
-    @OneToMany(mappedBy = "user")
-    private List<GlobalPermissionCenter> gpCenters = new ArrayList<>();
+//    @JSONField(serialize = false)
+//    @OneToMany(mappedBy = "user")
+//    private List<GlobalPermissionCenter> gpCenters = new ArrayList<>();
 
     @JSONField(serialize = false)
     @Transient

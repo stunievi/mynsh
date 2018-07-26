@@ -71,8 +71,7 @@ public class UserService implements IUserService {
     IUserAllowApiDao userAllowApiDao;
     @Autowired
     IGlobalPermissionDao globalPermissionDao;
-    @Autowired
-    IGlobalPermissionCenterDao centerDao;
+
     //    @Autowired
 //    SystemTextLogService logService;
     @Autowired
@@ -587,13 +586,18 @@ public class UserService implements IUserService {
 //            setUnbindMethods(user, edit.getUnbindMethods());
 //        }
         user = saveUser(user);
-        if (null != oldIds) {
-            globalPermissionService.syncGlobalPermissionCenterQuartersChanged(oldIds, user);
-        }
+//        if (null != oldIds) {
+//            globalPermissionService.syncGlobalPermissionCenterQuartersChanged(oldIds, user);
+//        }
         return Result.ok(user);
     }
 
 
+    /**
+     * 创建岗位
+     * @param add
+     * @return
+     */
     public Result<Quarters> createQuarters(QuartersAdd add) {
         Department department = departmentDao.findById(add.getDepartmentId()).orElse(null);
         if (department == null) return Result.error("没有该部门");
@@ -700,9 +704,9 @@ public class UserService implements IUserService {
      */
     public Result loginFileCloudCommonSystem(long uid) {
         //检查是否有共享文件云权限
-        if (!globalPermissionService.checkPermission(GlobalPermission.Type.COMMON_CLOUD_DISK, 0, uid)) {
-            return loginFileCloudCommonSystem(uid);
-        }
+//        if (!globalPermissionService.checkPermission(GlobalPermission.Type.COMMON_CLOUD_DISK, 0, uid)) {
+//            return loginFileCloudCommonSystem(uid);
+//        }
 //        if(userDao.checkPermission(Utils.getCurrentUserId(), UserExternalPermission.Permission.COMMON_CLOUD_DISK) == 0){
 //            return loginFileCloudSystem(uid);
 //        }
@@ -927,6 +931,7 @@ public class UserService implements IUserService {
                 .collect(Collectors.toList());
     }
 
+    @Deprecated
     public void cacheUserMethods(GlobalPermission globalPermission) {
         if (true) return;
         userAllowApiDao.deleteAllByUserId(globalPermission.getLinkId());

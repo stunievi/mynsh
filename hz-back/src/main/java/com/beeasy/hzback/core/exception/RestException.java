@@ -3,7 +3,7 @@ package com.beeasy.hzback.core.exception;
 
 import lombok.Getter;
 
-public class RestException extends Exception{
+public class RestException extends RuntimeException{
 
     @Getter
     protected String simpleMessage = "";

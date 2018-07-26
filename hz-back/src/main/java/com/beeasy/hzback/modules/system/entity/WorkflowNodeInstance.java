@@ -16,7 +16,9 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 @Entity
-@Table(name = "t_workflow_node_instance")
+@Table(name = "t_workflow_node_instance", indexes = {
+        @Index(name = "finished", columnList = "finished")
+})
 @EntityListeners(AuditingEntityListener.class)
 public class WorkflowNodeInstance {
 

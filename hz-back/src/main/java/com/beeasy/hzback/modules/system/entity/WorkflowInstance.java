@@ -3,12 +3,16 @@ package com.beeasy.hzback.modules.system.entity;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.beeasy.hzback.core.helper.SpringContextUtils;
 import com.beeasy.hzback.modules.system.dao.IUserDao;
+import com.beeasy.hzback.modules.system.dao.IWorkflowNodeInstanceDao;
 import com.beeasy.hzback.modules.system.service.UserService;
+import com.fasterxml.jackson.annotation.JsonFilter;
+import io.netty.util.internal.StringUtil;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
+import org.springframework.boot.test.context.SpringBootTestContextBootstrapper;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -18,7 +22,9 @@ import java.util.*;
 @Getter
 @Setter
 @Entity
-@Table(name = "t_workflow_instance")
+@Table(name = "t_workflow_instance",indexes = {
+        @Index(name = "state", columnList = "state")
+})
 @EntityListeners(AuditingEntityListener.class)
 public class WorkflowInstance {
 
@@ -168,6 +174,16 @@ public class WorkflowInstance {
     //任务归属部门name
     String depName;
 
+    @JSONField(serialize = false)
+    @JoinColumn(name = "current_node_instance_id")
+    @OneToOne
+    WorkflowNodeInstance currentNodeInstance;
+
+    @Column(name = "current_node_instance_id", insertable = false, updatable = false)
+    Long currentNodeInstanceId;
+
+    @Column(name = "current_node_model_id")
+    Long currentNodeModelId;
 
     @JSONField(serialize = false)
     @ElementCollection
@@ -224,6 +240,30 @@ public class WorkflowInstance {
         }
         return "";
     }
+
+//    public WorkflowNodeInstance getCurrentNodeInstance(){
+//        if(null == currentNodeInstance){
+//            Optional<WorkflowNodeInstance> optional = SpringContextUtils.getBean(IWorkflowNodeInstanceDao.class).findFirstByInstanceAndFinishedIsFalse(this);
+//            currentNodeInstance = optional.orElse(null);
+//            currentNodeInstanceId = optional.map(item -> item.getId()).orElse(null);
+//            currentNodeModelId = optional.map(item -> item.getNodeModelId()).orElse(null);
+//        }
+//        return currentNodeInstance;
+//    }
+//
+//    public Long getCurrentNodeInstanceId() {
+//        if(null == currentNodeInstanceId){
+//            getCurrentNodeInstance();
+//        }
+//        return currentNodeInstanceId;
+//    }
+//
+//    public Long getCurrentNodeModelId(){
+//        if(null == currentNodeModelId){
+//            getCurrentNodeInstance();
+//        }
+//        return currentNodeModelId;
+//    }
 
     @Transient
     public long getNextInstanceId(){

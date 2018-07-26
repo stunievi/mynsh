@@ -82,6 +82,7 @@ spring:
           archive:
             autodetection: false
           dialect: com.beeasy.hzback.core.helper.MySQL5DialectFK
+#          dialect: com.beeasy.hzback.core.helper.DB2DialectFK
 
 
 
@@ -99,9 +100,9 @@ spring:
         driver-class-name: com.mysql.jdbc.Driver
 #        mysql-end
 #        db2
-#        url: jdbc:db2://47.96.98.198:50000/sample
+#        url: jdbc:db2://localhost:50000/test
 #        username: db2inst1
-#        password: "!Q1q2w3e4r"
+#        password: "db2inst1-pwd"
 #        driver-class-nodeName: com.ibm.db2.jcc.DB2Driver
 #        db2-end
         # 使用druid数据源

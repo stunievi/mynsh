@@ -22,4 +22,7 @@ public interface IWorkflowNodeAttributeDao extends JpaRepository<WorkflowNodeAtt
     //得到所有的处理人
     @Query(value = "select distinct at.dealUserId from WorkflowNodeAttribute  at where at.dealUserId is not null and at.nodeInstanceId = :nid")
     List<Long> getUidsByNodeInstnce(@Param("nid") long nid);
+
+    int countByNodeInstanceIdAndAttrKeyAndAttrValue(final long iid, final String key, final String value);
+    int countByNodeInstanceIdAndDealUserIdAndAttrKey(final long niid, final long uid, final String key);
 }

@@ -17,8 +17,16 @@ import javax.persistence.*;
 @Getter
 @Setter
 @Entity
-@Table(name = "t_global_permission")
-public class GlobalPermission extends AbstractBaseEntity{
+@Table(name = "t_global_permission",
+        indexes = {
+                @Index(name = "objectId", columnList = "objectId"),
+                @Index(name = "type", columnList = "type"),
+                @Index(name = "userType", columnList = "userType"),
+                @Index(name = "linkId", columnList = "linkId"),
+                @Index(name = "oid_type", columnList = "objectId,type"),
+                @Index(name = "lid_utype", columnList = "linkId,userType")
+        })
+public class GlobalPermission extends AbstractBaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,7 +54,7 @@ public class GlobalPermission extends AbstractBaseEntity{
     /**
      * 授权类型
      */
-    public enum Type{
+    public enum Type {
         //共享文件柜操作
         COMMON_CLOUD_DISK,
 
@@ -74,7 +82,7 @@ public class GlobalPermission extends AbstractBaseEntity{
     /**
      * 授权者类型
      */
-    public enum UserType{
+    public enum UserType {
         //按部门授权
         DEPARTMENT,
         //按岗位授权
