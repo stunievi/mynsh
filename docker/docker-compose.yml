@@ -1,0 +1,24 @@
+version: "3"
+services:
+  redis:
+    image: redis
+    ports:
+      - 6379:6379
+
+  db2:
+#    build: .
+    container_name: db2
+    image: angoca/db2-instance
+    tty: true
+#    privileged: true
+#    environment:
+#      LICENSE: accept
+#      DB2INST1_PASSWORD: "!Q1q2w3e4r"
+    ports:
+      - "50000:50000"
+#    command: ["db2start"]
+    volumes:
+#      - ~/work/docker_db2:/db2data
+      - ~/work/docker_db2:/home/angoca/db2-instance
+
+

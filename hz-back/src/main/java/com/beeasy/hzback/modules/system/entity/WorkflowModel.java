@@ -32,13 +32,16 @@ public class WorkflowModel {
     @OneToMany(mappedBy = "model",cascade = CascadeType.REMOVE)
     List<WorkflowNode> nodeModels = new ArrayList<>();
 
+    @Column(length = 20)
     String name;
 
     BigDecimal version;
 
+    @Column(length = 200)
     String info;
 
     //任务的原始名称
+    @Column(length = 20)
     String modelName;
 
     boolean open;

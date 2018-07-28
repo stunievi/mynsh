@@ -66,6 +66,8 @@ public class UserService implements IUserService {
     String cloudCommonPassword;
 
     @Autowired
+    SystemService systemService;
+    @Autowired
     IUserTokenDao userTokenDao;
     @Autowired
     IUserAllowApiDao userAllowApiDao;
@@ -268,11 +270,17 @@ public class UserService implements IUserService {
             }
         }
         //角色
+        //默认角色
+        Map<String,String> configs = systemService.get("sys_default_role_ids");
+        List<Long> rids = Utils.convertIdsToList(configs.getOrDefault("sys_default_role_ids",""));
+        add.getRids().addAll(rids);
+
         if(add.getRids().size() > 0){
             for (Long aLong : add.getRids()) {
                 roleAddUsers(aLong,Collections.singleton(ret.getId()));
             }
         }
+
 
         //添加文件夹
 //        CloudDirectoryIndex cloudDirectoryIndex = new CloudDirectoryIndex();
@@ -348,14 +356,12 @@ public class UserService implements IUserService {
         if (null == user) {
             return Result.error();
         }
-        SystemFile systemFile = findFile(user.getProfile().getFaceId()).orElse(null);
-        if (null == systemFile) {
-            return Result.error();
-        }
-
+        SystemFile systemFile = findFile(user.getProfile().getFaceId()).orElse(new SystemFile());
         String ext = Utils.getExt(file.getOriginalFilename());
         if (ext.equalsIgnoreCase("jpg") || ext.equalsIgnoreCase("jpeg") || ext.equalsIgnoreCase("png")) {
-            systemFileDao.delete(systemFile);
+            if(null != systemFile.getId()){
+                systemFileDao.delete(systemFile);
+            }
             SystemFile face = new SystemFile();
             face.setType(SystemFile.Type.FACE);
             face.setExt(Utils.getExt(file.getOriginalFilename()));
@@ -388,39 +394,45 @@ public class UserService implements IUserService {
      * @param newPassword
      * @return
      */
-    public Result modifyPassword(long uid, String oldPassword, String newPassword) {
-        Result r = isValidPassword(newPassword);
-        if (!r.isSuccess()) {
-            return r;
+    public boolean modifyPassword(final long uid, String oldPassword, String newPassword) {
+        isValidPassword(newPassword);
+        User user = findUser(uid).orElse(null);
+        if(null == user){
+            return false;
         }
         oldPassword = DigestUtils.md5DigestAsHex(oldPassword.getBytes());
         newPassword = DigestUtils.md5DigestAsHex(newPassword.getBytes());
-        return Result.finish(userDao.modifyPassword(uid, oldPassword, newPassword) > 0);
+        if(!user.getPassword().equals(oldPassword)){
+            throw new RestException("旧密码不正确");
+        }
+        user.setNewUser(false);
+        user.setPassword(newPassword);
+        userDao.save(user);
+        return true;
     }
 
-    public Result isValidPassword(String newPassword) {
+    public void isValidPassword(String newPassword) {
         //1 and 8
         if (!(newPassword.matches("^.*[a-zA-Z]+.*$") && newPassword.matches("^.*[0-9]+.*$")
                 && newPassword.matches("^.*[/^/$/.//,;:'!@#%&/*/|/?/+/(/)/[/]/{/}]+.*$"))) {
-            return Result.error("密码必须包含字母, 数字, 特殊字符");
+            throw new RestException("密码必须包含字母, 数字, 特殊字符");
         }
         //2
         if (!newPassword.matches("^.{8,}$")) {
-            return Result.error("密码长度至少8位");
+            throw new RestException("密码长度至少8位");
         }
         //3
         if (newPassword.matches("^.*(.)\\1{2,}+.*$")) {
-            return Result.error("密码不能包含3位及以上相同字符的重复");
+            throw new RestException("密码不能包含3位及以上相同字符的重复");
         }
         //4
         if (newPassword.matches("^.*(.{3})(.*)\\1+.*$")) {
-            return Result.error("密码不能包含3位及以上字符组合的重复");
+            throw new RestException("密码不能包含3位及以上字符组合的重复");
         }
         //6
         if (newPassword.matches("^.*[\\s]+.*$")) {
-            return Result.error("密码不能包含空格、制表符、换页符等空白字符");
+            throw new RestException("密码不能包含空格、制表符、换页符等空白字符");
         }
-        return Result.ok();
     }
 
     /**
@@ -550,10 +562,7 @@ public class UserService implements IUserService {
 
         //修改密码
         if (!StringUtils.isEmpty(edit.getPassword())) {
-            Result r = isValidPassword(edit.getPassword());
-            if (!r.isSuccess()) {
-                return r;
-            }
+            isValidPassword(edit.getPassword());
             user.setPassword(DigestUtils.md5DigestAsHex(edit.getPassword().getBytes()));
         }
         //是否禁用
@@ -772,13 +781,13 @@ public class UserService implements IUserService {
         return userDao.findAllByIdIn(ids);
     }
 
-
     public Optional<User> findUser(long id) {
         return userDao.findById(id);
     }
 
-    public Optional<User> findUserByAccCode(String accCode){
-        return userDao.findTopByAccCode(accCode);
+    public User findUserByAccCode(String accCode){
+        return userDao.findTopByAccCode(accCode)
+                .orElseThrow(new RestException(String.format("找不到代号为%s的客户经理", accCode)));
     }
 
     /**
@@ -791,8 +800,9 @@ public class UserService implements IUserService {
         return userDao.existsById(id);
     }
 
-    public Optional<Role> findRole(long id) {
-        return roleDao.findById(id);
+    public Role findRole(long id) {
+        return roleDao.findById(id)
+                .orElseThrow(new RestException(String.format("找不到ID为%d的角色", id)));
     }
 
     public Optional<Quarters> findQuarters(long id) {
@@ -982,10 +992,7 @@ public class UserService implements IUserService {
      * @return
      */
     public Result editRole(RoleRequest request) {
-        Role role = findRole(request.getId()).orElse(null);
-        if (null == role) {
-            return Result.error();
-        }
+        Role role = findRole(request.getId());
         role.setName(request.getName());
         role.setInfo(request.getInfo());
         role.setSort(request.getSort());

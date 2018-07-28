@@ -36,6 +36,7 @@ public class WorkflowNodeInstance {
     Long instanceId;
 
 
+    @Column(length = 20)
     String nodeName;
 
     @Enumerated

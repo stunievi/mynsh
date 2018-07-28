@@ -185,6 +185,9 @@ public class WorkflowInstance {
     @Column(name = "current_node_model_id")
     Long currentNodeModelId;
 
+    @Column(length = 20)
+    String currentNodeName;
+
     @JSONField(serialize = false)
     @ElementCollection
     @MapKeyColumn(name = "attrKey")

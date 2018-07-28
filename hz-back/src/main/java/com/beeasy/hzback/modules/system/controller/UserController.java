@@ -172,7 +172,7 @@ public class UserController {
     public Result modifyPassword(
             @Valid @RequestBody ModifyPasswordRequest request
     ){
-        return userService.modifyPassword(Utils.getCurrentUserId(), request.getOldPassword(), request.getNewPassword());
+        return Result.ok(userService.modifyPassword(Utils.getCurrentUserId(), request.getOldPassword(), request.getNewPassword()));
     }
 
     @ApiOperation(value = "修改个人资料")
@@ -252,7 +252,7 @@ public class UserController {
     }
 
     @NotSaveLog
-    @PostMapping("/face/edit")
+    @RequestMapping(value = "/face/edit",method = RequestMethod.POST)
     public String uploadFace(@RequestParam MultipartFile file){
         return (userService.updateUserFace(Utils.getCurrentUserId(),file)).toJson();
     }
@@ -273,6 +273,14 @@ public class UserController {
             @Validated(value = RoleRequest.edit.class) @RequestBody RoleRequest request
     ){
         return userService.editRole(request);
+    }
+
+    @ApiOperation(value = "得到单独角色的信息")
+    @RequestMapping(value = "/role/getOne", method = RequestMethod.GET)
+    public Result getRoleById(
+            @RequestParam long id
+    ){
+        return Result.ok(userService.findRole(id));
     }
 
     @ApiOperation(value = "编辑角色")

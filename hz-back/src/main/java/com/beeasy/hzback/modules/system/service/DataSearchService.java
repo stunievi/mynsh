@@ -655,11 +655,7 @@ public class DataSearchService {
         if(res.size() > 0){
             cusManager = res.get(0).getOrDefault("CUS_MANAGER", "");
             if(!StringUtils.isEmpty(cusManager)){
-                User user = userService.findUserByAccCode(cusManager).orElse(null);
-                if(null == user){
-                    return 0;
-                }
-                return user.getId();
+                return userService.findUserByAccCode(cusManager).getId();
             }
         }
         return 0;

@@ -528,6 +528,7 @@ public class WorkflowService {
         }
         instance.setCurrentNodeInstance(workflowNodeInstance);
         instance.setCurrentNodeModelId(node.getId());
+        instance.setCurrentNodeName(node.getName());
         return workflowNodeInstance;
     }
 
@@ -745,7 +746,7 @@ public class WorkflowService {
      *
      * @param uid
      * @param ids
-     * @return 
+     * @return
      */
     public Map<Object, Object> acceptInstance(long uid, Collection<Long> ids) {
         if (!userService.exists(uid)) {
@@ -2493,6 +2494,14 @@ public class WorkflowService {
     }
 
 
+    /**
+     * check if values are legal using JSR-303
+     * when failed, throw RestException with error messages
+     *
+     * @param rules
+     * @param value
+     * @return
+     */
     private String validField(JSONArray rules, String value) {
         final String ERROR_MESSAGE = "message";
         List<String> errorMessages = rules.stream().map(item -> {
@@ -2595,22 +2604,18 @@ public class WorkflowService {
         return org.apache.commons.lang.StringUtils.join(errorMessages.toArray(), "\n");
     }
 
-    private WorkflowInstance fromInputNodeToGo(WorkflowInstance instance, WorkflowNodeInstance currentNode, JSONObject nodeModel) throws RestException {
+    private WorkflowInstance fromInputNodeToGo(WorkflowInstance instance, WorkflowNodeInstance currentNode, JSONObject nodeModel) {
         //检查所有字段, 如果有必填字段没有填写, 那么抛出异常
         for (Map.Entry<String, Object> entry : nodeModel.getJSONObject("content").entrySet()) {
             String k = entry.getKey();
             JSONObject v = (JSONObject) entry.getValue();
-            //只需要校验必填属性
-            if (v.getBoolean("required")) {
-                Optional<WorkflowNodeAttribute> target = attributeDao.findFirstByNodeInstanceIdAndAttrKey(currentNode.getId(), v.getString("ename"))
-                        .filter(a -> !StringUtils.isEmpty(a.getAttrValue()));
-//                Optional<WorkflowNodeAttribute> target = currentNode.getAttributeList().stream()
-//                        .filter(a -> a.getAttrKey().equals(v.getString("ename")))
-//                        .findAny();
-                if (!target.isPresent()) {
-                    throw new RestException(String.format("%s字段没有填写", v.getString("cname")));
-                }
+            if(!v.getBoolean("required")){
+                continue;
             }
+            //只需要校验必填属性
+            attributeDao.findFirstByNodeInstanceIdAndAttrKey(currentNode.getId(), v.getString("ename"))
+                    .filter(a -> !StringUtils.isEmpty(a.getAttrValue()))
+                    .orElseThrow(new RestException(String.format("%s字段没有填写", v.getString("cname"))));
         }
         //找不到下一个就结束了吧
         WorkflowNode nextNode = findNextNodeModel(instance.getWorkflowModel(), currentNode.getNodeModel()).orElse(null);
@@ -2626,26 +2631,34 @@ public class WorkflowService {
             throw new RestException("你还没有提交信息");
         }
 
-        String behavior = nodeModel.getJSONArray("states")
+        JSONObject state = (JSONObject) nodeModel.getJSONArray("states")
                 .stream()
                 .filter(obj -> {
-                    JSONObject state = (JSONObject) obj;
-                    return attributeDao.countByNodeInstanceIdAndAttrKeyAndAttrValue(currentNode.getId(), nodeModel.getString("key"), state.getString("item")) >= state.getInteger("condition");
+                    if(!(obj instanceof JSONObject)){
+                        return false;
+                    }
+                    return attributeDao.countByNodeInstanceIdAndAttrKeyAndAttrValue(currentNode.getId(), nodeModel.getString("key"), ((JSONObject) obj).getString("item")) >= ((JSONObject) obj).getInteger("condition");
                 })
                 .findFirst()
-                .map(item -> ((JSONObject)item).getString("behavior"))
                 .orElse(null);
+        if(null != state){
+            Optional.of(state)
+                    .map(item -> ((JSONObject)item).getString("behavior"))
+                    .filter(StringUtils::isNotEmpty)
+                    .filter(behavior -> {
+                        try{
+                            runJSCode(instance, currentNode, behavior);
+                            return true;
+                        }
+                        catch (ScriptException e){
+                            e.printStackTrace();
+                            return false;
+                        }
+                    })
+                    .orElseThrow(new RestException("节点跳转失败, 请检查工作流配置"));
 
-        if (!StringUtils.isEmpty(behavior)) {
-            try {
-                runJSCode(instance, currentNode, behavior);
-            } catch (ScriptException e) {
-                e.printStackTrace();
-                throw new RestException("节点跳转失败, 请检查工作流配置");
-            }
-            return saveWorkflowInstance(instance);
         }
-        return instance;
+        return instanceDao.save(instance);
     }
 
 

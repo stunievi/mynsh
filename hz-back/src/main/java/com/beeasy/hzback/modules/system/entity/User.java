@@ -49,6 +49,7 @@ public class User implements Serializable{
 
     private boolean baned;
     private boolean su = false;
+    private boolean newUser = true;
 
     String accCode;
 
