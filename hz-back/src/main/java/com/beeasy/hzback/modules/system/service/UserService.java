@@ -82,7 +82,7 @@ public class UserService implements IUserService {
     GlobalPermissionService globalPermissionService;
     @Autowired
     CloudApi cloudApi;
-//    @Autowired
+    //    @Autowired
 //    IUserExternalPermissionDao externalPermissionDao;
     @Autowired
     ISystemFileDao systemFileDao;
@@ -92,7 +92,7 @@ public class UserService implements IUserService {
     IDepartmentDao departmentDao;
     @Autowired
     IUserDao userDao;
-//    @Autowired
+    //    @Autowired
 //    IRolePermissionDao rolePermissionDao;
     @Autowired
     IUserProfileDao userProfileDao;
@@ -264,20 +264,20 @@ public class UserService implements IUserService {
         User ret = userDao.save(u);
 
         //岗位
-        if(add.getQids().size() > 0){
+        if (add.getQids().size() > 0) {
             for (Long aLong : add.getQids()) {
                 addUsersToQuarters(Collections.singleton(ret.getId()), aLong);
             }
         }
         //角色
         //默认角色
-        Map<String,String> configs = systemService.get("sys_default_role_ids");
-        List<Long> rids = Utils.convertIdsToList(configs.getOrDefault("sys_default_role_ids",""));
+        Map<String, String> configs = systemService.get("sys_default_role_ids");
+        List<Long> rids = Utils.convertIdsToList(configs.getOrDefault("sys_default_role_ids", ""));
         add.getRids().addAll(rids);
 
-        if(add.getRids().size() > 0){
+        if (add.getRids().size() > 0) {
             for (Long aLong : add.getRids()) {
-                roleAddUsers(aLong,Collections.singleton(ret.getId()));
+                roleAddUsers(aLong, Collections.singleton(ret.getId()));
             }
         }
 
@@ -359,7 +359,7 @@ public class UserService implements IUserService {
         SystemFile systemFile = findFile(user.getProfile().getFaceId()).orElse(new SystemFile());
         String ext = Utils.getExt(file.getOriginalFilename());
         if (ext.equalsIgnoreCase("jpg") || ext.equalsIgnoreCase("jpeg") || ext.equalsIgnoreCase("png")) {
-            if(null != systemFile.getId()){
+            if (null != systemFile.getId()) {
                 systemFileDao.delete(systemFile);
             }
             SystemFile face = new SystemFile();
@@ -397,12 +397,12 @@ public class UserService implements IUserService {
     public boolean modifyPassword(final long uid, String oldPassword, String newPassword) {
         isValidPassword(newPassword);
         User user = findUser(uid).orElse(null);
-        if(null == user){
+        if (null == user) {
             return false;
         }
         oldPassword = DigestUtils.md5DigestAsHex(oldPassword.getBytes());
         newPassword = DigestUtils.md5DigestAsHex(newPassword.getBytes());
-        if(!user.getPassword().equals(oldPassword)){
+        if (!user.getPassword().equals(oldPassword)) {
             throw new RestException("旧密码不正确");
         }
         user.setNewUser(false);
@@ -574,7 +574,7 @@ public class UserService implements IUserService {
             user.setTrueName(edit.getTrueName());
         }
         //信贷机构代码
-        if(!StringUtils.isEmpty(edit.getAccCode())){
+        if (!StringUtils.isEmpty(edit.getAccCode())) {
             user.setAccCode(edit.getAccCode());
         }
 
@@ -604,6 +604,7 @@ public class UserService implements IUserService {
 
     /**
      * 创建岗位
+     *
      * @param add
      * @return
      */
@@ -754,7 +755,7 @@ public class UserService implements IUserService {
      */
     public String[] getCommonCloudUsername(long uid) {
         User user = findUser(uid).orElse(null);
-        if(null == user || !user.isSu()){
+        if (null == user || !user.isSu()) {
             return new String[]{"", ""};
         }
         return new String[]{cloudCommonUsername, cloudCommonPassword};
@@ -785,10 +786,15 @@ public class UserService implements IUserService {
         return userDao.findById(id);
     }
 
-    public User findUserByAccCode(String accCode){
+    public User findUserByAccCode(String accCode) {
         return userDao.findTopByAccCode(accCode)
                 .orElseThrow(new RestException(String.format("找不到代号为%s的客户经理", accCode)));
     }
+
+    public Department findDepartment(final long id) {
+        return departmentDao.findById(id).orElseThrow(new RestException("找不到ID为" + id + "的部门"));
+    }
+
 
     /**
      * 是否拥有这个用户
@@ -1100,8 +1106,118 @@ public class UserService implements IUserService {
         return roleDao.findAll(query, pageable);
     }
 
+    /**************** 部门相关 ******************/
+
+
     /**
-     * 检查是否超级管理员
+     * create new department
+     *
+     * @param add
+     * @return
+     */
+    public Department createDepartment(DepartmentAdd add) {
+        Optional<Department> same;
+        Department parent = 0 == add.getParentId() ? null : findDepartment(add.getParentId());
+        Department department = new Department();
+        department.setName(add.getName());
+        department.setParentId(null == parent ? null : parent.getId());
+        department.setInfo(add.getInfo());
+        department.setSort(add.getSort());
+        department.setAccCode(add.getAccCode());
+
+        //部门编号
+        List objs;
+        if (null == department.getParentId()) {
+            objs = departmentDao.getTopLastCode();
+        } else {
+            objs = departmentDao.getLastCode(department.getParentId());
+        }
+        System.out.println(objs);
+        //没找到的时候,使用父编码+001
+        if (objs.size() == 0) {
+            if (null == department.getParentId()) {
+                department.setCode("001");
+            } else {
+                List codes = departmentDao.getDepartmentCode(department.getParentId());
+                department.setCode(codes.get(0) + "001");
+            }
+        } else {
+            //取后三位+1
+            String code = (String) objs.get(0);
+            int codeValue = Integer.valueOf(code.substring(code.length() - 3, code.length()));
+            codeValue++;
+            //补足3位
+            String newCode = String.valueOf(codeValue);
+            for (int i = newCode.length(); i < 3; i++) {
+                newCode = "0" + newCode;
+            }
+            department.setCode(code.substring(0, code.length() - 3) + newCode);
+        }
+        return department = departmentDao.save(department);
+    }
+
+    public Department editDepartment(DepartmentEdit edit) {
+        Department department = findDepartment(edit.getId());
+        if(!StringUtils.isEmpty(edit.getName())){
+            department.setName(edit.getName());
+        }
+        if (!StringUtils.isEmpty(edit.getInfo())) {
+            department.setInfo(edit.getInfo());
+        }
+
+        if (!StringUtils.isEmpty(edit.getAccCode())) {
+            department.setAccCode(edit.getAccCode());
+        }
+
+        //禁止编辑父级部门
+//            edit.setParentId(null);
+//            if (edit.getParentId() != null && !department.getParent().getId().equals(edit.getParentId())) {
+//                Optional<Department> newParent = findDepartment(edit.getParentId());
+//                if (!newParent.isPresent()) {
+//                    result.setErrMessage("没找到要设置的父部门");
+//                    return;
+//                }
+//                if (department.getChildren().size() > 0) {
+//                    result.setErrMessage("还有子部门, 无法移动");
+//                    return;
+//                }
+//                if (department.getQuarters().size() > 0) {
+//                    result.setErrMessage("还有岗位存在, 无法移动");
+//                    return;
+//                }
+//                department.setParentId(newParent.get().getId());
+//            }
+        //排序
+        department.setSort(edit.getSort());
+        return departmentDao.save(department);
+    }
+
+
+    /**
+     * delete department
+     * if error, throws RestException and roolback
+     *
+     * @param id
+     * @return
+     */
+    public boolean deleteDepartment(final long id) {
+        Department department = findDepartment(id);
+        //如果还要岗位 不能删除
+        if (department.getQuarters().size() > 0) {
+            throw new RestException("该部门还有岗位, 无法删除");
+        }
+
+        if (department.getChildren().size() > 0) {
+            throw new RestException("该部门还有子部门, 无法删除");
+        }
+
+        departmentDao.deleteById(id);
+        return true;
+    }
+
+
+    /**
+     * check if user is SuperUser
      *
      * @param uid
      * @return
@@ -1179,7 +1295,7 @@ public class UserService implements IUserService {
                 .getResultList();
     }
 
-    public List<Long> getDidsFromDepartment(long did){
+    public List<Long> getDidsFromDepartment(long did) {
         return departmentDao.getChildDepIds(did);
     }
 
@@ -1194,7 +1310,6 @@ public class UserService implements IUserService {
                 .setParameter("qids", Arrays.asList(qids))
                 .getResultList();
     }
-
 
 
     /**

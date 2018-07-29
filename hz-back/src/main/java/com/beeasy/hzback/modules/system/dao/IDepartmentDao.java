@@ -17,6 +17,11 @@ public interface IDepartmentDao extends JpaRepository<Department,Long> {
 
     Department findByParent(Department department);
     Optional<Department> findFirstByParentAndName(Department department, String name);
+    Optional<Department> findTopByParentIdAndName(final long departmentId, final String name);
+    int countByParentAndName(Department department, String name);
+    int countByParentIdAndName(final long did, String name);
+    int countByParentIdAndNameAndIdNot(final Long pid, final String name, final long id);
+
     List<Department> findAllByName(String name);
 
     int deleteAllByIdIn(Collection<Long> dids);
@@ -31,6 +36,14 @@ public interface IDepartmentDao extends JpaRepository<Department,Long> {
     @Query(value = "select d.code from Department d where d.parent is null order by d.code desc")
     List getTopLastCode();
 
+
+//    @Query(value = "select d,(select dd.parentId from Department dd where dd.id = :did) as pid from Department d where d.name = :name and d.id <> :did group by d " +
+//            "having pid > 0" + "")
+////            "   case when pid is null and d.parentId is null then true " +
+////            "        when pid is not null and d.parentId = pid then true" +
+////            "   else false " +
+////            "   end ")
+//    List getSameDepartments(@Param("did") final long did, @Param("name") final String name);
 
     //是否是子部门
     @Query(value = "select count(par) from Department par where ( select count(child) from Department child where par.code = substring(child.code,1,length(par.code)) and child.id = :cid and child.code <> par.code) > 0 and par.id = :pid")

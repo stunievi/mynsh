@@ -754,10 +754,7 @@ public class WorkflowService {
         }
         return ids.stream()
                 .map(id -> {
-                    WorkflowInstance instance = findInstance(id).orElse(null);
-                    if (null == instance) {
-                        return new Object[]{id, "该任务不符合接受条件"};
-                    }
+                    WorkflowInstance instance = findInstance(id);
                     if (!canAccept(instance, uid)) {
                         return new Object[]{id, "用户没有权限接受任务"};
                     }
@@ -816,15 +813,15 @@ public class WorkflowService {
      */
     public boolean closeInstance(final long uid, final long instanceId) {
         User user = userService.findUser(uid).orElse(null);
-        WorkflowInstance workflowInstance = findInstance(instanceId).orElse(null);
-        if(null == workflowInstance || null == user){
+        WorkflowInstance workflowInstance = findInstance(instanceId);
+        if(null == user){
             return false;
         }
-            if (canCancel(workflowInstance, user)) {
-                instanceDao.deleteById(workflowInstance.getId());
-                return true;
-            }
-            return false;
+        if (canCancel(workflowInstance, user)) {
+            instanceDao.deleteById(workflowInstance.getId());
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -837,7 +834,7 @@ public class WorkflowService {
     public boolean recallInstance(long uid, long instanceId) {
         User user = userService.findUser(uid).orElse(null);
         if (null == user) return false;
-        return findInstance(instanceId).filter(workflowInstance -> {
+        WorkflowInstance workflowInstance = findInstance(instanceId);
             //撤回任务的限制
             if (canRecall(workflowInstance, user)) {
                 workflowInstance.setState(WorkflowInstance.State.CANCELED);
@@ -846,7 +843,6 @@ public class WorkflowService {
                 return true;
             }
             return false;
-        }).isPresent();
     }
 
 
@@ -1343,11 +1339,7 @@ public class WorkflowService {
         List<Long> success = new ArrayList<>();
         List<String> errMessages = new ArrayList<>();
         for (Long iid : iids) {
-            WorkflowInstance instance = findInstance(iid).orElse(null);
-            if (null == instance) {
-                errMessages.add("找不到该任务");
-                continue;
-            }
+            WorkflowInstance instance = findInstance(iid);
 
             //检查是否有指派权限
             if (!canPoint(instance.getModelId(), uid)) {
@@ -1418,7 +1410,7 @@ public class WorkflowService {
      * @return
      */
     public Result submitData(long uid, SubmitDataRequest request) {
-        WorkflowInstance instance = findInstance(request.getInstanceId()).orElse(null);
+        WorkflowInstance instance = findInstance(request.getInstanceId());
         if (null == instance ||
                 (!instance.getState().equals(WorkflowInstance.State.DEALING) && !instance.getState().equals(WorkflowInstance.State.COMMON))) {
             return Result.error("找不到符合条件的任务");
@@ -2797,10 +2789,10 @@ public class WorkflowService {
      * @param id  任务ID
      * @return
      */
-    public Optional<FetchWorkflowInstanceResponse> fetchInstance(long uid, long id) {
+    public FetchWorkflowInstanceResponse fetchInstance(long uid, long id) {
         User user = userService.findUser(uid).orElse(null);
-        if (null == user) return Optional.empty();
-        return findInstance(id).map(workflowInstance -> {
+        if (null == user) return null;
+        WorkflowInstance workflowInstance = findInstance(id);
             JSONObject instance = (JSONObject) JSON.toJSON(workflowInstance);
             instance.getJSONArray("nodeList").
                     stream()
@@ -2843,7 +2835,6 @@ public class WorkflowService {
             response.setTransformUsers(getTransformUids(workflowInstance.getId()));
 
             return response;
-        });
     }
 
 
@@ -2894,8 +2885,8 @@ public class WorkflowService {
      * @param id 任务ID
      * @return 任务实例
      */
-    public Optional<WorkflowInstance> findInstance(final long id) {
-        return instanceDao.findById(id);
+    public WorkflowInstance findInstance(final long id) {
+        return instanceDao.findById(id).orElseThrow(new RestException("找不到id为" + id+ "的任务"));
     }
 
     /**
@@ -3185,10 +3176,7 @@ public class WorkflowService {
     }
 
     public List<Object> getNodeDealUids(final long instanceId, final String nodeName) {
-        WorkflowInstance instance = findInstance(instanceId).orElse(null);
-        if (null == instance) {
-            return new ArrayList<>();
-        }
+        WorkflowInstance instance = findInstance(instanceId);
         WorkflowNode node = nodeDao.findTopByModelIdAndName(instance.getModelId(), nodeName).orElse(null);
         if (null == node) {
             return new ArrayList<>();

@@ -183,7 +183,7 @@ public class InfoCollectLinkController {
     ) {
         List<Long> success = new ArrayList<>();
         for (Long aLong : Utils.convertIds(id)) {
-            WorkflowInstance instance = workflowService.findInstance(aLong).orElse(null);
+            WorkflowInstance instance = workflowService.findInstance(aLong);
             if (null == instance) {
                 continue;
             }

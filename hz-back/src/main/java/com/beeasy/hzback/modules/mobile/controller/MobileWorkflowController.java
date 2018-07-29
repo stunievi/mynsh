@@ -311,7 +311,7 @@ public class MobileWorkflowController {
     @ApiOperation(value = "查询一个任务的所有明细")
     @GetMapping("/instance/fetch/{id}")
     public String fetchInstance(@PathVariable Long id){
-        return Result.finish(workflowService.fetchInstance(Utils.getCurrentUserId(),id)).toMobile();
+        return Result.ok(workflowService.fetchInstance(Utils.getCurrentUserId(),id)).toMobile();
     }
 
     @Deprecated

@@ -185,15 +185,15 @@ public class TestAsync {
             String dName = "部门" + (i + 1);
             DepartmentAdd departmentAdd = new DepartmentAdd();
             departmentAdd.setName(dName);
-            Result<Department> result = departmentService.createDepartment(departmentAdd);
-            Assert.assertTrue(result.isSuccess());
+            Department department = userService.createDepartment(departmentAdd);
+
 
             //每个部门4个角色
             for (int j = 0; j < 4; j++) {
                 qcount++;
                 String qName = "岗位" + qcount;
                 QuartersAdd quartersAdd = new QuartersAdd();
-                quartersAdd.setDepartmentId(result.getData().getId());
+                quartersAdd.setDepartmentId(department.getId());
                 quartersAdd.setName(qName);
                 Result<Quarters> ret = userService.createQuarters(quartersAdd);
                 Assert.assertTrue(ret.isSuccess());
@@ -522,14 +522,16 @@ public class TestAsync {
     FastFileStorageClient storageClient;
     @Test
     public void updateWorkflows(){
-        Object o = workflowService.getNodeDealUids(150,"是否拒贷");
+//        Object o = workflowService.getNodeDealUids(150,"是否拒贷");
 //        Object instance = instanceDao.findAll();
 //        Object objs = departmentDao.getChildDepIds(50);
 
 //        Object objs = workflowService.getCanDealUids(276l);
 //        Object objs2 = workflowService.get(180);
-        int d = 1;
+//        int d = 1;
 //        List<WorkflowModel> models = Workflow
+//        List list = departmentDao.getSameDepartments(414,"1");
+//        Assert.assertTrue(list.size() > 0);
 
     }
 }
