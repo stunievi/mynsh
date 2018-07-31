@@ -182,7 +182,7 @@ public class MessageService implements IMessageService {
 
     public List<ReadMessageResponse> userReadMessage(long fromUid, Long... toUids) {
         List<ReadMessageResponse> responses = new ArrayList<>();
-        User user = userService.findUser(fromUid).orElse(null);
+        User user = userService.findUser(fromUid);
         if (null == user) {
             return responses;
         }
@@ -217,9 +217,9 @@ public class MessageService implements IMessageService {
     }
 
     public Optional<Message> sendMessage(long fromUid, long toUid, String content, String uuid) {
-        User fromUser = userService.findUser(fromUid).orElse(null);
+        User fromUser = userService.findUser(fromUid);
         if (null == fromUser) return Optional.empty();
-        User toUser = userService.findUser(toUid).orElse(null);
+        User toUser = userService.findUser(toUid);
         if (null == toUser) return Optional.empty();
 
         if (fromUid == toUid) return Optional.empty();
@@ -306,7 +306,7 @@ public class MessageService implements IMessageService {
 
 //    public List<MessageSession> getUnreadMessageList(long uid) {
 //        List<MessageSession> ret = new ArrayList<>();
-//        User user = userService.findUser(uid).orElse(null);
+//        User user = userService.findUser(uid);
 //        if (null == user) return ret;
 //        user.getReadList().stream().forEach(messageRead -> {
 //            List<Message> list = messageDao.findAllBySessionAndIdGreaterThanOrderBySendTimeDesc(messageRead.getSession(), messageRead.getMessageId());
@@ -332,7 +332,7 @@ public class MessageService implements IMessageService {
     }
 
     public List<UnreadMessageResponse> getUnreadNums(Long fromUid, Long... toUserIds) {
-        User user = userService.findUser(fromUid).orElse(null);
+        User user = userService.findUser(fromUid);
         if (null == user) return new ArrayList<>();
         List<MessageRead> reads = user.getReadList();
         List<Long> toIds = Arrays.asList(toUserIds);
@@ -379,7 +379,7 @@ public class MessageService implements IMessageService {
 //    private Optional<MessageSession> getSession(Long... uids) {
 //        Set<User> users = new HashSet<>();
 //        for (Long uid : uids) {
-//            User user = userService.findUser(uid).orElse(null);
+//            User user = userService.findUser(uid);
 //            if (null == user) return Optional.empty();
 //            users.add(user);
 //        }

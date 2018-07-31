@@ -54,10 +54,7 @@ public class MobileWorkflowController {
     @GetMapping("/all")
     public String getAllWorkflows(){
         List<WorkflowModel> models = workflowModelDao.getAllWorkflows();
-        User user = userService.findUser(Utils.getCurrentUserId()).orElse(null);
-        if(null == user){
-            return Result.ok().toMobile();
-        }
+        User user = userService.findUser(Utils.getCurrentUserId());
         for (WorkflowModel model : models) {
             model.setPubOrPoint(workflowService.canPubOrPoint(model,user) && model.isManual());
         }
@@ -319,7 +316,7 @@ public class MobileWorkflowController {
     @GetMapping("/persons/fetch/{id}")
     public String fetchModelFirstNoePersons(@PathVariable Long id){
         WorkflowModel model = workflowService.findModel(id).orElse(null);
-        User user = userService.findUser(Utils.getCurrentUserId()).orElse(null);
+        User user = userService.findUser(Utils.getCurrentUserId());
         if(null == model || null == user){
             return Result.error().toMobile();
         }

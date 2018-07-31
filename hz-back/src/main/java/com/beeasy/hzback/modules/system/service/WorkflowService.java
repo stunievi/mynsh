@@ -194,7 +194,7 @@ public class WorkflowService {
      * @return
      */
     public Result startNewInstance(final long uid, ApplyTaskRequest request) {
-        User pubUser = userService.findUser(uid).orElse(null);
+        User pubUser = userService.findUser(uid);
         WorkflowModel workflowModel = null;
         WorkflowInstance parentInstance = null;
         if (null == pubUser) {
@@ -306,26 +306,21 @@ public class WorkflowService {
         }
         //不是公共任务的情况下,指定任务执行人
         else {
-            dealerUser = userService.findUser(request.getDealerId()).orElse(null);
-            //如果仍然为空,那么报错
-            if (null == dealerUser) {
-                return Result.error("找不到任务执行人");
-            }
+            dealerUser = userService.findUser(request.getDealerId());
             //如果是给自己执行
             if (dealerUser.getId().equals(uid)) {
                 if (!canPub(workflowModel.getId(), uid)) {
                     return Result.error("你无权发布该任务");
                 }
-                workflowInstance.setDealUserId(dealerUser.getId());
             }
             //指派给别人执行
             else {
                 if (!canPoint(workflowModel.getId(), uid)) {
                     return Result.error("你无权发布该任务");
                 }
-                workflowInstance.setDealUserId(null);
             }
 
+            workflowInstance.setDealUserName(dealerUser.getTrueName());
             //验证执行人是否有权限
             //TODO:
         }
@@ -693,7 +688,7 @@ public class WorkflowService {
      */
     @Deprecated
     public Result startChildInstance(Long uid, StartChildInstanceRequest request) {
-        User user = userService.findUser(uid).orElse(null);
+        User user = userService.findUser(uid);
         WorkflowNodeInstance nodeInstance = findNodeInstance(request.getNodeInstanceId()).orElse(null);
         if (null == user || null == nodeInstance || nodeInstance.isFinished()) {
             return Result.error("找不到合适的节点");
@@ -749,9 +744,7 @@ public class WorkflowService {
      * @return
      */
     public Map<Object, Object> acceptInstance(long uid, Collection<Long> ids) {
-        if (!userService.exists(uid)) {
-            return new HashMap<>();
-        }
+        User user = userService.findUser(uid);
         return ids.stream()
                 .map(id -> {
                     WorkflowInstance instance = findInstance(id);
@@ -761,6 +754,7 @@ public class WorkflowService {
                     //锁定该任务
                     entityManager.refresh(instance, PESSIMISTIC_WRITE);
                     instance.setDealUserId(uid);
+                    instance.setDealUserName(user.getTrueName());
                     instance.setState(WorkflowInstance.State.DEALING);
                     entityManager.merge(instance);
 
@@ -788,7 +782,7 @@ public class WorkflowService {
      * @return
      */
 //    public boolean cancelCommonInstance(long uid, long instanceId) {
-//        User user = userService.findUser(uid).orElse(null);
+//        User user = userService.findUser(uid);
 //        if (null == user) return false;
 //        WorkflowInstance instance = findInstance(instanceId).orElse(null);
 //        if (null == instance) return false;
@@ -812,7 +806,7 @@ public class WorkflowService {
      * @return
      */
     public boolean closeInstance(final long uid, final long instanceId) {
-        User user = userService.findUser(uid).orElse(null);
+        User user = userService.findUser(uid);
         WorkflowInstance workflowInstance = findInstance(instanceId);
         if(null == user){
             return false;
@@ -832,7 +826,7 @@ public class WorkflowService {
      * @return
      */
     public boolean recallInstance(long uid, long instanceId) {
-        User user = userService.findUser(uid).orElse(null);
+        User user = userService.findUser(uid);
         if (null == user) return false;
         WorkflowInstance workflowInstance = findInstance(instanceId);
             //撤回任务的限制
@@ -962,7 +956,7 @@ public class WorkflowService {
      */
     public boolean canPoint(final long modelId, final long uid) {
         WorkflowModel model = findModel(modelId).orElse(null);
-        User user = userService.findUser(uid).orElse(null);
+        User user = userService.findUser(uid);
         return null != model && null != user && canPoint(model, user);
     }
 
@@ -1084,7 +1078,7 @@ public class WorkflowService {
      */
     public Page<WorkflowInstance> getDepartmentUndealedWorks(long uid, Long lessId, Pageable pageable) {
         if (null == lessId) lessId = Long.MAX_VALUE;
-        User user = userService.findUser(uid).orElse(null);
+        User user = userService.findUser(uid);
         if (null == user) {
             return new PageImpl<>(new ArrayList<>(), pageable, 0);
         }
@@ -1103,7 +1097,7 @@ public class WorkflowService {
      */
     public Page<WorkflowInstance> getDepartmentDealedWorks(long uid, Long lessId, Pageable pageable) {
         if (null == lessId) lessId = Long.MAX_VALUE;
-        User user = userService.findUser(uid).orElse(null);
+        User user = userService.findUser(uid);
         if (null == user) {
             return new PageImpl<>(new ArrayList<>(), pageable, 0);
         }
@@ -1162,12 +1156,13 @@ public class WorkflowService {
      * @return
      */
     public Result acceptTask(long uid, Long... taskIds) {
+        User user = userService.findUser(uid);
         List<Long> successIds = new ArrayList<>();
         List<WorkflowInstanceTransaction> transactions = transactionDao.findAllByUserIdAndInstanceIdInAndStateIn(uid, Arrays.asList(taskIds), Collections.singleton(WorkflowInstanceTransaction.State.DEALING));
         for (WorkflowInstanceTransaction transaction : transactions) {
             transaction.setState(WorkflowInstanceTransaction.State.ACCEPT);
             transaction.getInstance().setState(transaction.getToState());
-            updateInstanceBelongs(transaction.getInstance(), uid);
+            updateInstanceBelongs(transaction.getInstance(), user);
 
             //更新事务
             transactionDao.save(transaction);
@@ -1181,19 +1176,19 @@ public class WorkflowService {
      * 更新任务归属
      *
      * @param instance
-     * @param uid
      */
-    private void updateInstanceBelongs(WorkflowInstance instance, long uid) {
+    private void updateInstanceBelongs(final WorkflowInstance instance, final User user) {
         Long fromUid = instance.getDealUserId();
-        instance.setDealUserId(uid);
+        instance.setDealUserId(user.getId());
+        instance.setDealUserName(user.getTrueName());
         //更新所有起始节点的经办人
         List ids = nodeInstanceDao.getStartNodeIds(instance.getId());
-        nodeInstanceDao.updateNodeInstanceDealer(uid, ids);
+        nodeInstanceDao.updateNodeInstanceDealer(user.getId(), ids);
         //更新所有子流程的归属
         if (null != fromUid) {
             List<WorkflowInstance> instances = instance.getChildInstances();
             for (WorkflowInstance workflowInstance : instances) {
-                updateInstanceBelongs(workflowInstance, uid);
+                updateInstanceBelongs(workflowInstance, user);
             }
         }
         //保存状态
@@ -1253,7 +1248,7 @@ public class WorkflowService {
      */
     public Page getUnreceivedWorks(long uid, UnreceivedWorksSearchRequest request, Long lessId, Pageable pageable) {
         if (null == lessId) lessId = Long.MAX_VALUE;
-        User user = userService.findUser(uid).orElse(null);
+        User user = userService.findUser(uid);
         if (null == user) {
             return new PageImpl<>(new ArrayList<>(), pageable, 0);
         }
@@ -1415,7 +1410,7 @@ public class WorkflowService {
                 (!instance.getState().equals(WorkflowInstance.State.DEALING) && !instance.getState().equals(WorkflowInstance.State.COMMON))) {
             return Result.error("找不到符合条件的任务");
         }
-        User user = userService.findUser(uid).orElse(null);
+        User user = userService.findUser(uid);
         if (null == user) {
             return Result.error("权限错误");
         }
@@ -1505,7 +1500,7 @@ public class WorkflowService {
         if (null == nodeInstance) {
             return Result.error("没有找到可以处理的任务, 该任务可能已经变动");
         }
-        User user = userService.findUser(uid).orElse(null);
+        User user = userService.findUser(uid);
         if (null == user) {
             return Result.error("请求用户错误");
         }
@@ -1543,7 +1538,7 @@ public class WorkflowService {
      * @return
      */
     public Result addPosition(final long uid, WorkflowPositionAddRequest request) {
-        User user = userService.findUser(uid).orElse(null);
+        User user = userService.findUser(uid);
         if (null == user) {
             return Result.error();
         }
@@ -1580,7 +1575,7 @@ public class WorkflowService {
      * @return
      */
     public boolean deleteNodeFile(final long uid, final long nodeFileId) {
-        User user = userService.findUser(uid).orElse(null);
+        User user = userService.findUser(uid);
         if (null == user) {
             return false;
         }
@@ -1609,7 +1604,7 @@ public class WorkflowService {
      * @throws IOException
      */
     public Result uploadNodeFile(final long uid, final Long instanceId, final Long nodeId, WorkflowNodeFile.Type fileType, MultipartFile file, String content, String tag) {
-        User user = userService.findUser(uid).orElse(null);
+        User user = userService.findUser(uid);
         if (null == user) {
             return Result.error();
         }
@@ -1981,7 +1976,7 @@ public class WorkflowService {
      * @return
      */
     public Page getInstanceList(long uid, Map<String, String> object, Pageable pageable) {
-        User user = userService.findUser(uid).orElse(null);
+        User user = userService.findUser(uid);
         if (null == user) {
             return new PageImpl(new ArrayList(), pageable, 0);
         }
@@ -2790,7 +2785,7 @@ public class WorkflowService {
      * @return
      */
     public FetchWorkflowInstanceResponse fetchInstance(long uid, long id) {
-        User user = userService.findUser(uid).orElse(null);
+        User user = userService.findUser(uid);
         if (null == user) return null;
         WorkflowInstance workflowInstance = findInstance(id);
             JSONObject instance = (JSONObject) JSON.toJSON(workflowInstance);

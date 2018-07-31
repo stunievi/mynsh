@@ -75,7 +75,7 @@ public class DataSearchService {
 //            sql += " and (" + StringUtils.join(limitCondition.toArray(), " or ") + ")";
 //        }
         log.error(sql);
-        User user = userService.findUser(uid).orElse(null);
+        User user = userService.findUser(uid);
         List<WorkflowModel> models = modelDao.findAllByModelNameLikeAndOpenIsTrue(("%资料收集%"));
         List<WorkflowModel> finalModels = models;
         return  sqlUtils.pageQuery(sql, pageable).map(o -> {
@@ -118,7 +118,7 @@ public class DataSearchService {
             sql += String.format(" and ( b.MAIN_BR_ID in (%s) or b.CUST_MGR in (%s) )", joinIn(limitMap.get("dep")), joinIn(limitMap.get("user")));
         }
         log.info(sql);
-        User user = userService.findUser(uid).orElse(null);
+        User user = userService.findUser(uid);
         List<WorkflowModel> models = modelDao.findAllByModelNameLikeAndOpenIsTrue(("%资料收集%"));
         List<WorkflowModel> finalModels = models;
         return  sqlUtils.pageQuery(sql, pageable).map(o -> {
@@ -200,7 +200,7 @@ public class DataSearchService {
             models = modelDao.findAllByModelNameLikeAndOpenIsTrue(("%" + request.getModelName() + "%"));
         }
         List<WorkflowModel> finalModels = models;
-        User user = userService.findUser(uid).orElse(null);
+        User user = userService.findUser(uid);
         Page page =  sqlUtils.pageQuery(sql, pageable).map(o -> {
             Map<String,String> map = (Map<String, String>) o;
             map.put("pubModelId","0");
@@ -733,7 +733,7 @@ public class DataSearchService {
     }
 
     public Map<String, List<String>> getPermissionLimit(final long uid, SearchTargetType searchTargetType) {
-        User user = userService.findUser(uid).orElse(null);
+        User user = userService.findUser(uid);
         if (null == user) {
             return null;
         }

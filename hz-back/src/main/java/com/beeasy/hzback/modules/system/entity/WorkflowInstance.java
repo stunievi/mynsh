@@ -233,16 +233,16 @@ public class WorkflowInstance {
 //    }
 
 
-    public String getDealUserName() {
-        if(!StringUtils.isEmpty(dealUserName)){
-            return dealUserName;
-        }
-        else if(null != dealUserId){
-            dealUserName = SpringContextUtils.getBean(UserService.class).findUser(dealUserId).map(User::getTrueName).orElse("");
-            return dealUserName;
-        }
-        return "";
-    }
+//    public String getDealUserName() {
+//        if(!StringUtils.isEmpty(dealUserName)){
+//            return dealUserName;
+//        }
+//        else if(null != dealUserId){
+//            dealUserName = SpringContextUtils.getBean(UserService.class).findUser(dealUserId).map(User::getTrueName).orElse("");
+//            return dealUserName;
+//        }
+//        return "";
+//    }
 
 //    public WorkflowNodeInstance getCurrentNodeInstance(){
 //        if(null == currentNodeInstance){

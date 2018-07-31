@@ -1,5 +1,6 @@
 package com.beeasy.hzback.modules.system.service;
 
+import com.beeasy.hzback.core.exception.RestException;
 import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.modules.system.dao.ISystemLogDao;
 import com.beeasy.hzback.modules.system.dao.IUserDao;
@@ -71,8 +72,8 @@ public class SystemLogService {
     }
 
     public void writeLog(final long uid, final String className, final String actionName, final Object[] arguments){
-        User user = userService.findUser(uid).orElse(null);
-        if(null != user){
+        try{
+            User user = userService.findUser(uid);
             //写日志
             SystemLog systemLog = new SystemLog();
             systemLog.setUserId(uid);
@@ -81,6 +82,9 @@ public class SystemLogService {
             systemLog.setMethod(actionName);
             systemLog.setParams(arguments);
             systemLogDao.save(systemLog);
+        }
+        catch (Exception e){
+
         }
     }
 }

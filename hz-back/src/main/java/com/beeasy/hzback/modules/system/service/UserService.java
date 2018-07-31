@@ -352,7 +352,7 @@ public class UserService implements IUserService {
      * @return
      */
     public Result<Long> updateUserFace(long uid, MultipartFile file) {
-        User user = findUser(uid).orElse(null);
+        User user = findUser(uid);
         if (null == user) {
             return Result.error();
         }
@@ -396,7 +396,7 @@ public class UserService implements IUserService {
      */
     public boolean modifyPassword(final long uid, String oldPassword, String newPassword) {
         isValidPassword(newPassword);
-        User user = findUser(uid).orElse(null);
+        User user = findUser(uid);
         if (null == user) {
             return false;
         }
@@ -442,7 +442,7 @@ public class UserService implements IUserService {
      * @return
      */
     public Result modifyProfile(long uid, ProfileEditRequest request) {
-        User user = findUser(uid).orElse(null);
+        User user = findUser(uid);
         if (null == user) {
             return Result.error();
         }
@@ -545,10 +545,7 @@ public class UserService implements IUserService {
     }
 
     public Result<User> editUser(UserEdit edit) throws RestException {
-        User user = findUser(edit.getId()).orElse(null);
-        if (null == user) {
-            return Result.error();
-        }
+        User user = findUser(edit.getId());
         if (!StringUtils.isEmpty(edit.getPhone())) {
             Optional<User> sameUser = userDao.findFirstByPhone(edit.getPhone());
             if (sameUser.isPresent() && !sameUser.get().getId().equals(user.getId())) {
@@ -754,7 +751,7 @@ public class UserService implements IUserService {
      * @return
      */
     public String[] getCommonCloudUsername(long uid) {
-        User user = findUser(uid).orElse(null);
+        User user = findUser(uid);
         if (null == user || !user.isSu()) {
             return new String[]{"", ""};
         }
@@ -782,8 +779,8 @@ public class UserService implements IUserService {
         return userDao.findAllByIdIn(ids);
     }
 
-    public Optional<User> findUser(long id) {
-        return userDao.findById(id);
+    public User findUser(final long id) {
+        return userDao.findById(id).orElseThrow(new RestException("找不到ID为" + id + "的用户"));
     }
 
     public User findUserByAccCode(String accCode) {

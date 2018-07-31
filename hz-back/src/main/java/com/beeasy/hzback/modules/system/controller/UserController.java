@@ -386,7 +386,7 @@ public class UserController {
 
     @RequestMapping(value = "/getCloudFileAccount", method = RequestMethod.GET)
     public Result getCloudFileAccount(){
-        User user = userService.findUser(Utils.getCurrentUserId()).orElse(null);
+        User user = userService.findUser(Utils.getCurrentUserId());
         if(null == user){
             return Result.error();
         }
