@@ -70,11 +70,11 @@ public class WorkFlowController {
             @ApiImplicitParam(name = "modelName", value = "要创建的标准模型", required = true)
     })
     @PostMapping("/model")
-    public Object createNewWorkFlow(
+    public String createNewWorkFlow(
             String modelName,
             @Valid WorkflowModelAdd add
     ){
-        return workflowService.createWorkflow(modelName,add).toJson(
+        return Result.ok(workflowService.createWorkflow(modelName,add)).toJson(
                 new Result.DisallowEntry(WorkflowModel.class, "nodeModels")
         );
     }
@@ -606,7 +606,7 @@ public class WorkFlowController {
     public Result getModelDealers(
             @RequestParam long id
     ){
-        return Result.ok(workflowService.getPubUsers(id));
+        return Result.ok(workflowService.getPubUsers(Utils.getCurrentUserId(),id));
     }
 
 

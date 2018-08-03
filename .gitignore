@@ -2,3 +2,5 @@
 node_modules
 target
 log.log
+docker/db2/data/*
+docker/mysql/data/*

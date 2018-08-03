@@ -65,7 +65,9 @@ public class InfoCollectLinkController {
             @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
     ) {
         Specification query = ((root, criteriaQuery, cb) -> {
-            criteriaQuery.groupBy(root.get("id"));
+//            criteriaQuery.groupBy(root.get("id"));
+            criteriaQuery.distinct(true);
+//            criteriaQuery.subquery(WorkflowInstance.class).
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.equal(root.get("modelName"), "资料收集"));
             predicates.add(cb.equal(root.get("dealUserId"), Utils.getCurrentUserId()));

@@ -19,9 +19,9 @@ public class WorkflowModelAdd {
     @NotEmpty(message = "名字不能为空")
     String name;
 
-    @ApiModelProperty(name = "version", value = "工作流版本", required = true)
-    @NotNull(message = "版本号不能为空")
-    BigDecimal version;
+//    @ApiModelProperty(name = "version", value = "工作流版本", required = true)
+//    @NotNull(message = "版本号不能为空")
+//    BigDecimal version;
 
     @ApiModelProperty(name = "info", value = "工作流描述")
     String info;

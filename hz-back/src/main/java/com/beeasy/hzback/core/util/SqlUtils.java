@@ -1,20 +1,28 @@
 package com.beeasy.hzback.core.util;
 
 import com.alibaba.druid.pool.DruidDataSource;
+import com.beeasy.hzback.core.helper.JSONConverter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.sql.DataSource;
+import java.io.PrintStream;
 import java.sql.*;
 import java.util.*;
 
+@Slf4j
 @Component
 public class SqlUtils {
+    @Value("${spring.datasource.driver-class-name}")
+    String dbDriver;
 
     @Autowired
     DataSource dataSource;
@@ -64,7 +72,11 @@ public class SqlUtils {
         return query(sql, new ArrayList<>());
     }
 
-    public List<Map<String,String>> query(String sql, Collection<String> args){
+    public List<Map<String,String>> query(String sql, Collection<Object> args){
+        return query(sql,args.toArray());
+    }
+
+    public List<Map<String,String>> query(String sql, Object ...args){
         List s = new ArrayList();
         PreparedStatement statement = null;
         ResultSet rs = null;
@@ -75,8 +87,17 @@ public class SqlUtils {
             int count = 0;
             //绑定参数
             if(null != args){
-                for (String arg : args) {
-                    statement.setString(++count, arg);
+                for (Object arg : args) {
+                    if(arg instanceof Collection){
+                        for(Object a :(Collection<Object>) arg){
+                            statement.setObject(++count, a);
+                        }
+                    }
+                    else{
+                        statement.setObject(++count, arg);
+                    }
+//                    statement.setArray();
+//                    statement.setString(++count, arg);
                 }
             }
             rs = statement.executeQuery();
@@ -121,18 +142,29 @@ public class SqlUtils {
         return s;
     }
 
+
+
     public Page pageQuery(String sql, Pageable pageable){
         return pageQuery(sql,new ArrayList<>(),pageable);
     }
 
     public Page pageQuery(String sql, Collection<String> params, Pageable pageable){
         String countSql = sql
-                .replaceFirst("select([\\w\\W]+?)from", "select count(*) as num from")
-                .replaceFirst("SELECT([\\w\\W]+?)FROM","SELECT count(*) as num FROM");
+                .replaceFirst("select([\\w\\W]+?)from", "select count(*) as NUM from")
+                .replaceFirst("SELECT([\\w\\W]+?)FROM","SELECT count(*) as NUM FROM");
         List<Map<String, String>> countList = query(countSql,params);
-        int count = Integer.valueOf(countList.get(0).getOrDefault("num","0"));
+        int count = Integer.valueOf(countList.get(0).getOrDefault("NUM","0"));
         //添加分页
-        sql += String.format(" limit %d,%d", pageable.getOffset(), pageable.getPageSize());
+        switch (dbDriver){
+            case "com.mysql.jdbc.Driver":
+                sql += String.format(" LIMIT %d, %d", pageable.getOffset(), pageable.getPageSize());
+                break;
+
+            case "com.ibm.db2.jcc.DB2Driver":
+                //https://www.ibm.com/developerworks/community/wikis/home?lang=en#!/wiki/IBM%20i%20Technology%20Updates/page/OFFSET%20and%20LIMIT
+                sql += String.format(" LIMIT %d, %d", pageable.getOffset(),pageable.getPageSize());
+                break;
+        }
         List<Map<String, String>> list = query(sql,params);
         return new PageImpl(list, pageable, count);
     }

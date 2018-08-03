@@ -89,14 +89,14 @@ public interface IGlobalPermissionDao extends JpaRepository<GlobalPermission,Lon
 
 
     @Query(value =
-            "select distinct gp from GlobalPermission gp, User user " +
+            "select gpall from GlobalPermission gpall where gpall.id in (select gp.id from GlobalPermission gp, User user " +
             "left join user.quarters uq " +
             "left join user.roles ur " +
             "where gp.type in :types and user.id = :uid and gp.userType in :userTypes and  (" +
                 "( gp.userType = 'QUARTER' and uq.id = gp.linkId ) or " +
                 "( gp.userType = 'USER' and user.id = gp.linkId ) or " +
                 "( gp.userType = 'ROLE' and ur.id = gp.linkId )" +
-            ")")
+            ") group by gp.id)")
     List<GlobalPermission> getPermissionsByUser(
             @Param("types") Collection<GlobalPermission.Type> type,
             @Param("userTypes") Collection<GlobalPermission.UserType> userTypes,

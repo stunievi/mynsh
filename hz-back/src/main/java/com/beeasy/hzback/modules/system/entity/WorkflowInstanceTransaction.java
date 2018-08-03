@@ -39,6 +39,14 @@ public class WorkflowInstanceTransaction extends AbstractBaseEntity{
     @Column(name = "user_id")
     Long userId;
 
+
+    @JSONField(serialize = false)
+    @ManyToOne
+    @JoinColumn(name = "manager_id")
+    User manager;
+    @Column(name = "manager_id", insertable = false, updatable = false)
+    Long managerId;
+
     //是否已完毕
 //    boolean finished = false;
 

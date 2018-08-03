@@ -106,7 +106,7 @@ public class LoginController {
             return Result.error("登录失败,用户名或密码错误");
         }
         //删除过期token
-        userTokenDao.cleanTokens();
+        userTokenDao.deleteAllByExprTimeLessThan(new Date());
         try{
             //查询还存在的token
             UserToken userToken = userTokenDao.findTopByUserIdAndType(user.getId(), UserToken.Type.WEB).orElse(null);

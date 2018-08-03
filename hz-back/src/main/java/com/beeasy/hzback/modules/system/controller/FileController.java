@@ -7,7 +7,6 @@ import com.beeasy.hzback.modules.system.dao.IMessageDao;
 import com.beeasy.hzback.modules.system.dao.ISystemFileDao;
 import com.beeasy.hzback.modules.system.entity.DownloadFileToken;
 import com.beeasy.hzback.modules.system.entity.SystemFile;
-import com.sun.imageio.plugins.jpeg.JPEG;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;

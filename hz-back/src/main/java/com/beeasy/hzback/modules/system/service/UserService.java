@@ -18,7 +18,6 @@ import com.beeasy.hzback.modules.system.dao.*;
 import com.beeasy.hzback.modules.system.entity.*;
 import com.beeasy.hzback.modules.system.form.*;
 import io.netty.util.internal.StringUtil;
-import jdk.nashorn.internal.objects.Global;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
@@ -679,7 +678,7 @@ public class UserService implements IUserService {
 
     @Async
     public void updateToken(String token) {
-        userTokenDao.updateToken(token, new Date(System.currentTimeMillis() + 30 * 1000 * 60));
+        userTokenDao.updateToken(token, new Date(System.currentTimeMillis() + 30 * 1000 * 60), new Date());
     }
 
 

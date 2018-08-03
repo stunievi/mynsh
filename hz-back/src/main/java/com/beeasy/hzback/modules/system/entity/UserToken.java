@@ -9,7 +9,11 @@ import java.util.Date;
 @Getter
 @Setter
 @Entity
-@Table(name = "t_user_token")
+@Table(name = "t_user_token", indexes = {
+        @Index(name = "user_id",columnList = "user_id"),
+        @Index(name = "type",columnList = "type")
+//        @Index(name = "expr_time",columnList = "EXPR_TIME")
+})
 public class UserToken {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,6 +29,7 @@ public class UserToken {
 
     Date exprTime;
 
+    @Column(length = 20)
     @Enumerated(value = EnumType.STRING)
     Type type;
 

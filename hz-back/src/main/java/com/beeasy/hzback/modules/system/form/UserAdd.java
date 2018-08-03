@@ -8,7 +8,6 @@ import lombok.Data;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
-import sun.swing.StringUIClientPropertyKey;
 
 import javax.validation.GroupSequence;
 import javax.validation.constraints.AssertTrue;

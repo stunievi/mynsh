@@ -63,6 +63,7 @@ spring:
       multipart:
         max-file-size: 10Mb
         max-request-size: 10Mb
+
 #    http:
 #      multipart:
 #        max-file-size: 10Mb
@@ -81,8 +82,8 @@ spring:
             use_query_cache: false
           archive:
             autodetection: false
-          dialect: com.beeasy.hzback.core.helper.MySQL5DialectFK
-#          dialect: com.beeasy.hzback.core.helper.DB2DialectFK
+#          dialect: com.beeasy.hzback.core.helper.MySQL5DialectFK
+          dialect: com.beeasy.hzback.core.helper.DB2DialectFK
 
 
 
@@ -93,21 +94,21 @@ spring:
     datasource:
         name: test
 #        mysql
-        url: jdbc:mysql://127.0.0.1:3306/test?useUnicode=true&characterEncoding=utf-8&useSSL=false
-        username: root
+#        url: jdbc:mysql://127.0.0.1:3306/test?useUnicode=true&characterEncoding=utf-8&useSSL=false
+#        username: root
 #        password: "!Q1q2w3e4r"
-        password: 123
-        driver-class-name: com.mysql.jdbc.Driver
+#        password: 123
+#        driver-class-name: com.mysql.jdbc.Driver
 #        mysql-end
 #        db2
-#        url: jdbc:db2://localhost:50000/test
-#        username: db2inst1
-#        password: "db2inst1-pwd"
-#        driver-class-nodeName: com.ibm.db2.jcc.DB2Driver
+        url: jdbc:db2://localhost:50000/test
+        username: db2inst1
+        password: "!Q1q2w3e4r"
+        driver-class-name: com.ibm.db2.jcc.DB2Driver
 #        db2-end
         # 使用druid数据源
-        type: org.springframework.jdbc.datasource.DriverManagerDataSource
-#        type: com.alibaba.druid.pool.DruidDataSource
+#        type: org.springframework.jdbc.datasource.DriverManagerDataSource
+        type: com.alibaba.druid.pool.DruidDataSource
         filters: stat
         maxActive: 20
         initialSize: 1
@@ -131,6 +132,9 @@ spring:
 
     session:
         store-type: none
+    mvc:
+      async:
+        request-timeout: 30000
 
 
 

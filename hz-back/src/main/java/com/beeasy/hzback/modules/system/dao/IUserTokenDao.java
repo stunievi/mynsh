@@ -12,18 +12,15 @@ import java.util.Optional;
 
 public interface IUserTokenDao extends JpaRepository<UserToken,Long> {
 
-    @Query(value = "select ut.userId from UserToken ut where ut.exprTime > CURRENT_TIME() and token = :token")
-    List getUidFromToken(@Param("token") String token);
+    @Query(value = "select ut.userId from UserToken ut where ut.exprTime > :now and token = :token")
+    List getUidFromToken(@Param("token") String token,@Param("now") Date date);
 
     @Modifying
-    @Query(value = "update UserToken set exprTime = :exprTime where exprTime > current_time() and token = :token")
-    int updateToken(@Param("token") String token, @Param("exprTime") Date exprTime);
+    @Query(value = "update UserToken set exprTime = :exprTime where exprTime > :now and token = :token")
+    int updateToken(@Param("token") String token, @Param("exprTime") Date exprTime, @Param("now") Date now);
 
     int deleteAllByExprTimeLessThan(Date date);
 
-    @Modifying
-    @Query(value = "delete from UserToken where exprTime <= current_time() ")
-    int cleanTokens();
 
     Optional<UserToken> findTopByUserIdAndType(final long uid, UserToken.Type type);
 

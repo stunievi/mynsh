@@ -33,13 +33,18 @@ public class User implements Serializable{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
+    @Column(unique = true, length = 20)
     private String username;
+
+    @Column(length = 50)
     @JSONField(serialize = false)
     private String password;
 
+    @Column(length = 20)
     private String trueName;
+    @Column(length = 20)
     private String phone;
+    @Column(length = 50)
     private String email;
 
     private String letter;
@@ -90,12 +95,12 @@ public class User implements Serializable{
 //    @OneToMany(mappedBy = "user")
 //    private List<GlobalPermissionCenter> gpCenters = new ArrayList<>();
 
-    @JSONField(serialize = false)
-    @Transient
-    public boolean hasQuarters(long id){
-        return getQuarters().stream()
-                    .anyMatch(q -> q.getId().equals(id));
-    }
+
+//    @Transient
+//    public boolean hasQuarters(long id){
+//        return getQuarters().stream()
+//                    .anyMatch(q -> q.getId().equals(id));
+//    }
 
 
 

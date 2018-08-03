@@ -16,10 +16,10 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IWorkflowModelDao extends JpaRepository<WorkflowModel,Long>, JpaSpecificationExecutor{
-    WorkflowModel findFirstByNameAndVersion(String name, BigDecimal version);
+    Optional<WorkflowModel> findTopByName(String name);
     Page<List<WorkflowModel>> findAllByName(String name, Pageable pageable);
 
-    List<WorkflowModel> findAllByModelNameAndOpenIsTrueOrderByVersionDesc(String modelName);
+    List<WorkflowModel> findAllByModelNameAndOpenIsTrue(String modelName);
 
     //查找可用的版本列表
     List<WorkflowModel> findAllByOpenIsTrue();
@@ -30,12 +30,10 @@ public interface IWorkflowModelDao extends JpaRepository<WorkflowModel,Long>, Jp
     Optional<WorkflowModel> findTopByModelNameAndOpenIsTrue(final String modelName);
     List<WorkflowModel> findAllByModelNameLikeAndOpenIsTrue(final String modelName);
 
-    Optional<WorkflowModel> findFirstByModelNameAndOpenIsTrueOrderByVersionDesc(String modelName);
-
-    @Query(value = "select m.id from WorkflowModel m where m.modelName = :modelName and m.open = true order by m.version desc ")
+    @Query(value = "select m.id from WorkflowModel m where m.modelName = :modelName and m.open = true")
     List<Long> findModelId(@Param("modelName") String modelName);
 
-    @Query(value = "select m from WorkflowModel m where m.open = true order by m.version desc")
+    @Query(value = "select m from WorkflowModel m where m.open = true")
     List<WorkflowModel> getAllWorkflows();
 
     List<WorkflowModel> findAllByIdIn(List<Long> id);

@@ -4,7 +4,6 @@ import bin.leblanc.maho.RPCOption;
 import bin.leblanc.maho.RPCall;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.modules.system.service.UserService;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;

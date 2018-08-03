@@ -92,7 +92,7 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
             uid = Long.valueOf(token);
         }
         else{
-            List objects = userTokenDao.getUidFromToken(token);
+            List objects = userTokenDao.getUidFromToken(token,new Date());
             if(objects.size() > 0){
                 uid = (Long) objects.get(0);
                 userService.updateToken(token);

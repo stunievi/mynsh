@@ -65,7 +65,6 @@ import static javax.persistence.LockModeType.PESSIMISTIC_WRITE;
 @Transactional
 public class WorkflowService {
 
-
     @Autowired
     IInfoCollectLinkDao linkDao;
     @Autowired
@@ -267,7 +266,7 @@ public class WorkflowService {
         } else {
             department = globalPermissions.stream()
                     .filter(item -> item.getUserType().equals(GlobalPermission.UserType.QUARTER))
-                    .filter(item -> userService.hasQuarters(uid, item.getLinkId()))
+                    .filter(item -> userService.hasQuarters(request.getDealerId(), item.getLinkId()))
                     .findFirst()
                     .flatMap(item -> userService.findQuarters(item.getLinkId()))
                     .map(item -> item.getDepartment())
@@ -409,6 +408,7 @@ public class WorkflowService {
                 workflowInstance.setSecondState(WorkflowInstance.SecondState.POINT);
                 //增加一条指派申请
                 WorkflowInstanceTransaction transcation = new WorkflowInstanceTransaction();
+                transcation.setManager(pubUser);
                 transcation.setFromState(WorkflowInstance.State.UNRECEIVED);
                 transcation.setToState(WorkflowInstance.State.DEALING);
                 transcation.setInstanceId(workflowInstance.getId());
@@ -454,7 +454,6 @@ public class WorkflowService {
             nodeInstanceDealersDao.save(dealers);
         }
 
-
         //记录日志
         logService.addLog(SystemTextLog.Type.WORKFLOW, workflowInstance.getId(), uid, "发布了任务");
         if (null != dealerUser) {
@@ -469,7 +468,8 @@ public class WorkflowService {
         }
 
         //第一个节点数据复写
-        if (!request.isCommon()) {
+        //检查任务是否可以继续
+        if (workflowInstance.getState().equals(WorkflowInstance.State.DEALING)) {
             WorkflowInstance finalWorkflowInstance = workflowInstance;
             WorkflowNodeInstance finalNodeInstance = nodeInstance;
             Result submitResult = submitData(uid, new SubmitDataRequest() {{
@@ -765,7 +765,7 @@ public class WorkflowService {
                     nodeInstanceDao.save(nodeInstance);
 
                     //message
-                    noticeService.addNotice(SystemNotice.Type.WORKFLOW, uid, "你已经接受任务 %s".format(instance.getTitle()), ImmutableMap.of("taskId", instance.getId(), "taskName", instance.getTitle()));
+                    noticeService.addNotice(SystemNotice.Type.WORKFLOW, uid, String.format("你已经接受任务 %s", instance.getTitle()), ImmutableMap.of("taskId", instance.getId(), "taskName", instance.getTitle()));
                     //写log
                     logService.addLog(SystemTextLog.Type.WORKFLOW, instance.getId(), uid, "接受了任务");
                     return new Object[]{id, "接受成功"};
@@ -987,6 +987,10 @@ public class WorkflowService {
                 .anyMatch(item -> item.isManager() && null != instance.getDepId() && instance.getDepId().equals(item.getDepartmentId()));
     }
 
+//    public List<User> getManagersFromInstance(final WorkflowInstance instance){
+//
+//    }
+
     /**
      * 是否可以移交
      *
@@ -1167,7 +1171,17 @@ public class WorkflowService {
             //更新事务
             transactionDao.save(transaction);
             successIds.add(transaction.getId());
-            //TODO: 发送消息
+
+            //得到任务主管
+            if(null != transaction.getManagerId()){
+                noticeService.addNotice(SystemNotice.Type.WORKFLOW,
+                        transaction.getManagerId(),
+                        String.format("任务 %s 已被 %s 接受", transaction.getInstance().getTitle(), user.getTrueName()),
+                        Utils.newMap(
+                                "taskId", transaction.getInstanceId()
+                        )
+                );
+            }
         }
         return Result.ok(successIds);
     }
@@ -1203,7 +1217,8 @@ public class WorkflowService {
      * @param taskIds
      * @return
      */
-    public Result rejectTask(long uid, String info, Long... taskIds) {
+    public Result rejectTask(final long uid, final String info, Long... taskIds) {
+        User user = userService.findUser(uid);
         List<Long> successIds = new ArrayList<>();
         List<WorkflowInstanceTransaction> transactions = transactionDao.findAllByUserIdAndInstanceIdInAndStateIn(uid, Arrays.asList(taskIds), Collections.singleton(WorkflowInstanceTransaction.State.DEALING));
         for (WorkflowInstanceTransaction transaction : transactions) {
@@ -1217,7 +1232,15 @@ public class WorkflowService {
 //            //更新事务
             transactionDao.save(transaction);
             successIds.add(transaction.getId());
-            //TODO: 发送消息
+
+            //发送消息
+            noticeService.addNotice(SystemNotice.Type.WORKFLOW,
+                    transaction.getManagerId(),
+                    String.format("%s 拒绝接受任务 %s ，拒绝理由：%s", user.getTrueName(), transaction.getInstance().getTitle(), info),
+                    Utils.newMap(
+                            "taskId", transaction.getInstanceId()
+                    )
+            );
         }
         return Result.ok(successIds);
     }
@@ -1331,6 +1354,7 @@ public class WorkflowService {
      * @return 处理成功的任务ID
      */
     public Result pointTask(long uid, Collection<Long> iids, long toUid) {
+        User manager = userService.findUser(uid);
         List<Long> success = new ArrayList<>();
         List<String> errMessages = new ArrayList<>();
         for (Long iid : iids) {
@@ -1371,6 +1395,7 @@ public class WorkflowService {
             transaction.setToState(WorkflowInstance.State.DEALING);
             transaction.setInstanceId(instance.getId());
             transaction.setUserId(toUid);
+            transaction.setManager(manager);
             transactionDao.save(transaction);
             instance.setState(WorkflowInstance.State.PAUSE);
             if (instance.getState().equals(WorkflowInstance.State.DEALING)) {
@@ -1469,7 +1494,7 @@ public class WorkflowService {
                         .filter(item -> item > 0)
                         .distinct()
                         .collect(Collectors.toList());
-                noticeService.addNotice(SystemNotice.Type.WORKFLOW, notDealUids, "你的任务 %s 节点 %s 已被别人处理".format(instance.getTitle(), nodeInstance.getNodeName()), ImmutableMap.of(
+                noticeService.addNotice(SystemNotice.Type.WORKFLOW, notDealUids, String.format("你的任务 %s 节点 %s 已被别人处理", instance.getTitle(), nodeInstance.getNodeName()), ImmutableMap.of(
                         "taskId", instance.getId(),
                         "taskName", instance.getTitle(),
                         "nodeId", nodeInstance.getId(),
@@ -1770,21 +1795,21 @@ public class WorkflowService {
     }
 
     /**
-     * 根据已有模型创建新工作流模型
+     * create a new model of workflow by pre-defined model
      *
      * @param modelName 要创建的模型名称
      * @param add       请求明细
      * @return 是否创建成功
      */
-    public Result<WorkflowModel> createWorkflow(String modelName, WorkflowModelAdd add) {
+    public WorkflowModel createWorkflow(String modelName, WorkflowModelAdd add) {
         Map<String, Map> map = (Map) cache.getWorkflowConfig();
         if (!map.containsKey(modelName)) {
-            return Result.error("没找到工作流模型");
+            throw new RestException("没找到工作流模型");
         }
         Map model = map.get(modelName);
         Map flow = (Map) model.getOrDefault("flow", new HashMap<>());
-        WorkflowModel same = modelDao.findFirstByNameAndVersion(add.getName(), add.getVersion());
-        if (same != null) return Result.error("已经有相同版本的工作流");
+        WorkflowModel same = modelDao.findTopByName(add.getName()).orElse(null);
+        if (same != null) throw new RestException("已经有同名的工作流");
 
         WorkflowModel workflowModel = Transformer.transform(add, WorkflowModel.class);
         Map<String, BaseNode> nodes = new HashMap<>();
@@ -1868,11 +1893,7 @@ public class WorkflowService {
         boolean custom = (boolean) model.getOrDefault("custom", true);
         workflowModel.setCustom(custom);
 
-        WorkflowModel result = modelDao.save(workflowModel);
-        if (null != result.getId()) {
-            return Result.ok(result);
-        }
-        return Result.error();
+        return modelDao.save(workflowModel);
     }
 
 
@@ -2318,7 +2339,7 @@ public class WorkflowService {
                         "nodeId", currentNode.getId(),
                         "nodeName", currentNode.getNodeName()
                 );
-                noticeService.addNotice(SystemNotice.Type.WORKFLOW, uids, "你已处理完毕任务 %s 节点 %s".format(instance.getTitle(), currentNode.getNodeName()), map);
+                noticeService.addNotice(SystemNotice.Type.WORKFLOW, uids, String.format("你已处理完毕任务 %s 节点 %s", instance.getTitle(), currentNode.getNodeName()), map);
 
                 break;
 
@@ -2388,7 +2409,7 @@ public class WorkflowService {
                         .distinct()
                         .collect(Collectors.toList());
 //                List<Long> uids = globalPermissionDao.getUids(Collections.singleton(GlobalPermission.Type.WORKFLOW_MAIN_QUARTER), newNode.getNodeModelId());
-                noticeService.addNotice(SystemNotice.Type.WORKFLOW, uids, "你有新的任务 %s 节点 %s 可以处理".format(instance.getTitle(), newNode.getNodeName()), ImmutableMap.of(
+                noticeService.addNotice(SystemNotice.Type.WORKFLOW, uids, String.format("你有新的任务 %s 节点 %s 可以处理", instance.getTitle(), newNode.getNodeName()), ImmutableMap.of(
                         "taskId", newNode.getInstanceId(),
                         "taskName", instance.getTitle(),
                         "nodeId", newNode.getId(),
@@ -2397,7 +2418,7 @@ public class WorkflowService {
             case logic:
                 break;
             case end:
-                noticeService.addNotice(SystemNotice.Type.WORKFLOW, instance.getDealUserId(), "你的任务 %s 已经结束".format(instance.getTitle()), ImmutableMap.of(
+                noticeService.addNotice(SystemNotice.Type.WORKFLOW, instance.getDealUserId(), String.format("你的任务 %s 已经结束", instance.getTitle()), ImmutableMap.of(
                         "taskId", newNode.getInstanceId(),
                         "taskName", instance.getTitle()
                 ));
@@ -3120,6 +3141,21 @@ public class WorkflowService {
                 .collect(Collectors.toList());
     }
 
+    public List getPubPointUids(final long uid, final long modelId){
+        User user = userService.findUser(uid);
+        List<Long> dids = user.getQuarters().stream()
+                .filter(Quarters::isManager)
+                .map(Quarters::getDepartmentId)
+                .distinct()
+                .collect(Collectors.toList());
+        if(dids.size() == 0){
+            return new ArrayList();
+        }
+        return sqlUtils.query("SELECT DISTINCT uid as id,uname as trueName,phone FROM t_global_permission_center gpc WHERE gpc.type = ? AND gpc.did IN ? and gpc.object_id = ?","WORKFLOW_PUB", dids, modelId);
+//        String sql = String.format("SELECT DISTINCT uid as id,uname as trueName,phone FROM t_global_permission_center gpc WHERE gpc.type = 'WORKFLOW_PUB' AND gpc.did IN (%s) and gpc.object_id = '%d'", StringUtils.join(dids.toArray(),","), modelId);
+//        return sqlUtils.query(sql);
+    }
+
 
     public List<Object> getCanDealUids(final long nodeInstanceId) {
         String sql =
@@ -3216,12 +3252,11 @@ public class WorkflowService {
         return objects;
     }
 
-    public Page getPubUsers(long modelId) {
+    public Page getPubUsers(final long uid, final long modelId) {
         //TODO: BUG
-        List<Long> uids = getTransformUids(modelId);
-        PageRequest pageRequest = new PageRequest(0, 200);
-        List<User> users = userService.findUser(uids);
-        return new PageImpl(users, pageRequest, users.size());
+        List uids = getPubPointUids(uid, modelId);
+        PageRequest pageRequest = PageRequest.of(0, 2000);
+        return new PageImpl(uids, pageRequest, uids.size());
     }
 
 

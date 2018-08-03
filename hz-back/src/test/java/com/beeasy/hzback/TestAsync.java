@@ -12,7 +12,6 @@ import com.beeasy.hzback.modules.system.entity.*;
 import com.beeasy.hzback.modules.system.form.*;
 import com.beeasy.hzback.modules.system.service.*;
 import com.github.tobato.fastdfs.service.FastFileStorageClient;
-import jdk.nashorn.internal.objects.Global;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.hibernate.SQLQuery;
@@ -92,9 +91,9 @@ public class TestAsync {
         for (String modelName : modelNames) {
             WorkflowModelAdd edit = new WorkflowModelAdd();
             edit.setName(modelName);
-            edit.setVersion(BigDecimal.valueOf(1.0 + 1 * 0.01));
-            Result<WorkflowModel> result = workflowService.createWorkflow(modelName, edit);
-            Assert.assertTrue(result.isSuccess());
+//            edit.setVersion(BigDecimal.valueOf(1.0 + 1 * 0.01));
+            WorkflowModel result = workflowService.createWorkflow(modelName, edit);
+            Assert.assertTrue(result.getId() != null);
         }
         if(true) return;
 
@@ -103,13 +102,8 @@ public class TestAsync {
             for (String modelName : modelNames) {
                 WorkflowModelAdd edit = new WorkflowModelAdd();
                 edit.setName(modelName);
-                edit.setVersion(BigDecimal.valueOf(1.0 + i * 0.01));
-                Result<WorkflowModel> result = workflowService.createWorkflow(modelName, edit);
-
-                if(null == result.getData()){
-                    int d = 1;
-                }
-                WorkflowModel workflowModel = result.getData();
+//                edit.setVersion(BigDecimal.valueOf(1.0 + i * 0.01));
+                WorkflowModel workflowModel = workflowService.createWorkflow(modelName, edit);
                 //附加人员
                 List<Department> departments = departmentDao.findAllByName("部门1");
                 Assert.assertTrue(departments.size() > 0);
@@ -522,6 +516,13 @@ public class TestAsync {
     FastFileStorageClient storageClient;
     @Test
     public void updateWorkflows(){
+//        var a = new ArrayList();
+//        var b = new ArrayList<>();
+//        List list = entityManager.createNativeQuery("SELECT * FROM ACC_LOAN")
+//                .pa
+//                .setFirstResult(10).setMaxResults(100)
+//                .getResultList();
+//        int d = 1;
 //        Object o = workflowService.getNodeDealUids(150,"是否拒贷");
 //        Object instance = instanceDao.findAll();
 //        Object objs = departmentDao.getChildDepIds(50);

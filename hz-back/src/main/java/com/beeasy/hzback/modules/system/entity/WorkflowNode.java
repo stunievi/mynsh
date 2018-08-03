@@ -36,7 +36,8 @@ public class WorkflowNode extends AbstractBaseEntity{
 
     String name;
 
-    @Enumerated
+    @Column(length = 20)
+    @Enumerated(value = EnumType.STRING)
     Type type;
 
     @Convert(converter = StringCommaConverter.class)

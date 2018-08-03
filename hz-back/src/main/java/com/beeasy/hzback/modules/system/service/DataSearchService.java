@@ -12,7 +12,6 @@ import com.beeasy.hzback.modules.system.form.GlobalPermissionEditRequest;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import io.netty.util.internal.StringUtil;
-import jdk.nashorn.internal.objects.Global;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;

@@ -10,7 +10,9 @@ import java.util.Date;
 @Entity
 @Getter
 @Setter
-@Table(name = "t_notice_trigger_log")
+@Table(name = "t_notice_trigger_log", indexes = {
+    @Index(name = "scan", columnList = "triggerTime,ruleName,uuid")
+})
 public class NoticeTriggerLog extends AbstractBaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

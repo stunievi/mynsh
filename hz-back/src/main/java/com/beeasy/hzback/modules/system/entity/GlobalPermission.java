@@ -3,7 +3,6 @@ package com.beeasy.hzback.modules.system.entity;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.core.entity.AbstractBaseEntity;
 import com.beeasy.hzback.core.helper.JSONConverter;
-import jdk.nashorn.internal.objects.Global;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -35,7 +35,7 @@ public class WorkflowModel {
     @Column(length = 20)
     String name;
 
-    BigDecimal version;
+//    BigDecimal version;
 
     @Column(length = 200)
     String info;
