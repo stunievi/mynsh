@@ -1,4 +1,4 @@
-CREATE VIEW t_global_permission_center AS SELECT
+CREATE OR REPLACE VIEW t_global_permission_center AS SELECT
 	gp."TYPE" AS TYPE ,
 	gp.user_type AS user_type ,
 	gp.object_id AS object_id ,

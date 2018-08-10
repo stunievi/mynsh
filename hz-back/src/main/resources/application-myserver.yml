@@ -103,7 +103,7 @@ spring:
 #        db2
         url: jdbc:db2://localhost:50000/test
         username: db2inst1
-        password: "!Q1q2w3e4r"
+        password: db2inst1
         driver-class-name: com.ibm.db2.jcc.DB2Driver
 #        db2-end
         # 使用druid数据源

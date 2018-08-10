@@ -1,8 +1,7 @@
 package bin.leblanc.test;
 
 import com.beeasy.hzback.Application;
-import com.beeasy.hzback.modules.system.entity.User;
-import lombok.extern.slf4j.Slf4j;
+import com.beeasy.hzback.modules.system.entity_kt.User;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +16,6 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import java.util.List;
 
-@Slf4j
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)
 public class TestJpa {
@@ -40,7 +38,7 @@ public class TestJpa {
         result = q.getResultList();
 
 //        log.info(result.get(0).get(0).toString());
-        log.info(result.get(0).equals(result.get(1)) ? "1" : "0");
+//        log.info(result.get(0).equals(result.get(1)) ? "1" : "0");
     }
 
     @Test

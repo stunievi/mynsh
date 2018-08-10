@@ -1,8 +1,8 @@
 package com.beeasy.hzback.modules.system.response;
 
-import com.beeasy.hzback.modules.system.entity.Department;
-import com.beeasy.hzback.modules.system.entity.User;
-import com.beeasy.hzback.modules.system.entity.UserProfile;
+import com.beeasy.hzback.modules.system.entity_kt.Department;
+import com.beeasy.hzback.modules.system.entity_kt.User;
+import com.beeasy.hzback.modules.system.entity_kt.UserProfile;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

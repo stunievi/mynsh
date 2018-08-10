@@ -56,6 +56,10 @@ public class MySQL5DialectFK extends MySQL5Dialect implements DialectFK{
                 return "LONGTEXT";
             case JSONConverter.blobType:
                 return "LONGBLOB";
+            case JSONConverter.VARCHAR_20:
+                return "VARCHAR(20)";
+            case JSONConverter.VARCHAR_5O:
+                return "VARCHAR(50)";
         }
         return column;
     }

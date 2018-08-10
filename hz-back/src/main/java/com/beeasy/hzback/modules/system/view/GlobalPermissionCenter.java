@@ -1,7 +1,7 @@
 //package com.beeasy.hzback.modules.system.view;
 //
 //
-//import com.beeasy.hzback.modules.system.entity.GlobalPermission;
+//import com.beeasy.hzback.modules.system.entity_kt.GlobalPermission;
 //import lombok.Getter;
 //import lombok.Setter;
 //import lombok.ToString;

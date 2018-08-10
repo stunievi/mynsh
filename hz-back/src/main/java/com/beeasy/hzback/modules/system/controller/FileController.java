@@ -6,7 +6,7 @@ import com.beeasy.hzback.modules.system.dao.IDownloadFileTokenDao;
 import com.beeasy.hzback.modules.system.dao.IMessageDao;
 import com.beeasy.hzback.modules.system.dao.ISystemFileDao;
 import com.beeasy.hzback.modules.system.entity.DownloadFileToken;
-import com.beeasy.hzback.modules.system.entity.SystemFile;
+import com.beeasy.hzback.modules.system.entity_kt.SystemFile;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.Optional;
 

@@ -1,17 +1,16 @@
 package com.beeasy.hzback.modules.system.controller;
 
-import bin.leblanc.classtranslate.Transformer;
 import com.beeasy.hzback.core.exception.RestException;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.modules.system.dao.IDepartmentDao;
 import com.beeasy.hzback.modules.system.dao.IQuartersDao;
-import com.beeasy.hzback.modules.system.entity.Quarters;
+import com.beeasy.hzback.modules.system.entity_kt.Quarters;
+import com.beeasy.hzback.modules.system.entity_kt.QuartersAddRequest;
+import com.beeasy.hzback.modules.system.entity_kt.QuartersEditRequest;
 import com.beeasy.hzback.modules.system.form.Pager;
-import com.beeasy.hzback.modules.system.form.QuartersAdd;
-import com.beeasy.hzback.modules.system.form.QuartersEdit;
 import com.beeasy.hzback.modules.system.service.QuartersService;
-import com.beeasy.hzback.modules.system.service.UserService;
+import com.beeasy.hzback.modules.system.service_kt.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -59,13 +58,11 @@ public class QuartersController {
     @ApiOperation(value = "添加岗位", notes = "添加一个岗位")
     @PostMapping("")
     public Object add(
-            @Valid QuartersAdd add,
+            @Valid QuartersAddRequest add,
             BindingResult bindingResult
             ) throws RestException {
 
-        return userService.createQuarters(add);
-//        Quarters quarters = userService.createQuarters(add);
-//        return Result.finish(quarters != null && quarters.getId() > 0);
+        return Result.ok(userService.createQuarters(add));
     }
 
     /**
@@ -76,12 +73,12 @@ public class QuartersController {
     @ApiOperation(value = "编辑岗位", notes = "编辑一个岗位")
     @PutMapping("")
     public Result edit(
-            @Valid QuartersEdit edit
+            @Valid QuartersEditRequest edit
     ){
         /*
          * @gotomars
          * */
-        return userService.updateQuarters(edit);
+        return Result.ok(userService.updateQuarters(edit));
     }
 
 
@@ -94,7 +91,7 @@ public class QuartersController {
     public Result delete(
             @RequestParam String id
     ){
-        return userService.deleteQuarters(Utils.convertIds(id));
+        return Result.ok(userService.deleteQuarters(Utils.convertIdsToList(id)));
     }
 
 }

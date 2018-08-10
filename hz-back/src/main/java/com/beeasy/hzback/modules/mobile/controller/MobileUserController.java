@@ -10,11 +10,11 @@ import com.beeasy.hzback.modules.mobile.request.UserLoginRequest;
 import com.beeasy.hzback.modules.mobile.response.UserLoginResponse;
 import com.beeasy.hzback.modules.system.dao.IDepartmentDao;
 import com.beeasy.hzback.modules.system.dao.IUserDao;
-import com.beeasy.hzback.modules.system.entity.Department;
-import com.beeasy.hzback.modules.system.entity.Quarters;
-import com.beeasy.hzback.modules.system.entity.User;
+import com.beeasy.hzback.modules.system.entity_kt.Department;
+import com.beeasy.hzback.modules.system.entity_kt.Quarters;
+import com.beeasy.hzback.modules.system.entity_kt.User;
 import com.beeasy.hzback.modules.system.service.DepartmentService;
-import com.beeasy.hzback.modules.system.service.UserService;
+import com.beeasy.hzback.modules.system.service_kt.UserService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,7 +46,7 @@ public class MobileUserController {
     IUserDao userDao;
     @Autowired
     IDepartmentDao departmentDao;
-    @Autowired
+//    @Autowired
     CloudApi cloudApi;
 
 
@@ -91,18 +91,19 @@ public class MobileUserController {
         Map<String,String> map = RSAUtils.createKeys(1024);
         userDao.updateUserKeys(map.get("privateKey"),map.get("publicKey"),user.getUsername());
         UserLoginResponse response = new UserLoginResponse(token,user,map.get("publicKey"),CLOUD_COMMON_ROOT_ID);
-        String[] privateUser = userService.getPrivateCloudUsername(user.getId());
-        String[] commonUser = userService.getCommonCloudUsername(user.getId());
-        response.setCloudUsername(privateUser[0]);
-        response.setCloudPassword(privateUser[1]);
-        response.setCloudCommonUsername(commonUser[0]);
-        response.setCloudCommonPassword(commonUser[1]);
+//        String[] privateUser = userService.getPrivateCloudUsername(user.getId());
+//        String[] commonUser = userService.getCommonCloudUsername(user.getId());
+//        response.setCloudUsername(privateUser[0]);
+//        response.setCloudPassword(privateUser[1]);
+//        response.setCloudCommonUsername(commonUser[0]);
+//        response.setCloudCommonPassword(commonUser[1]);
         return Result.ok(response).toJson(userEntries);
     }
 
     @PostMapping("/user/face/edit")
     public String uploadFace(@RequestParam MultipartFile file){
-        return (userService.updateUserFace(Utils.getCurrentUserId(),file)).toMobile();
+        return null;
+//        return (userService.updateUserFace(Utils.getCurrentUserId(),file)).toMobile();
     }
 
     @PostMapping("/users")
@@ -156,13 +157,15 @@ public class MobileUserController {
     @ApiOperation(value = "登录私有云系统")
     @GetMapping("/user/loginCloud")
     public String loginFileCloudSystem(){
-        return userService.loginFileCloudSystem(Utils.getCurrentUserId()).toJson();
+        return "";
+//        return userService.loginFileCloudSystem(Utils.getCurrentUserId()).toJson();
     }
 
     @ApiOperation(value = "登录公共文件柜")
     @GetMapping("/user/loginCloudCommon")
     public String loginFileCloudCommonSystem(){
-        return userService.loginFileCloudCommonSystem(Utils.getCurrentUserId()).toJson();
+        return "";
+//        return userService.loginFileCloudCommonSystem(Utils.getCurrentUserId()).toJson();
     }
 
 //    @GetMapping("/department/{did}/uids")

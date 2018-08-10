@@ -1,85 +1,10 @@
 #!/bin/bash
-set -e
-#
-#   Initialize DB2 instance in a Docker container
-#
-# # Authors:
-#   * Leo (Zhong Yu) Wu       <leow@ca.ibm.com>
-#
-# Copyright 2015, IBM Corporation
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-if [ -z "$DB2INST1_PASSWORD" ]; then
-  echo ""
-  echo >&2 'error: DB2INST1_PASSWORD not set'
-  echo >&2 'Did you forget to add -e DB2INST1_PASSWORD=... ?'
-  exit 1
+if [ ! -d "/home/db2inst1" ]; then
+    ./createInstance
+    su - db2inst1 -c "db2start"
+    su - db2inst1 -c "db2 CREATE db test USING CODESET UTF-8 TERRITORY CN"
 else
-  echo -e "$DB2INST1_PASSWORD\n$DB2INST1_PASSWORD" | passwd db2inst1
+    su - db2inst1 -c "db2start"
 fi
-
-if [ -z "$LICENSE" ];then
-   echo ""
-   echo >&2 'error: LICENSE not set'
-   echo >&2 "Did you forget to add '-e LICENSE=accept' ?"
-   exit 1
-fi
-
-if [ "${LICENSE}" != "accept" ];then
-   echo ""
-   echo >&2 "error: LICENSE not set to 'accept'"
-   echo >&2 "Please set '-e LICENSE=accept' to accept License before use the DB2 software contained in this image."
-   exit 1
-fi
-
-su - db2inst1 -c "db2start"
-
-#检查数据库文件夹是否存在
-if [ ! -d "/db2data/data" ]; then
-    echo ""
-    chmod 777 /db2data
-    mkdir /db2data/data
-    mkdir /db2data/dbpath
-    mkdir /db2data/log
-    chown db2inst1 /db2data
-    chown db2inst1 /db2data/data
-    chown db2inst1 /db2data/dbpath
-    chown db2inst1 /db2data/log
-#    su - db2inst1
-#    mkdir /db2data/data
-#    mkdir /db2data/dbpath
-#    bash
-#    su - db2inst1 -c "chmod 777 /db2data"
-#    su - db2inst1 -c "chmod 777 /db2data/data"
-#    su - db2inst1 -c "chmod 777 /db2data/dbpath"
-#    su - db2inst1 "mkdir -p /db2data/data"
-#    su - db2inst1 "mkdir /db2data/dbpat"
-#    su - db2inst1 "mkdir /db2data/log"
-    su - db2inst1 -c "db2 create db mydb on /db2data/data dbpath on /db2data/dbpath using codeset utf-8 territory cn"
-    su - db2inst1 -c "db2 update db cfg for mydb using newlogpath /db2data/log"
-    su - db2inst1 -c "db2 activate db mydb"
-else
-    su - db2inst1 -c "db2 catalog db mydb as mydb on /db2data/dbpath"
-    su - db2inst1 -c "db2 connect to mydb"
-fi
-
-#if [[ $1 = "db2start" ]]; then
-#else
-#  exec "$1"
-#fi
-
-#exec "/bin/bash"
-
 nohup /usr/sbin/sshd -D 2>&1 > /dev/null &
 while true; do sleep 1000; done

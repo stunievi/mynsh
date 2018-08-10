@@ -1,13 +1,11 @@
 package com.beeasy.hzback.modules.system.dao;
 
-import com.beeasy.hzback.modules.system.entity.GlobalPermission;
+import com.beeasy.hzback.modules.system.entity_kt.GlobalPermission;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import javax.swing.text.html.Option;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 

@@ -1,18 +1,14 @@
 package com.beeasy.hzback.modules.system.service;
 
 
-import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.modules.system.dao.IDepartmentDao;
-import com.beeasy.hzback.modules.system.entity.Department;
-import com.beeasy.hzback.modules.system.form.DepartmentAdd;
-import com.beeasy.hzback.modules.system.form.DepartmentEdit;
+import com.beeasy.hzback.modules.system.entity_kt.Department;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional
@@ -30,10 +26,12 @@ public class DepartmentService {
         if(!StringUtils.isEmpty(name)){
             return (departmentDao.findAllByName(name));
         }
-        if(parentId != null && parentId.equals(0)){
-            parentId = null;
+        if(parentId == null || parentId.equals(0L)){
+            return departmentDao.findAllByParent(null);
         }
-        return departmentDao.findAllByParent_Id(parentId);
+        else{
+            return departmentDao.findAllByParent_Id(parentId);
+        }
     }
 
 

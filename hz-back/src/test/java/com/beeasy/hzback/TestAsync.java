@@ -9,10 +9,11 @@ import com.beeasy.hzback.modules.cloud.CloudService;
 import com.beeasy.hzback.modules.system.cache.SystemConfigCache;
 import com.beeasy.hzback.modules.system.dao.*;
 import com.beeasy.hzback.modules.system.entity.*;
+import com.beeasy.hzback.modules.system.entity_kt.*;
 import com.beeasy.hzback.modules.system.form.*;
 import com.beeasy.hzback.modules.system.service.*;
+import com.beeasy.hzback.modules.system.service_kt.UserService;
 import com.github.tobato.fastdfs.service.FastFileStorageClient;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.hibernate.SQLQuery;
 import org.hibernate.transform.Transformers;
@@ -23,9 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
@@ -36,14 +35,11 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import javax.sql.DataSource;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.stream.Collectors;
 
-@Slf4j
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
 public class TestAsync {
@@ -127,10 +123,17 @@ public class TestAsync {
 //                workflowService.setPersons(edits);
 
                 //打开工作流
-                workflowService.editWorkflowModel(new WorkflowModelEdit(){{
-                    setId(workflowModel.getId());
-                    setOpen(true);
-                }});
+//                new WorkflowModelEdit().b();
+                try {
+                    WorkflowModelEdit modelEdit = WorkflowModelEdit.class.newInstance();
+                    modelEdit.setId(workflowModel.getId());
+                    modelEdit.setOpen(true);
+                    workflowService.editWorkflowModel(modelEdit);
+                } catch (InstantiationException e) {
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -150,7 +153,7 @@ public class TestAsync {
         if (user != null) {
             userDao.delete(user);
         }
-        UserAdd add = new UserAdd();
+        UserAddRequeest add = new UserAddRequeest();
         add.setPhone(Faker.getPhone());
         add.setUsername("1");
         add.setPassword("2");
@@ -186,29 +189,27 @@ public class TestAsync {
             for (int j = 0; j < 4; j++) {
                 qcount++;
                 String qName = "岗位" + qcount;
-                QuartersAdd quartersAdd = new QuartersAdd();
+                QuartersAddRequest quartersAdd = new QuartersAddRequest();
                 quartersAdd.setDepartmentId(department.getId());
                 quartersAdd.setName(qName);
-                Result<Quarters> ret = userService.createQuarters(quartersAdd);
-                Assert.assertTrue(ret.isSuccess());
+                Quarters quarters = userService.createQuarters(quartersAdd);
+                Assert.assertNotNull(quarters);
                 for (int n = 0; n < 5; n++) {
-                    UserAdd userAdd = new UserAdd();
+                    UserAddRequeest userAdd = new UserAddRequeest();
                     userAdd.setPhone(Faker.getPhone());
                     String userName = Faker.getTrueName();
                     userAdd.setTrueName(userName);
                     userAdd.setUsername(userName);
                     userAdd.setPassword("2");
                     userAdd.setBaned(false);
-                    Result<User> r = userService.createUser(userAdd);
-                    if (!r.isSuccess()) {
-                        continue;
-                    }
+                    User user = userService.createUser(userAdd);
+                    Assert.assertNotNull(user);
                     UserEdit edit = new UserEdit();
                     Set<Long> qs = new HashSet<>();
-                    qs.add(ret.getData().getId());
-                    edit.setQuarters(qs);
-                    edit.setId(r.getData().getId());
-                    userService.editUser(edit);
+//                    qs.add(ret.getData().getId());
+//                    edit.setQuarters(qs);
+//                    edit.setId(r.getData().getId());
+//                    userService.editUser(edit);
                 }
             }
         }
@@ -224,7 +225,7 @@ public class TestAsync {
 
     @Test
     public void test() {
-        log.info("f");
+
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<CloudDirectoryIndex> query = cb.createQuery(CloudDirectoryIndex.class);
         Root root = query.from(CloudDirectoryIndex.class);
@@ -256,9 +257,9 @@ public class TestAsync {
     @Autowired
     SystemConfigCache systemConfigCache;
 
-    @Autowired
+//    @Autowired
     CloudApi cloudApi;
-    @Autowired
+//    @Autowired
     CloudAdminApi cloudAdminApi;
     @Autowired
     IUserProfileDao profileDao;
@@ -350,8 +351,8 @@ public class TestAsync {
             cloudService.createUser(user.getUsername());
         });
 //        try {
-//            LoginResponse loginResponse = cloudApi.login("admin","admin");
-//            CloudAdminApi.Config.setCookie(loginResponse.getResponseCookies().get(0));
+//
+//            CloudAdminApi.Config.setCookie(
 //            Map map = systemConfigCache.getCreateUserString();
 //            map.put("user.username","fuckfei234");
 //            Object result = cloudAdminApi.adminCreateUser(map);
@@ -360,7 +361,7 @@ public class TestAsync {
 //        } catch (IOException e) {
 //            e.printStackTrace();
 //        }
-//        boolean flag = cloudService.login("llyb120","1q2w3e4r");
+//        boolean flag = cloudService.
 //        Assert.assertTrue(flag);
 //
 //        flag = cloudService.checkOnline();
@@ -516,6 +517,8 @@ public class TestAsync {
     FastFileStorageClient storageClient;
     @Test
     public void updateWorkflows(){
+        List<Department> departments = departmentDao.findAll();
+        int b = 1;
 //        var a = new ArrayList();
 //        var b = new ArrayList<>();
 //        List list = entityManager.createNativeQuery("SELECT * FROM ACC_LOAN")

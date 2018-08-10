@@ -42,6 +42,10 @@ public class DB2DialectFK extends DB2Dialect implements DialectFK {
                 return "VARCHAR(32672)";
             case JSONConverter.blobType:
                 return "BLOB(16M)";
+            case JSONConverter.VARCHAR_20:
+                return "VARCHAR(60)";
+            case JSONConverter.VARCHAR_5O:
+                return "VARCHAR(150)";
         }
         return column;
     }

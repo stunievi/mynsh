@@ -127,19 +127,14 @@ public class SystemConfigCache {
         return (List<String>)Arrays.stream(files)
                 .map(file -> {
                     ClassPathResource resource = new ClassPathResource(String.format("sql_views/%s/%s.sql", finalPrefix,file));
-                    List<String> codes = null;
                     try {
-                        codes = IOUtils.readLines(resource.getInputStream());
-                        return Arrays.asList(
-                                "DROP VIEW t_global_permission_center",
-                                String.join("\n", codes)
-                        );
+                        List<String> codes = IOUtils.readLines(resource.getInputStream());
+                        return String.join(" ", codes);
                     } catch (IOException e) {
 //                        e.printStackTrace();
-                        return new ArrayList<>();
+                        return "";
                     }
                 })
-                .flatMap(List::stream)
                 .map(item -> (String)item)
                 .filter(StringUtils::isNotEmpty)
                 .collect(Collectors.toList());

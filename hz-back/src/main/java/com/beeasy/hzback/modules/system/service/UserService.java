@@ -1,1337 +1,1334 @@
-package com.beeasy.hzback.modules.system.service;
-
-import bin.leblanc.classtranslate.Transformer;
-import bin.leblanc.maho.RPCMapping;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.beeasy.hzback.core.exception.RestException;
-import com.beeasy.hzback.core.helper.ChineseToEnglish;
-import com.beeasy.hzback.core.helper.Result;
-import com.beeasy.hzback.core.helper.Utils;
-import com.beeasy.hzback.core.util.CrUtils;
-import com.beeasy.hzback.modules.cloud.CloudApi;
-import com.beeasy.hzback.modules.cloud.CloudService;
-import com.beeasy.hzback.modules.cloud.response.LoginResponse;
-import com.beeasy.hzback.modules.exception.CannotFindEntityException;
-import com.beeasy.hzback.modules.system.cache.SystemConfigCache;
-import com.beeasy.hzback.modules.system.dao.*;
-import com.beeasy.hzback.modules.system.entity.*;
-import com.beeasy.hzback.modules.system.form.*;
-import io.netty.util.internal.StringUtil;
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.hibernate.validator.constraints.NotEmpty;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.DigestUtils;
-import org.springframework.web.multipart.MultipartFile;
-
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import javax.validation.constraints.AssertFalse;
-import javax.validation.constraints.AssertTrue;
-import javax.validation.constraints.NotNull;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.lang.reflect.Array;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
-
-@Slf4j
-@Service
-@Transactional
-public class UserService implements IUserService {
-
-    @Value("${filecloud.userDefaultPassword}")
-    String cloudUserPassword;
-
-    @Value("${filecloud.commonUsername}")
-    String cloudCommonUsername;
-    @Value("${filecloud.commonPassword}")
-    String cloudCommonPassword;
-
-    @Autowired
-    SystemService systemService;
-    @Autowired
-    IUserTokenDao userTokenDao;
-    @Autowired
-    IUserAllowApiDao userAllowApiDao;
-    @Autowired
-    IGlobalPermissionDao globalPermissionDao;
-
-    //    @Autowired
-//    SystemTextLogService logService;
-    @Autowired
-    IRoleDao roleDao;
-    @Autowired
-    GlobalPermissionService globalPermissionService;
-    @Autowired
-    CloudApi cloudApi;
-    //    @Autowired
-//    IUserExternalPermissionDao externalPermissionDao;
-    @Autowired
-    ISystemFileDao systemFileDao;
-    @Autowired
-    IQuartersDao quartersDao;
-    @Autowired
-    IDepartmentDao departmentDao;
-    @Autowired
-    IUserDao userDao;
-    //    @Autowired
-//    IRolePermissionDao rolePermissionDao;
-    @Autowired
-    IUserProfileDao userProfileDao;
-
-    @Autowired
-    SystemConfigCache cache;
-
-    @Autowired
-    EntityManager entityManager;
-
-    @Autowired
-    ICloudDirectoryIndexDao cloudDirectoryIndexDao;
-    @Autowired
-    CloudService cloudService;
-//    
-//    public boolean bindMenus(long uid, List<String> menus) {
-//        return findUser(uid)
-//                .flatMap(User::getMenuPermission)
-//                .filter(rolePermission -> {
-//                    rolePermission.getUnbinds().removeAll(menus);
-//                    saveUser(rolePermission.getUser());
-//                    return true;
-//                }).isPresent();
+//package com.beeasy.hzback.modules.system.service;
+//
+//import bin.leblanc.classtranslate.Transformer;
+//import com.alibaba.fastjson.JSONArray;
+//import com.alibaba.fastjson.JSONObject;
+//import com.beeasy.hzback.core.exception.RestException;
+//import com.beeasy.hzback.core.helper.ChineseToEnglish;
+//import com.beeasy.hzback.core.helper.Result;
+//import com.beeasy.hzback.core.helper.Utils;
+//import com.beeasy.hzback.core.util.CrUtils;
+//import com.beeasy.hzback.modules.cloud.CloudApi;
+//import com.beeasy.hzback.modules.cloud.CloudService;
+//import com.beeasy.hzback.modules.cloud.response.LoginResponse;
+//import com.beeasy.hzback.modules.system.cache.SystemConfigCache;
+//import com.beeasy.hzback.modules.system.dao.*;
+//import com.beeasy.hzback.modules.system.entity.*;
+//import com.beeasy.hzback.modules.system.entity_kt.*;
+//import com.beeasy.hzback.modules.system.form.*;
+//import lombok.Data;
+//import lombok.extern.slf4j.Slf4j;
+//import org.apache.commons.io.IOUtils;
+//import org.apache.commons.lang.StringUtils;
+//import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.beans.factory.annotation.Value;
+//import org.springframework.core.io.ClassPathResource;
+//import org.springframework.data.domain.Page;
+//import org.springframework.data.domain.Pageable;
+//import org.springframework.data.jpa.domain.Specification;
+//import org.springframework.scheduling.annotation.Async;
+//import org.springframework.stereotype.Service;
+//import org.springframework.transaction.annotation.Transactional;
+//import org.springframework.util.DigestUtils;
+//import org.springframework.web.multipart.MultipartFile;
+//
+//import javax.persistence.EntityManager;
+//import javax.persistence.criteria.CriteriaBuilder;
+//import javax.persistence.criteria.CriteriaQuery;
+//import javax.persistence.criteria.Predicate;
+//import javax.persistence.criteria.Root;
+//import java.io.FileNotFoundException;
+//import java.io.IOException;
+//import java.util.*;
+//import java.util.stream.Collectors;
+//
+//@Slf4j
+//@Service
+//@Transactional
+//public class UserService2 implements IUserService {
+//
+//    @Value("${filecloud.userDefaultPassword}")
+//    String cloudUserPassword;
+//
+//    @Value("${filecloud.commonUsername}")
+//    String cloudCommonUsername;
+//    @Value("${filecloud.commonPassword}")
+//    String cloudCommonPassword;
+//
+//    @Autowired
+//    SystemService systemService;
+//    @Autowired
+//    IUserTokenDao userTokenDao;
+//    @Autowired
+//    IUserAllowApiDao userAllowApiDao;
+//    @Autowired
+//    IGlobalPermissionDao globalPermissionDao;
+//
+//    //    @Autowired
+////    SystemTextLogService logService;
+//    @Autowired
+//    IRoleDao roleDao;
+//    @Autowired
+//    GlobalPermissionService globalPermissionService;
+////    @Autowired
+//    CloudApi cloudApi;
+//    //    @Autowired
+////    IUserExternalPermissionDao externalPermissionDao;
+//    @Autowired
+//    ISystemFileDao systemFileDao;
+//    @Autowired
+//    IQuartersDao quartersDao;
+//    @Autowired
+//    IDepartmentDao departmentDao;
+//    @Autowired
+//    IUserDao userDao;
+//    //    @Autowired
+////    IRolePermissionDao rolePermissionDao;
+//    @Autowired
+//    IUserProfileDao userProfileDao;
+//
+//    @Autowired
+//    SystemConfigCache cache;
+//
+//    @Autowired
+//    EntityManager entityManager;
+//
+//    @Autowired
+//    ICloudDirectoryIndexDao cloudDirectoryIndexDao;
+//    @Autowired
+//    CloudService cloudService;
+////
+////    public boolean bindMenus(long uid, List<String> menus) {
+////        return findUser(uid)
+////                .flatMap(User::getMenuPermission)
+////                .filter(rolePermission -> {
+////                    rolePermission.getUnbinds().removeAll(menus);
+////                    saveUser(rolePermission.getUser());
+////                    return true;
+////                }).isPresent();
+////    }
+////
+////
+////    public boolean unbindMenus(long uid, List<String> menus) {
+////        return findUser(uid)
+////                .flatMap(User::getMenuPermission)
+////                .filter(rolePermission -> {
+////                    rolePermission.getUnbinds().addAll(menus);
+////                    saveUser(rolePermission.getUser());
+////                    return true;
+////                }).isPresent();
+////    }
+//
+//
+////    private boolean setUnbindMethods(User user, String... menus) {
+////        return setUnbindMenus(user, new HashSet<>(Arrays.asList(menus)));
+////    }
+////
+////    private boolean setUnbindMethods(User user, Set<String> unbindMethods) {
+////        Map fullMethod = cache.getFullMethodPermission();
+////        Set<String> unbindItems = new HashSet();
+////        unbindMethods.forEach(method -> {
+////            String arr[] = method.split("\\.");
+////            Map obj = fullMethod;
+////            try {
+////                for (String s : arr) {
+////                    obj = (Map) obj.getOrDefault(s, new HashMap<>());
+////                }
+////                if (obj.containsKey("api")) {
+////                    List<String> list = (List<String>) obj.getOrDefault("api", new ArrayList<>());
+////                    unbindItems.addAll(list);
+////                }
+////            } catch (Exception e) {
+////            }
+////        });
+////        return user.getMethodPermission()
+////                .filter(menu -> {
+////                    menu.setUnbinds(unbindMethods);
+////                    //更新unbindItems
+////                    menu.setUnbindItems(unbindItems);
+////                    return true;
+////                }).isPresent();
+////    }
+////
+////    private boolean setUnbindMenus(User user, String... menus) {
+////        return setUnbindMenus(user, new HashSet<>(Arrays.asList(menus)));
+////    }
+//
+////    private boolean setUnbindMenus(User user, Set<String> unbindMenus) {
+////        return user.getMenuPermission()
+////                .filter(menu -> {
+////                    menu.setUnbinds(unbindMenus);
+////                    return true;
+////                }).isPresent();
+////    }
+//
+//
+////
+////    public JSONArray getMenus(long uid) {
+////        return findUser(uid)
+////                .flatMap(user -> rolePermissionDao.findFirstByUserAndType(user,PermissionType.MENU))
+////                .map(rolePermission -> {
+////                    JSONArray arr = cache.getFullMenu();
+////                    rolePermission.getUnbinds().forEach(str -> {
+////                        String[] args = str.split("\\.");
+////                        JSONArray obj = arr;
+////                        try{
+////                            for(int i = 0; i < args.length - 1; i++){
+////                                String arg = args[i];
+////                                Optional<Object> target = obj
+////                                        .stream()
+////                                        .filter(item -> {
+////                                            JSONObject o = (JSONObject) item;
+////                                            return o.get("name").equals(arg);
+////                                        }).findFirst();
+////                                obj = (JSONArray) ((JSONObject) target.get()).get("children");
+////                            }
+////                            String last = args[args.length - 1];
+////                            obj.remove(obj.stream().filter(item -> ((JSONObject)item).get("name").equals(last)).findFirst().get());
+////                        }
+////                        catch (Exception e){
+////                            return;
+////                        }
+////                    });
+////                    return arr;
+////                })
+////                .orElse(new JSONArray());
+////    }
+//
+//
+//    public Result<User> createUser(UserAddRequeest add) {
+//        Result result = Utils.validate(add);
+//        if (!result.isSuccess()) {
+//            return result;
+//        }
+//
+//
+//        add.setPassword(CrUtils.md5(add.getPassword().getBytes()));
+//        User u = Transformer.transform(add, User.class);
+//        u.setAccCode(add.getAccCode());
+//
+//        //profile
+//        UserProfile userProfile = new UserProfile();
+//        userProfile.setUser(u);
+//        SystemFile systemFile = new SystemFile();
+//        try {
+//            ClassPathResource resource = new ClassPathResource("static/default_face.jpg");
+//            byte[] bytes = IOUtils.toByteArray(resource.getInputStream());
+//            systemFile.setBytes((bytes));
+//            systemFile.setType(SystemFile.Type.FACE);
+//            systemFile.setExt("jpg");
+//            systemFile.setFileName("default_face.jpg");
+//            systemFile = systemFileDao.save(systemFile);
+//            if (systemFile.getId() == null) {
+//                throw new IOException();
+//            }
+//            userProfile.setFaceId(systemFile.getId());
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//            return Result.error("保存头像失败");
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//        //创建文件云账号
+//        Result r = cloudService.createUser(u.getUsername());
+//        if (r.isSuccess()) {
+//            userProfile.setCloudUsername(u.getUsername());
+//            userProfile.setCloudPassword(cloudUserPassword);
+//        }
+//
+//        userProfileDao.save(userProfile);
+//
+////        //添加permission
+////        RolePermission rolePermission = new RolePermission();
+////        rolePermission.setUser(u);
+////        rolePermission.setType(PermissionType.MENU);
+////        u.getPermissions().add(rolePermission);
+////
+////        //添加功能权限
+////        rolePermission = new RolePermission();
+////        rolePermission.setUser(u);
+////        rolePermission.setType(PermissionType.METHOD);
+////        u.getPermissions().add(rolePermission);
+//
+//        initLetter(u);
+//        User ret = userDao.save(u);
+//
+//        //岗位
+//        if (add.getQids().size() > 0) {
+//            for (Long aLong : add.getQids()) {
+//                addUsersToQuarters(Collections.singleton(ret.getId()), aLong);
+//            }
+//        }
+//        //角色
+//        //默认角色
+//        Map<String, String> configs = systemService.get("sys_default_role_ids");
+//        List<Long> rids = Utils.convertIdsToList(configs.getOrDefault("sys_default_role_ids", ""));
+//        add.getRids().addAll(rids);
+//
+//        if (add.getRids().size() > 0) {
+//            for (Long aLong : add.getRids()) {
+//                roleAddUsers(aLong, Collections.singleton(ret.getId()));
+//            }
+//        }
+//
+//
+//        //添加文件夹
+////        CloudDirectoryIndex cloudDirectoryIndex = new CloudDirectoryIndex();
+////        cloudDirectoryIndex.setDirName("/");
+////        cloudDirectoryIndex.setType(ICloudDiskService.DirType.USER);
+////        cloudDirectoryIndex.setLinkId(u.getId());
+////        cloudDirectoryIndexDao.save(cloudDirectoryIndex);
+////        u.getFolders().add(cloudDirectoryIndex);
+//
+//        //日志
+////        logService.addLog(SystemTextLog.Type.SYSTEM, ret.getId(), Utils.getCurrentUserId(), "创建用户 " + ret.getId());
+//        return Result.ok(ret);
 //    }
 //
-//    
-//    public boolean unbindMenus(long uid, List<String> menus) {
-//        return findUser(uid)
-//                .flatMap(User::getMenuPermission)
-//                .filter(rolePermission -> {
-//                    rolePermission.getUnbinds().addAll(menus);
-//                    saveUser(rolePermission.getUser());
-//                    return true;
-//                }).isPresent();
-//    }
-
-
-//    private boolean setUnbindMethods(User user, String... menus) {
-//        return setUnbindMenus(user, new HashSet<>(Arrays.asList(menus)));
+//
+//    /**
+//     * 删除用户
+//     *
+//     * @param uids
+//     * @return
+//     */
+//    public List<Long> deleteUser(Collection<Long> uids) {
+//        return uids.stream().filter(uid -> {
+//            //解除关联
+//            userDao.deleteLinksByUid(uid);
+//            //删除用户
+//            userDao.deleteById(uid);
+//            return true;
+//        }).collect(Collectors.toList());
 //    }
 //
-//    private boolean setUnbindMethods(User user, Set<String> unbindMethods) {
-//        Map fullMethod = cache.getFullMethodPermission();
-//        Set<String> unbindItems = new HashSet();
-//        unbindMethods.forEach(method -> {
-//            String arr[] = method.split("\\.");
-//            Map obj = fullMethod;
+//    /**
+//     * 批量删除部门(软删除)
+//     *
+//     * @param dids
+//     * @return
+//     */
+//    public Result deleteDepartments(Long... dids) {
+//        //如果部门下还有岗位, 那么不能删除
+//        for (Long did : dids) {
+//            if (quartersDao.countByDepartment_Id(did) > 0) {
+//                return Result.error("该部门下仍有岗位, 无法删除");
+//            }
+//        }
+//        return Result.finish(departmentDao.deleteAllByIdIn(Arrays.asList(dids)) > 0);
+//    }
+//
+//
+//    /**
+//     * 批量删除岗位
+//     *
+//     * @param qids
+//     * @return
+//     */
+//    public Result deleteQuarters(Long... qids) {
+//        for (Long qid : qids) {
+//            if (getUidsFromQuarters(qid).size() > 0) {
+//                return Result.error("该岗位下仍有任职人员, 无法删除");
+//            }
+//        }
+//        return Result.finish(quartersDao.deleteAllByIdIn(Arrays.asList(qids)) > 0);
+//    }
+//
+//    /**
+//     * 更新用户头像
+//     *
+//     * @param uid
+//     * @param file
+//     * @return
+//     */
+//    public Result<Long> updateUserFace(long uid, MultipartFile file) {
+//        User user = findUser(uid);
+//        if (null == user) {
+//            return Result.error();
+//        }
+//        SystemFile systemFile = findFile(user.getProfile().getFaceId()).orElse(new SystemFile());
+//        String ext = Utils.getExt(file.getOriginalFilename());
+//        if (ext.equalsIgnoreCase("jpg") || ext.equalsIgnoreCase("jpeg") || ext.equalsIgnoreCase("png")) {
+//            if (null != systemFile.getId()) {
+//                systemFileDao.delete(systemFile);
+//            }
+//            SystemFile face = new SystemFile();
+//            face.setType(SystemFile.Type.FACE);
+//            face.setExt(Utils.getExt(file.getOriginalFilename()));
 //            try {
-//                for (String s : arr) {
-//                    obj = (Map) obj.getOrDefault(s, new HashMap<>());
-//                }
-//                if (obj.containsKey("api")) {
-//                    List<String> list = (List<String>) obj.getOrDefault("api", new ArrayList<>());
-//                    unbindItems.addAll(list);
-//                }
-//            } catch (Exception e) {
+//                face.setBytes(file.getBytes());
+//                face = systemFileDao.save(face);
+//                user.getProfile().setFaceId(face.getId());
+//                userProfileDao.save(user.getProfile());
+//                if (face.getId() != null) return Result.ok(face.getId());
+//            } catch (IOException e) {
+//                e.printStackTrace();
 //            }
+//        }
+//        return Result.error("上传头像失败");
+//    }
+//
+//    /**
+//     * 修改密码, 修改规则如下
+//     * 1. 必须包含数字、字母、特殊字符 三种
+//     * 2. 长度至少8位
+//     * 3. 不能包含3位及以上相同字符的重复【eg：x111@q& xxxx@q&1】
+//     * 4 不能包含3位及以上字符组合的重复【eg：ab!23ab!】
+//     * 该规则不生效 5. 不能包含3位及以上的正序及逆序连续字符【eg：123%@#aop %@#321ao efg3%@#47 3%@#47gfe】
+//     * 6. 不能包含空格、制表符、换页符等空白字符
+//     * 该规则不生效 7. 键盘123456789数字对应的正序逆序特殊字符：eg：12#$%pwtcp(#$%(345对应的特殊字符#$%，仍视作连续))
+//     * 8. 支持的特殊字符范围：^$./,;:’!@#%&*|?+()[]{}
+//     *
+//     * @param uid
+//     * @param oldPassword
+//     * @param newPassword
+//     * @return
+//     */
+//    public boolean modifyPassword(final long uid, String oldPassword, String newPassword) {
+//        isValidPassword(newPassword);
+//        User user = findUser(uid);
+//        if (null == user) {
+//            return false;
+//        }
+//        oldPassword = DigestUtils.md5DigestAsHex(oldPassword.getBytes());
+//        newPassword = DigestUtils.md5DigestAsHex(newPassword.getBytes());
+//        if (!user.getPassword().equals(oldPassword)) {
+//            throw new RestException("旧密码不正确");
+//        }
+//        user.setNewUser(false);
+//        user.setPassword(newPassword);
+//        userDao.save(user);
+//        return true;
+//    }
+//
+//    public void isValidPassword(String newPassword) {
+//        //1 and 8
+//        if (!(newPassword.matches("^.*[a-zA-Z]+.*$") && newPassword.matches("^.*[0-9]+.*$")
+//                && newPassword.matches("^.*[/^/$/.//,;:'!@#%&/*/|/?/+/(/)/[/]/{/}]+.*$"))) {
+//            throw new RestException("密码必须包含字母, 数字, 特殊字符");
+//        }
+//        //2
+//        if (!newPassword.matches("^.{8,}$")) {
+//            throw new RestException("密码长度至少8位");
+//        }
+//        //3
+//        if (newPassword.matches("^.*(.)\\1{2,}+.*$")) {
+//            throw new RestException("密码不能包含3位及以上相同字符的重复");
+//        }
+//        //4
+//        if (newPassword.matches("^.*(.{3})(.*)\\1+.*$")) {
+//            throw new RestException("密码不能包含3位及以上字符组合的重复");
+//        }
+//        //6
+//        if (newPassword.matches("^.*[\\s]+.*$")) {
+//            throw new RestException("密码不能包含空格、制表符、换页符等空白字符");
+//        }
+//    }
+//
+//    /**
+//     * 修改用户资料
+//     *
+//     * @param request
+//     * @return
+//     */
+//    public Result modifyProfile(long uid, ProfileEditRequest request) {
+//        User user = findUser(uid);
+//        if (null == user) {
+//            return Result.error();
+//        }
+//        if (!StringUtils.isEmpty(request.getTrueName())) {
+//            user.setTrueName(request.getTrueName());
+//        }
+//        if (!StringUtils.isEmpty(request.getPhone())) {
+//            //查找是否有相同的手机号
+//            if (userDao.hasThisPhone(uid, request.getPhone()) > 1) {
+//                return Result.error("已经有相同的手机号");
+//            }
+//            user.setPhone(request.getPhone());
+//        }
+//        if (!StringUtils.isEmpty(request.getEmail())) {
+//            if (userDao.hasThisEmail(uid, request.getEmail()) > 1) {
+//                return Result.error("已经有相同的邮箱");
+//            }
+//            user.setEmail(request.getEmail());
+//        }
+//        userDao.save(user);
+//        return Result.ok();
+//    }
+//
+//
+//    public User saveUser(User user) {
+//        return userDao.save(user);
+//    }
+//
+////
+////    public boolean addQuarters(long uid, long... qids){
+////        return findUser(uid)
+////                .filter(user -> {
+////                    List<Quarters> qs = quartersDao.findAllByIdIn(qids);
+////                    qs.forEach(q -> q.getUsers().add(user));
+////                    saveUser(user);
+////                    return true;
+////                }).isPresent();
+////    }
+////
+////
+////    public boolean removeQuarters(long uid, long... qids){
+////        return findUser(uid)
+////                .filter(user -> {
+////                    List<Quarters> qs = quartersDao.findAllByIdIn(qids);
+////                    qs.forEach(q -> q.getUsers().remove(user));
+////                    saveUser(user);
+////                    return true;
+////                }).isPresent();
+////    }
+////
+////
+////
+////    public User setQuarters(long uid, long... qids) throws CannotFindEntityException {
+////        User user = findUserE(uid);
+////        List<Quarters> qs = quartersDao.findAllByIdIn(qids);
+////        qs.forEach(q -> q.getUsers().add(user));
+////        return saveUser(user);
+////    }
+//
+//
+//    private boolean setQuarters(User user, Collection<Long> qids) {
+////        userDao.deleteUserQuarters(user.getId());
+//        //解除关联
+//        user.getQuarters().forEach(q -> {
+//            q.getUsers().remove(user);
 //        });
-//        return user.getMethodPermission()
-//                .filter(menu -> {
-//                    menu.setUnbinds(unbindMethods);
-//                    //更新unbindItems
-//                    menu.setUnbindItems(unbindItems);
-//                    return true;
-//                }).isPresent();
+//        //重新关联
+//        quartersDao.findAllByIdIn(qids).forEach(q -> {
+//            q.getUsers().add(user);
+//        });
+//        return true;
 //    }
 //
-//    private boolean setUnbindMenus(User user, String... menus) {
-//        return setUnbindMenus(user, new HashSet<>(Arrays.asList(menus)));
+//
+//    public Page<User> searchUser(UserSearch search, Pageable pageable) {
+//        Specification query = new Specification() {
+//
+//            public Predicate toPredicate(Root root, CriteriaQuery query, CriteriaBuilder cb) {
+//                List<Predicate> predicates = new ArrayList<>();
+//                if (!StringUtils.isEmpty(search.getName())) {
+//                    predicates.add(
+//                            cb.or(
+//                                    cb.like(root.get("username"), "%" + search.getName() + "%"),
+//                                    cb.like(root.get("trueName"), "%" + search.getName() + "%")
+//                            )
+//                    );
+//                }
+//                if (null != search.getBaned()) {
+//                    predicates.add(cb.equal(root.get("baned"), search.getBaned()));
+//                }
+//                if (null != search.getQuarters()) {
+//                    predicates.add(root.join("quarters").in(search.getQuarters()));
+//                }
+//
+//                return cb.and(predicates.toArray(new Predicate[predicates.size()]));
+//            }
+//        };
+//
+//        return userDao.findAll(query, pageable);
 //    }
-
-//    private boolean setUnbindMenus(User user, Set<String> unbindMenus) {
-//        return user.getMenuPermission()
-//                .filter(menu -> {
-//                    menu.setUnbinds(unbindMenus);
-//                    return true;
-//                }).isPresent();
+//
+//    public Result<User> editUser(UserEdit edit) throws RestException {
+//        User user = findUser(edit.getId());
+//        if (!StringUtils.isEmpty(edit.getPhone())) {
+//            Optional<User> sameUser = userDao.findFirstByPhone(edit.getPhone());
+//            if (sameUser.isPresent() && !sameUser.get().getId().equals(user.getId())) {
+//                return Result.error("已经有相同的手机号");
+//            }
+//            user.setPhone(edit.getPhone());
+//        }
+//        if (!StringUtils.isEmpty(edit.getEmail())) {
+//            user.setEmail(edit.getEmail());
+//        }
+//
+//        //修改密码
+//        if (!StringUtils.isEmpty(edit.getPassword())) {
+//            isValidPassword(edit.getPassword());
+//            user.setPassword(DigestUtils.md5DigestAsHex(edit.getPassword().getBytes()));
+//        }
+//        //是否禁用
+//        if (edit.getBaned() != null) {
+//            user.setBaned(edit.getBaned());
+//        }
+//        //真实姓名
+//        if (!StringUtils.isEmpty(edit.getTrueName())) {
+//            user.setTrueName(edit.getTrueName());
+//        }
+//        //信贷机构代码
+//        if (!StringUtils.isEmpty(edit.getAccCode())) {
+//            user.setAccCode(edit.getAccCode());
+//        }
+//
+//        List<Long> oldIds = null;
+//        //岗位设置
+//        if (null != edit.getQuarters()) {
+//            //
+////                        userDao.deleteUserQuarters(edit.getId());
+//            oldIds = user.getQuarters().stream().map(item -> item.getId()).collect(Collectors.toList());
+//            setQuarters(user, edit.getQuarters());
+//        }
+////        //菜单权限
+////        if (null != edit.getUnbindMenus()) {
+////            setUnbindMenus(user, edit.getUnbindMenus());
+////        }
+////        //禁用功能
+////        if (null != edit.getUnbindMethods()) {
+////            setUnbindMethods(user, edit.getUnbindMethods());
+////        }
+//        user = saveUser(user);
+////        if (null != oldIds) {
+////            globalPermissionService.syncGlobalPermissionCenterQuartersChanged(oldIds, user);
+////        }
+//        return Result.ok(user);
 //    }
-
-
-//    
-//    public JSONArray getMenus(long uid) {
-//        return findUser(uid)
-//                .flatMap(user -> rolePermissionDao.findFirstByUserAndType(user,PermissionType.MENU))
-//                .map(rolePermission -> {
-//                    JSONArray arr = cache.getFullMenu();
-//                    rolePermission.getUnbinds().forEach(str -> {
-//                        String[] args = str.split("\\.");
-//                        JSONArray obj = arr;
-//                        try{
-//                            for(int i = 0; i < args.length - 1; i++){
-//                                String arg = args[i];
-//                                Optional<Object> target = obj
-//                                        .stream()
-//                                        .filter(item -> {
-//                                            JSONObject o = (JSONObject) item;
-//                                            return o.get("name").equals(arg);
-//                                        }).findFirst();
-//                                obj = (JSONArray) ((JSONObject) target.get()).get("children");
+//
+//
+//    /**
+//     * 创建岗位
+//     *
+//     * @param add
+//     * @return
+//     */
+//    public Result<Quarters> createQuarters(QuartersAdd add) {
+//        Department department = departmentDao.findById(add.getDepartmentId()).orElse(null);
+//        if (department == null) return Result.error("没有该部门");
+//        //同部门不能有同名的岗位
+//        Quarters same = quartersDao.findFirstByDepartmentAndName(department, add.getName());
+//        if (same != null) return Result.error("已经有同名的岗位");
+//
+//        Quarters quarters = Transformer.transform(add, Quarters.class);
+//        quarters.setDepartmentId(department.getId());
+//        quarters.setDName(department.getName());
+//        quarters.setSort(add.getSort());
+//        quarters.setManager(add.isManager());
+//
+//        //查找最上层的id
+//        List objs = quartersDao.getQuartersCodeFromDepartment(department.getId());
+//        if (objs.size() == 0) {
+//            quarters.setCode(department.getCode() + "_001");
+//        } else {
+//            String code = objs.get(0).toString();
+//            int codeValue = Integer.valueOf(code.substring(code.length() - 3, code.length()));
+//            codeValue++;
+//            String newCode = codeValue + "";
+//            for (int i = newCode.length(); i < 3; i++) {
+//                newCode = "0" + newCode;
+//            }
+//            quarters.setCode(department.getCode() + "_" + newCode);
+//        }
+//        Quarters ret = quartersDao.save(quarters);
+//        return Result.ok(ret);
+//    }
+//
+//    /**
+//     * 编辑岗位
+//     *
+//     * @param edit
+//     * @return
+//     */
+//    public Result<Quarters> updateQuarters(QuartersEdit edit) {
+//        //禁止编辑同名岗位
+//        if (quartersDao.countSameNameFromDepartment(edit.getId(), edit.getName()) > 0) {
+//            return Result.error("已经有同名的岗位");
+//        }
+//        Quarters quarters = findQuarters(edit.getId()).orElse(null);
+//        if (null == quarters) {
+//            return Result.error("编辑的岗位不存在");
+//        }
+//        if (null != edit.getManager()) {
+//            quarters.setManager(edit.getManager());
+//        }
+//        quarters.setSort(edit.getSort());
+//        quarters.setName(edit.getName());
+//        quarters.setInfo(edit.getInfo());
+//        return Result.ok(quartersDao.save(quarters));
+//    }
+//
+//
+//    public Result addUsersToQuarters(Collection<Long> uids, long qid) {
+//        if (quartersDao.countById(qid) == 0) {
+//            return Result.error();
+//        }
+//        List<Long> list = uids.stream()
+//                .filter(uid -> {
+//                    if (userDao.countById(uid) == 0) return false;
+//                    if (userDao.hasQuarters(uid, qid) > 0) {
+//                        return true;
+//                    }
+//                    return userDao.userAddQuarters(uid, qid) > 0;
+//                }).collect(Collectors.toList());
+//        return Result.ok(list);
+//    }
+//
+//
+//    @Async
+//    public void updateToken(String token) {
+//        userTokenDao.updateToken(token, new Date(System.currentTimeMillis() + 30 * 1000 * 60), new Date());
+//    }
+//
+//
+//    /**
+//     * 登录用户对应的私有云账号
+//     *
+//     * @param uid
+//     * @return
+//     */
+//    public Result loginFileCloudSystem(long uid) {
+//        List<Object[]> list = userDao.getUserCloudProfile(uid);
+//        if (list.size() > 0) {
+//            Object[] objects = list.get(0);
+//            //登录私有云
+//            LoginResponse loginResponse = cloudApi.login(String.valueOf(objects[0]), String.valueOf(objects[1]));
+//            if (null != loginResponse && loginResponse.getStatus().equals("SUCCESS")) {
+//                return Result.ok(loginResponse.getResponseCookies().get(0));
+//            }
+//        }
+//        return Result.error();
+//    }
+//
+//
+//    /**
+//     * 登录可操作公共文件柜的私有云账号, 如果没有权限, 那么依然登录原本的账号
+//     *
+//     * @param uid
+//     * @return
+//     */
+//    public Result loginFileCloudCommonSystem(long uid) {
+//        //检查是否有共享文件云权限
+////        if (!globalPermissionService.checkPermission(GlobalPermission.Type.COMMON_CLOUD_DISK, 0, uid)) {
+////            return loginFileCloudCommonSystem(uid);
+////        }
+////        if(userDao.checkPermission(Utils.getCurrentUserId(), UserExternalPermission.Permission.COMMON_CLOUD_DISK) == 0){
+////            return loginFileCloudSystem(uid);
+////        }
+//        LoginResponse loginResponse = cloudApi.login(cloudCommonUsername, cloudCommonPassword);
+//        if (null != loginResponse && loginResponse.getStatus().equals("SUCCESS")) {
+//            return Result.ok(loginResponse.getResponseCookies().get(0));
+//        }
+//        return Result.error();
+//    }
+//
+//
+//    /**
+//     * 得到用户的私有云账号
+//     *
+//     * @param uid
+//     * @return
+//     */
+//    public String[] getPrivateCloudUsername(long uid) {
+//        List<Object[]> list = userDao.getUserCloudProfile(uid);
+//        if (list.size() > 0) {
+//            String[] result = new String[2];
+//            int count = 0;
+//            for (Object o : list.get(0)) {
+//                result[count++] = String.valueOf(o);
+//            }
+//            return result;
+//        }
+//        return new String[]{"", ""};
+//    }
+//
+//    /**
+//     * 得到公共私有云账号
+//     *
+//     * @param uid
+//     * @return
+//     */
+//    public String[] getCommonCloudUsername(long uid) {
+//        User user = findUser(uid);
+//        if (null == user || !user.getSu()) {
+//            return new String[]{"", ""};
+//        }
+//        return new String[]{cloudCommonUsername, cloudCommonPassword};
+//
+//    }
+//
+//    public List<Department> findDepartmentsByParent_Id(long pid) {
+//        if (0 == pid) {
+//            return departmentDao.findAllByParent(null);
+//        } else {
+//            return departmentDao.findAllByParent_Id(pid);
+//        }
+//    }
+//
+//    public boolean hasUser(long uid) {
+//        return userDao.countById(uid) > 0;
+//    }
+//
+//    public boolean userHasQuarter(long uid, long qid) {
+//        return userDao.countUidAndQid(uid, qid) > 0;
+//    }
+//
+//    public List<User> findUser(Collection<Long> ids) {
+//        return userDao.findAllByIdIn(ids);
+//    }
+//
+//    public User findUser(final long id) {
+//        return userDao.findById(id).orElseThrow(new RestException("找不到ID为" + id + "的用户"));
+//    }
+//
+//    public User findUserByAccCode(String accCode) {
+//        return userDao.findTopByAccCode(accCode)
+//                .orElseThrow(new RestException(String.format("找不到代号为%s的客户经理", accCode)));
+//    }
+//
+//    public Department findDepartment(final long id) {
+//        return departmentDao.findById(id).orElseThrow(new RestException("找不到ID为" + id + "的部门"));
+//    }
+//
+//
+//    /**
+//     * 是否拥有这个用户
+//     *
+//     * @param id 用户ID
+//     * @return boolean
+//     */
+//    public boolean exists(final long id) {
+//        return userDao.existsById(id);
+//    }
+//
+//    public Role findRole(long id) {
+//        return roleDao.findById(id)
+//                .orElseThrow(new RestException(String.format("找不到ID为%d的角色", id)));
+//    }
+//
+//    public Optional<Quarters> findQuarters(long id) {
+//        return quartersDao.findById(id);
+//    }
+//
+//    public Optional<SystemFile> findFile(long id) {
+//        return systemFileDao.findById(id);
+//    }
+//
+//
+//    /**
+//     * 初始化用户首字母
+//     *
+//     * @param user
+//     */
+//    public void initLetter(User user) {
+//        String letter;
+//        String firstSpell = ChineseToEnglish.getFirstSpell(user.getTrueName());
+//        String substring = firstSpell.substring(0, 1).toUpperCase();
+//        if (substring.matches("[A-Z]")) {
+//            letter = substring;
+//        } else {
+//            letter = "#";
+//        }
+//        user.setLetter(letter);
+//    }
+//
+//    /************ 权限相关 *************/
+//
+//
+//    /**
+//     * 添加授权
+//     *
+//     * @param pType    授权类型
+//     * @param objectId 授权关联对象ID
+//     * @param uType    授权方式
+//     * @param linkIds  授权方式ID
+//     * @return
+//     * @Param info 授权详情, 没有为null
+//     */
+//    public List<Long> addGlobalPermission(GlobalPermission.Type pType, long objectId, GlobalPermission.UserType uType, Collection<Long> linkIds, Object info) {
+//        return linkIds.stream().map(linkId -> {
+//            //检查是否已经有相同的授权
+//            GlobalPermission globalPermission = globalPermissionDao.findTopByTypeAndObjectIdAndUserTypeAndLinkId(pType, objectId, uType, linkId).orElse(new GlobalPermission());
+////            List ids = entityManager.createQuery("select gp.id from GlobalPermission gp where gp.type = :ptype and gp.objectId = :objectId and gp.userType = :uType and gp.linkId = :linkId")
+////                    .setParameter("ptype",pType)
+////                    .setParameter("objectId",objectId)
+////                    .setParameter("uType",uType)
+////                    .setParameter("linkId",linkId)
+////                    .setMaxResults(1)
+////                    .getResultList();
+////            if(ids.size() > 0){
+////                return (Long)ids.get(0);
+////            }
+//            globalPermission.setType(pType);
+//            globalPermission.setObjectId(objectId);
+//            globalPermission.setUserType(uType);
+//            globalPermission.setLinkId(linkId);
+//            //更新授权内容
+//            globalPermission.setDescription(info);
+//
+//            //更新用户授权表
+//            if (pType.equals(GlobalPermission.Type.USER_METHOD)) {
+//                cacheUserMethods(globalPermission);
+//            }
+//
+//            globalPermission = globalPermissionDao.save(globalPermission);
+//
+//            //更新授权中间表
+////            globalPermissionService.syncGlobalPermissionCenterAdded(globalPermission);
+//            return globalPermission.getId();
+//        }).filter(linkId -> linkId > 0).collect(Collectors.toList());
+//    }
+//
+//    /**
+//     * 按类型和对象得到授权列表
+//     *
+//     * @param types
+//     * @param objectId
+//     * @return
+//     */
+//    public List<GlobalPermission> getGlobalPermissions(Collection<GlobalPermission.Type> types, long objectId) {
+//        return globalPermissionDao.findAllByTypeInAndObjectId(types, objectId);
+//    }
+//
+//    /**
+//     * 按详细参数得到授权对象
+//     *
+//     * @param type
+//     * @param oid
+//     * @param userType
+//     * @param lid
+//     * @return
+//     */
+//    public Optional<GlobalPermission> getGlobalPermission(GlobalPermission.Type type, long oid, GlobalPermission.UserType userType, long lid) {
+//        return globalPermissionDao.findTopByTypeAndObjectIdAndUserTypeAndLinkId(type, oid, userType, lid);
+//    }
+//
+//    public boolean deleteGlobalPermission(Long... gpids) {
+//        int count = globalPermissionDao.deleteAllByIdIn(Arrays.asList(gpids));
+////        if(count > 0){
+////            globalPermissionService.syncGlobalPermissionCenterDeleted(gpids);
+////        }
+//        return count > 0;
+//    }
+//
+//    /**
+//     * 删除某个对象的所有授权
+//     *
+//     * @param id
+//     * @return
+//     */
+//    public boolean deleteGlobalPermissionByObjectId(long id) {
+//        int count = globalPermissionDao.deleteAllByObjectId(id);
+//        return count > 0;
+//    }
+//
+//    public boolean deleteGlobalPermissionByTypeAndObjectId(GlobalPermission.Type type, long id) {
+//        return globalPermissionDao.deleteAllByTypeAndObjectId(type, id) > 0;
+//    }
+//
+//    /**
+//     * 得到叠加过后的最终授权结果
+//     *
+//     * @param uid
+//     * @return
+//     */
+//    public List getUserMethods(long uid) {
+//        List<GlobalPermission> gps = globalPermissionDao.getPermissionsByUser(Collections.singleton(GlobalPermission.Type.USER_METHOD), Arrays.asList(GlobalPermission.UserType.USER, GlobalPermission.UserType.ROLE), uid);
+//        return gps.stream()
+//                .map(GlobalPermission::getDescription)
+//                .filter(obj -> obj instanceof JSONArray)
+//                .flatMap(obj -> ((JSONArray) obj).stream())
+//                .distinct()
+//                .collect(Collectors.toList());
+//    }
+//
+//    @Deprecated
+//    public void cacheUserMethods(GlobalPermission globalPermission) {
+//        if (true) return;
+//        userAllowApiDao.deleteAllByUserId(globalPermission.getLinkId());
+//        JSONObject menu = cache.getMenus();
+//        for (Object o : (JSONArray) globalPermission.getDescription()) {
+//            if (o instanceof String) {
+//                String str = (String) o;
+//                JSONObject item = getChildItemByIndex(menu, str);
+//                if (item.containsKey("api")) {
+//                    JSONArray apis = item.getJSONArray("api");
+//                    if (null == apis) {
+//                        continue;
+//                    }
+//                    for (Object api : apis) {
+//                        UserAllowApi allowApi = new UserAllowApi();
+//                        allowApi.setUserId(globalPermission.getLinkId());
+//                        allowApi.setApi((String) api);
+//                        userAllowApiDao.save(allowApi);
+//                    }
+//                }
+//            }
+//        }
+//    }
+//
+//
+//    /********** 角色相关 *************/
+//
+//    /**
+//     * 创建角色
+//     *
+//     * @param request
+//     * @return
+//     */
+//    public Result createRole(RoleRequest request) {
+//        Role role = new Role();
+//        role.setName(request.getName());
+//        role.setInfo(request.getInfo());
+//        role.setSort(request.getSort());
+//        role.setCanDelete(request.getCanDelete());
+//        role = roleDao.save(role);
+//        return Result.ok(role);
+//    }
+//
+//    /**
+//     * 编辑角色
+//     *
+//     * @param request
+//     * @return
+//     */
+//    public Result editRole(RoleRequest request) {
+//        Role role = findRole(request.getId());
+//        role.setName(request.getName());
+//        role.setInfo(request.getInfo());
+//        role.setSort(request.getSort());
+//        role.setCanDelete(request.getCanDelete());
+//        role = roleDao.save(role);
+//        return Result.ok(role);
+//    }
+//
+//    /**
+//     * 删除角色
+//     *
+//     * @param ids
+//     * @return
+//     */
+//    public Result deleteRoles(Collection<Long> ids) {
+//        return Result.ok(
+//                ids.stream()
+//                        .map(id -> roleDao.findById(id).orElse(null))
+//                        .filter(role -> {
+//                            boolean flag = null != role && role.getCanDelete();
+//                            if(flag){
+//                                roleDao.deleteById(role.getId());
 //                            }
-//                            String last = args[args.length - 1];
-//                            obj.remove(obj.stream().filter(item -> ((JSONObject)item).get("name").equals(last)).findFirst().get());
-//                        }
-//                        catch (Exception e){
-//                            return;
-//                        }
-//                    });
-//                    return arr;
-//                })
-//                .orElse(new JSONArray());
-//    }
-
-
-    public Result<User> createUser(UserAdd add) {
-        Result result = Utils.validate(add);
-        if (!result.isSuccess()) {
-            return result;
-        }
-
-        add.setPassword(CrUtils.md5(add.getPassword().getBytes()));
-        User u = Transformer.transform(add, User.class);
-        u.setAccCode(add.getAccCode());
-
-        //profile
-        UserProfile userProfile = new UserProfile();
-        userProfile.setUser(u);
-        SystemFile systemFile = new SystemFile();
-        try {
-            ClassPathResource resource = new ClassPathResource("static/default_face.jpg");
-            byte[] bytes = IOUtils.toByteArray(resource.getInputStream());
-            systemFile.setBytes((bytes));
-            systemFile.setType(SystemFile.Type.FACE);
-            systemFile.setExt("jpg");
-            systemFile.setFileName("default_face.jpg");
-            systemFile = systemFileDao.save(systemFile);
-            if (systemFile.getId() == null) {
-                throw new IOException();
-            }
-            userProfile.setFaceId(systemFile.getId());
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            return Result.error("保存头像失败");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        //创建文件云账号
-        Result r = cloudService.createUser(u.getUsername());
-        if (r.isSuccess()) {
-            userProfile.setCloudUsername(u.getUsername());
-            userProfile.setCloudPassword(cloudUserPassword);
-        }
-
-        userProfileDao.save(userProfile);
-
-//        //添加permission
-//        RolePermission rolePermission = new RolePermission();
-//        rolePermission.setUser(u);
-//        rolePermission.setType(PermissionType.MENU);
-//        u.getPermissions().add(rolePermission);
-//
-//        //添加功能权限
-//        rolePermission = new RolePermission();
-//        rolePermission.setUser(u);
-//        rolePermission.setType(PermissionType.METHOD);
-//        u.getPermissions().add(rolePermission);
-
-        initLetter(u);
-        User ret = userDao.save(u);
-
-        //岗位
-        if (add.getQids().size() > 0) {
-            for (Long aLong : add.getQids()) {
-                addUsersToQuarters(Collections.singleton(ret.getId()), aLong);
-            }
-        }
-        //角色
-        //默认角色
-        Map<String, String> configs = systemService.get("sys_default_role_ids");
-        List<Long> rids = Utils.convertIdsToList(configs.getOrDefault("sys_default_role_ids", ""));
-        add.getRids().addAll(rids);
-
-        if (add.getRids().size() > 0) {
-            for (Long aLong : add.getRids()) {
-                roleAddUsers(aLong, Collections.singleton(ret.getId()));
-            }
-        }
-
-
-        //添加文件夹
-//        CloudDirectoryIndex cloudDirectoryIndex = new CloudDirectoryIndex();
-//        cloudDirectoryIndex.setDirName("/");
-//        cloudDirectoryIndex.setType(ICloudDiskService.DirType.USER);
-//        cloudDirectoryIndex.setLinkId(u.getId());
-//        cloudDirectoryIndexDao.save(cloudDirectoryIndex);
-//        u.getFolders().add(cloudDirectoryIndex);
-
-        //日志
-//        logService.addLog(SystemTextLog.Type.SYSTEM, ret.getId(), Utils.getCurrentUserId(), "创建用户 " + ret.getId());
-        return Result.ok(ret);
-    }
-
-
-    /**
-     * 删除用户
-     *
-     * @param uids
-     * @return
-     */
-    public List<Long> deleteUser(Collection<Long> uids) {
-        return uids.stream().filter(uid -> {
-            //解除关联
-            userDao.deleteUserQuarters(uid);
-            //删除用户
-            userDao.deleteById(uid);
-            return true;
-        }).collect(Collectors.toList());
-    }
-
-    /**
-     * 批量删除部门(软删除)
-     *
-     * @param dids
-     * @return
-     */
-    public Result deleteDepartments(Long... dids) {
-        //如果部门下还有岗位, 那么不能删除
-        for (Long did : dids) {
-            if (quartersDao.countByDepartment_Id(did) > 0) {
-                return Result.error("该部门下仍有岗位, 无法删除");
-            }
-        }
-        return Result.finish(departmentDao.deleteAllByIdIn(Arrays.asList(dids)) > 0);
-    }
-
-
-    /**
-     * 批量删除岗位
-     *
-     * @param qids
-     * @return
-     */
-    public Result deleteQuarters(Long... qids) {
-        for (Long qid : qids) {
-            if (getUidsFromQuarters(qid).size() > 0) {
-                return Result.error("该岗位下仍有任职人员, 无法删除");
-            }
-        }
-        return Result.finish(quartersDao.deleteAllByIdIn(Arrays.asList(qids)) > 0);
-    }
-
-    /**
-     * 更新用户头像
-     *
-     * @param uid
-     * @param file
-     * @return
-     */
-    public Result<Long> updateUserFace(long uid, MultipartFile file) {
-        User user = findUser(uid);
-        if (null == user) {
-            return Result.error();
-        }
-        SystemFile systemFile = findFile(user.getProfile().getFaceId()).orElse(new SystemFile());
-        String ext = Utils.getExt(file.getOriginalFilename());
-        if (ext.equalsIgnoreCase("jpg") || ext.equalsIgnoreCase("jpeg") || ext.equalsIgnoreCase("png")) {
-            if (null != systemFile.getId()) {
-                systemFileDao.delete(systemFile);
-            }
-            SystemFile face = new SystemFile();
-            face.setType(SystemFile.Type.FACE);
-            face.setExt(Utils.getExt(file.getOriginalFilename()));
-            try {
-                face.setBytes(file.getBytes());
-                face = systemFileDao.save(face);
-                user.getProfile().setFaceId(face.getId());
-                userProfileDao.save(user.getProfile());
-                if (face.getId() != null) return Result.ok(face.getId());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return Result.error("上传头像失败");
-    }
-
-    /**
-     * 修改密码, 修改规则如下
-     * 1. 必须包含数字、字母、特殊字符 三种
-     * 2. 长度至少8位
-     * 3. 不能包含3位及以上相同字符的重复【eg：x111@q& xxxx@q&1】
-     * 4 不能包含3位及以上字符组合的重复【eg：ab!23ab!】
-     * 该规则不生效 5. 不能包含3位及以上的正序及逆序连续字符【eg：123%@#aop %@#321ao efg3%@#47 3%@#47gfe】
-     * 6. 不能包含空格、制表符、换页符等空白字符
-     * 该规则不生效 7. 键盘123456789数字对应的正序逆序特殊字符：eg：12#$%pwtcp(#$%(345对应的特殊字符#$%，仍视作连续))
-     * 8. 支持的特殊字符范围：^$./,;:’!@#%&*|?+()[]{}
-     *
-     * @param uid
-     * @param oldPassword
-     * @param newPassword
-     * @return
-     */
-    public boolean modifyPassword(final long uid, String oldPassword, String newPassword) {
-        isValidPassword(newPassword);
-        User user = findUser(uid);
-        if (null == user) {
-            return false;
-        }
-        oldPassword = DigestUtils.md5DigestAsHex(oldPassword.getBytes());
-        newPassword = DigestUtils.md5DigestAsHex(newPassword.getBytes());
-        if (!user.getPassword().equals(oldPassword)) {
-            throw new RestException("旧密码不正确");
-        }
-        user.setNewUser(false);
-        user.setPassword(newPassword);
-        userDao.save(user);
-        return true;
-    }
-
-    public void isValidPassword(String newPassword) {
-        //1 and 8
-        if (!(newPassword.matches("^.*[a-zA-Z]+.*$") && newPassword.matches("^.*[0-9]+.*$")
-                && newPassword.matches("^.*[/^/$/.//,;:'!@#%&/*/|/?/+/(/)/[/]/{/}]+.*$"))) {
-            throw new RestException("密码必须包含字母, 数字, 特殊字符");
-        }
-        //2
-        if (!newPassword.matches("^.{8,}$")) {
-            throw new RestException("密码长度至少8位");
-        }
-        //3
-        if (newPassword.matches("^.*(.)\\1{2,}+.*$")) {
-            throw new RestException("密码不能包含3位及以上相同字符的重复");
-        }
-        //4
-        if (newPassword.matches("^.*(.{3})(.*)\\1+.*$")) {
-            throw new RestException("密码不能包含3位及以上字符组合的重复");
-        }
-        //6
-        if (newPassword.matches("^.*[\\s]+.*$")) {
-            throw new RestException("密码不能包含空格、制表符、换页符等空白字符");
-        }
-    }
-
-    /**
-     * 修改用户资料
-     *
-     * @param request
-     * @return
-     */
-    public Result modifyProfile(long uid, ProfileEditRequest request) {
-        User user = findUser(uid);
-        if (null == user) {
-            return Result.error();
-        }
-        if (!StringUtils.isEmpty(request.getTrueName())) {
-            user.setTrueName(request.getTrueName());
-        }
-        if (!StringUtils.isEmpty(request.getPhone())) {
-            //查找是否有相同的手机号
-            if (userDao.hasThisPhone(uid, request.getPhone()) > 1) {
-                return Result.error("已经有相同的手机号");
-            }
-            user.setPhone(request.getPhone());
-        }
-        if (!StringUtils.isEmpty(request.getEmail())) {
-            if (userDao.hasThisEmail(uid, request.getEmail()) > 1) {
-                return Result.error("已经有相同的邮箱");
-            }
-            user.setEmail(request.getEmail());
-        }
-        userDao.save(user);
-        return Result.ok();
-    }
-
-
-    public User saveUser(User user) {
-        return userDao.save(user);
-    }
-
-//    
-//    public boolean addQuarters(long uid, long... qids){
-//        return findUser(uid)
-//                .filter(user -> {
-//                    List<Quarters> qs = quartersDao.findAllByIdIn(qids);
-//                    qs.forEach(q -> q.getUsers().add(user));
-//                    saveUser(user);
-//                    return true;
-//                }).isPresent();
+//                            return flag;
+//                        })
+//                        .map(Role::getId)
+//                        .collect(Collectors.toList())
+//        );
 //    }
 //
-//    
-//    public boolean removeQuarters(long uid, long... qids){
-//        return findUser(uid)
-//                .filter(user -> {
-//                    List<Quarters> qs = quartersDao.findAllByIdIn(qids);
-//                    qs.forEach(q -> q.getUsers().remove(user));
-//                    saveUser(user);
-//                    return true;
-//                }).isPresent();
-//    }
-//
-//
-//    
-//    public User setQuarters(long uid, long... qids) throws CannotFindEntityException {
-//        User user = findUserE(uid);
-//        List<Quarters> qs = quartersDao.findAllByIdIn(qids);
-//        qs.forEach(q -> q.getUsers().add(user));
-//        return saveUser(user);
-//    }
-
-
-    private boolean setQuarters(User user, Collection<Long> qids) {
-//        userDao.deleteUserQuarters(user.getId());
-        //解除关联
-        user.getQuarters().forEach(q -> {
-            q.getUsers().remove(user);
-        });
-        //重新关联
-        quartersDao.findAllByIdIn(qids).forEach(q -> {
-            q.getUsers().add(user);
-        });
-        return true;
-    }
-
-
-    public Page<User> searchUser(UserSearch search, Pageable pageable) {
-        Specification query = new Specification() {
-
-            public Predicate toPredicate(Root root, CriteriaQuery query, CriteriaBuilder cb) {
-                List<Predicate> predicates = new ArrayList<>();
-                if (!StringUtils.isEmpty(search.getName())) {
-                    predicates.add(
-                            cb.or(
-                                    cb.like(root.get("username"), "%" + search.getName() + "%"),
-                                    cb.like(root.get("trueName"), "%" + search.getName() + "%")
-                            )
-                    );
-                }
-                if (null != search.getBaned()) {
-                    predicates.add(cb.equal(root.get("baned"), search.getBaned()));
-                }
-                if (null != search.getQuarters()) {
-                    predicates.add(root.join("quarters").in(search.getQuarters()));
-                }
-
-                return cb.and(predicates.toArray(new Predicate[predicates.size()]));
-            }
-        };
-
-        return userDao.findAll(query, pageable);
-    }
-
-    public Result<User> editUser(UserEdit edit) throws RestException {
-        User user = findUser(edit.getId());
-        if (!StringUtils.isEmpty(edit.getPhone())) {
-            Optional<User> sameUser = userDao.findFirstByPhone(edit.getPhone());
-            if (sameUser.isPresent() && !sameUser.get().getId().equals(user.getId())) {
-                return Result.error("已经有相同的手机号");
-            }
-            user.setPhone(edit.getPhone());
-        }
-        if (!StringUtils.isEmpty(edit.getEmail())) {
-            user.setEmail(edit.getEmail());
-        }
-
-        //修改密码
-        if (!StringUtils.isEmpty(edit.getPassword())) {
-            isValidPassword(edit.getPassword());
-            user.setPassword(DigestUtils.md5DigestAsHex(edit.getPassword().getBytes()));
-        }
-        //是否禁用
-        if (edit.getBaned() != null) {
-            user.setBaned(edit.getBaned());
-        }
-        //真实姓名
-        if (!StringUtils.isEmpty(edit.getTrueName())) {
-            user.setTrueName(edit.getTrueName());
-        }
-        //信贷机构代码
-        if (!StringUtils.isEmpty(edit.getAccCode())) {
-            user.setAccCode(edit.getAccCode());
-        }
-
-        List<Long> oldIds = null;
-        //岗位设置
-        if (null != edit.getQuarters()) {
-            //
-//                        userDao.deleteUserQuarters(edit.getId());
-            oldIds = user.getQuarters().stream().map(item -> item.getId()).collect(Collectors.toList());
-            setQuarters(user, edit.getQuarters());
-        }
-//        //菜单权限
-//        if (null != edit.getUnbindMenus()) {
-//            setUnbindMenus(user, edit.getUnbindMenus());
+//    /**
+//     * 角色添加用户
+//     *
+//     * @param rid
+//     * @param uids
+//     * @return
+//     */
+//    public Result roleAddUsers(long rid, Collection<Long> uids) {
+//        if (roleDao.countById(rid) == 0) {
+//            return Result.error();
 //        }
-//        //禁用功能
-//        if (null != edit.getUnbindMethods()) {
-//            setUnbindMethods(user, edit.getUnbindMethods());
-//        }
-        user = saveUser(user);
-//        if (null != oldIds) {
-//            globalPermissionService.syncGlobalPermissionCenterQuartersChanged(oldIds, user);
-//        }
-        return Result.ok(user);
-    }
-
-
-    /**
-     * 创建岗位
-     *
-     * @param add
-     * @return
-     */
-    public Result<Quarters> createQuarters(QuartersAdd add) {
-        Department department = departmentDao.findById(add.getDepartmentId()).orElse(null);
-        if (department == null) return Result.error("没有该部门");
-        //同部门不能有同名的岗位
-        Quarters same = quartersDao.findFirstByDepartmentAndName(department, add.getName());
-        if (same != null) return Result.error("已经有同名的岗位");
-
-        Quarters quarters = Transformer.transform(add, Quarters.class);
-        quarters.setDepartmentId(department.getId());
-        quarters.setDName(department.getName());
-        quarters.setSort(add.getSort());
-        quarters.setManager(add.isManager());
-
-        //查找最上层的id
-        List objs = quartersDao.getQuartersCodeFromDepartment(department.getId());
-        if (objs.size() == 0) {
-            quarters.setCode(department.getCode() + "_001");
-        } else {
-            String code = objs.get(0).toString();
-            int codeValue = Integer.valueOf(code.substring(code.length() - 3, code.length()));
-            codeValue++;
-            String newCode = codeValue + "";
-            for (int i = newCode.length(); i < 3; i++) {
-                newCode = "0" + newCode;
-            }
-            quarters.setCode(department.getCode() + "_" + newCode);
-        }
-        Quarters ret = quartersDao.save(quarters);
-        return Result.ok(ret);
-    }
-
-    /**
-     * 编辑岗位
-     *
-     * @param edit
-     * @return
-     */
-    public Result<Quarters> updateQuarters(QuartersEdit edit) {
-        //禁止编辑同名岗位
-        if (quartersDao.countSameNameFromDepartment(edit.getId(), edit.getName()) > 0) {
-            return Result.error("已经有同名的岗位");
-        }
-        Quarters quarters = findQuarters(edit.getId()).orElse(null);
-        if (null == quarters) {
-            return Result.error("编辑的岗位不存在");
-        }
-        if (null != edit.getManager()) {
-            quarters.setManager(edit.getManager());
-        }
-        quarters.setSort(edit.getSort());
-        quarters.setName(edit.getName());
-        quarters.setInfo(edit.getInfo());
-        return Result.ok(quartersDao.save(quarters));
-    }
-
-
-    public Result addUsersToQuarters(Collection<Long> uids, long qid) {
-        if (quartersDao.countById(qid) == 0) {
-            return Result.error();
-        }
-        List<Long> list = uids.stream()
-                .filter(uid -> {
-                    if (userDao.countById(uid) == 0) return false;
-                    if (userDao.hasQuarters(uid, qid) > 0) {
-                        return true;
-                    }
-                    return userDao.userAddQuarters(uid, qid) > 0;
-                }).collect(Collectors.toList());
-        return Result.ok(list);
-    }
-
-
-    @Async
-    public void updateToken(String token) {
-        userTokenDao.updateToken(token, new Date(System.currentTimeMillis() + 30 * 1000 * 60), new Date());
-    }
-
-
-    /**
-     * 登录用户对应的私有云账号
-     *
-     * @param uid
-     * @return
-     */
-    public Result loginFileCloudSystem(long uid) {
-        List<Object[]> list = userDao.getUserCloudProfile(uid);
-        if (list.size() > 0) {
-            Object[] objects = list.get(0);
-            //登录私有云
-            LoginResponse loginResponse = cloudApi.login(String.valueOf(objects[0]), String.valueOf(objects[1]));
-            if (null != loginResponse && loginResponse.getStatus().equals("SUCCESS")) {
-                return Result.ok(loginResponse.getResponseCookies().get(0));
-            }
-        }
-        return Result.error();
-    }
-
-
-    /**
-     * 登录可操作公共文件柜的私有云账号, 如果没有权限, 那么依然登录原本的账号
-     *
-     * @param uid
-     * @return
-     */
-    public Result loginFileCloudCommonSystem(long uid) {
-        //检查是否有共享文件云权限
-//        if (!globalPermissionService.checkPermission(GlobalPermission.Type.COMMON_CLOUD_DISK, 0, uid)) {
-//            return loginFileCloudCommonSystem(uid);
-//        }
-//        if(userDao.checkPermission(Utils.getCurrentUserId(), UserExternalPermission.Permission.COMMON_CLOUD_DISK) == 0){
-//            return loginFileCloudSystem(uid);
-//        }
-        LoginResponse loginResponse = cloudApi.login(cloudCommonUsername, cloudCommonPassword);
-        if (null != loginResponse && loginResponse.getStatus().equals("SUCCESS")) {
-            return Result.ok(loginResponse.getResponseCookies().get(0));
-        }
-        return Result.error();
-    }
-
-
-    /**
-     * 得到用户的私有云账号
-     *
-     * @param uid
-     * @return
-     */
-    public String[] getPrivateCloudUsername(long uid) {
-        List<Object[]> list = userDao.getUserCloudProfile(uid);
-        if (list.size() > 0) {
-            String[] result = new String[2];
-            int count = 0;
-            for (Object o : list.get(0)) {
-                result[count++] = String.valueOf(o);
-            }
-            return result;
-        }
-        return new String[]{"", ""};
-    }
-
-    /**
-     * 得到公共私有云账号
-     *
-     * @param uid
-     * @return
-     */
-    public String[] getCommonCloudUsername(long uid) {
-        User user = findUser(uid);
-        if (null == user || !user.isSu()) {
-            return new String[]{"", ""};
-        }
-        return new String[]{cloudCommonUsername, cloudCommonPassword};
-
-    }
-
-    public List<Department> findDepartmentsByParent_Id(long pid) {
-        if (0 == pid) {
-            return departmentDao.findAllByParent(null);
-        } else {
-            return departmentDao.findAllByParent_Id(pid);
-        }
-    }
-
-    public boolean hasUser(long uid) {
-        return userDao.countById(uid) > 0;
-    }
-
-    public boolean userHasQuarter(long uid, long qid) {
-        return userDao.countUidAndQid(uid, qid) > 0;
-    }
-
-    public List<User> findUser(Collection<Long> ids) {
-        return userDao.findAllByIdIn(ids);
-    }
-
-    public User findUser(final long id) {
-        return userDao.findById(id).orElseThrow(new RestException("找不到ID为" + id + "的用户"));
-    }
-
-    public User findUserByAccCode(String accCode) {
-        return userDao.findTopByAccCode(accCode)
-                .orElseThrow(new RestException(String.format("找不到代号为%s的客户经理", accCode)));
-    }
-
-    public Department findDepartment(final long id) {
-        return departmentDao.findById(id).orElseThrow(new RestException("找不到ID为" + id + "的部门"));
-    }
-
-
-    /**
-     * 是否拥有这个用户
-     *
-     * @param id 用户ID
-     * @return boolean
-     */
-    public boolean exists(final long id) {
-        return userDao.existsById(id);
-    }
-
-    public Role findRole(long id) {
-        return roleDao.findById(id)
-                .orElseThrow(new RestException(String.format("找不到ID为%d的角色", id)));
-    }
-
-    public Optional<Quarters> findQuarters(long id) {
-        return quartersDao.findById(id);
-    }
-
-    public Optional<SystemFile> findFile(long id) {
-        return systemFileDao.findById(id);
-    }
-
-
-    /**
-     * 初始化用户首字母
-     *
-     * @param user
-     */
-    public void initLetter(User user) {
-        String letter;
-        String firstSpell = ChineseToEnglish.getFirstSpell(user.getTrueName());
-        String substring = firstSpell.substring(0, 1).toUpperCase();
-        if (substring.matches("[A-Z]")) {
-            letter = substring;
-        } else {
-            letter = "#";
-        }
-        user.setLetter(letter);
-    }
-
-    /************ 权限相关 *************/
-
-
-    /**
-     * 添加授权
-     *
-     * @param pType    授权类型
-     * @param objectId 授权关联对象ID
-     * @param uType    授权方式
-     * @param linkIds  授权方式ID
-     * @return
-     * @Param info 授权详情, 没有为null
-     */
-    public List<Long> addGlobalPermission(GlobalPermission.Type pType, long objectId, GlobalPermission.UserType uType, Collection<Long> linkIds, Object info) {
-        return linkIds.stream().map(linkId -> {
-            //检查是否已经有相同的授权
-            GlobalPermission globalPermission = globalPermissionDao.findTopByTypeAndObjectIdAndUserTypeAndLinkId(pType, objectId, uType, linkId).orElse(new GlobalPermission());
-//            List ids = entityManager.createQuery("select gp.id from GlobalPermission gp where gp.type = :ptype and gp.objectId = :objectId and gp.userType = :uType and gp.linkId = :linkId")
-//                    .setParameter("ptype",pType)
-//                    .setParameter("objectId",objectId)
-//                    .setParameter("uType",uType)
-//                    .setParameter("linkId",linkId)
-//                    .setMaxResults(1)
-//                    .getResultList();
-//            if(ids.size() > 0){
-//                return (Long)ids.get(0);
+//        List list = uids.stream().filter(uid -> {
+//            if (roleDao.hasPair(uid, rid) > 0) {
+//                return true;
 //            }
-            globalPermission.setType(pType);
-            globalPermission.setObjectId(objectId);
-            globalPermission.setUserType(uType);
-            globalPermission.setLinkId(linkId);
-            //更新授权内容
-            globalPermission.setDescription(info);
-
-            //更新用户授权表
-            if (pType.equals(GlobalPermission.Type.USER_METHOD)) {
-                cacheUserMethods(globalPermission);
-            }
-
-            globalPermission = globalPermissionDao.save(globalPermission);
-
-            //更新授权中间表
-//            globalPermissionService.syncGlobalPermissionCenterAdded(globalPermission);
-            return globalPermission.getId();
-        }).filter(linkId -> linkId > 0).collect(Collectors.toList());
-    }
-
-    /**
-     * 按类型和对象得到授权列表
-     *
-     * @param types
-     * @param objectId
-     * @return
-     */
-    public List<GlobalPermission> getGlobalPermissions(Collection<GlobalPermission.Type> types, long objectId) {
-        return globalPermissionDao.findAllByTypeInAndObjectId(types, objectId);
-    }
-
-    /**
-     * 按详细参数得到授权对象
-     *
-     * @param type
-     * @param oid
-     * @param userType
-     * @param lid
-     * @return
-     */
-    public Optional<GlobalPermission> getGlobalPermission(GlobalPermission.Type type, long oid, GlobalPermission.UserType userType, long lid) {
-        return globalPermissionDao.findTopByTypeAndObjectIdAndUserTypeAndLinkId(type, oid, userType, lid);
-    }
-
-    public boolean deleteGlobalPermission(Long... gpids) {
-        int count = globalPermissionDao.deleteAllByIdIn(Arrays.asList(gpids));
-//        if(count > 0){
-//            globalPermissionService.syncGlobalPermissionCenterDeleted(gpids);
+//            return roleDao.addUserRole(uid, rid) > 0;
+//        }).collect(Collectors.toList());
+//        return Result.ok(list);
+//    }
+//
+//    /**
+//     * 角色删除用户
+//     *
+//     * @param rid
+//     * @param uids
+//     * @return
+//     */
+//    public Result roleDeleteUsers(long rid, Collection<Long> uids) {
+//        if (roleDao.countById(rid) == 0) {
+//            return Result.error();
 //        }
-        return count > 0;
-    }
-
-    /**
-     * 删除某个对象的所有授权
-     *
-     * @param id
-     * @return
-     */
-    public boolean deleteGlobalPermissionByObjectId(long id) {
-        int count = globalPermissionDao.deleteAllByObjectId(id);
-        return count > 0;
-    }
-
-    public boolean deleteGlobalPermissionByTypeAndObjectId(GlobalPermission.Type type, long id) {
-        return globalPermissionDao.deleteAllByTypeAndObjectId(type, id) > 0;
-    }
-
-    /**
-     * 得到叠加过后的最终授权结果
-     *
-     * @param uid
-     * @return
-     */
-    public List getUserMethods(long uid) {
-        List<GlobalPermission> gps = globalPermissionDao.getPermissionsByUser(Collections.singleton(GlobalPermission.Type.USER_METHOD), Arrays.asList(GlobalPermission.UserType.USER, GlobalPermission.UserType.ROLE), uid);
-        return gps.stream()
-                .map(GlobalPermission::getDescription)
-                .filter(obj -> obj instanceof JSONArray)
-                .flatMap(obj -> ((JSONArray) obj).stream())
-                .distinct()
-                .collect(Collectors.toList());
-    }
-
-    @Deprecated
-    public void cacheUserMethods(GlobalPermission globalPermission) {
-        if (true) return;
-        userAllowApiDao.deleteAllByUserId(globalPermission.getLinkId());
-        JSONObject menu = cache.getMenus();
-        for (Object o : (JSONArray) globalPermission.getDescription()) {
-            if (o instanceof String) {
-                String str = (String) o;
-                JSONObject item = getChildItemByIndex(menu, str);
-                if (item.containsKey("api")) {
-                    JSONArray apis = item.getJSONArray("api");
-                    if (null == apis) {
-                        continue;
-                    }
-                    for (Object api : apis) {
-                        UserAllowApi allowApi = new UserAllowApi();
-                        allowApi.setUserId(globalPermission.getLinkId());
-                        allowApi.setApi((String) api);
-                        userAllowApiDao.save(allowApi);
-                    }
-                }
-            }
-        }
-    }
-
-
-    /********** 角色相关 *************/
-
-    /**
-     * 创建角色
-     *
-     * @param request
-     * @return
-     */
-    public Result createRole(RoleRequest request) {
-        Role role = new Role();
-        role.setName(request.getName());
-        role.setInfo(request.getInfo());
-        role.setSort(request.getSort());
-        role.setCanDelete(request.isCanDelete());
-        role = roleDao.save(role);
-        return Result.ok(role);
-    }
-
-    /**
-     * 编辑角色
-     *
-     * @param request
-     * @return
-     */
-    public Result editRole(RoleRequest request) {
-        Role role = findRole(request.getId());
-        role.setName(request.getName());
-        role.setInfo(request.getInfo());
-        role.setSort(request.getSort());
-        role.setCanDelete(request.isCanDelete());
-        role = roleDao.save(role);
-        return Result.ok(role);
-    }
-
-    /**
-     * 删除角色
-     *
-     * @param ids
-     * @return
-     */
-    public Result deleteRoles(Collection<Long> ids) {
-        return Result.ok(
-                ids.stream()
-                        .map(id -> roleDao.findById(id).orElse(null))
-                        .filter(role -> null != role && role.isCanDelete())
-                        .peek(role -> roleDao.deleteById(role.getId()))
-                        .map(role -> role.getId())
-                        .collect(Collectors.toList())
-        );
-    }
-
-    /**
-     * 角色添加用户
-     *
-     * @param rid
-     * @param uids
-     * @return
-     */
-    public Result roleAddUsers(long rid, Collection<Long> uids) {
-        if (roleDao.countById(rid) == 0) {
-            return Result.error();
-        }
-        List list = uids.stream().filter(uid -> {
-            if (roleDao.hasPair(uid, rid) > 0) {
-                return true;
-            }
-            return roleDao.addUserRole(uid, rid) > 0;
-        }).collect(Collectors.toList());
-        return Result.ok(list);
-    }
-
-    /**
-     * 角色删除用户
-     *
-     * @param rid
-     * @param uids
-     * @return
-     */
-    public Result roleDeleteUsers(long rid, Collection<Long> uids) {
-        if (roleDao.countById(rid) == 0) {
-            return Result.error();
-        }
-        List list = uids.stream().filter(uid -> roleDao.deleteUserRole(uid, rid) > 0).collect(Collectors.toList());
-        return Result.ok(list);
-    }
-
-    /**
-     * 用户批量设置角色
-     *
-     * @param uid
-     * @param rids
-     * @return
-     */
-    public Result userSetRoles(long uid, Collection<Long> rids) {
-        if (!userDao.existsById(uid)) {
-            return Result.error();
-        }
-        //删除所有角色
-        roleDao.deleteUserRoles(uid);
-        List list = rids.stream().filter(rid -> {
-            if (roleDao.hasPair(uid, rid) > 0) {
-                return true;
-            }
-            return roleDao.addUserRole(uid, rid) > 0;
-        }).collect(Collectors.toList());
-        return Result.ok(list);
-    }
-
-    /**
-     * 用户批量删除角色
-     *
-     * @param uid
-     * @param rids
-     * @return
-     */
-    public Result userDeleteRoles(long uid, Collection<Long> rids) {
-        List list = rids.stream().filter(rid -> roleDao.deleteUserRole(uid, rid) > 0).collect(Collectors.toList());
-        return Result.ok(list);
-    }
-
-
-    public Page searchRoles(RoleSearchRequest request, Pageable pageable) {
-        Specification query = ((root, criteriaQuery, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
-            if (!StringUtils.isEmpty(request.getName())) {
-                predicates.add(cb.like(root.get("name"), "%" + request.getName() + "%"));
-            }
-            return cb.and(predicates.toArray(new Predicate[predicates.size()]));
-
-        });
-        return roleDao.findAll(query, pageable);
-    }
-
-    /**************** 部门相关 ******************/
-
-
-    /**
-     * create new department
-     *
-     * @param add
-     * @return
-     */
-    public Department createDepartment(DepartmentAdd add) {
-        Optional<Department> same;
-        Department parent = 0 == add.getParentId() ? null : findDepartment(add.getParentId());
-        Department department = new Department();
-        department.setName(add.getName());
-        department.setParentId(null == parent ? null : parent.getId());
-        department.setInfo(add.getInfo());
-        department.setSort(add.getSort());
-        department.setAccCode(add.getAccCode());
-
-        //部门编号
-        List objs;
-        if (null == department.getParentId()) {
-            objs = departmentDao.getTopLastCode();
-        } else {
-            objs = departmentDao.getLastCode(department.getParentId());
-        }
-        System.out.println(objs);
-        //没找到的时候,使用父编码+001
-        if (objs.size() == 0) {
-            if (null == department.getParentId()) {
-                department.setCode("001");
-            } else {
-                List codes = departmentDao.getDepartmentCode(department.getParentId());
-                department.setCode(codes.get(0) + "001");
-            }
-        } else {
-            //取后三位+1
-            String code = (String) objs.get(0);
-            int codeValue = Integer.valueOf(code.substring(code.length() - 3, code.length()));
-            codeValue++;
-            //补足3位
-            String newCode = String.valueOf(codeValue);
-            for (int i = newCode.length(); i < 3; i++) {
-                newCode = "0" + newCode;
-            }
-            department.setCode(code.substring(0, code.length() - 3) + newCode);
-        }
-        return department = departmentDao.save(department);
-    }
-
-    public Department editDepartment(DepartmentEdit edit) {
-        Department department = findDepartment(edit.getId());
-        if(!StringUtils.isEmpty(edit.getName())){
-            department.setName(edit.getName());
-        }
-        if (!StringUtils.isEmpty(edit.getInfo())) {
-            department.setInfo(edit.getInfo());
-        }
-
-        if (!StringUtils.isEmpty(edit.getAccCode())) {
-            department.setAccCode(edit.getAccCode());
-        }
-
-        //禁止编辑父级部门
-//            edit.setParentId(null);
-//            if (edit.getParentId() != null && !department.getParent().getId().equals(edit.getParentId())) {
-//                Optional<Department> newParent = findDepartment(edit.getParentId());
-//                if (!newParent.isPresent()) {
-//                    result.setErrMessage("没找到要设置的父部门");
-//                    return;
-//                }
-//                if (department.getChildren().size() > 0) {
-//                    result.setErrMessage("还有子部门, 无法移动");
-//                    return;
-//                }
-//                if (department.getQuarters().size() > 0) {
-//                    result.setErrMessage("还有岗位存在, 无法移动");
-//                    return;
-//                }
-//                department.setParentId(newParent.get().getId());
+//        List list = uids.stream().filter(uid -> roleDao.deleteUserRole(uid, rid) > 0).collect(Collectors.toList());
+//        return Result.ok(list);
+//    }
+//
+//    /**
+//     * 用户批量设置角色
+//     *
+//     * @param uid
+//     * @param rids
+//     * @return
+//     */
+//    public Result userSetRoles(long uid, Collection<Long> rids) {
+//        if (!userDao.existsById(uid)) {
+//            return Result.error();
+//        }
+//        //删除所有角色
+//        roleDao.deleteUserRoles(uid);
+//        List list = rids.stream().filter(rid -> {
+//            if (roleDao.hasPair(uid, rid) > 0) {
+//                return true;
 //            }
-        //排序
-        department.setSort(edit.getSort());
-        return departmentDao.save(department);
-    }
-
-
-    /**
-     * delete department
-     * if error, throws RestException and roolback
-     *
-     * @param id
-     * @return
-     */
-    public boolean deleteDepartment(final long id) {
-        Department department = findDepartment(id);
-        //如果还要岗位 不能删除
-        if (department.getQuarters().size() > 0) {
-            throw new RestException("该部门还有岗位, 无法删除");
-        }
-
-        if (department.getChildren().size() > 0) {
-            throw new RestException("该部门还有子部门, 无法删除");
-        }
-
-        departmentDao.deleteById(id);
-        return true;
-    }
-
-
-    /**
-     * check if user is SuperUser
-     *
-     * @param uid
-     * @return
-     */
-    public boolean isSu(long uid) {
-        return userDao.countByIdAndSuIsTrue(uid) > 0;
-    }
-
-    @Data
-    public static class RoleSearchRequest {
-        String name;
-    }
-
-    /*********8 工具类函数 *************/
-
-
-    /**
-     * 检查一个部门是不是另一个部门的子部门
-     *
-     * @param pid
-     * @param cid
-     * @return
-     */
-    public boolean isChildDepartment(long cid, long pid) {
-        List pobj = departmentDao.getDepartmentCode(pid);
-        List cobj = departmentDao.getDepartmentCode(cid);
-        return cobj.get(0).toString().startsWith(pobj.get(0).toString());
-    }
-
-    /**
-     * 检查一个岗位是否隶属某个部门
-     *
-     * @param qid
-     * @param did
-     * @return
-     */
-    public boolean isChildQuarter(long qid, long did) {
-        List pobj = departmentDao.getDepartmentCode(did);
-        List qobj = quartersDao.getQuartersCode(qid);
-        return qobj.get(0).toString().startsWith(pobj.get(0).toString());
-    }
-
-
-    /**
-     * 检查用户是否隶属于某个部门
-     *
-     * @param uid
-     * @param did
-     * @return
-     */
-    public boolean isUserFromDepartment(long uid, long did) {
-        List<Object[]> qids = userDao.getQids(uid);
-        return qids.stream().anyMatch(qid -> isChildDepartment((Long) qid[0], did));
-    }
-
-    public boolean hasQuarters(long uid, long qid) {
-        return userDao.hasQuarters(uid, qid) > 0;
-    }
-
-    public boolean departmentHasQuarters(long did, long qid) {
-        return departmentDao.departmentHasQuarters(did, qid) > 0;
-//        return departmentDao.departmentHasQuarters(did,qid) > 0;
-    }
-
-
-    /**
-     * 得到某个部门的所有用户ID
-     *
-     * @param dids
-     * @return
-     */
-    public List<Long> getUidsFromDepartment(Long... dids) {
-        return entityManager.createQuery("select u.id from User u join u.quarters q where (select count(d) from Department d where q.code like concat(d.code,'%') and d.id in :dids) > 0")
-                .setParameter("dids", Arrays.asList(dids))
-                .getResultList();
-    }
-
-    public List<Long> getDidsFromDepartment(long did) {
-        return departmentDao.getChildDepIds(did);
-    }
-
-    /**
-     * 得到某个岗位的所有用户ID
-     *
-     * @param qids
-     * @return
-     */
-    public List<Long> getUidsFromQuarters(Long... qids) {
-        return entityManager.createQuery("select u.id from User u join u.quarters q where q.id in :qids")
-                .setParameter("qids", Arrays.asList(qids))
-                .getResultList();
-    }
-
-
-    /**
-     * 得到某个岗位的所有用户ID
-     *
-     * @param uid
-     * @return
-     */
-    public List<Long> getQidsFromUser(long uid) {
-        return entityManager.createQuery("select q.id from User u join u.quarters q where u.id = :uid")
-                .setParameter("uid", uid)
-                .getResultList();
-    }
-
-    private JSONObject getChildItemByIndex(JSONObject item, String path) {
-        String[] ps = path.trim().split("\\.");
-        JSONObject result = item;
-        for (String p : ps) {
-            Object obj = result.get(p);
-            if (null == obj || !(obj instanceof JSONObject)) {
-                return new JSONObject();
-            }
-            result = (JSONObject) obj;
-        }
-        return result;
-    }
-
-
-}
+//            return roleDao.addUserRole(uid, rid) > 0;
+//        }).collect(Collectors.toList());
+//        return Result.ok(list);
+//    }
+//
+//    /**
+//     * 用户批量删除角色
+//     *
+//     * @param uid
+//     * @param rids
+//     * @return
+//     */
+//    public Result userDeleteRoles(long uid, Collection<Long> rids) {
+//        List list = rids.stream().filter(rid -> roleDao.deleteUserRole(uid, rid) > 0).collect(Collectors.toList());
+//        return Result.ok(list);
+//    }
+//
+//
+//    public Page searchRoles(RoleSearchRequest request, Pageable pageable) {
+//        Specification query = ((root, criteriaQuery, cb) -> {
+//            List<Predicate> predicates = new ArrayList<>();
+//            if (!StringUtils.isEmpty(request.getName())) {
+//                predicates.add(cb.like(root.get("name"), "%" + request.getName() + "%"));
+//            }
+//            return cb.and(predicates.toArray(new Predicate[predicates.size()]));
+//
+//        });
+//        return roleDao.findAll(query, pageable);
+//    }
+//
+//    /**************** 部门相关 ******************/
+//
+//
+//    /**
+//     * create new department
+//     *
+//     * @param add
+//     * @return
+//     */
+//    public Department createDepartment(DepartmentAdd add) {
+//        Optional<Department> same;
+//        Department parent = 0 == add.getParentId() ? null : findDepartment(add.getParentId());
+//        Department department = new Department();
+//        department.setName(add.getName());
+//        department.setParentId(null == parent ? null : parent.getId());
+//        department.setInfo(add.getInfo());
+//        department.setSort(add.getSort());
+//        department.setAccCode(add.getAccCode());
+//
+//        //部门编号
+//        List objs;
+//        if (null == department.getParentId()) {
+//            objs = departmentDao.findTopLastCode();
+//        } else {
+//            objs = departmentDao.findLastCode(department.getParentId());
+//        }
+//        System.out.println(objs);
+//        //没找到的时候,使用父编码+001
+//        if (objs.size() == 0) {
+//            if (null == department.getParentId()) {
+//                department.setCode("001");
+//            } else {
+//                List codes = departmentDao.getDepartmentCode(department.getParentId());
+//                department.setCode(codes.get(0) + "001");
+//            }
+//        } else {
+//            //取后三位+1
+//            String code = (String) objs.get(0);
+//            int codeValue = Integer.valueOf(code.substring(code.length() - 3, code.length()));
+//            codeValue++;
+//            //补足3位
+//            String newCode = String.valueOf(codeValue);
+//            for (int i = newCode.length(); i < 3; i++) {
+//                newCode = "0" + newCode;
+//            }
+//            department.setCode(code.substring(0, code.length() - 3) + newCode);
+//        }
+//        return department = departmentDao.save(department);
+//    }
+//
+//    public Department editDepartment(DepartmentEdit edit) {
+//        Department department = findDepartment(edit.getId());
+//        if(!StringUtils.isEmpty(edit.getName())){
+//            department.setName(edit.getName());
+//        }
+//        if (!StringUtils.isEmpty(edit.getInfo())) {
+//            department.setInfo(edit.getInfo());
+//        }
+//
+//        if (!StringUtils.isEmpty(edit.getAccCode())) {
+//            department.setAccCode(edit.getAccCode());
+//        }
+//
+//        //禁止编辑父级部门
+////            edit.setParentId(null);
+////            if (edit.getParentId() != null && !department.getParent().getId().equals(edit.getParentId())) {
+////                Optional<Department> newParent = findDepartment(edit.getParentId());
+////                if (!newParent.isPresent()) {
+////                    result.setErrMessage("没找到要设置的父部门");
+////                    return;
+////                }
+////                if (department.getChildren().size() > 0) {
+////                    result.setErrMessage("还有子部门, 无法移动");
+////                    return;
+////                }
+////                if (department.getQuarters().size() > 0) {
+////                    result.setErrMessage("还有岗位存在, 无法移动");
+////                    return;
+////                }
+////                department.setParentId(newParent.get().getId());
+////            }
+//        //排序
+//        department.setSort(edit.getSort());
+//        return departmentDao.save(department);
+//    }
+//
+//
+//    /**
+//     * delete department
+//     * if error, throws RestException and roolback
+//     *
+//     * @param id
+//     * @return
+//     */
+//    public boolean deleteDepartment(final long id) {
+//        Department department = findDepartment(id);
+//        //如果还要岗位 不能删除
+//        if (department.getQuarters().size() > 0) {
+//            throw new RestException("该部门还有岗位, 无法删除");
+//        }
+//
+//        if (department.getChildren().size() > 0) {
+//            throw new RestException("该部门还有子部门, 无法删除");
+//        }
+//
+//        departmentDao.deleteById(id);
+//        return true;
+//    }
+//
+//
+//    /**
+//     * check if user is SuperUser
+//     *
+//     * @param uid
+//     * @return
+//     */
+//    public boolean isSu(long uid) {
+//        return userDao.countByIdAndSuIsTrue(uid) > 0;
+//    }
+//
+//    @Data
+//    public static class RoleSearchRequest {
+//        String name;
+//    }
+//
+//    /*********8 工具类函数 *************/
+//
+//
+//    /**
+//     * 检查一个部门是不是另一个部门的子部门
+//     *
+//     * @param pid
+//     * @param cid
+//     * @return
+//     */
+//    public boolean isChildDepartment(long cid, long pid) {
+//        List pobj = departmentDao.getDepartmentCode(pid);
+//        List cobj = departmentDao.getDepartmentCode(cid);
+//        return cobj.get(0).toString().startsWith(pobj.get(0).toString());
+//    }
+//
+//    /**
+//     * 检查一个岗位是否隶属某个部门
+//     *
+//     * @param qid
+//     * @param did
+//     * @return
+//     */
+//    public boolean isChildQuarter(long qid, long did) {
+//        List pobj = departmentDao.getDepartmentCode(did);
+//        List qobj = quartersDao.getQuartersCode(qid);
+//        return qobj.get(0).toString().startsWith(pobj.get(0).toString());
+//    }
+//
+//
+//    /**
+//     * 检查用户是否隶属于某个部门
+//     *
+//     * @param uid
+//     * @param did
+//     * @return
+//     */
+//    public boolean isUserFromDepartment(long uid, long did) {
+//        List<Object[]> qids = userDao.getQids(uid);
+//        return qids.stream().anyMatch(qid -> isChildDepartment((Long) qid[0], did));
+//    }
+//
+//    public boolean hasQuarters(long uid, long qid) {
+//        return userDao.hasQuarters(uid, qid) > 0;
+//    }
+//
+//    public boolean departmentHasQuarters(long did, long qid) {
+//        return departmentDao.departmentHasQuarters(did, qid) > 0;
+////        return departmentDao.departmentHasQuarters(did,qid) > 0;
+//    }
+//
+//
+//    /**
+//     * 得到某个部门的所有用户ID
+//     *
+//     * @param dids
+//     * @return
+//     */
+//    public List<Long> getUidsFromDepartment(Long... dids) {
+//        return entityManager.createQuery("select u.id from User u join u.quarters q where (select count(d) from Department d where q.code like concat(d.code,'%') and d.id in :dids) > 0")
+//                .setParameter("dids", Arrays.asList(dids))
+//                .getResultList();
+//    }
+//
+//    public List<Long> getDidsFromDepartment(long did) {
+//        return departmentDao.getChildDepIds(did);
+//    }
+//
+//    /**
+//     * 得到某个岗位的所有用户ID
+//     *
+//     * @param qids
+//     * @return
+//     */
+//    public List<Long> getUidsFromQuarters(Long... qids) {
+//        return entityManager.createQuery("select u.id from User u join u.quarters q where q.id in :qids")
+//                .setParameter("qids", Arrays.asList(qids))
+//                .getResultList();
+//    }
+//
+//
+//    /**
+//     * 得到某个岗位的所有用户ID
+//     *
+//     * @param uid
+//     * @return
+//     */
+//    public List<Long> getQidsFromUser(long uid) {
+//        return entityManager.createQuery("select q.id from User u join u.quarters q where u.id = :uid")
+//                .setParameter("uid", uid)
+//                .getResultList();
+//    }
+//
+//    private JSONObject getChildItemByIndex(JSONObject item, String path) {
+//        String[] ps = path.trim().split("\\.");
+//        JSONObject result = item;
+//        for (String p : ps) {
+//            Object obj = result.get(p);
+//            if (null == obj || !(obj instanceof JSONObject)) {
+//                return new JSONObject();
+//            }
+//            result = (JSONObject) obj;
+//        }
+//        return result;
+//    }
+//
+//
+//}

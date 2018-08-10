@@ -1,7 +1,7 @@
 package com.beeasy.hzback.modules.system.dao;
 
-import com.beeasy.hzback.modules.system.entity.Quarters;
-import com.beeasy.hzback.modules.system.entity.User;
+import com.beeasy.hzback.modules.system.entity_kt.Quarters;
+import com.beeasy.hzback.modules.system.entity_kt.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Repository
 public interface IUserDao extends JpaRepository<User,Long> ,JpaSpecificationExecutor {
@@ -29,6 +28,9 @@ public interface IUserDao extends JpaRepository<User,Long> ,JpaSpecificationExec
     List<User> findAllByIdIn(Collection<Long> ids);
 
     Optional<User> findFirstByPhone(String phone);
+    Optional<User> findTopByPhoneAndIdNot(final String phone, final long uid);
+    int countByPhoneAndIdNot(final String phone, final long uid);
+    int countByEmailAndIdNot(final String email, final long uid);
     Optional<User> findTopByAccCode(String accCode);
     //检查是否超级管理员
     int countByIdAndSuIsTrue(long uid);
@@ -64,8 +66,11 @@ public interface IUserDao extends JpaRepository<User,Long> ,JpaSpecificationExec
 
     @Modifying
     @Query(value = "delete from t_user_quarters WHERE user_id = :uid",nativeQuery = true)
-    int deleteUserQuarters(@Param("uid") long uid);
+    int deleteLinksByUid(@Param("uid") long uid);
 
+    @Modifying
+    @Query(value = "delete from t_user_quarters where quarters_id in :qids", nativeQuery = true)
+    int deleteLinksByQids(@Param("qids") Collection<Long> qids);
 
     @Modifying
     @Query("update User set baned = :baned where id in :ids")
@@ -95,11 +100,11 @@ public interface IUserDao extends JpaRepository<User,Long> ,JpaSpecificationExec
     int modifyPassword(@Param("id") long id, @Param("oldPassword") String oldPassword, @Param("password") String password);
 
     //检查手机号是否重复
-    @Query(value = "select count(u) from User u where u.phone = :phone and u.id <> :uid")
-    int hasThisPhone(@Param("uid") long uid, @Param("phone") String phone);
-
-    @Query(value = "select count(u) from User u where u.email = :email and u.id <> :uid")
-    int hasThisEmail(@Param("uid") long uid, @Param("email") String email);
+//    @Query(value = "select count(u) from User u where u.phone = :phone and u.id <> :uid")
+//    int hasThisPhone(@Param("uid") long uid, @Param("phone") String phone);
+//
+//    @Query(value = "select count(u) from User u where u.email = :email and u.id <> :uid")
+//    int hasThisEmail(@Param("uid") long uid, @Param("email") String email);
 
     @Query(value = "select u.id,u.trueName,u.phone,u.profile.faceId,q.id,u.letter,u.username from User u left join u.quarters q where u.baned = false ")
     List getNormalUsers();

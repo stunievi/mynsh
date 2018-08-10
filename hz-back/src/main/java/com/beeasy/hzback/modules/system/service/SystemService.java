@@ -70,6 +70,13 @@ public class SystemService {
                 .stream()
                 .collect(Collectors.toMap(SystemVariable::getVarName, SystemVariable::getVarValue));
     }
+    public String getSingle(String key){
+        return systemVariableDao.findAllByVarNameIn(Arrays.asList(key))
+                .stream()
+                .findFirst()
+                .map(SystemVariable::getVarValue)
+                .orElse("");
+    }
 
     /**
      * 变量删除

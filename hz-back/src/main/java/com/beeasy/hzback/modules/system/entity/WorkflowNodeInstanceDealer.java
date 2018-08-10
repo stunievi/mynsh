@@ -1,6 +1,8 @@
 package com.beeasy.hzback.modules.system.entity;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.beeasy.hzback.modules.system.entity_kt.GlobalPermission;
+import com.beeasy.hzback.modules.system.entity_kt.User;
 import lombok.Getter;
 import lombok.Setter;
 

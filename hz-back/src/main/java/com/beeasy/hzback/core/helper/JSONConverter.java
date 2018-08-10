@@ -13,6 +13,10 @@ public class JSONConverter implements AttributeConverter<Object,String> {
     public static final DBDRIVER DRIVER = DBDRIVER.DB2;
     public static final String type = "LONGTEXT";
     public static final String blobType = "LONGBLOB";
+    public static final String INCLUDE_CN = "LONGCN";
+    public static final String VARCHAR_20 = "VARCHAR_20";
+    public static final String VARCHAR_5O = "VARCHAR_50";
+
 //    public static String fuck = "";
 //    static {
 //        switch (DRIVER){

@@ -2,7 +2,7 @@ package com.beeasy.hzback.modules.system.form;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.beeasy.hzback.modules.system.entity.GlobalPermission;
+import com.beeasy.hzback.modules.system.entity_kt.GlobalPermission;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;

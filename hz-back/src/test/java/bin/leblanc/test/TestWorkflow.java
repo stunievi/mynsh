@@ -7,7 +7,6 @@ import bin.leblanc.workflow.enums.DealType;
 import bin.leblanc.workflow.exception.*;
 import com.alibaba.fastjson.JSON;
 import com.beeasy.hzback.Application;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -20,7 +19,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.HashMap;
 import java.util.Map;
 
-@Slf4j
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -62,12 +60,12 @@ public class TestWorkflow {
                 .setMaxNum(1)
                 .addDealers(new Integer[]{4,5,6});
 
-        model.createLogicNode()
-                .addIfExpression(() -> {
-                    return true;
-                })
-                .then(1)
-                .addElse(1);
+//        model.create
+//                .addIfExpression(() -> {
+//                    return true;
+//                })
+//                .then(1)
+//                .addElse(1);
 
         model.createReviewNode()
                 .setPassNum(1)
@@ -90,7 +88,7 @@ public class TestWorkflow {
             /**
              * 测试成功的提交
              */
-            log.info("测试工作流程1");
+            
             WorkflowTask task = model.startNewTask(1);
             //提交信息
             task.submitData(1,data);
@@ -102,20 +100,20 @@ public class TestWorkflow {
             /**
              * 测试失败的提交（退回上一级）
              */
-            log.info("测试工作流程2");
+            
             WorkflowTask task2 = model.startNewTask(1);
             task2.submitData(1,data);
             task2.submitData(4,DealType.SUCCESS);
             task2.submitData(4,DealType.BACK_TO_LAST);
 
             Assert.assertEquals(task2.getCurrentIndex(),1);
-            log.info(JSON.toJSONString(task2.getMoveList()));
+            
 
 
             /**
              * 测试失败提交（废弃）
              */
-            log.info("测试工作流程3");
+            
             WorkflowTask task3 = model.startNewTask(1);
             task3.submitData(1,data);
             task3.submitData(4,DealType.SUCCESS);

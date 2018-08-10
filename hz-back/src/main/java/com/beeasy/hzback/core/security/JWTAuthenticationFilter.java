@@ -5,7 +5,7 @@ import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.modules.system.dao.IUserAllowApiDao;
 import com.beeasy.hzback.modules.system.dao.IUserDao;
 import com.beeasy.hzback.modules.system.dao.IUserTokenDao;
-import com.beeasy.hzback.modules.system.service.UserService;
+import com.beeasy.hzback.modules.system.service_kt.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

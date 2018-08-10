@@ -1,6 +1,6 @@
 //package com.beeasy.hzback.modules.system.dao;
 //
-//import com.beeasy.hzback.modules.system.entity.User;
+//import com.beeasy.hzback.modules.system.entity_kt.User;
 //import com.beeasy.hzback.modules.system.entity.UserExternalPermission;
 //import org.springframework.data.jpa.repository.JpaRepository;
 //

@@ -8,7 +8,8 @@ import com.beeasy.hzback.modules.system.dao.*;
 import com.beeasy.hzback.modules.system.entity.CloudDirectoryIndex;
 import com.beeasy.hzback.modules.system.entity.FileCloudIndex;
 import com.beeasy.hzback.modules.system.entity.Message;
-import com.beeasy.hzback.modules.system.entity.SystemFile;
+import com.beeasy.hzback.modules.system.entity_kt.SystemFile;
+import com.beeasy.hzback.modules.system.service_kt.UserService;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,8 +48,8 @@ public class CloudDiskService implements ICloudDiskService {
 
     @Autowired
     ICloudFileTagDao tagDao;
-    @Autowired
-    IUploadFileTempDao uploadFileTempDao;
+//    @Autowired
+//    IUploadFileTempDao uploadFileTempDao;
     @Autowired
     UserService userService;
     @Autowired

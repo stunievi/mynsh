@@ -16,7 +16,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
@@ -103,10 +105,23 @@ public class LeblancConfig {
                 e.printStackTrace();
             }
 
-            for (String sql : cache.getSqlViews()) {
+            for (String sql : cache.getSqlViews()){
                 entityManager.createNativeQuery(sql).executeUpdate();
             }
         }
+
     }
+
+//    @Service
+//    @Transactional
+//    public static class ViewService{
+//        @Autowired
+//        EntityManager entityManager;
+//
+//        @Async
+//        public void createView(String sql){
+//        }
+//    }
+
 
 }

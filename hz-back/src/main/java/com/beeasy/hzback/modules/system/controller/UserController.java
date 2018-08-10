@@ -9,10 +9,11 @@ import com.beeasy.hzback.modules.system.cache.SystemConfigCache;
 import com.beeasy.hzback.modules.system.dao.IQuartersDao;
 import com.beeasy.hzback.modules.system.dao.IRoleDao;
 import com.beeasy.hzback.modules.system.dao.IUserDao;
-import com.beeasy.hzback.modules.system.entity.*;
+import com.beeasy.hzback.modules.system.entity_kt.*;
 import com.beeasy.hzback.modules.system.form.*;
 import com.beeasy.hzback.modules.system.log.NotSaveLog;
-import com.beeasy.hzback.modules.system.service.UserService;
+//import com.beeasy.hzback.modules.system.service_kt.UserService;
+import com.beeasy.hzback.modules.system.service_kt.UserService;
 import com.github.tobato.fastdfs.domain.StorePath;
 import com.github.tobato.fastdfs.service.FastFileStorageClient;
 import io.swagger.annotations.Api;
@@ -26,7 +27,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -70,18 +70,18 @@ public class UserController {
     @ApiOperation(value = "添加用户",notes = "")
     @PostMapping
     public Result<User> add(
-            @Validated(value = {UserAdd.group1.class,UserAdd.group2.class}) @RequestBody UserAdd edit
+            @Validated(value = {UserAddRequeest.group1.class,UserAddRequeest.group2.class}) @RequestBody UserAddRequeest edit
             ) throws RestException {
 
-        return userService.createUser(edit);
+        return Result.ok(userService.createUser(edit));
     }
 
     @ApiOperation(value = "修改用户", notes = "")
     @RequestMapping(value = "/edit", method = RequestMethod.POST)
     public Result edit(
-            @Valid @RequestBody UserEdit edit
+            @Valid @RequestBody UserEditRequest edit
     ) throws RestException {
-        return userService.editUser(edit);
+        return Result.ok(userService.editUser(edit));
     }
 
     @ApiOperation(value = "批量删除用户")
@@ -98,14 +98,14 @@ public class UserController {
             @RequestParam String uids,
             @RequestParam long qid
     ){
-        return userService.addUsersToQuarters(Utils.convertIdsToList(uids), qid);
+        return Result.ok(userService.addUsersToQuarters(Utils.convertIdsToList(uids), qid));
     }
 
     @ApiOperation(value = "用户列表", notes = "查找用户列表，当传递用户名的时候，只会查找出符合条件的用户")
     @GetMapping
     public String list(
             @PageableDefault(value = 15, sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable,
-            UserSearch search
+            UserSearchRequest search
 //            String userName
     ){
         return Result.ok(userService.searchUser(search,pageable)).toJson(
@@ -180,7 +180,7 @@ public class UserController {
     public Result modifyProfile(
             @Valid @RequestBody ProfileEditRequest request
     ){
-        return userService.modifyProfile(Utils.getCurrentUserId(), request);
+        return Result.ok(userService.modifyProfile(Utils.getCurrentUserId(), request));
     }
 
 
@@ -254,7 +254,7 @@ public class UserController {
     @NotSaveLog
     @RequestMapping(value = "/face/edit",method = RequestMethod.POST)
     public String uploadFace(@RequestParam MultipartFile file){
-        return (userService.updateUserFace(Utils.getCurrentUserId(),file)).toJson();
+        return Result.ok(userService.updateUserFace(Utils.getCurrentUserId(),file)).toJson();
     }
 
 
@@ -264,7 +264,7 @@ public class UserController {
     public Result createRole(
             @Validated(RoleRequest.add.class) @RequestBody RoleRequest request
     ){
-        return userService.createRole(request);
+        return Result.ok(userService.createRole(request));
     }
 
     @ApiOperation(value = "编辑角色")
@@ -272,7 +272,7 @@ public class UserController {
     public Result editRole(
             @Validated(value = RoleRequest.edit.class) @RequestBody RoleRequest request
     ){
-        return userService.editRole(request);
+        return Result.ok(userService.editRole(request));
     }
 
     @ApiOperation(value = "得到单独角色的信息")
@@ -288,7 +288,7 @@ public class UserController {
     public Result deleteRoles(
             @RequestParam String id
     ){
-        return userService.deleteRoles(Utils.convertIdsToList(id));
+        return Result.ok(userService.deleteRoles(Utils.convertIdsToList(id)));
     }
     @RequestMapping(value = "/role/addUsers", method = RequestMethod.GET)
     @ApiOperation(value = "角色批量添加用户")
@@ -296,7 +296,7 @@ public class UserController {
             @RequestParam long rid,
             @RequestParam String uid
     ){
-        return userService.roleAddUsers(rid, Utils.convertIdsToList(uid));
+        return Result.ok(userService.roleAddUsers(rid, Utils.convertIdsToList(uid)));
     }
 
     @RequestMapping(value = "/role/deleteUsers", method = RequestMethod.GET)
@@ -305,7 +305,7 @@ public class UserController {
             @RequestParam long rid,
             @RequestParam String uid
     ){
-        return userService.roleDeleteUsers(rid, Utils.convertIdsToList(uid));
+        return Result.ok(userService.roleDeleteUsers(rid, Utils.convertIdsToList(uid)));
     }
 
     @ApiOperation(value = "用户批量设置角色")
@@ -314,7 +314,7 @@ public class UserController {
             @RequestParam long uid,
             @RequestParam String rid
     ){
-        return userService.userSetRoles(uid, Utils.convertIdsToList(rid));
+        return Result.ok(userService.userSetRoles(uid, Utils.convertIdsToList(rid)));
     }
 
     @ApiOperation(value = "用户批量删除角色")
@@ -322,13 +322,13 @@ public class UserController {
     public Result userDeleteRoles(
             @RequestParam String id
     ){
-        return userService.userDeleteRoles(Utils.getCurrentUserId(), Utils.convertIdsToList(id));
+        return Result.ok(userService.userDeleteRoles(Utils.getCurrentUserId(), Utils.convertIdsToList(id)));
     }
 
     @ApiOperation(value = "查询角色")
     @RequestMapping(value = "/role/getList", method = RequestMethod.GET)
     public Result getAllRoles(
-            UserService.RoleSearchRequest request,
+            RoleSearchRequest request,
             Pager pager,
             @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
     ){

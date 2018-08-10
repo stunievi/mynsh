@@ -1,7 +1,7 @@
 //package com.beeasy.hzback.modules.system.service;
 //
 //import com.beeasy.hzback.core.exception.RestException;
-//import com.beeasy.hzback.modules.system.entity.Quarters;
+//import com.beeasy.hzback.modules.system.entity_kt.Quarters;
 //import com.beeasy.hzback.modules.system.form.QuartersAdd;
 //
 //public interface IQuartersService {

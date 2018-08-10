@@ -8,10 +8,13 @@ import com.beeasy.hzback.core.util.SqlUtils;
 import com.beeasy.hzback.modules.system.dao.IGlobalPermissionDao;
 import com.beeasy.hzback.modules.system.dao.IWorkflowModelDao;
 import com.beeasy.hzback.modules.system.entity.*;
+import com.beeasy.hzback.modules.system.entity_kt.GlobalPermission;
+import com.beeasy.hzback.modules.system.entity_kt.Quarters;
+import com.beeasy.hzback.modules.system.entity_kt.User;
 import com.beeasy.hzback.modules.system.form.GlobalPermissionEditRequest;
+import com.beeasy.hzback.modules.system.service_kt.UserService;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import io.netty.util.internal.StringUtil;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -737,7 +740,7 @@ public class DataSearchService {
             return null;
         }
         //管理员默认开放所有权限
-        if (user.isSu()) {
+        if (user.getSu()) {
             return new HashMap<>();
         }
         //查询用户所持有的所有授权
@@ -753,7 +756,7 @@ public class DataSearchService {
         List<String> finalUserCode = userCode;
         //默认授权行为
         for (Quarters q : qs) {
-            if(q.isManager()){
+            if(q.getManager()){
                 managerCode.add(initString(q.getDepartment().getAccCode()));
             }
         }

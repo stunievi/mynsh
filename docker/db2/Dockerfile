@@ -1,4 +1,4 @@
-FROM hub.c.163.com/library/centos
-RUN yum install -y wget
-RUN cd ~
-RUN wget ftp://public.dhe.ibm.com/software/hk/cobra/v9.7_linuxx64_server.tar.gz
+FROM angoca/db2-instance
+COPY ./entrypoint.sh /entrypoint.sh
+RUN chmod 777 /entrypoint.sh
+ENTRYPOINT /bin/bash /entrypoint.sh

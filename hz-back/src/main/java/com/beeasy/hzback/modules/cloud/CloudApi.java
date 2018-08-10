@@ -10,7 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-@FeignClient(name = "cloud-service", url = "http://${filecloud.address}",configuration = FeignConfig.class)
+//@FeignClient(name = "cloud-service", url = "http://${filecloud.address}",configuration = FeignConfig.class)
 public interface CloudApi {
     @RequestMapping(method = RequestMethod.GET, value = "/apiLogin.action")
     LoginResponse login(@RequestParam("username") String username, @RequestParam("password") String password);
@@ -20,29 +20,29 @@ public interface CloudApi {
 
 
     //是否登录
-    @GetMapping("/checkOnline.action")
+    @RequestMapping(value = "/checkOnline.action",method = RequestMethod.GET)
     CloudBaseResponse checkOnline();
 
     //创建工作目录
-    @GetMapping("/disk/createFolder.action")
+    @RequestMapping(value = "/disk/createFolder.action", method = RequestMethod.GET)
     CreateDirResponse createUserDir(@RequestParam("pid") long pid, @RequestParam("name") String name);
 
     //获得文件目录
-    @GetMapping("/disk/getFiles.action")
+    @RequestMapping(value = "/disk/getFiles.action", method = RequestMethod.GET)
     GetFilesResponse getFiles(@RequestParam("pathId") long pathId);
 
     //删除文件
-    @GetMapping("/disk/deleteFiles.action")
+    @RequestMapping(value = "/disk/deleteFiles.action", method = RequestMethod.GET)
     CloudBaseResponse deleteFiles(@RequestParam("id") long id);
-    @GetMapping("/disk/deleteFiles.action")
+    @RequestMapping(value = "/disk/deleteFiles.action", method = RequestMethod.GET)
     CloudBaseResponse deleteFiles(@RequestParam("id") String id);
 
     //重命名
-    @GetMapping("/disk/renameFile.action")
+    @RequestMapping(value = "/disk/renameFile.action", method = RequestMethod.GET)
     CloudBaseResponse renameFile(@RequestParam("id") long id, @RequestParam("name") String name);
 
     //设置标签
-    @GetMapping("/disk/editTags.action")
+    @RequestMapping(value = "/disk/editTags.action", method = RequestMethod.GET)
     CloudBaseResponse editTags(@RequestParam("id") long id, @RequestParam("tags") String tags);
 
     //上传文件

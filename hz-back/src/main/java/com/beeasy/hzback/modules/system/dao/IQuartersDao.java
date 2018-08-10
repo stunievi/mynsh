@@ -1,7 +1,7 @@
 package com.beeasy.hzback.modules.system.dao;
 
-import com.beeasy.hzback.modules.system.entity.Department;
-import com.beeasy.hzback.modules.system.entity.Quarters;
+import com.beeasy.hzback.modules.system.entity_kt.Department;
+import com.beeasy.hzback.modules.system.entity_kt.Quarters;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,7 +11,6 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 public interface IQuartersDao extends JpaRepository<Quarters,Long>{
     Page<Quarters> findAllByDepartment_Id(long departmentId, Pageable pageable);
@@ -24,6 +23,8 @@ public interface IQuartersDao extends JpaRepository<Quarters,Long>{
     Quarters findFirstByDepartmentAndNameAndIdNot(Department department, String name, Long id);
     //查找部门下的岗位个数
     int countByDepartment_Id(long id);
+    int countByDepartmentIdAndName(final long did, final String name);
+    int countByDepartmentIdAndNameAndIdNot(final long did, final String name, final long qid);
 
     //查找该岗位是否存在
     int countById(long id);

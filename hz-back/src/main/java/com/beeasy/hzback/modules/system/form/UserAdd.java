@@ -67,4 +67,8 @@ public class UserAdd {
         }
         return SpringContextUtils.getBean(IUserDao.class).countByPhone(phone) == 0;
     }
+
+
+
+
 }

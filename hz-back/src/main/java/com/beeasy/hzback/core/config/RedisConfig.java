@@ -28,12 +28,12 @@ import java.util.Map;
 @EnableCaching
 public class RedisConfig extends CachingConfigurerSupport {
 
-    @Value("${spring.redis.host}")
-    private String host;
-    @Value("${spring.redis.port}")
-    private int port;
-    @Value("${spring.redis.timeout}")
-    private int timeout;
+//    @Value("${spring.redis.host}")
+//    private String host;
+//    @Value("${spring.redis.port}")
+//    private int port;
+//    @Value("${spring.redis.timeout}")
+//    private int timeout;
 
     //自定义缓存key生成策略
 //    @Bean

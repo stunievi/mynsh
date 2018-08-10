@@ -1,6 +1,6 @@
 package com.beeasy.hzback.modules.system.dao;
 
-import com.beeasy.hzback.modules.system.entity.Role;
+import com.beeasy.hzback.modules.system.entity_kt.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -9,7 +9,6 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 public interface IRoleDao extends JpaRepository<Role,Long>, JpaSpecificationExecutor {
     @Query(value = "select count(*) from t_user_role where role_id = :rid and user_id = :uid", nativeQuery = true)

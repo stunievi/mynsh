@@ -5,7 +5,7 @@ import com.beeasy.hzback.modules.system.dao.ICloudDirectoryIndexDao;
 import com.beeasy.hzback.modules.system.dao.IMessageDao;
 import com.beeasy.hzback.modules.system.dao.ISystemFileDao;
 import com.beeasy.hzback.modules.system.dao.IWorkflowNodeFileDao;
-import com.beeasy.hzback.modules.system.entity.SystemFile;
+import com.beeasy.hzback.modules.system.entity_kt.SystemFile;
 import com.beeasy.hzback.modules.system.entity.WorkflowNodeFile;
 import com.beeasy.hzback.modules.system.service.CloudDiskService;
 import com.beeasy.hzback.modules.system.service.ICloudDiskService;

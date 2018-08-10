@@ -28,22 +28,22 @@ services:
 #    command:
 #      - /bin/cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo 'Asia/Shanghai' >/etc/timezone
   db2:
-#    build: ./db2
+    build: ./db2
     container_name: db2
-    image: db297
+#    image: db297
 #    image: ibmcom/db2express-c
 #    image: angoca/db2-instance
-    tty: true
+#    tty: true
     privileged: true
-    environment:
-      LICENSE: accept
-      DB2INST1_PASSWORD: "!Q1q2w3e4r"
+#    environment:
+#      LICENSE: accept
+#      DB2INST1_PASSWORD: "!Q1q2w3e4r"
     ports:
       - "50000:50000"
 #    command: ["db2start"]
-    volumes:
+#    volumes:
 #      - /db2data
-      - ./db2/data:/db2data
+#      - ./db2/data:/db2data
 #      - ~/work/docker_db2:/home/angoca/db2-instance
 
 

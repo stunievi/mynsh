@@ -2,33 +2,15 @@ package com.beeasy.hzback.modules.system.aop;
 
 import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.modules.system.dao.ISystemLogDao;
-import com.beeasy.hzback.modules.system.entity.SystemLog;
-import com.beeasy.hzback.modules.system.entity.SystemTextLog;
-import com.beeasy.hzback.modules.system.entity.User;
-import com.beeasy.hzback.modules.system.log.NotSaveLog;
-import com.beeasy.hzback.modules.system.log.SaveLog;
 import com.beeasy.hzback.modules.system.service.SystemLogService;
-import com.beeasy.hzback.modules.system.service.UserService;
-import io.swagger.annotations.ApiOperation;
+import com.beeasy.hzback.modules.system.service_kt.UserService;
 import lombok.extern.slf4j.Slf4j;
-import org.aopalliance.intercept.Joinpoint;
-import org.apache.commons.lang.StringUtils;
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
-import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
-
-import javax.servlet.http.HttpServletRequest;
-import java.lang.reflect.Method;
 
 /**
  * 系统日志切面, 只记录登录的用户访问的情况

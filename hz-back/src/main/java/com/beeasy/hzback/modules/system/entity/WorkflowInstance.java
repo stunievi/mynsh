@@ -1,18 +1,9 @@
 package com.beeasy.hzback.modules.system.entity;
 
 import com.alibaba.fastjson.annotation.JSONField;
-import com.beeasy.hzback.core.helper.SpringContextUtils;
-import com.beeasy.hzback.modules.system.dao.IUserDao;
-import com.beeasy.hzback.modules.system.dao.IWorkflowNodeInstanceDao;
-import com.beeasy.hzback.modules.system.service.UserService;
-import com.fasterxml.jackson.annotation.JsonFilter;
-import io.netty.util.internal.StringUtil;
+import com.beeasy.hzback.modules.system.entity_kt.User;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang.StringUtils;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
-import org.springframework.boot.test.context.SpringBootTestContextBootstrapper;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 

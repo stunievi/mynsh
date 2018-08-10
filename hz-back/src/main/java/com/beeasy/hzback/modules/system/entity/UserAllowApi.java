@@ -1,6 +1,7 @@
 package com.beeasy.hzback.modules.system.entity;
 
 import com.beeasy.hzback.core.entity.AbstractBaseEntity;
+import com.beeasy.hzback.modules.system.entity_kt.User;
 import lombok.Getter;
 import lombok.Setter;
 

@@ -2,11 +2,10 @@ package com.beeasy.hzback.modules.system.controller;
 
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.helper.Utils;
-import com.beeasy.hzback.modules.system.entity.GlobalPermission;
+import com.beeasy.hzback.modules.system.entity_kt.GlobalPermission;
 import com.beeasy.hzback.modules.system.form.GlobalPermissionEditRequest;
 import com.beeasy.hzback.modules.system.form.Pager;
 import com.beeasy.hzback.modules.system.service.DataSearchService;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -14,9 +13,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
-import javax.rmi.CORBA.Util;
 import javax.validation.Valid;
-import java.util.Arrays;
 
 @RequestMapping("/api/data")
 @RestController

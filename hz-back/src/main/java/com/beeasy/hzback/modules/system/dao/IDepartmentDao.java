@@ -1,13 +1,11 @@
 package com.beeasy.hzback.modules.system.dao;
 
-import com.beeasy.hzback.modules.system.entity.Department;
-import org.springframework.beans.factory.annotation.Value;
+import com.beeasy.hzback.modules.system.entity_kt.Department;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,11 +28,11 @@ public interface IDepartmentDao extends JpaRepository<Department,Long> {
     List getDepartmentCode(@Param("id") long id);
 
     @Query(value = "select d.code from Department d where d.parentId = :parentId order by d.code desc")
-    List getLastCode(@Param("parentId") Long parentId);
+    List findLastCode(@Param("parentId") Long parentId);
 
 
     @Query(value = "select d.code from Department d where d.parent is null order by d.code desc")
-    List getTopLastCode();
+    List findTopLastCode();
 
 
 //    @Query(value = "select d,(select dd.parentId from Department dd where dd.id = :did) as pid from Department d where d.name = :name and d.id <> :did group by d " +
@@ -61,4 +59,6 @@ public interface IDepartmentDao extends JpaRepository<Department,Long> {
     //得到某些部门所有下属子部门(包括自身)
     @Query(value = "select distinct d.id from Department d where (select count(dd) from Department dd where d.code like concat(dd.code,'%') and dd.id = :did) > 0")
     List<Long> getChildDepIds(@Param("did") long did);
+    @Query(value = "select distinct d from Department d where (select count (dd) from Department dd where d.code like concat(dd.code,'%') and dd.id = :did ) > 0")
+    List<Department> getChildDeps(@Param("did") final long did);
 }

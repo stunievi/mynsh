@@ -2,17 +2,15 @@ package com.beeasy.hzback.modules.system.controller;
 
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.modules.system.dao.IDepartmentDao;
-import com.beeasy.hzback.modules.system.form.DepartmentAdd;
-import com.beeasy.hzback.modules.system.form.DepartmentEdit;
+import com.beeasy.hzback.modules.system.entity_kt.DepartmentAdd;
+import com.beeasy.hzback.modules.system.entity_kt.DepartmentEdit;
 import com.beeasy.hzback.modules.system.service.DepartmentService;
-import com.beeasy.hzback.modules.system.service.UserService;
+import com.beeasy.hzback.modules.system.service_kt.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.web.embedded.undertow.UndertowServletWebServer;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -22,6 +20,7 @@ import javax.validation.Valid;
 public class DepartmentController {
     @Autowired
     DepartmentService departmentService;
+
     @Autowired
     UserService userService;
 
@@ -42,7 +41,7 @@ public class DepartmentController {
             Long parentId
     ){
         //name比parent优先
-        return Result.ok(departmentService.findDepartments(name,parentId));
+        return Result.ok(userService.findDepartmentsByParent_Id(0));
     }
 
 
@@ -68,7 +67,7 @@ public class DepartmentController {
     public Result del(
             @RequestParam Long departmentId
     ){
-        return Result.finish(userService.deleteDepartment(departmentId));
+        return Result.ok(userService.deleteDepartment(departmentId));
     }
 
     /**

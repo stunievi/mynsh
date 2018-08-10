@@ -5,6 +5,7 @@ import javassist.*;
 public interface DialectFK {
 
     default void byteCodes(){
+//        org.hibernate.mapping.Column
         ClassPool pool = ClassPool.getDefault();
         try {
             pool.importPackage("org.hibernate.dialect");

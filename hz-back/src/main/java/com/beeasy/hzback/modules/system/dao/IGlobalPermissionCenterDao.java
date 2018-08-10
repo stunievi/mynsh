@@ -1,5 +1,5 @@
 //package com.beeasy.hzback.modules.system.dao;
-//import com.beeasy.hzback.modules.system.entity.GlobalPermission;
+//import com.beeasy.hzback.modules.system.entity_kt.GlobalPermission;
 //import com.beeasy.hzback.modules.system.view.GlobalPermissionCenter;
 //import org.springframework.data.jpa.repository.JpaRepository;
 //
@@ -7,7 +7,7 @@
 //import java.util.List;
 //
 ////
-////import com.beeasy.hzback.modules.system.entity.GlobalPermission;
+////import com.beeasy.hzback.modules.system.entity_kt.GlobalPermission;
 ////import com.beeasy.hzback.modules.system.entity.GlobalPermissionCenter;
 ////import org.springframework.beans.factory.annotation.Value;
 ////import org.springframework.data.jpa.repository.JpaRepository;

@@ -2,12 +2,10 @@ package bin.leblanc.test;
 
 import bin.leblanc.taliyah.engine.bitcask.Bitcask;
 import bin.leblanc.taliyah.engine.bitcask.BitcaskOptions;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-@Slf4j
 public class Testdb {
 
 

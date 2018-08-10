@@ -25,9 +25,9 @@ public class CloudService {
     @Value("${filecloud.password}")
     private String cloudPassword;
 
-    @Autowired
+//    @Autowired
     private CloudApi cloudApi;
-    @Autowired
+//    @Autowired
     private CloudAdminApi cloudAdminApi;
     @Autowired
     private SystemConfigCache systemConfigCache;

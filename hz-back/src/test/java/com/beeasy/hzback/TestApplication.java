@@ -14,11 +14,11 @@
 //import com.beeasy.hzback.modules.setting.service.DepartmentService;
 //import com.beeasy.hzback.modules.system.dao.IQuartersDao;
 //import com.beeasy.hzback.modules.system.dao.IWorkflowNodeInstanceDao;
-//import com.beeasy.hzback.modules.system.entity.Quarters;
+//import com.beeasy.hzback.modules.system.entity_kt.Quarters;
 //import com.beeasy.hzback.modules.system.entity.WorkflowModel;
 //import com.beeasy.hzback.modules.system.form.UserAdd;
 //import com.beeasy.hzback.modules.system.form.UserEdit;
-//import com.beeasy.hzback.modules.system.service.UserService;
+//import com.beeasy.hzback.modules.system.service_kt.UserService;
 //import lombok.extern.slf4j.Slf4j;
 //import org.hibernate.jpa.internal.metamodel.EntityTypeImpl;
 //import org.junit.Assert;

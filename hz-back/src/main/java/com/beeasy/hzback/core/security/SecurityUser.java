@@ -1,6 +1,6 @@
 package com.beeasy.hzback.core.security;
 
-import com.beeasy.hzback.modules.system.entity.User;
+import com.beeasy.hzback.modules.system.entity_kt.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;

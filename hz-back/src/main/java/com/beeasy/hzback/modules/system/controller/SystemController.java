@@ -3,16 +3,13 @@ package com.beeasy.hzback.modules.system.controller;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.core.util.SqlUtils;
-import com.beeasy.hzback.modules.system.entity.MessageTemplate;
 import com.beeasy.hzback.modules.system.form.GlobalPermissionEditRequest;
 import com.beeasy.hzback.modules.system.form.Pager;
 import com.beeasy.hzback.modules.system.log.NotSaveLog;
 import com.beeasy.hzback.modules.system.service.SystemService;
-import com.beeasy.hzback.modules.system.service.UserService;
+import com.beeasy.hzback.modules.system.service_kt.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.hibernate.SQLQuery;
-import org.hibernate.transform.Transformers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -21,14 +18,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
-import javax.sql.DataSource;
 import javax.validation.Valid;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Api(tags = "系统API")
 @RequestMapping(value = "/api/system")
@@ -54,7 +44,7 @@ public class SystemController  {
     public Result deleteGlobalPermission(
             @RequestParam String id
     ){
-        return Result.ok(userService.deleteGlobalPermission(Utils.convertIds(id)));
+        return Result.ok(userService.deleteGlobalPermission(Utils.convertIdsToList(id)));
     }
 
 

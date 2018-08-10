@@ -1,7 +1,7 @@
 package com.beeasy.hzback.modules.system.node;
 
 import com.beeasy.hzback.modules.system.dao.IWorkflowNodeAttributeDao;
-import com.beeasy.hzback.modules.system.entity.User;
+import com.beeasy.hzback.modules.system.entity_kt.User;
 import com.beeasy.hzback.modules.system.entity.WorkflowModel;
 import com.beeasy.hzback.modules.system.entity.WorkflowNodeAttribute;
 import com.beeasy.hzback.modules.system.entity.WorkflowNodeInstance;

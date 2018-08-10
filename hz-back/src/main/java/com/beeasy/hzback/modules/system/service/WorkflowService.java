@@ -4,7 +4,6 @@ import bin.leblanc.classtranslate.Transformer;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.annotation.JSONField;
 import com.beeasy.hzback.core.exception.RestException;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.helper.Utils;
@@ -15,23 +14,22 @@ import com.beeasy.hzback.modules.mobile.request.WorkflowPositionAddRequest;
 import com.beeasy.hzback.modules.system.cache.SystemConfigCache;
 import com.beeasy.hzback.modules.system.dao.*;
 import com.beeasy.hzback.modules.system.entity.*;
+import com.beeasy.hzback.modules.system.entity_kt.*;
 import com.beeasy.hzback.modules.system.form.*;
 import com.beeasy.hzback.modules.system.node.*;
 import com.beeasy.hzback.modules.system.response.FetchWorkflowInstanceResponse;
+import com.beeasy.hzback.modules.system.service_kt.UserService;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import io.netty.util.internal.StringUtil;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.apache.camel.util.TimeUtils;
+//import org.apache.camel.util.TimeUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
-import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -254,12 +252,12 @@ public class WorkflowService {
         if (request.isCommon()) {
             department = globalPermissions.stream()
                     .filter(item -> item.getUserType().equals(GlobalPermission.UserType.QUARTER))
-                    .map(item -> userService.findQuarters(item.getLinkId()).orElse(null))
+                    .map(item -> userService.findQuarters(item.getLinkId()))
                     .filter(item -> null != item)
                     .map(item -> item.getDepartment())
                     .filter(dep -> {
                         return pubUser.getQuarters()
-                                .stream().anyMatch(q -> q.getDepartmentId().equals(dep.getId()) && q.isManager());
+                                .stream().anyMatch(q -> q.getDepartmentId().equals(dep.getId()) && q.getManager());
                     })
                     .findFirst()
                     .orElse(null);
@@ -268,7 +266,7 @@ public class WorkflowService {
                     .filter(item -> item.getUserType().equals(GlobalPermission.UserType.QUARTER))
                     .filter(item -> userService.hasQuarters(request.getDealerId(), item.getLinkId()))
                     .findFirst()
-                    .flatMap(item -> userService.findQuarters(item.getLinkId()))
+                    .map(item -> userService.findQuarters(item.getLinkId()))
                     .map(item -> item.getDepartment())
                     .orElse(null);
         }
@@ -968,7 +966,7 @@ public class WorkflowService {
             List<Long> depIds = Utils.convertIdsToList(model.getDepIds());
             List<Quarters> qs = user.getQuarters();
             return qs.stream()
-                    .anyMatch(item -> item.isManager() && depIds.contains(item.getDepartmentId()));
+                    .anyMatch(item -> item.getManager() && depIds.contains(item.getDepartmentId()));
         } catch (Exception e) {
             return false;
         }
@@ -984,7 +982,7 @@ public class WorkflowService {
     public boolean canPoint(final WorkflowInstance instance, final User user) {
         return user.getQuarters()
                 .stream()
-                .anyMatch(item -> item.isManager() && null != instance.getDepId() && instance.getDepId().equals(item.getDepartmentId()));
+                .anyMatch(item -> item.getManager() && null != instance.getDepId() && instance.getDepId().equals(item.getDepartmentId()));
     }
 
 //    public List<User> getManagersFromInstance(final WorkflowInstance instance){
@@ -1249,7 +1247,7 @@ public class WorkflowService {
     public List<Long> getManagerDepIds(final User user) {
         List<Long> dids = user.getQuarters()
                 .stream()
-                .filter(q -> q.isManager())
+                .filter(q -> q.getManager())
                 .map(q -> q.getDepartmentId())
                 .flatMap(did -> userService.getDidsFromDepartment(did).stream())
                 .collect(Collectors.toList());
@@ -1751,7 +1749,7 @@ public class WorkflowService {
         if (null == model) {
             return Result.error("找不到这个工作流");
         }
-        if (edit.isOpen()) {
+        if (edit.getOpen()) {
             //查找是否有同名已开启的流程
             if (modelDao.countByNameAndOpenIsTrue(model.getName()) > 0) {
                 return Result.error("还有同名的工作流没有关闭, 无法开启");
@@ -1766,11 +1764,11 @@ public class WorkflowService {
         if (!StringUtils.isEmpty(edit.getInfo())) {
             model.setInfo(edit.getInfo());
         }
-        if (null != edit.getProcessCycle()) {
-            model.setProcessCycle(edit.getProcessCycle());
-        }
+//        if (null != edit.getProcessCycle()) {
+//            model.setProcessCycle(edit.getProcessCycle());
+//        }
         //开关也可以
-        model.setOpen(edit.isOpen());
+        model.setOpen(edit.getOpen());
 
         modelDao.save(model);
         return Result.ok();
@@ -1925,7 +1923,7 @@ public class WorkflowService {
         List<GlobalPermission> globalPermissions = globalPermissionDao.findAllByTypeInAndObjectId(Collections.singleton(GlobalPermission.Type.WORKFLOW_PUB), modelId);
         List<Long> dids = globalPermissions.stream()
                 .filter(item -> item.getUserType().equals(GlobalPermission.UserType.QUARTER))
-                .map(item -> userService.findQuarters(item.getLinkId()).orElse(null))
+                .map(item -> userService.findQuarters(item.getLinkId()))
                 .filter(item -> null != item)
                 .map(item -> item.getDepartmentId())
                 .collect(Collectors.toList());
@@ -3144,7 +3142,7 @@ public class WorkflowService {
     public List getPubPointUids(final long uid, final long modelId){
         User user = userService.findUser(uid);
         List<Long> dids = user.getQuarters().stream()
-                .filter(Quarters::isManager)
+                .filter(Quarters::getManager)
                 .map(Quarters::getDepartmentId)
                 .distinct()
                 .collect(Collectors.toList());

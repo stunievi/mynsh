@@ -1,5 +1,6 @@
 package com.beeasy.hzback.modules.system.entity;
 
+import com.beeasy.hzback.modules.system.entity_kt.User;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,8 +11,8 @@ import java.util.Date;
 @Setter
 @Entity
 @Table(name = "t_user_token", indexes = {
-        @Index(name = "user_id",columnList = "user_id"),
-        @Index(name = "type",columnList = "type")
+        @Index(name = "user_id",columnList = "user_id")
+//        @Index(name = "type",columnList = "type")
 //        @Index(name = "expr_time",columnList = "EXPR_TIME")
 })
 public class UserToken {

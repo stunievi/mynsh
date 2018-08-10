@@ -7,7 +7,7 @@ import com.beeasy.hzback.modules.system.dao.ICloudShareDao;
 import com.beeasy.hzback.modules.system.entity.CloudDirectoryIndex;
 import com.beeasy.hzback.modules.system.service.CloudDiskService;
 import com.beeasy.hzback.modules.system.service.ICloudDiskService;
-import com.beeasy.hzback.modules.system.service.UserService;
+import com.beeasy.hzback.modules.system.service_kt.UserService;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

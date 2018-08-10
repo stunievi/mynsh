@@ -1,7 +1,6 @@
 package bin.leblanc.maho;
 
 import com.alibaba.fastjson.JSON;
-import com.beeasy.hzback.modules.system.service.UserService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
