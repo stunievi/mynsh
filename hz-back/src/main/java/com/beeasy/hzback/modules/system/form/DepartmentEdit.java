@@ -2,7 +2,7 @@
 //
 //import com.beeasy.hzback.core.helper.SpringContextUtils;
 //import com.beeasy.hzback.modules.system.dao.IDepartmentDao;
-//import com.beeasy.hzback.modules.system.entity_kt.Department;
+//import com.beeasy.common.entity.Department;
 //import io.swagger.annotations.ApiModel;
 //import io.swagger.annotations.ApiModelProperty;
 //import lombok.Data;

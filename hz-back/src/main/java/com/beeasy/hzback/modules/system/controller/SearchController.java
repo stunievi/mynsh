@@ -2,7 +2,7 @@ package com.beeasy.hzback.modules.system.controller;
 
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.helper.Utils;
-import com.beeasy.hzback.modules.system.entity_kt.GlobalPermission;
+import com.beeasy.common.entity.GlobalPermission;
 import com.beeasy.hzback.modules.system.form.GlobalPermissionEditRequest;
 import com.beeasy.hzback.modules.system.form.Pager;
 import com.beeasy.hzback.modules.system.service.DataSearchService;

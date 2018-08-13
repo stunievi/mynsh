@@ -1,7 +1,7 @@
 package com.beeasy.hzback.modules.system.node;
 
-import com.beeasy.hzback.core.entity.AbstractBaseEntity;
-import com.beeasy.hzback.modules.system.entity.WorkflowModel;
+import com.beeasy.common.helper.AbstractBaseEntity;
+import com.beeasy.common.entity.WorkflowModel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

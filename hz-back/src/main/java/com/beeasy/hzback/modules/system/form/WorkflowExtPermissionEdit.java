@@ -1,6 +1,6 @@
 //package com.beeasy.hzback.modules.system.form;
 //
-//import com.beeasy.hzback.modules.system.entity.WorkflowExtPermission;
+//import com.beeasy.common.entity.WorkflowExtPermission;
 //import lombok.Data;
 //
 //import javax.validation.constraints.NotNull;

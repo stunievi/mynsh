@@ -2,7 +2,7 @@ package com.beeasy.hzback.modules.system.dao;
 
 //import com.beeasy.hzback.modules.system.aop.SystemLogAop;
 
-import com.beeasy.hzback.modules.system.entity.SystemLog;
+import com.beeasy.common.entity.SystemLog;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
 

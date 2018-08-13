@@ -1,7 +1,7 @@
 package com.beeasy.hzback.modules.system.dao;
 
-import com.beeasy.hzback.modules.system.entity.CloudDirectoryIndex;
-import com.beeasy.hzback.modules.system.entity.CloudFileTag;
+import com.beeasy.common.entity.CloudDirectoryIndex;
+import com.beeasy.common.entity.CloudFileTag;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

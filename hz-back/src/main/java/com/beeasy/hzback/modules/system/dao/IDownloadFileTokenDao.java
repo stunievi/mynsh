@@ -1,6 +1,6 @@
 package com.beeasy.hzback.modules.system.dao;
 
-import com.beeasy.hzback.modules.system.entity.DownloadFileToken;
+import com.beeasy.common.entity.DownloadFileToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Date;

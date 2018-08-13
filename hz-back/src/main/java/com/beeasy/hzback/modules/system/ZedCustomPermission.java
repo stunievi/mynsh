@@ -2,8 +2,8 @@
 //
 //import bin.leblanc.zed.Zed;
 //import bin.leblanc.zed.event.ZedInitializedEvent;
-//import com.beeasy.hzback.modules.system.entity.CloudDirectoryIndex;
-//import com.beeasy.hzback.modules.system.entity_kt.User;
+//import com.beeasy.common.entity.CloudDirectoryIndex;
+//import com.beeasy.common.entity.User;
 //import lombok.extern.slf4j.Slf4j;
 //import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.context.ApplicationListener;

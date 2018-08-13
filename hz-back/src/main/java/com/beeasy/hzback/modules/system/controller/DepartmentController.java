@@ -2,8 +2,8 @@ package com.beeasy.hzback.modules.system.controller;
 
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.modules.system.dao.IDepartmentDao;
-import com.beeasy.hzback.modules.system.entity_kt.DepartmentAdd;
-import com.beeasy.hzback.modules.system.entity_kt.DepartmentEdit;
+import com.beeasy.common.entity.DepartmentAdd;
+import com.beeasy.common.entity.DepartmentEdit;
 import com.beeasy.hzback.modules.system.service.DepartmentService;
 import com.beeasy.hzback.modules.system.service_kt.UserService;
 import io.swagger.annotations.Api;

@@ -13,8 +13,8 @@
 //import com.beeasy.hzback.modules.cloud.response.LoginResponse;
 //import com.beeasy.hzback.modules.system.cache.SystemConfigCache;
 //import com.beeasy.hzback.modules.system.dao.*;
-//import com.beeasy.hzback.modules.system.entity.*;
-//import com.beeasy.hzback.modules.system.entity_kt.*;
+//import com.beeasy.common.entity.*;
+//import com.beeasy.common.entity.*;
 //import com.beeasy.hzback.modules.system.form.*;
 //import lombok.Data;
 //import lombok.extern.slf4j.Slf4j;

@@ -1,6 +1,6 @@
 package com.beeasy.hzback.modules.system.node;
 
-import com.beeasy.hzback.core.entity.AbstractBaseEntity;
+import com.beeasy.common.helper.AbstractBaseEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;

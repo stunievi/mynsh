@@ -1,6 +1,6 @@
 package com.beeasy.hzback.modules.system.dao;
 
-import com.beeasy.hzback.modules.system.entity_kt.SystemFile;
+import com.beeasy.common.entity.SystemFile;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

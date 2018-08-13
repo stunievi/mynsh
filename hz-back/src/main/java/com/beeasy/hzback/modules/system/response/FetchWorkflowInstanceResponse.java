@@ -1,9 +1,9 @@
 package com.beeasy.hzback.modules.system.response;
 
 
-import com.beeasy.hzback.modules.system.entity.SystemTextLog;
-import com.beeasy.hzback.modules.system.entity.WorkflowInstance;
-import com.beeasy.hzback.modules.system.entity.WorkflowNode;
+import com.beeasy.common.entity.SystemTextLog;
+import com.beeasy.common.entity.WorkflowInstance;
+import com.beeasy.common.entity.WorkflowNode;
 import lombok.Data;
 
 import java.util.ArrayList;

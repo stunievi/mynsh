@@ -1,7 +1,7 @@
 package com.beeasy.hzback.modules.system.service;
 
 import com.beeasy.hzback.modules.system.dao.ISystemTextLogDao;
-import com.beeasy.hzback.modules.system.entity.SystemTextLog;
+import com.beeasy.common.entity.SystemTextLog;
 import com.beeasy.hzback.modules.system.service_kt.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;

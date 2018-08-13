@@ -1,6 +1,6 @@
 //package com.beeasy.hzback.modules.system.dao;
 //
-//import com.beeasy.hzback.modules.system.entity.WorkflowExtPermission;
+//import com.beeasy.common.entity.WorkflowExtPermission;
 //import org.springframework.data.jpa.repository.JpaRepository;
 //
 //public interface IWorkflowExtPermissionDao extends JpaRepository<WorkflowExtPermission,Long> {

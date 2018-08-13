@@ -1,6 +1,6 @@
 package com.beeasy.hzback.modules.mobile.response;
 
-import com.beeasy.hzback.modules.system.entity.Message;
+import com.beeasy.common.entity.Message;
 import lombok.Data;
 
 @Data

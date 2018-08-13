@@ -5,7 +5,7 @@ import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.modules.system.dao.ICloudDirectoryIndexDao;
 import com.beeasy.hzback.modules.system.dao.ICloudFileTagDao;
 import com.beeasy.hzback.modules.system.dao.ICloudShareDao;
-import com.beeasy.hzback.modules.system.entity.CloudDirectoryIndex;
+import com.beeasy.common.entity.CloudDirectoryIndex;
 import com.beeasy.hzback.modules.system.service.CloudDiskService;
 import com.beeasy.hzback.modules.system.service.ICloudDiskService;
 import com.beeasy.hzback.modules.system.service_kt.UserService;

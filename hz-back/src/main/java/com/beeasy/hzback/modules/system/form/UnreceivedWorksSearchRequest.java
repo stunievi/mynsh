@@ -1,6 +1,6 @@
 package com.beeasy.hzback.modules.system.form;
 
-import com.beeasy.hzback.modules.system.entity.WorkflowInstance;
+import com.beeasy.common.entity.WorkflowInstance;
 import lombok.Data;
 
 @Data

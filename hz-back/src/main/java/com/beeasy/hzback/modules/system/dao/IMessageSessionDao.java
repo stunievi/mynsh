@@ -1,7 +1,7 @@
 //package com.beeasy.hzback.modules.system.dao;
 //
-//import com.beeasy.hzback.modules.system.entity.MessageSession;
-//import com.beeasy.hzback.modules.system.entity_kt.User;
+//import com.beeasy.common.entity.MessageSession;
+//import com.beeasy.common.entity.User;
 //import org.springframework.data.jpa.repository.JpaRepository;
 //
 //import java.util.List;

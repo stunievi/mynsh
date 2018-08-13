@@ -1,7 +1,7 @@
 package com.beeasy.hzback.modules.system.dao;
 
-import com.beeasy.hzback.modules.system.entity_kt.MessageRead;
-import com.beeasy.hzback.modules.system.entity_kt.User;
+import com.beeasy.common.entity.MessageRead;
+import com.beeasy.common.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

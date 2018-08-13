@@ -6,7 +6,7 @@
 //import com.alibaba.druid.stat.TableStat;
 //import com.alibaba.druid.util.JdbcConstants;
 //import com.beeasy.hzback.core.helper.Utils;
-////import com.beeasy.hzback.modules.system.entity.InspectTask;
+////import com.beeasy.common.entity.InspectTask;
 //import com.itextpdf.text.Document;
 //import com.itextpdf.text.DocumentException;
 //import com.itextpdf.text.PageSize;

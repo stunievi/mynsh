@@ -4,7 +4,7 @@ import bin.leblanc.faker.Faker;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.beeasy.hzback.modules.system.dao.IUserDao;
-import com.beeasy.hzback.modules.system.entity_kt.User;
+import com.beeasy.common.entity.User;
 import com.beeasy.hzback.modules.system.form.UserAdd;
 import com.beeasy.hzback.modules.system.service_kt.UserService;
 import org.apache.commons.io.FileUtils;

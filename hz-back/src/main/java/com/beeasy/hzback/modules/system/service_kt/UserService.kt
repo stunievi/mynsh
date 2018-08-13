@@ -11,7 +11,7 @@ import com.beeasy.hzback.core.util.SpringSupport
 import com.beeasy.hzback.core.util.then
 import com.beeasy.hzback.core.util.toLongList
 import com.beeasy.hzback.modules.system.dao.*
-import com.beeasy.hzback.modules.system.entity_kt.*
+import com.beeasy.common.entity.*
 import com.beeasy.hzback.modules.system.rpc.FileUploadService
 import com.beeasy.hzback.modules.system.service.SystemService
 import org.apache.commons.io.FileUtils
@@ -83,7 +83,7 @@ class UserService(
             try {
                 val resource = ClassPathResource("static/default_face.jpg")
                     ext = "jpg"
-                    type = com.beeasy.hzback.modules.system.entity_kt.SystemFile.Type.FACE
+                    type = com.beeasy.common.entity.SystemFile.Type.FACE
                     bytes = org.apache.commons.io.IOUtils.toByteArray(resource.inputStream)
                     fileName = "default_face.jpg"
                 fileDao.save(this)

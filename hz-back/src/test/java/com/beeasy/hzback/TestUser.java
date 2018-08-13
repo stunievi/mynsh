@@ -10,7 +10,7 @@
 ////import com.beeasy.hzback.modules.system.dao.IInspectTaskDao;
 //import com.beeasy.hzback.modules.system.dao.IUserDao;
 //import com.beeasy.hzback.modules.system.dao.IWorkflowModelDao;
-//import com.beeasy.hzback.modules.system.entity.*;
+//import com.beeasy.common.entity.*;
 //import com.beeasy.hzback.modules.system.form.*;
 //import com.beeasy.hzback.modules.system.service.DepartmentService;
 //import com.beeasy.hzback.modules.system.service.QuartersService;

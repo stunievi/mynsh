@@ -1,6 +1,6 @@
 package com.beeasy.hzback.modules.system.dao;
 
-import com.beeasy.hzback.modules.system.entity.WorkflowNodeInstanceDealer;
+import com.beeasy.common.entity.WorkflowNodeInstanceDealer;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Collection;

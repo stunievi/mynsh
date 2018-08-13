@@ -2,10 +2,10 @@ package com.beeasy.hzback;
 
 import bin.leblanc.faker.Faker;
 import com.beeasy.hzback.modules.system.dao.IDepartmentDao;
-import com.beeasy.hzback.modules.system.entity_kt.Department;
+import com.beeasy.common.entity.Department;
 //import com.beeasy.hzback.modules.system.form.DepartmentAdd;
-import com.beeasy.hzback.modules.system.entity_kt.DepartmentAdd;
-import com.beeasy.hzback.modules.system.entity_kt.DepartmentEdit;
+import com.beeasy.common.entity.DepartmentAdd;
+import com.beeasy.common.entity.DepartmentEdit;
 import com.beeasy.hzback.modules.system.service.DepartmentService;
 import com.beeasy.hzback.modules.system.service_kt.UserService;
 import org.junit.Test;

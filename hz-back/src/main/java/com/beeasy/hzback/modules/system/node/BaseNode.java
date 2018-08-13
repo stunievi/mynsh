@@ -1,10 +1,10 @@
 package com.beeasy.hzback.modules.system.node;
 
 import com.beeasy.hzback.modules.system.dao.IWorkflowNodeAttributeDao;
-import com.beeasy.hzback.modules.system.entity_kt.User;
-import com.beeasy.hzback.modules.system.entity.WorkflowModel;
-import com.beeasy.hzback.modules.system.entity.WorkflowNodeAttribute;
-import com.beeasy.hzback.modules.system.entity.WorkflowNodeInstance;
+import com.beeasy.common.entity.User;
+import com.beeasy.common.entity.WorkflowModel;
+import com.beeasy.common.entity.WorkflowNodeAttribute;
+import com.beeasy.common.entity.WorkflowNodeInstance;
 import io.swagger.annotations.ApiModel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

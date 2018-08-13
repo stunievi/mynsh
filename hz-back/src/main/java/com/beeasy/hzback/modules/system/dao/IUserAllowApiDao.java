@@ -1,6 +1,6 @@
 package com.beeasy.hzback.modules.system.dao;
 
-import com.beeasy.hzback.modules.system.entity.UserAllowApi;
+import com.beeasy.common.entity.UserAllowApi;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface IUserAllowApiDao extends JpaRepository<UserAllowApi,Long>{

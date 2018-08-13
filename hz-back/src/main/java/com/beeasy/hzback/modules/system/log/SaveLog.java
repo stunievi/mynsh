@@ -1,6 +1,6 @@
 package com.beeasy.hzback.modules.system.log;
 
-import com.beeasy.hzback.modules.system.entity.SystemTextLog;
+import com.beeasy.common.entity.SystemTextLog;
 import io.swagger.annotations.ApiOperation;
 
 import java.lang.annotation.*;

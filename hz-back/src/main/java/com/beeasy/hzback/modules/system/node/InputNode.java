@@ -1,11 +1,11 @@
 package com.beeasy.hzback.modules.system.node;
 
 import com.alibaba.druid.util.StringUtils;
-import com.beeasy.hzback.core.entity.AbstractBaseEntity;
+import com.beeasy.common.helper.AbstractBaseEntity;
 import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.modules.system.dao.IWorkflowNodeAttributeDao;
-import com.beeasy.hzback.modules.system.entity.*;
-import com.beeasy.hzback.modules.system.entity_kt.User;
+import com.beeasy.common.entity.*;
+import com.beeasy.common.entity.User;
 import lombok.Getter;
 import lombok.Setter;
 

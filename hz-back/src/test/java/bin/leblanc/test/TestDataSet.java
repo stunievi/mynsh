@@ -5,7 +5,7 @@
 //import com.alibaba.fastjson.JSON;
 //import com.alibaba.fastjson.JSONObject;
 //import com.beeasy.hzback.Application;
-//import com.beeasy.hzback.modules.system.entity.SystemMenu;
+//import com.beeasy.common.entity.SystemMenu;
 //import lombok.extern.slf4j.Slf4j;
 //import org.junit.Assert;
 //import org.junit.Test;

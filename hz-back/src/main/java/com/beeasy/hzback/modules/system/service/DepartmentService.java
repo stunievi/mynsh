@@ -2,7 +2,7 @@ package com.beeasy.hzback.modules.system.service;
 
 
 import com.beeasy.hzback.modules.system.dao.IDepartmentDao;
-import com.beeasy.hzback.modules.system.entity_kt.Department;
+import com.beeasy.common.entity.Department;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

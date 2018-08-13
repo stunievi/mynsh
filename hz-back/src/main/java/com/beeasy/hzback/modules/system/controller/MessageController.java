@@ -7,7 +7,7 @@ import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.modules.mobile.request.StringMessageRequest;
 import com.beeasy.hzback.modules.mobile.response.ReadMessageResponse;
 import com.beeasy.hzback.modules.system.dao.IMessageReadDao;
-import com.beeasy.hzback.modules.system.entity.Message;
+import com.beeasy.common.entity.Message;
 import com.beeasy.hzback.modules.system.form.MessageAdd;
 import com.beeasy.hzback.modules.system.log.NotSaveLog;
 import com.beeasy.hzback.modules.system.service.MessageService;

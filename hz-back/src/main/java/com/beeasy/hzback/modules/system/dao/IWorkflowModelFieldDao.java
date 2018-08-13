@@ -1,6 +1,6 @@
 package com.beeasy.hzback.modules.system.dao;
 
-import com.beeasy.hzback.modules.system.entity.WorkflowModelField;
+import com.beeasy.common.entity.WorkflowModelField;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Collection;

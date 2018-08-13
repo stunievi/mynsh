@@ -1,6 +1,6 @@
 package com.beeasy.hzback.modules.mobile.response;
 
-import com.beeasy.hzback.modules.system.entity_kt.User;
+import com.beeasy.common.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

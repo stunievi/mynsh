@@ -1,7 +1,7 @@
 package com.beeasy.hzback.modules.system.dao;
 
-import com.beeasy.hzback.modules.system.entity_kt.Department;
-import com.beeasy.hzback.modules.system.entity_kt.Quarters;
+import com.beeasy.common.entity.Department;
+import com.beeasy.common.entity.Quarters;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

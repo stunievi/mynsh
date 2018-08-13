@@ -1,7 +1,7 @@
 package com.beeasy.hzback.modules.system.dao;
 
-import com.beeasy.hzback.modules.system.entity.WorkflowNodeAttribute;
-import com.beeasy.hzback.modules.system.entity.WorkflowNodeInstance;
+import com.beeasy.common.entity.WorkflowNodeAttribute;
+import com.beeasy.common.entity.WorkflowNodeInstance;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

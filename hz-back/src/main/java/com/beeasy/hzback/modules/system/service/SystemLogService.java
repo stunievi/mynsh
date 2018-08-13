@@ -1,8 +1,8 @@
 package com.beeasy.hzback.modules.system.service;
 
 import com.beeasy.hzback.modules.system.dao.ISystemLogDao;
-import com.beeasy.hzback.modules.system.entity.SystemLog;
-import com.beeasy.hzback.modules.system.entity_kt.User;
+import com.beeasy.common.entity.SystemLog;
+import com.beeasy.common.entity.User;
 import com.beeasy.hzback.modules.system.log.NotSaveLog;
 import com.beeasy.hzback.modules.system.service_kt.UserService;
 import io.swagger.annotations.Api;

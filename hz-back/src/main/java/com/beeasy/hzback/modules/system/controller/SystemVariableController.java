@@ -3,7 +3,7 @@ package com.beeasy.hzback.modules.system.controller;
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.modules.system.dao.ISystemVariableDao;
-import com.beeasy.hzback.modules.system.entity.SystemVariable;
+import com.beeasy.common.entity.SystemVariable;
 import com.beeasy.hzback.modules.system.form.SystemVarEditRequest;
 import com.beeasy.hzback.modules.system.log.SaveLog;
 import com.beeasy.hzback.modules.system.service.SystemService;

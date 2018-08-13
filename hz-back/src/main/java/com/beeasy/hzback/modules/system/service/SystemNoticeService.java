@@ -1,7 +1,7 @@
 package com.beeasy.hzback.modules.system.service;
 
 import com.beeasy.hzback.modules.system.dao.ISystemNoticeDao;
-import com.beeasy.hzback.modules.system.entity.SystemNotice;
+import com.beeasy.common.entity.SystemNotice;
 import lombok.Data;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;

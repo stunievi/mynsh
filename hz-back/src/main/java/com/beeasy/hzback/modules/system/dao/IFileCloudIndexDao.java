@@ -1,6 +1,6 @@
 package com.beeasy.hzback.modules.system.dao;
 
-import com.beeasy.hzback.modules.system.entity.FileCloudIndex;
+import com.beeasy.common.entity.FileCloudIndex;
 import com.beeasy.hzback.modules.system.service.ICloudDiskService;
 import org.springframework.data.jpa.repository.JpaRepository;
 

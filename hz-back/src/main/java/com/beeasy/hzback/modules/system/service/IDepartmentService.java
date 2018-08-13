@@ -2,7 +2,7 @@
 //
 //import com.beeasy.hzback.core.exception.RestException;
 //import com.beeasy.hzback.core.helper.Result;
-//import com.beeasy.hzback.modules.system.entity_kt.Department;
+//import com.beeasy.common.entity.Department;
 //import com.beeasy.hzback.modules.system.form.DepartmentAdd;
 //
 //public interface IDepartmentService {
