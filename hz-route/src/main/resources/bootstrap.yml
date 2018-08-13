@@ -1,0 +1,29 @@
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8001/eureka/
+server:
+  port: 8010
+spring:
+  application:
+    name: service-zuul
+  cloud:
+    config:
+      server:
+        native:
+          search-locations: /Users/bin/work/hzcp/config
+  profiles:
+    active: native
+
+zuul:
+  routes:
+#    file-upload-service:
+#      sensitiveHeaders: Access-Control-Allow-Origin,Access-Control-Allow-Methods
+#      path: /service/upload/**
+#      serviceId: service-upload
+
+    user-service:
+      sensitiveHeaders: Access-Control-Allow-Origin,Access-Control-Allow-Methods
+      path: /**
+      serviceId: service-hzback
+

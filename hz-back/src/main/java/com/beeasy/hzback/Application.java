@@ -20,7 +20,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableAsync
 @EnableScheduling
 @EnableJpaAuditing
-@EnableFeignClients(value = {"com.beeasy.hzback.modules.cloud"})
+@EnableFeignClients(value = {"com.beeasy.hzback"})
 //@EnableCaching
 @SpringBootApplication
 @ServletComponentScan

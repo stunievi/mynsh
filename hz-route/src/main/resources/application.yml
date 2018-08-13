@@ -1,14 +1,15 @@
-eureka:
-  client:
-    serviceUrl:
-      defaultZone: http://localhost:8001/eureka/
-server:
-  port: 8010
-spring:
-  application:
-    name: service-zuul
-zuul:
-  routes:
-    user-service:
-      path: /api/**
-      serviceId: service-hzback
+##eureka:
+##  client:
+##    serviceUrl:
+##      defaultZone: http://localhost:8001/eureka/
+##server:
+##  port: 8010
+##spring:
+##  application:
+##    name: service-zuul
+##
+#zuul:
+#  routes:
+#    user-service:
+#      path: /api/**
+#      serviceId: service-hzback

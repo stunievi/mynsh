@@ -2,6 +2,10 @@ server:
   port: 8001
 
 eureka:
+  server:
+    enable-self-preservation: false
+    eviction-interval-timer-in-ms: 60000
+
   client:
     register-with-eureka: false
     fetch-registry: false

@@ -12,7 +12,7 @@
 #权限校验
 permission:
   #校验类型, 使用全局授权
-  type: global
+  type: global2
 #  type: local
 
 
@@ -134,8 +134,8 @@ spring:
   mvc:
     async:
       request-timeout: 30000ms
+
 eureka:
   client:
     service-url:
       defaultZone: http://localhost:8001/eureka/
-    fetch-registry: false

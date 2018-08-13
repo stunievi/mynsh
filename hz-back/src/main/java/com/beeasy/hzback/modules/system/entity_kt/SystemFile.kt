@@ -31,6 +31,9 @@ class SystemFile : AbstractBaseEntity() {
 
     var ext = ""
 
+    @Column(length = 100)
+    var filePath = ""
+
     enum class Type {
         FACE,
         MESSAGE,

@@ -1,0 +1,15 @@
+spring:
+  profiles:
+    active: myservermysql
+
+  cloud:
+    config:
+      discovery:
+        enable: true
+        serviceId: service-zuul
+
+eureka:
+  client:
+    service-url:
+      default-zone: http://localhost:8001/eureka/
+

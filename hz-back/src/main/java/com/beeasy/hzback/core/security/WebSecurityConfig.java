@@ -96,6 +96,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 //                .antMatchers("/webjars/**").permitAll()
                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                 .antMatchers("/api/**").authenticated()
+//                .anyRequest().permitAll()
 //                .anyRequest().authenticated() //任何请求,登录后可以访问
                 .and()
                 .csrf().disable()

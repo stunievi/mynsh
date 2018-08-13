@@ -99,6 +99,9 @@ public class FeignConfig {
                     sb.append(bytes, 0, len);
                 }
                 String str = sb.toString();
+                if(!str.startsWith("{")){
+                    return str;
+                }
                 Object obj = JSON.parseObject(str,type);
                 if(obj instanceof CloudBaseResponse){
                     List<String> cookies = (List<String>) response.headers().getOrDefault("set-cookie",new ArrayList<>());
