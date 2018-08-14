@@ -3,10 +3,12 @@ package com.beeasy.hzback.modules.system.service;
 import lombok.Data;
 
 public interface ICloudDiskService {
-    static enum Type{
+    static enum Type {
         FILE,
         DIRECTORY
-    };
+    }
+
+    ;
 
     enum DirType {
         USER(0, "USER"),
@@ -14,7 +16,8 @@ public interface ICloudDiskService {
 
         private int value;
         private String name;
-        DirType(int value, String name){
+
+        DirType(int value, String name) {
             this.value = value;
             this.name = name;
         }
@@ -23,7 +26,7 @@ public interface ICloudDiskService {
             return value;
         }
 
-        public String toString(){
+        public String toString() {
             return name;
         }
     }

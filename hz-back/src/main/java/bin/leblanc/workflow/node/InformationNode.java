@@ -16,47 +16,40 @@ public class InformationNode extends WorkflowNode {
     @Getter
     private Set<InformationField> fields = new LinkedHashSet<>();
 
-    public InformationNode addTextField(ITextField field){
+    public InformationNode addTextField(ITextField field) {
         TextField textField = new TextField();
         field.call(textField);
         fields.add(textField);
         return this;
     }
 
-    public InformationNode addTextareaField(ITextareaField field){
+    public InformationNode addTextareaField(ITextareaField field) {
         TextareaField textareaField = new TextareaField();
         field.call(textareaField);
         fields.add(textareaField);
         return this;
     }
 
-    public InformationNode addDateField(IDateField field){
+    public InformationNode addDateField(IDateField field) {
         DateField dateField = new DateField();
         field.call(dateField);
         fields.add(dateField);
         return this;
     }
 
-    public InformationNode addRadioField(IRadioField field){
+    public InformationNode addRadioField(IRadioField field) {
         RadioField radioField = new RadioField();
         field.call(radioField);
         fields.add((radioField));
         return this;
     }
 
-    public InformationNode addCheckboxField(ICheckboxField field){
+    public InformationNode addCheckboxField(ICheckboxField field) {
         CheckboxField checkboxField = new CheckboxField();
         field.call(checkboxField);
         fields.add((checkboxField));
         return this;
     }
-
-
-
-
-
-
-
 
 
 }

@@ -7,13 +7,14 @@ import lombok.Setter;
 import java.util.Date;
 import javax.persistence.*;
 import java.util.*;
+
 @Entity
 @Getter
 @Setter
 @Table(name = "t_notice_trigger_log", indexes = {
-    @Index(name = "scan", columnList = "triggerTime,ruleName,uuid")
+        @Index(name = "scan", columnList = "triggerTime,ruleName,uuid")
 })
-public class NoticeTriggerLog extends AbstractBaseEntity{
+public class NoticeTriggerLog extends AbstractBaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
@@ -22,9 +23,11 @@ public class NoticeTriggerLog extends AbstractBaseEntity{
     Date triggerTime;
 
     //对应规格名
+    @Column(length = 10)
     String ruleName;
 
     //对应主键
+    @Column(length = 40)
     String uuid;
 
 }

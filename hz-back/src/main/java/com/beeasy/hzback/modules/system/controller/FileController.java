@@ -38,16 +38,15 @@ public class FileController {
 
     @ApiOperation(value = "获取头像")
     @GetMapping("/open/face/{id}")
-    public ResponseEntity<byte[]> getFace(@PathVariable String id) throws IOException{
+    public ResponseEntity<byte[]> getFace(@PathVariable String id) throws IOException {
         SystemFile file = systemFileDao.findFirstByIdAndType(Long.valueOf(id), SystemFile.Type.FACE).orElse(null);
-        if(null == file){
+        if (null == file) {
             return new ResponseEntity<byte[]>(HttpStatus.NO_CONTENT);
         }
         HttpHeaders headers = new HttpHeaders();
-        if(file.getExt().equalsIgnoreCase("jpg") || file.getExt().equalsIgnoreCase("jpeg")){
+        if (file.getExt().equalsIgnoreCase("jpg") || file.getExt().equalsIgnoreCase("jpeg")) {
             headers.setContentType(MediaType.IMAGE_JPEG);
-        }
-        else if(file.getExt().equalsIgnoreCase("png")){
+        } else if (file.getExt().equalsIgnoreCase("png")) {
             headers.setContentType(MediaType.IMAGE_PNG);
         }
         return new ResponseEntity<byte[]>(file.getBytes(), headers, HttpStatus.OK);
@@ -55,14 +54,14 @@ public class FileController {
 
 
     @GetMapping("/api/download/message/{id}")
-    public ResponseEntity<byte[]> getMessageFile(@PathVariable Long id) throws IOException{
+    public ResponseEntity<byte[]> getMessageFile(@PathVariable Long id) throws IOException {
         //检查这个文件是不是属于你
-        Optional optional = messageDao.findContainsFileMessage(Utils.getCurrentUserId(),id);
-        if(!optional.isPresent()){
+        Optional optional = messageDao.findContainsFileMessage(Utils.getCurrentUserId(), id);
+        if (!optional.isPresent()) {
             return new ResponseEntity<byte[]>(HttpStatus.NO_CONTENT);
         }
         SystemFile file = systemFileDao.findFirstByIdAndType(id, SystemFile.Type.MESSAGE).orElse(null);
-        if(null == file){
+        if (null == file) {
             return new ResponseEntity<byte[]>(HttpStatus.NO_CONTENT);
         }
         HttpHeaders headers = new HttpHeaders();
@@ -72,17 +71,17 @@ public class FileController {
 
     @ApiOperation(value = "通过令牌下载文件")
     @RequestMapping(value = "/open/download", method = RequestMethod.GET)
-    public ResponseEntity<byte[]> getMessageFile(@RequestParam String token) throws IOException{
-        DownloadFileToken downloadFileToken = fileTokenDao.findTopByTokenAndExprTimeGreaterThan(token,new Date()).orElse(null);
-        if(null == downloadFileToken){
+    public ResponseEntity<byte[]> getMessageFile(@RequestParam String token) throws IOException {
+        DownloadFileToken downloadFileToken = fileTokenDao.findTopByTokenAndExprTimeGreaterThan(token, new Date()).orElse(null);
+        if (null == downloadFileToken) {
             return new ResponseEntity<byte[]>(HttpStatus.NO_CONTENT);
         }
         SystemFile file = systemFileDao.findById(downloadFileToken.getFileId()).orElse(null);
-        if(null == file){
+        if (null == file) {
             return new ResponseEntity<byte[]>(HttpStatus.NO_CONTENT);
         }
         HttpHeaders headers = new HttpHeaders();
-        switch (file.getExt().toLowerCase()){
+        switch (file.getExt().toLowerCase()) {
             case "jpg":
             case "jpeg":
             case "bmp":
@@ -100,7 +99,7 @@ public class FileController {
             default:
                 headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
         }
-        String fileName = URLEncoder.encode(file.getFileName(),"UTF-8");
+        String fileName = URLEncoder.encode(file.getFileName(), "UTF-8");
         headers.set("Content-Disposition", "attachment; filename=\"" + fileName + "\"; filename*=utf-8''" + fileName);
         return new ResponseEntity<byte[]>(file.getBytes(), headers, HttpStatus.OK);
     }
@@ -108,7 +107,7 @@ public class FileController {
     @RequestMapping(value = "/open/cross.html",
             method = RequestMethod.GET,
             produces = MediaType.TEXT_HTML_VALUE)
-    public ResponseEntity<byte[]> cross(){
+    public ResponseEntity<byte[]> cross() {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.TEXT_HTML);

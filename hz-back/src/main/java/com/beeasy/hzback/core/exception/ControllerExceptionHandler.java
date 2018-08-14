@@ -28,8 +28,8 @@ import java.util.Date;
 
 /**
  * 通用错误处理器.
- * @author Wang.ch
  *
+ * @author Wang.ch
  */
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @ControllerAdvice
@@ -39,12 +39,14 @@ public class ControllerExceptionHandler extends AbstractErrorController {
     public ControllerExceptionHandler(ErrorAttributes errorAttributes) {
         super(errorAttributes);
     }
-//    private static final Logger log = LoggerFactory.getLogger(ControllerExceptionHandler.class);
+
+    //    private static final Logger log = LoggerFactory.getLogger(ControllerExceptionHandler.class);
     @Value("${server.error.path:${error.path:/error}}")
     private static String errorPath = "/error";
 
     /**
      * 500错误.
+     *
      * @param req
      * @param rsp
      * @param ex
@@ -61,14 +63,12 @@ public class ControllerExceptionHandler extends AbstractErrorController {
 //            ObjectMapper mapper = new ObjectMapper();
 //            mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 //            String msg = mapper.writeValueAsString(BaseResponse.newFail(BaseResponse.STATUS_ERROR, "系统繁忙,请稍候重试"));
-            if(ex instanceof BindException){
+            if (ex instanceof BindException) {
                 return handleJSONError(rsp, Result.error(((BindException) ex).getBindingResult()).toJson(), HttpStatus.OK);
-            }
-            else if(ex instanceof RestException){
+            } else if (ex instanceof RestException) {
                 return handleJSONError(rsp, Result.error(((RestException) ex).getSimpleMessage()).toJson(), HttpStatus.OK);
-            }
-            else if(ex instanceof RuntimeException){
-                if(!StringUtils.isEmpty(ex.getMessage())){
+            } else if (ex instanceof RuntimeException) {
+                if (!StringUtils.isEmpty(ex.getMessage())) {
                     return handleJSONError(rsp, Result.error(ex.getMessage()).toJson(), HttpStatus.OK);
                 }
             }
@@ -80,6 +80,7 @@ public class ControllerExceptionHandler extends AbstractErrorController {
 
     /**
      * 404的拦截.
+     *
      * @param request
      * @param response
      * @param ex
@@ -99,6 +100,7 @@ public class ControllerExceptionHandler extends AbstractErrorController {
 
     /**
      * 参数不完整错误.
+     *
      * @param req
      * @param rsp
      * @param ex
@@ -110,9 +112,9 @@ public class ControllerExceptionHandler extends AbstractErrorController {
     public ModelAndView methodArgumentNotValidException(HttpServletRequest req, HttpServletResponse rsp, MethodArgumentNotValidException ex) throws Exception {
         AntPathRequestMatcher matcher = new AntPathRequestMatcher("/api/**");
         if (matcher.matches(req)) {
-            if(true){
+            if (true) {
                 BindingResult result = ex.getBindingResult();
-                return handleJSONError(rsp,Result.error(result).toJson(),HttpStatus.OK);
+                return handleJSONError(rsp, Result.error(result).toJson(), HttpStatus.OK);
             }
 //            List<FieldError> fieldErrors = result.getFieldErrors();
 //            StringBuffer msg = new StringBuffer();
@@ -142,9 +144,9 @@ public class ControllerExceptionHandler extends AbstractErrorController {
 //        return null;
     }
 
-    @RequestMapping(produces = {"text/html","application/json"})
+    @RequestMapping(produces = {"text/html", "application/json"})
     public ModelAndView handleHtml(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        return handleJSONError(response,Result.error().toJson(),HttpStatus.OK);
+        return handleJSONError(response, Result.error().toJson(), HttpStatus.OK);
     }
 
     protected ModelAndView handleViewError(String url, String errorStack, String errorMessage, String viewName) {

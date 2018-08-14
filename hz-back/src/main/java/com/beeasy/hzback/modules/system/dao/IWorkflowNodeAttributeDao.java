@@ -9,8 +9,9 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-public interface IWorkflowNodeAttributeDao extends JpaRepository<WorkflowNodeAttribute,Long> {
+public interface IWorkflowNodeAttributeDao extends JpaRepository<WorkflowNodeAttribute, Long> {
     Optional<WorkflowNodeAttribute> findFirstByNodeInstanceIdAndAttrKey(long niid, String attrKey);
+
     Optional<WorkflowNodeAttribute> findTopByNodeInstanceIdAndDealUserIdAndAttrKey(long niid, long uid, String attrKey);
 
     Optional<WorkflowNodeAttribute> findFirstByDealUserIdAndAttrKey(long uid, String key);
@@ -24,5 +25,6 @@ public interface IWorkflowNodeAttributeDao extends JpaRepository<WorkflowNodeAtt
     List<Long> getUidsByNodeInstnce(@Param("nid") long nid);
 
     int countByNodeInstanceIdAndAttrKeyAndAttrValue(final long iid, final String key, final String value);
+
     int countByNodeInstanceIdAndDealUserIdAndAttrKey(final long niid, final long uid, final String key);
 }

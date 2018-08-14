@@ -12,7 +12,7 @@ import com.beeasy.common.entity.*;
 import com.beeasy.common.entity.User;
 import com.beeasy.hzback.modules.system.form.StartChildInstanceRequest;
 import com.beeasy.hzback.modules.system.response.FetchWorkflowInstanceResponse;
-import com.beeasy.hzback.modules.system.service_kt.UserService;
+import com.beeasy.hzback.modules.system.service.UserService;
 import com.beeasy.hzback.modules.system.service.WorkflowService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,26 +42,26 @@ public class MobileWorkflowController {
     ISystemTextLogDao systemTextLogDao;
 
     private Result.DisallowEntry[] entries = new Result.DisallowEntry[]{
-            new Result.DisallowEntry(WorkflowInstance.class,"dealUser"),
-            new Result.DisallowEntry(WorkflowNode.class,"model"),
-            new Result.DisallowEntry(WorkflowNodeInstance.class,"nodeModel","instance")
+            new Result.DisallowEntry(WorkflowInstance.class, "dealUser"),
+            new Result.DisallowEntry(WorkflowNode.class, "model"),
+            new Result.DisallowEntry(WorkflowNodeInstance.class, "nodeModel", "instance")
     };
 
     private Result.DisallowEntry[] myworkEntries = new Result.DisallowEntry[]{
-        new Result.DisallowEntry(WorkflowInstance.class,"nodeList","simpleChildInstances")
+            new Result.DisallowEntry(WorkflowInstance.class, "nodeList", "simpleChildInstances")
     };
 
     @ApiOperation("列出可用的工作流模型")
     @GetMapping("/all")
-    public String getAllWorkflows(){
+    public String getAllWorkflows() {
         List<WorkflowModel> models = workflowModelDao.getAllWorkflows();
         User user = userService.findUser(Utils.getCurrentUserId());
         for (WorkflowModel model : models) {
-            model.setPubOrPoint(workflowService.canPubOrPoint(model,user) && model.isManual());
+            model.setPubOrPoint(workflowService.canPubOrPoint(model, user) && model.isManual());
         }
         return Result.ok(models).toJson(
-                new Result.DisallowEntry(WorkflowModel.class, "nodeModels","permissions")
-                );
+                new Result.DisallowEntry(WorkflowModel.class, "nodeModels", "permissions")
+        );
     }
 
 
@@ -69,7 +69,7 @@ public class MobileWorkflowController {
     @PostMapping("/findMany")
     public String findWorkflows(
             @RequestBody List<Long> ids
-    ){
+    ) {
         return Result.ok(workflowModelDao.findAllByIdIn(ids)).toMobile();
     }
 
@@ -77,7 +77,7 @@ public class MobileWorkflowController {
     @PostMapping("/instance/findMany")
     public String findWorkflowInstances(
             @RequestBody List<Long> ids
-    ){
+    ) {
         //TODO: 需要验证授权, 只有自己的任务才可以查找
         return Result.ok(instanceDao.findAllByIdIn(ids)).toMobile();
     }
@@ -88,8 +88,8 @@ public class MobileWorkflowController {
     public String applyTask(
             @Valid @RequestBody ApplyTaskRequest request,
             BindingResult bindingResult
-            ){
-        Result result = workflowService.startNewInstance(Utils.getCurrentUserId(),request);
+    ) {
+        Result result = workflowService.startNewInstance(Utils.getCurrentUserId(), request);
         return result.toMobile(entries);
     }
 
@@ -97,20 +97,19 @@ public class MobileWorkflowController {
     @PostMapping("/child/apply")
     public String startChildTask(
             @Valid @RequestBody StartChildInstanceRequest request
-            ){
-        return workflowService.startChildInstance(Utils.getCurrentUserId(),request).toMobile();
+    ) {
+        return workflowService.startChildInstance(Utils.getCurrentUserId(), request).toMobile();
     }
 
     @ApiOperation(value = "取消任务")
     @PostMapping("/cancel")
     public String cancelTask(
             @RequestParam Long instanceId
-    ){
-        boolean flag = workflowService.closeInstance(Utils.getCurrentUserId(),instanceId);
-        if(!flag){
+    ) {
+        boolean flag = workflowService.closeInstance(Utils.getCurrentUserId(), instanceId);
+        if (!flag) {
             return Result.error("取消任务失败, 没有权限或该任务已经变动").toMobile();
-        }
-        else{
+        } else {
             return Result.ok().toMobile();
         }
     }
@@ -119,12 +118,11 @@ public class MobileWorkflowController {
     @PostMapping("/recall")
     public String recallTask(
             @RequestParam Long instanceId
-    ){
-        boolean flag = workflowService .recallInstance(Utils.getCurrentUserId(),instanceId);
-        if(!flag){
+    ) {
+        boolean flag = workflowService.recallInstance(Utils.getCurrentUserId(), instanceId);
+        if (!flag) {
             return Result.error("撤回任务失败, 没有权限或该任务已经变动").toMobile();
-        }
-        else{
+        } else {
             return Result.ok().toMobile();
         }
     }
@@ -149,8 +147,8 @@ public class MobileWorkflowController {
     @PostMapping("/common/accept/{instanceId}")
     public Result acceptCommonTask(
             @PathVariable Long instanceId
-    ){
-        return Result.ok(workflowService.acceptInstance(Utils.getCurrentUserId(),Collections.singleton(instanceId)));
+    ) {
+        return Result.ok(workflowService.acceptInstance(Utils.getCurrentUserId(), Collections.singleton(instanceId)));
     }
 
 
@@ -163,16 +161,16 @@ public class MobileWorkflowController {
             @RequestParam WorkflowNodeFile.Type fileType,
             String content,
             String tag
-            ){
-        return workflowService.uploadNodeFile(Utils.getCurrentUserId(),instanceId,nodeId,fileType,file,content,tag).toMobile();
+    ) {
+        return workflowService.uploadNodeFile(Utils.getCurrentUserId(), instanceId, nodeId, fileType, file, content, tag).toMobile();
     }
 
     @ApiOperation(value = "删除节点附件")
     @PostMapping("/file/delete")
     public String deleteNodeFile(
             @RequestParam Long nodeFileId
-    ){
-        return Result.finish(workflowService.deleteNodeFile(Utils.getCurrentUserId(),nodeFileId)).toMobile();
+    ) {
+        return Result.finish(workflowService.deleteNodeFile(Utils.getCurrentUserId(), nodeFileId)).toMobile();
     }
 
     @ApiOperation(value = "设置节点标签")
@@ -180,7 +178,7 @@ public class MobileWorkflowController {
     public String setNodeFileTags(
             @PathVariable long id,
             @PathVariable String tags
-    ){
+    ) {
         return Result.finish(workflowService.setNodeFileTags(Utils.getCurrentUserId(), id, tags)).toJson();
     }
 
@@ -189,15 +187,15 @@ public class MobileWorkflowController {
     public String addPosition(
             @Valid @RequestBody WorkflowPositionAddRequest request,
             BindingResult bindingResult
-    ){
-        return workflowService.addPosition(Utils.getCurrentUserId(),request).toMobile();
+    ) {
+        return workflowService.addPosition(Utils.getCurrentUserId(), request).toMobile();
     }
 
     @ApiOperation(value = "得到节点的定位属性")
     @GetMapping("/position/{nodeFileId}")
     public String getNodePosition(
             @PathVariable Long nodeFileId
-    ){
+    ) {
         return Result.finish(workflowService.findNodeGPSPosition(nodeFileId)).toMobile();
     }
 
@@ -206,8 +204,8 @@ public class MobileWorkflowController {
     public String submitData(
             @Valid @RequestBody SubmitDataRequest request,
             BindingResult bindingResult
-            ){
-        return workflowService.submitData(Utils.getCurrentUserId(),request).toJson();
+    ) {
+        return workflowService.submitData(Utils.getCurrentUserId(), request).toJson();
     }
 
     //可能会变动
@@ -217,65 +215,65 @@ public class MobileWorkflowController {
 //            @RequestParam Long instanceId,
 //            @RequestParam Long nodeId
             @PathVariable Long nodeId
-    ){
-            return workflowService.goNext(Utils.getCurrentUserId(),0L,nodeId).toJson();
+    ) {
+        return workflowService.goNext(Utils.getCurrentUserId(), 0L, nodeId).toJson();
     }
 
     @ApiOperation(value = "我执行的任务")
     @GetMapping("/myOwnWorks")
     public String getMyOwnWorks(
             Long lessId
-    ){
-        PageRequest pageRequest = new PageRequest(0,10);
-        if(lessId == null) lessId = 0L;
-        if(lessId == 0) lessId = Long.MAX_VALUE;
-        return Result.ok(instanceDao.findAllByDealUserIdAndIdLessThanOrderByAddTimeDesc(Utils.getCurrentUserId(),lessId,pageRequest)).toMobile(myworkEntries);
+    ) {
+        PageRequest pageRequest = new PageRequest(0, 10);
+        if (lessId == null) lessId = 0L;
+        if (lessId == 0) lessId = Long.MAX_VALUE;
+        return Result.ok(instanceDao.findAllByDealUserIdAndIdLessThanOrderByAddTimeDesc(Utils.getCurrentUserId(), lessId, pageRequest)).toMobile(myworkEntries);
     }
 
 
     @ApiOperation(value = "我发布的任务")
     @GetMapping("/myPubWorks")
-    public String getMyPubWorks(Long lessId){
-        PageRequest pageRequest = new PageRequest(0,10);
-        if(lessId == null){
+    public String getMyPubWorks(Long lessId) {
+        PageRequest pageRequest = new PageRequest(0, 10);
+        if (lessId == null) {
             lessId = 0L;
         }
-        if(lessId == 0){
+        if (lessId == 0) {
             lessId = Long.MAX_VALUE;
         }
-        return Result.ok(instanceDao.findAllByPubUserIdAndIdLessThanOrderByAddTimeDesc(Utils.getCurrentUserId(),lessId,pageRequest)).toJson(myworkEntries);
+        return Result.ok(instanceDao.findAllByPubUserIdAndIdLessThanOrderByAddTimeDesc(Utils.getCurrentUserId(), lessId, pageRequest)).toJson(myworkEntries);
     }
 
 
     @ApiOperation(value = "需要我处理的任务")
     @RequestMapping(value = "/myNeedingWorks", method = RequestMethod.GET)
-    public String getMyNeedToDealWorks(Long lessId){
-        PageRequest pageRequest = PageRequest.of(0,10);
-        return Result.ok(workflowService.getUserUndealedWorks((Utils.getCurrentUserId()),lessId,pageRequest)).toMobile(myworkEntries);
+    public String getMyNeedToDealWorks(Long lessId) {
+        PageRequest pageRequest = PageRequest.of(0, 10);
+        return Result.ok(workflowService.getUserUndealedWorks((Utils.getCurrentUserId()), lessId, pageRequest)).toMobile(myworkEntries);
     }
 
     @ApiOperation(value = "我处理过的任务")
     @GetMapping("/myDealedWorks")
-    public String getMyDealedWorks(Long lessId){
-        PageRequest pageRequest = new PageRequest(0,10);
-        if(null == lessId){
+    public String getMyDealedWorks(Long lessId) {
+        PageRequest pageRequest = new PageRequest(0, 10);
+        if (null == lessId) {
             lessId = 0L;
         }
-        if(lessId == 0){
+        if (lessId == 0) {
             lessId = Long.MAX_VALUE;
         }
-        return Result.ok(instanceDao.findDealedWorks(Collections.singletonList(Utils.getCurrentUserId()),lessId,pageRequest)).toMobile(myworkEntries);
+        return Result.ok(instanceDao.findDealedWorks(Collections.singletonList(Utils.getCurrentUserId()), lessId, pageRequest)).toMobile(myworkEntries);
 
     }
 
     @ApiOperation(value = "我观察的任务")
     @GetMapping("/myObserveredWorks")
-    public String getMyObserveredWorks(Long lessId){
-        PageRequest pageRequest = new PageRequest(0,10);
-        if(null == lessId){
+    public String getMyObserveredWorks(Long lessId) {
+        PageRequest pageRequest = new PageRequest(0, 10);
+        if (null == lessId) {
             lessId = 0L;
         }
-        if(lessId == 0){
+        if (lessId == 0) {
             lessId = Long.MAX_VALUE;
         }
         return Result.ok().toJson();
@@ -284,12 +282,12 @@ public class MobileWorkflowController {
 
     @ApiOperation(value = "我可以执行的公共任务")
     @GetMapping("/getCommonWorks")
-    public String getCommonWorks(Long lessId){
-        PageRequest pageRequest = new PageRequest(0,10);
-        if(null == lessId){
+    public String getCommonWorks(Long lessId) {
+        PageRequest pageRequest = new PageRequest(0, 10);
+        if (null == lessId) {
             lessId = 0L;
         }
-        if(lessId == 0){
+        if (lessId == 0) {
             lessId = Long.MAX_VALUE;
         }
         return Result.ok().toJson();
@@ -301,31 +299,31 @@ public class MobileWorkflowController {
     @GetMapping("/logs/{instanceId}")
     public String getWorkflowLogs(
             @PathVariable Long instanceId
-    ){
-        return Result.ok(systemTextLogDao.findLogs(SystemTextLog.Type.WORKFLOW,instanceId)).toMobile();
+    ) {
+        return Result.ok(systemTextLogDao.findLogs(SystemTextLog.Type.WORKFLOW, instanceId)).toMobile();
     }
 
 
     @ApiOperation(value = "查询一个任务的所有明细")
     @GetMapping("/instance/fetch/{id}")
-    public String fetchInstance(@PathVariable Long id){
-        return Result.ok(workflowService.fetchInstance(Utils.getCurrentUserId(),id)).toMobile();
+    public String fetchInstance(@PathVariable Long id) {
+        return Result.ok(workflowService.fetchInstance(Utils.getCurrentUserId(), id)).toMobile();
     }
 
     @Deprecated
     @ApiOperation(value = "得到某个模型第一个节点的可执行人")
     @GetMapping("/persons/fetch/{id}")
-    public String fetchModelFirstNoePersons(@PathVariable Long id){
+    public String fetchModelFirstNoePersons(@PathVariable Long id) {
         WorkflowModel model = workflowService.findModel(id).orElse(null);
         User user = userService.findUser(Utils.getCurrentUserId());
-        if(null == model || null == user){
+        if (null == model || null == user) {
             return Result.error().toMobile();
         }
         FetchWorkflowInstanceResponse response = new FetchWorkflowInstanceResponse();
         response.setTransformUsers(workflowService.getTransformUids(id));
-        response.setTransform(workflowService.canPoint(model.getId(),user.getId()));
+        response.setTransform(workflowService.canPoint(model.getId(), user.getId()));
         return Result.ok(response).toMobile(
-                new Result.DisallowEntry(User.class,"quarters","departments","permissions","externalPermissions")
+                new Result.DisallowEntry(User.class, "quarters", "departments", "permissions", "externalPermissions")
         );
     }
 }

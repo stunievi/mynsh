@@ -18,11 +18,11 @@ public class CheckboxField extends InformationField {
         this.items = items;
     }
 
-    public void setItems(String[] items){
+    public void setItems(String[] items) {
         setItems(Arrays.asList(items));
     }
 
-    public void setItems(List<String> items){
+    public void setItems(List<String> items) {
         this.items = new LinkedHashSet<>(items);
     }
 
@@ -31,11 +31,11 @@ public class CheckboxField extends InformationField {
         this.selectedItems = items;
     }
 
-    public void setSelectedItems(String[] items){
+    public void setSelectedItems(String[] items) {
         setItems(Arrays.asList(items));
     }
 
-    public void setSelectedItems(List<String> items){
+    public void setSelectedItems(List<String> items) {
         this.selectedItems = new LinkedHashSet<>(items);
     }
 

@@ -9,7 +9,7 @@
 </head>
 <body>
 <center>
-    <form action="/login" method="post" >
+    <form action="/login" method="post">
         <div>
             用户名：
             <input type="text" name="username">
@@ -18,7 +18,7 @@
             密码：
             <input type="password" name="password">
         </div>
-        <input type="submit" >
+        <input type="submit">
     </form>
 </center>
 

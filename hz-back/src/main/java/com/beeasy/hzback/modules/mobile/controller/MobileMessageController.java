@@ -23,8 +23,8 @@ public class MobileMessageController {
     @PostMapping("/sendString")
     public String sendStringMessage(
             @Valid @RequestBody StringMessageRequest request
-            ){
-        return Result.finish(messageService.sendMessage(Utils.getCurrentUserId(),request.getToUid(),request.getContent(),request.getUuid())).toMobile();
+    ) {
+        return Result.finish(messageService.sendMessage(Utils.getCurrentUserId(), request.getToUid(), request.getContent(), request.getUuid())).toMobile();
     }
 
     @PostMapping("/sendFile")
@@ -32,30 +32,30 @@ public class MobileMessageController {
             @RequestParam Long toUid,
             @RequestParam MultipartFile file
     ) throws IOException {
-        return Result.finish(messageService.sendMessage(Utils.getCurrentUserId(),toUid,file)).toMobile();
+        return Result.finish(messageService.sendMessage(Utils.getCurrentUserId(), toUid, file)).toMobile();
     }
 
     @GetMapping("/userRecentMessage")
     public Result getUserRecentMessages(
             Long messageId,
             Long userId
-    ){
-        return Result.ok(messageService.getUserRecentMessages(Utils.getCurrentUserId(),userId,messageId));
+    ) {
+        return Result.ok(messageService.getUserRecentMessages(Utils.getCurrentUserId(), userId, messageId));
     }
 
     @PostMapping("/userUnreadNums")
     public Result<List<UnreadMessageResponse>> getUnreadMessages(
             @RequestBody Long[] toUids
-            ){
-        return Result.ok(messageService.getUnreadNums(Utils.getCurrentUserId(),toUids));
+    ) {
+        return Result.ok(messageService.getUnreadNums(Utils.getCurrentUserId(), toUids));
     }
 
 
     @PostMapping("/readMessages")
     public Result<List<ReadMessageResponse>> readMessages(
             @RequestBody Long[] toUids
-    ){
-        return Result.ok(messageService.userReadMessage(Utils.getCurrentUserId(),toUids));
+    ) {
+        return Result.ok(messageService.userReadMessage(Utils.getCurrentUserId(), toUids));
     }
 
 }

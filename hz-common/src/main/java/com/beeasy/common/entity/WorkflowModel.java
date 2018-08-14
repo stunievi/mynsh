@@ -27,7 +27,7 @@ public class WorkflowModel {
 //    @Convert(converter = ObjectConverter.class)
 //    Map<String,BaseNode> model;
 
-    @OneToMany(mappedBy = "model",cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "model", cascade = CascadeType.REMOVE)
     List<WorkflowNode> nodeModels = new ArrayList<>();
 
     @Column(length = 20)
@@ -72,7 +72,7 @@ public class WorkflowModel {
 //    @OneToMany(mappedBy = "workflowModel", cascade = CascadeType.REMOVE)
 //    List<WorkflowExtPermission> permissions = new ArrayList<>();
 
-    @OneToMany(mappedBy = "model",cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "model", cascade = CascadeType.REMOVE)
     List<WorkflowModelInnate> innates = new ArrayList<>();
 
 //    @JSONField(serialize = false)
@@ -106,7 +106,7 @@ public class WorkflowModel {
     /**
      * 字段类型
      */
-    public enum FieldRule{
+    public enum FieldRule {
         Null,
         NotNull,
         AssertTrue,

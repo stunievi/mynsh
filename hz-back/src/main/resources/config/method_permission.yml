@@ -1,11 +1,9 @@
-
-
 后台管理:
   用户:
     新增:
       api:
-        - /xxx/xxx/123
-        - /xxx/xxx/456
+      - /xxx/xxx/123
+      - /xxx/xxx/456
       class:
         btncreate
         btnxxx
@@ -54,74 +52,74 @@
   个人文件柜:
     创建文件夹:
       api:
-        - /api/clouddisk/createDir
+      - /api/clouddisk/createDir
     删除文件夹:
       api:
-        - /api/clouddisk/deleteDir
+      - /api/clouddisk/deleteDir
     重命名文件夹:
       api:
-        - /api/clouddisk/renameDir
+      - /api/clouddisk/renameDir
     查询:
       api:
-        - /api/clouddisk/files
+      - /api/clouddisk/files
     上传文件:
       api:
-        - /api/clouddisk/bytes/upload/apply
-        - /api/clouddisk/bytes/upload/start
-        - /api/clouddisk/bytes/upload/finish
+      - /api/clouddisk/bytes/upload/apply
+      - /api/clouddisk/bytes/upload/start
+      - /api/clouddisk/bytes/upload/finish
     重命名文件:
       api:
-        - /api/clouddisk/renameFile
+      - /api/clouddisk/renameFile
     删除文件:
       api:
-        - /api/clouddisk/deleteFiles
+      - /api/clouddisk/deleteFiles
     转发:
       api:
-        - /api/clouddisk/shareFile
+      - /api/clouddisk/shareFile
     下载:
       api:
 
   共享文件柜:
     创建文件夹:
       api:
-        - /api/clouddisk/common/createDir
+      - /api/clouddisk/common/createDir
     删除文件夹:
       api:
-        - /api/clouddisk/common/deleteDir
+      - /api/clouddisk/common/deleteDir
     重命名文件夹:
       api:
-        - /api/clouddisk/common/renameDir
+      - /api/clouddisk/common/renameDir
     查询:
       api:
-        - /api/clouddisk/common/files
+      - /api/clouddisk/common/files
     新增:
       api:
-        - /api/clouddisk/common/bytes/upload/apply
-        - /api/clouddisk/common/bytes/upload/start
-        - /api/clouddisk/common/bytes/upload/finish
+      - /api/clouddisk/common/bytes/upload/apply
+      - /api/clouddisk/common/bytes/upload/start
+      - /api/clouddisk/common/bytes/upload/finish
     重命名文件:
       api:
-        - /api/clouddisk/common/renameFile
+      - /api/clouddisk/common/renameFile
     删除:
       api:
-        - /api/clouddisk/common/deleteFiles
-#    转存:
+      - /api/clouddisk/common/deleteFiles
+    #    转存:
     从共享文件柜中转存文件:
-        - /api/clouddisk/saveCommonFiles
-      api:
+    - /api/clouddisk/saveCommonFiles
+    api:
 
     下载:
 
   收到的共享:
     查询:
       api:
-        - /api/clouddisk/shareFiles
+      - /api/clouddisk/shareFiles
     删除:
       api:
-        - /api/clouddisk/deleteShareFiles
+      - /api/clouddisk/deleteShareFiles
     转存:
       api:
-        - /api/clouddisk/saveShareFiles
+      - /api/clouddisk/saveShareFiles
 
     下载:
 

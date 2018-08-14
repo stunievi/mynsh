@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface ITaskCheckLogDao extends JpaRepository<TaskCheckLog,Long> {
+public interface ITaskCheckLogDao extends JpaRepository<TaskCheckLog, Long> {
 
     Optional<TaskCheckLog> findFirstByTypeAndLinkIdOrderByLastCheckDateDesc(TaskCheckLog.Type type, Long linkId);
 

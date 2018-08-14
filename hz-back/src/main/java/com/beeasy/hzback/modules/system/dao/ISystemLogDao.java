@@ -8,6 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface ISystemLogDao extends JpaRepository<SystemLog,Long>{
+public interface ISystemLogDao extends JpaRepository<SystemLog, Long> {
     Page<List<SystemLog>> findAllByUserName(String userName, org.springframework.data.domain.Pageable pageable);
 }

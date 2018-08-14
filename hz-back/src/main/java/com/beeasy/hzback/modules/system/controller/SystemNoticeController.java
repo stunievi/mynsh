@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/notice")
-public class SystemNoticeController{
+public class SystemNoticeController {
 
     @Autowired
     SystemNoticeService noticeService;
@@ -27,8 +27,8 @@ public class SystemNoticeController{
     public Result getNoticeList(
             SystemNoticeService.SearchRequest request,
             Pager pager,
-            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
-    ){
+            @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
+    ) {
         return Result.ok(noticeService.getMessageList(Utils.getCurrentUserId(), request, pageable));
     }
 
@@ -37,7 +37,7 @@ public class SystemNoticeController{
     @RequestMapping(value = "/updateRead", method = RequestMethod.GET)
     public Result updateRead(
             @RequestParam String id
-    ){
+    ) {
         return Result.ok(noticeService.readNotice(Utils.getCurrentUserId(), Utils.convertIdsToList(id)));
     }
 }

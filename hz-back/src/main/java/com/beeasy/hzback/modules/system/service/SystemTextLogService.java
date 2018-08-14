@@ -2,7 +2,7 @@ package com.beeasy.hzback.modules.system.service;
 
 import com.beeasy.hzback.modules.system.dao.ISystemTextLogDao;
 import com.beeasy.common.entity.SystemTextLog;
-import com.beeasy.hzback.modules.system.service_kt.UserService;
+import com.beeasy.hzback.modules.system.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -28,7 +28,7 @@ public class SystemTextLogService {
     }
 
     @Async
-    public void handleSystemLog(){
+    public void handleSystemLog() {
 
     }
 }

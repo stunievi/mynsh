@@ -23,7 +23,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.List;
 
-public class MySQL5DialectFK extends MySQL5Dialect implements DialectFK{
+public class MySQL5DialectFK extends MySQL5Dialect implements DialectFK {
 
     EntityManager entityManager;
 
@@ -34,14 +34,14 @@ public class MySQL5DialectFK extends MySQL5Dialect implements DialectFK{
 
     @Override
     public String getAddForeignKeyConstraintString(String constraintName, String[] foreignKey, String referencedTable, String[] primaryKey, boolean referencesPrimaryKey) {
-        return " COMMENT ''" ;
+        return " COMMENT ''";
 //        return super.getAddForeignKeyConstraintString(constraintName, foreignKey, referencedTable, primaryKey, referencesPrimaryKey);
     }
 
 
     @Override
     public Exporter<ForeignKey> getForeignKeyExporter() {
-        return new StandardForeignKeyExporter(this){
+        return new StandardForeignKeyExporter(this) {
             @Override
             public String[] getSqlCreateStrings(ForeignKey foreignKey, Metadata metadata) {
                 return new String[]{};
@@ -51,7 +51,7 @@ public class MySQL5DialectFK extends MySQL5Dialect implements DialectFK{
 
     @Override
     public String convertColumn(String column) {
-        switch (column){
+        switch (column) {
             case JSONConverter.type:
                 return "LONGTEXT";
             case JSONConverter.blobType:

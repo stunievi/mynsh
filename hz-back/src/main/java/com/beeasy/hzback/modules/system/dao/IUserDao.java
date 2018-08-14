@@ -17,21 +17,30 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface IUserDao extends JpaRepository<User,Long> ,JpaSpecificationExecutor {
-//    User findFirstByName(String userName);
+public interface IUserDao extends JpaRepository<User, Long>, JpaSpecificationExecutor {
+    //    User findFirstByName(String userName);
     User findByUsername(String userName);
+
     Optional<User> findFirstByUsername(String userName);
+
     User findFirstByUsernameOrPhone(String userName, String phone);
+
     void deleteAllByIdIsGreaterThan(long id);
+
     Page<User> findAllByUsername(String userName, Pageable pageable);
 
     List<User> findAllByIdIn(Collection<Long> ids);
 
     Optional<User> findFirstByPhone(String phone);
+
     Optional<User> findTopByPhoneAndIdNot(final String phone, final long uid);
+
     int countByPhoneAndIdNot(final String phone, final long uid);
+
     int countByEmailAndIdNot(final String email, final long uid);
+
     Optional<User> findTopByAccCode(String accCode);
+
     //检查是否超级管理员
     int countByIdAndSuIsTrue(long uid);
 
@@ -48,8 +57,11 @@ public interface IUserDao extends JpaRepository<User,Long> ,JpaSpecificationExec
     List getPublicKey(@Param("id") long id);
 
     int countById(Long id);
+
     int countByUsername(String username);
+
     int countByPhone(String phone);
+
     @Query(value = "select count(user.id) from User user join user.quarters q where q.id = :qid and user.id = :uid")
     int countUidAndQid(@Param("uid") long uid, @Param("qid") long qid);
 
@@ -58,14 +70,13 @@ public interface IUserDao extends JpaRepository<User,Long> ,JpaSpecificationExec
     List getUserCloudProfile(@Param("uid") long uid);
 
 
-
     @Modifying
     @Transactional
     @Query(value = "update User u set u.privateKey = :privateKey, u.publicKey = :publicKey where u.username = :username")
     public void updateUserKeys(@Param("privateKey") String privateKey, @Param("publicKey") String publicKey, @Param("username") String username);
 
     @Modifying
-    @Query(value = "delete from t_user_quarters WHERE user_id = :uid",nativeQuery = true)
+    @Query(value = "delete from t_user_quarters WHERE user_id = :uid", nativeQuery = true)
     int deleteLinksByUid(@Param("uid") long uid);
 
     @Modifying
@@ -143,8 +154,6 @@ public interface IUserDao extends JpaRepository<User,Long> ,JpaSpecificationExec
 
     //得到工作流当前节点可以处理的人
 //    List getUidsFromWorkflowCurrentNodeWhoCanDeal();
-
-
 
 
     //是否是子部门
@@ -228,8 +237,6 @@ public interface IUserDao extends JpaRepository<User,Long> ,JpaSpecificationExec
 ////    }
 //
 //
-
-
 
 
 }

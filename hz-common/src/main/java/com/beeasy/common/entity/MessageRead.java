@@ -1,5 +1,6 @@
 package com.beeasy.common.entity;//package com.beeasy.hzback.modules.system.entity;
 //
+
 import com.alibaba.fastjson.annotation.JSONField;
 import com.beeasy.common.helper.AbstractBaseEntity;
 import lombok.Getter;
@@ -16,14 +17,14 @@ public class MessageRead extends AbstractBaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id = 0L;
 
-//    用户ID(这里不需要使用关联)
+    //    用户ID(这里不需要使用关联)
     @JSONField(serialize = false)
     @ManyToOne
     User user;
 
-//    Long fromId = 0L;
+    //    Long fromId = 0L;
     Long toId = 0L;
-//    Message.LinkType fromType = Message.LinkType.USER;
+    //    Message.LinkType fromType = Message.LinkType.USER;
     Message.LinkType toType = Message.LinkType.USER;
 
 

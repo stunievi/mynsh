@@ -4,10 +4,10 @@ import bin.leblanc.faker.Faker;
 import com.beeasy.hzback.modules.system.dao.IDepartmentDao;
 import com.beeasy.common.entity.Department;
 //import com.beeasy.hzback.modules.system.form.DepartmentAdd;
-import com.beeasy.common.entity.DepartmentAdd;
-import com.beeasy.common.entity.DepartmentEdit;
+import com.beeasy.hzback.modules.system.request.DepartmentAddRequest;
+import com.beeasy.hzback.modules.system.request.DepartmentEditRequest;
 import com.beeasy.hzback.modules.system.service.DepartmentService;
-import com.beeasy.hzback.modules.system.service_kt.UserService;
+import com.beeasy.hzback.modules.system.service.UserService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,8 +30,8 @@ public class TestDepartment {
     UserService userService;
 
 
-    private Department createDepartment(Department parent){
-        DepartmentAdd departmentAdd = new DepartmentAdd();
+    private Department createDepartment(Department parent) {
+        DepartmentAddRequest departmentAdd = new DepartmentAddRequest();
         departmentAdd.setName(Faker.getName());
         departmentAdd.setInfo(Faker.getName());
         departmentAdd.setParentId(parent == null ? null : parent.getId());
@@ -40,20 +40,20 @@ public class TestDepartment {
     }
 
     @Test
-    public void test1(){
+    public void test1() {
         //add
         Department parent = createDepartment(null);
         Department child = createDepartment(parent);
         Department grandChild = createDepartment(child);
 
         //edit success
-        DepartmentEdit edit = new DepartmentEdit();
+        DepartmentEditRequest edit = new DepartmentEditRequest();
         edit.setName(Faker.getName());
         edit.setId(child.getId());
         Department department = userService.editDepartment(edit);
 
         //edit failed
-        edit = new DepartmentEdit();
+        edit = new DepartmentEditRequest();
         edit.setId(parent.getId());
         edit.setName(Faker.getName());
         department = userService.editDepartment(edit);
@@ -83,7 +83,7 @@ public class TestDepartment {
     }
 
     @Test
-    public void test2(){
+    public void test2() {
         departmentDao.deleteAll();
     }
 

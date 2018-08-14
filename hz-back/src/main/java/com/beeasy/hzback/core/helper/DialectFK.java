@@ -4,13 +4,13 @@ import javassist.*;
 
 public interface DialectFK {
 
-    default void byteCodes(){
+    default void byteCodes() {
 //        org.hibernate.mapping.Column
         ClassPool pool = ClassPool.getDefault();
         try {
             pool.importPackage("org.hibernate.dialect");
             CtClass cc = pool.get("org.hibernate.mapping.Column");
-            CtMethod method = cc.getDeclaredMethod("getSqlType",new CtClass[]{
+            CtMethod method = cc.getDeclaredMethod("getSqlType", new CtClass[]{
                     pool.get("org.hibernate.dialect.Dialect"),
                     pool.get("org.hibernate.engine.spi.Mapping")
             });
@@ -33,7 +33,7 @@ public interface DialectFK {
         }
     }
 
-    default String convertColumn(String column){
+    default String convertColumn(String column) {
         return column;
     }
 }

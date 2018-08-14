@@ -1,7 +1,7 @@
 package com.beeasy.hzback.modules.system.task;
 
 import com.beeasy.hzback.core.helper.Utils;
-import com.beeasy.hzback.modules.system.dao.ISystemTaskDao;
+//import com.beeasy.hzback.modules.system.dao.ISystemTaskDao;
 import com.beeasy.hzback.modules.system.dao.IWorkflowNodeInstanceDao;
 import com.beeasy.common.entity.WorkflowNode;
 import com.beeasy.common.entity.WorkflowNodeInstance;
@@ -19,15 +19,15 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @Component
 @Slf4j
-public class TaskRunner{
+public class TaskRunner {
 
     @Value("${workflow.lockTimeout}")
     int lockTimeout;
 
     @Autowired
     IWorkflowNodeInstanceDao nodeInstanceDao;
-    @Autowired
-    ISystemTaskDao systemTaskDao;
+    //    @Autowired
+//    ISystemTaskDao systemTaskDao;
     @Autowired
     WorkflowService workflowService;
 
@@ -39,35 +39,32 @@ public class TaskRunner{
     final static String LOGIC_NODE_LOCK = "LOGIC_NODE_LOCK";
 
 
-    private void doLogicNodeTask(){
-        Page<WorkflowNodeInstance> nodeInstances = nodeInstanceDao.getCurrentNode(WorkflowNode.Type.logic, new PageRequest(0,200));
-        if(nodeInstances.getContent().size() == 0) return;
+    private void doLogicNodeTask() {
+        Page<WorkflowNodeInstance> nodeInstances = nodeInstanceDao.getCurrentNode(WorkflowNode.Type.logic, new PageRequest(0, 200));
+        if (nodeInstances.getContent().size() == 0) return;
 
         nodeInstances.getContent().forEach(nodeInstance -> {
-            workflowService.runLogicNode(nodeInstance.getInstance(),nodeInstance);
+            workflowService.runLogicNode(nodeInstance.getInstance(), nodeInstance);
         });
 
     }
 
 
-//    @Scheduled(fixedRate = 5000)
+    //    @Scheduled(fixedRate = 5000)
     public void doTask() {
-        if(utils.isLockingOrLockFailed(LOGIC_NODE_LOCK,10)){
+        if (utils.isLockingOrLockFailed(LOGIC_NODE_LOCK, 10)) {
             return;
         }
 
-        try{
+        try {
             //争抢线程
             doLogicNodeTask();
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
-        }
-        finally {
+        } finally {
             utils.unlock(LOGIC_NODE_LOCK);
         }
     }
-
 
 
 }

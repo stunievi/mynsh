@@ -5,7 +5,7 @@ import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.modules.system.dao.IUserAllowApiDao;
 import com.beeasy.hzback.modules.system.dao.IUserDao;
 import com.beeasy.hzback.modules.system.dao.IUserTokenDao;
-import com.beeasy.hzback.modules.system.service_kt.UserService;
+import com.beeasy.hzback.modules.system.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -68,8 +68,8 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
 //                    break;
 //                }
 //                if(allowApiDao.countByUserIdAndApi((Long)authentication.getPrincipal(), url) > 0){
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
-                    break;
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+                break;
 //                }
             }
 
@@ -88,17 +88,16 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
     private UsernamePasswordAuthenticationToken getAuthentication(String token) {
 //        Long uid = jwtTokenUtil.getUserIdFromToken(token);
         Long uid = null;
-        if(org.apache.commons.lang.math.NumberUtils.isNumber(token)){
+        if (org.apache.commons.lang.math.NumberUtils.isNumber(token)) {
             uid = Long.valueOf(token);
-        }
-        else{
-            List objects = userTokenDao.getUidFromToken(token,new Date());
-            if(objects.size() > 0){
+        } else {
+            List objects = userTokenDao.getUidFromToken(token, new Date());
+            if (objects.size() > 0) {
                 uid = (Long) objects.get(0);
                 userService.updateToken(token);
             }
         }
-        if(null != uid){
+        if (null != uid) {
             return new UsernamePasswordAuthenticationToken(uid, "", new ArrayList<>());
         }
         //验证token合法性

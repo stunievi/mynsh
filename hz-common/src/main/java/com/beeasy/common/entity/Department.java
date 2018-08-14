@@ -1,7 +1,9 @@
 package com.beeasy.common.entity;//package com.beeasy.hzback.modules.system.entity;
 //
+
 import com.alibaba.fastjson.annotation.JSONField;
 import com.beeasy.common.helper.AbstractBaseEntity;
+import com.beeasy.common.helper.JSONConverter;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.SQLDelete;
@@ -10,6 +12,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import javax.validation.constraints.AssertTrue;
 import java.util.*;
 
 @Getter
@@ -19,13 +22,16 @@ import java.util.*;
 @EntityListeners(AuditingEntityListener.class)
 //@SQLDelete(sql = "update demo set deleted = 1 where id = ?")
 //@Where(clause = "deleted = 0")
-public class Department extends AbstractBaseEntity{
+public class Department extends AbstractBaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(columnDefinition = JSONConverter.VARCHAR_20)
     private String name;
+
+    @Column(columnDefinition = JSONConverter.VARCHAR_5O)
     private String info;
 
 
@@ -40,11 +46,11 @@ public class Department extends AbstractBaseEntity{
     private Date addTime;
 
     @OrderBy(value = "sort ASC, id ASC")
-    @OneToMany(fetch = FetchType.LAZY,mappedBy = "parent")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "parent")
     private List<Department> children = new ArrayList<>();
 
     @OneToMany(mappedBy = "department", cascade = CascadeType.ALL)
-    private Set<Quarters> quarters = new LinkedHashSet<>();
+    private List<Quarters> quarters = new ArrayList<>();
 
     //部门编号
     private String code;

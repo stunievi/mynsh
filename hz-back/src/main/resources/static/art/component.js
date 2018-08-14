@@ -4,26 +4,26 @@ var names = [];
 var sources = {};
 
 window.ArtComponent = {
-    define : function (name,path,code) {
+    define: function (name, path, code) {
         names.push(name);
         promises.push($.ajax(
             {
                 type: "get",
-                url : path
+                url: path
             }
         ));
     },
-    
-    ready : function (callback) {
+
+    ready: function (callback) {
         readys.push(callback);
-        $.when.apply($,promises).then(function () {
-            for(var i = 0; i < arguments.length; i++){
+        $.when.apply($, promises).then(function () {
+            for (var i = 0; i < arguments.length; i++) {
                 sources[names[i]] = arguments[i];
             }
-            readys.forEach(c => {
+            readys.forEach(c = > {
                 console.log(c)
-                c();
-            })
+            c();
+        })
             readys = [];
         })
     }

@@ -1,5 +1,6 @@
 package com.beeasy.common.entity;//package com.beeasy.hzback.modules.system.entity;
 //
+
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.common.helper.AbstractBaseEntity;
 import com.beeasy.common.helper.JSONConverter;
@@ -32,6 +33,7 @@ public class GlobalPermission extends AbstractBaseEntity {
     Long id;
 
     //授权类型
+    @Column(length = 40)
     @Enumerated(value = EnumType.STRING)
     Type type;
 
@@ -39,6 +41,7 @@ public class GlobalPermission extends AbstractBaseEntity {
     Long objectId;
 
     //授权者类型
+    @Column(length = 15)
     @Enumerated(value = EnumType.STRING)
     UserType userType;
 

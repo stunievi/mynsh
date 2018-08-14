@@ -9,15 +9,21 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-public interface IDepartmentDao extends JpaRepository<Department,Long> {
+public interface IDepartmentDao extends JpaRepository<Department, Long> {
     List<Department> findAllByParent(Department department);
+
     List<Department> findAllByParent_Id(Long parentId);
 
     Department findByParent(Department department);
+
     Optional<Department> findFirstByParentAndName(Department department, String name);
+
     Optional<Department> findTopByParentIdAndName(final long departmentId, final String name);
+
     int countByParentAndName(Department department, String name);
+
     int countByParentIdAndName(final long did, String name);
+
     int countByParentIdAndNameAndIdNot(final Long pid, final String name, final long id);
 
     List<Department> findAllByName(String name);
@@ -59,6 +65,7 @@ public interface IDepartmentDao extends JpaRepository<Department,Long> {
     //得到某些部门所有下属子部门(包括自身)
     @Query(value = "select distinct d.id from Department d where (select count(dd) from Department dd where d.code like concat(dd.code,'%') and dd.id = :did) > 0")
     List<Long> getChildDepIds(@Param("did") long did);
+
     @Query(value = "select distinct d from Department d where (select count (dd) from Department dd where d.code like concat(dd.code,'%') and dd.id = :did ) > 0")
     List<Department> getChildDeps(@Param("did") final long did);
 }

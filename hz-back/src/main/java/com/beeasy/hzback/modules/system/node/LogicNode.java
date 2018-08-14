@@ -13,7 +13,7 @@ public class LogicNode extends BaseNode {
 
     private String condition;
     private int interval;
-    private Map<String,String> result = new LinkedHashMap<>();
+    private Map<String, String> result = new LinkedHashMap<>();
 
     public LogicNode(Map map) {
         if (map.containsKey("condition")) {

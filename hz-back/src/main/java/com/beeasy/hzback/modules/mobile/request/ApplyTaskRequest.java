@@ -40,8 +40,8 @@ public class ApplyTaskRequest {
     boolean goNext = false;
 
     //固有字段信息
-    Map<String,String> data = new HashMap<>();
-    Map<String,String> startNode = new HashMap<>();
+    Map<String, String> data = new HashMap<>();
+    Map<String, String> startNode = new HashMap<>();
 
     //第一个节点上传的文件
     List<Long> files = new ArrayList<>();
@@ -56,7 +56,7 @@ public class ApplyTaskRequest {
     //固有数据源绑定值
     String dataId;
 
-    public enum DataSource{
+    public enum DataSource {
         CLIENT,
         ACC_LOAN
     }
@@ -72,7 +72,7 @@ public class ApplyTaskRequest {
 
 
     @AssertTrue(message = "模型ID和标准模型名至少要有一个")
-    public boolean isValidModel(){
+    public boolean isValidModel() {
         return null != modelId || !StringUtils.isEmpty(modelName);
     }
 }

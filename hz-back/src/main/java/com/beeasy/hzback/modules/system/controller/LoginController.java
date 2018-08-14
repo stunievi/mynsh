@@ -42,7 +42,7 @@ public class LoginController {
     @Autowired
     IUserDao userDao;
 
-//    @Autowired
+    //    @Autowired
 //    AuthenticationManager authenticationManager;
     @Autowired
     IUserTokenDao userTokenDao;
@@ -50,11 +50,11 @@ public class LoginController {
     @Autowired
     JwtTokenUtil jwtTokenUtil;
 
-    Map<String,LoginLock> loginMap = new HashMap<>();
+    Map<String, LoginLock> loginMap = new HashMap<>();
 
     @AllArgsConstructor
     @NoArgsConstructor
-    static class LoginLock{
+    static class LoginLock {
         private String userName;
         private int errorCount = 0;
         private long lastErrorDate;
@@ -70,7 +70,7 @@ public class LoginController {
     @RequestMapping(value = "/login", method = {RequestMethod.GET, RequestMethod.POST})
     public Result login(
             @RequestParam String username,
-            @RequestParam String password){
+            @RequestParam String password) {
 //        if(StringUtils.isEmpty(username) || StringUtils.isEmpty(password)){
 //            return Result.error();
 //        }
@@ -100,15 +100,15 @@ public class LoginController {
 //            return Result.error("密码错误，您还可以尝试" + (3 - loginLock.errorCount) + "次");
 //        }
 
-        if(null == user){
+        if (null == user) {
             return Result.error("登录失败,用户名或密码错误");
         }
         //删除过期token
         userTokenDao.deleteAllByExprTimeLessThan(new Date());
-        try{
+        try {
             //查询还存在的token
             UserToken userToken = userTokenDao.findTopByUserIdAndType(user.getId(), UserToken.Type.WEB).orElse(null);
-            if(null == userToken){
+            if (null == userToken) {
                 userToken = new UserToken();
                 userToken.setToken(jwtTokenUtil.generateToken(user.getId()));
             }
@@ -116,9 +116,8 @@ public class LoginController {
             userToken.setExprTime(new Date(System.currentTimeMillis() + 30 * 60 * 1000));
             userToken.setType(UserToken.Type.WEB);
             userTokenDao.save(userToken);
-            return Result.ok(new UserInfoResponse(userToken.getToken(),user));
-        }
-        catch (Exception e){
+            return Result.ok(new UserInfoResponse(userToken.getToken(), user));
+        } catch (Exception e) {
             return Result.error("登录失败");
         }
 
@@ -126,7 +125,7 @@ public class LoginController {
 
     @ApiOperation(value = "检查是否登录")
     @RequestMapping(value = "/checkOnline", method = RequestMethod.GET)
-    public Result checkOnline(){
+    public Result checkOnline() {
         return Result.finish(Utils.getCurrentUserId() > 0);
     }
 

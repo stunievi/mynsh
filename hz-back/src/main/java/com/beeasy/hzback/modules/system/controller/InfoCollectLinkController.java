@@ -10,7 +10,7 @@ import com.beeasy.hzback.modules.system.dao.IWorkflowNodeAttributeDao;
 import com.beeasy.common.entity.InfoCollectLink;
 import com.beeasy.common.entity.WorkflowInstance;
 import com.beeasy.hzback.modules.system.form.Pager;
-import com.beeasy.hzback.modules.system.service_kt.UserService;
+import com.beeasy.hzback.modules.system.service.UserService;
 import com.beeasy.hzback.modules.system.service.WorkflowService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -96,12 +96,12 @@ public class InfoCollectLinkController {
                         )
                 );
             }
-            if(null != START_DATE){
+            if (null != START_DATE) {
                 predicates.add(
                         cb.greaterThanOrEqualTo(root.get("add_time"), new Date(START_DATE))
                 );
             }
-            if(null != END_DATE){
+            if (null != END_DATE) {
                 predicates.add(
                         cb.lessThanOrEqualTo(root.get("add_time"), new Date(END_DATE))
                 );
@@ -134,11 +134,11 @@ public class InfoCollectLinkController {
             map.put("CERT_TYPE", objs.size() > 0 ? objs.get(0) : "");
 
             objs = attributeDao.getValueByWorkflowInstance(instance.getId(), "CERT_CODE");
-            map.put("CERT_CODE",objs.size() > 0 ? objs.get(0) : "");
+            map.put("CERT_CODE", objs.size() > 0 ? objs.get(0) : "");
 
             map.put("addTime", instance.getAddTime());
             map.put("state", instance.getState());
-            map.put("title",instance.getTitle());
+            map.put("title", instance.getTitle());
 
             //查询和台账的关联
             map.put("billNo", linkDao.findTopByInstanceId(instance.getId()).map(item -> item.getBillNo()).orElse(""));

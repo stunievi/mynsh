@@ -23,7 +23,7 @@ public class CheckNodeState extends AbstractBaseEntity {
     private String item;
 
     @ApiModelProperty(required = true)
-    @Min(value = 1,message = "状态满足条件格式错误")
+    @Min(value = 1, message = "状态满足条件格式错误")
     private int condition;
 
     @ApiModelProperty(required = true)

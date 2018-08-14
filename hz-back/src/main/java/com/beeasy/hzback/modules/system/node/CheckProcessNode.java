@@ -9,7 +9,7 @@ import java.util.Map;
 
 @Getter
 @Setter
-public class CheckProcessNode extends CheckNode{
+public class CheckProcessNode extends CheckNode {
 
     //关联任务ID
     private String id;
@@ -33,11 +33,11 @@ public class CheckProcessNode extends CheckNode{
         super.submit(user, wNInstance, data);
 
         //补充私有字段
-        if(data.containsKey(getId())){
-            addAttribute(user,wNInstance,getId(),String.valueOf(data.get("id")));
+        if (data.containsKey(getId())) {
+            addAttribute(user, wNInstance, getId(), String.valueOf(data.get("id")));
         }
-        if(data.containsKey(getResult())){
-            addAttribute(user,wNInstance,getResult(),String.valueOf(data.get("result")));
+        if (data.containsKey(getResult())) {
+            addAttribute(user, wNInstance, getResult(), String.valueOf(data.get("result")));
         }
 
     }

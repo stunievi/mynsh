@@ -7,23 +7,21 @@ server:
 spring:
   application:
     name: service-zuul
-  cloud:
-    config:
-      server:
-        native:
-          search-locations: /Users/bin/work/hzcp/config
-  profiles:
-    active: native
 
 zuul:
   routes:
-#    file-upload-service:
-#      sensitiveHeaders: Access-Control-Allow-Origin,Access-Control-Allow-Methods
-#      path: /service/upload/**
-#      serviceId: service-upload
+    #    file-upload-service:
+    #      sensitiveHeaders: Access-Control-Allow-Origin,Access-Control-Allow-Methods
+    #      path: /service/upload/**
+    #      serviceId: service-upload
 
     user-service:
       sensitiveHeaders: Access-Control-Allow-Origin,Access-Control-Allow-Methods
       path: /**
       serviceId: service-hzback
 
+hystrix.command.default.execution.timeout.enabled: false
+hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds: 600000
+ribbon:
+  ReadTimeout: 600000
+  ConnectTimeout: 3000

@@ -2,41 +2,48 @@
 var RIGHTHTML = {
 %>
 <style>
-    .fieldKey{
+    .fieldKey {
         display: inline-block;
     }
-    .fieldValue{
+
+    .fieldValue {
         display: inline-block;
     }
-    .btn{
+
+    .btn {
         display: inline-block;
         padding: 5px 10px;
         margin: 5px;
     }
-    .red{
+
+    .red {
         background: red;
         color: white;
     }
-    .blue{
+
+    .blue {
         background: lightblue;
     }
-    .black{
+
+    .black {
         background: black;
         color: white;
     }
 
-    #app{
+    #app {
         position: relative;
     }
 
-    .nodeList{
+    .nodeList {
         position: relative;
         height: 80px;
     }
-    #switchTab{
+
+    #switchTab {
     }
-    .node{
-        border:1px solid #ddd;
+
+    .node {
+        border: 1px solid #ddd;
         width: 60px;
         height: 60px;
         text-align: center;
@@ -48,17 +55,19 @@ var RIGHTHTML = {
         cursor: pointer;
         background: lightblue;
     }
-    .nodeLine{
+
+    .nodeLine {
         z-index: 1;
-        top:29px;
-        left:0px;
+        top: 29px;
+        left: 0px;
         width: 100px;
         height: 5px;
-        border:  1px solid #ddd;
+        border: 1px solid #ddd;
         position: absolute;
         background: lightblue;
     }
-    .selected{
+
+    .selected {
         background: deepskyblue;
         color: white;
     }
@@ -100,7 +109,7 @@ var RIGHTHTML = {
                     <td :html="el.info"></td>
                     <td>
                         <a href="javascript:;"
-                            :click="@onWorkClick(index)"
+                           :click="@onWorkClick(index)"
                         >
                             选择该项
                         </a>
@@ -152,17 +161,17 @@ var RIGHTHTML = {
                 </td>
                 <td>
                     <input type="checkbox"
-                        :duplex="@data.selectedRoles[@data.current]"
-                        :attr="{value:el.id}"
+                           :duplex="@data.selectedRoles[@data.current]"
+                           :attr="{value:el.id}"
                     >
                 </td>
                 <!--<td :html="@getRoles(el)">-->
                 <!--</td>-->
                 <!--<td>-->
-                    <!--<input type="checkbox"-->
-                        <!--:duplex="@data.selectedUsers[@data.current]"-->
-                        <!--:attr="{value:el.id}"-->
-                    <!--&gt;-->
+                <!--<input type="checkbox"-->
+                <!--:duplex="@data.selectedUsers[@data.current]"-->
+                <!--:attr="{value:el.id}"-->
+                <!--&gt;-->
                 <!--</td>-->
                 <!--<td :html="el.nodeName"></td>-->
             </tr>
@@ -175,9 +184,6 @@ var RIGHTHTML = {
             <input type="text" :duplex="@data.version">
         </dd>
     </dl>
-
-
-
 
 
     <p style="padding-top: 300px">
@@ -196,50 +202,53 @@ var RIGHTHTML = {
     var worksstr = '${works}';
     var children;
     var works;
-    do{
-        try{
+    do {
+        try {
             departments = eval("(" + departmentstr + ")");
             works = eval("(" + worksstr + ")");
         }
-        catch(e){
+        catch (e) {
             //转换失败，回到上一夜
             break;
         }
 
-        if(departments == null){
+        if (departments == null) {
             break;
         }
 
         function walk(item) {
-            if(item.departments.length){
-                for(var i = 0; i < item.departments.length; i++){
+            if (item.departments.length) {
+                for (var i = 0; i < item.departments.length; i++) {
                     walk(item.departments[i]);
                 }
             }
-            else{
+            else {
                 item.departments = [];
             }
             item.open = 0;
             item.selected = 0;
         }
-        for(var i = 0; i < departments.length; i++){
+
+        for (var i = 0; i < departments.length; i++) {
             walk(departments[i]);
         }
-    }while(0);
+    } while (0);
 
     var lastSelected = null;
+
     function init() {
         //必须同时存在部门和业务的时候才可以触发初始化
-        if(app.data.target_department && app.data.target_work > -1){
+        if (app.data.target_department && app.data.target_work > -1) {
             app.data.selectedRoles = [];
             var nodeList = app.data.works[app.data.target_work].nodeList;
-            for(var i = 0; i < nodeList.length; i++){
+            for (var i = 0; i < nodeList.length; i++) {
                 app.data.selectedRoles.push([]);
             }
         }
     }
+
     window.onDepartmentClick = function () {
-        if(!lastSelected){
+        if (!lastSelected) {
             return;
         }
         app.data.target_department = lastSelected;
@@ -274,20 +283,20 @@ var RIGHTHTML = {
     var workers = {};
 
     var app = avalon.define({
-        $id:"app",
-        data:{
-            id:-1,
-            name:"",
-            info:"",
-            nodeList:[],
+        $id: "app",
+        data: {
+            id: -1,
+            name: "",
+            info: "",
+            nodeList: [],
             current: -1,
-            target_department:"",
+            target_department: "",
             target_work: -1,
-            departments:departments,
+            departments: departments,
             works: works,
             users: [],
             // selectedUsers:[],
-            selectedRoles:[],
+            selectedRoles: [],
             version: ''
         },
 
@@ -300,8 +309,8 @@ var RIGHTHTML = {
 
         getRoles: function (el) {
             var buf = [];
-            if(el.roles){
-                for(var i = 0; i < el.roles.length; i++){
+            if (el.roles) {
+                for (var i = 0; i < el.roles.length; i++) {
                     buf.push(el.roles[i].name);
                 }
             }
@@ -311,7 +320,7 @@ var RIGHTHTML = {
 
         switchTab: function (el) {
 
-            if(!this.data.target_department){
+            if (!this.data.target_department) {
                 return alert("请先选择部门");
             }
 
@@ -351,31 +360,31 @@ var RIGHTHTML = {
         var workflowNodeList = [];
         var version = 1.0;
 
-        try{
+        try {
             departmentId = app.data.target_department.id;
             workId = app.data.works[app.data.target_work].id;
             workflowNodeList = app.data.selectedRoles;
             version = app.data.version
-        }catch(e){
+        } catch (e) {
             alert("提交出现错误！");
             return;
         }
-        if(departmentId == -1){
+        if (departmentId == -1) {
             return alert("错误")
         }
-        if(workId == -1){
+        if (workId == -1) {
             return alert("错误")
         }
-        if(!workflowNodeList || !workflowNodeList.length){
+        if (!workflowNodeList || !workflowNodeList.length) {
             return alert("错误")
         }
 
-        $.post("add",{
-            departmentId:departmentId,
-            workId:workId,
+        $.post("add", {
+            departmentId: departmentId,
+            workId: workId,
             workflowNodeList: JSON.stringify(workflowNodeList),
             version: version
-        },function () {
+        }, function () {
 
         })
 

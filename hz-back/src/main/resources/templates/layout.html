@@ -20,38 +20,40 @@
 <body>
 <div id="main">
     <style>
-        #main{
+        #main {
             overflow: hidden;
         }
-        .left{
+
+        .left {
             float: left;
         }
-        .right{
+
+        .right {
             float: left;
             padding-left: 20px;
         }
     </style>
     <div class="left">
+        <%
+        for(map in adminMenu){
+        %>
+        <dl>
+            <dt>
+                ${map.title}
+            </dt>
             <%
-            for(map in adminMenu){
+            for(child in map.children){
             %>
-            <dl>
-                <dt>
-                    ${map.title}
-                </dt>
-                <%
-                for(child in map.children){
-                %>
-                <dd>
-                    <a href="${child.href}">
-                        ${child.title}
-                    </a>
-                </dd>
-                <% } %>
-            </dl>
-            <%
-            }
-            %>
+            <dd>
+                <a href="${child.href}">
+                    ${child.title}
+                </a>
+            </dd>
+            <% } %>
+        </dl>
+        <%
+        }
+        %>
     </div>
     <div class="right">
         ${RIGHTHTML}
@@ -59,16 +61,16 @@
 
 
     <%
-        try{
+    try{
     %>
     <script>
-        if($('#pager').length){
+        if ($('#pager').length) {
             laypage({
                 cont: 'pager', //容器。值支持id名、原生dom对象，jquery对象。【如该容器为】：<div id="page1"></div>
                 pages: Math.ceil(Number("${totalPage}") / 15), //通过后台拿到的总页数
                 curr: "${currentPage}" || 1, //当前页
-                jump: function(obj, first){ //触发分页后的回调
-                    if(!first){ //点击跳页触发函数自身，并传递当前页：obj.curr
+                jump: function (obj, first) { //触发分页后的回调
+                    if (!first) { //点击跳页触发函数自身，并传递当前页：obj.curr
                         alert(1)
                         // demo(obj.curr);
                     }
@@ -78,8 +80,8 @@
 
     </script>
     <%
-        }catch(error){
-        }
+    }catch(error){
+    }
     %>
 
     <!--常用封装-->
@@ -87,99 +89,99 @@
 
         $('.save').click(function () {
             var url = $(this).closest("[data-url]").attr('data-url');
-            if(!url){
+            if (!url) {
                 return;
             }
             var data = $(this).closest("form").serializeArray();
             var dataStr = $(this).closest("form").serialize();
             var mode = 'add';
-            if(Number(data[0].value) > 0){
+            if (Number(data[0].value) > 0) {
                 mode = 'edit';
             }
-            $.post(url + mode,dataStr,function (json) {
-                if(json.success){
-                    if(mode == 'add'){
-                        if(window.onAddSuccess){
+            $.post(url + mode, dataStr, function (json) {
+                if (json.success) {
+                    if (mode == 'add') {
+                        if (window.onAddSuccess) {
                             window.onAddSuccess();
                         }
-                        else{
+                        else {
                             location.href = url + 'list';
                         }
                     }
-                    else{
-                        if(window.onEditSuccess){
+                    else {
+                        if (window.onEditSuccess) {
                             window.onEditSuccess();
                         }
-                        else{
+                        else {
                             location.href = url + 'list';
                         }
                     }
                 }
-                else{
-                    if(mode == 'edit'){
-                        if(window.onAddFailed){
+                else {
+                    if (mode == 'edit') {
+                        if (window.onAddFailed) {
                             window.onAddFailed();
                         }
-                        else{
+                        else {
                             alert(json.message);
                         }
                     }
-                    else{
-                        if(window.onEditFailed){
+                    else {
+                        if (window.onEditFailed) {
                             window.onEditFailed();
                         }
-                        else{
+                        else {
                             alert(json.message);
                         }
                     }
                 }
-            },'json');
+            }, 'json');
             console.log(data);
 
         });
 
         $('.edit').click(function () {
             var url = $(this).closest("[data-url]").attr('data-url');
-            if(!url){
+            if (!url) {
                 return;
             }
             var id = $(this).closest("[data-id]").attr("data-id");
-            if(!id){
+            if (!id) {
                 return;
             }
             location.href = url + 'edit?id=' + id;
         });
 
         $('.delete').click(function () {
-            if(!confirm("确定要删除吗")){
+            if (!confirm("确定要删除吗")) {
                 return;
             }
             var url = $(this).closest("[data-url]").attr('data-url');
-            if(!url){
+            if (!url) {
                 return;
             }
             var id = $(this).closest("[data-id]").attr("data-id");
-            if(!id){
+            if (!id) {
                 return;
             }
-            $.post(url + 'delete',{id:id},function (json) {
-                if(json.success){
-                    if(window.onDeleteSuccess){
+            $.post(url + 'delete', {id: id}, function (json) {
+                if (json.success) {
+                    if (window.onDeleteSuccess) {
                         window.onDeleteSuccess();
                     }
-                    else{
+                    else {
                         location.reload();
                     }
                 }
-                else{
-                    if(window.onDeleteFailed){
+                else {
+                    if (window.onDeleteFailed) {
                         window.onDeleteFailed();
                     }
-                    else{
+                    else {
                         alert(json.message);
                     }
                 }
-            },'json');
+            }, 'json');
         });
     </script>
 </div>

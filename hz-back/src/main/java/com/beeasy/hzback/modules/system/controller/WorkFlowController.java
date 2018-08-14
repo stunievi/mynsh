@@ -11,7 +11,7 @@ import com.beeasy.common.entity.User;
 import com.beeasy.hzback.modules.system.form.*;
 import com.beeasy.hzback.modules.system.log.NotSaveLog;
 import com.beeasy.hzback.modules.system.log.SaveLog;
-import com.beeasy.hzback.modules.system.service_kt.UserService;
+import com.beeasy.hzback.modules.system.service.UserService;
 import com.beeasy.hzback.modules.system.service.WorkflowService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -58,13 +58,13 @@ public class WorkFlowController {
     @Autowired
     UserService userService;
     private Result.DisallowEntry[] myworkEntries = new Result.DisallowEntry[]{
-            new Result.DisallowEntry(WorkflowInstance.class,"nodeList","simpleChildInstances")
+            new Result.DisallowEntry(WorkflowInstance.class, "nodeList", "simpleChildInstances")
     };
 
     private Result.DisallowEntry[] entries = new Result.DisallowEntry[]{
-            new Result.DisallowEntry(WorkflowInstance.class,"dealUser"),
-            new Result.DisallowEntry(WorkflowNode.class,"model"),
-            new Result.DisallowEntry(WorkflowNodeInstance.class,"nodeModel","instance")
+            new Result.DisallowEntry(WorkflowInstance.class, "dealUser"),
+            new Result.DisallowEntry(WorkflowNode.class, "model"),
+            new Result.DisallowEntry(WorkflowNodeInstance.class, "nodeModel", "instance")
     };
 
     @ApiOperation(value = "创建工作流", notes = "根据已有的模型创建一个新的工作流实体,可选模型: 资料收集")
@@ -75,26 +75,26 @@ public class WorkFlowController {
     public String createNewWorkFlow(
             String modelName,
             @Valid WorkflowModelAdd add
-    ){
-        return Result.ok(workflowService.createWorkflow(modelName,add)).toJson(
+    ) {
+        return Result.ok(workflowService.createWorkflow(modelName, add)).toJson(
                 new Result.DisallowEntry(WorkflowModel.class, "nodeModels")
         );
     }
 
     @ApiOperation(value = "设置工作流模型关联字段")
-    @RequestMapping(value = "/model/setFields",method = RequestMethod.POST)
+    @RequestMapping(value = "/model/setFields", method = RequestMethod.POST)
     public Result setWorkflowModelFields(
             @RequestParam long modelId,
             @Valid @RequestBody List<WorkflowService.ModelFieldRequest> requests
-    ){
-        return workflowService.setModelFields(modelId,requests);
+    ) {
+        return workflowService.setModelFields(modelId, requests);
     }
 
     @ApiOperation(value = "得到工作流模型的关联字段")
     @RequestMapping(value = "/model/getFields", method = RequestMethod.GET)
     public Result getWorkflowModelFields(
             @RequestParam long modelId
-    ){
+    ) {
         return Result.ok(workflowService.getModelFields(modelId));
     }
 
@@ -105,8 +105,8 @@ public class WorkFlowController {
     @GetMapping("/model/delete")
     public Result delete(
             @RequestParam long modelId
-    ){
-        return Result.finish(workflowService.deleteWorkflowModel(modelId,false));
+    ) {
+        return Result.finish(workflowService.deleteWorkflowModel(modelId, false));
     }
 
     @ApiOperation(value = "模型列表", notes = "查询已经存在的工作模型列表")
@@ -116,9 +116,9 @@ public class WorkFlowController {
     @GetMapping("/models")
     public Result<Page<WorkflowModel>> list(
             Pager pager,
-            @PageableDefault(value = 15, sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable,
+            @PageableDefault(value = 15, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable,
             WorkflowService.ModelSearchRequest request
-    ){
+    ) {
 
         return Result.ok(workflowService.getModelList(request, pageable));
 //        if(StringUtils.isEmpty(modelName)){
@@ -134,19 +134,19 @@ public class WorkFlowController {
     })
     @RequestMapping(value = "/instances", method = RequestMethod.GET)
     public String instanceList(
-            @RequestParam Map<String,String> object,
+            @RequestParam Map<String, String> object,
             Pager pager,
-            @PageableDefault(value = 15, sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
-    ){
-        return Result.ok(workflowService.getInstanceList(Utils.getCurrentUserId(), object,pageable)).toJson(
-                new Result.DisallowEntry(WorkflowInstance.class,"nodeList")
+            @PageableDefault(value = 15, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        return Result.ok(workflowService.getInstanceList(Utils.getCurrentUserId(), object, pageable)).toJson(
+                new Result.DisallowEntry(WorkflowInstance.class, "nodeList")
         );
     }
 
 
     @ApiOperation(value = "查找指定模型", notes = "")
     @GetMapping("/model/id")
-    public Result getModelInfo(Long modelId){
+    public Result getModelInfo(Long modelId) {
         Optional<WorkflowModel> optional = workflowService.findModel(modelId);
         return optional.isPresent() ? Result.ok(optional.get()) : Result.error();
     }
@@ -156,28 +156,28 @@ public class WorkFlowController {
     public Result getCanNodeDealers(
             @RequestParam long instanceId,
             @RequestParam String nodeNames
-    ){
-        return Result.ok(Utils.convertToList(nodeNames,String.class)
+    ) {
+        return Result.ok(Utils.convertToList(nodeNames, String.class)
                 .stream()
                 .map(id -> {
-                    List<Object> objects = workflowService.getNodeDealUids(instanceId,id)
+                    List<Object> objects = workflowService.getNodeDealUids(instanceId, id)
                             .stream()
                             .map(item -> {
                                 Object[] objs = (Object[]) item;
                                 return Utils.newMap(
-                                        "userId",objs[2],
-                                        "trueName",objs[3],
-                                        "depId",objs[4],
-                                        "depName",objs[5],
-                                        "quartersId",objs[6],
-                                        "quartersName",objs[7],
-                                        "userType",objs[1]
-                                        );
+                                        "userId", objs[2],
+                                        "trueName", objs[3],
+                                        "depId", objs[4],
+                                        "depName", objs[5],
+                                        "quartersId", objs[6],
+                                        "quartersName", objs[7],
+                                        "userType", objs[1]
+                                );
                             })
                             .collect(Collectors.toList());
-                    return new Object[]{id + "",objects};
+                    return new Object[]{id + "", objects};
                 })
-                .collect(Collectors.toMap(item -> item[0], item -> item[1] ))
+                .collect(Collectors.toMap(item -> item[0], item -> item[1]))
         );
     }
 
@@ -200,7 +200,7 @@ public class WorkFlowController {
     public Result<WorkflowNode> createCheckNode(
             @Valid @RequestBody CheckNodeModel node,
             BindingResult bindingResult
-    ){
+    ) {
         return Result.finish(workflowService.createCheckNode(node));
     }
 
@@ -211,7 +211,7 @@ public class WorkFlowController {
             @RequestParam Long modelId,
             @RequestParam Long nodeId
     ) {
-        return Result.finish(workflowService.deleteNode(modelId,nodeId));
+        return Result.finish(workflowService.deleteNode(modelId, nodeId));
     }
 
 
@@ -219,7 +219,7 @@ public class WorkFlowController {
     @PutMapping("/model/edit")
     public Result edit2(
             @Valid @RequestBody WorkflowModelEdit edit
-    ){
+    ) {
         return (workflowService.editWorkflowModel(edit));
     }
 
@@ -228,14 +228,14 @@ public class WorkFlowController {
     @RequestMapping(value = "/model/permission/set", method = RequestMethod.POST)
     public Result setPermission(
             @Valid @RequestBody GlobalPermissionEditRequest[] requests
-    ){
-        if(0 == requests.length){
+    ) {
+        if (0 == requests.length) {
             return Result.ok();
         }
-        if(Arrays.stream(requests).map(item -> item.getObjectId()).distinct().count() != 1){
+        if (Arrays.stream(requests).map(item -> item.getObjectId()).distinct().count() != 1) {
             return Result.error("参数错误");
         }
-        if(Arrays.stream(requests).map(item -> item.getType()).distinct().count() != 1){
+        if (Arrays.stream(requests).map(item -> item.getType()).distinct().count() != 1) {
             return Result.error("参数错误");
         }
         GlobalPermission.Type[] types = {
@@ -245,16 +245,16 @@ public class WorkFlowController {
                 GlobalPermission.Type.WORKFLOW_SUPPORT_QUARTER
         };
         List<GlobalPermission.Type> list = Arrays.asList(types);
-        if(!list.contains(requests[0].getType())){
+        if (!list.contains(requests[0].getType())) {
             return Result.error("参数错误");
         }
         //清空授权
-        userService.deleteGlobalPermissionByTypeAndObjectId(requests[0].getType(),requests[0].getObjectId());
+        userService.deleteGlobalPermissionByTypeAndObjectId(requests[0].getType(), requests[0].getObjectId());
         for (GlobalPermissionEditRequest request : requests) {
-            userService.addGlobalPermission(request.getType(),request.getObjectId(), request.getUserType(), request.getLinkIds(),null);
+            userService.addGlobalPermission(request.getType(), request.getObjectId(), request.getUserType(), request.getLinkIds(), null);
         }
         //更新工作流所属部门
-        if(requests[0].getType().equals(GlobalPermission.Type.WORKFLOW_PUB)){
+        if (requests[0].getType().equals(GlobalPermission.Type.WORKFLOW_PUB)) {
             workflowService.updateWorkflowModelDeps(requests[0].getObjectId());
         }
         return Result.ok();
@@ -265,7 +265,7 @@ public class WorkFlowController {
     public Result getPermissions(
             @RequestParam String types,
             @RequestParam long objectId
-    ){
+    ) {
         GlobalPermission.Type[] limitTypes = {
                 GlobalPermission.Type.WORKFLOW_PUB,
                 GlobalPermission.Type.WORKFLOW_OBSERVER,
@@ -279,10 +279,8 @@ public class WorkFlowController {
                 .filter(item -> null != item)
                 .filter(item -> limitList.contains(item))
                 .collect(Collectors.toList());
-        return Result.ok(userService.getGlobalPermissions(list,objectId));
+        return Result.ok(userService.getGlobalPermissions(list, objectId));
     }
-
-
 
 
 //    @ApiOperation(value = "启用/停用工作流", notes = "一经启用, 禁止再编辑, 只能新增新版本")
@@ -362,13 +360,13 @@ public class WorkFlowController {
 
     @SaveLog(value = "获取工作流模型列表")
     @GetMapping("/all")
-    public Result getAllWorkflows(){
+    public Result getAllWorkflows() {
         return Result.ok(workflowModelDao.getAllWorkflows());
     }
 
     @ApiOperation(value = "得到用户相关联的模型ID")
     @RequestMapping(value = "/model/validList", method = RequestMethod.GET)
-    public String getUserWorkflows(){
+    public String getUserWorkflows() {
         return Result.ok(workflowService.getUserModelList(Utils.getCurrentUserId())).toJson(
         );
     }
@@ -396,10 +394,10 @@ public class WorkFlowController {
     @GetMapping("/myNeedingWorks")
     public Result getMyNeedToDealWorks(
             Pager pager,
-            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
-    ){
+            @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
+    ) {
         return Result.ok(
-                formatNormalWorks(workflowService.getUserUndealedWorks(Utils.getCurrentUserId(),null, pageable))
+                formatNormalWorks(workflowService.getUserUndealedWorks(Utils.getCurrentUserId(), null, pageable))
         );
     }
 
@@ -407,10 +405,10 @@ public class WorkFlowController {
     @RequestMapping(value = "/myDealedWorks", method = RequestMethod.GET)
     public Result getMyDealedWorks(
             Pager pager,
-            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
-    ){
+            @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
+    ) {
         return Result.ok(
-                formatNormalWorks(workflowService.getUserDealedWorks(Collections.singleton(Utils.getCurrentUserId()),null, pageable))
+                formatNormalWorks(workflowService.getUserDealedWorks(Collections.singleton(Utils.getCurrentUserId()), null, pageable))
         );
     }
 
@@ -418,11 +416,11 @@ public class WorkFlowController {
     @GetMapping("/myObserveredWorks")
     public Result getMyObserveredWorks(
             Pager pager,
-            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
-    ){
+            @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
+    ) {
 
         return Result.ok(
-                formatDepartmentWorks(workflowService.getUserObservedWorks(Collections.singleton(Utils.getCurrentUserId()),null, pageable))
+                formatDepartmentWorks(workflowService.getUserObservedWorks(Collections.singleton(Utils.getCurrentUserId()), null, pageable))
         );
     }
 
@@ -430,11 +428,11 @@ public class WorkFlowController {
     @RequestMapping(value = "/deptUndealedWorks", method = RequestMethod.GET)
     public Result getDepartmentUndealedWorks(
             Pager pager,
-            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
-    ){
+            @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
+    ) {
 
         return Result.ok(
-                formatDepartmentWorks(workflowService.getDepartmentUndealedWorks((Utils.getCurrentUserId()),null, pageable))
+                formatDepartmentWorks(workflowService.getDepartmentUndealedWorks((Utils.getCurrentUserId()), null, pageable))
         );
     }
 
@@ -442,32 +440,31 @@ public class WorkFlowController {
     @RequestMapping(value = "/deptDealedWorks", method = RequestMethod.GET)
     public Result getDepartmentDealedWorks(
             Pager pager,
-            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
-    ){
+            @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
+    ) {
 
         return Result.ok(
-                formatDepartmentWorks(workflowService.getDepartmentDealedWorks((Utils.getCurrentUserId()),null, pageable))
+                formatDepartmentWorks(workflowService.getDepartmentDealedWorks((Utils.getCurrentUserId()), null, pageable))
         );
     }
 
     @ApiOperation(value = "查询一个任务的所有明细")
     @GetMapping("/instance/fetch/{id}")
-    public String fetchInstance(@PathVariable Long id){
-        return Result.ok(workflowService.fetchInstance(Utils.getCurrentUserId(),id)).toJson(
-                new Result.DisallowEntry(User.class,"departments","quarters"),
-                new Result.DisallowEntry(WorkflowNode.class,"persons"));
+    public String fetchInstance(@PathVariable Long id) {
+        return Result.ok(workflowService.fetchInstance(Utils.getCurrentUserId(), id)).toJson(
+                new Result.DisallowEntry(User.class, "departments", "quarters"),
+                new Result.DisallowEntry(WorkflowNode.class, "persons"));
     }
 
     @ApiOperation(value = "取消任务")
     @PostMapping("/cancel")
     public String cancelTask(
             @RequestParam Long instanceId
-    ){
-        boolean flag = workflowService.closeInstance(Utils.getCurrentUserId(),instanceId);
-        if(!flag){
+    ) {
+        boolean flag = workflowService.closeInstance(Utils.getCurrentUserId(), instanceId);
+        if (!flag) {
             return Result.error("取消任务失败, 没有权限或该任务已经变动").toJson();
-        }
-        else{
+        } else {
             return Result.ok().toJson();
         }
     }
@@ -476,12 +473,11 @@ public class WorkFlowController {
     @PostMapping("/recall")
     public String recallTask(
             @RequestParam Long instanceId
-    ){
-        boolean flag = workflowService .recallInstance(Utils.getCurrentUserId(),instanceId);
-        if(!flag){
+    ) {
+        boolean flag = workflowService.recallInstance(Utils.getCurrentUserId(), instanceId);
+        if (!flag) {
             return Result.error("撤回任务失败, 没有权限或该任务已经变动").toJson();
-        }
-        else{
+        } else {
             return Result.ok().toJson();
         }
     }
@@ -491,8 +487,8 @@ public class WorkFlowController {
     @PostMapping("/apply")
     public String applyTask(
             @Valid @RequestBody ApplyTaskRequest request
-    ){
-        Result result = workflowService.startNewInstance(Utils.getCurrentUserId(),request);
+    ) {
+        Result result = workflowService.startNewInstance(Utils.getCurrentUserId(), request);
         return result.toJson(entries);
     }
 
@@ -502,7 +498,7 @@ public class WorkFlowController {
     @RequestMapping(value = "/task/autoStart", method = RequestMethod.POST)
     public Result startAutoTask(
             @RequestBody ApplyTaskRequest request
-    ){
+    ) {
         Result result = workflowService.autoStartTask(Utils.getCurrentUserId(), request);
         return result;
     }
@@ -512,8 +508,8 @@ public class WorkFlowController {
     @PostMapping("/submitData")
     public String submitData(
             @Valid @RequestBody SubmitDataRequest request
-    ){
-        return workflowService.submitData(Utils.getCurrentUserId(),request).toJson();
+    ) {
+        return workflowService.submitData(Utils.getCurrentUserId(), request).toJson();
     }
 
     @ApiOperation(value = "提交下一步")
@@ -521,8 +517,8 @@ public class WorkFlowController {
     public String goNext(
             @RequestParam Long instanceId,
             @RequestParam Long nodeId
-    ){
-        return workflowService.goNext(Utils.getCurrentUserId(),instanceId,nodeId).toJson();
+    ) {
+        return workflowService.goNext(Utils.getCurrentUserId(), instanceId, nodeId).toJson();
     }
 
 //    @Deprecated
@@ -551,8 +547,8 @@ public class WorkFlowController {
             @RequestParam WorkflowNodeFile.Type fileType,
             String content,
             String tag
-    ){
-        return workflowService.uploadNodeFile(Utils.getCurrentUserId(),instanceId,nodeId,fileType,file,content, tag).toJson();
+    ) {
+        return workflowService.uploadNodeFile(Utils.getCurrentUserId(), instanceId, nodeId, fileType, file, content, tag).toJson();
     }
 
     @NotSaveLog
@@ -563,24 +559,24 @@ public class WorkFlowController {
             @RequestParam WorkflowNodeFile.Type fileType,
             String content,
             String tag
-    ){
-        return workflowService.uploadNodeFile(Utils.getCurrentUserId(),null,null,fileType,file,content,tag);
+    ) {
+        return workflowService.uploadNodeFile(Utils.getCurrentUserId(), null, null, fileType, file, content, tag);
     }
 
     @ApiOperation(value = "删除节点附件")
     @PostMapping("/file/delete")
     public String deleteNodeFile(
             @RequestParam Long nodeFileId
-    ){
-        return Result.finish(workflowService.deleteNodeFile(Utils.getCurrentUserId(),nodeFileId)).toJson();
+    ) {
+        return Result.finish(workflowService.deleteNodeFile(Utils.getCurrentUserId(), nodeFileId)).toJson();
     }
 
     @ApiOperation(value = "开启子任务")
     @PostMapping("/child/apply")
     public String startChildTask(
             @Valid @RequestBody StartChildInstanceRequest request
-    ){
-        return workflowService.startChildInstance(Utils.getCurrentUserId(),request).toJson();
+    ) {
+        return workflowService.startChildInstance(Utils.getCurrentUserId(), request).toJson();
     }
 
     @ApiOperation(value = "设置观察岗")
@@ -588,8 +584,8 @@ public class WorkFlowController {
     public Result setObserverQuarters(
             @RequestParam Long workFlowId,
             @RequestParam List<Long> quarters
-    ){
-        return Result.ok(userService.addGlobalPermission(GlobalPermission.Type.WORKFLOW_OBSERVER,workFlowId,GlobalPermission.UserType.QUARTER,quarters,null));
+    ) {
+        return Result.ok(userService.addGlobalPermission(GlobalPermission.Type.WORKFLOW_OBSERVER, workFlowId, GlobalPermission.UserType.QUARTER, quarters, null));
 //        GlobalPermission gp = new GlobalPermission();
 //        gp.setType(GlobalPermission.Type.WORKFLOW_OBSERVER);
 //        gp.setObjectId(workFlowId);
@@ -607,8 +603,8 @@ public class WorkFlowController {
     @RequestMapping(value = "/model/dealers", method = RequestMethod.GET)
     public Result getModelDealers(
             @RequestParam long id
-    ){
-        return Result.ok(workflowService.getPubUsers(Utils.getCurrentUserId(),id));
+    ) {
+        return Result.ok(workflowService.getPubUsers(Utils.getCurrentUserId(), id));
     }
 
 
@@ -616,28 +612,28 @@ public class WorkFlowController {
     @RequestMapping(value = "/canAccpetWorks", method = RequestMethod.GET)
     public Result getUserCanAcceptWorks(
             Pager pager,
-            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
-    ){
-        return Result.ok(workflowService.getUserCanAcceptWorks(Collections.singleton(Utils.getCurrentUserId()),null,pageable));
+            @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        return Result.ok(workflowService.getUserCanAcceptWorks(Collections.singleton(Utils.getCurrentUserId()), null, pageable));
     }
 
     @ApiOperation(value = "得到用户可以接受的公共任务列表")
     @RequestMapping(value = "/common/getList", method = RequestMethod.GET)
     public Result getUserCanAcceptCommonWorks(
             Pager pager,
-            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
-    ){
+            @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
+    ) {
         return Result.ok(
-                formatDepartmentWorks(workflowService.getUserCanAcceptCommonWorks((Utils.getCurrentUserId()),null,pageable)));
+                formatDepartmentWorks(workflowService.getUserCanAcceptCommonWorks((Utils.getCurrentUserId()), null, pageable)));
     }
 
     @ApiOperation(value = "拒贷列表")
     @RequestMapping(value = "/getRejectCollectList", method = RequestMethod.GET)
     public Result getRejectCollectList(
-        Pager pager,
-        @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable,
-        WorkflowService.RejectCollectRequest request
-    ){
+            Pager pager,
+            @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable,
+            WorkflowService.RejectCollectRequest request
+    ) {
         return Result.ok(workflowService.getRejectCollectList(Utils.getCurrentUserId(), request, pageable));
     }
 
@@ -645,15 +641,15 @@ public class WorkFlowController {
     @RequestMapping(value = "/common/accept", method = RequestMethod.GET)
     public Result acceptCommonInstance(
             @RequestParam String instanceId
-    ){
-        return Result.ok(workflowService.acceptInstance(Utils.getCurrentUserId(),Utils.convertIdsToList(instanceId)));
+    ) {
+        return Result.ok(workflowService.acceptInstance(Utils.getCurrentUserId(), Utils.convertIdsToList(instanceId)));
     }
 
     @ApiOperation(value = "接受指派/移交")
     @RequestMapping(value = "/acceptWorks", method = RequestMethod.GET)
     public Result acceptTasks(
             @RequestParam String id
-    ){
+    ) {
         return (workflowService.acceptTask(Utils.getCurrentUserId(), Utils.convertIds(id)));
     }
 
@@ -661,7 +657,7 @@ public class WorkFlowController {
     @RequestMapping(value = "/rejectWorks", method = RequestMethod.POST)
     public Result rejectTasks(
             @Valid @RequestBody RejectTaskRequest request
-    ){
+    ) {
         return workflowService.rejectTask(Utils.getCurrentUserId(), request.getInfo(), request.getIds());
     }
 
@@ -671,8 +667,8 @@ public class WorkFlowController {
     public String getUnreceivedWorks(
             UnreceivedWorksSearchRequest request,
             Pager pager,
-            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
-    ){
+            @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
+    ) {
         return Result.ok(workflowService.getUnreceivedWorks(Utils.getCurrentUserId(), request, null, pageable)).toJson(
                 new Result.DisallowEntry(WorkflowInstance.class, "nodeList")
         );
@@ -682,8 +678,8 @@ public class WorkFlowController {
     @RequestMapping(value = "/getPlanWorks", method = RequestMethod.GET)
     public String getPlanWorks(
             Pager pager,
-            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
-    ){
+            @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
+    ) {
         return Result.ok(workflowService.getPlanWorks(Collections.singleton(Utils.getCurrentUserId()), null, pageable)).toJson(
                 new Result.DisallowEntry(WorkflowInstance.class, "nodeList")
         );
@@ -694,7 +690,7 @@ public class WorkFlowController {
     public Result pointTask(
             @RequestParam String id,
             @RequestParam long toUid
-    ){
+    ) {
         return (workflowService.pointTask(Utils.getCurrentUserId(), Utils.convertIdsToList(id), toUid));
     }
 
@@ -703,7 +699,7 @@ public class WorkFlowController {
     public String setNodeFileTags(
             @RequestParam long id,
             @RequestParam String tags
-    ){
+    ) {
         return Result.finish(workflowService.setNodeFileTags(Utils.getCurrentUserId(), id, tags)).toJson();
     }
 
@@ -712,7 +708,7 @@ public class WorkFlowController {
     public Result setNodeFileName(
             @RequestParam long id,
             @RequestParam String name
-    ){
+    ) {
         return Result.finish(workflowService.setNodeFileName(Utils.getCurrentUserId(), id, name));
     }
 
@@ -720,9 +716,9 @@ public class WorkFlowController {
     @RequestMapping(value = "/node/file/downloadApply", method = RequestMethod.GET)
     public Result applyDownload(
             @RequestParam long id
-    ){
+    ) {
         String token = workflowService.applyDownload(Utils.getCurrentUserId(), id);
-        if(StringUtils.isEmpty(token)){
+        if (StringUtils.isEmpty(token)) {
             return Result.error();
         }
         return Result.ok(token);
@@ -735,8 +731,8 @@ public class WorkFlowController {
             @RequestParam String billNo,
             @RequestParam String modelName,
             Pager pager,
-            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
-    ){
+            @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
+    ) {
         return Result.ok(instanceDao.getBindedWorks(billNo, modelName, pageable));
     }
 
@@ -745,7 +741,7 @@ public class WorkFlowController {
     @RequestMapping(value = "/node/getStartNode", method = RequestMethod.GET)
     public Result searchFirstNode(
             @RequestParam String modelId
-    ){
+    ) {
         return Result.ok(nodeDao.findAllByModelIdInAndStartIsTrue(Utils.convertIdsToList(modelId))
                 .stream()
                 .collect(Collectors.toMap(item -> item.getId() + "", item -> item))
@@ -765,7 +761,7 @@ public class WorkFlowController {
 //    }
 
     @Data
-    public static class RejectTaskRequest{
+    public static class RejectTaskRequest {
         @NotNull
         Long[] ids;
 
@@ -774,38 +770,38 @@ public class WorkFlowController {
     }
 
 
-    public Page formatNormalWorks(Page page){
+    public Page formatNormalWorks(Page page) {
         return page.map(o -> {
-                    WorkflowInstance ins = (WorkflowInstance) o;
-                    Map<String,String> map = ins.getAttributeMap();
-                    return Utils.newMap(
-                            "id", ins.getId(),
-                            "CUS_NAME",map.get("CUS_NAME"),
-                            "LOAN_ACCOUNT",map.get("LOAN_ACCOUNT"),
-                            "modelName", ins.getModelName(),
-                            "state", ins.getState(),
-                            "addTime", ins.getAddTime(),
-                            "finishedDate", ins.getFinishedDate()
-                    );
+            WorkflowInstance ins = (WorkflowInstance) o;
+            Map<String, String> map = ins.getAttributeMap();
+            return Utils.newMap(
+                    "id", ins.getId(),
+                    "CUS_NAME", map.get("CUS_NAME"),
+                    "LOAN_ACCOUNT", map.get("LOAN_ACCOUNT"),
+                    "modelName", ins.getModelName(),
+                    "state", ins.getState(),
+                    "addTime", ins.getAddTime(),
+                    "finishedDate", ins.getFinishedDate()
+            );
         });
     }
 
-    public Page formatDepartmentWorks(Page page){
+    public Page formatDepartmentWorks(Page page) {
         return page.map(o -> {
-                    WorkflowInstance ins = (WorkflowInstance) o;
-                    Map<String,String> map = ins.getAttributeMap();
-                    return Utils.newMap(
-                            "id", ins.getId(),
-                            "CUS_NAME",map.get("CUS_NAME"),
-                            "LOAN_ACCOUNT",map.get("LOAN_ACCOUNT"),
-                            "modelName", ins.getModelName(),
-                            "state", ins.getState(),
-                            "addTime", ins.getAddTime(),
-                            "finishedDate", ins.getFinishedDate(),
-                            "dealer",ins.getDealUserId(),
-                            "dealerName", ins.getDealUserName()
-                    );
-                });
+            WorkflowInstance ins = (WorkflowInstance) o;
+            Map<String, String> map = ins.getAttributeMap();
+            return Utils.newMap(
+                    "id", ins.getId(),
+                    "CUS_NAME", map.get("CUS_NAME"),
+                    "LOAN_ACCOUNT", map.get("LOAN_ACCOUNT"),
+                    "modelName", ins.getModelName(),
+                    "state", ins.getState(),
+                    "addTime", ins.getAddTime(),
+                    "finishedDate", ins.getFinishedDate(),
+                    "dealer", ins.getDealUserId(),
+                    "dealerName", ins.getDealUserName()
+            );
+        });
     }
 
 }

@@ -12,34 +12,34 @@ var RIGHTHTML = {
     var userstr = '${user}';
     var workflow;
     var user;
-    do{
-        try{
+    do {
+        try {
             workflow = eval("(" + workflowstr + ")");
             user = eval("(" + userstr + ")");
-        }catch (e){
+        } catch (e) {
             break;
         }
-    }while(0);
+    } while (0);
 
 
     var app = avalon.define({
         $id: 'app',
-        data : {
+        data: {
             title: "",
             // workflow,
             // user
         },
-        canPub:function(){
+        canPub: function () {
             var data = this.data;
-            for(var i = 0; i < user.roles.length; i++){
-                if(workflow.dealers[0].indexOf(user.roles[i].id) > -1){
+            for (var i = 0; i < user.roles.length; i++) {
+                if (workflow.dealers[0].indexOf(user.roles[i].id) > -1) {
                     return true;
                 }
             }
             return false;
         },
 
-        pubNew:function () {
+        pubNew: function () {
             location.href = 'add/' + workflow.id;
         }
     });

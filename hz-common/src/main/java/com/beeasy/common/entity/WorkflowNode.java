@@ -12,11 +12,12 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.*;
 import java.util.*;
+
 @Getter
 @Setter
 @Entity
 @Table(name = "t_workflow_node")
-public class WorkflowNode extends AbstractBaseEntity{
+public class WorkflowNode extends AbstractBaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
@@ -52,7 +53,7 @@ public class WorkflowNode extends AbstractBaseEntity{
     //节点最大处理人数
     int maxPerson = 1;
 
-    public enum Type{
+    public enum Type {
         input,
         check,
         logic,

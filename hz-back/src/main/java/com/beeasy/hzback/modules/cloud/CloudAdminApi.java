@@ -8,6 +8,7 @@ import feign.codec.DecodeException;
 import feign.codec.Decoder;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.MediaType;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-//@FeignClient(name = "cloud-admin-service", url = "${filecloud.address}",configuration = CloudAdminApi.Config.class)
+@FeignClient(name = "cloud-admin-service", url = "${filecloud.address}",configuration = CloudAdminApi.Config.class)
 public interface CloudAdminApi {
 
 //    @RequestMapping(value = "/system/userAdd.action", method = RequestMethod.POST,
@@ -31,7 +32,7 @@ public interface CloudAdminApi {
 //            consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
 //    String adminCreateUser(@RequestParam("") Map map);
 
-    @RequestMapping(value = "/checkOnline.action",method = RequestMethod.GET)
+    @RequestMapping(value = "/checkOnline.action", method = RequestMethod.GET)
     CloudBaseResponse checkOnline();
 
     @RequestMapping(method = RequestMethod.GET, value = "/apiLogin.action")
@@ -40,7 +41,7 @@ public interface CloudAdminApi {
     @RequestMapping(value = "/ajax/ajaxAddUser.action?roleId=3&departmentId=1&lastName=t&firstName=t", method = RequestMethod.GET)
     CloudBaseResponse createUser(@RequestParam("username") String username);
 
-    class Config{
+    class Config {
         public static String cookie = "";
 
         public synchronized static String getCookie() {
@@ -52,13 +53,13 @@ public interface CloudAdminApi {
         }
 
         @Bean
-        RequestInterceptor getRI(){
+        RequestInterceptor getRI() {
             return new RequestInterceptor() {
                 @Override
                 public void apply(RequestTemplate requestTemplate) {
-                    synchronized (cookie){
-                        if(!StringUtils.isEmpty(cookie)) {
-                            requestTemplate.header("cookie",cookie);
+                    synchronized (cookie) {
+                        if (!StringUtils.isEmpty(cookie)) {
+                            requestTemplate.header("cookie", cookie);
                         }
                     }
                 }
@@ -66,7 +67,7 @@ public interface CloudAdminApi {
         }
 
         @Bean
-        public Decoder getDecoder(){
+        public Decoder getDecoder() {
             return new Decoder() {
                 @Override
                 public Object decode(Response response, Type type) throws IOException, DecodeException, FeignException {
@@ -83,9 +84,9 @@ public interface CloudAdminApi {
                         sb.append(bytes, 0, len);
                     }
                     String str = sb.toString();
-                    Object obj = JSON.parseObject(str,type);
-                    if(obj instanceof CloudBaseResponse){
-                        List<String> cookies = (List<String>) response.headers().getOrDefault("set-cookie",new ArrayList<>());
+                    Object obj = JSON.parseObject(str, type);
+                    if (obj instanceof CloudBaseResponse) {
+                        List<String> cookies = (List<String>) response.headers().getOrDefault("set-cookie", new ArrayList<>());
                         ((CloudBaseResponse) obj).setResponseCookies(cookies);
                     }
                     return obj;

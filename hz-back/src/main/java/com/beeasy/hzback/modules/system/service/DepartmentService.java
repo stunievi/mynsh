@@ -18,18 +18,16 @@ public class DepartmentService {
     IDepartmentDao departmentDao;
 
 
-
 //    @Override
 
-    public List<Department> findDepartments(String name, Long parentId){
+    public List<Department> findDepartments(String name, Long parentId) {
         //name比parent优先
-        if(!StringUtils.isEmpty(name)){
+        if (!StringUtils.isEmpty(name)) {
             return (departmentDao.findAllByName(name));
         }
-        if(parentId == null || parentId.equals(0L)){
+        if (parentId == null || parentId.equals(0L)) {
             return departmentDao.findAllByParent(null);
-        }
-        else{
+        } else {
             return departmentDao.findAllByParent_Id(parentId);
         }
     }

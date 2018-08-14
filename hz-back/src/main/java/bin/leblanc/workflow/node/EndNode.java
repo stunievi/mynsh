@@ -4,7 +4,7 @@ import bin.leblanc.workflow.WorkflowNode;
 
 public class EndNode extends WorkflowNode {
 
-    public void doSomething(){
+    public void doSomething() {
 
     }
 }

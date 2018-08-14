@@ -10,9 +10,10 @@ public class RestException extends RuntimeException implements Supplier<RestExce
     @Getter
     protected String simpleMessage = "";
 
-    public RestException(){
+    public RestException() {
         super();
     }
+
     public RestException(String simpleMessage) {
         super();
         this.simpleMessage = simpleMessage;

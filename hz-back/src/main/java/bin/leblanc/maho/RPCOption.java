@@ -10,11 +10,11 @@ import java.util.List;
 @Getter
 public class RPCOption {
 
-    public interface Args{
+    public interface Args {
         List<Object> call();
     }
 
-    public interface Return{
+    public interface Return {
         Object call(Object obj);
     }
 
@@ -25,20 +25,22 @@ public class RPCOption {
 
     /**
      * 前置参数
+     *
      * @param prefixArgs
      * @return
      */
-    public RPCOption setPrefixArgs(@NonNull Args prefixArgs){
+    public RPCOption setPrefixArgs(@NonNull Args prefixArgs) {
         this.prefixArgs = prefixArgs;
         return this;
     }
 
     /**
      * 后置参数
+     *
      * @param afterArgs
      * @return
      */
-    public RPCOption setAfterArgs(@NonNull Args afterArgs){
+    public RPCOption setAfterArgs(@NonNull Args afterArgs) {
         this.afterArgs = afterArgs;
         return this;
     }
@@ -47,12 +49,12 @@ public class RPCOption {
     /**
      * 返回值包装函数
      */
-    public RPCOption setReturn(@NonNull Return aReturn){
+    public RPCOption setReturn(@NonNull Return aReturn) {
         this.aReturn = aReturn;
         return this;
     }
 
-    public RPCOption setDev(boolean dev){
+    public RPCOption setDev(boolean dev) {
         this.dev = dev;
         return this;
     }

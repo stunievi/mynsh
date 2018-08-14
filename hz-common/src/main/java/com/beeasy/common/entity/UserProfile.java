@@ -1,5 +1,6 @@
 package com.beeasy.common.entity;//package com.beeasy.hzback.modules.system.entity;
 //
+
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Getter;
 import lombok.Setter;

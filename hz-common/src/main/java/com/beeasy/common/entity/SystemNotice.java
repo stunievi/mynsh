@@ -10,6 +10,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.util.Date;
 import javax.persistence.*;
 import java.util.*;
+
 @Getter
 @Setter
 @Entity
@@ -45,7 +46,7 @@ public class SystemNotice {
     Object bindData;
 
     //消息类别
-    public enum Type{
+    public enum Type {
         //系统通知
         SYSTEM,
         //工作流
@@ -54,7 +55,7 @@ public class SystemNotice {
         ACC_LOAN
     }
 
-    public enum State{
+    public enum State {
         UNREAD,
         READ
     }

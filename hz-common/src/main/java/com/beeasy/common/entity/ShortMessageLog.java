@@ -1,5 +1,6 @@
 package com.beeasy.common.entity;
 
+import com.beeasy.common.helper.JSONConverter;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
@@ -20,6 +21,8 @@ public class ShortMessageLog {
     Long id;
 
     String message;
+
+    @Column(length = 15)
     String phone;
 
     @CreatedDate

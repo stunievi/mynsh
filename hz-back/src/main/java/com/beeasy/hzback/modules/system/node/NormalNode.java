@@ -12,7 +12,8 @@ import java.util.Map;
 @Setter
 public class NormalNode extends BaseNode {
     private String behavior;
-    public NormalNode(Map v){
-        behavior = String.valueOf(v.getOrDefault("behavior",""));
+
+    public NormalNode(Map v) {
+        behavior = String.valueOf(v.getOrDefault("behavior", ""));
     }
 }

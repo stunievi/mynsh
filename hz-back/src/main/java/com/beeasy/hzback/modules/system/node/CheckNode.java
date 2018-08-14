@@ -26,7 +26,7 @@ import java.util.Map;
 @Getter
 @Setter
 @NoArgsConstructor
-public class CheckNode extends BaseNode{
+public class CheckNode extends BaseNode {
 
     @ApiModelProperty(required = true)
     @NotEmpty(message = "问题不能为空")
@@ -38,7 +38,7 @@ public class CheckNode extends BaseNode{
     String ps = "ps";
 
     @ApiModelProperty(required = true)
-    @Min(value = 1,message = "审批人数格式错误")
+    @Min(value = 1, message = "审批人数格式错误")
     @NotNull(message = "审批人数不能为空")
     Integer count = 1;
 
@@ -48,7 +48,7 @@ public class CheckNode extends BaseNode{
     protected ArrayList<CheckNodeState> states;
 
 
-    public CheckNode(Map<String,Object> v) {
+    public CheckNode(Map<String, Object> v) {
         states = new ArrayList<>();
 
         if (v.containsKey("count")) {
@@ -78,7 +78,6 @@ public class CheckNode extends BaseNode{
     }
 
 
-
     @Override
     public void submit(User user, WorkflowNodeInstance wNInstance, Map data, IWorkflowNodeAttributeDao attributeDao) {
         String item = String.valueOf(data.get(getKey()));
@@ -91,21 +90,19 @@ public class CheckNode extends BaseNode{
             return;
         }
         //每个审批节点只允许审批一次
-        WorkflowNodeAttribute attribute = addAttribute(user,wNInstance,getKey(),item,question);
+        WorkflowNodeAttribute attribute = addAttribute(user, wNInstance, getKey(), item, question);
         attributeDao.save(attribute);
 
         //如果填写了审核说明
         //valueof会格式化null
-        if(ps.equals("null")){
-           ps = "";
+        if (ps.equals("null")) {
+            ps = "";
         }
         if (!StringUtils.isEmpty(ps)) {
-            attribute = addAttribute(user,wNInstance,getPs(),ps,"备注");
+            attribute = addAttribute(user, wNInstance, getPs(), ps, "备注");
             attributeDao.save(attribute);
         }
     }
-
-
 
 
     //    @Getter

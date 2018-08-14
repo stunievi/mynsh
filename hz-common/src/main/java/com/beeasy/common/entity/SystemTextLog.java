@@ -10,13 +10,14 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.util.Date;
 import javax.persistence.*;
 import java.util.*;
+
 @Getter
 @Setter
 @Entity
 @Table(name = "t_system_text_log")
 @EntityListeners(AuditingEntityListener.class)
 public class SystemTextLog extends AbstractBaseEntity {
-    public enum Type{
+    public enum Type {
         SYSTEM,
         USER,
         WORKFLOW

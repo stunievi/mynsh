@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 @EnableAutoConfiguration
 @Configuration
 @Slf4j
-public class MessageConfig implements CommandLineRunner{
+public class MessageConfig implements CommandLineRunner {
     @Override
     public void run(String... strings) throws Exception {
     }

@@ -6,13 +6,13 @@ var RIGHTHTML = {
 </script>
 
 <style>
-    .selected{
-        color : red;
+    .selected {
+        color: red;
     }
 </style>
 <div data-url="/admin/setting/work/">
     <a class="add" href="/admin/setting/work/add">添加</a>
-    <table >
+    <table>
         <thead>
         <th></th>
         <th>业务名</th>
@@ -35,29 +35,29 @@ var RIGHTHTML = {
 
 <script>
     $('._add').click(function () {
-        if(lastSelected == null){
+        if (lastSelected == null) {
             location.href = '/admin/setting/department/add';
         }
-        else{
+        else {
             location.href = '/admin/setting/department/add?parentId=' + lastSelected.id;
         }
         return false;
     });
 
     $("._edit").click(function () {
-        if(lastSelected == null){
+        if (lastSelected == null) {
             alert("请先选择要编辑的部门");
         }
-        else{
+        else {
             location.href = '/admin/setting/department/edit?id=' + lastSelected.id;
         }
     });
 
 
     function heredoc(fn) {
-        return fn.toString().replace(/^[^\/]+\/\*!?\s?/, '').
-        replace(/\*\/[^\/]+$/, '').trim().replace(/>\s*</g, '><')
+        return fn.toString().replace(/^[^\/]+\/\*!?\s?/, '').replace(/\*\/[^\/]+$/, '').trim().replace(/>\s*</g, '><')
     }
+
     var treeID = 0;
     var lastSelected = null;
     avalon.component('tree', {
@@ -80,17 +80,17 @@ var RIGHTHTML = {
         }),
         defaults: {
             tree: [],
-            select : function (el) {
-                if(lastSelected && lastSelected != el){
+            select: function (el) {
+                if (lastSelected && lastSelected != el) {
                     lastSelected.selected = 0;
                 }
                 el.selected = !el.selected;
                 //0 - 1
-                if(el.selected == 1){
+                if (el.selected == 1) {
                     lastSelected = el;
                 }
                 //1 - 0
-                else{
+                else {
                     lastSelected = null;
                 }
 
@@ -101,10 +101,7 @@ var RIGHTHTML = {
     var data;
 
 
-
-
 </script>
-
 
 
 <% }; %>

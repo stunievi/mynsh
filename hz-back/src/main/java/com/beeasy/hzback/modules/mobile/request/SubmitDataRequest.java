@@ -8,7 +8,7 @@ import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
-public class SubmitDataRequest  {
+public class SubmitDataRequest {
 
     @NotNull(message = "任务ID不能为空")
     Long instanceId;

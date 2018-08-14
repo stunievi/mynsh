@@ -31,8 +31,8 @@ public class SystemVariableController {
     @ApiOperation(value = "设置系统变量")
     @RequestMapping(value = "/set", method = RequestMethod.POST)
     public Result set(
-            @Valid @RequestBody Map<String,String> request
-            ){
+            @Valid @RequestBody Map<String, String> request
+    ) {
         return Result.finish(systemService.set(request));
     }
 
@@ -40,7 +40,7 @@ public class SystemVariableController {
     @RequestMapping(value = "/get", method = RequestMethod.POST)
     public Result get(
             @RequestBody String[] keys
-    ){
+    ) {
 
         return Result.ok(systemService.get(keys));
     }
@@ -48,7 +48,7 @@ public class SystemVariableController {
     @ApiOperation(value = "得到所有的系统变量")
     @RequestMapping(value = "/getall", method = RequestMethod.GET)
     public Result get(
-    ){
+    ) {
         return Result.ok(systemVariableDao.findAll()
                 .stream()
                 .filter(item -> !StringUtils.isEmpty(item.getVarName()))
@@ -57,8 +57,8 @@ public class SystemVariableController {
 
     @ApiOperation(value = "删除系统变量")
     @RequestMapping(value = "/delete", method = RequestMethod.GET)
-    public Result delete(@RequestParam String key){
-        return Result.finish(systemService.delete(Utils.convertToList(key,String.class)));
+    public Result delete(@RequestParam String key) {
+        return Result.finish(systemService.delete(Utils.convertToList(key, String.class)));
     }
 
 }

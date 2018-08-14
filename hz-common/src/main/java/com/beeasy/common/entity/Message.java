@@ -1,6 +1,7 @@
 package com.beeasy.common.entity;
 
 import com.beeasy.common.helper.AbstractBaseEntity;
+import com.beeasy.common.helper.JSONConverter;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
@@ -14,7 +15,7 @@ import java.util.Date;
 @Setter
 @Table(name = "t_message")
 @EntityListeners(AuditingEntityListener.class)
-public class Message extends AbstractBaseEntity{
+public class Message extends AbstractBaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,7 +24,9 @@ public class Message extends AbstractBaseEntity{
     Long fromId;
     Long toId;
 
+    @Column(columnDefinition = JSONConverter.VARCHAR_20)
     String fromName;
+    @Column(columnDefinition = JSONConverter.VARCHAR_20)
     String toName;
 
     @Enumerated
@@ -32,6 +35,7 @@ public class Message extends AbstractBaseEntity{
     LinkType toType;
 
     //消息类型, 文本/图片/文件/小视频/定位 等
+    @Column(length = 20)
     @Enumerated
     Type type = Type.TEXT;
     Long linkId;
@@ -40,17 +44,16 @@ public class Message extends AbstractBaseEntity{
     Date sendTime;
 
     String content = "";
+
+    @Column(length = 50)
     String uuid;
 
-    //PC端公共的UUID
-    String commonUUID;
-
-
-    public enum LinkType{
+    public enum LinkType {
         USER(0);
 
         private int value;
-        LinkType(int value){
+
+        LinkType(int value) {
             this.value = value;
         }
 
@@ -63,12 +66,13 @@ public class Message extends AbstractBaseEntity{
         }
     }
 
-    public enum Type{
+    public enum Type {
         TEXT(0),
         FILE(1);
 
         private int value;
-        Type(int value){
+
+        Type(int value) {
             this.value = value;
         }
 

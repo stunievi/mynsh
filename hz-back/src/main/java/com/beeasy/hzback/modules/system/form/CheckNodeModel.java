@@ -11,9 +11,9 @@ import java.util.ArrayList;
 
 @ApiModel
 @Data
-public class CheckNodeModel extends CheckNode{
+public class CheckNodeModel extends CheckNode {
 
-    @ApiModelProperty(value = "模型ID",required = true)
+    @ApiModelProperty(value = "模型ID", required = true)
     @NotNull(message = "模型ID不能为空")
     Long modelId;
 

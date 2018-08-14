@@ -36,7 +36,7 @@ public class BitcaskDataFile {
     protected FileLock lock = null;
 
     public BitcaskDataFile(Bitcask context, boolean active) {
-        this(context,active,System.currentTimeMillis());
+        this(context, active, System.currentTimeMillis());
     }
 
     public BitcaskDataFile(Bitcask context, boolean active, long fileId) {
@@ -47,7 +47,7 @@ public class BitcaskDataFile {
     }
 
     protected void init() {
-        context.getDataFiles().put(fileId,this);
+        context.getDataFiles().put(fileId, this);
 
         filePath = context.getOptions().getDirPath() + File.separator + fileId + context.getOptions().getDataExtension();
         try {
@@ -75,11 +75,10 @@ public class BitcaskDataFile {
         } catch (IOException e) {
             e.printStackTrace();
             hasException = true;
-        }
-        finally {
+        } finally {
             releaseLock();
         }
-        if(result == null || hasException) return null;
+        if (result == null || hasException) return null;
         return ((BitcaskValue) result).getObj();
     }
 
@@ -106,7 +105,7 @@ public class BitcaskDataFile {
 
         boolean hasException = false;
 
-        try{
+        try {
             lock = channel.lock();
             raf.seek(raf.length());
 
@@ -152,11 +151,11 @@ public class BitcaskDataFile {
                 fileId,
                 value == null ? 0 : value.length,
                 valuePos
-                ,key);
+                , key);
     }
 
-    protected void releaseLock(){
-        if(lock != null){
+    protected void releaseLock() {
+        if (lock != null) {
             try {
                 lock.release();
             } catch (IOException e) {
@@ -166,9 +165,9 @@ public class BitcaskDataFile {
         }
     }
 
-    protected void setActive(boolean active){
+    protected void setActive(boolean active) {
         this.active = active;
-        if(true == active){
+        if (true == active) {
             context.setActiveDataFileId(fileId);
         }
     }

@@ -22,7 +22,9 @@ public class SystemLog {
     Long userId;
     String userName;
 
+    @Column(columnDefinition = JSONConverter.VARCHAR_5O)
     String controller;
+    @Column(columnDefinition = JSONConverter.VARCHAR_5O)
     String method;
 
     @Column(columnDefinition = JSONConverter.type)

@@ -10,6 +10,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.util.Date;
 import javax.persistence.*;
 import java.util.*;
+
 @Getter
 @Setter
 @Entity
@@ -38,7 +39,7 @@ public class WorkflowInstanceAttribute extends AbstractBaseEntity {
     @LastModifiedDate
     Date lastModifyDate;
 
-    public enum Type{
+    public enum Type {
         //固有
         INNATE,
         //节点属性

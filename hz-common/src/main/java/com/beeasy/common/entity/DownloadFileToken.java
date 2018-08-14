@@ -24,6 +24,7 @@ public class DownloadFileToken {
     @Column(name = "file_id")
     Long fileId;
 
+    @Column(length = 100)
     String token;
 
     Date exprTime;

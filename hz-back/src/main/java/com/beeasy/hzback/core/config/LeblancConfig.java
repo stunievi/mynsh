@@ -1,7 +1,7 @@
 package com.beeasy.hzback.core.config;
 
 
-import com.beeasy.hzback.core.helper.SpringContextUtils;
+import com.beeasy.common.helper.SpringContextUtils;
 import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.core.util.SqlUtils;
 import com.beeasy.hzback.modules.system.cache.SystemConfigCache;
@@ -62,28 +62,28 @@ public class LeblancConfig {
     EntityManager entityManager;
 
     @Bean
-    public ScriptEngine scriptEngine(){
+    public ScriptEngine scriptEngine() {
         return new ScriptEngineManager().getEngineByName("javascript");
     }
 
     @Bean
-    public ScriptContext scriptContext(){
+    public ScriptContext scriptContext() {
         return new SimpleScriptContext();
     }
 
     @Bean
-    public ApplicationStartListener applicationStartListener(){
+    public ApplicationStartListener applicationStartListener() {
         return new ApplicationStartListener();
     }
 
     public static boolean inited = false;
 
     @Transactional
-    public class ApplicationStartListener implements ApplicationListener<ContextRefreshedEvent>{
+    public class ApplicationStartListener implements ApplicationListener<ContextRefreshedEvent> {
 
         @Override
         public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
-            if(inited){
+            if (inited) {
                 return;
             }
             inited = true;
@@ -95,7 +95,7 @@ public class LeblancConfig {
                 Bindings bindings = engine.getBindings(ScriptContext.GLOBAL_SCOPE);
                 ClassPathResource resource = new ClassPathResource("config/behavior.js");
                 List<String> codes = IOUtils.readLines(resource.getInputStream());
-                engine.eval(String.join("\n",codes),bindings);
+                engine.eval(String.join("\n", codes), bindings);
 //            engine.eval(new FileReader(resource.getBytes()),bindings);
             } catch (ScriptException e) {
                 e.printStackTrace();
@@ -105,7 +105,7 @@ public class LeblancConfig {
                 e.printStackTrace();
             }
 
-            for (String sql : cache.getSqlViews()){
+            for (String sql : cache.getSqlViews()) {
                 entityManager.createNativeQuery(sql).executeUpdate();
             }
         }

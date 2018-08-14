@@ -13,17 +13,17 @@ public abstract class WorkflowNode {
     protected Set<Object> dealers = new LinkedHashSet<>();
 
 
-    public WorkflowNode addDealers(Object[] objects){
+    public WorkflowNode addDealers(Object[] objects) {
         dealers.addAll(Arrays.asList(objects));
         return this;
     }
 
-    public WorkflowNode addDealers(List<Object> dealers){
+    public WorkflowNode addDealers(List<Object> dealers) {
         this.dealers.addAll(dealers);
         return this;
     }
 
-    public WorkflowNode addDealers(Set<Object> dealers){
+    public WorkflowNode addDealers(Set<Object> dealers) {
         this.dealers.addAll(dealers);
         return this;
     }
@@ -31,12 +31,12 @@ public abstract class WorkflowNode {
 
     /**
      * 是否已经填写值
+     *
      * @return
      */
-    public boolean hasValue(){
+    public boolean hasValue() {
         return false;
     }
-
 
 
 }

@@ -5,6 +5,7 @@ import java.io.*;
 public class Object2Array {
     /**
      * 对象转Byte数组
+     *
      * @param obj
      * @return
      */
@@ -43,6 +44,7 @@ public class Object2Array {
 
     /**
      * Byte数组转对象
+     *
      * @param bytes
      * @return
      */

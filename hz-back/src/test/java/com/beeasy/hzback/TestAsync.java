@@ -11,8 +11,11 @@ import com.beeasy.hzback.modules.system.dao.*;
 import com.beeasy.common.entity.*;
 import com.beeasy.common.entity.*;
 import com.beeasy.hzback.modules.system.form.*;
+import com.beeasy.hzback.modules.system.request.DepartmentAddRequest;
+import com.beeasy.hzback.modules.system.request.QuartersAddRequest;
+import com.beeasy.hzback.modules.system.request.UserAddRequeest;
 import com.beeasy.hzback.modules.system.service.*;
-import com.beeasy.hzback.modules.system.service_kt.UserService;
+import com.beeasy.hzback.modules.system.service.UserService;
 import com.github.tobato.fastdfs.service.FastFileStorageClient;
 import org.apache.commons.io.IOUtils;
 import org.hibernate.SQLQuery;
@@ -91,7 +94,7 @@ public class TestAsync {
             WorkflowModel result = workflowService.createWorkflow(modelName, edit);
             Assert.assertTrue(result.getId() != null);
         }
-        if(true) return;
+        if (true) return;
 
         //列出2个版本
         for (int i = 0; i < 2; i++) {
@@ -173,14 +176,14 @@ public class TestAsync {
         departmentDao.deleteAll();
         quartersDao.deleteAll();
 
-        if(true){
+        if (true) {
             return;
         }
         int qcount = 0;
         //设立4个部门
         for (int i = 0; i < 4; i++) {
             String dName = "部门" + (i + 1);
-            DepartmentAdd departmentAdd = new DepartmentAdd();
+            DepartmentAddRequest departmentAdd = new DepartmentAddRequest();
             departmentAdd.setName(dName);
             Department department = userService.createDepartment(departmentAdd);
 
@@ -226,20 +229,20 @@ public class TestAsync {
     @Test
     public void test() {
 
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<CloudDirectoryIndex> query = cb.createQuery(CloudDirectoryIndex.class);
-        Root root = query.from(CloudDirectoryIndex.class);
-        query.select(root);
-//        query.where(cb.equal(null,null));
-        TypedQuery<CloudDirectoryIndex> q = entityManager.createQuery(query);
-        List<CloudDirectoryIndex> result = q.getResultList();
-
-        Query query2 = entityManager.createNativeQuery("SELECT * FROM t_user WHERE username = :a");
-        query2.setParameter("a", "1");
-        query2.unwrap(SQLQuery.class).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
-        query2.setMaxResults(10);
-        List list = query2.getResultList();
-        int c = 1;
+//        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+//        CriteriaQuery<CloudDirectoryIndex> query = cb.createQuery(CloudDirectoryIndex.class);
+//        Root root = query.from(CloudDirectoryIndex.class);
+//        query.select(root);
+////        query.where(cb.equal(null,null));
+//        TypedQuery<CloudDirectoryIndex> q = entityManager.createQuery(query);
+//        List<CloudDirectoryIndex> result = q.getResultList();
+//
+//        Query query2 = entityManager.createNativeQuery("SELECT * FROM t_user WHERE username = :a");
+//        query2.setParameter("a", "1");
+//        query2.unwrap(SQLQuery.class).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+//        query2.setMaxResults(10);
+//        List list = query2.getResultList();
+//        int c = 1;
 
     }
 
@@ -252,14 +255,14 @@ public class TestAsync {
     @Autowired
     CloudService cloudService;
 
-    @Autowired
-    CloudDiskService cloudDiskService;
+    //    @Autowired
+//    CloudDiskService cloudDiskService;
     @Autowired
     SystemConfigCache systemConfigCache;
 
-//    @Autowired
+    //    @Autowired
     CloudApi cloudApi;
-//    @Autowired
+    //    @Autowired
     CloudAdminApi cloudAdminApi;
     @Autowired
     IUserProfileDao profileDao;
@@ -282,7 +285,7 @@ public class TestAsync {
     }
 
     @Test
-    public void testUserSelect(){
+    public void testUserSelect() {
 //        URL urls = new URL(url);
 //        HttpURLConnection connection = null;
 //        OutputStream outputStream = null;
@@ -411,13 +414,14 @@ public class TestAsync {
     IWorkflowNodeInstanceDao nodeInstanceDao;
     @Autowired
     DataSource dataSource;
+
     @Transactional
     @Test
     public void testtt() throws InterruptedException, SQLException {
 
         ResultSet rs = dataSource.getConnection().createStatement().executeQuery("SELECT * from ACC_LOAN limit 10");
-        List s=  new ArrayList();
-        while(rs.next()){
+        List s = new ArrayList();
+        while (rs.next()) {
             Map<String, String> hm = new HashMap<String, String>();
             ResultSetMetaData rsmd = rs.getMetaData();
             int count = rsmd.getColumnCount();
@@ -428,10 +432,10 @@ public class TestAsync {
             }
             s.add(hm);
         }
-        List lll =  entityManager.createNativeQuery("SELECT * FROM ACC_LOAN limit 1")
-        .getResultList();
+        List lll = entityManager.createNativeQuery("SELECT * FROM ACC_LOAN limit 1")
+                .getResultList();
 
-        nodeInstanceDao.updateNodeInstanceDealer(1,Collections.singleton(1l));
+        nodeInstanceDao.updateNodeInstanceDealer(1, Collections.singleton(1l));
 
 //        boolean flag = userService.isChildDepartment(38,29);
 //        Assert.assertTrue(flag);
@@ -446,7 +450,7 @@ public class TestAsync {
 //        int ccc = globalPermissionDao.hasPermission(74l,Collections.singleton(GlobalPermission.Type.WORKFLOW_PUB),29);
 
 //    Object o =         instanceDao.findObserveredWorks(Collections.singletonList(GlobalPermission.Type.WORKFLOW_OBSERVER), Collections.singleton(414l), Long.MAX_VALUE, new PageRequest(0,100));
-    int c = 1;
+        int c = 1;
 //    Assert.assertTrue(s.size() > 0);
 //        WorkflowModel model = workflowService.findModel(61).orElse(null);
 //        WorkflowModelEdit edit = new WorkflowModelEdit();
@@ -456,12 +460,12 @@ public class TestAsync {
 
 //        List s = instanceDao.findNeedToDealWorks(Collections.singleton(GlobalPermission.Type.WORKFLOW_MAIN_QUARTER), Collections.singletonList(414L), Long.MAX_VALUE, new PageRequest(0,10));
 
-        if(true) return;
+        if (true) return;
 
-        userService.addGlobalPermission(GlobalPermission.Type.COMMON_CLOUD_DISK,0, GlobalPermission.UserType.DEPARTMENT, Collections.singletonList(41L), null);
+        userService.addGlobalPermission(GlobalPermission.Type.COMMON_CLOUD_DISK, 0, GlobalPermission.UserType.DEPARTMENT, Collections.singletonList(41L), null);
 //        Assert.assertTrue(id > 0);
 
-        List list = globalPermissionDao.getUids(Collections.singleton(GlobalPermission.Type.COMMON_CLOUD_DISK),0);
+        List list = globalPermissionDao.getUids(Collections.singleton(GlobalPermission.Type.COMMON_CLOUD_DISK), 0);
         Assert.assertTrue(list.size() > 0);
 
 //        list = globalPermissionDao.getUids()
@@ -470,13 +474,13 @@ public class TestAsync {
 //        Assert.assertTrue(count);
 
         Thread.sleep(5000);
-        if(true) return;
+        if (true) return;
 
-        Assert.assertTrue(departmentDao.departmentHasChild(41,45) > 0);
-        Assert.assertTrue(departmentDao.departmentHasQuarters(42,98) > 0) ;
+        Assert.assertTrue(departmentDao.departmentHasChild(41, 45) > 0);
+        Assert.assertTrue(departmentDao.departmentHasQuarters(42, 98) > 0);
 
-        Assert.assertTrue(userDao.hasDepartment(414,41) > 0);
-        Assert.assertFalse(userDao.hasDepartment(414,42) > 0);
+        Assert.assertTrue(userDao.hasDepartment(414, 41) > 0);
+        Assert.assertFalse(userDao.hasDepartment(414, 42) > 0);
 
         List obj = departmentDao.getChildQuartersIds(41);
         int ddddc = 1;
@@ -497,7 +501,7 @@ public class TestAsync {
     @Test
     public void fixFace() throws IOException {
         for (SystemFile systemFile : systemFileDao.findAll()) {
-            if(systemFile.getType().equals(SystemFile.Type.FACE)){
+            if (systemFile.getType().equals(SystemFile.Type.FACE)) {
                 ClassPathResource resource = new ClassPathResource("static/default_face.jpg");
                 byte[] bytes = IOUtils.toByteArray(resource.getInputStream());
                 systemFile.setBytes(bytes);
@@ -507,16 +511,17 @@ public class TestAsync {
     }
 
     @Test
-    public void testwork222(){
-        int a = globalPermissionDao.hasPermission(178,Collections.singleton(GlobalPermission.Type.WORKFLOW_MAIN_QUARTER), 259);
+    public void testwork222() {
+        int a = globalPermissionDao.hasPermission(178, Collections.singleton(GlobalPermission.Type.WORKFLOW_MAIN_QUARTER), 259);
         int c = 1;
 
     }
 
     @Autowired
     FastFileStorageClient storageClient;
+
     @Test
-    public void updateWorkflows(){
+    public void updateWorkflows() {
         List<Department> departments = departmentDao.findAll();
         int b = 1;
 //        var a = new ArrayList();

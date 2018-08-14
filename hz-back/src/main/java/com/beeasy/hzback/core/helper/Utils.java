@@ -3,10 +3,10 @@ package com.beeasy.hzback.core.helper;
 import bin.leblanc.faker.Faker;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.beeasy.common.helper.SpringContextUtils;
 import com.beeasy.hzback.modules.system.dao.IUserDao;
 import com.beeasy.common.entity.User;
-import com.beeasy.hzback.modules.system.form.UserAdd;
-import com.beeasy.hzback.modules.system.service_kt.UserService;
+import com.beeasy.hzback.modules.system.service.UserService;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -34,24 +34,24 @@ public class Utils {
     @Autowired
     IUserDao userDao;
 
-    public User createFaker(){
-        UserAdd userAdd = new UserAdd();
-        userAdd.setPhone(Faker.getPhone());
-        userAdd.setTrueName(Faker.getTrueName());
-        userAdd.setUsername(Faker.getName());
-        userAdd.setPassword("2");
-        userAdd.setBaned(false);
+    public User createFaker() {
         return null;
+//        UserAdd userAdd = new UserAdd();
+//        userAdd.setPhone(Faker.getPhone());
+//        userAdd.setTrueName(Faker.getTrueName());
+//        userAdd.setUsername(Faker.getName());
+//        userAdd.setPassword("2");
+//        userAdd.setBaned(false);
+//        return null;
 //        Result<User> r = userService.createUser(userAdd);
 //        return r.orElse(null);
     }
 
     public static String readFile(String filePath) throws IOException {
         File f;
-        if(filePath.startsWith("classpath")){
+        if (filePath.startsWith("classpath")) {
             f = ResourceUtils.getFile(filePath);
-        }
-        else{
+        } else {
             f = new File(filePath);
         }
         return FileUtils.readFileToString(f);
@@ -70,6 +70,7 @@ public class Utils {
 //
 //        return new String(filecontent,"utf8");
     }
+
     public static Reader getReader(String filePath) throws FileNotFoundException {
         if (filePath.startsWith("classpath")) {
             return new FileReader(ResourceUtils.getFile(filePath));
@@ -78,34 +79,35 @@ public class Utils {
         }
     }
 
-    public static Optional<String> getCurrentUserPrivateKey(){
+    public static Optional<String> getCurrentUserPrivateKey() {
         IUserDao userDao = SpringContextUtils.getBean(IUserDao.class);
         List list = userDao.getPrivateKey(Utils.getCurrentUserId());
-        if(list.size() > 0){
-            return Optional.of(String.valueOf(list.get(0)));
-        }
-        return Optional.empty();
-    }
-    public static Optional<String> getCurrentUserPublicKey(){
-        IUserDao userDao = SpringContextUtils.getBean(IUserDao.class);
-        List list = userDao.getPublicKey(Utils.getCurrentUserId());
-        if(list.size() > 0){
+        if (list.size() > 0) {
             return Optional.of(String.valueOf(list.get(0)));
         }
         return Optional.empty();
     }
 
-    public static String getExt(String fileName){
+    public static Optional<String> getCurrentUserPublicKey() {
+        IUserDao userDao = SpringContextUtils.getBean(IUserDao.class);
+        List list = userDao.getPublicKey(Utils.getCurrentUserId());
+        if (list.size() > 0) {
+            return Optional.of(String.valueOf(list.get(0)));
+        }
+        return Optional.empty();
+    }
+
+    public static String getExt(String fileName) {
         Pattern p = Pattern.compile("([^\\.]+)$");
         Matcher m = p.matcher(fileName);
-        if(m.find()){
+        if (m.find()) {
             return m.group(1);
         }
         return "";
     }
 
 
-    public static Long[] convertIds(String ids){
+    public static Long[] convertIds(String ids) {
         List<Long> list = convertIdsToList(ids);
         Long[] arr = new Long[list.size()];
         return list.toArray(arr);
@@ -123,15 +125,15 @@ public class Utils {
         return list;
     }
 
-    public static <T> List<T> convertToList(String str, Class<T> clz){
+    public static <T> List<T> convertToList(String str, Class<T> clz) {
         Object object = JSON.toJSON(str.trim().split(","));
-        if(object instanceof JSONArray){
+        if (object instanceof JSONArray) {
             return ((JSONArray) object).toJavaList(clz);
         }
         return new ArrayList<>();
     }
 
-        public static List<String> convertLongToString(Collection<Long> list){
+    public static List<String> convertLongToString(Collection<Long> list) {
         return list.stream().map(item -> item + "").collect(Collectors.toList());
     }
 
@@ -140,11 +142,10 @@ public class Utils {
 //        return user;
 //    }
 
-    public static long getCurrentUserId(){
-        try{
+    public static long getCurrentUserId() {
+        try {
             return (long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             return 0;
         }
     }
@@ -156,23 +157,23 @@ public class Utils {
                 .collect(Collectors.toList());
     }
 
-    public static <T>  Result validate(T t){
+    public static <T> Result validate(T t) {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();
         Set<ConstraintViolation<T>> violations = validator.validate(t);
-        if(violations.size() > 0){
+        if (violations.size() > 0) {
             List<String> arr = new ArrayList<>();
             violations.forEach(tConstraintViolation -> {
                 arr.add(tConstraintViolation.getMessage());
             });
-            return Result.error(String.join(",",arr));
+            return Result.error(String.join(",", arr));
         }
         return Result.ok();
     }
 
-    public static Map newMap(Object ...objs){
+    public static Map newMap(Object... objs) {
         Map map = new HashMap();
-        for(int i = 0; i < objs.length; i += 2){
+        for (int i = 0; i < objs.length; i += 2) {
             map.put(objs[i], objs[i + 1]);
         }
         return map;
@@ -182,33 +183,32 @@ public class Utils {
     @Autowired
     RedisTemplate redisTemplate;
 
-    public boolean lock(String key, int exprTime){
+    public boolean lock(String key, int exprTime) {
         boolean result = false;
         try {
             ValueOperations<Serializable, Object> operations = redisTemplate.opsForValue();
             result = operations.setIfAbsent(key, 1);
             //十秒超时
-            redisTemplate.expire(key,exprTime, TimeUnit.SECONDS);
+            redisTemplate.expire(key, exprTime, TimeUnit.SECONDS);
             return result;
         } catch (Exception e) {
             e.printStackTrace();
         }
         return result;
     }
-    public boolean isLocking(String key){
+
+    public boolean isLocking(String key) {
         return redisTemplate.opsForValue().get(key) != null;
     }
-    public void unlock(String key){
+
+    public void unlock(String key) {
         redisTemplate.delete(key);
     }
-    public boolean isLockingOrLockFailed(String key, int exprTime){
-        if(isLocking(key)) return false;
-        return !lock(key,exprTime);
+
+    public boolean isLockingOrLockFailed(String key, int exprTime) {
+        if (isLocking(key)) return false;
+        return !lock(key, exprTime);
     }
-
-
-
-
 
 
 }

@@ -27,8 +27,8 @@
             <url>http://maven.aliyun.com/nexus/content/groups/public</url>
         </repository>
         <!--<repository>-->
-            <!--<id>com.ibm.db2.jcc</id>-->
-            <!--<url>https://artifacts.alfresco.com/nexus/content/repositories/public/</url>-->
+        <!--<id>com.ibm.db2.jcc</id>-->
+        <!--<url>https://artifacts.alfresco.com/nexus/content/repositories/public/</url>-->
         <!--</repository>-->
     </repositories>
 
@@ -37,15 +37,15 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
             <!--<exclusions>-->
-                <!--<exclusion>-->
-                    <!--<groupId>org.springframework.boot</groupId>-->
-                    <!--<artifactId>spring-boot-starter-tomcat</artifactId>-->
-                <!--</exclusion>-->
+            <!--<exclusion>-->
+            <!--<groupId>org.springframework.boot</groupId>-->
+            <!--<artifactId>spring-boot-starter-tomcat</artifactId>-->
+            <!--</exclusion>-->
             <!--</exclusions>-->
         </dependency>
         <!--<dependency>-->
-            <!--<groupId>org.springframework.boot</groupId>-->
-            <!--<artifactId>spring-boot-starter-undertow</artifactId>-->
+        <!--<groupId>org.springframework.boot</groupId>-->
+        <!--<artifactId>spring-boot-starter-undertow</artifactId>-->
         <!--</dependency>-->
 
         <!-- mybatis-plus begin -->
@@ -67,9 +67,9 @@
 
         <!-- druid阿里巴巴数据库连接池 -->
         <!--<dependency>-->
-            <!--<groupId>com.alibaba</groupId>-->
-            <!--<artifactId>druid</artifactId>-->
-            <!--<version>1.1.10</version>-->
+        <!--<groupId>com.alibaba</groupId>-->
+        <!--<artifactId>druid</artifactId>-->
+        <!--<version>1.1.10</version>-->
         <!--</dependency>-->
         <dependency>
             <groupId>com.alibaba</groupId>
@@ -78,9 +78,9 @@
         </dependency>
 
         <!--<dependency>-->
-            <!--<groupId>com.ibm.db2.jcc</groupId>-->
-            <!--<artifactId>db2jcc4</artifactId>-->
-            <!--<version>10.5</version>-->
+        <!--<groupId>com.ibm.db2.jcc</groupId>-->
+        <!--<artifactId>db2jcc4</artifactId>-->
+        <!--<version>10.5</version>-->
         <!--</dependency>-->
 
         <dependency>
@@ -90,7 +90,6 @@
             <scope>system</scope>
             <systemPath>${project.basedir}/lib/db2jcc4.jar</systemPath>
         </dependency>
-
 
 
         <!--mysql-->
@@ -121,8 +120,8 @@
 
 
         <!--<dependency>-->
-            <!--<groupId>org.springframework.boot</groupId>-->
-            <!--<artifactId>spring-boot-starter-freemarker</artifactId>-->
+        <!--<groupId>org.springframework.boot</groupId>-->
+        <!--<artifactId>spring-boot-starter-freemarker</artifactId>-->
         <!--</dependency>-->
 
 
@@ -201,9 +200,9 @@
         <!--redis and session-->
         <!-- https://mvnrepository.com/artifact/org.springframework.data/spring-data-redis -->
         <!--<dependency>-->
-            <!--<groupId>org.springframework.data</groupId>-->
-            <!--<artifactId>spring-data-redis</artifactId>-->
-            <!--<version>2.0.8.RELEASE</version>-->
+        <!--<groupId>org.springframework.data</groupId>-->
+        <!--<artifactId>spring-data-redis</artifactId>-->
+        <!--<version>2.0.8.RELEASE</version>-->
         <!--</dependency>-->
 
         <dependency>
@@ -217,14 +216,14 @@
         <!--end-->
 
         <!--<dependency>-->
-            <!--<groupId>com.netflix.feign</groupId>-->
-            <!--<artifactId>feign-core</artifactId>-->
-            <!--<version>8.18.0</version>-->
+        <!--<groupId>com.netflix.feign</groupId>-->
+        <!--<artifactId>feign-core</artifactId>-->
+        <!--<version>8.18.0</version>-->
         <!--</dependency>-->
         <!--<dependency>-->
-            <!--<groupId>com.netflix.feign</groupId>-->
-            <!--<artifactId>feign-jackson</artifactId>-->
-            <!--<version>8.18.0</version>-->
+        <!--<groupId>com.netflix.feign</groupId>-->
+        <!--<artifactId>feign-jackson</artifactId>-->
+        <!--<version>8.18.0</version>-->
         <!--</dependency>-->
 
         <!--aop-->
@@ -281,9 +280,9 @@
 
         <!--snakeyaml-->
         <!--<dependency>-->
-            <!--<groupId>org.yaml.wso2</groupId>-->
-            <!--<artifactId>snakeyaml</artifactId>-->
-            <!--<version>1.6.wso2v1</version>-->
+        <!--<groupId>org.yaml.wso2</groupId>-->
+        <!--<artifactId>snakeyaml</artifactId>-->
+        <!--<version>1.6.wso2v1</version>-->
         <!--</dependency>-->
         <dependency>
             <groupId>org.apache.camel</groupId>
@@ -291,15 +290,15 @@
             <version>2.22.0</version>
         </dependency>
         <!--<dependency>-->
-            <!--<groupId>org.yaml</groupId>-->
-            <!--<artifactId>snakeyaml</artifactId>-->
-            <!--<version>1.21</version>-->
-            <!--<exclusions>-->
-                <!--<exclusion>-->
-                    <!--<groupId>org.springframework</groupId>-->
-                    <!--<artifactId>spring-context-support</artifactId>-->
-                <!--</exclusion>-->
-            <!--</exclusions>-->
+        <!--<groupId>org.yaml</groupId>-->
+        <!--<artifactId>snakeyaml</artifactId>-->
+        <!--<version>1.21</version>-->
+        <!--<exclusions>-->
+        <!--<exclusion>-->
+        <!--<groupId>org.springframework</groupId>-->
+        <!--<artifactId>spring-context-support</artifactId>-->
+        <!--</exclusion>-->
+        <!--</exclusions>-->
         <!--</dependency>-->
 
         <!--swagger2-->
@@ -326,9 +325,9 @@
         <!--</dependency>-->
 
         <!--<dependency>-->
-            <!--<groupId>com.spring4all</groupId>-->
-            <!--<artifactId>swagger-spring-boot-starter</artifactId>-->
-            <!--<version>1.7.0.RELEASE</version>-->
+        <!--<groupId>com.spring4all</groupId>-->
+        <!--<artifactId>swagger-spring-boot-starter</artifactId>-->
+        <!--<version>1.7.0.RELEASE</version>-->
         <!--</dependency>-->
 
         <dependency>
@@ -363,15 +362,15 @@
 
         <!--dev-tools-->
         <!--<dependency>-->
-            <!--<groupId>org.springframework.boot</groupId>-->
-            <!--<artifactId>spring-boot-devtools</artifactId>-->
-            <!--<version>1.5.12.RELEASE</version>-->
+        <!--<groupId>org.springframework.boot</groupId>-->
+        <!--<artifactId>spring-boot-devtools</artifactId>-->
+        <!--<version>1.5.12.RELEASE</version>-->
         <!--</dependency>-->
 
         <!--<dependency>-->
-            <!--<groupId>org.springframework</groupId>-->
-            <!--<artifactId>springloaded</artifactId>-->
-            <!--<version>1.2.7.RELEASE</version>-->
+        <!--<groupId>org.springframework</groupId>-->
+        <!--<artifactId>springloaded</artifactId>-->
+        <!--<version>1.2.7.RELEASE</version>-->
         <!--</dependency>-->
 
         <!--<dependency>-->
@@ -385,17 +384,17 @@
         <!--</dependency>-->
 
         <!--<dependency>-->
-            <!--<groupId>org.springframework.cloud</groupId>-->
-            <!--<artifactId>spring-cloud-starter-feign</artifactId>-->
-            <!--&lt;!&ndash;<version>1.4.5.RELEASE</version>&ndash;&gt;-->
+        <!--<groupId>org.springframework.cloud</groupId>-->
+        <!--<artifactId>spring-cloud-starter-feign</artifactId>-->
+        <!--&lt;!&ndash;<version>1.4.5.RELEASE</version>&ndash;&gt;-->
         <!--</dependency>-->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency>
         <!--<dependency>-->
-            <!--<groupId>org.springframework.cloud</groupId>-->
-            <!--<artifactId>spring-cloud-starter-config</artifactId>-->
+        <!--<groupId>org.springframework.cloud</groupId>-->
+        <!--<artifactId>spring-cloud-starter-config</artifactId>-->
         <!--</dependency>-->
         <dependency>
             <groupId>io.github.openfeign.form</groupId>
@@ -429,9 +428,9 @@
             <version>3.23.1-GA</version>
         </dependency>
         <!--<dependency>-->
-            <!--<groupId>javax.annotation</groupId>-->
-            <!--<artifactId>jsr250-api</artifactId>-->
-            <!--<version>1.0</version>-->
+        <!--<groupId>javax.annotation</groupId>-->
+        <!--<artifactId>jsr250-api</artifactId>-->
+        <!--<version>1.0</version>-->
         <!--</dependency>-->
         <!-- jaxb模块引用 - start -->
         <dependency>
@@ -517,34 +516,34 @@
             </plugin>
 
             <!--<plugin>-->
-                <!--<groupId>org.projectlombok</groupId>-->
-                <!--<artifactId>lombok-maven-plugin</artifactId>-->
-                <!--<version>${lombok.version}.0</version>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<id>delombok</id>-->
-                        <!--<phase>generate-sources</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>delombok</goal>-->
-                        <!--</goals>-->
-                        <!--<configuration>-->
-                            <!--<formatPreferences>-->
-                                <!--<javaLangAsFQN>skip</javaLangAsFQN>-->
-                            <!--</formatPreferences>-->
-                            <!--<verbose>true</verbose>-->
-                        <!--</configuration>-->
-                    <!--</execution>-->
-                    <!--<execution>-->
-                        <!--<id>test-delombok</id>-->
-                        <!--<phase>generate-test-sources</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>testDelombok</goal>-->
-                        <!--</goals>-->
-                        <!--<configuration>-->
-                            <!--<verbose>true</verbose>-->
-                        <!--</configuration>-->
-                    <!--</execution>-->
-                <!--</executions>-->
+            <!--<groupId>org.projectlombok</groupId>-->
+            <!--<artifactId>lombok-maven-plugin</artifactId>-->
+            <!--<version>${lombok.version}.0</version>-->
+            <!--<executions>-->
+            <!--<execution>-->
+            <!--<id>delombok</id>-->
+            <!--<phase>generate-sources</phase>-->
+            <!--<goals>-->
+            <!--<goal>delombok</goal>-->
+            <!--</goals>-->
+            <!--<configuration>-->
+            <!--<formatPreferences>-->
+            <!--<javaLangAsFQN>skip</javaLangAsFQN>-->
+            <!--</formatPreferences>-->
+            <!--<verbose>true</verbose>-->
+            <!--</configuration>-->
+            <!--</execution>-->
+            <!--<execution>-->
+            <!--<id>test-delombok</id>-->
+            <!--<phase>generate-test-sources</phase>-->
+            <!--<goals>-->
+            <!--<goal>testDelombok</goal>-->
+            <!--</goals>-->
+            <!--<configuration>-->
+            <!--<verbose>true</verbose>-->
+            <!--</configuration>-->
+            <!--</execution>-->
+            <!--</executions>-->
             <!--</plugin>-->
 
 
@@ -592,13 +591,12 @@
 
 
             <!--<plugin>-->
-                <!--<groupId>org.springframework.boot</groupId>-->
-                <!--<artifactId>spring-boot-maven-plugin</artifactId>-->
-                <!--<configuration>-->
-                    <!--<fork>true</fork>-->
-                <!--</configuration>-->
+            <!--<groupId>org.springframework.boot</groupId>-->
+            <!--<artifactId>spring-boot-maven-plugin</artifactId>-->
+            <!--<configuration>-->
+            <!--<fork>true</fork>-->
+            <!--</configuration>-->
             <!--</plugin>-->
-
 
 
             <plugin>
@@ -629,17 +627,16 @@
 
 
             <!--<plugin>-->
-                <!--<groupId>org.apache.maven.plugins</groupId>-->
-                <!--<artifactId>maven-resources-plugin</artifactId>-->
-                <!--<configuration>-->
-                    <!--<encoding>UTF-8</encoding>-->
-                    <!--<nonFilteredFileExtensions>-->
-                        <!--<nonFilteredFileExtension>xlsx</nonFilteredFileExtension>-->
-                        <!--<nonFilteredFileExtension>xls</nonFilteredFileExtension>-->
-                    <!--</nonFilteredFileExtensions>-->
-                <!--</configuration>-->
+            <!--<groupId>org.apache.maven.plugins</groupId>-->
+            <!--<artifactId>maven-resources-plugin</artifactId>-->
+            <!--<configuration>-->
+            <!--<encoding>UTF-8</encoding>-->
+            <!--<nonFilteredFileExtensions>-->
+            <!--<nonFilteredFileExtension>xlsx</nonFilteredFileExtension>-->
+            <!--<nonFilteredFileExtension>xls</nonFilteredFileExtension>-->
+            <!--</nonFilteredFileExtensions>-->
+            <!--</configuration>-->
             <!--</plugin>-->
-
 
 
             <plugin>
@@ -715,10 +712,10 @@
                                 <property name="dist">target/distribution</property>
                                 <property name="dist-tmp">target/distribution/tmp</property>
                                 <property name="app-name">${project.artifactId}-${project.version}</property>
-                                <mkdir dir="${dist-tmp}" />
-                                <copy file="target/${app-name}.jar" tofile="${dist-tmp}/${app-name}.jar" />
-                                <unzip src="${dist-tmp}/${app-name}.jar" dest="${dist-tmp}" />
-                                <delete file="${dist-tmp}/${app-name}.jar" />
+                                <mkdir dir="${dist-tmp}"/>
+                                <copy file="target/${app-name}.jar" tofile="${dist-tmp}/${app-name}.jar"/>
+                                <unzip src="${dist-tmp}/${app-name}.jar" dest="${dist-tmp}"/>
+                                <delete file="${dist-tmp}/${app-name}.jar"/>
 
                                 <copy todir="${dist}/META-INT">
                                     <fileset dir="${dist-tmp}/META-INF"/>
@@ -730,23 +727,23 @@
                                     <fileset dir="target/classes/templates"/>
                                 </copy>
                                 <!--<zip destfile="${dist}/${app-name}-pages.jar">-->
-                                    <!--<zipfileset dir="${dist-tmp}/META-INF" prefix="META-INF" />-->
-                                    <!--<zipfileset dir="target/classes/static" prefix="static" />-->
-                                    <!--<zipfileset dir="target/classes/templates" prefix="templates" />-->
+                                <!--<zipfileset dir="${dist-tmp}/META-INF" prefix="META-INF" />-->
+                                <!--<zipfileset dir="target/classes/static" prefix="static" />-->
+                                <!--<zipfileset dir="target/classes/templates" prefix="templates" />-->
                                 <!--</zip>-->
 
-                                <move file="target/${app-name}-classes.jar" todir="${dist}" />
+                                <move file="target/${app-name}-classes.jar" todir="${dist}"/>
                                 <move todir="${dist}/lib">
-                                    <fileset dir="target/lib" />
+                                    <fileset dir="target/lib"/>
                                 </move>
 
-                                <delete dir="${dist-tmp}" />
+                                <delete dir="${dist-tmp}"/>
 
                                 <copy todir="${dist}">
                                     <fileset dir="target/classes">
-                                        <include name="**/*.properties" />
-                                        <include name="**/*.xml" />
-                                        <include name="**/*.yml" />
+                                        <include name="**/*.properties"/>
+                                        <include name="**/*.xml"/>
+                                        <include name="**/*.yml"/>
                                     </fileset>
                                 </copy>
                                 <copy file="start.sh" tofile="${dist}/start.sh"/>
@@ -813,10 +810,10 @@
 
 
         <!--<resources>-->
-            <!--<resource>-->
-                <!--<directory>src/main/resources</directory>-->
-                <!--<filtering>false</filtering>-->
-            <!--</resource>-->
+        <!--<resource>-->
+        <!--<directory>src/main/resources</directory>-->
+        <!--<filtering>false</filtering>-->
+        <!--</resource>-->
         <!--</resources>-->
 
     </build>

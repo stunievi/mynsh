@@ -37,8 +37,8 @@ public class MessageController {
     @PostMapping("/sendString")
     public String sendStringMessage(
             @Valid @RequestBody StringMessageRequest request
-    ){
-        return Result.okJson(messageService.sendMessage(Utils.getCurrentUserId(),request.getToUid(),request.getContent(),request.getUuid()));
+    ) {
+        return Result.okJson(messageService.sendMessage(Utils.getCurrentUserId(), request.getToUid(), request.getContent(), request.getUuid()));
     }
 
 //    @ApiOperation(value = "消息列表")
@@ -63,14 +63,14 @@ public class MessageController {
     @RequestMapping(value = "/readMessages", method = RequestMethod.POST)
     public Result<List<ReadMessageResponse>> readMessages(
             @RequestBody Long[] toUids
-    ){
-        return Result.ok(messageService.userReadMessage(Utils.getCurrentUserId(),toUids));
+    ) {
+        return Result.ok(messageService.userReadMessage(Utils.getCurrentUserId(), toUids));
     }
 
     @ApiOperation(value = "获取未读消息人列表")
     @GetMapping("/getUnreadUserList")
-    public Result getUnreadUserList(){
-        return  Result.ok(messageReadDao.findAllByUser_IdAndUnreadNumGreaterThan(Utils.getCurrentUserId(), 0));
+    public Result getUnreadUserList() {
+        return Result.ok(messageReadDao.findAllByUser_IdAndUnreadNumGreaterThan(Utils.getCurrentUserId(), 0));
     }
 
     @NotSaveLog
@@ -80,8 +80,8 @@ public class MessageController {
             @RequestParam MultipartFile file
     ) throws IOException {
         return Result.finish(
-                messageService.sendMessage(Utils.getCurrentUserId(),toUid,file).map(item -> {
-                    if(!item.getType().equals(Message.Type.FILE)){
+                messageService.sendMessage(Utils.getCurrentUserId(), toUid, file).map(item -> {
+                    if (!item.getType().equals(Message.Type.FILE)) {
                         return item;
                     }
                     JSONObject object = (JSONObject) JSON.toJSON(item);
@@ -96,15 +96,15 @@ public class MessageController {
     public Result getUserRecentMessages(
             Long messageId,
             Long userId
-    ){
+    ) {
         return Result.ok(
-                messageService.getUserRecentMessages(Utils.getCurrentUserId(),userId,messageId).stream()
-                .map(item -> {
-                    JSONObject object = (JSONObject) JSON.toJSON(item);
-                    object.put("token", messageService.applyDownload(Utils.getCurrentUserId(),item));
-                    return object;
-                })
-                .collect(Collectors.toList())
+                messageService.getUserRecentMessages(Utils.getCurrentUserId(), userId, messageId).stream()
+                        .map(item -> {
+                            JSONObject object = (JSONObject) JSON.toJSON(item);
+                            object.put("token", messageService.applyDownload(Utils.getCurrentUserId(), item));
+                            return object;
+                        })
+                        .collect(Collectors.toList())
         );
     }
 

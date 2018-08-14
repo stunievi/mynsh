@@ -20,7 +20,7 @@ public interface CloudApi {
 
 
     //是否登录
-    @RequestMapping(value = "/checkOnline.action",method = RequestMethod.GET)
+    @RequestMapping(value = "/checkOnline.action", method = RequestMethod.GET)
     CloudBaseResponse checkOnline();
 
     //创建工作目录
@@ -34,6 +34,7 @@ public interface CloudApi {
     //删除文件
     @RequestMapping(value = "/disk/deleteFiles.action", method = RequestMethod.GET)
     CloudBaseResponse deleteFiles(@RequestParam("id") long id);
+
     @RequestMapping(value = "/disk/deleteFiles.action", method = RequestMethod.GET)
     CloudBaseResponse deleteFiles(@RequestParam("id") String id);
 
@@ -58,8 +59,6 @@ public interface CloudApi {
 
 
     //下载文件
-
-
 
 
 }

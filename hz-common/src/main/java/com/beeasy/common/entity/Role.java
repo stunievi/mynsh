@@ -1,7 +1,9 @@
 package com.beeasy.common.entity;//package com.beeasy.hzback.modules.system.entity;
 //
+
 import com.alibaba.fastjson.annotation.JSONField;
 import com.beeasy.common.helper.AbstractBaseEntity;
+import com.beeasy.common.helper.JSONConverter;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,9 +22,11 @@ public class Role extends AbstractBaseEntity {
     Long id;
 
     //角色名
+    @Column(columnDefinition = JSONConverter.VARCHAR_20)
     String name;
 
     //角色说明
+    @Column(columnDefinition = JSONConverter.VARCHAR_5O)
     String info;
 
     //排序

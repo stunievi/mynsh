@@ -4,7 +4,7 @@ package com.beeasy.hzback.core.helper;
 
 import javax.persistence.AttributeConverter;
 
-public class StringConverter implements AttributeConverter<String,byte[]> {
+public class StringConverter implements AttributeConverter<String, byte[]> {
 
     @Override
     public byte[] convertToDatabaseColumn(String s) {

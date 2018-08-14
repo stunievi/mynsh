@@ -20,7 +20,7 @@ public class UserEdit {
     private String password;
 
     @ApiModelProperty(value = "手机号")
-    @Pattern(regexp = "^1[3456789][0-9]{9}$",message = "手机号码格式错误")
+    @Pattern(regexp = "^1[3456789][0-9]{9}$", message = "手机号码格式错误")
     private String phone;
 
     @ApiModelProperty(value = "真实姓名")

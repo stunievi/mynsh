@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import javax.persistence.AttributeConverter;
 import java.awt.print.Pageable;
 
-public class JSONConverter implements AttributeConverter<Object,String> {
+public class JSONConverter implements AttributeConverter<Object, String> {
 
     public static final DBDRIVER DRIVER = DBDRIVER.DB2;
     public static final String type = "LONGTEXT";
@@ -32,17 +32,17 @@ public class JSONConverter implements AttributeConverter<Object,String> {
 //        }
 //    }
 
-//    public static final String type = "CLOB";
+    //    public static final String type = "CLOB";
 //    public static final String blobType = "BLOB(16M)";
 //
-    public enum DBDRIVER{
+    public enum DBDRIVER {
         DB2,
         MYSQL
     }
 
 
-    public static String getPagedSql(String sql, PageRequest pageable){
-        switch (DRIVER){
+    public static String getPagedSql(String sql, PageRequest pageable) {
+        switch (DRIVER) {
             case DB2:
                 return sql + String.format(" LIMIT %d OFFSET %d", pageable.getOffset(), pageable.getPageSize());
 

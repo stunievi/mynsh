@@ -18,7 +18,7 @@
     <p><a href="javascript:;" @click="now = '我的文件柜'">我的文件柜</a></p>
     <p><a href="javascript:;" @click="now = '共享文件柜'">共享文件柜</a></p>
     <div v-if="now == '我的文件柜'">
-        <div v-if="dir != '/'" >
+        <div v-if="dir != '/'">
             <a href="javascript:;" @click="goTop()">上一级</a>
         </div>
         <hr>
@@ -31,7 +31,9 @@
         <hr>
         <h5>文件</h5>
         <div v-for="(item,index) in files" style="width: 200px;overflow: hidden;">
-            <a style="float: left;" href="javascript:;" target="_blank" :href="'http://192.168.31.201:8070/open/clouddisk/download?fileName=/' + dirStack.join('/') + item.fileName"> {{item.fileName}}</a>
+            <a style="float: left;" href="javascript:;" target="_blank"
+               :href="'http://192.168.31.201:8070/open/clouddisk/download?fileName=/' + dirStack.join('/') + item.fileName">
+                {{item.fileName}}</a>
             <a style="float: right;" href="javascript:;" @click="deleteFile(item,index)">删除</a>
             <a style="float: right;" href="javascript:;" @click="renameFile(item)"> 重命名</a>
             <a style="float: right;" href="javascript:;" @click="shareFile(item)"> 分享</a>
@@ -89,16 +91,16 @@
     // });
 
 
-    var ajax = function (url,data,method) {
-        return new Promise(function (resole,reject) {
+    var ajax = function (url, data, method) {
+        return new Promise(function (resole, reject) {
             $.ajax({
-                url: 'http://192.168.31.201:8070/api' +url,
-                headers:{
+                url: 'http://192.168.31.201:8070/api' + url,
+                headers: {
                     Authorization: "su"
                 },
                 type: method || "post",
-                dataType:"json",
-                data:data || {},
+                dataType: "json",
+                data: data || {},
                 cache: false,
                 success: function (ret) {
                     resole(ret);
@@ -108,15 +110,15 @@
             })
         })
     };
-    ajax("/fullMenus",{},"get");
+    ajax("/fullMenus", {}, "get");
 
-    ajax("",{
+    ajax("", {
         request: JSON.stringify({
             method: "get",
-            "CloudDirectoryIndex" : {
-                "&children":{},
-                $where:{
-                    folderName : "/"
+            "CloudDirectoryIndex": {
+                "&children": {},
+                $where: {
+                    folderName: "/"
                 }
             }
         })
@@ -124,194 +126,241 @@
 
     var app = new Vue({
         el: "#app",
-        data:{
-            folders:[],
-            files:[],
+        data: {
+            folders: [],
+            files: [],
             dir: "/",
-            dirStack : [],
+            dirStack: [],
             fileName: "",
             now: "",
             shareFiles: [],
-            fullDirs : []
+            fullDirs: []
         },
-        methods:{
-            refreshDir(){
+        methods: {
+            refreshDir() {
                 this.dir = this.dirStack.join("/");
                 this.dir = "/" + this.dir;
             },
-            async loadDir(id){
-                this.refreshDir();
-                if(id){
-                    var ret = await ajax("",{
-                        request: JSON.stringify({
-                            method: "get",
-                            "CloudDirectoryIndex" : {
-                                "children":{},
-                                $where:{
-                                    id: id
+            async loadDir(id)
+    {
+        this.refreshDir();
+        if (id) {
+            var ret = await
+            ajax("", {
+                request: JSON.stringify({
+                    method: "get",
+                    "CloudDirectoryIndex": {
+                        "children": {},
+                        $where: {
+                            id: id
 
-                                }
-                            }
-                        })
-                    });
-                }
-                else{
-                    var ret = await ajax("",{
-                        request: JSON.stringify({
-                            method: "get",
-                            "CloudDirectoryIndex" : {
-                                "children":{},
-                                $where:{
-                                    folderName : "/"
-                                }
-                            }
-                        })
-                    });
-                }
-
-                if(ret.success){
-                    this.folders = ret.message.CloudDirectoryIndex.children;
-                    // this.folders = ret.message.CloudDirectoryIndex;
-                }
-                ret = await ajax("",{
-                    request: JSON.stringify({
-                        method: "get",
-                        "CloudFileIndex[]": {
-                            $where:{
-                                // directoryIndex: ret.message.CloudDirectoryIndex.id
-                            }
                         }
-                    })
-                });
-                if(ret.success){
-                    this.files = ret.message["CloudFileIndex[]"];
-                }
-                // var ret = await ajax("/clouddisk/files",{dir:this.dir})
-                // if(ret.success){
-                //     this.folders = ret.message.dirs;
-                //     this.files = ret.message.files
-                // }
+                    }
+                })
+            });
+        }
+        else {
+            var ret = await
+            ajax("", {
+                request: JSON.stringify({
+                    method: "get",
+                    "CloudDirectoryIndex": {
+                        "children": {},
+                        $where: {
+                            folderName: "/"
+                        }
+                    }
+                })
+            });
+        }
 
-            },
-            async loadShareDir(){
-                var ret = await ajax("/clouddisk/shareFiles");
-                if(ret.success){
-                    this.shareFiles = ret.message.content;
+        if (ret.success) {
+            this.folders = ret.message.CloudDirectoryIndex.children;
+            // this.folders = ret.message.CloudDirectoryIndex;
+        }
+        ret = await
+        ajax("", {
+            request: JSON.stringify({
+                method: "get",
+                "CloudFileIndex[]": {
+                    $where: {
+                        // directoryIndex: ret.message.CloudDirectoryIndex.id
+                    }
                 }
-            },
-            async enterDir(item){
-                this.dirStack.push(item.folderName);
-                this.loadDir(item.id)
-            },
-            goTop(){
-                this.dirStack.pop();
-                this.loadDir();
-            },
-            async createFolder(){
-                var name = prompt("文件夹名");
-                if(name == null || name.trim() == ""){
-                    return;
-                }
-                var stack = this.dirStack.concat();
-                stack.push(name);
-                var dir = "/" + stack.join("/");
-                var ret = await ajax('/clouddisk/createDir',{dir:dir});
-                if(ret.success){
-                    this.folders.push({folderName: name})
+            })
+        });
+        if (ret.success) {
+            this.files = ret.message["CloudFileIndex[]"];
+        }
+        // var ret = await ajax("/clouddisk/files",{dir:this.dir})
+        // if(ret.success){
+        //     this.folders = ret.message.dirs;
+        //     this.files = ret.message.files
+        // }
 
-                }
-            },
-            async deleteDir(item,index){
-                if(!confirm("")){return;}
-                var stack = this.dirStack.concat();
-                stack.push(item.folderName);
-                var dir = "/" + stack.join("/");
-                var ret = await ajax('/clouddisk/deleteDir',{dir:dir});
-                if(ret.success){
-                    this.folders.splice(index,1);
-                }
-            },
-            async renameDir(item,index){
-                var name = prompt("文件夹名");
-                if(name == null || name.trim() == ""){
-                    return;
-                }
-                var stack = this.dirStack.concat();
-                stack.push(item.folderName);
-                var old = "/" + stack.join("/");
-                stack.pop();
-                stack.push(name)
-                var dir = "/" + stack.join("/");
-                var ret = await ajax('/clouddisk/renameDir',{oldDir:old,dir: dir});
-                if(ret.success){
-                    item.folderName = name;
-                }
-            },
-            async uploadFile(){
-                if(this.fileName == ""){
-                    alert("没写文件名");
-                    return;
-                }
-                var stack = this.dirStack.concat();
-                stack.push(this.fileName);
-                var old = "/" + stack.join("/");
-                var ret = await ajax("/file/upload/apply",{fileName : old});
-                if(!ret.success){
-                    return;
-                }
-
-                uuid = ret.message;
-                uploader.upload();
-            },
-
-            async deleteFile(item,index){
-                if(!confirm("")){return;}
-                var stack = this.dirStack.concat();
-                stack.push(item.fileName);
-                var bytes = "/" + stack.join("/");
-                var ret = await ajax('/clouddisk/deleteFile',{file:file});
-                if(ret.success){
-                    this.files.splice(index,1);
-                }
-            },
-
-            async renameFile(item,index){
-                var name = prompt("文件名");
-                if(name == null || name.trim() == ""){
-                    return;
-                }
-                var stack = this.dirStack.concat();
-                stack.push(item.fileName);
-                var old = "/" + stack.join("/");
-                stack.pop();
-                stack.push(name)
-                var dir = "/" + stack.join("/");
-                var ret = await ajax('/clouddisk/renameFile',{oldFile:old,newFile: dir});
-                if(ret.success){
-                    item.fileName = name;
-                }
-            },
-
-            async shareFile(item,index){
-                var name = prompt("用户ID");
-                if(name == null || name.trim() == ""){
-                    return;
-                }
-                var stack = this.dirStack.concat();
-                stack.push(item.fileName);
-                // var old = "/" + stack.join("/");
-                // stack.pop();
-                // stack.push(name)
-                var dir = "/" + stack.join("/");
-                var ret = await ajax('/clouddisk/shareFile',{toUid:name,fileName:dir});
-                if(ret.success){
-                    alert("success")
-                }
-            },
-
+    }
+    ,
+    async
+    loadShareDir()
+    {
+        var ret = await
+        ajax("/clouddisk/shareFiles");
+        if (ret.success) {
+            this.shareFiles = ret.message.content;
+        }
+    }
+    ,
+    async
+    enterDir(item)
+    {
+        this.dirStack.push(item.folderName);
+        this.loadDir(item.id)
+    }
+    ,
+    goTop()
+    {
+        this.dirStack.pop();
+        this.loadDir();
+    }
+    ,
+    async
+    createFolder()
+    {
+        var name = prompt("文件夹名");
+        if (name == null || name.trim() == "") {
+            return;
+        }
+        var stack = this.dirStack.concat();
+        stack.push(name);
+        var dir = "/" + stack.join("/");
+        var ret = await
+        ajax('/clouddisk/createDir', {dir: dir});
+        if (ret.success) {
+            this.folders.push({folderName: name})
 
         }
-    });
+    }
+    ,
+    async
+    deleteDir(item, index)
+    {
+        if (!confirm("")) {
+            return;
+        }
+        var stack = this.dirStack.concat();
+        stack.push(item.folderName);
+        var dir = "/" + stack.join("/");
+        var ret = await
+        ajax('/clouddisk/deleteDir', {dir: dir});
+        if (ret.success) {
+            this.folders.splice(index, 1);
+        }
+    }
+    ,
+    async
+    renameDir(item, index)
+    {
+        var name = prompt("文件夹名");
+        if (name == null || name.trim() == "") {
+            return;
+        }
+        var stack = this.dirStack.concat();
+        stack.push(item.folderName);
+        var old = "/" + stack.join("/");
+        stack.pop();
+        stack.push(name)
+        var dir = "/" + stack.join("/");
+        var ret = await
+        ajax('/clouddisk/renameDir', {oldDir: old, dir: dir});
+        if (ret.success) {
+            item.folderName = name;
+        }
+    }
+    ,
+    async
+    uploadFile()
+    {
+        if (this.fileName == "") {
+            alert("没写文件名");
+            return;
+        }
+        var stack = this.dirStack.concat();
+        stack.push(this.fileName);
+        var old = "/" + stack.join("/");
+        var ret = await
+        ajax("/file/upload/apply", {fileName: old});
+        if (!ret.success) {
+            return;
+        }
+
+        uuid = ret.message;
+        uploader.upload();
+    }
+    ,
+
+    async
+    deleteFile(item, index)
+    {
+        if (!confirm("")) {
+            return;
+        }
+        var stack = this.dirStack.concat();
+        stack.push(item.fileName);
+        var bytes = "/" + stack.join("/");
+        var ret = await
+        ajax('/clouddisk/deleteFile', {file: file});
+        if (ret.success) {
+            this.files.splice(index, 1);
+        }
+    }
+    ,
+
+    async
+    renameFile(item, index)
+    {
+        var name = prompt("文件名");
+        if (name == null || name.trim() == "") {
+            return;
+        }
+        var stack = this.dirStack.concat();
+        stack.push(item.fileName);
+        var old = "/" + stack.join("/");
+        stack.pop();
+        stack.push(name)
+        var dir = "/" + stack.join("/");
+        var ret = await
+        ajax('/clouddisk/renameFile', {oldFile: old, newFile: dir});
+        if (ret.success) {
+            item.fileName = name;
+        }
+    }
+    ,
+
+    async
+    shareFile(item, index)
+    {
+        var name = prompt("用户ID");
+        if (name == null || name.trim() == "") {
+            return;
+        }
+        var stack = this.dirStack.concat();
+        stack.push(item.fileName);
+        // var old = "/" + stack.join("/");
+        // stack.pop();
+        // stack.push(name)
+        var dir = "/" + stack.join("/");
+        var ret = await
+        ajax('/clouddisk/shareFile', {toUid: name, fileName: dir});
+        if (ret.success) {
+            alert("success")
+        }
+    }
+    ,
+
+
+    }
+    })
+    ;
 
     var uuid = "";
     app.loadDir()
@@ -338,46 +387,46 @@
     });
 
 
-    uploader.on("uploadBeforeSend",function (bytes,data,headers) {
-        console.log(file,data,headers)
+    uploader.on("uploadBeforeSend", function (bytes, data, headers) {
+        console.log(file, data, headers)
         data.uuid = uuid;
         headers.Authorization = "su";
     })
-    uploader.on( 'uploadProgress', function( bytes, percentage ) {
-        var $li = $( '#'+file.id ),
+    uploader.on('uploadProgress', function (bytes, percentage) {
+        var $li = $('#' + file.id),
             $percent = $li.find('.progress .progress-bar');
 
         // 避免重复创建
-        if ( !$percent.length ) {
+        if (!$percent.length) {
             $percent = $('<div class="progress progress-striped active">' +
                 '<div class="progress-bar" role="progressbar" style="width: 0%">' +
                 '</div>' +
-                '</div>').appendTo( $li ).find('.progress-bar');
+                '</div>').appendTo($li).find('.progress-bar');
         }
 
         $li.find('p.state').text('上传中');
 
-        $percent.css( 'width', percentage * 100 + '%' );
+        $percent.css('width', percentage * 100 + '%');
     });
 
-    uploader.on("uploadSuccess",function () {
-       console.log("success");
-       $.ajax({
-           type:"post",
-           url: "http://192.168.31.201:8070/api/file/upload/finish",
-           data:{
+    uploader.on("uploadSuccess", function () {
+        console.log("success");
+        $.ajax({
+            type: "post",
+            url: "http://192.168.31.201:8070/api/file/upload/finish",
+            data: {
                 uuid: uuid
-           },
-           headers:{
-                Authorization:"su"
-           },
-           dataType:"json",
-           success:function (ret) {
-               if(ret.success){
-                   app.files.push({fileName:ret.message})
-               }
-           }
-       })
+            },
+            headers: {
+                Authorization: "su"
+            },
+            dataType: "json",
+            success: function (ret) {
+                if (ret.success) {
+                    app.files.push({fileName: ret.message})
+                }
+            }
+        })
     })
 </script>
 </body>

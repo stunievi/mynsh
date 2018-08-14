@@ -18,11 +18,11 @@ public class RadioField extends InformationField {
         this.items = items;
     }
 
-    public void setItems(String[] items){
+    public void setItems(String[] items) {
         setItems(Arrays.asList(items));
     }
 
-    public void setItems(List<String> items){
+    public void setItems(List<String> items) {
         this.items = new LinkedHashSet<>(items);
     }
 }

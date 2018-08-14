@@ -5,11 +5,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter
-public enum DealType{
+public enum DealType {
     BACK_TO_LAST(1),
     STOP(2),
-    SUCCESS(3)
-    ;
+    SUCCESS(3);
 
     @Getter
     @Setter

@@ -25,9 +25,9 @@ public class CloudService {
     @Value("${filecloud.password}")
     private String cloudPassword;
 
-//    @Autowired
+    //    @Autowired
     private CloudApi cloudApi;
-//    @Autowired
+    @Autowired
     private CloudAdminApi cloudAdminApi;
     @Autowired
     private SystemConfigCache systemConfigCache;
@@ -35,10 +35,10 @@ public class CloudService {
     public static final String STATUS_SUCCESS = "SUCCESS";
     public static final String ERROR_MESSAGE = "文件云接口请求失败";
 
-    public boolean login(String username, String password){
-        LoginResponse loginResponse = cloudApi.login(username,password);
-        if(null != loginResponse){
-            if(loginResponse.getStatus().equals(STATUS_SUCCESS)){
+    public boolean login(String username, String password) {
+        LoginResponse loginResponse = cloudApi.login(username, password);
+        if (null != loginResponse) {
+            if (loginResponse.getStatus().equals(STATUS_SUCCESS)) {
                 FeignConfig.cookies.put(Utils.getCurrentUserId(), loginResponse.getResponseCookies().get(0));
                 return true;
             }
@@ -46,62 +46,62 @@ public class CloudService {
         return false;
     }
 
-    public boolean checkOnline(){
+    public boolean checkOnline() {
         CloudBaseResponse response = cloudApi.checkOnline();
-        if(null != response){
+        if (null != response) {
             return response.getStatus().equals(STATUS_SUCCESS);
         }
         return false;
     }
 
-    public Result<CreateDirResponse> createUserDir(long pid, String name){
+    public Result<CreateDirResponse> createUserDir(long pid, String name) {
         CreateDirResponse response = cloudApi.createUserDir(pid, name);
         return checkResponse(response);
     }
 
-    public Result getFiles(long pid){
+    public Result getFiles(long pid) {
         GetFilesResponse response = cloudApi.getFiles(pid);
         return checkResponse(response);
     }
 
-    public Result deleteFiles(long id){
+    public Result deleteFiles(long id) {
         return checkResponse(cloudApi.deleteFiles(id));
     }
-    public Result deleteFiles(List<Long> ids){
+
+    public Result deleteFiles(List<Long> ids) {
         List<String> list = ids.stream()
                 .filter(id -> id > 0)
                 .map(id -> id + "").collect(Collectors.toList());
-        if(ids.size() == 0) return Result.error(ERROR_MESSAGE);
-        return checkResponse(cloudApi.deleteFiles(String.join(",",list)));
+        if (ids.size() == 0) return Result.error(ERROR_MESSAGE);
+        return checkResponse(cloudApi.deleteFiles(String.join(",", list)));
     }
 
-    public Result renameFile(long id, String name){
-        return checkResponse(cloudApi.renameFile(id,name));
+    public Result renameFile(long id, String name) {
+        return checkResponse(cloudApi.renameFile(id, name));
     }
 
-    public Result editTags(long id, List<String> tags){
-        String tag = tags.size() > 0 ? String.join(",",tags) : "";
-        return checkResponse(cloudApi.editTags(id,tag));
+    public Result editTags(long id, List<String> tags) {
+        String tag = tags.size() > 0 ? String.join(",", tags) : "";
+        return checkResponse(cloudApi.editTags(id, tag));
     }
 
-    public Result<CloudBaseResponse> uploadFiles(long pid, MultipartFile file){
+    public Result<CloudBaseResponse> uploadFiles(long pid, MultipartFile file) {
         //将file名字修复为filedata
 //        file.getName()
 //        String str = cloudApi.uploadFiles(pid,file);
 //        return null;
-        return checkResponse(cloudApi.uploadFiles(pid,file));
+        return checkResponse(cloudApi.uploadFiles(pid, file));
     }
 
-    public Result fileSearch(String keyword){
+    public Result fileSearch(String keyword) {
         return checkResponse(cloudApi.fileSearch(keyword));
     }
 
-    private Result checkResponse(CloudBaseResponse response){
-        if(null != response){
-            if(response.getStatus().equals(STATUS_SUCCESS)){
+    private Result checkResponse(CloudBaseResponse response) {
+        if (null != response) {
+            if (response.getStatus().equals(STATUS_SUCCESS)) {
                 return Result.ok(response);
-            }
-            else{
+            } else {
                 return Result.error(response.getMsg());
             }
         }
@@ -109,11 +109,11 @@ public class CloudService {
     }
 
 
-    public Result loginAdmin(){
+    public Result loginAdmin() {
         CloudBaseResponse response = cloudAdminApi.checkOnline();
-        if(null == response || !response.getStatus().equals(STATUS_SUCCESS)){
-            LoginResponse loginResponse = cloudAdminApi.login(cloudUserName,cloudPassword);
-            if(null != loginResponse && loginResponse.getStatus().equals(STATUS_SUCCESS)){
+        if (null == response || !response.getStatus().equals(STATUS_SUCCESS)) {
+            LoginResponse loginResponse = cloudAdminApi.login(cloudUserName, cloudPassword);
+            if (null != loginResponse && loginResponse.getStatus().equals(STATUS_SUCCESS)) {
                 CloudAdminApi.Config.setCookie(loginResponse.getResponseCookies().get(0));
             }
             return checkResponse(loginResponse);
@@ -137,15 +137,14 @@ public class CloudService {
 //        return Result.error();
 //    }
 
-    public Result createUser(String username){
+    public Result createUser(String username) {
         Result result = loginAdmin();
-        if(result.isSuccess()){
+        if (result.isSuccess()) {
             CloudBaseResponse response = cloudAdminApi.createUser(username);
             return checkResponse(response);
         }
         return Result.error();
     }
-
 
 
 //    public CloudService(Decoder decoder, Encoder encoder, Client client){

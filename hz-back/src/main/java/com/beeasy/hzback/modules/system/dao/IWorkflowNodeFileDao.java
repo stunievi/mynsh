@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
-public interface IWorkflowNodeFileDao extends JpaRepository<WorkflowNodeFile,Long>{
+public interface IWorkflowNodeFileDao extends JpaRepository<WorkflowNodeFile, Long> {
 
 //    @Query(value = "select count(f) from WorkflowNodeFile f where f.userId = :uid and f.id = :id")
 //    int checkAuth(@Param("uid") long uid, @Param("id") long id);

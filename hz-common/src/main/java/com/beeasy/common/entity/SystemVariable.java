@@ -1,8 +1,10 @@
 package com.beeasy.common.entity;
 
 import com.beeasy.common.helper.AbstractBaseEntity;
+import com.beeasy.common.helper.JSONConverter;
 import lombok.Getter;
 import lombok.Setter;
+
 import javax.persistence.*;
 import java.util.*;
 
@@ -16,7 +18,7 @@ public class SystemVariable extends AbstractBaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    @Column(unique = true)
+    @Column(unique = true, columnDefinition = JSONConverter.VARCHAR_5O)
     String varName;
 
     String varValue;

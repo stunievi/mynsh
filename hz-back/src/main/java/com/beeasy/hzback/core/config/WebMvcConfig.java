@@ -31,10 +31,10 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
     public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
         converters.removeIf(httpMessageConverter -> httpMessageConverter instanceof MappingJackson2HttpMessageConverter); // 删除MappingJackson2HttpMessageConverter
         //1.需要定义一个Convert转换消息的对象
-        FastJsonHttpMessageConverter fastConverter=new FastJsonHttpMessageConverter();
+        FastJsonHttpMessageConverter fastConverter = new FastJsonHttpMessageConverter();
         //2.添加fastjson的配置信息，比如是否要格式化返回的json数据
 //
-        FastJsonConfig fastJsonConfig=new FastJsonConfig();
+        FastJsonConfig fastJsonConfig = new FastJsonConfig();
         fastJsonConfig.setSerializerFeatures(SerializerFeature.PrettyFormat);
 
         List<MediaType> fastMediaTypes = new ArrayList<>();

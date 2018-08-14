@@ -2,6 +2,7 @@ package com.beeasy.hzback.modules.cloud.config;
 
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.modules.cloud.response.CloudBaseResponse;
 import feign.*;
@@ -30,16 +31,16 @@ public class FeignConfig {
 //        });
 //    }
 
-    public static Map<Long,String> cookies = Collections.synchronizedMap(new HashMap<>());
+    public static Map<Long, String> cookies = Collections.synchronizedMap(new HashMap<>());
 
     @Bean
-    RequestInterceptor getRI(){
+    RequestInterceptor getRI() {
         return new RequestInterceptor() {
             @Override
             public void apply(RequestTemplate requestTemplate) {
                 String cookie = cookies.get(Utils.getCurrentUserId());
-                if(null != cookie){
-                    requestTemplate.header("cookie",cookie);
+                if (null != cookie) {
+                    requestTemplate.header("cookie", cookie);
                 }
             }
         };
@@ -47,7 +48,7 @@ public class FeignConfig {
 
     @Bean
     public Encoder multipartFormEncoder() {
-        return new SpringFormEncoder(){
+        return new SpringFormEncoder() {
             @Override
             public void encode(Object object, Type bodyType, RequestTemplate template) throws EncodeException {
                 if (!bodyType.equals(MultipartFile.class)) {
@@ -82,7 +83,7 @@ public class FeignConfig {
 //    }
 
     @Bean
-    public Decoder getDecoder(){
+    public Decoder getDecoder() {
         return new Decoder() {
             @Override
             public Object decode(Response response, Type type) throws IOException, DecodeException, FeignException {
@@ -99,22 +100,18 @@ public class FeignConfig {
                     sb.append(bytes, 0, len);
                 }
                 String str = sb.toString();
-                if(!str.startsWith("{")){
+                if (!str.startsWith("{")) {
                     return str;
                 }
-                Object obj = JSON.parseObject(str,type);
-                if(obj instanceof CloudBaseResponse){
-                    List<String> cookies = (List<String>) response.headers().getOrDefault("set-cookie",new ArrayList<>());
+                Object obj = JSON.parseObject(str, type);
+                if (obj instanceof CloudBaseResponse) {
+                    List<String> cookies = (List<String>) response.headers().getOrDefault("set-cookie", new ArrayList<>());
                     ((CloudBaseResponse) obj).setResponseCookies(cookies);
                 }
                 return obj;
             }
         };
     }
-
-
-
-
 
 
 }

@@ -23,7 +23,7 @@ import java.util.Optional;
 @Entity
 @Table(name = "t_user")
 @EntityListeners(AuditingEntityListener.class)
-public class User implements Serializable{
+public class User implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -76,7 +76,7 @@ public class User implements Serializable{
     @ManyToMany(mappedBy = "users")
     private List<Role> roles = new ArrayList<>();
 
-    @OneToOne(mappedBy = "user",cascade = CascadeType.REMOVE)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE)
     private UserProfile profile;
 
 //    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
@@ -101,7 +101,6 @@ public class User implements Serializable{
 //    }
 
 
-
 //    @Transient
 //    public List<Department> getDepartments(){
 //        List<Department> departments = getQuarters().stream()
@@ -121,8 +120,6 @@ public class User implements Serializable{
 //    public List<Long> getQuartersIds(){
 //        return getQuarters().stream().map(Quarters::getId).collect(Collectors.toList());
 //    }
-
-
 
 
 }

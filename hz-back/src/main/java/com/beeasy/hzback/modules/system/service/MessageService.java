@@ -9,7 +9,7 @@ import com.beeasy.common.entity.MessageRead;
 import com.beeasy.common.entity.SystemFile;
 import com.beeasy.common.entity.User;
 import com.beeasy.hzback.modules.system.form.MessageAdd;
-import com.beeasy.hzback.modules.system.service_kt.UserService;
+import com.beeasy.hzback.modules.system.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,8 +45,8 @@ public class MessageService implements IMessageService {
     UserService userService;
     @Autowired
     IMessageDao messageDao;
-    @Autowired
-    CloudDiskService cloudDiskService;
+    //    @Autowired
+//    CloudDiskService cloudDiskService;
     //    @Autowired
 //    IMessageSessionDao messageSessionDao;
     @Autowired
@@ -162,7 +162,7 @@ public class MessageService implements IMessageService {
             return Result.error("发送失败");
         }
         String uuid = UUID.randomUUID().toString();
-        mainMessage.setCommonUUID(uuid);
+//        mainMessage.setCommonUUID(uuid);
         messageDao.save(mainMessage);
         result.add(mainMessage);
         for (Long fileId : fileIds) {
@@ -174,7 +174,7 @@ public class MessageService implements IMessageService {
             if (null == message) {
                 continue;
             }
-            message.setCommonUUID(uuid);
+//            message.setCommonUUID(uuid);
             message.setType(Message.Type.FILE);
             message.setLinkId(fileId);
             messageDao.save(message);
@@ -281,12 +281,12 @@ public class MessageService implements IMessageService {
         return sendMessage(fromUid, toUid, content, "");
     }
 
-    public String applyDownload(final long uid, Message message){
-        if(!(message.getFromType().equals(Message.LinkType.USER) && message.getToType().equals(Message.LinkType.USER) && (message.getFromId().equals(uid) || message.getToId().equals(uid)) )){
+    public String applyDownload(final long uid, Message message) {
+        if (!(message.getFromType().equals(Message.LinkType.USER) && message.getToType().equals(Message.LinkType.USER) && (message.getFromId().equals(uid) || message.getToId().equals(uid)))) {
             return "";
         }
         //如果不是文件
-        if(!message.getType().equals(Message.Type.FILE)){
+        if (!message.getType().equals(Message.Type.FILE)) {
             return "";
         }
         DownloadFileToken token = new DownloadFileToken();

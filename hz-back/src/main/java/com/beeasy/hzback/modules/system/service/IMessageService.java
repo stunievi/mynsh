@@ -11,11 +11,10 @@ public interface IMessageService {
     @Setter
     @AllArgsConstructor
     @NoArgsConstructor
-    static class UnreadNum{
+    static class UnreadNum {
         Long num;
         Long sessionId;
     }
-
 
 
 }

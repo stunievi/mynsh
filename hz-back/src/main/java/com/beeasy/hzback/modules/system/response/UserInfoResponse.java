@@ -8,7 +8,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class UserInfoResponse{
+public class UserInfoResponse {
 
     String token;
     User user;
@@ -39,7 +39,6 @@ public class UserInfoResponse{
 //    protected UserInfoResponse(boolean success) {
 //        super(success);
 //    }
-
 
 
 }

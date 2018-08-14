@@ -6,11 +6,12 @@ import lombok.Setter;
 import java.util.Date;
 import javax.persistence.*;
 import java.util.*;
+
 @Getter
 @Setter
 @Entity
 @Table(name = "t_user_token", indexes = {
-        @Index(name = "user_id",columnList = "user_id")
+        @Index(name = "user_id", columnList = "user_id")
 //        @Index(name = "type",columnList = "type")
 //        @Index(name = "expr_time",columnList = "EXPR_TIME")
 })
@@ -34,7 +35,7 @@ public class UserToken {
     Type type;
 
 
-    public enum Type{
+    public enum Type {
         WEB,
         ANDROID
     }

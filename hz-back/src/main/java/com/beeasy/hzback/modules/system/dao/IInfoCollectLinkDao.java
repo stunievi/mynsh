@@ -10,11 +10,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-public interface IInfoCollectLinkDao extends JpaRepository<InfoCollectLink,Long>{
+public interface IInfoCollectLinkDao extends JpaRepository<InfoCollectLink, Long> {
     @Query(value = "select link.instance from InfoCollectLink link where link.billNo = :billNo")
     List<WorkflowInstance> getInstancesByBillNo(@Param("billNo") String billNo);
 
     int deleteAllByBillNoAndInstanceIdIn(String billNo, Collection<Long> ids);
+
     int countByBillNoAndInstanceId(String billNo, long id);
 
     Optional<InfoCollectLink> findTopByInstanceId(final long instanceId);

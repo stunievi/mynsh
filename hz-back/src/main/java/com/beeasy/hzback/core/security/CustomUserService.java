@@ -25,7 +25,7 @@ public class CustomUserService implements UserDetailsService { //自定义UserDe
         if (user != null) {
             Collection<SimpleGrantedAuthority> authorities = new ArrayList<SimpleGrantedAuthority>();
             authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
-            SecurityUser su = new SecurityUser(user,authorities);
+            SecurityUser su = new SecurityUser(user, authorities);
             return su;
         } else {
             throw new UsernameNotFoundException("admin: " + username + " do not exist!");

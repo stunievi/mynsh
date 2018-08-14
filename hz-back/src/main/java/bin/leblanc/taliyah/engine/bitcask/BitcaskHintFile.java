@@ -8,7 +8,7 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 
 @Slf4j
-public class BitcaskHintFile extends BitcaskDataFile{
+public class BitcaskHintFile extends BitcaskDataFile {
 
     public BitcaskHintFile(Bitcask context, boolean active) {
         super(context, active);
@@ -20,15 +20,15 @@ public class BitcaskHintFile extends BitcaskDataFile{
 
     @Override
     protected void init() {
-        context.getHintFiles().put(fileId,this);
+        context.getHintFiles().put(fileId, this);
 
         filePath = context.getOptions().getDirPath() + File.separator + fileId + context.getOptions().getHintExtension();
-        try{
-            raf = new RandomAccessFile(filePath,"rw");
+        try {
+            raf = new RandomAccessFile(filePath, "rw");
             channel = raf.getChannel();
 
             raf.seek(0);
-        }catch (Exception e){
+        } catch (Exception e) {
 
         }
     }
@@ -36,7 +36,7 @@ public class BitcaskHintFile extends BitcaskDataFile{
     @Override
     protected void setActive(boolean active) {
         this.active = active;
-        if(true == active){
+        if (true == active) {
             context.setActiveHintFileId(fileId);
         }
     }
@@ -47,11 +47,11 @@ public class BitcaskHintFile extends BitcaskDataFile{
         return null;
     }
 
-    public synchronized BitcaskIndex readNext(){
+    public synchronized BitcaskIndex readNext() {
         try {
             ByteBuffer byteBuffer = ByteBuffer.allocate(Long.BYTES * 2 + Integer.BYTES * 3);
             int readLen = channel.read(byteBuffer);
-            if(readLen == -1){
+            if (readLen == -1) {
                 return null;
             }
             //还要再读n个字节
@@ -71,18 +71,18 @@ public class BitcaskHintFile extends BitcaskDataFile{
         return null;
     }
 
-    public void write(BitcaskIndex index){
-        if(!active) return;
-        try{
+    public void write(BitcaskIndex index) {
+        if (!active) return;
+        try {
             lock = channel.lock();
             raf.seek(raf.length());
             ByteBuffer byteBuffer = ByteBuffer.allocate(Long.BYTES * 2 + Integer.BYTES * 3);
             byteBuffer
-                    .putLong(0,index.getTimestamp())
-                    .putLong(Long.BYTES,index.getFileId())
-                    .putInt(Long.BYTES * 2,index.getKey().length)
-                    .putInt(Long.BYTES * 2 + Integer.BYTES,index.getValueSize())
-                    .putInt(Long.BYTES * 2 + Integer.BYTES * 2,index.getValuePos());
+                    .putLong(0, index.getTimestamp())
+                    .putLong(Long.BYTES, index.getFileId())
+                    .putInt(Long.BYTES * 2, index.getKey().length)
+                    .putInt(Long.BYTES * 2 + Integer.BYTES, index.getValueSize())
+                    .putInt(Long.BYTES * 2 + Integer.BYTES * 2, index.getValuePos());
             channel.write(byteBuffer);
 //            //timestamp
 //            //fileId
@@ -91,16 +91,14 @@ public class BitcaskHintFile extends BitcaskDataFile{
 //            //valuepos
             //fieldName
             channel.write(ByteBuffer.wrap(index.getKey()));
-        }
-        catch (Exception e){
-        }
-        finally {
+        } catch (Exception e) {
+        } finally {
             releaseLock();
         }
     }
 
 
-    public int getFileSize(){
+    public int getFileSize() {
         try {
             return (int) raf.length();
         } catch (IOException e) {

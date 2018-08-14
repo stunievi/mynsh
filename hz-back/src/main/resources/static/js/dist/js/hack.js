@@ -1,5 +1,5 @@
 if (!Array.prototype.forEach) {
-    Array.prototype.forEach = function(callback) {
+    Array.prototype.forEach = function (callback) {
         var _arr = this;
         for (var i in _arr) {
             if (_arr.hasOwnProperty(i)) {
@@ -10,9 +10,9 @@ if (!Array.prototype.forEach) {
 }
 
 if (!Array.prototype.map) {
-    Array.prototype.map = function(callback) {
+    Array.prototype.map = function (callback) {
         var _arr = [];
-        this.forEach(function(el, i, arr) {
+        this.forEach(function (el, i, arr) {
             _arr.push(callback(el, i, arr));
         });
         return _arr;
@@ -20,9 +20,9 @@ if (!Array.prototype.map) {
 }
 
 if (!Array.prototype.filter) {
-    Array.prototype.filter = function(callback) {
+    Array.prototype.filter = function (callback) {
         var _arr = [];
-        this.forEach(function(el, i, arr) {
+        this.forEach(function (el, i, arr) {
             if (callback(el, i, arr)) {
                 _arr.push(el);
             }
@@ -32,7 +32,7 @@ if (!Array.prototype.filter) {
 }
 
 if (!Array.prototype.find) {
-    Array.prototype.find = function(callback) {
+    Array.prototype.find = function (callback) {
         var _arr = this;
         for (var i in _arr) {
             if (_arr.hasOwnProperty(i) && callback(_arr[i], parseInt(i), _arr)) {
@@ -45,7 +45,7 @@ if (!Array.prototype.find) {
 
 
 if (!Array.prototype.findIndex) {
-    Array.prototype.findIndex = function(callback) {
+    Array.prototype.findIndex = function (callback) {
         var _arr = this;
         for (var i in _arr) {
             var j = parseInt(i)
@@ -58,7 +58,7 @@ if (!Array.prototype.findIndex) {
 }
 
 if (!Array.prototype.reduce) {
-    Array.prototype.reduce = function(callback) {
+    Array.prototype.reduce = function (callback) {
         var _arr = this,
             r = callback(_arr[0], _arr[1], 0, _arr);
         for (var i = 1; i < _arr.length - 2; i++) {
@@ -71,7 +71,7 @@ if (!Array.prototype.reduce) {
 }
 
 if (!Array.prototype.some) {
-    Array.prototype.some = function(callback) {
+    Array.prototype.some = function (callback) {
         var _arr = this;
         for (var i in _arr) {
             if (_arr.hasOwnProperty(i) && callback(_arr[i], parseInt(i), _arr)) {
@@ -83,7 +83,7 @@ if (!Array.prototype.some) {
 }
 
 if (!Array.prototype.every) {
-    Array.prototype.every = function(callback) {
+    Array.prototype.every = function (callback) {
         var _arr = this;
         for (var i in _arr) {
             if (_arr.hasOwnProperty(i) && !callback(_arr[i], parseInt(i), _arr)) {
@@ -95,7 +95,7 @@ if (!Array.prototype.every) {
 }
 
 if (!Array.prototype.indexOf) {
-    Array.prototype.indexOf = function(el) {
+    Array.prototype.indexOf = function (el) {
         var _arr = this;
         for (var i in _arr) {
             if (_arr.hasOwnProperty(i) && arr[i] === el) {
@@ -108,17 +108,17 @@ if (!Array.prototype.indexOf) {
 
 
 if (!Function.prototype.bind) {
-    Function.prototype.bind = function(thisValue) {
+    Function.prototype.bind = function (thisValue) {
         var _this = this;
-        return function() {
+        return function () {
             _this.call(thisValue, arguments);
         }
     }
 }
 
 
-! function() {
-    var objT = { toString: 1 },
+!function () {
+    var objT = {toString: 1},
         DONT_ENUM = "propertyIsEnumerable,isPrototypeOf,hasOwnProperty,toLocaleString,toString,valueOf,constructor".split(","),
         hasOwn = (objT).hasOwnProperty;
     for (var i in objT) {
@@ -126,7 +126,7 @@ if (!Function.prototype.bind) {
     }
 
 
-    Object.keys = Object.keys || function(obj) { //ecma262v5 15.2.3.14
+    Object.keys = Object.keys || function (obj) { //ecma262v5 15.2.3.14
         var result = [];
         for (var key in obj)
             if (hasOwn.call(obj, key)) {

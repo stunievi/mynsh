@@ -8,9 +8,11 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 import java.util.Optional;
 
-public interface IWorkflowInstanceAttributeDao extends JpaRepository<WorkflowInstanceAttribute,Long> {
+public interface IWorkflowInstanceAttributeDao extends JpaRepository<WorkflowInstanceAttribute, Long> {
     Optional<WorkflowInstanceAttribute> findTopByInstanceIdAndAttrKey(long instanceId, String attrKey);
+
     Optional<WorkflowInstanceAttribute> findTopByInstanceIdAndAttrCName(long instanceId, String attrCname);
+
     List<WorkflowInstanceAttribute> findAllByInstanceIdAndAndAttrKeyIn(long instanceId, List<String> fields);
 
 

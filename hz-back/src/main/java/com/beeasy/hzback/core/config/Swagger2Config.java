@@ -29,7 +29,7 @@ public class Swagger2Config {
                 .apis(RequestHandlerSelectors.basePackage("com.beeasy.hzback"))
                 .paths(PathSelectors.any())
                 .build()
-                .securitySchemes(ImmutableList.of(new ApiKey("Authorization","Authorization","header")))
+                .securitySchemes(ImmutableList.of(new ApiKey("Authorization", "Authorization", "header")))
                 .securityContexts(securityContexts());
     }
 
@@ -50,6 +50,7 @@ public class Swagger2Config {
                         .build()
         );
     }
+
     List<SecurityReference> defaultAuth() {
         AuthorizationScope authorizationScope = new AuthorizationScope("global", "accessEverything");
         AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];

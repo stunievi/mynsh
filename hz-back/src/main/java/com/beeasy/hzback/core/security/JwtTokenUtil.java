@@ -60,7 +60,7 @@ public class JwtTokenUtil implements Serializable {
         return generateToken(claims);
     }
 
-    public String generateToken(Long uid){
+    public String generateToken(Long uid) {
         Map<String, Object> claims = new HashMap<>(3);
         claims.put("sub", uid + "");
         claims.put("created", new Date());
@@ -85,7 +85,7 @@ public class JwtTokenUtil implements Serializable {
         return username;
     }
 
-    public Long getUserIdFromToken(String token){
+    public Long getUserIdFromToken(String token) {
         try {
             Claims claims = getClaimsFromToken(token);
             return Long.valueOf(claims.getSubject());

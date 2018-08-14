@@ -7,7 +7,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-public interface IWorkflowInstanceTransactionDao extends JpaRepository<WorkflowInstanceTransaction,Long>{
+public interface IWorkflowInstanceTransactionDao extends JpaRepository<WorkflowInstanceTransaction, Long> {
 
     List<WorkflowInstanceTransaction> findAllByUserIdAndInstanceIdInAndStateIn(long uid, Collection<Long> ids, Collection<WorkflowInstanceTransaction.State> states);
 }

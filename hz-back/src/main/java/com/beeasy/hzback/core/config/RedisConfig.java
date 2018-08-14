@@ -21,8 +21,8 @@ import java.util.Map;
 
 /**
  * Redis缓存配置类
- * @author szekinwin
  *
+ * @author szekinwin
  */
 @Configuration
 @EnableCaching
@@ -61,7 +61,7 @@ public class RedisConfig extends CachingConfigurerSupport {
 //        return cacheManager;
 //    }
 
-//    @Bean
+    //    @Bean
 //    public CacheManagerCustomizer<RedisCacheManager> cacheManagerCacheManagerCustomizer(){
 //        return new CacheManagerCustomizer<RedisCacheManager>() {
 //            @Override
@@ -73,14 +73,15 @@ public class RedisConfig extends CachingConfigurerSupport {
 //        };
 //    }
     @Bean
-    public RedisTemplate<?, ?> redisTemplate(RedisConnectionFactory factory){
+    public RedisTemplate<?, ?> redisTemplate(RedisConnectionFactory factory) {
         StringRedisTemplate template = new StringRedisTemplate(factory);
         setSerializer(template);//设置序列化工具
         template.afterPropertiesSet();
         return template;
     }
-    private void setSerializer(StringRedisTemplate template){
-        @SuppressWarnings({ "rawtypes", "unchecked" })
+
+    private void setSerializer(StringRedisTemplate template) {
+        @SuppressWarnings({"rawtypes", "unchecked"})
         Jackson2JsonRedisSerializer jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer(Object.class);
         ObjectMapper om = new ObjectMapper();
         om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);

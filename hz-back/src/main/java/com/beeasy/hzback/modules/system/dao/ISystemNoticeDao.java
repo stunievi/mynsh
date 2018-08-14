@@ -14,7 +14,7 @@ public interface ISystemNoticeDao extends JpaRepository<SystemNotice, Long>, Jpa
 
     @Modifying
     @Query("update SystemNotice set state = 'READ' where userId = :uid and id in :ids")
-    int updateRead(@Param("uid") long uid, @Param("ids")Collection<Long> ids);
+    int updateRead(@Param("uid") long uid, @Param("ids") Collection<Long> ids);
 
 
 }

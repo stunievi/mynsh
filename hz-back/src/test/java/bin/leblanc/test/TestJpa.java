@@ -24,7 +24,7 @@ public class TestJpa {
     EntityManager entityManager;
 
     @Test
-    public void test(){
+    public void test() {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Tuple> query = cb.createTupleQuery();
         Root root = query.from(User.class);
@@ -33,7 +33,7 @@ public class TestJpa {
         TypedQuery<Tuple> q = entityManager.createQuery(query);
         List<Tuple> result = q.getResultList();
 
-        query.multiselect(cb.sum(root.get("id")),(cb.count(root)));
+        query.multiselect(cb.sum(root.get("id")), (cb.count(root)));
         q = entityManager.createQuery(query);
         result = q.getResultList();
 
@@ -42,7 +42,7 @@ public class TestJpa {
     }
 
     @Test
-    public void testSelect(){
+    public void testSelect() {
         List o = entityManager.createQuery("select user.id, user.quarters from User user").getResultList();
         int c = 1;
     }

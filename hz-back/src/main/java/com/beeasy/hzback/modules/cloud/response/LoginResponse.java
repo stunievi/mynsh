@@ -5,6 +5,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class LoginResponse extends CloudBaseResponse{
+public class LoginResponse extends CloudBaseResponse {
 
 }

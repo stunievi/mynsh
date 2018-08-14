@@ -2,10 +2,10 @@ package com.beeasy.hzback.modules.system.controller;
 
 import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.modules.system.dao.IDepartmentDao;
-import com.beeasy.common.entity.DepartmentAdd;
-import com.beeasy.common.entity.DepartmentEdit;
+import com.beeasy.hzback.modules.system.request.DepartmentAddRequest;
+import com.beeasy.hzback.modules.system.request.DepartmentEditRequest;
 import com.beeasy.hzback.modules.system.service.DepartmentService;
-import com.beeasy.hzback.modules.system.service_kt.UserService;
+import com.beeasy.hzback.modules.system.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -39,7 +39,7 @@ public class DepartmentController {
     public Result list(
             String name,
             Long parentId
-    ){
+    ) {
         //name比parent优先
         return Result.ok(userService.findDepartmentsByParent_Id(0));
     }
@@ -48,14 +48,15 @@ public class DepartmentController {
     @ApiOperation(value = "添加部门", notes = "添加一个新部门,需要管理员权限")
     @PostMapping("/api/department")
     public Result add(
-            @Valid DepartmentAdd departmentAdd
-    ){
+            @Valid DepartmentAddRequest departmentAdd
+    ) {
         return Result.ok(userService.createDepartment(departmentAdd));
     }
 
 
     /**
      * 不能随意删除,需要验证已有的工作人员/工作流
+     *
      * @param departmentId
      * @return
      */
@@ -66,26 +67,26 @@ public class DepartmentController {
     @DeleteMapping("/api/department")
     public Result del(
             @RequestParam Long departmentId
-    ){
+    ) {
         return Result.ok(userService.deleteDepartment(departmentId));
     }
 
     /**
      * 编辑时如果需要修改父类,那么需要验证已有的工作人员/工作流
+     *
      * @return
      */
     @ApiOperation(value = "编辑部门资料", notes = "编辑部门, 需要管理员权限")
     @PutMapping("/api/department")
     public Result edit(
-            @Valid DepartmentEdit edit
-            ){
+            @Valid DepartmentEditRequest edit
+    ) {
         return Result.ok(userService.editDepartment(edit));
     }
 
 
-
     @GetMapping("/alldepartment")
-    public Result alllist(){
+    public Result alllist() {
         return Result.ok(departmentDao.findAll());
     }
 

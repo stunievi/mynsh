@@ -195,14 +195,14 @@ var RIGHTHTML = {
                     app.data.show = false;
                 }
                 else {
-                    if(typeof ret.message == 'object'){
+                    if (typeof ret.message == 'object') {
                         var msg = [];
-                        for(var i = 0; i < ret.message.length; i++){
+                        for (var i = 0; i < ret.message.length; i++) {
                             msg.push(ret.message[i].defaultMessage);
                         }
                         alert(msg.join("\n"))
                     }
-                    else{
+                    else {
                         alert("保存失败");
                     }
                 }

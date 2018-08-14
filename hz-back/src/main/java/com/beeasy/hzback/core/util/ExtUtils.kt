@@ -11,11 +11,11 @@ fun String.toLongList(): List<Long> {
             .toList()
 }
 
-inline infix fun <reified T> T.then (x:(T) -> Unit) : Unit{
+inline infix fun <reified T> T.then(x: (T) -> Unit): Unit {
 //    if(T::class.isSubclassOf(Boolean::class)){
 //
 //    }
-    this?.let{
+    this?.let {
         //        var flag = false
 //        if(this is Boolean){
 //            flag = this as Boolean
@@ -26,13 +26,13 @@ inline infix fun <reified T> T.then (x:(T) -> Unit) : Unit{
 //        else{
 //            flag = true
 //        }
-        val flag = when(this){
+        val flag = when (this) {
             is Boolean -> this
             is String -> this.isNotEmpty()
             is Collection<*> -> size > 0
             else -> true
         }
-        if(flag){
+        if (flag) {
             x(it)
         }
     }

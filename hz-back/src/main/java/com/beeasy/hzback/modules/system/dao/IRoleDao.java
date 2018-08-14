@@ -10,11 +10,11 @@ import org.springframework.data.repository.query.Param;
 import java.util.Collection;
 import java.util.List;
 
-public interface IRoleDao extends JpaRepository<Role,Long>, JpaSpecificationExecutor {
+public interface IRoleDao extends JpaRepository<Role, Long>, JpaSpecificationExecutor {
     @Query(value = "select count(*) from t_user_role where role_id = :rid and user_id = :uid", nativeQuery = true)
     int hasPair(@Param("uid") long uid, @Param("rid") long rid);
 
-    int countByNameAndIdNot(String name,Long id);
+    int countByNameAndIdNot(String name, Long id);
 
     //添加角色
     @Modifying

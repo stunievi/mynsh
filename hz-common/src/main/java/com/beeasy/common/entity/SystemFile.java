@@ -15,7 +15,7 @@ import java.util.Date;
 @Setter
 @Table(name = "t_system_file")
 @EntityListeners(AuditingEntityListener.class)
-public class SystemFile extends AbstractBaseEntity{
+public class SystemFile extends AbstractBaseEntity {
 
     public enum Type {
         FACE,
@@ -41,7 +41,9 @@ public class SystemFile extends AbstractBaseEntity{
     @LastModifiedDate
     Date lastModifyTime;
 
-    String ext;
+    String ext = "";
+
+    String filePath = "";
 
 //    boolean removed = false;
 }

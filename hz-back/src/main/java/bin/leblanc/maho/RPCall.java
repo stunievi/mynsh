@@ -16,10 +16,10 @@ import java.util.stream.Stream;
 
 public class RPCall {
 
-    private static Map<String,Object> map = Collections.synchronizedMap(new HashMap());
-    private static Map<String,Method> methodMap = Collections.synchronizedMap(new HashMap<>());
-    private static Map<Method,MethodStruct> cache = Collections.synchronizedMap(new HashMap<>());
-    private static Map<String,RPCOption> optionMap = Collections.synchronizedMap(new HashMap<>());
+    private static Map<String, Object> map = Collections.synchronizedMap(new HashMap());
+    private static Map<String, Method> methodMap = Collections.synchronizedMap(new HashMap<>());
+    private static Map<Method, MethodStruct> cache = Collections.synchronizedMap(new HashMap<>());
+    private static Map<String, RPCOption> optionMap = Collections.synchronizedMap(new HashMap<>());
 
     private static Register register = new Register();
     private static RPCOption EMPTY_OPTION = new RPCOption();
@@ -50,14 +50,14 @@ public class RPCall {
 //    }
 
 
-    private static void log(Object o){
+    private static void log(Object o) {
         System.out.println(o);
     }
 
     @Getter
     @Setter
     @AllArgsConstructor
-    static class MethodStruct{
+    static class MethodStruct {
         List<Type> argumentTypes;
         List<Class> sourceTypes;
         Type returnType;
@@ -65,7 +65,7 @@ public class RPCall {
 //        String methodName;
     }
 
-    enum Type{
+    enum Type {
         INT,
         LONG,
         DOUBLE,
@@ -78,8 +78,8 @@ public class RPCall {
     /**
      * 分析函数
      */
-    private static MethodStruct analyze(Method method){
-        if(cache.containsKey(method)){
+    private static MethodStruct analyze(Method method) {
+        if (cache.containsKey(method)) {
             return cache.get(method);
         }
         Parameter[] parameters = method.getParameters();
@@ -91,22 +91,23 @@ public class RPCall {
             args.add(getParameterType(parameter));
             sourceTypes.add(parameter.getType());
         }
-        MethodStruct methodStruct =  new MethodStruct(args,sourceTypes, getCommonType(method.getReturnType()));
-        cache.put(method,methodStruct);
+        MethodStruct methodStruct = new MethodStruct(args, sourceTypes, getCommonType(method.getReturnType()));
+        cache.put(method, methodStruct);
         return methodStruct;
     }
 
 
-    private static Type getParameterType(Parameter parameter){
+    private static Type getParameterType(Parameter parameter) {
         Type type = getCommonType(parameter.getType());
         return type;
     }
-    private static Type getCommonType(Class clz){
+
+    private static Type getCommonType(Class clz) {
         //枚举
-        if(clz.isEnum()){
+        if (clz.isEnum()) {
             return Type.ENUM;
         }
-        switch (clz.getName()){
+        switch (clz.getName()) {
             //基本类型
             case "int":
             case "java.lang.Integer":
@@ -133,45 +134,45 @@ public class RPCall {
         }
     }
 
-    private static Object convertArgument(Type type, Class sourceType, Object value){
-        try{
-            switch (type){
+    private static Object convertArgument(Type type, Class sourceType, Object value) {
+        try {
+            switch (type) {
                 case INT:
-                    if(null == value){
+                    if (null == value) {
                         return 0;
                     }
                     return Integer.valueOf(String.valueOf(value));
 
                 case STRING:
-                    if(null == value){
+                    if (null == value) {
                         return "";
                     }
                     return String.valueOf(value);
 
                 case BOOL:
-                    if(null == value){
+                    if (null == value) {
                         return false;
                     }
                     return String.valueOf(value).equals("true");
 
                 case LONG:
-                    if(null == value){
+                    if (null == value) {
                         return 0;
                     }
                     return Long.valueOf(String.valueOf(value));
 
                 case DOUBLE:
-                    if(null == value){
+                    if (null == value) {
                         return 0.00;
                     }
                     return Double.valueOf(String.valueOf(value));
 
                 case ENUM:
-                    if(null == value){
+                    if (null == value) {
                         return null;
                     }
                     for (Object o : sourceType.getEnumConstants()) {
-                        if(((Enum)o).name().equals(value)){
+                        if (((Enum) o).name().equals(value)) {
                             return o;
                         }
                     }
@@ -179,22 +180,21 @@ public class RPCall {
 
                 case JSON:
                     //TODO: 转换失败的时候尽量给一个默认值
-                    if(null == value){
+                    if (null == value) {
                         return null;
                     }
                     return JSON.parseObject(String.valueOf(value), sourceType);
 
             }
             return null;
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             return null;
         }
     }
 
 
-    public static Object dealResult(RPCOption option, Object result){
-        if(null == option.getAReturn()){
+    public static Object dealResult(RPCOption option, Object result) {
+        if (null == option.getAReturn()) {
             return null;
         }
         //结果处理
@@ -202,28 +202,27 @@ public class RPCall {
         return result;
     }
 
-    public static Object call(String module, String action, String[] args, String requestBody){
+    public static Object call(String module, String action, String[] args, String requestBody) {
         AtomicInteger count = new AtomicInteger(0);
-        return call(module,action, Stream.of(args).collect(Collectors.toMap(item -> count.getAndIncrement(), item -> item)), requestBody);
+        return call(module, action, Stream.of(args).collect(Collectors.toMap(item -> count.getAndIncrement(), item -> item)), requestBody);
     }
 
-    public static Object call(String module, String action, Map<Integer,String> args, String requestBody){
+    public static Object call(String module, String action, Map<Integer, String> args, String requestBody) {
         RPCOption option = optionMap.getOrDefault(module, EMPTY_OPTION);
         //得到模型类
         Object object = map.get(module);
-        if(null == object){
+        if (null == object) {
             return dealResult(option, "没有找到这个函数");
         }
         //得到函数
         try {
             Method method;
-            if(option.dev){
+            if (option.dev) {
                 method = Arrays.asList(object.getClass().getMethods()).stream().filter(item -> item.getName().equals(action)).findFirst().orElse(null);
-            }
-            else{
+            } else {
                 method = methodMap.get(module + action);
             }
-            if(null == method){
+            if (null == method) {
                 return dealResult(option, "没有找到这个函数");
 //                method = Arrays.asList(object.getClass().getMethods()).stream().filter(item -> item.getName().equals(action)).findFirst().orElse(null);
 //                methodMap.put(module + action, method);
@@ -236,8 +235,8 @@ public class RPCall {
 //            }
 
 //            log(JSON.toJSONString(methodMap.keySet()));
-            if(null == method){
-                return dealResult(option,"没有找到这个函数");
+            if (null == method) {
+                return dealResult(option, "没有找到这个函数");
             }
 //            RPCMapping rpcMapping = method.getAnnotation(RPCMapping.class);
 //            if(null == rpcMapping){
@@ -246,7 +245,7 @@ public class RPCall {
 //            if(Arrays.asList(method.getAnnotations()).stream().allMatch(a -> !a.equals(RPCMapping.class))){
 //                return dealResult(option,null);
 //            }
-            if(!method.isAccessible()){
+            if (!method.isAccessible()) {
                 method.setAccessible(true);
             }
             MethodStruct methodStruct = analyze(method);
@@ -254,21 +253,20 @@ public class RPCall {
             //准备调用
             //调整参数
             LinkedList<Object> realArgs = new LinkedList<>();
-            for(int i = 0; i < methodStruct.getArgumentTypes().size(); i++){
+            for (int i = 0; i < methodStruct.getArgumentTypes().size(); i++) {
                 realArgs.add(convertArgument(methodStruct.getArgumentTypes().get(i), methodStruct.getSourceTypes().get(i), args.get(i)));
             }
             //如果最后一个参数为空,且存在请求内容
-            if(methodStruct.getArgumentTypes().size() > 0 && null != requestBody && null == realArgs.get(methodStruct.getArgumentTypes().size() - 1)){
+            if (methodStruct.getArgumentTypes().size() > 0 && null != requestBody && null == realArgs.get(methodStruct.getArgumentTypes().size() - 1)) {
                 int lastIndex = methodStruct.getArgumentTypes().size() - 1;
-                try{
-                    realArgs.add(lastIndex, JSON.parseObject(requestBody,methodStruct.getSourceTypes().get(lastIndex)));
-                }
-                catch (Exception e){
+                try {
+                    realArgs.add(lastIndex, JSON.parseObject(requestBody, methodStruct.getSourceTypes().get(lastIndex)));
+                } catch (Exception e) {
                 }
             }
 
             //前置参数处理
-            if(null != option.getPrefixArgs()) {
+            if (null != option.getPrefixArgs()) {
                 List<Object> prefixArgs = option.getPrefixArgs().call();
                 Collections.reverse(prefixArgs);
                 for (Object prefixArg : prefixArgs) {
@@ -276,7 +274,7 @@ public class RPCall {
                 }
             }
             //后置参数处理
-            if(null != option.getAfterArgs()){
+            if (null != option.getAfterArgs()) {
                 List<Object> afterArgs = option.getAfterArgs().call();
                 //后置不用翻转
                 for (Object afterArg : afterArgs) {
@@ -284,9 +282,9 @@ public class RPCall {
                 }
             }
 
-            Object result = method.invoke(object,realArgs.toArray());
+            Object result = method.invoke(object, realArgs.toArray());
 
-            return dealResult(option,result);
+            return dealResult(option, result);
 
         } catch (IllegalAccessException e) {
             e.printStackTrace();
@@ -294,27 +292,25 @@ public class RPCall {
             e.printStackTrace();
         }
 
-        return dealResult(option,null);
+        return dealResult(option, null);
     }
 
 
-
-
-    public static Register register(String key, Object value){
-        return register.register(key,value);
+    public static Register register(String key, Object value) {
+        return register.register(key, value);
     }
 
-    public static Register register(String key, Object value, RPCOption option){
-        return register.register(key,value,option);
+    public static Register register(String key, Object value, RPCOption option) {
+        return register.register(key, value, option);
     }
 
 
-    public static class Register{
+    public static class Register {
 
         @Synchronized
-        public Register register(String key, Object value, RPCOption option){
+        public Register register(String key, Object value, RPCOption option) {
             log(key + " registered");
-            map.put(key,value);
+            map.put(key, value);
             optionMap.put(key, option);
             //简单记录函数名
             for (Method method : value.getClass().getDeclaredMethods()) {
@@ -324,7 +320,7 @@ public class RPCall {
         }
 
         @Synchronized
-        public Register register(String key, Object value){
+        public Register register(String key, Object value) {
             return register(key, value, null);
         }
     }

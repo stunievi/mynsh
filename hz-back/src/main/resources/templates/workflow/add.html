@@ -26,30 +26,30 @@ var RIGHTHTML = {
     var userstr = '${user}';
     var workflow;
     var user;
-    do{
-        try{
+    do {
+        try {
             workflow = eval("(" + workflowstr + ")");
             user = eval("(" + userstr + ")");
-        }catch (e){
+        } catch (e) {
             break;
         }
-    }while(0);
+    } while (0);
 
 
     var app = avalon.define({
         $id: 'app',
         data: {
             title: workflow.name,
-            workflow : workflow,
-            step:0,
-            version:"",
+            workflow: workflow,
+            step: 0,
+            version: "",
             // user
         },
-        submitForm:function(){
+        submitForm: function () {
             //当前需要填写的节点
             var model = this.data.workflow.model[this.data.step];
             var canContinue = true;
-            if(model.type == 'ziliao'){
+            if (model.type == 'ziliao') {
                 var data = {};
                 /**
                  * 这里整理的方法不对，但是avalon没有提供对子组件的引用以及对应的状态管理，后续通过vue解决
@@ -64,7 +64,7 @@ var RIGHTHTML = {
 
                     console.log(type)
                     //取值
-                    switch (type){
+                    switch (type) {
                         case '单行文本':
                         case '多行文本':
                             data[title] = children.eq(3).val();
@@ -75,24 +75,24 @@ var RIGHTHTML = {
 
                     }
 
-                    if(required && !data[title]){
+                    if (required && !data[title]) {
                         canContinue = false;
                     }
 
                 });
             }
 
-            if(!canContinue){
+            if (!canContinue) {
                 return alert("你还有没有填写的内容");
             }
 
-            $.post("pub",{
+            $.post("pub", {
                 workflowId: this.data.workflow.id,
                 version: this.data.version,
                 content: JSON.stringify(data)
-            },function (json) {
+            }, function (json) {
 
-            },'json');
+            }, 'json');
 
         }
     });

@@ -12,8 +12,9 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-public interface IWorkflowModelDao extends JpaRepository<WorkflowModel,Long>, JpaSpecificationExecutor{
+public interface IWorkflowModelDao extends JpaRepository<WorkflowModel, Long>, JpaSpecificationExecutor {
     Optional<WorkflowModel> findTopByName(String name);
+
     Page<List<WorkflowModel>> findAllByName(String name, Pageable pageable);
 
     List<WorkflowModel> findAllByModelNameAndOpenIsTrue(String modelName);
@@ -24,7 +25,9 @@ public interface IWorkflowModelDao extends JpaRepository<WorkflowModel,Long>, Jp
 
     //查找同名工作流是否有相同版本
     int countByNameAndOpenIsTrue(String name);
+
     Optional<WorkflowModel> findTopByModelNameAndOpenIsTrue(final String modelName);
+
     List<WorkflowModel> findAllByModelNameLikeAndOpenIsTrue(final String modelName);
 
     @Query(value = "select m.id from WorkflowModel m where m.modelName = :modelName and m.open = true")

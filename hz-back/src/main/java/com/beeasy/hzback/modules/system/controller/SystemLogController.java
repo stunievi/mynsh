@@ -38,10 +38,10 @@ public class SystemLogController {
     public Result list(
             Pager pager,
             String userName,
-            @PageableDefault(value = 15, sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
-    ){
-        if(!StringUtils.isEmpty(userName)){
-            return Result.ok(systemLogDao.findAllByUserName(userName,pageable));
+            @PageableDefault(value = 15, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        if (!StringUtils.isEmpty(userName)) {
+            return Result.ok(systemLogDao.findAllByUserName(userName, pageable));
         }
         return Result.ok(systemLogDao.findAll(pageable));
     }

@@ -12,18 +12,23 @@ import org.springframework.data.repository.query.Param;
 import java.util.Collection;
 import java.util.List;
 
-public interface IQuartersDao extends JpaRepository<Quarters,Long>{
+public interface IQuartersDao extends JpaRepository<Quarters, Long> {
     Page<Quarters> findAllByDepartment_Id(long departmentId, Pageable pageable);
+
     Quarters findFirstByDepartmentAndName(Department department, String name);
+
     List<Quarters> findAllByIdIn(Collection<Long> ids);
 
     /*
      * @gotomars
      * */
     Quarters findFirstByDepartmentAndNameAndIdNot(Department department, String name, Long id);
+
     //查找部门下的岗位个数
     int countByDepartment_Id(long id);
+
     int countByDepartmentIdAndName(final long did, final String name);
+
     int countByDepartmentIdAndNameAndIdNot(final long did, final String name, final long qid);
 
     //查找该岗位是否存在
@@ -46,7 +51,7 @@ public interface IQuartersDao extends JpaRepository<Quarters,Long>{
     @Query(value = "select q.code from Quarters q where q.id = :qid")
     List getQuartersCode(@Param("qid") long qid);
 
-    @Query(value = "select q.departmentId from Quarters q where q.id in :qids" )
+    @Query(value = "select q.departmentId from Quarters q where q.id in :qids")
     List<Long> getDepIds(@Param("qids") Collection<Long> qids);
 
 //    @Query(value = "select count(child) from Quarters child where child.id = :cid and child.code like (select concat(par.code,'%') from Department par where par.id = :pid)")

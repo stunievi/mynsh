@@ -29,43 +29,44 @@ public class SystemNoticeService {
 
     /**
      * 消息列表查询
+     *
      * @param uid
      * @param request
      * @param pageable
      * @return
      */
-    public Page<SystemNotice> getMessageList(long uid, SearchRequest request, Pageable pageable){
+    public Page<SystemNotice> getMessageList(long uid, SearchRequest request, Pageable pageable) {
         Specification query = new Specification() {
             public Predicate toPredicate(Root root, CriteriaQuery query, CriteriaBuilder cb) {
                 List<Predicate> predicates = new ArrayList<>();
                 //限定uid
-                predicates.add(cb.equal(root.get("userId"),uid));
-                if(null != request.getState()){
+                predicates.add(cb.equal(root.get("userId"), uid));
+                if (null != request.getState()) {
                     predicates.add(cb.equal(root.get("state"), request.getState()));
                 }
-                if(null != request.getType()){
+                if (null != request.getType()) {
                     predicates.add(cb.equal(root.get("type"), request.getType()));
                 }
                 return cb.and(predicates.toArray(new Predicate[predicates.size()]));
             }
         };
-        return noticeDao.findAll(query,pageable);
+        return noticeDao.findAll(query, pageable);
     }
 
     /**
      * 更新已读
+     *
      * @param uid
      * @param nids
      * @return
      */
-    public boolean readNotice(long uid, Collection<Long> nids){
-        return noticeDao.updateRead(uid,nids) > 0;
+    public boolean readNotice(long uid, Collection<Long> nids) {
+        return noticeDao.updateRead(uid, nids) > 0;
     }
 
 
-
     @Async
-    public void addNotice(SystemNotice.Type type, Collection<Long> toUids, String content, Object data){
+    public void addNotice(SystemNotice.Type type, Collection<Long> toUids, String content, Object data) {
         for (Long toUid : toUids) {
             SystemNotice notice = new SystemNotice();
             notice.setState(SystemNotice.State.UNREAD);
@@ -76,8 +77,9 @@ public class SystemNoticeService {
             noticeDao.save(notice);
         }
     }
+
     @Async
-    public void addNotice(SystemNotice.Type type, long toUid, String content, Object data){
+    public void addNotice(SystemNotice.Type type, long toUid, String content, Object data) {
         SystemNotice notice = new SystemNotice();
         notice.setState(SystemNotice.State.UNREAD);
         notice.setType(type);
@@ -89,7 +91,7 @@ public class SystemNoticeService {
 
 
     @Data
-    public static class SearchRequest{
+    public static class SearchRequest {
         SystemNotice.State state;
         SystemNotice.Type type;
     }

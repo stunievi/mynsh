@@ -1,7 +1,9 @@
 package com.beeasy.common.entity;//package com.beeasy.hzback.modules.system.entity;
 //
+
 import com.alibaba.fastjson.annotation.JSONField;
 import com.beeasy.common.helper.AbstractBaseEntity;
+import com.beeasy.common.helper.JSONConverter;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -29,9 +31,12 @@ public class Quarters extends AbstractBaseEntity {
     @Column(name = "department_id")
     Long departmentId;
 
+    @Column(columnDefinition = JSONConverter.VARCHAR_20)
     String name;
+    @Column(columnDefinition = JSONConverter.VARCHAR_20)
     String dName;
 
+    @Column(columnDefinition = JSONConverter.VARCHAR_5O)
     String info;
 
     @JSONField(serialize = false)
@@ -45,8 +50,9 @@ public class Quarters extends AbstractBaseEntity {
             }
     )
 //    @LazyCollection(LazyCollectionOption.EXTRA)
-    List<User> users = new ArrayList<>();
+            List<User> users = new ArrayList<>();
 
+    @Column(length = 50)
     String code;
 
     //是否主管

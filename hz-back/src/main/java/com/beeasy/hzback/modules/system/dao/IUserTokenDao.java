@@ -10,10 +10,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-public interface IUserTokenDao extends JpaRepository<UserToken,Long> {
+public interface IUserTokenDao extends JpaRepository<UserToken, Long> {
 
     @Query(value = "select ut.userId from UserToken ut where ut.exprTime > :now and token = :token")
-    List getUidFromToken(@Param("token") String token,@Param("now") Date date);
+    List getUidFromToken(@Param("token") String token, @Param("now") Date date);
 
     @Modifying
     @Query(value = "update UserToken set exprTime = :exprTime where exprTime > :now and token = :token")

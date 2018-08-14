@@ -15,7 +15,7 @@ import java.util.Date;
 @Entity
 @Table(name = "t_workflow_instance_transaction")
 @EntityListeners(AuditingEntityListener.class)
-public class WorkflowInstanceTransaction extends AbstractBaseEntity{
+public class WorkflowInstanceTransaction extends AbstractBaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
@@ -56,7 +56,7 @@ public class WorkflowInstanceTransaction extends AbstractBaseEntity{
     @CreatedDate
     Date addTime;
 
-    public enum State{
+    public enum State {
         DEALING,
         REJECT,
         ACCEPT

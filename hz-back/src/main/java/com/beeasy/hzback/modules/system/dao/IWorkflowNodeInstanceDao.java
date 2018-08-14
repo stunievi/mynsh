@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-public interface IWorkflowNodeInstanceDao extends JpaRepository<WorkflowNodeInstance,Long> {
+public interface IWorkflowNodeInstanceDao extends JpaRepository<WorkflowNodeInstance, Long> {
 
     @Query(
             value = "select node.instance from WorkflowNodeInstance node join node.instance instance where instance.workflowModel in :models and node.nodeName in :names and node.finished = :finished group by node.instance",
@@ -29,7 +29,9 @@ public interface IWorkflowNodeInstanceDao extends JpaRepository<WorkflowNodeInst
 
 
     Optional<WorkflowNodeInstance> findFirstByInstanceAndFinishedIsFalse(WorkflowInstance instance);
+
     Optional<WorkflowNodeInstance> findFirstByInstance_IdAndFinishedIsFalse(Long instanceId);
+
     Optional<WorkflowNodeInstance> findFirstByIdAndFinishedIsFalse(long id);
 
     //得到当前正在执行的节点
@@ -54,5 +56,6 @@ public interface IWorkflowNodeInstanceDao extends JpaRepository<WorkflowNodeInst
 
     //是否已经有过这个节点
     int countByInstanceIdAndNodeModelId(long iid, long nmid);
+
     Optional<WorkflowNodeInstance> findTopByInstanceIdAndNodeModelIdAndIdLessThanOrderByIdDesc(long iid, long nmid, long id);
 }

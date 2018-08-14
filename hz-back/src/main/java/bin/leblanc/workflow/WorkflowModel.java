@@ -31,25 +31,25 @@ public class WorkflowModel implements Serializable {
     private Double version;
 
 
-    public InformationNode createInformationNode(){
+    public InformationNode createInformationNode() {
         InformationNode node = new InformationNode();
         nodeList.add(node);
         return node;
     }
 
-    public ReviewNode createReviewNode(){
+    public ReviewNode createReviewNode() {
         ReviewNode node = new ReviewNode();
         nodeList.add(node);
         return node;
     }
 
-    public LogicNode createLogicNode(){
+    public LogicNode createLogicNode() {
         LogicNode node = new LogicNode();
         nodeList.add(node);
         return node;
     }
 
-    public EndNode createEndNode(){
+    public EndNode createEndNode() {
         EndNode node = new EndNode();
         nodeList.add(node);
         return node;
@@ -59,8 +59,8 @@ public class WorkflowModel implements Serializable {
     /**
      * 检查一个角色是否可以发布这个任务
      */
-    public boolean canStart(Object role){
-        if(this.nodeList.size() == 0){
+    public boolean canStart(Object role) {
+        if (this.nodeList.size() == 0) {
             return false;
         }
         return this.nodeList.get(0).getDealers().contains(role);
@@ -69,9 +69,9 @@ public class WorkflowModel implements Serializable {
     /**
      * 检查一个角色是否可以在处理流程序列中
      */
-    public boolean canDeal(Object role){
-        if(nodeList.size() == 0){
-            return  false;
+    public boolean canDeal(Object role) {
+        if (nodeList.size() == 0) {
+            return false;
         }
         return nodeList.stream().anyMatch(node -> {
             return (node instanceof ReviewNode) && node.getDealers().contains(role);
@@ -83,7 +83,7 @@ public class WorkflowModel implements Serializable {
      * 启用新的任务处理
      */
     public WorkflowTask startNewTask(Object role) throws StartTaskException {
-        if(!canStart(role)){
+        if (!canStart(role)) {
             throw new StartTaskException();
         }
         WorkflowTask task = new WorkflowTask(this);

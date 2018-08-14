@@ -2,8 +2,10 @@ package com.beeasy.common.entity;
 
 import lombok.Getter;
 import lombok.Setter;
+
 import javax.persistence.*;
 import java.util.*;
+
 @Getter
 @Setter
 @Entity
@@ -19,5 +21,6 @@ public class InfoCollectLink {
     @Column(name = "instance_id")
     Long instanceId;
 
+    @Column(length = 50)
     String billNo;
 }

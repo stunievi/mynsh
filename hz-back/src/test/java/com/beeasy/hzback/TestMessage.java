@@ -19,11 +19,12 @@ public class TestMessage {
     Utils utils;
     @Autowired
     IUserDao userDao;
+
     @Autowired
 //    IMessageSessionDao messageSessionDao;
     @Test
-    public void test(){
-        Object o =        messageService.getUnreadNums(609L,559L,560L);
+    public void test() {
+        Object o = messageService.getUnreadNums(609L, 559L, 560L);
         int b = 1;
 
 //        User fromUser = utils.createFaker();
@@ -47,8 +48,9 @@ public class TestMessage {
 
     @Autowired
     IMessageDao messageDao;
+
     @Test
-    public void test_recent(){
+    public void test_recent() {
 //        Object obj = messageService.getUserEachSessionUnreadNums(546);
 //        int b = 1;
 //

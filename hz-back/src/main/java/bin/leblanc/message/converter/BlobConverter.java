@@ -9,14 +9,14 @@ import java.io.*;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
-public class BlobConverter<T> implements AttributeConverter<T,byte[]> {
+public class BlobConverter<T> implements AttributeConverter<T, byte[]> {
     @Override
     public byte[] convertToDatabaseColumn(T t) {
-        if(t instanceof String){
+        if (t instanceof String) {
             return ((String) t).getBytes();
         }
         //序列化
-        else{
+        else {
             byte[] bytes = null;
             try {
                 @Cleanup ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -33,15 +33,14 @@ public class BlobConverter<T> implements AttributeConverter<T,byte[]> {
 
     @Override
     public T convertToEntityAttribute(byte[] bytes) {
-        Class<T> clz = (Class<T>) getSuperClassGenricType(getClass(),0);
-        if(clz.equals(String.class)){
+        Class<T> clz = (Class<T>) getSuperClassGenricType(getClass(), 0);
+        if (clz.equals(String.class)) {
             return (T) new String(bytes);
-        }
-        else{
+        } else {
             T result = null;
             try {
                 @Cleanup ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
-                @Cleanup ObjectInputStream ois = new ObjectInputStream (bis);
+                @Cleanup ObjectInputStream ois = new ObjectInputStream(bis);
                 result = (T) ois.readObject();
             } catch (IOException e) {
                 e.printStackTrace();

@@ -6,11 +6,11 @@ import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.modules.system.dao.IDepartmentDao;
 import com.beeasy.hzback.modules.system.dao.IQuartersDao;
 import com.beeasy.common.entity.Quarters;
-import com.beeasy.common.entity.QuartersAddRequest;
-import com.beeasy.common.entity.QuartersEditRequest;
 import com.beeasy.hzback.modules.system.form.Pager;
+import com.beeasy.hzback.modules.system.request.QuartersAddRequest;
+import com.beeasy.hzback.modules.system.request.QuartersEditRequest;
 import com.beeasy.hzback.modules.system.service.QuartersService;
-import com.beeasy.hzback.modules.system.service_kt.UserService;
+import com.beeasy.hzback.modules.system.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -47,10 +47,10 @@ public class QuartersController {
     public Result<Page<Quarters>> list(
             Pager pager,
             Integer departmentId,
-            @PageableDefault(value = 15, sort = { "id" }, direction = Sort.Direction.DESC) org.springframework.data.domain.Pageable pageable
-    ){
-        if(departmentId != null){
-            return Result.ok(quartersDao.findAllByDepartment_Id(departmentId,pageable));
+            @PageableDefault(value = 15, sort = {"id"}, direction = Sort.Direction.DESC) org.springframework.data.domain.Pageable pageable
+    ) {
+        if (departmentId != null) {
+            return Result.ok(quartersDao.findAllByDepartment_Id(departmentId, pageable));
         }
         return Result.ok(quartersDao.findAll(pageable));
     }
@@ -60,7 +60,7 @@ public class QuartersController {
     public Object add(
             @Valid QuartersAddRequest add,
             BindingResult bindingResult
-            ) throws RestException {
+    ) throws RestException {
 
         return Result.ok(userService.createQuarters(add));
     }
@@ -68,29 +68,31 @@ public class QuartersController {
     /**
      * 编辑需要验证当前符合岗位的人
      * 禁止修改所属部门
+     *
      * @return
      */
     @ApiOperation(value = "编辑岗位", notes = "编辑一个岗位")
     @PutMapping("")
     public Result edit(
             @Valid QuartersEditRequest edit
-    ){
+    ) {
         /*
          * @gotomars
          * */
-        return Result.ok(userService.updateQuarters(edit));
+        return Result.ok(userService.editQuarters(edit));
     }
 
 
     /**
      * 删除, 需要验证这个岗位是否还有人
+     *
      * @return
      */
     @ApiOperation(value = "删除岗位")
     @RequestMapping(value = "/delete", method = RequestMethod.GET)
     public Result delete(
             @RequestParam String id
-    ){
+    ) {
         return Result.ok(userService.deleteQuarters(Utils.convertIdsToList(id)));
     }
 

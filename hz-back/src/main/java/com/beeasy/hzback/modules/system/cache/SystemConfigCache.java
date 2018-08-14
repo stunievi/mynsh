@@ -113,7 +113,7 @@ public class SystemConfigCache {
 
     public List<String> getSqlViews() {
         String prefix = "";
-        switch (dbDriver){
+        switch (dbDriver) {
             case "com.mysql.jdbc.Driver":
                 prefix = "mysql";
                 break;
@@ -124,9 +124,9 @@ public class SystemConfigCache {
         }
         String[] files = {"t_global_permission_center", "t_workflow_dealer"};
         String finalPrefix = prefix;
-        return (List<String>)Arrays.stream(files)
+        return (List<String>) Arrays.stream(files)
                 .map(file -> {
-                    ClassPathResource resource = new ClassPathResource(String.format("sql_views/%s/%s.sql", finalPrefix,file));
+                    ClassPathResource resource = new ClassPathResource(String.format("sql_views/%s/%s.sql", finalPrefix, file));
                     try {
                         List<String> codes = IOUtils.readLines(resource.getInputStream());
                         return String.join(" ", codes);
@@ -135,7 +135,7 @@ public class SystemConfigCache {
                         return "";
                     }
                 })
-                .map(item -> (String)item)
+                .map(item -> (String) item)
                 .filter(StringUtils::isNotEmpty)
                 .collect(Collectors.toList());
     }

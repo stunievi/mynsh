@@ -12,7 +12,7 @@ import com.beeasy.common.entity.GlobalPermission;
 import com.beeasy.common.entity.Quarters;
 import com.beeasy.common.entity.User;
 import com.beeasy.hzback.modules.system.form.GlobalPermissionEditRequest;
-import com.beeasy.hzback.modules.system.service_kt.UserService;
+import com.beeasy.hzback.modules.system.service.UserService;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import lombok.Data;
@@ -80,12 +80,12 @@ public class DataSearchService {
         User user = userService.findUser(uid);
         List<WorkflowModel> models = modelDao.findAllByModelNameLikeAndOpenIsTrue(("%资料收集%"));
         List<WorkflowModel> finalModels = models;
-        return  sqlUtils.pageQuery(sql, pageable).map(o -> {
-            Map<String,String> map = (Map<String, String>) o;
-            map.put("pubModelId","0");
-            map.put("pubModelName","");
-            if(models.size() > 0 && null != user){
-                if(workflowService.canPubOrPoint(models.get(0),user)){
+        return sqlUtils.pageQuery(sql, pageable).map(o -> {
+            Map<String, String> map = (Map<String, String>) o;
+            map.put("pubModelId", "0");
+            map.put("pubModelName", "");
+            if (models.size() > 0 && null != user) {
+                if (workflowService.canPubOrPoint(models.get(0), user)) {
                     map.put("pubModelId", models.get(0).getId() + "");
                     map.put("pubModelName", models.get(0).getModelName());
                 }
@@ -123,12 +123,12 @@ public class DataSearchService {
         User user = userService.findUser(uid);
         List<WorkflowModel> models = modelDao.findAllByModelNameLikeAndOpenIsTrue(("%资料收集%"));
         List<WorkflowModel> finalModels = models;
-        return  sqlUtils.pageQuery(sql, pageable).map(o -> {
-            Map<String,String> map = (Map<String, String>) o;
-            map.put("pubModelId","0");
-            map.put("pubModelName","");
-            if(models.size() > 0 && null != user){
-                if(workflowService.canPubOrPoint(models.get(0),user)){
+        return sqlUtils.pageQuery(sql, pageable).map(o -> {
+            Map<String, String> map = (Map<String, String>) o;
+            map.put("pubModelId", "0");
+            map.put("pubModelName", "");
+            if (models.size() > 0 && null != user) {
+                if (workflowService.canPubOrPoint(models.get(0), user)) {
                     map.put("pubModelId", models.get(0).getId() + "");
                     map.put("pubModelName", models.get(0).getModelName());
                 }
@@ -155,7 +155,7 @@ public class DataSearchService {
      * @return
      */
     public Page searchAccLoan(final long uid, AccloanRequest request, Pageable pageable) {
-        String sql = String.format("select a.BILL_NO,a.CUS_ID,a.CUS_NAME,a.LOAN_ACCOUNT,a.ASSURE_MEANS_MAIN,a.LOAN_AMOUNT,a.LOAN_BALANCE,a.CUR_TYPE,a.LOAN_START_DATE,a.LOAN_END_DATE,a.ACCOUNT_STATUS,a.CLA,a.CUS_MANAGER,a.MAIN_BR_ID,a.CONT_NO,b.USE_DEC,b.LOAN_TERM from ACC_LOAN as a left join CTR_LOAN_CONT as b on a.CONT_NO=b.CONT_NO %s where 1 = 1 ","");
+        String sql = String.format("select a.BILL_NO,a.CUS_ID,a.CUS_NAME,a.LOAN_ACCOUNT,a.ASSURE_MEANS_MAIN,a.LOAN_AMOUNT,a.LOAN_BALANCE,a.CUR_TYPE,a.LOAN_START_DATE,a.LOAN_END_DATE,a.ACCOUNT_STATUS,a.CLA,a.CUS_MANAGER,a.MAIN_BR_ID,a.CONT_NO,b.USE_DEC,b.LOAN_TERM from ACC_LOAN as a left join CTR_LOAN_CONT as b on a.CONT_NO=b.CONT_NO %s where 1 = 1 ", "");
         if (null != request.register) {
             if (request.register) {
                 sql += " and (select count(*) from t_workflow_instance ins where ins.model_name in ('不良资产管理流程') and ins.state <> 'FINISHED' and ins.bill_no = a.BILL_NO) > 0";
@@ -198,41 +198,40 @@ public class DataSearchService {
         }
         log.error(sql);
         List<WorkflowModel> models = null;
-        if(null != request.getModelName()){
+        if (null != request.getModelName()) {
             models = modelDao.findAllByModelNameLikeAndOpenIsTrue(("%" + request.getModelName() + "%"));
         }
         List<WorkflowModel> finalModels = models;
         User user = userService.findUser(uid);
-        Page page =  sqlUtils.pageQuery(sql, pageable).map(o -> {
-            Map<String,String> map = (Map<String, String>) o;
-            map.put("pubModelId","0");
-            map.put("pubModelName","");
-            if(null != finalModels && finalModels.size() > 0 && null != user){
-                if(request.getModelName().indexOf("贷后跟踪") > -1){
+        Page page = sqlUtils.pageQuery(sql, pageable).map(o -> {
+            Map<String, String> map = (Map<String, String>) o;
+            map.put("pubModelId", "0");
+            map.put("pubModelName", "");
+            if (null != finalModels && finalModels.size() > 0 && null != user) {
+                if (request.getModelName().indexOf("贷后跟踪") > -1) {
                     String name = getAutoTaskModelName(map.get("BILL_NO"));
                     for (WorkflowModel model : finalModels) {
-                        if(model.getModelName().equals(name)) {
-                            if(workflowService.canPubOrPoint(model,user)){
-                                map.put("pubModelId",finalModels.get(0).getId() + "");
+                        if (model.getModelName().equals(name)) {
+                            if (workflowService.canPubOrPoint(model, user)) {
+                                map.put("pubModelId", finalModels.get(0).getId() + "");
                                 map.put("pubModelName", finalModels.get(0).getModelName());
                             }
                             break;
                         }
                     }
-                }
-                else{
-                    if(workflowService.canPubOrPoint(finalModels.get(0), user)){
-                        map.put("pubModelId",finalModels.get(0).getId() + "");
+                } else {
+                    if (workflowService.canPubOrPoint(finalModels.get(0), user)) {
+                        map.put("pubModelId", finalModels.get(0).getId() + "");
                         map.put("pubModelName", finalModels.get(0).getModelName());
                     }
                 }
 
                 //当有任务正在进行时, 禁止发起相同的登记和不良资产管理流程
-                switch (request.getModelName()){
+                switch (request.getModelName()) {
                     case "不良资产登记":
-                        if(workflowService.countByModelNameAndBillNoAndStateNotIn(request.getModelName(), map.get("BILL_NO"), Arrays.asList(WorkflowInstance.State.CANCELED, WorkflowInstance.State.FINISHED)) > 0){
-                            map.put("pubModelId","0");
-                            map.put("pubModelName","");
+                        if (workflowService.countByModelNameAndBillNoAndStateNotIn(request.getModelName(), map.get("BILL_NO"), Arrays.asList(WorkflowInstance.State.CANCELED, WorkflowInstance.State.FINISHED)) > 0) {
+                            map.put("pubModelId", "0");
+                            map.put("pubModelName", "");
                         }
                         break;
                 }
@@ -427,10 +426,10 @@ public class DataSearchService {
         List ret = sqlUtils.query(sql, Collections.singleton(billNo));
         return (List) getPermissionResultLimit(uid, SearchTargetType.ACC_LOAN, ret, Arrays.asList("BILL_NO,CONT_NO,PRD_NAME,PRD_TYPE,CUS_ID,CUS_NAME,LOAN_ACCOUNT,LOAN_FORM,LOAN_NATURE,ASSURE_MEANS_MAIN,CUR_TYPE,LOAN_START_DATE,LOAN_END_DATE,TERM_TYPE,ORIG_EXPI_DATE,REPAYMENT_MODE,CLA,CLA_DATE,CUS_MANAGER,INPUT_BR_ID,FINA_BR_ID,MAIN_BR_ID,ACCOUNT_STATUS,RETURN_DATE".split(","))).stream()
                 .map(item -> {
-                    Map<String,String> map = (Map<String, String>) item;
-                    String[] strs = {"诉讼","利息减免","抵债资产接收","资产处置","催收"};
+                    Map<String, String> map = (Map<String, String>) item;
+                    String[] strs = {"诉讼", "利息减免", "抵债资产接收", "资产处置", "催收"};
                     for (String str : strs) {
-                        map.put(str + "次数", workflowService.countByModelNameAndBillNo(str,map.get("BILL_NO")) + "");
+                        map.put(str + "次数", workflowService.countByModelNameAndBillNo(str, map.get("BILL_NO")) + "");
                     }
                     return map;
                 })
@@ -473,7 +472,7 @@ public class DataSearchService {
     }
 
 
-    public Result searchInnateCusComData(final long uid, final String CUS_ID){
+    public Result searchInnateCusComData(final long uid, final String CUS_ID) {
 //        try {
 //            Thread.sleep(1000);
 //        } catch (InterruptedException e) {
@@ -494,7 +493,7 @@ public class DataSearchService {
         return Result.ok(ret.get(0));
     }
 
-    public Result searchInnateCusIndivData(final long uid, final String CUS_ID){
+    public Result searchInnateCusIndivData(final long uid, final String CUS_ID) {
 //        try {
 //            Thread.sleep(1000);
 //        } catch (InterruptedException e) {
@@ -515,34 +514,30 @@ public class DataSearchService {
         return Result.ok(ret.get(0));
     }
 
-    public boolean isCusCom(final String CUS_ID){
-        try{
+    public boolean isCusCom(final String CUS_ID) {
+        try {
             String sql = String.format("select count(*) as num from CUS_COM where CUS_ID = '%s'", CUS_ID);
-            List<Map<String,String>> ret = sqlUtils.query(sql);
-            if(ret.size() > 0){
+            List<Map<String, String>> ret = sqlUtils.query(sql);
+            if (ret.size() > 0) {
                 return Integer.valueOf(ret.get(0).get("num")) > 0;
-            }
-            else{
+            } else {
                 return false;
             }
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             return false;
         }
     }
 
-    public boolean isCusIndiv(final String CUS_ID){
-        try{
+    public boolean isCusIndiv(final String CUS_ID) {
+        try {
             String sql = String.format("select count(*) as num from CUS_INDIV where CUS_ID = '%s'", CUS_ID);
-            List<Map<String,String>> ret = sqlUtils.query(sql);
-            if(ret.size() > 0){
+            List<Map<String, String>> ret = sqlUtils.query(sql);
+            if (ret.size() > 0) {
                 return Integer.valueOf(ret.get(0).get("num")) > 0;
-            }
-            else{
+            } else {
                 return false;
             }
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             return false;
         }
     }
@@ -633,30 +628,32 @@ public class DataSearchService {
 
     /**
      * 得到一个台账对应的任务名
+     *
      * @param billNo
      * @return
      */
-    public String getAutoTaskModelName(String billNo){
+    public String getAutoTaskModelName(String billNo) {
         String sql = String.format("SELECT CASE WHEN l.type = 'HOME_BANK' THEN '贷后跟踪-公司银行部' WHEN l.type = 'MINI_WEI' AND a.PRD_TYPE = '01' THEN '贷后跟踪-小微部公司类' WHEN l.type = 'MINI_WEI' AND a.PRD_TYPE = '02' THEN '贷后跟踪-小微部个人类' WHEN l.type = 'SALES_PERSONAL' AND a.PRD_TYPE = '02' AND a.MORTGAGE_FLG = '1' THEN '贷后跟踪-零售部个人按揭类' WHEN l.type = 'SALES_PERSONAL' AND a.PRD_TYPE = '02' AND a.MORTGAGE_FLG = '0' AND a.PRD_USERDF_TYPE = '1003' THEN '贷后跟踪-零售部个人消费类' WHEN l.type = 'sales_personal' AND a.PRD_TYPE = '02' AND a.MORTGAGE_FLG = '0' AND a.PRD_USERDF_TYPE = '1004' THEN '贷后跟踪-零售部个人经营类' END AS modelName FROM ACC_LOAN a , t_auto_task_link l WHERE l.acc_code LIKE concat('%%(' , a.MAIN_BR_ID , ')%%') AND a.BILL_NO = '%s'", billNo);
-        List<Map<String,String>> res = sqlUtils.query(sql);
-        if(res.size() > 0){
-            return res.get(0).getOrDefault("modelName","");
+        List<Map<String, String>> res = sqlUtils.query(sql);
+        if (res.size() > 0) {
+            return res.get(0).getOrDefault("modelName", "");
         }
         return "";
     }
 
     /**
      * 得到一个台账对应的客户经理
+     *
      * @param billNo
      * @return
      */
-    public long getAutoTaskDealer(String billNo){
+    public long getAutoTaskDealer(String billNo) {
         String sql = String.format("select CUS_MANAGER from ACC_LOAN where BILL_NO = '%s'", billNo);
-        List<Map<String,String>> res = sqlUtils.query(sql);
+        List<Map<String, String>> res = sqlUtils.query(sql);
         String cusManager = "";
-        if(res.size() > 0){
+        if (res.size() > 0) {
             cusManager = res.get(0).getOrDefault("CUS_MANAGER", "");
-            if(!StringUtils.isEmpty(cusManager)){
+            if (!StringUtils.isEmpty(cusManager)) {
                 return userService.findUserByAccCode(cusManager).getId();
             }
         }
@@ -740,7 +737,7 @@ public class DataSearchService {
             return null;
         }
         //管理员默认开放所有权限
-        if (user.getSu()) {
+        if (user.isSu()) {
             return new HashMap<>();
         }
         //查询用户所持有的所有授权
@@ -756,7 +753,7 @@ public class DataSearchService {
         List<String> finalUserCode = userCode;
         //默认授权行为
         for (Quarters q : qs) {
-            if(q.getManager()){
+            if (q.isManager()) {
                 managerCode.add(initString(q.getDepartment().getAccCode()));
             }
         }

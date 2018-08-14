@@ -11,7 +11,7 @@ public class AdminMenuConfig {
 
 
     @Data
-    public static class AdminMenuItem implements Cloneable{
+    public static class AdminMenuItem implements Cloneable {
         private String title;
         private String href;
         private List<AdminMenuItem> children = new ArrayList<>();

@@ -11,7 +11,7 @@ public class WorkflowEngine {
     /**
      * 创建一个工作流模型
      */
-    public WorkflowModel createModel(){
+    public WorkflowModel createModel() {
         WorkflowModel model = new WorkflowModel();
         return model;
     }

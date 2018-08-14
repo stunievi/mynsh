@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 @Data
 public class WorkflowModelAdd {
 
-    @ApiModelProperty(name = "name", value = "工作流名称",required = true)
+    @ApiModelProperty(name = "name", value = "工作流名称", required = true)
     @NotEmpty(message = "名字不能为空")
     String name;
 

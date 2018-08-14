@@ -6,7 +6,7 @@
 //import com.beeasy.common.entity.GlobalPermission;
 //import com.beeasy.hzback.modules.system.form.ModifyPasswordRequest;
 //import com.beeasy.hzback.modules.system.form.ProfileEditRequest;
-//import com.beeasy.hzback.modules.system.service_kt.UserService;
+//import com.beeasy.hzback.modules.system.service.UserService;
 //import io.swagger.annotations.ApiOperation;
 //import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.web.bind.annotation.*;

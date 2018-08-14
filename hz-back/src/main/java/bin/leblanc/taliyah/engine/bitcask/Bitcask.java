@@ -59,8 +59,8 @@ public class Bitcask {
                     if (pathMatcher.matches(path)) {
                         String fileName = path.getFileName().toString();
                         //数据文件
-                        if(fileName.endsWith(options.getDataExtension())){
-                            String name = fileName.replace(getOptions().getDataExtension(),"");
+                        if (fileName.endsWith(options.getDataExtension())) {
+                            String name = fileName.replace(getOptions().getDataExtension(), "");
                             long fileId = Long.valueOf(name);
                             //做成单例，保证一个文件永远只有一个相同的引用
                             if (!dataFiles.containsKey(fileId)) {
@@ -69,11 +69,11 @@ public class Bitcask {
                         }
 
                         //hint文件
-                        else if(fileName.endsWith(options.getHintExtension())){
-                            String name = fileName.replace(options.getHintExtension(),"");
+                        else if (fileName.endsWith(options.getHintExtension())) {
+                            String name = fileName.replace(options.getHintExtension(), "");
                             long fileId = Long.valueOf(name);
-                            if(!hintFiles.containsKey(fileId)){
-                                new BitcaskHintFile(Bitcask.this,false,fileId);
+                            if (!hintFiles.containsKey(fileId)) {
+                                new BitcaskHintFile(Bitcask.this, false, fileId);
                             }
                         }
                     }
@@ -106,10 +106,9 @@ public class Bitcask {
         }
 
         //处理索引文件
-        if(hintFiles.size() == 0){
-            new BitcaskHintFile(this,true);
-        }
-        else{
+        if (hintFiles.size() == 0) {
+            new BitcaskHintFile(this, true);
+        } else {
             List<Long> fileIds = hintFiles.keySet().stream().collect(Collectors.toList());
             fileIds.sort(new Comparator<Long>() {
                 @Override
@@ -122,12 +121,12 @@ public class Bitcask {
             //重建索引
             int len = hintFiles.size();
             BitcaskIndex index = null;
-            while(len-- > 0){
+            while (len-- > 0) {
                 BitcaskHintFile file = hintFiles.get(fileIds.get(len));
-                while((index = file.readNext()) != null){
+                while ((index = file.readNext()) != null) {
                     String key = new String(index.getKey());
-                    if(!indexMap.containsKey(key) || indexMap.get(key).getTimestamp() < index.getTimestamp()){
-                        indexMap.put(key,index);
+                    if (!indexMap.containsKey(key) || indexMap.get(key).getTimestamp() < index.getTimestamp()) {
+                        indexMap.put(key, index);
                     }
                 }
             }
@@ -148,14 +147,14 @@ public class Bitcask {
         return new BitcaskDataFile(this, true);
     }
 
-    private BitcaskHintFile getActiveHintFile(){
+    private BitcaskHintFile getActiveHintFile() {
         BitcaskHintFile file = hintFiles.get(activeHintFileId);
-        if(file.getFileSize() < options.getMaxFileSize()){
+        if (file.getFileSize() < options.getMaxFileSize()) {
             return file;
         }
 
         file.setActive(false);
-        return new BitcaskHintFile(this,true);
+        return new BitcaskHintFile(this, true);
     }
 
     public void put(String key, Object value) {
@@ -188,7 +187,7 @@ public class Bitcask {
             }
         });
         dataFiles.clear();
-        hintFiles.forEach((id,file) -> {
+        hintFiles.forEach((id, file) -> {
             try {
                 file.close();
             } catch (Exception e) {

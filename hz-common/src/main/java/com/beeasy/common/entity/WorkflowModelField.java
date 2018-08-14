@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.*;
+
 @Getter
 @Setter
 @Entity
@@ -35,7 +36,7 @@ public class WorkflowModelField {
     @Convert(converter = JSONConverter.class)
     JSONObject ext;
 
-    public enum Type{
+    public enum Type {
         string,
         textarea,
         date,

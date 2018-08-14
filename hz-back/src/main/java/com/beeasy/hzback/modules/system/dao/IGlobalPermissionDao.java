@@ -9,36 +9,38 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-public interface IGlobalPermissionDao extends JpaRepository<GlobalPermission,Long>{
+public interface IGlobalPermissionDao extends JpaRepository<GlobalPermission, Long> {
     int countByTypeAndObjectIdAndUserTypeAndLinkId(GlobalPermission.Type type, long objectId, GlobalPermission.UserType userType, long linkId);
 
     int deleteAllByIdIn(Collection<Long> ids);
+
     int deleteAllByObjectId(long objectId);
+
     int deleteAllByTypeAndObjectId(GlobalPermission.Type type, long objectId);
 
-    class SQL{
+    class SQL {
         public static final String GET_UIDS = "select distinct user.id from GlobalPermission gp, User user left join user.quarters uq where gp.type in :types and gp.objectId = :oid and (" +
-            //按人授权,直接取uid
-            "(gp.userType = 'USER' and gp.linkId = user.id) or " +
-            //按岗位授权,拥有这个岗位
-            "(gp.userType = 'QUARTER' and uq.id = gp.linkId) or " +
-            //按部门授权,岗位在这个部门里
-            "(gp.userType = 'DEPARTMENT' and (select count(d.id)  from Department d where d.id = gp.linkId and uq.code like concat(d.code,'_%') ) > 0 )" +
-            " )";
+                //按人授权,直接取uid
+                "(gp.userType = 'USER' and gp.linkId = user.id) or " +
+                //按岗位授权,拥有这个岗位
+                "(gp.userType = 'QUARTER' and uq.id = gp.linkId) or " +
+                //按部门授权,岗位在这个部门里
+                "(gp.userType = 'DEPARTMENT' and (select count(d.id)  from Department d where d.id = gp.linkId and uq.code like concat(d.code,'_%') ) > 0 )" +
+                " )";
 
         public static final String GET_UIDS_WITHOUT_OID = "select distinct user.id from GlobalPermission gp, User user left join user.quarters uq where gp.type in :types and (" +
-            //按人授权,直接取uid
-            "(gp.userType = 'USER' and gp.linkId = user.id) or " +
-            //按岗位授权,拥有这个岗位
-            "(gp.userType = 'QUARTER' and uq.id = gp.linkId) or " +
-            //按部门授权,岗位在这个部门里
-            "(gp.userType = 'DEPARTMENT' and (select count(d.id)  from Department d where d.id = gp.linkId and uq.code like concat(d.code,'_%') ) > 0 )" +
-            " )";
+                //按人授权,直接取uid
+                "(gp.userType = 'USER' and gp.linkId = user.id) or " +
+                //按岗位授权,拥有这个岗位
+                "(gp.userType = 'QUARTER' and uq.id = gp.linkId) or " +
+                //按部门授权,岗位在这个部门里
+                "(gp.userType = 'DEPARTMENT' and (select count(d.id)  from Department d where d.id = gp.linkId and uq.code like concat(d.code,'_%') ) > 0 )" +
+                " )";
 
         public static final String GET_OIDS_WITH_UIDS = "select distinct gp.objectId from GlobalPermission gp, User user left join user.quarters uq where gp.type in :types and user.id in :uids and " +
                 "(" +
-                    "(gp.userType = 'QUARTER' and uq.departmentId in ( select qq.departmentId from Quarters qq where qq.id = gp.linkId) ) or " +
-                    "(gp.userType = 'USER' and uq.departmentId in (select uuqq.departmentId from User uu join uu.quarters uuqq where uu.id = gp.linkId) )" +
+                "(gp.userType = 'QUARTER' and uq.departmentId in ( select qq.departmentId from Quarters qq where qq.id = gp.linkId) ) or " +
+                "(gp.userType = 'USER' and uq.departmentId in (select uuqq.departmentId from User uu join uu.quarters uuqq where uu.id = gp.linkId) )" +
                 ")";
     }
 
@@ -55,7 +57,7 @@ public interface IGlobalPermissionDao extends JpaRepository<GlobalPermission,Lon
 //                            ") " +
 //                ")" +
 //            ")")
-    List<Long> getUids(@Param("types")Collection<GlobalPermission.Type> types, @Param("oid") long oid);
+    List<Long> getUids(@Param("types") Collection<GlobalPermission.Type> types, @Param("oid") long oid);
 
     @Query(value = "select count(user.id) from GlobalPermission gp, User user left join user.quarters uq where gp.type in :types and gp.objectId = :oid and user.id = :uid and (" +
             //按人授权,直接取uid
@@ -73,8 +75,8 @@ public interface IGlobalPermissionDao extends JpaRepository<GlobalPermission,Lon
             "uq.manager = true and " +
             //
             "(" +
-                "(gp.userType = 'QUARTER' and uq.departmentId in ( select qq.departmentId from Quarters qq where qq.id = gp.linkId) ) or " +
-                "(gp.userType = 'USER' and uq.departmentId in (select uuqq.departmentId from User uu join uu.quarters uuqq where uu.id = gp.linkId) )" +
+            "(gp.userType = 'QUARTER' and uq.departmentId in ( select qq.departmentId from Quarters qq where qq.id = gp.linkId) ) or " +
+            "(gp.userType = 'USER' and uq.departmentId in (select uuqq.departmentId from User uu join uu.quarters uuqq where uu.id = gp.linkId) )" +
             ")")
     List<Long> getManagerObjectId(@Param("types") Collection<GlobalPermission.Type> types, @Param("uids") Collection<Long> uids);
 
@@ -88,13 +90,13 @@ public interface IGlobalPermissionDao extends JpaRepository<GlobalPermission,Lon
 
     @Query(value =
             "select gpall from GlobalPermission gpall where gpall.id in (select gp.id from GlobalPermission gp, User user " +
-            "left join user.quarters uq " +
-            "left join user.roles ur " +
-            "where gp.type in :types and user.id = :uid and gp.userType in :userTypes and  (" +
-                "( gp.userType = 'QUARTER' and uq.id = gp.linkId ) or " +
-                "( gp.userType = 'USER' and user.id = gp.linkId ) or " +
-                "( gp.userType = 'ROLE' and ur.id = gp.linkId )" +
-            ") group by gp.id)")
+                    "left join user.quarters uq " +
+                    "left join user.roles ur " +
+                    "where gp.type in :types and user.id = :uid and gp.userType in :userTypes and  (" +
+                    "( gp.userType = 'QUARTER' and uq.id = gp.linkId ) or " +
+                    "( gp.userType = 'USER' and user.id = gp.linkId ) or " +
+                    "( gp.userType = 'ROLE' and ur.id = gp.linkId )" +
+                    ") group by gp.id)")
     List<GlobalPermission> getPermissionsByUser(
             @Param("types") Collection<GlobalPermission.Type> type,
             @Param("userTypes") Collection<GlobalPermission.UserType> userTypes,

@@ -3,7 +3,7 @@ package com.beeasy.hzback.modules.system.aop;
 import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.modules.system.dao.ISystemLogDao;
 import com.beeasy.hzback.modules.system.service.SystemLogService;
-import com.beeasy.hzback.modules.system.service_kt.UserService;
+import com.beeasy.hzback.modules.system.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -28,11 +28,12 @@ public class SystemLogAop {
     SystemLogService systemLogService;
 
     @Pointcut(value = "execution(* com.beeasy.hzback.modules.*.controller..*(..)) ")
-    public void point(){}
+    public void point() {
+    }
 
-    @AfterReturning(value ="point()", returning = "res")
-    public void log(JoinPoint joinPoint, Object res){
-        systemLogService.handleLog(Utils.getCurrentUserId(),joinPoint,res);
+    @AfterReturning(value = "point()", returning = "res")
+    public void log(JoinPoint joinPoint, Object res) {
+        systemLogService.handleLog(Utils.getCurrentUserId(), joinPoint, res);
 
 //        MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
 //        SaveLog saveLog = methodSignature.getMethod().getAnnotation(SaveLog.class);
@@ -42,7 +43,6 @@ public class SystemLogAop {
 //        SystemTextLog textLog = new SystemTextLog();
 //        textLog.setUserId(Utils.getCurrentUserId());
 //        textLog.setType(saveLog.type());
-
 
 
 //        Object o = SecurityContextHolder.getContext().getAuthentication().getPrincipal();

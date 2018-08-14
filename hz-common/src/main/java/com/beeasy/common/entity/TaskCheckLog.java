@@ -14,7 +14,7 @@ import java.util.Date;
 @Setter
 @Table(name = "t_task_check_log")
 @EntityListeners(AuditingEntityListener.class)
-public class TaskCheckLog extends AbstractBaseEntity{
+public class TaskCheckLog extends AbstractBaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
@@ -27,8 +27,7 @@ public class TaskCheckLog extends AbstractBaseEntity{
     @CreatedDate
     Date lastCheckDate;
 
-
-    public enum Type{
+    public enum Type {
         LOGIC_NODE
     }
 }

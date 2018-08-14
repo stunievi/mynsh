@@ -12,13 +12,15 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.*;
 
-public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Long>, JpaSpecificationExecutor {
-
+public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance, Long>, JpaSpecificationExecutor {
 
 
     List<WorkflowInstance> findAllByIdIn(List<Long> ids);
+
     Optional<WorkflowInstance> findTopByModelNameAndBillNoAndStateNotIn(String modelName, String BILL_NO, Collection<WorkflowInstance.State> states);
+
     int countByModelNameAndBillNoAndStateNotIn(String modelName, String BILL_NO, Collection<WorkflowInstance.State> states);
+
     int countByModelNameAndBillNo(String modelName, String BILL_NO);
 
     // 根据模型名选取所有实例
@@ -27,21 +29,24 @@ public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Lon
     Page<WorkflowInstance> getInsByModelName(@Param("modelName") String modelName, @Param("uid") Long uid, Pageable pageable);
 
     /*
-    * @gotomars
-    * */
+     * @gotomars
+     * */
     @Query(value = "select ins from WorkflowInstance ins where ins.dealUserId = :uid")
-    Page<WorkflowInstance> getAllIns( @Param("uid") Long uid, Pageable pageable);
+    Page<WorkflowInstance> getAllIns(@Param("uid") Long uid, Pageable pageable);
 
 
     // 手机，我执行的任务
     List<WorkflowInstance> findAllByDealUserIdAndIdLessThanOrderByAddTimeDesc(long uid, long lessId, Pageable pageable);
+
     // 我执行的任务
     List<WorkflowInstance> findAllByDealUserIdOrderByAddTimeDesc(long uid, Pageable pageable);
+
     // 我执行的任务
     Page<WorkflowInstance> findAllByDealUserIdAndIdIsNotNullOrderByAddTimeDesc(long uid, Pageable pageable);
 
     // 手机，我发布的任务
     List<WorkflowInstance> findAllByPubUserIdAndIdLessThanOrderByAddTimeDesc(long uid, long lessId, Pageable pageable);
+
     // 我发布的任务
     Page<WorkflowInstance> findAllByPubUserIdOrderByAddTimeDesc(long uid, Pageable pageable);
 
@@ -49,25 +54,25 @@ public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Lon
 
     //我未执行的任务
     @Query("select distinct i from " +
-                "WorkflowInstance i " +
-                "left join i.nodeList nl " +
-                "left join nl.dealers dls " +
+            "WorkflowInstance i " +
+            "left join i.nodeList nl " +
+            "left join nl.dealers dls " +
 //                "left join u.quarters uq " +
-                "where " +
-                "(" +
-                "   (dls.type = 'CAN_DEAL' and dls.userId = :uid) or " +
-                "   (dls.type = 'DID_DEAL' and dls.userId = :uid)" +
-                ") and " +
-                //节点处理人是我自己
+            "where " +
+            "(" +
+            "   (dls.type = 'CAN_DEAL' and dls.userId = :uid) or " +
+            "   (dls.type = 'DID_DEAL' and dls.userId = :uid)" +
+            ") and " +
+            //节点处理人是我自己
 //                "( (nl.dealerId is not null and nl.dealerId in :uids) or " +
 //                为空的情况,寻找可以处理的人
 //                "(nl.dealerId is null and nl.nodeModelId in :oids ) ) and " +
-                //该节点任务未完成
-                "nl.finished = false and " +
-                //任务进行中
-                "i.state = 'DEALING' and " +
-                //分页
-                "i.id <= :lessId")
+            //该节点任务未完成
+            "nl.finished = false and " +
+            //任务进行中
+            "i.state = 'DEALING' and " +
+            //分页
+            "i.id <= :lessId")
     Page<WorkflowInstance> findNeedToDealWorks(
             @Param("uid") long uid,
             @Param("lessId") Long lessId,
@@ -118,15 +123,15 @@ public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Lon
 //                    "left join model.permissions ps " +
 //                    "join nl.nodeModel nModel " +
 //                    "join nModel.persons p " +
-            "where " +
+                    "where " +
                     //三者条件满足一即可
                     "(" +
-                        //用户是部门主管
+                    //用户是部门主管
 //                        "( select count(dd) from Department dd where dd.id = d.id and dd.code like concat(q.department.code,'%') and q.manager = true) > 0 or " +
-                        //或者拥有观察岗权限
-                        "ins.modelId in (" + IGlobalPermissionDao.SQL.GET_OIDS_WITH_UIDS + ") " +
-                        //或者是曾经执行过的任务
-                        //暂时不这么搞
+                    //或者拥有观察岗权限
+                    "ins.modelId in (" + IGlobalPermissionDao.SQL.GET_OIDS_WITH_UIDS + ") " +
+                    //或者是曾经执行过的任务
+                    //暂时不这么搞
 //                        "(select count(ob) from WorkflowInstanceObserver ob where ob.userId = user.id and ob.instanceId = ins.id) > 0" +
                     //限制用户
                     ") and user.id in :uids and " +
@@ -139,14 +144,14 @@ public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Lon
             @Param("lessId") Long lessId,
             Pageable pageable);
 
-//    //我可以执行的公共任务
+    //    //我可以执行的公共任务
     @Query(value =
             "select distinct ins from WorkflowInstance ins, GlobalPermission gp, User user " +
-            "left join user.quarters q " +
+                    "left join user.quarters q " +
 //            "join ins.workflowModel model " +
 //            "join model.nodeModels nm " +
 //            "join nm.persons ps " +
-            "where " +
+                    "where " +
                     //是公共任务
 //                    "ins.common = true and " +
                     "ins.state = 'COMMON' and " +
@@ -158,7 +163,7 @@ public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Lon
                     //分页
                     "ins.id <= :lessId and " +
                     "user.id = :uid "
-                    )
+    )
     Page<WorkflowInstance> findCommonWorks(
 //            @Param("types") Collection<GlobalPermission.Type> types,
             @Param("uid") long uid,
@@ -174,8 +179,8 @@ public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Lon
     @Query(value = "select distinct ins from WorkflowInstance ins, User u " +
             "join ins.transactions t " +
             "where u.id in :uids and t.state = 'DEALING' and " +
-                "u.id = t.userId and " +
-                "ins.id <= :lessId " +
+            "u.id = t.userId and " +
+            "ins.id <= :lessId " +
             "order by ins.addTime, ins.id desc")
     Page<WorkflowInstance> findUserCanAcceptWorks(@Param("uids") Collection<Long> uids, @Param("lessId") long lessId, Pageable pageable);
 
@@ -185,7 +190,6 @@ public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance,Lon
 
     //查模型名的任务
     Page<WorkflowInstance> findAllByWorkflowModel_ModelNameAndDealUserIdOrderByAddTimeDesc(String name, long uid, Pageable pageable);
-
 
 
     /*******台账相关******/

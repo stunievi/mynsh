@@ -4,7 +4,7 @@ import com.beeasy.hzback.modules.system.dao.ISystemLogDao;
 import com.beeasy.common.entity.SystemLog;
 import com.beeasy.common.entity.User;
 import com.beeasy.hzback.modules.system.log.NotSaveLog;
-import com.beeasy.hzback.modules.system.service_kt.UserService;
+import com.beeasy.hzback.modules.system.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang.StringUtils;
@@ -25,8 +25,8 @@ public class SystemLogService {
     ISystemLogDao systemLogDao;
 
     @Async
-    public void handleLog(final long uid, JoinPoint joinPoint, Object res){
-        if(null == res){
+    public void handleLog(final long uid, JoinPoint joinPoint, Object res) {
+        if (null == res) {
             return;
         }
         Class targetClass = null;
@@ -39,7 +39,7 @@ public class SystemLogService {
         }
 
         Api api = (Api) targetClass.getAnnotation(Api.class);
-        if(null == api){
+        if (null == api) {
             return;
         }
 
@@ -49,12 +49,12 @@ public class SystemLogService {
         for (Method method : methods) {
             if (method.getName().equals(methodName)) {
                 Class[] clazzs = method.getParameterTypes();
-                if (clazzs!=null&&clazzs.length == arguments.length){
+                if (clazzs != null && clazzs.length == arguments.length) {
                     //禁止记录log
-                    if(method.getAnnotation(NotSaveLog.class) != null){
+                    if (method.getAnnotation(NotSaveLog.class) != null) {
                         continue;
                     }
-                    if(method.getAnnotation(ApiOperation.class) != null){
+                    if (method.getAnnotation(ApiOperation.class) != null) {
                         operationName = method.getAnnotation(ApiOperation.class).value();
                         break;
                     }
@@ -62,15 +62,15 @@ public class SystemLogService {
             }
         }
 
-        if(!StringUtils.isEmpty(operationName)){
-            if(api.tags().length > 0){
+        if (!StringUtils.isEmpty(operationName)) {
+            if (api.tags().length > 0) {
                 writeLog(uid, api.tags()[0], operationName, arguments);
             }
         }
     }
 
-    public void writeLog(final long uid, final String className, final String actionName, final Object[] arguments){
-        try{
+    public void writeLog(final long uid, final String className, final String actionName, final Object[] arguments) {
+        try {
             User user = userService.findUser(uid);
             //写日志
             SystemLog systemLog = new SystemLog();
@@ -80,8 +80,7 @@ public class SystemLogService {
             systemLog.setMethod(actionName);
             systemLog.setParams(arguments);
             systemLogDao.save(systemLog);
-        }
-        catch (Exception e){
+        } catch (Exception e) {
 
         }
     }

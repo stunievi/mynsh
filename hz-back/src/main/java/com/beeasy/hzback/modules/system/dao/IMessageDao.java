@@ -10,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-public interface IMessageDao extends JpaRepository<Message,Long>, JpaSpecificationExecutor  {
+public interface IMessageDao extends JpaRepository<Message, Long>, JpaSpecificationExecutor {
 //    void readMessagesByFromUserAndIdIn(User user, Set<Long> ids);
 
 //List<Message> findAllBySessionAndIdGreaterThanOrderBySendTimeDesc(MessageSession session, Long id);

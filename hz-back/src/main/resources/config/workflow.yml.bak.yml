@@ -91,44 +91,44 @@
     资料收集:
       type: input
       start: true
-#        quarters: [] #允许经办的岗位ID #无用项
-#        user: [] #允许经办的用户ID
+      #        quarters: [] #允许经办的岗位ID #无用项
+      #        user: [] #允许经办的用户ID
       content:
         文件编号: fileId,string,n
         客户号: clientId,string,n
         客户名称: clientName,string,y
-#        客户经理: manager,User,y
-#        文件标签: fileTags,string,n,
+        #        客户经理: manager,User,y
+        #        文件标签: fileTags,string,n,
         备注说明: info,string,n,
-#        收集文件:
-#          name: files,
-#          type: files,
-#          required: n
+      #        收集文件:
+      #          name: files,
+      #          type: files,
+      #          required: n
       next: 是否拒贷
 
 
     是否拒贷:
       type: check
-#        quarters: []
-#        order: 1 #order项无用
-#        content:
+      #        quarters: []
+      #        order: 1 #order项无用
+      #        content:
       key: key #保存状态和备注时所用的键名, 通畅默认为key就可以
       ps: ps #是否需要备注, 如果没有, 则为空
       question: 是否拒贷
       states: #定义状态
-        - #状态名OK
-          item: 是 #状态选项
-          condition: 1 #有一个人选了就生成该状态
-          behavior: go('结束') #状态为该项的时候, 调用go函数 走向结束节点
-        - #状态名nonono
-          item: 否
-          condition: 1 #有一个人选了否就是该状态
-          behavior: go('结束')
-#          items: [是,否]
-#          passItem: 是
+      - #状态名OK
+        item: 是 #状态选项
+        condition: 1 #有一个人选了就生成该状态
+        behavior: go('结束') #状态为该项的时候, 调用go函数 走向结束节点
+      - #状态名nonono
+        item: 否
+        condition: 1 #有一个人选了否就是该状态
+        behavior: go('结束')
+      #          items: [是,否]
+      #          passItem: 是
       count: 1 #几个人审核
-#          - 1
-#          - 1
+      #          - 1
+      #          - 1
       next: [结束] #有可能的走向, 即树的子叶
 
     结束:
@@ -150,10 +150,10 @@
           items: [表内,表外]
           required: y
 
-#        申请附件:
-#          type: files
-#          name: files
-#          required: n
+      #        申请附件:
+      #          type: files
+      #          name: files
+      #          required: n
       next: 判断表内/表外
 
     判断表内/表外:
@@ -175,14 +175,12 @@
       ps: ps
       question: 是否通过
       states:
-        -
-          item: 是
-          condition: 1
-          behavior: go('合规部审核')
-        -
-          item: 否
-          condition: 1
-          behavior: go('发起权限申请')
+      - item: 是
+        condition: 1
+        behavior: go('合规部审核')
+      - item: 否
+        condition: 1
+        behavior: go('发起权限申请')
       count: 1
       next: [合规部审核,发起权限申请]
 
@@ -192,14 +190,12 @@
       ps: ps
       question: 是否通过
       states:
-        -
-          item: 是
-          condition: 1
-          behavior: go('合规部审核')
-        -
-          item: 否
-          condition: 1
-          behavior: go('发起权限申请')
+      - item: 是
+        condition: 1
+        behavior: go('合规部审核')
+      - item: 否
+        condition: 1
+        behavior: go('发起权限申请')
       count: 1
       next: [合规部审核,发起权限申请]
 
@@ -209,14 +205,12 @@
       ps: ps
       question: 是否通过
       states:
-        -
-          item: 是
-          condition: 1
-          behavior: go('总领导班子审核')
-        -
-          item: 否
-          condition: 1
-          behavior: go('发起权限申请')
+      - item: 是
+        condition: 1
+        behavior: go('总领导班子审核')
+      - item: 否
+        condition: 1
+        behavior: go('发起权限申请')
       count: 1
       next: [总领导班子审核,发起权限申请]
 
@@ -226,14 +220,12 @@
       ps: ps
       question: 是否通过
       states:
-        -
-          item: 是
-          condition: 1
-          behavior: go('电子银行部确认')
-        -
-          item: 否
-          condition: 1
-          behavior: go('发起权限申请')
+      - item: 是
+        condition: 1
+        behavior: go('电子银行部确认')
+      - item: 否
+        condition: 1
+        behavior: go('发起权限申请')
       count: 1
       next: [电子银行部确认,发起权限申请]
 
@@ -243,10 +235,9 @@
       ps: ps
       question: 是否通过
       states:
-        -
-          item: 是
-          condition: 1
-          behavior: go('结束')
+      - item: 是
+        condition: 1
+        behavior: go('结束')
 
       count: 1
       next: [结束]
@@ -257,14 +248,12 @@
       ps: ps
       question: 是否通过
       states:
-        -
-          item: 是
-          condition: 1
-          behavior: go('运营部审核')
-        -
-          item: 否
-          condition: 1
-          behavior: go('发起权限申请')
+      - item: 是
+        condition: 1
+        behavior: go('运营部审核')
+      - item: 否
+        condition: 1
+        behavior: go('发起权限申请')
       count: 1
       next: [运营部审核,发起权限申请]
 
@@ -317,14 +306,12 @@
       ps: ps
       question: 是否通过
       states:
-        -
-          item: 是
-          condition: 1
-          behavior: go('结束')
-        -
-          item: 否
-          condition: 1
-          behavior: go('填写贷后检查表')
+      - item: 是
+        condition: 1
+        behavior: go('结束')
+      - item: 否
+        condition: 1
+        behavior: go('填写贷后检查表')
       count: 1
       next: []
 
@@ -347,15 +334,13 @@
       count: 1
       question: 是否可以还款?
       states:
-        -
-          item: 是
-          condition: 1
-          behavior: go('结束')
+      - item: 是
+        condition: 1
+        behavior: go('结束')
 
-        -
-          item: 否
-          condition: 1
-          behavior: go('结束')
+      - item: 否
+        condition: 1
+        behavior: go('结束')
 
     结束:
       type: end
@@ -453,14 +438,12 @@
       ps: ps
       question: 是否通过
       states:
-        -
-          item: 是
-          condition: 1
-          behavior: go('结束')
-        -
-          item: 否
-          condition: 1
-          behavior: go('发起申请')
+      - item: 是
+        condition: 1
+        behavior: go('结束')
+      - item: 否
+        condition: 1
+        behavior: go('发起申请')
       count: 1
       next: [结束,发起申请]
 
@@ -488,14 +471,12 @@
       question: 审议通过/不通过?
       count: 5
       states:
-        -
-          item: 通过
-          condition: 1
-          behavior: go('诉前保全')
-        -
-          item: 不通过
-          condition: 1
-          behavior: go('发起申请')
+      - item: 通过
+        condition: 1
+        behavior: go('诉前保全')
+      - item: 不通过
+        condition: 1
+        behavior: go('发起申请')
       next: [诉前保全,发起申请]
 
     诉前保全:
@@ -511,14 +492,12 @@
       ps: ps
       question: 是否通过
       states:
-        -
-          item: 是
-          condition: 1
-          behavior: go('不良资产管理委员会审批')
-        -
-          item: 否
-          condition: 1
-          behavior: go('发起申请')
+      - item: 是
+        condition: 1
+        behavior: go('不良资产管理委员会审批')
+      - item: 否
+        condition: 1
+        behavior: go('发起申请')
       count: 1
       next: [不良资产管理委员会审批,发起申请]
 
@@ -528,14 +507,12 @@
       ps: ps
       question: 是否通过
       states:
-        -
-          item: 是
-          condition: 3
-          behavior: go('法院立案')
-        -
-          item: 否
-          condition: 3
-          behavior: go('发起申请')
+      - item: 是
+        condition: 3
+        behavior: go('法院立案')
+      - item: 否
+        condition: 3
+        behavior: go('发起申请')
       count: 5
       next: [法院立案,发起申请]
 
@@ -564,14 +541,12 @@
       ps: ps
       question: 是否协商一致？
       states:
-        -
-          item: 是
-          condition: 1
-          behavior: go('立卷归档')
-        -
-          item: 否
-          condition: 1
-          behavior: go('判决生效，执行')
+      - item: 是
+        condition: 1
+        behavior: go('立卷归档')
+      - item: 否
+        condition: 1
+        behavior: go('判决生效，执行')
       count: 1
       next: [立卷归档,"判决生效，执行"]
 
@@ -614,14 +589,12 @@
       question: 是否裁定抵债?
       count: 1
       states:
-        -
-          item: 是
-          condition: 1
-          behavior: go('贷款单位调查')
-        -
-          item: 否
-          condition: 1
-          behavior: go('贷款单位调查')
+      - item: 是
+        condition: 1
+        behavior: go('贷款单位调查')
+      - item: 否
+        condition: 1
+        behavior: go('贷款单位调查')
       next: [贷款单位调查,贷款单位调查]
 
     贷款单位调查:
@@ -639,14 +612,12 @@
       question: 审查通过/不通过?
       count: 1
       states:
-        -
-          item: 通过
-          condition: 1
-          behavior: go('风险资产管理部审查')
-        -
-          item: 不通过
-          condition: 1
-          behavior: go('贷款单位调查')
+      - item: 通过
+        condition: 1
+        behavior: go('风险资产管理部审查')
+      - item: 不通过
+        condition: 1
+        behavior: go('贷款单位调查')
       next: [风险资产管理部审查,贷款单位调查]
 
     风险资产管理部审查:
@@ -656,14 +627,12 @@
       question: 审查通过/不通过?
       count: 1
       states:
-        -
-          item: 通过
-          condition: 1
-          behavior: go('资产定价')
-        -
-          item: 不通过
-          condition: 1
-          behavior: go('贷款单位调查')
+      - item: 通过
+        condition: 1
+        behavior: go('资产定价')
+      - item: 不通过
+        condition: 1
+        behavior: go('贷款单位调查')
       next: [资产定价,贷款单位调查]
 
     资产定价:
@@ -681,14 +650,12 @@
       ps: ps
       question: 是否通过
       states:
-        -
-          item: 是
-          condition: 3
-          behavior: go('省联社备案')
-        -
-          item: 否
-          condition: 3
-          behavior: go('发起申请')
+      - item: 是
+        condition: 3
+        behavior: go('省联社备案')
+      - item: 否
+        condition: 3
+        behavior: go('发起申请')
       count: 5
       next: [省联社备案,发起申请]
 
@@ -712,14 +679,12 @@
       ps: ps
       question: 是否审核通过？
       states:
-        -
-          item: 是
-          condition: 1
-          behavior: go('入账处理')
-        -
-          item: 否
-          condition: 1
-          behavior: go('与客户签订协议')
+      - item: 是
+        condition: 1
+        behavior: go('入账处理')
+      - item: 否
+        condition: 1
+        behavior: go('与客户签订协议')
       count: 1
       next: [入账处理,与客户签订协议]
 
@@ -751,14 +716,12 @@
       question: 审查通过/不通过?
       count: 1
       states:
-        -
-          item: 通过
-          condition: 1
-          behavior: go('经营班子集体审议')
-        -
-          item: 不通过
-          condition: 1
-          behavior: go('制定处置方案')
+      - item: 通过
+        condition: 1
+        behavior: go('经营班子集体审议')
+      - item: 不通过
+        condition: 1
+        behavior: go('制定处置方案')
       next: [经营班子集体审议,制定处置方案]
 
     经营班子集体审议:
@@ -768,14 +731,12 @@
       question: 审议通过/不通过?
       count: 1
       states:
-        -
-          item: 通过
-          condition: 1
-          behavior: go('风险资产管理部审核')
-        -
-          item: 不通过
-          condition: 1
-          behavior: go('制定处置方案')
+      - item: 通过
+        condition: 1
+        behavior: go('风险资产管理部审核')
+      - item: 不通过
+        condition: 1
+        behavior: go('制定处置方案')
       next: [风险资产管理部审核,制定处置方案]
 
     风险资产管理部审核:
@@ -785,14 +746,12 @@
       question: 审查通过/不通过?
       count: 1
       states:
-        -
-          item: 通过
-          condition: 1
-          behavior: go('不良资产管理委员会审批')
-        -
-          item: 不通过
-          condition: 1
-          behavior: go('制定处置方案')
+      - item: 通过
+        condition: 1
+        behavior: go('不良资产管理委员会审批')
+      - item: 不通过
+        condition: 1
+        behavior: go('制定处置方案')
       next: [不良资产管理委员会审批,制定处置方案]
 
     不良资产管理委员会审批:
@@ -801,14 +760,12 @@
       ps: ps
       question: 是否通过
       states:
-        -
-          item: 是
-          condition: 1
-          behavior: go('省联社备案')
-        -
-          item: 否
-          condition: 1
-          behavior: go('制定处置方案')
+      - item: 是
+        condition: 1
+        behavior: go('省联社备案')
+      - item: 否
+        condition: 1
+        behavior: go('制定处置方案')
       count: 5
       next: [省联社备案,制定处置方案]
 
@@ -848,34 +805,27 @@
       ps: ps
       question: 利息减免/诉讼/协商抵债/不良转贷后/执转破/重组/其它
       states:
-        -
-          item: 利息减免
-          condition: 1
-          behavior: go('利息减免流程')
-        -
-          item: 诉讼
-          condition: 1
-          behavior: go('诉讼流程')
-        -
-          item: 协商抵债
-          condition: 1
-          behavior: go('抵债资产接收流程')
-        -
-          item: 不良转贷后
-          condition: 1
-          behavior: go('不良转贷后')
-        -
-          item: 执转破
-          condition: 1
-          behavior: go('其它')
-        -
-          item: 重组
-          condition: 1
-          behavior: go('其它')
-        -
-          item: 其它
-          condition: 1
-          behavior: go('其它')
+      - item: 利息减免
+        condition: 1
+        behavior: go('利息减免流程')
+      - item: 诉讼
+        condition: 1
+        behavior: go('诉讼流程')
+      - item: 协商抵债
+        condition: 1
+        behavior: go('抵债资产接收流程')
+      - item: 不良转贷后
+        condition: 1
+        behavior: go('不良转贷后')
+      - item: 执转破
+        condition: 1
+        behavior: go('其它')
+      - item: 重组
+        condition: 1
+        behavior: go('其它')
+      - item: 其它
+        condition: 1
+        behavior: go('其它')
       count: 1
       next: [利息减免流程,诉讼流程,抵债资产接收流程,不良转贷后,其它]
 
@@ -901,14 +851,12 @@
       count: 1
       allow_child_task: []
       states:
-        -
-          item: 是
-          condition: 1
-          behavior: go('抵债资产接收流程')
-        -
-          item: 否
-          condition: 1
-          behavior: go('选择处理方式')
+      - item: 是
+        condition: 1
+        behavior: go('抵债资产接收流程')
+      - item: 否
+        condition: 1
+        behavior: go('选择处理方式')
       next: [抵债资产接收流程,选择处理方式]
 
     利息减免流程:
@@ -919,14 +867,12 @@
       count: 1
       allow_child_task: [利息减免登记]
       states:
-        -
-          item: 是
-          condition: 1
-          behavior: go('不良转贷后')
-        -
-          item: 否
-          condition: 1
-          behavior: go('选择处理方式')
+      - item: 是
+        condition: 1
+        behavior: go('不良转贷后')
+      - item: 否
+        condition: 1
+        behavior: go('选择处理方式')
       next: [不良转贷后,选择处理方式]
 
     资产处置流程:
@@ -937,14 +883,12 @@
       count: 1
       allow_child_task: [资产处置]
       states:
-        -
-          item: 是
-          condition: 1
-          behavior: go('结束')
-        -
-          item: 否
-          condition: 1
-          behavior: go('结束')
+      - item: 是
+        condition: 1
+        behavior: go('结束')
+      - item: 否
+        condition: 1
+        behavior: go('结束')
       next: [结束]
 
     结束:

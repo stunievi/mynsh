@@ -6,7 +6,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 public class Serializer {
-    public static byte[] serialize(Object obj){
+    public static byte[] serialize(Object obj) {
         byte[] bytes = null;
         try {
             // object to bytearray
@@ -25,7 +25,7 @@ public class Serializer {
         return bytes;
     }
 
-    public static Object unserialize(byte[] bytes){
+    public static Object unserialize(byte[] bytes) {
         Object obj = null;
         try {
             // bytearray to object

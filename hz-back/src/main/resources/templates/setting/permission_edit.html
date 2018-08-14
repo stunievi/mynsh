@@ -12,7 +12,7 @@ var RIGHTHTML = {
         拥有角色列表
     </h4>
     <div>
-        <wbr ms-widget="{is:'tree',tree: @data.tree}" />
+        <wbr ms-widget="{is:'tree',tree: @data.tree}"/>
 
         <div :if="@data.roles.length">
             <ul :for="(index,el) in @data.roles">
@@ -50,18 +50,18 @@ var RIGHTHTML = {
 <script>
     var data;
     var tree;
-    do{
-        try{
+    do {
+        try {
             data = eval('(' + jsonstr + ')');
             tree = eval("(" + treestr + ")");
 
             function walk(item) {
-                if(item.departments.length){
-                    for(var i = 0; i < item.departments.length; i++){
+                if (item.departments.length) {
+                    for (var i = 0; i < item.departments.length; i++) {
                         walk(item.departments[i]);
                     }
                 }
-                else{
+                else {
                     item.departments = [];
                 }
                 item.open = 0;
@@ -73,36 +73,39 @@ var RIGHTHTML = {
             }
 
         }
-        catch(e){
+        catch (e) {
             data = null;
             tree = null;
         }
-        if(!data || !tree){
+        if (!data || !tree) {
             alert("获取用户权限组失败！");
         }
 
-    }while(0);
+    } while (0);
 
     var app = avalon.define({
         $id: "app",
-        data : {
-            user : data,
+        data: {
+            user: data,
             tree: tree,
-            roles:[]
+            roles: []
         },
 
-        remove:function (index) {
-            this.data.user.roles.splice(index,1);
+        remove: function (index) {
+            this.data.user.roles.splice(index, 1);
         },
 
-        save:function () {
-            $.post("edit",{userId:this.data.user.id,roles:JSON.stringify(this.data.user.roles.$model) },function () {
+        save: function () {
+            $.post("edit", {
+                userId: this.data.user.id,
+                roles: JSON.stringify(this.data.user.roles.$model)
+            }, function () {
 
             })
         },
-        
-        add:function (el) {
-            if(this.data.user.roles.indexOf(el) > -1){
+
+        add: function (el) {
+            if (this.data.user.roles.indexOf(el) > -1) {
                 return;
             }
             this.data.user.roles.push(el);
@@ -112,7 +115,7 @@ var RIGHTHTML = {
     var lastSelected = null;
 
     window.onDepartmentClick = function () {
-        if(!lastSelected){
+        if (!lastSelected) {
             return;
         }
         app.data.roles = lastSelected.roles;

@@ -12,7 +12,7 @@
 #权限校验
 permission:
   #校验类型, 使用全局授权
-  type: global2
+  type: global
 #  type: local
 
 
@@ -57,8 +57,6 @@ fdfs:
 
 
 spring:
-  application:
-    name: service-hzback
   jmx:
     enabled: false
   servlet:
@@ -84,58 +82,60 @@ spring:
           use_query_cache: false
         archive:
           autodetection: false
-        dialect: com.beeasy.hzback.core.helper.MySQL5DialectFK
-  #        dialect: com.beeasy.hzback.core.helper.DB2DialectFK
+        #          dialect: com.beeasy.hzback.core.helper.MySQL5DialectFK
+        dialect: com.beeasy.hzback.core.helper.DB2DialectFK
+
+
+
   #    freemarker:
   #        cache: false
   #        request-context-attribute: request
+
   datasource:
     name: test
-    #mysql
-    url: jdbc:mysql://127.0.0.1:3306/test?useUnicode=true&characterEncoding=utf-8&useSSL=false
-    username: root
+    #        mysql
+    #        url: jdbc:mysql://127.0.0.1:3306/test?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    #        username: root
     #        password: "!Q1q2w3e4r"
-    password: 123
-    driver-class-name: com.mysql.jdbc.Driver
+    #        password: 123
+    #        driver-class-name: com.mysql.jdbc.Driver
     #        mysql-end
     #        db2
-    #    url: jdbc:db2://localhost:50000/test
-    #    username: db2inst1
-    #    password: db2inst1
-    #    driver-class-name: com.ibm.db2.jcc.DB2Driver
+    url: jdbc:db2://localhost:50000/test
+    username: db2inst1
+    password: db2inst1
+    driver-class-name: com.ibm.db2.jcc.DB2Driver
     #        db2-end
     # 使用druid数据源
-    type: org.springframework.jdbc.datasource.DriverManagerDataSource
-#    type: com.alibaba.druid.pool.DruidDataSource
-    druid:
-      filters: stat
-      maxActive: 20
-      initialSize: 1
-      maxWait: 60000
-      minIdle: 1
-      timeBetweenEvictionRunsMillis: 60000
-      minEvictableIdleTimeMillis: 300000
-      validationQuery: select 'x'
-      testWhileIdle: true
-      testOnBorrow: false
-      testOnReturn: false
-      poolPreparedStatements: true
-      maxOpenPreparedStatements: 20
+    #        type: org.springframework.jdbc.datasource.DriverManagerDataSource
+    type: com.alibaba.druid.pool.DruidDataSource
+    filters: stat
+    maxActive: 20
+    initialSize: 1
+    maxWait: 60000
+    minIdle: 1
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 300000
+    validationQuery: select 'x'
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    poolPreparedStatements: true
+    maxOpenPreparedStatements: 20
 
   redis:
     database: 0
     host: 127.0.0.1
     port: 6379
     password:
-    timeout: 5000ms
+    timeout: 5000
 
   session:
     store-type: none
   mvc:
     async:
-      request-timeout: 30000ms
+      request-timeout: 30000
 
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8001/eureka/
+
+
+

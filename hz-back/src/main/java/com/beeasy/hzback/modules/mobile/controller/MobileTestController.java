@@ -3,7 +3,7 @@ package com.beeasy.hzback.modules.mobile.controller;
 import bin.leblanc.maho.RPCOption;
 import bin.leblanc.maho.RPCall;
 import com.beeasy.hzback.core.helper.Result;
-import com.beeasy.hzback.modules.system.service_kt.UserService;
+import com.beeasy.hzback.modules.system.service.UserService;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -22,70 +22,68 @@ public class MobileTestController {
     UserService userService;
 
     @PostConstruct
-    public void init(){
+    public void init() {
         RPCOption option = new RPCOption();
         option.setReturn(obj -> {
-            if(obj instanceof String){
-                if(StringUtils.isEmpty((String) obj)){
+            if (obj instanceof String) {
+                if (StringUtils.isEmpty((String) obj)) {
                     return Result.ok();
-                }
-                else{
+                } else {
                     return Result.error((String) obj);
                 }
-            }
-            else if(null == obj){
+            } else if (null == obj) {
                 return Result.error();
-            }
-            else if(obj instanceof Result){
+            } else if (obj instanceof Result) {
                 return obj;
-            }
-            else if(obj instanceof Optional){
+            } else if (obj instanceof Optional) {
                 return Result.finish((Optional) obj);
-            }
-            else if(obj instanceof Boolean || obj.getClass().getName().equals("boolean")){
+            } else if (obj instanceof Boolean || obj.getClass().getName().equals("boolean")) {
                 return Result.finish((Boolean) obj);
-            }
-            else{
+            } else {
                 return obj;
             }
         })
-        .setDev(true);
+                .setDev(true);
 
         RPCall.register("user", userService, option);
     }
 
     @RequestMapping(value = "")
-    public String getNoArgs(@PathVariable String module, @PathVariable String action, HttpServletRequest request){
-        return call(module,action,request);
-    }
-    @RequestMapping(value = "/{a1}",method = {RequestMethod.GET,RequestMethod.POST})
-    public String requestArgs(@PathVariable String module, @PathVariable String action, @PathVariable String a1, HttpServletRequest request) {
-        return call(module,action,request,a1);
-    }
-    @RequestMapping(value = "/{a1}/{a2}",method = {RequestMethod.GET,RequestMethod.POST})
-    public String requestArgs(@PathVariable String module, @PathVariable String action, @PathVariable String a1, @PathVariable String a2, HttpServletRequest request) {
-        return call(module,action,request,a1,a2);
-    }
-    @RequestMapping(value = "/{a1}/{a2}/{a3}",method = {RequestMethod.GET,RequestMethod.POST})
-    public String requestArgs(@PathVariable String module, @PathVariable String action, @PathVariable String a1, @PathVariable String a2, @PathVariable String a3, HttpServletRequest request) {
-        return call(module,action,request,a1,a2,a3);
-    }
-    @RequestMapping(value = "/{a1}/{a2}/{a3}/{a4}",method = {RequestMethod.GET,RequestMethod.POST})
-    public String requestArgs(@PathVariable String module, @PathVariable String action, @PathVariable String a1, @PathVariable String a2, @PathVariable String a3, @PathVariable String a4, HttpServletRequest request) {
-        return call(module,action,request,a1,a2,a3,a4);
+    public String getNoArgs(@PathVariable String module, @PathVariable String action, HttpServletRequest request) {
+        return call(module, action, request);
     }
 
-    private String call(String module, String action, HttpServletRequest request, String ...args){
+    @RequestMapping(value = "/{a1}", method = {RequestMethod.GET, RequestMethod.POST})
+    public String requestArgs(@PathVariable String module, @PathVariable String action, @PathVariable String a1, HttpServletRequest request) {
+        return call(module, action, request, a1);
+    }
+
+    @RequestMapping(value = "/{a1}/{a2}", method = {RequestMethod.GET, RequestMethod.POST})
+    public String requestArgs(@PathVariable String module, @PathVariable String action, @PathVariable String a1, @PathVariable String a2, HttpServletRequest request) {
+        return call(module, action, request, a1, a2);
+    }
+
+    @RequestMapping(value = "/{a1}/{a2}/{a3}", method = {RequestMethod.GET, RequestMethod.POST})
+    public String requestArgs(@PathVariable String module, @PathVariable String action, @PathVariable String a1, @PathVariable String a2, @PathVariable String a3, HttpServletRequest request) {
+        return call(module, action, request, a1, a2, a3);
+    }
+
+    @RequestMapping(value = "/{a1}/{a2}/{a3}/{a4}", method = {RequestMethod.GET, RequestMethod.POST})
+    public String requestArgs(@PathVariable String module, @PathVariable String action, @PathVariable String a1, @PathVariable String a2, @PathVariable String a3, @PathVariable String a4, HttpServletRequest request) {
+        return call(module, action, request, a1, a2, a3, a4);
+    }
+
+    private String call(String module, String action, HttpServletRequest request, String... args) {
         String body = null;
-        if(request.getMethod().equals("POST")){
-        try {
-            List<String> lines = org.apache.commons.io.IOUtils.readLines(request.getInputStream());
-            body = StringUtils.join(lines.toArray(),"\n");
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (request.getMethod().equals("POST")) {
+            try {
+                List<String> lines = org.apache.commons.io.IOUtils.readLines(request.getInputStream());
+                body = StringUtils.join(lines.toArray(), "\n");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-        }
-        Object ret =  RPCall.call(module,action,args,body);
+        Object ret = RPCall.call(module, action, args, body);
         return ret instanceof Result ? ((Result) ret).toJson() : Result.ok(ret).toJson();
     }
 

@@ -7,7 +7,7 @@ import com.beeasy.hzback.modules.system.form.GlobalPermissionEditRequest;
 import com.beeasy.hzback.modules.system.form.Pager;
 import com.beeasy.hzback.modules.system.log.NotSaveLog;
 import com.beeasy.hzback.modules.system.service.SystemService;
-import com.beeasy.hzback.modules.system.service_kt.UserService;
+import com.beeasy.hzback.modules.system.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +23,7 @@ import javax.validation.Valid;
 @Api(tags = "系统API")
 @RequestMapping(value = "/api/system")
 @RestController
-public class SystemController  {
+public class SystemController {
     @Autowired
     UserService userService;
     @Autowired
@@ -35,21 +35,21 @@ public class SystemController  {
     @RequestMapping(value = "/permission/set", method = RequestMethod.POST)
     public Result addGlobalPermission(
             @Valid @RequestBody GlobalPermissionEditRequest request
-            ){
-        return Result.ok(userService.addGlobalPermission(request.getType(),request.getObjectId(), request.getUserType(), request.getLinkIds(),null == request.getObject() ? request.getArray() : request.getObject()));
+    ) {
+        return Result.ok(userService.addGlobalPermission(request.getType(), request.getObjectId(), request.getUserType(), request.getLinkIds(), null == request.getObject() ? request.getArray() : request.getObject()));
     }
 
     @ApiOperation(value = "删除全局授权")
     @RequestMapping(value = "/permission/delete", method = RequestMethod.GET)
     public Result deleteGlobalPermission(
             @RequestParam String id
-    ){
+    ) {
         return Result.ok(userService.deleteGlobalPermission(Utils.convertIdsToList(id)));
     }
 
 
     @RequestMapping(value = "/information", method = RequestMethod.GET)
-    public String getSystemInfo(){
+    public String getSystemInfo() {
         return systemService.getSystemInfo();
     }
 
@@ -58,8 +58,8 @@ public class SystemController  {
     @ApiOperation(value = "添加消息模板")
     @RequestMapping(value = "/messageTemplate/add", method = RequestMethod.POST)
     public Result addMessageTemplate(
-            @RequestBody @Validated(value = SystemService.MessageTemplateRequest.add.class)SystemService.MessageTemplateRequest request
-            ){
+            @RequestBody @Validated(value = SystemService.MessageTemplateRequest.add.class) SystemService.MessageTemplateRequest request
+    ) {
         return Result.ok(systemService.addMessageTemplate(request));
     }
 
@@ -67,7 +67,7 @@ public class SystemController  {
     @RequestMapping(value = "/messageTemplate/edit", method = RequestMethod.POST)
     public Result editMessageTemplate(
             @Validated(value = SystemService.MessageTemplateRequest.edit.class) @RequestBody SystemService.MessageTemplateRequest request
-    ){
+    ) {
         return Result.finish(systemService.editMessageTemplate(request));
     }
 
@@ -76,7 +76,7 @@ public class SystemController  {
     @RequestMapping(value = "/messageTemplate/delete", method = RequestMethod.GET)
     public Result deleteMessageTemplate(
             @RequestParam String id
-    ){
+    ) {
         return Result.ok(systemService.deleteMessageTemplates(Utils.convertIdsToList(id)));
     }
 
@@ -85,16 +85,16 @@ public class SystemController  {
     public Result getMessageTemplateList(
             SystemService.MessageTemplateSearchRequest request,
             Pager pagers,
-            @PageableDefault(value = 15, sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
-    ){
-        return Result.ok(systemService.getMessageTemplateList(request,pageable));
+            @PageableDefault(value = 15, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        return Result.ok(systemService.getMessageTemplateList(request, pageable));
     }
 
     @ApiOperation(value = "通过ID得到消息详情")
     @RequestMapping(value = "/messageTemplate/getById", method = RequestMethod.GET)
     public Result getMessageTemplateById(
             @RequestParam long id
-    ){
+    ) {
         return Result.finish(systemService.getMessageTemplateById(id));
     }
 
@@ -105,8 +105,8 @@ public class SystemController  {
             SystemService.ShortMessageSearchRequest request,
             Pager pagers,
             @PageableDefault(direction = Sort.Direction.DESC) Pageable pageable
-    ){
-        return Result.ok(systemService.getShortMessageLog(request,pageable));
+    ) {
+        return Result.ok(systemService.getShortMessageLog(request, pageable));
     }
 
     /**********测试***********/
@@ -115,9 +115,10 @@ public class SystemController  {
     EntityManager entityManager;
     @Autowired
     SqlUtils sqlUtils;
+
     @RequestMapping(value = "/query", method = RequestMethod.POST)
-    public Result query(@RequestBody String sql){
-        if(!userService.isSu(Utils.getCurrentUserId())){
+    public Result query(@RequestBody String sql) {
+        if (!userService.isSu(Utils.getCurrentUserId())) {
             return Result.error();
         }
         return Result.ok(sqlUtils.query(sql));
@@ -125,8 +126,8 @@ public class SystemController  {
 
     @NotSaveLog
     @RequestMapping(value = "/execute", method = RequestMethod.POST)
-    public Result execute(@RequestBody String sql){
-        if(!userService.isSu(Utils.getCurrentUserId())){
+    public Result execute(@RequestBody String sql) {
+        if (!userService.isSu(Utils.getCurrentUserId())) {
             return Result.error();
         }
         return Result.ok(sqlUtils.execute(sql));

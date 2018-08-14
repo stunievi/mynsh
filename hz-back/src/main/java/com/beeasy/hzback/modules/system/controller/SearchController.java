@@ -26,8 +26,8 @@ public class SearchController {
     public Result searchPublicClient(
             DataSearchService.PublicClientRequest request,
             Pager pager,
-            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
-    ){
+            @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
+    ) {
         return Result.ok(searchService.searchPublicClient(Utils.getCurrentUserId(), request, pageable));
     }
 
@@ -37,8 +37,8 @@ public class SearchController {
     public Result searchPrivateClient(
             DataSearchService.PrivateClientRequest request,
             Pager pager,
-            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
-    ){
+            @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
+    ) {
         return Result.ok(searchService.searchPrivateClient(Utils.getCurrentUserId(), request, pageable));
     }
 
@@ -47,7 +47,7 @@ public class SearchController {
     @RequestMapping(value = "/searchClientBase", method = RequestMethod.GET)
     public Result searchClientBase(
             @RequestParam String CUS_ID
-    ){
+    ) {
         return Result.ok(searchService.searchClientBase(CUS_ID));
     }
 
@@ -57,9 +57,9 @@ public class SearchController {
     public Result searchAccLoan(
             DataSearchService.AccloanRequest request,
             Pager pager,
-            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
-    ){
-        return Result.ok(searchService.searchAccLoan(Utils.getCurrentUserId(), request,pageable));
+            @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        return Result.ok(searchService.searchAccLoan(Utils.getCurrentUserId(), request, pageable));
     }
 
     @ApiOperation(value = "贷款资料查询")
@@ -67,9 +67,9 @@ public class SearchController {
     public Result searchAccLoanData(
             DataSearchService.AccloanRequest request,
             Pager pager,
-            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
-    ){
-        return Result.ok(searchService.searchAccLoan(Utils.getCurrentUserId(), request,pageable));
+            @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        return Result.ok(searchService.searchAccLoan(Utils.getCurrentUserId(), request, pageable));
     }
 
     @ApiOperation(value = "高管信息查询")
@@ -77,9 +77,9 @@ public class SearchController {
     public Result searchCusComManager(
             @RequestParam String CUS_ID,
             Pager pager,
-            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
-    ){
-        return Result.ok(searchService.searchCusComManager(Utils.getCurrentUserId(), CUS_ID,pageable));
+            @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        return Result.ok(searchService.searchCusComManager(Utils.getCurrentUserId(), CUS_ID, pageable));
     }
 
     @ApiOperation(value = "联系信息查询")
@@ -87,9 +87,9 @@ public class SearchController {
     public Result searchComAddr(
             @RequestParam String CUS_ID,
             Pager pager,
-            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
-    ){
-        return Result.ok(searchService.searchComAddr(Utils.getCurrentUserId(), CUS_ID,pageable));
+            @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        return Result.ok(searchService.searchComAddr(Utils.getCurrentUserId(), CUS_ID, pageable));
     }
 
     @ApiOperation(value = "个人收入情况查询")
@@ -97,9 +97,9 @@ public class SearchController {
     public Result searchCusInDiv(
             @RequestParam String CUS_ID,
             Pager pager,
-            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
-    ){
-        return Result.ok(searchService.searchCusInDiv(Utils.getCurrentUserId(), CUS_ID,pageable));
+            @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        return Result.ok(searchService.searchCusInDiv(Utils.getCurrentUserId(), CUS_ID, pageable));
     }
 
     @ApiOperation(value = "贷款合同列表查询")
@@ -107,9 +107,9 @@ public class SearchController {
     public Result searchCrtLoan(
             @RequestParam String CONT_NO,
             Pager pager,
-            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
-    ){
-        return Result.ok(searchService.searchCrtLoan(Utils.getCurrentUserId(), CONT_NO,pageable));
+            @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        return Result.ok(searchService.searchCrtLoan(Utils.getCurrentUserId(), CONT_NO, pageable));
     }
 
     @ApiOperation(value = "担保合同列表查询")
@@ -117,16 +117,16 @@ public class SearchController {
     public Result searchGrtGuar(
             @RequestParam String CONT_NO,
             Pager pager,
-            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
-    ){
-        return Result.ok(searchService.searchGrtGuar(Utils.getCurrentUserId(), CONT_NO,pageable));
+            @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        return Result.ok(searchService.searchGrtGuar(Utils.getCurrentUserId(), CONT_NO, pageable));
     }
 
     @ApiOperation(value = "贷款台账-基本信息")
     @RequestMapping(value = "/searchACC_LOAN", method = RequestMethod.GET)
     public Result searchACC_LOAN(
             @RequestParam String BILL_NO
-    ){
+    ) {
         return Result.ok(searchService.searchACC_LOAN(Utils.getCurrentUserId(), BILL_NO));
     }
 
@@ -134,7 +134,7 @@ public class SearchController {
     @RequestMapping(value = "/searchCUS_COM", method = RequestMethod.GET)
     public Result searchCUS_COM(
             @RequestParam String CUS_ID
-    ){
+    ) {
         return Result.ok(searchService.searchCUS_COM(Utils.getCurrentUserId(), CUS_ID));
     }
 
@@ -142,7 +142,7 @@ public class SearchController {
     @RequestMapping(value = "/searchCUS_INDIV", method = RequestMethod.GET)
     public Result searchCUS_INDIV(
             @RequestParam String CUS_ID
-    ){
+    ) {
         return Result.ok(searchService.searchCUS_INDIV(Utils.getCurrentUserId(), CUS_ID));
     }
 
@@ -151,9 +151,9 @@ public class SearchController {
     public Result searchGRTGBasicInfo(
             @RequestParam String CONT_NO,
             Pager pager,
-            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
-    ){
-        return Result.ok(searchService.searchGRTGBasicInfo(Utils.getCurrentUserId(), CONT_NO,pageable));
+            @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        return Result.ok(searchService.searchGRTGBasicInfo(Utils.getCurrentUserId(), CONT_NO, pageable));
     }
 
 
@@ -161,7 +161,7 @@ public class SearchController {
     @RequestMapping(value = "/searchInnateAccloanData", method = RequestMethod.GET)
     public Result searchInnateData(
             @RequestParam String BILL_NO
-    ){
+    ) {
         return searchService.searchInnateAccloanData(Utils.getCurrentUserId(), BILL_NO);
     }
 
@@ -169,7 +169,7 @@ public class SearchController {
     @RequestMapping(value = "/searchInnateCusComData", method = RequestMethod.GET)
     public Result searchInnateAccloanData(
             @RequestParam String CUS_ID
-    ){
+    ) {
         return searchService.searchInnateCusComData(Utils.getCurrentUserId(), CUS_ID);
     }
 
@@ -177,17 +177,16 @@ public class SearchController {
     @RequestMapping(value = "/searchInnateCusIndivData", method = RequestMethod.GET)
     public Result searchInnateCusIndivData(
             @RequestParam String CUS_ID
-    ){
+    ) {
         return searchService.searchInnateCusIndivData(Utils.getCurrentUserId(), CUS_ID);
     }
 
     @ApiOperation(value = "设置数据查询权限")
     @RequestMapping(value = "/setPermission", method = RequestMethod.POST)
     public Result setConditionPermission(
-            @Valid @RequestBody GlobalPermissionEditRequest request){
+            @Valid @RequestBody GlobalPermissionEditRequest request) {
         return Result.ok(searchService.setPermissions(request));
     }
-
 
 
 //    @ApiOperation(value = "设置数据查询的结果约束")
@@ -202,8 +201,8 @@ public class SearchController {
             @RequestParam GlobalPermission.Type type,
             @RequestParam GlobalPermission.UserType userType,
             @RequestParam long linkId
-    ){
-        return Result.ok(searchService.getPermission(type,userType,linkId));
+    ) {
+        return Result.ok(searchService.getPermission(type, userType, linkId));
     }
 
 
@@ -211,20 +210,21 @@ public class SearchController {
     @ApiOperation(value = "预期应收本金（到期）")
     @RequestMapping(value = "/sheet/searchYQYSBJDQ", method = RequestMethod.GET)
     public Result searchYQYSBJDQ(
-             DataSearchService.YQYSBJDQRequest request,
+            DataSearchService.YQYSBJDQRequest request,
             Pager pager,
-            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
-    ){
-        return Result.ok(searchService.searchYQYSBJDQ(request,pageable));
+            @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        return Result.ok(searchService.searchYQYSBJDQ(request, pageable));
     }
+
     @ApiOperation(value = "预期应收利息")
     @RequestMapping(value = "/sheet/searchYQYSLX", method = RequestMethod.GET)
     public Result searchYQYSLX(
             @Valid DataSearchService.YQYSLXRequest request,
             Pager pager,
-            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
-    ){
-        return Result.ok(searchService.searchYQYSLX(request,pageable));
+            @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        return Result.ok(searchService.searchYQYSLX(request, pageable));
     }
 
     @ApiOperation(value = "逾期应收本金")
@@ -232,7 +232,7 @@ public class SearchController {
     public Result searchYuQYSBJ(
             DataSearchService.YuQYSBJRequest request,
             Pager pager,
-            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
+            @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
     ) {
         return Result.ok(searchService.searchYuQYSBJ(request, pageable));
     }
@@ -242,7 +242,7 @@ public class SearchController {
     public Result searchYQYSLX(
             DataSearchService.YuQYSLXRequest request,
             Pager pager,
-            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable
+            @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
     ) {
         return Result.ok(searchService.searchYuQYSLX(request, pageable));
     }

@@ -14,7 +14,7 @@ import com.beeasy.common.entity.Department;
 import com.beeasy.common.entity.Quarters;
 import com.beeasy.common.entity.User;
 import com.beeasy.hzback.modules.system.service.DepartmentService;
-import com.beeasy.hzback.modules.system.service_kt.UserService;
+import com.beeasy.hzback.modules.system.service.UserService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,51 +46,51 @@ public class MobileUserController {
     IUserDao userDao;
     @Autowired
     IDepartmentDao departmentDao;
-//    @Autowired
+    //    @Autowired
     CloudApi cloudApi;
 
 
     private Result.DisallowEntry[] userEntries = {
-            new Result.DisallowEntry(Department.class,"departments","quarters"),
-            new Result.DisallowEntry(Quarters.class,"department","users")
+            new Result.DisallowEntry(Department.class, "departments", "quarters"),
+            new Result.DisallowEntry(Quarters.class, "department", "users")
     };
 
     @GetMapping("/department/list")
-    public String getDepartmentsAndUsers(){
+    public String getDepartmentsAndUsers() {
         return Result.ok(userService.findDepartmentsByParent_Id(0)).toMobile(
-                new Result.DisallowEntry(Quarters.class,"department","users"),
-                new Result.DisallowEntry(User.class,"quarters","permissions"));
+                new Result.DisallowEntry(Quarters.class, "department", "users"),
+                new Result.DisallowEntry(User.class, "quarters", "permissions"));
     }
 
     @GetMapping("/login/{username}/{password}")
     public String login(
             @PathVariable String username,
             @PathVariable String password
-    ){
-        password =DigestUtils.md5DigestAsHex(password.getBytes());
+    ) {
+        password = DigestUtils.md5DigestAsHex(password.getBytes());
         User user = userDao.findFirstByUsernameAndPassword(username, password).orElse(null);
-        if(null == user){
+        if (null == user) {
             return Result.error("密码错误").toJson();
         }
         String token = jwtTokenUtil.generateToken(user.getId());
-        Map<String,String> map = RSAUtils.createKeys(1024);
-        userDao.updateUserKeys(map.get("privateKey"),map.get("publicKey"),user.getUsername());
-        return Result.ok(new UserLoginResponse(token,user,map.get("publicKey"),CLOUD_COMMON_ROOT_ID)).toJson(userEntries);
+        Map<String, String> map = RSAUtils.createKeys(1024);
+        userDao.updateUserKeys(map.get("privateKey"), map.get("publicKey"), user.getUsername());
+        return Result.ok(new UserLoginResponse(token, user, map.get("publicKey"), CLOUD_COMMON_ROOT_ID)).toJson(userEntries);
     }
 
     @PostMapping("/login")
     public String login(
             @RequestBody @Valid UserLoginRequest loginRequest
-    ){
+    ) {
         loginRequest.setPassword(DigestUtils.md5DigestAsHex(loginRequest.getPassword().getBytes()));
         User user = userDao.findFirstByUsernameAndPassword(loginRequest.getUsername(), loginRequest.getPassword()).orElse(null);
-        if(null == user){
+        if (null == user) {
             return Result.error("密码错误").toJson();
         }
         String token = jwtTokenUtil.generateToken(user.getId());
-        Map<String,String> map = RSAUtils.createKeys(1024);
-        userDao.updateUserKeys(map.get("privateKey"),map.get("publicKey"),user.getUsername());
-        UserLoginResponse response = new UserLoginResponse(token,user,map.get("publicKey"),CLOUD_COMMON_ROOT_ID);
+        Map<String, String> map = RSAUtils.createKeys(1024);
+        userDao.updateUserKeys(map.get("privateKey"), map.get("publicKey"), user.getUsername());
+        UserLoginResponse response = new UserLoginResponse(token, user, map.get("publicKey"), CLOUD_COMMON_ROOT_ID);
 //        String[] privateUser = userService.getPrivateCloudUsername(user.getId());
 //        String[] commonUser = userService.getCommonCloudUsername(user.getId());
 //        response.setCloudUsername(privateUser[0]);
@@ -101,7 +101,7 @@ public class MobileUserController {
     }
 
     @PostMapping("/user/face/edit")
-    public String uploadFace(@RequestParam MultipartFile file){
+    public String uploadFace(@RequestParam MultipartFile file) {
         return null;
 //        return (userService.updateUserFace(Utils.getCurrentUserId(),file)).toMobile();
     }
@@ -109,15 +109,15 @@ public class MobileUserController {
     @PostMapping("/users")
     public String getUserInfo(
             @RequestBody List<Long> userIds
-    ){
+    ) {
         return Result.ok(userService.findUser(userIds)).toMobile(
-            new Result.DisallowEntry(Department.class,"departments","quarters"),
-            new Result.DisallowEntry(Quarters.class,"users","department")
+                new Result.DisallowEntry(Department.class, "departments", "quarters"),
+                new Result.DisallowEntry(Quarters.class, "users", "department")
         );
     }
 
     @GetMapping("/normalUsers")
-    public String getNormalUsers(){
+    public String getNormalUsers() {
         return Result.ok(userDao.getNormalUsers()).toMobile();
     }
 
@@ -130,40 +130,40 @@ public class MobileUserController {
     @GetMapping("/user/department/{id}")
     public String getDepartmentUsers(
             @PathVariable Long did
-    ){
+    ) {
         return Result.ok(userDao.getSimpleUsersFromDepartment(did)).toMobile();
     }
 
 
     @ApiOperation(value = "同步全行组织结构")
     @GetMapping("/user/simpleDepartments")
-    public String getAllDepartments(){
+    public String getAllDepartments() {
         return Result.ok(departmentDao.findAll()).toMobile(
-                new Result.DisallowEntry(Department.class,"parent","departments"),
-                new Result.DisallowEntry(Quarters.class,"department","users"));
+                new Result.DisallowEntry(Department.class, "parent", "departments"),
+                new Result.DisallowEntry(Quarters.class, "department", "users"));
     }
 
     @ApiOperation(value = "同步全行组织架构")
     @GetMapping("/user/department/all")
     @Deprecated
-    public String getAllDepartments2(){
+    public String getAllDepartments2() {
         return Result.ok(departmentDao.findAllByParent(null)).toMobile(
-                new Result.DisallowEntry(Department.class,"parent"),
-                new Result.DisallowEntry(Quarters.class,"department"),
-                new Result.DisallowEntry(User.class,"quarters","permissions","departments"));
+                new Result.DisallowEntry(Department.class, "parent"),
+                new Result.DisallowEntry(Quarters.class, "department"),
+                new Result.DisallowEntry(User.class, "quarters", "permissions", "departments"));
     }
 
 
     @ApiOperation(value = "登录私有云系统")
     @GetMapping("/user/loginCloud")
-    public String loginFileCloudSystem(){
+    public String loginFileCloudSystem() {
         return "";
 //        return userService.loginFileCloudSystem(Utils.getCurrentUserId()).toJson();
     }
 
     @ApiOperation(value = "登录公共文件柜")
     @GetMapping("/user/loginCloudCommon")
-    public String loginFileCloudCommonSystem(){
+    public String loginFileCloudCommonSystem() {
         return "";
 //        return userService.loginFileCloudCommonSystem(Utils.getCurrentUserId()).toJson();
     }

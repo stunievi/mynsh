@@ -21,10 +21,10 @@ public class DruidConfig {
 
     @SuppressWarnings("serial")
     @WebServlet(urlPatterns = "/druid/*",
-            initParams={
-                    @WebInitParam(name="loginUsername",value="test"),// 用户名
-                    @WebInitParam(name="loginPassword",value="test"),// 密码
-                    @WebInitParam(name="resetEnable",value="false")// 禁用HTML页面上的“Reset All”功能
+            initParams = {
+                    @WebInitParam(name = "loginUsername", value = "test"),// 用户名
+                    @WebInitParam(name = "loginPassword", value = "test"),// 密码
+                    @WebInitParam(name = "resetEnable", value = "false")// 禁用HTML页面上的“Reset All”功能
             })
     public static class DruidStatViewServlet extends StatViewServlet {
     }
@@ -36,9 +36,9 @@ public class DruidConfig {
      * @author: liuxin
      * @date: 17/4/21 上午11:24
      */
-    @WebFilter(filterName="druidWebStatFilter",urlPatterns="/*",
-            initParams={
-                    @WebInitParam(name="exclusions",value="*.js,*.gif,*.jpg,*.bmp,*.png,*.css,*.ico,/druid/*")// 忽略资源
+    @WebFilter(filterName = "druidWebStatFilter", urlPatterns = "/*",
+            initParams = {
+                    @WebInitParam(name = "exclusions", value = "*.js,*.gif,*.jpg,*.bmp,*.png,*.css,*.ico,/druid/*")// 忽略资源
             })
     public static class DruidStatFilter extends WebStatFilter {
     }

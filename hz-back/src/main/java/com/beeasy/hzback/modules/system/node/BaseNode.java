@@ -37,9 +37,8 @@ abstract public class BaseNode implements Serializable {
 //    protected LinkedHashSet<String> next = new LinkedHashSet<>();
 
 
-
-    public static BaseNode create(WorkflowModel workflowModel, Map v){
-        switch (String.valueOf(v.get("type"))){
+    public static BaseNode create(WorkflowModel workflowModel, Map v) {
+        switch (String.valueOf(v.get("type"))) {
             case "check":
                 return new CheckNode(v);
 
@@ -47,13 +46,13 @@ abstract public class BaseNode implements Serializable {
                 return new CheckProcessNode(v);
 
             case "input":
-                return new InputNode(workflowModel,v);
+                return new InputNode(workflowModel, v);
 
             case "logic":
                 return new LogicNode(v);
 
             case "universal":
-                return new UniversalNode(workflowModel,v);
+                return new UniversalNode(workflowModel, v);
 
             case "end":
                 NormalNode node = new NormalNode(v);
@@ -65,12 +64,14 @@ abstract public class BaseNode implements Serializable {
     }
 
     @Deprecated
-    public void submit(User user, WorkflowNodeInstance wNInstance, Map<String, Object> data){}
-    public void submit(User user, WorkflowNodeInstance wNInstance, Map<String,Object> data, IWorkflowNodeAttributeDao attributeDao){
+    public void submit(User user, WorkflowNodeInstance wNInstance, Map<String, Object> data) {
+    }
+
+    public void submit(User user, WorkflowNodeInstance wNInstance, Map<String, Object> data, IWorkflowNodeAttributeDao attributeDao) {
 
     }
 
-    protected WorkflowNodeAttribute addAttribute(User user, WorkflowNodeInstance wNInstance, String key, String value){
+    protected WorkflowNodeAttribute addAttribute(User user, WorkflowNodeInstance wNInstance, String key, String value) {
         WorkflowNodeAttribute attribute = wNInstance.getAttributeList()
                 .stream()
                 .filter(a -> a.getDealUser().getId().equals(user.getId()) && a.getAttrKey().equals(key))
@@ -86,7 +87,7 @@ abstract public class BaseNode implements Serializable {
 //        wNInstance.getAttributeList().add(attribute);
     }
 
-    protected WorkflowNodeAttribute addAttribute(User user, WorkflowNodeInstance wNInstance, String key, String value, String cname){
+    protected WorkflowNodeAttribute addAttribute(User user, WorkflowNodeInstance wNInstance, String key, String value, String cname) {
         WorkflowNodeAttribute attribute = wNInstance.getAttributeList()
                 .stream()
                 .filter(a -> a.getDealUser().getId().equals(user.getId()) && a.getAttrKey().equals(key))

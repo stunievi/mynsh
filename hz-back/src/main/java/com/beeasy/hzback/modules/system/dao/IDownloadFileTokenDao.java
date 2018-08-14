@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Date;
 import java.util.Optional;
 
-public interface IDownloadFileTokenDao extends JpaRepository<DownloadFileToken,Long>{
+public interface IDownloadFileTokenDao extends JpaRepository<DownloadFileToken, Long> {
     Optional<DownloadFileToken> findTopByTokenAndExprTimeGreaterThan(String token, Date date);
 }

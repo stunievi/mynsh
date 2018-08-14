@@ -1,9 +1,11 @@
 package com.beeasy.hzback;
 
 //import com.spring4all.swagger.EnableSwagger2Doc;
+
 import com.github.tobato.fastdfs.FdfsClientConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
@@ -22,12 +24,13 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableJpaAuditing
 @EnableFeignClients(value = {"com.beeasy.hzback"})
 //@EnableCaching
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"com.beeasy"})
+@EntityScan(basePackages = {"com.beeasy"})
 @ServletComponentScan
-public class Application{
+public class Application {
 
-    public static void main(String[] args){
-        SpringApplication.run(Application.class,args);
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
     }
 
 

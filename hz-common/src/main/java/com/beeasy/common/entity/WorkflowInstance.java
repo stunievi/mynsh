@@ -12,7 +12,7 @@ import java.util.*;
 @Getter
 @Setter
 @Entity
-@Table(name = "t_workflow_instance",indexes = {
+@Table(name = "t_workflow_instance", indexes = {
         @Index(name = "state", columnList = "state")
 })
 @EntityListeners(AuditingEntityListener.class)
@@ -32,7 +32,8 @@ public class WorkflowInstance {
         //暂停中
         PAUSE;
     }
-    public enum SecondState{
+
+    public enum SecondState {
         POINT,
         TRANSFORM
     }
@@ -102,7 +103,7 @@ public class WorkflowInstance {
     //前置任务ID
 //    Long prevTaskId;
     @JSONField(serialize = false)
-    @JoinColumn(name = "prev_instance_id",insertable = false,updatable = false)
+    @JoinColumn(name = "prev_instance_id", insertable = false, updatable = false)
     @OneToOne
     WorkflowInstance prevInstance;
 
@@ -183,7 +184,7 @@ public class WorkflowInstance {
     @MapKeyColumn(name = "attrKey")
     @Column(name = "attrValue")
     @CollectionTable(name = "t_workflow_instance_attribute", joinColumns = {@JoinColumn(name = "instance_id")})
-    Map<String,String> attributeMap;
+    Map<String, String> attributeMap;
 
 
 //    @JSONField(serialize = false)
@@ -259,11 +260,12 @@ public class WorkflowInstance {
 //    }
 
     @Transient
-    public long getNextInstanceId(){
+    public long getNextInstanceId() {
         return null == nextInstance ? 0 : nextInstance.getId();
     }
+
     @Transient
-    public String getNextInstanceTitle(){
+    public String getNextInstanceTitle() {
         return null == nextInstance ? "" : nextInstance.getTitle();
     }
 //

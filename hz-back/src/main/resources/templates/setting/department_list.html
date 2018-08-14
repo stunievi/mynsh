@@ -6,12 +6,12 @@ var RIGHTHTML = {
 </script>
 
 <style>
-    .selected{
-        color : red;
+    .selected {
+        color: red;
     }
 </style>
 <div ms-controller="tree">
-    <wbr ms-widget="{is:'tree',tree: @data.list}" />
+    <wbr ms-widget="{is:'tree',tree: @data.list}"/>
 </div>
 <div>
     <a class="_add" href="/admin/setting/department/add">添加</a> -
@@ -20,20 +20,20 @@ var RIGHTHTML = {
 </div>
 <script>
     $('._add').click(function () {
-        if(lastSelected == null){
+        if (lastSelected == null) {
             location.href = '/admin/setting/department/add';
         }
-        else{
+        else {
             location.href = '/admin/setting/department/add?parentId=' + lastSelected.id;
         }
         return false;
     });
 
     $("._edit").click(function () {
-        if(lastSelected == null){
+        if (lastSelected == null) {
             alert("请先选择要编辑的部门");
         }
-        else{
+        else {
             location.href = '/admin/setting/department/edit?id=' + lastSelected.id;
         }
     });
@@ -87,47 +87,47 @@ var RIGHTHTML = {
 
     ;(function () {
         var jsonstr = '${tree}';
-        try{
+        try {
             data = eval("(" + jsonstr + ")");
-        }catch(e){
+        } catch (e) {
 
         }
-        if(data == null){
+        if (data == null) {
             return;
         }
 
         function walk(item) {
-            if(item.departments.length){
-                for(var i = 0; i < item.departments.length; i++){
+            if (item.departments.length) {
+                for (var i = 0; i < item.departments.length; i++) {
                     walk(item.departments[i]);
                 }
             }
-            else{
+            else {
                 item.departments = [];
             }
             item.open = 0;
             item.selected = 0;
         }
 
-        if(data && data.length){
-            for(var i = 0; i < data.length; i++){
+        if (data && data.length) {
+            for (var i = 0; i < data.length; i++) {
                 walk(data[i]);
             }
 
             data = [{
-                id:-1,
-                name:"顶级部门",
-                departments:data,
-                open:1
+                id: -1,
+                name: "顶级部门",
+                departments: data,
+                open: 1
             }]
         }
-        else{
+        else {
             data = [
                 {
-                    id:-1,
-                    name:"顶级部门",
-                    departments:[],
-                    open:1
+                    id: -1,
+                    name: "顶级部门",
+                    departments: [],
+                    open: 1
                 }
             ]
         }
@@ -142,12 +142,11 @@ var RIGHTHTML = {
         $id: "tree",
         data: {
             list: data,
-            selected:''
+            selected: ''
         }
 
     });
 </script>
-
 
 
 <% }; %>

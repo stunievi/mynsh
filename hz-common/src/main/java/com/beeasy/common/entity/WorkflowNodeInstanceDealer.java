@@ -3,6 +3,7 @@ package com.beeasy.common.entity;
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Getter;
 import lombok.Setter;
+
 import javax.persistence.*;
 import java.util.*;
 
@@ -58,7 +59,7 @@ public class WorkflowNodeInstanceDealer {
     //角色name
     String roleName;
 
-    public enum Type{
+    public enum Type {
         CAN_DEAL,
         DID_DEAL,
         NOT_DEAL

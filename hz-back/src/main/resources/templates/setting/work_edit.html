@@ -2,41 +2,48 @@
 var RIGHTHTML = {
 %>
 <style>
-    .fieldKey{
+    .fieldKey {
         display: inline-block;
     }
-    .fieldValue{
+
+    .fieldValue {
         display: inline-block;
     }
-    .btn{
+
+    .btn {
         display: inline-block;
         padding: 5px 10px;
         margin: 5px;
     }
-    .red{
+
+    .red {
         background: red;
         color: white;
     }
-    .blue{
+
+    .blue {
         background: lightblue;
     }
-    .black{
+
+    .black {
         background: black;
         color: white;
     }
 
-    #app{
+    #app {
         position: relative;
     }
 
-    .nodeList{
+    .nodeList {
         position: relative;
         height: 80px;
     }
-    #switchTab{
+
+    #switchTab {
     }
-    .node{
-        border:1px solid #ddd;
+
+    .node {
+        border: 1px solid #ddd;
         width: 60px;
         height: 60px;
         text-align: center;
@@ -48,17 +55,19 @@ var RIGHTHTML = {
         cursor: pointer;
         background: lightblue;
     }
-    .nodeLine{
+
+    .nodeLine {
         z-index: 1;
-        top:29px;
-        left:0px;
+        top: 29px;
+        left: 0px;
         width: 100px;
         height: 5px;
-        border:  1px solid #ddd;
+        border: 1px solid #ddd;
         position: absolute;
         background: lightblue;
     }
-    .selected{
+
+    .selected {
         background: deepskyblue;
         color: white;
     }
@@ -77,7 +86,7 @@ var RIGHTHTML = {
         业务说明：
         <textarea name="info" :duplex="@data.info"></textarea>
     </p>
-    <div id="app" >
+    <div id="app">
 
         业务流程（节点设置）：
 
@@ -110,7 +119,7 @@ var RIGHTHTML = {
 
         <div id="switchTab" :if="@data.current > -1">
             <div :for="(index,el) in @data.nodeList" :visible="@data.current == index">
-                <wbr :widget="{is:el.type + 'Node',data:el}" />
+                <wbr :widget="{is:el.type + 'Node',data:el}"/>
             </div>
             <a :click="@removeNode()" class="btn black">删除该节点</a>
         </div>
@@ -155,25 +164,25 @@ var RIGHTHTML = {
 
 
     var NodeType = {
-        ziliao:'ziliao',
-        shenhe:'shenhe',
+        ziliao: 'ziliao',
+        shenhe: 'shenhe',
         // huiqian:'huiqian',
-        end:'end'
+        end: 'end'
     };
 
 
     var app = avalon.define({
-        $id:"app",
-        data:{
-            id:-1,
-            name:"",
-            info:"",
-            nodeList:[],
+        $id: "app",
+        data: {
+            id: -1,
+            name: "",
+            info: "",
+            nodeList: [],
             current: -1
         },
-        addNode : function (nodeType) {
+        addNode: function (nodeType) {
             var node = {};
-            switch (nodeType){
+            switch (nodeType) {
                 case 'ziliao':
                     node.type = NodeType.ziliao;
                     node.fields = [];
@@ -197,9 +206,9 @@ var RIGHTHTML = {
             app.data.nodeList.push(node);
 
         },
-        removeNode : function (index) {
-            if(this.data.current == -1) return;
-            this.data.nodeList.splice(this.data.current,1);
+        removeNode: function (index) {
+            if (this.data.current == -1) return;
+            this.data.nodeList.splice(this.data.current, 1);
             this.data.current = -1;
         },
         switchTab: function (el) {
@@ -208,44 +217,44 @@ var RIGHTHTML = {
         }
     });
 
-    if(str != ''){
-        do{
-            try{
+    if (str != '') {
+        do {
+            try {
                 var data = eval("(" + str + ")");
-                for(var i in data){
+                for (var i in data) {
                     app.data[i] = data[i];
                 }
-            }catch (e){
+            } catch (e) {
                 break;
             }
-        }while(0);
+        } while (0);
     }
 
     $('._save').click(function () {
         var data = app.data.$model;
-        if(data.name == ""){
+        if (data.name == "") {
             return alert("业务名称不能为空")
         }
-        if(data.info == ""){
+        if (data.info == "") {
             return alert("业务说明不能为空")
         }
-        if(!data.nodeList || data.nodeList.length == 0){
+        if (!data.nodeList || data.nodeList.length == 0) {
             return alert("业务节点操作列表不能为空")
         }
 
         var url;
-            url = "/admin/setting/work/edit";
+        url = "/admin/setting/work/edit";
         data.list = (JSON).stringify(data.nodeList);
         delete data.nodeList;
 
-        $.post(url,data,function (msg) {
-            if(msg.success){
+        $.post(url, data, function (msg) {
+            if (msg.success) {
                 location.href = 'list';
             }
-            else{
+            else {
 
             }
-        },'json');
+        }, 'json');
     });
 </script>
 

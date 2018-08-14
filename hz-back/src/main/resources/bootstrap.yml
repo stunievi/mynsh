@@ -1,15 +1,21 @@
 spring:
   profiles:
-    active: myservermysql
+    active:
+    - myserver
+    - mysql
 
   cloud:
     config:
       discovery:
-        enable: true
-        serviceId: service-zuul
+        serviceId: service-hzconfig
+        enabled: true
 
 eureka:
   client:
-    service-url:
-      default-zone: http://localhost:8001/eureka/
+    serviceUrl:
+      defaultZone: http://localhost:8001/eureka/
+
+
+feign.hystrix.enabled: false
+
 

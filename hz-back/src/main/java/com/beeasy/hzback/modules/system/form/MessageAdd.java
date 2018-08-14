@@ -14,20 +14,20 @@ import java.util.Set;
 public class MessageAdd {
 
     @Data
-    public static class File{
+    public static class File {
         ICloudDiskService.DirType type;
         Long fileId;
     }
 
-    @ApiModelProperty(value = "接收用户ID列表",required = true)
+    @ApiModelProperty(value = "接收用户ID列表", required = true)
     @NotNull(message = "接收用户不能为空")
     Set<Long> toUserIds;
 
-    @ApiModelProperty(value = "消息名",required = true)
+    @ApiModelProperty(value = "消息名", required = true)
     @NotEmpty(message = "消息标题不能为空")
     String title;
 
-    @ApiModelProperty(value = "消息内容",required = true)
+    @ApiModelProperty(value = "消息内容", required = true)
     @NotEmpty(message = "消息内容不能为空")
     String content;
 

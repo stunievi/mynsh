@@ -40,6 +40,7 @@ public class MultipartFileUploadUtil {
 
     /**
      * 在HttpServletRequest中获取分段上传文件请求的信息
+     *
      * @param request
      * @return
      */
@@ -48,15 +49,15 @@ public class MultipartFileUploadUtil {
 
         boolean isMultipart = ServletFileUpload.isMultipartContent(request);
         param.setMultipart(isMultipart);
-        if(isMultipart){
+        if (isMultipart) {
             FileItemFactory factory = new DiskFileItemFactory();
             ServletFileUpload upload = new ServletFileUpload(factory);
             // 得到所有的表单域，它们目前都被当作FileItem
             List<FileItem> fileItems = upload.parseRequest(request);
             for (FileItem fileItem : fileItems) {
-                System.out.println("field name has:"+fileItem.getFieldName());
-                if (!"bytes".equals(fileItem.getFieldName())){
-                    System.out.println("field val has:"+fileItem.getString());
+                System.out.println("field name has:" + fileItem.getFieldName());
+                if (!"bytes".equals(fileItem.getFieldName())) {
+                    System.out.println("field val has:" + fileItem.getString());
                 }
 
                 if (fileItem.getFieldName().equals("id")) {
@@ -71,7 +72,7 @@ public class MultipartFileUploadUtil {
                 } else if (fileItem.getFieldName().equals("bytes")) {
                     param.setFileItem(fileItem);
                     param.setSize(fileItem.getSize());
-                } else{
+                } else {
                     param.getParam().put(fileItem.getFieldName(), fileItem.getString());
                 }
             }

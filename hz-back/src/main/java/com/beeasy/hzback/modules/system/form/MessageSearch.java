@@ -6,7 +6,7 @@ import lombok.Data;
 
 @ApiModel
 @Data
-public class MessageSearch extends Pager{
+public class MessageSearch extends Pager {
     @ApiModelProperty(value = "是否已读", notes = "不传为查找全部")
     Boolean read;
 }

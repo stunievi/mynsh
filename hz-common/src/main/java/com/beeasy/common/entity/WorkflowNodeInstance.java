@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.List;
 import javax.persistence.*;
 import java.util.*;
+
 @Getter
 @Setter
 @Entity
@@ -67,7 +68,7 @@ public class WorkflowNodeInstance {
 
     @OneToMany(mappedBy = "nodeInstance")
     List<WorkflowNodeAttribute> attributeList = new ArrayList<>();
-    @OneToMany(mappedBy = "nodeInstance",cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "nodeInstance", cascade = CascadeType.REMOVE)
     List<WorkflowNodeFile> fileList = new ArrayList<>();
 
     //处理人列表
@@ -76,10 +77,9 @@ public class WorkflowNodeInstance {
 
     public void setFinished(boolean finished) {
         this.finished = finished;
-        if(finished){
+        if (finished) {
             setDealDate(new Date());
-        }
-        else{
+        } else {
             setDealDate(null);
         }
     }

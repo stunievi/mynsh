@@ -14,9 +14,9 @@ import java.util.stream.Collectors;
 
 @Getter
 @Setter
-public class InputNode extends BaseNode{
+public class InputNode extends BaseNode {
     boolean start;
-    Map<String,Content> content = new HashMap<>();
+    Map<String, Content> content = new HashMap<>();
 
     public InputNode(WorkflowModel workflowModel, Map v) {
 
@@ -40,15 +40,15 @@ public class InputNode extends BaseNode{
                     cnt.setType((String) ((Map) cv).get("type"));
                     cnt.setEname((String) ((Map) cv).get("name"));
 
-                    String required = (String) cvmap.getOrDefault("required","n");
+                    String required = (String) cvmap.getOrDefault("required", "n");
                     cnt.setRequired(required.equals("y"));
                     //特殊类型
-                    List items = (List) ((Map) cv).getOrDefault("items",new ArrayList<>());
+                    List items = (List) ((Map) cv).getOrDefault("items", new ArrayList<>());
                     cnt.getItems().addAll((Collection<? extends String>) items.stream().map(item -> String.valueOf(item)).collect(Collectors.toList()));
 
                     //固有字段
-                    boolean innate = (boolean) cvmap.getOrDefault("innate",false);
-                    if(innate){
+                    boolean innate = (boolean) cvmap.getOrDefault("innate", false);
+                    if (innate) {
                         WorkflowModelInnate workflowModelInnate = new WorkflowModelInnate();
 //                        workflowModelInnate.setContent(cnt);
                         workflowModelInnate.setFieldName(cnt.getEname());
@@ -76,7 +76,7 @@ public class InputNode extends BaseNode{
 
     @Getter
     @Setter
-    public static class Content extends AbstractBaseEntity{
+    public static class Content extends AbstractBaseEntity {
         String type;
         String cname;
         String ename;
@@ -94,7 +94,7 @@ public class InputNode extends BaseNode{
 
             //如果是必填字段, 却没有传递
             String attrKey = v.getEname();
-            if(!data.containsKey(attrKey)){
+            if (!data.containsKey(attrKey)) {
                 continue;
             }
             //不论是否必填, 空属性就略过
