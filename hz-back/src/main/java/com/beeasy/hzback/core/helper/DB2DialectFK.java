@@ -1,12 +1,13 @@
 package com.beeasy.hzback.core.helper;
 
 import org.hibernate.boot.Metadata;
+import org.hibernate.dialect.DB297Dialect;
 import org.hibernate.dialect.DB2Dialect;
 import org.hibernate.mapping.ForeignKey;
 import org.hibernate.tool.schema.internal.StandardForeignKeyExporter;
 import org.hibernate.tool.schema.spi.Exporter;
 
-public class DB2DialectFK extends DB2Dialect implements DialectFK {
+public class DB2DialectFK extends DB297Dialect implements DialectFK {
 
     public DB2DialectFK() {
         super();

@@ -1,6 +1,7 @@
 package com.beeasy.common.entity;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.beeasy.common.helper.JSONConverter;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
@@ -35,7 +36,7 @@ public class WorkflowNodeInstance {
     Long instanceId;
 
 
-    @Column(length = 20)
+    @Column(columnDefinition = JSONConverter.VARCHAR_20)
     String nodeName;
 
     @Enumerated

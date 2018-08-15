@@ -2,6 +2,7 @@ package com.beeasy.common.entity;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.beeasy.common.helper.AbstractBaseEntity;
+import com.beeasy.common.helper.JSONConverter;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -14,11 +15,12 @@ import java.util.*;
 @Getter
 @Setter
 @Entity
-@Table(name = "t_workflow_instance_attribute")
+@Table(name = "t_workflow_ins_attr")
 @EntityListeners(AuditingEntityListener.class)
-public class WorkflowInstanceAttribute extends AbstractBaseEntity {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class WorkflowInstanceAttribute{
+
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     @JSONField(serialize = false)
@@ -32,6 +34,7 @@ public class WorkflowInstanceAttribute extends AbstractBaseEntity {
     @Enumerated(value = EnumType.STRING)
     Type type;
 
+    @Column(columnDefinition = JSONConverter.VARCHAR_5O)
     String attrKey;
     String attrValue;
     String attrCName;

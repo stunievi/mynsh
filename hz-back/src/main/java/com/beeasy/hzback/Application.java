@@ -13,10 +13,12 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 
 //@EnableSwagger2Doc
-//@EnableWebMvc
+@EnableWebMvc
 @EnableEurekaClient
 @Import(FdfsClientConfig.class)
 @EnableAsync

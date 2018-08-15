@@ -5,11 +5,7 @@ spring:
     show-sql: true
     properties:
       hibernate:
-        cache:
-          use_query_cache: false
-        archive:
-          autodetection: false
-        dialect: com.beeasy.hzback.core.helper.MySQL5DialectFK
+        dialect: com.beeasy.hzback.core.helper.DB2DialectFK
 
   datasource:
     name: test
@@ -29,17 +25,17 @@ spring:
     # 使用druid数据源
     type: org.springframework.jdbc.datasource.DriverManagerDataSource
     #    type: com.alibaba.druid.pool.DruidDataSource
-    druid:
-      filters: stat
-      maxActive: 20
-      initialSize: 1
-      maxWait: 60000
-      minIdle: 1
-      timeBetweenEvictionRunsMillis: 60000
-      minEvictableIdleTimeMillis: 300000
-      validationQuery: select 'x'
-      testWhileIdle: true
-      testOnBorrow: false
-      testOnReturn: false
-      poolPreparedStatements: true
-      maxOpenPreparedStatements: 20
+#    druid:
+#      filters: stat
+#      maxActive: 20
+#      initialSize: 1
+#      maxWait: 60000
+#      minIdle: 1
+#      timeBetweenEvictionRunsMillis: 60000
+#      minEvictableIdleTimeMillis: 300000
+#      validationQuery: select 'x'
+#      testWhileIdle: true
+#      testOnBorrow: false
+#      testOnReturn: false
+#      poolPreparedStatements: true
+#      maxOpenPreparedStatements: 20

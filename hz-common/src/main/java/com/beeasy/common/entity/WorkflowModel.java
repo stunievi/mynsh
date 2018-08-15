@@ -1,6 +1,7 @@
 package com.beeasy.common.entity;
 
 
+import com.beeasy.common.helper.JSONConverter;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
@@ -30,16 +31,16 @@ public class WorkflowModel {
     @OneToMany(mappedBy = "model", cascade = CascadeType.REMOVE)
     List<WorkflowNode> nodeModels = new ArrayList<>();
 
-    @Column(length = 20)
+    @Column(columnDefinition = JSONConverter.VARCHAR_20)
     String name;
 
 //    BigDecimal version;
 
-    @Column(length = 200)
+    @Column(columnDefinition = JSONConverter.VARCHAR_5O)
     String info;
 
     //任务的原始名称
-    @Column(length = 20)
+    @Column(columnDefinition = JSONConverter.VARCHAR_20)
     String modelName;
 
     boolean open;

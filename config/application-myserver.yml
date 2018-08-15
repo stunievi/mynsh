@@ -53,7 +53,7 @@ fdfs:
     width: 150
     height: 150
   tracker-list:
-  - 47.96.98.198:22122
+  - 192.168.31.201:22122
 
 
 spring:

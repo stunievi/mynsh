@@ -50,7 +50,7 @@ public class User implements Serializable {
     @CreatedDate
     private Date addTime;
 
-    private boolean baned;
+    private boolean baned = false;
     private boolean su = false;
     private boolean newUser = true;
 

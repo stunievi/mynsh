@@ -24,3 +24,9 @@
 /dist/
 /nbdist/
 /.nb-gradle/
+
+
+/docker/data
+/docker/mysql/data
+/docker/fastdfs/storage0
+/docker/fastdfs/tracker_data

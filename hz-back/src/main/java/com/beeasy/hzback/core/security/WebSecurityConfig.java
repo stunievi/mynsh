@@ -71,6 +71,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 //                .antMatchers("/v2/api-docs").permitAll()
 //                .antMatchers("/static/**").permitAll()
+//                .antMatchers("/api/v2/api-docs").permitAll()
+//                .antMatchers("/swagger-ui.html/**").permitAll()
+
                 .antMatchers("/crossdomain.xml").permitAll()
                 .antMatchers("/api/login").permitAll()
                 .antMatchers("/api/checkOnline").permitAll()

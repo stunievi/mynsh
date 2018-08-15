@@ -31,7 +31,7 @@ public class Quarters extends AbstractBaseEntity {
     @Column(name = "department_id")
     Long departmentId;
 
-    @Column(columnDefinition = JSONConverter.VARCHAR_20)
+    @Column(columnDefinition = JSONConverter.VARCHAR_5O)
     String name;
     @Column(columnDefinition = JSONConverter.VARCHAR_20)
     String dName;
