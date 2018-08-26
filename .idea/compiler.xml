@@ -2,22 +2,24 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <annotationProcessing>
-      <profile default="true" name="Default" enabled="true" />
       <profile name="Maven default annotation processors profile" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="hz-act-common" />
         <module name="hz-back" />
+        <module name="hz-common" />
+        <module name="hz-data" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="common_main" target="1.8" />
-      <module name="common_test" target="1.8" />
-      <module name="hz-config-center_main" target="1.8" />
-      <module name="hz-config-center_test" target="1.8" />
-      <module name="hzconfig" target="1.5" />
-      <module name="hzconfig_main" target="1.8" />
-      <module name="hzconfig_test" target="1.8" />
+      <module name="helloworld" target="1.7" />
+      <module name="hz-act-common" target="8" />
+      <module name="hz-act_common" target="8" />
+      <module name="hz-back" target="1.8" />
+      <module name="hz-common" target="1.8" />
+      <module name="hz-data" target="8" />
+      <module name="hzcp" target="1.5" />
     </bytecodeTargetLevel>
   </component>
 </project>

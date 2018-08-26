@@ -17,7 +17,11 @@ import com.beeasy.hzback.modules.system.request.UserAddRequeest;
 import com.beeasy.hzback.modules.system.service.*;
 import com.beeasy.hzback.modules.system.service.UserService;
 import com.github.tobato.fastdfs.service.FastFileStorageClient;
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.IOUtils;
+import org.beetl.sql.core.SQLManager;
+import org.beetl.sql.core.annotatoin.Table;
+import org.beetl.sql.core.engine.PageQuery;
 import org.hibernate.SQLQuery;
 import org.hibernate.transform.Transformers;
 import org.junit.Assert;
@@ -519,10 +523,23 @@ public class TestAsync {
 
     @Autowired
     FastFileStorageClient storageClient;
+    @Autowired
+    SQLManager sqlManager;
+
+
+    @Table(name = "T_USER")
+    public static class UUser {
+        Boolean baned = false;
+    }
 
     @Test
     public void updateWorkflows() {
         List<Department> departments = departmentDao.findAll();
+        List list = sqlManager.query(User.class).select();
+        List list1 = sqlManager.select("accloan.base", Map.class, ImmutableMap.of(
+                "LN_TYPE", "普通贷款"
+        ));
+        List list2 = sqlManager.select("accloan.base", Map.class, new HashMap<>(), 0, 10);
         int b = 1;
 //        var a = new ArrayList();
 //        var b = new ArrayList<>();

@@ -190,10 +190,14 @@ public class DataSearchService {
             }
         }
         //授权
+        Map<String, Object> params = new HashMap<>();
         Map<String, List<String>> limitMap = getPermissionLimit(uid, SearchTargetType.ACC_LOAN);
         if (null == limitMap) {
             return new PageImpl(new ArrayList(), pageable, 0);
         } else if (limitMap.size() > 0) {
+            params.put("LIMIT1", joinIn(limitMap.get("dep")));
+            params.put("LIMIT2", joinIn(limitMap.get("user")));
+
             sql += String.format(" and ( a.MAIN_BR_ID in (%s) or a.CUS_MANAGER in (%s) )", joinIn(limitMap.get("dep")), joinIn(limitMap.get("user")));
         }
         log.error(sql);
@@ -737,7 +741,7 @@ public class DataSearchService {
             return null;
         }
         //管理员默认开放所有权限
-        if (user.isSu()) {
+        if (user.getSu()) {
             return new HashMap<>();
         }
         //查询用户所持有的所有授权
@@ -845,7 +849,7 @@ public class DataSearchService {
     @Data
     public static class AccloanRequest {
         String BILL_NO;
-        //        String CONT_NO;
+        String CONT_NO;
         String LOAN_ACCOUNT;
         String CUS_ID;
         String CUS_NAME;

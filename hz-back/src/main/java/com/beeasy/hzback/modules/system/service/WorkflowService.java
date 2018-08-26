@@ -254,7 +254,7 @@ public class WorkflowService {
                     .filter(item -> item.getUserType().equals(GlobalPermission.UserType.QUARTER))
                     .map(item -> userService.findQuarters(item.getLinkId()))
                     .filter(item -> null != item)
-                    .map(item -> item.getDepartment())
+                    .map(Quarters::getDepartment)
                     .filter(dep -> {
                         return pubUser.getQuarters()
                                 .stream().anyMatch(q -> q.getDepartmentId().equals(dep.getId()) && q.isManager());
@@ -267,7 +267,7 @@ public class WorkflowService {
                     .filter(item -> userService.hasQuarters(request.getDealerId(), item.getLinkId()))
                     .findFirst()
                     .map(item -> userService.findQuarters(item.getLinkId()))
-                    .map(item -> item.getDepartment())
+                    .map(Quarters::getDepartment)
                     .orElse(null);
         }
         if (null == department) {
@@ -343,10 +343,10 @@ public class WorkflowService {
         //开始时间
         Date date = new Date();
         workflowInstance.setAddTime(date);
+        workflowInstance.setPlanStartTime(date);
+        //如果设定了预任务时间
         if (null != request.getPlanStartTime()) {
             workflowInstance.setPlanStartTime(request.getPlanStartTime());
-        } else {
-            workflowInstance.setPlanStartTime(date);
         }
 //        workflowInstance.setDealUser(dealerUser);
 //        workflowInstance.setDealUserId(null == dealerUser ? null : dealerUser.getId());
@@ -677,64 +677,6 @@ public class WorkflowService {
 
 
     /**
-     * start child task
-     * unfortunately, it doesn't works right now
-     *
-     * @param uid
-     * @param request
-     * @return
-     */
-    @Deprecated
-    public Result startChildInstance(Long uid, StartChildInstanceRequest request) {
-        User user = userService.findUser(uid);
-        WorkflowNodeInstance nodeInstance = findNodeInstance(request.getNodeInstanceId()).orElse(null);
-        if (null == user || null == nodeInstance || nodeInstance.isFinished()) {
-            return Result.error("找不到合适的节点");
-        }
-        //允许开启的子流程是否存在
-//        if (!nodeInstance.getNodeModel().getAllowChildTask().contains(request.getModelName())) {
-//            return Result.error("禁止开启子流程");
-//        }
-        if (!checkNodeAuth(nodeInstance, user)) {
-            return Result.error("权限错误");
-        }
-        //查找该流程的id
-        List<Long> modelIds = modelDao.findModelId(request.getModelName());
-        if (modelIds.size() == 0) {
-            return Result.error("找不到对应的流程");
-        }
-        Long modelId = modelIds.get(0);
-
-        ApplyTaskRequest applyTaskRequest = new ApplyTaskRequest();
-        applyTaskRequest.setModelId(modelId);
-        applyTaskRequest.setTitle(request.getModelName());
-        applyTaskRequest.setDealerId(user.getId());
-        applyTaskRequest.setCommon(false);
-        applyTaskRequest.setManual(false);
-
-        Result<WorkflowInstance> result = startNewInstance(uid, applyTaskRequest);
-        if (!result.isSuccess()) {
-            return result;
-        }
-        WorkflowInstance instance = result.getData();
-        instanceDao.save(instance);
-
-        //补充父任务的固有字段
-//        long pid = nodeInstance.getInstanceId();
-//        WorkflowInstanceAttribute attribute = new WorkflowInstanceAttribute();
-//        attribute.setInstance(instance);
-//        attribute.setType(WorkflowInstanceAttribute.Type.INNATE);
-//        attribute.setAttrCName(after.getContent().getString("cname"));
-//        attribute.setAttrKey(after.getContent().getString("ename"));
-//        attribute.setAttrValue(workflowInstance.getId() + "");
-//        instanceAttributeDao.save(attribute);
-
-        logService.addLog(SystemTextLog.Type.WORKFLOW, nodeInstance.getInstance().getId(), user.getId(), "接受了子任务 " + applyTaskRequest.getTitle());
-
-        return Result.ok(instance.getId());
-    }
-
-    /**
      * accept a comon task
      *
      * @param uid
@@ -803,13 +745,18 @@ public class WorkflowService {
      * @param instanceId
      * @return
      */
-    public boolean closeInstance(final long uid, final long instanceId) {
+    public boolean closeInstance(final long uid, final long instanceId,final boolean hasSuOption) {
         User user = userService.findUser(uid);
         WorkflowInstance workflowInstance = findInstance(instanceId);
         if (null == user) {
             return false;
         }
-        if (canCancel(workflowInstance, user)) {
+        //if has su option and user is superuser, the ignore judgement of cancel permission
+        if(hasSuOption && user.getSu()){
+            instanceDao.deleteById(workflowInstance.getId());
+            return true;
+        }
+        else if (canCancel(workflowInstance, user)) {
             instanceDao.deleteById(workflowInstance.getId());
             return true;
         }
@@ -1541,7 +1488,7 @@ public class WorkflowService {
         WorkflowNode nodeModel = nodeInstance.getNodeModel();
         switch (nodeModel.getType()) {
             case input:
-                fromInputNodeToGo(instance, nodeInstance, nodeModel.getNode());
+                fromInputNodeToGo(uid, instance, nodeInstance, nodeModel.getNode());
                 break;
 
             case check:
@@ -2002,7 +1949,13 @@ public class WorkflowService {
         Specification query = ((root, criteriaQuery, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             //限制我自己的任务
-            predicates.add(cb.equal(root.get("dealUserId"), uid));
+            //if the params has key su, and this user is super user, will ignore this option
+            if(object.containsKey("su") && user.getSu()){
+
+            }
+            else{
+                predicates.add(cb.equal(root.get("dealUserId"), uid));
+            }
             for (Map.Entry<String, String> entry : object.entrySet()) {
                 if (StringUtils.isEmpty(entry.getValue())) {
                     continue;
@@ -2610,7 +2563,7 @@ public class WorkflowService {
         return org.apache.commons.lang.StringUtils.join(errorMessages.toArray(), "\n");
     }
 
-    private WorkflowInstance fromInputNodeToGo(WorkflowInstance instance, WorkflowNodeInstance currentNode, JSONObject nodeModel) {
+    private WorkflowInstance fromInputNodeToGo(final long uid, WorkflowInstance instance, WorkflowNodeInstance currentNode, JSONObject nodeModel) {
         //检查所有字段, 如果有必填字段没有填写, 那么抛出异常
         for (Map.Entry<String, Object> entry : nodeModel.getJSONObject("content").entrySet()) {
             String k = entry.getKey();
@@ -2627,6 +2580,8 @@ public class WorkflowService {
         WorkflowNode nextNode = findNextNodeModel(instance.getWorkflowModel(), currentNode.getNodeModel()).orElse(null);
         if (null == nextNode) return saveWorkflowInstance(instance);
         goNextNode(instance, currentNode, nextNode);
+        //标记为已处理节点
+        swithDealType(uid, currentNode.getId(), WorkflowNodeInstanceDealer.Type.OVER_DEAL);
         return saveWorkflowInstance(instance);
     }
 
@@ -2647,7 +2602,11 @@ public class WorkflowService {
                 })
                 .findFirst()
                 .orElse(null);
-        if (null != state) {
+        //如果没找到, 则标记为OVER_DEAL
+        if(null == state){
+            swithDealType(uid, currentNode.getId(), WorkflowNodeInstanceDealer.Type.OVER_DEAL);
+        }
+        else{
             Optional.of(state)
                     .map(item -> ((JSONObject) item).getString("behavior"))
                     .filter(StringUtils::isNotEmpty)
@@ -2666,6 +2625,18 @@ public class WorkflowService {
         return instanceDao.save(instance);
     }
 
+    /**
+     * set a dealer type to target type
+     * @param uid
+     * @param nid
+     * @param targetType
+     */
+    private void swithDealType(final long uid, final long nid, final WorkflowNodeInstanceDealer.Type targetType){
+        nodeInstanceDealersDao.findTopByUserIdAndNodeInstanceId(uid, nid).ifPresent(dealer -> {
+            dealer.setType(WorkflowNodeInstanceDealer.Type.OVER_DEAL);
+            nodeInstanceDealersDao.save(dealer);
+        });
+    }
 
     /***js binding**/
     @AllArgsConstructor

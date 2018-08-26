@@ -21,7 +21,8 @@ import java.util.Optional;
 @Getter
 @Setter
 @Entity
-@Table(name = "t_user")
+@Table(name = "T_USER")
+@org.beetl.sql.core.annotatoin.Table(name = "T_USER")
 @EntityListeners(AuditingEntityListener.class)
 public class User implements Serializable {
 
@@ -50,9 +51,9 @@ public class User implements Serializable {
     @CreatedDate
     private Date addTime;
 
-    private boolean baned = false;
-    private boolean su = false;
-    private boolean newUser = true;
+    private Boolean baned = false;
+    private Boolean su = false;
+    private Boolean newUser = true;
 
     String accCode;
 

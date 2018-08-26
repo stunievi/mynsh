@@ -24,7 +24,7 @@ public class CrossDomainFilter implements Filter {
         response.setHeader("Access-Control-Max-Age", "3600");
         response.setHeader("Access-Control-Allow-Headers", "x-requested-with, Authorization, TOKEN, Content-Type");
 //        System.out.println("*********************************过滤器被使用**************************");
-        filterChain.doFilter(servletRequest,response);
+        filterChain.doFilter(servletRequest, response);
     }
 
     @Override

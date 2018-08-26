@@ -152,6 +152,8 @@ public class WorkflowInstance {
     //台账编号
     @Column(name = "BILL_NO")
     String billNo;
+    @Column(name = "LOAN_ACCOUNT", length = 32)
+    String loanAccount;
 
     //是否属于自动生成的任务
     boolean autoCreated = false;

@@ -107,9 +107,11 @@ public class UserService {
 //    ICloudDirectoryIndexDao cloudDirectoryIndexDao;
     final
     CloudService cloudService;
+    final
+    NativeFileService nativeFileService;
 
     @Autowired
-    public UserService(IRoleDao roleDao, FileUploadService fileUploadService, SystemService systemService, IUserTokenDao userTokenDao, IUserProfileDao userProfileDao, EntityManager entityManager, IUserAllowApiDao userAllowApiDao, CloudService cloudService, IGlobalPermissionDao globalPermissionDao, GlobalPermissionService globalPermissionService, ISystemFileDao systemFileDao, IQuartersDao quartersDao, IDepartmentDao departmentDao, SystemConfigCache cache, IUserDao userDao) {
+    public UserService(IRoleDao roleDao, FileUploadService fileUploadService, SystemService systemService, IUserTokenDao userTokenDao, IUserProfileDao userProfileDao, EntityManager entityManager, IUserAllowApiDao userAllowApiDao, CloudService cloudService, IGlobalPermissionDao globalPermissionDao, GlobalPermissionService globalPermissionService, ISystemFileDao systemFileDao, IQuartersDao quartersDao, IDepartmentDao departmentDao, SystemConfigCache cache, IUserDao userDao, NativeFileService nativeFileService) {
         this.roleDao = roleDao;
         this.fileUploadService = fileUploadService;
         this.systemService = systemService;
@@ -125,6 +127,7 @@ public class UserService {
         this.departmentDao = departmentDao;
         this.cache = cache;
         this.userDao = userDao;
+        this.nativeFileService = nativeFileService;
     }
 
     /**
@@ -135,26 +138,19 @@ public class UserService {
      */
     public User createUser(UserAddRequeest add) {
         //save face images
-        SystemFile face = new SystemFile();
-            ClassPathResource resource = new ClassPathResource("static/default_face.jpg");
-            face.setFileName("default_face.jpg");
-            face.setExt("jpg");
-            face.setType(SystemFile.Type.FACE);
-            String filePath = "";
-            //upload image
-            try (
-                    InputStream is = resource.getInputStream()
-            ) {
-                MockMultipartFile file = new MockMultipartFile(resource.getFilename(), is);
-                filePath = fileUploadService.uploadFiles(file);
+//        SystemFile face = new SystemFile();
+        SystemFile face = null;
+        ClassPathResource resource = new ClassPathResource("static/default_face.jpg");
+        //upload image
+        try (
+                InputStream is = resource.getInputStream()
+        ) {
+            MockMultipartFile file = new MockMultipartFile(resource.getFilename(), is);
+            face = nativeFileService.uploadFile(SystemFile.Type.FACE, file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            if (filePath.isEmpty()) {
-                throw new RestException("保存头像失败");
-            }
-        face = systemFileDao.save(face);
         User u = new User();
         u.setUsername(add.getUsername());
         u.setAccCode(add.getAccCode());
@@ -243,7 +239,10 @@ public class UserService {
      * @return collection of which user has been deleted
      */
     public List<Long> deleteUser(Collection<Long> uids) {
-        return uids.stream().filter(uid -> {
+        return uids.stream()
+                //can not delete super user
+                .filter(uid -> !isSu(uid))
+                .filter(uid -> {
             //解除关联
             userDao.deleteLinksByUid(uid);
             //删除用户
@@ -673,19 +672,14 @@ public class UserService {
         if (!filters.contains(ext.toLowerCase())) {
             return 0;
         }
+        //删除源文件
         if (null != systemFile.getId()) {
-            systemFileDao.delete(systemFile);
+            nativeFileService.delete(systemFile);
         }
-        SystemFile face = new SystemFile();
-        face.setType(SystemFile.Type.FACE);
-        face.setExt(Utils.getExt(file.getOriginalFilename()));
-        String filePath = "";
-        filePath = fileUploadService.uploadFiles(file);
-        if (filePath.isEmpty()) {
+        SystemFile face = nativeFileService.uploadFile(SystemFile.Type.FACE, file);
+        if (null == face.getId()) {
             return 0;
         }
-        face.setFilePath(filePath);
-        face = systemFileDao.save(face);
         user.getProfile().setFaceId(face.getId());
         userProfileDao.save(user.getProfile());
         return face.getId();
@@ -895,7 +889,7 @@ public class UserService {
      */
     public String[] getCommonCloudUsername(long uid) {
         User user = findUser(uid);
-        if (null == user || !user.isSu()) {
+        if (null == user || !user.getSu()) {
             return new String[]{"", ""};
         }
         return new String[]{cloudCommonUsername, cloudCommonPassword};

@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@FeignClient(name = "cloud-admin-service", url = "${filecloud.address}",configuration = CloudAdminApi.Config.class)
+@FeignClient(name = "cloud-admin-service", url = "${filecloud.address}", configuration = CloudAdminApi.Config.class)
 public interface CloudAdminApi {
 
 //    @RequestMapping(value = "/system/userAdd.action", method = RequestMethod.POST,

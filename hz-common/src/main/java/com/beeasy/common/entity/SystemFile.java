@@ -25,6 +25,11 @@ public class SystemFile extends AbstractBaseEntity {
         TEMP
     }
 
+    public enum StorageDriver {
+        NATIVE,
+        FASTDFS
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
@@ -37,6 +42,10 @@ public class SystemFile extends AbstractBaseEntity {
 
     @Enumerated
     Type type;
+
+    @Column(length = 15)
+    @Enumerated(value = EnumType.STRING)
+    StorageDriver storageDriver;
 
     @LastModifiedDate
     Date lastModifyTime;

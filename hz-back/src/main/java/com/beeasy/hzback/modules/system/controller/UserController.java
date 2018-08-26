@@ -37,9 +37,11 @@ import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -416,8 +418,11 @@ public class UserController {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return Result.ok();
+        return Result.ok(
+                Optional.ofNullable(path).map(item -> item.getFullPath()).orElse("")
+        );
     }
+
 
 //    storageClient.downloadFile("group1","M00/00/00/rBBMcltA0rSAWmYoAAAAwEXjnAQ40.json",inputStream -> {
 //        List<String> lines = IOUtils.readLines(inputStream);

@@ -17,7 +17,7 @@ import java.util.*;
 @Entity
 @Table(name = "t_workflow_ins_attr")
 @EntityListeners(AuditingEntityListener.class)
-public class WorkflowInstanceAttribute{
+public class WorkflowInstanceAttribute {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

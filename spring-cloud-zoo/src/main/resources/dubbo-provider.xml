@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://code.alibabatech.com/schema/dubbo
+http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+
+    <!-- 应用配置，不要与提供方相同 -->
+    <dubbo:application name="springboot-dubbo-consumer"/>
+
+    <!-- 注册中心配置，使用zookeeper注册中心暴露服务地址 -->
+    <dubbo:registry address="zookeeper://127.0.0.1:2181" timeout="60000" client="zkclient" />
+    <dubbo:protocol name="rmi" port="20881"/>
+
+    <!-- 使用注解方式创建远程服务代理-->
+    <!--<dubbo:annotation package="com.example.springcloudzoo"/>-->
+    <!--声明服务引用，与服务声明接口类型一致-->
+    <bean id="demoService" class="com.example.springcloudzoo.Test"/>
+    <dubbo:service interface="com.example.springcloudzoo.SayHello" ref="demoService"/>
+
+    <!--<dubbo:reference interface="com.practice.springboot.dubbo.provider.SayHelloImpl" id="SayHelloImpl"/>-->
+</beans>

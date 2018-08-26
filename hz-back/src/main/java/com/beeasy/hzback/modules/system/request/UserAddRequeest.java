@@ -4,11 +4,7 @@ import com.beeasy.common.helper.SpringContextUtils;
 import com.beeasy.hzback.modules.system.dao.IUserDao;
 import lombok.Data;
 
-import javax.annotation.Nullable;
-import javax.validation.constraints.AssertTrue;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Pattern;
+import javax.validation.constraints.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +22,7 @@ public class UserAddRequeest {
     @Pattern(regexp = "^1[3456789][0-9]{9}$|^.{0}$", message = "手机号码格式错误")
     String phone = "";
 
-    @Nullable
+    @Null
     @Email(message = "邮箱格式错误")
     String email;
 

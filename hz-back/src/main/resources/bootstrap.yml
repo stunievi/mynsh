@@ -1,21 +1,22 @@
-spring:
-  profiles:
-    active:
-    - myserver
-    - db2
+#spring:
+#  profiles:
+#    active:
+#    - myserver
+#    - db2
+#    - fileupload
 
-  cloud:
-    config:
-      discovery:
-        serviceId: service-hzconfig
-        enabled: true
+#  cloud:
+#    config:
+#      discovery:
+#        serviceId: service-hzconfig
+#        enabled: true
 
-eureka:
-  client:
-    serviceUrl:
-      defaultZone: http://localhost:8001/eureka/
-
-
+#eureka:
+#  client:
+#    serviceUrl:
+#      defaultZone: http://localhost:8001/eureka/
+#
+#
 feign.hystrix.enabled: false
 
 

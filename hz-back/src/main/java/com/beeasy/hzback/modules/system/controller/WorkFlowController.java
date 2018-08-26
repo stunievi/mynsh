@@ -459,9 +459,10 @@ public class WorkFlowController {
     @ApiOperation(value = "取消任务")
     @PostMapping("/cancel")
     public String cancelTask(
-            @RequestParam Long instanceId
+            @RequestParam Long instanceId,
+            int su
     ) {
-        boolean flag = workflowService.closeInstance(Utils.getCurrentUserId(), instanceId);
+        boolean flag = workflowService.closeInstance(Utils.getCurrentUserId(), instanceId,su > 0);
         if (!flag) {
             return Result.error("取消任务失败, 没有权限或该任务已经变动").toJson();
         } else {
@@ -571,13 +572,13 @@ public class WorkFlowController {
         return Result.finish(workflowService.deleteNodeFile(Utils.getCurrentUserId(), nodeFileId)).toJson();
     }
 
-    @ApiOperation(value = "开启子任务")
-    @PostMapping("/child/apply")
-    public String startChildTask(
-            @Valid @RequestBody StartChildInstanceRequest request
-    ) {
-        return workflowService.startChildInstance(Utils.getCurrentUserId(), request).toJson();
-    }
+//    @ApiOperation(value = "开启子任务")
+//    @PostMapping("/child/apply")
+//    public String startChildTask(
+//            @Valid @RequestBody StartChildInstanceRequest request
+//    ) {
+//        return workflowService.startChildInstance(Utils.getCurrentUserId(), request).toJson();
+//    }
 
     @ApiOperation(value = "设置观察岗")
     @PostMapping("/setObserverQuarters")

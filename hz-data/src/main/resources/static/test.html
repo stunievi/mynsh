@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="../asset/js/jquery-1.11.3.min.js"></script>
+</head>
+<body>
+<script>
+    $.ajax({
+        url: "http://127.0.0.1:5460/search/accloan/201",
+        type: "post",
+        contentType:"application/json",
+        headers:{
+            Token: "1579"
+        },
+        data:JSON.stringify({
+            params:{
+                timeout: 1,
+                CUS_ID:123
+            },
+            page: 1,
+            size : 15
+        }),
+        success: function (msg) {
+            document.write (msg)
+        }
+    })
+</script>
+</body>
+</html>

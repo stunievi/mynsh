@@ -83,7 +83,7 @@ public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance, Lo
     @Query(value = "select distinct ins from WorkflowInstance ins " +
             "left join ins.nodeList nl " +
             "left join nl.dealers dl " +
-            "where dl.userId in :uids and dl.type = 'DID_DEAL' and nl.finished = true and ins.id <= :lessId order by ins.addTime desc")
+            "where dl.userId in :uids and dl.type in ('DID_DEAL','OVER_DEAL') and nl.finished = true and ins.id <= :lessId order by ins.addTime desc")
     Page<WorkflowInstance> findDealedWorks(@Param("uids") Collection<Long> uids, @Param("lessId") Long lessId, Pageable pageable);
 
     //部门未执行任务

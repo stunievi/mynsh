@@ -1,5 +1,6 @@
 package com.beeasy.hzback.modules.system.controller;
 
+import com.beeasy.hzback.core.helper.Result;
 import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.modules.system.cache.SystemConfigCache;
 import com.beeasy.hzback.modules.system.dao.IDownloadFileTokenDao;
@@ -7,8 +8,10 @@ import com.beeasy.hzback.modules.system.dao.IMessageDao;
 import com.beeasy.hzback.modules.system.dao.ISystemFileDao;
 import com.beeasy.common.entity.DownloadFileToken;
 import com.beeasy.common.entity.SystemFile;
+import com.github.tobato.fastdfs.service.FastFileStorageClient;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -18,6 +21,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URLEncoder;
 import java.util.Date;
 import java.util.Optional;
@@ -35,6 +39,9 @@ public class FileController {
     IMessageDao messageDao;
     @Autowired
     IDownloadFileTokenDao fileTokenDao;
+    @Autowired
+    private FastFileStorageClient storageClient;
+
 
     @ApiOperation(value = "获取头像")
     @GetMapping("/open/face/{id}")
@@ -102,6 +109,26 @@ public class FileController {
         String fileName = URLEncoder.encode(file.getFileName(), "UTF-8");
         headers.set("Content-Disposition", "attachment; filename=\"" + fileName + "\"; filename*=utf-8''" + fileName);
         return new ResponseEntity<byte[]>(file.getBytes(), headers, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/open/download2")
+    public ResponseEntity downloadFile(
+            @RequestParam String group,
+            @RequestParam String path
+    ) {
+        InputStream inputStream = storageClient.downloadFile(group, path, ins -> {
+            return ins;
+        });
+        try {
+            byte[] bytes = IOUtils.toByteArray(inputStream);
+            String fileName = "1.txt";
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Content-Disposition", "attachment; filename=\"" + fileName + "\"; filename*=utf-8''" + fileName);
+            return new ResponseEntity<byte[]>(bytes, headers, HttpStatus.OK);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new ResponseEntity<byte[]>(HttpStatus.NO_CONTENT);
     }
 
     @RequestMapping(value = "/open/cross.html",

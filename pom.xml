@@ -10,6 +10,9 @@
     <version>1.0-SNAPSHOT</version>
     <modules>
         <module>hz-back</module>
+        <module>test</module>
+        <module>hz-data</module>
+        <module>hz-data</module>
     </modules>
 
 

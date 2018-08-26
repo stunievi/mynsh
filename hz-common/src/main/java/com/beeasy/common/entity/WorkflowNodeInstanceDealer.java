@@ -62,6 +62,7 @@ public class WorkflowNodeInstanceDealer {
     public enum Type {
         CAN_DEAL,
         DID_DEAL,
-        NOT_DEAL
+        NOT_DEAL,
+        OVER_DEAL
     }
 }

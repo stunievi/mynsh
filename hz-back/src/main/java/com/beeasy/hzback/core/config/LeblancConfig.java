@@ -9,6 +9,9 @@ import com.beeasy.hzback.modules.system.dao.IWorkflowModelDao;
 import com.beeasy.common.entity.WorkflowModel;
 import com.beeasy.hzback.modules.system.service.WorkflowService;
 import org.apache.commons.io.IOUtils;
+import org.beetl.sql.core.SQLManager;
+import org.beetl.sql.core.SQLManagerBuilder;
+import org.beetl.sql.core.db.DB2SqlStyle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
@@ -24,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 import javax.script.*;
+import javax.sql.DataSource;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
@@ -60,6 +64,8 @@ public class LeblancConfig {
 
     @Autowired
     EntityManager entityManager;
+    @Autowired
+    SQLManager sqlManager;
 
     @Bean
     public ScriptEngine scriptEngine() {
@@ -111,6 +117,7 @@ public class LeblancConfig {
         }
 
     }
+
 
 //    @Service
 //    @Transactional
