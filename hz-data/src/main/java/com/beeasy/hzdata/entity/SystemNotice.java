@@ -14,7 +14,7 @@ public class SystemNotice implements SimpleBean {
     public Long id;
     public Long userId;
     public Date addTime;
-    public State state;
+    public State state = State.UNREAD;
     public Type type;
     public String content = "";
     public String bindData = "";

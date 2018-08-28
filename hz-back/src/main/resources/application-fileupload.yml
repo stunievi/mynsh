@@ -1,5 +1,6 @@
 uploads:
-  type: fastdfs
+#  type: fastdfs
+  type: native
   path: /Users/bin/work/uploads
 
 fdfs:

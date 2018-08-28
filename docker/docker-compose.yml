@@ -16,15 +16,15 @@ services:
     - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
     - ../www:/usr/share/nginx/html
 
-  zoo1:
-    image: zookeeper
+#  zoo1:
+#    image: zookeeper
 #    restart: always
-    container_name: zoo1
-    ports:
-      - "2181:2181"
-    environment:
-      ZOO_MY_ID: 1
-      ZOO_SERVERS: server.1=zoo1:2888:3888 #server.2=zoo2:2888:3888 server.3=zoo3:2888:3888
+#    container_name: zoo1
+#    ports:
+#      - "2181:2181"
+#    environment:
+#      ZOO_MY_ID: 1
+#      ZOO_SERVERS: server.1=zoo1:2888:3888 #server.2=zoo2:2888:3888 server.3=zoo3:2888:3888
 
 #  tomcat:
 #    image: tomcat:7

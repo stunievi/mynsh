@@ -10,7 +10,7 @@ select
     p1.CUST_TYPE,
     p1.CERT_TYPE,
     case
-    when p1.CUST_TYPE in ('110','120','130','260') then
+    when p1.LOAN_ACCOUNT like '3001%' then
     p1.PSN_CERT_CODE
     else
     p1.ENT_CERT_CODE
@@ -40,7 +40,7 @@ select
     u1.PHONE,
     u1.CONTACT_NAME,
     case
-    when p1.CUST_TYPE in ('110','120','130','260') then
+    when p1.LOAN_ACCOUNT like '3001%' then
     u2.COM_CRD_GRADE
     else
     u3.CRD_GRADE
@@ -127,7 +127,7 @@ select
     p1.CUST_TYPE,
     p1.CERT_TYPE,
     case
-    when p1.CUST_TYPE in ('110','120','130','260') then
+    when p1.LOAN_ACCOUNT like '3001%' then
     p1.PSN_CERT_CODE
     else
     p1.ENT_CERT_CODE
@@ -157,7 +157,7 @@ select
     u1.PHONE,
     u1.CONTACT_NAME,
     case
-    when p1.CUST_TYPE in ('110','120','130','260') then
+    when p1.LOAN_ACCOUNT like '3001%' then
     u2.COM_CRD_GRADE
     else
     u3.CRD_GRADE
@@ -532,23 +532,21 @@ select
     u2.MAIN_BR_ID 
 @}
 from 
-CUS_BASE as u1
-left join CUS_COM as u2 on u1.CUS_ID=u2.CUS_ID 
-where u1.CREUNIT_NO = '0801'
--- 客户类型非个人
-and (u1.CUS_TYPE<>'110' and u1.CUS_TYPE<>'120' and u1.CUS_TYPE<>'130' and u1.CUS_TYPE<>'260') 
+CUS_COM as u2
+left join CUS_BASE as u1 on u1.CUS_ID=u2.CUS_ID 
+where u2.CREUNIT_NO = '0801'
 
 -- 客户号
 @if(isNotEmpty(CUS_ID)){
-    and u1.CUS_ID like #'%' + CUS_ID + '%'#
+    and u2.CUS_ID like #'%' + CUS_ID + '%'#
 @}
 -- 客户名称
 @if(isNotEmpty(CUS_NAME)){
-    and u1.CUS_NAME like #'%' + CUS_NAME + '%'# 
+    and u2.CUS_NAME like #'%' + CUS_NAME + '%'# 
 @}
 -- 证件号码
 @if(isNotEmpty(CERT_CODE)){
-    and u1.CERT_CODE like #'%' + CERT_CODE + '%'#
+    and u2.CERT_CODE like #'%' + CERT_CODE + '%'#
 @}
 -- 数据可视范围
 @if(null != deplimit){
@@ -622,22 +620,20 @@ select
     u3.CUST_MGR,
     u3.MAIN_BR_ID 
 @}
-from CUS_BASE as u1
-left join CUS_INDIV as u3 on u3.CUS_ID=u1.CUS_ID 
-where u1.CREUNIT_NO = '0801'
--- 客户类型为个人
-and u1.CUS_TYPE in ('110','120','130','260')
+from CUS_INDIV as u3
+left join CUS_BASE as u1 on u3.CUS_ID=u1.CUS_ID 
+where u3.CREUNIT_NO = '0801'
 -- 客户号
 @if(isNotEmpty(CUS_ID)){
-    and u1.CUS_ID like #'%' + CUS_ID + '%'# 
+    and u3.CUS_ID like #'%' + CUS_ID + '%'# 
 @}
 -- 客户名称
 @if(isNotEmpty(CUS_NAME)){
-    and u1.CUS_NAME like #'%' + CUS_NAME + '%'# 
+    and u3.CUS_NAME like #'%' + CUS_NAME + '%'# 
 @}
 -- 证件号码
 @if(isNotEmpty(CERT_CODE)){
-    and u1.CERT_CODE like #'%' + CUS_CODE + '%'#
+    and u3.CERT_CODE like #'%' + CUS_CODE + '%'#
 @}
 
 -- 数据可视范围
@@ -684,7 +680,7 @@ select
     p1.CUST_TYPE,
     p1.CERT_TYPE,
     case
-    when p1.CUST_TYPE in ('110','120','130','260') then
+    when p1.LOAN_ACCOUNT like '3001%' then
     p1.PSN_CERT_CODE
     else
     p1.ENT_CERT_CODE
@@ -714,7 +710,7 @@ select
     u1.PHONE,
     u1.CONTACT_NAME,
     case
-    when p1.CUST_TYPE in ('110','120','130','260') then
+    when p1.LOAN_ACCOUNT like '3001%' then
     u2.COM_CRD_GRADE
     else
     u3.CRD_GRADE

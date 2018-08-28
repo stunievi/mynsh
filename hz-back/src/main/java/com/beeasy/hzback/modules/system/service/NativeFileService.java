@@ -163,11 +163,12 @@ public class NativeFileService {
                 InputStream is = file.getInputStream();
                 FileOutputStream fos = new FileOutputStream(targetFile);
         ) {
-            byte[] bytes = new byte[1024];
-            int len = -1;
-            while ((len = is.read(bytes)) > -1) {
-                fos.write(bytes, 0, len);
-            }
+            IOUtils.copyLarge(is,fos);
+//            byte[] bytes = new byte[1024];
+//            int len = -1;
+//            while ((len = is.read(bytes)) > -1) {
+//                fos.write(bytes, 0, len);
+//            }
             return fileName;
         } catch (IOException e) {
             e.printStackTrace();

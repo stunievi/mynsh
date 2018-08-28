@@ -10,6 +10,7 @@ import org.springframework.boot.web.servlet.ServletComponentScan;
 //import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.ImportResource;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -28,6 +29,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 //@EnableCaching
 @SpringBootApplication(scanBasePackages = {"com.beeasy"})
 @EntityScan(basePackages = {"com.beeasy"})
+@ImportResource(value = {"classpath:provider.xml"})
 @ServletComponentScan
 public class Application {
 

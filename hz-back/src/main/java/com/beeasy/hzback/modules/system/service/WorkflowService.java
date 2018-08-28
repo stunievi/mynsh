@@ -152,23 +152,22 @@ public class WorkflowService {
      * @return
      */
     public Result autoStartTask(final long uid, final ApplyTaskRequest request) {
-        if (!userService.isSu(uid)) {
-            return Result.error("没有发布该任务的权限");
-        }
-        String modelName = searchService.getAutoTaskModelName(request.getDataId());
-        if (StringUtils.isEmpty(modelName)) {
+//        if (!userService.isSu(uid)) {
+//            return Result.error("没有发布该任务的权限");
+//        }
+//        String modelName = searchService.getAutoTaskModelName(request.getDataId());
+        if (StringUtils.isEmpty(request.getModelName())) {
             return Result.error("找不到任务模型");
         }
-        request.setModelName(modelName);
         //查找执行人
-        long duid = searchService.getAutoTaskDealer(request.getDataId());
-        if (duid == 0) {
-            return Result.error("没有找到对应的客户经理");
-        }
-        request.setDealerId(duid);
-        request.setManual(false);
-        request.setTitle("贷后跟踪任务 " + new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
-        return startNewInstance(duid, request);
+//        long duid = searchService.getAutoTaskDealer(request.getDataId());
+//        if (duid == 0) {
+//            return Result.error("没有找到对应的客户经理");
+//        }
+//        request.setDealerId(duid);
+//        request.setManual(false);
+        request.setTitle("贷后跟踪任务 " + new SimpleDateFormat("yyyy-MM-dd").format(request.getPlanStartTime()));
+        return startNewInstance(uid, request);
     }
 
 //    @Data

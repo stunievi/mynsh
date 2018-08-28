@@ -14,6 +14,10 @@ public class Utils {
      *        驼峰命名的字符串
      */
     public static String HumpToUnderline(String para){
+        //只要有一个_就被视为已经处理过, 不用再重复处理!!
+        if(para.contains("_")){
+            return para.toUpperCase();
+        }
         StringBuilder sb=new StringBuilder(para);
         int temp=0;//定位
         for(int i=0;i<para.length();i++){

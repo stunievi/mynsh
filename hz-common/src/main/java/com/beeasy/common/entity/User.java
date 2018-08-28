@@ -22,7 +22,6 @@ import java.util.Optional;
 @Setter
 @Entity
 @Table(name = "T_USER")
-@org.beetl.sql.core.annotatoin.Table(name = "T_USER")
 @EntityListeners(AuditingEntityListener.class)
 public class User implements Serializable {
 

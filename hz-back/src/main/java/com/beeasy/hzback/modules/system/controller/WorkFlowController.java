@@ -494,15 +494,15 @@ public class WorkFlowController {
     }
 
 
-    @NotSaveLog
-    @ApiOperation(value = "发布新的自动检查任务")
-    @RequestMapping(value = "/task/autoStart", method = RequestMethod.POST)
-    public Result startAutoTask(
-            @RequestBody ApplyTaskRequest request
-    ) {
-        Result result = workflowService.autoStartTask(Utils.getCurrentUserId(), request);
-        return result;
-    }
+//    @NotSaveLog
+//    @ApiOperation(value = "发布新的自动检查任务")
+//    @RequestMapping(value = "/task/autoStart", method = RequestMethod.POST)
+//    public Result startAutoTask(
+//            @RequestBody ApplyTaskRequest request
+//    ) {
+//        Result result = workflowService.autoStartTask(Utils.getCurrentUserId(), request);
+//        return result;
+//    }
 
 
     @ApiOperation(value = "保存草稿")

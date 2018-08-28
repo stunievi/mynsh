@@ -150,7 +150,7 @@ public class WorkflowInstance {
     boolean canDeal = false;
 
     //台账编号
-    @Column(name = "BILL_NO")
+    @Column(name = "BILL_NO", length = 32)
     String billNo;
     @Column(name = "LOAN_ACCOUNT", length = 32)
     String loanAccount;
