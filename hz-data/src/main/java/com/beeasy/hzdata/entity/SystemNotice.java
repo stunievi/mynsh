@@ -1,6 +1,7 @@
 package com.beeasy.hzdata.entity;
 
-import act.util.SimpleBean;
+import lombok.Getter;
+import lombok.Setter;
 import org.beetl.sql.core.annotatoin.AutoID;
 import org.beetl.sql.core.annotatoin.EnumMapping;
 import org.beetl.sql.core.annotatoin.Table;
@@ -9,15 +10,17 @@ import org.beetl.sql.core.mapper.BaseMapper;
 import java.util.Date;
 
 @Table(name = "T_SYSTEM_NOTICE")
-public class SystemNotice implements SimpleBean {
+@Getter
+@Setter
+public class SystemNotice {
     @AutoID
-    public Long id;
-    public Long userId;
-    public Date addTime;
-    public State state = State.UNREAD;
-    public Type type;
-    public String content = "";
-    public String bindData = "";
+    private Long id;
+    private Long userId;
+    private Date addTime;
+    private State state = State.UNREAD;
+    private Type type;
+    private String content = "";
+    private String bindData = "";
 
     @EnumMapping(EnumMapping.EnumType.STRING)
     public enum Type {

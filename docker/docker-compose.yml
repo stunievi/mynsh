@@ -6,15 +6,15 @@ services:
     ports:
     - 6379:6379
 
-  web:
-    container_name: web
-    image: hub.c.163.com/library/nginx:latest
-    ports:
-    - 80:80
-#    network_mode: host
-    volumes:
-    - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
-    - ../www:/usr/share/nginx/html
+#  web:
+#    container_name: web
+#    image: hub.c.163.com/library/nginx:latest
+#    ports:
+#    - 80:80
+##    network_mode: host
+#    volumes:
+#    - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+#    - ../www:/usr/share/nginx/html
 
 #  zoo1:
 #    image: zookeeper

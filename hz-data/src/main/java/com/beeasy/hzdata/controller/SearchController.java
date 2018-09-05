@@ -1,43 +1,31 @@
 package com.beeasy.hzdata.controller;
 
-import act.app.ActionContext;
-import act.controller.Controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.avaje.ebean.config.UnderscoreNamingConvention;
 import com.beeasy.hzdata.entity.Department;
-import com.beeasy.hzdata.entity.Quarters;
 import com.beeasy.hzdata.entity.User;
-import com.beeasy.hzdata.filter.AuthFilter;
-import com.beeasy.hzdata.utils.RetJson;
+import com.beeasy.hzdata.utils.Result;
 import com.beeasy.hzdata.utils.Utils;
-import org.beetl.sql.core.DefaultNameConversion;
 import org.beetl.sql.core.SQLManager;
-import org.beetl.sql.core.UnderlinedNameConversion;
 import org.beetl.sql.core.engine.PageQuery;
-import org.beetl.sql.ext.spring4.SqlManagerFactoryBean;
-import org.intellij.lang.annotations.JdkConstants;
 import org.osgl.$;
-import org.osgl.http.H;
-import org.osgl.mvc.annotation.*;
-import org.osgl.mvc.result.*;
 import org.osgl.util.C;
 import org.osgl.util.S;
-import org.rythmengine.internal.parser.build_in.DebugParser;
-import org.springframework.context.ApplicationContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.web.bind.annotation.*;
 
-import javax.inject.Inject;
-import javax.persistence.Column;
+import javax.servlet.http.HttpSession;
 import java.util.*;
 import java.util.stream.Collectors;
 
 
-@With(AuthFilter.class)
+@RestController
+@RequestMapping
 public class SearchController {
 
 
@@ -60,31 +48,33 @@ public class SearchController {
             )
     );
 
-    @Inject
+    @Autowired
     SQLManager sqlManager;
 
-    @Inject
-    User.Mapper userMapper;
+    @GetMapping("/search/aaa")
+    public Result test(){
+        return Result.ok("日乐购");
+    }
 
-    @Action("/search/accloan/{no}")
+    @RequestMapping(value = "/search/accloan/{no}", method = RequestMethod.POST)
     public Result search(
-            String no,
+            @PathVariable String no,
+            @PageableDefault(value = 15, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable,
             Map<String, Object> params,
-            int page,
-            int size,
-            H.Flash flash
+            HttpSession session
     ) {
-        final long uid = Long.parseLong(flash.get("uid"));
+
+        final long uid = Long.parseLong(String.valueOf(session.getAttribute("uid")));
         User user = sqlManager.unique(User.class,uid);
         //permission
         Map<String, List> limitMap = getPermissionLimit(user);
         if (null == limitMap) {
-            return RetJson.error("找不到数据").toResult();
+            return Result.error("找不到数据");
         } else if (C.notEmpty(limitMap)) {
             params.put("deplimit", limitMap.get("dep"));
             params.put("userlimit", limitMap.get("user"));
         }
-        PageQuery pageQuery = getPage(page, size);
+        PageQuery pageQuery = new PageQuery(pageable.getPageNumber() + 1, pageable.getPageSize());
         try {
             pageQuery.setParas(params);
             PageQuery pg = sqlManager.pageQuery("accloan." + no, Map.class, pageQuery);
@@ -95,22 +85,12 @@ public class SearchController {
                 Map item = (Map) fieldsMap.get(no);
                 retList = getPermissionResultLimit(user, (SearchTargetType)item.get("type"),retList, (List)item.get("fields"));
             }
-            Page ret = new PageImpl(retList, PageRequest.of((int) pageQuery.getPageNumber() - 1, (int) pageQuery.getPageSize()), pageQuery.getTotalRow());
-            return RetJson.ok(ret).toResult();
+            Page ret = new PageImpl(retList, pageable, pageQuery.getTotalRow());
+            return Result.ok(ret);
         } catch (Exception e) {
             e.printStackTrace();
-            return RetJson.error("参数错误").toResult();
+            return Result.error("参数错误");
         }
-    }
-
-    private PageQuery getPage(int page, int size) {
-        if (page <= 1) {
-            page = 1;
-        }
-        if (size <= 0) {
-            size = 15;
-        }
-        return new PageQuery(page, size);
     }
 
 
@@ -131,12 +111,12 @@ public class SearchController {
         if (null == user) {
             return null;
         }
-        if (user.su) {
+        if (user.getSu()) {
             return C.newMap();
         }
 //        List<Quarters> qs = (List<Quarters>) user.get("qs");
         List<Map> ps = sqlManager.select("user.selectPsByUser", Map.class, new HashMap() {{
-            put("uid", user.id);
+            put("uid", user.getId());
             put("type", "DATA_SEARCH_CONDITION");
             put("userType", "ROLE");
         }});
@@ -146,9 +126,9 @@ public class SearchController {
         List<String> finalUserCode = userCode;
 
         //default permission by manager
-        sqlManager.select("user.selectManagedDepartment", Department.class, C.newMap("uid", user.id))
+        sqlManager.select("user.selectManagedDepartment", Department.class, C.newMap("uid", user.getId()))
                 .stream()
-                .map(dep -> dep.accCode)
+                .map(Department::getAccCode)
                 .forEach(managerCode::add);
 //        qs.stream().filter(q -> q.manager)
 //                .map(q -> (Department) q.get("dep"))
@@ -156,7 +136,7 @@ public class SearchController {
 //                .map(dep -> (dep.accCode))
 //                .forEach(managerCode::add);
         //default permission by user
-        userCode.add(user.accCode);
+        userCode.add(user.getAccCode());
 
         //external permission
         ps.stream().filter(p -> null != p.get("description"))
@@ -202,11 +182,11 @@ public class SearchController {
      * @return
      */
     private List getPermissionResultLimit(User user, SearchTargetType searchTargetType, List<Map<String,Object>> ret, List<String> defaultFields) {
-        if (user.su) {
+        if (user.getSu()) {
             return ret;
         }
         List<Map> ps = sqlManager.select("user.selectPsByUser", Map.class, C.newMap(
-                "uid", user.id,
+                "uid", user.getId(),
                 "type", "DATA_SEARCH_RESULT",
                 "userType", "ROLE"
         ));

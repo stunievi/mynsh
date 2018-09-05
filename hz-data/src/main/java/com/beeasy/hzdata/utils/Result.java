@@ -1,18 +1,16 @@
 package com.beeasy.hzdata.utils;
 
 
-import act.util.SimpleBean;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.PropertyFilter;
-import org.osgl.mvc.result.RenderJSON;
+import lombok.Getter;
+import lombok.Setter;
 
-import javax.servlet.http.HttpServletResponse;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 import java.util.*;
-import java.util.stream.Collectors;
 
-public class RetJson<T> implements SimpleBean {
+@Getter
+@Setter
+public class Result<T>{
     public boolean success;
     public String errMessage = "";
     public T data;
@@ -21,72 +19,72 @@ public class RetJson<T> implements SimpleBean {
         T apply();
     }
 
-    public RetJson<T> map() {
+    public Result<T> map() {
         return this;
     }
 
-    public RetJson<T> flatMap() {
+    public Result<T> flatMap() {
         return this;
     }
 
-    protected RetJson() {
+    protected Result() {
     }
 
-    public static RetJson ok() {
-        RetJson retJson = new RetJson();
-        retJson.success = true;
-        return retJson;
+    public static Result ok() {
+        Result result = new Result();
+        result.success = true;
+        return result;
     }
 
-    public static RetJson ok(Object item) {
-        RetJson retJson = ok();
-        retJson.data = (item);
-        return retJson;
+    public static Result ok(Object item) {
+        Result result = ok();
+        result.data = (item);
+        return result;
     }
 
 
-    public static RetJson error(Set<String> errMsgs) {
-        RetJson retJson = error();
-        retJson.errMessage = String.join(",", errMsgs);
-//        RetJson.setErrMessage(StringUtils.join(errMsgs.toArray(), ","));
-        return retJson;
+    public static Result error(Set<String> errMsgs) {
+        Result result = error();
+        result.errMessage = String.join(",", errMsgs);
+//        Result.setErrMessage(StringUtils.join(errMsgs.toArray(), ","));
+        return result;
     }
 
-    public static RetJson error(String... errMsgs) {
+    public static Result error(String... errMsgs) {
         return error(new HashSet<>(Arrays.asList(errMsgs)));
     }
 
-//    public static RetJson error(BindingRetJson item) {
-//        RetJson RetJson = error();
+//    public static Result error(BindingRetJson item) {
+//        Result Result = error();
 //        Set<String> stringSet = ((BindingRetJson) item).getAllErrors().stream().map(i -> i.getDefaultMessage()).collect(Collectors.toSet());
 //        return error(stringSet);
 //    }
 
-    public static RetJson error() {
-        RetJson retJson = new RetJson();
-        retJson.success = false;
-        return retJson;
+    public static Result error() {
+        Result result = new Result();
+        result.success = false;
+        return result;
     }
 
-    public static RetJson finish(final String msg) {
+    public static Result finish(final String msg) {
         if(msg.isEmpty()){
-            return RetJson.ok();
+            return Result.ok();
         }
 //        if (StringUtils.isEmpty(msg)) {
-//            return RetJson.ok();
+//            return Result.ok();
 //        }
-        return RetJson.error(msg);
+        return Result.error(msg);
     }
 
-    public static RetJson finish(boolean b) {
+    public static Result finish(boolean b) {
         return b ? ok() : error();
     }
 
-    public static RetJson finish(Optional optional) {
+    public static Result finish(Optional optional) {
         return optional.isPresent() ? ok(optional.get()) : error();
     }
 
-    public static RetJson finish(boolean flag, Object object) {
+    public static Result finish(boolean flag, Object object) {
         return flag ? ok(object) : error();
     }
 
@@ -136,10 +134,6 @@ public class RetJson<T> implements SimpleBean {
         return JSON.toJSONString(this, propertyFilter);
     }
 
-    public RenderJSON toResult(){
-        return RenderJSON.of(this);
-    }
-
     private String encode(String str) {
         return "";
 //        return Utils.getCurrentUserPrivateKey().map(key -> {
@@ -151,7 +145,7 @@ public class RetJson<T> implements SimpleBean {
 //                e.printStackTrace();
 //            }
 //            return null;
-//        }).orElse(RetJson.error().toJson());
+//        }).orElse(Result.error().toJson());
     }
 
     public String toMobile() {
@@ -184,7 +178,7 @@ public class RetJson<T> implements SimpleBean {
 //        return okJson(obj,new DisallowEntry[0]);
 //    }
     public static String okJson(Object obj, DisallowEntry... entries) {
-        return RetJson.ok(obj).toJson(entries);
+        return Result.ok(obj).toJson(entries);
     }
 
 

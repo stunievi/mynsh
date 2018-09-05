@@ -1,14 +1,17 @@
 package com.beeasy.hzdata.entity;
 
-import act.util.SimpleBean;
+import lombok.Getter;
+import lombok.Setter;
 import org.beetl.sql.core.annotatoin.Table;
 
 import java.util.Date;
 
 @Table(name = "T_SHORT_MESSAGE_LOG")
-public class ShortMessageLog implements SimpleBean {
-    public Long id;
-    public String phone;
-    public String message;
-    public Date addTime;
+@Getter
+@Setter
+public class ShortMessageLog {
+    private Long id;
+    private String phone;
+    private String message;
+    private Date addTime;
 }

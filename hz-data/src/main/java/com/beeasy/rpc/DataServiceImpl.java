@@ -1,19 +1,17 @@
 package com.beeasy.rpc;
 
-import act.Act;
-import act.db.beetlsql.BeetlSqlService;
+import com.alibaba.dubbo.config.annotation.Service;
 import com.beeasy.hzdata.entity.User;
 import org.beetl.sql.core.SQLManager;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.inject.Inject;
-
+@Service
 public class DataServiceImpl implements DataService {
-    @Inject
+    @Autowired
     SQLManager sqlManager;
 
     @Override
     public String foo() {
-        return "";
-//        return sqlManager.single(User.class,1).username;
+        return sqlManager.single(User.class,1579).getUsername();
     }
 }

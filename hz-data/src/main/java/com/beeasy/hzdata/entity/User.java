@@ -1,6 +1,7 @@
 package com.beeasy.hzdata.entity;
 
-import act.util.SimpleBean;
+import lombok.Getter;
+import lombok.Setter;
 import org.beetl.sql.core.TailBean;
 import org.beetl.sql.core.annotatoin.AutoID;
 import org.beetl.sql.core.annotatoin.Param;
@@ -13,13 +14,14 @@ import org.beetl.sql.core.orm.OrmQuery;
 @OrmQuery(value = {
        @OrmCondition(target = Quarters.class, attr = "id", targetAttr = "userId", sqlId = "user.selectQuarters", type = OrmQuery.Type.MANY, lazy = true, alias = "qs")
 })
-public class User extends TailBean implements SimpleBean {
-    @AutoID
-    public Long id;
-    public String username;
-    public String password;
-    public Boolean su = false;
-    public String accCode = "";
+@Getter
+@Setter
+public class User extends TailBean {
+    private Long id;
+    private String username;
+    private String password;
+    private Boolean su = false;
+    private String accCode = "";
 
     public interface Mapper extends BaseMapper<User> {
         User findById(@Param("id") long id);
