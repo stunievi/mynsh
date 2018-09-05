@@ -16,6 +16,7 @@ import com.beeasy.hzback.modules.system.request.QuartersAddRequest;
 import com.beeasy.hzback.modules.system.request.UserAddRequeest;
 import com.beeasy.hzback.modules.system.service.*;
 import com.beeasy.hzback.modules.system.service.UserService;
+import com.beeasy.rpc.DataService;
 import com.github.tobato.fastdfs.service.FastFileStorageClient;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.IOUtils;
@@ -528,10 +529,13 @@ public class TestAsync {
 
 
 
+    @Autowired
+    DataService dataService;
 
     @Test
     public void updateWorkflows() {
-        List<Department> departments = departmentDao.findAll();
+        System.out.println(dataService.foo());
+//        List<Department> departments = departmentDao.findAll();
 //        List list = sqlManager.query(User.class).select();
 //        List list1 = sqlManager.select("accloan.base", Map.class, ImmutableMap.of(
 //                "LN_TYPE", "普通贷款"

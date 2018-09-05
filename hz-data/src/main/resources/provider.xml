@@ -19,5 +19,9 @@ http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
     <!--<dubbo:annotation package="com.example"/>-->
     <!--声明服务引用，与服务声明接口类型一致-->
     <dubbo:reference id="dubboService" check="false" interface="com.beeasy.rpc.DubboService"/>
+
+    <!--<bean id="dataService" class="com.beeasy.rpc.DataServiceImpl" />-->
+    <!--<dubbo:service interface="com.beeasy.rpc.DataService" ref="dataService" />-->
+
     <!--<dubbo:reference interface="com.practice.springboot.dubbo.provider.SayHelloImpl" id="SayHelloImpl"/>-->
 </beans>

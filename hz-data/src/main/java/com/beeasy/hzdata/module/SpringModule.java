@@ -1,10 +1,13 @@
 package com.beeasy.hzdata.module;
 
+import com.alibaba.dubbo.common.utils.DubboAppender;
 import com.beeasy.hzdata.utils.ClassUtil;
 //import net.sf.cglib.proxy.Enhancer;
 //import net.sf.cglib.proxy.MethodInterceptor;
 //import net.sf.cglib.proxy.MethodProxy;
 import org.osgl.inject.Module;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -24,7 +27,6 @@ public class SpringModule extends Module {
         String packageName = "com.beeasy.rpc";
         ctx = new ClassPathXmlApplicationContext(new String[]{"classpath:provider.xml"});
         ctx.start();
-
 
         Map<String,String> map = new HashMap<>();
         for (String beanDefinitionName : ctx.getBeanDefinitionNames()) {

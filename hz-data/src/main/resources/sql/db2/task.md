@@ -1,3 +1,8 @@
+deleteTriggerLogs
+===
+delete from t_notice_trigger_log
+
+
 selectRule1
 ===
 SELECT

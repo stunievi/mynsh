@@ -5,10 +5,7 @@ import act.cli.Command;
 import act.cli.Optional;
 import act.db.beetlsql.BeetlSqlTransactional;
 import com.alibaba.fastjson.JSON;
-import com.beeasy.hzdata.entity.MessageTemplate;
-import com.beeasy.hzdata.entity.NoticeTriggerLog;
-import com.beeasy.hzdata.entity.SystemNotice;
-import com.beeasy.hzdata.entity.User;
+import com.beeasy.hzdata.entity.*;
 import com.beeasy.hzdata.utils.Utils;
 import com.beeasy.rpc.DubboService;
 import org.beetl.sql.core.SQLManager;
@@ -52,6 +49,7 @@ public class CheckCommand {
     ) {
         if($.isNotNull(cl)){
             println(context,"正在清除检查日志......");
+            sqlManager.executeUpdate("task.deleteTriggerLogs",C.newMap());
         }
 
         if(S.isNotBlank(num)){
@@ -233,9 +231,6 @@ public class CheckCommand {
         }
     }
 
-
-
-
     /***** 检查end ****/
 
     /***** 自动生成任务start *****/
@@ -330,6 +325,10 @@ public class CheckCommand {
         context.flush();
     }
 
+    /**
+     * get all configs
+     * @return
+     */
     private Map<String,String> getConfigs(){
         Map<String,String> ret = C.newMap();
         List<Map> list = (sqlManager.select("system.selectConfigs", Map.class, C.newMap()));
@@ -342,6 +341,11 @@ public class CheckCommand {
         return ret;
     }
 
+    /**
+     * get config value by single key
+     * @param key
+     * @return
+     */
     private String getConfig(final String key){
         List<Map> list = sqlManager.select("system.selectConfigByKey", Map.class, C.newMap("varName",key));
         if(C.empty(list)){
@@ -351,16 +355,34 @@ public class CheckCommand {
 
     }
 
+    /**
+     * get all message templates
+     * @return
+     */
     private Map<String, MessageTemplate> getTemplates(){
         return sqlManager.select("system.selectTemplates", MessageTemplate.class, C.newMap())
                 .stream()
                 .collect(toMap(t->t.name,t->t));
     }
 
+    /**
+     * get a message template
+     * @param name
+     * @return
+     */
     private java.util.Optional<MessageTemplate> getTemplate(final String name){
         return java.util.Optional.ofNullable(sqlManager.query(MessageTemplate.class).andEq("name", name).single());
     }
 
+
+    /**
+     * send system notice to user
+     *
+     * @param type
+     * @param uid
+     * @param content
+     * @param bindData
+     */
     private void writeNotice(final SystemNotice.Type type, final long uid, final String content, Map bindData){
         if($.isNull(bindData)){
             bindData = new HashMap();
@@ -378,6 +400,13 @@ public class CheckCommand {
         }
     }
 
+    /**
+     * write trigger log
+     *
+     * @param n
+     * @param uuid
+     * @param date
+     */
     private void writeLog(final int n, final String uuid, Date date){
         if($.isNull(date)) {
             date = new Date();
@@ -389,6 +418,22 @@ public class CheckCommand {
         int row = sqlManager.insert(log);
         if(0 == row){
             throw new RuntimeException("写入日志错误, 开始回滚数据");
+        }
+    }
+
+    /**
+     * write showrt message log
+     * @param phone
+     * @param msg
+     */
+    private void writeShortMessageLog(final String phone, final String msg){
+        ShortMessageLog shortMessageLog = new ShortMessageLog();
+        shortMessageLog.phone = phone;
+        shortMessageLog.message = msg;
+        shortMessageLog.addTime = new Date();
+        int row = sqlManager.insert(shortMessageLog);
+        if(0 == row){
+            throw new RuntimeException("写入短信日志错误, 开始回滚数据");
         }
     }
 

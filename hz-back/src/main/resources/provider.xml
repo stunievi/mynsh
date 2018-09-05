@@ -17,7 +17,8 @@ http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
 
     <!-- 声明需要暴露的服务接口 -->
     <dubbo:service interface="com.beeasy.rpc.DubboService" ref="dubboService" />
-
     <!-- 和本地bean一样实现服务 -->
     <bean id="dubboService" class="com.beeasy.rpc.DubboServiceImpl" />
+
+    <dubbo:reference id="dataService" check="false" interface="com.beeasy.rpc.DataService"/>
 </beans>
