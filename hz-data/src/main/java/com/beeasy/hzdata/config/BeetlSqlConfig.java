@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@ImportResource(value = {"classpath:beetlsql.xml"})
 @Configuration
 public class BeetlSqlConfig implements ApplicationListener<ContextRefreshedEvent> {
 

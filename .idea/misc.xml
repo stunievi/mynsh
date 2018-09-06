@@ -8,7 +8,7 @@
       <list>
         <option value="$PROJECT_DIR$/pom.xml" />
         <option value="$PROJECT_DIR$/hz-common/pom.xml" />
-        <option value="$PROJECT_DIR$/demo222/pom.xml" />
+        <option value="$PROJECT_DIR$/hz-data/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">
@@ -18,5 +18,5 @@
       </set>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="1.8 (1)" project-jdk-type="JavaSDK" />
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_10" default="false" project-jdk-name="10" project-jdk-type="JavaSDK" />
 </project>

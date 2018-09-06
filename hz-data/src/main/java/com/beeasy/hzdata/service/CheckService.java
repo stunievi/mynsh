@@ -267,7 +267,7 @@ public class CheckService {
                 //查找任务执行人
                 User user = sqlManager.query(User.class).andEq("accCode", item.get("CUST_MGR")).single();
                 if($.isNull(user)){
-                    println( "贷款账号%s: 找不到对应的任务还行人", loanAccount);
+                    println( "贷款账号%s: 找不到对应的任务执行人", loanAccount);
                     continue;
                 }
                 //rpc调用生成任务

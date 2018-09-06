@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.beeasy.mscommon.StarterAutoConfigure,\
+com.beeasy.mscommon.WebMvcConfig

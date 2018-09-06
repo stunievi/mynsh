@@ -2,14 +2,9 @@ package com.beeasy.hzdata.command;
 
 
 import com.beeasy.hzdata.service.CheckService;
-import lombok.extern.slf4j.Slf4j;
-import org.osgl.$;
-import org.osgl.util.S;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.shell.Shell;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
-import org.springframework.shell.standard.ShellMethodAvailability;
 import org.springframework.shell.standard.ShellOption;
 
 @ShellComponent

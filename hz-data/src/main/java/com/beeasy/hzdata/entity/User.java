@@ -23,8 +23,4 @@ public class User extends TailBean {
     private Boolean su = false;
     private String accCode = "";
 
-    public interface Mapper extends BaseMapper<User> {
-        User findById(@Param("id") long id);
-    }
-
 }

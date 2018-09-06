@@ -6,10 +6,11 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="demo222" />
         <module name="hz-back" />
         <module name="hz-common" />
         <module name="hz-data" />
+        <module name="hz-ms-back" />
+        <module name="hz-ms-common" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -20,6 +21,8 @@
       <module name="hz-back" target="1.8" />
       <module name="hz-common" target="1.8" />
       <module name="hz-data" target="1.8" />
+      <module name="hz-ms-back" target="1.8" />
+      <module name="hz-ms-common" target="1.8" />
       <module name="hzcp" target="1.5" />
       <module name="spdemo" target="1.8" />
       <module name="tttatat" target="1.5" />

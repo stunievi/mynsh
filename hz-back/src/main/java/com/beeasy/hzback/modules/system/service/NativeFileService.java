@@ -5,7 +5,6 @@ import com.beeasy.hzback.core.exception.RestException;
 import com.beeasy.hzback.modules.system.dao.ISystemFileDao;
 import com.github.tobato.fastdfs.domain.StorePath;
 import com.github.tobato.fastdfs.service.FastFileStorageClient;
-import jdk.nashorn.internal.runtime.regexp.joni.Regex;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
