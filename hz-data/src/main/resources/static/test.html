@@ -13,17 +13,11 @@
     $.ajax({
         url: "http://localhost/api/search/accloan/201",
         type: "post",
-        contentType:"application/json",
         headers:{
-            Token: "1579"
+            Token: "1"
         },
-        data:JSON.stringify({
-            params:{
-                timeout: 1,
-                CUS_ID:123
-            },
-            page: 1,
-            size : 15
+        data:({
+            CUS_ID:"00000080073814044"
         }),
         success: function (msg) {
             document.write (msg)

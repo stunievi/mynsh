@@ -60,7 +60,7 @@ public class SearchController {
     public Result search(
             @PathVariable String no,
             @PageableDefault(value = 15, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable,
-            Map<String, Object> params,
+            @RequestParam Map<String, Object> params,
             HttpSession session
     ) {
 
