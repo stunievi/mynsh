@@ -1,4 +1,4 @@
-package com.beeasy.hzdata.utils;
+package com.beeasy.mscommon;
 
 
 import com.alibaba.fastjson.JSON;

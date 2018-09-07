@@ -255,11 +255,11 @@ public class UserController {
         return Result.ok(userDao.getNormalUsers());
     }
 
-    @NotSaveLog
-    @RequestMapping(value = "/face/edit", method = RequestMethod.POST)
-    public String uploadFace(@RequestParam MultipartFile file) {
-        return Result.ok(userService.updateUserFace(Utils.getCurrentUserId(), file)).toJson();
-    }
+//    @NotSaveLog
+//    @RequestMapping(value = "/face/edit", method = RequestMethod.POST)
+//    public String uploadFace(@RequestParam long fileId) {
+//        return Result.ok(userService.updateUserFace(Utils.getCurrentUserId(),fileId)).toJson();
+//    }
 
 
     /************ 角色相关 ************/

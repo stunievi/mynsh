@@ -9,10 +9,109 @@
     <script src="../asset/js/jquery-1.11.3.min.js"></script>
 </head>
 <body>
+
+<div>
+    <p>upload test</p>
+    <form
+            enctype="multipart/form-data"
+            action="http://192.168.10.186/api/file/upload" method="post"
+            target="_blank">
+        <input type="file" name="file">
+        <p>
+            用户令牌
+            <input type="text" name="token">
+        </p>
+        <p>
+            文件名
+            <input type="text" name="fileName">
+        </p>
+        <p>
+            标签
+            <input type="text" name="tags">
+        </p>
+        <p>
+            文件类型
+            <select name="type">
+                <option value="FACE">FACE</option>
+                <option value="TEMP">TEMP</option>
+            </select>
+        </p>
+        <input type="submit">
+    </form>
+</div>
+
+<br>
+
+<div>
+    <p>download test</p>
+    <form action="http://192.168.10.186/api/file/download">
+        <p>
+            文件ID
+            <input type="text" name="fileId">
+        </p>
+        <p>
+            文件令牌
+            <input type="text" name="token">
+
+        </p>
+        <input type="submit">
+    </form>
+</div>
+
+<hr>
+
+<div>
+    <p>modify test</p>
+    <form action="http://192.168.10.186/api/file/modify" method="post" target="_blank">
+        <p>
+            文件ID
+            <input type="text" name="fileId">
+        </p>
+        <p>
+            用户令牌
+            <input type="text" name="token">
+        </p>
+        <p>
+            fileName
+            <input type="text" name="fileName">
+        </p>
+        <p>
+            tags
+            <input type="text" name="tags">
+        </p>
+        <input type="submit">
+    </form>
+</div>
+
+<hr>
+
+<div>
+   <p>delete test</p>
+    <form action="http://192.168.10.186/api/file/delete" method="post" target="_blank">
+        <p>
+            文件ID
+            <input type="text" name="fileId">
+        </p>
+        <p>
+            用户令牌
+            <input type="text" name="token">
+        </p>
+        <input type="submit">
+    </form>
+</div>
+
 <script>
+
+    $("#delete").click(function(){
+        $.post("http://192.168.10.186:8061/file/delete?fileId=1",{
+            token: 1,
+            fileId: 1
+        })
+    });
+
     $.ajax({
-        url: "http://localhost/api/search/accloan/201",
-        type: "post",
+        url: "http://192.168.10.186/api/search/accloan/201",
+        type: "get",
         headers:{
             Token: "1"
         },
@@ -20,7 +119,7 @@
             CUS_ID:"00000080073814044"
         }),
         success: function (msg) {
-            document.write (msg)
+            //document.write (JSON.stringify(msg))
         }
     })
 </script>

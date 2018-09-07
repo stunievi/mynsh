@@ -92,6 +92,16 @@
             <artifactId>osgl-tool</artifactId>
             <version>1.17.0</version>
         </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>2.6</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.5</version>
+        </dependency>
         <!--utils end-->
 
         <!--dubbo start-->

@@ -664,26 +664,34 @@ public class UserService {
      * @param file
      * @return
      */
-    public long updateUserFace(long uid, MultipartFile file) {
-        User user = findUser(uid);
-        SystemFile systemFile = findFile(user.getProfile().getFaceId()).orElse(new SystemFile());
-        String ext = Utils.getExt(file.getOriginalFilename());
-        List<String> filters = Arrays.asList("jpeg", "jpg", "png");
-        if (!filters.contains(ext.toLowerCase())) {
-            return 0;
-        }
-        //删除源文件
-        if (null != systemFile.getId()) {
-            nativeFileService.delete(systemFile);
-        }
-        SystemFile face = nativeFileService.uploadFile(SystemFile.Type.FACE, file);
-        if (null == face.getId()) {
-            return 0;
-        }
-        user.getProfile().setFaceId(face.getId());
-        userProfileDao.save(user.getProfile());
-        return face.getId();
-    }
+//    public long updateUserFace(final long uid, final long fileId) {
+//        User user = findUser(uid);
+//        SystemFile systemFile = findFile(fileId).orElse(null);
+//        if(null == systemFile){
+//            return 0;
+//        }
+//        UserProfile up = user.getProfile();
+//        up.setFaceId(systemFile.getId());
+//        userProfileDao.save(up);
+//        return fileId;
+////        SystemFile systemFile = findFile(user.getProfile().getFaceId()).orElse(new SystemFile());
+////        String ext = Utils.getExt(file.getOriginalFilename());
+////        List<String> filters = Arrays.asList("jpeg", "jpg", "png");
+////        if (!filters.contains(ext.toLowerCase())) {
+////            return 0;
+////        }
+////        //删除源文件
+////        if (null != systemFile.getId()) {
+////            nativeFileService.delete(systemFile);
+////        }
+////        SystemFile face = nativeFileService.uploadFile(SystemFile.Type.FACE, file);
+////        if (null == face.getId()) {
+////            return 0;
+////        }
+////        user.getProfile().setFaceId(face.getId());
+////        userProfileDao.save(user.getProfile());
+////        return face.getId();
+//    }
 
     /**
      * 修改密码, 修改规则如下

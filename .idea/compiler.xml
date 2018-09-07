@@ -11,6 +11,7 @@
         <module name="hz-data" />
         <module name="hz-ms-back" />
         <module name="hz-ms-common" />
+        <module name="hz-ms-file" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -23,7 +24,8 @@
       <module name="hz-data" target="1.8" />
       <module name="hz-ms-back" target="1.8" />
       <module name="hz-ms-common" target="1.8" />
-      <module name="hzcp" target="1.5" />
+      <module name="hz-ms-file" target="1.8" />
+      <module name="hzcp" target="1.8" />
       <module name="spdemo" target="1.8" />
       <module name="tttatat" target="1.5" />
     </bytecodeTargetLevel>

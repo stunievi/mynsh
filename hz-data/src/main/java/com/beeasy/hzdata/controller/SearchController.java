@@ -4,8 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.beeasy.hzdata.entity.Department;
 import com.beeasy.hzdata.entity.User;
-import com.beeasy.hzdata.utils.Result;
 import com.beeasy.hzdata.utils.Utils;
+import com.beeasy.mscommon.Result;
 import org.beetl.sql.core.SQLManager;
 import org.beetl.sql.core.engine.PageQuery;
 import org.osgl.$;
@@ -56,7 +56,7 @@ public class SearchController {
         return Result.ok("日乐购");
     }
 
-    @RequestMapping(value = "/search/accloan/{no}", method = RequestMethod.POST)
+    @RequestMapping(value = "/search/accloan/{no}", method = RequestMethod.GET)
     public Result search(
             @PathVariable String no,
             @PageableDefault(value = 15, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable,

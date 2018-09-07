@@ -1,7 +1,7 @@
-package com.beeasy.hzback.modules.system.request;
+package com.beeasy.hzmsback.request;
 
-import com.beeasy.common.helper.SpringContextUtils;
-import com.beeasy.hzback.modules.system.dao.IUserDao;
+import com.beeasy.hzmsback.HzMsBackApp;
+import com.beeasy.mscommon.entity.User;
 import lombok.Data;
 
 import javax.validation.constraints.*;
@@ -35,7 +35,12 @@ public class UserAddRequeest {
 
     @AssertTrue(message = "已经有同名用户存在")
     public boolean isValidUsername() {
-        return SpringContextUtils.getBean(IUserDao.class).countByUsername(username) == 0;
+        return HzMsBackApp.sqlManager.lambdaQuery(User.class)
+                .andEq(User::getUsername, username).count() == 0;
+//        User user = new User();
+//        user.setUsername(username);
+//        HzMsBackApp.sqlManager.templateCount(username);
+//        return SpringContextUtils.getBean(IUserDao.class).countByUsername(username) == 0;
     }
 
     @AssertTrue(message = "已经有相同的手机号码存在")
@@ -43,7 +48,9 @@ public class UserAddRequeest {
         if (phone.isEmpty()) {
             return true;
         } else {
-            return SpringContextUtils.getBean(IUserDao.class).countByPhone(phone) == 0;
+            return HzMsBackApp.sqlManager.lambdaQuery(User.class)
+                    .andEq(User::getPhone, phone).count() == 0;
+//            return SpringContextUtils.getBean(IUserDao.class).countByPhone(phone) == 0;
         }
     }
 

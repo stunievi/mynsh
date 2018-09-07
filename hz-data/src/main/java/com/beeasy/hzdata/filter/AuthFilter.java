@@ -1,7 +1,7 @@
 package com.beeasy.hzdata.filter;
 
 import com.beeasy.hzdata.entity.UserToken;
-import com.beeasy.hzdata.utils.Result;
+import com.beeasy.mscommon.Result;
 import org.beetl.sql.core.SQLManager;
 import org.osgl.$;
 import org.osgl.util.S;
@@ -69,7 +69,7 @@ public class AuthFilter implements Filter {
                 writeError(servletResponse,err);
                 return;
             }
-            uid = list.get(0).getId();
+            uid = list.get(0).getUserId();
         }
         if (0 == uid) {
             writeError(servletResponse,err);

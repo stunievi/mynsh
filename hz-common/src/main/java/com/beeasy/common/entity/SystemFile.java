@@ -40,7 +40,7 @@ public class SystemFile extends AbstractBaseEntity {
     @Column(columnDefinition = JSONConverter.blobType)
     byte[] bytes;
 
-    @Enumerated
+    @Enumerated(value = EnumType.STRING)
     Type type;
 
     @Column(length = 15)
