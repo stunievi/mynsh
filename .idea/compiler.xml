@@ -10,24 +10,23 @@
         <module name="hz-common" />
         <module name="hz-data" />
         <module name="hz-ms-back" />
+        <module name="hz-ms-command" />
         <module name="hz-ms-common" />
         <module name="hz-ms-file" />
+        <module name="hz-rpc-common" />
+        <module name="hz-test" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="demo222" target="1.5" />
-      <module name="helloworld" target="1.7" />
-      <module name="hz-act-common" target="8" />
-      <module name="hz-act_common" target="8" />
       <module name="hz-back" target="1.8" />
       <module name="hz-common" target="1.8" />
       <module name="hz-data" target="1.8" />
       <module name="hz-ms-back" target="1.8" />
       <module name="hz-ms-common" target="1.8" />
       <module name="hz-ms-file" target="1.8" />
+      <module name="hz-rpc-common" target="1.8" />
+      <module name="hz-test" target="1.8" />
       <module name="hzcp" target="1.8" />
-      <module name="spdemo" target="1.8" />
-      <module name="tttatat" target="1.5" />
     </bytecodeTargetLevel>
   </component>
 </project>

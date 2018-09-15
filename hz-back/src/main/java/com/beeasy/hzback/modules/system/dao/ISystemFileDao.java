@@ -9,4 +9,5 @@ public interface ISystemFileDao extends JpaRepository<SystemFile, Long> {
     Optional<SystemFile> findFirstByIdAndType(Long id, SystemFile.Type type);
 
     int countByIdAndType(Long id, SystemFile.Type type);
+    int countById(Long id);
 }

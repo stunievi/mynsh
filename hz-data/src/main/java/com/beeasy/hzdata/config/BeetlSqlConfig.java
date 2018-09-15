@@ -4,7 +4,6 @@ import com.beeasy.hzdata.entity.ShortMessageLog;
 import com.beeasy.hzdata.entity.User;
 import com.beeasy.hzdata.entity.UserToken;
 import com.beeasy.hzdata.utils.Utils;
-import com.ibeetl.starter.BeetlSqlSingleConfig;
 import org.beetl.sql.core.*;
 import org.beetl.sql.core.db.DB2SqlStyle;
 import org.beetl.sql.core.db.DBStyle;
@@ -52,7 +51,8 @@ public class BeetlSqlConfig implements ApplicationListener<ContextRefreshedEvent
     static List<String> sqlids = C.newList(
             "system.selectConfigByKey",
             "system.selectConfigs",
-            "task.selectGentask"
+            "task.selectGentask",
+            "task.selectModelName"
     );
     static {
         for(int i = 1; i <= 16; i++){

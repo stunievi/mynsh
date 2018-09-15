@@ -27,9 +27,9 @@ public class SystemLog {
     @Column(columnDefinition = JSONConverter.VARCHAR_5O)
     String method;
 
-    @Column(columnDefinition = JSONConverter.type)
-    @Convert(converter = JSONConverter.class)
-    Object params;
+//    @Column(columnDefinition = JSONConverter.type)
+//    @Convert(converter = JSONConverter.class)
+//    Object params;
 
     @CreatedDate
     Date addTime;

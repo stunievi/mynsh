@@ -1,6 +1,5 @@
 package com.beeasy.hzdata.service;
 
-import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.fastjson.JSON;
 import com.beeasy.hzdata.entity.*;
 import com.beeasy.rpc.DubboService;
@@ -30,7 +29,7 @@ public class CheckService {
     @Autowired
     SQLManager sqlManager;
 
-    @Autowired
+//    @Autowired
     DubboService dubboService;
 
     @Async

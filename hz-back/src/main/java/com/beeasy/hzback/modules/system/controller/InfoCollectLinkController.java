@@ -57,6 +57,7 @@ public class InfoCollectLinkController {
             String PHONE,
             String CERT_CODE,
             String BILL_NO,
+            String LOAN_ACCOUNT,
             Long START_DATE,
             Long END_DATE,
             Pager pager,
@@ -107,12 +108,12 @@ public class InfoCollectLinkController {
                 );
             }
             //使用bill_no的情况下, 查询所属的关联
-            if (!StringUtils.isEmpty(BILL_NO)) {
+            if (!StringUtils.isEmpty(LOAN_ACCOUNT)) {
                 Join join = root.join("collectLinks");
                 predicates.add(
                         cb.equal(
-                                join.get("billNo"),
-                                BILL_NO
+                                join.get("loanAccount"),
+                                LOAN_ACCOUNT
                         )
                 );
             }
@@ -141,44 +142,18 @@ public class InfoCollectLinkController {
             map.put("title", instance.getTitle());
 
             //查询和台账的关联
-            map.put("billNo", linkDao.findTopByInstanceId(instance.getId()).map(item -> item.getBillNo()).orElse(""));
+            map.put("loanAccount", linkDao.findTopByInstanceId(instance.getId()).map(item -> item.getLoanAccount()).orElse(""));
             return map;
         });
         return Result.ok(ret);
     }
 
 
-//    @ApiOperation(value = "查询贷款台账")
-//    @RequestMapping(value = "/getAccLoan", method = RequestMethod.GET)
-//    public String getAccLoan(
-//            Pager pager,
-//            @PageableDefault(direction = Sort.Direction.DESC) Pageable pageable
-//    ){
-//        String sql = "select * from ACC_LOAN order by BILL_NO desc limit " + pageable.getOffset() + "," + pageable.getPageSize();
-//        List list = sqlUtils.query(sql).stream().map(item -> {
-//            Map<String,Object> map = new HashMap<>();
-//            map.put("BILL_NO", item.get("BILL_NO"));
-//            map.put("CUS_ID",item.get("CUS_ID"));
-//            map.put("CUS_NAME", item.get("CUS_NAME"));
-//            map.put("LOAN_ACCOUNT",item.get("LOAN_ACCOUNT"));
-//            map.put("links",linkDao.getInstancesByBillNo((String) map.get("BILL_NO")));
-//            return map;
-//        }).collect(Collectors.toList());
-//        String countSql = "select count(*) as num from ACC_LOAN";
-//        List<Map<String,String>> countList = sqlUtils.query(countSql);
-//        long count = Long.valueOf(countList.get(0).get("num"));
-//        PageImpl page = new PageImpl(list,pageable,count);
-//        return Result.ok(page).toJson(
-//                new Result.DisallowEntry(WorkflowInstance.class, "nodeList")
-//        );
-//    }
-
-
     @Transactional
     @ApiOperation(value = "绑定")
     @RequestMapping(value = "/createLink", method = RequestMethod.GET)
     public Result createLink(
-            @RequestParam String BILL_NO,
+            @RequestParam String LOAN_ACCOUNT,
             @RequestParam String id
     ) {
         List<Long> success = new ArrayList<>();
@@ -187,19 +162,20 @@ public class InfoCollectLinkController {
             if (null == instance) {
                 continue;
             }
-            if (linkDao.countByBillNoAndInstanceId(BILL_NO, aLong) > 0) {
+            if (linkDao.countByLoanAccountAndInstanceId(LOAN_ACCOUNT, aLong) > 0) {
                 success.add(aLong);
                 continue;
             }
             InfoCollectLink infoCollectLink = new InfoCollectLink();
-            infoCollectLink.setBillNo(BILL_NO);
+            infoCollectLink.setLoanAccount(LOAN_ACCOUNT);
             infoCollectLink.setInstanceId(aLong);
             linkDao.save(infoCollectLink);
 
             ApplyTaskRequest request = new ApplyTaskRequest();
             request.setDataSource(ApplyTaskRequest.DataSource.ACC_LOAN);
-            request.setDataId(BILL_NO);
-            workflowService.addExtData(instance, instance.getWorkflowModel(), request, false);
+            request.setDataId(LOAN_ACCOUNT);
+            //TODO: rpc 资料收集
+//            workflowService.addExtData(instance, instance.getWorkflowModel(), request, false);
             success.add(aLong);
         }
         return Result.ok(success);
@@ -209,10 +185,10 @@ public class InfoCollectLinkController {
     @ApiOperation(value = "解绑")
     @RequestMapping(value = "/deleteLink", method = RequestMethod.GET)
     public Result deleteLink(
-            @RequestParam String BILL_NO,
+            @RequestParam String LOAN_ACCOUNT,
             @RequestParam String id
     ) {
-        return Result.finish(linkDao.deleteAllByBillNoAndInstanceIdIn(BILL_NO, Utils.convertIdsToList(id)) > 0);
+        return Result.finish(linkDao.deleteAllByLoanAccountAndInstanceIdIn(LOAN_ACCOUNT, Utils.convertIdsToList(id)) > 0);
     }
 
 }

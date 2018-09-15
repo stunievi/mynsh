@@ -163,15 +163,14 @@ public class WorkFlowController {
                     List<Object> objects = workflowService.getNodeDealUids(instanceId, id)
                             .stream()
                             .map(item -> {
-                                Object[] objs = (Object[]) item;
                                 return Utils.newMap(
-                                        "userId", objs[2],
-                                        "trueName", objs[3],
-                                        "depId", objs[4],
-                                        "depName", objs[5],
-                                        "quartersId", objs[6],
-                                        "quartersName", objs[7],
-                                        "userType", objs[1]
+                                        "userId", item.get("UID"),
+                                        "trueName", item.get("UNAME"),
+                                        "depId", item.get("DID"),
+                                        "depName", item.get("DNAME"),
+                                        "quartersId", item.get("QID"),
+                                        "quartersName", item.get("QNAME"),
+                                        "userType", item.get("USER_TYPE")
                                 );
                             })
                             .collect(Collectors.toList());
@@ -729,12 +728,12 @@ public class WorkFlowController {
     @ApiOperation(value = "查询台账相关的绑定")
     @RequestMapping(value = "/binds", method = RequestMethod.GET)
     public Result searchBindedWorks(
-            @RequestParam String billNo,
+            @RequestParam String loanAccount,
             @RequestParam String modelName,
             Pager pager,
             @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        return Result.ok(instanceDao.getBindedWorks(billNo, modelName, pageable));
+        return Result.ok(instanceDao.getBindedWorks(loanAccount, modelName, pageable));
     }
 
 

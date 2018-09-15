@@ -15,6 +15,8 @@ permission:
   type: global2
 #  type: local
 
+rpc:
+  secret: "1q2w3e4r"
 
 workflow:
   timeStep: 1
@@ -90,7 +92,7 @@ spring:
     #    driver-class-name: com.mysql.jdbc.Driver
     #        mysql-end
     #        db2
-    url: jdbc:db2://localhost:50000/test
+    url: jdbc:db2://47.94.97.138:50000/test
     username: db2inst1
     password: db2inst1
     driver-class-name: com.ibm.db2.jcc.DB2Driver
@@ -98,7 +100,7 @@ spring:
     # 使用druid数据源
     type: org.springframework.jdbc.datasource.DriverManagerDataSource
     #    type: com.alibaba.druid.pool.DruidDataSource
-  #    druid:
+    druid:
   #      filters: stat
   #      maxActive: 20
   #      initialSize: 1
@@ -106,7 +108,7 @@ spring:
   #      minIdle: 1
   #      timeBetweenEvictionRunsMillis: 60000
   #      minEvictableIdleTimeMillis: 300000
-  #      validationQuery: select 'x'
+        validationQuery: select count(1) from t_user
   #      testWhileIdle: true
   #      testOnBorrow: false
   #      testOnReturn: false
@@ -126,4 +128,9 @@ spring:
   mvc:
     async:
       request-timeout: 30000ms
+  dubbo:
+    server: true
+    registry: N/A
+    provider:
+      port: 28001
 

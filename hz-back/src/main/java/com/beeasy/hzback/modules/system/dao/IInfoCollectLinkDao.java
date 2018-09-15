@@ -11,12 +11,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IInfoCollectLinkDao extends JpaRepository<InfoCollectLink, Long> {
-    @Query(value = "select link.instance from InfoCollectLink link where link.billNo = :billNo")
-    List<WorkflowInstance> getInstancesByBillNo(@Param("billNo") String billNo);
-
-    int deleteAllByBillNoAndInstanceIdIn(String billNo, Collection<Long> ids);
-
-    int countByBillNoAndInstanceId(String billNo, long id);
-
+    @Query(value = "select link.instance from InfoCollectLink link where link.loanAccount = :loanAccount")
+    List<WorkflowInstance> getInstancesByLoanAccount(@Param("loanAccount") String loanAccount);
+    int deleteAllByLoanAccountAndInstanceIdIn(String loanAccount, Collection<Long> ids);
+    int countByLoanAccountAndInstanceId(String loanAccount, long id);
     Optional<InfoCollectLink> findTopByInstanceId(final long instanceId);
 }

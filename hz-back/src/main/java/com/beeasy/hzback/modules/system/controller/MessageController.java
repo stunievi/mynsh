@@ -74,20 +74,13 @@ public class MessageController {
     }
 
     @NotSaveLog
-    @PostMapping("/sendFile")
+    @RequestMapping(value = "/sendFile", method = RequestMethod.POST)
     public Result sendFile(
             @RequestParam Long toUid,
-            @RequestParam MultipartFile file
+            @RequestParam Long fileId
     ) throws IOException {
         return Result.finish(
-                messageService.sendMessage(Utils.getCurrentUserId(), toUid, file).map(item -> {
-                    if (!item.getType().equals(Message.Type.FILE)) {
-                        return item;
-                    }
-                    JSONObject object = (JSONObject) JSON.toJSON(item);
-                    object.put("token", messageService.applyDownload(Utils.getCurrentUserId(), item));
-                    return object;
-                })
+                messageService.sendMessage(Utils.getCurrentUserId(), toUid, fileId)
         );
     }
 
@@ -100,26 +93,14 @@ public class MessageController {
         return Result.ok(
                 messageService.getUserRecentMessages(Utils.getCurrentUserId(), userId, messageId).stream()
                         .map(item -> {
-                            JSONObject object = (JSONObject) JSON.toJSON(item);
-                            object.put("token", messageService.applyDownload(Utils.getCurrentUserId(), item));
-                            return object;
+                            return messageService.applyDownload(Utils.getCurrentUserId(), item);
+//                            JSONObject object = (JSONObject) JSON.toJSON(item);
+//                            object.put("token", messageService.applyDownload(Utils.getCurrentUserId(), item));
+//                            return object;
                         })
                         .collect(Collectors.toList())
         );
     }
 
-
-//    @ApiOperation(value = "申请下载令牌")
-//    @RequestMapping(value = "/downloadApply", method = RequestMethod.GET)
-//    public Result downloadApply(
-//            @RequestParam String id
-//    ){
-//        return Result.ok(Utils.convertIdsToList(id)
-//                .stream()
-//                .map(i -> new Object[]{i + "", messageService.applyDownload(Utils.getCurrentUserId(),i)})
-//                .collect(Collectors.toMap(obj -> obj[0], obj -> obj[1]))
-//        );
-//
-//    }
 
 }

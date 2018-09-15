@@ -51,10 +51,6 @@ public class FileController {
     String UPLOAD_PATH;
 
 
-    @GetMapping("/test")
-    public String test() {
-        return "132";
-    }
 
     @RequestMapping(value = "/upload", method = RequestMethod.POST)
     @ResponseBody
@@ -75,9 +71,9 @@ public class FileController {
         }
         String ext = FilenameUtils.getExtension(file.getOriginalFilename());
         if(S.empty(fileName)){
-            fileName = UUID.randomUUID().toString() + "." + ext;
+            fileName = file.getOriginalFilename();
         }
-        File targetFile = new File(path.toAbsolutePath().toString() + File.separator + fileName);
+        File targetFile = new File(path.toAbsolutePath().toString() + File.separator + UUID.randomUUID().toString() + "." + ext);
         try (
                 InputStream is = file.getInputStream();
                 FileOutputStream fos = new FileOutputStream(targetFile);
@@ -96,10 +92,10 @@ public class FileController {
         systemFile.setLastModifyTime(new Date());
         systemFile.setFileName(fileName);
         systemFile.setStorageDriver(SystemFile.Driver.NATIVE);
-        systemFile.setCreator(user.getId());
+        systemFile.setCreatorId(user.getId());
+        systemFile.setCreatorName(user.getTrueName());
         systemFile.setTags(tags);
         systemFile.setType(type);
-
 
         //file type
         if($.isNull(type)){
@@ -139,7 +135,7 @@ public class FileController {
         if($.isNotNull(sFile)){
             sqlManager.lambdaQuery(SystemFile.class)
                     .andEq(SystemFile::getId, fileId)
-                    .andEq(SystemFile::getCreator, user.getId())
+                    .andEq(SystemFile::getCreatorId, user.getId())
                     .delete();
             try {
                 Files.delete(Paths.get(sFile.getFilePath()));
@@ -150,13 +146,12 @@ public class FileController {
         return Result.ok();
     }
 
-    @RequestMapping(value = "/modify", method = RequestMethod.POST)
+    @RequestMapping(value = "/rename", method = RequestMethod.POST)
     @ResponseBody
     public Result modify(
             @RequestParam long fileId,
             @RequestParam String token,
-            String fileName,
-            String tags
+            String fileName
     ){
         User user = checkAuth(token);
         SystemFile sFile = sqlManager.single(SystemFile.class, fileId);
@@ -164,6 +159,22 @@ public class FileController {
             return Result.error("修改失败");
         }
         sFile.setFileName(S.fmt("%s.%s",fileName,sFile.getExt()));
+        sqlManager.updateById(sFile);
+        return Result.ok(sFile);
+    }
+
+    @RequestMapping(value = "/retags", method = RequestMethod.POST)
+    @ResponseBody
+    public Result modifyTags(
+            @RequestParam long fileId,
+            @RequestParam String token,
+            String tags
+    ){
+        User user = checkAuth(token);
+        SystemFile sFile = sqlManager.single(SystemFile.class, fileId);
+        if($.isNull(sFile)){
+            return Result.error("修改失败");
+        }
         sFile.setTags(tags);
         sqlManager.updateById(sFile);
         return Result.ok(sFile);

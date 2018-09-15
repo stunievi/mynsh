@@ -17,11 +17,11 @@ public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance, Lo
 
     List<WorkflowInstance> findAllByIdIn(List<Long> ids);
 
-    Optional<WorkflowInstance> findTopByModelNameAndBillNoAndStateNotIn(String modelName, String BILL_NO, Collection<WorkflowInstance.State> states);
+    Optional<WorkflowInstance> findTopByModelNameAndLoanAccountAndStateNotIn(String modelName, String BILL_NO, Collection<WorkflowInstance.State> states);
 
-    int countByModelNameAndBillNoAndStateNotIn(String modelName, String BILL_NO, Collection<WorkflowInstance.State> states);
+    int countByModelNameAndLoanAccountAndStateNotIn(String modelName, String BILL_NO, Collection<WorkflowInstance.State> states);
 
-    int countByModelNameAndBillNo(String modelName, String BILL_NO);
+    int countByModelNameAndLoanAccount(String modelName, String BILL_NO);
 
     // 根据模型名选取所有实例
 //    @Query(value = "SELECT w.* FROM t_workflow_instance w JOIN t_workflow_model m on m.id=w.workflow_model_id WHERE m.model_name='资料收集';", nativeQuery = true)
@@ -193,7 +193,7 @@ public interface IWorkflowInstanceDao extends JpaRepository<WorkflowInstance, Lo
 
 
     /*******台账相关******/
-    @Query(value = "select distinct ins from WorkflowInstance ins left join ins.attributes at where at.attrKey = 'BILL_NO' and at.attrValue = :billNo and ins.workflowModel.modelName = :modelName order by ins.id desc")
+    @Query(value = "select distinct ins from WorkflowInstance ins left join ins.attributes at where at.attrKey = 'LOAN_ACCOUNT' and at.attrValue = :billNo and ins.workflowModel.modelName = :modelName order by ins.id desc")
     Page<WorkflowInstance> getBindedWorks(@Param("billNo") String billNo, @Param("modelName") String modelName, Pageable pageable);
 
     /**********/

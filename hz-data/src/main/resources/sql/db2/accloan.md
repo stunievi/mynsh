@@ -322,6 +322,212 @@ and (
 )
 @}
 
+101
+===
+select 
+@pageTag(){
+    p1.BILL_NO,
+    p1.CONT_NO,
+    p1.LOAN_ACCOUNT,
+    p1.LOAN_AMOUNT,
+    p1.LOAN_BALANCE,
+    p1.CLA,
+    p1.CUS_ID,
+    p1.CUS_NAME,
+    p1.CUST_TYPE,
+    p1.CERT_TYPE,
+    case
+    when p1.LOAN_ACCOUNT like '3001%' then
+    p1.PSN_CERT_CODE
+    else
+    p1.ENT_CERT_CODE
+    end as CERT_CODE,
+    u1.PHONE,
+    p1.CUST_MGR,
+    p1.MAIN_BR_ID   
+@}
+from RPT_M_RPT_SLS_ACCT as p1
+left join CUS_BASE as u1 on p1.CUS_ID=u1.CUS_ID 
+where p1.CREUNIT_NO = '0801'
+and p1.LOAN_ACCOUNT=#LOAN_ACCOUNT#
+
+-- 数据可视范围
+@if(null != deplimit){
+    and (
+        p1.CUST_MGR in (#join(userlimit)#)
+        or p1.MAIN_BR_ID in (#join(deplimit)#)
+    )
+@}
+
+102
+===
+select 
+@pageTag(){
+    p1.BILL_NO,
+    p1.CONT_NO,
+    p1.LOAN_ACCOUNT,
+    p1.LOAN_AMOUNT,
+    p1.LOAN_BALANCE,
+    p1.CLA,
+    p1.CUS_ID,
+    p1.CUS_NAME,
+    p1.CUST_TYPE,
+    p1.CERT_TYPE,
+    p1.CUST_MGR,
+    p1.MAIN_BR_ID   
+@}
+from RPT_M_RPT_SLS_ACCT as p1
+left join CUS_BASE as u1 on p1.CUS_ID=u1.CUS_ID 
+where p1.CREUNIT_NO = '0801'
+and p1.LOAN_ACCOUNT=#LOAN_ACCOUNT#
+
+-- 数据可视范围
+@if(null != deplimit){
+    and (
+        p1.CUST_MGR in (#join(userlimit)#)
+        or p1.MAIN_BR_ID in (#join(deplimit)#)
+    )
+@}
+
+103
+===
+select 
+@pageTag(){
+    p1.BILL_NO,
+    p1.CONT_NO,
+    p1.LOAN_ACCOUNT,
+    p1.LOAN_AMOUNT,
+    p1.LOAN_BALANCE,
+    p1.CLA,
+    p1.CUS_ID,
+    p1.CUS_NAME,
+    p1.ASSURE_MEANS_MAIN,
+    p1.USE_DEC,
+    p1.LOAN_TERM  
+@}
+from RPT_M_RPT_SLS_ACCT as p1
+where p1.CREUNIT_NO = '0801'
+and p1.LOAN_ACCOUNT=#LOAN_ACCOUNT#
+
+-- 数据可视范围
+@if(null != deplimit){
+    and (
+        p1.CUST_MGR in (#join(userlimit)#)
+        or p1.MAIN_BR_ID in (#join(deplimit)#)
+    )
+@}
+
+104
+===
+select 
+@pageTag(){
+    p1.BILL_NO,
+    p1.CONT_NO,
+    p1.LOAN_ACCOUNT,
+    p1.LOAN_AMOUNT,
+    p1.LOAN_BALANCE,
+    p1.CLA,
+    p1.CUS_ID,
+    p1.CUS_NAME,
+    g1.GUAR_NAME,
+    p1.ASSURE_MEANS_MAIN,
+    p1.USE_DEC,
+    p1.LOAN_TERM  
+@}
+from RPT_M_RPT_SLS_ACCT as p1 
+left join GRT_LOANGUAR_INFO as g5 on p1.CONT_NO=g5.CONT_NO
+left join GRT_GUAR_CONT as g1 on g5.GUAR_CONT_NO=g1.GUAR_CONT_CN_NO
+where p1.CREUNIT_NO = '0801'
+and p1.LOAN_ACCOUNT=#LOAN_ACCOUNT#
+
+-- 数据可视范围
+@if(null != deplimit){
+    and (
+        p1.CUST_MGR in (#join(userlimit)#)
+        or p1.MAIN_BR_ID in (#join(deplimit)#)
+    )
+@}
+
+105
+===
+select 
+@pageTag(){
+    p1.BILL_NO,
+    p1.CONT_NO,
+    p1.LOAN_ACCOUNT,
+    p1.LOAN_AMOUNT,
+    p1.LOAN_BALANCE,
+    p1.CLA,
+    p1.CUS_ID,
+	p1.CUS_NAME,
+	p1.ASSURE_MEANS_MAIN,
+	p1.INDIV_RSD_ADDR,
+	p1.LOAN_START_DATE,
+	p1.LOAN_END_DATE,
+	case
+    when (length(u1.PHONE) = 11 and u1.PHONE like '1%') then
+        u1.phone
+    when (p1.LOAN_ACCOUNT like '3001%' and length(u3.MOBILE) = 11 and u3.MOBILE like '1%') then
+        u3.MOBILE
+    when (p1.LOAN_ACCOUNT like '3001%' and length(u3.PHONE) = 11 and u3.PHONE like '1%') then
+        u3.PHONE
+    when (p1.LOAN_ACCOUNT like '3001%' and length(u3.FPHONE) = 11 and u3.FPHONE like '1%') then
+        u3.FPHONE
+    when (p1.LOAN_ACCOUNT like '3002%' and length(u2.PHONE) = 11 and u2.PHONE like '1%') then
+        u2.PHONE
+    when (p1.LOAN_ACCOUNT like '3002%' and length(u2.LEGAL_PHONE) = 11 and u2.LEGAL_PHONE like '1%') then
+        u2.LEGAL_PHONE
+    else
+        ''
+	end as PHONE,
+	p1.USE_DEC,
+	p1.REPAYMENT_MODE,
+	p1.UNPD_PRIN_BAL,
+	p1.DELAY_INT_CUMU,
+	p1.SEVEN_RESULT,
+	p1.LOAN_TERM
+@}
+from RPT_M_RPT_SLS_ACCT as p1 
+left join CUS_BASE as u1 on p1.CUS_ID=u1.CUS_ID
+left join cus_com as u2 on p1.CUS_ID = u2.CUS_ID
+left join cus_indiv as u3 on p1.CUS_ID = u3.CUS_ID
+where p1.CREUNIT_NO = '0801'
+and p1.LOAN_ACCOUNT=#LOAN_ACCOUNT#
+
+-- 数据可视范围
+@if(null != deplimit){
+    and (
+        p1.CUST_MGR in (#join(userlimit)#)
+        or p1.MAIN_BR_ID in (#join(deplimit)#)
+    )
+@}
+
+106
+===
+select 
+@pageTag(){
+    p1.BILL_NO,
+    p1.CONT_NO,
+    p1.LOAN_ACCOUNT,
+    p1.LOAN_AMOUNT,
+    p1.LOAN_BALANCE,
+    p1.CLA,
+    p1.CUS_ID,
+    p1.CUS_NAME
+@}
+from RPT_M_RPT_SLS_ACCT as p1 
+where p1.CREUNIT_NO = '0801'
+and p1.LOAN_ACCOUNT=#LOAN_ACCOUNT#
+
+-- 数据可视范围
+@if(null != deplimit){
+    and (
+        p1.CUST_MGR in (#join(userlimit)#)
+        or p1.MAIN_BR_ID in (#join(deplimit)#)
+    )
+@}
+
+
 201
 ===
 select
@@ -449,7 +655,7 @@ and CUS_ID= #CUS_ID#
 -- 数据可视范围
 @if(null != deplimit){
     and CUST_MGR in (#join(userlimit)#)
-    and MAIN_BR_ID in (#join(deplimit)#)
+    or MAIN_BR_ID in (#join(deplimit)#)
 @}
 
 203
@@ -517,17 +723,17 @@ and p1.LOAN_ACCOUNT= #LOAN_ACCOUNT#
     and (
         p1.CUST_MGR in (#join(userlimit)#)
         or p1.MAIN_BR_ID in (#join(deplimit)#)
-    }
+    )
 @}
 
 214
 ===
 select
 @pageTag(){
-    u1.CUS_ID,
-    u1.CUS_NAME,
-    u1.CERT_TYPE,
-    u1.CERT_CODE,
+    u2.CUS_ID,
+    u2.CUS_NAME,
+    u2.CERT_TYPE,
+    u2.CERT_CODE,
     u2.CUST_MGR,
     u2.MAIN_BR_ID
 @}
@@ -633,7 +839,7 @@ where u3.CREUNIT_NO = '0801'
 @}
 -- 证件号码
 @if(isNotEmpty(CERT_CODE)){
-    and u3.CERT_CODE like #'%' + CUS_CODE + '%'#
+    and u3.CERT_CODE like #'%' + CERT_CODE + '%'#
 @}
 
 -- 数据可视范围
@@ -711,9 +917,9 @@ select
     u1.CONTACT_NAME,
     case
     when p1.LOAN_ACCOUNT like '3001%' then
-    u2.COM_CRD_GRADE
+        u3.CRD_GRADE
     else
-    u3.CRD_GRADE
+        u2.COM_CRD_GRADE
     end as CRD_GRADE
 @}
 from RPT_M_RPT_SLS_ACCT as p1
@@ -761,9 +967,9 @@ and p1.LN_TYPE = '普通贷款'
 
 -- 是否逾期
 @if(timeout == '1' || timeout == 1){
-        and (p1.CAP_OVERDUE_DATE<>'' and p1.CAP_OVERDUE_DATE<>NULL) or (p1.INTEREST_OVERDUE_DATE<>'' and p1.INTEREST_OVERDUE_DATE<>NULL)
+        and ((p1.CAP_OVERDUE_DATE<>'' and p1.CAP_OVERDUE_DATE<>NULL) or (p1.INTEREST_OVERDUE_DATE<>'' and p1.INTEREST_OVERDUE_DATE<>NULL))
 @}else if(timeout == '0' || timeout == 0){
-        and not (p1.CAP_OVERDUE_DATE<>'' and p1.CAP_OVERDUE_DATE<>NULL) or (p1.INTEREST_OVERDUE_DATE<>'' and p1.INTEREST_OVERDUE_DATE<>NULL)
+        and not ((p1.CAP_OVERDUE_DATE<>'' and p1.CAP_OVERDUE_DATE<>NULL) or (p1.INTEREST_OVERDUE_DATE<>'' and p1.INTEREST_OVERDUE_DATE<>NULL))
 @}
 
 -- 联系人
@@ -782,6 +988,14 @@ and p1.LN_TYPE = '普通贷款'
         p1.CUST_MGR in (#join(userlimit)#)
         or p1.MAIN_BR_ID in (#join(deplimit)#)
     )
+@}
+
+
+-- 不良台账
+@if(register == 'true'){
+    and (select count(*) from t_workflow_instance ins where ins.model_name in ('不良资产管理流程') and ins.state <> 'FINISHED' and ins.loan_account = p1.LOAN_ACCOUNT) > 0
+@}else if(register == 'false'){
+    and (select count(*) from t_workflow_instance ins where ins.model_name in ('不良资产管理流程') and ins.state <> 'FINISHED' and ins.loan_account = p1.LOAN_ACCOUNT) = 0
 @}
 
 220
@@ -809,7 +1023,7 @@ and CONT_NO=#CONT_NO#
 @if(null != deplimit){
     and (
         CUST_MGR in (#join(userlimit)#)
-        and MAIN_BR_ID in (#join(deplimit)#)
+        or MAIN_BR_ID in (#join(deplimit)#)
     )
 @}
 
@@ -833,7 +1047,8 @@ select
     u3.MAIN_BR_ID
     else
     u2.MAIN_BR_ID
-    end as MAIN_BR_ID
+    end as MAIN_BR_ID,
+    u1.CUS_TYPE
 @}
 from
 CUS_BASE as u1
@@ -856,8 +1071,14 @@ where u1.CREUNIT_NO = '0801'
 -- 数据可视范围
 @if(null != deplimit){
     and (
-        CUST_MGR in (#join(userlimit)#)
-        or MAIN_BR_ID in (#join(deplimit)#)
+        (
+            u2.CUST_MGR in (#join(userlimit)#)
+            or u2.MAIN_BR_ID in (#join(deplimit)#)
+        ) or 
+        (
+            u3.CUST_MGR in (#join(userlimit)#)
+            or u3.MAIN_BR_ID in (#join(deplimit)#) 
+        )
     )
 @}
 
@@ -886,3 +1107,6 @@ where CREUNIT_NO = '0801'
 and ACCT_NO= #LOAN_ACCOUNT#
 
 
+countSameBL
+===
+select count(1) from t_workflow_instance where MODEL_NAME = #MODEL_NAME# and LOAN_ACCOUNT = #LOAN_ACCOUNT# and state not in ('CANCELED','FINISHED')

@@ -7,10 +7,6 @@
 
     <artifactId>hz-back</artifactId>
 
-    <properties>
-        <kotlin.version>1.2.60</kotlin.version>
-    </properties>
-
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
@@ -34,7 +30,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.beeasy.mingyi</groupId>
+            <groupId>com.beeasy</groupId>
             <artifactId>hz-common</artifactId>
             <version>1.0</version>
         </dependency>
@@ -433,17 +429,23 @@
             <version>3.23.1-GA</version>
         </dependency>
 
-
         <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>dubbo</artifactId>
-            <version>2.5.9</version>
+            <groupId>com.alibaba.spring.boot</groupId>
+            <artifactId>dubbo-spring-boot-starter</artifactId>
+            <version>2.0.0</version>
         </dependency>
 
-        <dependency>
-            <groupId>redis.clients</groupId>
-            <artifactId>jedis</artifactId>
-        </dependency>
+
+        <!--<dependency>-->
+            <!--<groupId>com.alibaba</groupId>-->
+            <!--<artifactId>dubbo</artifactId>-->
+            <!--<version>2.5.9</version>-->
+        <!--</dependency>-->
+
+        <!--<dependency>-->
+            <!--<groupId>redis.clients</groupId>-->
+            <!--<artifactId>jedis</artifactId>-->
+        <!--</dependency>-->
         <!--<dependency>-->
             <!--<groupId>com.101tec</groupId>-->
             <!--<artifactId>zkclient</artifactId>-->
@@ -483,6 +485,12 @@
             <version>1.1.1</version>
         </dependency>
         <!--jaxb模块引用 - end-->
+
+        <dependency>
+            <groupId>com.beeasy</groupId>
+            <artifactId>hz-rpc-common</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
 
     </dependencies>
 

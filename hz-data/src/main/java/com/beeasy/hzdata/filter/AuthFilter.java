@@ -6,6 +6,8 @@ import org.beetl.sql.core.SQLManager;
 import org.osgl.$;
 import org.osgl.util.S;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -17,6 +19,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
+@Order(1)
 @Component
 public class AuthFilter implements Filter {
 
@@ -49,6 +52,9 @@ public class AuthFilter implements Filter {
             }
             //param
             token = request.getParameter(key);
+            if(S.notBlank(token)){
+                break;
+            }
         }
         if(S.blank(token)){
             writeError(servletResponse,err);

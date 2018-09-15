@@ -72,7 +72,7 @@ public class QuartersController {
      * @return
      */
     @ApiOperation(value = "编辑岗位", notes = "编辑一个岗位")
-    @PutMapping("")
+    @PostMapping("/edit")
     public Result edit(
             @Valid QuartersEditRequest edit
     ) {

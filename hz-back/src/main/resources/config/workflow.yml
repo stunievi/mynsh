@@ -92,8 +92,8 @@
     资料收集:
       type: input
       start: true
-      #        quarters: [] #允许经办的岗位ID #无用项
-      #        user: [] #允许经办的用户ID
+#        quarters: [] #允许经办的岗位ID #无用项
+#        user: [] #允许经办的用户ID
       content:
         任务编号:
           name: TASK_ID
@@ -120,15 +120,30 @@
           type: EXT_DATA
           innate: true
           required: false
+        贷款金额:
+          name: LOAN_AMOUNT
+          type: EXT_DATA
+          innate: true
+          required: false
+        贷款余额:
+          name: LOAN_BALANCE
+          type: EXT_DATA
+          innate: true
+          required: false
+        五级分类:
+          name: CLA
+          type: EXT_DATA
+          innate: true
+          required: false
         联系电话:
           name: PHONE
           type: string
           required: true
           rules:
-          - rule: NotNull
-          - rule: Size
-            min: 7
-            max: 15
+            - rule: NotNull
+            - rule: Size
+              min: 7
+              max: 15
         证件类型:
           name: CERT_TYPE
           type: select
@@ -156,26 +171,26 @@
 
     是否拒贷:
       type: check
-      #        quarters: []
-      #        order: 1 #order项无用
-      #        content:
+#        quarters: []
+#        order: 1 #order项无用
+#        content:
       key: key #保存状态和备注时所用的键名, 通畅默认为key就可以
       ps: ps #是否需要备注, 如果没有, 则为空
       question: 是否拒贷
       states: #定义状态
-      - #状态名OK
-        item: 是 #状态选项
-        condition: 1 #有一个人选了就生成该状态
-        behavior: go('结束') #状态为该项的时候, 调用go函数 走向结束节点
-      - #状态名nonono
-        item: 否
-        condition: 1 #有一个人选了否就是该状态
-        behavior: go('结束')
-      #          items: [是,否]
-      #          passItem: 是
+        - #状态名OK
+          item: 是 #状态选项
+          condition: 1 #有一个人选了就生成该状态
+          behavior: go('结束') #状态为该项的时候, 调用go函数 走向结束节点
+        - #状态名nonono
+          item: 否
+          condition: 1 #有一个人选了否就是该状态
+          behavior: go('结束')
+#          items: [是,否]
+#          passItem: 是
       count: 1 #几个人审核
-      #          - 1
-      #          - 1
+#          - 1
+#          - 1
       next: [结束] #有可能的走向, 即树的子叶
 
     结束:
@@ -219,6 +234,21 @@
           type: EXT_DATA
           innate: true
           required: false
+        贷款金额:
+          name: LOAN_AMOUNT
+          type: EXT_DATA
+          innate: true
+          required: false
+        贷款余额:
+          name: LOAN_BALANCE
+          type: EXT_DATA
+          innate: true
+          required: false
+        五级分类:
+          name: CLA
+          type: EXT_DATA
+          innate: true
+          required: false
         申请说明:
           name: apply
           type: textarea
@@ -241,10 +271,8 @@
       condition: getLastNode('发起权限申请').get('type') #判断条件
       interval: 1 #循环触发周期
       result: #条件处理, 只在不为null的时候才处理
-        表内: go('授信管理部审核')
-
-        表外: go('风险资产管理部审核')
-
+        0: go('授信管理部审核')
+        1: go('风险资产管理部审核')
         else: #其余的走项
 
       next: [授信管理部审核,风险资产管理部审核]
@@ -255,12 +283,14 @@
       ps: ps
       question: 是否通过
       states:
-      - item: 是
-        condition: 1
-        behavior: go('合规部审核')
-      - item: 否
-        condition: 1
-        behavior: go('发起权限申请')
+        -
+          item: 是
+          condition: 1
+          behavior: go('合规部审核')
+        -
+          item: 否
+          condition: 1
+          behavior: go('发起权限申请')
       count: 1
       next: [合规部审核,发起权限申请]
 
@@ -270,12 +300,14 @@
       ps: ps
       question: 是否通过
       states:
-      - item: 是
-        condition: 1
-        behavior: go('合规部审核')
-      - item: 否
-        condition: 1
-        behavior: go('发起权限申请')
+        -
+          item: 是
+          condition: 1
+          behavior: go('合规部审核')
+        -
+          item: 否
+          condition: 1
+          behavior: go('发起权限申请')
       count: 1
       next: [合规部审核,发起权限申请]
 
@@ -285,12 +317,14 @@
       ps: ps
       question: 是否通过
       states:
-      - item: 是
-        condition: 1
-        behavior: go('总领导班子审核')
-      - item: 否
-        condition: 1
-        behavior: go('发起权限申请')
+        -
+          item: 是
+          condition: 1
+          behavior: go('总领导班子审核')
+        -
+          item: 否
+          condition: 1
+          behavior: go('发起权限申请')
       count: 1
       next: [总领导班子审核,发起权限申请]
 
@@ -300,12 +334,14 @@
       ps: ps
       question: 是否通过
       states:
-      - item: 是
-        condition: 1
-        behavior: go('电子银行部确认')
-      - item: 否
-        condition: 1
-        behavior: go('发起权限申请')
+        -
+          item: 是
+          condition: 1
+          behavior: go('电子银行部确认')
+        -
+          item: 否
+          condition: 1
+          behavior: go('发起权限申请')
       count: 1
       next: [电子银行部确认,发起权限申请]
 
@@ -315,9 +351,10 @@
       ps: ps
       question: 是否通过
       states:
-      - item: 是
-        condition: 1
-        behavior: go('结束')
+        -
+          item: 是
+          condition: 1
+          behavior: go('结束')
 
       count: 1
       next: [结束]
@@ -328,12 +365,14 @@
       ps: ps
       question: 是否通过
       states:
-      - item: 是
-        condition: 1
-        behavior: go('运营部审核')
-      - item: 否
-        condition: 1
-        behavior: go('发起权限申请')
+        -
+          item: 是
+          condition: 1
+          behavior: go('运营部审核')
+        -
+          item: 否
+          condition: 1
+          behavior: go('发起权限申请')
       count: 1
       next: [运营部审核,发起权限申请]
 
@@ -377,6 +416,11 @@
           required: false
         贷款帐号:
           name: LOAN_ACCOUNT
+          type: EXT_DATA
+          innate: true
+          required: false
+        五级分类:
+          name: CLA
           type: EXT_DATA
           innate: true
           required: false
@@ -487,12 +531,14 @@
       ps: ps
       question: 是否通过
       states:
-      - item: 是
-        condition: 1
-        behavior: go('结束')
-      - item: 否
-        condition: 1
-        behavior: go('填写贷后检查表')
+        -
+          item: 是
+          condition: 1
+          behavior: go('结束')
+        -
+          item: 否
+          condition: 1
+          behavior: go('填写贷后检查表')
       count: 1
       next: []
 
@@ -534,6 +580,11 @@
           required: false
         贷款帐号:
           name: LOAN_ACCOUNT
+          type: EXT_DATA
+          innate: true
+          required: false
+        五级分类:
+          name: CLA
           type: EXT_DATA
           innate: true
           required: false
@@ -658,12 +709,14 @@
       ps: ps
       question: 是否通过
       states:
-      - item: 是
-        condition: 1
-        behavior: go('结束')
-      - item: 否
-        condition: 1
-        behavior: go('填写贷后检查表')
+        -
+          item: 是
+          condition: 1
+          behavior: go('结束')
+        -
+          item: 否
+          condition: 1
+          behavior: go('填写贷后检查表')
       count: 1
       next: []
 
@@ -708,8 +761,13 @@
           type: EXT_DATA
           innate: true
           required: false
+        五级分类:
+          name: CLA
+          type: EXT_DATA
+          innate: true
+          required: false
         通讯地址:
-          name: POST_ADDR
+          name: INDIV_RSD_ADDR
           type: string
           required: true
         借款起始日:
@@ -877,12 +935,14 @@
       ps: ps
       question: 是否通过
       states:
-      - item: 是
-        condition: 1
-        behavior: go('结束')
-      - item: 否
-        condition: 1
-        behavior: go('填写贷后检查表')
+        -
+          item: 是
+          condition: 1
+          behavior: go('结束')
+        -
+          item: 否
+          condition: 1
+          behavior: go('填写贷后检查表')
       count: 1
       next: []
 
@@ -927,8 +987,13 @@
           type: EXT_DATA
           innate: true
           required: false
+        五级分类:
+          name: CLA
+          type: EXT_DATA
+          innate: true
+          required: false
         通讯地址:
-          name: POST_ADDR
+          name: INDIV_RSD_ADDR
           type: string
           required: true
         借款起始日:
@@ -1100,12 +1165,14 @@
       ps: ps
       question: 是否通过
       states:
-      - item: 是
-        condition: 1
-        behavior: go('结束')
-      - item: 否
-        condition: 1
-        behavior: go('填写贷后检查表')
+        -
+          item: 是
+          condition: 1
+          behavior: go('结束')
+        -
+          item: 否
+          condition: 1
+          behavior: go('填写贷后检查表')
       count: 1
       next: []
 
@@ -1150,8 +1217,13 @@
           type: EXT_DATA
           innate: true
           required: false
+        五级分类:
+          name: CLA
+          type: EXT_DATA
+          innate: true
+          required: false
         通讯地址:
-          name: POST_ADDR
+          name: INDIV_RSD_ADDR
           type: string
           required: true
         借款起始日:
@@ -1304,12 +1376,14 @@
       ps: ps
       question: 是否通过
       states:
-      - item: 是
-        condition: 1
-        behavior: go('结束')
-      - item: 否
-        condition: 1
-        behavior: go('填写贷后检查表')
+        -
+          item: 是
+          condition: 1
+          behavior: go('结束')
+        -
+          item: 否
+          condition: 1
+          behavior: go('填写贷后检查表')
       count: 1
       next: []
 
@@ -1354,6 +1428,21 @@
           type: EXT_DATA
           innate: true
           required: false
+        贷款金额:
+          name: LOAN_AMOUNT
+          type: EXT_DATA
+          innate: true
+          required: false
+        贷款余额:
+          name: LOAN_BALANCE
+          type: EXT_DATA
+          innate: true
+          required: false
+        五级分类:
+          name: CLA
+          type: EXT_DATA
+          innate: true
+          required: false
         催收方式:
           name: COL_TYPE
           type: select
@@ -1372,13 +1461,15 @@
       count: 1
       question: 是否可以还款?
       states:
-      - item: 是
-        condition: 1
-        behavior: go('结束')
+        -
+          item: 是
+          condition: 1
+          behavior: go('结束')
 
-      - item: 否
-        condition: 1
-        behavior: go('结束')
+        -
+          item: 否
+          condition: 1
+          behavior: go('结束')
 
     结束:
       type: end
@@ -1481,6 +1572,21 @@
           type: EXT_DATA
           innate: true
           required: false
+        贷款金额:
+          name: LOAN_AMOUNT
+          type: EXT_DATA
+          innate: true
+          required: false
+        贷款余额:
+          name: LOAN_BALANCE
+          type: EXT_DATA
+          innate: true
+          required: false
+        五级分类:
+          name: CLA
+          type: EXT_DATA
+          innate: true
+          required: false
         申请说明:
           name: apply
           type: textarea
@@ -1511,12 +1617,14 @@
       ps: ps
       question: 是否通过
       states:
-      - item: 是
-        condition: 1
-        behavior: go('结束')
-      - item: 否
-        condition: 1
-        behavior: go('发起申请')
+        -
+          item: 是
+          condition: 1
+          behavior: go('结束')
+        -
+          item: 否
+          condition: 1
+          behavior: go('发起申请')
       count: 1
       next: [结束,发起申请]
 
@@ -1570,6 +1678,21 @@
           type: EXT_DATA
           innate: true
           required: false
+        贷款金额:
+          name: LOAN_AMOUNT
+          type: EXT_DATA
+          innate: true
+          required: false
+        贷款余额:
+          name: LOAN_BALANCE
+          type: EXT_DATA
+          innate: true
+          required: false
+        五级分类:
+          name: CLA
+          type: EXT_DATA
+          innate: true
+          required: false
         申请说明:
           name: apply
           type: textarea
@@ -1588,12 +1711,14 @@
       question: 审议通过/不通过?
       count: 5
       states:
-      - item: 通过
-        condition: 1
-        behavior: go('风险资产管理部审核')
-      - item: 不通过
-        condition: 1
-        behavior: go('发起申请')
+        -
+          item: 通过
+          condition: 1
+          behavior: go('风险资产管理部审核')
+        -
+          item: 不通过
+          condition: 1
+          behavior: go('发起申请')
       next: [风险资产管理部审核,发起申请]
 
     风险资产管理部审核:
@@ -1602,12 +1727,14 @@
       ps: ps
       question: 是否通过
       states:
-      - item: 是
-        condition: 1
-        behavior: go('不良资产管理委员会审批')
-      - item: 否
-        condition: 1
-        behavior: go('发起申请')
+        -
+          item: 是
+          condition: 1
+          behavior: go('不良资产管理委员会审批')
+        -
+          item: 否
+          condition: 1
+          behavior: go('发起申请')
       count: 1
       next: [不良资产管理委员会审批,发起申请]
 
@@ -1617,12 +1744,14 @@
       ps: ps
       question: 是否通过
       states:
-      - item: 是
-        condition: 3
-        behavior: go('签订协议')
-      - item: 否
-        condition: 3
-        behavior: go('发起申请')
+        -
+          item: 是
+          condition: 3
+          behavior: go('签订协议')
+        -
+          item: 否
+          condition: 3
+          behavior: go('发起申请')
       count: 5
       next: [签订协议,发起申请]
 
@@ -1704,6 +1833,21 @@
           type: EXT_DATA
           innate: true
           required: false
+        贷款金额:
+          name: LOAN_AMOUNT
+          type: EXT_DATA
+          innate: true
+          required: false
+        贷款余额:
+          name: LOAN_BALANCE
+          type: EXT_DATA
+          innate: true
+          required: false
+        五级分类:
+          name: CLA
+          type: EXT_DATA
+          innate: true
+          required: false
         申请说明:
           name: apply
           type: textarea
@@ -1722,12 +1866,14 @@
       question: 审议通过/不通过?
       count: 5
       states:
-      - item: 通过
-        condition: 1
-        behavior: go('诉前保全')
-      - item: 不通过
-        condition: 1
-        behavior: go('发起申请')
+        -
+          item: 通过
+          condition: 1
+          behavior: go('诉前保全')
+        -
+          item: 不通过
+          condition: 1
+          behavior: go('发起申请')
       next: [诉前保全,发起申请]
 
     诉前保全:
@@ -1758,12 +1904,14 @@
       ps: ps
       question: 是否通过
       states:
-      - item: 是
-        condition: 1
-        behavior: go('不良资产管理委员会审批')
-      - item: 否
-        condition: 1
-        behavior: go('发起申请')
+        -
+          item: 是
+          condition: 1
+          behavior: go('不良资产管理委员会审批')
+        -
+          item: 否
+          condition: 1
+          behavior: go('发起申请')
       count: 1
       next: [不良资产管理委员会审批,发起申请]
 
@@ -1773,12 +1921,14 @@
       ps: ps
       question: 是否通过
       states:
-      - item: 是
-        condition: 3
-        behavior: go('法院立案')
-      - item: 否
-        condition: 3
-        behavior: go('发起申请')
+        -
+          item: 是
+          condition: 3
+          behavior: go('法院立案')
+        -
+          item: 否
+          condition: 3
+          behavior: go('发起申请')
       count: 5
       next: [法院立案,发起申请]
 
@@ -1843,12 +1993,14 @@
       ps: ps
       question: 是否协商一致？
       states:
-      - item: 是
-        condition: 1
-        behavior: go('立卷归档')
-      - item: 否
-        condition: 1
-        behavior: go('判决生效，执行')
+        -
+          item: 是
+          condition: 1
+          behavior: go('立卷归档')
+        -
+          item: 否
+          condition: 1
+          behavior: go('判决生效，执行')
       count: 1
       next: [立卷归档,"判决生效，执行"]
 
@@ -1912,12 +2064,14 @@
       question: 是否裁定抵债?
       count: 1
       states:
-      - item: 是
-        condition: 1
-        behavior: go('贷款单位调查')
-      - item: 否
-        condition: 1
-        behavior: go('贷款单位调查')
+        -
+          item: 是
+          condition: 1
+          behavior: go('贷款单位调查')
+        -
+          item: 否
+          condition: 1
+          behavior: go('贷款单位调查')
       next: [贷款单位调查,贷款单位调查]
 
     贷款单位调查:
@@ -1954,6 +2108,21 @@
           name: LOAN_ACCOUNT
           type: string
           required: false
+        贷款金额:
+          name: LOAN_AMOUNT
+          type: EXT_DATA
+          innate: true
+          required: false
+        贷款余额:
+          name: LOAN_BALANCE
+          type: EXT_DATA
+          innate: true
+          required: false
+        五级分类:
+          name: CLA
+          type: EXT_DATA
+          innate: true
+          required: false
         说明:
           name: apply
           type: textarea
@@ -1972,12 +2141,14 @@
       question: 审查通过/不通过?
       count: 1
       states:
-      - item: 通过
-        condition: 1
-        behavior: go('风险资产管理部审查')
-      - item: 不通过
-        condition: 1
-        behavior: go('贷款单位调查')
+        -
+          item: 通过
+          condition: 1
+          behavior: go('风险资产管理部审查')
+        -
+          item: 不通过
+          condition: 1
+          behavior: go('贷款单位调查')
       next: [风险资产管理部审查,贷款单位调查]
 
     风险资产管理部审查:
@@ -1987,12 +2158,14 @@
       question: 审查通过/不通过?
       count: 1
       states:
-      - item: 通过
-        condition: 1
-        behavior: go('资产定价')
-      - item: 不通过
-        condition: 1
-        behavior: go('贷款单位调查')
+        -
+          item: 通过
+          condition: 1
+          behavior: go('资产定价')
+        -
+          item: 不通过
+          condition: 1
+          behavior: go('贷款单位调查')
       next: [资产定价,贷款单位调查]
 
     资产定价:
@@ -2017,12 +2190,14 @@
       ps: ps
       question: 是否通过
       states:
-      - item: 是
-        condition: 3
-        behavior: go('省联社备案')
-      - item: 否
-        condition: 3
-        behavior: go('贷款单位调查')
+        -
+          item: 是
+          condition: 3
+          behavior: go('省联社备案')
+        -
+          item: 否
+          condition: 3
+          behavior: go('贷款单位调查')
       count: 5
       next: [省联社备案,贷款单位调查]
 
@@ -2072,12 +2247,14 @@
       ps: ps
       question: 是否审查通过？
       states:
-      - item: 是
-        condition: 1
-        behavior: go('入账处理')
-      - item: 否
-        condition: 1
-        behavior: go('与客户签订协议')
+        -
+          item: 是
+          condition: 1
+          behavior: go('入账处理')
+        -
+          item: 否
+          condition: 1
+          behavior: go('与客户签订协议')
       count: 1
       next: [入账处理,与客户签订协议]
 
@@ -2142,6 +2319,21 @@
           type: EXT_DATA
           innate: true
           required: false
+        贷款金额:
+          name: LOAN_AMOUNT
+          type: EXT_DATA
+          innate: true
+          required: false
+        贷款余额:
+          name: LOAN_BALANCE
+          type: EXT_DATA
+          innate: true
+          required: false
+        五级分类:
+          name: CLA
+          type: EXT_DATA
+          innate: true
+          required: false
         说明:
           name: apply
           type: textarea
@@ -2159,12 +2351,14 @@
       question: 审查通过/不通过?
       count: 1
       states:
-      - item: 通过
-        condition: 1
-        behavior: go('经营班子集体审议')
-      - item: 不通过
-        condition: 1
-        behavior: go('制定处置方案')
+        -
+          item: 通过
+          condition: 1
+          behavior: go('经营班子集体审议')
+        -
+          item: 不通过
+          condition: 1
+          behavior: go('制定处置方案')
       next: [经营班子集体审议,制定处置方案]
 
     经营班子集体审议:
@@ -2174,12 +2368,14 @@
       question: 审议通过/不通过?
       count: 1
       states:
-      - item: 通过
-        condition: 1
-        behavior: go('风险资产管理部审核')
-      - item: 不通过
-        condition: 1
-        behavior: go('制定处置方案')
+        -
+          item: 通过
+          condition: 1
+          behavior: go('风险资产管理部审核')
+        -
+          item: 不通过
+          condition: 1
+          behavior: go('制定处置方案')
       next: [风险资产管理部审核,制定处置方案]
 
     风险资产管理部审核:
@@ -2189,12 +2385,14 @@
       question: 审查通过/不通过?
       count: 1
       states:
-      - item: 通过
-        condition: 1
-        behavior: go('不良资产管理委员会审批')
-      - item: 不通过
-        condition: 1
-        behavior: go('制定处置方案')
+        -
+          item: 通过
+          condition: 1
+          behavior: go('不良资产管理委员会审批')
+        -
+          item: 不通过
+          condition: 1
+          behavior: go('制定处置方案')
       next: [不良资产管理委员会审批,制定处置方案]
 
     不良资产管理委员会审批:
@@ -2203,12 +2401,14 @@
       ps: ps
       question: 是否通过
       states:
-      - item: 是
-        condition: 1
-        behavior: go('省联社备案')
-      - item: 否
-        condition: 1
-        behavior: go('制定处置方案')
+        -
+          item: 是
+          condition: 1
+          behavior: go('省联社备案')
+        -
+          item: 否
+          condition: 1
+          behavior: go('制定处置方案')
       count: 5
       next: [省联社备案,制定处置方案]
 
@@ -2270,8 +2470,8 @@
       next: 结束
 
     结束:
-      type: end
-      end: true
+        type: end
+        end: true
 
 不良资产管理流程:
   manual: false
@@ -2308,6 +2508,21 @@
           required: false
         贷款帐号:
           name: LOAN_ACCOUNT
+          type: EXT_DATA
+          innate: true
+          required: false
+        贷款金额:
+          name: LOAN_AMOUNT
+          type: EXT_DATA
+          innate: true
+          required: false
+        贷款余额:
+          name: LOAN_BALANCE
+          type: EXT_DATA
+          innate: true
+          required: false
+        五级分类:
+          name: CLA
           type: EXT_DATA
           innate: true
           required: false

@@ -436,37 +436,36 @@ WHERE
 	
 selectModelName
 ===
-SELECT 
-p1.LOAN_ACCOUNT,
-CASE 
-	WHEN upper(l.type) = 'HOME_BANK' 
-	THEN '贷后跟踪-公司银行部' 
-	WHEN upper(l.type) = 'MINI_WEI' AND
-	p1.PRD_TYPE = '01' 
-	THEN '贷后跟踪-小微部公司类' 
-	WHEN upper(l.type) = 'MINI_WEI' AND
-	p1.PRD_TYPE = '02' 
-	THEN '贷后跟踪-小微部个人类' 
-	WHEN upper(l.type) = 'SALES_PERSONAL' AND
-	p1.PRD_TYPE = '02' AND
-	a1.MORTGAGE_FLG = '1' 
-	THEN '贷后跟踪-零售部个人按揭类' 
-	WHEN upper(l.type) = 'SALES_PERSONAL' AND
-	p1.PRD_TYPE = '02' AND
-	a1.MORTGAGE_FLG = '0' AND
-	a1.PRD_USERDF_TYPE = '1003' 
-	THEN '贷后跟踪-零售部个人消费类' 
-	WHEN upper(l.type) = 'SALES_PERSONAL' AND
-	p1.PRD_TYPE = '02' AND
-	a1.MORTGAGE_FLG = '0' AND
-	a1.PRD_USERDF_TYPE = '1004' 
-	THEN '贷后跟踪-零售部个人经营类' 
-END AS MODEL_NAME 
+SELECT
+    p1.LOAN_ACCOUNT, 
+	CASE 
+		WHEN UPPER(l.type) = 'HOME_BANK' 
+		THEN '贷后跟踪-公司银行部' 
+		WHEN UPPER(l.type) = 'MINI_WEI' AND
+		p1.PRD_TYPE = '01' 
+		THEN '贷后跟踪-小微部公司类' 
+		WHEN UPPER(l.type) = 'MINI_WEI' AND
+		p1.PRD_TYPE = '02' 
+		THEN '贷后跟踪-小微部个人类' 
+		WHEN UPPER(l.type) = 'SALES_PERSONAL' AND
+		p1.PRD_TYPE = '02' AND
+		a1.MORTGAGE_FLG = '1' 
+		THEN '贷后跟踪-零售银行部个人按揭' 
+		WHEN UPPER(l.type) = 'SALES_PERSONAL' AND
+		p1.PRD_TYPE = '02' AND
+		a1.MORTGAGE_FLG = '0' AND
+		a1.PRD_USERDF_TYPE = '1003' 
+		THEN '贷后跟踪-零售银行部个人消费' 
+		WHEN UPPER(l.type) = 'SALES_PERSONAL' AND
+		p1.PRD_TYPE = '02' AND
+		a1.MORTGAGE_FLG = '0' AND
+		a1.PRD_USERDF_TYPE = '1004' 
+		THEN '贷后跟踪-零售银行部个人经营' 
+	END AS MODEL_NAME 
 FROM
-	t_auto_task_link l,
-	RPT_M_RPT_SLS_ACCT p1
+	t_auto_task_link l,RPT_M_RPT_SLS_ACCT p1
 		LEFT JOIN ACC_LOAN AS a1 
 		ON p1.LOAN_ACCOUNT=a1.LOAN_ACCOUNT 
 WHERE
 	l.acc_code LIKE concat(concat('%(',p1.MAIN_BR_ID),')%') AND
-	p1.LOAN_ACCOUNT = #v0#
+	p1.LOAN_ACCOUNT in (#join(v0)#) 

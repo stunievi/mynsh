@@ -185,7 +185,7 @@ public class WorkflowInstance {
     @ElementCollection
     @MapKeyColumn(name = "attrKey")
     @Column(name = "attrValue")
-    @CollectionTable(name = "t_workflow_instance_attribute", joinColumns = {@JoinColumn(name = "instance_id")})
+    @CollectionTable(name = "t_workflow_ins_attr", joinColumns = {@JoinColumn(name = "instance_id")})
     Map<String, String> attributeMap;
 
 

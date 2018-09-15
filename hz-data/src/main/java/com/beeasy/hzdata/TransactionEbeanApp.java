@@ -20,23 +20,13 @@ package com.beeasy.hzdata;
  * #L%
  */
 
-import com.beeasy.hzdata.utils.Utils;
-import org.beetl.sql.core.SQLManager;
-import org.beetl.sql.core.mapping.BeanProcessor;
-import org.beetl.sql.ext.spring4.SqlManagerFactoryBean;
-import org.osgl.util.C;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.ImportResource;
+import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.annotation.EnableAsync;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import javax.annotation.PostConstruct;
 
 //import org.beetl.ext.fn.IsNotNullFunction;
 
@@ -44,12 +34,17 @@ import java.util.stream.Collectors;
  * A Simple Todo application controller
  */
 @EnableAsync
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"com.beeasy.hzdata","com.beeasy.rpc"})
+@EnableFeignClients(basePackages = "com.beeasy.rpc")
+//@EnableDubboConfiguration
 public class TransactionEbeanApp {
 
 
     public static void main(String[] args) throws Exception {
-        SpringApplication.run(TransactionEbeanApp.class, args);
+        ApplicationContext ctx = SpringApplication.run(TransactionEbeanApp.class, args);
+//        MotanSwitcherUtil.setSwitcherValue(MotanConstants.REGISTRY_HEARTBEAT_SWITCHER, true);
+//        DataService dataService = (DataService) ctx.getBean("remoteService");
+//        System.out.println(dataService.foo());
     }
 
 

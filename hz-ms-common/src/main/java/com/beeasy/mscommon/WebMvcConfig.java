@@ -23,7 +23,7 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
         //2.添加fastjson的配置信息，比如是否要格式化返回的json数据
 //
         FastJsonConfig fastJsonConfig = new FastJsonConfig();
-        fastJsonConfig.setSerializerFeatures(SerializerFeature.PrettyFormat);
+        fastJsonConfig.setSerializerFeatures(SerializerFeature.PrettyFormat,SerializerFeature.WriteNullStringAsEmpty);
 
         List<MediaType> fastMediaTypes = new ArrayList<>();
         fastMediaTypes.add(MediaType.APPLICATION_JSON_UTF8);

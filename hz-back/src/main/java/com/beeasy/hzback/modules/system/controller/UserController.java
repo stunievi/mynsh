@@ -70,7 +70,7 @@ public class UserController {
         this.cache = cache;
         this.entityManager = entityManager;
         this.userService = userService;
-        this.storageClient = storageClient;
+//        this.storageClient = storageClient;
     }
 
     @ApiOperation(value = "添加用户", notes = "")
@@ -399,29 +399,91 @@ public class UserController {
     }
 
 
-    private final FastFileStorageClient storageClient;
-
-    @RequestMapping(value = "/upload", method = RequestMethod.POST)
-    public Result testFile(
-            @RequestParam MultipartFile file
+    @ApiOperation(value = "部门列表", notes = "获得所有部门列表，开放API")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "name", value = "部门名称, 如果传递了这个属性, 那么会无视parentId进行查找"),
+            @ApiImplicitParam(name = "parentId", value = "父部门ID,如果想获得顶层,请传0")
+    })
+    @GetMapping("/department/getList")
+    public Result list(
+            String name,
+            Long parentId
     ) {
-        String fileType = FilenameUtils.getExtension(file.getOriginalFilename().toLowerCase());
-        StorePath path = null;
-
-        try {
-            path = storageClient.uploadFile(file.getInputStream(), file.getSize(), fileType, null);
-            storageClient.downloadFile(path.getGroup(), path.getPath(), inputStream -> {
-                List<String> lines = IOUtils.readLines(inputStream);
-                System.out.print(StringUtils.join(lines.toArray(), ""));
-                return lines;
-            });
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return Result.ok(
-                Optional.ofNullable(path).map(item -> item.getFullPath()).orElse("")
-        );
+        //name比parent优先
+        return Result.ok(userService.findDepartmentsByParent_Id(0));
     }
+
+
+    @ApiOperation(value = "添加部门", notes = "添加一个新部门,需要管理员权限")
+    @PostMapping("/department")
+    public Result add(
+            @Valid DepartmentAddRequest departmentAdd
+    ) {
+        return Result.ok(userService.createDepartment(departmentAdd));
+    }
+
+
+    /**
+     * 不能随意删除,需要验证已有的工作人员/工作流
+     *
+     * @param departmentId
+     * @return
+     */
+    @ApiOperation(value = "删除部门", notes = "删除部门,需要管理员权限")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "departmentId", value = "部门ID", required = true)
+    })
+    @DeleteMapping("/department")
+    public Result del(
+            @RequestParam Long departmentId
+    ) {
+        return Result.ok(userService.deleteDepartment(departmentId));
+    }
+
+    /**
+     * 编辑时如果需要修改父类,那么需要验证已有的工作人员/工作流
+     *
+     * @return
+     */
+    @ApiOperation(value = "编辑部门资料", notes = "编辑部门, 需要管理员权限")
+    @PutMapping("/department")
+    public Result edit(
+            @Valid DepartmentEditRequest edit
+    ) {
+        return Result.ok(userService.editDepartment(edit));
+    }
+
+
+//    @GetMapping("/alldepartment")
+//    public Result alllist() {
+//        return Result.ok(departmentDao.findAll());
+//    }
+
+
+
+//    private final FastFileStorageClient storageClient;
+//
+//    @RequestMapping(value = "/upload", method = RequestMethod.POST)
+//    public Result testFile(
+//            @RequestParam MultipartFile file
+//    ) {
+//        String fileType = FilenameUtils.getExtension(file.getOriginalFilename().toLowerCase());
+//        StorePath path = null;
+//
+//        try {
+//            path = storageClient.uploadFile(file.getInputStream(), file.getSize(), fileType, null);
+//            storageClient.downloadFile(path.getGroup(), path.getPath(), inputStream -> {
+//                List<String> lines = IOUtils.readLines(inputStream);
+//                System.out.print(StringUtils.join(lines.toArray(), ""));
+//                return lines;
+//            });
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        return Result.ok(
+//                Optional.ofNullable(path).map(item -> item.getFullPath()).orElse("")
+//        );
+//    }
 
 
 //    storageClient.downloadFile("group1","M00/00/00/rBBMcltA0rSAWmYoAAAAwEXjnAQ40.json",inputStream -> {

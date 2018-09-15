@@ -21,7 +21,8 @@ public class SystemFile {
     Type type;
     Date lastModifyTime;
 
-    Long creator;
+    Long creatorId;
+    String creatorName;
     String tags;
 
     //文件下载令牌

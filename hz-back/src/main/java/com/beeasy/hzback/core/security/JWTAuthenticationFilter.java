@@ -7,13 +7,13 @@ import com.beeasy.hzback.modules.system.dao.IUserDao;
 import com.beeasy.hzback.modules.system.dao.IUserTokenDao;
 import com.beeasy.hzback.modules.system.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-import org.springframework.util.StringUtils;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -35,8 +35,9 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
     private IUserAllowApiDao allowApiDao;
     private IUserTokenDao userTokenDao;
     private UserService userService;
+    private String rpcSecret;
 
-    public JWTAuthenticationFilter(AuthenticationManager authenticationManager, JwtTokenUtil jwtTokenUtil, CustomUserService customUserService, IUserDao userDao, IUserAllowApiDao allowApiDao, IUserTokenDao userTokenDao, UserService userService) {
+    public JWTAuthenticationFilter(AuthenticationManager authenticationManager, JwtTokenUtil jwtTokenUtil, CustomUserService customUserService, IUserDao userDao, IUserAllowApiDao allowApiDao, IUserTokenDao userTokenDao, UserService userService, String rpcSecret) {
         super(authenticationManager);
         this.jwtTokenUtil = jwtTokenUtil;
         this.customUserService = customUserService;
@@ -44,20 +45,39 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
         this.allowApiDao = allowApiDao;
         this.userTokenDao = userTokenDao;
         this.userService = userService;
+        this.rpcSecret = rpcSecret;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
-        String header = Optional.ofNullable(request.getHeader("Authorization")).orElseGet(() -> request.getParameter("Authorization"));
+        String url = request.getServletPath();
+        String[] keys = {"Authorization","Token"};
+        String header = null;
+        for (String key : keys) {
+            header = request.getHeader(key);
+            if(StringUtils.isNotBlank(header)){
+                break;
+            }
+            header = request.getParameter(key);
+            if(StringUtils.isNotBlank(header)){
+                break;
+            }
+        }
+        if(url.startsWith("/rpc/") && StringUtils.isNotBlank(header) && header.equals(rpcSecret)){
+            UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(0, "", new ArrayList<>());
+            SecurityContextHolder.getContext().setAuthentication(auth);
+            chain.doFilter(request,response);
+            return;
+        }
         do {
+            UsernamePasswordAuthenticationToken authentication = null;
             if (StringUtils.isEmpty(header)) {
                 break;
             }
-            UsernamePasswordAuthenticationToken authentication = getAuthentication(header);
 
+            authentication = getAuthentication(header);
             if (authentication != null) {
 //                User user = (User) authentication.getPrincipal();
-                String url = request.getServletPath();
                 //得到用户的授权列表
                 //没有的话暂时略过
 //                Optional<RolePermission> rolePermission = user.getMethodPermission();
@@ -70,7 +90,6 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
 //                if(allowApiDao.countByUserIdAndApi((Long)authentication.getPrincipal(), url) > 0){
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 break;
-//                }
             }
 
             //授权失败

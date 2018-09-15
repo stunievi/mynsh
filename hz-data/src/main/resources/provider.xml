@@ -10,6 +10,7 @@ http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
 
     <!-- 注册中心配置，使用zookeeper注册中心暴露服务地址 -->
     <dubbo:registry address="redis://127.0.0.1:6379" timeout="60000"  />
+    <!--<dubbo:registry address="multicast://224.5.6.7:1234" />-->
     <dubbo:protocol name="rmi" port="20881" />
 
     <!--<dubbo:protocol name="rmi" port="20881"/>-->

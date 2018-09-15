@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
-//@RequestMapping("/api/data")
-//@RestController
+@RequestMapping("/api/data")
+@RestController
 public class SearchController {
     @Autowired
     DataSearchService searchService;

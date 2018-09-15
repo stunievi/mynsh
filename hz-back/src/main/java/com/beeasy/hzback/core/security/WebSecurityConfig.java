@@ -5,6 +5,7 @@ import com.beeasy.hzback.modules.system.dao.IUserDao;
 import com.beeasy.hzback.modules.system.dao.IUserTokenDao;
 import com.beeasy.hzback.modules.system.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -32,6 +33,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     UserService userService;
+
+    @Value("${rpc.secret}")
+    String rpcSecret;
+
 
     @Bean
     CustomUserService customUserService() { //注册UserDetailsService 的bean
@@ -101,7 +106,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .csrf().disable()
 //                .cors().disable()
-                .addFilter(new JWTAuthenticationFilter(authenticationManager(), jwtTokenUtil(), customUserService(), userDao, allowApiDao, userTokenDao, userService));
+                .addFilter(new JWTAuthenticationFilter(authenticationManager(), jwtTokenUtil(), customUserService(), userDao, allowApiDao, userTokenDao, userService, rpcSecret));
 
 //        .addFilterBefore(new JWTAuthenticationFilter(authenticationManager(),jwtTokenUtil(),customUserService(), userDao), UsernamePasswordAuthenticationFilter.class);
 

@@ -31,7 +31,7 @@ public class WorkflowModelEdit {
     @ApiModelProperty(name = "open", value = "是否打开工作流")
     boolean open;
 
-    @Range(min = 1, max = 99999, message = "处理周期在1-99999天之间")
-    Integer processCycle;
+//    @Range(min = 1, max = 99999, message = "处理周期在1-99999天之间")
+    Integer processCycle = 1;
 //    List<Long> departmentIds = new ArrayList<>();
 }

@@ -22,5 +22,5 @@ public class InfoCollectLink {
     Long instanceId;
 
     @Column(length = 50)
-    String billNo;
+    String loanAccount;
 }

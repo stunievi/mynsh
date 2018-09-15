@@ -2,6 +2,7 @@ package com.beeasy.hzback;
 
 //import com.spring4all.swagger.EnableSwagger2Doc;
 
+import com.alibaba.dubbo.spring.boot.annotation.EnableDubboConfiguration;
 import com.github.tobato.fastdfs.FdfsClientConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -28,8 +29,9 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableFeignClients(value = {"com.beeasy.hzback"})
 //@EnableCaching
 @SpringBootApplication(scanBasePackages = {"com.beeasy"})
+@EnableDubboConfiguration
 @EntityScan(basePackages = {"com.beeasy"})
-@ImportResource(value = {"classpath:provider.xml"})
+//@ImportResource(value = {"classpath:provider.xml"})
 @ServletComponentScan
 public class Application {
 

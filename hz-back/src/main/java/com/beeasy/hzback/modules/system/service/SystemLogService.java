@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.Method;
+import java.util.Date;
 
 @Service
 @Transactional
@@ -78,10 +79,11 @@ public class SystemLogService {
             systemLog.setController(className);
             systemLog.setUserName(user.getTrueName());
             systemLog.setMethod(actionName);
-            systemLog.setParams(arguments);
+            systemLog.setAddTime(new Date());
+//            systemLog.setParams(arguments);
             systemLogDao.save(systemLog);
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
     }
 }

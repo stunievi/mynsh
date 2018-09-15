@@ -54,5 +54,10 @@ public class SystemFile extends AbstractBaseEntity {
 
     String filePath = "";
 
+    Long creatorId;
+    String creatorName;
+
+    String token;
+    Date exprTime;
 //    boolean removed = false;
 }

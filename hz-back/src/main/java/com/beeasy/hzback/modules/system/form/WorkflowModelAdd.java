@@ -1,11 +1,14 @@
 package com.beeasy.hzback.modules.system.form;
 
+import com.beeasy.common.helper.SpringContextUtils;
+import com.beeasy.hzback.modules.system.dao.IWorkflowModelDao;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.hibernate.validator.constraints.Range;
 
+import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -26,7 +29,15 @@ public class WorkflowModelAdd {
     @ApiModelProperty(name = "info", value = "工作流描述")
     String info;
 
-    @NotNull(message = "处理周期必须为数字")
-    @Range(min = 1, max = 99999, message = "处理周期在1-99999之间")
+//    @NotNull(message = "处理周期必须为数字")
+//    @Range(min = 1, max = 99999, message = "处理周期在1-99999之间")
     Integer processCycle = 1;
+
+
+    @AssertTrue(message = "已经有同名的工作流")
+    public boolean isValidName(){
+        IWorkflowModelDao modelDao = SpringContextUtils.getBean(IWorkflowModelDao.class);
+        return modelDao.countByNameAndDeletedIsFalse(name) == 0;
+    }
+
 }

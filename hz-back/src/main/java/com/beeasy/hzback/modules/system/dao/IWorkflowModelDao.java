@@ -14,6 +14,7 @@ import java.util.Optional;
 
 public interface IWorkflowModelDao extends JpaRepository<WorkflowModel, Long>, JpaSpecificationExecutor {
     Optional<WorkflowModel> findTopByName(String name);
+    int countByNameAndDeletedIsFalse(String name);
 
     Page<List<WorkflowModel>> findAllByName(String name, Pageable pageable);
 

@@ -23,6 +23,7 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.osgl.$;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
@@ -573,11 +574,14 @@ public class UserService {
     public Quarters createQuarters(QuartersAddRequest add) {
         Department department = findDepartment(add.getDepartmentId());
 
-        Quarters quarters = new Quarters();
-        quarters.setDepartmentId(department.getId());
-        quarters.setDName(department.getName());
-        quarters.setSort(add.getSort());
-        quarters.setManager(add.isManager());
+        Quarters quarters = $.map(add).to(Quarters.class);
+        add.setDepartmentId(department.getId());
+//        new Quarters();
+//        quarters.setDepartmentId(department.getId());
+//        quarters.setDName(department.getName());
+//        quarters.setSort(add.getSort());
+//        quarters.setManager(add.isManager());
+//        quarters.setName(add.getName());
 
         //查找最上层的id
         List objs = quartersDao.getQuartersCodeFromDepartment(department.getId());
@@ -604,10 +608,11 @@ public class UserService {
      */
     public Quarters editQuarters(QuartersEditRequest edit) {
         Quarters quarters = findQuarters(edit.getId());
-        quarters.setManager(edit.isManager());
-        quarters.setSort(edit.getSort());
-        quarters.setName(edit.getName());
-        quarters.setInfo(edit.getInfo());
+        quarters = $.map(edit).to(quarters);
+//        quarters.setManager(edit.isManager());
+//        quarters.setSort(edit.getSort());
+//        quarters.setName(edit.getName());
+//        quarters.setInfo(edit.getInfo());
         return quartersDao.save(quarters);
     }
 

@@ -76,6 +76,9 @@ public class WorkflowNodeInstance {
     @OneToMany(mappedBy = "nodeInstance", cascade = CascadeType.REMOVE)
     List<WorkflowNodeInstanceDealer> dealers = new ArrayList<>();
 
+    //节点文件指针
+    String files;
+
     public void setFinished(boolean finished) {
         this.finished = finished;
         if (finished) {

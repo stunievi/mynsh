@@ -8,6 +8,7 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+@Order(0)
 @Component
 public class CrossDomainFilter implements Filter {
 

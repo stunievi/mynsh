@@ -112,7 +112,7 @@ public class LeblancConfig {
             }
 
             for (String sql : cache.getSqlViews()) {
-                entityManager.createNativeQuery(sql).executeUpdate();
+//                entityManager.createNativeQuery(sql).executeUpdate();
             }
         }
 

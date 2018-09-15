@@ -11,7 +11,7 @@ public class DB2DialectFK extends DB297Dialect implements DialectFK {
 
     public DB2DialectFK() {
         super();
-        byteCodes();
+//        byteCodes();
     }
 
     @Override
