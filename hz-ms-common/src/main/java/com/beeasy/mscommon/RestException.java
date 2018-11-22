@@ -1,6 +1,7 @@
 package com.beeasy.mscommon;
 
 import lombok.Getter;
+import org.osgl.util.S;
 
 import java.util.function.Supplier;
 
@@ -16,6 +17,11 @@ public class RestException extends RuntimeException implements Supplier<RestExce
     public RestException(String simpleMessage) {
         super();
         this.simpleMessage = simpleMessage;
+    }
+
+    public RestException(String message, Object ...fmts){
+        super();
+        this.simpleMessage = S.fmt(message,fmts);
     }
 
 

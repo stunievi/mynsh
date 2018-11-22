@@ -1,4 +1,5 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 com.beeasy.mscommon.StarterAutoConfigure,\
-com.beeasy.mscommon.WebMvcConfig,\
-com.beeasy.mscommon.CrossDomainFilter
+com.beeasy.mscommon.json.WebMvcConfig,\
+com.beeasy.mscommon.filter.CrossDomainFilter\
+,com.beeasy.mscommon.filter.AuthFilter

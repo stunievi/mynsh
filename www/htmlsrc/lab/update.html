@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <!--#include file="/htmlsrc/header.html" -->
+</head>
+<body>
+<div id="content">
+    <div>
+        <div class="form-group">
+            <label>
+                html所在目录
+            </label>
+            <input type="text" class="form-control" id="html_path">
+        </div>
+
+        <div class="form-group">
+            <label>
+                tomcat所在目录
+            </label>
+            <input type="text" class="form-control" id="hz_back_path">
+        </div>
+    </div>
+    <div class="alert alert-warning">
+        选择服务端更新文件并点击下方的上传, 更新过程中将会停止一切操作
+    </div>
+    <div class="alert alert-danger">
+        实验室功能可能会造成系统永久性破坏, 请谨慎使用
+    </div>
+    <form action="/api/lab/update" enctype="multipart/form-data" method="post">
+        <div class="form-group">
+            <input type="file" name="file" class="form-control">
+        </div>
+        <button type="submit" class="btn btn-primary" >上传更新文件</button>
+    </form>
+</div>
+</body>
+</html>
+<script>
+    getFetch(remoteOrigin + "/api/auto/sysvar/getConfig?key=html_path,hz_back_path", function (data) {
+         $("#html_path").val(data.html_path || '')
+        $("#hz_back_path").val(data.hz_back_path || '')
+    });
+    $("#html_path,#hz_back_path").change(function () {
+        var id = this.id;
+        var data = {};
+        data[id] = $.trim(this.value);
+        postFetch(remoteOrigin + "/api/auto/sysvar/set",data)
+    });
+</script>

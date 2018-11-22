@@ -1,0 +1,90 @@
+<!--#include file="common.html" -->
+<script type="text/html" id="head2">
+    <div class="col-xs-12"style="padding-top: 15px;padding-bottom: 15px;">
+        <div class="col-xs-12" style="text-align: right">
+            单位：万元 %
+        </div>
+    </div>
+</script>
+
+
+
+<script>
+
+    $("#panel-form").html(panelFormRender3({
+        // panelTitle: "基本信息 - 惠州农商行五级分类不良贷款上调明细表",
+        list:[
+            { prop: 'DATE', label: '统计时间', disabled: true},
+            // { prop: 'END_DATE', label: '结束时间', disabled: true}
+        ],
+        data: {}
+    }));
+
+    $(function () {
+        layui.use("laydate",function () {
+            layui.each(["DATE"], function (i,v) {
+                layui.laydate.render({
+                    elem: "#" + v
+                    ,type: "month"
+                });
+            });
+        })
+    });
+
+    //        $(function() {
+    //            $('#start').datepicker({ changeMonth: true, changeYear: true, dateFormat: 'yymmdd' });
+    //            $("#end").datepicker({ changeMonth: true, changeYear: true, dateFormat: 'yymmdd' });
+    //        });
+
+    laytableRender({
+        title: "惠州农商银行信贷资产质量情况统计表（月报表）"
+        , url: remoteOrigin + "/api/report/report_1"
+        , dataType: "json"
+        , page: false
+        // ?START_DATE=20180101&END_DATE=20180831&nsukey=LSuzJnQkvWdn2XW8Q0b%2BxSOeoTPtJqoyqiqhYgGde2EVHaEOrXoXFH3qZhmemhaVjU6otAmFKXKYzHY9IWvOhSQWjdVxaGwa4MKck2%2BYO2%2Fd2pkabCqaoWIRhfuTy9AXb9jXIIEURzBtVsCK500bVTu4pn88ey5bxj8aTXoeeQZ0NqQHt1T%2FsLijymuvtUy6sMisrSXs%2FhIWF4P4CwrCSw%3D%3D",
+        // url: "/api/report/report_10",
+        , cellMinWidth: 110,
+        cols: [
+
+            [{"title":"机构名称","field":"MAIN_BR_NAME",rowspan:2}
+                ,{"title":"贷款余额","field":"LOAN_BALANCE",rowspan:2,money:true}
+                ,{"title":"不良贷款余额","field":"BAD_LOAN_BALANCE",rowspan:2,money:true}
+                ,{"title":"比上月","field":"",rowspan:2,money:true}
+                ,{"title":"不良贷款率","field":"BAD_IR",rowspan:2}
+                ,{"title":"比上月","field":"",rowspan:2,money:true}
+                ,{"title":"隐性不良贷款余额","field":"HIDE_LOAN_BALANCE",rowspan:2,money:true}
+                ,{"title":"隐性不良贷款率","field":"HIDE_IR",rowspan:2,money:true}
+                ,{"title":"比上月","field":"",rowspan:2,money:true}
+                ,{"title":"其它欠息贷款余额","field":"LOAN_BALANCE_OTHER",rowspan:2,money:true}
+                ,{"title":"欠息额","field":"DELAY_INT_CUMU",rowspan:2,money:true}
+                ,{"title":"其中","field":"",rowspan:1,colspan:3,align:"center"}
+            ],
+            [
+                {"title":"不良贷款欠息额","field":"BAD_DELAY_INT_CUMU",money:true}
+                ,{"title":"隐性不良贷款欠息额","field":"HIDE_DELAY_INT_CUMU",money:true}
+                ,{"title":"其他","field":"DELAY_INT_CUMU_OTHER",money:true}
+            ]
+        ]
+
+    });
+
+    // 提交查询，重载列表
+    var form = $("[name='form-search']");
+    form.validate({
+        rules: { },
+        submitHandler: function(){
+            if(form.valid()){
+                layuiTableReload({
+                    where: {
+                        year: ($("#DATE").val() || "").substr(0,4)
+                        ,month: ($("#DATE").val() || "").substr(5)
+                    }
+                });
+            }
+        }
+    })
+
+    function checkSubmitForm(){
+        return false;
+    }
+</script>

@@ -1,7 +1,99 @@
-<html>
+<!doctype html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
 </head>
 <body>
-<img src="1.jpg" alt=""/>
+<div>
+    <textarea name="" id="src" cols="30" rows="10"></textarea>
+</div>
+<div>
+    <textarea name="" id="des" cols="30" rows="10"></textarea>
+</div>
+
+<hr>
+
+<div>
+    <textarea name="" id="csrc" cols="30" rows="10"></textarea>
+</div>
+</div>
+<div>
+    <textarea name="" id="cdes" cols="30" rows="10"></textarea>
+</div>
+
+<hr>
+
+<div>
+    <textarea name="" id="esrc" cols="30" rows="10"></textarea>
+</div>
+</div>
+<div>
+    <textarea name="" id="edes" cols="30" rows="10"></textarea>
+</div>
+
+<script>
+    src.onchange = function () {
+        var val = src.value;
+
+        des.value =  JSON.stringify(val.split("\n").map(line => {
+            var sp = line.split(/(\s|\t)+/g);
+            console.log(sp)
+            if(!sp || !sp[0]){
+                return null;
+            }
+            return {
+                title: sp[0],
+                field: sp[2] || ''
+            }
+        })
+            .filter(item => null != item))
+            .replace(/,\{/g, "\n,{");
+    }
+
+
+    csrc.onchange = function () {
+        var val = csrc.value;
+
+        cdes.value =  JSON.stringify(val.split("\n").map(line => {
+            var sp = line.split(/(\s|\t)+/g);
+            console.log(sp)
+            if(!sp || !sp[0]){
+                return null;
+            }
+            return {
+                label: sp[0],
+                prop: sp[2] || ''
+            }
+        })
+            .filter(item => null != item))
+            .replace(/,\{/g, "\n,{");
+    }
+
+
+    esrc.onchange = function () {
+        var val = esrc.value;
+
+        var arr = (val.split("\n").map(line => {
+            var sp = line.split(/(\s|\t)+/g);
+            console.log(sp)
+            if(!sp || !sp[0]){
+                return null;
+            }
+            return {
+                val: sp[0].replace(/\"/g,''),
+                name: (sp[2] || '').replace(/\"/g,'')
+            }
+        }).filter(item => null != item))
+        arr.unshift({
+            name:"请选择"
+            ,val:""
+        });
+        edes.value = JSON.stringify(arr).replace(/,\{/g, "\n,{");
+    }
+</script>
 </body>
 </html>

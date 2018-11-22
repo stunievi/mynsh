@@ -90,10 +90,12 @@
   manual: true
   flow:
     资料收集:
+      deal: ["市场部，客户经理", "企业金融部，办事员"]
+      deleteable: false
       type: input
       start: true
-#        quarters: [] #允许经办的岗位ID #无用项
-#        user: [] #允许经办的用户ID
+      #        quarters: [] #允许经办的岗位ID #无用项
+      #        user: [] #允许经办的用户ID
       content:
         任务编号:
           name: TASK_ID
@@ -120,12 +122,12 @@
           type: EXT_DATA
           innate: true
           required: false
-        贷款金额:
+        贷款金额（元）:
           name: LOAN_AMOUNT
           type: EXT_DATA
           innate: true
           required: false
-        贷款余额:
+        贷款余额（元）:
           name: LOAN_BALANCE
           type: EXT_DATA
           innate: true
@@ -140,10 +142,10 @@
           type: string
           required: true
           rules:
-            - rule: NotNull
-            - rule: Size
-              min: 7
-              max: 15
+          - rule: NotNull
+          - rule: Size
+            min: 7
+            max: 15
         证件类型:
           name: CERT_TYPE
           type: select
@@ -166,41 +168,45 @@
           type: textarea
           required: false
 
-      next: 是否拒贷
+      next: 可以贷款
 
 
-    是否拒贷:
+    可以贷款:
+      deal: ["市场部，客户经理", "企业金融部，办事员"]
+      deleteable: false
       type: check
-#        quarters: []
-#        order: 1 #order项无用
-#        content:
+      #        quarters: []
+      #        order: 1 #order项无用
+      #        content:
       key: key #保存状态和备注时所用的键名, 通畅默认为key就可以
       ps: ps #是否需要备注, 如果没有, 则为空
-      question: 是否拒贷
+      question: 可以贷款
       states: #定义状态
-        - #状态名OK
-          item: 是 #状态选项
-          condition: 1 #有一个人选了就生成该状态
-          behavior: go('结束') #状态为该项的时候, 调用go函数 走向结束节点
-        - #状态名nonono
-          item: 否
-          condition: 1 #有一个人选了否就是该状态
-          behavior: go('结束')
-#          items: [是,否]
-#          passItem: 是
+      - #状态名OK
+        item: 是 #状态选项
+        condition: 1 #有一个人选了就生成该状态
+        behavior: go('结束') #状态为该项的时候, 调用go函数 走向结束节点
+      - #状态名nonono
+        item: 否
+        condition: 1 #有一个人选了否就是该状态
+        behavior: go('结束')
+      #          items: [是,否]
+      #          passItem: 是
       count: 1 #几个人审核
-#          - 1
-#          - 1
+      #          - 1
+      #          - 1
       next: [结束] #有可能的走向, 即树的子叶
 
     结束:
       type: end
       end: true
 
-菜单权限申请:
+开放权限申请:
   manual: true
   flow:
     发起权限申请:
+      deal: ["市场部，客户经理", "企业金融部，办事员"]
+      deleteable: false
       type: input
       start: true
       content:
@@ -234,12 +240,12 @@
           type: EXT_DATA
           innate: true
           required: false
-        贷款金额:
+        贷款金额（元）:
           name: LOAN_AMOUNT
           type: EXT_DATA
           innate: true
           required: false
-        贷款余额:
+        贷款余额（元）:
           name: LOAN_BALANCE
           type: EXT_DATA
           innate: true
@@ -264,117 +270,138 @@
           type: files
           name: files
           required: false
-      next: 判断表内/表外
-
-    判断表内/表外:
-      type: logic
-      condition: getLastNode('发起权限申请').get('type') #判断条件
-      interval: 1 #循环触发周期
-      result: #条件处理, 只在不为null的时候才处理
-        0: go('授信管理部审核')
-        1: go('风险资产管理部审核')
-        else: #其余的走项
-
       next: [授信管理部审核,风险资产管理部审核]
+      goNext:
+      -
+        case: type == '表内'
+        go: 授信管理部审核
+      -
+        case: type == '表外'
+        go: 风险资产管理部审核
+
+    #    判断表内/表外:
+    #      type: logic
+    #      condition: getLastNode('发起权限申请').get('type') #判断条件
+    #      interval: 1 #循环触发周期
+    #      result: #条件处理, 只在不为null的时候才处理
+    #        表内: go('授信管理部审核')
+    #
+    #        表外: go('风险资产管理部审核')
+    #
+    #        else: #其余的走项
+    #
+    #      next: [授信管理部审核,风险资产管理部审核]
 
     授信管理部审核:
+      deal: ["授信管理部，总行办事员"]
+      deleteable: false
       type: check
       key: key
       ps: ps
       question: 是否通过
       states:
-        -
-          item: 是
-          condition: 1
-          behavior: go('合规部审核')
-        -
-          item: 否
-          condition: 1
-          behavior: go('发起权限申请')
+      -
+        item: 是
+        condition: 1
+        behavior: go('合规部审核')
+      -
+        item: 否
+        condition: 1
+        behavior: go('发起权限申请')
       count: 1
       next: [合规部审核,发起权限申请]
 
     风险资产管理部审核:
+      deal: ["风险资产管理部，总行办事员"]
+      deleteable: false
       type: check
       key: key
       ps: ps
       question: 是否通过
       states:
-        -
-          item: 是
-          condition: 1
-          behavior: go('合规部审核')
-        -
-          item: 否
-          condition: 1
-          behavior: go('发起权限申请')
+      -
+        item: 是
+        condition: 1
+        behavior: go('合规部审核')
+      -
+        item: 否
+        condition: 1
+        behavior: go('发起权限申请')
       count: 1
       next: [合规部审核,发起权限申请]
 
     合规部审核:
+      deal: ["合规与风险管理部，总行办事员"]
+      deleteable: true
       type: check
       key: key
       ps: ps
       question: 是否通过
       states:
-        -
-          item: 是
-          condition: 1
-          behavior: go('总领导班子审核')
-        -
-          item: 否
-          condition: 1
-          behavior: go('发起权限申请')
+      -
+        item: 是
+        condition: 1
+        behavior: go('总行领导班子审核')
+      -
+        item: 否
+        condition: 1
+        behavior: go('发起权限申请')
       count: 1
-      next: [总领导班子审核,发起权限申请]
+      next: [总行领导班子审核,发起权限申请]
+
+    总行领导班子审核:
+      deal: []
+      deleteable: true
+      type: check
+      key: key
+      ps: ps
+      question: 是否通过
+      states:
+      -
+        item: 是
+        condition: 1
+        behavior: go('运营部审核')
+      -
+        item: 否
+        condition: 1
+        behavior: go('发起权限申请')
+      count: 1
+      next: [运营部审核,发起权限申请]
 
     运营部审核:
+      deal: ["运营部，总行办事员"]
+      deleteable: true
       type: check
       key: key
       ps: ps
       question: 是否通过
       states:
-        -
-          item: 是
-          condition: 1
-          behavior: go('电子银行部确认')
-        -
-          item: 否
-          condition: 1
-          behavior: go('发起权限申请')
+      -
+        item: 是
+        condition: 1
+        behavior: go('电子银行部确认')
+      -
+        item: 否
+        condition: 1
+        behavior: go('发起权限申请')
       count: 1
       next: [电子银行部确认,发起权限申请]
 
     电子银行部确认:
+      deal: ["电子银行部，总行办事员"]
+      deleteable: true
       type: check
       key: key
       ps: ps
       question: 是否通过
       states:
-        -
-          item: 是
-          condition: 1
-          behavior: go('结束')
+      -
+        item: 是
+        condition: 1
+        behavior: go('结束')
 
       count: 1
       next: [结束]
-
-    总领导班子审核:
-      type: check
-      key: key
-      ps: ps
-      question: 是否通过
-      states:
-        -
-          item: 是
-          condition: 1
-          behavior: go('运营部审核')
-        -
-          item: 否
-          condition: 1
-          behavior: go('发起权限申请')
-      count: 1
-      next: [运营部审核,发起权限申请]
 
     结束:
       type: end
@@ -385,9 +412,11 @@
   manual: true
   flow:
     填写贷后检查表:
+      deal: ["企业金融部，办事员"]
+      deleteable: false
       type: input
       start: true
-      next: 判断贷款额度
+      next: [上传报告]
       content:
         任务编号:
           name: TASK_ID
@@ -442,7 +471,7 @@
           name: LOAN_TERM
           type: string
           required: false
-        贷款余额:
+        贷款余额（元）:
           name: LOAN_BALANCE
           type: EXT_DATA
           innate: true
@@ -510,37 +539,49 @@
           type: files
           required: false
 
-    判断贷款额度:
-      type: logic
-      interval: 0
-      condition: "getLastNode('填写贷后检查表').get('f5') > 10000000 ? 'yeah' : 'ohno'"
-      result:
-        yeah: go('上传报告')
-        ohno: go('审核签署')
-      next: []
+    #      goNext:
+    #      -
+    #        case: LOAN_AMOUNT > 1000000
+    #        go: 上传报告
+    #      -
+    #        case: LOAN_AMOUNT <= 1000000
+    #        go: 审核签署
+
+    #    判断贷款额度:
+    #      type: logic
+    #      interval: 0
+    #      condition: "getLastNode('填写贷后检查表').get('f5') > 10000000 ? 'yeah' : 'ohno'"
+    #      result:
+    #        yeah: go('上传报告')
+    #        ohno: go('审核签署')
+    #      next: []
 
     上传报告:
+      deal: ["企业金融部，办事员"]
+      deleteable: false
       type: input
       next: 审核签署
       content:
         审核报告: report,file,false
 
     审核签署:
+      deal: ["企业金融部，总行副经理"]
+      deleteable: false
       type: check
       key: key
       ps: ps
       question: 是否通过
       states:
-        -
-          item: 是
-          condition: 1
-          behavior: go('结束')
-        -
-          item: 否
-          condition: 1
-          behavior: go('填写贷后检查表')
+      -
+        item: 是
+        condition: 1
+        behavior: go('结束')
+      -
+        item: 否
+        condition: 1
+        behavior: go('填写贷后检查表')
       count: 1
-      next: []
+      next: [填写贷后检查表,结束]
 
     结束:
       type: end
@@ -549,9 +590,11 @@
   manual: true
   flow:
     填写贷后检查表:
+      deal: ["企业金融部，办事员"]
+      deleteable: false
       type: input
       start: true
-      next: 判断贷款额度
+      next: [上传报告]
       content:
         任务编号:
           name: TASK_ID
@@ -615,7 +658,7 @@
           type: EXT_DATA
           innate: true
           required: false
-        贷款余额:
+        贷款余额（元）:
           name: LOAN_BALANCE
           type: EXT_DATA
           innate: true
@@ -687,38 +730,46 @@
           name: files
           type: files
           required: false
-
-    判断贷款额度:
-      type: logic
-      interval: 0
-      condition: "getLastNode('填写贷后检查表').get('f5') > 10000000 ? 'yeah' : 'ohno'"
-      result:
-        yeah: go('上传报告')
-        ohno: go('审核签署')
-      next: []
+    #      goNext:
+    #      - case: LOAN_AMOUNT > 1000000
+    #        go: 上传报告
+    #      - case: LOAN_AMOUNT <= 1000000
+    #        go: 审核签署
+    #    判断贷款额度:
+    #      type: logic
+    #      interval: 0
+    #      condition: "getLastNode('填写贷后检查表').get('f5') > 10000000 ? 'yeah' : 'ohno'"
+    #      result:
+    #        yeah: go('上传报告')
+    #        ohno: go('审核签署')
+    #      next: []
 
     上传报告:
+      deal:  ["企业金融部，办事员"]
+      deleteable: false
       type: input
       next: 审核签署
       content:
         审核报告: report,file,false
 
     审核签署:
+      deal: ["企业金融部，总行副经理"]
+      deleteable: false
       type: check
       key: key
       ps: ps
       question: 是否通过
       states:
-        -
-          item: 是
-          condition: 1
-          behavior: go('结束')
-        -
-          item: 否
-          condition: 1
-          behavior: go('填写贷后检查表')
+      -
+        item: 是
+        condition: 1
+        behavior: go('结束')
+      -
+        item: 否
+        condition: 1
+        behavior: go('填写贷后检查表')
       count: 1
-      next: []
+      next: [填写贷后检查表,结束]
 
     结束:
       type: end
@@ -727,9 +778,11 @@
   manual: true
   flow:
     填写贷后检查表:
+      deal: ["市场部，客户经理"]
+      deleteable: false
       type: input
       start: true
-      next: 判断贷款额度
+      next: [上传报告]
       content:
         任务编号:
           name: TASK_ID
@@ -784,12 +837,12 @@
           name: PHONE
           type: string
           required: true
-        借款金额:
+        借款金额（元）:
           name: LOAN_AMOUNT
           type: EXT_DATA
           innate: true
           required: false
-        借款余额:
+        借款余额（元）:
           name: LOAN_BALANCE
           type: EXT_DATA
           innate: true
@@ -831,7 +884,7 @@
           type: select
           required: true
           items:  [是,否]
-        拖欠本金、利息金额:
+        拖欠本金、利息金额（元）:
           name: YWTQBJLX_AMT
           type: string
           required: true
@@ -913,38 +966,47 @@
           name: files
           type: files
           required: false
+    #      goNext:
+    #      - case: LOAN_AMOUNT > 1000000
+    #        go: 上传报告
+    #      - case: LOAN_AMOUNT <= 1000000
+    #        go: 审核签署
 
-    判断贷款额度:
-      type: logic
-      interval: 0
-      condition: "getLastNode('填写贷后检查表').get('f5') > 10000000 ? 'yeah' : 'ohno'"
-      result:
-        yeah: go('上传报告')
-        ohno: go('审核签署')
-      next: []
+    #    判断贷款额度:
+    #      type: logic
+    #      interval: 0
+    #      condition: "getLastNode('填写贷后检查表').get('f5') > 10000000 ? 'yeah' : 'ohno'"
+    #      result:
+    #        yeah: go('上传报告')
+    #        ohno: go('审核签署')
+    #      next: []
 
     上传报告:
+      deal: ["市场部，客户经理"]
+      deleteable: false
       type: input
       next: 审核签署
       content:
         审核报告: report,file,false
 
     审核签署:
+      deal: ["市场部，直管支行副经理"]
+      deleteable: false
       type: check
       key: key
       ps: ps
       question: 是否通过
       states:
-        -
-          item: 是
-          condition: 1
-          behavior: go('结束')
-        -
-          item: 否
-          condition: 1
-          behavior: go('填写贷后检查表')
+      -
+        item: 是
+        condition: 1
+        behavior: go('结束')
+      -
+        item: 否
+        condition: 1
+        behavior: go('填写贷后检查表')
       count: 1
-      next: []
+      next: [填写贷后检查表,结束]
 
     结束:
       type: end
@@ -953,9 +1015,11 @@
   manual: true
   flow:
     填写贷后检查表:
+      deal: ["市场部，客户经理"]
+      deleteable: false
       type: input
       start: true
-      next: 判断贷款额度
+      next: [上传报告]
       content:
         任务编号:
           name: TASK_ID
@@ -1010,12 +1074,12 @@
           name: PHONE
           type: string
           required: true
-        借款金额:
+        借款金额（元）:
           name: LOAN_AMOUNT
           type: EXT_DATA
           innate: true
           required: false
-        借款余额:
+        借款余额（元）:
           name: LOAN_BALANCE
           type: EXT_DATA
           innate: true
@@ -1057,7 +1121,7 @@
           type: select
           required: true
           items:  [是,否]
-        未执行金额:
+        未执行金额（元）:
           name: SFZXFQHKJH_AMT
           type: string
           required: true
@@ -1071,7 +1135,7 @@
           type: select
           required: true
           items:  [是,否]
-        拖欠本金、利息金额:
+        拖欠本金、利息金额（元）:
           name: YWTQBJLX_AMT
           type: string
           required: true
@@ -1143,38 +1207,46 @@
           name: files
           type: files
           required: false
-
-    判断贷款额度:
-      type: logic
-      interval: 0
-      condition: "getLastNode('填写贷后检查表').get('f5') > 10000000 ? 'yeah' : 'ohno'"
-      result:
-        yeah: go('上传报告')
-        ohno: go('审核签署')
-      next: []
+    #      goNext:
+    #      - case: LOAN_AMOUNT > 1000000
+    #        go: 上传报告
+    #      - case: LOAN_AMOUNT <= 1000000
+    #        go: 审核签署
+    #    判断贷款额度:
+    #      type: logic
+    #      interval: 0
+    #      condition: "getLastNode('填写贷后检查表').get('f5') > 10000000 ? 'yeah' : 'ohno'"
+    #      result:
+    #        yeah: go('上传报告')
+    #        ohno: go('审核签署')
+    #      next: []
 
     上传报告:
+      deal: ["市场部，客户经理"]
+      deleteable: false
       type: input
       next: 审核签署
       content:
         审核报告: report,file,false
 
     审核签署:
+      deal: ["市场部，直管支行副经理"]
+      deleteable: false
       type: check
       key: key
       ps: ps
       question: 是否通过
       states:
-        -
-          item: 是
-          condition: 1
-          behavior: go('结束')
-        -
-          item: 否
-          condition: 1
-          behavior: go('填写贷后检查表')
+      -
+        item: 是
+        condition: 1
+        behavior: go('结束')
+      -
+        item: 否
+        condition: 1
+        behavior: go('填写贷后检查表')
       count: 1
-      next: []
+      next: [填写贷后检查表,结束]
 
     结束:
       type: end
@@ -1183,9 +1255,11 @@
   manual: true
   flow:
     填写贷后检查表:
+      deal: ["市场部，客户经理"]
+      deleteable: false
       type: input
       start: true
-      next: 判断贷款额度
+      next: [上传报告]
       content:
         任务编号:
           name: TASK_ID
@@ -1240,12 +1314,12 @@
           name: PHONE
           type: string
           required: true
-        借款金额:
+        借款金额（元）:
           name: LOAN_AMOUNT
           type: EXT_DATA
           innate: true
           required: false
-        借款余额:
+        借款余额（元）:
           name: LOAN_BALANCE
           type: EXT_DATA
           innate: true
@@ -1269,7 +1343,7 @@
           type: select
           required: true
           items:  [是,否]
-        年收入:
+        年收入（万元）:
           name: YEAR_INCOME
           type: string
           required: true
@@ -1278,7 +1352,7 @@
           type: select
           required: true
           items:  [是,否]
-        未执行金额:
+        未执行金额（元）:
           name: SFZXFQHKJH_AMT
           type: string
           required: true
@@ -1287,7 +1361,7 @@
           type: select
           required: true
           items:  [是,否]
-        拖欠本金、利息金额:
+        拖欠本金、利息金额（元）:
           name: YWTQBJLX_AMT
           type: string
           required: true
@@ -1354,46 +1428,235 @@
           name: files
           type: files
           required: false
-
-    判断贷款额度:
-      type: logic
-      interval: 0
-      condition: "getLastNode('填写贷后检查表').get('f5') > 10000000 ? 'yeah' : 'ohno'"
-      result:
-        yeah: go('上传报告')
-        ohno: go('审核签署')
-      next: []
+    #      goNext:
+    #      - case: LOAN_AMOUNT > 1000000
+    #        go: 上传报告
+    #      - case: LOAN_AMOUNT <= 1000000
+    #        go: 审核签署
+    #    判断贷款额度:
+    #      type: logic
+    #      interval: 0
+    #      condition: "getLastNode('填写贷后检查表').get('f5') > 10000000 ? 'yeah' : 'ohno'"
+    #      result:
+    #        yeah: go('上传报告')
+    #        ohno: go('审核签署')
+    #      next: []
 
     上传报告:
+      deal: ["市场部，客户经理"]
+      deleteable: false
       type: input
       next: 审核签署
       content:
         审核报告: report,file,false
 
     审核签署:
+      deal: ["市场部，直管支行副经理"]
+      deleteable: false
       type: check
       key: key
       ps: ps
       question: 是否通过
       states:
-        -
-          item: 是
-          condition: 1
-          behavior: go('结束')
-        -
-          item: 否
-          condition: 1
-          behavior: go('填写贷后检查表')
+      -
+        item: 是
+        condition: 1
+        behavior: go('结束')
+      -
+        item: 否
+        condition: 1
+        behavior: go('填写贷后检查表')
       count: 1
-      next: []
+      next: [填写贷后检查表,结束]
 
     结束:
       type: end
+
+贷后跟踪-银行部公司类:
+  manual: true
+  flow:
+    填写贷后检查表:
+      deal: ["市场部，客户经理"]
+      deleteable: false
+      type: input
+      start: true
+      next: [上传报告]
+      content:
+        任务编号:
+          name: TASK_ID
+          type: taskId
+          required: true
+          innate: true
+        借据号:
+          name: BILL_NO
+          type: EXT_DATA
+          innate: true
+          required: false
+        合同号:
+          name: CONT_NO
+          type: EXT_DATA
+          innate: true
+          required: false
+        客户号:
+          name: CUS_ID
+          type: EXT_DATA
+          innate: true
+          required: false
+        借款人全称:
+          name: CUS_NAME
+          type: EXT_DATA
+          innate: true
+          required: false
+        贷款帐号:
+          name: LOAN_ACCOUNT
+          type: EXT_DATA
+          innate: true
+          required: false
+        五级分类:
+          name: CLA
+          type: EXT_DATA
+          innate: true
+          required: false
+        担保方式:
+          name: ASSURE_MEANS_MAIN
+          type: EXT_DATA
+          innate: true
+          required: false
+        贷款额度（万元）:
+          name: LOAN_AMOUNT
+          type: EXT_DATA
+          innate: true
+          required: false
+        贷款用途:
+          name: USE_DEC
+          type: string
+          required: false
+        贷款期限:
+          name: LOAN_TERM
+          type: string
+          required: false
+        贷款余额（元）:
+          name: LOAN_BALANCE
+          type: EXT_DATA
+          innate: true
+          required: false
+        是否按合同约定用途使用贷款:
+          name: IS_FOR_CONT
+          type: select
+          required: true
+          items:  [是,否]
+        是否按约履行借款合同的其他要求:
+          name: IS_FOR_CONT_OTHER
+          type: select
+          required: true
+          items:  [是,否]
+        借款人内部管理情况:
+          name: CUST_MANAGE_IN_B
+          type: select
+          required: true
+          items:  [良好,一般,"借款人的管理层出现重大意见分歧，或法定代表人（主要经营者）品行出现了不利于贷款偿还的变化","借款人内部管理出现问题，对正常经营构成实质损害，妨碍债务的及时足额清偿"]
+        客户是否存在违法行为:
+          name: IS_CUST_VIO
+          type: select
+          required: true
+          items:  [有,无]
+        借款人其他基本情况说明:
+          name: CUST_OTHER_DTL
+          type: textarea
+          required: false
+        经营情况:
+          name: OP_STATUS
+          type: select
+          required: true
+          items:  ["借款人经营状况良好，未来仍将保持良好状况","业务量有所下降，整体盈利能力下降","经营状况出现明显不利变化，或经营由盈转亏","借款人进入清算程序","借款人处于停产、半停产状态，固定资产贷款项目处于停、缓建状态","借款人涉及对其经营财务状况产生重大不利影响的未决诉讼，影响借款人偿债能力的可能性很大"]
+        税、费缴纳情况:
+          name: TAX_STATUS_B
+          type: select
+          required: true
+          items:  ["正常缴纳","报告期内被税务机关或有关部门罚款(不包括滞纳金)2次(含)以内","报告期内被税务机关或有关部门罚款超过2次以上(不包括滞纳金)","存在拖欠税款超过1年未缴纳、偷税或抗税行为等"]
+        还款意愿:
+          name: REPAYMENT_WILL
+          type: select
+          required: true
+          items:  [优秀,良好,一般,较差,差]
+        偿还能力:
+          name: REPAYMENT_ABILITY
+          type: select
+          required: true
+          items:  ["诚信记录优良，在金融机构没有拖欠贷款本息的记录","借新还旧，或者通过其他融资方式偿还","不能偿还其他债权人债务","担保的有效性出现问题，抵质押物价值明显下降，或农合机构对其失去控制，明显影响贷款归还","通过拍卖抵押品、履行保证责任等途径筹集还款资金","改制后难以落实农合机构债务，或虽落实债务但不能正常还本付息","已诉诸法律追收的贷款"]
+        抵押物是否变化:
+          name: IS_PLEDGE_CHANGE
+          type: select
+          required: true
+          items:  [是,否]
+        保证人是否变化:
+          name: IS_WARRANT_CHANGE
+          type: select
+          required: true
+          items:  [是,否]
+        简要评价:
+          name: EVALUATE_TOTAL
+          type: textarea
+          required: true
+        上传附件:
+          name: files
+          type: files
+          required: false
+
+    #      goNext:
+    #      -
+    #        case: LOAN_AMOUNT > 1000000
+    #        go: 上传报告
+    #      -
+    #        case: LOAN_AMOUNT <= 1000000
+    #        go: 审核签署
+
+    #    判断贷款额度:
+    #      type: logic
+    #      interval: 0
+    #      condition: "getLastNode('填写贷后检查表').get('f5') > 10000000 ? 'yeah' : 'ohno'"
+    #      result:
+    #        yeah: go('上传报告')
+    #        ohno: go('审核签署')
+    #      next: []
+
+    上传报告:
+      deal: ["市场部，客户经理"]
+      deleteable: false
+      type: input
+      next: 审核签署
+      content:
+        审核报告: report,file,false
+
+    审核签署:
+      deal: ["市场部，直管支行副经理"]
+      deleteable: false
+      type: check
+      key: key
+      ps: ps
+      question: 是否通过
+      states:
+      -
+        item: 是
+        condition: 1
+        behavior: go('结束')
+      -
+        item: 否
+        condition: 1
+        behavior: go('填写贷后检查表')
+      count: 1
+      next: [填写贷后检查表,结束]
+
+    结束:
+      type: end
+
 
 催收:
   manual: true
   flow:
     签收催收通知函:
+      deal: ["市场部，客户经理", "企业金融部，办事员"]
+      deleteable: false
       type: input
       start: true
       next: 是否可以还款
@@ -1428,12 +1691,12 @@
           type: EXT_DATA
           innate: true
           required: false
-        贷款金额:
+        贷款金额（元）:
           name: LOAN_AMOUNT
           type: EXT_DATA
           innate: true
           required: false
-        贷款余额:
+        贷款余额（元）:
           name: LOAN_BALANCE
           type: EXT_DATA
           innate: true
@@ -1448,6 +1711,15 @@
           type: select
           required: true
           items:  [电话催收,书面催收,短信催收]
+        催收对象:
+          name: COL_OBJ
+          type: select
+          required: true
+          items:  [借款人,担保人]
+        催收时间:
+          name: CS_DATE
+          type: datetime
+          required: true
         催收单据:
           name: files
           type: files
@@ -1455,21 +1727,24 @@
 
 
     是否可以还款:
+      deal: ["市场部，客户经理", "企业金融部，办事员"]
+      deleteable: false
       type: check
       ps: ps
       key: key
       count: 1
       question: 是否可以还款?
       states:
-        -
-          item: 是
-          condition: 1
-          behavior: go('结束')
+      -
+        item: 是
+        condition: 1
+        behavior: go('结束')
 
-        -
-          item: 否
-          condition: 1
-          behavior: go('结束')
+      -
+        item: 否
+        condition: 1
+        behavior: go('结束')
+      next: 结束
 
     结束:
       type: end
@@ -1539,6 +1814,8 @@
   manual: true
   flow:
     发起申请:
+      deal: ["市场部，客户经理", "企业金融部，办事员"]
+      deleteable: false
       type: input
       start: true
       content:
@@ -1572,12 +1849,12 @@
           type: EXT_DATA
           innate: true
           required: false
-        贷款金额:
+        贷款金额（元）:
           name: LOAN_AMOUNT
           type: EXT_DATA
           innate: true
           required: false
-        贷款余额:
+        贷款余额（元）:
           name: LOAN_BALANCE
           type: EXT_DATA
           innate: true
@@ -1596,9 +1873,32 @@
           type: files
           required: false
 
-      next: 责任认定
+      next: 风险资产管理部审批
+
+    风险资产管理部审批:
+      deal: ["风险资产管理部，总行办事员"]
+      deleteable: false
+      type: check
+      key: key
+      ps: ps
+      question: 是否通过
+      states:
+      -
+        item: 是
+        condition: 1
+        behavior: go('责任认定')
+      -
+        item: 否
+        condition: 1
+        behavior: go('发起申请')
+      count: 1
+      next: [责任认定,发起申请]
+      behavior:
+      - [newTask,不良资产主流程]
 
     责任认定:
+      deal: ["内审，总行办事员"]
+      deleteable: false
       type: input
       content:
         认定说明:
@@ -1609,24 +1909,7 @@
         name: files
         type: files
         required: false
-      next: 风险资产管理部审批
-
-    风险资产管理部审批:
-      type: check
-      key: key
-      ps: ps
-      question: 是否通过
-      states:
-        -
-          item: 是
-          condition: 1
-          behavior: go('结束')
-        -
-          item: 否
-          condition: 1
-          behavior: go('发起申请')
-      count: 1
-      next: [结束,发起申请]
+      next: 结束
 
     结束:
       type: end
@@ -1640,6 +1923,8 @@
 
   flow:
     发起申请:
+      deal: ["市场部，客户经理", "企业金融部，办事员"]
+      deleteable: false
       type: input
       start: true
       content:
@@ -1678,12 +1963,12 @@
           type: EXT_DATA
           innate: true
           required: false
-        贷款金额:
+        贷款金额（元）:
           name: LOAN_AMOUNT
           type: EXT_DATA
           innate: true
           required: false
-        贷款余额:
+        贷款余额（元）:
           name: LOAN_BALANCE
           type: EXT_DATA
           innate: true
@@ -1705,57 +1990,65 @@
       next: 经营班子集体审议
 
     经营班子集体审议:
+      deal: ["市场部，直管支行副经理（主持全面）", "市场部，直管支行经理", "企业金融部，总行总经理"]
+      deleteable: true
       type: check
       ps: ps
       key: key
       question: 审议通过/不通过?
-      count: 5
+      count: 1
       states:
-        -
-          item: 通过
-          condition: 1
-          behavior: go('风险资产管理部审核')
-        -
-          item: 不通过
-          condition: 1
-          behavior: go('发起申请')
+      -
+        item: 通过
+        condition: 1
+        behavior: go('风险资产管理部审核')
+      -
+        item: 不通过
+        condition: 1
+        behavior: go('发起申请')
       next: [风险资产管理部审核,发起申请]
 
     风险资产管理部审核:
+      deal: ["风险资产管理部，总行办事员"]
+      deleteable: true
       type: check
       key: key
       ps: ps
       question: 是否通过
       states:
-        -
-          item: 是
-          condition: 1
-          behavior: go('不良资产管理委员会审批')
-        -
-          item: 否
-          condition: 1
-          behavior: go('发起申请')
+      -
+        item: 是
+        condition: 1
+        behavior: go('不良资产管理委员会审批')
+      -
+        item: 否
+        condition: 1
+        behavior: go('发起申请')
       count: 1
       next: [不良资产管理委员会审批,发起申请]
 
     不良资产管理委员会审批:
+      deal: ["不良管理委员会委员"]
+      deleteable: true
       type: check
       key: key
       ps: ps
       question: 是否通过
       states:
-        -
-          item: 是
-          condition: 3
-          behavior: go('签订协议')
-        -
-          item: 否
-          condition: 3
-          behavior: go('发起申请')
+      -
+        item: 是
+        condition: 3
+        behavior: go('签订协议')
+      -
+        item: 否
+        condition: 3
+        behavior: go('发起申请')
       count: 5
       next: [签订协议,发起申请]
 
     签订协议:
+      deal: ["市场部，客户经理", "企业金融部，办事员"]
+      deleteable: false
       type: input
       start: false
       content:
@@ -1771,6 +2064,8 @@
       next: 立卷归档
 
     立卷归档:
+      deal: ["市场部，客户经理", "企业金融部，办事员"]
+      deleteable: false
       type: input
       start: false
       content:
@@ -1795,6 +2090,8 @@
 
   flow:
     发起申请:
+      deal: ["市场部，客户经理", "企业金融部，办事员"]
+      deleteable: false
       type: input
       start: true
       content:
@@ -1833,12 +2130,12 @@
           type: EXT_DATA
           innate: true
           required: false
-        贷款金额:
+        贷款金额（元）:
           name: LOAN_AMOUNT
           type: EXT_DATA
           innate: true
           required: false
-        贷款余额:
+        贷款余额（元）:
           name: LOAN_BALANCE
           type: EXT_DATA
           innate: true
@@ -1860,23 +2157,66 @@
       next: 经营班子集体审议
 
     经营班子集体审议:
+      deal: ["市场部，直管支行副经理（主持全面）", "市场部，直管支行经理", "企业金融部，总行总经理"]
+      deleteable: true
       type: check
       ps: ps
       key: key
       question: 审议通过/不通过?
-      count: 5
+      count: 1
       states:
-        -
-          item: 通过
-          condition: 1
-          behavior: go('诉前保全')
-        -
-          item: 不通过
-          condition: 1
-          behavior: go('发起申请')
+      -
+        item: 通过
+        condition: 1
+        behavior: go('风险资产管理部审核')
+      -
+        item: 不通过
+        condition: 1
+        behavior: go('发起申请')
+      next: [风险资产管理部审核,发起申请]
+
+
+    风险资产管理部审核:
+      deal: ["风险资产管理部，总行副经理"]
+      deleteable: true
+      type: check
+      key: key
+      ps: ps
+      question: 是否通过
+      states:
+      -
+        item: 是
+        condition: 1
+        behavior: go('不良资产管理委员会审批')
+      -
+        item: 否
+        condition: 1
+        behavior: go('发起申请')
+      count: 1
+      next: [不良资产管理委员会审批,发起申请]
+
+    不良资产管理委员会审批:
+      deal: ["不良管理委员会委员"]
+      deleteable: true
+      type: check
+      key: key
+      ps: ps
+      question: 是否通过
+      states:
+      -
+        item: 是
+        condition: 3
+        behavior: go('诉前保全')
+      -
+        item: 否
+        condition: 3
+        behavior: go('发起申请')
+      count: 5
       next: [诉前保全,发起申请]
 
     诉前保全:
+      deal: ["风险资产管理部，总行办事员"]
+      deleteable: false
       type: input
       content:
         保全起始时间:
@@ -1895,47 +2235,18 @@
           type: files
           name: files
           required: false
-      next: 风险资产管理部审核
-
-
-    风险资产管理部审核:
-      type: check
-      key: key
-      ps: ps
-      question: 是否通过
-      states:
-        -
-          item: 是
-          condition: 1
-          behavior: go('不良资产管理委员会审批')
-        -
-          item: 否
-          condition: 1
-          behavior: go('发起申请')
-      count: 1
-      next: [不良资产管理委员会审批,发起申请]
-
-    不良资产管理委员会审批:
-      type: check
-      key: key
-      ps: ps
-      question: 是否通过
-      states:
-        -
-          item: 是
-          condition: 3
-          behavior: go('法院立案')
-        -
-          item: 否
-          condition: 3
-          behavior: go('发起申请')
-      count: 5
-      next: [法院立案,发起申请]
+      next: 法院立案
 
     法院立案:
+      deal: ["风险资产管理部，总行办事员"]
+      deleteable: false
       type: input
       start: false
       content:
+        立案截止日:
+          name: la_end
+          type: datetime
+          required: true
         说明:
           name: apply
           type: textarea
@@ -1948,8 +2259,14 @@
       next: 缴费
 
     缴费:
+      deal: ["计划财务部，总行办事员"]
+      deleteable: false
       type: input
       content:
+        缴费缴费日:
+          name: jf_end
+          type: datetime
+          required: true
         说明:
           name: apply
           type: textarea
@@ -1962,6 +2279,8 @@
       next: 案件跟进
 
     案件跟进:
+      deal: ["风险资产管理部，总行办事员"]
+      deleteable: false
       type: input
       content:
         开庭公告日期:
@@ -1988,23 +2307,27 @@
       next: 诉讼过程中与客户协商一致
 
     诉讼过程中与客户协商一致:
+      deal: ["风险资产管理部，总行办事员"]
+      deleteable: false
       type: check
       key: key
       ps: ps
       question: 是否协商一致？
       states:
-        -
-          item: 是
-          condition: 1
-          behavior: go('立卷归档')
-        -
-          item: 否
-          condition: 1
-          behavior: go('判决生效，执行')
+      -
+        item: 是
+        condition: 1
+        behavior: go('立卷归档')
+      -
+        item: 否
+        condition: 1
+        behavior: go('判决生效，执行')
       count: 1
       next: [立卷归档,"判决生效，执行"]
 
     判决生效，执行:
+      deal: ["风险资产管理部，总行办事员"]
+      deleteable: false
       type: input
       start: false
       content:
@@ -2020,6 +2343,8 @@
       next: 立卷归档
 
     立卷归档:
+      deal: ["市场部，客户经理", "企业金融部，办事员"]
+      deleteable: false
       type: input
       start: false
       content:
@@ -2035,6 +2360,8 @@
       next: 结案处理
 
     结案处理:
+      deal: ["市场部，客户经理", "企业金融部，办事员"]
+      deleteable: false
       type: input
       start: false
       content:
@@ -2056,27 +2383,11 @@
 抵债资产接收:
   manual: false
   flow:
-    是否裁定抵债:
+    发起申请:
+      deal: ["市场部，客户经理", "企业金融部，办事员"]
+      deleteable: false
       start: true
-      type: check
-      ps: ps
-      key: key
-      question: 是否裁定抵债?
-      count: 1
-      states:
-        -
-          item: 是
-          condition: 1
-          behavior: go('贷款单位调查')
-        -
-          item: 否
-          condition: 1
-          behavior: go('贷款单位调查')
-      next: [贷款单位调查,贷款单位调查]
-
-    贷款单位调查:
       type: input
-      start: false
       content:
         任务编号:
           name: TASK_ID
@@ -2108,12 +2419,12 @@
           name: LOAN_ACCOUNT
           type: string
           required: false
-        贷款金额:
+        贷款金额（元）:
           name: LOAN_AMOUNT
           type: EXT_DATA
           innate: true
           required: false
-        贷款余额:
+        贷款余额（元）:
           name: LOAN_BALANCE
           type: EXT_DATA
           innate: true
@@ -2123,6 +2434,28 @@
           type: EXT_DATA
           innate: true
           required: false
+        抵债方式:
+          name: type
+          type: select
+          items: [裁定抵债,协商抵债]
+          required: true
+        申请说明:
+          name: apply
+          type: textarea
+          required: false
+        上传附件:
+          type: files
+          name: files
+          required: false
+
+      next: 贷款单位调查
+
+    贷款单位调查:
+      deal: ["市场部，客户经理", "企业金融部，办事员"]
+      deleteable: false
+      type: input
+      start: false
+      content:
         说明:
           name: apply
           type: textarea
@@ -2135,40 +2468,46 @@
       next: 经营班子集体审议
 
     经营班子集体审议:
+      deal: ["市场部，直管支行副经理（主持全面）", "市场部，直管支行经理", "企业金融部，总行总经理"]
+      deleteable: true
       type: check
       ps: ps
       key: key
       question: 审查通过/不通过?
       count: 1
       states:
-        -
-          item: 通过
-          condition: 1
-          behavior: go('风险资产管理部审查')
-        -
-          item: 不通过
-          condition: 1
-          behavior: go('贷款单位调查')
+      -
+        item: 通过
+        condition: 1
+        behavior: go('风险资产管理部审查')
+      -
+        item: 不通过
+        condition: 1
+        behavior: go('贷款单位调查')
       next: [风险资产管理部审查,贷款单位调查]
 
     风险资产管理部审查:
+      deal: ["风险资产管理部，总行办事员"]
+      deleteable: true
       type: check
-      ps: ps,
-      key: key,
+      ps: ps
+      key: key
       question: 审查通过/不通过?
       count: 1
       states:
-        -
-          item: 通过
-          condition: 1
-          behavior: go('资产定价')
-        -
-          item: 不通过
-          condition: 1
-          behavior: go('贷款单位调查')
+      -
+        item: 通过
+        condition: 1
+        behavior: go('资产定价')
+      -
+        item: 不通过
+        condition: 1
+        behavior: go('贷款单位调查')
       next: [资产定价,贷款单位调查]
 
     资产定价:
+      deal: ["风险资产管理部，总行办事员"]
+      deleteable: true
       type: input
       start: false
       content:
@@ -2185,23 +2524,27 @@
 
 
     不良资产管理委员会审批:
+      deal: ["不良管理委员会委员"]
+      deleteable: true
       type: check
       key: key
       ps: ps
       question: 是否通过
       states:
-        -
-          item: 是
-          condition: 3
-          behavior: go('省联社备案')
-        -
-          item: 否
-          condition: 3
-          behavior: go('贷款单位调查')
+      -
+        item: 是
+        condition: 3
+        behavior: go('省联社备案')
+      -
+        item: 否
+        condition: 3
+        behavior: go('贷款单位调查')
       count: 5
       next: [省联社备案,贷款单位调查]
 
     省联社备案:
+      deal: ["风险资产管理部，总行办事员"]
+      deleteable: false
       type: input
       start: false
       content:
@@ -2228,6 +2571,8 @@
       next: 与客户签订协议
 
     与客户签订协议:
+      deal: ["市场部，客户经理", "企业金融部，办事员"]
+      deleteable: false
       type: input
       start: false
       content:
@@ -2242,23 +2587,27 @@
       next: 合同审查通过
 
     合同审查通过:
+      deal: ["合规，总行办事员"]
+      deleteable: true
       type: check
       key: key
       ps: ps
       question: 是否审查通过？
       states:
-        -
-          item: 是
-          condition: 1
-          behavior: go('入账处理')
-        -
-          item: 否
-          condition: 1
-          behavior: go('与客户签订协议')
+      -
+        item: 是
+        condition: 1
+        behavior: go('入账处理')
+      -
+        item: 否
+        condition: 1
+        behavior: go('与客户签订协议')
       count: 1
       next: [入账处理,与客户签订协议]
 
     入账处理:
+      deal: ["市场部，客户经理", "企业金融部，办事员"]
+      deleteable: false
       type: input
       start: false
       content:
@@ -2281,6 +2630,8 @@
   manual: true
   flow:
     制定处置方案:
+      deal: ["市场部，客户经理", "企业金融部，办事员"]
+      deleteable: false
       type: input
       start: true
       content:
@@ -2319,12 +2670,12 @@
           type: EXT_DATA
           innate: true
           required: false
-        贷款金额:
+        贷款金额（元）:
           name: LOAN_AMOUNT
           type: EXT_DATA
           innate: true
           required: false
-        贷款余额:
+        贷款余额（元）:
           name: LOAN_BALANCE
           type: EXT_DATA
           innate: true
@@ -2345,74 +2696,84 @@
       next: 信贷主管审查
 
     信贷主管审查:
+      deal: ["市场部，直管支行副经理", "企业金融部，总行副经理"]
+      deleteable: false
       type: check
       ps: ps
       key: key
       question: 审查通过/不通过?
       count: 1
       states:
-        -
-          item: 通过
-          condition: 1
-          behavior: go('经营班子集体审议')
-        -
-          item: 不通过
-          condition: 1
-          behavior: go('制定处置方案')
+      -
+        item: 通过
+        condition: 1
+        behavior: go('经营班子集体审议')
+      -
+        item: 不通过
+        condition: 1
+        behavior: go('制定处置方案')
       next: [经营班子集体审议,制定处置方案]
 
     经营班子集体审议:
+      deal: ["市场部，直管支行副经理（主持全面）", "市场部，直管支行经理", "企业金融部，总行总经理"]
+      deleteable: true
       type: check
       ps: ps
       key: key
       question: 审议通过/不通过?
       count: 1
       states:
-        -
-          item: 通过
-          condition: 1
-          behavior: go('风险资产管理部审核')
-        -
-          item: 不通过
-          condition: 1
-          behavior: go('制定处置方案')
+      -
+        item: 通过
+        condition: 1
+        behavior: go('风险资产管理部审核')
+      -
+        item: 不通过
+        condition: 1
+        behavior: go('制定处置方案')
       next: [风险资产管理部审核,制定处置方案]
 
     风险资产管理部审核:
+      deal: ["风险资产管理部，总行副经理"]
+      deleteable: true
       type: check
       ps: ps
       key: key
       question: 审查通过/不通过?
       count: 1
       states:
-        -
-          item: 通过
-          condition: 1
-          behavior: go('不良资产管理委员会审批')
-        -
-          item: 不通过
-          condition: 1
-          behavior: go('制定处置方案')
+      -
+        item: 通过
+        condition: 1
+        behavior: go('不良资产管理委员会审批')
+      -
+        item: 不通过
+        condition: 1
+        behavior: go('制定处置方案')
       next: [不良资产管理委员会审批,制定处置方案]
 
     不良资产管理委员会审批:
+      deal: ["不良管理委员会委员"]
+      deleteable: true
       type: check
       key: key
       ps: ps
       question: 是否通过
       states:
-        -
-          item: 是
-          condition: 1
-          behavior: go('省联社备案')
-        -
-          item: 否
-          condition: 1
-          behavior: go('制定处置方案')
+      -
+        item: 是
+        condition: 3
+        behavior: go('省联社备案')
+      -
+        item: 否
+        condition: 3
+        behavior: go('制定处置方案')
       count: 5
       next: [省联社备案,制定处置方案]
 
     省联社备案:
+      deal: ["风险资产管理部，总行办事员"]
+      deleteable: false
       type: input
       start: false
       content:
@@ -2440,6 +2801,8 @@
       next: 处置过程
 
     处置过程:
+      deal: ["市场部，客户经理", "企业金融部，办事员"]
+      deleteable: false
       type: input
       start: false
       content:
@@ -2455,6 +2818,8 @@
       next: 出账处理
 
     出账处理:
+      deal: ["市场部，客户经理", "企业金融部，办事员"]
+      deleteable: false
       type: input
       start: false
       content:
@@ -2470,14 +2835,16 @@
       next: 结束
 
     结束:
-        type: end
-        end: true
+      type: end
+      end: true
 
-不良资产管理流程:
+不良资产主流程:
   manual: false
   custom: false
   flow:
     发起:
+      deal: ["市场部，客户经理", "企业金融部，办事员"]
+      deleteable: false
       type: input
       start: true
       content:
@@ -2511,12 +2878,12 @@
           type: EXT_DATA
           innate: true
           required: false
-        贷款金额:
+        贷款金额（元）:
           name: LOAN_AMOUNT
           type: EXT_DATA
           innate: true
           required: false
-        贷款余额:
+        贷款余额（元）:
           name: LOAN_BALANCE
           type: EXT_DATA
           innate: true

@@ -1,0 +1,144 @@
+<div class="panel panel-default">
+
+    {{if panelTitle }}
+    <div class="panel-heading" style="font-size: 13px;">
+        {{panelTitle}}
+    </div>
+    {{/if}}
+    <div class="panel-body" style='{{panelTitle && swidth < 800 ? "display:none" : ""}}'>
+        <form name="{{formName ? formName : 'form-search'}}" class="search-form"
+              onsubmit="return checkSubmitForm(this)">
+            <div class="row panel-form-input-group">
+                {{each list value}}
+                {{if value.type == 'hidden'}}
+                <input type="hidden" name="{{value.prop}}" value="{{data[value.prop]}}">
+                {{else if value.manifest}}
+                <div class="col-xs-12 form-group ">
+                    <label for="user" class="col-xs-2 text-right" style="width:16.22%">
+                        {{if value.required}}
+                        <span style="color:red">
+                            *
+                        </span>
+                        {{/if}} {{value.label}}
+                    </label>
+                    <div class="col-xs-6">
+                        <input type="text" id="{{value.prop}}" name="{{value.prop}}" value="{{data[value.prop]}}"
+                               {{value.disabled ? 'readonly' : ''}}>
+                    </div>
+                    <div class="col-xs-2">
+                        <button class="btn btn-default btn-sm groupBtn" type="button" id="groupBtn-{{value.prop}}">
+                            {{value.manifest}}
+                        </button>
+                    </div>
+                </div>
+                {{else}}
+                <div class="{{line?'col-xs-12': 'col-xs-6 col-sm-3 col-md-2 col-lg-2'}} form-group " style="margin-bottom: 8px;">
+                        <label for="{{value.prop}}" class="text-right" style="">
+                            {{if value.required}}
+                            <span style="color:red">
+                                *
+                            </span>
+                            {{/if}} {{value.label}}
+                        </label>
+                        <div class="" style="inline-block">
+                            {{if !value.type || value.type == 'date' }} {{if value.inputGroup }}
+                            <input type="text" class="form-control input-sm" id="{{value.prop}}" name="{{value.prop}}"
+                                   value="{{data[value.prop]}}" {{value.disabled ? 'readonly' : ''}}>
+                            <span class="input-group-btn">
+                                <button class="btn btn-default btn-sm groupBtn" type="button" id="groupBtn-{{value.prop}}">
+                                    {{value.inputGroup}}
+                                </button>
+                            </span>
+                            {{else}}
+                            <input type="text" class="form-control input-sm" id="{{value.prop}}" name="{{value.prop}}"
+                                   value="{{data[value.prop]}}" {{value.disabled ? 'readonly' : ''}} data-type="{{value.type}}">
+                            {{if value.type == 'date'}}
+                            <script>
+                                $(function () {
+                                    layui.use("laydate",function () {
+                                        layui.laydate.render({
+                                            elem: "#{{value.prop}}"
+                                            ,type: "date"
+                                        });
+                                    })
+                                });
+                            </script>
+                            {{/if}}
+                            {{/if}} {{else if value.type == 'checkbox'}}
+                            <input type="checkbox" class="input-sm" id="{{value.prop}}" name="{{value.prop}}"
+                                   {{ data[value.prop] == value.value || value.checked ? 'checked' : ''}} value="{{value.value}}"
+                            {{value.disabled ? 'readonly' : ''}}>
+                            {{else if value.type == 'select'}}
+                            <select class="form-control input-sm" id="{{value.prop}}" name="{{value.prop}}"
+                                    value="{{data[value.prop]}}">
+                                {{each value.vals val}}
+                                <option value="{{val.val}}" {{data[value.prop]==val.val ? 'selected'
+                                : ''}} {{value.disabled ? 'readonly' : ''}}>
+                                {{val.name}}
+                                </option>
+                                {{/each}}
+                            </select>
+                            {{else if value.type == 'textarea'}}
+                            <textarea class="form-control input-sm" rows="3" id="{{value.prop}}" name="{{value.prop}}"
+                                      value="{{data[value.prop]}}" {{value.disabled ? 'readonly' : ''}}>{{data[value.prop]}}</textarea>
+                            {{else if value.type == 'file'}}
+                            <button id="{{value.prop}}" type="button" class="btn btn-sm btn-primary">
+                                <i class="glyphicon glyphicon-file"></i>
+                                添加文件
+                            </button>
+                            <ul class="file-list">
+
+                            </ul>
+                            <!--<input type="file" id="{{value.prop}}" name="{{value.prop}}" value="{{data[value.prop]}}"-->
+                                   <!--style="height:30px;">-->
+
+                            {{else if value.type == 'user'}}
+                            <div>
+                                <button type="button" class="btn btn-success btn-sm btn-add-user">添加用户</button>
+                                <button type="button" class="btn btn-danger btn-sm btn-remove-user">删除用户</button>
+                            </div>
+                            <br>
+                            <select name="{{value.prop}}" class="form-control user-list" id="{{value.prop}}" size="7"></select>
+                            {{/if}}
+                        </div>
+                    </div>
+                    {{/if}} {{/each}}
+                </div>
+                <div class="row text-center btn-box" style="margin-top: 12px;">
+                    {{if excel}}
+                    <button class="btn-export btn btn-success" type="button">
+                        <i class="glyphicon glyphicon-floppy-disk"></i>
+                        导出excel
+                    </button>
+                    {{/if}}
+
+                    {{ if button }} {{ each button btn }} {{ if btn.type == 'reset'}}
+                    <button type="reset" class="btn btn-default">
+                        <i class="glyphicon glyphicon-refresh"></i>
+                        重 置
+                    </button>
+                    {{ else if btn.type == 'submit'}}
+                    <button type="submit" class="btn btn-primary">
+                        <i class="glyphicon glyphicon-ok"></i>
+                        {{btn.name ? btn.name : '确 定'}}
+                    </button>
+                    {{ else }}
+                    <a href="javascript:;" class="btn btn-default {{btn.class_name}}">
+                        {{btn.name}}
+                    </a>
+                    {{ /if }} {{ /each }} {{ else }}
+                    <button type="reset" class="btn btn-default">
+                        <i class="glyphicon glyphicon-refresh"></i>
+                        重 置
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="glyphicon glyphicon-ok"></i>
+                        确 定
+                    </button>
+                    {{ /if }}
+
+
+                </div>
+        </form>
+    </div>
+</div>

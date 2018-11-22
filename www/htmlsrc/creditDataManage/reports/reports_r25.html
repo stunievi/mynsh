@@ -1,0 +1,49 @@
+<!--#include file="common.html" -->
+
+<script>
+
+    // $("#panel-form").html(panelFormRender3({
+    //     list:[
+    // { prop: 'year', label: '年', disabled: true}
+    // { prop: 'LOAN_NATURE', label: '贷款性质'}
+    // ],
+    // data: {}
+    // }));
+
+    $(function () {
+        layui.use("laydate",function () {
+            layui.each(["year"], function (i,v) {
+                layui.laydate.render({
+                    elem: "#" + v
+                    ,type: "year"
+                });
+            });
+        })
+    });
+
+    //        $(function() {
+    //            $('#start').datepicker({ changeMonth: true, changeYear: true, dateFormat: 'yymmdd' });
+    //            $("#end").datepicker({ changeMonth: true, changeYear: true, dateFormat: 'yymmdd' });
+    //        });
+
+    laytableRender({
+        url: remoteOrigin + "/api/report/report_25"
+        , dataType: "json"
+        , page: false
+        , cols: [
+            [{"title":"序号","field":""}
+                ,{"title":"正常贷款的五大欠息户","field":"CUS_NAME"}
+                ,{"title":"贷款机构","field":"MAIN_BR_NAME"}
+                ,{"title":"欠息金额（万元）","field":"DELAY_INT_CUMU"}]
+        ]
+
+    });
+
+    function checkSubmitForm(){
+        var form = $("form[name='form-search']")
+        layuiTableReload({
+            where: form.serialize()
+        });
+        return false;
+    }
+</script>

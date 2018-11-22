@@ -1,17 +1,22 @@
 package com.beeasy.hzback.core.helper;
 
-import bin.leblanc.faker.Faker;
+//import bin.leblanc.faker.Faker;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
-import com.beeasy.common.helper.SpringContextUtils;
-import com.beeasy.hzback.modules.system.dao.IUserDao;
-import com.beeasy.common.entity.User;
 import com.beeasy.hzback.modules.system.service.UserService;
+import com.beeasy.mscommon.entity.BeetlPager;
+import com.beeasy.mscommon.filter.AuthFilter;
+import com.beeasy.mscommon.util.U;
 import org.apache.commons.io.FileUtils;
+import org.beetl.sql.core.SQLManager;
+import org.beetl.sql.core.engine.PageQuery;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;
 
@@ -26,25 +31,51 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+@Deprecated
 @Component
 public class Utils {
 
     @Autowired
     UserService userService;
-    @Autowired
-    IUserDao userDao;
 
-    public User createFaker() {
-        return null;
-//        UserAdd userAdd = new UserAdd();
-//        userAdd.setPhone(Faker.getPhone());
-//        userAdd.setTrueName(Faker.getTrueName());
-//        userAdd.setUsername(Faker.getName());
-//        userAdd.setPassword("2");
-//        userAdd.setBaned(false);
-//        return null;
-//        Result<User> r = userService.createUser(userAdd);
-//        return r.orElse(null);
+
+    public static PageQuery convertPageable(Pageable pageable){
+        PageQuery pageQuery = new PageQuery(pageable.getPageNumber() + 1, pageable.getPageSize());
+        return pageQuery;
+    }
+
+    public static PageQuery convertPageable(Pageable pageable, Object params) {
+        PageQuery pageQuery = convertPageable(pageable);
+        pageQuery.setParas(params);
+        return pageQuery;
+    }
+
+    public static PageQuery convertPageable(BeetlPager beetlPager, Object params){
+        PageQuery pageQuery = new PageQuery(beetlPager.getPage(), beetlPager.getSize());
+        return pageQuery;
+    }
+
+    public static Page convertPage(PageQuery pageQuery, Pageable pageable){
+        return new PageImpl(pageQuery.getList(), pageable, pageQuery.getTotalRow());
+    }
+
+    public static <T> Page<T> beetlPageQuery(String sqlId, Class<T> clz, Object params, Pageable pageable){
+        SQLManager sqlManager = U.getSQLManager();
+        PageQuery pageQuery = convertPageable(pageable, params);
+        sqlManager.pageQuery(sqlId, clz, pageQuery);
+        return Utils.convertPage(pageQuery, pageable);
+    }
+
+    public static <T> PageQuery<T> beetlPageQuery(String sqlId, Class<T> clz, Object params, BeetlPager beetlPager){
+        SQLManager sqlManager = U.getSQLManager();
+        PageQuery pageQuery = new PageQuery(beetlPager.getPage(), beetlPager.getSize());
+        pageQuery.setParas(params);
+        sqlManager.pageQuery(sqlId, clz, pageQuery);
+        return pageQuery;
+    }
+
+    public static Long toLong(Object object){
+        return Long.valueOf(String.valueOf(object));
     }
 
     public static String readFile(String filePath) throws IOException {
@@ -80,21 +111,25 @@ public class Utils {
     }
 
     public static Optional<String> getCurrentUserPrivateKey() {
-        IUserDao userDao = SpringContextUtils.getBean(IUserDao.class);
-        List list = userDao.getPrivateKey(Utils.getCurrentUserId());
-        if (list.size() > 0) {
-            return Optional.of(String.valueOf(list.get(0)));
-        }
-        return Optional.empty();
+        //todo
+//        IUserDao userDao = SpringContextUtils.getBean(IUserDao.class);
+//        List list = userDao.getPrivateKey(Utils.getCurrentUserId());
+//        if (list.size() > 0) {
+//            return Optional.of(String.valueOf(list.get(0)));
+//        }
+//        return Optional.empty();
+        return null;
     }
 
     public static Optional<String> getCurrentUserPublicKey() {
-        IUserDao userDao = SpringContextUtils.getBean(IUserDao.class);
-        List list = userDao.getPublicKey(Utils.getCurrentUserId());
-        if (list.size() > 0) {
-            return Optional.of(String.valueOf(list.get(0)));
-        }
-        return Optional.empty();
+        //todo
+//        IUserDao userDao = SpringContextUtils.getBean(IUserDao.class);
+//        List list = userDao.getPublicKey(Utils.getCurrentUserId());
+//        if (list.size() > 0) {
+//            return Optional.of(String.valueOf(list.get(0)));
+//        }
+//        return Optional.empty();
+        return null;
     }
 
     public static String getExt(String fileName) {
@@ -142,12 +177,17 @@ public class Utils {
 //        return user;
 //    }
 
-    public static long getCurrentUserId() {
-        try {
-            return (long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        } catch (Exception e) {
-            return 0;
-        }
+    public static Long getCurrentUserId() {
+        return AuthFilter.getUid();
+//        HttpServletRequest request = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
+//        return (Long) request.getSession().getAttribute(AuthFilter.Uid);
+//        RequestContextHolder
+//        try {
+//
+////            return (long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//        } catch (Exception e) {
+//            return 0;
+//        }
     }
 
     public static List<String> splitByComma(String str) {
@@ -157,27 +197,6 @@ public class Utils {
                 .collect(Collectors.toList());
     }
 
-    public static <T> Result validate(T t) {
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        Validator validator = factory.getValidator();
-        Set<ConstraintViolation<T>> violations = validator.validate(t);
-        if (violations.size() > 0) {
-            List<String> arr = new ArrayList<>();
-            violations.forEach(tConstraintViolation -> {
-                arr.add(tConstraintViolation.getMessage());
-            });
-            return Result.error(String.join(",", arr));
-        }
-        return Result.ok();
-    }
-
-    public static Map newMap(Object... objs) {
-        Map map = new HashMap();
-        for (int i = 0; i < objs.length; i += 2) {
-            map.put(objs[i], objs[i + 1]);
-        }
-        return map;
-    }
 
 
     @Autowired
@@ -209,6 +228,9 @@ public class Utils {
         if (isLocking(key)) return false;
         return !lock(key, exprTime);
     }
+
+
+
 
 
 }

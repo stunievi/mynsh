@@ -1,6 +1,6 @@
 package com.beeasy.hzback.modules.cloud;
 
-import com.beeasy.hzback.core.helper.Result;
+import com.beeasy.mscommon.Result;
 import com.beeasy.hzback.core.helper.Utils;
 import com.beeasy.hzback.modules.cloud.config.FeignConfig;
 import com.beeasy.hzback.modules.cloud.response.CloudBaseResponse;

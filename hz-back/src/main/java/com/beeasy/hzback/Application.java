@@ -2,38 +2,39 @@ package com.beeasy.hzback;
 
 //import com.spring4all.swagger.EnableSwagger2Doc;
 
-import com.alibaba.dubbo.spring.boot.annotation.EnableDubboConfiguration;
 import com.github.tobato.fastdfs.FdfsClientConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.boot.web.servlet.ServletComponentScan;
-//import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.ImportResource;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
+
+//import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 
 
 //@EnableSwagger2Doc
-@EnableWebMvc
+//@EnableWebMvc
 //@EnableEurekaClient
 @Import(FdfsClientConfig.class)
 @EnableAsync
 @EnableScheduling
-@EnableJpaAuditing
 @EnableFeignClients(value = {"com.beeasy.hzback"})
 //@EnableCaching
 @SpringBootApplication(scanBasePackages = {"com.beeasy"})
-@EnableDubboConfiguration
 @EntityScan(basePackages = {"com.beeasy"})
 //@ImportResource(value = {"classpath:provider.xml"})
-@ServletComponentScan
-public class Application {
+//@ServletComponentScan
+public class Application extends SpringBootServletInitializer {
+
+
+    @Override
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
+        return builder.sources(Application.class);
+    }
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);

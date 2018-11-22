@@ -3,10 +3,15 @@ package com.beeasy.mscommon;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.PropertyFilter;
+import com.beeasy.mscommon.json.FJHttpMessageConverter;
+import com.beeasy.mscommon.util.U;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
+import org.springframework.validation.BindingResult;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -54,11 +59,11 @@ public class Result<T>{
         return error(new HashSet<>(Arrays.asList(errMsgs)));
     }
 
-//    public static Result error(BindingRetJson item) {
+    public static Result error(BindingResult item) {
 //        Result Result = error();
-//        Set<String> stringSet = ((BindingRetJson) item).getAllErrors().stream().map(i -> i.getDefaultMessage()).collect(Collectors.toSet());
-//        return error(stringSet);
-//    }
+        Set<String> stringSet = ((BindingResult) item).getAllErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.toSet());
+        return error(stringSet);
+    }
 
     public static Result error() {
         Result result = new Result();
@@ -114,7 +119,13 @@ public class Result<T>{
     public String toJson() {
 //        HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
 //        response.setHeader("content-type", "application/json");
-        return JSON.toJSONString(this);
+        String str =  JSON.toJSONString(this);
+        FJHttpMessageConverter converter = U.getContext().getBean(FJHttpMessageConverter.class);
+        String jsonp = converter.getJsonpParam();
+        if(null != jsonp){
+            return jsonp + "(" + str + ")";
+        }
+        return str;
     }
 
     public String toJson(Entry... entries) {

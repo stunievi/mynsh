@@ -1,0 +1,28 @@
+<script type="text/html" id="search_form">
+    <form class="layui-form">
+        <div class="layui-form-item">
+            {{# layui.each(d.list,function(i,v){ }}
+            <div class="layui-inline">
+                <label class="layui-form-label">{{v.label}}</label>
+                {{# if (v.type == 'select'){ }}
+                <div class="layui-input-inline">
+                    <select name="{{v.prop}}" lay-ignore="" lay-verify="" lay-search>
+                        {{# layui.each(v.vals,function(ii,vv){  }}
+                        <option value="{{vv.val}}">{{vv.name}}</option>
+                        {{# }); }}
+                    </select>
+                </div>
+                {{# }else{ }}
+                <div class="layui-input-inline">
+                    <input type="text" name="{{v.prop}}" placeholder="" autocomplete="off" class="layui-input ">
+                </div>
+                {{# } }}
+            </div>
+            {{# }); }}
+        </div>
+
+        <div>
+
+        </div>
+    </form>
+</script>

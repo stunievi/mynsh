@@ -7,23 +7,27 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="hz-back" />
-        <module name="hz-common" />
-        <module name="hz-data" />
-        <module name="hz-ms-back" />
+        <module name="hz-db2" />
         <module name="hz-ms-command" />
         <module name="hz-ms-common" />
+        <module name="hz-msg-send" />
+      </profile>
+      <profile name="Annotation profile for hz" enabled="true">
+        <sourceOutputDir name="../../hz-ms-file/target/generated-sources/annotations" />
+        <sourceTestOutputDir name="../../hz-ms-file/target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
         <module name="hz-ms-file" />
-        <module name="hz-rpc-common" />
-        <module name="hz-test" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="hz-back" target="1.8" />
       <module name="hz-common" target="1.8" />
       <module name="hz-data" target="1.8" />
+      <module name="hz-db2" target="1.5" />
       <module name="hz-ms-back" target="1.8" />
       <module name="hz-ms-common" target="1.8" />
       <module name="hz-ms-file" target="1.8" />
+      <module name="hz-msg-send" target="1.5" />
       <module name="hz-rpc-common" target="1.8" />
       <module name="hz-test" target="1.8" />
       <module name="hzcp" target="1.8" />

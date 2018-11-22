@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title> 惠州农村商业银行不良贷款利息减免情况汇总季报表 </title>
+    <link rel="stylesheet" href="/static/vendor/bootcss/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="/static/vendor/jqui/jquery-ui.css">
+    <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+</head>
+<body>
+    <div id="content">
+        <div id="panel-form">
+            <!-- 筛选表单 -->
+        </div>
+        <div class="batch-operation">
+            <a class="btn btn-success" id="handleExport" href="javascript:;">导出数据</a>
+        </div>
+        <table id="dataList"></table>
+    </div>
+  
+    <script src="/static/vendor/jquery/jquery.js"></script>
+    <script src="/static/vendor/jqui/jquery-ui.min.js"></script>
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script src="/static/vendor/artTemplate/template-web.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="/tmpl/js/horzTable.js"></script>
+    <script src="../../../tmpl/js/panelForm.js"></script>
+    <script src="./reports.js"></script>
+    <!-- <script src="/static/htmljs/interaction.js"></script> -->
+    <script>
+
+        $("#panel-form").html(panelFormRender3({
+            panelTitle: "基本信息 - 惠州农村商业银行不良贷款利息减免情况汇总季报表",
+            list:[
+                { prop: 'start', label: '当前月份', disabled: true }
+            ],
+            data: {
+                start: dateFormate("Ymd", getTimeStamp())
+            }
+        }));
+
+        $(function() {
+            $('#start').datepicker({ changeMonth: true, changeYear: true, dateFormat: 'yymmdd' });
+        });
+
+        var form = $("[name='form-search']");
+        form.validate({
+            rules: {
+                // start: { required: true, minlength:2 }
+            },
+            submitHandler: function(){
+                if(form.valid()){
+                    var formData = form.serialize();
+                    laytableRender({
+                        page: false,
+                        url: remoteApi.apiSystemLog,
+                        where: formData,
+                        cellMinWidth: 110,
+                        cols: [
+                            [
+                                { title:'序号', field: getRandomNum(100000), rowspan: 2 },
+                                { title:'借款人名称', field: getRandomNum(100000), rowspan: 2  },
+                                { title:'贷款', field: getRandomNum(100000), rowspan: 2  },
+                                { title:'类别', field: getRandomNum(100000), rowspan: 2  },
+                                { title:'借款人类别', field: getRandomNum(100000), rowspan: 2  },
+                                { title:'贷款首放日期', field: getRandomNum(100000), rowspan: 2  },
+                                { title:'实施减免时的贷款余额', field: getRandomNum(100000), rowspan: 2  },
+                                { title:'其中:表内贷款', field: getRandomNum(100000), colspan: 3 },
+                                { title:'表外贷款', field: getRandomNum(100000), colspan: 4 },
+                                { title:'列入(核销)该类贷款的日期', field: getRandomNum(100000), rowspan: 2 },
+                                { title:'结欠利息', field: getRandomNum(100000), colspan: 2 },
+                                { title:'减免金额', field: getRandomNum(100000), rowspan: 2 },
+                                { title:'其中', field: getRandomNum(100000), colspan: 2 },
+                                { title:'实际偿还金额', field: getRandomNum(100000), rowspan: 2 },
+                                { title:'其中', field: getRandomNum(100000), colspan: 2 },
+                                { title:'是否进行贷款损失责任认定', field: getRandomNum(100000), rowspan: 2 },
+                                { title:'对责任人的责任追究情况', field: getRandomNum(100000), rowspan: 2 },
+                                { title:'联社(总行)审批时间', field: getRandomNum(100000), rowspan: 2 },
+                                { title:'偿还日期', field: getRandomNum(100000), rowspan: 2 },
+                                { title:'备注', field: getRandomNum(100000), rowspan: 2 }
+                            ],
+                            [
+                                { title:'次级', field: getRandomNum(100000) },
+                                { title:'可疑', field: getRandomNum(100000) },
+                                { title:'损失', field: getRandomNum(100000) },
+                                { title:'已核销呆账', field: getRandomNum(100000) },
+                                { title:'央行票据置换贷款', field: getRandomNum(100000) },
+                                { title:'政府置换贷款', field: getRandomNum(100000) },
+                                { title:'股金置换贷款', field: getRandomNum(100000) },
+                                { title:'表内利息', field: getRandomNum(100000) },
+                                { title:'表外利息', field: getRandomNum(100000) },
+                                { title:'利息', field: getRandomNum(100000) },
+                                { title:'本金', field: getRandomNum(100000) },
+                                { title:'归还本金', field: getRandomNum(100000) },
+                                { title:'归还利息', field: getRandomNum(100000) }
+                            ]
+                        ]
+                    });
+                }
+            }
+        })
+					
+        function checkSubmitForm(){
+            return false;
+        }
+    </script>
+</body>
+</html>

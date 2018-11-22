@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title> 惠州农商行五级分类不良贷款上调明细表 </title>
+    <!--<link rel="stylesheet" href="/static/vendor/bootcss/css/bootstrap.min.css"/>-->
+    <!--<link rel="stylesheet" href="/static/vendor/jqui/jquery-ui.css">-->
+    <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script src="/static/vendor/bootcss/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+    <!--[if lt IE 9]>
+    <script src="/static/vendor/bootcss/js/html5shiv.min.js"></script>
+    <script src="/static/vendor/bootcss/js/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+    <div id="content">
+        <div id="panel-form">
+            <!-- 筛选表单 -->
+        </div>
+        <div class="batch-operation">
+            <a class="btn btn-success" id="handleExport" href="javascript:;">导出数据</a>
+        </div>
+        <table id="dataList"></table>
+    </div>
+    <!--<script src="/static/vendor/jqui/jquery-ui.min.js"></script>-->
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/vendor/artTemplate/template-web.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="/tmpl/js/horzTable.js"></script>
+    <script src="../../../tmpl/js/panelForm.js"></script>
+    <script src="./reports.js"></script>
+    <!-- <script src="/static/htmljs/interaction.js"></script> -->
+    <script>
+
+        $("#panel-form").html(panelFormRender3({
+            // panelTitle: "基本信息 - 惠州农商行五级分类不良贷款上调明细表",
+            list:[
+                { prop: 'START_DATE', label: '开始时间', disabled: true},
+                { prop: 'END_DATE', label: '结束时间', disabled: true}
+            ],
+            data: {}
+        }));
+
+        $(function () {
+            layui.use("laydate",function () {
+                layui.each(["START_DATE","END_DATE"], function (i,v) {
+                    layui.laydate.render({
+                        elem: "#" + v
+                        ,type: "date"
+                    });
+                });
+            })
+        });
+
+//        $(function() {
+//            $('#start').datepicker({ changeMonth: true, changeYear: true, dateFormat: 'yymmdd' });
+//            $("#end").datepicker({ changeMonth: true, changeYear: true, dateFormat: 'yymmdd' });
+//        });
+
+        laytableRender({
+            title: "新增贷款利率结构表"
+            // , defaultToolbar: ["exports"]
+            , url: remoteOrigin + "/api/report/report_26"
+            , dataType: "json"
+            , page: false
+                // ?START_DATE=20180101&END_DATE=20180831&nsukey=LSuzJnQkvWdn2XW8Q0b%2BxSOeoTPtJqoyqiqhYgGde2EVHaEOrXoXFH3qZhmemhaVjU6otAmFKXKYzHY9IWvOhSQWjdVxaGwa4MKck2%2BYO2%2Fd2pkabCqaoWIRhfuTy9AXb9jXIIEURzBtVsCK500bVTu4pn88ey5bxj8aTXoeeQZ0NqQHt1T%2FsLijymuvtUy6sMisrSXs%2FhIWF4P4CwrCSw%3D%3D",
+            // url: "/api/report/report_10",
+            , cols: [
+                [
+                    {field:'LOAN_TERM', title: '期限类别', rowspan:2}
+                    , {field: '', title: '一般贷款', colspan:3, align:"center"}
+                    , {field:'', title: '转贴现', colspan:1, rowspan: 1}
+                    , {field:'', title: '按揭', colspan:1 ,rowspan: 1}
+                    , {field: 'TOTAL', title: '总计', rowspan:2 }
+                ],
+                [
+                    {title:"一般贷款合计", field: 'TOTAL_1'}
+                    , {title: "固定利率", field: 'INT_RATE_G_1'}
+                    , {title: "浮动利率", field: "INT_RATE_F_1"}
+                    , {title: "固定利率", field: 'INT_RATE_G_2'}
+                    , {title: "浮动利率", field: "INT_RATE_F_3"}
+                ]
+            ]
+
+        });
+
+        // 提交查询，重载列表
+        var form = $("[name='form-search']");
+        form.validate({
+            rules: { },
+            submitHandler: function(){
+                if(form.valid()){
+                    layuiTableReload({
+                        where: (function (){
+                           var wh = form.serialize()
+                            return wh.replace(/-/g,"");
+                        })()
+                    });
+                }
+            }
+        })
+
+        function checkSubmitForm(){
+            return false;
+        }
+    </script>
+</body>
+</html>

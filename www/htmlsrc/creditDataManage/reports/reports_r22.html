@@ -1,0 +1,51 @@
+<!--#include file="common.html" -->
+
+    <script>
+
+        $("#panel-form").html(panelFormRender3({
+            panelTitle: "基本信息 - 表内正常贷款欠息情况统计报表",
+            list:[
+                { prop: 'PRD_TYPE', label: '产品类别', type: "select", vals: getOdsEnumSelect("PRD_TYPE") },
+                { prop: 'LOAN_NATURE', label: '贷款性质', type: "select", vals: getOdsEnumSelect("LOAN_NATURE") }
+            ],
+            data: {}
+        }));
+
+        laytableRender({
+            url: "/api/report/report_6",
+            cols: [
+                [
+                    {title:'贷款机构', field:'MAIN_BR_NAME', pos: "left" },
+                    {title:'借款客户名称', field:'CUS_NAME' },
+                    {title:'借据金额', field:'LOAN_AMOUNT' },
+                    {title:'借据余额', field:'LOAN_BALANCE' },
+                    {title:'贷款起始日', field:'LOAN_START_DATE' },
+                    {title:'贷款终止日', field:'LOAN_END_DATE' },
+                    {title:'欠息起始日', field:'INTEREST_OVERDUE_DATE' },
+                    {title:'至本月末欠息金额', field:'DELAY_INT_CUMU' },
+                    {title:'拖欠本金金额', field:'UNPD_PRIN_BAL' },
+                    {title:'五级分类结果', field:'CLA' },
+                    {title:'担保方式', field:'ASSURE_MEANS_MAIN' },
+                    {title:'备注', field:'REMARK' },
+                    {title:'日期', field:'SRC_SYS_DATE' }
+                ]
+            ]
+        });
+
+        // 提交查询，重载列表
+        var form = $("[name='form-search']");
+        form.validate({
+            rules: {  },
+            submitHandler: function(){
+                if(form.valid()){
+                    layuiTableReload({
+                        where: form.serialize()
+                    });
+                }
+            }
+        })
+
+        function checkSubmitForm(){
+            return false;
+        }
+    </script>

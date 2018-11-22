@@ -59,13 +59,15 @@
     <version>1.0-SNAPSHOT</version>
     <modules>
         <module>hz-back</module>
-        <module>hz-common</module>
-        <module>hz-data</module>
+        <!--<module>hz-common</module>-->
+        <!--<module>hz-data</module>-->
         <!--<module>hz-ms-back</module>-->
         <module>hz-ms-common</module>
-        <module>hz-ms-file</module>
-        <module>hz-rpc-common</module>
-        <module>hz-test</module>
+        <!--<module>hz-ms-file</module>-->
+        <!--<module>hz-rpc-common</module>-->
+        <!--<module>hz-test</module>-->
+        <module>hz-db2</module>
+        <module>hz-msg-send</module>
     </modules>
 
 

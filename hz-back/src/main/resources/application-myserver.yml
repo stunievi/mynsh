@@ -1,37 +1,14 @@
-#db1:
-#  jdbc:
-#    driverClassName: com.mysql.jdbc.Driver
-#    url: jdbc:mysql://localhost:3306/test?zeroDateTimeBehavior=convertToNull&useUnicode=true&characterEncoding=utf-8
-#    username: root
-#    password: 1q2w3e4r
-
-#upload:
-#  path: /Users/bin/work/uploads
-#spring.jpa.properties.hibernate.dialect=com.beeasy.hzback.core.helper.MySQL5DialectFK
-
-#权限校验
-permission:
-  #校验类型, 使用全局授权
-  type: global2
-#  type: local
-
 rpc:
   secret: "1q2w3e4r"
+  url: http://47.94.97.138
 
-workflow:
-  timeStep: 1
-  lockTimeout: 10
-
-mybatis:
-  mapperLocations: classpath:hzadmin/src/main/resources/mybatis.mapper/*.xml
-  typeAliasesPackage: com.beeasy.hzback.modules.setting.entity
+dev:
+  debug: true
 
 filecloud:
   address: "47.93.54.105"
   username: "admin"
   password: "admin"
-  enable: true
-
   userDefaultPassword: "qwer!@34"
 
   commonUsername: "admin"
@@ -51,8 +28,18 @@ server:
     context-path: /
 
 uploads:
+  server: http://47.94.97.138
   type: fastdfs
   path: /Users/bin/work/uploads
+  temp: /Users/bin/work/uploads/temp
+  avatar: /Users/bin/work/uploads/avatar
+  logs: /Users/bin/work/uploads/logs
+
+lfs:
+  server: http://47.94.97.138/disk
+  wfUsername: admin
+  wfPassword: admin
+  wfPid: 0
 
 fdfs:
   so-timeout: 1501
@@ -125,12 +112,20 @@ spring:
 
   session:
     store-type: none
+
   mvc:
     async:
       request-timeout: 30000ms
+
   dubbo:
     server: true
     registry: N/A
     provider:
       port: 28001
+
+jodconverter:
+  enabled: true
+  port-numbers: 8100
+  office-home: /opt/openoffice4
+  max-tasks-per-process: 10
 

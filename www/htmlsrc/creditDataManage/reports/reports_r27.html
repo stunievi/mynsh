@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title> 惠州农商行不良贷款清收压降情况表 </title>
+    <!--<link rel="stylesheet" href="/static/vendor/bootcss/css/bootstrap.min.css"/>-->
+    <!--<link rel="stylesheet" href="/static/vendor/jqui/jquery-ui.css">-->
+
+    <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script src="/static/vendor/bootcss/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+</head>
+<body>
+    <div id="content">
+        <div id="panel-form">
+            <!-- 筛选表单 -->
+        </div>
+        <div class="batch-operation">
+            <a class="btn btn-success" id="handleExport" href="javascript:;">导出数据</a>
+        </div>
+        <table id="dataList"></table>
+    </div>
+  
+    <!--<script src="/static/vendor/jqui/jquery-ui.min.js"></script>-->
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/vendor/artTemplate/template-web.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="/tmpl/js/horzTable.js"></script>
+    <script src="../../../tmpl/js/panelForm.js"></script>
+    <script src="./reports.js"></script>
+    <!-- <script src="/static/htmljs/interaction.js"></script> -->
+    <script>
+
+        $("#panel-form").html(panelFormRender3({
+            panelTitle: "基本信息",
+            list:[
+                { prop: 'START_DATE', label: '起始时间', disabled: true },
+                { prop: 'END_DATE', label: '截至时间', disabled: true }
+            ],
+            data: {}
+        }));
+
+        $(function () {
+            layui.use("laydate",function () {
+                layui.each(["START_DATE","END_DATE"], function (i,v) {
+                    layui.laydate.render({
+                        elem: "#" + v
+                        ,type: "date"
+                    });
+                });
+            })
+        });
+
+
+
+        laytableRender({
+            title: "新增贷款利率结构表"
+            // , defaultToolbar: ["exports"]
+            , url: remoteOrigin + "/api/report/report_27"
+            , dataType: "json"
+            // ?START_DATE=20180101&END_DATE=20180831&nsukey=LSuzJnQkvWdn2XW8Q0b%2BxSOeoTPtJqoyqiqhYgGde2EVHaEOrXoXFH3qZhmemhaVjU6otAmFKXKYzHY9IWvOhSQWjdVxaGwa4MKck2%2BYO2%2Fd2pkabCqaoWIRhfuTy9AXb9jXIIEURzBtVsCK500bVTu4pn88ey5bxj8aTXoeeQZ0NqQHt1T%2FsLijymuvtUy6sMisrSXs%2FhIWF4P4CwrCSw%3D%3D",
+            // url: "/api/report/report_10",
+            , cellMinWidth: 110,
+            cols: [
+                [
+                    {field:'MAIN_BR_NAME', title: '贷款机构'}
+                    , {field:'CUS_NAME', title: '户名'}
+                    , {field:'LOAN_ACCOUNT', title: '贷款帐号'}
+                    , {field:'LOAN_AMOUNT', title: '借据金额（元）',money:true}
+                    , {field:'LOAN_BALANCE', title: '借据余额（元）',money:true}
+                    , {field:'LOAN_START_DATE', title: '借款日'}
+                    , {field:'LOAN_END_DATE', title: '到期日'}
+                    , {field:'REALITY_IR_Y', title: '年利率'}
+                    , {field:'TERM_TYPE', title: '期限类型'}
+                    , {field:'ASSURE_MEANS_MAIN', title: '主担保方式'}
+                    , {field:'CLA', title: '五级分类'}
+                    // , {field: '', title: '一般贷款', colspan:3}
+                    // , {field:'INT_RATE_G_2', title: '转贴现<br>固定利率', colspan:1, rowspan: 2}
+                    // , {field:'INT_RATE_F_3', title: '按揭<br>浮动利率', colspan:1 ,rowspan: 2}
+                    // , {field: 'TOTAL', title: '总计', rowspan:2 }
+                ]
+                // [
+                //     {title:"一般贷款合计", field: 'TOTAL_1'}
+                //     , {title: "固定利率", field: 'INT_RATE_G_1'}
+                //     , {title: "浮动利率", field: "INT_RATE_F_1"}
+                // ]
+            ]
+
+        });
+
+
+        var form = $("[name='form-search']");
+        form.validate({
+            rules: {
+                // start: { required: true, minlength:2 }
+            },
+            submitHandler: function(){
+                if(form.valid()){
+                    layuiTableReload({
+                        where: (function (){
+                            var wh = form.serialize()
+                            return wh.replace(/-/g,"");
+                        })()
+                    });
+                    // var formData = form.serialize();
+                    // laytableRender({
+                    //     page: false,
+                    //     url: remoteApi.apiSystemLog,
+                    //     where: formData,
+                    //     // cellMinWidth:120,
+                    //     cols: [
+                    //         [
+                    //             { title:'贷款机构', field: getRandomNum(100000), rowspan:3 },
+                    //             { title:'表内不良贷款清收数据',  colspan: 8 }
+                    //         ],
+                    //         [
+                    //             { title:'不良贷款年初余额', field: getRandomNum(100000), rowspan: 2 },
+                    //             { title:'全年任务数', field: getRandomNum(100000), rowspan: 2 },
+                    //             { title:'2017年10月末不良贷款余额', field: getRandomNum(100000), rowspan: 2 },
+                    //             { title:'根据省联社下达的新增任务数', field: getRandomNum(100000), rowspan: 2 },
+                    //             { title:'其中：各支行所制订清收金额2017年11月末能清收压隆金额', rowspan:2 },
+                    //             { title:'截至2017年12月21日按计划收回', colspan: 2 },
+                    //             { title:'备注', field: getRandomNum(100000), rowspan: 2 }
+                    //         ],
+                    //         [
+                    //             { title:'现金收回', field: getRandomNum(100000) },
+                    //             { title:'质量改善上调', field: getRandomNum(100000) }
+                    //         ]
+                    //     ]
+                    // });
+                }
+            }
+        })
+
+        function checkSubmitForm(){
+            return false;
+        }
+    </script>
+</body>
+</html>

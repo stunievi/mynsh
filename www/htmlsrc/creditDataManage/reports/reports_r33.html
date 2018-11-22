@@ -1,0 +1,83 @@
+<!--#include file="common.html" -->
+<script type="text/html" id="head">
+<div class="col-xs-12"style="padding-top: 15px;padding-bottom: 15px;">
+    <div class="col-xs-4">
+        客户名称:{{CUS_NAME}}
+    </div>
+    <div class="col-xs-4">
+        未还期数: {{REM_REPAYS}}
+    </div>
+    <div class="col-xs-4">
+        本金金额: {{LOAN_BALANCE}}
+    </div>
+</div>
+</script>
+<script>
+
+    $("#panel-form").html(panelFormRender3({
+        list:[
+            { prop: 'LOAN_ACCOUNT', label: '贷款帐号'}
+            // ,{ prop: 'END_DATE', label: '结束时间', disabled: true, type:"date"}
+            // ,{ prop: 'LOAN_TERM_MIN', label: '贷款期限最小值' }
+            // ,{ prop: 'LOAN_TERM_MAX', label: '贷款期限最大值'}
+    ],
+    data: {}
+    }));
+
+    laytableRender({
+        // url: remoteOrigin + "/api/report/report_33"
+        // , dataType: "json"
+        page: false
+        , cols: [
+            [
+                {"title":"序号","field":"SERNO",rowspan:2}
+                ,{"title":"应收日期","field":"REPAY_START_DATE",rowspan:2}
+                ,{"title":"本金余额","field":"LOAN_BALANCE",rowspan:2,money:true}
+                ,{"title":"应收金额","field":"REPAY_AMT",rowspan:2,money:true}
+                ,{"title":"实收金额","field":"TOT_AMT",rowspan:2,money:true}
+                ,{title:"其中", rowspan:1, colspan:7, align:"center"}
+                ,{"title":"还款日期","field":"TRN_DATE",rowspan:2}
+                // ,{"title":"还款日期","field":"repay_start_date",rowspan:2}
+                // ,{"title":"次数","field":"times",rowspan:2}
+                // ,{"title":"还款周期","field":"repay_cycle",rowspan:2}
+                // ,{"title":"金额","field":"repay_amount",rowspan:2}
+                // ,{"title":"贷款账号","field":"loan_account",rowspan:2}
+                // ,{"title":"发送状态","field":"status",rowspan:2}
+            ]
+                ,[{"title":"应收本金","field":"REPAY_AMOUNT",money:true}
+                    ,{"title":"实收本金","field":"PRIN_AMT",money:true}
+                    ,{"title":"实收利息合计","field":"TOT_INT",money:true}
+                    ,{"title":"实收利息","field":"INT_AMT",money:true}
+                    ,{"title":"实收本金罚息","field":"PIA_AMT",money:true}
+                    ,{"title":"实收利息罚息","field":"IIA_AMT",money:true}
+                    ,{"title":"实收复利","field":"AFTER_INT_AMT",money:true}]
+        ]
+
+    });
+
+    var form = $("form[name='form-search']")
+    form.validate({
+        rules:{
+            LOAN_ACCOUNT: "required"
+        }
+        ,submitHandler: function () {
+            if(form.valid()){
+                $.get(remoteOrigin + "/api/report/report_33", form.serialize().replace(/-/g,''), function (res) {
+                    // consle.log(data.body)
+                    $(".geng-head").remove();
+                    var div = $("<div class='geng-head'></div>");
+                    div.append(template.compile($("#head").html())(res.data.head));
+                    $(".batch-operation").after(div);
+                    layuiTableReload({
+                        data: res.data.body
+                        // where: form.serialize().replace(/-/g,'')
+                    });
+                },"json");
+            }
+        }
+    });
+
+    function checkSubmitForm(){
+        return false;
+    }
+</script>

@@ -1,7 +1,6 @@
 package com.beeasy.hzback.modules.system.aop;
 
 import com.beeasy.hzback.core.helper.Utils;
-import com.beeasy.hzback.modules.system.dao.ISystemLogDao;
 import com.beeasy.hzback.modules.system.service.SystemLogService;
 import com.beeasy.hzback.modules.system.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -21,8 +20,6 @@ import org.springframework.stereotype.Component;
 public class SystemLogAop {
 
     @Autowired
-    ISystemLogDao systemLogDao;
-    @Autowired
     UserService userService;
     @Autowired
     SystemLogService systemLogService;
@@ -33,7 +30,11 @@ public class SystemLogAop {
 
     @AfterReturning(value = "point()", returning = "res")
     public void log(JoinPoint joinPoint, Object res) {
-        systemLogService.handleLog(Utils.getCurrentUserId(), joinPoint, res);
+        Long uid = Utils.getCurrentUserId();
+        if(null == uid){
+            return;
+        }
+        systemLogService.handleLog(uid, joinPoint, res);
 
 //        MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
 //        SaveLog saveLog = methodSignature.getMethod().getAnnotation(SaveLog.class);

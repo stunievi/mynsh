@@ -1,0 +1,72 @@
+<!--#include file="common.html" -->
+<script type="text/html" id="head2">
+    <div class="col-xs-12"style="padding-top: 15px;padding-bottom: 15px;">
+        <div class="col-xs-12" style="text-align: right">
+            单位：万元
+        </div>
+    </div>
+</script>
+
+<script>
+
+    // $("#panel-form").html(panelFormRender3({
+    //     list:[
+    // { prop: 'year', label: '年', disabled: true}
+    // { prop: 'LOAN_NATURE', label: '贷款性质'}
+    // ],
+    // data: {}
+    // }));
+
+    $(function () {
+        layui.use("laydate",function () {
+            layui.each(["year"], function (i,v) {
+                layui.laydate.render({
+                    elem: "#" + v
+                    ,type: "year"
+                });
+            });
+        })
+    });
+
+    //        $(function() {
+    //            $('#start').datepicker({ changeMonth: true, changeYear: true, dateFormat: 'yymmdd' });
+    //            $("#end").datepicker({ changeMonth: true, changeYear: true, dateFormat: 'yymmdd' });
+    //        });
+
+    laytableRender({
+        url: remoteOrigin + "/api/report/report_19"
+        , dataType: "json"
+        , page: false
+        , cols: [
+            [
+                {field:"MAIN_BR_NAME", title: "机构", rowspan:2}
+                , {field:"", title: "抵押贷款", colspan:2, align:"center"}
+                , {field:"", title: "保证贷款", colspan:2, align:"center"}
+                , {field:"", title: "质押贷款", colspan:2, align:"center"}
+                , {field:"", title: "信用贷款", colspan:2, align:"center"}
+                , {field:"", title: "农商行合计", align:"center"}
+                // , {field:"IR_4", title:"占比",rowspan:2 , align:"center"}
+            ]
+            ,[
+                {field:"LOAN_BALANCE_10", title:"贷款余额" }
+                , {field:"LOAN_BALANCE_10_BAD", title:"不良余额"}
+                , {field:"LOAN_BALANCE_30", title:"贷款余额" }
+                , {field:"LOAN_BALANCE_30_BAD", title:"不良余额"}
+                , {field:"LOAN_BALANCE_20", title:"贷款余额" }
+                , {field:"LOAN_BALANCE_20_BAD", title:"不良余额"}
+                , {field:"LOAN_BALANCE_00", title:"贷款余额" }
+                , {field:"LOAN_BALANCE_00_BAD", title:"不良余额"}
+                , {field:"LOAN_BALANCE", title:"贷款余额"}
+            ]
+        ]
+
+    });
+
+    function checkSubmitForm(){
+        var form = $("form[name='form-search']")
+        layuiTableReload({
+            where: form.serialize()
+        });
+        return false;
+    }
+</script>

@@ -1,94 +1,185 @@
 package com.beeasy.hzback.modules.system.controller;
 
-import com.beeasy.hzback.core.helper.Result;
-import com.beeasy.hzback.core.helper.Utils;
-import com.beeasy.hzback.modules.system.cache.SystemConfigCache;
-import com.beeasy.hzback.modules.system.dao.IDownloadFileTokenDao;
-import com.beeasy.hzback.modules.system.dao.IMessageDao;
-import com.beeasy.hzback.modules.system.dao.ISystemFileDao;
-import com.beeasy.common.entity.DownloadFileToken;
-import com.beeasy.common.entity.SystemFile;
-import com.github.tobato.fastdfs.service.FastFileStorageClient;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import org.apache.commons.io.IOUtils;
+import com.beeasy.hzback.modules.system.service.FileService;
+import com.beeasy.hzback.modules.system.service.LFSService;
+import com.beeasy.mscommon.RestException;
+import com.beeasy.mscommon.Result;
+import com.beeasy.hzback.entity.SystemFile;
+import com.beeasy.mscommon.filter.AuthFilter;
+import com.beeasy.mscommon.util.OkHttpUtil;
+import org.beetl.sql.core.SQLManager;
+import org.osgl.$;
+import org.osgl.util.C;
+import org.osgl.util.IO;
+import org.osgl.util.S;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Optional;
 
-@Api(tags = "系统内文件API")
+@RequestMapping("/api/file")
 @Controller
-@RequestMapping
+@Transactional
 public class FileController {
 
-    @Autowired
-    SystemConfigCache cache;
-    @Autowired
-    ISystemFileDao systemFileDao;
-    @Autowired
-    IMessageDao messageDao;
-    @Autowired
-    IDownloadFileTokenDao fileTokenDao;
-    @Autowired
-    private FastFileStorageClient storageClient;
 
+    @Autowired
+    SQLManager  sqlManager;
+    @Autowired
+    LFSService  lfsService;
+    @Autowired
+    FileService fileService;
 
-    @ApiOperation(value = "获取头像")
-    @GetMapping("/open/face/{id}")
-    public ResponseEntity<byte[]> getFace(@PathVariable String id) throws IOException {
-        SystemFile file = systemFileDao.findFirstByIdAndType(Long.valueOf(id), SystemFile.Type.FACE).orElse(null);
-        if (null == file) {
-            return new ResponseEntity<byte[]>(HttpStatus.NO_CONTENT);
-        }
-        HttpHeaders headers = new HttpHeaders();
-        if (file.getExt().equalsIgnoreCase("jpg") || file.getExt().equalsIgnoreCase("jpeg")) {
-            headers.setContentType(MediaType.IMAGE_JPEG);
-        } else if (file.getExt().equalsIgnoreCase("png")) {
-            headers.setContentType(MediaType.IMAGE_PNG);
-        }
-        return new ResponseEntity<byte[]>(file.getBytes(), headers, HttpStatus.OK);
+    @Value("${lfs.wfUsername}")
+    String wfUsername;
+    @Value("${lfs.wfPassword}")
+    String wfPassword;
+    @Value("${lfs.wfPid}")
+    String wfPid;
+
+    private final static SimpleDateFormat sdf = new SimpleDateFormat("YYYYMMdd");
+
+    @RequestMapping(value = "/uploadFace", method = RequestMethod.POST)
+    @ResponseBody
+    public Result uploadFace(
+        @RequestParam MultipartFile file
+    ) throws IOException {
+        fileService.uploadFace(AuthFilter.getUid(), file);
+        return Result.ok();
     }
 
 
-    @GetMapping("/api/download/message/{id}")
-    public ResponseEntity<byte[]> getMessageFile(@PathVariable Long id) throws IOException {
-        //检查这个文件是不是属于你
-        Optional optional = messageDao.findContainsFileMessage(Utils.getCurrentUserId(), id);
-        if (!optional.isPresent()) {
-            return new ResponseEntity<byte[]>(HttpStatus.NO_CONTENT);
+    @RequestMapping(value = "/upload", method = RequestMethod.POST)
+    @ResponseBody
+    public Result upload(
+        @RequestParam MultipartFile file,
+        String name,
+        String tags,
+        @RequestParam SystemFile.Type type
+        , String dir
+        , String uuid
+    ) {
+        try {
+            String sessionId = lfsService.login(wfUsername, wfPassword);
+            if (type.equals(SystemFile.Type.MESSAGE)) {
+                dir = sdf.format(new Date());
+                name = S.uuid() + "." + S.fileExtension(file.getOriginalFilename());
+            }
+            String pid = lfsService.createDir(sessionId, wfPid, dir);
+            String fid = lfsService.uploadFile(sessionId, pid, name, file);
+            //修改tag
+            if (S.notEmpty(tags)) {
+                lfsService.editTags(sessionId, fid, tags);
+            }
+            return Result.ok(
+                C.newMap(
+                    "id", fid
+                    , "name", name
+                    , "tags", tags
+                    , "creator", AuthFilter.getUid()
+                    , "uuid" ,uuid
+                    , "sname", file.getOriginalFilename()
+                )
+            );
+        } catch (Exception e) {
+            return Result.error(uuid);
         }
-        SystemFile file = systemFileDao.findFirstByIdAndType(id, SystemFile.Type.MESSAGE).orElse(null);
-        if (null == file) {
-            return new ResponseEntity<byte[]>(HttpStatus.NO_CONTENT);
-        }
-        HttpHeaders headers = new HttpHeaders();
-        return new ResponseEntity<byte[]>(file.getBytes(), headers, HttpStatus.OK);
+
     }
 
 
-    @ApiOperation(value = "通过令牌下载文件")
-    @RequestMapping(value = "/open/download", method = RequestMethod.GET)
-    public ResponseEntity<byte[]> getMessageFile(@RequestParam String token) throws IOException {
-        DownloadFileToken downloadFileToken = fileTokenDao.findTopByTokenAndExprTimeGreaterThan(token, new Date()).orElse(null);
-        if (null == downloadFileToken) {
-            return new ResponseEntity<byte[]>(HttpStatus.NO_CONTENT);
+    @ResponseBody
+    @RequestMapping(value = "/delete", method = RequestMethod.POST)
+    public Result delete(
+        @RequestParam long fileId,
+        @RequestParam String token
+    ) {
+        SystemFile sFile = sqlManager.single(SystemFile.class, fileId);
+        if ($.isNotNull(sFile)) {
+            sqlManager.lambdaQuery(SystemFile.class)
+                .andEq(SystemFile::getId, fileId)
+                .andEq(SystemFile::getCreatorId, AuthFilter.getUid())
+                .delete();
+            try {
+                Files.delete(Paths.get(sFile.getFilePath()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-        SystemFile file = systemFileDao.findById(downloadFileToken.getFileId()).orElse(null);
-        if (null == file) {
-            return new ResponseEntity<byte[]>(HttpStatus.NO_CONTENT);
+        return Result.ok();
+    }
+
+    @RequestMapping(value = "/rename", method = RequestMethod.GET)
+    @ResponseBody
+    public Result modify(
+        @RequestParam String fid,
+        String name
+    ) {
+        try {
+            String sessionId = lfsService.login(wfUsername, wfPassword);
+            lfsService.rename(sessionId, fid, name);
+            return Result.ok();
+        } catch (Exception e) {
+            return Result.error("修改文件名失败");
         }
+    }
+
+    @RequestMapping(value = "/retags", method = RequestMethod.GET)
+    @ResponseBody
+    public Result modifyTags(
+        @RequestParam String fid,
+        String tags
+    ) {
+        try {
+            String sessionId = lfsService.login(wfUsername, wfPassword);
+            lfsService.editTags(sessionId, fid, tags);
+            return Result.ok();
+        } catch (Exception e) {
+            return Result.error("修改文件名失败");
+        }
+    }
+
+
+    @RequestMapping(value = "/download", method = RequestMethod.GET)
+    public ResponseEntity<byte[]> download(
+        @RequestParam String fid
+        , @RequestParam String name
+    ) {
         HttpHeaders headers = new HttpHeaders();
-        switch (file.getExt().toLowerCase()) {
+        try {
+            String sessionId = lfsService.login(wfUsername, wfPassword);
+            byte[] bytes = lfsService.downloadFile(sessionId, fid);
+            String ext = S.fileExtension(name);
+            makeHeader(headers, ext, name);
+            return new ResponseEntity<byte[]>(bytes, headers, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<byte[]>(new byte[0], headers, HttpStatus.OK);
+        }
+    }
+
+
+    private void makeHeader(HttpHeaders headers, String ext, String fileName) {
+        switch (ext.toLowerCase()) {
             case "jpg":
             case "jpeg":
             case "bmp":
@@ -106,45 +197,14 @@ public class FileController {
             default:
                 headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
         }
-        String fileName = URLEncoder.encode(file.getFileName(), "UTF-8");
+        try {
+            fileName = URLEncoder.encode(fileName, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            throw new RestException("下载失败");
+        }
         headers.set("Content-Disposition", "attachment; filename=\"" + fileName + "\"; filename*=utf-8''" + fileName);
-        return new ResponseEntity<byte[]>(file.getBytes(), headers, HttpStatus.OK);
-    }
-
-    @RequestMapping(value = "/open/download2")
-    public ResponseEntity downloadFile(
-            @RequestParam String group,
-            @RequestParam String path
-    ) {
-        InputStream inputStream = storageClient.downloadFile(group, path, ins -> {
-            return ins;
-        });
-        try {
-            byte[] bytes = IOUtils.toByteArray(inputStream);
-            String fileName = "1.txt";
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Content-Disposition", "attachment; filename=\"" + fileName + "\"; filename*=utf-8''" + fileName);
-            return new ResponseEntity<byte[]>(bytes, headers, HttpStatus.OK);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return new ResponseEntity<byte[]>(HttpStatus.NO_CONTENT);
-    }
-
-    @RequestMapping(value = "/open/cross.html",
-            method = RequestMethod.GET,
-            produces = MediaType.TEXT_HTML_VALUE)
-    public ResponseEntity<byte[]> cross() {
-        try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.TEXT_HTML);
-            return new ResponseEntity<byte[]>(cache.getCorssHtml().getBytes(), headers, HttpStatus.OK);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return new ResponseEntity<byte[]>(HttpStatus.NO_CONTENT);
-        }
     }
 
 
 }
-

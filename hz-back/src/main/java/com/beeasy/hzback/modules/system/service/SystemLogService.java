@@ -1,14 +1,12 @@
 package com.beeasy.hzback.modules.system.service;
 
-import com.beeasy.hzback.modules.system.dao.ISystemLogDao;
-import com.beeasy.common.entity.SystemLog;
-import com.beeasy.common.entity.User;
 import com.beeasy.hzback.modules.system.log.NotSaveLog;
-import com.beeasy.hzback.modules.system.service.UserService;
+import com.beeasy.hzback.entity.SysLog;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang.StringUtils;
 import org.aspectj.lang.JoinPoint;
+import org.beetl.sql.core.SQLManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -23,7 +21,7 @@ public class SystemLogService {
     @Autowired
     UserService userService;
     @Autowired
-    ISystemLogDao systemLogDao;
+    SQLManager sqlManager;
 
     @Async
     public void handleLog(final long uid, JoinPoint joinPoint, Object res) {
@@ -72,16 +70,8 @@ public class SystemLogService {
 
     public void writeLog(final long uid, final String className, final String actionName, final Object[] arguments) {
         try {
-            User user = userService.findUser(uid);
-            //写日志
-            SystemLog systemLog = new SystemLog();
-            systemLog.setUserId(uid);
-            systemLog.setController(className);
-            systemLog.setUserName(user.getTrueName());
-            systemLog.setMethod(actionName);
-            systemLog.setAddTime(new Date());
-//            systemLog.setParams(arguments);
-            systemLogDao.save(systemLog);
+            SysLog log = new SysLog(null, uid, className, actionName, new Date());
+            sqlManager.insert(log);
         } catch (Exception e) {
             e.printStackTrace();
         }

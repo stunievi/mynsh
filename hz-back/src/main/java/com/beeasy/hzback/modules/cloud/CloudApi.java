@@ -10,7 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-//@FeignClient(name = "cloud-service", url = "http://${filecloud.address}",configuration = FeignConfig.class)
+@FeignClient(name = "cloud-service", url = "http://${filecloud.address}",configuration = FeignConfig.class)
 public interface CloudApi {
     @RequestMapping(method = RequestMethod.GET, value = "/apiLogin.action")
     LoginResponse login(@RequestParam("username") String username, @RequestParam("password") String password);

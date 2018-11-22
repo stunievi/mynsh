@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title> 惠州农商行五级分类不良贷款上调明细表 </title>
+    <!--#include file="/htmlsrc/header.html" -->
+    <!--&lt;!&ndash;<link rel="stylesheet" href="/static/vendor/bootcss/css/bootstrap.min.css"/>&ndash;&gt;-->
+    <!--&lt;!&ndash;<link rel="stylesheet" href="/static/vendor/jqui/jquery-ui.css">&ndash;&gt;-->
+    <!--<link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>-->
+    <!--<script src="/static/vendor/layui/layui.js"></script>-->
+    <!--<script src="/static/vendor/bootcss/js/bootstrap.min.js"></script>-->
+    <!--<link rel="stylesheet" href="/static/htmlcss/style.css">-->
+</head>
+<body>
+<div id="content">
+    <div id="panel-form">
+        <!-- 筛选表单 -->
+    </div>
+    <div class="batch-operation">
+        <a class="btn btn-success" id="handleExport" href="javascript:;">导出数据</a>
+    </div>
+    <div class="simple-head"></div>
+    <table id="dataList"></table>
+</div>
+<!--<script src="/static/vendor/jqui/jquery-ui.min.js"></script>-->
+<!--<script src="/static/vendor/validate/jquery.validate.min.js"></script>-->
+<!--<script src="/static/vendor/layui/layer/layer.js"></script>-->
+<!--<script src="/static/vendor/artTemplate/template-web.js"></script>-->
+<!--<script src="/static/htmljs/global.config.js"></script>-->
+<!--<script src="/static/htmljs/utils.js"></script>-->
+<!--<script src="/tmpl/js/horzTable.js"></script>-->
+<!--<script src="../../../tmpl/js/panelForm.js"></script>-->
+</body>
+</html>
+<script>
+    $(document).on("click","#handleExport", function () {
+        var where = $("[name=form-search]").serialize() || '';
+        where = where.replace(/(\d+)-/g,"$1")
+        var matched = location.href.match(/(\/[^\/]+?)\.html$/);
+        if(!matched){
+            return;
+        }
+        var item = matched[1].replace(/\/reports_r?/g,"");
+        if($.isNumeric(item)){
+            location.href = remoteOrigin + "/api/report/export/report_" + item + "?" + where;
+        }
+        else{
+            location.href = remoteOrigin + "/api/report/export/" + item + "?" + where;
+        }
+    });
+
+    $(function () {
+        if($("#head2").length){
+            $(".simple-head").append($("#head2").html())
+        }
+    })
+
+</script>
