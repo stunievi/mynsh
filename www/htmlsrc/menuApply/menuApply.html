@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 菜单权限申请 </title>
+    <link href="/static/vendor/bootcss/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/vendor/jqui/jquery-ui.css">
+    <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+</head>
+<body>
+    <div id="content"> 
+        <div class="" id="panel-form">
+        </div>
+        <div class="batch-operation">
+            <a type="button" class="btn btn-success handleAdd" href="javascript:;">申请菜单权限</a>
+        </div>
+        <div id="dataList">
+        </div>
+    </div>
+    <script src="../../static/vendor/jquery/jquery.js"></script>
+    <script src="../../static/vendor/artTemplate/template-web.js"></script>
+    <script src="../../static/vendor/jqui/jquery-ui.min.js"></script>
+    <!-- <script src="../../static/vendor/jqui/jquery-ui-timepicker-addon.js"></script> -->
+    <!-- <script src="/static/vendor/validate/jquery.validate.min.js"></script> -->
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="../../tmpl/js/panelForm.js"></script>
+    <!-- 变量渲染模板 -->
+    <script type="text/html" id="_addTime"> {{# return dateFormate1(d.addTime)}} </script>
+    <script type="text/html" id="_state"> {{# return getGlobalEnumVal(d.state, "taskState")}} </script>
+    <!-- toolbar渲染模板 -->
+    <script type="text/html" id="toolbar">
+        <div class="layui-toolbar">
+            <!-- <a href="/htmlsrc/preLendingCollect/collect.edit.html?id={{d.id}}" class="btn handleEdit btn-warning" href="">编辑</a> -->
+            <a href="/htmlsrc/workFlow/nodeStates.html?id={{d.id}}" class="btn handleShow btn-default">查看</a>
+            <!-- <a href="/htmlsrc/preLendingCollect/collect.showstate.html?id={{d.id}}" class="btn handleShowState btn-default" href="">流程状态</a> -->
+            <!-- <a href="javascript:;" class="btn handleDel btn-danger" data-value="{{d.id}}" data-index="{{d.LAY_TABLE_INDEX}}">删除</a> -->
+        </div>
+    </script>
+    <script>
+        $("#panel-form").html(panelFormRender({
+            panelTitle:'筛选查询',
+            list:[
+                { prop: 'ff3', label: '申请时间(从)' },
+                { prop: 'ff4', label: '申请时间(至)' }
+            ],
+            data:{}
+        }));
+        $(function() {
+            $('#ff3').datepicker({ changeMonth: true, changeYear: true, dateFormat: 'yy-mm-dd' });
+            $("#ff4").datepicker({ changeMonth: true, changeYear: true, dateFormat: 'yy-mm-dd' });
+        });
+        // 跳转添加
+        eventBind(".handleAdd", function(){
+            location.href = "/htmlsrc/workFlow/nodeAdd.html?name=" + enumWorkFlowModel.menuApply;
+        });
+        // 获取数据列表
+        laytableRender({
+            url: remoteApi.apiWorkflowIinstances,
+            where: {
+                modelName: enumWorkFlowModel.menuApply
+            },
+            cols: [
+                [
+                    // { checkbox:true },
+                    { field:'id', title:'调查编号'},
+                    { field:'title', title:'任务名'},
+                    { title:'任务状态', templet: "#_state"},
+                    { title:'添加时间', templet: "#_addTime"},
+                    { title:'操作', templet: "#toolbar", width: 220}
+                ]
+            ]
+        })
+ 
+    </script>
+</body>
+</html>

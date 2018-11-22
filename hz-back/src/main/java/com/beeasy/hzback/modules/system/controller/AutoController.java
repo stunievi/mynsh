@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.core.util.ClassUtils;
 import com.beeasy.hzback.entity.User;
-import com.beeasy.mscommon.RestException;
 import com.beeasy.mscommon.Result;
 import com.beeasy.mscommon.ann.AssertMethod;
 import com.beeasy.mscommon.json.FJHttpMessageConverter;
@@ -14,21 +13,15 @@ import com.beeasy.mscommon.valid.ValidGroup;
 import org.beetl.sql.core.SQLManager;
 import org.beetl.sql.core.TailBean;
 import org.beetl.sql.core.query.Query;
-import org.jodconverter.DocumentConverter;
-import org.jodconverter.office.OfficeException;
 import org.osgl.$;
 import org.osgl.util.C;
 import org.osgl.util.S;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.servlet.ServletRegistrationBean;
-import org.springframework.context.annotation.Bean;
-import org.springframework.core.codec.AbstractDataBufferDecoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PostConstruct;
-import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -244,16 +237,6 @@ public class AutoController {
     @PostConstruct
     public void init() throws NoSuchFieldException {
 //        OpenOfficeConnection connection = new SocketOpenOfficeConnection(8100);
-
-
-        try {
-            documentConverter
-                .convert(new File("/root/1.xlsx"))
-                .to(new File("/root/ttt.pdf"))
-                .execute();
-        } catch (OfficeException e) {
-            e.printStackTrace();
-        }
 
         if(true){
             //生产模式下, 直接扫描所有entity做出缓存

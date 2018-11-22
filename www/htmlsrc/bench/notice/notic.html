@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>工作台 - 消息列表</title>
+    <!--<link href="../../../static/vendor/bootcss/css/bootstrap.min.css" rel="stylesheet">-->
+    <!-- <link rel="stylesheet" href="../../../static/vendor/jqui/jquery-ui.css"> -->
+    <!--<link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>-->
+    <!--<link rel="stylesheet" href="/static/htmlcss/style.css">-->
+
+    <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script src="/static/vendor/bootcss/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+    <style>
+        .popover{ display: block; position: relative; clear: both; margin:5px 0;}
+        .popover.left{ float: right }
+        #noticeDataList-wrap{ position: relative; overflow-y: scroll }
+
+        .layui-table, .layui-table-view{margin: 0}
+        #home2 .layui-table-cell {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="content">
+        <div class="col-xs-2 row">
+            <ul class="nav nav-pills nav-stacked">
+                <li id="unReadAct"><a style="border: 1px solid #eee;" href="?act=unReadAct">未读</a></li>
+                <li id="sysUnReadAct"><a style="border: 1px solid #eee;" href="?act=sys">系统通知</a></li>
+            </ul>
+        </div>
+        <div class="col-xs-8" id="main-content">
+            <div id="content-inner">
+
+            </div>
+            <!-- 主内容展示区域 -->
+        </div>
+        <div class="col-xs-2" style="overflow:hidden">
+            <ul class="nav nav-tabs" role="tablist2">
+                <li role="presentation" class="active"><a href="#home2" aria-controls="home2" role="tab" data-toggle="tab">用户列表</a></li>
+                <li><a href="javascript:;" id="searchUser">更多查询</a></li>
+            </ul>
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane active" id="home2">
+                    <div class="input-group" style="margin: 2px 0;">
+                        <input type="text" class="form-control" id="searchName" placeholder="Search for...">
+                          <span class="input-group-btn">
+                            <button class="btn btn-default" id="handleSearch">Go!</button>
+                          </span>
+                    </div>
+                    <div id="userList">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/vendor/artTemplate/template-web.js"></script>
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="/static/htmljs/interaction.js"></script>
+    <script src="/static/vendor/webUploader/webuploader.min.js"></script>
+    <!-- 未读消息列表渲染模板 -->
+    <script type="text/html" id="unreadList">
+        <div class="panel panel-default">
+            <div class="panel-heading">未读消息</div>
+            {{ if unreadList.length > 0}}
+                <ul class="list-group">
+                    {{ each unreadList item }}
+                    <li class="list-group-item">
+                        <span class="badge">{{item.unreadNum}}</span>
+                        <a class="handleSwitchUser" href="javascript:;" data-id="{{item.toId}}">
+                            {{item.name}}
+                        </a>
+                    </li>
+                    {{ /each }}
+                </ul>
+            {{ else }}
+                <div class="panel-body">
+                    暂新消息
+                </div>
+            {{ /if }}
+
+        </div>
+    </script>
+    <!-- 用户信息列表 -->
+    <script type="text/html" id="userInfoList">
+        {{each userInfoList user}}
+            <a href="javascript:;" data-id="{{user.id}}" class="list-group-item handleSwitchUser" id="user{{user.id}}">{{user.name}}</a>
+        {{/each}}
+    </script>
+    <!-- 消息内容列表 -->
+    <script  type="text/html" id="noticeList">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                与&nbsp;<b>{{toUser.name}}</b>&nbsp;对话
+            </div>
+            <ul class="list-group">
+                <li class="list-group-item text-center">
+                    <a href="javascript:;" id="getHisNotice" data-enable="true">点击加载历史消息</a>
+                </li>
+            </ul>
+            <div class="panel-body" id="noticeDataList-wrap" style="height:320px;">
+                <p id="scroll_top" style="height:1px;overflow:hidden;"></p>
+                <div id="noticeDataList">
+                    {{ if msgList.length > 0}}
+                        {{each msgList msg}}
+                            <div class="col-xs-12">
+                                <div class="popover {{ msg.fromId == currUser.id ? 'left' : 'right' }}" style="max-width:500px;"  id="msg{{msg.id}}">
+                                    <div class="arrow"></div>
+                                    <h3 class="popover-title">
+                                        <!-- <img src="http://iph.href.lu/20x20" width="20" height="20"> -->
+                                        {{ msg.fromId == currUser.id ? currUser.name : toUser.name}} / {{msg.sendTime}}
+                                    </h3>
+                                    <div class="popover-content">
+                                        {{ if msg.type == 'FILE'}}
+                                            <% if(/\.gif|\.png|\.jpg|\.jpeg/.test(msg.content)){ %>
+                                                <p><img src="{{remoteOrigin}}?fileToken={{msg.token}}&fileId={{msg.linkId}}" id="noticefile{{msg.id}}" alt="{{msg.content}}" style="max-width:420px;"></p>
+                                            <% }else{ %>
+                                            <p><span class="glyphicon glyphicon-file">&nbsp;</span><a href="{{remoteOrigin}}?fileToken={{msg.token}}&fileId={{msg.linkId}}" target="_top">{{msg.content}}</a></p>
+                                            <% } %>
+                                        {{ else }}
+                                            <p>{{msg.content}}</p>
+                                        {{ /if }}
+                                    </div>
+                                </div>
+                            </div>
+                        {{/each}}
+                    {{ /if }}
+                </div>
+                <p id="scroll_bottom" style="height:1px;overflow:hidden;"></p>
+            </div>
+            <div class="panel-body">
+                <textarea class="form-control" rows="3" name="msgContent" id="msgContent"></textarea>
+                <div class="col-xs-11 row" style="margin-top:10px;">
+                    <div id="picker">选择文件</div>
+                    <a type="javascript:;" class="btn btn-primary btn-sm pull-right" id="handleSendMsg">发送消息</a>
+                </div>
+            </div>
+        </div>
+    </script>
+    <!-- 发送消息模板 -->
+    <script type="text/html" id="mySendMsg">
+        <div class="popover left" style="max-width:500px;" id="msg{{msg.id}}">
+            <div class="arrow"></div>
+            <h3 class="popover-title">{{currUser.name}} / {{msg.sendTime}}</h3>
+            <div class="popover-content" >
+                <!--{{msg}}-->
+                {{ if msg.type == 'FILE'}}
+                    <% if(/\.gif|\.png|\.jpg|\.jpeg/.test(msg.content)){ %>
+                        <p><img src="{{remoteOrigin}}?fileToken={{msg.token}}&fileId={{msg.linkId}}" id="noticefile{{msg.id}}" alt="{{msg.content}}"></p>
+                    <% }else{ %>
+                    <p><span class="glyphicon glyphicon-file">&nbsp;</span><a href="{{remoteOrigin}}?fileToken={{msg.token}}&fileId={{msg.linkId}}" target="_top">{{msg.content}}</a></p>
+                    <% } %>
+                {{ else }}
+                    <p>{{msg.content}}</p>
+                {{ /if }}
+            </div>
+        </div>
+    </script>
+    <script type="text/html" id="_content">  {{# return "<span class='noticeContent'>" + replaceNoticeContent(d) + "</span>"}} </script>
+    <script type="text/html" id="_addTime"> {{# return dateFormate1(d.addTime)}} </script>
+    <script type="text/html" id="_name"> {{# return d.trueName + "(" + d.username + ")" }} </script>
+    <!-- sys toolbar渲染模板 -->
+    <script type="text/html" id="systoolbar">
+        <div class="layui-toolbar">
+            {{# if(d.type == 'WORKFLOW'){ }}
+            <a class="btn btn-default handleNodeShow" href="javascript:;" data-nodeid="{{d.bindData['taskId']}}">查看任务</a>
+            {{# } }}
+        </div>
+    </script>
+    <script src="./notice.js"></script>
+    <script>
+        var actionType = getParam("act") || 'unReadAct'; // 判断是获取未读消息，还是发送消息...操作
+        var toUserId = getParam("toUserId"); // 消息对象用户id
+        var toUser = {};
+        if(toUserId){
+            actionType = 'sendMsg';
+        }
+        var currUser = getUserById(); // 获取当前登陆用户信息
+        var lastMsgId = '';
+
+        if(actionType == 'sendMsg'){
+            // 消息通信
+            // 获取最近消息
+            getUserById(toUserId, function(user){
+                toUser = user;
+                getCallBetweenInfos(); // 获取两人之间的通信消息历史
+            })
+
+            postRemoteData({
+                dt: "json",
+                url: remoteApi.apiReadMessages,
+                data: [toUserId],
+                callback: "none"
+            })
+            eventBind("#getHisNotice", function(that){
+                if(that.data("enable") == false){
+                    return false;
+                }
+                getRemoteData({
+                    // loading: true,
+                    url: remoteApi.apiUserRecentMsg,
+                    data: {
+                        userId: toUserId,
+                        messageId: lastMsgId
+                    },
+                    callback: function(origin){
+                        if(origin.length > 0){
+                            lastMsgId = origin[origin.length-1].id;
+                            origin.forEach(function(elm){
+                                elm.sendTime = dateFormate1(elm.sendTime);
+                            });
+                            $("#main-content").prepend(template('noticeList', {
+                                remoteOrigin: remoteApi.apiOpenDownload,
+                                toUser: top.topCacheUserObj[toUserId],
+                                currUser: currUser,
+                                msgList: origin
+                            }));
+                            // setTimeout(function(){
+                            //     document.querySelector("#msg"+lastMsgId).scrollIntoView();
+                            // },300)
+                        }
+                        if(origin.length < 20){
+                            that.data("enable",false);
+                            that.text("无更多历史消息");
+                        }
+                    }
+                })
+            })
+            // 提交文本消息
+            eventBind("#handleSendMsg", function(){
+                var msg = $("#msgContent").val();
+                postRemoteData({
+                    // dt: 'json',
+                    url: remoteApi.apiMsgSendString,
+                    data: {
+                        "content": msg,
+                        "toUid": toUserId
+                    },
+                    callback: function(origin){
+                        if(origin == null){
+                            layer.msg("发送失败");
+                            return false;
+                        }
+                        origin.sendTime = dateFormate1(origin.sendTime); // 格式化发送时间
+                        $("#noticeDataList").append(template('mySendMsg', {
+                            remoteOrigin: remoteApi.apiOpenDownload,
+                            toUser: toUser,
+                            currUser: currUser,
+                            msg: origin
+                        }));
+                        // setTimeout(function(){
+                        //     document.querySelector("#msg"+origin.id).scrollIntoView();
+                        // },300)
+                        $("#msgContent").val(''); // 清空发送消息文本框
+                    }
+                })
+            })
+        }else if(actionType == 'unReadAct'){
+            // 未读消息列表
+            $("#unReadAct").addClass("active");
+            // 获取未读消息
+            getRemoteData({
+                // loading: true,
+                url: remoteApi.apiGetUnreadUserList,
+                callback: function(origin){
+                    origin.forEach(function(element) {
+                        // TODO::
+                        element.name = getUserValById(element.toId);
+                    });
+                    $("#main-content").html(template('unreadList', {
+                        unreadList: origin
+                    }));
+                }
+            });
+        }else if(actionType == 'sys'){
+            // 系统消息通知
+            $("#sysUnReadAct").addClass("active");
+            laytableRender({
+                id: "content-inner",
+                elem: "#content-inner",
+                url: remoteOrigin + "/api/auto/sysnotice/getList",
+                cols: [
+                    [
+                        { field:'content', title:'内容', templet: "#_content", width: 550 },
+                        { field:'addTime', title:'时间'},
+                        {title:'操作', templet: "#systoolbar"}
+                    ]
+                ]
+            })
+        }
+
+        // 渲染用户列表
+        laytableRender({
+            id: "userList",
+            elem: "#userList",
+            url: remoteOrigin + "/api/auto/user/getList",
+            // remoteApi.apiUser,
+            // layout: ['prev', 'next'],
+            cols: [
+                [
+                    {field:'id', title:'姓名/用户名', templet: "#_name" }
+                ]
+            ]
+        });
+
+    </script>
+</body>
+</html>

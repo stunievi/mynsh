@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 不良资产管理 - 不良资产跟踪管理 - 任务查看</title>
+    <!--#include file="/htmlsrc/header.html" -->
+    <style>
+        td{
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <div id="content">
+        <div class="bs-example bs-example-tabs" data-example-id="togglable-tabs">
+            <ul id="myTabs" class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active"><a href="#baseInfo" id="baseInfo-tab" role="tab" data-toggle="tab" data-controls="baseInfo" aria-expanded="true">基本信息</a></li>
+                <li role="presentation" class=""><a href="#paneTab3" role="tab" id="paneTab3-tab" data-toggle="tab" data-controls="paneTab3" onclick="getTaskList('paneTab3')">催收记录</a></li>
+                <li role="presentation" class=""><a href="#paneTab4" role="tab" id="paneTab4-tab" data-toggle="tab" data-controls="paneTab4" onclick="getTaskList('paneTab4')">利息减免记录</a></li>
+                <li role="presentation" class=""><a href="#paneTab5" role="tab" id="paneTab5-tab" data-toggle="tab" data-controls="paneTab5" onclick="getTaskList('paneTab5')">诉讼记录</a></li>
+                <li role="presentation" class=""><a href="#paneTab6" role="tab" id="paneTab6-tab" data-toggle="tab" data-controls="paneTab6" onclick="getTaskList('paneTab6')">抵债资产接收记录</a></li>
+                <li role="presentation" class=""><a href="#paneTab7" role="tab" id="paneTab7-tab" data-toggle="tab" data-controls="paneTab7" onclick="getTaskList('paneTab7')">资产处置记录</a></li>
+            </ul>
+            <div id="myTabContent" class="tab-content">
+                <div role="tabpanel" class="tab-pane active in" id="baseInfo" aria-labelledby="baseInfo-tab">
+                    <!-- 基本信息展示 -->
+                    <div class="bootcss-none-info">
+                        暂无相关信息
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="paneTab3" aria-labelledby="paneTab3-tab">
+                    <div id="paneTab3-content">
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="paneTab4" aria-labelledby="paneTab4-tab">
+                        <div id="paneTab4-content">
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="paneTab5" aria-labelledby="paneTab5-tab">
+                    <div id="paneTab5-content">
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="paneTab6" aria-labelledby="paneTab6-tab">
+                    <div id="paneTab6-content">
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="paneTab7" aria-labelledby="paneTab7-tab">
+                    <div id="paneTab7-content">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--<div class="text-center">-->
+            <!--<a href="javascript:void(0)" onclick="javascript:history.go(-1);return false;">【返回】</a>-->
+        <!--</div>-->
+    </div>
+    <!--<script src="../../../static/vendor/jquery/jquery.js"></script>-->
+    <!--<script src="/static/vendor/bootcss/js/bootstrap.min.js"></script>-->
+    <!--<script src="../../../static/vendor/artTemplate/template-web.js"></script>-->
+    <!--<script src="/static/vendor/layui/layer/layer.js"></script>-->
+    <!--<script src="/static/htmljs/global.config.js"></script>-->
+    <!--<script src="/static/htmljs/utils.js"></script>-->
+    <!--<script src="/static/vendor/layui/layui.js"></script>-->
+    <script src="../../../tmpl/js/panelTableShow.js"></script>
+    <!--<script src="/static/htmljs/interaction.js"></script>-->
+    <!-- toolbar渲染模板 -->
+    <script type="text/html" id="toolbar">
+        <div class="layui-toolbar">
+            <a class="btn btn-default" href="javascript:;" tab-href="/htmlsrc/workFlow/nodeStates.html?id={{d.id}}" >查看</a>
+            <!--<a class="btn handleNodeDeal btn-default" href="javascript:;" data-nodeid="{{d.id}}">处理</a>-->
+        </div>
+    </script>
+    <script type="text/html" id="_addTime"> {{# return dateFormate1(d.addTime)}} </script>
+    <script type="text/html" id="_state"> {{# return getGlobalEnumVal(d.state, "taskState")}} </script>
+    <script type="text/html" id="_flowType"> {{# return getWorkFlowModelKeyVal(d.modelId, 'modelName')}} </script>
+    <script>
+        var loanid = getParam('loanid') || '';
+        var taskid = getParam('taskid') || '';
+        getRemoteData({
+            url: remoteApi.apiOdsSearchACC_LOAN+"?LOAN_ACCOUNT="+loanid,
+            callback: function(origin){
+                var loan = origin.list[0] || {};
+                // transformOdsEnumData(loan,['CLA', 'CLA_PRE', 'ACCOUNT_STATUS']);
+                $("#baseInfo").html(panelTableShowRender2({
+                    attrs:[
+                        {label :'借据编号', prop:'BILL_NO' }, {label :'合同编号', prop:'CONT_NO' }, {label :'产品名称', prop:'PRD_NAME' }, {label :'客户号', prop:'CUS_ID' }, {label :'客户名称', prop:'CUS_NAME' }, {label :'本金逾期起始日期', prop:'CAP_OVERDUE_DATE' }, {label :'利息逾期起始日期', prop:'INT_OVERDUE_DATE' }, {label :'当前逾期期数', prop:'OVER_TIMES_CURRENT' }, {label :'累计逾期期数', prop:'OVER_TIMES_TOTAL' }, {label :'最高逾期期数', prop:'MAX_TIMES_TOTAL' }, {label :'五级分类标志', prop:'CLA' }, {label :'五级分类日期', prop:'CLA_DATE' }, {label :'上期五级分类标志', prop:'CLA_PRE' }, {label :'上期五级分类日期', prop:'CLA_DATE_PRE' }, {label :'最近还款日期', prop:'LATEST_REPAY_DATE' }, {label :'台帐状态', prop:'ACCOUNT_STATUS' }, {label :'催收记录次数', prop:'催收次数' }, {label :'利息减免记录数', prop:'利息减免次数' }, {label :'诉讼记录数', prop:'诉讼次数' }, {label :'抵债资产接收记录数', prop:'抵债资产接收次数' }, {label :'资产处置记录数', prop:'资产处置次数' }
+                    ],
+                    data: loan
+                }));
+            }
+        })
+
+        function getTaskList(taskType){
+            var modelName = '';
+            $('#myTabs a[href="#'+taskType+'"]').tab('show');
+            switch(taskType)
+            {
+                // 催收记录
+                case 'paneTab3':
+                modelName = enumWorkFlowModel.urge; break;
+                // 利息减免记录
+                case 'paneTab4':
+                modelName = enumWorkFlowModel.interestRelief; break;
+                // 诉讼记录
+                case 'paneTab5':
+                modelName = enumWorkFlowModel.litigation; break;
+                // 抵债资产接收记录
+                case 'paneTab6':
+                modelName = enumWorkFlowModel.debtAssets; break;
+                 // 资产处置记录
+                 case 'paneTab7':
+                modelName = enumWorkFlowModel.debtAssetsDeal; break;
+            }
+            // if($("#"+taskType).find(".layui-table-view").length>0){
+            //     return;
+            // }
+            if($('#' + taskType + '-content table').length){
+                layuiTableReload({
+                    id: '' + taskType + '-content'
+                });
+                return;
+            }
+            laytableRender({
+                url: remoteOrigin + "/api/auto/wfins/getList",
+                where: {
+                    state: "FINISHED",
+                    parentId: taskid,
+                    modelName:modelName
+                },
+                id: taskType,
+                elem: '#' + taskType + '-content',
+                cols: [[ //标题栏
+                    {title :'任务编号', field:'id' },
+                    {title :'主任务编号', field:'parentId' },
+                    {title :'客户名称', field:'cusName' },
+                    {title :'贷款帐号', field:'loanAccount' },
+                    {title :'执行人', field:'dealUserName' },
+                    {title :'主管部门', field:'depName' },
+                    {title :'任务状态', field:'state'},
+                    {title :'创建时间', field:'addTime'},
+                    { title: '操作', templet: "#toolbar", width: 120 }
+                ]]
+            })
+        }
+        
+        // setTimeout(function(){
+        //     // 延时加载
+        //     ['paneTab3', 'paneTab4', 'paneTab5', 'paneTab6', 'paneTab7'].forEach(function(elm){
+        //         getTaskList(elm);
+        //     })
+        // });
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>资料查询 - 贷款资料 - 贷款资料 - 查看</title>
+    <!--#include file="/htmlsrc/header.html" -->
+    <style>
+        td{
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <div id="content">
+        <div class="bs-example bs-example-tabs" data-example-id="togglable-tabs">
+            <ul id="myTabs" class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active"><a href="#baseInfo" id="baseInfo-tab" role="tab" data-toggle="tab" data-controls="baseInfo" aria-expanded="true">基本信息</a></li>
+                <li role="presentation" class=""><a href="#paneTab1" role="tab" id="paneTab1-tab" data-toggle="tab" data-controls="paneTab1" aria-expanded="false" onclick="getTaskList('paneTab1')">贷后跟踪记录</a></li>
+                <li role="presentation" class=""><a href="#paneTab2" role="tab" id="paneTab2-tab" data-toggle="tab" data-controls="paneTab2" aria-expanded="false" onclick="getTaskList('paneTab2')">不良登记记录</a></li>
+                <li role="presentation" class=""><a href="#paneTab3" role="tab" id="paneTab3-tab" data-toggle="tab" data-controls="paneTab3" aria-expanded="false" onclick="getTaskList('paneTab3')">催收记录</a></li>
+                <li role="presentation" class=""><a href="#paneTab4" role="tab" id="paneTab4-tab" data-toggle="tab" data-controls="paneTab4" aria-expanded="false" onclick="getTaskList('paneTab4')">利息减免记录</a></li>
+                <li role="presentation" class=""><a href="#paneTab5" role="tab" id="paneTab5-tab" data-toggle="tab" data-controls="paneTab5" aria-expanded="false" onclick="getTaskList('paneTab5')">诉讼记录</a></li>
+                <li role="presentation" class=""><a href="#paneTab6" role="tab" id="paneTab6-tab" data-toggle="tab" data-controls="paneTab6" aria-expanded="false" onclick="getTaskList('paneTab6')">抵债资产接收记录</a></li>
+                <li role="presentation" class=""><a href="#paneTab7" role="tab" id="paneTab7-tab" data-toggle="tab" data-controls="paneTab7" aria-expanded="false" onclick="getTaskList('paneTab7')">资产处置记录</a></li>
+            </ul>
+            <div id="myTabContent" class="tab-content">
+                <div role="tabpanel" class="tab-pane active in" id="baseInfo" aria-labelledby="baseInfo-tab">
+                    <!-- 基本信息展示 -->
+                    <div class="bootcss-none-info">
+                        暂无相关信息
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="paneTab1" aria-labelledby="paneTab1-tab">
+                    <div id="paneTab1-content">
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="paneTab2" aria-labelledby="paneTab2-tab">
+                    <div id="paneTab2-content">
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="paneTab3" aria-labelledby="paneTab3-tab">
+                    <div id="paneTab3-content">
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="paneTab4" aria-labelledby="paneTab4-tab">
+                        <div id="paneTab4-content">
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="paneTab5" aria-labelledby="paneTab5-tab">
+                    <div id="paneTab5-content">
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="paneTab6" aria-labelledby="paneTab6-tab">
+                    <div id="paneTab6-content">
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="paneTab7" aria-labelledby="paneTab7-tab">
+                    <div id="paneTab7-content">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- <div class="text-center"> -->
+            <!-- <a href="javascript:void(0)" onclick="javascript:history.go(-1);return false;">【返回】</a> -->
+        <!-- </div> -->
+    </div>
+    <!--<script src="../../../static/vendor/jquery/jquery.js"></script>-->
+    <!--<script src="/static/vendor/bootcss/js/bootstrap.min.js"></script>-->
+    <!--<script src="../../../static/vendor/artTemplate/template-web.js"></script>-->
+    <!--<script src="/static/vendor/layui/layer/layer.js"></script>-->
+    <!--<script src="/static/htmljs/global.config.js"></script>-->
+    <!--<script src="/static/htmljs/utils.js"></script>-->
+    <!--<script src="/static/vendor/layui/layui.js"></script>-->
+    <script src="../../../tmpl/js/panelTableShow.js"></script>
+    <!-- <script src="/static/htmljs/interaction.js"></script> -->
+    <!-- toolbar渲染模板 -->
+    <script type="text/html" id="toolbar">
+        <div class="layui-toolbar">
+            <a class="btn btn-default" href="javascript:;" tab-href="/htmlsrc/workFlow/nodeStates.html?id={{d.id}}" >查看</a>
+        </div>
+    </script>
+    <!--<script type="text/html" id="_addTime"> {{# return dateFormate1(d.addTime)}} </script>-->
+    <!--<script type="text/html" id="_state"> {{# return getGlobalEnumVal(d.state, "taskState")}} </script>-->
+    <!--<script type="text/html" id="_flowType"> {{# return getWorkFlowModelKeyVal(d.modelId, 'modelName')}} </script>-->
+    <script>
+        var loanid = getParam('loanid');
+        var loan;
+        getRemoteData({
+            url: remoteApi.apiOdsSearchACC_LOAN+"?LOAN_ACCOUNT="+loanid,
+            callback: function(origin){
+                loan = origin.list[0] || {};
+                transformOdsEnumData(loan,['PRD_TYPE', 'LOAN_FORM', 'LOAN_NATURE', 'ASSURE_MEANS_MAIN', 'CUR_TYPE', 'TERM_TYPE', 'REPAYMENT_MODE', 'CLA', 'CLA_PRE', 'ACCOUNT_STATUS']);
+                $("#baseInfo").html(panelTableShowRender2({
+                    attrs:[
+                    { prop:'BILL_NO', label:'借据编号' }, { prop:'CONT_NO', label:'合同编号' }, { prop:'CN_CONT_NO', label:'中文合同编号' }, { prop:'PRD_PK', label:'产品主键' }, { prop:'BIZ_TYPE', label:'产品编号' }, { prop:'PRD_NAME', label:'产品名称' }, { prop:'PRD_TYPE', label:'产品类别' }, { prop:'CUS_ID', label:'客户代码' }, { prop:'CUS_NAME', label:'客户名称', handle:true }, { prop:'BIZ_TYPE_SUB', label:'业务品种分类' }, { prop:'ACCOUNT_CLASS', label:'核心产品号' }, { prop:'LOAN_ACCOUNT', label:'贷款帐号' }, { prop:'LOAN_FORM', label:'贷款形式' }, { prop:'LOAN_NATURE', label:'贷款性质' }, { prop:'LOAN_TYPE_EXT', label:'关联交易类型' }, { prop:'ASSURE_MEANS_MAIN', label:'主担保方式' }, { prop:'ASSURE_MEANS2', label:'担保方式2' }, { prop:'ASSURE_MEANS3', label:'担保方式3' }, { prop:'CUR_TYPE', label:'币种' }, { prop:'LOAN_AMOUNT', label:'借据金额' }, { prop:'LOAN_BALANCE', label:'借据余额' }, { prop:'LOAN_START_DATE', label:'贷款起始日' }, { prop:'LOAN_END_DATE', label:'贷款终止日' }, { prop:'TERM_TYPE', label:'期限类型' }, { prop:'ORIG_EXPI_DATE', label:'原到期日期' }, { prop:'RULING_IR', label:'基准利率(年)' }, { prop:'FLOATING_RATE', label:'利率浮动值' }, { prop:'REALITY_IR_Y', label:'管理执行利率(年)' }, { prop:'OVERDUE_RATE', label:'管理逾期加罚率' }, { prop:'OVERDUE_IR', label:'管理逾期加月罚率' }, { prop:'DEFAULT_RATE', label:'管理违约加罚率' }, { prop:'DEFAULT_IR', label:'管理违约月利率' }, { prop:'CI_RATE', label:'管理复利加罚率' }, { prop:'CI_IR', label:'管理复利月利率' }, { prop:'RECE_INT_CUMU', label:'应收利息累计' }, { prop:'ACTUAL_INT_CUMU', label:'实收利息累计' }, { prop:'DELAY_INT_CUMU', label:'欠息累计' }, { prop:'INNER_INT_CUMU', label:'表内欠息' }, { prop:'OFF_INT_CUMU', label:'表外欠息' }, { prop:'INNER_RECE_INT', label:'表内应收' }, { prop:'OVERDUE_RECE_INT', label:'逾期应收' }, { prop:'OFF_RECE_INT', label:'表外利息应收' }, { prop:'COMPOUND_RECE_INT', label:'利息复息应收' }, { prop:'INNER_OFF_RECE_INT', label:'表内转表外利息应收' }, { prop:'INNER_ACTL_INT', label:'表内实收' }, { prop:'OVERDUE_ACTL_INT', label:'逾期实收' }, { prop:'OFF_ACTL_INT', label:'表外利息实收' }, { prop:'COMPOUND_ACTL_INT', label:'利息复息实收' }, { prop:'INNER_OFF_ACTL_INT', label:'表内转表外利息实收' }, { prop:'NORMAL_BALANCE', label:'正常贷款余额(元)' }, { prop:'OVERDUE_BALANCE', label:'逾期贷款余额(元)' }, { prop:'SLUGGISH_BALANCE', label:'呆滞贷款余额(元)' }, { prop:'DOUBTFUL_BALANCE', label:'呆账贷款余额(元)' }, { prop:'INTEGRAL_Y', label:'积数_年' }, { prop:'INTEGRAL_Q', label:'积数_季' }, { prop:'INTEGRAL_M', label:'积数_月' }, { prop:'NOR_REC_ACCU', label:'正常回收累计' }, { prop:'REO_REC_ACCU', label:'资产重组累计' }, { prop:'PEEL_REC_ACCU', label:'资产剥离累计' }, { prop:'ASSET_REC_ACCU', label:'以资抵债累计' }, { prop:'ASSURE_REC_ACCU', label:'担保代偿累计' }, { prop:'CANCEL_REC_ACCU', label:'核损核销累计' }, { prop:'POLICY_REC_ACCU', label:'政策性还款累计' }, { prop:'DTE_REC_ACCU', label:'债转股累计' }, { prop:'ROLL_REC_ACCU', label:'转出累计' }, { prop:'MAX_BALANCE_Y', label:'本年最高余额' }, { prop:'MAX_BALANCE_Q', label:'本季最高余额' }, { prop:'MAX_BALANCE_M', label:'本月最高余额' }, { prop:'MORTGAGE_FLG', label:'按揭标识' }, { prop:'REPAYMENT_MODE', label:'还款方式' }, { prop:'FIRST_DISB_DATE', label:'首次放款日期' }, { prop:'LOAN_DIRECTION', label:'贷款投向' }, { prop:'REVOLVING_TIMES', label:'借新还旧次数' }, { prop:'EXTENSION_TIMES', label:'展期次数' }, { prop:'CAP_OVERDUE_DATE', label:'本金逾期起始日期' }, { prop:'INT_OVERDUE_DATE', label:'利息逾期起始日期' }, { prop:'OVER_TIMES_CURRENT', label:'当前逾期期数' }, { prop:'OVER_TIMES_TOTAL', label:'累计逾期期数' }, { prop:'MAX_TIMES_TOTAL', label:'最高逾期期数' }, { prop:'BAD_LOAN_FLAG', label:'转不良标志' }, { prop:'DEFAULT_FLAG', label:'违约标志' }, { prop:'LIMIT_IND', label:'授信额度使用标志' }, { prop:'LOAN_FORM4', label:'四级分类标志' }, { prop:'CLA', label:'五级分类标志' }, { prop:'CLA_DATE', label:'五级分类日期' }, { prop:'CLA_PRE', label:'上期五级分类标志' }, { prop:'CLA_DATE_PRE', label:'上期五级分类日期' }, { prop:'LATEST_REPAY_DATE', label:'最近还款日期' }, { prop:'CUS_MANAGER', label:'客户经理' }, { prop:'INPUT_BR_ID', label:'受理机构' }, { prop:'FINA_BR_ID', label:'账务机构' }, { prop:'MAIN_BR_ID', label:'主管机构' }, { prop:'SETTL_DATE', label:'结清日期' }, { prop:'LATEST_DATE', label:'最近修改日期' }, { prop:'ACCOUNT_STATUS', label:'台帐状态' }, { prop:'BIZ_TYPE_DETAIL', label:'业务品种分类名称' }, { prop:'INT_RATE_TYPE', label:'利率类型' }, { prop:'INT_RATE_INC_OPT', label:'利率增量选项' }, { prop:'INT_RATE_INC', label:'利率增量' }, { prop:'FIXED_RATE', label:'固定利率' }, { prop:'PRIN_INT_RATE_INC_OPT', label:'拖欠本金罚息利率增量选项' }, { prop:'PRIN_INT_RATE_INC', label:'拖欠本金罚息利率增量' }, { prop:'PRIN_FIXED_RATE', label:'拖欠本金固定的罚息率' }, { prop:'UNPD_INT_RATE_INC_OPT', label:'应收利息罚息利率增量选项' }, { prop:'UNPD_INT_RATE_INC', label:'应收利息罚息利率增量' }, { prop:'UNPD_FIXED_RATE', label:'应收利息固定的罚息率' }, { prop:'COMP_INT_RATE_INC_OPT', label:'复利罚息利率增量选项' }, { prop:'COMP_INT_RATE_INC', label:'复利罚息利率增量' }, { prop:'COMP_FIXED_RATE', label:'复利固定的罚息率' }, { prop:'APPR_INT_RATE_INC', label:'挪用利率罚息利率增量' }, { prop:'PRD_USERDF_NAME', label:'产品自定义名称' }, { prop:'PRD_USERDF_TYPE', label:'产品自定义类别' }, { prop:'SYNDICATED_IND', label:'银团标识' }, { prop:'UNPD_INT_ARR_PRN', label:'应收利息的罚息' }, { prop:'UNPD_ARRS_INT_BAL', label:'拖欠本金的罚息' }, { prop:'UNPD_ARR_PRN_BAL', label:'应收复利' }, { prop:'ACT_INT_ARR_PRN', label:'实收利息的罚息' }, { prop:'ACT_ARRS_INT_BAL', label:'实收拖欠本金的罚息' }, { prop:'ACT_ARR_PRN_BAL', label:'实收复利' }, { prop:'GL_CLASS', label:'科目号' }, { prop:'ISCIRCLE', label:'循环贷款标识' }, { prop:'RETURN_DATE', label:'还款日' }, { prop:'ACT_WRITE_OFF_INT_REC', label:'实收待核销利息' }, { prop:'UNPD_WRITE_OFF_INT_REC', label:'应收待核销利息' }, { prop:'UNPD_PRIN_BAL', label:'拖欠本金' }, { prop:'REMARK', label:'备注' }, { prop:'CONSIGN_FUND_PROTOCOL_NO', label:'资金协议号' }, { prop:'PSP_TASK_CRT_DATE', label:'贷后检查任务生成日期' }, { prop:'PSP_TASK_CPT_DATE', label:'贷后检查任务完成日期' }, { prop:'RSC_TASK_CRT_DATE', label:'五级分类任务生成日期' }, { prop:'COM_SCALE', label:'企业规模' }, { prop:'CUS_TYPE', label:'客户类型' }, { prop:'PAY_WAY', label:'受托支付方式' }, { prop:'REPAY_FREQ', label:'还款频率' }, { prop:'BAD_DEBT_IND ', label:'核销标志' }, { prop:'SUM_REPAY_AMT', label:'还款累计金额' }, { prop:'SEVEN_RESULT', label:'七级分类' }, { prop:'SEVEN_RESULT_PRE', label:'上次七级分类' }, { prop:'STANDARD_PRICE', label:'每日最新基准价' }, { prop:'EXCHANGE_CNY_BALANCE', label:'折算人民币余额' }, { prop:'REAL_RATE', label:'汇率' }, { prop:'EXCHANGE_CNY_AMOUNT', label:'折算人民币放款金额' }
+                    ],
+                    data: loan
+                }));
+            }
+        })
+
+        function getTaskList(taskType){
+            $('#myTabs a[href="#'+taskType+'"]').tab('show');
+            var modelName = '';
+            switch(taskType)
+            {
+                case 'paneTab1':
+                // 贷后检查
+                modelName = enumWorkFlowModel.postLoanTask;  break;
+                // 不良登记
+                case 'paneTab2':
+                modelName = enumWorkFlowModel.npaRegister; break;
+                // 催收记录
+                case 'paneTab3':
+                modelName = enumWorkFlowModel.urge; break;
+                // 利息减免记录
+                case 'paneTab4':
+                modelName = enumWorkFlowModel.interestRelief; break;
+                // 诉讼记录
+                case 'paneTab5':
+                modelName = enumWorkFlowModel.litigation; break;
+                // 抵债资产接收记录
+                case 'paneTab6':
+                modelName = enumWorkFlowModel.debtAssets; break;
+                 // 资产处置记录
+                 case 'paneTab7':
+                modelName = enumWorkFlowModel.debtAssetsDeal; break;
+            }
+            if($("#"+taskType).find(".layui-table-view").length>0){
+                return;
+            }
+            var id ='#' + taskType + '-content';
+            if($(id).find("table").length){
+                layuiTableReload({
+                    id: id.substr(1)
+                })
+                return;
+            }
+
+            laytableRender({
+                url: remoteOrigin + "/api/auto/wfins/getList"+"?loanAccount="+loanid+"&modelName="+encodeURI(modelName),
+                id: taskType,
+                elem: '#' + taskType + '-content',
+                cols: [[ //标题栏
+                    { field: 'id', title: "任务编号", width: 80},
+                    { field: 'dealUserName', title: "执行人" },
+                    { field: 'depName', title: "主管部门" },
+                    { title: "创建时间", field: "addTime" },
+                    { title: "完成时间", field: "addTime" },
+                    // { title: "任务状态", templet: "#_state" },
+                    // { field: "modelName", title: "任务类型" },
+                    { title: '操作', templet: "#toolbar", width: 80 }
+                ]]
+            })
+        }
+
+
+        eventBind("#handleCUS_NAME", function(){
+            // TODO:: 严格识别规则
+            var clientType = loan['$CT'] == '对私' ? "indiv" : "com";
+            showClientInfo(loan['CUS_ID'], loan['CUS_NAME'], clientType);
+        })
+
+        // 查看工作流
+        eventBind(".handleNodeShow", function(that){
+            var nodeid = that.data("nodeid"); // 节点id
+            handleeeNodeShowIndex = layerOpenIframe({
+                shade: false,
+                title: "任务查看",
+                url: '/htmlsrc/workFlow/nodeStates.html?id='+nodeid
+            })
+        })
+    </script>
+</body>
+</html>

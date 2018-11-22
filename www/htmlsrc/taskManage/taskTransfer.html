@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 任务管理 - 任务移交 </title>
+    <!--#include file="/htmlsrc/header.html" -->
+    <style>
+        td{
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <div id="content">
+        <div class="" id="panel-form">
+            <!-- 查询表单 -->
+        </div>
+        <div class="batch-operation">
+        </div>
+        <div id="dataList">
+            <!-- 数据列表 -->
+        </div>
+    </div>
+    <!-- 变量渲染模板 -->
+    <script type="text/html" id="_addTime"> {{# return dateFormate1(d.addTime)}} </script>
+    <script type="text/html" id="_state"> {{# return getGlobalEnumVal(d.state, "taskState")}} </script>
+    <!-- toolbar渲染模板 -->
+    <script type="text/html" id="toolbar">
+        <div class="layui-toolbar">
+            <!-- <a href="/htmlsrc/preLendingCollect/collect.edit.html?id={{d.id}}" class="btn handleEdit btn-warning" href="">编辑</a> -->
+            <button type="button" tab-href="/htmlsrc/workFlow/nodeStates.html?id={{d.id}}" class="btn handleShow btn-default">查看</button>
+            <!-- <a href="/htmlsrc/preLendingCollect/collect.showstate.html?id={{d.id}}" class="btn handleShowState btn-default" href="">流程状态</a> -->
+            {{# if(d.transform > 0) { }}
+            <a href="javascript:;" class="btn btn-warning" tab-href="/htmlsrc/htmllayer/choiceUser.html?urlType=transfer&id={{d.id}}" tab-title="选择移交对象">移交</a>
+            {{# } }}
+            {{# if(d.point > 0){ }}
+            <!--<a href="javascript:;" class="btn btn-warning" class="btn btn-warning" tab-href="/htmlsrc/htmllayer/choiceUser.html?urlType=point&id={{d.id}}" tab-title="选择指派对象">指派</a>-->
+            {{# } }}
+        </div>
+    </script>
+    <script>
+        var workFlow = decodeURI(getParam("workFlow"));
+        // 配置查询表单
+        $("#panel-form").html(panelFormRender3({
+            panelTitle:'筛选查询',
+            col: 3,
+            list:[
+                { prop: 'id', label: '任务编号' },
+//                { prop: 'userId', label: '客户经理ID'},
+                { prop: 'modelName', label: '工作流类型', type: "select", vals: getGlobalEnumSelect("workFlowModel") },
+                { prop: 'startDate', type:"date", label: '开始时间', disabled: true },
+                { prop: 'endDate', type:"date", label: '结束时间', disabled: true }
+//                modelName
+            ],
+            data: { }
+        }));
+
+        onInfront();
+
+        function onInfront(){
+            if($("#dataList table").length){
+                layuiTableReload({
+                    where: $("form-search").serialize()
+                });
+                return;
+            }
+            laytableRender({
+                url: remoteOrigin + "/api/auto/wfins/zhipaiyijiao",
+            where: {
+                modelName: workFlow
+            },
+                cols: [
+                    [
+                        // { checkbox:true },
+                        { field:'id', title:'任务编号'},
+                        { field:'cusName', title:'客户名称'},
+                        { field:'loanAccount', title:'贷款帐号'},
+                        { field:'dealUserName', title:'执行人'},
+                        { field:'depName', title:'主管部门'},
+                        { title:'任务状态', field: "state"},
+                        { title:'创建时间', field: "addTime"},
+                        { title:'操作', templet:"#toolbar"}
+                    ]
+                ]
+            })
+        }
+
+        eventBind(".handleTransfer", function(that){
+            taskId = that.data("id");
+            var modelId = that.data("model-id");
+            var dealerId = that.data("dealer-id");
+            choiceUserIndex = layer.open({
+                type: 2,
+                title:'选择对象',
+                area: ['700px', '450px'],
+                fixed: false, //不固定
+                maxmin: true,
+                content: '../htmllayer/choiceUser.html?urlType=transfer&modelId='+modelId+'&dealerId='+dealerId
+            });
+        })
+        function choiceUserCallback(user){
+            layer.close(choiceUserIndex)
+            actConfirm(function(){
+                getRemoteData({
+                    url: remoteApi.apiPointTask+"?id="+taskId+"&toUid="+user.id,
+                    callback: function(origin){
+                        layuiTableReload();
+                        layer.msg("操作成功");
+                    }
+                })
+            }, "确定将任务给【"+user.name+"】？")
+        }
+
+        // 提交查询表单
+        function checkSubmitForm(){
+            var url = $("[name='form-search']").serialize();
+            var where = "?"+url;
+            where = putUrlParam('startDate', dateToTimestamp($("#startDate").val()), where);
+            where = putUrlParam('endDate', dateToTimestamp($("#endDate").val()), where);
+            layuiTableReload({
+                where: where.slice(1)
+            })
+            return false;
+        }
+
+    </script>
+</body>
+</html>

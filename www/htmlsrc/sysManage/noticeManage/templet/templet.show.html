@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>系统管理 - 用户管理 - 查看</title>
+    <script src="/static/vendor/jquery/jquery.js"></script>
+    <script src="/static/vendor/artTemplate/template-web.js"></script>
+    <link href="/static/vendor/bootcss/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="content">
+        <div id="data-list">
+        </div>
+        <div class="text-center">
+            <a href="javascript:void(0)" onclick="javascript:history.go(-1);return false;">【返回】</a>
+        </div>
+    </div>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="/tmpl/js/tableList.js"></script>
+    <script src="/tmpl/js/panelTableShow.js"></script>
+    <script>
+        var name = decodeURI(getParam('name'));
+        getRemoteData({
+            url: remoteApi.apiUser+"?name="+name,
+            callback: function(origin){
+                var user = origin.content[0];
+                user['baned'] = user['baned'] == 1 ? '禁用' : '启用中';
+                $("#data-list").html(panelTableShowRender({
+                    panelTitle: '用户管理 - 查看',
+                    attrs:[
+                        { prop: 'trueName', label: '真实姓名'  },
+                        { prop: 'username', label: '用户名' },
+                        { prop: 'baned', label: '启用状态' },
+                        { prop: 'phone', label: '联系电话' },
+                        { prop: 'email', label: '邮箱' },
+                        {}
+                    ],
+                    data: user
+                }));
+            }
+        })
+    </script>
+</body>
+</html>

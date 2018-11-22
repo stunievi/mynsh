@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>不良资产管理 - 不良资产任务指派移交 - 不良资产任务指派接受</title>
+    <link href="../../../static/vendor/bootcss/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../../static/vendor/jqui/jquery-ui.css">
+    <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+</head>
+<body>
+    <div id="content"> 
+        <div class="" id="panel-form">
+            <!-- 查询表单 -->
+        </div>
+        <div class="batch-operation">
+            <button type="button" class="btn btn-default btn-sm" id="handleAccept">接受指派</button>
+            <button type="button" class="btn btn-default btn-sm" id="handleRefuse">拒绝指派</button>
+            <div class="btn-group">
+                <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">收回确认<span class="caret"></span></button>
+                <ul class="dropdown-menu">
+                    <li><a href="javascript:;" onclick="confirmRecover(true)" class="bg-defalut">同意收回</a></li>
+                    <li><a href="javascript:;" onclick="confirmRecover(false)">拒绝收回</a></li>
+                </ul>
+            </div>
+        </div>
+        <div id="dataList">
+            <!-- 列表 -->
+        </div>
+    </div>
+    <script src="../../../static/vendor/jquery/jquery.js"></script>
+    <script src="../../../static/vendor/artTemplate/template-web.js"></script>
+    <script src="../../../static/vendor/bootcss/js/bootstrap.min.js"></script>
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="../../../../tmpl/js/panelForm.js"></script>
+    <script type="text/html" id="toolbar">
+        <div class="layui-toolbar">
+            <a href="/htmlsrc/npaManage/assignTransfer/assignAccept.show.html?id={{d.id}}" class="btn handleShow btn-default" href="">查看</a>
+        </div>
+    </script>
+    <script>
+        $("#panel-form").html(panelFormRender({
+            panelTitle:'筛选查询',
+            list:[
+                { prop: 'f1', label: '客户号' },
+                { prop: 'f2', label: '客户名称' },
+                { prop: 'f3', label: '联系电话' },
+                { prop: 'f4', label: '客户经理' }
+            ],
+            data: {}
+        }));
+
+        laytableRender({
+            url: remoteApi.apiUser,
+            cols: [
+                [
+                    { checkbox: true },
+                    { field:'f1', title:'指派流水号'},
+                    { field:'f2', title:'指派方式'},
+                    { field:'f3', title:'指派人'},
+                    { field:'f4', title:'指派接受人'},
+                    { field:'f5', title:'指派时间'},
+                    { field:'f6', title:'接受时间'},
+                    { field:'f7', title:'状态'},
+                    { title:'操作', templet: "#toolbar"}
+                ]
+            ]
+        })
+        //** 指派确认 -- begin
+        function confirmAssign(agree){
+            var ids = getLayuiTabelCheckIds();
+            putRemoteData({
+                url:remoteApi.apiUpdateBaned,
+                data: {
+                    ids: ids,
+                    agree: agree
+                }
+            });
+        }
+        // 接受
+        $("#handleAccept").click(function(){
+            confirmAssign(true);
+        })
+        // 拒绝
+        $("#handleRefuse").click(function(){
+            confirmAssign(false);
+        })
+        //** 指派确认 -- end
+        //** 同意收回
+        function confirmRecover(agree){
+            var ids = getLayuiTabelCheckIds();
+            putRemoteData({
+                url:remoteApi.apiUpdateBaned,
+                data: {
+                    ids: ids
+                }
+            });
+        }
+        $(document).on("click", ".handleRecover", function(){
+            var checkedArr = [];
+            checkedArr.push($(this).data("value"));
+            recoverTask(checkedArr);
+        })
+        function recoverTask(checkedArr){
+            putRemoteData({
+                url:remoteApi.apiUpdateBaned,
+                data: {
+                    ids: checkedArr
+                }
+            });
+        }
+        
+        // 提交查询表单
+        // utils.js: checkSubmitForm
+    </script>
+</body>
+</html>

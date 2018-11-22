@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title> 流程状态查看 </title>
+    <link href="/static/vendor/bootcss/css/bootstrap.min.css" rel="stylesheet">
+    <!-- <link rel="stylesheet" href="/static/htmlcss/ystep/ystep.css"> -->
+    <script src="/static/vendor/jquery/jquery.js"></script>
+    <script src="/static/vendor/bootcss/js/bootstrap.min.js"></script>
+    <!-- HTML5 shim 和 Respond.js 是为了让 IE8 支持 HTML5 元素和媒体查询（media queries）功能 -->
+    <!-- 警告：通过 file:// 协议（就是直接将 html 页面拖拽到浏览器中）访问页面时 Respond.js 不起作用 -->
+    <!--[if lt IE 9]>
+      <script src="/static/vendor/bootcss/js/html5shiv.min.js"></script>
+      <script src="/static/vendor/bootcss/js/respond.min.js"></script>
+    <![endif]-->
+    <style> table{word-break: break-all !important; word-wrap: break-word !important;} </style>
+</head>
+<body>
+    <div id="">
+        <div id="content">
+        </div>
+        <div class="text-center">
+           <a href="javascript:void(0)" onclick="javascript:history.go(-1);return false;">【返回】</a>
+        </div>
+    </div>
+    <script id="tmpl" type="text/html">
+        <div class="panel panel-default" >
+            <div class="panel-heading">
+                流程处理状态
+                <!-- <a href="./nodeDealLog.html?id={{instanceId}}" class="btn btn-primary btn-xs pull-right">查看日志</a><span class="pull-right" style="padding-right:10px;"><a href="javascript:;" class="btn btn-primary btn-xs" id="handleChangeShow">详细流程</a></span> -->
+            </div>
+            <div class="panel-body">
+                <div id="dataList-baseInfo">
+                </div>
+                 <div class="panel-group" role="tablist">
+                {{ each dealNodeList node index }}
+                <!-- <% if (node.type == '!check' && showType != 'detail') { return; } %> -->
+                <div class="panel {{node.id == currentNodeInstanceId ? 'panel-primary' : 'panel-default' }}">
+                    <div class="panel-heading" role="tab" id="heading{{index}}">
+                    <h4 class="panel-title">
+                        <a class="collapsed" role="button" data-toggle="collapse"  href="#collapse{{index}}" aria-expanded="false" aria-controls="collapse{{index}}">
+                        节点任务名称：<b>{{ node.nodeName }}</b>
+                        </a>
+                    </h4>
+                    </div>
+                    <div id="collapse{{index}}" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading{{index}}">
+                    <div class="panel-body">
+                        {{ if node.attrs }}
+                            <!-- 处理人 - begin -->
+                            {{ each node.attrs dealer }}
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    {{ if dealer.userType == 'QUARTER' }}
+                                    经办部门：<b>{{dealer.depName}}</b>&nbsp;&nbsp;
+                                    {{ else if dealer.userType == 'ROLE' }}
+                                    经办角色：<b>{{dealer.roleName}}</b>&nbsp;&nbsp;
+                                    {{ /if }}
+                                    经办人：<b>{{dealer.userTrueName}}</b>
+                                </div>
+                                <div class="panel-body">
+                                    <table class="table table-bordered">
+                                        <tbody>
+                                            <% var i = 0; %>
+                                            {{each dealer.attrs value}}
+                                                {{if i%2 == 0}} <tr> <td class="col-xs-2 active"> {{value.attrCname}} </td> <td class="col-xs-4 type-info"> {{value.attrValue}} </td> {{else}} <td class="col-xs-2 active"> {{value.attrCname}} </td> <td class="col-xs-4 type-info"> {{value.attrValue}} </td> </tr>
+                                                {{/if}}
+                                                <% i++ %>
+                                            {{/each}}
+                                        </tbody>
+                                    </table>
+                                    <ul class="list-group">
+                                    {{each node.fileList file}}
+                                        <li class="list-group-item">{{file.fileName}}<a class="btn btn-xs btn-default handleDownload pull-right" href="javascript:;"data-id="{{file.id}}" data-file-token="{{file.token}}">下载</a></li>
+                                    {{/each}}
+                                    </ul>
+                                </div>
+                            </div>
+                            {{ /each }}
+                            <!-- 处理人 - end -->
+                        {{ else }}
+                        <div class="text-center">
+                            无提交数据
+                        </div>
+                        {{ /if }}
+
+                        {{if node.finished == false}}
+                            <div id="exec-dealers">
+
+                            </div>
+                        {{/if}}
+
+                    </div>
+                    {{ if  node.dealDate }}
+                    <div class="panel-footer">
+                        处理时间：<b><%= $imports.dateFormate1(node.dealDate) %></b>
+                    </div>
+                    {{ /if }}
+                    </div>
+                    
+                </div>
+                {{ /each }}
+            </div>
+            </div>
+            <div class="panel-body">
+                <div class="text-center col-xs-12">
+                    {{if recallBtn}}
+                        <a class="btn btn-warning" id="handleRecall" href="javascript:;">撤回</a>
+                    {{/if}}
+                    {{if dealBtn}}
+                        <a class="btn btn-default" href="./nodeDeal.html?id={{instanceId}}">处理</a>
+                    {{/if}}
+                    {{if transformBtn}}
+                        <a class="btn btn-warning" id="handleTransform" href="javascript:;">移交</a>
+                    {{/if}}
+                    {{if cancelBtn}}
+                        <a class="btn btn-danger" id="handleCancel" href="javascript:;">删除</a>
+                    {{/if}}
+                </div>
+            </div>
+        </div>
+    </script>
+    <script src="../../static/vendor/artTemplate/template-web.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="/tmpl/js/horzTable.js"></script>
+    <!-- <script src="../../static/htmljs/ystep.js"></script> -->
+    <script>
+        template.defaults.imports.dateFormat = function (value, iSmillis){
+            if(iSmillis){
+                return dateFormate('Y-m-d H:i:s', value);
+            }else{
+                return dateFormate('Y-m-d H:i:s', value/1000);
+            }
+        };
+        // var showType = getParam("showType") || 'detail';
+        // 是否显示详细列表
+        // eventBind("#handleChangeShow", function(){
+        //     if(showType == 'detail'){
+        //         location.href = putUrlParam("showType", "");
+        //     }else{
+        //         location.href = putUrlParam("showType", "detail");
+        //     }
+        // })
+        // 任务ID
+        var instanceId = getParam("id");
+        var dealNodeList = [];
+        // 获取任务信息
+        getRemoteData({
+            loading: true,
+            url: remoteApi.apiInstanceInfo + instanceId,
+            callback: function(origin){
+                var currNodeName;
+                dealNodeList = origin.instance.nodeList;
+                dealNodeList.forEach(function(node){
+                    if(node.finished===false){
+                        currNodeName = node.nodeName;
+                    }
+                    if(JSON.stringify(node.attrs) == "{}"){
+                        node.attrs = undefined;
+                    }
+                });
+                $("#content").html(template('tmpl', {
+                    // showType: showType,
+                    cancelBtn: origin.cancel, // 取消权限
+                    dealBtn: origin.deal, // 处理权限
+                    recallBtn: origin.recall, // 撤回权限
+                    transformBtn: origin.transform, // 移交权限
+                    instanceId: instanceId, // 任务id
+                    dealNodeList: dealNodeList, // 已处理节点
+                    currentNodeInstanceId: origin.currentNodeInstanceId
+                }));
+                // if(showType == 'detail'){
+                //     $("#handleChangeShow").text("简要列表");
+                // }
+                var attrs = origin.instance.attributes;
+                if(attrs && attrs.length>0){
+                    var attrsObj = {};
+                    attrs.forEach(function(item) {
+                        console.log(item)
+                        if(item.type == "INNATE"){
+                            var v = getOdsEnumVal(item.attrValue, item.attrKey, true);
+                            v = v ? v : item.attrValue;
+                            attrsObj[item.attrCName] = v;
+                        }
+                    });
+                    $("#dataList-baseInfo").html(horzTableRender({
+                        data: attrsObj
+                    }));
+                }
+                if(currNodeName){
+                    getRemoteData({
+                        url: '/api/workflow/node/dealers',
+                        data: {
+                            instanceId: instanceId,
+                            nodeNames: currNodeName
+                        },
+                        callback: function(origin){
+                            // #next-dealers
+                            var html = '';
+                            var users = origin[currNodeName];
+                            if(users.length>0){
+                                users.forEach(function(user){
+                                    html += '<li class="list-group-item">'+user.trueName+'&nbsp;/&nbsp;'+user.phone+'</li>';
+                                })
+                                $("#exec-dealers").html('<div class="panel panel-info"><div class="panel-heading">可执行人</div> <ul class="list-group"> '+html+' </ul> </div>')
+                            }
+                        }
+                    })
+                }
+            }
+        })
+        // 撤回任务
+        eventBind("#handleRecall", function(){
+            postRemoteData({
+                confirm: true,
+                url: remoteApi.apiWorkflowRecall,
+                data: {
+                    instanceId: instanceId
+                },
+                callback: 'reload'
+            })
+        })
+        // 取消任务
+        eventBind("#handleCancel", function(){
+            actConfirm(function(){
+                postRemoteData({
+                    url: remoteApi.apiWorkflowGoCancel,
+                    data: {
+                        instanceId: instanceId
+                    },
+                    callback: function(){
+                        if(parent.cancelNodeCallback){
+                            parent.cancelNodeCallback();
+                        }else{
+                            var index = parent.layer.getFrameIndex(window.name);
+                            parent.layer.close(index);
+                        }
+                    }
+                })
+            }, "一经删除将不可找回!确定执行该操作?")
+            
+        })
+        // 移交
+        var existUserList = top.topCacheUserList; // 可移交对象
+        eventBind("#handleTransform", function(){
+            layer.open({
+                type: 2,
+                title:'选中对象',
+                area: ['740px', '450px'],
+                fixed: false, //不固定
+                maxmin: true,
+                content: '../htmllayer/choiceExistUser.html'
+            });
+        })
+        function choiceUserCallback(user){
+            layer.confirm("确定移交给" + user.name + "?", {icon: 3, title:'操作提示'}, function(){
+                postRemoteData({
+                    url: remoteApi.apiWorkflowTransform,
+                    data: {
+                        instanceId: instanceId,
+                        dealerId: user.id
+                    },
+                    callback: function(){
+                        layer.msg("已移交", {time:500}, function(){
+                            location.reload();
+                        });
+                    }
+                })
+            });
+        }
+        // 下载节点文件
+        eventBind(".handleDownload", function(that){
+            location.href = remoteApi.apiOpenDownload+"?fileId="+that.data("id")+"&fileToken="+that.data("file-token");
+//            getRemoteData({
+//                url: remoteApi.apiDownLoadUploadFile,
+//                data: {
+//                    fileId: that.data("id"),
+//                    token: getUserToken()
+//                },
+//                callback: function(origin){
+//                    location.href = remoteApi.apiOpenDownload+"?token="+origin;
+//                }
+//            })
+        })
+    </script>
+</body>
+</html>

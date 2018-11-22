@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <!--#include file="/htmlsrc/header.html" -->
+</head>
+<body>
+<div id="content">
+    <div id="panel-form">
+    </div>
+    <!-- <div class="text-center"> -->
+    <!-- <a href="javascript:void(0)" onclick="javascript:history.go(-1);return false;">【返回】</a> -->
+    <!-- </div> -->
+</div>
+<script>
+    var data = {}
+    var id = getParam("id");
+    if(!id){
+        onload()
+    }
+    else{
+        getFetch(remoteOrigin + "/api/auto/dict/getOne",{id:id}, function (d) {
+            data = d;
+            onload();
+        });
+    }
+    function onload() {
+        $("#panel-form").html(panelFormRender3({
+            list: [
+                {prop:"id", type:"hidden"}
+                , {prop: 'name', label: "字典分组"}
+                , {prop: 'vKey', label: "字典名"}
+                , {prop: 'vValue', label: "字典值"}
+            ],
+            data: data
+            , line: true
+        }));
+        var form = $("form[name='form-search']");
+        $().ready(function() {
+            form.validate({
+                rules: {
+                    // modelName: "required",
+                    // name: "required"
+//                    processCycle: {
+//                        range:[1, 99999]
+//                    }
+                },
+                submitHandler: function(){
+                    if(form.valid()){
+                        var url;
+                        if(!id){
+                           url = remoteOrigin + "/api/auto/dict/add"
+                        }
+                        else{
+                            url = remoteOrigin + "/api/auto/dict/edit"
+                        }
+                        postFetch(url, form.serialize(), function () {
+                            closeCurrentIframe();
+                        })
+                        return false;
+                    }
+                }
+            })
+        });
+    }
+    function checkSubmitForm (){
+        // 兼容保留
+        return false;
+    }
+</script>
+</body>
+</html>

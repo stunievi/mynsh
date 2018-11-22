@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>面板列表</title>
+    <script src="../../static/vendor/jquery/jquery.js"></script>
+    <script src="../../static/vendor/artTemplate/template-web.js"></script>
+    <link  href="../../static/vendor/bootcss/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="content"> </div>
+    <script id="tmpl" type="text/html">
+        <div class="panel {{panelType ? panelType : 'panel-default'}}">
+            <div class="panel-heading">
+                {{panelTitle}}
+            </div>
+            {{ if listType == 'list-link'}}
+                <div class="list-link">
+                    {{each dataList val}}
+                        {{if RightType }}
+                            <a class="list-group-item" href="{{val.href}}">
+                                <span class="pull-right {{RightType}}">{{val.Rdata}}</span>
+                                {{val.title}}
+                            </a>
+                        {{else}}
+                            <a class="list-group-item" href="{{val.href}}" >{{val.title}}</li>
+                        {{/if}}
+                    {{/each}}
+                </div>
+            {{else}}
+                <ul class="{{ listType ? listType : 'list-group' }}">
+                    {{each dataList value}}
+                        {{if RightType }}
+                            <li class="list-group-item">
+                                <span class="float-right {{RightType}}">{{value.Rdata}}</span>
+                                {{value.title}}
+                            </li>
+                        {{else}}
+                            <li class="list-group-item">{{value.title}}</li>
+                        {{/if}}
+                    {{/each}}
+                </ul>
+            {{/if}}
+        </div>
+    </script>
+    <script>
+    var data = {
+        panelTitle: '基本例子', // 面板title
+        RightType: "badge", // 右侧tag样式
+        listType: 'list-link', // 列表样式
+        dataList: [
+            {
+                href: '###', // 列表样式为list-link时有效
+                title: '列表标题', // 列表标题
+                Rdata: '12'  //右侧tag显示数据
+            }
+        ]
+    };
+    var html = template('tmpl', data);
+    $("#content").html(html);
+    </script>
+</body>
+</html>

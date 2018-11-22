@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 选择资料库文件夹 </title>
+    <link rel="stylesheet" href="/static/vendor/bootcss/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
+    <!-- <link rel="stylesheet" href="/static/vendor/ztree/css/zTreeStyle/zTreeStyle.css" type="text/css"> -->
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+</head>
+<body>
+    <div class="col-xs-12">
+        <ol class="breadcrumb" id="breadcrumb" style="margin:10px 0 5px;">
+            <li><a class="breadcrumb-item handleGetdata" href="javascript:;" data-id="0">全部文件</a></li>
+        </ol>
+        <div id="dataList">
+            <!-- 文件列表 -->
+        </div>
+    </div>
+    <!-- <div class="col-xs-12 text-center" style="margin-top:10px;">
+        <a href="javascript:;" class="btn btn-sm btn-default" onclick="confirm()">确定</a>
+    </div> -->
+    <script src="/static/vendor/jquery/jquery.js"></script>
+    <!-- <script type="text/javascript" src="/static/vendor/ztree/js/jquery.ztree.core.js"></script> -->
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script type="text/html" id="name">
+        {{# if(d.id==currDirId && d.id != 0){ }}
+        <span  href="javascript:;" data-name="{{d.name}}" data-id="{{d.id}}"><span class="glyphicon glyphicon-folder-open">&nbsp;</span>{{d.name}}</a>
+            {{# }else{ }}
+        <a class="handleGetdata" href="javascript:;" data-name="{{d.name}}" data-id="{{d.id}}" style="display: inline-block;width: 100%;"><span class="glyphicon glyphicon-folder-open" >&nbsp;</span>{{d.name}}</a>
+        {{# } }}
+    </script>
+    <!-- toolbar渲染模板 -->
+    <script type="text/html" id="toolbar">
+        <div class="layui-toolbar">
+            {{# if(d.id==currDirId && d.id != 0){ }}
+            <a href="javascript:;" class="btn btn-warning handleConfirm" data-id="{{d.id}}">确定</a>
+            {{# }else{ }}
+            <a href="javascript:;" class="btn btn-default handleConfirm" data-id="{{d.id}}">确定</a>
+            {{# } }}
+        </div>
+    </script>
+    <script>
+        var layerIndex = parent.layer.getFrameIndex(window.name);
+        var currDirId = 0;
+        var currDataList = []
+        laytableRender({
+            urlType: 'disk',
+            url: remoteApi.apiCloudCommGetDirectories,
+            where: {
+                pid: 0
+            },
+            cols: [
+                [
+                    { field: 'name', title:'文件名',  templet: "#name" , width: 280},
+                    { field:'', title:'操作', templet: "#toolbar" }
+                ]
+            ],
+            success: function(origin){
+                currDataList = origin.rows;
+                if(currDirId!=0){
+                    currDataList.unshift({
+                        name: "当前目录",
+                        id: currDirId
+                    });
+                }
+                
+            }
+        })
+
+        // 根据文件夹ID刷新
+        function reloadByDirId(dirId){
+            dirId == undefined ? currDirId : dirId;
+            layuiTableReload({
+                urlType: 'disk',
+                where: {
+                    pid: currDirId
+                },
+                success: function(origin){
+                    currDataList = origin.rows;
+                    if(currDirId!=0){
+                        currDataList.unshift({
+                            name: "当前目录",
+                            id: currDirId
+                        });
+                    }
+                }
+            })
+        }
+     
+        // 页面跳转
+        eventBind(".handleGetdata", function(that){
+            $("#breadcrumb").append('<li class="breadcrumb-item"><a class="handleGetdata" href="javascript:;" data-id="'+that.data("id")+'">'+that.data('name')+'</a></li>');
+            currDirId = that.data('id');
+            reloadByDirId();
+        });
+        // 点击路径跳转
+        $(document).on("click", ".breadcrumb-item", function(){
+            $(".breadcrumb-item:gt("+$(this).index()+")").remove();
+        })
+        eventBind(".handleConfirm", function(that){
+            var dirId = that.data("id");
+            var act = getParam("act") || '';
+            if(parent.choiceCommFolderCallback){
+                parent.choiceCommFolderCallback(dirId, act);
+                parent.layer.close(layerIndex);
+            }
+        })
+    </script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>客户管理 - 对公客户 - 添加</title>
+    <script src="../../../static/vendor/jquery/jquery.js"></script>
+    <script src="../../../static/vendor/artTemplate/template-web.js"></script>
+    <link  href="../../../static/vendor/bootcss/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="content"> 
+        <div id="addForm">
+            <!-- form表单 -->
+        </div>
+        <div class="text-center">
+            <a href="javascript:void(0)" onclick="javascript:history.go(-1);return false;">【返回】</a>
+        </div>
+    </div>
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="../../../tmpl/js/panelForm.js"></script>
+    <script>
+        var panelFormRender = template.compile(TPanelForm);
+        $("#addForm").html(panelFormRender({
+            formName: 'add-form',
+            panelTitle:'添加对公用户',
+            list:[
+                { prop:  'id', label: ' 添加对公用户' },
+                { prop:  'username', label: '添加对公用户', },
+                { prop:  'phone', label: '添加对公用户' },
+                { prop:  'baned', label: '是否启用', type: 'select', vals:[{name:'禁用', val: true}, {name:'启用', val: false}] }
+            ],
+            data: {}
+        }));
+        
+        function checkSubmitForm(that){
+            var form = $("form[name='add-form']");
+            form.validate({
+                rules: {
+                    'username': "required",
+                },
+                submitHandler: function() {
+                    SuperPost({
+                        type:'post',
+                        url: remoteApi.apiUserAdd,
+                        data: $(that).serialize(),
+                        success:function(res){
+                            if(res.success){
+
+                            }else{
+                                console.log(res);
+                            }
+                        },
+                        error:function(err){
+
+                        }
+                    })
+                }
+            })
+            return false;
+        }
+    </script>
+</body>
+</html>

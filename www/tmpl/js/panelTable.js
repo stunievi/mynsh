@@ -1,0 +1,3 @@
+var TPanelTable = '<div class="panel panel-default"><div class="panel-heading">{{panelTitle}} {{if moreLink }} <a href="{{moreLink}}" class="pull-right">更多</a> {{/if}}</div><table class="table table-bordered"><thead><tr>{{each headCols val}}<th>{{val.label}}</th>{{/each}}</tr></thead><tbody>{{each bodyCols value}}<tr class="cols-item" data-primary="{{value[primary ? primary : \'id\']}}">{{each headCols val}}<td>{{value[val.prop]}}</td>{{/each}}</tr>{{/each}}</tbody></table></div>';
+
+var panelTableRender = template.compile(TPanelTable);

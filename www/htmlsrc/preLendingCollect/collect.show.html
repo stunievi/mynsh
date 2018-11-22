@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>贷前资料收集 - 查看</title>
+    <link href="../../static/vendor/bootcss/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="content">
+        <div id="data-list">
+            <!-- 收集资料-基本信息展示 -->
+        </div>
+        <div id="file-list">
+            <!-- 收集资料-附件列表 -->
+        </div>
+        <div class="text-center">
+            <a href="javascript:void(0)" onclick="javascript:history.go(-1);return false;">【返回】</a>
+        </div>
+    </div>
+    <script src="../../static/vendor/jquery/jquery.js"></script>
+    <script src="../../static/vendor/artTemplate/template-web.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="../../tmpl/js/tableList.js"></script>
+    <script src="../../tmpl/js/panelTableShow.js"></script>
+    <script>
+        $("#data-list").html(panelTableShowRender({
+            panelTitle: '贷前资料收集 - 查看',
+            attrs:[
+                {
+                    prop: '1', lable: '客户名称' 
+                },
+                {
+                    prop: '2', lable: '联系电话' 
+                },
+                {
+                    prop: '3', lable: '客户经理' 
+                },
+                {
+                    prop:'', lable: ''
+                }
+            ],
+            data: {
+                1: '客户名称',
+                2: '联系电话',
+                3: '客户经理'
+            }
+        }));
+        $("#file-list").html(tableListRender({
+            headCols:[
+                {prop:'1', label:'文件名'},
+                {prop:'2', label:'文件标签'},
+                {prop:'3', label:'描述'},
+                {prop:'', label:'操作',width:50}
+            ],
+            bodyCols: [
+                {1:1}
+            ],
+            handles:[
+                {
+                    name:'下載',
+                    class_name:'handelDown'
+                }
+            ],
+        }));
+        
+    </script>
+</body>
+</html>

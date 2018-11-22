@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 系统管理 - 组织架构 - 角色管理 </title>
+    <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script src="/static/vendor/bootcss/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+</head>
+<body>
+    <div id="content"> 
+        <div class="" id="panel-form">
+            <!-- 筛选表单 -->
+        </div>
+        <div class="batch-operation">
+            <a class="btn btn-success" id="handleAdd" href="javascript:;" tab-title='添加角色' tab-href="/htmlsrc/sysManage/role/role.add.html">添加角色</a>
+            <!-- <a class="btn btn-danger" id="batchDel" href="javascript:">批量删除角色</a> -->
+            <!-- <div class="btn-group">
+                <button type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">更改启用状态<span class="caret"></span></button>
+                <ul class="dropdown-menu">
+                    <li><a href="javascript:;" onClick="putBanned(true)">禁用</a></li>
+                    <li><a href="javascript:;"  onClick="putBanned(false)">启用</a></li>
+                </ul>
+            </div> -->
+        </div>
+        <div id="dataList">
+            <!-- 数据列表 -->
+        </div>
+    </div>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="../../../static/vendor/artTemplate/template-web.js"></script>
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="../../../tmpl/js/tableList.js"></script>
+    <script src="../../../tmpl/js/panelForm.js"></script>
+    <script src="/static/htmljs/interaction.js"></script>
+    <!-- toolbar渲染模板 -->
+    <script type="text/html" id="toolbar">
+        <div class="layui-toolbar">
+            <!--<div class="btn-group">-->
+                <!--<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">更多</button>-->
+                <!--<ul class="dropdown-menu">-->
+                    <!--<li><a class="handleSetMenu" href="javascript:;" data-id="{{d.id}}">功能权限</a></li>-->
+                    <!--<li> <a class="handleSetData" href="javascript:;" data-id="{{d.id}}" data-name="{{d.name}}">数据权限</a> </li>-->
+                <!--</ul>-->
+            <!--</div>-->
+            <a class="btn btn-default handleSetData" href="javascript:;" data-id="{{d.id}}" data-name="{{d.name}}" tab-title="{{d.name}}-数据权限" tab-href="/htmlsrc/sysManage/authority/dataAuthority.html?roleid={{d.id}}">数据权限</a>
+            <a class="btn btn-default handleSetMenu" href="javascript:;" data-id="{{d.id}}" tab-title="{{d.name}}-功能权限" tab-href="/htmlsrc/sysManage/authority/menuAuthority.html?roleid={{d.id}}">功能权限</a>
+            <a class="btn btn-default handleShowPerson" data-index="{{d.LAY_TABLE_INDEX}}" data-id="{{d.id}}" tab-title="{{d.name}}-人员" tab-href="/htmlsrc/sysManage/role/role.user.html?id={{d.id}}">人员</a>
+            {{# if(d.name != '基础角色' && d.name != '总行角色'){ }}
+            <a class="btn btn-warning handleEdit" data-index="{{d.LAY_TABLE_INDEX}}" tab-title="编辑角色-{{d.name}}" tab-href="/htmlsrc/sysManage/role/role.edit.html?id={{d.id}}">编辑</a>
+            <a href="javascript:;" class="btn handleDel btn-danger" data-id="{{d.id}}" data-index="{{d.LAY_TABLE_INDEX}}">删除</a>
+            {{# } }}
+        </div>
+    </script>
+    <script type="text/html" id="toolbar2">
+        <div class="layui-toolbar">
+            <a class="btn btn-default handleShowUser" data-id="{{d.id}}" href="javascript:;">查看</a>
+            <!-- <a class="btn handleEdit btn-warning" data-index="{{d.LAY_TABLE_INDEX}}">编辑</a> -->
+            <a href="javascript:;" class="btn handleRemoveRole btn-danger" data-id="{{d.id}}">移除</a>
+        </div>
+    </script>
+    <script>
+        $("#panel-form").html(panelFormRender({
+            panelTitle:'筛选查询',
+            list:[
+                { prop: 'name', label: '角色名称' }
+            ],
+            data: {}
+        }));
+        var roleList = []; // 当前页角色列表
+        onInfront();
+
+        function onInfront(){
+            if($("#dataList table").length){
+                layuiTableReload({
+                    where: $("[name=form-search]").serialize()
+                })
+                return;
+            }
+            laytableRender({
+                url: remoteOrigin + "/api/auto/org/getList?role=1",
+                // url: remoteOrigin + "/api/user/org/getRList",
+                cols: [
+                    [
+                        // {checkbox: true, fixed: true},
+                        // {field:'id', title:'角色编号'},
+                        {field:'name', title:'角色名称'},
+                        {field:'info', title:'角色描述'},
+                        {title:'操作', templet: "#toolbar"}
+                    ]
+                ],
+                success: function(origin){
+                    roleList = origin.content;
+//                console.log(roleList);
+                }
+            });
+        }
+
+        // eventBind("#handleAdd",function(){
+        //     addRoleIndex = layerOpenIframe({
+        //         title: "添加角色",
+        //         url: "./role.add.html"
+        //     })
+        // })
+        // function addRoleCallback(){
+        //     layuiTableReload();
+        //     layer.close(addRoleIndex);
+        //     layer.msg("添加成功");
+        // }
+
+        // 编辑角色
+        // eventBind(".handleEdit", function(that){
+        //     editRole = roleList[that.data("index")];
+        //     editRoleIndex = layerOpenIframe({
+        //         title: '编辑角色',
+        //         url: './role.edit.html'
+        //     })
+        // })
+        // function editRoleCallback(){
+        //     layuiTableReload();
+        //     layer.close(editRoleIndex);
+        //     layer.msg("编辑成功");
+        // }
+        // 删除角色
+        function delData(data){
+            // data:Array
+            delRemoteData({
+                url: '',
+                data: data,
+                callback: 'render'
+            })
+        }
+        $("#batchDel").click(function(){
+            var ids = getLayuiTabelCheckIds();
+            if(ids.length < 1){
+                layer.msg("没有选中数据");
+                return;
+            }
+            delData(ids);
+        });
+        $(document).on("click", ".handleDel", function(){
+            var id = $(this).data('id');
+            actConfirm(function(){
+                getFetch(remoteOrigin + "/api/user/org/delete", {id: id}, function () {
+                    onInfront();
+                });
+            })
+        });
+
+        // // 查看该角色下的人员
+        // eventBind(".handleShowPerson", function(that){
+        //     layerOpenIframe({
+        //         w: 1100,
+        //         title: "角色下用户",
+        //         url: "./role.user.html?id="+that.data("id")
+        //     })
+        // });
+        // eventBind(".handleRemoveRole", function(that){
+        //     var uid = that.data("id");
+        //     actConfirm(function(){
+        //         getFetch(remoteOrigin + "/api/user/org/delete", {id: uid}, function () {
+        //             onInfront();
+        //         });
+        //     })
+        // })
+
+        // 设置功能权限
+        // eventBind(".handleSetMenu", function(that){
+        //     setMenuIndex = layerOpenIframe({
+        //         btn: true,
+        //         title: '设置功能权限',
+        //         url: '/htmlsrc/sysManage/authority/menuAuthority.html?roleid='+that.data("id")
+        //     });
+        // })
+        // 设置功能权限回调
+        // function setMenuCallback(){
+        //     layer.close(setMenuIndex);
+        //     layer.msg("设置成功");
+        // }
+        
+        // eventBind(".handleSetData", function(that){
+        //     setDataIndex = layer.full(layerOpenIframe({
+        //         title: '设置数据权限 - 角色 - '+that.data("name"),
+        //         url: '/htmlsrc/sysManage/authority/dataAuthority.html?roleid='+that.data("id")
+        //     }));
+        // })
+    </script>
+</body>
+</html>

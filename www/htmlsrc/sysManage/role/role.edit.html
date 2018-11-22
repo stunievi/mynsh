@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 系统管理 - 角色管理 - 编辑</title>
+
+    <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script src="/static/vendor/bootcss/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+    <script src="../../../static/vendor/artTemplate/template-web.js"></script>
+</head>
+<body>
+    <div id="content"> 
+        <div id="editForm">
+        </div>
+        <!-- <div class="text-center">
+            <a href="javascript:void(0)" onclick="javascript:history.go(-1);return false;">【返回】</a>
+        </div> -->
+    </div>
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="../../../tmpl/js/panelForm.js"></script>
+    <script>
+        var id = getParam("id");
+        getFetch(remoteOrigin + "/api/auto/org/getOne", {id: id}, function (data) {
+            $("#editForm").html(panelFormRender3({
+                formName: 'edit-form',
+                // panelTitle:'添加占位符',
+                list:[
+                    { prop: 'id', type:"hidden" },
+                    { prop: 'type', type:"hidden" },
+                    { prop: 'name', label: '角色名称', required: true },
+                    { prop: 'sort', label: '排序' },
+                    { prop: 'info', label: '角色描述', type: "textarea" }
+                ],
+                data: data
+                , line: true
+            }));
+
+            var form = $("form[name='edit-form']");
+            form.validate({
+                rules: {
+                    name: { required: true, minlength:2 }
+                },
+                submitHandler: function() {
+                    if(form.valid()){
+                        postFetch(
+                            remoteOrigin + "/api/auto/org/edit"
+                            , (form.serialize())
+                            , function(){
+                                closeCurrentIframe()
+                            }
+                        )
+                    }
+                    return false;
+                }
+            })
+
+        })
+        function checkSubmitForm(){
+            return false;
+        }
+    </script>
+</body>
+</html>

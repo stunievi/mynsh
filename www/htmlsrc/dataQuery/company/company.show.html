@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>客户管理 - 对公客户 - 查看</title>
+    <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script src="/static/vendor/bootcss/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+    <style>
+        #executives-content td,#contactInfo-content td,#loanInfo-content td,#collectData-content td{
+            white-space: nowrap;
+        }
+        /*td{*/
+            /*white-space: nowrap;*/
+        /*}*/
+    </style>
+</head>
+<body>
+    <div id="content">
+        <div class="bs-example bs-example-tabs" data-example-id="togglable-tabs">
+            <ul id="myTabs" class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active"><a href="#home" id="home-tab" role="tab" data-toggle="tab" data-controls="home" aria-expanded="true">基本信息</a></li>
+                <li role="presentation" class=""><a href="#executives" role="tab" id="executives-tab" data-toggle="tab" data-controls="executives" aria-expanded="false" onclick="getDataList('executives')">高管人员信息</a></li>
+                <li role="presentation" class=""><a href="#contactInfo" role="tab" id="contactInfo-tab" data-toggle="tab" data-controls="contactInfo" aria-expanded="false" onclick="getDataList('contactInfo')">联系信息</a></li>
+                <li role="presentation" class=""><a href="#loanInfo" role="tab" id="loanInfo-tab" data-toggle="tab" data-controls="loanInfo" aria-expanded="false" onclick="getDataList('loanInfo')">贷款台账</a></li>
+                <li role="presentation" class=""><a href="#collectData" role="tab" id="collectData-tab" data-toggle="tab" data-controls="collectData" aria-expanded="false" onclick="getDataList('collectData')">资料收集记录</a></li>
+            </ul>
+            <div id="myTabContent" class="tab-content" style="padding-top: 10px;">
+                <div role="tabpanel" class="tab-pane  active in" id="home" aria-labelledby="home-tab">
+                    <!-- 基本信息展示 -->
+                </div>
+                <div role="tabpanel" class="tab-pane" id="executives" aria-labelledby="executives-tab">
+                    <div id="executives-content">
+                        
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="contactInfo" aria-labelledby="contactInfo-tab">
+                    <div id="contactInfo-content">
+                
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="loanInfo" aria-labelledby="loanInfo-tab">
+                    <div id="loanInfo-content">
+                
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="collectData" aria-labelledby="collectData-tab">
+                    <div id="collectData-content">
+                
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="../../../static/vendor/artTemplate/template-web.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="../../../tmpl/js/panelTableShow.js"></script>
+    <script src="/static/htmljs/interaction.js"></script>
+    <script type="text/html" id="_addTime"> {{# return dateFormate1(d.addTime)}} </script>
+    <script type="text/html" id="_CERT_TYPE"> {{# return getOdsEnumVal(d, 'CERT_TYPE');}} </script>
+    <script type="text/html" id="_ASSURE_MEANS_MAIN"> {{# return getOdsEnumVal(d, 'ASSURE_MEANS_MAIN');}} </script>
+    <script type="text/html" id="_CUR_TYPE"> {{# return getOdsEnumVal(d, 'CUR_TYPE');}} </script>
+    <script type="text/html" id="_ACCOUNT_STATUS"> {{# return getOdsEnumVal(d, 'ACCOUNT_STATUS');}} </script>
+    <script type="text/html" id="_REPAYMENT_MODE"> {{# return getOdsEnumVal(d, 'REPAYMENT_MODE');}} </script>
+    <script type="text/html" id="_CLA"> {{# return getOdsEnumVal(d, 'CLA');}} </script>
+    <!-- toolbar渲染模板 -->
+    <script type="text/html" id="toolbar">
+        <div class="layui-toolbar">
+            <a href="javascript:;" class="btn handleShowLoan btn-default" data-id="{{d.LOAN_ACCOUNT}}" data-name="{{d.CUS_NAME}}">详情</a>
+            <a href="javascript:;" class="btn handleShowLoanTask btn-default" data-id="{{d.LOAN_ACCOUNT}}" data-name="{{d.CUS_NAME}}">贷款资料</a>
+        </div>
+    </script>
+    <!-- toolbar渲染模板 -->
+    <script type="text/html" id="toolbar5">
+        <div class="layui-toolbar">
+            <a href="javascript:;" class="btn handleNodeShow btn-default" data-nodeid="{{d.id}}">查看</a>
+        </div>
+    </script>
+    <script>
+        var cusid = getParam('id');
+        var CERT_CODE;
+        getRemoteData({
+            url: remoteApi.apiOdsSearchCUS_COM+"?CUS_ID="+cusid,
+            callback: function(origin){
+                var company = origin.list[0] || {};
+                CERT_CODE = company["CERT_CODE"];
+                transformOdsEnumData(company,['CERT_TYPE', 'CUS_BANK_REL', 'CUS_TYPE','INVEST_TYPE','COM_SUB_TYP', 'COM_HOLD_TYPE', 'COM_CLL_TYPE', 'LEGAL_CERT_TYPE', 'COM_REL_DGR', 'COM_OPT_ST', 'COM_CITY_FLG']);
+                $("#home").html(panelTableShowRender2({
+                    attrs:[
+                        { label:'客户号', prop:'CUS_ID' }, { label:'客户名称', prop:'CUS_NAME' }, { label:'客户类型', prop:'CUS_TYPE' }, { label:'开户证件类型', prop:'CERT_TYPE' }, { label:'开户证件号码', prop:'CERT_CODE' }, { label:'客户与我行关系', prop:'CUS_BANK_REL' }, { label:'拥有我行股份金额', prop:'COM_HOLD_STK_AMT' }, { label:'投资主体', prop:'INVEST_TYPE' }, { label:'隶属关系', prop:'COM_SUB_TYP' }, { label:'企业规模', prop:'COM_SCALE' }, { label:'控股类型', prop:'COM_HOLD_TYPE' }, { label:'组织机构代码', prop:'COM_INS_CODE' }, { label:'行业类型', prop:'COM_CLL_TYPE' }, { label:'行业名称', prop:'COM_CLL_NAME' }, { label:'从业人数', prop:'COM_EMPLOYEE' }, { label:'法定代表人/负责人姓名', prop:'LEGAL_NAME' }, { label:'法定代表人/负责人证件类型', prop:'LEGAL_CERT_TYPE' }, { label:'法定代表人/负责人证件号码', prop:'LEGAL_CERT_CODE' }, { label:'法定代表人/负责人联系电话', prop:'LEGAL_PHONE' }, { label:'国税税务登记代码', prop:'NAT_TAX_REG_CODE' }, { label:'国税税务登记机关', prop:'NAT_TAX_REG_ORG' }, { label:'地税税务登记代码', prop:'LOC_TAX_REG_CODE' }, { label:'地税税务登记机关', prop:'LOC_TAX_REG_ORG' }, { label:'财务负责人', prop:'FNA_MGR' }, { label:'企业经办人', prop:'COM_OPERATOR' }, { label:'通讯地址', prop:'POST_ADDR' }, { label:'联系电话', prop:'PHONE' }, { label:'传真', prop:'FAX_CODE' }, { label:'基本存款账户开户行', prop:'BAS_ACC_BANK' }, { label:'基本存款账户帐号', prop:'BAS_ACC_NO' }, { label:'信用等级企业分类', prop:'COM_CRD_TYP' }, { label:'信用等级', prop:'COM_CRD_GRADE' }, { label:'经营状况', prop:'COM_OPT_ST' }, { label:'与我行合作关系', prop:'COM_REL_DGR' }, { label:'城乡类型', prop:'COM_CITY_FLG' }, { label:'客户经理', prop:'CUST_MGR' }, { label:'主管机构', prop:'MAIN_BR_ID' }, { label:'资产规模（万元）', prop:'TOTAL_ASSETS' }, { label:'销售总额（万元）', prop:'TOTAL_SALES' }
+                    ],
+                    data: company
+                }));
+            }
+        })
+
+        function getDataList(dataListType){
+            $('#myTabs a[href="#'+dataListType+'"]').tab('show');
+            if(dataListType == 'executives'){
+                // 公司高管信息
+                if($("#executives-content table").length){
+                    layuiTableReload({
+                        id: "executives-content"
+                    })
+                    return;
+                }
+                laytableRender({
+                    url: remoteApi.apiOdsSearchCusComManager + '?CUS_ID='+cusid,
+                    id: "executives",
+                    elem: "#executives-content",
+                    cols: [
+                        [
+                            { title:'客户号', field:'CUS_ID' },
+                            { title:'高管人员姓名', field:'COM_MRG_NAME' },
+                            { title:'证件类型', field:'COM_MRG_CERT_TYP' },
+                            { title:'证件号码', field:'COM_MRG_CERT_CODE' },
+                            { title:'职务', field:'COM_MRG_DUTY' },
+                            { title:'最高学历', field:'COM_MRG_EDT' },
+                            { title:'联系电话', field:'COM_MRG_PHN' },
+                            { title:'联系地址', field:'COM_MRG_ADRR' }
+                        ]
+                    ]
+                })
+            }else if(dataListType == 'contactInfo'){
+                if($("#contactInfo-content table").length){
+                    layuiTableReload({
+                        id: "contactInfo-content"
+                    })
+                    return;
+                }
+                // 联系信息
+                laytableRender({
+                    url: remoteApi.apiOdsSearchComAddr + '?CUS_ID='+cusid,
+                    id: "contactInfo",
+                    elem: "#contactInfo-content",
+                    cols: [
+                        [
+                            { title:'序号', field:'SEQ' },
+                            { title:'地址类型', field:'COM_ADDR_TYP' },
+                            { title:'通讯地址', field:'COM_ADDR' },
+                            { title:'联系电话', field:'COM_PHN_CODE' },
+                            { title:'传真电话', field:'COM_FAX_CODE' }
+                        ]
+                    ]
+                })
+            }else if(dataListType == 'loanInfo'){
+                if($("#loanInfo-content table").length){
+                    layuiTableReload({
+                        id: "loanInfo-content"
+                    })
+                    return;
+                }
+                laytableRender({
+                    cellMinWidth: 110,
+                    id: "loanInfo",
+                    elem: "#loanInfo-content",
+                    url: remoteApi.apiOdsSearchAccloan + '?CUS_ID='+cusid,
+                    cols: [
+                        [
+                            { title:'借据号', field:'BILL_NO' },
+                            { title:'客户号', field:'CUS_ID' },
+                            { title:'客户名称', field:'CUS_NAME' },
+                            { title:'贷款帐号', field:'LOAN_ACCOUNT' },
+                            { title:'主担保方式', field:'ASSURE_MEANS_MAIN' },
+                            { title:'借据金额', field:'LOAN_AMOUNT' },
+                            { title:'借据余额', field:'LOAN_BALANCE' },
+                            { title:'币种', field:'CURRENCY' },
+                            { title:'贷款起始日', field:'LOAN_START_DATE' },
+                            { title:'贷款终止日', field:'LOAN_END_DATE' },
+                            { title:'台账状态', field:'ACCOUNT_STATUS'},
+                            { title:'五级分类标志', field:'CLA' },
+                            { title:'客户经理代码', field:'CUST_MGR' },
+                            { title:'客户经理', field:'CUST_MGR_NAME' },
+                            { title:'主管机构代码', field:'MAIN_BR_ID' },
+                            { title:'主管机构', field:'MAIN_BR_NAME' },
+                            { field:'toolbar', title:'操作', templet: '#toolbar', pos: "right", width: 130 }
+                        ]
+                    ]
+                });
+            }else if(dataListType == 'collectData'){
+                // 获取数据列表并渲染
+                if($("#collectData-content table").length){
+                    layuiTableReload({
+                        id: "collectData-content"
+                    })
+                    return;
+                }
+                laytableRender({
+                    url: remoteApi.apigetMyInfoCollect+"?CERT_CODE="+CERT_CODE,
+                    id: "collectData",
+                    elem: "#collectData-content",
+                    cols: [
+                        [
+                            // { checkbox:true },
+                            { field:'id', title:'任务编号'},
+                            { field:'CUS_NAME', title:'客户名称'},
+                            { field:'CERT_TYPE', title:'证件类型'},
+                            { field:'CERT_CODE', title:'证件号码'},
+                            { field:'PHONE', title:'联系电话'},
+                            { field:'billNo', title:'绑定状态'},
+                            { title:'创建时间'},
+                            { title:'操作', templet:"#toolbar5", width: 120}
+                        ]
+                    ]
+                })
+            }
+        }
+        // 台账详情
+        eventBind(".handleShowLoan", function(that){
+            var id = that.data("id") == "undefined" ? '' : that.data("id"),
+                name = that.data("name");
+            addNavTab("loan-"+id, "贷款台账详情 - " + id + " - " + name, hrefUrl.loanInfo+id);
+        });
+        //
+        eventBind(".handleShowLoanTask", function(that){
+            var id = that.data("id") == "undefined" ? '' : that.data("id"),
+                    name = that.data("name");
+            addNavTab('loandata-' + id, "贷款资料详情 - " + id + " - " + name, hrefUrl.loanDataInfo+id);
+        })
+
+    </script>
+</body>
+</html>

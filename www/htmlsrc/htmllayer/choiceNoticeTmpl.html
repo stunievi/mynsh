@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 选择消息模板 </title>
+    <link href="/static/vendor/bootcss/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+</head>
+<body>
+    <div id="content"> 
+        <div  id="panel-form">
+            <!-- 查询表单 -->
+        </div>
+        <div id="dataList">
+            <!-- 数据列表 -->
+        </div>
+    </div>
+    <script src="../../../../static/vendor/jquery/jquery.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script src="../../../../static/vendor/artTemplate/template-web.js"></script>
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="../../../../../tmpl/js/panelForm.js"></script>
+    <script type="text/html" id="toolbar">
+        <div class="layui-toolbar">
+            <a class="btn handleConfirm btn-warning" href="javascript:;" data-id="{{d.id}}" data-index="{{d.LAY_TABLE_INDEX}}">确定</a>
+        </div>
+    </script>
+    <script>
+        $("#panel-form").html(panelFormRender2({
+            list:[
+                { prop: 'name', label: '模板名' }
+            ],
+            data: {}
+        }));
+
+        laytableRender({
+            url: '/api/system/messageTemplate/list',
+            cols: [
+                [
+                    // {checkbox: true, fixed: true},
+                    // {field:'id', title:'模板编号'},
+                    {field:'name', title:'模板名称'},
+                    {field:'template', title:'模板内容'},
+                    {field:'', title:'操作', templet: "#toolbar", width: 120}
+                ]
+            ],
+            done:function(res){
+                tmplList = res.data.content;
+            }
+        });
+
+        eventBind(".handleConfirm", function(that){
+            tmpl = tmplList[that.data("index")];
+            if(parent.choiceNoticeTmplCallback){
+                parent.choiceNoticeTmplCallback(tmpl);
+            }
+            return true;
+        })
+
+        function checkSubmitForm(){
+            layuiTableReload({
+                where: form.serialize()
+            })
+            return false;
+        }
+    </script>
+</body>
+</html>

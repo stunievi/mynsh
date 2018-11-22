@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 工作流管理 - 添加/编辑审核节点</title>
+    <!--#include file="/htmlsrc/header.html" -->
+    <style>
+        .ms-controller{
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div id="content">
+        <div class="col-xs-12 node-box" style="margin-top:10px;margin-bottom:10px" >
+
+        </div>
+    </div>
+
+
+    <script type="text/html" id="tmpl">
+        <form name="form-search" class="form-horizontal" onsubmit="return checkSubmitForm()">
+            <div class="row panel-form-input-group">
+                <div class="col-xs-12 form-group">
+                    <label for="name" class="col-xs-2 text-right">
+                        节点名字
+                    </label>
+                    <div class="col-xs-8">
+                        <input type="text" class="form-control input-sm" name="name" value="{{name}}">
+                    </div>
+                </div>
+                <div class="col-xs-12 form-group">
+                    <label for="count" class="col-xs-2 text-right">
+                        参与人数
+                    </label>
+                    <div class="col-xs-8">
+                        <input type="text" class="form-control input-sm" name="count" ms-duplex="@nodeInfo.count" ms-rules='{required:true}' value="{{count}}">
+                    </div>
+                </div>
+                <!--<div class="col-xs-12 form-group">-->
+                    <!--<label for="count" class="col-xs-2 text-right">-->
+                        <!--处理周期-->
+                    <!--</label>-->
+                    <!--<div class="col-xs-8">-->
+                        <!--<input type="text" class="form-control input-sm" name="processCycle" ms-duplex="@nodeInfo.processCycle" ms-rules='{required:true}'>-->
+                    <!--</div>-->
+                <!--</div>-->
+                <div class="col-xs-12 form-group">
+                    <label for="question" class="col-xs-2 text-right">
+                        审核问题
+                    </label>
+                    <div class="col-xs-8">
+                        <input type="text" class="form-control input-sm" name="question" ms-duplex="@nodeInfo.question" value="{{question}}">
+                    </div>
+                </div>
+
+                <div id="result"></div>
+                <!--ms-for:($index, state) in @nodeInfo.states-->
+                <!--ms-for-end:-->
+            </div>
+            <div class="row text-center">
+                <a href="javascript:;" class="btn btn-default" onclick="addNode()" style="margin:0 5px;">添加结果节点</a>
+                <button type="reset" class="btn btn-default" style="margin:0 5px;">重 置</button>
+                <button type="submit" class="btn btn-primary" style="margin:0 5px;">确 定</button>
+            </div>
+        </form>
+        <!-- 流转节点tmpl -->
+        <div id="putNameForm" style="display:none">
+            <div class="col-xs-12" style="margin-top:10px;">
+                <select class="form-control input-sm" id="choiceBehaviorInput" name="choiceBehaviorInput" value="">
+                    <option value="">--请选择--</option>
+                    <!--ms-for: el in @nodeNameArr-->
+                    <option :attr="{value:el}">{{el}}</option>
+                    <!--ms-for-end:-->
+                </select>
+            </div>
+            <div class="col-xs-12 text-center" style="margin-top:10px;">
+                <a class="btn btn-default" onClick="cancelPutName()">取消</a>
+                <a class="btn btn-primary" onClick="confirmPutName()">确定</a>
+            </div>
+        </div>
+    </script>
+    <script type="text/html" id="result-tmpl">
+        <div class="state">
+            <div class="col-xs-12 form-group">
+                <label for="item" class="col-xs-2 text-right">
+                    审核结果
+                </label>
+                <div class="col-xs-8">
+                    <input type="text" class="form-control input-sm" name="item[]" ms-duplex="@state.item" value="{{item}}">
+                </div>
+            </div>
+            <div class="col-xs-12 form-group">
+                <label for="behavior" class="col-xs-2 text-right">
+                    节点流向
+                </label>
+                <div class="col-xs-8">
+                    <div class="">
+                        <select name="go[]" id="" class="form-control input-sm">
+                            <option value="">请选择</option>
+                            {{each names ops idex}}
+                            <option value="{{ops}}" {{ops == go ? "selected":"" }}>{{ops}}</option>
+                            {{/each}}
+                        </select>
+                        <!--<input type="text" class="form-control input-sm" name="go[]" ms-duplex="@state.behavior" value="{{behavior}}">-->
+                        <!--<span class="input-group-btn">-->
+                            <!--<a class="btn btn-default btn-sm" ms-click="@choiceBehavior($index)">选择流转节点</a>-->
+                        <!--</span>-->
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 form-group">
+                <label for="condition" class="col-xs-2 text-right">
+                    几人判定
+                </label>
+                <div class="col-xs-8">
+                    <input type="text" class="form-control input-sm" name="condition[]" ms-duplex="@state.condition" value="{{condition}}">
+                </div>
+            </div>
+            <div class="col-xs-12 form-group">
+                <label for="quenstion" class="col-xs-2 text-right">
+                    <a href="javascript:;" class="btn btn-xs btn-danger" onclick="removeNode(this)">删除</a>
+                </label>
+            </div>
+        </div>
+    </script>
+    
+    <script>
+        var mid = getParam("mid");
+        var name = getParam("name");
+
+        var func = template.compile($("#tmpl").html());
+        var nodetpl = template.compile($("#result-tmpl").html());
+
+        // var workFlow = JSON.parse(JSON.stringify(parent.workFlow)) || {};
+        // var currEditNode = JSON.parse(JSON.stringify(parent.currEditNode)) || {};
+
+        var workFlow = {}, currEditNode = {}
+        var names = [];
+        if(!name){
+            onload()
+        }
+        else{
+            getFetch(remoteOrigin + "/api/auto/wfmodel/getOne", {id: mid, name:decodeURI(name)}, function (data) {
+                currEditNode = $.grep(JSON.parse(data.model).flow,function (v) {
+                    names.push(v.name);
+                    return v.name == decodeURI(name)
+                })[0];
+                onload();
+            })
+        }
+
+
+        function addNode(data){
+            data = data || {}
+            data.names = names;
+            var html = nodetpl(data)
+            $("#result").append(html);
+        }
+        function removeNode(t) {
+            $(t).closest(".state").remove();
+        }
+
+        function onload() {
+            var html = func(currEditNode);
+            $(".node-box").html(html);
+
+            $.each(currEditNode.states || [], function(i,v){
+                addNode(v)
+                // $("#result").append($(html));
+            });
+
+
+
+            var form = $("form[name='form-search']");
+            $().ready(function() {
+                form.validate({
+                    rules: {
+                        'name': "required",
+                        'count': "required",
+                        'question': "required",
+                        'item[]': "required",
+                        'behavior[]': "required",
+                        'condition[]': "required"
+                    },
+                    submitHandler: function(){
+                        // var nodeInfo = initAvalon.$model.nodeInfo;
+                        // if(nodeInfo.states.length>0){
+                        //     nodeInfo.states.forEach(function(elm, index){
+                        //         nodeInfo.next.push(elm.behavior);
+                        //         nodeInfo.states[index].behavior = "go('"+elm.behavior+"')";
+                        //     })
+                        // }
+                        // console.log(nodeInfo)
+                        //整理数据
+                        var data = $.unserialize(form.serialize());
+                        data.states = [];
+                        $.each(data.condition || [], function (i,v) {
+                            data.states.push({
+                                item: v
+                                , condition: data.condition[i]
+                                , go: data.go[i]
+                            });
+                            delete data.item
+                            delete data.go
+                            delete data.condition
+                        });
+
+                        if(form.valid()){
+                            postFetch(
+                                remoteOrigin + "/api/auto/wfmodel/addCheckNode"
+                                // , form.serialize()
+                                , {id:mid,sname:decodeURI(name),node:data}
+                                , function () {
+                                    closeCurrentIframe()
+                                }
+                            )
+                            // form.serialize();
+                            // postRemoteData({
+                            //     confirm: false,
+                            //     dt: 'json',
+                            //     url: remoteApi.apiAddCheckNode,
+                            //     data: nodeInfo,
+                            //     callback:function(){
+                            //         if(parent.editCheckNodeCallback){
+                            //             parent.editCheckNodeCallback();
+                            //         }
+                            //     }
+                            // })
+                        }
+                    }
+                })
+            });
+        }
+
+        // function onload(){
+        //     avalon.validators.count = {
+        //         message: '必须数字并大于0'
+        //     }
+        //     window.initAvalon = avalon.define({
+        //         $id: "form",
+        //         nodeNameArr: parent.nodeNameArr || [],
+        //         nodeInfo: {
+        //             modelId: mid, // 模型Id
+        //             count: currEditNode.count || '',
+        //             next: [],
+        //             processCycle: '',
+        //             name: currEditNode.name || '',
+        //             question: currEditNode.question || '',
+        //             states: currEditNode.states || []
+        //         },
+        //         remove: function(index){
+        //             initAvalon.nodeInfo.states.splice(index, 1);
+        //         },
+        //         choiceBehavior: function(i){
+        //             choiceBehaviorDom = $("[name='behavior[]']").eq(i);
+        //             choiceindex = layer.open({
+        //                 title:'选择流转节点',
+        //                 type: 1,
+        //                 area: ['333px', '145px'],
+        //                 content: $("#putNameForm")
+        //             });
+        //         }
+        //     });
+        // }
+
+        // function cancelPutName(){
+        //     layer.close(choiceindex); // 关闭重命名窗口
+        // }
+        // function confirmPutName(){
+        //     choiceBehaviorDom.val($("#choiceBehaviorInput").val());
+        //     layer.close(choiceindex); // 关闭重命名窗口
+        // }
+        // function addNode(){
+        //     initAvalon.nodeInfo.states.push({
+        //         condition: 1,
+        //         item: '',
+        //         behavior: ''
+        //     })
+        // }
+
+
+        function checkSubmitForm(){
+            // 兼容
+            return false;
+        }
+    </script>
+</body>
+</html>

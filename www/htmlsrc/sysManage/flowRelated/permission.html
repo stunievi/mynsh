@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 设置处理岗位 </title>
+    <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script src="/static/vendor/bootcss/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+    <script src="/static/vendor/bootcss/js/bootstrap-suggest.js"></script>
+    <style>
+        #content{
+            overflow: visible;
+        }
+        .dropdown-menu-right{
+            left: 0 !important;
+        }
+    </style>
+</head>
+<body>
+    <div id="content">
+            <div class="col-xs-12 col-md-6" style="margin-bottom: 10px;">
+                <div class="form-group">
+                    <label for="">输入想要查询的岗位/角色并选择, 按tab添加全部, 如需多个关键字, 使用逗号分隔</label>
+                    <input type="text" class="form-control" id="suggest" value="" disabled>
+                    <div class="input-group-btn">
+                        <!--<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">-->
+                        <!--<span class="caret"></span>-->
+                        <!--</button>-->
+                        <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                        </ul>
+                    </div>
+                </div>
+                <!-- /btn-group -->
+                <!--<input type="text" class="form-control" id="suggest">-->
+            </div>
+            <div class="col-xs-12 col-md-6" style="margin-bottom: 10px;">
+                <div class="" id="dataList">
+
+                </div>
+            </div>
+        <div class="col-xs-12" style="padding-top: 10px;text-align: center;">
+            <button class="btn btn-danger btn-remove-all" style="margin-right: 10px;"><i class="glyphicon glyphicon-trash"></i> 清空</button>
+            <button class="btn-save btn btn-primary"><i class="glyphicon glyphicon-ok"></i> 保存</button>
+        </div>
+    </div>
+    <!--<script type="text/javascript" src="/static/vendor/ztree/js/jquery.ztree.core.js"></script>-->
+    <!--<script type="text/javascript" src="/static/vendor/ztree/js/jquery.ztree.excheck.js"></script>-->
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <!-- toolbar渲染模板 -->
+
+
+<script type="text/html" id="toolbar3">
+    <div class="layui-toolbar">
+        <button data-name="{{d.word}}" data-id="{{d.id}}" class="btn btn-danger btn-sm btn-remove">删除</button>
+    </div>
+</script>
+
+</body>
+</html>
+<script>
+
+    bindInputEvent(".txName", function () {
+        var txName = $(".txName").val();
+        $("li[id*=mainTree]").hide();
+        var target = $("li[id*=mainTree]:contains('"+txName+"')");
+        // target.each(function () {
+        //     $(this).find("li[id*=mainTree]").show()
+        // })
+        target.show();
+    });
+</script>
+
+<script>
+    var type = getParam("type")
+    var sourceData = null;
+    var selected = [];
+
+    var p1 = getFetch(remoteOrigin + "/api/user/org/getDQList")
+    var p2 = getFetch(remoteOrigin + "/api/user/per/getList",{objectId:getParam("id"), k1: decodeURI(getParam("name")), type: type})
+    $.when(p1,p2).then(function (a,b,c) {
+        var d1 = a[0].data;
+        var d2 = b[0].data;
+        var ret = {value:[]}
+        sourceData = ret.value = $.map(d1 || [], function (v) {
+            return {word: v.fullName, id: v.id}
+            // return {word: (v.type == "QUARTERS" ? "[岗位]" : "[角色]") + "" + v.fullName}
+        });
+        var items = $.map(d2 || [], function (v) {
+            return {word: v.oname, id: v.id}
+        })
+        addItems(items)
+        onload()
+    });
+    function onload(){
+        $("#suggest").bsSuggest({
+            // url: remoteOrigin + "/api/user/org/getDQList"
+            data: {
+                value: sourceData
+            }
+            , allowNoKeyword: false
+            , multiWord: true
+            , separator: " "
+            , twoWayMatch: false
+            // , getDataMethod: "url"
+            // , jsonp: "callback"
+            , delay: 100
+            // , clearable: true
+
+        //     fnProcessData: function (data) {
+        //     if(!data.success || !data.data || !data.data.length){
+        //         return false
+        //     }
+        //
+        //     addItems([])
+        //     return ret;
+        //     // console.log(data)
+        // }
+        });
+
+    }
+
+
+    function addItems(items) {
+        $.each(items, function (i,v) {
+            selected.push(v);
+        });
+        // selected = selected.reverse()
+        var map = {};
+        $.each(selected,function (i,v) {
+            if(!v.word){
+                return;
+            }
+            //过滤不需要的
+            var target = $.grep(sourceData, function (vv) {
+                return vv.word == v.word
+            });
+            if(!target.length){
+                return;
+            }
+            map[v.word] = target[0].id;
+        });
+        selected = [];
+        console.log(map);
+        for(var key in map){
+            selected.push({word:key,id:map[key]});
+        }
+        $("#dataList").empty();
+        laytableRender({
+            page: false,
+            cols:[
+                [
+                    {title:"岗位/角色", field:"word"}
+                    , {title:"操作", templet:"#toolbar3"}
+                ]
+            ]
+            , data : selected
+        });
+    }
+
+    var temp = null;
+    function beforeSuggest(p) {
+        if(p.length > 0){
+            temp = $.extend({}, p);
+            // p.unshift({word:"[全部]" + $('#suggest').val()})
+        }
+    }
+
+    $("#suggest").on("keydown", function (e) {
+        // console.log(e.keyCode)
+        // if(e.keyCode != 13){
+        //    return;
+        // }
+        var val = $.trim($(this).val());
+        if(e.keyCode == 9 && null != temp){
+            addItems(temp);
+            temp = null;
+            $(this).val("")
+        }
+        else if(e.keyCode == 13){
+            addItems([{word:val}])
+            $(this).val("")
+        }
+    });
+
+    $(document).on("click", ".btn-remove", function(){
+        var name = $(this).data('name');
+        selected = $.grep(selected, function (v) {
+            return v.word != name;
+        });
+        addItems([])
+    });
+
+    $(document).on("click",".btn-save", function () {
+        var ids = $.map($(".btn-remove[data-id]").toArray(), function (v) {
+            var id = $(v).attr("data-id")
+            return id;
+            return {
+                objectId: getParam("id")
+                , k1: decodeURI(getParam("name"))
+                , type: "WORKFLOW_MAIN_QUARTER"
+                , oid: id
+            }
+        });
+        if(ids.length == 0){
+            return
+        }
+
+        getFetch(remoteOrigin + "/api/auto/wfins/setP", {
+            objectId: getParam("id")
+            , k1: decodeURI(getParam("name"))
+            , type: type
+            , oids: ids.join(",")
+        }, function () {
+            closeCurrentIframe()
+        });
+    });
+
+    $(document).on("click",".btn-remove-all", function () {
+        selected = []
+        addItems([])
+    });
+
+
+    $(document).on("mousedown", ".dropdown-menu tr", function () {
+        setTimeout(function () {
+            var val = $.trim($("#suggest").val());
+            addItems([{word:val}])
+            $("#suggest").val("")
+        },50)
+    });
+
+</script>

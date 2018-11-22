@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 选部门 </title>
+    <link rel="stylesheet" href="/static/vendor/bootcss/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/vendor/ztree/css/zTreeStyle/zTreeStyle.css" type="text/css">
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+</head>
+<body>
+    <div class="col-xs-12">
+        <div id="treeDemo" class="ztree">
+        </div>
+    </div>
+    <!-- <div class="col-xs-12 text-center" style="margin-top:10px;"> -->
+        <!-- <a href="javascript:;" class="btn btn-sm btn-default" onclick="confirm()">确定</a> -->
+    <!-- </div> -->
+    <script src="/static/vendor/jquery/jquery.js"></script>
+    <script type="text/javascript" src="/static/vendor/ztree/js/jquery.ztree.core.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script>
+        var index = parent.layer.getFrameIndex(window.name);
+        var zNodes = parent.deptList;
+        $(document).ready(function(){
+            $.fn.zTree.init($("#treeDemo"), {
+                callback: {
+                    onClick: onClick
+                },
+                view: {
+                    showLine: false
+                }
+            }, zNodes);
+        });
+        var handle ='';
+        var choiceNode = {};
+        function onClick(event, treeId, treeNode, clickFlag){
+            clearTimeout(handle);
+            handle = setTimeout(function(){
+                choiceNode = treeNode;
+            },300);
+        }
+        function onLayerConfirmlCallback(){
+            if(parent.choiceDeptCallback){
+                parent.choiceDeptCallback(choiceNode);
+            }
+            parent.layer.close(index);
+        }
+    </script>
+</body>
+</html>

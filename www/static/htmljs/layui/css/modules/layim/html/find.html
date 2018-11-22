@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>发现</title>
+
+    <link rel="stylesheet" href="../../../layui.css">
+    <style>
+        .item{
+            overflow: hidden;
+            clear: both;
+        }
+        .item img{
+            display: inline-block;
+            /*float: left;*/
+            width: 60px;
+            height: 60px;
+            border-radius: 100%;
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+        .item .namebox{
+            padding-left: 20px;
+            /*display: inline-block;*/
+            /*float: left;*/
+        }
+        #flow tr{
+            border-bottom: 1px solid #ddd;
+        }
+        .small{
+
+        }
+    </style>
+</head>
+<body>
+
+<div style="padding: 20px;">
+    <table class="layui-form" width="100%">
+        <tr>
+            <td>
+                <input type="text" name="title" required="" lay-verify="required" placeholder="请输入用户名" autocomplete="off" class="layui-input">
+            </td>
+            <td width="100">搜索</td>
+        </tr>
+    </table>
+    <table id="flow" width="100%">
+
+    </table>
+</div>
+
+<script type="text/html" id="tpl_item">
+    <tr class="item">
+        <td width="100">
+            <img width=60 height=60 lay-src="{{remoteOrigin + '/file/avatar/' + d.uid + '.jpg'}}" alt="">
+        </td>
+        <td>
+            <p>{{d.trueName}}</p>
+            <p class="small">{{d.dname}} - {{d.qname}}</p>
+        </td>
+        <td width="100">
+            <button class="layui-btn layui-btn-normal layui-btn-small">添加好友</button>
+        </td>
+        <!--<div class="namebox">-->
+        <!--</div>-->
+    </tr>
+</script>
+
+
+<script src="../../../../../global.config.js"></script>
+<script src="../../../../layui.js"></script>
+<script>
+    layui.use(['layim', 'laypage', "flow", "laytpl"], function () {
+        var layim = layui.layim
+            , layer = layui.layer
+            , laytpl = layui.laytpl
+            , $ = window.$ = layui.jquery
+            , laypage = layui.laypage
+            , flow = layui.flow
+            , laytpl = layui.laytpl
+        var tpl = layui.laytpl($("#tpl_item").html())
+
+        flow.load({
+            elem: "#flow"
+            , isLazyimg: true
+            , done: function (page, next) {
+                var lis = [];
+                getFetch("/api/message/user/getList", {page: page - 1}, function (data) {
+                    layui.each(data.content || [], function (i, v) {
+                        lis.push(tpl.render(v))
+                        // lis.push("<li>"+v.trueName+"</li>")
+                    })
+
+                    next(lis.join(""), page < data.totalPages)
+                })
+            }
+
+        })
+
+
+        //一些添加好友请求之类的交互参见文档
+
+    });
+</script>
+</body>
+</html>

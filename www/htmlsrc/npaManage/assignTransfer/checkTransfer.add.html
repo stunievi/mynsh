@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 不良资产任务管理 - 不良资产任务指派移交 - 添加</title>
+    <link  href="../../../static/vendor/bootcss/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="content"> 
+        <div id="addForm">
+        </div>
+        <div class="text-center">
+            <a href="javascript:void(0)" onclick="javascript:history.go(-1);return false;">【返回】</a>
+        </div>
+    </div>
+    <script src="../../../static/vendor/jquery/jquery.js"></script>
+    <script src="../../../static/vendor/artTemplate/template-web.js"></script>
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="../../../tmpl/js/panelForm.js"></script>
+    <script>
+        $("#addForm").html(panelFormRender({
+            button: [
+                {type:'reset'},
+                {type:'submit', name: '下一步'},
+                {name: '提交数据'}
+            ],
+            formName: 'add-form',
+            panelTitle:'添加移交记录',
+            list:[
+                { prop: 'taskid', label: '移交任务编号', inputGroup:'选择任务' },
+                { prop: 'user', label: '移交处理人', inputGroup:'选择处理人' },
+                { prop: 'des', label: '移交说明', type:'textarea'},
+            ],
+            data: {}
+        }));
+   
+        var choice_users_option = {
+            key: 'user',
+            num: 'one'
+        };
+        $(document).on("click", "#groupBtn-user", function(){
+            layer.open({
+                type: 2,
+                title:'选移交对象',
+                area: ['700px', '450px'],
+                fixed: false, //不固定
+                maxmin: true,
+                content: '../../htmllayer/choiceUser.html'
+            });
+        });
+
+        var saveType = 0;
+        $(document).on("click", "#handleSave", function(){
+            saveType = 1;
+        });
+        function checkSubmitForm(){
+            var form = $("form[name='add-form']");
+            form.validate({
+                rules: {
+                    'username': "required",
+                },
+                submitHandler: function() {
+                    postRemoteData({
+                        url: remoteApi.apiUserAdd,
+                        data: {
+                            saveType:saveType
+                        },
+                        callback: 'back'
+                    });
+                }
+            })
+            return false;
+        }
+        checkSubmitForm();
+    </script>
+</body>
+</html>

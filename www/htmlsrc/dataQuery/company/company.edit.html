@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>客户用戶 - 对公客户 - 编辑</title>
+    <script src="../../../static/vendor/jquery/jquery.js"></script>
+    <script src="../../../static/vendor/artTemplate/template-web.js"></script>
+    <link  href="../../../static/vendor/bootcss/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="content">
+        <div id="editForm">
+
+        </div>
+        <div class="text-center">
+            <a href="javascript:void(0)" onclick="javascript:history.go(-1);return false;">【返回】</a>
+        </div>
+    </div>
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="../../../tmpl/js/panelForm.js"></script>
+    
+    <script>
+        var panelFormRender = template.compile(TPanelForm);
+        var id = getParam('id');
+        SuperPost({
+            type:'post',
+            url: remoteApi.apiCommon, // 获取用户信息
+            data: {
+                request: JSON.stringify({ "method": "get", "User": { "$where": { "id": id } } })
+            },
+            success:function(res){
+                if(res.success){
+                    var user = res.message.User;
+                    $("#editForm").html(panelFormRender({
+                        formName: 'edit-form',
+                        panelTitle:'编辑用户',
+                        list:[
+                            { prop:  'id', label: '账户/姓名', labelWidth: 4 },
+                            { prop:  'username', label: '身份' },
+                            { prop:  'phone', label: '状态' },
+                            { prop:  'baned', label: '是否启用', type: 'select', vals:[{name:'禁用', val: true}, {name:'启用', val: false}], labelWidth: 4 }
+                        ],
+                        data: user
+                    }));
+                    checkSubmitForm();
+                }
+                else{
+                    console.log("失败",res);
+                }
+            }
+        })
+        
+        function checkSubmitForm(that){
+            var form = $("form[name='edit-form']");
+            form.validate({
+                rules: {
+                    'username': "required",
+                },
+                submitHandler: function() {
+                    SuperPost({
+                        type:'post',
+                        url: remoteApi.apiUserEdit,
+                        data: $(that).serialize(),
+                        success:function(res){
+                            if(res.success){
+
+                            }else{
+                                console.log(res);
+                            }
+                        }
+                    })
+                }
+            })
+            return false;
+        }
+    </script>
+</body>
+</html>

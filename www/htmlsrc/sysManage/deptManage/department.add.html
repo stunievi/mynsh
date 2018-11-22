@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>系统管理 - 添加部门</title>
+    <link rel="stylesheet" href="../../../static/vendor/bootcss/css/bootstrap.min.css">
+</head>
+<body>
+    <div id="content">
+        <div id="editForm">
+        </div>
+        <!-- <div class="text-center">
+            <a href="javascript:void(0)" onclick="javascript:history.go(-1);return false;">【返回】</a>
+        </div> -->
+    </div>
+    <script src="../../../static/vendor/jquery/jquery.js"></script>
+    <script src="../../../static/vendor/artTemplate/template-web.js"></script>
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="../../../tmpl/js/panelForm.js"></script>
+    <script>
+        var pid = getParam("pid") || '';
+        var pname = decodeURI(getParam("pname")) || '';
+        var deptList = []; // 部门列表
+        getRemoteData({
+            url: remoteApi.apiAlldepartment,
+            callback: function(origin){
+                deptList = origin;
+            }
+        })
+
+        $("#editForm").html(panelFormRender2({
+            panelTitle:'添加新部门',
+            list:[
+                { prop: 'id', type: 'hidden' },
+                { prop: 'name', label: '部门名', width:12, labelWidth:2, required: true},
+                { prop: 'parentId', type: "hidden" },
+                { prop: 'pname', label: '上级部门名', disabled: true, width:12, labelWidth:2},
+                { prop: 'sort', label: '排序', required: true},
+                { prop: 'accCode', label: "信贷系统代码" },
+                { prop: 'info', label: '描述' , type:'textarea', width:12, labelWidth:2}
+            ],
+            data: {
+                parentId: pid,
+                pname: pname
+            }
+        }));
+
+        eventBind("#groupBtn-pname", function(){
+            layerOpenIframe({
+                title:'选择部门',
+                w: 280,
+                h: 300,
+                btn: true,
+                url: '../../htmllayer/choiceDepartment.html'
+            });
+            // layer.open({
+            //     type: 2,
+            //     title:'选择部门',
+            //     area: ['280px', '300px'],
+            //     fixed: false, //不固定
+            //     maxmin: true,
+            //     content: '../../htmllayer/choiceDepartment.html'
+            // });
+        })
+
+        function choiceDeptCallback(dept){
+            $("#parentId").val(dept.id);
+            $("#pname").val(dept.name);
+        }
+        var form = $("form[name='form-search']"); // 当前form
+        $().ready(function() {
+            // console.log(form.serialize())
+            form.validate({
+                rules: {
+                    name: "required",
+                    pname: "required",
+                    // sort: "required"
+                },
+                submitHandler: function(){
+                    if(form.valid()){
+                        var data = $.unserialize(form.serialize());
+                        data.type = 'DEPARTMENT';
+                        postFetch(remoteOrigin + "/api/auto/org/add", data, function () {
+                            closeCurrentIframe();
+
+                        })
+                        // getFetch(remoteOrigin + "/api/user/org/add", form.serialize() + "&type=DEPARTMENT", function (data) {
+                        //     closeCurrentIframe();
+                        //     // console.log(data)
+                        //     // if(parent.addDeptCallback) {
+                        //     //                 parent.addDeptCallback(data);
+                        //     // }
+                        // })
+                        // postRemoteData({
+                        //     url: remoteApi.apiDepartment,
+                        //     data: form.serialize(),
+                        //     callback: function(origin){
+                        //         if(parent.addDeptCallback){
+                        //             parent.addDeptCallback(origin);
+                        //         }
+                        //         return true;
+                        //     }
+                        // })
+                    }
+                }
+            })
+        });
+        function checkSubmitForm(){
+            return false;
+        }
+    </script>
+</body>
+</html>

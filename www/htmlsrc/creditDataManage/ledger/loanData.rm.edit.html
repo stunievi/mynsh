@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>信贷数据管理 - 台账 - 贷款资料</title>
+    <!--<link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>-->
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script src="/static/vendor/bootcss/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+    <style>
+        .layui-table-body { min-height: 220px; }
+        td{
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <div id="content"> 
+        <div class="" id="panel-form">
+        </div>
+        <div class="batch-operation">
+            <!-- <button type="button" class="btn btn-default btn-sm" id="batchDel">批量删除 </button> -->
+        </div>
+        <div id="dataList" style="margin-top: 10px;">
+        </div>
+    </div>
+    <!--<script src="../../../../static/vendor/jquery/jquery.js"></script>-->
+    <!--<script src="../../../static/vendor/bootcss/js/bootstrap.min.js"></script>-->
+    <script src="../../../../static/vendor/artTemplate/template-web.js"></script>
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <!--<script src="/static/vendor/layui/layui.js"></script>-->
+    <script src="../../../static/htmljs/global.config.js"></script>
+    <script src="../../../../static/htmljs/utils.js"></script>
+    <script src="../../../../tmpl/js/panelForm.js"></script>
+    <script src="/static/htmljs/fixLayTableList.js"></script>
+    <script type="text/html" id="_CRD_GRADE"> {{# if(d.CRD_GRADE){return getOdsEnumVal(d, 'CRD_GRADE');}else{return getOdsEnumVal(d, 'COM_CRD_GRADE');}}} </script>
+    <!-- toolbar渲染模板 -->
+    <script type="text/html" id="toolbar">
+        <div class="layui-toolbar">
+            {{# if(rm == 1){ }}
+            <a href="javascript:;" class="btn btn-default" data-loanid="{{d.LOAN_ACCOUNT}}" data-name="{{d.CUS_NAME}}">设置</a>
+            {{# } }}
+            <a href="javascript:;" class="btn handleShow btn-default" data-loanid="{{d.LOAN_ACCOUNT}}" data-name="{{d.CUS_NAME}}">查看</a>
+        </div>
+    </script>
+    <script>
+        var vals = [{"name":"居民身份证","val":"0001"},{"name":"临时身份证","val":"0002"},{"name":"护照","val":"0003"},{"name":"户口簿","val":"0004"},{"name":"军人身份证","val":"0005"},{"name":"武装警察身份证","val":"0006"},{"name":"港澳台居民往来内地通行证","val":"0007"},{"name":"外交人员身份证","val":"0008"},{"name":"外国人居留许可证","val":"0009"},{"name":"边民出入境通行证","val":"0010"},{"name":"个人其它证件","val":"0011"},{"name":"企业法人营业执照","val":"0021"},{"name":"企业营业执照","val":"0022"},{"name":"政府人事部门或编制委员会的批文","val":"0023"},{"name":"事业单位法人登记证书","val":"0024"},{"name":"财务部门同意其开户的证明","val":"0025"},{"name":"社会团体登记证书","val":"0026"},{"name":"上级主管部门批文或证明","val":"0027"},{"name":"工会法人资格证书","val":"0028"},{"name":"民办非企业登记证书","val":"0029"},{"name":"驻华机构登记证","val":"0030"},{"name":"个体工商营业执照","val":"0031"},{"name":"企业名称预先核准通知书","val":"0032"},{"name":"组织机构代码证","val":"0033"},{"name":"国税登记证","val":"0034"},{"name":"地税登记证","val":"0035"},{"name":"批准证书","val":"0036"},{"name":"进出口业务资格证书","val":"0037"},{"name":"外贸易经营者备案登记表","val":"0038"},{"name":"金融许可证","val":"0039"},{"name":"外汇业务核准证","val":"0040"},{"name":"外汇登记证","val":"0041"},{"name":"开户许可证","val":"0042"},{"name":"办学许可证","val":"0043"},{"name":"单位其它证件","val":"0044"}];
+
+        // var id = getParam("id");
+        var rm = getParam("rm");
+        // if(!id){
+        //     load({loanAccount: rm})
+        // }
+        // else{
+        getFetch(remoteOrigin + "/api/search/loanrm/getOne",{loanAccount:rm}, function (data) {
+            load(data || {loanAccount: rm});
+        });
+        // }
+
+
+        function load(data){
+            $("#panel-form").html(panelFormRender3({
+                col: 3,
+                list:[
+                    {prop: "name", label:"姓名", required: true}
+                    , {prop: "loanAccount", label:"绑定台账", disabled: true}
+
+                    , {prop: "phone", label:"联系电话", required: true}
+                    , {prop: "type", type:"select", label:"证件类型", vals: vals, required: true}
+                    , {prop: "code", label:"证件号码", required: true}
+                ],
+                data: data
+                , line: true
+            }));
+
+            var form = $("[name=form-search]");
+            form.validate({
+                submitHandler: function () {
+                    if(form.valid()){
+                        var url;
+                        url = remoteOrigin + "/api/auto/loanmanager/set";
+                        getFetch(url, form.serialize(), function () {
+                            closeCurrentIframe();
+                        });
+                    }
+                }
+            });
+
+        }
+        function checkSubmitForm(){
+            return false;
+        }
+
+        // console.log(form)
+        //
+        //  var cols = [
+        //      { title:'借据号', field:'BILL_NO' },
+        //      { title:'合同号', field:'CONT_NO' },
+        //      { title:'贷款帐号', field:'LOAN_ACCOUNT' },
+        //      { title:'客户号', field:'CUS_ID' },
+        //      { title:'客户名称', field:'CUS_NAME' },
+        //      { title:'客户类型', field:'CUST_TYPE' },
+        //      { title:'证件类型', field:'CERT_TYPE' },
+        //      { title:'证件号码', field:'CERT_CODE' },
+        //      { title:'主担保方式', field:'ASSURE_MEANS_MAIN' },
+        //      { title:'币种', field:'CURRENCY' },
+        //      { title:'借据金额(元)', field:'LOAN_AMOUNT', money: true },
+        //      { title:'借据余额(元)', field:'LOAN_BALANCE', money: true },
+        //      { title:'贷款起始日', field:'LOAN_START_DATE' },
+        //      { title:'贷款终止日', field:'LOAN_END_DATE' },
+        //      { title:'贷款期限', field:'LOAN_TERM' },
+        //      { title:'期限类型', field:'LOAN_PROD_TYPE' },
+        //      { title:'五级分类', field:'CLA' },
+        //      // { title:'四级分类', field:'LOAN_CLA4' },
+        //      // { title:'七级分类', field:'SEVEN_RESULT' },
+        //      { title:'贷款用途', field:'USE_DEC' },
+        //      { title:'通讯地址', field:'INDIV_RSD_ADDR' },
+        //      { title:'联系人', field:'CONTACT_NAME' },
+        //      { title:'联系电话', field:'PHONE' },
+        //      { title:'还款方式', field:'REPAYMENT_MODE' },
+        //      { title:'本金逾期起始日期', field:'CAP_OVERDUE_DATE' },
+        //      { title:'利息逾期起始日期', field:'INTEREST_OVERDUE_DATE' },
+        //      { title:'拖欠本金(元)', field:'UNPD_PRIN_BAL', money: true },
+        //      { title:'欠息累计(元)', field:'DELAY_INT_CUMU', money: true },
+        //      { title:'客户经理ID', field:'CUST_MGR' },
+        //      { title:'客户经理', field:'CUST_MGR_NAME' },
+        //      { title:'账务机构ID', field:'FINA_BR_ID' },
+        //      { title:'账务机构', field:'FINA_BR_NAME' },
+        //      { title:'主管机构ID', field:'MAIN_BR_ID' },
+        //      { title:'主管机构', field:'MAIN_BR_NAME' },
+        //      { title:'信用等级', field:"CRD_GRADE"},
+        //      { title:'操作', templet: '#toolbar',  fix: 'right' }
+        //  ];
+        //
+        //  laytableRender({
+        //      url: remoteOrigin + "/api/search/loanrm/getOne?id=" + id
+        //      , cols: [
+        //         cols
+        //      ]
+        //  })
+        // eventBind(".handleShow", function(that){
+        //     addNavTab('loandata-'+that.data("loanid"), "贷款资料详情 - "+that.data("loanid")+" - " + that.data("name"), "/htmlsrc/creditDataManage/ledger/loanData.show.html?loanid="+that.data("loanid"));
+        //  })
+
+        // function checkSubmitForm(){
+        //     layuiTableReload({
+        //         where: $("[name='form-search']").serialize()
+        //     })
+        //     return false;
+        // }
+    </script>
+</body>
+</html>

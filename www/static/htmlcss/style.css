@@ -1,0 +1,259 @@
+body {
+  overflow-y: scroll;
+}
+#content {
+  overflow: hidden;
+  padding: 10px 10px 20px 10px;
+}
+#content2 {
+  overflow: hidden;
+  padding: 10px 0 20px 0;
+}
+.deep1 {
+  padding-left: 10px;
+}
+.deep2 {
+  padding-left: 20px;
+}
+.deep3 {
+  padding-left: 30px;
+}
+.bootcss-none-info {
+  line-height: 40px;
+  text-align: center;
+}
+#toggleSideMenu {
+  position: absolute;
+  right: -14px;
+  font-size: 12px;
+  top: 50%;
+  margin-top: -20px;
+  padding: 10px 0;
+  border-top-right-radius: 6px;
+  border: solid #ddd;
+  border-width: 1px 1px 1px 0;
+  border-bottom-right-radius: 6px;
+}
+.login-wrap {
+  height: 100%;
+  width: 100%;
+  background-image: url("../htmlImage/login.jpg");
+  background-size: cover;
+  -webkit-background-size: cover;
+}
+.form-signin {
+  height: 100%;
+  background-color: #fff;
+  padding: 0 40px;
+}
+.batch-operation .btn {
+  padding: 5px 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  border-radius: 3px;
+}
+.batch-operation .label {
+  float: right;
+  background: #5bc0de;
+  margin-top: 10px;
+  margin-right: 5px;
+}
+.layui-toolbar .btn {
+  padding: 1px 5px;
+  font-size: 12px;
+  line-height: 1.5;
+  border-radius: 3px;
+  margin-right: 5px;
+  margin-bottom: 5px;
+}
+.layui-toolbar .dropdown-menu {
+  width: 200px;
+  left: -160px;
+}
+.layui-toolbar .dropdown-menu li {
+  width: 99px;
+  float: left;
+}
+.layui-toolbar .dropdown-menu > li > a {
+  padding: 3px 0;
+  text-align: center;
+}
+.layui-table-body {
+  min-height: 220px;
+}
+.layui-table-view .layui-form-checkbox[lay-skin=primary] i {
+  width: 14px;
+  height: 14px;
+  line-height: 14px;
+}
+.layui-form-checked[lay-skin=primary] i {
+  border-color: #409eff;
+  background-color: #409eff;
+}
+.layui-form-checkbox[lay-skin=primary]:hover i {
+  border-color: #409eff;
+  color: #fff;
+}
+.webuploader-container {
+  position: relative;
+  float: left;
+  margin-right: 5px;
+}
+.webuploader-element-invisible {
+  position: absolute !important;
+  clip: rect(1px 1px 1px 1px);
+  /* IE6, IE7 */
+  clip: rect(1px, 1px, 1px, 1px);
+}
+.webuploader-pick {
+  font-size: 12px;
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  background: #00b7ee;
+  padding: 7px 11px;
+  color: #fff;
+  text-align: center;
+  border-radius: 3px;
+  overflow: hidden;
+}
+.webuploader-pick-hover {
+  background: #00a2d4;
+}
+.webuploader-pick-disable {
+  opacity: 0.6;
+  pointer-events: none;
+}
+.tab-content .panel {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+.gotomars-side-scroll {
+  background-color: #263238;
+}
+#x-wrap-menu {
+  padding-left: 18px;
+}
+#x-wrap-menu li span {
+  color: #a3afb7;
+}
+#x-wrap-menu li a.curSelectedNode {
+  opacity: 1;
+  border: 0;
+  background-color: #263526;
+}
+#x-wrap-menu li a.curSelectedNode span {
+  color: #fff;
+}
+#x-wrap-menu .switch {
+  float: right;
+}
+.nav-wrap {
+  background-color: #4e97d9;
+}
+.nav-wrap a {
+  color: #fff;
+}
+.nav-wrap .nav > li > a:focus,
+.nav-wrap .nav > li > a:hover,
+.nav-wrap li.active {
+  background-color: #1786bf;
+}
+.btn-primary {
+  background-color: #00a4ff;
+  border-color: #00a4ff;
+}
+.btn-primary:hover {
+  background-color: #378CEE;
+  border-color: #378CEE;
+}
+.btn-primary.focus,
+.btn-primary:focus {
+  background-color: #378CEE;
+  border-color: #378CEE;
+}
+.btn-primary.active.focus,
+.btn-primary.active:focus,
+.btn-primary.active:hover,
+.btn-primary:active.focus,
+.btn-primary:active:focus,
+.btn-primary:active:hover,
+.open > .dropdown-toggle.btn-primary.focus,
+.open > .dropdown-toggle.btn-primary:focus,
+.open > .dropdown-toggle.btn-primary:hover {
+  background-color: #378CEE;
+  border-color: #378CEE;
+}
+.panel-default {
+  border-radius: 0;
+}
+.nav-pills > li.active > a,
+.nav-pills > li.active > a:focus,
+.nav-pills > li.active > a:hover {
+  background-color: #1786bf;
+}
+.nav-tabs > li.active > a,
+.nav-tabs > li.active > a:focus,
+.nav-tabs > li.active > a:hover {
+  border: 0;
+  border-bottom: 2px solid;
+  color: #409eff;
+}
+.nav > li > a {
+  padding: 8px 10px;
+}
+.nav-wrap .nav > li > a {
+  padding: 15px 10px;
+}
+
+
+.layui-tab-brief>.layui-tab-title .layui-this{
+  color:#3e82da;
+}
+.layui-tab-brief>.layui-tab-more li.layui-this:after, .layui-tab-brief>.layui-tab-title .layui-this:after{
+  border-color: #3e82da;
+}
+.layui-table-header layui-table-cell {
+  height: auto;
+  line-height: 28px;
+  padding: 0 15px;
+  position: relative;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+  box-sizing: border-box;
+}
+.layui-table-page{
+  text-align: center;
+}
+table.table th{
+  background: #eee;
+}
+.form-search {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+.form-search label{
+  margin-right: 10px;
+}
+.form-search .form-group{
+  margin-right: 20px;
+  margin-bottom: 10px !important;
+}
+.table .bs-checkbox {
+  vertical-align: middle;
+}
+.batch-operation{
+  margin-bottom: 10px;
+}
+/*#dataList{*/
+  /*margin-top: 10px;*/
+/*}*/
+.search-form label{
+  font-size: 12px !important;
+}
+.search-form .btn-box button{
+  margin-left: 5px;
+  margin-right: 5px;
+}
+

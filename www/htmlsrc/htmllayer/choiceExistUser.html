@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 选择用户 </title>
+    <link href="../../../static/vendor/bootcss/css/bootstrap.min.css" rel="stylesheet">
+    <!-- <link rel="stylesheet" href="../../../static/vendor/jqui/jquery-ui.css"> -->
+    <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+</head>
+<body>
+    <!-- 选择已知用户 -->
+    <div id="content"> 
+        <div class="" id="panel-form">
+            <!-- 用户列表筛选表单 -->
+        </div>
+        <div id="dataList">
+            <!-- 用户列表 -->
+        </div>
+    </div>
+    <script src="../../static/vendor/jquery/jquery.js"></script>
+    <script src="../../static/vendor/artTemplate/template-web.js"></script>
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script src="../../tmpl/js/panelForm.js"></script>
+    <!-- toolbar渲染模板 -->
+    <script type="text/html" id="toolbar">
+        <div class="layui-toolbar">
+            <a href="javascipt:;" class="btn handelAdd btn-default" data-id="{{d.id}}" data-name="{{d.name}}">选择</a>
+        </div>
+    </script>
+    <script>
+        var index = parent.layer.getFrameIndex(window.name);
+        $("#panel-form").html(panelFormRender({
+            panelTitle:'筛选查询',
+            list:[
+                { prop: 'name', label: '账户/姓名' }
+            ],
+            data: { }
+        }));
+
+        function renderData(data){
+            data = data || parent.existUserList;
+            layTableRenderStaticData({
+                cols: [
+                    [
+                        { field: 'name', title:'用户名' },
+                        { field: 'phone', title:'电话' },
+                        { title: '操作', width: 80, templet: "#toolbar"}
+                    ]
+                ],
+                data: data
+            })
+        }
+        renderData();
+
+        //给父页面传值
+        $(document).on('click', '.handelAdd', function(){
+            var user = {
+                id: $(this).data("id"),
+                name:  $(this).data("name") // trueName
+            }
+            if(parent.choiceUserCallback){
+                parent.choiceUserCallback(user);
+            }else{
+                if(parent.callbackInput){
+                    parent.$(parent.callbackInput.id).val(user.id);
+                    parent.$(parent.callbackInput.name).val(user.name);
+                }
+            }
+            parent.layer.close(index);
+            return false;
+        });
+
+        function checkSubmitForm(){
+            var data = [];
+            parent.existUserList.forEach(function(item){
+                if(item.name.indexOf($("#name").val()) >= 0){
+                    data.push(item);
+                }
+            });
+            renderData(data);
+            return false;
+        }
+
+    </script>
+</body>
+</html>

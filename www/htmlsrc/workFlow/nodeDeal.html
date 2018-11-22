@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 面板FORM表单 </title>
+    <link href="../../static/vendor/bootcss/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
+    <link rel="stylesheet" href="/static/vendor/manifest/css/styles.css">
+    <link rel="stylesheet" href="../../../static/vendor/jqui/jquery-ui.css">
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+</head>
+<body>
+    <div id="content"></div>
+    <script id="tmpl" type="text/html">
+        <div class="panel panel-default">
+            <div class="panel-heading">{{panelTitle}}</div>
+            <div class="panel-body">
+                {{ if end == false }}
+                <form name="{{formName ? formName : 'form-search'}}"  class="form-horizontal" style="padding-bottom:10px;">
+                    <div class="row panel-form-input-group">
+                    {{each formAttr value}}
+                        {{if value.type == 'hidden'}}
+                            <input type="hidden"  name="{{value.prop}}" value="{{data[value.prop]}}">
+                        {{else if value.manifest}}
+                            <div class="col-xs-12 form-group ">
+                                <label class="col-xs-2 text-right" style="width:16.22%">{{if value.required}}
+                                        <span style="color:red">*</span>
+                                    {{/if}}
+                                    {{value.label}}</label>
+                                <div class="col-xs-6">
+                                    <input type="text" id="{{value.prop}}" name="{{value.prop}}" value="{{data[value.prop]}}" {{value.disabled ? 'readonly' : ''}}>
+                                </div>
+                                <div class="col-xs-2">
+                                    <button class="btn btn-default btn-sm groupBtn" type="button" id="groupBtn-{{value.prop}}">{{value.manifest}}</button>
+                                </div>
+                            </div>
+                        {{else}}
+                        <div class="col-xs-{{value.width ? value.width : 6}} form-group ">
+                            <label for="{{value.prop}}" class="col-xs-{{value.labelWidth ? value.labelWidth : 4}} text-right">
+                                {{if value.required}}
+                                    <span style="color:red">*</span>
+                                {{/if}}
+                                {{value.label}}
+                            </label>
+                            {{if !value.type }}
+                                {{if value.inputGroup }}
+                                <div class="col-xs-8 input-group" style="padding-right: 15px;
+                                    padding-left: 15px;">
+                                        <input type="text" class="form-control input-sm" id="{{value.prop}}" name="{{value.prop}}" value="{{data[value.prop]}}" {{value.disabled ? 'readonly' : ''}}>
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default btn-sm groupBtn" type="button" id="groupBtn-{{value.prop}}">{{value.inputGroup}}</button>
+                                        </span>
+                                {{else}}
+                                    <div class="col-xs-8">
+                                        <input type="text" class="form-control input-sm" id="{{value.prop}}" name="{{value.prop}}" value="{{data[value.prop]}}" {{value.disabled ? 'readonly' : ''}}>
+                                {{/if}}
+                            {{else if value.type == 'select'}}
+                            <div class="col-xs-8">
+                                <select class="form-control input-sm" id="{{value.prop}}" name="{{value.prop}}" value="{{data[value.prop]}}">
+                                    {{each value.vals val}}
+                                    <option value="{{val.val}}" {{data[value.prop] == val.val ? 'selected' : ''}} {{value.disabled ? 'readonly' : ''}} >{{val.name}}</option>
+                                    {{/each}}
+                                </select>
+                            {{else if value.type == 'checkbox'}}
+                                {{each value.vals v }}
+                                <input type="checkbox" name="{{value.prop}}" {{ $imports.indexOf(data[value.prop], v.val) == true ? 'checked' : ''}} value="{{v.val}}" {{value.disabled ? 'readonly' : ''}}>
+                                {{v.name}}&nbsp;&nbsp;
+                                {{/each}}
+                            {{else if value.type == 'textarea'}}
+                            <div class="col-xs-8">
+                                <textarea class="form-control input-sm" rows="3" id="{{value.prop}}" name="{{value.prop}}" value="{{data[value.prop]}}" {{value.disabled ? 'readonly' : ''}}>{{data[value.prop]}}</textarea>
+                            {{else if value.type == 'file'}}
+                            <div class="col-xs-8">
+                                <input type="file" id="{{value.prop}}" name="{{value.prop}}" value="{{data[value.prop]}}" style="height:30px;">
+                            {{/if}}
+                            </div>
+                        </div>
+                        {{/if}}
+                        {{/each}}
+                    </div>
+                    <div class="col-xs-12">
+                        <div id="uploadfiles">
+
+                        </div>
+                    </div>
+                    
+                    <div class="row text-center">
+                        <button type="reset" class="btn btn-default">重 置</button>
+                        {{ if nodeType == 'input' }}
+                            <a href="javascript:;" class="btn btn-default handleUpload" data-type="FILE">上传附件</a>
+                            <!-- <div class="btn-group dropup">
+                                <button type="button" class="btn btn-default handleUpload" data-type="FILE">上传&nbsp;</button>
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    {{each uploadFileType fileType}}
+                                        <li><a class="handleUpload" href="javascript:;" data-type="{{fileType.type}}">{{fileType.name}}</a></li>
+                                    {{/each}}
+                                </ul>
+                            </div> -->
+                        {{ /if }}
+                        <a href="javascript:;" class="btn btn-primary" id="goToNext">下一步</a>
+                        <a href="javascript:;" class="btn btn-default" id="submitData">保存草稿</a>
+                    </div>
+                </form>
+                {{ else }}
+                    流程已结束
+                {{ /if }}
+                <!--当为不良资产管理主流程时提示-->
+                {{ if enumWorkFlowModel.npaManage == instance.modelName}}
+                <div class="alert alert-danger" role="alert">
+                    <strong>下一步警告!</strong>该流程为不良任务主流程，<a href="javascript:;" class="alert-danger" style="text-decoration:underline" data-loanid="{{instance.billNo}}" data-taskid="{{instance.id}}" id="handleShowNpaManageTask"><b>本流程和其子流程</b></a>也将全部关闭。
+                </div>
+                {{/if}}
+
+                <div class="col-xs-12" style="padding-top:10px;">
+                    <table class="table">
+                        <tr>
+                            <th>
+                                下一步
+                            </th>
+                            <th>
+                                可处理人员信息
+                            </th>
+                        </tr>
+                        <tbody id="next-dealers">
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="text-center">
+            <a href="javascript:void(0)" onclick="javascript:history.go(-1);return false;">【返回】</a>
+        </div>
+    </script>
+    <script src="/static/vendor/jquery/jquery.js"></script>
+    <script src="/static/vendor/bootcss/js/bootstrap.min.js"></script>
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/vendor/artTemplate/template-web.js"></script>
+    <script src="/static/vendor/jqui/jquery-ui.min.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="/static/vendor/manifest/js/jquery.ui.widget.min.js"></script>
+    <script src="/static/vendor/manifest/js/jquery.marcopolo.min.js"></script>
+    <script src="/static/vendor/manifest/js/jquery.manifest.js"></script>
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script src="./nodeFormFix.js"></script>
+    <script>
+        template.defaults.imports.indexOf = function (value, val){
+            return (value instanceof Array && value.indexOf(val) > -1) ? true : false;
+        };
+    </script>
+    <!-- toolbar渲染模板 -->
+    <script type="text/html" id="toolbar">
+        <div class="layui-toolbar">
+            <a class="btn handlePutName btn-default" data-name="{{d.fileName.replace(new RegExp('.'+d.ext),'')}}" data-id="{{d.id}}" data-index="{{d.LAY_TABLE_INDEX}}">重命名</a>
+            <a class="btn handleDelFile btn-danger" data-id="{{d.id}}" data-index="{{d.LAY_TABLE_INDEX}}">删除</a>
+            <a class="btn handleSetTag btn-default" data-index="{{d.LAY_TABLE_INDEX}}">设置标签</a>
+            <a class="btn handleDownload btn-default" data-id="{{d.id}}" data-file-token="{{d.token}}">下载</a>
+        </div>
+    </script>
+    <script type="text/html" id="putNameForm">
+        <!-- 修改文件/文件夹名称 -->
+        <div class="col-xs-12" style="margin-top:10px;">
+                <input type="hidden" name="putIndex">
+            <input type="hidden" name="putId">
+            <input type="text" class="form-control" name="putName">
+        </div>
+        <div class="col-xs-12 text-center" style="margin-top:10px;">
+            <a type="button" class="btn btn-default" onClick="cancelPutName()">取消</a>
+            <a type="button " class="btn btn-primary" onClick="confirmPutName()">确定</a>
+        </div>
+    </script>
+    <script>
+        var instanceId = getParam("id");
+        var currUser = getUserById();
+        var checkSubmitForm;
+        var instance; // 当前节点实例
+        var currNode = {}; // 当前节点
+        var eventBtn; // form提交事件触发按钮名
+        var uploadFiles = []; // 已上传文件
+
+
+        // 任务加锁
+        getRemoteData({
+            url: "/api/workflow/lock?instanceId=" + instanceId,
+            callback: function(){ },
+            error: function(){ }
+        })
+
+        // 获取该任务信息
+        getRemoteData({
+            // loading: true,
+            url: "/api/workflow/instance/fetchOneToDeal",
+            data:{
+                id : instanceId
+            },
+            callback: function(origin){
+                if($.isEmptyObject(origin)){
+                    layer.msg("你没有权限处理这个任务",function () {
+                        window.top.layer.closeAll()
+                    },1000);
+                }
+                console.log(origin)
+                // if(null == origin){
+                //
+                // }
+                // if(origin.deal == false){
+                //     location.href = hrefUrl.nodeStates+"?id="+instanceId;
+                // }
+
+                var currentNodeModel = origin.currentNode || {}; // 当前节点模型
+                var formRules = {}; // 验证规则
+                instance = origin;
+                var formAttr = []; // 表单数据
+                var formAttrDataTime = []; // 時間類型屬性
+                var remoteFormAttr; // 服务器传过来的表单数据
+                // var nodeLen = instance.nodeList.length;
+                var hisFormData = {}; // 上一次提交的数据
+                // while(nodeLen-- > 0){
+                //     if(instance.nodeList[nodeLen].finished == false){
+                //         currNode = instance.nodeList[nodeLen];
+                //         break;
+                //     }
+                // }
+                // 草稿数据
+                var currUserAttrs = (currNode.attrs || {})[currUser.id] || {};
+                (currUserAttrs.attrs||[]).forEach(function(attr){
+                    hisFormData[attr.attrKey] = attr.attrValue;
+                });
+
+                var nodeAttrInfo = getFormAttrFromNode(currentNodeModel)
+                var fixForm = fixFormAttrToEnable(nodeAttrInfo.attr);
+                formAttr = fixForm.fixAttrs;
+                formRules = fixForm.fixRules;
+
+                // 如果是开始节点
+                if(currentNodeModel.start){
+                    var startAtrr = [
+                        { prop:"info", label: "任务描述", type:'textarea', disabled: true, width: 12, labelWidth:2 },
+                        { prop:"dealUserName", label: "处理人", disabled: true },
+                        { prop:"modelName", label: "任务类型", disabled: true },
+                        { prop:"title", label: "任务标题", disabled: true }
+                    ];
+                    startAtrr.forEach(function(attr){
+                        formAttr.unshift(attr);
+                    });
+                    hisFormData.title = instance.title;
+                    hisFormData.dealUserName = instance.dealUserName;
+                    hisFormData.modelName = instance.modelName;
+                    hisFormData.info = instance.info;
+                }
+                // 渲染页面
+                $("#content").html(template('tmpl', {
+                    enumWorkFlowModel:enumWorkFlowModel,
+                    nodeType: currentNodeModel.type,
+                    panelTitle: instance.title + ' - ' + (currentNodeModel.name || "已结束"),
+                    end: instance.state == "FINISHED",
+                    instance: instance,
+                    formAttr: formAttr,
+                    data: hisFormData,
+                    hisFile: origin.files,
+                    uploadFileType: [
+                        {type: "FILE", name: "文件"},
+                        {type: "IMAGE", name: "图片"},
+                        {type: "VIDEO", name: "音频"}
+                    ]
+                }));
+                if(fixForm.datetimeAttrKeys.length > 0){
+                    $(function() {
+                        fixForm.datetimeAttrKeys.forEach(function(dateTimeKey){
+                            $('#'+dateTimeKey).datepicker({ changeMonth: true, changeYear: true, dateFormat: 'yymmdd' });
+                        })
+                    });
+                }
+
+                if(origin.files.length>0){
+                    uploadFiles = origin.files;
+                    renderFiles();
+                }
+                // 提交检验
+                checkSubmitForm = function() {
+                    return false;
+                }
+                $().ready(function() {
+                    form = $("form[name='form-search']");
+                    form.validate({
+                        rules: formRules,
+                        submitHandler: function(){
+                            if(form.valid()){
+                                if(eventBtn == 'goToNext'){
+                                    $("#goToNext").addClass("disabled");
+                                    setTimeout(function(){
+                                        $("#goToNext").removeClass("disabled");
+                                    }, 2500)
+                                }else{
+                                    $("#submitData").addClass("disabled");
+                                    setTimeout(function(){
+                                        $("#submitData").removeClass("disabled");
+                                    }, 2500)
+                                }
+                                var formData = {};
+                                var _data = {};
+                                var formDataArr = form.serializeArray();
+                                formDataArr.forEach(function(elm){
+                                    if(_data[elm.name]){
+                                        var arr = _data[elm.name].split(",");
+                                        arr.push(elm.value)
+                                        _data[elm.name] = arr.join(",");
+                                    }else{
+                                        _data[elm.name] = elm.value;
+                                    }
+                                })
+                                formData.data = _data;
+                                formData.instanceId = instance.id;
+                                formData.nodeId     = instance.currentNodeInstanceId;
+                                formData.files = uploadFiles.map(function(elem){
+                                    return elem.id;
+                                });
+                                postRemoteData({
+                                    dt: 'json',
+                                    url: remoteApi.apiWorkflowSubmitData,
+                                    data: formData,
+                                    callback: function(){
+                                        if(eventBtn == 'goToNext'){
+                                            // 提交下一步
+                                            postRemoteData({
+                                                url: remoteApi.apiWorkflowGoNext,
+                                                data: {
+                                                    instanceId: instance.id,
+                                                    nodeId: formData.nodeId
+                                                },
+                                                callback: function(){
+                                                    $("#goToNext").removeClass("disabled");
+                                                    layer.msg("提交下一步成功", {time:500}, function(){
+                                                        if(parent.nodeDealCallback){
+                                                            parent.nodeDealCallback();
+                                                        }else{
+
+                                                        }
+                                                        var index=parent.layer.getFrameIndex(window.name);parent.layer.close(index);
+                                                        getRemoteData({
+                                                            url: "/api/workflow/unlock?instanceId=" + instanceId,
+                                                            callback: "none",
+                                                            error: function(){}
+                                                        })
+                                                    })
+                                                }
+                                            })
+                                        }else{
+                                            $("#submitData").removeClass("disabled");
+                                            getRemoteData({
+                                                url: "/api/workflow/unlock?instanceId=" + instanceId,
+                                                callback: "none",
+                                                error: function(){}
+                                            })
+                                            // 草稿保存数据
+                                            layer.msg("保存成功", {time:500});
+                                        }
+                                    }
+                                })
+                            }
+                            return false;
+                        }
+                    });
+                });
+                // form 提交 - end
+
+                // 加载下一步可处理人 - begin
+                var nextNodeNames = (currentNodeModel.next || []).join(",");
+                getRemoteData({
+                    url: '/api/workflow/node/dealers',
+                    data: {
+                        instanceId: instanceId,
+                        nodeNames: nextNodeNames
+                    },
+                    callback: function(origin){
+                        // #next-dealers
+                        var html = '';
+                        var spliceHtml = function(n, users){
+                            var h = ' <tr> <td style="vertical-align:middle;"> '+n+'</td> <td> ';
+                            users.forEach(function(user){
+                                h += '<dd>'+user.depName+"&nbsp;&nbsp;/&nbsp;&nbsp;"+user.trueName+"&nbsp;&nbsp;/&nbsp;&nbsp;"+user.phone+'</dd>';
+                            })
+                            h += '</td> </tr>';
+                            return h;
+                        }
+                        if(currentNodeModel.type == 'check'){
+                            currentNodeModel.node.states.forEach(function(state){
+                                var _next = state.behavior.replace(/go\('|\'\)/g,'');
+                                var next = '';
+                                if(origin[_next]){
+                                    next = state.item + "(" + _next+ ")";
+                                };
+                                var item = origin[_next] || [];
+                                html += spliceHtml(next, item);
+                            })
+                        }else{
+                            for(var next in origin){
+                                var item = origin[next] || [];
+                                html += spliceHtml(next, item);
+                            }
+                        }
+                        $("#next-dealers").html(html);
+                    }
+                })
+                // 加载下一步可处理人 - end
+            }
+
+
+            });
+
+        function renderFiles(){
+            if(uploadFiles.length == 0){
+                $("#uploadfiles").siblings(".layui-form").hide();
+                return false;
+            }else{
+                $("#uploadfiles").siblings(".layui-form").show();
+            }
+            layTableRenderStaticData({
+                id: "uploadfiles",
+                elem: "#uploadfiles",
+                cols: [
+                    [
+                        { field: "fileName", title: '文件名' },
+                        { field: 'tags', title: '标签' },
+                        { title: '操作', templet: "#toolbar", width: 220}
+                    ]
+                ],
+                data: uploadFiles
+            })
+        }
+
+        eventBind("#submitData", function(that){
+            eventBtn = 'submitData';
+            $("form[name='form-search']").submit();
+            
+        })
+        eventBind("#goToNext", function(that){
+            eventBtn = 'goToNext';
+            actConfirm(function(){
+                $("form[name='form-search']").submit();
+            }, "确定提交下一步？");
+        });
+
+        eventBind("#handleShowNpaManageTask", function(that){
+            var loanid = that.data("loanid"),
+                id = that.data("id");
+            addNavTab("worktask-"+id, "任务详情 - "+enumWorkFlowModel.npaManage + " - " + loanid, "/htmlsrc/npaManage/npaMainTask.show.html?loanid="+loanid+"&taskid="+id)
+        })
+
+        // 附件上传
+        var uploadSetting = { };
+        eventBind(".handleUpload", function(that){
+            var filetype = that.data("type");
+            if(filetype == 'VIDEO'){
+                uploadSetting.accept = {
+                    title: 'videos',
+                    extensions: 'amr,awb,amr,awb,axa,au,snd,flac,mid,midi,kar,mpga,mpega,mp2,mp3,m4a,m3u,oga,ogg,spx,sid,aif,aiff,aifc,gsm,m3u,wma,wax,ra,rm,ram,ra,pls,sd2,wav',
+                    mimeTypes: 'audio/*'
+                }
+            }else if(filetype == 'IMAGE'){
+                uploadSetting.accept = {
+                    title: 'Images',
+                    extensions: 'gif,jpg,jpeg,bmp,png',
+                    mimeTypes: 'image/*'
+                }
+            }else{
+                uploadSetting.accept = {};
+            }
+            uploadFileIndex = layer.open({
+                type: 2,
+                title:'添加附件',
+                area: ['790px', '350px'],
+                fixed: false, //不固定
+                maxmin: true,
+                content: '../htmllayer/uploadFile.html'
+            }); 
+        });
+
+        function choiceFileCallback(res){
+            if(res.data){
+                uploadFiles.push(res.data);
+            }
+        }
+        function uploadFinishedCallback(){
+            renderFiles();
+            layer.close(uploadFileIndex);
+            layer.msg("上传结束");
+        }
+
+        // 重命名 - begin
+        eventBind('.handlePutName', function(that){
+            putNameIndex = layer.open({
+                title:'重命名',
+                type: 1,
+                area: ['333px', '145px'],
+                content: $("#putNameForm").html()
+            });
+            $("input[name='putIndex']").val(that.data('index'));
+            $("input[name='putId']").val(that.data('id'));
+            $("input[name='putName']").val(that.data('name'));
+        })
+        function cancelPutName(){
+            layer.close(putNameIndex); // 关闭重命名窗口
+        }
+        function confirmPutName(){
+            var index = $("input[name='putIndex']").val();
+            var id = $("input[name='putId']").val();
+            var putName = $("input[name='putName']").val();
+            // 确定重命名
+            postRemoteData({
+                url: remoteApi.apiFileRename,
+                data: {
+                    fileId: id,
+                    fileName: putName,
+                    token: getUserToken()
+                },
+                callback: function(){
+                    layer.close(putNameIndex); // 关闭重命名窗口
+                    uploadFiles[index]['fileName'] = putName;
+                    renderFiles();
+                }
+            })
+        }
+        // 重命名 - end
+
+        // 设置标签 - begin
+        eventBind(".handleSetTag", function(that){
+            currEditFileIndex = that.data("index");
+            currEditFile = uploadFiles[currEditFileIndex];
+            currEditFileTag = (currEditFile.tags || '').split(" ");
+            addTagIndex = layer.open({
+                type: 2,
+                title:'设置文件标签',
+                area: ['500px', '220px'],
+                fixed: false,
+                maxmin: true,
+                content: '../document/addFileTags.html?id='+that.data("id")
+            });
+        })
+        function addTagCallbakc(file, tags){
+            layer.close(addTagIndex);
+            var fileId = currEditFile.id;
+            var tags = encodeURI(tags.join(" "));
+            postRemoteData({
+                url: remoteApi.apiFileRetags,
+                data: {
+                    fileId: fileId,
+                    tags: tags,
+                    token: getUserToken()
+                },
+                callback: function(){
+                    layer.msg("标签设置成功", {time: 500});
+                    uploadFiles[currEditFileIndex]['tags'] = decodeURI(tags);
+                    renderFiles();
+                }
+            })
+        }
+        // 设置标签 - end
+        // 删除已上传文件
+        eventBind(".handleDelFile", function(that){
+            uploadFiles.splice(that.data("index"), 1);
+            renderFiles();
+//
+//            postRemoteData({
+//                confirm: true,
+//                url: remoteApi.apiDelUploadFile,
+//                data: {
+//                    fileId: that.data("id"),
+//                    token: getUserToken()
+//                },
+//                callback: function(){
+//                    uploadFiles.splice(that.data("index"), 1);
+//                    renderFiles();
+//                    layer.msg("删除成功");
+//                }
+//            })
+
+        })
+        // 下载节点文件
+        eventBind(".handleDownload", function(that){
+            location.href = remoteApi.apiOpenDownload+"?fileId="+that.data("id")+"&fileToken="+that.data("file-token");
+//            getRemoteData({
+//                url: remoteApi.apiDownLoadUploadFile,
+//                data: {
+//                    fileId: that.data("id"),
+//                    token: getUserToken()
+//                },
+//                callback: function(origin){
+//                    location.href = remoteApi.apiOpenDownload+"?token="+origin;
+//                }
+//            })
+        })
+    </script>
+</body>
+</html>

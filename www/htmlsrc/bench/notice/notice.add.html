@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>工作台 - 消息管理 - 发送短消息</title>
+    <!--#include file="/htmlsrc/header.html" -->
+</head>
+<body>
+    <div id="content"> 
+        <div id="addForm">
+            <!--<div class="panel panel-default">-->
+                <!--<div class="panel-heading">-->
+                    <!--发送短消息-->
+                <!--</div>-->
+                <!--<div class="panel-body">-->
+                    <!--<form name="add-form" class="form-horizontal" onsubmit="return checkSubmitForm(this)">-->
+                        <!--<div class="row panel-form-input-group">-->
+                            <!--<div class="col-xs-12 form-group">-->
+                                <!--<label for="user" class="col-xs-2 text-right">附件</label>-->
+                                <!--<div class="col-xs-6 row">-->
+                                    <!--<input type="text" id="file" hidden>-->
+                                <!--</div>-->
+                                <!--<div class="col-xs-2">-->
+                                    <!--<button class="btn btn-default btn-sm" type="button" id="choiceFile">添加附件</button>-->
+                                <!--</div>-->
+                            <!--</div>-->
+                            <!--<div class="col-xs-12 form-group ">-->
+                                <!--<label for="content" class="col-xs-2 text-right">消息内容 </label>-->
+                                <!--<div class="col-xs-8 input-group">-->
+                                    <!--<textarea type="text" class="form-control input-sm" id="content" name="content" value=""></textarea>-->
+                                <!--</div>-->
+                            <!--</div>-->
+                            <!--<div class="col-xs-12 form-group ">-->
+                                <!--<label for="user" class="col-xs-2 text-right">发送对象</label>-->
+                                <!--<div class="col-xs-6 row">-->
+                                    <!--<input type="text"  id="users" name="users" >-->
+                                <!--</div>-->
+                                <!--<div class="col-xs-2">-->
+                                    <!--<button class="btn btn-default btn-sm" type="button" id="choiceUser">添加发送对象</button>-->
+                                <!--</div>-->
+                            <!--</div>-->
+                        <!--</div>-->
+                        <!--<div class="row text-center">-->
+                            <!--<button type="reset" class="btn btn-default">重 置</button>-->
+                            <!--&nbsp;-->
+                            <!--<button type="submit" class="btn btn-default">确 定</button>-->
+                        <!--</div>-->
+                    <!--</form>-->
+                <!--</div>-->
+            <!--</div>-->
+        </div>
+        <div class="text-center">
+            <a href="javascript:void(0)" onclick="javascript:history.go(-1);return false;">【返回】</a>
+        </div>
+    </div>
+    <!--<script src="../../../tmpl/js/panelForm.js"></script>-->
+    <script>
+        $("#addForm").html(panelFormRender3({
+            // formName: 'add-form',
+            // panelTitle:'发送站内短消息',
+            list:[
+                { prop: 'users',label: '发送对象', type:"user"},
+                { prop: 'file', label: '附件', type:"file"},
+                { prop: 'content', label: '消息内容', type:'textarea' }
+            ],
+            data: {
+                f5: '客户经理'
+            }
+            ,line: true
+        }));
+
+        // $(function () {
+        //     choiceManifest({
+        //         domName: "#users"
+        //     });
+        //     choiceManifest({
+        //         domName: "#file",
+        //         remove:function(data){
+        //             // console.log(data);
+        //         }
+        //     });
+        // });
+    </script>
+
+<script type="text/html" id="file-list-item">
+    <li data-key="{{uuid}}" style="padding-top: 4px;padding-bottom: 4px;">
+        {{name}}
+        <span class="state" data-per="0"></span>
+        <button class="btn btn-link btn-remove" type="button" style="margin-left: 20px;">删除</button>
+    </li>
+</script>
+
+    <!--<script src="/static/vendor/validate/jquery.validate.min.js"></script>-->
+    <!--<script src="/static/vendor/layui/layer/layer.js"></script>-->
+    <!--<script src="/static/htmljs/global.config.js"></script>-->
+    <!--<script src="/static/htmljs/utils.js"></script>-->
+    <script>
+    var u = getParam('username');
+    var f = getParam('filename');
+    $("#user").val(u);
+    $("#file").val(f);
+    
+    $("#groupBtn-users").click(function(){
+        layer.open({
+            type: 2,
+            title:'选中指派对象',
+            area: ['700px', '450px'],
+            fixed: false, //不固定
+            maxmin: true,
+            content: '../../htmllayer/choiceUser.html'
+        }); 
+    });
+    function choiceUserCallback(user) {
+        var code = user.id;
+        var name = user.name; 
+        $('#users').manifest('add', {
+            name: name,
+            id: code
+        });
+    }
+
+    $("#groupBtn-file").click(function(){
+        layer.open({
+            type: 2,
+            title:'选中发送附件',
+            area: ['890px', '450px'],
+            fixed: false, //不固定
+            maxmin: true,
+            content: '../../htmllayer/uploadFile.html'
+        });
+    });
+    function choiceFileCallback(file){
+        var code = file.id;
+        var name = file.name;
+        $('#file').manifest('add', {
+            name: name,
+            id: code
+        });
+    }
+
+    $().ready(function(){
+        $("form[name='add-form']").validate({
+            rules: { }
+        });
+    });
+
+
+    var $files = [];
+    var lastid = null;
+    layui.use(["upload"], function (upload,laytpl) {
+        var html = $("#file-list-item").html();
+        console.log(html)
+        var tpl = template.compile(html);
+        // $files.push()
+        var uploadInst = upload.render({
+            elem: '#file' //绑定元素
+            ,url: remoteOrigin + '/api/file/upload' //上传接口
+            ,accept: "file"
+            ,auto:false
+            ,multiple: true
+            ,data:{
+                type:"MESSAGE"
+                ,uuid: function () {
+                    return lastid
+                }
+            }
+            ,choose: function (item) {
+                var files = item.pushFile();
+                for(var key in files){
+                    files[key].uuid = key;
+                    // $files[key] = files[key]
+                    if($("[data-key="+key+"]").length){
+                        continue;
+                    }
+                    // alert(123)
+                    //渲染
+                    // console.log(tpl(files[key]))
+                    $(".file-list").append(tpl(files[key]));
+                    // fixUploadTable();
+                    //上传
+                    lastid = key;
+                    item.upload(key,files[key])
+                }
+                // console.log(item.pushFile())
+                // console.log(item)
+            }
+            ,done: function(res){
+                if(res.success && res.data.uuid){
+                    $("li[data-key="+res.data.uuid+"]")
+                        .attr("data-file", JSON.stringify(res.data))
+                        .find(".state")
+                        .remove();
+                }
+                //上传完毕回调
+                console.log(res)
+            }
+            ,error: function(index,upload){
+                $("li[data-key="+index+"]")
+                    .hide();
+                //请求异常回调
+            }
+        });
+    });
+
+    ;(function () {
+        setInterval(function () {
+            $(".file-list .state").each(function () {
+                var t = $(this);
+                var per = Number(t.data('per'));
+                if(per++ >= 100){
+                    // t.removeClass("state").empty();
+                }
+                else{
+                    t.data("per",per);
+                    t.text("正在上传(" + per + "%)");
+                }
+            })
+        },30);
+    })();
+
+
+
+    function checkSubmitForm(){
+        var form = $("form[name='add-form']");
+        var data = {
+            content: $("[name=content]").val()
+            , extMap:{
+                $files: $.map($("li[data-key][data-file]:visible"),function (v) {
+                    return ($(v).data("file"))
+                }),
+                $uids: $.map($(".user-list option").toArray(), function (v) {
+                    return v.value
+                })
+            }
+        }
+        postFetch(remoteOrigin + "/api/auto/sysnotice/add", data, function (data) {
+            closeCurrentIframe();
+        });
+        // if(form.valid()) {
+        //     if(!$("input[name='users_values[]']").val()){
+        //         $("#users").parent('.mf_container').addClass('error');
+        //         return false;
+        //     }else{
+        //         $("#users").parent('.mf_container').removeClass('error');
+        //     }
+        //     postRemoteData({
+        //         url: "/api/",
+        //         data: {
+        //             "users": $('#users').manifest('values'),
+        //             "content": $("#content").val(),
+        //             "file": $('#file').manifest('values')
+        //         },
+        //         callback:function(origin){
+        //             location.href = './notice.list.html';
+        //         }
+        //     })
+        // }
+        return false;
+    }
+
+
+    $(document).on("click",'.btn-remove', function () {
+        $(this).closest("li").hide();
+    });
+
+    $(document).on("click", ".btn-add-user", function () {
+        layerOpenIframe({
+            title:"选择用户"
+            , url: "/htmlsrc/htmllayer/choiceUsers.html"
+        })
+    });
+
+    $(document).on("click", ".btn-remove-user", function () {
+        // var val = $("#uses").val();
+        // $("#users option[value="+val+"]").remove();
+        $("#users option:selected").remove();
+    });
+
+    function choiceUsersCallback(uids,us) {
+        $.each(us, function (i,v) {
+            if($("#users[value="+v.id+"]").length){
+                return;
+            }
+            $("#users").append("<option value='"+v.id+"'>"+v.trueName+"</option>")
+        });
+    }
+    </script>
+</body>
+</html>

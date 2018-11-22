@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 任务管理 - 任务列表 </title>
+    <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script src="/static/vendor/bootcss/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+    <style>
+        body{
+            overflow-y:scroll;
+        }
+        td{
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <div id="content"> 
+        <div id="panel-form">
+            <!-- 查询表单 -->
+        </div>
+        <div class="batch-operation">
+        </div>
+        <!-- <div class="panel panel-default">
+            <div class="panel-heading">
+                任务列表 - <span id="workFlowName"></span>
+            </div> -->
+            <!-- <div class="panel-body"> -->
+                <div id="dataList">
+                    <!-- 数据列表 -->
+                </div>
+            <!-- </div> -->
+        <!-- </div> -->
+    </div>
+    <!--<script src="../../../static/vendor/jquery/jquery.js"></script>-->
+    <script src="../../../static/vendor/artTemplate/template-web.js"></script>
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="../../static/vendor/jqui/jquery-ui.min.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <!--<script src="/static/vendor/layui/layui.js"></script>-->
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="../../../tmpl/js/panelForm.js"></script>
+    <script src="/static/htmljs/interaction.js"></script>
+    <!-- toolbar渲染模板 -->
+    <script type="text/html" id="toolbar">
+        <div class="layui-toolbar">
+            <!-- <a href="/htmlsrc/preLendingCollect/collect.edit.html?id={{d.id}}" class="btn handleEdit btn-warning" href="">编辑</a> -->
+            {{# if(modelName == enumWorkFlowModel.npaManage){ }}
+                <a href="javascript:;" data-loanid="{{d.loanAccount}}"  data-id="{{d.id}}" class="btn btn-default handleShowNpaMangeTask">查看</a>
+            <a href="javascript:;" tab-href="{{remoteOrigin}}/htmlsrc/workFlow/nodeStates.html?id={{d.id}}"  class="btn btn-default">处理</a>
+                {{# if(d.canDeal || superUser){}}
+                <a href="javascript:;" class="btn handleNodeClose btn-warning" data-nodeid="{{d.currentNodeInstanceId}}" data-instanceid="{{d.id}}">结束</a>
+                {{# } }}
+            {{# }else{ }}
+                <a href="javascript:;" class="btn btn-default" data-nodeid="{{d.id}}" tab-title="查看任务-{{d.id}}" tab-href="/htmlsrc/workFlow/nodeStates.html?id={{d.id}}">查看</a>
+                {{# if(d.canDeal){}}
+                <a href="javascript:;" class="btn handleNodeDeal btn-default" data-nodeid="{{d.id}}">处理</a>
+                {{# } }}
+                {{# if(superUser){}}
+                <a href="javascript:;" class="btn handleNodeDel btn-danger" data-nodeid="{{d.currentNodeInstanceId}}" data-instanceid="{{d.id}}">删除</a>
+                {{# } }}
+            {{# } }}
+            <!-- <a href="/htmlsrc/preLendingCollect/collect.showstate.html?id={{d.id}}" class="btn handleShowState btn-default" href="">流程状态</a> -->
+            <!-- <a href="javascript:;" class="btn handleTransfer btn-warning" data-id="{{d.id}}">移交</a> -->
+            <!--贷后检查表-->
+            {{# if(d.modelName.indexOf("贷后跟踪")>-1 && d.state == '已完成'){ }}
+            <a class="btn btn-default" href="{{remoteOrigin}}/api/workflow/export/excel?id={{d.id}}">导出贷后检查表</a>
+            {{# } }}
+            {{# if (d.delete > 0){ }}
+            <button type="button" class="btn btn-danger" action-href="{{remoteOrigin}}/api/auto/wfins/cancel?id={{d.id}}" action-confirm="true">取消</button>
+            <button type="button" class="btn btn-danger" delete-href="{{remoteOrigin}}/api/auto/wfins/delete?id={{d.id}}">删除</button>
+            {{# } }}
+        </div>
+    </script>
+    <!-- 变量渲染模板 -->
+    <script type="text/html" id="_addTime"> {{# return dateFormate1(d.addTime)}} </script>
+    <script type="text/html" id="_state"> {{# return getGlobalEnumVal(d.state, "taskState")}} </script>
+    <script type="text/html" id="_autoCreated"> {{# return d.autoCreated ? "是" : "否" }}</script>
+    <script>
+        var modelName = decodeURI(getParam("workFlow")) || "所有任务";
+        var superUser = getParam("su");
+        superUser = superUser == "true" ? 1 : 0;
+        var searchCond = [
+            { prop: 'id', label: '任务编号' },
+            { prop: 'CUS_NAME', label: '客户名称' },
+            { prop: 'state', label: '任务状态', type: 'select', vals: getGlobalEnumSelect("taskState") },
+            { prop: 'start_date', label: '开始时间',type:"date", disabled: true },
+            { prop: 'end_date', label: '结束时间',type:"date", disabled: true }
+        ];
+        if(superUser){
+            searchCond.push({
+                prop: 'modelName', label: '工作流类型', type: "select", vals: getGlobalEnumSelect("workFlowModel")
+            })
+        }
+
+        // 配置查询表单
+        $("#panel-form").html(panelFormRender3({
+            panelTitle:'筛选查询',
+            col: 3,
+            list: searchCond,
+            data: { }
+        }));
+
+        // console.log(searchCond)
+        // renderSearchForm({
+        //     list: searchCond
+        //     , data: {}
+        // },function (xml) {
+        //     console.log(xml)
+        //     $("#panel-form").html(xml)
+        // });
+
+
+
+        var tableHead = [];
+        if(superUser){
+            tableHead = [
+                { field:'id', title:'任务编号'},
+                { field:'cusName', title:'客户名称'},
+                { field:'loanAccount', title:'贷款帐号'},
+                { field:'dealUserName', title:'执行人'},
+                { field:'depName', title:'主管部门'},
+                { field: "modelName", title: "工作流类型" },
+                { title:'任务状态', field: "state"},
+                { title:'创建时间', field: "addTime"},
+                { title: '自动创建', field: "autoCreated" },
+                { title:'操作', templet:"#toolbar"}
+            ];
+        }else if(npaWorkFlowArrrr.indexOf(modelName) >= 0){
+            tableHead = [
+                { field:'id', title:'任务编号'},
+                { field:'cusName', title:'客户名称'},
+                { field:'loanAccount', title:'贷款帐号'},
+                { field:'dealUserName', title:'执行人'},
+                { field:'depName', title:'主管部门'},
+                { title:'任务状态', field: "state"},
+                { title:'创建时间', field: "addTime"},
+                { title:'操作', templet:"#toolbar"}
+            ];
+        }else{
+            tableHead = [
+                { field:'id', title:'任务编号'},
+                { field:'cusName', title:'客户名称'},
+                { field:'loanAccount', title:'贷款帐号'},
+                { title:'任务状态', field: "state"},
+                { title:'创建时间', field: "addTime"},
+                { title:'操作', templet:"#toolbar"}
+            ]
+        }
+
+        $("#workFlowName").text(modelName);
+        // var dataUrl = remoteApi.apiWorkflowIinstances+"?modelName="+encodeURI(modelName)
+        onInfront();
+        function onInfront(){
+            if($("#dataList table").length){
+                layuiTableReload(
+                    {
+                        where: $("[name=form-search]").serialize()
+                    }
+                );
+                return;
+            }
+            laytableRender({
+                url: remoteOrigin + "/api/auto/wfins/getList",
+                where:{
+                    modelName: modelName
+                },
+                cols: [
+                    tableHead
+                ]
+            });
+        }
+
+        eventBind(".handleNodeClose", function(that){
+            var nodeid = that.data("nodeid");
+            var instanceid = that.data("instanceid");
+            actConfirm(function(){
+                postRemoteData({
+                    url: remoteApi.apiWorkflowGoNext,
+                    data: {
+                        instanceId: instanceid,
+                        nodeId: nodeid
+                    },
+                    callback: function(){
+                        layer.msg("提交成功", {time:500}, function(){
+                            formReload();
+                        })
+                    }
+                })
+            }, "主流程结束后，将会关闭所有子任务！")
+        })
+
+        eventBind(".handleNodeDel", function (that) {
+            var instanceId = that.data("instanceid");
+            actConfirm(function(){
+                postRemoteData({
+                    url: remoteApi.apiWorkflowGoCancel,
+                    data: {
+                        su: "1",
+                        instanceId: instanceId
+                    },
+                    callback: function(origin){
+                        layer.msg("任务【"+instanceId+"】删除成功！", {time:500}, function(){
+                            formReload();
+                        });
+
+                    }
+                })
+            }, "确定删除任务【"+instanceId+"】？一经删除将不可找回！")
+        })
+
+        eventBind(".handleShowNpaMangeTask", function(that){
+            var loanid = that.data("loanid"),
+                    id = that.data("id");
+            addNavTab("worktask-"+id, "主任务查看 - " + loanid, "/htmlsrc/npaManage/npaMainTask.show.html?loanid="+loanid+"&taskid="+id);
+        })
+
+        function formReload(){
+            var formData = $.unserialize($("[name='form-search']").serialize());
+            formData['start_date'] = dateToTimestamp(formData['start_date']);
+            formData['end_date'] = dateToTimestamp(formData['end_date']);
+            layuiTableReload({
+                where: formData
+            })
+            return false;
+        }
+
+        function checkSubmitForm(){
+            formReload()
+            return false;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 系统管理 - 流程相关 - 工作流 - 编辑</title>
+    <!--#include file="/htmlsrc/header.html" -->
+
+</head>
+<body>
+    <div style="padding: 10px;">
+        <div class="alert alert-warning alert-dismissible fade in" role="alert" style="margin-bottom: 0;">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+            1、一旦流程上线过以后 就禁止再编辑、删除；
+        </div>
+    </div>
+    <div id="content">
+    </div>
+    <!-- <div class="text-center">
+        <a href="javascript:void(0)" onclick="javascript:history.go(-1);return false;">【返回】</a>
+    </div> -->
+    <!--<script src="../../../../static/vendor/artTemplate/template-web.js"></script>-->
+    <!--<script src="/static/htmljs/global.config.js"></script>-->
+    <!--<script src="/static/htmljs/utils.js"></script>-->
+    <!--<script src="/static/vendor/layui/layer/layer.js"></script>-->
+    <!--<script src="../../../../tmpl/js/tableList.js"></script>-->
+    <script id="tmpl" type="text/html">
+        <div class="panel panel-default">
+                <div class="panel-heading">
+                    {{workFlow.name}}
+                </div>
+                <div class="panel-body" style="overflow: hidden;">
+                    <div class="pull-left">
+                        {{ if !workFlow.open && !workFlow.firstOpen && workFlow.custom}}
+                            <button class="btn btn-default btn-sm" id="" tab-title="{{workFlow.name}}-添加审核节点" tab-href="/htmlsrc/sysManage/flowRelated/editCheckNode.html?mid={{workFlow.id}}">添加审核节点</button>
+                        {{ /if }}
+                        <a class="btn btn-warning btn-sm" id="" tab-href="/htmlsrc/sysManage/flowRelated/permission.html?id={{workFlow.id}}&&type=WORKFLOW_OBSERVER">设置观察岗</a>
+                        <!--<a class="btn btn-warning btn-sm" id="handlePutPub">设置发布岗</a>-->
+                    </div>
+                    <div class="pull-right">
+                        {{ if workFlow.open }}
+                            <a class="btn btn-danger btn-sm" onClick="switchWorkFlow(false)">停用此流程</a>
+                        {{ else }}
+                            <a class="btn btn-success btn-sm" onClick="switchWorkFlow(true)">启用此流程</a>
+                        {{ /if }}
+                    </div>
+                </div>
+                <ul class="list-group">
+                    {{ each nodeModels value index }}
+                    <li class="list-group-item">
+                        {{value.name}}
+                        / 节点流向: {{value.next!='' ? value.next : '无' }}
+                        <!-- 删除 -->
+                        {{ if !value.end && !value.start && value.type!='logic' && value.type!='input' && workFlow.custom && !workFlow.firstOpen }}
+                        <a class="pull-right btn btn-xs btn-danger " data-id="{{value.id}}" style="margin-left:10px" delete-href="{{remoteOrigin}}/api/auto/wfmodel/deleteNode?id={{workFlow.id}}&name={{value.name}}">删除节点</a>
+                        {{ /if }}
+                        <!-- 设置岗位 -->
+                        {{ if value.type!='logic' && value.type!='end' }}
+                            <a class="pull-right btn btn-xs btn-warning" data-index="{{index}}" style="margin-left:10px" tab-href="/htmlsrc/sysManage/flowRelated/permission.html?actType=workflo&type=WORKFLOW_MAIN_QUARTER&id={{workFlow.id}}&name={{value.name}}" tab-title="设置权限">设置经办</a>
+                        {{ /if }}
+                        <!-- 编辑 -->
+                        {{ if !value.end && value.type!='logic' && value.type!='input' && workFlow.custom && !workFlow.firstOpen }}
+                            <a class="pull-right btn btn-xs btn-warning" data-index="{{index}}" style="margin-left:10px" tab-href="/htmlsrc/sysManage/flowRelated/editCheckNode.html?mid={{workFlow.id}}&name={{value.name}}" tab-title="{{workFlow.name}}-编辑节点">编辑节点</a>
+                        {{ /if }}
+                    </li>
+                    {{ /each }}
+                </ul>
+            </div>
+
+    </script>
+    <script>
+        var workFlowId = getParam('id'); // 实例模型ID
+        var workFlow = {}; // 实例模型信息
+        var nodeNameArr = []; // 模型的节点名
+        var nodeModels = []; // 模型的流程节点
+        var currEditNode = {}; // 当前编辑流程节点
+        function onInfront(){
+            getFetch(
+                remoteOrigin + "/api/auto/wfmodel/getOne"
+                // url: remoteApi.apiWorkFlowModelId,
+                ,{
+                    id: workFlowId
+                }
+                ,function(origin){
+                    nodeNameArr = []; // 置空
+                    workFlow = origin;
+                    // nodeModels = workFlow.nodeModels;
+                    nodeModels = JSON.parse(origin.model).flow || []
+                    console.log(nodeModels);
+                    $.each(nodeModels, function (i,sonNode) {
+                        // 若为审核节点，格式化其审核结果流向名称
+                        if(sonNode.type == 'check'){
+                            // if(sonNode.states){
+                            //     sonNode.states.forEach(function(node){
+                            //         node.behavior = node.behavior.replace(/go\('(.*)'\)$/,"$1");
+                            //     })
+                            // }
+                        }
+                        nodeNameArr.push(sonNode.name);
+                    })
+                    // nodeModels.forEach(function (sonNode, index){
+                    // })
+                    // 渲染
+                    $("#content").html(template('tmpl', {
+                        workFlow: workFlow,
+                        nodeModels: nodeModels,
+                        remoteOrigin: remoteOrigin
+                    }));
+                }
+            );
+        }
+        onInfront();
+
+        // 删除节点
+        // eventBind(".handleDel", function(that){
+        //     actConfirm(function(){
+        //         postRemoteData({
+        //             url: remoteApi.apiWorkFlowModelNodeDel,
+        //             data: {
+        //                 modelId: workFlowId,
+        //                 nodeId: that.data("id")
+        //             },
+        //             callback: function(){
+        //                 init();
+        //                 layer.msg("已删除");
+        //             }
+        //         })
+        //     })
+        // });
+
+        // 添加审核节点
+        // eventBind("#handleAddCheckNode", function(){
+        //     currEditNode = {
+        //         name: '',
+        //         node: {
+        //             question: '',
+        //             count: 1,
+        //             states: [
+        //                 {
+        //                     condition: 1,
+        //                     item: '',
+        //                     behavior: ''
+        //                 }
+        //             ]
+        //         }
+        //     }
+        //     handleEditIndex = layer.full(layerOpenIframe({
+        //         title: "添加审核节点",
+        //         url: './editCheckNode.html'
+        //     }));
+        // })
+        
+        // 编辑节点
+        eventBind(".handleEdit", function(that){
+            currEditNode = nodeModels[that.data("index")];
+            handleEditIndex = layer.full(layerOpenIframe({
+                title: "编辑审核节点",
+                url: './editCheckNode.html'
+            }));
+        })
+        function editCheckNodeCallback(){
+            layer.close(handleEditIndex);
+            init();
+        }
+        // 开启或关闭工作流
+        function switchWorkFlow(state){
+            // 判断是否填写了不存在的流转节点
+            // var l = nodeModels.length;
+            // while(l-- > 0){
+            //     var node = nodeModels[l];
+            //     if(node.end) continue;
+            //     var i = -1;
+            //     while(++i < node.next.length){
+            //         if(nodeNameArr.indexOf(node.next[i]) < 0){
+            //             layer.msg("存在空流转节点或不存在的流转节点,请刷新页面或编辑后重试！", {icon: 5});
+            //             return false;
+            //             break;
+            //         };
+            //     }
+            // }
+            getFetch(
+                // dt: "json",
+                remoteOrigin  + "/api/auto/wfmodel/setOpen"
+                ,{
+                    "id": workFlowId,
+                    "open": state ? 1 : 0
+                },
+                function(origin){
+                    if(state){
+                        layer.msg("已开启工作流");
+                    }else{
+                        layer.msg("已关闭工作流");
+                    }
+                    onInfront();
+                }
+            )
+        }
+
+        function layerSetQuarters(actType, objectId, nodeName){
+            var title = '';
+            if(actType == "workflow"){
+                title = '设置经办权限 - ' + (nodeName ? nodeName : '');
+            }else if(actType == "workflow_observer"){
+                title = '设置观察权限 - ' + workFlow.name;
+            }else if(actType == "workflow_pub"){
+                title = '设置发布权限 - ' + workFlow.name;
+            }
+            handleQuartersIndex = layerOpenIframe({
+                btn:true,
+                title: title,
+                url: './setQuarters.html?actType='+actType+'&objectId='+objectId
+            })
+            layer.full(handleQuartersIndex)
+        }
+
+        // 设置处理岗 - begin
+        eventBind(".handleQuarters", function(that){
+            currEditNode = nodeModels[that.data("index")];
+            layerSetQuarters("workflow", currEditNode.id, currEditNode.name);
+        });
+        function setWorkFlowQuarter(data){
+            postRemoteData({
+                dt: 'json',
+                url: remoteApi.apiWorkFlowModelPermissionSet,
+                data: 
+                [
+                    {
+                        "linkIds": data.mainRolesIds,
+                        "objectId": currEditNode.id,
+                        "type": "WORKFLOW_MAIN_QUARTER",
+                        "userType": "ROLE"
+                    },
+                    {
+                        "linkIds": data.mainQuarters,
+                        "objectId": currEditNode.id,
+                        "type": "WORKFLOW_MAIN_QUARTER",
+                        "userType": "QUARTER"
+                    }, // 主办岗位
+                    // {
+                    //     "linkIds": data.supportQuarters,
+                    //     "objectId": currEditNode.id,
+                    //     "type": "WORKFLOW_SUPPORT_QUARTER",
+                    //     "userType": "QUARTER"
+                    // }, // 协办岗位
+                    {
+                        "linkIds": data.mainUsers,
+                        "objectId": currEditNode.id,
+                        "type": "WORKFLOW_MAIN_QUARTER",
+                        "userType": "USER"
+                    } //, 主办人员
+                    // {
+                    //     "linkIds": data.supportUsers,
+                    //     "objectId": currEditNode.id,
+                    //     "type": "WORKFLOW_SUPPORT_QUARTER",
+                    //     "userType": "USER"
+                    // }, // 协办人员
+                    // {
+                    //     "linkIds": data.mainDept,
+                    //     "objectId": currEditNode.id,
+                    //     "type": "WORKFLOW_MAIN_QUARTER",
+                    //     "userType": "DEPARTMENT"
+                    // }, // 主办部门
+                    // {
+                    //     "linkIds": data.mainDept,
+                    //     "objectId": currEditNode.id,
+                    //     "type": "WORKFLOW_SUPPORT_QUARTER",
+                    //     "userType": "DEPARTMENT"
+                    // } // 协办部门
+                ],
+                callback: function(){
+                    layer.close(handleQuartersIndex);
+                    init();
+                    layer.msg("设置成功！", {time: 800});
+                }
+            });
+        }
+        // 设置处理岗 - end
+        // 设置观察岗 - begin
+        eventBind("#handlePutObserver", function(that){
+            layerSetQuarters("workflow_observer", workFlowId);
+        })
+        function setWorkFlowObserver(data){
+            postRemoteData({
+                dt: 'json',
+                url: remoteApi.apiWorkFlowModelPermissionSet,
+                data: 
+                [
+                    
+                    {
+                        "linkIds": data.mainQuarters,
+                        "objectId": workFlowId,
+                        "type": "WORKFLOW_OBSERVER",
+                        "userType": "QUARTER"
+                    }, // 观察岗位
+                    {
+                        "linkIds": data.mainRolesIds,
+                        "objectId": workFlowId,
+                        "type": "WORKFLOW_OBSERVER",
+                        "userType": "ROLE"
+                    }, // 观察角色
+                    {
+                        "linkIds": data.mainUsers,
+                        "objectId": workFlowId,
+                        "type": "WORKFLOW_OBSERVER",
+                        "userType": "USER"
+                    } //, 观察人员
+                    // {
+                    //     "linkIds": data.mainDept,
+                    //     "objectId": workFlowId,
+                    //     "type": "WORKFLOW_OBSERVER",
+                    //     "userType": "DEPARTMENT"
+                    // } // 观察部门
+                ],
+                callback: function(){
+                    layer.close(handleQuartersIndex);
+                    init();
+                    layer.msg("设置成功！", {time: 800});
+                }
+            });
+        }
+        // 设置观察岗 - end
+        eventBind("#handlePutPub", function(that){
+            layerSetQuarters("workflow_pub", workFlowId);
+        })
+        // 设置发布岗
+        function setWorkFlowPub(data){
+            postRemoteData({
+                dt: 'json',
+                url: remoteApi.apiWorkFlowModelPermissionSet,
+                data: 
+                [
+                    {
+                        "linkIds": data.mainQuarters,
+                        "objectId": workFlowId,
+                        "type": "WORKFLOW_PUB",
+                        "userType": "QUARTER"
+                    }, // 观察岗位
+                    {
+                        "linkIds": data.mainRolesIds,
+                        "objectId": workFlowId,
+                        "type": "WORKFLOW_PUB",
+                        "userType": "ROLE"
+                    }, // 观察角色
+                    {
+                        "linkIds": data.mainUsers,
+                        "objectId": workFlowId,
+                        "type": "WORKFLOW_PUB",
+                        "userType": "USER"
+                    } //, 观察人员
+                    // {
+                    //     "linkIds": data.mainDept,
+                    //     "objectId": workFlowId,
+                    //     "type": "WORKFLOW_PUB",
+                    //     "userType": "DEPARTMENT"
+                    // } // 观察部门
+                ],
+                callback: function(){
+                    layer.close(handleQuartersIndex);
+                    init();
+                    layer.msg("设置成功！", {time: 800});
+                }
+            });
+        }
+
+        // 权限设置回调
+        function setPermissionCallback(data){
+            if(data.actType == 'workflow'){
+                setWorkFlowQuarter(data);
+            }else if(data.actType == 'workflow_observer'){
+                setWorkFlowObserver(data);
+            }else if(data.actType == 'workflow_pub'){
+                setWorkFlowPub(data);
+            }
+        }
+        
+    </script>
+</body>
+</html>

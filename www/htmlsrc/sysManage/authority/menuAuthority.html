@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>系统管理 - 系统设置 - 功能权限</title>
+    <link rel="stylesheet" href="../../../static/vendor/bootcss/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+    <style> 
+        li{
+            list-style: none;
+            margin-bottom: 4px;
+        }
+        .deep1{
+            padding-left: 8px;
+            border-bottom:1px solid #ddd;
+            border-left: 2px solid #e1d6d7;
+        }
+        .deep2{
+            padding-left: 8px;
+            border-left: 2px solid #cce3e7;
+        }
+        .deep3{
+            padding-left: 8px;
+            border-left: 2px solid #d9c9d6;
+        }
+        .deep4{
+            padding-left: 8px;
+            border-left: 2px solid #b9ceaf;
+        }
+    </style>
+</head>
+<body>
+    <div id="content">
+        <div id="authContent">
+    
+        </div>
+        <div style="text-align: center;padding-top: 15px;">
+            <button class="btn btn-primary btn-confirm">确定</button>
+        </div>
+    </div>
+    <script src="../../../static/vendor/jquery/jquery.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="../../../static/vendor/artTemplate/template-web.js"></script>
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="../../../tmpl/js/panelForm.js"></script>
+    <script>
+        var userId = getParam("uid") || undefined;
+        var roleId = getParam("roleid") || undefined;
+        var authMenu = JSON.parse(JSON.stringify(top.menu));
+        var authMenu2 = JSON.parse(JSON.stringify(top.menu));
+        var menu22 = {};
+        var menuHrefPath = {};
+        var menuMethodClass = {}; // 功能点class || id
+        //生成后台需要的数据结构
+        function bianli22(authMenu, pObj, pName){
+            authMenu.forEach(function(element) {
+                pObj[element.name] = JSON.parse(JSON.stringify(element)) || {};
+                if(pObj[element.name].href){
+                    menuHrefPath[pObj[element.name].href] = pName + element.name;
+                }
+                if(pObj[element.name].className){
+                    menuMethodClass[pName + element.name] = pObj[element.name].className;
+                }
+                delete pObj[element.name].children;
+                delete pObj[element.name].childs;
+                delete pObj[element.name].name;
+                delete pObj[element.name].icon;
+
+                if(element.childs){
+                    if(element.children == undefined){
+                        element.children = element.childs;
+                    }else{
+                        element.childs.forEach(function(elm){
+                            element.children.push(elm);
+                        })
+                    }
+                    bianli22(element.children, pObj[element.name], pName + element.name + ".");
+                }else{
+                    if(element.children && element.children.length>0){
+                        bianli22(element.children,  pObj[element.name], pName + element.name + ".");
+                    }else{
+                        return false;
+                    }
+                }
+            });
+        }
+        bianli22(authMenu2, menu22, '');
+
+        console.log(JSON.stringify(menuMethodClass))
+
+        // 整理隐藏的子菜单
+        function bianli(authMenu){
+            authMenu.forEach(function(element) {
+            if(element.childs){
+                // if(element.children == undefined){
+                //         element.children= element.childs;
+                // }else{
+                //     element.childs.forEach(function(elm){
+                //         element.children.push(elm);
+                //     })
+                // }
+            }else{
+                if(element.children && element.children.length>0){
+                    bianli(element.children);
+                }else{
+                    return false;
+                }
+            }
+            });
+        }
+        bianli(authMenu)
+        var menu = authMenu;
+
+        // 渲染功能菜单树
+        var html = '<ol>';
+        menu.forEach(function(element) {
+            html += '<li style="display:block;overflow:hidden" class="deep1">'
+            html += '<input type="checkbox" name="'+element.name+'" id="">'+element.name;
+            if(element.children && element.children.length>0){
+                html += '<ul>';
+                element.children.forEach(function(element2){
+                    html += '<li style="display:block;overflow:hidden" class="deep2">'
+                    html += '<input type="checkbox" name="'+element.name+"."+element2.name+'" id="">'+element2.name;
+
+                    if(element2.children && element2.children.length>0){
+                            html += '<ul>';
+                            element2.children.forEach(function(element3){
+                            html += '<li class="col-xs-3 deep3">'
+                            html += '<input type="checkbox" name="'+element.name+"."+element2.name+"."+element3.name+'" id="">'+element3.name;
+
+                            if(element3.children && element3.children.length>0){
+                                    html += '<ul>';
+                                    element3.children.forEach(function(element4){
+                                    html += '<li class="deep4">'
+                                    html += '<input type="checkbox" name="'+element.name+"."+element2.name+"."+element3.name+"."+element4.name+'" id="">'+element4.name;
+                                    html += '</li>'
+                                });
+                                html += "</ul>";
+                            }
+
+                            html += '</li>'
+                        });
+                        html += "</ul>";
+                    }
+
+                    html += '</li>'
+                });
+                html += "</ul>";
+            }
+            html += '</li>'
+        });
+        html += "</ol>";
+        $("#authContent").html(html);
+
+        // 勾选
+        $("input[type='checkbox']").click(function(){
+            var checkedStatus = $(this).prop("checked");
+            $(this).siblings("ul").find("input[type='checkbox']").each(function(index, item){
+                $(this).prop("checked", checkedStatus);
+            })
+            if(checkedStatus){
+                $(this).parents("ul").siblings("input[type='checkbox']").prop("checked", true);
+            }else{
+                $(this).parents("ul").each(function(){
+                    if($(this).find("input[type='checkbox']:checked").length == 0){
+                        $(this).siblings("input[type='checkbox']").prop("checked", false);
+                    }
+                })
+            }
+         
+        })
+
+       $().ready(function(){
+           if(userId){
+               // 得到用户功能权限 && 选中
+                getRemoteData({
+                    url: remoteApi.apiUserPermissionGet + "?uid="+userId,
+                    callback: function(origin){
+                        var checkedArr = (origin||{}).description || [];    
+                        checkedArr.forEach(function(item){
+                            $("input[name='"+item+"']").prop("checked", true);
+                        })
+                    }
+                })
+           }else if(roleId){
+            // 得到角色功能权限 && 选中
+            getFetch(
+                remoteOrigin + "/api/auto/user/getMPList"
+                , {
+                    oid: roleId,
+                }
+                // remoteApi.apiRolePermissionMethodGet + "?rid="+roleId,
+               , function(origin){
+                    if(origin){
+                        // var checkedArr = JSON.parse((origin[0] ||{}).description);
+                        origin.forEach(function(item){
+                            $("input[name='"+item+"']").prop("checked", true);
+                        })
+                    }
+                }
+            )
+           }
+       })
+
+        $(document).on("click", ".btn-confirm", function () {
+            var itemArr = []; // 已选择功能菜单
+            var url;
+            $("input[type='checkbox']").each(function(){
+                if($(this).prop("checked")){
+                    itemArr.push($(this).attr("name"));
+                }
+            })
+            if(userId){
+                url = remoteApi.apiUserPermissionSet + "?uid="+userId;
+            }else if(roleId){
+                url = remoteApi.apiRolePermissionMethodSet + "?rid="+roleId;
+            }
+            postFetch(
+                remoteOrigin + "/api/auto/user/setMP"
+                // url: url,
+                ,{
+                    oid: roleId
+                    , methods: itemArr
+                    // ps: {
+                    //     type: "USER_METHOD"
+                    //     , oid: roleId
+                    //     , objectId: 0
+                    //     , description: JSON.stringify(itemArr)
+                    // }
+                }
+                , function(origin){
+                    closeCurrentIframe()
+                    // if(parent.setMenuCallback){
+                    //     parent.setMenuCallback();
+                    // }
+                    // return true;
+                }
+            )
+        });
+
+        // 提交
+        function onLayerConfirmlCallback(params) {
+
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>不良资产管理 - 不良资产任务指派移交 - 不良资产任务指派申请</title>
+    <link href="../../../static/vendor/bootcss/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../../static/vendor/jqui/jquery-ui.css">
+    <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+</head>
+<body>
+    <div id="content"> 
+        <div class="" id="panel-form">
+            <!-- 查询表单 -->
+        </div>
+        <div class="batch-operation">
+            <button type="button" class="btn btn-default btn-sm" id="handleApply">指派</button>
+            <button type="button" class="btn btn-default btn-sm" id="handleRecover">申请收回</button>
+        </div>
+        <div id="dataList">
+            <!-- 数据列表 -->
+        </div>
+    </div>
+    <script src="../../../static/vendor/jquery/jquery.js"></script>
+    <script src="../../../static/vendor/artTemplate/template-web.js"></script>
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="../../../tmpl/js/panelForm.js"></script>
+    <!-- toolbar渲染模板 -->
+    <script type="text/html" id="toolbar">
+        <div class="layui-toolbar">
+            <a href="/htmlsrc/npaManage/assignTransfer/assignApply.edit.html?id={{d.id}}" class="btn handleEdit btn-warning" href="">编辑</a>
+        </div>
+    </script>
+    <script>
+        // 配置查询表单
+        $("#panel-form").html(panelFormRender({
+            panelTitle:'筛选查询',
+            list:[
+                { prop: 'f1', label: '客户号' },
+                { prop: 'f2', label: '客户名称' },
+                { prop: 'f3', label: '联系电话' },
+                { prop: 'f4', label: '客户经理' }
+            ],
+            data: {}
+        }));
+        
+        laytableRender({
+            url: remoteApi.apiSystemLog,
+            cols: [
+                [
+                    { checkbox:true },
+                    { field:'f1', title:'指派流水号'},
+                    { field:'f2', title:'指派方式'},
+                    { field:'f3', title:'指派人'},
+                    { field:'f4', title:'指派接受人'},
+                    { field:'f5', title:'指派时间'},
+                    { field:'f6', title:'接受时间'},
+                    { field:'f7', title:'状态'},
+                    { title:'操作', templet:"#toolbar"}
+                ]
+            ]
+        })
+
+        // 指派
+        $("#handleApply").click(function(){
+            var ids = getLayuiTabelCheckIds();
+            putRemoteData({
+                url:remoteApi.apiUpdateBaned,
+                data: {
+                    userIds: ids,
+                    isBaned: baned
+                },
+                callback: 'layrender'
+            });
+        })
+        // 申请收回
+        $("#handleRecover").click(function(){
+            var ids = getLayuiTabelCheckIds();
+            putRemoteData({
+                url:remoteApi.apiUpdateBaned,
+                data: {
+                    userIds: ids,
+                    isBaned: baned
+                },
+                callback: 'layrender'
+            });
+        })
+
+        // 提交查询表单
+        // utils.js: checkSubmitForm
+    </script>
+</body>
+</html>

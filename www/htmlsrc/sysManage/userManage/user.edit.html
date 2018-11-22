@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <!--#include file="/htmlsrc/header.html" -->
+    <link rel="stylesheet" href="/static/vendor/ztree/css/zTreeStyle/zTreeStyle.css">
+    <script src="/static/vendor/ztree/js/jquery.ztree.all.min.js"></script>
+    <style>
+        #sel-box hr{
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+        #sel-box{
+            margin-top: 10px;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div id="content">
+        <div id="editForm"></div>
+        <div style="display: none;" id="sel-box">
+            <div class="cols-xs-12">
+                <div class="col-xs-12 col-sm-6" >
+                    <h5>选择岗位</h5>
+                    <hr>
+                    <ul id="treeDemo" class="ztree"></ul>
+                </div>
+
+                <div class="col-xs-12 col-sm-6">
+                    <h5>选择角色</h5>
+                    <hr>
+                    <div id="dataList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+<script>
+    var userId = decodeURI(getParam('id'));
+    var index = parent.layer.getFrameIndex(window.name);
+    getFetch(remoteOrigin + "/api/auto/user/getOne", {id:userId}, function (user) {
+        $("#editForm").html(panelFormRender3({
+            formName: 'user-edit-form',
+            list:[
+                { prop: 'id', type:'hidden'},
+                { prop: 'username', label: '用户名', disabled:true},
+                { prop: 'trueName', label: '真实姓名', labelWidth: 4 },
+                { prop: 'baned', label: '启用状态', type: 'select', vals: selectData.userState, labelWidth: 4 },
+                { prop: 'email', label: '邮箱' },
+                { prop: 'phone', label: '电话' },
+                { prop: 'password', label: '重置密码' },
+                { prop: 'accCode', label: '信贷系统代码' }
+            ],
+            data: user
+            ,line: true
+        }));
+
+        $("#editForm [type=submit]").closest(".row").before($("#sel-box").show());
+
+        (function () {
+            var setting = {
+                view: {
+                    addHoverDom: false,
+                    removeHoverDom: false,
+                    selectedMulti: false
+                },
+                check: {
+                    enable: true
+                },
+                data: {
+                    simpleData: {
+                        enable: true
+                    }
+                },
+                edit: {
+                    enable: false
+                }
+            };
+            getFetch(
+                remoteOrigin + "/api/auto/org/getSDQList"
+                , function (data) {
+                    data = $.map(data,function (v) {
+                        var d = {id:v.id, pId: v.parentId || 0, name: v.name, type:v.type}
+                        return d;
+                    });
+                    $.fn.zTree.init($("#treeDemo"), setting, data);
+                    var treeObj = $.fn.zTree.getZTreeObj("treeDemo");
+                    $.each(user.os || [], function (i,v) {
+                        // console.log(v.id)
+                        // console.log(treeObj.getNodeByParam("id", v.id, null))
+                        var node = treeObj.getNodeByParam("id", v.id, null)
+                        treeObj.checkNode(node, true, true);
+                    })
+                }
+            );
+
+            laytableRender({
+                url: remoteOrigin + "/api/auto/org/getList?role=1&page=1&size=1000"
+                , cols: [
+                    [
+                        {checkbox:true}
+                        , {field: "name", title:"名称"}
+                    ]
+                ]
+                , page: false
+                , onRender: function () {
+                    $.each(user.os||[], function (i,v) {
+                        $("[name=btSelectItem][value="+v.id+"]").prop("checked",true);
+                    })
+                }
+            });
+
+        })();
+
+
+        $().ready(function(){
+            form = $("form[name='user-edit-form']");
+            form.validate({
+                rules: {
+                    trueName: "required",
+                    email: { email: true },
+                    phone: { mobile: true }
+                },
+                submitHandler: function(){
+                    var newInfo = $.unserialize(form.serialize());
+
+                    var zTreeObj = $.fn.zTree.getZTreeObj("treeDemo")
+                    var checkedNodes = zTreeObj.getCheckedNodes();
+                    var ids = $.grep(checkedNodes, function (v) {
+                        return v.type == 'QUARTERS'
+                    });
+                    ids = $.map(ids, function (v) {
+                        return v.id;
+                    });
+                    var rids = getLayuiTabelCheckIds();
+                    ids = ids.concat(rids);
+                    newInfo.baned = !!Number(newInfo.baned)
+                    newInfo.extMap = {
+                        oids: ids
+                    }
+                    postFetch(remoteOrigin + "/api/auto/user/edit", newInfo, function () {
+                        closeCurrentIframe();
+                    })
+                    return false;
+                }
+            })
+        })
+    })
+    // getRemoteData({
+    //     url: remoteApi.apiUserIds + "?ids=" + userId,
+    //     callback: function(origin){
+    //         var user = origin[0];
+    //
+    //     }
+    // })
+
+    function checkSubmitForm(){
+        return false;
+    }
+</script>

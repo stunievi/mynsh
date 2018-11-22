@@ -1,0 +1,31 @@
+<table class="table">
+    <tbody>
+        {{each attrs value}}
+            {{if $index%2 == 0}}
+                <tr>
+                    <td class="col-xs-2 text-right">
+                        <b>{{value.label}}</b>
+                    </td>
+                    <td class="col-xs-4 type-info">
+                        {{if value.handle}}
+                            <a href="javascript:;" id="handle{{value.prop}}">{{data[value.prop]}}</a>
+                        {{else}}
+                            {{data[value.prop]}}
+                        {{/if}}
+                    </td>
+            {{else}}
+                    <td class="col-xs-2 text-right">
+                        <b>{{value.label}}</b>
+                    </td>
+                    <td class="col-xs-4 type-info">
+                        {{if value.handle}}
+                            <a href="javascript:;" id="handle{{value.prop}}">{{data[value.prop]}}</a>
+                        {{else}}
+                            {{data[value.prop]}}
+                        {{/if}}
+                    </td>
+                </tr>
+            {{/if}}
+        {{/each}}
+    </tbody>
+</table>

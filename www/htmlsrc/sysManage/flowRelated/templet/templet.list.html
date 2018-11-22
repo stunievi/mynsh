@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 流程相关 - 流程管理 - 标准流程</title>
+    <link href="/static/vendor/bootcss/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+</head>
+<body>
+    <div id="content"> 
+        <div class="panel panel-default">
+            <div class="panel-heading">标准流程</div>
+            <div class="panel-body">
+                <div id="dataList">
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/static/vendor/jquery/jquery.js"></script>
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <!-- 变量渲染模板 -->
+    <script type="text/html" id="name">
+        <a href="/htmlsrc/sysManage/flowRelated/templet/templet.show.html?index={{d.LAY_TABLE_INDEX}}" class="handleShow">{{d.name}}</a>
+    </script>
+    <script>
+        layui.use('table', function(){
+            layui.table.render({
+                page: false,
+                elem: "#dataList",
+                cols: [
+                    [
+                        {field:'name', title:'模板流程名' , templet: "#name"},
+                    ]
+                ],
+                // 静态数据，标准流程模板列表
+                data: enumWorkFlowModelList
+            })
+        })
+    </script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>查看详情</title>
+    <link href="../../../static/vendor/bootcss/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <style>.x-tablelist-wrap{overflow-x:auto !important}</style>
+    <div id="content">
+        <div id="data-list">
+            <!-- 基本信息展示 -->
+        </div>
+    </div>
+    <script src="../../../static/vendor/jquery/jquery.js"></script>
+    <script src="../../../static/vendor/artTemplate/template-web.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="./detailInfo.js"></script>
+    <script src="../../../tmpl/js/panelTableShow.js"></script>
+    <script>
+        var name = decodeURI(getParam("name"));
+        var detailObj = detailInfoAttrs[name]; 
+        getRemoteData({
+            url: detailObj.url,
+            callback:function(origin){
+                var getData = origin[0] || {};
+                if(detailObj.transformAttrs){
+                    transformOdsEnumData(getData, detailObj.transformAttrs);
+                }
+                $("#data-list").html(panelTableShowRender2({
+                    panelTitle: detailObj.name,
+                    attrs: detailObj.attrs,
+                    data: getData
+                }));
+            }
+        })
+    </script>
+</body>
+</html>

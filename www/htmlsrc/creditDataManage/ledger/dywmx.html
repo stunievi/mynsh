@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>信贷数据管理-台账-贷款台账列表</title>
+    <!--#include file="/htmlsrc/header.html" -->
+    <style>
+        td{
+            white-space: nowrap;
+        }
+        input[name=flip-su]{
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="content">
+        <div class="" id="panel-form">
+        </div>
+        <div class="batch-operation">
+            <!--<button type="button" class="btn btn-success" id="export">导出excel</button>-->
+            <!-- <button type="button" class="btn btn-default btn-sm" id="batchDel">批量删除 </button> -->
+        </div>
+        <div id="dataList">
+        </div>
+    </div>
+
+    <!-- toolbar渲染模板 -->
+    <script type="text/html" id="toolbar">
+        <div class="layui-toolbar">
+            {{# if(workFlow){ }}
+                <a href="javascript:;" class="btn  btn-default {{d.PUB_MODEL_NAME ? '':'hide'}}" data-loanid="{{d.LOAN_ACCOUNT}}" data-workflow="{{d.PUB_MODEL_NAME}}"  tab-title="发起{{d.PUB_MODEL_NAME}}流程" tab-href="/htmlsrc/workFlow/nodeAdd.html?name={{encodeURI(d.PUB_MODEL_NAME)}}&loanid={{d.LOAN_ACCOUNT}}&pubUid={{d.PUB_USER_ID}}">发起流程</a>
+                {{# if(enumWorkFlowModel.preLendingCollect == workFlow){ }}
+                <a href="javascript:;" class="btn handleBind btn-default" data-loanid="{{d.LOAN_ACCOUNT}}">资料绑定</a>
+                {{# } }}
+            {{# } }}
+            <a href="javascript:;" class="btn handleShow btn-default" data-loanid="{{d.LOAN_ACCOUNT}}" data-name="{{d.CUS_NAME}}">查看</a>
+        </div>
+    </script>
+
+    <script type="text/html" id="_CRD_GRADE"> {{# if(d.CRD_GRADE){return getOdsEnumVal(d, 'CRD_GRADE');}else{return getOdsEnumVal(d, 'COM_CRD_GRADE');}}} </script>
+
+    <ul id="context-menu" class="dropdown-menu">
+        <li data-item="edit"><a>Edit</a></li>
+        <li data-item="delete"><a>Delete</a></li>
+        <li data-item="action1"><a>Action Here</a></li>
+        <li data-item="action2"><a>And Action Here</a></li>
+    </ul>
+
+    <script>
+        var workFlow = decodeURI(getParam("workFlow"));
+        var su = getParam("su");
+        // 是否只显示不良台账
+        var register = '';
+        // toolbar宽度
+        var toolbarWidth = 150;
+        if(enumWorkFlowModel.preLendingCollect == workFlow){
+            toolbarWidth = 190;
+        }
+        var _data = {};
+        // 基础显示字段
+        var cols = [
+            [{"title":"合同号","field":"CONT_NO"}
+                ,{"title":"担保合同编号","field":"GUAR_CONT_NO"}
+                ,{"title":"担保方式","field":"GUAR_WAY"}
+                ,{"title":"担保人客户号","field":"GUAR_TEE"}
+                ,{"title":"担保人名称","field":"GUAR_NAME"}
+                ,{"title":"担保人证件类型","field":"CER_TYPE"}
+                ,{"title":"担保人证件号码","field":"CER_NO"}
+                ,{"title":"抵押物名称","field":"GAGE_NAME"}
+                ,{"title":"权属证件类型","field":"RIGHT_CERT_TYPE_CODE"}
+                ,{"title":"权属证件号","field":"RIGHT_CERT_NO"}
+                ,{"title":"币种","field":"CURRENCY"}
+                ,{"title":"核心记账价值","field":"CORE_VALUE"}
+                ,{"title":"出入库状态","field":"DEPOT_STATUS"}]
+        ];
+
+        var searchCond = [
+            { label:'合同号', prop:'CONT_NO' }
+        ];
+
+        // if(su == 1){
+        //     searchCond.push(
+        //          { label:'负责客户', prop:'flip-su', type:"checkbox"}
+        //     )
+        //     _data['flip-su'] = 1
+        // }
+
+
+//        if(workFlow == enumWorkFlowModel.preLendingCollect){
+            // 台账绑定
+//            searchCond = [
+//                { label:'借据编号', prop:'BILL_NO' },
+//                { label:'客户号', prop:'CUS_ID' },
+//                { label:'客户名称', prop:'CUS_NAME' },
+//                { label:'台账状态', prop:'ACCOUNT_STATUS', type: 'select', vals: getOdsEnumSelect("ACCOUNT_STATUS") }
+//            ]
+//        }else if(workFlow == enumWorkFlowModel.postLoanTask || workFlow == enumWorkFlowModel.npaRegister){
+            // 贷后管理 || 不良资产登记
+//            if(workFlow == enumWorkFlowModel.npaRegister){
+//                searchCond.push({ label:'是否逾期', prop: 'timeout', type: 'select', vals: [
+//                    { name: '--请选择--', val: ''},
+//                    { name: '是', val: 'true'},
+//                    { name: '否', val: 'false'}
+//                ]});
+//            }
+//        }
+
+        // ['催收', '诉讼', '利息减免', '抵债资产接收', '资产处置']
+        if([enumWorkFlowModel.urge, enumWorkFlowModel.litigation, enumWorkFlowModel.interestRelief, enumWorkFlowModel.debtAssets, enumWorkFlowModel.debtAssetsDeal ].indexOf(workFlow) >= 0){
+            register = 'true';
+        }
+        if(workFlow == enumWorkFlowModel.npaRegister){
+            register = 'false';
+        }
+        $("#panel-form").html(panelFormRender3({
+            panelTitle: '筛选查询',
+            col: 3,
+            list: searchCond,
+            data: _data
+            , excel: true
+        }));
+
+        var getDataUrl = remoteApi.apiOdsSearchAccloan+"?register="+register;
+        if(su){
+            // getDataUrl += "&su="+su;
+        }
+        if(workFlow){
+            getDataUrl += "&modelName="+encodeURI(workFlow);
+        }
+//        remoteApi.apiOdsSearchAccloan+"?register="+register+"&modelName="+encodeURI(workFlow)
+        // 渲染台账列表
+        laytableRender({
+            cellMinWidth: 110,
+            url: remoteOrigin + "/api/search/accloan/232",
+            cols: cols
+        });
+        // 发起任务
+        eventBind(".handleLaunch", function(that){
+            var loanid = that.data("loanid");
+            var _workflow = that.data("workflow"); // 客户类型
+            // 贷后任务需区分客户类型发起不同的工作流
+           if(_workflow){
+               workFlow = _workflow;
+           }
+            layer.full(layerOpenIframe({
+                title: "发起任务",
+                url: "../../workFlow/nodeAdd.html?name="+workFlow+"&loanid="+loanid
+            }))
+        });
+        // 绑定资料收集
+        eventBind(".handleBind", function(that){
+            var loanid = that.data("loanid");
+            layer.full(layerOpenIframe({
+                title: "绑定收集资料",
+                url: "./bind.preLendingCollect.html?loanid="+loanid
+            }));
+            return false;
+        });
+        // 台账详情
+        eventBind(".handleShow", function(that){
+            addNavTab('loan-'+that.data("loanid"), "台账详情 - "+that.data("loanid")+" - " + that.data("name"), hrefUrl.loanInfo+that.data("loanid"));
+        });
+        // 筛选
+        function checkSubmitForm(){
+            layuiTableReload({
+                where: $("[name='form-search']").ghostsf_serialize(),
+                resHandler: function(res){
+                    translateOdsInData(res.data.content);
+                    return res;
+                }
+            });
+            return false;
+        }
+
+        $(".btn-export").click(function () {
+            var str =$('[name=form-search]').serialize();
+            location.href = remoteOrigin + "/api/report/export/mortgage?" + str;
+        });
+    </script>
+</body>
+</html>

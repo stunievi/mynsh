@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 添加工作流 </title>
+    <link href="/static/vendor/bootcss/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="content"> 
+        <div id="addForm">
+        </div>
+        <div class="text-center">
+            <a href="javascript:void(0)" onclick="javascript:history.go(-1);return false;">【返回】</a>
+        </div>
+    </div>
+    <script src="../../../static/vendor/jquery/jquery.js"></script>
+    <script src="../../../static/vendor/artTemplate/template-web.js"></script>
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="../../tmpl/js/panelForm.js"></script>
+    <script>
+        var existUserList = []; // 可选择的处理人
+        var modelName = decodeURI(getParam("name")) || "不良资产登记";
+        var workFlowModel;
+        getRemoteData({
+            url: remoteApi.apiWorkflowAll,
+            callback: function(origin){
+                var len = origin.length;
+                var startNode = {}; // 开始节点
+                while(len-- > 0){
+                    if(origin[len].modelName == modelName){
+                        workFlowModel = origin[len];
+                        break;
+                    }
+                }
+                if(typeof workFlowModel == "undefined"){
+                    layErrorMsg("没有找到对应模型！");
+                    return;
+                }
+                getRemoteData({
+                    url: remoteApi.apiWorkflowDealers+"?id="+workFlowModel.id,
+                    callback: function(origin){
+                        origin.sort(function(a,b){return a-b;});
+                        for(var i=0;i<origin.length;i++){
+                            if(origin[i]===origin[i+1]){
+                                origin.splice(i,1);
+                                i--;
+                            }
+                        }
+                        origin.forEach(function(uid){
+                            existUserList.push(top.topCacheUserObj[uid]);
+                        })
+                    }
+                })
+
+
+                
+                // 该模型拥有的节点list
+                var nodeModels = workFlowModel.nodeModels;
+                // 拿到开始节点
+                var len2 = -1;
+                while(len2++ < nodeModels.length){
+                    if(nodeModels[len2].start == true){
+                        startNode = nodeModels[len2];
+                        break;
+                    }
+                }
+               
+                // 缺省填写的字段信息
+                var addFormAttr = [
+                    { prop: 'dealerId', type:'hidden' },
+                    { prop: 'dealerName', label: '处理人', inputGroup: '选择处理人', required: true },
+                    { prop: 'modelId', type:'hidden' },
+                    { prop: 'modelName', label:'工作流名称', required: true, disabled: true },
+                    { prop: 'common', label: '是否为公共任务', type: "checkbox" },
+                    { prop: 'title', label: '任务标题', required: true },
+                    { prop: 'info', label: '任务描述', type: 'textarea' }
+                ]
+                // 开始节点追加的固有字段
+                var innates = workFlowModel.innates;
+                if(innates){
+                    innates.forEach(function(attr) {
+                        var _item = attr.content;
+                        var item = {}; // 本次待生成input
+                        if(_item.type == "layer"){
+                            // 弹框选择类型
+                            item = {
+                                type: "hidden",
+                                prop: _item.ename,
+                            };
+                            addFormAttr.unshift({
+                                prop: _item.ename + "-name",
+                                label: _item.cname,
+                                inputGroup: "选择" + _item.cname,
+                                required: true
+                            });
+                        }if(_item.type == "taskId"){
+                            item = {
+                                type: "hidden",
+                                prop: "taskId"
+                            }
+                        }else{
+                            item = {
+                                prop: _item.ename, // key
+                                label: _item.cname, // 名
+                                required: _item.required
+                            };
+                        }
+                        addFormAttr.unshift(item);
+                    })
+                }
+                $("#addForm").html(panelFormRender({
+                    panelTitle:'添加工作流-' + modelName,
+                    list: addFormAttr,
+                    data: {
+                        title: modelName,
+                        modelId: workFlowModel.id,
+                        modelName: modelName,
+                        dealerId: $.cookie("userId"),
+                        dealerName: $.cookie("userName")
+                    }
+                }));
+
+                $().ready(function(){
+                    $("form[name='form-search']").validate({
+                        rules: {
+                            title: { required: true, minlength:2 }
+                        },
+                        submitHandler: function(){
+                            var form = $("form[name='form-search']");
+                            if(form.valid()) {
+                                var formData = $.unserialize(form.serialize());
+                                var isCommon = $("[name='common']").prop("checked");
+                                var _formData = {
+                                    "data": formData,
+                                    "dealerId": formData.dealerId,
+                                    "info": formData.info,
+                                    "modelId": formData.modelId,
+                                    "title": formData.title,
+                                    common: isCommon
+                                }
+                                postRemoteData({
+                                    dt: 'json',
+                                    url: remoteApi.apiWorkflowApply,
+                                    data: _formData,
+                                    callback: function(origin){
+                                        if(isCommon){
+                                            location.href = './nodeDeal.html?id=' + origin.id;
+                                        }else{
+                                            history.go(-1);
+                                        }
+                                        
+                                    }
+                                });
+                                return false;
+                            }
+                        }
+                    });
+                });
+            }
+        })
+        
+        eventBind("#groupBtn-dealerName", function(){
+            callbackInput = {
+                id: "[name='dealerId']",
+                name: "#dealerName"
+            }
+            layer.open({
+                type: 2,
+                title:'选中处理对象',
+                area: ['740px', '450px'],
+                fixed: false, //不固定
+                maxmin: true,
+                content: '../htmllayer/choiceExistUser.html'
+            });
+        });
+      
+        function checkSubmitForm(){
+            return false;
+        }
+    </script>
+</body>
+</html>

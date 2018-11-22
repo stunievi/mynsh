@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>流程相关 - 添加流程版本</title>
+    <!--#include file="/htmlsrc/header.html" -->
+</head>
+<body>
+    <div id="content"> 
+        <div id="panel-form">
+        </div>
+        <!-- <div class="text-center"> -->
+            <!-- <a href="javascript:void(0)" onclick="javascript:history.go(-1);return false;">【返回】</a> -->
+        <!-- </div> -->
+    </div>
+    <script>
+        $("#panel-form").html(panelFormRender3({
+            list:[
+                { prop: 'modelName', label: ' 标准模型名 ', type: "select", vals: getGlobalEnumSelect("workFlowModel"), required: true },
+                { prop: 'name', label: '工作流程名', required: true },
+                { prop: 'processCycle', label: '处理周期',type:"hidden" },
+                { prop: 'info', label: '工作流描述', type:'textarea', width:12, labelWidth:2 }
+            ],
+            data: {
+                processCycle: 10
+            }
+            ,line: true
+        }));
+        
+        var form = $("form[name='form-search']");
+        $().ready(function() {
+            form.validate({
+                rules: {
+                    modelName: "required",
+                    name: "required"
+//                    processCycle: {
+//                        range:[1, 99999]
+//                    }
+                },
+                submitHandler: function(){
+                    if(form.valid()){
+                        postFetch(remoteOrigin + "/api/auto/wfmodel/add", form.serialize(), function () {
+                            closeCurrentIframe();
+                        })
+                        // postRemoteData({
+                        //     url: remoteApi.apiWorkFlowModel,
+                        //     data: form.serialize(),
+                        //     callback: function (origin) {
+                        //         closeCurrentIframe();
+                        //         // if(parent.addWorkFlowCallback){
+                        //         //     parent.addWorkFlowCallback();
+                        //         // }
+                        //         return true;
+                        //     }
+                        // })
+                        return false;
+                    }
+                }
+            })
+        });
+        function checkSubmitForm (){
+            // 兼容保留
+            return false;
+        }
+    </script>
+</body>
+</html>

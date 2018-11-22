@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 系统管理 - 流程相关 - 工作流 - 设置观察岗 </title>
+    <link rel="stylesheet" href="/static/vendor/bootcss/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/vendor/ztree/css/zTreeStyle/zTreeStyle.css" type="text/css">
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+</head>
+<body>
+    <div id="content">
+        <div class="ztree" id="observerTree">
+        </div>
+        <div class="col-xs-12 text-center">
+            <a href="javascript:;" class="btn btn-primary" id="handleSubmit">确定</a>
+        </div>
+    </div>
+    <script src="/static/vendor/jquery/jquery.js"></script>
+    <script type="text/javascript" src="/static/vendor/ztree/js/jquery.ztree.core.js"></script>
+    <script type="text/javascript" src="/static/vendor/ztree/js/jquery.ztree.excheck.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script>
+        var quarterList = getMergeDeptAndQuarter(); // 岗位树
+        var permissions = parent.workFlow.permissions;
+        var observerQuarters = []; // 观察岗位设置信息
+        $(document).ready(function(){
+
+            // 拿到本工作流已设置观察岗
+            permissions.forEach(function(permission) {
+                if(permission.type == 'OBSERVER'){
+                    observerQuarters.push(permission.qid);
+                }
+            });
+
+            setCheckedQuarter(quarterList, observerQuarters);
+			$.fn.zTree.init($("#observerTree"), {
+                check: {
+                        chkDisabledInherit: false,
+                        enable: true
+                    }
+            }, quarterList);
+        });
+        
+        $("#handleSubmit").click(function(){
+            var nodes = $.fn.zTree.getZTreeObj("observerTree").getCheckedNodes(true);
+            var quarters = [];
+            nodes.forEach(function(item){
+                quarters.push(item.partid)
+            })
+            postRemoteData({
+                url: remoteApi.apiSetObserverQuarters,
+                data: {
+                    workFlowId: parent.workFlow.id,
+                    quarters: quarters
+                },
+                callback: function(){
+                    if(parent.setQuartersCallback){
+                        parent.setQuartersCallback();
+                    }
+                }
+            });
+        })
+    </script>
+</body>
+</html>

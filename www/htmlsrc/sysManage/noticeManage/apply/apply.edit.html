@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 系统管理 - 消息管理 - 消息应用- 编辑 </title>
+    <script src="../../../../static/vendor/jquery/jquery.js"></script>
+    <script src="../../../../static/vendor/artTemplate/template-web.js"></script>
+    <link href="../../../../static/vendor/bootcss/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/vendor/manifest/css/styles.css">
+</head>
+<body>
+    <div id="content"> 
+        <div id="editForm">
+        </div>
+        <div class="text-center">
+            <a href="javascript:void(0)" onclick="javascript:history.go(-1);return false;">【返回】</a>
+        </div>
+    </div>
+    <script src="/static/vendor/manifest/js/jquery.ui.widget.min.js"></script>
+    <script src="/static/vendor/manifest/js/jquery.marcopolo.min.js"></script>
+    <script src="/static/vendor/manifest/js/jquery.manifest.js"></script>
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="../../../../tmpl/js/panelForm.js"></script>
+    <script>
+        var id = getParam('id');
+        id = 5;
+        getRemoteData({
+            url: remoteApi.apiUserIds + "?ids="+id,
+            callback: function(origin){
+                var user = origin[0];
+                $("#editForm").html(panelFormRender({
+                    formName: 'edit-form',
+                    panelTitle:'消息应用编辑',
+                    list:[
+                        { prop: 'id', type: 'hidden' },
+                        { prop: 'trueName', label: '应用名称', required: true },
+                        { prop: 'f4', label: '消息模板', type:'hidden'},
+                        { prop: 'f4-name', label: '消息模板', inputGroup:'选择模板', required: true },
+                        { prop: 'f3', label: '消息规则', manifest:'选择规则',  disabled: true},
+                        { prop: 'username', label: '应用内容', type:'textarea', required: true },
+                        { prop: 'des', type:'textarea', label: '描述'}
+                    ],
+                    data: user
+                }));
+                $(function (){
+                    choiceManifest({
+                        domName: "#f3"
+                    });
+                   
+                });
+                checkSubmitForm();
+            }
+        })
+        eventBind("#groupBtn-f4-name", function(){
+            indexTemplet = layer.open({
+                type: 2,
+                title:'选择消息模板',
+                area: ['700px', '350px'],
+                fixed: false, //不固定
+                maxmin: true,
+                content: '../../../htmllayer/choiceNoticeTemplet.html'
+            });
+        });
+        function choiceNoticeTempletCallback(item){
+            $("input[name='f4']").val(item.id);
+            $("input[name='f4-name']").val(item.name);
+            layer.close(indexTemplet)
+        }
+        eventBind("#groupBtn-f3",function(){
+            layer.open({
+                type: 2,
+                title:'选择消息规则',
+                area: ['700px', '450px'],
+                fixed: false, //不固定
+                maxmin: true,
+                content: '../../../htmllayer/choiceNoticeRules.html'
+            });
+        })
+        function choiceNoticeRulesCallback(item){
+            $('#f3').manifest('add', {
+                id: item.id,
+                name: item.name,
+            });
+        }
+        
+        function checkSubmitForm(){
+            form = $("form[name='edit-form']");
+            checkSubmitFun({
+                form: form,
+                rules: {
+                    trueName: { required: true, minlength:2 },
+                    username: { required: true }
+                },
+                submit:function(){
+                    putRemoteData({
+                        confirm: false,
+                        url: remoteApi.apiUser,
+                        data: form.serialize(),
+                        callback: 'back'
+                    })
+                    return false;
+                }
+            })
+        }
+        
+    </script>
+</body>
+</html>

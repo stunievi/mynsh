@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>信贷数据管理 - 台账 - 贷款资料</title>
+    <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script src="/static/vendor/bootcss/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+    <style>
+        .layui-table-body { min-height: 220px; }
+        td{
+            white-space: nowrap;
+        }
+        #content{
+            overflow: visible;
+        }
+    </style>
+</head>
+<body>
+    <div id="content"> 
+        <div class="" id="panel-form">
+        </div>
+        <div class="batch-operation">
+            <!-- <button type="button" class="btn btn-default btn-sm" id="batchDel">批量删除 </button> -->
+        </div>
+        <div id="dataList">
+        </div>
+    </div>
+    <!--<script src="../../../../static/vendor/jquery/jquery.js"></script>-->
+    <!--<script src="../../../static/vendor/bootcss/js/bootstrap.min.js"></script>-->
+    <script src="../../../../static/vendor/artTemplate/template-web.js"></script>
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <!--<script src="/static/vendor/layui/layui.js"></script>-->
+    <script src="../../../static/htmljs/global.config.js"></script>
+    <script src="../../../../static/htmljs/utils.js"></script>
+    <script src="../../../../tmpl/js/panelForm.js"></script>
+    <script src="/static/htmljs/fixLayTableList.js"></script>
+    <script type="text/html" id="_CRD_GRADE"> {{# if(d.CRD_GRADE){return getOdsEnumVal(d, 'CRD_GRADE');}else{return getOdsEnumVal(d, 'COM_CRD_GRADE');}}} </script>
+    <!-- toolbar渲染模板 -->
+    <script type="text/html" id="toolbar">
+        <div class="layui-toolbar">
+            <a href="javascript:;" class="btn handleShow btn-default" data-loanid="{{d.LOAN_ACCOUNT}}" data-name="{{d.CUS_NAME}}">查看</a>
+        </div>
+    </script>
+    <script>
+        var rm = getParam("rm");
+
+         $("#panel-form").html(panelFormRender3({
+            panelTitle:'筛选查询',
+            col: 3,
+            list:[
+                { prop: 'NAME', label: '姓名' },
+                { prop: 'CODE', label: '证件号码' },
+                { prop: 'PHONE', label: '联系电话' },
+            ],
+            data: {}
+        }));
+
+         var cols = [
+             { field:'toolbar', title:'操作', templet: '#toolbar', pos: "right", fix: 'right' }
+             , { title :'主管机构', field:'MAIN_BR_NAME' },
+             { title :'贷款帐号', field:'LOAN_ACCOUNT' },
+             { title :'客户号', field:'CUS_ID' },
+             { title :'客户名称', field:'CUS_NAME', pos: "noleft", width: 200}
+             ,{title:"实际控制人姓名", field:"NAME"}
+             ,{title:"实际控制人类别", field:"TYPE"}
+             ,{title:"实际控制人电话", field:"PHONE"}
+             ,{title:"实际控制人证件号码", field:"CODE"}
+             , { title :'贷款金额(元)', field:'LOAN_AMOUNT', money: true },
+             { title :'贷款余额(元)', field:'LOAN_BALANCE', money: true },
+             { title :'欠息累计(元)', field:'DELAY_INT_CUMU', money: true },
+             { title :'拖欠本金(元)', field:'UNPD_PRIN_BAL', money: true },
+             { title :'五级分类', field:'CLA'},
+             { title :'主担保方式', field:'ASSURE_MEANS_MAIN' },
+             { title :'年利率', field:'REALITY_IR_Y' },
+             { title :'本金逾期起始日期', field:'CAP_OVERDUE_DATE' },
+             { title :'利息逾期起始日期', field:'INTEREST_OVERDUE_DATE' },
+             { title :'还款方式', field:'REPAYMENT_MODE' },
+             { title :'期限类型', field:'TERM_TYPE' },
+             { title :'客户类型', field:'CUST_TYPE' },
+             { title :'联系人', field:'CONTACT_NAME' },
+             { title :'联系电话', field:'PHONE' },
+             { title :'通讯地址', field:'INDIV_RSD_ADDR', width:200 },
+             { title :'贷款起始日', field:'LOAN_START_DATE' },
+             { title :'贷款终止日', field:'LOAN_END_DATE' },
+             { title :'贷款用途', field:'USE_DEC' ,width: 150},
+             { title :'台帐状态', field:'ACCOUNT_STATUS' },
+             { title :'客户经理ID', field:'CUST_MGR' },
+             { title :'主管机构ID', field:'MAIN_BR_ID' }
+         ];
+
+         laytableRender({
+             cellMinWidth: 110,
+             url: remoteOrigin + "/api/search/accloan/231",
+             cols: [
+                cols
+             ]
+             ,showColumns: true
+         })
+        eventBind(".handleShow", function(that){
+            addNavTab('loandata-'+that.data("loanid"), "贷款资料详情 - "+that.data("loanid")+" - " + that.data("name"), "/htmlsrc/creditDataManage/ledger/loanData.show.html?loanid="+that.data("loanid"));
+         })
+
+        function checkSubmitForm(){
+            layuiTableReload({
+                where: $("[name='form-search']").serialize()
+            })
+            return false;
+        }
+    </script>
+</body>
+</html>

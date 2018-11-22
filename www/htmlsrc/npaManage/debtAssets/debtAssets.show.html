@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 不良资产管理 - 抵债资产管理 - 查看 </title>
+    <script src="../../../static/vendor/jquery/jquery.js"></script>
+    
+    
+    
+    <script src="../../../static/vendor/artTemplate/template-web.js"></script>
+    <link href="../../../static/vendor/bootcss/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="content">
+        <div id="data-list">
+            <!-- 基本信息展示 -->
+        </div>
+        <div class="text-center">
+            <a href="javascript:void(0)" onclick="javascript:history.go(-1);return false;">【返回】</a>
+        </div>
+    </div>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="../../../tmpl/js/panelTableShow.js"></script>
+    <script>
+        var panelTableShowRender  = template.compile(TPanelTableShow);
+        $("#data-list").html(panelTableShowRender({
+            panelTitle: '催收记录 - 查看',
+            attrs:[
+                { prop: ' ', label: '催收编号' },
+                { prop: ' ', label: '客户号' },
+                { prop: ' ', label: '客户名称' },
+                { prop: ' ', label: '合同号' },
+                { prop: ' ', label: '生成时间' },
+                { prop: ' ', label: '任务执行人' },
+                { prop: ' ', label: '执行部门' },
+                { prop: ' ', label: '客户经理' },
+                { prop: ' ', label: '催收方式' },
+                { prop: ' ', label: '催收单据' }
+            ],
+            data:{ }
+        }));
+
+        var id = getParam("id");
+        SuperPost({
+            // url: remoteApi. + ''.
+            url: '',
+            type: 'get',
+            success:function(res){
+                if(res.success){
+                
+                }
+                else{
+                    console.log(res);
+                }
+            },
+            error:function(){
+
+            }
+        })
+    </script>
+</body>
+</html>

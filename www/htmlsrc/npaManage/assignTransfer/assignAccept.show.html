@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 不良资产管理 - 不良资产任务指派移交 - 不良资产任务指派接受 - 查看 </title>
+    <script src="../../../static/vendor/jquery/jquery.js"></script>
+    <script src="../../../static/vendor/artTemplate/template-web.js"></script>
+    <link href="../../../static/vendor/bootcss/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="content">
+        <div id="data-list-1">
+            <!-- 指派申请记录 - 查看 -->
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                不良资产任务指派接受 - 查看
+            </div>
+            <div class="panel-body" id="data-list-2">
+
+            </div>
+        </div>
+        <div class="text-center">
+                <a href="javascript:void(0)" onclick="javascript:history.go(-1);return false;">【返回】</a>
+            </div>
+    </div>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="../../../tmpl/js/tableList.js"></script>
+    <script src="../../../tmpl/js/panelTableShow.js"></script>
+    <script>
+        $("#data-list-1").html(panelTableShowRender({
+            panelTitle: '贷前资料收集 - 查看',
+            attrs:[
+                { prop: '1', label: '指派流水号' },
+                { prop: '2', label: '指派方式' },
+                { prop: '3', label: '客户号' },
+                { prop: '4', label: '指派人'},
+                { prop: '5', label: '指派接受人'},
+                { prop: '6', label: '指派时间'},
+                { prop: '7', label: '状态'},
+                { prop: '8', label: '指派说明'}
+            ],
+            data: {
+                1: '客户名称',
+                2: '联系电话',
+                3: '客户经理'
+            }
+        }));
+        $("#data-list-2").html(tableListRender({
+            headCols:[
+                { prop: '1', label: '指派流水号' },
+                { prop: '2', label: '指派方式' },
+                { prop: '3', label: '客户号' },
+                { prop: '4', label: '指派人'},
+                { prop: '5', label: '指派接受人'},
+                { prop: '6', label: '指派时间'},
+                { prop: '7', label: '状态'},
+                { prop: '8', label: '指派说明'}
+            ],
+            bodyCols: [
+                {1:1}
+            ]
+        }));
+
+        var id = getParam("id");
+        getRemoteData({
+            url: '',
+            callback: function(origin){
+
+            }
+        })
+    </script>
+</body>
+</html>

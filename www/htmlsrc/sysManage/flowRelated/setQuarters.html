@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 设置处理岗位 </title>
+    <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script src="/static/vendor/bootcss/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+    <link rel="stylesheet" href="/static/vendor/ztree/css/zTreeStyle/zTreeStyle.css" type="text/css">
+    <link rel="stylesheet" href="/static/htmlcss/bstyle.css">
+</head>
+<body>
+    <div id="content">
+        <div class="">
+            <ul class="nav nav-tabs" role="tablist" id="myTabs">
+                <li role="presentation" class="active"><a href="#panelTab1" aria-controls="panelTab1" role="tab" data-toggle="tab" >岗位</a></li>
+                <li role="presentation"><a href="#panelTab2" aria-controls="panelTab2" role="tab" data-toggle="tab" onclick="getDataList('panelTab2')">角色</a></li>
+                <!--<li role="presentation"><a href="#panelTab3" aria-controls="panelTab3" role="tab" data-toggle="tab" onclick="getDataList('panelTab3')">人员</a></li>-->
+            </ul>
+            <div class="tab-content" style="padding-top: 15px;">
+                <div role="tabpanel" class="tab-pane active" id="panelTab1">
+                    <div class="panel-body">
+                        <div class="col-md-6 col-xs-12" style="margin-bottom: 15px;" >
+                            <!--<input  type="search" value="" class="txName btx" style="width:100%" placeholder="输入你要搜索的部门名称, 长按回退键删除">-->
+                            <!--<hr>-->
+                            <div class="ztree" id="mainTree" style="height:350px;overflow-y:scroll">
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-xs-12" id="checkedQuarter" style="margin-bottom: 15px;">
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="panelTab2">
+                    <div class="col-xs-12 col-md-6">
+                        <div id="mainRoleList">
+
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-md-6">
+                        <div id="mainRoleCheckedList"></div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="panelTab3">
+                    <div class="col-xs-12" style="padding-top:20px">
+                        <form name="form-search-user" class="form-horizontal" onsubmit="return checkSubmitUserForm(this)">
+                            <div class="row panel-form-input-group"> 
+                                <div class="col-xs-6 form-group ">
+                                    <label for="name" class="col-xs-4 text-right">  账户/姓名 </label>
+                                    <div class="col-xs-8">
+                                        <input type="text" class="form-control input-sm" id="name" name="name">
+                                    </div>
+                                </div>
+                                <div class="col-xs-4">
+                                    <button type="submit" class="btn btn-primary btn-sm">确 定</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-xs-6">
+                        <div id="mainUserList"></div>
+                    </div>
+                    <div class="col-xs-6">
+                        <div id="mainUserCheckedList"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="/static/vendor/ztree/js/jquery.ztree.core.js"></script>
+    <script type="text/javascript" src="/static/vendor/ztree/js/jquery.ztree.excheck.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <!-- toolbar渲染模板 -->
+    <script type="text/html" id="toolbar">
+        <div class="layui-toolbar">
+            {{# if(mainRolesIds.indexOf(d.id) >= 0 ) { }}
+            <a class="btn disabled btn-default handleAddRole" data-index="{{d.LAY_TABLE_INDEX}}" data-id="{{d.id}}"  id="role{{d.id}}">已勾选</a>
+            {{# }else{ }}
+            <a class="btn handleAddRole btn-default" data-index="{{d.LAY_TABLE_INDEX}}" data-id="{{d.id}}" id="role{{d.id}}">勾选</a>
+            {{# } }}
+        </div>
+    </script>
+    <script type="text/html" id="toolbar2">
+        <div class="layui-toolbar">
+            <a class="btn handleDelRole btn-danger" data-index="{{d.LAY_TABLE_INDEX}}" data-id="{{d.id}}">移除</a>
+        </div>
+    </script>
+    <script type="text/html" id="toolbarUser">
+        <div class="layui-toolbar">
+            {{# if(mainUserIds.indexOf(d.id) >= 0 ) { }}
+            <a class="btn disabled btn-default handleAddUser" data-index="{{d.LAY_TABLE_INDEX}}" data-id="{{d.id}}"  id="user{{d.id}}">已勾选</a>
+            {{# }else{ }}
+            <a class="btn handleAddUser btn-default" data-index="{{d.LAY_TABLE_INDEX}}" data-id="{{d.id}}" id="user{{d.id}}">勾选</a>
+            {{# } }}
+        </div>
+    </script>
+    <script type="text/html" id="toolbarUser2">
+        <div class="layui-toolbar">
+            <a class="btn handleDelUser btn-danger" data-index="{{d.LAY_TABLE_INDEX}}" data-id="{{d.id}}">移除</a>
+        </div>
+    </script>
+    <script>
+       
+        $(".panel-heading").click(function(){
+            $(this).siblings(".panel-body").toggle();
+        })
+        var actType = getParam("actType") || '';
+        var objectId = getParam("objectId") || '';
+        var remoteApiAddr;
+        var roleList = [];
+        var userList = [];
+        if(actType == 'workflow'){
+            remoteApiAddr = remoteApi.apiWorkFlowModelPermissionGet+"?objectId="+objectId+"&types=WORKFLOW_MAIN_QUARTER,WORKFLOW_SUPPORT_QUARTER";
+        }else if(actType == 'workflow_observer'){
+            remoteApiAddr = remoteApi.apiWorkFlowModelPermissionGet+"?objectId="+objectId+"&types=WORKFLOW_OBSERVER";
+        }else if(actType == 'workflow_pub'){
+            remoteApiAddr = remoteApi.apiWorkFlowModelPermissionGet+"?objectId="+objectId+"&types=WORKFLOW_PUB";
+            $('#myTabs a[href="#panelTab2"]').hide()
+            $('#myTabs a[href="#panelTab3"]').hide()
+        }
+        var mainUsers = [] // 主用户
+        var mainUserIds = []; // 主用户IDs
+        var mainRoles = []; // 主角色
+        var mainRolesIds = []; // 主角色IDs
+       
+        // 渲染选中角色列表
+        function renderCheckedRole(dataList){
+            dataList = dataList || mainRoles;
+            console.log(dataList)
+            laytableRender({
+                id: "mainRoleCheckedList",
+                elem: "#mainRoleCheckedList",
+                cols: [
+                    [
+                        {field:'name', title: '角色名称'},
+                        {field:'info', title: '角色描述'},
+                        { templet: "#toolbar2", title: '操作'}
+                    ]
+                ],
+                data: dataList
+            })
+        }
+
+        // 渲染选中用户列表
+        function renderCheckedUser(dataList){
+            dataList = dataList || mainUsers;
+            layTableRenderStaticData({
+                id: "mainUserCheckedList",
+                elem: "#mainUserCheckedList",
+                cols: [
+                    [
+                        { field:'name', title:'用户名' },
+                        { field:'phone', title:'电话' },
+                        { title:'操作', templet: "#toolbarUser2" }
+                    ]
+                ],
+                data: dataList
+            })
+        }
+
+
+        // var mainQuarterList = getMergeDeptAndQuarter(); // 主办岗位
+        // var supportQuarterList = getMergeDeptAndQuarter(); // 协办岗位
+        // var mainDeptList = JSON.parse(JSON.stringify(top.topCacheDepartment)); // 主办部门
+        // var supportDeptList = JSON.parse(JSON.stringify(top.topCacheDepartment)); // 协办部门
+        // var currEditNode = parent.currEditNode;
+        var treeSetting = {
+            check: {
+                chkDisabledInherit: false,
+                enable: true
+            },
+            view: {
+                showLine: false
+            }
+        }; // 初始化树的配置信息
+        var mainQuarters = []; // 主办岗位设置信息
+        var supportQuarters = []; // 主办岗位设置信息
+        // var mainDepts =  [];
+        // var supportDepts = [];
+
+        $(document).ready(function(){
+            var p1 = getFetch(remoteOrigin + "/api/user/org/getDQList");
+            var p2 = getFetch(remoteOrigin + "/api/user/per/getList", {objectId:getParam("id"), k1:getParam("name")})
+            $.when(p1,p2).then(function (a,b,c) {
+                if(a[1] != "success" || b[1] != "success"){
+                    layer.msg("请求数据错误", function () {
+                        setTimeout(function () {
+                            closeCurrentIframe()
+                        },1500)
+                    });
+                    return;
+                }
+                a = a[0].data;
+                b = b[0].data;
+
+                $.each(b || [], function (i,v) {
+                    if(v.otype == 'QUARTERS'){
+                        mainQuarters.push(v.oid);
+                    }
+                    else if(v.otype == 'ROLE'){
+                        mainRolesIds.push(v.oid);
+                    }
+                });
+
+                setCheckedQuarter(a, mainQuarters);
+                // setCheckedQuarter(supportQuarterList, supportQuarters);
+                // setCheckedDept(mainDeptList, mainDepts);
+                // setCheckedDept(supportDeptList, supportDepts);
+                $.fn.zTree.init($("#mainTree"), treeSetting, a);
+                extendsCheckedMainQuarter(true);
+                $(".checkbox_true_full_focus, .checkbox_true_full").parent("li").css({backgroundColor:"#ddd"});
+
+
+                var zTree = $.fn.zTree.getZTreeObj("mainTree");
+            });
+
+            return;
+            getRemoteData({
+                loading: true,
+                url: remoteApiAddr,
+                callback: function(origin){
+                    origin.forEach(function(quarter, index) {
+                        if(quarter.userType == "QUARTER"){
+                            if(quarter.type == 'WORKFLOW_SUPPORT_QUARTER'){
+                                supportQuarters.push(quarter.linkId);
+                            }else {
+                                mainQuarters.push(quarter.linkId);
+                            }
+                        }else if(quarter.userType == "DEPARTMENT"){
+                            // if(quarter.type == 'WORKFLOW_SUPPORT_QUARTER'){
+                            //     supportDepts.push(quarter.linkId);
+                            // }else {
+                            //     mainDepts.push(quarter.linkId);
+                            // }
+                        }else if(quarter.userType == "USER"){
+                            var _user = getUserById(quarter.linkId) || {};
+                            if(quarter.type == 'WORKFLOW_SUPPORT_QUARTER'){
+                                
+                            }else{
+                                if(mainUserIds.indexOf(_user.id) < 0){
+                                    mainUsers.push(_user);
+                                    mainUserIds.push(_user.id);
+                                }
+                            }
+                        }else if(quarter.userType == "ROLE") {
+                            if(quarter.type == 'WORKFLOW_SUPPORT_QUARTER'){
+                                
+                            }else{
+                                if(mainRolesIds.indexOf(quarter.linkId) < 0){
+                                    mainRolesIds.push(quarter.linkId);
+                                }
+                            }
+                            
+                        }
+                    });
+
+                    setCheckedQuarter(mainQuarterList, mainQuarters);
+                    // setCheckedQuarter(supportQuarterList, supportQuarters);
+                    // setCheckedDept(mainDeptList, mainDepts);
+                    // setCheckedDept(supportDeptList, supportDepts);
+                    $.fn.zTree.init($("#mainTree"), treeSetting, mainQuarterList);
+                    extendsCheckedMainQuarter(true);
+                    $(".checkbox_true_full_focus, .checkbox_true_full").parent("li").css({backgroundColor:"#ddd"});
+
+
+                    var zTree = $.fn.zTree.getZTreeObj("mainTree");
+                    // zTree.expandAll(true)
+                    // zTree.expandAll(false)
+
+                    // $.fn.zTree.init($("#supportTree"), treeSetting, supportQuarterList);
+                    // $.fn.zTree.init($("#mainDeptTree"), { check: { enable: true, chkboxType: { "Y":"", "N":"" } } }, mainDeptList);
+                    // $.fn.zTree.init($("#supportDeptTree"), { check: { enable: true, chkboxType: { "Y":"", "N":"" } } }, supportDeptList);
+                }
+            })
+        });
+
+        function getDataList(dataListType){
+            $('#myTabs a[href="#'+dataListType+'"]').tab('show');
+            if($('#myTabs a[href="#'+dataListType+'"]').data("clicked")){
+                return;
+            }
+            $('#myTabs a[href="#'+dataListType+'"]').data("clicked", true);
+            if(dataListType == 'panelTab2'){
+                if($("#mainRoleList table").length){
+                    layuiTableReload({
+                        id:"mainRoleList"
+                    });
+                    return;
+                }
+                // 角色
+                laytableRender({
+                    id: "mainRoleList",
+                    elem: "#mainRoleList",
+                    url: remoteOrigin + "/api/user/org/getRList"
+                    , cols: [
+                        [
+                            {field:'name', title:'角色名称'},
+                            {field:'info', title:'角色描述'},
+                            {title:'操作', templet: "#toolbar" }
+                        ]
+                    ],
+                    success: function(origin){
+                        roleList = origin.rows || [];
+                        // roleList = origin.content;
+                        $.each(roleList, function (i,v) {
+                            if(mainRolesIds.indexOf(v.id) >= 0){
+                                mainRoles.push(v)
+                            }
+                        });
+                        // roleList.forEach(function(role){
+                        // })
+                        renderCheckedRole(mainRoles)
+                    }
+                });
+            }else if(dataListType == 'panelTab3'){
+                // 用户
+                laytableRender({
+                    id: "mainUserList",
+                    elem: "#mainUserList",
+                    url: remoteApi.apiUser,
+                    cols: [
+                        [
+                            { field:'trueName', title:'用户名' },
+                            { field:'phone', title:'电话' },
+                            { title:'操作', templet: "#toolbarUser" }
+                        ]
+                    ],
+                    success: function(){
+                        renderCheckedUser(mainUsers);
+                    }
+                });
+            }
+        }
+
+        function extendsCheckedMainQuarter(isInit){
+            var nodes = $.fn.zTree.getZTreeObj("mainTree").getCheckedNodes(true);
+            var zTree = $.fn.zTree.getZTreeObj("mainTree");
+            var arr = [];
+            var l = nodes.length;
+            while (l-- > 0) {
+                var item = nodes[l] || {};
+                var t = item.name;
+                var tId = item.tId;
+                var type = item.type;
+                if(type == 'DEPARTMENT') continue
+                if(isInit && item &&item.open==false){
+                    zTree.expandNode(item, true);
+                }
+                if(item.getParentNode()){
+                    item = item.getParentNode();
+                    while (item) {
+                        if(isInit && item &&item.open==false){
+                            zTree.expandNode(item, true);
+                        }
+                        t = item.name + " - " + t;
+                        item = item.getParentNode();
+                        if(isInit && item &&item.open==false){
+                            zTree.expandNode(item, true);
+                        }
+                    }
+                }
+                arr.unshift({ title: t, tId: tId });
+            }
+            var html = '';
+            console.log(arr);
+            arr.forEach(function(i){
+                html += ' <li class="list-group-item"><a title="'+i.title+'">'+i.title+'</a><a data-tid="'+i.tId+'" class="pull-right btn btn-danger btn-xs handleDelMainQuarter">移除</a></li>';
+            });
+            $("#checkedQuarter").html(html);
+        }
+
+         // 勾选角色
+         eventBind(".handleAddRole", function(that){
+            var id = that.data("id");
+            if(mainRolesIds.indexOf(id) < 0){
+                that.addClass("disabled").text("已勾选");
+                mainRolesIds.push(id);
+                mainRoles.push(roleList[that.data("index")]);
+                renderCheckedRole(mainRoles);
+            }
+        })
+        // 移除角色
+        eventBind(".handleDelRole", function(that){
+            $("#role"+that.data("id")).removeClass("disabled").text("勾选");
+            var index = that.data("index");
+            mainRoles.splice(index, 1);
+            mainRolesIds.splice(index, 1);
+            renderCheckedRole();
+        })
+
+        // 筛选用户
+       function checkSubmitUserForm(){
+            var form = $("form[name='form-search-user']")
+            layuiTableReload({
+                id: "mainUserList",
+                where: form.serialize()
+            })
+            return false;
+        }
+        // 勾选用户
+        eventBind(".handleAddUser", function(that){
+            var id = that.data("id");
+            if(mainUserIds.indexOf(id) < 0){
+                that.addClass("disabled").text("已勾选");
+                mainUserIds.push(id);
+                mainUsers.push(getUserById(id));
+                renderCheckedUser(mainUsers);
+            }
+        })
+        // 移除用户
+        eventBind(".handleDelUser", function(that){
+            $("#user"+that.data("id")).removeClass("disabled").text("勾选");
+            var index = that.data("index");
+            mainUsers.splice(index, 1);
+            mainUserIds.splice(index, 1);
+            renderCheckedUser();
+        })
+        // 移除岗位
+        eventBind(".handleDelMainQuarter", function(that){
+            var tid = that.data("tid");
+            $("#"+tid+"_check").click();
+        })
+        // 勾选岗位
+        $(document).on("click", "#mainTree .chk", function(){
+            if($(this).hasClass("checkbox_true_full_focus")){
+                $(this).parent("li").css({backgroundColor:"#ddd"});
+            }else{
+                $(this).parent("li").css({backgroundColor:"#fff"});
+            }
+            extendsCheckedMainQuarter();
+        })
+        
+        // $("#handleSubmit").click(function(){
+        function onLayerConfirmlCallback(){
+            var nodes = $.fn.zTree.getZTreeObj("mainTree").getCheckedNodes(true);
+            // var nodes2 = $.fn.zTree.getZTreeObj("supportTree").getCheckedNodes(true);
+            // var nodesDept = $.fn.zTree.getZTreeObj("mainDeptTree").getCheckedNodes(true);
+            // var nodesDept2 = $.fn.zTree.getZTreeObj("supportDeptTree").getCheckedNodes(true);
+            var mainQuarters = []; // 主办岗位
+            // var supportQuarters = []; // 协办岗位
+            // var mainDept = []; // 主办部门
+            // var supportDeptTree = []; // 协办部门
+            var mainUsers = mainUserIds;
+            // var supportUsers = $('#supportUsers').manifest("values");
+            nodes.forEach(function(item){
+                mainQuarters.push(item.partid)
+            })
+            // nodes2.forEach(function(item){
+                // supportQuarters.push(item.partid)
+            // });
+            // nodesDept.forEach(function(item){
+            //         mainDept.push(item.id);
+            // })
+            // nodesDept2.forEach(function(item){
+            //         supportDeptTree.push(item.id);
+            // })
+            if(parent.setPermissionCallback){
+                parent.setPermissionCallback({
+                    actType: actType,
+                    mainRolesIds: mainRolesIds,
+                    mainQuarters: mainQuarters, // 主办岗位
+                    // supportQuarters: supportQuarters, // 协办岗位
+                    // mainDept: mainDept, // 主办部门
+                    // supportDept: supportDeptTree, // 协办部门
+                    mainUsers: mainUsers, // 主办人员
+                    // supportUsers: supportUsers // 协办人员
+                });
+            }
+        }
+        // })
+    </script>
+</body>
+</html>
+<script>
+
+    bindInputEvent(".txName", function () {
+        var txName = $(".txName").val();
+        $("li[id*=mainTree]").hide();
+        var target = $("li[id*=mainTree]:contains('"+txName+"')");
+        // target.each(function () {
+        //     $(this).find("li[id*=mainTree]").show()
+        // })
+        target.show();
+    });
+</script>

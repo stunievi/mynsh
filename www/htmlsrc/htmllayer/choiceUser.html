@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 选择发送用户 </title>
+    <!--#include file="/htmlsrc/header.html" -->
+</head>
+<body>
+    <div id="content"> 
+        <div class="" id="panel-form">
+            <!-- 用户列表筛选表单 -->
+        </div>
+        <div id="dataList">
+            <!-- 用户列表 -->
+        </div>
+    </div>
+    <script type="text/html" id="_truename"> {{# return d.trueName || d.TRUENAME || '';}} </script>
+    <script type="text/html" id="_username"> {{# return d.username || d.USERNAME || '';}} </script>
+    <script type="text/html" id="_phone"> {{# return d.phone || d.PHONE || '';}} </script>
+    <!-- toolbar渲染模板 -->
+    <script type="text/html" id="toolbar">
+        <div class="layui-toolbar">
+            <a href="javascipt:;" class="btn handelAdd btn-default" data-id="{{d.uid || d.ID}}" data-true-name="{{d.trueName || d.TRUENAME}}" data-user-name="{{d.username || d.USERNAME }}">选择</a>
+        </div>
+    </script>
+    <script>
+        var index = parent.layer.getFrameIndex(window.name);
+        var actType = getParam("actType") || '';
+        var urlType = getParam("urlType") || '';
+        var modelId = getParam("modelId") || '';
+        var dealerId = getParam("dealerId") || '';
+        var url;
+        if(urlType == 'transfer' || urlType == 'point'){
+            url = remoteOrigin + "/api/auto/wfins/kezhipai?id=" + getParam("id")
+            // url = remoteApi.apiWorkflowDealers+'?id='+modelId;
+        } else if(urlType == 'deal'){
+            url = remoteApi.apiWorkflowDealers+"?id="+modelId;
+        } else {
+            $("#panel-form").html(panelFormRender({
+                panelTitle:'筛选查询',
+                list:[
+                    { prop: 'name', label: '账户/姓名' }
+                ],
+                data: { }
+            }));
+            url = remoteApi.apiUser
+        }
+
+        laytableRender({
+            url: url,
+            page: false
+            , cols: [
+                [
+                    { title:'用户名' , field: "uname" },
+                    { title:'姓名', field: "utname" },
+                    { title: "岗位", field: "oname"},
+                    { title:'电话', field: "phone" },
+                    { title: '操作', templet: "#toolbar"}
+                ]
+            ],
+            resHandler: function(res){
+                if(res.data.content.length > 0){
+                    res.data.content = res.data.content.filter(function(item){return item.id != dealerId})
+                    // res.data.content.forEach(function(element, index) {
+                        // if(element.id == dealerId){
+                            // res.data.content
+                        // }
+                    // });
+                }
+                return res;
+            }
+        });
+
+        //给父页面传值
+        $(document).on('click', '.handelAdd', function(){
+            var uid = $(this).attr("data-id");
+            getFetch(remoteOrigin + "/api/auto/wfins/point",{
+                id: getParam("id")
+                , toUid: uid
+            },function () {
+                closeCurrentIframe()
+            });
+
+            // if(uid == dealerId){
+            //     layer.msg("ga");
+            //     return false;
+            // }
+            // $(this).text("已选择");
+            // var user = {
+            //     id: uid,
+            //     name: $(this).data("true-name"),
+            //     trueName:  $(this).data("true-name"),
+            //     userName: $(this).data("user-name"),
+            // }
+            // if(parent.choiceUserCallback){
+            //     parent.choiceUserCallback(user, actType);
+            //     return true;
+            // }else{
+            //     if(parent.callbackInput){
+            //         parent.$(parent.callbackInput.id).val(user.id);
+            //         parent.$(parent.callbackInput.name).val(user.name);
+            //         parent.layer.close(index);
+            //         return true;
+            //     }
+            // }
+            return false;
+        });
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 选择消息规则 </title>
+    <link href="../../../../static/vendor/bootcss/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+</head>
+<body>
+    <div id="content"> 
+        <div class="" id="panel-form">
+            <!-- 查询表单 -->
+        </div>
+        <div id="dataList">
+            <!-- 数据列表 -->
+        </div>
+    </div>
+    <script src="../../../../static/vendor/jquery/jquery.js"></script>
+    <script src="../../../../static/vendor/artTemplate/template-web.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="../../../../../tmpl/js/panelForm.js"></script>
+     <!-- toolbar渲染模板 -->
+     <script type="text/html" id="toolbar">
+        <div class="layui-toolbar">
+            <a href="javascript:;" class="btn handleChoice btn-default" data-id="{{d.id}}" data-name="{{d.method}}">选择</a>
+        </div>
+    </script>
+    <script>
+        $("#panel-form").html(panelFormRender({
+            panelTitle:'筛选查询',
+            list:[
+                { prop: 'name', label: '规则名' }
+            ],
+            data: {}
+        }));
+
+        laytableRender({
+            url: remoteApi.apiSystemLog,
+            cols: [
+                [
+                    {checkbox: true, fixed: true},
+                    {field:'id', title:'规则编号'},
+                    {field:'f2', title:'规则名称'},
+                    {field:'f3', title:'规则内容'},
+                    {field:'', title:'操作', templet: "#toolbar"}
+                ]
+            ]
+        });
+
+        eventBind(".handleChoice", function(that){
+            if(parent.choiceNoticeRulesCallback){
+                parent.choiceNoticeRulesCallback({
+                    id: that.data("id"),
+                    name: that.data("name")
+                })
+            }
+        })
+
+        function checkSubmitForm(){
+            var form = $("form[name='form-search']")
+            layuiTableReload({
+                where: form.serialize()
+            })
+            return false;
+        }
+    </script>
+</body>
+</html>

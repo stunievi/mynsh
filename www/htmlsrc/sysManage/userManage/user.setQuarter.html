@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 设置岗位 </title>
+    <link rel="stylesheet" href="/static/vendor/bootcss/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/vendor/ztree/css/zTreeStyle/zTreeStyle.css" type="text/css">
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+</head>
+<body>
+    <div id="content">
+        <!-- <input class="form-control input-sm" type="text" id="key" placeholder="请输入筛选关键词" style="width:30%;margin-left:6px;margin-top:6px;"> -->
+        <div class="col-xs-12">
+            <div class="col-xs-6">
+                <div id="quarterTree" class="ztree">
+
+                </div>
+            </div>
+            <div class="col-xs-6" id="checkedQuarter" style="position:fixed;left:50%">
+             
+            </div>
+        </div>
+    </div>
+    <script src="/static/vendor/jquery/jquery.js"></script>
+    <script type="text/javascript" src="/static/vendor/ztree/js/jquery.ztree.core.js"></script>
+    <script type="text/javascript" src="/static/vendor/ztree/js/jquery.ztree.excheck.js"></script>
+    <!-- <script type="text/javascript" src="/static/vendor/ztree/js/jquery.ztree.exhide.min.js"></script> -->
+	<!-- <script type="text/javascript" src="/static/vendor/ztree/js/fuzzysearch.js"></script> -->
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script>
+        var index = parent.layer.getFrameIndex(window.name);
+        var userId = getParam("id");
+        var quarterList = getMergeDeptAndQuarter(); // 岗位列表
+        var userQuarter = [] // 用户岗位信息
+        var currUser = {}; // 当前用户
+        var treeSetting = {
+            check: {
+                chkDisabledInherit: false,
+                enable: true
+            },
+            view: {
+                showLine: false
+            },
+            callback: {
+                onCheck: onCheck
+            }
+        }; // 初始化树的配置信息
+
+        getRemoteData({
+            loading: true,
+            url: remoteApi.apiUserIds+"?ids="+userId,
+            callback: function(origin){
+                currUser = origin[0] || {};
+                currUser.quarters.forEach(function(quarter){
+                    userQuarter.push(quarter.id);
+                });
+                setCheckedQuarter(quarterList, userQuarter);
+                $.fn.zTree.init($("#quarterTree"), treeSetting, quarterList);
+                var zTree = $.fn.zTree.getZTreeObj("quarterTree");
+                jjjjjjjjj(true);
+                $(".checkbox_true_full_focus, .checkbox_true_full").parent("li").css({backgroundColor:"#ddd"});
+                // fuzzySearch('quarterTree','#key',null,true); //初始化模糊搜索方法
+            }
+        });
+
+        var jsjsjsj = [];
+
+        function jjjjjjjjj(isInit){
+            var nodes = $.fn.zTree.getZTreeObj("quarterTree").getCheckedNodes(true);
+            var zTree = $.fn.zTree.getZTreeObj("quarterTree");
+            var arr = [];
+            var l = nodes.length;
+            while (l-- > 0) {
+                var item = nodes[l] || {};
+                console.log(item)
+                var t = item.name;
+                var tId = item.tId;
+                if(isInit && item && item.open==false){
+                    zTree.expandNode(item);
+                }
+                if(item.getParentNode()){
+                    item = item.getParentNode();
+                    while (item) {
+                        if(isInit && item && item.open==false){
+                            zTree.expandNode(item);
+                        }
+                        t = item.name + " - " + t;
+                        item = item.getParentNode();
+                        if(isInit && item &&item.open==false){
+                            zTree.expandNode(item);
+                        }
+                    }
+                }
+                arr.unshift({ title: t, tId: tId });
+            }
+            var html = '';
+            arr.forEach(function(i){
+                html += ' <li class="list-group-item"><a title="'+i.title+'">'+i.title+'</a><a data-tid="'+i.tId+'" class="pull-right btn btn-danger btn-xs handleDelQuarter">移除</a></li>';
+            });
+            $("#checkedQuarter").html(html);
+        }
+
+        eventBind(".handleDelQuarter", function(that){
+            var tid = that.data("tid");
+            $("#"+tid+"_check").click();
+        })
+
+        $(document).on("click", "#quarterTree .chk", function(){
+            if($(this).hasClass("checkbox_true_full_focus")){
+                $(this).parent("li").css({backgroundColor:"#ddd"});
+            }else{
+                $(this).parent("li").css({backgroundColor:"#fff"});
+            }
+        })
+
+        function onCheck(){
+            jjjjjjjjj();
+            // console.log(arr);
+        }
+
+        function onLayerConfirmlCallback() {
+            var nodes = $.fn.zTree.getZTreeObj("quarterTree").getCheckedNodes(true);
+            // nodes.forEach(function(item){
+            //     console.log(item.getParentNode());
+            // })
+            var dataQuarters = [];
+            nodes.forEach(function(item){
+                dataQuarters.push(item.partid)
+            })
+            if(userQuarter.equals(dataQuarters)){
+                parent.layer.close(index);
+                if(parent.putQuarterCallback){
+                    parent.putQuarterCallback();
+                }
+                return true;
+            };
+            postRemoteData({
+//                dt: "json",
+                url: remoteApi.apiQuartersAdjust,
+                data: {
+                    chan: 1,
+                    clear: 1,
+                    uids: [currUser.id],
+                    qids: dataQuarters || []
+                },
+                callback: function(){
+                    parent.layer.close(index);
+                    setUserQuarters(currUser.id, dataQuarters);
+                    if(parent.putQuarterCallback){
+                        parent.putQuarterCallback();
+                    }
+                    return true;
+                }
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1044 @@
+<!doctype html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>辅助管理系统</title>
+    <!--<link rel="stylesheet" href="/static/vendor/bootcss/css/bootstrap.min.css">-->
+    <!-- <link rel="stylesheet" href="../../../static/vendor/jqui/jquery-ui.css"> -->
+    <!--<link rel="stylesheet" href="/static/vendor/ztree/css/zTreeStyle/zTreeStyle.css" type="text/css">-->
+    <link rel="stylesheet" href="/static/htmljs/layui/css/layui.css">
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+    <link rel="stylesheet" href="/static/htmlcss/iframeWrap.css">
+    <link rel="stylesheet" href="/static/htmlcss/menu.css">
+    <link rel="stylesheet" href="/static/htmlcss/context.css">
+    <link rel="stylesheet" href="/static/vendor/jquery/megalist.css">
+    <link rel="stylesheet" href="/static/vendor/toastr/toastr.css">
+    <!--<link rel="stylesheet" href="/static/vendor/jquery/roll.css">-->
+    <script src="/static/vendor/jquery/jquery.js"></script>
+    <script src="/static/vendor/jquery/megalist.js"></script>
+    <!--<script src="/static/vendor/jquery/scrollbar.js"></script>-->
+    <!--<script src="/static/htmljs/jquery.lazyload.min.js"></script>-->
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/htmljs/menu.js"></script>
+    <script src="/static/vendor/artTemplate/template-web.js"></script>
+    <script src="./static/htmljs/context.js"></script>
+    <script src="/static/htmljs/layui/layui.js"></script>
+    <script src="/static/vendor/toastr/toastr.js"></script>
+    <script>
+        toastr.options.closeButton = true;
+        toastr.options.onclick = function () {
+            $("<button type='button' tab-href='/htmlsrc/bench/notice/notice.list.html' tab-title='查看消息' style='display: none;'>1</button>")
+                .appendTo("body")
+                .trigger("click")
+                .remove();
+        }
+    </script>
+
+    <script>
+        // var firstLoadingIndex = layer.load(1, {shade: [0.1, '#000']});
+    </script>
+    <style>
+        body{
+            overflow-x: hidden;
+        }
+        .navbar-nav li {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .navbar-nav > li:after {
+            position: absolute;
+            right: 0;
+            top: 10px;
+            width: 1px;
+            height: 30px;
+            background: rgba(255, 255, 255, .25);
+            content: '';
+        }
+
+        .navbar-nav > li:before {
+            position: absolute;
+            top: 10px;
+            left: 0;
+            width: 1px;
+            height: 30px;
+            display: block;
+            background: rgba(0, 0, 0, .2);
+            content: '';
+        }
+
+        .navbar-nav > li:first-child:before {
+            display: none;
+        }
+
+        .navbar-nav > li:last-child:after {
+            display: none;
+        }
+
+        .navbar-nav > li.active:before {
+            width: 500px;
+            height: 100px;
+            opacity: .5;
+        }
+
+        .nav-wrap {
+            background: url(/static/htmlImage/titlebar_blue_bg.png) repeat;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, .5);
+            /*background: url(/static/htmlImage/titlebar_blue_tile.png) repeat;*/
+        }
+
+        .gotomars-side-scroll {
+            /*background: url(/static/htmlImage/win_background.png) repeat;*/
+            background: #4A89DC;
+            box-shadow: 2px 0 5px rgba(0,0,0,.4);
+        }
+        .gotomars-side-scroll::-webkit-scrollbar{
+            width:0px;
+            opacity:0;
+            -webkit-overflow-scrolling: touch;
+        }
+        .gotmars-iframe-scroll{
+            padding-bottom: 40px;
+        }
+
+        #x-wrap-menu li a.curSelectedNode {
+            background: none;
+        }
+
+        html, body, #content-wrap, #table-frame, .gotmars-iframe-scroll, #tabs, #iframe-content-wrap {
+            width: 100%;
+            height: 100%;
+        }
+        .facebox{
+            text-align: center;
+            padding-top: 10px;
+        }
+        .facebox p{
+            font-size: 22px;
+            color:white;
+            text-shadow : rgba(255,255,255,0.5) 0 5px 6px, rgba(255,255,255,0.2) 1px 3px 3px;
+            -webkit-background-clip : text;
+            /*padding-bottom: 15px;*/
+            margin-bottom: 0;
+        }
+        .facebox b{
+            display: block;
+            margin-bottom: 10px;
+            margin-top: 8px;
+            /*padding-bottom: 15px;*/
+        }
+        .ln{
+            width: 100%;
+            border-top: 1px solid rgba(0,0,0,.2);
+            border-bottom: 1px solid rgba(255,255,255,.2);
+        }
+        .facebox img{
+            border-radius: 100%;
+            margin-bottom: 15px;
+            margin-top: 15px;
+        }
+        .facebox b{
+            color: white;
+        }
+        #demo-list{
+            margin-top: 15px;
+        }
+
+        .jquery-accordion-menu{
+            min-width: 200px;
+        }
+
+        .tab-content{
+            padding-top: 0;
+        }
+        #myTab{
+            border-bottom: 0;
+        }
+        #myTab > li{
+            border:0;
+            margin-left: 0;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            background: #dedede;
+        }
+        #myTab > li.active{
+            border: 0;
+            background: white !important;
+        }
+        #myTab > li:hover, #myTab > li:focus{
+            background: #eaeaea;
+        }
+        #demo-list li{
+            display: none;
+        }
+
+
+        /*im*/
+        .layui-layim-status .layim-menu-box,.layui-layim-remark,.layui-icon.layim-tool-skin, .layim-tool-face{
+            display: none !important;
+        }
+        .layui-layim-user{
+            color: white;
+        }
+        /*.layui-layim-list li span{*/
+            /*margin-top: 10px !important;*/
+        /*}*/
+
+        /*.blue.jquery-accordion-menu b{*/
+            /*font-size: 12px !important;*/
+        /*}*/
+
+        .closebtn{
+            display: block;
+            position: absolute;
+            right: -20px;
+            top: 50%;
+            margin-top: -15px;
+            width: 40px;
+            height: 40px;
+            border-radius: 100%;
+            cursor: pointer;
+            background: #4A89DC;
+            box-shadow: 2px 0 5px rgba(0,0,0,.4);
+            z-index: 1;
+            font-size: 20px;
+            line-height: 40px;
+            color:#fff;
+        }
+        .closebtn i{
+            display: none;
+            float: right;
+            margin-right: 3px;
+            font-weight: bold;
+            transition: transform 0.5s;
+        }
+        .route180{
+            transform: rotate(180deg);
+        }
+        #friend-box{
+            height: 100%;
+            border: 0 !important;
+        }
+        .layim-list-friend {
+            padding-top: 0 !important;
+            padding-bottom: 20px !important;
+        }
+        .layim-list-friend .layui-layim-list{
+            display: block;
+            height: 100%;
+        }
+        #friend-box ul{
+            display: block;
+        }
+        #demo-list{
+            overflow: hidden;
+        }
+
+    </style>
+    <!--<script src="static/vendor/bootcss/js/bootstrap.min.js"></script>-->
+</head>
+<body>
+<div id="content-wrap">
+    <table id="table-frame">
+        <tr>
+            <td class="leftbox" width="300" valign="top" style="position: relative;">
+                <div class="closebtn">
+                    <i class="layui-icon  glyphicon glyphicon-chevron-left">&#xe60c;</i>
+                </div>
+                <div class="gotomars-side-scroll pull-left scroll_wrap autobox" id="x-wrap-menu-wrap"
+                     style="height: 100%;position: relative;z-index: 1;overflow-x: hidden;overflow-y: auto;">
+
+                    <!--menu start-->
+                    <div id="jquery-accordion-menu" class="jquery-accordion-menu blue scroll_cont" style="">
+                    </div>
+                    <!--menu end-->
+
+                    <div class="scroll_bar" style="display: none;">
+                        <div class="scroll_slider"></div>
+                    </div>
+                </div>
+            </td>
+            <td width="100%" valign="top" id="rightbox">
+                <div class="gotmars-iframe-scroll autobox" style="overflow:hidden;padding-left:8px;padding-top:8px;">
+                    <div class="tabbable" id="tabs" style="border:none;">
+                        <!-- 页面标签列表 -->
+                        <ul class="nav nav-tabs" id="myTab" style="overflow: hidden;">
+                            <!--<a href="javascript:;" class="pull-left" id="closeAllIframe"><span-->
+                                    <!--class="glyphicon glyphicon glyphicon-remove" title="关闭所有页面"></span></a>-->
+                            <!--<a href="javascript:;" class="pull-left" id="closeOtherIframe"><span-->
+                                    <!--class="glyphicon glyphicon glyphicon-remove-circle" title="关闭其它页面"></span></a>-->
+                            <!--<a href="javascript:;" class="pull-left" id="reloadIframe"><span-->
+                                    <!--class="glyphicon glyphicon-repeat" title="刷新当前页面"></span></a>-->
+                        </ul>
+                        <!-- 页面内容列表，和页面标签列表对应 -->
+                        <div class="tab-content" id="iframe-content-wrap">
+                        </div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+
+
+</div>
+<script src="../../../static/vendor/jqui/jquery-ui.min.js"></script>
+<script src="./static/htmljs/store.js"></script>
+<!-- HTML5 shim 和 Respond.js 是为了让 IE8 支持 HTML5 元素和媒体查询（media queries）功能 -->
+<!-- 警告：通过 file:// 协议（就是直接将 html 页面拖拽到浏览器中）访问页面时 Respond.js 不起作用 -->
+<!--[if lt IE 9]>
+<script src="/static/vendor/bootcss/js/html5shiv.min.js"></script>
+<script src="/static/vendor/bootcss/js/respond.min.js"></script>
+<![endif]-->
+<!--<script src="/static/vendor/bootcss/js/bootstrap.min.js"></script>-->
+<script src="/static/htmljs/global.config.js"></script>
+<script src="/static/htmljs/utils.js"></script>
+<script src="/static/vendor/ztree/js/jquery.ztree.core.js"></script>
+<!-- 菜单配置信息 -->
+<script src="/static/htmljs/webMenu.js"></script>
+<script src="/static/htmljs/iframeNav.js"></script>
+<script>
+    context.init({preventDoubleContext: false});
+    // 默认打开页面
+    addTab("menu-mybench-bench", "我的工作台", '/htmlsrc/bench/myBench.html');
+
+    // $(document).ready(function () {
+    //     var initTopIframe = function () {
+    //         var iframe = $("#iframe-content-wrap");
+    //         var h = $(window).height() - 78;
+    //         iframe.height(h - 25);
+    //         $("#x-wrap-menu").height(h - 20);
+    //     }
+    //     initTopIframe();
+    //     $(window).resize(initTopIframe);
+    // });
+
+    //    $("#open-side-menu").click(function(){
+    //        if($(this).data("open")){
+    //            $("#x-wrap-menu-wrap").width(169);
+    //            $("#x-wrap-menu").width(189);
+    //            $(this).data("open", false)
+    //        }else{
+    //            $("#x-wrap-menu-wrap").width(250);
+    //            $("#x-wrap-menu").width(270);
+    //            $(this).data("open", true)
+    //        }
+    //    })
+
+    $("#side-start").click(function () {
+        $("#x-wrap-menu-wrap").width(169);
+        $("#x-wrap-menu").width(189);
+    })
+    $("#side-backward").click(function () {
+        var w = $("#x-wrap-menu-wrap").width();
+        if (w - 10 < 169) {
+            w = 169;
+        } else {
+            w -= 10;
+        }
+        $("#x-wrap-menu-wrap").width(w)
+        $("#x-wrap-menu").width(w + 20);
+    })
+
+    $("#side-forward").click(function () {
+        var w = $("#x-wrap-menu-wrap").width();
+        console.log(w)
+        if (w + 10 > 420) {
+            w = 420;
+        } else {
+            w += 10;
+        }
+        $("#x-wrap-menu-wrap").width(w + "px")
+        $("#x-wrap-menu").width(w + 20 + "px");
+    })
+
+    $("#side-stop").click(function () {
+        $("#x-wrap-menu-wrap").width(420);
+        $("#x-wrap-menu").width(440);
+    })
+    //    <a href="javascript:;" class=" glyphicon glyphicon-stop" id="side-stop" style="color: #faebcc"></a>
+    //            <a href="javascript:;" class="glyphicon glyphicon-backward" id="side-backward" style="color: #faebcc"></a>
+    //            <a href="javascript:;" class="glyphicon glyphicon-forward" id="side-forward" aria-hidden="true" style="color: #faebcc"></a>
+
+    var topCacheMenuAuthority = {};
+    // 当前用户信息
+    var topCacheUserInfo = {};
+    // 组织架构信息
+    var topCacheDepartment = [];
+    var topCacheDepartmentObj = {};
+    // 组织架构和岗位
+    var topCacheDepartmentAndQuarter = [];
+    // 所有用户
+    var topCacheUserList = [];
+    var topCacheUserObj = {};
+
+    getRemoteData({
+        url: remoteApi.apiUserIds + "?ids=" + $.cookie("userId"),
+        callback: function (origin) {
+            topCacheUserInfo = origin[0] || {};
+            // 用户权限
+            $("#navbar-user-name").html(topCacheUserInfo.trueName + "&nbsp;");
+            $("#user-face").attr("src", remoteApi.apiUserFace + (topCacheUserInfo.profile || {}).faceId);
+        }
+    })
+
+    $("img").error(function () {
+        $(this).attr("src", globalData.defaultImg);
+    })
+
+    setTimeout(function () {
+        // 获取组织架构信息
+        getRemoteData({
+            url: remoteApi.apiAlldepartment,
+            callback: function (origin) {
+                if (origin.length) {
+                    topCacheDepartment = origin;
+                    var stack = [];
+                    origin.forEach(function (item) {
+                        stack.push(item);
+                    })
+                    while (stack.length !== 0) {
+                        var dept = stack.shift();
+                        topCacheDepartmentObj[dept.id] = dept;
+                        if (dept.children.length !== 0) {
+                            dept.children.forEach(function (item) {
+                                stack.push(item);
+                            })
+                        }
+                    }
+                }
+            }
+        })
+        // 获取所有用户信息
+        getRemoteData({
+            url: remoteApi.apiNormalUsers,
+            callback: function (origin) {
+                var _obj = {};
+                origin.forEach(function (elem) {
+                    if (_obj[elem[0]]) {
+                        _obj[elem[0]].quarters.push(elem[4]);
+                    } else {
+                        _obj[elem[0]] = {
+                            id: elem[0],
+                            name: elem[1],
+                            phone: elem[2],
+                            face: elem[3], // 头像Id
+                            quarters: elem[4] ? [elem[4]] : [] // 岗位ids
+                        }
+                    }
+                });
+                topCacheUserObj = JSON.parse(JSON.stringify(_obj));
+                var arr = [];
+                for (var key in _obj) {
+                    if (!_obj.hasOwnProperty(key)) {
+                        continue;
+                    }
+                    arr.push(_obj[key]);
+                }
+                topCacheUserList = arr;
+            }
+        })
+    }, 5000);
+    // 退出登录
+    $("#handleOut").click(function () {
+        actConfirm(function () {
+            loginOut();
+        })
+    })
+    // 跳转至个人设置 - 修改密码
+    $("#handleChangePassword").click(function () {
+        redirectShowMenu("menu-mybench", "menu-change-password");
+    });
+    // 跳转至个人设置 - 修改个人信息
+    $("#handleSetInfo").click(function () {
+        redirectShowMenu("menu-mybench", "menu-put-user-info");
+    });
+    // 跳转至消息管理
+    $("#handleUnReadMsg").click(function () {
+        redirectShowMenu("menu-mybench", "menu-mybench-notice");
+    })
+    // 跳转至我的工作台 - 待处理任务列表
+    $("#handleUnDealTask").click(function () {
+        redirectShowMenu("menu-mybench", "menu-mybench-bench");
+    })
+
+    // 监听函数
+    var monitorFuncs = {
+        // 获取未读消息
+        getUnReadNotice: function () {
+            getRemoteData({
+                url: remoteApi.apiGetUnreadUserList,
+                callback: function (origin) {
+                    if (origin && origin.length > 0) {
+                        var noticeCount = 0;
+                        origin.forEach(function (item, index) {
+                            noticeCount += item.unreadNum;
+                        })
+                        $("#unReadMsgCount").html(noticeCount).show();
+                    } else {
+                        $("#unReadMsgCount").html("").hide();
+                    }
+                }
+            });
+        },
+        // 获取未处理任务
+        getUnDealTask: function () {
+            getRemoteData({
+                url: remoteApi.apiMyNeedingWorks,
+                callback: function (origin) {
+                    if (origin.content && origin.content.length > 0) {
+                        $("#unDealTaskCount").html(origin.totalElements).show();
+                    } else {
+                        $("#unDealTaskCount").html("").hide();
+                    }
+
+                }
+            });
+        },
+        // 检查是否在线
+        checkOnline: function () {
+            SuperPost({
+                type: "get",
+                url: remoteApi.apiCheckOnline,
+                success: function (res) {
+                    if (res.success === false) {
+                        loginOut();
+                    }
+                },
+                error: function () {
+                    loginOut();
+                }
+            })
+        }
+    }
+    // 监听
+    // monitorFuncs.checkOnline();
+    // monitorFuncs.getUnReadNotice();
+    // monitorFuncs.getUnDealTask();
+    // setInterval(function () {
+    //     monitorFuncs.getUnReadNotice();
+    //     monitorFuncs.getUnDealTask();
+    // }, 1000 * 10);
+    // setInterval(function () {
+    //     monitorFuncs.checkOnline();
+    // }, 1000 * 30);
+
+    function loginClound() {
+        var user = store.get("$user");
+        console.log(user)
+        $.ajax({
+            url: remoteApi.apiCloudLogin + "?username=" + user.cloudUsername + "&password=" + user.cloudPassword,
+            success: function (res) {
+                // $.cookie("remoteCloundToken", remoteCloundToken + res.sessionId, {path: "/"});
+            }
+        })
+
+        // getRemoteData({
+        //     url: '/api/user/getCloudFileAccount',
+        //     callback: function (origin) {
+        //
+        //     }
+        // })
+    }
+
+    loginClound();
+
+    setInterval(function () {
+        loginClound();
+    }, 1000 * 60 * 5);
+
+
+
+    // $(document).on("load","iframe", function () {
+    //     console.log('if load')
+    // })
+
+
+    // function loadif(t) {
+    //     console.log(t)
+    //     $(t).height($(t).parent().height());
+    // }
+
+
+    // console.log(menu)
+</script>
+</body>
+</html>
+
+<script type="text/html" id="menu-tmpl">
+    <div class="facebox">
+        <p>辅助管理系统</p>
+        <b style="font-size: 12px;font-weight: normal;">数据版本: <span>查询中...</span></b>
+        <div class="ln"></div>
+        <img src="{{face}}" alt="" width="100" height="100" >
+        <div style="margin-bottom: 10px;">
+            <b>{{uname}}</b>
+        </div>
+        <div class="ln"></div>
+    </div>
+    <ul id="demo-list">
+        {{each data item1 idex1}}
+        {{set id = item1.name}}
+        <li data-id="{{id}}">
+            <b href="#">{{item1.name}}</b>
+            {{if item1.children && item1.children.length}}
+            <ul class="submenu">
+                {{each item1.children item2 idex2}}
+                {{set id = item1.name + '.' + item2.name}}
+                {{set idex = idex1 + '-' + idex2}}
+                <li data-id="{{id}}">
+                    <b href="#" onclick="menuclick('{{idex}}','{{item2.name}}','{{item2.href}}')" >{{item2.name}}</b>
+                    {{if item2.children && item2.children.length}}
+                    <ul class="submenu">
+                    {{each item2.children item3 idex3}}
+                    {{set id = item1.name + '.' + item2.name + '.' + item3.name}}
+                    {{set idex = idex1 + '-' + idex2 + '-' + idex3}}
+                    <li data-id="{{id}}">
+                        <b href="#" onclick="menuclick('{{idex}}','{{item3.name}}','{{item3.href}}')" class="m-item">{{item3.name}}</b>
+                    </li>
+                    {{/each}}
+                    </ul>
+                    {{/if}}
+                </li>
+                {{/each}}
+            </ul>
+            {{/if}}
+        </li>
+        {{/each}}
+    </ul>
+</script>
+
+<script>
+    //render left menu
+    var html = template.render($("#menu-tmpl").html(), {
+        data: menu,
+        uid: $.cookie("userId"),
+        uname: $.cookie("userName"),
+        white: whitelist
+        , face: "/file/avatar/" + $.cookie("userId") + ".jpg?v=" + Math.random()
+    });
+    $("#jquery-accordion-menu").html(html);
+    jQuery("#jquery-accordion-menu").jqueryAccordionMenu();
+
+    function menuclick(id,name,href){
+        if(href){
+            addTab((id.replace(/\.+/g,"-")), name, href);
+        }
+        console.log(id,name,href)
+    }
+    //left menu end
+
+    // $('[data-original]').lazyload({});
+
+    //method white-list
+    getFetch(
+        remoteOrigin + "/api/auto/user/getMyMethods",
+        function (whitelist) {
+            if(whitelist.indexOf("_all_") > -1){
+                $("#demo-list li").show();
+                return
+            }
+            $("#demo-list li").each(function () {
+                var _this = $(this)
+                var id = $(this).data("id");
+                if(whitelist.indexOf(id) > -1){
+                    _this.show()
+                    //if a item has be showed, its parents must be showed!!
+                    _this.parents("#demo-list li").show()
+                }
+            })
+        }
+    );
+
+    
+    //fix iframe
+    // $(window).resize(function () {
+    //     alert($("iframe").eq(0).parent().height())
+    //     $("iframe").each(function () {
+    //         $(this).width($(this).parent().width())
+    //         $(this).height($(this).parent().height())
+    //     })
+    // });
+
+
+
+    //right clicked menu
+    $(document).on("mousedown","#myTab li[id*=tab-]",function (e) {
+        if(e.button == 1){
+            $(this).find("i").click();
+            return false;
+        }
+    });
+
+    context.attach(".facebox img",[
+        {
+            text: "个人设置"
+            ,action: function () {
+                $("#demo-list b:contains('个人设置')")[0].click();
+            }
+        }
+        ,{
+            text: "修改密码"
+            ,action: function () {
+                $("#demo-list b:contains('修改密码')")[0].click()
+            }
+        }
+        ,{
+            text: "退出登录"
+            ,action: function () {
+                loginOut()
+            }
+        }
+    ]);
+
+
+
+    //im
+    layui.use('layim', function(layim) {
+
+        return;
+
+        var imReadyPromise = $.Deferred();
+        var cache = null;
+        var curChatWindow = null;
+
+        function makeMessage(msg){
+            // console.warn(cache.fmap,msg,cache.fmap[msg.fromId], cache.fmap[msg.toId])
+            if(!cache.fmap[msg.fromId] || !cache.fmap[msg.toId]){
+                return null;
+            }
+            var fromMe = msg.fromId == cache.mine.id;
+            var toMe = msg.toId == cache.mine.id;
+            return {
+                username: fromMe ? cache.mine.username : cache.fmap[msg.fromId].username
+                , avatar: fromMe ? cache.mine.avatar : cache.fmap[msg.fromId].avatar
+                , id: fromMe ? msg.toId: msg.fromId
+                , type: "friend"
+                , content: msg.content
+                , cid: msg.id
+                , mine: fromMe
+                , fromid: msg.fromId
+                , timestamp: msg.sendTime
+            }
+        }
+
+        function renderChatWindow(obj,msgs){
+            obj.elem.find("li[class*=layim-chat]").remove();
+            $.each(msgs || [], function (i,v) {
+                layim.getMessage(makeMessage(v));
+            });
+        }
+
+        function frameLoad(items){
+            //load 10 item each 1 frame
+            var step = 1000 / 60;
+            (function loadSingle(ptr) {
+                var is = items.slice(ptr, ptr + 10);
+                if(is.length == 0){
+                    imReadyPromise.resolve();
+                    //break loop
+                    return;
+                }
+                $.each(is, function (i,v) {
+                    if(cache.fmap[v.id]){
+                        return;
+                    }
+                    cache.fmap[v.id] = v;
+                    layim.addList(v);
+                });
+                setTimeout(function () {
+                    loadSingle(ptr + 10)
+                },step);
+            })(0);
+        }
+
+        layim.on('ready', function(res){
+            //console.log(res.mine);
+            layim.msgbox(5); //模拟消息盒子有新消息，实际使用时，一般是动态获得
+
+            cache = res;
+            //整理数据
+            cache.fmap = {};
+
+            //注册发送事件
+            layim.on("sendMessage",function (res, callback) {
+                var mine = res.mine; //包含我发送的消息及我的信息
+                var to = res.to;
+                var cnt = mine.content;
+                cnt = cnt.replace(/^file\((.+?\.(?:jpg|png|jpeg|gif))\)\[.+?\]$/i,"img[$1]")
+                $.post(remoteApi.apiMsgSendString, {
+                    content: cnt,
+                    toUid: to.id
+                },function (res) {
+                    // console.log(res)
+                    if(!res.success){
+                        return;
+                    }
+                    layim.getMessage(makeMessage(res.data))
+                }, "json");
+
+            });
+
+            //切换窗口
+            layim.on('chatChange', function(obj) {
+                window.ttt = curChatWindow = obj;
+                getFetch("/api/message/chatlog/getList", {toUid: obj.data.id}, function (a) {
+                    renderChatWindow(obj,a.content)
+                })
+            });
+
+            $(".layim-list-friend h5").remove()
+            $('.layim-list-friend li').css("height","100%")
+            var listbox = $(".layim-list-friend .layui-layim-list");
+            // listbox.find("h5").remove();
+            listbox.html("<div class='megalist' id='friend-box'></div>");
+            listbox = listbox.find("div");
+            // var listbox = $(".layim-list-friend .layui-layim-list");
+            // listbox.find("li").remove();
+            // listbox.append("")
+            // listbox = listbox.find("div")
+            listbox.megalist();
+            var list = [];
+            for(var i = 0; i < 100000; i++){
+                list.push(i);
+            }
+            console.log(list)
+            listbox.megalist("setDataProvider", list)
+            listbox.megalist('setLabelFunction',function (item) {
+                return "<img src=\"http://localhost/file/avatar/710.jpg\"><span>"+item+"高某</span><p>小金口支行风险部 - 直管支行办事员</p>";
+            });
+
+
+            imReadyPromise.resolve();
+
+            ;(function load(page,dus){
+
+                return;
+                dus = dus || [];
+                getFetch("/api/message/user/getList", {page: page, size: 1500}, function (res) {
+                    //整理数据
+                    $.each(res.list || [], function (i,v) {
+                        var item = {
+                            id: v.uid
+                            , username: v.trueName
+                            , status: "online"
+                            , avatar: remoteOrigin + "/file/avatar/" + v.uid + ".jpg"
+                            , sign: v.dname + " - " + v.qname
+                        }
+                        item.groupid = -1;
+                        item.type = 'friend';
+                        dus.push(item)
+                    });
+                    if(page >= res.totalPage){
+                        //break
+                        frameLoad(dus);
+                        return;
+                    }
+                    else{
+                        load(page + 1,dus);
+                    }
+                });
+
+            })(1);
+
+        });
+
+
+        /***********************/
+        //先来个客服模式压压精
+        layim.config({
+            brief: false //是否简约模式（如果true则不显示主面板）
+            , init: {
+                mine: {
+                    "username": $.cookie("userName")
+                    , "id": $.cookie("userId")
+                    , "status": "online"
+                    , "avatar": $(".facebox img").attr("src")
+                }
+                , friend: [
+                    {
+                        id: -1
+                        , groupname : "我的好友"
+                        , list: []
+                    }
+                ]
+            }
+            , msgbox: layui.cache.dir + 'css/modules/layim/html/msgbox.html' //消息盒子页面地址，若不开启，剔除该项即可
+            , chatLog: layui.cache.dir + 'css/modules/layim/html/chatlog.html'
+            // , find: layui.cache.dir + 'css/modules/layim/html/find.html' //发现页面地址，若不开启，剔除该项即可
+            , title: "通讯录"
+            , voice: false
+            , notice: false
+            , isgroup: false
+            , initSkin: "4.jpg"
+            , min: true
+            , uploadFile: {
+                url: remoteOrigin + '/api/message/uploadFile'
+            }
+        });
+
+        $("#layui-layim-close").hide();
+        $.when(imReadyPromise).then(function () {
+            $("#layui-layim-close").show();
+        });
+
+        //未读消息抓取
+        ;(function loop() {
+
+            getFetch("/api/message/getList",{},function (res) {
+                if(!res.success){
+                    if(res.errMessage == '请检查是否登录'){
+                        loginOut();
+                    }
+                    return;
+                }
+
+                //等待初始化完毕
+                if(imReadyPromise.state() != 'resolved'){
+                    return;
+                }
+
+                //更新当前窗口已读
+                var needtoread = -1;
+                var cur = curChatWindow;
+                $.each(res.data,function (i,v) {
+                    layim.getMessage(makeMessage(v))
+                    if(cur && (cur.data.id == v.fromId || cur.data.id == v.toId)){
+                       needtoread = curChatWindow.data.id
+                    }
+                });
+                if(needtoread > -1){
+                    getFetch("/api/message/read",{toUids: needtoread})
+                }
+
+                // console.error(needtoread)
+
+            },function (err) {
+                // console.log(err)
+                // loginOut();
+            });
+
+            return setTimeout(loop,100000);
+        })();
+
+    });
+
+    // var holder = $("<div>")
+    //     .attr({
+    //         id: "rbtipholder"
+    //     })
+    //     .css({
+    //         position:"fixed"
+    //         , right: 10
+    //         , bottom: 20
+    //     })
+    //     .appendTo("body")
+    //
+    // layer.tips('消息系统正在初始化,请稍后', '#rbtipholder', {
+    //     tips: [1, '#0FA6D8'] //还可配置颜色
+    // });
+    // holder.remove();
+
+    // function onFaceError(t){
+    //     t.src = '/static/htmlImage/face.jpg';
+    // }
+
+    //fix iframe
+    (function () {
+        //pass ie11
+        // if(document.all){
+            $(window).resize(function () {
+                var h = $(window).height();
+                $("td").each(function () {
+                    $(this)
+                        .css("height", h);
+                    $(this).find("#x-wrap-menu-wrap").css("height",h);
+                    // var h = $(this).height();
+                    // $(this).find(".autobox").css("height", h);
+                        // .css("height", $(this).height());
+                })
+                $(".closebtn").css("top", h / 2)
+            }).trigger("resize")
+        // }
+
+        // new CusScrollBar({
+        //     contentSelector: '.scroll_cont', //滚动内容区
+        //     barSelector: '.scroll_bar', //滚动条
+        //     sliderSelector: '.scroll_slider' //滚动滑块
+        // });
+    })();
+
+    //first login
+    (function () {
+        var last = store.get("lastLogin");
+        if(null == last){
+            loginOut();
+            return;
+        }
+        var start = new Date(new Date(new Date().toLocaleDateString()).getTime());
+        if(parseInt(last) <= start){
+            loginOut();
+        }
+    })();
+
+
+    //系统数据版本
+    getFetch(remoteOrigin + "/api/auto/sysvar/getDataVersion", function (data) {
+        $('.facebox p').text(data.sysName);
+        $("title").html(data.sysName);
+        $(".facebox b span").text(data.dataVersion);
+    })
+
+    $(".closebtn").click(function () {
+        $(".gotomars-side-scroll").toggle();
+        $(this).find("i").toggleClass("route180");
+        // $(window).trigger("resize");
+    });
+</script>
+
+
+<script>
+    //消息提醒
+    ;(function () {
+        var cache = {};
+        function msgnotice() {
+            var p1 =
+            getFetch(
+                remoteOrigin + "/api/auto/sysnotice/getUList"
+            );
+            var p2 = getFetch(remoteOrigin + "/api/auto/wfins/getList?daichuli=1",{page:1,size:1})
+            $.when(p1,p2).then(function (a,b) {
+                var total = 0;
+                var data = a[0].data;
+                var count1 = Number(data.totalRow);
+                total += count1;
+                $.each(data.list || [], function (i,v) {
+                    if(cache[v.id]){
+                        return;
+                    }
+                    toastr.info(v.content, {
+                        closeButton:false
+                    });
+                    $(".toast-info:last").attr("data-id", v.id)
+                    cache[v.id] = 1;
+                });
+
+                data = b[0].data;
+                var count2 = Number(data.totalRow);
+                total += count2;
+                var e1 = $("li[data-id=工作台]");
+                e1.find('b:first .jquery-accordion-menu-label').remove();
+                e1.find("b:first").append($("<span class='jquery-accordion-menu-label'>"+total+"</span>"))
+                var e2 = $("li[data-id='工作台.我的工作台']")
+                e2.find('b:first .jquery-accordion-menu-label').remove();
+                e2.find("b:first").append($("<span class='jquery-accordion-menu-label'>"+count2+"</span>"))
+                var e3 = $("li[data-id='工作台.收件箱']")
+                e3.find('b:first .jquery-accordion-menu-label').remove();
+                e3.find("b:first").append($("<span class='jquery-accordion-menu-label'>"+count1+"</span>"))
+                console.log(count1,count2,total)
+            })
+        }
+        setInterval(msgnotice, location.origin.indexOf("localhost") > -1 ? 10000000000: 10000);
+        msgnotice();
+    })();
+</script>

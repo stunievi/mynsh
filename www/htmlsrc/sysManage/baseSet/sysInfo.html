@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 系统信息 </title>
+    <link rel="stylesheet" href="../../../static/vendor/bootcss/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+</head>
+<body>
+    <div id="content"> 
+        <div class="panel panel-default" style="min-height:440px;">
+            <div class="panel-heading">基础设置</div>
+            <div class="panel-body" id="dataList-count">
+             
+            </div>
+        </div>
+    </div>
+    <script src="../../../static/vendor/jquery/jquery.js"></script>
+    <script src="../../../static/vendor/artTemplate/template-web.js"></script>
+    <script src="/tmpl/js/horzTable.js"></script>
+    <script>
+        $("#dataList-count").html(horzTableRender({
+            data: {
+                "服务器操作系统:": 'Linux发行版',
+                "Web 服务器:": 'nginx/1.10.2',
+                "Java 版本: ": 'JDK8',
+                " DB2 版本:": '10.5',
+                "安全模式:": "是",
+                "安全模式GID:": "是",
+                "Socket 支持:": "是",
+                "时区设置:" : "Asia/Shanghai",
+                "GD 版本:" : "GD2 ( JPEG GIF PNG)",
+                "Zlib 支持:" : "是",
+                "IP 库版本:" : "N/A",
+                "文件上传的最大大小:" : "10M",
+                "程序版本:" : "v1.0 BETA",
+                "RELEASE" : "20180629",
+                "安装日期:" : "2018-07-02",
+                "程序编码:" : "UTF-8",
+                "数据库编码:" : "GBK"
+            }
+        }));
+    </script>
+</body>
+</html>
