@@ -280,7 +280,7 @@ public class WfIns extends TailBean implements ValidGroup {
             );
         }
         //利息减免要求前置任务完成
-        if(S.eq(modelName, "利息减免")){
+        if(S.eq(modelName, "利息减免") || S.eq(modelName, "资产处置") || S.eq(modelName, "抵债资产接收")){
             JSONObject obj = sqlManager.selectSingle("workflow.检查前置任务是否已完成", C.newMap("id", buliang.getId()), JSONObject.class);
             Assert(
                 obj.getInteger("1") > 0, "对应的不良资产登记没有完成, 无法发起该任务"

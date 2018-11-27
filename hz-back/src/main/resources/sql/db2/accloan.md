@@ -808,8 +808,9 @@ left join t_org o2 on o2.acc_code = p1.MAIN_BR_ID
 @}
 where p1.CREUNIT_NO = '0801'
 @if(isNotEmpty(own)){
-    and exists(
-        select 1 from t_loan_belong where uid = #uid# and loan_account = p1.loan_account
+    and (
+    p1.loan_account in (select loan_account from t_loan_belong where uid = #uid#)
+    or exists(select 1 from t_global_permission_center where uid = #uid# and type = 'DATA_SEARCH_CONDITION')
     )
 @}
 

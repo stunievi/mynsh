@@ -138,7 +138,10 @@
                     ids = $.map(ids, function (v) {
                         return v.id;
                     });
-                    var rids = getLayuiTabelCheckIds();
+                    var rids = $.map($("[name=btSelectItem]:checked").toArray(),function (v) {
+                        return v.value
+                    });
+                        // getLayuiTabelCheckIds();
                     ids = ids.concat(rids);
                     newInfo.baned = !!Number(newInfo.baned)
                     newInfo.extMap = {

@@ -5,6 +5,7 @@ import lombok.Data;
 import okhttp3.*;
 //import org.apache.commons.lang3.exception.ExceptionUtils;
 import okio.BufferedSink;
+import org.osgl.util.C;
 import org.osgl.util.IO;
 import org.osgl.util.S;
 import org.slf4j.Logger;
@@ -14,12 +15,14 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class OkHttpUtil{
-    private static final Logger logger = LoggerFactory.getLogger(OkHttpUtil.class);
+//    private static final Logger logger = LoggerFactory.getLogger(OkHttpUtil.class);
     private static OkHttpClient okHttpClient = null;
 
     /**
@@ -29,35 +32,7 @@ public class OkHttpUtil{
      * @return
      */
     public static String get(String url, Map<String, String> queries) {
-        String responseBody = "";
-        StringBuffer sb = new StringBuffer(url);
-        if (queries != null && queries.keySet().size() > 0) {
-            boolean firstFlag = true;
-            Iterator iterator = queries.entrySet().iterator();
-            while (iterator.hasNext()) {
-                Map.Entry entry = (Map.Entry<String, String>) iterator.next();
-                if (firstFlag) {
-                    sb.append("?" + entry.getKey() + "=" + entry.getValue());
-                    firstFlag = false;
-                } else {
-                    sb.append("&" + entry.getKey() + "=" + entry.getValue());
-                }
-            }
-        }
-        Request request = new Request.Builder()
-            .url(sb.toString())
-            .build();
-        try (
-            Response response = okHttpClient().newCall(request).execute();
-            ResponseBody body = response.body();
-            ){
-            if (response.isSuccessful()) {
-                responseBody = body.string();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return responseBody;
+        return getForHeader(url,queries, C.newMap());
     }
 
     /**
@@ -132,7 +107,24 @@ public class OkHttpUtil{
             ResponseBody body = response.body();
             ){
             if (response.isSuccessful()) {
-                responseBody = body.string();
+                //login的话, 直接返回cookie
+                if(url.contains("apiLogin.action")){
+                    responseBody = response.headers().toMultimap().get("set-cookie").stream()
+                        .map(s -> s.replace("; Path=/",""))
+                        //.map(s -> s.replace(";\\s*Path=/",""))
+                        .sorted(new Comparator<String>() {
+                            @Override
+                            public int compare(String o1, String o2) {
+                                if(o1.contains("JSESSIONID")) return -1;
+                                else if(o2.contains("linkapp")) return 1;
+                                return 0;
+                            }
+                        })
+                        .collect(Collectors.joining("; "));
+                }
+                else{
+                    responseBody = body.string();
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -142,6 +134,7 @@ public class OkHttpUtil{
         }
         return responseBody;
     }
+
 
 
     public static String postFile(String url, Map<String,Object> params, Map<String,String> headers){

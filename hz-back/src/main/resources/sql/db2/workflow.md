@@ -17,7 +17,7 @@ and id
 (
 ins.deal_user_id = #uid# 
 --任务相关
-or exists(select 1 from t_wf_ins_dealer where uid = #uid# and type in ('DID_DEAL','OVER_DEAL','CAN_DEAL'))
+or exists(select 1 from t_wf_ins_dealer where uid = #uid# and type in ('DID_DEAL','OVER_DEAL','CAN_DEAL') and ins_id = ins.id)
 --信贷主管
 or exists(select 1 from t_department_manager where uid = #uid# and id = ins.dep_id) 
 --总行角色

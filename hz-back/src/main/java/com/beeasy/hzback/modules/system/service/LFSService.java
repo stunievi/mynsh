@@ -23,9 +23,7 @@ public class LFSService {
 
     public String login(String username, String password){
         String str = OkHttpUtil.getForHeader(buildUrl("/apiLogin.action"), C.newMap("username",username,"password",password), null);
-        JSONObject object = JSON.parseObject(str);
-        String sessionId = object.getString("sessionId");
-        return sessionId;
+        return str;
     }
 
     public String createDir(String sessionId, String pid, String name){
@@ -71,6 +69,6 @@ public class LFSService {
     }
 
     private Map buildCookie(String sessionId){
-         return C.newMap("Cookie",S.fmt("JSESSIONID=%s",sessionId));
+         return C.newMap("Cookie",sessionId);
     }
 }

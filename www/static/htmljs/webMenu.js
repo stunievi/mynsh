@@ -780,16 +780,20 @@ var menu = [
             }
         ]
     }
-    // , {
-    //     "name":"实验室功能"
-    //     , "children":[
-    //         {
-    //             name:"系统更新"
-    //             , href: "/htmlsrc/lab/update.html"
-    //         }
-    //     ]
-    // }
 ];
+
+if(location.href.indexOf("localhost") > -1 || location.href.indexOf("47.94.97.138") > -1){
+    menu.push({
+        "name":"实验室功能"
+        , "children":[
+            {
+                name:"系统更新"
+                , href: "/htmlsrc/lab/update.html"
+            }
+        ]
+    });
+}
+
 Array.prototype.notempty = function(){
     for(var i=0; i<this.length; i++){
         if(this[i] == "" || typeof(this[i]) == "undefined"){

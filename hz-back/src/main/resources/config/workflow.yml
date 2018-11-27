@@ -2263,7 +2263,7 @@
       deleteable: false
       type: input
       content:
-        缴费缴费日:
+        缴费截止日:
           name: jf_end
           type: datetime
           required: true

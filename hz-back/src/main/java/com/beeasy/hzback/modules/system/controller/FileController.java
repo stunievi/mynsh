@@ -57,7 +57,7 @@ public class FileController {
     @Value("${lfs.wfPid}")
     String wfPid;
 
-    private final static SimpleDateFormat sdf = new SimpleDateFormat("YYYYMMdd");
+    private final static SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 
     @RequestMapping(value = "/uploadFace", method = RequestMethod.POST)
     @ResponseBody
@@ -102,6 +102,7 @@ public class FileController {
                 )
             );
         } catch (Exception e) {
+            e.printStackTrace();
             return Result.error(uuid);
         }
 

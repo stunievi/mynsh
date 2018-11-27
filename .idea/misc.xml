@@ -3,6 +3,7 @@
   <component name="FrameworkDetectionExcludesConfiguration">
     <file type="web" url="file://$PROJECT_DIR$/Deprecated/hz-ms-file" />
     <file type="web" url="file://$PROJECT_DIR$/hz-back" />
+    <type id="Spring" />
   </component>
   <component name="JavaScriptSettings">
     <option name="languageLevel" value="ES6" />

@@ -15,9 +15,11 @@
         <!-- </div> -->
     </div>
     <script>
+        var vals =getGlobalEnumSelect("workFlowModel");
+        vals.push({name:"贷后跟踪-银行部公司类",val:"贷后跟踪-银行部公司类"})
         $("#panel-form").html(panelFormRender3({
             list:[
-                { prop: 'modelName', label: ' 标准模型名 ', type: "select", vals: getGlobalEnumSelect("workFlowModel"), required: true },
+                { prop: 'modelName', label: ' 标准模型名 ', type: "select", vals: vals, required: true },
                 { prop: 'name', label: '工作流程名', required: true },
                 { prop: 'processCycle', label: '处理周期',type:"hidden" },
                 { prop: 'info', label: '工作流描述', type:'textarea', width:12, labelWidth:2 }

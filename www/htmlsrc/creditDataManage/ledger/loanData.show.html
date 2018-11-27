@@ -139,7 +139,7 @@
             }
 
             laytableRender({
-                url: remoteOrigin + "/api/auto/wfins/getList"+"?loanAccount="+loanid+"&modelName="+encodeURI(modelName),
+                url: remoteOrigin + "/api/auto/wfins/getList"+"?loanAccount="+loanid+"&LOAN_ACCOUNT="+loanid+"&modelName="+encodeURI(modelName),
                 id: taskType,
                 elem: '#' + taskType + '-content',
                 cols: [[ //标题栏

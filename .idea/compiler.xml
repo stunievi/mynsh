@@ -6,6 +6,7 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="full-text-search" />
         <module name="hz-back" />
         <module name="hz-db2" />
         <module name="hz-ms-command" />
@@ -20,16 +21,11 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="full-text-search" target="1.8" />
       <module name="hz-back" target="1.8" />
-      <module name="hz-common" target="1.8" />
-      <module name="hz-data" target="1.8" />
       <module name="hz-db2" target="1.5" />
-      <module name="hz-ms-back" target="1.8" />
       <module name="hz-ms-common" target="1.8" />
-      <module name="hz-ms-file" target="1.8" />
       <module name="hz-msg-send" target="1.5" />
-      <module name="hz-rpc-common" target="1.8" />
-      <module name="hz-test" target="1.8" />
       <module name="hzcp" target="1.8" />
     </bytecodeTargetLevel>
   </component>
