@@ -808,6 +808,7 @@
                 tags = $.grep(tags, function (v) {
                     return v;
                 });
+                tags = unique4(tags);
                 t.find(".tags").empty();
                 $.each(tags, function (i,v) {
                     $("<span class='label label-info' style='margin-left: 5px;margin-right: 5px;'>"+v+"</span>").appendTo(t.find(".tags"))
@@ -817,6 +818,19 @@
             }
         });
     });
+
+    function unique4(arr){
+        var hash=[];
+        for (var i = 0; i < arr.length; i++) {
+            for (var j = i+1; j < arr.length; j++) {
+                if(arr[i]===arr[j]){
+                    ++i;
+                }
+            }
+            hash.push(arr[i]);
+        }
+        return hash;
+    }
 
     var ftIdex = -1;
     var ftTarget = null;
@@ -846,7 +860,7 @@
             });
             tags.push("文件类型:"+type);
             // console.log(tags)
-
+            tags = unique4(tags);
             ftTarget.find(".tags").empty();
             $.each(tags, function (i,v) {
                 $("<span class='label label-info' style='margin-left: 5px;margin-right: 5px;'>"+v+"</span>").appendTo(ftTarget.find(".tags"))

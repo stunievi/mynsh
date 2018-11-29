@@ -377,27 +377,30 @@ public class User extends TailBean implements ValidGroup {
      * 8. 支持的特殊字符范围：^$./,;:’!@#%&*|?+()[]{}
      */
     private void isValidPassword(String newPassword) {
+        String err = "必须是6位以上包含大小写的字母和数字";
+        Assert(newPassword.matches("^([a-zA-Z]|[0-9]){6,}$"), err);
+
         //1 and 8
-        if (!(newPassword.matches("^.*[a-zA-Z]+.*$") && newPassword.matches("^.*[0-9]+.*$")
-            && newPassword.matches("^.*[/^/$/.//,;:'!@#%&/*/|/?/+/(/)/[/]/{/}]+.*$"))) {
-            throw new RestException("密码必须包含字母, 数字, 特殊字符");
-        }
-        //2
-        if (!newPassword.matches("^.{8,}$")) {
-            throw new RestException("密码长度至少8位");
-        }
-        //3
-        if (newPassword.matches("^.*(.)\\1{2,}+.*$")) {
-            throw new RestException("密码不能包含3位及以上相同字符的重复");
-        }
-        //4
-        if (newPassword.matches("^.*(.{3})(.*)\\1+.*$")) {
-            throw new RestException("密码不能包含3位及以上字符组合的重复");
-        }
-        //6
-        if (newPassword.matches("^.*[\\s]+.*$")) {
-            throw new RestException("密码不能包含空格、制表符、换页符等空白字符");
-        }
+//        if (!(newPassword.matches("^.*[a-zA-Z]+.*$") && newPassword.matches("^.*[0-9]+.*$")
+//            && newPassword.matches("^.*[/^/$/.//,;:'!@#%&/*/|/?/+/(/)/[/]/{/}]+.*$"))) {
+//            throw new RestException("密码必须包含字母, 数字, 特殊字符");
+//        }
+//        //2
+//        if (!newPassword.matches("^.{8,}$")) {
+//            throw new RestException("密码长度至少8位");
+//        }
+//        //3
+//        if (newPassword.matches("^.*(.)\\1{2,}+.*$")) {
+//            throw new RestException("密码不能包含3位及以上相同字符的重复");
+//        }
+//        //4
+//        if (newPassword.matches("^.*(.{3})(.*)\\1+.*$")) {
+//            throw new RestException("密码不能包含3位及以上字符组合的重复");
+//        }
+//        //6
+//        if (newPassword.matches("^.*[\\s]+.*$")) {
+//            throw new RestException("密码不能包含空格、制表符、换页符等空白字符");
+//        }
     }
 
 

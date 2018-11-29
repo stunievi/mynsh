@@ -108,6 +108,9 @@ public class FileService {
             dir.mkdirs();
         }
         String exten = S.fileExtension(file.getOriginalFilename()).toLowerCase();
+        if(S.blank(exten)){
+            exten = S.fileExtension(file.getName().toLowerCase());
+        }
 
         List<String> limit = C.list("png","jpg","jpeg", "gif");
         if(!limit.contains(exten)){
