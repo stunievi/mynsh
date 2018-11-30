@@ -11,6 +11,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.beetl.sql.core.SQLManager;
+import org.beetl.sql.core.query.QueryCondition;
 import org.osgl.util.C;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,16 +53,20 @@ public class LoginController {
         , HttpServletResponse response) {
 
         password = DigestUtils.md5DigestAsHex(password.getBytes());
-        List<User> us = sqlManager.lambdaQuery(User.class)
-            .andEq(User::getUsername, username)
-            .andEq(User::getPassword, password)
-            .select(User::getId,User::getTrueName,User::getCloudUsername,User::getCloudPassword);
+//        QueryCondition<User> qc = new QueryCondition<>();
+//        qc.orEq("username", username);
+//        qc.orEq("acc_code", username);
+        User user = sqlManager.selectSingle("user.用户登录校验", C.newMap("username", username, "password", password),User.class);
+//        List<User> us = sqlManager.lambdaQuery(User.class)
+//            .and(qc)
+//            .andEq(User::getPassword, password)
+//            .select(User::getId,User::getTrueName,User::getCloudUsername,User::getCloudPassword);
 
-        if (us.size() == 0) {
+        if (null == user) {
             throw new RestException("登录失败,用户名或密码错误");
         }
-
-        User user = us.get(0);
+//
+//        User user = us.get(0);
 
         UserToken userToken = new UserToken();
         userToken.setToken(UUID.randomUUID().toString());

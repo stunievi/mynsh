@@ -24,6 +24,10 @@ selectManagedDepartment
 ===
 select * from t_department_manager where uid = #uid#
 
+用户登录校验
+===
+select id,true_name,cloud_username,cloud_password from t_user where (acc_code = #username# or username = #username#) and password = #password#
+
 查询用户列表
 ===
 select 
