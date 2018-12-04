@@ -190,19 +190,20 @@
                     return;
                 }
                 laytableRender({
-                    url: remoteApi.apigetMyInfoCollect+"?CERT_CODE="+CERT_CODE,
+                    // url: remoteApi.apigetMyInfoCollect+"?CERT_CODE="+CERT_CODE,
+                    url: remoteOrigin + "/api/auto/wfins/getList?bindCusId=" + cusid,
                     id: "collectData",
                     elem: "#collectData-content",
                     cols: [
                         [
                             // { checkbox:true },
                             { field:'id', title:'任务编号'},
-                            { field:'CUS_NAME', title:'客户名称'},
-                            { field:'CERT_TYPE', title:'证件类型'},
-                            { field:'CERT_CODE', title:'证件号码'},
-                            { field:'PHONE', title:'联系电话'},
-                            { field:'billNo', title:'绑定状态'},
-                            { title:'创建时间'},
+                            { field:'cusName', title:'客户名称'},
+                            { field:'certType', title:'证件类型'},
+                            { field:'certCode', title:'证件号码'},
+                            { field:'phone', title:'联系电话'},
+                            // { field:'billNo', title:'绑定状态'},
+                            { title:'创建时间', field: "addTime"},
                             { title:'操作', templet:"#toolbar5", width: 120}
                         ]
                     ]

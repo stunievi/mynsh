@@ -789,6 +789,10 @@ if(location.href.indexOf("localhost") > -1 || location.href.indexOf("47.94.97.13
             {
                 name:"系统更新"
                 , href: "/htmlsrc/lab/update.html"
+            },
+            {
+                name:"APP配置",
+                href: "/htmlsrc/lab/appui.html"
             }
         ]
     });

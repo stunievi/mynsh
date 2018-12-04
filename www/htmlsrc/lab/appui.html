@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <!--#include file="/htmlsrc/header.html" -->
+</head>
+<body>
+    <div id="content">
+        <div class="batch-operation">
+            <a class="btn btn-success" href="javascript:;" id="app_prop">添加属性</a>
+        </div>
+
+        <table class="table-bordered table">
+            <thead>
+                <th>属性名</th>
+                <th>属性值</th>
+            <th>操作</th>
+            </thead>
+            <tbody id="tbody">
+
+            </tbody>
+        </table>
+        <div style="text-align: center;">
+            <button class="btn-primary btn save" type="button">保存</button>
+        </div>
+    </div>
+</body>
+</html>
+<script type="text/html" id="tmpl">
+    <tr>
+        <td>
+            <input class="key form-control" type="text" value="{{key}}">
+        </td>
+        <td>
+            <textarea class="value form-control" name="" id="" cols="30" rows="10">{{value}}</textarea>
+        </td>
+        <td>
+            <button class="del btn btn-danger btn-sm" type="button">删除</button>
+        </td>
+    </tr>
+</script>
+<script>
+    var tmpl = template.compile($('#tmpl').html())
+    $("#app_prop").click(function () {
+         $('#tbody').append(tmpl({}))
+    });
+    $(document).on("click", ".del", function () {
+        $(this).closest("tr").remove();
+    });
+    $(".save").click(function () {
+        var elems = $(".key");
+        var data = {data:[]};
+        elems.each(function () {
+            var t = $(this).closest("tr");
+            var key = $(this).val();
+            var value = t.find(".value").val();
+            data.data.push({key:key,value:value})
+        })
+        postFetch(remoteOrigin + "/api/auto/appui/set",data,function () {
+            layer.msg("保存成功");
+        });
+    });
+    getFetch(remoteOrigin + "/api/auto/appui/get", function (data) {
+        $.each(data,function (i,v) {
+            $('#tbody').append(tmpl(v))
+        })
+    });
+</script>

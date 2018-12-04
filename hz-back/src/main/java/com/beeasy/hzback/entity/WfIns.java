@@ -509,7 +509,7 @@ public class WfIns extends TailBean implements ValidGroup {
 
             //拒贷记录
             case "judai":
-                return sqlManager.select("workflow.查询拒贷记录列表", JSONObject.class, object);
+                return U.beetlPageQuery("workflow.查询拒贷记录列表", JSONObject.class, object);
 
             case "receiveCommon":
                 receiveCommon(sqlManager,U.toIdList(object.getString("id")));

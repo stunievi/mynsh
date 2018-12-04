@@ -399,7 +399,7 @@ select
     @}
     --字段删选 start
     @if(isNotEmpty(CUS_NAME)){
-        and a1.attr_value like #'%' + CUS_NAME + '%'#
+        and ins.f1 like #'%' + CUS_NAME + '%'#
     @}
     --字段筛选 end
     --预任务
