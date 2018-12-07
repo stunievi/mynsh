@@ -926,79 +926,52 @@ where CREUNIT_NO = '0801'
 and CONT_NO=#CONT_NO#
 
 
---所有客户列表
 229
 ===
 select
 @pageTag(){
     u1.CUS_ID,
-    u1.CUS_NAME,
-    func_get_dict('CERT_TYPE',u1.CERT_TYPE) as CERT_TYPE,
-    u1.CERT_CODE,
-    case
-        when (length(u1.PHONE) = 11 and u1.PHONE like '1%') then
-            u1.phone
-        when (u1.CUS_TYPE like '1%' and length(u3.MOBILE) = 11 and u3.MOBILE like '1%') then
-            u3.MOBILE
-        when (u1.CUS_TYPE like '1%' and length(u3.PHONE) = 11 and u3.PHONE like '1%') then
-            u3.PHONE
-        when (u1.CUS_TYPE like '1%' and length(u3.FPHONE) = 11 and u3.FPHONE like '1%') then
-            u3.FPHONE
-        when (u1.CUS_TYPE like '2%' and length(u2.PHONE) = 11 and u2.PHONE like '1%') then
-            u2.PHONE
-        when (u1.CUS_TYPE like '2%' and length(u2.LEGAL_PHONE) = 11 and u2.LEGAL_PHONE like '1%') then
-            u2.LEGAL_PHONE
-        else
-            ''
-    end as PHONE,
-    case
-        when (length(trim(u1.CONTACT_NAME)) != 0) then
-            u1.CONTACT_NAME
-        when (u1.CUS_TYPE like '2%' and length(trim(u2.LEGAL_NAME)) != 0) then
-            u2.LEGAL_NAME
-        when (u1.CUS_TYPE like '2%' and length(trim(u2.COM_OPERATOR)) != 0) then
-            u2.COM_OPERATOR
-        when (u1.CUS_TYPE like '1%' and length(trim(u3.CUS_NAME)) != 0) then
-            u3.CUS_NAME
-        when (u1.CUS_TYPE like '1%' and length(trim(u3.INDIV_COM_CNT_NAME)) != 0) then
-            u3.INDIV_COM_CNT_NAME
-        else
-            ''
-    end as CONTACT_NAME,
-    case
-        when (u1.CUS_TYPE like '1%') then
-            u3.POST_ADDR   
-        else
-            u2.POST_ADDR
-    end as POST_ADDR,
-    func_get_dict('CUS_TYPE',u1.CUS_TYPE) as CUS_TYPE,
-    u1.CUS_TYPE as SOURCE_CUS_TYPE,
-    case
-    when u1.CUS_TYPE like '1%' then
-    u3.CUST_MGR
-    else
-    u2.CUST_MGR
-    end as CUST_MGR,
-    case
-    when u1.CUS_TYPE like '1%' then
-    FUN_GET_USER_BY_CODE(u3.CUST_MGR)
-    else
-    FUN_GET_USER_BY_CODE(u2.CUST_MGR)
-    end as CUST_MGR_NAME,
-    case
-    when u1.CUS_TYPE like '1%' then
-    u3.MAIN_BR_ID
-    else
-    u2.MAIN_BR_ID
-    end as MAIN_BR_ID,
-    case
-    when u1.CUS_TYPE like '1%' then
-    FUN_GET_ORG_BY_CODE(u3.MAIN_BR_ID)
-    else
-    FUN_GET_ORG_BY_CODE(u2.MAIN_BR_ID)
-    end as MAIN_BR_NAME,
-    p1.LOAN_AMOUNT,
-    p2.UNPD_PRIN_BAL
+        u1.CUS_NAME,
+        u1.CERT_CODE,
+        case
+            when (length(u1.PHONE) = 11 and u1.PHONE like '1%') then
+                u1.phone
+            when (u1.CUS_TYPE like '1%' and length(u3.MOBILE) = 11 and u3.MOBILE like '1%') then
+                u3.MOBILE
+            when (u1.CUS_TYPE like '1%' and length(u3.PHONE) = 11 and u3.PHONE like '1%') then
+                u3.PHONE
+            when (u1.CUS_TYPE like '1%' and length(u3.FPHONE) = 11 and u3.FPHONE like '1%') then
+                u3.FPHONE
+            when (u1.CUS_TYPE like '2%' and length(u2.PHONE) = 11 and u2.PHONE like '1%') then
+                u2.PHONE
+            when (u1.CUS_TYPE like '2%' and length(u2.LEGAL_PHONE) = 11 and u2.LEGAL_PHONE like '1%') then
+                u2.LEGAL_PHONE
+            else
+                ''
+        end as PHONE,
+        case
+            when (length(trim(u1.CONTACT_NAME)) != 0) then
+                u1.CONTACT_NAME
+            when (u1.CUS_TYPE like '2%' and length(trim(u2.LEGAL_NAME)) != 0) then
+                u2.LEGAL_NAME
+            when (u1.CUS_TYPE like '2%' and length(trim(u2.COM_OPERATOR)) != 0) then
+                u2.COM_OPERATOR
+            when (u1.CUS_TYPE like '1%' and length(trim(u3.CUS_NAME)) != 0) then
+                u3.CUS_NAME
+            when (u1.CUS_TYPE like '1%' and length(trim(u3.INDIV_COM_CNT_NAME)) != 0) then
+                u3.INDIV_COM_CNT_NAME
+            else
+                ''
+        end as CONTACT_NAME,
+        value(u3.POST_ADDR, u2.POST_ADDR) as POST_ADDR,
+        value(u3.CUST_MGR, u2.CUST_MGR) as CUST_MGR,
+        value(u3.MAIN_BR_ID, u2.MAIN_BR_ID) as MAIN_BR_ID,
+        p1.LOAN_AMOUNT,
+        p2.UNPD_PRIN_BAL,
+        d1.V_VALUE as CUS_TYPE,
+        d2.v_value as CERT_TYPE,
+        value(u11.TRUE_NAME, u12.TRUE_NAME) as CUST_MGR_NAME,
+        value(o21.NAME, o22.NAME) as MAIN_BR_NAME
 @}
 from
 CUS_BASE as u1
@@ -1006,6 +979,14 @@ left join CUS_COM as u2 on u1.CUS_ID=u2.CUS_ID
 left join CUS_INDIV as u3 on u1.CUS_ID = u3.CUS_ID
 left join (select MAX(LOAN_AMOUNT) as LOAN_AMOUNT,CUS_ID from RPT_M_RPT_SLS_ACCT where CREUNIT_NO ='0801' group by CUS_ID) as p1 on u1.CUS_ID=p1.CUS_ID
 left join (select MAX(UNPD_PRIN_BAL)as UNPD_PRIN_BAL,CUS_ID from RPT_M_RPT_SLS_ACCT where CREUNIT_NO ='0801' group by CUS_ID) as p2 on u1.CUS_ID=p2.CUS_ID
+left join t_dict d1 on d1.name = 'CUS_TYPE' and d1.V_KEY = u1.CUS_TYPE
+left join t_dict d2 on d2.name = 'CERT_TYPE' and d2.V_KEY = u1.CERT_TYPE
+
+left join t_user u11 on u11.acc_code = u3.CUST_MGR
+left join t_user u12 on u12.acc_code = u2.CUST_MGR
+left join t_org o21 on o21.acc_code = u3.MAIN_BR_ID
+left join t_org o22 on o22.acc_code = u2.MAIN_BR_ID
+
 where u1.CREUNIT_NO = '0801'
 @if(isNotEmpty(own)){
     and exists(
