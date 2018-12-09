@@ -128,7 +128,7 @@ select gpc.*
 @}
 ) as dc
 -- 是否部门线
-, case when otype = 'QUARTERS' then max(FUNC_CAN_MANAGE(gpc.oid,ins.dep_id),FUNC_CAN_MANAGE(ins.dep_id,gpc.oid)) else 0 end as online
+, case when otype = 'QUARTERS' then max(FUNC_CAN_MANAGE(gpc.pid,ins.dep_id),FUNC_CAN_MANAGE(ins.dep_id,gpc.pid)) else 0 end as online
 from t_global_permission_center gpc, t_workflow_instance ins
 where gpc.type = 'WORKFLOW_MAIN_QUARTER' and  gpc.object_id = ins.model_id and k1 = 
 @if(isNotEmpty(name)){
@@ -499,3 +499,7 @@ where (ins.deal_user_id = #uid#) or (
     exists(select count(1) from t_department_manager where uid = #uid# and id = ins.dep_id)
 )
 
+
+得到可发布的模型名
+===
+values FUNC_GET_MODEL_BY_LOAN_ACCOUNT(#loan#, #modelName#)

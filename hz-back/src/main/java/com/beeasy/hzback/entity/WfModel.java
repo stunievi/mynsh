@@ -261,6 +261,13 @@ public class WfModel extends TailBean implements ValidGroup {
         return map;
     }
 
+    public Object getForPubMobile(SQLManager sqlManager, JSONObject object){
+        //得到真实的任务名
+        String mname = sqlManager.selectSingle("workflow.得到可发布的模型名", object, JSONObject.class).getString("1");
+        Assert(S.notEmpty(mname), "找不到可以发布的任务模型");
+        return getForPub(sqlManager, mname);
+    }
+
     /**
      *
      * @param sqlManager
