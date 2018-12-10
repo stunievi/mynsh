@@ -379,7 +379,7 @@
       -
         item: 是
         condition: 1
-        behavior: go('电子银行部确认')
+        behavior: go('信息科技部确认')
       -
         item: 否
         condition: 1
