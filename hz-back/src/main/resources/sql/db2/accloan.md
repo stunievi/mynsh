@@ -971,7 +971,8 @@ select
         d1.V_VALUE as CUS_TYPE,
         d2.v_value as CERT_TYPE,
         value(u11.TRUE_NAME, u12.TRUE_NAME) as CUST_MGR_NAME,
-        value(o21.NAME, o22.NAME) as MAIN_BR_NAME
+        value(o21.NAME, o22.NAME) as MAIN_BR_NAME,
+        u1.CUS_TYPE as SOURCE_CUS_TYPE
 @}
 from
 CUS_BASE as u1

@@ -275,6 +275,7 @@ public class WfIns extends TailBean implements ValidGroup {
                 sqlManager.lambdaQuery(WfIns.class)
                     .andEq(WfIns::getLoanAccount, loanAccount)
                     .andEq(WfIns::getModelName, "不良资产登记")
+                    .andEq(WfIns::getState, State.DEALING)
                     .count() == 0
                 , "同一个台账只允许一条激活的不良资产登记存在"
             );
@@ -827,7 +828,7 @@ public class WfIns extends TailBean implements ValidGroup {
                     Boolean required = v.getBoolean("required");
                     String value = data.getString(attrKey);
                     //保存草稿不校验
-                    if(!data.containsKey(attrKey)){
+                    if(!gonext && !data.containsKey(attrKey)){
                         continue;
                     }
                     if(gonext && Objects.equals(required,true)){
