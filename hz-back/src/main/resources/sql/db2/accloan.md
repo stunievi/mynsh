@@ -1,3 +1,8 @@
+数据源限制
+===
+select value(var_value,'') from T_SYSTEM_VARIABLE where var_name = 'ods_br_id' fetch first 1 rows only
+
+
 03
 ===
 select
@@ -26,7 +31,7 @@ select
 from RPT_M_RPT_SLS_ACCT as p1
 left join GRT_LOANGUAR_INFO as g5 on p1.CONT_NO=g5.CONT_NO
 left join GRT_GUAR_CONT as g1 on g5.GUAR_CONT_NO=g1.GUAR_CONT_NO
-where p1.CREUNIT_NO = '0801'
+where p1.CREUNIT_NO = (#use("数据源限制")#)
 --30010000011439980
 and p1.LOAN_ACCOUNT= #LOAN_ACCOUNT#
 
@@ -130,7 +135,7 @@ left join GRT_GUARANTY_RE as g6 on g6.GUAR_CONT_NO=g5.GUAR_CONT_NO
 left join GRT_G_BASIC_INFO as g3 on g3.GUARANTY_ID=g6.GUARANTY_ID
 left join GRT_P_BASIC_INFO as g4 on g4.GUARANTY_ID=g6.GUARANTY_ID
 left join GRT_GUARANTEER as g2 on g2.GUARANTY_ID=g6.GUARANTY_ID
-where p1.CREUNIT_NO = '0801'
+where p1.CREUNIT_NO = (#use("数据源限制")#)
 and p1.LOAN_ACCOUNT= #LOAN_ACCOUNT#
 
 
@@ -162,7 +167,7 @@ select
 @}
 from RPT_M_RPT_SLS_ACCT as p1
 left join CUS_BASE as u1 on p1.CUS_ID=u1.CUS_ID 
-where p1.CREUNIT_NO = '0801'
+where p1.CREUNIT_NO = (#use("数据源限制")#)
 and p1.LOAN_ACCOUNT=#LOAN_ACCOUNT#
 
 
@@ -187,7 +192,7 @@ select
 @}
 from RPT_M_RPT_SLS_ACCT as p1
 left join CUS_BASE as u1 on p1.CUS_ID=u1.CUS_ID 
-where p1.CREUNIT_NO = '0801'
+where p1.CREUNIT_NO = (#use("数据源限制")#)
 and p1.LOAN_ACCOUNT=#LOAN_ACCOUNT#
 
 
@@ -208,7 +213,7 @@ select
     p1.LOAN_TERM  
 @}
 from RPT_M_RPT_SLS_ACCT as p1
-where p1.CREUNIT_NO = '0801'
+where p1.CREUNIT_NO = (#use("数据源限制")#)
 and p1.LOAN_ACCOUNT=#LOAN_ACCOUNT#
 
 
@@ -232,7 +237,7 @@ select
 from RPT_M_RPT_SLS_ACCT as p1 
 left join GRT_LOANGUAR_INFO as g5 on p1.CONT_NO=g5.CONT_NO
 left join GRT_GUAR_CONT as g1 on g5.GUAR_CONT_NO=g1.GUAR_CONT_CN_NO
-where p1.CREUNIT_NO = '0801'
+where p1.CREUNIT_NO = (#use("数据源限制")#)
 and p1.LOAN_ACCOUNT=#LOAN_ACCOUNT#
 
 
@@ -279,7 +284,7 @@ from RPT_M_RPT_SLS_ACCT as p1
 left join CUS_BASE as u1 on p1.CUS_ID=u1.CUS_ID
 left join cus_com as u2 on p1.CUS_ID = u2.CUS_ID
 left join cus_indiv as u3 on p1.CUS_ID = u3.CUS_ID
-where p1.CREUNIT_NO = '0801'
+where p1.CREUNIT_NO = (#use("数据源限制")#)
 and p1.LOAN_ACCOUNT=#LOAN_ACCOUNT#
 
 
@@ -297,7 +302,7 @@ select
     p1.CUS_NAME
 @}
 from RPT_M_RPT_SLS_ACCT as p1 
-where p1.CREUNIT_NO = '0801'
+where p1.CREUNIT_NO = (#use("数据源限制")#)
 and p1.LOAN_ACCOUNT=#LOAN_ACCOUNT#
 
 
@@ -349,7 +354,7 @@ select
 @}
 from
 CUS_COM
-where CREUNIT_NO = '0801'
+where CREUNIT_NO = (#use("数据源限制")#)
 -- 客户号
 and CUS_ID= #CUS_ID#
 
@@ -418,7 +423,7 @@ select
 @}
 from
 CUS_INDIV
-where CREUNIT_NO = '0801'
+where CREUNIT_NO = (#use("数据源限制")#)
 -- 客户号
 and CUS_ID= #CUS_ID#
 
@@ -486,7 +491,7 @@ select
 from
 RPT_M_RPT_SLS_ACCT as p1
 left join ACC_LOAN as a1 on p1.LOAN_ACCOUNT=a1.LOAN_ACCOUNT
-where p1.CREUNIT_NO = '0801'
+where p1.CREUNIT_NO = (#use("数据源限制")#)
 -- 贷款帐号
 and p1.LOAN_ACCOUNT= #LOAN_ACCOUNT#
 
@@ -526,9 +531,9 @@ select
 from
 CUS_COM as u2
 left join CUS_BASE as u1 on u2.CUS_ID=u1.CUS_ID
-left join (select MAX(LOAN_AMOUNT) as LOAN_AMOUNT,CUS_ID from RPT_M_RPT_SLS_ACCT where CREUNIT_NO ='0801' group by CUS_ID) as p1 on u2.CUS_ID=p1.CUS_ID
-left join (select MAX(UNPD_PRIN_BAL)as UNPD_PRIN_BAL,CUS_ID from RPT_M_RPT_SLS_ACCT where CREUNIT_NO ='0801' group by CUS_ID) as p2 on u2.CUS_ID=p2.CUS_ID
-where u2.CREUNIT_NO = '0801'
+left join (select MAX(LOAN_AMOUNT) as LOAN_AMOUNT,CUS_ID from RPT_M_RPT_SLS_ACCT where CREUNIT_NO =(#use("数据源限制")#) group by CUS_ID) as p1 on u2.CUS_ID=p1.CUS_ID
+left join (select MAX(UNPD_PRIN_BAL)as UNPD_PRIN_BAL,CUS_ID from RPT_M_RPT_SLS_ACCT where CREUNIT_NO =(#use("数据源限制")#) group by CUS_ID) as p2 on u2.CUS_ID=p2.CUS_ID
+where u2.CREUNIT_NO = (#use("数据源限制")#)
 @if(isNotEmpty(own)){
     and exists(
         select 1 from t_cus_belong where uid = #uid# and cus_id = u2.cus_id
@@ -584,7 +589,7 @@ select
 from
 CUS_COM_MANAGER as u4
 left join CUS_COM as u2 on u4.CUS_ID=u2.CUS_ID
-where u4.CREUNIT_NO = '0801'
+where u4.CREUNIT_NO = (#use("数据源限制")#)
 -- 客户号
 and u4.CUS_ID= #CUS_ID#
 
@@ -602,7 +607,7 @@ select
 from
 CUS_COM_CONT as u5
 left join CUS_COM as u2 on u5.CUS_ID=u2.CUS_ID
-where u5.CREUNIT_NO = '0801'
+where u5.CREUNIT_NO = (#use("数据源限制")#)
 -- 客户号
 and u5.CUS_ID= #CUS_ID#
 
@@ -643,9 +648,9 @@ select
 @}
 from CUS_INDIV as u3
 left join CUS_BASE as u1 on u3.CUS_ID=u1.CUS_ID
-left join (select MAX(LOAN_AMOUNT) as LOAN_AMOUNT,CUS_ID from RPT_M_RPT_SLS_ACCT where CREUNIT_NO ='0801' group by CUS_ID) as p1 on u3.CUS_ID=p1.CUS_ID
-left join (select MAX(UNPD_PRIN_BAL)as UNPD_PRIN_BAL,CUS_ID from RPT_M_RPT_SLS_ACCT where CREUNIT_NO ='0801' group by CUS_ID) as p2 on u3.CUS_ID=p2.CUS_ID
-where u3.CREUNIT_NO = '0801'
+left join (select MAX(LOAN_AMOUNT) as LOAN_AMOUNT,CUS_ID from RPT_M_RPT_SLS_ACCT where CREUNIT_NO =(#use("数据源限制")#) group by CUS_ID) as p1 on u3.CUS_ID=p1.CUS_ID
+left join (select MAX(UNPD_PRIN_BAL)as UNPD_PRIN_BAL,CUS_ID from RPT_M_RPT_SLS_ACCT where CREUNIT_NO =(#use("数据源限制")#) group by CUS_ID) as p2 on u3.CUS_ID=p2.CUS_ID
+where u3.CREUNIT_NO = (#use("数据源限制")#)
 @if(isNotEmpty(own)){
     and exists(
         select 1 from t_cus_belong where uid = #uid# and cus_id = u3.cus_id
@@ -698,7 +703,7 @@ select
 from
 CUS_INDIV_INCOME as u6
 left join CUS_INDIV as u3 on u6.CUS_ID=u3.CUS_ID
-where u6.CREUNIT_NO = '0801'
+where u6.CREUNIT_NO = (#use("数据源限制")#)
 -- 客户号
 and u6.CUS_ID= #CUS_ID#
 
@@ -806,7 +811,7 @@ left join t_org o2 on o2.acc_code = p1.MAIN_BR_ID
 @if(isNotEmpty(lm)){
     left join t_loan_manager lm on lm.loan_account = p1.loan_account
 @}
-where p1.CREUNIT_NO = '0801'
+where p1.CREUNIT_NO = (#use("数据源限制")#)
 @if(isNotEmpty(own)){
     and (
     p1.loan_account in (select loan_account from t_loan_belong where uid = #uid#)
@@ -921,7 +926,7 @@ select
 @}
 from
 CTR_LOAN_CONT
-where CREUNIT_NO = '0801'
+where CREUNIT_NO = (#use("数据源限制")#)
 -- 合同号
 and CONT_NO=#CONT_NO#
 
@@ -978,8 +983,8 @@ from
 CUS_BASE as u1
 left join CUS_COM as u2 on u1.CUS_ID=u2.CUS_ID
 left join CUS_INDIV as u3 on u1.CUS_ID = u3.CUS_ID
-left join (select MAX(LOAN_AMOUNT) as LOAN_AMOUNT,CUS_ID from RPT_M_RPT_SLS_ACCT where CREUNIT_NO ='0801' group by CUS_ID) as p1 on u1.CUS_ID=p1.CUS_ID
-left join (select MAX(UNPD_PRIN_BAL)as UNPD_PRIN_BAL,CUS_ID from RPT_M_RPT_SLS_ACCT where CREUNIT_NO ='0801' group by CUS_ID) as p2 on u1.CUS_ID=p2.CUS_ID
+left join (select MAX(LOAN_AMOUNT) as LOAN_AMOUNT,CUS_ID from RPT_M_RPT_SLS_ACCT where CREUNIT_NO =(#use("数据源限制")#) group by CUS_ID) as p1 on u1.CUS_ID=p1.CUS_ID
+left join (select MAX(UNPD_PRIN_BAL)as UNPD_PRIN_BAL,CUS_ID from RPT_M_RPT_SLS_ACCT where CREUNIT_NO =(#use("数据源限制")#) group by CUS_ID) as p2 on u1.CUS_ID=p2.CUS_ID
 left join t_dict d1 on d1.name = 'CUS_TYPE' and d1.V_KEY = u1.CUS_TYPE
 left join t_dict d2 on d2.name = 'CERT_TYPE' and d2.V_KEY = u1.CERT_TYPE
 
@@ -988,7 +993,7 @@ left join t_user u12 on u12.acc_code = u2.CUST_MGR
 left join t_org o21 on o21.acc_code = u3.MAIN_BR_ID
 left join t_org o22 on o22.acc_code = u2.MAIN_BR_ID
 
-where u1.CREUNIT_NO = '0801'
+where u1.CREUNIT_NO = (#use("数据源限制")#)
 @if(isNotEmpty(own)){
     and exists(
         select 1 from t_cus_belong where uid = #uid# and cus_id = u1.cus_id
@@ -1052,7 +1057,7 @@ select
 @}
 from
 BOCT_88
-where CREUNIT_NO = '0801'
+where CREUNIT_NO = (#use("数据源限制")#)
 -- 贷款帐号（16位）
 and ACCT_NO= #LOAN_ACCOUNT#
 
@@ -1102,7 +1107,7 @@ select
 @}
 from RPT_M_RPT_SLS_ACCT as p1
 left join T_LOAN_MANAGER t1 on p1.LOAN_ACCOUNT=t1.LOAN_ACCOUNT
-where p1.CREUNIT_NO = '0801'
+where p1.CREUNIT_NO = (#use("数据源限制")#)
 -- 贷款分类（一般贷款台帐固定为“普通贷款”）
 and p1.LN_TYPE = '普通贷款'
 
@@ -1250,7 +1255,7 @@ left join GRT_GUARANTY_RE g6 on g5.GUAR_CONT_NO = g6.GUAR_CONT_NO
 left join GRT_G_BASIC_INFO g3 on g6.GUARANTY_ID = g3.GUARANTY_ID
 left join GRT_P_BASIC_INFO g4 on g6.GUARANTY_ID = g4.GUARANTY_ID
 left join GRT_GUARANTEER g2 on g6.GUARANTY_ID = g2.GUARANTY_ID
-where g5.CREUNIT_NO = '0801'
+where g5.CREUNIT_NO = (#use("数据源限制")#)
 -- 合同号
 and g5.CONT_NO = #CONT_NO#
 @pageIgnoreTag(){
@@ -1272,7 +1277,7 @@ left join (select LOAN_ACCOUNT from RPT_M_RPT_SLS_ACCT where CLA in ('30','40','
 left join t_user u on u.acc_code = p1.CUST_MGR
 left join t_department_manager dm on dm.acc_code = p1.MAIN_BR_ID
 where
-p1.CREUNIT_NO = '0801'
+p1.CREUNIT_NO = (#use("数据源限制")#)
 --贷款分类
 and p1.LN_TYPE = '普通贷款'
 --台帐状态
