@@ -2,6 +2,22 @@
 ===
 select value(var_value,'') from T_SYSTEM_VARIABLE where var_name = 'ods_br_id' fetch first 1 rows only
 
+condition_loan
+===
+--查询数据范围（总行角色看所有，贷款机构看所属一级支行）
+and ((1=(select count(1) from t_global_permission_center where uid = #uid# and type = 'DATA_SEARCH_CONDITION'))
+    or ((0=(select count(1) from t_global_permission_center where uid = #uid# and type = 'DATA_SEARCH_CONDITION')) and (p1.MAIN_BR_ID in 
+        (select substr(acc_code,1,5) from T_ORG where PARENT_ID = (select ID from T_ORG where acc_code = (SELECT substr(MAIN_BR_ID,1,5) FROM T_DEPARTMENT_USER WHERE UID=#uid#)) and TYPE = 'DEPARTMENT') or (p1.MAIN_BR_ID = (SELECT MAIN_BR_ID FROM T_DEPARTMENT_USER WHERE UID=#uid#)))
+))
+
+condition_cus
+===
+--查询数据范围（总行角色看所有，贷款机构看所属一级支行）
+and ((1=(select count(1) from t_global_permission_center where uid = #uid# and type = 'DATA_SEARCH_CONDITION'))
+    or ((0=(select count(1) from t_global_permission_center where uid = #uid# and type = 'DATA_SEARCH_CONDITION')) and ((u2.MAIN_BR_ID in 
+        (select substr(acc_code,1,5) from T_ORG where PARENT_ID = (select ID from T_ORG where acc_code = (SELECT substr(MAIN_BR_ID,1,5) FROM T_DEPARTMENT_USER WHERE UID=#uid#)) and TYPE = 'DEPARTMENT') or (u2.MAIN_BR_ID = (SELECT MAIN_BR_ID FROM T_DEPARTMENT_USER WHERE UID=#uid#))) or 
+        (u3.MAIN_BR_ID in (select substr(acc_code,1,5) from T_ORG where PARENT_ID = (select ID from T_ORG where acc_code = (SELECT substr(MAIN_BR_ID,1,5) FROM T_DEPARTMENT_USER WHERE UID=#uid#)) and TYPE = 'DEPARTMENT') or (u3.MAIN_BR_ID = (SELECT MAIN_BR_ID FROM T_DEPARTMENT_USER WHERE UID=#uid#))))
+))
 
 03
 ===
@@ -34,7 +50,8 @@ left join GRT_GUAR_CONT as g1 on g5.GUAR_CONT_NO=g1.GUAR_CONT_NO
 where p1.CREUNIT_NO = (#use("数据源限制")#)
 --30010000011439980
 and p1.LOAN_ACCOUNT= #LOAN_ACCOUNT#
-
+--查询数据范围
+#use("condition_loan")#
 
 04
 ===
@@ -137,6 +154,8 @@ left join GRT_P_BASIC_INFO as g4 on g4.GUARANTY_ID=g6.GUARANTY_ID
 left join GRT_GUARANTEER as g2 on g2.GUARANTY_ID=g6.GUARANTY_ID
 where p1.CREUNIT_NO = (#use("数据源限制")#)
 and p1.LOAN_ACCOUNT= #LOAN_ACCOUNT#
+--查询数据范围
+#use("condition_loan")#
 
 
 101
@@ -169,6 +188,8 @@ from RPT_M_RPT_SLS_ACCT as p1
 left join CUS_BASE as u1 on p1.CUS_ID=u1.CUS_ID 
 where p1.CREUNIT_NO = (#use("数据源限制")#)
 and p1.LOAN_ACCOUNT=#LOAN_ACCOUNT#
+--查询数据范围
+#use("condition_loan")#
 
 
 102
@@ -194,6 +215,8 @@ from RPT_M_RPT_SLS_ACCT as p1
 left join CUS_BASE as u1 on p1.CUS_ID=u1.CUS_ID 
 where p1.CREUNIT_NO = (#use("数据源限制")#)
 and p1.LOAN_ACCOUNT=#LOAN_ACCOUNT#
+--查询数据范围
+#use("condition_loan")#
 
 
 103
@@ -215,6 +238,8 @@ select
 from RPT_M_RPT_SLS_ACCT as p1
 where p1.CREUNIT_NO = (#use("数据源限制")#)
 and p1.LOAN_ACCOUNT=#LOAN_ACCOUNT#
+--查询数据范围
+#use("condition_loan")#
 
 
 104
@@ -239,6 +264,8 @@ left join GRT_LOANGUAR_INFO as g5 on p1.CONT_NO=g5.CONT_NO
 left join GRT_GUAR_CONT as g1 on g5.GUAR_CONT_NO=g1.GUAR_CONT_CN_NO
 where p1.CREUNIT_NO = (#use("数据源限制")#)
 and p1.LOAN_ACCOUNT=#LOAN_ACCOUNT#
+--查询数据范围
+#use("condition_loan")#
 
 
 105
@@ -286,6 +313,8 @@ left join cus_com as u2 on p1.CUS_ID = u2.CUS_ID
 left join cus_indiv as u3 on p1.CUS_ID = u3.CUS_ID
 where p1.CREUNIT_NO = (#use("数据源限制")#)
 and p1.LOAN_ACCOUNT=#LOAN_ACCOUNT#
+--查询数据范围
+#use("condition_loan")#
 
 
 106
@@ -304,128 +333,143 @@ select
 from RPT_M_RPT_SLS_ACCT as p1 
 where p1.CREUNIT_NO = (#use("数据源限制")#)
 and p1.LOAN_ACCOUNT=#LOAN_ACCOUNT#
+--查询数据范围
+#use("condition_loan")#
 
 
 201
 ===
 select
 @pageTag(){
-    CUS_ID,
-    CUS_NAME,
-    func_get_dict('CUS_TYPE',CUS_TYPE) as CUS_TYPE,
-    func_get_dict('CERT_TYPE',CERT_TYPE) as CERT_TYPE,
-    CERT_CODE,
-    CUS_BANK_REL,
-    COM_HOLD_STK_AMT,
-    INVEST_TYPE,
-    COM_SUB_TYP,
-    COM_SCALE,
-    COM_HOLD_TYPE,
-    COM_INS_CODE,
-    COM_CLL_TYPE,
-    COM_CLL_NAME,
-    COM_EMPLOYEE,
-    LEGAL_NAME,
-    LEGAL_CERT_TYPE,
-    LEGAL_CERT_CODE,
-    LEGAL_PHONE,
-    NAT_TAX_REG_CODE,
-    NAT_TAX_REG_ORG,
-    LOC_TAX_REG_CODE,
-    LOC_TAX_REG_ORG,
-    FNA_MGR,
-    COM_OPERATOR,
-    POST_ADDR,
-    PHONE,
-    FAX_CODE,
-    BAS_ACC_BANK,
-    BAS_ACC_NO,
-    COM_CRD_TYP,
-    func_get_dict('COM_CRD_GRADE',COM_CRD_GRADE) as COM_CRD_GRADE,
-    COM_OPT_ST,
-    COM_REL_DGR,
-    COM_CITY_FLG,
-    CUST_MGR,
-    FUN_GET_USER_BY_CODE(CUST_MGR) as CUST_MGR_NAME,
-    MAIN_BR_ID,
-    FUN_GET_ORG_BY_CODE(MAIN_BR_ID) as MAIN_BR_NAME,
-    TOTAL_ASSETS,
-    TOTAL_SALES
+    u2.CUS_ID,
+    u2.CUS_NAME,
+    d1.v_value as CUS_TYPE,
+    d2.v_value as CERT_TYPE,
+    u2.CERT_CODE,
+    u2.CUS_BANK_REL,
+    u2.COM_HOLD_STK_AMT,
+    u2.INVEST_TYPE,
+    u2.COM_SUB_TYP,
+    u2.COM_SCALE,
+    u2.COM_HOLD_TYPE,
+    u2.COM_INS_CODE,
+    u2.COM_CLL_TYPE,
+    u2.COM_CLL_NAME,
+    u2.COM_EMPLOYEE,
+    u2.LEGAL_NAME,
+    u2.LEGAL_CERT_TYPE,
+    u2.LEGAL_CERT_CODE,
+    u2.LEGAL_PHONE,
+    u2.NAT_TAX_REG_CODE,
+    u2.NAT_TAX_REG_ORG,
+    u2.LOC_TAX_REG_CODE,
+    u2.LOC_TAX_REG_ORG,
+    u2.FNA_MGR,
+    u2.COM_OPERATOR,
+    u2.POST_ADDR,
+    u2.PHONE,
+    u2.FAX_CODE,
+    u2.BAS_ACC_BANK,
+    u2.BAS_ACC_NO,
+    u2.COM_CRD_TYP,
+    d3.v_value as COM_CRD_GRADE,
+    u2.COM_OPT_ST,
+    u2.COM_REL_DGR,
+    u2.COM_CITY_FLG,
+    u2.CUST_MGR,
+    FUN_GET_USER_BY_CODE(u2.CUST_MGR) as CUST_MGR_NAME,
+    u2.MAIN_BR_ID,
+    FUN_GET_ORG_BY_CODE(u2.MAIN_BR_ID) as MAIN_BR_NAME,
+    u2.TOTAL_ASSETS,
+    u2.TOTAL_SALES
 @}
 from
-CUS_COM
-where CREUNIT_NO = (#use("数据源限制")#)
+CUS_COM as u2
+left join CUS_BASE as u1 on u2.CUS_ID = u1.CUS_ID
+left join CUS_INDIV as u3 on u2.CUS_ID = u3.CUS_ID
+left join t_dict d1 on d1.name = 'CUS_TYPE' and d1.V_KEY = u2.CUS_TYPE
+left join t_dict d2 on d2.name = 'CERT_TYPE' and d2.V_KEY = u2.CERT_TYPE
+left join t_dict d3 on d3.name = 'COM_CRD_GRADE' and d3.V_KEY = u2.COM_CRD_GRADE
+where u2.CREUNIT_NO = (#use("数据源限制")#)
 -- 客户号
-and CUS_ID= #CUS_ID#
-
+and u2.CUS_ID= #CUS_ID#
+--查询数据范围
+#use("condition_cus")#
 
 202
 ===
 select
 @pageTag(){
-    INNER_CUS_ID,
-    CUS_ID,
-    MNG_BR_ID,
-    func_get_dict('CUS_TYPE',CUS_TYPE) as CUS_TYPE,
-    CUS_NAME,
-    INDIV_SEX,
-    func_get_dict('CERT_TYPE',CERT_TYPE) as CERT_TYPE,
-    CERT_CODE,
-    AGRI_FLG,
-    CUS_BANK_REL,
-    COM_HOLD_STK_AMT,
-    BANK_DUTY,
-    INDIV_NTN,
-    INDIV_BRT_PLACE,
-    INDIV_HOUH_REG_ADD,
-    INDIV_DT_OF_BIRTH,
-    INDIV_POL_ST,
-    INDIV_EDT,
-    INDIV_MAR_ST,
-    POST_ADDR,
-    PHONE,
-    FPHONE,
-    FAX_CODE,
-    EMAIL,
-    INDIV_RSD_ADDR,
-    INDIV_RSD_ST,
-    INDIV_SOC_SCR,
-    INDIV_COM_NAME,
-    INDIV_COM_TYP,
-    INDIV_COM_FLD,
-    INDIV_COM_PHN,
-    INDIV_COM_FAX,
-    INDIV_COM_ADDR,
-    INDIV_COM_CNT_NAME,
-    INDIV_COM_JOB_TTL,
-    INDIV_CRTFCTN,
-    INDIV_SAL_ACC_BANK,
-    INDIV_SAL_ACC_NO,
-    INDIV_SPS_NAME,
-    INDIV_SPS_ID_TYP,
-    INDIV_SPS_ID_CODE,
-    INDIV_SCOM_NAME,
-    INDIV_SPS_OCC,
-    INDIV_SPS_DUTY,
-    INDIV_SPS_PHN,
-    INDIV_SPS_MPHN,
-    INDIV_SPS_JOB_DT,
-    COM_REL_DGR,
-    func_get_dict('CRD_GRADE',CRD_GRADE) as CRD_GRADE,
-    CRD_DATE,
-    REMARK,
-    CUST_MGR,
-    FUN_GET_USER_BY_CODE(CUST_MGR) as CUST_MGR_NAME,
-    MAIN_BR_ID,
-    FUN_GET_ORG_BY_CODE(MAIN_BR_ID) as MAIN_BR_NAME,
-    CUS_STATUS,
-    INDIV_COM_FLD_NAME
+    u3.INNER_CUS_ID,
+    u3.CUS_ID,
+    u3.MNG_BR_ID,
+    d1.v_value as CUS_TYPE,
+    u3.CUS_NAME,
+    u3.INDIV_SEX,
+    d2.v_value as CERT_TYPE,
+    u3.CERT_CODE,
+    u3.AGRI_FLG,
+    u3.CUS_BANK_REL,
+    u3.COM_HOLD_STK_AMT,
+    u3.BANK_DUTY,
+    u3.INDIV_NTN,
+    u3.INDIV_BRT_PLACE,
+    u3.INDIV_HOUH_REG_ADD,
+    u3.INDIV_DT_OF_BIRTH,
+    u3.INDIV_POL_ST,
+    u3.INDIV_EDT,
+    u3.INDIV_MAR_ST,
+    u3.POST_ADDR,
+    u3.PHONE,
+    u3.FPHONE,
+    u3.FAX_CODE,
+    u3.EMAIL,
+    u3.INDIV_RSD_ADDR,
+    u3.INDIV_RSD_ST,
+    u3.INDIV_SOC_SCR,
+    u3.INDIV_COM_NAME,
+    u3.INDIV_COM_TYP,
+    u3.INDIV_COM_FLD,
+    u3.INDIV_COM_PHN,
+    u3.INDIV_COM_FAX,
+    u3.INDIV_COM_ADDR,
+    u3.INDIV_COM_CNT_NAME,
+    u3.INDIV_COM_JOB_TTL,
+    u3.INDIV_CRTFCTN,
+    u3.INDIV_SAL_ACC_BANK,
+    u3.INDIV_SAL_ACC_NO,
+    u3.INDIV_SPS_NAME,
+    u3.INDIV_SPS_ID_TYP,
+    u3.INDIV_SPS_ID_CODE,
+    u3.INDIV_SCOM_NAME,
+    u3.INDIV_SPS_OCC,
+    u3.INDIV_SPS_DUTY,
+    u3.INDIV_SPS_PHN,
+    u3.INDIV_SPS_MPHN,
+    u3.INDIV_SPS_JOB_DT,
+    u3.COM_REL_DGR,
+    d3.v_value as CRD_GRADE,
+    u3.CRD_DATE,
+    u3.REMARK,
+    u3.CUST_MGR,
+    FUN_GET_USER_BY_CODE(u3.CUST_MGR) as CUST_MGR_NAME,
+    u3.MAIN_BR_ID,
+    FUN_GET_ORG_BY_CODE(u3.MAIN_BR_ID) as MAIN_BR_NAME,
+    u3.CUS_STATUS,
+    u3.INDIV_COM_FLD_NAME
 @}
 from
-CUS_INDIV
+CUS_INDIV as u3
+left join CUS_BASE as u1 on u3.CUS_ID=u1.CUS_ID
+left join CUS_COM as u2 on u3.CUS_ID = u2.CUS_ID
+left join t_dict d1 on d1.name = 'CUS_TYPE' and d1.V_KEY = u3.CUS_TYPE
+left join t_dict d2 on d2.name = 'CERT_TYPE' and d2.V_KEY = u3.CERT_TYPE
+left join t_dict d3 on d3.name = 'CRD_GRADE' and d3.V_KEY = u3.CRD_GRADE
 where CREUNIT_NO = (#use("数据源限制")#)
 -- 客户号
-and CUS_ID= #CUS_ID#
+and u3.CUS_ID= #CUS_ID#
+--查询数据范围
+#use("condition_cus")#
 
 
 203
@@ -494,6 +538,8 @@ left join ACC_LOAN as a1 on p1.LOAN_ACCOUNT=a1.LOAN_ACCOUNT
 where p1.CREUNIT_NO = (#use("数据源限制")#)
 -- 贷款帐号
 and p1.LOAN_ACCOUNT= #LOAN_ACCOUNT#
+--查询数据范围
+#use("condition_loan")#
 
 
 214
@@ -531,9 +577,13 @@ select
 from
 CUS_COM as u2
 left join CUS_BASE as u1 on u2.CUS_ID=u1.CUS_ID
+left join CUS_INDIV as u3 on u2.CUS_ID = u3.CUS_ID
 left join (select MAX(LOAN_AMOUNT) as LOAN_AMOUNT,CUS_ID from RPT_M_RPT_SLS_ACCT where CREUNIT_NO =(#use("数据源限制")#) group by CUS_ID) as p1 on u2.CUS_ID=p1.CUS_ID
 left join (select MAX(UNPD_PRIN_BAL)as UNPD_PRIN_BAL,CUS_ID from RPT_M_RPT_SLS_ACCT where CREUNIT_NO =(#use("数据源限制")#) group by CUS_ID) as p2 on u2.CUS_ID=p2.CUS_ID
 where u2.CREUNIT_NO = (#use("数据源限制")#)
+--查询数据范围
+#use("condition_cus")#
+
 @if(isNotEmpty(own)){
     and exists(
         select 1 from t_cus_belong where uid = #uid# and cus_id = u2.cus_id
@@ -648,9 +698,13 @@ select
 @}
 from CUS_INDIV as u3
 left join CUS_BASE as u1 on u3.CUS_ID=u1.CUS_ID
+left join CUS_COM as u2 on u3.CUS_ID = u2.CUS_ID
 left join (select MAX(LOAN_AMOUNT) as LOAN_AMOUNT,CUS_ID from RPT_M_RPT_SLS_ACCT where CREUNIT_NO =(#use("数据源限制")#) group by CUS_ID) as p1 on u3.CUS_ID=p1.CUS_ID
 left join (select MAX(UNPD_PRIN_BAL)as UNPD_PRIN_BAL,CUS_ID from RPT_M_RPT_SLS_ACCT where CREUNIT_NO =(#use("数据源限制")#) group by CUS_ID) as p2 on u3.CUS_ID=p2.CUS_ID
 where u3.CREUNIT_NO = (#use("数据源限制")#)
+--查询数据范围
+#use("condition_cus")#
+
 @if(isNotEmpty(own)){
     and exists(
         select 1 from t_cus_belong where uid = #uid# and cus_id = u3.cus_id
@@ -812,6 +866,9 @@ left join t_org o2 on o2.acc_code = p1.MAIN_BR_ID
     left join t_loan_manager lm on lm.loan_account = p1.loan_account
 @}
 where p1.CREUNIT_NO = (#use("数据源限制")#)
+--查询数据范围
+#use("condition_loan")#
+
 @if(isNotEmpty(own)){
     and (
     p1.loan_account in (select loan_account from t_loan_belong where uid = #uid#)
@@ -994,6 +1051,9 @@ left join t_org o21 on o21.acc_code = u3.MAIN_BR_ID
 left join t_org o22 on o22.acc_code = u2.MAIN_BR_ID
 
 where u1.CREUNIT_NO = (#use("数据源限制")#)
+--查询数据范围
+#use("condition_cus")#
+
 @if(isNotEmpty(own)){
     and exists(
         select 1 from t_cus_belong where uid = #uid# and cus_id = u1.cus_id
@@ -1108,6 +1168,9 @@ select
 from RPT_M_RPT_SLS_ACCT as p1
 left join T_LOAN_MANAGER t1 on p1.LOAN_ACCOUNT=t1.LOAN_ACCOUNT
 where p1.CREUNIT_NO = (#use("数据源限制")#)
+--查询数据范围
+#use("condition_loan")#
+
 -- 贷款分类（一般贷款台帐固定为“普通贷款”）
 and p1.LN_TYPE = '普通贷款'
 
