@@ -465,7 +465,7 @@ left join CUS_COM as u2 on u3.CUS_ID = u2.CUS_ID
 left join t_dict d1 on d1.name = 'CUS_TYPE' and d1.V_KEY = u3.CUS_TYPE
 left join t_dict d2 on d2.name = 'CERT_TYPE' and d2.V_KEY = u3.CERT_TYPE
 left join t_dict d3 on d3.name = 'CRD_GRADE' and d3.V_KEY = u3.CRD_GRADE
-where CREUNIT_NO = (#use("数据源限制")#)
+where u3.CREUNIT_NO = (#use("数据源限制")#)
 -- 客户号
 and u3.CUS_ID= #CUS_ID#
 --查询数据范围
