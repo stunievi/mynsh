@@ -5,7 +5,7 @@ select value(var_value,'') from T_SYSTEM_VARIABLE where var_name = 'ods_br_id' f
 condition_loan
 ===
 --查询数据范围（总行角色看所有，贷款机构看所属一级支行）
-and ((1=(select count(1) from t_global_permission_center where uid = #uid# and type = 'DATA_SEARCH_CONDITION'))
+and (((select count(1) from t_global_permission_center where uid = #uid# and type = 'DATA_SEARCH_CONDITION')>0)
     or ((0=(select count(1) from t_global_permission_center where uid = #uid# and type = 'DATA_SEARCH_CONDITION')) and (p1.MAIN_BR_ID in 
         (select substr(acc_code,1,5) from T_ORG where PARENT_ID = (select ID from T_ORG where acc_code = (SELECT substr(MAIN_BR_ID,1,5) FROM T_DEPARTMENT_USER WHERE UID=#uid#)) and TYPE = 'DEPARTMENT') or (p1.MAIN_BR_ID = (SELECT MAIN_BR_ID FROM T_DEPARTMENT_USER WHERE UID=#uid#)))
 ))
@@ -13,7 +13,7 @@ and ((1=(select count(1) from t_global_permission_center where uid = #uid# and t
 condition_cus
 ===
 --查询数据范围（总行角色看所有，贷款机构看所属一级支行）
-and ((1=(select count(1) from t_global_permission_center where uid = #uid# and type = 'DATA_SEARCH_CONDITION'))
+and (((select count(1) from t_global_permission_center where uid = #uid# and type = 'DATA_SEARCH_CONDITION')>0)
     or ((0=(select count(1) from t_global_permission_center where uid = #uid# and type = 'DATA_SEARCH_CONDITION')) and ((u2.MAIN_BR_ID in 
         (select substr(acc_code,1,5) from T_ORG where PARENT_ID = (select ID from T_ORG where acc_code = (SELECT substr(MAIN_BR_ID,1,5) FROM T_DEPARTMENT_USER WHERE UID=#uid#)) and TYPE = 'DEPARTMENT') or (u2.MAIN_BR_ID = (SELECT MAIN_BR_ID FROM T_DEPARTMENT_USER WHERE UID=#uid#))) or 
         (u3.MAIN_BR_ID in (select substr(acc_code,1,5) from T_ORG where PARENT_ID = (select ID from T_ORG where acc_code = (SELECT substr(MAIN_BR_ID,1,5) FROM T_DEPARTMENT_USER WHERE UID=#uid#)) and TYPE = 'DEPARTMENT') or (u3.MAIN_BR_ID = (SELECT MAIN_BR_ID FROM T_DEPARTMENT_USER WHERE UID=#uid#))))
