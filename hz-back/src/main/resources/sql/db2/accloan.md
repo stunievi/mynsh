@@ -48,7 +48,11 @@ from RPT_M_RPT_SLS_ACCT as p1
 left join GRT_LOANGUAR_INFO as g5 on p1.CONT_NO=g5.CONT_NO
 left join GRT_GUAR_CONT as g1 on g5.GUAR_CONT_NO=g1.GUAR_CONT_NO
 where p1.CREUNIT_NO = (#use("数据源限制")#)
---30010000011439980
+--普通贷款
+and p1.LN_TYPE in ('普通贷款','银团贷款')
+--表内资产
+and p1.GL_CLASS not like '0%'
+--贷款帐号（30010000011439980）
 and p1.LOAN_ACCOUNT= #LOAN_ACCOUNT#
 --查询数据范围
 #use("condition_loan")#
@@ -153,6 +157,11 @@ left join GRT_G_BASIC_INFO as g3 on g3.GUARANTY_ID=g6.GUARANTY_ID
 left join GRT_P_BASIC_INFO as g4 on g4.GUARANTY_ID=g6.GUARANTY_ID
 left join GRT_GUARANTEER as g2 on g2.GUARANTY_ID=g6.GUARANTY_ID
 where p1.CREUNIT_NO = (#use("数据源限制")#)
+--普通贷款
+and p1.LN_TYPE in ('普通贷款','银团贷款')
+--表内资产
+and p1.GL_CLASS not like '0%'
+--贷款帐号
 and p1.LOAN_ACCOUNT= #LOAN_ACCOUNT#
 --查询数据范围
 #use("condition_loan")#
@@ -187,6 +196,11 @@ select
 from RPT_M_RPT_SLS_ACCT as p1
 left join CUS_BASE as u1 on p1.CUS_ID=u1.CUS_ID 
 where p1.CREUNIT_NO = (#use("数据源限制")#)
+--普通贷款
+and p1.LN_TYPE in ('普通贷款','银团贷款')
+--表内资产
+and p1.GL_CLASS not like '0%'
+--贷款帐号
 and p1.LOAN_ACCOUNT=#LOAN_ACCOUNT#
 --查询数据范围
 #use("condition_loan")#
@@ -214,6 +228,11 @@ select
 from RPT_M_RPT_SLS_ACCT as p1
 left join CUS_BASE as u1 on p1.CUS_ID=u1.CUS_ID 
 where p1.CREUNIT_NO = (#use("数据源限制")#)
+--普通贷款
+and p1.LN_TYPE in ('普通贷款','银团贷款')
+--表内资产
+and p1.GL_CLASS not like '0%'
+--贷款帐号
 and p1.LOAN_ACCOUNT=#LOAN_ACCOUNT#
 --查询数据范围
 #use("condition_loan")#
@@ -237,6 +256,11 @@ select
 @}
 from RPT_M_RPT_SLS_ACCT as p1
 where p1.CREUNIT_NO = (#use("数据源限制")#)
+--普通贷款
+and p1.LN_TYPE in ('普通贷款','银团贷款')
+--表内资产
+and p1.GL_CLASS not like '0%'
+--贷款帐号
 and p1.LOAN_ACCOUNT=#LOAN_ACCOUNT#
 --查询数据范围
 #use("condition_loan")#
@@ -263,6 +287,11 @@ from RPT_M_RPT_SLS_ACCT as p1
 left join GRT_LOANGUAR_INFO as g5 on p1.CONT_NO=g5.CONT_NO
 left join GRT_GUAR_CONT as g1 on g5.GUAR_CONT_NO=g1.GUAR_CONT_CN_NO
 where p1.CREUNIT_NO = (#use("数据源限制")#)
+--普通贷款
+and p1.LN_TYPE in ('普通贷款','银团贷款')
+--表内资产
+and p1.GL_CLASS not like '0%'
+--贷款帐号
 and p1.LOAN_ACCOUNT=#LOAN_ACCOUNT#
 --查询数据范围
 #use("condition_loan")#
@@ -312,6 +341,11 @@ left join CUS_BASE as u1 on p1.CUS_ID=u1.CUS_ID
 left join cus_com as u2 on p1.CUS_ID = u2.CUS_ID
 left join cus_indiv as u3 on p1.CUS_ID = u3.CUS_ID
 where p1.CREUNIT_NO = (#use("数据源限制")#)
+--普通贷款
+and p1.LN_TYPE in ('普通贷款','银团贷款')
+--表内资产
+and p1.GL_CLASS not like '0%'
+--贷款帐号
 and p1.LOAN_ACCOUNT=#LOAN_ACCOUNT#
 --查询数据范围
 #use("condition_loan")#
@@ -332,6 +366,11 @@ select
 @}
 from RPT_M_RPT_SLS_ACCT as p1 
 where p1.CREUNIT_NO = (#use("数据源限制")#)
+--普通贷款
+and p1.LN_TYPE in ('普通贷款','银团贷款')
+--表内资产
+and p1.GL_CLASS not like '0%'
+--贷款帐号
 and p1.LOAN_ACCOUNT=#LOAN_ACCOUNT#
 --查询数据范围
 #use("condition_loan")#
@@ -341,47 +380,29 @@ and p1.LOAN_ACCOUNT=#LOAN_ACCOUNT#
 ===
 select
 @pageTag(){
-    u2.CUS_ID,
-    u2.CUS_NAME,
-    d1.v_value as CUS_TYPE,
-    d2.v_value as CERT_TYPE,
-    u2.CERT_CODE,
-    u2.CUS_BANK_REL,
-    u2.COM_HOLD_STK_AMT,
-    u2.INVEST_TYPE,
-    u2.COM_SUB_TYP,
-    u2.COM_SCALE,
-    u2.COM_HOLD_TYPE,
-    u2.COM_INS_CODE,
-    u2.COM_CLL_TYPE,
-    u2.COM_CLL_NAME,
-    u2.COM_EMPLOYEE,
-    u2.LEGAL_NAME,
-    u2.LEGAL_CERT_TYPE,
-    u2.LEGAL_CERT_CODE,
-    u2.LEGAL_PHONE,
-    u2.NAT_TAX_REG_CODE,
-    u2.NAT_TAX_REG_ORG,
-    u2.LOC_TAX_REG_CODE,
-    u2.LOC_TAX_REG_ORG,
-    u2.FNA_MGR,
-    u2.COM_OPERATOR,
-    u2.POST_ADDR,
-    u2.PHONE,
-    u2.FAX_CODE,
-    u2.BAS_ACC_BANK,
-    u2.BAS_ACC_NO,
-    u2.COM_CRD_TYP,
-    d3.v_value as COM_CRD_GRADE,
-    u2.COM_OPT_ST,
-    u2.COM_REL_DGR,
-    u2.COM_CITY_FLG,
-    u2.CUST_MGR,
-    FUN_GET_USER_BY_CODE(u2.CUST_MGR) as CUST_MGR_NAME,
-    u2.MAIN_BR_ID,
-    FUN_GET_ORG_BY_CODE(u2.MAIN_BR_ID) as MAIN_BR_NAME,
-    u2.TOTAL_ASSETS,
-    u2.TOTAL_SALES
+    u2.CUS_ID as $CUS_ID,
+    u2.CUS_NAME as $CUS_NAME,
+    d1.v_value as $CUS_TYPE,
+    d2.v_value as $CERT_TYPE,
+    u2.CERT_CODE as $CERT_CODE,
+    u2.CUS_BANK_REL as $CUS_BANK_REL,
+    u2.COM_HOLD_STK_AMT as $COM_HOLD_STK_AMT,
+    u2.COM_INS_CODE as $COM_INS_CODE,
+    u2.LEGAL_NAME as $LEGAL_NAME,
+    u2.LEGAL_CERT_TYPE as $LEGAL_CERT_TYPE,
+    u2.LEGAL_CERT_CODE as $LEGAL_CERT_CODE,
+    u2.LEGAL_PHONE as $LEGAL_PHONE,
+    u2.FNA_MGR as $FNA_MGR,
+    u2.COM_OPERATOR as $COM_OPERATOR,
+    u2.POST_ADDR as $POST_ADDR,
+    u2.PHONE as $POST_ADDR,
+    u2.FAX_CODE as $FAX_CODE,
+    d3.v_value as $COM_CRD_GRADE,
+    u2.COM_OPT_ST as $COM_OPT_ST,
+    u2.COM_REL_DGR as $COM_REL_DGR,
+    FUN_GET_USER_BY_CODE(u2.CUST_MGR) as $CUST_MGR_NAME,
+    FUN_GET_ORG_BY_CODE(u2.MAIN_BR_ID) as $MAIN_BR_NAME,
+    u2.*
 @}
 from
 CUS_COM as u2
@@ -400,63 +421,53 @@ and u2.CUS_ID= #CUS_ID#
 ===
 select
 @pageTag(){
-    u3.INNER_CUS_ID,
-    u3.CUS_ID,
-    u3.MNG_BR_ID,
-    d1.v_value as CUS_TYPE,
-    u3.CUS_NAME,
-    u3.INDIV_SEX,
-    d2.v_value as CERT_TYPE,
-    u3.CERT_CODE,
-    u3.AGRI_FLG,
-    u3.CUS_BANK_REL,
-    u3.COM_HOLD_STK_AMT,
-    u3.BANK_DUTY,
-    u3.INDIV_NTN,
-    u3.INDIV_BRT_PLACE,
-    u3.INDIV_HOUH_REG_ADD,
-    u3.INDIV_DT_OF_BIRTH,
-    u3.INDIV_POL_ST,
-    u3.INDIV_EDT,
-    u3.INDIV_MAR_ST,
-    u3.POST_ADDR,
-    u3.PHONE,
-    u3.FPHONE,
-    u3.FAX_CODE,
-    u3.EMAIL,
-    u3.INDIV_RSD_ADDR,
-    u3.INDIV_RSD_ST,
-    u3.INDIV_SOC_SCR,
-    u3.INDIV_COM_NAME,
-    u3.INDIV_COM_TYP,
-    u3.INDIV_COM_FLD,
-    u3.INDIV_COM_PHN,
-    u3.INDIV_COM_FAX,
-    u3.INDIV_COM_ADDR,
-    u3.INDIV_COM_CNT_NAME,
-    u3.INDIV_COM_JOB_TTL,
-    u3.INDIV_CRTFCTN,
-    u3.INDIV_SAL_ACC_BANK,
-    u3.INDIV_SAL_ACC_NO,
-    u3.INDIV_SPS_NAME,
-    u3.INDIV_SPS_ID_TYP,
-    u3.INDIV_SPS_ID_CODE,
-    u3.INDIV_SCOM_NAME,
-    u3.INDIV_SPS_OCC,
-    u3.INDIV_SPS_DUTY,
-    u3.INDIV_SPS_PHN,
-    u3.INDIV_SPS_MPHN,
-    u3.INDIV_SPS_JOB_DT,
-    u3.COM_REL_DGR,
-    d3.v_value as CRD_GRADE,
-    u3.CRD_DATE,
-    u3.REMARK,
-    u3.CUST_MGR,
+    u3.CUS_ID as $CUS_ID,
+    u3.MNG_BR_ID as $MNG_BR_ID,
+    d1.v_value as $CUS_TYPE,
+    u3.CUS_NAME as $CUS_NAME,
+    u3.INDIV_SEX as $INDIV_SEX,
+    d2.v_value as $CERT_TYPE,
+    u3.CERT_CODE as $CERT_CODE,
+    u3.AGRI_FLG as $AGRI_FLG,
+    u3.CUS_BANK_REL as $CUS_BANK_REL,
+    u3.COM_HOLD_STK_AMT as $COM_HOLD_STK_AMT,
+    u3.BANK_DUTY as $BANK_DUTY,
+    u3.INDIV_HOUH_REG_ADD as $INDIV_HOUH_REG_ADD,
+    u3.INDIV_DT_OF_BIRTH as $INDIV_DT_OF_BIRTH,
+    u3.INDIV_EDT as $INDIV_EDT,
+    u3.INDIV_MAR_ST as $INDIV_MAR_ST,
+    u3.POST_ADDR as $POST_ADDR,
+    u3.PHONE as $PHONE,
+    u3.FPHONE as $FPHONE,
+    u3.FAX_CODE as $FAX_CODE,
+    u3.EMAIL as $EMAIL,
+    u3.INDIV_RSD_ADDR as $INDIV_RSD_ADDR,
+    u3.INDIV_RSD_ST as $INDIV_RSD_ST,
+    u3.INDIV_COM_NAME as $INDIV_COM_NAME,
+    u3.INDIV_COM_TYP as $INDIV_COM_TYP,
+    u3.INDIV_COM_FLD as $INDIV_COM_FLD,
+    u3.INDIV_COM_PHN as $INDIV_COM_PHN,
+    u3.INDIV_COM_FAX as $INDIV_COM_FAX,
+    u3.INDIV_COM_ADDR as $INDIV_COM_ADDR,
+    u3.INDIV_COM_CNT_NAME as $INDIV_COM_CNT_NAME,
+    u3.INDIV_COM_JOB_TTL as $INDIV_COM_JOB_TTL,
+    u3.INDIV_CRTFCTN as $INDIV_CRTFCTN,
+    u3.INDIV_SAL_ACC_BANK as $INDIV_SAL_ACC_BANK,
+    u3.INDIV_SAL_ACC_NO as $INDIV_SAL_ACC_NO,
+    u3.INDIV_SPS_NAME as $INDIV_SPS_NAME,
+    u3.INDIV_SPS_ID_TYP as $INDIV_SPS_ID_TYP,
+    u3.INDIV_SPS_ID_CODE as $INDIV_SPS_ID_CODE,
+    u3.INDIV_SCOM_NAME as $INDIV_SCOM_NAME,
+    u3.INDIV_SPS_OCC as $INDIV_SPS_OCC,
+    u3.INDIV_SPS_DUTY as $INDIV_SPS_DUTY,
+    u3.INDIV_SPS_PHN as $INDIV_SPS_PHN,
+    u3.INDIV_SPS_MPHN as $INDIV_SPS_MPHN,
+    u3.COM_REL_DGR as $COM_REL_DGR,
+    d3.v_value as $CRD_GRADE,
+    u3.CRD_DATE as $CRD_DATE,
     FUN_GET_USER_BY_CODE(u3.CUST_MGR) as CUST_MGR_NAME,
-    u3.MAIN_BR_ID,
     FUN_GET_ORG_BY_CODE(u3.MAIN_BR_ID) as MAIN_BR_NAME,
-    u3.CUS_STATUS,
-    u3.INDIV_COM_FLD_NAME
+    u3.*
 @}
 from
 CUS_INDIV as u3
@@ -476,66 +487,73 @@ and u3.CUS_ID= #CUS_ID#
 ===
 select
 @pageTag(){
-    p1.BILL_NO,
-    p1.CONT_NO,
-    a1.PRD_PK,
-    p1.BIZ_TYPE,
-    a1.PRD_NAME,
-    p1.PRD_TYPE,
-    p1.CUS_ID,
-    p1.CUS_NAME,
-    p1.BIZ_TYPE_SUB,
-    a1.ACCOUNT_CLASS,
-    p1.LOAN_ACCOUNT,
+    p1.LOAN_ACCOUNT as $LOAN_ACCOUNT,
+    p1.CUS_NAME as $CUS_NAME,
+    p1.LOAN_AMOUNT as $LOAN_AMOUNT,
+    p1.LOAN_BALANCE as $LOAN_BALANCE,
+    p1.LOAN_START_DATE as $LOAN_START_DATE,
+    p1.LOAN_END_DATE as $LOAN_END_DATE,
+    d1.v_value as $CLA,
+    a1.CLA_DATE as $CLA_DATE,
+    func_get_dict('CLA_PRE',a1.CLA_PRE) as $CLA_PRE,
+    a1.CLA_DATE_PRE as $CLA_DATE_PRE,
+    d2.v_value as $INT_RATE_TYPE,
+    p1.REALITY_IR_Y as $REALITY_IR_Y,
+    d3.v_value as $ASSURE_MEANS_MAIN,
+    p1.CAPINT_OVERDUE_DATE as $CAPINT_OVERDUE_DATE,
+    p1.DELAY_INT_CUMU as $DELAY_INT_CUMU,
+    p1.UNPD_PRIN_BAL as $UNPD_PRIN_BAL,
+    p1.CAP_OVERDUE_DATE as $CAP_OVERDUE_DATE,
+    p1.INTEREST_OVERDUE_DATE as $INTEREST_OVERDUE_DATE,
+    d4.v_value as $AGRICULTURE_TYPE,
+    func_get_dict('COM_SCALE',p1.COM_SCALE) as $COM_SCALE,
+    func_get_dict('MAIN_FLAG',p1.MAIN_FLAG) as $MAIN_FLAG,
+    p1.BILL_NO as $BILL_NO,
+    p1.CONT_NO as $CONT_NO,
+    p1.BIZ_TYPE as $BIZ_TYPE,
+    a1.PRD_NAME as $PRD_NAME,
+    p1.CUS_ID as $CUS_ID,
+    p1.BIZ_TYPE_SUB as $BIZ_TYPE_SUB,    
     case when p1.LOAN_ACCOUNT like '3001%' then
     '对私'
     else
     '对公'
     end as $ct,
-    p1.LOAN_FORM,
-    p1.LOAN_NATURE,
-    a1.LOAN_TYPE_EXT,
-    func_get_dict('ASSURE_MEANS_MAIN',p1.ASSURE_MEANS_MAIN) as ASSURE_MEANS_MAIN,
-    a1.CUR_TYPE,
-    p1.LOAN_AMOUNT,
-    p1.LOAN_BALANCE,
-    p1.LOAN_START_DATE,
-    p1.LOAN_END_DATE,
-    p1.TERM_TYPE,
-    p1.ORIG_EXPI_DATE,
-    a1.RECE_INT_CUMU,
-    p1.ACTUAL_INT_CUMU,
-    p1.DELAY_INT_CUMU,
-    func_get_dict('REPAYMENT_MODE',p1.REPAYMENT_MODE) as REPAYMENT_MODE,
-    p1.LOAN_DIRECTION,
-    p1.EXTENSION_TIMES,
-    p1.CAP_OVERDUE_DATE,
-    p1.INTEREST_OVERDUE_DATE,
-    a1.OVER_TIMES_CURRENT,
-    a1.OVER_TIMES_TOTAL,
-    a1.MAX_TIMES_TOTAL,
-    func_get_dict('CLA',p1.CLA) as CLA,
-    a1.CLA_DATE,
-    func_get_dict('CLA_PRE',a1.CLA_PRE) as CLA_PRE,
-    a1.CLA_DATE_PRE,
-    a1.LATEST_REPAY_DATE,
-    p1.CUST_MGR,
+    a1.LOAN_TYPE_EXT as $LOAN_TYPE_EXT,
+    func_get_dict('LOAN_TYPE_EXT',a1.LOAN_TYPE_EXT) as $LOAN_TYPE_EXT,
+    a1.CUR_TYPE as $CUR_TYPE, 
+    p1.TERM_TYPE as $TERM_TYPE,  
+    d5.v_value as $REPAYMENT_MODE,
+    p1.LOAN_DIRECTION  as $LOAN_DIRECTION,  
     FUN_GET_USER_BY_CODE(p1.CUST_MGR) as CUST_MGR_NAME,
-    a1.INPUT_BR_ID,
-    p1.FINA_BR_ID,
-    p1.MAIN_BR_ID,
     FUN_GET_ORG_BY_CODE(p1.MAIN_BR_ID) as MAIN_BR_NAME,
-    p1.SETTL_DATE,
-    func_get_dict('ACCOUNT_STATUS',p1.ACCOUNT_STATUS) as ACCOUNT_STATUS,
-    p1.GL_CLASS,
+    d6.v_value as $ACCOUNT_STATUS,
+    p1.GL_CLASS as $GL_CLASS,
     a1.ISCIRCLE,
     a1.RETURN_DATE,
-    a1.REMARK
+    a1.PRD_PK,
+    a1.ACCOUNT_CLASS,
+    a1.RECE_INT_CUMU,
+    a1.OVER_TIMES_CURRENT,
+    a1.OVER_TIMES_TOTAL,
+    a1.MAX_TIMES_TOTAL,    
+    a1.LATEST_REPAY_DATE,
+    p1.*
 @}
 from
 RPT_M_RPT_SLS_ACCT as p1
 left join ACC_LOAN as a1 on p1.LOAN_ACCOUNT=a1.LOAN_ACCOUNT
+left join t_dict d1 on d1.name = 'CLA' and d1.V_KEY = p1.CLA
+left join t_dict d2 on d2.name = 'INT_RATE_TYPE' and d2.V_KEY = p1.INT_RATE_TYPE
+left join t_dict d3 on d3.name = 'ASSURE_MEANS_MAIN' and d3.V_KEY = p1.ASSURE_MEANS_MAIN
+left join t_dict d4 on d4.name = 'AGRICULTURE_TYPE' and d4.V_KEY = p1.AGRICULTURE_TYPE
+left join t_dict d5 on d5.name = 'REPAYMENT_MODE' and d5.V_KEY = p1.REPAYMENT_MODE
+left join t_dict d6 on d6.name = 'ACCOUNT_STATUS' and d6.V_KEY = p1.ACCOUNT_STATUS
 where p1.CREUNIT_NO = (#use("数据源限制")#)
+--普通贷款
+and p1.LN_TYPE in ('普通贷款','银团贷款')
+--表内资产
+and p1.GL_CLASS not like '0%'
 -- 贷款帐号
 and p1.LOAN_ACCOUNT= #LOAN_ACCOUNT#
 --查询数据范围
@@ -866,6 +884,10 @@ left join t_org o2 on o2.acc_code = p1.MAIN_BR_ID
     left join t_loan_manager lm on lm.loan_account = p1.loan_account
 @}
 where p1.CREUNIT_NO = (#use("数据源限制")#)
+--普通贷款
+and p1.LN_TYPE in ('普通贷款','银团贷款')
+--表内资产
+and p1.GL_CLASS not like '0%'
 --查询数据范围
 #use("condition_loan")#
 
@@ -1051,6 +1073,10 @@ left join t_org o21 on o21.acc_code = u3.MAIN_BR_ID
 left join t_org o22 on o22.acc_code = u2.MAIN_BR_ID
 
 where u1.CREUNIT_NO = (#use("数据源限制")#)
+--普通贷款
+and p1.LN_TYPE in ('普通贷款','银团贷款')
+--表内资产
+and p1.GL_CLASS not like '0%'
 --查询数据范围
 #use("condition_cus")#
 
@@ -1168,6 +1194,10 @@ select
 from RPT_M_RPT_SLS_ACCT as p1
 left join T_LOAN_MANAGER t1 on p1.LOAN_ACCOUNT=t1.LOAN_ACCOUNT
 where p1.CREUNIT_NO = (#use("数据源限制")#)
+--普通贷款
+and p1.LN_TYPE in ('普通贷款','银团贷款')
+--表内资产
+and p1.GL_CLASS not like '0%'
 --查询数据范围
 #use("condition_loan")#
 
@@ -1341,8 +1371,10 @@ left join t_user u on u.acc_code = p1.CUST_MGR
 left join t_department_manager dm on dm.acc_code = p1.MAIN_BR_ID
 where
 p1.CREUNIT_NO = (#use("数据源限制")#)
---贷款分类
-and p1.LN_TYPE = '普通贷款'
+--普通贷款
+and p1.LN_TYPE in ('普通贷款','银团贷款')
+--表内资产
+and p1.GL_CLASS not like '0%'
 --台帐状态
 and p1.ACCOUNT_STATUS = '1'
 and (dm.uid = #uid# or u.id = #uid#)
