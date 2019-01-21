@@ -1073,10 +1073,6 @@ left join t_org o21 on o21.acc_code = u3.MAIN_BR_ID
 left join t_org o22 on o22.acc_code = u2.MAIN_BR_ID
 
 where u1.CREUNIT_NO = (#use("数据源限制")#)
---普通贷款
-and p1.LN_TYPE in ('普通贷款','银团贷款')
---表内资产
-and p1.GL_CLASS not like '0%'
 --查询数据范围
 #use("condition_cus")#
 
