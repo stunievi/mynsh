@@ -31,12 +31,6 @@ public class Dict extends TailBean implements ValidGroup {
     String vValue;
     Date   lastModify;
 
-    @AssertTrue(groups = {Add.class,Edit.class})
-    protected boolean getZValid(){
-        lastModify = new Date();
-        return true;
-    }
-
     @Override
     public String onGetListSql(Map<String,Object> params) {
         //字典默认开放授权, 很多地方都要用到
@@ -47,11 +41,26 @@ public class Dict extends TailBean implements ValidGroup {
     @Override
     public void onBeforeAdd(SQLManager sqlManager) {
         User.AssertMethod("系统管理.字典管理");
+        long count = sqlManager.lambdaQuery(Dict.class)
+            .andEq(Dict::getName, name)
+            .andEq(Dict::getVKey, vKey)
+            .andEq(Dict::getVValue, vValue)
+            .count();
+        Assert(count == 0, "已经有相同的字典值");
+        lastModify = new Date();
     }
 
     @Override
     public void onBeforeEdit(SQLManager sqlManager) {
         User.AssertMethod("系统管理.字典管理");
+        long count = sqlManager.lambdaQuery(Dict.class)
+            .andEq(Dict::getName, name)
+            .andEq(Dict::getVKey, vKey)
+            .andEq(Dict::getVValue, vValue)
+            .andNotEq(Dict::getId, id)
+            .count();
+        Assert(count == 0, "已经有相同的字典值");
+        lastModify = new Date();
     }
 
     @Override
