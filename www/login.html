@@ -139,6 +139,7 @@
             <input type="text" class="btx" placeholder="请输入账户名" style="" id="username" name="username" >
             <div></div>
             <input type="password" class="btx" placeholder="请输入密码" style="margin-top: -40px;" id="password" name="password" >
+            <input type="hidden" name="server" value="main">
             <div style="text-align: center;width: 200px;margin: 0 auto;margin-top: -35px" >
                 <button type="submit">
                     <span>登录</span>
@@ -219,6 +220,9 @@
 </body>
 </html>
 
+<script>
+    $("[name=server]").val(top.SERVER || 'main');
+</script>
 <script>
     show(document.getElementById("star"))
 

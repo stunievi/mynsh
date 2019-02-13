@@ -24,15 +24,44 @@ if(!window.location.origin)
 {
     window.location.origin = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
 }
-var remoteOrigin = location.origin;
+
+if(typeof $ !== "undefined"){
+    $.getJSON("/server.json", function (json) {
+        top.SERVER_LIST = json;
+    });
+}
+
+Object.defineProperty(window, "remoteOrigin", {
+	get: function () {
+	    var list = top.SERVER_LIST || [];
+	    for(var i = 0; i < list.length; i++){
+	        if(list[i].name == (top.SERVER || 'main')){
+	            return list[i].server;
+            }
+        }
+        return "";
+    }
+});
+Object.defineProperty(window, "remoteClound", {
+    get: function () {
+        return  remoteOrigin + "/disk";
+    }
+});
+
+var matched = location.search.match(/_chain=([^&\/]+)/);
+if(matched){
+    top.SERVER = matched[1];
+}
+
+// var remoteOrigin = location.origin;
 // 'http://localhost'; // hznsh服务器
 // var remoteOrigin = 'http://192.168.10.186'; // hznsh2服务器
 //var remoteOrigin = 'http://192.168.10.187';
 // var remoteOrigin = 'http://192.168.2.100:8080';
 // var remoteClound = 'http://47.93.54.105'; // 私有云服务器
 // var remoteClound = "http://localhost/disk";
-var remoteClound = remoteOrigin + "/disk";
-var remoteCloundToken = ";jsessionid=";
+// var remoteClound = remoteOrigin + "/disk";
+// var remoteCloundToken = ";jsessionid=";
 
 // 远程api
 var remoteApi = {

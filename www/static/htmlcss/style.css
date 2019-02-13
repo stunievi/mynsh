@@ -256,4 +256,6 @@ table.table th{
   margin-left: 5px;
   margin-right: 5px;
 }
-
+.break-table td{
+  white-space: normal;
+}
