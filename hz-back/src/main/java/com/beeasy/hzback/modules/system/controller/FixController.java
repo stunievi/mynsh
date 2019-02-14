@@ -62,6 +62,7 @@ public class FixController {
         return "success";
     }
 
+    @Deprecated
     @RequestMapping(value = "/cloud")
     public String fixCloud(){
         List<User> users = sqlManager.lambdaQuery(User.class).select();
@@ -84,6 +85,7 @@ public class FixController {
     }
 
 
+    @Deprecated
     @RequestMapping("/dep")
     public String fixDep(){
         sqlManager.lambdaQuery(Org.class)
