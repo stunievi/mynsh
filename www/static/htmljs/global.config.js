@@ -31,15 +31,19 @@ if(typeof $ !== "undefined"){
     });
 }
 
+var getRemoteOrigin = function(server){
+	var list = top.SERVER_LIST || [];
+	for(var i = 0; i < list.length; i++){
+		if(list[i].name == (server || 'main')){
+			return list[i].server;
+		}
+	}
+	return null;
+}
+
 Object.defineProperty(window, "remoteOrigin", {
 	get: function () {
-	    var list = top.SERVER_LIST || [];
-	    for(var i = 0; i < list.length; i++){
-	        if(list[i].name == (top.SERVER || 'main')){
-	            return list[i].server;
-            }
-        }
-        return "";
+		return getRemoteOrigin(top.SERVER) || getRemoteOrigin() || "";
     }
 });
 Object.defineProperty(window, "remoteClound", {

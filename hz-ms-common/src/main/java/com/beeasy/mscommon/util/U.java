@@ -6,7 +6,6 @@ import com.beeasy.mscommon.entity.BeetlPager;
 import org.beetl.sql.core.SQLManager;
 import org.beetl.sql.core.engine.PageQuery;
 import org.beetl.sql.ext.SnowflakeIDWorker;
-import org.beetl.sql.ext.spring4.SqlManagerFactoryBean;
 import org.osgl.$;
 import org.osgl.util.C;
 import org.osgl.util.S;
@@ -18,11 +17,8 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Validator;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static com.beeasy.mscommon.filter.AuthFilter.Server;
 
@@ -61,23 +57,23 @@ public class U {
 
     public static SQLManager getSQLManager(){
         String server = (String) getRequest().getSession().getAttribute(Server);
+        if(S.blank(server)) server = "main";
         return getSQLManager(server);
     }
 
     public static DataSourceTransactionManager getTxManager(){
         String server = (String) getRequest().getSession().getAttribute(Server);
+        if(S.blank(server)) server = "main";
         return getTxManager(server);
     }
 
     public static DataSourceTransactionManager getTxManager(String type){
-        if(S.empty(type)) type = "main";
         Map<String, DataSourceTransactionManager> map = getBean("txManagers", Map.class);
         return map.get(type);
     }
 
     public static SQLManager getSQLManager(String type){
         Map<String, SQLManager> map = getBean("sqlManagers", Map.class);
-        if(S.empty(type)) type = "main";
         return map.get(type);
     }
 

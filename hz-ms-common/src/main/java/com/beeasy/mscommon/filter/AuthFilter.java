@@ -2,28 +2,16 @@ package com.beeasy.mscommon.filter;
 
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.mscommon.RestException;
-import com.beeasy.mscommon.Result;
-import com.beeasy.mscommon.json.FJHttpMessageConverter;
 import com.beeasy.mscommon.util.U;
-import org.beetl.sql.core.SQLManager;
 import org.beetl.sql.core.SQLReady;
-import org.beetl.sql.ext.spring4.SqlManagerFactoryBean;
 import org.osgl.util.S;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
-import org.springframework.core.env.Environment;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.annotation.PostConstruct;
 import javax.servlet.*;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.List;
@@ -161,7 +149,7 @@ public class AuthFilter implements Filter {
     }
 
     public static Long getUid() {
-        return (Long) U.getRequest().getAttribute(AuthFilter.Uid);
+        return (Long) U.getRequest().getSession().getAttribute(AuthFilter.Uid);
     }
 
     public static String getUname() {

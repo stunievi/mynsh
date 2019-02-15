@@ -2,22 +2,13 @@ package com.beeasy.mscommon;
 
 import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.beeasy.mscommon.filter.AuthFilter;
-import com.beeasy.mscommon.util.U;
-import com.ibm.db2.jcc.DB2Driver;
-import javafx.application.Platform;
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.commons.io.IOUtils;
 import org.beetl.sql.core.*;
 import org.beetl.sql.core.db.DB2SqlStyle;
 import org.beetl.sql.core.db.DBStyle;
 import org.beetl.sql.core.db.SQLiteStyle;
 import org.beetl.sql.ext.DebugInterceptor;
-import org.beetl.sql.ext.spring4.SqlManagerFactoryBean;
 import org.osgl.util.IO;
 import org.osgl.util.S;
 import org.springframework.boot.jdbc.DataSourceBuilder;
@@ -29,17 +20,11 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.springframework.transaction.annotation.TransactionManagementConfigurationSelector;
 import org.springframework.transaction.annotation.TransactionManagementConfigurer;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import org.sqlite.JDBC;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import javax.sql.DataSource;
-import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -111,6 +96,12 @@ public class DataSourceConfiguration implements TransactionManagementConfigurer 
                 dataSources().put(server.name, dataSource);
                 sqlManagers().put(server.name, createSqlManager(new DB2SqlStyle(), dataSource));
                 txManagers().put(server.name, new DataSourceTransactionManager(dataSource));
+                //别名的处理
+                if(S.notBlank(server.alias)){
+                    dataSources().put(server.alias, dataSource);
+                    sqlManagers().put(server.alias, createSqlManager(new DB2SqlStyle(), dataSource));
+                    txManagers().put(server.alias, new DataSourceTransactionManager(dataSource));
+                }
             }
             AbstractRoutingDataSource abstractRoutingDataSource = new AbstractRoutingDataSource() {
                 @Override
@@ -153,6 +144,7 @@ public class DataSourceConfiguration implements TransactionManagementConfigurer 
         public String username;
         public String password;
         public String driver;
+        public String alias;
     }
     /**
      *
