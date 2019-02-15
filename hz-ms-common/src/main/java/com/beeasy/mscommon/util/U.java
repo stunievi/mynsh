@@ -6,10 +6,12 @@ import com.beeasy.mscommon.entity.BeetlPager;
 import org.beetl.sql.core.SQLManager;
 import org.beetl.sql.core.engine.PageQuery;
 import org.beetl.sql.ext.SnowflakeIDWorker;
+import org.beetl.sql.ext.spring4.SqlManagerFactoryBean;
 import org.osgl.$;
 import org.osgl.util.C;
 import org.osgl.util.S;
 import org.springframework.context.ApplicationContext;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.context.support.WebApplicationContextUtils;
@@ -22,8 +24,10 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.beeasy.mscommon.filter.AuthFilter.Server;
+
 public class U {
-    private static SQLManager sqlManager;
+//    private static SQLManager sqlManager;
     private static Validator validator;
     private static SnowflakeIDWorker snowflakeIDWorker;
 
@@ -56,10 +60,33 @@ public class U {
 
 
     public static SQLManager getSQLManager(){
-        if(null == sqlManager){
-            sqlManager = getContext().getBean(SQLManager.class);
-        }
-        return sqlManager;
+        String server = (String) getRequest().getSession().getAttribute(Server);
+        return getSQLManager(server);
+    }
+
+    public static DataSourceTransactionManager getTxManager(){
+        String server = (String) getRequest().getSession().getAttribute(Server);
+        return getTxManager(server);
+    }
+
+    public static DataSourceTransactionManager getTxManager(String type){
+        if(S.empty(type)) type = "main";
+        Map<String, DataSourceTransactionManager> map = getBean("txManagers", Map.class);
+        return map.get(type);
+    }
+
+    public static SQLManager getSQLManager(String type){
+        Map<String, SQLManager> map = getBean("sqlManagers", Map.class);
+        if(S.empty(type)) type = "main";
+        return map.get(type);
+    }
+
+    public static SQLManager getSqliteSqlManager(){
+        return getSQLManager("@sqlite");
+    }
+
+    public static DataSourceTransactionManager getSqliteTxManager(){
+        return getTxManager("@sqlite");
     }
 
     public static Validator getValidator(){
@@ -90,6 +117,10 @@ public class U {
 
     public static <T> T getBean(Class<T> clz){
         return getContext().getBean(clz);
+    }
+
+    public static <T> T getBean(String name, Class<T> clz){
+        return (T) getContext().getBean(name);
     }
 
     public static <T> PageQuery<T> beetlPageQuery(String sqlId, Class<T> clz, Object params, BeetlPager beetlPager){
@@ -160,7 +191,7 @@ public class U {
             return "";
         }
         int len=param.length();
-        StringBuilder sb=new StringBuilder(len);
+        StringBuilder sb = new StringBuilder(len);
         for (int i = 0; i < len; i++) {
             char c=param.charAt(i);
             if (Character.isUpperCase(c)){
@@ -172,6 +203,10 @@ public class U {
         }
         return sb.toString();
     }
+
+
+
+
 
 
 }

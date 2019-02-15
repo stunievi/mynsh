@@ -1,6 +1,5 @@
 package com.beeasy.mscommon;
 
-import com.zaxxer.hikari.HikariDataSource;
 import org.osgl.util.C;
 import org.osgl.util.S;
 import org.springframework.beans.factory.annotation.Autowired;

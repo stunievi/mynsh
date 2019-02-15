@@ -1,0 +1,16 @@
+[
+  {
+    "name": "main",
+    "driver": "com.ibm.db2.jcc.DB2Driver",
+    "url": "jdbc:db2://47.94.97.138:50000/test",
+    "username": "db2inst1",
+    "password": "db2inst1"
+  },
+  {
+    "name": "h2",
+    "driver": "com.ibm.db2.jcc.DB2Driver",
+    "url": "jdbc:db2://47.94.97.138:50000/test",
+    "username": "db2inst2",
+    "password": "db2inst2"
+  }
+]

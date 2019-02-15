@@ -23,8 +23,8 @@ import java.util.stream.Collectors;
 public class SystemConfigCache {
 
 
-    @Value("${spring.datasource.driver-class-name}")
-    String dbDriver;
+//    @Value("${spring.datasource.driver-class-name}")
+//    String dbDriver;
 
     public static final String DEMO_CACHE_NAME = "system_config";
 
