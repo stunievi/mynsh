@@ -125,7 +125,7 @@ public class AuthFilter implements Filter {
                 if (0 == tokens.size()) {
                     throw new RestException(err);
                 }
-                uid = (long) tokens.get(0).get("userId");
+                uid = tokens.get(0).getLong("userId");
                 String[] arr = tokens.get(0).getString("type").split("\\|");
                 if(arr.length == 2){
                     server = arr[1];
