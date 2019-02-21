@@ -25,7 +25,7 @@ public class UserToken extends TailBean{
     private Long userId;
     private String token;
     private Date exprTime;
-    private String type;
+    private Type type;
 
     public enum Type {
         WEB,

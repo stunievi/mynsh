@@ -3,11 +3,10 @@ package com.beeasy.mscommon;
 import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
-import com.beeasy.mscommon.filter.AuthFilter;
+import com.beeasy.mscommon.util.U;
 import org.beetl.sql.core.*;
 import org.beetl.sql.core.db.DB2SqlStyle;
 import org.beetl.sql.core.db.DBStyle;
-import org.beetl.sql.core.db.SQLiteStyle;
 import org.beetl.sql.ext.DebugInterceptor;
 import org.osgl.util.IO;
 import org.osgl.util.S;
@@ -21,14 +20,11 @@ import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.TransactionManagementConfigurer;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Configuration
 @EnableTransactionManagement
@@ -72,9 +68,9 @@ public class DataSourceConfiguration implements TransactionManagementConfigurer 
     public AbstractRoutingDataSource routingDataSource(){
 
         //sqlite数据源
-        dataSources().put("@sqlite", sqliteDataSource());
-        sqlManagers().put("@sqlite", createSqlManager(new SQLiteStyle(), sqliteDataSource()));
-        txManagers().put("@sqlite", new DataSourceTransactionManager(sqliteDataSource()));
+//        dataSources().put("@sqlite", sqliteDataSource());
+//        sqlManagers().put("@sqlite", createSqlManager(new SQLiteStyle(), sqliteDataSource()));
+//        txManagers().put("@sqlite", new DataSourceTransactionManager(sqliteDataSource()));
 
         ClassPathResource resource = new ClassPathResource("server/server.json");
         try {
@@ -106,12 +102,7 @@ public class DataSourceConfiguration implements TransactionManagementConfigurer 
             AbstractRoutingDataSource abstractRoutingDataSource = new AbstractRoutingDataSource() {
                 @Override
                 protected Object determineCurrentLookupKey() {
-                    return Optional.ofNullable((ServletRequestAttributes)RequestContextHolder.getRequestAttributes())
-                            .map(attr -> attr.getRequest())
-                            .map(req -> req.getSession())
-                            .map(session -> (String)session.getAttribute(AuthFilter.Server))
-                            .filter(S::notBlank)
-                            .orElse("main");
+                    return U.getServer();
                 }
             };
 //            DataSourceContextHolder.setDataSourceType("main");

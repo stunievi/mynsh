@@ -56,15 +56,22 @@ public class U {
 
 
     public static SQLManager getSQLManager(){
-        String server = (String) getRequest().getSession().getAttribute(Server);
-        if(S.blank(server)) server = "main";
-        return getSQLManager(server);
+        return getSQLManager(getServer());
     }
 
     public static DataSourceTransactionManager getTxManager(){
-        String server = (String) getRequest().getSession().getAttribute(Server);
-        if(S.blank(server)) server = "main";
-        return getTxManager(server);
+        return getTxManager(getServer());
+    }
+
+    public static String getServer(){
+        try{
+            String server = (String) getRequest().getSession().getAttribute(Server);
+            if(S.blank(server)) server = "main";
+            return server;
+        }
+        catch (Exception e){
+            return "main";
+        }
     }
 
     public static DataSourceTransactionManager getTxManager(String type){
@@ -77,13 +84,14 @@ public class U {
         return map.get(type);
     }
 
-    public static SQLManager getSqliteSqlManager(){
-        return getSQLManager("@sqlite");
-    }
 
-    public static DataSourceTransactionManager getSqliteTxManager(){
-        return getTxManager("@sqlite");
-    }
+//    public static SQLManager getSqliteSqlManager(){
+//        return getSQLManager("@sqlite");
+//    }
+//
+//    public static DataSourceTransactionManager getSqliteTxManager(){
+//        return getTxManager("@sqlite");
+//    }
 
     public static Validator getValidator(){
         if(null == validator){

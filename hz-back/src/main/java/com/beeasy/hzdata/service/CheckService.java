@@ -2,10 +2,9 @@ package com.beeasy.hzdata.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-//import com.beeasy.hzdata.entity.*;
 import com.beeasy.hzback.entity.*;
 import com.beeasy.hzback.modules.system.service.NoticeService2;
-import com.beeasy.mscommon.entity.*;
+import com.beeasy.mscommon.util.U;
 import com.beeasy.mscommon.valid.ValidGroup;
 import lombok.extern.slf4j.Slf4j;
 import org.beetl.sql.core.SQLManager;
@@ -13,16 +12,20 @@ import org.beetl.sql.core.SQLReady;
 import org.beetl.sql.core.engine.PageQuery;
 import org.osgl.$;
 import org.osgl.util.C;
-import org.osgl.util.Output;
 import org.osgl.util.S;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.ParseException;
@@ -34,16 +37,20 @@ import java.util.regex.Pattern;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
+//import com.beeasy.hzdata.entity.*;
+
 @Service
-@Transactional
 @Slf4j
 public class CheckService {
 
     @Value("${uploads.logs}")
     String logDir;
 
-    @Autowired
     SQLManager sqlManager;
+
+    @Qualifier(value = "sqlManagers")
+    @Autowired
+    Map<String, SQLManager> sqlManagerMap;
 
     @Autowired
     SearchService searchService;
@@ -138,15 +145,30 @@ public class CheckService {
             (
                 OutputStream os = new FileOutputStream(new File(dir,sdf.format(new Date()) + ".txt"));
                 ){
-            rule1(os);
-            rule2(os);
-            rule3(os);
-            rule4(os);
-            rule5(os);
-            rule6(os);
-            rule7(os);
-            rule10086(os);
-            generateAutoTask(os);
+            sqlManagerMap.forEach((n,sqlManager) -> {
+                this.sqlManager = sqlManager;
+                DataSourceTransactionManager manager = U.getTxManager(n);
+                TransactionStatus transactionStatus = manager.getTransaction(new DefaultTransactionDefinition(){{setPropagationBehavior(PROPAGATION_REQUIRES_NEW);}});
+                try{
+                    rule1(os);
+                    rule2(os);
+                    rule3(os);
+                    rule4(os);
+                    rule5(os);
+                    rule6(os);
+                    rule7(os);
+                    rule10086(os);
+                    generateAutoTask(os);
+                    manager.commit(transactionStatus);
+                }
+                catch (Exception e){
+                    e.printStackTrace();
+                    manager.rollback(transactionStatus);
+                    if(e instanceof IOException){
+                        throw e;
+                    }
+                }
+            });
         } catch (IOException e) {
             e.printStackTrace();
         }
