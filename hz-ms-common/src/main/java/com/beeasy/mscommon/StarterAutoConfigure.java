@@ -1,6 +1,5 @@
 package com.beeasy.mscommon;
 
-import org.osgl.util.C;
 import org.osgl.util.S;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.MultipartConfigFactory;
@@ -8,14 +7,11 @@ import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportResource;
 import org.springframework.core.env.Environment;
 
-import javax.annotation.PostConstruct;
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import javax.sql.DataSource;
 import java.io.File;
 
 //@ImportResource(value = {"classpath:beetlsql.xml"})
@@ -39,15 +35,15 @@ public class StarterAutoConfigure {
     @Bean
     public MultipartConfigElement multipartConfigElement() {
         MultipartConfigFactory factory = new MultipartConfigFactory();
-        String location = environment.getProperty("uploads.temp");
+        String location = environment.getProperty("uploads.path");
         if(S.empty(location)){
             return factory.createMultipartConfig();
         }
-        File tmpFile = new File(location);
+        File tmpFile = new File(location, "temp");
         if (!tmpFile.exists()) {
             tmpFile.mkdirs();
         }
-        factory.setLocation(location);
+        factory.setLocation(tmpFile.getAbsolutePath());
         return factory.createMultipartConfig();
     }
 

@@ -1,8 +1,8 @@
 package com.beeasy.hzback.modules.system.service;
 
-import com.beeasy.mscommon.RestException;
 import com.beeasy.hzback.entity.SystemFile;
 import com.beeasy.hzback.entity.User;
+import com.beeasy.mscommon.RestException;
 import com.beeasy.mscommon.filter.AuthFilter;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -28,19 +28,27 @@ public class FileService {
     @Autowired
     SQLManager sqlManager;
 
-    @Value("${lfs.wfPid}")
+    @Value("${filecloud.wfPid}")
     String wfPid;
-    @Value("${lfs.wfUsername}")
+    @Value("${filecloud.username}")
     String wfUsername;
-    @Value("${lfs.wfPassword}")
+    @Value("${filecloud.password}")
     String wfPassword;
 
     @Value("${uploads.type}")
     String UPLOAD_TYPE;
     @Value("${uploads.path}")
     String UPLOAD_PATH;
-    @Value("${uploads.avatar}")
+
     String AVATAR_PATH;
+
+    public FileService(
+            @Value("${uploads.path}") String path
+    ){
+        File file = new File(path, "avatar");
+        if(!file.exists()) file.mkdirs();
+        AVATAR_PATH = file.getAbsolutePath();
+    }
 
 
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");

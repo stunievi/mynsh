@@ -1,12 +1,26 @@
-rpc:
-  secret: "1q2w3e4r"
-  url: http://47.94.97.138
+#rpc:
+#  secret: "1q2w3e4r"
+#  url: http://47.94.97.138
 
 dev:
   debug: true
 
+multipul:
+  datasources:
+    - name: main
+      driver: com.ibm.db2.jcc.DB2Driver
+      url: jdbc:db2://47.94.97.138:50000/test
+      username: db2inst1
+      password: db2inst1
+      alias: fzsys_hy
+    - name: h2
+      driver: com.ibm.db2.jcc.DB2Driver
+      url: jdbc:db2://47.94.97.138:50000/test
+      username: db2inst2
+      password: db2inst2
+
 filecloud:
-  address: "47.93.54.105"
+  server: http://47.94.97.138/disk
   username: "admin"
   password: "admin"
   userDefaultPassword: "qwer!@34"
@@ -14,6 +28,8 @@ filecloud:
   commonUsername: "admin"
   commonPassword: "admin"
   commonRootId: 1041
+
+  wfPid: 0
 
 #swagger:
 #  host: 127.0.0.1:8081
@@ -31,24 +47,19 @@ uploads:
   server: http://47.94.97.138
   type: fastdfs
   path: /Users/bin/work/uploads
-  temp: /Users/bin/work/uploads/temp
-  avatar: /Users/bin/work/uploads/avatar
-  logs: /Users/bin/work/uploads/logs
+#  temp: /Users/bin/work/uploads/temp
+#  avatar: /Users/bin/work/uploads/avatar
+#  logs: /Users/bin/work/uploads/logs
 
-lfs:
-  server: http://47.94.97.138/disk
-  wfUsername: admin
-  wfPassword: admin
-  wfPid: 0
-
-fdfs:
-  so-timeout: 1501
-  connect-timeout: 601
-  thumb-image:             #缩略图生成参数
-    width: 150
-    height: 150
-  tracker-list:
-  - 39.104.106.65:22122
+#
+#fdfs:
+#  so-timeout: 1501
+#  connect-timeout: 601
+#  thumb-image:             #缩略图生成参数
+#    width: 150
+#    height: 150
+#  tracker-list:
+#  - 39.104.106.65:22122
 
 
 spring:
@@ -123,15 +134,15 @@ spring:
     async:
       request-timeout: 30000ms
 
-  dubbo:
-    server: true
-    registry: N/A
-    provider:
-      port: 28001
+#  dubbo:
+#    server: true
+#    registry: N/A
+#    provider:
+#      port: 28001
 
-jodconverter:
-  enabled: true
-  port-numbers: 8100
-  office-home: /opt/openoffice4
-  max-tasks-per-process: 10
+#jodconverter:
+#  enabled: true
+#  port-numbers: 8100
+#  office-home: /opt/openoffice4
+#  max-tasks-per-process: 10
 

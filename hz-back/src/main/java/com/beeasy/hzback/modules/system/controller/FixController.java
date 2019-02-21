@@ -2,10 +2,10 @@ package com.beeasy.hzback.modules.system.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.beeasy.hzback.modules.system.service.FileService;
 import com.beeasy.hzback.entity.Org;
 import com.beeasy.hzback.entity.User;
 import com.beeasy.hzback.entity.WfModel;
+import com.beeasy.hzback.modules.system.service.FileService;
 import org.beetl.sql.core.SQLManager;
 import org.beetl.sql.core.SQLReady;
 import org.osgl.$;
@@ -32,8 +32,15 @@ public class FixController {
     SQLManager  sqlManager;
     @Autowired
     FileService fileService;
-    @Value("${uploads.avatar}")
+
     String      path;
+
+    public FixController(
+            @Value("${uploads.path}") String path){
+        File file = new File(path, "avatar");
+        if(!file.exists()) file.mkdirs();
+        this.path = file.getAbsolutePath();
+    }
 
     @RequestMapping(value = "/model")
     public String fixModel(){

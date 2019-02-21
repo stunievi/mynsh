@@ -1,20 +1,19 @@
 package com.beeasy.mscommon;
 
 import com.alibaba.druid.pool.DruidDataSource;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.TypeReference;
 import com.beeasy.mscommon.util.U;
+import lombok.Getter;
+import lombok.Setter;
 import org.beetl.sql.core.*;
 import org.beetl.sql.core.db.DB2SqlStyle;
 import org.beetl.sql.core.db.DBStyle;
 import org.beetl.sql.ext.DebugInterceptor;
-import org.osgl.util.IO;
 import org.osgl.util.S;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -28,10 +27,12 @@ import java.util.Map;
 
 @Configuration
 @EnableTransactionManagement
+@ConfigurationProperties(prefix = "multipul")  // 配置文件中的前缀
 public class DataSourceConfiguration implements TransactionManagementConfigurer {
 
-
-
+    @Getter
+    @Setter
+    List<Server> datasources;
 
     @Bean(name = "dataSources")
     public Map<Object,Object> dataSources(){
@@ -48,15 +49,11 @@ public class DataSourceConfiguration implements TransactionManagementConfigurer 
         return new HashMap<>();
     }
 
-    @Bean(name = "sqliteDataSource")
-    @Primary
-    public DataSource sqliteDataSource(){
-        return DataSourceBuilder.create()
-                .type(DruidDataSource.class)
-                .driverClassName(org.sqlite.JDBC.class.getName())
-                .url("jdbc:sqlite::resource:server/data.db")
-                .build();
-    }
+//    @Bean(name = "sqliteDataSource")
+//    @Primary
+//    public DataSource sqliteDataSource(){
+//        return routingDataSource();
+//    }
 
     @Bean
     @Primary
@@ -65,6 +62,7 @@ public class DataSourceConfiguration implements TransactionManagementConfigurer 
     }
 
 
+    @Bean(name = "dataSource")
     public AbstractRoutingDataSource routingDataSource(){
 
         //sqlite数据源
@@ -72,13 +70,11 @@ public class DataSourceConfiguration implements TransactionManagementConfigurer 
 //        sqlManagers().put("@sqlite", createSqlManager(new SQLiteStyle(), sqliteDataSource()));
 //        txManagers().put("@sqlite", new DataSourceTransactionManager(sqliteDataSource()));
 
-        ClassPathResource resource = new ClassPathResource("server/server.json");
-        try {
-            String str = IO.readContentAsString(resource.getInputStream());
-            List<Server> list = JSON.parseObject(str, new TypeReference<List<Server>>(){});
 
+//        ClassPathResource resource = new ClassPathResource("server/server.json");
+        try {
             DataSource dft = null;
-            for (Server server : list) {
+            for (Server server : datasources) {
                 DataSource dataSource = DataSourceBuilder.create()
                         .type(DruidDataSource.class)
                         .driverClassName(server.driver)
@@ -129,7 +125,9 @@ public class DataSourceConfiguration implements TransactionManagementConfigurer 
 
 
 
-    private static class Server{
+    @Getter
+    @Setter
+    public static class Server{
         public String name;
         public String url;
         public String username;

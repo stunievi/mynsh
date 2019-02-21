@@ -2,22 +2,14 @@ package com.beeasy.hzback.modules.system.controller;
 
 //import bin.leblanc.zed.Zed;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.beeasy.hzback.core.helper.Utils;
+import com.beeasy.hzback.entity.Org;
 import com.beeasy.hzback.modules.system.cache.SystemConfigCache;
 import com.beeasy.hzback.modules.system.service.UserService;
-import com.beeasy.hzback.view.GPC;
 import com.beeasy.mscommon.Result;
-import com.beeasy.mscommon.entity.BeetlPager;
-import com.beeasy.hzback.entity.GP;
-import com.beeasy.hzback.entity.Org;
-import com.beeasy.hzback.entity.User;
-import com.beeasy.mscommon.filter.AuthFilter;
 import com.beeasy.mscommon.util.U;
 import com.beeasy.mscommon.valid.ValidGroup;
-import com.github.tobato.fastdfs.service.FastFileStorageClient;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.beetl.sql.core.SQLManager;
@@ -26,12 +18,12 @@ import org.osgl.util.C;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.*;
-
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
 
 //import com.beeasy.hzback.modules.system.service.UserService;
 
@@ -47,7 +39,7 @@ public class UserController {
     SQLManager sqlManager;
 
     @Autowired
-    public UserController( SystemConfigCache cache,  UserService userService, FastFileStorageClient storageClient) {
+    public UserController( SystemConfigCache cache,  UserService userService) {
         this.userService = userService;
 //        this.storageClient = storageClient;
     }

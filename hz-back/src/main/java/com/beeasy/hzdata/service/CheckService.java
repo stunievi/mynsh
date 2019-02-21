@@ -43,9 +43,7 @@ import static java.util.stream.Collectors.toMap;
 @Slf4j
 public class CheckService {
 
-    @Value("${uploads.logs}")
     String logDir;
-
     SQLManager sqlManager;
 
     @Qualifier(value = "sqlManagers")
@@ -57,6 +55,12 @@ public class CheckService {
     @Autowired
     NoticeService2 noticeService2;
 
+
+    public CheckService(@Value("${uploads.path}") String dir){
+        File file = new File(dir, "logs");
+        if(!file.exists()) file.mkdirs();
+        logDir = file.getAbsolutePath();
+    }
 
 //    @Autowired
 //    DubboService dubboService;
@@ -138,9 +142,6 @@ public class CheckService {
     public void trigger(){
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         File dir = new File(logDir);
-        if(!dir.exists()){
-            dir.mkdirs();
-        }
         try
             (
                 OutputStream os = new FileOutputStream(new File(dir,sdf.format(new Date()) + ".txt"));

@@ -1,20 +1,17 @@
 package com.beeasy.hzback.modules.system.controller;
 
+import com.beeasy.hzback.entity.SystemFile;
 import com.beeasy.hzback.modules.system.service.FileService;
 import com.beeasy.hzback.modules.system.service.LFSService;
 import com.beeasy.mscommon.RestException;
 import com.beeasy.mscommon.Result;
-import com.beeasy.hzback.entity.SystemFile;
 import com.beeasy.mscommon.filter.AuthFilter;
-import com.beeasy.mscommon.util.OkHttpUtil;
 import org.beetl.sql.core.SQLManager;
 import org.osgl.$;
 import org.osgl.util.C;
-import org.osgl.util.IO;
 import org.osgl.util.S;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -27,9 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.file.Files;
@@ -50,11 +45,11 @@ public class FileController {
     @Autowired
     FileService fileService;
 
-    @Value("${lfs.wfUsername}")
+    @Value("${filecloud.username}")
     String wfUsername;
-    @Value("${lfs.wfPassword}")
+    @Value("${filecloud.password}")
     String wfPassword;
-    @Value("${lfs.wfPid}")
+    @Value("${filecloud.wfPid}")
     String wfPid;
 
     private final static SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");

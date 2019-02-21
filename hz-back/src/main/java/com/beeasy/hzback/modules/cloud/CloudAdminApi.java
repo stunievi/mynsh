@@ -8,10 +8,7 @@ import feign.codec.DecodeException;
 import feign.codec.Decoder;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.http.MediaType;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,9 +19,8 @@ import java.io.Reader;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-@FeignClient(name = "cloud-admin-service", url = "${filecloud.address}", configuration = CloudAdminApi.Config.class)
+@FeignClient(name = "cloud-admin-service", url = "${filecloud.server}", configuration = CloudAdminApi.Config.class)
 public interface CloudAdminApi {
 
 //    @RequestMapping(value = "/system/userAdd.action", method = RequestMethod.POST,

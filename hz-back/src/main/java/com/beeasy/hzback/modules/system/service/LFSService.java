@@ -15,7 +15,7 @@ import java.util.Map;
 @Service
 public class LFSService {
 
-    @Value("${lfs.server}")
+    @Value("${filecloud.server}")
     String baseUrl;
 
 

@@ -2,16 +2,23 @@ package com.beeasy.hzback;
 
 //import com.spring4all.swagger.EnableSwagger2Doc;
 
-import com.github.tobato.fastdfs.FdfsClientConfig;
+import org.osgl.util.S;
+import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.cloud.openfeign.EnableFeignClients;
-import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
+
+import java.io.File;
 
 //import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 
@@ -19,7 +26,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 //@EnableSwagger2Doc
 //@EnableWebMvc
 //@EnableEurekaClient
-@Import(FdfsClientConfig.class)
+//@Import(FdfsClientConfig.class)
 @EnableAsync
 @EnableScheduling
 @EnableFeignClients(value = {"com.beeasy.hzback"})
@@ -31,12 +38,49 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class Application extends SpringBootServletInitializer {
 
 
+
+    @Bean
+    public static PropertySourcesPlaceholderConfigurer properties() {
+        Resource resource = new ClassPathResource("application-myserver.yml");
+        String path = new ClassPathResource("application.properties").getPath();
+        File file = new File(path);
+        String appName = "";
+        while(true){
+            if(false) break;
+            File pfile = file.getParentFile();
+            if(null == pfile){
+                break;
+            }
+            if("WEB-INF".equals(file.getName())){
+                appName = pfile.getName();
+            }
+            file = pfile;
+        }
+        if(S.notEmpty(appName)){
+            //尝试读取环境变量
+            String env = System.getenv(appName+".config");
+            if(S.notBlank(env)){
+                resource = new FileSystemResource(System.getProperty(env));
+            }
+        }
+
+        PropertySourcesPlaceholderConfigurer configurer = new PropertySourcesPlaceholderConfigurer();
+        YamlPropertiesFactoryBean yaml = new YamlPropertiesFactoryBean();
+        yaml.setResources(resource);
+        configurer.setProperties(yaml.getObject());
+        return configurer;
+    }
+
+
+
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
         return builder.sources(Application.class);
     }
 
     public static void main(String[] args) {
+
+
         SpringApplication.run(Application.class, args);
     }
 
