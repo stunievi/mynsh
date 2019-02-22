@@ -58,7 +58,7 @@ public class Application extends SpringBootServletInitializer {
         }
         if(S.notEmpty(appName)){
             //尝试读取环境变量
-            String env = System.getenv(appName+".config");
+            String env = System.getenv(appName+"_config");
             if(S.notBlank(env)){
                 resource = new FileSystemResource(System.getProperty(env));
             }
@@ -79,8 +79,6 @@ public class Application extends SpringBootServletInitializer {
     }
 
     public static void main(String[] args) {
-
-
         SpringApplication.run(Application.class, args);
     }
 
