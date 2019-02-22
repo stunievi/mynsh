@@ -1,0 +1,59 @@
+spring:
+  datasource:
+    name: test
+    #mysql
+    #    url: jdbc:mysql://127.0.0.1:3306/test?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    #    username: root
+    #        password: "!Q1q2w3e4r"
+    #    password: 123
+    #    driver-class-name: com.mysql.jdbc.Driver
+    #        mysql-end
+    #        db2
+#    url: jdbc:db2://47.94.97.138:50000/test
+#    username: db2inst1
+#    password: db2inst1
+#    url: jdbc:db2://localhost:50000/ods_hzns
+#    username: db2admin
+#    password: root
+    url: jdbc:db2://118.2.82.14:50000/fzsys
+    username: db2inst1
+    password: 11111111
+
+#    url: jdbc:db2://121.0.0.236:50000/fzsys_dy
+#        username: db2inst1
+#        password: 11111111
+    driver-class-name: com.ibm.db2.jcc.DB2Driver
+
+  devtools:
+    livereload:
+      enabled: false
+    #        db2-end
+
+server:
+  port: 8069
+
+beetlsql:
+  dbStyle: org.beetl.sql.core.db.DB2SqlStyle
+  nameConversion: org.beetl.sql.core.DefaultNameConversion
+
+
+#exceltmpl: E:\\excel_tmpl\\
+
+
+
+
+
+
+uploads:
+  server: http://121.0.0.236
+  type: fastdfs
+  path: /Users/bin/work/uploads
+  temp: E:/temp
+  avatar: /Users/bin/work/uploads/avatar
+  logs: /Users/bin/work/uploads/logs
+
+lfs:
+  server: http://121.0.0.239
+  wfUsername: admin
+  wfPassword: admin
+  wfPid: 0
