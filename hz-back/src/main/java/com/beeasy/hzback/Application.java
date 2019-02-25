@@ -19,6 +19,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.io.File;
+import java.io.IOException;
 
 //import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 
@@ -38,12 +39,10 @@ import java.io.File;
 public class Application extends SpringBootServletInitializer {
 
 
-
     @Bean
-    public static PropertySourcesPlaceholderConfigurer properties() {
+    public static PropertySourcesPlaceholderConfigurer properties() throws IOException {
         Resource resource = new ClassPathResource("application-myserver.yml");
-        String path = new ClassPathResource("application.properties").getPath();
-        File file = new File(path);
+        File file = new ClassPathResource("application.properties").getFile();
         String appName = "";
         while(true){
             if(false) break;
@@ -53,6 +52,7 @@ public class Application extends SpringBootServletInitializer {
             }
             if("WEB-INF".equals(file.getName())){
                 appName = pfile.getName();
+                break;
             }
             file = pfile;
         }

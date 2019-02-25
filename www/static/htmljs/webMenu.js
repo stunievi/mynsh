@@ -1,5 +1,5 @@
 
-var menu = [
+var _menu = [
     {
         id: "menu-mybench",
         name:'工作台',
@@ -783,7 +783,7 @@ var menu = [
 ];
 
 if(location.href.indexOf("localhost") > -1 || location.href.indexOf("47.94.97.138") > -1){
-    menu.push({
+    _menu.push({
         "name":"实验室功能"
         , "children":[
             {
@@ -807,6 +807,20 @@ Array.prototype.notempty = function(){
     }
     return this;
 };
+
+
+Object.defineProperty(window, "menu", {
+    get: function () {
+        return _menu;
+    }
+});
+
+window.registerMethod = function (methods) {
+    $.each(methods, function (i,v) {
+        _menu.push(v)
+    })
+}
+
 // getRemoteData({
 //     url: remoteApi.apiUserMyMethods,
 //     callback: function(origin){
