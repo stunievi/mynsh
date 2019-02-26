@@ -793,9 +793,57 @@ if(location.href.indexOf("localhost") > -1 || location.href.indexOf("47.94.97.13
             {
                 name:"APP配置",
                 href: "/htmlsrc/lab/appui.html"
-            }
+            },
+
         ]
     });
+    _menu.push({
+        name: '文件管理alpha',
+        icon: '<span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>&nbsp;',
+        children:[
+            {
+                name: '个人文件柜',
+                href: '/htmlsrc/documentex/private/cloud.fileList.html'
+            },
+            // {
+            //     name: "个人文件柜回收站",
+            //     href: "/htmlsrc/document/myFileTrashListSync.html"
+            // },
+            // {
+            //     name: '资料库',
+            //     href: '/htmlsrc/documentex/public/commCloud.fileList.html'
+            // },
+            // {
+            //     name: "资料库回收站",
+            //     href: "/htmlsrc/document/archiveFileRecycle.html"
+            // },
+            {
+                name: "文件检索",
+                href: "/htmlsrc/documentex/cloudSearch.html"
+            },
+            {
+                name: '文件分享',
+                children: [
+                    {
+                        name: '我的分享',
+                        href: '/htmlsrc/documentex/share/myShare.html'
+                    },
+                    {
+                        name: '共享给我的',
+                        href: '/htmlsrc/documentex/share/receiveShare.html'
+                    }
+                ]
+            }
+            // {
+            //     name: '个人文件柜',
+            //     href: '/htmlsrc/document/private/private.fileList.html'
+            // },
+            // {
+            //     name: '公共文件柜',
+            //     href: '/htmlsrc/document/public/public.fileList.html'
+            // }
+        ]
+    })
 }
 
 Array.prototype.notempty = function(){

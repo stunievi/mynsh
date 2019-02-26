@@ -13,14 +13,14 @@ import org.beetl.sql.core.SQLManager;
 import org.beetl.sql.core.TailBean;
 import org.beetl.sql.core.annotatoin.AssignID;
 import org.beetl.sql.core.annotatoin.Table;
+import org.beetl.sql.core.query.LambdaQuery;
 import org.osgl.$;
 import org.osgl.util.C;
 import org.osgl.util.S;
 
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
@@ -47,6 +47,7 @@ public class CFile extends TailBean implements ValidGroup {
 
     //文件拓展
     String ext;
+    String tags;
 
     long size;
 
@@ -63,7 +64,15 @@ public class CFile extends TailBean implements ValidGroup {
         FILE;
     }
 
-//    private LinkedList<String> analyzePath(String path){
+
+    @Override
+    public String onGetListSql(Map<String, Object> params) {
+        params.put("uid", AuthFilter.getUid());
+        if(!params.containsKey("pid")) params.put("pid", "0");
+        return "cloud.文件列表";
+    }
+
+    //    private LinkedList<String> analyzePath(String path){
 //        if(S.blank(path)) path = "";
 //        return S.split(path, "\\/")
 //                .stream()
@@ -161,7 +170,33 @@ public class CFile extends TailBean implements ValidGroup {
             Assert(S.notEmpty(object.getString("pid")), err);
             Assert(S.notEmpty(object.getString("name")), err);
             //检查是否存在相同的目录
-
+            long pid = object.getLong("pid");
+            if(pid > 0){
+                long count = sqlManager.lambdaQuery(CFile.class)
+                    .andEq(CFile::getUid, AuthFilter.getUid())
+                    .andEq(CFile::getId, object.getString("pid"))
+                    .count();
+                Assert(count > 0, err);
+            }
+            CFile file = sqlManager.lambdaQuery(CFile.class)
+                .andEq(CFile::getPid, object.getString("pid"))
+                .andEq(CFile::getName, object.getString("name"))
+                .andEq(CFile::getUid, AuthFilter.getUid())
+                .single();
+            if (file == null) {
+                file = new CFile();
+                file.setUid(uid);
+                file.setCreator(uid);
+                file.setType(Type.DIR);
+                file.setName(object.getString("name"));
+                file.setPid(pid);
+                file.setLastModify(new Date());
+                sqlManager.insert(file, true);
+            }
+            else{
+                Assert(Objects.equals(file.getType(), Type.DIR), err);
+            }
+            return file;
         }
 
         throw new RestException(err);
@@ -260,6 +295,90 @@ public class CFile extends TailBean implements ValidGroup {
     }
 
 
+    /**
+     *
+     * @param sqlManager
+     * @param object
+     * @return
+     */
+    public Object rename(SQLManager sqlManager, JSONObject object){
+        String id = object.getString("id");
+        String name = object.getString("name");
+        AssertNotEmpty(id, "参数错误");
+        AssertNotEmpty(name, "参数错误");
+
+        CFile cFile = sqlManager.single(getClass(), id);
+        AssertEq(cFile.getUid(), AuthFilter.getUid(), "只能重命名自己的文件");
+        //检查是否有同名文件
+        Assert(
+            sqlManager.lambdaQuery(CFile.class)
+                .andEq(CFile::getUid, AuthFilter.getUid())
+                .andEq(CFile::getPid, cFile.getPid())
+                .andEq(CFile::getName, name)
+                .count() == 0,
+            "已经有同名文件"
+        );
+
+        cFile.setName(name);
+        sqlManager.updateById(cFile);
+
+        return cFile;
+    }
+
+    /**
+     *
+     * @param sqlManager
+     * @param object
+     * @return
+     */
+    public Object retags(SQLManager sqlManager, JSONObject object){
+        String id = object.getString("id");
+        String tags = object.getString("tags");
+        AssertNotEmpty(id, "参数错误");
+        AssertNotEmpty(tags, "参数错误");
+        CFile cFile = sqlManager.single(getClass(), id);
+        Assert($.isNotNull(cFile) && Objects.equals(cFile.getUid(), AuthFilter.getUid()), "只能给自己的文件编辑标签");
+
+        cFile.setTags(tags);
+        sqlManager.updateById(cFile);
+
+        return cFile;
+    }
+
+    /**
+     * 分享
+     * @param sqlManager
+     * @param object
+     * @return
+     */
+    public Object share(SQLManager sqlManager, JSONObject object){
+        String fid = object.getString("fid");
+        String uid = object.getString("uid");
+        AssertNotEmpty(fid, "参数错误");
+        AssertNotEmpty(uid, "参数错误");
+        CFile cFile = sqlManager.single(getClass(), fid);
+        Assert($.isNotNull(cFile) && Objects.equals(cFile.getUid(), AuthFilter.getUid()), "只能分享自己的文件");
+
+        List<Long> uids = U.toIdList(uid);
+        List<CFileShare> shares = uids.stream()
+            .filter(ui -> {
+                return sqlManager.lambdaQuery(CFileShare.class)
+                    .andEq(CFileShare::getFid, fid)
+                    .andEq(CFileShare::getToUid, ui)
+                    .count() == 0;
+            })
+            .map(ui -> {
+                CFileShare share = new CFileShare();
+                share.setLastModify(new Date());
+                share.setFid(Long.parseLong(fid));
+                share.setToUid(ui);
+                share.setFromUid(AuthFilter.getUid());
+                return share;
+            })
+            .collect(Collectors.toList());
+        sqlManager.insertBatch(CFileShare.class, shares);
+        return true;
+    }
 
 
 

@@ -31,6 +31,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 @RequestMapping("/api/file")
 @Controller
@@ -52,7 +54,8 @@ public class FileController {
     @Value("${filecloud.wfPid}")
     String wfPid;
 
-    private final static SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+    private final static     SimpleDateFormat sdf      = new SimpleDateFormat("yyyyMMdd");
+
 
     @RequestMapping(value = "/uploadFace", method = RequestMethod.POST)
     @ResponseBody

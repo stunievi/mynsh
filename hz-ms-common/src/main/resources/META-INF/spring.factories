@@ -3,4 +3,5 @@ com.beeasy.mscommon.StarterAutoConfigure,\
 com.beeasy.mscommon.json.WebMvcConfig,\
 com.beeasy.mscommon.filter.CrossDomainFilter\
 ,com.beeasy.mscommon.filter.AuthFilter,\
-com.beeasy.mscommon.DataSourceConfiguration
+com.beeasy.mscommon.DataSourceConfiguration,\
+com.beeasy.mscommon.ApplicationContextRegister

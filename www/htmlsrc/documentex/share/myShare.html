@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 文件管理 - 文件分享 - 我的分享 </title>
+    <!--#include file="/htmlsrc/header.html" -->
+    <!--<link href="../../../static/vendor/bootcss/css/bootstrap.min.css" rel="stylesheet">-->
+    <!--<link rel="stylesheet" href="../../../static/vendor/jqui/jquery-ui.css">-->
+    <!--<link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>-->
+    <!--<link rel="stylesheet" href="/static/htmlcss/style.css">-->
+</head>
+<body>
+    <div id="content">
+        <div class="panel panel-default">
+            <div class="panel-heading">我的分享</div>
+            <div class="panel-body">
+                <div class="batch-operation">
+                    <a class="btn btn-danger" id="handleDel">取消分享</a>
+                </div>
+                <ol class="breadcrumb" id="breadcrumb" style="margin:10px 0 5px;">
+                    <li><a class="breadcrumb-item handleGetdata" href="javascript:;" data-id="0">全部文件</a></li>
+                </ol>
+                <div id="dataList">
+                    <!-- 数据列表 -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--<script src="../../../static/vendor/jquery/jquery.js"></script>-->
+    <!--<script src="../../../static/vendor/artTemplate/template-web.js"></script>-->
+    <!--<script src="/static/vendor/layui/layer/layer.js"></script>-->
+    <!--<script src="/static/vendor/layui/layui.js"></script>-->
+    <!--<script src="../../../static/vendor/jqui/jquery-ui.min.js"></script>-->
+    <!--<script src="../../../static/vendor/jqui/jquery-ui-timepicker-addon.js"></script>-->
+    <!--<script src="/static/vendor/validate/jquery.validate.min.js"></script>-->
+    <!--<script src="/static/htmljs/global.config.js"></script>-->
+    <!--<script src="/static/htmljs/utils.js"></script>-->
+    <!-- 变量渲染模板 -->
+    <script type="text/html" id="name">
+        {{# if (d.type == 'FILE'){ }}
+        <span class="glyphicon glyphicon-file" data-sid="{{d.sid}}">&nbsp;</span>{{d.name}}
+        {{# }else{ }}
+        <a class="handleGetdata" href="javascript:;" data-name="{{d.name}}" data-sid="{{d.sid}}" data-id="{{d.id}}" style="display: inline-block;width: 100%;"><span class="glyphicon glyphicon-folder-open">&nbsp;</span>{{d.name}}</a>
+        {{# } }}
+    </script>
+    <script type="text/html" id="showSize"> {{# if (d.type == 'FILE'){ }} {{d.showSize}} {{# }else{ }} - {{# } }} </script>
+    <script>
+        var currDirId = getParam("dirId") || 0;
+        laytableRender({
+            // urlType: "disk",
+            url: remoteOrigin + "/api/auto/cfileshare/getList",//remoteApi.apiCloudShareFileJsonList,
+            where: {
+                // pid: currDirId
+            },
+            cols: [
+                [
+                    {checkbox: true, fixed: true},
+                    { field: 'name', title:'文件名', templet: "#name"},
+                    // { field:'receivesName', title:'接收者' },
+                    // { field:'permissions', title:'权限' },
+                    // { title:'大小', templet: "#showSize"},
+                    { field:'shareDate', title:'分享时间', width: 170 },
+                ]
+            ]
+        });
+
+        function reloadByDirId(dirId){
+            dirId == undefined ? currDirId : dirId;
+            layuiTableReload({
+                // urlType: 'disk',
+                where: {
+                    pid: currDirId
+                },
+                success: function(origin){
+                    currDataList = origin.rows
+                }
+            })
+        }
+        // 页面跳转
+        eventBind(".handleGetdata", function(that){
+            $("#breadcrumb").append('<li class="breadcrumb-item"><a class="handleGetdata" href="javascript:;" data-id="'+that.data("id")+'">'+that.data('name')+'</a></li>');
+            currDirId = that.data('id');
+            reloadByDirId();
+        });
+        // 点击路径跳转
+        $(document).on("click", ".breadcrumb-item", function(){
+            $(".breadcrumb-item:gt("+$(this).index()+")").remove();
+        })
+
+        $("#handleDel").click(function(){
+            var ids = [];
+            $("[name=btSelectItem]:checked").each(function () {
+                ids.push($(this).closest("tr").find("[data-sid]").attr("data-sid"));
+            })
+            console.log(ids)
+            // var ids = getLayuiTabelCheckIds();
+            if(ids.length>0){
+                actConfirm(function(){
+                    SuperPost({
+                        // urlType: "disk",
+                        url: remoteOrigin + "/api/auto/cfileshare/delete?id=" + ids.join(","),//remoteApi.apiCloudShareFileDelete+"?id="+ids.join(","),
+                        success: function(){
+                            reloadByDirId();
+                            layer.msg("取消成功");
+                        }
+                    })
+                },"您确定要取消共享吗？取消后对方无法查看。")
+                
+            }else{
+                layer.msg("没有选中", {icon: 7});
+            }
+        })
+    </script>
+</body>
+</html>

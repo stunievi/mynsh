@@ -32,8 +32,8 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="hz-back" options="-parameters" />
-      <module name="hz-ms-common" options="-parameters" />
+      <module name="hz-back" options="" />
+      <module name="hz-ms-common" options="" />
     </option>
   </component>
 </project>

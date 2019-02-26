@@ -179,13 +179,13 @@ public class User extends TailBean implements ValidGroup {
 
     @Override
     public void onBeforeAdd(SQLManager sqlManager) {
-       User.AssertMethod("系统设置.组织架构.用户列表");
+       User.AssertMethod("系统管理.组织架构.用户列表");
     }
 
     @Override
     public void onBeforeEdit(SQLManager sqlManager) {
         //只有拥有权限和我自己才可以编辑
-        Assert(Objects.equals(id, AuthFilter.getUid()) || User.hasMethod("系统设置.组织架构.用户列表"), "权限验证失败");
+        Assert(Objects.equals(id, AuthFilter.getUid()) || User.hasMethod("系统管理.组织架构.用户列表"), "权限验证失败");
     }
 
     @Override

@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>文件管理 - 个人文件柜管理</title>
+    <!--#include file="/htmlsrc/header.html" -->
+
+    <link rel="stylesheet" href="/static/vendor/webUploader/webuploader.css">
+    <script src="/static/vendor/webUploader/webuploader.min.js"></script>
+    <style>
+        .layui-table-body {
+            min-height: 220px;
+        }
+        /*.fixed-table-body{*/
+            /*overflow: visible;*/
+        /*}*/
+    </style>
+</head>
+<body>
+    <div id="content">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                个人文件柜
+            </div>
+            <div class="panel-body">
+                <div class="batch-operation">
+                    <!-- <a href="javascript:;" class="btn btn-danger" id="batchDel">批量删除</a> -->
+                    <div id="picker">选择文件</div>
+                    <a href="javascript:;" class="btn btn-success handleAddDir" style="margin-left:5px;">新增文件夹</a>
+                </div>
+                <ol class="breadcrumb" id="breadcrumb" style="margin:10px 0 5px;">
+                    <li><a class="breadcrumb-item handleGetdata" href="javascript:;" data-id="0">全部文件</a></li>
+                </ol>
+                <div id="dataList">
+                    <!-- 文件列表 -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/html" id="addDirForm">
+        <!--  新增文件夹名称 -->
+        <div class="col-xs-12" style="margin-top:10px;">
+            <input type="hidden" name="parentDirId" id="parentDirId">
+            <input type="text" class="form-control dirName" name="dirName" id="dirName" placeholder="新建文件夹名称">
+        </div>
+        <div class="col-xs-12 text-center" style="margin-top:10px;">
+            <a type="button" class="btn btn-default" onClick="cancelAddDir()">取消</a>
+            <a type="button " class="btn btn-primary" onClick="confirmAddDir()">确定</a>
+        </div>
+    </script>
+    <script type="text/html" id="putNameForm">
+        <!-- 修改文件/文件夹名称 -->
+        <div class="col-xs-12" style="margin-top:10px;">
+            <input type="hidden" name="putId">
+            <input type="text" class="form-control" name="putName">
+        </div>
+        <div class="col-xs-12 text-center" style="margin-top:10px;">
+            <a type="button" class="btn btn-default" onClick="cancelPutName()">取消</a>
+            <a type="button " class="btn btn-primary" onClick="confirmPutName()">确定</a>
+        </div>
+    </script>
+    <!-- <script src="/static/vendor/validate/jquery.validate.min.js"></script> -->
+    <!--<script src="/static/htmljs/global.config.js"></script>-->
+    <!--<script src="/static/vendor/layui/layer/layer.js"></script>-->
+    <!--<script src="/static/htmljs/utils.js"></script>-->
+    <!--<script src="/static/vendor/layui/layui.js"></script>-->
+    <!--<script src="../../../tmpl/js/panelForm.js"></script>-->
+    <!--<script src="/static/htmljs/fixLayTableList.js"></script>-->
+    <!-- 变量渲染模板 -->
+    <script type="text/html" id="name">
+        {{# if (d.type == 'FILE'){ }}
+        <span class="glyphicon glyphicon-file">&nbsp;</span>{{d.name}}
+        {{# }else{ }}
+        <a class="handleGetdata" href="javascript:;" data-name="{{d.name}}" data-id="{{d.id}}" style="display: inline-block;width: 100%;"><span class="glyphicon glyphicon-folder-open">&nbsp;</span>{{d.name}}</a>
+        {{# } }}
+    </script>
+    <script type="text/html" id="showSize"> {{# if (d.type == 'FILE'){ }} {{d.size}} {{# }else{ }} - {{# } }} </script>
+    
+    <!-- toolbar渲染模板 -->
+    <script type="text/html" id="toolbar">
+        <div class="layui-toolbar">
+            <div class="btn-group">
+                <!--<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">更多</button>-->
+                <!--<ul class="dropdown-menu">-->
+                    <a class="handlePutName btn btn-default btn-sm" href="javascript:;" data-id="{{d.id}}" data-value="{{d.name}}" data-type="1">重命名</a>
+                    <a class="handleAddTag btn btn-default btn-sm" href="javascript:;" data-tags="{{d.tags}}" data-id="{{d.id}}" data-index="{{d.LAY_TABLE_INDEX}}" data-type="1">设置标签</a>
+                    <!--<a href="javascript:;" class="handleMove btn btn-default btn-sm" data-id="{{d.id}}">移动到</a>-->
+                    {{# if(d.isFile){ }}
+                    <!--<a href="javascript:;" class="handleCopy btn btn-default btn-sm" data-id="{{d.id}}">复制到</a>-->
+                    <!--<a href="javascript:;" class="handleFilePut b" data-id="{{d.id}}">提交资料库</a>-->
+                    {{# } }}
+                    <a href="javascript:;" class="handleDel btn btn-default btn-sm" data-id="{{d.id}}">删除</a>
+                <!--</ul>-->
+            </div>
+            <a href="javascript:;" class="btn handelShare btn-default" data-id="{{d.id}}" data-index="{{d.LAY_TABLE_INDEX}}">分享</a>
+            {{# if(d.type == 'FILE'){ }}
+            <a href="javascript:;" class="btn handelDown btn-default" data-value="{{d.id}}" data-index="{{d.LAY_TABLE_INDEX}}" onClick="downMyFileById('{{d.id}}')">下载</a>
+            {{# } }}
+            <!-- <a href="javascript:;" class="btn btn-danger handleDel" data-id="{{d.id}}">删除</a> -->
+        </div>
+    </script>
+    <script>
+        // 下载文件
+        function downMyFileById(id){
+            window.location = remoteOrigin + "/api/cfile/download?id=" + id;//remoteApi.apiCloudDownload+"?id=" + id;
+        }
+     
+        var path = getParam("path") || '';
+        if(path){
+            path = path.split("/");
+            path.forEach(function(pathName){
+                if(pathName){
+                    $("#breadcrumb").append('<li>'+pathName+'</li>');
+                }
+            })
+            
+        }
+
+        
+
+        var token = $.cookie('authorization');
+        var currDataList = []; // 数据List
+        var currDirId = getParam("dirId") || 0; // 当前文件夹Id
+        var currEditFile = {};
+        $("#panel-form").html(panelFormRender({
+            panelTitle:'筛选查询',
+            list:[
+                { prop: 'fileName', label: '文件名称' }
+            ],
+            data: {}
+        }));
+
+        laytableRender({
+            // urlType: 'disk',
+            url: remoteOrigin + "/api/auto/cfile/getList",//remoteApi.apiCloudGetFiles,
+            where: {
+                // pid: currDirId
+            },
+            cols: [
+                [
+                    // 列数发生改变时修改最后一个laytable-cell样式
+                    // {checkbox: true, pos:'left'},
+                    { field: 'name', title:'文件名', templet: "#name"},
+                    // { title: '文件名称', templet: "#name"},
+                    // { field: 'method', title:'名'},
+                    { field:'tags', title:'文件标签'},
+                    { title:'大小', templet: "#showSize"},
+                    { field:'lastModify', title:'修改时间', width: 170 },
+                    { field:'', title:'操作', templet: "#toolbar", width:180 }
+                ]
+            ],
+            success: function(origin){
+                currDataList = origin.rows;
+            }
+        })
+
+        // 根据文件夹ID刷新
+        function reloadByDirId(dirId){
+            dirId == undefined ? currDirId : dirId;
+            layuiTableReload({
+                // urlType: 'disk',
+                where: {
+                    pid: currDirId
+                },
+                success: function(origin){
+                    currDataList = origin.rows
+                }
+            })
+        }
+
+        // 弹框选择文件夹
+        function choiceFloder(act){
+            layer.open({
+                type: 2,
+                title:'选择文件夹',
+                area: ['450px', '500px'],
+                fixed: false,
+                maxmin: true,
+                content: '../choiceFolder.html?act='+act
+            });
+        }
+        // 选择文件夹后的回调
+        function choiceFolderCallback(floderId, act){
+            if(act == 'move'){
+                handleMove(floderId);
+            }else if(act == 'copy'){
+                handleCopy(floderId);
+            }
+        }
+        // 移动文件 - begin
+        var moveIds = []; // 移动文件的数组
+        eventBind(".handleMove", function(that){
+            // 置空数组，清除历史数据
+            moveIds = [];
+            moveIds.push([that.data('id')]);
+            choiceFloder('move');
+        });
+        function handleMove(floderId){
+            moveIds = moveIds.join(",");
+            SuperPost({
+                urlType: 'disk',
+                url: remoteApi.apiCloudMoveFiles,
+                data: {
+                    pid: floderId,
+                    id: moveIds
+                },
+                success: function(){
+                    layuiTableReload();
+                }
+            });
+        }
+        // 移动文件 - end
+
+        // 复制文件 - begin
+        var copyId; // 被复制文件ID
+        eventBind(".handleCopy", function(that){
+            // 置空，清除历史数据
+            copyId = that.data('id');
+            choiceFloder('copy');
+        });
+        function handleCopy(floderId){
+            SuperPost({
+                urlType: 'disk',
+                url: remoteApi.apiCloudCopyFile,
+                data: {
+                    pid: floderId,
+                    id: copyId
+                },
+                success: function(){
+                    layuiTableReload();
+                }
+            });
+        }
+        // 复制文件 - end
+
+        // 分享 - begin
+        var shareIds = [];
+        eventBind(".handelShare", function(that){
+            shareIds = [];
+            shareIds.push(that.data('id'));
+            layShareIndex = layer.open({
+                type: 2,
+                title:'选择分享对象',
+                area: ['900px', '350px'],
+                fixed: false,
+                maxmin: true,
+                content: '../../htmllayer/choiceUsers.html'
+            });
+        });
+
+        function choiceUsersCallback(userIds, users){
+            SuperPost({
+                // urlType: 'disk',
+                url: remoteOrigin + "/api/auto/cfile/share",//remoteApi.apiCloudShareFileTo,
+                data: {
+                    uid: userIds.join(","),
+                    fid: shareIds.join(",")
+                    // userIds: res.rows[0]["id"],
+//                                userIds: userIds.join(","),
+//                     fileId: shareIds.join(","),
+//                     permissions: "rw"
+                },
+                success: function(res){
+                    layer.close(layShareIndex);
+                    layer.msg("分享成功");
+                }
+            })
+            return;
+            // console.warn(userIds)
+            users.forEach(function(user){
+                SuperPost({
+                    urlType: "disk",
+                    url: "/member/ajaxUserList.action?username="+user.username,
+                    success: function(res){
+                        SuperPost({
+                            urlType: 'disk',
+                            url: remoteApi.apiCloudShareFileTo,
+                            data: {
+                                userIds: res.rows[0]["id"],
+//                                userIds: userIds.join(","),
+                                fileId: shareIds.join(","),
+                                permissions: "rw"
+                            },
+                            success: function(res){
+                                layer.close(layShareIndex);
+                                layer.msg("分享成功");
+                            }
+                        })
+
+                    }
+                })
+            })
+
+        }
+        // 分享 - end
+        // 页面跳转
+        eventBind(".handleGetdata", function(that){
+            $("#breadcrumb").append('<li class="breadcrumb-item"><a class="handleGetdata" href="javascript:;" data-id="'+that.data("id")+'">'+that.data('name')+'</a></li>');
+            currDirId = that.data('id');
+            reloadByDirId();
+        });
+        // 点击路径跳转
+        $(document).on("click", ".breadcrumb-item", function(){
+            if($(this).data("id")==0){
+                $("#breadcrumb li:gt(0)").remove();
+            }else{
+                $(".breadcrumb-item:gt("+$(this).index()+")").remove();
+            }
+        })
+        // 添加文件夹 - begin
+        eventBind('.handleAddDir', function(that){
+            addDirNameIndex = layer.open({
+                title:'文件夹名称',
+                type: 1,
+                area: ['333px', '145px'], //宽高
+                content: $("#addDirForm").html() // 新增文件夹名称
+            });
+            $("input[name='parentDirId']").val(currDirId);
+        });
+        function cancelAddDir(){
+            layer.close(addDirNameIndex)
+        }
+        function confirmAddDir(){
+            var dirId = $("input[name='parentDirId']").val();
+            dirId = $(".breadcrumb-item:last a[data-id]").attr('data-id') || 0;
+            var dirName = $("input[name='dirName']").val();
+            SuperPost({
+                // urlType: 'disk',
+                url: remoteOrigin + "/api/auto/cfile/mkdir?pid=" + dirId +"&name=" + dirName, //remoteApi.apiCloudCreateFolder+"?pid="+dirId+"&name="+dirName+"&tags=",
+                success: function(res){
+                    layer.close(addDirNameIndex);
+                    reloadByDirId(); // 刷新页面更新数据
+                }
+            })
+        }
+        // 添加文件夹 - end
+        // 重命名 - begin
+        eventBind('.handlePutName', function(that){
+            addDirNameIndex = layer.open({
+                title:'重命名',
+                type: 1,
+                area: ['333px', '145px'],
+                content: $("#putNameForm").html()
+            });
+            $("input[name='putId']").val(that.data('id'));
+            $("input[name='putName']").val(that.data('value'));
+        })
+        function cancelPutName(){
+            layer.close(addDirNameIndex); // 关闭重命名窗口
+        }
+        function confirmPutName(){
+            var id = $("input[name='putId']").val();
+            var putName = $("input[name='putName']").val();
+            // 确定重命名
+            SuperPost({
+                // urlType: 'disk',
+                url: remoteOrigin + "/api/auto/cfile/rename?id=" + id + "&name=" + putName,//remoteApi.apiCloudRenameFile+"?id="+id+"&name="+putName,
+                success: function(){
+                    layer.close(addDirNameIndex); // 关闭重命名窗口
+                    reloadByDirId();
+                }
+            })
+        }
+        // 重命名 - end
+
+        // 设置标签 - begin
+        var lastId = null;
+        eventBind(".handleAddTag", function(that){
+            // currEditFile = currDataList[that.data("index")];
+            currEditFileTag = (that.data("tags") || '').split(" ");
+            lastId = that.attr("data-id");
+            addTagIndex = layer.open({
+                type: 2,
+                title:'设置文件标签',
+                area: ['500px', '220px'],
+                fixed: false,
+                maxmin: true,
+                content: '../addFileTags.html?id='+that.data("id")
+            });
+        })
+        function addTagCallbakc(file, tags){
+            layer.close(addTagIndex);
+            // var fileId = currEditFile.id;
+            tags = encodeURI(tags.join(" "));
+            SuperPost({
+                // urlType: 'disk',
+                url: remoteOrigin + "/api/auto/cfile/retags?id="+lastId+"&tags=" + tags,//remoteApi.apiCloudEditTags+"?id="+lastId+"&tags="+tags,
+                success: function(){
+                    layer.msg("标签设置成功", {time: 500});
+                    reloadByDirId();
+                }
+            })
+        }
+        // 设置标签 - end
+        // 删除文件
+        $(document).on("click", ".handleDel", function(){
+            var ids = [$(this).data('id')];
+            ids = ids.join(",");
+            actConfirm(function(){
+                SuperPost({
+                    // urlType: 'disk',
+                    url: remoteOrigin + "/api/auto/cfile/rm?id=" + ids,//remoteApi.apiCloudDeleteFiles+"?id="+ids,
+                    success: function(res){
+                        reloadByDirId();
+                        layer.msg("删除成功");
+                    },
+                    error: function(err){
+                        console.log(err)
+                    }
+                })
+            })
+        });
+        // 发布到资料库
+        eventBind(".handleFilePut", function(that){
+            filePutIndex = layer.open({
+                type: 2,
+                title:'选取文件夹',
+                area: ['450px', '500px'],
+                fixed: false,
+                maxmin: true,
+                content: '../choiceCommFolder.html'
+            });
+        })
+        function choiceCommFolderCallback(dirId){
+            var data = {
+                fileId: 87,
+                pid: dirId,
+            };
+            SuperPost({
+                urlType: 'disk',
+                url: remoteApi.apiCloudCommonFilePut+getJoinParams(data),
+                success: function(res){
+                    layer.msg(res.msg);
+                }
+            })
+        }
+
+        // 上传初始化
+        var uploader = WebUploader.create({
+            swf: '/static/vendor/webUploader/Uploader.swf',
+            server: remoteOrigin + "/api/cfile/upload", //remoteApi.apiCloudUploadFiles,
+            pick:'#picker',
+            auto:true,
+            fileVal: 'file',
+            resize: false,
+        });
+        uploader.on("uploadBeforeSend", function(obj, data, headers){
+            data.pid = currDirId;
+        })
+        // 单个文件上传进度
+        uploader.on('uploadProgress', function( file, percentage ) {
+            var $li = $( '#' + file.id),
+            $percent = $li.find('.progress .progress-bar');
+            $li.find('p.state').text('上传中');
+            $percent.css('width', percentage * 100 + '%' );
+            $percent.text(Math.floor(percentage*100) + '%');
+        });
+        // 上传失败
+        uploader.on('uploadError', function(file, res) {
+            $('#'+file.id ).find('.state').text('上传失败').addClass('info');
+        });  
+        // 单个文件上传成功
+        uploader.on('uploadSuccess', function(file, res) {
+            // console.log(res)
+            $('#'+file.id ).find('.state').text('已上传').addClass('info');
+        });  
+        // 本次添加文件全部添加到队列后
+        uploader.on('filesQueued', function(files) {
+            // 判断上传进度layer是否打开
+            if(!$(".layui-layer-page").length){
+                layer.open({
+                    type: 1,
+                    title: '上传列表',
+                    shade: false,
+                    maxmin: true,
+                    area: ['700px', '200px'],
+                    offset: 'lb',
+                    content: ''
+                });
+                $(".layui-layer-page .layui-layer-content").html("<table class='table table-condensed' id='thelist'><tbody></tbody></table>");
+            }
+            files.forEach(function(file){
+                $("#thelist").append( '<tr id="' + file.id + '" class="item">' +
+                '<td class="info">' + file.name + '</td>' +
+                '<td class="state"><div class="col-xs-6">等待上传...<a href="javascript:;" class="handleRemove" data-id="'+file.id+'">删除</a></div><div class="col-xs-6"><div class="progress" style="margin-bottom:0"> <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="min-width: 2em;"> 0% </div> </div></div></td>'+
+            '</tr>');
+            });
+        });
+         // 上传结束
+        uploader.on('uploadFinished', function() {
+            reloadByDirId();
+        }); 
+        
+        // 移除上传
+        $(document).on('click', '.handleRemove', function() {
+            uploader.removeFile($(this).data("id"));
+            $(this).parents("tr.item").remove();
+        })
+
+        // 查询
+        function checkSubmitForm(){
+            var form = $("form[name='form-search']")
+            layuiTableReload({
+                where: form.serialize()
+            })
+            return false;
+        }
+    </script>
+</body>
+</html>

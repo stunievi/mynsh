@@ -45,6 +45,7 @@ public class TestES {
             try{
                 //删除文档
                 esClient().deleteDocument(document.getFid());
+                continue;
             }
             catch (IOException e){
 

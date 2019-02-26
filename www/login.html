@@ -199,6 +199,8 @@
                         remoteApi.apiLogin
                         ,(form.serialize())
                         ,function(origin){
+                            console.log(origin)
+                            // return;
                             var keys = document.cookie.match(/[^ =;]+(?=\=)/g);
                             if(keys) {
                                 for(var i = keys.length; i--;)  

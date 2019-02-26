@@ -1,10 +1,10 @@
 [
   {
     "name": "main",
-    "server": "http://47.94.97.138"
+    "server": "http://localhost"
   },
   {
     "name": "h2",
-    "server": "http://47.94.97.138"
+    "server": "http://localhost"
   }
 ]
