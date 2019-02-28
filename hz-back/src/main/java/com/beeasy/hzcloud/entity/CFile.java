@@ -96,7 +96,7 @@ public class CFile extends TailBean implements ValidGroup {
      * @param path
      * @return
      */
-    private LinkedList<Holder> analyzePath(SQLManager sqlManager, String path){
+    private LinkedList<Holder> analyzePath(SQLManager sqlManager, long uid, String path){
         if(S.blank(path)) path = "";
         AtomicLong pid = new AtomicLong(0);
         AtomicBoolean allnull = new AtomicBoolean(false);
@@ -107,7 +107,7 @@ public class CFile extends TailBean implements ValidGroup {
                 .filter(S::notEmpty)
                 .forEachOrdered(i -> {
                     if(!allnull.get()){
-                        CFile file = getFile(sqlManager, AuthFilter.getUid(), pid.get(), i);
+                        CFile file = getFile(sqlManager, uid, pid.get(), i);
                         if (file == null) {
                             allnull.set(true);
                             files.add(new Holder(i, null));
@@ -141,11 +141,11 @@ public class CFile extends TailBean implements ValidGroup {
      * @return
      */
     public Object mkdir(SQLManager sqlManager, JSONObject object){
-        long uid = AuthFilter.getUid();
+        Long uid = AuthFilter.getUid();
         String err = "创建文件夹失败";
         if(object.containsKey("path")){
             Assert(S.notEmpty(object.getString("path")), err);
-            LinkedList<Holder> ps = analyzePath(sqlManager, object.getString("path"));
+            LinkedList<Holder> ps = analyzePath(sqlManager, uid, object.getString("path"));
             long pid = 0;
             CFile file = null;
             for(short i = 0; i < ps.size(); i++){
@@ -173,7 +173,7 @@ public class CFile extends TailBean implements ValidGroup {
             long pid = object.getLong("pid");
             if(pid > 0){
                 long count = sqlManager.lambdaQuery(CFile.class)
-                    .andEq(CFile::getUid, AuthFilter.getUid())
+                    .andEq(CFile::getUid, uid)
                     .andEq(CFile::getId, object.getString("pid"))
                     .count();
                 Assert(count > 0, err);
@@ -181,7 +181,7 @@ public class CFile extends TailBean implements ValidGroup {
             CFile file = sqlManager.lambdaQuery(CFile.class)
                 .andEq(CFile::getPid, object.getString("pid"))
                 .andEq(CFile::getName, object.getString("name"))
-                .andEq(CFile::getUid, AuthFilter.getUid())
+                .andEq(CFile::getUid, uid)
                 .single();
             if (file == null) {
                 file = new CFile();
@@ -211,10 +211,10 @@ public class CFile extends TailBean implements ValidGroup {
      */
     public Object mv(SQLManager sqlManager, JSONObject object){
         String err = "移动失败";
-
+        long uid = AuthFilter.getUid();
         if(object.containsKey("from") && object.containsKey("to")){
-            LinkedList<Holder> fromPs = analyzePath(sqlManager, object.getString("from"));
-            LinkedList<Holder> toPs = analyzePath(sqlManager, object.getString("to"));
+            LinkedList<Holder> fromPs = analyzePath(sqlManager, uid, object.getString("from"));
+            LinkedList<Holder> toPs = analyzePath(sqlManager, uid, object.getString("to"));
             CFile file = fromPs.getLast().file;
             Assert($.isNotNull(file), err);
 
@@ -273,16 +273,17 @@ public class CFile extends TailBean implements ValidGroup {
      * @return
      */
     public Object rm(SQLManager sqlManager, JSONObject object){
+        long uid = AuthFilter.getUid();
         String err = "删除失败";
         List<JSONObject> objects = null;
         if(object.containsKey("path")){
-            LinkedList<Holder> ps = analyzePath(sqlManager, object.getString("path"));
+            LinkedList<Holder> ps = analyzePath(sqlManager, uid, object.getString("path"));
             Assert($.isNotNull(ps.getLast().file), err);
-            objects = sqlManager.select("cloud.查询子文件ID", JSONObject.class, C.newMap("ids", C.newList(ps.getLast().file.id), "uid", AuthFilter.getUid()));
+            objects = sqlManager.select("cloud.查询子文件ID", JSONObject.class, C.newMap("ids", C.newList(ps.getLast().file.id), "uid", uid));
         }
         else if(object.containsKey("id")){
             List<Long> ids = U.toIdList(object.getString("id"));
-            objects = sqlManager.select("cloud.查询子文件ID", JSONObject.class, C.newMap("ids", ids, "uid", AuthFilter.getUid()));
+            objects = sqlManager.select("cloud.查询子文件ID", JSONObject.class, C.newMap("ids", ids, "uid", uid));
         }
         Assert($.isNotNull(objects), err);
         List<String> _ids = objects.stream()

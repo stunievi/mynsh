@@ -81,6 +81,13 @@
                             {{else if value.type == 'textarea'}}
                             <textarea class="form-control input-sm" rows="3" id="{{value.prop}}" name="{{value.prop}}"
                                       value="{{data[value.prop]}}" {{value.disabled ? 'readonly' : ''}}>{{data[value.prop]}}</textarea>
+                            {{else if value.type == 'radio'}}
+                            {{each value.vals val}}
+                            <label style="margin: 10px;margin-left: 0">
+                                <input type="radio" name="{{value.prop}}" id="{{value.prop}}" value="{{val.val}}" {{data[value.prop] == val.val ? 'checked': ''}}/>
+                                {{val.name}}
+                            </label>
+                            {{/each}}
                             {{else if value.type == 'file'}}
                             <button id="{{value.prop}}" type="button" class="btn btn-sm btn-primary">
                                 <i class="glyphicon glyphicon-file"></i>

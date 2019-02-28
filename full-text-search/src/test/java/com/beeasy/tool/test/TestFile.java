@@ -7,7 +7,7 @@ public class TestFile {
 
     @Test
     public void textRead(){
-        String str = FileUtil.readFile("/Users/bin/Downloads/0731测试.docx");
+        String str = FileUtil.readFile("/Users/bin/Downloads/BC___.docx");
         int d = 1;
     }
 }

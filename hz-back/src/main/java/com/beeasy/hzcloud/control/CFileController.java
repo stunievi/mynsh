@@ -50,13 +50,19 @@ public class CFileController {
 
     ESClient es = new ESClient("http://47.94.97.138/es", "aaa", "document");
 
+
     @RequestMapping("/upload")
     @ResponseBody
     public Result upload(
         @RequestParam MultipartFile file,
-        @RequestParam long pid
+        @RequestParam long pid,
+        Long uid
     ) {
-        long uid = AuthFilter.getUid();
+        // FIXME: 2019/2/28 此处为安全隐患，不可以把UID当做参数
+        if (uid == null) {
+            uid = AuthFilter.getUid();
+        }
+//        long uid = AuthFilter.getUid();
         String err = "上传失败";
         File dir = new File(UPLOAD_PATH, sdf.format(new Date()));
         if(!dir.exists()) dir.mkdirs();
@@ -71,8 +77,8 @@ public class CFileController {
             throw new RestException(err);
         }
         CFile cfile = new CFile();
-        cfile.setUid(AuthFilter.getUid());
-        cfile.setCreator(AuthFilter.getUid());
+        cfile.setUid(uid);
+        cfile.setCreator(uid);
         cfile.setType(CFile.Type.FILE);
         cfile.setName(file.getOriginalFilename());
         cfile.setPid(pid);
@@ -85,6 +91,7 @@ public class CFileController {
 
         if($.isNotNull(cfile.getId())){
             //es检索
+            Long finalUid = uid;
             executor.execute(() -> {
                 List<String> mayBeDocs = C.newList("txt","pdf","doc","xls","docx","xlsx");
                 String content = "";
@@ -93,7 +100,7 @@ public class CFileController {
                 }
                 Document document = new Document();
                 document.setFid(cfile.getId());
-                document.setUid(uid);
+                document.setUid(finalUid);
                 document.setTitle(cfile.getName());
                 document.setContent(content);
                 document.setCreateTime(new Date());

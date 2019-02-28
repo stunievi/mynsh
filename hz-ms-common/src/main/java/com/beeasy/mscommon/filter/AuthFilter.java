@@ -36,6 +36,7 @@ public class AuthFilter implements Filter {
     public static final String Utname = "HZUtname";
     public static final String Server = "HZServer";
 
+    private static ThreadLocal<Long> localUids = new ThreadLocal<>();
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -170,7 +171,15 @@ public class AuthFilter implements Filter {
     }
 
     public static Long getUid() {
-        return (Long) U.getRequest().getSession().getAttribute(AuthFilter.Uid);
+        Long uid = localUids.get();
+        if (uid == null) {
+            uid = (Long) U.getRequest().getSession().getAttribute(AuthFilter.Uid);
+        }
+        return uid;
+    }
+
+    public static void setUid(Long uid){
+        localUids.set(uid);
     }
 
     public static String getUname() {

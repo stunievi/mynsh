@@ -6,6 +6,7 @@ import com.beeasy.hzback.core.util.ClassUtils;
 import com.beeasy.hzback.entity.User;
 import com.beeasy.mscommon.Result;
 import com.beeasy.mscommon.ann.AssertMethod;
+import com.beeasy.mscommon.filter.AuthFilter;
 import com.beeasy.mscommon.json.FJHttpMessageConverter;
 import com.beeasy.mscommon.util.U;
 import com.beeasy.mscommon.valid.Unique;
@@ -154,6 +155,8 @@ public class AutoController {
         , @PathVariable String $action
         , @RequestBody JSONObject params
     ) throws IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
+        AuthFilter.setUid(null);
+        AuthFilter.setUid(AuthFilter.getUid());
         Object ins;
         Object result = null;
         //优先反射方法

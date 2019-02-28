@@ -1,11 +1,16 @@
 package com.beeasy.hzback.modules.system.controller;
 
+import com.alibaba.fastjson.JSONObject;
+import com.beeasy.hzback.entity.SysVar;
 import com.beeasy.hzback.entity.SystemFile;
 import com.beeasy.hzback.modules.system.service.FileService;
 import com.beeasy.hzback.modules.system.service.LFSService;
+import com.beeasy.hzcloud.control.CFileController;
+import com.beeasy.hzcloud.entity.CFile;
 import com.beeasy.mscommon.RestException;
 import com.beeasy.mscommon.Result;
 import com.beeasy.mscommon.filter.AuthFilter;
+import com.beeasy.mscommon.util.U;
 import org.beetl.sql.core.SQLManager;
 import org.osgl.$;
 import org.osgl.util.C;
@@ -24,13 +29,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -41,11 +50,13 @@ public class FileController {
 
 
     @Autowired
-    SQLManager  sqlManager;
+    SQLManager      sqlManager;
     @Autowired
-    LFSService  lfsService;
+    LFSService      lfsService;
     @Autowired
-    FileService fileService;
+    FileService     fileService;
+    @Autowired
+    CFileController cFileController;
 
     @Value("${filecloud.username}")
     String wfUsername;
@@ -54,8 +65,17 @@ public class FileController {
     @Value("${filecloud.wfPid}")
     String wfPid;
 
-    private final static     SimpleDateFormat sdf      = new SimpleDateFormat("yyyyMMdd");
+    private final static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
+
+    private String getStorageEngine() {
+        JSONObject object = new JSONObject();
+        object.put("key", "file_storage_engine");
+        JSONObject map = (JSONObject) new SysVar().getConfig(sqlManager, object);
+        String storage = map.getString("file_storage_engine");
+        if (S.empty(storage)) storage = "linkapp";
+        return storage;
+    }
 
     @RequestMapping(value = "/uploadFace", method = RequestMethod.POST)
     @ResponseBody
@@ -77,32 +97,60 @@ public class FileController {
         , String dir
         , String uuid
     ) {
-        try {
-            String sessionId = lfsService.login(wfUsername, wfPassword);
-            if (type.equals(SystemFile.Type.MESSAGE)) {
-                dir = sdf.format(new Date());
-                name = S.uuid() + "." + S.fileExtension(file.getOriginalFilename());
-            }
-            String pid = lfsService.createDir(sessionId, wfPid, dir);
-            String fid = lfsService.uploadFile(sessionId, pid, name, file);
-            //修改tag
-            if (S.notEmpty(tags)) {
-                lfsService.editTags(sessionId, fid, tags);
-            }
-            return Result.ok(
-                C.newMap(
-                    "id", fid
-                    , "name", name
-                    , "tags", tags
-                    , "creator", AuthFilter.getUid()
-                    , "uuid" ,uuid
-                    , "sname", file.getOriginalFilename()
-                )
-            );
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Result.error(uuid);
+        switch (getStorageEngine()) {
+            case "linkapp":
+                try {
+                    String sessionId = lfsService.login(wfUsername, wfPassword);
+                    if (type.equals(SystemFile.Type.MESSAGE)) {
+                        dir = sdf.format(new Date());
+                        name = S.uuid() + "." + S.fileExtension(file.getOriginalFilename());
+                    }
+                    String pid = lfsService.createDir(sessionId, wfPid, dir);
+                    String fid = lfsService.uploadFile(sessionId, pid, name, file);
+                    //修改tag
+                    if (S.notEmpty(tags)) {
+                        lfsService.editTags(sessionId, fid, tags);
+                    }
+                    return Result.ok(
+                        C.newMap(
+                            "id", fid
+                            , "name", name
+                            , "tags", tags
+                            , "creator", AuthFilter.getUid()
+                            , "uuid", uuid
+                            , "sname", file.getOriginalFilename()
+                        )
+                    );
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return Result.error(uuid);
+                }
+
+
+            case "self":
+                JSONObject object = new JSONObject();
+                AuthFilter.setUid(1L);
+                object.put("path", "/" + sdf.format(new Date()));
+                CFile pdir = (CFile) new CFile().mkdir(sqlManager, object);
+                Result<CFile> result = cFileController.upload(file, pdir.getId(), 1L);
+                if(!result.isSuccess()){
+                    return Result.error(uuid);
+                }
+                CFile cFile = (CFile) result.getData();
+                return Result.ok(
+                    C.newMap(
+                        "id", cFile.getId()
+                        , "name", name
+                        , "tags", tags
+                        , "creator", AuthFilter.getUid()
+                        , "uuid", uuid
+                        , "sname", file.getOriginalFilename()
+                    )
+                );
+
         }
+
+        throw new RestException();
 
     }
 
@@ -160,22 +208,70 @@ public class FileController {
 
 
     @RequestMapping(value = "/download", method = RequestMethod.GET)
-    public ResponseEntity<byte[]> download(
+    public void download(
         @RequestParam String fid
-        , @RequestParam String name
+        , @RequestParam String name,
+        HttpServletRequest request,
+        HttpServletResponse response
     ) {
-        HttpHeaders headers = new HttpHeaders();
-        try {
-            String sessionId = lfsService.login(wfUsername, wfPassword);
-            byte[] bytes = lfsService.downloadFile(sessionId, fid);
-            String ext = S.fileExtension(name);
-            makeHeader(headers, ext, name);
-            return new ResponseEntity<byte[]>(bytes, headers, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<byte[]>(new byte[0], headers, HttpStatus.OK);
+        switch (getStorageEngine()){
+            case "linkapp":
+//                HttpHeaders headers = new HttpHeaders();
+                try {
+                    String sessionId = lfsService.login(wfUsername, wfPassword);
+                    byte[] bytes = lfsService.downloadFile(sessionId, fid);
+                    String ext = S.fileExtension(name);
+                    makeHeader(response, ext, name);
+                    try(
+                        OutputStream os = response.getOutputStream();
+                        ){
+                       os.write(bytes);
+                       response.flushBuffer();
+                    }
+                    catch (IOException e){
+                        e.printStackTrace();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return;
+
+            case "self":
+                cFileController.download(Long.parseLong(fid), request, response);
+                return;
         }
+
+        throw new RestException("下载失败");
     }
 
+
+    private void makeHeader(HttpServletResponse response, String ext, String fileName){
+        switch (ext.toLowerCase()) {
+            case "jpg":
+            case "jpeg":
+            case "bmp":
+                response.setContentType(MediaType.IMAGE_JPEG_VALUE);
+                break;
+
+            case "png":
+                response.setContentType(MediaType.IMAGE_PNG_VALUE);
+                break;
+
+            case "gif":
+                response.setContentType(MediaType.IMAGE_GIF_VALUE);
+                break;
+
+            default:
+                response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+        }
+        try {
+            fileName = URLEncoder.encode(fileName, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            throw new RestException("下载失败");
+        }
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"; filename*=utf-8''" + fileName);
+    }
 
     private void makeHeader(HttpHeaders headers, String ext, String fileName) {
         switch (ext.toLowerCase()) {

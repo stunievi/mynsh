@@ -161,7 +161,8 @@
             layuiTableReload({
                 // urlType: 'disk',
                 where: {
-                    pid: currDirId
+                    pid: currDirId,
+                    page: 1
                 },
                 success: function(origin){
                     currDataList = origin.rows
