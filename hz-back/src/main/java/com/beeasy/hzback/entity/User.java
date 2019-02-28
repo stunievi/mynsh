@@ -62,10 +62,10 @@ public class User extends TailBean implements ValidGroup {
     Boolean newUser;
 
     @Unique(value = "信贷系统代码")
-    String  accCode;
+    String accCode;
 
-    String  avatar;
-    String  letter;
+    String avatar;
+    String letter;
     @Email(message = "邮箱格式错误", groups = {Add.class, Edit.class})
     String email;
     Boolean baned;
@@ -108,7 +108,7 @@ public class User extends TailBean implements ValidGroup {
 //    }
 
     @Override
-    public String onGetListSql(Map<String,Object> params) {
+    public String onGetListSql(Map<String, Object> params) {
         return "user.查询用户列表";
     }
 
@@ -122,7 +122,7 @@ public class User extends TailBean implements ValidGroup {
         newUser = false;
         initLetter(this);
         //save
-        sqlManager.insert(this,true);
+        sqlManager.insert(this, true);
 
         //插入私有云账号
         CloudService cloudService = U.getBean(CloudService.class);
@@ -131,17 +131,17 @@ public class User extends TailBean implements ValidGroup {
         cloudService.createUser(username);
         //无论成功与否, 都保存
         sqlManager.lambdaQuery(User.class)
-            .andEq(User::getId, id)
-            .updateSelective(C.newMap(
-                "cloudUsername", username
-                , "cloudPassword", env.getProperty("filecloud.userDefaultPassword")
-            ));
+                .andEq(User::getId, id)
+                .updateSelective(C.newMap(
+                        "cloudUsername", username
+                        , "cloudPassword", env.getProperty("filecloud.userDefaultPassword")
+                ));
 
         //保存头像
         ClassPathResource resource = new ClassPathResource("static/default_face.jpg");
         //upload image
         try (
-            InputStream is = resource.getInputStream()
+                InputStream is = resource.getInputStream()
         ) {
             MockMultipartFile file = new MockMultipartFile(resource.getFilename(), is);
             fileService.uploadFace(id, file);
@@ -153,16 +153,16 @@ public class User extends TailBean implements ValidGroup {
         List<String> oids = (List<String>) get("oids");
         //默认的角色
         Long oid = sqlManager.lambdaQuery(Org.class)
-            .andEq(Org::getName,"基础角色")
-            .select(Org::getId)
-            .stream()
-            .map(Org::getId)
-            .findFirst()
-            .orElse(null);
-        if(!oids.contains(oid)){
+                .andEq(Org::getName, "基础角色")
+                .select(Org::getId)
+                .stream()
+                .map(Org::getId)
+                .findFirst()
+                .orElse(null);
+        if (!oids.contains(oid)) {
             oids.add(oid + "");
         }
-        if(C.notEmpty(oids)){
+        if (C.notEmpty(oids)) {
             setO(id, oids);
         }
 
@@ -173,7 +173,7 @@ public class User extends TailBean implements ValidGroup {
 
     @Override
     public void onBeforeAdd(SQLManager sqlManager) {
-       User.AssertMethod("系统管理.组织架构.用户列表");
+        User.AssertMethod("系统管理.组织架构.用户列表");
     }
 
     @Override
@@ -192,14 +192,14 @@ public class User extends TailBean implements ValidGroup {
         }
         initLetter(u);
         sqlManager.lambdaQuery(User.class)
-            .andEq(User::getId, u.getId())
-            .updateSelective(u);
+                .andEq(User::getId, u.getId())
+                .updateSelective(u);
         return this;
     }
 
     @Override
     public Object onAfterEdit(SQLManager sqlManager, Object object) {
-        if(C.notEmpty((Collection<?>) get("oids"))){
+        if (C.notEmpty((Collection<?>) get("oids"))) {
             setO(id, (List) get("oids"));
         }
         return this;
@@ -216,13 +216,13 @@ public class User extends TailBean implements ValidGroup {
     @Override
     public void onDelete(SQLManager sqlManager, Long[] id) {
         sqlManager.lambdaQuery(User.class)
-            .andIn(User::getId, Arrays.asList(id))
-            //管理员禁止删除
-            .andEq(User::getSu, false)
-            .delete();
+                .andIn(User::getId, Arrays.asList(id))
+                //管理员禁止删除
+                .andEq(User::getSu, false)
+                .delete();
         String ids = Arrays.stream(id).map(i -> "'" + i + "'").collect(Collectors.joining(","));
         sqlManager.executeUpdate(
-            new SQLReady(S.fmt("delete from t_user_org where uid in (%s)", ids))
+                new SQLReady(S.fmt("delete from t_user_org where uid in (%s)", ids))
         );
     }
 
@@ -236,9 +236,9 @@ public class User extends TailBean implements ValidGroup {
                 oldPass = DigestUtils.md5DigestAsHex(oldPass.getBytes());
                 newPass = DigestUtils.md5DigestAsHex(newPass.getBytes());
                 int count = sqlManager.lambdaQuery(User.class)
-                    .andEq(User::getId, AuthFilter.getUid())
-                    .andEq(User::getPassword, oldPass)
-                    .updateSelective(C.newMap("password", newPass, "newUser", 0));
+                        .andEq(User::getId, AuthFilter.getUid())
+                        .andEq(User::getPassword, oldPass)
+                        .updateSelective(C.newMap("password", newPass, "newUser", 0));
                 Assert(count > 0, "旧密码不正确或旧密码同新密码相同!");
                 break;
 
@@ -258,8 +258,8 @@ public class User extends TailBean implements ValidGroup {
 
             case "setBaned":
                 sqlManager.lambdaQuery(User.class)
-                    .andIn(User::getId, object.getJSONArray("uids"))
-                    .updateSelective(C.newMap("baned", object.getBoolean("baned")));
+                        .andIn(User::getId, object.getJSONArray("uids"))
+                        .updateSelective(C.newMap("baned", object.getBoolean("baned")));
                 break;
 
             case "getPList":
@@ -267,32 +267,32 @@ public class User extends TailBean implements ValidGroup {
 
             case "getMPList":
                 return sqlManager.lambdaQuery(GP.class)
-                    .andEq(GP::getType, GP.Type.USER_METHOD)
-                    .andEq(GP::getOid, object.getLong("oid"))
-                    .select(GP::getK1)
-                    .stream()
-                    .map(GP::getK1)
-                    .collect(toSet());
+                        .andEq(GP::getType, GP.Type.USER_METHOD)
+                        .andEq(GP::getOid, object.getLong("oid"))
+                        .select(GP::getK1)
+                        .stream()
+                        .map(GP::getK1)
+                        .collect(toSet());
 
             case "setMP":
                 sqlManager.lambdaQuery(GP.class)
-                    .andEq(GP::getObjectId, 0)
-                    .andEq(GP::getOid, object.getLong("oid"))
-                    .andEq(GP::getType, GP.Type.USER_METHOD)
-                    .delete();
+                        .andEq(GP::getObjectId, 0)
+                        .andEq(GP::getOid, object.getLong("oid"))
+                        .andEq(GP::getType, GP.Type.USER_METHOD)
+                        .delete();
                 object.getJSONArray("methods").stream()
-                    .map(m -> {
-                        GP gp = new GP();
-                        gp.setObjectId(0L);
-                        gp.setOid(object.getLong("oid"));
-                        gp.setType(GP.Type.USER_METHOD);
-                        gp.setK1((String)m);
-                        return gp;
-                    })
+                        .map(m -> {
+                            GP gp = new GP();
+                            gp.setObjectId(0L);
+                            gp.setOid(object.getLong("oid"));
+                            gp.setType(GP.Type.USER_METHOD);
+                            gp.setK1((String) m);
+                            return gp;
+                        })
                         .forEach(gp -> {
                             sqlManager.insert(gp, true);
                         });
-                        // FIXME: 2019/2/28 河源DB2批量插入会出错， 不是代码的问题
+                // FIXME: 2019/2/28 河源DB2批量插入会出错， 不是代码的问题
 //                    .collect(Collectors.toList());
 //                sqlManager.insertBatch(GP.class,gps);
                 break;
@@ -303,19 +303,19 @@ public class User extends TailBean implements ValidGroup {
              */
             case "getMyMethods":
                 boolean su = sqlManager.lambdaQuery(User.class)
-                    .andEq(User::getId,AuthFilter.getUid())
-                    .andEq(User::getSu,true)
-                    .count() > 0;
-                if(su){
+                        .andEq(User::getId, AuthFilter.getUid())
+                        .andEq(User::getSu, true)
+                        .count() > 0;
+                if (su) {
                     return (C.newList("_all_"));
                 }
                 Object methods = sqlManager.lambdaQuery(GPC.class)
-                    .andEq(GPC::getUid, AuthFilter.getUid())
-                    .andEq(GPC::getType, GP.Type.USER_METHOD)
-                    .select()
-                    .stream()
-                    .map(GPC::getK1)
-                    .collect(toSet());
+                        .andEq(GPC::getUid, AuthFilter.getUid())
+                        .andEq(GPC::getType, GP.Type.USER_METHOD)
+                        .select()
+                        .stream()
+                        .map(GPC::getK1)
+                        .collect(toSet());
                 return (methods);
 
 
@@ -325,8 +325,8 @@ public class User extends TailBean implements ValidGroup {
              */
             case "isManager":
                 return sqlManager.lambdaQuery(DManager.class)
-                    .andEq(DManager::getUid, AuthFilter.getUid())
-                    .count() > 0;
+                        .andEq(DManager::getUid, AuthFilter.getUid())
+                        .count() > 0;
 
         }
         return null;
@@ -344,21 +344,22 @@ public class User extends TailBean implements ValidGroup {
         user.setLetter(letter);
     }
 
-    private void setO(long uid, List<String> oids){
+    private void setO(long uid, List<String> oids) {
         SQLManager sqlManager = U.getSQLManager();
         sqlManager.executeUpdate(new SQLReady(S.fmt("delete from t_user_org where uid = %d", uid)));
         for (String oid : oids) {
             sqlManager.executeUpdate(new SQLReady(
-                S.fmt("insert into t_user_org(uid,oid)values(%d,%s)", uid, oid)
+                    S.fmt("insert into t_user_org(uid,oid)values(%d,%s)", uid, oid)
             ));
         }
     }
-    private void setO(long uid, JSONArray oids){
+
+    private void setO(long uid, JSONArray oids) {
         SQLManager sqlManager = U.getSQLManager();
         sqlManager.executeUpdate(new SQLReady(S.fmt("delete from t_user_org where uid = %d", uid)));
         for (Object oid : oids) {
             sqlManager.executeUpdate(new SQLReady(
-                S.fmt("insert into t_user_org(uid,oid)values(%d,%s)", uid, oid)
+                    S.fmt("insert into t_user_org(uid,oid)values(%d,%s)", uid, oid)
             ));
         }
     }
@@ -404,23 +405,24 @@ public class User extends TailBean implements ValidGroup {
 
     /**
      * 是否拥有某些权限
+     *
      * @param methodNames
      */
-    public static boolean hasMethod(long uid, String ...methodNames){
-        return U.assertFromSql("user.是否拥有权限", C.newMap("uid",uid,"methods", methodNames));
+    public static boolean hasMethod(long uid, String... methodNames) {
+        return U.assertFromSql("user.是否拥有权限", C.newMap("uid", uid, "methods", methodNames));
     }
 
-    public static boolean hasMethod(String ...methods){
+    public static boolean hasMethod(String... methods) {
         return hasMethod(AuthFilter.getUid(), methods);
     }
 
-    public static void AssertMethod(long uid, String ...methodNames){
-        if(!hasMethod(uid, methodNames)){
+    public static void AssertMethod(long uid, String... methodNames) {
+        if (!hasMethod(uid, methodNames)) {
             throw new RestException("权限验证失败");
         }
     }
 
-    public static void AssertMethod(String ...methodNames){
+    public static void AssertMethod(String... methodNames) {
         AssertMethod(AuthFilter.getUid(), methodNames);
     }
 }
