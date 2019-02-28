@@ -5,6 +5,10 @@
 dev:
   debug: true
 
+auth:
+  url: /api/
+  not: /api/login
+
 multipul:
   datasources:
     - name: main

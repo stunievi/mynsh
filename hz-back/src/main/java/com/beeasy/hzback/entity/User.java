@@ -2,14 +2,12 @@ package com.beeasy.hzback.entity;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.TypeReference;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.beeasy.hzback.core.helper.ChineseToEnglish;
-import com.beeasy.hzback.view.DManager;
-import com.beeasy.hzback.view.GPC;
-import com.beeasy.mscommon.Result;
 import com.beeasy.hzback.modules.cloud.CloudService;
 import com.beeasy.hzback.modules.system.service.FileService;
+import com.beeasy.hzback.view.DManager;
+import com.beeasy.hzback.view.GPC;
 import com.beeasy.mscommon.RestException;
 import com.beeasy.mscommon.filter.AuthFilter;
 import com.beeasy.mscommon.util.U;
@@ -17,17 +15,13 @@ import com.beeasy.mscommon.valid.Unique;
 import com.beeasy.mscommon.valid.ValidGroup;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.camel.json.simple.JsonObject;
 import org.beetl.sql.core.SQLManager;
 import org.beetl.sql.core.SQLReady;
 import org.beetl.sql.core.TailBean;
 import org.beetl.sql.core.annotatoin.AssignID;
 import org.beetl.sql.core.annotatoin.Table;
-import org.beetl.sql.core.engine.PageQuery;
-import org.beetl.sql.core.query.LambdaQuery;
 import org.osgl.$;
 import org.osgl.util.C;
-import org.osgl.util.Crypto;
 import org.osgl.util.S;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
@@ -39,7 +33,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
-import static com.beeasy.mscommon.valid.ValidGroup.*;
+
 import static java.util.stream.Collectors.toSet;
 
 @Table(name = "T_USER")
@@ -286,7 +280,7 @@ public class User extends TailBean implements ValidGroup {
                     .andEq(GP::getOid, object.getLong("oid"))
                     .andEq(GP::getType, GP.Type.USER_METHOD)
                     .delete();
-                List<GP> gps = object.getJSONArray("methods").stream()
+                object.getJSONArray("methods").stream()
                     .map(m -> {
                         GP gp = new GP();
                         gp.setObjectId(0L);
@@ -295,8 +289,12 @@ public class User extends TailBean implements ValidGroup {
                         gp.setK1((String)m);
                         return gp;
                     })
-                    .collect(Collectors.toList());
-                sqlManager.insertBatch(GP.class,gps);
+                        .forEach(gp -> {
+                            sqlManager.insert(gp, true);
+                        });
+                        // FIXME: 2019/2/28 河源DB2批量插入会出错， 不是代码的问题
+//                    .collect(Collectors.toList());
+//                sqlManager.insertBatch(GP.class,gps);
                 break;
 
             /**
