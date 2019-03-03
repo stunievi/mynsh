@@ -69,6 +69,7 @@
         <module>hz-db2</module>
         <module>hz-msg-send</module>
         <module>full-text-search</module>
+        <module>gateway</module>
     </modules>
 
 

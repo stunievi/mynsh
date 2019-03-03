@@ -7,6 +7,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="full-text-search" />
+        <module name="gateway" />
         <module name="hz-back" />
         <module name="hz-db2" />
         <module name="hz-ms-command" />
@@ -20,19 +21,20 @@
         <module name="hz-ms-file" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
+    <bytecodeTargetLevel target="8">
       <module name="full-text-search" target="1.8" />
+      <module name="gateway" target="1.8" />
       <module name="hz" target="1.8" />
       <module name="hz-back" target="1.8" />
       <module name="hz-db2" target="1.5" />
       <module name="hz-ms-common" target="1.8" />
       <module name="hz-msg-send" target="1.5" />
-      <module name="hzcp" target="1.8" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="hz-back" options="" />
+      <module name="gateway" options="" />
+      <module name="hz-back" options="-parameters" />
       <module name="hz-ms-common" options="-parameters" />
     </option>
   </component>
