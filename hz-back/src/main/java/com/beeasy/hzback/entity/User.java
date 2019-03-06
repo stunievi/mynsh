@@ -226,8 +226,6 @@ public class User extends TailBean implements ValidGroup {
         );
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
     /**
      *
      * @param sqlManager
@@ -276,10 +274,6 @@ public class User extends TailBean implements ValidGroup {
         return (methods);
     }
 
-=======
->>>>>>> 1571af57a5ce375c6796e98c13aeab62032c9c4c
-=======
->>>>>>> 1571af57a5ce375c6796e98c13aeab62032c9c4c
     @Override
     public Object onExtra(SQLManager sqlManager, String action, JSONObject object) {
         switch (action) {

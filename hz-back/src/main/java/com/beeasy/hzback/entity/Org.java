@@ -15,13 +15,7 @@ import org.beetl.sql.core.annotatoin.Table;
 import org.beetl.sql.core.query.LambdaQuery;
 import org.hibernate.validator.constraints.Range;
 import org.osgl.util.C;
-<<<<<<< HEAD
-<<<<<<< HEAD
 import org.osgl.util.S;
-=======
->>>>>>> 1571af57a5ce375c6796e98c13aeab62032c9c4c
-=======
->>>>>>> 1571af57a5ce375c6796e98c13aeab62032c9c4c
 
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotEmpty;
@@ -235,8 +229,6 @@ public class Org extends TailBean implements ValidGroup{
                 .select()
         );
     }
-<<<<<<< HEAD
-<<<<<<< HEAD
 
     /**
      *
@@ -251,8 +243,4 @@ public class Org extends TailBean implements ValidGroup{
     }
 
 
-=======
->>>>>>> 1571af57a5ce375c6796e98c13aeab62032c9c4c
-=======
->>>>>>> 1571af57a5ce375c6796e98c13aeab62032c9c4c
 }

@@ -12,6 +12,7 @@
         <module name="hz-db2" />
         <module name="hz-ms-command" />
         <module name="hz-ms-common" />
+        <module name="hz-ms-report" />
         <module name="hz-msg-send" />
       </profile>
       <profile name="Annotation profile for hz" enabled="true">
@@ -28,6 +29,7 @@
       <module name="hz-back" target="1.8" />
       <module name="hz-db2" target="1.5" />
       <module name="hz-ms-common" target="1.8" />
+      <module name="hz-ms-report" target="1.8" />
       <module name="hz-msg-send" target="1.5" />
     </bytecodeTargetLevel>
   </component>
@@ -36,6 +38,7 @@
       <module name="gateway" options="" />
       <module name="hz-back" options="-parameters" />
       <module name="hz-ms-common" options="-parameters" />
+      <module name="hz-ms-report" options="-parameters" />
     </option>
   </component>
 </project>

@@ -13,6 +13,7 @@
       <list>
         <option value="$PROJECT_DIR$/pom.xml" />
         <option value="$PROJECT_DIR$/proxyee-master/pom.xml" />
+        <option value="$PROJECT_DIR$/hz-ms-report/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">
@@ -28,5 +29,5 @@
       </set>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="false" project-jdk-name="1.8" project-jdk-type="JavaSDK" />
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="false" project-jdk-name="1.8.0_201" project-jdk-type="JavaSDK" />
 </project>
