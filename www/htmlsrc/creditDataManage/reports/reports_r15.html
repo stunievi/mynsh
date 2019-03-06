@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title> 报表 </title>
+    <link rel="stylesheet" href="/static/vendor/bootcss/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+</head>
+<body>
+    <div class="panel panel-default">
+        <div class="panel-heading">按担保类型划分</div>
+        <div class="panel-body">
+            <table id="dataList"></table>
+        </div>
+        <div class="panel-body">
+            <div class="text-center">
+                <a href="javascript:void(0)" id="handleGoHis">【返回】</a>
+            </div>
+        </div>
+    </div>
+    <script src="/static/vendor/jquery/jquery.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script src="/static/vendor/artTemplate/template-web.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="/tmpl/js/horzTable.js"></script>
+    <script src="./reports.js"></script>
+    <!-- <script src="/static/htmljs/interaction.js"></script> -->
+    <script>
+        laytableRender({
+            page: false,
+            url: remoteApi.apiSystemLog,
+            cols:
+            // 按担保类型划分				
+            [
+                [
+                    {field: getRandomNum(100000), title: "机构", rowspan:2 },
+                    {field: getRandomNum(100000), title: "抵押贷款", colspan:2 },
+                    {field: getRandomNum(100000), title: "保证贷款", colspan:2 },
+                    {field: getRandomNum(100000), title: "质押贷款", colspan:2 },
+                    {field: getRandomNum(100000), title: "信用贷款", colspan:2 },
+                    {field: getRandomNum(100000), title: "农商行合计"}
+                    
+                ],
+                [
+                    {field: getRandomNum(100000), title: "贷款余额"},
+                    {field: getRandomNum(100000), title: "不良余额"},
+                    {field: getRandomNum(100000), title: "贷款余额"},
+                    {field: getRandomNum(100000), title: "不良余额"},
+                    {field: getRandomNum(100000), title: "贷款余额"},
+                    {field: getRandomNum(100000), title: "不良余额"},
+                    {field: getRandomNum(100000), title: "贷款余额"},
+                    {field: getRandomNum(100000), title: "不良余额"},
+                    {field: getRandomNum(100000), title: "贷款余额"}
+                ]
+            ]
+        });
+    </script>
+</body>
+</html>

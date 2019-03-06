@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>贷后管理 - 贷后任务检查 - 贷后检查 - 添加检查</title>
+    <script src="../../../static/vendor/jquery/jquery.js"></script>
+    
+    
+    
+    <script src="../../../static/vendor/artTemplate/template-web.js"></script>
+    <link  href="../../../static/vendor/bootcss/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="content"> 
+        <div id="addForm">
+
+        </div>
+        <div class="text-center">
+            <a href="javascript:void(0)" onclick="javascript:history.go(-1);return false;">【返回】</a>
+        </div>
+    </div>
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="../../../tmpl/js/panelForm.js"></script>
+    <script>
+        var panelFormRender = template.compile(TPanelForm);
+        $("#addForm").html(panelFormRender({
+            formName: 'add-form',
+            panelTitle:'添加检查',
+            list:[
+                { prop: '', label: '文件名'},
+                { prop: '', label: '附件', type:'file' },
+                { prop: '', label: '文件标签'},
+                { prop: '', label: '文件描述', type:'textarea'},
+            ],
+            data: {}
+        }));
+        function checkSubmitForm(){
+            var form = $("form[name='add-form']");
+            form.validate({
+                rules: {
+                    'username': "required",
+                },
+                submitHandler: function() {
+                    SuperPost({
+                        type:'post',
+                        url: ' ',
+                        data: { },
+                        success:function(res){
+                            if(res.success){
+
+                            }else{
+                                console.log(res);
+                            }
+                        },
+                        error:function(err){
+
+                        }
+                    })
+                }
+            })
+            return false;
+        }
+        checkSubmitForm();
+    </script>
+</body>
+</html>

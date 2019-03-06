@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title> 司法拍卖详情 </title>
+    <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script src="/static/vendor/bootcss/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+</head>
+<body>
+<div id="content">
+    <div class="bs-example bs-example-tabs" data-example-id="togglable-tabs">
+        <ul id="myTabs" class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active"><a href="#home" id="home-tab" role="tab" data-toggle="tab" data-controls="home" aria-expanded="true">司法拍卖详情</a></li>
+        </ul>
+        <div id="myTabContent" class="tab-content" style="padding-top: 10px;">
+            <h2 id="title" style="text-align: center;"></h2>
+            <div role="tabpanel" class="tab-pane  active in" id="home" aria-labelledby="home-tab">
+                <!-- 基本信息展示 -->
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/static/vendor/artTemplate/template-web.js"></script>
+<script src="/static/vendor/layui/layer/layer.js"></script>
+<script src="/static/htmljs/global.config.js"></script>
+<script src="/static/htmljs/utils.js"></script>
+<script src="../../../tmpl/js/panelTableShow.js"></script>
+<script>
+    SuperPost({
+        url: "http://localhost:8015/test/qichacha/JudicialSale/GetJudicialSaleDetail",
+        success: function(origin){
+            if(origin.Status == "200"){
+                var data = origin.Result || {};
+                $("#title").html(data["Title"]);
+                $("#home").html(data["Context"]);
+            }else{
+                layErrorMsg("数据获取失败....")
+                $("#home").html("数据获取失败....")
+            }
+
+        }
+    })
+</script>
+</body>
+</html>

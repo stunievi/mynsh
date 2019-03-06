@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 登录 </title>
+    <!--<link rel="stylesheet" href="/static/vendor/bootcss/css/bootstrap.min.css">-->
+    <!-- HTML5 shim 和 Respond.js 是为了让 IE8 支持 HTML5 元素和媒体查询（media queries）功能 -->
+    <!-- 警告：通过 file:// 协议（就是直接将 html 页面拖拽到浏览器中）访问页面时 Respond.js 不起作用 -->
+    <!--[if lt IE 9]>
+    <script src="/static/vendor/bootcss/js/html5shiv.min.js"></script>
+    <script src="/static/vendor/bootcss/js/respond.min.js"></script>
+    <![endif]-->
+    <script src="/static/vendor/jquery/jquery.js"></script>
+    <style>
+    /*html,body{height:100%}*/
+    </style>
+    <!--<link rel="stylesheet" href="/static/htmlcss/style.css">-->
+    <link rel="stylesheet" href="/static/htmlcss/star.css">
+    <link rel="stylesheet" href="/static/htmlcss/bstyle.css">
+    <script>
+        // var token = $.cookie('authorization');
+        // if(token){
+        //     window.location.href = "index3.html"
+        // }
+    </script>
+
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        .btx{
+            width: 300px;
+            background: rgba(0,0,0,.35);
+            border-radius: 0;
+            border: 1px solid rgba(255,255,255,.7);
+            color:white;
+            text-align: center;
+        }
+        input::-webkit-input-placeholder {
+            color: white;
+            text-align: center;
+        }
+
+
+
+         button {
+            width: 200px;
+            font-family: 'Hind Guntur', sans-serif;
+            font-size: 15px;
+            line-height: 1;
+            color: #fff;
+            letter-spacing: 0.025em;
+
+            background: #379aff;
+            padding: 8px 15px;
+            cursor: pointer;
+            border: 0;
+            overflow: hidden;
+
+        }
+
+        button span {
+            display: block;
+            position: relative;
+            z-index: 10;
+        }
+
+
+
+
+        input:-webkit-autofill {
+            -webkit-box-shadow: 0 0 0px 1000px rgba(0,0,0,0) inset !important;
+        }
+        em{
+            display: none!important;
+        }
+
+        /*@media \0screen\,screen\9{*/
+            /*button {*/
+                /*!*margin-left: 0;*!*/
+            /*}*/
+        /*}*/
+
+        /*button{*/
+            /*margin-left: 0\0;*/
+            /*!*margin-left: 95px\9\0;*!*/
+        /*}*/
+        body{
+            background: black\0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        #star{
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            left: 0;
+            top: 0;
+            overflow: hidden;
+            z-index: 1;
+        }
+        .point {
+            width: 1px;
+            height: 1px;
+            position: absolute;
+            background: white;
+            border-radius: 100%;
+            box-shadow:0 0 18px #ddd;
+        }
+        #username,#password{
+            background: black\0;
+        }
+
+        /*em{*/
+            /*display: none !important;*/
+        /*}*/
+
+    </style>
+
+</head>
+<body>
+
+<div id="star">
+
+</div>
+<!--<div id='stars'></div>-->
+<!--<div id='stars2'></div>-->
+<!--<div id='stars3'></div>-->
+<div id='title' style="position: relative;z-index: 2;">
+  <span class="tle">
+    信贷辅助管理系统
+  </span>
+
+    <div style="margin-top: 10px">
+        <form autocomplete="off" name="form">
+            <input type="text" class="btx" placeholder="请输入账户名" style="" id="username" name="username" >
+            <div></div>
+            <input type="password" class="btx" placeholder="请输入密码" style="margin-top: -40px;" id="password" name="password" >
+            <input type="hidden" name="server" value="main">
+            <div style="text-align: center;width: 200px;margin: 0 auto;margin-top: -35px" >
+                <button type="submit">
+                    <span>登录</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!--<table style="width: 100%;height:100%;left:0;top:0;position: fixed;z-index: 100;display: none;">-->
+    <!--<tr>-->
+        <!--<td valign="center" align="center">-->
+            <!--<form class="" name="form" style="width: 400px">-->
+                <!--<h2 class="text-center" style="padding-bottom:40px">辅助管理系统</h2>-->
+                <!--<div class="form-group text-center ">-->
+                    <!--&lt;!&ndash; <label for="username" class="col-sm-2 control-label">账户</label> &ndash;&gt;-->
+                    <!--<input type="text" class="form-control" id="username" name="username" placeholder="请输入账户名">-->
+                <!--</div>-->
+                <!--<div class="form-group text-center">-->
+                    <!--&lt;!&ndash; <label for="password" class="col-sm-2 control-label">密码</label> &ndash;&gt;-->
+                    <!--<input type="password" class="form-control" id="password" name="password" placeholder="请输入密码">-->
+                <!--</div>-->
+                <!--<div class="form-group">-->
+                    <!--<div class="text-center" style="margin-top:10px;">-->
+                        <!--<button type="submit" class="btn btn-block btn-primary" style="padding:6px 20px">提交</button>-->
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</form>-->
+        <!--</td>-->
+    <!--</tr>-->
+<!--</table>-->
+
+
+
+    <div class="login-wrap" style="display: none;">
+
+    </div>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="./static/htmljs/store.js"></script>
+    <script>
+        var form = $("form[name='form']");
+        form.validate({
+            rules: {
+                username: "required",
+                password: "required"
+            },
+            messages: {
+                username: "请输入您的名字",
+                password: "请输入您的密码"
+            },
+            submitHandler:function(){
+                if(form.valid()){
+                    getFetch(
+                        remoteApi.apiLogin
+                        ,(form.serialize())
+                        ,function(origin){
+                            console.log(origin)
+                            // return;
+                            var keys = document.cookie.match(/[^ =;]+(?=\=)/g);
+                            if(keys) {
+                                for(var i = keys.length; i--;)  
+                                    document.cookie = keys[i] + '=0;expires=' + new Date(0).toUTCString()  
+                            };
+                            var user = origin.user;
+                            $.cookie('userName', user.trueName);
+                            $.cookie('userId', user.id);
+                            $.cookie('authorization', origin.token);
+                            store.set("lastLogin", new Date().getTime())
+                            store.set("$user", user)
+                            location.href = "index3.html"
+                        }
+                    )
+                }
+            }
+        })
+    </script>
+</body>
+</html>
+
+<script>
+    $("[name=server]").val(top.SERVER || 'main');
+</script>
+<script>
+    show(document.getElementById("star"))
+
+    function show(dom) {
+        var p = p || {};
+
+        var s_c = p && p.star_count ? p.star_count : "100";
+        var s_d = p && p.star_depth ? p.star_depth : "250";
+        var fov = parseInt(s_d);
+
+        var numPoints = s_c;
+        dom = $(dom);
+        // dom.width = w_w;
+        // dom.height = w_h;
+        // dom.attr({ width: w_w, height: w_h});
+
+        function draw3Din2D(pointDiv, point3d, w, h) {
+            x3d = point3d[0];
+            y3d = point3d[1];
+            z3d = point3d[2];
+            var scale = 2 * fov / (fov + z3d);
+            var x2d = (x3d * scale) + w;
+            var y2d = (y3d * scale) + h;
+
+
+            // c.lineWidth = scale;
+            // c.strokeStyle = s_color;
+            // c.beginPath();
+            // c.moveTo(x2d, y2d);
+            // c.lineTo(x2d + scale, y2d);
+            // console.log(pointDiv)
+            // window.cubi = pointDiv
+            // window.x = x2d
+            // window.y = y2d
+            pointDiv.css({
+                left: x2d
+                , top: y2d
+                , width: scale
+                , height: scale
+            })
+            // c.stroke();
+
+        }
+
+        // var canvas = document.getElementById(c_id);
+        // var c = canvas.getContext('2d');
+
+        var points = [];
+        var pointDivs = []
+
+        function initPoints() {
+            for (var i = 0; i < numPoints; i++) {
+                point = [(Math.random() * 400) - 200, (Math.random() * 400) - 200, (Math.random() * 400) - 200];
+                points.push(point);
+                var pointDiv = $("<div>").attr({
+                    "class": "point"
+                });
+                dom.append(pointDiv);
+                pointDivs.push(pointDiv);
+            }
+
+        }
+
+        function render() {
+            var w = $(window).width() / 2;
+            var h = $(window).height() / 2;
+            for (var i = 0; i < numPoints; i++) {
+                point3d = points[i];
+
+                z3d = point3d[2];
+                z3d -= 4;
+                if (z3d < -fov) z3d += 400;
+                point3d[2] = z3d;
+                draw3Din2D(pointDivs[i],point3d, w, h);
+            }
+        }
+
+        initPoints();
+        var loop = setInterval(function () {
+            render();
+        }, 50);
+
+    }
+</script>

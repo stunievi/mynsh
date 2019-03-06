@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 查询开庭公告 </title>
+    <!--#include file="/htmlsrc/header.html" -->
+</head>
+<body>
+<div id="content">
+    <div class="" id="panel-form">
+        <!-- 查询表单 -->
+    </div>
+    <div id="dataList">
+        <!-- 数据列表 -->
+    </div>
+</div>
+<!-- toolbar渲染模板 -->
+<script type="text/html" id="toolbar">
+    <div class="layui-toolbar">
+        <a href="javascript:;" class="btn btn-default handleShow">查看</a>
+    </div>
+</script>
+<!--<script src="./GetCourtNoticeInfo.html"></script>-->
+<script>
+    // 配置查询表单
+    $("#panel-form").html(panelFormRender3({
+        panelTitle:'筛选查询',
+        col: 3,
+        list:[
+            {prop:"searchKey", label:"查询关键字"}
+        ],
+        data: { }
+    }));
+
+
+    laytableRender({
+        title: "开庭公告列表"
+        , url: "http://localhost:8015/test/qichacha/CourtAnno/SearchCourtNotice"
+        , dataType: "json"
+        , cols: [
+            [
+                { title:'操作', templet: "#toolbar", fixed: 'right'},
+                {title:"被告/被上诉人", field:"Defendantlist"},
+                {title:"法院", field:"Executegov"},
+                {title:"原告/上诉人", field:"Prosecutorlist"},
+                {title:"开庭日期", field:"LianDate"},
+                {title:"案由", field:"CaseReason"},
+                // {title:"内部ID", field:"Id"},
+                {title:"案号", field:"CaseNo"}
+            ]
+        ]
+    });
+
+    $(document).on("click", ".handleShow", function (){
+        addNavTab("CourtAnno", "开庭公告详情", "/htmlsrc/qichacha/CourtAnno/GetCourtNoticeInfo.html");
+        return true;
+    });
+</script>
+</body>
+</html>

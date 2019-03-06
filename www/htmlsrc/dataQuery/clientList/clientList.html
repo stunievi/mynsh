@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 客户资料 - 所有客户 </title>
+    <!--#include file="/htmlsrc/header.html" -->
+    <style>
+        input[name=flip-su]{
+            margin: 0;
+        }
+        td{
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <div id="content">
+        <div id="panel-form">
+            <!-- 查询表单 -->
+        </div>
+        <div class="batch-operation">
+            <!-- <a href="/htmlsrc/dataQuery/company/company.add.html"></a> -->
+        </div>
+        <div id="dataList">
+            <!-- 数据列表 -->
+        </div>
+    </div>
+    <script src="/static/htmljs/interaction.js"></script>
+    <!-- toolbar渲染模板 -->
+    <script type="text/html" id="toolbar">
+        <div class="layui-toolbar">
+            <!-- <a href="{{d.id}}" class="btn handleEdit btn-warning" href="">编辑</a> -->
+            <a href="javascript:;" class="btn btn-default handleShowClientInfo" data-id="{{d.CUS_ID}}" data-name="{{d.CUS_NAME}}" data-type="{{d.SOURCE_CUS_TYPE}}">查看</a>
+            <!--<a href="javascript:;" class="btn handleAddWork btn-default {{d.pubModelName ? '': 'hide'}}" data-id="{{d.CUS_ID}}" data-name="{{enumWorkFlowModel.preLendingCollect}}" data-type="{{d.CUS_TYPE}}">资料收集</a>-->
+        </div>
+    </script>
+    <script type="text/html" id="_CERT_TYPE"> {{# return getOdsEnumVal(d, 'CERT_TYPE');}} </script>
+    <script>
+<<<<<<< HEAD
+        var name = decodeURI(getParam("name")) || '';
+        var data = {
+            CUS_NAME: name
+        }
+        // 渲染筛选form
+        $("#panel-form").html(panelFormRender3({
+=======
+        // 渲染筛选form
+        $("#panel-form").html(panelFormRender3({
+            col:3,
+>>>>>>> 1571af57a5ce375c6796e98c13aeab62032c9c4c
+            panelTitle:'筛选查询',
+            list:[
+                { label:'客户号', prop:'CUS_ID' },
+                { label:'客户名称', prop:'CUS_NAME' },
+                { label:'开户证件号码', prop:'CERT_CODE' },
+                { label:'电话', prop:'PHONE' },
+                { label:'联系人', prop:'CONTACT_NAME' },
+                { label:'贷款金额', prop:'LOAN_AMOUNT' },
+                { label:'拖欠本金', prop:'UNPD_PRIN_BAL' }
+                , { label:'负责客户', prop:'own', type:"checkbox", checked: true, value:1, checked:true}
+            ],
+<<<<<<< HEAD
+            data: data
+=======
+            data: {
+                // 'own': 1
+            }
+>>>>>>> 1571af57a5ce375c6796e98c13aeab62032c9c4c
+        }));
+
+        // 渲染客户列表
+        laytableRender({
+            autoShift: false,
+            url: remoteApi.apiOdsSearchAllClient,
+            cols: [
+                [
+<<<<<<< HEAD
+                    { title:'操作', templet: "#toolbar", fixed: 'right'},
+                    { title:'客户号', field:'CUS_ID'},
+=======
+                    { title:'操作', templet: "#toolbar", fixed: 'right'}
+                    , { title:'客户号', field:'CUS_ID'},
+>>>>>>> 1571af57a5ce375c6796e98c13aeab62032c9c4c
+                    { title:'客户名称', field:'CUS_NAME' },
+                    { title:'开户证件类型', field:'CERT_TYPE'},
+                    { title:'开户证件号码', field:'CERT_CODE' },
+                    { title :'联系人', field:'CONTACT_NAME' },
+                    { title :'联系电话', field:'PHONE' },
+                    { title :'通讯地址', field:'POST_ADDR', width:200 },
+                    { title:'主管客户经理', field:'CUST_MGR' },
+                    { title:'主管机构', field:'MAIN_BR_ID' }
+                ]
+            ]
+        })
+        // 添加资料收集任务
+        eventBind(".handleAddWork", function(that){
+            var type = that.data("type")+'';
+            var cusType = 'com';
+            if(type.charAt(0) == enumClientType.private){
+                cusType = "indiv";
+            }
+            layer.full(layerOpenIframe({
+                title: "添加任务",
+                url: "../../workFlow/nodeAdd.html?custype="+cusType+"&name="+enumWorkFlowModel.preLendingCollect+"&cusid="+that.data("id")
+            }))
+        })
+
+
+        function checkSubmitForm(){
+            layuiTableReload({
+                where: $("[name='form-search']").ghostsf_serialize()
+            })
+            return false;
+        }
+    </script>
+</body>
+</html>

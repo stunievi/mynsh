@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 系统管理 - 消息设置 - 模板管理 </title>
+    <!--#include file="/htmlsrc/header.html" -->
+</head>
+<body>
+    <div id="content"> 
+        <div  id="panel-form">
+            <!-- 查询表单 -->
+        </div>
+        <div class="batch-operation">
+            <a class="btn btn-success" id="handleAdd" href="javascript:;" tab-title="添加消息模板" tab-href="/htmlsrc/sysManage/noticeManage/templet/templet.add.html">添加模板</a>
+            <!--<a href="javascript:;" class="btn btn-danger" id="batchDel">批量删除</a>-->
+        </div>
+        <div id="dataList">
+            <!-- 数据列表 -->
+        </div>
+    </div>
+
+    <!-- toolbar渲染模板 -->
+    <script type="text/html" id="toolbar">
+        <div class="layui-toolbar">
+            <a class="btn handleEdit btn-warning" href="javascript:;" data-id="{{d.id}}" data-index="{{d.LAY_TABLE_INDEX}}" tab-title="编辑模板-{{d.name}}" tab-href="/htmlsrc/sysManage/noticeManage/templet/templet.edit.html?id={{d.id}}">编辑</a>
+            <!-- <a href="/htmlsrc/sysManage/noticeManage/templet/templet.show.html?id={{d.id}}" class="btn  btn-default" href="">查看</a> -->
+            <a href="javascript:;" class="btn handleDel btn-danger" data-value="{{d.id}}" data-index="{{d.LAY_TABLE_INDEX}}" delete-href="{{remoteOrigin}}/api/system/msgTmpl/delete?id={{d.id}}">删除</a>
+        </div>
+    </script>
+    <script>
+        $("#panel-form").html(panelFormRender3({
+            panelTitle:'筛选查询',
+            list:[
+                { prop: 'name', label: '模板名' }
+            ],
+            data: {}
+        }));
+
+        onInfront();
+
+        function onInfront(){
+            if($("#dataList table").length){
+                layuiTableReload({
+                    where: form.serialize()
+                })
+                return;
+            }
+            laytableRender({
+                url: remoteOrigin + "/api/auto/msgtmpl/getList",
+                cols: [
+                    [
+                        // {checkbox: true, fixed: true},
+                        // {field:'id', title:'模板编号'},
+                        {field:'name', title:'模板名称'},
+                        {field:'template', title:'模板内容'},
+                        {field:'', title:'操作', templet: "#toolbar"}
+                    ]
+                ]
+                // ,
+                // done:function(res){
+                //     tmplList = res.data.content;
+                // }
+            });
+        }
+
+        var form = $("form[name='form-search']")
+
+        // function delData(data){
+        //     actConfirm(function(){
+        //         getFetch(
+        //             remoteApi.apiSysMsgTmplDel + '?id='+id,
+        //             function(){
+        //                 layuiTableReload({
+        //                     where: form.serialize()
+        //                 })
+        //             }
+        //         )
+        //     })
+        // }
+        // // $("#batchDel").click(function(){
+        //     var ids = getLayuiTabelCheckIds();
+        //     if(ids.length < 1){
+        //         return;
+        //     }
+        //     delData(ids);
+        // });
+        //
+        // $(document).on("click", ".handleDel", function(){
+        //     delData([$(this).data('value')]);
+        // });
+        function checkSubmitForm(){
+            layuiTableReload({
+                where: form.serialize()
+            })
+            return false;
+        }
+
+        // eventBind("#handleAdd", function(){
+        //     addTmplIndex = layerOpenIframe({
+        //         title: "添加消息模板",
+        //         url: "./templet.add.html"
+        //     })
+        // })
+        // function addTmplCallback(){
+        //     layer.msg("添加成功");
+        //     layuiTableReload({});
+        //     layer.close(addTmplIndex);
+        // }
+        // eventBind(".handleEdit", function(that){
+        //     currEdit = tmplList[that.data("index")] || {};
+        //     editTmplIndex = layerOpenIframe({
+        //         title: "编辑消息模板",
+        //         url: "./templet.edit.html"
+        //     })
+        // })
+        // function editTmplCallback(){
+        //     layer.msg("编辑成功");
+        //     layuiTableReload({});
+        //     layer.close(editTmplIndex);
+        // }
+    </script>
+</body>
+</html>

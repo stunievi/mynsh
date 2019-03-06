@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 系统管理 - 系统设置</title>
+    <link rel="stylesheet" href="/static/vendor/bootcss/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/vendor/ztree/css/zTreeStyle/zTreeStyle.css" type="text/css">
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+</head>
+<body>
+    <div id="content">
+        <div class="panel panel-default">
+            <div class="panel-heading"> 岗位管理 </div>
+            <div class="panel-body">
+                    <div class="col-md-6 col-xs-12">
+                        <div class="panel panel-default">
+                            <div class="panel-heading"> 部门列表 <a class="btn btn-success btn-xs pull-right btn-add" id="" >添加岗位 </a> </div>
+                            <div class="panel-body">
+                                <div id="dataTree" class="ztree" style="max-height:400px;overflow-y:scroll">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-xs-12">
+                        <div class="panel panel-default">
+                            <div class="panel-heading"> 岗位列表 </div>
+                            <div class="panel-body">
+                                <ul class="list-group" id="dataList">
+                                </ul>
+                            </div>
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="../../../static/vendor/jquery/jquery.js"></script>
+    <script src="../../../static/vendor/artTemplate/template-web.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script type="text/javascript" src="/static/vendor/ztree/js/jquery.ztree.core.js"></script>
+    <script type="text/javascript" src="/static/vendor/ztree/js/jquery.ztree.excheck.js"></script>
+    <script type="text/javascript" src="/static/vendor/ztree/js/jquery.ztree.exedit.js"></script>
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script id="tmpl" type="text/html">
+        {{ if dataList.length > 0}}
+            {{ each dataList quarter }}
+            <li href="javascript:" class="list-group-item" style="overflow: hidden">
+                <a  title="{{quarter.name}}" style="max-width: 270px; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; float: left;color: #000;">{{quarter.name}}</a>
+                <a class="btn btn-default btn-xs pull-right handleEditPerson" data-id="{{quarter.id}}" data-qname="{{quarter.name}}" style="margin-left: 8px;">人员</a>
+                <a class="btn btn-danger btn-xs pull-right" data-id="{{quarter.id}}" style="margin-left: 8px;" delete-href="{{remoteOrigin}}/api/auto/org/delete?id={{quarter.id}}">删除</a>
+                <a class="btn btn-warning btn-xs pull-right " data-index="{{$index}}" href="javascript:;" data-id="{{quarter.id}}" tab-href="/htmlsrc/sysManage/quartersManage/quarters.edit.html?qid={{quarter.id}}">编辑</a>
+                <div class="panel-body user-list" style="display:none">
+                    <ul class="list-group">
+                        
+                    </ul>
+                </div>
+            </li>
+            {{ /each }}
+        {{else}}
+            该部门下无岗位
+        {{/if}}
+    </script>
+    <SCRIPT type="text/javascript">
+		var setting = {
+			callback: {
+                onClick: switchDept
+            },
+            view: {
+                showLine: false
+            }
+        };
+        var deptList = []; // 部门列表
+        // 渲染数据列表
+        getFetch(
+            remoteOrigin + "/api/auto/org/getDList"
+            , function(origin){
+                $(function () {
+                    $.fn.zTree.init($("#dataTree"), setting, origin);
+                    var zTree = $.fn.zTree.getZTreeObj("dataTree")
+                    zTree.expandAll(true);
+                    $("#dataTree_2_a").click()
+                });
+                // top.topCacheDepartment = origin;
+                // $.fn.zTree.init($("#dataTree"), setting, origin);
+                // var zTree = ZTREE = $.fn.zTree.getZTreeObj("dataTree")
+                // zTree.expandAll(true);
+                // fuzzySearch('dataTree','#key',null,true); //初始化模糊搜索方法
+            }
+        )
+
+		// getRemoteData({
+        //     loading: true,
+        //     url: remoteApi.apiAlldepartment,
+        //     callback: function(origin){
+        //         deptList = origin;
+        //         $(document).ready(function(){
+        //             $.fn.zTree.init($("#dataTree"), setting, origin);
+        //             var zTree = $.fn.zTree.getZTreeObj("dataTree")
+        //             zTree.expandAll(true);
+        //         });
+        //         $("#dataTree_2_a").click()
+        //     }
+        // });
+
+        var deptId; // 选中部门Id
+        var deptName; // 选中部门name
+        var deptQuarters = [];
+
+        function onInfront() {
+            showQs(deptId);
+        }
+
+        function showQs(pid) {
+            $("#dataList").html("");
+            getFetch(remoteOrigin + "/api/user/org/getQList", {pid: pid}, function (deptQuarters) {
+                console.log(deptQuarters)
+                $("#dataList").html(template('tmpl', {
+                    dataList: deptQuarters
+                }));
+            })
+        }
+
+        // 切换部门展示岗位
+        function switchDept(event, treeId, treeNode, clickFlag){
+            deptId = treeNode.id;
+            deptName = treeNode.name;
+            showQs(deptId);
+
+
+            // deptQuarters = treeNode.quarters;
+            // deptQuarters.sort(function(a, b){
+            //     return a.sort > b.sort;
+            // })
+            // $("#dataList").html(template('tmpl', {
+            //     dataList: deptQuarters
+            // }));
+        }
+
+        eventBind("#handleAdd", function(that){
+            if(deptId){
+                addIndex = layerOpenIframe({
+                    title: '添加岗位',
+                    url: './quarters.add.html?deptId='+deptId+"&deptName="+encodeURI(deptName)
+                });
+            }else{
+                layer.msg("请选择部门");
+            }
+        });
+        function addCallback(dept){
+            showQs(deptId);
+            // console.log(dept)
+            // deptQuarters.push(dept);
+            // deptQuarters.sort(function(a, b){
+            //     return a.sort > b.sort
+            // })
+            // $("#dataList").html(template('tmpl', {
+            //     dataList: deptQuarters
+            // }));
+            layer.close(addIndex);
+        }
+        eventBind(".handleEdit", function(that){
+            currQuarterIndex = that.data("index");
+            currQuarter = deptQuarters[currQuarterIndex] || {};
+            editIndex = layerOpenIframe({
+                title: '编辑岗位',
+                url: './quarters.edit.html?deptId='+deptId + "&qid=" + that.data("id")
+            });
+        })
+        function editCallback(origin){
+            showQs(deptId)
+            // deptQuarters[currQuarterIndex] = origin;
+            // deptQuarters.sort(function(a, b){
+            //     return a.sort > b.sort
+            // });
+            // $("#dataList").html(template('tmpl', {
+            //     dataList: deptQuarters
+            // }));
+            layer.close(editIndex);
+        }
+        // 删除岗位
+        // eventBind(".handleDel", function(that){
+        //     actConfirm(function(){
+        //         getFetch(remoteOrigin + "/api/user/org/delete", {id: that.data("id")}, function () {
+        //             showQs(deptId)
+        //         });
+        //     })
+        // })
+
+        eventBind(".handleEditPerson", function(that){
+            top.addTab("dep-add-" + top.getCountDown(), "编辑岗位人员-" + that.data("qname"), "/htmlsrc/sysManage/quartersManage/quarters.users.html?id="+that.data("id"));
+            // layerOpenIframe({
+            //     title: "编辑岗位人员 - " + that.data("qname"),
+            //     url: "./quarters.users.html?id="+that.data("id")
+            // })
+        })
+    </SCRIPT>
+</body>
+</html>
+<script>
+    $(".btn-add").click(function () {
+        $("<button style='display: none;'>1</button>")
+            .attr("tab-href","/htmlsrc/sysManage/quartersManage/quarters.add.html?deptId=" + deptId + "&deptName=" + encodeURI(deptName))
+            .attr("tab-title","添加岗位")
+            .appendTo("body")
+            .trigger("click")
+            .remove();
+    });
+</script>

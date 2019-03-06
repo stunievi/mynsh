@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 系统管理 - 角色管理 - 编辑</title>
+    <script src="../../../static/vendor/jquery/jquery.js"></script>
+    <script src="../../../static/vendor/artTemplate/template-web.js"></script>
+    <link href="../../../static/vendor/bootcss/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="content"> 
+        <div id="editForm">
+        </div>
+        <div class="text-center">
+            <a href="javascript:void(0)" onclick="javascript:history.go(-1);return false;">【返回】</a>
+        </div>
+    </div>
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="../../../tmpl/js/panelForm.js"></script>
+    <script>
+        var id = getParam('id')||[3];
+        getRemoteData({
+            url: remoteApi.apiUserIds + "?ids="+id,
+            callback: function(origin){
+                var user = origin[0];
+                $("#editForm").html(panelFormRender({
+                    formName: 'edit-form',
+                    panelTitle:'添加占位符',
+                    list:[
+                        { prop: 'trueName', label: '角色名称', required: true },
+                        { prop: 'username', label: '角色描述', required: true }
+                    ],
+                    data: user
+                }));
+            }
+        })
+        
+        function checkSubmitForm(){
+            form = $("form[name='edit-form']");
+            checkSubmitFun({
+                form: form,
+                rules: {
+                    trueName: { required: true, minlength:2 },
+                    username: { required: true }
+                },
+                submit:function(){
+                    putRemoteData({
+                        confirm: false,
+                        url: remoteApi.apiUser,
+                        data: form.serialize(),
+                        callback: 'back'
+                    })
+                }
+            })
+        }
+        checkSubmitForm();
+    </script>
+</body>
+</html>

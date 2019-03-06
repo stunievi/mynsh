@@ -1,0 +1,69 @@
+<!doctype html>
+<html>
+  <head>
+    <title>jQuery Manifest多值输入插件(类似给多人发邮件的功能)-www.daimajiayuan.com</title>
+	<meta charset="utf-8">
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="js/jquery.min.js"></script>
+    <script src="js/jquery.ui.widget.min.js"></script>
+    <script src="js/jquery.marcopolo.min.js"></script>
+    <script src="js/jquery.manifest.js"></script>
+    <script>
+      $(function () {
+		
+		$('#locations').manifest({
+          valuesName:'user',
+          formatDisplay: function (data, $item, $mpItem) {
+            return data.name;
+          },
+          formatValue: function (data, $value, $item, $mpItem) {
+            return data.id;
+          },
+          onAdd:function(data, $item, initial){
+            var values = $('#locations').manifest('values');
+            for(var i=0;i<values.length;i++){
+              if(values[i] == data.id){
+                $('#locations').manifest('remove', ':eq('+i+')');
+                break;
+              }
+            }
+            return data;
+          },
+          marcoPolo: {
+            formatStatic:true,
+            formatData: function () {
+            
+              return [{
+                name: '我们有相同ID222',
+                id: 'lweir65@gmail.com'
+              },{
+                name: '我们有相同ID3333',
+                id: 'lweir65@gmail.com'
+              }];
+            },
+            minChars: 1
+          }
+        });
+
+        // 添加默认值
+        $('#locations').manifest('add', [{
+            name: '我们有相同ID1111',
+            id: 'lweir65@gmail.com'
+          },{
+            name: '11Lindsay Weir',
+            id: '11lweir65@gmail.com'
+          },{
+            name: '22Lindsay Weir',
+            id: '22lweir65@gmail.com'
+          }]);
+      });
+    
+    </script>
+  </head>
+  <body>
+    <div id="container">
+        <input type="text" name="locations" id="locations">
+    </div>
+  </body>
+</html>

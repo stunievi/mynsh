@@ -1,0 +1,57 @@
+<!--#include file="common.html" -->
+<script type="text/html" id="head2">
+    <div class="col-xs-12"style="padding-top: 15px;padding-bottom: 15px;">
+        <div class="col-xs-12" style="text-align: right">
+            单位：万元
+        </div>
+    </div>
+</script>
+
+<script>
+
+    // $("#panel-form").html(panelFormRender3({
+    //     list:[
+            // { prop: 'year', label: '年', disabled: true}
+            // { prop: 'LOAN_NATURE', label: '贷款性质'}
+        // ],
+        // data: {}
+    // }));
+
+    $(function () {
+        layui.use("laydate",function () {
+            layui.each(["year"], function (i,v) {
+                layui.laydate.render({
+                    elem: "#" + v
+                    ,type: "year"
+                });
+            });
+        })
+    });
+
+    //        $(function() {
+    //            $('#start').datepicker({ changeMonth: true, changeYear: true, dateFormat: 'yymmdd' });
+    //            $("#end").datepicker({ changeMonth: true, changeYear: true, dateFormat: 'yymmdd' });
+    //        });
+
+    laytableRender({
+        url: remoteOrigin + "/api/report/report_12"
+        , dataType: "json"
+        , page: false
+        , cols: [
+            [{"title":"贷款机构","field":"MAIN_BR_NAME"}
+                ,{"title":"余额","field":"LOAN_BALANCE",money:true}
+                ,{"title":"比上月","field":"LOAN_BALANCE_LM",money:true}
+                ,{"title":"比年初","field":"LOAN_BALANCE_LY",money:true}
+                ,{"title":"增幅","field":"INC_PEC"}]
+        ]
+
+    });
+
+    function checkSubmitForm(){
+        var form = $("form[name='form-search']")
+        layuiTableReload({
+            where: form.serialize()
+        });
+        return false;
+    }
+</script>

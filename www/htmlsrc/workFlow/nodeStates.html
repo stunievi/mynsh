@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title> 流程状态查看 </title>
+
+    <!--#include file="/htmlsrc/header.html" -->
+
+    <link rel="stylesheet" href="/static/htmlcss/bstyle.css">
+    <script src="/static/htmljs/btn.js"></script>
+    <style> table{word-break: break-all !important; word-wrap: break-word !important;} </style>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        article,section,time,aside{display:block;}
+
+        body {
+            color: #666;
+            background: #fff;
+            font-size: 1.16em;
+            font-family: 'Lato', Calibri, Arial, sans-serif;
+        }
+
+        .point-time {
+            /*content: "";*/
+            /*position: absolute;*/
+            display: block;
+            width: 13px;
+            height: 13px;
+            position: relative;
+            z-index: 2;
+            /*top: 17px;*/
+            /*left: 200px;*/
+            background: #1c87bf;
+            /*margin-left: -4px;*/
+            border-radius: 50%;
+            box-shadow: 0 0 0 5px #fff;
+        }
+        .point-box{
+            position: relative;
+            overflow: hidden;
+        }
+        .point-line{
+            width: 4px;
+            height: 9000px;
+            position: absolute;
+            left: 4px;
+            border-radius: 10px;
+            background: #ddd;
+        }
+
+        .text-red {
+            color: #f6393f;
+        }
+
+        .text-blue {
+            color: #1c87bf;
+        }
+
+        .text-green {
+            color: #95c91e;
+        }
+
+        .text-yellow {
+            color: #ffb902;
+        }
+
+        .text-purple {
+            color: #d32d93;
+        }
+
+        .point-red {
+            background-color: #f6393f;
+        }
+
+        .point-blue {
+            background-color: #1c87bf;
+        }
+
+        .point-green {
+            background-color: #95c91e;
+        }
+
+        .point-yellow {
+            background-color: #ffb902;
+        }
+
+        .point-purple {
+            background-color: #d32d93;
+        }
+        .point-orange{
+            background-color: orange;
+        }
+
+        .content {
+            /*width: 970px;*/
+            /*margin: 30px auto;*/
+        }
+        .content article {
+            position: relative;
+        }
+        .content article > h3 {
+            width: 15%;
+            height: 20px;
+            line-height: 20px;
+            text-align: right;
+            font-size: 1.4em;
+            color: #1d1d1d;
+            padding: 10px 0 20px;
+        }
+        .content article section {
+            padding: 0 0 17px;
+            position: relative;
+        }
+        .content article section:before {
+            content: "";
+            width: 5px;
+            top: 17px;
+            bottom: -17px;
+            left: 200px;
+            background: #e6e6e6;
+            position: absolute;
+        }
+        .content article section:last-child:before {
+            display: none;
+        }
+        .content article section time {
+            width: 15%;
+            display: block;
+            position: absolute;
+        }
+        .content article section time > span {
+            display: block;
+            text-align: right;
+        }
+        .content article section aside {
+            color: #3a3a38;
+            margin-left: 25%;
+            padding-bottom: 15px;
+        }
+        .content article section .brief {
+            color: #9f9f9f;
+        }
+
+
+        .content article section{
+            overflow: hidden;
+        }
+        .leftbox{
+            display: inline-block;
+            overflow: hidden;
+            float: left;
+            padding-top: 6px;
+            width: 200px;
+            white-space: nowrap;
+        }
+        .na{
+            display: inline-block;
+            padding-top: 10px;
+            width: 120px;
+        }
+        .leftbox .fa, .leftbox .na{
+            display: inline-block;
+            height: 60px;
+            line-height: 60px;
+            /*float: left;*/
+        }
+        .leftbox .na p{
+            vertical-align: middle;
+            display: inline-block;
+            line-height: 20px;
+        }
+        .leftbox p{
+            margin: 0;
+        }
+        .leftbox time{
+            /*float: left;*/
+            /*position: relative !important;*/
+            /*width: auto !important;*/
+        }
+        .leftbox time span{
+            /*position: relative;*/
+        }
+        .rightbox{
+            display: inline-block !important;
+            /*margin-left: 7% !important;*/
+            margin-left: 230px;
+            float: left;
+            padding-top: 16px;
+            width: 500px;
+        }
+        .lt{
+            margin-top: 5px;
+            margin-bottom: 10px;
+        }
+        .cb{
+            clear: both;
+        }
+        .things b{
+            color : #9f9f9f;
+        }
+        .title-input{
+            /*font-size: 15px;*/
+            color: #0099FF;
+        }
+        .point-input, .point-input:after{
+            background: #0099FF;
+        }
+        .title-check{
+            /*font-size: 15px;*/
+            color: #FF3366;
+        }
+        .point-check, .point-check:after{
+            background: #FF3366;
+        }
+        .title-end{
+            /*font-size: 15px;*/
+            color: #33CC66;
+        }
+        .point-end, .point-end:after{
+            background: #33CC66;
+        }
+        .title-innate{
+            color: #000033;
+        }
+        .point-innate, .point-innate:after{
+            background: #000033;
+        }
+        .title-innate button{
+            /*padding-left: 12px !important;*/
+            /*padding-right: 12px !important;*/
+        }
+        /*.point-time{*/
+            /*cursor: pointer;*/
+            /*transition: all .4s;*/
+        /*}*/
+        /*.point-time:hover{*/
+            /*transform: scale(1.7);*/
+        /*}*/
+        .point-time{
+            cursor: pointer;
+        }
+        .point-time:hover:after{
+            content:' ';
+            position: absolute;
+            left:50%;
+            top:50%;
+            z-index:1;
+            width:10px;
+            height:10px;
+            /*background-color: #ff4200;*/
+            border-radius: 50%;
+            /*box-shadow: 0 0 10px rgba(0,0,0,.3) inset;*/
+            animation: ripplep 1s ease infinite;
+        }
+
+        @keyframes ripplep {
+            0% {
+                left:5px;
+                top:5px;
+                opcity:75;
+                width:0;
+                height:0;
+            }
+            100% {
+                left:-20px;
+                top:-20px;
+                opacity: 0;
+                width:50px;
+                height:50px;
+            }
+        }
+
+        .bs-callout {
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid #eee;
+            border-left-width: 5px;
+            border-radius: 3px;
+        }
+        .bs-callout h4 {
+            margin-top: 0;
+            margin-bottom: 5px;
+        }
+        .bs-callout p:last-child {
+            margin-bottom: 0;
+        }
+        .bs-callout code {
+            border-radius: 3px;
+        }
+
+        /* Tighten up space between multiple callouts */
+        .bs-callout + .bs-callout {
+            margin-top: -5px;
+        }
+
+        /* Variations */
+        .bs-callout-danger {
+            border-left-color: #ce4844;
+        }
+        .bs-callout-danger h4 {
+            color: #ce4844;
+        }
+        .bs-callout-warning {
+            border-left-color: #aa6708;
+        }
+        .bs-callout-warning h4 {
+            color: #aa6708;
+        }
+        .bs-callout-info {
+            border-left-color: #1b809e;
+        }
+        .bs-callout-info h4 {
+            color: #1b809e;
+        }
+
+        /*.form-table td{*/
+            /*padding-top: 10px;*/
+            /*padding-bottom: 10px;*/
+        /*}*/
+    </style>
+</head>
+<body>
+
+    <div id="">
+        <div id="content">
+        </div>
+        <div class="text-center" style="display: none;  ">
+           <a href="javascript:void(0)" onclick="javascript:history.go(-1);return false;">【返回】</a>
+        </div>
+    </div>
+
+    <div id="workline-render">
+
+    </div>
+
+    <script type="text/html" id="workline">
+        <div class="content">
+            <article style="padding-top: 10px;">
+                <table width="100%">
+                    <!--固有字段-->
+                    <tr>
+                       <td width="200" valign="top">
+                           {{if data.dealUserId == data.pubUserId}}
+                           {{each data.dealers dl i2}}
+                           {{if dl.nodeName == data.startNodeName}}
+                           <img class="fa" src="/file/avatar/{{dl.uid}}.jpg" onerror="this.src='/static/htmlImage/face.jpg'" width="60" height="60" style="vertical-align: top;"/>
+                           <div class="na">
+                               <p>
+                                   {{dl.utname}} ({{dl.uname}})
+                                   <br>
+                                   {{dl.oname}}
+                                   <br>
+                                   {{data.planStartTime}}
+                               </p>
+                           </div>
+                           {{/if}}
+                           {{/each}}
+                           {{else}}
+                           <img class="fa" src="/file/avatar/{{data.pubUserId}}.jpg" onerror="this.src='/static/htmlImage/face.jpg'" width="60" height="60" style="vertical-align: top;"/>
+                           <div class="na">
+                               <p>
+                                   {{data.pubUserName}}
+                                   <br>
+                                   {{data.pubRoleName}}
+                                   <br>
+                                   {{data.planStartTime}}
+                               </p>
+                           </div>
+                           {{/if}}
+                       </td>
+                       <td width="40" valign="top" class="point-box">
+                           <span class="point-time point-innate"></span>
+                           <div class="point-line">
+                           </div>
+                       </td>
+                       <td valign="top" style="padding-right: 20px;">
+                           <p class="things title-innate">
+                               任务创建
+                               {{if data.deal > 0}}
+                               <button class="rkmd-btn btn-xs btn-lightBlue ripple-effect deal" style="margin-left: 15px;margin-top: -4px;" data-id="{{data.instance.id}}">处理任务</button>
+                               {{/if}}
+                               {{if data.cancel > 0 && data.modelName != '不良资产管理流程'}}
+                               <button id="handleCancel" class="rkmd-btn btn-xs btn-red ripple-effect" style="margin-left: 10px;margin-top: -4px;">取消任务</button>
+                               {{/if}}
+                           </p>
+                           {{if data.state == 'POINT'}}
+                           <div class="alert alert-info" role="alert">
+                               该任务正在被指派中
+                           </div>
+                           {{/if}}
+                           <hr class="lt">
+                           <div style="padding-bottom: 40px;">
+                               {{each data.attrs attr index2}}
+                               {{if attr.type == 'INNATE' && attr.attrKey != 'TASK_ID' && attr.attrKey != 'TASK_PID'}}
+                               <p>
+                                   {{attr.attrCname}} : {{attr.attrValue}}
+                               </p>
+                               {{/if}}
+                               {{/each}}
+                           </div>
+                       </td>
+                   </tr>
+                <!--<section>-->
+                    <!--<div class="leftbox">&nbsp;-->
+                        <!--<div style="padding-left: 20px">-->
+                            <!--<div>-->
+                            <!--</div>-->
+                            <!--<div style="margin-top: 20px">-->
+                            <!--</div>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                    <!--<div class="rightbox">-->
+
+                    <!--</div>-->
+                <!--</section>-->
+                {{each data.nodes node index}}
+                {{set finished = (data.currentNodeInstanceId != node.id) }}
+                {{each data.dealers dl i2}}
+                {{if dl.nodeId == node.id && ((finished && (dl.type == 'DID_DEAL' || dl.type == 'OVER_DEAL')) || !finished) }}
+                <tr>
+                    <td width="200" valign="top">
+                        <img class="fa" src="/file/avatar/{{dl.uid}}.jpg" onerror="this.src='/static/htmlImage/face.jpg'" width="60" height="60" style="vertical-align: top;"/>
+                        <div class="na">
+                            <p>
+                                {{dl.utname}} ({{dl.uname}})
+                                <br>
+                                {{dl.oname}}
+                                <br>
+                                {{dl.lastModify}}
+                            </p>
+                        </div>
+                    </td>
+                    <td width="40" valign="top" class="point-box">
+                        {{if dl.type == 'CAN_DEAL'}}
+                        <span class="point-time point-orange"></span>
+                        {{else}}
+                        <span class="point-time point-{{nodeType[node.type || 0]}}"></span>
+                        {{/if}}
+                        <div class="point-line"></div>
+                    </td>
+
+                    <td valign="top">
+                        <p class="things title-{{nodeType[node.type || 0]}}">{{node.name}}
+                            <b>
+                                (
+                                {{if dl.type == 'OVER_DEAL'}}
+                                已办理
+                                {{else if dl.type == 'DID_DEAL'}}
+                                确定待办
+                                {{else if dl.type == 'CAN_DEAL'}}
+                                可办理
+                                {{/if}}
+                                )
+                            </b>
+                        </p>
+                        <hr class="lt">
+                        <div style="padding-bottom: 40px;">
+                            {{if dl.uid == uid && (dl.type == 'CAN_DEAL' || dl.type == 'DID_DEAL') && data.state == 'DEALING'}}
+                            <form class="form-table" style="padding-right: 40px;">
+                                {{if current.type == 'input'}}
+                                {{each current.content cnt idex }}
+                                {{if cnt.type != 'files'}}
+                                <div class="form-group">
+                                    <label for="">
+                                        {{if cnt.required}}
+                                        <font style="color:red">*</font>
+                                        {{/if}}
+                                        {{cnt.cname}}
+                                    </label>
+                                    {{if cnt.type == 'string'}}
+                                    <input name="{{cnt.ename}}" type="text" class="form-control input-sm" value="{{myAttrs[cnt.ename]}}">
+                                    {{else if cnt.type == 'select'}}
+                                    <select name="{{cnt.ename}}" id="" class="form-control input-sm">
+                                        {{each cnt.items it idex}}
+                                        <option value="{{it}}" {{myAttrs[cnt.ename] == it ? "selected" : ""}}>{{it}}</option>
+                                        {{/each}}
+                                    </select>
+                                    {{else if cnt.type == 'textarea'}}
+                                    <textarea name="{{cnt.ename}}" id="" cols="30" rows="5" class="form-control input-sm">{{myAttrs[cnt.ename]}}</textarea>
+                                    {{else if cnt.type == 'datetime'}}
+                                    <input data-type="datetime" readonly id="{{cnt.ename}}" name="{{cnt.ename}}" type="text" class="form-control input-sm" value="{{myAttrs[cnt.ename]}}">
+
+                                    {{else if cnt.type == 'checkbox'}}
+                                    <div>
+                                    {{each cnt.items it it1}}
+                                    <label>
+                                        <input                                                                              {{(myAttrs[cnt.ename] || "").split(",").indexOf(it) > -1 ? "checked":""}}
+                                            name="{{cnt.ename}}"
+                                            type="checkbox"
+                                            value="{{it}}"/>
+                                        {{it}}
+                                    </label>
+                                    {{/each}}
+                                    </div>
+                                    {{/if}}
+                                </div>
+                                {{/if}}
+                                {{/each}}
+                                {{else if current.type == 'check'}}
+                                <div class="alert alert-info" role="alert">
+                                    该节点需要 <font style="color:red">{{current.count}}</font> 人审批
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="">
+                                        <font style="color:red">*</font>
+                                        {{current.question}}
+                                    </label>
+                                    <select name="{{current.key}}" id="" class="form-control">
+                                        {{each current.states state s1}}
+                                            <option value="{{state.item}}" {{state.item == myAttrs[current.key] ? "selected" : ""}}>{{state.item}}</option>
+                                        {{/each}}
+                                    </select>
+
+                                </div>
+                                <div class="form-group">
+                                    <label for="" class="">审批意见</label>
+                                    <textarea class="form-control" name="{{current.ps}}" id="" cols="30" rows="10">{{myAttrs[current.ps]}}</textarea>
+                                </div>
+                                {{/if}}
+                                <div>
+                                    <div>
+                                        <ul class="file-list"></ul>
+                                    </div>
+                                    {{if current.type == 'input'}}
+                                    <button type="button" class="btn btn-warning btn-sm" id="uploadSelector" style="">
+                                        <i class="glyphicon glyphicon-book"></i>
+                                        上传附件
+                                    </button>
+                                    {{/if}}
+                                    <button class="btn btn-info btn-save btn-sm" type="button">
+                                        <i class="	glyphicon glyphicon-floppy-disk"></i>
+                                        保存数据
+                                    </button>
+                                    <button class="btn btn-primary btn-gonext btn btn-sm" type="button">
+                                        <i class="glyphicon glyphicon-hand-right"></i>
+                                        提交处理
+                                    </button>
+                                </div>
+                            </form>
+                            {{else}}
+                            {{each data.attrs attr i3}}
+                            {{if attr.type == 'NODE' && attr.nodeId == dl.nodeId && attr.uid == dl.uid}}
+                            <p>
+                                {{attr.attrCname}} : {{attr.attrValue}}
+                            </p>
+                            {{/if}}
+                            {{/each}}
+                            <!--文件-->
+                            {{each node.files file fidex}}
+                            {{if file.creator == dl.uid}}
+                            <p>
+                                <a href="/api/file/download?fid={{file.id}}&name={{file.name}}">{{file.sname}}</a>
+                                <span>
+                                    {{each file.tags tag tidex }}
+                                    <span class="label label-info" style="margin-left: 5px;margin-right: 5px;">{{tag}}</span>
+                                    {{/each}}
+                                </span>
+                            </p>
+                            {{/if}}
+                            {{/each}}
+                            {{/if}}
+
+                            <!--补充文件-->
+                            <div>
+                                {{if false}}
+                                <a class="handleDownload" data-id="{{!file.id}}" data-file-token="{{!file.token}}" href="javascript:;">{{!file.fileName}}</a>
+                                {{/if}}
+                            </div>
+                        </div>
+                        <!--<p class="brief"><span class="text-yellow">Award</span> (Miami. FL)</p>-->
+                        <div class="cb"></div>
+                    </td>
+                </tr>
+                {{/if}}
+                {{/each}}
+                {{/each}}
+
+                {{if data.state == 'FINISHED' }}
+                <tr>
+                    <td width="200" valign="top"></td>
+                    <td valign="top">
+                        <span class="point-time point-end"></span>
+                    </td>
+                    <td valign="top">
+                        <p class="things title-end">
+                            结束
+                            <br>
+                            {{data.finishedDate}}
+                        </p>
+                    </td>
+                    <!--<div class="leftbox"></div>-->
+                    <!--<time>-->
+                        <!--<span>-->
+                        <!--</span>-->
+                    <!--</time>-->
+                    <!--<aside class="rightbox">-->
+                        <!--<p class="brief"><span class="text-red">Social Appearance</span></p>-->
+                    <!--</aside>-->
+                </tr>
+                {{/if}}
+                </table>
+            </article>
+        </div>
+
+    </script>
+
+
+
+    <script id="tmpl" type="text/html">
+        <div class="panel panel-default" >
+            <div class="panel-heading">
+                流程处理状态
+                <!-- <a href="./nodeDealLog.html?id={{instanceId}}" class="btn btn-primary btn-xs pull-right">查看日志</a><span class="pull-right" style="padding-right:10px;"><a href="javascript:;" class="btn btn-primary btn-xs" id="handleChangeShow">详细流程</a></span> -->
+            </div>
+            <div class="panel-body">
+                <div id="dataList-baseInfo">
+                </div>
+                 <div class="panel-group" role="tablist">
+                {{ each data.nodes node index }}
+                <!-- <% if (node.type == '!check' && showType != 'detail') { return; } %> -->
+                <div class="panel {{node.id == currentNodeInstanceId ? 'panel-primary' : 'panel-default' }}">
+                    <div class="panel-heading" role="tab" id="heading{{index}}">
+                    <h4 class="panel-title">
+                        <a class="collapsed" role="button" data-toggle="collapse"  href="#collapse{{index}}" aria-expanded="false" aria-controls="collapse{{index}}">
+                        节点任务名称：<b>{{ node.name }}</b>
+                        </a>
+                    </h4>
+                    </div>
+                    <div id="collapse{{index}}" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading{{index}}">
+                    <div class="panel-body">
+                        {{ if node.attrs }}
+                            <!-- 处理人 - begin -->
+                            {{ each node.attrs dealer }}
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    {{ if dealer.userType == 'QUARTER' }}
+                                    经办部门：<b>{{dealer.depName}}</b>&nbsp;&nbsp;
+                                    {{ else if dealer.userType == 'ROLE' }}
+                                    经办角色：<b>{{dealer.roleName}}</b>&nbsp;&nbsp;
+                                    {{ /if }}
+                                    经办人：<b>{{dealer.userTrueName}}</b>
+                                </div>
+                                <div class="panel-body">
+                                    <table class="table table-bordered">
+                                        <tbody>
+                                            <% var i = 0; %>
+                                            {{each dealer.attrs value}}
+                                                {{if i%2 == 0}} <tr> <td class="col-xs-2 active"> {{value.attrCname}} </td> <td class="col-xs-4 type-info"> {{value.attrValue}} </td> {{else}} <td class="col-xs-2 active"> {{value.attrCname}} </td> <td class="col-xs-4 type-info"> {{value.attrValue}} </td> </tr>
+                                                {{/if}}
+                                                <% i++ %>
+                                            {{/each}}
+                                        </tbody>
+                                    </table>
+                                    <ul class="list-group">
+                                    {{each node.fileList file}}
+                                        <li class="list-group-item">{{file.fileName}}<a class="btn btn-xs btn-default handleDownload pull-right" href="javascript:;"data-id="{{file.id}}" data-file-token="{{file.token}}">下载</a></li>
+                                    {{/each}}
+                                    </ul>
+                                </div>
+                            </div>
+                            {{ /each }}
+                            <!-- 处理人 - end -->
+                        {{ else }}
+                        <div class="text-center">
+                            无提交数据
+                        </div>
+                        {{ /if }}
+
+                        {{if node.finished == false}}
+                            <div id="exec-dealers">
+
+                            </div>
+                        {{/if}}
+
+                    </div>
+                    {{ if  node.dealDate }}
+                    <div class="panel-footer">
+                        处理时间：<b><%= $imports.dateFormate1(node.dealDate) %></b>
+                    </div>
+                    {{ /if }}
+                    </div>
+                    
+                </div>
+                {{ /each }}
+            </div>
+            </div>
+            <div class="panel-body">
+                <div class="text-center col-xs-12">
+                    {{if recallBtn}}
+                        <a class="btn btn-warning" id="handleRecall" href="javascript:;">撤回</a>
+                    {{/if}}
+                    {{if dealBtn}}
+                        <a class="btn btn-default" href="./nodeDeal.html?id={{instanceId}}">处理</a>
+                    {{/if}}
+                    {{if transformBtn}}
+                        <a class="btn btn-warning" id="handleTransform" href="javascript:;">移交</a>
+                    {{/if}}
+                    {{if cancelBtn}}
+                        <a class="btn btn-danger" id="handleCancel" href="javascript:;">删除</a>
+                    {{/if}}
+                </div>
+            </div>
+        </div>
+    </script>
+    <script src="/tmpl/js/horzTable.js"></script>
+    <!-- <script src="../../static/htmljs/ystep.js"></script> -->
+    <script>
+        template.defaults.imports.dateFormat = function (value, iSmillis){
+            if(iSmillis){
+                return dateFormate('Y-m-d H:i:s', value);
+            }else{
+                return dateFormate('Y-m-d H:i:s', value/1000);
+            }
+        };
+        // var showType = getParam("showType") || 'detail';
+        // 是否显示详细列表
+        // eventBind("#handleChangeShow", function(){
+        //     if(showType == 'detail'){
+        //         location.href = putUrlParam("showType", "");
+        //     }else{
+        //         location.href = putUrlParam("showType", "detail");
+        //     }
+        // })
+        // 任务ID
+        var instanceId = getParam("id");
+        var $data = null;
+        var dealNodeList = [];
+        onInit();
+        function onInit() {
+            // 获取任务信息
+            getFetch(
+                remoteOrigin + "/api/auto/wfins/getOne?id=" + instanceId
+                , function (data) {
+                    $data = data;
+                    var model = JSON.parse(data.model)
+                    //当前模型
+                    var current = $.grep(model.flow, function (v) {
+                        return v.name == data.currentNodeName
+                    })[0];
+                    // var nodes = JSON.parse(data.nodes);
+                    var uid = $.cookie("userId");
+                    var myAttrs = {}
+                    $.each(data.attrs, function (i, v) {
+                        if (v.type == 'NODE' && v.uid == uid && v.nodeId == data.currentNodeInstanceId) {
+                            myAttrs[v.attrKey] = v.attrValue;
+                        }
+                    })
+                    console.log(myAttrs);
+                    $("#workline-render")
+                        .empty()
+                        .html(
+                        template("workline", {
+                            current: current,
+                            myAttrs: myAttrs,
+                            uid: $.cookie("userId"),
+                            data: data,
+                            nodeType: {
+                                0: 'input',
+                                1: 'check',
+                                3: "end"
+                            }
+                        })
+                    );
+
+                    initupload(data)
+
+                    $("input[data-type]").each(function () {
+                        var t = $(this);
+                        switch(t.data('type')){
+                            case "datetime":
+                                layui.use("laydate",function () {
+                                    layui.laydate.render({
+                                        elem: "#" + t.attr("id")
+                                        ,type: "date"
+                                    });
+                                })
+
+                                break
+                        }
+                    });
+                }
+            );
+        }
+
+
+        // getRemoteData({
+        //     loading: true,
+        //     url: remoteApi.apiInstanceInfo + instanceId,
+        //     callback: function(origin){
+        //         return
+        //         var currNodeName;
+        //         dealNodeList = origin.instance.nodeList;
+        //         dealNodeList.forEach(function(node){
+        //             if(node.finished===false){
+        //                 currNodeName = node.nodeName;
+        //             }
+        //             if(JSON.stringify(node.attrs) == "{}"){
+        //                 node.attrs = undefined;
+        //             }
+        //         });
+        //         $("#content").html(template('tmpl', {
+        //             // showType: showType,
+        //             cancelBtn: origin.cancel, // 取消权限
+        //             dealBtn: origin.deal, // 处理权限
+        //             recallBtn: origin.recall, // 撤回权限
+        //             transformBtn: origin.transform, // 移交权限
+        //             instanceId: instanceId, // 任务id
+        //             dealNodeList: dealNodeList, // 已处理节点
+        //             currentNodeInstanceId: origin.currentNodeInstanceId
+        //         }));
+        //         // if(showType == 'detail'){
+        //         //     $("#handleChangeShow").text("简要列表");
+        //         // }
+        //         var attrs = origin.instance.attributes;
+        //         if(attrs && attrs.length>0){
+        //             var attrsObj = {};
+        //             attrs.forEach(function(item) {
+        //                 console.log(item)
+        //                 if(item.type == "INNATE"){
+        //                     var v = getOdsEnumVal(item.attrValue, item.attrKey, true);
+        //                     v = v ? v : item.attrValue;
+        //                     attrsObj[item.attrCName] = v;
+        //                 }
+        //             });
+        //             $("#dataList-baseInfo").html(horzTableRender({
+        //                 data: attrsObj
+        //             }));
+        //         }
+        //         if(currNodeName){
+        //             getRemoteData({
+        //                 url: '/api/workflow/node/dealers',
+        //                 data: {
+        //                     instanceId: instanceId,
+        //                     nodeNames: currNodeName
+        //                 },
+        //                 callback: function(origin){
+        //                     // #next-dealers
+        //                     var html = '';
+        //                     var users = origin[currNodeName];
+        //                     if(users.length>0){
+        //                         users.forEach(function(user){
+        //                             html += '<li class="list-group-item">'+user.trueName+'&nbsp;/&nbsp;'+user.phone+'</li>';
+        //                         })
+        //                         $("#exec-dealers").html('<div class="panel panel-info"><div class="panel-heading">可执行人</div> <ul class="list-group"> '+html+' </ul> </div>')
+        //                     }
+        //                 }
+        //             })
+        //         }
+        //     }
+        // })
+        // 撤回任务
+        eventBind("#handleRecall", function(){
+            postRemoteData({
+                confirm: true,
+                url: remoteApi.apiWorkflowRecall,
+                data: {
+                    instanceId: instanceId
+                },
+                callback: 'reload'
+            })
+        })
+        // 取消任务
+        eventBind("#handleCancel", function(){
+            actConfirm(function(){
+                postRemoteData({
+                    url: remoteApi.apiWorkflowGoCancel,
+                    data: {
+                        instanceId: instanceId
+                    },
+                    callback: function(){
+                        if(parent.cancelNodeCallback){
+                            parent.cancelNodeCallback();
+                        }else{
+                            var index = parent.layer.getFrameIndex(window.name);
+                            parent.layer.close(index);
+                        }
+                    }
+                })
+            }, "一经删除将不可找回!确定执行该操作?")
+            
+        })
+        // 移交
+        var existUserList = top.topCacheUserList; // 可移交对象
+        eventBind("#handleTransform", function(){
+            layer.open({
+                type: 2,
+                title:'选中对象',
+                area: ['740px', '450px'],
+                fixed: false, //不固定
+                maxmin: true,
+                content: '../htmllayer/choiceExistUser.html'
+            });
+        })
+        function choiceUserCallback(user){
+            layer.confirm("确定移交给" + user.name + "?", {icon: 3, title:'操作提示'}, function(){
+                postRemoteData({
+                    url: remoteApi.apiWorkflowTransform,
+                    data: {
+                        instanceId: instanceId,
+                        dealerId: user.id
+                    },
+                    callback: function(){
+                        layer.msg("已移交", {time:500}, function(){
+                            location.reload();
+                        });
+                    }
+                })
+            });
+        }
+        // 下载节点文件
+        eventBind(".handleDownload", function(that){
+            location.href = remoteApi.apiOpenDownload+"?fileId="+that.data("id")+"&fileToken="+that.data("file-token");
+//            getRemoteData({
+//                url: remoteApi.apiDownLoadUploadFile,
+//                data: {
+//                    fileId: that.data("id"),
+//                    token: getUserToken()
+//                },
+//                callback: function(origin){
+//                    location.href = remoteApi.apiOpenDownload+"?token="+origin;
+//                }
+//            })
+        });
+
+
+        $(document).on("click",'.deal',function () {
+            var id = $(this).attr('data-id');
+            location.href="./nodeDeal.html?id=" + id;
+        });
+
+        function collectFiles(){
+            var files = [];
+            $("li[data-key]:visible").each(function () {
+                var file = $(this).data("file")
+                if(file){
+                    var tags = file.tags || "";
+                    if(typeof tags == 'string'){
+                        tags = tags.split(",");
+                    }
+                    file.tags = tags;
+                    files.push(file)
+                }
+            });
+            return files;
+        }
+        $(document).on("click", ".btn-save", function () {
+            var str = $.unserialize($(".form-table").serialize());
+            var chks = {};
+            $(".form-table input[type=checkbox]:checked").each(function () {
+                chks[this.name] = chks[this.name] || [];
+                chks[this.name].push(this.value)
+            });
+            $.each(chks, function (i,v) {
+                str[i] = v.join(",");
+            });
+            postFetch(
+                remoteOrigin + "/api/auto/wfins/submit"
+                ,{
+                    id: getParam("id")
+                    , data: str
+                    , goNext: false
+                    , files: collectFiles()
+                }
+                , function () {
+                    //保存什么也不用动
+                    layer.msg("保存成功");
+                    // onInit();
+                }
+            )
+        });
+        $(document).on("click", ".btn-gonext", function () {
+
+            var callback = function (password) {
+                var str = $.unserialize($(".form-table").serialize());
+                var chks = {};
+                $(".form-table input[type=checkbox]:checked").each(function () {
+                    chks[this.name] = chks[this.name] || [];
+                    chks[this.name].push(this.value)
+                });
+                $.each(chks, function (i,v) {
+                    str[i] = v.join(",");
+                });
+                postFetch(
+                    remoteOrigin + "/api/auto/wfins/submit"
+                    ,{
+                        id: getParam("id")
+                        , data: str
+                        , goNext: true
+                        , password: password
+                        , files: collectFiles()
+                    }
+                    , function () {
+                        onInit();
+                    }
+                )
+            };
+
+            if($data.modelName == '不良资产主流程'){
+                var index = layer.prompt({title: '结束主流程需要验证密码', formType: 1}, function(pass, index){
+                    layer.close(index);
+                    callback(pass)
+                })
+                var sign = $("#layui-layer" + index).find(".layui-layer-content");
+                sign.prepend(
+                    "<div style='margin-bottom: 10px; color:red; width: 200px; '>如果你结束了一个主流程, 那么所有的子流程都会随之一并结束<br>请在下方输入密码</div>"
+                );
+                // $().after(sign);
+                // console.log()
+                // setTimeout(function () {
+                //     //假如提示语
+                //     ;
+                // },100)
+            }
+            else{
+                callback();
+            }
+        });
+    </script>
+</body>
+</html>
+
+
+<script type="text/html" id="file-list-item">
+    <li data-key="{{uuid}}" style="padding-top: 4px;padding-bottom: 4px;">
+        <span class="name">{{name}}</span>
+        <span class="state" data-per="0"></span>
+        <!--标签-->
+        <span class="tags"></span>
+        <button class="btn btn-sm btn-link btn-rename" type="button" style="margin-left: 5px;">重命名</button>
+        <button class="btn btn-sm btn-link btn-tags" type="button" style="margin-left: 5px;">设置标签</button>
+        <button type="button" class="btn btn-sm btn-link btn-filetype">设置文件类型</button>
+        <button class="btn btn-sm btn-link btn-remove" type="button" style="margin-left: 5px;">删除</button>
+    </li>
+</script>
+<script>
+    function initupload(data) {
+        var html = $("#file-list-item").html();
+        var tpl = template.compile(html);
+        //找到我自己的文件
+        var uid = $.cookie('userId')
+        var myFiles = [];
+        $.each(data.nodes,function (i,v) {
+            if(v.id == data.currentNodeInstanceId){
+                $.each(v.files, function (ii,vv) {
+                    if(vv.creator == uid){
+                        // myFiles.push(vv)
+                        var item = $(tpl(vv));
+                        item.find(".state").remove();
+                        item.find(".name").text(vv.sname)
+                        item.appendTo(".file-list")
+                        item.data("file", vv)
+                    }
+                })
+            }
+        });
+
+        layui.use(["upload","laytpl"], function (upload,laytpl) {
+            // $files.push()
+            var uploadInst = upload.render({
+                elem: '#uploadSelector' //绑定元素
+                ,url: remoteOrigin + '/api/file/upload' //上传接口
+                ,accept: "file"
+                ,auto:false
+                ,multiple: true
+                ,data:{
+                    type:"MESSAGE"
+                    ,uuid: function () {
+                        return lastid
+                    }
+                }
+                ,choose: function (item) {
+                    var files = item.pushFile();
+                    for(var key in files){
+                        files[key].uuid = key;
+                        // $files[key] = files[key]
+                        if($("[data-key="+key+"]").length){
+                            continue;
+                        }
+                        // alert(123)
+                        //渲染
+                        // console.log(tpl(files[key]))
+                        $(".file-list").append(tpl(files[key]));
+                        // fixUploadTable();
+                        //上传
+                        lastid = key;
+                        item.upload(key,files[key])
+                    }
+                    // console.log(item)
+                }
+                ,done: function(res){
+                    if(res.success && res.data.uuid){
+                        $("li[data-key="+res.data.uuid+"]")
+                            .data("file", (res.data))
+                            .find(".state")
+                            .remove();
+                    }
+                    else if(!res.success){
+                        $("li[data-key=" + res.errMessagee + "]")
+                            .find(".state")
+                            .removeClass("state")
+                            .text("上传失败, 请稍后重试");
+                    }
+                    //上传完毕回调
+                    // console.log(res)
+                    //上传完毕回调
+                }
+                ,error: function(index,upload){
+                    $("li[data-key="+index+"]")
+                        .hide();
+                    //请求异常回调
+                }
+            });
+        })
+    }
+
+    $(document).on("click",'.btn-remove', function () {
+        $(this).closest("li").hide();
+    });
+    $(document).on("click", ".btn-rename", function () {
+        var t = $(this).closest("li")
+        var data = t.data("file");
+        if(!data){
+            return;
+            // t.find(".btn-remove").click();
+        }
+        layer.prompt({title: '输入新文件名', formType: 2, value: data.sname}, function(text, index){
+            layer.close(index);
+            if($.trim(text)){
+                data.sname = $.trim(text);
+            }
+            t.data("file", (data))
+            t.find(".name").text(data.sname)
+        });
+    });
+    $(document).on("click", ".btn-tags", function () {
+        var t = $(this).closest("li")
+        var data = t.data("file");
+        if(!data){
+            return;
+            // t.find(".btn-remove").click();
+        }
+        layer.prompt({title: '输入标签,以逗号分隔', formType: 2, value: data.tags}, function(text, index){
+            layer.close(index);
+            if($.trim(text)){
+                var tags = $.trim(text).split(/,|，/)
+                tags = $.grep(tags, function (v) {
+                    return v;
+                });
+                tags = unique4(tags);
+                t.find(".tags").empty();
+                $.each(tags, function (i,v) {
+                    $("<span class='label label-info' style='margin-left: 5px;margin-right: 5px;'>"+v+"</span>").appendTo(t.find(".tags"))
+                });
+                data.tags = tags.join(",")
+                t.data("file", (data))
+            }
+        });
+    });
+
+    function unique4(arr){
+        var hash=[];
+        for (var i = 0; i < arr.length; i++) {
+            for (var j = i+1; j < arr.length; j++) {
+                if(arr[i]===arr[j]){
+                    ++i;
+                }
+            }
+            hash.push(arr[i]);
+        }
+        return hash;
+    }
+
+    var ftIdex = -1;
+    var ftTarget = null;
+    $(document).on("click", ".btn-filetype", function () {
+        var t = $(this).closest("li")
+        ftTarget = t;
+        var data = t.data("file");
+        if(!data){
+            return;
+            // t.find(".btn-remove").click();
+        }
+        ftIdex = layer.open({
+            type: 2,
+            title:"设置文件类型",
+            content: "/htmlsrc/workFlow/file_type.html"
+            // area:["300px", "200px"]
+        });
+    });
+
+    function onFileTypeClick(type) {
+        if(ftIdex > -1){
+            layer.close(ftIdex);
+            var data = ftTarget.data("file");
+            var tags = (data.tags || '').split(",");
+            tags = $.grep(tags, function (v) {
+                return v;
+            });
+            tags.push("文件类型:"+type);
+            tags = unique4(tags);
+            // console.log(tags)
+
+            ftTarget.find(".tags").empty();
+            $.each(tags, function (i,v) {
+                $("<span class='label label-info' style='margin-left: 5px;margin-right: 5px;'>"+v+"</span>").appendTo(ftTarget.find(".tags"))
+            });
+            data.tags = tags.join(",");
+            ftTarget.data("file", (data));
+
+            ftIdex = -1;
+            ftTarget = null;
+        }
+
+    }
+
+
+    ;(function () {
+        setInterval(function () {
+            $(".file-list .state").each(function () {
+                var t = $(this);
+                var per = Number(t.data('per'));
+                if(per++ >= 100){
+                    // t.removeClass("state").empty();
+                }
+                else{
+                    t.data("per",per);
+                    t.text("正在上传(" + per + "%)");
+                }
+            })
+        },30);
+    })()
+</script>

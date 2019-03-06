@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 选择角色 </title>
+    <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script src="/static/vendor/bootcss/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+    <!--[if lt IE 9]>
+    <script src="/static/vendor/bootcss/js/html5shiv.min.js"></script>
+    <script src="/static/vendor/bootcss/js/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+    <div id="content"> 
+        <div id="panel-form">
+            <!-- 列表筛选表单 -->
+        </div>
+        <div class="col-xs-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    角色列表
+                </div>
+                <div class="panel-body">
+                    <div id="dataList">
+                        <!-- 数据列表 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    已选角色列表
+                </div>
+                <div class="panel-body">
+                    <div id="choice-list">
+                        <!-- 选择列表 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--<script src="/static/vendor/jquery/jquery.js"></script>-->
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <!--<script src="/static/vendor/layui/layui.js"></script>-->
+    <script src="/static/vendor/artTemplate/template-web.js"></script>
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="/tmpl/js/panelForm.js"></script>
+    <!-- toolbar渲染模板 -->
+    <script type="text/html" id="toolbar">
+        <div class="layui-toolbar">
+            {{# if(checkedIds.indexOf(d.id) >= 0){ }}
+            <a class="btn handleAdd btn-default disabled" id="role{{d.id}}" href="javascript:;" data-id="{{d.id}}" data-name="{{d.name}}">已选择</a>
+            {{# }else{ }}
+            <a class="btn handleAdd btn-default" id="role{{d.id}}" href="javascript:;" data-id="{{d.id}}" data-name="{{d.name}}">选择</a>
+            {{# } }}
+        </div>
+    </script>
+    <script type="text/html" id="toolbar2">
+        <div class="layui-toolbar">
+            <a class="btn handleDel btn-danger" href="javascript:;" data-index="{{d.LAY_TABLE_INDEX}}" data-id="{{d.id}}" data-name="{{d.name}}">移除</a>
+        </div>
+    </script>
+    <script>
+        var index = parent.layer.getFrameIndex(window.name);
+        var act = getParam("act");
+        var uid = getParam("id"); // 用户ID
+        $("#panel-form").html(panelFormRender2({
+            // panelTitle:'筛选查询',
+            list:[
+                { prop: 'name', label: '角色名' }
+            ],
+            data: { }
+        }));
+        var roleList = [];
+        laytableRender({
+            url: remoteApi.apiGetRoleList,
+            page:false,
+            cols: [
+                [
+                    {field:'name', title:'角色名称'},
+                    {field:'info', title:'角色描述'},
+                    {title:'操作', templet: '#toolbar'}
+                ]
+            ],
+            done: function(res, curr){
+                roleList = res.data.content || [];
+            }
+        });
+        
+        var userRoles = [];
+        var checkedIds = [];
+        function renderUserRoles(data){
+            layui.use('table', function(){
+                var table = layui.table;
+                table.render({
+                    elem: '#choice-list',
+                    cols: [
+                        [
+                            {field: 'name', title: '角色名' },
+                            {title:'操作', templet: '#toolbar2', width: 80 }
+                        ]
+                    ],
+                    data: data,
+                    page: false, //是否显示分页
+                    limit: 10 //每页默认显示的数量
+                });
+            });
+        }
+
+        getRemoteData({
+            url: remoteApi.apiGetRolesByUser+"?id="+uid,
+            callback: function(origin){
+                userRoles = (origin||{})[uid];
+                userRoles = userRoles || JSON.parse(JSON.stringify(parent.checkedRoles)) || [];
+                userRoles.forEach(function(item){
+                    checkedIds.push(item.id);
+                })
+                renderUserRoles(userRoles);
+            }
+        })
+
+        // 已选
+        $(document).on('click', '.handleAdd', function(){
+            var role_id = $(this).data("id");
+            var name = $(this).data("name");
+            if(checkedIds.indexOf(role_id) >= 0){
+                return false;
+            }
+            checkedIds.push(role_id);
+            userRoles = userRoles.filter(function(role){
+                return role.id != role_id; 
+            })
+            userRoles.push({
+                id: role_id,
+                name: name
+            });
+            $(this).text("已选择");
+            $(this).addClass("disabled");
+            renderUserRoles(userRoles);
+        });
+
+        eventBind(".handleDel", function(that){
+            var roleid = that.data("id");
+            var index = that.data("index");
+            $("#role"+roleid).removeClass("disabled");
+            $("#role"+roleid).text("选择");
+            userRoles.splice(index, 1);
+            checkedIds.splice(index, 1);
+            renderUserRoles(userRoles);
+        })
+
+        function onLayerConfirmlCallback(){
+            if(act == 'sys'){
+                if(parent.putRoleCallback){
+                    parent.putRoleCallback(userRoles);
+                }
+                var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+                parent.layer.close(index);
+                return true;   
+            }
+            getRemoteData({
+                url: remoteApi.apiUserSetRoles,
+                data: {
+                    uid: uid,
+                    rid: checkedIds.join(",")
+                },
+                callback: function(origin){
+                    if(parent.putRoleCallback){
+                        parent.putRoleCallback(userRoles);
+                    }
+                    return true;
+                }
+            })
+            return false;
+        }
+
+        function checkSubmitForm(){
+            var form = $("form[name='form-search']")
+            layuiTableReload({
+                where: form.serialize()
+            })
+            return false;
+        }
+    </script>
+</body>
+</html>

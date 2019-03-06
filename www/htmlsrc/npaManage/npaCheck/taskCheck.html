@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>贷后管理 - 贷后任务检查 - 任务检查</title>
+    <link href="/static/vendor/bootcss/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/vendor/jqui/jquery-ui.css">
+    <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+</head>
+<body>
+    <div id="content">
+        <div class="" id="panel-form">
+            <!-- 筛选表单 -->
+        </div>
+        <div class="batch-operation">
+            <button type="button" class="btn btn-default btn-sm" id="batchPrint">生成检查报告</button>
+        </div>
+        <div id="dataList">
+            <!-- 列表 -->
+        </div>
+    </div>
+    <script src="../../../static/vendor/jquery/jquery.js"></script>
+    <script src="../../../static/vendor/artTemplate/template-web.js"></script>
+    <!-- <script src="/static/vendor/validate/jquery.validate.min.js"></script> -->
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="../../../../tmpl/js/panelForm.js"></script>
+     <!-- toolbar渲染模板 -->
+     <script type="text/html" id="toolbar">
+        <div class="layui-toolbar">
+            <a href="/htmlsrc/postLoanManage/postLoanCheck/taskCheck.addCheck.html?id={{d.id}}" class="btn handleEdit btn-warning" href="">添加检查</a>
+            <a href="/htmlsrc/postLoanManage/postLoanCheck/taskCheck.addReport.html?id={{d.id}}" class="btn handleEdit btn-warning" href="">添加检查报告</a>
+            <a href="/htmlsrc/postLoanManage/postLoanCheck/taskCheck.show.html?id={{d.id}}" class="btn handleShow btn-default" href="">查看</a>
+            <a href="/htmlsrc/postLoanManage/postLoanCheck/taskCheck.showState.html?id={{d.id}}" class="btn handleShowState btn-default" href="">流程状态</a>
+            <!-- <a href="javascript:;" class="btn handleDel btn-danger" data-value="{{d.id}}" data-index="{{d.LAY_TABLE_INDEX}}">删除</a> -->
+        </div>
+    </script>
+    <script>
+        $("#panel-form").html(panelFormRender({
+            panelTitle:'筛选查询',
+            list:[
+                { prop: 'f3', label: '担保方式', type:'select', vals: selectData.guarantorType },
+                { prop: 'f3', label: '生成经营情况', type:'select', vals: selectData.businessCond },
+                { prop: 'f3', label: '还款意愿', type:'select', vals: selectData.willingnessToPay }
+            ],
+            data: {}
+        }));
+        
+        laytableRender({
+            url: remoteApi.apiSystemLog,
+            cols: [
+                [
+                    { checkbox: true },
+                    { field:'f1', title:'任务编号' },
+                    { field:'f2', title:'客户号' },
+                    { field:'f3', title:'客户名称' },
+                    { field:'f4', title:'任务生成时间' },
+                    { field:'f5', title:'任务生成时间' },
+                    { field:'f6', title:'要求完成时间' },
+                    { field:'f7', title:'实际完成时间' },
+                    { field:'f8', title:'客户经理'},
+                    { field:'f9', title:'检查状态'},
+                    { title:'操作', width:320, templet: "#toolbar"}
+                ]
+            ]
+        })
+
+        function checkSubmitForm(){
+            var form = $("form[name='form-search']")
+            layuiTableReload({
+                where: form.serialize()
+            })
+            return false;
+        }
+    </script>
+</body>
+</html>

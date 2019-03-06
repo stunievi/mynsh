@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title> 报表示例 </title>
+    <link rel="stylesheet" href="/static/vendor/bootcss/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+</head>
+<body>
+<div class="panel panel-default">
+    <div class="panel-heading">报表名</div>
+    <div class="panel-body">
+        <div id="dataList"></div>
+    </div>
+    <div class="panel-body">
+        <div class="text-center">
+            <a href="javascript:void(0)" onclick="javascript:history.go(-1);return false;">【返回】</a>
+        </div>
+    </div>
+</div>
+<script src="/static/vendor/jquery/jquery.js"></script>
+<script src="/static/htmljs/utils.js"></script>
+<script src="/static/htmljs/global.config.js"></script>
+<script src="/static/vendor/layui/layer/layer.js"></script>
+<script src="/static/vendor/layui/layui.js"></script>
+<!-- <script type="text/html" id="addTime">
+{{#
+    return dateFormate1(d.addTime)
+}}
+</script> -->
+<script>
+    /*
+        需要固定的列必须放在数组首列，
+        固定于左侧的列将筛选后放置于cols[0]头部
+        固定于右侧的列将筛选后放置于cols[0]尾部
+    */
+    laytableRender({
+        url: remoteApi.apiSystemLog,
+        cols: [
+                [
+                {field: 'qqq', title: '用户名qqq', templet:"#addTime",  rowspan:2},
+                {field: 'addTime', title: '用户名', templet:"#addTime",  rowspan:2},
+                {field: 'eee', title: '用户名ddd', templet:"#addTime",  rowspan:2},
+                {title: 'aaaaa', colspan:5, },
+                {field: 'fff', title: 'fff', rowspan:2}
+            ],
+            [
+                {field: 'id', title: '性别' },
+                {field: 'city', title: '城市' },
+                {field: 'sign', title: '签名' },
+                {field: 'experience', title: '积分' },
+                {field: 'score', title: '评分'}
+            ]
+        ]
+    });
+    // layui.use('table', function(){
+    //     layui.table.reload('dataList', {
+    //         page: {
+    //             curr: 1 //重新从第 1 页开始
+    //         },
+    //         where: {
+    //             id: 1
+    //         }
+    //     });
+    // })
+</script>
+</body>
+</html>

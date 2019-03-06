@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>系统管理 - 系统设置</title>
+    <!--#include file="/htmlsrc/header.html" -->
+</head>
+<body>
+    <div id="content">
+        <div class="bs-example bs-example-tabs" data-example-id="togglable-tabs">
+            <ul id="myTabs" class="nav nav-tabs" role="tablist">
+                <li role="presentation" ><a href="#baseInfo" id="baseInfo-tab" role="tab" data-toggle="tab" aria-controls="baseInfo" aria-expanded="true">系统信息</a></li>
+                <li role="presentation" ><a href="#noticeRule" role="tab" id="noticeRule-tab" data-toggle="tab" aria-controls="noticeRule">消息规则</a></li>
+                <li role="presentation"><a href="#taskRule" role="tab" id="taskRule-tab" data-toggle="tab" aria-controls="taskRule">任务产生条件</a></li>
+            </ul>
+            <div id="myTabContent" class="tab-content">
+                <div class="tab-pane fade" id="baseInfo" aria-labelledby="baseInfo-tab">
+                
+                </div>
+                <div class="tab-pane fade" id="noticeRule" aria-labelledby="noticeRule-tab">
+                    <div class="panel-body">
+                        <style> #noticeRule .form-group{ padding: 10px 0; } </style>
+                        <form class="form-inline" name='noticeRuleForm' onsubmit="return checkSubmitForm()">
+                            <div id="noticeRuleForm">
+
+                            </div>
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-primary submitRuleForm">确定</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="taskRule" aria-labelledby="taskRule-tab">
+                    <div class="panel-body">
+                        <a href="javascript:;" class="btn btn-success btn-sm" id="addTaskRule"> 新增规则 </a>
+                    </div>
+                    <form id="taskRuleContent" name="taskRuleContent">
+                        
+                    </form>
+                    <div class="panel-body">
+                        <div class="text-center">
+                            <a href="javascript:;" class="btn btn-primary" id="submitRuleForm2">确定</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script id="taskTmpl" type="text/html">
+        <div class="panel-body rule-item">
+            <div class="col-xs-6">
+                <label class="col-sm-4 control-label">产品编号</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control input-sm" name="BIZ_TYPE[]" value="{{BIZ_TYPE}}">
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <label class="col-sm-4 control-label">贷款额度(元）</label>
+                <div class="col-sm-8 form-group">
+                    <div class="col-xs-5 row">
+                        <input type="text" class="form-control input-sm" name="LOAN_AMOUNT_MIN[]" value="{{LOAN_AMOUNT_MIN}}" placeholder="最小额度">
+                    </div>
+                    <div class="col-xs-offset-1 col-xs-5 row">
+                        <input type="text" class="form-control input-sm" name="LOAN_AMOUNT_MAX[]" value="{{LOAN_AMOUNT_MAX}}" placeholder="最大额度">
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <label class="col-sm-4 control-label">检查时间间隔（月）</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control input-sm" name="LOAN_CHECK[]" value="{{LOAN_CHECK}}">
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <label class="col-sm-4 control-label">预提醒时间（天）</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control input-sm" name="EXPECT_DAY[]" value="{{EXPECT_DAY}}">
+                </div>
+            </div>
+            <div class="col-xs-12" style="padding:10px 0;">
+                <a href="javscript:;" class="btn btn-xs btn-danger pull-right handleRemoveTaskRule" data-id="{{ID}}">删除</a>
+            </div>
+        </div>
+    </script>
+  
+    <script id="noticeHtml" type="text/html">
+        <div class="form-group col-xs-12">
+            <div class="col-xs-8">
+                <label>规则{{noticeIndex}}</label>
+                {{ if noticeIndex == 10086 }}
+                    {{@ content.replace(/(x{4,})/g, function(a){
+                        var l = a.length - 3;
+                        return '<input type="text" name="MSG_RULE_'+noticeIndex+'_VAL'+l+'" class="form-control input-sm" style="width: 50px;margin:0 5px;height:26px;">';
+                    })}}
+                {{ else }}
+                    {{@ content.replace(/xxxxx/, '<input type="text" name="MSG_RULE_'+noticeIndex+'" class="form-control input-sm" style="width: 50px;margin:0 5px;height:26px;">')}}
+                {{ /if}}
+        </div>
+        <div class="col-xs-3 {{ noticeIndex < 6 ? '' : 'hide' }}"  >
+            <div class="input-group">
+                <select name="MSG_RULE_{{noticeIndex}}_TMPL" id="">
+                    <option value="">请选择</option>
+                    {{each msglist msgitem idex_msg}}
+                    <option value="{{msgitem.name}}">{{msgitem.name}}</option>
+                    {{/each}}
+                </select>
+                <!--<input type="text" class="form-control input-sm" name="MSG_RULE_{{noticeIndex}}_TMPL" readonly>-->
+                <!--<span class="input-group-btn">-->
+                    <!--<a class="btn btn-default btn-sm handleChoiceNoticeTmpl" type="button" data-for="MSG_RULE_{{noticeIndex}}_TMPL">消息模板</a>-->
+                <!--</span>-->
+            </div>
+        </div>
+        <div class="col-xs-1 {{ noticeIndex < 6 ? '' : 'hide' }}">
+            <a href="javascript:;" class="btn btn-xs rule-on" id="MSG_RULE_{{noticeIndex}}_ON">已开启</a>
+        </div>
+       
+        </div>
+    </script>
+    <script>
+        var checkedRoles = []; // 已选角色
+        var panelType = getParam("panelType") || "baseInfo";
+        $('#myTabs a[href="#'+panelType+'"]').tab('show');
+        $('#myTabs a').click(function(){
+            rememberParam("panelType", $(this).attr("href").substring(1));
+        })
+        $("#addTaskRule").click(function(){
+            $("#taskRuleContent").prepend(template("taskTmpl",{}))
+        })
+
+
+        $(document).on("click", ".handleRemoveTaskRule", function(){
+            var varMark = $(this).data("id");
+            var that = $(this);
+            if(varMark){
+                that.parents(".rule-item").remove();
+                // actConfirm(function(){
+                //     getRemoteData({
+                //         url: "/api/system/var/delete?key="+varMark + "_BIZ_TYPE,"+varMark + "_LOAN_AMOUNT_MIN,"+varMark + "_LOAN_AMOUNT_MAX,"+varMark + "_LOAN_CHECK,"+varMark + "_EXPECT_DAY",
+                //         callback: function(){
+                //             $("form[name='taskRuleContent']").submit();
+                //         }
+                //     })
+                // })
+            }else{
+                that.parents(".rule-item").remove();
+            }
+            
+            return false;
+        })
+
+
+        var p1 = getFetch(remoteOrigin + '/api/auto/sysvar/getList');
+        var p2 = getFetch(remoteOrigin + "/api/auto/msgtmpl/getList",{size:1000});
+        $.when(p1,p2).then(function (a,b) {
+             var msglist = b[0].data.list;
+            var noticeRuleArr = [
+                '每月固定xxxxx日发送消息给客户',
+                '分期还本贷款，提前xxxxx天发送消息给客户',
+                '某笔贷款每增量导入一条还款记录，则发送消息给客户经理',
+                '贷款即将到期，提前xxxxx天发送预警消息给信贷主管/客户经理/客户',
+                '贷款发生逾期（检测贷款台账的利息逾期起始日或本金逾期起始日），xxxxx天内发送消息给信贷主管/客户经理/客户',
+                '待执行任务xxxxx天未执行，发送消息给信贷主管/客户经理',
+                '任务从发起日算起,xxxxx天未结束，发送消息给信贷主管/客户经理',
+                '流程节点待办，发送消息给经办用户',
+                '流程节点办理结束，发送消息给经办用户',
+                '诉讼时效3年内有效，提前xxxxx天发送消息给催收记录发起人（循环提醒）',
+                '每笔不良贷款在诉讼流程的诉前保全，诉前研究节点录入保全始末日期，在结束日期提前xxxxx天发送消息给诉讼记录发起人（循环提醒）',
+                '每笔不良贷款在诉讼流程的案件跟进节点录入开庭公告日期，在开庭公告日期提前xxxxx天发送消息给诉讼流程案件跟进节点经办人（循环提醒）',
+                ' 每笔不良贷款在诉讼流程的案件跟进节点录入判决公告日期、判决生效结束日期，如果该诉讼流程的判决生效，执行节点处于经办状态，则在判决生效结束日期提前xxxxx天发送消息给该节点经办人（循环提醒）',
+                '每笔不良贷款在抵债资产流程的省联社备案，收到批复节点录入评估报告生效日期、评估报告有效期结束日期、评估报告公告送达日期，如果该抵债资产流程的入账处理不是完结状态，则在评估报告有效期结束日期提前xxxxx天发送消息给该抵债资产记录发起人（循环提醒）',
+                '诉讼流程的法院立案节点设置xxxxx天有效，该节点未办理则每天提醒直至有效期结束',
+                '诉讼流程的缴费节点设置xxxxx天有效，该节点未办理则每天提醒直至有效期结束'
+            ]
+            noticeRuleArr.forEach(function(item, index){
+                $("#noticeRuleForm").append(template("noticeHtml",{
+                    noticeIndex: index+1,
+                    content: item,
+                    msglist: msglist
+                }));
+            })
+
+
+
+            var origin = a[0].data;
+            origin = origin || {};
+            $("#baseInfo").html(panelFormRender3({
+                formName: 'baseInfo',
+                button: [
+                    {name: "确定", type: "submit"}
+                ],
+                list:[
+                    { prop: 'sys_name', label: '系统名称', width:12, labelWidth:2},
+                    { prop: 'sys_des', label: '系统用途' , type:'textarea', width:12, labelWidth:2},
+                    { prop: 'sys_default_role_ids', type: "hidden" },
+                    { prop: "msg_api_open", label:"是否启用短信网关", type:"checkbox",value:1 },
+                    { prop: "file_storage_engine", type: "radio", label:"文件存储引擎", vals:[
+                            {name:"linkapp私有云", val:"linkapp"},
+                            {name:"文件存储alpha", val:"self"}
+                        ]},
+                    {prop:"ods_br_id", label: "信贷数据机构代码"}
+                    // ,
+                    // { prop: 'sys_default_role', label: '默认角色', width:12, labelWidth:2, inputGroup:"选择角色",disabled:true}
+                ],
+                data: origin
+                , line: true
+            }));
+
+            var checkedRoleIds = (origin['sys_default_role_ids']||"").split(",");
+            var checkedRoleNames = (origin['sys_default_role']||'').split(",");
+            if(checkedRoleIds.length > 0 && origin['sys_default_role_ids']!=''){
+                checkedRoleIds.forEach(function(id, index){
+                    checkedRoles.push({
+                        id: id,
+                        name: checkedRoleNames[index] || ''
+                    })
+                })
+            }
+
+            // 设置基本信息
+            var form = $("form[name='baseInfo']");
+            $().ready(function() {
+                form.validate({
+                    rules: {
+                        'sys_name': "required"
+                    },
+                    submitHandler:function(){
+                        if(form.valid()){
+                            postFetch(
+                                remoteOrigin + "/api/auto/sysvar/set"
+                                , form.ghostsf_serialize()
+                                , function () {
+                                    layer.msg("修改成功！");
+                                }
+                            )
+                        }
+                    }
+                })
+            });
+
+            var noticeRuleLength = 17;
+            while (noticeRuleLength-- > 1) {
+
+                var name = "MSG_RULE_"+noticeRuleLength;
+                var tmplName = name + "_TMPL";
+                $("[name="+tmplName+"]").val(origin[tmplName]);
+                // if(noticeRuleLength == 10){
+                //     // 多值，且n=2
+                //     for(var i=1;i<=2; i++){
+                //         var n = name + "_VAL"+i;
+                //         $("[name="+n+"]").val(origin[n]);
+                //     }
+                //     continue;
+                // }
+                $("[name="+name+"]").val(origin[name]);
+
+            }
+
+            // 设置消息规则开关
+            $(".rule-on").each(function(index, elm){
+                if(origin[$(elm).attr("id")] == 'on'){
+                    $(elm).addClass("btn-success on");
+                    $(elm).text("已开启");
+                }else{
+                    $(elm).addClass("btn-danger");
+                    $(elm).text("已关闭");
+                }
+            })
+            // 消息规则开关
+            $('.rule-on').click(function(){
+                $(this).toggleClass("on");
+                if($(this).hasClass("on")){
+                    $(this).addClass("btn-success");
+                    $(this).removeClass("btn-danger");
+                    $(this).text("已开启");
+                }else{
+                    $(this).removeClass("btn-success");
+                    $(this).addClass("btn-danger");
+                    $(this).text("已关闭");
+                }
+            })
+
+            var form2 = $("form[name='noticeRuleForm']");
+            $().ready(function() {
+                form2.validate({
+                    rules: {
+                        'MSG_RULE_1': {
+                            range: [0, 31]
+                        }
+                    },
+                    submitHandler:function(){
+                        if(form2.valid()){
+                            var form2Data = $.unserialize(form2.serialize());
+                            $(".rule-on").each(function(index, elm){
+                                if($(elm).hasClass("on")){
+                                    form2Data[$(elm).attr("id")]  = 'on';
+                                }else{
+                                    form2Data[$(elm).attr("id")]  = 'off';
+                                }
+                            });
+                            submitFormData(form2Data);
+                        }
+                        return false;
+                    }
+                })
+            });
+
+            // 任务产生条件
+            var i = -1;
+            while (++i >= 0 && (origin.hasOwnProperty("ACC_"+i+"_BIZ_TYPE") || origin.hasOwnProperty("ACC_"+i+"_LOAN_AMOUNT_MIN") || origin.hasOwnProperty("ACC_"+i+"_LOAN_AMOUNT_MAX") || origin.hasOwnProperty("ACC_"+i+"_LOAN_CHECK") || origin.hasOwnProperty("ACC_"+i+"_EXPECT_DAY") )) {
+                $("#taskRuleContent").append(template("taskTmpl",{
+                    BIZ_TYPE: origin["ACC_"+i+"_BIZ_TYPE"] || '',
+                    LOAN_AMOUNT_MIN: origin["ACC_"+i+"_LOAN_AMOUNT_MIN"] || '',
+                    LOAN_AMOUNT_MAX: origin["ACC_"+i+"_LOAN_AMOUNT_MAX"] || '',
+                    LOAN_CHECK: origin["ACC_"+i+"_LOAN_CHECK"] || '',
+                    EXPECT_DAY: origin["ACC_"+i+"_EXPECT_DAY"] || '',
+                    // ACC_MODEL: origin["ACC_"+i+"_MODEL"],
+                    ID: "ACC_"+i
+                }))
+                if(i>100){
+                    break;
+                }
+            }
+
+            var form3 = $("form[name='taskRuleContent']");
+            $().ready(function() {
+                form3.validate({
+                    rules: {
+                        'LOAN_AMOUNT_MIN[]': {
+                            digits: true,
+                            range: [0, 99999999999]
+                        },
+                        'LOAN_AMOUNT_MAX[]': {
+                            digits: true,
+                            range: [0, 99999999999]
+                        },
+                        'LOAN_CHECK[]': {
+                            range: [0, 999]
+                        },
+                        'EXPECT_DAY[]': {
+                            range: [0, 999]
+                        }
+                    },
+                    submitHandler:function(){
+                        if(form3.valid()){
+                            var formData = {};
+                            $("#taskRuleContent .rule-item").each(function(index, elm){
+                                formData["ACC_"+index+'_BIZ_TYPE'] = $(elm).find("[name='BIZ_TYPE[]']").val(); // 业务品种分类
+                                formData["ACC_"+index+'_LOAN_AMOUNT_MIN'] = $(elm).find("[name='LOAN_AMOUNT_MIN[]']").val();// 贷款额度(元）
+                                formData["ACC_"+index+'_LOAN_AMOUNT_MAX'] = $(elm).find("[name='LOAN_AMOUNT_MAX[]']").val();// 贷款额度(元）
+                                formData["ACC_"+index+'_LOAN_CHECK'] = $(elm).find("[name='LOAN_CHECK[]']").val(); // 贷款检查时间间隔（月）
+                                formData["ACC_"+index+'_EXPECT_DAY'] = $(elm).find("[name='EXPECT_DAY[]']").val(); // 预提醒时间（天）
+                            })
+                            submitFormData(formData);
+                            return false;
+                        }
+                        return false;
+                    }
+                })
+            });
+        })
+        // getFetch(
+        //     remoteOrigin + '/api/auto/sysvar/getList'
+        //     ,function(origin){
+        //
+        //
+        // })
+        // 选择消息模板
+        eventBind(".handleChoiceNoticeTmpl", function(that){
+            forNoticeTmpl = that.data("for");
+            choiceNoticeTmplIndex = layerOpenIframe({
+                title: "选择消息模板",
+                url: "/htmlsrc/htmllayer/choiceNoticeTmpl.html"
+            })
+        })
+        // 选择消息模板回调
+        function choiceNoticeTmplCallback(tmpl){
+            $("[name='"+forNoticeTmpl+"']").val(tmpl.name);
+            layer.close(choiceNoticeTmplIndex);
+        }
+
+        eventBind("#groupBtn-sys_default_role", function (that) {
+            layerOpenIframe({
+                wp: '80%',
+                btn: true,
+                title: '设置默认角色',
+                url: '/htmlsrc/sysManage/userManage/assignRoles.html?act=sys'
+            })
+        })
+
+        
+        function putRoleCallback(roles){
+            checkedRoles = roles;
+            var ids = [];
+            var names = [];
+            roles.forEach(function(role){
+                ids.push(role.id);
+                names.push(role.name);
+            })
+            $("#sys_default_role").val(names.join(","));
+            $("[name='sys_default_role_ids']").val(ids.join(","));
+        }
+
+        function submitFormData(formData){
+            postFetch(
+                remoteOrigin + "/api/auto/sysvar/set"
+                , formData
+                , function () {
+                    $(".btn-primary").removeClass("disabled");
+                    layer.msg("修改成功！");
+                }
+            )
+            // postRemoteData({
+            //     dt: "json",
+            //     confirm: false,
+            //     url:remoteApi.apiSetSysVar,
+            //     data: formData,
+            //     callback:function(){
+            //         $(".btn-primary").removeClass("disabled");
+            //         layer.msg("修改成功！");
+            //     }
+            // })
+        }
+
+        $("#submitRuleForm2").click(function(){
+            $("#taskRuleContent").submit();
+            return false;
+        })
+
+        function checkSubmitForm(){
+            return false;
+        }
+    </script>
+</body>
+</html>

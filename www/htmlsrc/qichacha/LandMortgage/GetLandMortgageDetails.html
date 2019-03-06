@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title> 获取土地抵押详情 </title>
+    <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script src="/static/vendor/bootcss/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+</head>
+<body>
+<div id="content">
+    <div class="bs-example bs-example-tabs" data-example-id="togglable-tabs">
+        <ul id="myTabs" class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active"><a href="#home" id="home-tab" role="tab" data-toggle="tab" data-controls="home" aria-expanded="true">获取土地抵押详情</a></li>
+        </ul>
+        <div id="myTabContent" class="tab-content" style="padding-top: 10px;">
+            <div role="tabpanel" class="tab-pane  active in" id="home" aria-labelledby="home-tab">
+                <!-- 基本信息展示 -->
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/static/vendor/artTemplate/template-web.js"></script>
+<script src="/static/vendor/layui/layer/layer.js"></script>
+<script src="/static/htmljs/global.config.js"></script>
+<script src="/static/htmljs/utils.js"></script>
+<script src="../../../tmpl/js/panelTableShow.js"></script>
+<script>
+    var MortgagorName;//土地抵押人名称
+    var MortgagePeople;//土地抵押权人
+    SuperPost({
+        url: "http://localhost:8015/test/qichacha/LandMortgage/GetLandMortgageDetails",
+        success: function(origin){
+            if(origin.Status == "200"){
+                var data = origin.Result || {};
+                MortgagorName = data["MortgagorName"];
+                MortgagePeople = data["MortgagePeople"];
+                data["MortgagorName"] = data["MortgagorName"]["Name"];
+                data["MortgagePeople"] = data["MortgagePeople"]["Name"];
+
+                $("#home").html(panelTableShowRender2({
+                    attrs:[
+                        {label:"宗地标识", prop:"LandSign"},
+                        {label:"宗地编号", prop:"LandNo"},
+                        {label:"行政区", prop:"AdministrativeArea"},
+                        {label:"土地面积（公顷）", prop:"Acreage"},
+                        {label:"宗地地址", prop:"Address"},
+                        {label:"土地他项权利人证号", prop:"ObligeeNo"},
+                        {label:"土地使用权证号", prop:"UsufructNo"},
+                        {label:"土地抵押人性质", prop:"MortgagorNature"},
+                        {label:"抵押土地用途", prop:"MortgagePurpose"},
+                        {label:"抵押土地权属性质与使用权类型", prop:"NatureAndType"},
+                        {label:"抵押面积（公顷）", prop:"MortgageAcreage"},
+                        {label:"评估金额（万元）", prop:"AssessmentPrice"},
+                        {label:"抵押金额（万元）", prop:"MortgagePrice"},
+                        {label:"土地抵押登记起始时间", prop:"OnBoardStartTime"},
+                        {label:"土地抵押结束时间", prop:"OnBoardEndTime"},
+                        {label:"土地抵押人名称", prop:"MortgagorName", handle:true},
+                        {label:"土地抵押权人", prop:"MortgagePeople", handle:true}
+                    ],
+                    data: data
+                }));
+            }else{
+                layErrorMsg("数据获取失败....")
+                $("#home").html("数据获取失败....")
+            }
+        }
+    });
+
+    $(document).on("click", "#handleMortgagePeople,#handleMortgagorName", function () {
+        var id = $(this).attr("id");
+        var name = id == "handleMortgagorName" ? MortgagorName["Name"] : MortgagePeople["Name"];
+        id = id == "handleMortgagorName" ? MortgagorName["KeyNo"] : MortgagePeople["KeyNo"];
+
+        showECI_Info(id, name);
+
+    })
+
+</script>
+</body>
+</html>

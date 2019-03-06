@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>系统管理 - 部门管理</title>
+    <link rel="stylesheet" href="/static/vendor/bootcss/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/vendor/ztree/css/zTreeStyle/zTreeStyle.css" type="text/css">
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+    <!-- <script src="../../../static/vendor/artTemplate/template-web.js"></script> -->
+</head>
+<body>
+    <div id="content">
+        <div class="panel panel-default">
+            <div class="panel-heading"> 部门列表 </div>
+            <div class="panel-body">
+                
+                <a class="btn btn-xs btn-success" id="addTopDept" href="javascript:;">添加顶级部门</a>
+                <!-- <input class="form-control input-sm" type="text" id="key" placeholder="请输入筛选关键词" style="width:30%;margin-top:6px;"> -->
+                <div id="dataTree" class="ztree">
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="../../../static/vendor/jquery/jquery.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script type="text/javascript" src="/static/vendor/ztree/js/jquery.ztree.core.js"></script>
+    <script type="text/javascript" src="/static/vendor/ztree/js/jquery.ztree.excheck.min.js"></script>
+    <script type="text/javascript" src="/static/vendor/ztree/js/jquery.ztree.exedit.min.js"></script>
+    <!-- <script type="text/javascript" src="/static/vendor/ztree/js/jquery.ztree.exhide.min.js"></script> -->
+	<!-- <script type="text/javascript" src="/static/vendor/ztree/js/fuzzysearch.js"></script> -->
+
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <SCRIPT type="text/javascript">
+    // 部门树设置
+		var setting = {
+			view: {
+				addHoverDom: addHoverDom,
+				removeHoverDom: removeHoverDom,
+                selectedMulti: false,
+                showLine: false
+			},
+			edit: {
+				enable: true,
+				showRemoveBtn: true,
+				showRenameBtn: true
+			},
+			data: { simpleData: { enable: true } },
+			callback: {
+				beforeDrag: function(){ return false },
+				beforeEditName: beforeEditName,
+				beforeRemove: beforeRemove
+			}
+        };
+        var ZTREE = null;
+
+        function onInfront(){
+            // 渲染数据列表
+            getFetch(
+                // loading: true,
+                // url: remoteApi.apiAlldepartment,
+                remoteOrigin + "/api/auto/org/getDList"
+                , function(origin){
+                    top.topCacheDepartment = origin;
+                    $.fn.zTree.init($("#dataTree"), setting, origin);
+                    var zTree = ZTREE = $.fn.zTree.getZTreeObj("dataTree")
+                    zTree.expandAll(true);
+                    // fuzzySearch('dataTree','#key',null,true); //初始化模糊搜索方法
+                }
+            )
+        }
+        onInfront();
+
+        // 编辑部门
+		function beforeEditName(treeId, treeNode) {
+            top.addTab("dep-add-" + top.getCountDown(), "编辑部门", "/htmlsrc/sysManage/deptManage/department.edit.html?id="+treeNode.id);
+			return false;
+        }
+        // 编辑回调
+        function editDeptCallback(origin){
+            var zTree = $.fn.zTree.getZTreeObj("dataTree");
+            editNode.name = origin.name;
+            var edited = editNode.sort != origin.sort;
+            editNode.sort = origin.sort;
+            zTree.editName(editNode);
+            zTree.cancelEditName(); // 取消编辑状态
+            layer.close(editNodeIndex);
+            if(edited){
+                var dom = $('#' + editNode.tId);
+                dom.parent().append(dom.parent().children().toArray().sort(function(a,b){
+                    var doma = ZTREE.getNodeByTId(a.id);
+                    var domb = ZTREE.getNodeByTId(b.id);
+                    if(doma.sort - domb.sort == 0){
+                        return doma.id - domb.id
+                    }else{
+                        return doma.sort - domb.sort
+                    }
+                }))
+            }
+            layer.msg("编辑成功!");
+        }
+        // 删除
+		function beforeRemove(treeId, treeNode) {
+			var zTree = $.fn.zTree.getZTreeObj("dataTree");
+			actConfirm(function () {
+                getFetch(remoteOrigin + "/api/user/org/delete", {id: treeNode.id}, function () {
+                    zTree.removeNode(treeNode);
+                    layer.msg("已删除");
+                })
+            });
+			// getFetch()
+            // delRemoteData({
+            //     url: remoteApi.apiDepartment+"?departmentId="+treeNode.id,
+            //     callback: function(){
+            //         zTree.removeNode(treeNode);
+            //         layer.msg("已删除");
+            //     }
+            // });
+			return false;
+        }
+        // 添加添加部门按钮
+		function addHoverDom(treeId, treeNode) {
+		    var id = treeNode.id + "";
+			var sObj = $("#" + treeNode.tId + "_span");
+			if (treeNode.editNameFlag || $("#addBtn_"+treeNode.tId).length>0) return;
+			var addStr = "<span class='button add' id='addBtn_" + treeNode.tId
+				+ "' title='add node' onfocus='this.blur();'></span>";
+			sObj.after(addStr);
+			var btn = $("#addBtn_"+treeNode.tId);
+			if (btn) btn.bind("click", function(){
+                // 添加部门
+                $("<button type='button' style='display: none'></button>")
+                    .attr({
+                        "tab-title": "添加部门"
+                        , "tab-href": "/htmlsrc/sysManage/deptManage/department.add.html?pid=" + treeNode.id+"&pname="+treeNode.name
+                    })
+                    .appendTo("body")
+                    .trigger("click")
+                    .remove();
+
+                currAddDept = treeNode;
+                // addDeptIndex = layerOpenIframe({
+                //     title: "添加部门",
+                //     url:  "./department.add.html?pid="+treeNode.id+"&pname="+treeNode.name
+                // })
+				return false;
+			});
+        };
+        // onmouseleave移除功能按钮
+		function removeHoverDom(treeId, treeNode) {
+			$("#addBtn_"+treeNode.tId).unbind().remove();
+        };
+        // 添加顶级部门
+        eventBind("#addTopDept", function(){
+            currAddDept = null;
+            top.addTab("dep-add-" + top.getCountDown(), "添加部门", "/htmlsrc/sysManage/deptManage/department.add.html?pid=0&pname=顶级部门");
+        })
+        // 添加部门回调
+        function addDeptCallback(origin){
+            var zTree = $.fn.zTree.getZTreeObj("dataTree");
+            zTree.addNodes(currAddDept, origin);
+            layer.close(addDeptIndex);
+        }
+    </SCRIPT>
+</body>
+</html>

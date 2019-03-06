@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>辅助管理系统</title>
+    <link rel="stylesheet" href="/static/vendor/bootcss/css/bootstrap.min.css">
+    <!-- <link rel="stylesheet" href="../../../static/vendor/jqui/jquery-ui.css"> -->
+    <link rel="stylesheet" href="/static/vendor/ztree/css/zTreeStyle/zTreeStyle.css" type="text/css">
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+    <link rel="stylesheet" href="/static/htmlcss/iframeWrap.css">
+    <script src="/static/vendor/jquery/jquery.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script> var firstLoadingIndex = layer.load(1, {shade: [0.1, '#000']});</script>
+    <style>
+        .navbar-nav li{
+            position: relative;
+            overflow: hidden;
+        }
+        .navbar-nav>li:after{
+            position: absolute;
+            right: 0;
+            top: 10px;
+            width: 1px;
+            height: 30px;
+            background: rgba(255,255,255,.25);
+            content: '';
+        }
+        .navbar-nav>li:before{
+            position: absolute;
+            top: 10px;
+            left: 0;
+            width: 1px;
+            height: 30px;
+            display: block;
+            background: rgba(0,0,0,.2);
+            content: '';
+        }
+        .navbar-nav>li:first-child:before{
+            display: none;
+        }
+        .navbar-nav>li:last-child:after{
+            display: none;
+        }
+        .navbar-nav>li.active:before{
+            width: 500px;
+            height: 100px;
+            opacity: .5;
+        }
+        .nav-wrap{
+            background: url(/static/htmlImage/titlebar_blue_bg.png) repeat;
+            box-shadow: 0 2px 10px rgba(0,0,0,.5);
+            /*background: url(/static/htmlImage/titlebar_blue_tile.png) repeat;*/
+        }
+        .gotomars-side-scroll{
+            background: url(/static/htmlImage/win_background.png) repeat;
+        }
+        #x-wrap-menu li a.curSelectedNode{
+            background: none;
+        }
+    </style>
+</head>
+<body>
+<div id="content-wrap">
+    <div class="nav-wrap">
+        <nav>
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="/index3.html">辅助管理系统</a>
+                </div>
+                <div class="navbar-header pull-right">
+                    <div class="pull-left" style="padding-right:20px;">
+                        <a href="javascript:;" class="pull-left" id="handleUnReadMsg" title="未读消息">
+                            <span class="glyphicon glyphicon glyphicon-bell" aria-hidden="true"></span>
+                            <span id="unReadMsgCount"></span>
+                        </a>
+                        <a href="javascript:;" class="pull-left" id="handleUnDealTask" title="未处理任务">
+                            <span class="glyphicon glyphicon-list-alt" aria-hidden="true"
+                                  style="padding-left: 15px"></span>
+                            <span id="unDealTaskCount"></span>
+                        </a>
+                    </div>
+                    <div class="btn-group pull-left" role="group">
+                        <a type="button" class="btn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <img src="" width="32" height="32" id="user-face" >
+                            <span id="navbar-user-name"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="javascript:;" id="handleOut">退出登录</a></li>
+                            <li><a href="javascript:;" id="handleChangePassword">修改密码</a></li>
+                            <li><a href="javascript:;" id="handleSetInfo">个人设置</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="collapse navbar-collapse x-wrap-nav">
+                    <ul class="nav navbar-nav">
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <div class="gotomars-side-scroll pull-left" id="x-wrap-menu-wrap" style="width:169px;overflow:hidden;padding-top:10px;padding-bottom: 10px;">
+        <div class="ztree" id="x-wrap-menu" style="width:186px;overflow-x:hidden;overflow-y:scroll">
+            <!-- 侧边栏菜单 -->
+        </div>
+        <div id="open-side-menu" data-open="false">
+            <a href="javascript:;" class="glyphicon glyphicon-fast-backward" id="side-start" title="最小"></a>
+            <a href="javascript:;" class="glyphicon glyphicon-backward" id="side-backward" title="减少10px"></a>
+            <a href="javascript:;" class="glyphicon glyphicon-forward" id="side-forward" title="增加10px"></a>
+            <a href="javascript:;" class=" glyphicon glyphicon-fast-forward" id="side-stop" title="最大"></a>
+        </div>
+    </div>
+    <div class="gotmars-iframe-scroll" style="overflow:hidden;padding-left:8px;padding-top:8px;">
+        <div class="tabbable" id="tabs" style="border:none;">
+            <!-- 页面标签列表 -->
+            <ul class="nav nav-tabs" id="myTab">
+                <a href="javascript:;" class="pull-left" id="closeAllIframe"><span class="glyphicon glyphicon glyphicon-remove" title="关闭所有页面"></span></a>
+                <a href="javascript:;" class="pull-left" id="closeOtherIframe"><span class="glyphicon glyphicon glyphicon-remove-circle" title="关闭其它页面"></span></a>
+                <a href="javascript:;" class="pull-left" id="reloadIframe"><span class="glyphicon glyphicon-repeat" title="刷新当前页面"></span></a>
+            </ul>
+            <!-- 页面内容列表，和页面标签列表对应 -->
+            <div class="tab-content" id="iframe-content-wrap">
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../../../static/vendor/jqui/jquery-ui.min.js"></script>
+<!-- HTML5 shim 和 Respond.js 是为了让 IE8 支持 HTML5 元素和媒体查询（media queries）功能 -->
+<!-- 警告：通过 file:// 协议（就是直接将 html 页面拖拽到浏览器中）访问页面时 Respond.js 不起作用 -->
+<!--[if lt IE 9]>
+<script src="/static/vendor/bootcss/js/html5shiv.min.js"></script>
+<script src="/static/vendor/bootcss/js/respond.min.js"></script>
+<![endif]-->
+<script src="/static/vendor/bootcss/js/bootstrap.min.js"></script>
+
+<script src="/static/htmljs/global.config.js"></script>
+<script src="/static/htmljs/utils.js"></script>
+<script src="/static/vendor/ztree/js/jquery.ztree.core.js"></script>
+<!-- 菜单配置信息 -->
+<script src="/static/htmljs/webMenu.js"></script>
+<script src="/static/htmljs/iframeNav.js"></script>
+<script>
+
+    // 默认打开页面
+    addTab("menu-mybench-bench", "我的工作台", '/htmlsrc/bench/myBench.html');
+
+    $(document).ready(function () {
+        var initTopIframe = function () {
+            var iframe = $("#iframe-content-wrap");
+            var h = $(window).height() - 78;
+            iframe.height(h - 25);
+            $("#x-wrap-menu").height(h-20);
+        }
+        initTopIframe();
+        $(window).resize(initTopIframe);
+    });
+
+//    $("#open-side-menu").click(function(){
+//        if($(this).data("open")){
+//            $("#x-wrap-menu-wrap").width(169);
+//            $("#x-wrap-menu").width(189);
+//            $(this).data("open", false)
+//        }else{
+//            $("#x-wrap-menu-wrap").width(250);
+//            $("#x-wrap-menu").width(270);
+//            $(this).data("open", true)
+//        }
+//    })
+
+    $("#side-start").click(function(){
+        $("#x-wrap-menu-wrap").width(169);
+        $("#x-wrap-menu").width(189);
+    })
+    $("#side-backward").click(function(){
+        var w = $("#x-wrap-menu-wrap").width();
+        if(w-10 < 169){
+            w = 169;
+        }else{
+            w -= 10;
+        }
+        $("#x-wrap-menu-wrap").width(w)
+        $("#x-wrap-menu").width(w+20);
+    })
+
+    $("#side-forward").click(function(){
+        var w = $("#x-wrap-menu-wrap").width();
+        console.log(w)
+        if(w+10 > 420){
+            w = 420;
+        }else{
+            w += 10;
+        }
+        $("#x-wrap-menu-wrap").width(w+"px")
+        $("#x-wrap-menu").width(w+20+"px");
+    })
+
+    $("#side-stop").click(function(){
+        $("#x-wrap-menu-wrap").width(420);
+        $("#x-wrap-menu").width(440);
+    })
+//    <a href="javascript:;" class=" glyphicon glyphicon-stop" id="side-stop" style="color: #faebcc"></a>
+//            <a href="javascript:;" class="glyphicon glyphicon-backward" id="side-backward" style="color: #faebcc"></a>
+//            <a href="javascript:;" class="glyphicon glyphicon-forward" id="side-forward" aria-hidden="true" style="color: #faebcc"></a>
+
+    var topCacheMenuAuthority = {};
+    // 当前用户信息
+    var topCacheUserInfo = {};
+    // 组织架构信息
+    var topCacheDepartment = [];
+    var topCacheDepartmentObj = {};
+    // 组织架构和岗位
+    var topCacheDepartmentAndQuarter = [];
+    // 所有用户
+    var topCacheUserList = [];
+    var topCacheUserObj = {};
+
+    getRemoteData({
+        url: remoteApi.apiUserIds + "?ids=" + $.cookie("userId"),
+        callback: function (origin) {
+            topCacheUserInfo = origin[0] || {};
+            // 用户权限
+            $("#navbar-user-name").html(topCacheUserInfo.trueName + "&nbsp;");
+            $("#user-face").attr("src", remoteApi.apiUserFace + (topCacheUserInfo.profile || {}).faceId);
+        }
+    })
+
+    $("img").error(function(){
+        $(this).attr("src", globalData.defaultImg);
+    })
+
+    setTimeout(function () {
+        // 获取组织架构信息
+        getRemoteData({
+            url: remoteApi.apiAlldepartment,
+            callback: function (origin) {
+                if (origin.length) {
+                    topCacheDepartment = origin;
+                    var stack = [];
+                    origin.forEach(function (item) {
+                        stack.push(item);
+                    })
+                    while (stack.length !== 0) {
+                        var dept = stack.shift();
+                        topCacheDepartmentObj[dept.id] = dept;
+                        if (dept.children.length !== 0) {
+                            dept.children.forEach(function (item) {
+                                stack.push(item);
+                            })
+                        }
+                    }
+                }
+            }
+        })
+        // 获取所有用户信息
+        getRemoteData({
+            url: remoteApi.apiNormalUsers,
+            callback: function (origin) {
+                var _obj = {};
+                origin.forEach(function (elem) {
+                    if (_obj[elem[0]]) {
+                        _obj[elem[0]].quarters.push(elem[4]);
+                    } else {
+                        _obj[elem[0]] = {
+                            id: elem[0],
+                            name: elem[1],
+                            phone: elem[2],
+                            face: elem[3], // 头像Id
+                            quarters: elem[4] ? [elem[4]] : [] // 岗位ids
+                        }
+                    }
+                });
+                topCacheUserObj = JSON.parse(JSON.stringify(_obj));
+                var arr = [];
+                for (var key in _obj) {
+                    if (!_obj.hasOwnProperty(key)) {
+                        continue;
+                    }
+                    arr.push(_obj[key]);
+                }
+                topCacheUserList = arr;
+            }
+        })
+    }, 5000);
+    // 退出登录
+    $("#handleOut").click(function () {
+        actConfirm(function () {
+            loginOut();
+        })
+    })
+    // 跳转至个人设置 - 修改密码
+    $("#handleChangePassword").click(function () {
+        redirectShowMenu("menu-mybench", "menu-change-password");
+    });
+    // 跳转至个人设置 - 修改个人信息
+    $("#handleSetInfo").click(function () {
+        redirectShowMenu("menu-mybench", "menu-put-user-info");
+    });
+    // 跳转至消息管理
+    $("#handleUnReadMsg").click(function () {
+        redirectShowMenu("menu-mybench", "menu-mybench-notice");
+    })
+    // 跳转至我的工作台 - 待处理任务列表
+    $("#handleUnDealTask").click(function () {
+        redirectShowMenu("menu-mybench", "menu-mybench-bench");
+    })
+
+    // 监听函数
+    var monitorFuncs = {
+        // 获取未读消息
+        getUnReadNotice: function(){
+            getRemoteData({
+                url: remoteApi.apiGetUnreadUserList,
+                callback: function (origin) {
+                    if (origin && origin.length > 0) {
+                        var noticeCount = 0;
+                        origin.forEach(function(item, index){
+                            noticeCount += item.unreadNum;
+                        })
+                        $("#unReadMsgCount").html(noticeCount).show();
+                    } else {
+                        $("#unReadMsgCount").html("").hide();
+                    }
+                }
+            });
+        },
+        // 获取未处理任务
+        getUnDealTask: function () {
+            getRemoteData({
+                url: remoteApi.apiMyNeedingWorks,
+                callback: function (origin) {
+                    if (origin.content && origin.content.length > 0) {
+                        $("#unDealTaskCount").html(origin.totalElements).show();
+                    } else {
+                        $("#unDealTaskCount").html("").hide();
+                    }
+
+                }
+            });
+        },
+        // 检查是否在线
+        checkOnline: function () {
+            SuperPost({
+                type: "get",
+                url: remoteApi.apiCheckOnline,
+                success: function (res) {
+                    if (res.success === false) {
+                        loginOut();
+                    }
+                },
+                error: function () {
+                    loginOut();
+                }
+            })
+        }
+    }
+    // 监听
+     monitorFuncs.checkOnline();
+     monitorFuncs.getUnReadNotice();
+     monitorFuncs.getUnDealTask();
+     setInterval(function () {
+         monitorFuncs.getUnReadNotice();
+         monitorFuncs.getUnDealTask();
+     }, 1000 * 10);
+     setInterval(function () {
+         monitorFuncs.checkOnline();
+     }, 1000 * 30);
+
+    function loginClound() {
+        getRemoteData({
+            url: '/api/user/getCloudFileAccount',
+            callback: function (origin) {
+                $.ajax({
+                    url: remoteApi.apiCloudLogin + "?username=" + origin[0] + "&password=" + origin[1],
+                    success: function (res) {
+                        $.cookie("remoteCloundToken", remoteCloundToken + res.sessionId, {path: "/"});
+                    }
+                })
+            }
+        })
+    }
+    loginClound();
+
+    setInterval(function () {
+        loginClound();
+    }, 1000 * 60 * 5);
+
+</script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title> 被执行人详情 </title>
+    <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script src="/static/vendor/bootcss/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+</head>
+<body>
+<div id="content">
+    <div class="bs-example bs-example-tabs" data-example-id="togglable-tabs">
+        <ul id="myTabs" class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active"><a href="#home" id="home-tab" role="tab" data-toggle="tab" data-controls="home" aria-expanded="true">被执行人详情</a></li>
+        </ul>
+        <div id="myTabContent" class="tab-content" style="padding-top: 10px;">
+            <div role="tabpanel" class="tab-pane  active in" id="home" aria-labelledby="home-tab">
+                <!-- 基本信息展示 -->
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/static/vendor/artTemplate/template-web.js"></script>
+<script src="/static/vendor/layui/layer/layer.js"></script>
+<script src="/static/htmljs/global.config.js"></script>
+<script src="/static/htmljs/utils.js"></script>
+<script src="../../../tmpl/js/panelTableShow.js"></script>
+<script>
+    SuperPost({
+        url: "http://localhost:8015/test/qichacha/Court/GetZhiXingDetail",
+        success: function(origin){
+            if(origin.Status == "200"){
+                var data = origin.Result || {};
+                // var Prosecutor = [];
+                // var Defendant = [];
+                // data["Prosecutor"].forEach(val=> Prosecutor.push(val["Name"]));
+                // data["Defendant"].forEach(val=> Defendant.push(val["Name"]));
+                // data["Prosecutor"] = Prosecutor.join("、");
+                // data["Defendant"] = Defendant.join("、");
+
+                $("#home").html(panelTableShowRender2({
+                    attrs:[
+                        // {label:"主键", prop:"Id"},
+                        // {label:"官网系统ID", prop:"Sourceid"},
+                        {label:"被执行人姓名/名称", prop:"Name"},
+                        {label:"立案时间", prop:"Liandate"},
+                        {label:"案号", prop:"Anno"},
+                        {label:"执行法院", prop:"ExecuteGov"},
+                        {label:"标地", prop:"Biaodi"},
+                        {label:"状态", prop:"Status"},
+                        {label:"身份证号码/组织机构代码", prop:"PartyCardNum"},
+                        {label:"记录更新时间", prop:"Updatedate"},
+                        {label:"组织类型（1：自然人，2：企业，3：社会组织，空白：无法判定）", prop:"OrgType"},
+                        {label:"组织类型名称", prop:"OrgTypeName"}
+                    ],
+                    data: data
+                }));
+            }else{
+                layErrorMsg("数据获取失败....")
+                $("#home").html("数据获取失败....")
+            }
+
+        }
+    })
+</script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!--#include file="common.html" -->
+
+<script>
+
+    $("#panel-form").html(panelFormRender3({
+        list:[
+            { prop: 'PRD_TYPE', label: '产品类别',type:"select", vals:[
+                {"val":"","name":"所有"}
+                , {"val":"01","name":"对公贷款"}
+                , {"val":"02","name":"对私贷款"}
+                ]
+            }
+            , { prop: 'LOAN_NATURE', label: '贷款性质', type:"select", vals:[
+                    {"val":"","name":"所有"}
+                    ,{"val":"01","name":"自营贷款"}
+                    ,{"val":"02","name":"委托贷款"}
+                    ,{"val":"03","name":"特定贷款"}
+                ]
+            }
+        ],
+        data: {}
+    }));
+
+    $(function () {
+        layui.use("laydate",function () {
+            layui.each(["DATE"], function (i,v) {
+                layui.laydate.render({
+                    elem: "#" + v
+                    ,type: "month"
+                });
+            });
+        })
+    });
+
+    //        $(function() {
+    //            $('#start').datepicker({ changeMonth: true, changeYear: true, dateFormat: 'yymmdd' });
+    //            $("#end").datepicker({ changeMonth: true, changeYear: true, dateFormat: 'yymmdd' });
+    //        });
+
+    laytableRender({
+        title: "惠州市农商行隐性不良贷款明细表"
+        , url: remoteOrigin + "/api/report/report_7"
+        , dataType: "json"
+        // , page: false
+        , cols: [
+            [{"title":"贷款机构","field":"MAIN_BR_NAME"}
+                ,{"title":"贷款账号","field":"LOAN_ACCOUNT"}
+                ,{"title":"借款人","field":"CUS_NAME"}
+                ,{"title":"借款起始日期","field":"LOAN_START_DATE"}
+                ,{"title":"终止日期","field":"LOAN_END_DATE"}
+                ,{"title":"贷款金额（元）","field":"LOAN_AMOUNT",money:true}
+                ,{"title":"贷款余额（元）","field":"LOAN_BALANCE",money:true}
+                ,{"title":"五级分类","field":"CLA"}
+                ,{"title":"欠息金额（元）","field":"DELAY_INT_CUMU",money:true}
+                ,{"title":"欠息起始日","field":"INTEREST_OVERDUE_DATE"}
+                ,{"title":"拖欠本金金额（元）","field":"UNPD_PRIN_BAL",money:true}
+                ,{"title":"拖欠本金起始日","field":"CAP_OVERDUE_DATE"}
+                ,{"title":"备注","field":""}
+                ,{"title":"时间","field":"SRC_SYS_DATE"}]
+        ]
+
+    });
+
+    function checkSubmitForm(){
+        var form = $("form[name='form-search']")
+        layuiTableReload({
+            where: form.serialize()
+        });
+        return false;
+    }
+</script>

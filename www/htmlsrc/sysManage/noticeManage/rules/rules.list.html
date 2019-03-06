@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 系统管理 - 消息设置 - 规则管理 - 列表 </title>
+    <link href="../../../../static/vendor/bootcss/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+</head>
+<body>
+    <div id="content"> 
+        <div class="" id="panel-form">
+            <!-- 查询表单 -->
+        </div>
+        <div class="batch-operation">
+            <a class="btn btn-success" href="/htmlsrc/sysManage/noticeManage/rules/rules.add.html">添加规则</a>
+            <a href="javascript:;" class="btn btn-danger" id="batchDel">批量删除</a>
+        </div>
+        <div id="dataList">
+            <!-- 数据列表 -->
+        </div>
+    </div>
+    <script src="../../../../static/vendor/jquery/jquery.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script src="../../../../static/vendor/artTemplate/template-web.js"></script>
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="../../../../../tmpl/js/tableList.js"></script>
+    <script src="../../../../../tmpl/js/panelForm.js"></script>
+    <!-- toolbar渲染模板 -->
+    <script type="text/html" id="toolbar">
+        <div class="layui-toolbar">
+            <a href="/htmlsrc/sysManage/noticeManage/rules/rules.edit.html?id={{d.id}}" class="btn handleEdit btn-warning">编辑</a>
+            <a href="/htmlsrc/sysManage/noticeManage/rules/rules.show.html?id={{d.id}}" class="btn handleEdit btn-default">查看</a>
+            <a href="javascript:;" class="btn handleDel btn-danger" data-value="{{d.id}}" data-index="{{d.LAY_TABLE_INDEX}}">删除</a>
+        </div>
+    </script>
+    <script>
+        $("#panel-form").html(panelFormRender({
+            panelTitle:'筛选查询',
+            list:[
+                { prop: 'name', label: '规则名' }
+            ],
+            data: {}
+        }));
+
+        laytableRender({
+            url: remoteApi.apiSystemLog,
+            cols: [
+                [
+                    {checkbox: true, fixed: true},
+                    {field:'id', title:'规则编号'},
+                    {field:'f2', title:'规则名称'},
+                    {field:'f3', title:'规则内容'},
+                    {title:'操作', templet: "#toolbar"}
+                ]
+            ]
+        });
+
+        function delData(data){
+            delRemoteData({
+                url: '',
+                data: '',
+            })
+        }
+        $("#batchDel").click(function(){
+            var ids = getLayuiTabelCheckIds();
+            if(ids.length < 1){
+                return;
+            }
+            delData(ids);
+        })
+        $(document).on("click", ".handleDel", function(){
+            delData([$(this).data('value')]);
+        });
+        function checkSubmitForm(){
+            var form = $("form[name='form-search']")
+            layuiTableReload({
+                where: form.serialize()
+            })
+            return false;
+        }
+    </script>
+</body>
+</html>

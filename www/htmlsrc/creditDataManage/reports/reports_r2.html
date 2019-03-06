@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title> 报表 </title>
+    <link rel="stylesheet" href="/static/vendor/bootcss/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="/static/vendor/jqui/jquery-ui.css">
+    <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+</head>
+<body>
+    <div id="content">
+        <div id="start-end-time-form">
+            <!-- 筛选表单 -->
+        </div>
+        <div class="batch-operation">
+            <a class="btn btn-success" id="handleExport" href="javascript:;">导出数据</a>
+        </div>
+        <div id="dataList"></div>
+        <div class="panel-body">
+            <div class="text-center">
+                <a href="javascript:void(0)" onclick="javascript:history.go(-1);return false;">【返回】</a>
+            </div>
+        </div>
+    </div>
+    <script src="/static/vendor/jquery/jquery.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script src="/static/vendor/jqui/jquery-ui.min.js"></script>
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/vendor/artTemplate/template-web.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="../../../tmpl/js/panelForm.js"></script>
+    <script src="./reports.js"></script>
+    <script type="text/html" id="addTime">
+            {{# return dateFormate1(d.addTime) }}
+    </script>
+    <script>
+        $("#start-end-time-form").html(panelFormRender3({
+            panelTitle: reportsInfo.reportsName,
+            list:[
+                { prop: 'start', label: '起始时间' },
+                { prop: 'end', label: '截至时间' }
+            ],
+            data: {}
+        }));
+        laytableRender({
+            page: false,
+            cellMinWidth: 100,
+            data: [],
+            // url: remoteApi.apiSystemLog,
+            cols: [
+                [
+                    {field: 'fff1', title: "月份", rowspan: 3},
+                    {field: 'fff2', title: "各项贷款", rowspan: 2, colspan: 3},
+                    {field: 'fff3', title: "其中", colspan: 6}
+                ],
+                [
+                    {field: 'fff4', title: "一般贷款", colspan: 3},
+                    {field: 'fff5', title: "转帖现", colspan: 3},
+                    
+                ],
+                [
+                    {field: 'fff6', title: "余额" },
+                    {field: 'fff7', title: "比年初" },
+                    {field: 'fff8', title: "比上月" },
+                    {field: 'fff9', title: "余额" },
+                    {field: 'fff10', title: "比年初" },
+                    {field: 'fff11', title: "比上月" },
+                    {field: 'fff12', title: "余额"},
+                    {field: 'fff13', title: "比年初"},
+                    {field: 'fff14', title: "比上月"}
+                ]
+            ]
+        });
+        eventBind("#handleExport", function(that){
+            var start = dateToTimestamp($("#start").val());
+            var end = dateToTimestamp($("#end").val());
+            if(end<start){
+                return;
+            }
+        })
+        var form = $("form[name='form-search']");
+        form.validate({
+            form: form,
+            rules: {
+                end: 'required'
+            }
+        })
+        function checkSubmitForm(){
+            if(form.valid()){
+                layuiTableReload({
+                    page: false,
+                    where: form.serialize()
+                });
+            }
+            return false;
+        }
+    </script>
+</body>
+</html>

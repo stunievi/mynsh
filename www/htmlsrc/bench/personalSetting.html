@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>个人设置</title>
+    <!--#include file="/htmlsrc/header.html" -->
+</head>
+<body>
+    <div id="content">
+        <ul id="myTabs" class="nav nav-tabs" role="tablist">
+            <li role="presentation"><a href="#change-form" id="change-form-tab" role="tab" data-toggle="tab" aria-controls="change-form" aria-expanded="true">个人设置</a></li>
+            <li role="presentation" ><a href="?act=facePic" id="set-user-face">设置头像</a></li>
+        </ul>
+        <div id="myTabContent" class="tab-content">
+            <div role="tabpanel" class="tab-pane active" id="change-form" aria-labelledby="change-form-tab">
+            </div>
+            <div role="tabpanel" class="tab-pane" id="facePic" aria-labelledby="facePic-tab">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="col-xs-6">
+                            <img src="" id="userFace" width="100" height="100" alt="头像获取失败">
+                        </div>
+                        <div class="col-xs-6">
+                            <!--用来存放item-->
+                            <div id="fileList" class="uploader-list"></div>
+                            <div id="filePicker">选择图片</div>
+                            <button id="ctlBtn" class="btn btn-default btn-sm">开始上传</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--<script src="../../static/vendor/jquery/jquery.js"></script>-->
+    <!--<script src="/static/vendor/bootcss/js/bootstrap.min.js"></script>-->
+    <!--<script src="../../static/vendor/artTemplate/template-web.js"></script>-->
+    <!--<script src="/static/vendor/validate/jquery.validate.min.js"></script>-->
+    <!--<script src="/static/vendor/layui/layer/layer.js"></script>-->
+    <!--<script src="../../static/htmljs/global.config.js"></script>-->
+    <!--<script src="../../static/htmljs/utils.js"></script>-->
+    <!--<script src="../../tmpl/js/panelForm.js"></script>-->
+    <script src="/static/vendor/webUploader/webuploader.min.js"></script>
+    <script>
+    var currUser = getUserById();
+    if(getParam("act") == 'facePic'){
+        $('#myTabs li:last').addClass('active');
+        $(".tab-pane").removeClass("active");
+        $("#facePic").addClass("active");
+        var faceId;
+        try {
+            faceId = currUser.profile.faceId;
+        } catch (error) {
+            faceId = '';
+        }
+        $("#userFace").attr("src", "/file/avatar/" + $.cookie("userId") + ".jpg?v=" + Math.random()) ;
+        $().ready(function(){
+            var uploader = WebUploader.create({
+                swf: "/static/vendor/webUploader/Uploader.swf",
+                server: remoteOrigin + "/api/file/uploadFace",
+                pick: {
+                    id: '#filePicker',
+                    multiple:false
+                },
+                fileNumLimit: 1,
+                headers: {
+                    authorization: getUserToken()
+                },
+                accept: {
+                    title: 'Images',
+                    extensions: 'gif,jpg,jpeg,bmp,png',
+                    mimeTypes: 'image/*'
+                }
+            });
+            uploader.on("uploadBeforeSend", function(obj, data, headers){
+                data.token = getUserToken();
+                data.type = "FACE";
+            })
+            $("#filePicker").click(function(){
+                uploader.reset();
+            })
+            $("#ctlBtn").click(function(){
+                uploader.upload();
+            });
+            // 当有文件添加进来的时候
+            uploader.on( 'fileQueued', function( file ) {
+                var $li = $(
+                    '<div id="' + file.id + '" class="file-item thumbnail">' +
+                        '<img>' +
+                        '<div class="info text-center">' + file.name + '</div>' +
+                    '</div>'
+                    ),
+                $img = $li.find('img');
+                $("#fileList").html( $li );
+                uploader.makeThumb( file, function( error, src ) {
+                    if ( error ) {
+                        $img.replaceWith('<span>不能预览</span>');
+                        return;
+                    }
+                    $img.attr( 'src', src );
+                }, 100, 100 );
+            });
+            // 上传失败
+            uploader.on('uploadError', function(file, res) {
+                layer.msg("上传失败");
+            });  
+            // 单个文件上传成功
+            uploader.on('uploadSuccess', function(file, res) {
+                if(res.success){
+                    // TODO:: 调用更新头像API
+                    $("#userFace").attr("src","/file/avatar/" + $.cookie("userId") + ".jpg?v=" + Math.random());
+                    layer.msg("上传成功, 如果头像没有自动刷新, 请退出并清理缓存后重新登录");
+                }else{
+                    layer.msg("上传失败");
+                }
+            }); 
+        }) 
+    }else {
+        $('#myTabs a[href="#change-form"]').tab('show');
+    }
+
+    getFetch(remoteOrigin + "/api/auto/user/getOne", {id:$.cookie("userId")}, function (user) {
+        $("#change-form").html(panelFormRender({
+            formName: 'change-info',
+            // panelTitle:'修改密码',
+            list:[
+                { prop: 'email', label: '邮箱', width: 12, labelWidth: 2 },
+                { prop: 'phone', label: '电话', width: 12, labelWidth: 2  },
+                { prop: 'trueName', label: '真实姓名', width: 12, labelWidth: 2 }
+            ],
+            data: user
+        }));
+
+        // 修改个人信息
+        var form2 = $("form[name='change-info']");
+        form2.validate({
+            rules: {
+                email:{
+                    email: true
+                },
+                phone: {
+                    mobile: true
+                },
+                trueName: {
+                    required: true
+                }
+            },
+            submitHandler: function(){
+                var formData = $.unserialize(form2.serialize());
+                formData.id = $.cookie("userId");
+                formData.username = user.username;
+                postFetch(
+                    remoteOrigin + "/api/auto/user/edit",
+                    formData,
+                    function(origin){
+                        layer.msg("修改成功, 重新登录后生效！");
+                    }
+                )
+            }
+        })
+    })
+
+
+
+    function checkSubmitForm(){
+        // 兼容旧版
+        return false;
+    }
+    </script>
+</body>
+</html>

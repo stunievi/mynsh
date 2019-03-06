@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 查询企业经营异常信息 </title>
+    <!--#include file="/htmlsrc/header.html" -->
+</head>
+<body>
+<div id="content">
+    <div class="" id="panel-form">
+        <!-- 查询表单 -->
+    </div>
+    <div id="dataList">
+        <!-- 数据列表 -->
+    </div>
+</div>
+<script>
+    // 配置查询表单
+    $("#panel-form").html(panelFormRender3({
+        panelTitle:'筛选查询',
+        col: 3,
+        list:[
+            {prop:"eyNo", label:"社会统一信用代码、公司名"}
+        ],
+        data: { }
+    }));
+
+    laytableRender({
+        title: "查询企业经营异常信息列表"
+        , url: "http://localhost:8015/test/qichacha/ECIException/GetOpException"
+        , dataType: "json"
+        , cols: [
+            [
+                {title:"列入经营异常名录原因", field:"AddReason"},
+                {title:"列入日期", field:"AddDate"},
+                {title:"移出经营异常名录原因", field:"RomoveReason"},
+                {title:"移出日期", field:"RemoveDate"},
+                {title:"作出决定机关", field:"DecisionOffice"},
+                {title:"移除决定机关", field:"RemoveDecisionOffice"}
+            ]
+        ]
+    });
+</script>
+</body>
+</html>

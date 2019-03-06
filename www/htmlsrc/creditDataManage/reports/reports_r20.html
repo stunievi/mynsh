@@ -1,0 +1,52 @@
+<!--#include file="common.html" -->
+
+<script>
+
+    // $("#panel-form").html(panelFormRender3({
+    //     list:[
+    // { prop: 'year', label: '年', disabled: true}
+    // { prop: 'LOAN_NATURE', label: '贷款性质'}
+    // ],
+    // data: {}
+    // }));
+
+    $(function () {
+        layui.use("laydate",function () {
+            layui.each(["year"], function (i,v) {
+                layui.laydate.render({
+                    elem: "#" + v
+                    ,type: "year"
+                });
+            });
+        })
+    });
+
+    //        $(function() {
+    //            $('#start').datepicker({ changeMonth: true, changeYear: true, dateFormat: 'yymmdd' });
+    //            $("#end").datepicker({ changeMonth: true, changeYear: true, dateFormat: 'yymmdd' });
+    //        });
+
+    laytableRender({
+        url: remoteOrigin + "/api/report/report_20"
+        , dataType: "json"
+        , page: false
+        , cols: [
+            [{"title":"贷款机构","field":"MAIN_BR_NAME"}
+                ,{"title":"客户名称","field":"CUS_NAME"}
+                ,{"title":"贷款金额（万元）","field":"LOAN_AMOUNT"}
+                ,{"title":"贷款余额（万元）","field":"LOAN_BALANCE"}
+                ,{"title":"五级分类","field":"CLA"}
+                ,{"title":"担保方式","field":"ASSURE_MEANS_MAIN"}
+                ,{"title":"贷款期限（月）","field":"LOAN_TERM"}]
+        ]
+
+    });
+
+    function checkSubmitForm(){
+        var form = $("form[name='form-search']")
+        layuiTableReload({
+            where: form.serialize()
+        });
+        return false;
+    }
+</script>

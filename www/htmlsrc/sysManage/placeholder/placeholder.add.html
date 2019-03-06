@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 系统管理 - 占位符管理 - 添加</title>
+    <script src="../../../static/vendor/jquery/jquery.js"></script>
+    <script src="../../../static/vendor/artTemplate/template-web.js"></script>
+    <link href="../../../static/vendor/bootcss/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="content"> 
+        <div id="addForm">
+        </div>
+        <div class="text-center">
+            <a href="javascript:void(0)" onclick="javascript:history.go(-1);return false;">【返回】</a>
+        </div>
+    </div>
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="../../../tmpl/js/panelForm.js"></script>
+    <script>
+        $("#addForm").html(panelFormRender({
+            formName: 'add-form',
+            panelTitle:'添加占位符',
+            list:[
+                { prop: 'trueName', label: '占位符名称', required: true },
+                { prop: 'username', label: '占位符定义', required: true },
+                { prop: 'password', label: '备注' }
+            ],
+            data: {}
+        }));
+        
+        function checkSubmitForm(){
+            form = $("form[name='add-form']");
+            checkSubmitFun({
+                form: form,
+                rules: {
+                    trueName: { required: true, minlength:2 },
+                    username: { required: true }
+                },
+                submit:function(){
+                    postRemoteData({
+                        url: remoteApi.apiUser,
+                        data: form.serialize(),
+                        callback: 'back'
+                    })
+                }
+            })
+        }
+        checkSubmitForm();
+    </script>
+</body>
+</html>

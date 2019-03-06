@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 司法拍卖 </title>
+    <!--#include file="/htmlsrc/header.html" -->
+</head>
+<body>
+<div id="content">
+    <div class="" id="panel-form">
+        <!-- 查询表单 -->
+    </div>
+    <div id="dataList">
+        <!-- 数据列表 -->
+    </div>
+</div>
+<!-- toolbar渲染模板 -->
+<script type="text/html" id="toolbar">
+    <div class="layui-toolbar">
+        <a href="javascript:;" class="btn btn-default handleShow">查看</a>
+    </div>
+</script>
+<!--<script src="./GetCourtNoticeInfo.html"></script>-->
+<script>
+    // 配置查询表单
+    $("#panel-form").html(panelFormRender3({
+        panelTitle:'筛选查询',
+        col: 3,
+        list:[
+            {prop:"keyWord", label:"查询关键字"}
+        ],
+        data: { }
+    }));
+
+    laytableRender({
+        title: "司法拍卖列表"
+        , url: "http://localhost:8015/test/qichacha/JudicialSale/GetJudicialSaleList"
+        , dataType: "json"
+        , cols: [
+            [
+                { title:'操作', templet: "#toolbar", fixed: 'right'},
+                // {title:"主键", field:"Id"},
+                {title:"标题", field:"Name"},
+                {title:"委托法院", field:"Executegov"},
+                {title:"拍卖时间", field:"ActionRemark"},
+                {title:"起拍价", field:"YiWu"}
+            ]
+        ]
+    });
+
+    $(document).on("click", ".handleShow", function (){
+        addNavTab("CourtAnno", "司法拍卖详情", "/htmlsrc/qichacha/JudicialSale/GetJudicialSaleDetail.html");
+        return true;
+    });
+</script>
+</body>
+</html>

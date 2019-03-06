@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 不良资产管理 - 不良资产管理流程 - 开启子任务 - 填写表单 </title>
+    <link rel="stylesheet" href="../../../static/vendor/bootcss/css/bootstrap.min.css">
+    <script src="../../../static/vendor/jquery/jquery.js"></script>
+    <script src="../../../static/vendor/artTemplate/template-web.js"></script>
+</head>
+<body>
+    <div id="content"> 
+    </div>
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="../../../tmpl/js/panelForm.js"></script>
+    <script>
+        $("#content").html(panelFormRender({
+            // panelTitle:'系统信息设置',
+            list:[
+                { prop: 'additionalProp1', label: '固有字段1' },
+                { prop: 'additionalProp2', label: '固有字段2' },
+                { prop: 'additionalProp3', label: '固有字段3' }
+            ],
+            data: {
+                additionalProp1: '子任务固有字段1',
+                additionalProp2: '子任务固有字段2',
+                additionalProp3: '子任务固有字段3'
+            }
+        }));
+
+        var form = $("form[name='form-search']");
+        $().ready(function() {
+            form.validate({
+                rules: {
+                    'additionalProp1': "required",
+                    'additionalProp2': "required",
+                    'additionalProp3': "required"
+                }
+            })
+        });
+
+        function checkSubmitForm(){
+            if(form.valid()){
+                if(parent.handleOpenSonTaskCallback){
+                    parent.handleOpenSonTaskCallback($.unserialize(form.serialize()));
+                }
+            }
+            return false;
+        }
+    </script>
+</body>
+</html>

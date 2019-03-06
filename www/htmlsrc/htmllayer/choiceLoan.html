@@ -1,0 +1,103 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 选择贷款台账 </title>
+    <!--#include file="/htmlsrc/header.html" -->
+    <style>
+        .layui-table-body { min-height: 220px; }
+        td{
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <div id="content"> 
+        <div class="" id="panel-form">
+        </div>
+        <div class="batch-operation">
+            <!-- <button type="button" class="btn btn-default btn-sm" id="batchDel">批量删除 </button> -->
+        </div>
+        <div id="dataList">
+        </div>
+    </div>
+    <!-- toolbar渲染模板 -->
+    <script type="text/html" id="toolbar">
+        <div class="layui-toolbar">
+            <a href="javascript:;" class="btn handleAdd btn-default" data-index={{d.LAY_TABLE_INDEX}} data-loanid="{{d.LOAN_ACCOUNT}}">确定</a>
+        </div>
+    </script>
+    <script>
+        $("#panel-form").html(panelFormRender3({
+            // panelTitle:'筛选查询',
+            col: 3,
+            list:[
+                { prop: 'BILL_NO', label: '借据号' },
+                { prop: 'CONT_NO', label: '合同号' },
+                { prop: 'LOAN_ACCOUNT', label: '贷款帐号' },
+                { prop: 'CUS_ID', label: '客户号' },
+                { prop: 'CUS_NAME', label: '客户名称' }
+            ],
+            data: {}
+        }));
+
+        var loanList = [];
+        setTimeout(function(){
+            laytableRender({
+                cellMinWidth: 110,
+                url: remoteApi.apiOdsSearchAccloanData,
+                cols: [
+                    [
+                        { field:'toolbar', title:'操作', templet: '#toolbar', pos: "right", fix: 'right' },
+
+                        { title :'主管机构', field:'MAIN_BR_NAME' },
+                        { title :'贷款帐号', field:'LOAN_ACCOUNT' },
+                        { title :'客户号', field:'CUS_ID' },
+                        { title :'客户名称', field:'CUS_NAME', pos: "noleft"},
+                        { title :'贷款金额(元)', field:'LOAN_AMOUNT', money: true },
+                        { title :'贷款余额(元)', field:'LOAN_BALANCE', money: true },
+                        { title :'欠息累计(元)', field:'DELAY_INT_CUMU', money: true },
+                        { title :'拖欠本金(元)', field:'UNPD_PRIN_BAL', money: true },
+                        { title :'五级分类', field:'CLA'},
+                        { title :'主担保方式', field:'ASSURE_MEANS_MAIN' },
+                        { title :'年利率', field:'REALITY_IR_Y' },
+                        { title :'本金逾期起始日期', field:'CAP_OVERDUE_DATE' },
+                        { title :'利息逾期起始日期', field:'INTEREST_OVERDUE_DATE' },
+                    ]
+                ],
+                resHandler: function(res){
+                    loanList = JSON.parse(JSON.stringify(res.data.content));
+                    res.data.content.forEach(function(element) {
+                        transformOdsEnumData(element,['ASSURE_MEANS_MAIN', 'REPAYMENT_MODE', 'CLA']);
+                    });
+                    return res;
+                }
+            })
+        }, 300)
+
+        var bindId = getParam("bindId") || undefined;
+        eventBind(".handleAdd", function(that){
+            var loan = that.attr("data-loanid");
+            actConfirm(function(){
+                postFetch(remoteOrigin + "/api/auto/infolink/add", {
+                    insId: bindId
+                    , loanAccount: loan
+                },function () {
+                    closeCurrentIframe();
+                });
+                // parent.choiceLoanCallback(loan);
+            },"确定将收集资料【"+bindId+"】与台账【"+loan+"】绑定?")
+            return true;
+        })
+
+        function checkSubmitForm(){
+            layuiTableReload({
+                where: $("[name='form-search']").serialize()
+            })
+            return false;
+        }
+    </script>
+</body>
+</html>

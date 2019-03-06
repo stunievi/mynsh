@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>系统管理 - 岗位管理 - 编辑 </title>
+    <!--<link rel="stylesheet" href="../../../static/vendor/bootcss/css/bootstrap.min.css">-->
+    <!--#include file="/htmlsrc/header.html" -->
+</head>
+<body>
+    <div id="content">
+        <div id="editForm">
+        </div>
+    </div>
+    <!--<script src="../../../static/vendor/jquery/jquery.js"></script>-->
+    <!--<script src="../../../static/vendor/artTemplate/template-web.js"></script>-->
+    <!--<script src="/static/vendor/validate/jquery.validate.min.js"></script>-->
+    <!--<script src="/static/vendor/layui/layer/layer.js"></script>-->
+    <!--<script src="/static/htmljs/global.config.js"></script>-->
+    <!--<script src="/static/htmljs/utils.js"></script>-->
+    <!--<script src="../../../tmpl/js/panelForm.js"></script>-->
+    <script>
+        var deptList = parent.deptList; // 部门列表
+        var departmentId = getParam("deptId"); // 编辑部门id
+        var departmentName = decodeURI(getParam("deptName")); // 编辑岗位index
+        // var currDept = getDataFromTree(deptList, 'id', departmentId);
+        
+        $("#editForm").html(panelFormRender3({
+            // panelTitle:'编辑岗位信息',
+            list:[
+                { prop: 'name', label: '岗位名', width:12, labelWidth:2, required: true},
+                { prop: 'manager', label: '主管岗位', type: 'checkbox', value:1, checked:false },
+                // { prop: 'parentId', type: "hidden" },
+                { prop: 'deptName', label: '所属部门名', disabled: true, width:12, labelWidth:2},
+                { prop: 'sort', label: '排序', required: true},
+                { prop: 'info', label: '描述' , type:'textarea', width:12, labelWidth:2}
+            ],
+            data: {
+                // departmentId: departmentId,
+                deptName: departmentName
+            }
+            ,line: true
+        }));
+        var form = $("form[name='form-search']")
+        $().ready(function() {
+            form.validate({
+                rules: {
+                    'name': "required"
+                    // 'deptName': "required"
+                },
+                submitHandler:function(){
+                    if(form.valid()){
+                        var data = $.unserialize(form.ghostsf_serialize());
+                        data.type = 'QUARTERS';
+                        data.parentId = departmentId || 0;
+                        data.manager = $("[name=manager]:checked").length > 0 ? 1 : 0
+                        postFetch(remoteOrigin+"/api/auto/org/add", data, function (origin) {
+                            closeCurrentIframe()
+                            // if(parent.addCallback){
+                            //     parent.addCallback(origin);
+                            // }
+                        });
+                        // postRemoteData({
+                        //     confirm: false,
+                        //     url: remoteApi.apiQuarters,
+                        //     data: {
+                        //         name: $("[name='name']").val(),
+                        //         departmentId: $("[name='departmentId']").val(),
+                        //         info: $("[name='info']").val(),
+                        //         manager: $("[name='manager']").prop("checked") == true ? 1:0
+                        //     },
+                        //     callback: function(origin){
+                        //         if(parent.addCallback){
+                        //             parent.addCallback(origin);
+                        //         }
+                        //     }
+                        // });
+                        return false;
+                    }
+                }
+            })
+        });
+
+        eventBind("#groupBtn-deptName", function(){
+            layerOpenIframe({
+                title:'选择部门',
+                w: 280,
+                h: 300,
+                btn: true,
+                url: '../../htmllayer/choiceDepartment.html'
+            });
+        })
+        function choiceDeptCallback(dept){
+            $("#departmentId").val(dept.id);
+            $("#deptName").val(dept.name);
+        }
+
+        function checkSubmitForm(){
+            return false;
+        }
+    </script>
+</body>
+</html>

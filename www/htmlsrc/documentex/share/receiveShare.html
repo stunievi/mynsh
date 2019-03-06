@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 文件管理 - 文件共享 - 共享给我的 </title>
+    <!--#include file="/htmlsrc/header.html" -->
+    <!--<link href="../../../static/vendor/bootcss/css/bootstrap.min.css" rel="stylesheet">-->
+    <!--<link rel="stylesheet" href="../../../static/vendor/jqui/jquery-ui.css">-->
+    <!--<link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>-->
+    <!--<link rel="stylesheet" href="/static/htmlcss/style.css">-->
+    <!--<script src="../../../static/vendor/jquery/jquery.js"></script>-->
+    <!--<script src="../../../static/vendor/artTemplate/template-web.js"></script>-->
+</head>
+<body>
+    <div id="content">
+        <div class="panel panel-default">
+            <div class="panel-heading">共享给我的</div>
+            <div class="panel-body">
+                <div class="batch-operation">
+                    <a class="btn btn-success" id="handleAdd">转存分享</a>
+                </div>
+                <ol class="breadcrumb" id="breadcrumb" style="margin:10px 0 5px;">
+                    <li><a class="breadcrumb-item handleGetdata" href="javascript:;" data-id="0">全部文件</a></li>
+                </ol>
+                <div id="dataList">
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--<script src="/static/vendor/layui/layer/layer.js"></script>-->
+    <!--<script src="/static/vendor/layui/layui.js"></script>-->
+    <!--<script src="../../../static/vendor/jqui/jquery-ui.min.js"></script>-->
+    <!--<script src="../../../static/vendor/jqui/jquery-ui-timepicker-addon.js"></script>-->
+    <!--<script src="/static/vendor/validate/jquery.validate.min.js"></script>-->
+    <!--<script src="/static/htmljs/global.config.js"></script>-->
+    <!--<script src="/static/htmljs/utils.js"></script>-->
+    <!-- 变量渲染模板 -->
+    <script type="text/html" id="name">
+        {{# if (d.isFile){ }}
+        <span class="glyphicon glyphicon-file">&nbsp;</span>{{d.name}}
+        {{# }else{ }}
+        <a class="handleGetdata" href="javascript:;" data-name="{{d.name}}" data-id="{{d.id}}" style="display: inline-block;width: 100%;"><span class="glyphicon glyphicon-folder-open">&nbsp;</span>{{d.name}}</a>
+        {{# } }}
+    </script>
+    <script type="text/html" id="showSize"> {{# if (d.isFile){ }} {{d.showSize}} {{# }else{ }} - {{# } }} </script>
+    <!-- toolbar渲染模板 -->
+    <script type="text/html" id="toolbar">
+        <div class="layui-toolbar">
+            {{# if(d.isFile){ }}
+            <a href="javascript:;" class="btn handelDown btn-default" data-value="{{d.id}}" data-index="{{d.LAY_TABLE_INDEX}}" onClick="downMyFileById({{d.id}})">下载</a>
+            {{# } }}
+        </div>
+    </script>
+    <script>
+        // 下载文件
+        function downMyFileById(id){
+            window.location = remoteApi.apiCloudReceiveFileDownload+$.cookie("remoteCloundToken")+"?id=" + id;
+        }
+        var currDirId = getParam("dirId") || 0;
+        laytableRender({
+            urlType: "disk",
+            url: remoteApi.apiCloudReceiveFileJsonList,
+            where: {
+                // pid: currDirId
+            },
+            cols: [
+                [
+                    {checkbox:true},
+                    { field: 'name', title:'文件名', templet: "#name"},
+                    // { field:'receivesName', title:'接收者' },
+                    // { field:'permissions', title:'权限' },
+                    // { title:'大小', templet: "#showSize"},
+                    { field:'lastModifyDate', title:'分享时间', width: 170 },
+                    { field:'', title:'操作', templet: "#toolbar", width:180 }
+                ]
+            ]
+        });
+
+        // 根据文件夹ID刷新
+        function reloadByDirId(dirId){
+            dirId == undefined ? currDirId : dirId;
+            layuiTableReload({
+                urlType: 'disk',
+                where: {
+                    pid: currDirId
+                },
+                success: function(origin){
+                    currDataList = origin.rows
+                }
+            })
+        }
+        // 页面跳转
+        eventBind(".handleGetdata", function(that){
+            $("#breadcrumb").append('<li class="breadcrumb-item"><a class="handleGetdata" href="javascript:;" data-id="'+that.data("id")+'">'+that.data('name')+'</a></li>');
+            currDirId = that.data('id');
+            reloadByDirId();
+        });
+        // 点击路径跳转
+        $(document).on("click", ".breadcrumb-item", function(){
+            $(".breadcrumb-item:gt("+$(this).index()+")").remove();
+        })
+
+        $("#handleAdd").click(function(){
+            layer.open({
+                type: 2,
+                title:'选择文件夹',
+                area: ['400px', '350px'],
+                fixed: false,
+                maxmin: true,
+                content: '../choiceFolder.html'
+            });
+        });
+        function choiceFolderCallback(folderId){
+            var ids = getLayuiTabelCheckIds();
+            var msg = [];
+            var i = -1;
+            var succ = [];
+            var err = [];
+            while(++i < ids.length){
+                (function(i, ids, msg, succ, err){
+                    var id = ids[i];
+                    var data = getJoinParams({
+                        type: 0,
+                        fileId: id,
+                        pid: folderId
+                    });
+                    SuperPost({
+                        urlType: 'disk',
+                        url: remoteApi.apiCloudSaveToNetdisk+data,
+                        success: function(res){
+                            msg.push(res.msg);
+                            if(res.status == "SUCCESS"){
+                                succ.push(res);
+                            }else{
+                                err.push(res);
+                            }
+                            if(msg.length == ids.length){
+                                layer.alert("转存"+ids.length+"个文件,其中"+succ.length+"个文件转存成功,"+err.length+"个文件转存失败！<br/>原因依次是：<br>"+msg.join("<br>"))
+                            }
+                        }
+                    });
+                })(i, ids, msg, succ, err)
+                
+            }
+            
+        }
+    </script>
+</body>
+</html>

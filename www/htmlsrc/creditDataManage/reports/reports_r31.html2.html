@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title> 惠州农村商业银行不良贷款利息减免情况汇总季报表 </title>
+    <link rel="stylesheet" href="/static/vendor/bootcss/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="/static/vendor/jqui/jquery-ui.css">
+    <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+</head>
+<body>
+    <div id="content">
+        <div id="panel-form">
+            <!-- 筛选表单 -->
+        </div>
+        <div class="batch-operation">
+            <a class="btn btn-success" id="handleExport" href="javascript:;">导出数据</a>
+        </div>
+        <table id="dataList"></table>
+    </div>
+  
+    <script src="/static/vendor/jquery/jquery.js"></script>
+    <script src="/static/vendor/jqui/jquery-ui.min.js"></script>
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script src="/static/vendor/artTemplate/template-web.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="/tmpl/js/horzTable.js"></script>
+    <script src="../../../tmpl/js/panelForm.js"></script>
+    <script src="./reports.js"></script>
+    <!-- <script src="/static/htmljs/interaction.js"></script> -->
+    <script>
+
+        $("#panel-form").html(panelFormRender3({
+            panelTitle: "基本信息 - 惠州农村商业银行不良贷款利息减免情况汇总季报表",
+            list:[
+                { prop: 'start', label: '当前月份', disabled: true }
+            ],
+            data: {
+                start: dateFormate("Ymd", getTimeStamp())
+            }
+        }));
+
+        $(function() {
+            $('#start').datepicker({ changeMonth: true, changeYear: true, dateFormat: 'yymmdd' });
+        });
+
+        var form = $("[name='form-search']");
+        form.validate({
+            rules: {
+                // start: { required: true, minlength:2 }
+            },
+            submitHandler: function(){
+                if(form.valid()){
+                    var formData = form.serialize();
+                    laytableRender({
+                        page: false,
+                        url: remoteApi.apiSystemLog,
+                        where: formData,
+                        cellMinWidth: 110,
+                        cols: [
+                            [
+                                { title:'机构名称', field: getRandomNum(100000), rowspan: 2, pos: "left"},
+                                { title:'本年度实施利息减免笔数', field: getRandomNum(100000), rowspan: 2 },
+                                { title:'实施减免时的贷款余额', field: getRandomNum(100000), rowspan: 2 },
+                                { title:'结欠利息', field: getRandomNum(100000), rowspan: 2 },
+                                { title:'减免利息总额', field: getRandomNum(100000), rowspan: 2 },
+                                { title:'其中', field: getRandomNum(100000), colspan: 3 },
+                                { title:'实际偿还金额', field: getRandomNum(100000), rowspan: 2 },
+                                { title:'其中', field: getRandomNum(100000), colspan: 2 },
+                                { title:'已进行不良资产责任认定笔数', field: getRandomNum(100000), rowspan: 2 ,width: 220}
+                            ],
+                            [
+                                { title:'涉农贷款利息减免额', field: getRandomNum(100000) },
+                                { title:'中小微企业贷款利息减免额', field: getRandomNum(100000) },
+                                { title:'个人利息减免额', field: getRandomNum(100000) },
+                                { title:'归还本金', field: getRandomNum(100000) },
+                                { title:'归还利息', field: getRandomNum(100000) }
+                            ]
+                        ]
+                    });
+                }
+            }
+        })
+					
+        function checkSubmitForm(){
+            return false;
+        }
+    </script>
+</body>
+</html>

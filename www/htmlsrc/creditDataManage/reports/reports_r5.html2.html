@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title> 报表 - 预期应收本金（到期） </title>
+    <link rel="stylesheet" href="/static/vendor/bootcss/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="/static/vendor/jqui/jquery-ui.css">
+    <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+</head>
+<body>
+    <div id="content">
+        <div id="panel-form">
+            <!-- 筛选表单 -->
+        </div>
+        <div class="batch-operation">
+            <a class="btn btn-success" id="handleExport" href="javascript:;">导出数据</a>
+        </div>
+        <div id="dataList">
+
+        </div>
+    </div>
+    <script src="/static/vendor/jquery/jquery.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script src="/static/vendor/jqui/jquery-ui.min.js"></script>
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/vendor/artTemplate/template-web.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="../../../static/htmljs/utils.js"></script>
+    <script src="../../../tmpl/js/panelForm.js"></script>
+    <script src="./reports.js"></script>
+    <script type="text/html" id="_CLA"> {{# return getOdsEnumVal(d, 'CLA');}} </script>
+    <script>
+        // 录入基本信息form
+        $("#panel-form").html(panelFormRender3({
+            panelTitle: reportsInfo.reportsName,
+            list:[
+                { prop: 'START_DATE', label: '开始时间' },
+                { prop: 'END_DATE', label: '结束时间' },
+                { prop: 'PRD_TYPE', label: '产品类别', type: "select", vals: getOdsEnumSelect("PRD_TYPE") },
+                { prop: 'LOAN_NATURE', label: '贷款性质', type: "select", vals: getOdsEnumSelect("LOAN_NATURE") }
+//                { prop: 'ASSURE_MEANS_MAIN', label: '担保方式', type: "select", vals: getOdsEnumSelect("ASSURE_MEANS_MAIN")},
+//                { prop: 'ACCOUNT_STATUS', label: '台账状态', type: "select", vals: getOdsEnumSelect("ACCOUNT_STATUS")  }
+            ],
+            data: {}
+        }));
+        // 初始化时间控件
+        $(function() {
+            $('#START_DATE').datepicker({ changeMonth: true, changeYear: true, dateFormat: 'yymmdd' });
+            $("#END_DATE").datepicker({ changeMonth: true, changeYear: true, dateFormat: 'yymmdd' });
+        });
+        
+        var form = $("form[name='form-search']");
+        form.validate({
+            form: form,
+            rules: {
+                START_DATE: 'required',
+                END_DATE: 'required'
+            },
+            submitHandler: function(){
+                if(form.valid()){
+                    laytableRender({
+//                        url: remoteApi.apiSheetSearchYQYSBJDQ,
+                        url: '/api/report/cap_expect',
+                        where: form.serialize(),
+                        cellMinWidth: 120,
+                        cols: [
+                            [
+                                { title:'贷款机构', field:'MAIN_BR_NAME' },
+                                { title:'贷款账号', field:'LOAN_ACCOUNT' },
+                                { title:'借款人', field:'CUS_NAME' },
+                                { title:'借款起始日期', field:'LOAN_START_DATE' },
+                                { title:'终止日期', field:'LOAN_END_DATE' },
+                                { title:'贷款金额', field:'LOAN_AMOUNT' },
+                                { title:'贷款余额', field:'LOAN_BALANCE' },
+                                { title:'五级分类', field:'CLA', templet: "#_CLA"},
+                                { title:'应收本金金额', field:'LOAN_BALANCE' }
+                            ]
+                        ]
+                    });
+                }
+            }
+        });
+
+        // 兼容
+        function checkSubmitForm(){
+            return false;
+        }
+    </script>
+</body>
+</html>

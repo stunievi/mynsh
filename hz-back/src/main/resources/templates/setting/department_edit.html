@@ -1,0 +1,22 @@
+<%
+var RIGHTHTML = {
+%>
+<form action="" data-url="/admin/setting/department/">
+    <input type="hidden" name="id" value="${item.id}">
+    <p>
+        部门名：<input type="text" name="name" value="${item.nodeName}">
+    </p>
+    <p><input type="hidden" name="parent_id" value="${parent_id}">
+        上级部门：<input type="text" disabled value="${parent_name}"/>
+    </p>
+    <p>
+        <a href="javascript:;" class="save">提交</a>
+    </p>
+</form>
+
+
+<% }; %>
+
+<%
+include("../layout.html",{RIGHTHTML:RIGHTHTML}){}
+%>

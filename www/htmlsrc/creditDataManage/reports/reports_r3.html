@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title> 信贷营销情况（一般贷款） </title>
+    <link rel="stylesheet" href="/static/vendor/bootcss/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="/static/vendor/jqui/jquery-ui.css">
+    <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+</head>
+<body>
+    <div id="content">
+        <div id="panel-form">
+            <!-- 筛选表单 -->
+        </div>
+        <div class="batch-operation">
+            <a class="btn btn-success" id="handleExport" href="javascript:;">导出数据</a>
+            <!--<span class="label">单位（万）</span>-->
+        </div>
+        <div id="dataList"></div>
+    </div>
+    <script src="/static/vendor/jquery/jquery.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script src="/static/vendor/jqui/jquery-ui.min.js"></script>
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/vendor/artTemplate/template-web.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="../../../tmpl/js/panelForm.js"></script>
+    <script type="text/html" id="addTime">
+            {{# return dateFormate1(d.addTime) }}
+    </script>
+    <script>
+//        $("#panel-form").html(panelFormRender3({
+//            panelTitle: "信贷营销情况（一般贷款）",
+//            list:[
+//                { prop: 'start', label: '起始时间' },
+//                { prop: 'end', label: '截至时间' }
+//            ],
+//            data: {}
+//        }));
+
+        // eventBind("#handleExport", function(that){
+        //     var start = dateToTimestamp($("#start").val());
+        //     var end = dateToTimestamp($("#end").val());
+        //     if(end<start){
+        //         return;
+        //     }
+        // })
+
+        getRemoteData({
+            url: "/api/report/report_12",
+//            data: form.serialize(),
+            callback: function(origin){
+                layTableRenderStaticData({
+                    page: false,
+                    cellMinWidth: 100,
+                    limit: 999,
+                    cols: [
+                        [
+                            {field: 'MAIN_BR_NAME', title: "贷款机构", rowspan: 2 },
+                            {title: "贷款", colspan: 4 }
+                        ],
+                        [
+                            {field: 'LOAN_BALANCE', title: "余额(元)" },
+                            {field: 'LOAN_BALANCE_LM', title: "比上月" },
+                            {field: 'LOAN_BALANCE_LY', title: "比年初" },
+                            {field: 'INC_PEC', title: "增幅(%)" }
+                        ]
+                    ],
+                    data: origin
+                })
+            }
+        })
+
+//        var form = $("form[name='form-search']");
+//        form.validate({
+//            form: form,
+//            rules: { },
+//            submitHandler: function(){
+//                if(form.valid()){
+//
+//
+//
+////                    laytableRender({
+//////                        page: false,
+////                        limit: 999,
+////                        where: form.serialize(),
+////                        cellMinWidth: 100,
+////                        url: "/api/report/report_12",
+////                        cols:
+////                    });
+//                }
+//            }
+//        })
+//        function checkSubmitForm(){
+//            if(form.valid()){
+//                layuiTableReload({
+//                    page: false,
+//                    where: form.serialize()
+//                });
+//            }
+//            return false;
+//        }
+    </script>
+</body>
+</html>

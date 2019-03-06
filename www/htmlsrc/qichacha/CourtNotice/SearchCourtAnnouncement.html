@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 查询法院公告 </title>
+    <!--#include file="/htmlsrc/header.html" -->
+</head>
+<body>
+<div id="content">
+    <div class="" id="panel-form">
+        <!-- 查询表单 -->
+    </div>
+    <div id="dataList">
+        <!-- 数据列表 -->
+    </div>
+</div>
+<!-- toolbar渲染模板 -->
+<script type="text/html" id="toolbar">
+    <div class="layui-toolbar">
+        <a href="javascript:;" class="btn btn-default handleShow">查看</a>
+    </div>
+</script>
+<!--<script src="./GetCourtNoticeInfo.html"></script>-->
+<script>
+    // 配置查询表单
+    $("#panel-form").html(panelFormRender3({
+        panelTitle:'筛选查询',
+        col: 3,
+        list:[
+            {prop:"companyName", label:"公司名"}
+        ],
+        data: { }
+    }));
+
+    laytableRender({
+        title: "法院公告列表"
+        , url: "http://localhost:8015/test/qichacha/CourtNotice/SearchCourtAnnouncement"
+        , dataType: "json"
+        , cols: [
+            [
+                {title:'操作', templet: "#toolbar", fixed: 'right'},
+                {title:"下载时间", field:"UploadDate"},
+                {title:"执行法院", field:"Court"},
+                {title:"内容", field:"Content"},
+                {title:"种类", field:"Category"},
+                {title:"公布日期", field:"PublishedDate"},
+                {title:"公布、页", field:"PublishedPage"},
+                {title:"公司名、当事人", field:"Party"},
+                {title:"主键", field:"Id"}
+            ]
+        ]
+    });
+
+    $(document).on("click", ".handleShow", function (){
+        addNavTab("CourtNoticeDetail", "法院公告详细信息", "/htmlsrc/qichacha/CourtNotice/SearchCourtAnnouncementDetail.html");
+        return true;
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <!--#include file="/htmlsrc/header.html" -->
+    <style>
+        .label{
+            margin-bottom: 10px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        #box{
+            padding: 20px;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="box">
+
+    </div>
+</body>
+</html>
+<script id="tmpl" type="text/html">
+    {{each labels label idex}}
+    <span class="label label-info">{{label}}</span>
+    {{/each}}
+</script>
+<script>
+    var tmpl = template.compile($("#tmpl").html());
+    getFetch(remoteOrigin + "/api/auto/dict/getList", {name:"文件类型", page:1, size:1000}, function (data) {
+        var html = tmpl(
+            {
+                labels: $.map(data.list || [], function (v) {
+                    return v.vValue;
+                })
+            });
+        $("#box").html(
+            html
+        )
+    });
+    $(document).on("click",".label", function () {
+        parent.onFileTypeClick($(this).text());
+    });
+</script>

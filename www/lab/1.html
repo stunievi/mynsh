@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+</head>
+<body>
+    <div >
+        <div href="" class="draggable" >资料节点</div>
+        <div href="" class="draggable" >审核节点</div>
+    </div>
+    <canvas width="1000" height="600" id="canvas" style="margin-left:200px; margin-top:300px; background: pink">
+
+    </canvas>
+
+</body>
+</html>
+
+<script>
+    $('.draggable').attr({
+        draggable: true
+    }).on("dragstart", function (e) {
+        console.log(e)
+    })
+
+    $("#canvas")
+        .on("drop", function (e) {
+            console.log(e)
+            var elem = {
+                x: e.offsetX,
+                y: e.offsetY,
+                text: "fuck"
+            };
+            elems.push(elem)
+            console.log(elem)
+        })
+        .on("dragover", function (e) {
+            return false;
+        })
+
+    var elems = [];
+    var canvas = $("#canvas");
+    var w = canvas.width();
+    var h = canvas.height();
+    var ctx = canvas[0].getContext("2d");
+    setInterval(function () {
+        ctx.clearRect(0,0, w, h);
+        ctx.fillText("ri", 10, 10)
+         elems.forEach(function (v) {
+             ctx.fillStyle = "#000000";//颜色
+             ctx.font = "normal 20px 微软雅黑";//字体
+             ctx.textBaseline = "middle";//竖直对齐
+             ctx.textAlign = "center";//水平对齐　
+             ctx.fillText(v.text, v.x, v.y)
+         });
+    }, 1000/16);
+</script>

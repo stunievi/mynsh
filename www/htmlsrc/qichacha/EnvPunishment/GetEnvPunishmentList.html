@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 获取环保处罚列表 </title>
+    <!--#include file="/htmlsrc/header.html" -->
+</head>
+<body>
+<div id="content">
+    <div class="" id="panel-form">
+        <!-- 查询表单 -->
+    </div>
+    <div id="dataList">
+        <!-- 数据列表 -->
+    </div>
+</div>
+<!-- toolbar渲染模板 -->
+<script type="text/html" id="toolbar">
+    <div class="layui-toolbar">
+        <a href="javascript:;" class="btn btn-default handleShow">查看</a>
+    </div>
+</script>
+<script>
+    // 配置查询表单
+    $("#panel-form").html(panelFormRender3({
+        panelTitle:'筛选查询',
+        col: 3,
+        list:[
+            {prop:"keyWord", label:"公司名、社会统一信用代码"}
+        ],
+        data: { }
+    }));
+
+    laytableRender({
+        title: "获取环保处罚列表"
+        , url: "http://localhost:8015/test/qichacha/EnvPunishment/GetEnvPunishmentList"
+        , dataType: "json"
+        , cols: [
+            [
+                { title:'操作', templet: "#toolbar", fixed: 'right'},
+                // {title:"Id", field:"Id"},
+                {title:"决定书文号", field:"CaseNo"},
+                {title:"处罚日期", field:"PunishDate"},
+                {title:"违法类型", field:"IllegalType"},
+                {title:"处罚单位", field:"PunishGov"}
+            ]
+        ]
+    });
+
+    $(document).on("click", ".handleShow", function (){
+        addNavTab("EnvPunishmentDetail", "环保处罚详情", "/htmlsrc/qichacha/EnvPunishment/GetEnvPunishmentDetails.html");
+        return true;
+    });
+</script>
+</body>
+</html>

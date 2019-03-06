@@ -1,0 +1,131 @@
+<%
+var RIGHTHTML = {
+%>
+
+<script>
+    var jsonstr = '${json}';
+    var treestr = '${tree}';
+</script>
+
+<div id="app" :controller="app">
+    <h4>
+        拥有角色列表
+    </h4>
+    <div>
+        <wbr ms-widget="{is:'tree',tree: @data.tree}"/>
+
+        <div :if="@data.roles.length">
+            <ul :for="(index,el) in @data.roles">
+                <li>
+                    {{el.nodeName}}({{el.max}}人)
+                    <a href="javascript:;" :click="@add(el)">添加该角色</a>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+    <table>
+        <thead>
+
+        <th>
+            角色名
+        </th>
+        <th>
+            操作
+        </th>
+        </thead>
+        <tr :for="(index,el) in @data.user.roles">
+
+            <td>
+                {{el.nodeName}}
+            </td>
+            <td>
+                <a href="javascript:;" :click="@remove(index)">删除</a>
+            </td>
+        </tr>
+    </table>
+    <a href="javascript:;" :click="@save">保存</a>
+</div>
+
+<script>
+    var data;
+    var tree;
+    do {
+        try {
+            data = eval('(' + jsonstr + ')');
+            tree = eval("(" + treestr + ")");
+
+            function walk(item) {
+                if (item.departments.length) {
+                    for (var i = 0; i < item.departments.length; i++) {
+                        walk(item.departments[i]);
+                    }
+                }
+                else {
+                    item.departments = [];
+                }
+                item.open = 0;
+                item.selected = 0;
+            }
+
+            for (var i = 0; i < tree.length; i++) {
+                walk(tree[i]);
+            }
+
+        }
+        catch (e) {
+            data = null;
+            tree = null;
+        }
+        if (!data || !tree) {
+            alert("获取用户权限组失败！");
+        }
+
+    } while (0);
+
+    var app = avalon.define({
+        $id: "app",
+        data: {
+            user: data,
+            tree: tree,
+            roles: []
+        },
+
+        remove: function (index) {
+            this.data.user.roles.splice(index, 1);
+        },
+
+        save: function () {
+            $.post("edit", {
+                userId: this.data.user.id,
+                roles: JSON.stringify(this.data.user.roles.$model)
+            }, function () {
+
+            })
+        },
+
+        add: function (el) {
+            if (this.data.user.roles.indexOf(el) > -1) {
+                return;
+            }
+            this.data.user.roles.push(el);
+        }
+    });
+
+    var lastSelected = null;
+
+    window.onDepartmentClick = function () {
+        if (!lastSelected) {
+            return;
+        }
+        app.data.roles = lastSelected.roles;
+    }
+
+</script>
+
+
+<% }; %>
+
+<%
+include("../layout.html",{RIGHTHTML:RIGHTHTML}){}
+%>

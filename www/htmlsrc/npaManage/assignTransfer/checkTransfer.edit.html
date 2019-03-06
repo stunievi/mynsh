@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>不良资产管理 - 不良资产任务指派移交 - 不良资产任务检查移交 - 编辑</title>
+    <script src="../../../static/vendor/jquery/jquery.js"></script>
+    <script src="../../../static/vendor/artTemplate/template-web.js"></script>
+    <link  href="../../../static/vendor/bootcss/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="content">
+        <div id="editForm">
+        </div>
+        <div class="text-center">
+            <a href="javascript:void(0)" onclick="javascript:history.go(-1);return false;">【返回】</a>
+        </div>  
+    </div>
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="../../../tmpl/js/panelForm.js"></script>
+    <script>
+        var id = getParam('id');
+        getRemoteData({
+            url: remoteApi.apiSystemLog,
+            callback: function(origin){
+                var user = {};
+                $("#editForm").html(panelFormRender({
+                    panelTitle: '不良资产任务检查移交 - 编辑',
+                    list:[
+                        { prop:'', label:'移交流水号', disabled: true },
+                        { prop:  '', label: '移交方式', type: 'select', vals: selectData.assignmentBase },
+                        { prop: '', label: '借据号/客户号/合同号' },
+                        { prop: '', label: '客户号', disabled:true },
+                        { prop: 'user', label: '指派人', inputGroup:'添加指派人'},
+                        { prop: '', label: '指派人所属部门', disabled:true },
+                        { prop: '', label: '指派接受人' },
+                        { prop: '', label: '指派接受人所属部门', disabled:true },
+                        { prop: '', label: '指派状态', disabled:true },
+                        { prop: '', label: '指派时间', disabled:true },
+                        { prop: '', label: '指派说明', type:'textarea' },
+                    ],
+                    data: user
+                }));
+                checkSubmitForm();
+            }
+        })
+
+        var layerUserIndex = '';
+        $(document).on("click", "#groupBtn-user", function(){
+            layerUserIndex = layer.open({
+                type: 2,
+                title:'选择指派对象',
+                area: ['700px', '450px'],
+                fixed: false,
+                maxmin: true,
+                content: '../../htmllayer/choiceUser.html'
+            });
+        });
+    
+        function choiceUserCallback(user){
+            $("#user").val(user.name);
+            $("#user").data('value',user.id);
+            layer.close(layerUserIndex)
+        }
+
+        function checkSubmitForm(){
+            var form = $("form[name='form-search']");
+            checkSubmitFun({
+                form: form,
+                rules: {
+                    user: {required: true}
+                },
+                messages:{ user:null },
+                submit:function(){
+                    putRemoteData({
+                        url: remoteApi.apiUser,
+                        data: form.serialize(),
+                        callback: 'back'
+                    })
+                }
+            });
+        }
+        
+    </script>
+</body>
+</html>

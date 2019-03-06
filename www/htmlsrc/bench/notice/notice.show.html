@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>工作台 - 消息列表</title>
+    <!--#include file="/htmlsrc/header.html" -->
+    <style>
+        #content li{
+            border-bottom: 1px solid #ddd;
+            padding-top: 6px;
+            padding-bottom: 6px;
+        }
+    </style>
+</head>
+<body>
+<script id="tmpl" type="text/html">
+    <li>
+        <b>消息发送人</b>
+        :
+        {{sendUtname}}
+    </li>
+    <li>
+        <b>消息接收人</b>
+        :
+        {{recUtname}}
+    </li>
+    <li>
+        <b>消息类别</b>:
+        {{type}}
+    </li>
+    <li><b>消息正文</b>: {{content}}</li>
+
+    {{if files}}
+    <li>
+        <!--文件列表-->
+        <h5>附件列表</h5>
+        <div>
+            {{each files file idx}}
+            <div class="item">
+                <a href="{{origin}}/api/file/download?fid={{file.id}}&&name={{file.sname}}">
+                    {{file.sname}}
+                </a>
+            </div>
+            {{/each}}
+        </div>
+    </li>
+    {{/if}}
+</script>
+    <div id="content">
+        <ul>
+        </ul>
+    </div>
+
+<script>
+    getFetch(remoteOrigin + "/api/auto/sysnotice/getOne", {id : getParam("id")}, function (data) {
+        if(data.bindData){
+            var obj = JSON.parse(data.bindData)
+            if($.isArray(obj)){
+                data.files = obj;
+            }
+        }
+        data.origin = remoteOrigin;
+        $("#content ul").html(template.compile($("#tmpl").html())(data))
+    })
+
+    getFetch(remoteOrigin + "/api/auto/sysnotice/read", {id: getParam("id")}, function (data) {
+    });
+</script>
+    <!-- toolbar渲染模板 -->
+    <script type="text/html" id="toolbar">
+        <div class="layui-toolbar">
+            <a href="javascript:;" class="btn handleShow btn-default" data-type="{{d.type}}" data-id="{{d.id}}">查看</a>
+            {{# if(d.type == '任务通知'){ }}
+            <button type="button" class="btn btn-default" >查看任务</button>
+            {{# } }}
+        </div>
+    </script>
+</body>
+</html>

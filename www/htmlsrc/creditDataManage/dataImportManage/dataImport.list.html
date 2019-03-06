@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title> 信贷数据管理 - 数据导入管理 </title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
+  <script src="/static/vendor/jquery/jquery.js"></script>
+  <script src="/static/vendor/artTemplate/template-web.js"></script>
+  <link href="/static/vendor/bootcss/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="panel-form">
+    </div>
+    <table class="layui-hide" id="dataList"></table>
+    <!-- toolbar渲染模板 -->
+    <script type="text/html" id="toolbar">
+        <a class="btn btn-default btn-xs handleImport" href="javascript:" data-index="{{d.LAY_TABLE_INDEX}}">导入数据</a>
+    </script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="/tmpl/js/panelForm.js"></script>
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script>
+    $("#panel-form").html(panelFormRender({
+        panelTitle:'筛选查询',
+        list:[
+            { prop: 'importName', label: '导入项名称',  }
+        ],
+        data: {}
+    }));
+    var importLimit = {
+        excel: 'excel文档',
+    }
+    var importAccept = {
+        excel: {
+            extensions: 'xls,xlsx',
+            mimeTypes: 'application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        }
+    }
+    // 导入项列表
+    var dataList = [
+        { id: "import1", importName: "担保合同", limit: importLimit.excel, accept: importAccept.excel },
+        { id: "import2", importName: "抵押物", limit: importLimit.excel, accept: importAccept.excel },
+        { id: "import3", importName: "对公客户明细", limit: importLimit.excel, accept: importAccept.excel },
+        { id: "import4", importName: "对私人客户明细", limit: importLimit.excel, accept: importAccept.excel },
+        { id: "import5", importName: "借款合同", limit: importLimit.excel, accept: importAccept.excel },
+        { id: "import6", importName: "信贷系统一般台账", limit: importLimit.excel, accept: importAccept.excel },
+        { id: "import7", importName: "银社团贷款主台帐", limit: importLimit.excel, accept: importAccept.excel },
+        { id: "import9", importName: "银社团贷款子台帐(自营部分)", limit: importLimit.excel, accept: importAccept.excel },
+        { id: "import10", importName: "中间表数据", limit: importLimit.excel, accept: importAccept.excel },
+        { id: "import11", importName: "自助循环贷款台账", limit: importLimit.excel, accept: importAccept.excel }
+    ];
+    // 渲染
+    function renderData(filterKey){
+        var data = dataList;
+        if(filterKey){
+            data = dataList.filter(function(elm){
+                return elm.importName.indexOf(filterKey)>=0
+            });
+        }
+        layui.use('table', function(){
+            var table = layui.table;
+            //展示已知数据
+            table.render({
+                elem: '#dataList',
+                page: { theme:'#1E9FFF' },
+                cols: [
+                    [
+                        { field: 'importName', title:'导入项名称', width: 220 },
+                        { field: 'limit', title:'导入文件限制' },
+                        { title: '操作', templet: '#toolbar', width: 95 }
+                    ]
+                ],
+                data: data
+            });
+        });
+    }
+    renderData();
+
+    var layerIndex = '';
+    var importInfo = {};
+    // 
+    eventBind('.handleImport', function(that){
+        var index = that.data('index')
+        importInfo = dataList[index];
+        layerIndex = layer.open({
+            type: 2,
+            title:'上传导入附件',
+            area: ['890px', '450px'],
+            fixed: false, //不固定
+            maxmin: true,
+            content: '../../htmllayer/importData.html'
+        }); 
+    })
+    // function finishedCallback(){
+    //     layer.close(layerIndex);
+    // }
+
+    function checkSubmitForm(){
+        var key = $("#importName").val();
+        renderData(key)
+        return false;
+    }
+</script>
+</body>
+</html>

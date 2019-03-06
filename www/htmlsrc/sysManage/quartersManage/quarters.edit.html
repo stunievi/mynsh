@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>系统管理 - 岗位管理 - 编辑 </title>
+    <!--<link rel="stylesheet" href="../../../static/vendor/bootcss/css/bootstrap.min.css">-->
+    <!--#include file="/htmlsrc/header.html" -->
+</head>
+<body>
+    <div id="content">
+        <div id="editForm">
+        </div>
+    </div>
+    <!--<script src="../../../static/vendor/jquery/jquery.js"></script>-->
+    <!--<script src="../../../static/vendor/artTemplate/template-web.js"></script>-->
+    <!--<script src="/static/vendor/validate/jquery.validate.min.js"></script>-->
+    <!--<script src="/static/vendor/layui/layer/layer.js"></script>-->
+    <!--<script src="/static/htmljs/global.config.js"></script>-->
+    <!--<script src="/static/htmljs/utils.js"></script>-->
+    <!--<script src="../../../tmpl/js/panelForm.js"></script>-->
+    <script>
+        var deptId = getParam("deptId"); // 编辑部门id
+        var quarterIndex = getParam("index"); // 编辑岗位index
+        var qid = getParam("qid")
+        // var currQuarter = parent.currQuarter;
+        getFetch(remoteOrigin + "/api/auto/org/getOne", {id: qid}, function (currQuarter) {
+            $("#editForm").html(panelFormRender3({
+                list:[
+                    { prop: 'id', type: 'hidden' },
+                    { prop: 'name', label: '岗位名', width:12, labelWidth:2},
+                    { prop: "parentId", type:"hidden"},
+                    { prop: "type", type:"hidden"},
+                    { prop: 'manager', label: '主管岗位', type: 'checkbox', width:12, labelWidth:2, value:1, checked: false},
+                    { prop: 'sort', label: '排序' },
+                    { prop: 'info', label: '描述' , type:'textarea', width:12, labelWidth:2}
+                ],
+                data: currQuarter
+                , line: true
+            }));
+
+            var form = $("form[name='form-search']")
+            $().ready(function() {
+                form.validate({
+                    rules: {
+                        'name': "required"
+                    },
+                    submitHandler: function(){
+                        if(form.valid()){
+                            var data = $.unserialize(form.serialize());
+                            if(form.find("[name=manager]:checked").length){
+                                data.manager = 1;
+                            }
+                            else{
+                                data.manager = 0;
+                            }
+                            postFetch(remoteOrigin + "/api/auto/org/edit",data, function(origin){
+                                closeCurrentIframe()
+                                // if(parent.editCallback){
+                                //     parent.editCallback(origin);
+                                // }
+                            });
+
+                            return false;
+                        }
+                    }
+                })
+            });
+        });
+
+
+        function checkSubmitForm(){
+            return false;
+        }
+    </script>
+</body>
+</html>

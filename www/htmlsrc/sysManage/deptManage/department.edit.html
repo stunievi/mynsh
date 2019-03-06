@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>系统管理 - 组织架构 - 部门管理</title>
+    <link rel="stylesheet" href="../../../static/vendor/bootcss/css/bootstrap.min.css">
+</head>
+<body>
+    <div id="content">
+        <div id="editForm">
+        </div>
+        <!-- <div class="text-center">
+            <a href="javascript:void(0)" onclick="javascript:history.go(-1);return false;">【返回】</a>
+        </div> -->
+    </div>
+    <script src="../../../static/vendor/jquery/jquery.js"></script>
+    <script src="../../../static/vendor/artTemplate/template-web.js"></script>
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="../../../tmpl/js/panelForm.js"></script>
+    <script>
+        var deptId = getParam("id"); // 编辑部门id
+        var deptList = []; // 部门列表
+        var currDept = {}; // 当前部门
+        var form = {}; // 当前form
+        getFetch(remoteOrigin + "/api/auto/org/getOne", {id: deptId}, function (data) {
+            data.pname = data.pname || '顶级部门'
+            $("#editForm").html(panelFormRender2({
+                panelTitle:'部门 - 编辑',
+                list:[
+                    { prop: 'id', type: 'hidden' },
+                    { prop: "type", type: "hidden"},
+                    { prop: 'name', label: '部门名', width:12, labelWidth:2},
+                    { prop: 'parentId', type: "hidden" },
+                    { prop: 'pname', label: '上级部门名', disabled:true, width:12, labelWidth:2},
+                    { prop: 'sort', label: '排序' },
+                    { prop: 'accCode', label: "信贷系统代码" },
+                    { prop: 'info', label: '描述' , type:'textarea', width:12, labelWidth:2}
+                ],
+                data: data
+            }));
+            form = $("form[name='form-search']")
+            $().ready(function() {
+                form.validate({
+                    rules: {
+                        'name': "required",
+                        'pname': "required"
+                    },
+                    submitHandler: function(){
+                        if(form.valid()){
+                            var data = $.unserialize(form.serialize());
+                            postFetch(remoteOrigin + "/api/auto/org/edit",data, function(origin){
+                                closeCurrentIframe()
+                                // if(parent.editDeptCallback){
+                                //     parent.editDeptCallback(origin);
+                                // }
+                            });
+                            return false;
+                        }
+                    }
+                })
+            });
+
+        });
+        // getRemoteData({
+        //     url: remoteApi.apiAlldepartment,
+        //     callback: function(origin){
+        //         deptList = origin;
+        //         currDept = getDataFromTree(origin, 'id', deptId);
+        //         if(currDept.parentId == undefined){
+        //             currDept.parentId = null;
+        //             currDept.pname = '顶级部门';
+        //         }else{
+        //             parentDept = getDataFromTree(origin, 'id', currDept.parentId); // 上级部门
+        //             currDept.pname = parentDept.name;
+        //         }
+        //
+        //     }
+        // })
+
+        // eventBind("#groupBtn-pname", function(){
+        //     layer.open({
+        //         type: 2,
+        //         title:'选择部门',
+        //         area: ['280px', '300px'],
+        //         fixed: false, //不固定
+        //         maxmin: true,
+        //         content: '../../htmllayer/choiceDepartment.html'
+        //     });
+        // })
+
+        // function choiceDeptCallback(dept){
+        //     $("#parentId").val(dept.id);
+        //     $("#pname").val(dept.name);
+        // }
+
+        function checkSubmitForm(){
+            return false;
+        }
+    </script>
+</body>
+</html>

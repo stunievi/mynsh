@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title> 开庭公告详情 </title>
+    <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script src="/static/vendor/bootcss/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+</head>
+<body>
+    <div id="content">
+        <div class="bs-example bs-example-tabs" data-example-id="togglable-tabs">
+            <ul id="myTabs" class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active"><a href="#home" id="home-tab" role="tab" data-toggle="tab" data-controls="home" aria-expanded="true">公告详情</a></li>
+            </ul>
+            <div id="myTabContent" class="tab-content" style="padding-top: 10px;">
+                <div role="tabpanel" class="tab-pane  active in" id="home" aria-labelledby="home-tab">
+                    <!-- 基本信息展示 -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/static/vendor/artTemplate/template-web.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="../../../tmpl/js/panelTableShow.js"></script>
+    <script>
+        $.ajax({
+            url: "http://localhost:8015/test/qichacha/CourtAnno/GetCourtNoticeInfo",
+            success: function(origin){
+                if(origin.Status == "200"){
+                    var data = origin.Result || {};
+                    var Prosecutor = [];
+                    data["Prosecutor"].map(function (val) {
+                        val["name"] = val["Name"];
+                        val["val"] = val["KeyNo"] || val["Name"];
+                    });
+                    data["Defendant"].map(function (val) {
+                        val["name"] = val["Name"];
+                        val["val"] = val["KeyNo"] || val["Name"];
+                    });
+                    $("#home").html(panelTableShowRender2({
+                        attrs:[
+                            // {label:"省份", prop:"Province"},
+                            {label:"案由", prop:"Case_Reason"},
+                            {label:"排期日期", prop:"Schedule_Time"},
+                            {label:"法院", prop:"Execute_Gov"},
+                            {label:"承办部门", prop:"Undertake_Department"},
+                            {label:"法庭", prop:"Execute_Unite"},
+                            {label:"审判长/主审人", prop:"Chief_Judge"},
+                            {label:"开庭日期", prop:"Open_Time"},
+                            {label:"案号", prop:"Case_No"},
+                            {label:"公诉人/原告/上诉人/申请人", prop:"Prosecutor", handle: true},
+                            {label:"被告/被告人/被上诉人/被申请人", prop:"Defendant", handle: true},
+                        ],
+                        data: data
+                    }));
+                }else{
+                    layErrorMsg("数据获取失败....")
+                    $("#home").html("数据获取失败....")
+                }
+
+            }
+        });
+
+        $(document).on("click", "a[id^=handleProsecutor],a[id^=handleDefendant]", function () {
+            var id = $(this).data("val");
+            addNavTab("ECIdetail"+id, "企查查-公司详情-"+name, hrefUrl.ECIdetail+id);
+        })
+    </script>
+</body>
+</html>

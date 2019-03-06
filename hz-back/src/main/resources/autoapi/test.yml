@@ -1,0 +1,15 @@
+user:
+- type: string
+  ename: user_name
+  cname: 用户名
+
+
+api:
+- name: get_info_by_one
+  param:
+  - key: id
+    type: int
+    ref: user.id
+
+
+

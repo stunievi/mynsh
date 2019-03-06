@@ -1,0 +1,423 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>工作台 - 我的工作台</title>
+    <link rel="stylesheet" href="/static/vendor/ztree/css/zTreeStyle/zTreeStyle.css" type="text/css">
+    <!--<link  href="/static/vendor/bootcss/css/bootstrap.min.css" rel="stylesheet">-->
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script src="/static/vendor/bootcss/js/bootstrap.min.js"></script>
+    <!--<link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>-->
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+    <style>
+        td{
+            white-space: nowrap;
+        }
+        .manager{
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+<div id="content2">
+    <div class="col-xs-12">
+        <div class="bs-example bs-example-tabs" data-example-id="togglable-tabs">
+            <ul id="myTabs" class="nav nav-tabs" role="tablist" style="margin-bottom: 10px;">
+                <li><a href="#taskType3" role="tab"  data-toggle="tab" aria-controls="taskType3" aria-expanded="true" onclick="getTaskList('taskType3')">待处理任务</a></li>
+                <li><a href="#taskType4" role="tab"  data-toggle="tab" aria-controls="taskType4" aria-expanded="true" onclick="getTaskList('taskType4')">已处理的任务</a></li>
+                <li><a href="#taskType5" role="tab"  data-toggle="tab" aria-controls="taskType5" aria-expanded="true" onclick="getTaskList('taskType5')">我观察的任务</a></li>
+                <li class="manager"><a href="#taskType6" role="tab"  data-toggle="tab" aria-controls="taskType6" aria-expanded="true" onclick="getTaskList('taskType6')">部门待处理任务</a></li>
+                <li class="manager"><a href="#taskType7" role="tab"  data-toggle="tab" aria-controls="taskType7" aria-expanded="true" onclick="getTaskList('taskType7')">部门已处理任务</a></li>
+                <li><a href="#taskType8" role="tab"  data-toggle="tab" aria-controls="taskType8" aria-expanded="true" onclick="getTaskList('taskType8')">公共任务</a></li>
+            </ul>
+            <div id="myTabContent" class="tab-content" style="min-height:120px;">
+                <div role="tabpanel" class="tab-pane" id="taskType3" aria-labelledby="taskType3-tab">
+                    <div id="taskType3-taskList"> </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="taskType4" aria-labelledby="taskType4-tab">
+                    <div id="taskType4-taskList"> </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="taskType5" aria-labelledby="taskType5-tab">
+                    <div id="taskType5-taskList"> </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="taskType6" aria-labelledby="taskType6-tab">
+                    <div id="taskType6-taskList"> </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="taskType7" aria-labelledby="taskType7-tab">
+                    <div id="taskType7-taskList"> </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="taskType8" aria-labelledby="taskType8-tab">
+                    <div id="taskType8-taskList"> </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-6">
+        <!-- 2017年度任务类型占比 -->
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                年度任务类型占比
+            </div>
+            <div class="panel-body" id="js-echarts-1" style="height:200px;">
+
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-6"  >
+        <!-- 客户经理未完结贷款情况统计表 -->
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                客户经理未完结贷款情况统计表
+            </div>
+            <div class="panel-body" id="js-echarts-2" style="height:200px;">
+
+            </div>
+        </div>
+    </div>
+</div>
+<!--<script src="../../static/vendor/jquery/jquery.js"></script>-->
+<script src="../../static/vendor/artTemplate/template-web.js"></script>
+<script src="/static/vendor/echarts/echarts-all.js"></script>
+<script src="/static/htmljs/global.config.js"></script>
+<script src="/static/htmljs/utils.js"></script>
+<script src="/static/vendor/layui/layer/layer.js"></script>
+<script src="../../tmpl/js/panelList.js"></script>
+<script src="/static/htmljs/interaction.js"></script>
+<!-- <script src="../../tmpl/js/panelTable.js"></script> -->
+<script src="/static/htmljs/menuVerify.js"></script>
+<!-- 变量渲染模板 -->
+<script type="text/html" id="_addTime"> {{# return dateFormate1(d.addTime)}} </script>
+<script type="text/html" id="_state"> {{# return getGlobalEnumVal(d.state, "taskState")}} </script>
+<script type="text/html" id="_flowType"> {{# return getWorkFlowModelKeyVal(d.modelId, 'modelName')}} </script>
+<!-- toolbar渲染模板 -->
+<script type="text/html" id="toolbar">
+    <div class="layui-toolbar">
+        <a href="javascript:;" class="btn btn-default" tab-title="查看任务-{{d.id}}" tab-href="/htmlsrc/workFlow/nodeStates.html?id={{d.id}}">查看</a>
+
+    </div>
+</script>
+<script type="text/html" id="toolbar2">
+    <div class="layui-toolbar">
+        <a href="javascript:;" class="btn handleShow btn-default" tab-title="查看任务-{{d.id}}" tab-href="/htmlsrc/workFlow/nodeStates.html?id={{d.id}}">查看</a>
+        {{# if(d.modelName == '不良资产主流程'){ }}
+        <button type="button" class="btn btn-default" tab-href="/htmlsrc/npaManage/npaMainTask.show.html?loanid={{d.loanAccount}}&taskid={{d.id}}">查看主流程</button>
+        {{# } }}
+        <!--<a href="javascript:;" class="btn handleShow btn-default handleNodeDeal" data-nodeid="{{d.id}}">处理</a>-->
+    </div>
+</script>
+<script type="text/html" id="toolbar3">
+    <div class="layui-toolbar">
+        <a href="javascript:;" class="btn btn-default " tab-href="/htmlsrc/workFlow/nodeStates.html?id={{d.id}}" tab-title="查看任务-{{d.id}}">查看</a>
+        {{# if(d.pubUserId != $.cookie("userId")){ }}
+        <a href="javascript:;" data-id="{{d.id}}" class="btn handleReceive btn-default">领取</a>
+        {{# } }}
+    </div>
+</script>
+<script type="text/html" id="_content">{{# return replaceNoticeContent(d)}}</script>
+<script type="text/html" id="_noticestate"> {{# return d.state == 'READ' ? "已读" : "未读"; }} </script>
+<script>
+    function getTaskList(taskType){
+        window.ptype = taskType;
+        // if(!auto){
+        //     rememberParam('panelType', taskType);
+        //     $('#myTabs a[href="#'+taskType+'"]').tab('show');
+        // }
+        // if(inited[taskType]){
+        //     return
+        // }
+        // inited[taskType] = 1;
+
+        // if(taskType ==  'noticeList'){
+        //     // 系统任务通知
+        //     laytableRender({
+        //         id: "noticeList-content",
+        //         elem: "#noticeList-content",
+        //         url: remoteApi.apiGetNoticeList,
+        //         currPage: getParam(taskType+"page") || 1,
+        //         cols: [
+        //             [
+        //                 { checkbox:true },
+        //                 { field:'content', title:'内容', templet: "#_content", width: 850 },
+        //                 { field:'state', title:'内容', templet: "#_noticestate" },
+        //                 { field:'addTime', title:'时间', templet: "#_addTime" }
+        //             ]
+        //         ],
+        //         done: function(res, curr){
+        //             rememberParam(taskType+'page', curr);
+        //         }
+        //     })
+        //     return true;
+        // }
+        var url = '';
+        var toolBarTmpl = "#toolbar";
+        var cols = [];
+        var cols1 = [ //标题栏
+            { field: 'id', title: "任务编号" },
+            { field: 'cusName', title: "客户名称" },
+            { field: 'loanAccount', title: "贷款帐号" },
+            { field: 'modelName',title: "任务类型" },
+            { title: "任务状态", field: "state" },
+            { title: "创建时间", field:"addTime" }
+        ];
+        var cols11 = [ //标题栏
+            { field: 'id', title: "任务编号" },
+            { field: 'cusName', title: "客户名称" },
+            { field: 'loanAccount', title: "贷款帐号" },
+            { field: 'modelName',title: "任务类型" },
+            { title: "任务状态", field: "state" },
+            { title: "创建时间", field: "addTime" }
+            , {title: "上次处理时间", field:"lastDealDate"}
+        ];
+
+        var cols2 = [ //标题栏
+            { field: 'id', title: "任务编号" },
+            { field: 'cusName', title: "客户名称" },
+            { field: "loanAccount", title: "贷款帐号" },
+            { field: 'modelName',title: "任务类型" },
+            { title: "任务状态", field: "state" },
+            { title: "创建时间" },
+            { field: "dealerName", title: "执行人" }
+        ];
+        var cols3 = [ //标题栏
+            { field: 'id', title: "任务编号" },
+            { field: 'cusName', title: "客户名称" },
+            { field: "loanAccount", title: "贷款帐号" },
+            { field: 'modelName',title: "任务类型" },
+            {field: "planStartTime", title:"开始时间"}
+        ];
+
+        switch(taskType)
+        {
+            // 需我处理的任务
+            case 'taskType3':
+                toolBarTmpl = "#toolbar2";
+                cols = cols1;
+                url = remoteOrigin + "/api/auto/wfins/getList?daichuli=1";
+                break;
+            // 我处理过的任务
+            case 'taskType4':
+                cols = cols11;
+                url = remoteOrigin + "/api/auto/wfins/getList?yichuli=1";
+                break
+                // url = remoteApi.apiMyDealedWorks; break;
+            // 我观察的任务
+            case 'taskType5':
+                cols = cols1;
+                url = remoteOrigin + "/api/auto/wfins/getList?ob=1"
+                // url = remoteApi.apiMyObserveredWorks; break;
+                break
+                // url = remoteApi.apiMyObserveredWorks; break;
+            // 部门未处理任务
+            case 'taskType6':
+                cols = cols2;
+                url = remoteOrigin + "/api/auto/wfins/getList?department=0"
+                    // remoteApi.apiDeptUndealedWorks;
+                break;
+            // 部门已处理任务
+            case 'taskType7':
+                cols = cols2;
+                url = remoteOrigin + "/api/auto/wfins/getList?department=1"
+                // url = remoteApi.apiDeptDealedWorks; break;
+                break
+            // 公共任务
+            case 'taskType8':
+                cols = cols3;
+                toolBarTmpl = "#toolbar3";
+                url = remoteOrigin + "/api/auto/wfins/getList?common=1";
+                // url = remoteApi.apiCanAcceptCommonWorks;
+                break;
+        }
+        cols.push({ title: '操作', templet: toolBarTmpl});
+        if($('#' + taskType + '-taskList table').length){
+            layuiTableReload(
+                {
+                    id: taskType + '-taskList'
+                }
+            );
+            return;
+        }
+        laytableRender({
+            url: url,
+            // loading: !auto,
+            // currPage: getParam(taskType+"page") || 1,
+            id: taskType + '-taskList',
+            elem: '#' + taskType + '-taskList',
+            cols: [
+                cols
+            ],
+            done: function(res, curr){
+                if(top.firstLoadingIndex){
+                    top.layer.close(top.firstLoadingIndex);
+                }
+            }
+            , onRender: function () {
+                if(taskType == 'taskType3'){
+                    $('#' + taskType + '-taskList table').find("td:contains(不良资产主流程)").parent("tr").find("td").css({
+                        color: "#4A89DC"
+                        , fontFamily: "黑体"
+                    })
+                    // alert(123)
+                }
+            }
+        })
+    }
+    var panelType = window.ptype = getParam("panelType") || "taskType3";
+    $('#myTabs a[href="#'+panelType+'"]').tab('show');
+    onInfront();
+    function onInfront(){
+        getTaskList(window.ptype);
+    }
+
+    // 处理任务回调
+    function nodeDealCallback() {
+        layuiTableReload({
+            id: "taskType3-taskList"
+        })
+        return true;
+    }
+    // 删除任务回调
+    function cancelNodeCallback() {
+        layer.close(handleeeNodeShowIndex)
+        layuiTableReload({
+            id: "taskType3-taskList"
+        })
+        layer.msg("删除成功!")
+        return true;
+    }
+
+
+    // 领取公共任务
+    $(document).on("click", ".handleReceive", function(){
+        var instanceId = $(this).data("id");
+        actConfirm(function(){
+            // TODO:: 提交后res有错
+            getFetch(
+                remoteOrigin + "/api/auto/wfins/receiveCommon"
+                , {
+                    id: instanceId
+                }
+                , function () {
+                    onInfront();
+                }
+            )
+            // getRemoteData({
+            //     url: remoteApi.apiAcceptCommonWork+instanceId,
+            //     callback:function(origin){
+            //         layuiTableReload({
+            //             id: "taskType8-taskList"
+            //         })
+            //         layer.msg("领取成功");
+            //     }
+            // })
+        })
+    })
+
+
+    $("#signSysNotice").click(function(){
+        var ids = getLayuiTabelCheckIds("id", "noticeList-content");
+        getRemoteData({
+            url: remoteApi.apiUpdateReadNoticeList+"?id="+ids.join(","),
+            callback: function(){
+                layuiTableReload({
+                    page: {
+                        curr: getParam("noticeListpage") || 1
+                    },
+                    id: "noticeList-content"
+                })
+                layer.msg("已更新");
+            }
+        })
+    })
+
+
+
+    // 客户经理未完结贷款情况统计表
+    ;(function () {
+        getFetch(remoteOrigin + "/api/auto/sysvar/taskStat", function (data) {
+            // 2017年度任务类型占比
+            var myChart1 = echarts.init(document.getElementById("js-echarts-1"));
+            var option1 = {
+                tooltip : { trigger: 'item', formatter: "{a} <br/>{b} : {c} ({d}%)" },
+                series : [
+                    {
+                        name:'访问来源',
+                        type:'pie',
+                        radius : '55%',
+                        center: ['50%', '60%'],
+                        data: data
+                        //     [
+                        //
+                        //     {value:335, name:'诉讼'},
+                        //     {value:310, name:'贷后任务'},
+                        //     {value:234, name:'贷前资料收集'},
+                        //     {value:135, name:'不良资产任务'},
+                        //     {value:1548, name:'利息减免'}
+                        // ]
+                    }
+                ]
+            };
+            myChart1.setOption(option1);
+        });
+
+        getFetch(remoteOrigin + "/api/auto/sysvar/loanStat", function (data) {
+            console.log(data)
+            var myChart2 = echarts.init(document.getElementById('js-echarts-2'));
+            var option2 = {
+<<<<<<< HEAD
+                calculable: true,
+=======
+
+                calculable: true,
+
+>>>>>>> 1571af57a5ce375c6796e98c13aeab62032c9c4c
+                xAxis: [
+                    {
+                        type: 'category',
+                        show: true,
+                        data: ['全部', '正常', '风险', '不良']
+                    }
+                ],
+                yAxis: [
+                    {
+                        type: 'value',
+                        show: true
+                    }
+                ],
+                series: [
+                    {
+                        type: 'bar',
+                        itemStyle: {
+                            normal: {
+                                color: function(params) {
+                                    var colorList = [
+                                        '#61a5e8','#7ecf51','#eecb5f','#9570e5'];
+                                    return colorList[params.dataIndex]
+                                },
+                                label: {
+                                    show: true
+                                }
+                            }
+                        },
+                        data: [data.ALL || 0, data.NORMAL || 0, data.DANGER || 0, data.BAD || 0],
+                    }
+                ]
+            };
+            myChart2.setOption(option2);
+        });
+    })();
+
+
+
+    //非主管不显示部门任务
+    getFetch(remoteOrigin + "/api/auto/user/isManager", function (data) {
+        if(data){
+            $('.manager').attr("style","display:block !important");
+        }
+    })
+
+
+</script>
+</body>
+</html>

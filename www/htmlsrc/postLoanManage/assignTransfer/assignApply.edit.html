@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>客户用戶 - 对公客户 - 编辑</title>
+    <script src="../../../static/vendor/jquery/jquery.js"></script>
+    
+    
+    
+    <script src="../../../static/vendor/artTemplate/template-web.js"></script>
+    <link  href="../../../static/vendor/bootcss/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="content">
+        <div id="editForm">
+        </div>
+        <div class="text-center">
+            <a href="javascript:void(0)" onclick="javascript:history.go(-1);return false;">【返回】</a>
+        </div>  
+    </div>
+    <script id="tmpl" type="text/html">
+        <div class="panel panel-default">
+            <div class="panel-heading">{{panelTitle}}</div>
+            <div class="panel-body">
+                <form name="{{formName ? formName : 'form-search'}}"  class="form-horizontal" onsubmit="return checkSubmitForm(this)">
+                    <div class="row panel-form-input-group">
+                        {{each list value}}
+                        {{if value.type == 'hidden'}}
+                        <input type="hidden"  name="{{value.prop}}" value="{{data[value.prop]}}">
+                        {{else}}
+                        <div class="col-xs-{{value.width ? value.width : 6}} form-group ">
+                            <label for="{{value.prop}}" class="col-xs-{{value.labelWidth ? value.labelWidth : 4}} text-right">
+                                {{if value.required}}
+                                    <span style="color:red">*</span>
+                                {{/if}}
+                                {{value.label}}
+                            </label>
+                            
+                            {{if !value.type }}
+                                {{if value.inputGroup }}
+                                <div class="col-xs-8 input-group" style="padding-right: 15px;
+                                    padding-left: 15px;">
+                                        <input type="text" class="form-control input-sm" id="{{value.prop}}" name="{{value.prop}}" value="{{data[value.prop]}}" {{value.disabled ? 'disabled' : ''}}>
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default btn-sm groupBtn" type="button" id="groupBtn-{{value.prop}}">{{value.inputGroup}}</button>
+                                        </span>
+                                {{else}}
+                                    <div class="col-xs-8">
+                                        <input type="text" class="form-control input-sm" id="{{value.prop}}" name="{{value.prop}}" value="{{data[value.prop]}}" {{value.disabled ? 'disabled' : ''}}>
+                                {{/if}}
+                            {{else if value.type == 'select'}}
+                            <div class="col-xs-8">
+                                <select class="form-control input-sm" id="{{value.prop}}" name="{{value.prop}}" value="{{data[value.prop]}}">
+                                    {{each value.vals val}}
+                                    <option value="{{val.val}}" {{data[value.prop] == val.val ? 'selected' : ''}} {{value.disabled ? 'disabled' : ''}} >{{val.name}}</option>
+                                    {{/each}}
+                                </select>
+                            {{else if value.type == 'textarea'}}
+                            <div class="col-xs-8">
+                            <textarea class="form-control input-sm" rows="3" id="{{value.prop}}" name="{{value.prop}}" value="{{data[value.prop]}}" {{value.disabled ? 'disabled' : ''}}></textarea>
+                            {{else if value.type == 'file'}}
+                            <div class="col-xs-8">
+                                <input type="file" id="{{value.prop}}" name="{{value.prop}}" value="{{data[value.prop]}}" style="height:30px;">
+                            {{/if}}
+                            </div>
+                        </div>
+
+                        {{/if}}
+                        {{/each}}
+                    </div>
+                    <div class="row text-center">
+                        <button type="reset" class="btn btn-default">重 置</button>
+                        <button type="submit" class="btn btn-default">确 定</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </script>
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="../../../tmpl/js/panelForm.js"></script>
+    
+    <script>
+        var panelFormRender = template.compile(TPanelForm);
+        var id = getParam('id');
+        SuperPost({
+            type:'post',
+            url: remoteApi.apiCommon, // 获取用户信息
+            data: {
+                request: JSON.stringify({ "method": "get", "User": { "$where": { "id": 2 } } })
+            },
+            success:function(res){
+                if(res.success){
+                    var user = res.message.User;
+                    var html = template('tmpl', {
+                        formName: 'edit-form',
+                        panelTitle:'编辑用户',
+                        list:[
+                            { prop:'', label:'指派流水号', disabled: true },
+                            { prop:  ' ', label: '指派方式', type: 'select', vals:[ {name:'按借据号', val: '1'}, {name:'按客户号', val:'2'}, {name:"按合同号", val:'3'}] },
+                            { prop: '', label: '借据号/客户号/合同号',},
+                            { prop: '', label: '客户号', disabled:true },
+                            { prop: 'choice-users', label: '指派人', inputGroup:'添加指派人'},
+                            { prop: '', label: '指派人所属部门', disabled:true },
+                            { prop: '', label: '指派接受人' },
+                            { prop: '', label: '指派接受人所属部门', disabled:true },
+                            { prop: '', label: '指派状态', disabled:true },
+                            { prop: '', label: '指派时间', disabled:true },
+                            { prop: '', label: '指派说明', type:'textarea' },
+                        ],
+                        data: user
+                    });
+                    $("#editForm").html(html);
+                }
+                else{
+                    console.log("失败",res);
+                }
+            }
+        })
+        var choice_users_option = {
+            key: 'choice-users',
+            num: 'one'
+        };
+        $(document).on("click", "#groupBtn-choice-users", function(){
+            layer.open({
+                type: 2,
+                title:'选中发送对象',
+                area: ['700px', '450px'],
+                fixed: false, //不固定
+                maxmin: true,
+                content: '../../htmllayer/choiceUser.html'
+            });
+        });
+    
+       
+
+        function checkSubmitForm(that){
+            var form = $("form[name='edit-form']");
+            form.validate({
+                rules: {
+                    'username': "required",
+                },
+                submitHandler: function() {
+                    if(form.valid()){
+                        SuperPost({
+                            type:'post',
+                            url: remoteApi.apiUserEdit,
+                            data: form.serialize(),
+                            success:function(res){
+                                if(res.success){
+
+                                }else{
+                                    console.log(res);
+                                }
+                            }
+                        })
+                    }
+                    return false;
+                }
+            })
+            return false;
+        }
+        checkSubmitForm();
+    </script>
+</body>
+</html>

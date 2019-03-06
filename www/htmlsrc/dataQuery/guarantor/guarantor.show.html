@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>客户管理 - 保证人管理 - 查看</title>
+    <script src="../../../static/vendor/jquery/jquery.js"></script>
+    
+    
+    
+    <script src="../../../static/vendor/artTemplate/template-web.js"></script>
+    <link href="../../../static/vendor/bootcss/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <style>.x-tablelist-wrap{overflow-x:auto !important}</style>
+    <div id="content">
+        <div id="data-list">
+            <!-- 基本信息展示 -->
+        </div>
+        <div class="text-center">
+            <a href="javascript:void(0)" onclick="javascript:history.go(-1);return false;">【返回】</a>
+        </div>
+    </div>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="../../../tmpl/js/panelTableShow.js"></script>
+    <script>
+        var panelTableShowRender  = template.compile(TPanelTableShow);
+        $("#data-list").html(panelTableShowRender({
+            panelTitle: '客户管理 - 保证人管理 - 查看',
+            attrs:[
+                { prop: 'f1', label: '保证人客户号'  },
+                { prop: 'f2', label: '保证人客户名称' },
+                { prop: 'f3', label: '证件号码' },
+                { prop: 'f4', label: '主管机构' },
+                { prop: 'f5', label: '客户经理' },
+                { prop: 'f6', label: '借款人客户号' },
+                { prop: 'f7', label: '担保合同号等信息' }
+            ],
+            data:{  }
+        }));
+
+        SuperPost({
+            // url: remoteApi. + '' + getParam('id').
+            url: '',
+            type: 'get',
+            success:function(res){
+                if(res.success){
+                
+                }
+                else{
+                    console.log(res);
+                }
+            },
+            error:function(){
+
+            }
+        })
+    </script>
+</body>
+</html>

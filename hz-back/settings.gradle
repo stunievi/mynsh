@@ -1,0 +1,3 @@
+include ':hz-common'
+project(":hz-common").projectDir = new File(settingsDir, "../hz-common")
+rootProject.name = 'hz-back'

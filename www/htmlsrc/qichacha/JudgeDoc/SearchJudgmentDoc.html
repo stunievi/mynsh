@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 查询裁判文书 </title>
+    <!--#include file="/htmlsrc/header.html" -->
+</head>
+<body>
+<div id="content">
+    <div class="" id="panel-form">
+        <!-- 查询表单 -->
+    </div>
+    <div id="dataList">
+        <!-- 数据列表 -->
+    </div>
+</div>
+<!-- toolbar渲染模板 -->
+<!-- toolbar渲染模板 -->
+<script type="text/html" id="toolbar">
+    <div class="layui-toolbar">
+        <a href="javascript:;" class="btn btn-default handleShow">查看</a>
+    </div>
+</script>
+<script type="text/html" id="_CaseRole">
+    {{#
+        var a = [];
+    var CaseRole = JSON.parse(d.CaseRole);
+    console.log('CaseRole', CaseRole);
+    for(var i=0;i < CaseRole.length;i++){
+    var val = CaseRole[i];
+    a.push(val['P']+'【'+ val['R'] + '】');
+    }
+    return a.join("、");
+    }}
+    </script>
+
+<script>
+    // 配置查询表单
+    $("#panel-form").html(panelFormRender3({
+        panelTitle:'筛选查询',
+        col: 3,
+        list:[
+            {prop:"searchKey", label:"查询关键字"},
+            {prop:"caseType", label:"案件类型", type:"select", vals:[
+                { name: '--请选择--', val: ''},
+                {val:"ms",name:"民事"},
+                {val:"xs",name:"刑事"},
+                {val:"xz",name:"行政"},
+                {val:"zscq",name:"知识产权"},
+                {val:"pc",name:"赔偿"},
+                {val:"zx",name:"执行"}
+            ]}
+        ],
+        data: { }
+    }));
+
+    laytableRender({
+        title: "查询裁判文书列表"
+        , url: "http://localhost:8015/test/qichacha/JudgeDoc/SearchJudgmentDoc"
+        , dataType: "json"
+        , cols: [
+            [
+                { title:'操作', templet: "#toolbar", fixed: 'right'},
+                // {title:"Id", field:"Id"},
+                {title:"执行法院", field:"Court"},
+                {title:"裁判文书名字", field:"CaseName", width: 300},
+                {title:"裁判文书编号", field:"CaseNo"},
+                {title:"裁判文书类型", field:"CaseType"},
+                {title:"发布时间", field:"SubmitDate"},
+                {title:"审判时间", field:"UpdateDate"},
+                {title:"是否原告（供参考）", field:"IsProsecutor"},
+                {title:"是否被告（供参考）", field:"IsDefendant"},
+                {title:"开庭时间年份", field:"CourtYear"},
+                {title:"涉案人员角色", field:"CaseRole", templet:"#_CaseRole", width: 500}
+            ]
+        ]
+    });
+
+    $(document).on("click", ".handleShow", function (){
+        addNavTab("JudgeDocDetail", "裁判文书详情", "/htmlsrc/qichacha/JudgeDoc/GetJudgementDetail.html");
+        return true;
+    });
+</script>
+</body>
+</html>

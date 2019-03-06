@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>系统管理 - 部门管理</title>
+    <!--<link rel="stylesheet" href="/static/vendor/bootcss/css/bootstrap.min.css">-->
+    <!--<link rel="stylesheet" href="/static/vendor/ztree/css/zTreeStyle/zTreeStyle.css" type="text/css">-->
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script src="/static/vendor/bootcss/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+
+    <!-- <script src="../../../static/vendor/artTemplate/template-web.js"></script> -->
+</head>
+<body>
+<div>
+</div>
+<div id="content" style="">
+    <a class="btn btn-xs btn-success" id="addTopDept" href="javascript:;">添加顶级部门</a>
+    <table id="dataList"></table>
+
+    <div class="panel panel-default">
+        <div class="panel-heading"> 部门列表 </div>
+        <div class="panel-body">
+
+            <!-- <input class="form-control input-sm" type="text" id="key" placeholder="请输入筛选关键词" style="width:30%;margin-top:6px;"> -->
+
+        </div>
+    </div>
+</div>
+
+<script src="/static/vendor/layui/layer/layer.js"></script>
+<!--<script type="text/javascript" src="/static/vendor/ztree/js/jquery.ztree.core.js"></script>-->
+<!--<script type="text/javascript" src="/static/vendor/ztree/js/jquery.ztree.excheck.min.js"></script>-->
+<!--<script type="text/javascript" src="/static/vendor/ztree/js/jquery.ztree.exedit.min.js"></script>-->
+<!-- <script type="text/javascript" src="/static/vendor/ztree/js/jquery.ztree.exhide.min.js"></script> -->
+<!-- <script type="text/javascript" src="/static/vendor/ztree/js/fuzzysearch.js"></script> -->
+
+<script id="action" type="text/html">
+    {{# if(d.type == '部门'){ }}
+    <button class="btn btn-default btn-sm">添加部门</button>
+    <button class="btn btn-default btn-sm">添加岗位</button>
+    <button class="btn btn-default btn-sm">编辑</button>
+    {{# } }}
+</script>
+
+
+<script id="name" type="text/html">
+    <div style="padding-left:{{d.level * 10}}px;">{{d.name}}</div>
+</script>
+<script type="text/javascript">
+
+    $(function () {
+        laytableRender({
+            url: remoteOrigin + "/api/user/org/getList"
+            , dataType: "json"
+            , page: false
+            , cols:[
+                [
+                    {field: "name", title: "名称",templet: "#name"}
+                    , {field: "type", title: "类型"}
+                    , {field: "info", title: "描述", width: 200}
+                    , {title:"操作", templet: "#action"}
+                ]
+            ]
+            // , tree: "name,parentId,0"
+        });
+
+    })
+
+    throw new Error();
+
+    var $table = $('#dataList');
+    $(function() {
+        $table.bootstrapTable({
+            // url: '/api/user/org/getList',
+            // height: $(window).height(),
+            // striped: true,
+            // sidePagination: 'server',
+            // idField: 'id',
+            columns: [
+                {
+                    field: 'ck',
+                    checkbox: true
+                },
+                {
+                    field: 'name',
+                    title: '名称'
+                    , useLevel: true
+                },
+                // {field: 'id', title: '编号', sortable: true, align: 'center'},
+                // {field: 'pid', title: '所属上级'},
+                {
+                    field: 'status',
+                    title: '状态',
+                    sortable: true,
+                    align: 'center',
+                    formatter: 'statusFormatter'
+                },
+                {
+                    field: 'permissionValue',
+                    title: '权限值'
+                }
+            ],
+            // bootstrap-table-tree-column.js 插件配置
+            // treeShowField: 'name',
+            // parentIdField: 'pid'
+            // bootstrap-table-tree-column.js 插件配置
+
+            // bootstrap-table-treegrid.js 插件配置
+            treeShowField: 'name',
+            parentIdField: 'parentId',
+            onLoadSuccess: function(data) {
+                alert(123321)
+                // console.log('load');
+                // alert(123321)
+
+                // jquery.treegrid.js
+                $table.treegrid({
+                    // initialState: 'collapsed',
+                    treeColumn: 1,
+                    // expanderExpandedClass: 'glyphicon glyphicon-minus',
+                    // expanderCollapsedClass: 'glyphicon glyphicon-plus',
+                    onChange: function() {
+                        $table.bootstrapTable('resetWidth');
+                    }
+                });
+
+                // console.log(123321);
+                $(".treegrid-expander-expanded").click()
+            }
+
+            // bootstrap-table-treetreegrid.js 插件配置
+        });
+
+        $.get("/dep.json",function (data) {
+            var c = window.cubi = data.data
+            c = c.sort(function (a,b) {
+                if(a.parentId == null){
+                    return -1;
+                }
+                else if(b.parentId == null){
+                    return 1;
+                }
+                return a.id == b.parentId ? -1 : 0;
+            });
+            cubi = c;
+            $table.bootstrapTable("load",data.data)
+            // $table.treegrid({
+            //     treeColumn: 1
+            // })
+            // console.log(data)
+        })
+    });
+
+
+
+    throw new Error();
+
+
+    // 部门树设置
+    var setting = {
+        view: {
+            addHoverDom: addHoverDom,
+            removeHoverDom: removeHoverDom,
+            selectedMulti: false,
+            showLine: false
+        },
+        edit: {
+            enable: true,
+            showRemoveBtn: true,
+            showRenameBtn: true
+        },
+        data: { simpleData: { enable: true } },
+        callback: {
+            beforeDrag: function(){ return false },
+            beforeEditName: beforeEditName,
+            beforeRemove: beforeRemove
+        }
+    };
+    var ZTREE = null;
+
+    // 渲染数据列表
+    getRemoteData({
+        loading: true,
+        url: remoteApi.apiAlldepartment,
+        callback: function(origin){
+            top.topCacheDepartment = origin;
+            $.fn.zTree.init($("#dataTree"), setting, origin);
+            var zTree = ZTREE = $.fn.zTree.getZTreeObj("dataTree")
+            zTree.expandAll(true);
+            // fuzzySearch('dataTree','#key',null,true); //初始化模糊搜索方法
+        }
+    })
+
+    // 编辑部门
+    function beforeEditName(treeId, treeNode) {
+        console.log(treeId,treeNode)
+        editNode = treeNode;
+        editNodeIndex = layerOpenIframe({
+            title: "编辑部门",
+            url:  "./department.edit.html?id="+treeNode.id
+        })
+        return false;
+    }
+    // 编辑回调
+    function editDeptCallback(origin){
+        var zTree = $.fn.zTree.getZTreeObj("dataTree");
+        editNode.name = origin.name;
+        var edited = editNode.sort != origin.sort;
+        editNode.sort = origin.sort;
+        zTree.editName(editNode);
+        zTree.cancelEditName(); // 取消编辑状态
+        layer.close(editNodeIndex);
+        if(edited){
+            var dom = $('#' + editNode.tId);
+            dom.parent().append(dom.parent().children().toArray().sort(function(a,b){
+                var doma = ZTREE.getNodeByTId(a.id);
+                var domb = ZTREE.getNodeByTId(b.id);
+                if(doma.sort - domb.sort == 0){
+                    return doma.id - domb.id
+                }else{
+                    return doma.sort - domb.sort
+                }
+            }))
+        }
+        layer.msg("编辑成功!");
+    }
+    // 删除
+    function beforeRemove(treeId, treeNode) {
+        var zTree = $.fn.zTree.getZTreeObj("dataTree");
+        delRemoteData({
+            url: remoteApi.apiDepartment+"?departmentId="+treeNode.id,
+            callback: function(){
+                zTree.removeNode(treeNode);
+                layer.msg("已删除");
+            }
+        });
+        return false;
+    }
+    // 添加添加部门按钮
+    function addHoverDom(treeId, treeNode) {
+        var sObj = $("#" + treeNode.tId + "_span");
+        if (treeNode.editNameFlag || $("#addBtn_"+treeNode.tId).length>0) return;
+        var addStr = "<span class='button add' id='addBtn_" + treeNode.tId
+            + "' title='add node' onfocus='this.blur();'></span>";
+        sObj.after(addStr);
+        var btn = $("#addBtn_"+treeNode.tId);
+        if (btn) btn.bind("click", function(){
+            // 添加部门
+            currAddDept = treeNode;
+            addDeptIndex = layerOpenIframe({
+                title: "添加部门",
+                url:  "./department.add.html?pid="+treeNode.id+"&pname="+treeNode.name
+            })
+            return false;
+        });
+    };
+    // onmouseleave移除功能按钮
+    function removeHoverDom(treeId, treeNode) {
+        $("#addBtn_"+treeNode.tId).unbind().remove();
+    };
+    // 添加顶级部门
+    eventBind("#addTopDept", function(){
+        currAddDept = null;
+        addDeptIndex = layerOpenIframe({
+            title: "添加部门",
+            url:  "./department.add.html?pid=0&pname=顶级部门"
+        })
+    })
+    // 添加部门回调
+    function addDeptCallback(origin){
+        var zTree = $.fn.zTree.getZTreeObj("dataTree");
+        zTree.addNodes(currAddDept, origin);
+        layer.close(addDeptIndex);
+    }
+</script>
+</body>
+</html>

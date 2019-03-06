@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 任务管理 - 任务列表 </title>
+    <!--#include file="/htmlsrc/header.html" -->
+    <style>
+        body{
+            overflow-y:scroll;
+        }
+    </style>
+</head>
+<body>
+<div id="content">
+    <div id="panel-form">
+        <!-- 查询表单 -->
+    </div>
+    <div class="batch-operation">
+        <a class="btn btn-success" href="javascript:;" id="handleAdd" tab-title="添加字典" tab-href="/htmlsrc/dict_manage/dict.edit.html" >添加字典</a>
+        <button class="btn btn-danger btn-remove" href="javascript:;" ><i class="glyphicon glyphicon-trash"></i> 删除</button>
+    </div>
+    <!-- <div class="panel panel-default">
+        <div class="panel-heading">
+            任务列表 - <span id="workFlowName"></span>
+        </div> -->
+    <!-- <div class="panel-body"> -->
+    <div id="dataList">
+        <!-- 数据列表 -->
+    </div>
+    <!-- </div> -->
+    <!-- </div> -->
+</div>
+
+
+<script type="text/html" id="ri">
+    <div class="layui-toolbar">
+        <a href="javascript:;" class="btn btn-warning" data-id="{{d.id}}" tab-href="/htmlsrc/dict_manage/dict.edit.html?id={{d.id}}">编辑字典</a>
+    </div>
+</script>
+
+<script>
+
+    $("#panel-form").html(panelFormRender3({
+        panelTitle:'筛选查询',
+        list:[
+            { prop: 'name', label: '字典分组' }
+        ],
+        data:{}
+    }));
+
+    function onInfront(){
+        if($("#dataList table").length){
+            layuiTableReload({
+                where: $('[name=form-search]').serialize()
+            }) ;
+            return;
+        }
+        laytableRender({
+            url: remoteOrigin + "/api/auto/dict/getList"
+            , cols:[
+                [
+                    {checkbox:true}
+                    , {field: 'name', title: "字典分组"}
+                    ,{field: 'vKey', title: "字典名"}
+                    ,{field: 'vValue', title: "字典值"}
+                    ,{field: '', title: "操作", templet: "#ri"}
+                ]
+            ]
+        })
+    }
+    onInfront();
+
+    $(document).on("click", ".btn-remove", function () {
+        var ids = $.map($("input:checked").toArray(),function (v) {
+            return v.value;
+        })
+        if(ids.length<1){
+            layer.msg("没有选中数据");
+            return false;
+        }
+        actConfirm(function () {
+            getFetch(remoteOrigin + "/api/auto/dict/delete", {
+                id: ids.join(",")
+            },function () {
+                layuiTableReload()
+            });
+        });
+        return false;
+    });
+
+    function checkSubmitForm(){
+        layuiTableReload({
+            where: $("[name=form-search]").serialize()
+        })
+        return false;
+    }
+</script>
+</body>
+</html>

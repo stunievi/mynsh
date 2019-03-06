@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 系统管理 - 占位符管理 </title>
+    <link href="../../../static/vendor/bootcss/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
+    <link rel="stylesheet" href="/static/htmlcss/style.css"/>
+</head>
+<body>
+    <div id="content"> 
+        <div class="" id="panel-form">
+            <!-- 筛选表单 -->
+        </div>
+        <div class="batch-operation">
+            <a class="btn btn-success" id="handleAdd" href="/htmlsrc/sysManage/placeholder/placeholder.add.html">添加占位符</a>
+            <a class="btn btn-danger" id="batchDel" href="javascript:;">删除占位符</a>
+        </div>
+        <div id="dataList">
+            <!-- 数据列表 -->
+        </div>
+    </div>
+    <script src="../../../static/vendor/jquery/jquery.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script src="../../../static/vendor/artTemplate/template-web.js"></script>
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="../../../tmpl/js/panelForm.js"></script>
+    <!-- toolbar渲染模板 -->
+    <script type="text/html" id="toolbar">
+        <div class="layui-toolbar">
+            <a href="/htmlsrc/sysManage/placeholder/placeholder.edit.html?id={{d.id}}" class="btn handleEdit btn-warning" href="">编辑</a>
+            <!-- <a href="/htmlsrc/sysManage/placeholder/placeholder.show.html?id={{d.id}}" class="btn handleShow btn-default" href="">查看</a> -->
+            <a href="javascript:;" class="btn handleDel btn-danger" data-value="{{d.id}}" data-index="{{d.LAY_TABLE_INDEX}}">删除</a>
+        </div>
+    </script>
+    <script>
+        $("#panel-form").html(panelFormRender({
+            panelTitle:'筛选查询',
+            list:[
+                { prop: 'ff1', label: '占位符名称' }
+            ],
+            data: {}
+        }));
+
+        laytableRender({
+            url: remoteApi.apiSystemLog,
+            cols: [
+                [
+                    {checkbox: true, fixed: true},
+                    {field:'id', title:'占位符编号'},
+                    {field:'addTime', title:'占位符名称'},
+                    {field:'username', title:'占位符定义'},
+                    {field:'baned', title:'备注'},
+                    {title:'操作', templet: "#toolbar"}
+                ]
+            ]
+        });
+
+        function delData(data){
+            // data: Array
+            delRemoteData({
+                url: '',
+                data: data,
+                callback: function(){
+                    layuiTableReload();
+                }
+            })
+        }
+        $("#batchDel").click(function(){
+            var ids = getLayuiTabelCheckIds();
+            if(ids.length < 1){
+                return;
+            }
+            delData(ids);
+        });
+        $(document).on("click", ".handleDel", function(){
+            var id = $(this).data('value');
+            delData([id]);
+        });
+    
+        function checkSubmitForm(){
+            var form = $("form[name='form-search']")
+            layuiTableReload();
+            return false;
+        }
+    </script>
+</body>
+</html>

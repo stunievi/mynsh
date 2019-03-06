@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 系统管理 - 消息管理 - 消息模板 - 编辑 </title>
+    <!--#include file="/htmlsrc/header.html" -->
+</head>
+<body>
+    <div id="content"> 
+        <div id="editForm">
+        </div>
+        <!-- <div class="text-center">
+            <a href="javascript:void(0)" onclick="javascript:history.go(-1);return false;">【返回】</a>
+        </div> -->
+    </div>
+    <!--<script src="/static/vendor/validate/jquery.validate.min.js"></script>-->
+    <!--<script src="../../../../static/vendor/artTemplate/template-web.js"></script>-->
+
+    <!--<script src="/static/vendor/layui/layer/layer.js"></script>-->
+    <!--<script src="/static/htmljs/global.config.js"></script>-->
+    <!--<script src="/static/htmljs/utils.js"></script>-->
+    <!--<script src="../../../../tmpl/js/panelForm.js"></script>-->
+    <script>
+        var id = getParam("id")
+        getFetch(remoteOrigin + "/api/auto/msgtmpl/getOne",{id:id},function (data) {
+            $("#editForm").html(panelFormRender3({
+                formName: 'edit-form',
+                // panelTitle:'编辑模板',
+                list:[
+                    { prop: 'id', type: 'hidden' },
+                    { prop: 'name', label: '模板名', required: true },
+                    { prop: 'template', label: '模板内容', type:'textarea', width: 12, labelWidth:2, required: true }
+                    // { prop: 'placeholder', label: '占位', type:'textarea', width: 12, labelWidth:2, required: true }
+                ],
+                data: data,
+                line: true
+            }));
+            var form = $("form[name='edit-form']");
+            form.validate({
+                rules: {
+                    name: { required: true, minlength:2, maxlength: 20 },
+                    template: { required: true, minlength:5, maxlength: 200 }
+                    // placeholder: "required"
+                },
+                submitHandler:function(){
+                    if(form.valid()){
+                        postFetch(
+                            remoteOrigin + "/api/auto/msgtmpl/edit",
+                            (form.serialize()),
+                            function(){
+                                closeCurrentIframe()
+                                return true;
+                            }
+                        )
+                    }
+                }
+            })
+        });
+        function checkSubmitForm(){
+            return false;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,126 @@
+rpc:
+  secret: "1q2w3e4r"
+  url: http://118.2.82.14
+
+dev:
+  debug: true
+
+filecloud:
+  address: "118.2.82.18"
+  username: "admin"
+  password: "admin"
+  userDefaultPassword: "qwer!@34"
+
+  commonUsername: "admin"
+  commonPassword: "admin"
+  commonRootId: 1041
+
+#swagger:
+#  host: 127.0.0.1:8081
+
+beetlsql:
+  dbStyle: org.beetl.sql.core.db.DB2SqlStyle
+
+server:
+  port: 8081
+  address: 0.0.0.0
+  servlet:
+    context-path: /
+
+uploads:
+  server: http://118.2.82.14
+  type: fastdfs
+  path: /Users/bin/work/uploads
+  temp: /Users/bin/work/uploads/temp
+  avatar: /Users/bin/work/uploads/avatar
+  logs: /Users/bin/work/uploads/logs
+
+lfs:
+  server: http://118.2.82.14/disk
+  wfUsername: admin
+  wfPassword: admin
+  wfPid: 0
+
+fdfs:
+  so-timeout: 1501
+  connect-timeout: 601
+  thumb-image:             #缩略图生成参数
+    width: 150
+    height: 150
+  tracker-list:
+  - 39.104.106.65:22122
+
+
+spring:
+  application:
+    name: service-hzback
+  jmx:
+    enabled: false
+  servlet:
+    multipart:
+      max-file-size: 10Mb
+      max-request-size: 10Mb
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: com.beeasy.hzback.core.helper.DB2DialectFK
+
+  datasource:
+    name: test
+    #mysql
+    #    url: jdbc:mysql://127.0.0.1:3306/test?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    #    username: root
+    #        password: "!Q1q2w3e4r"
+    #    password: 123
+    #    driver-class-name: com.mysql.jdbc.Driver
+    #        mysql-end
+    #        db2
+    url: jdbc:db2://118.2.82.14:50000/fzsys
+    username: db2inst1
+    password: 11111111
+    driver-class-name: com.ibm.db2.jcc.DB2Driver
+    #        db2-end
+    # 使用druid数据源
+    type: org.springframework.jdbc.datasource.DriverManagerDataSource
+    #    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+  #      filters: stat
+  #      maxActive: 20
+  #      initialSize: 1
+  #      maxWait: 60000
+  #      minIdle: 1
+  #      timeBetweenEvictionRunsMillis: 60000
+  #      minEvictableIdleTimeMillis: 300000
+        validationQuery: select count(1) from t_user
+  #      testWhileIdle: true
+  #      testOnBorrow: false
+  #      testOnReturn: false
+  #      poolPreparedStatements: true
+  #      maxOpenPreparedStatements: 20
+
+
+  redis:
+    database: 0
+    host: 127.0.0.1
+    port: 6379
+    password:
+    timeout: 5000ms
+
+  session:
+    store-type: none
+
+  mvc:
+    async:
+      request-timeout: 30000ms
+
+  dubbo:
+    server: true
+    registry: N/A
+    provider:
+      port: 28001
+
+

@@ -1,0 +1,26 @@
+<%
+var RIGHTHTML = {
+%>
+<form action="" data-url="/admin/setting/user/">
+    <input type="hidden" name="id" value="${item.id}">
+    <p>
+        用户名：<input type="text" name="username" value="${item.username}">
+    </p>
+    <p>
+        密码：<input type="password" name="password">
+    </p>
+    <p>
+        是否禁用：<input type="checkbox" name="baned" value="1" ${item.baned?"checked" : ""}>
+    </p>
+
+    <p>
+        <a href="javascript:;" class="save">提交</a>
+    </p>
+</form>
+
+
+<% }; %>
+
+<%
+include("../layout.html",{RIGHTHTML:RIGHTHTML}){}
+%>

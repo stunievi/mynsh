@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 数据权限 </title>
+
+    <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script src="/static/vendor/bootcss/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+    <style>
+        .form-group{
+            padding: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="content">
+        <div class="bs-example bs-example-tabs" data-example-id="togglable-tabs">
+            <ul id="myTabs" class="nav nav-tabs" role="tablist">
+                <!--<li role="presentation"><a href="#authCond" id="authCond-tab" role="tab" data-toggle="tab" aria-controls="authCond" aria-expanded="true">查询约束</a></li>-->
+                <li role="presentation" class="active"><a href="#authRes" role="tab" id="authRes-tab" data-toggle="tab" aria-controls="authRes">结果约束</a></li>
+            </ul>
+            <div id="myTabContent" class="tab-content">
+                <div role="tabpanel" class="tab-pane fade " id="authCond" aria-labelledby="authCond-tab">
+                    <div class="panel-body">
+                        <form class="form-inline" name="condForm">
+                            <div class="form-group col-xs-3">
+                                <label>查询规则</label>
+                                <select class="form-control" name="searchType">
+                                    <option value="FOR_DEPARTMENT">按部门</option>
+                                    <option value="FOR_USER">按人员</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-xs-3">
+                                <label>查询表</label>
+                                <select class="form-control" name="targetType">
+                                    <option value="CUS_INDIV">对私客户表</option>
+                                    <option value="CUS_COM">对公客户表</option>
+                                    <option value="CTR_LOAN_CONT">贷款合同</option>
+                                    <option value="GRT_GUAR_CONT">担保合同</option>
+                                    <option value="ACC_LOAN">贷款台账</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-xs-2">
+                                <label>约束类型</label>
+                                <select class="form-control" name="valueType">
+                                    <!--<option value="BIND_VALUE">已绑代号</option>-->
+                                    <option value="CUSTOM">指定</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-xs-2 text-center">
+                                <a class="btn btn-warning btn-sm" id="handleAddCond">新增</a>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="list-group" id="checkedRule">
+
+                    </div>
+                    <div class="panel-body">
+                        <div class="col-xs-12 text-center">
+                            <a class="btn btn-primary" id="handleConfirmAddCond">确定</a>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade in active" id="authRes" aria-labelledby="authRes-tab">
+                    <div class="panel-body">
+                        <form class="form-inline" name="resForm" style="display: none;">
+                            <div class="form-group col-xs-12">
+                                <label style="display: inline-block;">结果表</label>
+                                <select class="form-control" name="searchTargetType" style="width: 250px; display: inline-block;">
+                                    <option value="201">对公客户表</option>
+                                    <option value="202">对私客户表</option>
+                                    <option value="203">贷款台账</option>
+                                </select>
+                                <a class="btn btn-warning btn-sm" id="handleAddRes" style="display: inline-block;">新增</a>
+                            </div>
+                            <div class="form-group col-xs-2 text-center">
+                            </div>
+                        </form>
+                    </div>
+                    <div>
+                        <h4>数据检索权限</h4>
+                        <label>
+                            <input type="checkbox" value="" name="zonghang">
+                            总行检索权限
+                        </label>
+                        <p>被赋予总行检索权限的角色将在某些列表中可以检索到更大范围的数据, 例如贷款资料/客户资料/报表等</p>
+                    </div>
+                    <div class="list-group" id="checkedRes">
+
+                    </div>
+                    <div class="col-xs-12 text-center">
+                        <a class="btn btn-primary" id="handleConfirmAddRes">确定</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="../../../static/vendor/artTemplate/template-web.js"></script>
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <!-- 查询约束模板 -->
+    <script id="condTmpl" type="text/html">
+        <li class="list-group-item" style="border: 0;">
+            {{enumData.searchType[cond.searchType]}},{{enumData.targetType[cond.targetType]}},{{enumData.valueType[cond.valueType]}}
+            <input type="hidden" name="searchType[]" value="{{cond.searchType}}">
+            <input type="hidden" name="targetType[]" value="{{cond.targetType}}">
+            <input type="hidden" name="valueType[]" value="{{cond.valueType}}">
+            {{ if cond.valueType == 'CUSTOM' }}
+                <input type="text" name="value[]" value="{{cond.value ? cond.value : ''}}">
+            {{ /if }}
+            <a href="javscript:;" class="btn btn-xs btn-danger pull-right handleRemoveCond">删除</a>
+        </li>
+    </script>
+    <!-- 查询约束模板 -->
+    <script id="resTmpl" type="text/html">
+        <li class="list-group-item" style="overflow:hidden;padding:5px">
+            <input type="hidden" name="searchTargetType[]" value="{{res.searchTargetType}}">
+            <div class="col-xs-12 col-md-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                         {{table}}已选字段
+                    </div>
+                    <div class="panel-body">
+                        <textarea style="width: 100%;" name="value[]" cols="30" rows="10">{{res.value ? res.value : ''}}</textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-md-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        {{table}}可选字段
+                        <a href="javscript:;" class="btn btn-xs btn-danger pull-right handleRemoveRes">删除</a>
+
+                    </div>
+                    <div class="panel-body" style="max-height: 241px;overflow-y: scroll;">
+                        <div class="col-xs-5 showFileds" >
+                            <!--<textarea cols="30" rows="10"></textarea>-->
+                            {{@ enableFields}}
+                        </div>
+                        <div class="col-xs-7 showFileds">
+                            {{@ enableFieldsDes}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </li>
+    </script>
+    <script>
+        var dataId;
+        var dataType;
+        var roleId = getParam("roleid") || undefined;
+        var userId = getParam("uid") || undefined;
+        if(roleId && roleId != 'undefined'){
+            dataId = roleId;
+            dataType = "ROLE";
+        }else if(userId && userId != 'undefined'){
+            dataId = userId;
+            dataType = "USER";
+        }
+        
+    </script>
+</body>
+</html>
+
+
+<script>
+    var fields = {
+        201:
+            [{"title":"INNER_CUS_ID","field":"内部客户号"}
+                ,{"title":"CUS_ID","field":"客户代码"}
+                ,{"title":"MNG_BR_ID","field":"所属法人机构"}
+                ,{"title":"CUS_TYPE","field":"客户类型"}
+                ,{"title":"CUS_NAME","field":"客户名称"}
+                ,{"title":"CUS_EN_NAME","field":"外文名称"}
+                ,{"title":"CUS_SHORT_NAME","field":"客户简称"}
+                ,{"title":"CERT_TYPE","field":"开户证件类型"}
+                ,{"title":"CERT_CODE","field":"开户证件号码"}
+                ,{"title":"COM_COUNTRY","field":"国别"}
+                ,{"title":"COM_LCL_FLG","field":"是否异地企业"}
+                ,{"title":"CUS_BANK_REL","field":"客户与我行关系"}
+                ,{"title":"COM_HOLD_STK_AMT","field":"拥有我行股份金额"}
+                ,{"title":"INVEST_TYPE","field":"投资主体"}
+                ,{"title":"COM_SUB_TYP","field":"隶属关系"}
+                ,{"title":"COM_SCALE","field":"企业规模"}
+                ,{"title":"COM_HOLD_TYPE","field":"控股类型"}
+                ,{"title":"LOAN_CARD_FLG","field":"有无贷款卡"}
+                ,{"title":"LOAN_CARD_ID","field":"贷款卡编号"}
+                ,{"title":"LOAN_CARD_EFF_FLG","field":"贷款卡有效标志"}
+                ,{"title":"LOAN_CARD_AUDIT_DT","field":"贷款卡最近年审日期"}
+                ,{"title":"COM_INS_CODE","field":"组织机构代码"}
+                ,{"title":"COM_CLL_TYPE","field":"行业类型"}
+                ,{"title":"COM_CLL_NAME","field":"行业名称"}
+                ,{"title":"COM_STR_DATE","field":"成立日期"}
+                ,{"title":"COM_EMPLOYEE","field":"从业人数"}
+                ,{"title":"COM_INS_REG_DATE","field":"组织机构登记日期"}
+                ,{"title":"COM_INS_EXP_DATE","field":"组织机构有效日期"}
+                ,{"title":"COM_INS_ANN_DATE","field":"组织机构代码证年检到期日"}
+                ,{"title":"COM_INS_ORG","field":"组织机构代码证颁发机关"}
+                ,{"title":"REG_CODE","field":"登记注册号"}
+                ,{"title":"REG_TYPE","field":"注册登记类型"}
+                ,{"title":"ADMIN_ORG","field":"主管单位"}
+                ,{"title":"APPR_ORG","field":"审批机关"}
+                ,{"title":"APPR_DOC_NO","field":"批准文号"}
+                ,{"title":"REG_STATE_CODE","field":"注册地行政区划"}
+                ,{"title":"REG_AREA_CODE2","field":"注册地区域编码2"}
+                ,{"title":"REG_AREA_CODE3","field":"注册地区域编码3"}
+                ,{"title":"REG_AREA_NAME","field":"行政区划名称"}
+                ,{"title":"REG_ADDR","field":"注册登记地址"}
+                ,{"title":"EN_REG_ADDR","field":"外文注册登记地址"}
+                ,{"title":"REG_CUR_TYPE","field":"注册资本/开办资金币种"}
+                ,{"title":"REG_CAP_AMT","field":"注册资本（万元）"}
+                ,{"title":"PAID_CAP_CUR_TYPE","field":"实收资本币种"}
+                ,{"title":"PAID_CAP_AMT","field":"实收资本（万元）"}
+                ,{"title":"FUN_SOURCE","field":"经费来源"}
+                ,{"title":"LEGAL_NAME","field":"法定代表人/负责人姓名"}
+                ,{"title":"LEGAL_SEX","field":"法定代表人性别"}
+                ,{"title":"LEGAL_CERT_TYPE","field":"法定代表人/负责人证件类型"}
+                ,{"title":"LEGAL_CERT_CODE","field":"法定代表人/负责人证件号码"}
+                ,{"title":"LEGAL_PHONE","field":"法定代表人/负责人联系电话"}
+                ,{"title":"LEGAL_HOUH_REG_ADD","field":"法人代表户籍地址"}
+                ,{"title":"SPOUSE_NAME","field":"法定代表人配偶名称"}
+                ,{"title":"SPOUSE_CERT_TYPE","field":"法定代表人配偶证件类型"}
+                ,{"title":"SPOUSE_CERT_CODE","field":"法定代表人配偶证件号码"}
+                ,{"title":"COM_MAIN_OPT_SCP","field":"主营范围/宗旨与业务范围"}
+                ,{"title":"COM_PART_OPT_SCP","field":"兼营范围"}
+                ,{"title":"REG_ORG","field":"注册登记机关"}
+                ,{"title":"REG_START_DATE","field":"注册登记日期"}
+                ,{"title":"REG_END_DATE","field":"注册登记到期日期"}
+                ,{"title":"REG_AUDIT","field":"注册登记年审结论"}
+                ,{"title":"REG_AUDIT_DATE","field":"注册登记年审日期"}
+                ,{"title":"REG_AUDIT_END_DATE","field":"注册登记年审到期日"}
+                ,{"title":"NAT_TAX_REG_CODE","field":"国税税务登记代码"}
+                ,{"title":"NAT_TAX_REG_ORG","field":"国税税务登记机关"}
+                ,{"title":"NAT_TAX_REG_DT","field":"国税税务登记日期"}
+                ,{"title":"NAT_TAX_REG_END_DT","field":"国税登记有效期"}
+                ,{"title":"NAT_TAX_ANN_DATE","field":"国税登记证年检到期日"}
+                ,{"title":"LOC_TAX_REG_CODE","field":"地税税务登记代码"}
+                ,{"title":"LOC_TAX_REG_ORG","field":"地税税务登记机关"}
+                ,{"title":"LOC_TAX_REG_DT","field":"地税税务登记日期"}
+                ,{"title":"LOC_TAX_REG_END_DT","field":"地税登记有效期"}
+                ,{"title":"LOC_TAX_ANN_DATE","field":"地税登记证年检到期日"}
+                ,{"title":"FNA_MGR","field":"财务负责人"}
+                ,{"title":"COM_OPERATOR","field":"企业经办人"}
+                ,{"title":"POST_ADDR","field":"通讯地址"}
+                ,{"title":"POST_CODE","field":"邮政编码"}
+                ,{"title":"PHONE","field":"联系电话"}
+                ,{"title":"FAX_CODE","field":"传真"}
+                ,{"title":"EMAIL","field":"Email地址"}
+                ,{"title":"WEB_URL","field":"网址"}
+                ,{"title":"BAS_ACC_FLG","field":"基本存款账户是否在本机构"}
+                ,{"title":"BAS_ACC_LICENCE","field":"基本存款账户开户许可证核准号"}
+                ,{"title":"BAS_ACC_BANK","field":"基本存款账户开户行"}
+                ,{"title":"BAS_ACC_NO","field":"基本存款账户帐号"}
+                ,{"title":"BAS_ACC_DATE","field":"基本存款账户开户日期"}
+                ,{"title":"COM_ACC_NO","field":"本机构一般结算账户帐号"}
+                ,{"title":"COM_ACC_DATE","field":"本机构一般结算账户开户日期"}
+                ,{"title":"COM_FIN_REP_TYPE","field":"财务报表类型"}
+                ,{"title":"COM_MRK_FLG","field":"上市公司标志"}
+                ,{"title":"COM_MRK_AREA","field":"上市地"}
+                ,{"title":"COM_STOCK_ID","field":"股票代码"}
+                ,{"title":"COM_GRP_MODE","field":"集团客户类型"}
+                ,{"title":"GRP_NO","field":"集团编号"}
+                ,{"title":"COM_CRD_TYP","field":"信用等级企业分类"}
+                ,{"title":"COM_CRD_GRADE","field":"信用等级"}
+                ,{"title":"COM_CRD_DT","field":"信用评定日期"}
+                ,{"title":"COM_OUT_CRD_GRADE","field":"信用等级(外部)"}
+                ,{"title":"COM_OUT_CRD_DT","field":"信用等级评定日期(外部)"}
+                ,{"title":"COM_OUT_CRD_ORG","field":"信用等级评定机构(外部)"}
+                ,{"title":"COM_IMP_EXP_FLG","field":"进出口权标识"}
+                ,{"title":"COM_FEXC_PRM_CODE","field":"外汇许可证号码"}
+                ,{"title":"COM_MAIN_PRODUCT","field":"主要产品情况"}
+                ,{"title":"COM_PROD_EQUIP","field":"主要生产设备"}
+                ,{"title":"COM_FACT_PROD","field":"实际生产能力"}
+                ,{"title":"COM_OPT_AERA","field":"经营场地面积(平方米)"}
+                ,{"title":"COM_OPT_OWNER","field":"经营场地所有权"}
+                ,{"title":"COM_SP_BUSINESS","field":"特种经营标识"}
+                ,{"title":"COM_SP_LIC_NO","field":"特种经营许可证编号"}
+                ,{"title":"COM_SP_DETAIL","field":"特种经营情况"}
+                ,{"title":"COM_SP_LIC_ORG","field":"特种许可证颁发机关"}
+                ,{"title":"COM_SP_STR_DATE","field":"特种经营起始日期"}
+                ,{"title":"COM_SP_END_DATE","field":"特种经营到期日期"}
+                ,{"title":"COM_OPT_ST","field":"经营状况"}
+                ,{"title":"COM_IMPTT_FLG","field":"地区重点企业"}
+                ,{"title":"COM_PREP_FLG","field":"优势企业"}
+                ,{"title":"COM_DHGH_FLG","field":"是否两高一剩企业"}
+                ,{"title":"COM_CL_ENTP","field":"国家宏观调控限控行业"}
+                ,{"title":"COM_HD_ENTERPRISE","field":"龙头企业"}
+                ,{"title":"COM_REL_DGR","field":"与我行合作关系"}
+                ,{"title":"COM_INIT_LOAN_DATE","field":"建立信贷关系时间"}
+                ,{"title":"COM_CITY_FLG","field":"城乡类型"}
+                ,{"title":"COM_MNG_ORG","field":"上级主管单位"}
+                ,{"title":"COM_CUS_RANK","field":"我行客户分类"}
+                ,{"title":"CUST_MGR","field":"客户经理"}
+                ,{"title":"MAIN_BR_ID","field":"主管机构"}
+                ,{"title":"INPUT_ID","field":"登记人"}
+                ,{"title":"INPUT_BR_ID","field":"登记机构"}
+                ,{"title":"INPUT_DATE","field":"登记日期"}
+                ,{"title":"LAST_UPD_ID","field":"更新人"}
+                ,{"title":"LAST_UPD_DATE","field":"更新日期"}
+                ,{"title":"CUS_STATUS","field":"状态"}
+                ,{"title":"CRD_END_DT","field":"信用评定到期日期"}
+                ,{"title":"IN_CLL_TYPE","field":""}
+                ,{"title":"ACU_ADDR","field":""}
+                ,{"title":"CUS_ID_REL","field":""}
+                ,{"title":"RISK_DES","field":""}
+                ,{"title":"LEGAL_SPS_NO","field":""}
+                ,{"title":"LEGAL_SPS_NAME","field":""}
+                ,{"title":"LEGAL_SPS_ID_TYPE","field":""}
+                ,{"title":"LEGAL_SPS_ID_CODE","field":""}
+                ,{"title":"REALITY_CONTROLER_NO","field":""}
+                ,{"title":"REALITY_CONTROLER_NAME","field":""}
+                ,{"title":"REALITY_CONTROLER_ID_TYPE","field":""}
+                ,{"title":"REALITY_CONTROLER_ID_CODE","field":""}
+                ,{"title":"REALITY_SPS_NO","field":""}
+                ,{"title":"REALITY_SPS_NAME","field":""}
+                ,{"title":"REALITY_SPS_ID_TYPE","field":""}
+                ,{"title":"REALITY_ID_CODE","field":""}
+                ,{"title":"LEGAL_SIGN_INIT_DATE","field":""}
+                ,{"title":"LEGAL_END_INIT_DATE","field":""}
+                ,{"title":"REAL_SIGN_INIT_DATE","field":""}
+                ,{"title":"REAL_SIGN_END_DATE","field":""}
+                ,{"title":"REAL_ACCREDIT_INIT_DATE","field":""}
+                ,{"title":"REAL_ACCREDIT_END_DATE","field":""}
+                ,{"title":"REAL_WORK_RESUME","field":""}
+                ,{"title":"TOTAL_ASSETS","field":"资产规模（万元）"}
+                ,{"title":"TOTAL_SALES","field":"销售总额（万元）"}
+                ,{"title":"ACCREDIT_STATUS","field":""}
+                ,{"title":"REMARK","field":""}
+                ,{"title":"REG_UPD_DATE","field":"更新注册信息日期"}
+                ,{"title":"WRK_STATE_CODE","field":"办公地址行政代码"}
+                ,{"title":"WRK_STATE_NAME","field":"办公地址行政区域名称"}
+                ,{"title":"WRK_UPD_DATE","field":"更新办公地址日期"}
+                ,{"title":"RISC_CODE","field":"风险预警信号"}
+                ,{"title":"CONC_CODE","field":"关注事件代码"}
+                ,{"title":"ENV_RISK","field":"环境和社会风险分类"}
+                ,{"title":"COM_INS_PUB_DATE","field":"组织代码颁发日"}
+                ,{"title":"COM_INS_UPD_DATE","field":"登记信息更新日期"}
+                ,{"title":"COM_MRK","field":"上市市场"}
+                ,{"title":"COM_MRK_COUNTRY","field":"上市地国别"}
+                ,{"title":"DEFAULT_RATE","field":"违约概率"}
+                ,{"title":"FINANCE_CD","field":""}
+                ,{"title":"NEW_COM_FIN_REP_TYPE","field":""}
+                ,{"title":"OPENDAY","field":""}
+                ,{"title":"CHG_TIME","field":""}
+                ,{"title":"LEGAL_COUNTRY","field":"法定代表人国别"}
+                ,{"title":"SOC_NO","field":"银行号"}
+                ,{"title":"DATA_CENTER_NO","field":"数据中心代码"}
+                ,{"title":"CREUNIT_NO","field":"法人代码"}
+                ,{"title":"SRC_SYS_CD","field":"源系统代码"}
+                ,{"title":"SRC_SYS_DATE","field":"源系统日期"}
+                ,{"title":"SYS_BIZ_DATE","field":"平台日期"}]
+        ,202: [{"title":"INNER_CUS_ID","field":"内部客户号"}
+        ,{"title":"CUS_ID","field":"客户代码"}
+        ,{"title":"MNG_BR_ID","field":"所属法人机构"}
+        ,{"title":"CUS_TYPE","field":"客户类型"}
+        ,{"title":"CUS_NAME","field":"姓名"}
+        ,{"title":"INDIV_SEX","field":"性别"}
+        ,{"title":"CERT_TYPE","field":"证件类型"}
+        ,{"title":"CERT_CODE","field":"证件号码"}
+        ,{"title":"INDIV_ID_EXP_DT","field":"证件到期日"}
+        ,{"title":"AGRI_FLG","field":"是否农户"}
+        ,{"title":"CUS_BANK_REL","field":"客户与我行关系"}
+        ,{"title":"COM_HOLD_STK_AMT","field":"拥有我行股份金额"}
+        ,{"title":"BANK_DUTY","field":"在我行职务"}
+        ,{"title":"INDIV_NTN","field":"民族"}
+        ,{"title":"INDIV_BRT_PLACE","field":"籍贯"}
+        ,{"title":"INDIV_HOUH_REG_ADD","field":"户籍地址"}
+        ,{"title":"INDIV_DT_OF_BIRTH","field":"出生年月日"}
+        ,{"title":"INDIV_POL_ST","field":"政治面貌"}
+        ,{"title":"INDIV_EDT","field":"文化程度（最高学历）"}
+        ,{"title":"INDIV_DGR","field":"最高学位"}
+        ,{"title":"INDIV_MAR_ST","field":"婚姻状况"}
+        ,{"title":"INDIV_HEAL_ST","field":"健康状况"}
+        ,{"title":"POST_ADDR","field":"通讯地址"}
+        ,{"title":"POST_CODE","field":"邮政编码"}
+        ,{"title":"AREA_CODE","field":"区域编码"}
+        ,{"title":"AREA_NAME","field":"区域名称"}
+        ,{"title":"PHONE","field":"联系电话"}
+        ,{"title":"FPHONE","field":"家庭电话"}
+        ,{"title":"MOBILE","field":"手机"}
+        ,{"title":"FAX_CODE","field":"传真"}
+        ,{"title":"EMAIL","field":"Email地址"}
+        ,{"title":"INDIV_RSD_ADDR","field":"居住地址"}
+        ,{"title":"INDIV_ZIP_CODE","field":"居住地邮政编码"}
+        ,{"title":"INDIV_RSD_ST","field":"居住状况"}
+        ,{"title":"INDIV_SOC_SCR","field":"社会保障情况"}
+        ,{"title":"INDIV_HOBBY","field":"爱好"}
+        ,{"title":"INDIV_OCC","field":"从事职业"}
+        ,{"title":"INDIV_COM_NAME","field":"工作单位"}
+        ,{"title":"INDIV_COM_TYP","field":"单位性质"}
+        ,{"title":"INDIV_COM_FLD","field":"单位所属行业"}
+        ,{"title":"INDIV_COM_PHN","field":"单位电话"}
+        ,{"title":"INDIV_COM_FAX","field":"单位传真"}
+        ,{"title":"INDIV_COM_ADDR","field":"单位地址"}
+        ,{"title":"INDIV_COM_ZIP_CODE","field":"单位邮编"}
+        ,{"title":"INDIV_COM_CNT_NAME","field":"单位联系人"}
+        ,{"title":"INDIV_WORK_JOB_Y","field":"单位工作起始年"}
+        ,{"title":"INDIV_COM_JOB_TTL","field":"职务"}
+        ,{"title":"INDIV_CRTFCTN","field":"职称"}
+        ,{"title":"INDIV_ANN_INCM","field":"年收入情况"}
+        ,{"title":"INDIV_SAL_ACC_BANK","field":"工资账户开户行"}
+        ,{"title":"INDIV_SAL_ACC_NO","field":"工资账号"}
+        ,{"title":"INDIV_SPS_NAME","field":"配偶姓名"}
+        ,{"title":"INDIV_SPS_ID_TYP","field":"配偶证件类型"}
+        ,{"title":"INDIV_SPS_ID_CODE","field":"配偶证件号码"}
+        ,{"title":"INDIV_SCOM_NAME","field":"配偶工作单位"}
+        ,{"title":"INDIV_SPS_OCC","field":"配偶职业"}
+        ,{"title":"INDIV_SPS_DUTY","field":"配偶职务"}
+        ,{"title":"INDIV_SPS_MINCM","field":"配偶年收入"}
+        ,{"title":"INDIV_SPS_PHN","field":"配偶单位联系电话"}
+        ,{"title":"INDIV_SPS_MPHN","field":"配偶手机号码"}
+        ,{"title":"INDIV_SPS_JOB_DT","field":"配偶参加工作时间"}
+        ,{"title":"COM_REL_DGR","field":"与我行合作关系"}
+        ,{"title":"COM_INIT_LOAN_DATE","field":"建立信贷关系时间"}
+        ,{"title":"INDIV_HLD_ACNT","field":"在我行开立账户情况"}
+        ,{"title":"HOLD_CARD","field":"持卡情况"}
+        ,{"title":"PASSPORT_FLG","field":"是否拥有外国护照或居住权"}
+        ,{"title":"CRD_GRADE","field":"信用等级"}
+        ,{"title":"CRD_DATE","field":"信用评定日期"}
+        ,{"title":"REMARK","field":"备注"}
+        ,{"title":"CUST_MGR","field":"客户经理"}
+        ,{"title":"MAIN_BR_ID","field":"主管机构"}
+        ,{"title":"INPUT_ID","field":"登记人"}
+        ,{"title":"INPUT_BR_ID","field":"登记机构"}
+        ,{"title":"INPUT_DATE","field":"登记日期"}
+        ,{"title":"LAST_UPD_ID","field":"更新人"}
+        ,{"title":"LAST_UPD_DATE","field":"更新日期"}
+        ,{"title":"CUS_STATUS","field":"状态"}
+        ,{"title":"INDIV_COM_FLD_NAME","field":"所属行业名称"}
+        ,{"title":"CRD_END_DT","field":"信用评定到期日期"}
+        ,{"title":"INDIV_PSP_CRTFCTN","field":"INDIV_PSP_CRTFCTN"}
+        ,{"title":"INDIV_SPS_MAR_CODE","field":"INDIV_SPS_MAR_CODE"}
+        ,{"title":"CUS_ID_REL","field":"CUS_ID_REL"}
+        ,{"title":"WORK_RESUME","field":"WORK_RESUME"}
+        ,{"title":"ACCREDIT_STATUS","field":"授权状态"}
+        ,{"title":"FORMER_NAME","field":"FORMER_NAME"}
+        ,{"title":"LAY_OFF_FLAG","field":"LAY_OFF_FLAG"}
+        ,{"title":"LAY_OFF_CODE","field":"LAY_OFF_CODE"}
+        ,{"title":"LOAN_CARD_FLG","field":"有无贷款卡"}
+        ,{"title":"LOAN_CARD_ID","field":"贷款卡"}
+        ,{"title":"LOAN_CARD_PWD","field":"贷款卡密码"}
+        ,{"title":"LOAN_CARD_EFF_FLG","field":"贷款卡有效标志"}
+        ,{"title":"LOAN_CARD_AUDIT_DT","field":"贷款卡最近年审日期"}
+        ,{"title":"OPENDAY","field":"开立日期"}
+        ,{"title":"CHG_TIME","field":"修改时间"}
+        ,{"title":"GAT_CERT_CODE","field":"港澳台身份证号"}
+        ,{"title":"INDIV_COUNTRY","field":"客户国籍"}
+        ,{"title":"other_rev_incm","field":"其他收入渠道"}
+        ,{"title":"other_annual_incm","field":"其他年收入（元）"}
+        ,{"title":"SOC_NO","field":"银行号"}
+        ,{"title":"DATA_CENTER_NO","field":"数据中心代码"}
+        ,{"title":"CREUNIT_NO","field":"法人代码"}
+        ,{"title":"SRC_SYS_CD","field":"源系统代码"}
+        ,{"title":"SRC_SYS_DATE","field":"源系统日期"}
+        ,{"title":"SYS_BIZ_DATE","field":"平台日期"}]
+        , 203: [{"title":"CUS_ID","field":"客户代码"}
+                ,{"title":"CUS_NAME","field":"户名"}
+                ,{"title":"LOAN_ACCOUNT","field":"贷款账号"}
+                ,{"title":"CUS_ID_REL","field":"关联客户代码"}
+                ,{"title":"LOAN_AMOUNT","field":"借据金额"}
+                ,{"title":"LOAN_BALANCE","field":"余额"}
+                ,{"title":"DELAY_INT_CUMU","field":"累计欠息"}
+                ,{"title":"LOAN_CARD_IND","field":"使用农户贷款证标志"}
+                ,{"title":"LOAN_DEVALUE","field":"贷款减值"}
+                ,{"title":"INT_RATE_TYPE","field":"利率类型"}
+                ,{"title":"FLOATING_RATE","field":"利率浮动值"}
+                ,{"title":"INT_RATE_INC","field":"利率浮动比"}
+                ,{"title":"REALITY_IR_Y","field":"年利率"}
+                ,{"title":"LOAN_START_DATE","field":"借款日"}
+                ,{"title":"LOAN_END_DATE","field":"到期日"}
+                ,{"title":"LOAN_TERM","field":"贷款期限"}
+                ,{"title":"TERM_TYPE","field":"期限类型"}
+                ,{"title":"PRD_TYPE","field":"产品类别"}
+                ,{"title":"ACCT_FLG_05","field":"05新帐标志"}
+                ,{"title":"ACCT_FLG_03","field":"03新帐标志"}
+                ,{"title":"GL_CLASS","field":"科目"}
+                ,{"title":"GUAR_WAY","field":"担保方式"}
+                ,{"title":"ASSURE_MEANS_MAIN","field":"主担保方式"}
+                ,{"title":"LOAN_DIRECTION","field":"行业投向4层"}
+                ,{"title":"BIZ_TYPE","field":"信贷产品号"}
+                ,{"title":"BIZ_TYPE_SUB","field":"产品细分"}
+                ,{"title":"BIZ_TYPE_DETAIL","field":"产品细分类名"}
+                ,{"title":"MAIN_PROD_CD","field":"主产品号"}
+                ,{"title":"SUB_PROD_CD","field":"子产品号"}
+                ,{"title":"CLA","field":"五级分类"}
+                ,{"title":"LOAN_CLA4","field":"四级分类"}
+                ,{"title":"CUST_TYPE","field":"客户类型"}
+                ,{"title":"COM_SCALE","field":"企业规模"}
+                ,{"title":"COM_HOLD_TYPE","field":"控股类型"}
+                ,{"title":"AGRI_FLG","field":"是否农户标志"}
+                ,{"title":"AGRICULTURE_TYPE","field":"涉农情况"}
+                ,{"title":"AGRICULTURE_USE","field":"涉农用途"}
+                ,{"title":"GOVERNMENT_IND","field":"涉政类型"}
+                ,{"title":"GOVERNMENT_ORG_ATTRIBUTE","field":"涉政属性"}
+                ,{"title":"REG_TYPE","field":"注册登记类型"}
+                ,{"title":"INVEST_TYPE","field":"投资主体"}
+                ,{"title":"ACCOUNT_STATUS","field":"贷款账户状态"}
+                ,{"title":"LN_TYPE","field":"贷款分类"}
+                ,{"title":"LOAN_FORM","field":"贷款类型"}
+                ,{"title":"BILL_NO","field":"借据号"}
+                ,{"title":"CONT_NO","field":"合同号"}
+                ,{"title":"COM_ENTERPRISE","field":"其中属于公共企业"}
+                ,{"title":"COM_HD_ENTERPRISE","field":"龙头企业"}
+                ,{"title":"COM_CITY_FLG","field":"城乡类型"}
+                ,{"title":"SYNDICATED_TYPE","field":"银团类型"}
+                ,{"title":"ENTRUST_IND","field":"委托贷款标志"}
+                ,{"title":"ISPAF","field":"公积金贷款标志"}
+                ,{"title":"COM_SUB_TYP","field":"隶属关系"}
+                ,{"title":"COM_LCL_FLG","field":"是否异地企业"}
+                ,{"title":"COM_MRK_FLG","field":"上市公司标志"}
+                ,{"title":"CUST_BANK_REL","field":"客户与我行关系"}
+                ,{"title":"REG_ADDR","field":"注册登记地址"}
+                ,{"title":"REG_CAP_AMT","field":"注册资本（万元）"}
+                ,{"title":"COM_PREP_FLG","field":"优势企业"}
+                ,{"title":"TOTAL_ASSETS","field":"资产规模（万元）"}
+                ,{"title":"CONT_TYPE","field":"合同类型"}
+                ,{"title":"GUARANTORA_GRP_IND","field":"联保标志"}
+                ,{"title":"CERT_TYPE","field":"客户证件类型"}
+                ,{"title":"PSN_CERT_CODE","field":"个人证件号码"}
+                ,{"title":"ENT_CERT_CODE","field":"对公开户证件号码"}
+                ,{"title":"COM_INS_CODE","field":"企业机构代码"}
+                ,{"title":"LAY_OFF_FLAG","field":"是否下岗人员标志"}
+                ,{"title":"CAPINT_OVERDUE_DATE","field":"本息逾期日"}
+                ,{"title":"USE_DEC","field":"用途"}
+                ,{"title":"GUAR_CONT_NO","field":"担保合同编号"}
+                ,{"title":"REPAYMENT_MODE","field":"还款方式"}
+                ,{"title":"FIRST_DISB_DATE","field":"首次放款日"}
+                ,{"title":"BIZ_TYPE_FLG","field":"“三法一引”分类"}
+                ,{"title":"LOAN_NATURE","field":"贷款性质"}
+                ,{"title":"SYNDICATED_IND","field":"自营贷款标志"}
+                ,{"title":"FINA_BR_ID","field":"账务机构"}
+                ,{"title":"CUST_MGR","field":"客户经理"}
+                ,{"title":"MAIN_BR_ID","field":"主管机构"}
+                ,{"title":"COM_CLL_TYPE","field":"企业行业分类4层"}
+                ,{"title":"GOVERNMENT_PLATFORM","field":"政府融资平台标志"}
+                ,{"title":"COM_COUNTRY","field":"国别"}
+                ,{"title":"AREA_IND","field":"珠三角标志"}
+                ,{"title":"AREA_CODE","field":"区域"}
+                ,{"title":"INST_NO","field":"法人机构号"}
+                ,{"title":"CURRENCY","field":"币种"}
+                ,{"title":"RULING_IR","field":"贷款基准利率"}
+                ,{"title":"CONT_AMT","field":"贷款合同金额"}
+                ,{"title":"EXTENSION_TIMES","field":"贷款展期次数"}
+                ,{"title":"REPLA_TYPE","field":"置换类型"}
+                ,{"title":"REM_REPAYS","field":"贷款剩余期限"}
+                ,{"title":"GRP_NO","field":"集团客户编号"}
+                ,{"title":"GRP_NAME","field":"集团名称"}
+                ,{"title":"GENT_DATE","field":"核销日期"}
+                ,{"title":"UNPD_PRIN_BAL","field":"拖欠本金"}
+                ,{"title":"CONT_END_DATE","field":"合同到期日"}
+                ,{"title":"PARENT_ORG_CODE","field":"集团客户证件号码"}
+                ,{"title":"ORIG_EXPI_DATE","field":"原到期日"}
+                ,{"title":"SETTL_DATE","field":"结清日期"}
+                ,{"title":"CAP_OVERDUE_DATE","field":"本金逾期起始日期"}
+                ,{"title":"INTEREST_OVERDUE_DATE","field":"利息逾期起始日期"}
+                ,{"title":"LQ_TYPE","field":"林权贷款标志"}
+                ,{"title":"RZDB_TYPE","field":"融资担保贷款标志"}
+                ,{"title":"YSZY_TYPE","field":"应收账款质押贷款标志"}
+                ,{"title":"YTCY_TYPE","field":"银社团参与行标志"}
+                ,{"title":"SN_TYPE","field":"三农专营"}
+                ,{"title":"XQY_TYPE","field":"小企业专营"}
+                ,{"title":"STF_TYPE","field":"首套房标志"}
+                ,{"title":"COM_EMPLOYEE","field":"从业人数"}
+                ,{"title":"TOTAL_SALES","field":"销售总额（万元）"}
+                ,{"title":"REG_STATE_CODE","field":"行政区域号"}
+                ,{"title":"ASSURE_MEANS2","field":""}
+                ,{"title":"ASSURE_MEANS3","field":""}
+                ,{"title":"PAY_WAY","field":"受托支付方式"}
+                ,{"title":"SEVEN_RESULT","field":"七级分类"}
+                ,{"title":"UP_CLA","field":"上年末五级分类状态"}
+                ,{"title":"ACTUAL_INT_CUMU","field":"本年累计收息"}
+                ,{"title":"NOR_REC_ACCU","field":"本年累计收本"}
+                ,{"title":"ARER_ADDR","field":"借款人地址"}
+                ,{"title":"INDIV_RSD_ADDR","field":"贷款个人居住地址"}
+                ,{"title":"INDIV_COM_NAME","field":"工作单位"}
+                ,{"title":"INDIV_COM_TYP","field":"单位性质"}
+                ,{"title":"INDIV_COM_FLD","field":"单位所属行业"}
+                ,{"title":"SUM_REPAY_AMT","field":"账户累计收本"}
+                ,{"title":"LIMIT_IND","field":"授信额度使用标志"}
+                ,{"title":"LMT_CONT_NO","field":"授信协议编号"}
+                ,{"title":"MAIN_PRO_TYPE","field":"特色产品编码"}
+                ,{"title":"MAIN_FLAG","field":"投向背景主体标识"}
+                ,{"title":"REGISTER_NO","field":"注册号/社会代码"}
+                ,{"title":"REGISTER_NAME","field":"工商户名称/企业名称"}
+                ,{"title":"col1","field":""}
+                ,{"title":"col2","field":""}
+                ,{"title":"col3","field":""}
+                ,{"title":"col4","field":""}
+                ,{"title":"col5","field":""}
+                ,{"title":"col6","field":""}
+                ,{"title":"col7","field":""}
+                ,{"title":"col8","field":""}
+                ,{"title":"col9","field":""}
+                ,{"title":"col10","field":""}
+                ,{"title":"col11","field":""}
+                ,{"title":"col12","field":""}
+                ,{"title":"SOC_NO","field":"银行号"}
+                ,{"title":"DATA_CENTER_NO","field":"数据中心代码"}
+                ,{"title":"CREUNIT_NO","field":"法人代码"}
+                ,{"title":"SRC_SYS_CD","field":"源系统代码"}
+                ,{"title":"SRC_SYS_DATE","field":"源系统日期"}
+                ,{"title":"SYS_BIZ_DATE","field":"平台日期"}]
+    }
+
+    // 添加
+    ;(function () {
+        function renderTable(ename,cname) {
+            var div = $("<div id='dy-"+ename+"'><div style='overflow: hidden;padding-top: 15px;'><h4 style='float: left;' data-ename='"+ename+"' data-cname='"+cname+"'>"+cname+"</h4></div></div>");
+            $("#checkedRes").append(div);
+
+            laytableRender({
+                id:"dy-" + ename
+                , cols:[
+                    [
+                        {checkbox:true}
+                        , {field: "title", title:"字段名"}
+                        , {field: "field", title:"字段说明"}
+                    ]
+                ]
+                , data: $.extend([], fields[ename])
+                , page: false
+            });
+        }
+
+        renderTable(201, "对公客户表")
+        renderTable(202, "对私客户表")
+        renderTable(203, "贷款台账")
+
+
+        getFetch(remoteOrigin + "/api/auto/org/getDataP", {oid: getParam("roleid")}, function (data) {
+            if(data.condition == 1){
+                $("[name=zonghang]").prop("checked", true);
+            }
+            $.each(data.result || [],function (i,v) {
+                $.each((v.description || "").split(","), function (ii,vv) {
+                    $("#dy-"+v.objectId).find("tr").each(function () {
+                        if($(this).find("td").eq(1).text() == vv){
+                            $(this).find("input[type=checkbox]").prop("checked", true)
+                        }
+                    });
+                });
+            });
+        });
+    })();
+
+
+    $(document).on("click", "#handleConfirmAddRes", function () {
+        var arr = [];
+        $("#checkedRes [id*=dy-]").each(function () {
+            var _this = $(this);
+            var cname = _this.find("h4").attr("data-cname");
+            var ename = _this.find("h4").attr("data-ename");
+            if(!ename){
+                return;
+            }
+            var cks = [];
+            var checked = _this.find("input:checked");
+            checked.each(function () {
+                var tds = $(this).closest("tr").find("td");
+                if(tds.length == 0) return;
+                var field = $.trim(tds.eq(1).text());
+                var title = $.trim(tds.eq(2).text());
+                cks.push(field)
+            });
+            arr.push({
+                cname: cname
+                , ename: ename
+                , items: cks.join(",")
+            });
+        });
+        if(arr.length > 0){
+            postFetch(remoteOrigin + "/api/auto/org/setDataP", {
+                condition:{
+                    oid: getParam("roleid")
+                    , checked: $("[name=zonghang]:checked").length ? 1 : 0
+                },
+                result:{
+                    oid: getParam("roleid")
+                    , data: arr
+                }
+            }, function () {
+                closeCurrentIframe()
+            })
+        }
+
+        console.log(arr)
+
+        // $("input:checked").each(function () {
+        //
+        // });
+    });
+
+</script>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 动产抵押信息 </title>
+    <!--#include file="/htmlsrc/header.html" -->
+</head>
+<body>
+<div id="content">
+    <div class="" id="panel-form">
+        <!-- 查询表单 -->
+    </div>
+    <div id="dataList">
+        <!-- 数据列表 -->
+    </div>
+</div>
+<script src="/tmpl/js/chattelMortgage.js"></script>
+<script src="/static/vendor/jquery.pin.js"></script>
+<script>
+    // 配置查询表单
+    $("#panel-form").html(panelFormRender3({
+        panelTitle:'筛选查询',
+        col: 3,
+        list:[
+            {prop:"keyWord", label:"查询关键字"}
+        ],
+        data: { }
+    }));
+
+    function checkSubmitForm() {
+        SuperPost({
+            url: "http://localhost:8015/test/qichacha/ChattelMortgage/GetChattelMortgage",
+            success:function(res){
+                if("200" == res.Status){
+                    $("#dataList").html(panelFormRender4({
+                        dataList: res["Result"]
+                    }));
+                    $(".media-left h2").pin({containerSelector: ".media-left"})
+                }
+            }
+        })
+        return false;
+    }
+</script>
+</body>
+</html>

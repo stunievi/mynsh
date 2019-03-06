@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>系统管理 - 日志管理</title>
+    <!--#include file="/htmlsrc/header.html" -->
+    <style>
+        td{
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <div id="content"> 
+        <div id="panel-form">
+            <!-- 查询表单 -->
+        </div>
+        <div id="dataList">
+            <!-- 数据列表 -->
+        </div>
+    </div>
+
+    <script>
+        $("#panel-form").html(panelFormRender3({
+            panelTitle:'筛选查询',
+            list:[
+                { prop: 'userName', label: '用户名称' }
+            ],
+            data: { }
+        }));
+        // $(function() {
+        //     $('#f3').datetimepicker({ dateFormat: 'yy-mm-dd' });
+        //     $("#f4").datetimepicker({ dateFormat: 'yy-mm-dd' });
+        // });
+        
+        laytableRender({
+            url: remoteOrigin + "/api/auto/syslog/getList",
+            cols: [
+                [
+                    {field:'id', title:"id序号"},
+                    {field:'trueName', title:'用户名称'},
+                    {field:'addTime', title:'时间'},
+                    // {field:'ip', title:'IP地址'},
+                    {field:"controller", title:"控制器"},
+                    {field:'method', title:'方法'},
+//                    {field:'params', title:'参数', templet: "#params"}
+                ]
+            ]
+        });
+        
+        function checkSubmitForm(){
+            var form = $("form[name='form-search']")
+            layuiTableReload({
+                where: form.serialize()
+            })
+            return false;
+        }
+    </script>
+</body>
+</html>

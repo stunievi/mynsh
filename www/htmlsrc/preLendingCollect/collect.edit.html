@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>资料收集 - 编辑</title>
+    <script src="../../static/vendor/jquery/jquery.js"></script>
+    <script src="../../static/vendor/artTemplate/template-web.js"></script>
+    <link href="../../static/vendor/bootcss/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="content">
+    </div>
+    <script id="tmpl" type="text/html">
+        <div class="panel panel-default">
+            <div class="panel-heading">{{panelTitle}}</div>
+            <div class="panel-body">
+                <form name="form1"  class="form-horizontal">
+                    <input type="hidden" name="id" value="">
+                    <div class="row">
+                        {{each attrs value}}
+                        <div class="col-xs-6 form-group ">
+                            <label for="{{value.prop}}" class="col-xs-4 text-right">
+                                {{if value.required}}
+                                    <span style="color:red">*</span>
+                                {{/if}}
+                                {{value.label}}
+                            </label>
+                            <div class="col-xs-8">
+                                <input type="text" name="{{value.prop}}" value="{{data[value.prop]}}" class="form-control input-sm">
+                            </div>
+                        </div>
+                        {{/each}}
+                    </div>
+                    {{each files value index }}
+                    <div class="row filerow{{index}}">
+                        <div class="col-xs-6 form-group ">
+                            <label for="4" class="col-xs-4 text-right">
+                                {{if !value['filepath']}}
+                                    附件[{{index}}](新增附件，可留空)
+                                {{else}}
+                                    附件[{{index}}]附件
+                                {{/if}}
+                            </label>
+                            <div class="col-xs-8">
+                                <input type="file" name="file[{{index}}]"  class="input-sm" style="height:30px">
+                            </div>
+                        </div>
+                        <div class="col-xs-6 form-group ">
+                            <label for="4" class="col-xs-4 text-right">
+                                <span style="color:red">*</span>
+                                附件[{{index}}]文件名
+                            </label>
+                            <div class="col-xs-8">
+                                <input type="text" name="file[{{index}}]['filename']"  value="{{value['filename']}}" class="form-control input-sm">
+                            </div>
+                        </div>
+                        <div class="col-xs-6 form-group ">
+                                <label for="4" class="col-xs-4 text-right">
+                                    附件[{{index}}]文件路径
+                                </label>
+                                <div class="col-xs-8">
+                                    <input disabled value="{{value['filepath']}}"  class="form-control input-sm">
+                                </div>
+                            </div>
+                        <div class="col-xs-6 form-group ">
+                            <label for="4" class="col-xs-4 text-right">
+                                附件[{{index}}]文件标签
+                            </label>
+                            <div class="col-xs-8">
+                                <input type="text" name="file[{{index}}]['filetag']" value="{{value['filetag']}}"  class="form-control input-sm">
+                            </div>
+                        </div>
+                        <div class="col-xs-6 form-group ">
+                            <label for="4" class="col-xs-4 text-right">
+                                附件[{{index}}]描述
+                            </label>
+                            <div class="col-xs-8">
+                                <textarea type="text" name="file[{{index}}]['des']" value="{{value['des']}}"  class="form-control input-sm"  rows="1">{{value['des']}}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                    {{/each}}
+                    <div class="row text-center">
+                        <a  class="btn btn-default" onclick="javascript:history.go(-1);return false;">返 回</a>
+                        <button type="submit" class="btn btn-default">确 定</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </script>
+    <script src="../../static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script>
+        var changData = {};
+        $(document).on('change', '.form-control', function(){
+            changData[$(this).attr('name')] = $(this).val();
+        })
+        $().ready(function(){
+            var form = $("form[name='form1']");
+            $("form[name='form1']").find("input[name='file']").remove();
+            form.validate({
+                rules: {
+                    1: "required",
+                },
+                submitHandler: function() {
+                    SuperPost({
+                        url:'/',
+                        type:'post',
+                        data: changData,
+                        success:function(res){
+                            // window.location = '/htmlsrc/preLendingCollect/collect.html';
+                        },
+                        error:function(){
+                            // window.location = '/htmlsrc/preLendingCollect/collect.html';
+                        }
+                    });
+                }
+            })
+        });
+        var html = template('tmpl', {
+            panelTitle:'资料收集-编辑',
+            attrs:[
+                { prop: '1', label:'客户名称' },
+                { prop: '2', label:'联系电话' },
+                { prop: '3', label:'客户经理', required:true }
+            ],
+            files:[
+                {filename:'file1', filepath:'http://www.com'},
+                {des:'des2', filepath:'http://www.com'},
+                {}
+            ],
+            data:{
+                1: '11',
+                2: '22',
+                3: '33'
+            }
+        });
+        $("#content").html(html);
+    </script>
+</body>
+</html>

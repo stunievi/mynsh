@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 查询失信 </title>
+    <!--#include file="/htmlsrc/header.html" -->
+</head>
+<body>
+<div id="content">
+    <div class="" id="panel-form">
+        <!-- 查询表单 -->
+    </div>
+    <div id="dataList">
+        <!-- 数据列表 -->
+    </div>
+</div>
+<!-- toolbar渲染模板 -->
+<script type="text/html" id="toolbar">
+    <div class="layui-toolbar">
+        <a href="javascript:;" class="btn btn-default handleShow">查看</a>
+    </div>
+</script>
+<!--<script src="./GetCourtNoticeInfo.html"></script>-->
+<script>
+    // 配置查询表单
+    $("#panel-form").html(panelFormRender3({
+        panelTitle:'筛选查询',
+        col: 3,
+        list:[
+            {prop:"searchKey", label:"查询关键字"}
+        ],
+        data: { }
+    }));
+
+
+    laytableRender({
+        title: "失信列表"
+        , url: "http://localhost:8015/test/qichacha/Court/SearchShiXin"
+        , dataType: "json"
+        , cols: [
+            [
+                { title:'操作', templet: "#toolbar", fixed: 'right'},
+                // {title:"主键", field:"Id"},
+                // {title:"官网主键（内部保留字段，一般为空）", field:"Sourceid"},
+                // {title:"唯一编号（内部保留字段，一般为空）", field:"Uniqueno"},
+                {title:"被执行人姓名/名称", field:"Name"},
+                {title:"立案时间", field:"Liandate"},
+                {title:"案号", field:"Anno", width: 120},
+                {title:"身份证号码/组织机构代码", field:"Orgno"},
+                {title:"法定代表人或者负责人姓名", field:"Ownername"},
+                {title:"执行法院", field:"Executegov"},
+                {title:"所在省份缩写", field:"Province"},
+                {title:"做出执行依据单位", field:"Executeunite"},
+                {title:"生效法律文书确定的义务", field:"Yiwu"},
+                {title:"被执行人的履行情况", field:"Executestatus"},
+                {title:"失信被执行人行为具体情形", field:"Actionremark"},
+                {title:"发布时间", field:"Publicdate"},
+                {title:"年龄", field:"Age"},
+                {title:"性别", field:"Sexy"},
+                {title:"数据更新时间（内部保留字段，现已不再更新时间）", field:"Updatedate"},
+                {title:"执行依据文号", field:"Executeno"},
+                {title:"已履行", field:"Performedpart"},
+                {title:"未履行", field:"Unperformpart"},
+                {title:"组织类型（1：自然人，2：企业，3：社会组织，空白：无法判定）", field:"OrgType"},
+                {title:"组织类型名称", field:"OrgTypeName"}
+            ]
+        ]
+    });
+
+    $(document).on("click", ".handleShow", function (){
+        addNavTab("CourtDetail", "失信详情", "/htmlsrc/qichacha/Court/GetShiXinDetail.html");
+        return true;
+    });
+</script>
+</body>
+</html>

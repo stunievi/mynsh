@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>流程相关 - 编辑工作流程</title>
+    <!--#include file="/htmlsrc/header.html" -->
+</head>
+<body>
+    <div id="content"> 
+        <div id="panel-form">
+        </div>
+        <!-- <div class="text-center">
+            <a href="javascript:void(0)" onclick="javascript:history.go(-1);return false;">【返回】</a>
+        </div> -->
+    </div>
+    <script>
+        // TODO:: 获取工作流信息
+        var modelId = getParam("id");
+        getFetch(
+            remoteOrigin + "/api/auto/wfmodel/getOne"
+            ,{id:modelId}
+            ,function(origin){
+                $("#panel-form").html(panelFormRender3({
+                    list:[
+                        { prop: "id", type:"hidden"}
+                        , { prop: 'name', label: '工作流程名', required: true },
+                        { prop: 'modelName', label: '标准模型名', disabled: true, required: true},
+                        { prop: 'info', label: '工作流描述', type:'textarea', width:12, labelWidth:2 }
+                    ],
+                    data: origin
+                    , line: true
+                }));
+                var form = $("form[name='form-search']");
+                $().ready(function() {
+                    form.validate({
+                        rules: {
+                            modelName: "required",
+                            name: "required",
+//                            processCycle: {
+//                                range:[1, 99999]
+//                            },
+                            version: {
+                                required: true,
+                                number:true
+                            },
+                        },
+                        submitHandler: function(){
+                            if(form.valid()){
+                                postFetch(
+                                    remoteOrigin + "/api/auto/wfmodel/edit",
+                                    form.serialize()
+                                    ,function(){
+                                        closeCurrentIframe()
+                                    }
+                                );
+                                return false;
+                            }
+                        }
+                    })
+                });
+        })
+        
+        function checkSubmitForm (){
+            // 兼容保留
+            return false;
+        }
+    </script>
+</body>
+</html>

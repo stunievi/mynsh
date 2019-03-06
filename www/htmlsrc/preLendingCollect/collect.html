@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>贷前管理 - 资料收集列表</title>
+
+    <!--#include file="/htmlsrc/header.html" -->
+
+
+    <style>
+        td{
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <div id="content"> 
+        <div class="" id="panel-form">
+        </div>
+        <div class="batch-operation">
+            <a type="button" class="btn btn-success handleAdd" href="javascript:;" tab-title="新增收集任务" >新增收集任务</a>
+            <script>
+                $(".handleAdd").attr("tab-href","/htmlsrc/workFlow/nodeAdd.html?name=" + encodeURI("资料收集") );
+            </script>
+        </div>
+        <div id="dataList">
+        </div>
+    </div>
+    <!--<script src="../../static/vendor/jquery/jquery.js"></script>-->
+    <!--<script src="/static/vendor/layui/layui.js"></script>-->
+    <!-- 变量渲染模板 -->
+    <script type="text/html" id="_addTime"> {{# return dateFormate1(d.addTime)}} </script>
+    <script type="text/html" id="_state"> {{# return getGlobalEnumVal(d.state, "taskState")}} </script>
+    <script type="text/html" id="_CERT_TYPE"> {{# return (d.tails.certType);}} </script>
+    <script type="text/html" id="_PHONE">{{# return d.tails.phone }}</script>
+    <script type="text/html" id="_CERT_CODE">{{# return d.tails.certCode }}</script>
+    <!-- toolbar渲染模板 -->
+    <script type="text/html" id="toolbar">
+        <div class="layui-toolbar">
+            <a href="javascript:;" class="btn btn-default" tab-href="/htmlsrc/workFlow/nodeStates.html?id={{d.id}}" tab-title="查看任务-{{d.id}}">查看</a>
+            {{# if(d.loanAccount){ }}
+            <a href="javascript:;" class="btn btn-danger" data-id="{{d.id}}" data-loanid="{{d.loanAccount}}" id="collect{{d.id}}" delete-href="{{remoteOrigin}}/api/auto/infolink/delete?id={{d.linkId}}">解绑</a>
+            {{# }else{ }}
+            <a href="javascript:;" class="btn btn-default " data-id="{{d.id}}" data-loanid="" id="collect{{d.id}}" tab-href="/htmlsrc/htmllayer/choiceLoan.html?bindId={{d.id}}" tab-title="绑定台账" >绑定</a>
+            {{# } }}
+            <button type="button" class="btn btn-danger" delete-href="{{remoteOrigin}}/api/auto/wfins/delete?id={{d.id}}">删除</button>
+        </div>
+    </script>
+    <script>
+        $("#panel-form").html(panelFormRender3({
+            col:3,
+            panelTitle:'筛选查询',
+            list:[
+                { prop: 'CUS_NAME', label: '客户名称' },
+                { prop: 'PHONE', label: '联系电话' },
+                { prop: 'CERT_CODE', label: '证件号码' },
+                { prop: 'LOAN_ACCOUNT', label: '绑定贷款' },
+                { prop: 'START_DATE', label: '开始时间', type: "date", disabled: true},
+                { prop: 'END_DATE', label: '结束时间', type:"date", disabled: true }
+            ],
+            data:{} // 默认值
+        }));
+
+        //
+        // $(function () {
+        //     layui.use("laydate",function () {
+        //         layui.each(["START_DATE","END_DATE"], function (i,v) {
+        //             layui.laydate.render({
+        //                 elem: "#" + v
+        //                 ,type: "date"
+        //             });
+        //         });
+        //     })
+        // });
+
+        // 添加资料收集任务
+        // eventBind(".handleAdd", function(){
+        //     layerOpenIframe({
+        //         title: "新建任务",
+        //         url: "../workFlow/nodeAdd.html?name=" + enumWorkFlowModel.preLendingCollect
+        //     });
+        // })
+        // 获取数据列表并渲染
+        function onInfront(){
+            if($("#dataList table").length){
+                layuiTableReload({
+                    where: $("[name='form-search']").serialize()
+                });
+                return;
+            }
+            laytableRender({
+                url: remoteOrigin + "/api/auto/wfins/getList?infolink=1",
+                cols: [
+                    [
+                        // { checkbox:true },
+                        { field:'id', title:'任务编号'},
+                        { field:'cusName', title:'客户名称'},
+                        { field:'certType', title:'证件类型'},
+                        { field:'certCode', title:'证件号码'},
+                        { field:'phone', title:'联系电话'},
+                        { field:'loanAccount', title:'绑定贷款'},
+                        { title:'创建时间', field: "addTime"},
+                        { title:"任务状态", field: "state"},
+                        { title:'操作', templet: "#toolbar", width: 120}
+                    ]
+                ],
+                done: function(res, curr){
+                    currPage = curr - 1;
+                }
+            })
+        }
+        onInfront();
+
+        // 绑定
+        // eventBind(".handelBind", function(that){
+        //     bindId = that.data("id");
+        //     bindIndex = layerOpenIframe({
+        //         title: "选择绑定台账",
+        //         url: hrefUrl.choiceLoan+"?bindId="+bindId
+        //     });
+        //     layer.full(bindIndex)
+        // });
+        // // 选择台账回调
+        // function choiceLoanCallback(loan){
+        //     getRemoteData({
+        //         url: remoteApi.apiInfolinkCreateLink+"?LOAN_ACCOUNT="+loan["LOAN_ACCOUNT"]+"&id="+bindId,
+        //         callback: function(){
+        //             layuiTableReload({
+        //                 where: getFilterData()
+        //             })
+        //             layer.close(bindIndex);
+        //             layer.msg("绑定成功");
+        //         }
+        //     })
+        //     return false;
+        // }
+        // // 解绑
+        // eventBind(".handelUnBind", function(that){
+        //     var loanid = that.data("loanid");
+        //     var bindId = that.data("id");
+        //     actConfirm(function(){
+        //         getRemoteData({
+        //             url: "/api/infolink/deleteLink?LOAN_ACCOUNT="+loanid+"&id="+bindId,
+        //             callback: function(){
+        //                 layuiTableReload({
+        //                     where: getFilterData()
+        //                 })
+        //                 layer.msg("解绑成功");
+        //             }
+        //         })
+        //     })
+        // })
+
+        function addWorkNodeCallback(){
+            layuiTableReload();
+        }
+
+        // 得到当前页筛选条件
+        function getFilterData() {
+            var formObj = $.unserialize($("[name='form-search']").serialize())
+            formObj.page = currPage;
+            return formObj;
+        }
+    </script>
+</body>
+</html>

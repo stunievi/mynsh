@@ -1,0 +1,234 @@
+<%
+var RIGHTHTML = {
+%>
+<script>
+
+</script>
+
+<style>
+    .selected {
+        color: red;
+    }
+</style>
+<div ms-controller="tree">
+    <p>
+        请先选择您要操作的部门
+    </p>
+    <table>
+        <tr>
+            <td>
+                <wbr ms-widget="{is:'tree',tree: @data.list}"/>
+            </td>
+            <td>
+                <div :if="@data.roles.length">
+                    <ul :for="(index,el) in @data.roles">
+                        <li>
+                            {{el.nodeName}}({{el.max}}人)
+                            <a href="javascript:;" :click="@edit(el)">编辑</a>
+                            <a href="javascript:;" :click="@remove()">删除</a>
+
+                        </li>
+                    </ul>
+                </div>
+                <div :if="@data.show">
+                    <input type="hidden" :duplex="@data.roleId">
+                    <p>
+                        角色名：<input type="text" :duplex="@data.roleName">
+                    </p>
+                    <p>
+                        角色个数:<input type="text" :duplex="@data.roleNumber">
+                    </p>
+                    <p>
+                    </p>
+                </div>
+                <div>
+                    <a href="javascript:;" :click="@addRole()">添加角色</a>
+                    <a href="javascript:;" :click="@save">保存</a>
+                </div>
+
+            </td>
+        </tr>
+    </table>
+
+</div>
+<div>
+    <a class="_add" href="/admin/setting/department/add">添加</a> -
+    <a class="_edit" href="javascript:;">编辑</a> -
+    <a href="">删除</a>
+</div>
+<script>
+    $('._add').click(function () {
+        if (lastSelected == null) {
+            location.href = '/admin/setting/department/add';
+        }
+        else {
+            location.href = '/admin/setting/department/add?parentId=' + lastSelected.id;
+        }
+        return false;
+    });
+
+    $("._edit").click(function () {
+        if (lastSelected == null) {
+            alert("请先选择要编辑的部门");
+        }
+        else {
+            location.href = '/admin/setting/department/edit?id=' + lastSelected.id;
+        }
+    });
+
+
+    var data;
+
+    ;(function () {
+        var jsonstr = '${tree}';
+        try {
+            data = eval("(" + jsonstr + ")");
+        } catch (e) {
+
+        }
+        if (data == null) {
+            return;
+        }
+
+        function walk(item) {
+            if (item.departments.length) {
+                for (var i = 0; i < item.departments.length; i++) {
+                    walk(item.departments[i]);
+                }
+            }
+            else {
+                item.departments = [];
+            }
+            item.open = 0;
+            item.selected = 0;
+        }
+
+        if (data && data.length) {
+            for (var i = 0; i < data.length; i++) {
+                walk(data[i]);
+            }
+
+            data = [{
+                id: -1,
+                name: "顶级部门",
+                departments: data,
+                open: 1
+            }]
+        }
+        else {
+            data = [
+                {
+                    id: -1,
+                    name: "顶级部门",
+                    departments: [],
+                    open: 1
+                }
+            ]
+        }
+
+        return;
+
+
+    })();
+
+
+    var app = avalon.define({
+        $id: "tree",
+        data: {
+            list: data,
+            selected: '',
+            departmentName: "",
+            roles: [],
+            roleName: "",
+            roleNumber: 1,
+            roleId: 0,
+            show: false
+        },
+        addRole: function () {
+            if (!lastSelected) {
+                alert("请先选择要操作的部门");
+                return;
+            }
+
+            this.data.roleName = "";
+            this.data.roleNumber = 1;
+            this.data.roleId = 0;
+            this.data.show = true;
+        },
+        edit: function (el) {
+            this.data.roleName = el.name;
+            this.data.roleNumber = el.max;
+            this.data.roleId = el.id;
+            this.data.show = true;
+        },
+        save: function () {
+            if (!this.data.show) {
+                return;
+            }
+            if (!lastSelected) {
+                return;
+            }
+            var lastS = lastSelected;
+            $.post('edit', {
+                id: this.data.roleId,
+                name: this.data.roleName,
+                max: this.data.roleNumber,
+                departmentId: lastSelected.id
+            }, function (ret) {
+                if (ret.success) {
+                    var edit = false;
+                    var id = ret.message.id;
+                    if (lastS.roles.length) {
+                        for (var i = 0; i < lastS.roles.length; i++) {
+                            if (lastS.roles[i].id == id) {
+                                for (var j in ret.message) {
+                                    lastS.roles[i][j] = ret.message[j];
+                                    edit = true;
+                                }
+                            }
+                        }
+                    }
+
+                    if (!edit) {
+                        lastS.roles.push(ret.message)
+                    }
+                    app.data.show = false;
+                }
+                else {
+                    if (typeof ret.message == 'object') {
+                        var msg = [];
+                        for (var i = 0; i < ret.message.length; i++) {
+                            msg.push(ret.message[i].defaultMessage);
+                        }
+                        alert(msg.join("\n"))
+                    }
+                    else {
+                        alert("保存失败");
+                    }
+                }
+            }, 'json')
+        },
+        remove: function () {
+            alert("角色不能被简单的删除，因为可能还有用户存在这个角色，具体如何处理再议")
+        }
+
+    });
+
+    function onDepartmentClick() {
+        app.data.show = false;
+        if (!lastSelected) {
+            app.data.roles = [];
+            return;
+        }
+        app.data.roles = lastSelected.roles;
+    }
+
+
+</script>
+
+
+<% }; %>
+
+<%
+include("../layout.html",{RIGHTHTML:RIGHTHTML}){}
+%>

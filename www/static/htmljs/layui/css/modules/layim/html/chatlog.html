@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>聊天记录</title>
+    <link rel="stylesheet" href="../../../../../../vendor/layui/css/layui.css">
+    <link rel="stylesheet" href="../../../../../../htmljs/layui/css/modules/layim/layim.css">
+
+    <style>
+        body .layim-chat-main {
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+
+<div class="layim-chat-main">
+    <ul id="LAY_view"></ul>
+</div>
+
+<div id="LAY_page" style="margin: 0 10px;"></div>
+
+
+<textarea title="消息模版" id="LAY_tpl" style="display:none;">
+{{# layui.each(d.data, function(index, item){
+  if(item.ismine){ }}
+    <li class="layim-chat-mine"><div class="layim-chat-user"><img src="{{ item.avatar }}"><cite><i>{{ (item.timestamp) }}</i>{{ item.username }}</cite></div><div
+            class="layim-chat-text">{{ parent.layui.layim.content(item.content) }}</div></li>
+  {{# } else { }}
+    <li><div class="layim-chat-user"><img src="{{ item.avatar }}"><cite>{{ item.username }}<i>{{ (item.timestamp) }}</i></cite></div><div
+            class="layim-chat-text">{{ parent.layui.layim.content(item.content) }}</div></li>
+  {{# }
+}); }}
+</textarea>
+
+<!-- 
+上述模版采用了 laytpl 语法，不了解的同学可以去看下文档：http://www.layui.com/doc/modules/laytpl.html
+
+-->
+
+<script src="../../../../../global.config.js"></script>
+<script src="../../../../../../vendor/layui/layui.js"></script>
+<script src="/static/vendor/layui/lay/modules/laypage.js"></script>
+<script>
+    layui.use(['jquery', 'laytpl', 'laypage'], function () {
+        console.log(Object.keys(layui))
+        var layim = layui.layim
+            , layer = layui.layer
+            , laytpl = layui.laytpl
+            , $ = window.$ = layui.jquery
+            , laypage = layui.laypage;
+
+        //聊天记录的分页此处不做演示，你可以采用laypage，不了解的同学见文档：http://www.layui.com/doc/modules/laypage.html
+
+        //开始请求聊天记录
+        var param = location.search; //获得URL参数。该窗口url会携带会话id和type，他们是你请求聊天记录的重要凭据
+        var matched;
+        console.log(typeof layui.laypage)
+
+        var mineid = parent.layui.layim.cache().mine.id;
+        ;(function load(id,page){
+            getFetch("/api/message/chatlog/getList", {toUid: id, page:page}, function (res) {
+                //处理数据
+                var data = $.map(res.list, function (v) {
+                    console.log(mineid == v.fromId)
+                    // var id = mineid == v.fromId ? v.fromId : v.toId;
+                    // console.log(mineid,v,id)
+                    // console.log("******")
+                    // var name = mineid == v.fromId ? v.fromName : v.toName
+                    return {
+                        username: v.fromName
+                        , avatar: remoteOrigin + "/file/avatar/" + v.fromId + '.jpg'
+                        , timestamp: v.sendTime
+                        , content: v.content
+                        , ismine: mineid == v.fromId
+                    }
+                });
+                console.log(data)
+                var html = laytpl(LAY_tpl.value).render({
+                    data: data,
+                    mineid: mineid
+                });
+                $('#LAY_view').html(html);
+
+                console.log(res)
+                layui.laypage.render({
+                    elem: "LAY_page"
+                    , count: res.totalRow || 0
+                    , curr: page
+                    // , pages: res.totalPages
+                    , jump: function (obj,first) {
+                        if(first){
+                            return;
+                        }
+                        load(id, obj.curr)
+                    }
+                });
+            });
+
+        })(
+            (matched = param.match(/id=(\d+)/))[1], 0
+        );
+
+
+
+            //实际使用时，下述的res一般是通过Ajax获得，而此处仅仅只是演示数据格式
+            var res = {
+            code: 0
+            , msg: ''
+            , data: [{
+                username: '纸飞机'
+                , id: 100000
+                , avatar: 'http://tva3.sinaimg.cn/crop.0.0.512.512.180/8693225ajw8f2rt20ptykj20e80e8weu.jpg'
+                , timestamp: 1480897882000
+                , content: 'face[抱抱] face[心] 你好啊小美女'
+            }, {
+                username: 'Z_子晴'
+                , id: 108101
+                , avatar: 'http://tva3.sinaimg.cn/crop.0.0.512.512.180/8693225ajw8f2rt20ptykj20e80e8weu.jpg'
+                , timestamp: 1480897892000
+                , content: '你没发错吧？face[微笑]'
+            }, {
+                username: 'Z_子晴'
+                , id: 108101
+                , avatar: 'http://tva3.sinaimg.cn/crop.0.0.512.512.180/8693225ajw8f2rt20ptykj20e80e8weu.jpg'
+                , timestamp: 1480897898000
+                , content: '你是谁呀亲。。我爱的是贤心！我爱的是贤心！我爱的是贤心！重要的事情要说三遍~'
+            }, {
+                username: 'Z_子晴'
+                ,
+                id: 108101
+                ,
+                avatar: 'http://tva3.sinaimg.cn/crop.0.0.512.512.180/8693225ajw8f2rt20ptykj20e80e8weu.jpg'
+                ,
+                timestamp: 1480897908000
+                ,
+                content: '注意：这些都是模拟数据，实际使用时，需将其中的模拟接口改为你的项目真实接口。\n该模版文件所在目录（相对于layui.js）：\n/css/modules/layim/html/chatlog.html'
+            }]
+        }
+
+        //console.log(param)
+
+
+
+    });
+</script>
+</body>
+</html>

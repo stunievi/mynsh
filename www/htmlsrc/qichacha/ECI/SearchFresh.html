@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 获取新增的公司信息列表 </title>
+    <!--#include file="/htmlsrc/header.html" -->
+</head>
+<body>
+<div id="content">
+    <div class="" id="panel-form">
+        <!-- 查询表单 -->
+    </div>
+    <div id="dataList">
+        <!-- 数据列表 -->
+    </div>
+</div>
+<!-- toolbar渲染模板 -->
+<script type="text/html" id="toolbar">
+    <div class="layui-toolbar">
+        <a href="javascript:;" class="btn btn-default handleShow" data-id="{{d.CreditCode}}">查看</a>
+    </div>
+</script>
+<script>
+    // 配置查询表单
+    $("#panel-form").html(panelFormRender3({
+        panelTitle:'筛选查询',
+        col: 3,
+        list:[
+            {prop:"provinceCode", label:"省份Code", required:true},
+            {prop:"keyword", label:"搜索关键字"},
+            {prop:"startDateFrom", label:"起始日期，当前日期往前60天以内", type:"date"},
+            {prop:"startDateTo", label:"结束日期，当前日期往前60天以内", type:"date"}
+        ],
+        data: { }
+    }));
+
+    laytableRender({
+        title: "获取环保处罚列表"
+        , url: "http://localhost:8015/test/qichacha/ECI/SearchFresh"
+        , dataType: "json"
+        , cols: [
+            [
+                { title:'操作', templet: "#toolbar", fixed: 'right'},
+                // {title:"Id", field:"Id"},
+                // {title:"内部KeyNo", field:"KeyNo"},
+                {title:"公司名称", field:"Name"},
+                {title:"法人名称", field:"OperName"},
+                {title:"成立日期", field:"StartDate"},
+                {title:"企业状态", field:"Status"},
+                {title:"注册号", field:"No"},
+                {title:"社会统一信用代码", field:"CreditCode"},
+                {title:"注册资本", field:"RegistCapi"},
+                {title:"地址", field:"Address"}
+            ]
+        ]
+    });
+
+    $(document).on("click", ".handleShow", function (){
+        var id = $(this).data("id");
+        addNavTab("ECIdetail"+id, "企查查-公司详情", hrefUrl.ECIdetail+id);
+        return true;
+    });
+</script>
+</body>
+</html>

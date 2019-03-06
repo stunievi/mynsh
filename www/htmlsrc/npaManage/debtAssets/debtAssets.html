@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>不良资产管理 - 抵债资产管理 - 抵债资产接收</title>
+    <link href="/static/vendor/bootcss/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/vendor/jqui/jquery-ui.css">
+    <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+</head>
+<body>
+    <div id="content"> 
+        <div class="" id="panel-form">
+            <!-- 查询表单 -->
+        </div>
+        <div class="batch-operation">
+            <a class="btn btn-success" href="javascript:;" id="handleAdd">新 增</a>
+        </div>
+        <div id="dataList">
+            <!-- 数据列表 -->
+        </div>
+    </div>
+    <script src="../../../static/vendor/jquery/jquery.js"></script>
+    <script src="../../../static/vendor/artTemplate/template-web.js"></script>
+    <script src="../../../static/vendor/jqui/jquery-ui.min.js"></script>
+    <!-- <script src="../../../static/vendor/jqui/jquery-ui-timepicker-addon.js"></script> -->
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script src="../../../tmpl/js/panelForm.js"></script>
+    <!-- 变量渲染模板 -->
+    <script type="text/html" id="_addTime"> {{# return dateFormate1(d.addTime)}} </script>
+    <script type="text/html" id="_state"> {{# return formatInstancesState(d.state)}} </script>
+    <!-- toolbar渲染模板 -->
+    <script type="text/html" id="toolbar">
+        <div class="layui-toolbar">
+            <!-- <a href="/htmlsrc/npaManage/debtAssets/debtAssets.edit.html?id={{d.id}}" class="btn handleEdit btn-warning" href="">编辑</a> -->
+            <a href="/htmlsrc/workFlow/nodeStates.html?id={{d.id}}" class="btn handleShow btn-default">查看</a>
+            <!-- <a href="/htmlsrc/npaManage/debtAssets/debtAssets.show.html?id={{d.id}}" class="btn handleShowState btn-default" href="">流程状态</a> -->
+            <!-- <a href="javascript:;" class="btn handleDel btn-danger" data-value="{{d.id}}" data-index="{{d.LAY_TABLE_INDEX}}">删除</a> -->
+        </div>
+    </script>
+    <script>
+        $("#panel-form").html(panelFormRender({
+            panelTitle:'筛选查询',
+            list:[
+                // { prop: 'f1', label: '催收方式' },
+                // { prop: 'f2', label: '客户号' },
+                // { prop: 'f3', label: '联系电话' },
+                // { prop: 'f4', label: '客户经理' },
+                { prop: 'f5', label: '添加时间(从)'},
+                { prop: 'f6', label: '添加时间(至)'}
+            ],
+            data: { }
+        }));
+        $(function() {
+            $("#f5" ).datepicker({  changeMonth: true, changeYear: true, dateFormat: 'yy-mm-dd' });
+            $("#f6" ).datepicker({ showOtherMonths: true, selectOtherMonths: true, dateFormat: 'yy-mm-dd' });
+        });
+        
+        laytableRender({
+            url: remoteApi.apiWorkflowIinstances,
+            where: {
+                modelName: enumWorkFlowModel.debtAssets.name
+            },
+            cols: [
+                [
+                    { field:'id', title:'调查编号'},
+                    { field:'title', title:'任务名'},
+                    { title:'任务状态', templet: "#_state"},
+                    { title:'添加时间', templet: "#_addTime"},
+                    { title:'操作', templet: "#toolbar", width: 220}
+                    // { checkbox:true },
+                    // { field:'f1', title:'任务编号'},
+                    // { field:'f2', title:'客户号'},
+                    // { field:'f3', title:'客户名称'},
+                    // { field:'f4', title:'合同号'},
+                    // { field:'f5', title:'任务生成时间'},
+                    // { field:'f6', title:'要求完成时间'},
+                    // { field:'f7', title:'客户经理'},
+                    // { field:'f8', title:'状态'},
+                    // { title:'操作', width:220, templet: "#toolbar"}
+                ]
+            ]
+        })
+
+        // 跳转添加
+        eventBind("#handleAdd", function(){
+            location.href = "/htmlsrc/workFlow/nodeAdd.html?name=" + enumWorkFlowModel.debtAssets.name;
+        });
+
+        // $(document).on("click", ".handleDel", function(){
+        //     var ids = getLayuiTabelCheckIds();
+        //     delRemoteData({
+        //         url:remoteApi.apiUpdateBaned,
+        //         data: {
+        //             userIds: ids
+        //         }
+        //     });
+        // });
+
+    </script>
+</body>
+</html>

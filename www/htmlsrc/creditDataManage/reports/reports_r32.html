@@ -1,0 +1,61 @@
+<!--#include file="common.html" -->
+<script type="text/html" id="head2">
+    <div class="col-xs-12"style="padding-top: 15px;padding-bottom: 15px;">
+        <div class="col-xs-12" style="text-align: right">
+            单位：万元
+        </div>
+    </div>
+</script>
+
+<script>
+
+    $("#panel-form").html(panelFormRender3({
+        list:[
+            { prop: 'START_DATE', label: '开始时间', disabled: true, type:"date"}
+            ,{ prop: 'END_DATE', label: '结束时间', disabled: true, type:"date"}
+            , {prop:"LOAN_TERM", label:"贷款期限",type:"select", vals:
+                    [
+                        {name:"所有", val:"0"}
+                        ,{name:"1年(含）以下",val:"1"}
+                        ,{name:"1-3年(含)",val:"2"}
+                        ,{name:"3-5年(含)",val:"3"}
+                        ,{name:"5-8年(含)",val:"4"}
+                        ,{name:"8年以上",val:"5"}
+                    ]
+            }
+    ],
+    data: {}
+    }));
+
+    laytableRender({
+        url: remoteOrigin + "/api/report/report_32"
+        , dataType: "json"
+        , page: false
+        , cols: [
+            [{"title":"贷款机构","field":"MAIN_BR_NAME"}
+                ,{"title":"贷款金额","field":"LOAN_AMOUNT"}
+                ,{"title":"贷款余额","field":"LOAN_BALANCE"}
+                ,{"title":"台帐数","field":"ACCOUNT_NUM"}]
+        ]
+
+    });
+
+    var form = $("form[name='form-search']")
+    form.validate({
+        rules:{
+            START_DATE: "required"
+            , END_DATE:"required"
+        }
+        ,submitHandler: function () {
+            if(form.valid()){
+                layuiTableReload({
+                    where: form.serialize().replace(/-/g,'')
+                });
+            }
+        }
+    });
+
+    function checkSubmitForm(){
+        return false;
+    }
+</script>

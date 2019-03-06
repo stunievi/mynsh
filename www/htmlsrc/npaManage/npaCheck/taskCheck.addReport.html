@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>贷后管理 - 贷后任务检查 - 贷后检查 - 添加检查报告</title>
+    <script src="../../../static/vendor/jquery/jquery.js"></script>
+    
+    
+    
+    <script src="../../../static/vendor/artTemplate/template-web.js"></script>
+    <link  href="../../../static/vendor/bootcss/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="content"> 
+        <div id="addForm">
+
+        </div>
+        <div class="text-center">
+            <a href="javascript:void(0)" onclick="javascript:history.go(-1);return false;">【返回】</a>
+        </div>
+    </div>
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="../../../tmpl/js/panelForm.js"></script>
+    <script>
+        var panelFormRender = template.compile(TPanelForm);
+        $("#addForm").html(panelFormRender({
+            formName: 'add-form',
+            panelTitle:'添加检查报告',
+            list:[
+                { prop: '', label: '担保人全称', btnGroup: '选择担保人'},
+                { prop: '', label: '借款合同号', btnGroup: '选择借款合同号' },
+                { prop: '', label: '担保方式', type:'select', vals:[
+                    {name:'--请选择--', val:''},
+                    {name:'抵押', val:'2'},
+                    {name:'质押', val:'1'},
+                    {name:'保证', val:'0'},
+                    {name:'信用', val:'0'}
+                ]},
+                { prop: '', label: '贷款额度'},
+                { prop: '', label: '贷款余额'},
+                { prop: '', label: '贷款用途'},
+                { prop: '', label: '七级分类', type:'select', vals:[{name:'分类一', val:'1'}]},
+                { prop: '', label: '生产经营情况', type:'select', vals:[
+                    {name:'--请选择--', val:''},
+                    {name:'良好', val:'2'},
+                    {name:'盈利下降', val:'1'},
+                    {name:'有盈转亏', val:'0'},
+                    {name:'清算', val:'0'},
+                    {name:'停产半停产', val:'0'},
+                    {name:'诉讼', val:'0'}
+                ]},
+                { prop: '', label: '还款意愿', type:'select', vals:[
+                    {name:'--请选择--', val:''},
+                    {name:'优秀', val:'2'},
+                    {name:'良好', val:'1'},
+                    {name:'一般', val:'0'},
+                    {name:'较差', val:'0'},
+                    {name:'差', val:'0'}
+                ]},
+                { prop: '', label: '偿还能力'},
+                { prop: '', label: '抵押物情况'},
+                { prop: '', label: '担保人情况'},
+                { prop: '', label: '总体评价'},
+                { prop: '', label: '备注说明'}
+            ],
+            data: {}
+        }));
+        function checkSubmitForm(){
+            var form = $("form[name='add-form']");
+            form.validate({
+                rules: {
+                    'username': "required",
+                },
+                submitHandler: function() {
+                    SuperPost({
+                        type:'post',
+                        url: ' ',
+                        data: { },
+                        success:function(res){
+                            if(res.success){
+
+                            }else{
+                                console.log(res);
+                            }
+                        },
+                        error:function(err){
+
+                        }
+                    })
+                }
+            })
+            return false;
+        }
+        checkSubmitForm();
+    </script>
+</body>
+</html>

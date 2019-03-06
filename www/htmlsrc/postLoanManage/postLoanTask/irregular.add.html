@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 贷后管理 - 贷后任务管理 - 不定期检查任务管理 </title>
+    <script src="../../../static/vendor/jquery/jquery.js"></script>
+    <script src="../../../static/vendor/artTemplate/template-web.js"></script>
+    <link  href="../../../static/vendor/bootcss/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="content"> 
+        <div id="addForm">
+        </div>
+        <div class="text-center">
+            <a href="javascript:void(0)" onclick="javascript:history.go(-1);return false;">【返回】</a>
+        </div>
+    </div>
+    <link rel="stylesheet" href="../../../static/vendor/jqui/jquery-ui.css">
+    <script src="../../../static/vendor/jqui/jquery-ui.min.js"></script>
+    <script src="../../../static/vendor/jqui/jquery-ui-timepicker-addon.js"></script>
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="../../../static/htmljs/utils.js"></script>
+    <script src="../../../tmpl/js/panelForm.js"></script>
+    <script>
+        var panelFormRender = template.compile(TPanelForm);
+        $("#addForm").html(panelFormRender({
+            formName: 'add-form',
+            panelTitle:'添加不定期检查任务',
+            list:[
+                { prop: ' ', label: '客户名称', inputGroup:'选择客户' },
+                { prop: 'f3', label: '要求完成时间'},
+                { prop: ' ', label: '指派说明', type:'textarea', width: '12', labelWidth:2},
+                { prop: 'f5', label: '客户经理', inputGroup:'选择客户经理'}
+            ],
+            data: {
+                f5: '客户经理'
+            }
+        }));
+        
+        $(function() {
+            $('#f3').datetimepicker({ dateFormat: 'yy-mm-dd' });
+        });
+
+        var choice_users_option = {
+            key: 'f5',
+            num: 'one'
+        };
+        $(document).on("click", "#groupBtn-f5", function(){
+            layer.open({
+                type: 2,
+                title:'选择客户经理',
+                area: ['700px', '450px'],
+                fixed: false, //不固定
+                maxmin: true,
+                content: '../../htmllayer/choiceUser.html'
+            });
+        });
+
+        function checkSubmitForm(){
+            checkSubmitFun({
+                form: $("form[name='add-form']"),
+                rules: { },
+                submit:function(){
+                    SuperPost({
+                        type:'post',
+                        url: '',
+                        data: {
+                            time:dateToTimestamp($("#f3").val())
+                        },
+                        success:function(res){
+                            if(res.success){
+                            var origin = res.data;
+
+                            }else{
+                                console.log(res);
+                            }
+                        },
+                        error:function(err){
+
+                        }
+                    })
+                }
+            });
+        }
+        checkSubmitForm();
+    </script>
+</body>
+</html>

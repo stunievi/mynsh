@@ -1,0 +1,202 @@
+后台管理:
+  用户:
+    新增:
+      api:
+      - /xxx/xxx/123
+      - /xxx/xxx/456
+      class:
+        btncreate
+        btnxxx
+
+      url:
+        a.html
+
+信贷数据管理:
+  信贷数据导入:
+    客户信息导入:
+      api:
+      class:
+      url:
+    贷款台账导入:
+      api:
+      class:
+      url:
+  贷款台账管理:
+    查询:
+    查看:
+    发短信:
+    删除:
+
+客户管理:
+  对私客户管理:
+    查询:
+    查看:
+    删除:
+  对公客户管理:
+    查询:
+    查看:
+    删除:
+  保证人管理:
+    查询:
+    查看:
+    删除:
+  抵押物管理:
+    查询:
+    查看:
+    删除:
+  拒贷管理:
+    查询:
+    查看:
+    删除:
+文件管理:
+  个人文件柜:
+    创建文件夹:
+      api:
+      - /api/clouddisk/createDir
+    删除文件夹:
+      api:
+      - /api/clouddisk/deleteDir
+    重命名文件夹:
+      api:
+      - /api/clouddisk/renameDir
+    查询:
+      api:
+      - /api/clouddisk/files
+    上传文件:
+      api:
+      - /api/clouddisk/bytes/upload/apply
+      - /api/clouddisk/bytes/upload/start
+      - /api/clouddisk/bytes/upload/finish
+    重命名文件:
+      api:
+      - /api/clouddisk/renameFile
+    删除文件:
+      api:
+      - /api/clouddisk/deleteFiles
+    转发:
+      api:
+      - /api/clouddisk/shareFile
+    下载:
+      api:
+
+  共享文件柜:
+    创建文件夹:
+      api:
+      - /api/clouddisk/common/createDir
+    删除文件夹:
+      api:
+      - /api/clouddisk/common/deleteDir
+    重命名文件夹:
+      api:
+      - /api/clouddisk/common/renameDir
+    查询:
+      api:
+      - /api/clouddisk/common/files
+    新增:
+      api:
+      - /api/clouddisk/common/bytes/upload/apply
+      - /api/clouddisk/common/bytes/upload/start
+      - /api/clouddisk/common/bytes/upload/finish
+    重命名文件:
+      api:
+      - /api/clouddisk/common/renameFile
+    删除:
+      api:
+      - /api/clouddisk/common/deleteFiles
+    #    转存:
+    从共享文件柜中转存文件:
+    - /api/clouddisk/saveCommonFiles
+    api:
+
+    下载:
+
+  收到的共享:
+    查询:
+      api:
+      - /api/clouddisk/shareFiles
+    删除:
+      api:
+      - /api/clouddisk/deleteShareFiles
+    转存:
+      api:
+      - /api/clouddisk/saveShareFiles
+
+    下载:
+
+
+资料收集:
+  资料收集:
+    查询:
+    查看:
+    删除:
+  资料绑定:
+    查询:
+    绑定:
+
+贷后管理:
+  任务指派:
+    查询:
+    修改:
+    申请收回:
+    指派:
+  任务移交:
+    查询:
+    新增:
+    修改:
+    移交:
+  任务接受:
+    接受:
+  任务管理:
+    查询:
+    新增:
+    查看:
+    检查:
+    生成报告:
+
+不良资产管理:
+  任务指派:
+    查询:
+    修改:
+    申请收回:
+    指派:
+  任务移交:
+    查询:
+    新增:
+    修改:
+    移交:
+  任务接受:
+    接受:
+  任务管理:
+    查询:
+    新增:
+    查看:
+    检查:
+    生成报告:
+  不良资产登记:
+    查询:
+    查看:
+    登记:
+  台账管理:
+    新任务:
+    查看:
+    删除:
+  催收管理:
+    查询:
+    新增:
+    修改:
+    删除:
+  利息减免管理:
+    查询:
+    新增:
+    修改:
+    删除:
+  诉讼管理:
+    查询:
+    新增:
+    修改:
+    删除:
+  资产抵债管理:
+    查询:
+    新增:
+    修改:
+    删除:

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>客户管理 - 抵押物管理 - 查看</title>
+    <script src="../../../static/vendor/jquery/jquery.js"></script>
+    
+    
+    
+    <script src="../../../static/vendor/artTemplate/template-web.js"></script>
+    <link href="../../../static/vendor/bootcss/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <style>.x-tablelist-wrap{overflow-x:auto !important}</style>
+    <div id="content">
+        <div id="data-list">
+            <!-- 抵押物管理 - 基本信息展示 -->
+        </div>
+        <div id="file-list">
+            <!-- 抵押物管理 - 抵押物列表 -->
+        </div>
+        <div class="text-center">
+            <a href="javascript:void(0)" onclick="javascript:history.go(-1);return false;">【返回】</a>
+        </div>
+    </div>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="../../../tmpl/js/tableList.js"></script>
+    <script src="../../../tmpl/js/panelTableShow.js"></script>
+    <script>
+        var tableListRender  = template.compile(TTableList);
+        var panelTableShowRender  = template.compile(TPanelTableShow);
+        $("#data-list").html(panelTableShowRender({
+            panelTitle: '客户管理 - 抵押物管理 - 查看',
+            attrs:[
+                { prop: '1', label: '客户经理姓名' },
+                { prop: '2', label: '客户经理代码' },
+                {prop: '3', label:'抵押物编号'},
+                {prop: '4', label:'抵押品类型'},
+                {prop: '5', label:'抵押品名称'},
+                {prop: '6', label:'权属证件类型', width:120},
+                {prop: '7', label:'权属证号'},
+                {prop: '8', label:'权属登记机关', width:120},
+                {prop: '9', label:'抵押人客户号', width:120},
+                {prop: '10', label:'抵押人名称'},
+                {prop: '11', label:'核心入账金额(元)', width:130},
+                {prop: '12', label:'内部评估确认金额（元）', width:180},
+                {prop: '13', label:'设定抵押率（%）', width:180},
+                {prop: '14', label:'最高可抵押金额（元）', width:200},
+                {prop: '15', label:'已占用金额（元）', width:150},
+                {prop: '16', label:'抵押品存放位置', width:150},
+                {prop: '17', label:'抵质押物状态', width:150},
+                {prop: '18', label:'出入库状态'},
+                {prop: '19', label:'表外账务机构', width:150},
+                {prop: '20', label:'主管机构'}
+            ],
+            data:{
+                1: '客户名称',
+                2: '联系电话',
+                3: 'd'
+            }
+        }));
+        // $("#file-list").html(tableListRender({
+        //     headCols:[
+        //         {prop: '', label:'抵押物编号'},
+        //         {prop: '', label:'抵押品类型'},
+        //         {prop: '', label:'抵押品名称'},
+        //         {prop: '', label:'权属证件类型', width:120},
+        //         {prop: '', label:'权属证号'},
+        //         {prop: '', label:'权属登记机关', width:120},
+        //         {prop: '', label:'抵押人客户号', width:120},
+        //         {prop: '', label:'抵押人名称'},
+        //         {prop: '', label:'核心入账金额(元)', width:130},
+        //         {prop: '', label:'内部评估确认金额（元）', width:180},
+        //         {prop: '', label:'设定抵押率（%）', width:180},
+        //         {prop: '', label:'最高可抵押金额（元）', width:200},
+        //         {prop: '', label:'已占用金额（元）', width:150},
+        //         {prop: '', label:'抵押品存放位置', width:150},
+        //         {prop: '', label:'抵质押物状态', width:150},
+        //         {prop: '', label:'出入库状态'},
+        //         {prop: '', label:'表外账务机构', width:150},
+        //         {prop: '', label:'主管机构'}
+        //     ],
+        //     bodyCols: [
+        //         {1:1}
+        //     ]
+        // }));
+        SuperPost({
+            // url: remoteApi. + ''.
+            url: '',
+            type: 'get',
+            success:function(res){
+                if(res.success){
+                
+                }
+                else{
+                    console.log(res);
+                }
+            },
+            error:function(){
+
+            }
+        })
+    </script>
+</body>
+</html>

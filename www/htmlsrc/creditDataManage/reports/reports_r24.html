@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title> 惠州农商行五级分类不良贷款明细表 </title>
+    <link rel="stylesheet" href="/static/vendor/bootcss/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="/static/vendor/jqui/jquery-ui.css">
+    <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+</head>
+<body>
+    <div id="content">
+        <div id="panel-form">
+            <!-- 筛选表单 -->
+        </div>
+        <div class="batch-operation">
+            <a class="btn btn-success" id="handleExport" href="javascript:;">导出数据</a>
+        </div>
+        <table id="dataList"></table>
+    </div>
+  
+    <script src="/static/vendor/jquery/jquery.js"></script>
+    <!--<script src="/static/vendor/jqui/jquery-ui.min.js"></script>-->
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script src="/static/vendor/artTemplate/template-web.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="/tmpl/js/horzTable.js"></script>
+    <script src="../../../tmpl/js/panelForm.js"></script>
+    <!-- <script src="/static/htmljs/interaction.js"></script> -->
+    <script type="text/html" id="_CLA"> {{# return getOdsEnumVal(d, 'CLA');}} </script>
+    <script>
+
+        $("#panel-form").html(panelFormRender3({
+            panelTitle: "基本信息 - 惠州农商行五级分类不良贷款明细表",
+            list:[
+                { prop: 'PRD_TYPE', label: '产品类别', type: "select", vals: getOdsEnumSelect("PRD_TYPE") },
+                { prop: 'LOAN_NATURE', label: '贷款性质', type: "select", vals: getOdsEnumSelect("LOAN_NATURE") }
+            ],
+            data: {}
+        }));
+
+//        $(function() {
+//            $('#start').datepicker({ changeMonth: true, changeYear: true, dateFormat: 'yymmdd' });
+//            $("#end").datepicker({ changeMonth: true, changeYear: true, dateFormat: 'yymmdd' });
+//        });
+
+        laytableRender({
+            url: "/api/report/report_8",
+            cellMinWidth: 110,
+            cols: [
+                [
+                    {title:'贷款机构', field:'MAIN_BR_NAME', pos: "left"},
+                    {title:'贷款账号', field:'LOAN_ACCOUNT' },
+                    {title:'借款人', field:'CUS_NAME' },
+                    {title:'借款起始日期', field:'LOAN_START_DATE' },
+                    {title:'终止日期', field:'LOAN_END_DATE' },
+                    {title:'贷款金额', field:'LOAN_AMOUNT' },
+                    {title:'贷款余额', field:'LOAN_BALANCE' },
+                    {title:'五级分类', field:'CLA', templet: "#_CLA"},
+                    {title:'欠息金额', field:'DELAY_INT_CUMU' },
+                    {title:'欠息起始日', field:'INTEREST_OVERDUE_DATE' },
+                    {title:'拖欠本金金额', field:'UNPD_PRIN_BAL' },
+                    {title:'拖欠本金起始日', field:'CAP_OVERDUE_DATE' },
+                    {title:'时间', field:'SRC_SYS_DATE' }
+                ]
+            ]
+        });
+
+        // 提交查询，重载列表
+        var form = $("[name='form-search']");
+        form.validate({
+            rules: { },
+            submitHandler: function(){
+                if(form.valid()){
+                    layuiTableReload({
+                        where: form.serialize()
+                    });
+                }
+            }
+        })
+
+        function checkSubmitForm(){
+            return false;
+        }
+    </script>
+</body>
+</html>

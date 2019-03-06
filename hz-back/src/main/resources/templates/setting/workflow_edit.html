@@ -1,0 +1,423 @@
+<%
+var RIGHTHTML = {
+%>
+<style>
+    .fieldKey {
+        display: inline-block;
+    }
+
+    .fieldValue {
+        display: inline-block;
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 5px 10px;
+        margin: 5px;
+    }
+
+    .red {
+        background: red;
+        color: white;
+    }
+
+    .blue {
+        background: lightblue;
+    }
+
+    .black {
+        background: black;
+        color: white;
+    }
+
+    #app {
+        position: relative;
+    }
+
+    .nodeList {
+        position: relative;
+        height: 80px;
+    }
+
+    #switchTab {
+    }
+
+    .node {
+        border: 1px solid #ddd;
+        width: 60px;
+        height: 60px;
+        text-align: center;
+        line-height: 60px;
+        border-radius: 100%;
+        display: inline-block;
+        position: absolute;
+        z-index: 2;
+        cursor: pointer;
+        background: lightblue;
+    }
+
+    .nodeLine {
+        z-index: 1;
+        top: 29px;
+        left: 0px;
+        width: 100px;
+        height: 5px;
+        border: 1px solid #ddd;
+        position: absolute;
+        background: lightblue;
+    }
+
+    .selected {
+        background: deepskyblue;
+        color: white;
+    }
+
+</style>
+
+
+<!--业务设置-->
+<form action="" data-url="/admin/setting/work/" :controller="app">
+
+    <dl>
+        <dt>选择所属部门</dt>
+        <dd>
+            <wbr ms-widget="{is:'tree',tree:@data.children}"/>
+
+            <p>
+                已选择部门：{{@data.target_department.nodeName}}
+            </p>
+        </dd>
+    </dl>
+    <dl>
+        <dt>选择业务模型</dt>
+        <dd>
+            <table>
+                <tr>
+                    <th>
+                        模型名称：
+                    </th>
+                    <th>
+                        模型说明
+                    </th>
+                    <th>
+                        操作
+                    </th>
+                </tr>
+                <tr :for="(index,el) in @data.works">
+                    <td :html="el.nodeName">
+                    </td>
+                    <td :html="el.info"></td>
+                    <td>
+                        <a href="javascript:;"
+                           :click="@onWorkClick(index)"
+                        >
+                            选择该项
+                        </a>
+                    </td>
+                </tr>
+            </table>
+            <p>
+                已选择业务：{{@data.target_work > -1 ? @data.works[@data.target_work].nodeName : "还未选择"}}
+            </p>
+        </dd>
+    </dl>
+    <div>
+        <dl :for="(indexx,ell) in @data.works" :if="@data.target_work == indexx">
+            <dt>业务节点编辑</dt>
+            <dd>
+                <div class="nodeList">
+                    <div :for="(index,el) in @ell.nodeList"
+                         class="node"
+                         :class="[index == @data.current && 'selected']"
+                         :css="{left:(60 + 100) * index}"
+                         :click="@switchTab(index)"
+                    >
+                        {{avalon.components[el.type + 'Node'].defaults.getType() }}
+
+                        <!--<div>-->
+                        <!---->
+                        <!--</div>-->
+                    </div>
+                    <div class="nodeLine" :css="{width:ell.nodeList.length * 160}"></div>
+
+                    <div class="node"
+                         :css="{left:(60 + 100) * ell.nodeList.length}"
+                    >
+                        结束
+                    </div>
+                </div>
+            </dd>
+        </dl>
+    </div>
+
+    <div :if="@data.current > -1 && @data.target_department && @data.target_work > -1">
+        <table>
+            <tr>
+                <th>职位</th>
+                <th>选中</th>
+            </tr>
+            <tr :for="(index,el) in @data.target_department.roles">
+                <td :html="el.nodeName">
+                </td>
+                <td>
+                    <input type="checkbox"
+                           :duplex="@data.selectedRoles[@data.current]"
+                           :attr="{value:el.id}"
+                    >
+                </td>
+                <!--<td :html="@getRoles(el)">-->
+                <!--</td>-->
+                <!--<td>-->
+                <!--<input type="checkbox"-->
+                <!--:duplex="@data.selectedUsers[@data.current]"-->
+                <!--:attr="{value:el.id}"-->
+                <!--&gt;-->
+                <!--</td>-->
+                <!--<td :html="el.nodeName"></td>-->
+            </tr>
+        </table>
+    </div>
+
+    <dl>
+        <dt>版本</dt>
+        <dd>
+            <input type="text" :duplex="@data.version">
+        </dd>
+    </dl>
+
+
+    <p style="padding-top: 300px">
+        <a href="javascript:;" class="_save">提交</a>
+    </p>
+</form>
+
+
+<!--表单元素-->
+
+
+<script>
+
+
+    var departmentstr = '${departments}';
+    var worksstr = '${works}';
+    var children;
+    var works;
+    do {
+        try {
+            departments = eval("(" + departmentstr + ")");
+            works = eval("(" + worksstr + ")");
+        }
+        catch (e) {
+            //转换失败，回到上一夜
+            break;
+        }
+
+        if (departments == null) {
+            break;
+        }
+
+        function walk(item) {
+            if (item.departments.length) {
+                for (var i = 0; i < item.departments.length; i++) {
+                    walk(item.departments[i]);
+                }
+            }
+            else {
+                item.departments = [];
+            }
+            item.open = 0;
+            item.selected = 0;
+        }
+
+        for (var i = 0; i < departments.length; i++) {
+            walk(departments[i]);
+        }
+    } while (0);
+
+    var lastSelected = null;
+
+    function init() {
+        //必须同时存在部门和业务的时候才可以触发初始化
+        if (app.data.target_department && app.data.target_work > -1) {
+            app.data.selectedRoles = [];
+            var nodeList = app.data.works[app.data.target_work].nodeList;
+            for (var i = 0; i < nodeList.length; i++) {
+                app.data.selectedRoles.push([]);
+            }
+        }
+    }
+
+    window.onDepartmentClick = function () {
+        if (!lastSelected) {
+            return;
+        }
+        app.data.target_department = lastSelected;
+        app.data.selectedRoles = [];
+
+        //如果是先点击的业务，在这里初始化被选择项
+        init();
+
+        // app.data.roles = lastSelected.roles;
+
+        // if(workers[lastSelected.id]){
+        //     app.data.users = workers[app.data.target_department.id];
+        //     return;
+        // }
+        // var id = app.data.target_department.id
+        // $.ajax({
+        //     url : 'department_users',
+        //     async:false,
+        //     method: "post",
+        //     data: "departmentId=" + app.data.target_department.id,
+        //     dataType: 'json',
+        //     success: function (data) {
+        //         if(data.success){
+        //             workers[id] = data.message;
+        //             app.data.users = workers[id];
+        //         }
+        //     }
+        // })
+    };
+
+
+    var workers = {};
+
+    var app = avalon.define({
+        $id: "app",
+        data: {
+            id: -1,
+            name: "",
+            info: "",
+            nodeList: [],
+            current: -1,
+            target_department: "",
+            target_work: -1,
+            departments: departments,
+            works: works,
+            users: [],
+            // selectedUsers:[],
+            selectedRoles: [],
+            version: ''
+        },
+
+        onWorkClick: function (index) {
+            this.data.current = -1;
+            this.data.target_work = index;
+            //如果是先点击的部门，在这里初始化
+            init();
+        },
+
+        getRoles: function (el) {
+            var buf = [];
+            if (el.roles) {
+                for (var i = 0; i < el.roles.length; i++) {
+                    buf.push(el.roles[i].name);
+                }
+            }
+            return buf.join("、");
+        },
+
+
+        switchTab: function (el) {
+
+            if (!this.data.target_department) {
+                return alert("请先选择部门");
+            }
+
+            console.log(el)
+            this.data.current = el;
+            var id = this.data.works[this.data.target_work].id;
+
+            //得到该部门的人员
+            // if(workers[id]){
+            //     app.data.users = workers[id]
+            // }
+            // else{
+            //     app.data.users = [];
+            // }
+        }
+    });
+
+    // if(str != ''){
+    //     do{
+    //         try{
+    //             var data = eval("(" + str + ")");
+    //             for(var i in data){
+    //                 app.data[i] = data[i];
+    //             }
+    //         }catch (e){
+    //             break;
+    //         }
+    //     }while(0);
+    // }
+    //
+    $('._save').click(function () {
+        //部门
+        var departmentId = -1;
+        //业务
+        var workId = -1;
+        //节点相关人员
+        var workflowNodeList = [];
+        var version = 1.0;
+
+        try {
+            departmentId = app.data.target_department.id;
+            workId = app.data.works[app.data.target_work].id;
+            workflowNodeList = app.data.selectedRoles;
+            version = app.data.version
+        } catch (e) {
+            alert("提交出现错误！");
+            return;
+        }
+        if (departmentId == -1) {
+            return alert("错误")
+        }
+        if (workId == -1) {
+            return alert("错误")
+        }
+        if (!workflowNodeList || !workflowNodeList.length) {
+            return alert("错误")
+        }
+
+        $.post("add", {
+            departmentId: departmentId,
+            workId: workId,
+            workflowNodeList: JSON.stringify(workflowNodeList),
+            version: version
+        }, function () {
+
+        })
+
+        // var data = app.data.$model;
+        // if(data.nodeName == ""){
+        //     return alert("业务名称不能为空")
+        // }
+        // if(data.info == ""){
+        //     return alert("业务说明不能为空")
+        // }
+        // if(!data.nodeList || data.nodeList.length == 0){
+        //     return alert("业务节点操作列表不能为空")
+        // }
+        //
+        // var url;
+        // url = "/admin/setting/work/edit";
+        // data.list = (JSON).stringify(data.nodeList);
+        // delete data.nodeList;
+        //
+        // $.post(url,data,function (msg) {
+        //     if(msg.success){
+        //         location.href = 'list';
+        //     }
+        //     else{
+        //
+        //     }
+        // },'json');
+    });
+</script>
+
+
+<% }; %>
+
+<%
+include("../layout.html",{RIGHTHTML:RIGHTHTML}){}
+%>

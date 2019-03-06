@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 资料查询 - 贷款资料 - 贷款台账 - 查看</title>
+    <!--#include file="/htmlsrc/header.html" -->
+    <style>
+        td{
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <div id="content">
+        <div class="bs-example bs-example-tabs" data-example-id="togglable-tabs">
+            <ul id="myTabs" class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active"><a href="#baseInfo" id="baseInfo-tab" role="tab" data-toggle="tab" data-controls="baseInfo" aria-expanded="true">台账信息</a></li>
+                <li role="presentation" class=""><a href="#paneTab1" role="tab" id="paneTab1-tab" data-toggle="tab" data-controls="paneTab1" aria-expanded="false" onclick="getTaskList('paneTab1')">担保合同</a></li>
+                <li role="presentation" class=""><a href="#paneTab2" role="tab" id="paneTab2-tab" data-toggle="tab" data-controls="paneTab2" aria-expanded="false" onclick="getTaskList('paneTab2')">贷款合同</a></li>
+                <li role="presentation" class=""><a href="#paneTab3" role="tab" id="paneTab3-tab" data-toggle="tab" data-controls="paneTab3" aria-expanded="false" onclick="getTaskList('paneTab3')">抵（质）押物明细</a></li>
+                <li role="presentation" class=""><a href="#paneTab4" role="tab" id="paneTab4-tab" data-toggle="tab" data-controls="paneTab4" aria-expanded="false" onclick="getTaskList('paneTab4')">资料绑定</a></li>
+                <li role="presentation" class=""><a href="#paneTab5" role="tab" id="paneTab5-tab" data-toggle="tab" data-controls="paneTab5" aria-expanded="false" onclick="getTaskList('paneTab5')">还款记录</a></li>
+            </ul>
+            <div id="myTabContent" class="tab-content">
+                <div role="tabpanel" class="tab-pane active in" id="baseInfo" aria-labelledby="baseInfo-tab">
+                    <!-- 基本信息展示 -->
+                    <div class="bootcss-none-info">
+                        暂无相关信息
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="paneTab1" aria-labelledby="paneTab1-tab">
+                    <div id="paneTab1-content">
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="paneTab2" aria-labelledby="paneTab2-tab">
+                    <div id="paneTab2-content">
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="paneTab3" aria-labelledby="paneTab3-tab">
+                    <div id="paneTab3-content">
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="paneTab4" aria-labelledby="paneTab4-tab">
+                    <div id="paneTab4-content">
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="paneTab5" aria-labelledby="paneTab5-tab">
+                    <div id="paneTab5-content">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- <div class="text-center"> -->
+            <!-- <a href="javascript:void(0)" onclick="javascript:history.go(-1);return false;">【返回】</a> -->
+        <!-- </div> -->
+    </div>
+    <!--<script src="../../../static/vendor/jquery/jquery.js"></script>-->
+    <!--<script src="/static/vendor/bootcss/js/bootstrap.min.js"></script>-->
+    <!--<script src="../../../static/vendor/artTemplate/template-web.js"></script>-->
+    <!--<script src="/static/vendor/layui/layer/layer.js"></script>-->
+    <!--<script src="/static/htmljs/global.config.js"></script>-->
+    <!--<script src="/static/htmljs/utils.js"></script>-->
+    <!--<script src="/static/vendor/layui/layui.js"></script>-->
+    <script src="../../../tmpl/js/panelTableShow.js"></script>
+    <script src="/static/htmljs/interaction.js"></script>
+    <!-- 变量渲染模板 -->
+    <script type="text/html" id="_addTime"> {{# return dateFormate1(d.addTime)}} </script>
+    <script type="text/html" id="_state"> {{# return getGlobalEnumVal(d.state, "taskState")}} </script>
+    <!-- toolbar渲染模板 -->
+    <script type="text/html" id="toolbar1">
+        <div class="layui-toolbar">
+            <a href="javascript:;" class="btn handleeeShowDetail btn-default" data-name="LOAN" data-id="20019740660711799">查看</a>
+        </div>
+    </script>
+    <script type="text/html" id="toolbar2">
+        <div class="layui-toolbar">
+            <a href="javascript:;" class="btn handleeeShowDetail btn-default" data-name="LOAN" data-id="20019740660711799">查看</a>
+        </div>
+    </script>
+    <script type="text/html" id="toolbar3">
+        <div class="layui-toolbar">
+            <a href="javascript:;" class="btn handleeeShowDetail btn-default" data-name="LOAN" data-id="20019740660711799">查看</a>
+        </div>
+    </script>
+    <!-- toolbar渲染模板 -->
+    <script type="text/html" id="toolbar4">
+        <div class="layui-toolbar">
+            <a href="javascript:;" class="btn handleNodeShow btn-default" data-nodeid="{{d.id}}">查看</a>
+        </div>
+    </script>
+    <script>
+        var loanid = getParam('loanid');
+        var LOAN_ACCOUNT;
+        var loan;
+        getRemoteData({
+            url: remoteApi.apiOdsSearchACC_LOAN+"?LOAN_ACCOUNT="+loanid,
+            callback: function(origin){
+                loan = origin.list[0] || {};
+                LOAN_ACCOUNT = loan['LOAN_ACCOUNT'];
+//                transformOdsEnumData(loan,['PRD_TYPE']);
+                // 翻译数据中的ods字典数据
+                //translateOdsInData(loan);
+                $("#baseInfo").html(panelTableShowRender2({
+                    attrs:[
+                        { label:'客户代码', prop:'CUS_ID' }, { label:'户名', prop:'CUS_NAME', handle:true }, { label:'贷款账号', prop:'LOAN_ACCOUNT' }, { label:'关联客户代码', prop:'CUS_ID_REL' }, { label:'借据金额', prop:'LOAN_AMOUNT' }, { label:'借据余额', prop:'LOAN_BALANCE' }, { label:'累计欠息', prop:'DELAY_INT_CUMU' }, { label:'使用农户贷款证标志', prop:'LOAN_CARD_IND' }, { label:'贷款减值', prop:'LOAN_DEVALUE' }, { label:'利率类型', prop:'INT_RATE_TYPE' }, { label:'利率浮动值', prop:'FLOATING_RATE' }, { label:'利率浮动比', prop:'INT_RATE_INC' }, { label:'年利率', prop:'REALITY_IR_Y' }, { label:'借款日', prop:'LOAN_START_DATE' }, { label:'到期日', prop:'LOAN_END_DATE' }, { label:'贷款期限(月)', prop:'LOAN_TERM' }, { label:'期限类型', prop:'TERM_TYPE' }, { label:'产品类别', prop:'PRD_TYPE' }, { label:'05新帐标志', prop:'ACCT_FLG_05' }, { label:'03新帐标志', prop:'ACCT_FLG_03' }, { label:'科目', prop:'GL_CLASS' }, { label:'担保方式', prop:'GUAR_WAY' }, { label:'主担保方式', prop:'ASSURE_MEANS_MAIN' }, { label:'行业投向', prop:'LOAN_DIRECTION' }, { label:'信贷产品号', prop:'BIZ_TYPE' }, { label:'产品细分', prop:'BIZ_TYPE_SUB' }, { label:'产品细分类名', prop:'BIZ_TYPE_DETAIL' }, { label:'主产品号', prop:'MAIN_PROD_CD' }, { label:'子产品号', prop:'SUB_PROD_CD' }, { label:'五级分类', prop:'CLA' }, { label:'四级分类', prop:'LOAN_CLA4' }, { label:'客户类型', prop:'CUST_TYPE' }, { label:'企业规模', prop:'COM_SCALE' }, { label:'控股类型', prop:'COM_HOLD_TYPE' }, { label:'是否农户标志', prop:'AGRI_FLG' }, { label:'涉农情况', prop:'AGRICULTURE_TYPE' }, { label:'涉农用途', prop:'AGRICULTURE_USE' }, { label:'涉政类型', prop:'GOVERNMENT_IND' }, { label:'涉政属性', prop:'GOVERNMENT_ORG_ATTRIBUTE' }, { label:'注册登记类型', prop:'REG_TYPE' }, { label:'投资主体', prop:'INVEST_TYPE' }, { label:'贷款账户状态', prop:'ACCOUNT_STATUS' }, { label:'贷款分类', prop:'LN_TYPE' }, { label:'贷款类型', prop:'LOAN_FORM' }, { label:'借据号', prop:'BILL_NO' }, { label:'合同号', prop:'CONT_NO' }, { label:'其中属于公共企业', prop:'COM_ENTERPRISE' }, { label:'龙头企业', prop:'COM_HD_ENTERPRISE' }, { label:'城乡类型', prop:'COM_CITY_FLG' }, { label:'银团类型', prop:'SYNDICATED_TYPE' }, { label:'委托贷款标志', prop:'ENTRUST_IND' }, { label:'公积金贷款标志', prop:'ISPAF' }, { label:'隶属关系', prop:'COM_SUB_TYP' }, { label:'是否异地企业', prop:'COM_LCL_FLG' }, { label:'上市公司标志', prop:'COM_MRK_FLG' }, { label:'客户与我行关系', prop:'CUST_BANK_REL' }, { label:'注册登记地址', prop:'REG_ADDR' }, { label:'注册资本（万元）', prop:'REG_CAP_AMT' }, { label:'优势企业', prop:'COM_PREP_FLG' }, { label:'资产规模（万元）', prop:'TOTAL_ASSETS' }, { label:'合同类型', prop:'CONT_TYPE' }, { label:'联保标志', prop:'GUARANTORA_GRP_IND' }, { label:'客户证件类型', prop:'CERT_TYPE' }, { label:'个人证件号码', prop:'PSN_CERT_CODE' }, { label:'对公开户证件号码', prop:'ENT_CERT_CODE' }, { label:'企业机构代码', prop:'COM_INS_CODE' }, { label:'是否下岗人员标志', prop:'LAY_OFF_FLAG' }, { label:'本息逾期日', prop:'CAPINT_OVERDUE_DATE' }, { label:'用途', prop:'USE_DEC' }, { label:'担保合同', prop:'GUAR_CONT_NO' }, { label:'还款方式', prop:'REPAYMENT_MODE' }, { label:'首次放款日', prop:'FIRST_DISB_DATE' }, { label:'“三法一引”分类', prop:'BIZ_TYPE_FLG' }, { label:'贷款性质', prop:'LOAN_NATURE' }, { label:'自营贷款标志', prop:'SYNDICATED_IND' }, { label:'机构名称', prop:'FINA_BR_ID' }, { label:'客户经理', prop:'CUS_MANAGER' }, { label:'上级机构', prop:'MAIN_BR_ID' }, { label:'企业行业分类', prop:'COM_CLL_TYPE' }, { label:'政府融资平台标志', prop:'GOVERNMENT_PLATFORM' }, { label:'国别', prop:'COM_COUNTRY' }, { label:'珠三角标志', prop:'AREA_IND' }, { label:'区域标识', prop:'NNNNNNNNN' }, { label:'法人联社机构号', prop:'INST_NO' }, { label:'币种', prop:'AREA_CODE' }, { label:'贷款基准利率', prop:'CURRENCY' }, { label:'源数据业务日期', prop:'RULING_IR' }, { label:'合同金额', prop:'CONT_AMT' }, { label:'贷款展期次数', prop:'EXTENSION_TIMES' }, { label:'置换类型', prop:'REPLA_TYPE' }, { label:'贷款剩余期限', prop:'REM_REPAYS' }, { label:'集团客户编号', prop:'GRP_NO' }, { label:'集团名称', prop:'GRP_NAME' }, { label:'核销日期', prop:'GENT_DATE' }, { label:'拖欠本金', prop:'UNPD_PRIN_BAL' }, { label:'合同到期日', prop:'CONT_END_DATE' }, { label:'集团客户证件号码', prop:'PARENT_ORG_CODE' }, { label:'原到期日', prop:'ORIG_EXPI_DATE' }, { label:'结清日期', prop:'SETTL_DATE' }, { label:'本金逾期起始日期', prop:'CAP_OVERDUE_DATE' }, { label:'利息逾期起始日期', prop:'INTEREST_OVERDUE_DATE' }, { label:'林权贷款标志', prop:'LQ_TYPE' }, { label:'融资担保贷款标志', prop:'RZDB_TYPE' }, { label:'应收账款质押贷款标志', prop:'YSZY_TYPE' }, { label:'银社团参与行标志', prop:'YTCY_TYPE' }, { label:'三农专营', prop:'SN_TYPE' }, { label:'小企业专营', prop:'XQY_TYPE' }, { label:'首套房标志', prop:'STF_TYPE' }, { label:'从业人数', prop:'COM_EMPLOYEE' }, { label:'销售总额（万元）', prop:'TOTAL_SALES' }, { label:'行政区域号', prop:'REG_STATE_CODE' }, { label:'受托支付方式', prop:'PAY_WAY' }, { label:'担保方式2', prop:'NNNNNNNNN' }, { label:'担保方式3', prop:'NNNNNNNNN' }, { label:'七级分类', prop:'SEVEN_RESULT' }, { label:'上年末五级分类状态', prop:'UP_CLA' }, { label:'本年累收息', prop:'ACTUAL_INT_CUMU' }, { label:'本年累收本', prop:'NOR_REC_ACCU' }, { label:'借款人地址', prop:'ARER_ADDR' }, { label:'贷款个人居住地址', prop:'INDIV_RSD_ADDR' }, { label:'工作单位', prop:'INDIV_COM_NAME' }, { label:'单位性质', prop:'INDIV_COM_TYP' }, { label:'单位所属行业', prop:'INDIV_COM_FLD' }, { label:'历年累计收本', prop:'SUM_REPAY_AMT' }, { label:'授信协议编号', prop:'LIMIT_IND' }, { label:'授信额度使用标识', prop:'LMT_CONT_NO' }, { label:'特色产品编码', prop:'MAIN_PRO_TYPE' }, { label:'投向背景主体标识', prop:'MAIN_FLAG' }, { label:'注册号/社会代码', prop:'REGISTER_NO' }, { label:'工商户名称/企业名称', prop:'REGISTER_NAME' }, { label:'抵质押物类型', prop:'NNNNNNNNN' }, { label:'小微企业贷款续贷标识', prop:'NNNNNNNNN' }, { label:'建筑面积（平方米）', prop:'NNNNNNNNN' }, { label:'首付款金额', prop:'NNNNNNNNN' }, { label:'房屋总价', prop:'NNNNNNNNN' }, { label:'公积金转商业贴息贷款', prop:'NNNNNNNNN' }, { label:'综合人民币', prop:'NNNNNNNNN' }, { label:'综合美元', prop:'NNNNNNNNN' }
+                    ],
+                    data: loan
+                }));
+            }
+        });
+
+        function getTaskList(taskType){
+            $('#myTabs a[href="#'+taskType+'"]').tab('show');
+            if(taskType == 'paneTab1'){
+                if($("#paneTab1-content table").length){
+                    layuiTableReload({
+                        id: "paneTab1-content"
+                    })
+                    return;
+                }
+                // 担保合同列表查询
+                laytableRender({
+                    cellMinWidth: 110,
+                    url: remoteApi.apiOdsSearchGrtGuar + "?LOAN_ACCOUNT=" + loanid,
+                    id: "paneTab1",
+                    elem: "#paneTab1-content",
+                    cols: [
+                        [
+                            { title:'贷款帐号', field:'LOAN_ACCOUNT' },
+                            { title:'担保合同编号', field:'GUAR_CONT_NO' },
+                            { title:'担保合同类型', field:'GUAR_CONT_TYPE' },
+                            { title:'担保方式', field:'GUAR_WAY' },
+                            { title:'借款人客户号', field:'BORROWER_NO' },
+                            { title:'借款人名称', field:'BORROWER_NAME' },
+                            { title:'担保人客户码', field:'GUAR_NO' },
+                            { title:'担保人名称', field:'GUAR_NAME' },
+                            { title:'证件编号', field:'CER_NO' },
+                            { title:'证件类型', field:'CER_TYPE' },
+                            { title:'币种', field:'CUR_TYPE' },
+                            { title:'担保金额', field:'GUAR_AMT' },
+                            { title:'占用金额', field:'USED_AMT' },
+                            { title:'担保期限(月)', field:'GUAR_TERM' },
+                            { title:'担保起始日', field:'GUAR_START_DATE' },
+                            { title:'担保到期日', field:'GUAR_END_DATE' },
+                            { title:'担保合同状态', field:'GUAR_CONT_STATE' },
+                            { title:'客户经理', field:'CUSTOMER_MGR' },
+                            { title:'主管机构', field:'MAIN_BR_ID' }
+//                            ,{ title: "操作", templet: "#toolbar1" }
+                        ]
+                    ]
+                })
+                return true;
+            }else if(taskType == 'paneTab2'){
+                if($("#paneTab2-content table").length){
+                    layuiTableReload({
+                        id: "paneTab2-content"
+                    })
+                    return;
+                }
+                // 贷款合同
+                laytableRender({
+                    url: remoteApi.apiOdsSearchCrtLoan + "?CONT_NO=" + loan["CONT_NO"],
+                    id: "paneTab2",
+                    elem: "#paneTab2-content",
+                    cols: [
+                        [
+                            { title:'合同编号', field:'CONT_NO'},
+                            { title:'客户号', field:'CUS_ID' },
+                            { title:'客户名称', field:'CUS_NAME' },
+                            { title:'产品名称', field:'PRD_NAME' },
+                            { title:'合同金额', field:'CONT_AMT' },
+                            { title:'合同状态', field:'CONT_STATE' },
+                            { title:'起始日期', field:'LOAN_START_DATE' },
+                            { title:'终止日期', field:'LOAN_END_DATE' },
+                            { title:'客户经理', field:'CUST_MGR' },
+                            { title:'主管机构', field:'MAIN_BR_ID' }
+//                            ,{ title: "操作", templet: "#toolbar2" }
+                        ]
+                    ]
+                })
+            }else if(taskType == 'paneTab3'){
+                if($("#paneTab3-content table").length){
+                    layuiTableReload({
+                        id: "paneTab3-content"
+                    })
+                    return;
+                }
+                // 抵押，质押物列表
+                laytableRender({
+                    url: remoteApi.apiOdsSearchGRTGBasicInfo + "?LOAN_ACCOUNT=" + loanid,
+                    id: "paneTab3",
+                    elem: "#paneTab3-content",
+                    cols: [
+                        [
+                            { title:'担保_ID', field:'GUARANTY_ID' },
+                            { title:'担保人客户号', field:'GUAR_NO' },
+                            { title:'担保人名称', field:'GUAR_NAME' },
+                            { title:'担保人证件类型', field:'CER_TYPE' },
+                            { title:'担保人证件号码', field:'CER_NO' },
+                            { title:'抵押物名称', field:'GAGE_NAME' },
+                            { title:'权属证件类型', field:'RIGHT_CERT_TYPE_CODE' },
+                            { title:'权属证件号', field:'RIGHT_CERT_NO' },
+                            { title:'币种', field:'CURRENCY' },
+                            { title:'核心入库价值', field:'CORE_VALUE' },
+                            { title:'出入库状态', field:'DEPOT_STATUS' }
+//                            ,{ title: "操作", templet: "#toolbar3" }
+                        ]
+                    ]
+                })
+            }else if(taskType == 'paneTab4'){
+                if($("#paneTab4-content table").length){
+                    layuiTableReload({
+                        id: "paneTab4-content"
+                    })
+                    return;
+                }
+                // 资料绑定
+                laytableRender({
+                    id: "paneTab4",
+                    elem: "#paneTab4-content",
+                    url: remoteOrigin + "/api/auto/wfins/getList?infolink=1&LOAN_ACCOUNT=" + loanid,
+                    // url: remoteApi.apigetMyInfoCollect+"?LOAN_ACCOUNT="+loanid,
+                    cols: [
+                        [
+                            // { checkbox:true },
+                            { field:'id', title:'调查编号'},
+                            { field:'title', title:'任务名'},
+                            { title:'任务状态', field: "state"},
+                            { title:'添加时间', field: "addTime"},
+                            { title:'操作', templet: "#toolbar4"}
+                        ]
+                    ]
+                });
+            }else if(taskType == 'paneTab5'){
+                // 还款记录
+                if($("#paneTab5-content table").length){
+                    layuiTableReload({
+                        id: "paneTab5-content"
+                    })
+                    return;
+                }
+                laytableRender({
+                    id: "paneTab5",
+                    elem: "#paneTab5-content",
+                    url: "/api/search/accloan/230?LOAN_ACCOUNT=" +loanid.substr(0,16),
+                    cols: [
+                        [
+                            // { checkbox:true },
+                            { title:'贷款账号', field:'ACCT_NO' },
+                            { title:'记录号', field:'REC_NO' },
+                            { title:'交易日期', field:'TRN_DATE' },
+                            { title:'柜员', field:'TELL_NO' },
+                            { title:'行号', field:'TRCH_NO' },
+                            { title:'流水号', field:'JRNL_NO' },
+                            { title:'总利息', field:'TOT_INT' },
+                            { title:'本金', field:'PRIN_AMT' },
+                            { title:'利息', field:'INT_AMT' },
+                            { title:'本金罚息', field:'PIA_AMT' },
+                            { title:'利息罚息', field:'IIA_AMT' },
+                            { title:'复利', field:'AFTER_INT_AMT' },
+//                            { title:'待定', templet: "#toolbar4"}
+                        ]
+                    ]
+                });
+            }
+        }
+
+        eventBind("#handleCUS_NAME", function(){
+            // TODO:: 严格识别规则
+            var clientType = loan['$CT'] == '对私' ? "indiv" : "com"; // 对公
+            showClientInfo(loan['CUS_ID'], loan['CUS_NAME'], clientType);
+        })
+    </script>
+</body>
+</html>

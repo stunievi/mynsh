@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>不良资产管理 - 资产抵债管理 - 查看流程状态</title>
+    <script src="../../../static/vendor/jquery/jquery.js"></script>
+    
+    
+    
+    <script src="../../../static/vendor/artTemplate/template-web.js"></script>
+    <link href="../../../static/vendor/bootcss/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../../static/htmlcss/ystep/ystep.css">
+</head>
+<body>
+    <div id="content">
+        <div class="panel panel-default">
+            <div class="panel-heading">流程状态</div>
+            <div class="panel-body">
+                <div class="step_tablelist">
+                        
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="step_icon">
+
+                </div>
+            </div>
+        </div>
+        <div class="text-center">
+           <a href="javascript:void(0)" onclick="javascript:history.go(-1);return false;">【返回】</a>
+        </div>
+    </div>
+    <script src="/static/htmljs/ystep.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="../../../tmpl/js/tableList.js"></script>
+    <script>
+        var tableListRender  = template.compile(TTableList);
+        SuperPost({
+            // url: remoteApi. + ''.
+            url: '',
+            type: 'get',
+            error:function(){
+
+            },
+            error:function(res){
+               $(document).ready(function(){
+                $(".step_icon").loadStep({
+                    size: "large",
+                    color: "blue",
+                    steps: [{
+                        step_title:'步骤1',
+                        title: "发起指派",
+                        content: "处理时间:2017-07-19 15:43:23"
+                    },{
+                        step_title:'步骤2',
+                        title: "接收指派",
+                        content: "处理时间:2017-07-19 15:43:23"
+                    },{
+                        step_title:'步骤3',
+                        title: "贷前检查填写",
+                        content: "处理中"
+                    },{
+                        step_title:'步骤4',
+                        title: "审查",
+                        content: "未处理"
+                    },{
+                        step_title:'步骤5',
+                        title: "结束",
+                        content: "未处理"
+                    }]
+                });
+                $(".step_icon").setStep(3);
+               })
+               $(".step_tablelist").html(tableListRender({
+                    headCols:[
+                        {prop:'1', label:'步骤名称'},
+                        {prop:' 2 ', label:'处理用户'},
+                        {prop:' 3 ', label:'开始时间'},
+                        {prop:' 4 ', label:'结束时间'},
+                        {prop:' 5 ', label:'任务状态'}
+                    ],
+                    bodyCols: [
+                        {1:1}
+                    ]
+                }));
+            }
+        })
+    
+    </script>
+</body>
+</html>

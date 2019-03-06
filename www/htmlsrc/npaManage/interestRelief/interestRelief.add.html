@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 不良资产管理 - 利息减免管理 - 添加 </title>
+    <script src="../../../static/vendor/jquery/jquery.js"></script>
+    
+    
+    
+    <script src="../../../static/vendor/artTemplate/template-web.js"></script>
+    <link  href="../../../static/vendor/bootcss/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="content"> 
+        <div id="addForm">
+
+        </div>
+        <div class="text-center">
+            <a href="javascript:void(0)" onclick="javascript:history.go(-1);return false;">【返回】</a>
+        </div>
+    </div>
+    <link rel="stylesheet" href="../../../static/vendor/jqui/jquery-ui.css">
+    <script src="../../../static/vendor/jqui/jquery-ui.min.js"></script>
+    <script src="../../../static/vendor/jqui/jquery-ui-timepicker-addon.js"></script>
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="../../../static/htmljs/global.config.js"></script>
+    <script src="../../../static/htmljs/utils.js"></script>
+    <script src="../../../tmpl/js/panelForm.js"></script>
+    <script>
+        
+        var panelFormRender = template.compile(TPanelForm);
+        $("#addForm").html(panelFormRender({
+            formName: 'add-form',
+            panelTitle:'添加催收记录',
+            list:[
+                { prop: '', label: '合同编号', required:true },
+                { prop: '', label: '客户号', required:true },
+                { prop: '', label: '客户名称' },
+                { prop: '', label: '客户经理', required:true },
+                { prop: '', label: '客户类别', type: 'select', vals: selectData.clientType },
+                { prop: 'f5', label: '任务执行人', inputGroup:'选择任务执行人'},
+                { prop: '', label: '执行部门' },
+                { prop: '', label: '催收方式', type: 'select', vals: selectData.urgeMethod },
+                { prop: '', label: '借据编号' },
+                { prop: '', label: '催收单据' },
+                { prop: '', label: '描述', type: 'textarea' }
+            ],
+            data: {
+                f5: '客户经理'
+            }
+        }));
+        
+        $(function() {
+            $('#f3').datetimepicker({ dateFormat: 'yy-mm-dd' });
+        });
+
+        var choice_users_option = {
+            key: 'f5',
+            num: 'one'
+        };
+        $(document).on("click", "#groupBtn-f5", function(){
+            layer.open({
+                type: 2,
+                title:'选择客户经理',
+                area: ['700px', '450px'],
+                fixed: false, //不固定
+                maxmin: true,
+                content: '../../htmllayer/choiceUser.html'
+            });
+        });
+
+        function checkSubmitForm(){
+            var form = $("form[name='add-form']");
+            form.validate({
+                rules: {
+                    'f5': "required",
+                },
+                submitHandler: function() {
+                    SuperPost({
+                        type:'post',
+                        url: '',
+                        data: {
+                            time:dateToTimestamp($("#f3").val())
+                        },
+                        success:function(res){
+                            if(res.success){
+
+                            }else{
+                                console.log(res);
+                            }
+                        },
+                        error:function(err){
+
+                        }
+                    })
+                }
+            })
+            return false;
+        }
+        checkSubmitForm();
+    </script>
+</body>
+</html>

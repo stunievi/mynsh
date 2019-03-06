@@ -1,0 +1,153 @@
+{
+  "工作台": {
+    "我的工作台": {
+      "href": "/htmlsrc/bench/myBench.html",
+      "待处理任务": {
+        "api": [
+          "/api/workflow/myPubWorks"
+        ],
+        "id": "#taskType1-tab"
+      },
+      "已处理任务": {
+        "api": [
+          "/api/workflow/myOwnWorks"
+        ]
+      },
+      "部门待处理任务": {},
+      "部门已处理任务": {},
+      "我观察的任务": {},
+      "公共任务": {},
+      "消息通知列表": {},
+      "个人任务统计图表": {}
+    },
+    "IM消息": {
+      "href": "/htmlsrc/bench/notice/imNotice.list.html"
+    },
+    "个人设置": {
+      "href": "/htmlsrc/bench/personalSetting.html"
+    }
+  },
+  "信贷数据管理": {
+    "台账": {
+      "贷款台账": {
+        "台账列表": {
+          "href": "/htmlsrc/creditDataManage/ledger/loan.html"
+        }
+      }
+    },
+    "数据维护": {
+      "数据导入管理": {
+        "href": "/htmlsrc/creditDataManage/dataImportManage/dataImport.list.html"
+      },
+      "ODS数据同步": {
+        "href": "javascript:;"
+      }
+    },
+    "数据报表": {
+      "授信管理部": {
+        "href": "/htmlsrc/creditDataManage/reports/reports.list.html?dept=credit"
+      },
+      "风险资产管理部": {
+        "href": "/htmlsrc/creditDataManage/reports/reports.list.html?dept=risk"
+      }
+    }
+  },
+  "资料查询": {
+    "客户资料": {
+      "href": "/htmlsrc/dataQuery/clientList/clientList.html"
+    },
+    "贷款资料": {
+      "贷款台账": {
+        "href": "/htmlsrc/creditDataManage/ledger/loan.html?pageType=list"
+      },
+      "贷款资料": {
+        "href": "/htmlsrc/creditDataManage/ledger/loanData.html?pageType=list"
+      }
+    }
+  },
+  "资料收集": {
+    "资料收集": {
+      "href": "/htmlsrc/preLendingCollect/collect.html"
+    },
+    "贷款资料绑定": {
+      "href": "/htmlsrc/preLendingCollect/binding.html"
+    }
+  },
+  "任务管理": {
+    "任务接受": {
+      "href": "/htmlsrc/taskManage/taskAccept.html"
+    },
+    "预任务列表": {
+      "href": "/htmlsrc/taskManage/preTask.html"
+    },
+    "任务列表": {
+      "href": "/htmlsrc/taskManage/taskList.html"
+    }
+  },
+  "文件管理": {
+    "文件分享": {
+      "我的分享": {
+        "href": "/htmlsrc/document/share/myShare.html"
+      },
+      "共享给我的": {
+        "href": "/htmlsrc/document/share/receiveShare.html"
+      }
+    },
+    "私有云-个人文件柜": {
+      "href": "/htmlsrc/document/private/cloud.fileList.html"
+    },
+    "私有云 -个人文件柜回收站": {
+      "href": "/htmlsrc/document/myFileTrashListSync.html"
+    },
+    "私有云-资料库": {
+      "href": "/htmlsrc/document/public/commCloud.fileList.html"
+    },
+    "私有云 -资料库回收站": {
+      "href": "/htmlsrc/document/archiveFileRecycle.html"
+    },
+    "私有云 - 文件检索": {
+      "href": "/htmlsrc/document/cloudSearch.html"
+    },
+    "个人文件柜": {
+      "href": "/htmlsrc/document/private/private.fileList.html"
+    },
+    "共享文件柜": {
+      "href": "/htmlsrc/document/public/public.fileList.html"
+    }
+  },
+  "系统管理": {
+    "基础设置": {
+      "基础设置": {
+        "href": "/htmlsrc/sysManage/baseSet/base.html"
+      },
+      "系统信息": {
+        "href": "/htmlsrc/sysManage/baseSet/sysInfo.html"
+      }
+    },
+    "流程相关": {
+      "标准流程模板": {
+        "href": "/htmlsrc/sysManage/flowRelated/templet/templet.list.html"
+      },
+      "工作流程列表": {
+        "href": "/htmlsrc/sysManage/flowRelated/workFlow.list.html"
+      }
+    },
+    "组织架构": {
+      "用户列表": {
+        "href": "/htmlsrc/sysManage/userManage/user.list.html"
+      },
+      "部门管理": {
+        "href": "/htmlsrc/sysManage/deptManage/department.html"
+      },
+      "部门人员": {
+        "href": "/htmlsrc/sysManage/userManage/user.dept.html"
+      }
+    },
+    "岗位管理": {
+      "href": "/htmlsrc/sysManage/quartersManage/quarters.html"
+    },
+    "日志管理": {
+      "href": "/htmlsrc/sysManage/logManage/log.list.html"
+    }
+  }
+}
