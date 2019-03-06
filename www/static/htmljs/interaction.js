@@ -41,14 +41,6 @@ function cancelNodeCallback() {
     layer.msg("删除成功!")
     return true;
 }
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-
->>>>>>> 1571af57a5ce375c6796e98c13aeab62032c9c4c
-=======
-
->>>>>>> 1571af57a5ce375c6796e98c13aeab62032c9c4c
 // 处理工作流
 eventBind(".handleNodeDeal", function(that){
     var nodeid = that.data("nodeid"); // 节点id

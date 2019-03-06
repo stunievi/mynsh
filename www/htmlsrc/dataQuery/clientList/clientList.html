@@ -37,24 +37,12 @@
     </script>
     <script type="text/html" id="_CERT_TYPE"> {{# return getOdsEnumVal(d, 'CERT_TYPE');}} </script>
     <script>
-<<<<<<< HEAD
-<<<<<<< HEAD
         var name = decodeURI(getParam("name")) || '';
         var data = {
             CUS_NAME: name
         }
         // 渲染筛选form
         $("#panel-form").html(panelFormRender3({
-=======
-        // 渲染筛选form
-        $("#panel-form").html(panelFormRender3({
-            col:3,
->>>>>>> 1571af57a5ce375c6796e98c13aeab62032c9c4c
-=======
-        // 渲染筛选form
-        $("#panel-form").html(panelFormRender3({
-            col:3,
->>>>>>> 1571af57a5ce375c6796e98c13aeab62032c9c4c
             panelTitle:'筛选查询',
             list:[
                 { label:'客户号', prop:'CUS_ID' },
@@ -66,19 +54,7 @@
                 { label:'拖欠本金', prop:'UNPD_PRIN_BAL' }
                 , { label:'负责客户', prop:'own', type:"checkbox", checked: true, value:1, checked:true}
             ],
-<<<<<<< HEAD
-<<<<<<< HEAD
             data: data
-=======
-            data: {
-                // 'own': 1
-            }
->>>>>>> 1571af57a5ce375c6796e98c13aeab62032c9c4c
-=======
-            data: {
-                // 'own': 1
-            }
->>>>>>> 1571af57a5ce375c6796e98c13aeab62032c9c4c
         }));
 
         // 渲染客户列表
@@ -87,18 +63,8 @@
             url: remoteApi.apiOdsSearchAllClient,
             cols: [
                 [
-<<<<<<< HEAD
-<<<<<<< HEAD
                     { title:'操作', templet: "#toolbar", fixed: 'right'},
                     { title:'客户号', field:'CUS_ID'},
-=======
-                    { title:'操作', templet: "#toolbar", fixed: 'right'}
-                    , { title:'客户号', field:'CUS_ID'},
->>>>>>> 1571af57a5ce375c6796e98c13aeab62032c9c4c
-=======
-                    { title:'操作', templet: "#toolbar", fixed: 'right'}
-                    , { title:'客户号', field:'CUS_ID'},
->>>>>>> 1571af57a5ce375c6796e98c13aeab62032c9c4c
                     { title:'客户名称', field:'CUS_NAME' },
                     { title:'开户证件类型', field:'CERT_TYPE'},
                     { title:'开户证件号码', field:'CERT_CODE' },

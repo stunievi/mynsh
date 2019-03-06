@@ -57,8 +57,6 @@ where 1 = 1
 查询部门列表
 ===
 select 
-<<<<<<< HEAD
-<<<<<<< HEAD
 id,name,info,parent_id,acc_code
 -- case when type = 'DEPARTMENT' then '部门' else '岗位' end as type
 from t_org where type = 'DEPARTMENT'
@@ -78,25 +76,6 @@ from t_org where type in ('DEPARTMENT','QUARTERS')
 @if(isNotEmpty(accCode)){
     and acc_code = #accCode#
 @}
-=======
-=======
->>>>>>> 1571af57a5ce375c6796e98c13aeab62032c9c4c
-id,name,info,parent_id
--- case when type = 'DEPARTMENT' then '部门' else '岗位' end as type
-from t_org where type = 'DEPARTMENT'
-order by sort asc
-
-
-查询部门和岗位列表
-===
-select 
-id,name,info,parent_id,type
--- case when type = 'DEPARTMENT' then '部门' else '岗位' end as type
-from t_org where type in ('DEPARTMENT','QUARTERS')
-<<<<<<< HEAD
->>>>>>> 1571af57a5ce375c6796e98c13aeab62032c9c4c
-=======
->>>>>>> 1571af57a5ce375c6796e98c13aeab62032c9c4c
 order by sort asc
 
 查询组织机构

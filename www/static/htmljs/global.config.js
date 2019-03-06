@@ -289,16 +289,8 @@ var hrefUrl = {
     indivClientInfo: "/htmlsrc/dataQuery/private/private.show.html?id=",
 	comClientInfo: "/htmlsrc/dataQuery/company/company.show.html?id=",
 	loanInfo: "/htmlsrc/creditDataManage/ledger/loan.show.html?loanid=",
-<<<<<<< HEAD
-<<<<<<< HEAD
     loanDataInfo: "/htmlsrc/creditDataManage/ledger/loanData.show.html?loanid=",
 	ECIdetail: "/htmlsrc/qichacha/ECI/detailsByName.html?id="
-=======
-    loanDataInfo: "/htmlsrc/creditDataManage/ledger/loanData.show.html?loanid="
->>>>>>> 1571af57a5ce375c6796e98c13aeab62032c9c4c
-=======
-    loanDataInfo: "/htmlsrc/creditDataManage/ledger/loanData.show.html?loanid="
->>>>>>> 1571af57a5ce375c6796e98c13aeab62032c9c4c
 };
 
 var globalData = {
@@ -394,8 +386,6 @@ var odsEnmuData = {"MORTGAGE_FLG":{"0":"否","1":"是"},"GUARANTY_TYPE":{"10001"
             // , jsonp: "callback"
             , data: data
             , success: function(res){
-<<<<<<< HEAD
-<<<<<<< HEAD
             	if(res.success || res.Status=="200"){
 					callback && callback(res.data)
 				}else{
@@ -408,23 +398,6 @@ var odsEnmuData = {"MORTGAGE_FLG":{"0":"否","1":"是"},"GUARANTY_TYPE":{"10001"
 					return;
 				}
 
-=======
-=======
->>>>>>> 1571af57a5ce375c6796e98c13aeab62032c9c4c
-            	if(!res.success){
-                    if(res.errMessage == '请检查是否登录'){
-                        loginOut();
-                    }
-                    else if(res.errMessage != ""){
-                        layer.msg(res.errMessage, {icon: 5})
-					}
-					return;
-				}
-				callback && callback(res.data)
-<<<<<<< HEAD
->>>>>>> 1571af57a5ce375c6796e98c13aeab62032c9c4c
-=======
->>>>>>> 1571af57a5ce375c6796e98c13aeab62032c9c4c
 			}
             , error: error
         });
