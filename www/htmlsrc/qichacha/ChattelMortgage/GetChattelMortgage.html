@@ -30,7 +30,7 @@
 
     function checkSubmitForm() {
         SuperPost({
-            url: "http://localhost:8015/test/qichacha/ChattelMortgage/GetChattelMortgage",
+            url: remoteApi.qccGetChattelMortgage,
             success:function(res){
                 if("200" == res.Status){
                     $("#dataList").html(panelFormRender4({

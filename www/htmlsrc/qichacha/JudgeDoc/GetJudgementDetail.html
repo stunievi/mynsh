@@ -32,7 +32,7 @@
 <script src="../../../tmpl/js/panelTableShow.js"></script>
 <script>
     SuperPost({
-        url: "http://localhost:8015/test/qichacha/JudgeDoc/GetJudgementDetail",
+        url: remoteApi.qccJudgeDocGetJudgementDetail,
         success: function(origin){
             if(origin.Status == "200"){
                 var data = origin.Result || {};

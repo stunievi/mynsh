@@ -69,6 +69,33 @@ if(matched){
 
 // 远程api
 var remoteApi = {
+	// 企查查
+	qccECISearchFresh: "/qcc/ECI/SearchFresh", // 获取新增公司信息
+	qccECIGetDetails: "/qcc/ECI/GetDetails", // 获取公司详细信息
+	qccECISearch: "/qcc/ECI/Search", // 企业关键字模糊搜索
+	qccECIRelationGetCompanyEquityShareMap: "/qcc/ECIRelation/GetCompanyEquityShareMap", // 股权结构图
+	qccECIRelationGenerateMultiDimensionalTreeCompanyMap: "/qcc/ECIRelation/GenerateMultiDimensionalTreeCompanyMap", // 企业图谱
+	qccGetChattelMortgage: "/qcc/ChattelMortgage/GetChattelMortgage", // 获取动产抵押信息
+	qccECIExceptionGetOpException: "/qcc/ECIException/GetOpException", // 查询企业经营异常信息
+	qccCourtAnnoSearchCourtNotice: "/qcc/CourtAnno/SearchCourtNotice", // 开庭公告查询
+	qccCourtAnnoGetCourtNoticeInfo: "/qcc/CourtAnno/GetCourtNoticeInfo", // 开庭公告详情查询
+	qccJudgeDocSearchJudgmentDoc: "/qcc/JudgeDoc/SearchJudgmentDoc", // 裁判文书查询
+	qccJudgeDocGetJudgementDetail: "/qcc/JudgeDoc/GetJudgementDetail", // 裁判文书详情查询
+	qccCourtNoticeSearchCourtAnnouncement: "/qcc/CourtNotice/SearchCourtAnnouncement", // 法院公告列表信息
+	qccCourtNoticeSearchCourtAnnouncementDetail: "/qcc/CourtNotice/SearchCourtAnnouncementDetail", // 法院公告详情
+	qccCourtSearchShiXin: "/qcc/Court/SearchShiXin", // 查询失信列表
+	qccCourtGetShiXinDetail: "/qcc/Court/SearchShiXin", // 获取失信详情
+	qccGetZhiXingDetail: "/qcc/Court/GetZhiXingDetail", // 获取执行详情
+	qccCourtSearchZhiXing: "/qcc/Court/SearchZhiXing", // 查询执行列表
+	qccJudicialSaleGetJudicialSaleList: "/qcc/JudicialSale/GetJudicialSaleList", // 司法拍卖列表
+	qccJudicialSaleGetJudicialSaleDetail: "/qcc/JudicialSale/GetJudicialSaleDetail", // 司法拍卖详情
+	qccLandMortgageGetLandMortgageList: "/qcc/LandMortgage/GetLandMortgageList", // 获取土地抵押列表
+	qccLandMortgageGetLandMortgageDetails: "/qcc/LandMortgage/GetLandMortgageDetails", // 获取土地抵押详情
+	qccGetEnvPunishmentList: "/qcc/EnvPunishment/GetEnvPunishmentList", // 获取环保处罚列表
+	qccGetEnvPunishmentDetails: "/qcc/EnvPunishment/GetEnvPunishmentDetails", // 获取环保处罚详情
+
+
+
 	apiGetRejectCollectList: '/api/workflow/getRejectCollectList', // 拒贷记录
 	apiSheetSearchYuQYSLX: '/api/data/sheet/searchYuQYSLX', // 报表, 逾期应收利息
 	apiSheetSearchYuQYSBJ: '/api/data/sheet/searchYuQYSBJ', // 报表, 逾期应收本金
