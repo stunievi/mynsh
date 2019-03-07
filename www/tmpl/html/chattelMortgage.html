@@ -1,0 +1,99 @@
+<div class="panel panel-default">
+    {{each dataList item index}}
+    <div class="media">
+        <div class="media-left">
+            <div style="width: 80px;">
+            </div>
+           <h2 style="background: #ddd;margin:0;">{{index+1}}</h2>
+        </div>
+        <div class="media-body">
+            <div class="panel panel-default">
+                <div class="panel-heading">基本信息</div>
+                <table class="table">
+                    <tbody>
+                    <tr>
+                        <td class="col-xs-2 text-right"><b>登记编号</b></td> <td class="col-xs-4 type-info">{{item.RegisterNo}}  </td>
+                        <td class="col-xs-2 text-right"><b>登记时间</b></td> <td class="col-xs-4 type-info">{{item.RegisterDate}}</td>
+                    </tr>
+                    <tr>
+                        <td class="col-xs-2 text-right"><b>公示时间</b></td> <td class="col-xs-4 type-info">{{item.PublicDate}}</td>
+                        <td class="col-xs-2 text-right"><b>登记机关</b></td> <td class="col-xs-4 type-info">{{item.RegisterOffice}}</td>
+                    </tr>
+                    <tr>
+                        <td class="col-xs-2 text-right"><b>被担保债权数额</b></td> <td class="col-xs-4 type-info">{{item.DebtSecuredAmount}}</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">Pledge 信息</div>
+                <table class="table">
+                <tr>
+                    <td class="col-xs-2 text-right"><b>登记编号</b></td> <td class="col-xs-4 type-info">{{item.Detail.Pledge.RegistNo}}</td>
+                    <td class="col-xs-2 text-right"><b>注册时间</b></td> <td class="col-xs-4 type-info">{{item.Detail.Pledge.RegistDate}}</td>
+                </tr>
+                <tr>
+                    <td class="col-xs-2 text-right"><b>注册单位</b></td> <td class="col-xs-4 type-info">{{item.Detail.Pledge.RegistOffice}}</td></tr>
+                </table>
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>名称</th>
+                        <th>抵押权人证照/证件类型</th>
+                        <th>证照/证件号码</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        {{each item.Detail.PledgeeList PledgeeItem}}
+                        <tr>
+                            <td>{{PledgeeItem.Name}}</td>
+                            <td>{{PledgeeItem.IdentityType}}</td>
+                            <td>{{PledgeeItem.IdentityNo}}</td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+            </div>
+
+
+
+            <div class="panel panel-default">
+                <div class="panel-heading">SecuredClaim 信息</div>
+                <table class="table">
+                    <tr>
+                        <td class="col-xs-2 text-right"><b>种类</b></td> <td class="col-xs-4 type-info">{{item.Detail.SecuredClaim.Kind}}</td>
+                        <td class="col-xs-2 text-right"><b>数额</b></td> <td class="col-xs-4 type-info">{{item.Detail.SecuredClaim.Amount}}</td>
+                    </tr>
+                    <tr>
+                        <td class="col-xs-2 text-right"><b>担保的范围</b></td> <td class="col-xs-4 type-info">{{item.Detail.SecuredClaim.AssuranceScope}}</td>
+                        <td class="col-xs-2 text-right"><b>债务人履行债务的期限</b></td> <td class="col-xs-4 type-info">{{item.Detail.SecuredClaim.FulfillObligation}}</td>
+                    </tr>
+                    <tr>
+                        <td class="col-xs-2 text-right"><b>备注</b></td> <td class="col-xs-4 type-info">{{item.Detail.SecuredClaim.Remark}}</td>
+                    </tr>
+                </table>
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>名称</th>
+                        <th>所有权归属</th>
+                        <th>数量、质量、状况、所在地等情况</th>
+                        <th>备注</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {{each item.Detail.GuaranteeList GuaranteeItem}}
+                    <tr>
+                        <td>{{GuaranteeItem.Name}}</td>
+                        <td width="300">{{GuaranteeItem.Ownership}}</td>
+                        <td width="500">{{GuaranteeItem.Other}}</td>
+                        <td>{{GuaranteeItem.Remark}}</td>
+                    </tr>
+                    {{/each}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {{/each}}
+</div>

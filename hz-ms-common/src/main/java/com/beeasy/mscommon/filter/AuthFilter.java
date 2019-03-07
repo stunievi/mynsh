@@ -2,6 +2,7 @@ package com.beeasy.mscommon.filter;
 
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.mscommon.RestException;
+import com.beeasy.mscommon.Result;
 import com.beeasy.mscommon.util.U;
 import org.beetl.sql.core.SQLReady;
 import org.osgl.util.S;
@@ -156,7 +157,7 @@ public class AuthFilter implements Filter {
             response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
             response.setStatus(200);
             PrintWriter writer = response.getWriter();
-            writer.write(e.getSimpleMessage());
+            writer.write(Result.error(e.getSimpleMessage()).toJson());
             writer.flush();
             writer.close();
             return;
