@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.print.attribute.standard.Media;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -87,9 +88,9 @@ public class FileController {
     }
 
 
-    @RequestMapping(value = "/upload", method = RequestMethod.POST)
+    @RequestMapping(value = "/upload", method = RequestMethod.POST, produces = MediaType.TEXT_PLAIN_VALUE)
     @ResponseBody
-    public Result upload(
+    public String upload(
         @RequestParam MultipartFile file,
         String name,
         String tags,
@@ -120,10 +121,10 @@ public class FileController {
                             , "uuid", uuid
                             , "sname", file.getOriginalFilename()
                         )
-                    );
+                    ).toJson();
                 } catch (Exception e) {
                     e.printStackTrace();
-                    return Result.error(uuid);
+                    return Result.error(uuid).toJson();
                 }
 
 
@@ -134,7 +135,7 @@ public class FileController {
                 CFile pdir = (CFile) new CFile().mkdir(sqlManager, object);
                 Result<CFile> result = cFileController.upload(file, pdir.getId(), 1L);
                 if(!result.isSuccess()){
-                    return Result.error(uuid);
+                    return Result.error(uuid).toJson();
                 }
                 CFile cFile = (CFile) result.getData();
                 return Result.ok(
@@ -146,7 +147,7 @@ public class FileController {
                         , "uuid", uuid
                         , "sname", file.getOriginalFilename()
                     )
-                );
+                ).toJson();
 
         }
 

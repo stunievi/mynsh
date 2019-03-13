@@ -1,4 +1,26 @@
-
+window.console = window.console || {
+	log: $.noop,
+	debug: $.noop,
+	info: $.noop,
+	warn: $.noop,
+	exception: $.noop,
+	assert: $.noop,
+	dir: $.noop,
+	dirxml: $.noop,
+	trace: $.noop,
+	group: $.noop,
+	groupCollapsed: $.noop,
+	groupEnd: $.noop,
+	profile: $.noop,
+	profileEnd: $.noop,
+	count: $.noop,
+	clear: $.noop,
+	time: $.noop,
+	timeEnd: $.noop,
+	timeStamp: $.noop,
+	table: $.noop,
+	error: $.noop
+};
 var pathName = window.location.pathname;
 var whitelist = ['/login.html'];
 // if(whitelist.indexOf(pathName) < 0){

@@ -121,6 +121,12 @@ function addTab(id,text,url,innerTab) {
 }
 //参数id为tab的标志，但是并不是tab页的id属性，真正的id属性值是"tab-"+id
 function deleteTab(id){
+    var e = window.event
+    if(e){
+        if(e.srcElement.tagName != 'I'){
+            return
+        }
+    }
     var tabJQ = $("#tab-"+id),
         tabContentJQ = $("#tab-content-" + id);
     if(!tabJQ.hasClass("active")){

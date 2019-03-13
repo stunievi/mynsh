@@ -1,117 +1,6 @@
 
 var _menu = [
-  {
-        id: "qichacha",
-        name: "企查查",
-        children: [
-            {
-                name: "工商信息",
-                children:[
-                    {
-                        name: "企业关键字精模糊查询",
-                        href: "/htmlsrc/qichacha/ECI/search.html"
-                    },
-                    {
-                        name: "企业关键字精确获取详细信息",
-                        href: "/htmlsrc/qichacha/ECI/detailsByName.html"
-                    },
-                    {
-                        name: "获取新增的公司信息",
-                        href: "/htmlsrc/qichacha/ECI/SearchFresh.html"
-                    },
-                    {
-                        name: "企业经营异常信息",
-                        href: "/htmlsrc/qichacha/ECIException/GetOpException.html"
-                    },
-                    {
-                        name: "企业人员董监高信息",
-                        href: "/htmlsrc/qichacha/CIAEmployee/GetStockRelationInfo.html"
-                    }
-                ]
-            },
-            {
-                name: "法律诉讼",
-                children: [
-                    {
-                        name: "查询开庭公告",
-                        href: "/htmlsrc/qichacha/CourtAnno/SearchCourtNotice.html"
-                    },
-                    {
-                        name: "查询裁判文书",
-                        href: "/htmlsrc/qichacha/JudgeDoc/SearchJudgmentDoc.html"
-                    },
-                    {
-                        name:  "查询法院公告",
-                        href: "/htmlsrc/qichacha/CourtNotice/SearchCourtAnnouncement.html"
-                    },
-                    {
-                        name: "失信信息",
-                        href: "/htmlsrc/qichacha/Court/SearchShiXin.html"
-                    },
-                    {
-                        name: "被执行人信息",
-                        href: "/htmlsrc/qichacha/Court/SearchZhiXing.html"
-                    },
-                    {
-                        name: "司法协助查询",
-                        href: "/htmlsrc/qichacha/JudicialAssistance/GetJudicialAssistance.html"
-                    }
-                ]
-            },
-            {
-                name: "关联族谱",
-                children: [
-                    {
-                        name: "企业族谱查询",
-                        href: "/htmlsrc/qichacha/ECIRelation/ECIRelationIndex.html"
-                    }
-                ]
-            },
-            {
-                name: "经营风险",
-                children: [
-                    {
-                        name: "司法拍卖",
-                        href: "/htmlsrc/qichacha/JudicialSale/GetJudicialSaleList.html"
-                    },
-                    {
-                        name: "土地抵押",
-                        href: "/htmlsrc/qichacha/LandMortgage/GetLandMortgageList.html"
-                    },
-                    {
-                        name: "环保处罚",
-                        href: "/htmlsrc/qichacha/EnvPunishment/GetEnvPunishmentList.html"
-                    },
-                    {
-                        name: "动产抵押",
-                        href: "/htmlsrc/qichacha/ChattelMortgage/GetChattelMortgage.html"
-                    }
-                ]
-            },
-            {
-                name: "增值服务",
-                children: [
-                    {
-                        name: "历史信息",
-                        href: "/htmlsrc/qichacha/History/HistoryIndex.html"
-                    },
-                    {
-                        name: "控股公司",
-                        href: "/htmlsrc/qichacha/HoldingCompany/GetHoldingCompany.html"
-                    }
-                ]
-            },
-            {
-                name: "监控报告",
-                children: [
-                    {
-                        name: "雷达监控",
-                        href: "javascript:alert('未开通');"
-                    }
-                ]
-            }
-        ]
-    },
+
     {
         id: "menu-mybench",
         name:'工作台',
@@ -954,6 +843,118 @@ if(location.href.indexOf("localhost") > -1 || location.href.indexOf("47.94.97.13
             //     name: '公共文件柜',
             //     href: '/htmlsrc/document/public/public.fileList.html'
             // }
+        ]
+    })
+    _menu.push({
+        id: "qichacha",
+        name: "企查查",
+        children: [
+            {
+                name: "工商信息",
+                children:[
+                    {
+                        name: "企业关键字精模糊查询",
+                        href: "/htmlsrc/qichacha/ECI/search.html"
+                    },
+                    {
+                        name: "企业关键字精确获取详细信息",
+                        href: "/htmlsrc/qichacha/ECI/detailsByName.html"
+                    },
+                    {
+                        name: "获取新增的公司信息",
+                        href: "/htmlsrc/qichacha/ECI/SearchFresh.html"
+                    },
+                    {
+                        name: "企业经营异常信息",
+                        href: "/htmlsrc/qichacha/ECIException/GetOpException.html"
+                    },
+                    {
+                        name: "企业人员董监高信息",
+                        href: "/htmlsrc/qichacha/CIAEmployee/GetStockRelationInfo.html"
+                    }
+                ]
+            },
+            {
+                name: "法律诉讼",
+                children: [
+                    {
+                        name: "查询开庭公告",
+                        href: "/htmlsrc/qichacha/CourtAnno/SearchCourtNotice.html"
+                    },
+                    {
+                        name: "查询裁判文书",
+                        href: "/htmlsrc/qichacha/JudgeDoc/SearchJudgmentDoc.html"
+                    },
+                    {
+                        name:  "查询法院公告",
+                        href: "/htmlsrc/qichacha/CourtNotice/SearchCourtAnnouncement.html"
+                    },
+                    {
+                        name: "失信信息",
+                        href: "/htmlsrc/qichacha/Court/SearchShiXin.html"
+                    },
+                    {
+                        name: "被执行人信息",
+                        href: "/htmlsrc/qichacha/Court/SearchZhiXing.html"
+                    },
+                    {
+                        name: "司法协助查询",
+                        href: "/htmlsrc/qichacha/JudicialAssistance/GetJudicialAssistance.html"
+                    }
+                ]
+            },
+            {
+                name: "关联族谱",
+                children: [
+                    {
+                        name: "企业族谱查询",
+                        href: "/htmlsrc/qichacha/ECIRelation/ECIRelationIndex.html"
+                    }
+                ]
+            },
+            {
+                name: "经营风险",
+                children: [
+                    {
+                        name: "司法拍卖",
+                        href: "/htmlsrc/qichacha/JudicialSale/GetJudicialSaleList.html"
+                    },
+                    {
+                        name: "土地抵押",
+                        href: "/htmlsrc/qichacha/LandMortgage/GetLandMortgageList.html"
+                    },
+                    {
+                        name: "环保处罚",
+                        href: "/htmlsrc/qichacha/EnvPunishment/GetEnvPunishmentList.html"
+                    },
+                    {
+                        name: "动产抵押",
+                        href: "/htmlsrc/qichacha/ChattelMortgage/GetChattelMortgage.html"
+                    }
+                ]
+            },
+            {
+                name: "增值服务",
+                children: [
+                    {
+                        name: "历史信息",
+                        href: "/htmlsrc/qichacha/History/HistoryIndex.html"
+                    },
+                    {
+                        name: "控股公司",
+                        href: "/htmlsrc/qichacha/HoldingCompany/GetHoldingCompany.html"
+                    }
+                ]
+            },
+            {
+                name: "监控报告",
+                children: [
+                    {
+                        name: "雷达监控",
+                        href: "javascript:alert('未开通');"
+                    }
+                ]
+            }
         ]
     })
 }

@@ -156,9 +156,9 @@ function getRootData(list) {
             graph.nodes.push(o);
 
             // 璁剧疆_rootNode
-            if (_currentKeyNo == o.data.obj.properties.keyNo){
+            // if (_currentKeyNo == o.data.obj.properties.keyNo){
                 _rootNode = o;
-            }
+            // }
         }
     }
     graph.nodes = uniqeByKeys(graph.nodes,['nodeId']);

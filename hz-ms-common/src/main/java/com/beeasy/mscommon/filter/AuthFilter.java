@@ -172,11 +172,12 @@ public class AuthFilter implements Filter {
     }
 
     public static Long getUid() {
-        Long uid = localUids.get();
-        if (uid == null) {
-            uid = (Long) U.getRequest().getSession().getAttribute(AuthFilter.Uid);
-        }
-        return uid;
+//        Long uid = localUids.get();
+//        if (uid == null) {
+//            uid = (Long) U.getRequest().getSession().getAttribute(AuthFilter.Uid);
+//        }
+//        return uid;
+        return (Long) U.getRequest().getSession().getAttribute(AuthFilter.Uid);
     }
 
     public static void setUid(Long uid){
