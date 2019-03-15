@@ -1,7 +1,7 @@
 var reportsList = [
     { id: "demo", reportsName: "报表示例" },
     { id: "count", reportsName: "统计报表示例" },
-    { id: "r1", reportsName: "惠州农商银行信贷资产质量情况统计表（月报表）", dept: "授信管理部", menu: true},
+    { id: "r1", reportsName: "信贷资产质量情况统计表（月报表）", dept: "授信管理部", menu: true},
     { id: "r2", reportsName: "简报表数据", dept: "授信管理部" },
     { id: "r3", reportsName: "信贷营销情况（一般贷款）", dept: "授信管理部" },
     { id: "r4", reportsName: "草稿草稿", dept: "草稿" },
@@ -23,15 +23,15 @@ var reportsList = [
     { id: "r20", reportsName: "广东省农村合作金融机构贷款五级分类迁徙表", dept: "授信管理部" },
     { id: "r21", reportsName: "广东省农村合作金融机构不良贷款压降情况季报表", dept: "授信管理部", menu: true },
     { id: "r22", reportsName: "表内正常贷款欠息情况统计报表", dept: "授信管理部", menu: true },
-    { id: "r23", reportsName: "惠州市农商行隐性不良贷款明细表", dept: "授信管理部", menu: true },
-    { id: "r24", reportsName: "惠州农商行五级分类不良贷款明细表", dept: "授信管理部", menu: true },
-    { id: "r25", reportsName: "惠州农商行五级分类不良贷款现金收回明细表", dept: "授信管理部", menu: true },
-    { id: "r26", reportsName: "惠州农商行五级分类不良贷款上调明细表", dept: "授信管理部", menu: true },
-    { id: "r27", reportsName: "惠州农商行不良贷款清收压降情况表", dept: "授信管理部", menu: true },
+    { id: "r23", reportsName: "隐性不良贷款明细表", dept: "授信管理部", menu: true },
+    { id: "r24", reportsName: "五级分类不良贷款明细表", dept: "授信管理部", menu: true },
+    { id: "r25", reportsName: "五级分类不良贷款现金收回明细表", dept: "授信管理部", menu: true },
+    { id: "r26", reportsName: "五级分类不良贷款上调明细表", dept: "授信管理部", menu: true },
+    { id: "r27", reportsName: "不良贷款清收压降情况表", dept: "授信管理部", menu: true },
     { id: "r28", reportsName: "信贷营销情况（按揭贷款）", dept: "授信管理部", menu: true },
     { id: "r29", reportsName: "利息收回情况", dept: "授信管理部", menu: true },
     { id: "r30", reportsName: "正常类贷款欠息情况", dept: "授信管理部", menu: true },
-    { id: "r31", reportsName: "惠州农村商业银行不良贷款利息减免情况汇总季报表", dept: "风险资产管理部", menu: true },
+    { id: "r31", reportsName: "不良贷款利息减免情况汇总季报表", dept: "风险资产管理部", menu: true },
     { id: "r32", reportsName: "不良贷款减免情况明细表(季报)", dept: "风险资产管理部", menu: true }
     
 ];

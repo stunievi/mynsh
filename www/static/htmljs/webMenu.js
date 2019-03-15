@@ -426,15 +426,15 @@ var _menu = [
                     //     href: "/htmlsrc/creditDataManage/reports/reports_r22.html"
                     // },
                     // {
-                    //     name: "惠州市农商行隐性不良贷款明细表",
+                    //     name: "隐性不良贷款明细表",
                     //     href: "/htmlsrc/creditDataManage/reports/reports_r23.html"
                     // },
                     // {
-                    //     name: "惠州农商行五级分类不良贷款明细表",
+                    //     name: "五级分类不良贷款明细表",
                     //     href: "/htmlsrc/creditDataManage/reports/reports_r24.html"
                     // },
                     // {
-                    //     name: "惠州农商行五级分类不良贷款现金收回明细表",
+                    //     name: "五级分类不良贷款现金收回明细表",
                     //     href: "/htmlsrc/creditDataManage/reports/reports_r25.html"
                     // },
 
@@ -443,15 +443,15 @@ var _menu = [
                     //    href: "/htmlsrc/creditDataManage/reports/reports_r21.html"
                     //},
                     {
-                        name: "惠州农商银行信贷资产质量情况统计表（月报表）",
+                        name: "信贷资产质量情况统计表（月报表）",
                         href: "/htmlsrc/creditDataManage/reports/reports_r1.html"
                     },
                     {
-                        name: "惠州农商行五级分类不良贷款现金收回明细表",
+                        name: "五级分类不良贷款现金收回明细表",
                         href: "/htmlsrc/creditDataManage/reports/reports_r9.html"
                     },
                     {
-                        name: "惠州农商行五级分类不良贷款上调明细表",
+                        name: "五级分类不良贷款上调明细表",
                         href: "/htmlsrc/creditDataManage/reports/reports_r10.html"
                     },
                     {
@@ -588,11 +588,11 @@ var _menu = [
                         href: "/htmlsrc/creditDataManage/reports/reports_r6.html"
                     },
                     {
-                        name: "惠州市农商行隐性不良贷款明细表",
+                        name: "隐性不良贷款明细表",
                         href: "/htmlsrc/creditDataManage/reports/reports_r7.html"
                     },
                     {
-                        name: "惠州农商行五级分类不良贷款明细表",
+                        name: "五级分类不良贷款明细表",
                         href: "/htmlsrc/creditDataManage/reports/reports_r8.html"
                     },
                     {

@@ -66,9 +66,11 @@ public class SysVar extends TailBean implements ValidGroup {
             case "set":
                 User.AssertMethod("系统管理.系统设置.系统设置", "实验室功能.系统更新");
 
-                sqlManager.lambdaQuery(SysVar.class)
-                    .andIn(SysVar::getVarName, object.keySet())
-                    .delete();
+                if(object.size() > 0){
+                    sqlManager.lambdaQuery(SysVar.class)
+                            .andIn(SysVar::getVarName, object.keySet())
+                            .delete();
+                }
                 List<SysVar> vars = object.entrySet().stream()
                     .map(item -> new SysVar(null,item.getKey(), (String)item.getValue(), true))
                     .collect(Collectors.toList());

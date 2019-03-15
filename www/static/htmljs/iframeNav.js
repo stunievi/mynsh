@@ -52,6 +52,13 @@ var pageCounter = 0;
  url:      打开的iframe的url
  innerTab: 是否是内部弹出页（打开的tab页触发添加新的tab页），默认为undefined/false
  */
+
+$(document).on("click", '.delete-tab', function () {
+    var id = $(this).attr("data-id")
+    deleteTab(id)
+    return false;
+});
+
 function addTab(id,text,url,innerTab) {
     // console.log('#myTab #tab-'+id)
     //如果某个页面已经打开，则切换到该页显示即可，不会新添加tab页
@@ -62,12 +69,14 @@ function addTab(id,text,url,innerTab) {
             tab_content_id = "tab-content-"+id,
             tab_html = $("<li id='" + tab_id + "'><a data-toggle='tab' href='javascript:;' data-href='#"
                 + tab_content_id + "' title='"+text+"' data-iframe='iframepage-"+id+"'>" + text + "</a>"
-                + ("<i class='fa fa-times' onclick='deleteTab(\"" + id + "\")'></i>") + "</li>");
+                + ("<i class='fa fa-times delete-tab'  data-id='"+id+"'></i>") + "</li>");
+        //onclick='deleteTab(\"" + id + "\")'
         if($("#myTab li.active").length > 0){
             $("#myTab li.active").after(tab_html);
         }else{
             $("#myTab").append(tab_html);
         }
+        //bind event
         //添加tab页签
         $("#myTab > li").removeClass("active");
         $("#"+tab_id).addClass("active")
@@ -97,6 +106,7 @@ function addTab(id,text,url,innerTab) {
             ,{
                 text: "关闭其他标签页"
                 ,action: function(e){
+                    console.log(tab_html)
                     $("#myTab li[id*=tab-]").not(tab_html).find("i").click()
                 }
             }
@@ -121,12 +131,12 @@ function addTab(id,text,url,innerTab) {
 }
 //参数id为tab的标志，但是并不是tab页的id属性，真正的id属性值是"tab-"+id
 function deleteTab(id){
-    var e = window.event
-    if(e){
-        if(e.srcElement.tagName != 'I'){
-            return
-        }
-    }
+    // var e = window.event
+    // if(e){
+    //     if(e.srcElement.tagName != 'I'){
+    //         return
+    //     }
+    // }
     var tabJQ = $("#tab-"+id),
         tabContentJQ = $("#tab-content-" + id);
     if(!tabJQ.hasClass("active")){
@@ -137,9 +147,11 @@ function deleteTab(id){
         tabJQ.remove();
         tabContentJQ.remove();
         refreshTabHistory(true/*isDelete*/,id);
+        console.log(currentTabId)
         $("#myTab li").each(function(index, item){
+            console.log($(item),'tab-'+currentTabId , $(item).attr("id"))
             if('tab-'+currentTabId == $(item).attr("id")){
-                $('#tab-' + currentTabId + ' > a').click();
+                $(item).click()
                 return false;
             }
         })

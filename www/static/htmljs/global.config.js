@@ -594,3 +594,11 @@ function S4() {
 function guid() {
     return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
 }
+
+if(window.top != window){
+	$(function () {
+		$("body").css("padding-bottom","100px")
+		$("body").css("overflow","auto")
+		$("body").css("overflow-x","hidden")
+	})
+}
