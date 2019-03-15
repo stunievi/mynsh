@@ -338,6 +338,58 @@ var _menu = [
                         ]
                     }
                 ]
+            },
+            {
+                name: "强制执行",
+                children: [
+                    {
+                        name: "强制执行记录",
+                        href: "/htmlsrc/taskManage/taskList.html?workFlow="+encodeURI(enumWorkFlowModel.qiangzhizhixing),
+                    },
+                    {
+                        name: "不良台账",
+                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+encodeURI(enumWorkFlowModel.qiangzhizhixing),
+                    }
+                ]
+            },
+            {
+                name: "房屋出租",
+                children: [
+                    {
+                        name: "房屋出租记录",
+                        href: "/htmlsrc/taskManage/taskList.html?workFlow="+encodeURI(enumWorkFlowModel.fangwuchuzu),
+                    },
+                    {
+                        name: "不良台账",
+                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+encodeURI(enumWorkFlowModel.fangwuchuzu),
+                    }
+                ]
+            },
+            {
+                name: "资产拍卖",
+                children: [
+                    {
+                        name: "资产拍卖记录",
+                        href: "/htmlsrc/taskManage/taskList.html?workFlow="+encodeURI(enumWorkFlowModel.zichanpaimai),
+                    },
+                    {
+                        name: "不良台账",
+                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+encodeURI(enumWorkFlowModel.zichanpaimai),
+                    }
+                ]
+            },
+            {
+                name: "资产协议出售",
+                children: [
+                    {
+                        name: "资产协议出售记录",
+                        href: "/htmlsrc/taskManage/taskList.html?workFlow="+encodeURI(enumWorkFlowModel.zichanxieyichushou),
+                    },
+                    {
+                        name: "不良台账",
+                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+encodeURI(enumWorkFlowModel.zichanxieyichushou),
+                    }
+                ]
             }
         ]
     },

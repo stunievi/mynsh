@@ -256,7 +256,7 @@ public class WfIns extends TailBean implements ValidGroup {
             .findFirst()
             .orElse(null);
 
-        List<String> childModelNames = C.newList("催收","诉讼","资产处置","抵债资产接收","利息减免");
+        List<String> childModelNames = C.newList("催收","诉讼","资产处置","抵债资产接收","利息减免","强制执行","房屋出租","资产拍卖","资产协议出售");
         //子任务要求父任务存在
         if(childModelNames.contains(modelName)){
             Assert(
