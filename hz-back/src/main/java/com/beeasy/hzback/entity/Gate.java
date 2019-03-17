@@ -4,10 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.mscommon.RestException;
-import com.beeasy.mscommon.Result;
 import com.beeasy.mscommon.valid.ValidGroup;
 import com.beeasy.tool.OkHttpUtil;
-import com.sun.deploy.net.HttpUtils;
 import lombok.Getter;
 import lombok.Setter;
 import org.beetl.sql.core.SQLManager;
@@ -15,7 +13,6 @@ import org.beetl.sql.core.TailBean;
 import org.beetl.sql.core.annotatoin.AssignID;
 import org.beetl.sql.core.annotatoin.Table;
 import org.osgl.util.C;
-import org.osgl.util.S;
 
 import java.io.IOException;
 import java.util.List;

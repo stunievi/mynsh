@@ -51,40 +51,7 @@
             ]
         ]
     })
-    function onInfront() {
-        layuiTableReload()
-    }
-    var tmpl = template.compile($('#tmpl').html())
-    $("#app_prop").click(function () {
-        $('#tbody').append(tmpl({}))
+    eventBind(".handleShow", function(that){
+        addNavTab('loan-'+that.data("loanid"), "台账详情 - "+that.data("loanid")+" - " + that.data("name"), hrefUrl.loanInfo+that.data("loanid"));
     });
-    $(document).on("click", ".del", function () {
-        $(this).closest("tr").remove();
-    });
-    $(".save").click(function () {
-        var elems = $(".key");
-        var data = {data:[]};
-        elems.each(function () {
-            var t = $(this).closest("tr");
-            var key = $(this).val();
-            var value = t.find(".value").val();
-            data.data.push({key:key,value:value})
-        })
-        postFetch(remoteOrigin + "/api/auto/appui/set",data,function () {
-            layer.msg("保存成功");
-        });
-    });
-    getFetch(remoteOrigin + "/api/auto/appui/get", function (data) {
-        $.each(data,function (i,v) {
-            $('#tbody').append(tmpl(v))
-        })
-    });
-
-    function reloadService(){
-        getFetch(remoteOrigin + "/api/auto/gate/reload", function () {
-            layer.closeAll()
-            layer.msg("刷新成功")
-        })
-    }
-
 </script>
