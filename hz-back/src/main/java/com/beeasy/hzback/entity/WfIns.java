@@ -11,6 +11,7 @@ import com.beeasy.mscommon.RestException;
 import com.beeasy.mscommon.filter.AuthFilter;
 import com.beeasy.mscommon.util.U;
 import com.beeasy.mscommon.valid.ValidGroup;
+import jdk.nashorn.internal.runtime.regexp.joni.Regex;
 import lombok.Getter;
 import lombok.Setter;
 import org.beetl.sql.core.SQLManager;
@@ -26,10 +27,9 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.validation.constraints.AssertTrue;
 import java.lang.reflect.Field;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.beeasy.hzback.entity.WfIns.State.*;
 import static com.beeasy.hzback.entity.WfInsAttr.Type.INNATE;
@@ -824,9 +824,28 @@ public class WfIns extends TailBean implements ValidGroup {
             case "input":
                 for (Object content : node.getJSONArray("content")) {
                     JSONObject v = (JSONObject) content;
+                    String type = v.getString("type");
                     String attrKey = v.getString("ename");
                     Boolean required = v.getBoolean("required");
                     String value = data.getString(attrKey);
+                    //特殊行为，保存提交的抵押物关联
+                    if(S.eq(type, "diya") && S.notBlank(value)){
+                        sqlManager.executeUpdate(new SQLReady(S.fmt("delete from t_wf_ins_grt where iid = %d", wfIns.id)));
+                        Pattern p = Pattern.compile("^.+\\((.+?)\\)$");
+                        List<String> strs = Arrays.stream(value.split(","))
+                            .map(s -> {
+                                Matcher m = p.matcher(s);
+                                if(m.find()){
+                                    return m.group(1);
+                                }
+                                return "";
+                            })
+                            .filter(S::notBlank)
+                            .collect(toList());
+                        for (String str : strs) {
+                            sqlManager.executeUpdate(new SQLReady(S.fmt("insert into t_wf_ins_grt(iid,gid)values(%d,'%s')", wfIns.id, str)));
+                        }
+                    }
                     //保存草稿不校验
                     if(!gonext && !data.containsKey(attrKey)){
                         continue;

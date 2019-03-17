@@ -191,7 +191,6 @@
             callback: function(){ },
             error: function(){ }
         })
-
         // 获取该任务信息
         getRemoteData({
             // loading: true,
@@ -234,7 +233,9 @@
                 });
 
                 var nodeAttrInfo = getFormAttrFromNode(currentNodeModel)
-                var fixForm = fixFormAttrToEnable(nodeAttrInfo.attr);
+                alert(1)
+                console.warn(nodeAttrInfo.attr)
+                var fixForm = fixFormAttrToEnable(nodeAttrInfo.attr, instance.loanAccount);
                 formAttr = fixForm.fixAttrs;
                 formRules = fixForm.fixRules;
 

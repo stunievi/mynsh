@@ -399,7 +399,7 @@ var odsEnmuData = {"MORTGAGE_FLG":{"0":"否","1":"是"},"GUARANTY_TYPE":{"10001"
 
 
 
-    function getFetch(url, data, callback, error) {
+    function getFetch(url, data, callback, error, ops) {
     	if(typeof data == 'function'){
             error = callback;
     		callback = data;
@@ -409,12 +409,18 @@ var odsEnmuData = {"MORTGAGE_FLG":{"0":"否","1":"是"},"GUARANTY_TYPE":{"10001"
 		if(idex == -1 || (idex > -1 && idex != 0)){
 			url = remoteOrigin + url;
 		}
+    	var headers = {}
+    	var hasHeader = 0
         return $.ajax({
             url: url
             , dataType: "json"
             // , dataType: "jsonp"
             // , jsonp: "callback"
-            , data: data
+            , data: data,
+			async: !ops || !ops.sync,
+			headers :{
+            	Token: top.store.get("token") || ""
+			}
             , success: function(res){
             	if(res.success || res.Status=="200"){
 					callback && callback(res.data)
@@ -452,7 +458,10 @@ var odsEnmuData = {"MORTGAGE_FLG":{"0":"否","1":"是"},"GUARANTY_TYPE":{"10001"
 			, dataType: "json"
             , type: "post"
 			, contentType: "application/json"
-			, data: data
+			, data: data,
+			headers :{
+				Token: top.store.get("token") || ""
+			}
 			, success: function (res) {
                 if(!res.success){
                     if(res.errMessage == '请检查是否登录'){

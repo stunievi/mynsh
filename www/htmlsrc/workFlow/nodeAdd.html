@@ -179,6 +179,7 @@
         var modelName = decodeURI(getParam("name"));
         var workFlowModel;
         var loanId = getParam("loanid") || 'undefined'; // 台账ID
+        var loanAccount = getParam("loanid") || ""
         var cusId = getParam("cusid") || 'undefined'; // 客户ID
         var cusType = getParam("custype") || 'undefined'; // 客户类型
         // var defaultData = {}; // 缺省填充继承数据
@@ -338,7 +339,7 @@
                 if(!isPonit){
                     formAttrs.push.apply(formAttrs, startNodeAttr); // 追加流程节点字段
                 }
-                var fixForm = fixFormAttrToEnable(formAttrs);
+                var fixForm = fixFormAttrToEnable(formAttrs,loanAccount);
                 addFormAttr.push.apply(addFormAttr, fixForm.fixAttrs);
                 addFormRules = fixForm.fixRules;
             }
@@ -355,6 +356,7 @@
             defaultData["FXFF"] = ["贷款到期催收通知书"];
 
             // 生成form
+            console.log(addFormAttr)
             $("#addForm").html(template('tmpl',{
                 isPoint: isPonit,
                 panelTitle:'添加任务 - ' + modelName,

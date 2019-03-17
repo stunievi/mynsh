@@ -1,5 +1,6 @@
 body {
   overflow-y: scroll;
+    font-size: 12px;
 }
 #content {
   overflow: hidden;
@@ -258,4 +259,60 @@ table.table th{
 }
 .break-table td{
   white-space: normal;
+}
+
+.panel-default > .panel-heading{
+  background:#F2F9FC;
+}
+table.table th{
+  color: #444;
+  font-weight: normal;
+  text-align:center;
+  background:#F2F9FC;
+  border:#E4EEF6 1px solid;
+  border-top:#E4EEF6 1px solid !important;
+  border-bottom: 0 !important;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.table-hover > tbody > tr:hover{
+  background: none !important;
+}
+table.table th:not(:last-child) {
+  border-right: #F2F9FC 1px solid;
+}
+table.table td{
+  border:#E4EEF6 1px solid;
+  font-size: 13px;
+}
+.fixed-table-container{
+  border: 0;
+}
+
+.pagination > .active > a, .pagination > .active > span, .pagination > .active > a:hover, .pagination > .active > span:hover, .pagination > .active > a:focus, .pagination > .active > span:focus{
+  background: #4A89DC;
+}
+label{
+  font-weight: normal;
+}
+.fixed-table-loading{
+  line-height: 34px;
+}
+.panel{
+  border: 2px solid  #F2F9FC;
+}
+.panel-default > .panel-heading{
+  border-color: transparent;
+}
+.no-records-found td{
+  padding-top: 20px !important;
+  padding-bottom: 20px !important;
+}
+.btn{
+  -webkit-border-radius: 0px;
+  -moz-border-radius: 0px;
+  border-radius: 0px;
+}
+.input-sm{
+  border-radius: 0px;
 }

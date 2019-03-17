@@ -149,7 +149,7 @@ function deleteTab(id){
         refreshTabHistory(true/*isDelete*/,id);
         console.log(currentTabId)
         $("#myTab li").each(function(index, item){
-            console.log($(item),'tab-'+currentTabId , $(item).attr("id"))
+            // console.log($(item),'tab-'+currentTabId , $(item).attr("id"))
             if('tab-'+currentTabId == $(item).attr("id")){
                 $(item).click()
                 return false;

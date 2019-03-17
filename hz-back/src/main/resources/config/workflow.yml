@@ -2454,6 +2454,10 @@
           type: EXT_DATA
           innate: true
           required: false
+        资产选择:
+          name: zichan
+          type: diya
+          required: true
         抵债方式:
           name: type
           type: select
@@ -3012,7 +3016,7 @@
       next: 法院查封
 
     法院查封:
-      deal: ["风险资产管理部，总行办事员"]
+      deal: ["市场部，客户经理", "企业金融部，办事员","企业金融部，客户经理","三农中心，客户经理","公司银行部，总行办事员","零售银行部，总行办事员"]
       deleteable: false
       type: input
       start: false
@@ -3029,7 +3033,7 @@
       next: 资产评估
 
     资产评估:
-      deal: ["风险资产管理部，总行办事员"]
+      deal: ["市场部，客户经理", "企业金融部，办事员","企业金融部，客户经理","三农中心，客户经理","公司银行部，总行办事员","零售银行部，总行办事员"]
       deleteable: false
       type: input
       start: false
@@ -3046,7 +3050,7 @@
       next: 拍卖公告
 
     拍卖公告:
-      deal: ["风险资产管理部，总行办事员"]
+      deal: ["市场部，客户经理", "企业金融部，办事员","企业金融部，客户经理","三农中心，客户经理","公司银行部，总行办事员","零售银行部，总行办事员"]
       deleteable: false
       type: input
       start: false
@@ -3063,7 +3067,7 @@
       next: 拍卖
 
     拍卖:
-      deal: ["风险资产管理部，总行办事员"]
+      deal: ["市场部，客户经理", "企业金融部，办事员","企业金融部，客户经理","三农中心，客户经理","公司银行部，总行办事员","零售银行部，总行办事员"]
       deleteable: false
       type: check
       key: key
@@ -3073,16 +3077,16 @@
       -
         item: 是
         condition: 1
-        behavior: go('立卷归档')
+        behavior: go('结束')
       -
         item: 否
         condition: 1
         behavior: go('二次拍卖')
       count: 1
-      next: [立卷归档,"二次拍卖"]
+      next: [结束,"二次拍卖"]
 
     二次拍卖:
-      deal: ["风险资产管理部，总行办事员"]
+      deal: ["市场部，客户经理", "企业金融部，办事员","企业金融部，客户经理","三农中心，客户经理","公司银行部，总行办事员","零售银行部，总行办事员"]
       deleteable: false
       type: check
       key: key
@@ -3092,32 +3096,13 @@
       -
         item: 是
         condition: 1
-        behavior: go('立卷归档')
+        behavior: go('结束')
       -
         item: 否
         condition: 1
         behavior: go('资产评估')
       count: 1
-      next: [立卷归档,"资产评估"]
-
-
-    立卷归档:
-      deal: ["市场部，客户经理", "企业金融部，办事员","企业金融部，客户经理","三农中心，客户经理","公司银行部，总行办事员","零售银行部，总行办事员"]
-      deleteable: false
-      type: input
-      start: false
-      content:
-        说明:
-          name: apply
-          type: textarea
-          required: false
-        上传附件:
-          type: files
-          name: files
-          required: false
-
-      next: 结束
-
+      next: [结束,"资产评估"]
 
     结束:
       type: end
@@ -3194,7 +3179,74 @@
           name: files
           required: false
 
-      next: 结束
+      next: 出租信息填写
+
+    出租信息填写:
+      deal: ["市场部，客户经理", "企业金融部，办事员","企业金融部，客户经理","三农中心，客户经理","公司银行部，总行办事员","零售银行部，总行办事员"]
+      deleteable: false
+      type: input
+      start: false
+      content:
+        房租缴纳日期:
+          name: dt_start
+          type: datetime
+          required: true
+        租金:
+          name: apply
+          type: textarea
+          required: false
+        租期:
+          name: apply
+          type: textarea
+          required: false
+        说明:
+          name: apply
+          type: textarea
+          required: false
+        上传附件:
+          type: files
+          name: files
+          required: false
+
+      next: 租客缴纳房租
+
+    租客缴纳房租:
+      deal: ["市场部，客户经理", "企业金融部，办事员","企业金融部，客户经理","三农中心，客户经理","公司银行部，总行办事员","零售银行部，总行办事员"]
+      deleteable: false
+      type: check
+      key: key
+      ps: ps
+      question: 是否缴纳本月房租？
+      states:
+      -
+        item: 是
+        condition: 1
+        behavior: go('出租是否结束')
+      -
+        item: 否
+        condition: 1
+        behavior: go('出租信息填写')
+      count: 1
+      next: [出租是否结束,"出租信息填写"]
+
+    出租是否结束:
+      deal: ["市场部，客户经理", "企业金融部，办事员","企业金融部，客户经理","三农中心，客户经理","公司银行部，总行办事员","零售银行部，总行办事员"]
+      deleteable: false
+      type: check
+      key: key
+      ps: ps
+      question: 出租是否结束？
+      states:
+      -
+        item: 是
+        condition: 1
+        behavior: go('结束')
+      -
+        item: 否
+        condition: 1
+        behavior: go('出租信息填写')
+      count: 1
+      next: [结束,"出租信息填写"]
 
     结束:
       type: end
@@ -3271,8 +3323,68 @@
           name: files
           required: false
 
-      next: 结束
+      next: 资产拍卖信息填写
 
+    资产拍卖信息填写:
+      deal: ["市场部，客户经理", "企业金融部，办事员","企业金融部，客户经理","三农中心，客户经理","公司银行部，总行办事员","零售银行部，总行办事员"]
+      deleteable: false
+      type: input
+      start: false
+      content:
+        拍卖价格:
+          name: apply
+          type: textarea
+          required: false
+        拍卖方式:
+          name: apply
+          type: textarea
+          required: false
+        说明:
+          name: apply
+          type: textarea
+          required: false
+        上传附件:
+          type: files
+          name: files
+          required: false
+
+      next: 检查是否拍卖成功
+
+    检查是否拍卖成功:
+      deal: ["市场部，客户经理", "企业金融部，办事员","企业金融部，客户经理","三农中心，客户经理","公司银行部，总行办事员","零售银行部，总行办事员"]
+      deleteable: false
+      type: check
+      key: key
+      ps: ps
+      question: 是否拍卖成功？
+      states:
+      -
+        item: 是
+        condition: 1
+        behavior: go('上传拍卖结果资料')
+      -
+        item: 否
+        condition: 1
+        behavior: go('检查是否拍卖成功')
+      count: 1
+      next: [上传拍卖结果资料,"检查是否拍卖成功"]
+
+    上传拍卖结果资料:
+      deal: ["市场部，客户经理", "企业金融部，办事员","企业金融部，客户经理","三农中心，客户经理","公司银行部，总行办事员","零售银行部，总行办事员"]
+      deleteable: false
+      type: input
+      start: false
+      content:
+        说明:
+          name: apply
+          type: textarea
+          required: false
+        上传附件:
+          type: files
+          name: files
+          required: false
+
+      next: 结束
 
     结束:
       type: end
@@ -3341,6 +3453,59 @@
           innate: true
           required: false
         申请说明:
+          name: apply
+          type: textarea
+          required: false
+        上传附件:
+          type: files
+          name: files
+          required: false
+
+      next: 上传协议出售资料
+
+    上传协议出售资料:
+      deal: ["市场部，客户经理", "企业金融部，办事员","企业金融部，客户经理","三农中心，客户经理","公司银行部，总行办事员","零售银行部，总行办事员"]
+      deleteable: false
+      type: input
+      start: false
+      content:
+        说明:
+          name: apply
+          type: textarea
+          required: false
+        上传附件:
+          type: files
+          name: files
+          required: false
+
+      next: 出售成功
+
+    出售成功:
+      deal: ["市场部，客户经理", "企业金融部，办事员","企业金融部，客户经理","三农中心，客户经理","公司银行部，总行办事员","零售银行部，总行办事员"]
+      deleteable: false
+      type: check
+      key: key
+      ps: ps
+      question: 是否出售成功？
+      states:
+      -
+        item: 是
+        condition: 1
+        behavior: go('处置过程')
+      -
+        item: 否
+        condition: 1
+        behavior: go('上传协议出售资料')
+      count: 1
+      next: [处置过程,"上传协议出售资料"]
+
+    处置过程:
+      deal: ["市场部，客户经理", "企业金融部，办事员","企业金融部，客户经理","三农中心，客户经理","公司银行部，总行办事员","零售银行部，总行办事员"]
+      deleteable: false
+      type: input
+      start: false
+      content:
+        说明:
           name: apply
           type: textarea
           required: false

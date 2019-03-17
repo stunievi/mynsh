@@ -139,7 +139,12 @@
         var workFlow = {}, currEditNode = {}
         var names = [];
         if(!name){
-            onload()
+            getFetch(remoteOrigin + "/api/auto/wfmodel/getOne", {id: mid }, function (data) {
+                $.each(JSON.parse(data.model).flow,function (i,v) {
+                    names.push(v.name);
+                });
+                onload();
+            })
         }
         else{
             getFetch(remoteOrigin + "/api/auto/wfmodel/getOne", {id: mid, name:decodeURI(name)}, function (data) {
@@ -196,16 +201,21 @@
                         //整理数据
                         var data = $.unserialize(form.serialize());
                         data.states = [];
+                        console.log(JSON.stringify(data.condition))
                         $.each(data.condition || [], function (i,v) {
                             data.states.push({
-                                item: v
+                                item: data.item[i]
                                 , condition: data.condition[i]
                                 , go: data.go[i]
                             });
-                            delete data.item
-                            delete data.go
-                            delete data.condition
                         });
+                        data.next = data.go
+                        data.type = 'check'
+                        data.key = 'key'
+                        data.ps = 'ps'
+                        delete data.item
+                        delete data.go
+                        delete data.condition
 
                         if(form.valid()){
                             postFetch(

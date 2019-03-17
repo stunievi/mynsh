@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <!--#include file="/htmlsrc/header.html" -->
+</head>
+<body>
+<div id="content">
+    <!--<div class="batch-operation">-->
+        <!--<a class="btn btn-success" href="javascript:;" id="app_prop" tab-href="/htmlsrc/lab/gate/gate.edit.html">添加主机</a>-->
+        <!--<a class="btn btn-primary" href="javascript:;" id="reload-service" onclick="reloadService()">刷新网关服务</a>-->
+        <!--<div class="alert alert-info " style="margin-top: 10px" >编辑后想要生效，必须手动刷新网关服务</div>-->
+    <!--</div>-->
+
+    <div id="dataList">
+        <!-- 数据列表 -->
+    </div>
+
+
+</div>
+</body>
+</html>
+<script type="text/html" id="toolbar">
+    <div class="layui-toolbar">
+
+        <a href="javascript:;" class="btn handleShow btn-default" data-loanid="{{d.LOAN_ACCOUNT}}">查看贷款</a>
+        <a href="javascript:;" class="btn btn-default" tab-href="/htmlsrc/workFlow/nodeStates.html?id={{d.IID}}" data-name="{{d.CUS_NAME}}">查看任务</a>
+    </div>
+</script>
+<script>
+    laytableRender({
+        url: remoteApi.apiOdsSearchGRTGBasicInfo + "?grt=1",
+        cols:[
+            [
+                {templet: "#toolbar", title:"操作"},
+                { title:'担保_ID', field:'GUARANTY_ID' },
+                { title:'担保人客户号', field:'GUAR_NO' },
+                { title:'担保人名称', field:'GUAR_NAME' },
+                { title:'担保人证件类型', field:'CER_TYPE' },
+                { title:'担保人证件号码', field:'CER_NO' },
+                { title:'抵押物名称', field:'GAGE_NAME' },
+                { title:'权属证件类型', field:'RIGHT_CERT_TYPE_CODE' },
+                { title:'权属证件号', field:'RIGHT_CERT_NO' },
+                { title:'币种', field:'CURRENCY' },
+                { title:'核心入库价值', field:'CORE_VALUE' },
+                { title:'出入库状态', field:'DEPOT_STATUS' },
+            ]
+        ]
+    })
+    function onInfront() {
+        layuiTableReload()
+    }
+    var tmpl = template.compile($('#tmpl').html())
+    $("#app_prop").click(function () {
+        $('#tbody').append(tmpl({}))
+    });
+    $(document).on("click", ".del", function () {
+        $(this).closest("tr").remove();
+    });
+    $(".save").click(function () {
+        var elems = $(".key");
+        var data = {data:[]};
+        elems.each(function () {
+            var t = $(this).closest("tr");
+            var key = $(this).val();
+            var value = t.find(".value").val();
+            data.data.push({key:key,value:value})
+        })
+        postFetch(remoteOrigin + "/api/auto/appui/set",data,function () {
+            layer.msg("保存成功");
+        });
+    });
+    getFetch(remoteOrigin + "/api/auto/appui/get", function (data) {
+        $.each(data,function (i,v) {
+            $('#tbody').append(tmpl(v))
+        })
+    });
+
+    function reloadService(){
+        getFetch(remoteOrigin + "/api/auto/gate/reload", function () {
+            layer.closeAll()
+            layer.msg("刷新成功")
+        })
+    }
+
+</script>

@@ -744,6 +744,9 @@ function laytableRender(options, undefined){
                 , dataType:"json"
                 // , dataType: request.dataType
                 // , jsonp: "callback"
+                , headers: {
+                    Token: top.store.get("token")
+                }
                 , data: data
                 , success: function (res) {
                     var rows = [];

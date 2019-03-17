@@ -70,6 +70,10 @@ g1.CER_TYPE,
 g1.CER_NO,
 g6.GAGE_NAME,
 
+@if(isNotEmpty(grt)){
+    wgrt.iid,
+@}
+
 case
 
 when p1.ASSURE_MEANS_MAIN = '10' then
@@ -128,7 +132,7 @@ g4.CORE_VALUE
 
 when p1.ASSURE_MEANS_MAIN = '30' then
 
-''
+'0'
 
 end as CORE_VALUE,
 
@@ -156,13 +160,19 @@ left join GRT_GUARANTY_RE as g6 on g6.GUAR_CONT_NO=g5.GUAR_CONT_NO
 left join GRT_G_BASIC_INFO as g3 on g3.GUARANTY_ID=g6.GUARANTY_ID
 left join GRT_P_BASIC_INFO as g4 on g4.GUARANTY_ID=g6.GUARANTY_ID
 left join GRT_GUARANTEER as g2 on g2.GUARANTY_ID=g6.GUARANTY_ID
+@if(isNotEmpty(grt)){
+    inner join t_wf_ins_grt wgrt on wgrt.gid = g6.GUARANTY_ID
+@}
 where p1.CREUNIT_NO = (#use("数据源限制")#)
 --普通贷款
 and p1.LN_TYPE in ('普通贷款','银团贷款')
 --表内资产
 and p1.GL_CLASS not like '0%'
---贷款帐号
-and p1.LOAN_ACCOUNT= #LOAN_ACCOUNT#
+@if(isNotEmpty(grt)){
+@}else{
+    --贷款帐号
+    and p1.LOAN_ACCOUNT= #LOAN_ACCOUNT#
+@}
 --查询数据范围
 #use("condition_loan")#
 
@@ -883,6 +893,13 @@ left join t_org o2 on o2.acc_code = p1.MAIN_BR_ID
 @if(isNotEmpty(lm)){
     left join t_loan_manager lm on lm.loan_account = p1.loan_account
 @}
+--历史台账
+@if(isNotEmpty(history)){
+    inner join T_WORKFLOW_INSTANCE hins on hins.state = 'FINISHED' and hins.model_name = #modelName# and hins.loan_account = p1.loan_account
+@}
+
+
+
 where p1.CREUNIT_NO = (#use("数据源限制")#)
 --普通贷款
 and p1.LN_TYPE in ('普通贷款','银团贷款')
@@ -980,6 +997,21 @@ and ((UNPD_PRIN_BAL=0) or (UNPD_PRIN_BAL is null)) and ((DELAY_INT_CUMU=0) or (D
     and (select count(*) from t_workflow_instance ins where ins.model_name in ('不良资产主流程') and ins.state <> 'FINISHED' and ins.loan_account = p1.LOAN_ACCOUNT) > 0
 @}else if(register == 'false'){
     and (select count(*) from t_workflow_instance ins where ins.model_name in ('不良资产主流程') and ins.state <> 'FINISHED' and ins.loan_account = p1.LOAN_ACCOUNT) = 0
+@}
+
+--关联人查询
+@if(isNotEmpty(linkLoanAccount)){
+    and p1.cus_id in (
+        select pp1.cus_id from RPT_M_RPT_SLS_ACCT as pp1
+        left join  GRT_LOANGUAR_INFO as g5 on g5.CONT_NO=pp1.CONT_NO
+                        left join GRT_GUAR_CONT as g1 on g5.GUAR_CONT_NO=g1.GUAR_CONT_NO
+                        left join GRT_GUARANTY_RE as g6 on g6.GUAR_CONT_NO=g5.GUAR_CONT_NO
+                        left join GRT_GUARANTEER as g2 on g2.GUARANTY_ID=g6.GUARANTY_ID
+        where pp1.loan_account = #linkLoanAccount#
+        @if(isNotEmpty(RELATION_LENDER)){
+        and g2.RELATION_LENDER = #RELATION_LENDER#
+        @}
+    )
 @}
 
 @pageIgnoreTag(){

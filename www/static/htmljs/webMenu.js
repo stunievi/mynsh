@@ -91,7 +91,7 @@ var _menu = [
                 children: [
                     {
                         name: "贷款台账",
-                        href: "/htmlsrc/creditDataManage/ledger/loan.html?su=1",
+                        href: "/htmlsrc/creditDataManage/ledger/loan.html?su=1&linkPerson=1",
                         api: [remoteApi.apiOdsSearchAccloan,remoteApi.apiOdsSearchACC_LOAN, remoteApi.apiOdsSearchGrtGuar, remoteApi.apiOdsSearchCrtLoan, remoteApi.apiOdsSearchGRTGBasicInfo]
                     },
                     {
@@ -116,6 +116,10 @@ var _menu = [
                     {
                         name: "实际控制人查询"
                         , href: "/htmlsrc/creditDataManage/ledger/loanData.rm.list.html"
+                    },
+                    {
+                        name: "全行共享查询",
+                        href: "/htmlsrc/creditDataManage/ledger/loan.html?su=1"
                     }
                 ]
             }
@@ -192,18 +196,18 @@ var _menu = [
                 name: "不良资产登记",
                 children: [
                     {
+                        name: "任务发起",
+                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+enumWorkFlowModel.npaRegister,
+                        api: [
+                            remoteApi.apiOdsSearchAccloan+"?register=false&modelName="+encodeURI(enumWorkFlowModel.npaRegister)
+                        ]
+                    },
+                    {
                         name: "登记记录",
                         href: "/htmlsrc/taskManage/taskList.html?workFlow="+enumWorkFlowModel.npaRegister,
                         api: [
                             remoteApi.apiWorkflowIinstances+"?modelName="+encodeURI(enumWorkFlowModel.npaRegister),
                             remoteApi.apiWorkflowGoNext
-                        ]
-                    },
-                    {
-                        name: "台账列表",
-                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+enumWorkFlowModel.npaRegister,
-                        api: [
-                            remoteApi.apiOdsSearchAccloan+"?register=false&modelName="+encodeURI(enumWorkFlowModel.npaRegister)
                         ]
                     }
                 ]
@@ -242,6 +246,13 @@ var _menu = [
                 name: "催收管理",
                 children: [
                     {
+                        name: "任务发起",
+                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+encodeURI(enumWorkFlowModel.urge),
+                        api: [
+                            remoteApi.apiOdsSearchAccloan+"?register=true&modelName="+encodeURI(enumWorkFlowModel.urge)
+                        ]
+                    },
+                    {
                         name: "催收记录",
                         href: "/htmlsrc/taskManage/taskList.html?workFlow="+encodeURI(enumWorkFlowModel.urge),
                         api: [
@@ -251,11 +262,8 @@ var _menu = [
 
                     },
                     {
-                        name: "不良台账",
-                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+encodeURI(enumWorkFlowModel.urge),
-                        api: [
-                            remoteApi.apiOdsSearchAccloan+"?register=true&modelName="+encodeURI(enumWorkFlowModel.urge)
-                        ]
+                        name: "历史记录",
+                        href:"/htmlsrc/creditDataManage/ledger/loan.html?history=1&workFlow="+encodeURI(enumWorkFlowModel.urge)
                     }
                 ]
             },
@@ -263,7 +271,14 @@ var _menu = [
                 name: "利息减免管理",
                 children: [
                     {
-                        name: "利息减免任务",
+                        name: "任务发起",
+                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+encodeURI(enumWorkFlowModel.interestRelief),
+                        api: [
+                            remoteApi.apiOdsSearchAccloan+"?register=true&modelName="+encodeURI(enumWorkFlowModel.interestRelief)
+                        ]
+                    },
+                    {
+                        name: "利息减免记录",
                         href: "/htmlsrc/taskManage/taskList.html?workFlow="+encodeURI(enumWorkFlowModel.interestRelief),
                         api: [
                             remoteApi.apiWorkflowIinstances+"?modelName="+encodeURI(enumWorkFlowModel.interestRelief),
@@ -271,17 +286,21 @@ var _menu = [
                         ]
                     },
                     {
-                        name: "不良台账",
-                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+encodeURI(enumWorkFlowModel.interestRelief),
-                        api: [
-                            remoteApi.apiOdsSearchAccloan+"?register=true&modelName="+encodeURI(enumWorkFlowModel.interestRelief)
-                        ]
+                        name: "历史记录",
+                        href:"/htmlsrc/creditDataManage/ledger/loan.html?history=1&workFlow="+encodeURI(enumWorkFlowModel.interestRelief)
                     }
                 ]
             },
             {
                 name: "诉讼管理",
                 children: [
+                    {
+                        name: "任务发起",
+                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+encodeURI(enumWorkFlowModel.litigation),
+                        api: [
+                            remoteApi.apiOdsSearchAccloan+"?register=true&modelName="+encodeURI(enumWorkFlowModel.litigation)
+                        ]
+                    },
                     {
                         name: "诉讼记录",
                         href: "/htmlsrc/taskManage/taskList.html?workFlow="+encodeURI(enumWorkFlowModel.litigation),
@@ -291,17 +310,21 @@ var _menu = [
                         ]
                     },
                     {
-                        name: "不良台账",
-                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+encodeURI(enumWorkFlowModel.litigation),
-                        api: [
-                            remoteApi.apiOdsSearchAccloan+"?register=true&modelName="+encodeURI(enumWorkFlowModel.litigation)
-                        ]
+                        name: "历史记录",
+                        href:"/htmlsrc/creditDataManage/ledger/loan.html?history=1&workFlow="+encodeURI(enumWorkFlowModel.litigation)
                     }
                 ]
             },
             {
                 name: "抵债资产接收管理",
                 children: [
+                    {
+                        name: "任务发起",
+                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+encodeURI(enumWorkFlowModel.debtAssets),
+                        api: [
+                            remoteApi.apiOdsSearchAccloan+"?register=true&modelName="+encodeURI(enumWorkFlowModel.debtAssets)
+                        ]
+                    },
                     {
                         name: "抵债资产接收记录",
                         href: "/htmlsrc/taskManage/taskList.html?workFlow="+encodeURI(enumWorkFlowModel.debtAssets),
@@ -311,17 +334,21 @@ var _menu = [
                         ]
                     },
                     {
-                        name: "不良台账",
-                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+encodeURI(enumWorkFlowModel.debtAssets),
-                        api: [
-                            remoteApi.apiOdsSearchAccloan+"?register=true&modelName="+encodeURI(enumWorkFlowModel.debtAssets)
-                        ]
+                        name: "历史记录",
+                        href:"/htmlsrc/creditDataManage/ledger/loan.html?history=1&workFlow="+encodeURI(enumWorkFlowModel.debtAssets)
                     }
                 ]
             },
             {
                 name: "资产处置管理",
                 children: [
+                    {
+                        name: "任务发起",
+                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+encodeURI(enumWorkFlowModel.debtAssetsDeal),
+                        api: [
+                            remoteApi.apiOdsSearchAccloan+"?register=true&modelName="+encodeURI(enumWorkFlowModel.debtAssetsDeal)
+                        ]
+                    },
                     {
                         name: "资产处置记录",
                         href: "/htmlsrc/taskManage/taskList.html?workFlow="+encodeURI(enumWorkFlowModel.debtAssetsDeal),
@@ -331,24 +358,34 @@ var _menu = [
                         ]
                     },
                     {
-                        name: "不良台账",
-                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+encodeURI(enumWorkFlowModel.debtAssetsDeal),
-                        api: [
-                            remoteApi.apiOdsSearchAccloan+"?register=true&modelName="+encodeURI(enumWorkFlowModel.debtAssetsDeal)
-                        ]
+                        name: "历史记录",
+                        href:"/htmlsrc/creditDataManage/ledger/loan.html?history=1&workFlow="+encodeURI(enumWorkFlowModel.debtAssetsDeal)
                     }
                 ]
+            }
+        ]
+    },
+    {
+        name: "资产台账管理",
+        children: [
+            {
+                name: "资产台账",
+                href: "/htmlsrc/creditDataManage/ledger/grt.list.html"
             },
             {
                 name: "强制执行",
                 children: [
                     {
+                        name: "任务发起",
+                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+encodeURI(enumWorkFlowModel.qiangzhizhixing),
+                    },
+                    {
                         name: "强制执行记录",
                         href: "/htmlsrc/taskManage/taskList.html?workFlow="+encodeURI(enumWorkFlowModel.qiangzhizhixing),
                     },
                     {
-                        name: "不良台账",
-                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+encodeURI(enumWorkFlowModel.qiangzhizhixing),
+                        name: "历史记录",
+                        href:"/htmlsrc/creditDataManage/ledger/loan.html?history=1&workFlow="+encodeURI(enumWorkFlowModel.qiangzhizhixing)
                     }
                 ]
             },
@@ -356,12 +393,16 @@ var _menu = [
                 name: "房屋出租",
                 children: [
                     {
+                        name: "任务发起",
+                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+encodeURI(enumWorkFlowModel.fangwuchuzu),
+                    },
+                    {
                         name: "房屋出租记录",
                         href: "/htmlsrc/taskManage/taskList.html?workFlow="+encodeURI(enumWorkFlowModel.fangwuchuzu),
                     },
                     {
-                        name: "不良台账",
-                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+encodeURI(enumWorkFlowModel.fangwuchuzu),
+                        name: "历史记录",
+                        href:"/htmlsrc/creditDataManage/ledger/loan.html?history=1&workFlow="+encodeURI(enumWorkFlowModel.fangwuchuzu)
                     }
                 ]
             },
@@ -369,12 +410,16 @@ var _menu = [
                 name: "资产拍卖",
                 children: [
                     {
+                        name: "任务发起",
+                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+encodeURI(enumWorkFlowModel.zichanpaimai),
+                    },
+                    {
                         name: "资产拍卖记录",
                         href: "/htmlsrc/taskManage/taskList.html?workFlow="+encodeURI(enumWorkFlowModel.zichanpaimai),
                     },
                     {
-                        name: "不良台账",
-                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+encodeURI(enumWorkFlowModel.zichanpaimai),
+                        name: "历史记录",
+                        href:"/htmlsrc/creditDataManage/ledger/loan.html?history=1&workFlow="+encodeURI(enumWorkFlowModel.zichanpaimai)
                     }
                 ]
             },
@@ -382,17 +427,22 @@ var _menu = [
                 name: "资产协议出售",
                 children: [
                     {
+                        name: "任务发起",
+                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+encodeURI(enumWorkFlowModel.zichanxieyichushou),
+                    },
+                    {
                         name: "资产协议出售记录",
                         href: "/htmlsrc/taskManage/taskList.html?workFlow="+encodeURI(enumWorkFlowModel.zichanxieyichushou),
                     },
                     {
-                        name: "不良台账",
-                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+encodeURI(enumWorkFlowModel.zichanxieyichushou),
+                        name: "历史记录",
+                        href:"/htmlsrc/creditDataManage/ledger/loan.html?history=1&workFlow="+encodeURI(enumWorkFlowModel.zichanxieyichushou)
                     }
                 ]
             }
+
         ]
-    },
+    } ,
     {
         name: '文件管理',
         icon: '<span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>&nbsp;',
@@ -847,6 +897,10 @@ if(location.href.indexOf("localhost") > -1 || location.href.indexOf("47.94.97.13
                 name:"APP配置",
                 href: "/htmlsrc/lab/appui.html"
             },
+            {
+                name:"网关服务",
+                href: "/htmlsrc/lab/gate/gate.list.html"
+            }
 
         ]
     });

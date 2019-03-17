@@ -751,7 +751,23 @@
                             myAttrs[v.attrKey] = v.attrValue;
                         }
                     })
-                    console.log(myAttrs);
+                    if(current.type == 'input'){
+                        $.each(current.content || [], function (i,v) {
+                            //todo: 记得封装
+                           if(v.type == 'diya'){
+                               getFetch(remoteOrigin + "/api/search/accloan/04?LOAN_ACCOUNT="+data.loanAccount+"&order=asc&size=1000&page=1", {},function (res) {
+                                   v.items = []
+                                   $.each(res.list || [] ,function (i,vv) {
+                                       v.items.push(vv.GAGE_NAME + "(" + vv.GUARANTY_ID + ")")
+                                   })
+                                   v.type = 'checkbox'
+                               }, null, {
+                                   sync: true
+                               })
+                           }
+                        })
+                    }
+                    console.log(myAttrs,current);
                     $("#workline-render")
                         .empty()
                         .html(

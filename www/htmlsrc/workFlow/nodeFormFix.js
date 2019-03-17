@@ -46,7 +46,7 @@ function getFormAttrFromNode(workFlowNode){
     };
 }
 
-function fixFormAttrToEnable(formAttrs){
+function fixFormAttrToEnable(formAttrs,loanAccount){
     var fixAttrs = [],
         fixRules = [],
         datetimeAttrKeys = [];
@@ -116,7 +116,22 @@ function fixFormAttrToEnable(formAttrs){
         }else if(_item.type == 'datetime'){
             item.disabled = true;
             datetimeAttrKeys.push(_item.ename);
-        }else if(_item.type == 'checkbox'){
+        }
+        else if(_item.type == 'diya' && loanAccount){
+            getFetch(remoteOrigin + "/api/search/accloan/04?LOAN_ACCOUNT="+loanAccount+"&order=asc&size=1000&page=1", {},function (res) {
+                item.vals = []
+                $.each(res.list || [] ,function (i,v) {
+                    item.vals.push({
+                        name: v.GAGE_NAME + "(" + v.GUARANTY_ID + ")",
+                        val: v.GAGE_NAME + "(" + v.GUARANTY_ID + ")"
+                    })
+                })
+                item.type = 'checkbox'
+            }, null, {
+                sync: true
+            })
+        }
+        else if(_item.type == 'checkbox'){
             item.type = "checkbox";
             if(_item.vals){
                 item.vals = _item.vals;

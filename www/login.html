@@ -212,6 +212,7 @@
                             $.cookie('authorization', origin.token);
                             store.set("lastLogin", new Date().getTime())
                             store.set("$user", user)
+                            store.set("token", origin.token)
                             location.href = "index3.html"
                         }
                     )
