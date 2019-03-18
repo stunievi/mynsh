@@ -48,7 +48,7 @@ if(!window.location.origin)
 }
 
 if(typeof $ !== "undefined"){
-    $.getJSON("/server.json", function (json) {
+    $.getJSON("/server.json?v="+Math.random(), function (json) {
         top.SERVER_LIST = json;
     });
 }
