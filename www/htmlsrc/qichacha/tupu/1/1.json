@@ -1,0 +1,230 @@
+{
+	"success": {
+		"results": [{
+			"data": [{
+				"graph": {
+					"nodes": [{
+						"id": "131618586",
+						"labels": ["Person"],
+						"properties": {
+							"keyNo": "pd2aa67c528a06ed01487f09aa8c5287",
+							"role": "自然人股东",
+							"name": "周建新",
+							"hasImage": false
+						}
+					}, {
+						"id": "124808373",
+						"labels": ["Person"],
+						"properties": {
+							"keyNo": "pbd5ced12d469807e1d2abbe96a79fe7",
+							"role": "自然人股东",
+							"name": "张策",
+							"hasImage": false
+						}
+					}, {
+						"id": "72403418",
+						"labels": ["Person"],
+						"properties": {
+							"keyNo": "p19f9e219cd6255fd5d6315d0c4628e7",
+							"role": "自然人股东",
+							"name": "万荣萍",
+							"hasImage": false
+						}
+					}, {
+						"id": "85067870",
+						"labels": ["Person"],
+						"properties": {
+							"keyNo": "p415bcef655c60832ada2926f6b2ec1b",
+							"role": "自然人股东",
+							"name": "周立才",
+							"hasImage": false
+						}
+					}, {
+						"id": "95307616",
+						"labels": ["Person"],
+						"properties": {
+							"keyNo": "p614128b77fe12243dbaee24904937c3",
+							"role": "自然人股东",
+							"name": "王新昕",
+							"hasImage": false
+						}
+					}, {
+						"id": "84803926",
+						"labels": ["Person"],
+						"properties": {
+							"keyNo": "p4089f4e66588896d4df544cd70794a0",
+							"role": "自然人股东",
+							"name": "马元",
+							"hasImage": false
+						}
+					}, {
+						"id": "86641335",
+						"labels": ["Person"],
+						"properties": {
+							"keyNo": "p464034fd7a65dc40e19cbdfaa735ea3",
+							"role": "自然人股东",
+							"name": "杨波",
+							"hasImage": false
+						}
+					}, {
+						"id": "100984951",
+						"labels": ["Person"],
+						"properties": {
+							"keyNo": "p72f55a2579e457716e9bf726ecda960",
+							"role": "自然人股东",
+							"name": "刘铭",
+							"hasImage": false
+						}
+					}, {
+						"id": "132886172",
+						"labels": ["Person"],
+						"properties": {
+							"keyNo": "pd6a269bdac7037a1e335d6fd302df37",
+							"role": "自然人股东",
+							"name": "李志鹏",
+							"hasImage": false
+						}
+					}, {
+						"id": "8558911",
+						"labels": ["Company"],
+						"properties": {
+							"keyNo": "23a7af357b9942acdb7d2ba96a7fa45f",
+							"registCapi": "6000.000",
+							"name": "连云港福源医疗器械有限公司",
+							"econKind": "有限责任公司",
+							"hasImage": true,
+							"status": "在业"
+						}
+					}, {
+						"id": "143481138",
+						"labels": ["Person"],
+						"properties": {
+							"keyNo": "pf7d81fd109c639bebd7c82bfee78854",
+							"role": "自然人股东",
+							"name": "田正卿",
+							"hasImage": false
+						}
+					}],
+					"relationships": [{
+						"id": "147606541",
+						"type": "LEGAL",
+						"startNode": "85067870",
+						"endNode": "8558911",
+						"properties": {
+							"role": ""
+						}
+					}, {
+						"id": "270576940",
+						"type": "EMPLOY",
+						"startNode": "85067870",
+						"endNode": "8558911",
+						"properties": {
+							"role": "执行董事兼总经理"
+						}
+					}, {
+						"id": "86111490",
+						"type": "INVEST",
+						"startNode": "85067870",
+						"endNode": "8558911",
+						"properties": {
+							"role": "自然人股东",
+							"stockPercent": 67.2,
+							"shouldCapi": 4032
+						}
+					}, {
+						"id": "86111493",
+						"type": "INVEST",
+						"startNode": "132886172",
+						"endNode": "8558911",
+						"properties": {
+							"role": "自然人股东",
+							"stockPercent": 10,
+							"shouldCapi": 600
+						}
+					}, {
+						"id": "86111495",
+						"type": "INVEST",
+						"startNode": "143481138",
+						"endNode": "8558911",
+						"properties": {
+							"role": "自然人股东",
+							"stockPercent": 5,
+							"shouldCapi": 300
+						}
+					}, {
+						"id": "86111498",
+						"type": "INVEST",
+						"startNode": "72403418",
+						"endNode": "8558911",
+						"properties": {
+							"role": "自然人股东",
+							"stockPercent": 4.5,
+							"shouldCapi": 270
+						}
+					}, {
+						"id": "86111500",
+						"type": "INVEST",
+						"startNode": "95307616",
+						"endNode": "8558911",
+						"properties": {
+							"role": "自然人股东",
+							"stockPercent": 4,
+							"shouldCapi": 240
+						}
+					}, {
+						"id": "86111503",
+						"type": "INVEST",
+						"startNode": "100984951",
+						"endNode": "8558911",
+						"properties": {
+							"role": "自然人股东",
+							"stockPercent": 2.4,
+							"shouldCapi": 144
+						}
+					}, {
+						"id": "86111502",
+						"type": "INVEST",
+						"startNode": "131618586",
+						"endNode": "8558911",
+						"properties": {
+							"role": "自然人股东",
+							"stockPercent": 2.45,
+							"shouldCapi": 147
+						}
+					}, {
+						"id": "86111507",
+						"type": "INVEST",
+						"startNode": "124808373",
+						"endNode": "8558911",
+						"properties": {
+							"role": "自然人股东",
+							"stockPercent": 1.75,
+							"shouldCapi": 105
+						}
+					}, {
+						"id": "86111506",
+						"type": "INVEST",
+						"startNode": "86641335",
+						"endNode": "8558911",
+						"properties": {
+							"role": "自然人股东",
+							"stockPercent": 2.2,
+							"shouldCapi": 132
+						}
+					}, {
+						"id": "86111508",
+						"type": "INVEST",
+						"startNode": "84803926",
+						"endNode": "8558911",
+						"properties": {
+							"role": "自然人股东",
+							"stockPercent": 0.5,
+							"shouldCapi": 30
+						}
+					}]
+				}
+			}]
+		}],
+		"errors": []
+	}
+}

@@ -1,0 +1,26 @@
+package com.beeasy.loadqcc.controller;
+
+import com.beeasy.loadqcc.service.GetQccService;
+import com.beeasy.mscommon.Result;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/qcc")
+public class QccDataController {
+
+    @Autowired
+    GetQccService getQccService;
+
+    @GetMapping(value = "/getAllQccData")
+    Result ECI_GetDetailsByName(
+            String keyword
+    ){
+        getQccService.loadAllData("北京小桔科技有限公司");
+        return Result.ok("北京小桔科技有限公司");
+    }
+
+
+}
