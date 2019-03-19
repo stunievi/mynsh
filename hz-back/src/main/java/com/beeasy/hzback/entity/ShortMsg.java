@@ -3,6 +3,7 @@ package com.beeasy.hzback.entity;
 import com.beeasy.mscommon.valid.ValidGroup;
 import lombok.Getter;
 import lombok.Setter;
+import org.beetl.sql.core.SQLManager;
 import org.beetl.sql.core.TailBean;
 import org.beetl.sql.core.annotatoin.Table;
 

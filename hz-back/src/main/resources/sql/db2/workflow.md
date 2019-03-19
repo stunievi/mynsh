@@ -21,7 +21,9 @@ or exists(select 1 from t_wf_ins_dealer where uid = #uid# and type in ('DID_DEAL
 --信贷主管
 or exists(select 1 from t_department_manager where uid = #uid# and id = ins.dep_id) 
 --总行角色
+@if(isEmpty(zhipaiyijiao)){
 or exists(select 1 from t_global_permission_center where uid = #uid# and type = 'DATA_SEARCH_CONDITION')
+@}
 --观察者权限
 or exists(select 1 from t_global_permission_center where uid = #uid# and type = 'WORKFLOW_OBSERVER' and object_id = ins.model_id)
 --任务管理权限

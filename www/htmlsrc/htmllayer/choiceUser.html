@@ -21,10 +21,11 @@
     <!-- toolbar渲染模板 -->
     <script type="text/html" id="toolbar">
         <div class="layui-toolbar">
-            <a href="javascipt:;" class="btn handelAdd btn-default" data-id="{{d.uid || d.ID}}" data-true-name="{{d.trueName || d.TRUENAME}}" data-user-name="{{d.username || d.USERNAME }}">选择</a>
+            <a href="javascipt:;" class="btn handelAdd btn-default" data-id="{{d.uid || d.ID}}" data-true-name="{{d.trueName || d.TRUENAME}}" data-user-name="{{d.username || d.USERNAME }}" >选择</a>
         </div>
     </script>
     <script>
+        var modelIds
         var index = parent.layer.getFrameIndex(window.name);
         var actType = getParam("actType") || '';
         var urlType = getParam("urlType") || '';
@@ -72,15 +73,36 @@
             }
         });
 
-        //给父页面传值
         $(document).on('click', '.handelAdd', function(){
-            var uid = $(this).attr("data-id");
-            getFetch(remoteOrigin + "/api/auto/wfins/point",{
-                id: getParam("id")
-                , toUid: uid
-            },function () {
-                closeCurrentIframe()
-            });
+
+            // var uid = $(this).attr("data-id");
+            // postFetch(remoteOrigin + "/api/auto/wfins/point",{
+            //     id: getParam("id")
+            //     , toUid: uid
+            // },function () {
+            //     closeCurrentIframe()
+            // });
+
+                var pointType = getParam("pointType") || '';
+                if (pointType == 'batchPoint') {
+                    var modelId = modelIds.join(',');
+                    var uid = $(this).attr("data-id");
+                    console.log(modelId);
+                    postFetch(remoteOrigin + "/api/auto/wfins/batchPoint",{
+                        modelIds: modelId,
+                        toUid: uid
+                    },function () {
+                        closeCurrentIframe()
+                    });
+                }else {
+                    var uid = $(this).attr("data-id");
+                        postFetch(remoteOrigin + "/api/auto/wfins/point",{
+                            id: getParam("id")
+                            , toUid: uid
+                        },function () {
+                            closeCurrentIframe()
+                        });
+                }
 
             // if(uid == dealerId){
             //     layer.msg("ga");
@@ -107,6 +129,12 @@
             return false;
         });
 
+        function onPageRequest(args) {
+            modelIds = args
+            return new Promise(function(resolve, reject) {
+
+            })
+        }
     </script>
 </body>
 </html>
