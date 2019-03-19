@@ -769,3 +769,8 @@ WHERE
 	( last_time IS NOT NULL AND
 	CURRENT TIMESTAMP > last_time + #v3# MONTHS - #v4# days )
 
+
+规则17
+===
+select * from cus_indiv
+

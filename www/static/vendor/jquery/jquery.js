@@ -31,7 +31,10 @@ if (!Array.prototype.filter) { Array.prototype.filter = function(fun /* , thisAr
 	
 if(!Array.prototype.equals){ Array.prototype.equals = function (array) { if (!array){return false;} if (this.length != array.length){ return false;} this.sort(); array.sort(); for (var i = 0, l = this.length; i < l; i++) { if (this[i] instanceof Array && array[i] instanceof Array) { if (!this[i].equals(array[i])) return false; } else if (this[i] != array[i]) { return false; } } return true; } }
 
-if (typeof Object.assign != 'function') { Object.defineProperty(Object, "assign", { value: function assign(target, varArgs) { 'use strict'; if (target == null) { throw new TypeError('Cannot convert undefined or null to object'); } var to = Object(target); for (var index = 1; index < arguments.length; index++) { var nextSource = arguments[index]; if (nextSource != null) { for (var nextKey in nextSource) { if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) { to[nextKey] = nextSource[nextKey]; } } } } return to; }, writable: true, configurable: true }); }
+if (typeof Object.assign != 'function') {
+    var ___ = ( { value: function assign(target, varArgs) { 'use strict'; if (target == null) { throw new TypeError('Cannot convert undefined or null to object'); } var to = Object(target); for (var index = 1; index < arguments.length; index++) { var nextSource = arguments[index]; if (nextSource != null) { for (var nextKey in nextSource) { if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) { to[nextKey] = nextSource[nextKey]; } } } } return to; }, writable: true, configurable: true });
+    Object.assign = ___.value
+}
 
 //fix
 $(function () {

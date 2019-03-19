@@ -744,6 +744,9 @@ function laytableRender(options, undefined){
                 , dataType:"json"
                 // , dataType: request.dataType
                 // , jsonp: "callback"
+                , headers: {
+                    Token: top.store.get("token")
+                }
                 , data: data
                 , success: function (res) {
                     var rows = [];
@@ -766,6 +769,10 @@ function laytableRender(options, undefined){
                         , total: total
                     } : rows;
 
+                    if(options.onData){
+                        ret = options.onData(ret)
+                    }
+
                     elem.bootstrapTable("load", ret);
 
                     if(options.success){
@@ -784,7 +791,7 @@ function laytableRender(options, undefined){
                 ajaxOps.dataType = 'json';
             }
             //容错, 报表第一次不加载
-            if(ajaxOps.url.indexOf("/api/report") > -1){
+            if(ajaxOps.url && ajaxOps.url.indexOf("/api/report") > -1){
                 window.$tableRender = window.$tableRender || {};
                 window.$tableRender[id] = window.$tableRender[id] || 0;
                 if(window.$tableRender[id]++ == 0){

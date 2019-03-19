@@ -1,117 +1,6 @@
 
 var _menu = [
-  {
-        id: "qichacha",
-        name: "企查查",
-        children: [
-            {
-                name: "工商信息",
-                children:[
-                    {
-                        name: "企业关键字精模糊查询",
-                        href: "/htmlsrc/qichacha/ECI/search.html"
-                    },
-                    {
-                        name: "企业关键字精确获取详细信息",
-                        href: "/htmlsrc/qichacha/ECI/detailsByName.html"
-                    },
-                    {
-                        name: "获取新增的公司信息",
-                        href: "/htmlsrc/qichacha/ECI/SearchFresh.html"
-                    },
-                    {
-                        name: "企业经营异常信息",
-                        href: "/htmlsrc/qichacha/ECIException/GetOpException.html"
-                    },
-                    {
-                        name: "企业人员董监高信息",
-                        href: "/htmlsrc/qichacha/CIAEmployee/GetStockRelationInfo.html"
-                    }
-                ]
-            },
-            {
-                name: "法律诉讼",
-                children: [
-                    {
-                        name: "查询开庭公告",
-                        href: "/htmlsrc/qichacha/CourtAnno/SearchCourtNotice.html"
-                    },
-                    {
-                        name: "查询裁判文书",
-                        href: "/htmlsrc/qichacha/JudgeDoc/SearchJudgmentDoc.html"
-                    },
-                    {
-                        name:  "查询法院公告",
-                        href: "/htmlsrc/qichacha/CourtNotice/SearchCourtAnnouncement.html"
-                    },
-                    {
-                        name: "失信信息",
-                        href: "/htmlsrc/qichacha/Court/SearchShiXin.html"
-                    },
-                    {
-                        name: "被执行人信息",
-                        href: "/htmlsrc/qichacha/Court/SearchZhiXing.html"
-                    },
-                    {
-                        name: "司法协助查询",
-                        href: "/htmlsrc/qichacha/JudicialAssistance/GetJudicialAssistance.html"
-                    }
-                ]
-            },
-            {
-                name: "关联族谱",
-                children: [
-                    {
-                        name: "企业族谱查询",
-                        href: "/htmlsrc/qichacha/ECIRelation/ECIRelationIndex.html"
-                    }
-                ]
-            },
-            {
-                name: "经营风险",
-                children: [
-                    {
-                        name: "司法拍卖",
-                        href: "/htmlsrc/qichacha/JudicialSale/GetJudicialSaleList.html"
-                    },
-                    {
-                        name: "土地抵押",
-                        href: "/htmlsrc/qichacha/LandMortgage/GetLandMortgageList.html"
-                    },
-                    {
-                        name: "环保处罚",
-                        href: "/htmlsrc/qichacha/EnvPunishment/GetEnvPunishmentList.html"
-                    },
-                    {
-                        name: "动产抵押",
-                        href: "/htmlsrc/qichacha/ChattelMortgage/GetChattelMortgage.html"
-                    }
-                ]
-            },
-            {
-                name: "增值服务",
-                children: [
-                    {
-                        name: "历史信息",
-                        href: "/htmlsrc/qichacha/History/HistoryIndex.html"
-                    },
-                    {
-                        name: "控股公司",
-                        href: "/htmlsrc/qichacha/HoldingCompany/GetHoldingCompany.html"
-                    }
-                ]
-            },
-            {
-                name: "监控报告",
-                children: [
-                    {
-                        name: "雷达监控",
-                        href: "javascript:alert('未开通');"
-                    }
-                ]
-            }
-        ]
-    },
+
     {
         id: "menu-mybench",
         name:'工作台',
@@ -202,7 +91,7 @@ var _menu = [
                 children: [
                     {
                         name: "贷款台账",
-                        href: "/htmlsrc/creditDataManage/ledger/loan.html?su=1",
+                        href: "/htmlsrc/creditDataManage/ledger/loan.html?su=1&linkPerson=1",
                         api: [remoteApi.apiOdsSearchAccloan,remoteApi.apiOdsSearchACC_LOAN, remoteApi.apiOdsSearchGrtGuar, remoteApi.apiOdsSearchCrtLoan, remoteApi.apiOdsSearchGRTGBasicInfo]
                     },
                     {
@@ -227,6 +116,10 @@ var _menu = [
                     {
                         name: "实际控制人查询"
                         , href: "/htmlsrc/creditDataManage/ledger/loanData.rm.list.html"
+                    },
+                    {
+                        name: "全行共享查询",
+                        href: "/htmlsrc/creditDataManage/ledger/loan.html?su=1"
                     }
                 ]
             }
@@ -303,18 +196,18 @@ var _menu = [
                 name: "不良资产登记",
                 children: [
                     {
+                        name: "任务发起",
+                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+enumWorkFlowModel.npaRegister,
+                        api: [
+                            remoteApi.apiOdsSearchAccloan+"?register=false&modelName="+encodeURI(enumWorkFlowModel.npaRegister)
+                        ]
+                    },
+                    {
                         name: "登记记录",
                         href: "/htmlsrc/taskManage/taskList.html?workFlow="+enumWorkFlowModel.npaRegister,
                         api: [
                             remoteApi.apiWorkflowIinstances+"?modelName="+encodeURI(enumWorkFlowModel.npaRegister),
                             remoteApi.apiWorkflowGoNext
-                        ]
-                    },
-                    {
-                        name: "台账列表",
-                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+enumWorkFlowModel.npaRegister,
-                        api: [
-                            remoteApi.apiOdsSearchAccloan+"?register=false&modelName="+encodeURI(enumWorkFlowModel.npaRegister)
                         ]
                     }
                 ]
@@ -353,6 +246,13 @@ var _menu = [
                 name: "催收管理",
                 children: [
                     {
+                        name: "任务发起",
+                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+encodeURI(enumWorkFlowModel.urge),
+                        api: [
+                            remoteApi.apiOdsSearchAccloan+"?register=true&modelName="+encodeURI(enumWorkFlowModel.urge)
+                        ]
+                    },
+                    {
                         name: "催收记录",
                         href: "/htmlsrc/taskManage/taskList.html?workFlow="+encodeURI(enumWorkFlowModel.urge),
                         api: [
@@ -362,11 +262,8 @@ var _menu = [
 
                     },
                     {
-                        name: "不良台账",
-                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+encodeURI(enumWorkFlowModel.urge),
-                        api: [
-                            remoteApi.apiOdsSearchAccloan+"?register=true&modelName="+encodeURI(enumWorkFlowModel.urge)
-                        ]
+                        name: "历史记录",
+                        href:"/htmlsrc/creditDataManage/ledger/loan.html?history=1&workFlow="+encodeURI(enumWorkFlowModel.urge)
                     }
                 ]
             },
@@ -374,7 +271,14 @@ var _menu = [
                 name: "利息减免管理",
                 children: [
                     {
-                        name: "利息减免任务",
+                        name: "任务发起",
+                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+encodeURI(enumWorkFlowModel.interestRelief),
+                        api: [
+                            remoteApi.apiOdsSearchAccloan+"?register=true&modelName="+encodeURI(enumWorkFlowModel.interestRelief)
+                        ]
+                    },
+                    {
+                        name: "利息减免记录",
                         href: "/htmlsrc/taskManage/taskList.html?workFlow="+encodeURI(enumWorkFlowModel.interestRelief),
                         api: [
                             remoteApi.apiWorkflowIinstances+"?modelName="+encodeURI(enumWorkFlowModel.interestRelief),
@@ -382,17 +286,21 @@ var _menu = [
                         ]
                     },
                     {
-                        name: "不良台账",
-                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+encodeURI(enumWorkFlowModel.interestRelief),
-                        api: [
-                            remoteApi.apiOdsSearchAccloan+"?register=true&modelName="+encodeURI(enumWorkFlowModel.interestRelief)
-                        ]
+                        name: "历史记录",
+                        href:"/htmlsrc/creditDataManage/ledger/loan.html?history=1&workFlow="+encodeURI(enumWorkFlowModel.interestRelief)
                     }
                 ]
             },
             {
                 name: "诉讼管理",
                 children: [
+                    {
+                        name: "任务发起",
+                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+encodeURI(enumWorkFlowModel.litigation),
+                        api: [
+                            remoteApi.apiOdsSearchAccloan+"?register=true&modelName="+encodeURI(enumWorkFlowModel.litigation)
+                        ]
+                    },
                     {
                         name: "诉讼记录",
                         href: "/htmlsrc/taskManage/taskList.html?workFlow="+encodeURI(enumWorkFlowModel.litigation),
@@ -402,17 +310,21 @@ var _menu = [
                         ]
                     },
                     {
-                        name: "不良台账",
-                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+encodeURI(enumWorkFlowModel.litigation),
-                        api: [
-                            remoteApi.apiOdsSearchAccloan+"?register=true&modelName="+encodeURI(enumWorkFlowModel.litigation)
-                        ]
+                        name: "历史记录",
+                        href:"/htmlsrc/creditDataManage/ledger/loan.html?history=1&workFlow="+encodeURI(enumWorkFlowModel.litigation)
                     }
                 ]
             },
             {
                 name: "抵债资产接收管理",
                 children: [
+                    {
+                        name: "任务发起",
+                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+encodeURI(enumWorkFlowModel.debtAssets),
+                        api: [
+                            remoteApi.apiOdsSearchAccloan+"?register=true&modelName="+encodeURI(enumWorkFlowModel.debtAssets)
+                        ]
+                    },
                     {
                         name: "抵债资产接收记录",
                         href: "/htmlsrc/taskManage/taskList.html?workFlow="+encodeURI(enumWorkFlowModel.debtAssets),
@@ -422,17 +334,21 @@ var _menu = [
                         ]
                     },
                     {
-                        name: "不良台账",
-                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+encodeURI(enumWorkFlowModel.debtAssets),
-                        api: [
-                            remoteApi.apiOdsSearchAccloan+"?register=true&modelName="+encodeURI(enumWorkFlowModel.debtAssets)
-                        ]
+                        name: "历史记录",
+                        href:"/htmlsrc/creditDataManage/ledger/loan.html?history=1&workFlow="+encodeURI(enumWorkFlowModel.debtAssets)
                     }
                 ]
             },
             {
                 name: "资产处置管理",
                 children: [
+                    {
+                        name: "任务发起",
+                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+encodeURI(enumWorkFlowModel.debtAssetsDeal),
+                        api: [
+                            remoteApi.apiOdsSearchAccloan+"?register=true&modelName="+encodeURI(enumWorkFlowModel.debtAssetsDeal)
+                        ]
+                    },
                     {
                         name: "资产处置记录",
                         href: "/htmlsrc/taskManage/taskList.html?workFlow="+encodeURI(enumWorkFlowModel.debtAssetsDeal),
@@ -442,16 +358,91 @@ var _menu = [
                         ]
                     },
                     {
-                        name: "不良台账",
-                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+encodeURI(enumWorkFlowModel.debtAssetsDeal),
-                        api: [
-                            remoteApi.apiOdsSearchAccloan+"?register=true&modelName="+encodeURI(enumWorkFlowModel.debtAssetsDeal)
-                        ]
+                        name: "历史记录",
+                        href:"/htmlsrc/creditDataManage/ledger/loan.html?history=1&workFlow="+encodeURI(enumWorkFlowModel.debtAssetsDeal)
                     }
                 ]
             }
         ]
     },
+    {
+        name: "资产台账管理",
+        children: [
+            {
+                name: "资产台账",
+                href: "/htmlsrc/creditDataManage/ledger/grt.list.html"
+            },
+            {
+                name: "强制执行",
+                children: [
+                    {
+                        name: "任务发起",
+                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+encodeURI(enumWorkFlowModel.qiangzhizhixing),
+                    },
+                    {
+                        name: "强制执行记录",
+                        href: "/htmlsrc/taskManage/taskList.html?workFlow="+encodeURI(enumWorkFlowModel.qiangzhizhixing),
+                    },
+                    {
+                        name: "历史记录",
+                        href:"/htmlsrc/creditDataManage/ledger/loan.html?history=1&workFlow="+encodeURI(enumWorkFlowModel.qiangzhizhixing)
+                    }
+                ]
+            },
+            {
+                name: "房屋出租",
+                children: [
+                    {
+                        name: "任务发起",
+                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+encodeURI(enumWorkFlowModel.fangwuchuzu),
+                    },
+                    {
+                        name: "房屋出租记录",
+                        href: "/htmlsrc/taskManage/taskList.html?workFlow="+encodeURI(enumWorkFlowModel.fangwuchuzu),
+                    },
+                    {
+                        name: "历史记录",
+                        href:"/htmlsrc/creditDataManage/ledger/loan.html?history=1&workFlow="+encodeURI(enumWorkFlowModel.fangwuchuzu)
+                    }
+                ]
+            },
+            {
+                name: "资产拍卖",
+                children: [
+                    {
+                        name: "任务发起",
+                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+encodeURI(enumWorkFlowModel.zichanpaimai),
+                    },
+                    {
+                        name: "资产拍卖记录",
+                        href: "/htmlsrc/taskManage/taskList.html?workFlow="+encodeURI(enumWorkFlowModel.zichanpaimai),
+                    },
+                    {
+                        name: "历史记录",
+                        href:"/htmlsrc/creditDataManage/ledger/loan.html?history=1&workFlow="+encodeURI(enumWorkFlowModel.zichanpaimai)
+                    }
+                ]
+            },
+            {
+                name: "资产协议出售",
+                children: [
+                    {
+                        name: "任务发起",
+                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+encodeURI(enumWorkFlowModel.zichanxieyichushou),
+                    },
+                    {
+                        name: "资产协议出售记录",
+                        href: "/htmlsrc/taskManage/taskList.html?workFlow="+encodeURI(enumWorkFlowModel.zichanxieyichushou),
+                    },
+                    {
+                        name: "历史记录",
+                        href:"/htmlsrc/creditDataManage/ledger/loan.html?history=1&workFlow="+encodeURI(enumWorkFlowModel.zichanxieyichushou)
+                    }
+                ]
+            }
+
+        ]
+    } ,
     {
         name: '文件管理',
         icon: '<span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>&nbsp;',
@@ -537,15 +528,15 @@ var _menu = [
                     //     href: "/htmlsrc/creditDataManage/reports/reports_r22.html"
                     // },
                     // {
-                    //     name: "惠州市农商行隐性不良贷款明细表",
+                    //     name: "隐性不良贷款明细表",
                     //     href: "/htmlsrc/creditDataManage/reports/reports_r23.html"
                     // },
                     // {
-                    //     name: "惠州农商行五级分类不良贷款明细表",
+                    //     name: "五级分类不良贷款明细表",
                     //     href: "/htmlsrc/creditDataManage/reports/reports_r24.html"
                     // },
                     // {
-                    //     name: "惠州农商行五级分类不良贷款现金收回明细表",
+                    //     name: "五级分类不良贷款现金收回明细表",
                     //     href: "/htmlsrc/creditDataManage/reports/reports_r25.html"
                     // },
 
@@ -554,15 +545,15 @@ var _menu = [
                     //    href: "/htmlsrc/creditDataManage/reports/reports_r21.html"
                     //},
                     {
-                        name: "惠州农商银行信贷资产质量情况统计表（月报表）",
+                        name: "信贷资产质量情况统计表（月报表）",
                         href: "/htmlsrc/creditDataManage/reports/reports_r1.html"
                     },
                     {
-                        name: "惠州农商行五级分类不良贷款现金收回明细表",
+                        name: "五级分类不良贷款现金收回明细表",
                         href: "/htmlsrc/creditDataManage/reports/reports_r9.html"
                     },
                     {
-                        name: "惠州农商行五级分类不良贷款上调明细表",
+                        name: "五级分类不良贷款上调明细表",
                         href: "/htmlsrc/creditDataManage/reports/reports_r10.html"
                     },
                     {
@@ -699,11 +690,11 @@ var _menu = [
                         href: "/htmlsrc/creditDataManage/reports/reports_r6.html"
                     },
                     {
-                        name: "惠州市农商行隐性不良贷款明细表",
+                        name: "隐性不良贷款明细表",
                         href: "/htmlsrc/creditDataManage/reports/reports_r7.html"
                     },
                     {
-                        name: "惠州农商行五级分类不良贷款明细表",
+                        name: "五级分类不良贷款明细表",
                         href: "/htmlsrc/creditDataManage/reports/reports_r8.html"
                     },
                     {
@@ -906,6 +897,10 @@ if(location.href.indexOf("localhost") > -1 || location.href.indexOf("47.94.97.13
                 name:"APP配置",
                 href: "/htmlsrc/lab/appui.html"
             },
+            {
+                name:"网关服务",
+                href: "/htmlsrc/lab/gate/gate.list.html"
+            }
 
         ]
     });
@@ -954,6 +949,118 @@ if(location.href.indexOf("localhost") > -1 || location.href.indexOf("47.94.97.13
             //     name: '公共文件柜',
             //     href: '/htmlsrc/document/public/public.fileList.html'
             // }
+        ]
+    })
+    _menu.push({
+        id: "qichacha",
+        name: "企查查",
+        children: [
+            {
+                name: "工商信息",
+                children:[
+                    {
+                        name: "企业关键字精模糊查询",
+                        href: "/htmlsrc/qichacha/ECI/search.html"
+                    },
+                    {
+                        name: "企业关键字精确获取详细信息",
+                        href: "/htmlsrc/qichacha/ECI/detailsByName.html"
+                    },
+                    {
+                        name: "获取新增的公司信息",
+                        href: "/htmlsrc/qichacha/ECI/SearchFresh.html"
+                    },
+                    {
+                        name: "企业经营异常信息",
+                        href: "/htmlsrc/qichacha/ECIException/GetOpException.html"
+                    },
+                    {
+                        name: "企业人员董监高信息",
+                        href: "/htmlsrc/qichacha/CIAEmployee/GetStockRelationInfo.html"
+                    }
+                ]
+            },
+            {
+                name: "法律诉讼",
+                children: [
+                    {
+                        name: "查询开庭公告",
+                        href: "/htmlsrc/qichacha/CourtAnno/SearchCourtNotice.html"
+                    },
+                    {
+                        name: "查询裁判文书",
+                        href: "/htmlsrc/qichacha/JudgeDoc/SearchJudgmentDoc.html"
+                    },
+                    {
+                        name:  "查询法院公告",
+                        href: "/htmlsrc/qichacha/CourtNotice/SearchCourtAnnouncement.html"
+                    },
+                    {
+                        name: "失信信息",
+                        href: "/htmlsrc/qichacha/Court/SearchShiXin.html"
+                    },
+                    {
+                        name: "被执行人信息",
+                        href: "/htmlsrc/qichacha/Court/SearchZhiXing.html"
+                    },
+                    {
+                        name: "司法协助查询",
+                        href: "/htmlsrc/qichacha/JudicialAssistance/GetJudicialAssistance.html"
+                    }
+                ]
+            },
+            {
+                name: "关联族谱",
+                children: [
+                    {
+                        name: "企业族谱查询",
+                        href: "/htmlsrc/qichacha/ECIRelation/ECIRelationIndex.html"
+                    }
+                ]
+            },
+            {
+                name: "经营风险",
+                children: [
+                    {
+                        name: "司法拍卖",
+                        href: "/htmlsrc/qichacha/JudicialSale/GetJudicialSaleList.html"
+                    },
+                    {
+                        name: "土地抵押",
+                        href: "/htmlsrc/qichacha/LandMortgage/GetLandMortgageList.html"
+                    },
+                    {
+                        name: "环保处罚",
+                        href: "/htmlsrc/qichacha/EnvPunishment/GetEnvPunishmentList.html"
+                    },
+                    {
+                        name: "动产抵押",
+                        href: "/htmlsrc/qichacha/ChattelMortgage/GetChattelMortgage.html"
+                    }
+                ]
+            },
+            {
+                name: "增值服务",
+                children: [
+                    {
+                        name: "历史信息",
+                        href: "/htmlsrc/qichacha/History/HistoryIndex.html"
+                    },
+                    {
+                        name: "控股公司",
+                        href: "/htmlsrc/qichacha/HoldingCompany/GetHoldingCompany.html"
+                    }
+                ]
+            },
+            {
+                name: "监控报告",
+                children: [
+                    {
+                        name: "雷达监控",
+                        href: "javascript:alert('未开通');"
+                    }
+                ]
+            }
         ]
     })
 }

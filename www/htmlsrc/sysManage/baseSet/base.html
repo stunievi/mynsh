@@ -170,7 +170,9 @@
                 ' 每笔不良贷款在诉讼流程的案件跟进节点录入判决公告日期、判决生效结束日期，如果该诉讼流程的判决生效，执行节点处于经办状态，则在判决生效结束日期提前xxxxx天发送消息给该节点经办人（循环提醒）',
                 '每笔不良贷款在抵债资产流程的省联社备案，收到批复节点录入评估报告生效日期、评估报告有效期结束日期、评估报告公告送达日期，如果该抵债资产流程的入账处理不是完结状态，则在评估报告有效期结束日期提前xxxxx天发送消息给该抵债资产记录发起人（循环提醒）',
                 '诉讼流程的法院立案节点设置xxxxx天有效，该节点未办理则每天提醒直至有效期结束',
-                '诉讼流程的缴费节点设置xxxxx天有效，该节点未办理则每天提醒直至有效期结束'
+                '诉讼流程的缴费节点设置xxxxx天有效，该节点未办理则每天提醒直至有效期结束',
+                '对私客户提前xxxxx天提醒客户经理证件到期',
+                '对公客户提前xxxxx天提醒客记经理组织机构代码证年检日到期',
             ]
             noticeRuleArr.forEach(function(item, index){
                 $("#noticeRuleForm").append(template("noticeHtml",{
@@ -195,8 +197,8 @@
                     { prop: 'sys_default_role_ids', type: "hidden" },
                     { prop: "msg_api_open", label:"是否启用短信网关", type:"checkbox",value:1 },
                     { prop: "file_storage_engine", type: "radio", label:"文件存储引擎", vals:[
-                            {name:"linkapp私有云", val:"linkapp"},
-                            {name:"文件存储alpha", val:"self"}
+                            {name:"linkapp私有云", val:"linkapp"}
+                            // {name:"文件存储alpha", val:"self"}
                         ]},
                     {prop:"ods_br_id", label: "信贷数据机构代码"}
                     // ,
@@ -238,7 +240,7 @@
                 })
             });
 
-            var noticeRuleLength = 17;
+            var noticeRuleLength = 19;
             while (noticeRuleLength-- > 1) {
 
                 var name = "MSG_RULE_"+noticeRuleLength;

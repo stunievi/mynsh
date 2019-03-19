@@ -48,9 +48,9 @@ server:
     context-path: /
 
 uploads:
-  server: http://47.94.97.138
+  server: http://localhost
   type: fastdfs
-  path: /Users/bin/work/uploads
+  path: d:/upload
 #  temp: /Users/bin/work/uploads/temp
 #  avatar: /Users/bin/work/uploads/avatar
 #  logs: /Users/bin/work/uploads/logs

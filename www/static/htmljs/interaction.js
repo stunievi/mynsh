@@ -41,6 +41,7 @@ function cancelNodeCallback() {
     layer.msg("删除成功!")
     return true;
 }
+
 // 处理工作流
 eventBind(".handleNodeDeal", function(that){
     var nodeid = that.data("nodeid"); // 节点id

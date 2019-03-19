@@ -17,6 +17,7 @@
             <!-- 查询表单 -->
         </div>
         <div class="batch-operation">
+            <button type="button" class="btn btn-warning dropdown-toggle btnClick" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">批量移交</button>
         </div>
         <div id="dataList">
             <!-- 数据列表 -->
@@ -57,7 +58,6 @@
         }));
 
         onInfront();
-
         function onInfront(){
             if($("#dataList table").length){
                 layuiTableReload({
@@ -72,7 +72,7 @@
             },
                 cols: [
                     [
-                        // { checkbox:true },
+                        { checkbox:true },
                         { field:'id', title:'任务编号'},
                         { field:'cusName', title:'客户名称'},
                         { field:'loanAccount', title:'贷款帐号'},
@@ -85,6 +85,20 @@
                 ]
             })
         }
+
+        eventBind(".btnClick",that =>{
+            var ids = $.map($("input:checked").toArray(),function (v) {
+                return v.value;
+            })
+            if (ids.length < 1){
+                layer.msg("没有选中数据");
+                return false;
+            }
+            ids = (ids + '').replace('on,','');
+            var modelIds= new Array(); //定义一数组
+            modelIds=ids.split(","); //字符分割
+            top.addTab('hhhhhhhhhhhhh','选择移交对象','/htmlsrc/htmllayer/choiceUser.html?urlType=transfer&id='+modelIds[0] + '&pointType=batchPoint',modelIds);
+        })
 
         eventBind(".handleTransfer", function(that){
             taskId = that.data("id");

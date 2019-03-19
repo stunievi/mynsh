@@ -48,11 +48,14 @@
     <!-- toolbar渲染模板 -->
     <script type="text/html" id="toolbar">
         <div class="layui-toolbar">
-            {{# if(workFlow){ }}
+            {{# if(workFlow && _history == 0){ }}
                 <a href="javascript:;" class="btn  btn-default {{d.PUB_MODEL_NAME ? '':'hide'}}" data-loanid="{{d.LOAN_ACCOUNT}}" data-workflow="{{d.PUB_MODEL_NAME}}"  tab-title="发起{{d.PUB_MODEL_NAME}}流程" tab-href="/htmlsrc/workFlow/nodeAdd.html?name={{encodeURI(d.PUB_MODEL_NAME)}}&loanid={{d.LOAN_ACCOUNT}}&pubUid={{d.PUB_USER_ID}}">发起流程</a>
                 {{# if(enumWorkFlowModel.preLendingCollect == workFlow){ }}
                 <a href="javascript:;" class="btn btn-default" tab-href="/htmlsrc/creditDataManage/ledger/bind.preLendingCollect.html?loanid={{d.LOAN_ACCOUNT}}">资料绑定</a>
                 {{# } }}
+            {{# } }}
+            {{# if (linkPerson == 1){ }}
+            <a href="javascript:;" class="btn btn-default" tab-href="/htmlsrc/creditDataManage/ledger/loan.html?su=1&linkLoanAccount={{d.LOAN_ACCOUNT}}">关联人查询</a>
             {{# } }}
             <a href="javascript:;" class="btn handleShow btn-default" data-loanid="{{d.LOAN_ACCOUNT}}" data-name="{{d.CUS_NAME}}">查看</a>
         </div>
@@ -70,6 +73,9 @@
     <script>
         var workFlow = decodeURI(getParam("workFlow"));
         var su = getParam("su");
+        var linkPerson = getParam("linkPerson") || 0
+        var _history = getParam("history") || 0
+        var linkLoanAccount = getParam("linkLoanAccount") || ""
         // 是否只显示不良台账
         var register = '';
         // toolbar宽度
@@ -152,6 +158,13 @@
             )
             // _data['own'] = 1
         }
+        if(linkLoanAccount){
+            searchCond = [
+                {label:"关联类型", prop: "RELATION_LENDER", type:"select", vals:[
+                    { name: '--请选择--', val: ''},
+                    {"name":"自己提供抵（质）押品","val":"10010"},{"name":"家庭成员","val":"10011"},{"name":"亲戚","val":"10012"},{"name":"其他关系","val":"10013"},{"name":"雇佣关系","val":"10014"},{"name":"企业关键人","val":"10015"},{"name":"个人股东","val":"10016"},{"name":"合作伙伴","val":"10021"},{"name":"合作伙伴","val":"10022"},{"name":"母子公司","val":"10023"},{"name":"企业股东","val":"10024"},{"name":"担保公司担保","val":"10030"}]}
+            ]
+        }
 
 
 //        if(workFlow == enumWorkFlowModel.preLendingCollect){
@@ -180,20 +193,28 @@
         if(workFlow == enumWorkFlowModel.npaRegister){
             register = 'false';
         }
-        $("#panel-form").html(panelFormRender3({
-            panelTitle: '筛选查询',
-            col: 3,
-            list: searchCond,
-            data: _data
-            , excel: su == 1
-        }));
+        if(searchCond.length){
+            $("#panel-form").html(panelFormRender3({
+                panelTitle: '筛选查询',
+                col: 3,
+                list: searchCond,
+                data: _data
+                , excel: su == 1
+            }));
+        }
 
-        var getDataUrl = remoteApi.apiOdsSearchAccloan+"?register="+register;
+        var getDataUrl = remoteOrigin + remoteApi.apiOdsSearchAccloan+"?register="+register;
         if(su){
             // getDataUrl += "&su="+su;
         }
         if(workFlow){
             getDataUrl += "&modelName="+encodeURI(workFlow);
+        }
+        if(_history == 1){
+            getDataUrl += "&history=1"
+        }
+        if(linkLoanAccount){
+            getDataUrl += '&linkLoanAccount=' + getParam("linkLoanAccount")
         }
 //        remoteApi.apiOdsSearchAccloan+"?register="+register+"&modelName="+encodeURI(workFlow)
         // 渲染台账列表

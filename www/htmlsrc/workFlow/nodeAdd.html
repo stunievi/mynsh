@@ -5,6 +5,9 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title> 添加工作流 </title>
     <!--#include file="/htmlsrc/header.html" -->
+
+    <!--<link rel="stylesheet" href="/static/vendor/webUploader/webuploader.css">-->
+    <script src="/static/vendor/webUploader/webuploader.min.js"></script>
 </head>
 <body>
     <div id="content"> 
@@ -79,9 +82,47 @@
                 </div>
                 <div class="col-xs-12 text-center" style="padding:20px 0;">
                     <!--<button type="reset" class="btn btn-default">重 置</button>-->
-                    <button type="button" class="btn btn-warning" id="uploadSelector" style="margin-right: 10px">
+                    <style>
+                        .webuploader-pick{
+                            background-color: #f0ad4e;
+                            display: block;
+                        }
+                    </style>
+                    <div id="picker" style="float: none; display: inline-block;margin-right:10px; vertical-align: middle">
                         <i class="glyphicon glyphicon-book"></i>
                         上传附件
+                    </div>
+                    <button type="button" class="btn btn-warning"  style="margin-right: 10px; position: relative; overflow: hidden; display: none;">
+                        <i class="glyphicon glyphicon-book"></i>
+                        上传附件
+
+                        <style>
+                            /*#picker{*/
+                                /*width: 100px;*/
+                                /*height: 34px;*/
+                                /*float: none;*/
+                            /*}*/
+                            /*.webuploader-pick{*/
+                                /*width: 100%;*/
+                                /*height: 100%;*/
+                                /*padding: 0;*/
+                                /*margin: 0;*/
+                                /*background: none;*/
+                                /*display: block;*/
+                            /*}*/
+                            /*#picker{*/
+                                /*position:absolute;width: 1000px;height: 1000px;left: 0;top: 0;background: none;*/
+                            /*}*/
+                            /*#picker div, #picker input, #picker object{*/
+                                /*display: block !important;*/
+                                /*position: absolute !important;*/
+                                /*left: 0 !important;*/
+                                /*top: 0 !important;*/
+                                /*width: 1000px !important;*/
+                                /*height: 1000px !important;*/
+                            /*}*/
+                        </style>
+                        <!--<div id="picker" style="position: ">&nbsp;</div>-->
                     </button>
 
                     <button type="button" href="javascript:;" class="btn btn-info" id="submitData" style="margin-right: 10px;">
@@ -138,6 +179,7 @@
         var modelName = decodeURI(getParam("name"));
         var workFlowModel;
         var loanId = getParam("loanid") || 'undefined'; // 台账ID
+        var loanAccount = getParam("loanid") || ""
         var cusId = getParam("cusid") || 'undefined'; // 客户ID
         var cusType = getParam("custype") || 'undefined'; // 客户类型
         // var defaultData = {}; // 缺省填充继承数据
@@ -297,7 +339,7 @@
                 if(!isPonit){
                     formAttrs.push.apply(formAttrs, startNodeAttr); // 追加流程节点字段
                 }
-                var fixForm = fixFormAttrToEnable(formAttrs);
+                var fixForm = fixFormAttrToEnable(formAttrs,loanAccount);
                 addFormAttr.push.apply(addFormAttr, fixForm.fixAttrs);
                 addFormRules = fixForm.fixRules;
             }
@@ -314,6 +356,7 @@
             defaultData["FXFF"] = ["贷款到期催收通知书"];
 
             // 生成form
+            console.log(addFormAttr)
             $("#addForm").html(template('tmpl',{
                 isPoint: isPonit,
                 panelTitle:'添加任务 - ' + modelName,
@@ -381,6 +424,7 @@
             // form规则
             addFormRules['title'] = { required: true, minlength:2 };
             // form提交
+            // return;
             var form = $("form[name='form-search']");
             form.validate({
                 rules: addFormRules,
@@ -714,9 +758,103 @@
         }
     }
     function initupload() {
-        layui.use(["upload","laytpl"], function (upload,laytpl) {
+        window.lastid = window.lastid || null
+        layui.use(["laytpl"], function (laytpl) {
             var html = $("#file-list-item").html();
             var tpl = template.compile(html);
+            //webuploader
+            // 上传初始化
+            var uploader = WebUploader.create({
+                swf: '/static/vendor/webUploader/Uploader.swf',
+                server: remoteOrigin + '/api/file/upload', //上传接口
+                pick:'#picker',
+                auto:true,
+                fileVal: 'file',
+                resize: false,
+                dupliacate: true
+            });
+            //样式处理
+            // $("#picker div, #picker input").css({
+            //     position: 'relative',
+            //     left:0,
+            //     top:0,
+            //     width: '100%',
+            //     height: '100%'
+            // })
+            uploader.on("uploadBeforeSend", function(obj, data, headers){
+                // data.pid = currDirId;
+                // data.uuid
+                data.uuid = obj.file.uuid
+                data.type = 'MESSAGE'
+                // console.log(obj)
+            })
+            // 单个文件上传进度
+            uploader.on('uploadProgress', function( file, percentage ) {
+                // var $li = $( '#' + file.id),
+                //     $percent = $li.find('.progress .progress-bar');
+                // $li.find('p.state').text('上传中');
+                // $percent.css('width', percentage * 100 + '%' );
+                // $percent.text(Math.floor(percentage*100) + '%');
+            });
+            // 上传失败
+            uploader.on('uploadError', function(file, res) {
+                $("li[data-key=" + file.uuid + "]")
+                    .find(".state")
+                    .removeClass("state")
+                    .text("上传失败, 请稍后重试");
+                uploader.removeFile(file)
+            });
+            // 单个文件上传成功
+            uploader.on('uploadSuccess', function(file, res) {
+                if(res.success){
+                    $("li[data-key="+file.uuid+"]")
+                        .data("file", (res.data))
+                        .find(".state")
+                        .remove();
+                }
+                else if(!res.success){
+                    $("li[data-key=" + file.uuid + "]")
+                        .find(".state")
+                        .removeClass("state")
+                        .text("上传失败, 请稍后重试");
+                    uploader.removeFile(file)
+                }
+                // if(res.success){
+                //
+                // }
+                // $('#'+file.id ).find('.state').text('已上传').addClass('info');
+            });
+            // 本次添加文件全部添加到队列后
+            uploader.on('filesQueued', function(files) {
+                var time = new Date().getTime()
+                for(var i = 0; i < files.length; i++){
+                    var uuid = time + (i)
+                    files[i].uuid = uuid
+                    if($("[data-key="+uuid+"]").length){
+                        continue;
+                    }
+                    $(".file-list").append(tpl(files[i]));
+                    // lastid = uuid;
+                }
+                console.log(files)
+            });
+            // 上传结束
+            uploader.on('uploadFinished', function() {
+                // reloadByDirId();
+            });
+
+            // 移除上传
+            $(document).on('click', '.handleRemove', function() {
+                uploader.removeFile($(this).data("id"));
+                $(this).parents("tr.item").remove();
+            })
+
+
+
+
+            //layui
+
+            return;
             // $files.push()
             var uploadInst = upload.render({
                 elem: '#uploadSelector' //绑定元素

@@ -9,15 +9,15 @@ spring:
     #    driver-class-name: com.mysql.jdbc.Driver
     #        mysql-end
     #        db2
-#    url: jdbc:db2://47.94.97.138:50000/test
-#    username: db2inst1
-#    password: db2inst1
+    url: jdbc:db2://47.94.97.138:50000/test
+    username: db2inst1
+    password: db2inst1
 #    url: jdbc:db2://localhost:50000/ods_hzns
 #    username: db2admin
 #    password: root
-    url: jdbc:db2://118.2.82.14:50000/fzsys
-    username: db2inst1
-    password: 11111111
+#    url: jdbc:db2://118.2.82.14:50000/fzsys
+#    username: db2inst1
+#    password: 11111111
 
 #    url: jdbc:db2://121.0.0.236:50000/fzsys_dy
 #        username: db2inst1

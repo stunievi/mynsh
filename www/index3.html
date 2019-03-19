@@ -579,12 +579,14 @@
     </div>
     <ul id="demo-list">
         {{each data item1 idex1}}
+        {{if item1 && item1.name}}
         {{set id = item1.name}}
         <li data-id="{{id}}">
             <b href="#">{{item1.name}}</b>
             {{if item1.children && item1.children.length}}
             <ul class="submenu">
                 {{each item1.children item2 idex2}}
+                {{if item2 && item2.name}}
                 {{set id = item1.name + '.' + item2.name}}
                 {{set idex = idex1 + '-' + idex2}}
                 <li data-id="{{id}}">
@@ -592,26 +594,31 @@
                     {{if item2.children && item2.children.length}}
                     <ul class="submenu">
                     {{each item2.children item3 idex3}}
+                    {{if item3 && item3.name}}
                     {{set id = item1.name + '.' + item2.name + '.' + item3.name}}
                     {{set idex = idex1 + '-' + idex2 + '-' + idex3}}
                     <li data-id="{{id}}">
                         <b href="#" onclick="menuclick('{{idex}}','{{item3.name}}','{{item3.href}}')" class="m-item">{{item3.name}}</b>
                     </li>
+                    {{/if}}
                     {{/each}}
                     </ul>
                     {{/if}}
                 </li>
+                {{/if}}
                 {{/each}}
             </ul>
             {{/if}}
         </li>
+        {{/if}}
         {{/each}}
     </ul>
 </script>
 
 <script>
+
     //render left menu
-    var html = template.render($("#menu-tmpl").html(), {
+    var html = template.render($("#menu-tmpl").html(),{
         data: menu,
         uid: $.cookie("userId"),
         uname: $.cookie("userName"),
@@ -619,6 +626,7 @@
         , face: "/file/avatar/" + $.cookie("userId") + ".jpg?v=" + Math.random()
     });
     $("#jquery-accordion-menu").html(html);
+
     jQuery("#jquery-accordion-menu").jqueryAccordionMenu();
 
     function menuclick(id,name,href){
@@ -986,8 +994,8 @@
     //系统数据版本
     getFetch(remoteOrigin + "/api/auto/sysvar/getDataVersion", function (data) {
         $('.facebox p').text(data.sysName);
-        $("title").html(data.sysName);
-        $(".facebox b span").text(data.dataVersion);
+        $(".facebox b span").html(data.dataVersion);
+        document.title = (data.sysName);
     })
 
     $(".closebtn").click(function () {

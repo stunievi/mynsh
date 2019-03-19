@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>工作台 - 消息管理 - 发送短消息</title>
     <!--#include file="/htmlsrc/header.html" -->
+    <script src="/static/vendor/webUploader/webuploader.min.js"></script>
 </head>
 <body>
     <div id="content"> 
@@ -147,61 +148,163 @@
 
 
     var $files = [];
-    var lastid = null;
-    layui.use(["upload"], function (upload,laytpl) {
-        var html = $("#file-list-item").html();
-        console.log(html)
-        var tpl = template.compile(html);
-        // $files.push()
-        var uploadInst = upload.render({
-            elem: '#file' //绑定元素
-            ,url: remoteOrigin + '/api/file/upload' //上传接口
-            ,accept: "file"
-            ,auto:false
-            ,multiple: true
-            ,data:{
-                type:"MESSAGE"
-                ,uuid: function () {
-                    return lastid
-                }
-            }
-            ,choose: function (item) {
-                var files = item.pushFile();
-                for(var key in files){
-                    files[key].uuid = key;
-                    // $files[key] = files[key]
-                    if($("[data-key="+key+"]").length){
-                        continue;
-                    }
-                    // alert(123)
-                    //渲染
-                    // console.log(tpl(files[key]))
-                    $(".file-list").append(tpl(files[key]));
-                    // fixUploadTable();
-                    //上传
-                    lastid = key;
-                    item.upload(key,files[key])
-                }
-                // console.log(item.pushFile())
-                // console.log(item)
-            }
-            ,done: function(res){
-                if(res.success && res.data.uuid){
-                    $("li[data-key="+res.data.uuid+"]")
-                        .attr("data-file", JSON.stringify(res.data))
+    initupload()
+    function initupload() {
+        window.lastid = window.lastid || null
+        layui.use(["laytpl"], function (laytpl) {
+            var html = $("#file-list-item").html();
+            var tpl = template.compile(html);
+            //webuploader
+            // 上传初始化
+            $("#file").replaceWith("<div id=picker style='float:none'><i class='glyphicon glyphicon-file'></i>添加文件</div>")
+            var uploader = WebUploader.create({
+                swf: '/static/vendor/webUploader/Uploader.swf',
+                server: remoteOrigin + '/api/file/upload', //上传接口
+                pick:'#picker',
+                auto:true,
+                fileVal: 'file',
+                resize: false,
+                dupliacate: true
+            });
+            //样式处理
+            // $("#picker div, #picker input").css({
+            //     position: 'relative',
+            //     left:0,
+            //     top:0,
+            //     width: '100%',
+            //     height: '100%'
+            // })
+            uploader.on("uploadBeforeSend", function(obj, data, headers){
+                // data.pid = currDirId;
+                // data.uuid
+                data.uuid = obj.file.uuid
+                data.type = 'MESSAGE'
+                // console.log(obj)
+            })
+            // 单个文件上传进度
+            uploader.on('uploadProgress', function( file, percentage ) {
+                // var $li = $( '#' + file.id),
+                //     $percent = $li.find('.progress .progress-bar');
+                // $li.find('p.state').text('上传中');
+                // $percent.css('width', percentage * 100 + '%' );
+                // $percent.text(Math.floor(percentage*100) + '%');
+            });
+            // 上传失败
+            uploader.on('uploadError', function(file, res) {
+                $("li[data-key=" + file.uuid + "]")
+                    .find(".state")
+                    .removeClass("state")
+                    .text("上传失败, 请稍后重试");
+                uploader.removeFile(file)
+            });
+            // 单个文件上传成功
+            uploader.on('uploadSuccess', function(file, res) {
+                if(res.success){
+                    $("li[data-key="+file.uuid+"]")
+                        .data("file", (res.data))
                         .find(".state")
                         .remove();
                 }
-                //上传完毕回调
-                console.log(res)
-            }
-            ,error: function(index,upload){
-                $("li[data-key="+index+"]")
-                    .hide();
-                //请求异常回调
-            }
-        });
-    });
+                else if(!res.success){
+                    $("li[data-key=" + file.uuid + "]")
+                        .find(".state")
+                        .removeClass("state")
+                        .text("上传失败, 请稍后重试");
+                    uploader.removeFile(file)
+                }
+                // if(res.success){
+                //
+                // }
+                // $('#'+file.id ).find('.state').text('已上传').addClass('info');
+            });
+            // 本次添加文件全部添加到队列后
+            uploader.on('filesQueued', function(files) {
+                var time = new Date().getTime()
+                for(var i = 0; i < files.length; i++){
+                    var uuid = time + (i)
+                    files[i].uuid = uuid
+                    if($("[data-key="+uuid+"]").length){
+                        continue;
+                    }
+                    $(".file-list").append(tpl(files[i]));
+                    // lastid = uuid;
+                }
+                console.log(files)
+            });
+            // 上传结束
+            uploader.on('uploadFinished', function() {
+                // reloadByDirId();
+            });
+
+            // 移除上传
+            $(document).on('click', '.handleRemove', function() {
+                uploader.removeFile($(this).data("id"));
+                $(this).parents("tr.item").remove();
+            })
+
+
+
+
+            //layui
+
+            return;
+            // $files.push()
+            var uploadInst = upload.render({
+                elem: '#uploadSelector' //绑定元素
+                ,url: remoteOrigin + '/api/file/upload' //上传接口
+                ,accept: "file"
+                ,auto:false
+                ,multiple: true
+                ,data:{
+                    type:"MESSAGE"
+                    ,uuid: function () {
+                        return lastid
+                    }
+                }
+                ,choose: function (item) {
+                    var files = item.pushFile();
+                    for(var key in files){
+                        files[key].uuid = key;
+                        // $files[key] = files[key]
+                        if($("[data-key="+key+"]").length){
+                            continue;
+                        }
+                        // alert(123)
+                        //渲染
+                        // console.log(tpl(files[key]))
+                        $(".file-list").append(tpl(files[key]));
+                        // fixUploadTable();
+                        //上传
+                        lastid = key;
+                        item.upload(key,files[key])
+                    }
+                    // console.log(item)
+                }
+                ,done: function(res){
+                    if(res.success && res.data.uuid){
+                        $("li[data-key="+res.data.uuid+"]")
+                            .data("file", (res.data))
+                            .find(".state")
+                            .remove();
+                    }
+                    else if(!res.success){
+                        $("li[data-key=" + res.errMessagee + "]")
+                            .find(".state")
+                            .removeClass("state")
+                            .text("上传失败, 请稍后重试");
+                    }
+                    //上传完毕回调
+                    // console.log(res)
+                    //上传完毕回调
+                }
+                ,error: function(index,upload){
+                    $("li[data-key="+index+"]")
+                        .hide();
+                    //请求异常回调
+                }
+            });
+        })
+    }
 
     ;(function () {
         setInterval(function () {

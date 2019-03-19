@@ -12,7 +12,7 @@
 <script>
 
     $("#panel-form").html(panelFormRender3({
-        // panelTitle: "基本信息 - 惠州农商行五级分类不良贷款上调明细表",
+        // panelTitle: "基本信息 - 五级分类不良贷款上调明细表",
         list:[
             { prop: 'DATE', label: '统计时间', disabled: true},
             // { prop: 'END_DATE', label: '结束时间', disabled: true}
@@ -37,7 +37,7 @@
     //        });
 
     laytableRender({
-        title: "惠州农商银行信贷资产质量情况统计表（月报表）"
+        title: "信贷资产质量情况统计表（月报表）"
         , url: remoteOrigin + "/api/report/report_1"
         , dataType: "json"
         , page: false

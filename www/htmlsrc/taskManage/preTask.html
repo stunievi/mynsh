@@ -50,14 +50,14 @@
                 { prop: '', label: '任务编号' },
                 { prop: '', label: '客户名称' },
                 { label: '任务状态', type: "select", vals: getGlobalEnumSelect("taskState")},
-                { prop: 'ff1', label: '开始时间', disabled: true },
-                { prop: 'ff2', label: '结束时间', disabled: true  }
+                { prop: 'ff1', label: '开始时间', disabled: true, type: "date" },
+                { prop: 'ff2', label: '结束时间', disabled: true, type: "date"  }
             ],
             data: { }
         }));
         $(function() {
-            $('#ff1').datepicker({ changeMonth: true, changeYear: true, dateFormat: 'yymmdd'});
-            $("#ff2").datepicker({ changeMonth: true, changeYear: true, dateFormat: 'yymmdd'});
+            // $('#ff1').datepicker({ changeMonth: true, changeYear: true, dateFormat: 'yymmdd'});
+            // $("#ff2").datepicker({ changeMonth: true, changeYear: true, dateFormat: 'yymmdd'});
         });
         
         function init(){

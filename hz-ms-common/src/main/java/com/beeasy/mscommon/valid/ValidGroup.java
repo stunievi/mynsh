@@ -110,7 +110,7 @@ public interface ValidGroup {
             args = new Objects[0];
         }
 
-        if(objects.length == 2){
+        if(objects.length == 1){
             if(!((boolean)objects[0])){
                 throw new RestException();
             }
@@ -120,7 +120,6 @@ public interface ValidGroup {
                 throw new RestException((String) objects[1], args);
             }
         }
-
 
 //        if(!b){
 //            throw new RestException();

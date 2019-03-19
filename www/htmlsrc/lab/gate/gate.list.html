@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <!--#include file="/htmlsrc/header.html" -->
+</head>
+<body>
+<div id="content">
+    <div class="batch-operation">
+        <a class="btn btn-success" href="javascript:;" id="app_prop" tab-href="/htmlsrc/lab/gate/gate.edit.html">添加主机</a>
+        <a class="btn btn-primary" href="javascript:;" id="reload-service" onclick="reloadService()">刷新网关服务</a>
+        <div class="alert alert-info " style="margin-top: 10px" >编辑后想要生效，必须手动刷新网关服务</div>
+    </div>
+
+    <div id="dataList">
+        <!-- 数据列表 -->
+    </div>
+
+
+</div>
+</body>
+</html>
+<script type="text/html" id="toolbar">
+    <div class="layui-toolbar">
+        <button class="del btn btn-primary btn-sm" type="button" tab-href="/htmlsrc/lab/gate/gate.edit.html?id={{d.id}}">编辑</button>
+        <button class="btn btn-danger" delete-href="{{remoteOrigin}}/api/auto/gate/delete?id={{d.id}}">删除</button>
+    </div>
+</script>
+<script>
+    laytableRender({
+        url: remoteOrigin + "/api/auto/gate/getList",
+        cols:[
+            [
+                {title:"ID", field:"id"},
+                {title:"名字", field:"name"},
+                {title:"说明", field:"info"},
+                {templet: "#toolbar", title:"操作"}
+            ]
+        ]
+    })
+    function onInfront() {
+        layuiTableReload()
+    }
+    var tmpl = template.compile($('#tmpl').html())
+    $("#app_prop").click(function () {
+        $('#tbody').append(tmpl({}))
+    });
+    $(document).on("click", ".del", function () {
+        $(this).closest("tr").remove();
+    });
+    $(".save").click(function () {
+        var elems = $(".key");
+        var data = {data:[]};
+        elems.each(function () {
+            var t = $(this).closest("tr");
+            var key = $(this).val();
+            var value = t.find(".value").val();
+            data.data.push({key:key,value:value})
+        })
+        postFetch(remoteOrigin + "/api/auto/appui/set",data,function () {
+            layer.msg("保存成功");
+        });
+    });
+    getFetch(remoteOrigin + "/api/auto/appui/get", function (data) {
+        $.each(data,function (i,v) {
+            $('#tbody').append(tmpl(v))
+        })
+    });
+
+    function reloadService(){
+        getFetch(remoteOrigin + "/api/auto/gate/reload", function () {
+            layer.closeAll()
+            layer.msg("刷新成功")
+        })
+    }
+
+</script>

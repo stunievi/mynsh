@@ -11,6 +11,7 @@ import com.beeasy.mscommon.RestException;
 import com.beeasy.mscommon.filter.AuthFilter;
 import com.beeasy.mscommon.util.U;
 import com.beeasy.mscommon.valid.ValidGroup;
+import jdk.nashorn.internal.runtime.regexp.joni.Regex;
 import lombok.Getter;
 import lombok.Setter;
 import org.beetl.sql.core.SQLManager;
@@ -26,10 +27,9 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.validation.constraints.AssertTrue;
 import java.lang.reflect.Field;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.beeasy.hzback.entity.WfIns.State.*;
 import static com.beeasy.hzback.entity.WfInsAttr.Type.INNATE;
@@ -256,7 +256,7 @@ public class WfIns extends TailBean implements ValidGroup {
             .findFirst()
             .orElse(null);
 
-        List<String> childModelNames = C.newList("催收","诉讼","资产处置","抵债资产接收","利息减免");
+        List<String> childModelNames = C.newList("催收","诉讼","资产处置","抵债资产接收","利息减免","强制执行","房屋出租","资产拍卖","资产协议出售");
         //子任务要求父任务存在
         if(childModelNames.contains(modelName)){
             Assert(
@@ -501,6 +501,7 @@ public class WfIns extends TailBean implements ValidGroup {
                 return U.beetlPageQuery("workflow.查询可接受的任务列表", JSONObject.class, object);
 
             case "zhipaiyijiao":
+                object.put("zhipaiyijiao", "123");
                 object.put("department", 100);
                 return U.beetlPageQuery("workflow.查询任务列表", JSONObject.class, object);
 
@@ -528,7 +529,9 @@ public class WfIns extends TailBean implements ValidGroup {
             case "point":
                 point(sqlManager, object.getLong("id"), object.getLong("toUid"));
                 break;
-
+            case "batchPoint":
+                batchPoint(sqlManager, object.getString("modelIds"), object.getLong("toUid"));
+                break;
             case "setP":
                 setP(sqlManager, object);
                 break;
@@ -589,6 +592,45 @@ public class WfIns extends TailBean implements ValidGroup {
         sqlManager.insertBatch(GP.class, list);
     }
 
+
+
+    public synchronized void batchPoint(SQLManager sqlManager,String modelIds,long toUid){
+        String [] strList = modelIds.split(",");
+        for (int i = 0;i < strList.length; i++){
+            WfIns  wfIns = sqlManager.lambdaQuery(WfIns.class)
+                    .andEq(WfIns::getId, Long.parseLong(strList[i]))
+                    .select(
+                            WfIns::getCurrentNodeInstanceId
+                            , WfIns::getCurrentNodeName
+                            , WfIns::getState
+                            , WfIns::getDealUserId
+                            , WfIns::getDepId
+                    ).get(0);
+            System.out.println(wfIns.getState().equals(DEALING)+"xxxxxxxxxxxxxx");
+            if(!wfIns.getState().equals(DEALING)){
+                continue;
+            }
+
+                //检查是否拥有指派权限
+            if(sqlManager.lambdaQuery(DManager.class)
+                    .andEq(DManager::getUid, AuthFilter.getUid())
+                    .andEq(DManager::getId, wfIns.getDepId())
+                    .count() <= 0){
+                continue;
+            }
+
+                //检查权限
+                List<GPC> gpcs = sqlManager.select("workflow.查询节点可处理人(任务ID)", GPC.class, C.newMap("id",Long.parseLong(strList[i]), "uid", AuthFilter.getUid()));
+                GPC gpc = gpcs.stream().filter(g -> g.getUid().equals(toUid)).findFirst().orElse(null);
+                if(null == gpc){
+                    continue;
+                }
+                //更新任务为这个人
+                updateTaskBelongs(sqlManager, Long.parseLong(strList[i]), wfIns.getDealUserId(), gpc);
+
+        }
+    }
+
     /**
      * 任务的重新指派
      * @param sqlManager
@@ -596,22 +638,22 @@ public class WfIns extends TailBean implements ValidGroup {
      * @param toUid
      */
     public synchronized void point(SQLManager sqlManager, long id, long toUid){
-        WfIns wfIns = sqlManager.lambdaQuery(WfIns.class)
-            .andEq(WfIns::getId, id)
-            .select(
-                WfIns::getCurrentNodeInstanceId
-                , WfIns::getCurrentNodeName
-                , WfIns::getState
-                , WfIns::getDealUserId
-                , WfIns::getDepId
-            ).get(0);
+            WfIns  wfIns = sqlManager.lambdaQuery(WfIns.class)
+                    .andEq(WfIns::getId, id)
+                    .select(
+                            WfIns::getCurrentNodeInstanceId
+                            , WfIns::getCurrentNodeName
+                            , WfIns::getState
+                            , WfIns::getDealUserId
+                            , WfIns::getDepId
+                    ).get(0);
 
-        //检查是否拥有指派权限
-        Assert(sqlManager.lambdaQuery(DManager.class)
-            .andEq(DManager::getUid, AuthFilter.getUid())
-            .andEq(DManager::getId, wfIns.getDepId())
-            .count() > 0, "权限验证失败");
 
+            //检查是否拥有指派权限
+            Assert(sqlManager.lambdaQuery(DManager.class)
+                    .andEq(DManager::getUid, AuthFilter.getUid())
+                    .andEq(DManager::getId, wfIns.getDepId())
+                    .count() > 0, "权限验证失败");
 
         //检查权限
         List<GPC> gpcs = sqlManager.select("workflow.查询节点可处理人(任务ID)", GPC.class, C.newMap("id",id, "uid", AuthFilter.getUid()));
@@ -824,9 +866,28 @@ public class WfIns extends TailBean implements ValidGroup {
             case "input":
                 for (Object content : node.getJSONArray("content")) {
                     JSONObject v = (JSONObject) content;
+                    String type = v.getString("type");
                     String attrKey = v.getString("ename");
                     Boolean required = v.getBoolean("required");
                     String value = data.getString(attrKey);
+                    //特殊行为，保存提交的抵押物关联
+                    if(S.eq(type, "diya") && S.notBlank(value)){
+                        sqlManager.executeUpdate(new SQLReady(S.fmt("delete from t_wf_ins_grt where iid = %d", wfIns.id)));
+                        Pattern p = Pattern.compile("^.+\\((.+?)\\)$");
+                        List<String> strs = Arrays.stream(value.split(","))
+                            .map(s -> {
+                                Matcher m = p.matcher(s);
+                                if(m.find()){
+                                    return m.group(1);
+                                }
+                                return "";
+                            })
+                            .filter(S::notBlank)
+                            .collect(toList());
+                        for (String str : strs) {
+                            sqlManager.executeUpdate(new SQLReady(S.fmt("insert into t_wf_ins_grt(iid,gid)values(%d,'%s')", wfIns.id, str)));
+                        }
+                    }
                     //保存草稿不校验
                     if(!gonext && !data.containsKey(attrKey)){
                         continue;
