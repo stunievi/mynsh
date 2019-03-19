@@ -436,7 +436,7 @@ public class CheckService {
     }
 
     public void rule17(OutputStream os){
-
+        println("aaa");
     }
 
 
