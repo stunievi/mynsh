@@ -435,6 +435,10 @@ public class CheckService {
         sqlManager.insertBatch(NoticeTriggerLog.class, logs);
     }
 
+    public void rule17(OutputStream os){
+
+    }
+
 
     public void rule10086(OutputStream os){
         SimpleDateFormat ymd = new SimpleDateFormat("yyyy-MM-dd");
