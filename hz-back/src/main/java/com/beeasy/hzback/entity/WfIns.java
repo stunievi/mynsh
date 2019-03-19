@@ -501,6 +501,7 @@ public class WfIns extends TailBean implements ValidGroup {
                 return U.beetlPageQuery("workflow.查询可接受的任务列表", JSONObject.class, object);
 
             case "zhipaiyijiao":
+                object.put("zhipaiyijiao", "123");
                 object.put("department", 100);
                 return U.beetlPageQuery("workflow.查询任务列表", JSONObject.class, object);
 
@@ -528,7 +529,9 @@ public class WfIns extends TailBean implements ValidGroup {
             case "point":
                 point(sqlManager, object.getLong("id"), object.getLong("toUid"));
                 break;
-
+            case "batchPoint":
+                batchPoint(sqlManager, object.getString("modelIds"), object.getLong("toUid"));
+                break;
             case "setP":
                 setP(sqlManager, object);
                 break;
@@ -589,6 +592,45 @@ public class WfIns extends TailBean implements ValidGroup {
         sqlManager.insertBatch(GP.class, list);
     }
 
+
+
+    public synchronized void batchPoint(SQLManager sqlManager,String modelIds,long toUid){
+        String [] strList = modelIds.split(",");
+        for (int i = 0;i < strList.length; i++){
+            WfIns  wfIns = sqlManager.lambdaQuery(WfIns.class)
+                    .andEq(WfIns::getId, Long.parseLong(strList[i]))
+                    .select(
+                            WfIns::getCurrentNodeInstanceId
+                            , WfIns::getCurrentNodeName
+                            , WfIns::getState
+                            , WfIns::getDealUserId
+                            , WfIns::getDepId
+                    ).get(0);
+            System.out.println(wfIns.getState().equals(DEALING)+"xxxxxxxxxxxxxx");
+            if(!wfIns.getState().equals(DEALING)){
+                continue;
+            }
+
+                //检查是否拥有指派权限
+            if(sqlManager.lambdaQuery(DManager.class)
+                    .andEq(DManager::getUid, AuthFilter.getUid())
+                    .andEq(DManager::getId, wfIns.getDepId())
+                    .count() <= 0){
+                continue;
+            }
+
+                //检查权限
+                List<GPC> gpcs = sqlManager.select("workflow.查询节点可处理人(任务ID)", GPC.class, C.newMap("id",Long.parseLong(strList[i]), "uid", AuthFilter.getUid()));
+                GPC gpc = gpcs.stream().filter(g -> g.getUid().equals(toUid)).findFirst().orElse(null);
+                if(null == gpc){
+                    continue;
+                }
+                //更新任务为这个人
+                updateTaskBelongs(sqlManager, Long.parseLong(strList[i]), wfIns.getDealUserId(), gpc);
+
+        }
+    }
+
     /**
      * 任务的重新指派
      * @param sqlManager
@@ -596,22 +638,22 @@ public class WfIns extends TailBean implements ValidGroup {
      * @param toUid
      */
     public synchronized void point(SQLManager sqlManager, long id, long toUid){
-        WfIns wfIns = sqlManager.lambdaQuery(WfIns.class)
-            .andEq(WfIns::getId, id)
-            .select(
-                WfIns::getCurrentNodeInstanceId
-                , WfIns::getCurrentNodeName
-                , WfIns::getState
-                , WfIns::getDealUserId
-                , WfIns::getDepId
-            ).get(0);
+            WfIns  wfIns = sqlManager.lambdaQuery(WfIns.class)
+                    .andEq(WfIns::getId, id)
+                    .select(
+                            WfIns::getCurrentNodeInstanceId
+                            , WfIns::getCurrentNodeName
+                            , WfIns::getState
+                            , WfIns::getDealUserId
+                            , WfIns::getDepId
+                    ).get(0);
 
-        //检查是否拥有指派权限
-        Assert(sqlManager.lambdaQuery(DManager.class)
-            .andEq(DManager::getUid, AuthFilter.getUid())
-            .andEq(DManager::getId, wfIns.getDepId())
-            .count() > 0, "权限验证失败");
 
+            //检查是否拥有指派权限
+            Assert(sqlManager.lambdaQuery(DManager.class)
+                    .andEq(DManager::getUid, AuthFilter.getUid())
+                    .andEq(DManager::getId, wfIns.getDepId())
+                    .count() > 0, "权限验证失败");
 
         //检查权限
         List<GPC> gpcs = sqlManager.select("workflow.查询节点可处理人(任务ID)", GPC.class, C.newMap("id",id, "uid", AuthFilter.getUid()));

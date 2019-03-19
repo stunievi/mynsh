@@ -59,7 +59,7 @@ $(document).on("click", '.delete-tab', function () {
     return false;
 });
 
-function addTab(id,text,url,innerTab) {
+function addTab(id,text,url,args,callback) {
     // console.log('#myTab #tab-'+id)
     //如果某个页面已经打开，则切换到该页显示即可，不会新添加tab页
     if($('#myTab #tab-'+id).length > 0){
@@ -87,6 +87,11 @@ function addTab(id,text,url,innerTab) {
             + "<iframe id='iframepage-" + id + "' name='iframepage-" + id
             + "' width='100%' height='100%' frameborder='0' scrolling='yes'   src='" + url + "'></iframe></div>");
 
+        var ifr = document.getElementById("iframepage-" + id);
+        $(ifr).on("load",function () {
+                var childwin = ifr.contentWindow;
+                childwin && childwin.onPageRequest && childwin.onPageRequest(args).then(callback)
+        })
 
 
         context.attach('#' + tab_html[0].id,[
