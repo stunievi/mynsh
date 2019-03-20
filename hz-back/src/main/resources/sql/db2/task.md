@@ -772,5 +772,27 @@ WHERE
 
 规则17
 ===
-select * from cus_indiv
-
+SELECT *
+ FROM (  SELECT to_date(INDIV_ID_EXP_DT,'yyyymmdd') AS e_time ,indev.cus_name as name
+      FROM cus_indiv as indev  where CUS_ID not in (select uuid from t_notice_trigger_log where rule_name = 'rule17') )
+WHERE  CURRENT TIMESTAMP BETWEEN e_time - VALUE( (    SELECT
+                                       var_value 
+                                    FROM
+                                       T_SYSTEM_VARIABLE 
+                                    WHERE
+                                       VAR_NAME = 'MSG_RULE_17' 
+                                       FETCH FIRST 1 ROWS ONLY), 0) days AND  e_time
+                                       
+                                       
+规则18
+===
+SELECT * FROM (  SELECT to_date(#text(date)#,'yyyymmdd') AS e_time ,indev.cus_name as name
+      FROM cus_com as indev  where CUS_ID not in (select uuid from t_notice_trigger_log where rule_name = 'rule18') 
+      and #text(date)#  <> '' )
+WHERE  CURRENT TIMESTAMP BETWEEN e_time - VALUE( (    SELECT
+                                       var_value 
+                                    FROM
+                                       T_SYSTEM_VARIABLE 
+                                    WHERE
+                                       VAR_NAME = 'MSG_RULE_18' 
+                                       FETCH FIRST 1 ROWS ONLY), 0) days AND  e_time
