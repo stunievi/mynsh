@@ -19,15 +19,15 @@ public class GetQccDataTask {
     @Scheduled(cron="0 0 0 */14 * ?")
     public void getData(){
 
-        Map companyInfo = new HashMap<String, String>();
-        companyInfo.put("companyName", "11111111");
-        List<Map<String, String>> companyList = new ArrayList<Map<String, String>>();
-        companyList.add(companyInfo);
-
-        for(Map<String, String> company : companyList){
-            String companyName = company.get("companyName");
-            getQccService.ECI_GetFullDetailsByName(companyName);
-        }
+//        Map companyInfo = new HashMap<String, String>();
+//        companyInfo.put("companyName", "11111111");
+//        List<Map<String, String>> companyList = new ArrayList<Map<String, String>>();
+//        companyList.add(companyInfo);
+//
+//        for(Map<String, String> company : companyList){
+//            String companyName = company.get("companyName");
+//            getQccService.ECI_GetBasicDetailsByName(companyName);
+//        }
 
     }
 

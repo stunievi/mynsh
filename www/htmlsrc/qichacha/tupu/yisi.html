@@ -3,236 +3,25 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1" />
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="stylesheet" href="https://www.qichacha.com/material/theme/chacha/cms/v2/css/bootstrap.css" type="text/css" />
+    <link rel="stylesheet" href="https://www.qichacha.com/material/theme/chacha/cms/v2/css/app.css?time=20190308" type="text/css" />
     <!--[if lt IE 9]>
+    <link rel="stylesheet" href="https://www.qichacha.com/material/theme/chacha/cms/v2/css/app_ie8.css?time=1508428800" type="text/css" />
+    <script src="https://www.qichacha.com/material/theme/chacha/cms/v2/js/html5shiv.js"></script>
+    <script src="https://www.qichacha.com/material/theme/chacha/cms/v2/js/respond.js"></script>
     <![endif]-->
-    <script type="text/javascript" id="zhuge-js" async="" src="https://tongji.qichacha.com/zhuge.js"></script>
-    <script type="text/javascript" src="https://www.qichacha.com/material/js/siteconfig.js?time=20190308"></script>
-    <style type="text/css" abt="234"></style>
-    <script src="https://www.qichacha.com/material/theme/chacha/cms/v2/js/jquery.min.js"></script>
-    <script type="text/javascript" src="https://www.qichacha.com/material/theme/chacha/cms/v2/js/qrcode.min.js"></script>
-    <script type="text/javascript" src="https://www.qichacha.com/material/theme/chacha/cms/v2/js/jquery.scrollTo.js"></script>
-    <script src="https://www.qichacha.com/material/theme/chacha/cms/v2/js/bootstrap.js"></script>
+    <!--<script type="text/javascript" src="https://www.qichacha.com/material/js/siteconfig.js?time=20190308"></script>-->
+    <script src="/static/vendor/jquery/jquery.js"></script>
     <script type="text/javascript" src="https://www.qichacha.com/material/js/echarts.min.js"></script>
-    <script type="text/javascript" src="https://www.qichacha.com/material/theme/chacha/cms/v2/js/china.js?time=1508428800"></script>
-    <script type="text/javascript" src="https://www.qichacha.com/material/theme/chacha/cms/v2/js/chartsUtil.js?time=20190308"></script>
-    <script src="https://www.qichacha.com/material/theme/chacha/cms/v2/js/slimscroll/jquery.slimscroll.min.js"></script>
-    <link rel="stylesheet" href="https://www.qichacha.com/material/theme/chacha/cms/v2/css/toastr.css" />
-    <script type="text/javascript" src="https://www.qichacha.com/material/theme/chacha/cms/v2/js/moment.js"></script>
-    <script src="https://www.qichacha.com/material/theme/chacha/cms/v2/js/toastr.js" type="text/javascript"></script>
-    <script src="https://www.qichacha.com/material/theme/chacha/cms/v2/js/custom.js?time=20190308"></script>
-    <script type="text/javascript" src="https://www.qichacha.com/material/theme/chacha/cms/v2/js/zhuge.js?time=20190308"></script>
-
-    <script data-require-id="echarts/chart/force" src="https://www.qichacha.com/material/theme/chacha/cms/v2/js/echarts2/build/dist/chart/force.js" async=""></script>
-    <script>//remove 17173 video ad
-    doAdblock();
-    function doAdblock(){
-        (function() {
-            function A() {}
-            A.prototype = {
-                rules: {
-                    '17173_in':{
-                        'find':/http:\/\/f\.v\.17173cdn\.com\/(\d+\/)?flash\/PreloaderFile(Customer)?\.swf/,
-                        'replace':"http://swf.adtchrome.com/17173_in_20150522.swf"
-                    },
-                    '17173_out':{
-                        'find':/http:\/\/f\.v\.17173cdn\.com\/(\d+\/)?flash\/PreloaderFileFirstpage\.swf/,
-                        'replace':"http://swf.adtchrome.com/17173_out_20150522.swf"
-                    },
-                    '17173_live':{
-                        'find':/http:\/\/f\.v\.17173cdn\.com\/(\d+\/)?flash\/Player_stream(_firstpage)?\.swf/,
-                        'replace':"http://swf.adtchrome.com/17173_stream_20150522.swf"
-                    },
-                    '17173_live_out':{
-                        'find':/http:\/\/f\.v\.17173cdn\.com\/(\d+\/)?flash\/Player_stream_(custom)?Out\.swf/,
-                        'replace':"http://swf.adtchrome.com/17173.out.Live.swf"
-                    }
-                },
-                _done: null,
-                get done() {
-                    if(!this._done) {
-                        this._done = new Array();
-                    }
-                    return this._done;
-                },
-                addAnimations: function() {
-                    var style = document.createElement('style');
-                    style.type = 'text/css';
-                    style.innerHTML = 'object,embed{\
-                -webkit-animation-duration:.001s;-webkit-animation-name:playerInserted;\
-                -ms-animation-duration:.001s;-ms-animation-name:playerInserted;\
-                -o-animation-duration:.001s;-o-animation-name:playerInserted;\
-                animation-duration:.001s;animation-name:playerInserted;}\
-                @-webkit-keyframes playerInserted{from{opacity:0.99;}to{opacity:1;}}\
-                @-ms-keyframes playerInserted{from{opacity:0.99;}to{opacity:1;}}\
-                @-o-keyframes playerInserted{from{opacity:0.99;}to{opacity:1;}}\
-                @keyframes playerInserted{from{opacity:0.99;}to{opacity:1;}}';
-                    document.getElementsByTagName('head')[0].appendChild(style);
-                },
-                animationsHandler: function(e) {
-                    if(e.animationName === 'playerInserted') {
-                        this.replace(e.target);
-                    }
-                },
-                replace: function(elem) {
-                    if(this.done.indexOf(elem) != -1) return;
-                    this.done.push(elem);
-                    var player = elem.data || elem.src;
-                    if(!player) return;
-                    var i, find, replace = false;
-                    for(i in this.rules) {
-                        find = this.rules[i]['find'];
-                        if(find.test(player)) {
-                            replace = this.rules[i]['replace'];
-                            if('function' === typeof this.rules[i]['preHandle']) {
-                                this.rules[i]['preHandle'].bind(this, elem, find, replace, player)();
-                            }else{
-                                this.reallyReplace.bind(this, elem, find, replace)();
-                            }
-                            break;
-                        }
-                    }
-                },
-                reallyReplace: function(elem, find, replace) {
-                    elem.data && (elem.data = elem.data.replace(find, replace)) || elem.src && ((elem.src = elem.src.replace(find, replace)) && (elem.style.display = 'block'));
-                    var b = elem.querySelector("param[name='movie']");
-                    this.reloadPlugin(elem);
-                },
-                reloadPlugin: function(elem) {
-                    var nextSibling = elem.nextSibling;
-                    var parentNode = elem.parentNode;
-                    parentNode.removeChild(elem);
-                    var newElem = elem.cloneNode(true);
-                    this.done.push(newElem);
-                    if(nextSibling) {
-                        parentNode.insertBefore(newElem, nextSibling);
-                    } else {
-                        parentNode.appendChild(newElem);
-                    }
-                },
-                init: function() {
-                    var handler = this.animationsHandler.bind(this);
-                    document.body.addEventListener('webkitAnimationStart', handler, false);
-                    document.body.addEventListener('msAnimationStart', handler, false);
-                    document.body.addEventListener('oAnimationStart', handler, false);
-                    document.body.addEventListener('animationstart', handler, false);
-                    this.addAnimations();
-                }
-            };
-            new A().init();
-        })();
-    }
-    //remove baidu search ad
-    if(document.URL.indexOf('www.baidu.com') >= 0){
-        if(document && document.getElementsByTagName && document.getElementById && document.body){
-            var aa = function(){
-                var all = document.body.querySelectorAll("#content_left div,#content_left table");
-                for(var i = 0; i < all.length; i++){
-                    if(/display:\s?(table|block)\s!important/.test(all[i].getAttribute("style"))){all[i].style.display= "none";all[i].style.visibility='hidden';}
-                }
-                all = document.body.querySelectorAll('.result.c-container[id="1"]');
-                //if(all.length == 1) return;
-                for(var i = 0; i < all.length; i++){
-                    if(all[i].innerHTML && all[i].innerHTML.indexOf('广告')>-1){
-                        all[i].style.display= "none";all[i].style.visibility='hidden';
-                    }
-                }
-            }
-            aa();
-            document.getElementById('wrapper_wrapper').addEventListener('DOMSubtreeModified',aa)
-        };
-    }
-    //remove sohu video ad
-    if (document.URL.indexOf("tv.sohu.com") >= 0){
-        if (document.cookie.indexOf("fee_status=true")==-1){document.cookie='fee_status=true'};
-    }
-    //remove 56.com video ad
-    if (document.URL.indexOf("56.com") >= 0){
-        if (document.cookie.indexOf("fee_status=true")==-1){document.cookie='fee_status=true'};
-    }
-    //fore iqiyi enable html5 player function
-    if (document.URL.indexOf("iqiyi.com") >= 0){
-        if (document.cookie.indexOf("player_forcedType=h5_VOD")==-1){
-            document.cookie='player_forcedType=h5_VOD'
-            if(localStorage.reloadTime && Date.now() - parseInt(localStorage.reloadTime)<60000){
-                console.log('no reload')
-            }else{
-                location.reload()
-                localStorage.reloadTime = Date.now();
-            }
-        }
-    }
-    </script>
-    <style type="text/css">object,embed{                -webkit-animation-duration:.001s;-webkit-animation-name:playerInserted;                -ms-animation-duration:.001s;-ms-animation-name:playerInserted;                -o-animation-duration:.001s;-o-animation-name:playerInserted;                animation-duration:.001s;animation-name:playerInserted;}                @-webkit-keyframes playerInserted{from{opacity:0.99;}to{opacity:1;}}                @-ms-keyframes playerInserted{from{opacity:0.99;}to{opacity:1;}}                @-o-keyframes playerInserted{from{opacity:0.99;}to{opacity:1;}}                @keyframes playerInserted{from{opacity:0.99;}to{opacity:1;}}</style>
+    <script src="./custom.js"></script>
 </head>
-<body style="">
-<div style="display: none; position: absolute;" class="">
-    <div class="aui_outer">
-        <table class="aui_border">
-            <tbody>
-            <tr>
-                <td class="aui_nw"></td>
-                <td class="aui_n"></td>
-                <td class="aui_ne"></td>
-            </tr>
-            <tr>
-                <td class="aui_w"></td>
-                <td class="aui_c">
-                    <div class="aui_inner">
-                        <table class="aui_dialog">
-                            <tbody>
-                            <tr>
-                                <td colspan="2" class="aui_header">
-                                    <div class="aui_titleBar">
-                                        <div class="aui_title" style="cursor: move; display: block;"></div>
-                                        <a class="aui_close" href="javascript:/*artDialog*/;" style="display: block;">&times;</a>
-                                    </div></td>
-                            </tr>
-                            <tr>
-                                <td class="aui_icon" style="display: none;">
-                                    <div class="aui_iconBg" style="background: none;"></div></td>
-                                <td class="aui_main" style="width: auto; height: auto;">
-                                    <div class="aui_content" style="padding: 20px 25px;"></div></td>
-                            </tr>
-                            <tr>
-                                <td colspan="2" class="aui_footer">
-                                    <div class="aui_buttons" style="display: none;"></div></td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div></td>
-                <td class="aui_e"></td>
-            </tr>
-            <tr>
-                <td class="aui_sw"></td>
-                <td class="aui_s"></td>
-                <td class="aui_se" style="cursor: se-resize;"></td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<script type="text/javascript" src="https://www.qichacha.com/material/js/jquery.cookie.js"></script>
-<script type="text/javascript" src="https://www.qichacha.com/material/js/jquery.validate.min.js"></script>
-<script type="text/javascript" src="https://www.qichacha.com/material/js/jquery.form.min.js"></script>
-<script type="text/javascript" src="https://www.qichacha.com/material/js/global.js?t=20190308"></script>
-<script type="text/javascript" src="https://www.qichacha.com/material/common/2013admin/js/artDialog4.1.7/artDialog.js"></script>
-<script src="http://tongji.qichacha.com:8080v2/visual?url=https%3A%2F%2Fwww.qichacha.com%2Fcompany_kzr%3FkeyNo%3D9cce0780ab7644008b73bc2120479d31%26name%3D%25E5%25B0%258F%25E7%25B1%25B3%25E7%25A7%2591%25E6%258A%2580%25E6%259C%2589%25E9%2599%2590%25E8%25B4%25A3%25E4%25BB%25BB%25E5%2585%25AC%25E5%258F%25B8&amp;app_key=de1d1a35bfa24ce29bbf2c7eb17e6c4f&amp;platform=3&amp;callback=callback261463805539383"></script>
-<script type="text/javascript" src="https://www.qichacha.com/material/common/2013admin/js/artDialog4.1.7/plugins/iframeTools.source.js"></script>
-<link rel="stylesheet" type="text/css" href="https://www.qichacha.com/material/common/2013admin/js/artDialog4.1.7/skins/blue.css" />
-<link rel="stylesheet" href="https://www.qichacha.com/material/theme/chacha/cms/v2/css/companyDetail.css?time=1552525508" type="text/css" />
+<body>
+<link rel="stylesheet" href="./css/companyDetail.css"/>
 <style type="text/css">
     html,body{
         height: 100%;
         background-color: #fff;
     }
-
-    .mao-main{
-        width: 100%;
-    }
-
-
-
 
     .mao-kzr{
         position: absolute;
@@ -250,21 +39,13 @@
     .stock-name{
         color: #fe5151;
     }
-    .water-mark{
-        position: absolute;
-        z-index: 15;
-        font-size: 12px;
-        color: #aaa;
-        text-align: center;
-        width: 100%;
-        bottom: 20px;
-    }
-
-    .bsBox, .bsBox *{
+    .bsBox *{
         box-sizing:content-box;
     }
 
 </style>
+
+<!--#include file="./mao-head.html" -->
 
 <div class="mao-screen-area" id="screenArea" style="height: 640px;">
     <div class="tupu-toolbar">
@@ -288,55 +69,13 @@
     </div>
     <div id="main" style="height: 100%; width: 100%; -webkit-tap-highlight-color: transparent; user-select: none; background-color: rgba(0, 0, 0, 0); cursor: default;" _echarts_instance_="1552525510209">
         <div style="position: relative; overflow: hidden; width: 1356px; height: 640px;">
-        </div>
-    </div>
-    <div id="company-detail" class="company-detail">
-        <div class="m-t">
-            <span class="mao-divider"></span>
-            <span class="mao-light-grey">公司信息</span>
-            <button class="close">&times;</button>
-        </div>
-        <div class="m-t-sm">
-            <a class="mao-company-name" href="#" target="_blank"></a>
-            <span class="mao-company-status"></span>
-        </div>
-        <div class="m-t">
-            <div>
-                <span class="mao-light-grey">法定代表人：</span>
-                <span class="mao-grey mao-oper"></span>
-            </div>
-            <div>
-                <span class="mao-light-grey">注册资本：</span>
-                <span class="mao-grey mao-ziben"></span>
-            </div>
-            <div>
-                <span class="mao-light-grey">成立日期：</span>
-                <span class="mao-grey mao-date"></span>
-            </div>
-        </div>
-        <div class="m-t">
-            <a class="btn mao-tupu-link" target="_blank">查看图谱</a>
-        </div>
-        <div class="m-t mao-content m-b-lg">
-            <ul class="nav nav-tabs mao-tabs">
-                <li class="active"><a href="#gudong" aria-controls="gudong" role="tab" data-toggle="tab">股东</a></li>
-                <li><a href="#touzi" aria-controls="touzi" role="tab" data-toggle="tab">对外投资</a></li>
-                <li><a href="#member" aria-controls="member" role="tab" data-toggle="tab">主要成员</a></li>
-            </ul>
-            <div class="tab-content mao-tab-content">
-                <div role="tabpanel" class="gudong-list tab-pane fade in active" id="gudong">
-                </div>
-                <div role="tabpanel" class="touzi-list tab-pane fade" id="touzi">
-                </div>
-                <div role="tabpanel" class="member-list tab-pane fade" id="member">
-                </div>
-            </div>
+            <div data-zr-dom-id="bg" class="zr-element" style="position: absolute; left: 0px; top: 0px; width: 1356px; height: 640px; user-select: none;"></div>
         </div>
     </div>
 </div>
 <script src="https://www.qichacha.com/material/theme/chacha/cms/v2/js/echarts3.js"></script>
 <script type="text/javascript">
-
+    $("#navTab li:eq(3)").addClass("active");
     var _colorObj = {
         person : "#FA4460",
         personB : "#FD485E",
@@ -502,7 +241,7 @@
 
     function getData(){
         $('#load_data').show();
-        var url = INDEX_URL + '/company_kzrAction2';
+//        var url = INDEX_URL + '/company_kzrAction2';
 //        var url = 'http://10.0.0.51:9600/api/Relation/GetSuspectedActualController';
 //        var url = 'http://101.37.113.58:9600/api/Relation/GetSuspectedActualController';
         $.ajax({
@@ -882,7 +621,7 @@
             for(var j=0;j<myChart.getZrender().getHeight()+100;j+=228){
                 var shapeSy = new ImageShape({
                     style: {
-                        image:'https://www.qichacha.com/material/theme/chacha/cms/v2/images/shuiying2.png',
+                        image:'1',//背景图片
                         x: i,
                         y: j,
                         width:300,
@@ -894,31 +633,6 @@
                 myChart.getZrender().addShape(shapeSy);
             }
         }
-
-        // var width = myChart.getZrender().getWidth();
-        // var height = myChart.getZrender().getHeight();
-        // var moveDown = 0;
-        // var moveRight = 0;
-        // for(var i=0;i<width+100;i+=300){
-        //     for(var j=0;j<height+100;j+=228){
-        //         var shapeSy = new ImageShape({
-        //             style: {
-        //                 image:'https://www.qichacha.com/material/theme/chacha/cms/v2/images/shuiying2.png',
-        //                 x: i-moveRight,
-        //                 y: j-moveDown,
-        //                 width:300,
-        //                 height:228
-
-        //             }
-        //         });
-        //         shapeSy.zlevel=1;
-        //         shapeSy.z=-2;
-        //         shapeSy.ndelete = true;
-        //         shapeSy.hoverable = false;
-        //         shapeSy.fullscreenMove = true;
-        //         myChart.getZrender().addShape(shapeSy);
-        //     }
-        // }
 
 
     }

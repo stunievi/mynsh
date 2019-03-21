@@ -1,0 +1,124 @@
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <meta name="renderer" content="webkit" />
+    <meta name="author" content="leslie" />
+    <link rel="stylesheet" href="https://www.qichacha.com/material/theme/chacha/cms/v2/css/bootstrap.css" type="text/css" />
+    <link rel="stylesheet" href="https://www.qichacha.com/material/theme/chacha/cms/v2/css/app.css?time=20190314" type="text/css" />
+    <link rel="stylesheet" href="./css/companyDetail.css"/>
+    <script src="https://www.qichacha.com/material/theme/chacha/cms/v2/js/jquery.min.js"></script>
+    <script src="https://www.qichacha.com/material/theme/chacha/cms/v2/js/bootstrap.js"></script>
+</head>
+<body>
+<style>
+    html,body{
+        height: 100%;
+        background-color: #fff;
+    }
+    p{
+        clear: both;
+    }
+    .find-mao-detail-item div{
+        margin-top: 5px;
+    }
+
+    .find-mao-list-item a{
+        text-decoration: none;
+        display: inline-block;
+        width: 100%;
+        height: 100%;
+    }
+
+    .find-mao-list-item a:active{
+        background: #dddddd;
+    }
+
+
+    .bsBox *{
+        box-sizing:content-box;
+    }
+
+    :-webkit-full-screen.mao-screen-area {
+        /* width: 100%; */
+        height: 100% !important;
+        background: #fff;
+    }
+    .mao-screen-area {
+        width: 100%;
+        height: 100%;
+        background: #fff;
+        position: relative;
+    }
+
+    #MainD3{
+        display: none;
+    }
+    #MainD3 svg{
+        width:100%;height:100%;
+    }
+
+    .printLogo{
+        position: absolute;
+        width:100%;height:1px;z-index:0;
+    }
+    .printLogo img{
+        display: block;
+        margin: 0 auto;
+        margin-top:400px;
+    }
+</style>
+<!--#include file="./mao-head.html" -->
+
+<div id="Main" scale="1" class="no-padding tp-container mao-screen-area" style="cursor: default;">
+    <div class="tupu-toolbar">
+        <ul>
+            <li id="TrTxt" onclick="toggleText()"><span class="txt"></span>文字</li>
+            <li id="TrEnlarge" onclick="maoScale(1)"><span class="big"></span>放大</li>
+            <li id="TrReduce" onclick="maoScale(2)"><span class="small"></span>缩小</li>
+            <li id="TrRefresh"><span class="refresh"></span>刷新</li>
+            <li onclick="changeScreen(this)"><span class="screen"></span>全屏</li>
+            <li id="TrSave" onclick="zhugeTrack('图谱-保存',{'图谱类型':'关联图谱'});"><span class="save"></span>保存</li>
+        </ul>
+    </div>
+    <div class="load_data" id="load_data" style="display: none;">
+        <img src="https://www.qichacha.com/material/theme/chacha/cms/v2/images/preloader.gif" />
+    </div>
+    <!--<div class="printLogo" style="width: 100%;height: 100%; background: url(https://www.qichacha.com/material/theme/chacha/cms/v);background-size: 300px 228px;">-->
+    <!--</div>-->
+    <div id="MainCy" style="width:100%;height:100%;-webkit-tap-highlight-color: rgba(0,0,0,0);">
+
+    </div>
+</div>
+<div id="MainD3" scale="1" class="no-padding tp-container">
+    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve">
+   </svg>
+</div>
+<link rel="stylesheet" href="./tupu1.css">
+<script src="./cytoscape.js"></script>
+<script src="./d3.v4.js"></script>
+<script src="guliantupu.js"></script>
+<script>
+    function changeScreen(dom){
+        if(!isFullScreen()){
+            $(dom).html('<span class="screened"></span>退出');
+            launchFullScreen($('#Main')[0]);
+        }else{
+            $(dom).html('<span class="screen"></span>全屏');
+            exitFullScreen();
+        }
+    }
+    $("#navTab li:eq(1)").addClass("active");
+</script>
+<style>
+    /*详情弹窗*/
+    #NameBar .detail-count{font-weight: normal;}
+    #NameBar .detail-a{font-weight: normal;margin-right:10px;}
+
+    /**/
+    #ScrollContent .detail-title-wrap a.pull-right{margin-right: 10px;}
+</style>
+<div style="display: none; position: fixed; left: 0px; top: 0px; width: 100%; height: 100%; cursor: move; opacity: 0; background: rgb(255, 255, 255);"></div>
+</body>
+</html>

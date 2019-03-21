@@ -115,6 +115,7 @@ var remoteApi = {
 	qccLandMortgageGetLandMortgageDetails: "/qcc/LandMortgage/GetLandMortgageDetails", // 获取土地抵押详情
 	qccGetEnvPunishmentList: "/qcc/EnvPunishment/GetEnvPunishmentList", // 获取环保处罚列表
 	qccGetEnvPunishmentDetails: "/qcc/EnvPunishment/GetEnvPunishmentDetails", // 获取环保处罚详情
+	qccHistoryGetHistorytEci: "/qcc/History/GetHistorytEci", // 历史工商信息
 
 
 

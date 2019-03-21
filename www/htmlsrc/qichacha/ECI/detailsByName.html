@@ -3,335 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title> 任务管理 - 任务接受 </title>
+    <title> 公司详情 </title>
     <!--#include file="/htmlsrc/header.html" -->
     <style>
         #myTabContent .btn{
             margin-right: 10px;
             margin-bottom: 5px;
         }
-        #myTabContent .btn:hover{
-
-        }
         .panel-group .panel{margin-bottom: 15px;}
     </style>
 </head>
 <body>
 <div id="content">
-
     <div class="" id="panel-form">
         <!-- 查询表单 -->
     </div>
     <div id="dataList">
-        <div class="bs-example bs-example-tabs" data-example-id="togglable-tabs">
+        <div class="bs-example bs-example-tabs col-xs-10" data-example-id="togglable-tabs">
             <ul id="myTabs" class="nav nav-tabs" role="tablist" style="background: #fff">
-                <li role="presentation" class="active"><a href="#base" id="base-tab" role="tab" data-toggle="tab" data-controls="base" aria-expanded="true">基本信息</a></li>
+                <li role="presentation" class=""><a href="#base" id="base-tab" role="tab" data-toggle="tab" data-controls="base" aria-expanded="true">基本信息</a></li>
                 <li role="presentation" class=""><a href="#susong" role="tab" id="susong-tab" data-toggle="tab" data-controls="susong" title="双击展开/关闭全部">法律诉讼</a></li>
-                <!--<li role="presentation" class=""><a href="#run" role="tab" id="run-tab" data-toggle="tab" data-controls="run">经营状况</a></li>-->
+                <li role="presentation" class=""><a href="#run" role="tab" id="run-tab" data-toggle="tab" data-controls="run">经营状况</a></li>
                 <li role="presentation" class=""><a href="#fengxian" role="tab" id="fengxian-tab" data-toggle="tab" data-controls="fengxian">经营风险</a></li>
-                <!--<li role="presentation" class=""><a href="#report" role="tab" id="report-tab" data-toggle="tab" data-controls="report">企业发展</a></li>-->
-                <!--<li role="presentation" class=""><a href="#assets" role="tab" id="assets-tab" data-toggle="tab" data-controls="assets">知识产权</a></li>-->
-                <li role="presentation" class=""><a href="#history" role="tab" id="history-tab" data-toggle="tab" data-controls="history">历史信息</a></li>
+                <li role="presentation" class=""><a href="#report" role="tab" id="report-tab" data-toggle="tab" data-controls="report">企业发展</a></li>
+                <li role="presentation" class=""><a href="#assets" role="tab" id="assets-tab" data-toggle="tab" data-controls="assets">知识产权</a></li>
+                <li role="presentation" class="active"><a href="#history" role="tab" id="history-tab" data-toggle="tab" data-controls="history">历史信息</a></li>
             </ul>
             <div id="myTabContent" class="tab-content" style="padding-top: 10px;">
-                <div role="tabpanel" class="tab-pane active in" id="base" aria-labelledby="base-tab">
-                    <a class="btn btn-default" href="#base1">工商信息</a>
-                    <a class="btn btn-default" href="#base2">企业人员董监高信息</a>
-                    <a class="btn btn-default" href="#base3">企业对外投资</a>
-                    <a class="btn btn-default" href="#base4">投资图谱</a>
-                    <a class="btn btn-default" href="#base5">疑似关系</a>
-                    <a class="btn btn-default" href="#base6">股权结构图</a>
-                    <a class="btn btn-default" href="#base7">企业图谱</a>
-                    <div class="panel panel-default" id="base1">
-                        <div class="panel-heading">工商信息</div>
-                        <div class="panel-body" id="base1-body">
-                        </div>
-                    </div>
-                    <div class="panel panel-default" id="base2">
-                        <div class="panel-heading">企业人员董监高信息</div>
-                        <div class="panel-body" id="base2-body">
-                        </div>
-                    </div>
-                    <div class="panel panel-default" id="base3">
-                        <div class="panel-heading">企业对外投资</div>
-                        <div class="panel-body" id="base3-body">
-                        </div>
-                    </div>
-                    <div class="panel panel-default" id="base4">
-                        <div class="panel-heading">投资图谱</div>
-                        <div class="panel-body" id="base4-body">
-                        </div>
-                    </div>
-                    <div class="panel panel-default" id="base5">
-                        <div class="panel-heading">疑似关系</div>
-                        <div class="panel-body" id="base5-body">
-                        </div>
-                    </div>
-                    <div class="panel panel-default" id="base6">
-                        <div class="panel-heading">股权结构图</div>
-                        <div class="panel-body" id="base6-body" style="width:600px;height: 400px;">
-                        </div>
-                    </div>
-                    <div class="panel panel-default" id="base7">
-                        <div class="panel-heading">企业图谱</div>
-                        <div class="panel-body" id="base7-body" style="width:100%;height: 400px;">
-
-                        </div>
-                    </div>
-                </div>
-                <div role="tabpanel" class="tab-pane" id="susong" aria-labelledby="susong-tab">
-                    <!--法律诉讼-->
-
-                    <div class="panel-group" id="accordion">
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <h4 class="panel-title">
-                                    <a role="button" data-toggle="collapse" href="#collapseOne">
-                                        <b># 开庭公告</b>
-                                    </a>
-                                </h4>
-                            </div>
-                            <div id="collapseOne" class="panel-collapse collapse in">
-                                <div class="panel-body">
-                                    开庭公告
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <h4 class="panel-title">
-                                    <a role="button" data-toggle="collapse" href="#susong2">
-                                        <b># 裁判文书</b>
-                                    </a>
-                                </h4>
-                            </div>
-                            <div id="susong2" class="panel-collapse collapse">
-                                <div class="panel-body">
-                                    裁判文书
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <h4 class="panel-title">
-                                    <a role="button" data-toggle="collapse" href="#susong3">
-                                        <b># 法院公告</b>
-                                    </a>
-                                </h4>
-                            </div>
-                            <div id="susong3" class="panel-collapse collapse">
-                                <div class="panel-body">
-                                    法院公告
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <h4 class="panel-title">
-                                    <a role="button" data-toggle="collapse" href="#susong4">
-                                        <b># 被执行人</b>
-                                    </a>
-                                </h4>
-                            </div>
-                            <div id="susong4" class="panel-collapse collapse">
-                                <div class="panel-body">
-                                    被执行人
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <h4 class="panel-title">
-                                    <a role="button" data-toggle="collapse" href="#susong5">
-                                        <b># 失信信息</b>
-                                    </a>
-                                </h4>
-                            </div>
-                            <div id="susong5" class="panel-collapse collapse">
-                                <div class="panel-body">
-                                    失信信息
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <h4 class="panel-title">
-                                    <a role="button" data-toggle="collapse" href="#susong6">
-                                        <b># 司法协助</b>
-                                    </a>
-                                </h4>
-                            </div>
-                            <div id="susong6" class="panel-collapse collapse">
-                                <div class="panel-body">
-                                    司法协助
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!--<a class="btn btn-default" href="#susong1">开庭公告</a>-->
-                    <!--<a class="btn btn-default" href="#susong2">裁判文书</a>-->
-                    <!--<a class="btn btn-default" href="#susong3">法院公告</a>-->
-                    <!--<a class="btn btn-default" href="#susong4">被执行人</a>-->
-                    <!--<a class="btn btn-default" href="#susong5">失信信息</a>-->
-                    <!--<a class="btn btn-default" href="#susong6">司法协助</a>-->
-                    <!--<div class="panel panel-default" id="susong1">-->
-                    <!--<div class="panel-heading">开庭公告</div>-->
-                    <!--<div class="panel-body" id="susong1-body">-->
-                    <!--</div>-->
-                    <!--</div>-->
-                    <!--<div class="panel panel-default" id="susong2">-->
-                    <!--<div class="panel-heading">裁判文书</div>-->
-                    <!--<div class="panel-body" id="susong2-body">-->
-                    <!--</div>-->
-                    <!--</div>-->
-                    <!--<div class="panel panel-default" id="susong3">-->
-                    <!--<div class="panel-heading">法院公告</div>-->
-                    <!--<div class="panel-body" id="susong3-body">-->
-                    <!--</div>-->
-                    <!--</div>-->
-                    <!--<div class="panel panel-default" id="susong4">-->
-                    <!--<div class="panel-heading">被执行人</div>-->
-                    <!--<div class="panel-body" id="susong4-body">-->
-                    <!--</div>-->
-                    <!--</div>-->
-                    <!--<div class="panel panel-default" id="susong5">-->
-                    <!--<div class="panel-heading">失信信息</div>-->
-                    <!--<div class="panel-body" id="susong5-body">-->
-                    <!--</div>-->
-                    <!--</div>-->
-                    <!--<div class="panel panel-default" id="susong6">-->
-                    <!--<div class="panel-heading">司法协助</div>-->
-                    <!--<div class="panel-body" id="susong6-body">-->
-                    <!--</div>-->
-                    <!--</div>-->
-
-
-                </div>
-                <!--<div role="tabpanel" class="tab-pane" id="run" aria-labelledby="run-tab">-->
-                <!--&lt;!&ndash;经营状况&ndash;&gt;-->
-                <!--</div>-->
-                <div role="tabpanel" class="tab-pane" id="fengxian" aria-labelledby="fengxian-tab">
-                    <!--经营风险-->
-                    <a class="btn btn-default" href="#JudicialSaleList">司法拍卖</a>
-                    <a class="btn btn-default" href="#LandMortgageList">土地抵押</a>
-                    <a class="btn btn-default" href="#EnvPunishmentList">环保处罚</a>
-                    <a class="btn btn-default" href="#ChattelMortgage">动产抵押</a>
-                    <div class="panel panel-default" id="JudicialSaleList">
-                        <div class="panel-heading">司法拍卖</div>
-                        <div class="panel-body" id="JudicialSaleList-body">
-                        </div>
-                    </div>
-                    <div class="panel panel-default" id="LandMortgageList">
-                        <div class="panel-heading">土地抵押</div>
-                        <div class="panel-body" id="LandMortgageList-body">
-                        </div>
-                    </div>
-                    <div class="panel panel-default" id="EnvPunishmentList">
-                        <div class="panel-heading">环保处罚</div>
-                        <div class="panel-body" id="EnvPunishmentList-body">
-                        </div>
-                    </div>
-                    <div class="panel panel-default" id="ChattelMortgage">
-                        <div class="panel-heading">动产抵押</div>
-                        <div class="panel-body" id="ChattelMortgage-body">
-                        </div>
-                    </div>
-                </div>
-                <!--<div role="tabpanel" class="tab-pane" id="report" aria-labelledby="report-tab">-->
-                <!--&lt;!&ndash;企业发展&ndash;&gt;-->
-                <!--</div>-->
-                <!--<div role="tabpanel" class="tab-pane" id="assets" aria-labelledby="assets-tab">-->
-                <!--&lt;!&ndash;知识产权&ndash;&gt;-->
-                <!--</div>-->
-                <div role="tabpanel" class="tab-pane" id="history" aria-labelledby="history-tab">
-                    <a class="btn btn-default" href="#history1">历史工商信息</a>
-                    <a class="btn btn-default" href="#history2">历史对外投资</a>
-                    <a class="btn btn-default" href="#history3">历史股东</a>
-                    <a class="btn btn-default" href="#history4">历史失信查询</a>
-                    <a class="btn btn-default" href="#history5">历史被执行</a>
-                    <a class="btn btn-default" href="#history6">历史法院公告</a>
-                    <a class="btn btn-default" href="#history7">历史裁判文书</a>
-                    <a class="btn btn-default" href="#history8">历史开庭公告</a>
-                    <a class="btn btn-default" href="#history9">历史动产抵押</a>
-                    <a class="btn btn-default" href="#history10">历史股权出资</a>
-                    <a class="btn btn-default" href="#history11">历史行政处罚</a>
-                    <a class="btn btn-default" href="#history12">历史行政许可</a>
-                    <div class="panel panel-default" id="history1">
-                        <div class="panel-heading">历史工商信息</div>
-                        <div class="panel-body" id="history1-body">
-                        </div>
-                    </div>
-                    <div class="panel panel-default" id="history2">
-                        <div class="panel-heading">历史对外投资</div>
-                        <div class="panel-body" id="history2-body">
-                        </div>
-                    </div>
-                    <div class="panel panel-default" id="history3">
-                        <div class="panel-heading">历史股东</div>
-                        <div class="panel-body" id="history3-body">
-                        </div>
-                    </div>
-                    <div class="panel panel-default" id="history4">
-                        <div class="panel-heading">历史失信查询</div>
-                        <div class="panel-body" id="history4-body">
-                        </div>
-                    </div>
-                    <div class="panel panel-default" id="history5">
-                        <div class="panel-heading">历史被执行</div>
-                        <div class="panel-body" id="history5-body">
-                        </div>
-                    </div>
-                    <div class="panel panel-default" id="history6">
-                        <div class="panel-heading">历史法院公告</div>
-                        <div class="panel-body" id="history6-body">
-                        </div>
-                    </div>
-                    <div class="panel panel-default" id="history7">
-                        <div class="panel-heading">历史裁判文书</div>
-                        <div class="panel-body" id="history7-body">
-                        </div>
-                    </div>
-                    <div class="panel panel-default" id="history8">
-                        <div class="panel-heading">历史开庭公告</div>
-                        <div class="panel-body" id="history8-body">
-                        </div>
-                    </div>
-                    <div class="panel panel-default" id="history9">
-                        <div class="panel-heading">历史动产抵押</div>
-                        <div class="panel-body" id="history9-body">
-                        </div>
-                    </div>
-                    <div class="panel panel-default" id="history10">
-                        <div class="panel-heading">历史股权出资</div>
-                        <div class="panel-body" id="history10-body">
-                        </div>
-                    </div>
-                    <div class="panel panel-default" id="history11">
-                        <div class="panel-heading">历史行政处罚</div>
-                        <div class="panel-body" id="history11-body">
-                        </div>
-                    </div>
-                    <div class="panel panel-default" id="history12">
-                        <div class="panel-heading">历史行政许可</div>
-                        <div class="panel-body" id="history12-body">
-                        </div>
-                    </div>
-                </div>
-
+                <!--#include file="./detailsByName_1.html" -->
+                <!--#include file="./detailsByName_2.html" -->
+                <!--#include file="./detailsByName_3.html" -->
+                <!--#include file="./detailsByName_4.html" -->
+                <!--#include file="./detailsByName_5.html" -->
+                <!--#include file="./detailsByName_6.html" -->
+                <!--#include file="./detailsByName_7.html" -->
             </div>
         </div>
+        <!--#include file="./rightSide.html" -->
     </div>
 </div>
 
 
 <script src="/tmpl/js/chattelMortgage.js"></script>
-<script src="/static/vendor/jquery.pin.js"></script>
+<!--<script src="/static/vendor/jquery.pin.js"></script>-->
 
 <script src="/static/vendor/echarts/echarts-all.js"></script>
 
@@ -345,119 +59,6 @@
             $($(this).attr("href")).find(".panel-collapse").collapse("hide");
         }
     })
-
-    var myChart = echarts.init(document.getElementById('base6-body'));
-    SuperPost({
-        url: remoteApi.qccECIRelationGetCompanyEquityShareMap,
-        success: function (res) {
-            if("200" == res.Status){
-                var Children = res.Result.Children;
-                var persons = [];
-                var data = [];
-                Children.forEach(function (item) {
-                    persons.push(item["Name"]);
-                    var num = (item["SubConAmt"].match(/\d+\.\d+/)[0] || 0)*1;
-                    if(num>0){
-                        data.push({
-                            value: num,
-                            name: item["Name"]
-                        });
-                    }
-
-                })
-
-                option = {
-                    title : {
-                        text: '股权信息（出资比例）',
-                        subtext: '数据经过二次处理，可能丢失精度。单位：万元',
-                        x:'center'
-                    },
-                    tooltip : {
-                        trigger: 'item',
-                        formatter: "{a} <br/>{b} : {c}万元 ({d}%)"
-                    },
-                    legend: {
-                        orient : 'vertical',
-                        x : 'left',
-                        data: persons
-                    },
-                    toolbox: {
-                        show : true,
-                        feature : {
-                            dataView : {show: true, readOnly: false},
-
-                            saveAsImage : {show: true}
-                        }
-                    },
-                    calculable : true,
-                    series : [
-                        {
-                            name:'访问来源',
-                            type:'pie',
-                            radius : '55%',
-                            center: ['50%', '60%'],
-                            data: data
-                        }
-                    ]
-                };
-
-                myChart.setOption(option);
-            }
-        }
-    });
-
-    var myChart2 = echarts.init(document.getElementById('base7-body'));
-    SuperPost({
-        url: remoteApi.qccECIRelationGenerateMultiDimensionalTreeCompanyMap,
-        success: function (res) {
-            if("200" == res.Status){
-                let data = res.Result.Node;
-                option = {
-                    tooltip : {
-                        trigger: 'item',
-                        formatter: "{b}"
-                    },
-                    toolbox: {
-                        show : true,
-                        feature : {
-                            dataView : {show: true, readOnly: false},
-                            saveAsImage : {show: true}
-                        }
-                    },
-                    calculable : false,
-                    series : [
-                        {
-                            name:'企业图谱',
-                            type:'treemap',
-                            itemStyle: {
-                                normal: {
-                                    label: {
-                                        show: true,
-                                        formatter: "{b}"
-                                    },
-                                    borderWidth: 1,
-                                    borderColor: '#ccc'
-                                },
-                                emphasis: {
-                                    label: {
-                                        show: true
-                                    },
-                                    color: '#cc99cc',
-                                    borderWidth: 3,
-                                    borderColor: '#996699'
-                                }
-                            },
-                            data: data.children
-                        }
-                    ]
-                };
-
-                myChart2.setOption(option);
-            }
-        }
-    })
-
-
 
     var id = decodeURI(getParam("id")) || '';
     var data = {

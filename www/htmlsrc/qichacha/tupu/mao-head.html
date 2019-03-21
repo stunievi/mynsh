@@ -1,0 +1,23 @@
+<div class="mao-head">
+    <div class="container">
+        <ul class="mao-title breadcrumb" style="background:none;border:none;">
+            <li>
+                <a href="javascript:window.close();"> <img src="./image/ic_reply.png" />&nbsp;小米科技有限责任公司</a>
+            </li>
+        </ul>
+        <ul id="navTab" class="mao-nav">
+            <li><a href="./qiyetupu.html">企业图谱</a></li>
+            <li><a href="./guanliantupu.html">关联图谱</a></li>
+            <li><a href="./guquanchuantou.html">股权穿透图</a></li>
+            <li><a href="./yisi.html">疑似实际控制人</a></li>
+        </ul>
+    </div>
+</div>
+<script>
+    if(getQueryString("iframe")){
+        $(".mao-head").hide();
+        $("document").ready(function () {
+            $(".tupu-toolbar").hide();
+        })
+    }
+</script>

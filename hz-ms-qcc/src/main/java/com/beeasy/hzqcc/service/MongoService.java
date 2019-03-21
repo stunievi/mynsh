@@ -146,6 +146,18 @@ public class MongoService {
         return count;
     }
 
+    public Document findOne(
+            String collName,
+            Bson filter
+    ){
+        if(null == filter){
+            return getCollection(collName).find().first();
+        }else{
+            return getCollection(collName).find(filter).first();
+        }
+    }
+
+
     /** 条件查询 */
     public MongoCursor<Document> find(MongoCollection<Document> coll, Bson filter) {
         return coll.find(filter).iterator();

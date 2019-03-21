@@ -5,6 +5,7 @@ import com.beeasy.mscommon.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -16,10 +17,10 @@ public class QccDataController {
 
     @GetMapping(value = "/getAllQccData")
     Result ECI_GetDetailsByName(
-            String keyword
+           @RequestParam("keyword") String keyword
     ){
-        getQccService.loadAllData("北京小桔科技有限公司");
-        return Result.ok("北京小桔科技有限公司");
+        getQccService.loadAllData(keyword);
+        return Result.ok(keyword);
     }
 
 

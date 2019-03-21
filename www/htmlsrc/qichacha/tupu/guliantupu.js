@@ -157,7 +157,7 @@ function getRootData(list) {
 
             // 设置_rootNode
             // if (_currentKeyNo == o.data.obj.properties.keyNo){
-                _rootNode = o;
+            _rootNode = o;
             // }
         }
     }
@@ -739,32 +739,8 @@ function selPanelUpdateList(nodes,links,isShowCheckbox) {
             checkedNodeIds.push(nodeId);
         });
 
-        /*if(_this.is(':checked')){
-            checkedNodeIds.push(nodeId);
-            nodes.splice(1,1);
-            console.log('checked');
-        } else {
-            console.log('un checked');
-            var sub_nodes = []
-            sub_nodes = nodes.splice(0,1);
-            console.log(nodes);
-            console.log(sub_nodes);
-            graphInit(nodes, links);
-        }*/
-        highLight(checkedNodeIds,cy);
-        /*// 需要隐藏的节点及子节点
-        var choosedNode = getGraphNode(nodeId,nodes);
-        var subNodes = getSubNodes(choosedNode,links);
-        subNodes.push(choosedNode);
 
-        // 剩下的节点
-        var lastNodes = [];
-        for(var i = 0; i < nodes.length; i++){
-            var node = nodes[i];
-            if(!getGraphNode(node.nodeId,subNodes)){
-                lastNodes.push(node);
-            }
-        }
+        highLight(checkedNodeIds,cy);
 
         // 剩下的连线
         var lastLinks = filterLinksByNodes(lastNodes,links);
@@ -781,7 +757,7 @@ function selPanelUpdateList(nodes,links,isShowCheckbox) {
             console.log(sub_nodes);
             graphInit(nodes, links);
         }
-        console.log(nodeId);*/
+        console.log(nodeId);
     });
 }
 //筛选面板：聚焦准备
@@ -805,17 +781,6 @@ function focusCancel() {
 }
 
 function maoScale(type){
-
-    /*var c=$('canvas').eq(2).attr('id','myCanvas');
-    var c=document.getElementById("myCanvas");
-    console.log(c);
-    var ctx = c.getContext("2d");
-    ctx.font = "5px Arial";
-    ctx.fillText("上海", 1, 10);
-
-    return;*/
-
-    //
     var rate = 0.2;
     var scale = cy.zoom();
     if(type==1){
@@ -838,13 +803,7 @@ function resizeScreen(){
         $('#TrFullScreen').html('<span class="screen2"></span>全屏');
     }
 
-    //cy.pan();
-    /*if(document.body.clientHeight>700){
-        $('#Main').height(document.body.clientHeight-66);
-        console.log(document.body.clientHeight);
-    }else{
-        $('#Main').height(640);
-    }*/
+
 }
 
 function isFullScreen(){
@@ -861,7 +820,6 @@ function isFullScreen(){
     }
 }
 function launchFullScreen(element) {
-
 
     if(element.requestFullscreen) {
         element.requestFullscreen();
@@ -899,7 +857,9 @@ function toggleText() {
         cy.collection("edge").addClass("edgeShowText");
     }
 }
-
+function TrRefresh(){
+    refresh(_currentKeyNo);
+}
 /****** 图谱 相关 ******/
 /*function highlight( node ){
     var oldNhood = lastHighlighted;
@@ -2016,14 +1976,14 @@ function canvasImg(imgData){
 
 
 function getData(){
-    
+
     $("#load_data").show();
 
     // TODO::
     // var url = INDEX_URL + '/company_muhouPersonAction';
 
     $.ajax({
-        url:"./1.json",
+        url:"./guliantupu.json",
         type: 'GET',
         dataType: 'JSON',
         success: function (re){
@@ -2242,6 +2202,10 @@ $(document).ready(function () {
             });
             launchFullScreen($('#Main')[0]);
         }
+    });
+
+    $('#fresh').click(function () {
+        refresh(_currentKeyNo);
     });
     $('#TrRefresh').click(function () {
         refresh(_currentKeyNo);

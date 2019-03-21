@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.loadqcc.utils.QccUtil;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOptions;
 import org.bson.Document;
@@ -13,6 +14,7 @@ import org.osgl.util.C;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.print.Doc;
 import java.util.*;
 
 @Service
@@ -23,13 +25,15 @@ public class GetQccService {
 
     private static Map<String, String> DetailUrls = new HashMap<>();
 
-    private static String DOMAIN_PRX = "http://localhost:8015/test/qcc/";
+    private static String DOMAIN_PRX = "http://localhost:8015/test/qcc";
 
     static {
         // tableName, detailUrl
         // 法律诉讼服
             // 裁判文书
-        DetailUrls.put("JudgeDoc_SearchJudgmentDoc", DOMAIN_PRX + "JudgeDoc/GetJudgementDetail");
+        DetailUrls.put("JudgeDoc_SearchJudgmentDoc", DOMAIN_PRX + "/JudgeDoc/GetJudgementDetail");
+        DetailUrls.put("CourtAnno_SearchCourtNotice", DOMAIN_PRX + "/CourtAnnoV4/GetCourtNoticeInfo");
+
     }
 
     // 下载企查查数据
@@ -40,9 +44,17 @@ public class GetQccService {
             return;
         }
         // 企业关键字精确获取详细信息
-        // ECI_GetFullDetailsByName(keyWord);
-        // 查询新增公司
-        JudgeDoc_SearchJudgmentDoc(keyWord);
+        // ECI_GetBasicDetailsByName(keyWord);
+        // 查询裁判文书
+        // JudgeDoc_SearchJudgmentDoc(keyWord);
+        // 查询开庭公告
+        CourtAnno_SearchCourtNotice(keyWord);
+
+        // 历史信息
+            // 历史工商信息
+        History_GetHistorytEci(keyWord);
+            // 历史对外投资
+        History_GetHistorytInvestment(keyWord);
     }
 
     // 数据原样保存至mongoDB
@@ -79,14 +91,18 @@ public class GetQccService {
             String res,
             Integer pageIndex
     ){
+        if(null == res || res.equals("")){
+            return false;
+        }
         JSONObject obj = JSON.parseObject(res);
         JSONObject Paging = obj.getJSONObject("Paging");
-        if(null == Paging && "".equals(Paging)){
+        if(null == Paging || "".equals(Paging)){
             return false;
         }
         return pageIndex <= Math.ceil(Paging.getFloat("TotalRecords")/Paging.getFloat(("PageSize"))) && pageIndex < 500;
     }
 
+    // 是否为格式正确的响应数据
     public boolean isCorrectRes(
             String ret
     ){
@@ -119,7 +135,7 @@ public class GetQccService {
         saveData(collName, filter, JSON.toJSONString(obj.getJSONObject("Result")));
     }
 
-    // 获取列表数据
+    // 获取列表数据（先查找数据，有则更新，无则插入）
     public void getDataList(
             String collName,
             Map queries,
@@ -127,7 +143,7 @@ public class GetQccService {
             String res
     ){
         Integer pageIndex = (int) queries.get("pageIndex");
-        if ("".equals(res) || notLastPage(res, pageIndex)){
+        if (pageIndex.equals(1) || notLastPage(res, pageIndex)){
             String ret = QccUtil.getData(dataUrl, queries);
             if(isCorrectRes(ret) == false){
                 return;
@@ -140,12 +156,12 @@ public class GetQccService {
             String IdType = "";
             for(short i = 0; i < arr.size(); i++){
                 JSONObject item = arr.getJSONObject(i);
-                if(null != item.getString("KeyNo") && !"".equals(item.getString("KeyNo"))){
-                    IdType = "KeyNo";
-                    idList.add(item.getString("KeyNo"));
-                }else{
+                if(null != item.getString("Id") && !"".equals(item.getString("Id"))){
                     IdType = "Id";
                     idList.add(item.getString("Id"));
+                }else{
+                    IdType = "KeyNo";
+                    idList.add(item.getString("KeyNo"));
                 }
             }
             Bson filter2;
@@ -188,10 +204,87 @@ public class GetQccService {
             }
             if (isFindDoc == false && notLastPage(ret, ++pageIndex)){
                 queries.put("pageIndex", pageIndex);
-                getDataList(collName, queries, dataUrl, res);
+                getDataList(collName, queries, dataUrl, ret);
             }
         }
+    }
 
+    // 获取列表数据（删除历史数据后插入新数据）
+    public void getDataList2(
+            String collName,
+            Map queries,
+            String dataUrl,
+            String res
+    ){
+        Integer pageIndex = (int) queries.get("pageIndex");
+        if (pageIndex.equals(1) || notLastPage(res, pageIndex)){
+            String ret = QccUtil.getData(dataUrl, queries);
+            if(isCorrectRes(ret) == false){
+                return;
+            }
+            JSONObject obj = JSON.parseObject(ret);
+            MongoCollection<Document> coll = mongoService.getCollection(collName);
+            JSONArray arr = obj.getJSONArray("Result");
+            // 删除历史数据
+            if(pageIndex.equals(1)){
+                MongoCursor<Document> findList =  coll.find().iterator();
+                while (findList.hasNext()){
+                    Document item = findList.next();
+                    mongoService.deleteById(coll, item.getObjectId("_id").toString());
+                }
+            }
+
+            for(short i = 0; i < arr.size(); i++){
+                JSONObject item = arr.getJSONObject(i);
+                item.put("KeyWordVal", queries.get("keyWord"));
+                item.put("getDataTime", new Date().getTime());
+                coll.insertOne(new Document(item));
+            }
+
+            if (notLastPage(ret, ++pageIndex)){
+                queries.put("pageIndex", pageIndex);
+                getDataList2(collName, queries, dataUrl, ret);
+            }
+        }
+    }
+
+    /**
+     *  企业关键字精确获取详细信息
+     * @param keyWord 现定为使用公司名做搜索。但企查查支持搜索关键字（公司名、注册号、社会统一信用代码或KeyNo）
+     */
+    public JSONObject ECI_GetBasicDetailsByName(
+            String keyWord
+    ){
+        String res = QccUtil.getData(DOMAIN_PRX + "/ECI/GetBasicDetailsByName", C.newMap(
+                "keyWord", keyWord
+        ));
+        Bson filter = Filters.eq("Name", keyWord);
+        saveData("ECI_GetBasicDetailsByName", filter, res);
+        return JSON.parseObject(res);
+    }
+
+    // 历史工商信息
+    private  void History_GetHistorytEci(
+            String keyWord
+    ){
+        String res = QccUtil.getData(DOMAIN_PRX + "/History/GetHistorytEci", C.newMap(
+                "keyWord", keyWord
+        ));
+        Bson filter = Filters.eq("KeyWordVal", keyWord);
+        saveData("History_GetHistorytEci", filter, res);
+    }
+
+
+    // 历史对外投资
+    private void History_GetHistorytInvestment(
+            String keyWord
+    ){
+        Map queries = C.newMap(
+                "keyWord", keyWord,
+                "pageIndex", 1,
+                "pageSize", 50
+        );
+        getDataList2("History_GetHistorytInvestment", queries,DOMAIN_PRX + "/History/GetHistorytInvestment", "");
     }
 
     /**
@@ -205,21 +298,20 @@ public class GetQccService {
                 "keyWord", keyWord,
                 "pageIndex", 1
         );
-        getDataList("JudgeDoc_SearchJudgmentDoc", queries,DOMAIN_PRX + "JudgeDoc/SearchJudgmentDoc", "");
+        getDataList("JudgeDoc_SearchJudgmentDoc", queries,DOMAIN_PRX + "/JudgeDoc/SearchJudgmentDoc", "");
     }
 
-    /**
-     *  企业关键字精确获取详细信息
-     * @param keyWord 现定为使用公司名做搜索。但企查查支持搜索关键字（公司名、注册号、社会统一信用代码或KeyNo）
-     */
-    public void ECI_GetFullDetailsByName(
-            String keyWord
+    //  查询开庭公告
+    public void CourtAnno_SearchCourtNotice(
+            String searchKey
     ){
-        String res = QccUtil.getData(DOMAIN_PRX + "ECI/GetDetailsByName", C.newMap(
-                "keyWord", keyWord
-        ));
-        Bson filter = Filters.eq("KeyWord", keyWord);
-        saveData("ECI_GetFullDetailsByName", filter, res);
+        Map queries = C.newMap(
+                "searchKey", searchKey,
+                "pageSize", 50,
+                "pageIndex", 1,
+                "isExactlySame", true
+        );
+        getDataList("CourtAnno_SearchCourtNotice", queries,DOMAIN_PRX + "/CourtAnnoV4/SearchCourtNotice", "");
     }
 
 }

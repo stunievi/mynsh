@@ -1,0 +1,96 @@
+<div role="tabpanel" class="tab-pane active in" id="history" aria-labelledby="history-tab">
+    <a class="btn btn-default" href="#history1">历史工商信息</a>
+    <a class="btn btn-default" href="#history2">历史对外投资</a>
+    <a class="btn btn-default" href="#history3">历史股东</a>
+    <a class="btn btn-default" href="#history4">历史失信查询</a>
+    <a class="btn btn-default" href="#history5">历史被执行</a>
+    <a class="btn btn-default" href="#history6">历史法院公告</a>
+    <a class="btn btn-default" href="#history7">历史裁判文书</a>
+    <a class="btn btn-default" href="#history8">历史开庭公告</a>
+    <a class="btn btn-default" href="#history9">历史动产抵押</a>
+    <a class="btn btn-default" href="#history10">历史股权出资</a>
+    <a class="btn btn-default" href="#history11">历史行政处罚</a>
+    <a class="btn btn-default" href="#history12">历史行政许可</a>
+
+    <div class="panel panel-default" id="history1">
+        <div class="panel-heading">历史工商信息</div>
+        <div class="panel-body" id="history1-body">
+        </div>
+    </div>
+
+    <div class="panel panel-default" id="history2">
+        <div class="panel-heading">历史对外投资</div>
+        <div class="panel-body" id="history2-body">
+        </div>
+    </div>
+    <div class="panel panel-default" id="history3">
+        <div class="panel-heading">历史股东</div>
+        <div class="panel-body" id="history3-body">
+        </div>
+    </div>
+    <div class="panel panel-default" id="history4">
+        <div class="panel-heading">历史失信查询</div>
+        <div class="panel-body" id="history4-body">
+        </div>
+    </div>
+    <div class="panel panel-default" id="history5">
+        <div class="panel-heading">历史被执行</div>
+        <div class="panel-body" id="history5-body">
+        </div>
+    </div>
+    <div class="panel panel-default" id="history6">
+        <div class="panel-heading">历史法院公告</div>
+        <div class="panel-body" id="history6-body">
+        </div>
+    </div>
+    <div class="panel panel-default" id="history7">
+        <div class="panel-heading">历史裁判文书</div>
+        <div class="panel-body" id="history7-body">
+        </div>
+    </div>
+    <div class="panel panel-default" id="history8">
+        <div class="panel-heading">历史开庭公告</div>
+        <div class="panel-body" id="history8-body">
+        </div>
+    </div>
+    <div class="panel panel-default" id="history9">
+        <div class="panel-heading">历史动产抵押</div>
+        <div class="panel-body" id="history9-body">
+        </div>
+    </div>
+    <div class="panel panel-default" id="history10">
+        <div class="panel-heading">历史股权出资</div>
+        <div class="panel-body" id="history10-body">
+        </div>
+    </div>
+    <div class="panel panel-default" id="history11">
+        <div class="panel-heading">历史行政处罚</div>
+        <div class="panel-body" id="history11-body">
+        </div>
+    </div>
+    <div class="panel panel-default" id="history12">
+        <div class="panel-heading">历史行政许可</div>
+        <div class="panel-body" id="history12-body">
+        </div>
+    </div>
+</div>
+<script src="/htmlsrc/qichacha/tmpl/eci/hiscominfo.js"></script>
+<script>
+
+    $.ajax({
+        url: remoteApi.qccHistoryGetHistorytEci,
+        data:{
+            keyWord: "深圳小桔科技有限公司"
+        },
+        success:function (res) {
+            if(res.success){
+                $("#history1-body").html(
+                    hiscominfoRender(res.data)
+                )
+            }
+        }
+    })
+
+
+
+</script>
