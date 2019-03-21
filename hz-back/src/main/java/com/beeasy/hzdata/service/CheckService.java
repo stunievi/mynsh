@@ -44,6 +44,7 @@ import static java.util.stream.Collectors.toMap;
 public class CheckService {
 
     String logDir;
+    @Autowired
     SQLManager sqlManager;
 
     @Qualifier(value = "sqlManagers")
@@ -158,6 +159,8 @@ public class CheckService {
                     rule5(os);
                     rule6(os);
                     rule7(os);
+                    rule18(os);
+                    rule17(os);
                     rule10086(os);
                     generateAutoTask(os);
                     manager.commit(transactionStatus);
@@ -436,9 +439,54 @@ public class CheckService {
     }
 
     public void rule17(OutputStream os){
-        println("aaa ");
+        List<JSONObject> res = sqlManager.select("task.规则17", JSONObject.class, C.newMap());
+        println( "找到待处理条数%d", res.size());
+        List<SysNotice> notices = C.newList();
+        List<NoticeTriggerLog> logs = C.newList();
+        try {
+            for(JSONObject item : res){
+                    notices.add(
+                            noticeService2.makeNotice(
+                                    SysNotice.Type.SYSTEM,
+                                    1,
+                                    String.format("私人客户%s的证件到期时间为%s", item.getString("name"), item.getString("eTime")),
+                                    null)
+                    );
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        sqlManager.insertBatch(SysNotice.class, notices);
+        sqlManager.insertBatch(NoticeTriggerLog.class, logs);
     }
 
+    public void rule18(OutputStream os){
+        String[] strList = {"COM_INS_ANN_DATE","REG_END_DATE","REG_AUDIT_END_DATE","NAT_TAX_ANN_DATE","LOC_TAX_ANN_DATE","CRD_END_DT","COM_SP_END_DATE"};
+        String[] nameList ={"组织机构代码证年检到期日","注册登记到期日期","注册登记年审到期日","国税登记证年检到期日","地税登记证年检到期日","信用评定到期日期","特种经营到期日期    "};
+        for (int i = 0; i < strList.length;i ++){
+            List<JSONObject> res = sqlManager.select("task.规则18", JSONObject.class, C.newMap(
+                "date",strList[i]
+            ));
+            println( "找到待处理条数%d", res.size());
+            List<SysNotice> notices = C.newList();
+            List<NoticeTriggerLog> logs = C.newList();
+            try {
+                for(JSONObject item : res){
+                    notices.add(
+                            noticeService2.makeNotice(
+                                    SysNotice.Type.SYSTEM,
+                                    1,
+                                    String.format("对公客户%s的%s到期时间为%s", item.getString("name"),nameList[i] ,item.getString("eTime")),
+                                    null)
+                    );
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            sqlManager.insertBatch(SysNotice.class, notices);
+            sqlManager.insertBatch(NoticeTriggerLog.class, logs);
+        }
+    }
 
     public void rule10086(OutputStream os){
         SimpleDateFormat ymd = new SimpleDateFormat("yyyy-MM-dd");
@@ -937,9 +985,7 @@ public class CheckService {
         }
     }
     /***** 自动生成任务end   *****/
-
-
-    private void beginChcek(final int num){
+   private void beginChcek(final int num){
         println("");
         println("***********************");
         println("开始检查规则%d",num);

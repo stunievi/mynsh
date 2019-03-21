@@ -1406,3 +1406,9 @@ and p1.GL_CLASS not like '0%'
 --台帐状态
 and p1.ACCOUNT_STATUS = '1'
 and (dm.uid = #uid# or u.id = #uid#)
+
+
+
+320
+===
+select * from IQP_REPAY_SCH where LOAN_ACCOUNT = #accountId# 

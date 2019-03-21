@@ -606,7 +606,6 @@ public class WfIns extends TailBean implements ValidGroup {
                             , WfIns::getDealUserId
                             , WfIns::getDepId
                     ).get(0);
-            System.out.println(wfIns.getState().equals(DEALING)+"xxxxxxxxxxxxxx");
             if(!wfIns.getState().equals(DEALING)){
                 continue;
             }
