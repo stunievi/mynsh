@@ -14,7 +14,7 @@ public class QccUtil {
     // 密钥
     private static final String SecretKey = "6825D0914B8333B45F2E36D71A10E85F";
 
-    // 获取请求的http header
+    // 请求的http header
     private static Map setHeaderInfo(){
         String Timespan = String.valueOf(new Date().getTime()/1000);
         String str = AppKey.concat(Timespan).concat(SecretKey);
@@ -28,6 +28,7 @@ public class QccUtil {
 
     // get请求数据
     public static String getData(String url, Map queries){
+        // 补充key，企查查请求格式
         queries.put("key", AppKey);
         Map header = setHeaderInfo();
         return OkHttpUtil.getForHeader(url, queries, header);

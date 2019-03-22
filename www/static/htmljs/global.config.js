@@ -97,7 +97,6 @@ var remoteApi = {
 	qccECISearch: "/qcc/ECI/Search", // 企业关键字模糊搜索
 	qccECIRelationGetCompanyEquityShareMap: "/qcc/ECIRelation/GetCompanyEquityShareMap", // 股权结构图
 	qccECIRelationGenerateMultiDimensionalTreeCompanyMap: "/qcc/ECIRelation/GenerateMultiDimensionalTreeCompanyMap", // 企业图谱
-	qccGetChattelMortgage: "/qcc/ChattelMortgage/GetChattelMortgage", // 获取动产抵押信息
 	qccECIExceptionGetOpException: "/qcc/ECIException/GetOpException", // 查询企业经营异常信息
 	qccCourtAnnoSearchCourtNotice: "/qcc/CourtAnno/SearchCourtNotice", // 开庭公告查询
 	qccCourtAnnoGetCourtNoticeInfo: "/qcc/CourtAnno/GetCourtNoticeInfo", // 开庭公告详情查询
@@ -109,13 +108,28 @@ var remoteApi = {
 	qccCourtGetShiXinDetail: "/qcc/Court/SearchShiXin", // 获取失信详情
 	qccGetZhiXingDetail: "/qcc/Court/GetZhiXingDetail", // 获取执行详情
 	qccCourtSearchZhiXing: "/qcc/Court/SearchZhiXing", // 查询执行列表
+
+	qccGetChattelMortgage: "/qcc/ChattelMortgage/GetChattelMortgage", // 获取动产抵押信息
 	qccJudicialSaleGetJudicialSaleList: "/qcc/JudicialSale/GetJudicialSaleList", // 司法拍卖列表
 	qccJudicialSaleGetJudicialSaleDetail: "/qcc/JudicialSale/GetJudicialSaleDetail", // 司法拍卖详情
 	qccLandMortgageGetLandMortgageList: "/qcc/LandMortgage/GetLandMortgageList", // 获取土地抵押列表
 	qccLandMortgageGetLandMortgageDetails: "/qcc/LandMortgage/GetLandMortgageDetails", // 获取土地抵押详情
 	qccGetEnvPunishmentList: "/qcc/EnvPunishment/GetEnvPunishmentList", // 获取环保处罚列表
 	qccGetEnvPunishmentDetails: "/qcc/EnvPunishment/GetEnvPunishmentDetails", // 获取环保处罚详情
+	// 历史信息接口
 	qccHistoryGetHistorytEci: "/qcc/History/GetHistorytEci", // 历史工商信息
+	qccHistoryGetHistorytInvestment: "/qcc/History/GetHistorytInvestment", // 历史对外投资
+	// TODO::历史股东
+	qccHistoryGetHistoryShiXin: "/qcc/History/GetHistoryShiXin", // 历史失信查询
+	qccHistoryGetHistoryZhiXing: "/qcc/History/GetHistoryZhiXing", // 历史被执行
+	qccHistoryGetHistorytCourtNotice: "/qcc/History/GetHistorytCourtNotice", // 历史法院公告
+	qccHistoryGetHistorytJudgement: "/qcc/History/GetHistorytJudgement", // 历史裁判文书
+	qccHistoryGetHistorytSessionNotice: "/qcc/History/GetHistorytSessionNotice", // 历史开庭公告
+	qccHistoryGetHistorytMPledge: "/qcc/History/GetHistorytMPledge", // 历史动产抵押
+	qccHistoryGetHistorytPledge: "/qcc/History/GetHistorytPledge", // 历史股权出质
+	qccHistoryGetHistorytAdminPenalty: "/qcc/History/GetHistorytAdminPenalty", // 历史行政处罚
+	qccHistoryGetHistorytAdminLicens: "/qcc/History/GetHistorytAdminLicens", // 历史行政许可
+	// 法律诉讼
 
 
 

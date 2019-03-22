@@ -46,18 +46,24 @@ public class QccService {
         Integer pageSize = param.getInteger("pageSize");
         Integer pageNumber = param.getInteger("pageNumber");
         if(null == pageSize || "".equals(pageSize) || pageSize<1){
-            pageSize = 20;
+            pageSize = param.getInteger("size");
+            if(null == pageSize || "".equals(pageSize) || pageSize<1){
+                pageSize = 10;
+            }
         }
         if(null == pageNumber || "".equals(pageNumber) || pageNumber<1){
-            pageNumber = 1;
+            pageNumber = param.getInteger("page");
+            if(null == pageNumber || "".equals(pageNumber) || pageNumber<1){
+                pageNumber = 1;
+            }
         }
         Bson orderBy = new BasicDBObject("_id", 1);
-        if(null != filter){
-            totalRow = tableDoc.countDocuments(filter);
-            tempList = tableDoc.find(filter).sort(orderBy).skip((pageNumber-1)*pageSize).limit(pageSize).iterator();
-        }else{
+        if(null == filter){
             totalRow = tableDoc.countDocuments();
             tempList = tableDoc.find().sort(orderBy).skip((pageNumber-1)*pageSize).limit(pageSize).iterator();
+        }else{
+            totalRow = tableDoc.countDocuments(filter);
+            tempList = tableDoc.find(filter).sort(orderBy).skip((pageNumber-1)*pageSize).limit(pageSize).iterator();
         }
         ArrayList<Map> dataList = new ArrayList<>();
         while (tempList.hasNext()){
@@ -70,6 +76,24 @@ public class QccService {
         ret.put("pageSize", pageSize);
         ret.put("pageNumber", pageNumber);
         ret.put("list", dataList);
+        return ret;
+    }
+
+    private Map getSimpleParamAndFilter(
+            Map param
+    ){
+        JSONObject paramObj = (JSONObject) JSON.toJSON(param);
+        Bson filter = null;
+        ArrayList cond = new ArrayList();
+        if(null != param.get("keyWord") && !"".equals(paramObj.getString("keyWord"))){
+            cond.add(Filters.eq("KeyWordVal", paramObj.getString("keyWord")));
+        }
+        if(cond.size() > 0){
+            filter = Filters.and(cond);
+        }
+        Map ret = new HashMap();
+        ret.put("paramObj", paramObj);
+        ret.put("filter", filter);
         return ret;
     }
 
@@ -137,4 +161,131 @@ public class QccService {
     ){
         return mongoService.findOne("History_GetHistorytEci", Filters.eq("KeyWordVal", keyWord));
     }
+
+    // 历史对外投资
+    public Map History_GetHistorytInvestment(
+            Map param
+    ){
+        Map ret = getSimpleParamAndFilter(param);
+        return getDataList("History_GetHistorytInvestment", (JSONObject) ret.get("paramObj"), (Bson) ret.get("filter"));
+    }
+     // 历史股东
+    public Map History_GetHistorytShareHolder(
+            Map param
+    ){
+        Map ret = getSimpleParamAndFilter(param);
+        return getDataList("History_GetHistorytShareHolder", (JSONObject) ret.get("paramObj"), (Bson) ret.get("filter"));
+    }
+    // 历史失信
+    public Map History_GetHistoryShiXin(
+            Map param
+    ){
+        Map ret = getSimpleParamAndFilter(param);
+        return getDataList("History_GetHistoryShiXin", (JSONObject) ret.get("paramObj"), (Bson) ret.get("filter"));
+    }
+    // 历史执行
+    public Map History_GetHistoryZhiXing(
+            Map param
+    ){
+        Map ret = getSimpleParamAndFilter(param);
+        return getDataList("History_GetHistoryZhiXing", (JSONObject) ret.get("paramObj"), (Bson) ret.get("filter"));
+    }
+    // 历史法院公告
+    public Map History_GetHistorytCourtNotice(
+            Map param
+    ){
+        Map ret = getSimpleParamAndFilter(param);
+        return getDataList("History_GetHistorytCourtNotice", (JSONObject) ret.get("paramObj"), (Bson) ret.get("filter"));
+    }
+    // 历史法院公告
+    public Map History_GetHistorytJudgement(
+            Map param
+    ){
+        Map ret = getSimpleParamAndFilter(param);
+        return getDataList("History_GetHistorytJudgement", (JSONObject) ret.get("paramObj"), (Bson) ret.get("filter"));
+    }
+    // 历史开庭公告
+    public Map History_GetHistorytSessionNotice(
+            Map param
+    ){
+        Map ret = getSimpleParamAndFilter(param);
+        return getDataList("History_GetHistorytSessionNotice", (JSONObject) ret.get("paramObj"), (Bson) ret.get("filter"));
+    }
+    // 历史动产抵押
+    public Map History_GetHistorytMPledge(
+            Map param
+    ){
+        Map ret = getSimpleParamAndFilter(param);
+        return getDataList("History_GetHistorytMPledge", (JSONObject) ret.get("paramObj"), (Bson) ret.get("filter"));
+    }
+    // 历史股权出质
+    public Map History_GetHistorytPledge(
+            Map param
+    ){
+        Map ret = getSimpleParamAndFilter(param);
+        return getDataList("History_GetHistorytPledge", (JSONObject) ret.get("paramObj"), (Bson) ret.get("filter"));
+    }
+    // 历史行政处罚
+    public Map History_GetHistorytAdminPenalty(
+            String keyWord
+    ){
+        return mongoService.findOne("History_GetHistorytAdminPenalty", Filters.eq("KeyWordVal", keyWord));
+    }
+    // 历史行政许可
+    public Map History_GetHistorytAdminLicens(
+            String keyWord
+    ){
+        return mongoService.findOne("History_GetHistorytAdminLicens", Filters.eq("KeyWordVal", keyWord));
+    }
+    // 获取环保处罚列表
+    public Map EnvPunishment_GetEnvPunishmentList(
+            Map param
+    ){
+        Map ret = getSimpleParamAndFilter(param);
+        return getDataList("EnvPunishment_GetEnvPunishmentList", (JSONObject) ret.get("paramObj"), (Bson) ret.get("filter"));
+    }
+    // 环保处罚详情
+    public Document EnvPunishment_GetEnvPunishmentDetails(
+            String id
+    ){
+        return mongoService.findOne("EnvPunishment_GetEnvPunishmentList", Filters.eq("Id",id));
+    }
+    // 获取土地抵押列表
+    public Map LandMortgage_GetLandMortgageList(
+            Map param
+    ){
+        Map ret = getSimpleParamAndFilter(param);
+        return getDataList("LandMortgage_GetLandMortgageList", (JSONObject) ret.get("paramObj"), (Bson) ret.get("filter"));
+    }
+    // 土地抵押详情
+    public Document LandMortgage_GetLandMortgageDetails(
+            String id
+    ){
+        return mongoService.findOne("LandMortgage_GetLandMortgageList", Filters.eq("Id",id));
+    }
+    // 司法拍卖列表
+    public Map JudicialSale_GetJudicialSaleList(
+            Map param
+    ){
+        Map ret = getSimpleParamAndFilter(param);
+        return getDataList("JudicialSale_GetJudicialSaleList", (JSONObject) ret.get("paramObj"), (Bson) ret.get("filter"));
+    }
+    // 司法拍卖详情
+    public Document JudicialSale_GetJudicialSaleDetail(
+            String id
+    ){
+        return mongoService.findOne("JudicialSale_GetJudicialSaleList", Filters.eq("Id",id));
+    }
+    // 动产抵押
+    public ArrayList ChattelMortgage_GetChattelMortgage(
+            String keyWord
+    ){
+        ArrayList dataList = new ArrayList();
+        MongoCursor<Document> list = mongoService.getCollection("ChattelMortgage_GetChattelMortgage").find(Filters.eq("KeyWordVal", keyWord)).iterator();
+        while (list.hasNext()){
+            dataList.add(list.next());
+        }
+        return dataList;
+    }
+
 }

@@ -18,7 +18,7 @@
 <!-- toolbar渲染模板 -->
 <script type="text/html" id="toolbar">
     <div class="layui-toolbar">
-        <a href="javascript:;" class="btn btn-default handleShow">查看</a>
+        <a href="javascript:;" class="btn btn-default handleShow" data-val="{{d.Id}}">查看</a>
     </div>
 </script>
 <!--<script src="./GetCourtNoticeInfo.html"></script>-->
@@ -50,7 +50,8 @@
     });
 
     $(document).on("click", ".handleShow", function (){
-        addNavTab("CourtAnno", "司法拍卖详情", "/htmlsrc/qichacha/JudicialSale/GetJudicialSaleDetail.html");
+        var id = $(this).data("val");
+        addNavTab("CourtAnno-"+id, "司法拍卖详情", "/htmlsrc/qichacha/JudicialSale/GetJudicialSaleDetail.html?id="+id);
         return true;
     });
 </script>

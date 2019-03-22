@@ -8,6 +8,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOptions;
+import netscape.javascript.JSObject;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.osgl.util.C;
@@ -30,10 +31,15 @@ public class GetQccService {
     static {
         // tableName, detailUrl
         // 法律诉讼服
-            // 裁判文书
+        // 裁判文书
         DetailUrls.put("JudgeDoc_SearchJudgmentDoc", DOMAIN_PRX + "/JudgeDoc/GetJudgementDetail");
         DetailUrls.put("CourtAnno_SearchCourtNotice", DOMAIN_PRX + "/CourtAnnoV4/GetCourtNoticeInfo");
-
+        // 司法拍卖列表
+        DetailUrls.put("JudicialSale_GetJudicialSaleList", DOMAIN_PRX + "/JudicialSale/GetJudicialSaleDetail");
+        // 土地抵押
+        DetailUrls.put("LandMortgage_GetLandMortgageList", DOMAIN_PRX + "/LandMortgage/GetLandMortgageDetails");
+        // 环保处罚
+        DetailUrls.put("EnvPunishment_GetEnvPunishmentList", DOMAIN_PRX + "/EnvPunishment/GetEnvPunishmentDetails");
     }
 
     // 下载企查查数据
@@ -48,13 +54,41 @@ public class GetQccService {
         // 查询裁判文书
         // JudgeDoc_SearchJudgmentDoc(keyWord);
         // 查询开庭公告
-        CourtAnno_SearchCourtNotice(keyWord);
+        // CourtAnno_SearchCourtNotice(keyWord);
 
-        // 历史信息
-            // 历史工商信息
-        History_GetHistorytEci(keyWord);
-            // 历史对外投资
-        History_GetHistorytInvestment(keyWord);
+//        // 历史信息
+//        // 历史工商信息
+//        History_GetHistorytEci(keyWord);
+//        // 历史对外投资
+//        History_GetHistorytInvestment(keyWord);
+//        //历史失信查询
+//        History_GetHistoryShiXin(keyWord);
+//        //历史被执行
+//        History_GetHistoryZhiXing(keyWord);
+//        //历史法院公告
+//        History_GetHistorytCourtNotice(keyWord);
+//        //历史裁判文书
+//        History_GetHistorytJudgement(keyWord);
+//        //历史开庭公告
+//        History_GetHistorytSessionNotice(keyWord);
+//        //历史动产抵押
+//        History_GetHistorytMPledge(keyWord);
+//        //历史股权出质
+//        History_GetHistorytPledge(keyWord);
+//        //历史行政处罚
+//        History_GetHistorytAdminPenalty(keyWord);
+//        //历史行政许可
+//        History_GetHistorytAdminLicens(keyWord);
+
+        // 司法拍卖列表
+        JudicialSale_GetJudicialSaleList(keyWord);
+        // 土地抵押
+        LandMortgage_GetLandMortgageList(keyWord);
+        // 获取环保处罚列表
+        EnvPunishment_GetEnvPunishmentList(keyWord);
+        // 获取动产抵押信息
+        ChattelMortgage_GetChattelMortgage(keyWord);
+
     }
 
     // 数据原样保存至mongoDB
@@ -70,7 +104,7 @@ public class GetQccService {
             object = object.getJSONObject("Result");
         }
 
-        object.put("getDataTime", new Date().getTime());
+        object.put("GetDataTime", new Date().getTime());
         // $set可以用来修改一个字段的值，如果这个字段不存在，则创建它
         Document modifiers = new Document();
         modifiers.append("$set", object);
@@ -193,6 +227,9 @@ public class GetQccService {
                 if(null == filter){
                     break;
                 }
+                if(null != queries.get("keyWord") && !"".equals(queries.get("keyWord"))){
+                    item.put("KeyWordVal", queries.get("keyWord"));
+                }
                 saveData(collName, filter, JSON.toJSONString(item));
                 // TODO:: 获取详情
                 String detailDataUrl = DetailUrls.get(collName);
@@ -227,17 +264,16 @@ public class GetQccService {
             JSONArray arr = obj.getJSONArray("Result");
             // 删除历史数据
             if(pageIndex.equals(1)){
-                MongoCursor<Document> findList =  coll.find().iterator();
+                MongoCursor<Document> findList =  coll.find(Filters.eq("KeyWordVal", queries.get("keyWord"))).iterator();
                 while (findList.hasNext()){
                     Document item = findList.next();
                     mongoService.deleteById(coll, item.getObjectId("_id").toString());
                 }
             }
-
             for(short i = 0; i < arr.size(); i++){
                 JSONObject item = arr.getJSONObject(i);
                 item.put("KeyWordVal", queries.get("keyWord"));
-                item.put("getDataTime", new Date().getTime());
+                item.put("GetDataTime", new Date().getTime());
                 coll.insertOne(new Document(item));
             }
 
@@ -273,8 +309,6 @@ public class GetQccService {
         Bson filter = Filters.eq("KeyWordVal", keyWord);
         saveData("History_GetHistorytEci", filter, res);
     }
-
-
     // 历史对外投资
     private void History_GetHistorytInvestment(
             String keyWord
@@ -286,7 +320,103 @@ public class GetQccService {
         );
         getDataList2("History_GetHistorytInvestment", queries,DOMAIN_PRX + "/History/GetHistorytInvestment", "");
     }
-
+    //历史失信查询
+    private void History_GetHistoryShiXin(
+            String keyWord
+    ){
+        Map queries = C.newMap(
+                "keyWord", keyWord,
+                "pageIndex", 1,
+                "pageSize", 50
+        );
+        getDataList("History_GetHistoryShiXin", queries,DOMAIN_PRX + "/History/GetHistoryShiXin", "");
+    }
+    //历史被执行
+    private void History_GetHistoryZhiXing(
+            String keyWord
+    ){
+        Map queries = C.newMap(
+                "keyWord", keyWord,
+                "pageIndex", 1,
+                "pageSize", 50
+        );
+        getDataList2("History_GetHistoryZhiXing", queries,DOMAIN_PRX + "/History/GetHistoryZhiXing", "");
+    }
+    //历史法院公告
+    private void History_GetHistorytCourtNotice(
+            String keyWord
+    ){
+        Map queries = C.newMap(
+                "keyWord", keyWord,
+                "pageIndex", 1,
+                "pageSize", 50
+        );
+        getDataList("History_GetHistorytCourtNotice", queries,DOMAIN_PRX + "/History/GetHistorytCourtNotice", "");
+    }
+    //历史裁判文书
+    private void History_GetHistorytJudgement(
+            String keyWord
+    ){
+        Map queries = C.newMap(
+                "keyWord", keyWord,
+                "pageIndex", 1,
+                "pageSize", 50
+        );
+        getDataList("History_GetHistorytJudgement", queries,DOMAIN_PRX + "/History/GetHistorytJudgement", "");
+    }
+    //历史开庭公告
+    private void History_GetHistorytSessionNotice(
+            String keyWord
+    ){
+        Map queries = C.newMap(
+                "keyWord", keyWord,
+                "pageIndex", 1,
+                "pageSize", 50
+        );
+        getDataList("History_GetHistorytSessionNotice", queries,DOMAIN_PRX + "/History/GetHistorytSessionNotice", "");
+    }
+    //历史动产抵押
+    private void History_GetHistorytMPledge(
+            String keyWord
+    ){
+        Map queries = C.newMap(
+                "keyWord", keyWord,
+                "pageIndex", 1,
+                "pageSize", 20
+        );
+        getDataList2("History_GetHistorytMPledge", queries,DOMAIN_PRX + "/History/GetHistorytMPledge", "");
+    }
+    //历史股权出质
+    private void History_GetHistorytPledge(
+            String keyWord
+    ){
+        Map queries = C.newMap(
+                "keyWord", keyWord,
+                "pageIndex", 1,
+                "pageSize", 20
+        );
+        getDataList2("History_GetHistorytPledge", queries,DOMAIN_PRX + "/History/GetHistorytPledge", "");
+    }
+    //历史行政处罚
+    private void History_GetHistorytAdminPenalty(
+            String keyWord
+    ){
+        String res = QccUtil.getData(DOMAIN_PRX + "/History/GetHistorytAdminPenalty", C.newMap(
+                "keyWord", keyWord
+        ));
+        Bson filter = Filters.eq("KeyWordVal", keyWord);
+        saveData("History_GetHistorytAdminPenalty", filter, res);
+    }
+    //历史行政许可
+    private void History_GetHistorytAdminLicens(
+            String keyWord
+    ){
+        String res = QccUtil.getData(DOMAIN_PRX + "/History/GetHistorytAdminLicens", C.newMap(
+                "keyWord", keyWord
+        ));
+        Bson filter = Filters.eq("KeyWordVal", keyWord);
+        saveData("History_GetHistorytAdminLicens", filter, res);
+    }
     /**
      * 裁判文书
      * @param keyWord
@@ -312,6 +442,68 @@ public class GetQccService {
                 "isExactlySame", true
         );
         getDataList("CourtAnno_SearchCourtNotice", queries,DOMAIN_PRX + "/CourtAnnoV4/SearchCourtNotice", "");
+    }
+
+    /**
+     * 经营风险
+     */
+    // 司法拍卖列表
+    public void JudicialSale_GetJudicialSaleList(
+            String keyWord
+    ){
+        Map queries = C.newMap(
+                "keyWord", keyWord,
+                "pageIndex", 1,
+                "pageSize", 50
+        );
+        getDataList("JudicialSale_GetJudicialSaleList", queries,DOMAIN_PRX + "/JudicialSale/GetJudicialSaleList", "");
+    }
+    // 土地抵押
+    public void LandMortgage_GetLandMortgageList(
+            String keyWord
+    ){
+        Map queries = C.newMap(
+                "keyWord", keyWord,
+                "pageIndex", 1,
+                "pageSize", 50
+        );
+        getDataList("LandMortgage_GetLandMortgageList", queries,DOMAIN_PRX + "/LandMortgage/GetLandMortgageList", "");
+    }
+    // 获取环保处罚列表
+    public void EnvPunishment_GetEnvPunishmentList(
+            String keyWord
+    ){
+        Map queries = C.newMap(
+                "keyWord", keyWord,
+                "pageIndex", 1,
+                "pageSize", 50
+        );
+        getDataList("EnvPunishment_GetEnvPunishmentList", queries,DOMAIN_PRX + "/EnvPunishment/GetEnvPunishmentList", "");
+    }
+
+    // 获取动产抵押信息
+    public void ChattelMortgage_GetChattelMortgage(
+            String keyWord
+    ){
+        MongoCollection<Document> coll = mongoService.getCollection("ChattelMortgage_GetChattelMortgage");
+        MongoCursor<Document> findList =  coll.find(Filters.eq("KeyWordVal", keyWord)).iterator();
+        while (findList.hasNext()){
+            Document item = findList.next();
+            mongoService.deleteById(coll, item.getObjectId("_id").toString());
+        }
+        String res = QccUtil.getData(DOMAIN_PRX + "/ChattelMortgage/GetChattelMortgage", C.newMap(
+                "keyWord", keyWord
+        ));
+        if(isCorrectRes(res)){
+            JSONObject obj = JSON.parseObject(res);
+            JSONArray dataList = obj.getJSONArray("Result");
+            for(short i=0;i<dataList.size();i++){
+                JSONObject item = dataList.getJSONObject(i);
+                item.put("KeyWordVal", keyWord);
+                item.put("GetDataTime", new Date().getTime());
+                coll.insertOne(new Document(item));
+            }
+        }
     }
 
 }
