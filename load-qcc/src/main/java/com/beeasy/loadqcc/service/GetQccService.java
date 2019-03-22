@@ -25,15 +25,16 @@ public class GetQccService {
 
     private static Map<String, String> DetailUrls = new HashMap<>();
 
-    private static String DOMAIN_PRX = "http://localhost:8015/test/qcc";
+    private static String DOMAIN_PRX = "http://www.beeasy.com.cn/test/qcc";
 
     static {
         // tableName, detailUrl
         // 法律诉讼服
             // 裁判文书
-        DetailUrls.put("JudgeDoc_SearchJudgmentDoc", DOMAIN_PRX + "/JudgeDoc/GetJudgementDetail");
-        DetailUrls.put("CourtAnno_SearchCourtNotice", DOMAIN_PRX + "/CourtAnnoV4/GetCourtNoticeInfo");
-
+       DetailUrls.put("JudgeDoc_SearchJudgmentDoc", DOMAIN_PRX + "/JudgeDoc/GetJudgementDetail");
+//        DetailUrls.put("CourtAnno_SearchCourtNotice", DOMAIN_PRX + "/CourtAnnoV4/GetCourtNoticeInfo");
+        // 查询法院公告        //返回id没有写，先注释掉
+//        DetailUrls.put("CourtNoticeV4_SearchCourtAnnouncement", DOMAIN_PRX + "/CourtNoticeV4/SearchCourtAnnouncementDetail");
     }
 
     // 下载企查查数据
@@ -45,16 +46,48 @@ public class GetQccService {
         }
         // 企业关键字精确获取详细信息
         // ECI_GetBasicDetailsByName(keyWord);
-        // 查询裁判文书
-        // JudgeDoc_SearchJudgmentDoc(keyWord);
-        // 查询开庭公告
-        CourtAnno_SearchCourtNotice(keyWord);
 
-        // 历史信息
-            // 历史工商信息
+/* 法律诉讼  */
+        //查询裁判文书
+        JudgeDoc_SearchJudgmentDoc(keyWord);
+        //查询开庭公告
+        CourtAnno_SearchCourtNotice(keyWord);
+        //查询法院公告
+//      CourtNoticeV4_SearchCourtAnnouncement(keyWord);
+//      //失信信息
+//      CourtV4_SearchShiXin(keyWord);
+//      //失信被执行人信息
+//      CourtV4_SearchZhiXing(keyWord);
+        //获取司法协助信息
+        JudicialAssistance_GetJudicialAssistance(keyWord);
+
+
+ /* 历史信息  */
+        // 历史工商信息
         History_GetHistorytEci(keyWord);
-            // 历史对外投资
+        // 历史对外投资
         History_GetHistorytInvestment(keyWord);
+        // 历史股东
+        History_GetHistorytShareHolder(keyWord);
+        //历史失信查询
+        History_GetHistoryShiXin(keyWord);
+        //历史被执行
+        History_GetHistoryZhiXing(keyWord);
+        //历史法院公告
+        History_GetHistorytCourtNotice(keyWord);
+        //历史裁判文书
+        History_GetHistorytJudgement(keyWord);
+        //历史开庭公告
+        History_GetHistorytSessionNotice(keyWord);
+        //历史动产抵押
+        History_GetHistorytMPledge(keyWord);
+        //历史股权出质
+        History_GetHistorytPledge(keyWord);
+        //历史行政处罚
+        History_GetHistorytAdminPenalty(keyWord);
+        //历史行政许可
+        History_GetHistorytAdminLicens(keyWord);
+
     }
 
     // 数据原样保存至mongoDB
@@ -286,8 +319,116 @@ public class GetQccService {
         );
         getDataList2("History_GetHistorytInvestment", queries,DOMAIN_PRX + "/History/GetHistorytInvestment", "");
     }
+    // 历史股东
+    private void History_GetHistorytShareHolder(
+            String keyWord
+    ){
+        Map queries = C.newMap(
+                "keyWord", keyWord,
+                "pageIndex", 1,
+                "pageSize", 50
+        );
+        getDataList2("History_GetHistorytShareHolder", queries,DOMAIN_PRX + "/History/GetHistorytShareHolder", "");
+    }
+    //历史失信查询
+    private void History_GetHistoryShiXin(
+            String keyWord
+    ){
+        Map queries = C.newMap(
+                "keyWord", keyWord,
+                "pageIndex", 1,
+                "pageSize", 50
+        );
+        getDataList("History_GetHistoryShiXin", queries,DOMAIN_PRX + "History/GetHistoryShiXin", "");
+    }
+    //历史被执行
+    private void History_GetHistoryZhiXing(
+            String keyWord
+    ){
+        Map queries = C.newMap(
+                "keyWord", keyWord,
+                "pageIndex", 1,
+                "pageSize", 50
+        );
+        getDataList2("History_GetHistoryZhiXing", queries,DOMAIN_PRX + "History/GetHistoryZhiXing", "");
+    }
+    //历史法院公告
+    private void History_GetHistorytCourtNotice(
+            String keyWord
+    ){
+        Map queries = C.newMap(
+                "keyWord", keyWord,
+                "pageIndex", 1,
+                "pageSize", 50
+        );
+        getDataList("History_GetHistorytCourtNotice", queries,DOMAIN_PRX + "History/GetHistorytCourtNotice", "");
+    }
+      //历史裁判文书
+   private void History_GetHistorytJudgement(
+           String keyWord
+   ){
+       Map queries = C.newMap(
+               "keyWord", keyWord,
+               "pageIndex", 1,
+               "pageSize", 50
+       );
+       getDataList("History_GetHistorytJudgement", queries,DOMAIN_PRX + "/History/GetHistorytJudgement", "");
+   }
+    //历史开庭公告
+    private void History_GetHistorytSessionNotice(
+            String keyWord
+    ){
+        Map queries = C.newMap(
+                "keyWord", keyWord,
+                "pageIndex", 1,
+                "pageSize", 50
+        );
+        getDataList("History_GetHistorytSessionNotice", queries,DOMAIN_PRX + "/History/GetHistorytSessionNotice", "");
+    }
+    //历史动产抵押
+    private void History_GetHistorytMPledge(
+            String keyWord
+    ){
+        Map queries = C.newMap(
+                "keyWord", keyWord,
+                "pageIndex", 1,
+                "pageSize", 20
+        );
+        getDataList2("History_GetHistorytMPledge", queries,DOMAIN_PRX + "/History/GetHistorytMPledge", "");
+    }
+    //历史股权出质
+    private void History_GetHistorytPledge(
+            String keyWord
+    ){
+        Map queries = C.newMap(
+                "keyWord", keyWord,
+                "pageIndex", 1,
+                "pageSize", 20
+        );
+        getDataList2("History_GetHistorytPledge", queries,DOMAIN_PRX + "/History/GetHistorytPledge", "");
+    }
+    //历史行政处罚
+    private void History_GetHistorytAdminPenalty(
+            String keyWord
+    ){
+        String res = QccUtil.getData(DOMAIN_PRX + "/History/GetHistorytAdminPenalty", C.newMap(
+                "keyWord", keyWord
+        ));
+        Bson filter = Filters.eq("KeyWordVal", keyWord);
+        saveData("History_GetHistorytAdminPenalty", filter, res);
+    }
+    //历史行政许可
+   private void History_GetHistorytAdminLicens(
+           String keyWord
+   ){
+       String res = QccUtil.getData(DOMAIN_PRX + "/History/GetHistorytAdminLicens", C.newMap(
+               "keyWord", keyWord
+       ));
+       Bson filter = Filters.eq("KeyWordVal", keyWord);
+       saveData("History_GetHistorytAdminLicens", filter, res);
+   }
 
-    /**
+   /**
      * 裁判文书
      * @param keyWord
      */
@@ -313,5 +454,49 @@ public class GetQccService {
         );
         getDataList("CourtAnno_SearchCourtNotice", queries,DOMAIN_PRX + "/CourtAnnoV4/SearchCourtNotice", "");
     }
-
+// 查询法院公告
+    private void CourtNoticeV4_SearchCourtAnnouncement(
+    String searchKey
+    ){
+        Map queries = C.newMap(
+                "searchKey", searchKey,
+                "pageSize", 50,
+                "pageIndex", 1
+        );
+        getDataList("CourtNoticeV4_SearchCourtAnnouncement", queries,DOMAIN_PRX + "/CourtNoticeV4/SearchCourtAnnouncement", "");
+    }
+    //失信信息
+    private void CourtV4_SearchShiXin(
+            String searchKey
+    ){
+        Map queries = C.newMap(
+                "searchKey", searchKey,
+                "pageSize", 50,
+                "pageIndex", 1,
+                "isExactlySame", true
+        );
+        getDataList("CourtV4_SearchShiXin", queries,DOMAIN_PRX + "/CourtV4/SearchShiXin", "");
+    }
+       //失信被执行人信息
+     private void  CourtV4_SearchZhiXing(
+             String searchKey
+    ){
+        Map queries = C.newMap(
+                "searchKey", searchKey,
+                "pageSize", 50,
+                "pageIndex", 1,
+                "isExactlySame", true
+        );
+        getDataList("CourtV4_SearchZhiXing", queries,DOMAIN_PRX + "/CourtV4/SearchZhiXing", "");
+    }
+    //获取司法协助信息
+    private void JudicialAssistance_GetJudicialAssistance(
+            String keyWord
+    ){
+        String res = QccUtil.getData(DOMAIN_PRX + "/JudicialAssistance/GetJudicialAssistance", C.newMap(
+                "keyWord", keyWord
+        ));
+        Bson filter = Filters.eq("KeyWordVal", keyWord);
+        saveData("JudicialAssistance_GetJudicialAssistance", filter, res);
+    }
 }
