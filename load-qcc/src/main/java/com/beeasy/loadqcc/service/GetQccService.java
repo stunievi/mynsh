@@ -30,16 +30,23 @@ public class GetQccService {
 
     static {
         // tableName, detailUrl
-        // 法律诉讼服
+        /* 法律诉讼服 */
         // 裁判文书
         DetailUrls.put("JudgeDoc_SearchJudgmentDoc", DOMAIN_PRX + "/JudgeDoc/GetJudgementDetail");
+        // 开庭公告
         DetailUrls.put("CourtAnno_SearchCourtNotice", DOMAIN_PRX + "/CourtAnnoV4/GetCourtNoticeInfo");
+        // 查询法院公告        //返回id没有写，先注释掉
+        // DetailUrls.put("CourtNoticeV4_SearchCourtAnnouncement", DOMAIN_PRX + "/CourtNoticeV4/SearchCourtAnnouncementDetail");
+
+        /* 经营风险 */
         // 司法拍卖列表
         DetailUrls.put("JudicialSale_GetJudicialSaleList", DOMAIN_PRX + "/JudicialSale/GetJudicialSaleDetail");
         // 土地抵押
         DetailUrls.put("LandMortgage_GetLandMortgageList", DOMAIN_PRX + "/LandMortgage/GetLandMortgageDetails");
         // 环保处罚
         DetailUrls.put("EnvPunishment_GetEnvPunishmentList", DOMAIN_PRX + "/EnvPunishment/GetEnvPunishmentDetails");
+
+        
     }
 
     // 下载企查查数据
@@ -51,10 +58,20 @@ public class GetQccService {
         }
         // 企业关键字精确获取详细信息
         // ECI_GetBasicDetailsByName(keyWord);
-        // 查询裁判文书
-        // JudgeDoc_SearchJudgmentDoc(keyWord);
-        // 查询开庭公告
-        // CourtAnno_SearchCourtNotice(keyWord);
+
+        /* 法律诉讼  */
+        //查询裁判文书
+        JudgeDoc_SearchJudgmentDoc(keyWord);
+        //查询开庭公告
+        CourtAnno_SearchCourtNotice(keyWord);
+        //查询法院公告
+        CourtNoticeV4_SearchCourtAnnouncement(keyWord);
+        //失信信息
+        CourtV4_SearchShiXin(keyWord);
+        //失信被执行人信息
+        CourtV4_SearchZhiXing(keyWord);
+        // 获取司法协助信息
+        JudicialAssistance_GetJudicialAssistance(keyWord);
 
 //        // 历史信息
 //        // 历史工商信息
@@ -80,14 +97,14 @@ public class GetQccService {
 //        //历史行政许可
 //        History_GetHistorytAdminLicens(keyWord);
 
-        // 司法拍卖列表
-        JudicialSale_GetJudicialSaleList(keyWord);
-        // 土地抵押
-        LandMortgage_GetLandMortgageList(keyWord);
-        // 获取环保处罚列表
-        EnvPunishment_GetEnvPunishmentList(keyWord);
-        // 获取动产抵押信息
-        ChattelMortgage_GetChattelMortgage(keyWord);
+//        // 司法拍卖列表
+//        JudicialSale_GetJudicialSaleList(keyWord);
+//        // 土地抵押
+//        LandMortgage_GetLandMortgageList(keyWord);
+//        // 获取环保处罚列表
+//        EnvPunishment_GetEnvPunishmentList(keyWord);
+//        // 获取动产抵押信息
+//        ChattelMortgage_GetChattelMortgage(keyWord);
 
     }
 
@@ -505,5 +522,67 @@ public class GetQccService {
             }
         }
     }
+
+    // 查询法院公告
+    private void CourtNoticeV4_SearchCourtAnnouncement(
+            String searchKey
+    ){
+        Map queries = C.newMap(
+                "searchKey", searchKey,
+                "pageSize", 50,
+                "pageIndex", 1
+        );
+        getDataList("CourtNoticeV4_SearchCourtAnnouncement", queries,DOMAIN_PRX + "/CourtNoticeV4/SearchCourtAnnouncement", "");
+    }
+    //失信信息
+    private void CourtV4_SearchShiXin(
+            String searchKey
+    ){
+        Map queries = C.newMap(
+                "searchKey", searchKey,
+                "pageSize", 50,
+                "pageIndex", 1,
+                "isExactlySame", true
+        );
+        getDataList("CourtV4_SearchShiXin", queries,DOMAIN_PRX + "/CourtV4/SearchShiXin", "");
+    }
+    //失信被执行人信息
+    private void  CourtV4_SearchZhiXing(
+            String searchKey
+    ){
+        Map queries = C.newMap(
+                "searchKey", searchKey,
+                "pageSize", 50,
+                "pageIndex", 1,
+                "isExactlySame", true
+        );
+        getDataList("CourtV4_SearchZhiXing", queries,DOMAIN_PRX + "/CourtV4/SearchZhiXing", "");
+    }
+    //获取司法协助信息
+    private void JudicialAssistance_GetJudicialAssistance(
+            String keyWord
+    ){
+        MongoCollection<Document> coll = mongoService.getCollection("JudicialAssistance_GetJudicialAssistance");
+        MongoCursor<Document> findList =  coll.find(Filters.eq("KeyWordVal", keyWord)).iterator();
+        while (findList.hasNext()){
+            Document item = findList.next();
+            mongoService.deleteById(coll, item.getObjectId("_id").toString());
+        }
+        String res = QccUtil.getData(DOMAIN_PRX + "/JudicialAssistance/GetJudicialAssistance", C.newMap(
+                "keyWord", keyWord
+        ));
+        if(isCorrectRes(res)){
+            JSONObject obj = JSON.parseObject(res);
+            JSONArray dataList = obj.getJSONArray("Result");
+            for(short i=0;i<dataList.size();i++){
+                JSONObject item = dataList.getJSONObject(i);
+                item.put("KeyWordVal", keyWord);
+                item.put("GetDataTime", new Date().getTime());
+                coll.insertOne(new Document(item));
+            }
+        }
+    }
+
+
 
 }
