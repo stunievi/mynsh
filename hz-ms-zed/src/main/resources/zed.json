@@ -1,0 +1,14 @@
+{
+    "link": [
+        "T_USER.ID -> T_USER_ORG.UID",
+        "T_ORG.id -> t_user_org.oid",
+        "t_org.parent_id -> t_org.id"
+    ],
+    "T_user": {
+        "id": "1",
+        "T_org[]": {
+            "T_org": {
+            }
+        }
+    }
+}
