@@ -30,11 +30,11 @@
 
     function checkSubmitForm() {
         SuperPost({
-            url: "http://localhost:8015/test/qichacha/ChattelMortgage/GetChattelMortgage",
+            url: remoteApi.qccGetChattelMortgage+"?keyWord="+$("#keyWord").val(),
             success:function(res){
-                if("200" == res.Status){
+                if(res.success){
                     $("#dataList").html(panelFormRender4({
-                        dataList: res["Result"]
+                        dataList: res.data
                     }));
                     $(".media-left h2").pin({containerSelector: ".media-left"})
                 }

@@ -30,10 +30,10 @@
     var MortgagorName;//土地抵押人名称
     var MortgagePeople;//土地抵押权人
     SuperPost({
-        url: "http://localhost:8015/test/qichacha/LandMortgage/GetLandMortgageDetails",
-        success: function(origin){
-            if(origin.Status == "200"){
-                var data = origin.Result || {};
+        url: remoteApi.qccLandMortgageGetLandMortgageDetails+"?id="+getParam("id"),
+        success: function(res){
+            if(res.success){
+                var data = res.data || {};
                 MortgagorName = data["MortgagorName"];
                 MortgagePeople = data["MortgagePeople"];
                 data["MortgagorName"] = data["MortgagorName"]["Name"];

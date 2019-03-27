@@ -1,0 +1,704 @@
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="stylesheet" href="https://www.qichacha.com/material/theme/chacha/cms/v2/css/bootstrap.css" type="text/css" />
+    <link rel="stylesheet" href="https://www.qichacha.com/material/theme/chacha/cms/v2/css/app.css?time=20190308" type="text/css" />
+    <!--[if lt IE 9]>
+    <link rel="stylesheet" href="https://www.qichacha.com/material/theme/chacha/cms/v2/css/app_ie8.css?time=1508428800" type="text/css" />
+    <script src="https://www.qichacha.com/material/theme/chacha/cms/v2/js/html5shiv.js"></script>
+    <script src="https://www.qichacha.com/material/theme/chacha/cms/v2/js/respond.js"></script>
+    <![endif]-->
+    <!--<script type="text/javascript" src="https://www.qichacha.com/material/js/siteconfig.js?time=20190308"></script>-->
+    <script src="/static/vendor/jquery/jquery.js"></script>
+    <script type="text/javascript" src="https://www.qichacha.com/material/js/echarts.min.js"></script>
+    <script src="./custom.js"></script>
+</head>
+<body>
+<link rel="stylesheet" href="./css/companyDetail.css"/>
+<style type="text/css">
+    html,body{
+        height: 100%;
+        background-color: #fff;
+    }
+
+    .mao-kzr{
+        position: absolute;
+        right:5%;
+
+        top: 70px;
+        font-size: 17px;
+        z-index: 100;
+    }
+    .mao-kzr>div{
+        float: left;
+        margin-left: 30px;
+    }
+
+    .stock-name{
+        color: #fe5151;
+    }
+    .bsBox *{
+        box-sizing:content-box;
+    }
+
+</style>
+
+<!--#include file="./mao-head.html" -->
+
+<div class="mao-screen-area" id="screenArea" style="height: 640px;">
+    <div class="tupu-toolbar">
+        <ul>
+            <li onclick="maoScale(1)"><span class="big"></span>放大</li>
+            <li onclick="maoScale(2)"><span class="small"></span>缩小</li>
+            <li onclick="maoRefresh()"><span class="refresh"></span>刷新</li>
+            <li onclick="changeScreen(this)"><span class="screen"></span>全屏</li>
+            <li onclick="saveImg();zhugeTrack('图谱-保存',{'图谱类型':'疑似实际控股人'});"><span class="save"></span>保存</li>
+        </ul>
+    </div>
+    <div class="mao-kzr">
+        <div>
+            疑似实际控制人为：
+            <span id="stock-name" class="stock-name"></span>
+        </div>
+        <div>
+            总股权比例为：
+            <span id="stock-radio" class="stock-name"></span>
+        </div>
+    </div>
+    <div id="main" style="height: 100%; width: 100%; -webkit-tap-highlight-color: transparent; user-select: none; background-color: rgba(0, 0, 0, 0); cursor: default;" _echarts_instance_="1552525510209">
+        <div style="position: relative; overflow: hidden; width: 1356px; height: 640px;">
+            <div data-zr-dom-id="bg" class="zr-element" style="position: absolute; left: 0px; top: 0px; width: 1356px; height: 640px; user-select: none;"></div>
+        </div>
+    </div>
+</div>
+<script src="https://www.qichacha.com/material/theme/chacha/cms/v2/js/echarts3.js"></script>
+<script type="text/javascript">
+    $("#navTab li:eq(3)").addClass("active");
+    var _colorObj = {
+        person : "#FA4460",
+        personB : "#FD485E",
+        company: "#52A3EE",
+        companyB: "#128BED",
+        current: "#FD9C24",
+        currentB: "#EF941B",
+        start : "#1F8CEA",
+        end   : "#FD7D20"
+    }
+
+    var myChart;
+    var showKeyNo;
+    var nodes;
+    var links;
+    var levels;
+    var fullOffX;
+    var fullOffY;
+    var ImageShape;
+    $(document).ready(function () {
+        resizeScreen();
+        initChart(getData);
+    });
+
+    window.onresize=function(){
+        resizeScreen();
+    }
+
+    //去重操作,元素为对象
+    /*array = [
+        {a:1,b:2,c:3,d:4},
+        {a:11,b:22,c:333,d:44},
+        {a:111,b:222,c:333,d:444}
+    ];
+    var arr = uniqeByKeys(array,['a','b']);*/
+    function uniqeByKeys(array,keys){
+        //将对象元素转换成字符串以作比较
+        function obj2key(obj, keys){
+            var n = keys.length,
+                key = [];
+            while(n--){
+                key.push(obj[keys[n]]);
+            }
+            return key.join('|');
+        }
+
+        var arr = [];
+        var hash = {};
+        for (var i = 0, j = array.length; i < j; i++) {
+            var k = obj2key(array[i], keys);
+            if (!(k in hash)) {
+                hash[k] = true;
+                arr .push(array[i]);
+            }
+        }
+        return arr ;
+    };
+
+    /*数据更改 获取数据为空*/
+    function transformErrorData() {
+        var nodes = [];
+        var links = [];
+
+        var node1 = { CategoryId : 1, Grade : 1, KeyNo : getQueryString('keyNo'), Name : (getQueryString('name') ?  getQueryString('name') : '?')  };
+        var node2 = { CategoryId : 2, Grade : 2, KeyNo : "unknow", Name : "?" };
+        var link = {  ActualRadio : "?",  CurrentRadio :  "?", IsActualController : true, Source : "unknow", Target : getQueryString('keyNo') }
+        nodes.push(node1);
+        nodes.push(node2);
+        links.push(link);
+        var root = {Nodes : [],Links : []};
+        root.Nodes = nodes;
+        root.Links = links;
+        return root;
+    }
+    /*数据更改*/
+    function transformData(result) {
+
+        /*没有实际控制人*/
+        if(!result.ControllerData.KeyNo && !result.ControllerData.Name){
+            var unknownNode = {};
+            unknownNode.KeyNo = 'p?';
+            unknownNode.Level = result.ControllerData.Paths[0].length + 1;
+            unknownNode.Name = '?';
+            unknownNode.PathCount = 0;
+            unknownNode.Percent = '?';
+            unknownNode.PercentTotal = '?';
+            result.ControllerData.Paths[0].push(unknownNode);
+        }
+
+        /*nodes*/
+        var maxGrade = 1;
+        var transNodes = [];
+        var rootNode = {};
+        rootNode.Name = result.CompanyName;
+        rootNode.KeyNo = result.KeyNo;
+        rootNode.CategoryId = (result.KeyNo[0] == 'p' ? 2 : 1);
+        rootNode.Grade = 1;
+        transNodes.push(rootNode);
+        for(var i = 0; i < result.ControllerData.Paths.length; i++){
+            var path = result.ControllerData.Paths[i];
+            for(var j = 0; j < path.length; j++){
+                var pathNode = result.ControllerData.Paths[i][j];
+                var node = {};
+                node.Name = pathNode.Name;
+                node.KeyNo = pathNode.KeyNo;
+                node.CategoryId = (pathNode.KeyNo[0] == 'p' ? 2 : 1);
+                node.Grade = parseInt(pathNode.Level) + 1;
+                transNodes.push(node);
+                if(node.Grade > maxGrade){
+                    maxGrade = node.Grade;
+                }
+            }
+        }
+        var newTransNodes = uniqeByKeys(transNodes,['KeyNo']);
+
+        /*nodes 三个节点处理Grade*/
+        if(newTransNodes.length == 3){
+            for(var i = 0; i < transNodes.length; i++){
+                var node = transNodes[i];
+                for(var j = 0; j < newTransNodes.length; j++){
+                    var newNode = newTransNodes[j];
+                    if(node.KeyNo == newNode.KeyNo && node.Grade > newNode.Grade){
+                        newNode.Grade = node.Grade;
+                    }
+                }
+            }
+        }
+        transNodes = newTransNodes;
+
+        /*links*/
+        var transLinks = [];
+        for(var i = 0; i < result.ControllerData.Paths.length; i++){
+            var path = result.ControllerData.Paths[i];
+            for(var j = 0; j < path.length; j++){
+                var preNodeKeyNo = {};
+                if(j == 0){
+                    preNodeKeyNo = rootNode.KeyNo;
+                } else {
+                    preNodeKeyNo = path[j - 1].KeyNo;
+                }
+
+                var pathNode = path[j];
+
+                var line = {};
+                line.CurrentRadio = pathNode.Percent;
+                line.IsActualController = (i == 0 ? true : false);
+                line.Source = pathNode.KeyNo;
+                line.Target = preNodeKeyNo;
+                transLinks.push(line);
+            }
+        }
+
+        /*transRes*/
+        var transRes = {};
+        transRes.KeyNo = result.KeyNo;
+        transRes.ActualControllerRadio = result.ControllerData.PercentTotal;
+        transRes.ActualControllerLoopPath = result.ControllerData.Paths[0];
+        transRes.Links = transLinks;
+        transRes.Nodes = transNodes;
+
+        return transRes;
+    }
+
+    function getData(){
+        $('#load_data').show();
+//        var url = INDEX_URL + '/company_kzrAction2';
+//        var url = 'http://10.0.0.51:9600/api/Relation/GetSuspectedActualController';
+//        var url = 'http://101.37.113.58:9600/api/Relation/GetSuspectedActualController';
+        $.ajax({
+            url:"./yisi.json",
+            type: 'GET',
+            data:{
+                keyNo:getQueryString("keyNo"),
+            },
+            dataType: 'JSON',
+            success: function (data){
+                data = data.success;
+
+                $('#load_data').hide();
+                if(data && data.Status && data.Status == 200){
+                    data.Result = transformData(data.Result);
+
+                    $('#no_data').hide();
+                    $('#screenArea').show();
+                    setController(data.Result);
+                    draw(data.Result);
+                    calcPos()
+                    drawKzr(nodes,links);
+                }else{
+                    var root = transformErrorData();
+                    root.KeyNo = getQueryString('keyNo');
+
+                    $('#no_data').hide();
+                    $("#stock-name").text('?');
+                    $("#stock-radio").text('?');
+                    draw(root);
+                    calcPos();
+                    drawKzr(nodes,links);
+                }
+            }
+        });
+    }
+
+
+
+    function maoScale(type){
+        var centerX = myChart.getZrender().getWidth()/2;
+        var centerY = myChart.getZrender().getHeight()/2;
+        var layer = myChart.getZrender().painter._layers[1];
+        var x = layer.scale[0]*centerX+layer.position[0];
+        var y = layer.scale[1]*centerY+layer.position[1];
+        var scale = layer.scale[0];
+        if(type==1){
+            scale+=0.3;
+        }else if(type==2){
+            scale-=0.3;
+        }
+        if(scale>=0.3&&scale<=2){
+            layer.scale[0] = scale;
+            layer.scale[1] = scale;
+            myChart.getZrender().render();
+            layer.position[0] = x-layer.scale[0]*centerX
+            layer.position[1] = y-layer.scale[1]*centerY
+            myChart.getZrender().render();
+        }
+    }
+
+
+
+    function maoRefresh(){
+        myChart.restore();
+        var ecConfig = require('echarts/config');
+        myChart._messageCenter.dispatch(ecConfig.EVENT.RESTORE, null, null, myChart);
+
+    }
+
+
+
+
+
+    function saveImg(){
+        if(isFullScreen()){
+            exitFullScreen();
+            setTimeout(function() {
+                jietuChart(myChart);
+            }, 1000);
+
+        }else{
+            jietuChart(myChart);
+        }
+    }
+
+
+
+    function changeScreen(dom){
+        if(!isFullScreen()){
+            $(dom).html('<span class="screened"></span>退出');
+            launchFullScreen($('#screenArea')[0]);
+        }else{
+            $(dom).html('<span class="screen"></span>全屏');
+            exitFullScreen();
+        }
+    }
+
+    //切换全屏
+    setFullScreenListener(function(){
+        var beforeWidth = myChart.getZrender().getWidth();
+        var beforeHeight = myChart.getZrender().getHeight();
+        setTimeout(function() {
+            myChart.resize();
+            var animation = myChart.getZrender().animation;
+            var layer = myChart.getZrender().painter._layers[1];
+            fullOffX = (myChart.getZrender().getWidth() - beforeWidth)/2;
+            fullOffY = (myChart.getZrender().getHeight() - beforeHeight)/2
+            var targetX = layer.position[0] + fullOffX;
+            var targetY = layer.position[1] + fullOffY;
+            animation.animate(layer).when(300, {
+                position: [targetX,targetY]
+            }).start().during(function(){
+                myChart.getZrender().refreshShapes(function(){});
+            });
+
+            var shapeList = myChart.getZrender().storage.getShapeList();
+            for(var i=0;i<shapeList.length;i++){
+                if(shapeList[i].fullscreenMove){
+                    shapeList[i].position[0]+=fullOffX;
+                    shapeList[i].position[1]+=fullOffY;
+                }
+            }
+            myChart.getZrender().render();
+
+
+        }, 300);
+    })//
+
+    function setController(root) {
+        if(root.ActualControllerLoopPath){
+            if(root.ActualControllerLoopPath.length>0){
+                if(root.ActualControllerLoopPath[root.ActualControllerLoopPath.length-1].Name){
+                    $("#stock-name").text(root.ActualControllerLoopPath[root.ActualControllerLoopPath.length-1].Name||"?");
+                    if(root.ActualControllerRadio){
+                        $("#stock-radio").text((parseFloat(root.ActualControllerRadio.substr(0,root.ActualControllerRadio.length-1)).toFixed(4))*10000/10000+'%');
+                    }else{
+                        $("#stock-radio").text("?");
+                    }
+                }else{
+                    $("#stock-name").text("?");
+                    $("#stock-radio").text("?");
+                }
+            }else{
+                $("#stock-name").text("?");
+                $("#stock-radio").text("?");
+            }
+        }else{
+            $("#stock-name").text("?");
+            $("#stock-radio").text("?");
+        }
+    }
+
+    function initChart(callback){
+        require.config({
+            paths: {
+                echarts: 'https://www.qichacha.com/material/theme/chacha/cms/v2/js/echarts2/build/dist'
+            }
+        });
+        require(
+            [
+                'echarts',
+                'echarts/chart/force'
+            ],
+            function (ec) {
+
+                myChart = ec.init(document.getElementById('main'));
+                ImageShape = require('zrender/shape/Image');
+                callback();
+            }
+        );
+    }
+
+    function draw(root){
+        nodes = [];
+        links = [];
+        if (!root.Nodes) {
+            root.Nodes = [];
+        }
+        if (!root.Links) {
+            root.Links = [];
+        }
+
+        if(root.Nodes.length==0){
+            root.Nodes.push({
+                CategoryId:root.Category,
+                Grade:1,
+                KeyNo:root.KeyNo,
+                Name:root.Name
+            });
+
+            root.Nodes.push({
+                CategoryId:2,
+                Grade:2,
+                KeyNo:'unknow',
+                Name:'?'
+            });
+        }
+
+        if(root.Links.length==0){
+            root.Links.push({
+                ActualRadio:'?',
+                CurrentRadio:'?',
+                IsActualController:true,
+                Source:'unknow',
+                Target:root.KeyNo
+            });
+        }else if(root.ActualControllerLoopPath&&root.ActualControllerLoopPath.length>0&&root.ActualControllerLoopPath[root.ActualControllerLoopPath.length-1].Name.length==0&&root.Nodes.length>0){
+            var grade = root.Nodes[0].Grade+1;
+            root.Nodes.unshift({
+                "KeyNo": "_?",
+                "Name": "?",
+                "CategoryId": 2,
+                "Grade": grade
+            })
+            root.Links.push({
+                "Source": root.Nodes[0].KeyNo,
+                "Target": root.Nodes[1].KeyNo,
+                "ActualRadio": "?",
+                "CurrentRadio": "?",
+                "IsActualController": true
+            })
+
+        }
+
+        $.each(root.Nodes,function(i,node){
+            var symbolSize = 40;
+            var color;
+            if(node.CategoryId == 2){
+                symbolSize = 25;
+            }
+            if(node.KeyNo==root.KeyNo){
+                color = _colorObj.current;
+            }else if(node.CategoryId == 1){
+                color = _colorObj.company;
+            }else if(node.CategoryId == 2){
+                color = _colorObj.person;
+            }
+            nodes.push({
+                name:node.KeyNo,
+                keyNo:node.KeyNo,
+                level:node.Grade,
+                fixX:true,
+                fixY:true,
+                label:node.Name.replace(/(.{5})(?=.)/g, '$1\n'),
+                symbolSize:symbolSize,
+                itemStyle:{
+                    normal: {
+                        color:color,
+                    },
+                }
+            })
+        });
+
+        $.each(root.Links,function(i,link){
+            for(var i=0;i<links.length;i++){
+                if(links[i].source==link.Source&&links[i].target==link.Target){
+                    return;
+                }
+            }
+            var relation = '';
+            if(link.CurrentRadio&&link.CurrentRadio!='?'){
+                relation = (parseFloat(link.CurrentRadio.substr(0,link.CurrentRadio.length-1)).toFixed(4))*10000/10000+'%'
+            }
+            var color = '#ddd';
+            var textColor = '#999';
+            var textFont = 'normal 12px 微软雅黑';
+            if(link.IsActualController){
+                color = '#fe5151';
+                textColor = '#fe5151';
+                textFont = 'bolder 15px 微软雅黑';
+            }
+
+            links.push({
+                source : link.Source,
+                target : link.Target,
+                name : relation,
+                weight : 1,
+                itemStyle:{
+                    normal:{
+                        color:color,
+
+                        text:relation,
+                        textColor:textColor,
+                        textFont:textFont,
+                        textPosition:'inside'
+                    }
+                }
+
+            });
+        });
+    }
+
+    function drawKzr(nodes,links){
+        myChart.clear();
+        option = {
+
+            tooltip : {
+                show:false,
+                trigger: 'item',
+                formatter: '{b}'
+            },
+
+            animation: true,
+            series : [
+                {
+                    type:'force',
+                    name : "股权控制人",
+                    ribbonType: false,
+                    linkSymbol:'arrow',
+                    linkSymbolSize:[10, 10],
+                    roam: true,
+                    itemStyle: {
+                        normal: {
+                            label: {
+                                show: true,
+                                textStyle: {
+                                    color: '#fff'
+                                }
+                            },
+                            nodeStyle : {
+                                brushType : 'both',
+                                borderColor : '#005fac',
+                                borderWidth : 0
+                            },
+                            linkStyle: {
+                                color: '#ddd'
+                            }
+                        },
+                        emphasis: {
+                            label: {
+                                show: false
+                                // textStyle: null      // 默认使用全局文本样式，详见TEXTSTYLE
+                            },
+                            nodeStyle : {
+                                brushType : 'both',
+                                borderColor : '#dfdfdf',
+                                borderWidth : 4
+                            },
+                            linkStyle : {
+
+                            }
+                        }
+                    },
+
+                    nodes:nodes,
+                    links:links
+                }
+            ]
+        };
+
+        myChart.setOption(option);
+        animatieChart(myChart);
+
+
+        var ecConfig = require('echarts/config');
+
+
+        myChart.on(ecConfig.EVENT.RESTORE, function(param){
+            if(isFullScreen()){
+                animatieChart(myChart,fullOffX,fullOffY);
+            }else{
+                animatieChart(myChart,0,0);
+            }
+        });
+        myChart.on(ecConfig.EVENT.CLICK, function(param){
+            hoverNode = param.value;
+
+            if(hoverNode.keyNo&&hoverNode.keyNo.length==32&&hoverNode.keyNo[0]!='p'){
+                showDetail(hoverNode.keyNo,'company_kzr');
+            }else{
+                console.info(hoverNode);
+            }
+        });
+
+        for(var i=0;i<myChart.getZrender().getWidth()+100;i+=300){
+            for(var j=0;j<myChart.getZrender().getHeight()+100;j+=228){
+                var shapeSy = new ImageShape({
+                    style: {
+                        image:'1',//背景图片
+                        x: i,
+                        y: j,
+                        width:300,
+                        height:228
+                    }
+                });
+                shapeSy.hoverable = false;
+                shapeSy.ndelete = true;
+                myChart.getZrender().addShape(shapeSy);
+            }
+        }
+
+
+    }
+
+    //计算节点坐标位置
+    function calcPos(){
+        levels = [];
+        $.each(nodes,function(i,node){
+            if(!levels[node.level]){
+                levels[node.level] = {};
+                levels[node.level].count = 1;
+                levels[node.level].index = 1;
+            }else{
+                levels[node.level].count ++;
+            }
+        });
+        var oneline = true;
+        $.each(levels,function(i,level){
+            if(level&&level.count>1){
+                oneline = false;
+            }
+        });
+
+        var centerX = myChart.getZrender().getWidth()/2;
+        var centerY = myChart.getZrender().getHeight()/2;
+        var stepY = centerY*1.6/(levels.length-1);
+        stepY = stepY<100?100:stepY;
+        var startY = centerY+(levels.length-2)*stepY/2-20;
+        $.each(nodes,function(i,node){
+            var count = levels[node.level].count;
+            var index = levels[node.level].index;
+            var stepX = centerX*1.2/count-10;
+            stepX = stepX<90?90:stepX;
+            var startX = centerX - (count-1)*stepX/2;
+            node.initial = [startX+(index-1)*stepX,startY-(node.level-1)*stepY];
+            levels[node.level].index++;
+        });
+
+        if(oneline && links.length>nodes.length-1){
+            $.each(nodes,function(i,node){
+                if(node.level!=1 && node.level!=nodes.length || true){
+                    if(node.level%2==0){
+                        node.initial[0]=node.initial[0]+150;
+                    }else{
+                        node.initial[0]=node.initial[0]-150;
+                    }
+                }
+            });
+        }
+
+    }
+
+
+    function resizeScreen(){
+        if(document.body.clientHeight>700){
+            $('#screenArea').height(document.body.clientHeight-66);
+        }else{
+            $('#screenArea').height(640);
+        }
+    }
+
+
+
+
+
+</script>
+<div style="display: none; position: fixed; left: 0px; top: 0px; width: 100%; height: 100%; cursor: move; opacity: 0; background: rgb(255, 255, 255);"></div>
+</body>
+</html>

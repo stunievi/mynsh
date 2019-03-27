@@ -43,7 +43,7 @@
     <script type="text/html" id="toolbar">
         <div class="layui-toolbar">
             <a href="javascript:;" class="btn handleShow btn-default" data-loanid="{{d.LOAN_ACCOUNT}}" data-name="{{d.CUS_NAME}}">查看</a>
-            <a href="javascript:;" class="btn handleShow btn-default" data-loanid="{{d.LOAN_ACCOUNT}}" data-name="{{d.CUS_NAME}}">还款计划</a>
+            <a href="javascript:;" class="btn repayTable btn-default" data-loanid="{{d.LOAN_ACCOUNT}}" data-name="{{d.CUS_NAME}}">还款计划明细</a>
         </div>
     </script>
     <script>
@@ -104,6 +104,11 @@
         eventBind(".handleShow", function(that){
             addNavTab('loandata-'+that.data("loanid"), "贷款资料详情 - "+that.data("loanid")+" - " + that.data("name"), "/htmlsrc/creditDataManage/ledger/loanData.show.html?loanid="+that.data("loanid"));
          })
+
+        eventBind(".repayTable", function(that){
+            addNavTab('loandata-'+that.data("loanid"), "还款明细 ", "/htmlsrc/creditDataManage/ledger/loanData.table.html?loanid="+that.data("loanid"));
+        })
+
 
         function checkSubmitForm(){
             layuiTableReload({

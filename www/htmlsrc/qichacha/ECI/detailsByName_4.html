@@ -1,0 +1,93 @@
+<div role="tabpanel" class="tab-pane active in" id="fengxian" aria-labelledby="fengxian-tab">
+    <!--经营风险-->
+    <a class="btn btn-default" href="#JudicialSaleList">司法拍卖</a>
+    <a class="btn btn-default" href="#LandMortgageList">土地抵押</a>
+    <a class="btn btn-default" href="#EnvPunishmentList">环保处罚</a>
+    <a class="btn btn-default" href="#ChattelMortgage">动产抵押</a>
+    <div class="panel panel-default" id="JudicialSaleList">
+        <div class="panel-heading">司法拍卖</div>
+        <div class="panel-body" id="JudicialSaleList-body">
+        </div>
+    </div>
+    <div class="panel panel-default" id="LandMortgageList">
+        <div class="panel-heading">土地抵押</div>
+        <div class="panel-body" id="LandMortgageList-body">
+        </div>
+    </div>
+    <div class="panel panel-default" id="EnvPunishmentList">
+        <div class="panel-heading">环保处罚</div>
+        <div class="panel-body" id="EnvPunishmentList-body">
+        </div>
+    </div>
+    <div class="panel panel-default" id="ChattelMortgage">
+        <div class="panel-heading">动产抵押</div>
+        <div class="panel-body" id="ChattelMortgage-body">
+        </div>
+    </div>
+</div>
+<script src="/tmpl/js/chattelMortgage.js"></script>
+<script>
+    laytableRender({
+        id: "JudicialSaleList-body",
+        title: "司法拍卖列表"
+        , url: remoteApi.qccJudicialSaleGetJudicialSaleList
+        , dataType: "json"
+        , cols: [
+            [
+                // { title:'操作', templet: "#toolbar", fixed: 'right'},
+                // {title:"主键", field:"Id"},
+                {title:"标题", field:"Name"},
+                {title:"委托法院", field:"Executegov"},
+                {title:"拍卖时间", field:"ActionRemark"},
+                {title:"起拍价", field:"YiWu"}
+            ]
+        ]
+    });
+
+    laytableRender({
+        title: "土地抵押列表",
+        id: "LandMortgageList-body"
+        , url: remoteApi.qccLandMortgageGetLandMortgageList
+        , dataType: "json"
+        , cols: [
+            [
+                // { title:'操作', templet: "#toolbar", fixed: 'right'},
+                // {title:"Id", field:"Id"},
+                {title:"地址", field:"Address"},
+                {title:"行政区", field:"AdministrativeArea"},
+                {title:"抵押面积（公顷）", field:"MortgageAcreage"},
+                {title:"抵押土地用途", field:"MortgagePurpose"},
+                {title:"开始日期", field:"StartDate"},
+                {title:"结束日期", field:"EndDate"}
+            ]
+        ]
+    });
+
+    laytableRender({
+        title: "获取环保处罚列表",
+        id: "EnvPunishmentList-body"
+        , url: remoteApi.qccGetEnvPunishmentList
+        , dataType: "json"
+        , cols: [
+            [
+                // { title:'操作', templet: "#toolbar", fixed: 'right'},
+                // {title:"Id", field:"Id"},
+                {title:"决定书文号", field:"CaseNo"},
+                {title:"处罚日期", field:"PunishDate"},
+                {title:"违法类型", field:"IllegalType"},
+                {title:"处罚单位", field:"PunishGov"}
+            ]
+        ]
+    });
+
+    SuperPost({
+        url: remoteApi.qccGetChattelMortgage+"?keyWord=深圳小桔科技有限公司",
+        success:function(res){
+            if(res.success){
+                $("#ChattelMortgage-body").html(panelFormRender4({
+                    dataList: res.data
+                }));
+            }
+        }
+    })
+</script>

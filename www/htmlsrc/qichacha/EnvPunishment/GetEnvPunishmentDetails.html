@@ -28,10 +28,10 @@
 <script src="../../../tmpl/js/panelTableShow.js"></script>
 <script>
     SuperPost({
-        url: "http://localhost:8015/test/qichacha/EnvPunishment/GetEnvPunishmentDetails",
-        success: function(origin){
-            if(origin.Status == "200"){
-                var data = origin.Result || {};
+        url: remoteApi.qccGetEnvPunishmentDetails+"?id="+getParam("id"),
+        success: function(res){
+            if(res.success && res.data){
+                var data = res.data || {};
                 $("#home").html(panelTableShowRender2({
                     attrs:[
                         {label:"决定书文号", prop:"CaseNo"},

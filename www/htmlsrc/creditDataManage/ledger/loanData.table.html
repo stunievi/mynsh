@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>信贷数据管理 - 台账 - 贷款资料</title>
+    <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script src="/static/vendor/bootcss/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+    <style>
+        .layui-table-body { min-height: 220px; }
+        td{
+            white-space: nowrap;
+        }
+        #content{
+            overflow: visible;
+        }
+    </style>
+</head>
+<body>
+<div id="content">
+    <div class="batch-operation">
+        <!-- <button type="button" class="btn btn-default btn-sm" id="batchDel">批量删除 </button> -->
+    </div>
+    <div id="dataList">
+    </div>
+</div>
+<script src="../../../../static/vendor/artTemplate/template-web.js"></script>
+<script src="/static/vendor/validate/jquery.validate.min.js"></script>
+<script src="/static/vendor/layui/layer/layer.js"></script>
+<script src="../../../static/htmljs/global.config.js"></script>
+<script src="../../../../static/htmljs/utils.js"></script>
+<script src="../../../../tmpl/js/panelForm.js"></script>
+<script src="/static/htmljs/fixLayTableList.js"></script>
+<script type="text/html" id="_CRD_GRADE"> {{# if(d.CRD_GRADE){return getOdsEnumVal(d, 'CRD_GRADE');}else{return getOdsEnumVal(d, 'COM_CRD_GRADE');}}} </script>
+<!-- toolbar渲染模板 -->
+<script type="text/html" id="toolbar">
+
+</script>
+<script>
+    var rm = getParam("rm");
+    var loanId = getParam("loanid");
+    var cols = [
+        {field:"SERNO",title:"出账申请流水号"},
+        {field:"REPAY_START_DATE",title:"还款日期"},
+        {field:"TIMES",title:"次数"},
+        {field:"REPAY_CYCLE",title:"还款周期"},
+        {field:"REPAY_TYPE",title:"金额类型"},
+        {field:"REPAY_AMOUNT",title:"金额"},
+        {field:"LOAN_ACCOUNT",title:"贷款账号"},
+        {field:"SERNO1",title:"维护流水号"},
+        {field:"BILL_NO",title:"借据号"},
+        {field:"STATUS",title:"发送状态"},
+        {field:"SOC_NO",title:"银行号"},
+        {field:"DATA_CENTER_NO",title:"数据中心代码"},
+        {field:"CREUNIT_NO",title:"法人代码"},
+        {field:"SRC_SYS_CD",title:"源系统代码"},
+        {field:"SRC_SYS_DATE",title:"源系统日期"},
+        {field:"SYS_BIZ_DATE",title:"平台日期"}
+    ];
+
+    laytableRender({
+        cellMinWidth: 110,
+        url: remoteOrigin + "/api/search/accloan/320",
+        where:{
+            accountId:loanId
+        },
+        cols: [
+            cols
+        ]
+        ,showColumns: true
+    })
+
+</script>
+</body>
+</html>
