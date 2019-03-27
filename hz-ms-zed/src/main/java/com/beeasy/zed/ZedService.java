@@ -115,7 +115,7 @@ class ZedService {
                 break scan;
             }
             //查询关联
-            List<LinkPath> paths = findLink(links, links.get(linkTable), targetTable, null)
+            List<LinkPath> paths = findLink(links.get(linkTable), targetTable, null)
                     .stream()
                     .sorted(Comparator.comparingInt(o -> o.stack.size()))
                     .collect(Collectors.toList());
@@ -224,7 +224,14 @@ class ZedService {
         }
     }
 
-    private List<LinkPath> findLink(Map<String, LinkNode> links, LinkNode fromNode, String to, LinkPath path) {
+    /**
+     * 查找关联
+     * @param fromNode
+     * @param to
+     * @param path
+     * @return
+     */
+    private List<LinkPath> findLink(LinkNode fromNode, String to, LinkPath path) {
         List<LinkPath> result = new ArrayList<>();
         if (fromNode == null) {
             return result;
@@ -255,7 +262,7 @@ class ZedService {
                     result.add(cp);
                 } else {
                     result.addAll(
-                            findLink(links, linkNode, to, cp)
+                            findLink(linkNode, to, cp)
                     );
                 }
             }
@@ -399,12 +406,12 @@ class ZedService {
     }
 
     public static class LinkNode {
-        public String name;
-        public Map<String, List<LinkNode>> links = new HashMap<>();
+        String name;
+        Map<String, List<LinkNode>> links = new HashMap<>();
     }
 
     public static class LinkPath {
-        public List<String> linkStrs = new ArrayList<>();
-        public List<String> stack = new ArrayList<>();
+        List<String> linkStrs = new ArrayList<>();
+        List<String> stack = new ArrayList<>();
     }
 }
