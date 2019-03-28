@@ -10,21 +10,33 @@
         <module name="gateway" />
         <module name="hz-back" />
         <module name="hz-db2" />
+        <module name="hz-ms-command" />
         <module name="hz-ms-common" />
         <module name="hz-ms-qcc" />
+        <module name="hz-ms-report" />
+        <module name="hz-ms-zed" />
         <module name="hz-msg-send" />
         <module name="load-qcc" />
       </profile>
+      <profile name="Annotation profile for hz" enabled="true">
+        <sourceOutputDir name="../../hz-ms-file/target/generated-sources/annotations" />
+        <sourceTestOutputDir name="../../hz-ms-file/target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="hz-ms-file" />
+      </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="hz" target="1.8" />
+    <bytecodeTargetLevel target="8">
+      <module name="hz-ms-report" target="1.8" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="gateway" options="" />
       <module name="hz-back" options="-parameters" />
       <module name="hz-ms-common" options="-parameters" />
       <module name="hz-ms-qcc" options="-parameters" />
+      <module name="hz-ms-report" options="-parameters" />
+      <module name="hz-ms-zed" options="-parameters" />
       <module name="load-qcc" options="-parameters" />
     </option>
   </component>
