@@ -26,5 +26,4 @@ public class QccDataController {
         return Result.ok(keyword);
     }
 
-
 }
