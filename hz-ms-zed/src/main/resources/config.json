@@ -1,0 +1,9 @@
+{
+    "port": "8081",
+    "datasource": {
+        "url": "jdbc:db2://47.94.97.138:50000/hz_qcc",
+        "driver": "com.ibm.db2.jcc.DB2Driver",
+        "username": "db2inst1",
+        "password": "db2inst1"
+    }
+}

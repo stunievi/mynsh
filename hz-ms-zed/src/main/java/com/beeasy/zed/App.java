@@ -1,13 +1,39 @@
 package com.beeasy.zed;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.thread.ThreadUtil;
 
-@SpringBootApplication(scanBasePackages = {"com.beeasy"})
+import javax.net.ssl.HttpsURLConnection;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.regex.Pattern;
+
+
 public class App {
 
+    public static ZedService zedService = new ZedService();
+    public static DeconstructService deconstructService = new DeconstructService();
 
-    public static void main(String[] args){
-        SpringApplication.run(App.class, args);
+    public static void main(String[] args) throws ParseException {
+        zedService.initConfig();
+        zedService.initDB();
+
+
+        //routes
+        HttpServerHandler.AddRoute(new Route(Pattern.compile("^\\/zed"), (ctx, req) -> {
+            return zedService.doNettyRequest(ctx, req);
+        }));
+
+
+
+        //注册查询接口
+        QccService.register();
+        //注册解构接口
+        DeconstructService.register();
+
+        //起动netty
+        zedService.initNetty();
     }
 }
