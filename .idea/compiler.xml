@@ -17,7 +17,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="hz" target="1.8" />
+      <module name="hznsh" target="1.8" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">

@@ -1043,13 +1043,59 @@ if(location.href.indexOf("localhost") > -1 || location.href.indexOf("47.94.97.13
                 name: "增值服务",
                 children: [
                     {
-                        name: "历史信息",
-                        href: "/htmlsrc/qichacha/History/HistoryIndex.html"
-                    },
-                    {
                         name: "控股公司",
                         href: "/htmlsrc/qichacha/HoldingCompany/GetHoldingCompany.html"
                     }
+                ]
+            },
+            {
+                name: "历史信息",
+                children: [
+                    {
+                        name: "历史工商信息",
+                        href: "/htmlsrc/qichacha/History/HistoryGetHistorytEci.html"
+                    },
+                    {
+                        name: "历史对外投资",
+                        href: "/htmlsrc/qichacha/History/HistoryGetHistorytInvestment.html"
+                    },
+                    {
+                        name: "历史失信信息",
+                        href: "/htmlsrc/qichacha/History/HistoryGetHistoryShiXin.html"
+                    },
+                    {
+                        name: "历史被执行信息",
+                        href: "/htmlsrc/qichacha/History/HistoryGetHistoryZhiXing.html"
+                    },
+                    {
+                        name: "历史法院公告",
+                        href: "/htmlsrc/qichacha/History/HistoryGetHistorytCourtNotice.html"
+                    },
+                    {
+                        name: "历史裁判文书",
+                        href: "/htmlsrc/qichacha/History/HistoryGetHistorytJudgement.html"
+                    },
+                    {
+                        name: "历史开庭公告",
+                        href: "/htmlsrc/qichacha/History/HistoryGetHistorytSessionNotice.html"
+                    },
+                    {
+                        name: "历史动产抵押",
+                        href: "/htmlsrc/qichacha/History/HistoryGetHistorytMPledge.html"
+                    },
+                    {
+                        name: "历史股权出质",
+                        href: "/htmlsrc/qichacha/History/HistoryGetHistorytPledge.html"
+                    },
+                    {
+                        name: "历史行政处罚",
+                        href: "/htmlsrc/qichacha/History/HistoryGetHistorytAdminPenalty.html"
+                    },
+                    {
+                        name: "历史行政许可",
+                        href: "/htmlsrc/qichacha/History/HistoryGetHistorytAdminLicens.html"
+                    }
+
                 ]
             },
             {

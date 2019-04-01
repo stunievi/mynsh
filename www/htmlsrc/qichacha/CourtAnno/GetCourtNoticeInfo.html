@@ -27,11 +27,12 @@
     <script src="/static/htmljs/utils.js"></script>
     <script src="../../../tmpl/js/panelTableShow.js"></script>
     <script>
+        var id = getParam("id");
         $.ajax({
-            url: remoteApi.qccCourtAnnoGetCourtNoticeInfo,
-            success: function(origin){
-                if(origin.Status == "200"){
-                    var data = origin.Result || {};
+            url: remoteApi.qccCourtAnnoGetCourtNoticeInfo+"?id="+id,
+            success: function(res){
+                if(JSON.stringify(res.data) != "{}" && res.success){
+                    var data = res.data || {};
                     var Prosecutor = [];
                     data["Prosecutor"].map(function (val) {
                         val["name"] = val["Name"];

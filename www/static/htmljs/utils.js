@@ -749,28 +749,18 @@ function laytableRender(options, undefined){
                 }
                 , data: data
                 , success: function (res) {
-                    var rows = [];
-                    if(res.hasOwnProperty("Status") && res.hasOwnProperty("Result")){
-                        rows = res.Result;
-                    }else{
-                        rows = (res.success && res.data)
-                            ? (res.data.content || res.data.list || res.data) : (res.rows || []);
-                    }
-                    var total = 0;
-                    if(res.hasOwnProperty("Status") && res.hasOwnProperty("Result")){
-                        if(res.Paging){
-                            total = res.Paging.TotalRecords || res.Result.length || 0;
-                        }
-                    }else{
-                        total = (res.success && res.data) ? (res.data.totalElements || res.data.totalRow || res.data.length) : (res.total || 0);
-                    }
+                    var rows = (res.success && res.data) ? (res.data.content || res.data.list || res.data) : (res.rows || []);
+                    var total = (res.success && res.data) ? (res.data.totalElements || res.data.totalRow || res.data.length) : (res.total || 0);
                     var ret = usepage ? {
                         rows: rows
                         , total: total
                     } : rows;
 
                     if(options.onData){
-                        ret = options.onData(ret)
+                        var temp_ret = options.onData(ret);
+                        if(temp_ret){
+                            ret = temp_ret;
+                        }
                     }
 
                     elem.bootstrapTable("load", ret);
@@ -791,7 +781,7 @@ function laytableRender(options, undefined){
                 ajaxOps.dataType = 'json';
             }
             //容错, 报表第一次不加载
-            if(ajaxOps.url && ajaxOps.url.indexOf("/api/report") > -1){
+            if((ajaxOps.url && ajaxOps.url.indexOf("/api/report") > -1) || options.needCond){
                 window.$tableRender = window.$tableRender || {};
                 window.$tableRender[id] = window.$tableRender[id] || 0;
                 if(window.$tableRender[id]++ == 0){
@@ -1145,7 +1135,8 @@ function layuiTableReload(options){
         ,silent: true
     };
     if(options.data){
-        elem.bootstrapTable("load", options.data)
+        elem.bootstrapTable("load", options.data);
+        elem.bootstrapTable("hideLoading");
         return;
     }
     elem.bootstrapTable("refresh",ops);

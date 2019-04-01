@@ -1,6 +1,5 @@
 body {
   overflow-y: scroll;
-    font-size: 12px;
 }
 #content {
   overflow: hidden;
@@ -64,8 +63,6 @@ body {
   font-size: 12px;
   line-height: 1.5;
   border-radius: 3px;
-  margin-right: 5px;
-  margin-bottom: 5px;
 }
 .layui-toolbar .dropdown-menu {
   width: 200px;
@@ -206,113 +203,77 @@ body {
 .nav-wrap .nav > li > a {
   padding: 15px 10px;
 }
-
-
-.layui-tab-brief>.layui-tab-title .layui-this{
-  color:#3e82da;
+#qcc-detail-content .data-tab a {
+  border-radius: 0;
+  margin-bottom: 5px;
 }
-.layui-tab-brief>.layui-tab-more li.layui-this:after, .layui-tab-brief>.layui-tab-title .layui-this:after{
-  border-color: #3e82da;
+.panel-group .panel {
+  margin-bottom: 15px;
 }
-.layui-table-header layui-table-cell {
-  height: auto;
-  line-height: 28px;
-  padding: 0 15px;
-  position: relative;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: normal;
-  box-sizing: border-box;
+.panel-qcc {
+  border: white 1px solid;
+  margin-bottom: 15px;
+  box-shadow: none;
 }
-.layui-table-page{
-  text-align: center;
-}
-table.table th{
-  background: #eee;
-}
-.form-search {
-  padding-left: 10px;
-  padding-right: 10px;
-}
-.form-search label{
-  margin-right: 10px;
-}
-.form-search .form-group{
-  margin-right: 20px;
-  margin-bottom: 10px !important;
-}
-.table .bs-checkbox {
-  vertical-align: middle;
-}
-.batch-operation{
+.panel-qcc-heading {
+  padding: 0px;
   margin-bottom: 10px;
+  padding-top: 15px;
+  font-size: 16px;
+  color: #222;
+  font-weight: 600;
+  line-height: 1.8;
 }
-/*#dataList{*/
-  /*margin-top: 10px;*/
-/*}*/
-.search-form label{
-  font-size: 12px !important;
+.panel-qcc-body .fixed-table-container tbody td {
+  border: 1px solid #ddd;
 }
-.search-form .btn-box button{
-  margin-left: 5px;
-  margin-right: 5px;
+.panel-qcc-body .fixed-table-container {
+  border: 0;
+  border-top: #ddd 1px solid;
 }
-.break-table td{
-  white-space: normal;
+.panel-qcc-body tbody tr td:first-child,
+.panel-qcc-body thead tr th:first-child {
+  border-left: #ddd 1px solid !important;
 }
-
-/*.panel-default > .panel-heading{*/
-  /*background:#F2F9FC;*/
-/*}*/
-/*table.table th{*/
-  /*color: #444;*/
-  /*font-weight: normal;*/
-  /*text-align:center;*/
-  /*background:#F2F9FC;*/
-  /*border:#E4EEF6 1px solid;*/
-  /*border-top:#E4EEF6 1px solid !important;*/
-  /*border-bottom: 0 !important;*/
-  /*border-collapse: collapse;*/
-  /*font-size: 13px;*/
-/*}*/
-/*.table-hover > tbody > tr:hover{*/
-  /*background: none !important;*/
-/*}*/
-/*table.table th:not(:last-child) {*/
-  /*border-right: #F2F9FC 1px solid;*/
-/*}*/
-/*table.table td{*/
-  /*border:#E4EEF6 1px solid;*/
-  /*font-size: 13px;*/
-/*}*/
-/*.fixed-table-container{*/
-  /*border: 0;*/
-/*}*/
-
-/*.pagination > .active > a, .pagination > .active > span, .pagination > .active > a:hover, .pagination > .active > span:hover, .pagination > .active > a:focus, .pagination > .active > span:focus{*/
-  /*background: #4A89DC;*/
-/*}*/
-/*label{*/
-  /*font-weight: normal;*/
-/*}*/
-/*.fixed-table-loading{*/
-  /*line-height: 34px;*/
-/*}*/
-/*.panel{*/
-  /*border: 2px solid  #F2F9FC;*/
-/*}*/
-/*.panel-default > .panel-heading{*/
-  /*border-color: transparent;*/
-/*}*/
-/*.no-records-found td{*/
-  /*padding-top: 20px !important;*/
-  /*padding-bottom: 20px !important;*/
-/*}*/
-/*.btn{*/
-  /*-webkit-border-radius: 0px;*/
-  /*-moz-border-radius: 0px;*/
-  /*border-radius: 0px;*/
-/*}*/
-/*.input-sm{*/
-  /*border-radius: 0px;*/
-/*}*/
+.panel-qcc-body tbody tr:first-child td {
+  border-top: #ddd 1px solid;
+}
+.panel-qcc-body table tr th:not(:last-child) {
+  border-right: #F2F9FC 1px solid;
+}
+.panel-qcc-body table tr th {
+  text-align: center;
+  background: #5da1ef;
+  border: #5da1ef 1px solid;
+  color: #fcfcfc;
+  border-collapse: collapse;
+  padding: 12px 12px 12px 12px;
+  font-weight: normal;
+  line-height: 19px;
+}
+.panel-qcc .pagination > li {
+  display: block;
+  float: left;
+  margin: 0 5px;
+}
+.qcc-table {
+  width: 100%;
+  margin: 0 auto;
+  margin-bottom: 20px;
+}
+.qcc-table .tb {
+  background: #5da1ef;
+  color: #fcfcfc;
+}
+.qcc-table td {
+  padding: 10px 10px 11px 10px;
+  border: #E4EEF6 1px solid;
+  word-break: break-all;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #222;
+}
+.qcc-table-1 .text-right {
+  background: #5da1ef;
+  color: #fcfcfc;
+}

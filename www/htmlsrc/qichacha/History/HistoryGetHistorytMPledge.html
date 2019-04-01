@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 历史动产抵押 </title>
+    <!--#include file="/htmlsrc/header.html" -->
+</head>
+<body>
+<div id="content">
+    <div class="" id="panel-form">
+        <!-- 查询表单 -->
+    </div>
+    <div id="dataList">
+        <!-- 数据列表 -->
+    </div>
+</div>
+<script>
+    // 配置查询表单
+    $("#panel-form").html(panelFormRender3({
+        panelTitle:'筛选查询',
+        col: 3,
+        list:[
+            {prop:"keyWord", label:"查询关键字"}
+        ],
+        data: { }
+    }));
+    laytableRender({
+        needCond: true,
+        autoShift: false,
+        url: remoteApi.qccHistoryGetHistorytMPledge,
+        cols: [
+            [
+                {title:"登记编号",field:"RegisterNo"},
+                {title:"登记日期",field:"RegisterDate"},
+                {title:"登记机关",field:"RegisterOffice"},
+                {title:"被担保债权数额",field:"DebtSecuredAmount"},
+                {title:"状态",field:"Status"}
+            ]
+        ]
+    });
+
+    var form = $("form[name='form-search']");
+    form.validate({
+        rules:{
+            keyWord: "required"
+        }
+        ,submitHandler: function () {
+            layuiTableReload({
+                where: form.serialize().replace(/-/g,'')
+            });
+        }
+    });
+
+    function checkSubmitForm() {
+        return false;
+    }
+</script>
+</body>
+</html>

@@ -28,15 +28,13 @@
 <script src="../../../tmpl/js/panelTableShow.js"></script>
 <script>
     SuperPost({
-        url: remoteApi.qccCourtNoticeSearchCourtAnnouncementDetail,
-        success: function(origin){
-            if(origin.Status == "200"){
-                var data = origin.Result || {};
+        url: remoteApi.qccCourtNoticeSearchCourtAnnouncementDetail+"?id="+getParam("id"),
+        success: function(res){
+            if(JSON.stringify(res.data) != "{}" && res.success){
+                var data = res.data || {};
                 var NameKeyNoCollection = [];
                 data["NameKeyNoCollection"].forEach(val=> NameKeyNoCollection.push(val["Name"]));
-
                 data["NameKeyNoCollection"] = NameKeyNoCollection.join("、");
-
                 $("#home").html(panelTableShowRender2({
                     attrs:[
                         {label:"公告法院", prop:"Court"},

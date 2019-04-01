@@ -6,15 +6,25 @@
             </li>
         </ul>
         <ul id="navTab" class="mao-nav">
-            <li><a href="./qiyetupu.html">企业图谱</a></li>
-            <li><a href="./guanliantupu.html">关联图谱</a></li>
-            <li><a href="./guquanchuantou.html">股权穿透图</a></li>
-            <li><a href="./yisi.html">疑似实际控制人</a></li>
+            <li><a href="javascript:;">企业图谱</a></li>
+            <li><a href="javascript:;">关联图谱</a></li>
+            <li><a href="javascript:;">股权穿透图</a></li>
+            <li><a href="javascript:;">疑似实际控制人</a></li>
         </ul>
     </div>
 </div>
 <script>
-    if(getQueryString("iframe")){
+    $(document).on("click", ".mao-nav li", function () {
+        var urlArr = [
+            "./qiyetupu.html",
+            "./guanliantupu.html",
+            "./guquanchuantou.html",
+            "./yisi.html"
+        ];
+        var index = $(this).index();
+        window.location = urlArr[index] + "?keyNo="+getParam("keyNo")+"&name="+getParam("name");
+    })
+    if(getParam("iframe")){
         $(".mao-head").hide();
         $("document").ready(function () {
             $(".tupu-toolbar").hide();

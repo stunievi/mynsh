@@ -5,13 +5,6 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title> 公司详情 </title>
     <!--#include file="/htmlsrc/header.html" -->
-    <style>
-        #myTabContent .btn{
-            margin-right: 10px;
-            margin-bottom: 5px;
-        }
-        .panel-group .panel{margin-bottom: 15px;}
-    </style>
 </head>
 <body>
 <div id="content">
@@ -19,38 +12,32 @@
         <!-- 查询表单 -->
     </div>
     <div id="dataList">
-        <div class="bs-example bs-example-tabs col-xs-10" data-example-id="togglable-tabs">
+        <div class="qcc-detail-inner col-xs-10" data-example-id="togglable-tabs">
             <ul id="myTabs" class="nav nav-tabs" role="tablist" style="background: #fff">
-                <li role="presentation" class=""><a href="#base" id="base-tab" role="tab" data-toggle="tab" data-controls="base" aria-expanded="true">基本信息</a></li>
+                <li role="presentation" class="active"><a href="#base" id="base-tab" role="tab" data-toggle="tab" data-controls="base" aria-expanded="true">基本信息</a></li>
                 <li role="presentation" class=""><a href="#susong" role="tab" id="susong-tab" data-toggle="tab" data-controls="susong" title="双击展开/关闭全部">法律诉讼</a></li>
-                <li role="presentation" class=""><a href="#run" role="tab" id="run-tab" data-toggle="tab" data-controls="run">经营状况</a></li>
-                <li role="presentation" class="active"><a href="#fengxian" role="tab" id="fengxian-tab" data-toggle="tab" data-controls="fengxian">经营风险</a></li>
-                <li role="presentation" class=""><a href="#report" role="tab" id="report-tab" data-toggle="tab" data-controls="report">企业发展</a></li>
-                <li role="presentation" class=""><a href="#assets" role="tab" id="assets-tab" data-toggle="tab" data-controls="assets">知识产权</a></li>
+                <!--<li role="presentation" class=""><a href="#run" role="tab" id="run-tab" data-toggle="tab" data-controls="run">经营状况</a></li>-->
+                <li role="presentation" class=""><a href="#fengxian" role="tab" id="fengxian-tab" data-toggle="tab" data-controls="fengxian">经营风险</a></li>
+                <!--<li role="presentation" class=""><a href="#report" role="tab" id="report-tab" data-toggle="tab" data-controls="report">企业发展</a></li>-->
+                <!--<li role="presentation" class=""><a href="#assets" role="tab" id="assets-tab" data-toggle="tab" data-controls="assets">知识产权</a></li>-->
                 <li role="presentation" class=""><a href="#history" role="tab" id="history-tab" data-toggle="tab" data-controls="history">历史信息</a></li>
             </ul>
-            <div id="myTabContent" class="tab-content" style="padding-top: 10px;">
+            <div id="qcc-detail-content" class="tab-content" style="padding-top: 10px;">
                 <!--#include file="./detailsByName_1.html" -->
-                <!--#include file="./detailsByName_2.html" -->
-                <!--#include file="./detailsByName_3.html" -->
-                <!--#include file="./detailsByName_4.html" -->
-                <!--#include file="./detailsByName_5.html" -->
-                <!--#include file="./detailsByName_6.html" -->
-                <!--#include file="./detailsByName_7.html" -->
+                <!--#include file="./detailsByName_2.html"-->
+                <!--##include file="./detailsByName_3.html"-->
+                <!--#include file="./detailsByName_4.html"-->
+                <!--##include file="./detailsByName_5.html"-->
+                <!--##include file="./detailsByName_6.html"-->
+                <!--#include file="./detailsByName_7.html"-->
             </div>
         </div>
         <!--#include file="./rightSide.html" -->
     </div>
 </div>
 
-
 <script src="/tmpl/js/chattelMortgage.js"></script>
-<!--<script src="/static/vendor/jquery.pin.js"></script>-->
-
-<script src="/static/vendor/echarts/echarts-all.js"></script>
-
 <script>
-
     $("#myTabs li a").dblclick(function () {
         $(this).toggleClass("switch");
         if($(this).hasClass("switch")){
@@ -87,14 +74,13 @@
         })
     });
 
-
     function checkSubmitForm() {
         getRemoteData({
             url: remoteApi.qccECIGetDetails,
             data: $("form[name='form-search']").serialize(),
             success: function(res){
             }
-        })
+        });
         return false;
     }
 </script>

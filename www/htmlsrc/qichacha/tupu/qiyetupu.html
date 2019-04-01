@@ -3,22 +3,9 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1" />
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-    <link rel="stylesheet" href="https://www.qichacha.com/material/theme/chacha/cms/v2/css/bootstrap.css" type="text/css" />
-    <link rel="stylesheet" href="https://www.qichacha.com/material/theme/chacha/cms/v2/css/app.css?time=20190308" type="text/css" />
-    <link rel="stylesheet" href="./css/companyDetail.css?time=1552530637" type="text/css" />
-    <!--[if lt IE 9]>
-    <link rel="stylesheet" href="https://www.qichacha.com/material/theme/chacha/cms/v2/css/app_ie8.css?time=1508428800" type="text/css" />
-    <script src="https://www.qichacha.com/material/theme/chacha/cms/v2/js/html5shiv.js"></script>
-    <script src="https://www.qichacha.com/material/theme/chacha/cms/v2/js/respond.js"></script>
-    <![endif]-->
-    <script type="text/javascript" src="https://www.qichacha.com/material/js/echarts.min.js"></script>
-
-    <script src="/static/vendor/jquery/jquery.js"></script>
-    <script src="./custom.js"></script>
-
+    <!--#include file="./tupu-head.html" -->
 </head>
-<body style="">
-
+<body>
 <style type="text/css">
     html,body{
         height: 100%;
@@ -40,7 +27,6 @@
     }
 </style>
 <!--#include file="./mao-head.html" -->
-
 <div class="mao-screen-area" id="screenArea" style="height: 640px;">
     <div id="main" class="mao-main ">
         <svg xmlns="http://www.w3.org/2000/svg" width="1356" height="585" style="fill: none; pointer-events: all;">
@@ -56,10 +42,9 @@
         </ul>
     </div>
 </div>
-<script src="https://www.qichacha.com/material/theme/chacha/cms/v2/js/d3.v5.min.js"></script>
+<script src="./js/d3.v5.min.js"></script>
 <script type="text/javascript">
     $("#navTab li:eq(0)").addClass("active");
-
     var width = $('#main').width();
     var height = $('#main').height() - 40;
 
@@ -238,15 +223,15 @@
 
     function getData(){
         $('#load_data').show();
-//        var url = INDEX_URL+"cms_companypicmap";
         $.ajax({
-            url:"./qiyetupu.json",
+            url: remoteApi.qccECIRelationGenerateMultiDimensionalTreeCompanyMap,
             type: 'GET',
             data:{
-                keyNo:getQueryString("keyNo"),
+                keyNo: getParam("keyNo"),
             },
             dataType: 'JSON',
-            success: function (data){
+            success: function (res){
+                data = res.data;
                 $('#load_data').hide();
                 if(data){
                     $('#no_data').hide();
@@ -2312,15 +2297,11 @@
             });
         }
     }
-
-
-
     /*ie兼容*/
     var isIE = (!!window.ActiveXObject || "ActiveXObject" in window);
     if(isIE){
         $("#NameBar").css({'width':'270px'});
     }
 </script>
-<div style="display: none; position: fixed; left: 0px; top: 0px; width: 100%; height: 100%; cursor: move; opacity: 0; background: rgb(255, 255, 255);"></div>
 </body>
 </html>

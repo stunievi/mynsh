@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 历史法院公告 </title>
+    <!--#include file="/htmlsrc/header.html" -->
+</head>
+<body>
+<div id="content">
+    <div class="" id="panel-form">
+        <!-- 查询表单 -->
+    </div>
+    <div id="dataList">
+        <!-- 数据列表 -->
+    </div>
+</div>
+<script>
+    // 配置查询表单
+    $("#panel-form").html(panelFormRender3({
+        panelTitle:'筛选查询',
+        col: 3,
+        list:[
+            {prop:"keyWord", label:"查询关键字"}
+        ],
+        data: { }
+    }));
+
+    laytableRender({
+        needCond: true,
+        autoShift: false,
+        url: remoteApi.qccHistoryGetHistorytJudgement,
+        cols: [
+            [
+                // {title:"Id值",field:"Id"},
+                {title:"执行法院",field:"Court"},
+                {title:"案件名称",field:"CaseName"},
+                {title:"发布时间",field:"SubmitDate"},
+                {title:"案件编号",field:"CaseNo"},
+                {title:"案件类型",field:"CaseType"},
+                {title:"涉案人员角色",field:"CaseRole"},
+                {title:"年份",field:"CourtYear"}
+            ]
+        ]
+    });
+
+    var form = $("form[name='form-search']");
+    form.validate({
+        rules:{
+            keyWord: "required"
+        }
+        ,submitHandler: function () {
+            layuiTableReload({
+                where: form.serialize().replace(/-/g,'')
+            });
+        }
+    });
+
+    function checkSubmitForm() {
+        return false;
+    }
+</script>
+</body>
+</html>

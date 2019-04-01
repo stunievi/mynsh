@@ -1,0 +1,70 @@
+#myTabContent .btn {
+  margin-right: 10px;
+  margin-bottom: 5px;
+}
+.panel-group .panel {
+  margin-bottom: 15px;
+}
+.panel-qcc {
+  border: white 1px solid;
+  margin-bottom: 15px;
+  box-shadow: none;
+}
+.panel-qcc-heading {
+  padding: 0px;
+  margin-bottom: 10px;
+  padding-top: 15px;
+  font-size: 16px;
+  color: #222;
+  font-weight: 600;
+  line-height: 1.8;
+}
+.panel-qcc-body .fixed-table-container tbody td {
+  border: 1px solid #ddd;
+}
+.panel-qcc-body .fixed-table-container {
+  border: 0;
+  border-top: #ddd 1px solid;
+}
+.panel-qcc-body tbody tr td:first-child,
+.panel-qcc-body thead tr th:first-child {
+  border-left: #ddd 1px solid !important;
+}
+.panel-qcc-body tbody tr:first-child td {
+  border-top: #ddd 1px solid;
+}
+.panel-qcc-body table tr th:not(:last-child) {
+  border-right: #F2F9FC 1px solid;
+}
+.panel-qcc-body table tr th {
+  text-align: center;
+  background: #5da1ef;
+  border: #5da1ef 1px solid;
+  color: #fcfcfc;
+  border-collapse: collapse;
+  padding: 12px 12px 12px 12px;
+  font-weight: normal;
+  line-height: 19px;
+}
+.panel-qcc .pagination > li {
+  display: block;
+  float: left;
+  margin: 0 5px;
+}
+.qcc-table {
+  width: 100%;
+  margin: 0 auto;
+  margin-bottom: 20px;
+}
+.qcc-table .tb {
+  background: #5da1ef;
+  color: #fcfcfc;
+}
+.qcc-table td {
+  padding: 10px 10px 11px 10px;
+  border: #E4EEF6 1px solid;
+  word-break: break-all;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #222;
+}

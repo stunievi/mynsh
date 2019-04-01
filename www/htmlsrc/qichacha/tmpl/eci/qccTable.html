@@ -1,0 +1,62 @@
+<table class="table table-bordered qcc-table-1" border="1">
+    <!--<thead>-->
+    <!--<tr>-->
+        <!--{{each headCols val}}-->
+        <!--<th>{{val.title}}</th>-->
+        <!--{{/each}}-->
+    <!--</tr>-->
+    <!--</thead>-->
+    <tbody>
+
+    {{each cols value}}
+
+    {{if value.spec }}
+    <tr>
+        <td class="col-xs-2 text-right">
+           {{value.title}}
+        </td>
+
+        <td class="col-xs-12 type-info" colspan="3">
+            {{if value.handle}}
+            <a href="javascript:;" id="handle{{value.field}}">{{data[value.field]}}</a>
+            {{else}}
+            {{data[value.field]}}
+            {{/if}}
+        </td>
+    </tr>
+    {{else}}
+
+
+
+    {{if $index%2 == 0}}
+    <tr>
+        <td class="col-xs-2 text-right">
+           {{value.title}}
+        </td>
+        <td class="col-xs-4 type-info">
+            {{if value.handle}}
+            <a href="javascript:;" id="handle{{value.field}}">{{data[value.field]}}</a>
+            {{else}}
+            {{data[value.field]}}
+            {{/if}}
+        </td>
+        {{ else }}
+        <td class="col-xs-2 text-right">
+           {{value.title}}
+        </td>
+        <td class="col-xs-4 type-info">
+            {{if value.handle}}
+            <a href="javascript:;" id="handle{{value.field}}">{{data[value.field]}}</a>
+            {{else}}
+            {{data[value.field]}}
+            {{/if}}
+        </td>
+    </tr>
+    {{/if}}
+
+    {{/if}}
+
+    {{/each}}
+    </tbody>
+
+</table>

@@ -31,11 +31,12 @@
 <script src="/static/htmljs/utils.js"></script>
 <script src="../../../tmpl/js/panelTableShow.js"></script>
 <script>
+    var id = getParam("id");
     SuperPost({
-        url: remoteApi.qccJudgeDocGetJudgementDetail,
-        success: function(origin){
-            if(origin.Status == "200"){
-                var data = origin.Result || {};
+        url: remoteApi.qccJudgeDocGetJudgementDetail+"?id="+id,
+        success: function(res){
+            if(JSON.stringify(res.data)!= "{}" && res.success){
+                var data = res.data || {};
                 var Appellor = [];
                 var Defendantlist = [];
                 var Prosecutorlist = [];

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 历史对外投资 </title>
+    <!--#include file="/htmlsrc/header.html" -->
+</head>
+<body>
+<div id="content">
+    <div class="" id="panel-form">
+        <!-- 查询表单 -->
+    </div>
+    <div id="dataList">
+        <!-- 数据列表 -->
+    </div>
+</div>
+<script>
+    // 配置查询表单
+    $("#panel-form").html(panelFormRender3({
+        panelTitle:'筛选查询',
+        col: 3,
+        list:[
+            {prop:"keyWord", label:"查询关键字"}
+        ],
+        data: { }
+    }));
+
+    laytableRender({
+        needCond: true,
+        autoShift: false,
+        url: remoteApi.qccHistoryGetHistorytInvestment,
+        cols: [
+            [
+                {title:"变更日期",field:"ChangeDate", width:100},
+                {title:"公司名称",field:"CompanyName"},
+                {title:"法人名称",field:"OperName"},
+                {title:"注册资本",field:"RegistCapi"},
+                {title:"公司类型",field:"EconKind"},
+                {title:"状态",field:"Status"},
+                {title:"出资比例",field:"FundedRatio"},
+                {title:"投资日期",field:"StartDate"}
+            ]
+        ]
+    });
+
+    var form = $("form[name='form-search']")
+    form.validate({
+        rules:{
+            keyWord: "required"
+        }
+        ,submitHandler: function () {
+            layuiTableReload({
+                where: form.serialize().replace(/-/g,'')
+            });
+        }
+    });
+
+    function checkSubmitForm() {
+        return false;
+    }
+</script>
+</body>
+</html>
