@@ -7,6 +7,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="full-text-search" />
+        <module name="gateway" />
         <module name="hz-back" />
         <module name="hz-db2" />
         <module name="hz-ms-command" />
@@ -26,7 +27,6 @@
     </annotationProcessing>
     <bytecodeTargetLevel target="8">
       <module name="full-text-search" target="1.8" />
-      <module name="gateway" target="1.8" />
       <module name="hz-back" target="1.8" />
       <module name="hz-db2" target="1.5" />
       <module name="hz-ms-common" target="1.8" />

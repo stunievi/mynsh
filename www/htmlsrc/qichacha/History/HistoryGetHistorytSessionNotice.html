@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 历史开庭公告 </title>
+    <!--#include file="/htmlsrc/header.html" -->
+</head>
+<body>
+<div id="content">
+    <div class="" id="panel-form">
+        <!-- 查询表单 -->
+    </div>
+    <div id="dataList">
+        <!-- 数据列表 -->
+    </div>
+</div>
+<script>
+    // 配置查询表单
+    $("#panel-form").html(panelFormRender3({
+        panelTitle:'筛选查询',
+        col: 3,
+        list:[
+            {prop:"keyWord", label:"查询关键字"}
+        ],
+        data: { }
+    }));
+    laytableRender({
+        needCond: true,
+        autoShift: false,
+        url: remoteApi.qccHistoryGetHistorytSessionNotice,
+        cols: [
+            [
+                // {title:"Id值",field:"Id"},
+                {title:"案由",field:"CaseReason"},
+                {title:"公诉人/原告/上诉人/申请人",field:"ProsecutorList"},
+                {title:"被告人/被告/被上诉人/被申请人",field:"DefendantList"},
+                {title:"执行法院",field:"Executegov"},
+                {title:"案号",field:"CaseNo"},
+                {title:"开庭日期",field:"LianDate"}
+            ]
+        ]
+    });
+
+    var form = $("form[name='form-search']");
+    form.validate({
+        rules:{
+            keyWord: "required"
+        }
+        ,submitHandler: function () {
+            layuiTableReload({
+                where: form.serialize().replace(/-/g,'')
+            });
+        }
+    });
+
+    function checkSubmitForm() {
+        return false;
+    }
+</script>
+</body>
+</html>

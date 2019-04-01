@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 历史股权出质 </title>
+    <!--#include file="/htmlsrc/header.html" -->
+</head>
+<body>
+<div id="content">
+    <div class="" id="panel-form">
+        <!-- 查询表单 -->
+    </div>
+    <div id="dataList">
+        <!-- 数据列表 -->
+    </div>
+</div>
+<script>
+    // 配置查询表单
+    $("#panel-form").html(panelFormRender3({
+        panelTitle:'筛选查询',
+        col: 3,
+        list:[
+            {prop:"keyWord", label:"查询关键字"}
+        ],
+        data: { }
+    }));
+    // 历史动产抵押
+    laytableRender({
+        needCond: true,
+        autoShift: false,
+        url: remoteApi.qccHistoryGetHistorytPledge,
+        cols: [
+            [
+                {title:"登记编号",field:"RegistNo"},
+                {title:"出质人",field:"Pledgor"},
+                {title:"质权人",field:"Pledgee"},
+                {title:"出质股权数额",field:"PledgedAmount"},
+                {title:"股权出质设立登记日期",field:"RegDate"},
+                {title:"公布日期",field:"PublicDate"},
+                {title:"状态",field:"Status"}
+            ]
+        ]
+    });
+
+    var form = $("form[name='form-search']");
+    form.validate({
+        rules:{
+            keyWord: "required"
+        }
+        ,submitHandler: function () {
+            layuiTableReload({
+                where: form.serialize().replace(/-/g,'')
+            });
+        }
+    });
+
+    function checkSubmitForm() {
+        return false;
+    }
+</script>
+</body>
+</html>

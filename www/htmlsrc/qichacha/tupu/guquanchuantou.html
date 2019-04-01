@@ -5,13 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
     <meta name="renderer" content="webkit" />
     <meta name="author" content="leslie" />
-    <link rel="stylesheet" href="https://www.qichacha.com/material/theme/chacha/cms/v2/css/bootstrap.css" type="text/css" />
-    <link rel="stylesheet" href="https://www.qichacha.com/material/theme/chacha/cms/v2/css/app.css?time=20190308" type="text/css" />
-    <script type="text/javascript" src="https://www.qichacha.com/material/js/siteconfig.js?time=20190308"></script>
-    <style type="text/css" abt="234"></style>
-    <script src="https://www.qichacha.com/material/theme/chacha/cms/v2/js/jquery.min.js"></script>
-    <script src="https://www.qichacha.com/material/theme/chacha/cms/v2/js/bootstrap.js"></script>
-    <script src="./custom.js"></script>
+    <!--#include file="./tupu-head.html" -->
 </head>
 <body style="">
 <link rel="stylesheet" type="text/css" href="https://www.qichacha.com/material/common/2013admin/js/artDialog4.1.7/skins/blue.css" />
@@ -79,9 +73,10 @@
     var touziData;
     function getData(){
         $('#load_data').show();
-        var url = INDEX_URL+"cms_guquanmap3";
+        // var url = INDEX_URL+"cms_guquanmap3";
         $.ajax({
             url:"./guquanchuantou.json",
+            // url:"http://localhost:8015/test/qcc/ECICompanyMap/GetStockAnalysisData",
             type: 'GET',
             data:{
                 keyNo:getQueryString("keyNo"),
@@ -146,7 +141,6 @@
     }
 
     function refresh(){
-
         var ecConfig = require('echarts/config');
         myChart._messageCenter.dispatch(ecConfig.EVENT.RESTORE, null, null, myChart);
     }

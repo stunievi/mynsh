@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 历史工商信息 </title>
+    <!--#include file="/htmlsrc/header.html" -->
+</head>
+<body>
+<div id="content">
+    <div class="" id="panel-form">
+        <!-- 查询表单 -->
+    </div>
+    <div id="dataList">
+        <!-- 数据列表 -->
+    </div>
+</div>
+<script src="/htmlsrc/qichacha/tmpl/eci/hiscominfo.js"></script>
+<script>
+    // 配置查询表单
+    $("#panel-form").html(panelFormRender3({
+        panelTitle:'筛选查询',
+        col: 3,
+        list:[
+            {prop:"keyWord", label:"查询关键字"}
+        ],
+        data: { }
+    }));
+
+    function checkSubmitForm() {
+        SuperPost({
+            url: remoteApi.qccHistoryGetHistorytEci+"?keyWord="+$("#keyWord").val(),
+            success:function(res){
+                if(res.success){
+                    $("#dataList").html(
+                        hiscominfoRender(res.data)
+                    );
+                }
+            }
+        })
+        return false;
+    }
+</script>
+</body>
+</html>

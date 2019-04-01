@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 历史行政处罚 </title>
+    <!--#include file="/htmlsrc/header.html" -->
+</head>
+<body>
+<div id="content">
+    <div class="" id="panel-form">
+        <!-- 查询表单 -->
+    </div>
+    <h5><b>历史工商行政处罚</b></h5>
+    <div id="dataList">
+        <!-- 数据列表 -->
+    </div>
+    <h5><b>历史信用中国行政处罚</b></h5>
+    <div id="dataList-2">
+        <!-- 数据列表 -->
+    </div>
+</div>
+<script>
+    // 配置查询表单
+    $("#panel-form").html(panelFormRender3({
+        panelTitle:'筛选查询',
+        col: 3,
+        list:[
+            {prop:"keyWord", label:"查询关键字"}
+        ],
+        data: { }
+    }));
+    laytableRender({
+        needCond: true,
+        autoShift: false,
+        page:false,
+        id: "dataList",
+        elem: "#dataList",
+        cols: [
+            [
+                {title:"文号",field:"DocNo"},
+                {title:"违法行为类型",field:"PenaltyType"},
+                {title:"处罚内容",field:"Content"},
+                {title:"决定日期",field:"PenaltyDate"},
+                {title:"作出行政公示日期",field:"PublicDate"},
+                {title:"决定机关",field:"OfficeName"}
+            ]
+        ]
+    });
+    laytableRender({
+        needCond: true,
+        autoShift: false,
+        page: false,
+        id: "dataList-2",
+        elem: "#dataList-2",
+        cols: [
+            [
+                {title:"决定文书号",field:"CaseNo"},
+                {title:"处罚名称",field:"Name"},
+                {title:"决定时间",field:"LianDate"},
+                {title:"省份",field:"Province"},
+                {title:"公司",field:"OwnerName"},
+                {title:"案由",field:"CaseReason"}
+            ]
+        ]
+    });
+
+    var form = $("form[name='form-search']");
+    form.validate({
+        rules:{
+            keyWord: "required"
+        },
+        submitHandler: function () {
+            $.ajax({
+                url: remoteApi.qccHistoryGetHistorytAdminPenalty+"?keyWord=深圳小桔科技有限公司",
+                success:function (res) {
+                    if(res.success && res.data){
+                        layuiTableReload({
+                            data: res.data.EciList
+                        });
+                        layuiTableReload({
+                            id: "dataList-2",
+                            data: res.data.CreditChinaList
+                        });
+                    }
+                }
+            });
+        }
+    });
+
+    function checkSubmitForm() {
+        return false;
+    }
+</script>
+</body>
+</html>
