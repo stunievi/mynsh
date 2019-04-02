@@ -18,8 +18,7 @@ public class App {
 
     public static void main(String[] args) throws ParseException {
         zedService.initConfig();
-        zedService.initDB();
-
+        zedService.initDB(false);
 
         //routes
         HttpServerHandler.AddRoute(new Route(Pattern.compile("^\\/zed"), (ctx, req) -> {
@@ -29,9 +28,9 @@ public class App {
 
 
         //注册查询接口
-        QccService.register();
+        QccService.register(zedService);
         //注册解构接口
-        DeconstructService.register();
+        DeconstructService.register(zedService);
 
         //起动netty
         zedService.initNetty();

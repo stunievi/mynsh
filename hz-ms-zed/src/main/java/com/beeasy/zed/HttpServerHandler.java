@@ -6,6 +6,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 
 import cn.hutool.core.util.CharsetUtil;
+import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import io.netty.buffer.Unpooled;
@@ -69,7 +70,14 @@ class HttpServerHandler extends ChannelInboundHandlerAdapter {
                     byte[] responseBytes;
                     if(object instanceof String){
                         responseBytes = ((String) object).getBytes(StandardCharsets.UTF_8);
-                    } else{
+                    } else if(object instanceof JSONArray){
+                        ((JSONArray) object).setDateFormat("yyyy-MM-dd hh:mm:ss");
+                        responseBytes = (((JSONArray) object).toJSONString(4)).getBytes(StandardCharsets.UTF_8);
+                    } else if(object instanceof JSONObject){
+                    ((JSONObject) object).setDateFormat("yyyy-MM-dd hh:mm:ss");
+                    responseBytes = (((JSONObject) object).toJSONString(4)).getBytes(StandardCharsets.UTF_8);
+                }
+                    else{
                         responseBytes = JSONUtil.toJsonStr(object).getBytes(StandardCharsets.UTF_8);
                     }
                     int contentLength = responseBytes.length;
@@ -97,6 +105,16 @@ class HttpServerHandler extends ChannelInboundHandlerAdapter {
     public static JSONObject decodeProxyQuery(FullHttpRequest fullHttpRequest){
         JSONObject params = new JSONObject();
         QueryStringDecoder decoder = new QueryStringDecoder(fullHttpRequest.headers().getAsString("Proxy-Url"));
+        Map<String, List<String>> paramList = decoder.parameters();
+        for (Map.Entry<String, List<String>> entry : paramList.entrySet()) {
+            params.put(entry.getKey(), entry.getValue().get(0));
+        }
+        return params;
+    }
+
+    public static JSONObject decodeQuery(FullHttpRequest request){
+        JSONObject params = new JSONObject();
+        QueryStringDecoder decoder = new QueryStringDecoder(request.getUri(), StandardCharsets.UTF_8);
         Map<String, List<String>> paramList = decoder.parameters();
         for (Map.Entry<String, List<String>> entry : paramList.entrySet()) {
             params.put(entry.getKey(), entry.getValue().get(0));

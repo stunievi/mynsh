@@ -6,6 +6,7 @@ import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.sun.jndi.toolkit.url.UrlUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.*;
@@ -19,6 +20,8 @@ import sun.rmi.server.DeserializationChecker;
 
 import java.io.FileNotFoundException;
 import java.io.RandomAccessFile;
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.List;
@@ -36,12 +39,18 @@ public class TestQcc {
 
     @BeforeClass
     public static void onInit(){
+        Thread.currentThread().setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            @Override
+            public void uncaughtException(Thread t, Throwable e) {
+                assertNull(e);
+            }
+        });
         zedService = new ZedService();
         zedService.initConfig();
-        zedService.initDB();
+        zedService.initDB(true);
         sqlManager = zedService.sqlManager;
-        deconstructService = DeconstructService.register();
-        deconstructService.sqlManager = zedService.sqlManager;
+        QccService.register(zedService);
+        deconstructService = DeconstructService.register(zedService);
         ThreadUtil.execAsync(zedService::initNetty);
         ThreadUtil.sleep(500);
 
@@ -58,13 +67,9 @@ public class TestQcc {
     }
 
     @Test
-    public void SearchShiXin() {
-        try {
-            get("SearchShiXin.json");
-        } catch (Exception e) {
-            e.printStackTrace();
-            assertNull(e);
-        }
+    public void SearchShiXin() throws Exception {
+        get("SearchShiXin.json?searchKey=小米");
+        checkListMatched("/CourtV4/SearchShiXin?searchKey=小米");
     }
 
     @Test
@@ -80,7 +85,7 @@ public class TestQcc {
     @Test
     public void testSearchJudgmentDoc(){
         try {
-            JSONObject object = get("SearchJudgmentDoc.json");
+            JSONObject object = get("SearchJudgmentDoc.json?searchKey=小米");
             String id = object.getByPath("Result.0.Id", String.class);
             assertNotNull(id);
             get("GetJudgementDetail.json?id=" + id);
@@ -106,7 +111,7 @@ public class TestQcc {
     @Test
     public void SearchCourtNotice() {
         try {
-            JSONObject object = get("SearchCourtNotice.json");
+            JSONObject object = get("SearchCourtNotice.json?searchKey=小米");
             String id = object.getByPath("Result.0.Id", String.class);
             assertNotNull(id);
             get("GetCourtNoticeInfo.json?id=" + id);
@@ -130,7 +135,23 @@ public class TestQcc {
 //        }
 //    }
 
+    public void checkListMatched(String url) throws UnsupportedEncodingException {
+        JSONObject result = huGet(url);
+        assertEquals(result.getStr("Status"),"200");
+        int count = result.getByPath("Paging.TotalRecords", Integer.class);
+        assertTrue(count > 0);
+    }
 
+    public JSONObject huGet(String url) throws UnsupportedEncodingException {
+        url = "http://localhost:8081/qcc" + url;
+        if(url.contains("?")){
+            int idex = url.indexOf("?");
+            url = url.substring(0, idex) + "?" + UrlUtil.encode(url.substring(idex + 1), "UTF-8");
+        }
+//        url = UrlUtil.encode(url, StandardCharsets.UTF_8.name());
+        String str = HttpUtil.get(url);
+        return JSONUtil.parseObj(str);
+    }
 
     public JSONObject get(String url, Map<String,String> params) throws FileNotFoundException {
         if (params == null) {

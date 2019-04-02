@@ -11,6 +11,9 @@ import com.alibaba.druid.pool.DruidDataSource;
 //import com.alibaba.fastjson.JSON;
 //import com.alibaba.fastjson.JSONArray;
 //import com.alibaba.fastjson.JSONObject;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+import com.zaxxer.hikari.util.DriverDataSource;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -19,6 +22,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http2.Http2CodecUtil;
+import io.netty.handler.codec.string.StringDecoder;
 import io.netty.util.CharsetUtil;
 import org.beetl.sql.core.*;
 import org.beetl.sql.core.db.DB2SqlStyle;
@@ -41,7 +45,7 @@ import java.util.stream.Collectors;
 class ZedService {
 
     private DeconstructService deconstructService;
-    private DruidDataSource dataSource;
+    private DataSource dataSource;
 //    @Autowired
     public SQLManager sqlManager;
     public AtomicReference<SQLManager> atomSM = new AtomicReference<>();
@@ -462,23 +466,42 @@ class ZedService {
 //        return deconstructService.doNettyRequest(ctx, req);
 //    }
 
-    public void initDB(){
+    public void initDB(boolean dev){
         JSONObject ds = config.getJSONObject("datasource");
-        dataSource = new DruidDataSource();
-        dataSource.setDriverClassName(ds.getStr("driver"));
-        dataSource.setUrl(ds.getStr("url"));
-        dataSource.setUsername(ds.getStr("username"));
-        dataSource.setPassword(ds.getStr("password"));
-        dataSource.setAsyncInit(true);
 
-        ConnectionSource source = ConnectionSourceHelper.getSingle(dataSource);
+
+        ConnectionSource source;
+        if(dev){
+            //实例化类
+            HikariConfig hikariConfig = new HikariConfig();
+            //设置url
+            hikariConfig.setJdbcUrl(ds.getStr("url"));
+            //数据库帐号
+            hikariConfig.setUsername(ds.getStr("username"));
+            //数据库密码
+            hikariConfig.setPassword(ds.getStr("password"));
+            hikariConfig.setDriverClassName(ds.getStr("driver"));
+            hikariConfig.addDataSourceProperty("cachePrepStmts", "true");
+//            hikariConfig.addDataSourceProperty("prepStmtCacheSize", "250");
+//            hikariConfig.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+
+            dataSource = new HikariDataSource(hikariConfig);
+            source =  ConnectionSourceHelper.getSingle(dataSource);
+        } else {
+            DruidDataSource druidDataSource = new DruidDataSource();
+            druidDataSource.setDriverClassName(ds.getStr("driver"));
+            druidDataSource.setUrl(ds.getStr("url"));
+            druidDataSource.setUsername(ds.getStr("username"));
+            druidDataSource.setPassword(ds.getStr("password"));
+            druidDataSource.setAsyncInit(true);
+            dataSource = druidDataSource;
+            source = ConnectionSourceHelper.getSingle(druidDataSource);
+        }
         SQLLoader loader = new ClasspathLoader("/sql");
         UnderlinedNameConversion nc = new  UnderlinedNameConversion();
         sqlManager = new SQLManager(new DB2SqlStyle(),loader,source,nc,new Interceptor[]{new DebugInterceptor()});
 
-
         atomSM.set(sqlManager);
-
     }
 
     public void initConfig(){
@@ -498,8 +521,10 @@ class ZedService {
                         @Override
                         public void initChannel(SocketChannel ch) throws Exception {
                             ChannelPipeline pipeline = ch.pipeline();
+
                             pipeline.addLast(new HttpServerCodec());
                             pipeline.addLast( new HttpObjectAggregator(1024 * 1024));
+                            pipeline.addLast(new StringDecoder(Charset.forName("UTF-8")));
                             pipeline.addLast(new HttpServerHandler());
                         }
                     });

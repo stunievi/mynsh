@@ -10,6 +10,7 @@ import cn.hutool.json.*;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.json.JsonObjectDecoder;
 import io.netty.util.CharsetUtil;
 import org.beetl.sql.core.DSTransactionManager;
 import org.beetl.sql.core.SQLManager;
@@ -24,6 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class DeconstructService {
 
@@ -182,9 +184,9 @@ public class DeconstructService {
         return params.getStr(key);
     }
 
-    public static DeconstructService register(){
+    public static DeconstructService register(ZedService zedService){
         DeconstructService service = new DeconstructService();
-        service.sqlManager = App.zedService.sqlManager;
+        service.sqlManager = zedService.sqlManager;
 
         HttpServerHandler.AddRoute(new Route(Pattern.compile("^\\/deconstruct"), (ctx, req) -> {
             return service.doNettyRequest(ctx, req);
@@ -209,11 +211,47 @@ public class DeconstructService {
      * @param json
      */
     private void GetCourtNoticeInfo(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
+        String id = getQuery(request, "id");
         changeField(json,
-            "+Id", getQuery(request, "id")
+            "+Id", id
         );
         deconstruct(json, "QCC_COURT_NOTICE", "Id");
+        //补充上诉人和被上诉人
+        JSONObject object = (JSONObject) json;
+        JSONArray list = new JSONArray();
+        if(object.containsKey("Prosecutor")){
+            list.addAll(JSONUtil.parseArray(object.getJSONArray("Prosecutor").toList(JSONObject.class)
+                .stream()
+                .map(o -> {
+                    JSONObject kv = new JSONObject();
+                    kv.put("Name", kv.getStr("Name"));
+                    kv.put("cn_id", id);
+                    kv.put("key_no", kv.getStr("KeyNo"));
+                    kv.put("type", "01");
+                    return kv;
+                })
+                .toArray()
+            ));
+        }
+        if(object.containsKey("Defendant")){
+            list.addAll(JSONUtil.parseArray(object.getJSONArray("Defendant").toList(JSONObject.class)
+                .stream()
+                .map(o -> {
+                    JSONObject kv = new JSONObject();
+                    kv.put("Name", kv.getStr("Name"));
+                    kv.put("cn_id", id);
+                    kv.put("key_no", kv.getStr("KeyNo"));
+                    kv.put("type", "02");
+                    return kv;
+                })
+                .toArray()
+            ));
+        }
 
+        if(list.size() > 0){
+            doDelete("JG_NOTICE_PEOPLE_RE", "cn_id", object.getStr("Id"));
+            deconstruct(list, "JG_NOTICE_PEOPLE_RE", "");
+        }
 
     }
 
@@ -229,7 +267,8 @@ public class DeconstructService {
             "Executegov->Execute_gov",
             "Prosecutorlist->Prosecutor_list",
             "LianDate", ValueGenerator.createYmdhmsDate("LianDate"),
-            "LianDate->Li_an_Date"
+            "LianDate->Li_an_Date",
+            "+company_name", getQuery(request, "searchKey")
             );
         deconstruct(json, "QCC_COURT_NOTICE", "Id");
     }
@@ -326,7 +365,8 @@ public class DeconstructService {
     private void SearchJudgmentDoc(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         changeField(json,
             "+SubmitDate", ValueGenerator.createYmdhmsDate("SubmitDate"),
-            "+UpdateDate", ValueGenerator.createYmdhmsDate("UpdateDate")
+            "+UpdateDate", ValueGenerator.createYmdhmsDate("UpdateDate"),
+            "+company_name", getQuery(request, "searchKey")
             );
         deconstruct(json, "QCC_JUDGMENT_DOC", "Id");
     }
@@ -358,7 +398,8 @@ public class DeconstructService {
             "Updatedate->Update_date",
             "Executeno->Execute_no",
             "Performedpart->Performed_part",
-            "Unperformpart->Unperform_part"
+            "Unperformpart->Unperform_part",
+            "+company_name", getQuery(request, "searchKey")
         );
         deconstruct(json, "QCC_SHIXIN", "Id");
     }
@@ -381,8 +422,7 @@ public class DeconstructService {
             "Anno->An_no",
             "Biaodi->Biao_di",
             "Updatedate->Update_date",
-            "company_name", getQuery(request, "searchKey")
-
+            "+company_name", getQuery(request, "searchKey")
         );
         deconstruct(array, "QCC_ZHIXING", "Id");
     }
