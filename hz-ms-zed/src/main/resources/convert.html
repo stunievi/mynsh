@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+<div>
+    <textarea id="src" rows="10" cols="30"></textarea>
+</div>
+<div>
+    <textarea id="target" rows="10" cols="30"></textarea>
+</div>
+<script>
+    src.onchange = function () {
+        var val = src.value;
+        var newval = val
+            .split("\n")
+            .map(line => {
+                console.log(line.split("\t"))
+                return toLine(line.split("\t")[0])
+            })
+            .join(",\n");
+        target.value = newval
+    }
+
+    function toLine(name) {
+        var str = name.replace(/([A-Z])/g,"_$1").toLowerCase();
+        if(str.charAt(0) == '_'){
+            str = str.substr(1)
+        }
+        str = str.replace(/_+/g,"_")
+        return str
+    }
+</script>
+</body>
+</html>

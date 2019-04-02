@@ -1,31 +1,55 @@
 package com.beeasy.zed;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.sun.javafx.sg.prism.NodePath;
-import org.beetl.sql.core.SQLManager;
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.io.IoUtil;
+import cn.hutool.core.io.resource.ClassPathResource;
+import cn.hutool.core.thread.ThreadUtil;
+import cn.hutool.json.JSONArray;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
+import com.alibaba.druid.pool.DruidDataSource;
+//import com.alibaba.fastjson.JSON;
+//import com.alibaba.fastjson.JSONArray;
+//import com.alibaba.fastjson.JSONObject;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+import com.zaxxer.hikari.util.DriverDataSource;
+import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.*;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
+import io.netty.handler.codec.http2.Http2CodecUtil;
+import io.netty.handler.codec.string.StringDecoder;
+import io.netty.util.CharsetUtil;
+import org.beetl.sql.core.*;
+import org.beetl.sql.core.db.DB2SqlStyle;
 import org.beetl.sql.core.engine.PageQuery;
+import org.beetl.sql.ext.DebugInterceptor;
 import org.osgl.$;
 import org.osgl.util.C;
 import org.osgl.util.S;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import javax.xml.ws.ServiceMode;
+import javax.sql.DataSource;
+import java.nio.charset.Charset;
+import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static javafx.scene.input.KeyCode.PAGE_DOWN;
-import static javafx.scene.input.KeyCode.T;
-
-@Service
-@Transactional
+//@Service
+//@Transactional
 class ZedService {
 
-    @Autowired
-    SQLManager sqlManager;
+    private DeconstructService deconstructService;
+    private DataSource dataSource;
+//    @Autowired
+    public SQLManager sqlManager;
+    public AtomicReference<SQLManager> atomSM = new AtomicReference<>();
+    public JSONObject config;
 
     private static final String FIELD_LINK = "link";
     private static final String FIELD_PAGE = "Page";
@@ -65,14 +89,14 @@ class ZedService {
         int size = -1;
         int total = -1;
         if (value.containsKey(FIELD_PAGE)) {
-            page = value.getInteger(FIELD_PAGE);
+            page = value.getInt(FIELD_PAGE, 1);
             value.remove(FIELD_PAGE);
             if (page < 0) {
                 page = 1;
             }
         }
         if (value.containsKey(FIELD_SIZE)) {
-            size = value.getInteger(FIELD_SIZE);
+            size = value.getInt(FIELD_SIZE, 10);
             value.remove(FIELD_SIZE);
         }
         if (size < 0) {
@@ -151,7 +175,7 @@ class ZedService {
             beetlParams.put(
                     "keyx",
                     result.stream()
-                            .map(i -> i.getString(finalTfs1[1]))
+                            .map(i -> i.getStr(finalTfs1[1]))
                             .collect(Collectors.toSet())
             );
             selectFields = S.fmt("t%d.*, t0.%s as zed_id", path.linkStrs.size(), tfs[1]);
@@ -169,7 +193,7 @@ class ZedService {
             String countFields = S.fmt("count(*) as total_num", selectFields);
             String sql = S.fmt("select %s from %s t0 %s %s", countFields, table, join, where.toString());
             List<JSONObject> countRet = sqlManager.execute(sql, JSONObject.class, beetlParams);
-            total = countRet.get(0).getInteger("totalNum");
+            total = countRet.get(0).getInt("totalNum", 0);
             if (countRet.size() > 0 && total > 0) {
                 sql = S.fmt("select %s from %s t0 %s %s", selectFields, table, join, where.toString());
                 ret = sqlManager.execute(sql, JSONObject.class, beetlParams, (page - 1) * size + 1, size);
@@ -186,7 +210,7 @@ class ZedService {
             String[] finalTfs = tfs;
             for (JSONObject object : result) {
                 List<JSONObject> items = ret.stream()
-                        .filter(i -> S.eq(i.getString("zedId"), object.getString(finalTfs[1])))
+                        .filter(i -> S.eq(i.getStr("zedId"), object.getStr(finalTfs[1])))
                         .collect(Collectors.toList());
                 if (multipul) {
                     // TODO: 2019/3/27 关联查询也应支持分页
@@ -351,8 +375,8 @@ class ZedService {
             return map;
         }
         JSONArray arr = (JSONArray) links;
-        for (short i = 0; i < arr.size(); i++) {
-            String link = arr.getString(i).toLowerCase();
+        for (int i = 0; i < arr.size(); i++) {
+            String link = arr.getStr(i).toLowerCase();
             String[] sides = reg.split(link);
             if (sides.length != 4) {
                 continue;
@@ -414,4 +438,109 @@ class ZedService {
         List<String> linkStrs = new ArrayList<>();
         List<String> stack = new ArrayList<>();
     }
+
+    /***********************************************/
+
+    /**
+     * 以下为不用springboot时所需要的方法
+     */
+
+    /***********************************************/
+
+
+    /**
+     * netty 服务
+     */
+    public Object doNettyRequest(ChannelHandlerContext ctx, FullHttpRequest request){
+        if(!request.method().equals(HttpMethod.POST)){
+            return null;
+        }
+        if(request.content().isReadable()){
+            String json = request.content().toString(CharsetUtil.UTF_8);
+            return select(JSONUtil.parseObj(json));
+        }
+        return null;
+    }
+//
+//    public Object doDeconstruct(ChannelHandlerContext ctx, FullHttpRequest req){
+//        return deconstructService.doNettyRequest(ctx, req);
+//    }
+
+    public void initDB(boolean dev){
+        JSONObject ds = config.getJSONObject("datasource");
+
+
+        ConnectionSource source;
+        if(dev){
+            //实例化类
+            HikariConfig hikariConfig = new HikariConfig();
+            //设置url
+            hikariConfig.setJdbcUrl(ds.getStr("url"));
+            //数据库帐号
+            hikariConfig.setUsername(ds.getStr("username"));
+            //数据库密码
+            hikariConfig.setPassword(ds.getStr("password"));
+            hikariConfig.setDriverClassName(ds.getStr("driver"));
+            hikariConfig.addDataSourceProperty("cachePrepStmts", "true");
+//            hikariConfig.addDataSourceProperty("prepStmtCacheSize", "250");
+//            hikariConfig.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+
+            dataSource = new HikariDataSource(hikariConfig);
+            source =  ConnectionSourceHelper.getSingle(dataSource);
+        } else {
+            DruidDataSource druidDataSource = new DruidDataSource();
+            druidDataSource.setDriverClassName(ds.getStr("driver"));
+            druidDataSource.setUrl(ds.getStr("url"));
+            druidDataSource.setUsername(ds.getStr("username"));
+            druidDataSource.setPassword(ds.getStr("password"));
+            druidDataSource.setAsyncInit(true);
+            dataSource = druidDataSource;
+            source = ConnectionSourceHelper.getSingle(druidDataSource);
+        }
+        SQLLoader loader = new ClasspathLoader("/sql");
+        UnderlinedNameConversion nc = new  UnderlinedNameConversion();
+        sqlManager = new SQLManager(new DB2SqlStyle(),loader,source,nc,new Interceptor[]{new DebugInterceptor()});
+
+        atomSM.set(sqlManager);
+    }
+
+    public void initConfig(){
+        ClassPathResource resource = new ClassPathResource("config.json");
+        String content = IoUtil.read(resource.getStream(), CharsetUtil.UTF_8);
+        config = JSONUtil.parseObj(content);
+    }
+
+    public void initNetty(){
+        EventLoopGroup bossGroup = new NioEventLoopGroup();
+        EventLoopGroup workerGroup = new NioEventLoopGroup();
+        try {
+            ServerBootstrap b = new ServerBootstrap();
+            b.group(bossGroup, workerGroup)
+                    .channel(NioServerSocketChannel.class)
+                    .childHandler(new ChannelInitializer<SocketChannel>() {
+                        @Override
+                        public void initChannel(SocketChannel ch) throws Exception {
+                            ChannelPipeline pipeline = ch.pipeline();
+
+                            pipeline.addLast(new HttpServerCodec());
+                            pipeline.addLast( new HttpObjectAggregator(1024 * 1024));
+                            pipeline.addLast(new StringDecoder(Charset.forName("UTF-8")));
+                            pipeline.addLast(new HttpServerHandler());
+                        }
+                    });
+            ThreadUtil.execAsync(() -> {
+                System.out.println("boot success");
+            });
+            ChannelFuture f = b.bind(config.getInt("port")).sync();
+            f.channel().closeFuture().sync();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            workerGroup.shutdownGracefully();
+            bossGroup.shutdownGracefully();
+        }
+    }
+
+
+
 }
