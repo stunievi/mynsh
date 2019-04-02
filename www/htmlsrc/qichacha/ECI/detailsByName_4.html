@@ -86,9 +86,9 @@
     SuperPost({
         url: remoteApi.qccGetChattelMortgage+"?keyWord=深圳小桔科技有限公司",
         success:function(res){
-            if(res.success){
+            if(res.success && res.data){
                 $("#ChattelMortgage-body").html(panelFormRender4({
-                    dataList: res.data
+                    dataList: res.data.list
                 }));
             }
         }

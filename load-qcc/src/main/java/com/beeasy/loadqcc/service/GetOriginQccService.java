@@ -29,24 +29,24 @@ public class GetOriginQccService {
 
     private static Map<String, String> DetailUrls = new HashMap<>();
 
-    private static String DOMAIN_PRX = "http://localhost:8015/test/qcc";
+    private static String QCC_DOMAIN_PRX = "http://localhost:8015/test/qcc";
 
     static {
         // 表名, 详情接口
         /* 法律诉讼服 */
         // 裁判文书
-        DetailUrls.put("JudgeDocV4_SearchJudgmentDoc", DOMAIN_PRX + "/JudgeDocV4/GetJudgementDetail");
+        DetailUrls.put("JudgeDocV4_SearchJudgmentDoc", QCC_DOMAIN_PRX + "/JudgeDocV4/GetJudgementDetail");
         // 开庭公告
-        DetailUrls.put("CourtAnnoV4_SearchCourtNotice", DOMAIN_PRX + "/CourtAnnoV4/GetCourtNoticeInfo");
+        DetailUrls.put("CourtAnnoV4_SearchCourtNotice", QCC_DOMAIN_PRX + "/CourtAnnoV4/GetCourtNoticeInfo");
         // 查询法院公告
-         DetailUrls.put("CourtNoticeV4_SearchCourtAnnouncement", DOMAIN_PRX + "/CourtNoticeV4/SearchCourtAnnouncementDetail");
+         DetailUrls.put("CourtNoticeV4_SearchCourtAnnouncement", QCC_DOMAIN_PRX + "/CourtNoticeV4/SearchCourtAnnouncementDetail");
         /* 经营风险 */
         // 司法拍卖列表
-        DetailUrls.put("JudicialSale_GetJudicialSaleList", DOMAIN_PRX + "/JudicialSale/GetJudicialSaleDetail");
+        DetailUrls.put("JudicialSale_GetJudicialSaleList", QCC_DOMAIN_PRX + "/JudicialSale/GetJudicialSaleDetail");
         // 土地抵押
-        DetailUrls.put("LandMortgage_GetLandMortgageList", DOMAIN_PRX + "/LandMortgage/GetLandMortgageDetails");
+        DetailUrls.put("LandMortgage_GetLandMortgageList", QCC_DOMAIN_PRX + "/LandMortgage/GetLandMortgageDetails");
         // 环保处罚
-        DetailUrls.put("EnvPunishment_GetEnvPunishmentList", DOMAIN_PRX + "/EnvPunishment/GetEnvPunishmentDetails");
+        DetailUrls.put("EnvPunishment_GetEnvPunishmentList", QCC_DOMAIN_PRX + "/EnvPunishment/GetEnvPunishmentDetails");
     }
 
     // 下载企查查数据
@@ -60,18 +60,25 @@ public class GetOriginQccService {
         // ECI_GetBasicDetailsByName(keyWord);
         // 企业关键字精确获取详细信息(master),基本信息，行业信息，股东信息，主要成员，分支机构，变更信息，联系信息
         JSONObject comInfo = ECI_GetDetailsByName(keyWord);
+        if(comInfo.size() < 1){
+            return;
+        }
+        String companyName = comInfo.getString("Name");
         String keyNo = comInfo.getString("KeyNo");
+        List employees = comInfo.getJSONArray("Employees");
         // 控股企业
         HoldingCompany_GetHoldingCompany(keyWord);
-
         // 企业人员董监高信息
-        CIAEmployeeV4_GetStockRelationInfo(keyWord, "王思聪");
+        for(short i=0;i<employees.size();i++){
+            JSONObject item = (JSONObject) employees.get(i);
+            CIAEmployeeV4_GetStockRelationInfo(keyWord, item.getString("Name"));
+        }
 
         /* 法律诉讼  */
         //查询裁判文书
-        JudgeDoc_SearchJudgmentDoc(keyWord);
+        JudgeDocV4_SearchJudgmentDoc(keyWord);
         //查询开庭公告
-        CourtAnno_SearchCourtNotice(keyWord);
+        CourtAnnoV4_SearchCourtNotice(keyWord);
         //查询法院公告
         CourtNoticeV4_SearchCourtAnnouncement(keyWord);
         //失信信息
@@ -141,7 +148,7 @@ public class GetOriginQccService {
             ArrayList filters  = new ArrayList();
             filters.add(Filters.eq("QueryParam.getDataTime", dateNowStr));
             for (Map.Entry<String, ?> entry : queries.entrySet()){
-                filters.add(Filters.eq("QueryParam.".concat((String) entry.getKey()), entry.getValue()));
+                filters.add(Filters.eq("QueryParam.".concat(entry.getKey()), entry.getValue()));
             }
             // $set可以用来修改一个字段的值，如果这个字段不存在，则创建它
             Document modifiers = new Document();
@@ -285,7 +292,7 @@ public class GetOriginQccService {
         Map query = C.newMap(
                 "keyWord", keyWord
         );
-        String res = QccUtil.getData(DOMAIN_PRX + "/ECIV4/GetBasicDetailsByName", query);
+        String res = QccUtil.getData(QCC_DOMAIN_PRX + "/ECIV4/GetBasicDetailsByName", query);
         saveOriginData("ECIV4_GetBasicDetailsByName", query, res);
         JSONObject resObj = JSON.parseObject(res).getJSONObject("Result");
         if(null == resObj || resObj.isEmpty()){
@@ -304,35 +311,29 @@ public class GetOriginQccService {
         Map query = C.newMap(
                 "keyWord", keyWord
         );
-        String res = QccUtil.getData(DOMAIN_PRX + "/ECIV4/GetDetailsByName", query);
+        String res = QccUtil.getData(QCC_DOMAIN_PRX + "/ECIV4/GetDetailsByName", query);
         saveOriginData("ECIV4_GetDetailsByName", query, res);
-        JSONObject resObj = JSON.parseObject(res).getJSONObject("Result");
-        if(null == resObj || resObj.isEmpty()){
+        JSONObject resObj = JSON.parseObject(res);
+        if(!"200".equals(resObj.getString("Status"))){
             return new JSONObject();
         }
-        return resObj;
+        JSONObject retObj = resObj.getJSONObject("Result");
+        if(null == retObj || retObj.isEmpty()){
+            return new JSONObject();
+        }
+        return retObj;
     }
 
     // 控股企业
     public void HoldingCompany_GetHoldingCompany(
             String keyWord
     ){
-        HoldingCompany_GetHoldingCompany(keyWord, 1);
-    }
-    public void HoldingCompany_GetHoldingCompany(
-            String keyWord,
-            Integer pageIndex
-    ){
-        Map query = C.newMap(
+        Map queries = C.newMap(
                 "keyWord", keyWord,
-                "pageIndex", pageIndex,
+                "pageIndex", 1,
                 "pageSize", 20
         );
-        String res = QccUtil.getData(DOMAIN_PRX + "/HoldingCompany/GetHoldingCompany", query);
-        saveOriginData("HoldingCompany_GetHoldingCompany", query, res);
-        if(notLastPage(res, pageIndex)){
-            HoldingCompany_GetHoldingCompany(keyWord, pageIndex + 1);
-        };
+        getDataList2("HoldingCompany_GetHoldingCompany", queries,QCC_DOMAIN_PRX + "/HoldingCompany/GetHoldingCompany", "");
     }
 
     /**
@@ -348,7 +349,7 @@ public class GetOriginQccService {
                 "companyName", companyName,
                 "name", name
         );
-        String res = QccUtil.getData(DOMAIN_PRX + "/CIAEmployeeV4/GetStockRelationInfo", query);
+        String res = QccUtil.getData(QCC_DOMAIN_PRX + "/CIAEmployeeV4/GetStockRelationInfo", query);
         saveOriginData("CIAEmployeeV4_GetStockRelationInfo", query, res);
     }
 
@@ -359,7 +360,7 @@ public class GetOriginQccService {
         Map query = C.newMap(
                 "keyWord", keyWord
         );
-        String res = QccUtil.getData(DOMAIN_PRX + "/History/GetHistorytEci", query);
+        String res = QccUtil.getData(QCC_DOMAIN_PRX + "/History/GetHistorytEci", query);
         saveOriginData("History_GetHistorytEci", query, res);
     }
     // 历史对外投资
@@ -371,7 +372,7 @@ public class GetOriginQccService {
                 "pageIndex", 1,
                 "pageSize", 50
         );
-        getDataList2("History_GetHistorytInvestment", queries,DOMAIN_PRX + "/History/GetHistorytInvestment", "");
+        getDataList2("History_GetHistorytInvestment", queries,QCC_DOMAIN_PRX + "/History/GetHistorytInvestment", "");
     }
     // 历史股东
     public void History_GetHistorytShareHolder(
@@ -382,7 +383,7 @@ public class GetOriginQccService {
                 "pageIndex", 1,
                 "pageSize", 50
         );
-        getDataList2("History_GetHistorytShareHolder", queries,DOMAIN_PRX + "/History/GetHistorytShareHolder", "");
+        getDataList2("History_GetHistorytShareHolder", queries,QCC_DOMAIN_PRX + "/History/GetHistorytShareHolder", "");
     }
     //历史失信查询
     public void History_GetHistoryShiXin(
@@ -393,7 +394,7 @@ public class GetOriginQccService {
                 "pageIndex", 1,
                 "pageSize", 50
         );
-        getDataList("History_GetHistoryShiXin", queries,DOMAIN_PRX + "/History/GetHistoryShiXin", "");
+        getDataList("History_GetHistoryShiXin", queries,QCC_DOMAIN_PRX + "/History/GetHistoryShiXin", "");
     }
     //历史被执行
     public void History_GetHistoryZhiXing(
@@ -404,7 +405,7 @@ public class GetOriginQccService {
                 "pageIndex", 1,
                 "pageSize", 50
         );
-        getDataList2("History_GetHistoryZhiXing", queries,DOMAIN_PRX + "/History/GetHistoryZhiXing", "");
+        getDataList2("History_GetHistoryZhiXing", queries,QCC_DOMAIN_PRX + "/History/GetHistoryZhiXing", "");
     }
     //历史法院公告
     public void History_GetHistorytCourtNotice(
@@ -415,7 +416,7 @@ public class GetOriginQccService {
                 "pageIndex", 1,
                 "pageSize", 50
         );
-        getDataList("History_GetHistorytCourtNotice", queries,DOMAIN_PRX + "/History/GetHistorytCourtNotice", "");
+        getDataList("History_GetHistorytCourtNotice", queries,QCC_DOMAIN_PRX + "/History/GetHistorytCourtNotice", "");
     }
     //历史裁判文书
     public void History_GetHistorytJudgement(
@@ -426,7 +427,7 @@ public class GetOriginQccService {
                 "pageIndex", 1,
                 "pageSize", 50
         );
-        getDataList("History_GetHistorytJudgement", queries,DOMAIN_PRX + "/History/GetHistorytJudgement", "");
+        getDataList("History_GetHistorytJudgement", queries,QCC_DOMAIN_PRX + "/History/GetHistorytJudgement", "");
     }
     //历史开庭公告
     public void History_GetHistorytSessionNotice(
@@ -437,7 +438,7 @@ public class GetOriginQccService {
                 "pageIndex", 1,
                 "pageSize", 50
         );
-        getDataList("History_GetHistorytSessionNotice", queries,DOMAIN_PRX + "/History/GetHistorytSessionNotice", "");
+        getDataList("History_GetHistorytSessionNotice", queries,QCC_DOMAIN_PRX + "/History/GetHistorytSessionNotice", "");
     }
     //历史动产抵押
     public void History_GetHistorytMPledge(
@@ -448,7 +449,7 @@ public class GetOriginQccService {
                 "pageIndex", 1,
                 "pageSize", 20
         );
-        getDataList2("History_GetHistorytMPledge", queries,DOMAIN_PRX + "/History/GetHistorytMPledge", "");
+        getDataList2("History_GetHistorytMPledge", queries,QCC_DOMAIN_PRX + "/History/GetHistorytMPledge", "");
     }
     //历史股权出质
     public void History_GetHistorytPledge(
@@ -459,7 +460,7 @@ public class GetOriginQccService {
                 "pageIndex", 1,
                 "pageSize", 20
         );
-        getDataList2("History_GetHistorytPledge", queries,DOMAIN_PRX + "/History/GetHistorytPledge", "");
+        getDataList2("History_GetHistorytPledge", queries,QCC_DOMAIN_PRX + "/History/GetHistorytPledge", "");
     }
     //历史行政处罚
     public void History_GetHistorytAdminPenalty(
@@ -468,7 +469,7 @@ public class GetOriginQccService {
         Map queries = C.newMap(
                 "keyWord", keyWord
         );
-        String res = QccUtil.getData(DOMAIN_PRX + "/History/GetHistorytAdminPenalty", queries);
+        String res = QccUtil.getData(QCC_DOMAIN_PRX + "/History/GetHistorytAdminPenalty", queries);
         saveOriginData("History_GetHistorytAdminPenalty", queries, res);
     }
     //历史行政许可
@@ -478,14 +479,14 @@ public class GetOriginQccService {
         Map queries = C.newMap(
                 "keyWord", keyWord
         );
-        String res = QccUtil.getData(DOMAIN_PRX + "/History/GetHistorytAdminLicens", queries);
+        String res = QccUtil.getData(QCC_DOMAIN_PRX + "/History/GetHistorytAdminLicens", queries);
         saveOriginData("History_GetHistorytAdminLicens", queries, res);
     }
     /**
      * 裁判文书
      * @param keyWord
      */
-    public void JudgeDoc_SearchJudgmentDoc(
+    public void JudgeDocV4_SearchJudgmentDoc(
             String keyWord
     ){
         Map queries = C.newMap(
@@ -493,11 +494,11 @@ public class GetOriginQccService {
                 "pageIndex", 1,
                 "pageSize", 50
         );
-        getDataList("JudgeDocV4_SearchJudgmentDoc", queries,DOMAIN_PRX + "/JudgeDocV4/SearchJudgmentDoc", "");
+        getDataList("JudgeDocV4_SearchJudgmentDoc", queries,QCC_DOMAIN_PRX + "/JudgeDocV4/SearchJudgmentDoc", "");
     }
 
     //  查询开庭公告
-    public void CourtAnno_SearchCourtNotice(
+    public void CourtAnnoV4_SearchCourtNotice(
             String searchKey
     ){
         Map queries = C.newMap(
@@ -506,7 +507,7 @@ public class GetOriginQccService {
                 "pageIndex", 1,
                 "isExactlySame", true
         );
-        getDataList("CourtAnnoV4_SearchCourtNotice", queries,DOMAIN_PRX + "/CourtAnnoV4/SearchCourtNotice", "");
+        getDataList("CourtAnnoV4_SearchCourtNotice", queries,QCC_DOMAIN_PRX + "/CourtAnnoV4/SearchCourtNotice", "");
     }
 
     /**
@@ -521,7 +522,7 @@ public class GetOriginQccService {
                 "pageIndex", 1,
                 "pageSize", 50
         );
-        getDataList("JudicialSale_GetJudicialSaleList", queries,DOMAIN_PRX + "/JudicialSale/GetJudicialSaleList", "");
+        getDataList("JudicialSale_GetJudicialSaleList", queries,QCC_DOMAIN_PRX + "/JudicialSale/GetJudicialSaleList", "");
     }
     // 土地抵押
     public void LandMortgage_GetLandMortgageList(
@@ -532,7 +533,7 @@ public class GetOriginQccService {
                 "pageIndex", 1,
                 "pageSize", 50
         );
-        getDataList("LandMortgage_GetLandMortgageList", queries,DOMAIN_PRX + "/LandMortgage/GetLandMortgageList", "");
+        getDataList("LandMortgage_GetLandMortgageList", queries,QCC_DOMAIN_PRX + "/LandMortgage/GetLandMortgageList", "");
     }
     // 获取环保处罚列表
     public void EnvPunishment_GetEnvPunishmentList(
@@ -543,7 +544,7 @@ public class GetOriginQccService {
                 "pageIndex", 1,
                 "pageSize", 50
         );
-        getDataList("EnvPunishment_GetEnvPunishmentList", queries,DOMAIN_PRX + "/EnvPunishment/GetEnvPunishmentList", "");
+        getDataList("EnvPunishment_GetEnvPunishmentList", queries,QCC_DOMAIN_PRX + "/EnvPunishment/GetEnvPunishmentList", "");
     }
 
     // 获取动产抵押信息
@@ -553,7 +554,7 @@ public class GetOriginQccService {
         Map queries = C.newMap(
                 "keyWord", keyWord
         );
-        String res = QccUtil.getData(DOMAIN_PRX + "/ChattelMortgage/GetChattelMortgage", queries);
+        String res = QccUtil.getData(QCC_DOMAIN_PRX + "/ChattelMortgage/GetChattelMortgage", queries);
         saveOriginData("ChattelMortgage_GetChattelMortgage", queries, res);
     }
 
@@ -566,7 +567,7 @@ public class GetOriginQccService {
                 "pageSize", 50,
                 "pageIndex", 1
         );
-        getDataList("CourtNoticeV4_SearchCourtAnnouncement", queries,DOMAIN_PRX + "/CourtNoticeV4/SearchCourtAnnouncement", "");
+        getDataList("CourtNoticeV4_SearchCourtAnnouncement", queries,QCC_DOMAIN_PRX + "/CourtNoticeV4/SearchCourtAnnouncement", "");
     }
     //失信信息
     public void CourtV4_SearchShiXin(
@@ -578,7 +579,7 @@ public class GetOriginQccService {
                 "pageIndex", 1,
                 "isExactlySame", true
         );
-        getDataList("CourtV4_SearchShiXin", queries,DOMAIN_PRX + "/CourtV4/SearchShiXin", "");
+        getDataList("CourtV4_SearchShiXin", queries,QCC_DOMAIN_PRX + "/CourtV4/SearchShiXin", "");
     }
     //失信被执行人信息
     public void  CourtV4_SearchZhiXing(
@@ -590,7 +591,7 @@ public class GetOriginQccService {
                 "pageIndex", 1,
                 "isExactlySame", true
         );
-        getDataList("CourtV4_SearchZhiXing", queries,DOMAIN_PRX + "/CourtV4/SearchZhiXing", "");
+        getDataList("CourtV4_SearchZhiXing", queries,QCC_DOMAIN_PRX + "/CourtV4/SearchZhiXing", "");
     }
     //获取司法协助信息
     public void JudicialAssistance_GetJudicialAssistance(
@@ -599,7 +600,7 @@ public class GetOriginQccService {
         Map queries = C.newMap(
                 "keyWord", keyWord
         );
-        String res = QccUtil.getData(DOMAIN_PRX + "/JudicialAssistance/GetJudicialAssistance", queries);
+        String res = QccUtil.getData(QCC_DOMAIN_PRX + "/JudicialAssistance/GetJudicialAssistance", queries);
         saveOriginData("JudicialAssistance_GetJudicialAssistance", queries, res);
     }
     // 投资图谱
@@ -611,7 +612,7 @@ public class GetOriginQccService {
                 "upstreamCount", 4,
                 "downstreamCount", 4
         );
-        String res = QccUtil.getData(DOMAIN_PRX + "/ECIRelationV4/SearchTreeRelationMap", queries);
+        String res = QccUtil.getData(QCC_DOMAIN_PRX + "/ECIRelationV4/SearchTreeRelationMap", queries);
         saveOriginData("ECIRelationV4_SearchTreeRelationMap", queries, res);
     }
     // 股权结构图
@@ -621,7 +622,7 @@ public class GetOriginQccService {
         Map queries = C.newMap(
                 "keyNo", keyNo
         );
-        String res = QccUtil.getData(DOMAIN_PRX + "/ECIRelationV4/GetCompanyEquityShareMap", queries);
+        String res = QccUtil.getData(QCC_DOMAIN_PRX + "/ECIRelationV4/GetCompanyEquityShareMap", queries);
         saveOriginData("ECIRelationV4_GetCompanyEquityShareMap", queries, res);
     }
     // 企业图谱
@@ -631,7 +632,7 @@ public class GetOriginQccService {
         Map queries = C.newMap(
                 "keyNo", keyNo
         );
-        String res = QccUtil.getData(DOMAIN_PRX + "/ECIRelationV4/GenerateMultiDimensionalTreeCompanyMap", queries);
+        String res = QccUtil.getData(QCC_DOMAIN_PRX + "/ECIRelationV4/GenerateMultiDimensionalTreeCompanyMap", queries);
         saveOriginData("ECIRelationV4_GenerateMultiDimensionalTreeCompanyMap", queries, res);
     }
 

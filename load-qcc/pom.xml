@@ -175,12 +175,12 @@
             <version>13.0</version>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>com.beeasy</groupId>
-            <artifactId>hz-ms-qcc</artifactId>
-            <version>1.6.4</version>
-            <scope>compile</scope>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>com.beeasy</groupId>-->
+            <!--<artifactId>hz-ms-qcc</artifactId>-->
+            <!--<version>1.6.4</version>-->
+            <!--<scope>compile</scope>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
