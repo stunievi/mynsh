@@ -9,19 +9,23 @@
 </head>
 <body>
 <div>
-    <textarea id="src" rows="10" cols="30"></textarea>
+    as:<input type="text" id="as">
+    <div></div>
+    <textarea id="src" rows="10" cols="60"></textarea>
 </div>
 <div>
-    <textarea id="target" rows="10" cols="30"></textarea>
+    <textarea id="target" rows="10" cols="60"></textarea>
 </div>
 <script>
     src.onchange = function () {
         var val = src.value;
+        var asv = as.value
         var newval = val
             .split("\n")
             .map(line => {
                 console.log(line.split("\t"))
-                return toLine(line.split("\t")[0])
+                var key = toLine(line.split("\t")[0]);
+                return (asv ? asv + "." : "") + key + (asv ? " as " + asv + "_" + key : "")
             })
             .join(",\n");
         target.value = newval
@@ -32,7 +36,7 @@
         if(str.charAt(0) == '_'){
             str = str.substr(1)
         }
-        str = str.replace(/_+/g,"_")
+        str = str.replace(/_+/g,"_").toUpperCase()
         return str
     }
 </script>

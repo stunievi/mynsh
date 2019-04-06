@@ -9,16 +9,11 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 
 public class Route {
-    public Pattern regexp;
+    public String regexp;
     public IHandler handler;
 
-    public Route(Pattern regexp, IHandler request) {
-        this.regexp = regexp;
-        this.handler = request;
-    }
-
     public Route(String regexp, IHandler request){
-        this.regexp = Pattern.compile(regexp);
+        this.regexp = (regexp);
         this.handler = request;
     }
 

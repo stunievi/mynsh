@@ -24,6 +24,7 @@ import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http2.Http2CodecUtil;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.util.CharsetUtil;
+import org.apache.activemq.ActiveMQConnectionFactory;
 import org.beetl.sql.core.*;
 import org.beetl.sql.core.db.DB2SqlStyle;
 import org.beetl.sql.core.engine.PageQuery;
@@ -32,10 +33,12 @@ import org.osgl.$;
 import org.osgl.util.C;
 import org.osgl.util.S;
 
+import javax.jms.*;
 import javax.sql.DataSource;
 import java.nio.charset.Charset;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.Queue;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -452,6 +455,15 @@ class ZedService {
      * netty 服务
      */
     public Object doNettyRequest(ChannelHandlerContext ctx, FullHttpRequest request){
+        System.out.println("fuck");
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        if(true)
+            return null;
+
         if(!request.method().equals(HttpMethod.POST)){
             return null;
         }
@@ -465,6 +477,8 @@ class ZedService {
 //    public Object doDeconstruct(ChannelHandlerContext ctx, FullHttpRequest req){
 //        return deconstructService.doNettyRequest(ctx, req);
 //    }
+
+
 
     public void initDB(boolean dev){
         JSONObject ds = config.getJSONObject("datasource");

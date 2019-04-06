@@ -21,11 +21,9 @@ public class App {
         zedService.initDB(false);
 
         //routes
-        HttpServerHandler.AddRoute(new Route(Pattern.compile("^\\/zed"), (ctx, req) -> {
+        HttpServerHandler.AddRoute(new Route(("^/zed"), (ctx, req) -> {
             return zedService.doNettyRequest(ctx, req);
         }));
-
-
 
         //注册查询接口
         QccService.register(zedService);

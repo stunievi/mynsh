@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import cn.hutool.core.util.CharsetUtil;
 import cn.hutool.json.JSONArray;
@@ -22,6 +23,7 @@ class HttpServerHandler extends ChannelInboundHandlerAdapter {
     private static final AsciiString CONNECTION = new AsciiString("Connection");
     private static final AsciiString KEEP_ALIVE = new AsciiString("keep-alive");
     public static Throwable LastException = null;
+    private static Map<String, Pattern> urlRegexs = new HashMap<>();
 
     public static void AddRoute(Route ...routes){
         RouteList.addAll(Arrays.asList(routes));
@@ -32,10 +34,14 @@ class HttpServerHandler extends ChannelInboundHandlerAdapter {
     }
 
     public FullHttpResponse get404(){
-        String body = "failed";
-        FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND, Unpooled.wrappedBuffer(body.getBytes()));
-        response.headers().set("Content-Type", "text/html");
-        response.headers().set("Content-Length", body.length());
+        JSONObject object = new JSONObject();
+        object.put("Status", "500");
+        object.put("Message", "错误请求");
+        String json = object.toJSONString(4);
+        byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
+        FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND, Unpooled.wrappedBuffer(bytes));
+        response.headers().set("Content-Type", "application/json; charset=utf-8");
+        response.headers().set("Content-Length", bytes.length);
         return response;
     }
 
@@ -57,8 +63,7 @@ class HttpServerHandler extends ChannelInboundHandlerAdapter {
             boolean keepAlive = HttpUtil.isKeepAlive(request);
 
             for (Route route : RouteList) {
-                Matcher m = route.regexp.matcher(request.uri());
-                if(!m.find()){
+                if(!matches(request.uri(), route.regexp)){
                     continue;
                 }
 
@@ -88,8 +93,9 @@ class HttpServerHandler extends ChannelInboundHandlerAdapter {
                 }
 
                 write(ctx, response, keepAlive);
-                break;
+                return;
             }
+            throw new RuntimeException();
         }
     }
 
@@ -122,21 +128,41 @@ class HttpServerHandler extends ChannelInboundHandlerAdapter {
         return params;
     }
 
-    public static Map<String, Object> getGetParamsFromChannel(FullHttpRequest fullHttpRequest) {
+//    public static Map<String, Object> getGetParamsFromChannel(FullHttpRequest fullHttpRequest) {
+//
+//        Map<String, Object> params = new HashMap<String, Object>();
+//
+//        if (fullHttpRequest.method() == HttpMethod.GET) {
+//            // 处理get请求
+//            QueryStringDecoder decoder = new QueryStringDecoder(fullHttpRequest.uri());
+//            Map<String, List<String>> paramList = decoder.parameters();
+//            for (Map.Entry<String, List<String>> entry : paramList.entrySet()) {
+//                params.put(entry.getKey(), entry.getValue().get(0));
+//            }
+//            return params;
+//        } else {
+//            return null;
+//        }
+//
+//    }
 
-        Map<String, Object> params = new HashMap<String, Object>();
-
-        if (fullHttpRequest.method() == HttpMethod.GET) {
-            // 处理get请求
-            QueryStringDecoder decoder = new QueryStringDecoder(fullHttpRequest.uri());
-            Map<String, List<String>> paramList = decoder.parameters();
-            for (Map.Entry<String, List<String>> entry : paramList.entrySet()) {
-                params.put(entry.getKey(), entry.getValue().get(0));
-            }
-            return params;
-        } else {
-            return null;
+    public static boolean matches(String url, String pattern) {
+//        pattern = pattern ;
+        Pattern p = urlRegexs.get(pattern);
+        if (p == null) {
+            p = Pattern.compile(pattern);
+            urlRegexs.put(pattern, p);
         }
-
+        Matcher m = p.matcher(url);
+        if(m.find()){
+            if(url.length() == m.end()){
+                return true;
+            }
+            char c = url.charAt(m.end());
+            if(c == '?' || c == '#' || c == '/' || c == '.'){
+                return true;
+            }
+        }
+        return false;
     }
 }

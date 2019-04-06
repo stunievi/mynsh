@@ -4,8 +4,10 @@ package com.beeasy.zed;
 //import com.alibaba.fastjson.JSONArray;
 //import com.alibaba.fastjson.JSONObject;
 
+import static com.beeasy.zed.Utils.*;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.URLUtil;
 import cn.hutool.json.*;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
@@ -34,7 +36,6 @@ public class DeconstructService {
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
     private static SimpleDateFormat isoSdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
     private static SimpleDateFormat ymdSdf = new SimpleDateFormat("yyyy-MM-dd");
-    private static Map<String, Pattern> urlRegexs = new HashMap<>();
     private static Map<String, DeconstructHandler> handlers = new HashMap<>();
 
     public DeconstructService(){}
@@ -59,9 +60,9 @@ public class DeconstructService {
                 return null;
             }
             DSTransactionManager.start();
-            String url = request.headers().getAsString("Proxy-Url");
+            String url = URLUtil.getPath(request.headers().getAsString("Proxy-Url"));
             for (Map.Entry<String, DeconstructHandler> entry : handlers.entrySet()) {
-                if(matches(url, entry.getKey())){
+                if(HttpServerHandler.matches(url,entry.getKey())){
                     Object handler = entry.getValue();
                     entry.getValue().call(ctx, request, (JSON) json.get("Result"));
                     break;
@@ -134,6 +135,9 @@ public class DeconstructService {
         if (objects.length < 1) {
             return;
         }
+        if (objects[0] == null) {
+            return;
+        }
         LinkedList changeList = new LinkedList(Arrays.asList(objects));
         Object json = changeList.removeFirst();
         if (json instanceof JSONArray) {
@@ -188,20 +192,308 @@ public class DeconstructService {
         DeconstructService service = new DeconstructService();
         service.sqlManager = zedService.sqlManager;
 
-        HttpServerHandler.AddRoute(new Route(Pattern.compile("^\\/deconstruct"), (ctx, req) -> {
+        HttpServerHandler.AddRoute(new Route(("/deconstruct"), (ctx, req) -> {
             return service.doNettyRequest(ctx, req);
         }));
 
-        registerHandler("SearchShiXin", service::SearchShiXin);
-        registerHandler("SearchZhiXing", service::SearchZhiXing);
-        registerHandler("SearchJudgmentDoc", service::SearchJudgmentDoc);
-        registerHandler("GetJudgementDetail", service::GetJudgementDetail);
-        registerHandler("SearchCourtAnnouncement", service::SearchCourtAnnouncement);
-        registerHandler("SearchCourtAnnouncementDetail", service::SearchCourtAnnouncementDetail);
-        registerHandler("SearchCourtNotice", service::SearchCourtNotice);
-        registerHandler("GetCourtNoticeInfo", service::GetCourtNoticeInfo);
+        registerHandler("/CourtV4/SearchShiXin", service::SearchShiXin);
+        registerHandler("/CourtV4/SearchZhiXing", service::SearchZhiXing);
+        registerHandler("/JudgeDocV4/SearchJudgmentDoc", service::SearchJudgmentDoc);
+        registerHandler("/JudgeDocV4/GetJudgementDetail", service::GetJudgementDetail);
+        registerHandler("/CourtNoticeV4/SearchCourtAnnouncement", service::SearchCourtAnnouncement);
+        registerHandler("/CourtNoticeV4/SearchCourtAnnouncementDetail", service::SearchCourtAnnouncementDetail);
+        registerHandler("/CourtAnnoV4/SearchCourtNotice", service::SearchCourtNotice);
+        registerHandler("/CourtAnnoV4/GetCourtNoticeInfo", service::GetCourtNoticeInfo);
+        registerHandler("/JudicialAssistance/GetJudicialAssistance", service::GetJudicialAssistance);
+        registerHandler("/ECIException/GetOpException", service::GetOpException);
+        registerHandler("/JudicialSale/GetJudicialSaleList", service::GetJudicialSaleList);
+        registerHandler("/JudicialSale/GetJudicialSaleDetail", service::GetJudicialSaleDetail);
+        registerHandler("/LandMortgage/GetLandMortgageList", service::GetLandMortgageList);
+        registerHandler("/LandMortgage/GetLandMortgageDetails", service::GetLandMortgageDetails);
+        registerHandler("/EnvPunishment/GetEnvPunishmentList",service::GetEnvPunishmentList);
+        registerHandler("/EnvPunishment/GetEnvPunishmentDetails",service::GetEnvPunishmentDetails);
+        registerHandler("/ChattelMortgage/GetChattelMortgage", service::GetChattelMortgage);
 
         return service;
+    }
+
+    /**
+     * 动产抵押表
+     *
+     * @param channelHandlerContext
+     * @param request
+     * @param json
+     */
+    private void GetChattelMortgage(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
+        String compName = getQuery(request, "keyWord");
+        JSONArray array = (JSONArray) json;
+        doDelete("QCC_CHATTEL_MORTGAGE", "company_name", compName);
+        doDelete("QCC_CMD_PLEDGE", "company_name", compName);
+        doDelete("QCC_CMD_PLEDGEE_LIST", "company_name", compName);
+        doDelete("QCC_CMD_SECURED_CLAIM", "company_name", compName);
+        doDelete("QCC_CMD_GUARANTEE_LIST", "company_name", compName);
+        doDelete("QCC_CMD_CANCEL_INFO", "company_name", compName);
+        doDelete("QCC_CMD_CHANGE_LIST", "company_name", compName);
+        for (Object object : array) {
+            JSONObject obj = (JSONObject) object;
+            changeField(
+                obj,
+                "+RegisterDate", ValueGenerator.createYmdDate("RegisterDate"),
+                "+PublicDate", ValueGenerator.createYmdDate("PublicDate"),
+                "+company_name", compName
+            );
+            JSONObject ret = (JSONObject) deconstruct(obj, "QCC_CHATTEL_MORTGAGE", "");
+            String id = ret.getStr("inner_id");
+            //pledge
+            JSONObject pledge =  obj.getByPath("Detail.Pledge", JSONObject.class);
+            if (isNotJsonNull(pledge)) {
+                changeField(pledge,
+                    "+cm_id", id,
+                    "+company_name", compName,
+                    "+REGIST_DATE", ValueGenerator.createYmdDate("REGIST_DATE"));
+                deconstruct(pledge, "QCC_CMD_PLEDGE", "");
+            }
+            //PledgeeList
+            JSONArray pledgeeList =  obj.getByPath("Detail.PledgeeList",JSONArray.class);
+            if (isNotJsonNull(pledgeeList)) {
+                changeField(pledgeeList,
+                    "+cm_id", id,
+                    "+company_name", compName
+                    );
+                deconstruct(pledgeeList, "QCC_CMD_PLEDGEE_LIST", "");
+            }
+            //SecuredClaim
+            JSONObject securedClaim =  obj.getByPath("Detail.SecuredClaim",JSONObject.class);
+            if (isNotJsonNull(securedClaim)) {
+                changeField(securedClaim,
+                    "+cm_id", id,
+                    "+company_name", compName);
+                deconstruct(securedClaim, "QCC_CMD_SECURED_CLAIM", "");
+            }
+            //GuaranteeList
+            JSONArray GuaranteeList = obj.getByPath("Detail.GuaranteeList",JSONArray.class);
+            if (isNotJsonNull(GuaranteeList)) {
+                changeField(GuaranteeList,
+                   "+cm_id", id,
+                   "+company_name", compName
+                    );
+                deconstruct(GuaranteeList, "QCC_CMD_GUARANTEE_LIST", "");
+            }
+
+            //CancelInfo
+            JSONObject CancelInfo = (JSONObject) obj.getByPath("Detail.CancelInfo", JSONObject.class);
+            if (isNotJsonNull(CancelInfo)) {
+                changeField(CancelInfo,
+                    "+cm_id", id,
+                    "+company_name", compName);
+                deconstruct(CancelInfo, "QCC_CMD_CANCEL_INFO", "");
+            }
+
+            //ChangeList
+            JSONArray ChangeList = obj.getByPath("Detail.ChangeList",JSONArray.class);
+            if (isNotJsonNull(ChangeList)) {
+                changeField(ChangeList,
+                    "+cm_id", id,
+                    "+company_name", compName
+                    );
+                deconstruct(ChangeList, "QCC_CMD_CHANGE_LIST", "");
+            }
+        }
+    }
+
+    /**
+     * 环保处罚详情
+     * @param channelHandlerContext
+     * @param request
+     * @param json
+     */
+    private void GetEnvPunishmentDetails(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
+        String id = getQuery(request, "id");
+        changeField(json,
+            "+PunishDate", ValueGenerator.createYmdDate("PunishDate")
+            );
+        deconstruct(json, "QCC_ENV_PUNISHMENT_LIST", "Id");
+    }
+
+    /**
+     * 环保处罚列表
+     * @param channelHandlerContext
+     * @param request
+     * @param json
+     */
+    private void GetEnvPunishmentList(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
+        String compName = getQuery(request, "keyWord");
+        changeField(json,
+            "+company_name", compName,
+            "+PunishDate", ValueGenerator.createYmdDate("PunishDate")
+            );
+        deconstruct(json, "QCC_ENV_PUNISHMENT_LIST", "Id");
+    }
+
+    /**
+     * 土地抵押详情
+     * @param channelHandlerContext
+     * @param request
+     * @param json
+     */
+    private void GetLandMortgageDetails(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
+        String id = getQuery(request, "id");
+        changeField(
+            json,
+            "+OnBoardStartTime", ValueGenerator.createYmdDate("OnBoardStartTime"),
+            "+OnBoardEndTime", ValueGenerator.createYmdDate("OnBoardEndTime"),
+            "+Id", id
+        );
+        deconstruct(json, "QCC_LAND_MORTGAGE", "Id");
+        JSONObject object = (JSONObject) json;
+        doDelete("JG_LM_PEOPLE_RE", "cn_id", id);
+        child1:{
+            JSONObject inner = object.getJSONObject("MortgagePeople");
+            if (inner == null) {
+                break child1;
+            }
+            JSONObject obj = newJsonObject(
+                "cn_id", id,
+                "key_no", inner.getStr("KeyNo"),
+                "name", inner.getStr("Name"),
+                "type", "02"
+            );
+            deconstruct(obj, "JG_LM_PEOPLE_RE", "");
+        }
+        child2:{
+            JSONObject inner = object.getJSONObject("MortgagorName");
+            if (inner == null) {
+                break child2;
+            }
+            JSONObject obj = newJsonObject(
+                "cn_id", id,
+                "key_no", inner.getStr("KeyNo"),
+                "name", inner.getStr("Name"),
+                "type", "01"
+            );
+            deconstruct(obj, "JG_LM_PEOPLE_RE", "");
+        }
+    }
+
+    /**
+     * 土地抵押列表
+     * @param channelHandlerContext
+     * @param request
+     * @param json
+     */
+    private void GetLandMortgageList(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
+        String compName = getQuery(request, "keyWord");
+        changeField(json,
+            "+StartDate", ValueGenerator.createYmdDate("StartDate"),
+            "+EndDate", ValueGenerator.createYmdDate("EndDate"),
+            "+company_name", compName
+        );
+        deconstruct(json, "QCC_LAND_MORTGAGE", "Id");
+    }
+
+    /**
+     * 司法拍卖详情
+     * @param channelHandlerContext
+     * @param request
+     * @param json
+     */
+    private void GetJudicialSaleDetail(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
+        String id = getQuery(request, "id");
+        changeField(json,
+            "+Id", id
+        );
+        deconstruct(json, "QCC_JUDICIAL_SALE", "Id");
+    }
+
+    /**
+     * 司法拍卖列表
+     *
+     * @param channelHandlerContext
+     * @param request
+     * @param json
+     */
+    private void GetJudicialSaleList(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
+        String compName = getQuery(request, "keyWord");
+        changeField(json,
+            "Executegov->ExecuteGov",
+            "Name->title",
+            "+company_name", compName
+            );
+        deconstruct(json, "QCC_JUDICIAL_SALE", "Id");
+    }
+
+    private void GetOpException(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
+        String compName = getQuery(request,"keyNo");
+        changeField(json,
+            "+RemoveDate", ValueGenerator.createIsoDate("RemoveDate"),
+            "+AddDate", ValueGenerator.createIsoDate("AddDate"),
+            "+company_name", compName
+            );
+        doDelete("QCC_OP_EXCEPTION", "company_name", compName);
+        deconstruct(json, "QCC_OP_EXCEPTION", "");
+    }
+
+    /**
+     * 司法协助信息
+     *
+     * @param channelHandlerContext
+     * @param request
+     * @param json
+     */
+    private void GetJudicialAssistance(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
+        String companyName = getQuery(request, "keyWord");
+        doDelete("QCC_JUDICIAL_ASSISTANCE", "company_name", companyName);
+        doDelete("QCC_EQUITY_FREEZE_DETAIL", "company_name", companyName);
+        changeField(json,
+            "+company_name", getQuery(request,"keyWord")
+        );
+        JSONArray _array = (JSONArray) deconstruct(json, "QCC_JUDICIAL_ASSISTANCE", "");
+        JSONArray array = (JSONArray) json;
+        int i = 0;
+        for (Object o : array) {
+            JSONObject object = (JSONObject) o;
+            if(object.containsKey("EquityFreezeDetail")){
+                JSONObject detail = object.getJSONObject("EquityFreezeDetail");
+                if(detail != null && detail.size() > 0){
+                    changeField(detail,
+                        "+FreezeStartDate", ValueGenerator.createYmdDate("FreezeStartDate"),
+                        "+FreezeEndDate", ValueGenerator.createYmdDate("FreezeEndDate"),
+                        "+PublicDate", ValueGenerator.createYmdDate("PublicDate"),
+                        "+ja_id", _array.getJSONObject(i).getStr("inner_id"),
+                        "+company_name", companyName,
+                        "+FREEZE_TYPE", "1"
+                    );
+                    deconstruct(detail, "QCC_EQUITY_FREEZE_DETAIL", "");
+                }
+            }
+            if(object.containsKey("EquityUnFreezeDetail")){
+                JSONObject detail = object.getJSONObject("EquityUnFreezeDetail");
+                if(detail != null && detail.size() > 0) {
+                    changeField(detail,
+                        "+UnFreezeDate", ValueGenerator.createYmdDate("FreezeStartDate"),
+                        "+PublicDate", ValueGenerator.createYmdDate("PublicDate"),
+                        "+ja_id", _array.getJSONObject(i).getStr("inner_id"),
+                        "+company_name", companyName,
+                        "+FREEZE_TYPE", "2"
+                    );
+                    deconstruct(detail, "QCC_EQUITY_FREEZE_DETAIL", "");
+                }
+            }
+            if(object.containsKey("JudicialPartnersChangeDetail")) {
+                JSONObject detail = object.getJSONObject("JudicialPartnersChangeDetail");
+                if(detail != null && detail.size() > 0) {
+                    changeField(detail,
+                        "+AssistExecDate", ValueGenerator.createYmdDate("FreezeStartDate"),
+                        "+ja_id", array.getJSONObject(i).getStr("inner_id"),
+                        "+company_name", companyName,
+                        "+FREEZE_TYPE", "3"
+                    );
+                    deconstruct(detail, "QCC_EQUITY_FREEZE_DETAIL", "");
+                }
+            }
+
+            i++;
+        }
     }
 
     /**
@@ -224,9 +516,9 @@ public class DeconstructService {
                 .stream()
                 .map(o -> {
                     JSONObject kv = new JSONObject();
-                    kv.put("Name", kv.getStr("Name"));
+                    kv.put("Name", o.getStr("Name"));
                     kv.put("cn_id", id);
-                    kv.put("key_no", kv.getStr("KeyNo"));
+                    kv.put("key_no", o.getStr("KeyNo"));
                     kv.put("type", "01");
                     return kv;
                 })
@@ -238,9 +530,9 @@ public class DeconstructService {
                 .stream()
                 .map(o -> {
                     JSONObject kv = new JSONObject();
-                    kv.put("Name", kv.getStr("Name"));
+                    kv.put("Name", o.getStr("Name"));
                     kv.put("cn_id", id);
-                    kv.put("key_no", kv.getStr("KeyNo"));
+                    kv.put("key_no", o.getStr("KeyNo"));
                     kv.put("type", "02");
                     return kv;
                 })
@@ -263,9 +555,9 @@ public class DeconstructService {
      */
     private void SearchCourtNotice(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         changeField(json,
-            "Defendantlist->Defendant_list",
+            "-Defendantlist",
+            "-Prosecutorlist",
             "Executegov->Execute_gov",
-            "Prosecutorlist->Prosecutor_list",
             "LianDate", ValueGenerator.createYmdhmsDate("LianDate"),
             "LianDate->Li_an_Date",
             "+company_name", getQuery(request, "searchKey")
@@ -285,6 +577,10 @@ public class DeconstructService {
             "+Id", getQuery(request, "id")
             );
         deconstruct(json, "QCC_COURT_ANNOUNCEMENT", "Id");
+        JSONObject object = (JSONObject) json;
+        if(object.containsKey("NameKeyNoCollection")){
+
+        }
     }
 
     /**
@@ -296,7 +592,8 @@ public class DeconstructService {
      */
     private void SearchCourtAnnouncement(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         changeField(json,
-            "-PublishedDate"
+            "-PublishedDate",
+            "+company_name", getQuery(request, "companyName")
             );
         deconstruct(json, "QCC_COURT_ANNOUNCEMENT", "Id");
     }
@@ -313,7 +610,12 @@ public class DeconstructService {
             "+SubmitDate", ValueGenerator.createYmdhmsDate("SubmitDate"),
             "+UpdateDate", ValueGenerator.createYmdhmsDate("UpdateDate"),
             "+CreateDate", ValueGenerator.createYmdhmsDate("CreateDate"),
-            "+JudgeDate", ValueGenerator.createYmdhmsDate("JudgeDate")
+            "+JudgeDate", ValueGenerator.createYmdhmsDate("JudgeDate"),
+            "+Appellor", ValueGenerator.createStrList("Appellor"),
+            "Defendantlist->DefendantList",
+            "Prosecutorlist->ProsecutorList",
+            "+DefendantList", ValueGenerator.createStrList("DefendantList"),
+            "+ProsecutorList", ValueGenerator.createStrList("ProsecutorList")
         );
         deconstruct(json, "QCC_JUDGMENT_DOC", "Id");
 
@@ -427,155 +729,16 @@ public class DeconstructService {
         deconstruct(array, "QCC_ZHIXING", "Id");
     }
 
-
-    /**
-     * 土地拍卖详情
-     *
-     * @param ctx
-     * @param request
-     * @param array
-     */
-    private void deGetLandMortgageDetails(ChannelHandlerContext ctx, FullHttpRequest request, JSONObject array) {
-        changeField(array, C.newList(
-            "+Id", getQuery(request, "id"),
-            "-MortgagePeople,MortgagorName"
-        ));
-        deconstruct(array, "QCC_LAND_MORTGAGE", "Id");
-    }
-
-    /**
-     * 土地拍卖列表
-     *
-     * @param ctx
-     * @param request
-     * @param array
-     */
-    private void deGetLandMortgageList(ChannelHandlerContext ctx, FullHttpRequest request, JSONArray array) {
-        changeField(array, C.newList(
-            "+company_name", getQuery(request, "keyWord")
-        ));
-        deconstruct(array, "QCC_LAND_MORTGAGE", "Id");
-    }
-
-    /**
-     * 司法拍卖列表
-     *
-     * @param ctx
-     * @param request
-     * @param array
-     */
-    private void deGetJudicialSaleList(ChannelHandlerContext ctx, FullHttpRequest request, JSONArray array) {
-        changeField(array, C.newList(
-            "+company_name", getQuery(request, "keyWord")
-        ));
-        deconstruct(array, "QCC_JUDICIAL_SALE", "Id");
-    }
-
-
-    /**
-     * 司法拍卖详情
-     *
-     * @param ctx
-     * @param request
-     * @param array
-     */
-    private void deGetJudicialSaleDetail(ChannelHandlerContext ctx, FullHttpRequest request, JSONObject object) {
-        changeField(object, C.newList(
-            "+Id", getQuery(request, "id")
-        ));
-        deconstruct(object, "QCC_JUDICIAL_SALE", "Id");
-    }
-
-    /**
-     * 经营异常
-     *
-     * @param ctx
-     * @param request
-     * @param json
-     */
-    private void deGetOpException(ChannelHandlerContext ctx, FullHttpRequest request, JSONArray array) {
-        String companyName = getQuery(request, "keyNo");
-        doDelete("QCC_OP_EXCEPTION", "company_name", companyName);
-        changeField(array, C.newList(
-            "+COMPANY_NAME", companyName
-        ));
-        deconstruct(array, "QCC_OP_EXCEPTION", "");
-    }
-
-    /**
-     * 司法协助
-     *
-     * @param ctx
-     * @param request
-     * @param json
-     */
-    private void deGetJudicialAssistance(ChannelHandlerContext ctx, FullHttpRequest request, JSONArray array) {
-//        JSONArray array = json.getJSONArray("Result");
-        //补充公司名
-        String companyName = getQuery(request, "keyWord");
-        for (Object object : array) {
-            JSONObject kv = (JSONObject) object;
-            kv.put("COMPANY_NAME", companyName);
-            kv.remove("EquityFreezeDetail");
-            kv.remove("EquityUnFreezeDetail");
-            kv.remove("JudicialPartnersChangeDetail");
-        }
-        deconstruct(array, "QCC_JUDICIAL_ASSISTANCE", "COMPANY_NAME");
-    }
-
-    /**
-     * 法院公告详情
-     *
-     * @param ctx
-     * @param request
-     * @param object
-     */
-    private void deSearchCourtAnnouncementDetail(ChannelHandlerContext ctx, FullHttpRequest request, JSONObject object) {
-        //详情不给ID真逗B
-        object.remove("PublishDate");
-        object.put("Id", getQuery(request, "id"));
-        deconstruct(object, "QCC_COURT_ANNOUNCEMENT", "Id");
-    }
-
-    /**
-     * 开庭公告列表
-     * 该表过于逗B，字段格式以详情为准
-     *
-     * @param ctx
-     * @param request
-     * @param json
-     */
-    private void deSearchCourtNotice(ChannelHandlerContext ctx, FullHttpRequest request, JSONArray array) {
-        changeField(array, C.newList(
-            "Executegov->ExecuteGov"
-        ));
-//        for (Object object : array) {
-//            JSONObject obj = (JSONObject) object;
-//            String value = obj.getStr("Executegov");
-//            obj.remove("Executegov");
-//            obj.put("ExecuteGov", value);
-//        }
-        deconstruct(array, "QCC_COURT_NOTICE", "Id");
-    }
-
-    /**
-     * 开庭公告详情
-     *
-     * @param ctx
-     * @param request
-     * @param json
-     */
-    private void deGetCourtNoticeInfo(ChannelHandlerContext ctx, FullHttpRequest request, JSONObject object) {
-        object.remove("PublishDate");
-        JSONObject params = HttpServerHandler.decodeProxyQuery(request);
-        if (!params.containsKey("id")) {
-            return;
-        }
-        object.put("Id", params.get("id"));
-        deconstruct(object, "QCC_COURT_NOTICE", "Id");
-    }
-
     private JSON deconstruct(JSON obj, String tableName, String existKey) {
+        if (obj == null) {
+           return null;
+        }
+        if(obj instanceof JSONArray && ((JSONArray) obj).size() == 0){
+            return obj;
+        }
+        if(obj instanceof JSONObject && ((JSONObject) obj).size() == 0){
+            return obj;
+        }
         StringBuilder sb = new StringBuilder();
         Date now = new Date();
         if (obj instanceof JSONObject) {
@@ -696,16 +859,16 @@ public class DeconstructService {
         return S.eq(object.getStr("Status"), "200");
     }
 
-    private boolean matches(String url, String pattern) {
-        pattern = "\\b" + pattern + "\\b";
-        Pattern p = urlRegexs.get(pattern);
-        if (p == null) {
-            p = Pattern.compile(pattern);
-            urlRegexs.put(pattern, p);
-        }
-        Matcher m = p.matcher(url);
-        return m.find();
-    }
+//    private boolean matches(String url, String pattern) {
+//        pattern = "\\b" + pattern + "\\b";
+//        Pattern p = urlRegexs.get(pattern);
+//        if (p == null) {
+//            p = Pattern.compile(pattern);
+//            urlRegexs.put(pattern, p);
+//        }
+//        Matcher m = p.matcher(url);
+//        return m.find();
+//    }
 
     private String camelToUnderline(String param) {
         if (param == null || "".equals(param.trim())) {
@@ -733,6 +896,9 @@ public class DeconstructService {
     }
 
     private static Date convertIsoDate(String str) {
+        if (str == null) {
+            return null;
+        }
         try {
             return isoSdf.parse(str);
         } catch (ParseException e) {
@@ -742,6 +908,9 @@ public class DeconstructService {
     }
 
     private static Date convertYmdDate(String str) {
+        if (S.blank(str)) {
+           return null;
+        }
         try {
             return ymdSdf.parse(str);
         } catch (Exception e) {
@@ -760,6 +929,16 @@ public class DeconstructService {
 
     public interface ValueGenerator {
         Object call(JSONObject kv);
+
+        public static ValueGenerator createStrList(String key){
+            return kv -> {
+                JSONArray array = kv.getJSONArray(key);
+                if (array == null) {
+                    return "[]";
+                }
+                return array.toJSONString(0);
+            };
+        }
 
         public static ValueGenerator createIsoDate(String key) {
             return kv -> convertIsoDate(kv.getStr(key));
