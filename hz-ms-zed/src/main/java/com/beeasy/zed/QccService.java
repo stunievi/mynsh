@@ -60,17 +60,102 @@ public class QccService {
         registerRoute("/EnvPunishment/GetEnvPunishmentDetails",service::GetEnvPunishmentDetails);
     }
 
+
     /**
-     * 环保处罚详情
-     * @param channelHandlerContext
-     * @param request
-     * @param params
-     * @return
+     *
+     * @apiDefine PageParam
+     *
+     * @apiParam {int} pageIndex 页码，默认1
+     * @apiParam {int} pageSize 每页数量，默认10
+     *
+     */
+
+    /**
+     * @apiDefine QccError
+     *
+     * @apiErrorExample 请求异常:
+     * {
+     *     "Status": "500",
+     *     "Message": "错误请求"
+     * }
+     */
+
+    /**
+     * @api {get} /EnvPunishment/GetEnvPunishmentDetails 环保处罚详情
+     * @apiGroup QCC
+     * @apiVersion 0.0.1
+     *
+     * @apiParam {string} id id
+     *
+     * @apiSuccess {string} CaseNo 决定书文号
+     * @apiSuccess {string} IllegalType 违法类型
+     * @apiSuccess {string} PunishReason 处罚事由
+     * @apiSuccess {string} PunishBasis 处罚依据
+     * @apiSuccess {string} PunishmentResult 处罚结果
+     * @apiSuccess {string} PunishDate 处罚日期
+     * @apiSuccess {string} PunishGov 处罚单位
+     * @apiSuccess {string} Implementation 执行情况
+     *
+     * @apiSuccessExample 请求成功:
+     * {
+     *     "Status": "200",
+     *     "Message": "查询成功",
+     *     "Result": {
+     *         "CaseNo": "资环罚[2017]48号",
+     *         "PunishGov": "资阳市环境保护局",
+     *         "PunishDate": "2017-09-30 12:00:00",
+     *         "PunishmentResult": "我局决定对你单位处以3万元（大写：叁万元整）的罚款。",
+     *         "PunishBasis": "依据《建设项目环保保护管理条例》第二十八条之规定。",
+     *         "IllegalType": "",
+     *         "PunishReason": "发现你单位实施了以下环境违法行为：你单位新建汽车零部件项目未经环保竣工验收即投产使用。",
+     *         "Implementation": ""
+     *     }
+     * }
+     *
+     * @apiUse QccError
      */
     private Object GetEnvPunishmentDetails(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
         return singleQuery("qcc.查询环保处罚详情", params);
     }
 
+    /**
+     * @api {get} /EnvPunishment/GetEnvPunishmentList 环保处罚列表
+     * @apiGroup QCC
+     * @apiVersion 0.0.1
+     *
+     * @apiParam {string} keyWord 公司全名
+     * @apiUse PageParam
+     *
+     * @apiSuccess {string} Id Id
+     * @apiSuccess {string} CaseNo 决定书文号
+     * @apiSuccess {string} PunishDate 处罚日期
+     * @apiSuccess {string} IllegalType 违法类型
+     * @apiSuccess {string} PunishGov 处罚单位
+     *
+     *
+     * @apiSuccessExample 请求成功:
+     * {
+     *     "Status": "200",
+     *     "Message": "查询成功",
+     *     "Paging": {
+     *         "PageSize": 10,
+     *         "TotalRecords": 1,
+     *         "PageIndex": 1
+     *     },
+     *     "Result": [
+     *         {
+     *             "CaseNo": "资环罚[2017]48号",
+     *             "PunishGov": "资阳市环境保护局",
+     *             "PunishDate": "2017-09-30 12:00:00",
+     *             "IllegalType": "",
+     *             "Id": "17e3156d060094b649c7f8be77d15fa2",
+     *             "BeetlRn": 1
+     *         }
+     *     ]
+     * }
+     *
+     * @apiUse QccError
+     */
     /**
      * 环保处罚列表
      * @param channelHandlerContext

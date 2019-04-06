@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div>
+    <textarea id="src" rows="10" cols="60"></textarea>
+</div>
+<div>
+    <textarea id="target" rows="10" cols="60"></textarea>
+</div>
+</body>
+</html>
+<script>
+
+    var timer = null;
+    src.oninput = function () {
+       if(timer != null){
+           clearTimeout(timer)
+       }
+       timer = setTimeout(function () {
+          timer = null;
+           var val = src.value;
+           var newval = val
+               .split("\n")
+               .map(i => {
+                   var arr = i.split(/[\s\t]+/);
+                   console.log(arr)
+                    return `@apiSuccess {${arr[1].toLowerCase()}} ${arr[0]} ${arr[2]}  `
+               });
+           newval = newval.join("\n");
+           target.value = newval
+       },1000/60);
+    }
+</script>

@@ -23,6 +23,7 @@ import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http2.Http2CodecUtil;
 import io.netty.handler.codec.string.StringDecoder;
+import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.util.CharsetUtil;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.beetl.sql.core.*;
@@ -531,17 +532,35 @@ class ZedService {
             ServerBootstrap b = new ServerBootstrap();
             b.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
-                    .childHandler(new ChannelInitializer<SocketChannel>() {
-                        @Override
-                        public void initChannel(SocketChannel ch) throws Exception {
-                            ChannelPipeline pipeline = ch.pipeline();
 
-                            pipeline.addLast(new HttpServerCodec());
-                            pipeline.addLast( new HttpObjectAggregator(1024 * 1024));
-                            pipeline.addLast(new StringDecoder(Charset.forName("UTF-8")));
-                            pipeline.addLast(new HttpServerHandler());
-                        }
-                    });
+//                    .childHandler(new ChannelInitializer<SocketChannel>() {
+//                        @Override
+//                        public void initChannel(SocketChannel ch) throws Exception {
+//                            ChannelPipeline pipeline = ch.pipeline();
+//
+//                            pipeline.addLast(new HttpServerCodec());
+//                            pipeline.addLast( new HttpObjectAggregator(1024 * 1024));
+//                            pipeline.addLast(new StringDecoder(Charset.forName("UTF-8")));
+//                            pipeline.addLast(new HttpServerHandler());
+//                        }
+//                    })
+                .childHandler(new ChannelInitializer<SocketChannel>(){
+
+
+                    @Override
+                    protected void initChannel(SocketChannel ch) throws Exception {
+                        ChannelPipeline pipeline = ch.pipeline();
+                        //将请求和应答消息编码或解码为HTTP消息
+                        pipeline.addLast(new HttpServerCodec());
+                        //将HTTP消息的多个部分组合成一条完整的HTTP消息
+                        pipeline.addLast(new HttpObjectAggregator(1024 * 1024));
+                        pipeline.addLast(new StringDecoder(Charset.forName("UTF-8")));
+                        pipeline.addLast(new ChunkedWriteHandler());
+                        pipeline.addLast(new HttpStaticHandleAdapter());
+                        pipeline.addLast(new HttpServerHandler());
+
+                    }
+                });
             ThreadUtil.execAsync(() -> {
                 System.out.println("boot success");
             });

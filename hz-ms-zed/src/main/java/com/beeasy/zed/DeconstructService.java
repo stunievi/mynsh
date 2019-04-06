@@ -310,7 +310,8 @@ public class DeconstructService {
     private void GetEnvPunishmentDetails(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         String id = getQuery(request, "id");
         changeField(json,
-            "+PunishDate", ValueGenerator.createYmdDate("PunishDate")
+            "+PunishDate", ValueGenerator.createYmdDate("PunishDate"),
+            "+Id", id
             );
         deconstruct(json, "QCC_ENV_PUNISHMENT_LIST", "Id");
     }
