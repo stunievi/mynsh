@@ -227,74 +227,76 @@ public class DeconstructService {
     private void GetChattelMortgage(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         String compName = getQuery(request, "keyWord");
         JSONArray array = (JSONArray) json;
-        doDelete("QCC_CHATTEL_MORTGAGE", "company_name", compName);
-        doDelete("QCC_CMD_PLEDGE", "company_name", compName);
-        doDelete("QCC_CMD_PLEDGEE_LIST", "company_name", compName);
-        doDelete("QCC_CMD_SECURED_CLAIM", "company_name", compName);
-        doDelete("QCC_CMD_GUARANTEE_LIST", "company_name", compName);
-        doDelete("QCC_CMD_CANCEL_INFO", "company_name", compName);
-        doDelete("QCC_CMD_CHANGE_LIST", "company_name", compName);
+        doDelete("QCC_CHATTEL_MORTGAGE", "inner_company_name", compName);
+        doDelete("QCC_CMD_PLEDGE", "inner_company_name", compName);
+        doDelete("QCC_CMD_PLEDGEE_LIST", "inner_company_name", compName);
+        doDelete("QCC_CMD_SECURED_CLAIM", "inner_company_name", compName);
+        doDelete("QCC_CMD_GUARANTEE_LIST", "inner_company_name", compName);
+        doDelete("QCC_CMD_CANCEL_INFO", "inner_company_name", compName);
+        doDelete("QCC_CMD_CHANGE_LIST", "inner_company_name", compName);
         for (Object object : array) {
             JSONObject obj = (JSONObject) object;
             changeField(
                 obj,
                 "+RegisterDate", ValueGenerator.createYmdDate("RegisterDate"),
                 "+PublicDate", ValueGenerator.createYmdDate("PublicDate"),
-                "+company_name", compName
+                "+inner_company_name", compName
             );
             JSONObject ret = (JSONObject) deconstruct(obj, "QCC_CHATTEL_MORTGAGE", "");
             String id = ret.getStr("inner_id");
             //pledge
             JSONObject pledge =  obj.getByPath("Detail.Pledge", JSONObject.class);
-            if (isNotJsonNull(pledge)) {
+            if (pledge != null) {
                 changeField(pledge,
                     "+cm_id", id,
-                    "+company_name", compName,
+                    "+inner_company_name", compName,
                     "+REGIST_DATE", ValueGenerator.createYmdDate("REGIST_DATE"));
                 deconstruct(pledge, "QCC_CMD_PLEDGE", "");
             }
             //PledgeeList
-            JSONArray pledgeeList =  obj.getByPath("Detail.PledgeeList",JSONArray.class);
-            if (isNotJsonNull(pledgeeList)) {
+            JSONArray pledgeeList = (JSONArray) obj.getByPath("Detail.PledgeeList",JSON.class);
+            if (pledgeeList != null) {
                 changeField(pledgeeList,
                     "+cm_id", id,
-                    "+company_name", compName
+                    "+inner_company_name", compName
                     );
                 deconstruct(pledgeeList, "QCC_CMD_PLEDGEE_LIST", "");
             }
             //SecuredClaim
             JSONObject securedClaim =  obj.getByPath("Detail.SecuredClaim",JSONObject.class);
-            if (isNotJsonNull(securedClaim)) {
+            if (securedClaim != null) {
                 changeField(securedClaim,
                     "+cm_id", id,
-                    "+company_name", compName);
+                    "+inner_company_name", compName);
                 deconstruct(securedClaim, "QCC_CMD_SECURED_CLAIM", "");
             }
             //GuaranteeList
-            JSONArray GuaranteeList = obj.getByPath("Detail.GuaranteeList",JSONArray.class);
-            if (isNotJsonNull(GuaranteeList)) {
+            JSONArray GuaranteeList = (JSONArray) obj.getByPath("Detail.GuaranteeList",JSON.class);
+            if (GuaranteeList != null) {
                 changeField(GuaranteeList,
                    "+cm_id", id,
-                   "+company_name", compName
+                   "+inner_company_name", compName
                     );
                 deconstruct(GuaranteeList, "QCC_CMD_GUARANTEE_LIST", "");
             }
 
             //CancelInfo
             JSONObject CancelInfo = (JSONObject) obj.getByPath("Detail.CancelInfo", JSONObject.class);
-            if (isNotJsonNull(CancelInfo)) {
+            if (CancelInfo != null) {
                 changeField(CancelInfo,
                     "+cm_id", id,
-                    "+company_name", compName);
+                    "+CancelDate", ValueGenerator.createYmdDate("CancelDate"),
+                    "+inner_company_name", compName);
                 deconstruct(CancelInfo, "QCC_CMD_CANCEL_INFO", "");
             }
 
             //ChangeList
-            JSONArray ChangeList = obj.getByPath("Detail.ChangeList",JSONArray.class);
-            if (isNotJsonNull(ChangeList)) {
+            JSONArray ChangeList = (JSONArray) obj.getByPath("Detail.ChangeList",JSON.class);
+            if (ChangeList != null) {
                 changeField(ChangeList,
                     "+cm_id", id,
-                    "+company_name", compName
+                    "+ChangeDate", ValueGenerator.createYmdDate("ChangeDate"),
+                    "+inner_company_name", compName
                     );
                 deconstruct(ChangeList, "QCC_CMD_CHANGE_LIST", "");
             }
@@ -325,7 +327,7 @@ public class DeconstructService {
     private void GetEnvPunishmentList(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         String compName = getQuery(request, "keyWord");
         changeField(json,
-            "+company_name", compName,
+            "+inner_company_name", compName,
             "+PunishDate", ValueGenerator.createYmdDate("PunishDate")
             );
         deconstruct(json, "QCC_ENV_PUNISHMENT_LIST", "Id");
@@ -387,7 +389,7 @@ public class DeconstructService {
         changeField(json,
             "+StartDate", ValueGenerator.createYmdDate("StartDate"),
             "+EndDate", ValueGenerator.createYmdDate("EndDate"),
-            "+company_name", compName
+            "+inner_company_name", compName
         );
         deconstruct(json, "QCC_LAND_MORTGAGE", "Id");
     }
@@ -418,7 +420,7 @@ public class DeconstructService {
         changeField(json,
             "Executegov->ExecuteGov",
             "Name->title",
-            "+company_name", compName
+            "+inner_company_name", compName
             );
         deconstruct(json, "QCC_JUDICIAL_SALE", "Id");
     }
@@ -428,9 +430,9 @@ public class DeconstructService {
         changeField(json,
             "+RemoveDate", ValueGenerator.createIsoDate("RemoveDate"),
             "+AddDate", ValueGenerator.createIsoDate("AddDate"),
-            "+company_name", compName
+            "+inner_company_name", compName
             );
-        doDelete("QCC_OP_EXCEPTION", "company_name", compName);
+        doDelete("QCC_OP_EXCEPTION", "inner_company_name", compName);
         deconstruct(json, "QCC_OP_EXCEPTION", "");
     }
 
@@ -443,10 +445,10 @@ public class DeconstructService {
      */
     private void GetJudicialAssistance(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         String companyName = getQuery(request, "keyWord");
-        doDelete("QCC_JUDICIAL_ASSISTANCE", "company_name", companyName);
-        doDelete("QCC_EQUITY_FREEZE_DETAIL", "company_name", companyName);
+        doDelete("QCC_JUDICIAL_ASSISTANCE", "inner_company_name", companyName);
+        doDelete("QCC_EQUITY_FREEZE_DETAIL", "inner_company_name", companyName);
         changeField(json,
-            "+company_name", getQuery(request,"keyWord")
+            "+inner_company_name", getQuery(request,"keyWord")
         );
         JSONArray _array = (JSONArray) deconstruct(json, "QCC_JUDICIAL_ASSISTANCE", "");
         JSONArray array = (JSONArray) json;
@@ -460,8 +462,8 @@ public class DeconstructService {
                         "+FreezeStartDate", ValueGenerator.createYmdDate("FreezeStartDate"),
                         "+FreezeEndDate", ValueGenerator.createYmdDate("FreezeEndDate"),
                         "+PublicDate", ValueGenerator.createYmdDate("PublicDate"),
-                        "+ja_id", _array.getJSONObject(i).getStr("inner_id"),
-                        "+company_name", companyName,
+                        "+ja_inner_id", _array.getJSONObject(i).getStr("inner_id"),
+                        "+inner_company_name", companyName,
                         "+FREEZE_TYPE", "1"
                     );
                     deconstruct(detail, "QCC_EQUITY_FREEZE_DETAIL", "");
@@ -473,8 +475,8 @@ public class DeconstructService {
                     changeField(detail,
                         "+UnFreezeDate", ValueGenerator.createYmdDate("FreezeStartDate"),
                         "+PublicDate", ValueGenerator.createYmdDate("PublicDate"),
-                        "+ja_id", _array.getJSONObject(i).getStr("inner_id"),
-                        "+company_name", companyName,
+                        "+ja_inner_id", _array.getJSONObject(i).getStr("inner_id"),
+                        "+inner_company_name", companyName,
                         "+FREEZE_TYPE", "2"
                     );
                     deconstruct(detail, "QCC_EQUITY_FREEZE_DETAIL", "");
@@ -485,8 +487,8 @@ public class DeconstructService {
                 if(detail != null && detail.size() > 0) {
                     changeField(detail,
                         "+AssistExecDate", ValueGenerator.createYmdDate("FreezeStartDate"),
-                        "+ja_id", array.getJSONObject(i).getStr("inner_id"),
-                        "+company_name", companyName,
+                        "+ja_inner_id", array.getJSONObject(i).getStr("inner_id"),
+                        "+inner_company_name", companyName,
                         "+FREEZE_TYPE", "3"
                     );
                     deconstruct(detail, "QCC_EQUITY_FREEZE_DETAIL", "");
@@ -518,7 +520,7 @@ public class DeconstructService {
                 .map(o -> {
                     JSONObject kv = new JSONObject();
                     kv.put("Name", o.getStr("Name"));
-                    kv.put("cn_id", id);
+                    kv.put("id", id);
                     kv.put("key_no", o.getStr("KeyNo"));
                     kv.put("type", "01");
                     return kv;
@@ -532,7 +534,7 @@ public class DeconstructService {
                 .map(o -> {
                     JSONObject kv = new JSONObject();
                     kv.put("Name", o.getStr("Name"));
-                    kv.put("cn_id", id);
+                    kv.put("id", id);
                     kv.put("key_no", o.getStr("KeyNo"));
                     kv.put("type", "02");
                     return kv;
@@ -542,8 +544,8 @@ public class DeconstructService {
         }
 
         if(list.size() > 0){
-            doDelete("JG_NOTICE_PEOPLE_RE", "cn_id", object.getStr("Id"));
-            deconstruct(list, "JG_NOTICE_PEOPLE_RE", "");
+            doDelete("QCC_COURT_NOTICE_PEOPLE", "id", object.getStr("Id"));
+            deconstruct(list, "QCC_COURT_NOTICE_PEOPLE", "");
         }
 
     }
@@ -561,7 +563,7 @@ public class DeconstructService {
             "Executegov->Execute_gov",
             "LianDate", ValueGenerator.createYmdhmsDate("LianDate"),
             "LianDate->Li_an_Date",
-            "+company_name", getQuery(request, "searchKey")
+            "+inner_company_name", getQuery(request, "searchKey")
             );
         deconstruct(json, "QCC_COURT_NOTICE", "Id");
     }
@@ -574,13 +576,27 @@ public class DeconstructService {
      */
     private void SearchCourtAnnouncementDetail(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         changeField(json,
-            "-PublishDate",
+            "PublishDate->PublishedDate",
+            "+PublishedDate", ValueGenerator.createYmdhmsDate("PublishedDate"),
+            "+SubmitDate", ValueGenerator.createYmdhmsDate("SubmitDate"),
             "+Id", getQuery(request, "id")
             );
         deconstruct(json, "QCC_COURT_ANNOUNCEMENT", "Id");
         JSONObject object = (JSONObject) json;
-        if(object.containsKey("NameKeyNoCollection")){
-
+        nkn :{
+            if(!object.containsKey("NameKeyNoCollection")){
+                break nkn;
+            }
+            JSONArray array = object.getJSONArray("NameKeyNoCollection");
+            if (array == null) {
+                break nkn;
+            }
+            changeField(
+                array,
+                "+id", object.getStr("Id")
+            );
+            doDelete("QCC_COURT_ANNOUNCEMENT_PEOPLE", "id", object.getStr("Id"));
+            deconstruct(array, "QCC_COURT_ANNOUNCEMENT_PEOPLE", "");
         }
     }
 
@@ -594,7 +610,7 @@ public class DeconstructService {
     private void SearchCourtAnnouncement(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         changeField(json,
             "-PublishedDate",
-            "+company_name", getQuery(request, "companyName")
+            "+inner_company_name", getQuery(request, "companyName")
             );
         deconstruct(json, "QCC_COURT_ANNOUNCEMENT", "Id");
     }
@@ -622,39 +638,59 @@ public class DeconstructService {
 
         //解构子表
         JSONObject object = (JSONObject) json;
-        if(object.containsKey("CourtNoticeList")){
-            //清空关联信息
-            doDelete("JG_JD_NOTICE_RE", "CN_ID", object.getStr("Id"));
-            JSONArray array = (JSONArray) object.getByPath("CourtNoticeList.CourtNoticeInfo");
-            array = JSONUtil.parseArray(array.stream()
-                .map(i -> {
-                    JSONObject kv = (JSONObject) i;
-                    JSONObject ret = new JSONObject();
-                    ret.put("CN_ID", object.getStr("Id"));
-                    ret.put("QCC_ID", kv.getStr("Id"));
-                    return ret;
-                })
-                .toArray()
-            );
-            deconstruct(array, "JG_JD_NOTICE_RE", "");
+        cnlist :{
+            if(object.containsKey("CourtNoticeList")){
+                JSONArray array = (JSONArray) object.getByPath("CourtNoticeList.CourtNoticeInfo", JSON.class);
+                if (array == null) {
+                    break cnlist;
+                }
+                //清空关联信息
+                doDelete("QCC_JUDGMENT_DOC_CN", "QCC_DETAILS_ID", object.getStr("Id"));
+                changeField(array,
+                    "+TOTAL_NUM", object.getByPath("CourtNoticeList.TotalNum", String.class),
+                    "+QCC_DETAILS_ID", object.getStr("Id")
+                    );
+//                array = JSONUtil.parseArray(array.stream()
+//                    .map(i -> {
+//                        JSONObject kv = (JSONObject) i;
+//                        changeField();
+//                        JSONObject ret = new JSONObject();
+//                        ret.put("CN_ID", object.getStr("Id"));
+//                        ret.put("QCC_ID", kv.getStr("Id"));
+//                        return ret;
+//                    })
+//                    .toArray()
+//                );
+                deconstruct(array, "QCC_JUDGMENT_DOC_CN", "");
+            }
         }
 
-        if(object.containsKey("RelatedCompanies")){
-            doDelete("JG_JD_COM_RE", "JD_ID", object.getStr("Id"));
-            JSONArray array = object.getJSONArray("RelatedCompanies");
-            array = JSONUtil.parseArray(
-                array.stream()
-                .map(i -> {
-                    JSONObject kv = (JSONObject) i;
-                    JSONObject ret = new JSONObject();
-                    ret.put("jd_id", object.getStr("Id"));
-                    ret.put("key_no", kv.getStr("KeyNo"));
-                    ret.put("name", kv.getStr("Name"));
-                    return ret;
-                })
-                .toArray()
-            );
-            deconstruct(array, "JG_JD_COM_RE", "");
+        rc:{
+            if(object.containsKey("RelatedCompanies")){
+                JSONArray array = object.getJSONArray("RelatedCompanies");
+                if (array == null) {
+                    break rc;
+                }
+                changeField(array,
+                    "+QCC_DETAILS_ID", object.getStr("Id")
+                );
+
+                doDelete("QCC_JUDGMENT_DOC_COM", "QCC_DETAILS_ID", object.getStr("Id"));
+
+//                array = JSONUtil.parseArray(
+//                    array.stream()
+//                        .map(i -> {
+//                            JSONObject kv = (JSONObject) i;
+//                            JSONObject ret = new JSONObject();
+//                            ret.put("jd_id", object.getStr("Id"));
+//                            ret.put("key_no", kv.getStr("KeyNo"));
+//                            ret.put("name", kv.getStr("Name"));
+//                            return ret;
+//                        })
+//                        .toArray()
+//                );
+                deconstruct(array, "QCC_JUDGMENT_DOC_COM", "");
+            }
         }
     }
 
@@ -669,7 +705,7 @@ public class DeconstructService {
         changeField(json,
             "+SubmitDate", ValueGenerator.createYmdhmsDate("SubmitDate"),
             "+UpdateDate", ValueGenerator.createYmdhmsDate("UpdateDate"),
-            "+company_name", getQuery(request, "searchKey")
+            "+inner_company_name", getQuery(request, "searchKey")
             );
         deconstruct(json, "QCC_JUDGMENT_DOC", "Id");
     }
@@ -702,7 +738,7 @@ public class DeconstructService {
             "Executeno->Execute_no",
             "Performedpart->Performed_part",
             "Unperformpart->Unperform_part",
-            "+company_name", getQuery(request, "searchKey")
+            "+inner_company_name", getQuery(request, "searchKey")
         );
         deconstruct(json, "QCC_SHIXIN", "Id");
     }
@@ -725,7 +761,7 @@ public class DeconstructService {
             "Anno->An_no",
             "Biaodi->Biao_di",
             "Updatedate->Update_date",
-            "+company_name", getQuery(request, "searchKey")
+            "+inner_company_name", getQuery(request, "searchKey")
         );
         deconstruct(array, "QCC_ZHIXING", "Id");
     }

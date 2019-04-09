@@ -484,7 +484,6 @@ class ZedService {
     public void initDB(boolean dev){
         JSONObject ds = config.getJSONObject("datasource");
 
-
         ConnectionSource source;
         if(dev){
             //实例化类

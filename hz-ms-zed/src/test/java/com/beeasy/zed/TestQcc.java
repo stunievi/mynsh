@@ -5,17 +5,24 @@ import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.URLUtil;
 import cn.hutool.http.HttpUtil;
+import cn.hutool.json.JSON;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.*;
+import org.beetl.sql.core.SQLBatchReady;
 import org.beetl.sql.core.SQLManager;
 import org.beetl.sql.core.SQLReady;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
+import org.junit.runners.model.InitializationError;
+import org.junit.runners.model.RunnerBuilder;
+import org.junit.runners.model.RunnerScheduler;
 import org.osgl.util.S;
 
 import java.io.FileNotFoundException;
@@ -24,8 +31,12 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
+
 
 public class TestQcc {
 
@@ -50,8 +61,6 @@ public class TestQcc {
         ThreadUtil.execAsync(zedService::initNetty);
         ThreadUtil.sleep(500);
 
-//        clearTable("QCC_SHIXIN");
-//        clearTable("QCC_ZHIXING");
 //        clearTable("QCC_JUDGMENT_DOC");
 //        clearTable("QCC_COURT_NOTICE");
 //        clearTable("QCC_COURT_ANNOUNCEMENT");
@@ -64,24 +73,27 @@ public class TestQcc {
 
     @Test
     public void SearchShiXin() throws Exception {
-        read("SearchShiXin.json?searchKey=小米");
-        checkPageMatched("/CourtV4/SearchShiXin?searchKey=小米");
+        clearTable("QCC_SHIXIN");
+        read("/CourtV4/SearchShiXin.json?searchKey=惠州市帅星贸易有限公司");
+        checkPageMatched("/CourtV4/SearchShiXin?searchKey=惠州市帅星贸易有限公司");
     }
 
     @Test
     public void SearchZhiXing() throws Exception {
-        read("SearchZhiXing.json?searchKey=小米");
-        checkPageMatched("/CourtV4/SearchZhiXing?searchKey=小米");
+        clearTable("QCC_ZHIXING");
+        read("/CourtV4/SearchZhiXing.json?searchKey=惠州市帅星贸易有限公司");
+        checkPageMatched("/CourtV4/SearchZhiXing?searchKey=惠州市帅星贸易有限公司");
     }
 
     @Test
-    public void testSearchJudgmentDoc() throws Exception {
-        JSONObject object = read("/JudgeDocV4/SearchJudgmentDoc.json?searchKey=小米");
+    public void SearchJudgmentDoc() throws Exception {
+        clearTable("QCC_JUDGMENT_DOC_COM","QCC_JUDGMENT_DOC_CN","QCC_JUDGMENT_DOC");
+        JSONObject object = read("/JudgeDocV4/SearchJudgmentDoc.json?searchKey=惠州市帅星贸易有限公司");
         String id = object.getByPath("Result.0.Id", String.class);
         assertNotNull(id);
         read("/JudgeDocV4/GetJudgementDetail.json?id=" + id);
 
-        checkPageMatched("/JudgeDocV4/SearchJudgmentDoc?searchKey=小米");
+        checkPageMatched("/JudgeDocV4/SearchJudgmentDoc?searchKey=惠州市帅星贸易有限公司");
         JSONObject detail = checkObjectMatched("/JudgeDocV4/GetJudgementDetail?id=" + id);
         assertTrue(detail.get("Appellor") instanceof JSONArray);
         assertTrue(detail.get("DefendantList") instanceof JSONArray);
@@ -90,13 +102,15 @@ public class TestQcc {
 
     @Test
     public void SearchCourtAnnouncement() throws Exception {
-        JSONObject object = read("SearchCourtAnnouncement.json?companyName=小米");
+        clearTable("QCC_COURT_ANNOUNCEMENT","QCC_COURT_ANNOUNCEMENT_PEOPLE");
+        JSONObject object = read("/CourtNoticeV4/SearchCourtAnnouncement.json?companyName=惠州市帅星贸易有限公司");
         String id = object.getByPath("Result.0.Id", String.class);
         assertNotNull(id);
-        read("SearchCourtAnnouncementDetail.json?id=" + id);
+        read("/CourtNoticeV4/SearchCourtAnnouncementDetail.json?id=" + id);
 
-        checkPageMatched("/CourtNoticeV4/SearchCourtAnnouncement?companyName=小米");
+        checkPageMatched("/CourtNoticeV4/SearchCourtAnnouncement?companyName=惠州市帅星贸易有限公司");
         JSONObject obj = checkObjectMatched("/CourtNoticeV4/SearchCourtAnnouncementDetail?id=" + id);
+        assertTrue(obj.getJSONArray("NameKeyNoCollection").size() > 0);
 
     }
 
@@ -105,12 +119,14 @@ public class TestQcc {
      */
     @Test
     public void SearchCourtNotice() throws Exception {
-        JSONObject object = read("/CourtAnnoV4/SearchCourtNotice.json?searchKey=小米");
+        clearTable("QCC_COURT_NOTICE_PEOPLE", "QCC_COURT_NOTICE");
+
+        JSONObject object = read("/CourtAnnoV4/SearchCourtNotice.json?searchKey=惠州市帅星贸易有限公司");
         String id = object.getByPath("Result.0.Id", String.class);
         assertNotNull(id);
         read("/CourtAnnoV4/GetCourtNoticeInfo.json?id=" + id);
 
-        checkPageMatched("/CourtAnnoV4/SearchCourtNotice?searchKey=小米");
+        checkPageMatched("/CourtAnnoV4/SearchCourtNotice?searchKey=惠州市帅星贸易有限公司");
         JSONObject obj = checkObjectMatched("/CourtAnnoV4/GetCourtNoticeInfo?id=" + id);
         assertTrue(obj.getJSONArray("Prosecutor").size() > 0);
         assertTrue(obj.getJSONArray("Defendant").size() > 0);
@@ -121,8 +137,9 @@ public class TestQcc {
      */
     @Test
     public void GetJudicialAssistance() throws Exception {
-       read("GetJudicialAssistance.json?keyWord=小米");
-        String url = ("/JudicialAssistance/GetJudicialAssistance?keyWord=小米");
+        clearTable("QCC_JUDICIAL_ASSISTANCE", "QCC_EQUITY_FREEZE_DETAIL");
+       read("/JudicialAssistance/GetJudicialAssistance.json?keyWord=惠州市帅星贸易有限公司");
+        String url = ("/JudicialAssistance/GetJudicialAssistance?keyWord=惠州市帅星贸易有限公司");
         JSONObject result = huGet(url);
         assertEquals(result.getStr("Status"),"200");
         JSONArray list = result.getJSONArray("Result");
@@ -137,15 +154,17 @@ public class TestQcc {
      */
     @Test
     public void GetOpException() throws Exception {
-        read("/ECIException/GetOpException.json?keyNo=小米");
-        String url = "/ECIException/GetOpException?keyNo=小米";
+        clearTable("QCC_OP_EXCEPTION");
+        read("/ECIException/GetOpException.json?keyNo=惠州市帅星贸易有限公司");
+        String url = "/ECIException/GetOpException?keyNo=惠州市帅星贸易有限公司";
         JSONArray list = checkListMatched(url);
     }
 
     @Test
     public void GetJudicialSaleList() throws Exception {
-        read("/JudicialSale/GetJudicialSaleList.json?keyWord=小米");
-        String url = "/JudicialSale/GetJudicialSaleList?keyWord=小米";
+        clearTable("QCC_JUDICIAL_SALE");
+        read("/JudicialSale/GetJudicialSaleList.json?keyWord=惠州市帅星贸易有限公司");
+        String url = "/JudicialSale/GetJudicialSaleList?keyWord=惠州市帅星贸易有限公司";
         JSONArray object = checkPageMatched(url);
         String id = object.getByPath("0.Id", String.class);
         assertNotNull(id);
@@ -162,8 +181,8 @@ public class TestQcc {
     public void GetLandMortgageList() throws Exception {
         clearTable("QCC_LAND_MORTGAGE");
         clearTable("JG_LM_PEOPLE_RE");
-        read("/LandMortgage/GetLandMortgageList.json?keyWord=小米");
-        String url = "/LandMortgage/GetLandMortgageList?keyWord=小米";
+        read("/LandMortgage/GetLandMortgageList.json?keyWord=惠州市帅星贸易有限公司");
+        String url = "/LandMortgage/GetLandMortgageList?keyWord=惠州市帅星贸易有限公司";
         JSONArray array = checkPageMatched(url);
         String id = array.getByPath("1.Id", String.class);
         assertNotNull(id);
@@ -179,8 +198,8 @@ public class TestQcc {
     @Test
     public void GetEnvPunishmentList() throws Exception {
         clearTable("QCC_ENV_PUNISHMENT_LIST");
-        read("/EnvPunishment/GetEnvPunishmentList.json?keyWord=小米");
-        JSONArray array = checkPageMatched("/EnvPunishment/GetEnvPunishmentList?keyWord=小米");;
+        read("/EnvPunishment/GetEnvPunishmentList.json?keyWord=惠州市帅星贸易有限公司");
+        JSONArray array = checkPageMatched("/EnvPunishment/GetEnvPunishmentList?keyWord=惠州市帅星贸易有限公司");;
         String id = (String) array.getByPath("0.Id");
         assertNotNull(id);
         read("/EnvPunishment/GetEnvPunishmentDetails.json?id=" + id);
@@ -192,8 +211,17 @@ public class TestQcc {
      */
     @Test
     public void GetChattelMortgage() throws Exception {
-        read("/ChattelMortgage/GetChattelMortgage.json?keyWord=小米");
-
+        clearTable("QCC_CHATTEL_MORTGAGE","QCC_CMD_PLEDGE\n","QCC_CMD_PLEDGEE_LIST\n", "QCC_CMD_SECURED_CLAIM\n","QCC_CMD_GUARANTEE_LIST\n", "QCC_CMD_CANCEL_INFO\n", "QCC_CMD_CHANGE_LIST\n");
+        read("/ChattelMortgage/GetChattelMortgage.json?keyWord=惠州市帅星贸易有限公司");
+        JSONArray list = checkListMatched("/ChattelMortgage/GetChattelMortgage?keyWord=惠州市帅星贸易有限公司");
+        String[] children = {"Pledge","PledgeeList","SecuredClaim", "GuaranteeList","CancelInfo", "ChangeList"};
+        assertTrue(list.size() > 0);
+        for (Object object : list) {
+            JSONObject obj = (JSONObject) object;
+            for (String child : children) {
+                assertNotNull(obj.getByPath("Detail." + child, JSON.class));
+            }
+        }
     }
 //    @Test
 //    public void testGetJudgementDetail(){
@@ -280,13 +308,10 @@ public class TestQcc {
     }
 
 
-    public static void clearTable(String table){
-        String sql = S.fmt("delete from %s", table);
-        try{
+    public static void clearTable(String ...table){
+        for (String s : table) {
+            String sql = S.fmt("delete from %s", s);
             sqlManager.executeUpdate(new SQLReady(sql));
-        } catch (Exception e){
-            e.printStackTrace();
-            assertNull(e);
         }
     }
 }

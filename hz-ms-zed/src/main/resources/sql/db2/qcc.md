@@ -2,19 +2,50 @@
 ===
 select 
 @pageTag(){
-*
+ID,
+SOURCE_ID,
+UNIQUE_NO,
+NAME,
+LI_AN_DATE,
+AN_NO,
+ORG_NO,
+OWNER_NAME,
+EXECUTE_GOV,
+PROVINCE,
+EXECUTE_UNITE,
+YI_WU,
+EXECUTE_STATUS,
+ACTION_REMARK,
+PUBLIC_DATE,
+AGE,
+SEXY,
+UPDATE_DATE,
+EXECUTE_NO,
+PERFORMED_PART,
+UNPERFORM_PART,
+ORG_TYPE,
+ORG_TYPE_NAME
 @}
 from QCC_SHIXIN
-where company_name = #searchKey#
+where inner_company_name = #searchKey#
 
 查询被执行信息
 ===
 select 
 @pageTag(){
-*
+ID,
+SOURCE_ID,
+NAME,
+LI_AN_DATE,
+AN_NO,
+EXECUTE_GOV,
+BIAO_DI,
+STATUS,
+PARTY_CARD_NUM,
+UPDATE_DATE
 @}
 from QCC_ZHIXING
-where company_name = #searchKey#
+where inner_company_name = #searchKey#
 
 查询裁判文书列表
 ===
@@ -37,7 +68,7 @@ Case_Reason_Type,
 Court_Month
 @}
 from QCC_JUDGMENT_DOC
-where company_name = #searchKey#
+where inner_company_name = #searchKey#
 
 查询裁判文书详情
 ===
@@ -82,11 +113,19 @@ where id = #id#
 
 查询裁判文书详情-开庭公告
 ===
-select * from JG_JD_NOTICE_RE where CN_ID = #id#
+select
+CASE_NO,
+OPEN_DATE,
+DEFENDANT,
+CASE_REASON,
+PROSECUTOR,
+ID
+from QCC_JUDGMENT_DOC_CN where QCC_DETAILS_ID = #id#
 
 查询裁判文书详情-关联公司
 ===
-select key_no,name from JG_JD_COM_RE where jd_id = #id#
+select key_no,name from QCC_JUDGMENT_DOC_COM
+where QCC_DETAILS_ID = #id#
 
 查询法院公告列表
 ===
@@ -102,7 +141,7 @@ party,
 id
 @}
 from QCC_COURT_ANNOUNCEMENT
-where COMPANY_NAME = #companyName#
+where inner_company_name = #companyName#
 
 查询法院公告详情
 ===
@@ -112,7 +151,7 @@ CONTENT,
 SUBMIT_DATE,
 PROVINCE,
 CATEGORY,
-PUBLISH_DATE,
+PUBLISHED_DATE,
 PARTY
 from QCC_COURT_ANNOUNCEMENT
 where Id = #id#
@@ -121,7 +160,8 @@ where Id = #id#
 ===
 select 
 key_no,name
-from 
+from QCC_COURT_ANNOUNCEMENT_PEOPLE
+where id = #id#
 
 查询开庭公告列表
 ===
@@ -136,7 +176,7 @@ no.ID,
 no.CASE_NO
 @}
 from 
-QCC_COURT_NOTICE no where company_name = #searchKey#
+QCC_COURT_NOTICE no where inner_company_name = #searchKey#
 
 查询开庭公告详情
 ===
@@ -156,8 +196,8 @@ QCC_COURT_NOTICE where id = #id#
 查询开庭公告关联人
 ===
 select name,key_no
-from JG_NOTICE_PEOPLE_RE 
-where CN_ID = #id# and type = #type#
+from QCC_COURT_NOTICE_PEOPLE 
+where id = #id# and type = #type#
 
 查询司法协助信息
 ===
@@ -199,10 +239,10 @@ d3.ASSIGNEE_REG_NO as d3_ASSIGNEE_REG_NO,
 d3.STOCK_COMPANY_NAME as d3_STOCK_COMPANY_NAME
 
 from QCC_JUDICIAL_ASSISTANCE ja
-left join QCC_EQUITY_FREEZE_DETAIL d1 on ja.inner_id = d1.ja_id and d1.FREEZE_TYPE = 1
-left join QCC_EQUITY_FREEZE_DETAIL d2 on d2.ja_id = ja.inner_id and d2.FREEZE_TYPE = 2
-left join QCC_EQUITY_FREEZE_DETAIL d3 on d3.ja_id = ja.inner_id and d3.FREEZE_TYPE = 3
-where ja.company_name = #keyWord#
+left join QCC_EQUITY_FREEZE_DETAIL d1 on ja.inner_id = d1.ja_inner_id and d1.FREEZE_TYPE = 1
+left join QCC_EQUITY_FREEZE_DETAIL d2 on d2.ja_inner_id = ja.inner_id and d2.FREEZE_TYPE = 2
+left join QCC_EQUITY_FREEZE_DETAIL d3 on d3.ja_inner_id = ja.inner_id and d3.FREEZE_TYPE = 3
+where ja.inner_company_name = #keyWord#
 
 查询企业经营异常信息
 ===
@@ -214,7 +254,7 @@ REMOVE_DATE,
 DECISION_OFFICE,
 REMOVE_DECISION_OFFICE
 from QCC_OP_EXCEPTION
-where company_name = #keyNo#
+where inner_company_name = #keyNo#
 
 查询司法拍卖列表
 ===
@@ -227,7 +267,7 @@ ACTION_REMARK,
 YI_WU
 @}
 from QCC_JUDICIAL_SALE 
-where company_name = #keyWord#
+where inner_company_name = #keyWord#
 
 查询司法拍卖详情
 ===
@@ -249,7 +289,7 @@ START_DATE,
 END_DATE
 @}
 from QCC_LAND_MORTGAGE
-where company_name = #keyWord#
+where inner_company_name = #keyWord#
 
 查询土地抵押详情
 ===
@@ -288,8 +328,7 @@ PUNISH_DATE,
 ILLEGAL_TYPE,
 PUNISH_GOV 
 @}
-from QCC_ENV_PUNISHMENT_LIST where
-company_name = #keyWord#
+from QCC_ENV_PUNISHMENT_LIST where inner_company_name = #keyWord#
 
 查询环保处罚详情
 ===
@@ -304,3 +343,59 @@ PUNISH_GOV,
 IMPLEMENTATION
 from QCC_ENV_PUNISHMENT_LIST where
 id = #id#
+
+查询动产抵押
+===
+select
+cm.REGISTER_NO,
+cm.REGISTER_DATE,
+cm.PUBLIC_DATE,
+cm.REGISTER_OFFICE,
+cm.DEBT_SECURED_AMOUNT,
+cm.inner_id,
+
+ex1.Regist_No as ex1_Regist_No,
+ex1.Regist_Date as ex1_Regist_Date,
+ex1.Regist_Office as ex1_Regist_Office,
+ex2.KIND as ex2_kind,
+ex2.AMOUNT as ex2_AMOUNT,
+ex2.ASSURANCE_SCOPE as ex2_ASSURANCE_SCOPE,
+ex2.FULFILL_OBLIGATION as ex2_FULFILL_OBLIGATION,
+ex2.REMARK as ex2_REMARK,
+ex3.Cancel_Date as ex3_Cancel_Date,
+ex3.Cancel_Reason as ex3_Cancel_Reason
+from QCC_CHATTEL_MORTGAGE cm 
+left join QCC_CMD_PLEDGE ex1 on ex1.CM_ID = cm.inner_id
+left join QCC_CMD_SECURED_CLAIM ex2 on ex2.CM_ID = cm.inner_id
+left join QCC_CMD_CANCEL_INFO ex3 on ex3.CM_ID = cm.inner_id
+where cm.inner_company_name = #keyWord#
+
+查询动产抵押PledgeeList
+===
+select 
+Name,
+Identity_Type,
+Identity_No,
+cm_id
+from QCC_CMD_PLEDGEE_LIST
+where inner_company_name = #keyWord#
+
+查询动产抵押GuaranteeList
+===
+select 
+NAME,
+OWNERSHIP,
+OTHER,
+REMARK,
+cm_id
+from QCC_CMD_GUARANTEE_LIST						
+where inner_company_name = #keyWord#
+
+查询动产抵押ChangeList
+===
+select
+Change_Date,
+Change_Content,
+cm_id
+from QCC_CMD_CHANGE_LIST
+where inner_company_name = #keyWord#
