@@ -41,12 +41,12 @@
                 var Defendantlist = [];
                 var Prosecutorlist = [];
                 data["Appellor"].forEach(val=> Appellor.push(val));
-                data["Defendantlist"].forEach(val=> Defendantlist.push(val));
-                data["Prosecutorlist"].forEach(val=> Prosecutorlist.push(val));
+                data["DefendantList"].forEach(val=> Defendantlist.push(val));
+                data["ProsecutorList"].forEach(val=> Prosecutorlist.push(val));
 
                 data["Appellor"] = Appellor.join("、");
-                data["Defendantlist"] = Defendantlist.join("、");
-                data["Prosecutorlist"] = Prosecutorlist.join("、");
+                data["DefendantList"] = Defendantlist.join("、");
+                data["ProsecutorList"] = Prosecutorlist.join("、");
 
                 $("#article").html(data["Content"]);
                 $("#home").html(panelTableShowRender2({

@@ -37,8 +37,7 @@ public class QccHttpDataService {
 
     JSONObject getSplitChildDataList(
             String collName,
-            Map param,
-            String splitChildName
+            Map param
     ){
         return getQccData(collName, param);
     }

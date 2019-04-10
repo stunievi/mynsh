@@ -1,7 +1,7 @@
-<div role="tabpanel" class="tab-pane active in" id="base" aria-labelledby="base-tab">
+<div role="tabpanel" class="tab-pane" id="base" aria-labelledby="base-tab">
     <div class="data-tab">
         <a class="btn btn-default" href="#base1">工商信息</a>
-        <a class="btn btn-default" href="#base2">企业人员董监高信息</a>
+        <!--<a class="btn btn-default" href="#base2">企业人员董监高信息</a>-->
         <!--<a class="btn btn-default" href="#base3">企业对外投资</a>-->
         <!--<a class="btn btn-default" href="#base4">投资图谱</a>-->
         <!--<a class="btn btn-default" href="#base5">疑似关系</a>-->
@@ -13,7 +13,6 @@
         <a class="btn btn-default" href="#base11">变更信息</a>
         <a class="btn btn-default" href="#base12">联系信息</a>
         <a class="btn btn-default" href="#base13">行业信息</a>
-
     </div>
 
     <div class="panel-qcc" id="base1">
@@ -21,11 +20,11 @@
         <div class="panel-qcc-body" id="base1-body">
         </div>
     </div>
-    <div class="panel panel-default" id="base2">
-        <div class="panel-heading">企业人员董监高信息</div>
-        <div class="panel-body" id="base2-body">
-        </div>
-    </div>
+    <!--<div class="panel-qcc" id="base2">-->
+        <!--<div class="panel-qcc-heading">企业人员董监高信息</div>-->
+        <!--<div class="panel-qcc-body" id="base2-body">-->
+        <!--</div>-->
+    <!--</div>-->
     <!--<div class="panel panel-default" id="base3">-->
         <!--<div class="panel-heading">企业对外投资</div>-->
         <!--<div class="panel-body" id="base3-body">-->
@@ -92,21 +91,21 @@
         <div class="panel-qcc-body" id="base13-body">
         </div>
     </div>
-
 </div>
+
+<script type="text/html" id="toolbar">
+    <div class="layui-toolbar">
+        <a href="javascript:;" class="btn btn-default showStockRelationInfo" data-name="{{d.Name}}">关联信息</a>
+    </div>
+</script>
+
 <script src="/htmlsrc/qichacha/tmpl/eci/qccTable.js"></script>
 <script>
-    var keyNoPromise = $.Deferred();
-    var COMPANY_NAME = "深圳小桔科技有限公司";
-    var QCC_KEY_NO = "";
     $.ajax({
-        url: remoteApi.qccECIGetDetailsByName,
-        data:{
-            keyWord: COMPANY_NAME
-        },
+        url: remoteApi.qccECIGetDetailsByName+"?keyWord="+COMPANY_NAME,
         success: function (res) {
             var data = res.data;
-            QCC_KEY_NO = data.KeyNo;
+            COMPANY_KEY_NO = data.KeyNo;
             keyNoPromise.resolve(data.KeyNo);
             $("#base1-body").html(
                 qccTableRender({
@@ -156,6 +155,7 @@
                 ],
                 data: data.Partners
             });
+            // 主要人员
             if(data.Employees && data.Employees.length > 0){
                 laytableRender({
                     page: false,
@@ -164,10 +164,17 @@
                     cols:[
                         [
                             {title:"姓名",field:"Name"},
-                            {title:"职位",field:"Job"}
+                            {title:"职位",field:"Job"},
+                            { title:'操作', templet: "#toolbar"}
+
                         ]
                     ],
                     data: data.Employees
+                });
+                $(document).on("click", ".showStockRelationInfo", function () {
+                    var name = $(this).data("name");
+                    // addNavTab("StockRelationInfo"+COMPANY_NAME+name, "企业人员董监高信息-"+name, "/htmlsrc/qichacha/CIAEmployee/GetStockRelationInfo.html?companyName="+COMPANY_NAME+"&name="+name);
+                    return false;
                 });
             }else{
                 $("#base9").hide();

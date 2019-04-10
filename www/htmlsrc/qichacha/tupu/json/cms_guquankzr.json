@@ -1,0 +1,303 @@
+{
+  "OrderNumber": "ECIRELATION2019040915451636557943",
+  "Result": {
+    "Name": "中国石油天然气股份有限公司",
+    "KeyNo": "a4fdd816fd23d9bc50b96a70c7fbba49",
+    "Category": "1",
+    "Count": "10",
+    "FundedRatio": "100%",
+    "IsAbsoluteController": "True",
+    "Grade": "1",
+    "ActualControllerLoopPath": [
+      {
+        "Name": "中国石油集团",
+        "StockType": "",
+        "KeyNo": "gb8ef017f1711947e1880839149860b4",
+        "SubConAmt": "14914378.8453万元",
+        "FundedRatio": "81.49%"
+      }
+    ],
+    "OperName": "王宜林",
+    "InParentActualRadio": "0",
+    "Children": [
+      {
+        "Name": "中国石油集团",
+        "KeyNo": "gb8ef017f1711947e1880839149860b4",
+        "Category": "1",
+        "StockType": "",
+        "Count": "0",
+        "SubConAmt": "14914378.8453万元",
+        "FundedRatio": "81.49%",
+        "Children": [],
+        "IsAbsoluteController": "True",
+        "Grade": "2",
+        "OperName": null,
+        "InParentActualRadio": "0.8149",
+        "ParentKeyNo": "a4fdd816fd23d9bc50b96a70c7fbba49"
+      },
+      {
+        "Name": "香港中央结算(代理人)有限公司",
+        "KeyNo": "h1a3ef7ad8ec2e56ba43e250225d1d28",
+        "Category": "1",
+        "StockType": "",
+        "Count": "0",
+        "SubConAmt": "2088269.2677万元",
+        "FundedRatio": "11.41%",
+        "Children": [],
+        "IsAbsoluteController": "False",
+        "Grade": "2",
+        "OperName": null,
+        "InParentActualRadio": "0.1141",
+        "ParentKeyNo": "a4fdd816fd23d9bc50b96a70c7fbba49"
+      },
+      {
+        "Name": "中石油集团-中信建投证券-17中油E2担保及信托财产专户",
+        "KeyNo": "",
+        "Category": "1",
+        "StockType": "自然人股东",
+        "Count": "0",
+        "SubConAmt": "382513.8273万元",
+        "FundedRatio": "2.09%",
+        "Children": null,
+        "IsAbsoluteController": "False",
+        "Grade": "2",
+        "OperName": null,
+        "InParentActualRadio": "0.0209",
+        "ParentKeyNo": "a4fdd816fd23d9bc50b96a70c7fbba49"
+      },
+      {
+        "Name": "中石油集团-中信建投证券-17中油EB担保及信托财产专户",
+        "KeyNo": "",
+        "Category": "1",
+        "StockType": "自然人股东",
+        "Count": "0",
+        "SubConAmt": "206813.6961万元",
+        "FundedRatio": "1.13%",
+        "Children": null,
+        "IsAbsoluteController": "False",
+        "Grade": "2",
+        "OperName": null,
+        "InParentActualRadio": "0.0113",
+        "ParentKeyNo": "a4fdd816fd23d9bc50b96a70c7fbba49"
+      },
+      {
+        "Name": "中国证券金融股份有限公司",
+        "KeyNo": "8434f4e2874e6fd1431416ae131bafd8",
+        "Category": "1",
+        "StockType": "",
+        "Count": "3",
+        "SubConAmt": "113473.0014万元",
+        "FundedRatio": "0.62%",
+        "Children": [
+          {
+            "Name": "深圳证券交易所",
+            "KeyNo": "gf472056400ac562967be344cd676d94",
+            "Category": "1",
+            "StockType": "法人股东",
+            "Count": "0",
+            "SubConAmt": "600000万元",
+            "FundedRatio": "36.363636363636363636363636360%",
+            "Children": null,
+            "IsAbsoluteController": "False",
+            "Grade": "3",
+            "OperName": null,
+            "InParentActualRadio": "0.00225454545454545",
+            "ParentKeyNo": "8434f4e2874e6fd1431416ae131bafd8"
+          },
+          {
+            "Name": "中国证券登记结算有限责任公司",
+            "KeyNo": "bd36856cd988e84d9771cf70399ca35c",
+            "Category": "1",
+            "StockType": "法人股东",
+            "Count": "0",
+            "SubConAmt": "450000万元",
+            "FundedRatio": "27.272727272727272727272727270%",
+            "Children": null,
+            "IsAbsoluteController": "False",
+            "Grade": "3",
+            "OperName": null,
+            "InParentActualRadio": "0.00169090909090909",
+            "ParentKeyNo": "8434f4e2874e6fd1431416ae131bafd8"
+          },
+          {
+            "Name": "上海证券交易所",
+            "KeyNo": "gcdbe26fc92dff6cedb2eec5efec7373",
+            "Category": "1",
+            "StockType": "法人股东",
+            "Count": "0",
+            "SubConAmt": "600000万元",
+            "FundedRatio": "36.363636363636363636363636360%",
+            "Children": null,
+            "IsAbsoluteController": "False",
+            "Grade": "3",
+            "OperName": null,
+            "InParentActualRadio": "0.00225454545454545",
+            "ParentKeyNo": "8434f4e2874e6fd1431416ae131bafd8"
+          }
+        ],
+        "IsAbsoluteController": "False",
+        "Grade": "2",
+        "OperName": "聂庆平",
+        "InParentActualRadio": "0.0062",
+        "ParentKeyNo": "a4fdd816fd23d9bc50b96a70c7fbba49"
+      },
+      {
+        "Name": "北京诚通金控投资有限公司",
+        "KeyNo": "9ddc9e895120f3e5e89998996b794084",
+        "Category": "1",
+        "StockType": "",
+        "Count": "1",
+        "SubConAmt": "97001.1141万元",
+        "FundedRatio": "0.53%",
+        "Children": [
+          {
+            "Name": "中国诚通控股集团有限公司",
+            "KeyNo": "8bf62abd37e59810bc45a85b85893a91",
+            "Category": "1",
+            "StockType": "法人股东",
+            "Count": "0",
+            "SubConAmt": "400000万元",
+            "FundedRatio": "100%",
+            "Children": null,
+            "IsAbsoluteController": "False",
+            "Grade": "3",
+            "OperName": null,
+            "InParentActualRadio": "0.0053",
+            "ParentKeyNo": "9ddc9e895120f3e5e89998996b794084"
+          }
+        ],
+        "IsAbsoluteController": "False",
+        "Grade": "2",
+        "OperName": "朱碧新",
+        "InParentActualRadio": "0.0053",
+        "ParentKeyNo": "a4fdd816fd23d9bc50b96a70c7fbba49"
+      },
+      {
+        "Name": "国新投资有限公司",
+        "KeyNo": "1574a7061608237b00bf53e7fb4975a1",
+        "Category": "1",
+        "StockType": "",
+        "Count": "1",
+        "SubConAmt": "97001.1141万元",
+        "FundedRatio": "0.53%",
+        "Children": [
+          {
+            "Name": "中国国新控股有限责任公司",
+            "KeyNo": "31f47ef590bf9672058356dcf97709e1",
+            "Category": "1",
+            "StockType": "法人股东",
+            "Count": "0",
+            "SubConAmt": "10000万元",
+            "FundedRatio": "100%",
+            "Children": null,
+            "IsAbsoluteController": "False",
+            "Grade": "3",
+            "OperName": null,
+            "InParentActualRadio": "0.0053",
+            "ParentKeyNo": "1574a7061608237b00bf53e7fb4975a1"
+          }
+        ],
+        "IsAbsoluteController": "False",
+        "Grade": "2",
+        "OperName": "高翎",
+        "InParentActualRadio": "0.0053",
+        "ParentKeyNo": "a4fdd816fd23d9bc50b96a70c7fbba49"
+      },
+      {
+        "Name": "中国宝武钢铁集团有限公司",
+        "KeyNo": "75b32f5f6ea51442fe04ef3b39ce6bf2",
+        "Category": "1",
+        "StockType": "",
+        "Count": "1",
+        "SubConAmt": "62227.1298万元",
+        "FundedRatio": "0.34%",
+        "Children": [
+          {
+            "Name": "国务院国有资产监督管理委员会",
+            "KeyNo": "g4bdd6c24056bb434978acfc5f40d168",
+            "Category": "1",
+            "StockType": "机关法人",
+            "Count": "0",
+            "SubConAmt": "5279110.1万元",
+            "FundedRatio": "100%",
+            "Children": null,
+            "IsAbsoluteController": "False",
+            "Grade": "3",
+            "OperName": null,
+            "InParentActualRadio": "0.0034",
+            "ParentKeyNo": "75b32f5f6ea51442fe04ef3b39ce6bf2"
+          }
+        ],
+        "IsAbsoluteController": "False",
+        "Grade": "2",
+        "OperName": "陈德荣",
+        "InParentActualRadio": "0.0034",
+        "ParentKeyNo": "a4fdd816fd23d9bc50b96a70c7fbba49"
+      },
+      {
+        "Name": "鞍钢集团有限公司",
+        "KeyNo": "4b0e6610ebb188e84964011f79590081",
+        "Category": "1",
+        "StockType": "",
+        "Count": "1",
+        "SubConAmt": "43925.0328万元",
+        "FundedRatio": "0.24%",
+        "Children": [
+          {
+            "Name": "国务院国有资产监督管理委员会",
+            "KeyNo": "g4bdd6c24056bb434978acfc5f40d168",
+            "Category": "1",
+            "StockType": "机关法人",
+            "Count": "0",
+            "SubConAmt": "5000000万元",
+            "FundedRatio": "100%",
+            "Children": null,
+            "IsAbsoluteController": "False",
+            "Grade": "3",
+            "OperName": null,
+            "InParentActualRadio": "0.0024",
+            "ParentKeyNo": "4b0e6610ebb188e84964011f79590081"
+          }
+        ],
+        "IsAbsoluteController": "False",
+        "Grade": "2",
+        "OperName": "姚林",
+        "InParentActualRadio": "0.0024",
+        "ParentKeyNo": "a4fdd816fd23d9bc50b96a70c7fbba49"
+      },
+      {
+        "Name": "中央汇金资产管理有限责任公司",
+        "KeyNo": "78c200dd24178853e4a985d918c6bc2e",
+        "Category": "1",
+        "StockType": "",
+        "Count": "1",
+        "SubConAmt": "20132.3067万元",
+        "FundedRatio": "0.11%",
+        "Children": [
+          {
+            "Name": "中央汇金投资有限责任公司",
+            "KeyNo": "210b64792e1e20d8b2cd21a65720e471",
+            "Category": "1",
+            "StockType": "法人股东",
+            "Count": "0",
+            "SubConAmt": "500000万元",
+            "FundedRatio": "100%",
+            "Children": null,
+            "IsAbsoluteController": "False",
+            "Grade": "3",
+            "OperName": null,
+            "InParentActualRadio": "0.0011",
+            "ParentKeyNo": "78c200dd24178853e4a985d918c6bc2e"
+          }
+        ],
+        "IsAbsoluteController": "False",
+        "Grade": "2",
+        "OperName": "张宏安",
+        "InParentActualRadio": "0.0011",
+        "ParentKeyNo": "a4fdd816fd23d9bc50b96a70c7fbba49"
+      }
+    ]
+  },
+  "Status": "200",
+  "Message": "查询成功"
+}

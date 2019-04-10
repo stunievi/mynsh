@@ -22,19 +22,13 @@ public class AutoResQccDataController {
     QccService qccService;
 
     @RequestMapping(value = "/{$model}/{$action}", method = RequestMethod.GET)
-    JSONObject autoQccData(
+    JSONObject autoResQccData(
             @PathVariable String $model
             , @PathVariable String $action
             , @RequestParam Map<String,Object> params
     ) throws IllegalAccessException, InvocationTargetException {
         Class clazz = qccService.getClass();
         try {
-            // 兼容完全透传企查查数据
-            if(params.containsKey("getOriginData")){
-                params.put("getOriginData", "false");
-            }else{
-                params.put("getOriginData", "true");
-            }
             Method method = clazz.getDeclaredMethod($model.concat("_").concat($action), Map.class, boolean.class);
             Object data = method.invoke(qccService,params, true);
             return (JSONObject) JSON.toJSON(data);

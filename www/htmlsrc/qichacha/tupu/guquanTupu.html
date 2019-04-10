@@ -1,0 +1,2534 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 股权图谱 </title>
+    <!--#include file="./tupu-head.html" -->
+</head>
+<body>
+<!--#include file="./mao-head.html" -->
+
+<div class="mao-screen-area" id="screenArea" style="height: 640px;">
+    <div id="main" class="mao-main" style="height: 100%; width: 100%; -webkit-tap-highlight-color: transparent; user-select: none; background-color: rgba(0, 0, 0, 0); cursor: default;">
+        <style type="text/css">
+            .tupu-shuiying::-webkit-scrollbar {
+                width: 0px;
+                height: 10px;
+            }
+            .final-wrap{
+                position: absolute;
+                top: 65px;
+                width: 100%;
+                padding: 10px;
+                box-sizing: border-box;
+            }
+            .final-wrap-title{
+                font-size: 16px;
+                color: #333333;
+            }
+            .final-block{
+                display: inline-block;
+                width: 10px;
+                height: 10px;
+                background: #ef6a6a;
+                border-radius: 50%;
+            }
+            .final-wrap-content{
+
+                color: #333;
+                font-size: 14px;
+                visibility: hidden;
+                text-align: center;
+            }
+            .final-radio-wrap{
+                display: inline-block;
+                height: 14px;
+                width: 80px;
+                position: relative;
+                background: url("https://www.qichacha.com/material/theme/chacha/cms/v2/images/line-arrow.png") no-repeat 0 50%;
+                background-size: 100%;
+            }
+            .final-radio-wrap>span{
+                color: #128bed;
+                font-size: 12px;
+                position: absolute;
+                width: 100%;
+                text-align: center;
+                bottom:50%;
+                left: 0px;
+            }
+            .guquan-legend{
+                position: absolute;
+                width: 100%;
+                padding: 0 0px;
+                visibility: hidden;
+                text-align: center;
+                top: 100px;
+            }
+            .guquan-legend .person-block{
+                display: inline-block;
+                width: 10px;
+                height: 10px;
+                background: #80c3a8;
+                border-radius: 3px;
+            }
+            .guquan-legend .person-text{
+                font-size: 12px;
+                color: #333333;
+            }
+            .guquan-legend .ent-block{
+                display: inline-block;
+                width: 10px;
+                height: 10px;
+                background: #bc9ed3;
+                border-radius: 3px;
+                margin-left: 5px;
+            }
+            .guquan-legend .ent-text{
+                font-size: 12px;
+                color: #333333;
+            }
+            .guquan-legend .big-block{
+                display: inline-block;
+                width: 10px;
+                height: 10px;
+                background: #ef6a6a;
+                border-radius: 3px;
+                margin-left: 5px;
+            }
+            .guquan-legend .big-text{
+                font-size: 12px;
+                color: #333333;
+            }
+            .guquan-legend.his{
+                top: 580px;
+            }
+
+            .company-tupu.tz,.company-tupu.his{
+                display: none;
+            }
+
+            .company-tupu-tab{
+                position: absolute;
+                width: 100%;
+                text-align: center;
+                top: 15px;
+                font-size: 16px;
+            }
+            .company-tupu-tab a.active{
+                color: #128bed;
+                border-bottom: solid 2px #128bed;
+                line-height: 34px;
+                display: inline-block;
+            }
+
+            .company-tupu .his-drop{
+                position: absolute;
+                text-align: center;
+                top: 70px;
+                left: 50%;
+                margin-left: -60px;
+                display: none;
+            }
+            .company-tupu .dropdown-menu>li>a{
+                text-align: left;
+            }
+            .company-tupu .dropdown-menu>li:hover>a{
+                background: #128bed !important;
+                color: #fff;
+            }
+
+
+        </style>
+        <div class="final-wrap">
+            <div class="final-wrap-content" style="visibility: visible;">
+                <span style="font-size: 14px;color: #999;">疑似实际控制人：</span>
+                <span id="final-person">
+                    <!--疑似实际控制人-->
+                </span>
+                <span class="final-radio-wrap">
+      <span id="final-radio">
+          <!--疑似实际控制人控股比例-->
+      </span></span>
+                <span id="final-stock">
+                    <!--控股公司名-->
+                </span></div>
+        </div>
+        <div id="guquanLegend" class="guquan-legend" style="visibility: visible;"> <span class="person-block"></span> <span class="person-text">自然人股东</span> <span class="ent-block"></span> <span class="ent-text">企业股东</span> <span class="big-block"></span> <span class="big-text">大股东</span> </div>
+        <div id="guquanTupu">
+
+        </div>
+    </div>
+    <div class="tupu-toolbar"> <ul> <li id="guquanExtent" onclick="guquanTupu.extend(this)"><span class="extent"></span>展开</li> <li onclick="guquanTupu.refresh()"><span class="refresh"></span>刷新</li> <li onclick="guquanTupu.scale(1)"><span class="big"></span>放大</li> <li onclick="guquanTupu.scale(2)"><span class="small"></span>缩小</li> <li onclick="guquanTupu.saveImg()"><span class="save"></span>保存</li> </ul> </div>
+</div>
+<!--<script src="https://www.qichacha.com/material/theme/chacha/cms/v2/js/jquery.min.js"></script>-->
+<script src="./js/d3.min.js"></script>
+<script type="text/javascript">
+    $("#navTab li:eq(1)").addClass("active");
+    var guquanTupu;
+    var guquanTzTupu;
+    var guquanHisTupu;
+    var rootData;
+    var hisRootData;
+    var investData;
+    var acturalNode = "undefined";
+    var syrArray = [];
+    var holidArray = [];
+    var barHeight = 50;
+    var barWidth = 335;
+    var acturalHisNode;
+    var syrHisArray = [];
+    getDataTupu();
+    //getDataTupuTz();
+    function getDataTupu(){
+        var keyNo = getParam("keyNo");
+        var url = remoteApi.qccECIRelationGetCompanyEquityShareMap;
+        $.ajax({
+            url: url,
+            // url: "./json/cms_guquankzr.json",
+            type: 'GET',
+            data:{
+                keyNo:keyNo,
+            },
+            dataType: 'JSON',
+            success: function (res){
+                var retData = res.Result || res.data;
+                var companyName = retData.Name;
+                var companyKeyNo = retData.KeyNo;
+                var ActualControllerData = retData.ActualControllerLoopPath[0];
+                var gudongList = retData.Children;
+                var data = {};
+                // 疑似实际控制人
+                if(ActualControllerData){
+                    data.kzr = {
+                        CompanyName: companyName,
+                        KeyNo: companyKeyNo,
+                        ControllerData: {
+                            PercentTotal: ActualControllerData.FundedRatio,
+                            Name: ActualControllerData.Name
+                        }
+                    }
+                }
+                // 股东列表
+                if(gudongList && gudongList.length > 0){
+                    var walk = function (obj, data) {
+                        data.forEach(function (item) {
+                            var index = obj.push({
+                                KeyNo: item.KeyNo,
+                                Name: item.Name,
+                                Percent: item.FundedRatio,
+                                ShouldCapi: item.SubConAmt
+                            });
+                            if(item.Children && item.Children.length > 0){
+                                obj[index-1]["DetailList"] = [];
+                                walk(obj[index-1]["DetailList"], item.Children);
+                            }
+                        });
+                        return obj;
+                    };
+                    var gudongItemList = [];
+                    walk(gudongItemList, gudongList);
+                    data.gudong = {
+                        CompanyName: companyName,
+                        EquityShareDetail: gudongItemList
+                    }
+                }
+
+                if(data){
+                    if(data.kzr){
+                        setFianlController(data.kzr);
+                    }else{
+                        $('#final-stock').text(data.gudong.CompanyName);
+                    }
+                    if(data.gudong){
+                        rootData = {
+                            Name: data.gudong.CompanyName,
+                            KeyNo: keyNo,
+                            CompanyCode: data.gudong.CompanyCode,
+                            Org: 2,
+                            DetailList: data.gudong.EquityShareDetail
+                        };
+                        if (data.kzr) {
+                            if (data.kzr.ControllerData) {
+                                acturalNode = data.kzr.ControllerData || "undefined";
+                            }
+                        }
+
+                        if (data.syr) {
+                            syrArray = data.syr.Names || [];
+                        }
+                        addLargeStock(rootData);
+                        addFlag(rootData);
+                        guquanTupu = new drawGuquanTupu(rootData,keyNo);
+                        $('#guquan_nodate').hide();
+                        $(".final-wrap-content").css("visibility","visible");
+                    }else{
+                        $('#guquan_nodate').show();
+                    }
+
+                    if(data.touzi){
+                        investData = {
+                            Name: data.touzi.CompanyName,
+                            KeyNo: keyNo,
+                            CompanyCode: data.touzi.CompanyCode,
+                            Org: 2,
+                            DetailList: data.touzi.EquityShareDetail
+
+                        };
+                        if (data.kg) {
+                            holidArray = data.kg.Names || [];
+                        }
+                        addHolid(investData);
+                        guquanTzTupu = new drawGuquanTzTupu(investData,keyNo);
+                        $('#guquanTz_nodate').hide();
+                    }else{
+                        $('#guquanTz_nodate').show();
+                    }
+
+
+                    if(data.his&&data.his.ChangeDetail.EquityShareDetail){
+                        hisDrop(data.his.ChangeDateList,true);
+                        hisRootData = {
+                            Name: data.his.ChangeDetail.EquityShareDetail.CompanyName,
+                            KeyNo: keyNo,
+                            CompanyCode: data.his.ChangeDetail.EquityShareDetail.CompanyCode,
+                            Org: 2,
+                            DetailList: data.his.ChangeDetail.EquityShareDetail.EquityShareDetail
+                        };
+                        if(data.his.ChangeDetail.ActualController){
+                            acturalHisNode = JSON.parse(data.his.ChangeDetail.ActualController);
+                        }
+                        if(data.his.ChangeDetail.BenifitList){
+                            syrHisArray = JSON.parse(data.his.ChangeDetail.BenifitList);
+                        }
+                        addLargeStock(hisRootData);
+                        addHisFlag(hisRootData);
+                        guquanHisTupu = new drawGuquanHisTupu(hisRootData,keyNo);
+
+                        $('#guquanHis_nodate').hide();
+                    }else{
+                        $('#guquanHis_nodate').show();
+                    }
+
+                }
+            }
+        });
+    }
+
+    // function getDataTupuTz(){
+    // 	var keyNo = '9cce0780ab7644008b73bc2120479d31';
+    //     var url = INDEX_URL+"cms_guquanmapinvestment";
+    //     $.ajax({
+    //         url:url,
+    //         type: 'GET',
+    //         data:{
+    //             keyNo:keyNo,
+    //         },
+    //         dataType: 'JSON',
+    //         success: function (data){
+    //             if(data.Status === 200){
+    //                 guquanTzTupu = new drawGuquanTzTupu(data.Result,keyNo);
+    //                 $('#guquanTz_nodate').hide();
+    //             }else{
+    //                 $('#guquanTz_nodate').show();
+    //             }
+    //         }
+    //     });
+    // }
+
+    function setFianlController(kzr) {
+        var finalStock = kzr.CompanyName;
+        var finalPerson;
+        var finalRadio
+        if(kzr.ControllerData){
+            finalPerson = kzr.ControllerData.Name;
+            finalRadio = kzr.ControllerData.PercentTotal|| '?';
+        }else{
+            finalPerson = '?';
+            finalRadio = '?';
+        }
+
+        $('#final-stock').text(finalStock);
+        $('#final-person').text(finalPerson);
+        $('#final-radio').text(finalRadio);
+    }
+
+    function companyTupuTab(flag){
+        if(flag==2){
+            $('#companyTupu').hide();
+            $('#companyTupuTz').hide();
+            $('#companyTupuHis').show();
+        }else if(flag==1){
+            $('#companyTupu').show();
+            $('#companyTupuTz').hide();
+            $('#companyTupuHis').hide();
+        }else{
+            $('#companyTupu').hide();
+            $('#companyTupuTz').show();
+            $('#companyTupuHis').hide();
+        }
+
+    }
+
+    function findLargePartner(rootData){
+        rootData.DetailList.sort(function(nodea,nodeb){
+            var va = parseFloat(nodea.Percent.substr(0,nodea.Percent.length-1));
+            var vb = parseFloat(nodeb.Percent.substr(0,nodeb.Percent.length-1));
+            return vb-va;
+        });
+        if(rootData.DetailList[0] && rootData.DetailList[1]){
+            var va = parseFloat(rootData.DetailList[0].Percent.substr(0,rootData.DetailList[0].Percent.length-1));
+            var vb = parseFloat(rootData.DetailList[1].Percent.substr(0,rootData.DetailList[1].Percent.length-1));
+            if(va!=vb){
+                rootData.DetailList[0].LargePartner = "大股东";
+            }
+        }
+        $.each(rootData.DetailList,function(i,node){
+            if(node.DetailList){
+                node.DetailList.sort(function(nodea,nodeb){
+                    var va = parseFloat(nodea.Percent.substr(0,nodea.Percent.length-1));
+                    var vb = parseFloat(nodeb.Percent.substr(0,nodeb.Percent.length-1));
+                    return vb-va;
+                });
+                if(node.DetailList[0] && node.DetailList[1]){
+                    var va = parseFloat(node.DetailList[0].Percent.substr(0,node.DetailList[0].Percent.length-1));
+                    var vb = parseFloat(node.DetailList[1].Percent.substr(0,node.DetailList[1].Percent.length-1));
+                    if(va!=vb){
+                        node.DetailList[0].LargePartner = "大股东";
+                    }
+                }
+            }
+        });
+    }
+
+    function addLargeStock(node) {
+        if (node.DetailList) {
+            if (node.DetailList.length > 0) {
+                if(node.DetailList[0].Percent && (node.DetailList[0].Percent != "0%" && node.DetailList[0].Percent != "0.00%")){
+                    node.DetailList[0].LargePartner = "大股东";
+                }
+
+                for (var i = 0; i < node.DetailList.length; i++) {
+                    addLargeStock(node.DetailList[i]);
+                }
+            }
+        }
+    }
+    function drawGuquanTupu(rootData,keyNo){
+        var svgId = 'guquanTupu';
+        rootData.x0 = 0;
+        rootData.y0 = 0;
+        var i=0;
+        var duration = 400;
+        var container;
+        var isExtent = false;
+        var scale = 1;
+        var tree = d3.layout.tree()
+            .children(function (d) {
+                return d.DetailList;
+            })
+            .nodeSize([0, 20]);
+
+        var diagonal = d3.svg.diagonal()
+            .projection(function(d) { return [d.y, d.x]; });
+
+        var svg = d3.select("#"+svgId).append("svg").attr("xmlns","http://www.w3.org/2000/svg");
+
+        var width = $("#"+svgId).width();
+
+
+        initSvg();
+
+        update(rootData);
+
+        $("#guquanLegend").css("visibility","visible");
+
+        function dragmove() {
+            var x = parseInt(container.attr("transform").split(',')[0].split('(')[1]);
+            var y = parseInt(container.attr("transform").split(',')[1].split(')')[0]);
+            container.attr("transform", "translate("+(x+d3.event.dx)+","+(y+d3.event.dy)+") scale("+scale+")");
+        }
+
+        function initSvg(){
+            $("#"+svgId+" svg").empty();
+            svg.attr("width",width-15);
+            svg.attr("height",$("#"+svgId).height()-15);
+
+            container = svg.append("g");
+            zoom = d3.behavior.drag()
+                .on("drag", dragmove);
+
+            nodes = tree.nodes(rootData);
+            nodes.forEach(function(n, i) {
+                if (n.depth>0) {
+                    n._DetailList = n.DetailList;
+                    n.DetailList = null;
+                }
+            });
+            svg.call(zoom);
+            container.attr("transform", "translate("+(width/2-180)+",170)");
+        }
+
+
+        function update(source) {
+            nodes = tree.nodes(rootData);
+
+            var nodeX = 0;
+            nodes.forEach(function (n, i) {
+                n.x = nodeX;
+                nodeX += n.height + 5;
+            });
+
+            svg.attr("height",Math.max(590, nodeX+160));
+            var height = Math.max(500, nodeX);
+            d3.select("svg").transition()
+                .duration(duration);
+
+            d3.select(self.frameElement).transition()
+                .duration(duration)
+                .style("height", height + "px");
+
+
+            // Update the nodes…
+            var node = container.selectAll("g.node")
+                .data(nodes, function(d) { return d.id || (d.id = ++i); });
+
+            var nodeEnter = node.enter().append("g")
+                .attr("class", "node")
+                .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
+                .style("opacity", 1e-6);
+
+            // Enter any new nodes at the parent's previous position.
+            nodeEnter.append("rect")
+                .attr("y", function (d) {
+
+                    if(d.depth==0){
+                        return -d.height/2
+                    }else{
+                        return -15;
+                    }
+                })
+                .attr("height", function(d){return d.height})
+                .attr("width", barWidth)
+                .style("stroke", "#999999")
+                .attr("fill","#ffffff")
+                .attr('fill-opacity',0)
+                .attr("stroke-width",0.5)
+                .on("click", click);
+            nodeEnter.append("rect")
+                .attr("y", function (d) {
+                    if(d.depth==0){
+                        return -d.height/2
+                    }else{
+                        return -15;
+                    }
+                })
+                .attr("height", function(d){return d.height})
+                .attr("width", 5)
+                .style("fill", color)
+                .style("fill-opacity",1)
+                .on("click", click);
+
+            nodeEnter.append("text")
+                .attr("dy", 3.5)
+                .attr("dx", 30.5)
+                .text(function(d) {
+                    if(d.Name && d.Name.length>24){
+                        return d.Name.substr(0,23)+'…';
+                    }else{
+                        return d.Name;
+                    }
+                })
+                .attr("fill","#333333")
+                .style("font-size", "12px")
+                .style("font-weight","bold")
+                .on("click", click);
+            nodeEnter.append("text")
+                .attr("dy", function (d) {
+                    if (d.isActual || d.isSyr || d.LargePartner) {
+                        return 30.5;
+                    }
+                    return 15.5;
+                })
+                .attr("dx", barWidth-30)
+                .text(function (d) {
+                    if(d.depth>0&&(d.Org==0||d.Org==4||d.Org==3||d.Org==7||d.Org==8)){
+                        if(d.KeyNo&&d.KeyNo.length==32){
+                            return "详情";
+                        }else{
+                            return "";
+                        }
+                    }else{
+                        return "";
+                    }
+                })
+                .style("font-size","12px")
+                .style("cursor","pointer")
+                .attr("fill","#128bed")
+                .on("click",function (d) {
+                    window.open("/firm_"+d.KeyNo+".html");
+                    //showDetail();
+                });
+
+            nodeEnter.each(function (d) {
+                if (d.LargePartner == "大股东") {
+                    d3.select(this).append("rect")
+                        .attr("x", 30)
+                        .attr("y", 13)
+                        .attr("rx", 2)
+                        .attr("ry", 2)
+                        .attr("height", 20)
+                        .attr("width", 44)
+                        .attr("fill", "#FE485E")
+                        .attr('fill-opacity', 0.08)
+                        .attr("stroke-width", 0.5);
+
+                    d3.select(this).append("text")
+                        .attr("dx", 35)
+                        .attr("dy", 27)
+                        .attr("fill", "#fe485e")
+                        .style("font-size", "11px")
+                        .text("大股东");
+
+                    if (d.isActual) {
+                        d3.select(this).append("rect")
+                            .attr("x", 84)
+                            .attr("y", 13)
+                            .attr("rx", 2)
+                            .attr("ry", 2)
+                            .attr("height", 20)
+                            .attr("width", 66)
+                            .attr("fill", "#EEA324")
+                            .attr('fill-opacity', 0.08)
+                            .attr("stroke-width", 0.5);
+
+                        d3.select(this).append("text")
+                            .attr("dx", 89)
+                            .attr("dy", 27)
+                            .attr("fill", "#EEA324")
+                            .style("font-size", "11px")
+                            .text("实际控制人");
+
+                        if (d.isSyr) {
+                            d3.select(this).append("rect")
+                                .attr("x", 160)
+                                .attr("y", 13)
+                                .attr("rx", 2)
+                                .attr("ry", 2)
+                                .attr("height", 20)
+                                .attr("width", 66)
+                                .attr("fill", "#128BED")
+                                .attr('fill-opacity', 0.08)
+                                .attr("stroke-width", 0.5);
+
+                            d3.select(this).append("text")
+                                .attr("dx", 165)
+                                .attr("dy", 27)
+                                .attr("fill", "#128BED")
+                                .style("font-size", "11px")
+                                .text("最终受益人");
+                        }
+                    }
+                } else {
+                    if (d.isActual) {
+                        d3.select(this).append("rect")
+                            .attr("x", 30)
+                            .attr("y", 13)
+                            .attr("rx", 2)
+                            .attr("ry", 2)
+                            .attr("height", 20)
+                            .attr("width", 66)
+                            .attr("fill", "#EEA324")
+                            .attr('fill-opacity', 0.08)
+                            .attr("stroke-width", 0.5);
+
+                        d3.select(this).append("text")
+                            .attr("dx", 35)
+                            .attr("dy", 27)
+                            .attr("fill", "#EEA324")
+                            .style("font-size", "11px")
+                            .text("实际控制人");
+
+                        if (d.isSyr) {
+                            d3.select(this).append("rect")
+                                .attr("x", 106)
+                                .attr("y", 13)
+                                .attr("rx", 2)
+                                .attr("ry", 2)
+                                .attr("height", 20)
+                                .attr("width", 66)
+                                .attr("fill", "#128BED")
+                                .attr('fill-opacity', 0.08)
+                                .attr("stroke-width", 0.5);
+
+                            d3.select(this).append("text")
+                                .attr("dx", 111)
+                                .attr("dy", 27)
+                                .attr("fill", "#128BED")
+                                .style("font-size", "11px")
+                                .text("最终受益人");
+                        }
+                    }else{
+                        if (d.isSyr) {
+                            d3.select(this).append("rect")
+                                .attr("x", 30)
+                                .attr("y", 13)
+                                .attr("rx", 2)
+                                .attr("ry", 2)
+                                .attr("height", 20)
+                                .attr("width", 66)
+                                .attr("fill", "#128BED")
+                                .attr('fill-opacity', 0.08)
+                                .attr("stroke-width", 0.5);
+
+                            d3.select(this).append("text")
+                                .attr("dx", 35)
+                                .attr("dy", 27)
+                                .attr("fill", "#128BED")
+                                .style("font-size", "11px")
+                                .text("最终受益人");
+                        }
+                    }
+                }
+            })
+
+            nodeEnter.append("text")
+                .attr("dy", function (d) {
+                    if (d.isActual || d.isSyr || d.LargePartner) {
+                        return 50.5;
+                    }
+                    return 20.5;
+                })
+                .attr("dx", 30.5)
+                .style("font","11px sans-serif")
+                .attr("fill","#666666")
+                .text(function(d) {
+                    if(d.depth==0){
+                        return "";
+                    }else{
+                        return "股权比例：";
+                    }
+                });
+            nodeEnter.append("text")
+                .attr("dy", function (d) {
+                    if (d.isActual || d.isSyr || d.LargePartner) {
+                        return 50.5;
+                    }
+                    return 20.5;
+                })
+                .attr("dx", 85.5)
+                .style("font","11px sans-serif")
+                .attr("fill","#ff7e00")
+                .text(function(d) {
+                    if(d.depth==0){
+                        return "";
+                    }else{
+                        if(d.Percent&&d.Percent!='0%'&&d.Percent!='0.00%'){
+                            return (parseFloat(d.Percent.substr(0,d.Percent.length-1)).toFixed(2)+'%'||"-");
+                        }else{
+                            return '-';
+                        }
+
+                    }
+                });
+            nodeEnter.append("text")
+                .attr("dy", function (d) {
+                    if (d.isActual || d.isSyr || d.LargePartner) {
+                        return 50.5;
+                    }
+                    return 20.5;
+                })
+                .attr("dx", 150.5)
+                .style("font","11px sans-serif")
+                .attr("fill","#666666")
+                .text(function(d) {
+                    if (d.depth == 0) {
+                        return "";
+                    } else {
+                        if (d.parent.CompanyCode) {
+                            return "持股数：";
+                        } else {
+                            return "认缴金额：";
+                        }
+                    }
+                });
+            nodeEnter.append("text")
+                .attr("dy", function (d) {
+                    if (d.isActual || d.isSyr || d.LargePartner) {
+                        return 50.5;
+                    }
+                    return 20.5;
+                })
+                .attr("dx", 205.5)
+                .style("font","11px sans-serif")
+                .attr("fill","#ff7e00")
+                .text(function(d) {
+                    if (d.depth == 0) {
+                        return "";
+                    } else {
+                        if (d.parent.CompanyCode) {
+                            if (d.StockRightNum) {
+                                return d.StockRightNum;
+                            } else {
+                                return "-";
+                            }
+                        } else {
+                            if (d.ShouldCapi) {
+                                if (d.ShouldCapi.indexOf("万元") > 0) {
+                                    var index = d.ShouldCapi.indexOf("万元");
+                                    return encodeURI($.trim(d.ShouldCapi.substr(0, index))) + "万元";
+                                } else {
+                                    var capiNum;
+                                    var capiArr = d.ShouldCapi.split(',');
+                                    if(capiArr.length>1){
+                                        capiNum = 0;
+                                        $.each(capiArr,function(index,num){
+                                            capiNum+=parseFloat(num);
+                                        });
+                                    }else{
+                                        capiNum = parseFloat(d.ShouldCapi);
+                                    }
+                                    if((capiNum+'').length>10){
+                                        capiNum = capiNum.toFixed(2);
+                                    }
+                                    return capiNum;
+                                }
+                            }
+                            return "-";
+                        }
+                    }
+                });
+            nodeEnter.append("path")
+                .attr("d", function (d) {
+                    if(d.depth==0){
+                        if(d._DetailList&&d._DetailList.length>0){
+                            return "M7 -2 H11 V-6 H13 V-2 H17 V0 H13 V4 H11 V0 H7 Z"
+                        }else if(d.DetailList&&d.DetailList.length>0){
+                            return "M7 -2 H17 V0 H7 Z"
+                        }
+                    }else{
+                        if(d._DetailList&&d._DetailList.length>0){
+                            return "M7 6 H11 V2 H13 V6 H17 V8 H13 V12 H11 V8 H7 Z"
+                        }else if(d.DetailList&&d.DetailList.length>0){
+                            return "M7 6 H17 V8 H7 Z"
+                        }
+                    }
+                })
+                .attr("fill","#bbbbbb")
+                .on("click", function (d) {
+                    if(d.depth>0 || true){
+                        click(d);
+                    }
+                });
+            nodeEnter.append("circle")
+                .attr("cx",12)
+                .attr("cy",function (d) {
+                    if(d.depth==0){
+                        return -1;
+                    }
+                    return 7;
+                })
+                .attr("r",function (d) {
+                    if(d._DetailList&&d._DetailList.length>0){
+                        return "6"
+                    }else if(d.DetailList&&d.DetailList.length>0){
+                        return "6"
+                    }
+                })
+                .attr("fill","none")
+                .attr("stroke","#999999")
+                .attr("stroke-width","0.5")
+                .on("click", function (d) {
+                    if(d.depth>0){
+                        click(d);
+                    }
+                });
+
+            // Transition nodes to their new position.
+            nodeEnter.transition()
+                .duration(duration)
+                .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; })
+                .style("opacity", 1);
+
+            node.transition()
+                .duration(duration)
+                .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; })
+                .style("opacity", 1)
+                .select("rect")
+                .style("stroke", "#999999");
+
+            node.transition()
+                .duration(duration)
+                .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; })
+                .style("opacity", 1)
+                .select("path")
+                .attr("d", function (d) {
+                    if(d.depth==0){
+                        if(d._DetailList && d._DetailList.length>0){
+                            return "M7 -2 H11 V-6 H13 V-2 H17 V0 H13 V4 H11 V0 H7 Z"
+                        }else if(d.DetailList&& d.DetailList.length>0){
+                            return "M7 -2 H17 V0 H7 Z"
+                        }
+                    }else{
+                        if(d._DetailList && d._DetailList.length>0){
+                            return "M7 6 H11 V2 H13 V6 H17 V8 H13 V12 H11 V8 H7 Z"
+                        }else if(d.DetailList&& d.DetailList.length>0){
+                            return "M7 6 H17 V8 H7 Z"
+                        }
+                    }
+                });
+
+            // Transition exiting nodes to the parent's new position.
+            node.exit().transition()
+                .duration(duration)
+                .attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
+                .style("opacity", 1e-6)
+                .remove();
+
+            // Update the links…
+            var link = container.selectAll("path.link")
+                .data(tree.links(nodes), function(d) { return d.target.id; });
+
+            // Enter any new links at the parent's previous position.
+            link.enter().insert("path", "g")
+                .attr("class", "link")
+                .attr("fill","none")
+                .attr("stroke-width","0.5px")
+                .attr("stroke","#80c3a8")
+                .attr("d", function(d) {
+                    var o = {x: source.x0, y: source.y0};
+                    return diagonal({source: o, target: o});
+                })
+                .style("stroke",function (d) {
+                    if(d.target.LargePartner=="大股东"){
+                        return "#fe5151";
+                    }
+                })
+                .transition()
+                .duration(duration)
+                .attr("d", diagonal)
+                .style("stroke",function (d) {
+                    if(d.target.LargePartner=="大股东"){
+                        return "#fe5151";
+                    }
+                });
+
+            // Transition links to their new position.
+            link.transition()
+                .duration(duration)
+                .attr("d", diagonal);
+
+            // Transition exiting nodes to the parent's new position.
+            link.exit().transition()
+                .duration(duration)
+                .attr("d", function(d) {
+                    var o = {x: source.x, y: source.y};
+                    return diagonal({source: o, target: o});
+                })
+                .remove();
+
+            // Stash the old positions for transition.
+            nodes.forEach(function(d) {
+                d.x0 = d.x;
+                d.y0 = d.y;
+            });
+        }
+
+        function click(d) {
+            if (d.DetailList) {
+                d._DetailList = d.DetailList;
+                d.DetailList = null;
+            } else {
+                d.DetailList = d._DetailList;
+                d._DetailList = null;
+            }
+            update(d);
+        }
+
+        function color(d) {
+            if(d.depth==0){
+                return "#128bed";
+            }else{
+                if(d.LargePartner=="大股东"){
+                    return "#fe5151";
+                }
+
+                if(d.Org==0||d.Org==4||d.Org==7||d.Org==8){
+                    return "#7985f3";
+                }else{
+                    return "#4aceb1";
+                }
+            }
+
+            return d._children ? "#3182bd" : d.children ? "#c6dbef" : "#fd8d3c";
+        }
+
+        function traverseTree(node){
+            if(node._DetailList){
+                node.DetailList = node._DetailList;
+                node._DetailList = null;
+            }
+
+            if(node.DetailList && node.DetailList.length>0){
+                for(var i=0; i<node.DetailList.length; i++){
+                    traverseTree(node.DetailList[i]);
+                }
+            }
+        }
+
+        function post(URL, PARAMS) {
+            var temp = document.createElement("form");
+            temp.action = URL;
+            temp.enctype = "multipart/form-data";
+            temp.method = "post";
+            temp.style.display = "none";
+            for (var x in PARAMS) {
+                var opt = document.createElement("textarea");
+                opt.name = x;
+                opt.value = PARAMS[x];
+                // alert(opt.name)
+                temp.appendChild(opt);
+            }
+            document.body.appendChild(temp);
+            temp.submit();
+            return temp;
+        }
+
+        function downloadimg(canvas) {
+            var qual = 1;
+            if(canvas.width>3000){
+                qual = 0.5;
+            }else if(canvas.width>5000){
+                qual = 0.4;
+            }
+            //设置保存图片的类型
+            var imgdata = canvas.toDataURL('image/jpeg',qual);
+            var filename = '股权持股_'+new Date().toLocaleDateString() + '.jpeg';
+            post('http://localhost:8069/cms_downloadimg?filename='+filename, {img:imgdata});
+        }
+
+        this.extend = function(dom){
+            if(!isExtent){
+                traverseTree(rootData);
+                update(rootData);
+                $(dom).html('<span class="extented"></span>收起');
+                isExtent = true;
+            }else{
+                nodes.forEach(function(d) {
+                    if(d.depth>0){
+                        if(d.DetailList){
+                            d._DetailList= d.DetailList;
+                            d.DetailList = null;
+                        }
+                    }
+                });
+                update(rootData);
+                $(dom).html('<span class="extent"></span>展开')
+                isExtent = false;
+            }
+        }
+
+        this.refresh = function(){
+            $('#guquanExtent').html('<span class="extent"></span>展开');
+            traverseTree(rootData);
+            initSvg();
+            update(rootData);
+            isExtent = false;
+            $('#guquanTupu').scrollTop(0);
+        }
+
+        this.scale = function(flag){
+            var ctrans = container.attr("transform").split(')')[0].replace(/[^0-9\-\., ]/g,'');
+            var ctransArr = ctrans.split(/[, ]/);
+            var x = ctransArr[0];
+            var y = ctransArr[1];
+            if(flag==1){
+                if(scale<4){
+                    scale+=0.2;
+
+                }
+            }else{
+                if(scale>0.2){
+                    scale-=0.2;
+
+                }
+            }
+            container.transition()
+                .duration(500)
+                .attr("transform", "translate("+(x)+","+(y)+") scale("+scale+")");
+        }
+
+        this.saveImg = function(){
+            var jietuMask=document.createElement("div");
+            $(jietuMask).attr('style','position: fixed; background: #fff; z-index: 3000; top: 0px; bottom: 0px; left: 0px; right: 0px;');
+            document.body.appendChild(jietuMask);
+
+            var d3Svg = d3.select('#'+svgId+' svg');
+
+
+            var _svgWidth = d3Svg.attr('width');
+            var _svgHeight = d3Svg.attr('height');
+
+
+
+            var svgXml = $('#'+svgId).html();
+
+            var image = new Image();
+            image.src = 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(svgXml)));
+            //window.win = open (image.src);
+            setTimeout(function() {
+                var canvas = document.createElement('canvas');  //准备空画布
+                canvas.width = d3Svg.attr('width');
+                canvas.height = d3Svg.attr('height');
+
+                $(jietuMask).css('display','none');
+                var context = canvas.getContext('2d');  //取得画布的2d绘图上下文
+                context.fillStyle = "#fff";
+                context.fillRect(0,0,canvas.width,canvas.height);
+
+                var shuiying = new Image();
+                shuiying.src="https://www.qichacha.com/material/theme/chacha/cms/v2/images/shuiying2.png";
+                for(var i=0;i < canvas.width+100; i+=300){
+                    for(var j=0; j< canvas.height+100; j+=228){
+                        context.drawImage(shuiying, i, j,300,228);
+                    }
+                }
+
+                context.drawImage(image, 0, 0);
+                var marker = '图谱由企查查基于公开信息利用大数据分析引擎独家生成。';
+                context.font = "14px 微软雅黑";
+                context.fillStyle = "#aaaaaa";
+                //context.fillText(marker, canvas.width/2-context.measureText(marker).width/2, canvas.height-20);
+                downloadimg(canvas);
+            }, 100);
+        }
+    }
+
+    function drawGuquanTzTupu(investData,keyNo){
+        var svgId = 'guquanTzTupu';
+        investData.x0 = 0;
+        investData.y0 = 0;
+        var i=0;
+        var duration = 400;
+        var isExtent = false;
+        var container;
+        var scale = 1;
+        var tree = d3.layout.tree()
+            .children(function (d) {
+                return d.DetailList;
+            })
+            .nodeSize([0, 20]);
+
+        var diagonal = d3.svg.diagonal()
+            .projection(function(d) { return [d.y, d.x]; });
+
+        var svg = d3.select("#"+svgId).append("svg").attr("xmlns","http://www.w3.org/2000/svg");
+
+        var width = $("#"+svgId).width();
+
+
+        initSvg();
+
+        update(investData);
+
+        function dragmove() {
+            var x = parseInt(container.attr("transform").split(',')[0].split('(')[1]);
+            var y = parseInt(container.attr("transform").split(',')[1].split(')')[0]);
+            container.attr("transform", "translate("+(x+d3.event.dx)+","+(y+d3.event.dy)+") scale("+scale+")");
+        }
+
+        function initSvg(){
+            $("#"+svgId+" svg").empty();
+            svg.attr("width",width-15);
+            svg.attr("height",$("#"+svgId).height()-15);
+
+            container = svg.append("g");
+            zoom = d3.behavior.drag()
+                .on("drag", dragmove);
+
+            nodes = tree.nodes(investData);
+            nodes.forEach(function(n, i) {
+                if (n.depth>0) {
+                    n._DetailList = n.DetailList;
+                    n.DetailList = null;
+                }
+            });
+            svg.call(zoom);
+            container.attr("transform", "translate("+(width/2-180)+",100)");
+        }
+
+
+        function update(source) {
+            nodes = tree.nodes(investData);
+            var nodeX = 0;
+            nodes.forEach(function (n, i) {
+                n.x = nodeX;
+                nodeX += n.height + 5;
+            });
+
+            svg.attr("height",Math.max(590, nodeX+160));
+            var height = Math.max(590, nodeX);
+            d3.select("svg").transition()
+                .duration(duration);
+
+            d3.select(self.frameElement).transition()
+                .duration(duration)
+                .style("height", height + "px");
+
+
+            // Update the nodes…
+            var node = container.selectAll("g.node")
+                .data(nodes, function(d) { return d.id || (d.id = ++i); });
+
+            var nodeEnter = node.enter().append("g")
+                .attr("class", "node")
+                .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
+                .style("opacity", 1e-6);
+
+            // Enter any new nodes at the parent's previous position.
+            nodeEnter.append("rect")
+                .attr("y", function (d) {
+
+                    if(d.depth==0){
+                        return -d.height/2
+                    }else{
+                        return -15;
+                    }
+                })
+                .attr("height", function(d){return d.height})
+                .attr("width", barWidth)
+                .style("stroke", "#999999")
+                .attr("fill","#ffffff")
+                .attr('fill-opacity',0)
+                .attr("stroke-width",0.5)
+                .on("click", click);
+            nodeEnter.append("rect")
+                .attr("y", function (d) {
+                    if(d.depth==0){
+                        return -d.height/2
+                    }else{
+                        return -15;
+                    }
+                })
+                .attr("height", function(d){return d.height})
+                .attr("width", 5)
+                .style("fill", color)
+                .style("fill-opacity",1)
+                .on("click", click);
+
+            nodeEnter.append("text")
+                .attr("dy", 3.5)
+                .attr("dx", 30.5)
+                .text(function(d) {
+                    if(d.Name && d.Name.length>24){
+                        return d.Name.substr(0,23)+'…';
+                    }else{
+                        return d.Name;
+                    }
+                })
+                .attr("fill","#333333")
+                .style("font-size", "12px")
+                .style("font-weight","bold")
+                .on("click", click);
+            nodeEnter.append("text")
+                .attr("dy", function (d) {
+                    if (d.isHold) {
+                        return 30.5;
+                    }
+                    return 15.5;
+                })
+                .attr("dx", barWidth-30)
+                .text(function (d) {
+                    if(d.depth>0&&(d.Org==0||d.Org==4||d.Org==7||d.Org==8)){
+                        if(d.KeyNo&&d.KeyNo.length==32){
+                            return "详情";
+                        }else{
+                            return "";
+                        }
+                    }else{
+                        return "";
+                    }
+                })
+                .style("font-size","12px")
+                .style("cursor","pointer")
+                .attr("fill","#128bed")
+                .on("click",function (d) {
+                    window.open("/firm_"+d.KeyNo+".html");
+                    //showDetail();
+                });
+            nodeEnter.each(function (d) {
+                if (d.isHold) {
+                    d3.select(this).append("rect")
+                        .attr("x", 30.5)
+                        .attr("y", 13)
+                        .attr("rx", 2)
+                        .attr("ry", 2)
+                        .attr("height", 20)
+                        .attr("width", 32)
+                        .attr("fill", "#128bed")
+                        .attr('fill-opacity', 0.08)
+                        .attr("stroke-width", 0.5);
+
+                    d3.select(this).append("text")
+                        .attr("dx", 35.5)
+                        .attr("dy", 27)
+                        .attr("fill", "#128bed")
+                        .style("font-size", "11px")
+                        .text("控股");
+                }
+            });
+            nodeEnter.append("text")
+                .attr("dy", function (d) {
+                    if (d.isHold) {
+                        return 50.5;
+                    }
+                    return 20.5;
+                })
+                .attr("dx", 30.5)
+                .style("font","11px sans-serif")
+                .attr("fill","#666666")
+                .text(function(d) {
+                    if(d.depth==0){
+                        return "";
+                    }else{
+                        return "股权比例：";
+                    }
+                });
+            nodeEnter.append("text")
+                .attr("dy", function (d) {
+                    if (d.isHold) {
+                        return 50.5;
+                    }
+                    return 20.5;
+                })
+                .attr("dx", 85.5)
+                .style("font","11px sans-serif")
+                .attr("fill","#ff7e00")
+                .text(function(d) {
+                    if(d.depth==0){
+                        return "";
+                    }else{
+                        if(d.Percent&&d.Percent!='0%'&&d.Percent!='0.00%'){
+                            return (parseFloat(d.Percent.substr(0,d.Percent.length-1)).toFixed(2)+'%'||"-");
+                        }else{
+                            return '-';
+                        }
+
+                    }
+                });
+            nodeEnter.append("text")
+                .attr("dy", function (d) {
+                    if (d.isHold) {
+                        return 50.5;
+                    }
+                    return 20.5;
+                })
+                .attr("dx", 150.5)
+                .style("font","11px sans-serif")
+                .attr("fill","#666666")
+                .text(function(d) {
+                    if (d.depth == 0) {
+                        return "";
+                    } else {
+                        if (d.CompanyCode) {
+                            return "持股数：";
+                        } else {
+                            return "认缴金额：";
+                        }
+                    }
+                });
+            nodeEnter.append("text")
+                .attr("dy", function (d) {
+                    if (d.isHold) {
+                        return 50.5;
+                    }
+                    return 20.5;
+                })
+                .attr("dx", 205.5)
+                .style("font","11px sans-serif")
+                .attr("fill","#ff7e00")
+                .text(function(d) {
+                    if (d.depth == 0) {
+                        return "";
+                    } else {
+                        if (d.CompanyCode) {
+                            if (d.StockRightNum) {
+                                return d.StockRightNum;
+                            } else {
+                                return "-";
+                            }
+                        } else {
+                            if (d.ShouldCapi) {
+                                if (d.ShouldCapi.indexOf("万元") > 0) {
+                                    var index = d.ShouldCapi.indexOf("万元");
+                                    return encodeURI($.trim(d.ShouldCapi.substr(0, index))) + "万元";
+                                } else {
+                                    var capiNum;
+                                    var capiArr = d.ShouldCapi.split(',');
+                                    if(capiArr.length>1){
+                                        capiNum = 0;
+                                        $.each(capiArr,function(index,num){
+                                            capiNum+=parseFloat(num);
+                                        });
+                                    }else{
+                                        capiNum = parseFloat(d.ShouldCapi);
+                                    }
+                                    if((capiNum+'').length>10){
+                                        capiNum = capiNum.toFixed(2);
+                                    }
+                                    return capiNum;
+                                }
+                            }
+                            return "-";
+                        }
+                    }
+                });
+            nodeEnter.append("path")
+                .attr("d", function (d) {
+                    if(d.depth==0){
+                        if(d._DetailList&&d._DetailList.length>0){
+                            return "M7 -2 H11 V-6 H13 V-2 H17 V0 H13 V4 H11 V0 H7 Z"
+                        }else if(d.DetailList&&d.DetailList.length>0){
+                            return "M7 -2 H17 V0 H7 Z"
+                        }
+                    }else{
+                        if(d._DetailList&&d._DetailList.length>0){
+                            return "M7 6 H11 V2 H13 V6 H17 V8 H13 V12 H11 V8 H7 Z"
+                        }else if(d.DetailList&&d.DetailList.length>0){
+                            return "M7 6 H17 V8 H7 Z"
+                        }
+                    }
+                })
+                .attr("fill","#bbbbbb")
+                .on("click", function (d) {
+                    if(d.depth>0 || true){
+                        click(d);
+                    }
+                });
+            nodeEnter.append("circle")
+                .attr("cx",12)
+                .attr("cy",function (d) {
+                    if(d.depth==0){
+                        return -1;
+                    }
+                    return 7;
+                })
+                .attr("r",function (d) {
+                    if(d._DetailList&&d._DetailList.length>0){
+                        return "6"
+                    }else if(d.DetailList&&d.DetailList.length>0){
+                        return "6"
+                    }
+                })
+                .attr("fill","none")
+                .attr("stroke","#999999")
+                .attr("stroke-width","0.5")
+                .on("click", function (d) {
+                    if(d.depth>0){
+                        click(d);
+                    }
+                });
+
+            // Transition nodes to their new position.
+            nodeEnter.transition()
+                .duration(duration)
+                .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; })
+                .style("opacity", 1);
+
+            node.transition()
+                .duration(duration)
+                .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; })
+                .style("opacity", 1)
+                .select("rect")
+                .style("stroke", "#999999");
+
+            node.transition()
+                .duration(duration)
+                .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; })
+                .style("opacity", 1)
+                .select("path")
+                .attr("d", function (d) {
+                    if(d.depth==0){
+                        if(d._DetailList && d._DetailList.length>0){
+                            return "M7 -2 H11 V-6 H13 V-2 H17 V0 H13 V4 H11 V0 H7 Z"
+                        }else if(d.DetailList&& d.DetailList.length>0){
+                            return "M7 -2 H17 V0 H7 Z"
+                        }
+                    }else{
+                        if(d._DetailList && d._DetailList.length>0){
+                            return "M7 6 H11 V2 H13 V6 H17 V8 H13 V12 H11 V8 H7 Z"
+                        }else if(d.DetailList&& d.DetailList.length>0){
+                            return "M7 6 H17 V8 H7 Z"
+                        }
+                    }
+                });
+
+            // Transition exiting nodes to the parent's new position.
+            node.exit().transition()
+                .duration(duration)
+                .attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
+                .style("opacity", 1e-6)
+                .remove();
+
+            // Update the links…
+            var link = container.selectAll("path.link")
+                .data(tree.links(nodes), function(d) { return d.target.id; });
+
+            // Enter any new links at the parent's previous position.
+            link.enter().insert("path", "g")
+                .attr("class", "link")
+                .attr("fill","none")
+                .attr("stroke-width","0.5px")
+                .attr("stroke","#80c3a8")
+                .attr("d", function(d) {
+                    var o = {x: source.x0, y: source.y0};
+                    return diagonal({source: o, target: o});
+                })
+                .style("stroke",function (d) {
+                    if(d.target.LargePartner=="大股东"){
+                        return "#fe5151";
+                    }
+                })
+                .transition()
+                .duration(duration)
+                .attr("d", diagonal)
+                .style("stroke",function (d) {
+                    if(d.target.LargePartner=="大股东"){
+                        return "#fe5151";
+                    }
+                });
+
+            // Transition links to their new position.
+            link.transition()
+                .duration(duration)
+                .attr("d", diagonal);
+
+            // Transition exiting nodes to the parent's new position.
+            link.exit().transition()
+                .duration(duration)
+                .attr("d", function(d) {
+                    var o = {x: source.x, y: source.y};
+                    return diagonal({source: o, target: o});
+                })
+                .remove();
+
+            // Stash the old positions for transition.
+            nodes.forEach(function(d) {
+                d.x0 = d.x;
+                d.y0 = d.y;
+            });
+        }
+
+        function click(d) {
+            if (d.DetailList) {
+                d._DetailList = d.DetailList;
+                d.DetailList = null;
+            } else {
+                d.DetailList = d._DetailList;
+                d._DetailList = null;
+            }
+            update(d);
+        }
+
+        function color(d) {
+            if(d.depth==0){
+                return "#128bed";
+            }else{
+                if(d.LargePartner=="大股东"){
+                    return "#fe5151";
+                }
+
+                if(d.Org==0||d.Org==4||d.Org==7||d.Org==8){
+                    return "#7985f3";
+                }else{
+                    return "#4aceb1";
+                }
+            }
+
+            return d._children ? "#3182bd" : d.children ? "#c6dbef" : "#fd8d3c";
+        }
+
+        function traverseTree(node){
+            if(node._DetailList){
+                node.DetailList = node._DetailList;
+                node._DetailList = null;
+            }
+
+            if(node.DetailList && node.DetailList.length>0){
+                for(var i=0; i<node.DetailList.length; i++){
+                    traverseTree(node.DetailList[i]);
+                }
+            }
+        }
+
+        function post(URL, PARAMS) {
+            var temp = document.createElement("form");
+            temp.action = URL;
+            temp.enctype = "multipart/form-data";
+            temp.method = "post";
+            temp.style.display = "none";
+            for (var x in PARAMS) {
+                var opt = document.createElement("textarea");
+                opt.name = x;
+                opt.value = PARAMS[x];
+                // alert(opt.name)
+                temp.appendChild(opt);
+            }
+            document.body.appendChild(temp);
+            temp.submit();
+            return temp;
+        }
+
+        function downloadimg(canvas) {
+            var qual = 1;
+            if(canvas.width>3000){
+                qual = 0.5;
+            }else if(canvas.width>5000){
+                qual = 0.4;
+            }
+            //设置保存图片的类型
+            var imgdata = canvas.toDataURL('image/jpeg',qual);
+            var filename = '对外投资_'+new Date().toLocaleDateString() + '.jpeg';
+            post(INDEX_URL+'cms_downloadimg?filename='+filename, {img:imgdata});
+        }
+
+        this.extend = function(dom){
+            if(!isExtent){
+                traverseTree(investData);
+                update(investData);
+                $(dom).html('<span class="extented"></span>收起');
+                isExtent = true;
+            }else{
+                nodes.forEach(function(d) {
+                    if(d.depth>0){
+                        if(d.DetailList){
+                            d._DetailList= d.DetailList;
+                            d.DetailList = null;
+                        }
+                    }
+                });
+                update(investData);
+                $(dom).html('<span class="extent"></span>展开')
+                isExtent = false;
+            }
+        }
+
+        this.refresh = function(){
+            $('#guquanTzExtent').html('<span class="extent"></span>展开');
+            traverseTree(investData);
+            initSvg();
+            update(investData);
+            isExtent = false;
+            $('#guquanTzTupu').scrollTop(0);
+        }
+
+        this.scale = function(flag){
+            var ctrans = container.attr("transform").split(')')[0].replace(/[^0-9\-, ]/g,'');
+            var ctransArr = ctrans.split(/[, ]/);
+            var x = ctransArr[0];
+            var y = ctransArr[1];
+            if(flag==1){
+                if(scale<4){
+                    scale+=0.2;
+
+                }
+            }else{
+                if(scale>0.2){
+                    scale-=0.2;
+
+                }
+            }
+            container.transition()
+                .duration(500)
+                .attr("transform", "translate("+(x)+","+(y)+") scale("+scale+")");
+        }
+
+        this.saveImg = function(){
+            var jietuMask=document.createElement("div");
+            $(jietuMask).attr('style','position: fixed; background: #fff; z-index: 3000; top: 0px; bottom: 0px; left: 0px; right: 0px;');
+            document.body.appendChild(jietuMask);
+
+            var d3Svg = d3.select('#'+svgId+' svg');
+
+
+            var _svgWidth = d3Svg.attr('width');
+            var _svgHeight = d3Svg.attr('height');
+
+
+
+            var svgXml = $('#'+svgId).html();
+
+            var image = new Image();
+            image.src = 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(svgXml)));
+            //window.win = open (image.src);
+            setTimeout(function() {
+                var canvas = document.createElement('canvas');  //准备空画布
+                canvas.width = d3Svg.attr('width');
+                canvas.height = d3Svg.attr('height');
+
+                $(jietuMask).css('display','none');
+                var context = canvas.getContext('2d');  //取得画布的2d绘图上下文
+                context.fillStyle = "#fff";
+                context.fillRect(0,0,canvas.width,canvas.height);
+
+                var shuiying = new Image();
+                shuiying.src="https://www.qichacha.com/material/theme/chacha/cms/v2/images/shuiying2.png";
+                for(var i=0;i < canvas.width+100; i+=300){
+                    for(var j=0; j< canvas.height+100; j+=228){
+                        context.drawImage(shuiying, i, j,300,228);
+                    }
+                }
+
+                context.drawImage(image, 0, 0);
+                var marker = '图谱由企查查基于公开信息利用大数据分析引擎独家生成。';
+                context.font = "14px 微软雅黑";
+                context.fillStyle = "#aaaaaa";
+                //context.fillText(marker, canvas.width/2-context.measureText(marker).width/2, canvas.height-20);
+                downloadimg(canvas);
+            }, 100);
+        }
+    }
+
+    function drawGuquanHisTupu(hisRootData,keyNo){
+        var svgId = 'guquanHisTupu';
+        hisRootData.x0 = 0;
+        hisRootData.y0 = 0;
+        var i=0;
+        var duration = 400;
+        var container;
+        var isExtent = false;
+        var scale = 1;
+        var tree = d3.layout.tree()
+            .children(function (d) {
+                return d.DetailList;
+            })
+            .nodeSize([0, 20]);
+
+        var diagonal = d3.svg.diagonal()
+            .projection(function(d) { return [d.y, d.x]; });
+        $("#"+svgId).empty();
+        var svg = d3.select("#"+svgId).append("svg").attr("xmlns","http://www.w3.org/2000/svg");
+
+        var width = $("#"+svgId).width();
+
+
+        initSvg();
+
+        update(hisRootData);
+
+        $("#guquanLegendHis").css("visibility","visible");
+
+        function dragmove() {
+            var x = parseInt(container.attr("transform").split(',')[0].split('(')[1]);
+            var y = parseInt(container.attr("transform").split(',')[1].split(')')[0]);
+            container.attr("transform", "translate("+(x+d3.event.dx)+","+(y+d3.event.dy)+") scale("+scale+")");
+        }
+
+        function initSvg(){
+            $("#"+svgId+" svg").empty();
+            svg.attr("width",width-15);
+            svg.attr("height",$("#"+svgId).height()-15);
+
+            container = svg.append("g");
+            zoom = d3.behavior.drag()
+                .on("drag", dragmove);
+
+            nodes = tree.nodes(hisRootData);
+            nodes.forEach(function(n, i) {
+                if (n.depth>0) {
+                    n._DetailList = n.DetailList;
+                    n.DetailList = null;
+                }
+            });
+            svg.call(zoom);
+            container.attr("transform", "translate("+(width/2-180)+",140)");
+        }
+
+
+        function update(source) {
+            nodes = tree.nodes(hisRootData);
+            var nodeX = 0;
+            nodes.forEach(function (n, i) {
+                n.x = nodeX;
+                nodeX += n.height + 5;
+            });
+
+            svg.attr("height",Math.max(590, nodeX+160));
+            var height = Math.max(500, nodeX);
+            d3.select("svg").transition()
+                .duration(duration);
+
+            d3.select(self.frameElement).transition()
+                .duration(duration)
+                .style("height", height + "px");
+
+
+
+            // Update the nodes…
+            var node = container.selectAll("g.node")
+                .data(nodes, function(d) { return d.id || (d.id = ++i); });
+
+            var nodeEnter = node.enter().append("g")
+                .attr("class", "node")
+                .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
+                .style("opacity", 1e-6);
+
+            // Enter any new nodes at the parent's previous position.
+            nodeEnter.append("rect")
+                .attr("y", function (d) {
+
+                    if(d.depth==0){
+                        return -d.height/2
+                    }else{
+                        return -15;
+                    }
+                })
+                .attr("height", function(d){return d.height})
+                .attr("width", barWidth)
+                .style("stroke", "#999999")
+                .attr("fill","#ffffff")
+                .attr('fill-opacity',0)
+                .attr("stroke-width",0.5)
+                .on("click", click);
+            nodeEnter.append("rect")
+                .attr("y", function (d) {
+                    if(d.depth==0){
+                        return -d.height/2
+                    }else{
+                        return -15;
+                    }
+                })
+                .attr("height", function(d){return d.height})
+                .attr("width", 5)
+                .style("fill", color)
+                .style("fill-opacity",1)
+                .on("click", click);
+
+            nodeEnter.append("text")
+                .attr("dy", 3.5)
+                .attr("dx", 30.5)
+                .text(function(d) {
+                    if(d.Name && d.Name.length>24){
+                        return d.Name.substr(0,23)+'…';
+                    }else{
+                        return d.Name;
+                    }
+                })
+                .attr("fill","#333333")
+                .style("font-size", "12px")
+                .style("font-weight","bold")
+                .on("click", click);
+            nodeEnter.append("text")
+                .attr("dy", function (d) {
+                    if (d.isActual || d.isSyr || d.LargePartner) {
+                        return 30.5;
+                    }
+                    return 15.5;
+                })
+                .attr("dx", barWidth-30)
+                .text(function (d) {
+                    if(d.depth>0&&(d.Org==0||d.Org==4||d.Org==3||d.Org==7||d.Org==8)){
+                        if(d.KeyNo&&d.KeyNo.length==32){
+                            return "详情";
+                        }else{
+                            return "";
+                        }
+                    }else{
+                        return "";
+                    }
+                })
+                .style("font-size","12px")
+                .style("cursor","pointer")
+                .attr("fill","#128bed")
+                .on("click",function (d) {
+                    window.open("/firm_"+d.KeyNo+".html");
+                    //showDetail();
+                });
+
+            nodeEnter.each(function (d) {
+                if (d.LargePartner == "大股东") {
+                    d3.select(this).append("rect")
+                        .attr("x", 30)
+                        .attr("y", 13)
+                        .attr("rx", 2)
+                        .attr("ry", 2)
+                        .attr("height", 20)
+                        .attr("width", 44)
+                        .attr("fill", "#FE485E")
+                        .attr('fill-opacity', 0.08)
+                        .attr("stroke-width", 0.5);
+
+                    d3.select(this).append("text")
+                        .attr("dx", 35)
+                        .attr("dy", 27)
+                        .attr("fill", "#fe485e")
+                        .style("font-size", "11px")
+                        .text("大股东");
+
+                    if (d.isActual) {
+                        d3.select(this).append("rect")
+                            .attr("x", 84)
+                            .attr("y", 13)
+                            .attr("rx", 2)
+                            .attr("ry", 2)
+                            .attr("height", 20)
+                            .attr("width", 66)
+                            .attr("fill", "#EEA324")
+                            .attr('fill-opacity', 0.08)
+                            .attr("stroke-width", 0.5);
+
+                        d3.select(this).append("text")
+                            .attr("dx", 89)
+                            .attr("dy", 27)
+                            .attr("fill", "#EEA324")
+                            .style("font-size", "11px")
+                            .text("实际控制人");
+
+                        if (d.isSyr) {
+                            d3.select(this).append("rect")
+                                .attr("x", 160)
+                                .attr("y", 13)
+                                .attr("rx", 2)
+                                .attr("ry", 2)
+                                .attr("height", 20)
+                                .attr("width", 66)
+                                .attr("fill", "#128BED")
+                                .attr('fill-opacity', 0.08)
+                                .attr("stroke-width", 0.5);
+
+                            d3.select(this).append("text")
+                                .attr("dx", 165)
+                                .attr("dy", 27)
+                                .attr("fill", "#128BED")
+                                .style("font-size", "11px")
+                                .text("最终受益人");
+                        }
+                    }
+                } else {
+                    if (d.isActual) {
+                        d3.select(this).append("rect")
+                            .attr("x", 30)
+                            .attr("y", 13)
+                            .attr("rx", 2)
+                            .attr("ry", 2)
+                            .attr("height", 20)
+                            .attr("width", 66)
+                            .attr("fill", "#EEA324")
+                            .attr('fill-opacity', 0.08)
+                            .attr("stroke-width", 0.5);
+
+                        d3.select(this).append("text")
+                            .attr("dx", 35)
+                            .attr("dy", 27)
+                            .attr("fill", "#EEA324")
+                            .style("font-size", "11px")
+                            .text("实际控制人");
+
+                        if (d.isSyr) {
+                            d3.select(this).append("rect")
+                                .attr("x", 106)
+                                .attr("y", 13)
+                                .attr("rx", 2)
+                                .attr("ry", 2)
+                                .attr("height", 20)
+                                .attr("width", 66)
+                                .attr("fill", "#128BED")
+                                .attr('fill-opacity', 0.08)
+                                .attr("stroke-width", 0.5);
+
+                            d3.select(this).append("text")
+                                .attr("dx", 111)
+                                .attr("dy", 27)
+                                .attr("fill", "#128BED")
+                                .style("font-size", "11px")
+                                .text("最终受益人");
+                        }
+                    }else{
+                        if (d.isSyr) {
+                            d3.select(this).append("rect")
+                                .attr("x", 30)
+                                .attr("y", 13)
+                                .attr("rx", 2)
+                                .attr("ry", 2)
+                                .attr("height", 20)
+                                .attr("width", 66)
+                                .attr("fill", "#128BED")
+                                .attr('fill-opacity', 0.08)
+                                .attr("stroke-width", 0.5);
+
+                            d3.select(this).append("text")
+                                .attr("dx", 35)
+                                .attr("dy", 27)
+                                .attr("fill", "#128BED")
+                                .style("font-size", "11px")
+                                .text("最终受益人");
+                        }
+                    }
+                }
+            })
+
+            nodeEnter.append("text")
+                .attr("dy", function (d) {
+                    if (d.isActual || d.isSyr || d.LargePartner) {
+                        return 50.5;
+                    }
+                    return 20.5;
+                })
+                .attr("dx", 30.5)
+                .style("font","11px sans-serif")
+                .attr("fill","#666666")
+                .text(function(d) {
+                    if(d.depth==0){
+                        return "";
+                    }else{
+                        return "股权比例：";
+                    }
+                });
+            nodeEnter.append("text")
+                .attr("dy", function (d) {
+                    if (d.isActual || d.isSyr || d.LargePartner) {
+                        return 50.5;
+                    }
+                    return 20.5;
+                })
+                .attr("dx", 85.5)
+                .style("font","11px sans-serif")
+                .attr("fill","#ff7e00")
+                .text(function(d) {
+                    if(d.depth==0){
+                        return "";
+                    }else{
+                        if(d.Percent&&d.Percent!='0%'&&d.Percent!='0.00%'){
+                            return (parseFloat(d.Percent.substr(0,d.Percent.length-1)).toFixed(2)+'%'||"-");
+                        }else{
+                            return '-';
+                        }
+
+                    }
+                });
+            nodeEnter.append("text")
+                .attr("dy", function (d) {
+                    if (d.isActual || d.isSyr || d.LargePartner) {
+                        return 50.5;
+                    }
+                    return 20.5;
+                })
+                .attr("dx", 150.5)
+                .style("font","11px sans-serif")
+                .attr("fill","#666666")
+                .text(function(d) {
+                    if (d.depth == 0) {
+                        return "";
+                    } else {
+                        if (d.parent.CompanyCode) {
+                            return "持股数：";
+                        } else {
+                            return "认缴金额：";
+                        }
+                    }
+                });
+            nodeEnter.append("text")
+                .attr("dy", function (d) {
+                    if (d.isActual || d.isSyr || d.LargePartner) {
+                        return 50.5;
+                    }
+                    return 20.5;
+                })
+                .attr("dx", 205.5)
+                .style("font","11px sans-serif")
+                .attr("fill","#ff7e00")
+                .text(function(d) {
+                    if (d.depth == 0) {
+                        return "";
+                    } else {
+                        if (d.parent.CompanyCode) {
+                            if (d.StockRightNum) {
+                                return d.StockRightNum;
+                            } else {
+                                return "-";
+                            }
+                        } else {
+                            if (d.ShouldCapi) {
+                                if (d.ShouldCapi.indexOf("万元") > 0) {
+                                    var index = d.ShouldCapi.indexOf("万元");
+                                    return encodeURI($.trim(d.ShouldCapi.substr(0, index))) + "万元";
+                                } else {
+                                    var capiNum;
+                                    var capiArr = d.ShouldCapi.split(',');
+                                    if(capiArr.length>1){
+                                        capiNum = 0;
+                                        $.each(capiArr,function(index,num){
+                                            capiNum+=parseFloat(num);
+                                        });
+                                    }else{
+                                        capiNum = parseFloat(d.ShouldCapi);
+                                    }
+                                    if((capiNum+'').length>10){
+                                        capiNum = capiNum.toFixed(2);
+                                    }
+                                    return capiNum;
+                                }
+                            }
+                            return "-";
+                        }
+                    }
+                });
+            nodeEnter.append("path")
+                .attr("d", function (d) {
+                    if(d.depth==0){
+                        if(d._DetailList&&d._DetailList.length>0){
+                            return "M7 -2 H11 V-6 H13 V-2 H17 V0 H13 V4 H11 V0 H7 Z"
+                        }else if(d.DetailList&&d.DetailList.length>0){
+                            return "M7 -2 H17 V0 H7 Z"
+                        }
+                    }else{
+                        if(d._DetailList&&d._DetailList.length>0){
+                            return "M7 6 H11 V2 H13 V6 H17 V8 H13 V12 H11 V8 H7 Z"
+                        }else if(d.DetailList&&d.DetailList.length>0){
+                            return "M7 6 H17 V8 H7 Z"
+                        }
+                    }
+                })
+                .attr("fill","#bbbbbb")
+                .on("click", function (d) {
+                    if(d.depth>0 || true){
+                        click(d);
+                    }
+                });
+            nodeEnter.append("circle")
+                .attr("cx",12)
+                .attr("cy",function (d) {
+                    if(d.depth==0){
+                        return -1;
+                    }
+                    return 7;
+                })
+                .attr("r",function (d) {
+                    if(d._DetailList&&d._DetailList.length>0){
+                        return "6"
+                    }else if(d.DetailList&&d.DetailList.length>0){
+                        return "6"
+                    }
+                })
+                .attr("fill","none")
+                .attr("stroke","#999999")
+                .attr("stroke-width","0.5")
+                .on("click", function (d) {
+                    if(d.depth>0){
+                        click(d);
+                    }
+                });
+
+            // Transition nodes to their new position.
+            nodeEnter.transition()
+                .duration(duration)
+                .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; })
+                .style("opacity", 1);
+
+            node.transition()
+                .duration(duration)
+                .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; })
+                .style("opacity", 1)
+                .select("rect")
+                .style("stroke", "#999999");
+
+            node.transition()
+                .duration(duration)
+                .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; })
+                .style("opacity", 1)
+                .select("path")
+                .attr("d", function (d) {
+                    if(d.depth==0){
+                        if(d._DetailList && d._DetailList.length>0){
+                            return "M7 -2 H11 V-6 H13 V-2 H17 V0 H13 V4 H11 V0 H7 Z"
+                        }else if(d.DetailList&& d.DetailList.length>0){
+                            return "M7 -2 H17 V0 H7 Z"
+                        }
+                    }else{
+                        if(d._DetailList && d._DetailList.length>0){
+                            return "M7 6 H11 V2 H13 V6 H17 V8 H13 V12 H11 V8 H7 Z"
+                        }else if(d.DetailList&& d.DetailList.length>0){
+                            return "M7 6 H17 V8 H7 Z"
+                        }
+                    }
+                });
+
+            // Transition exiting nodes to the parent's new position.
+            node.exit().transition()
+                .duration(duration)
+                .attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
+                .style("opacity", 1e-6)
+                .remove();
+
+            // Update the links…
+            var link = container.selectAll("path.link")
+                .data(tree.links(nodes), function(d) { return d.target.id; });
+
+            // Enter any new links at the parent's previous position.
+            link.enter().insert("path", "g")
+                .attr("class", "link")
+                .attr("fill","none")
+                .attr("stroke-width","0.5px")
+                .attr("stroke","#80c3a8")
+                .attr("d", function(d) {
+                    var o = {x: source.x0, y: source.y0};
+                    return diagonal({source: o, target: o});
+                })
+                .style("stroke",function (d) {
+                    if(d.target.LargePartner=="大股东"){
+                        return "#fe5151";
+                    }
+                })
+                .transition()
+                .duration(duration)
+                .attr("d", diagonal)
+                .style("stroke",function (d) {
+                    if(d.target.LargePartner=="大股东"){
+                        return "#fe5151";
+                    }
+                });
+
+            // Transition links to their new position.
+            link.transition()
+                .duration(duration)
+                .attr("d", diagonal);
+
+            // Transition exiting nodes to the parent's new position.
+            link.exit().transition()
+                .duration(duration)
+                .attr("d", function(d) {
+                    var o = {x: source.x, y: source.y};
+                    return diagonal({source: o, target: o});
+                })
+                .remove();
+
+            // Stash the old positions for transition.
+            nodes.forEach(function(d) {
+                d.x0 = d.x;
+                d.y0 = d.y;
+            });
+        }
+
+        function click(d) {
+            if (d.DetailList) {
+                d._DetailList = d.DetailList;
+                d.DetailList = null;
+            } else {
+                d.DetailList = d._DetailList;
+                d._DetailList = null;
+            }
+            update(d);
+        }
+
+        function color(d) {
+            if(d.depth==0){
+                return "#128bed";
+            }else{
+                if(d.LargePartner=="大股东"){
+                    return "#fe5151";
+                }
+
+                if(d.Org==0||d.Org==4||d.Org==7||d.Org==8){
+                    return "#7985f3";
+                }else{
+                    return "#4aceb1";
+                }
+            }
+
+            return d._children ? "#3182bd" : d.children ? "#c6dbef" : "#fd8d3c";
+        }
+
+        function traverseTree(node){
+            if(node._DetailList){
+                node.DetailList = node._DetailList;
+                node._DetailList = null;
+            }
+
+            if(node.DetailList && node.DetailList.length>0){
+                for(var i=0; i<node.DetailList.length; i++){
+                    traverseTree(node.DetailList[i]);
+                }
+            }
+        }
+
+        function post(URL, PARAMS) {
+            var temp = document.createElement("form");
+            temp.action = URL;
+            temp.enctype = "multipart/form-data";
+            temp.method = "post";
+            temp.style.display = "none";
+            for (var x in PARAMS) {
+                var opt = document.createElement("textarea");
+                opt.name = x;
+                opt.value = PARAMS[x];
+                // alert(opt.name)
+                temp.appendChild(opt);
+            }
+            document.body.appendChild(temp);
+            temp.submit();
+            return temp;
+        }
+
+        function downloadimg(canvas) {
+            var qual = 1;
+            if(canvas.width>3000){
+                qual = 0.5;
+            }else if(canvas.width>5000){
+                qual = 0.4;
+            }
+            //设置保存图片的类型
+            var imgdata = canvas.toDataURL('image/jpeg',qual);
+            var filename = '历史股东持股_'+new Date().toLocaleDateString() + '.jpeg';
+            post('http://localhost:8099/cms_downloadimg?filename='+filename, {img:imgdata});
+        }
+
+        this.extend = function(dom){
+            if(!isExtent){
+                traverseTree(hisRootData);
+                update(hisRootData);
+                $(dom).html('<span class="extented"></span>收起');
+                isExtent = true;
+            }else{
+                nodes.forEach(function(d) {
+                    if(d.depth>0){
+                        if(d.DetailList){
+                            d._DetailList= d.DetailList;
+                            d.DetailList = null;
+                        }
+                    }
+                });
+                update(hisRootData);
+                $(dom).html('<span class="extent"></span>展开')
+                isExtent = false;
+            }
+        }
+
+        this.refresh = function(){
+            $('#guquanHisExtent').html('<span class="extent"></span>展开');
+            traverseTree(hisRootData);
+            initSvg();
+            update(rootData);
+            isExtent = false;
+            $('#guquanHisTupu').scrollTop(0);
+        }
+
+        this.scale = function(flag){
+            var ctrans = container.attr("transform").split(')')[0].replace(/[^0-9\-, ]/g,'');
+            var ctransArr = ctrans.split(/[, ]/);
+            var x = ctransArr[0];
+            var y = ctransArr[1];
+            if(flag==1){
+                if(scale<4){
+                    scale+=0.2;
+
+                }
+            }else{
+                if(scale>0.2){
+                    scale-=0.2;
+
+                }
+            }
+            container.transition()
+                .duration(500)
+                .attr("transform", "translate("+(x)+","+(y)+") scale("+scale+")");
+        }
+
+        this.saveImg = function(){
+
+            var jietuMask=document.createElement("div");
+            $(jietuMask).attr('style','position: fixed; background: #fff; z-index: 3000; top: 0px; bottom: 0px; left: 0px; right: 0px;');
+            document.body.appendChild(jietuMask);
+
+            var d3Svg = d3.select('#'+svgId+' svg');
+
+
+            var _svgWidth = d3Svg.attr('width');
+            var _svgHeight = d3Svg.attr('height');
+
+
+
+            var svgXml = $('#'+svgId).html();
+
+            var image = new Image();
+            image.src = 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(svgXml)));
+            //window.win = open (image.src);
+            setTimeout(function() {
+                var canvas = document.createElement('canvas');  //准备空画布
+                canvas.width = d3Svg.attr('width');
+                canvas.height = d3Svg.attr('height');
+
+                $(jietuMask).css('display','none');
+                var context = canvas.getContext('2d');  //取得画布的2d绘图上下文
+                context.fillStyle = "#fff";
+                context.fillRect(0,0,canvas.width,canvas.height);
+
+                var shuiying = new Image();
+                shuiying.src="https://www.qichacha.com/material/theme/chacha/cms/v2/images/shuiying2.png";
+                for(var i=0;i < canvas.width+100; i+=300){
+                    for(var j=0; j< canvas.height+100; j+=228){
+                        context.drawImage(shuiying, i, j,300,228);
+                    }
+                }
+
+                context.drawImage(image, 0, 0);
+                var hisDate = $('#guquanHisDropText').text();
+                context.font = "13px 微软雅黑";
+                context.fillStyle = "#128bed";
+                context.fillText(hisDate, canvas.width/2-context.measureText(hisDate).width/2, 75);
+                downloadimg(canvas);
+            }, 100);
+        }
+    }
+
+
+
+    function addFlag(node) {
+        if(acturalNode){
+            if(node.KeyNo){
+                if (node.KeyNo == acturalNode.KeyNo) {
+                    node.isActual = true;
+                }
+            }else{
+                if (node.Name == acturalNode.Name) {
+                    node.isActual = true;
+                }
+            }
+        }
+
+        for (var i = 0; i < syrArray.length; i++) {
+            if (node.KeyNo&&node.KeyNo == syrArray[i].KeyNo) {
+                node.isSyr = true;
+            }
+        }
+
+        if (node.isActual || node.isSyr || node.LargePartner) {
+            node.height = barHeight + 30;
+        } else {
+            node.height = barHeight;
+        }
+
+        if (node.DetailList) {
+            for (var i = 0; i < node.DetailList.length; i++) {
+                addFlag(node.DetailList[i]);
+            }
+        }
+    }
+
+    function addHolid(node) {
+
+        for (var i = 0; i < holidArray.length; i++) {
+            if (node.KeyNo&&node.KeyNo == holidArray[i].KeyNo) {
+                node.isHold = true;
+            }
+        }
+
+        if (node.isHold) {
+            node.height = barHeight + 30;
+        } else {
+            node.height = barHeight;
+        }
+
+        if (node.DetailList) {
+            for (var i = 0; i < node.DetailList.length; i++) {
+                addHolid(node.DetailList[i]);
+            }
+        }
+    }
+
+    function addHisFlag(node) {
+        if(acturalHisNode){
+            if(node.KeyNo){
+                if (node.KeyNo == acturalHisNode.KeyNo) {
+                    node.isActual = true;
+                }
+            }else{
+                if (node.Name == acturalHisNode.Name) {
+                    node.isActual = true;
+                }
+            }
+        }
+        for (var i = 0; i < syrHisArray.length; i++) {
+            if (node.KeyNo&&node.KeyNo == syrHisArray[i].KeyNo) {
+                node.isSyr = true;
+            }
+        }
+        if (node.isActual || node.isSyr || node.LargePartner) {
+            node.height = barHeight + 30;
+        } else {
+            node.height = barHeight;
+        }
+        if (node.DetailList) {
+            for (var i = 0; i < node.DetailList.length; i++) {
+                addHisFlag(node.DetailList[i]);
+            }
+        }
+    }
+
+    function changeHisDate(date,recent){
+        if(recent){
+            $('#guquanHisDropText').text(date+'（最近）');
+        }else{
+            $('#guquanHisDropText').text(date);
+        }
+        $('#guquanHisExtent').html('<span class="extent"></span>展开')
+
+
+        var keyNo = '9cce0780ab7644008b73bc2120479d31';
+        var url = INDEX_URL+"cms_guquanhisajax";
+        $.ajax({
+            url:url,
+            type: 'GET',
+            data:{
+                keyNo:keyNo,
+                date:date
+            },
+            dataType: 'JSON',
+            success: function (data){
+                if(data){
+                    if(data.his&&data.his.ChangeDetail.EquityShareDetail){
+                        hisDrop(data.his.ChangeDateList,false);
+                        hisRootData = {
+                            Name: data.his.ChangeDetail.EquityShareDetail.CompanyName,
+                            KeyNo: keyNo,
+                            CompanyCode: data.his.ChangeDetail.EquityShareDetail.CompanyCode,
+                            Org: 2,
+                            DetailList: data.his.ChangeDetail.EquityShareDetail.EquityShareDetail
+                        };
+                        addLargeStock(hisRootData);
+                        addHisFlag(hisRootData);
+                        guquanHisTupu = new drawGuquanHisTupu(hisRootData,keyNo);
+                        $('#guquanHis_nodate').hide();
+                    }else{
+                        $('#guquanHis_nodate').show();
+                    }
+                }
+            }
+        });
+    }
+
+    function hisDrop(dateList,first){
+        if(dateList && dateList.length>0){
+            var html = '';
+            $.each(dateList,function(index,vo){
+                if(index==0){
+                    html+='<li><a onclick="changeHisDate(\''+vo+'\',true)">'+vo+'（最近）</a></li>';
+                }else{
+                    html+='<li><a onclick="changeHisDate(\''+vo+'\',false)">'+vo+'</a></li>';
+                }
+
+            })
+            if(first){
+                $('#guquanHisDropText').text(dateList[0]+'（最近）');
+            }
+            $('#guquanHisDrop .dropdown-menu').html(html);
+            $('#guquanHisDrop').show();
+        }else{
+            $('#guquanHisDrop').hide();
+        }
+
+    }
+</script>
+</body>
+</html>

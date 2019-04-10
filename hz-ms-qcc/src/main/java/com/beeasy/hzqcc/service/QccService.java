@@ -3,15 +3,8 @@ package com.beeasy.hzqcc.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.mongodb.BasicDBObject;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoCursor;
-import com.mongodb.client.model.Filters;
-import org.bson.Document;
-import org.osgl.util.C;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.bson.conversions.Bson;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
@@ -22,8 +15,6 @@ import java.util.Map;
 @Service
 public class QccService {
 
-    @Autowired
-    MongoService mongoService;
     @Autowired
     QccDataService qccDataService;
     @Autowired
@@ -76,12 +67,38 @@ public class QccService {
         if(isOrigin){
             return ret;
         }
+        if(null == ret){
+            return retData;
+        }
         retData.put("list", ret.getJSONArray("Result"));
 
         JSONObject pageObj = ret.getJSONObject("Paging");
         if(null == pageObj){
             return  retData;
         }
+        Integer totalRow = pageObj.getInteger("TotalRecords");
+        Integer pageSize = pageObj.getInteger("PageSize");
+        retData.put("pageSize", pageObj.getInteger("PageSize"));
+        retData.put("pageNumber", pageObj.getInteger("PageIndex"));
+        retData.put("totalRow", totalRow);
+        retData.put("totalPage", (int) Math.ceil((float) totalRow / (float) pageSize));
+        return retData;
+    }
+    private JSONObject getResSplitChild(
+            JSONObject resData,
+            String splitChildName,
+            boolean isOrigin
+    ){
+        if(isOrigin){
+            return resData;
+        }
+        if(null == resData || resData.isEmpty() || !"200".equals(resData.getString("Status"))){
+            return new JSONObject();
+        }
+        JSONObject pageObj = resData.getJSONObject("Paging");
+        JSONObject resultObj = resData.getJSONObject("Result");
+        JSONObject retData = new JSONObject();
+        retData.put("list",resultObj.getJSONArray(splitChildName));
         Integer totalRow = pageObj.getInteger("TotalRecords");
         Integer pageSize = pageObj.getInteger("PageSize");
         retData.put("pageSize", pageObj.getInteger("PageSize"));
@@ -115,7 +132,6 @@ public class QccService {
         param.put("pageSize", pageSize);
         return param;
     }
-
     // 企业关键字精确获取详细信息(Master)
     public Map ECIV4_GetDetailsByName(
             Map param,
@@ -124,7 +140,6 @@ public class QccService {
         JSONObject data = qccDataService.findOne("ECIV4_GetDetailsByName", param);
         return getResDetails(data,isOrigin);
     }
-
     // 企业关键字精确获取详细信息(Basic)
     public Map ECI_GetBasicDetailsByName(
             Map param,
@@ -133,13 +148,20 @@ public class QccService {
         JSONObject data = qccDataService.findOne("ECIV4_GetBasicDetailsByName", param);
         return getResDetails(data,isOrigin);
     }
-
+    // 企业人员董监高信息
+    public Map CIAEmployeeV4_GetStockRelationInfo(
+            Map param,
+            boolean isOrigin
+    ){
+        JSONObject data = qccDataService.findOne("CIAEmployeeV4_GetStockRelationInfo", param);
+        return getResDetails(data,isOrigin);
+    }
     // 获取裁判文书
     public Map JudgeDocV4_SearchJudgmentDoc(
             Map param,
             boolean isOrigin
     ){
-        JSONObject data = qccDataService.getDataList("JudgeDocV4_SearchJudgmentDoc", fixResPageParam(param));
+        JSONObject data = qccHttpDataService.getDataList("JudgeDocV4_SearchJudgmentDoc", fixResPageParam(param));
         return getResDataList(data, isOrigin);
     }
     // 裁判文书详情
@@ -147,7 +169,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ){
-        JSONObject data = qccDataService.findOne("JudgeDocV4_GetJudgementDetail", param);
+        JSONObject data = qccHttpDataService.findOne("JudgeDocV4_GetJudgementDetail", param);
         return getResDetails(data,isOrigin);
     }
     // 开庭公告列表
@@ -155,15 +177,15 @@ public class QccService {
             Map param,
             boolean isOrigin
     ){
-        JSONObject data = qccDataService.getDataList("CourtAnnoV4_SearchCourtNotice", fixResPageParam(param));
+        JSONObject data = qccHttpDataService.getDataList("CourtAnnoV4_SearchCourtNotice", fixResPageParam(param));
         return getResDataList(data, isOrigin);
     }
     // 开庭公告详情
-    public JSONObject CourtAnno_GetCourtNoticeInfo(
+    public JSONObject CourtAnnoV4_GetCourtNoticeInfo(
             Map param,
             boolean isOrigin
     ){
-        JSONObject data = qccDataService.findOne("CourtAnnoV4_GetCourtNoticeInfo", param);
+        JSONObject data = qccHttpDataService.findOne("CourtAnnoV4_GetCourtNoticeInfo", param);
         return getResDetails(data,isOrigin);
     }
     // 失信列表
@@ -171,7 +193,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ){
-        JSONObject data = qccDataService.getDataList("CourtV4_SearchShiXin", fixResPageParam(param));
+        JSONObject data = qccHttpDataService.getDataList("CourtV4_SearchShiXin", fixResPageParam(param));
         return getResDataList(data, isOrigin);
     }
     // 执行列表
@@ -179,7 +201,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ){
-        JSONObject data = qccDataService.getDataList("CourtV4_SearchZhiXing", fixResPageParam(param));
+        JSONObject data = qccHttpDataService.getDataList("CourtV4_SearchZhiXing", fixResPageParam(param));
         return getResDataList(data, isOrigin);
     }
     // 法院公告列表信息
@@ -187,7 +209,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ){
-        JSONObject data = qccDataService.getDataList("CourtNoticeV4_SearchCourtAnnouncement", fixResPageParam(param));
+        JSONObject data = qccHttpDataService.getDataList("CourtNoticeV4_SearchCourtAnnouncement", fixResPageParam(param));
         return getResDataList(data, isOrigin);
     }
     // 法院公告详情
@@ -195,15 +217,15 @@ public class QccService {
             Map param,
             boolean isOrigin
     ){
-        JSONObject data = qccDataService.findOne("CourtNoticeV4_SearchCourtAnnouncementDetail", param);
+        JSONObject data = qccHttpDataService.findOne("CourtNoticeV4_SearchCourtAnnouncementDetail", param);
         return getResDetails(data,isOrigin);
     }
-    // 获取司法协助信息
+    // 获取司法协助信息eDoc/GetJudgementDetail.html
     public JSONObject JudicialAssistance_GetJudicialAssistance(
             Map param,
             boolean isOrigin
     ){
-        JSONObject data = qccDataService.findOne("JudicialAssistance_GetJudicialAssistance", param);
+        JSONObject data = qccHttpDataService.findOne("JudicialAssistance_GetJudicialAssistance", param);
          return getResDataArr(data, isOrigin);
     }
 
@@ -212,7 +234,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ){
-        JSONObject data = qccDataService.findOne("History_GetHistorytEci", param);
+        JSONObject data = qccHttpDataService.findOne("History_GetHistorytEci", param);
         return getResDetails(data,isOrigin);
     }
     // 历史股东
@@ -220,8 +242,8 @@ public class QccService {
             Map param,
             boolean isOrigin
     ){
-        JSONObject data = qccDataService.getSplitChildDataList("History_GetHistorytShareHolder",fixResPageParam(param), "Details");
-        return data;
+        JSONObject resData = qccHttpDataService.getSplitChildDataList("History_GetHistorytShareHolder",fixResPageParam(param));
+        return getResSplitChild(resData, "Details", isOrigin);
     }
     // 历史对外投资
     public Map History_GetHistorytInvestment(
@@ -231,7 +253,6 @@ public class QccService {
         JSONObject data = qccDataService.getDataList("History_GetHistorytInvestment", fixResPageParam(param));
         return getResDataList(data, isOrigin);
     }
-
     // 历史失信
     public Map History_GetHistoryShiXin(
             Map param,
@@ -309,7 +330,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ){
-        JSONObject data = qccDataService.getDataList("EnvPunishment_GetEnvPunishmentList", fixResPageParam(param));
+        JSONObject data = qccHttpDataService.getDataList("EnvPunishment_GetEnvPunishmentList", fixResPageParam(param));
         return getResDataList(data, isOrigin);
     }
     // 环保处罚详情
@@ -317,7 +338,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ){
-        JSONObject data = qccDataService.findOne("EnvPunishment_GetEnvPunishmentDetails", param);
+        JSONObject data = qccHttpDataService.findOne("EnvPunishment_GetEnvPunishmentDetails", param);
         return getResDetails(data,isOrigin);
     }
     // 获取土地抵押列表
@@ -325,7 +346,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ){
-        JSONObject data = qccDataService.getDataList("LandMortgage_GetLandMortgageList", fixResPageParam(param));
+        JSONObject data = qccHttpDataService.getDataList("LandMortgage_GetLandMortgageList", fixResPageParam(param));
         return getResDataList(data, isOrigin);
     }
     // 土地抵押详情
@@ -333,7 +354,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ){
-        JSONObject data = qccDataService.findOne("LandMortgage_GetLandMortgageDetails", param);
+        JSONObject data = qccHttpDataService.findOne("LandMortgage_GetLandMortgageDetails", param);
         return getResDetails(data,isOrigin);
     }
     // 司法拍卖列表
@@ -341,7 +362,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ){
-        JSONObject data = qccDataService.getDataList("JudicialSale_GetJudicialSaleList", fixResPageParam(param));
+        JSONObject data = qccHttpDataService.getDataList("JudicialSale_GetJudicialSaleList", fixResPageParam(param));
         return getResDataList(data, isOrigin);
     }
     // 司法拍卖详情
@@ -349,7 +370,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ){
-        JSONObject data = qccDataService.findOne("JudicialSale_GetJudicialSaleDetail", param);
+        JSONObject data = qccHttpDataService.findOne("JudicialSale_GetJudicialSaleDetail", param);
         return getResDetails(data,isOrigin);
     }
     // 动产抵押
@@ -357,12 +378,29 @@ public class QccService {
             Map param,
             boolean isOrigin
     ){
-        JSONObject data = qccDataService.findOne("ChattelMortgage_GetChattelMortgage", param);
+        JSONObject data = qccHttpDataService.findOne("ChattelMortgage_GetChattelMortgage", param);
         return getResDataArr(data, isOrigin);
     }
 
+    // 股权结构图
+    public Map ECIRelationV4_GetCompanyEquityShareMap(
+            Map param,
+            boolean isOrigin
+    ){
+        JSONObject tupuInfo = qccDataService.findOne("ECIRelationV4_GetCompanyEquityShareMap", param);
+        return getResDetails(tupuInfo, isOrigin);
+    }
+    // 十层股权穿透图
+    public Map ECICompanyMap_GetStockAnalysisData(
+            Map param,
+            boolean isOrigin
+    ){
+        JSONObject tupuInfo = qccDataService.findOne("ECICompanyMap_GetStockAnalysisData", param);
+        return getResDetails(tupuInfo, isOrigin);
+    }
+
     // 企业图谱
-    public Map ECIRelation_GenerateMultiDimensionalTreeCompanyMap(
+    public Map ECIRelationV4_GenerateMultiDimensionalTreeCompanyMap(
         Map param,
         boolean isOrigin
     ){
@@ -379,6 +417,7 @@ public class QccService {
         }
         String comInfoStr = JSON.toJSONString(comInfo);
         comInfoStr = comInfoStr.replaceAll("name", "Name");
+        comInfo = JSON.parseObject(comInfoStr);
         comInfo = comInfo.getJSONObject("Node");
         Map retData = new HashMap();
         JSONArray childs = comInfo.getJSONArray("Children");
@@ -415,20 +454,8 @@ public class QccService {
             Map param,
             boolean isOrigin
     ){
-        JSONObject resData = qccDataService.getSplitChildDataList("HoldingCompany_GetHoldingCompany", fixResPageParam(param), "Names");
-        if(isOrigin){
-            return resData;
-        }
-        JSONObject pageObj = resData.getJSONObject("Paging");
-        JSONObject resultObj = resData.getJSONObject("Result");
-        Map retData = new HashMap();
-        retData.put("list",resultObj.getJSONArray("Names"));
-        Integer totalRow = pageObj.getInteger("TotalRecords");
-        Integer pageSize = pageObj.getInteger("PageSize");
-        retData.put("pageSize", pageObj.getInteger("PageSize"));
-        retData.put("pageNumber", pageObj.getInteger("PageIndex"));
-        retData.put("totalRow", totalRow);
-        retData.put("totalPage", (int) Math.ceil((float) totalRow / (float) pageSize));
-        return retData;
+        JSONObject resData = qccDataService.getSplitChildDataList("HoldingCompany_GetHoldingCompany", fixResPageParam(param));
+        return getResSplitChild(resData, "Names", isOrigin);
     }
+
 }

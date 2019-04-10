@@ -1,0 +1,98 @@
+a,a:hover{
+    color: #000;
+    text-decoration: none;
+}
+li{
+    list-style: none;
+}
+.tupu-footer img{
+    width: 55px;
+}
+.tupu-toolbar{
+    position: absolute;
+    width: 46px;
+    right: 20px;
+    bottom: 80px;
+    font-size: 18px;
+    z-index: 20;
+}
+
+.tupu-toolbar ul{
+    width: 48px;
+    margin:0px;
+    padding: 0px;
+    box-sizing: border-box;
+    margin-top: 8px;
+    border: 1px solid #DEDEDE;
+    /*box-shadow:0 0 5px #DEDEDE;*/
+    background: #fff;
+
+}
+
+.tupu-toolbar ul>li{
+    width: 46px;
+    height: 64px;
+    text-align: center;
+    box-sizing: border-box;
+    font-size: 12px;
+    color: #666;
+    text-align: center;
+    padding: 5px;
+
+}
+.tupu-toolbar ul>li>span{
+    display: block;
+    width: 30px;
+    height: 30px;
+    margin: 0px auto;
+    background: url(../images/tupu_tool_icons.png?t=2);
+    background-size: 300px 60px;
+}
+.tupu-toolbar ul>li>span.extented{background-position: -30px 0px;}
+.tupu-toolbar ul>li>span.refresh{background-position: -60px 0px;}
+.tupu-toolbar ul>li>span.big{background-position: -90px 0px;}
+.tupu-toolbar ul>li>span.small{background-position: -120px 0px;}
+.tupu-toolbar ul>li>span.save{background-position: -150px 0px;}
+.tupu-toolbar ul>li>span.screen{background-position: -180px 0px;}
+.tupu-toolbar ul>li>span.screened{background-position: -210px 0px;}
+.tupu-toolbar ul>li>span.screen2{background-position: -180px 0px;}
+.tupu-toolbar ul>li>span.screen2ed{background-position: -210px -30px;}
+.tupu-toolbar ul>li>span.sel{background-position: -240px 0px;}
+.tupu-toolbar ul>li>span.txt{background-position: -270px 0px;}
+.tupu-toolbar ul>li:not(:first-child){
+}
+.tupu-toolbar ul>li:hover,.tupu-toolbar ul>li.active{
+    background: #128bed;
+    color: #fff;
+    width: 48px;
+    margin-left: -1px;
+    cursor:pointer;
+}
+.tupu-toolbar ul>li:hover>span.extent{background-position: 0px -30px;}
+.tupu-toolbar ul>li:hover>span.extented{background-position: -30px -30px;}
+.tupu-toolbar ul>li:hover>span.refresh{background-position: -60px -30px;}
+.tupu-toolbar ul>li:hover>span.big{background-position: -90px -30px;}
+.tupu-toolbar ul>li:hover>span.small{background-position: -120px -30px;}
+.tupu-toolbar ul>li:hover>span.save{background-position: -150px -30px;}
+.tupu-toolbar ul>li:hover>span.screen{background-position: -180px -30px;}
+.tupu-toolbar ul>li:hover>span.screened{background-position: -210px -30px;}
+.tupu-toolbar ul>li:hover>span.screen2, .tupu-toolbar ul>li.active>span.screen2{background-position: -180px -30px;}
+.tupu-toolbar ul>li:hover>span.screen2ed{background-position: -210px -30px;}
+.tupu-toolbar ul>li:hover>span.sel,.tupu-toolbar ul>li.active>span.sel{background-position: -240px -30px;}
+.tupu-toolbar ul>li:hover>span.txt,.tupu-toolbar ul>li.active>span.txt{background-position: -270px -30px;}
+.opercor-lvip{
+    height: 300px;
+    text-align: center;
+    padding-top: 100px;
+}
+.opercor-lvip p{
+    font-size: 20px;
+    font-size: 20px;
+    color: #333;
+}
+.opercor-lvip .btn{
+    font-size: 16px;
+    margin-top: 30px;
+    padding: 8px 30px;
+}
+

@@ -3,21 +3,37 @@
         <div class="panel-heading">股权穿透图</div>
         <div class="panel-body" style="width:100%;text-align: center">
             <img src="/htmlsrc/qichacha/tupu/image/chuantou.png" alt="股权穿透"style="width:100%">
-            <a class="btn btn-primary btn-sm" href="/htmlsrc/qichacha/tupu/guquanchuantou.html" target="_blank">查看股权穿透</a>
+            <a class="btn btn-primary btn-sm tupuBtn1" href="#" target="_blank">查看股权穿透</a>
         </div>
     </div>
     <div class="panel panel-default">
         <div class="panel-heading">企业图谱</div>
         <div class="panel-body" style="width:100%;text-align: center">
             <img src="/htmlsrc/qichacha/tupu/image/tupu.png" alt="企业图谱"style="width:100%">
-            <a class="btn btn-primary btn-sm" href="/htmlsrc/qichacha/tupu/qiyetupu.html" target="_blank">查看企业图谱</a>
+            <a class="btn btn-primary btn-sm tupuBtn2" href="#" target="_blank">查看企业图谱</a>
         </div>
     </div>
     <div class="panel panel-default">
-        <div class="panel-heading">关联图谱</div>
+        <div class="panel-heading">股权结构图</div>
         <div class="panel-body" style="width:100%;text-align: center">
-            <img src="/htmlsrc/qichacha/tupu/image/muhou.png" alt="关联图谱"style="width:100%">
-            <a class="btn btn-primary btn-sm" href="/htmlsrc/qichacha/tupu/guanliantupu.html" target="_blank">查看关联图谱</a>
+            <img src="/htmlsrc/qichacha/tupu/image/muhou.png" alt="股权结构图"style="width:100%">
+            <a class="btn btn-primary btn-sm tupuBtn3" href="#" target="_blank">查看股权结构图</a>
         </div>
     </div>
+    <!--<div class="panel panel-default">-->
+        <!--<div class="panel-heading">关联图谱</div>-->
+        <!--<div class="panel-body" style="width:100%;text-align: center">-->
+            <!--<img src="/htmlsrc/qichacha/tupu/image/muhou.png" alt="关联图谱"style="width:100%">-->
+            <!--<a class="btn btn-primary btn-sm tupuBtn3" href="#" target="_blank">查看关联图谱</a>-->
+        <!--</div>-->
+    <!--</div>-->
 </div>
+<script>
+    $.when(keyNoPromise).then(function () {
+        var param = "?name="+COMPANY_NAME+"&keyNo="+COMPANY_KEY_NO;
+        $(".tupuBtn1").prop("href", "/htmlsrc/qichacha/tupu/guquanchuantou.html"+param);
+        $(".tupuBtn2").prop("href", "/htmlsrc/qichacha/tupu/qiyetupu.html"+param);
+        $(".tupuBtn3").prop("href", "/htmlsrc/qichacha/tupu/guquanTupu.html"+param);
+    });
+
+</script>

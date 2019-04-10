@@ -87,18 +87,17 @@
 </div>
 <script src="/htmlsrc/qichacha/tmpl/eci/hiscominfo.js"></script>
 <script>
-    var keyWord = "深圳小桔科技有限公司";
     // 历史工商
     $.ajax({
-        url: remoteApi.qccHistoryGetHistorytEci,
-        data:{
-            keyWord: keyWord
-        },
+        url: remoteApi.qccHistoryGetHistorytEci+"?keyWord="+COMPANY_NAME,
         success:function (res) {
-            if(res.success && res.data){
+            if(res.success && res.data && JSON.stringify(res.data) != "{}"){
                 $("#history1-body").html(
                     hiscominfoRender(res.data)
                 )
+            }else{
+                $("#history1").hide();
+                $("a[href='#history1']").addClass("disabled");
             }
         }
     });
@@ -106,7 +105,7 @@
     laytableRender({
         id: "history2-body",
         autoShift: false,
-        url: remoteApi.qccHistoryGetHistorytInvestment+"?keyWord="+keyWord,
+        url: remoteApi.qccHistoryGetHistorytInvestment+"?keyWord="+COMPANY_NAME,
         cols: [
             [
                 {title:"变更日期",field:"ChangeDate", width:100},
@@ -121,17 +120,40 @@
             ]
         ],
         onData:function (data) {
-            if(data && data.total < 1){
+            if(!data || !data.total || data.total < 1){
                 $("#history2").hide();
                 $("a[href='#history2']").addClass("disabled");
             }
         }
     });
+
+    // 历史股东
+    laytableRender({
+        id: "history3-body",
+        autoShift: false,
+        url: remoteApi.qccHistoryGetHistorytShareHolder+"?keyWord="+COMPANY_NAME,
+        cols: [
+            [
+                {title:"股东名称",field:"PartnerName"},
+                {title:"持股比例",field:"StockPercent"},
+                {title:"认缴出资额",field:"ShouldCapi"},
+                {title:"认缴出资日期",field:"ShouldDate"},
+                {title:"出资类型",field:"ShouldType"}
+            ]
+        ],
+        onData:function (data) {
+            if(!data || !data.total || data.total < 1){
+                $("#history3").hide();
+                $("a[href='#history3']").addClass("disabled");
+            }
+        }
+    });
+
     // 历史失信
     laytableRender({
         id: "history4-body",
         autoShift: false,
-        url: remoteApi.qccHistoryGetHistoryShiXin+"?keyWord="+keyWord,
+        url: remoteApi.qccHistoryGetHistoryShiXin+"?keyWord="+COMPANY_NAME,
         cols: [
             [
                 // {title:"Id值",field:"Id"},
@@ -151,13 +173,19 @@
                 {title:"组织类型名称",field:"OrgTypeName"},
                 {title:"名称",field:"Name"}
             ]
-        ]
+        ],
+        onData:function (data) {
+            if(!data || !data.total || data.total < 1){
+                $("#history4").hide();
+                $("a[href='#history4']").addClass("disabled");
+            }
+        }
     });
     // 历史被执行
     laytableRender({
         id: "history5-body",
         autoShift: false,
-        url: remoteApi.qccHistoryGetHistoryZhiXing+"?keyWord="+keyWord,
+        url: remoteApi.qccHistoryGetHistoryZhiXing+"?keyWord="+COMPANY_NAME,
         cols: [
             [
                 {title:"标地",field:"BiaoDi"},
@@ -171,13 +199,19 @@
                 {title:"组织类型名称",field:"OrgTypeName"},
                 {title:"名称",field:"Name", width: 180}
             ]
-        ]
+        ],
+        onData:function (data) {
+            if(!data || !data.total || data.total < 1){
+                $("#history5").hide();
+                $("a[href='#history5']").addClass("disabled");
+            }
+        }
     });
     // 历史法院公告
     laytableRender({
         id: "history6-body",
         autoShift: false,
-        url: remoteApi.qccHistoryGetHistorytCourtNotice+"?keyWord="+keyWord,
+        url: remoteApi.qccHistoryGetHistorytCourtNotice+"?keyWord="+COMPANY_NAME,
         cols: [
             [
                 // {title:"Id值",field:"Id"},
@@ -190,13 +224,19 @@
                 {title:"上传日期",field:"SubmitDate"},
                 {title:"公示日期",field:"PublishDate"}
             ]
-        ]
+        ],
+        onData:function (data) {
+            if(!data || !data.total || data.total < 1){
+                $("#history6").hide();
+                $("a[href='#history6']").addClass("disabled");
+            }
+        }
     });
     // 历史裁判文书
     laytableRender({
         id: "history7-body",
         autoShift: false,
-        url: remoteApi.qccHistoryGetHistorytJudgement+"?keyWord="+keyWord,
+        url: remoteApi.qccHistoryGetHistorytJudgement+"?keyWord="+COMPANY_NAME,
         cols: [
             [
                 // {title:"Id值",field:"Id"},
@@ -208,13 +248,19 @@
                 {title:"涉案人员角色",field:"CaseRole"},
                 {title:"年份",field:"CourtYear"}
             ]
-        ]
+        ],
+        onData:function (data) {
+            if(!data || !data.total || data.total < 1){
+                $("#history7").hide();
+                $("a[href='#history7']").addClass("disabled");
+            }
+        }
     });
     // 历史开庭公告
     laytableRender({
         id: "history8-body",
         autoShift: false,
-        url: remoteApi.qccHistoryGetHistorytSessionNotice+"?keyWord="+keyWord,
+        url: remoteApi.qccHistoryGetHistorytSessionNotice+"?keyWord="+COMPANY_NAME,
         cols: [
             [
                 // {title:"Id值",field:"Id"},
@@ -225,13 +271,19 @@
                 {title:"案号",field:"CaseNo"},
                 {title:"开庭日期",field:"LianDate"}
             ]
-        ]
+        ],
+        onData:function (data) {
+            if(!data || !data.total || data.total < 1){
+                $("#history8").hide();
+                $("a[href='#history8']").addClass("disabled");
+            }
+        }
     });
     // 历史动产抵押
     laytableRender({
         id: "history9-body",
         autoShift: false,
-        url: remoteApi.qccHistoryGetHistorytMPledge+"?keyWord="+keyWord,
+        url: remoteApi.qccHistoryGetHistorytMPledge+"?keyWord="+COMPANY_NAME,
         cols: [
             [
                 {title:"登记编号",field:"RegisterNo"},
@@ -240,13 +292,19 @@
                 {title:"被担保债权数额",field:"DebtSecuredAmount"},
                 {title:"状态",field:"Status"}
             ]
-        ]
+        ],
+        onData:function (data) {
+            if(!data || !data.total || data.total < 1){
+                $("#history9").hide();
+                $("a[href='#history9']").addClass("disabled");
+            }
+        }
     });
     // 历史动产抵押
     laytableRender({
         id: "history10-body",
         autoShift: false,
-        url: remoteApi.qccHistoryGetHistorytPledge+"?keyWord="+keyWord,
+        url: remoteApi.qccHistoryGetHistorytPledge+"?keyWord="+COMPANY_NAME,
         cols: [
             [
                 {title:"登记编号",field:"RegistNo"},
@@ -257,11 +315,17 @@
                 {title:"公布日期",field:"PublicDate"},
                 {title:"状态",field:"Status"}
             ]
-        ]
+        ],
+        onData:function (data) {
+            if(!data || !data.total || data.total < 1){
+                $("#history10").hide();
+                $("a[href='#history10']").addClass("disabled");
+            }
+        }
     });
     // 历史行政处罚
     $.ajax({
-        url: remoteApi.qccHistoryGetHistorytAdminPenalty+"?keyWord="+keyWord,
+        url: remoteApi.qccHistoryGetHistorytAdminPenalty+"?keyWord="+COMPANY_NAME,
         success:function (res) {
             if(res.success){
                 var nonData1 = true;
@@ -317,7 +381,7 @@
     });
 
     $.ajax({
-        url: remoteApi.qccHistoryGetHistorytAdminLicens+"?keyWord="+keyWord,
+        url: remoteApi.qccHistoryGetHistorytAdminLicens+"?keyWord="+COMPANY_NAME,
         success:function (res) {
             if(res.success){
                 var nonData1 = true;

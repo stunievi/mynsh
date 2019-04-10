@@ -1,0 +1,95 @@
+{
+  "OrderNumber": "ECIRELATION2019041010591894450653",
+  "Result": {
+    "Name": "大连万达集团股份有限公司",
+    "KeyNo": "befe52d9753b511b6aef5e33fe00f97d",
+    "Category": "1",
+    "Count": "2",
+    "FundedRatio": "100%",
+    "Children": [
+      {
+        "Name": "大连合兴投资有限公司",
+        "KeyNo": "971e2cafbecd8c978e959d69fc305f42",
+        "Category": "1",
+        "StockType": "企业法人",
+        "Count": "2",
+        "SubConAmt": "99760万元",
+        "FundedRatio": "99.76%",
+        "Children": [
+          {
+            "Name": "王健林",
+            "KeyNo": "EF11C4C072401E84CCC20E84D1BDCB8A_",
+            "Category": "2",
+            "StockType": "自然人股东",
+            "Count": "0",
+            "SubConAmt": "7702.8万元",
+            "FundedRatio": "98.00%",
+            "Children": null,
+            "IsAbsoluteController": "True",
+            "Grade": "3",
+            "OperName": null,
+            "InParentActualRadio": "0.977648",
+            "ParentKeyNo": "971e2cafbecd8c978e959d69fc305f42"
+          },
+          {
+            "Name": "王思聪",
+            "KeyNo": null,
+            "Category": "2",
+            "StockType": "自然人股东",
+            "Count": "0",
+            "SubConAmt": "157.2万元",
+            "FundedRatio": "2.00%",
+            "Children": null,
+            "IsAbsoluteController": "False",
+            "Grade": "3",
+            "OperName": null,
+            "InParentActualRadio": "0.019952",
+            "ParentKeyNo": "971e2cafbecd8c978e959d69fc305f42"
+          }
+        ],
+        "IsAbsoluteController": "True",
+        "Grade": "2",
+        "OperName": "王健林",
+        "InParentActualRadio": "0.9976",
+        "ParentKeyNo": "befe52d9753b511b6aef5e33fe00f97d"
+      },
+      {
+        "Name": "王健林",
+        "KeyNo": "EF11C4C072401E84CCC20E84D1BDCB8A_",
+        "Category": "2",
+        "StockType": "自然人股东",
+        "Count": "0",
+        "SubConAmt": "240万元",
+        "FundedRatio": "0.24%",
+        "Children": null,
+        "IsAbsoluteController": "False",
+        "Grade": "2",
+        "OperName": null,
+        "InParentActualRadio": "0.0024",
+        "ParentKeyNo": "befe52d9753b511b6aef5e33fe00f97d"
+      }
+    ],
+    "IsAbsoluteController": "True",
+    "Grade": "1",
+    "ActualControllerLoopPath": [
+      {
+        "Name": "大连合兴投资有限公司",
+        "StockType": "企业法人",
+        "KeyNo": "971e2cafbecd8c978e959d69fc305f42",
+        "SubConAmt": "99760万元",
+        "FundedRatio": "99.76%"
+      },
+      {
+        "Name": "王健林",
+        "StockType": "自然人股东",
+        "KeyNo": "",
+        "SubConAmt": "7702.8万元",
+        "FundedRatio": "98.00%"
+      }
+    ],
+    "OperName": "王健林",
+    "InParentActualRadio": "0"
+  },
+  "Status": "200",
+  "Message": "查询成功"
+}

@@ -10,9 +10,9 @@ import java.util.Map;
 public class QccUtil {
 
     // 应用AppKey
-    private static final String AppKey = "0cc43cbebcca42d9b68441c32cc254f2";
+    private static final String AppKey = "797d933687f441ad9098dda4f3eabba2";
     // 密钥
-    private static final String SecretKey = "6825D0914B8333B45F2E36D71A10E85F";
+    private static final String SecretKey = "ED0F558DF66A184E26504B1DD9DAD1A3";
 
     // 请求的http header
     private static Map setHeaderInfo(){
