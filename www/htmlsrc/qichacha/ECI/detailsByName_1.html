@@ -1,4 +1,4 @@
-<div role="tabpanel" class="tab-pane" id="base" aria-labelledby="base-tab">
+<div role="tabpanel" class="tab-pane active" id="base" aria-labelledby="base-tab">
     <div class="data-tab">
         <a class="btn btn-default" href="#base1">工商信息</a>
         <!--<a class="btn btn-default" href="#base2">企业人员董监高信息</a>-->
@@ -8,11 +8,13 @@
         <!--<a class="btn btn-default" href="#base6">股权穿透图</a>-->
         <!--<a class="btn btn-default" href="#base7">企业图谱</a>-->
         <a class="btn btn-default" href="#base8">股东信息</a>
+        <a class="btn btn-default" href="#base14">控股公司</a>
         <a class="btn btn-default" href="#base9">主要人员</a>
         <a class="btn btn-default" href="#base10">分支机构</a>
         <a class="btn btn-default" href="#base11">变更信息</a>
         <a class="btn btn-default" href="#base12">联系信息</a>
         <a class="btn btn-default" href="#base13">行业信息</a>
+
     </div>
 
     <div class="panel-qcc" id="base1">
@@ -66,6 +68,11 @@
         <div class="panel-qcc-body" id="base8-body">
         </div>
     </div>
+    <div class="panel-qcc" id="base14">
+        <div class="panel-qcc-heading">控股公司</div>
+        <div class="panel-qcc-body" id="base14-body">
+        </div>
+    </div>
     <div class="panel-qcc" id="base9">
         <div class="panel-qcc-heading">主要人员</div>
         <div class="panel-qcc-body" id="base9-body">
@@ -92,13 +99,40 @@
         </div>
     </div>
 </div>
-
+<style>
+    .path {
+        display: inline-block;
+        width: 84px;
+        height: 26px;
+        background: url('https://www.qichacha.com/material/theme/chacha/cms/v2/images/line_arrow@2x.png') no-repeat right bottom;
+        background-size: 75px 8px;
+        padding-bottom: 10px;
+        font-size: 12px;
+        color: #128bed;
+        text-align: center;
+        position: relative;
+        top: -9px;
+        margin-right: 6px;
+    }
+</style>
 <script type="text/html" id="toolbar">
     <div class="layui-toolbar">
         <a href="javascript:;" class="btn btn-default showStockRelationInfo" data-name="{{d.Name}}">关联信息</a>
     </div>
 </script>
-
+<!--投资路径模板-->
+<script type="text/html" id="paths">
+    {{#  layui.each(d.Paths, function(index, item){ }}
+        <b>路径 {{index + 1 }} (占比约 {{d.PercentTotal}}):</b>
+        <br/>
+            {{d.Name}}
+            {{#  layui.each(item, function(i, t){ }}
+                <span class="path">{{t.PercentTotal}}</span>
+            {{t.Name}}
+            {{# }) }}
+        <br/>
+    {{# }) }}
+</script>
 <script src="/htmlsrc/qichacha/tmpl/eci/qccTable.js"></script>
 <script>
     $.ajax({
@@ -173,14 +207,13 @@
                 });
                 $(document).on("click", ".showStockRelationInfo", function () {
                     var name = $(this).data("name");
-                    // addNavTab("StockRelationInfo"+COMPANY_NAME+name, "企业人员董监高信息-"+name, "/htmlsrc/qichacha/CIAEmployee/GetStockRelationInfo.html?companyName="+COMPANY_NAME+"&name="+name);
+                    addNavTab("StockRelationInfo"+COMPANY_NAME+name, "企业人员董监高信息-"+name, "/htmlsrc/qichacha/CIAEmployee/GetStockRelationInfo.html?companyName="+COMPANY_NAME+"&name="+name);
                     return false;
                 });
             }else{
                 $("#base9").hide();
                 $("a[href='#base9']").addClass("disabled");
             }
-
 
             if(data.Branches && data.Branches.length > 0){
                 laytableRender({
@@ -265,8 +298,20 @@
                     })
                 )
             }
-
         }
-    })
+    });
+
+    laytableRender({
+        id: "base14-body",
+        title: "控股公司",
+        url: remoteApi.qccHoldingCompanyGetHoldingCompany+"?keyWord="+COMPANY_NAME,
+        cols: [
+            [
+                {title:"控股企业名称", field:"Name"},
+                {title:"投资比例", field:"PercentTotal"},
+                {title:"投资链", field:"Paths", templet: "#paths"}
+            ]
+        ]
+    });
 
 </script>

@@ -1,10 +1,11 @@
-<div role="tabpanel" class="tab-pane active" id="fengxian" aria-labelledby="fengxian-tab">
+<div role="tabpanel" class="tab-pane" id="fengxian" aria-labelledby="fengxian-tab">
     <!--经营风险-->
     <div class="data-tab">
         <a class="btn btn-default" href="#JudicialSaleList">司法拍卖</a>
         <a class="btn btn-default" href="#LandMortgageList">土地抵押</a>
         <a class="btn btn-default" href="#EnvPunishmentList">环保处罚</a>
         <a class="btn btn-default" href="#ChattelMortgage">动产抵押</a>
+        <a class="btn btn-default" href="#Exceptions">经营异常</a>
     </div>
 
     <div class="panel-qcc" id="JudicialSaleList">
@@ -27,9 +28,16 @@
         <div style="" id="ChattelMortgage-body">
         </div>
     </div>
+    <div class="panel-qcc" id="Exceptions">
+        <div class="panel-qcc-heading">经营异常</div>
+        <div style="" id="Exceptions-body">
+        </div>
+    </div>
 </div>
+<!--用户绘制动产抵押-->
 <script src="/tmpl/js/chattelMortgage.js"></script>
 
+<!--toolbar-->
 <script type="text/html" id="toolbar1">
     <div class="layui-toolbar">
         <a href="javascript:;" class="btn btn-default toolbar1" data-val="{{d.Id}}">查看</a>
@@ -47,104 +55,138 @@
 </script>
 
 <script>
-    var keyWord = "小米";
-    laytableRender({
-        id: "JudicialSaleList-body",
-        title: "司法拍卖列表"
-        , url: remoteApi.qccJudicialSaleGetJudicialSaleList+"?keyWord="+keyWord
-        , dataType: "json"
-        , cols: [
-            [
-                { title:'操作', templet: "#toolbar1"},
-                // {title:"主键", field:"Id"},
-                {title:"标题", field:"Name"},
-                {title:"委托法院", field:"Executegov"},
-                {title:"拍卖时间", field:"ActionRemark"},
-                {title:"起拍价", field:"YiWu"}
-            ]
-        ],
-        onData:function (data) {
-            if(!data || !data.total || data.total < 1){
-                $("#JudicialSaleList").hide();
-                $("a[href='#JudicialSaleList']").addClass("disabled");
+    var loadBlock4Status = false;
+    function loadBlock4() {
+        loadBlock4Status = true;
+        var keyWord = "小米";
+        laytableRender({
+            id: "JudicialSaleList-body",
+            title: "司法拍卖列表"
+            , url: remoteApi.qccJudicialSaleGetJudicialSaleList+"?keyWord="+keyWord
+            , dataType: "json"
+            , cols: [
+                [
+                    { title:'操作', templet: "#toolbar1"},
+                    // {title:"主键", field:"Id"},
+                    {title:"标题", field:"Name"},
+                    {title:"委托法院", field:"Executegov"},
+                    {title:"拍卖时间", field:"ActionRemark"},
+                    {title:"起拍价", field:"YiWu"}
+                ]
+            ],
+            onData:function (data) {
+                if(!data || !data.total || data.total < 1){
+                    $("#JudicialSaleList").hide();
+                    $("a[href='#JudicialSaleList']").addClass("disabled");
+                }
             }
-        }
-    });
-    $(document).on("click", ".toolbar1", function () {
-        var id = $(this).data("val");
-        addNavTab("JudicialSaleList-"+id, "司法拍卖详情", "/htmlsrc/qichacha/JudicialSale/GetJudicialSaleDetail.html?id="+id);
-        return true;
-    });
+        });
+        $(document).on("click", ".toolbar1", function () {
+            var id = $(this).data("val");
+            addNavTab("JudicialSaleList-"+id, "司法拍卖详情", "/htmlsrc/qichacha/JudicialSale/GetJudicialSaleDetail.html?id="+id);
+            return true;
+        });
 
-    laytableRender({
-        title: "土地抵押列表",
-        id: "LandMortgageList-body"
-        , url: remoteApi.qccLandMortgageGetLandMortgageList+"?keyWord="+keyWord
-        , dataType: "json"
-        , cols: [
-            [
-                { title:'操作', templet: "#toolbar2"},
-                // {title:"Id", field:"Id"},
-                {title:"地址", field:"Address"},
-                {title:"行政区", field:"AdministrativeArea"},
-                {title:"抵押面积（公顷）", field:"MortgageAcreage"},
-                {title:"抵押土地用途", field:"MortgagePurpose"},
-                {title:"开始日期", field:"StartDate"},
-                {title:"结束日期", field:"EndDate"}
-            ]
-        ],
-        onData:function (data) {
-            if(!data || !data.total || data.total < 1){
-                $("#LandMortgageList").hide();
-                $("a[href='#LandMortgageList']").addClass("disabled");
+        laytableRender({
+            title: "土地抵押列表",
+            id: "LandMortgageList-body"
+            , url: remoteApi.qccLandMortgageGetLandMortgageList+"?keyWord="+keyWord
+            , dataType: "json"
+            , cols: [
+                [
+                    { title:'操作', templet: "#toolbar2"},
+                    // {title:"Id", field:"Id"},
+                    {title:"地址", field:"Address"},
+                    {title:"行政区", field:"AdministrativeArea"},
+                    {title:"抵押面积（公顷）", field:"MortgageAcreage"},
+                    {title:"抵押土地用途", field:"MortgagePurpose"},
+                    {title:"开始日期", field:"StartDate"},
+                    {title:"结束日期", field:"EndDate"}
+                ]
+            ],
+            onData:function (data) {
+                if(!data || !data.total || data.total < 1){
+                    $("#LandMortgageList").hide();
+                    $("a[href='#LandMortgageList']").addClass("disabled");
+                }
             }
-        }
-    });
-    $(document).on("click", ".toolbar2", function () {
-        var id = $(this).data("val");
-        addNavTab("LandMortgageList-"+id, "土地抵押详情", "/htmlsrc/qichacha/LandMortgage/GetLandMortgageDetails.html?id="+id);
-        return true;
-    });
+        });
+        $(document).on("click", ".toolbar2", function () {
+            var id = $(this).data("val");
+            addNavTab("LandMortgageList-"+id, "土地抵押详情", "/htmlsrc/qichacha/LandMortgage/GetLandMortgageDetails.html?id="+id);
+            return true;
+        });
 
-    laytableRender({
-        title: "获取环保处罚列表",
-        id: "EnvPunishmentList-body"
-        , url: remoteApi.qccGetEnvPunishmentList+"?keyWord="+keyWord
-        , dataType: "json"
-        , cols: [
-            [
-                { title:'操作', templet: "#toolbar3"},
-                // {title:"Id", field:"Id"},
-                {title:"决定书文号", field:"CaseNo"},
-                {title:"处罚日期", field:"PunishDate"},
-                {title:"违法类型", field:"IllegalType"},
-                {title:"处罚单位", field:"PunishGov"}
-            ]
-        ],
-        onData:function (data) {
-            if(!data || !data.total || data.total < 1){
-                $("#EnvPunishmentList").hide();
-                $("a[href='#EnvPunishmentList']").addClass("disabled");
+        laytableRender({
+            title: "获取环保处罚列表",
+            id: "EnvPunishmentList-body"
+            , url: remoteApi.qccGetEnvPunishmentList+"?keyWord="+keyWord
+            , dataType: "json"
+            , cols: [
+                [
+                    { title:'操作', templet: "#toolbar3"},
+                    // {title:"Id", field:"Id"},
+                    {title:"决定书文号", field:"CaseNo"},
+                    {title:"处罚日期", field:"PunishDate"},
+                    {title:"违法类型", field:"IllegalType"},
+                    {title:"处罚单位", field:"PunishGov"}
+                ]
+            ],
+            onData:function (data) {
+                if(!data || !data.total || data.total < 1){
+                    $("#EnvPunishmentList").hide();
+                    $("a[href='#EnvPunishmentList']").addClass("disabled");
+                }
             }
-        }
-    });
-    $(document).on("click", ".toolbar3", function () {
-        var id = $(this).data("val");
-        addNavTab("EnvPunishmentList-"+id, "获取环保处罚详情", "/htmlsrc/qichacha/EnvPunishment/GetEnvPunishmentDetails.html?id="+id);
-        return true;
-    });
+        });
+        $(document).on("click", ".toolbar3", function () {
+            var id = $(this).data("val");
+            addNavTab("EnvPunishmentList-"+id, "获取环保处罚详情", "/htmlsrc/qichacha/EnvPunishment/GetEnvPunishmentDetails.html?id="+id);
+            return true;
+        });
 
-    $.ajax({
-        url: remoteApi.qccGetChattelMortgage+"?keyWord="+keyWord,
-        success:function(res){
-            if(res.success && res.data && res.data.list){
-                $("#ChattelMortgage-body").html(panelFormRender4({
-                    dataList: res.data.list
-                }));
-            }else{
-                $("#ChattelMortgage").hide();
-                $("a[href='#ChattelMortgage']").addClass("disabled");
+        $.ajax({
+            url: remoteApi.qccGetChattelMortgage+"?keyWord="+keyWord,
+            success:function(res){
+                if(res.success && res.data && res.data.list){
+                    $("#ChattelMortgage-body").html(panelFormRender4({
+                        dataList: res.data.list
+                    }));
+                }else{
+                    $("#ChattelMortgage").hide();
+                    $("a[href='#ChattelMortgage']").addClass("disabled");
+                }
             }
-        }
-    })
+        });
+
+        // 企业经营异常信息
+        $.when(keyNoPromise).then(function () {
+            $.ajax({
+                url: remoteApi.qccECIExceptionGetOpException+"?keyNo="+COMPANY_KEY_NO,
+                success: function (res) {
+                    if(res.success && res.data && res.data.list && res.data.list.length > 0){
+                        laytableRender({
+                            title: "经营异常",
+                            id: "Exceptions-body"
+                            , cols: [
+                                [
+                                    {title:"列入经营异常名录原因", field:"AddReason"},
+                                    {title:"列入日期", field:"AddDate"},
+                                    {title:"移出经营异常名录原因", field:"RomoveReason"},
+                                    {title:"移出日期", field:"RemoveDate"},
+                                    {title:"作出决定机关", field:"DecisionOffice"},
+                                    {title:"移除决定机关", field:"RemoveDecisionOffice"}
+                                ]
+                            ],
+                            data: res.data.list
+                        });
+                    }else{
+                        $("#Exceptions").hide();
+                        $("a[href='#Exceptions']").addClass("disabled");
+                    }
+                }
+            })
+        });
+    }
+
 </script>

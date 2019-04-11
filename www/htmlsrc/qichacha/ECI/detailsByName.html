@@ -7,22 +7,22 @@
     <!--#include file="/htmlsrc/header.html" -->
     <script>
         var keyNoPromise = $.Deferred();
-        var COMPANY_NAME = "惠州市帅星贸易有限公司";
-        var COMPANY_KEY_NO = "";
+        var COMPANY_NAME =  "惠州市帅星贸易有限公司" || getParam("keyWord");
+        var COMPANY_KEY_NO = getParam("keyNo") || "";
     </script>
 </head>
 <body>
 <div id="content">
-    <div class="" id="panel-form">
-        <!-- 查询表单 -->
-    </div>
+    <!--<div class="" id="panel-form">-->
+        <!--&lt;!&ndash; 查询表单 &ndash;&gt;-->
+    <!--</div>-->
     <div id="dataList">
         <div class="qcc-detail-inner col-xs-10" data-example-id="togglable-tabs">
             <ul id="myTabs" class="nav nav-tabs" role="tablist" style="background: #fff">
-                <li role="presentation" class=""><a href="#base" id="base-tab" role="tab" data-toggle="tab" data-controls="base" aria-expanded="true">基本信息</a></li>
+                <li role="presentation" class="active"><a href="#base" id="base-tab" role="tab" data-toggle="tab" data-controls="base" aria-expanded="true">基本信息</a></li>
                 <li role="presentation" class=""><a href="#susong" role="tab" id="susong-tab" data-toggle="tab" data-controls="susong" title="双击展开/关闭全部">法律诉讼</a></li>
                 <!--<li role="presentation" class=""><a href="#run" role="tab" id="run-tab" data-toggle="tab" data-controls="run">经营状况</a></li>-->
-                <li role="presentation" class="active"><a href="#fengxian" role="tab" id="fengxian-tab" data-toggle="tab" data-controls="fengxian">经营风险</a></li>
+                <li role="presentation" class=""><a href="#fengxian" role="tab" id="fengxian-tab" data-toggle="tab" data-controls="fengxian">经营风险</a></li>
                 <!--<li role="presentation" class=""><a href="#report" role="tab" id="report-tab" data-toggle="tab" data-controls="report">企业发展</a></li>-->
                 <!--<li role="presentation" class=""><a href="#assets" role="tab" id="assets-tab" data-toggle="tab" data-controls="assets">知识产权</a></li>-->
                 <li role="presentation" class=""><a href="#history" role="tab" id="history-tab" data-toggle="tab" data-controls="history">历史信息</a></li>
@@ -52,42 +52,46 @@
         }
     })
 
-    var id = decodeURI(getParam("id")) || '';
-    var data = {
-        keyword: id
-    };
-    // 配置查询表单
-    $("#panel-form").html(panelFormRender3({
-        panelTitle:'筛选查询（公司名、注册号、社会统一信用代码或KeyNo）',
-        col: 3,
-        list:[
-            { prop: 'keyword', label: '搜索关键字' }
-        ],
-        data: data
-    }));
+    // var id = decodeURI(getParam("id")) || '';
+    // var data = {
+    //     keyword: id
+    // };
+    // // 配置查询表单
+    // $("#panel-form").html(panelFormRender3({
+    //     panelTitle:'筛选查询（公司名、注册号、社会统一信用代码或KeyNo）',
+    //     col: 3,
+    //     list:[
+    //         { prop: 'keyword', label: '搜索关键字' }
+    //     ],
+    //     data: data
+    // }));
 
-    $(document).on("click", "#fengxian-tab", function () {
-        SuperPost({
-            url: remoteApi.qccGetChattelMortgage,
-            success:function(res){
-                if("200" == res.Status){
-                    $("#ChattelMortgage-body").html(panelFormRender4({
-                        dataList: res["Result"]
-                    }));
-                }
-            }
-        })
+    $(document).on("click", "#susong-tab", function () {
+        if(loadBlock2Status == false){
+            loadBlock2();
+        }
     });
 
-    function checkSubmitForm() {
-        getRemoteData({
-            url: remoteApi.qccECIGetDetails,
-            data: $("form[name='form-search']").serialize(),
-            success: function(res){
-            }
-        });
-        return false;
-    }
+    $(document).on("click", "#fengxian-tab", function () {
+        if(loadBlock4Status == false){
+            loadBlock4();
+        }
+    });
+    $(document).on("click", "#history-tab", function () {
+        if(loadBlock7Status == false){
+            loadBlock7();
+        }
+    });
+
+    // function checkSubmitForm() {
+    //     getRemoteData({
+    //         url: remoteApi.qccECIGetDetails,
+    //         data: $("form[name='form-search']").serialize(),
+    //         success: function(res){
+    //         }
+    //     });
+    //     return false;
+    // }
 </script>
 </body>
 </html>

@@ -104,7 +104,7 @@ var remoteApi = {
 	qccECIRelationGenerateMultiDimensionalTreeCompanyMap: "/qcc/auto/ECIRelationV4/GenerateMultiDimensionalTreeCompanyMap", // 企业图谱
 	qccECICompanyMapGetStockAnalysisData: "/qcc/auto/ECICompanyMap/GetStockAnalysisData", // 企业股权穿透十层接口查询
 
-	qccECIExceptionGetOpException: "/qcc/auto/ECIException/GetOpExceGetJudicialAssistanception", // 查询企业经营异常信息
+	qccECIExceptionGetOpException: "/qcc/auto/ECIException/GetOpException", // 查询企业经营异常信息
 	qccJudicialAssistanceGetJudicialAssistance: "/qcc/auto/JudicialAssistance/GetJudicialAssistance", // 获取司法协助信息
 	qccCourtSearchShiXin: "/qcc/auto/CourtV4/SearchShiXin", // 查询失信列表
 	qccCourtSearchZhiXing: "/qcc/auto/CourtV4/SearchZhiXing", // 查询执行列表
@@ -363,7 +363,7 @@ var hrefUrl = {
 	comClientInfo: "/htmlsrc/dataQuery/company/company.show.html?id=",
 	loanInfo: "/htmlsrc/creditDataManage/ledger/loan.show.html?loanid=",
     loanDataInfo: "/htmlsrc/creditDataManage/ledger/loanData.show.html?loanid=",
-	ECIdetail: "/htmlsrc/qichacha/ECI/detailsByName.html?id="
+	ECIdetail: "/htmlsrc/qichacha/ECI/detailsByName.html?keyWord="
 };
 
 var globalData = {

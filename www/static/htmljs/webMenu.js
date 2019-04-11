@@ -126,6 +126,20 @@ var _menu = [
         ]
     },
     {
+        name: "对公客户贷后信息",
+        children: [
+            {
+                name: "对公客户",
+                children: [
+                    {
+                        name: "客户列表",
+                        href: "/htmlsrc/comInfoQuery/company/company.list.html"
+                    }
+                ]
+            }
+        ]
+    },
+    {
         name: '资料收集',
         icon: '<span class="glyphicon glyphicon-align-left" aria-hidden="true"></span>&nbsp;',
         children: [

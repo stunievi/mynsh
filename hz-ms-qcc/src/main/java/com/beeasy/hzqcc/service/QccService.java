@@ -228,6 +228,15 @@ public class QccService {
         JSONObject data = qccHttpDataService.findOne("JudicialAssistance_GetJudicialAssistance", param);
          return getResDataArr(data, isOrigin);
     }
+    // 企业经营异常信息
+    public JSONObject ECIException_GetOpException(
+            Map param,
+            boolean isOrigin
+    ){
+        JSONObject data = qccDataService.findOne("ECIException_GetOpException", param);
+        return getResDataArr(data, isOrigin);
+
+    }
 
     // 历史工商信息
     public JSONObject History_GetHistorytEci(

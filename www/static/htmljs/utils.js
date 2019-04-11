@@ -762,6 +762,7 @@ function laytableRender(options, undefined){
                             ret = temp_ret;
                         }
                     }
+                    console.log(ret);
 
                     elem.bootstrapTable("load", ret);
 

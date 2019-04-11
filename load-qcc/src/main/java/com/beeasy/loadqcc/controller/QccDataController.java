@@ -53,8 +53,8 @@ public class QccDataController {
         List dataList = params.getJSONArray("dataList");
         for(int i = 0 ; i < dataList.size() ; i++) {
             JSONObject data = (JSONObject) dataList.get(i);
-            String companyName = data.getString("companyName");
-            String command = data.getString("command");
+            String companyName = data.getString("Content"); // 公司名
+            String command = data.getString("Sign"); // 指令
             if(null == command || command.isEmpty()){
                 return Result.error("指定为空");
             }
@@ -65,6 +65,7 @@ public class QccDataController {
             // 公司公司信息
             JSONObject companyInfo;
             if(null == tmep_company_ret){
+                // 从企查查获取工商信息
                 companyInfo = getOriginQccService.ECI_GetDetailsByName(companyName, "manual");
             }else{
                 companyInfo = (JSONObject) JSON.toJSON(tmep_company_ret);
