@@ -167,9 +167,9 @@ where id = #id#
 ===
 select 
 @pageTag(){
-((select LISTAGG(name,'\t') from JG_NOTICE_PEOPLE_RE where CN_ID = no.id and type = '02' )) as DEFENDANT_LIST,
+((select LISTAGG(name,'\t') from QCC_COURT_NOTICE_PEOPLE where id = no.id and type = '02' )) as DEFENDANT_LIST,
 no.EXECUTE_GOV,
-((select LISTAGG(name,'\t')  from JG_NOTICE_PEOPLE_RE where CN_ID = no.id and type = '01' )) as PROSECUTOR_LIST,
+((select LISTAGG(name,'\t')  from QCC_COURT_NOTICE_PEOPLE where id = no.id and type = '01' )) as PROSECUTOR_LIST,
 no.LI_AN_DATE,
 no.CASE_REASON,
 no.ID,
@@ -399,3 +399,348 @@ Change_Content,
 cm_id
 from QCC_CMD_CHANGE_LIST
 where inner_company_name = #keyWord#
+
+查询工商信息表
+===
+select 
+KEY_NO,
+NAME,
+NO,
+BELONG_ORG,
+OPER_NAME,
+START_DATE,
+END_DATE,
+STATUS,
+PROVINCE,
+UPDATED_DATE,
+CREDIT_CODE,
+REGIST_CAPI,
+ECON_KIND,
+ADDRESS,
+SCOPE,
+TERM_START,
+TEAM_END,
+CHECK_DATE,
+ORG_NO,
+IS_ON_STOCK,
+STOCK_NUMBER,
+STOCK_TYPE,
+IMAGE_URL
+from QCC_DETAILS
+where inner_company_name = #keyword#
+
+查询工商信息曾用名信息表
+===
+select 
+NAME,
+CHANGE_DATE
+from QCC_DETAILS_ORIGINAL_NAME
+where inner_company_name = #keyword#
+
+查询工商信息股东信息表
+===
+select 
+STOCK_NAME,
+STOCK_TYPE,
+STOCK_PERCENT,
+SHOULD_CAPI,
+SHOUD_DATE,
+INVEST_TYPE,
+INVEST_NAME,
+REAL_CAPI,
+CAPI_DATE
+from QCC_DETAILS_PARTNERS
+where inner_company_name = #keyword#
+
+查询工商信息主要人员信息表
+===
+select
+NAME,
+JOB
+from QCC_DETAILS_EMPLOYEES
+where inner_company_name = #keyword#
+
+查询工商信息分支机构表
+===
+select
+COMPANY_ID,
+REG_NO,
+NAME,
+BELONG_ORG,
+CREDIT_CODE,
+OPER_NAME
+from QCC_DETAILS_BRANCHES
+where inner_company_name = #keyword#
+
+查询工商信息变更信息表
+===
+select
+PROJECT_NAME,
+BEFORE_CONTENT,
+AFTER_CONTENT,
+CHANGE_DATE
+from QCC_DETAILS_CHANGE_RECORDS
+where inner_company_name = #keyword#
+
+查询工商信息联系信息表
+===
+select
+WEB_SITE,
+PHONE_NUMBER,
+EMAIL
+from QCC_DETAILS_CONTACT_INFO
+where inner_company_name = #keyword#
+
+查询工商信息行业信息表
+===
+select 
+INDUSTRY_CODE,
+INDUSTRY,
+SUB_INDUSTRY_CODE,
+SUB_INDUSTRY,
+MIDDLE_CATEGORY_CODE,
+MIDDLE_CATEGORY,
+SMALL_CATEGORY_CODE,
+SMALL_CATEGORY
+from QCC_DETAILS_INDUSTRY
+where inner_company_name = #keyword#
+
+
+查询历史工商信息表
+===
+select 
+Key_No,
+his_data
+from QCC_HIS_ECI
+where inner_company_name = #fullName#
+
+查询历史工商信息-历史主要人员-职位信息表
+===
+select 
+Key_No,
+Employee_Name,
+JOB,
+EL_INNER_ID
+from QCC_HIS_ECI_EMPLOYEE_LIST_JOB						
+where inner_company_name = #fullName#
+
+查询历史对外投资信息表
+===
+select
+@pageTag(){
+CHANGE_DATE,
+KEY_NO,
+COMPANY_NAME,
+OPER_NAME,
+REGIST_CAPI,
+ECON_KIND,
+STATUS,
+FUNDED_RATIO,
+START_DATE
+@}
+from QCC_HIS_INVESTMENT						
+where inner_company_name = #fullName#
+
+查询历史股东信息表
+===
+select
+Change_Date_List
+from QCC_HIS_SHARE_HOLDER						
+where inner_company_name = #fullName#
+
+查询历史股东-股东列表
+===
+select
+@pageTag(){
+PARTNER_NAME,
+STOCK_PERCENT,
+SHOULD_CAPI,
+SHOULD_DATE,
+SHOULD_TYPE,
+Change_date_list
+@}
+from QCC_HIS_SHARE_HOLDER_DETAILS
+where inner_company_name = #fullName#
+
+查询历史失信信息表						
+===
+select
+@pageTag(){
+ID,
+ACTION_REMARK,
+EXECUTE_NO,
+EXECUTE_STATUS,
+EXECUTE_UNITE,
+YI_WU,
+PUBLIC_DATE,
+CASE_NO,
+EXECUTE_GOV,
+AN_NO,
+PROVINCE,
+LI_AN_DATE,
+ORG_NO,
+ORG_TYPE,
+ORG_TYPE_NAME,
+NAME
+@}
+from QCC_HIS_SHIXIN						
+where inner_company_name = #fullName#
+
+查询历史被执行信息表						
+===
+select
+@pageTag(){
+BIAO_DI,
+CASE_NO,
+EXECUTE_GOV,
+AN_NO,
+PROVINCE,
+LI_AN_DATE,
+ORG_NO,
+ORG_TYPE,
+ORG_TYPE_NAME,
+NAME
+@}
+from   QCC_HIS_ZHIXING						
+where inner_company_name = #fullName#
+
+查询历史法院公告信息表
+===
+select
+@pageTag(){
+ID,
+CATEGORY,
+CONTENT,
+COURT,
+PARTY,
+PROVINCE,
+PUBLISH_PAGE,
+SUBMIT_DATE,
+PUBLISH_DATE
+@}
+from QCC_HIS_COURT_NOTICE						
+where inner_company_name = #fullName#
+
+
+查询历史裁判文书信息表
+===
+select
+@pageTag(){
+ID,
+COURT,
+CASE_NAME,
+SUBMIT_DATE,
+CASE_NO,
+CASE_TYPE,
+CASE_ROLE,
+COURT_YEAR
+@}
+from QCC_HIS_JUDGEMENT
+where inner_company_name = #fullName#
+
+查询历史开庭公告信息表
+===
+select
+@pageTag(){
+ID,
+CASE_REASON,
+PROSECUTOR_LIST,
+DEFENDANT_LIST,
+EXECUTE_GOV,
+CASE_NO,
+LI_AN_DATE
+@} 
+from QCC_HIS_SESSION_NOTICE
+where inner_company_name = #fullName#
+
+查询历史动产抵押信息表
+===
+select
+@pageTag(){
+REGISTER_NO,
+REGISTER_DATE,
+REGISTER_OFFICE,
+DEBT_SECURED_AMOUNT,
+STATUS
+@}
+from QCC_HIS_M_PLEDGE 
+where inner_company_name = #fullName#
+
+查询历史股权出质信息表
+===
+select
+@pageTag(){
+REGIST_NO,
+PLEDGOR,
+PLEDGEE,
+PLEDGED_AMOUNT,
+REG_DATE,
+PUBLIC_DATE,
+STATUS
+@}
+from QCC_HIS_PLEDGE
+where inner_company_name = #fullName#
+
+查询历史行政处罚-工商行政处罚信息表
+===
+select
+DOC_NO,
+PENALTY_TYPE,
+CONTENT,
+PENALTY_DATE,
+PUBLIC_DATE,
+OFFICE_NAME
+from QCC_HIS_ADMIN_PENALTY_EL
+where inner_company_name = #fullName#
+
+查询历史行政处罚-信用中国行政处罚信息表
+===
+select
+CASE_NO,
+NAME,
+LI_AN_DATE,
+PROVINCE,
+OWNER_NAME,
+CASE_REASON
+from QCC_HIS_ADMIN_PENALTY_CCL
+where inner_company_name = #fullName#
+
+查询历史行政许可-工商行政许可信息表
+===
+select
+LICENS_DOC_NO,
+LICENS_DOC_NAME,
+LICENS_OFFICE,
+LICENS_CONTENT,
+VALIDITY_FROM,
+VALIDITY_TO
+from QCC_HIS_ADMIN_LICENS_EL
+where inner_company_name = #fullName#
+
+查询历史行政许可-信用中国行政许可信息表
+===
+select
+CASE_NO,
+NAME,
+LI_AN_DATE,
+PROVINCE,
+OWNER_NAME
+from QCC_HIS_ADMIN_LICENS_CCL
+where inner_company_name = #fullName#
+
+查询新增的公司信息表						
+===
+select
+@pageTag(){
+KEY_NO,
+NAME,
+OPER_NAME,
+START_DATE,
+STATUS,
+NO,
+CREDIT_CODE,
+REGIST_CAPI,
+ADDRESS
+@}
+from QCC_FRESH						
+where Address like #'%' + keyword + '%'#

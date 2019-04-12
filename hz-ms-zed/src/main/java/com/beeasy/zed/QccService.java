@@ -1,5 +1,6 @@
 package com.beeasy.zed;
 
+import cn.hutool.json.JSON;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
@@ -8,12 +9,16 @@ import io.netty.handler.codec.http.FullHttpRequest;
 import org.beetl.sql.core.SQLManager;
 import org.beetl.sql.core.engine.PageQuery;
 import org.beetl.sql.core.mapping.BeanProcessor;
+import org.osgl.$;
+import org.osgl.util.C;
 import org.osgl.util.S;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
+
 import static com.beeasy.zed.Utils.*;
 
 public class QccService {
@@ -22,7 +27,7 @@ public class QccService {
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
     private static String qccPrefix = "/qcc";
 
-    private static class QccBeanProcesser extends BeanProcessor{
+    private static class QccBeanProcesser extends BeanProcessor {
 
         public QccBeanProcesser(SQLManager sm) {
             super(sm);
@@ -33,7 +38,7 @@ public class QccService {
             Map<String, Object> map = super.toMap(sqlId, c, rs);
             map.remove("beetlRn");
             if (sqlId.startsWith("qcc.")) {
-                return convertToQccStyle(map);
+                convertToQccStyle(map);
             }
             return map;
         }
@@ -76,11 +81,2149 @@ public class QccService {
         registerRoute("/JudicialSale/GetJudicialSaleDetail", service::GetJudicialSaleDetail);
         registerRoute("/LandMortgage/GetLandMortgageList", service::GetLandMortgageList);
         registerRoute("/LandMortgage/GetLandMortgageDetails", service::GetLandMortgageDetails);
-        registerRoute("/EnvPunishment/GetEnvPunishmentList",service::GetEnvPunishmentList);
-        registerRoute("/EnvPunishment/GetEnvPunishmentDetails",service::GetEnvPunishmentDetails);
+        registerRoute("/EnvPunishment/GetEnvPunishmentList", service::GetEnvPunishmentList);
+        registerRoute("/EnvPunishment/GetEnvPunishmentDetails", service::GetEnvPunishmentDetails);
         registerRoute("/ChattelMortgage/GetChattelMortgage", service::GetChattelMortgage);
+        registerRoute("/ECIV4/GetDetailsByName", service::GetDetailsByName);
+        registerRoute("/History/GetHistorytEci", service::GetHistorytEci);
+        registerRoute("/History/GetHistorytInvestment", service::GetHistorytInvestment);
+        registerRoute("/History/GetHistorytShareHolder", service::GetHistorytShareHolder);
+        registerRoute("/History/GetHistoryShiXin", service::GetHistoryShiXin);
+        registerRoute("/History/GetHistoryZhiXing", service::GetHistoryZhiXing);
+        registerRoute("/History/GetHistorytCourtNotice", service::GetHistorytCourtNotice);
+        registerRoute("/History/GetHistorytJudgement", service::GetHistorytJudgement);
+        registerRoute("/History/GetHistorytSessionNotice", service::GetHistorytSessionNotice);
+        registerRoute("/History/GetHistorytMPledge", service::GetHistorytMPledge);
+        registerRoute("/History/GetHistorytPledge", service::GetHistorytPledge);
+        registerRoute("/History/GetHistorytAdminPenalty", service::GetHistorytAdminPenalty);
+        registerRoute("/History/GetHistorytAdminLicens", service::GetHistorytAdminLicens);
+        registerRoute("/ECIV4/SearchFresh", service::SearchFresh);
+
     }
 
+
+    /**
+     * @api {get} /ECIV4/SearchFresh 新增公司列表
+     * @apiGroup QCC
+     * @apiVersion 0.0.1
+     *
+     * @apiParam {string} keyword 关键字
+     *
+     * @apiSuccess {string} KeyNo 内部KeyNo
+     * @apiSuccess {string} Name 公司名称
+     * @apiSuccess {string} OperName 法人名称
+     * @apiSuccess {string} StartDate 成立日期
+     * @apiSuccess {string} Status 企业状态
+     * @apiSuccess {string} No 注册号
+     * @apiSuccess {string} CreditCode 社会统一信用代码
+     * @apiSuccess {string} RegistCapi 注册资本
+     * @apiSuccess {string} Address 地址
+     *
+     * @apiSuccessExample 请求成功:
+     * {
+     *     "Status": "200",
+     *     "Message": "查询成功",
+     *     "Paging": {
+     *         "PageSize": 10,
+     *         "TotalRecords": 10,
+     *         "PageIndex": 1
+     *     },
+     *     "Result": [
+     *         {
+     *             "KeyNo": "c1ad948f28014ad8cd412feae7ad7324",
+     *             "RegistCapi": "",
+     *             "StartDate": "2017-08-04 12:00:00",
+     *             "Status": "存续（在营、开业、在册）",
+     *             "No": "110108604483716",
+     *             "CreditCode": "92110108MA00GTG727",
+     *             "OperName": "陈立国",
+     *             "Address": "北京市海淀区圆明园西路2号院11号112室",
+     *             "Name": "北京食香优源餐饮管理中心"
+     *         },
+     *         {
+     *             "KeyNo": "8160fbebc5ebd81ff9e46aaab2d65da4",
+     *             "RegistCapi": "5000万元人民币",
+     *             "StartDate": "2017-08-04 12:00:00",
+     *             "Status": "存续（在营、开业、在册）",
+     *             "No": "",
+     *             "CreditCode": "91110109MA00GT10X0",
+     *             "OperName": "马红利",
+     *             "Address": "北京市门头沟区石龙开发区平安路7号LQ0022",
+     *             "Name": "北京弘利宜居房地产开发有限公司"
+     *         },
+     *         {
+     *             "KeyNo": "7919266d1488404f9e6a85d76b136887",
+     *             "RegistCapi": "",
+     *             "StartDate": "2017-08-04 12:00:00",
+     *             "Status": "存续（在营、开业、在册）",
+     *             "No": "110116604199841",
+     *             "CreditCode": "92110116MA00GT310K",
+     *             "OperName": "邵仕龙",
+     *             "Address": "北京市怀柔区北房镇宰相庄村111号",
+     *             "Name": "北京国旭龙商店"
+     *         },
+     *         {
+     *             "KeyNo": "39bfe9a434e1cc812c78f3df27c1f602",
+     *             "RegistCapi": "",
+     *             "StartDate": "2017-08-04 12:00:00",
+     *             "Status": "存续（在营、开业、在册）",
+     *             "No": "110108604483708",
+     *             "CreditCode": "92110108MA00GTFT6H",
+     *             "OperName": "原五根",
+     *             "Address": "北京市海淀区圆明园西路2号院8号102室",
+     *             "Name": "北京鑫食健源餐饮管理中心"
+     *         },
+     *         {
+     *             "KeyNo": "65fbd3478a120e20f76d6923aa1f5c8f",
+     *             "RegistCapi": "10万元人民币",
+     *             "StartDate": "2017-08-04 12:00:00",
+     *             "Status": "存续（在营、开业、在册）",
+     *             "No": "",
+     *             "CreditCode": "91110101MA00GRWH06",
+     *             "OperName": "颜廷坝",
+     *             "Address": "北京市东城区东花市南里东区3号楼1层B06",
+     *             "Name": "北京虎视健康咨询有限公司"
+     *         },
+     *         {
+     *             "KeyNo": "8f8bd462c8330f60220ddbc9f7e85eaf",
+     *             "RegistCapi": "",
+     *             "StartDate": "2017-08-04 12:00:00",
+     *             "Status": "存续（在营、开业、在册）",
+     *             "No": "110116604199905",
+     *             "CreditCode": "92110116MA00GTJA6L",
+     *             "OperName": "张国",
+     *             "Address": "北京市怀柔区雁栖湖南岸(北京市律师培训中心5幢1层)",
+     *             "Name": "北京悦文军商店"
+     *         },
+     *         {
+     *             "KeyNo": "d2fb554448bd83656c62003f32fa2ad2",
+     *             "RegistCapi": "1000万元人民币",
+     *             "StartDate": "2017-08-04 12:00:00",
+     *             "Status": "存续（在营、开业、在册）",
+     *             "No": "",
+     *             "CreditCode": "91110109MA00GTBF61",
+     *             "OperName": "杨慧如",
+     *             "Address": "北京市门头沟区石龙经济开发区永安路20号1号楼14层2单元1401室-DXF061",
+     *             "Name": "北京大地纯风电子商务有限公司"
+     *         },
+     *         {
+     *             "KeyNo": "5d8da44e84978183e1d43bc934a5f9e6",
+     *             "RegistCapi": "200万元人民币",
+     *             "StartDate": "2017-08-04 12:00:00",
+     *             "Status": "存续（在营、开业、在册）",
+     *             "No": "",
+     *             "CreditCode": "91110109MA00GT4686",
+     *             "OperName": "肖海洋",
+     *             "Address": "北京市门头沟区雁翅镇高芹路1号院YC-0095",
+     *             "Name": "北京元析科技有限公司"
+     *         },
+     *         {
+     *             "KeyNo": "365a227a6dc3613cc369f5cdcb19cdd8",
+     *             "RegistCapi": "500万元人民币",
+     *             "StartDate": "2017-08-04 12:00:00",
+     *             "Status": "存续（在营、开业、在册）",
+     *             "No": "",
+     *             "CreditCode": "91110105MA00GTB54N",
+     *             "OperName": "赵鹏",
+     *             "Address": "北京市朝阳区广渠东路唐家村23幢18-A",
+     *             "Name": "北京黑马先生服装有限公司"
+     *         },
+     *         {
+     *             "KeyNo": "2c120f9f2fae38cb2a2210bf2624b5f8",
+     *             "RegistCapi": "100万元人民币",
+     *             "StartDate": "2017-08-04 12:00:00",
+     *             "Status": "存续（在营、开业、在册）",
+     *             "No": "",
+     *             "CreditCode": "91110109MA00GRQH29",
+     *             "OperName": "宋凯",
+     *             "Address": "北京市门头沟区清水镇洪水口村8号",
+     *             "Name": "北京豫峰园农业科技有限公司"
+     *         }
+     *     ]
+     * }
+     *
+     * @apiUse QccError
+     */
+    private Object SearchFresh(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
+        return pageQuery("qcc.查询新增的公司信息表", params);
+    }
+
+    /**
+     * @api {get} /History/GetHistorytAdminLicens 历史行政许可
+     * @apiGroup QCC
+     * @apiVersion 0.0.1
+     *
+     * @apiParam {string} fullName 公司全名
+     *
+     *
+     * @apiSuccess {object[]} EciList 历史工商行政许可
+     * @apiSuccess {string} EciList.LicensDocNo 许可文件编号
+     * @apiSuccess {string} EciList.LicensDocName 许可文件名称
+     * @apiSuccess {string} EciList.LicensOffice 许可机关
+     * @apiSuccess {string} EciList.LicensContent 许可内容
+     * @apiSuccess {string} EciList.ValidityFrom 有效期自
+     * @apiSuccess {string} EciList.ValidityTo 有效期至
+     *
+     * @apiSuccess {object[]} CreditChinaList 历史信用中国行政许可
+     * @apiSuccess {string} CreditChinaList.CaseNo 编号
+     * @apiSuccess {string} CreditChinaList.Name 项目名称
+     * @apiSuccess {string} CreditChinaList.LiAnDate 决定日期
+     * @apiSuccess {string} CreditChinaList.Province 地域
+     * @apiSuccess {string} CreditChinaList.OwnerName 公司
+     *
+     * @apiSuccessExample 请求成功:
+     * {
+     *     "Status": "200",
+     *     "Message": "查询成功",
+     *     "Result": {
+     *         "CaseNo": "资环罚[2017]48号",
+     *         "PunishGov": "资阳市环境保护局",
+     *         "PunishDate": "2017-09-30 12:00:00",
+     *         "PunishmentResult": "我局决定对你单位处以3万元（大写：叁万元整）的罚款。",
+     *         "PunishBasis": "依据《建设项目环保保护管理条例》第二十八条之规定。",
+     *         "IllegalType": "",
+     *         "PunishReason": "发现你单位实施了以下环境违法行为：你单位新建汽车零部件项目未经环保竣工验收即投产使用。",
+     *         "Implementation": ""
+     *     }
+     * }
+     *
+     * @apiUse QccError
+     */
+    private Object GetHistorytAdminLicens(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
+         return newJsonObject(
+            "EciList", listQuery("qcc.查询历史行政许可-工商行政许可信息表", params),
+            "CreditChinaList", listQuery("qcc.查询历史行政许可-信用中国行政许可信息表", params)
+         );
+    }
+
+    /**
+     * @api {get} /History/GetHistorytAdminPenalty 历史行政处罚
+     * @apiGroup QCC
+     * @apiVersion 0.0.1
+     *
+     * @apiParam {string} fullName 公司全名
+     *
+     * @apiSuccess {object[]} EciList 工商行政处罚
+     * @apiSuccess {string} EciList.DocNo 文号
+     * @apiSuccess {string} EciList.PenaltyType 违法行为类型
+     * @apiSuccess {string} EciList.Content 处罚内容
+     * @apiSuccess {string} EciList.PenaltyDate 决定日期
+     * @apiSuccess {string} EciList.PublicDate 作出行政公示日期
+     * @apiSuccess {string} EciList.OfficeName 决定机关
+     *
+     * @apiSuccess {object[]} CreditChinaList 信用中国行政处罚
+     * @apiSuccess {string} CreditChinaList.CaseNo 决定文书号
+     * @apiSuccess {string} CreditChinaList.Name 处罚名称
+     * @apiSuccess {string} CreditChinaList.LiAnDate 决定时间
+     * @apiSuccess {string} CreditChinaList.Province 省份
+     * @apiSuccess {string} CreditChinaList.OwnerName 公司
+     * @apiSuccess {string} CreditChinaList.CaseReason 案由
+     *
+     * @apiSuccessExample 请求成功:
+     * {
+     *     "Status": "200",
+     *     "Message": "查询成功",
+     *     "Result": {
+     *         "EciList": [
+     *             {
+     *                 "PenaltyDate": "2016-11-25 12:00:00",
+     *                 "Content": "罚款金额0.2万元;没收金额0.0万元",
+     *                 "DocNo": "津红国税罚〔2016〕20021",
+     *                 "PenaltyType": "违反税收管理",
+     *                 "OfficeName": "天津市红桥区国家税务局"
+     *             },
+     *             {
+     *                 "Content": "罚款金额0.2万元;没收金额0.0万元",
+     *                 "DocNo": "津红国税罚〔2016〕20021",
+     *                 "PenaltyType": "违反税收管理",
+     *                 "OfficeName": "天津市红桥区国家税务局"
+     *             }
+     *         ],
+     *         "CreditChinaList": [
+     *         ]
+     *     }
+     * }
+     *
+     * @apiUse QccError
+     */
+    private Object GetHistorytAdminPenalty(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
+        return newJsonObject(
+            "EciList", listQuery("qcc.查询历史行政处罚-工商行政处罚信息表", params),
+            "CreditChinaList", listQuery("qcc.查询历史行政处罚-信用中国行政处罚信息表", params)
+        );
+    }
+
+    /**
+     * @api {get} /History/GetHistorytPledge 历史股权出质
+     * @apiGroup QCC
+     * @apiVersion 0.0.1
+     *
+     * @apiParam {string} fullName 公司全名
+     * @apiUse PageParam
+     *
+     * @apiSuccess {string} RegistNo 登记编号
+     * @apiSuccess {string} Pledgor 出质人
+     * @apiSuccess {string} Pledgee 质权人
+     * @apiSuccess {string} PledgedAmount 出质股权数额
+     * @apiSuccess {string} RegDate 股权出质设立登记日期
+     * @apiSuccess {string} PublicDate 公布日期
+     * @apiSuccess {string} Status 状态
+     *
+     * @apiSuccessExample 请求成功:
+     * {
+     *     "Status": "200",
+     *     "Message": "查询成功",
+     *     "Paging": {
+     *         "PageSize": 10,
+     *         "TotalRecords": 1,
+     *         "PageIndex": 1
+     *     },
+     *     "Result": [
+     *         {
+     *             "Pledgee": "鑫融基投资担保有限公司",
+     *             "Status": "无效",
+     *             "RegistNo": "410700201400000043",
+     *             "Pledgor": "堵召辉",
+     *             "RegDate": "2014-09-10 12:00:00",
+     *             "PublicDate": "2015-07-01 12:00:00",
+     *             "PledgedAmount": "330万人民币元"
+     *         }
+     *     ]
+     * }
+     *
+     * @apiUse QccError
+     */
+    private Object GetHistorytPledge(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
+        return pageQuery("qcc.查询历史股权出质信息表", params);
+    }
+
+    /**
+     * @api {get} /History/GetHistorytMPledge 历史动产抵押
+     * @apiGroup QCC
+     * @apiVersion 0.0.1
+     *
+     * @apiParam {string} fullName 公司全名
+     * @apiUse PageParam
+     *
+     * @apiSuccess {string} RegisterNo 登记编号
+     * @apiSuccess {string} RegisterDate 登记日期
+     * @apiSuccess {string} RegisterOffice 登记机关
+     * @apiSuccess {string} DebtSecuredAmount 被担保债权数额
+     * @apiSuccess {string} Status 状态
+     *
+     * @apiSuccessExample 请求成功:
+     * {
+     *     "Status": "200",
+     *     "Message": "查询成功",
+     *     "Paging": {
+     *         "PageSize": 10,
+     *         "TotalRecords": 1,
+     *         "PageIndex": 1
+     *     },
+     *     "Result": [
+     *         {
+     *             "Status": "有效",
+     *             "RegisterOffice": "资阳市工商行政管理局",
+     *             "RegisterNo": "",
+     *             "RegisterDate": "2015-09-16 12:00:00",
+     *             "DebtSecuredAmount": "1321.8258万元"
+     *         }
+     *     ]
+     * }
+     *
+     * @apiUse QccError
+     */
+    // FIXME: 2019/4/12 
+    private Object GetHistorytMPledge(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
+        return pageQuery("qcc.查询历史动产抵押信息表", params);
+    }
+
+    /**
+     * @api {get} /History/GetHistorytSessionNotice 历史开庭公告
+     * @apiGroup QCC
+     * @apiVersion 0.0.1
+     *
+     * @apiParam {string} fullName 公司全名
+     * @apiUse PageParam
+     *
+     * @apiSuccess {string} Id Id值
+     * @apiSuccess {string} CaseReason 案由
+     * @apiSuccess {string} ProsecutorList 公诉人/原告/上诉人/申请人
+     * @apiSuccess {string} DefendantList 被告人/被告/被上诉人/被申请人
+     * @apiSuccess {string} ExecuteGov 执行法院
+     * @apiSuccess {string} CaseNo 案号
+     * @apiSuccess {string} LiAnDate 开庭日期
+     *
+     * @apiSuccessExample 请求成功:
+     * {
+     *     "Status": "200",
+     *     "Message": "查询成功",
+     *     "Paging": {
+     *         "PageSize": 10,
+     *         "TotalRecords": 4
+     *     },
+     *     "Result": [
+     *         {
+     *             "CaseNo": "(2017)川01民终4786号",
+     *             "ProsecutorList": "中国平安财产保险股份有限公司四川分公司",
+     *             "LiAnDate": "2017-04-12 12:00:00",
+     *             "CaseReason": "机动车交通事故责任纠纷",
+     *             "Id": "8226945fd8445ebfc0df482dd5f3b82f5",
+     *             "DefendantList": "王国强\t北京小桔科技有限公司\t何立新\t蒋海涛\t陈玉刚\t曾翠平\t蒋习武\t李美琪",
+     *             "ExecuteGov": "四川省成都市中级人民法院"
+     *         },
+     *         {
+     *             "CaseNo": "(2017)沪0115民初15113号",
+     *             "ProsecutorList": "柳正浩",
+     *             "LiAnDate": "2017-03-15 12:00:00",
+     *             "CaseReason": "生命权、健康权、身体权纠纷",
+     *             "Id": "53243f38c04c0cd710dcf941ee3d5cc05",
+     *             "DefendantList": "杜超杰\t北京小桔科技有限公司",
+     *             "ExecuteGov": "上海市浦东新区人民法院"
+     *         },
+     *         {
+     *             "CaseNo": "(2017)沪0112民初4106号",
+     *             "ProsecutorList": "左桂军",
+     *             "LiAnDate": "2017-03-14 12:00:00",
+     *             "CaseReason": "机动车交通事故责任纠纷",
+     *             "Id": "487d209e24933dfa94d3aea165b773085",
+     *             "DefendantList": "邹建荣\t北京小桔科技有限公司\t沙磊\t上海市闵行区医疗急救中心\t中国人民财产保险股份有限公司上海市分公司",
+     *             "ExecuteGov": "上海市闵行区人民法院"
+     *         },
+     *         {
+     *             "CaseNo": "(2017)沪0112民初4103号",
+     *             "ProsecutorList": "王庆乐",
+     *             "LiAnDate": "2017-03-14 12:00:00",
+     *             "CaseReason": "机动车交通事故责任纠纷",
+     *             "Id": "7d1da8d2b4b5f8d05eb9b079ecc11d9a5",
+     *             "DefendantList": "邹建荣\t北京小桔科技有限公司\t沙磊\t上海市闵行区医疗急救中心\t中国人民财产保险股份有限公司上海市分公司",
+     *             "ExecuteGov": "上海市闵行区人民法院"
+     *         }
+     *     ]
+     * }
+     *
+     * @apiUse QccError
+     */
+    private Object GetHistorytSessionNotice(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
+        return pageQuery("qcc.查询历史开庭公告信息表", params);
+    }
+
+    /**
+     * @api {get} /History/GetHistorytJudgement 历史裁判文书
+     * @apiGroup QCC
+     * @apiVersion 0.0.1
+     *
+     * @apiParam {string} fullName 公司全名
+     * @apiUse PageParam
+     *
+     * @apiSuccess {string} Id Id值
+     * @apiSuccess {string} Court 执行法院
+     * @apiSuccess {string} CaseName 案件名称
+     * @apiSuccess {string} SubmitDate 发布时间
+     * @apiSuccess {string} CaseNo 案件编号
+     * @apiSuccess {string} CaseType 案件类型
+     * @apiSuccess {string} CaseRole 涉案人员角色
+     * @apiSuccess {string} CourtYear 年份
+     *
+     * @apiSuccessExample 请求成功:
+     * {
+     *     "Status": "200",
+     *     "Message": "查询成功",
+     *     "Paging": {
+     *         "PageSize": 10,
+     *         "TotalRecords": 3
+     *     },
+     *     "Result": [
+     *         {
+     *             "CaseNo": "（2016）京0108民初33393号",
+     *             "CourtYear": "2016",
+     *             "CaseType": "ms",
+     *             "SubmitDate": "2016-11-17 12:00:00",
+     *             "CaseName": "张海合与北京小桔科技有限公司网络服务合同纠纷一审民事判决书",
+     *             "CaseRole": "[{\"P\":\"张海合\",\"R\":\"原告\"},{\"P\":\"北京小桔科技有限公司\",\"R\":\"被告\"}]",
+     *             "Id": "6f6b6dd992c6527acb9bdaacae29fffd",
+     *             "Court": "北京市海淀区人民法院"
+     *         },
+     *         {
+     *             "CaseNo": "（2016）京0108民初33183号",
+     *             "CourtYear": "2016",
+     *             "CaseType": "ms",
+     *             "SubmitDate": "2016-11-17 12:00:00",
+     *             "CaseName": "庞晶磊与北京小桔科技有限公司合同纠纷一审民事判决书",
+     *             "CaseRole": "[{\"P\":\"庞晶磊\",\"R\":\"原告\"},{\"P\":\"北京小桔科技有限公司\",\"R\":\"被告\"}]",
+     *             "Id": "7956b180216019230566c4a6e7a06a94",
+     *             "Court": "北京市海淀区人民法院"
+     *         },
+     *         {
+     *             "CaseNo": "（2016）浙0602民初9693号",
+     *             "CourtYear": "2016",
+     *             "CaseType": "ms",
+     *             "SubmitDate": "2016-11-16 12:00:00",
+     *             "CaseName": "",
+     *             "CaseRole": "[{\"P\":\"翁坚超\",\"R\":\"原告\"},{\"P\":\"北京小桔科技有限公司\",\"R\":\"被告\"}]",
+     *             "Id": "786440d8293e3a2f81acb63b759c20f8",
+     *             "Court": "绍兴市越城区人民法院"
+     *         }
+     *     ]
+     * }
+     *
+     * @apiUse QccError
+     */
+    private Object GetHistorytJudgement(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
+        return pageQuery("qcc.查询历史裁判文书信息表", params);
+    }
+
+    /**
+     * @api {get} /History/GetHistorytCourtNotice 历史法院公告
+     * @apiGroup QCC
+     * @apiVersion 0.0.1
+     *
+     * @apiParam {string} fullName 公司全名
+     * @apiUse PageParam
+     *
+     *
+     * @apiSuccess {string} Id Id值
+     * @apiSuccess {string} Category 公告类型
+     * @apiSuccess {string} Content 内容
+     * @apiSuccess {string} Court 公告人
+     * @apiSuccess {string} Party 当事人
+     * @apiSuccess {string} Province 省份
+     * @apiSuccess {string} PublishPage 刊登版面
+     * @apiSuccess {string} SubmitDate 上传日期
+     * @apiSuccess {string} PublishDate 公示日期
+     *
+     *
+     * @apiSuccessExample 请求成功:
+     * {
+     *     "Status": "200",
+     *     "Message": "查询成功",
+     *     "Paging": {
+     *         "PageSize": 10,
+     *         "TotalRecords": 8
+     *     },
+     *     "Result": [
+     *         {
+     *             "PublishDate": "2016-01-09 12:00:00",
+     *             "Category": "裁判文书",
+     *             "Party": "恒大地产集团有限公司、严东",
+     *             "SubmitDate": "2016-01-09 12:00:00",
+     *             "Content": "严东：本院受理原告恒大地产集团有限公司诉被告严东房屋买卖合同纠纷一案已审理终结。现依法向你公告送达（2015）穗云法民四初字451号民事判决书一份。自公告之日起60日内来本院领取民事判决书，逾期则视为送达。如不服本判决，可在公告期满后15日内，向本院递交上诉状及副本，上诉于广东省广州市中级人民法院。...",
+     *             "PublishPage": "",
+     *             "Id": "289B595F89FE87DE",
+     *             "Province": "GD",
+     *             "Court": "广州市白云区人民法院"
+     *         },
+     *         {
+     *             "PublishDate": "2015-09-26 12:00:00",
+     *             "Category": "裁判文书",
+     *             "Party": "周细清",
+     *             "SubmitDate": "2015-09-26 12:00:00",
+     *             "Content": "周细清：本院受理原告恒大地产集团有限公司诉被告周细清房屋买卖合同纠纷一案已审理终结。现依法向你公告送达（2015）穗云法民四初字第320号民事判决书一份。自公告之日起60日内来本院领取民事判决书，逾期则视为送达。如不服本判决，可在公告期满后15日内，向本院递交上诉状及副本，上诉于广东省广州市中级人民法院。...",
+     *             "PublishPage": "",
+     *             "Id": "3490C356FC007113",
+     *             "Province": "GD",
+     *             "Court": "[广东]广州市白云区人民法院"
+     *         },
+     *         {
+     *             "PublishDate": "2015-04-01 12:00:00",
+     *             "Category": "诉状副本及开庭传票",
+     *             "Party": "谢雨波",
+     *             "SubmitDate": "2015-04-01 12:00:00",
+     *             "Content": "谢雨波：本院受理原告恒大地产集团有限公司诉你商品房销售合同纠纷二案，因你下落不明，现依法向你公告送达起诉状及证据副本、应诉通知书、举证通知书、民事裁定书、告知合议庭组成人员通知书和开庭传票等法律文书。自本公告发出之日起经过60日即视为送达。提出答辩状和举证期限分别为公告期满后的15日和30日内。...",
+     *             "PublishPage": "",
+     *             "Id": "46671945D858DC70",
+     *             "Province": "GD",
+     *             "Court": "[广东]恩平市人民法院"
+     *         },
+     *         {
+     *             "PublishDate": "2015-09-12 12:00:00",
+     *             "Category": "起诉状副本及开庭传票",
+     *             "Party": "恒大地产集团有限公司、严东",
+     *             "SubmitDate": "2015-09-12 12:00:00",
+     *             "Content": "严东：本院受理原告恒大地产集团有限公司诉被告严东房屋买卖合同纠纷一案【案号：（2015）穗云法民四初字第451号】，现依法向你公告送达起诉状副本、开庭传票。自公告之日起经过六十天，即视为送达。提出答辩状和举证的期限均为公告期满后的30日内。并定于举证期满后的2015年12月16日9时整（遇法定节假日顺延）在本院第十七...",
+     *             "PublishPage": "",
+     *             "Id": "4AC228FDB9432223",
+     *             "Province": "GD",
+     *             "Court": "广州市白云区人民法院"
+     *         },
+     *         {
+     *             "PublishDate": "2015-09-26 12:00:00",
+     *             "Category": "裁判文书",
+     *             "Party": "恒大地产集团有限公司、周细清",
+     *             "SubmitDate": "2015-09-26 12:00:00",
+     *             "Content": "周细清：本院受理原告恒大地产集团有限公司诉被告周细清房屋买卖合同纠纷一案已审理终结。现依法向你公告送达（2015）穗云法民四初字第320号民事判决书一份。自公告之日起60日内来本院领取民事判决书，逾期则视为送达。如不服本判决，可在公告期满后15日内，向本院递交上诉状及副本，上诉于广东省广州市中级人民法院。...",
+     *             "PublishPage": "",
+     *             "Id": "50AEFB2D3AF33A72",
+     *             "Province": "GD",
+     *             "Court": "广州市白云区人民法院"
+     *         },
+     *         {
+     *             "PublishDate": "2015-11-04 12:00:00",
+     *             "Category": "诉状副本及开庭传票",
+     *             "Party": "朱震宇",
+     *             "SubmitDate": "2015-11-04 12:00:00",
+     *             "Content": "朱震宇：本院受理原告恒大地产集团有限公司诉朱震宇商品房销售合同纠纷一案，现依法向你公告送达起诉状副本、应诉通知书、举证通知书及开庭传票。自公告之日起，经过60日即视为送达。提出答辩状的期限和举证期限分别为公告期满后15日和30日内。并定于举证期满后第3日上午9时（遇法定假日顺延）在本院东三楼第二审判法庭开庭...",
+     *             "PublishPage": "",
+     *             "Id": "8B1F91E4AE28C0EF",
+     *             "Province": "NMG",
+     *             "Court": "[内蒙古]包头市九原区人民法院"
+     *         },
+     *         {
+     *             "PublishDate": "2015-09-12 12:00:00",
+     *             "Category": "诉状副本及开庭传票",
+     *             "Party": "严东",
+     *             "SubmitDate": "2015-09-12 12:00:00",
+     *             "Content": "严东：本院受理原告恒大地产集团有限公司诉被告严东房屋买卖合同纠纷一案【案号：（2015）穗云法民四初字第451号】，现依法向你公告送达起诉状副本、开庭传票。自公告之日起经过六十天，即视为送达。提出答辩状和举证的期限均为公告期满后的30日内。并定于举证期满后的2015年12月16日9时整（遇法定节假日顺延）在本院第十七...",
+     *             "PublishPage": "",
+     *             "Id": "99EBD52A387F988E",
+     *             "Province": "GD",
+     *             "Court": "[广东]广州市白云区人民法院"
+     *         },
+     *         {
+     *             "PublishDate": "2015-06-06 12:00:00",
+     *             "Category": "诉状副本及开庭传票",
+     *             "Party": "周细清",
+     *             "SubmitDate": "2015-06-06 12:00:00",
+     *             "Content": "周细清：本院受理原告恒大地产集团有限公司诉被告周细清房屋买卖合同纠纷一案，现依法向你公告送达起诉状副本、开庭传票。自公告之日起经过六十天，即视为送达。提出答辩状和举证的期限分别为公告期满后的30日内。并定于举证期满后的2015年9月2日10时30分（遇法定节假日顺延）在本院第十七法庭开庭审理，逾期将依法缺席判决...",
+     *             "PublishPage": "",
+     *             "Id": "A78778C01BA06C5C",
+     *             "Province": "GD",
+     *             "Court": "[广东]广州市白云区人民法院"
+     *         }
+     *     ]
+     * }
+     *
+     * @apiUse QccError
+     */
+    private Object GetHistorytCourtNotice(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
+        return pageQuery("qcc.查询历史法院公告信息表", params);
+    }
+
+    /**
+     * @api {get} /History/GetHistoryZhiXing 历史被执行
+     * @apiGroup QCC
+     * @apiVersion 0.0.1
+     *
+     * @apiParam {string} fullName 公司全名
+     * @apiUse PageParam
+     *
+     *
+     * @apiSuccess {string} BiaoDi 标地
+     * @apiSuccess {string} CaseNo 案号
+     * @apiSuccess {string} ExecuteGov 执行法院
+     * @apiSuccess {string} AnNo 执行依据文号
+     * @apiSuccess {string} Province 省份
+     * @apiSuccess {string} LiAnDate 立案时间
+     * @apiSuccess {string} OrgNo 组织机构代码
+     * @apiSuccess {string} OrgType 组织类型，1：自然人，2：企业，3：社会组织，空白：无法判定）
+     * @apiSuccess {string} OrgTypeName 组织类型名称
+     * @apiSuccess {string} Name 名称
+     *
+     *
+     * @apiSuccessExample 请求成功:
+     * {
+     *     "Status": "200",
+     *     "Message": "查询成功",
+     *     "Paging": {
+     *         "PageSize": 10,
+     *         "TotalRecords": 10
+     *     },
+     *     "Result": [
+     *         {
+     *             "CaseNo": "(2016)新4021执732号",
+     *             "AnNo": "(2016)新4021执732号",
+     *             "OrgType": "2",
+     *             "LiAnDate": "2016-07-13 12:00:00",
+     *             "OrgNo": "00",
+     *             "Province": "新疆",
+     *             "OrgTypeName": "失信企业",
+     *             "ExecuteGov": "伊宁县人民法院",
+     *             "Name": "新疆庆华能源集团有限公司",
+     *             "BiaoDi": "450000"
+     *         },
+     *         {
+     *             "CaseNo": "(2016)粤01执3073号",
+     *             "AnNo": "(2016)粤01执3073号",
+     *             "OrgType": "2",
+     *             "LiAnDate": "2016-08-18 12:00:00",
+     *             "OrgNo": "91654021686****4661",
+     *             "Province": "广东",
+     *             "OrgTypeName": "失信企业",
+     *             "ExecuteGov": "广州市中级人民法院",
+     *             "Name": "新疆庆华能源集团有限公司",
+     *             "BiaoDi": "114040352"
+     *         },
+     *         {
+     *             "CaseNo": "(2016)新40执49号",
+     *             "AnNo": "(2016)新40执49号",
+     *             "OrgType": "2",
+     *             "LiAnDate": "2016-05-05 12:00:00",
+     *             "OrgNo": "686480466",
+     *             "Province": "新疆",
+     *             "OrgTypeName": "失信企业",
+     *             "ExecuteGov": "新疆维吾尔自治区高级人民法院伊犁哈萨克自治州分院",
+     *             "Name": "新疆庆华能源集团有限公司",
+     *             "BiaoDi": "1040000"
+     *         },
+     *         {
+     *             "CaseNo": "(2015)伊县法执字第01010号",
+     *             "AnNo": "(2015)伊县法执字第01010号",
+     *             "OrgType": "2",
+     *             "LiAnDate": "2015-08-04 12:00:00",
+     *             "OrgNo": "00",
+     *             "Province": "新疆",
+     *             "OrgTypeName": "失信企业",
+     *             "ExecuteGov": "伊宁县人民法院",
+     *             "Name": "新疆庆华能源集团有限公司",
+     *             "BiaoDi": "72157"
+     *         },
+     *         {
+     *             "CaseNo": "(2016)新4021执622号",
+     *             "AnNo": "(2016)新4021执622号",
+     *             "OrgType": "2",
+     *             "LiAnDate": "2016-05-25 12:00:00",
+     *             "OrgNo": "00",
+     *             "Province": "新疆",
+     *             "OrgTypeName": "失信企业",
+     *             "ExecuteGov": "伊宁县人民法院",
+     *             "Name": "新疆庆华能源集团有限公司",
+     *             "BiaoDi": "251198.34"
+     *         },
+     *         {
+     *             "CaseNo": "(2016)新4021执345号",
+     *             "AnNo": "(2016)新4021执345号",
+     *             "OrgType": "2",
+     *             "LiAnDate": "2016-03-11 12:00:00",
+     *             "OrgNo": "00",
+     *             "Province": "新疆",
+     *             "OrgTypeName": "失信企业",
+     *             "ExecuteGov": "伊宁县人民法院",
+     *             "Name": "新疆庆华能源集团有限公司",
+     *             "BiaoDi": "193984"
+     *         },
+     *         {
+     *             "CaseNo": "(2016)新4021执1113号",
+     *             "AnNo": "(2016)新4021执1113号",
+     *             "OrgType": "2",
+     *             "LiAnDate": "2016-09-18 12:00:00",
+     *             "OrgNo": "00",
+     *             "Province": "新疆",
+     *             "OrgTypeName": "失信企业",
+     *             "ExecuteGov": "伊宁县人民法院",
+     *             "Name": "新疆庆华能源集团有限公司",
+     *             "BiaoDi": "6460"
+     *         },
+     *         {
+     *             "CaseNo": "（2017）新4021执1081号",
+     *             "AnNo": "（2017）新4021执1081号",
+     *             "OrgType": "2",
+     *             "LiAnDate": "2017-08-03 12:00:00",
+     *             "OrgNo": "91654021686****4661",
+     *             "Province": "新疆",
+     *             "OrgTypeName": "失信企业",
+     *             "ExecuteGov": "伊宁县人民法院",
+     *             "Name": "新疆庆华能源集团有限公司",
+     *             "BiaoDi": "954000"
+     *         },
+     *         {
+     *             "CaseNo": "(2016)浙0522执3375号",
+     *             "AnNo": "(2016)浙0522执3375号",
+     *             "OrgType": "2",
+     *             "LiAnDate": "2016-10-26 12:00:00",
+     *             "OrgNo": "68648046-6",
+     *             "Province": "浙江",
+     *             "OrgTypeName": "失信企业",
+     *             "ExecuteGov": "长兴县人民法院",
+     *             "Name": "新疆庆华能源集团有限公司",
+     *             "BiaoDi": "6163938"
+     *         },
+     *         {
+     *             "CaseNo": "(2016)新4021执1005号",
+     *             "AnNo": "(2016)新4021执1005号",
+     *             "OrgType": "2",
+     *             "LiAnDate": "2016-08-22 12:00:00",
+     *             "OrgNo": "00",
+     *             "Province": "新疆",
+     *             "OrgTypeName": "失信企业",
+     *             "ExecuteGov": "伊宁县人民法院",
+     *             "Name": "新疆庆华能源集团有限公司",
+     *             "BiaoDi": "450000"
+     *         }
+     *     ]
+     * }
+     *
+     * @apiUse QccError
+     */
+    private Object GetHistoryZhiXing(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
+        return pageQuery("qcc.查询历史被执行信息表", params);
+    }
+
+    /**
+     * @api {get} /History/GetHistoryShiXin 历史失信查询
+     * @apiGroup QCC
+     * @apiVersion 0.0.1
+     *
+     * @apiParam {string} fullName 公司全名
+     * @apiUse PageParam
+     *
+     *
+     * @apiSuccess {string} Id Id值
+     * @apiSuccess {string} ActionRemark 其他有履行能力而拒不履行生效法律文书确定义务
+     * @apiSuccess {string} ExecuteNo 执行依据文号
+     * @apiSuccess {string} ExecuteStatus 被执行的履行情况
+     * @apiSuccess {string} ExecuteUnite 做出执行依据单位
+     * @apiSuccess {string} YiWu 生效法律文书确定的义务
+     * @apiSuccess {string} PublicDate 发布时间
+     * @apiSuccess {string} CaseNo 案号
+     * @apiSuccess {string} ExecuteGov 执行法院
+     * @apiSuccess {string} AnNo 执行依据文号
+     * @apiSuccess {string} Province 省份
+     * @apiSuccess {string} LiAnDate 立案时间
+     * @apiSuccess {string} OrgNo 组织机构代码
+     * @apiSuccess {string} OrgType 组织类型，1：自然人，2：企业，3：社会组织，空白：无法判定）
+     * @apiSuccess {string} OrgTypeName 组织类型名称
+     * @apiSuccess {string} Name 名称
+     *
+     *
+     * @apiSuccessExample 请求成功:
+     * {
+     *     "Status": "200",
+     *     "Message": "查询成功",
+     *     "Paging": {
+     *         "PageSize": 10,
+     *         "TotalRecords": 2
+     *     },
+     *     "Result": [
+     *         {
+     *             "YiWu": "向申请人中国化学工程第四建设有限公司支付11961141.75元，执行费79361.14元。",
+     *             "ExecuteStatus": "全部未履行",
+     *             "OrgNo": "68648046-6",
+     *             "Province": "新疆",
+     *             "ExecuteGov": "乌鲁木齐市中级人民法院",
+     *             "Name": "新疆庆华能源集团有限公司",v
+     *             "CaseNo": "（2017）新01执514号",
+     *             "AnNo": "（2017）新01执514号",
+     *             "ExecuteUnite": "乌鲁木齐仲裁委员会",
+     *             "ActionRemark": "有履行能力而拒不履行生效法律文书确定义务,违反财产报告制度",
+     *             "OrgType": "2",
+     *             "PublicDate": "2018-01-10 12:00:00",
+     *             "LiAnDate": "2017-08-03 12:00:00",
+     *             "Id": "fd9285c28fffc4caa262eedf064ff74f2",
+     *             "ExecuteNo": "（2016）乌仲裁字第0348号",
+     *             "OrgTypeName": "失信企业"
+     *         },
+     *         {
+     *             "YiWu": "支付6163938元",
+     *             "ExecuteStatus": "全部未履行",
+     *             "OrgNo": "68648046-6",
+     *             "Province": "浙江",
+     *             "ExecuteGov": "长兴县人民法院",
+     *             "Name": "新疆庆华能源集团有限公司",
+     *             "CaseNo": "(2016)浙0522执3375号",
+     *             "AnNo": "(2016)浙0522执3375号",
+     *             "ExecuteUnite": "湖州长兴法院",
+     *             "ActionRemark": "其他有履行能力而拒不履行生效法律文书确定义务",
+     *             "OrgType": "2",
+     *             "PublicDate": "2016-11-11 12:00:00",
+     *             "LiAnDate": "2016-10-26 12:00:00",
+     *             "Id": "c8073c2b875733fbc031199970ccc1e82",
+     *             "ExecuteNo": "(2015)湖长泗商初字第00549号",
+     *             "OrgTypeName": "失信企业"
+     *         }
+     *     ]
+     * }
+     *
+     * @apiUse QccError
+     */
+    private Object GetHistoryShiXin(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
+        return pageQuery("qcc.查询历史失信信息表", params);
+    }
+
+    /**
+     * @api {get} /History/GetHistorytShareHolder 历史股东
+     * @apiGroup QCC
+     * @apiVersion 0.0.1
+     *
+     * @apiParam {string} fullName 公司全名
+     * @apiUse PageParam
+     *
+     * @apiSuccess {string} PartnerName 股东名称
+     * @apiSuccess {string} StockPercent 持股比例
+     * @apiSuccess {string} ShouldCapi 认缴出资额
+     * @apiSuccess {string} ShouldDate 认缴出资日期
+     * @apiSuccess {string} ShouldType 出资类型
+     * @apiSuccess {string} ChangeDateList 变更日期
+     *
+     *
+     * @apiSuccessExample 请求成功:
+     * {
+     *     "Status": "200",
+     *     "Message": "查询成功",
+     *     "Paging": {
+     *         "PageSize": 10,
+     *         "TotalRecords": 10
+     *     },
+     *     "Result": [
+     *         {
+     *             "ShouldType": "",
+     *             "ShouldDate": "",
+     *             "ChangeDateList": "[\"2017-11-23\",\"2017-06-01\",\"2017-04-01\"]",
+     *             "StockPercent": "73.8806%",
+     *             "PartnerName": "广州市凯隆置业有限公司",
+     *             "ShouldCapi": "250000万元"
+     *         },
+     *         {
+     *             "ShouldType": "",
+     *             "ShouldDate": "",
+     *             "ChangeDateList": "[\"2017-11-23\",\"2017-06-01\",\"2017-04-01\"]",
+     *             "StockPercent": "2.4254%",
+     *             "PartnerName": "苏州工业园区睿灿投资企业（有限合伙）",
+     *             "ShouldCapi": "8207.0707万元"
+     *         },
+     *         {
+     *             "ShouldType": "",
+     *             "ShouldDate": "",
+     *             "ChangeDateList": "[\"2017-11-23\",\"2017-06-01\",\"2017-04-01\"]",
+     *             "StockPercent": "2.0522%",
+     *             "PartnerName": "马鞍山市茂文科技工业园有限公司",
+     *             "ShouldCapi": "6944.4444万元"
+     *         },
+     *         {
+     *             "ShouldType": "",
+     *             "ShouldDate": "",
+     *             "ChangeDateList": "[\"2017-11-23\",\"2017-06-01\",\"2017-04-01\"]",
+     *             "StockPercent": "1.8657%",
+     *             "PartnerName": "中信聚恒（深圳）投资控股中心（有限合伙）",
+     *             "ShouldCapi": "6313.1313万元"
+     *         },
+     *         {
+     *             "ShouldType": "",
+     *             "ShouldDate": "",
+     *             "ChangeDateList": "[\"2017-11-23\",\"2017-06-01\",\"2017-04-01\"]",
+     *             "StockPercent": "1.8657%",
+     *             "PartnerName": "深圳市麒翔投资有限公司",
+     *             "ShouldCapi": "6313.1313万元"
+     *         },
+     *         {
+     *             "ShouldType": "",
+     *             "ShouldDate": "",
+     *             "ChangeDateList": "[\"2017-11-23\",\"2017-06-01\",\"2017-04-01\"]",
+     *             "StockPercent": "1.8657%",
+     *             "PartnerName": "深圳市宝信投资控股有限公司",
+     *             "ShouldCapi": "6313.1313万元"
+     *         },
+     *         {
+     *             "ShouldType": "",
+     *             "ShouldDate": "",
+     *             "ChangeDateList": "[\"2017-11-23\",\"2017-06-01\",\"2017-04-01\"]",
+     *             "StockPercent": "1.8657%",
+     *             "PartnerName": "深圳市华建控股有限公司",
+     *             "ShouldCapi": "6313.1313万元"
+     *         },
+     *         {
+     *             "ShouldType": "",
+     *             "ShouldDate": "",
+     *             "ChangeDateList": "[\"2017-11-23\",\"2017-06-01\",\"2017-04-01\"]",
+     *             "StockPercent": "1.8657%",
+     *             "PartnerName": "江西省华达置业集团有限公司",
+     *             "ShouldCapi": "6313.1313万元"
+     *         },
+     *         {
+     *             "ShouldType": "",
+     *             "ShouldDate": "",
+     *             "ChangeDateList": "[\"2017-11-23\",\"2017-06-01\",\"2017-04-01\"]",
+     *             "StockPercent": "1.8657%",
+     *             "PartnerName": "广田投资有限公司",
+     *             "ShouldCapi": "6313.1313万元"
+     *         },
+     *         {
+     *             "ShouldType": "",
+     *             "ShouldDate": "",
+     *             "ChangeDateList": "[\"2017-11-23\",\"2017-06-01\",\"2017-04-01\"]",
+     *             "StockPercent": "1.3060%",
+     *             "PartnerName": "深圳市键诚投资有限公司",
+     *             "ShouldCapi": "4419.1919万元"
+     *         }
+     *     ]
+     * }
+     *
+     * @apiUse QccError
+     */
+    private Object GetHistorytShareHolder(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
+        return pageQuery("qcc.查询历史股东-股东列表", params);
+    }
+
+
+    /**
+     * @api {get} /History/GetHistorytInvestment 历史对外投资
+     * @apiGroup QCC
+     * @apiVersion 0.0.1
+     *
+     * @apiParam {string} fullName 公司全名
+     * @apiUse PageParam
+     *
+     *
+     * @apiSuccess {string} ChangeDate 变更日期
+     * @apiSuccess {string} KeyNo 公司KeyNo
+     * @apiSuccess {string} CompanyName 公司名称
+     * @apiSuccess {string} OperName 法人名称
+     * @apiSuccess {string} RegistCapi 注册资本
+     * @apiSuccess {string} EconKind 公司类型
+     * @apiSuccess {string} Status 状态
+     * @apiSuccess {string} FundedRatio 出资比例
+     * @apiSuccess {string} StartDate 投资日期
+     *
+     *
+     * @apiSuccessExample 请求成功:
+     *
+     * {
+     *     "Status": "200",
+     *     "Message": "查询成功",
+     *     "Paging": {
+     *         "PageSize": 10,
+     *         "TotalRecords": 10
+     *     },
+     *     "Result": [
+     *         {
+     *             "KeyNo": "0076d172a84d94e537eafa7d8aa97509",
+     *             "RegistCapi": "3030万人民币元",
+     *             "StartDate": "2017-01-09 12:00:00",
+     *             "Status": "存续",
+     *             "CompanyName": "平顶山长久置业有限公司",
+     *             "OperName": "贾飞",
+     *             "EconKind": "其他有限责任公司",
+     *             "FundedRatio": "",
+     *             "ChangeDate": "2018-04-13 12:00:00"
+     *         },
+     *         {
+     *             "KeyNo": "4886a625749ad0c33a4fe4615882c35d",
+     *             "RegistCapi": "10000万人民币元",
+     *             "StartDate": "2007-04-30 12:00:00",
+     *             "Status": "",
+     *             "CompanyName": "广州恒大材料设备有限公司",
+     *             "OperName": "苏鑫",
+     *             "EconKind": "有限责任公司(法人独资)",
+     *             "FundedRatio": "",
+     *             "ChangeDate": "2018-01-09 12:00:00"
+     *         },
+     *         {
+     *             "KeyNo": "3b87edcc0b73147d0d220e27985a4a64",
+     *             "RegistCapi": "2000万人民币元",
+     *             "StartDate": "2009-04-24 12:00:00",
+     *             "Status": "",
+     *             "CompanyName": "广东恒大排球俱乐部有限公司",
+     *             "OperName": "李一萌",
+     *             "EconKind": "有限责任公司(法人独资)",
+     *             "FundedRatio": "",
+     *             "ChangeDate": "2017-12-12 12:00:00"
+     *         },
+     *         {
+     *             "KeyNo": "97eeeffd2a1d8ccbfb8d8472f5aa5584",
+     *             "RegistCapi": "10000万人民币元",
+     *             "StartDate": "2015-09-30 12:00:00",
+     *             "Status": "存续",
+     *             "CompanyName": "深圳市小牛消费服务有限公司",
+     *             "OperName": "彭最鸿",
+     *             "EconKind": "有限责任公司（法人独资）",
+     *             "FundedRatio": "",
+     *             "ChangeDate": "2017-11-20 12:00:00"
+     *         },
+     *         {
+     *             "KeyNo": "24850a5c259e5ab475affeb0c1ae8e6b",
+     *             "RegistCapi": "36255万人民币元",
+     *             "Status": "",
+     *             "CompanyName": "广州市俊鸿房地产开发有限公司",
+     *             "OperName": "吉兴顺",
+     *             "EconKind": "有限责任公司(法人独资)",
+     *             "FundedRatio": "",
+     *             "ChangeDate": "2017-06-21 12:00:00"
+     *         },
+     *         {
+     *             "KeyNo": "b0bad4b66053fa8cf409d186bfcb3a4d",
+     *             "RegistCapi": "2000000万人民币元",
+     *             "StartDate": "2015-05-19 12:00:00",
+     *             "Status": "",
+     *             "CompanyName": "恒大旅游集团有限公司",
+     *             "OperName": "汤济泽",
+     *             "EconKind": "有限责任公司(法人独资)",
+     *             "FundedRatio": "",
+     *             "ChangeDate": "2016-11-28 12:00:00"
+     *         },
+     *         {
+     *             "KeyNo": "112df39675782fa6688179ea2795e1b6",
+     *             "RegistCapi": "5398498.000000万人民币元",
+     *             "StartDate": "2009-08-26 12:00:00",
+     *             "Status": "",
+     *             "CompanyName": "恒大集团(南昌)有限公司",
+     *             "OperName": "鞠志明",
+     *             "EconKind": "其他有限责任公司",
+     *             "FundedRatio": "",
+     *             "ChangeDate": "2016-11-28 12:00:00"
+     *         },
+     *         {
+     *             "KeyNo": "e72fd45d73e23667c84e8f9bb6b4dc98",
+     *             "RegistCapi": "100万人民币元",
+     *             "Status": "",
+     *             "CompanyName": "深圳市铭之瑞科技有限公司",
+     *             "OperName": "张波",
+     *             "EconKind": "有限责任公司（自然人独资）",
+     *             "FundedRatio": "",
+     *             "ChangeDate": "2016-09-27 12:00:00"
+     *         },
+     *         {
+     *             "KeyNo": "27508fccfd3110a8056327e45e703ac2",
+     *             "RegistCapi": "500万人民币元",
+     *             "Status": "",
+     *             "CompanyName": "启东市欣晴娱乐有限公司",
+     *             "OperName": "艾冬",
+     *             "EconKind": "有限责任公司（法人独资）",
+     *             "FundedRatio": "",
+     *             "ChangeDate": "2016-05-30 12:00:00"
+     *         },
+     *         {
+     *             "KeyNo": "517ae662bfd202a8eb567224c0637d4b",
+     *             "RegistCapi": "600万人民币元",
+     *             "Status": "",
+     *             "CompanyName": "启东市金色海岸大酒店有限公司",
+     *             "OperName": "艾冬",
+     *             "EconKind": "有限责任公司（法人独资）",
+     *             "FundedRatio": "",
+     *             "ChangeDate": "2016-05-30 12:00:00"
+     *         }
+     *     ]
+     * }
+     *
+     *
+     * @apiUse QccError
+     */
+    private Object GetHistorytInvestment(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
+        return pageQuery("qcc.查询历史对外投资信息表", params);
+    }
+
+
+    /**
+     * @api {get} /History/GetHistorytEci 历史工商信息
+     * @apiGroup QCC
+     * @apiVersion 0.0.1
+     *
+     * @apiParam {string} fullName 公司全名
+     *
+     * @apiSuccess {string} KeyNo 公司KeyNo
+     * @apiSuccess {object[]} CompanyNameList 历史名称
+     * @apiSuccess {string} CompanyNameList.ChangeDate 变更日期
+     * @apiSuccess {string} CompanyNameList.CompanyName 公司名称
+     *
+     * @apiSuccess {object[]} OperList 历史名称
+     * @apiSuccess {string} OperList.ChangeDate 变更日期
+     * @apiSuccess {string} OperList.OperName 公司名称
+     *
+     * @apiSuccess {object[]} RegistCapiList 历史注册资本
+     * @apiSuccess {string} RegistCapiList.ChangeDate 变更日期
+     * @apiSuccess {string} RegistCapiList.RegistCapi 注册资本
+     * @apiSuccess {string} RegistCapiList.Amount 金额
+     * @apiSuccess {string} RegistCapiList.Unit 单位
+     *
+     * @apiSuccess {object[]} AddressList 历史地址
+     * @apiSuccess {string} AddressList.ChangeDate 变更日期
+     * @apiSuccess {string} AddressList.Address 地址
+     *
+     * @apiSuccess {object[]} ScopeList 历史经营范围
+     * @apiSuccess {string} ScopeList.ChangeDate 变更日期
+     * @apiSuccess {string} ScopeList.Scope 经营范围
+     *
+     * @apiSuccess {object[]} EmployeeList 历史主要人员
+     * @apiSuccess {string} EmployeeList.ChangeDate 变更日期
+     * @apiSuccess {string} EmployeeList.Employees.KeyNo 公司KeyNo
+     * @apiSuccess {string} EmployeeList.Employees.EmployeeName 名称
+     * @apiSuccess {string} EmployeeList.Employees.Job 职位
+     *
+     * @apiSuccess {object[]} BranchList 历史分支机构
+     * @apiSuccess {string} BranchList.ChangeDate 变更日期
+     * @apiSuccess {string} BranchList.KeyNo 公司KeyNo
+     * @apiSuccess {string} BranchList.BranchName 机构名称
+     *
+     * @apiSuccess {object[]} TelList 历史电话
+     * @apiSuccess {string} TelList.ChangeDate 变更日期
+     * @apiSuccess {string} TelList.Tel 电话
+     *
+     * @apiSuccess {object[]} EmailList 历史邮箱
+     * @apiSuccess {string} EmailList.ChangeDate 变更日期
+     * @apiSuccess {string} EmailList.Email 邮箱
+     *
+     * @apiSuccess {object[]} WebsiteList 历史网站
+     * @apiSuccess {string} WebsiteList.ChangeDate 变更日期
+     * @apiSuccess {string} WebsiteList.Email 邮箱
+     *
+     *
+     * @apiSuccessExample 请求成功:
+     *
+     * {
+     *     "Status": "200",
+     *     "Message": "查询成功",
+     *     "Result": {
+     *         "KeyNo": "befe52d9753b511b6aef5e33fe00f97d",
+     *         "RegistCapiList": [
+     *             {
+     *                 "RegistCapi": "1.2亿人民币元",
+     *                 "Amount": "120000000",
+     *                 "ChangeDate": "2013-04-08",
+     *                 "Unit": "人民币元"
+     *             }
+     *         ],
+     *         "TelList": [
+     *         ],
+     *         "CompanyNameList": [
+     *         ],
+     *         "BranchList": [
+     *         ],
+     *         "OperList": [
+     *         ],
+     *         "WebsiteList": [
+     *         ],
+     *         "ScopeList": [
+     *             {
+     *                 "Scope": "商业地产投资及经营、酒店建设投资及经营、连锁百货投资及经营、电影院线等文化产业投资及经营;投资与资产管理、项目管理(以上均不含专项审批);货物进出口、技术进出口,国内一般贸易;代理记账、财务咨询、企业管理咨询、经济信息咨询、计算机信息技术服务与技术咨询、计算机系统集成、网络设备安装与维护(依法须经批准的项目,经相关部门批准后,方可开展经营活动)***",
+     *                 "ChangeDate": "2018-04-19"
+     *             }
+     *         ],
+     *         "EmailList": [
+     *         ],
+     *         "AddressList": [
+     *             {
+     *                 "Address": "大连中山区解放街9号",
+     *                 "ChangeDate": "1999-03-12"
+     *             },
+     *             {
+     *                 "Address": "大连市中山区解放街９号",
+     *                 "ChangeDate": "1997-11-13"
+     *             }
+     *         ],
+     *         "EmployeeList": [
+     *             {
+     *                 "ChangeDate": "2018-08-13",
+     *                 "Employees": [
+     *                     {
+     *                         "KeyNo": "p70fb7e3420d037533540165fe84b545",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "林宁"
+     *                     },
+     *                     {
+     *                         "KeyNo": "pd54d0f650573ecbc2036f333fb0cfe0",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "尹海"
+     *                     },
+     *                     {
+     *                         "KeyNo": "pea5ac417585edc0effd7d23406510da",
+     *                         "Job": "董事长",
+     *                         "EmployeeName": "王健林"
+     *                     },
+     *                     {
+     *                         "KeyNo": "p2d91474fa9ffa548de9464ad3d0a1f5",
+     *                         "Job": "监事",
+     *                         "EmployeeName": "侯鸿军"
+     *                     },
+     *                     {
+     *                         "KeyNo": "pe31835041554c724fde88ec748aa6f4",
+     *                         "Job": "监事",
+     *                         "EmployeeName": "韩旭"
+     *                     },
+     *                     {
+     *                         "KeyNo": "p3ef4e77096b20e7aef87d487aff8a0a",
+     *                         "Job": "监事",
+     *                         "EmployeeName": "张谌"
+     *                     },
+     *                     {
+     *                         "KeyNo": "p165991ca474f1da37007ab96536b1a5",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "张霖"
+     *                     },
+     *                     {
+     *                         "KeyNo": "p532a92afcfac2fe4ba8a22ba866dc2f",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "齐界"
+     *                     },
+     *                     {
+     *                         "KeyNo": "pdd3325c48473fcd64180921d82ead80",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "王思聪"
+     *                     },
+     *                     {
+     *                         "KeyNo": "pf902f9eaae047fe1173120b7509a21d",
+     *                         "Job": "董事兼总经理",
+     *                         "EmployeeName": "丁本锡"
+     *                     }
+     *                 ]
+     *             },
+     *             {
+     *                 "ChangeDate": "2016-01-26",
+     *                 "Employees": [
+     *                     {
+     *                         "KeyNo": "p2d91474fa9ffa548de9464ad3d0a1f5",
+     *                         "Job": "监事",
+     *                         "EmployeeName": "侯鸿军"
+     *                     },
+     *                     {
+     *                         "KeyNo": "pea5ac417585edc0effd7d23406510da",
+     *                         "Job": "总经理",
+     *                         "EmployeeName": "王健林"
+     *                     },
+     *                     {
+     *                         "KeyNo": "p90e173852d40037a1bec4ea12ec426e",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "王贵亚"
+     *                     },
+     *                     {
+     *                         "KeyNo": "p532a92afcfac2fe4ba8a22ba866dc2f",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "齐界"
+     *                     },
+     *                     {
+     *                         "KeyNo": "pf902f9eaae047fe1173120b7509a21d",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "丁本锡"
+     *                     },
+     *                     {
+     *                         "KeyNo": "p165991ca474f1da37007ab96536b1a5",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "张霖"
+     *                     },
+     *                     {
+     *                         "KeyNo": "p70fb7e3420d037533540165fe84b545",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "林宁"
+     *                     },
+     *                     {
+     *                         "KeyNo": "p3ef4e77096b20e7aef87d487aff8a0a",
+     *                         "Job": "监事",
+     *                         "EmployeeName": "张谌"
+     *                     },
+     *                     {
+     *                         "KeyNo": "pe31835041554c724fde88ec748aa6f4",
+     *                         "Job": "监事",
+     *                         "EmployeeName": "韩旭"
+     *                     },
+     *                     {
+     *                         "KeyNo": "pd54d0f650573ecbc2036f333fb0cfe0",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "尹海"
+     *                     }
+     *                 ]
+     *             },
+     *             {
+     *                 "ChangeDate": "2014-03-14",
+     *                 "Employees": [
+     *                     {
+     *                         "KeyNo": "pf902f9eaae047fe1173120b7509a21d",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "丁本锡"
+     *                     },
+     *                     {
+     *                         "KeyNo": "pea5ac417585edc0effd7d23406510da",
+     *                         "Job": "总经理",
+     *                         "EmployeeName": "王健林"
+     *                     },
+     *                     {
+     *                         "KeyNo": "p165991ca474f1da37007ab96536b1a5",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "张霖"
+     *                     },
+     *                     {
+     *                         "KeyNo": "p3ef4e77096b20e7aef87d487aff8a0a",
+     *                         "Job": "监事",
+     *                         "EmployeeName": "张谌"
+     *                     },
+     *                     {
+     *                         "KeyNo": "pe31835041554c724fde88ec748aa6f4",
+     *                         "Job": "监事",
+     *                         "EmployeeName": "韩旭"
+     *                     },
+     *                     {
+     *                         "KeyNo": "pd54d0f650573ecbc2036f333fb0cfe0",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "尹海"
+     *                     },
+     *                     {
+     *                         "KeyNo": "pf8025469fdbad176f535893d11c7e49",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "陈平"
+     *                     },
+     *                     {
+     *                         "KeyNo": "p2d91474fa9ffa548de9464ad3d0a1f5",
+     *                         "Job": "监事",
+     *                         "EmployeeName": "侯鸿军"
+     *                     },
+     *                     {
+     *                         "KeyNo": "p923fc15cca706138ccabf568bf4a3a3",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "李耀汉"
+     *                     }
+     *                 ]
+     *             },
+     *             {
+     *                 "ChangeDate": "2011-03-08",
+     *                 "Employees": [
+     *                     {
+     *                         "KeyNo": "pea5ac417585edc0effd7d23406510da",
+     *                         "Job": "总经理",
+     *                         "EmployeeName": "王健林"
+     *                     },
+     *                     {
+     *                         "KeyNo": "pdd3325c48473fcd64180921d82ead80",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "王思聪"
+     *                     },
+     *                     {
+     *                         "KeyNo": "p2d91474fa9ffa548de9464ad3d0a1f5",
+     *                         "Job": "监事",
+     *                         "EmployeeName": "侯鸿军"
+     *                     },
+     *                     {
+     *                         "KeyNo": "p5a2d2e51101af0b5d7a56cb8fcc9908",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "张诚"
+     *                     },
+     *                     {
+     *                         "KeyNo": "p532a92afcfac2fe4ba8a22ba866dc2f",
+     *                         "Job": "监事",
+     *                         "EmployeeName": "齐界"
+     *                     },
+     *                     {
+     *                         "KeyNo": "p3ef4e77096b20e7aef87d487aff8a0a",
+     *                         "Job": "监事",
+     *                         "EmployeeName": "张谌"
+     *                     },
+     *                     {
+     *                         "KeyNo": "pf8025469fdbad176f535893d11c7e49",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "陈平"
+     *                     },
+     *                     {
+     *                         "KeyNo": "p923fc15cca706138ccabf568bf4a3a3",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "李耀汉"
+     *                     }
+     *                 ]
+     *             },
+     *             {
+     *                 "ChangeDate": "2010-02-10",
+     *                 "Employees": [
+     *                     {
+     *                         "KeyNo": "prdd0277127508b36a18d7a264b31467",
+     *                         "Job": "监事",
+     *                         "EmployeeName": "王健"
+     *                     },
+     *                     {
+     *                         "KeyNo": "p3ef4e77096b20e7aef87d487aff8a0a",
+     *                         "Job": "监事",
+     *                         "EmployeeName": "张谌"
+     *                     },
+     *                     {
+     *                         "KeyNo": "pea5ac417585edc0effd7d23406510da",
+     *                         "Job": "董事长",
+     *                         "EmployeeName": "王健林"
+     *                     },
+     *                     {
+     *                         "KeyNo": "pdd3325c48473fcd64180921d82ead80",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "王思聪"
+     *                     },
+     *                     {
+     *                         "KeyNo": "p8d85ac0618f79ea3da1c2f4ec478857",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "崔宗明"
+     *                     },
+     *                     {
+     *                         "KeyNo": "p923fc15cca706138ccabf568bf4a3a3",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "李耀汉"
+     *                     },
+     *                     {
+     *                         "KeyNo": "p83317b99e4b5cb7a5cc9e7be55841c4",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "黄平"
+     *                     },
+     *                     {
+     *                         "KeyNo": "p532a92afcfac2fe4ba8a22ba866dc2f",
+     *                         "Job": "监事",
+     *                         "EmployeeName": "齐界"
+     *                     }
+     *                 ]
+     *             },
+     *             {
+     *                 "ChangeDate": "2009-08-07",
+     *                 "Employees": [
+     *                     {
+     *                         "KeyNo": "p532a92afcfac2fe4ba8a22ba866dc2f",
+     *                         "Job": "监事",
+     *                         "EmployeeName": "齐界"
+     *                     },
+     *                     {
+     *                         "KeyNo": "pea5ac417585edc0effd7d23406510da",
+     *                         "Job": "总经理",
+     *                         "EmployeeName": "王健林"
+     *                     },
+     *                     {
+     *                         "KeyNo": "pf902f9eaae047fe1173120b7509a21d",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "丁本锡"
+     *                     },
+     *                     {
+     *                         "KeyNo": "p3ef4e77096b20e7aef87d487aff8a0a",
+     *                         "Job": "监事",
+     *                         "EmployeeName": "张谌"
+     *                     },
+     *                     {
+     *                         "KeyNo": "prdd0277127508b36a18d7a264b31467",
+     *                         "Job": "监事",
+     *                         "EmployeeName": "王健"
+     *                     },
+     *                     {
+     *                         "KeyNo": "pd54d0f650573ecbc2036f333fb0cfe0",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "尹海"
+     *                     },
+     *                     {
+     *                         "KeyNo": "pf8025469fdbad176f535893d11c7e49",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "陈平"
+     *                     },
+     *                     {
+     *                         "KeyNo": "p923fc15cca706138ccabf568bf4a3a3",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "李耀汉"
+     *                     }
+     *                 ]
+     *             },
+     *             {
+     *                 "ChangeDate": "2009-01-06",
+     *                 "Employees": [
+     *                     {
+     *                         "KeyNo": "p3ef4e77096b20e7aef87d487aff8a0a",
+     *                         "Job": "监事",
+     *                         "EmployeeName": "张谌"
+     *                     },
+     *                     {
+     *                         "KeyNo": "p414902f5dbbd64f9d73d668c390ecdd",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "聂茁"
+     *                     },
+     *                     {
+     *                         "KeyNo": "pf8025469fdbad176f535893d11c7e49",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "陈平"
+     *                     },
+     *                     {
+     *                         "KeyNo": "p532a92afcfac2fe4ba8a22ba866dc2f",
+     *                         "Job": "监事",
+     *                         "EmployeeName": "齐界"
+     *                     },
+     *                     {
+     *                         "KeyNo": "pr7beece1b71e105b84851644efc54b4",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "罗昕"
+     *                     },
+     *                     {
+     *                         "KeyNo": "pf479e05f9306979f83a621cdd451dbf",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "冷传金"
+     *                     },
+     *                     {
+     *                         "KeyNo": "prdd0277127508b36a18d7a264b31467",
+     *                         "Job": "监事",
+     *                         "EmployeeName": "王健"
+     *                     },
+     *                     {
+     *                         "KeyNo": "p923fc15cca706138ccabf568bf4a3a3",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "李耀汉"
+     *                     },
+     *                     {
+     *                         "KeyNo": "pf902f9eaae047fe1173120b7509a21d",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "丁本锡"
+     *                     },
+     *                     {
+     *                         "KeyNo": "pd54d0f650573ecbc2036f333fb0cfe0",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "尹海"
+     *                     },
+     *                     {
+     *                         "KeyNo": "pea5ac417585edc0effd7d23406510da",
+     *                         "Job": "董事长",
+     *                         "EmployeeName": "王健林"
+     *                     },
+     *                     {
+     *                         "KeyNo": "pa21c9d253848f65999adb9011ed7d11",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "孙喜双"
+     *                     }
+     *                 ]
+     *             },
+     *             {
+     *                 "ChangeDate": "2005-12-29",
+     *                 "Employees": [
+     *                     {
+     *                         "KeyNo": "pf902f9eaae047fe1173120b7509a21d",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "丁本锡"
+     *                     },
+     *                     {
+     *                         "KeyNo": "p83317b99e4b5cb7a5cc9e7be55841c4",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "黄平"
+     *                     },
+     *                     {
+     *                         "KeyNo": "pf479e05f9306979f83a621cdd451dbf",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "冷传金"
+     *                     },
+     *                     {
+     *                         "KeyNo": "p923fc15cca706138ccabf568bf4a3a3",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "李耀汉"
+     *                     },
+     *                     {
+     *                         "KeyNo": "p414902f5dbbd64f9d73d668c390ecdd",
+     *                         "Job": "监事",
+     *                         "EmployeeName": "聂茁"
+     *                     },
+     *                     {
+     *                         "KeyNo": "pa21c9d253848f65999adb9011ed7d11",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "孙喜双"
+     *                     },
+     *                     {
+     *                         "KeyNo": "pr0eb93d36e0a295df4f6c9effa1d66d",
+     *                         "Job": "监事",
+     *                         "EmployeeName": "孙湛"
+     *                     },
+     *                     {
+     *                         "KeyNo": "p0910f694bab2853557fd86156fefba6",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "汤天伟"
+     *                     },
+     *                     {
+     *                         "KeyNo": "prdd0277127508b36a18d7a264b31467",
+     *                         "Job": "监事",
+     *                         "EmployeeName": "王健"
+     *                     },
+     *                     {
+     *                         "KeyNo": "pea5ac417585edc0effd7d23406510da",
+     *                         "Job": "董事长",
+     *                         "EmployeeName": "王健林"
+     *                     },
+     *                     {
+     *                         "KeyNo": "pd54d0f650573ecbc2036f333fb0cfe0",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "尹海"
+     *                     },
+     *                     {
+     *                         "KeyNo": "p876e7ef826ecd738b2f3dfc5c5bd926",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "周良君"
+     *                     }
+     *                 ]
+     *             },
+     *             {
+     *                 "ChangeDate": "2004-02-09",
+     *                 "Employees": [
+     *                     {
+     *                         "KeyNo": "pr87ad6e0eb962a5adf29c5df27c65e3",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "董永成"
+     *                     },
+     *                     {
+     *                         "KeyNo": "prc8109677552074586879e0137796a4",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "郭岩"
+     *                     },
+     *                     {
+     *                         "KeyNo": "prfbf7c12ad06f5fed2ba6988cddb3ad",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "姜雄城"
+     *                     },
+     *                     {
+     *                         "KeyNo": "pf479e05f9306979f83a621cdd451dbf",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "冷传金"
+     *                     },
+     *                     {
+     *                         "KeyNo": "pr943a6cdf9e73966e9d9ff9c46c1b44",
+     *                         "Job": "监事",
+     *                         "EmployeeName": "李学峰"
+     *                     },
+     *                     {
+     *                         "KeyNo": "p923fc15cca706138ccabf568bf4a3a3",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "李耀汉"
+     *                     },
+     *                     {
+     *                         "KeyNo": "p414902f5dbbd64f9d73d668c390ecdd",
+     *                         "Job": "监事",
+     *                         "EmployeeName": "聂茁"
+     *                     },
+     *                     {
+     *                         "KeyNo": "p532a92afcfac2fe4ba8a22ba866dc2f",
+     *                         "Job": "监事",
+     *                         "EmployeeName": "齐界"
+     *                     },
+     *                     {
+     *                         "KeyNo": "pa21c9d253848f65999adb9011ed7d11",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "孙喜双"
+     *                     },
+     *                     {
+     *                         "KeyNo": "prf35887e34d98ced1031ba18dcae409",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "谭业军"
+     *                     },
+     *                     {
+     *                         "KeyNo": "p0910f694bab2853557fd86156fefba6",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "汤天伟"
+     *                     },
+     *                     {
+     *                         "KeyNo": "pea5ac417585edc0effd7d23406510da",
+     *                         "Job": "董事长",
+     *                         "EmployeeName": "王健林"
+     *                     },
+     *                     {
+     *                         "KeyNo": "pr1963fa9b51a96fd9ef5c7f69dfbbaa",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "谢里修"
+     *                     },
+     *                     {
+     *                         "KeyNo": "p876e7ef826ecd738b2f3dfc5c5bd926",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "周良君"
+     *                     }
+     *                 ]
+     *             },
+     *             {
+     *                 "ChangeDate": "2002-12-23",
+     *                 "Employees": [
+     *                     {
+     *                         "KeyNo": "prdf7c0c6fa5d2ed5bd1a740f7d9ddce",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "程绍运"
+     *                     },
+     *                     {
+     *                         "KeyNo": "pr87ad6e0eb962a5adf29c5df27c65e3",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "董永成"
+     *                     },
+     *                     {
+     *                         "KeyNo": "p99bbfce6356861ccd4a78a32adbac90",
+     *                         "Job": "副总经理",
+     *                         "EmployeeName": "高茜"
+     *                     },
+     *                     {
+     *                         "KeyNo": "p83317b99e4b5cb7a5cc9e7be55841c4",
+     *                         "Job": "监事",
+     *                         "EmployeeName": "黄平"
+     *                     },
+     *                     {
+     *                         "KeyNo": "pr0d86904673eae79a7475b8ec782bc5",
+     *                         "Job": "总经理",
+     *                         "EmployeeName": "姜积成"
+     *                     },
+     *                     {
+     *                         "KeyNo": "pf479e05f9306979f83a621cdd451dbf",
+     *                         "Job": "监事",
+     *                         "EmployeeName": "冷传金"
+     *                     },
+     *                     {
+     *                         "KeyNo": "pr75fc6a0715bec3b280c6e79ee52190",
+     *                         "Job": "监事",
+     *                         "EmployeeName": "苏仲义"
+     *                     },
+     *                     {
+     *                         "KeyNo": "pr8a1582fb0f163f476231f990275fbb",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "孙昆双"
+     *                     },
+     *                     {
+     *                         "KeyNo": "prf35887e34d98ced1031ba18dcae409",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "谭业军"
+     *                     },
+     *                     {
+     *                         "KeyNo": "pr59f365564c03fb79c2399a26adedf0",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "汤闯"
+     *                     },
+     *                     {
+     *                         "KeyNo": "pea5ac417585edc0effd7d23406510da",
+     *                         "Job": "董事长",
+     *                         "EmployeeName": "王健林"
+     *                     },
+     *                     {
+     *                         "KeyNo": "pr1963fa9b51a96fd9ef5c7f69dfbbaa",
+     *                         "Job": "董事",
+     *                         "EmployeeName": "谢里修"
+     *                     },
+     *                     {
+     *                         "KeyNo": "p55a2871e4369c3b03d16f93a4b7c27d",
+     *                         "Job": "副总经理",
+     *                         "EmployeeName": "佘世耀"
+     *                     }
+     *                 ]
+     *             }
+     *         ]
+     *     }
+     * }
+     *
+     *
+     * @apiUse QccError
+     */
+    private Object GetHistorytEci(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject param) {
+        JSONObject object = singleQuery("qcc.查询历史工商信息表", param);
+        JSON hisData = JSONUtil.parse(object.getStr("HisData"));
+        object.remove("HisData");
+        object.putAll((Map<? extends String, ? extends Object>) hisData);
+        return object;
+    }
+
+
+    /**
+     * @api {get} /ECIV4/GetDetailsByName 企业关键字精确获取详细信息(Master)
+     * @apiGroup QCC
+     * @apiVersion 0.0.1
+     *
+     * @apiParam {string} keyword 公司全名
+     *
+     * @apiSuccess {string} KeyNo 内部KeyNo
+     * @apiSuccess {string} Name 公司名称
+     * @apiSuccess {string} No 注册号
+     * @apiSuccess {string} BelongOrg 登记机关
+     * @apiSuccess {string} OperName 法人名
+     * @apiSuccess {string} StartDate 成立日期
+     * @apiSuccess {string} EndDate 吊销日期
+     * @apiSuccess {string} Status 企业状态
+     * @apiSuccess {string} Province 省份
+     * @apiSuccess {string} UpdatedDate 更新日期
+     * @apiSuccess {string} CreditCode 社会统一信用代码
+     * @apiSuccess {string} RegistCapi 注册资本
+     * @apiSuccess {string} EconKind 企业类型
+     * @apiSuccess {string} Address 地址
+     * @apiSuccess {string} Scope 经营范围
+     * @apiSuccess {string} TermStart 营业开始日期
+     * @apiSuccess {string} TeamEnd 营业结束日期
+     * @apiSuccess {string} CheckDate 发照日期
+     * @apiSuccess {string} OrgNo 组织机构代码
+     * @apiSuccess {string} IsOnStock 是否上市(0为未上市，1为上市)
+     * @apiSuccess {string} StockNumber 上市公司代码
+     * @apiSuccess {string} StockType 上市类型
+     * @apiSuccess {string} ImageUrl 企业Logo
+     *
+     * @apiSuccess {object[]} OriginalName 曾用名
+     * @apiSuccess {string} OriginalName.Name 曾用名
+     * @apiSuccess {string} OriginalName.ChangeDate 变更日期
+     *
+     * @apiSuccess {object[]} Partners 股东信息
+     * @apiSuccess {string} Partners.StockName 股东
+     * @apiSuccess {string} Partners.StockType 股东类型
+     * @apiSuccess {string} Partners.StockPercent 出资比例
+     * @apiSuccess {string} Partners.ShouldCapi 认缴出资额
+     * @apiSuccess {string} Partners.ShoudDate 认缴出资时间
+     * @apiSuccess {string} Partners.InvestType 认缴出资方式
+     * @apiSuccess {string} Partners.InvestName 实际出资方式
+     * @apiSuccess {string} Partners.RealCapi 实缴出资额
+     * @apiSuccess {string} Partners.CapiDate 实缴时间
+     *
+     * @apiSuccess {object[]} Employees 主要人员
+     * @apiSuccess {string} Employees.Name 姓名
+     * @apiSuccess {string} Employees.Job 职位
+     *
+     * @apiSuccess {object[]} Branches 分支机构
+     * @apiSuccess {string} Branches.CompanyId CompanyId
+     * @apiSuccess {string} Branches.RegNo 注册号或社会统一信用代码（存在社会统一信用代码显示社会统一信用代码，否则显示注册号）
+     * @apiSuccess {string} Branches.Name 名称
+     * @apiSuccess {string} Branches.BelongOrg 登记机关
+     * @apiSuccess {string} Branches.CreditCode 社会统一信用代码（保留字段，目前为空）
+     * @apiSuccess {string} Branches.OperName 法人姓名或负责人姓名（保留字段，目前为空）
+     *
+     * @apiSuccess {object[]} ChangeRecords 变更信息
+     * @apiSuccess {string} ChangeRecords.ProjectName 变更事项
+     * @apiSuccess {string} ChangeRecords.BeforeContent 变更前内容
+     * @apiSuccess {string} ChangeRecords.AfterContent 变更后内容
+     * @apiSuccess {string} ChangeRecords.ChangeDate 变更日期
+     *
+     * @apiSuccess {object} ContactInfo 联系信息
+     * @apiSuccess {object[]} ContactInfo.WebSite 网址信息
+     * @apiSuccess {string} ContactInfo.WebSite.Name 网站名称
+     * @apiSuccess {string} ContactInfo.WebSite.Url 网站地址
+     * @apiSuccess {string} ContactInfo.PhoneNumber 联系电话
+     * @apiSuccess {string} ContactInfo.Email 联系邮箱
+     *
+     * @apiSuccess {object} Industry 行业信息
+     * @apiSuccess {string} Industry.IndustryCode 行业门类code
+     * @apiSuccess {string} Industry.Industry 行业门类描述
+     * @apiSuccess {string} Industry.SubIndustryCode 行业大类code
+     * @apiSuccess {string} Industry.SubIndustry 行业大类描述
+     * @apiSuccess {string} Industry.MiddleCategoryCode 行业中类code
+     * @apiSuccess {string} Industry.MiddleCategory 行业中类描述
+     * @apiSuccess {string} Industry.SmallCategoryCode 行业小类code
+     * @apiSuccess {string} Industry.SmallCategory 行业小类描述
+     *
+     *
+     * @apiSuccessExample 请求成功:
+     * {
+     *     "Status": "200",
+     *     "Message": "查询成功",
+     *     "Result": {
+     *         "RegistCapi": "100万元人民币",
+     *         "BelongOrg": "深圳市市场监督管理局",
+     *         "CreditCode": "91440300786561802R",
+     *         "EconKind": "有限责任公司",
+     *         "Address": "深圳市福田区梅林街道梅丰社区梅华路105号多丽工业区3栋4层402E房",
+     *         "UpdatedDate": null,
+     *         "Employees": [
+     *             {
+     *                 "Job": "执行董事",
+     *                 "Name": "陈海文"
+     *             },
+     *             {
+     *                 "Job": "监事",
+     *                 "Name": "黄坚"
+     *             },
+     *             {
+     *                 "Job": "总经理",
+     *                 "Name": "陈海文"
+     *             }
+     *         ],
+     *         "Name": "深圳市桑协世纪科技有限公司",
+     *         "StartDate": "2006-03-17 12:00:00",
+     *         "Industry": {
+     *             "Industry": "科学研究和技术服务业",
+     *             "SubIndustryCode": "75",
+     *             "IndustryCode": "M",
+     *             "MiddleCategory": "其他科技推广服务业",
+     *             "SmallCategoryCode": "7590",
+     *             "SmallCategory": "其他科技推广服务业",
+     *             "SubIndustry": "科技推广和应用服务业",
+     *             "MiddleCategoryCode": "759"
+     *         },
+     *         "StockType": null,
+     *         "ChangeRecords": [
+     *             {
+     *                 "ProjectName": "章程备案",
+     *                 "ChangeDate": "2019-03-11 12:00:00",
+     *                 "AfterContent": "2019-03-07",
+     *                 "BeforeContent": "2018-12-19"
+     *             },
+     *             {
+     *                 "ProjectName": "名称变更（字号名称、集团名称等）",
+     *                 "ChangeDate": "2019-03-11 12:00:00",
+     *                 "AfterContent": "深圳市桑协世纪科技有限公司",
+     *                 "BeforeContent": "深圳市康银信息技术有限公司"
+     *             },
+     *             {
+     *                 "ProjectName": "名称变更（字号名称、集团名称等）",
+     *                 "ChangeDate": "2018-12-21 12:00:00",
+     *                 "AfterContent": "深圳市康银信息技术有限公司",
+     *                 "BeforeContent": "深圳市桑协世纪科技有限公司"
+     *             },
+     *             {
+     *                 "ProjectName": "章程备案",
+     *                 "ChangeDate": "2018-12-21 12:00:00",
+     *                 "AfterContent": "2018-12-19",
+     *                 "BeforeContent": "2018-10-31"
+     *             },
+     *             {
+     *                 "ProjectName": "地址变更（住所地址、经营场所、驻在地址等变更）",
+     *                 "ChangeDate": "2018-11-02 12:00:00",
+     *                 "AfterContent": "深圳市福田区梅林街道梅丰社区梅华路105号多丽工业区3栋4层402E房",
+     *                 "BeforeContent": "深圳市福田区华强北街道鹏基上步工业区101栋第五层516室(入驻深圳市网协商务秘书有限公司)"
+     *             },
+     *             {
+     *                 "ProjectName": "",
+     *                 "ChangeDate": "2018-11-02 12:00:00",
+     *                 "AfterContent": "计算机软件、信息系统软件的开发、销售；信息系统设计、集成、运行维护；信息技术咨询；集成电路设计、研发；通信线路和设备安装；电子设备工程安装；电子自动化工程安装；监控系统安装；保安监控及防盗报警系统安装；智能卡系统安装；电子工程安装；智能化系统安装；建筑物空调设备、采暖系统、通风设备系统安装；机电设备安装、维修；门窗安装；电工维修；木工维修；管道工维修；计算机、软件及辅助设备的销售；通讯设备的销售；j计算机系统集成；无线数据产品(不含限制项目)的销售。(法律、行政法规、国务院决定禁止的项目除外,限制的项目须取得许可后方可经营)",
+     *                 "BeforeContent": "通信线路和设备安装；电子设备工程安装；电子自动化工程安装；监控系统安装；保安监控及防盗报警系统安装；智能卡系统安装；电子工程安装；智能化系统安装；建筑物空调设备、采暖系统、通风设备系统安装；机电设备安装、维修；门窗安装；电工维修；木工维修；管道工维修。计算机、软件及辅助设备的销售。通讯设备的销售；系统集成及无线数据产品(不含限制项目)的销售。"
+     *             },
+     *             {
+     *                 "ProjectName": "章程备案",
+     *                 "ChangeDate": "2018-11-02 12:00:00",
+     *                 "AfterContent": "2018-10-31",
+     *                 "BeforeContent": "2017-03-06"
+     *             },
+     *             {
+     *                 "ProjectName": "章程备案",
+     *                 "ChangeDate": "2017-03-08 12:00:00",
+     *                 "AfterContent": "2017-03-06",
+     *                 "BeforeContent": "2016-05-06"
+     *             },
+     *             {
+     *                 "ProjectName": "",
+     *                 "ChangeDate": "2017-03-08 12:00:00",
+     *                 "AfterContent": "通信线路和设备安装；电子设备工程安装；电子自动化工程安装；监控系统安装；保安监控及防盗报警系统安装；智能卡系统安装；电子工程安装；智能化系统安装；建筑物空调设备、采暖系统、通风设备系统安装；机电设备安装、维修；门窗安装；电工维修；木工维修；管道工维修。计算机、软件及辅助设备的销售。通讯设备的销售；系统集成及无线数据产品(不含限制项目)的销售。",
+     *                 "BeforeContent": "电子产品的技术开发、上门维修,信息咨询(以上不含人才中介服务及其它限制项目)。"
+     *             },
+     *             {
+     *                 "ProjectName": "其他事项备案",
+     *                 "ChangeDate": "2016-05-10 12:00:00",
+     *                 "AfterContent": "91440300786561802R",
+     *                 "BeforeContent": ""
+     *             },
+     *             {
+     *                 "ProjectName": "期限变更（经营期限、营业期限、驻在期限等变更）",
+     *                 "ChangeDate": "2016-05-10 12:00:00",
+     *                 "AfterContent": "2006-03-17,5000-01-01",
+     *                 "BeforeContent": "2006-03-17,2016-03-17"
+     *             },
+     *             {
+     *                 "ProjectName": "地址变更（住所地址、经营场所、驻在地址等变更）",
+     *                 "ChangeDate": "2016-05-10 12:00:00",
+     *                 "AfterContent": "深圳市福田区华强北街道鹏基上步工业区101栋第五层516室(入驻深圳市网协商务秘书有限公司)",
+     *                 "BeforeContent": "深圳市福田区梅华路105号福田国际电子商务产业园1栋1422室"
+     *             },
+     *             {
+     *                 "ProjectName": "地址变更（住所地址、经营场所、驻在地址等变更）",
+     *                 "ChangeDate": "2015-06-11 12:00:00",
+     *                 "AfterContent": "深圳市福田区梅华路105号福田国际电子商务产业园1栋1422室",
+     *                 "BeforeContent": "深圳市福田区振华路(东)兰光大厦C座312房"
+     *             },
+     *             {
+     *                 "ProjectName": "期限变更（经营期限、营业期限、驻在期限等变更）",
+     *                 "ChangeDate": "2016-05-10 12:00:00",
+     *                 "AfterContent": "永续经营",
+     *                 "BeforeContent": "从2006-03-17至2016-03-17"
+     *             },
+     *             {
+     *                 "ProjectName": "指定联系人",
+     *                 "ChangeDate": "2015-06-11 12:00:00",
+     *                 "AfterContent": "陈海文*",
+     *                 "BeforeContent": ""
+     *             },
+     *             {
+     *                 "ProjectName": "经营范围变更（含业务范围变更）",
+     *                 "ChangeDate": "2010-05-10 12:00:00",
+     *                 "AfterContent": "电子产品的技术开发、上门维修,信息咨询(以上不含人才中介服务及其它限制项目)。",
+     *                 "BeforeContent": "电子及信息产品的技术开发及咨询(不含限制项目)；国内商业、物资供销业(不含专营、专控、专卖商品)；兴办实业(具体项目另行申报)。"
+     *             },
+     *             {
+     *                 "ProjectName": "注册号/注册号升级",
+     *                 "ChangeDate": "2008-12-11 12:00:00",
+     *                 "AfterContent": "440301103762313",
+     *                 "BeforeContent": "4403011216989"
+     *             },
+     *             {
+     *                 "ProjectName": "地址变更（住所地址、经营场所、驻在地址等变更）",
+     *                 "ChangeDate": "2008-12-11 12:00:00",
+     *                 "AfterContent": "深圳市福田区振华路(东)兰光大厦C座312房",
+     *                 "BeforeContent": "深圳市福田区燕南路403栋399A"
+     *             },
+     *             {
+     *                 "ProjectName": "地址变更（住所地址、经营场所、驻在地址等变更）",
+     *                 "ChangeDate": "2007-06-19 12:00:00",
+     *                 "AfterContent": "深圳市福田区燕南路403栋399A",
+     *                 "BeforeContent": "深圳市福田区振华路(东)兰光大厦C座307房"
+     *             },
+     *             {
+     *                 "ProjectName": "名称变更（字号名称、集团名称等）",
+     *                 "ChangeDate": "2007-03-19 12:00:00",
+     *                 "AfterContent": "深圳市桑协世纪科技有限公司",
+     *                 "BeforeContent": "深圳市辰光伟业科技有限公司"
+     *             },
+     *             {
+     *                 "ProjectName": "地址变更（住所地址、经营场所、驻在地址等变更）",
+     *                 "ChangeDate": "2006-08-18 12:00:00",
+     *                 "AfterContent": "深圳市福田区振华路(东)兰光大厦C座307房",
+     *                 "BeforeContent": "深圳市福田区华强北路2006号华联发大厦1023号"
+     *             },
+     *             {
+     *                 "ProjectName": "经营范围",
+     *                 "ChangeDate": "2017-03-08 12:00:00",
+     *                 "AfterContent": "通信线路和设备安装；电子设备工程安装；电子自动化工程安装；监控系统安装；保安监控及防盗报警系统安装；智能卡系统安装；电子工程安装；智能化系统安装；建筑物空调设备、采暖系统、通风设备系统安装；机电设备安装、维修；门窗安装；电工维修；木工维修；管道工维修。计算机、软件及辅助设备的销售。通讯设备的销售；系统集成及无线数据产品(不含限制项目)的销售。^",
+     *                 "BeforeContent": "电子产品的技术开发、上门维修,信息咨询(以上不含人才中介服务及其它限制项目)。^"
+     *             },
+     *             {
+     *                 "ProjectName": "审批项目",
+     *                 "ChangeDate": "2017-03-08 12:00:00",
+     *                 "AfterContent": "验资报告深中法验字[2006]第B036号",
+     *                 "BeforeContent": "验资报告深中法验字[2006]第B036号"
+     *             },
+     *             {
+     *                 "ProjectName": "经营期限",
+     *                 "ChangeDate": "2016-05-10 12:00:00",
+     *                 "AfterContent": "永续经营",
+     *                 "BeforeContent": "自2006年3月17日起至2016年3月17日止"
+     *             },
+     *             {
+     *                 "ProjectName": "指定联系人",
+     *                 "ChangeDate": "2015-06-11 12:00:00",
+     *                 "AfterContent": "姓名:电话:邮箱:",
+     *                 "BeforeContent": "姓名:电话:邮箱:"
+     *             }
+     *         ],
+     *         "CheckDate": "2019-03-11 12:00:00",
+     *         "ContactInfo": {
+     *             "Email": "840019811@qq.com",
+     *             "WebSite": {
+     *             },
+     *             "PhoneNumber": "0755-83314237"
+     *         },
+     *         "Status": "存续（在营、开业、在册）",
+     *         "No": "440301103762313",
+     *         "OperName": "陈海文",
+     *         "Branches": [
+     *         ],
+     *         "ImageUrl": "https://co-image.qichacha.com/CompanyImage/default.jpg",
+     *         "OrgNo": "78656180-2",
+     *         "OriginalName": [
+     *             {
+     *                 "ChangeDate": "2019-03-11 12:00:00",
+     *                 "Name": "深圳市康银信息技术有限公司"
+     *             },
+     *             {
+     *                 "ChangeDate": "2007-03-19 12:00:00",
+     *                 "Name": "深圳市辰光伟业科技有限公司"
+     *             }
+     *         ],
+     *         "EndDate": null,
+     *         "Province": "GD",
+     *         "TermStart": "2006-03-17 12:00:00",
+     *         "KeyNo": "692a8d87536443b042bccb655398e3a0",
+     *         "TeamEnd": null,
+     *         "Partners": [
+     *             {
+     *                 "StockName": "陈海文",
+     *                 "StockType": "自然人股东",
+     *                 "StockPercent": "55.00%",
+     *                 "ShouldCapi": "55",
+     *                 "InvestType": ""
+     *             },
+     *             {
+     *                 "StockName": "黄坚",
+     *                 "StockType": "自然人股东",
+     *                 "StockPercent": "45.00%",
+     *                 "ShouldCapi": "45",
+     *                 "InvestType": ""
+     *             }
+     *         ],
+     *         "Scope": "计算机软件、信息系统软件的开发、销售;信息系统设计、集成、运行维护;信息技术咨询;集成电路设计、研发;通信线路和设备安装;电子设备工程安装;电子自动化工程安装;监控系统安装;保安监控及防盗报警系统安装;智能卡系统安装;电子工程安装;智能化系统安装;建筑物空调设备、采暖系统、通风设备系统安装;机电设备安装、维修;门窗安装;电工维修;木工维修;管道工维修;计算机、软件及辅助设备的销售;通讯设备的销售;j计算机系统集成;无线数据产品(不含限制项目)的销售。(法律、行政法规、国务院决定禁止的项目除外,限制的项目须取得许可后方可经营)",
+     *         "IsOnStock": "0",
+     *         "StockNumber": null
+     *     }
+     * }
+     *
+     * @apiUse QccError
+     */
+    private Object GetDetailsByName(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
+        JSONObject object = singleQuery("qcc.查询工商信息表", params);
+        object.put("OriginalName", listQuery("qcc.查询工商信息曾用名信息表", params));
+        object.put("Partners", listQuery("qcc.查询工商信息股东信息表", params));
+        object.put("Employees", listQuery("qcc.查询工商信息主要人员信息表", params));
+        object.put("Branches", listQuery("qcc.查询工商信息分支机构表", params));
+        object.put("ChangeRecords", listQuery("qcc.查询工商信息变更信息表", params));
+        JSONObject ContactInfo = singleQuery("qcc.查询工商信息联系信息表", params);
+        ContactInfo.put("WebSite", JSONUtil.parse(ContactInfo.getStr("WebSite")));
+        object.put("ContactInfo", ContactInfo);
+        JSONObject Industry = singleQuery("qcc.查询工商信息行业信息表", params);
+        object.put("Industry", Industry);
+        return object;
+    }
 
 
     /**
@@ -293,7 +2436,6 @@ public class QccService {
      *         }
      *     ]
      * }
-     *
      * @apiUse QccError
      */
     private Object GetChattelMortgage(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
@@ -308,30 +2450,30 @@ public class QccService {
             JSONObject SecuredClaim = new JSONObject();
             JSONObject CancelInfo = new JSONObject();
             Iterator<Map.Entry<String, Object>> it = object.entrySet().iterator();
-            while(it.hasNext()){
+            while (it.hasNext()) {
                 Map.Entry<String, Object> entry = it.next();
-                if(entry.getKey().startsWith("Ex1")){
-                    Pledge.put(entry.getKey().replace("Ex1",""), entry.getValue());
+                if (entry.getKey().startsWith("Ex1")) {
+                    Pledge.put(entry.getKey().replace("Ex1", ""), entry.getValue());
                     it.remove();
                 }
-                if(entry.getKey().startsWith("Ex2")){
+                if (entry.getKey().startsWith("Ex2")) {
                     SecuredClaim.put(entry.getKey().replace("Ex2", ""), entry.getValue());
                     it.remove();
                 }
-                if(entry.getKey().startsWith("Ex3")){
+                if (entry.getKey().startsWith("Ex3")) {
                     CancelInfo.put(entry.getKey().replace("Ex3", ""), entry.getValue());
                     it.remove();
                 }
             }
-            detail.put("Pledge",Pledge);
-            detail.put("SecuredClaim",SecuredClaim);
+            detail.put("Pledge", Pledge);
+            detail.put("SecuredClaim", SecuredClaim);
             detail.put("CancelInfo", CancelInfo);
             detail.put("PledgeeList",
                 PledgeeList
                     .stream()
-                    .map(i -> (JSONObject)i)
+                    .map(i -> (JSONObject) i)
                     .filter(i -> {
-                        if(i.getStr("CmId","##").equals(object.getStr("InnerId", "$$"))){
+                        if (i.getStr("CmId", "##").equals(object.getStr("InnerId", "$$"))) {
                             i.remove("CmId");
                             return true;
                         }
@@ -341,23 +2483,23 @@ public class QccService {
             );
             detail.put("GuaranteeList",
                 GuaranteeList
-                .stream()
-                .filter(oo -> {
-                    JSONObject i = (JSONObject) oo;
-                    if(i.getStr("CmId","##").equals(object.getStr("InnerId", "$$"))){
-                        i.remove("CmId");
-                        return true;
-                    }
-                    return false;
-                })
-                .toArray()
+                    .stream()
+                    .filter(oo -> {
+                        JSONObject i = (JSONObject) oo;
+                        if (i.getStr("CmId", "##").equals(object.getStr("InnerId", "$$"))) {
+                            i.remove("CmId");
+                            return true;
+                        }
+                        return false;
+                    })
+                    .toArray()
             );
             detail.put("ChangeList",
                 ChangeList
                     .stream()
                     .filter(oo -> {
                         JSONObject i = (JSONObject) oo;
-                        if(i.getStr("CmId","##").equals(object.getStr("InnerId", "$$"))){
+                        if (i.getStr("CmId", "##").equals(object.getStr("InnerId", "$$"))) {
                             i.remove("CmId");
                             return true;
                         }
@@ -404,7 +2546,6 @@ public class QccService {
      *         "Implementation": ""
      *     }
      * }
-     *
      * @apiUse QccError
      */
     private Object GetEnvPunishmentDetails(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
@@ -458,7 +2599,6 @@ public class QccService {
     private Object GetEnvPunishmentList(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
         return pageQuery("qcc.查询环保处罚列表", params);
     }
-
 
 
     /**
@@ -524,7 +2664,6 @@ public class QccService {
      *         "AssessmentPrice": "554.2100"
      *     }
      * }
-     *
      * @apiUse QccError
      */
     private Object GetLandMortgageDetails(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
@@ -533,13 +2672,13 @@ public class QccService {
         JSONObject mo1 = newJsonObject();
         JSONObject mo2 = newJsonObject();
 
-        while(iterator.hasNext()){
+        while (iterator.hasNext()) {
             Map.Entry<String, Object> entry = iterator.next();
-            if(entry.getKey().startsWith("Re1")){
+            if (entry.getKey().startsWith("Re1")) {
                 mo1.put(entry.getKey().replace("Re1", ""), entry.getValue());
                 iterator.remove();
             }
-            if(entry.getKey().startsWith("Re2")){
+            if (entry.getKey().startsWith("Re2")) {
                 mo2.put(entry.getKey().replace("Re2", ""), entry.getValue());
                 iterator.remove();
             }
@@ -625,13 +2764,11 @@ public class QccService {
      *         "Title": "无锡市新吴区人民法院关于无锡尚德太阳能电力有限公司所有的一批太阳能组件。（第二次拍卖）的公告"
      *     }
      * }
-     *
      * @apiUse QccError
      */
     private Object GetJudicialSaleDetail(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
         return singleQuery("qcc.查询司法拍卖详情", params);
     }
-
 
 
     /**
@@ -675,7 +2812,6 @@ public class QccService {
      *         }
      *     ]
      * }
-     *
      * @apiUse QccError
      */
     private Object GetJudicialSaleList(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
@@ -734,7 +2870,7 @@ public class QccService {
      *
      * @apiSuccess {object} EquityFreezeDetail 股权冻结情况
      * @apiSuccess {string} EquityFreezeDetail.CompanyName 相关企业名称
-     * @apiSuccess {string} EEquityFreezeDetail.xecutionMatters 执行事项
+     * @apiSuccess {string} EEquityFreezeDetail.ExecutionMatters 执行事项
      * @apiSuccess {string} EquityFreezeDetail.ExecutionDocNum 执行文书文号
      * @apiSuccess {string} EquityFreezeDetail.ExecutionVerdictNum 执行裁定书文号
      * @apiSuccess {string} EquityFreezeDetail.ExecutedPersonDocType 被执行人证件种类
@@ -915,18 +3051,18 @@ public class QccService {
             JSONObject object = (JSONObject) o;
             JSONObject[] objects = {new JSONObject(), new JSONObject(), new JSONObject()};
             Iterator<Map.Entry<String, Object>> it = object.entrySet().iterator();
-            while(it.hasNext()){
+            while (it.hasNext()) {
                 Map.Entry<String, Object> entry = it.next();
-                for(short i = 0; i < objects.length; i++){
-                    if(entry.getKey().startsWith("D"+i)){
-                        objects[i].put(entry.getKey().replace("D"+i, ""), entry.getValue());
+                for (short i = 0; i < objects.length; i++) {
+                    if (entry.getKey().startsWith("D" + i)) {
+                        objects[i].put(entry.getKey().replace("D" + i, ""), entry.getValue());
                         it.remove();
                         break;
                     }
                 }
             }
             for (int i = 0; i < objects.length; i++) {
-                if(objects[i].size() == 0){
+                if (objects[i].size() == 0) {
                     objects[i] = null;
                 }
             }
@@ -937,7 +3073,6 @@ public class QccService {
 
         return list;
     }
-
 
 
     /**
@@ -957,11 +3092,11 @@ public class QccService {
      * @apiSuccess {string} OpenTime 开庭日期
      * @apiSuccess {string} CaseNo 案号
      *
-     * @apiSuccess {object[]} Prosecutor 案号
+     * @apiSuccess {object[]} Prosecutor 上诉人信息
      * @apiSuccess {string} Prosecutor.Name 上诉人
      * @apiSuccess {string} Prosecutor.KeyNo KeyNo
      *
-     * @apiSuccess {object[]} Defendant 案号
+     * @apiSuccess {object[]} Defendant 被上诉人信息
      * @apiSuccess {string} Defendant.Name 被上诉人
      * @apiSuccess {string} Defendant.KeyNo KeyNo
      *
@@ -1118,7 +3253,6 @@ public class QccService {
     }
 
 
-
     /**
      * @api {get} /CourtNoticeV4/SearchCourtAnnouncementDetail 法院公告详情
      * @apiGroup QCC
@@ -1161,7 +3295,6 @@ public class QccService {
      *         "Court": "吉林省长春市中级人民法院"
      *     }
      * }
-     *
      * @apiUse QccError
      */
     private Object SearchCourtAnnouncementDetail(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
@@ -1296,10 +3429,8 @@ public class QccService {
      * @apiUse QccError
      */
     private Object SearchCourtAnnouncement(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
-        return  pageQuery("qcc.查询法院公告列表", params);
+        return pageQuery("qcc.查询法院公告列表", params);
     }
-
-
 
 
     /**
@@ -1443,7 +3574,7 @@ public class QccService {
      */
     private Object GetJudgementDetail(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
         JSONObject object = singleQuery("qcc.查询裁判文书详情", params);
-        if(object.size() == 0){
+        if (object.size() == 0) {
             return object;
         }
         object.put("Appellor", JSONUtil.parseArray(object.getStr("Appellor")));
@@ -1459,7 +3590,6 @@ public class QccService {
         object.put("RelatedCompanies", companies);
         return object;
     }
-
 
 
     /**
@@ -1515,13 +3645,11 @@ public class QccService {
      *         }
      *     ]
      * }
-     *
      * @apiUse QccError
      */
     private Object SearchJudgmentDoc(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
-        return  pageQuery("qcc.查询裁判文书列表", params);
+        return pageQuery("qcc.查询裁判文书列表", params);
     }
-
 
 
     /**
@@ -1671,7 +3799,6 @@ public class QccService {
     private Object SearchZhiXing(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
         return pageQuery("qcc.查询被执行信息", params);
     }
-
 
 
     /**
@@ -1979,52 +4106,86 @@ public class QccService {
 
 
     public static void registerRoute(String url, IQccRoute route) {
-        HttpServerHandler.AddRoute(new Route(S.fmt("%s%s",qccPrefix, url), (ctx, req) -> {
+        HttpServerHandler.AddRoute(new Route(S.fmt("%s%s", qccPrefix, url), (ctx, req) -> {
             Object result = route.call(ctx, req, HttpServerHandler.decodeQuery(req));
             JSONObject realResult = newJsonObject(
                 "Status", "200",
                 "Message", "查询成功"
             );
-            if (result != null) {
-                //分页结构
-                if (result instanceof PageQuery) {
-                    if(((PageQuery) result).getTotalRow() == 0){
+            if (result == null) {
+                realResult.put("Status", "500");
+                return realResult;
+            }
+            //分页结构
+            if (result instanceof PageQuery) {
+                result = newJsonObject(
+                    "totalRow", ((PageQuery) result).getTotalRow(),
+                    "pageSize", ((PageQuery) result).getPageSize(),
+                    "pageIndex", ((PageQuery) result).getPageNumber(),
+                    "list", ((PageQuery) result).getList()
+                );
+            }
+            if (result instanceof JSONObject) {
+                JSONObject resultObj = (JSONObject) result;
+                if (resultObj.containsKey("totalRow")) {
+                    if (resultObj.getInt("totalRow") == 0){
                         realResult.put("Status", "201");
                     }
                     realResult.put("Paging", newJsonObject(
-                        "PageSize", ((PageQuery) result).getPageSize(),
-                        "PageIndex", ((PageQuery) result).getPageNumber(),
-                        "TotalRecords", ((PageQuery) result).getTotalRow()
+                        "PageSize", resultObj.getInt("pageSize"),
+                        "PageIndex", resultObj.getInt("pageNumber"),
+                        "TotalRecords", resultObj.getInt("totalRow")
                     ));
-                    realResult.put("Result", (((PageQuery) result).getList()));
-                } else if(result instanceof JSONObject){
-                    if (((JSONObject) result).size() == 0) {
-                        realResult.put("Status", "201");
-                   }
-                    realResult.put("Result", result);
+                    if (resultObj.containsKey("list")) {
+                        realResult.put("Result", resultObj.get("list"));
+                    }
+                    if (resultObj.containsKey("Result")) {
+                        realResult.put("Result", resultObj.get("Result"));
+                    }
                 } else {
-                    realResult.put("Result", result);
+                    if(resultObj.size() == 0){
+                        realResult.put("Status", "201");
+                    } else {
+                        realResult.put("Result", resultObj);
+                    }
                 }
+
             } else {
-                realResult.put("Status", "500");
+                if(result instanceof JSONArray && ((JSONArray) result).size() == 0){
+                    realResult.put("Status", "201");
+                }
+                realResult.put("Result", result);
             }
             return realResult;
         }));
     }
 
-    public JSONObject singleQuery(String sqlId, JSONObject params){
-        Map map = sqlManager.selectSingle(sqlId, params, Map.class);
+    public JSONObject singleQuery(String sqlId, JSONObject params) {
+        Map map = null;
+        if (sqlId.contains(".")) {
+            map = sqlManager.selectSingle(sqlId, params, Map.class);
+        } else {
+            List<Map> list = sqlManager.execute(sqlId, Map.class, params);
+            if (list.size() > 0) {
+                map = list.get(0);
+            }
+        }
         if (map == null) {
             return new JSONObject();
         }
         return JSONUtil.parseFromMap(map);
     }
 
-    public JSONArray listQuery(String sqlId, Map<String,Object> params){
-        return JSONUtil.parseArray(sqlManager.select(sqlId, JSONObject.class, params));
+
+    public JSONArray listQuery(String sqlId, Map<String, Object> params) {
+        if (sqlId.contains(".")) {
+            return JSONUtil.parseArray(sqlManager.select(sqlId, JSONObject.class, params));
+        } else {
+            return JSONUtil.parseArray(sqlManager.execute(sqlId, JSONObject.class, params));
+        }
     }
 
-    public PageQuery<JSONObject> pageQuery(String sqlId, JSONObject params) {
+    public JSONObject pageQuery(String sqlId, JSONObject params) {
         PageQuery<JSONObject> pageQuery = new PageQuery<>();
         int page = 1;
         int size = 10;
@@ -2037,7 +4198,7 @@ public class QccService {
         }
         pageQuery.setParas(params);
         sqlManager.pageQuery(sqlId, JSONObject.class, pageQuery);
-        return pageQuery;
+        return JSONUtil.parseObj(pageQuery);
     }
 
 
@@ -2045,15 +4206,27 @@ public class QccService {
         return str.substring(0, 1).toUpperCase() + str.substring(1);
     }
 
-    public static Map<String, Object> convertToQccStyle(Map<String, Object> json) {
-        Map<String, Object> map = new HashMap<>();
+    public static void convertToQccStyle(Map<String, Object> json) {
+        Map map = new HashMap();
         for (Map.Entry<String, Object> entry : json.entrySet()) {
-            if(entry.getValue() instanceof Date){
-                entry.setValue(sdf.format(entry.getValue()));
+            String s = entry.getKey();
+            Object value = entry.getValue();
+            if (value instanceof Date) {
+                map.put(firstLetterUpper(s), sdf.format(value));
+            } else {
+                map.put(firstLetterUpper(s), value);
             }
-            map.put(firstLetterUpper(entry.getKey()), entry.getValue());
         }
-        return map;
+        json.clear();
+        json.putAll(map);
+    }
+
+    public static void convertToQccStyle(Collection json) {
+        for (Object object : json) {
+            if (object instanceof Map) {
+                convertToQccStyle((Map) object);
+            }
+        }
     }
 
     public interface IQccRoute {

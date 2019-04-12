@@ -32,9 +32,9 @@ public class MQService {
             lock.lock();
             try{
                 //1、创建工厂连接对象，需要制定ip和端口号
-                ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://47.94.97.138:8011");
-                connectionFactory.setUserName("admin");
-                connectionFactory.setPassword("admin");
+                ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://47.94.97.138:8011?jms.blobTransferPolicy.uploadUrl=http://47.94.97.138:8012/fileserver/");
+//                connectionFactory.setUserName("admin");
+//                connectionFactory.setPassword("admin");
                 //2、使用连接工厂创建一个连接对象
                 connection = (ActiveMQConnection) connectionFactory.createConnection();
                 //3、开启连接
@@ -42,7 +42,7 @@ public class MQService {
                 //4、使用连接对象创建会话（session）对象
                 session = (ActiveMQSession) connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
                 //5、使用会话对象创建目标对象，包含queue和topic（一对一和一对多）
-                Queue queue = session.createQueue("test-queue");
+                Topic queue = session.createTopic("my_msg");
                 //6、使用会话对象创建生产者对象
                 consumer = session.createConsumer(queue);
                 producer = session.createProducer(queue);
@@ -128,7 +128,7 @@ public class MQService {
                     catch (Exception e){
                         e.printStackTrace();
                     }
-                    producer.send(streamMessage);
+                    producer.send(blobMessage);
                 }
                 lock.unlock();
             } catch (Exception e){

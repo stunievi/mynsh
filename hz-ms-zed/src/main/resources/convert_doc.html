@@ -6,6 +6,9 @@
 </head>
 <body>
 <div>
+    <input type="text" id="prefix">
+</div>
+<div>
     <textarea id="src" rows="10" cols="60"></textarea>
 </div>
 <div>
@@ -28,7 +31,7 @@
                .map(i => {
                    var arr = i.split(/[\s\t]+/);
                    console.log(arr)
-                    return `@apiSuccess {${arr[1].toLowerCase()}} ${arr[0]} ${arr[2]}  `
+                    return `@apiSuccess {${arr[1].toLowerCase()}} ${prefix.value ? prefix.value + "." : ""}${arr[0]} ${arr[2]}  `
                });
            newval = newval.join("\n");
            target.value = newval
