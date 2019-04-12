@@ -1,6 +1,5 @@
 package com.beeasy.loadqcc.task;
 
-import com.beeasy.loadqcc.service.GetQccService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -12,9 +11,6 @@ import java.util.Map;
 
 @Component
 public class GetQccDataTask {
-
-    @Autowired
-    GetQccService getQccService;
 
     @Scheduled(cron="0 0 0 */14 * ?")
     public void getData(){

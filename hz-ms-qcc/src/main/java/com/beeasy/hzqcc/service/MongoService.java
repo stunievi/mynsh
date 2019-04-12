@@ -7,6 +7,7 @@ import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.MongoIterable;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.result.DeleteResult;
+import lombok.Setter;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
@@ -18,11 +19,15 @@ import java.util.List;
 @Service
 public class MongoService {
 
-    private static MongoDatabase db;
-    private static MongoClient mongoClient;
-    private static String DefaultDatabase = "databaseName";
+    private  MongoDatabase db;
+    private  MongoClient mongoClient;
 
-    static {
+    @Setter
+    private  String DefaultDatabase;
+
+
+    public void start(String dbname){
+        DefaultDatabase = dbname;
         //   连接到 mongodb 服务
         mongoClient = new MongoClient("47.94.97.138", 27017);
 
@@ -55,7 +60,6 @@ public class MongoService {
         //   连接到数据库
         db = mongoClient.getDatabase(DefaultDatabase);
     }
-
     /**
      * 获取DB实例 - 指定DB
      *

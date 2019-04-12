@@ -295,7 +295,7 @@ public class OkHttpUtil {
 //                .connectionPool(pool())
                     //.sslSocketFactory(sslSocketFactory(), x509TrustManager())
                     .retryOnConnectionFailure(true)
-                    .connectTimeout(30, TimeUnit.SECONDS)
+                    .connectTimeout(60, TimeUnit.SECONDS)
                     .readTimeout(300, TimeUnit.SECONDS)
                     .writeTimeout(300, TimeUnit.SECONDS)
                     .build();

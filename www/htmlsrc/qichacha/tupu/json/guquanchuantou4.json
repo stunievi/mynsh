@@ -1,0 +1,855 @@
+{
+  "OrderNumber": "HOLDINGCOMPANY2019040919510195183062",
+  "Paging": {
+    "PageSize": 20,
+    "PageIndex": 1,
+    "TotalRecords": 1000
+  },
+  "Result": {
+    "KeyNo": "befe52d9753b511b6aef5e33fe00f97d",
+    "CompanyName": "大连万达集团股份有限公司",
+    "NameCount": "1650",
+    "Names": [
+      {
+        "KeyNo": "00819d5e3557ad202c3858f938732cfb",
+        "Name": "北京万达主题娱乐文化有限公司",
+        "PercentTotal": "100%",
+        "Level": "2",
+        "Paths": [
+          [
+            {
+              "KeyNo": "dcf5109629a637be741bf8033c3408c0",
+              "Name": "北京万达文化产业集团有限公司",
+              "PercentTotal": "100%",
+              "Level": "1"
+            },
+            {
+              "KeyNo": "00819d5e3557ad202c3858f938732cfb",
+              "Name": "北京万达主题娱乐文化有限公司",
+              "PercentTotal": "100%",
+              "Level": "2"
+            }
+          ]
+        ],
+        "ShortStatus": "在业",
+        "StartDate": "2010-07-07",
+        "RegistCapi": "15000万元人民币",
+        "ImageUrl": "https://co-image.qichacha.com/CompanyImage/00819d5e3557ad202c3858f938732cfb.jpg",
+        "EconKind": "有限责任公司(法人独资)",
+        "Oper": {
+          "Name": "张霖",
+          "KeyNo": "p165991ca474f1da37007ab96536b1a5",
+          "CompanyCount": 403
+        }
+      },
+      {
+        "KeyNo": "0302e19de01cf17777a620ae077c51f5",
+        "Name": "北京大歌星投资有限公司",
+        "PercentTotal": "100%",
+        "Level": "2",
+        "Paths": [
+          [
+            {
+              "KeyNo": "b1de8fe0d93c08d70fc0f8461d24f960",
+              "Name": "大连万达集团商业发展有限公司",
+              "PercentTotal": "100%",
+              "Level": "1"
+            },
+            {
+              "KeyNo": "0302e19de01cf17777a620ae077c51f5",
+              "Name": "北京大歌星投资有限公司",
+              "PercentTotal": "100%",
+              "Level": "2"
+            }
+          ]
+        ],
+        "ShortStatus": "在业",
+        "StartDate": "2010-07-06",
+        "RegistCapi": "10000万元人民币",
+        "ImageUrl": "https://co-image.qichacha.com/CompanyImage/0302e19de01cf17777a620ae077c51f5.jpg",
+        "EconKind": "有限责任公司(法人独资)",
+        "Oper": {
+          "Name": "张霖",
+          "KeyNo": "p165991ca474f1da37007ab96536b1a5",
+          "CompanyCount": 403
+        }
+      },
+      {
+        "KeyNo": "0368898dfdcce8cf3dd81648559feb37",
+        "Name": "成都大连万达物业管理有限公司",
+        "PercentTotal": "100%",
+        "Level": "1,2,3",
+        "Paths": [
+          [
+            {
+              "KeyNo": "0368898dfdcce8cf3dd81648559feb37",
+              "Name": "成都大连万达物业管理有限公司",
+              "PercentTotal": "80%",
+              "Level": "1"
+            }
+          ],
+          [
+            {
+              "KeyNo": "ae795aefd4be177ba733c7daba60f2af",
+              "Name": "大连万达物业管理总公司",
+              "PercentTotal": "70%",
+              "Level": "1"
+            },
+            {
+              "KeyNo": "0368898dfdcce8cf3dd81648559feb37",
+              "Name": "成都大连万达物业管理有限公司",
+              "PercentTotal": "14%",
+              "Level": "2"
+            }
+          ],
+          [
+            {
+              "KeyNo": "b1de8fe0d93c08d70fc0f8461d24f960",
+              "Name": "大连万达集团咨询服务有限公司",
+              "PercentTotal": "100%",
+              "Level": "1"
+            },
+            {
+              "KeyNo": "ae795aefd4be177ba733c7daba60f2af",
+              "Name": "大连万达物业管理总公司",
+              "PercentTotal": "30%",
+              "Level": "2"
+            },
+            {
+              "KeyNo": "0368898dfdcce8cf3dd81648559feb37",
+              "Name": "成都大连万达物业管理有限公司",
+              "PercentTotal": "6%",
+              "Level": "3"
+            }
+          ]
+        ],
+        "ShortStatus": "注销",
+        "StartDate": "2000-08-16",
+        "RegistCapi": "100万元人民币",
+        "ImageUrl": "https://qccdata.qichacha.com/AutoImage/0368898dfdcce8cf3dd81648559feb37.jpg",
+        "EconKind": "有限责任公司(自然人投资或控股)",
+        "Oper": {
+          "Name": "王淑华",
+          "KeyNo": "pdf90b3a7ae0c24c41b885048da5c473",
+          "CompanyCount": 3
+        }
+      },
+      {
+        "KeyNo": "04cc16ac3c3483dcd1aa183c9866244a",
+        "Name": "成都万达儿童文化发展有限公司",
+        "PercentTotal": "100%",
+        "Level": "3",
+        "Paths": [
+          [
+            {
+              "KeyNo": "dcf5109629a637be741bf8033c3408c0",
+              "Name": "北京万达文化产业集团有限公司",
+              "PercentTotal": "100%",
+              "Level": "1"
+            },
+            {
+              "KeyNo": "ebf97ff5afa6c4cc6058305a85796bdb",
+              "Name": "万达儿童文化发展有限公司",
+              "PercentTotal": "100%",
+              "Level": "2"
+            },
+            {
+              "KeyNo": "04cc16ac3c3483dcd1aa183c9866244a",
+              "Name": "成都万达儿童文化发展有限公司",
+              "PercentTotal": "100%",
+              "Level": "3"
+            }
+          ]
+        ],
+        "ShortStatus": "存续",
+        "StartDate": "2017-02-21",
+        "RegistCapi": "20000万元人民币",
+        "ImageUrl": "https://qccdata.qichacha.com/AutoImage/04cc16ac3c3483dcd1aa183c9866244a.jpg",
+        "EconKind": "有限责任公司（自然人投资或控股的法人独资）",
+        "Oper": {
+          "Name": "张霖",
+          "KeyNo": "p165991ca474f1da37007ab96536b1a5",
+          "CompanyCount": 403
+        }
+      },
+      {
+        "KeyNo": "05ca4d0f18822201ed8c5f5188e7c960",
+        "Name": "吉林市万达物业管理有限公司",
+        "PercentTotal": "100%",
+        "Level": "2,2,3,3,4",
+        "Paths": [
+          [
+            {
+              "KeyNo": "ae795aefd4be177ba733c7daba60f2af",
+              "Name": "大连万达集团商业管理有限公司",
+              "PercentTotal": "70%",
+              "Level": "1"
+            },
+            {
+              "KeyNo": "05ca4d0f18822201ed8c5f5188e7c960",
+              "Name": "吉林市万达物业管理有限公司",
+              "PercentTotal": "49%",
+              "Level": "2"
+            }
+          ],
+          [
+            {
+              "KeyNo": "9b551b9368f8745baefa4db7c7bde2c9",
+              "Name": "万达地产集团有限公司",
+              "PercentTotal": "100%",
+              "Level": "1"
+            },
+            {
+              "KeyNo": "46ff253d65704e8953a3b196ab3dc1cd",
+              "Name": "大连万达房地产有限公司",
+              "PercentTotal": "100%",
+              "Level": "2"
+            },
+            {
+              "KeyNo": "a8466c2fe0950cfeffeed7867cec6729",
+              "Name": "大连万达集团房地产管理有限公司",
+              "PercentTotal": "80%",
+              "Level": "3"
+            },
+            {
+              "KeyNo": "05ca4d0f18822201ed8c5f5188e7c960",
+              "Name": "吉林市万达物业管理有限公司",
+              "PercentTotal": "24%",
+              "Level": "4"
+            }
+          ],
+          [
+            {
+              "KeyNo": "b1de8fe0d93c08d70fc0f8461d24f960",
+              "Name": "大连万达集团咨询服务有限公司",
+              "PercentTotal": "100%",
+              "Level": "1"
+            },
+            {
+              "KeyNo": "ae795aefd4be177ba733c7daba60f2af",
+              "Name": "大连万达集团商业管理有限公司",
+              "PercentTotal": "30%",
+              "Level": "2"
+            },
+            {
+              "KeyNo": "05ca4d0f18822201ed8c5f5188e7c960",
+              "Name": "吉林市万达物业管理有限公司",
+              "PercentTotal": "21%",
+              "Level": "3"
+            }
+          ],
+          [
+            {
+              "KeyNo": "a8466c2fe0950cfeffeed7867cec6729",
+              "Name": "大连万达集团房地产管理有限公司",
+              "PercentTotal": "18%",
+              "Level": "1"
+            },
+            {
+              "KeyNo": "05ca4d0f18822201ed8c5f5188e7c960",
+              "Name": "吉林市万达物业管理有限公司",
+              "PercentTotal": "5.4%",
+              "Level": "2"
+            }
+          ],
+          [
+            {
+              "KeyNo": "b1de8fe0d93c08d70fc0f8461d24f960",
+              "Name": "大连万达集团商业发展有限公司",
+              "PercentTotal": "100%",
+              "Level": "1"
+            },
+            {
+              "KeyNo": "a8466c2fe0950cfeffeed7867cec6729",
+              "Name": "大连万达集团房地产管理有限公司",
+              "PercentTotal": "2%",
+              "Level": "2"
+            },
+            {
+              "KeyNo": "05ca4d0f18822201ed8c5f5188e7c960",
+              "Name": "吉林市万达物业管理有限公司",
+              "PercentTotal": "0.6%",
+              "Level": "3"
+            }
+          ]
+        ],
+        "ShortStatus": "注销",
+        "StartDate": "2002-09-25",
+        "RegistCapi": "50万元人民币",
+        "ImageUrl": "https://qccdata.qichacha.com/AutoImage/05ca4d0f18822201ed8c5f5188e7c960.jpg",
+        "EconKind": "有限责任公司(自然人投资或控股)",
+        "Oper": {
+          "Name": "丁本锡",
+          "KeyNo": "pf902f9eaae047fe1173120b7509a21d",
+          "CompanyCount": 54
+        }
+      },
+      {
+        "KeyNo": "0aaaafdcd13d0e0c865f92d506b50fd7",
+        "Name": "佛山三水万达广场投资有限公司",
+        "PercentTotal": "100%",
+        "Level": "2",
+        "Paths": [
+          [
+            {
+              "KeyNo": "9b551b9368f8745baefa4db7c7bde2c9",
+              "Name": "万达地产集团有限公司",
+              "PercentTotal": "100%",
+              "Level": "1"
+            },
+            {
+              "KeyNo": "0aaaafdcd13d0e0c865f92d506b50fd7",
+              "Name": "佛山三水万达广场投资有限公司",
+              "PercentTotal": "100%",
+              "Level": "2"
+            }
+          ]
+        ],
+        "ShortStatus": "在业",
+        "StartDate": "2014-11-18",
+        "RegistCapi": "44346万元人民币",
+        "ImageUrl": "https://qccdata.qichacha.com/AutoImage/0aaaafdcd13d0e0c865f92d506b50fd7.jpg",
+        "EconKind": "有限责任公司（非自然人投资或控股的法人独资）",
+        "Oper": {
+          "Name": "吕正韬",
+          "KeyNo": "p8beaf4d8c68373d418cc7ebf03c071a",
+          "CompanyCount": 49
+        }
+      },
+      {
+        "KeyNo": "0ba3c846ab99f4a9e0f6f9b1608b489a",
+        "Name": "满洲里大歌星餐饮娱乐有限公司",
+        "PercentTotal": "100%",
+        "Level": "3",
+        "Paths": [
+          [
+            {
+              "KeyNo": "b1de8fe0d93c08d70fc0f8461d24f960",
+              "Name": "大连万达集团商业发展有限公司",
+              "PercentTotal": "100%",
+              "Level": "1"
+            },
+            {
+              "KeyNo": "0302e19de01cf17777a620ae077c51f5",
+              "Name": "北京大歌星投资有限公司",
+              "PercentTotal": "100%",
+              "Level": "2"
+            },
+            {
+              "KeyNo": "0ba3c846ab99f4a9e0f6f9b1608b489a",
+              "Name": "满洲里大歌星餐饮娱乐有限公司",
+              "PercentTotal": "100%",
+              "Level": "3"
+            }
+          ]
+        ],
+        "ShortStatus": "注销",
+        "StartDate": "2014-03-03",
+        "RegistCapi": "50万元人民币",
+        "ImageUrl": "https://qccdata.qichacha.com/AutoImage/0ba3c846ab99f4a9e0f6f9b1608b489a.jpg",
+        "EconKind": "有限责任公司（非自然人投资或控股的法人独资）(1153)",
+        "Oper": {
+          "Name": "张霖",
+          "KeyNo": "p165991ca474f1da37007ab96536b1a5",
+          "CompanyCount": 403
+        }
+      },
+      {
+        "KeyNo": "0ce1cb66df2e07fe94764b9e7b5d989b",
+        "Name": "南宁大歌星餐饮娱乐有限公司",
+        "PercentTotal": "100%",
+        "Level": "3",
+        "Paths": [
+          [
+            {
+              "KeyNo": "b1de8fe0d93c08d70fc0f8461d24f960",
+              "Name": "大连万达集团商业发展有限公司",
+              "PercentTotal": "100%",
+              "Level": "1"
+            },
+            {
+              "KeyNo": "0302e19de01cf17777a620ae077c51f5",
+              "Name": "北京大歌星投资有限公司",
+              "PercentTotal": "100%",
+              "Level": "2"
+            },
+            {
+              "KeyNo": "0ce1cb66df2e07fe94764b9e7b5d989b",
+              "Name": "南宁大歌星餐饮娱乐有限公司",
+              "PercentTotal": "100%",
+              "Level": "3"
+            }
+          ]
+        ],
+        "ShortStatus": "注销",
+        "StartDate": "2010-09-10",
+        "RegistCapi": "50万元人民币",
+        "ImageUrl": "https://qccdata.qichacha.com/AutoImage/0ce1cb66df2e07fe94764b9e7b5d989b.jpg",
+        "EconKind": "有限责任公司（非自然人投资或控股的法人独资）",
+        "Oper": {
+          "Name": "张霖",
+          "KeyNo": "p165991ca474f1da37007ab96536b1a5",
+          "CompanyCount": 403
+        }
+      },
+      {
+        "KeyNo": "0cee2fc2bd7ce74bff64e391611cd3dc",
+        "Name": "济南万达商业广场有限公司",
+        "PercentTotal": "100%",
+        "Level": "1,2",
+        "Paths": [
+          [
+            {
+              "KeyNo": "0cee2fc2bd7ce74bff64e391611cd3dc",
+              "Name": "济南万达商业广场有限公司",
+              "PercentTotal": "70%",
+              "Level": "1"
+            }
+          ],
+          [
+            {
+              "KeyNo": "b1de8fe0d93c08d70fc0f8461d24f960",
+              "Name": "大连万达集团商业发展有限公司",
+              "PercentTotal": "100%",
+              "Level": "1"
+            },
+            {
+              "KeyNo": "0cee2fc2bd7ce74bff64e391611cd3dc",
+              "Name": "济南万达商业广场有限公司",
+              "PercentTotal": "30%",
+              "Level": "2"
+            }
+          ]
+        ],
+        "ShortStatus": "注销",
+        "StartDate": "2002-03-12",
+        "RegistCapi": "1000万元人民币",
+        "ImageUrl": "https://qccdata.qichacha.com/AutoImage/0cee2fc2bd7ce74bff64e391611cd3dc.jpg",
+        "EconKind": "其他有限责任公司",
+        "Oper": {
+          "Name": "丁本锡",
+          "KeyNo": "pf902f9eaae047fe1173120b7509a21d",
+          "CompanyCount": 54
+        }
+      },
+      {
+        "KeyNo": "0daeb30a2fcee8a76bb73f4dcd8027ad",
+        "Name": "金华大歌星餐饮娱乐有限公司",
+        "PercentTotal": "100%",
+        "Level": "3",
+        "Paths": [
+          [
+            {
+              "KeyNo": "b1de8fe0d93c08d70fc0f8461d24f960",
+              "Name": "大连万达集团商业发展有限公司",
+              "PercentTotal": "100%",
+              "Level": "1"
+            },
+            {
+              "KeyNo": "0302e19de01cf17777a620ae077c51f5",
+              "Name": "北京大歌星投资有限公司",
+              "PercentTotal": "100%",
+              "Level": "2"
+            },
+            {
+              "KeyNo": "0daeb30a2fcee8a76bb73f4dcd8027ad",
+              "Name": "金华大歌星餐饮娱乐有限公司",
+              "PercentTotal": "100%",
+              "Level": "3"
+            }
+          ]
+        ],
+        "ShortStatus": "注销",
+        "StartDate": "2014-03-25",
+        "RegistCapi": "50万元人民币",
+        "ImageUrl": "https://qccdata.qichacha.com/AutoImage/0daeb30a2fcee8a76bb73f4dcd8027ad.jpg",
+        "EconKind": "有限责任公司（自然人投资或控股的法人独资）",
+        "Oper": {
+          "Name": "张霖",
+          "KeyNo": "p165991ca474f1da37007ab96536b1a5",
+          "CompanyCount": 403
+        }
+      },
+      {
+        "KeyNo": "0dfce43bf206345e00ca633710e50237",
+        "Name": "大连万达饮品有限公司",
+        "PercentTotal": "100%",
+        "Level": "1,2,3",
+        "Paths": [
+          [
+            {
+              "KeyNo": "530f66e652f0e5e508979cbe5c59987a",
+              "Name": "大连万达工业发展有限公司",
+              "PercentTotal": "90%",
+              "Level": "1"
+            },
+            {
+              "KeyNo": "0dfce43bf206345e00ca633710e50237",
+              "Name": "大连万达饮品有限公司",
+              "PercentTotal": "54%",
+              "Level": "2"
+            }
+          ],
+          [
+            {
+              "KeyNo": "0dfce43bf206345e00ca633710e50237",
+              "Name": "大连万达饮品有限公司",
+              "PercentTotal": "40%",
+              "Level": "1"
+            }
+          ],
+          [
+            {
+              "KeyNo": "b1de8fe0d93c08d70fc0f8461d24f960",
+              "Name": "大连万达商业总公司",
+              "PercentTotal": "100%",
+              "Level": "1"
+            },
+            {
+              "KeyNo": "530f66e652f0e5e508979cbe5c59987a",
+              "Name": "大连万达工业发展有限公司",
+              "PercentTotal": "10%",
+              "Level": "2"
+            },
+            {
+              "KeyNo": "0dfce43bf206345e00ca633710e50237",
+              "Name": "大连万达饮品有限公司",
+              "PercentTotal": "6%",
+              "Level": "3"
+            }
+          ]
+        ],
+        "ShortStatus": "注销",
+        "StartDate": "1998-08-28",
+        "RegistCapi": "50万元人民币",
+        "ImageUrl": "https://qccdata.qichacha.com/AutoImage/0dfce43bf206345e00ca633710e50237.jpg",
+        "EconKind": "有限责任公司",
+        "Oper": {
+          "Name": "王健林",
+          "KeyNo": "pea5ac417585edc0effd7d23406510da",
+          "CompanyCount": 37
+        }
+      },
+      {
+        "KeyNo": "0efcef19eb70ccddf336d904f95b5ca7",
+        "Name": "绵阳大歌星餐饮娱乐有限公司",
+        "PercentTotal": "100%",
+        "Level": "3",
+        "Paths": [
+          [
+            {
+              "KeyNo": "b1de8fe0d93c08d70fc0f8461d24f960",
+              "Name": "大连万达集团商业发展有限公司",
+              "PercentTotal": "100%",
+              "Level": "1"
+            },
+            {
+              "KeyNo": "0302e19de01cf17777a620ae077c51f5",
+              "Name": "北京大歌星投资有限公司",
+              "PercentTotal": "100%",
+              "Level": "2"
+            },
+            {
+              "KeyNo": "0efcef19eb70ccddf336d904f95b5ca7",
+              "Name": "绵阳大歌星餐饮娱乐有限公司",
+              "PercentTotal": "100%",
+              "Level": "3"
+            }
+          ]
+        ],
+        "ShortStatus": "注销",
+        "StartDate": "2012-09-03",
+        "RegistCapi": "50万元人民币",
+        "ImageUrl": "https://qccdata.qichacha.com/AutoImage/0efcef19eb70ccddf336d904f95b5ca7.jpg",
+        "EconKind": "有限责任公司（非自然人投资或控股的法人独资）",
+        "Oper": {
+          "Name": "张霖",
+          "KeyNo": "p165991ca474f1da37007ab96536b1a5",
+          "CompanyCount": 403
+        }
+      },
+      {
+        "KeyNo": "0faaeb547acdf08977485afcc3181dc2",
+        "Name": "霍尔果斯万达教育科技有限公司",
+        "PercentTotal": "100%",
+        "Level": "3",
+        "Paths": [
+          [
+            {
+              "KeyNo": "dcf5109629a637be741bf8033c3408c0",
+              "Name": "北京万达文化产业集团有限公司",
+              "PercentTotal": "100%",
+              "Level": "1"
+            },
+            {
+              "KeyNo": "a16e5aa778a04e3a7c664229f3e52ffd",
+              "Name": "霍尔果斯万达儿童文化发展有限公司",
+              "PercentTotal": "100%",
+              "Level": "2"
+            },
+            {
+              "KeyNo": "0faaeb547acdf08977485afcc3181dc2",
+              "Name": "霍尔果斯万达教育科技有限公司",
+              "PercentTotal": "100%",
+              "Level": "3"
+            }
+          ]
+        ],
+        "ShortStatus": "在业",
+        "StartDate": "2017-04-21",
+        "RegistCapi": "15000万元人民币",
+        "ImageUrl": "https://qccdata.qichacha.com/AutoImage/0faaeb547acdf08977485afcc3181dc2.jpg",
+        "EconKind": "有限责任公司（非自然人投资或控股的法人独资）",
+        "Oper": {
+          "Name": "张霖",
+          "KeyNo": "p165991ca474f1da37007ab96536b1a5",
+          "CompanyCount": 403
+        }
+      },
+      {
+        "KeyNo": "11a22501d1cf1871c46683a42cd8ce77",
+        "Name": "卓诚(大连)企业管理服务有限责任公司",
+        "PercentTotal": "100%",
+        "Level": "1",
+        "Paths": [
+          [
+            {
+              "KeyNo": "11a22501d1cf1871c46683a42cd8ce77",
+              "Name": "卓诚(大连)企业管理服务有限责任公司",
+              "PercentTotal": "100%",
+              "Level": "1"
+            }
+          ]
+        ],
+        "ShortStatus": "存续",
+        "StartDate": "2019-03-25",
+        "RegistCapi": "50万元人民币",
+        "ImageUrl": "https://qccdata.qichacha.com/AutoImage/11a22501d1cf1871c46683a42cd8ce77.jpg",
+        "EconKind": "有限责任公司（非自然人投资或控股的法人独资）",
+        "Oper": {
+          "Name": "高茜",
+          "KeyNo": "p99bbfce6356861ccd4a78a32adbac90",
+          "CompanyCount": 711
+        }
+      },
+      {
+        "KeyNo": "12a4bfe111957d24195410e70d3474c5",
+        "Name": "成都万达电子科技有限公司",
+        "PercentTotal": "100%",
+        "Level": "2",
+        "Paths": [
+          [
+            {
+              "KeyNo": "b1de8fe0d93c08d70fc0f8461d24f960",
+              "Name": "大连万达集团咨询服务有限公司",
+              "PercentTotal": "100%",
+              "Level": "1"
+            },
+            {
+              "KeyNo": "12a4bfe111957d24195410e70d3474c5",
+              "Name": "成都万达电子科技有限公司",
+              "PercentTotal": "100%",
+              "Level": "2"
+            }
+          ]
+        ],
+        "ShortStatus": "存续",
+        "StartDate": "2015-02-04",
+        "RegistCapi": "40000万元人民币",
+        "ImageUrl": "https://qccdata.qichacha.com/AutoImage/12a4bfe111957d24195410e70d3474c5.jpg",
+        "EconKind": "有限责任公司（非自然人投资或控股的法人独资）",
+        "Oper": {
+          "Name": "曲德君",
+          "KeyNo": "pda37a1557f8fe342fb47f7015b31b23",
+          "CompanyCount": 121
+        }
+      },
+      {
+        "KeyNo": "12f2e784a3813a9f627766410b916114",
+        "Name": "广州万达城文化旅游管理有限公司",
+        "PercentTotal": "100%",
+        "Level": "3",
+        "Paths": [
+          [
+            {
+              "KeyNo": "dcf5109629a637be741bf8033c3408c0",
+              "Name": "北京万达文化产业集团有限公司",
+              "PercentTotal": "100%",
+              "Level": "1"
+            },
+            {
+              "KeyNo": "00819d5e3557ad202c3858f938732cfb",
+              "Name": "北京万达主题娱乐文化有限公司",
+              "PercentTotal": "100%",
+              "Level": "2"
+            },
+            {
+              "KeyNo": "12f2e784a3813a9f627766410b916114",
+              "Name": "广州万达城文化旅游管理有限公司",
+              "PercentTotal": "100%",
+              "Level": "3"
+            }
+          ]
+        ],
+        "ShortStatus": "在业",
+        "StartDate": "2017-07-20",
+        "RegistCapi": "1000万元人民币",
+        "ImageUrl": "https://qccdata.qichacha.com/AutoImage/12f2e784a3813a9f627766410b916114.jpg",
+        "EconKind": "有限责任公司(法人独资)",
+        "Oper": {
+          "Name": "张霖",
+          "KeyNo": "p165991ca474f1da37007ab96536b1a5",
+          "CompanyCount": 403
+        }
+      },
+      {
+        "KeyNo": "134c440aaebd3ce3b708b5508dedab75",
+        "Name": "济南万达房地产开发有限公司",
+        "PercentTotal": "100%",
+        "Level": "2",
+        "Paths": [
+          [
+            {
+              "KeyNo": "9b551b9368f8745baefa4db7c7bde2c9",
+              "Name": "万达地产有限公司",
+              "PercentTotal": "100%",
+              "Level": "1"
+            },
+            {
+              "KeyNo": "134c440aaebd3ce3b708b5508dedab75",
+              "Name": "济南万达房地产开发有限公司",
+              "PercentTotal": "100%",
+              "Level": "2"
+            }
+          ]
+        ],
+        "ShortStatus": "注销",
+        "StartDate": "2017-07-20",
+        "RegistCapi": "1000万元人民币",
+        "ImageUrl": "https://qccdata.qichacha.com/AutoImage/134c440aaebd3ce3b708b5508dedab75.jpg",
+        "EconKind": "有限责任公司(非自然人投资或控股的法人独资)",
+        "Oper": {
+          "Name": "吕正韬",
+          "KeyNo": "p8beaf4d8c68373d418cc7ebf03c071a",
+          "CompanyCount": 49
+        }
+      },
+      {
+        "KeyNo": "13e22b13f9c466fa23be60aded482ea3",
+        "Name": "天津万达宝贝王财务咨询服务有限责任公司",
+        "PercentTotal": "100%",
+        "Level": "4",
+        "Paths": [
+          [
+            {
+              "KeyNo": "dcf5109629a637be741bf8033c3408c0",
+              "Name": "北京万达文化产业集团有限公司",
+              "PercentTotal": "100%",
+              "Level": "1"
+            },
+            {
+              "KeyNo": "a16e5aa778a04e3a7c664229f3e52ffd",
+              "Name": "霍尔果斯万达儿童文化发展有限公司",
+              "PercentTotal": "100%",
+              "Level": "2"
+            },
+            {
+              "KeyNo": "0faaeb547acdf08977485afcc3181dc2",
+              "Name": "霍尔果斯万达教育科技有限公司",
+              "PercentTotal": "100%",
+              "Level": "3"
+            },
+            {
+              "KeyNo": "13e22b13f9c466fa23be60aded482ea3",
+              "Name": "天津万达宝贝王财务咨询服务有限责任公司",
+              "PercentTotal": "100%",
+              "Level": "4"
+            }
+          ]
+        ],
+        "ShortStatus": "存续",
+        "StartDate": "2019-01-28",
+        "RegistCapi": "100万元人民币",
+        "ImageUrl": "https://qccdata.qichacha.com/AutoImage/13e22b13f9c466fa23be60aded482ea3.jpg",
+        "EconKind": "有限责任公司(法人独资)",
+        "Oper": {
+          "Name": "黎笑",
+          "KeyNo": "p007baec7b4f06616b416cdfd74062bb",
+          "CompanyCount": 377
+        }
+      },
+      {
+        "KeyNo": "15a0551752970464a58a409c2c8583c7",
+        "Name": "武汉大歌星餐饮娱乐有限公司",
+        "PercentTotal": "100%",
+        "Level": "3",
+        "Paths": [
+          [
+            {
+              "KeyNo": "b1de8fe0d93c08d70fc0f8461d24f960",
+              "Name": "大连万达集团商业发展有限公司",
+              "PercentTotal": "100%",
+              "Level": "1"
+            },
+            {
+              "KeyNo": "0302e19de01cf17777a620ae077c51f5",
+              "Name": "北京大歌星投资有限公司",
+              "PercentTotal": "100%",
+              "Level": "2"
+            },
+            {
+              "KeyNo": "15a0551752970464a58a409c2c8583c7",
+              "Name": "武汉大歌星餐饮娱乐有限公司",
+              "PercentTotal": "100%",
+              "Level": "3"
+            }
+          ]
+        ],
+        "ShortStatus": "注销",
+        "StartDate": "2010-12-17",
+        "RegistCapi": "890万元人民币",
+        "ImageUrl": "https://qccdata.qichacha.com/AutoImage/15a0551752970464a58a409c2c8583c7.jpg",
+        "EconKind": "有限责任公司（自然人投资或控股的法人独资）",
+        "Oper": {
+          "Name": "张霖",
+          "KeyNo": "p165991ca474f1da37007ab96536b1a5",
+          "CompanyCount": 403
+        }
+      },
+      {
+        "KeyNo": "160d60e1d99416b6c8d8258f75138cf4",
+        "Name": "西双版纳万达国际旅游度假区管理有限公司",
+        "PercentTotal": "100%",
+        "Level": "2",
+        "Paths": [
+          [
+            {
+              "KeyNo": "dc1fee6d7bd83614e75deb242cc7138b",
+              "Name": "上海万达文化产业集团有限公司",
+              "PercentTotal": "100%",
+              "Level": "1"
+            },
+            {
+              "KeyNo": "160d60e1d99416b6c8d8258f75138cf4",
+              "Name": "西双版纳万达国际旅游度假区管理有限公司",
+              "PercentTotal": "100%",
+              "Level": "2"
+            }
+          ]
+        ],
+        "ShortStatus": "存续",
+        "StartDate": "2014-02-18",
+        "RegistCapi": "200万元人民币",
+        "ImageUrl": "https://co-image.qichacha.com/CompanyImage/160d60e1d99416b6c8d8258f75138cf4.jpg",
+        "EconKind": "有限责任公司（自然人投资或控股的法人独资）",
+        "Oper": {
+          "Name": "张霖",
+          "KeyNo": "p165991ca474f1da37007ab96536b1a5",
+          "CompanyCount": 403
+        }
+      }
+    ]
+  },
+  "Status": "200",
+  "Message": "查询成功"
+}
