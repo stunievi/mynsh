@@ -60,6 +60,12 @@ public class DeconstructService {
         "WebsiteList", "QCC_HIS_ECI_WEBSITE_LIST"
     );
 
+    public static JSONObject GetStockRelationInfoMap = newJsonObject(
+        "CIACompanyLegals", "QCC_CIA_COMPANY_LEGALS",
+        "CIAForeignInvestments", "QCC_CIA_FOREIGN_INVESTMENTS",
+        "CIAForeignOffices", "QCC_CIA_FOREIGN_OFFICES"
+    );
+
     public DeconstructService() {
     }
 
@@ -189,7 +195,7 @@ public class DeconstructService {
                 } else {
                     changeList.set(0, o);
                 }
-                changeField(changeList.toArray(new Object[changeList.size()]));
+                changeField(changeList.stream().toArray());
             }
         } else if (json instanceof JSONObject) {
             for (short i = 0; i < changeList.size(); i++) {
@@ -197,21 +203,20 @@ public class DeconstructService {
 //                if (!(o instanceof String)) {
 //                    continue;
 //                }
-                if(o instanceof ICanChange){
+                if (o instanceof ICanChange) {
                     Object value = changeList.get(++i);
                     for (Map.Entry<String, Object> entry : ((JSONObject) json).entrySet()) {
-                        if(((ICanChange) o).call(entry.getKey())){
-                            if(value instanceof ITargetValue){
+                        if (((ICanChange) o).call(entry.getKey())) {
+                            if (value instanceof ITargetValue) {
                                 entry.setValue(((ITargetValue) value).call());
-                            } else if (value instanceof ValueGenerator.Wrap){
-                                 entry.setValue(((ValueGenerator.Wrap) value).call((JSONObject) json, entry.getKey()));
-                            }
-                            else {
+                            } else if (value instanceof ValueGenerator.Wrap) {
+                                entry.setValue(((ValueGenerator.Wrap) value).call((JSONObject) json, entry.getKey()));
+                            } else {
                                 entry.setValue(value);
                             }
                         }
                     }
-                } else if (o instanceof String){
+                } else if (o instanceof String) {
                     String changeType = (String) o;
                     if ((changeType).startsWith("+")) {
                         Object value = changeList.get(++i);
@@ -220,8 +225,7 @@ public class DeconstructService {
                             ((JSONObject) json).put(field, ((ValueGenerator.Wrap) value).call((JSONObject) json, field));
                         } else if (value instanceof ValueGenerator) {
                             ((JSONObject) json).put(changeType.substring(1), ((ValueGenerator) value).call((JSONObject) json));
-                        }
-                        else {
+                        } else {
                             ((JSONObject) json).put(changeType.substring(1), value);
                         }
                     } else if (changeType.startsWith("-")) {
@@ -289,6 +293,12 @@ public class DeconstructService {
         registerHandler("/History/GetHistorytAdminPenalty", service::GetHistorytAdminPenalty);
         registerHandler("/History/GetHistorytAdminLicens", service::GetHistorytAdminLicens);
         registerHandler("/ECIV4/SearchFresh", service::SearchFresh);
+        registerHandler("/ECIRelationV4/SearchTreeRelationMap", service::SearchTreeRelationMap);
+        registerHandler("/ECIRelationV4/GetCompanyEquityShareMap", service::GetCompanyEquityShareMap);
+        registerHandler("/ECIRelationV4/GenerateMultiDimensionalTreeCompanyMap", service::GenerateMultiDimensionalTreeCompanyMap);
+        registerHandler("/CIAEmployeeV4/GetStockRelationInfo", service::GetStockRelationInfo);
+        registerHandler("/HoldingCompany/GetHoldingCompany", service::GetHoldingCompany);
+        registerHandler("/ECICompanyMap/GetStockAnalysisData", service::GetStockAnalysisData);
 //        registerHandler("/History/GetHistorytJudgement", service::GetHistorytCourtNotice);
 
 //        registerHandler("/History/GetHistoryZhiXing", service::GetHistoryZhiXing);
@@ -297,6 +307,203 @@ public class DeconstructService {
         return service;
     }
 
+    /**
+     * 十层穿透
+     * @param channelHandlerContext
+     * @param request
+     * @param json
+     */
+    private void GetStockAnalysisData(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
+        String compName = getQuery(request, "keyWord");
+        JSONObject object = (JSONObject) json;
+        JSONObject CompanyData = object.getJSONObject("CompanyData");
+        changeField(
+            CompanyData,
+            "+TermStart", DateValue,
+            "+TeamEnd", DateValue,
+            "+CheckDate", DateValue,
+            "+StartDate", DateValue,
+            "+EndDate", DateValue,
+            "+UpdatedDate", DateValue,
+            "+stock_statistics", object.getJSONObject("StockStatistics").toJSONString(0),
+            "+inner_company_name", compName
+        );
+        deconstruct(CompanyData, "QCC_SAD", "inner_company_name");
+        doDelete("QCC_SAD_PARTNERS", "inner_company_name", compName);
+        doDelete("QCC_SAD_STOCK_LIST", "inner_company_name", compName);
+        child:
+        {
+            JSONArray Partners = CompanyData.getJSONArray("Partners");
+            if (Partners == null) {
+                break child;
+            }
+            changeField(Partners,
+                "+inner_company_name", compName
+            );
+            deconstruct(Partners, "QCC_SAD_PARTNERS", "");
+        }
+        child:{
+            JSONObject StockList = object.getJSONObject("StockList");
+            if (StockList == null) {
+               break child;
+            }
+            changeField(
+                StockList,
+                "+inner_company_name", compName
+            );
+            deconstruct(StockList, "QCC_SAD_STOCK_LIST", "");
+
+        }
+    }
+
+    /**
+     * 控股公司查询
+     * @param channelHandlerContext
+     * @param request
+     * @param json
+     */
+    private void GetHoldingCompany(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
+        String compName = getQuery(request, "keyWord");
+        changeField(
+            json,
+            "+inner_company_name", compName
+        );
+        deconstruct(json, "QCC_HOLDING_COMPANY", "inner_company_name");
+        doDelete("QCC_HOLDING_COMPANY_NAMES", "inner_company_name", compName);
+        doDelete("QCC_HOLDING_COMPANY_NAMES_PATHS", "inner_company_name", compName);
+        doDelete("QCC_HOLDING_COMPANY_NAMES_OPER", "inner_company_name", compName);
+        //子表
+        child:
+        {
+            JSONArray names = (JSONArray) json.getByPath("Names", JSON.class);
+            if (names == null) {
+                break child;
+            }
+            for (Object _name : names) {
+                JSONObject name = (JSONObject) _name;
+                JSONArray paths = (JSONArray) name.getByPath("Paths", JSON.class);
+                JSONObject oper = (JSONObject) name.getByPath("Oper", JSON.class);
+                if (oper == null) {
+                    oper = new JSONObject();
+                }
+                if (paths == null) {
+                    paths = new JSONArray();
+                }
+                changeField(name,
+                    "+inner_company_name", compName,
+                    "+Paths", paths.toJSONString(0),
+                    "+Oper", oper.toJSONString(0),
+                    "+StartDate", DateValue
+                );
+                JSONObject kv = (JSONObject) deconstruct(name, "QCC_HOLDING_COMPANY_NAMES", "");
+                // FIXME: 2019/4/14 路径结构有问题，不解构
+//                changeField(paths,
+//                    "+inner_company_name", compName,
+//                    "+parent_inner_id", kv.getStr("inner_id")
+//                    );
+//                deconstruct(paths, "QCC_HOLDING_COMPANY_NAMES_PATHS", "");
+                changeField(oper,
+                    "+inner_company_name", compName,
+                    "+parent_inner_id", kv.getStr("inner_id")
+                );
+                deconstruct(oper, "QCC_HOLDING_COMPANY_NAMES_OPER", "");
+            }
+        }
+    }
+
+    /**
+     * 企业人员董监高信息
+     * @param channelHandlerContext
+     * @param request
+     * @param json
+     */
+    private void GetStockRelationInfo(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
+        String compName = getQuery(request, "companyName");
+        for (Map.Entry<String, Object> entry : GetStockRelationInfoMap.entrySet()) {
+            JSONArray array = (JSONArray) json.getByPath(entry.getKey() + ".Result", JSON.class);
+            if (array == null) {
+                continue;
+            }
+            changeField(array,
+                "+inner_company_name", compName
+            );
+            doDelete((String) entry.getValue(), "inner_company_name", compName);
+            deconstruct(array, (String) entry.getValue(), "");
+        }
+    }
+
+    /**
+     * 企业图谱
+     * @param channelHandlerContext
+     * @param request
+     * @param json
+     */
+    private void GenerateMultiDimensionalTreeCompanyMap(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
+        String keyNo = getQuery(request, "keyNo");
+        JSONObject node = (JSONObject) json.getByPath("Node");
+        changeField(
+            node,
+            "+inner_company_no", keyNo
+        );
+        doDelete("QCC_TREE_RELATION_MAP", "inner_company_no", keyNo);
+        deconstruct(node, "QCC_TREE_RELATION_MAP", "");
+    }
+
+    /**
+     * 股权结构
+     * @param channelHandlerContext
+     * @param request
+     * @param json
+     */
+    private void GetCompanyEquityShareMap(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
+        String keyNo = getQuery(request, "keyNo");
+        changeField(
+            json,
+            "+inner_company_no", keyNo
+        );
+        doDelete("QCC_COMPANY_MAP", "inner_company_no", keyNo);
+        JSONObject kv = (JSONObject) deconstruct(json, "QCC_CESM", "");
+
+        //实际控股信息
+        child:
+        {
+            JSONArray array = (JSONArray) json.getByPath("ActualControllerLoopPath", JSON.class);
+            if (array == null) {
+                break child;
+            }
+            changeField(array,
+                "+inner_company_no", keyNo,
+                "+cesm_inner_id", kv.getStr("inner_id")
+            );
+            doDelete("QCC_CESM_ACLP", "INNER_COMPANY_NO", keyNo);
+            deconstruct(array, "QCC_CESM_ACLP", "");
+        }
+    }
+
+    /**
+     * 企业族谱
+     * @param channelHandlerContext
+     * @param request
+     * @param json
+     */
+    private void SearchTreeRelationMap(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
+        String keyNo = getQuery(request, "keyNo");
+        JSONObject node = (JSONObject) json.getByPath("Node");
+        changeField(
+            node,
+            "+inner_company_no", keyNo
+        );
+        doDelete("QCC_COMPANY_MAP", "INNER_COMPANY_NO", keyNo);
+        deconstruct(node, "QCC_COMPANY_MAP", "");
+    }
+
+
+    /**
+     * 新增公司
+     * @param channelHandlerContext
+     * @param request
+     * @param json
+     */
     private void SearchFresh(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         changeField(
             json,
@@ -1371,12 +1578,35 @@ public class DeconstructService {
         StringBuilder sb = new StringBuilder();
         Date now = new Date();
         if (obj instanceof JSONObject) {
-            return insertSingle((JSONObject) obj, tableName, existKey);
+            JSONObject ret = insertSingle((JSONObject) obj, tableName, existKey);
+            if (((JSONObject) obj).containsKey("Children") || ((JSONObject) obj).containsKey("children")) {
+                JSONArray children = (JSONArray) obj.getByPath("Children", JSON.class);
+                if (children == null) {
+                    children = (JSONArray) obj.getByPath("children", JSON.class);
+                }
+                if (children != null) {
+                    String id = ret.getStr("inner_id");
+                    for (Object _child : children) {
+                        JSONObject child = (JSONObject) _child;
+                        child.put("inner_parent_id", id);
+                        child.put("inner_company_no", ret.getStr("inner_company_no"));
+                        child.put("inner_company_name", ret.getStr("inner_company_name"));
+                        deconstruct(child, tableName, "");
+                    }
+                }
+            }
+            return ret;
+
         } else if (obj instanceof JSONArray) {
             JSONArray array = (JSONArray) obj;
             JSONArray ret = new JSONArray();
             for (Object object : array) {
-                ret.add(insertSingle((JSONObject) object, tableName, existKey));
+                JSON _ret = deconstruct((JSON) object, tableName, existKey);
+                if (_ret instanceof JSONArray) {
+                    ret.addAll((JSONArray) _ret);
+                } else {
+                    ret.add(_ret);
+                }
             }
             return ret;
         }

@@ -31,7 +31,7 @@
                .map(i => {
                    var arr = i.split(/[\s\t]+/);
                    console.log(arr)
-                    return `@apiSuccess {${arr[1].toLowerCase()}} ${prefix.value ? prefix.value + "." : ""}${arr[0]} ${arr[2]}  `
+                    return `@apiSuccess {${arr[1].toLowerCase()}} ${prefix.value ? prefix.value + "." : ""}${arr[0]} ${arr.slice(2).join("")}  `
                });
            newval = newval.join("\n");
            target.value = newval

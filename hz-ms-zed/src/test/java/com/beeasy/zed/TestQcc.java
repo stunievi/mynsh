@@ -80,14 +80,14 @@ public class TestQcc {
     public void SearchShiXin() throws Exception {
         clearTable("QCC_SHIXIN");
         read("/CourtV4/SearchShiXin.json?searchKey=惠州市帅星贸易有限公司");
-        checkPageMatched("/CourtV4/SearchShiXin?searchKey=惠州市帅星贸易有限公司");
+        checkPageMatched("/CourtV4/SearchShiXin?fullName=惠州市帅星贸易有限公司");
     }
 
     @Test
     public void SearchZhiXing() throws Exception {
         clearTable("QCC_ZHIXING");
         read("/CourtV4/SearchZhiXing.json?searchKey=惠州市帅星贸易有限公司");
-        checkPageMatched("/CourtV4/SearchZhiXing?searchKey=惠州市帅星贸易有限公司");
+        checkPageMatched("/CourtV4/SearchZhiXing?fullName=惠州市帅星贸易有限公司");
     }
 
     @Test
@@ -98,7 +98,7 @@ public class TestQcc {
         assertNotNull(id);
         read("/JudgeDocV4/GetJudgementDetail.json?id=" + id);
 
-        checkPageMatched("/JudgeDocV4/SearchJudgmentDoc?searchKey=惠州市帅星贸易有限公司");
+        checkPageMatched("/JudgeDocV4/SearchJudgmentDoc?fullName=惠州市帅星贸易有限公司");
         JSONObject detail = checkObjectMatched("/JudgeDocV4/GetJudgementDetail?id=" + id);
         assertTrue(detail.get("Appellor") instanceof JSONArray);
         assertTrue(detail.get("DefendantList") instanceof JSONArray);
@@ -113,7 +113,7 @@ public class TestQcc {
         assertNotNull(id);
         read("/CourtNoticeV4/SearchCourtAnnouncementDetail.json?id=" + id);
 
-        checkPageMatched("/CourtNoticeV4/SearchCourtAnnouncement?companyName=惠州市帅星贸易有限公司");
+        checkPageMatched("/CourtNoticeV4/SearchCourtAnnouncement?fullName=惠州市帅星贸易有限公司");
         JSONObject obj = checkObjectMatched("/CourtNoticeV4/SearchCourtAnnouncementDetail?id=" + id);
         assertTrue(obj.getJSONArray("NameKeyNoCollection").size() > 0);
 
@@ -131,7 +131,7 @@ public class TestQcc {
         assertNotNull(id);
         JSONObject s2 = read("/CourtAnnoV4/GetCourtNoticeInfo.json?id=" + id);
 
-        JSONObject page = checkResult("/CourtAnnoV4/SearchCourtNotice?searchKey=惠州市帅星贸易有限公司");
+        JSONObject page = checkResult("/CourtAnnoV4/SearchCourtNotice?fullName=惠州市帅星贸易有限公司");
         checkSim(s1, page);
         JSONObject obj = checkResult("/CourtAnnoV4/GetCourtNoticeInfo?id=" + id);
         checkSim(s2, obj);
@@ -144,7 +144,7 @@ public class TestQcc {
     public void GetJudicialAssistance() throws Exception {
         clearTable("QCC_JUDICIAL_ASSISTANCE", "QCC_EQUITY_FREEZE_DETAIL");
        read("/JudicialAssistance/GetJudicialAssistance.json?keyWord=惠州市帅星贸易有限公司");
-        String url = ("/JudicialAssistance/GetJudicialAssistance?keyWord=惠州市帅星贸易有限公司");
+        String url = ("/JudicialAssistance/GetJudicialAssistance?fullName=惠州市帅星贸易有限公司");
         JSONObject result = huGet(url);
         assertEquals(result.getStr("Status"),"200");
         JSONArray list = result.getJSONArray("Result");
@@ -162,7 +162,7 @@ public class TestQcc {
     public void GetOpException() throws Exception {
         clearTable("QCC_OP_EXCEPTION");
         read("/ECIException/GetOpException.json?keyNo=惠州市帅星贸易有限公司");
-        String url = "/ECIException/GetOpException?keyNo=惠州市帅星贸易有限公司";
+        String url = "/ECIException/GetOpException?fullName=惠州市帅星贸易有限公司";
         JSONArray list = checkListMatched(url);
     }
 
@@ -170,7 +170,7 @@ public class TestQcc {
     public void GetJudicialSaleList() throws Exception {
         clearTable("QCC_JUDICIAL_SALE");
         read("/JudicialSale/GetJudicialSaleList.json?keyWord=惠州市帅星贸易有限公司");
-        String url = "/JudicialSale/GetJudicialSaleList?keyWord=惠州市帅星贸易有限公司";
+        String url = "/JudicialSale/GetJudicialSaleList?fullName=惠州市帅星贸易有限公司";
         JSONArray object = checkPageMatched(url);
         String id = object.getByPath("0.Id", String.class);
         assertNotNull(id);
@@ -188,7 +188,7 @@ public class TestQcc {
         clearTable("QCC_LAND_MORTGAGE");
         clearTable("JG_LM_PEOPLE_RE");
         JSONObject source = read("/LandMortgage/GetLandMortgageList.json?keyWord=惠州市帅星贸易有限公司");
-        String url = "/LandMortgage/GetLandMortgageList?keyWord=惠州市帅星贸易有限公司";
+        String url = "/LandMortgage/GetLandMortgageList?fullName=惠州市帅星贸易有限公司";
         JSONArray array = checkPageMatched(url);
         String id = array.getByPath("1.Id", String.class);
         assertNotNull(id);
@@ -205,7 +205,7 @@ public class TestQcc {
     public void GetEnvPunishmentList() throws Exception {
         clearTable("QCC_ENV_PUNISHMENT_LIST");
         read("/EnvPunishment/GetEnvPunishmentList.json?keyWord=惠州市帅星贸易有限公司");
-        JSONArray array = checkPageMatched("/EnvPunishment/GetEnvPunishmentList?keyWord=惠州市帅星贸易有限公司");;
+        JSONArray array = checkPageMatched("/EnvPunishment/GetEnvPunishmentList?fullName=惠州市帅星贸易有限公司");;
         String id = (String) array.getByPath("0.Id");
         assertNotNull(id);
         read("/EnvPunishment/GetEnvPunishmentDetails.json?id=" + id);
@@ -219,7 +219,7 @@ public class TestQcc {
     public void GetChattelMortgage() throws Exception {
         clearTable("QCC_CHATTEL_MORTGAGE","QCC_CMD_PLEDGE\n","QCC_CMD_PLEDGEE_LIST\n", "QCC_CMD_SECURED_CLAIM\n","QCC_CMD_GUARANTEE_LIST\n", "QCC_CMD_CANCEL_INFO\n", "QCC_CMD_CHANGE_LIST\n");
         JSONObject source = read("/ChattelMortgage/GetChattelMortgage.json?keyWord=惠州市帅星贸易有限公司");
-        JSONObject target = checkResult("/ChattelMortgage/GetChattelMortgage?keyWord=惠州市帅星贸易有限公司");
+        JSONObject target = checkResult("/ChattelMortgage/GetChattelMortgage?fullName=惠州市帅星贸易有限公司");
         checkSim(source, target);
 //        JSONArray list = checkListMatched("/ChattelMortgage/GetChattelMortgage?keyWord=惠州市帅星贸易有限公司");
 //        String[] children = {"Pledge","PledgeeList","SecuredClaim", "GuaranteeList","CancelInfo", "ChangeList"};
@@ -240,7 +240,7 @@ public class TestQcc {
     public void GetDetailsByName() throws Exception {
         clearTable("QCC_DETAILS");
         JSONObject source = read("/ECIV4/GetDetailsByName.json?keyword=惠州市帅星贸易有限公司");
-        JSONObject object = checkResult("/ECIV4/GetDetailsByName?keyword=惠州市帅星贸易有限公司");
+        JSONObject object = checkResult("/ECIV4/GetDetailsByName?fullName=惠州市帅星贸易有限公司");
         double sim = sim(object.toJSONString(0), source.toJSONString(0));
         assertTrue(sim > 0.7);
         int c = 1;
@@ -356,6 +356,53 @@ public class TestQcc {
         JSONObject target = checkResult("/ECIV4/SearchFresh?keyword=北京");
         checkSim(source, target);
     }
+
+    @Test
+    public void SearchTreeRelationMap() throws Exception {
+        clearTable("QCC_COMPANY_MAP");
+        JSONObject source = read("/ECIRelationV4/SearchTreeRelationMap.json?keyNo=1");
+        JSONObject target = checkResult("/ECIRelationV4/SearchTreeRelationMap?keyNo=1");
+        checkSim(source, target);
+    }
+    @Test
+    public void GetCompanyEquityShareMap() throws Exception {
+        clearTable("QCC_CESM", "QCC_CESM_ACLP");
+        JSONObject source = read("/ECIRelationV4/GetCompanyEquityShareMap.json?keyNo=1");
+        JSONObject target = checkResult("/ECIRelationV4/GetCompanyEquityShareMap?keyNo=1");
+        checkSim(source, target, 0.6);
+    }
+    @Test
+    public void GenerateMultiDimensionalTreeCompanyMap() throws Exception {
+        clearTable("QCC_TREE_RELATION_MAP");
+        JSONObject source = read("/ECIRelationV4/GenerateMultiDimensionalTreeCompanyMap.json?keyNo=1");
+        JSONObject target = checkResult("/ECIRelationV4/GenerateMultiDimensionalTreeCompanyMap?keyNo=1");
+        checkSim(source, target);
+    }
+    @Test
+    public void GetStockRelationInfo() throws Exception {
+        for (Map.Entry<String, Object> entry : DeconstructService.GetStockRelationInfoMap.entrySet()) {
+            clearTable((String) entry.getValue());
+        }
+        JSONObject source = read("/CIAEmployeeV4/GetStockRelationInfo.json?companyName=惠州市帅星贸易有限公司");
+        JSONObject target = checkResult("/CIAEmployeeV4/GetStockRelationInfo?fullName=惠州市帅星贸易有限公司");
+        checkSim(source, target);
+    }
+    @Test
+    public void GetHoldingCompany() throws Exception {
+        clearTable("QCC_HOLDING_COMPANY", "QCC_HOLDING_COMPANY_NAMES_PATHS", "QCC_HOLDING_COMPANY_NAMES_OPER");
+        JSONObject source = read("/HoldingCompany/GetHoldingCompany.json?keyWord=惠州市帅星贸易有限公司");
+        JSONObject target = checkResult("/HoldingCompany/GetHoldingCompany?fullName=惠州市帅星贸易有限公司");
+        checkSim(source, target);
+    }
+
+    @Test
+    public void GetStockAnalysisData() throws Exception {
+        clearTable("QCC_SAD_PARTNERS", "QCC_SAD", "QCC_SAD_STOCK_LIST");
+        JSONObject source = read("/ECICompanyMap/GetStockAnalysisData.json?keyWord=惠州市帅星贸易有限公司");
+        JSONObject target = checkResult("/ECICompanyMap/GetStockAnalysisData?fullName=惠州市帅星贸易有限公司");
+        checkSim(source, target);
+
+    }
 //    @Test
 //    public void testGetJudgementDetail(){
 //        try {
@@ -456,7 +503,7 @@ public class TestQcc {
         System.out.println(ss);
         System.out.println(st);
         System.out.println(sim);
-        assertTrue(sim > 0.7);
+        assertTrue(sim > limit);
     }
     public void checkSim(JSONObject source, JSONObject target){
         checkSim(source,target, 0.7);

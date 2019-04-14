@@ -40,7 +40,7 @@
             "group": "Parameter",
             "type": "string",
             "optional": false,
-            "field": "keyWord",
+            "field": "fullName",
             "description": "<p>公司全名</p>"
           }
         ]
@@ -298,6 +298,219 @@
   },
   {
     "type": "get",
+    "url": "/CIAEmployeeV4/GetStockRelationInfo",
+    "title": "企业人员董监高信息",
+    "group": "QCC",
+    "version": "0.0.1",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "string",
+            "optional": false,
+            "field": "fullName",
+            "description": "<p>公司全名</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "object[]",
+            "optional": false,
+            "field": "CIACompanyLegals",
+            "description": "<p>担任法人公司信息</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CIACompanyLegals.Name",
+            "description": "<p>企业名称</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CIACompanyLegals.RegNo",
+            "description": "<p>注册号</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CIACompanyLegals.RegCap",
+            "description": "<p>注册资本</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CIACompanyLegals.RegCapCur",
+            "description": "<p>注册资本币种</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CIACompanyLegals.Status",
+            "description": "<p>企业状态</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CIACompanyLegals.EcoKind",
+            "description": "<p>企业类型</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "object[]",
+            "optional": false,
+            "field": "CIAForeignInvestments",
+            "description": "<p>对外投资信息</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CIAForeignInvestments.SubConAmt",
+            "description": "<p>认缴出资额</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CIAForeignInvestments.SubCurrency",
+            "description": "<p>认缴出资币种</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CIAForeignInvestments.EcoKind",
+            "description": "<p>企业类型</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CIAForeignInvestments.Name",
+            "description": "<p>企业名称</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CIAForeignInvestments.RegNo",
+            "description": "<p>注册号</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CIAForeignInvestments.RegCap",
+            "description": "<p>注册资本</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CIAForeignInvestments.RegCapCur",
+            "description": "<p>注册资本币种</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CIAForeignInvestments.Status",
+            "description": "<p>企业状态</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "object[]",
+            "optional": false,
+            "field": "CIAForeignOffices",
+            "description": "<p>在外任职信息</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CIAForeignOffices.Position",
+            "description": "<p>职位</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CIAForeignOffices.EcoKind",
+            "description": "<p>企业类型</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CIAForeignOffices.Name",
+            "description": "<p>企业名称</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CIAForeignOffices.RegNo",
+            "description": "<p>注册号</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CIAForeignOffices.RegCap",
+            "description": "<p>注册资本</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CIAForeignOffices.RegCapCur",
+            "description": "<p>注册资本币种</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CIAForeignOffices.Status",
+            "description": "<p>企业状态</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "请求成功:",
+          "content": "{\n    \"Status\": \"200\",\n    \"Message\": \"查询成功\",\n    \"Result\": {\n        \"CIAForeignInvestments\": [\n            {\n                \"InputDate\": \"2019-04-14 01:12:43\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"10万元人民币\",\n                \"SubConAmt\": \"1\",\n                \"RegNo\": \"110105020574345\",\n                \"EcoKind\": \"其他有限责任公司\",\n                \"Name\": \"北京普达鑫投资管理有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:43\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"1000万人民币\",\n                \"SubConAmt\": \"800\",\n                \"RegNo\": \"\",\n                \"EcoKind\": \"有限责任公司（自然人投资或控股）\",\n                \"Name\": \"上海纵庭酒业有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:43\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"10万元人民币\",\n                \"SubConAmt\": \"1\",\n                \"RegNo\": \"\",\n                \"EcoKind\": \"其他有限责任公司\",\n                \"Name\": \"北京普惠思投资管理有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:43\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"1000万人民币\",\n                \"SubConAmt\": \"800\",\n                \"RegNo\": \"\",\n                \"EcoKind\": \"有限责任公司（自然人投资或控股）\",\n                \"Name\": \"上海水晶荔枝娱乐文化有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:43\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"10万元人民币\",\n                \"SubConAmt\": \"1\",\n                \"RegNo\": \"110105020574466\",\n                \"EcoKind\": \"其他有限责任公司\",\n                \"Name\": \"北京昌盛四海投资管理有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:43\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"1000万人民币\",\n                \"SubConAmt\": \"200\",\n                \"RegNo\": \"\",\n                \"EcoKind\": \"有限责任公司（自然人投资或控股）\",\n                \"Name\": \"上海香蕉计划体育文化有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:44\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"1000万人民币\",\n                \"SubConAmt\": \"200\",\n                \"RegNo\": \"\",\n                \"EcoKind\": \"有限责任公司（自然人投资或控股）\",\n                \"Name\": \"上海香蕉计划演出经纪有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:44\",\n                \"Status\": \"存续\",\n                \"SubConAmt\": \"11.880700\",\n                \"RegNo\": \"310116003315491\",\n                \"EcoKind\": \"有限合伙企业\",\n                \"Name\": \"上海牛铺信息科技合伙企业（有限合伙）\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:44\",\n                \"Status\": \"存续\",\n                \"SubConAmt\": \"10.000000\",\n                \"RegNo\": \"440003000139391\",\n                \"EcoKind\": \"有限合伙企业\",\n                \"Name\": \"珠海横琴普斯股权投资企业（有限合伙）\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:44\",\n                \"Status\": \"注销\",\n                \"RegCap\": \"30万人民币\",\n                \"SubConAmt\": \"3\",\n                \"RegNo\": \"5101042007639\",\n                \"EcoKind\": \"有限责任公司(自然人投资或控股)\",\n                \"Name\": \"成都市锦江区大歌星餐饮娱乐有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:44\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"200.000000万人民币\",\n                \"SubConAmt\": \"18\",\n                \"RegNo\": \"330211000110854\",\n                \"EcoKind\": \"有限责任公司(自然人投资或控股)\",\n                \"Name\": \"宁波朗盛投资管理有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:44\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"1000万人民币\",\n                \"SubConAmt\": \"10\",\n                \"RegNo\": \"\",\n                \"EcoKind\": \"有限责任公司（自然人投资或控股）\",\n                \"Name\": \"上海普思投资有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:44\",\n                \"Status\": \"注销\",\n                \"RegCap\": \"4000万人民币\",\n                \"SubConAmt\": \"80\",\n                \"RegNo\": \"310115000814817\",\n                \"EcoKind\": \"有限责任公司（自然人投资或控股）\",\n                \"Name\": \"上海万尚置业有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:44\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"1000万元人民币\",\n                \"SubConAmt\": \"10\",\n                \"RegNo\": \"110105016521299\",\n                \"EcoKind\": \"其他有限责任公司\",\n                \"Name\": \"北京达德厚鑫投资管理有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:44\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"7860万人民币\",\n                \"SubConAmt\": \"157.2\",\n                \"EcoKind\": \"有限责任公司(自然人投资或控股)\",\n                \"Name\": \"大连合兴投资有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:44\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"1000万人民币\",\n                \"SubConAmt\": \"200\",\n                \"RegNo\": \"\",\n                \"EcoKind\": \"有限责任公司（自然人投资或控股）\",\n                \"Name\": \"上海香蕉计划影视文化有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:44\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"1000万元人民币\",\n                \"SubConAmt\": \"10万元\",\n                \"RegNo\": \"440003000137855\",\n                \"EcoKind\": \"其他有限责任公司\",\n                \"Name\": \"珠海横琴普斯投资管理有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:44\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"100万元人民币\",\n                \"SubConAmt\": \"1\",\n                \"RegNo\": \"110105016521346\",\n                \"EcoKind\": \"其他有限责任公司\",\n                \"Name\": \"北京汇德信投资管理有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:44\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"10000万人民币\",\n                \"SubConAmt\": \"6850\",\n                \"RegNo\": \"\",\n                \"EcoKind\": \"有限责任公司（自然人投资或控股）\",\n                \"Name\": \"上海香蕉计划文化发展有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:44\",\n                \"Status\": \"存续\",\n                \"RegNo\": \"330522000184262\",\n                \"EcoKind\": \"个人独资企业\",\n                \"Name\": \"珺娱（湖州）文化发展中心\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:44\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"526.3158万元人民币\",\n                \"SubConAmt\": \"98\",\n                \"RegNo\": \"\",\n                \"EcoKind\": \"有限责任公司(自然人投资或控股)\",\n                \"Name\": \"北京叮咚柠檬科技有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:44\",\n                \"Status\": \"存续\",\n                \"SubConAmt\": \"1.000000\",\n                \"RegNo\": \"\",\n                \"EcoKind\": \"有限合伙企业\",\n                \"Name\": \"上海沓厚投资合伙企业（有限合伙）\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:44\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"1000万人民币\",\n                \"SubConAmt\": \"200\",\n                \"RegNo\": \"\",\n                \"EcoKind\": \"有限责任公司（自然人投资或控股）\",\n                \"Name\": \"上海香蕉计划音乐有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:44\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"1111.11万人民币\",\n                \"SubConAmt\": \"\",\n                \"RegNo\": \"\",\n                \"EcoKind\": \"有限责任公司（自然人投资或控股）\",\n                \"Name\": \"上海爱洛星食品有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:44\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"2000万元人民币\",\n                \"SubConAmt\": \"2000\",\n                \"RegNo\": \"110105012460853\",\n                \"EcoKind\": \"有限责任公司(自然人独资)\",\n                \"Name\": \"北京普思投资有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:44\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"1000.000000万人民币\",\n                \"SubConAmt\": \"10\",\n                \"RegNo\": \"120116000437468\",\n                \"EcoKind\": \"有限责任公司\",\n                \"Name\": \"天津普思资产管理有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:45\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"1333.3325万人民币\",\n                \"SubConAmt\": \"200.000000\",\n                \"RegNo\": \"\",\n                \"EcoKind\": \"有限责任公司（自然人投资或控股）\",\n                \"Name\": \"上海香蕉计划电子游戏有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:45\",\n                \"Status\": \"注销\",\n                \"RegCap\": \"50.000000万元人民币\",\n                \"SubConAmt\": \"5 万元\",\n                \"RegNo\": \"330212000097826\",\n                \"EcoKind\": \"私营有限责任公司(自然人控股或私营性质企业控股)\",\n                \"Name\": \"宁波市鄞州大歌星餐饮娱乐有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:45\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"1111.1111万元人民币\",\n                \"SubConAmt\": \"200\",\n                \"RegNo\": \"110105020849335\",\n                \"EcoKind\": \"其他有限责任公司\",\n                \"Name\": \"北京香蕉计划体育文化有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:45\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"1000.000000万人民币\",\n                \"SubConAmt\": \"10.000000\",\n                \"RegNo\": \"\",\n                \"EcoKind\": \"有限责任公司\",\n                \"Name\": \"平潭普思资产管理有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:45\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"1000万\",\n                \"SubConAmt\": \"300\",\n                \"RegNo\": \"210200000248224\",\n                \"EcoKind\": \"有限责任公司(自然人投资或控股)\",\n                \"Name\": \"蓝泰科技（大连）有限公司\"\n            }\n        ],\n        \"CIACompanyLegals\": [\n            {\n                \"InputDate\": \"2019-04-14 01:12:45\",\n                \"Status\": \"注销\",\n                \"RegNo\": \"320503600090522\",\n                \"EcoKind\": \"个体工商户\",\n                \"Name\": \"苏州市平江区大歌星超市\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:45\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"10万元人民币\",\n                \"RegNo\": \"110105020574345\",\n                \"EcoKind\": \"其他有限责任公司\",\n                \"Name\": \"北京普达鑫投资管理有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:45\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"10万元人民币\",\n                \"RegNo\": \"\",\n                \"EcoKind\": \"其他有限责任公司\",\n                \"Name\": \"北京普惠思投资管理有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:45\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"10万元人民币\",\n                \"RegNo\": \"110105020574466\",\n                \"EcoKind\": \"其他有限责任公司\",\n                \"Name\": \"北京昌盛四海投资管理有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:45\",\n                \"Status\": \"在业\",\n                \"RegNo\": \"330212600096923\",\n                \"EcoKind\": \"个体工商户\",\n                \"Name\": \"宁波市鄞州钟公庙大歌星自选超市\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:45\",\n                \"Status\": \"注销\",\n                \"RegNo\": \"320105600200053\",\n                \"EcoKind\": \"个体工商户\",\n                \"Name\": \"南京市建邺区大歌星食品店\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:45\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"1000万人民币\",\n                \"RegNo\": \"\",\n                \"EcoKind\": \"有限责任公司（自然人投资或控股）\",\n                \"Name\": \"上海普思投资有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:45\",\n                \"Status\": \"注销\",\n                \"RegNo\": \"110107600527132\",\n                \"EcoKind\": \"个体（内地）\",\n                \"Name\": \"北京万达星歌烟酒商店\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:45\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"1000万元人民币\",\n                \"RegNo\": \"110105016521299\",\n                \"EcoKind\": \"其他有限责任公司\",\n                \"Name\": \"北京达德厚鑫投资管理有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:45\",\n                \"Status\": \"注销\",\n                \"RegNo\": \"310110600351288\",\n                \"EcoKind\": \"个体\",\n                \"Name\": \"上海市杨浦区大歌星食品综合商店\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:45\",\n                \"Status\": \"存续\",\n                \"RegNo\": \"310101000680259\",\n                \"EcoKind\": \"有限责任公司分公司（自然人独资）\",\n                \"Name\": \"北京普思投资有限公司上海分公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:45\",\n                \"Status\": \"注销\",\n                \"RegNo\": \"310225600370456\",\n                \"EcoKind\": \"个体\",\n                \"Name\": \"上海市浦东新区周浦镇新歌食品商店\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:45\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"100万元人民币\",\n                \"RegNo\": \"110105016521346\",\n                \"EcoKind\": \"其他有限责任公司\",\n                \"Name\": \"北京汇德信投资管理有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:45\",\n                \"Status\": \"存续\",\n                \"RegNo\": \"330522000184262\",\n                \"EcoKind\": \"个人独资企业\",\n                \"Name\": \"珺娱（湖州）文化发展中心\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:46\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"2000万元人民币\",\n                \"RegNo\": \"110105012460853\",\n                \"EcoKind\": \"有限责任公司(自然人独资)\",\n                \"Name\": \"北京普思投资有限公司\"\n            }\n        ],\n        \"CIAForeignOffices\": [\n            {\n                \"InputDate\": \"2019-04-14 01:12:46\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"10万元人民币\",\n                \"Position\": \"执行董事,经理\",\n                \"RegNo\": \"110105020574345\",\n                \"EcoKind\": \"其他有限责任公司\",\n                \"Name\": \"北京普达鑫投资管理有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:46\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"10万元人民币\",\n                \"Position\": \"执行董事,经理\",\n                \"RegNo\": \"\",\n                \"EcoKind\": \"其他有限责任公司\",\n                \"Name\": \"北京普惠思投资管理有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:46\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"10万元人民币\",\n                \"Position\": \"经理,执行董事\",\n                \"RegNo\": \"110105020574466\",\n                \"EcoKind\": \"其他有限责任公司\",\n                \"Name\": \"北京昌盛四海投资管理有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:46\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"1000万人民币\",\n                \"Position\": \"监事\",\n                \"RegNo\": \"\",\n                \"EcoKind\": \"有限责任公司（自然人投资或控股）\",\n                \"Name\": \"上海香蕉计划体育文化有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:46\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"1000万人民币\",\n                \"Position\": \"监事\",\n                \"RegNo\": \"\",\n                \"EcoKind\": \"有限责任公司（自然人投资或控股）\",\n                \"Name\": \"上海香蕉计划演出经纪有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:46\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"4179.7304万人民币\",\n                \"Position\": \"董事\",\n                \"RegNo\": \"\",\n                \"EcoKind\": \"有限责任公司（自然人投资或控股）\",\n                \"Name\": \"上海网鱼信息科技有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:46\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"12884.6436万人民币\",\n                \"Position\": \"董事长\",\n                \"RegNo\": \"310113001373438\",\n                \"EcoKind\": \"有限责任公司（自然人投资或控股）\",\n                \"Name\": \"上海熊猫互娱文化有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:46\",\n                \"Status\": \"注销\",\n                \"RegCap\": \"30万\",\n                \"Position\": \"监事\",\n                \"RegNo\": \"610103100001977\",\n                \"EcoKind\": \"有限责任公司(自然人独资)\",\n                \"Name\": \"西安市碑林区大歌星餐饮娱乐有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:46\",\n                \"Status\": \"注销\",\n                \"RegCap\": \"30万人民币\",\n                \"Position\": \"监事\",\n                \"RegNo\": \"5101042007639\",\n                \"EcoKind\": \"有限责任公司(自然人投资或控股)\",\n                \"Name\": \"成都市锦江区大歌星餐饮娱乐有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:46\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"100000万人民币\",\n                \"Position\": \"董事\",\n                \"RegNo\": \"310000400782886\",\n                \"EcoKind\": \"有限责任公司（台港澳法人独资）\",\n                \"Name\": \"飞凡电子商务有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:46\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"1000万人民币\",\n                \"Position\": \"执行董事\",\n                \"RegNo\": \"\",\n                \"EcoKind\": \"有限责任公司（自然人投资或控股）\",\n                \"Name\": \"上海普思投资有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:46\",\n                \"Status\": \"注销\",\n                \"Position\": \"\",\n                \"RegNo\": \"110107600527132\",\n                \"EcoKind\": \"个体（内地）\",\n                \"Name\": \"北京万达星歌烟酒商店\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:46\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"1000万元人民币\",\n                \"Position\": \"执行董事,经理\",\n                \"RegNo\": \"110105016521299\",\n                \"EcoKind\": \"其他有限责任公司\",\n                \"Name\": \"北京达德厚鑫投资管理有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:46\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"1000万人民币\",\n                \"Position\": \"董事长\",\n                \"RegNo\": \"\",\n                \"EcoKind\": \"有限责任公司（自然人投资或控股）\",\n                \"Name\": \"上海香蕉云集新媒体有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:46\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"1000万人民币\",\n                \"Position\": \"监事\",\n                \"RegNo\": \"\",\n                \"EcoKind\": \"有限责任公司（自然人投资或控股）\",\n                \"Name\": \"上海香蕉计划影视文化有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:46\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"1000万元人民币\",\n                \"Position\": \"执行董事\",\n                \"RegNo\": \"440003000137855\",\n                \"EcoKind\": \"其他有限责任公司\",\n                \"Name\": \"珠海横琴普斯投资管理有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:46\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"44000万人民币\",\n                \"Position\": \"董事\",\n                \"RegNo\": \"\",\n                \"EcoKind\": \"有限责任公司（自然人投资或控股的法人独资）\",\n                \"Name\": \"上海新飞凡电子商务有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:46\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"13860.9431万元人民币\",\n                \"Position\": \"监事\",\n                \"RegNo\": \"110108003312259\",\n                \"EcoKind\": \"其他股份有限公司(非上市)\",\n                \"Name\": \"北京英雄互娱科技股份有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:47\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"100000万人民币\",\n                \"Position\": \"董事\",\n                \"EcoKind\": \"其他股份有限公司(非上市)\",\n                \"Name\": \"大连万达集团股份有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:47\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"100万元人民币\",\n                \"Position\": \"经理,执行董事\",\n                \"RegNo\": \"110105016521346\",\n                \"EcoKind\": \"其他有限责任公司\",\n                \"Name\": \"北京汇德信投资管理有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:47\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"10000万人民币\",\n                \"Position\": \"监事\",\n                \"RegNo\": \"\",\n                \"EcoKind\": \"有限责任公司（自然人投资或控股）\",\n                \"Name\": \"上海香蕉计划文化发展有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:47\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"1000万人民币\",\n                \"Position\": \"监事\",\n                \"RegNo\": \"\",\n                \"EcoKind\": \"有限责任公司（自然人投资或控股）\",\n                \"Name\": \"上海香蕉计划音乐有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:47\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"1111.11万人民币\",\n                \"Position\": \"监事\",\n                \"RegNo\": \"\",\n                \"EcoKind\": \"有限责任公司（自然人投资或控股）\",\n                \"Name\": \"上海爱洛星食品有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:47\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"2000万元人民币\",\n                \"Position\": \"执行董事,经理\",\n                \"RegNo\": \"110105012460853\",\n                \"EcoKind\": \"有限责任公司(自然人独资)\",\n                \"Name\": \"北京普思投资有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:47\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"1333.3325万人民币\",\n                \"Position\": \"监事\",\n                \"RegNo\": \"\",\n                \"EcoKind\": \"有限责任公司（自然人投资或控股）\",\n                \"Name\": \"上海香蕉计划电子游戏有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:47\",\n                \"Status\": \"注销\",\n                \"RegCap\": \"50.000000万元人民币\",\n                \"Position\": \"监事\",\n                \"RegNo\": \"330212000097826\",\n                \"EcoKind\": \"私营有限责任公司(自然人控股或私营性质企业控股)\",\n                \"Name\": \"宁波市鄞州大歌星餐饮娱乐有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:47\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"1000.000000万人民币\",\n                \"Position\": \"执行董事\",\n                \"RegNo\": \"\",\n                \"EcoKind\": \"有限责任公司\",\n                \"Name\": \"平潭普思资产管理有限公司\"\n            },\n            {\n                \"InputDate\": \"2019-04-14 01:12:47\",\n                \"Status\": \"存续\",\n                \"RegCap\": \"1000万\",\n                \"Position\": \"监事\",\n                \"RegNo\": \"210200000248224\",\n                \"EcoKind\": \"有限责任公司(自然人投资或控股)\",\n                \"Name\": \"蓝泰科技（大连）有限公司\"\n            }\n        ]\n    }\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "src/main/java/com/beeasy/zed/QccService.java",
+    "groupTitle": "QCC",
+    "name": "GetCiaemployeev4Getstockrelationinfo",
+    "error": {
+      "examples": [
+        {
+          "title": "请求异常:",
+          "content": "{\n    \"Status\": \"500\",\n    \"Message\": \"错误请求\"\n}",
+          "type": "json"
+        }
+      ]
+    }
+  },
+  {
+    "type": "get",
     "url": "/CourtAnnoV4/GetCourtNoticeInfo",
     "title": "开庭公告详情",
     "group": "QCC",
@@ -459,7 +672,7 @@
             "group": "Parameter",
             "type": "string",
             "optional": false,
-            "field": "searchKey",
+            "field": "fullName",
             "description": "<p>公司全名</p>"
           },
           {
@@ -567,7 +780,7 @@
             "group": "Parameter",
             "type": "string",
             "optional": false,
-            "field": "companyName",
+            "field": "fullName",
             "description": "<p>公司全名</p>"
           },
           {
@@ -797,7 +1010,7 @@
             "group": "Parameter",
             "type": "string",
             "optional": false,
-            "field": "searchKey",
+            "field": "fullName",
             "description": "<p>公司全名</p>"
           },
           {
@@ -1017,7 +1230,7 @@
             "group": "Parameter",
             "type": "string",
             "optional": false,
-            "field": "searchKey",
+            "field": "fullName",
             "description": "<p>公司全名</p>"
           },
           {
@@ -1135,6 +1348,338 @@
   },
   {
     "type": "get",
+    "url": "/ECICompanyMap/GetStockAnalysisData",
+    "title": "企业股权穿透十层接口查询",
+    "group": "QCC",
+    "version": "0.0.1",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "string",
+            "optional": false,
+            "field": "fullName",
+            "description": "<p>公司全名</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "object",
+            "optional": false,
+            "field": "CompanyData",
+            "description": "<p>公司资料</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CompanyData.TermStart",
+            "description": "<p>营业期限自</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CompanyData.TeamEnd",
+            "description": "<p>营业期限至</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CompanyData.CheckDate",
+            "description": "<p>发照日期</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CompanyData.KeyNo",
+            "description": "<p>公司KeyNo</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CompanyData.Name",
+            "description": "<p>企业名称</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CompanyData.No",
+            "description": "<p>注册号</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CompanyData.BelongOrg",
+            "description": "<p>所属机构</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CompanyData.OperName",
+            "description": "<p>法人名称</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CompanyData.StartDate",
+            "description": "<p>成立日期</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CompanyData.EndDate",
+            "description": "<p>吊销日期</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CompanyData.Status",
+            "description": "<p>状态</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CompanyData.Province",
+            "description": "<p>省份代码</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CompanyData.UpdatedDate",
+            "description": "<p>更新日期</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CompanyData.ShortStatus",
+            "description": "<p>状态简称</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CompanyData.RegistCapi",
+            "description": "<p>注册资本</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CompanyData.EconKind",
+            "description": "<p>类型</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CompanyData.Address",
+            "description": "<p>地址</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CompanyData.Scope",
+            "description": "<p>营业范围</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CompanyData.OrgNo",
+            "description": "<p>组织机构代码</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "object[]",
+            "optional": false,
+            "field": "CompanyData.Partners",
+            "description": "<p>股东信息</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CompanyData.Partners.CompanyId",
+            "description": "<p>公司ID</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CompanyData.Partners.StockName",
+            "description": "<p>股东名称</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CompanyData.Partners.StockType",
+            "description": "<p>股东类型</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CompanyData.Partners.StockPercent",
+            "description": "<p>股东持股百分比</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CompanyData.Partners.IdentifyType",
+            "description": "<p>证件类型</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CompanyData.Partners.IdentifyNo",
+            "description": "<p>证件号码</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CompanyData.Partners.ShouldCapi",
+            "description": "<p>出资额（万元）</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CompanyData.Partners.ShoudDate",
+            "description": "<p>出资日期</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "tree",
+            "optional": false,
+            "field": "StockList",
+            "description": "<p>股东列表</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "StockList.KeyNo",
+            "description": "<p>KeyNo</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "StockList.Name",
+            "description": "<p>企业名称</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "StockList.PathName",
+            "description": "<p>投资路径</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "StockList.RegistCapi",
+            "description": "<p>注册资本</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "StockList.EconKind",
+            "description": "<p>企业类型</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "StockList.StockType",
+            "description": "<p>股东类型</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "StockList.FundedAmount",
+            "description": "<p>出资额</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "StockList.FundedRate",
+            "description": "<p>出资比列</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "StockList.InvestType",
+            "description": "<p>投资类型</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "StockList.Level",
+            "description": "<p>层级</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "tree[]",
+            "optional": false,
+            "field": "StockList.Children",
+            "description": "<p>以上字段的子树</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "请求成功:",
+          "content": "{\n    \"Status\": \"200\",\n    \"Message\": \"查询成功\",\n    \"Result\": {\n        \"CompanyData\": {\n            \"Status\": \"存续（在营、开业、在册）\",\n            \"RegistCapi\": \"100000万人民币\",\n            \"No\": null,\n            \"BelongOrg\": \"大连市工商行政管理局\",\n            \"CreditCode\": \"91210200241281392F\",\n            \"OperName\": \"王健林\",\n            \"EconKind\": \"其他股份有限公司(非上市)\",\n            \"Address\": \"辽宁省大连市西岗区长江路539号\",\n            \"UpdatedDate\": \"2018-01-30 06:16:02\",\n            \"OrgNo\": \"24128139-2\",\n            \"EndDate\": null,\n            \"Province\": \"LN\",\n            \"TermStart\": \"1992-09-28 12:00:00\",\n            \"Name\": \"大连万达集团股份有限公司\",\n            \"TeamEnd\": \"2037-09-28 12:00:00\",\n            \"KeyNo\": \"befe52d9753b511b6aef5e33fe00f97d\",\n            \"StartDate\": \"1992-09-28 12:00:00\",\n            \"Scope\": \"商业地产投资及经营、酒店建设投资及经营、连锁百货投资及经营、电影院线等文化产业投资及经营；投资与资产管理、项目管理（以上均不含专项审批）；货物进出口、技术进出口，国内一般贸易；代理记账、财务咨询、企业管理咨询、经济信息咨询、计算机信息技术服务与技术咨询、计算机系统集成、网络设备安装与维护。（依法须经批准的项目，经相关部门批准后，方可开展经营活动）***\",\n            \"CheckDate\": \"2016-05-23 12:00:00\",\n            \"ShortStatus\": \"存续\",\n            \"Partners\": [\n                {\n                    \"ShoudDate\": \"2013-04-03,2013-04-03,2013-04-03\",\n                    \"IdentifyType\": \"企业法人营业执照(公司)\",\n                    \"CompanyId\": \"971e2cafbecd8c978e959d69fc305f42\",\n                    \"StockName\": \"大连合兴投资有限公司\",\n                    \"StockType\": \"企业法人\",\n                    \"IdentifyNo\": \"2102001108389\",\n                    \"StockPercent\": \"99.7600%\",\n                    \"ShouldCapi\": \"88000,3760,8000\"\n                },\n                {\n                    \"ShoudDate\": \"1993-03-15\",\n                    \"IdentifyType\": \"非公示项\",\n                    \"CompanyId\": \"\",\n                    \"StockName\": \"王健林\",\n                    \"StockType\": \"自然人股东\",\n                    \"StockPercent\": \"0.2400%\",\n                    \"ShouldCapi\": \"240\"\n                }\n            ]\n        },\n        \"StockStatistics\": {\n            \"TotalCount\": 5,\n            \"LevelDataList\": [\n                {\n                    \"TotalCount\": 2,\n                    \"Level\": 1\n                },\n                {\n                    \"TotalCount\": 2,\n                    \"Level\": 2\n                }\n            ],\n            \"EconKindDataList\": [\n                {\n                    \"TotalCount\": 2,\n                    \"EconKind\": \"其他股份有限公司(非上市)\"\n                }\n            ],\n            \"StockTypeDataList\": [\n                {\n                    \"TotalCount\": 1,\n                    \"StockType\": \"企业法人\"\n                },\n                {\n                    \"TotalCount\": 3,\n                    \"StockType\": \"自然人股东\"\n                }\n            ]\n        },\n        \"StockList\": {\n            \"KeyNo\": \"befe52d9753b511b6aef5e33fe00f97d\",\n            \"RegistCapi\": \"100000万人民币\",\n            \"EconKind\": \"其他股份有限公司(非上市)\",\n            \"Level\": \"0\",\n            \"PathName\": \"\",\n            \"Children\": [\n                {\n                    \"RegistCapi\": \"7860万人民币\",\n                    \"EconKind\": \"有限责任公司(自然人投资或控股)\",\n                    \"FundedRate\": \"99.7600%\",\n                    \"InvestType\": \"货币,货币,货币\",\n                    \"Name\": \"大连合兴投资有限公司\",\n                    \"KeyNo\": \"971e2cafbecd8c978e959d69fc305f42\",\n                    \"StockType\": \"企业法人\",\n                    \"Level\": \"1\",\n                    \"PathName\": \"大连万达集团股份有限公司\",\n                    \"FundedAmount\": \"88000,3760,8000万元\",\n                    \"Children\": [\n                        {\n                            \"KeyNo\": \"\",\n                            \"StockType\": \"自然人股东\",\n                            \"FundedRate\": \"98.00%\",\n                            \"Level\": \"2\",\n                            \"PathName\": \"大连万达集团股份有限公司/大连合兴投资有限公司\",\n                            \"FundedAmount\": \"7702.8万元\",\n                            \"Children\": [\n                            ],\n                            \"InvestType\": \"货币,货币,货币\",\n                            \"Name\": \"王健林\"\n                        },\n                        {\n                            \"KeyNo\": \"\",\n                            \"StockType\": \"自然人股东\",\n                            \"FundedRate\": \"2.00%\",\n                            \"Level\": \"2\",\n                            \"PathName\": \"大连万达集团股份有限公司/大连合兴投资有限公司\",\n                            \"FundedAmount\": \"157.2万元\",\n                            \"Children\": [\n                            ],\n                            \"InvestType\": \"货币\",\n                            \"Name\": \"王思聪\"\n                        }\n                    ]\n                },\n                {\n                    \"KeyNo\": \"\",\n                    \"StockType\": \"自然人股东\",\n                    \"FundedRate\": \"0.2400%\",\n                    \"Level\": \"1\",\n                    \"PathName\": \"大连万达集团股份有限公司\",\n                    \"FundedAmount\": \"240万元\",\n                    \"Children\": [\n                    ],\n                    \"InvestType\": \"货币\",\n                    \"Name\": \"王健林\"\n                }\n            ],\n            \"Name\": \"大连万达集团股份有限公司\"\n        }\n    }\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "src/main/java/com/beeasy/zed/QccService.java",
+    "groupTitle": "QCC",
+    "name": "GetEcicompanymapGetstockanalysisdata",
+    "error": {
+      "examples": [
+        {
+          "title": "请求异常:",
+          "content": "{\n    \"Status\": \"500\",\n    \"Message\": \"错误请求\"\n}",
+          "type": "json"
+        }
+      ]
+    }
+  },
+  {
+    "type": "get",
     "url": "/ECIException/GetOpException",
     "title": "企业经营异常",
     "group": "QCC",
@@ -1146,7 +1691,7 @@
             "group": "Parameter",
             "type": "string",
             "optional": false,
-            "field": "keyNo",
+            "field": "fullName",
             "description": "<p>公司全名</p>"
           }
         ]
@@ -1222,6 +1767,365 @@
   },
   {
     "type": "get",
+    "url": "/ECIRelationV4/GenerateMultiDimensionalTreeCompanyMap",
+    "title": "企业图谱",
+    "group": "QCC",
+    "version": "0.0.1",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "string",
+            "optional": false,
+            "field": "keyNo",
+            "description": "<p>公司keyNo</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "Name",
+            "description": "<p>名称</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "KeyNo",
+            "description": "<p>内部KeyNo</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "Category",
+            "description": "<p>1:当前公司2：对外投资3：股东4：高管5：法院公告6：裁判文书8：历史股东9：历史法人</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "ShortName",
+            "description": "<p>简称</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "Count",
+            "description": "<p>数量</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "Level",
+            "description": "<p>层级</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "node[]",
+            "optional": false,
+            "field": "Children",
+            "description": "<p>以上字段的树结构</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "请求成功:",
+          "content": "{\n    \"Status\": \"200\",\n    \"Message\": \"查询成功\",\n    \"Result\": {\n        \"KeyNo\": \"4659626b1e5e43f1bcad8c268753216e\",\n        \"Category\": \"1\",\n        \"Level\": \"0\",\n        \"ShortName\": \"北京小桔\",\n        \"Count\": \"79\",\n        \"Children\": [\n            {\n                \"Category\": \"2\",\n                \"Level\": \"0\",\n                \"ShortName\": \"对外投资\",\n                \"Count\": \"23\",\n                \"Children\": [\n                    {\n                        \"KeyNo\": \"afb3daf1797df272997f22b143c964f6\",\n                        \"Category\": \"2\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"北京车胜\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"北京车胜科技有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"274d9311979595d54821e1d9e8d73e36\",\n                        \"Category\": \"2\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"北京再造\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"北京再造科技有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"7bb231394fe204e1a3c3e6cfdb24ec21\",\n                        \"Category\": \"2\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"滴滴旅行\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"苏州滴滴旅行科技有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"a1b4b72b29c862926c7e715c365640c8\",\n                        \"Category\": \"2\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"杭州青奇\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"杭州青奇科技有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"6de14b4eeddfad4c9d320e7635c664e5\",\n                        \"Category\": \"2\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"小木吉软件\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"杭州小木吉软件科技有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"aa0eb37b66413114095520caa0c15961\",\n                        \"Category\": \"2\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"运达无限\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"北京运达无限科技有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"3fe7fa121a61e0d869a52b4752b9e272\",\n                        \"Category\": \"2\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"滴滴汽车服务\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"杭州滴滴汽车服务有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"eb8957f85861e53f023ac63a419a2ce4\",\n                        \"Category\": \"2\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"天津舒行\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"天津舒行科技有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"39b198dc9b68b3958e21594e4071cdf5\",\n                        \"Category\": \"2\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"橙资互联网\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"橙资（上海）互联网科技有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"05c090155e36541c83e9ab59ab3f402d\",\n                        \"Category\": \"2\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"橙子投资\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"嘉兴橙子投资管理有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"66658d9633f7002768bbacbd02efb226\",\n                        \"Category\": \"2\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"桔子共享投资\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"嘉兴桔子共享投资合伙企业（有限合伙）\"\n                    },\n                    {\n                        \"KeyNo\": \"3049b862cd42fe8cb946497bd075ad20\",\n                        \"Category\": \"2\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"小桔子投资合\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"嘉兴小桔子投资合伙企业（有限合伙）\"\n                    },\n                    {\n                        \"KeyNo\": \"94c0f5d6508919e29aff5a66f86ebca1\",\n                        \"Category\": \"2\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"滴图\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"滴图（北京）科技有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"9376917a29748c8a7590d16fa01d3e7c\",\n                        \"Category\": \"2\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"上海桔道\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"上海桔道网络科技有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"d1c68c75aedf702f2422bebf07b1bd2b\",\n                        \"Category\": \"2\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"北岸商业保理\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"深圳北岸商业保理有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"44d5992e16ff513c91f86c5b0fdf2227\",\n                        \"Category\": \"2\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"滴滴出行\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"滴滴出行科技有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"e108693960d310ee9e5d663c0f3227ca\",\n                        \"Category\": \"2\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"滴滴商业服务\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"滴滴商业服务有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"d92b9c60a5e4b3456812eb0a3e4bba63\",\n                        \"Category\": \"2\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"博通畅达\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"北京博通畅达科技有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"8bd250d6875caa56dc9a6747b49689c0\",\n                        \"Category\": \"2\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"吾步信息技术\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"上海吾步信息技术有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"307efc57070d09ba32b8f01ee1322647\",\n                        \"Category\": \"2\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"北京长亭\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"北京长亭科技有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"3a079aa5beaf85378a2dba72ec6d563a\",\n                        \"Category\": \"2\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"通达无限\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"北京通达无限科技有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"2bbaaaf09d9877b8dd851a02ad9600a2\",\n                        \"Category\": \"2\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"奇漾信息技术\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"上海奇漾信息技术有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"c02337970cc15c084571cf1c982f8e22\",\n                        \"Category\": \"2\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"杭州快智\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"杭州快智科技有限公司\"\n                    }\n                ],\n                \"Name\": \"对外投资\"\n            },\n            {\n                \"Category\": \"3\",\n                \"Level\": \"0\",\n                \"ShortName\": \"股东\",\n                \"Count\": \"5\",\n                \"Children\": [\n                    {\n                        \"KeyNo\": \"4659626b1e5e43f1bcad8c268753216e_王刚\",\n                        \"Category\": \"3\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"自然人股东\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"王刚\"\n                    },\n                    {\n                        \"KeyNo\": \"4659626b1e5e43f1bcad8c268753216e_张博\",\n                        \"Category\": \"3\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"自然人股东\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"张博\"\n                    },\n                    {\n                        \"KeyNo\": \"4659626b1e5e43f1bcad8c268753216e_程维\",\n                        \"Category\": \"3\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"自然人股东\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"程维\"\n                    },\n                    {\n                        \"KeyNo\": \"4659626b1e5e43f1bcad8c268753216e_陈汀\",\n                        \"Category\": \"3\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"自然人股东\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"陈汀\"\n                    },\n                    {\n                        \"KeyNo\": \"4659626b1e5e43f1bcad8c268753216e_吴睿\",\n                        \"Category\": \"3\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"自然人股东\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"吴睿\"\n                    }\n                ],\n                \"Name\": \"股东\"\n            },\n            {\n                \"Category\": \"4\",\n                \"Level\": \"0\",\n                \"ShortName\": \"高管\",\n                \"Count\": \"3\",\n                \"Children\": [\n                    {\n                        \"Category\": \"4\",\n                        \"Level\": \"0\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"程维\"\n                    },\n                    {\n                        \"Category\": \"4\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"经理\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"程维\"\n                    },\n                    {\n                        \"Category\": \"4\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"监事\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"吴睿\"\n                    }\n                ],\n                \"Name\": \"高管\"\n            },\n            {\n                \"Category\": \"8\",\n                \"Level\": \"0\",\n                \"ShortName\": \"历史股东\",\n                \"Count\": \"1\",\n                \"Children\": [\n                    {\n                        \"Category\": \"8\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"自然人股东\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"徐涛\"\n                    }\n                ],\n                \"Name\": \"历史股东\"\n            },\n            {\n                \"Category\": \"9\",\n                \"Level\": \"0\",\n                \"ShortName\": \"历史法人\",\n                \"Count\": \"0\",\n                \"Children\": [\n                ],\n                \"Name\": \"历史法人\"\n            },\n            {\n                \"Category\": \"6\",\n                \"Level\": \"0\",\n                \"ShortName\": \"裁判文书\",\n                \"Count\": \"47\",\n                \"Children\": [\n                    {\n                        \"KeyNo\": \"7c38ac16b20be711a8f8825a11323db6\",\n                        \"Category\": \"6\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"北京小桔\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"北京畅行信息技术有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"0d780bcdc7ad871d824c7dce51973af0\",\n                        \"Category\": \"6\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"北京小桔\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"武汉兴广亚汽车租赁有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"44d5992e16ff513c91f86c5b0fdf2227\",\n                        \"Category\": \"6\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"北京小桔\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"滴滴出行科技有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"ccb6c71c2be0ad917d194e34b1b8292f\",\n                        \"Category\": \"6\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"北京小桔\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"北京嘀嘀无限科技发展有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"5a8ee7ebaa5c091e328f0693e204beb9\",\n                        \"Category\": \"6\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"北京小桔\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"高德信息技术有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"b38d90ee05f8c4f6a2a800d44ef12355\",\n                        \"Category\": \"6\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"北京小桔\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"高德软件有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"1a8ec2bd97cbe5940f2c234976f4f42c\",\n                        \"Category\": \"6\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"北京小桔\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"中智项目外包服务有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"48d4019cbee2e41ba614205894848661\",\n                        \"Category\": \"6\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"北京小桔\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"北京东方车云信息技术有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"f289e491413cfc3846b16f5eca46634b\",\n                        \"Category\": \"6\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"北京小桔\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"宁波市科技园区妙影电子有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"149e40dd5827381f410076824625f872\",\n                        \"Category\": \"6\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"北京小桔\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"杭州妙影微电子有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"cbdf2d8f1404d5c43bdf67a932460098\",\n                        \"Category\": \"6\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"北京小桔\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"深圳市唐氏龙行汽车租赁有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"acea4bb4a5bd3698caa3bd5d1aea6cdd\",\n                        \"Category\": \"6\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"北京小桔\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"中国人民财产保险股份有限公司深圳市分公司\"\n                    },\n                    {\n                        \"KeyNo\": \"73dc248532ff345f11d5dd8ac2fd8278\",\n                        \"Category\": \"6\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"北京小桔\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"北京万古恒信科技有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"dfb69ffd668429fa619d1fbee9ac4965\",\n                        \"Category\": \"6\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"北京小桔\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"比亚迪汽车工业有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"bbccdb715f39775aa18016d6d3e8bbd1\",\n                        \"Category\": \"6\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"北京小桔\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"深圳市迪滴新能源汽车租赁有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"bedd0b1c57c8ea2e4e2f1c57a5683165\",\n                        \"Category\": \"6\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"北京小桔\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"中国平安财产保险股份有限公司深圳市龙岗支公司\"\n                    },\n                    {\n                        \"KeyNo\": \"4d109516d62f4dd04eb8942460c330d6\",\n                        \"Category\": \"6\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"北京小桔\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"中国人民财产保险股份有限公司泉州市分公司\"\n                    },\n                    {\n                        \"KeyNo\": \"dcad4bc1a5a4de2c7be5b6be79e80c0e\",\n                        \"Category\": \"6\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"北京小桔\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"中国平安财产保险股份有限公司陕西分公司\"\n                    },\n                    {\n                        \"KeyNo\": \"3f1930ed2fe91302978aee2b273231f9\",\n                        \"Category\": \"6\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"北京小桔\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"中华联合财产保险股份有限公司西安中心支公司\"\n                    },\n                    {\n                        \"KeyNo\": \"1d780a0fcddf561272c35dffbe213319\",\n                        \"Category\": \"6\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"北京小桔\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"西安志华土方工程有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"aca913da8a64ac18db164eef3543528f\",\n                        \"Category\": \"6\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"北京小桔\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"长春金城汽车贸易有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"69b0b3cba566d2be56b45934c39c65f0\",\n                        \"Category\": \"6\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"北京小桔\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"中国平安财产保险股份有限公司四川分公司\"\n                    },\n                    {\n                        \"KeyNo\": \"2a835b4eb8a584ae34f878b33460fead\",\n                        \"Category\": \"6\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"北京小桔\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"中国人民财产保险股份有限公司金华市分公司\"\n                    },\n                    {\n                        \"KeyNo\": \"86d75562aa40a2b085089fc77ccbba61\",\n                        \"Category\": \"6\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"北京小桔\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"华泰财产保险有限公司深圳分公司\"\n                    },\n                    {\n                        \"KeyNo\": \"44ee722fd23e701019c60d1adb314315\",\n                        \"Category\": \"6\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"北京小桔\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"中国平安财产保险股份有限公司深圳分公司\"\n                    },\n                    {\n                        \"KeyNo\": \"d0328234128aa5cdea42395c34bd8c5c\",\n                        \"Category\": \"6\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"北京小桔\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"大连百名汽车租赁有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"0c0d20305779153c5c20002c1e806770\",\n                        \"Category\": \"6\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"北京小桔\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"浙江外企德科人力资源服务有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"c02337970cc15c084571cf1c982f8e22\",\n                        \"Category\": \"6\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"北京小桔\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"杭州快智科技有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"6d82400bcb5d4944e53080a521100913\",\n                        \"Category\": \"6\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"北京小桔\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"中国平安财产保险股份有限公司浙江分公司\"\n                    },\n                    {\n                        \"KeyNo\": \"c290851899ee5306fda9706fed8ffa61\",\n                        \"Category\": \"6\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"北京小桔\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"中国太平洋财产保险股份有限公司西安中心支公司\"\n                    },\n                    {\n                        \"KeyNo\": \"e7da6d63073b887c3885ada53fa22e7d\",\n                        \"Category\": \"6\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"北京小桔\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"中国人民财产保险股份有限公司成都市分公司\"\n                    },\n                    {\n                        \"KeyNo\": \"3239389ea6405e28bbf466ea0631e4df\",\n                        \"Category\": \"6\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"北京小桔\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"中国人民财产保险股份有限公司郑州市分公司\"\n                    },\n                    {\n                        \"KeyNo\": \"f59629208c9f6088b0eef880267ead76\",\n                        \"Category\": \"6\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"北京小桔\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"太平财产保险有限公司郑州分公司\"\n                    },\n                    {\n                        \"KeyNo\": \"8dd7a2fe01fe2b5e6e8143d68440353d\",\n                        \"Category\": \"6\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"北京小桔\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"华安财产保险股份有限公司郑州中心支公司\"\n                    },\n                    {\n                        \"KeyNo\": \"6ddf5e6cdcf645f670c7c0d8a8de0433\",\n                        \"Category\": \"6\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"北京小桔\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"华泰财产保险有限公司北京分公司\"\n                    },\n                    {\n                        \"KeyNo\": \"59def76b4adae88ebd768b46272f8241\",\n                        \"Category\": \"6\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"北京小桔\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"首汽租赁有限责任公司\"\n                    },\n                    {\n                        \"KeyNo\": \"6b0f0f3f784d8cc1bf339cfc55f4dc96\",\n                        \"Category\": \"6\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"北京小桔\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"中国人民财产保险股份有限公司苏州市太湖国家旅游度假区支公司\"\n                    },\n                    {\n                        \"KeyNo\": \"gfffa08d683fd30a69de11f216de1776\",\n                        \"Category\": \"6\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"北京小桔\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"杭州整形医院\"\n                    },\n                    {\n                        \"KeyNo\": \"1e3c58e9518324d55bca783423aafa94\",\n                        \"Category\": \"6\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"北京小桔\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"永诚财产保险股份有限公司双流支公司\"\n                    },\n                    {\n                        \"KeyNo\": \"e78d6de329b6dc6a34be158f968a639b\",\n                        \"Category\": \"6\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"北京小桔\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"中国人寿财产保险股份有限公司深圳市分公司\"\n                    },\n                    {\n                        \"KeyNo\": \"3a079aa5beaf85378a2dba72ec6d563a\",\n                        \"Category\": \"6\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"北京小桔\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"北京通达无限科技有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"1f12f7d5879a7249181eab15abbb4969\",\n                        \"Category\": \"6\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"北京小桔\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"熹锦实业(上海)有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"1f12f7d5879a7249181eab15abbb4969\",\n                        \"Category\": \"6\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"北京小桔\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"熹锦实业（上海）有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"a2c4b70a848e7cf3beaf1406839c0d4d\",\n                        \"Category\": \"6\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"北京小桔\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"中国人民财产保险股份有限公司扬州市分公司\"\n                    },\n                    {\n                        \"KeyNo\": \"d53d1d2759b4903253c0e9910e890eac\",\n                        \"Category\": \"6\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"北京小桔\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"中国石化集团江苏石油勘探局\"\n                    },\n                    {\n                        \"KeyNo\": \"6ebe7ad82a3a3d2eb886b429edafa6b4\",\n                        \"Category\": \"6\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"北京小桔\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"中国太平洋财产保险股份有限公司扬州中心支公司\"\n                    },\n                    {\n                        \"KeyNo\": \"80cd056a31c603ca594f27a05a8fa616\",\n                        \"Category\": \"6\",\n                        \"Level\": \"0\",\n                        \"ShortName\": \"北京小桔\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"中国人寿财产保险股份有限公司阜阳市颍州区支公司\"\n                    }\n                ],\n                \"Name\": \"裁判文书\"\n            },\n            {\n                \"Category\": \"5\",\n                \"Level\": \"0\",\n                \"ShortName\": \"法院公告\",\n                \"Count\": \"0\",\n                \"Children\": [\n                ],\n                \"Name\": \"法院公告\"\n            }\n        ],\n        \"Name\": \"北京小桔科技有限公司\"\n    }\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "src/main/java/com/beeasy/zed/QccService.java",
+    "groupTitle": "QCC",
+    "name": "GetEcirelationv4Generatemultidimensionaltreecompanymap",
+    "error": {
+      "examples": [
+        {
+          "title": "请求异常:",
+          "content": "{\n    \"Status\": \"500\",\n    \"Message\": \"错误请求\"\n}",
+          "type": "json"
+        }
+      ]
+    }
+  },
+  {
+    "type": "get",
+    "url": "/ECIRelationV4/GetCompanyEquityShareMap",
+    "title": "股权结构图",
+    "group": "QCC",
+    "version": "0.0.1",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "string",
+            "optional": false,
+            "field": "keyNo",
+            "description": "<p>公司keyNo</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "Name",
+            "description": "<p>公司名称或者人名</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "KeyNo",
+            "description": "<p>当前股东的公司keyNo</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "Category",
+            "description": "<p>1是公司，2是个人</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "StockType",
+            "description": "<p>股东类型</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "Count",
+            "description": "<p>对应的childrencount</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "FundedRatio",
+            "description": "<p>出资比例</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "SubConAmt",
+            "description": "<p>出资金额</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "IsAbsoluteController",
+            "description": "<p>是否绝对控股</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "Grade",
+            "description": "<p>对应的层级</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "OperName",
+            "description": "<p>法人代表</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "InParentActualRadio",
+            "description": "<p>当前股东所在公司在该公司父级中所占实际比例</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "node[]",
+            "optional": false,
+            "field": "Children",
+            "description": "<p>以上所有字段的树结构</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "object[]",
+            "optional": false,
+            "field": "ActualControllerLoopPath",
+            "description": "<p>实际控股信息</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "ActualControllerLoopPath.Name",
+            "description": "<p>实际控股名称</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "ActualControllerLoopPath.StockType",
+            "description": "<p>实际控股类型</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "ActualControllerLoopPath.KeyNo",
+            "description": "<p>公司keyNo</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "ActualControllerLoopPath.SubConAmt",
+            "description": "<p>出资额</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "ActualControllerLoopPath.FundedRatio",
+            "description": "<p>出资比例</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "请求成功:",
+          "content": "{\n    \"Status\": \"200\",\n    \"Message\": \"查询成功\",\n    \"Result\": {\n        \"KeyNo\": \"4659626b1e5e43f1bcad8c268753216e\",\n        \"OperName\": \"程维\",\n        \"ActualControllerLoopPath\": [\n            {\n                \"KeyNo\": \"\",\n                \"FundedRatio\": \"49.1900%\",\n                \"SubConAmt\": \"491.9万元\",\n                \"StockType\": \"自然人股东\",\n                \"Name\": \"程维\"\n            }\n        ],\n        \"InParentActualRadio\": \"0\",\n        \"Category\": \"1\",\n        \"FundedRatio\": \"100%\",\n        \"Grade\": \"1\",\n        \"IsAbsoluteController\": \"True\",\n        \"Count\": \"5\",\n        \"Children\": [\n            {\n                \"KeyNo\": \"7B0CFF16CA8BA1EC_\",\n                \"InParentActualRadio\": \"0.4919\",\n                \"Category\": \"2\",\n                \"FundedRatio\": \"49.1900%\",\n                \"Grade\": \"2\",\n                \"IsAbsoluteController\": \"True\",\n                \"Count\": \"0\",\n                \"Children\": [\n                ],\n                \"Name\": \"程维\"\n            },\n            {\n                \"InParentActualRadio\": \"0.48225\",\n                \"Category\": \"2\",\n                \"FundedRatio\": \"48.2250%\",\n                \"Grade\": \"2\",\n                \"IsAbsoluteController\": \"False\",\n                \"Count\": \"0\",\n                \"Children\": [\n                ],\n                \"Name\": \"王刚\"\n            },\n            {\n                \"InParentActualRadio\": \"0.01553\",\n                \"Category\": \"2\",\n                \"FundedRatio\": \"1.5530%\",\n                \"Grade\": \"2\",\n                \"IsAbsoluteController\": \"False\",\n                \"Count\": \"0\",\n                \"Children\": [\n                ],\n                \"Name\": \"张博\"\n            },\n            {\n                \"InParentActualRadio\": \"0.00723\",\n                \"Category\": \"2\",\n                \"FundedRatio\": \"0.7230%\",\n                \"Grade\": \"2\",\n                \"IsAbsoluteController\": \"False\",\n                \"Count\": \"0\",\n                \"Children\": [\n                ],\n                \"Name\": \"吴睿\"\n            },\n            {\n                \"InParentActualRadio\": \"0.00309\",\n                \"Category\": \"2\",\n                \"FundedRatio\": \"0.3090%\",\n                \"Grade\": \"2\",\n                \"IsAbsoluteController\": \"False\",\n                \"Count\": \"0\",\n                \"Children\": [\n                ],\n                \"Name\": \"陈汀\"\n            }\n        ],\n        \"Name\": \"北京小桔科技有限公司\"\n    }\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "src/main/java/com/beeasy/zed/QccService.java",
+    "groupTitle": "QCC",
+    "name": "GetEcirelationv4Getcompanyequitysharemap",
+    "error": {
+      "examples": [
+        {
+          "title": "请求异常:",
+          "content": "{\n    \"Status\": \"500\",\n    \"Message\": \"错误请求\"\n}",
+          "type": "json"
+        }
+      ]
+    }
+  },
+  {
+    "type": "get",
+    "url": "/ECIRelationV4/SearchTreeRelationMap",
+    "title": "投资图谱",
+    "group": "QCC",
+    "version": "0.0.1",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "string",
+            "optional": false,
+            "field": "keyNo",
+            "description": "<p>公司keyNo</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "Name",
+            "description": "<p>名称</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "KeyNo",
+            "description": "<p>内部KeyNo</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "Category",
+            "description": "<p>数据类别，1(当前公司)，2(对外投资)，3(股东)</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "ShortName",
+            "description": "<p>简称</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "Count",
+            "description": "<p>数量</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "Level",
+            "description": "<p>层级</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "node[]",
+            "optional": false,
+            "field": "Children",
+            "description": "<p>树结构，包含以上字段</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "请求成功:",
+          "content": "{\n    \"Status\": \"200\",\n    \"Message\": \"查询成功\",\n    \"Result\": {\n        \"KeyNo\": \"4659626b1e5e43f1bcad8c268753216e\",\n        \"Category\": \"1\",\n        \"Level\": \"0\",\n        \"ShortName\": \"北京小桔\",\n        \"Count\": \"28\",\n        \"Children\": [\n            {\n                \"Category\": \"3\",\n                \"Level\": \"0\",\n                \"ShortName\": \"股东\",\n                \"Count\": \"5\",\n                \"Children\": [\n                    {\n                        \"KeyNo\": \"4659626b1e5e43f1bcad8c268753216e_王刚\",\n                        \"Category\": \"3\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"自然人股东\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"王刚\"\n                    },\n                    {\n                        \"KeyNo\": \"4659626b1e5e43f1bcad8c268753216e_张博\",\n                        \"Category\": \"3\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"自然人股东\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"张博\"\n                    },\n                    {\n                        \"KeyNo\": \"4659626b1e5e43f1bcad8c268753216e_程维\",\n                        \"Category\": \"3\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"自然人股东\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"程维\"\n                    },\n                    {\n                        \"KeyNo\": \"4659626b1e5e43f1bcad8c268753216e_陈汀\",\n                        \"Category\": \"3\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"自然人股东\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"陈汀\"\n                    },\n                    {\n                        \"KeyNo\": \"4659626b1e5e43f1bcad8c268753216e_吴睿\",\n                        \"Category\": \"3\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"自然人股东\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"吴睿\"\n                    }\n                ],\n                \"Name\": \"股东\"\n            },\n            {\n                \"Category\": \"2\",\n                \"Level\": \"0\",\n                \"ShortName\": \"对外投资\",\n                \"Count\": \"23\",\n                \"Children\": [\n                    {\n                        \"KeyNo\": \"afb3daf1797df272997f22b143c964f6\",\n                        \"Category\": \"2\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"北京车胜\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"北京车胜科技有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"274d9311979595d54821e1d9e8d73e36\",\n                        \"Category\": \"2\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"北京再造\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"北京再造科技有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"7bb231394fe204e1a3c3e6cfdb24ec21\",\n                        \"Category\": \"2\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"滴滴旅行\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"苏州滴滴旅行科技有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"a1b4b72b29c862926c7e715c365640c8\",\n                        \"Category\": \"2\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"杭州青奇\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"杭州青奇科技有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"6de14b4eeddfad4c9d320e7635c664e5\",\n                        \"Category\": \"2\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"小木吉软件\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"杭州小木吉软件科技有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"aa0eb37b66413114095520caa0c15961\",\n                        \"Category\": \"2\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"运达无限\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"北京运达无限科技有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"3fe7fa121a61e0d869a52b4752b9e272\",\n                        \"Category\": \"2\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"滴滴汽车服务\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"杭州滴滴汽车服务有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"eb8957f85861e53f023ac63a419a2ce4\",\n                        \"Category\": \"2\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"天津舒行\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"天津舒行科技有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"39b198dc9b68b3958e21594e4071cdf5\",\n                        \"Category\": \"2\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"橙资互联网\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"橙资（上海）互联网科技有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"05c090155e36541c83e9ab59ab3f402d\",\n                        \"Category\": \"2\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"橙子投资\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"嘉兴橙子投资管理有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"66658d9633f7002768bbacbd02efb226\",\n                        \"Category\": \"2\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"桔子共享投资\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"嘉兴桔子共享投资合伙企业（有限合伙）\"\n                    },\n                    {\n                        \"KeyNo\": \"3049b862cd42fe8cb946497bd075ad20\",\n                        \"Category\": \"2\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"小桔子投资合\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"嘉兴小桔子投资合伙企业（有限合伙）\"\n                    },\n                    {\n                        \"KeyNo\": \"94c0f5d6508919e29aff5a66f86ebca1\",\n                        \"Category\": \"2\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"滴图\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"滴图（北京）科技有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"9376917a29748c8a7590d16fa01d3e7c\",\n                        \"Category\": \"2\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"上海桔道\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"上海桔道网络科技有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"d1c68c75aedf702f2422bebf07b1bd2b\",\n                        \"Category\": \"2\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"北岸商业保理\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"深圳北岸商业保理有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"44d5992e16ff513c91f86c5b0fdf2227\",\n                        \"Category\": \"2\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"滴滴出行\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"滴滴出行科技有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"e108693960d310ee9e5d663c0f3227ca\",\n                        \"Category\": \"2\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"滴滴商业服务\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"滴滴商业服务有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"d92b9c60a5e4b3456812eb0a3e4bba63\",\n                        \"Category\": \"2\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"博通畅达\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"北京博通畅达科技有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"8bd250d6875caa56dc9a6747b49689c0\",\n                        \"Category\": \"2\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"吾步信息技术\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"上海吾步信息技术有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"307efc57070d09ba32b8f01ee1322647\",\n                        \"Category\": \"2\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"北京长亭\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"北京长亭科技有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"3a079aa5beaf85378a2dba72ec6d563a\",\n                        \"Category\": \"2\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"通达无限\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"北京通达无限科技有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"2bbaaaf09d9877b8dd851a02ad9600a2\",\n                        \"Category\": \"2\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"奇漾信息技术\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"上海奇漾信息技术有限公司\"\n                    },\n                    {\n                        \"KeyNo\": \"c02337970cc15c084571cf1c982f8e22\",\n                        \"Category\": \"2\",\n                        \"Level\": \"1\",\n                        \"ShortName\": \"杭州快智\",\n                        \"Count\": \"0\",\n                        \"Children\": [\n                        ],\n                        \"Name\": \"杭州快智科技有限公司\"\n                    }\n                ],\n                \"Name\": \"对外投资\"\n            }\n        ],\n        \"Name\": \"北京小桔科技有限公司\"\n    }\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "src/main/java/com/beeasy/zed/QccService.java",
+    "groupTitle": "QCC",
+    "name": "GetEcirelationv4Searchtreerelationmap",
+    "error": {
+      "examples": [
+        {
+          "title": "请求异常:",
+          "content": "{\n    \"Status\": \"500\",\n    \"Message\": \"错误请求\"\n}",
+          "type": "json"
+        }
+      ]
+    }
+  },
+  {
+    "type": "get",
     "url": "/ECIV4/GetDetailsByName",
     "title": "企业关键字精确获取详细信息(Master)",
     "group": "QCC",
@@ -1233,7 +2137,7 @@
             "group": "Parameter",
             "type": "string",
             "optional": false,
-            "field": "keyword",
+            "field": "fullName",
             "description": "<p>公司全名</p>"
           }
         ]
@@ -1949,7 +2853,7 @@
             "group": "Parameter",
             "type": "string",
             "optional": false,
-            "field": "keyWord",
+            "field": "fullName",
             "description": "<p>公司全名</p>"
           },
           {
@@ -3678,6 +4582,219 @@
   },
   {
     "type": "get",
+    "url": "/HoldingCompany/GetHoldingCompany",
+    "title": "控股公司信息",
+    "group": "QCC",
+    "version": "0.0.1",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "string",
+            "optional": false,
+            "field": "fullName",
+            "description": "<p>公司全名</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "int",
+            "optional": false,
+            "field": "pageIndex",
+            "description": "<p>页码，默认1</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "int",
+            "optional": false,
+            "field": "pageSize",
+            "description": "<p>每页数量，默认10</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "KeyNo",
+            "description": "<p>公司KeyNo</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CompanyName",
+            "description": "<p>公司名称</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "NameCount",
+            "description": "<p>控股公司个数</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "object[]",
+            "optional": false,
+            "field": "Names",
+            "description": "<p>控股公司列表</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "Names.KeyNo",
+            "description": "<p>公司KeyNo</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "Names.Name",
+            "description": "<p>公司名称</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "Names.PercentTotal",
+            "description": "<p>投资比例</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "Names.Level",
+            "description": "<p>层级数</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "Names.ShortStatus",
+            "description": "<p>状态</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "Names.StartDate",
+            "description": "<p>成立时间</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "Names.RegistCapi",
+            "description": "<p>注册资金</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "Names.ImageUrl",
+            "description": "<p>Logo</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "Names.EconKind",
+            "description": "<p>企业类型</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "object[]",
+            "optional": false,
+            "field": "Names.Paths",
+            "description": "<p>Paths</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "Names.Paths.KeyNo",
+            "description": "<p>公司KeyNo</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "Names.Paths.Name",
+            "description": "<p>公司名称</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "Names.Paths.PercentTotal",
+            "description": "<p>投资比例</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "Names.Paths.Level",
+            "description": "<p>层级</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "object",
+            "optional": false,
+            "field": "Names.Oper",
+            "description": "<p>Oper</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "Names.Oper.Name",
+            "description": "<p>法人名称</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "Names.Oper.KeyNo",
+            "description": "<p>法人对应KeyNo</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "int",
+            "optional": false,
+            "field": "Names.Oper.CompanyCount",
+            "description": "<p>关联公司个数</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "请求成功:",
+          "content": "{\n    \"Status\": \"200\",\n    \"Message\": \"查询成功\",\n    \"Paging\": {\n        \"PageSize\": 10,\n        \"TotalRecords\": 10,\n        \"PageIndex\": 1\n    },\n    \"Result\": {\n        \"KeyNo\": \"4659626b1e5e43f1bcad8c268753216e\",\n        \"CompanyName\": \"北京小桔科技有限公司\",\n        \"NameCount\": \"47\",\n        \"Names\": [\n            {\n                \"KeyNo\": \"05c090155e36541c83e9ab59ab3f402d\",\n                \"RegistCapi\": \"1000万人民币元\",\n                \"StartDate\": \"2016-03-24 12:00:00\",\n                \"EconKind\": \"有限责任公司（自然人投资或控股的法人独资）\",\n                \"ImageUrl\": \"https://co-image.qichacha.com/CompanyImage/default.jpg\",\n                \"Level\": \"1\",\n                \"Paths\": [\n                    [\n                        {\n                            \"KeyNo\": \"05c090155e36541c83e9ab59ab3f402d\",\n                            \"Level\": \"1\",\n                            \"PercentTotal\": \"100%\",\n                            \"Name\": \"嘉兴橙子投资管理有限公司\"\n                        }\n                    ]\n                ],\n                \"Oper\": {\n                    \"KeyNo\": \"p3f038f0b735b9a50fd66c193435f9b0\",\n                    \"CompanyCount\": 7,\n                    \"Name\": \"求非曲\"\n                },\n                \"PercentTotal\": \"100%\",\n                \"ShortStatus\": \"存续\",\n                \"Name\": \"嘉兴橙子投资管理有限公司\"\n            },\n            {\n                \"KeyNo\": \"1047b1886e63c9475e10163343a09b76\",\n                \"RegistCapi\": \"200万人民币元\",\n                \"StartDate\": \"2018-03-12 12:00:00\",\n                \"EconKind\": \"有限责任公司(法人独资)\",\n                \"ImageUrl\": \"https://co-image.qichacha.com/CompanyImage/default.jpg\",\n                \"Level\": \"1\",\n                \"Paths\": [\n                    [\n                        {\n                            \"KeyNo\": \"1047b1886e63c9475e10163343a09b76\",\n                            \"Level\": \"1\",\n                            \"PercentTotal\": \"100%\",\n                            \"Name\": \"北京滴滴承信科技咨询服务有限公司\"\n                        }\n                    ]\n                ],\n                \"Oper\": {\n                    \"KeyNo\": \"pre3325af8698e0188fa65a334bdd134\",\n                    \"CompanyCount\": 1,\n                    \"Name\": \"张露文\"\n                },\n                \"PercentTotal\": \"100%\",\n                \"ShortStatus\": \"在业\",\n                \"Name\": \"北京滴滴承信科技咨询服务有限公司\"\n            },\n            {\n                \"KeyNo\": \"2018201d8e12e8769946032dbf5e7ac1\",\n                \"RegistCapi\": \"100万人民币元\",\n                \"StartDate\": \"2004-04-27 12:00:00\",\n                \"EconKind\": \"有限责任公司（法人独资）\",\n                \"ImageUrl\": \"https://co-image.qichacha.com/CompanyImage/default.jpg\",\n                \"Level\": \"3\",\n                \"Paths\": [\n                    [\n                        {\n                            \"KeyNo\": \"3fe7fa121a61e0d869a52b4752b9e272\",\n                            \"Level\": \"1\",\n                            \"PercentTotal\": \"100%\",\n                            \"Name\": \"杭州滴滴汽车服务有限公司\"\n                        },\n                        {\n                            \"KeyNo\": \"a1b0f97ad43b0e721246790556890b99\",\n                            \"Level\": \"2\",\n                            \"PercentTotal\": \"100%\",\n                            \"Name\": \"杭州小木吉汽车服务有限公司\"\n                        },\n                        {\n                            \"KeyNo\": \"2018201d8e12e8769946032dbf5e7ac1\",\n                            \"Level\": \"3\",\n                            \"PercentTotal\": \"100%\",\n                            \"Name\": \"深圳市伟恒汽车有限公司\"\n                        }\n                    ]\n                ],\n                \"Oper\": {\n                    \"KeyNo\": \"pr98c18a754ba7493fd8a4ddb18953c6\",\n                    \"CompanyCount\": 1,\n                    \"Name\": \"杨志新\"\n                },\n                \"PercentTotal\": \"100%\",\n                \"ShortStatus\": \"存续\",\n                \"Name\": \"深圳市伟恒汽车有限公司\"\n            },\n            {\n                \"KeyNo\": \"205a8c9f2bd6b437ce8b3d0bdd3ae62a\",\n                \"RegistCapi\": \"100万人民币元\",\n                \"StartDate\": \"2018-05-31 12:00:00\",\n                \"EconKind\": \"有限责任公司(法人独资)\",\n                \"ImageUrl\": \"https://co-image.qichacha.com/CompanyImage/default.jpg\",\n                \"Level\": \"2\",\n                \"Paths\": [\n                    [\n                        {\n                            \"KeyNo\": \"afb3daf1797df272997f22b143c964f6\",\n                            \"Level\": \"1\",\n                            \"PercentTotal\": \"100%\",\n                            \"Name\": \"北京车胜科技有限公司\"\n                        },\n                        {\n                            \"KeyNo\": \"205a8c9f2bd6b437ce8b3d0bdd3ae62a\",\n                            \"Level\": \"2\",\n                            \"PercentTotal\": \"100%\",\n                            \"Name\": \"小桔(北京)汽车服务有限公司\"\n                        }\n                    ]\n                ],\n                \"Oper\": {\n                    \"KeyNo\": \"pba983a8d51f856d6977e4d6e1c2e49b\",\n                    \"CompanyCount\": 3,\n                    \"Name\": \"邵韬\"\n                },\n                \"PercentTotal\": \"100%\",\n                \"ShortStatus\": \"在业\",\n                \"Name\": \"小桔(北京)汽车服务有限公司\"\n            },\n            {\n                \"KeyNo\": \"25658b066d565464839d7c0b214fd42b\",\n                \"RegistCapi\": \"1000万人民币元\",\n                \"StartDate\": \"2015-07-15 12:00:00\",\n                \"EconKind\": \"有限责任公司（自然人投资或控股的法人独资）\",\n                \"ImageUrl\": \"https://co-image.qichacha.com/CompanyImage/default.jpg\",\n                \"Level\": \"2\",\n                \"Paths\": [\n                    [\n                        {\n                            \"KeyNo\": \"8bd250d6875caa56dc9a6747b49689c0\",\n                            \"Level\": \"1\",\n                            \"PercentTotal\": \"100%\",\n                            \"Name\": \"上海吾步信息技术有限公司\"\n                        },\n                        {\n                            \"KeyNo\": \"25658b066d565464839d7c0b214fd42b\",\n                            \"Level\": \"2\",\n                            \"PercentTotal\": \"100%\",\n                            \"Name\": \"贵阳吾步数据服务有限公司\"\n                        }\n                    ]\n                ],\n                \"Oper\": {\n                    \"KeyNo\": \"pf9428a8a2afb5057a10f3e4802b9eee\",\n                    \"CompanyCount\": 46,\n                    \"Name\": \"陈汀\"\n                },\n                \"PercentTotal\": \"100%\",\n                \"ShortStatus\": \"存续\",\n                \"Name\": \"贵阳吾步数据服务有限公司\"\n            },\n            {\n                \"KeyNo\": \"263ed5f366aa352491f2a9112db02cdd\",\n                \"RegistCapi\": \"40000万人民币元\",\n                \"StartDate\": \"2005-05-19 12:00:00\",\n                \"EconKind\": \"有限责任公司（自然人投资或控股的法人独资）\",\n                \"ImageUrl\": \"https://co-image.qichacha.com/CompanyImage/default.jpg\",\n                \"Level\": \"2\",\n                \"Paths\": [\n                    [\n                        {\n                            \"KeyNo\": \"44d5992e16ff513c91f86c5b0fdf2227\",\n                            \"Level\": \"1\",\n                            \"PercentTotal\": \"100%\",\n                            \"Name\": \"滴滴出行科技有限公司\"\n                        },\n                        {\n                            \"KeyNo\": \"263ed5f366aa352491f2a9112db02cdd\",\n                            \"Level\": \"2\",\n                            \"PercentTotal\": \"100%\",\n                            \"Name\": \"上海时园科技有限公司\"\n                        }\n                    ]\n                ],\n                \"Oper\": {\n                    \"KeyNo\": \"p30478fe73bc161a5988c4bb77d43f56\",\n                    \"CompanyCount\": 3,\n                    \"Name\": \"刘少荣\"\n                },\n                \"PercentTotal\": \"100%\",\n                \"ShortStatus\": \"存续\",\n                \"Name\": \"上海时园科技有限公司\"\n            },\n            {\n                \"KeyNo\": \"274d9311979595d54821e1d9e8d73e36\",\n                \"RegistCapi\": \"500万人民币元\",\n                \"StartDate\": \"2017-11-22 12:00:00\",\n                \"EconKind\": \"有限责任公司(法人独资)\",\n                \"ImageUrl\": \"https://co-image.qichacha.com/CompanyImage/274d9311979595d54821e1d9e8d73e36.jpg\",\n                \"Level\": \"1\",\n                \"Paths\": [\n                    [\n                        {\n                            \"KeyNo\": \"274d9311979595d54821e1d9e8d73e36\",\n                            \"Level\": \"1\",\n                            \"PercentTotal\": \"100%\",\n                            \"Name\": \"北京再造科技有限公司\"\n                        }\n                    ]\n                ],\n                \"Oper\": {\n                    \"KeyNo\": \"p661ca55f69289b4e72edac3164e99ff\",\n                    \"CompanyCount\": 2,\n                    \"Name\": \"罗文\"\n                },\n                \"PercentTotal\": \"100%\",\n                \"ShortStatus\": \"在业\",\n                \"Name\": \"北京再造科技有限公司\"\n            },\n            {\n                \"KeyNo\": \"2bbaaaf09d9877b8dd851a02ad9600a2\",\n                \"RegistCapi\": \"2000万人民币元\",\n                \"StartDate\": \"2013-10-21 12:00:00\",\n                \"EconKind\": \"有限责任公司（自然人投资或控股的法人独资）\",\n                \"ImageUrl\": \"https://co-image.qichacha.com/CompanyImage/2bbaaaf09d9877b8dd851a02ad9600a2.jpg\",\n                \"Level\": \"1\",\n                \"Paths\": [\n                    [\n                        {\n                            \"KeyNo\": \"2bbaaaf09d9877b8dd851a02ad9600a2\",\n                            \"Level\": \"1\",\n                            \"PercentTotal\": \"100%\",\n                            \"Name\": \"上海奇漾信息技术有限公司\"\n                        }\n                    ]\n                ],\n                \"Oper\": {\n                    \"KeyNo\": \"pf9428a8a2afb5057a10f3e4802b9eee\",\n                    \"CompanyCount\": 46,\n                    \"Name\": \"陈汀\"\n                },\n                \"PercentTotal\": \"100%\",\n                \"ShortStatus\": \"存续\",\n                \"Name\": \"上海奇漾信息技术有限公司\"\n            },\n            {\n                \"KeyNo\": \"3a079aa5beaf85378a2dba72ec6d563a\",\n                \"RegistCapi\": \"100万人民币元\",\n                \"StartDate\": \"2014-06-12 12:00:00\",\n                \"EconKind\": \"有限责任公司(法人独资)\",\n                \"ImageUrl\": \"https://co-image.qichacha.com/CompanyImage/default.jpg\",\n                \"Level\": \"1\",\n                \"Paths\": [\n                    [\n                        {\n                            \"KeyNo\": \"3a079aa5beaf85378a2dba72ec6d563a\",\n                            \"Level\": \"1\",\n                            \"PercentTotal\": \"100%\",\n                            \"Name\": \"北京通达无限科技有限公司\"\n                        }\n                    ]\n                ],\n                \"Oper\": {\n                    \"KeyNo\": \"pf243c8bcd428b850f367092d7f9b34c\",\n                    \"CompanyCount\": 2,\n                    \"Name\": \"李锦飞\"\n                },\n                \"PercentTotal\": \"100%\",\n                \"ShortStatus\": \"在业\",\n                \"Name\": \"北京通达无限科技有限公司\"\n            },\n            {\n                \"KeyNo\": \"3d1a9683a46bf88fdb82ba7c88720406\",\n                \"RegistCapi\": \"2000万人民币元\",\n                \"StartDate\": \"2018-04-16 12:00:00\",\n                \"EconKind\": \"有限责任公司(法人独资)\",\n                \"ImageUrl\": \"https://co-image.qichacha.com/CompanyImage/default.jpg\",\n                \"Level\": \"3\",\n                \"Paths\": [\n                    [\n                        {\n                            \"KeyNo\": \"44d5992e16ff513c91f86c5b0fdf2227\",\n                            \"Level\": \"1\",\n                            \"PercentTotal\": \"100%\",\n                            \"Name\": \"滴滴出行科技有限公司\"\n                        },\n                        {\n                            \"KeyNo\": \"483a812cab4c1ab3b9c63acbf0d1e357\",\n                            \"Level\": \"2\",\n                            \"PercentTotal\": \"100%\",\n                            \"Name\": \"迪润（天津）科技有限公司\"\n                        },\n                        {\n                            \"KeyNo\": \"3d1a9683a46bf88fdb82ba7c88720406\",\n                            \"Level\": \"3\",\n                            \"PercentTotal\": \"100%\",\n                            \"Name\": \"西安小木吉网络科技有限公司\"\n                        }\n                    ]\n                ],\n                \"Oper\": {\n                    \"KeyNo\": \"pr4193775c4f2e113f7537bc00b81aa8\",\n                    \"CompanyCount\": 1,\n                    \"Name\": \"高翔\"\n                },\n                \"PercentTotal\": \"100%\",\n                \"ShortStatus\": \"在业\",\n                \"Name\": \"西安小木吉网络科技有限公司\"\n            }\n        ]\n    }\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "src/main/java/com/beeasy/zed/QccService.java",
+    "groupTitle": "QCC",
+    "name": "GetHoldingcompanyGetholdingcompany",
+    "error": {
+      "examples": [
+        {
+          "title": "请求异常:",
+          "content": "{\n    \"Status\": \"500\",\n    \"Message\": \"错误请求\"\n}",
+          "type": "json"
+        }
+      ]
+    }
+  },
+  {
+    "type": "get",
     "url": "/JudgeDocV4/GetJudgementDetail",
     "title": "裁判文书详情",
     "group": "QCC",
@@ -4056,7 +5173,7 @@
             "group": "Parameter",
             "type": "string",
             "optional": false,
-            "field": "searchKey",
+            "field": "fullName",
             "description": "<p>公司全名</p>"
           },
           {
@@ -4220,7 +5337,7 @@
             "group": "Parameter",
             "type": "string",
             "optional": false,
-            "field": "keyWord",
+            "field": "fullName",
             "description": "<p>公司全名</p>"
           }
         ]
@@ -4576,7 +5693,7 @@
             "group": "Parameter",
             "type": "string",
             "optional": false,
-            "field": "keyWord",
+            "field": "fullName",
             "description": "<p>公司全名</p>"
           },
           {
@@ -4862,7 +5979,7 @@
             "group": "Parameter",
             "type": "string",
             "optional": false,
-            "field": "keyWord",
+            "field": "fullName",
             "description": "<p>公司全名</p>"
           },
           {

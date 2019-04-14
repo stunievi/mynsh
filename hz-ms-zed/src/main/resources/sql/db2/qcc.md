@@ -27,7 +27,7 @@ ORG_TYPE,
 ORG_TYPE_NAME
 @}
 from QCC_SHIXIN
-where inner_company_name = #searchKey#
+where inner_company_name = #fullName#
 
 查询被执行信息
 ===
@@ -45,7 +45,7 @@ PARTY_CARD_NUM,
 UPDATE_DATE
 @}
 from QCC_ZHIXING
-where inner_company_name = #searchKey#
+where inner_company_name = #fullName#
 
 查询裁判文书列表
 ===
@@ -68,7 +68,7 @@ Case_Reason_Type,
 Court_Month
 @}
 from QCC_JUDGMENT_DOC
-where inner_company_name = #searchKey#
+where inner_company_name = #fullName#
 
 查询裁判文书详情
 ===
@@ -141,7 +141,7 @@ party,
 id
 @}
 from QCC_COURT_ANNOUNCEMENT
-where inner_company_name = #companyName#
+where inner_company_name = #fullName#
 
 查询法院公告详情
 ===
@@ -176,7 +176,7 @@ no.ID,
 no.CASE_NO
 @}
 from 
-QCC_COURT_NOTICE no where inner_company_name = #searchKey#
+QCC_COURT_NOTICE no where inner_company_name = #fullName#
 
 查询开庭公告详情
 ===
@@ -242,7 +242,7 @@ from QCC_JUDICIAL_ASSISTANCE ja
 left join QCC_EQUITY_FREEZE_DETAIL d1 on ja.inner_id = d1.ja_inner_id and d1.FREEZE_TYPE = 1
 left join QCC_EQUITY_FREEZE_DETAIL d2 on d2.ja_inner_id = ja.inner_id and d2.FREEZE_TYPE = 2
 left join QCC_EQUITY_FREEZE_DETAIL d3 on d3.ja_inner_id = ja.inner_id and d3.FREEZE_TYPE = 3
-where ja.inner_company_name = #keyWord#
+where ja.inner_company_name = #fullName#
 
 查询企业经营异常信息
 ===
@@ -254,7 +254,7 @@ REMOVE_DATE,
 DECISION_OFFICE,
 REMOVE_DECISION_OFFICE
 from QCC_OP_EXCEPTION
-where inner_company_name = #keyNo#
+where inner_company_name = #fullName#
 
 查询司法拍卖列表
 ===
@@ -267,7 +267,7 @@ ACTION_REMARK,
 YI_WU
 @}
 from QCC_JUDICIAL_SALE 
-where inner_company_name = #keyWord#
+where inner_company_name = #fullName#
 
 查询司法拍卖详情
 ===
@@ -289,7 +289,7 @@ START_DATE,
 END_DATE
 @}
 from QCC_LAND_MORTGAGE
-where inner_company_name = #keyWord#
+where inner_company_name = #fullName#
 
 查询土地抵押详情
 ===
@@ -328,7 +328,7 @@ PUNISH_DATE,
 ILLEGAL_TYPE,
 PUNISH_GOV 
 @}
-from QCC_ENV_PUNISHMENT_LIST where inner_company_name = #keyWord#
+from QCC_ENV_PUNISHMENT_LIST where inner_company_name = #fullName#
 
 查询环保处罚详情
 ===
@@ -368,7 +368,7 @@ from QCC_CHATTEL_MORTGAGE cm
 left join QCC_CMD_PLEDGE ex1 on ex1.CM_ID = cm.inner_id
 left join QCC_CMD_SECURED_CLAIM ex2 on ex2.CM_ID = cm.inner_id
 left join QCC_CMD_CANCEL_INFO ex3 on ex3.CM_ID = cm.inner_id
-where cm.inner_company_name = #keyWord#
+where cm.inner_company_name = #fullName#
 
 查询动产抵押PledgeeList
 ===
@@ -378,7 +378,7 @@ Identity_Type,
 Identity_No,
 cm_id
 from QCC_CMD_PLEDGEE_LIST
-where inner_company_name = #keyWord#
+where inner_company_name = #fullName#
 
 查询动产抵押GuaranteeList
 ===
@@ -389,7 +389,7 @@ OTHER,
 REMARK,
 cm_id
 from QCC_CMD_GUARANTEE_LIST						
-where inner_company_name = #keyWord#
+where inner_company_name = #fullName#
 
 查询动产抵押ChangeList
 ===
@@ -398,7 +398,7 @@ Change_Date,
 Change_Content,
 cm_id
 from QCC_CMD_CHANGE_LIST
-where inner_company_name = #keyWord#
+where inner_company_name = #fullName#
 
 查询工商信息表
 ===
@@ -427,7 +427,7 @@ STOCK_NUMBER,
 STOCK_TYPE,
 IMAGE_URL
 from QCC_DETAILS
-where inner_company_name = #keyword#
+where inner_company_name = #fullName#
 
 查询工商信息曾用名信息表
 ===
@@ -435,7 +435,7 @@ select
 NAME,
 CHANGE_DATE
 from QCC_DETAILS_ORIGINAL_NAME
-where inner_company_name = #keyword#
+where inner_company_name = #fullName#
 
 查询工商信息股东信息表
 ===
@@ -450,7 +450,7 @@ INVEST_NAME,
 REAL_CAPI,
 CAPI_DATE
 from QCC_DETAILS_PARTNERS
-where inner_company_name = #keyword#
+where inner_company_name = #fullName#
 
 查询工商信息主要人员信息表
 ===
@@ -458,7 +458,7 @@ select
 NAME,
 JOB
 from QCC_DETAILS_EMPLOYEES
-where inner_company_name = #keyword#
+where inner_company_name = #fullName#
 
 查询工商信息分支机构表
 ===
@@ -470,7 +470,7 @@ BELONG_ORG,
 CREDIT_CODE,
 OPER_NAME
 from QCC_DETAILS_BRANCHES
-where inner_company_name = #keyword#
+where inner_company_name = #fullName#
 
 查询工商信息变更信息表
 ===
@@ -480,7 +480,7 @@ BEFORE_CONTENT,
 AFTER_CONTENT,
 CHANGE_DATE
 from QCC_DETAILS_CHANGE_RECORDS
-where inner_company_name = #keyword#
+where inner_company_name = #fullName#
 
 查询工商信息联系信息表
 ===
@@ -489,7 +489,7 @@ WEB_SITE,
 PHONE_NUMBER,
 EMAIL
 from QCC_DETAILS_CONTACT_INFO
-where inner_company_name = #keyword#
+where inner_company_name = #fullName#
 
 查询工商信息行业信息表
 ===
@@ -503,7 +503,7 @@ MIDDLE_CATEGORY,
 SMALL_CATEGORY_CODE,
 SMALL_CATEGORY
 from QCC_DETAILS_INDUSTRY
-where inner_company_name = #keyword#
+where inner_company_name = #fullName#
 
 
 查询历史工商信息表
@@ -744,3 +744,147 @@ ADDRESS
 @}
 from QCC_FRESH						
 where Address like #'%' + keyword + '%'#
+
+查询企业族谱
+===
+select 
+NAME,
+KEY_NO,
+CATEGORY,
+SHORT_NAME,
+COUNT,
+LEVEL,
+inner_parent_id,
+inner_id
+from QCC_COMPANY_MAP
+where inner_company_no = #keyNo#
+
+查询股权结构图
+===
+select 
+NAME,
+KEY_NO,
+CATEGORY,
+COUNT,
+FUNDED_RATIO,
+IS_ABSOLUTE_CONTROLLER,
+GRADE,
+OPER_NAME,
+IN_PARENT_ACTUAL_RADIO,
+inner_id,
+inner_parent_id
+from QCC_CESM
+where inner_company_no = #keyNo#
+
+查询股权结构-实际控股信息表
+===
+select
+NAME,
+STOCK_TYPE,
+KEY_NO,
+SUB_CON_AMT,
+FUNDED_RATIO
+from QCC_CESM_ACLP
+where inner_company_no = #keyNo#
+
+查询投资图谱
+===
+select
+NAME,
+KEY_NO,
+CATEGORY,
+SHORT_NAME,
+COUNT,
+LEVEL,
+inner_id,
+inner_parent_id
+from QCC_TREE_RELATION_MAP
+where inner_company_no = #keyNo#
+
+
+查询公司信息表
+===
+select
+KEY_NO,
+COMPANY_NAME,
+NAME_COUNT
+from QCC_HOLDING_COMPANY
+where inner_company_name = #fullName#
+
+查询控股公司列表信息表
+===
+select
+@pageTag(){
+KEY_NO,
+NAME,
+PERCENT_TOTAL,
+LEVEL,
+SHORT_STATUS,
+START_DATE,
+REGIST_CAPI,
+IMAGE_URL,
+ECON_KIND,
+paths,
+oper
+@}
+from QCC_HOLDING_COMPANY_NAMES
+where inner_company_name = #fullName#
+
+查询股权穿透十层信息表
+===
+select 
+TERM_START,
+TEAM_END,
+CHECK_DATE,
+KEY_NO,
+NAME,
+NO,
+BELONG_ORG,
+OPER_NAME,
+START_DATE,
+END_DATE,
+STATUS,
+PROVINCE,
+UPDATED_DATE,
+SHORT_STATUS,
+REGIST_CAPI,
+ECON_KIND,
+ADDRESS,
+SCOPE,
+ORG_NO,
+CREDIT_CODE,
+Stock_Statistics
+from QCC_SAD						
+where inner_company_name = #fullName#
+
+查询股权穿透十层股东信息表						
+===
+select
+COMPANY_ID,
+STOCK_NAME,
+STOCK_TYPE,
+STOCK_PERCENT,
+IDENTIFY_TYPE,
+IDENTIFY_NO,
+SHOULD_CAPI,
+SHOUD_DATE
+from QCC_SAD_PARTNERS						
+where inner_company_name = #fullName#
+
+查询股权穿透十层股东列表
+===
+select 
+KEY_NO,
+NAME,
+PATH_NAME,
+REGIST_CAPI,
+ECON_KIND,
+STOCK_TYPE,
+FUNDED_AMOUNT,
+FUNDED_RATE,
+INVEST_TYPE,
+LEVEL,
+inner_id,
+inner_parent_id
+from QCC_SAD_STOCK_LIST
+where inner_company_name = #fullName#
