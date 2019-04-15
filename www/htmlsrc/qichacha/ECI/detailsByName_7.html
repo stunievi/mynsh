@@ -333,49 +333,49 @@
                if(res.success){
                    var nonData1 = true;
                    var nonData2 = true;
+                   var EciList = [];
                    if(res.data && res.data.EciList && res.data.EciList.length > 0){
                        nonData1 = false;
-                       laytableRender({
-                           page: false,
-                           id: "history11-body",
-                           elem: "#history11-body",
-                           cols: [
-                               [
-                                   {title:"文号",field:"DocNo"},
-                                   {title:"违法行为类型",field:"PenaltyType"},
-                                   {title:"处罚内容",field:"Content"},
-                                   {title:"决定日期",field:"PenaltyDate"},
-                                   {title:"作出行政公示日期",field:"PublicDate"},
-                                   {title:"决定机关",field:"OfficeName"}
-                               ]
-                           ],
-                           data: res.data.EciList
-                       });
-                   }else{
-                       $("#history11").hide();
+                       EciList = res.data.EciList;
                    }
+                   laytableRender({
+                       page: false,
+                       id: "history11-body",
+                       elem: "#history11-body",
+                       cols: [
+                           [
+                               {title:"文号",field:"DocNo"},
+                               {title:"违法行为类型",field:"PenaltyType"},
+                               {title:"处罚内容",field:"Content"},
+                               {title:"决定日期",field:"PenaltyDate"},
+                               {title:"作出行政公示日期",field:"PublicDate"},
+                               {title:"决定机关",field:"OfficeName"}
+                           ]
+                       ],
+                       data: EciList
+                   });
 
+                   var CreditChinaList = [];
                    if(res.data && res.data.CreditChinaList && res.data.CreditChinaList.length > 0){
                        nonData2 = false;
-                       laytableRender({
-                           page: false,
-                           id: "history11-1-body",
-                           elem: "#history11-1-body",
-                           cols: [
-                               [
-                                   {title:"决定文书号",field:"CaseNo"},
-                                   {title:"处罚名称",field:"Name"},
-                                   {title:"决定时间",field:"LianDate"},
-                                   {title:"省份",field:"Province"},
-                                   {title:"公司",field:"OwnerName"},
-                                   {title:"案由",field:"CaseReason"}
-                               ]
-                           ],
-                           data: res.data.CreditChinaList
-                       })
-                   }else{
-                       $("#history11-1").hide();
+                       CreditChinaList = res.data.CreditChinaList;
                    }
+                   laytableRender({
+                       page: false,
+                       id: "history11-1-body",
+                       elem: "#history11-1-body",
+                       cols: [
+                           [
+                               {title:"决定文书号",field:"CaseNo"},
+                               {title:"处罚名称",field:"Name"},
+                               {title:"决定时间",field:"LianDate"},
+                               {title:"省份",field:"Province"},
+                               {title:"公司",field:"OwnerName"},
+                               {title:"案由",field:"CaseReason"}
+                           ]
+                       ],
+                       data: CreditChinaList
+                   });
                    if(nonData1 && nonData2){
                        $("a[href='#history11']").addClass("disabled");
                    }
@@ -389,47 +389,49 @@
                if(res.success){
                    var nonData1 = true;
                    var nonData2 = true;
+                   var EciList = [];
                    if(res.data && res.data.EciList && res.data.EciList.length > 0){
                        nonData1 = false;
-                       laytableRender({
-                           page: false,
-                           id: "history12-body",
-                           elem: "#history12-body",
-                           cols: [
-                               [
-                                   {title:"许可文件编号",field:"LicensDocNo"},
-                                   {title:"许可文件名称",field:"LicensDocName"},
-                                   {title:"许可机关",field:"LicensOffice"},
-                                   {title:"许可内容",field:"LicensContent"},
-                                   {title:"有效期自",field:"ValidityFrom"},
-                                   {title:"有效期至",field:"ValidityTo"}
-                               ]
-                           ],
-                           data: res.data.EciList
-                       });
-                   }else{
-                       $("#history12").hide();
+                       EciList = res.data.EciList;
                    }
+                   laytableRender({
+                       page: false,
+                       id: "history12-body",
+                       elem: "#history12-body",
+                       cols: [
+                           [
+                               {title:"许可文件编号",field:"LicensDocNo"},
+                               {title:"许可文件名称",field:"LicensDocName"},
+                               {title:"许可机关",field:"LicensOffice"},
+                               {title:"许可内容",field:"LicensContent"},
+                               {title:"有效期自",field:"ValidityFrom"},
+                               {title:"有效期至",field:"ValidityTo"}
+                           ]
+                       ],
+                       data: EciList
+                   });
+
+                   var CreditChinaList = [];
                    if(res.data && res.data.CreditChinaList && res.data.CreditChinaList.length > 0){
                        nonData2 = false;
-                       laytableRender({
-                           page: false,
-                           id: "history12-1-body",
-                           elem: "#history12-1-body",
-                           cols: [
-                               [
-                                   {title:"编号",field:"CaseNo"},
-                                   {title:"项目名称",field:"Name"},
-                                   {title:"决定日期",field:"LianDate"},
-                                   {title:"地域",field:"Province"},
-                                   {title:"公司",field:"OwnerName"}
-                               ]
-                           ],
-                           data: res.data.CreditChinaList
-                       })
-                   }else{
-                       $("#history12-1").hide();
+                       CreditChinaList = res.data.CreditChinaList
                    }
+                   laytableRender({
+                       page: false,
+                       id: "history12-1-body",
+                       elem: "#history12-1-body",
+                       cols: [
+                           [
+                               {title:"编号",field:"CaseNo"},
+                               {title:"项目名称",field:"Name"},
+                               {title:"决定日期",field:"LianDate"},
+                               {title:"地域",field:"Province"},
+                               {title:"公司",field:"OwnerName"}
+                           ]
+                       ],
+                       data: CreditChinaList
+                   });
+
                    if(nonData1 && nonData2){
                        $("a[href='#history12']").addClass("disabled");
                    }

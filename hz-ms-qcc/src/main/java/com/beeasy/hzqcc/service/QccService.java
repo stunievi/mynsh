@@ -20,12 +20,6 @@ public class QccService {
     @Autowired
     QccHttpDataService qccHttpDataService;
 
-    public static QccService dynamicProxy;
-    @PostConstruct
-    public void init() {
-        dynamicProxy = this;
-    }
-
     // 返回详情
     private JSONObject getResDetails(
             JSONObject ret,
@@ -408,6 +402,13 @@ public class QccService {
         return getResDetails(tupuInfo, isOrigin);
     }
 
+    public  Map ECIRelationV4_SearchTreeRelationMap(
+            Map param,
+            boolean isOrigin
+    ){
+        JSONObject tupuInfo = qccDataService.findOne("ECIRelationV4_SearchTreeRelationMap", param);
+        return getResDetails(tupuInfo, isOrigin);
+    }
     // 企业图谱
     public Map ECIRelationV4_GenerateMultiDimensionalTreeCompanyMap(
         Map param,

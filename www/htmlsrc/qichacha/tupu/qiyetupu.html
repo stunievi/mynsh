@@ -1707,7 +1707,6 @@
         }
     }
 
-
     function popclose(dom){
         $(dom).parent().parent().fadeOut();
     }
@@ -1755,8 +1754,7 @@
         //设置保存图片的类型
         var imgdata = canvas.toDataURL('image/jpeg',qual);
         var filename = '某某公司企业图谱_'+new Date().toLocaleDateString() + '.jpeg';
-        // TODO::
-//        post('cms_downloadimg?filename='+filename, {img:imgdata});
+       post(remoteApi.qccDownloadimg + '?filename='+filename, {img:imgdata});
     }
 
 
