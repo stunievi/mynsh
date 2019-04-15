@@ -16,6 +16,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.*;
 import io.netty.util.AsciiString;
+import org.osgl.util.S;
 
 class HttpServerHandler extends ChannelInboundHandlerAdapter {
 
@@ -110,7 +111,11 @@ class HttpServerHandler extends ChannelInboundHandlerAdapter {
 
     public static JSONObject decodeProxyQuery(FullHttpRequest fullHttpRequest) {
         JSONObject params = new JSONObject();
-        QueryStringDecoder decoder = new QueryStringDecoder(fullHttpRequest.headers().getAsString("Proxy-Url"));
+        String proxy = fullHttpRequest.headers().getAsString("Proxy-Url");
+        if(S.empty(proxy)){
+            return decodeQuery(fullHttpRequest);
+        }
+        QueryStringDecoder decoder = new QueryStringDecoder(proxy);
         Map<String, List<String>> paramList = decoder.parameters();
         for (Map.Entry<String, List<String>> entry : paramList.entrySet()) {
             params.put(entry.getKey(), entry.getValue().get(0));
@@ -120,7 +125,7 @@ class HttpServerHandler extends ChannelInboundHandlerAdapter {
 
     public static JSONObject decodeQuery(FullHttpRequest request) {
         JSONObject params = new JSONObject();
-        QueryStringDecoder decoder = new QueryStringDecoder(request.getUri(), StandardCharsets.UTF_8);
+        QueryStringDecoder decoder = new QueryStringDecoder(request.uri(), StandardCharsets.UTF_8);
         Map<String, List<String>> paramList = decoder.parameters();
         for (Map.Entry<String, List<String>> entry : paramList.entrySet()) {
             params.put(entry.getKey(), entry.getValue().get(0));

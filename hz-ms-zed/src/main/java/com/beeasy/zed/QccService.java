@@ -4863,6 +4863,7 @@ public class QccService {
         object.put("ContactInfo", ContactInfo);
         JSONObject Industry = singleQuery("qcc.查询工商信息行业信息表", params);
         object.put("Industry", Industry);
+
         return object;
     }
 
@@ -5408,7 +5409,11 @@ public class QccService {
      * @apiUse QccError
      */
     private Object GetJudicialSaleDetail(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
-        return singleQuery("qcc.查询司法拍卖详情", params);
+        JSONObject object = singleQuery("qcc.查询司法拍卖详情", params);
+        if(object.containsKey("Context")){
+            object.put("Context", new String(Base64.getDecoder().decode(object.getStr("Context"))));
+        }
+        return object;
     }
 
 
@@ -6229,6 +6234,8 @@ public class QccService {
         ));
         JSONArray companies = listQuery("qcc.查询裁判文书详情-关联公司", newJsonObject("id", params.getStr("id")));
         object.put("RelatedCompanies", companies);
+        object.put("Content", new String(Base64.getDecoder().decode(object.getStr("Content"))));
+        object.put("ContentClear", new String(Base64.getDecoder().decode(object.getStr("ContentClear"))));
         return object;
     }
 

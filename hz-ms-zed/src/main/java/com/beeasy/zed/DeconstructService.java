@@ -23,6 +23,8 @@ import org.osgl.util.C;
 import org.osgl.util.S;
 
 import javax.jms.ObjectMessage;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -43,8 +45,9 @@ public class DeconstructService {
     private static SimpleDateFormat[] dateFormats = {isoSdf, iso2Sdf, sdf, ymdSdf};
 
     private static ValueGenerator.Wrap DateValue = ValueGenerator.createDate();
+    private static ValueGenerator.Wrap Base64Value = ValueGenerator.createBase64();
 
-    private static Map<String, DeconstructHandler> handlers = new HashMap<>();
+    public static Map<String, DeconstructHandler> handlers = new HashMap<>();
 
     public static JSONObject HistorytEciMap = newJsonObject(
         "CompanyNameList", "QCC_HIS_ECI_COMPANY_NAME_LIST",
@@ -248,10 +251,12 @@ public class DeconstructService {
 
     private String getQuery(FullHttpRequest request, String key) {
         JSONObject params = HttpServerHandler.decodeProxyQuery(request);
-        if (!params.containsKey(key)) {
-            throw new RuntimeException();
+        for (Map.Entry<String, Object> entry : params.entrySet()) {
+            if(entry.getKey().equalsIgnoreCase(key)){
+                return (String) entry.getValue();
+            }
         }
-        return params.getStr(key);
+        throw new RuntimeException();
     }
 
     public static DeconstructService register(ZedService zedService) {
@@ -1158,7 +1163,8 @@ public class DeconstructService {
     private void GetJudicialSaleDetail(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         String id = getQuery(request, "id");
         changeField(json,
-            "+Id", id
+            "+Id", id,
+            "+Context", Base64Value
         );
         deconstruct(json, "QCC_JUDICIAL_SALE", "Id");
     }
@@ -1183,8 +1189,8 @@ public class DeconstructService {
     private void GetOpException(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         String compName = getQuery(request, "keyNo");
         changeField(json,
-            "+RemoveDate", ValueGenerator.createIsoDate("RemoveDate"),
-            "+AddDate", ValueGenerator.createIsoDate("AddDate"),
+            "+RemoveDate", DateValue,
+            "+AddDate", DateValue,
             "+inner_company_name", compName
         );
         doDelete("QCC_OP_EXCEPTION", "inner_company_name", compName);
@@ -1359,10 +1365,15 @@ public class DeconstructService {
      */
     private void SearchCourtAnnouncementDetail(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         changeField(json,
+            new ICanChange() {
+                @Override
+                public boolean call(String key) {
+                    return key.endsWith("Date");
+                }
+            }, DateValue,
             "PublishDate->PublishedDate",
-            "+PublishedDate", ValueGenerator.createYmdhmsDate("PublishedDate"),
-            "+SubmitDate", ValueGenerator.createYmdhmsDate("SubmitDate"),
             "+Id", getQuery(request, "id")
+//            "PublishDate->PublishedDate"
         );
         deconstruct(json, "QCC_COURT_ANNOUNCEMENT", "Id");
         JSONObject object = (JSONObject) json;
@@ -1394,6 +1405,12 @@ public class DeconstructService {
     private void SearchCourtAnnouncement(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         changeField(json,
             "-PublishedDate",
+            new ICanChange() {
+                @Override
+                public boolean call(String key) {
+                    return key.endsWith("Date");
+                }
+            }, DateValue,
             "+inner_company_name", getQuery(request, "companyName")
         );
         deconstruct(json, "QCC_COURT_ANNOUNCEMENT", "Id");
@@ -1408,15 +1425,19 @@ public class DeconstructService {
      */
     private void GetJudgementDetail(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         changeField(json,
-            "+SubmitDate", ValueGenerator.createYmdhmsDate("SubmitDate"),
-            "+UpdateDate", ValueGenerator.createYmdhmsDate("UpdateDate"),
-            "+CreateDate", ValueGenerator.createYmdhmsDate("CreateDate"),
-            "+JudgeDate", ValueGenerator.createYmdhmsDate("JudgeDate"),
+            new ICanChange() {
+                @Override
+                public boolean call(String key) {
+                    return key.endsWith("Date");
+                }
+            }, DateValue,
             "+Appellor", ValueGenerator.createStrList("Appellor"),
             "Defendantlist->DefendantList",
             "Prosecutorlist->ProsecutorList",
             "+DefendantList", ValueGenerator.createStrList("DefendantList"),
-            "+ProsecutorList", ValueGenerator.createStrList("ProsecutorList")
+            "+ProsecutorList", ValueGenerator.createStrList("ProsecutorList"),
+            "+Content", Base64Value,
+            "+ContentClear", Base64Value
         );
         deconstruct(json, "QCC_JUDGMENT_DOC", "Id");
 
@@ -1489,8 +1510,8 @@ public class DeconstructService {
      */
     private void SearchJudgmentDoc(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         changeField(json,
-            "+SubmitDate", ValueGenerator.createYmdhmsDate("SubmitDate"),
-            "+UpdateDate", ValueGenerator.createYmdhmsDate("UpdateDate"),
+            "+SubmitDate", DateValue,
+            "+UpdateDate", DateValue,
             "+inner_company_name", getQuery(request, "searchKey")
         );
         deconstruct(json, "QCC_JUDGMENT_DOC", "Id");
@@ -1506,8 +1527,8 @@ public class DeconstructService {
     private void SearchShiXin(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         changeField(
             json,
-            "+Liandate", ValueGenerator.createIsoDate("Liandate"),
-            "+Publicdate", ValueGenerator.createYmdDate("Publicdate"),
+            "+Liandate", DateValue,
+            "+Publicdate", DateValue,
             "Sourceid->Source_id",
             "Uniqueno->Unique_no",
             "Liandate->Li_an_date",
@@ -1641,13 +1662,13 @@ public class DeconstructService {
             Integer count = ret.getByPath("0.1", Integer.class);
             if (count != null && count > 0) {
                 sql = buildUpdateSql(tableName, kv, sb.toString());
-                sqlManager.executeUpdate(new SQLReady(sql));
+                sqlManager.executeUpdate((sql), kv);
                 return kv;
             }
         }
 
         String sql = buildInsertSql(tableName, kv);
-        sqlManager.executeUpdate(new SQLReady(sql));
+        sqlManager.executeUpdate((sql), kv);
         return kv;
     }
 
@@ -1666,6 +1687,14 @@ public class DeconstructService {
             return;
         } else {
             String value = kv.getStr(s);
+//            if(value.contains("'")){
+//                try {
+//                    value = Base64.getEncoder().encodeToString(value.getBytes(StandardCharsets.UTF_8.name()));
+//                } catch (UnsupportedEncodingException e) {
+//                    e.printStackTrace();
+//                }
+////                sb.append(S.fmt("#%s#", s));
+//            }
             sb.append(S.fmt("'%s'", value));
 //            sb.append("#");
 //            sb.append(s);
@@ -1830,11 +1859,13 @@ public class DeconstructService {
 
         public static ValueGenerator createStrList(String key) {
             return kv -> {
-                JSONArray array = kv.getJSONArray(key);
-                if (array == null) {
+                Object json = kv.get(key);
+                if(json instanceof JSONArray){
+                   JSONArray array = (JSONArray) json;
+                    return array.toJSONString(0);
+                } else {
                     return "[]";
                 }
-                return array.toJSONString(0);
             };
         }
 
@@ -1859,6 +1890,7 @@ public class DeconstructService {
         public static class Wrap {
             private static final int TYPE_DATE = 760;
             private static final int TYPE_ELSE = 114;
+            private static final int TYPE_BASE64 = 613;
             public int type;
 
             public Object call(JSONObject kv, String field) {
@@ -1867,6 +1899,19 @@ public class DeconstructService {
                     case TYPE_DATE:
                         vg = ValueGenerator.createDate(field);
                         break;
+
+                    case TYPE_BASE64:
+                        vg = new ValueGenerator() {
+                            @Override
+                            public Object call(JSONObject kv) {
+                                try {
+                                    return Base64.getEncoder().encodeToString(kv.getStr(field).getBytes(StandardCharsets.UTF_8.name()));
+                                } catch (UnsupportedEncodingException e) {
+                                    e.printStackTrace();
+                                }
+                                return "";
+                            }
+                        };
                 }
                 return vg.call(kv);
             }
@@ -1888,6 +1933,12 @@ public class DeconstructService {
         public static Wrap createDate() {
             Wrap wrap = new Wrap();
             wrap.type = Wrap.TYPE_DATE;
+            return wrap;
+        }
+
+        public static Wrap createBase64(){
+            Wrap wrap = new Wrap();
+            wrap.type = Wrap.TYPE_BASE64;
             return wrap;
         }
     }
