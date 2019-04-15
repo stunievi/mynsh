@@ -13,6 +13,7 @@ import javax.jms.StreamMessage;
 import javax.jms.TextMessage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringBufferInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -29,6 +30,12 @@ public class TestMQ {
         MQService.initMQ();
     }
 
+    public void test(){
+
+//        RedissonClient redis = Redisson.create();
+//        Config config = redis.getConfig();
+
+    }
     @Test
     public void testSend(){
         AtomicBoolean runing = new AtomicBoolean(true);
@@ -65,6 +72,22 @@ public class TestMQ {
                 } catch (JMSException e) {
                     e.printStackTrace();
                 }
+            } else if(message instanceof BlobMessage){
+                try (
+                    InputStream is = ((BlobMessage) message).getInputStream();
+                    ){
+                    StringBuilder builder = new StringBuilder();
+                    byte[] bytes = new byte[1024];
+                    int len = -1;
+                    while((len = is.read(bytes)) > 0){
+                        builder.append(new String(Arrays.copyOfRange(bytes, 0, len)));
+                    }
+                    Assert.assertTrue(S.notEmpty(builder.toString()));
+                } catch (JMSException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
             cl.countDown();
         });
@@ -75,5 +98,21 @@ public class TestMQ {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+
+    @Test
+    public void testReceive() throws InterruptedException {
+        CountDownLatch cl=new CountDownLatch(1);
+
+            MQService.setOnMessageListener(message -> {
+                if(message instanceof TextMessage){
+                    Assert.assertTrue(S.notEmpty(String.valueOf(message)));
+                } else {
+                    Assert.assertTrue(false);
+                }
+            });
+
+        cl.await();
     }
 }

@@ -513,7 +513,7 @@ class ZedService {
         }
         SQLLoader loader = new ClasspathLoader("/sql");
         UnderlinedNameConversion nc = new  UnderlinedNameConversion();
-        sqlManager = new SQLManager(new DB2SqlStyle(),loader,source,nc,new Interceptor[]{new DebugInterceptor()});
+        sqlManager = new SQLManager(new DB2SqlStyle(),loader,source,nc,new Interceptor[]{new MyDebugInterceptor()});
 
         atomSM.set(sqlManager);
     }

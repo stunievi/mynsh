@@ -16,6 +16,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.*;
 import io.netty.util.AsciiString;
+import org.osgl.util.S;
 
 class HttpServerHandler extends ChannelInboundHandlerAdapter {
 
@@ -25,15 +26,15 @@ class HttpServerHandler extends ChannelInboundHandlerAdapter {
     public static Throwable LastException = null;
     private static Map<String, Pattern> urlRegexs = new HashMap<>();
 
-    public static void AddRoute(Route ...routes){
+    public static void AddRoute(Route... routes) {
         RouteList.addAll(Arrays.asList(routes));
     }
 
-    public void send404(ChannelHandlerContext ctx, Object msg){
+    public void send404(ChannelHandlerContext ctx, Object msg) {
         ctx.writeAndFlush(get404());
     }
 
-    public FullHttpResponse get404(){
+    public FullHttpResponse get404() {
         JSONObject object = new JSONObject();
         object.put("Status", "500");
         object.put("Message", "错误请求");
@@ -45,7 +46,7 @@ class HttpServerHandler extends ChannelInboundHandlerAdapter {
         return response;
     }
 
-    public void write(ChannelHandlerContext ctx, FullHttpResponse response, boolean keepAlive){
+    public void write(ChannelHandlerContext ctx, FullHttpResponse response, boolean keepAlive) {
         if (!keepAlive) {
             ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
         } else {
@@ -64,7 +65,7 @@ class HttpServerHandler extends ChannelInboundHandlerAdapter {
             boolean keepAlive = HttpUtil.isKeepAlive(request);
 
             for (Route route : RouteList) {
-                if(!matches(request.uri(), route.regexp)){
+                if (!matches(request.uri(), route.regexp)) {
                     continue;
                 }
 
@@ -74,16 +75,15 @@ class HttpServerHandler extends ChannelInboundHandlerAdapter {
                     response = get404();
                 } else {
                     byte[] responseBytes;
-                    if(object instanceof String){
+                    if (object instanceof String) {
                         responseBytes = ((String) object).getBytes(StandardCharsets.UTF_8);
-                    } else if(object instanceof JSONArray){
+                    } else if (object instanceof JSONArray) {
                         ((JSONArray) object).setDateFormat("yyyy-MM-dd hh:mm:ss");
                         responseBytes = (((JSONArray) object).toJSONString(4)).getBytes(StandardCharsets.UTF_8);
-                    } else if(object instanceof JSONObject){
-                    ((JSONObject) object).setDateFormat("yyyy-MM-dd hh:mm:ss");
-                    responseBytes = (((JSONObject) object).toJSONString(4)).getBytes(StandardCharsets.UTF_8);
-                }
-                    else{
+                    } else if (object instanceof JSONObject) {
+                        ((JSONObject) object).setDateFormat("yyyy-MM-dd hh:mm:ss");
+                        responseBytes = (((JSONObject) object).toJSONString(4)).getBytes(StandardCharsets.UTF_8);
+                    } else {
                         responseBytes = JSONUtil.toJsonStr(object).getBytes(StandardCharsets.UTF_8);
                     }
                     int contentLength = responseBytes.length;
@@ -109,9 +109,13 @@ class HttpServerHandler extends ChannelInboundHandlerAdapter {
     }
 
 
-    public static JSONObject decodeProxyQuery(FullHttpRequest fullHttpRequest){
+    public static JSONObject decodeProxyQuery(FullHttpRequest fullHttpRequest) {
         JSONObject params = new JSONObject();
-        QueryStringDecoder decoder = new QueryStringDecoder(fullHttpRequest.headers().getAsString("Proxy-Url"));
+        String proxy = fullHttpRequest.headers().getAsString("Proxy-Url");
+        if(S.empty(proxy)){
+            return decodeQuery(fullHttpRequest);
+        }
+        QueryStringDecoder decoder = new QueryStringDecoder(proxy);
         Map<String, List<String>> paramList = decoder.parameters();
         for (Map.Entry<String, List<String>> entry : paramList.entrySet()) {
             params.put(entry.getKey(), entry.getValue().get(0));
@@ -119,9 +123,9 @@ class HttpServerHandler extends ChannelInboundHandlerAdapter {
         return params;
     }
 
-    public static JSONObject decodeQuery(FullHttpRequest request){
+    public static JSONObject decodeQuery(FullHttpRequest request) {
         JSONObject params = new JSONObject();
-        QueryStringDecoder decoder = new QueryStringDecoder(request.getUri(), StandardCharsets.UTF_8);
+        QueryStringDecoder decoder = new QueryStringDecoder(request.uri(), StandardCharsets.UTF_8);
         Map<String, List<String>> paramList = decoder.parameters();
         for (Map.Entry<String, List<String>> entry : paramList.entrySet()) {
             params.put(entry.getKey(), entry.getValue().get(0));
@@ -155,12 +159,12 @@ class HttpServerHandler extends ChannelInboundHandlerAdapter {
             urlRegexs.put(pattern, p);
         }
         Matcher m = p.matcher(url);
-        if(m.find()){
-            if(url.length() == m.end()){
+        if (m.find()) {
+            if (url.length() == m.end()) {
                 return true;
             }
             char c = url.charAt(m.end());
-            if(c == '?' || c == '#' || c == '/' || c == '.'){
+            if (c == '?' || c == '#' || c == '/' || c == '.') {
                 return true;
             }
         }
