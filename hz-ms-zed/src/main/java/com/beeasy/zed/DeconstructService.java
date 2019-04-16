@@ -6,6 +6,7 @@ package com.beeasy.zed;
 
 import static com.beeasy.zed.Utils.*;
 
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
@@ -38,11 +39,11 @@ public class DeconstructService {
 
     private ObjectId objectId = ObjectId.get();
     public SQLManager sqlManager;
-    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-    private static SimpleDateFormat isoSdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
-    private static SimpleDateFormat iso2Sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-    private static SimpleDateFormat ymdSdf = new SimpleDateFormat("yyyy-MM-dd");
-    private static SimpleDateFormat[] dateFormats = {isoSdf, iso2Sdf, sdf, ymdSdf};
+//    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+//    private static SimpleDateFormat isoSdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
+//    private static SimpleDateFormat iso2Sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+//    private static SimpleDateFormat ymdSdf = new SimpleDateFormat("yyyy-MM-dd");
+    private static String[] dateFormats = {"yyyy-MM-dd'T'HH:mm:ssXXX", "yyyy-MM-dd'T'HH:mm:ss", "yyyy-MM-dd hh:mm:ss", "yyyy-MM-dd"};
 
     private static ValueGenerator.Wrap DateValue = ValueGenerator.createDate();
     private static ValueGenerator.Wrap Base64Value = ValueGenerator.createBase64();
@@ -722,7 +723,10 @@ public class DeconstructService {
     private void GetHistorytShareHolder(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         String compName = getQuery(request, "keyWord");
         JSONObject object = (JSONObject) json;
-        JSONArray ChangeDateList = object.getJSONArray("ChangeDateList");
+        JSONArray ChangeDateList = (JSONArray) object.get("ChangeDateList");
+        if (ChangeDateList == null) {
+            ChangeDateList = new JSONArray();
+        }
         JSONArray details = object.getJSONArray("Details");
 
         changeField(
@@ -1163,8 +1167,8 @@ public class DeconstructService {
     private void GetJudicialSaleDetail(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         String id = getQuery(request, "id");
         changeField(json,
-            "+Id", id,
-            "+Context", Base64Value
+            "+Id", id
+//            "+Context", Base64Value
         );
         deconstruct(json, "QCC_JUDICIAL_SALE", "Id");
     }
@@ -1561,7 +1565,7 @@ public class DeconstructService {
     private void SearchZhiXing(ChannelHandlerContext ctx, FullHttpRequest request, JSON array) {
         changeField(
             array,
-            "+Liandate", ValueGenerator.createIsoDate("Liandate"),
+            "+Liandate", DateValue,
             "Sourceid->Source_id",
             "Liandate->Li_an_date",
             "Sourceid->Source_id",
@@ -1662,13 +1666,13 @@ public class DeconstructService {
             Integer count = ret.getByPath("0.1", Integer.class);
             if (count != null && count > 0) {
                 sql = buildUpdateSql(tableName, kv, sb.toString());
-                sqlManager.executeUpdate((sql), kv);
+                sqlManager.executeUpdate(new SQLReady(sql));
                 return kv;
             }
         }
 
         String sql = buildInsertSql(tableName, kv);
-        sqlManager.executeUpdate((sql), kv);
+        sqlManager.executeUpdate(new SQLReady(sql));
         return kv;
     }
 
@@ -1677,7 +1681,7 @@ public class DeconstructService {
         if (object == null) {
             sb.append("null");
         } else if (object instanceof Date) {
-            String d = sdf.format(object);
+            String d = DateUtil.format((Date) object, "yyyy-MM-dd hh:mm:ss");
             if (S.empty(d)) {
                 sb.append("null");
             } else {
@@ -1800,49 +1804,37 @@ public class DeconstructService {
         return sb.toString();
     }
 
-    private static Date convertIsoDate(SimpleDateFormat sdf, String str) {
-        if (str == null) {
-            return null;
-        }
-        try {
-            return sdf.parse(str);
-        } catch (ParseException e) {
-            e.printStackTrace();
-            throw new RuntimeException(S.fmt("%s %s 时间转换错误", sdf.toString(), str));
-        }
-    }
+//    private static Date convertIsoDate(SimpleDateFormat sdf, String str) {
+//        if (str == null) {
+//            return null;
+//        }
+//        try {
+//            return sdf.parse(str);
+//        } catch (ParseException e) {
+//            e.printStackTrace();
+//            throw new RuntimeException(S.fmt("%s %s 时间转换错误", sdf.toString(), str));
+//        }
+//    }
 
-    private static Date convertDate(SimpleDateFormat sdf, String str) {
+    private static Date convertDate(String format, String str) {
         if (str == null) {
             return null;
         }
         try {
-            return sdf.parse(str);
-        } catch (ParseException e) {
+            return DateUtil.parse(str, format);
+        } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException(S.fmt("%s %s 时间转换错误", sdf.toString(), str));
         }
+        return null;
     }
 
 
     private static Date convertYmdDate(String str) {
-        if (S.blank(str)) {
-            return null;
-        }
-        try {
-            return ymdSdf.parse(str);
-        } catch (Exception e) {
-            throw new RuntimeException(S.fmt("%s yyyy-MM-dd 时间转换错误", str));
-        }
+        return convertDate("yyyy-MM-dd", str);
     }
 
     private static Date converYmdhmsDate(String str) {
-        try {
-            return sdf.parse(str);
-        } catch (Exception e) {
-            throw new RuntimeException(S.fmt("%s yyyy-MM-dd hh:mm:ss 时间转换错误", str));
-        }
-
+        return convertDate("yyyy-MM-dd hh:mm:ss", str);
     }
 
 
@@ -1868,16 +1860,6 @@ public class DeconstructService {
                 }
             };
         }
-
-        public static ValueGenerator createIsoDate(String key) {
-            return kv -> convertDate(isoSdf, kv.getStr(key));
-        }
-
-        public static ValueGenerator createIso2Date(String key) {
-            return kv -> convertDate(iso2Sdf, kv.getStr(key));
-        }
-
-        ;
 
         public static ValueGenerator createYmdDate(String key) {
             return kv -> convertYmdDate(kv.getStr(key));
@@ -1919,9 +1901,9 @@ public class DeconstructService {
 
         public static ValueGenerator createDate(String key) {
             return kv -> {
-                for (SimpleDateFormat dateFormat : dateFormats) {
+                for (String dateFormat : dateFormats) {
                     try {
-                        return dateFormat.parse(kv.getStr(key));
+                        return DateUtil.parse(kv.getStr(key)).toJdkDate();
                     } catch (Exception e) {
                     }
                 }

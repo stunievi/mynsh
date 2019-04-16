@@ -14,6 +14,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.logging.Handler;
 import java.util.stream.Collectors;
 
 import static com.beeasy.zed.Utils.*;

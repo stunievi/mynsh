@@ -1,5 +1,6 @@
 package com.beeasy.zed;
 
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
@@ -15,6 +16,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.osgl.util.IO;
+import org.osgl.util.S;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -24,8 +26,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.*;
 import java.util.zip.*;
 
 public class TestMongo {
@@ -80,73 +81,134 @@ public class TestMongo {
         System.out.println(System.currentTimeMillis() - stime);
     }
 
+
+
     @Test
     public void testDecode() throws InterruptedException {
         File temp = null;
         try {
             temp = (Files.createTempFile("", "")).toFile();
-            File f = new File("C:\\Users\\bin\\Documents\\WeChat Files\\llyb120\\FileStorage\\File\\2019-04\\2f91f5f2-380f-4ade-aabd-e5dd22b9a6c4.zip");
+//            File f = new File("C:\\Users\\bin\\Documents\\WeChat Files\\llyb120\\FileStorage\\File\\2019-04\\bd1d46d2-b80d-4669-9b28-5b6081d2bfad.zip");
+            File f = new File("C:\\Users\\bin\\Documents\\WeChat Files\\llyb120\\FileStorage\\File\\2019-04\\ec72a17e-164f-4beb-97c6-f3eedb18084f.zip");
 //            f = new File("cubi.zip");
             unzipFile(f, temp);
         } catch (IOException e) {
             e.printStackTrace();
             return;
         }
-        int n = 0;
-        ExecutorService executor = ThreadUtil.newExecutor(8);
-        List<String> tasks = new ArrayList<>();
+        List<Slice> tasks = new ArrayList<>();
+        byte[] buf = BufferPool.allocate();
         try(
             RandomAccessFile raf = new RandomAccessFile(temp, "r");
         ){
+//            raf
             int pos = 0;
             int len = -1;
-            byte[] bs = new byte[1024000];
             while(true){
                 if(pos >= raf.length()){
                     break;
                 }
                 raf.seek(pos);
                 len = raf.readInt();
-                raf.read(bs, 0, len);
-                String str =
-                    new String(bs, 0, len);
-                ++n;
-                tasks.add(str);
-
-                pos += (4 + len);
+                pos += 4;
+                raf.read(buf, 0, len);
+                String link = new String(buf, 0, len);
+                pos += len;
+                len = raf.readInt();
+                pos += 4;
+                Slice slice = new Slice(link, pos, len, null);
+                tasks.add(slice);
+                pos += len;
             }
 
+            ThreadPoolExecutor executor = new ThreadPoolExecutor(16, 16,
+                0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<Runnable>()) {
+                @Override
+                protected void afterExecute(Runnable r, Throwable t) {
+                    super.afterExecute(r, t);
+                    if (t != null) {
+                        t.printStackTrace();
+                        System.exit(0);
+                    }
+                }
+            };
+
+            File finalTemp = temp;
+            ThreadLocal<RandomAccessFile> local = new ThreadLocal<RandomAccessFile>(){
+                private Vector<RandomAccessFile> files = new Vector();
+
+                @Override
+                protected RandomAccessFile initialValue() {
+                    try {
+                        RandomAccessFile raf = new RandomAccessFile(finalTemp, "r");
+                        files.add(raf);
+                        return raf;
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                        return null;
+                    }
+                }
+
+
+                @Override
+                protected void finalize() throws Throwable {
+                    for (RandomAccessFile file : files) {
+                        file.close();
+                    }
+                    super.finalize();
+                }
+            };
+
+            CountDownLatch cl = new CountDownLatch(tasks.size());
+            for (Slice slice : tasks) {
+                executor.execute(() -> {
+                    String str = null;
+                    RandomAccessFile file = local.get();
+                    byte[] bs = BufferPool.allocate();
+                    try {
+                        file.seek(slice.bodyStart);
+                        file.read(bs, 0, (int) slice.bodyLen);
+                        str = new String(bs, 0, slice.bodyLen);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } finally {
+                        BufferPool.deallocate(bs);
+                    }
+                    if (str != null) {
+                        testDe(slice.link, str);
+                        cl.countDown();
+                    }
+                });
+            }
+
+
+            cl.await();
+
         } catch (IOException e) {
+            Assert.assertNull(e);
             e.printStackTrace();
         } finally {
+            BufferPool.deallocate(buf);
             if (temp != null) {
                temp.delete();
             }
         }
-        CountDownLatch cl = new CountDownLatch(tasks.size());
-        for (String str : tasks) {
-            executor.execute(() -> {
-//                System.out.println(
-//                    str
-//                );
-                testDe(str);
-                cl.countDown();
-            });
-        }
-
-        cl.await();
     }
 
-    public void testDe(String str){
-        JSONObject object = JSON.parseObject(str);
-        String url = object.getString("FullLink");
+    public void testDe(String url, String str){
+        JSONObject object= JSON.parseObject(str);
+//        String url = object.getString("FullLink");
         for (Map.Entry<String, DeconstructService.DeconstructHandler> entry : DeconstructService.handlers.entrySet()) {
             if(HttpServerHandler.matches(url, entry.getKey())){
                 DeconstructService.DeconstructHandler handler = entry.getValue();
                 ByteBuf buf = Unpooled.buffer();
                 DefaultHttpHeaders headers = new DefaultHttpHeaders();
                 FullHttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, url, buf, headers, headers);
-                handler.call(null, request, (cn.hutool.json.JSON) JSONUtil.parseObj(object.getString("OriginData")).get("Result"));
+                cn.hutool.json.JSONObject od = JSONUtil.parseObj(object.getString("OriginData"));
+                if(S.eq(od.getStr("Status"), "200")){
+                    handler.call(null, request, (cn.hutool.json.JSON) od.get("Result"));
+                }
             }
         }
     }
@@ -189,5 +251,19 @@ public class TestMongo {
         }
     }
 
+
+    public static class Slice{
+        String link;
+        long bodyStart;
+        int bodyLen;
+        String body;
+
+        public Slice(String link, long bodyStart, int bodyLen, String body) {
+            this.link = link;
+            this.bodyStart = bodyStart;
+            this.bodyLen = bodyLen;
+            this.body = body;
+        }
+    }
 
 }
