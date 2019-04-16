@@ -1,6 +1,8 @@
 package com.beeasy.zed;
 
-import cn.hutool.json.*;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import org.beetl.sql.core.SQLManager;
@@ -302,7 +304,7 @@ public class QccService {
     private Object GetStockAnalysisData(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
         JSONObject compData = singleQuery("qcc.查询股权穿透十层信息表", params);
         JSONArray partners = listQuery("qcc.查询股权穿透十层股东信息表", params);
-        JSONObject ss = JSONUtil.parseObj(compData.getStr("StockStatistics"));
+        JSONObject ss = JSON.parseObject(compData.getString("StockStatistics"));
         compData.remove("StockStatistics");
         JSONArray stockList = listQuery("qcc.查询股权穿透十层股东列表", params);
         compData.put("Partners", partners);
@@ -678,8 +680,8 @@ public class QccService {
         JSONArray list = names.getJSONArray("list");
         for (Object _object : list) {
             JSONObject object = (JSONObject) _object;
-            object.put("Paths", JSONUtil.parse(object.getStr("Paths")));
-            object.put("Oper", JSONUtil.parse(object.getStr("Oper")));
+            object.put("Paths", JSON.parse(object.getString("Paths")));
+            object.put("Oper", JSON.parse(object.getString("Oper")));
         }
         main.put("Names", list);
         names.remove("list");
@@ -1374,7 +1376,7 @@ public class QccService {
      * @apiUse QccError
      */
     private Object GetStockRelationInfo(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
-        String compName = params.getStr("fullName", "");
+        String compName = (String) params.getOrDefault("fullName", "");
         JSONObject result = new JSONObject();
         for (Map.Entry<String, Object> entry : DeconstructService.GetStockRelationInfoMap.entrySet()) {
             String sql = S.fmt("select * from %s where inner_company_name = '%s'", entry.getValue(), compName);
@@ -4520,7 +4522,7 @@ public class QccService {
      */
     private Object GetHistorytEci(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject param) {
         JSONObject object = singleQuery("qcc.查询历史工商信息表", param);
-        JSON hisData = JSONUtil.parse(object.getStr("HisData"));
+        JSONObject hisData = JSON.parseObject(object.getString("HisData"));
         object.remove("HisData");
         object.putAll((Map<? extends String, ? extends Object>) hisData);
         return object;
@@ -4860,7 +4862,7 @@ public class QccService {
         object.put("Branches", listQuery("qcc.查询工商信息分支机构表", params));
         object.put("ChangeRecords", listQuery("qcc.查询工商信息变更信息表", params));
         JSONObject ContactInfo = singleQuery("qcc.查询工商信息联系信息表", params);
-        ContactInfo.put("WebSite", JSONUtil.parse(ContactInfo.getStr("WebSite")));
+        ContactInfo.put("WebSite", JSON.parse(ContactInfo.getString("WebSite")));
         object.put("ContactInfo", ContactInfo);
         JSONObject Industry = singleQuery("qcc.查询工商信息行业信息表", params);
         object.put("Industry", Industry);
@@ -5116,7 +5118,7 @@ public class QccService {
                     .stream()
                     .map(i -> (JSONObject) i)
                     .filter(i -> {
-                        if (i.getStr("CmId", "##").equals(object.getStr("InnerId", "$$"))) {
+                        if (Objects.equals(i.getOrDefault("CmId", "##"), object.getOrDefault("InnerId", "$$"))) {
                             i.remove("CmId");
                             return true;
                         }
@@ -5129,7 +5131,7 @@ public class QccService {
                     .stream()
                     .filter(oo -> {
                         JSONObject i = (JSONObject) oo;
-                        if (i.getStr("CmId", "##").equals(object.getStr("InnerId", "$$"))) {
+                        if (Objects.equals(i.getOrDefault("CmId", "##"), object.getOrDefault("InnerId", "$$"))) {
                             i.remove("CmId");
                             return true;
                         }
@@ -5142,7 +5144,7 @@ public class QccService {
                     .stream()
                     .filter(oo -> {
                         JSONObject i = (JSONObject) oo;
-                        if (i.getStr("CmId", "##").equals(object.getStr("InnerId", "$$"))) {
+                        if (Objects.equals(i.getOrDefault("CmId", "##"), object.getOrDefault("InnerId", "$$"))) {
                             i.remove("CmId");
                             return true;
                         }
@@ -5412,7 +5414,7 @@ public class QccService {
     private Object GetJudicialSaleDetail(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
         JSONObject object = singleQuery("qcc.查询司法拍卖详情", params);
         if(object.containsKey("Context")){
-            object.put("Context", new String(Base64.getDecoder().decode(object.getStr("Context"))));
+            object.put("Context", new String(Base64.getDecoder().decode(object.getString("Context"))));
         }
         return object;
     }
@@ -6224,19 +6226,19 @@ public class QccService {
         if (object.size() == 0) {
             return object;
         }
-        object.put("Appellor", JSONUtil.parseArray(object.getStr("Appellor")));
-        object.put("DefendantList", JSONUtil.parseArray(object.getStr("DefendantList")));
-        object.put("ProsecutorList", JSONUtil.parseArray(object.getStr("ProsecutorList")));
+        object.put("Appellor", JSON.parseArray(object.getString("Appellor")));
+        object.put("DefendantList", JSON.parseArray(object.getString("DefendantList")));
+        object.put("ProsecutorList", JSON.parseArray(object.getString("ProsecutorList")));
         //
-        JSONArray courtNotices = listQuery("qcc.查询裁判文书详情-开庭公告", newJsonObject("id", params.getStr("id")));
+        JSONArray courtNotices = listQuery("qcc.查询裁判文书详情-开庭公告", newJsonObject("id", params.getString("id")));
         object.put("CourtNoticeList", newJsonObject(
             "TotalNum", courtNotices.size(),
             "CourtNoticeInfo", courtNotices
         ));
-        JSONArray companies = listQuery("qcc.查询裁判文书详情-关联公司", newJsonObject("id", params.getStr("id")));
+        JSONArray companies = listQuery("qcc.查询裁判文书详情-关联公司", newJsonObject("id", params.getString("id")));
         object.put("RelatedCompanies", companies);
-        object.put("Content", new String(Base64.getDecoder().decode(object.getStr("Content"))));
-        object.put("ContentClear", new String(Base64.getDecoder().decode(object.getStr("ContentClear"))));
+        object.put("Content", new String(Base64.getDecoder().decode(object.getString("Content"))));
+        object.put("ContentClear", new String(Base64.getDecoder().decode(object.getString("ContentClear"))));
         return object;
     }
 
@@ -6777,13 +6779,13 @@ public class QccService {
             if (result instanceof JSONObject) {
                 JSONObject resultObj = (JSONObject) result;
                 if (resultObj.containsKey("totalRow")) {
-                    if (resultObj.getInt("totalRow") == 0){
+                    if (resultObj.getInteger("totalRow") == 0){
                         realResult.put("Status", "201");
                     }
                     realResult.put("Paging", newJsonObject(
-                        "PageSize", resultObj.getInt("pageSize"),
-                        "PageIndex", resultObj.getInt("pageNumber"),
-                        "TotalRecords", resultObj.getInt("totalRow")
+                        "PageSize", resultObj.getInteger("pageSize"),
+                        "PageIndex", resultObj.getInteger("pageNumber"),
+                        "TotalRecords", resultObj.getInteger("totalRow")
                     ));
                     if (resultObj.containsKey("list")) {
                         realResult.put("Result", resultObj.get("list"));
@@ -6810,11 +6812,11 @@ public class QccService {
     }
 
     public JSONObject singleQuery(String sqlId, JSONObject params) {
-        Map map = null;
+        JSONObject map = null;
         if (sqlId.contains(".")) {
-            map = sqlManager.selectSingle(sqlId, params, Map.class);
+            map = sqlManager.selectSingle(sqlId, params, JSONObject.class);
         } else {
-            List<Map> list = sqlManager.execute(sqlId, Map.class, params);
+            List<JSONObject> list = sqlManager.execute(sqlId, JSONObject.class, params);
             if (list.size() > 0) {
                 map = list.get(0);
             }
@@ -6822,16 +6824,18 @@ public class QccService {
         if (map == null) {
             return new JSONObject();
         }
-        return JSONUtil.parseFromMap(map);
+        return map;
     }
 
 
     public JSONArray listQuery(String sqlId, Map<String, Object> params) {
+        JSONArray list = new JSONArray();
         if (sqlId.contains(".")) {
-            return JSONUtil.parseArray(sqlManager.select(sqlId, JSONObject.class, params));
+            list.addAll(sqlManager.select(sqlId, JSONObject.class, params));
         } else {
-            return JSONUtil.parseArray(sqlManager.execute(sqlId, JSONObject.class, params));
+            list.addAll(sqlManager.execute(sqlId, JSONObject.class, params));
         }
+        return list;
     }
 
     public JSONObject pageQuery(String sqlId, JSONObject params) {
@@ -6839,15 +6843,15 @@ public class QccService {
         int page = 1;
         int size = 10;
         try {
-            page = params.getInt("pageIndex", 1);
-            size = params.getInt("pageSize", 10);
+            page = (int)params.getOrDefault("pageIndex", 1);
+            size = (int)params.getOrDefault("pageSize", 10);
         } finally {
             pageQuery.setPageSize(size);
             pageQuery.setPageNumber(page);
         }
         pageQuery.setParas(params);
         sqlManager.pageQuery(sqlId, JSONObject.class, pageQuery);
-        return JSONUtil.parseObj(pageQuery);
+        return (JSONObject) JSON.toJSON(pageQuery);
     }
 
 
@@ -6861,12 +6865,12 @@ public class QccService {
         for (Object _object : array) {
             JSONObject object = (JSONObject) _object;
             JSONArray children = new JSONArray();
-            map.put(object.getStr("InnerId"), children);
+            map.put(object.getString("InnerId"), children);
             object.put("Children", children);
         }
         for (Object _object : array) {
             JSONObject object = (JSONObject) _object;
-            String pid = object.getStr("InnerParentId","");
+            String pid = (String) object.getOrDefault("InnerParentId","");
             if(pid.equals("")){
                 main = object;
             } else {

@@ -7,9 +7,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import cn.hutool.core.util.CharsetUtil;
-import cn.hutool.json.JSONArray;
-import cn.hutool.json.JSONObject;
-import cn.hutool.json.JSONUtil;
+//import cn.hutool.json.JSONArray;
+//import cn.hutool.json.JSONObject;
+//import cn.hutool.json.JSONUtil;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -38,7 +41,7 @@ class HttpServerHandler extends ChannelInboundHandlerAdapter {
         JSONObject object = new JSONObject();
         object.put("Status", "500");
         object.put("Message", "错误请求");
-        String json = object.toJSONString(4);
+        String json = object.toJSONString();
         byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
         FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND, Unpooled.wrappedBuffer(bytes));
         response.headers().set("Content-Type", "application/json; charset=utf-8");
@@ -78,13 +81,13 @@ class HttpServerHandler extends ChannelInboundHandlerAdapter {
                     if (object instanceof String) {
                         responseBytes = ((String) object).getBytes(StandardCharsets.UTF_8);
                     } else if (object instanceof JSONArray) {
-                        ((JSONArray) object).setDateFormat("yyyy-MM-dd hh:mm:ss");
+//                        ((JSONArray) object).setDateFormat("yyyy-MM-dd hh:mm:ss");
                         responseBytes = (((JSONArray) object).toJSONString(4)).getBytes(StandardCharsets.UTF_8);
                     } else if (object instanceof JSONObject) {
-                        ((JSONObject) object).setDateFormat("yyyy-MM-dd hh:mm:ss");
+//                        ((JSONObject) object).setDateFormat("yyyy-MM-dd hh:mm:ss");
                         responseBytes = (((JSONObject) object).toJSONString(4)).getBytes(StandardCharsets.UTF_8);
                     } else {
-                        responseBytes = JSONUtil.toJsonStr(object).getBytes(StandardCharsets.UTF_8);
+                        responseBytes = JSON.toJSONString(object).getBytes(StandardCharsets.UTF_8);
                     }
                     int contentLength = responseBytes.length;
                     // 构造FullHttpResponse对象，FullHttpResponse包含message body

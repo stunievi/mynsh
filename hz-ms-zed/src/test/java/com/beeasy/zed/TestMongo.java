@@ -10,6 +10,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.DefaultHeaders;
 import io.netty.handler.codec.http.*;
+import org.beetl.sql.ext.gen.GenConfig;
 import org.bson.Document;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -89,8 +90,8 @@ public class TestMongo {
         try {
             temp = (Files.createTempFile("", "")).toFile();
 //            File f = new File("C:\\Users\\bin\\Documents\\WeChat Files\\llyb120\\FileStorage\\File\\2019-04\\bd1d46d2-b80d-4669-9b28-5b6081d2bfad.zip");
-            File f = new File("C:\\Users\\bin\\Documents\\WeChat Files\\llyb120\\FileStorage\\File\\2019-04\\ec72a17e-164f-4beb-97c6-f3eedb18084f.zip");
-//            f = new File("cubi.zip");
+//            File f = new File("C:\\Users\\bin\\Documents\\WeChat Files\\llyb120\\FileStorage\\File\\2019-04\\ec72a17e-164f-4beb-97c6-f3eedb18084f.zip");
+            File f = new File("C:\\Users\\bin\\Documents\\WeChat Files\\llyb120\\FileStorage\\File\\2019-04\\60608e86-0b4d-4e8e-bfc1-736f0bbbe848.zip");
             unzipFile(f, temp);
         } catch (IOException e) {
             e.printStackTrace();
@@ -154,7 +155,10 @@ public class TestMongo {
                 @Override
                 protected void finalize() throws Throwable {
                     for (RandomAccessFile file : files) {
-                        file.close();
+                        try{
+                            file.close();
+                        }finally {
+                        }
                     }
                     super.finalize();
                 }
@@ -205,9 +209,9 @@ public class TestMongo {
                 ByteBuf buf = Unpooled.buffer();
                 DefaultHttpHeaders headers = new DefaultHttpHeaders();
                 FullHttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, url, buf, headers, headers);
-                cn.hutool.json.JSONObject od = JSONUtil.parseObj(object.getString("OriginData"));
-                if(S.eq(od.getStr("Status"), "200")){
-                    handler.call(null, request, (cn.hutool.json.JSON) od.get("Result"));
+                JSONObject od = (object.getJSONObject("OriginData"));
+                if(S.eq(od.getString("Status"), "200")){
+                    handler.call(null, request, (JSON) od.get("Result"));
                 }
             }
         }

@@ -1,8 +1,8 @@
 package com.beeasy.zed;
 
-//import com.alibaba.fastjson.JSON;
-//import com.alibaba.fastjson.JSONArray;
-//import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 
 import static com.beeasy.zed.Utils.*;
 
@@ -10,7 +10,8 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
-import cn.hutool.json.*;
+//import cn.hutool.json.*;
+import com.alibaba.fastjson.support.spring.JSONPResponseBodyAdvice;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpMethod;
@@ -43,7 +44,7 @@ public class DeconstructService {
 //    private static SimpleDateFormat isoSdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
 //    private static SimpleDateFormat iso2Sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 //    private static SimpleDateFormat ymdSdf = new SimpleDateFormat("yyyy-MM-dd");
-    private static String[] dateFormats = {"yyyy-MM-dd'T'HH:mm:ssXXX", "yyyy-MM-dd'T'HH:mm:ss", "yyyy-MM-dd hh:mm:ss", "yyyy-MM-dd"};
+    private static String[] dateFormats = {"yyyy-MM-dd hh:mm:ss", "yyyy-MM-dd","yyyy-MM-dd'T'HH:mm:ssXXX", "yyyy-MM-dd'T'HH:mm:ss"};
 
     private static ValueGenerator.Wrap DateValue = ValueGenerator.createDate();
     private static ValueGenerator.Wrap Base64Value = ValueGenerator.createBase64();
@@ -88,7 +89,7 @@ public class DeconstructService {
                 return null;
             }
             String jsonstr = request.content().toString(CharsetUtil.UTF_8);
-            JSONObject json = JSONUtil.parseObj(jsonstr);
+            JSONObject json = JSON.parseObject(jsonstr);
             if (!isSuccess(json)) {
                 return null;
             }
@@ -378,17 +379,18 @@ public class DeconstructService {
         doDelete("QCC_HOLDING_COMPANY_NAMES", "inner_company_name", compName);
         doDelete("QCC_HOLDING_COMPANY_NAMES_PATHS", "inner_company_name", compName);
         doDelete("QCC_HOLDING_COMPANY_NAMES_OPER", "inner_company_name", compName);
+        JSONObject object = (JSONObject) json;
         //子表
         child:
         {
-            JSONArray names = (JSONArray) json.getByPath("Names", JSON.class);
+            JSONArray names = (JSONArray) object.getJSONArray("Names");
             if (names == null) {
                 break child;
             }
             for (Object _name : names) {
                 JSONObject name = (JSONObject) _name;
-                JSONArray paths = (JSONArray) name.getByPath("Paths", JSON.class);
-                JSONObject oper = (JSONObject) name.getByPath("Oper", JSON.class);
+                JSONArray paths = (JSONArray) name.getJSONArray("Paths");
+                JSONObject oper = (JSONObject) name.getJSONObject("Oper");
                 if (oper == null) {
                     oper = new JSONObject();
                 }
@@ -405,12 +407,12 @@ public class DeconstructService {
                 // FIXME: 2019/4/14 路径结构有问题，不解构
 //                changeField(paths,
 //                    "+inner_company_name", compName,
-//                    "+parent_inner_id", kv.getStr("inner_id")
+//                    "+parent_inner_id", kv.getString("inner_id")
 //                    );
 //                deconstruct(paths, "QCC_HOLDING_COMPANY_NAMES_PATHS", "");
                 changeField(oper,
                     "+inner_company_name", compName,
-                    "+parent_inner_id", kv.getStr("inner_id")
+                    "+parent_inner_id", kv.getString("inner_id")
                 );
                 deconstruct(oper, "QCC_HOLDING_COMPANY_NAMES_OPER", "");
             }
@@ -426,7 +428,7 @@ public class DeconstructService {
     private void GetStockRelationInfo(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         String compName = getQuery(request, "companyName");
         for (Map.Entry<String, Object> entry : GetStockRelationInfoMap.entrySet()) {
-            JSONArray array = (JSONArray) json.getByPath(entry.getKey() + ".Result", JSON.class);
+            JSONArray array = (JSONArray) jsonGetByPath(json, entry.getKey() + ".Result");
             if (array == null) {
                 continue;
             }
@@ -446,7 +448,7 @@ public class DeconstructService {
      */
     private void GenerateMultiDimensionalTreeCompanyMap(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         String keyNo = getQuery(request, "keyNo");
-        JSONObject node = (JSONObject) json.getByPath("Node");
+        JSONObject node = (JSONObject) jsonGetByPath(json, "Node");
         changeField(
             node,
             "+inner_company_no", keyNo
@@ -470,16 +472,17 @@ public class DeconstructService {
         doDelete("QCC_COMPANY_MAP", "inner_company_no", keyNo);
         JSONObject kv = (JSONObject) deconstruct(json, "QCC_CESM", "");
 
+        JSONObject object = (JSONObject) json;
         //实际控股信息
         child:
         {
-            JSONArray array = (JSONArray) json.getByPath("ActualControllerLoopPath", JSON.class);
+            JSONArray array = (JSONArray) object.getJSONArray("ActualControllerLoopPath");
             if (array == null) {
                 break child;
             }
             changeField(array,
                 "+inner_company_no", keyNo,
-                "+cesm_inner_id", kv.getStr("inner_id")
+                "+cesm_inner_id", kv.getString("inner_id")
             );
             doDelete("QCC_CESM_ACLP", "INNER_COMPANY_NO", keyNo);
             deconstruct(array, "QCC_CESM_ACLP", "");
@@ -494,7 +497,7 @@ public class DeconstructService {
      */
     private void SearchTreeRelationMap(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         String keyNo = getQuery(request, "keyNo");
-        JSONObject node = (JSONObject) json.getByPath("Node");
+        JSONObject node = ((JSONObject) json).getJSONObject("Node");
         changeField(
             node,
             "+inner_company_no", keyNo
@@ -785,7 +788,7 @@ public class DeconstructService {
         for (Map.Entry<String, Object> entry : HistorytEciMap.entrySet()) {
             String key = entry.getKey();
 
-            JSON obj = object.getByPath(key, JSON.class);
+            JSON obj = (JSON) object.get(key);
             changeField(obj,
                 "+inner_company_name", compName,
                 new ICanChange() {
@@ -804,7 +807,7 @@ public class DeconstructService {
                     for (Object a : arr) {
                         changeField(a,
                             "+inner_company_name", compName,
-                            "+el_inner_id", o.getStr("inner_id")
+                            "+el_inner_id", o.getString("inner_id")
                         );
                     }
                     deconstruct(arr, "QCC_HIS_ECI_EMPLOYEE_LIST_JOB", "");
@@ -945,8 +948,8 @@ public class DeconstructService {
                 "+web_site", new ValueGenerator() {
                     @Override
                     public Object call(JSONObject kv) {
-                        JSONObject object1 = kv.getJSONObject("WebSite");
-                        return object1.toJSONString(0);
+                        JSONArray object1 = kv.getJSONArray("WebSite");
+                        return object1.toJSONString();
                     }
                 },
                 "+inner_company_name", compName
@@ -1000,9 +1003,9 @@ public class DeconstructService {
                 "+inner_company_name", compName
             );
             JSONObject ret = (JSONObject) deconstruct(obj, "QCC_CHATTEL_MORTGAGE", "");
-            String id = ret.getStr("inner_id");
+            String id = ret.getString("inner_id");
             //pledge
-            JSONObject pledge = obj.getByPath("Detail.Pledge", JSONObject.class);
+            JSONObject pledge = (JSONObject) jsonGetByPath(obj, "Detail.Pledge");
             if (pledge != null) {
                 changeField(pledge,
                     "+cm_id", id,
@@ -1011,7 +1014,7 @@ public class DeconstructService {
                 deconstruct(pledge, "QCC_CMD_PLEDGE", "");
             }
             //PledgeeList
-            JSONArray pledgeeList = (JSONArray) obj.getByPath("Detail.PledgeeList", JSON.class);
+            JSONArray pledgeeList = (JSONArray) jsonGetByPath(obj, "Detail.PledgeeList");
             if (pledgeeList != null) {
                 changeField(pledgeeList,
                     "+cm_id", id,
@@ -1020,7 +1023,7 @@ public class DeconstructService {
                 deconstruct(pledgeeList, "QCC_CMD_PLEDGEE_LIST", "");
             }
             //SecuredClaim
-            JSONObject securedClaim = obj.getByPath("Detail.SecuredClaim", JSONObject.class);
+            JSONObject securedClaim = (JSONObject) jsonGetByPath(obj,"Detail.SecuredClaim");
             if (securedClaim != null) {
                 changeField(securedClaim,
                     "+cm_id", id,
@@ -1028,7 +1031,7 @@ public class DeconstructService {
                 deconstruct(securedClaim, "QCC_CMD_SECURED_CLAIM", "");
             }
             //GuaranteeList
-            JSONArray GuaranteeList = (JSONArray) obj.getByPath("Detail.GuaranteeList", JSON.class);
+            JSONArray GuaranteeList = (JSONArray) jsonGetByPath(obj, "Detail.GuaranteeList");
             if (GuaranteeList != null) {
                 changeField(GuaranteeList,
                     "+cm_id", id,
@@ -1038,7 +1041,7 @@ public class DeconstructService {
             }
 
             //CancelInfo
-            JSONObject CancelInfo = (JSONObject) obj.getByPath("Detail.CancelInfo", JSONObject.class);
+            JSONObject CancelInfo = (JSONObject) jsonGetByPath(obj, "Detail.CancelInfo");
             if (CancelInfo != null) {
                 changeField(CancelInfo,
                     "+cm_id", id,
@@ -1048,7 +1051,7 @@ public class DeconstructService {
             }
 
             //ChangeList
-            JSONArray ChangeList = (JSONArray) obj.getByPath("Detail.ChangeList", JSON.class);
+            JSONArray ChangeList = (JSONArray) jsonGetByPath(obj, "Detail.ChangeList");
             if (ChangeList != null) {
                 changeField(ChangeList,
                     "+cm_id", id,
@@ -1118,8 +1121,8 @@ public class DeconstructService {
             }
             JSONObject obj = newJsonObject(
                 "cn_id", id,
-                "key_no", inner.getStr("KeyNo"),
-                "name", inner.getStr("Name"),
+                "key_no", inner.getString("KeyNo"),
+                "name", inner.getString("Name"),
                 "type", "02"
             );
             deconstruct(obj, "JG_LM_PEOPLE_RE", "");
@@ -1132,8 +1135,8 @@ public class DeconstructService {
             }
             JSONObject obj = newJsonObject(
                 "cn_id", id,
-                "key_no", inner.getStr("KeyNo"),
-                "name", inner.getStr("Name"),
+                "key_no", inner.getString("KeyNo"),
+                "name", inner.getString("Name"),
                 "type", "01"
             );
             deconstruct(obj, "JG_LM_PEOPLE_RE", "");
@@ -1227,7 +1230,7 @@ public class DeconstructService {
                         "+FreezeStartDate", ValueGenerator.createYmdDate("FreezeStartDate"),
                         "+FreezeEndDate", ValueGenerator.createYmdDate("FreezeEndDate"),
                         "+PublicDate", ValueGenerator.createYmdDate("PublicDate"),
-                        "+ja_inner_id", _array.getJSONObject(i).getStr("inner_id"),
+                        "+ja_inner_id", _array.getJSONObject(i).getString("inner_id"),
                         "+inner_company_name", companyName,
                         "+FREEZE_TYPE", "1"
                     );
@@ -1240,7 +1243,7 @@ public class DeconstructService {
                     changeField(detail,
                         "+UnFreezeDate", ValueGenerator.createYmdDate("FreezeStartDate"),
                         "+PublicDate", ValueGenerator.createYmdDate("PublicDate"),
-                        "+ja_inner_id", _array.getJSONObject(i).getStr("inner_id"),
+                        "+ja_inner_id", _array.getJSONObject(i).getString("inner_id"),
                         "+inner_company_name", companyName,
                         "+FREEZE_TYPE", "2"
                     );
@@ -1252,7 +1255,7 @@ public class DeconstructService {
                 if (detail != null && detail.size() > 0) {
                     changeField(detail,
                         "+AssistExecDate", ValueGenerator.createYmdDate("FreezeStartDate"),
-                        "+ja_inner_id", array.getJSONObject(i).getStr("inner_id"),
+                        "+ja_inner_id", array.getJSONObject(i).getString("inner_id"),
                         "+inner_company_name", companyName,
                         "+FREEZE_TYPE", "3"
                     );
@@ -1281,36 +1284,39 @@ public class DeconstructService {
         JSONObject object = (JSONObject) json;
         JSONArray list = new JSONArray();
         if (object.containsKey("Prosecutor")) {
-            list.addAll(JSONUtil.parseArray(object.getJSONArray("Prosecutor").toList(JSONObject.class)
+            list.addAll(
+                object.getJSONArray("Prosecutor")
                 .stream()
-                .map(o -> {
+                .map(_o -> {
+                    JSONObject o = (JSONObject) _o;
                     JSONObject kv = new JSONObject();
-                    kv.put("name", o.getStr("Name"));
+                    kv.put("name", o.getString("Name"));
                     kv.put("id", id);
-                    kv.put("key_no", o.getStr("KeyNo"));
+                    kv.put("key_no", o.getString("KeyNo"));
                     kv.put("type", "01");
                     return kv;
                 })
-                .toArray()
-            ));
+                .collect(Collectors.toList())
+            );
         }
         if (object.containsKey("Defendant")) {
-            list.addAll(JSONUtil.parseArray(object.getJSONArray("Defendant").toList(JSONObject.class)
+            list.addAll(object.getJSONArray("Defendant")
                 .stream()
-                .map(o -> {
+                .map(_o -> {
+                    JSONObject o = (JSONObject) _o;
                     JSONObject kv = new JSONObject();
-                    kv.put("name", o.getStr("Name"));
+                    kv.put("name", o.getString("Name"));
                     kv.put("id", id);
-                    kv.put("key_no", o.getStr("KeyNo"));
+                    kv.put("key_no", o.getString("KeyNo"));
                     kv.put("type", "02");
                     return kv;
                 })
-                .toArray()
-            ));
+                .collect(Collectors.toList())
+            );
         }
 
         if (list.size() > 0) {
-//            doDelete("QCC_COURT_NOTICE_PEOPLE", "id", object.getStr("Id"));
+//            doDelete("QCC_COURT_NOTICE_PEOPLE", "id", object.getString("Id"));
             deconstruct(list, "QCC_COURT_NOTICE_PEOPLE", "id,name,type");
         }
 
@@ -1328,20 +1334,20 @@ public class DeconstructService {
         JSONArray list = new JSONArray();
         for (Object o : (JSONArray) json) {
             JSONObject object = (JSONObject) o;
-            for (String p : object.getStr("Prosecutorlist", "").split("\\t")) {
+            for (String p : ((String)object.getOrDefault("Prosecutorlist", "")).split("\\t")) {
                 list.add(newJsonObject(
                     "name", p,
                     "type", "01",
-                    "id", object.getStr("Id"),
+                    "id", object.getString("Id"),
                     "inner_company_name", compName
                 ));
             }
 
-            for (String p : object.getStr("Defendantlist", "").split("\\t")) {
+            for (String p : ((String)object.getOrDefault("Defendantlist", "")).split("\\t")) {
                 list.add(newJsonObject(
                     "name", p,
                     "type", "02",
-                    "id", object.getStr("Id"),
+                    "id", object.getString("Id"),
                     "inner_company_name", compName
                 ));
             }
@@ -1392,9 +1398,9 @@ public class DeconstructService {
             }
             changeField(
                 array,
-                "+id", object.getStr("Id")
+                "+id", object.getString("Id")
             );
-            doDelete("QCC_COURT_ANNOUNCEMENT_PEOPLE", "id", object.getStr("Id"));
+            doDelete("QCC_COURT_ANNOUNCEMENT_PEOPLE", "id", object.getString("Id"));
             deconstruct(array, "QCC_COURT_ANNOUNCEMENT_PEOPLE", "");
         }
     }
@@ -1450,23 +1456,23 @@ public class DeconstructService {
         cnlist:
         {
             if (object.containsKey("CourtNoticeList")) {
-                JSONArray array = (JSONArray) object.getByPath("CourtNoticeList.CourtNoticeInfo", JSON.class);
+                JSONArray array = (JSONArray) jsonGetByPath(object, "CourtNoticeList.CourtNoticeInfo");
                 if (array == null) {
                     break cnlist;
                 }
                 //清空关联信息
-                doDelete("QCC_JUDGMENT_DOC_CN", "QCC_DETAILS_ID", object.getStr("Id"));
+                doDelete("QCC_JUDGMENT_DOC_CN", "QCC_DETAILS_ID", object.getString("Id"));
                 changeField(array,
-                    "+TOTAL_NUM", object.getByPath("CourtNoticeList.TotalNum", String.class),
-                    "+QCC_DETAILS_ID", object.getStr("Id")
+                    "+TOTAL_NUM", jsonGetByPath(object,"CourtNoticeList.TotalNum"),
+                    "+QCC_DETAILS_ID", object.getString("Id")
                 );
 //                array = JSONUtil.parseArray(array.stream()
 //                    .map(i -> {
 //                        JSONObject kv = (JSONObject) i;
 //                        changeField();
 //                        JSONObject ret = new JSONObject();
-//                        ret.put("CN_ID", object.getStr("Id"));
-//                        ret.put("QCC_ID", kv.getStr("Id"));
+//                        ret.put("CN_ID", object.getString("Id"));
+//                        ret.put("QCC_ID", kv.getString("Id"));
 //                        return ret;
 //                    })
 //                    .toArray()
@@ -1483,19 +1489,19 @@ public class DeconstructService {
                     break rc;
                 }
                 changeField(array,
-                    "+QCC_DETAILS_ID", object.getStr("Id")
+                    "+QCC_DETAILS_ID", object.getString("Id")
                 );
 
-                doDelete("QCC_JUDGMENT_DOC_COM", "QCC_DETAILS_ID", object.getStr("Id"));
+                doDelete("QCC_JUDGMENT_DOC_COM", "QCC_DETAILS_ID", object.getString("Id"));
 
 //                array = JSONUtil.parseArray(
 //                    array.stream()
 //                        .map(i -> {
 //                            JSONObject kv = (JSONObject) i;
 //                            JSONObject ret = new JSONObject();
-//                            ret.put("jd_id", object.getStr("Id"));
-//                            ret.put("key_no", kv.getStr("KeyNo"));
-//                            ret.put("name", kv.getStr("Name"));
+//                            ret.put("jd_id", object.getString("Id"));
+//                            ret.put("key_no", kv.getString("KeyNo"));
+//                            ret.put("name", kv.getString("Name"));
 //                            return ret;
 //                        })
 //                        .toArray()
@@ -1605,17 +1611,17 @@ public class DeconstructService {
         if (obj instanceof JSONObject) {
             JSONObject ret = insertSingle((JSONObject) obj, tableName, existKey);
             if (((JSONObject) obj).containsKey("Children") || ((JSONObject) obj).containsKey("children")) {
-                JSONArray children = (JSONArray) obj.getByPath("Children", JSON.class);
+                JSONArray children = (JSONArray) jsonGetByPath(obj, "Children");
                 if (children == null) {
-                    children = (JSONArray) obj.getByPath("children", JSON.class);
+                    children = (JSONArray) jsonGetByPath(obj,"children");
                 }
                 if (children != null) {
-                    String id = ret.getStr("inner_id");
+                    String id = ret.getString("inner_id");
                     for (Object _child : children) {
                         JSONObject child = (JSONObject) _child;
                         child.put("inner_parent_id", id);
-                        child.put("inner_company_no", ret.getStr("inner_company_no"));
-                        child.put("inner_company_name", ret.getStr("inner_company_name"));
+                        child.put("inner_company_no", ret.getString("inner_company_no"));
+                        child.put("inner_company_name", ret.getString("inner_company_name"));
                         deconstruct(child, tableName, "");
                     }
                 }
@@ -1649,7 +1655,7 @@ public class DeconstructService {
         //检查是否有相同的字段
         if (S.notBlank(existKey)) {
             List<String> keys = Arrays.asList(existKey.split("\\,"));
-//            if (S.empty(object.getStr(existKey))) {
+//            if (S.empty(object.getString(existKey))) {
 //                return kv;
 //            }
             if (keys.size() == 0) {
@@ -1659,15 +1665,17 @@ public class DeconstructService {
             StringBuilder sb = new StringBuilder();
             for (String key : keys) {
                 String k = camelToUnderline(key);
-                sb.append(S.fmt(" and %s = '%s'", k, object.getStr(key)));
+                sb.append(S.fmt(" and %s = '%s'", k, object.getString(key)));
             }
             sql += sb.toString();
-            JSONArray ret = JSONUtil.parseArray(sqlManager.execute(sql, JSONObject.class, C.newMap()));
-            Integer count = ret.getByPath("0.1", Integer.class);
-            if (count != null && count > 0) {
-                sql = buildUpdateSql(tableName, kv, sb.toString());
-                sqlManager.executeUpdate(new SQLReady(sql));
-                return kv;
+            List<JSONObject> ret = (sqlManager.execute(sql, JSONObject.class, C.newMap()));
+            if(ret.size() > 0){
+                int count = ret.get(0).getInteger("1");
+                if (count > 0) {
+                    sql = buildUpdateSql(tableName, kv, sb.toString());
+                    sqlManager.executeUpdate(new SQLReady(sql));
+                    return kv;
+                }
             }
         }
 
@@ -1690,19 +1698,8 @@ public class DeconstructService {
         } else if (object instanceof JSONArray || object instanceof JSONObject) {
             return;
         } else {
-            String value = kv.getStr(s);
-//            if(value.contains("'")){
-//                try {
-//                    value = Base64.getEncoder().encodeToString(value.getBytes(StandardCharsets.UTF_8.name()));
-//                } catch (UnsupportedEncodingException e) {
-//                    e.printStackTrace();
-//                }
-////                sb.append(S.fmt("#%s#", s));
-//            }
+            String value = kv.getString(s);
             sb.append(S.fmt("'%s'", value));
-//            sb.append("#");
-//            sb.append(s);
-//            sb.append("#");
         }
         sb.append(",");
     }
@@ -1744,7 +1741,7 @@ public class DeconstructService {
         sb.append(" (");
         for (String s : kv.keySet()) {
             Object value = kv.get(s);
-            if (value instanceof JSONArray || value instanceof JSONObject) {
+            if (value instanceof JSONArray || value instanceof JSONObject || value == null) {
                 continue;
             }
             sb.append(s);
@@ -1754,7 +1751,7 @@ public class DeconstructService {
         sb.append(")values(");
         for (String s : kv.keySet()) {
             Object value = kv.get(s);
-            if (value instanceof JSONArray || value instanceof JSONObject) {
+            if (value instanceof JSONArray || value instanceof JSONObject || value == null) {
                 continue;
             }
             formatValue(sb, kv, s);
@@ -1765,7 +1762,7 @@ public class DeconstructService {
     }
 
     private boolean isSuccess(JSONObject object) {
-        return S.eq(object.getStr("Status"), "200");
+        return S.eq(object.getString("Status"), "200");
     }
 
 //    private boolean matches(String url, String pattern) {
@@ -1862,11 +1859,11 @@ public class DeconstructService {
         }
 
         public static ValueGenerator createYmdDate(String key) {
-            return kv -> convertYmdDate(kv.getStr(key));
+            return kv -> convertYmdDate(kv.getString(key));
         }
 
         public static ValueGenerator createYmdhmsDate(String key) {
-            return kv -> converYmdhmsDate(kv.getStr(key));
+            return kv -> converYmdhmsDate(kv.getString(key));
         }
 
         public static class Wrap {
@@ -1887,7 +1884,7 @@ public class DeconstructService {
                             @Override
                             public Object call(JSONObject kv) {
                                 try {
-                                    return Base64.getEncoder().encodeToString(kv.getStr(field).getBytes(StandardCharsets.UTF_8.name()));
+                                    return Base64.getEncoder().encodeToString(kv.getString(field).getBytes(StandardCharsets.UTF_8.name()));
                                 } catch (UnsupportedEncodingException e) {
                                     e.printStackTrace();
                                 }
@@ -1903,7 +1900,7 @@ public class DeconstructService {
             return kv -> {
                 for (String dateFormat : dateFormats) {
                     try {
-                        return DateUtil.parse(kv.getStr(key)).toJdkDate();
+                        return DateUtil.parse(kv.getString(key)).toJdkDate();
                     } catch (Exception e) {
                     }
                 }
