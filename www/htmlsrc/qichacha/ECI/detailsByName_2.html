@@ -240,28 +240,31 @@
         $.ajax({
             url: remoteApi.qccJudicialAssistanceGetJudicialAssistance+"?keyWord="+COMPANY_NAME,
             success: function (res) {
+                var dataList = [];
                 if(res.state == false || res.data == undefined || res.data.list==undefined || res.data.list.length < 1){
-                    $("#susong6").hide();
+                    // $("#susong6").hide();
                     $("a[href='#susong6']").addClass("disabled");
-                }
-                var dataList = res.data.list;
-                dataList.forEach(function (item) {
-                    for(var key in item){
-                        if(key == "EquityFreezeDetail"){
-                            for(var k in item["JudicialPartnersChangeDetail"]){
-                                item["EquityFreezeDetail_"+k] = item["EquityFreezeDetail"][k];
-                            }
-                        }else if(key == "EquityUnFreezeDetail"){
-                            for(var k in item["JudicialPartnersChangeDetail"]){
-                                item["EquityUnFreezeDetail_"+k] = item["EquityUnFreezeDetail"][k];
-                            }
-                        }else if(key == "JudicialPartnersChangeDetail"){
-                            for(var k in item["JudicialPartnersChangeDetail"]){
-                                item["JudicialPartnersChangeDetail_"+k] = item["JudicialPartnersChangeDetail"][k];
+                }else{
+                    dataList = res.data.list
+                    dataList.forEach(function (item) {
+                        for(var key in item){
+                            if(key == "EquityFreezeDetail"){
+                                for(var k in item["JudicialPartnersChangeDetail"]){
+                                    item["EquityFreezeDetail_"+k] = item["EquityFreezeDetail"][k];
+                                }
+                            }else if(key == "EquityUnFreezeDetail"){
+                                for(var k in item["JudicialPartnersChangeDetail"]){
+                                    item["EquityUnFreezeDetail_"+k] = item["EquityUnFreezeDetail"][k];
+                                }
+                            }else if(key == "JudicialPartnersChangeDetail"){
+                                for(var k in item["JudicialPartnersChangeDetail"]){
+                                    item["JudicialPartnersChangeDetail_"+k] = item["JudicialPartnersChangeDetail"][k];
+                                }
                             }
                         }
-                    }
-                });
+                    });
+                }
+
                 laytableRender({
                     id: "susong6-body",
                     page: false,

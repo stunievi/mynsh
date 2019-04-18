@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title> 股权图谱 </title>
+    <title> 投资图谱 </title>
     <!--#include file="./tupu-head.html" -->
 </head>
 <body>
@@ -12,377 +12,103 @@
 
 <div class="mao-screen-area" id="screenArea">
     <div id="main" class="mao-main" style="height: 100%; width: 100%; -webkit-tap-highlight-color: transparent; user-select: none; background-color: rgba(0, 0, 0, 0); cursor: default;">
-        <style type="text/css">
-            .tupu-shuiying::-webkit-scrollbar {
-                width: 0px;
-                height: 10px;
-            }
-            .final-wrap{
-                position: absolute;
-                top: 65px;
-                width: 100%;
-                padding: 10px;
-                box-sizing: border-box;
-            }
-            .final-wrap-title{
-                font-size: 16px;
-                color: #333333;
-            }
-            .final-block{
-                display: inline-block;
-                width: 10px;
-                height: 10px;
-                background: #ef6a6a;
-                border-radius: 50%;
-            }
-            .final-wrap-content{
-
-                color: #333;
-                font-size: 14px;
-                visibility: hidden;
-                text-align: center;
-            }
-            .final-radio-wrap{
-                display: inline-block;
-                height: 14px;
-                width: 80px;
-                position: relative;
-                background: url("/static/htmlImage/line_arrow.png") no-repeat 0 50%;
-                background-size: 100%;
-            }
-            .final-radio-wrap>span{
-                color: #128bed;
-                font-size: 12px;
-                position: absolute;
-                width: 100%;
-                text-align: center;
-                bottom:50%;
-                left: 0px;
-            }
-            .guquan-legend{
-                position: absolute;
-                width: 100%;
-                padding: 0 0px;
-                visibility: hidden;
-                text-align: center;
-                top: 100px;
-            }
-            .guquan-legend .person-block{
-                display: inline-block;
-                width: 10px;
-                height: 10px;
-                background: #80c3a8;
-                border-radius: 3px;
-            }
-            .guquan-legend .person-text{
-                font-size: 12px;
-                color: #333333;
-            }
-            .guquan-legend .ent-block{
-                display: inline-block;
-                width: 10px;
-                height: 10px;
-                background: #bc9ed3;
-                border-radius: 3px;
-                margin-left: 5px;
-            }
-            .guquan-legend .ent-text{
-                font-size: 12px;
-                color: #333333;
-            }
-            .guquan-legend .big-block{
-                display: inline-block;
-                width: 10px;
-                height: 10px;
-                background: #ef6a6a;
-                border-radius: 3px;
-                margin-left: 5px;
-            }
-            .guquan-legend .big-text{
-                font-size: 12px;
-                color: #333333;
-            }
-            .guquan-legend.his{
-                top: 580px;
-            }
-
-            .company-tupu.tz,.company-tupu.his{
-                display: none;
-            }
-
-            .company-tupu-tab{
-                position: absolute;
-                width: 100%;
-                text-align: center;
-                top: 15px;
-                font-size: 16px;
-            }
-            .company-tupu-tab a.active{
-                color: #128bed;
-                border-bottom: solid 2px #128bed;
-                line-height: 34px;
-                display: inline-block;
-            }
-
-            .company-tupu .his-drop{
-                position: absolute;
-                text-align: center;
-                top: 70px;
-                left: 50%;
-                margin-left: -60px;
-                display: none;
-            }
-            .company-tupu .dropdown-menu>li>a{
-                text-align: left;
-            }
-            .company-tupu .dropdown-menu>li:hover>a{
-                background: #128bed !important;
-                color: #fff;
-            }
-        </style>
-        <div class="final-wrap">
-            <div class="final-wrap-content" style="visibility: visible;">
-                <span style="font-size: 14px;color: #999;">疑似实际控制人：</span>
-                <span id="final-person">
-                    <!--疑似实际控制人-->
-                </span>
-                <span class="final-radio-wrap">
-                      <span id="final-radio">
-                          <!--疑似实际控制人控股比例-->
-                      </span>
-                </span>
-                <span id="final-stock">
-                    <!--控股公司名-->
-                </span>
-            </div>
-        </div>
-        <div id="guquanLegend" class="guquan-legend" style="visibility: visible;">
-            <span class="person-block"></span>
-            <span class="person-text">自然人股东</span>
-            <span class="ent-block"></span>
-            <span class="ent-text">企业股东</span>
-            <span class="big-block"></span>
-            <span class="big-text">大股东</span>
-        </div>
-        <div id="guquanTupu">
+        <div id="guquanTzTupu">
 
         </div>
     </div>
     <div class="tupu-toolbar">
         <ul>
-            <li id="guquanExtent" onclick="guquanTupu.extend(this)">
+            <li id="guquanTzExtent" onclick="guquanTzTupu.extend(this)">
                 <span class="extent"></span>展开</li>
-            <li onclick="guquanTupu.refresh()">
+            <li onclick="guquanTzTupu.refresh()">
                 <span class="refresh"></span>刷新</li>
-            <li onclick="guquanTupu.scale(1)">
+            <li onclick="guquanTzTupu.scale(1)">
                 <span class="big"></span>放大</li>
-            <li onclick="guquanTupu.scale(2)">
+            <li onclick="guquanTzTupu.scale(2)">
                 <span class="small"></span>缩小</li>
-            <li onclick="guquanTupu.saveImg()">
+            <li onclick="guquanTzTupu.saveImg()">
                 <span class="save"></span>保存</li>
         </ul>
     </div>
 </div>
 
 <!--<div id="load_data" style="width: 100%;-->
-    <!--height: 100%;-->
-    <!--position: fixed;background: #fff;top:0;left:0;"> <img style="    width: 120px;-->
-    <!--position: absolute;-->
-    <!--left: 50%;-->
-    <!--top: 50%;-->
-    <!--margin-left: -60px;-->
-    <!--margin-top: -110px;" src="./images/preloader.gif"> </div>-->
+<!--height: 100%;-->
+<!--position: fixed;background: #fff;top:0;left:0;"> <img style="    width: 120px;-->
+<!--position: absolute;-->
+<!--left: 50%;-->
+<!--top: 50%;-->
+<!--margin-left: -60px;-->
+<!--margin-top: -110px;" src="./images/preloader.gif"> </div>-->
 
 <!--<script src="https://www.qichacha.com/material/theme/chacha/cms/v2/js/jquery.min.js"></script>-->
 <script src="./js/d3.min.js"></script>
 <script type="text/javascript">
-    $("#navTab li:eq(1)").addClass("active");
-    var guquanTupu;
-    var rootData;
-    var acturalNode = "undefined";
-    var syrArray = [];
-    var barHeight = 50;
+    $("#navTab li:eq(3)").addClass("active");
+    var guquanTzTupu;
     var barWidth = 335;
+    var barHeight = 50;
+    var companyName = decodeURI(getParam("name")) || "大连万达集团股份有限公司";
+    var companyKeyNo= decodeURI(getParam("keyNo")) || "befe52d9753b511b6aef5e33fe00f97d";
+
     $('#load_data').show();
-    getDataTupu();
-    // getDataTupuTz();
-    function getDataTupu(){
-        var keyNo = getParam("keyNo");
-        var url = remoteApi.qccECIRelationGetCompanyEquityShareMap;
+    getDataTupuTz();
+
+    function getDataTupuTz(){
         $.ajax({
-            url: url,
-            // url: "./json/cms_guquankzr.json",
+            url:"./json/guquanchuantou2.json",
             type: 'GET',
             data:{
-                keyNo:keyNo,
+                keyNo: companyKeyNo,
             },
             dataType: 'JSON',
             success: function (res){
-                var retData = res.Result || res.data;
-                var companyName = retData.Name;
-                var companyKeyNo = retData.KeyNo;
-                var ActualControllerData = retData.ActualControllerLoopPath[0];
-                var gudongList = retData.Children;
-                var data = {};
-                // 疑似实际控制人
-                if(ActualControllerData){
-                    data.kzr = {
-                        CompanyName: companyName,
-                        KeyNo: companyKeyNo,
-                        ControllerData: {
-                            PercentTotal: ActualControllerData.FundedRatio,
-                            Name: ActualControllerData.Name
-                        }
-                    }
-                }
-                // 股东列表
-                if(gudongList && gudongList.length > 0){
-                    var walk = function (obj, data) {
-                        data.forEach(function (item) {
-                            var index = obj.push({
-                                KeyNo: item.KeyNo,
-                                Name: item.Name,
-                                Percent: item.FundedRatio,
-                                ShouldCapi: item.SubConAmt
+                var retData2 = res.Result;
+                if(retData2){
+                    var data = {};
+                    if(retData2.Node && retData2.Node.Children){
+                        var touziDetailList = [];
+                        var walk1 = function(touziDetailList, dataList){
+                            dataList.forEach(function (item) {
+                                item.ajaxtouzi = true;
+                                if(typeof kgObj != 'undefined' && kgObj[item.KeyNo]){
+                                    item.ShouldCapi = kgObj[item.KeyNo].ShouldCapi;
+                                    item.Percent = kgObj[item.KeyNo].Percent;
+                                }
+                                var _index = touziDetailList.push(item);
+                                var index = _index - 1;
+                                if(item.Children && item.Children.length > 0){
+                                    touziDetailList[index].DetailList = [];
+                                    walk1(touziDetailList[index].DetailList, item.Children)
+                                }
                             });
-                            if(item.Children && item.Children.length > 0){
-                                obj[index-1]["DetailList"] = [];
-                                walk(obj[index-1]["DetailList"], item.Children);
-                            }
-                        });
-                        return obj;
-                    };
-                    var gudongItemList = [];
-                    walk(gudongItemList, gudongList);
-                    data.gudong = {
-                        CompanyName: companyName,
-                        EquityShareDetail: gudongItemList
-                    }
-                }
-
-                if(data){
-                    if(data.kzr){
-                        setFianlController(data.kzr);
-                    }else{
-                        $('#final-stock').text(data.gudong.CompanyName);
-                    }
-                    if(data.gudong){
-                        rootData = {
-                            Name: data.gudong.CompanyName,
-                            KeyNo: keyNo,
-                            CompanyCode: data.gudong.CompanyCode,
-                            Org: 2,
-                            DetailList: data.gudong.EquityShareDetail
+                            return touziDetailList;
                         };
-                        if (data.kzr) {
-                            if (data.kzr.ControllerData) {
-                                acturalNode = data.kzr.ControllerData || "undefined";
-                            }
-                        }
-
-                        if (data.syr) {
-                            syrArray = data.syr.Names || [];
-                        }
-                        addLargeStock(rootData);
-                        addFlag(rootData);
-                        guquanTupu = new drawGuquanTupu(rootData,keyNo);
-                        $('#guquan_nodate').hide();
-                        $(".final-wrap-content").css("visibility","visible");
-                    }else{
-                        $('#guquan_nodate').show();
+                        walk1(touziDetailList, retData2.Node.Children);
+                        // 投资
+                        data.touzi = {
+                            Name: companyName,
+                            DetailList:touziDetailList
+                        };
                     }
-                }
-                $('#load_data').hide();
-            }
-        });
-    }
-
-    function setFianlController(kzr) {
-        var finalStock = kzr.CompanyName;
-        var finalPerson;
-        var finalRadio
-        if(kzr.ControllerData){
-            finalPerson = kzr.ControllerData.Name;
-            finalRadio = kzr.ControllerData.PercentTotal|| '?';
-        }else{
-            finalPerson = '?';
-            finalRadio = '?';
-        }
-
-        $('#final-stock').text(finalStock);
-        $('#final-person').text(finalPerson);
-        $('#final-radio').text(finalRadio);
-    }
-
-    function companyTupuTab(flag){
-        if(flag==2){
-            $('#companyTupu').hide();
-            $('#companyTupuTz').hide();
-            $('#companyTupuHis').show();
-        }else if(flag==1){
-            $('#companyTupu').show();
-            $('#companyTupuTz').hide();
-            $('#companyTupuHis').hide();
-        }else{
-            $('#companyTupu').hide();
-            $('#companyTupuTz').show();
-            $('#companyTupuHis').hide();
-        }
-
-    }
-
-    function findLargePartner(rootData){
-        rootData.DetailList.sort(function(nodea,nodeb){
-            var va = parseFloat(nodea.Percent.substr(0,nodea.Percent.length-1));
-            var vb = parseFloat(nodeb.Percent.substr(0,nodeb.Percent.length-1));
-            return vb-va;
-        });
-        if(rootData.DetailList[0] && rootData.DetailList[1]){
-            var va = parseFloat(rootData.DetailList[0].Percent.substr(0,rootData.DetailList[0].Percent.length-1));
-            var vb = parseFloat(rootData.DetailList[1].Percent.substr(0,rootData.DetailList[1].Percent.length-1));
-            if(va!=vb){
-                rootData.DetailList[0].LargePartner = "大股东";
-            }
-        }
-        $.each(rootData.DetailList,function(i,node){
-            if(node.DetailList){
-                node.DetailList.sort(function(nodea,nodeb){
-                    var va = parseFloat(nodea.Percent.substr(0,nodea.Percent.length-1));
-                    var vb = parseFloat(nodeb.Percent.substr(0,nodeb.Percent.length-1));
-                    return vb-va;
-                });
-                if(node.DetailList[0] && node.DetailList[1]){
-                    var va = parseFloat(node.DetailList[0].Percent.substr(0,node.DetailList[0].Percent.length-1));
-                    var vb = parseFloat(node.DetailList[1].Percent.substr(0,node.DetailList[1].Percent.length-1));
-                    if(va!=vb){
-                        node.DetailList[0].LargePartner = "大股东";
-                    }
+                    addFlag(data.touzi);
+                    guquanTzTupu = new drawGuquanTzTupu(data.touzi, companyKeyNo);
+                    $('#guquanTz_nodate').hide();
+                }else{
+                    $('#guquanTz_nodate').show();
                 }
             }
         });
     }
 
-    function addLargeStock(node) {
-        if (node.DetailList) {
-            if (node.DetailList.length > 0) {
-                if(node.DetailList[0].Percent && (node.DetailList[0].Percent != "0%" && node.DetailList[0].Percent != "0.00%")){
-                    node.DetailList[0].LargePartner = "大股东";
-                }
-
-                for (var i = 0; i < node.DetailList.length; i++) {
-                    addLargeStock(node.DetailList[i]);
-                }
-            }
-        }
-    }
-    function drawGuquanTupu(rootData,keyNo){
-        var svgId = 'guquanTupu';
-        rootData.x0 = 0;
-        rootData.y0 = 0;
+    function drawGuquanTzTupu(investData,keyNo){
+        var svgId = 'guquanTzTupu';
+        investData.x0 = 0;
+        investData.y0 = 0;
         var i=0;
         var duration = 400;
-        var container;
         var isExtent = false;
+        var container;
         var scale = 1;
         var tree = d3.layout.tree()
             .children(function (d) {
@@ -400,9 +126,7 @@
 
         initSvg();
 
-        update(rootData);
-
-        $("#guquanLegend").css("visibility","visible");
+        update(investData);
 
         function dragmove() {
             var x = parseInt(container.attr("transform").split(',')[0].split('(')[1]);
@@ -419,7 +143,7 @@
             zoom = d3.behavior.drag()
                 .on("drag", dragmove);
 
-            nodes = tree.nodes(rootData);
+            nodes = tree.nodes(investData);
             nodes.forEach(function(n, i) {
                 if (n.depth>0) {
                     n._DetailList = n.DetailList;
@@ -427,13 +151,12 @@
                 }
             });
             svg.call(zoom);
-            container.attr("transform", "translate("+(width/2-180)+",170)");
+            container.attr("transform", "translate("+(width/2-180)+",100)");
         }
 
 
         function update(source) {
-            nodes = tree.nodes(rootData);
-            console.log(nodes)
+            nodes = tree.nodes(investData);
             var nodeX = 0;
             nodes.forEach(function (n, i) {
                 n.x = nodeX;
@@ -441,7 +164,7 @@
             });
 
             svg.attr("height",Math.max(590, nodeX+160));
-            var height = Math.max(500, nodeX);
+            var height = Math.max(590, nodeX);
             d3.select("svg").transition()
                 .duration(duration);
 
@@ -506,19 +229,20 @@
                 .on("click", click);
             nodeEnter.append("text")
                 .attr("dy", function (d) {
-                    if (d.isActual || d.isSyr || d.LargePartner) {
+                    if (d.isHold) {
                         return 30.5;
                     }
                     return 15.5;
                 })
                 .attr("dx", barWidth-30)
                 .text(function (d) {
-                    if(d.depth>0&&(d.Org==0||d.Org==4||d.Org==3||d.Org==7||d.Org==8)){
-                        if(d.KeyNo&&d.KeyNo.length==32){
-                            return "详情";
-                        }else{
-                            return "";
-                        }
+                    if(d.depth>0&&(d.Org==0||d.Org==4||d.Org==7||d.Org==8)){
+                        // TODO:: 投资图谱详情查看按钮
+                        // if(d.KeyNo&&d.KeyNo.length==32){
+                        //     return "详情";
+                        // }else{
+                        //     return "";
+                        // }
                     }else{
                         return "";
                     }
@@ -530,132 +254,30 @@
                     window.open("/firm_"+d.KeyNo+".html");
                     //showDetail();
                 });
-
             nodeEnter.each(function (d) {
-                if (d.LargePartner == "大股东") {
+                if (d.isHold) {
                     d3.select(this).append("rect")
-                        .attr("x", 30)
+                        .attr("x", 30.5)
                         .attr("y", 13)
                         .attr("rx", 2)
                         .attr("ry", 2)
                         .attr("height", 20)
-                        .attr("width", 44)
-                        .attr("fill", "#FE485E")
+                        .attr("width", 32)
+                        .attr("fill", "#128bed")
                         .attr('fill-opacity', 0.08)
                         .attr("stroke-width", 0.5);
 
                     d3.select(this).append("text")
-                        .attr("dx", 35)
+                        .attr("dx", 35.5)
                         .attr("dy", 27)
-                        .attr("fill", "#fe485e")
+                        .attr("fill", "#128bed")
                         .style("font-size", "11px")
-                        .text("大股东");
-
-                    if (d.isActual) {
-                        d3.select(this).append("rect")
-                            .attr("x", 84)
-                            .attr("y", 13)
-                            .attr("rx", 2)
-                            .attr("ry", 2)
-                            .attr("height", 20)
-                            .attr("width", 66)
-                            .attr("fill", "#EEA324")
-                            .attr('fill-opacity', 0.08)
-                            .attr("stroke-width", 0.5);
-
-                        d3.select(this).append("text")
-                            .attr("dx", 89)
-                            .attr("dy", 27)
-                            .attr("fill", "#EEA324")
-                            .style("font-size", "11px")
-                            .text("实际控制人");
-
-                        if (d.isSyr) {
-                            d3.select(this).append("rect")
-                                .attr("x", 160)
-                                .attr("y", 13)
-                                .attr("rx", 2)
-                                .attr("ry", 2)
-                                .attr("height", 20)
-                                .attr("width", 66)
-                                .attr("fill", "#128BED")
-                                .attr('fill-opacity', 0.08)
-                                .attr("stroke-width", 0.5);
-
-                            d3.select(this).append("text")
-                                .attr("dx", 165)
-                                .attr("dy", 27)
-                                .attr("fill", "#128BED")
-                                .style("font-size", "11px")
-                                .text("最终受益人");
-                        }
-                    }
-                } else {
-                    if (d.isActual) {
-                        d3.select(this).append("rect")
-                            .attr("x", 30)
-                            .attr("y", 13)
-                            .attr("rx", 2)
-                            .attr("ry", 2)
-                            .attr("height", 20)
-                            .attr("width", 66)
-                            .attr("fill", "#EEA324")
-                            .attr('fill-opacity', 0.08)
-                            .attr("stroke-width", 0.5);
-
-                        d3.select(this).append("text")
-                            .attr("dx", 35)
-                            .attr("dy", 27)
-                            .attr("fill", "#EEA324")
-                            .style("font-size", "11px")
-                            .text("实际控制人");
-
-                        if (d.isSyr) {
-                            d3.select(this).append("rect")
-                                .attr("x", 106)
-                                .attr("y", 13)
-                                .attr("rx", 2)
-                                .attr("ry", 2)
-                                .attr("height", 20)
-                                .attr("width", 66)
-                                .attr("fill", "#128BED")
-                                .attr('fill-opacity', 0.08)
-                                .attr("stroke-width", 0.5);
-
-                            d3.select(this).append("text")
-                                .attr("dx", 111)
-                                .attr("dy", 27)
-                                .attr("fill", "#128BED")
-                                .style("font-size", "11px")
-                                .text("最终受益人");
-                        }
-                    }else{
-                        if (d.isSyr) {
-                            d3.select(this).append("rect")
-                                .attr("x", 30)
-                                .attr("y", 13)
-                                .attr("rx", 2)
-                                .attr("ry", 2)
-                                .attr("height", 20)
-                                .attr("width", 66)
-                                .attr("fill", "#128BED")
-                                .attr('fill-opacity', 0.08)
-                                .attr("stroke-width", 0.5);
-
-                            d3.select(this).append("text")
-                                .attr("dx", 35)
-                                .attr("dy", 27)
-                                .attr("fill", "#128BED")
-                                .style("font-size", "11px")
-                                .text("最终受益人");
-                        }
-                    }
+                        .text("控股");
                 }
-            })
-
+            });
             nodeEnter.append("text")
                 .attr("dy", function (d) {
-                    if (d.isActual || d.isSyr || d.LargePartner) {
+                    if (d.isHold) {
                         return 50.5;
                     }
                     return 20.5;
@@ -672,7 +294,7 @@
                 });
             nodeEnter.append("text")
                 .attr("dy", function (d) {
-                    if (d.isActual || d.isSyr || d.LargePartner) {
+                    if (d.isHold) {
                         return 50.5;
                     }
                     return 20.5;
@@ -694,7 +316,7 @@
                 });
             nodeEnter.append("text")
                 .attr("dy", function (d) {
-                    if (d.isActual || d.isSyr || d.LargePartner) {
+                    if (d.isHold) {
                         return 50.5;
                     }
                     return 20.5;
@@ -706,7 +328,7 @@
                     if (d.depth == 0) {
                         return "";
                     } else {
-                        if (d.parent.CompanyCode) {
+                        if (d.CompanyCode) {
                             return "持股数：";
                         } else {
                             return "认缴金额：";
@@ -715,7 +337,7 @@
                 });
             nodeEnter.append("text")
                 .attr("dy", function (d) {
-                    if (d.isActual || d.isSyr || d.LargePartner) {
+                    if (d.isHold) {
                         return 50.5;
                     }
                     return 20.5;
@@ -727,7 +349,7 @@
                     if (d.depth == 0) {
                         return "";
                     } else {
-                        if (d.parent.CompanyCode) {
+                        if (d.CompanyCode) {
                             if (d.StockRightNum) {
                                 return d.StockRightNum;
                             } else {
@@ -947,7 +569,6 @@
                 var opt = document.createElement("textarea");
                 opt.name = x;
                 opt.value = PARAMS[x];
-                // alert(opt.name)
                 temp.appendChild(opt);
             }
             document.body.appendChild(temp);
@@ -964,14 +585,14 @@
             }
             //设置保存图片的类型
             var imgdata = canvas.toDataURL('image/jpeg',qual);
-            var filename = '股权持股_'+new Date().toLocaleDateString() + '.jpeg';
+            var filename = '对外投资_'+new Date().toLocaleDateString() + '.jpeg';
             post(remoteApi.qccDownloadimg + '?filename='+filename, {img:imgdata});
         }
 
         this.extend = function(dom){
             if(!isExtent){
-                traverseTree(rootData);
-                update(rootData);
+                traverseTree(investData);
+                update(investData);
                 $(dom).html('<span class="extented"></span>收起');
                 isExtent = true;
             }else{
@@ -983,23 +604,23 @@
                         }
                     }
                 });
-                update(rootData);
+                update(investData);
                 $(dom).html('<span class="extent"></span>展开')
                 isExtent = false;
             }
         }
 
         this.refresh = function(){
-            $('#guquanExtent').html('<span class="extent"></span>展开');
-            traverseTree(rootData);
+            $('#guquanTzExtent').html('<span class="extent"></span>展开');
+            traverseTree(investData);
             initSvg();
-            update(rootData);
+            update(investData);
             isExtent = false;
-            $('#guquanTupu').scrollTop(0);
+            $('#guquanTzTupu').scrollTop(0);
         }
 
         this.scale = function(flag){
-            var ctrans = container.attr("transform").split(')')[0].replace(/[^0-9\-\., ]/g,'');
+            var ctrans = container.attr("transform").split(')')[0].replace(/[^0-9\-, ]/g,'');
             var ctransArr = ctrans.split(/[, ]/);
             var x = ctransArr[0];
             var y = ctransArr[1];
@@ -1047,16 +668,16 @@
                 context.fillStyle = "#fff";
                 context.fillRect(0,0,canvas.width,canvas.height);
 
-                var shuiying = new Image();
-                shuiying.src="https://www.qichacha.com/material/theme/chacha/cms/v2/images/shuiying2.png";
-                for(var i=0;i < canvas.width+100; i+=300){
-                    for(var j=0; j< canvas.height+100; j+=228){
-                        context.drawImage(shuiying, i, j,300,228);
-                    }
-                }
+                // var shuiying = new Image();
+                // shuiying.src="https://www.qichacha.com/material/theme/chacha/cms/v2/images/shuiying2.png";
+                // for(var i=0;i < canvas.width+100; i+=300){
+                //     for(var j=0; j< canvas.height+100; j+=228){
+                //         context.drawImage(shuiying, i, j,300,228);
+                //     }
+                // }
 
                 context.drawImage(image, 0, 0);
-                var marker = '图谱由企查查基于公开信息利用大数据分析引擎独家生成。';
+                // var marker = '图谱由企查查基于公开信息利用大数据分析引擎独家生成。';
                 context.font = "14px 微软雅黑";
                 context.fillStyle = "#aaaaaa";
                 //context.fillText(marker, canvas.width/2-context.measureText(marker).width/2, canvas.height-20);
@@ -1065,30 +686,11 @@
         }
     }
     function addFlag(node) {
-        if(acturalNode){
-            if(node.KeyNo){
-                if (node.KeyNo == acturalNode.KeyNo) {
-                    node.isActual = true;
-                }
-            }else{
-                if (node.Name == acturalNode.Name) {
-                    node.isActual = true;
-                }
-            }
-        }
-
-        for (var i = 0; i < syrArray.length; i++) {
-            if (node.KeyNo&&node.KeyNo == syrArray[i].KeyNo) {
-                node.isSyr = true;
-            }
-        }
-
         if (node.isActual || node.isSyr || node.LargePartner) {
             node.height = barHeight + 30;
         } else {
             node.height = barHeight;
         }
-
         if (node.DetailList) {
             for (var i = 0; i < node.DetailList.length; i++) {
                 addFlag(node.DetailList[i]);

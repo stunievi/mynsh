@@ -91,6 +91,7 @@ if(matched){
 
 // 远程api
 var remoteApi = {
+	qccDownloadimg: "/qcc/cms/downloadimg",
 	// 企查查
 	qccECISearchFresh: "/qcc/auto/ECI/SearchFresh", // 获取新增公司信息
 	// qccECIGetDetails: "/qcc/auto/ECIV4/GetDetails", // 获取公司详细信息
@@ -100,6 +101,7 @@ var remoteApi = {
 	qccHoldingCompanyGetHoldingCompany: "/qcc/auto/HoldingCompany/GetHoldingCompany", // 控股公司
 
 	qccECISearch: "/qcc/auto/ECI/Search", // 企业关键字模糊搜索
+	qccECIRelationSearchTreeRelationMap: "/qcc/auto/ECIRelationV4/SearchTreeRelationMap", // 投资图谱
 	qccECIRelationGetCompanyEquityShareMap: "/qcc/auto/ECIRelationV4/GetCompanyEquityShareMap", // 股权结构图
 	qccECIRelationGenerateMultiDimensionalTreeCompanyMap: "/qcc/auto/ECIRelationV4/GenerateMultiDimensionalTreeCompanyMap", // 企业图谱
 	qccECICompanyMapGetStockAnalysisData: "/qcc/auto/ECICompanyMap/GetStockAnalysisData", // 企业股权穿透十层接口查询

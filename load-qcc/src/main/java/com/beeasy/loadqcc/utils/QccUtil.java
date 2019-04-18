@@ -1,6 +1,8 @@
 package com.beeasy.loadqcc.utils;
 
+import com.alibaba.fastjson.JSON;
 import com.beeasy.mscommon.util.OkHttpUtil;
+import com.google.common.base.Joiner;
 import org.osgl.util.C;
 import org.springframework.util.DigestUtils;
 
@@ -31,6 +33,16 @@ public class QccUtil {
         // 补充key，企查查请求格式
         queries.put("key", AppKey);
         Map header = setHeaderInfo();
-        return OkHttpUtil.getForHeader(url, queries, header);
+        try{
+            return OkHttpUtil.getForHeader(url, queries, header);
+        }catch (Exception e){
+            String dataQueries = Joiner.on("&").withKeyValueSeparator("=").join(queries);
+            String fullLink = url + "?" + dataQueries;
+            return JSON.toJSONString(C.newMap(
+               "Status", "500",
+                    "Message", "获取信息时发生服务器发生异常",
+                    "Result", fullLink
+            ));
+        }
     }
 }

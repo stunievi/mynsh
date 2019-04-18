@@ -25,12 +25,12 @@
     </div>
     <div class="panel-qcc" id="ChattelMortgage">
         <div class="panel-qcc-heading">动产抵押</div>
-        <div style="" id="ChattelMortgage-body">
+        <div id="ChattelMortgage-body">
         </div>
     </div>
     <div class="panel-qcc" id="Exceptions">
         <div class="panel-qcc-heading">经营异常</div>
-        <div style="" id="Exceptions-body">
+        <div id="Exceptions-body" class="panel-qcc-body" >
         </div>
     </div>
 </div>
@@ -76,7 +76,7 @@
             ],
             onData:function (data) {
                 if(!data || !data.total || data.total < 1){
-                    $("#JudicialSaleList").hide();
+                    // $("#JudicialSaleList").hide();
                     $("a[href='#JudicialSaleList']").addClass("disabled");
                 }
             }
@@ -106,7 +106,7 @@
             ],
             onData:function (data) {
                 if(!data || !data.total || data.total < 1){
-                    $("#LandMortgageList").hide();
+                    // $("#LandMortgageList").hide();
                     $("a[href='#LandMortgageList']").addClass("disabled");
                 }
             }
@@ -134,7 +134,7 @@
             ],
             onData:function (data) {
                 if(!data || !data.total || data.total < 1){
-                    $("#EnvPunishmentList").hide();
+                    // $("#EnvPunishmentList").hide();
                     $("a[href='#EnvPunishmentList']").addClass("disabled");
                 }
             }
@@ -181,7 +181,7 @@
                             data: res.data.list
                         });
                     }else{
-                        $("#Exceptions").hide();
+                        // $("#Exceptions").hide();
                         $("a[href='#Exceptions']").addClass("disabled");
                     }
                 }

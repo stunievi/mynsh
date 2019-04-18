@@ -13,9 +13,6 @@
 </head>
 <body>
 <div id="content">
-    <!--<div class="" id="panel-form">-->
-        <!--&lt;!&ndash; 查询表单 &ndash;&gt;-->
-    <!--</div>-->
     <div id="dataList">
         <div class="qcc-detail-inner col-xs-10" data-example-id="togglable-tabs">
             <ul id="myTabs" class="nav nav-tabs" role="tablist" style="background: #fff">
@@ -26,6 +23,7 @@
                 <!--<li role="presentation" class=""><a href="#report" role="tab" id="report-tab" data-toggle="tab" data-controls="report">企业发展</a></li>-->
                 <!--<li role="presentation" class=""><a href="#assets" role="tab" id="assets-tab" data-toggle="tab" data-controls="assets">知识产权</a></li>-->
                 <li role="presentation" class=""><a href="#history" role="tab" id="history-tab" data-toggle="tab" data-controls="history">历史信息</a></li>
+                <li style="float: right;"><a href="javascript:;" id="updateBtn" style="background: orange;color: #fff;" >更新当前模块数据</a></li>
             </ul>
             <div id="qcc-detail-content" class="tab-content" style="padding-top: 10px;">
                 <!--#include file="./detailsByName_1.html"-->
@@ -50,48 +48,62 @@
         }else{
             $($(this).attr("href")).find(".panel-collapse").collapse("hide");
         }
-    })
+    });
 
-    // var id = decodeURI(getParam("id")) || '';
-    // var data = {
-    //     keyword: id
-    // };
-    // // 配置查询表单
-    // $("#panel-form").html(panelFormRender3({
-    //     panelTitle:'筛选查询（公司名、注册号、社会统一信用代码或KeyNo）',
-    //     col: 3,
-    //     list:[
-    //         { prop: 'keyword', label: '搜索关键字' }
-    //     ],
-    //     data: data
-    // }));
+    // 更新模块数据
+    $("#updateBtn").click(function () {
+        var currBlockIndex = $("#myTabs li.active").index();
+        var url = "http://localhost:8079/qcc/loadData/";
+        if(currBlockIndex === 0){
+            // 基本信息
+            url += "loadDataBlock1";
+        }else if(currBlockIndex === 1){
+            url += "loadDataBlock2";
+        }else if(currBlockIndex === 2){
+            // 经营风险
+            if(COMPANY_KEY_NO == ""){
+                layer.msg("keyNo为空，请确保工商信息已获取且页面加载完成！");
+                return false;
+            }
+            url += "loadDataBlock5";
+        }else if(currBlockIndex === 3){
+            url += "loadDataBlock4";
+        }
+        $.ajax({
+            url: url,
+            data: {
+                keyWord: COMPANY_NAME,
+                keyNo: COMPANY_KEY_NO
+            },
+            success: function (res) {
+                if(res.success){
+                    layer.msg("数据获取成功，请等待数据解构服务处理！");
+                }else{
+                    layer.msg("数据获取失败！");
+                }
 
+            }
+        });
+    });
+    // 点击【法律诉讼】模块后加载此模块数据
     $(document).on("click", "#susong-tab", function () {
         if(loadBlock2Status == false){
             loadBlock2();
         }
     });
-
+    // 点击【经营风险】模块后加载此模块数据
     $(document).on("click", "#fengxian-tab", function () {
         if(loadBlock4Status == false){
             loadBlock4();
         }
     });
+    // 点击【历史信息】模块后加载此模块数据
     $(document).on("click", "#history-tab", function () {
         if(loadBlock7Status == false){
             loadBlock7();
         }
     });
 
-    // function checkSubmitForm() {
-    //     getRemoteData({
-    //         url: remoteApi.qccECIGetDetails,
-    //         data: $("form[name='form-search']").serialize(),
-    //         success: function(res){
-    //         }
-    //     });
-    //     return false;
-    // }
 </script>
 </body>
 </html>

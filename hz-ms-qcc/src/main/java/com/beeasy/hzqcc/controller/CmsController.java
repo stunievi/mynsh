@@ -2,9 +2,7 @@ package com.beeasy.hzqcc.controller;
 
 import com.beeasy.mscommon.RestException;
 import org.springframework.http.MediaType;
-import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -18,13 +16,21 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Controller
-public class Test {
+@RequestMapping("/qcc/cms")
+public class CmsController {
 
-    @RequestMapping("/cms_downloadimg")
-    public void test(
-            @RequestParam("filename") String filename,
-            String img,
-            HttpServletResponse response
+    /**
+     * 下载图片（兼容企查查图谱图片下载）
+     * @param filename 图片名
+     * @param img {img: "base64字符码"}
+     * @param response
+     * @throws IOException
+     */
+    @RequestMapping("/downloadimg")
+    public void downLoadBase64Image(
+        @RequestParam("filename") String filename,
+        String img,
+        HttpServletResponse response
     ) throws IOException {
         String str = "data:image/jpeg;base64";
         String pattern = "image/(jpeg|png|jpe|gif);";
