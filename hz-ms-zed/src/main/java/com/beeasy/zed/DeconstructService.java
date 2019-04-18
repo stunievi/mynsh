@@ -1,46 +1,34 @@
 package com.beeasy.zed;
 
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.URLUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-
-import static com.beeasy.zed.Utils.*;
-
-import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.core.util.URLUtil;
-//import cn.hutool.json.*;
-import com.alibaba.fastjson.support.spring.JSONPResponseBodyAdvice;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpMethod;
-import io.netty.handler.codec.json.JsonObjectDecoder;
 import io.netty.util.CharsetUtil;
 import org.beetl.sql.core.DSTransactionManager;
-import org.beetl.sql.core.SQLManager;
 import org.beetl.sql.core.SQLReady;
-import org.junit.Test;
-import org.osgl.util.C;
 import org.osgl.util.S;
 
-import javax.jms.ObjectMessage;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static com.beeasy.zed.DBService.sqlManager;
+import static com.beeasy.zed.Utils.jsonGetByPath;
+import static com.beeasy.zed.Utils.newJsonObject;
+
+//import cn.hutool.json.*;
 
 public class DeconstructService {
 
     private ObjectId objectId = ObjectId.get();
-    public SQLManager sqlManager;
-//    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+    //    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 //    private static SimpleDateFormat isoSdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
 //    private static SimpleDateFormat iso2Sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 //    private static SimpleDateFormat ymdSdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -71,11 +59,10 @@ public class DeconstructService {
         "CIAForeignOffices", "QCC_CIA_FOREIGN_OFFICES"
     );
 
-    public DeconstructService() {
-    }
+    public boolean autoCommit = true;
+    public SqlVectors readySqls = new SqlVectors();
 
-    public DeconstructService(SQLManager sqlManager) {
-        this.sqlManager = sqlManager;
+    public DeconstructService() {
     }
 
 
@@ -261,9 +248,8 @@ public class DeconstructService {
         throw new RuntimeException();
     }
 
-    public static DeconstructService register(ZedService zedService) {
+    public static DeconstructService register() {
         DeconstructService service = new DeconstructService();
-        service.sqlManager = zedService.sqlManager;
 
         HttpServerHandler.AddRoute(new Route(("/deconstruct"), (ctx, req) -> {
             return service.doNettyRequest(ctx, req);
@@ -332,7 +318,7 @@ public class DeconstructService {
             "+StartDate", DateValue,
             "+EndDate", DateValue,
             "+UpdatedDate", DateValue,
-            "+stock_statistics", object.getJSONObject("StockStatistics").toJSONString(0),
+            "+stock_statistics", object.getJSONObject("StockStatistics").toJSONString(),
             "+inner_company_name", compName
         );
         deconstruct(CompanyData, "QCC_SAD", "inner_company_name");
@@ -352,7 +338,7 @@ public class DeconstructService {
         child:{
             JSONObject StockList = object.getJSONObject("StockList");
             if (StockList == null) {
-               break child;
+                break child;
             }
             changeField(
                 StockList,
@@ -399,8 +385,8 @@ public class DeconstructService {
                 }
                 changeField(name,
                     "+inner_company_name", compName,
-                    "+Paths", paths.toJSONString(0),
-                    "+Oper", oper.toJSONString(0),
+                    "+Paths", paths.toJSONString(),
+                    "+Oper", oper.toJSONString(),
                     "+StartDate", DateValue
                 );
                 JSONObject kv = (JSONObject) deconstruct(name, "QCC_HOLDING_COMPANY_NAMES", "");
@@ -469,7 +455,7 @@ public class DeconstructService {
             json,
             "+inner_company_no", keyNo
         );
-        doDelete("QCC_COMPANY_MAP", "inner_company_no", keyNo);
+        doDelete("QCC_CESM", "inner_company_no", keyNo);
         JSONObject kv = (JSONObject) deconstruct(json, "QCC_CESM", "");
 
         JSONObject object = (JSONObject) json;
@@ -734,7 +720,7 @@ public class DeconstructService {
 
         changeField(
             details,
-            "+ChangeDateList", ChangeDateList.toJSONString(0),
+            "+ChangeDateList", ChangeDateList.toJSONString(),
             "+inner_company_name", compName
         );
         doDelete("QCC_HIS_SHARE_HOLDER_DETAILS", "inner_company_name", compName);
@@ -781,7 +767,7 @@ public class DeconstructService {
         String compName = getQuery(request, "keyWord");
         changeField(json,
             "+inner_company_name", compName,
-            "+his_data", json.toJSONString(0)
+            "+his_data", json.toJSONString()
         );
         deconstruct(json, "QCC_HIS_ECI", "inner_company_name");
         JSONObject object = (JSONObject) json;
@@ -949,6 +935,9 @@ public class DeconstructService {
                     @Override
                     public Object call(JSONObject kv) {
                         JSONArray object1 = kv.getJSONArray("WebSite");
+                        if (object1 == null) {
+                            object1 = new JSONArray();
+                        }
                         return object1.toJSONString();
                     }
                 },
@@ -998,8 +987,8 @@ public class DeconstructService {
             JSONObject obj = (JSONObject) object;
             changeField(
                 obj,
-                "+RegisterDate", ValueGenerator.createYmdDate("RegisterDate"),
-                "+PublicDate", ValueGenerator.createYmdDate("PublicDate"),
+                "+RegisterDate", DateValue,
+                "+PublicDate", DateValue,
                 "+inner_company_name", compName
             );
             JSONObject ret = (JSONObject) deconstruct(obj, "QCC_CHATTEL_MORTGAGE", "");
@@ -1010,7 +999,7 @@ public class DeconstructService {
                 changeField(pledge,
                     "+cm_id", id,
                     "+inner_company_name", compName,
-                    "+REGIST_DATE", ValueGenerator.createYmdDate("REGIST_DATE"));
+                    "+REGIST_DATE", DateValue);
                 deconstruct(pledge, "QCC_CMD_PLEDGE", "");
             }
             //PledgeeList
@@ -1045,7 +1034,7 @@ public class DeconstructService {
             if (CancelInfo != null) {
                 changeField(CancelInfo,
                     "+cm_id", id,
-                    "+CancelDate", ValueGenerator.createYmdDate("CancelDate"),
+                    "+CancelDate", DateValue,
                     "+inner_company_name", compName);
                 deconstruct(CancelInfo, "QCC_CMD_CANCEL_INFO", "");
             }
@@ -1055,7 +1044,7 @@ public class DeconstructService {
             if (ChangeList != null) {
                 changeField(ChangeList,
                     "+cm_id", id,
-                    "+ChangeDate", ValueGenerator.createYmdDate("ChangeDate"),
+                    "+ChangeDate", DateValue,
                     "+inner_company_name", compName
                 );
                 deconstruct(ChangeList, "QCC_CMD_CHANGE_LIST", "");
@@ -1073,7 +1062,7 @@ public class DeconstructService {
     private void GetEnvPunishmentDetails(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         String id = getQuery(request, "id");
         changeField(json,
-            "+PunishDate", ValueGenerator.createYmdDate("PunishDate"),
+            "+PunishDate", DateValue,
             "+Id", id
         );
         deconstruct(json, "QCC_ENV_PUNISHMENT_LIST", "Id");
@@ -1090,7 +1079,7 @@ public class DeconstructService {
         String compName = getQuery(request, "keyWord");
         changeField(json,
             "+inner_company_name", compName,
-            "+PunishDate", ValueGenerator.createYmdDate("PunishDate")
+            "+PunishDate", DateValue
         );
         deconstruct(json, "QCC_ENV_PUNISHMENT_LIST", "Id");
     }
@@ -1106,8 +1095,8 @@ public class DeconstructService {
         String id = getQuery(request, "id");
         changeField(
             json,
-            "+OnBoardStartTime", ValueGenerator.createYmdDate("OnBoardStartTime"),
-            "+OnBoardEndTime", ValueGenerator.createYmdDate("OnBoardEndTime"),
+            "+OnBoardStartTime", DateValue,
+            "+OnBoardEndTime", DateValue,
             "+Id", id
         );
         deconstruct(json, "QCC_LAND_MORTGAGE", "Id");
@@ -1153,8 +1142,8 @@ public class DeconstructService {
     private void GetLandMortgageList(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         String compName = getQuery(request, "keyWord");
         changeField(json,
-            "+StartDate", ValueGenerator.createYmdDate("StartDate"),
-            "+EndDate", ValueGenerator.createYmdDate("EndDate"),
+            "+StartDate", DateValue,
+            "+EndDate", DateValue,
             "+inner_company_name", compName
         );
         deconstruct(json, "QCC_LAND_MORTGAGE", "Id");
@@ -1227,9 +1216,9 @@ public class DeconstructService {
                 JSONObject detail = object.getJSONObject("EquityFreezeDetail");
                 if (detail != null && detail.size() > 0) {
                     changeField(detail,
-                        "+FreezeStartDate", ValueGenerator.createYmdDate("FreezeStartDate"),
-                        "+FreezeEndDate", ValueGenerator.createYmdDate("FreezeEndDate"),
-                        "+PublicDate", ValueGenerator.createYmdDate("PublicDate"),
+                        "+FreezeStartDate", DateValue,
+                        "+FreezeEndDate", DateValue,
+                        "+PublicDate", DateValue,
                         "+ja_inner_id", _array.getJSONObject(i).getString("inner_id"),
                         "+inner_company_name", companyName,
                         "+FREEZE_TYPE", "1"
@@ -1241,8 +1230,8 @@ public class DeconstructService {
                 JSONObject detail = object.getJSONObject("EquityUnFreezeDetail");
                 if (detail != null && detail.size() > 0) {
                     changeField(detail,
-                        "+UnFreezeDate", ValueGenerator.createYmdDate("FreezeStartDate"),
-                        "+PublicDate", ValueGenerator.createYmdDate("PublicDate"),
+                        "+UnFreezeDate", DateValue,
+                        "+PublicDate", DateValue,
                         "+ja_inner_id", _array.getJSONObject(i).getString("inner_id"),
                         "+inner_company_name", companyName,
                         "+FREEZE_TYPE", "2"
@@ -1254,7 +1243,7 @@ public class DeconstructService {
                 JSONObject detail = object.getJSONObject("JudicialPartnersChangeDetail");
                 if (detail != null && detail.size() > 0) {
                     changeField(detail,
-                        "+AssistExecDate", ValueGenerator.createYmdDate("FreezeStartDate"),
+                        "+AssistExecDate", DateValue,
                         "+ja_inner_id", array.getJSONObject(i).getString("inner_id"),
                         "+inner_company_name", companyName,
                         "+FREEZE_TYPE", "3"
@@ -1286,17 +1275,17 @@ public class DeconstructService {
         if (object.containsKey("Prosecutor")) {
             list.addAll(
                 object.getJSONArray("Prosecutor")
-                .stream()
-                .map(_o -> {
-                    JSONObject o = (JSONObject) _o;
-                    JSONObject kv = new JSONObject();
-                    kv.put("name", o.getString("Name"));
-                    kv.put("id", id);
-                    kv.put("key_no", o.getString("KeyNo"));
-                    kv.put("type", "01");
-                    return kv;
-                })
-                .collect(Collectors.toList())
+                    .stream()
+                    .map(_o -> {
+                        JSONObject o = (JSONObject) _o;
+                        JSONObject kv = new JSONObject();
+                        kv.put("name", o.getString("Name"));
+                        kv.put("id", id);
+                        kv.put("key_no", o.getString("KeyNo"));
+                        kv.put("type", "01");
+                        return kv;
+                    })
+                    .collect(Collectors.toList())
             );
         }
         if (object.containsKey("Defendant")) {
@@ -1356,7 +1345,7 @@ public class DeconstructService {
             "-Defendantlist",
             "-Prosecutorlist",
             "Executegov->Execute_gov",
-            "LianDate", ValueGenerator.createYmdhmsDate("LianDate"),
+            "LianDate", DateValue,
             "LianDate->Li_an_Date",
             "+inner_company_name", compName
         );
@@ -1438,15 +1427,16 @@ public class DeconstructService {
             new ICanChange() {
                 @Override
                 public boolean call(String key) {
-                    return key.endsWith("Date");
+                    return key.endsWith("Date") && !key.equals("Judege_Date");
                 }
             }, DateValue,
+            "-Content",
             "+Appellor", ValueGenerator.createStrList("Appellor"),
             "Defendantlist->DefendantList",
             "Prosecutorlist->ProsecutorList",
             "+DefendantList", ValueGenerator.createStrList("DefendantList"),
             "+ProsecutorList", ValueGenerator.createStrList("ProsecutorList"),
-            "+Content", Base64Value,
+//            "+Content", Base64Value,
             "+ContentClear", Base64Value
         );
         deconstruct(json, "QCC_JUDGMENT_DOC", "Id");
@@ -1654,33 +1644,68 @@ public class DeconstructService {
         }
         //检查是否有相同的字段
         if (S.notBlank(existKey)) {
-            List<String> keys = Arrays.asList(existKey.split("\\,"));
+            String[] keys = (existKey.split("\\,"));
 //            if (S.empty(object.getString(existKey))) {
 //                return kv;
 //            }
-            if (keys.size() == 0) {
+            if (keys.length == 0) {
                 return kv;
             }
-            String sql = "select count(1) from " + tableName + " where 1 = 1 ";
-            StringBuilder sb = new StringBuilder();
+
+            String[] cKeys = new String[keys.length];
+            String[] values = new String[keys.length];
+            int i = 0;
             for (String key : keys) {
-                String k = camelToUnderline(key);
-                sb.append(S.fmt(" and %s = '%s'", k, object.getString(key)));
+                values[i] = S.wrap(object.getString(key), "'");
+                cKeys[i++] = camelToUnderline(key);
             }
-            sql += sb.toString();
-            List<JSONObject> ret = (sqlManager.execute(sql, JSONObject.class, C.newMap()));
-            if(ret.size() > 0){
-                int count = ret.get(0).getInteger("1");
-                if (count > 0) {
-                    sql = buildUpdateSql(tableName, kv, sb.toString());
-                    sqlManager.executeUpdate(new SQLReady(sql));
+//            String sql = "select count(1) from " + tableName + " where 1 = 1 ";
+            StringBuilder sb = new StringBuilder();
+            sb.append(S.fmt("merge into %s q1 using ( values (%s) ) as q2( %s )", tableName, String.join(",", values), String.join(",", cKeys)));
+            String on = "";
+            for(i = 0; i < keys.length; i++){
+//                sb.append(S.fmt( " and %s = '%s'", cKeys[i], object.getString(keys[i])));
+                on += " and q1." + cKeys[i] + " = " + "q2." + cKeys[i];
+            }
+            on = on.substring(5);
+            sb.append(" on ");
+            sb.append(on);
+            sb.append(" when matched then update set ");
+            sb.append(buildUpdateSqlFields(kv));
+            sb.append(" when not matched then insert");
+            sb.append(buildInsertSqlFields(kv));
+
+//                String k = camelToUnderline(key);
+//            String sql = "%s q1 using( select %s from %s where ) q2 on %s when matched then update set %s when not matched then insert %s";
+//            sql += " for update";
+//            sql += sb.toString();
+//            String sql = buildUpdateSql(tableName, kv, sb.toString());
+            String sql = sb.toString();
+            if(autoCommit){
+                int row = sqlManager.executeUpdate(new SQLReady(sql));
+                if(row > 0){
                     return kv;
                 }
+            } else {
+                readySqls.update.add(sql);
+                return kv;
             }
+//            List<JSONObject> ret = sqlManager.execute(new SQLReady(sql), JSONObject.class);
+//            if(ret.size() > 0){
+//                int count = ret.get(0).getInteger("1");
+//                if (count > 0) {
+//                    sql = buildUpdateSql(tableName, kv, sb.toString());
+//                    sqlManager.executeUpdate(new SQLReady(sql));
+//                    return kv;
+//                }
+//            }
         }
-
         String sql = buildInsertSql(tableName, kv);
-        sqlManager.executeUpdate(new SQLReady(sql));
+        if(autoCommit){
+            sqlManager.executeUpdate(new SQLReady(sql));
+        } else {
+            readySqls.insert.add(sql);
+        }
         return kv;
     }
 
@@ -1705,7 +1730,12 @@ public class DeconstructService {
     }
 
     private void doDelete(String tableName, String key, String value) {
-        sqlManager.executeUpdate(new SQLReady(buildDeleteSql(tableName, key, value)));
+        String sql = buildDeleteSql(tableName, key, value);
+        if(autoCommit){
+            sqlManager.executeUpdate(new SQLReady(sql));
+        } else {
+            readySqls.delete.add(sql);
+        }
     }
 
     private String buildDeleteSql(String tableName, String key, String value) {
@@ -1732,12 +1762,60 @@ public class DeconstructService {
         return sb.toString();
     }
 
+    private String buildUpdateSqlFields(JSONObject kv){
+        StringBuilder sb = new StringBuilder();
+        for (String s : kv.keySet()) {
+            Object obj = kv.get(s);
+            //先不要管关联表
+            if (obj instanceof JSONObject || obj instanceof JSONArray) {
+                continue;
+            }
+            sb.append(s);
+            sb.append(" = ");
+            formatValue(sb, kv, s);
+        }
+        sb.deleteCharAt(sb.length() - 1);
+        return sb.toString();
+    }
+
     private String buildInsertSql(String tableName, JSONObject kv) {
         StringBuilder sb = new StringBuilder();
         kv.put("inner_id", objectId.nextId());
         kv.put("input_date", new Date());
         sb.append("insert into ");
         sb.append(tableName);
+        sb.append(" (");
+        for (String s : kv.keySet()) {
+            Object value = kv.get(s);
+            if (value instanceof JSONArray || value instanceof JSONObject || value == null) {
+                continue;
+            }
+            sb.append(s);
+            sb.append(",");
+        }
+        sb.deleteCharAt(sb.length() - 1);
+        sb.append(")values(");
+        for (String s : kv.keySet()) {
+            Object value = kv.get(s);
+            if (value instanceof JSONArray || value instanceof JSONObject || value == null) {
+                continue;
+            }
+            formatValue(sb, kv, s);
+        }
+        sb.deleteCharAt(sb.length() - 1);
+        sb.append(")");
+//        sb.append(" where not exists(select 1 from ");
+//        sb.append(tableName);
+//        sb.append(" where inner_id = '");
+//        sb.append(kv.getString("inner_id"));
+//        sb.append("')");
+        return sb.toString();
+    }
+
+    public String buildInsertSqlFields(JSONObject kv){
+        StringBuilder sb = new StringBuilder();
+        kv.put("inner_id", objectId.nextId());
+        kv.put("input_date", new Date());
         sb.append(" (");
         for (String s : kv.keySet()) {
             Object value = kv.get(s);
@@ -1850,21 +1928,14 @@ public class DeconstructService {
             return kv -> {
                 Object json = kv.get(key);
                 if(json instanceof JSONArray){
-                   JSONArray array = (JSONArray) json;
-                    return array.toJSONString(0);
+                    JSONArray array = (JSONArray) json;
+                    return array.toJSONString();
                 } else {
                     return "[]";
                 }
             };
         }
 
-        public static ValueGenerator createYmdDate(String key) {
-            return kv -> convertYmdDate(kv.getString(key));
-        }
-
-        public static ValueGenerator createYmdhmsDate(String key) {
-            return kv -> converYmdhmsDate(kv.getString(key));
-        }
 
         public static class Wrap {
             private static final int TYPE_DATE = 760;
@@ -1898,13 +1969,23 @@ public class DeconstructService {
 
         public static ValueGenerator createDate(String key) {
             return kv -> {
+                Object value = kv.get(key);
+                if(value instanceof Date){
+                    return value;
+                }
+                if (value == null) {
+                    return null;
+                }
+                if(value instanceof String && "".equals(value)){
+                    return null;
+                }
                 for (String dateFormat : dateFormats) {
                     try {
-                        return DateUtil.parse(kv.getString(key)).toJdkDate();
+                        return DateUtil.parse((String) value, dateFormat).toJdkDate();
                     } catch (Exception e) {
                     }
                 }
-                System.out.println("date format error : " + key);
+                System.out.println("date format error : " + key + "," + kv.getString(key));
                 return null;
             };
         }
@@ -1924,6 +2005,12 @@ public class DeconstructService {
 
     public interface DeconstructHandler {
         public void call(ChannelHandlerContext ctx, FullHttpRequest request, JSON json);
+    }
+
+    public static class SqlVectors{
+        public Vector<String> insert = new Vector<>();
+        public Vector<String> update = new Vector<>();
+        public Vector<String> delete = new Vector<>();
     }
 
 //    public interface DeconstructArrayHandler{

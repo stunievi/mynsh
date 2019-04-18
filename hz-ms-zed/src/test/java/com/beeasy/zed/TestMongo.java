@@ -10,6 +10,9 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.DefaultHeaders;
 import io.netty.handler.codec.http.*;
+import org.beetl.ext.fn.StringUtil;
+import org.beetl.sql.core.DSTransactionManager;
+import org.beetl.sql.core.SQLReady;
 import org.beetl.sql.ext.gen.GenConfig;
 import org.bson.Document;
 import org.junit.AfterClass;
@@ -18,6 +21,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.osgl.util.IO;
 import org.osgl.util.S;
+import sun.tracing.dtrace.DTraceProviderFactory;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -26,21 +30,26 @@ import java.nio.channels.FileLock;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.zip.*;
 
+import static com.beeasy.zed.DBService.*;
+
 public class TestMongo {
     private static MongoService mongoService = new MongoService();
-    private static DeconstructService deconstructService = new DeconstructService();
+    private static DeconstructService deconstructService;
     private static ZedService zedService = new ZedService();
 
     @BeforeClass
     public static void onBefore(){
         mongoService.start();
-        zedService.initConfig();
-        zedService.initDB(true);
-        DeconstructService.register(zedService);
+        DBService.init(true);
+        deconstructService = DeconstructService.register();
+        deconstructService.autoCommit = false;
     }
 
     @AfterClass
@@ -91,7 +100,8 @@ public class TestMongo {
             temp = (Files.createTempFile("", "")).toFile();
 //            File f = new File("C:\\Users\\bin\\Documents\\WeChat Files\\llyb120\\FileStorage\\File\\2019-04\\bd1d46d2-b80d-4669-9b28-5b6081d2bfad.zip");
 //            File f = new File("C:\\Users\\bin\\Documents\\WeChat Files\\llyb120\\FileStorage\\File\\2019-04\\ec72a17e-164f-4beb-97c6-f3eedb18084f.zip");
-            File f = new File("C:\\Users\\bin\\Documents\\WeChat Files\\llyb120\\FileStorage\\File\\2019-04\\60608e86-0b4d-4e8e-bfc1-736f0bbbe848.zip");
+//            File f = new File("C:\\Users\\bin\\Documents\\WeChat Files\\llyb120\\FileStorage\\File\\2019-04\\60608e86-0b4d-4e8e-bfc1-736f0bbbe848.zip");
+            File f = new File("C:\\Users\\bin\\Documents\\WeChat Files\\llyb120\\FileStorage\\File\\2019-04\\91d50bc5-1e02-4f68-a832-53920c5dfe28.zip");
             unzipFile(f, temp);
         } catch (IOException e) {
             e.printStackTrace();
@@ -180,7 +190,20 @@ public class TestMongo {
                         BufferPool.deallocate(bs);
                     }
                     if (str != null) {
-                        testDe(slice.link, str);
+                        DSTransactionManager.start();
+                        try {
+                            testDe(slice.link, str);
+                            DSTransactionManager.commit();
+                        }
+                        catch (Exception e){
+                            e.printStackTrace();
+                            try {
+                                DSTransactionManager.rollback();
+                            } catch (SQLException e1) {
+                                e1.printStackTrace();
+                            }
+                            System.exit(-1);
+                        }
                         cl.countDown();
                     }
                 });
@@ -188,6 +211,47 @@ public class TestMongo {
 
 
             cl.await();
+            Connection conn = null;
+            try {
+                conn = dataSource.getConnection();
+                conn.setAutoCommit(false);
+                Statement stmt = conn.createStatement();
+                System.out.println("开始插入");
+                long stime = System.currentTimeMillis();
+                for (String s : deconstructService.readySqls.delete) {
+                    stmt.addBatch(s);
+                }
+                for (String s : deconstructService.readySqls.insert) {
+                    stmt.addBatch(s);
+                }
+                for (String s : deconstructService.readySqls.update) {
+                    stmt.addBatch(s);
+                }
+                stmt.executeBatch();
+                conn.commit();
+
+                System.out.println("插入时间:" + (System.currentTimeMillis() - stime));
+
+                ;
+            } catch (SQLException e) {
+                if (conn != null) {
+                    try {
+                        conn.rollback();
+                    } catch (SQLException e1) {
+                        e1.printStackTrace();
+                    }
+                }
+                e.printStackTrace();
+            } finally {
+                if (conn != null) {
+                    try {
+                        conn.close();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            int c = 1;
 
         } catch (IOException e) {
             Assert.assertNull(e);
@@ -199,6 +263,27 @@ public class TestMongo {
             }
         }
     }
+
+    @Test
+    public void clearTables(){
+        String sql = "select  tabname from syscat.tables where tabschema='DB2INST1'\n";
+        List<JSONObject> list = sqlManager.execute(new SQLReady(sql), JSONObject.class);
+        try {
+            Connection connection = dataSource.getConnection();
+            Statement stmt = connection.createStatement();
+            for (JSONObject object : list) {
+                String s = "delete from " + object.getString("tabname") ;
+                stmt.addBatch(s);
+            }
+            stmt.executeBatch();
+            stmt.close();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
 
     public void testDe(String url, String str){
         JSONObject object= JSON.parseObject(str);

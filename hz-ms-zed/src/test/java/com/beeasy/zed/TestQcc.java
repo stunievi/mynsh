@@ -57,15 +57,10 @@ public class TestQcc {
                 assertNull(e);
             }
         });
-        zedService = new ZedService();
-        zedService.initConfig();
-        zedService.initDB(true);
-        sqlManager = zedService.sqlManager;
-        QccService.register(zedService);
-        deconstructService = DeconstructService.register(zedService);
-        ThreadUtil.execAsync(zedService::initNetty);
-        ThreadUtil.sleep(500);
-
+        DBService.init(true);
+        QccService.register();
+        deconstructService = DeconstructService.register();
+        ThreadUtil.execAsync(NettyService::start);
 //        clearTable("QCC_JUDGMENT_DOC");
 //        clearTable("QCC_COURT_NOTICE");
 //        clearTable("QCC_COURT_ANNOUNCEMENT");
@@ -354,7 +349,7 @@ public class TestQcc {
         clearTable("QCC_FRESH");
         JSONObject source = read("/ECIV4/SearchFresh.json?keyword=惠州市帅星贸易有限公司");
         JSONObject target = checkResult("/ECIV4/SearchFresh?keyword=北京");
-        checkSim(source, target);
+        checkSim(source, target, 0.6);
     }
 
     @Test
