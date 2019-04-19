@@ -4,7 +4,6 @@ import java.net.NetworkInterface;
 import java.nio.ByteBuffer;
 import java.util.Date;
 import java.util.Enumeration;
-import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
