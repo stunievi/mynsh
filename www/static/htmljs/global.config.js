@@ -91,6 +91,7 @@ if(matched){
 
 // 远程api
 var remoteApi = {
+	qccUpdateQccData: "/qcc/auto/updateData",
 	qccDownloadimg: "/qcc/cms/downloadimg",
 	// 企查查
 	qccECISearchFresh: "/qcc/auto/ECI/SearchFresh", // 获取新增公司信息

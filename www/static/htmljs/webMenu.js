@@ -129,13 +129,12 @@ var _menu = [
         name: "对公客户贷后信息",
         children: [
             {
-                name: "对公客户",
-                children: [
-                    {
-                        name: "客户列表",
-                        href: "/htmlsrc/comInfoQuery/company/company.list.html"
-                    }
-                ]
+                name: "客户列表",
+                href: "/htmlsrc/comInfoQuery/company/company.list.html"
+            },
+            {
+                name: "动产抵押",
+                href: "/htmlsrc/qichacha/ChattelMortgage/ChattelMortgageDetail.html"
             }
         ]
     },

@@ -20,7 +20,7 @@
                 <!-- 基本信息展示 -->
             </div>
             <div role="tabpanel" class="tab-pane" id="article" aria-labelledby="article-tab">
-                a
+                空
             </div>
         </div>
     </div>
@@ -40,13 +40,24 @@
                 var Appellor = [];
                 var Defendantlist = [];
                 var Prosecutorlist = [];
-                data["Appellor"].forEach(val=> Appellor.push(val));
-                data["DefendantList"].forEach(val=> Defendantlist.push(val));
-                data["ProsecutorList"].forEach(val=> Prosecutorlist.push(val));
-
-                data["Appellor"] = Appellor.join("、");
-                data["DefendantList"] = Defendantlist.join("、");
-                data["ProsecutorList"] = Prosecutorlist.join("、");
+                if(data["Appellor"]){
+                    data["Appellor"].forEach(function () {
+                        Appellor.push(val)
+                    });
+                    data["Appellor"] = Appellor.join("、");
+                }
+                if(data["DefendantList"]){
+                    data["DefendantList"].forEach(function () {
+                        Defendantlist.push(val)
+                    });
+                    data["DefendantList"] = Defendantlist.join("、");
+                }
+                if(data["ProsecutorList"]){
+                    data["ProsecutorList"].forEach(function () {
+                        Prosecutorlist.push(val)
+                    });
+                    data["ProsecutorList"] = Prosecutorlist.join("、");
+                }
 
                 $("#article").html(data["Content"]);
                 $("#home").html(panelTableShowRender2({
@@ -74,7 +85,6 @@
                 layErrorMsg("数据获取失败....");
                 $("#home").html("数据获取失败....");
             }
-
         }
     })
 </script>

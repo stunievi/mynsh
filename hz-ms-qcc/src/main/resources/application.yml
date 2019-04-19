@@ -29,8 +29,13 @@ spring:
       enabled: false
     #        db2-end
 
+  activemq:
+    #    broker-url: tcp://47.94.97.138:8011
+    broker-url: tcp://47.94.97.138:8011?jms.blobTransferPolicy.uploadUrl=http://47.94.97.138:8012/fileserver/
+
 server:
   port: 8069
+#  port: 8154
 
 beetlsql:
   dbStyle: org.beetl.sql.core.db.DB2SqlStyle
@@ -49,6 +54,7 @@ uploads:
   type: fastdfs
   path: /Users/bin/work/uploads
   temp: D:/temp
+# temp: /root/qccUploadsTemp
   avatar: /Users/bin/work/uploads/avatar
   logs: /Users/bin/work/uploads/logs
 

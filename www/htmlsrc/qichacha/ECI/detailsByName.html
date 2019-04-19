@@ -7,8 +7,16 @@
     <!--#include file="/htmlsrc/header.html" -->
     <script>
         var keyNoPromise = $.Deferred();
-        var COMPANY_NAME =  "惠州市帅星贸易有限公司" || getParam("keyWord");
+        var COMPANY_NAME =  decodeURI(getParam("keyWord"));
         var COMPANY_KEY_NO = getParam("keyNo") || "";
+        var BOOTSTRAP_INDEX_FILED = {
+            title: '序号',
+            align: 'center',
+            width: 80,
+            formatter: function(value, row, index) {
+                return index + 1;
+            }
+        }
     </script>
 </head>
 <body>
@@ -23,7 +31,7 @@
                 <!--<li role="presentation" class=""><a href="#report" role="tab" id="report-tab" data-toggle="tab" data-controls="report">企业发展</a></li>-->
                 <!--<li role="presentation" class=""><a href="#assets" role="tab" id="assets-tab" data-toggle="tab" data-controls="assets">知识产权</a></li>-->
                 <li role="presentation" class=""><a href="#history" role="tab" id="history-tab" data-toggle="tab" data-controls="history">历史信息</a></li>
-                <li style="float: right;"><a href="javascript:;" id="updateBtn" style="background: orange;color: #fff;" >更新当前模块数据</a></li>
+                <li style="float: right;"><a href="javascript:;" class="btn" id="updateBtn" style="background: orange;color: #fff;" >更新当前模块数据</a></li>
             </ul>
             <div id="qcc-detail-content" class="tab-content" style="padding-top: 10px;">
                 <!--#include file="./detailsByName_1.html"-->
@@ -52,38 +60,51 @@
 
     // 更新模块数据
     $("#updateBtn").click(function () {
-        var currBlockIndex = $("#myTabs li.active").index();
-        var url = "http://localhost:8079/qcc/loadData/";
-        if(currBlockIndex === 0){
-            // 基本信息
-            url += "loadDataBlock1";
-        }else if(currBlockIndex === 1){
-            url += "loadDataBlock2";
-        }else if(currBlockIndex === 2){
-            // 经营风险
-            if(COMPANY_KEY_NO == ""){
-                layer.msg("keyNo为空，请确保工商信息已获取且页面加载完成！");
-                return false;
-            }
-            url += "loadDataBlock5";
-        }else if(currBlockIndex === 3){
-            url += "loadDataBlock4";
+        var that = $(this);
+        that.addClass("disabled");
+        if(that.hasClass("disabled") == false){
+            return false;
         }
-        $.ajax({
-            url: url,
-            data: {
-                keyWord: COMPANY_NAME,
-                keyNo: COMPANY_KEY_NO
-            },
-            success: function (res) {
-                if(res.success){
-                    layer.msg("数据获取成功，请等待数据解构服务处理！");
-                }else{
-                    layer.msg("数据获取失败！");
+        layer.confirm("确定更新当前模块？",function(){
+            that.removeClass("disabled");
+            var loadingIndex;
+            layer.msg("指令发送中...", function () {
+                loadingIndex = layer.load();
+                var currBlockIndex = $("#myTabs li.active").index();
+                var sign;
+                if(currBlockIndex === 0){
+                    sign = "01";
+                }else if(currBlockIndex === 1){
+                    sign = "02";
+                }else if(currBlockIndex === 2){
+                    sign = "05";
+                }else if(currBlockIndex === 3){
+                    sign = "04";
                 }
-
-            }
+                if(sign == undefined){
+                    layer.msg("更新指令内容为空！");
+                    return
+                }
+                $.ajax({
+                    url: remoteApi.qccUpdateQccData,
+                    data: {
+                        fullName: COMPANY_NAME,
+                        sign: COMPANY_KEY_NO
+                    },
+                    success: function (res) {
+                        if(res.success){
+                            layer.msg("指令发送成功，请等待数据加工服务、数据解构服务处理！");
+                        }else{
+                            layer.msg("指令发送失败！");
+                        }
+                        layer.close(loadingIndex);
+                    }
+                });
+            });
+        },function () {
+            that.removeClass("disabled");
         });
+
     });
     // 点击【法律诉讼】模块后加载此模块数据
     $(document).on("click", "#susong-tab", function () {
@@ -103,7 +124,6 @@
             loadBlock7();
         }
     });
-
 </script>
 </body>
 </html>

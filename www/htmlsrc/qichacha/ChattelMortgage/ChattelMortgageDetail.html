@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title> 动产抵押详情 </title>
+    <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script src="/static/vendor/bootcss/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+</head>
+<body>
+<div id="content">
+    <div class="bs-example bs-example-tabs" data-example-id="togglable-tabs">
+        <ul id="myTabs" class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active"><a href="#home" id="home-tab" role="tab" data-toggle="tab" data-controls="home" aria-expanded="true">动产抵押</a></li>
+        </ul>
+        <div id="myTabContent" class="tab-content" style="padding-top: 10px;">
+            <div role="tabpanel" class="tab-pane active in" aria-labelledby="home-tab">
+                <!-- 基本信息展示 -->
+                <h5>
+                    动产抵押登记信息
+                </h5>
+                <div id="home-content-1">
+
+                </div>
+                <h5>
+                    抵押权人信息
+                </h5>
+                <div id="home-content-2">
+
+                </div>
+                <h5>
+                    抵押权人信息List
+                </h5>
+                <div id="home-content-2-1">
+
+                </div>
+                <h5>
+                    被担保主债权信息
+                </h5>
+                <div id="home-content-3">
+
+                </div>
+                <h5>
+                    抵押物信息List
+                </h5>
+                <div id="home-content-4">
+
+                </div>
+                <h5>
+                    注销信息
+                </h5>
+                <div id="home-content-5">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/static/vendor/artTemplate/template-web.js"></script>
+<script src="/static/vendor/layui/layer/layer.js"></script>
+<script src="/static/htmljs/global.config.js"></script>
+<script src="/static/htmljs/utils.js"></script>
+<script src="/htmlsrc/qichacha/tmpl/eci/qccTable.js"></script>
+<script>
+    function onPageRequest(data){
+        data = {
+            "RegisterOffice": "伊宁县市场监督管理局",
+            "RegisterDate": "2014-12-17 12:00:00",
+            "DebtSecuredAmount": "36236",
+            "RegisterNo": "新抵F212014030",
+            "Detail": {
+                "GuaranteeList": [
+                    {
+                        "Ownership": "",
+                        "Other": "抵押数量为：5抵押品牌为：抵押单价为：",
+                        "Name": "设备",
+                        "Remark": ""
+                    }
+                ],
+                "ChangeList": [],
+                "CancelInfo": {},
+                "Pledge": {
+                    "RegistNo": "新抵F212014030",
+                    "RegistOffice": "伊宁县市场监督管理局",
+                    "RegistDate": "2014-12-17 12:00:00"
+                },
+                "SecuredClaim": {
+                    "AssuranceScope": "1,2,3,4,",
+                    "Amount": 36236,
+                    "Kind": "买卖合同",
+                    "FulfillObligation": "2015-06-15至2027-06-14",
+                    "Remark": ""
+                },
+                "PledgeeList": [
+                    {
+                        "IdentityType": "",
+                        "IdentityNo": "",
+                        "Name": "国家开发银行股份有限公司伊犁哈萨克自治州分行"
+                    }
+                ]
+            }
+        };
+        if(null == data || $.isEmptyObject(data)){
+            layErrorMsg("数据获取失败....")
+            $("#home").html("数据获取失败....")
+        }else{
+            var dataDetail = data.Detail || {};
+            // 基本信息
+            $("#home-content-1").html(qccTableRender({
+                cols:[
+                    {title:'登记编号', field:"RegisterNo"},
+                    {title:"登记时间",field:"RegisterDate" },
+                    {title:"公示时间",field:"PublicDate" },
+                    {title:"登记机关",field:"RegisterOffice" },
+                    {title:"被担保债权数额",field:"DebtSecuredAmount" },
+                    {title:"状态",field:"Status" },
+                ],
+                data: data
+            }));
+            // 动产抵押Pledge
+            $("#home-content-2").html(qccTableRender({
+                cols:[
+                    {title:'登记编号', field:"RegistNo" },
+                    {title:"注册时间",field:"RegistDate" },
+                    {title:"注册单位",field:"RegistOffice" }
+                ],
+                data: dataDetail.Pledge
+            }));
+            // 动产抵押Pledge_list
+            var pledgeList = dataDetail.PledgeeList;
+            var pledgeListDataObj = {};
+            var cols21 = [];
+            pledgeList.forEach(function (value, index) {
+                cols21.push({title:'名称', field:"Name"+index, spec: true});
+                cols21.push({title:"抵押权人证照/证件类型",field:"IdentityType"+index });
+                cols21.push({title:"证照/证件号码",field:"IdentityNo"+index});
+                pledgeListDataObj["Name"+index] = value["Name"];
+                pledgeListDataObj["IdentityType"+index] = value["IdentityType"];
+                pledgeListDataObj["IdentityNo"+index] = value["IdentityNo"];
+            });
+            $("#home-content-2-1").html(qccTableRender({
+                cols: cols21,
+                data: pledgeListDataObj
+            }));
+            //
+            // 动产抵押SecuredClaim
+            $("#home-content-3").html(qccTableRender({
+                cols:[
+                    {title:"债务人履行债务的期限", field:"FulfillObligation", spec: true},
+                    {title:"种类", field:"Kind" },
+                    {title:"数额", field:"Amount" },
+                    {title:"担保的范围", field:"AssuranceScope" },
+                    {title:"备注", field:"Remark" }
+                ],
+                data: dataDetail.SecuredClaim
+            }));
+
+            // 动产抵押Pledge_list
+            var guaranteeList = dataDetail.GuaranteeList;
+            var guaranteeListDataObj = {};
+            var cols4 = [];
+            guaranteeList.forEach(function (value, index) {
+                cols4.push({title:"名称", field:"Name"+index });
+                cols4.push({title:"所有权归属", field:"Ownership"+index });
+                cols4.push({title:"数量、质量、状况、所在地等情况", field:"Other"+index });
+                cols4.push({title:"备注", field:"Remark"+index });
+                guaranteeListDataObj["Name"+index] = value["Name"];
+                guaranteeListDataObj["Ownership"+index] = value["Ownership"];
+                guaranteeListDataObj["Other"+index] = value["Other"];
+                guaranteeListDataObj["Remark"+index] = value["Remark"];
+            });
+
+            // 动产抵押GuaranteeList
+            $("#home-content-4").html(qccTableRender({
+                cols:cols4,
+                data: guaranteeListDataObj
+            }));
+
+            // 	动产抵押CancelInfo
+            $("#home-content-5").html(qccTableRender({
+                cols:[
+                    {title:"动产抵押登记注销时间", field:"CancelDate" },
+                    {title:"动产抵押登记注销原因", field:"CancelReason" }
+                ],
+                data: dataDetail.CancelInfo
+            }));
+
+            // 动产抵押ChangeList
+            // $("#home-content-6").html(qccTableRender({
+            //     cols:[
+            //         {title:"动产抵押登记变更日期", field:"ChangeDate" },
+            //         {title:"动产抵押登记变更内容", field:"ChangeContent" }
+            //     ],
+            //     data: data
+            // }));
+
+        }
+    }
+</script>
+</body>
+</html>

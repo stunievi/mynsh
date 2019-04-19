@@ -73,7 +73,7 @@
             // url: "./json/guquanchuantou1.json",
             url: remoteApi.qccECICompanyMapGetStockAnalysisData,
             data:{
-                keyWord: companyName
+                fullName: companyName
             },
             dataType: 'JSON'
         });
@@ -115,7 +115,7 @@
 
 
             var data = {};
-            if(retData1 && retData1.StockList && retData1.StockList.children && retData1.StockList.children.length>0){
+            if(retData1 && retData1.StockList && retData1.StockList.Children && retData1.StockList.Children.length>0){
                 var gudongDetailList = [];
                 var walk1 = function(gudongDetailList, dataList){
                     dataList.forEach(function (item) {
@@ -124,14 +124,14 @@
                         item.Percent = item.FundedRate;
                         var _index = gudongDetailList.push(item);
                         var index = _index - 1;
-                        if(item.children && item.children.length > 0){
+                        if(item.Children && item.Children.length > 0){
                             gudongDetailList[index].DetailList = [];
-                            walk1(gudongDetailList[index].DetailList, item.children)
+                            walk1(gudongDetailList[index].DetailList, item.Children)
                         }
                     });
                     return gudongDetailList;
                 };
-                walk1(gudongDetailList, retData1.StockList.children);
+                walk1(gudongDetailList, retData1.StockList.Children);
                 // 股东
                 data.gudong = {
                     DetailList: gudongDetailList,

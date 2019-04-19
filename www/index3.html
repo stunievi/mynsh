@@ -526,7 +526,7 @@
 
     function loginClound() {
         var user = store.get("$user");
-        console.log(user)
+        // console.log(user)
         $.ajax({
             url: remoteApi.apiCloudLogin + "?username=" + user.cloudUsername + "&password=" + user.cloudPassword,
             success: function (res) {

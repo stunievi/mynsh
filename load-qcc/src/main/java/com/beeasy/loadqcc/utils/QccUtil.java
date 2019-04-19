@@ -34,13 +34,18 @@ public class QccUtil {
         queries.put("key", AppKey);
         Map header = setHeaderInfo();
         try{
-            return OkHttpUtil.getForHeader(url, queries, header);
+            return JSON.toJSONString(C.newMap(
+                    "Status", "000",
+                    "Message", "命中测试调用！！！",
+                    "Result", url
+            ));
+//            return OkHttpUtil.getForHeader(url, queries, header);
         }catch (Exception e){
             String dataQueries = Joiner.on("&").withKeyValueSeparator("=").join(queries);
             String fullLink = url + "?" + dataQueries;
             return JSON.toJSONString(C.newMap(
                "Status", "500",
-                    "Message", "获取信息时发生服务器发生异常",
+                    "Message", "获取信息时服务器发生异常",
                     "Result", fullLink
             ));
         }

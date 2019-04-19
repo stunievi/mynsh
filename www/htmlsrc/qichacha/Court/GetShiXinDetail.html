@@ -25,56 +25,40 @@
 <script src="/static/vendor/layui/layer/layer.js"></script>
 <script src="/static/htmljs/global.config.js"></script>
 <script src="/static/htmljs/utils.js"></script>
-<script src="../../../tmpl/js/panelTableShow.js"></script>
+<script src="/htmlsrc/qichacha/tmpl/eci/qccTable.js"></script>
 <script>
-    SuperPost({
-        url: remoteApi.qccCourtGetShiXinDetail,
-        success: function(origin){
-            if(origin.Status == "200"){
-                var data = origin.Result || {};
-
-                // var Prosecutor = [];
-                // var Defendant = [];
-                // data["Prosecutor"].forEach(val=> Prosecutor.push(val["Name"]));
-                // data["Defendant"].forEach(val=> Defendant.push(val["Name"]));
-                // data["Prosecutor"] = Prosecutor.join("、");
-                // data["Defendant"] = Defendant.join("、");
-
-                $("#home").html(panelTableShowRender2({
-                    attrs:[
-                        // {label:"主键", prop:"Id"},
-                        // {label:"官网主键", prop:"Sourceid"},
-                        // {label:"唯一编号", prop:"Uniqueno"},
-                        {label:"被执行人姓名/名称", prop:"Name"},
-                        {label:"立案时间", prop:"Liandate"},
-                        {label:"案号", prop:"Anno"},
-                        {label:"身份证号码/组织机构代码", prop:"Orgno"},
-                        {label:"法定代表人或者负责人姓名", prop:"Ownername"},
-                        {label:"执行法院", prop:"Executegov"},
-                        {label:"所在省份缩写", prop:"Province"},
-                        {label:"做出执行依据单位", prop:"Executeunite"},
-                        {label:"生效法律文书确定的义务", prop:"Yiwu"},
-                        {label:"被执行人的履行情况", prop:"Executestatus"},
-                        {label:"失信被执行人行为具体情形", prop:"Actionremark"},
-                        {label:"发布时间", prop:"Publicdate"},
-                        {label:"年龄", prop:"Age"},
-                        {label:"性别", prop:"Sexy"},
-                        {label:"记录更新时间", prop:"Updatedate"},
-                        {label:"执行依据文号", prop:"Executeno"},
-                        {label:"已履行", prop:"Performedpart"},
-                        {label:"未履行", prop:"Unperformpart"},
-                        {label:"组织类型（1：自然人，2：企业，3：社会组织，空白：无法判定）", prop:"OrgType"},
-                        {label:"组织类型名称", prop:"OrgTypeName"},
-                    ],
-                    data: data
-                }));
-            }else{
-                layErrorMsg("数据获取失败....")
-                $("#home").html("数据获取失败....")
-            }
-
+    function onPageRequest(data){
+        if(null == data || $.isEmptyObject(data)){
+            layErrorMsg("数据获取失败....")
+            $("#home").html("数据获取失败....")
+        }else{
+            $("#home").html(qccTableRender({
+                cols:[
+                    {title:"被执行人姓名/名称", field:"Name"},
+                    {title:"立案时间", field:"LiAnDate"},
+                    {title:"案号", field:"AnNo"},
+                    {title:"身份证号码/组织机构代码", field:"OrgNo"},
+                    {title:"法定代表人或者负责人姓名", field:"OwnerName"},
+                    {title:"执行法院", field:"ExecuteGov"},
+                    {title:"所在省份缩写", field:"Province"},
+                    {title:"做出执行依据单位", field:"ExecuteUnite"},
+                    {title:"生效法律文书确定的义务", field:"YiWu"},
+                    {title:"被执行人的履行情况", field:"ExecuteStatus"},
+                    {title:"失信被执行人行为具体情形", field:"ActionRemark"},
+                    {title:"发布时间", field:"PublicDate"},
+                    {title:"年龄", field:"Age"},
+                    {title:"性别", field:"Sexy"},
+                    {title:"记录更新时间", field:"UpdateDate"},
+                    {title:"执行依据文号", field:"ExecuteNo"},
+                    {title:"已履行", field:"PerformedPart"},
+                    {title:"未履行", field:"UnperformPart"},
+                    {title:"组织类型", field:"OrgType"},
+                    {title:"组织类型名称", field:"OrgTypeName"}
+                ],
+                data: data
+            }));
         }
-    })
+    }
 </script>
 </body>
 </html>

@@ -1,4 +1,5 @@
-package com.beeasy.loadqcc.config;
+package com.beeasy.hzqcc.config;
+
 
 import lombok.AllArgsConstructor;
 import org.apache.activemq.ActiveMQSession;

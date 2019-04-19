@@ -34,10 +34,14 @@
             { label:'客户号', prop:'CUS_ID' },
             { label:'客户名称', prop:'CUS_NAME' },
             { label:'开户证件号码', prop:'CERT_CODE' },
-            { label:'电话', prop:'PHONE' },
-            { label:'联系人', prop:'CONTACT_NAME' },
-            { label:'贷款金额', prop:'LOAN_AMOUNT' },
-            { label:'拖欠本金', prop:'UNPD_PRIN_BAL' }
+            // { label:'电话', prop:'PHONE' },
+            // { label:'联系人', prop:'CONTACT_NAME' },
+            { label:'贷款金额（大于等于）', prop:'START_LOAN_AMOUNT' },
+            { label:'贷款金额（小于等于）', prop:'END_LOAN_AMOUNT' },
+            { label:'贷款余额（大于等于）', prop:'START_LOAN_BALANCE' },
+            { label:'贷款余额（小于等于）', prop:'END_LOAN_BALANCE' },
+            { label:'拖欠本金（大于等于）', prop:'START_UNPD_PRIN_BAL' },
+            { label:'拖欠本金（小于等于）', prop:'END_UNPD_PRIN_BAL' }
         ],
         data: {
             // 'own': 1

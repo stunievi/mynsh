@@ -20,67 +20,67 @@
     </div>
 
     <div class="panel-qcc" id="history2">
-        <div class="panel-qcc-heading">历史对外投资</div>
+        <div class="panel-qcc-heading">历史对外投资 <b id="history2-count">0</b></div>
         <div class="panel-qcc-body" id="history2-body">
         </div>
     </div>
     <div class="panel-qcc" id="history3">
-        <div class="panel-qcc-heading">历史股东</div>
+        <div class="panel-qcc-heading">历史股东 <b id="history3-count">0</b></div>
         <div class="panel-qcc-body" id="history3-body">
         </div>
     </div>
     <div class="panel-qcc" id="history4">
-        <div class="panel-qcc-heading">历史失信查询</div>
+        <div class="panel-qcc-heading">历史失信查询 <b id="history4-count">0</b></div>
         <div class="panel-qcc-body" id="history4-body">
         </div>
     </div>
     <div class="panel-qcc" id="history5">
-        <div class="panel-qcc-heading">历史被执行</div>
+        <div class="panel-qcc-heading">历史被执行 <b id="history5-count">0</b></div>
         <div class="panel-qcc-body" id="history5-body">
         </div>
     </div>
     <div class="panel-qcc" id="history6">
-        <div class="panel-qcc-heading">历史法院公告</div>
+        <div class="panel-qcc-heading">历史法院公告 <b id="history6-count">0</b></div>
         <div class="panel-qcc-body" id="history6-body">
         </div>
     </div>
     <div class="panel-qcc" id="history7">
-        <div class="panel-qcc-heading">历史裁判文书</div>
+        <div class="panel-qcc-heading">历史裁判文书 <b id="history7-count">0</b></div>
         <div class="panel-qcc-body" id="history7-body">
         </div>
     </div>
     <div class="panel-qcc" id="history8">
-        <div class="panel-qcc-heading">历史开庭公告</div>
+        <div class="panel-qcc-heading">历史开庭公告 <b id="history8-count">0</b></div>
         <div class="panel-qcc-body" id="history8-body">
         </div>
     </div>
     <div class="panel-qcc" id="history9">
-        <div class="panel-qcc-heading">历史动产抵押</div>
+        <div class="panel-qcc-heading">历史动产抵押 <b id="history9-count">0</b></div>
         <div class="panel-qcc-body" id="history9-body">
         </div>
     </div>
     <div class="panel-qcc" id="history10">
-        <div class="panel-qcc-heading">历史股权出资</div>
+        <div class="panel-qcc-heading">历史股权出资 <b id="history10-count">0</b></div>
         <div class="panel-qcc-body" id="history10-body">
         </div>
     </div>
     <div class="panel-qcc" id="history11">
-        <div class="panel-qcc-heading">历史行政处罚（工商行政处罚）</div>
+        <div class="panel-qcc-heading">历史行政处罚（工商行政处罚）<b id="history11-count">0</b></div>
         <div class="panel-qcc-body" id="history11-body">
         </div>
     </div>
     <div class="panel-qcc" id="history11-1">
-        <div class="panel-qcc-heading">历史行政处罚（信用中国行政处罚）</div>
+        <div class="panel-qcc-heading">历史行政处罚（信用中国行政处罚）<b id="history11-1-count">0</b></div>
         <div class="panel-qcc-body" id="history11-1-body">
         </div>
     </div>
     <div class="panel-qcc" id="history12">
-        <div class="panel-qcc-heading">历史行政许可（工商行政许可）</div>
+        <div class="panel-qcc-heading">历史行政许可（工商行政许可）<b id="history12-count">0</b></div>
         <div class="panel-qcc-body" id="history12-body">
         </div>
     </div>
     <div class="panel-qcc" id="history12-1">
-        <div class="panel-qcc-heading">历史行政许可（信用中国行政许可）</div>
+        <div class="panel-qcc-heading">历史行政许可（信用中国行政许可）<b id="history12-1-count">0</b></div>
         <div class="panel-qcc-body" id="history12-1-body">
         </div>
     </div>
@@ -92,14 +92,14 @@
        loadBlock7Status = true;
        // 历史工商
        $.ajax({
-           url: remoteApi.qccHistoryGetHistorytEci+"?keyWord="+COMPANY_NAME,
+           url: remoteApi.qccHistoryGetHistorytEci+"?fullName="+COMPANY_NAME,
            success:function (res) {
                if(res.success && res.data && JSON.stringify(res.data) != "{}"){
                    $("#history1-body").html(
                        hiscominfoRender(res.data)
                    )
                }else{
-                   $("#history1").hide();
+                   // $("#history1").hide();
                    $("a[href='#history1']").addClass("disabled");
                }
            }
@@ -108,7 +108,7 @@
        laytableRender({
            id: "history2-body",
            autoShift: false,
-           url: remoteApi.qccHistoryGetHistorytInvestment+"?keyWord="+COMPANY_NAME,
+           url: remoteApi.qccHistoryGetHistorytInvestment+"?fullName="+COMPANY_NAME,
            cols: [
                [
                    {title:"变更日期",field:"ChangeDate", width:100},
@@ -124,8 +124,10 @@
            ],
            onData:function (data) {
                if(!data || !data.total || data.total < 1){
-                   $("#history2").hide();
+                   // $("#history2").hide();
                    $("a[href='#history2']").addClass("disabled");
+               }else{
+                   $("#history2-count").html(data.total);
                }
            }
        });
@@ -134,7 +136,7 @@
        laytableRender({
            id: "history3-body",
            autoShift: false,
-           url: remoteApi.qccHistoryGetHistorytShareHolder+"?keyWord="+COMPANY_NAME,
+           url: remoteApi.qccHistoryGetHistorytShareHolder+"?fullName="+COMPANY_NAME,
            cols: [
                [
                    {title:"股东名称",field:"PartnerName"},
@@ -146,8 +148,10 @@
            ],
            onData:function (data) {
                if(!data || !data.total || data.total < 1){
-                   $("#history3").hide();
+                   // $("#history3").hide();
                    $("a[href='#history3']").addClass("disabled");
+               }else{
+                   $("#history3-count").html(data.total);
                }
            }
        });
@@ -156,7 +160,7 @@
        laytableRender({
            id: "history4-body",
            autoShift: false,
-           url: remoteApi.qccHistoryGetHistoryShiXin+"?keyWord="+COMPANY_NAME,
+           url: remoteApi.qccHistoryGetHistoryShiXin+"?fullName="+COMPANY_NAME,
            cols: [
                [
                    // {title:"Id值",field:"Id"},
@@ -179,8 +183,10 @@
            ],
            onData:function (data) {
                if(!data || !data.total || data.total < 1){
-                   $("#history4").hide();
+                   // $("#history4").hide();
                    $("a[href='#history4']").addClass("disabled");
+               }else{
+                   $("#history4-count").html(data.total);
                }
            }
        });
@@ -188,7 +194,7 @@
        laytableRender({
            id: "history5-body",
            autoShift: false,
-           url: remoteApi.qccHistoryGetHistoryZhiXing+"?keyWord="+COMPANY_NAME,
+           url: remoteApi.qccHistoryGetHistoryZhiXing+"?fullName="+COMPANY_NAME,
            cols: [
                [
                    {title:"标地",field:"BiaoDi"},
@@ -205,8 +211,10 @@
            ],
            onData:function (data) {
                if(!data || !data.total || data.total < 1){
-                   $("#history5").hide();
+                   // $("#history5").hide();
                    $("a[href='#history5']").addClass("disabled");
+               }else{
+                   $("#history5-count").html(data.total);
                }
            }
        });
@@ -214,7 +222,7 @@
        laytableRender({
            id: "history6-body",
            autoShift: false,
-           url: remoteApi.qccHistoryGetHistorytCourtNotice+"?keyWord="+COMPANY_NAME,
+           url: remoteApi.qccHistoryGetHistorytCourtNotice+"?fullName="+COMPANY_NAME,
            cols: [
                [
                    // {title:"Id值",field:"Id"},
@@ -230,8 +238,10 @@
            ],
            onData:function (data) {
                if(!data || !data.total || data.total < 1){
-                   $("#history6").hide();
+                   // $("#history6").hide();
                    $("a[href='#history6']").addClass("disabled");
+               }else{
+                   $("#history6-count").html(data.total);
                }
            }
        });
@@ -239,7 +249,7 @@
        laytableRender({
            id: "history7-body",
            autoShift: false,
-           url: remoteApi.qccHistoryGetHistorytJudgement+"?keyWord="+COMPANY_NAME,
+           url: remoteApi.qccHistoryGetHistorytJudgement+"?fullName="+COMPANY_NAME,
            cols: [
                [
                    // {title:"Id值",field:"Id"},
@@ -254,8 +264,10 @@
            ],
            onData:function (data) {
                if(!data || !data.total || data.total < 1){
-                   $("#history7").hide();
+                   // $("#history7").hide();
                    $("a[href='#history7']").addClass("disabled");
+               }else{
+                   $("#history7-count").html(data.total);
                }
            }
        });
@@ -263,7 +275,7 @@
        laytableRender({
            id: "history8-body",
            autoShift: false,
-           url: remoteApi.qccHistoryGetHistorytSessionNotice+"?keyWord="+COMPANY_NAME,
+           url: remoteApi.qccHistoryGetHistorytSessionNotice+"?fullName="+COMPANY_NAME,
            cols: [
                [
                    // {title:"Id值",field:"Id"},
@@ -277,8 +289,10 @@
            ],
            onData:function (data) {
                if(!data || !data.total || data.total < 1){
-                   $("#history8").hide();
+                   // $("#history8").hide();
                    $("a[href='#history8']").addClass("disabled");
+               }else{
+                   $("#history8-count").html(data.total);
                }
            }
        });
@@ -286,7 +300,7 @@
        laytableRender({
            id: "history9-body",
            autoShift: false,
-           url: remoteApi.qccHistoryGetHistorytMPledge+"?keyWord="+COMPANY_NAME,
+           url: remoteApi.qccHistoryGetHistorytMPledge+"?fullName="+COMPANY_NAME,
            cols: [
                [
                    {title:"登记编号",field:"RegisterNo"},
@@ -298,8 +312,10 @@
            ],
            onData:function (data) {
                if(!data || !data.total || data.total < 1){
-                   $("#history9").hide();
+                   // $("#history9").hide();
                    $("a[href='#history9']").addClass("disabled");
+               }else{
+                   $("#history9-count").html(data.total);
                }
            }
        });
@@ -307,7 +323,7 @@
        laytableRender({
            id: "history10-body",
            autoShift: false,
-           url: remoteApi.qccHistoryGetHistorytPledge+"?keyWord="+COMPANY_NAME,
+           url: remoteApi.qccHistoryGetHistorytPledge+"?fullName="+COMPANY_NAME,
            cols: [
                [
                    {title:"登记编号",field:"RegistNo"},
@@ -321,14 +337,16 @@
            ],
            onData:function (data) {
                if(!data || !data.total || data.total < 1){
-                   $("#history10").hide();
+                   // $("#history10").hide();
                    $("a[href='#history10']").addClass("disabled");
+               }else{
+                   $("#history10-count").html(data.total);
                }
            }
        });
        // 历史行政处罚
        $.ajax({
-           url: remoteApi.qccHistoryGetHistorytAdminPenalty+"?keyWord="+COMPANY_NAME,
+           url: remoteApi.qccHistoryGetHistorytAdminPenalty+"?fullName="+COMPANY_NAME,
            success:function (res) {
                if(res.success){
                    var nonData1 = true;
@@ -337,6 +355,7 @@
                    if(res.data && res.data.EciList && res.data.EciList.length > 0){
                        nonData1 = false;
                        EciList = res.data.EciList;
+                       $("#history11-count").html(EciList.length);
                    }
                    laytableRender({
                        page: false,
@@ -359,6 +378,7 @@
                    if(res.data && res.data.CreditChinaList && res.data.CreditChinaList.length > 0){
                        nonData2 = false;
                        CreditChinaList = res.data.CreditChinaList;
+                       $("#history11-1-count").html(CreditChinaList.length);
                    }
                    laytableRender({
                        page: false,
@@ -384,7 +404,7 @@
        });
 
        $.ajax({
-           url: remoteApi.qccHistoryGetHistorytAdminLicens+"?keyWord="+COMPANY_NAME,
+           url: remoteApi.qccHistoryGetHistorytAdminLicens+"?fullName="+COMPANY_NAME,
            success:function (res) {
                if(res.success){
                    var nonData1 = true;
@@ -393,6 +413,7 @@
                    if(res.data && res.data.EciList && res.data.EciList.length > 0){
                        nonData1 = false;
                        EciList = res.data.EciList;
+                       $("#history12-count").html(EciList.length);
                    }
                    laytableRender({
                        page: false,
@@ -414,7 +435,8 @@
                    var CreditChinaList = [];
                    if(res.data && res.data.CreditChinaList && res.data.CreditChinaList.length > 0){
                        nonData2 = false;
-                       CreditChinaList = res.data.CreditChinaList
+                       CreditChinaList = res.data.CreditChinaList;
+                       $("#history12-1-count").html(CreditChinaList.length);
                    }
                    laytableRender({
                        page: false,

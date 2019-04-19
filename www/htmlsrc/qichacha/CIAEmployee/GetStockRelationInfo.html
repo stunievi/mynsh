@@ -35,12 +35,12 @@
 <script src="/static/htmljs/utils.js"></script>
 <script src="../../../tmpl/js/panelTableShow.js"></script>
 <script>
-    var companyName = getParam("companyName");
-    var name = getParam("name");
-    SuperPost({
-        url: remoteApi.qccCIAEmployeeGetStockRelationInfo+"?companyName="+companyName+"&name="+name,
+    var companyName = decodeURI(getParam("fullName"));
+    var name = decodeURI(getParam("name"));
+    $.ajax({
+        url: remoteApi.qccCIAEmployeeGetStockRelationInfo+"?fullName="+companyName+"&name="+name,
         success: function(res){
-            if(JSON.stringify(res.data)!= "{}" && res.success){
+            if($.isEmptyObject(res.data) == false && res.success){
                 var data = res.data
                 laytableRender({
                     page: false,
@@ -56,7 +56,7 @@
                             {title:"企业类型",field:"EcoKind"}
                         ]
                     ],
-                    data: data.CIACompanyLegals.Result
+                    data: data.CIACompanyLegals
                 });
                 laytableRender({
                     page: false,
@@ -74,7 +74,7 @@
                             {title:"企业状态",field:"Status"}
                         ]
                     ],
-                    data: data.CIAForeignInvestments.Result
+                    data: data.CIAForeignInvestments
                 });
                 laytableRender({
                     page: false,
@@ -91,7 +91,7 @@
                             {title:"企业状态",field:"Status"}
                         ]
                     ],
-                    data: data.CIAForeignOffices.Result
+                    data: data.CIAForeignOffices
                 });
             }else{
                 layErrorMsg("数据获取失败....");
