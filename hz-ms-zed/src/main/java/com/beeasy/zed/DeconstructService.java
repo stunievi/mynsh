@@ -15,7 +15,6 @@ import io.netty.util.CharsetUtil;
 import org.apache.activemq.BlobMessage;
 import org.beetl.sql.core.DSTransactionManager;
 import org.beetl.sql.core.SQLReady;
-import org.osgl.util.IO;
 import org.osgl.util.S;
 
 import javax.jms.JMSException;
@@ -2152,15 +2151,15 @@ public class DeconstructService {
             List<String> sqls = null;
             //从第一步开始解
             if(progress <= 1){
-                reqponse.step = 1;
+                reqponse.progress = 1;
                 deconstructStep1(requestId);
             }
             if(progress <= 2){
-                reqponse.step = 2;
+                reqponse.progress = 2;
                 sqls = deconstructStep2(requestId);
             }
 
-            reqponse.step = 3;
+            reqponse.progress = 3;
             if(progress <= 2){
                 deconstructStep3(sqls);
                 deconstructStep4(requestId, sqls);
@@ -2199,9 +2198,48 @@ public class DeconstructService {
         reqponse.send();
 
     }
+
+
     /**
-     * 解构
-     * @param blobMessage
+     * @api {ActiveMQ} / MQ接口
+     * @apiDescription 该接口不是使用http发送请求，而是调用activemq的服务<a target="_blank" href="/doc/test.html">测试地址</a>
+     *
+     * @apiGroup QCC-MQ
+     * @apiVersion 0.0.1
+     *
+     * @apiSuccessExample 数据加工请求:
+     * topic: qcc-deconstruct-request
+     * type: BlobMessage
+     * properties: {
+     *     "requestId":"数据ID",
+     *     "sourceRequest":"数据原始信息"
+     * }
+     * content: 文件信息
+     *
+     *
+     * @apiSuccessExample 加工回执:
+     * topic: qcc-deconstruct-response
+     * type: TextMessage
+     * content: {
+     *     "requestId":"数据ID",
+     *     "sourceRequest":"原始数据",
+     *     "progress":"进行到哪一阶段 0保存数据 1解压 2分析生成sql 3sql入库",
+     *     "finished": "是否完成",
+     *     "errorMessage": "错误信息"
+     * }
+     *
+     *
+     * @apiSuccessExample 重加工请求:
+     * topic: qcc-redeconstruct-request
+     * type: TextMessage
+     * content: {
+     *     "requestId": "加工失败的数据ID",
+     *     "progress": "从哪个阶段重新开始，1解压前 2分析生成sql前 3sql入库前"
+     * }
+     *
+     * @apiSuccessExample 重加工回执:
+     * topic: qcc-redeconstruct-response
+     * 其余同加工回执
      */
     public void onDeconstructRequest(String requestId, String sourceRequest, BlobMessage blobMessage)  {
         autoCommit = false;
@@ -2209,11 +2247,11 @@ public class DeconstructService {
         QccDeconstructReqponse reqponse = new QccDeconstructReqponse(false, 0, requestId, sourceRequest, "");
         try{
             deconstructStep0(blobMessage, requestId);
-            reqponse.step = 1;
+            reqponse.progress = 1;
             deconstructStep1(requestId);
-            reqponse.step = 2;
+            reqponse.progress = 2;
             List<String> sqls = deconstructStep2(requestId);
-            reqponse.step = 3;
+            reqponse.progress = 3;
             deconstructStep3(sqls);
             deconstructStep4(requestId, sqls);
             reqponse.finished = true;
@@ -2523,14 +2561,14 @@ public class DeconstructService {
 
     public static class QccDeconstructReqponse {
         public boolean finished;
-        public int step;
+        public int progress;
         public String requestId;
         public String sourceRequest;
         public String errorMessage;
 
         public QccDeconstructReqponse(boolean finished, int step, String requestId, String sourceRequest, String errorMessage) {
             this.finished = finished;
-            this.step = step;
+            this.progress = step;
             this.requestId = requestId;
             this.sourceRequest = sourceRequest;
             this.errorMessage = errorMessage;
@@ -2556,6 +2594,10 @@ public class DeconstructService {
             MQService.sendTopicMessage("qcc-redeconstruct-response", this.toString());
         }
     }
+
+
+
+
 
 //    public interface DeconstructArrayHandler{
 //        public void call(ChannelHandlerContext ctx, FullHttpRequest request, JSONArray array);

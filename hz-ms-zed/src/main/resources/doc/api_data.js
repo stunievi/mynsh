@@ -6073,5 +6073,40 @@ define({ "api": [
         }
       ]
     }
+  },
+  {
+    "type": "ActiveMQ",
+    "url": "/",
+    "title": "MQ接口",
+    "description": "<p>该接口不是使用http发送请求，而是调用activemq的服务<a target=\"_blank\" href=\"/doc/test.html\">测试地址</a></p>",
+    "group": "QCC_MQ",
+    "version": "0.0.1",
+    "success": {
+      "examples": [
+        {
+          "title": "数据加工请求:",
+          "content": "topic: qcc-deconstruct-request\ntype: BlobMessage\nproperties: {\n    \"requestId\":\"数据ID\",\n    \"sourceRequest\":\"数据原始信息\"\n}\ncontent: 文件信息",
+          "type": "json"
+        },
+        {
+          "title": "加工回执:",
+          "content": "topic: qcc-deconstruct-response\ntype: TextMessage\ncontent: {\n    \"requestId\":\"数据ID\",\n    \"sourceRequest\":\"原始数据\",\n    \"progress\":\"进行到哪一阶段 0保存数据 1解压 2分析生成sql 3sql入库\",\n    \"finished\": \"是否完成\",\n    \"errorMessage\": \"错误信息\"\n}",
+          "type": "json"
+        },
+        {
+          "title": "重加工请求:",
+          "content": "topic: qcc-redeconstruct-request\ntype: TextMessage\ncontent: {\n    \"requestId\": \"加工失败的数据ID\",\n    \"progress\": \"从哪个阶段重新开始，1解压前 2分析生成sql前 3sql入库前\"\n}",
+          "type": "json"
+        },
+        {
+          "title": "重加工回执:",
+          "content": "topic: qcc-redeconstruct-response\n其余同加工回执",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "src/main/java/com/beeasy/zed/DeconstructService.java",
+    "groupTitle": "QCC_MQ",
+    "name": "Activemq"
   }
 ] });
