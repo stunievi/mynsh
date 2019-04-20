@@ -6108,5 +6108,40 @@
     "filename": "src/main/java/com/beeasy/zed/DeconstructService.java",
     "groupTitle": "QCC_MQ",
     "name": "Activemq"
+  },
+  {
+    "type": "get",
+    "url": "/log/deconstruct/:type/:id",
+    "title": "二进制日志下载接口",
+    "group": "QCC_MQ",
+    "version": "0.0.1",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "string",
+            "allowedValues": [
+              "\"source\"",
+              "\"unzip\"",
+              "\"sql\""
+            ],
+            "optional": false,
+            "field": "type",
+            "description": "<p>数据类型，分别是“解析前的原始数据”，“解压后的原始数据”,“分析后的sql数据”</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "string",
+            "optional": false,
+            "field": "id",
+            "description": "<p>数据requestId</p>"
+          }
+        ]
+      }
+    },
+    "filename": "src/main/java/com/beeasy/zed/DeconstructService.java",
+    "groupTitle": "QCC_MQ",
+    "name": "GetLogDeconstructTypeId"
   }
 ]

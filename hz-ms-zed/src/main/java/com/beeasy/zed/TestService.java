@@ -1,6 +1,8 @@
 package com.beeasy.zed;
 
+import cn.hutool.core.io.IoUtil;
 import com.alibaba.fastjson.JSON;
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
@@ -11,7 +13,10 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.osgl.util.C;
 
 import javax.jms.TextMessage;
+import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.file.Files;
 
 public class TestService {
 
@@ -25,7 +30,12 @@ public class TestService {
                     MixedAttribute requestId = (MixedAttribute) req.getBodyHttpData("requestId");
                     MixedAttribute sourceRequest = (MixedAttribute) req.getBodyHttpData("sourceRequest");
                     try {
-                        MQService.sendTopicMessage("qcc-deconstruct-request", new MQService.FileRequest(requestId.getString(), sourceRequest.getString(), fileupload.getFile()));
+                        File file = Files.createTempFile("","").toFile();
+                        RandomAccessFile raf = new RandomAccessFile(file, "rw");
+                        ByteBuf buf = fileupload.content();
+                        buf.readBytes(raf.getChannel(), 0, buf.readableBytes());
+                        MQService.sendTopicMessage("qcc-deconstruct-request", new MQService.FileRequest(requestId.getString(), sourceRequest.getString(), file));
+                        raf.close();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

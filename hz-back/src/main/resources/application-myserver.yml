@@ -137,6 +137,9 @@ spring:
   mvc:
     async:
       request-timeout: 30000ms
+  activemq:
+    broker-url: tcp://47.94.97.138:8011?jms.blobTransferPolicy.uploadUrl=http://47.94.97.138:8012/fileserver/
+
 
 #  dubbo:
 #    server: true

@@ -3519,3 +3519,212 @@
     结束:
       type: end
       end: true
+
+
+贷前流程审批:
+  manual: true
+  flow:
+    发起流程:
+      deal: ["市场部，客户经理", "企业金融部，办事员","企业金融部，客户经理","三农中心，客户经理","公司银行部，总行办事员","零售银行部，总行办事员"]
+      deleteable: false
+      type: input
+      start: true
+      content:
+        贷款品种选择:
+          name: type
+          type: select
+          items: [住房贷款,贷款品种1,贷款品种2]
+          required: true
+      next: [住房贷款,贷款品种1,贷款品种2]
+      goNext:
+        -
+          case: type == '住房贷款'
+          go: 住房贷款
+        -
+          case: type == '贷款品种1'
+          go: 贷款品种1
+        -
+          case: type == '贷款品种2'
+          go: 贷款品种2
+    住房贷款:
+      deal: ["市场部，客户经理", "企业金融部，办事员","企业金融部，客户经理","三农中心，客户经理","公司银行部，总行办事员","零售银行部，总行办事员"]
+      deleteable: false
+      type: input
+      start: false
+      content:
+        身份证号码:
+          name: CERT_CODE
+          type: string
+          required: true
+        购房合同:
+          type: checkbox
+          name: gfht
+          required: false
+          items: ["已经上传"]
+
+        是否已婚:
+          name: CERT_TYPE
+          type: select
+          items: [是,否]
+          required: true
+
+        结婚证:
+          type: checkbox
+          name: jhz
+          items: ["已经上传"]
+
+        收入证明:
+          type: checkbox
+          name: srzm
+          items: ["已经上传"]
+
+      next: [资料核对]
+    贷款品种1:
+      deal: ["市场部，客户经理", "企业金融部，办事员","企业金融部，客户经理","三农中心，客户经理","公司银行部，总行办事员","零售银行部，总行办事员"]
+      deleteable: false
+      type: input
+      start: false
+      content:
+        身份证号码:
+          name: CERT_CODE
+          type: string
+          required: true
+        附件（其它资料）:
+          type: files
+          name: files
+          required: false
+      next: [资料核对]
+    贷款品种2:
+      deal: ["市场部，客户经理", "企业金融部，办事员","企业金融部，客户经理","三农中心，客户经理","公司银行部，总行办事员","零售银行部，总行办事员"]
+      deleteable: false
+      type: input
+      start: false
+      content:
+        身份证号码:
+          name: CERT_CODE
+          type: string
+          required: true
+        附件（其它资料）:
+          type: files
+          name: files
+          required: false
+      next: [资料核对]
+    资料核对:
+      deal: ["市场部，客户经理", "企业金融部，办事员","企业金融部，客户经理","三农中心，客户经理","公司银行部，总行办事员","零售银行部，总行办事员"]
+      deleteable: false
+      type: check
+      key: key
+      ps: ps
+      question: 是否通过
+      states:
+        -
+          item: 是
+          condition: 1
+          behavior: go('负责人审批')
+        -
+          item: 否
+          condition: 1
+          behavior: go('发起流程')
+      count: 1
+      next: [负责人审批,发起流程]
+
+    负责人审批:
+      deal: ["市场部，客户经理", "企业金融部，办事员","企业金融部，客户经理","三农中心，客户经理","公司银行部，总行办事员","零售银行部，总行办事员"]
+      deleteable: false
+      type: check
+      key: key
+      ps: ps
+      question: 是否通过
+      states:
+        -
+          item: 是
+          condition: 1
+          behavior: go('信管部审批')
+        -
+          item: 否
+          condition: 1
+          behavior: go('发起流程')
+      count: 1
+      next: [信管部审批,发起流程]
+
+    信管部审批:
+      deal: ["市场部，客户经理", "企业金融部，办事员","企业金融部，客户经理","三农中心，客户经理","公司银行部，总行办事员","零售银行部，总行办事员"]
+      deleteable: true
+      type: check
+      key: key
+      ps: ps
+      question: 是否通过
+      states:
+        -
+          item: 通过
+          condition: 1
+          behavior: go('行办秘书')
+        -
+          item: 返回上一步
+          condition: 1
+          behavior: go('负责人审批')
+        -
+          item: 返回发起
+          condition: 1
+          behavior: go('发起流程')
+      count: 1
+      next: [行办秘书,负责人审批,发起流程]
+
+    行办秘书:
+      deal: ["市场部，客户经理", "企业金融部，办事员","企业金融部，客户经理","三农中心，客户经理","公司银行部，总行办事员","零售银行部，总行办事员"]
+      deleteable: true
+      type: check
+      key: key
+      ps: ps
+      question: 是否通过
+      states:
+        -
+          item: 通过
+          condition: 1
+          behavior: go('信贷负责人')
+        -
+          item: 返回上一步
+          condition: 1
+          behavior: go('信管部审批')
+        -
+          item: 返回发起
+          condition: 1
+          behavior: go('发起流程')
+      count: 1
+      next: [信贷负责人,信管部审批,发起流程]
+
+    信贷负责人:
+      deal: ["市场部，客户经理", "企业金融部，办事员","企业金融部，客户经理","三农中心，客户经理","公司银行部，总行办事员","零售银行部，总行办事员"]
+      deleteable: true
+      type: check
+      key: key
+      ps: ps
+      question: 是否通过
+      states:
+        -
+          item: 是
+          condition: 1
+          behavior: go('信贷员')
+
+      count: 1
+      next: [信贷员]
+
+    信贷员:
+      deal: ["市场部，客户经理", "企业金融部，办事员","企业金融部，客户经理","三农中心，客户经理","公司银行部，总行办事员","零售银行部，总行办事员"]
+      deleteable: true
+      type: check
+      key: key
+      ps: ps
+      question: 是否通过
+      states:
+        -
+          item: 是
+          condition: 1
+          behavior: go('结束')
+
+      count: 1
+      next: [结束]
+
+    结束:
+      type: end
+      end: true

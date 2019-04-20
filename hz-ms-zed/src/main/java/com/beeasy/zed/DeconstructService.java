@@ -2241,6 +2241,18 @@ public class DeconstructService {
      * topic: qcc-redeconstruct-response
      * 其余同加工回执
      */
+
+
+
+    /**
+     * @api {get} /log/deconstruct/{type}/{id} 二进制日志下载接口
+     * @apiGroup QCC-MQ
+     * @apiVersion 0.0.1
+     *
+     * @apiParam {string="source","unzip","sql"} type 数据类型，分别是“解析前的原始数据”，“解压后的原始数据”,“分析后的sql数据”
+     * @apiParam {string} id 数据requestId
+     *
+     */
     public void onDeconstructRequest(String requestId, String sourceRequest, BlobMessage blobMessage)  {
         autoCommit = false;
 
