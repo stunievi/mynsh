@@ -10,6 +10,8 @@ public class App {
 
     public static void main(String[] args) throws ParseException {
         DBService.init(false);
+        //消息监听服务
+        MQService.init();
 
         //routes
         HttpServerHandler.AddRoute(new Route(("^/zed"), (ctx, req) -> {
@@ -20,6 +22,8 @@ public class App {
         QccService.register();
         //注册解构接口
         DeconstructService.register();
+
+        TestService.register();
 
         //起动netty
         NettyService.start();

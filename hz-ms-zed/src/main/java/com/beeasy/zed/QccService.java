@@ -1,6 +1,7 @@
 package com.beeasy.zed;
 
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.thread.ThreadUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -15,6 +16,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import static com.beeasy.zed.DBService.sqlManager;
 import static com.beeasy.zed.Utils.newJsonObject;
@@ -23,6 +26,7 @@ public class QccService {
 
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
     private static String qccPrefix = "/qcc";
+    private static Future future;
 
     private static class QccBeanProcesser extends BeanProcessor {
 
@@ -60,46 +64,58 @@ public class QccService {
      * }
      */
 
-    public static void register() {
+    public static void await() throws ExecutionException, InterruptedException {
+       future.get();
+    }
+
+    public static QccService register() {
         QccService service = new QccService();
-        sqlManager.setDefaultBeanProcessors(new QccBeanProcesser(sqlManager));
-        registerRoute("/CourtV4/SearchShiXin", service::SearchShiXin);
-        registerRoute("/CourtV4/SearchZhiXing", service::SearchZhiXing);
-        registerRoute("/JudgeDocV4/SearchJudgmentDoc", service::SearchJudgmentDoc);
-        registerRoute("/JudgeDocV4/GetJudgementDetail", service::GetJudgementDetail);
-        registerRoute("/CourtNoticeV4/SearchCourtAnnouncement", service::SearchCourtAnnouncement);
-        registerRoute("/CourtNoticeV4/SearchCourtAnnouncementDetail", service::SearchCourtAnnouncementDetail);
-        registerRoute("/CourtAnnoV4/SearchCourtNotice", service::SearchCourtNotice);
-        registerRoute("/CourtAnnoV4/GetCourtNoticeInfo", service::GetCourtNoticeInfo);
-        registerRoute("/JudicialAssistance/GetJudicialAssistance", service::GetJudicialAssistance);
-        registerRoute("/ECIException/GetOpException", service::GetOpException);
-        registerRoute("/JudicialSale/GetJudicialSaleList", service::GetJudicialSaleList);
-        registerRoute("/JudicialSale/GetJudicialSaleDetail", service::GetJudicialSaleDetail);
-        registerRoute("/LandMortgage/GetLandMortgageList", service::GetLandMortgageList);
-        registerRoute("/LandMortgage/GetLandMortgageDetails", service::GetLandMortgageDetails);
-        registerRoute("/EnvPunishment/GetEnvPunishmentList", service::GetEnvPunishmentList);
-        registerRoute("/EnvPunishment/GetEnvPunishmentDetails", service::GetEnvPunishmentDetails);
-        registerRoute("/ChattelMortgage/GetChattelMortgage", service::GetChattelMortgage);
-        registerRoute("/ECIV4/GetDetailsByName", service::GetDetailsByName);
-        registerRoute("/History/GetHistorytEci", service::GetHistorytEci);
-        registerRoute("/History/GetHistorytInvestment", service::GetHistorytInvestment);
-        registerRoute("/History/GetHistorytShareHolder", service::GetHistorytShareHolder);
-        registerRoute("/History/GetHistoryShiXin", service::GetHistoryShiXin);
-        registerRoute("/History/GetHistoryZhiXing", service::GetHistoryZhiXing);
-        registerRoute("/History/GetHistorytCourtNotice", service::GetHistorytCourtNotice);
-        registerRoute("/History/GetHistorytJudgement", service::GetHistorytJudgement);
-        registerRoute("/History/GetHistorytSessionNotice", service::GetHistorytSessionNotice);
-        registerRoute("/History/GetHistorytMPledge", service::GetHistorytMPledge);
-        registerRoute("/History/GetHistorytPledge", service::GetHistorytPledge);
-        registerRoute("/History/GetHistorytAdminPenalty", service::GetHistorytAdminPenalty);
-        registerRoute("/History/GetHistorytAdminLicens", service::GetHistorytAdminLicens);
-        registerRoute("/ECIV4/SearchFresh", service::SearchFresh);
-        registerRoute("/ECIRelationV4/SearchTreeRelationMap", service::SearchTreeRelationMap);
-        registerRoute("/ECIRelationV4/GetCompanyEquityShareMap", service::GetCompanyEquityShareMap);
-        registerRoute("/ECIRelationV4/GenerateMultiDimensionalTreeCompanyMap", service::GenerateMultiDimensionalTreeCompanyMap);
-        registerRoute("/CIAEmployeeV4/GetStockRelationInfo", service::GetStockRelationInfo);
-        registerRoute("/HoldingCompany/GetHoldingCompany", service::GetHoldingCompany);
-        registerRoute("/ECICompanyMap/GetStockAnalysisData", service::GetStockAnalysisData);
+        future = ThreadUtil.execAsync(() -> {
+            try {
+                DBService.await();
+            } catch (ExecutionException | InterruptedException e) {
+                e.printStackTrace();
+            }
+            sqlManager.setDefaultBeanProcessors(new QccBeanProcesser(sqlManager));
+            registerRoute("/CourtV4/SearchShiXin", service::SearchShiXin);
+            registerRoute("/CourtV4/SearchZhiXing", service::SearchZhiXing);
+            registerRoute("/JudgeDocV4/SearchJudgmentDoc", service::SearchJudgmentDoc);
+            registerRoute("/JudgeDocV4/GetJudgementDetail", service::GetJudgementDetail);
+            registerRoute("/CourtNoticeV4/SearchCourtAnnouncement", service::SearchCourtAnnouncement);
+            registerRoute("/CourtNoticeV4/SearchCourtAnnouncementDetail", service::SearchCourtAnnouncementDetail);
+            registerRoute("/CourtAnnoV4/SearchCourtNotice", service::SearchCourtNotice);
+            registerRoute("/CourtAnnoV4/GetCourtNoticeInfo", service::GetCourtNoticeInfo);
+            registerRoute("/JudicialAssistance/GetJudicialAssistance", service::GetJudicialAssistance);
+            registerRoute("/ECIException/GetOpException", service::GetOpException);
+            registerRoute("/JudicialSale/GetJudicialSaleList", service::GetJudicialSaleList);
+            registerRoute("/JudicialSale/GetJudicialSaleDetail", service::GetJudicialSaleDetail);
+            registerRoute("/LandMortgage/GetLandMortgageList", service::GetLandMortgageList);
+            registerRoute("/LandMortgage/GetLandMortgageDetails", service::GetLandMortgageDetails);
+            registerRoute("/EnvPunishment/GetEnvPunishmentList", service::GetEnvPunishmentList);
+            registerRoute("/EnvPunishment/GetEnvPunishmentDetails", service::GetEnvPunishmentDetails);
+            registerRoute("/ChattelMortgage/GetChattelMortgage", service::GetChattelMortgage);
+            registerRoute("/ECIV4/GetDetailsByName", service::GetDetailsByName);
+            registerRoute("/History/GetHistorytEci", service::GetHistorytEci);
+            registerRoute("/History/GetHistorytInvestment", service::GetHistorytInvestment);
+            registerRoute("/History/GetHistorytShareHolder", service::GetHistorytShareHolder);
+            registerRoute("/History/GetHistoryShiXin", service::GetHistoryShiXin);
+            registerRoute("/History/GetHistoryZhiXing", service::GetHistoryZhiXing);
+            registerRoute("/History/GetHistorytCourtNotice", service::GetHistorytCourtNotice);
+            registerRoute("/History/GetHistorytJudgement", service::GetHistorytJudgement);
+            registerRoute("/History/GetHistorytSessionNotice", service::GetHistorytSessionNotice);
+            registerRoute("/History/GetHistorytMPledge", service::GetHistorytMPledge);
+            registerRoute("/History/GetHistorytPledge", service::GetHistorytPledge);
+            registerRoute("/History/GetHistorytAdminPenalty", service::GetHistorytAdminPenalty);
+            registerRoute("/History/GetHistorytAdminLicens", service::GetHistorytAdminLicens);
+            registerRoute("/ECIV4/SearchFresh", service::SearchFresh);
+            registerRoute("/ECIRelationV4/SearchTreeRelationMap", service::SearchTreeRelationMap);
+            registerRoute("/ECIRelationV4/GetCompanyEquityShareMap", service::GetCompanyEquityShareMap);
+            registerRoute("/ECIRelationV4/GenerateMultiDimensionalTreeCompanyMap", service::GenerateMultiDimensionalTreeCompanyMap);
+            registerRoute("/CIAEmployeeV4/GetStockRelationInfo", service::GetStockRelationInfo);
+            registerRoute("/HoldingCompany/GetHoldingCompany", service::GetHoldingCompany);
+            registerRoute("/ECICompanyMap/GetStockAnalysisData", service::GetStockAnalysisData);
+        });
+        return service;
     }
 
 
@@ -5552,141 +5568,182 @@ public class QccService {
      *
      * @apiSuccessExample 请求成功:
      * {
-     *     "Status": "200",
-     *     "Message": "查询成功",
-     *     "Result": [
+     *     "Status":"200",
+     *     "Message":"查询成功",
+     *     "Result":[
      *         {
-     *             "Status": "股权冻结|冻结",
-     *             "EnforcementCourt": "北京市第二中级人民法院",
-     *             "EquityUnFreezeDetail": {
-     *                 "CompanyName": "小米",
-     *                 "FreezeTerm": "1095",
-     *                 "ExecutionVerdictNum": "（2017）京02民初58号",
-     *                 "ExecutedPersonDocNum": "",
-     *                 "FreezeStartDate": "2017-09-13 12:00:00",
-     *                 "ExecutionMatters": "轮候冻结股权、其他投资权益",
-     *                 "FreezeEndDate": "2020-09-12 12:00:00",
-     *                 "ExecutedPersonDocType": "居民身份证"
+     *             "EnforcementCourt":"北京市第二中级人民法院",
+     *             "EquityUnFreezeDetail":{
      *             },
-     *             "EquityAmount": "15000万人民币元",
-     *             "ExecutionNoticeNum": "（2017）京02民初58号",
-     *             "ExecutedBy": "霍庆华"
+     *             "ExecutedBy":"霍庆华",
+     *             "Status":"股权冻结|冻结",
+     *             "JudicialPartnersChangeDetail":{
+     *             },
+     *             "EquityAmount":"15000万人民币元",
+     *             "ExecutionNoticeNum":"（2017）京02民初58号",
+     *             "EquityFreezeDetail":{
+     *                 "CompanyName":"霍庆华",
+     *                 "FreezeTerm":"1095",
+     *                 "ExecutionVerdictNum":"（2017）京02民初58号",
+     *                 "ExecutedPersonDocNum":"",
+     *                 "FreezeStartDate":"2017-09-13 12:00:00",
+     *                 "FreezeEndDate":"2020-09-12 12:00:00",
+     *                 "ExecutionMatters":"轮候冻结股权、其他投资权益",
+     *                 "ExecutedPersonDocType":"居民身份证"
+     *             }
      *         },
      *         {
-     *             "Status": "股权冻结|冻结",
-     *             "EnforcementCourt": "新疆维吾尔自治区高级人民法院",
-     *             "EquityUnFreezeDetail": {
-     *                 "CompanyName": "小米",
-     *                 "FreezeTerm": "1095",
-     *                 "ExecutionVerdictNum": "(2017)新执47号",
-     *                 "ExecutedPersonDocNum": "110105011796483",
-     *                 "FreezeStartDate": "2017-08-16 12:00:00",
-     *                 "ExecutionMatters": "轮候冻结股权、其他投资权益",
-     *                 "FreezeEndDate": "2020-08-16 12:00:00",
-     *                 "ExecutedPersonDocType": ""
+     *             "EnforcementCourt":"新疆维吾尔自治区高级人民法院",
+     *             "EquityUnFreezeDetail":{
      *             },
-     *             "EquityAmount": "254984.5万人民币元",
-     *             "ExecutionNoticeNum": "(2017)新执47号",
-     *             "ExecutedBy": "中国庆华能源集团有限公司"
+     *             "ExecutedBy":"中国庆华能源集团有限公司",
+     *             "Status":"股权冻结|冻结",
+     *             "JudicialPartnersChangeDetail":{
+     *             },
+     *             "EquityAmount":"254984.5万人民币元",
+     *             "ExecutionNoticeNum":"(2017)新执47号",
+     *             "EquityFreezeDetail":{
+     *                 "CompanyName":"中国庆华能源集团有限公司",
+     *                 "FreezeTerm":"1095",
+     *                 "ExecutionVerdictNum":"(2017)新执47号",
+     *                 "ExecutedPersonDocNum":"110105011796483",
+     *                 "FreezeStartDate":"2017-08-16 12:00:00",
+     *                 "FreezeEndDate":"2020-08-16 12:00:00",
+     *                 "ExecutionMatters":"轮候冻结股权、其他投资权益",
+     *                 "ExecutedPersonDocType":""
+     *             }
      *         },
      *         {
-     *             "Status": "股权冻结|冻结",
-     *             "EnforcementCourt": "杭州市西湖区人民法院",
-     *             "EquityUnFreezeDetail": {
-     *                 "CompanyName": "小米",
-     *                 "FreezeTerm": "1095",
-     *                 "ExecutionVerdictNum": "(2017)浙0106民初6913号",
-     *                 "ExecutedPersonDocNum": "",
-     *                 "FreezeStartDate": "2017-08-29 12:00:00",
-     *                 "ExecutionMatters": "公示冻结股权、其他投资权益",
-     *                 "FreezeEndDate": "2020-08-28 12:00:00",
-     *                 "ExecutedPersonDocType": "居民身份证"
+     *             "EnforcementCourt":"杭州市西湖区人民法院",
+     *             "EquityUnFreezeDetail":{
      *             },
-     *             "EquityAmount": "15000万人民币元",
-     *             "ExecutionNoticeNum": "(2017)浙0106民初6913号",
-     *             "ExecutedBy": "霍庆华"
+     *             "ExecutedBy":"霍庆华",
+     *             "Status":"股权冻结|冻结",
+     *             "JudicialPartnersChangeDetail":{
+     *             },
+     *             "EquityAmount":"15000万人民币元",
+     *             "ExecutionNoticeNum":"(2017)浙0106民初6913号",
+     *             "EquityFreezeDetail":{
+     *                 "CompanyName":"霍庆华",
+     *                 "FreezeTerm":"1095",
+     *                 "ExecutionVerdictNum":"(2017)浙0106民初6913号",
+     *                 "ExecutedPersonDocNum":"",
+     *                 "FreezeStartDate":"2017-08-29 12:00:00",
+     *                 "FreezeEndDate":"2020-08-28 12:00:00",
+     *                 "ExecutionMatters":"公示冻结股权、其他投资权益",
+     *                 "ExecutedPersonDocType":"居民身份证"
+     *             }
      *         },
      *         {
-     *             "Status": "股权冻结|冻结",
-     *             "EnforcementCourt": "北京市第二中级人民法院",
-     *             "EquityUnFreezeDetail": {
-     *                 "CompanyName": "小米",
-     *                 "FreezeTerm": "1095",
-     *                 "ExecutionVerdictNum": "(2017)京02民初58号",
-     *                 "ExecutedPersonDocNum": "110105011796483",
-     *                 "FreezeStartDate": "2017-09-13 12:00:00",
-     *                 "ExecutionMatters": "轮候冻结股权、其他投资权益",
-     *                 "FreezeEndDate": "2020-09-12 12:00:00",
-     *                 "ExecutedPersonDocType": ""
+     *             "EnforcementCourt":"北京市第二中级人民法院",
+     *             "EquityUnFreezeDetail":{
      *             },
-     *             "EquityAmount": "254984.5万人民币元",
-     *             "ExecutionNoticeNum": "(2017)京02民初58号",
-     *             "ExecutedBy": "中国庆华能源集团有限公司"
+     *             "ExecutedBy":"中国庆华能源集团有限公司",
+     *             "Status":"股权冻结|冻结",
+     *             "JudicialPartnersChangeDetail":{
+     *             },
+     *             "EquityAmount":"254984.5万人民币元",
+     *             "ExecutionNoticeNum":"(2017)京02民初58号",
+     *             "EquityFreezeDetail":{
+     *                 "CompanyName":"中国庆华能源集团有限公司",
+     *                 "FreezeTerm":"1095",
+     *                 "ExecutionVerdictNum":"(2017)京02民初58号",
+     *                 "ExecutedPersonDocNum":"110105011796483",
+     *                 "FreezeStartDate":"2017-09-13 12:00:00",
+     *                 "FreezeEndDate":"2020-09-12 12:00:00",
+     *                 "ExecutionMatters":"轮候冻结股权、其他投资权益",
+     *                 "ExecutedPersonDocType":""
+     *             }
      *         },
      *         {
-     *             "Status": "股权冻结|冻结",
-     *             "ExecutionNoticeNum": "（2016）粤01执3073号",
-     *             "EnforcementCourt": "广东省广州市中级人民法院",
-     *             "JudicialPartnersChangeDetail": {
-     *                 "ExecutionVerdictNum": "（2016）粤01执3073号",
-     *                 "ExecutedPersonDocNum": "110105011796483",
-     *                 "ExecutionMatters": "续行冻结股权、其他投资权益",
-     *                 "ExecutedPersonDocType": "居民身份证"
+     *             "EnforcementCourt":"广东省广州市中级人民法院",
+     *             "EquityUnFreezeDetail":{
+     *                 "UnFreezeDate":"2017-07-26 12:00:00",
+     *                 "ExecutedPersonDocNum":"110105011796483",
+     *                 "ExecutionVerdictNum":"（2016）粤01执3073号",
+     *                 "ExecutionMatters":"轮候冻结股权、其他投资权益",
+     *                 "ExecutedPersonDocType":""
      *             },
-     *             "EquityAmount": "15000万人民币元",
-     *             "ExecutedBy": "霍庆华"
+     *             "ExecutedBy":"中国庆华能源集团有限公司",
+     *             "Status":"股权冻结|冻结",
+     *             "JudicialPartnersChangeDetail":{
+     *             },
+     *             "EquityAmount":"254984.5万人民币元",
+     *             "ExecutionNoticeNum":"（2016）粤01执3073号",
+     *             "EquityFreezeDetail":{
+     *             }
      *         },
      *         {
-     *             "Status": "股权冻结|冻结",
-     *             "ExecutionNoticeNum": "(2017)浙0106民初6913号",
-     *             "EnforcementCourt": "杭州市西湖区人民法院",
-     *             "JudicialPartnersChangeDetail": {
-     *                 "ExecutionVerdictNum": "(2017)浙0106民初6913号",
-     *                 "ExecutedPersonDocNum": "110105011796483",
-     *                 "ExecutionMatters": "轮候冻结股权、其他投资权益",
-     *                 "ExecutedPersonDocType": ""
+     *             "EnforcementCourt":"杭州市西湖区人民法院",
+     *             "EquityUnFreezeDetail":{
+     *                 "UnFreezeDate":"2017-12-15 12:00:00",
+     *                 "ExecutedPersonDocNum":"110105011796483",
+     *                 "ExecutionVerdictNum":"(2017)浙0106民初6913号",
+     *                 "ExecutionMatters":"轮候冻结股权、其他投资权益",
+     *                 "ExecutedPersonDocType":""
      *             },
-     *             "EquityAmount": "254984.5万人民币元",
-     *             "ExecutedBy": "中国庆华能源集团有限公司"
+     *             "ExecutedBy":"中国庆华能源集团有限公司",
+     *             "Status":"股权冻结|冻结",
+     *             "JudicialPartnersChangeDetail":{
+     *             },
+     *             "EquityAmount":"254984.5万人民币元",
+     *             "ExecutionNoticeNum":"(2017)浙0106民初6913号",
+     *             "EquityFreezeDetail":{
+     *             }
      *         },
      *         {
-     *             "Status": "股权冻结|冻结",
-     *             "ExecutionNoticeNum": "(2016)粤01执3073号",
-     *             "EnforcementCourt": "广东省广州市中级人民法院",
-     *             "JudicialPartnersChangeDetail": {
-     *                 "ExecutionVerdictNum": "(2016)粤01执3073号",
-     *                 "ExecutedPersonDocNum": "110105011796483",
-     *                 "ExecutionMatters": "公示冻结股权、其他投资权益",
-     *                 "ExecutedPersonDocType": ""
+     *             "EnforcementCourt":"杭州市西湖区人民法院",
+     *             "EquityUnFreezeDetail":{
+     *                 "UnFreezeDate":"2017-12-15 12:00:00",
+     *                 "ExecutedPersonDocNum":"110105011796483",
+     *                 "ExecutionVerdictNum":"（2017）浙0106民初702、703号",
+     *                 "ExecutionMatters":"轮候冻结股权、其他投资权益",
+     *                 "ExecutedPersonDocType":""
      *             },
-     *             "EquityAmount": "254984.5万人民币元",
-     *             "ExecutedBy": "中国庆华能源集团有限公司"
+     *             "ExecutedBy":"中国庆华能源集团有限公司",
+     *             "Status":"股权冻结|冻结",
+     *             "JudicialPartnersChangeDetail":{
+     *             },
+     *             "EquityAmount":"254984.5万人民币元",
+     *             "ExecutionNoticeNum":"（2017）浙0106民初702、703号",
+     *             "EquityFreezeDetail":{
+     *             }
      *         },
      *         {
-     *             "Status": "股权冻结|冻结",
-     *             "ExecutionNoticeNum": "（2017）浙0106民初702、703号",
-     *             "EnforcementCourt": "杭州市西湖区人民法院",
-     *             "JudicialPartnersChangeDetail": {
-     *                 "ExecutionVerdictNum": "（2017）浙0106民初702、703号",
-     *                 "ExecutedPersonDocNum": "110105011796483",
-     *                 "ExecutionMatters": "轮候冻结股权、其他投资权益",
-     *                 "ExecutedPersonDocType": ""
+     *             "EnforcementCourt":"广东省广州市中级人民法院",
+     *             "EquityUnFreezeDetail":{
+     *                 "UnFreezeDate":"2017-07-26 12:00:00",
+     *                 "ExecutedPersonDocNum":"110105011796483",
+     *                 "ExecutionVerdictNum":"(2016)粤01执3073号",
+     *                 "ExecutionMatters":"公示冻结股权、其他投资权益",
+     *                 "ExecutedPersonDocType":""
      *             },
-     *             "EquityAmount": "254984.5万人民币元",
-     *             "ExecutedBy": "中国庆华能源集团有限公司"
+     *             "ExecutedBy":"中国庆华能源集团有限公司",
+     *             "Status":"股权冻结|冻结",
+     *             "JudicialPartnersChangeDetail":{
+     *             },
+     *             "EquityAmount":"254984.5万人民币元",
+     *             "ExecutionNoticeNum":"(2016)粤01执3073号",
+     *             "EquityFreezeDetail":{
+     *             }
      *         },
      *         {
-     *             "Status": "股权冻结|冻结",
-     *             "ExecutionNoticeNum": "（2016）粤01执3073号",
-     *             "EnforcementCourt": "广东省广州市中级人民法院",
-     *             "JudicialPartnersChangeDetail": {
-     *                 "ExecutionVerdictNum": "（2016）粤01执3073号",
-     *                 "ExecutedPersonDocNum": "110105011796483",
-     *                 "ExecutionMatters": "轮候冻结股权、其他投资权益",
-     *                 "ExecutedPersonDocType": ""
+     *             "EnforcementCourt":"广东省广州市中级人民法院",
+     *             "EquityUnFreezeDetail":{
+     *                 "UnFreezeDate":"2017-07-26 12:00:00",
+     *                 "ExecutedPersonDocNum":"110105011796483",
+     *                 "ExecutionVerdictNum":"（2016）粤01执3073号",
+     *                 "ExecutionMatters":"续行冻结股权、其他投资权益",
+     *                 "ExecutedPersonDocType":"居民身份证"
      *             },
-     *             "EquityAmount": "254984.5万人民币元",
-     *             "ExecutedBy": "中国庆华能源集团有限公司"
+     *             "ExecutedBy":"霍庆华",
+     *             "Status":"股权冻结|冻结",
+     *             "JudicialPartnersChangeDetail":{
+     *             },
+     *             "EquityAmount":"15000万人民币元",
+     *             "ExecutionNoticeNum":"（2016）粤01执3073号",
+     *             "EquityFreezeDetail":{
+     *             }
      *         }
      *     ]
      * }
@@ -5702,8 +5759,8 @@ public class QccService {
             while (it.hasNext()) {
                 Map.Entry<String, Object> entry = it.next();
                 for (short i = 0; i < objects.length; i++) {
-                    if (entry.getKey().startsWith("D" + i)) {
-                        objects[i].put(entry.getKey().replace("D" + i, ""), entry.getValue());
+                    if (entry.getKey().startsWith("D" + (i))) {
+                        objects[i].put(entry.getKey().replace("D" + (i), ""), entry.getValue());
                         it.remove();
                         break;
                     }
@@ -6841,8 +6898,8 @@ public class QccService {
         int page = 1;
         int size = 10;
         try {
-            page = (int)params.getOrDefault("pageIndex", 1);
-            size = (int)params.getOrDefault("pageSize", 10);
+            page = params.getIntValue("pageIndex");
+            size = params.getIntValue("pageSize");
         } finally {
             pageQuery.setPageSize(size);
             pageQuery.setPageNumber(page);

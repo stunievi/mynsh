@@ -2,6 +2,7 @@ package com.beeasy.zed;
 
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.io.resource.ClassPathResource;
+import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.CharsetUtil;
 import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.fastjson.JSON;
@@ -15,12 +16,19 @@ import javax.sql.DataSource;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 
 public class DBService {
     public static SQLManager sqlManager;
     public static DataSource dataSource;
     public static JSONObject config;
+    private static Future future;
 
+    static {
+        initConfig();
+    }
 
     private static void initConfig() {
         String content;
@@ -36,38 +44,49 @@ public class DBService {
         config = JSON.parseObject(content);
     }
 
+    public static void await() throws ExecutionException, InterruptedException {
+        if(!future.isDone()){
+            future.get();
+        }
+    }
+
+    public static boolean done(){
+        return future.isDone();
+    }
+
     public static void init(boolean dev) {
-        initConfig();
-        JSONObject ds = config.getJSONObject("datasource");
-        ConnectionSource source;
-        if(dev){
-            //实例化类
-            HikariConfig hikariConfig = new HikariConfig();
-            //设置url
-            hikariConfig.setJdbcUrl(ds.getString("url"));
-            //数据库帐号
-            hikariConfig.setUsername(ds.getString("username"));
-            //数据库密码
-            hikariConfig.setPassword(ds.getString("password"));
-            hikariConfig.setDriverClassName(ds.getString("driver"));
-            hikariConfig.addDataSourceProperty("cachePrepStmts", "true");
+        future = ThreadUtil.execAsync(() -> {
+            JSONObject ds = config.getJSONObject("datasource");
+            ConnectionSource source;
+            if(dev){
+                //实例化类
+                HikariConfig hikariConfig = new HikariConfig();
+                //设置url
+                hikariConfig.setJdbcUrl(ds.getString("url"));
+                //数据库帐号
+                hikariConfig.setUsername(ds.getString("username"));
+                //数据库密码
+                hikariConfig.setPassword(ds.getString("password"));
+                hikariConfig.setDriverClassName(ds.getString("driver"));
+                hikariConfig.addDataSourceProperty("cachePrepStmts", "true");
 //            hikariConfig.addDataSourceProperty("prepStmtCacheSize", "250");
 //            hikariConfig.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
 
-            dataSource = new HikariDataSource(hikariConfig);
-            source =  ConnectionSourceHelper.getSingle(dataSource);
-        } else {
-            DruidDataSource druidDataSource = new DruidDataSource();
-            druidDataSource.setDriverClassName(ds.getString("driver"));
-            druidDataSource.setUrl(ds.getString("url"));
-            druidDataSource.setUsername(ds.getString("username"));
-            druidDataSource.setPassword(ds.getString("password"));
-            druidDataSource.setAsyncInit(true);
-            dataSource = druidDataSource;
-            source = ConnectionSourceHelper.getSingle(druidDataSource);
-        }
-        SQLLoader loader = new ClasspathLoader("/sql");
-        UnderlinedNameConversion nc = new  UnderlinedNameConversion();
-        sqlManager = new SQLManager(new DB2SqlStyle(),loader,source,nc,new Interceptor[]{new MyDebugInterceptor()});
+                dataSource = new HikariDataSource(hikariConfig);
+                source =  ConnectionSourceHelper.getSingle(dataSource);
+            } else {
+                DruidDataSource druidDataSource = new DruidDataSource();
+                druidDataSource.setDriverClassName(ds.getString("driver"));
+                druidDataSource.setUrl(ds.getString("url"));
+                druidDataSource.setUsername(ds.getString("username"));
+                druidDataSource.setPassword(ds.getString("password"));
+                druidDataSource.setAsyncInit(true);
+                dataSource = druidDataSource;
+                source = ConnectionSourceHelper.getSingle(druidDataSource);
+            }
+            SQLLoader loader = new ClasspathLoader("/sql");
+            UnderlinedNameConversion nc = new  UnderlinedNameConversion();
+            sqlManager = new SQLManager(new DB2SqlStyle(),loader,source,nc,new Interceptor[]{new MyDebugInterceptor()});
+        });
     }
 }

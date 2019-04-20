@@ -38,6 +38,7 @@ import java.util.concurrent.*;
 import java.util.zip.*;
 
 import static com.beeasy.zed.DBService.*;
+import static com.beeasy.zed.Utils.unzipFile;
 
 public class TestMongo {
     private static MongoService mongoService = new MongoService();
@@ -107,7 +108,7 @@ public class TestMongo {
             e.printStackTrace();
             return;
         }
-        List<Slice> tasks = new ArrayList<>();
+        List<DeconstructService.Slice> tasks = new ArrayList<>();
         byte[] buf = BufferPool.allocate();
         try(
             RandomAccessFile raf = new RandomAccessFile(temp, "r");
@@ -127,7 +128,7 @@ public class TestMongo {
                 pos += len;
                 len = raf.readInt();
                 pos += 4;
-                Slice slice = new Slice(link, pos, len, null);
+                DeconstructService.Slice slice = new DeconstructService.Slice(link, pos, len, null);
                 tasks.add(slice);
                 pos += len;
             }
@@ -175,7 +176,7 @@ public class TestMongo {
             };
 
             CountDownLatch cl = new CountDownLatch(tasks.size());
-            for (Slice slice : tasks) {
+            for (DeconstructService.Slice slice : tasks) {
                 executor.execute(() -> {
                     String str = null;
                     RandomAccessFile file = local.get();
@@ -214,23 +215,23 @@ public class TestMongo {
             Connection conn = null;
             try {
                 conn = dataSource.getConnection();
-                conn.setAutoCommit(false);
-                Statement stmt = conn.createStatement();
-                System.out.println("开始插入");
-                long stime = System.currentTimeMillis();
-                for (String s : deconstructService.readySqls.delete) {
-                    stmt.addBatch(s);
-                }
-                for (String s : deconstructService.readySqls.insert) {
-                    stmt.addBatch(s);
-                }
-                for (String s : deconstructService.readySqls.update) {
-                    stmt.addBatch(s);
-                }
-                stmt.executeBatch();
-                conn.commit();
+//                conn.setAutoCommit(false);
+//                Statement stmt = conn.createStatement();
+//                System.out.println("开始插入");
+//                long stime = System.currentTimeMillis();
+//                for (String s : deconstructService.readySqls.delete) {
+//                    stmt.addBatch(s);
+//                }
+//                for (String s : deconstructService.readySqls.insert) {
+//                    stmt.addBatch(s);
+//                }
+//                for (String s : deconstructService.readySqls.update) {
+//                    stmt.addBatch(s);
+//                }
+//                stmt.executeBatch();
+//                conn.commit();
 
-                System.out.println("插入时间:" + (System.currentTimeMillis() - stime));
+//                System.out.println("插入时间:" + (System.currentTimeMillis() - stime));
 
                 ;
             } catch (SQLException e) {
@@ -324,35 +325,8 @@ public class TestMongo {
             }
         }
     }
-    public static void unzipFile(File src, File dest) throws IOException {
-        try(
-            FileInputStream fis = new FileInputStream(src);
-            ZipInputStream zip = new ZipInputStream(fis);
-            FileOutputStream fos = new FileOutputStream(dest);
-        ) {
-            while (zip.getNextEntry() != null) {
-                byte[] buf = new byte[1024];
-                int num = -1;
-                while ((num = zip.read(buf, 0, buf.length)) != -1) {
-                    fos.write(buf, 0, num);
-                }
-            }
-        }
-    }
 
 
-    public static class Slice{
-        String link;
-        long bodyStart;
-        int bodyLen;
-        String body;
 
-        public Slice(String link, long bodyStart, int bodyLen, String body) {
-            this.link = link;
-            this.bodyStart = bodyStart;
-            this.bodyLen = bodyLen;
-            this.body = body;
-        }
-    }
 
 }
