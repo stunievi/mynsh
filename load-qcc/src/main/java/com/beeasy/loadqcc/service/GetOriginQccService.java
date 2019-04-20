@@ -29,6 +29,9 @@ import java.util.*;
 @Service
 public class GetOriginQccService {
 
+    // 控制开发模式下某些变量
+    private boolean devModel = true;
+
     @Value("${loadQcc.txtPath}")
     String LOAD_TXT_PATH;
 
@@ -51,6 +54,7 @@ public class GetOriginQccService {
 
     private static Map<String, String> DetailUrls = new HashMap<>();
 
+//    private static String QCC_DOMAIN_PRX = "http://api.qichacha.com";
     private static String QCC_DOMAIN_PRX = "http://localhost:8015/test/qcc";
 
     static {
@@ -71,26 +75,44 @@ public class GetOriginQccService {
         DetailUrls.put("EnvPunishment_GetEnvPunishmentList", "EnvPunishment_GetEnvPunishmentDetails");
     }
 
+    public void saveErrLog(
+            String msg
+    ){
+        MongoCollection<Document> coll2 = mongoService2.getCollection("Error_Log");
+        coll2.insertOne(new Document().append("Message", msg));
+    }
+
     // 基本信息
     public JSONObject loadDataBlock1(
             String keyWord,
             LoadQccDataExtParm extParam
     ){
-        if(null == keyWord || "".equals(keyWord)){
+        if(null == keyWord || keyWord.isEmpty()){
+            saveErrLog("下载【基本信息数据块】时公司名为空");
             return new JSONObject();
         }
         // 企业关键字精确获取详细信息(basic)
         // ECI_GetBasicDetailsByName(keyWord);
         // 企业关键字精确获取详细信息(master),基本信息，行业信息，股东信息，主要成员，分支机构，变更信息，联系信息
         JSONObject comInfo = ECI_GetDetailsByName(keyWord, extParam);
-        if(comInfo.size() < 1){
+        if(null == comInfo || comInfo.isEmpty()){
             return new JSONObject();
         }
-        List employees = comInfo.getJSONArray("Employees");
+        List employees;
+        try {
+            employees = comInfo.getJSONArray("Employees");
+        }catch (Exception e){
+            saveErrLog("ECI_GetDetailsByName获取工商信息解析Employees失败！");
+            employees = new JSONArray();
+        }
+        int employeesLength = employees.size();
+        if(devModel){
+            employeesLength = 1;
+        }
         // 控股企业
         HoldingCompany_GetHoldingCompany(keyWord, extParam);
         // 企业人员董监高信息
-        for(short i=0;i<employees.size();i++){
+        for(short i=0;i<employeesLength;i++){
             JSONObject item = (JSONObject) employees.get(i);
             CIAEmployeeV4_GetStockRelationInfo(keyWord, item.getString("Name"), extParam);
         }
@@ -101,6 +123,10 @@ public class GetOriginQccService {
             String keyWord,
             LoadQccDataExtParm extParam
     ){
+        if(null == keyWord || keyWord.isEmpty()){
+            saveErrLog("下载【法律诉讼数据块】时公司名为空");
+            return;
+        }
         //查询裁判文书
         JudgeDocV4_SearchJudgmentDoc(keyWord, extParam);
         //查询开庭公告
@@ -120,7 +146,8 @@ public class GetOriginQccService {
         String keyNo,
         LoadQccDataExtParm extParam
     ){
-        if(null == keyNo){
+        if(null == keyWord || keyWord.isEmpty() || null == keyNo || keyNo.isEmpty()){
+            saveErrLog("下载【关联族谱数据块】时公司名或keyNo为空");
             return;
         }
         // 企业图谱
@@ -137,6 +164,10 @@ public class GetOriginQccService {
             String keyWord,
             LoadQccDataExtParm extParam
     ){
+        if(null == keyWord || keyWord.isEmpty()){
+            saveErrLog("下载【历史信息数据块】时公司名为空");
+            return;
+        }
         // 历史工商信息
         History_GetHistorytEci(keyWord, extParam);
         // 历史对外投资
@@ -168,6 +199,10 @@ public class GetOriginQccService {
             String keyNo,
             LoadQccDataExtParm extParam
     ){
+        if(null == keyWord || keyWord.isEmpty() || null == keyNo || keyNo.isEmpty()){
+            saveErrLog("下载【经营风险数据块】时公司名或keyNo为空");
+            return;
+        }
         // 司法拍卖列表
         JudicialSale_GetJudicialSaleList(keyWord, extParam);
         // 土地抵押
@@ -186,8 +221,7 @@ public class GetOriginQccService {
             LoadQccDataExtParm extParam
     ){
         JSONObject comInfo = loadDataBlock1(keyWord, extParam);
-        String companyName = comInfo.getString("Name");
-        if(null == companyName || "".equals(companyName)){
+        if(null == comInfo || comInfo.size() <1){
             return;
         }
         String keyNo = comInfo.getString("KeyNo");
@@ -205,8 +239,6 @@ public class GetOriginQccService {
         LoadQccDataExtParm extParam
     ){
         String trigger = extParam.getTrigger();
-        String commandId = extParam.getCommandId();
-
         JSONObject object = JSON.parseObject(data);
 
         // 数据全量库
@@ -220,45 +252,47 @@ public class GetOriginQccService {
         String dataQueries = Joiner.on("&").withKeyValueSeparator("=").join(queries);
         String fullLink = dataUrl + "?" + dataQueries;
 
-        Document dataLog = new Document().append("GetDataTime",dateNowStr).append("TriggerMode", trigger).append("CollName", collName).append("Queries", JSON.toJSONString(queries)).append("OriginData", data).append("FullLink",fullLink);
+        Document dataLog = new Document().append("GetDataTime",dateNowStr).append("TriggerMode", trigger).append("CollName", collName).append("Queries", JSON.toJSONString(queries)).append("OriginData", data);
         if(queries.containsKey("pageIndex")){
             dataLog.append("PageIndex", queries.get("pageIndex"));
         }
-        if(object.containsKey("Status") && object.getString("Status").equals("200")){
+        // 写入文件--全部请求完成后压缩文件提交解构服务解构数据
+        FileLock lock = null;
+        File file = extParam.getQccFileDataPath();
+        try (
+                RandomAccessFile raf = new RandomAccessFile(file, "rw");
+                FileChannel channel = raf.getChannel();
+        ){
+            lock = channel.lock();
+            String str = JSON.toJSONString(dataLog);
+            byte[] bs = (str.getBytes(StandardCharsets.UTF_8.name()));
+            raf.seek(raf.length());
+            byte[] linkbytes = fullLink.getBytes(StandardCharsets.UTF_8);
+            raf.writeInt(linkbytes.length);
+            raf.write(linkbytes);
+            //写入数据包长度
+            raf.writeInt(bs.length);
+            raf.write(bs);
 
-            // 写入文件--全部请求完成后压缩文件提交解构服务解构数据
-            FileLock lock = null;
-            File file = extParam.getQccFileDataPath();
-            try (
-                    RandomAccessFile raf = new RandomAccessFile(file, "rw");
-                    FileChannel channel = raf.getChannel();
-            ){
-                lock = channel.lock();
-                String str = JSON.toJSONString(dataLog);
-                byte[] bs = (str.getBytes(StandardCharsets.UTF_8.name()));
-                //写入数据包长度
-                raf.seek(raf.length());
-                raf.writeInt(bs.length);
-                raf.write(bs);
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            finally {
-                if (lock != null) {
-                    try {
-                        lock.release();
-                    } catch (IOException e) {
-                        //e.printStackTrace();
-                    }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        finally {
+            if (lock != null) {
+                try {
+                    lock.release();
+                } catch (IOException e) {
+                    //e.printStackTrace();
                 }
-            };
-
-            // mongo提交过来的数据库数据不再做处理
-            if(object.containsKey("QueryParam")){
-                return;
             }
+        };
 
+        // mongo提交过来的数据库数据不再做处理
+        if(object.containsKey("QueryParam")){
+            return;
+        }
+
+        if(object.containsKey("Status") && object.getString("Status").equals("200")){
             // 命中Log
             MongoCollection<Document> collLog = mongoService2.getCollection("Hit_Log");
             collLog.insertOne(dataLog);
@@ -301,7 +335,12 @@ public class GetOriginQccService {
         if(null == Paging || "".equals(Paging)){
             return false;
         }
-        return pageIndex <= Math.ceil(Paging.getFloat("TotalRecords")/Paging.getFloat(("PageSize"))) && pageIndex < 500;
+        if(devModel){
+            return pageIndex < 2;
+        }else{
+            return pageIndex <= Math.ceil(Paging.getFloat("TotalRecords")/Paging.getFloat(("PageSize")));
+        }
+
     }
 
     // 是否为格式正确的响应数据
@@ -333,7 +372,9 @@ public class GetOriginQccService {
         for (Map.Entry<String, ?> entry : queries.entrySet()){
             filters.add(Filters.eq("QueryParam.".concat(entry.getKey()), entry.getValue()));
         }
-        filters.add(Filters.eq("QueryParam.getDataTime", dateNowStr));
+        if(!devModel){
+            filters.add(Filters.eq("QueryParam.getDataTime", dateNowStr));
+        }
         Document data = mongoService2.getCollection(tableName).find(Filters.and(filters)).first();
         if(null == data || data.isEmpty()){
             return null;
@@ -378,17 +419,34 @@ public class GetOriginQccService {
             if(null == ret){
                 ret = QccUtil.getData(dataUrl, queries);
             }
-            if(isCorrectRes(ret) == false){
+            saveOriginData(collName, queries, ret, extParam);
+            // ！！！！注意放到save后面
+            if(isCorrectRes(ret) == false && devModel == false){
                 return;
             }
-            saveOriginData(collName, queries, ret, extParam);
             // 详情表名
             String detailCollName= DetailUrls.get(collName);
             if(null != detailCollName && !"".equals(detailCollName)){
                 JSONObject obj = JSON.parseObject(ret);
-                JSONArray arr = obj.getJSONArray("Result");
+                JSONArray arr;
+                try{
+                    arr = obj.getJSONArray("Result");
+                }catch (Exception e){
+                    if(devModel){
+                        arr = new JSONArray();
+                        arr.add(C.newMap(
+                                "Id", "testId"
+                        ));
+                    }else {
+                        return;
+                    }
+                }
+                int arrLength = arr.size();
                 // 获取详情
-                for(short i = 0; i < arr.size(); i++){
+                if(devModel){
+                    arrLength = 1;
+                }
+                for(short i = 0; i < arrLength; i++){
                     JSONObject item = arr.getJSONObject(i);
                     if (item == null) {
                         continue;
@@ -399,7 +457,6 @@ public class GetOriginQccService {
                     }else{
                         break;
                     }
-
                     Class clazz = this.getClass();
                     Method method = null;
                     try {
@@ -466,12 +523,10 @@ public class GetOriginQccService {
         saveOriginData(collName, query, res, extParam);
         JSONObject resObj = JSON.parseObject(res);
         if(!"200".equals(resObj.getString("Status"))){
+            saveErrLog("工商信息获取失败，请确定【"+keyWord+"】公司存在");
             return new JSONObject();
         }
         JSONObject retObj = resObj.getJSONObject("Result");
-        if(null == retObj || retObj.isEmpty()){
-            return new JSONObject();
-        }
         return retObj;
     }
 

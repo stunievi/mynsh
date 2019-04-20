@@ -12,7 +12,6 @@
     display: none;
 }
 
-
 .mao-divider{
     display: inline-block;
     height: 14px;
@@ -196,7 +195,6 @@
 }
 .mao-head .mao-nav{
 
-    float: left;
     font-size: 16px;
     color: #666;
     margin-left: 10px;

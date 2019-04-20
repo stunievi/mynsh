@@ -90,7 +90,8 @@ function addTab(id,text,url,args,callback) {
         var ifr = document.getElementById("iframepage-" + id);
         $(ifr).on("load",function () {
                 var childwin = ifr.contentWindow;
-                childwin && childwin.onPageRequest && childwin.onPageRequest(args).then(callback)
+                childwin && childwin.onPageRequest && childwin.onPageRequest(args);
+                // .then(callback)
         })
 
 

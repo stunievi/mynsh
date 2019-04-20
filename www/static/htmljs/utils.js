@@ -29,13 +29,13 @@ function redirectShowMenu(topMenuId, sideMenuId){
     }
 }
 
-function addNavTab(id, tabName, url){
+function addNavTab(id, tabName, url,args,callback){
   /*
   id:       tab页签的html标签ID属性格式为"tab-"+id，内容容器的html标签ID格式为"tab-content-"+id
   tabName:     tab页签的显示文本
   url:      打开的iframe的url
   */
-  top.addTab(id, tabName, url);
+  top.addTab(id, tabName, url,args,callback);
 }
 
 // 获取用户列表
@@ -679,7 +679,7 @@ function laytableRender(options, undefined){
                 // }
                 vv.cellStyle = {
                     css:{
-                        "min-width": w +"px"
+                        "width": w +"px"
                     }
                 }
                 delete vv.width;
@@ -762,8 +762,6 @@ function laytableRender(options, undefined){
                             ret = temp_ret;
                         }
                     }
-                    console.log(ret);
-
                     elem.bootstrapTable("load", ret);
 
                     if(options.success){

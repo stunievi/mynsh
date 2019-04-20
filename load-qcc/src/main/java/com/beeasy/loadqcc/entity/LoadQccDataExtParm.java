@@ -1,5 +1,8 @@
 package com.beeasy.loadqcc.entity;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+
 import java.io.File;
 import java.io.RandomAccessFile;
 import java.text.SimpleDateFormat;
@@ -29,6 +32,16 @@ public class LoadQccDataExtParm {
     }
     // 指令id
     private String commandId;
+
+    public String getCommond() {
+        return commond;
+    }
+
+    public void setCommond(String commond) {
+        this.commond = commond;
+    }
+
+    private String commond;
 
     public RandomAccessFile getRaf() {
         return raf;
@@ -83,9 +96,11 @@ public class LoadQccDataExtParm {
         return param;
     }
     // 自动更新企查查数据
-    public static LoadQccDataExtParm automatic(String commandId){
+    public static LoadQccDataExtParm automatic(String command){
+        JSONObject commandObj = JSON.parseObject(command);
         LoadQccDataExtParm param = new LoadQccDataExtParm();
-        param.setCommandId(commandId);
+        param.setCommandId(commandObj.getString("OrderId"));
+        param.setCommond(command);
         param.setTrigger("automatic");
         setQccDataPath(param);
         return param;

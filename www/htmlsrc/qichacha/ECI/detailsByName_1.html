@@ -64,27 +64,27 @@
     <!--</div>-->
 
     <div class="panel-qcc" id="base8">
-        <div class="panel-qcc-heading">股东信息</div>
+        <div class="panel-qcc-heading">股东信息 <b id="base8-count">0</b></div>
         <div class="panel-qcc-body" id="base8-body">
         </div>
     </div>
     <div class="panel-qcc" id="base14">
-        <div class="panel-qcc-heading">控股公司</div>
+        <div class="panel-qcc-heading">控股公司 <b id="base14-count">0</b></div>
         <div class="panel-qcc-body" id="base14-body">
         </div>
     </div>
     <div class="panel-qcc" id="base9">
-        <div class="panel-qcc-heading">主要人员</div>
+        <div class="panel-qcc-heading">主要人员 <b id="base9-count">0</b></div>
         <div class="panel-qcc-body" id="base9-body">
         </div>
     </div>
     <div class="panel-qcc" id="base10">
-        <div class="panel-qcc-heading">分支机构</div>
+        <div class="panel-qcc-heading">分支机构 <b id="base10-count">0</b></div>
         <div class="panel-qcc-body" id="base10-body">
         </div>
     </div>
     <div class="panel-qcc" id="base11">
-        <div class="panel-qcc-heading">变更信息</div>
+        <div class="panel-qcc-heading">变更信息 <b id="base11-count">0</b></div>
         <div class="panel-qcc-body" id="base11-body">
         </div>
     </div>
@@ -120,6 +120,10 @@
         <a href="javascript:;" class="btn btn-default showStockRelationInfo" data-name="{{d.Name}}">关联信息</a>
     </div>
 </script>
+<style>
+ins { background-color: #cfc; text-decoration: none; } del { color: #999; background-color: #FEC8C8; } .text { float:left; width: 30%; border: 1px solid blue; margin: 10px; }
+</style>
+
 <!--投资路径模板-->
 <script type="text/html" id="paths">
     {{#  layui.each(d.Paths, function(index, item){ }}
@@ -133,12 +137,14 @@
         <br/>
     {{# }) }}
 </script>
+<!--// 对比差异-->
+<script src="/static/vendor/htmldiff.js"></script>
 <script src="/htmlsrc/qichacha/tmpl/eci/qccTable.js"></script>
 <script>
     $.ajax({
-        url: remoteApi.qccECIGetDetailsByName+"?keyWord="+COMPANY_NAME,
+        url: remoteApi.qccECIGetDetailsByName+"?fullName="+COMPANY_NAME,
         success: function (res) {
-            var data = res.data;
+            var data = res.data || {};
             COMPANY_KEY_NO = data.KeyNo;
             keyNoPromise.resolve(data.KeyNo);
             $("#base1-body").html(
@@ -170,12 +176,20 @@
                     data: data
                 })
             );
+
+            // 股东信息
+            if(data.Partners && data.Partners.length > 0){
+                $("#base8-count").html(data.Partners.length);
+            }else{
+                $("a[href='#base8']").addClass("disabled");
+            }
             laytableRender({
                 page: false,
                 id: "base8-body",
                 elem: "#base8-body",
                 cols: [
                     [
+                        BOOTSTRAP_INDEX_FILED,
                         {title:"股东",field:"StockName"},
                         {title:"股东类型",field:"StockType"},
                         {title:"出资比例",field:"StockPercent"},
@@ -187,75 +201,80 @@
                         {title:"实缴时间",field:"CapiDate"}
                     ]
                 ],
-                data: data.Partners
+                data: data.Partners || []
             });
+
             // 主要人员
             if(data.Employees && data.Employees.length > 0){
-                laytableRender({
-                    page: false,
-                    id: "base9-body",
-                    elem: "#base9-body",
-                    cols:[
-                        [
-                            {title:"姓名",field:"Name"},
-                            {title:"职位",field:"Job"},
-                            { title:'操作', templet: "#toolbar"}
-
-                        ]
-                    ],
-                    data: data.Employees
-                });
-                $(document).on("click", ".showStockRelationInfo", function () {
-                    var name = $(this).data("name");
-                    addNavTab("StockRelationInfo"+COMPANY_NAME+name, "企业人员董监高信息-"+name, "/htmlsrc/qichacha/CIAEmployee/GetStockRelationInfo.html?companyName="+COMPANY_NAME+"&name="+name);
-                    return false;
-                });
+                $("#base9-count").html(data.Employees.length);
             }else{
-                $("#base9").hide();
                 $("a[href='#base9']").addClass("disabled");
             }
+            laytableRender({
+                page: false,
+                id: "base9-body",
+                elem: "#base9-body",
+                cols:[
+                    [
+                        BOOTSTRAP_INDEX_FILED,
+                        { title:'操作', templet: "#toolbar", width: 80},
+                        {title:"姓名",field:"Name"},
+                        {title:"职位",field:"Job"}
+                    ]
+                ],
+                data: data.Employees || []
+            });
+            $(document).on("click", ".showStockRelationInfo", function () {
+                var name = $(this).data("name");
+                addNavTab("StockRelationInfo"+COMPANY_NAME+name, "企业人员董监高信息-"+name, "/htmlsrc/qichacha/CIAEmployee/GetStockRelationInfo.html?fullName="+COMPANY_NAME+"&name="+name);
+                return false;
+            });
 
+            // 分支机构
             if(data.Branches && data.Branches.length > 0){
-                laytableRender({
-                    page: false,
-                    id: "base10-body",
-                    elem: "#base10-body",
-                    cols:[
-                        [
-                            // {title:"CompanyId",field:"CompanyId"},
-                            {title:"注册号或社会统一信用代码（存在社会统一信用代码显示社会统一信用代码，否则显示注册号）",field:"RegNo"},
-                            {title:"名称",field:"Name"},
-                            {title:"登记机关",field:"BelongOrg"},
-                            // {title:"社会统一信用代码（保留字段，目前为空）",field:"CreditCode"},
-                            // {title:"法人姓名或负责人姓名（保留字段，目前为空）",field:"OperName"},
-                        ]
-                    ],
-                    data: data.Branches
-                });
+                $("#base10").html(data.Branches.length);
             }else{
-                $("#base10").hide();
                 $("a[href='#base10']").addClass("disabled");
             }
+            laytableRender({
+                page: false,
+                id: "base10-body",
+                elem: "#base10-body",
+                cols:[
+                    [
+                        BOOTSTRAP_INDEX_FILED,
+                        {title:"注册号或社会统一信用代码",field:"RegNo"},
+                        {title:"名称",field:"Name"},
+                        {title:"登记机关",field:"BelongOrg"}
+                    ]
+                ],
+                data: data.Branches || []
+            });
 
+            // 变更历史
             if(data.ChangeRecords && data.ChangeRecords.length > 0){
-                laytableRender({
-                    page: false,
-                    id: "base11-body",
-                    elem: "#base11-body",
-                    cols:[
-                        [
-                            {title:"变更事项",field:"ProjectName"},
-                            {title:"变更前内容",field:"BeforeContent"},
-                            {title:"变更后内容",field:"AfterContent"},
-                            {title:"变更日期",field:"ChangeDate"}
-                        ]
-                    ],
-                    data: data.ChangeRecords
+                data.ChangeRecords.forEach(function (item) {
+                    item["AfterContent"] = getHTMLDiff(item["BeforeContent"], item["AfterContent"]);
                 });
+                $("#base11-count").html(data.ChangeRecords.length);
             }else{
-                $("#base11").hide();
                 $("a[href='#base11']").addClass("disabled");
             }
+            laytableRender({
+                page: false,
+                id: "base11-body",
+                elem: "#base11-body",
+                cols:[
+                    [
+                        BOOTSTRAP_INDEX_FILED,
+                        {title:"变更日期",field:"ChangeDate"},
+                        {title:"变更事项",field:"ProjectName"},
+                        {title:"变更前内容",field:"BeforeContent"},
+                        {title:"变更后内容",field:"AfterContent"}
+                    ]
+                ],
+                data: data.ChangeRecords || []
+            });
 
             // 联系信息
             var contactInfo = data.ContactInfo;
@@ -304,7 +323,7 @@
     laytableRender({
         id: "base14-body",
         title: "控股公司",
-        url: remoteApi.qccHoldingCompanyGetHoldingCompany+"?keyWord="+COMPANY_NAME,
+        url: remoteApi.qccHoldingCompanyGetHoldingCompany+"?fullName="+COMPANY_NAME,
         cols: [
             [
                 {title:"控股企业名称", field:"Name"},

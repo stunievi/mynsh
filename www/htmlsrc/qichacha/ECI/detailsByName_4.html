@@ -1,36 +1,36 @@
 <div role="tabpanel" class="tab-pane" id="fengxian" aria-labelledby="fengxian-tab">
     <!--经营风险-->
     <div class="data-tab">
+        <a class="btn btn-default" href="#Exceptions">经营异常</a>
         <a class="btn btn-default" href="#JudicialSaleList">司法拍卖</a>
         <a class="btn btn-default" href="#LandMortgageList">土地抵押</a>
         <a class="btn btn-default" href="#EnvPunishmentList">环保处罚</a>
         <a class="btn btn-default" href="#ChattelMortgage">动产抵押</a>
-        <a class="btn btn-default" href="#Exceptions">经营异常</a>
     </div>
 
+    <div class="panel-qcc" id="Exceptions">
+        <div class="panel-qcc-heading">经营异常 <b id="Exceptions-count">0</b></div>
+        <div id="Exceptions-body" class="panel-qcc-body" >
+        </div>
+    </div>
     <div class="panel-qcc" id="JudicialSaleList">
-        <div class="panel-qcc-heading">司法拍卖</div>
+        <div class="panel-qcc-heading">司法拍卖 <b id="JudicialSaleList-count">0</b></div>
         <div class="panel-qcc-body" id="JudicialSaleList-body">
         </div>
     </div>
     <div class="panel-qcc" id="LandMortgageList">
-        <div class="panel-qcc-heading">土地抵押</div>
+        <div class="panel-qcc-heading">土地抵押 <b id="LandMortgageList-count">0</b></div>
         <div class="panel-qcc-body" id="LandMortgageList-body">
         </div>
     </div>
     <div class="panel-qcc" id="EnvPunishmentList">
-        <div class="panel-qcc-heading">环保处罚</div>
+        <div class="panel-qcc-heading">环保处罚 <b id="EnvPunishmentLis-count">0</b></div>
         <div class="panel-qcc-body" id="EnvPunishmentList-body">
         </div>
     </div>
     <div class="panel-qcc" id="ChattelMortgage">
-        <div class="panel-qcc-heading">动产抵押</div>
-        <div id="ChattelMortgage-body">
-        </div>
-    </div>
-    <div class="panel-qcc" id="Exceptions">
-        <div class="panel-qcc-heading">经营异常</div>
-        <div id="Exceptions-body" class="panel-qcc-body" >
+        <div class="panel-qcc-heading">动产抵押 <b id="ChattelMortgage-count">0</b></div>
+        <div class="panel-qcc-body" id="ChattelMortgage-body">
         </div>
     </div>
 </div>
@@ -53,16 +53,53 @@
         <a href="javascript:;" class="btn btn-default toolbar3" data-val="{{d.Id}}">查看</a>
     </div>
 </script>
+<script type="text/html" id="toolbar4">
+    <div class="layui-toolbar">
+        <a href="javascript:;" class="btn btn-default toolbar4" data-val="{{d.RegisterNo}}">查看</a>
+    </div>
+</script>
 
 <script>
     var loadBlock4Status = false;
     function loadBlock4() {
         loadBlock4Status = true;
-        var keyWord = "小米";
+
+        // 企业经营异常信息
+        $.when(keyNoPromise).then(function () {
+            $.ajax({
+                url: remoteApi.qccECIExceptionGetOpException+"?keyNo="+COMPANY_KEY_NO,
+                success: function (res) {
+                    var dataList = [];
+                    if(res.success && res.data && res.data.list && res.data.list.length>0){
+                        dataList = res.data.list;
+                        $("#Exceptions-count").html(dataList.length);
+                    }else{
+                        // $("#Exceptions").hide();
+                        $("a[href='#Exceptions']").addClass("disabled");
+                    }
+
+                    laytableRender({
+                        title: "经营异常",
+                        id: "Exceptions-body"
+                        , cols: [
+                            [
+                                {title:"列入经营异常名录原因", field:"AddReason"},
+                                {title:"列入日期", field:"AddDate"},
+                                {title:"移出经营异常名录原因", field:"RomoveReason"},
+                                {title:"移出日期", field:"RemoveDate"},
+                                {title:"作出决定机关", field:"DecisionOffice"},
+                                {title:"移除决定机关", field:"RemoveDecisionOffice"}
+                            ]
+                        ],
+                        data: dataList
+                    });
+                }
+            })
+        });
         laytableRender({
             id: "JudicialSaleList-body",
             title: "司法拍卖列表"
-            , url: remoteApi.qccJudicialSaleGetJudicialSaleList+"?keyWord="+keyWord
+            , url: remoteApi.qccJudicialSaleGetJudicialSaleList+"?fullName="+COMPANY_NAME
             , dataType: "json"
             , cols: [
                 [
@@ -78,6 +115,8 @@
                 if(!data || !data.total || data.total < 1){
                     // $("#JudicialSaleList").hide();
                     $("a[href='#JudicialSaleList']").addClass("disabled");
+                }else{
+                    $("#JudicialSaleList-count").html(data.total);
                 }
             }
         });
@@ -90,7 +129,7 @@
         laytableRender({
             title: "土地抵押列表",
             id: "LandMortgageList-body"
-            , url: remoteApi.qccLandMortgageGetLandMortgageList+"?keyWord="+keyWord
+            , url: remoteApi.qccLandMortgageGetLandMortgageList+"?fullName="+COMPANY_NAME
             , dataType: "json"
             , cols: [
                 [
@@ -108,6 +147,8 @@
                 if(!data || !data.total || data.total < 1){
                     // $("#LandMortgageList").hide();
                     $("a[href='#LandMortgageList']").addClass("disabled");
+                }else{
+                    $("#LandMortgageList-count").html(data.total);
                 }
             }
         });
@@ -120,7 +161,7 @@
         laytableRender({
             title: "获取环保处罚列表",
             id: "EnvPunishmentList-body"
-            , url: remoteApi.qccGetEnvPunishmentList+"?keyWord="+keyWord
+            , url: remoteApi.qccGetEnvPunishmentList+"?fullName="+COMPANY_NAME
             , dataType: "json"
             , cols: [
                 [
@@ -136,6 +177,8 @@
                 if(!data || !data.total || data.total < 1){
                     // $("#EnvPunishmentList").hide();
                     $("a[href='#EnvPunishmentList']").addClass("disabled");
+                }else{
+                    $("#EnvPunishmentList-count").html(data.total);
                 }
             }
         });
@@ -145,48 +188,46 @@
             return true;
         });
 
+        var chattelMortgageDataList = [];
         $.ajax({
-            url: remoteApi.qccGetChattelMortgage+"?keyWord="+keyWord,
+            url: remoteApi.qccGetChattelMortgage+"?fullName="+COMPANY_NAME,
             success:function(res){
-                if(res.success && res.data && res.data.list){
-                    $("#ChattelMortgage-body").html(panelFormRender4({
-                        dataList: res.data.list
-                    }));
+                if(res.data && res.data.list && res.data.list.length>0){
+                    chattelMortgageDataList = res.data.list;
+                    $("#ChattelMortgage-count").html(chattelMortgageDataList.length);
+                    // $("#ChattelMortgage-body").html(panelFormRender4({
+                    //     dataList: dataList
+                    // }));
                 }else{
-                    $("#ChattelMortgage").hide();
+                    // $("#ChattelMortgage").hide();
                     $("a[href='#ChattelMortgage']").addClass("disabled");
                 }
+                chattelMortgageDataList = [{}]
+                laytableRender({
+                    id: "ChattelMortgage-body",
+                    page: false,
+                    cols: [
+                        [
+                            BOOTSTRAP_INDEX_FILED,
+                            {title:'操作', templet: "#toolbar4" },
+                            {title:'登记编号', field:"RegisterNo" },
+                            {title:"登记日期",field:"RegisterDate" },
+                            {title:"登记机关",field:"RegisterOffice" },
+                            {title:"被担保债权数额",field:"DebtSecuredAmount" },
+                            {title:"状态",field:"Status" }
+                        ]
+                    ],
+                    data: chattelMortgageDataList
+                });
             }
         });
 
-        // 企业经营异常信息
-        $.when(keyNoPromise).then(function () {
-            $.ajax({
-                url: remoteApi.qccECIExceptionGetOpException+"?keyNo="+COMPANY_KEY_NO,
-                success: function (res) {
-                    if(res.success && res.data && res.data.list && res.data.list.length > 0){
-                        laytableRender({
-                            title: "经营异常",
-                            id: "Exceptions-body"
-                            , cols: [
-                                [
-                                    {title:"列入经营异常名录原因", field:"AddReason"},
-                                    {title:"列入日期", field:"AddDate"},
-                                    {title:"移出经营异常名录原因", field:"RomoveReason"},
-                                    {title:"移出日期", field:"RemoveDate"},
-                                    {title:"作出决定机关", field:"DecisionOffice"},
-                                    {title:"移除决定机关", field:"RemoveDecisionOffice"}
-                                ]
-                            ],
-                            data: res.data.list
-                        });
-                    }else{
-                        // $("#Exceptions").hide();
-                        $("a[href='#Exceptions']").addClass("disabled");
-                    }
-                }
-            })
-        });
+        $(document).on("click", ".toolbar4", function () {
+            var id = $(this).data("val");
+            addNavTab("chattelMortgageDataList-"+id, "动产抵押详情", "/htmlsrc/qichacha/ChattelMortgage/ChattelMortgageDetail.html?id="+id, chattelMortgageDataList[$(this).closest("tr").data("index")]);
+            return false;
+        })
+
     }
 
 </script>

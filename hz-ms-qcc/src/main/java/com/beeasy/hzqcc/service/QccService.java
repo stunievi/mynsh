@@ -6,7 +6,6 @@ import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -131,7 +130,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ){
-        JSONObject data = qccDataService.findOne("ECIV4_GetDetailsByName", param);
+        JSONObject data = qccHttpDataService.findOne("ECIV4_GetDetailsByName", param);
         return getResDetails(data,isOrigin);
     }
     // 企业关键字精确获取详细信息(Basic)
@@ -139,7 +138,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ){
-        JSONObject data = qccDataService.findOne("ECIV4_GetBasicDetailsByName", param);
+        JSONObject data = qccHttpDataService.findOne("ECIV4_GetBasicDetailsByName", param);
         return getResDetails(data,isOrigin);
     }
     // 企业人员董监高信息
@@ -147,7 +146,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ){
-        JSONObject data = qccDataService.findOne("CIAEmployeeV4_GetStockRelationInfo", param);
+        JSONObject data = qccHttpDataService.findOne("CIAEmployeeV4_GetStockRelationInfo", param);
         return getResDetails(data,isOrigin);
     }
     // 获取裁判文书
@@ -227,7 +226,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ){
-        JSONObject data = qccDataService.findOne("ECIException_GetOpException", param);
+        JSONObject data = qccHttpDataService.findOne("ECIException_GetOpException", param);
         return getResDataArr(data, isOrigin);
 
     }
@@ -246,14 +245,14 @@ public class QccService {
             boolean isOrigin
     ){
         JSONObject resData = qccHttpDataService.getSplitChildDataList("History_GetHistorytShareHolder",fixResPageParam(param));
-        return getResSplitChild(resData, "Details", isOrigin);
+        return getResDataList(resData, isOrigin);
     }
     // 历史对外投资
     public Map History_GetHistorytInvestment(
             Map param,
             boolean isOrigin
     ){
-        JSONObject data = qccDataService.getDataList("History_GetHistorytInvestment", fixResPageParam(param));
+        JSONObject data = qccHttpDataService.getDataList("History_GetHistorytInvestment", fixResPageParam(param));
         return getResDataList(data, isOrigin);
     }
     // 历史失信
@@ -261,7 +260,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ){
-        JSONObject data = qccDataService.getDataList("History_GetHistoryShiXin", fixResPageParam(param));
+        JSONObject data = qccHttpDataService.getDataList("History_GetHistoryShiXin", fixResPageParam(param));
         return getResDataList(data, isOrigin);
     }
     // 历史执行
@@ -269,7 +268,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ){
-        JSONObject data = qccDataService.getDataList("History_GetHistoryZhiXing", fixResPageParam(param));
+        JSONObject data = qccHttpDataService.getDataList("History_GetHistoryZhiXing", fixResPageParam(param));
         return getResDataList(data, isOrigin);
     }
     // 历史法院公告
@@ -277,7 +276,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ){
-        JSONObject data = qccDataService.getDataList("History_GetHistorytCourtNotice", fixResPageParam(param));
+        JSONObject data = qccHttpDataService.getDataList("History_GetHistorytCourtNotice", fixResPageParam(param));
         return getResDataList(data, isOrigin);
     }
     // 历史法院公告
@@ -285,7 +284,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ){
-        JSONObject data = qccDataService.getDataList("History_GetHistorytJudgement", fixResPageParam(param));
+        JSONObject data = qccHttpDataService.getDataList("History_GetHistorytJudgement", fixResPageParam(param));
         return getResDataList(data, isOrigin);
     }
     // 历史开庭公告
@@ -293,7 +292,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ){
-        JSONObject data = qccDataService.getDataList("History_GetHistorytSessionNotice", fixResPageParam(param));
+        JSONObject data = qccHttpDataService.getDataList("History_GetHistorytSessionNotice", fixResPageParam(param));
         return getResDataList(data, isOrigin);
     }
     // 历史动产抵押
@@ -301,7 +300,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ){
-        JSONObject data = qccDataService.getDataList("History_GetHistorytMPledge", fixResPageParam(param));
+        JSONObject data = qccHttpDataService.getDataList("History_GetHistorytMPledge", fixResPageParam(param));
         return getResDataList(data, isOrigin);
     }
     // 历史股权出质
@@ -309,7 +308,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ){
-        JSONObject data = qccDataService.getDataList("History_GetHistorytPledge", fixResPageParam(param));
+        JSONObject data = qccHttpDataService.getDataList("History_GetHistorytPledge", fixResPageParam(param));
         return getResDataList(data, isOrigin);
     }
     // 历史行政处罚
@@ -317,7 +316,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ){
-        JSONObject data = qccDataService.findOne("History_GetHistorytAdminPenalty", param);
+        JSONObject data = qccHttpDataService.findOne("History_GetHistorytAdminPenalty", param);
         return getResDetails(data,isOrigin);
     }
     // 历史行政许可
@@ -325,7 +324,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ){
-        JSONObject data = qccDataService.findOne("History_GetHistorytAdminLicens", param);
+        JSONObject data = qccHttpDataService.findOne("History_GetHistorytAdminLicens", param);
         return getResDetails(data,isOrigin);
     }
     // 获取环保处罚列表
@@ -390,7 +389,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ){
-        JSONObject tupuInfo = qccDataService.findOne("ECIRelationV4_GetCompanyEquityShareMap", param);
+        JSONObject tupuInfo = qccHttpDataService.findOne("ECIRelationV4_GetCompanyEquityShareMap", param);
         return getResDetails(tupuInfo, isOrigin);
     }
     // 十层股权穿透图
@@ -398,15 +397,15 @@ public class QccService {
             Map param,
             boolean isOrigin
     ){
-        JSONObject tupuInfo = qccDataService.findOne("ECICompanyMap_GetStockAnalysisData", param);
+        JSONObject tupuInfo = qccHttpDataService.findOne("ECICompanyMap_GetStockAnalysisData", param);
         return getResDetails(tupuInfo, isOrigin);
     }
 
-    public  Map ECIRelationV4_SearchTreeRelationMap(
+    public Map ECIRelationV4_SearchTreeRelationMap(
             Map param,
             boolean isOrigin
     ){
-        JSONObject tupuInfo = qccDataService.findOne("ECIRelationV4_SearchTreeRelationMap", param);
+        JSONObject tupuInfo = qccHttpDataService.findOne("ECIRelationV4_SearchTreeRelationMap", param);
         return getResDetails(tupuInfo, isOrigin);
     }
     // 企业图谱
@@ -414,7 +413,7 @@ public class QccService {
         Map param,
         boolean isOrigin
     ){
-        JSONObject comInfo = qccDataService.findOne("ECIRelationV4_GenerateMultiDimensionalTreeCompanyMap", param);
+        JSONObject comInfo = qccHttpDataService.findOne("ECIRelationV4_GenerateMultiDimensionalTreeCompanyMap", param);
         if(null == comInfo){
             return new HashMap();
         }
@@ -425,22 +424,18 @@ public class QccService {
         if(null == comInfo){
             return new HashMap();
         }
-        String comInfoStr = JSON.toJSONString(comInfo);
-        comInfoStr = comInfoStr.replaceAll("name", "Name");
-        comInfo = JSON.parseObject(comInfoStr);
-        comInfo = comInfo.getJSONObject("Node");
         Map retData = new HashMap();
         JSONArray childs = comInfo.getJSONArray("Children");
         retData.put("Name", comInfo.getString("Name"));
         retData.put("KeyNo", comInfo.getString("KeyNo"));
         retData.put("Employees", new ArrayList<>()); // 无相关数据
         for(short i=0;i<childs.size();i++){
-            Map child = (Map) childs.get(i);
+            JSONObject child =  childs.getJSONObject(i);
             List temp_child = new ArrayList();
-            if(child.get("Category").equals(2)){
+            if(child.getInteger("Category").equals(2)){
                 // 对外投资
                 retData.put("EquityShareDetail", child.get("Children"));
-            }else if(child.get("Category").equals(3)){
+            }else if(child.getInteger("Category").equals(3)){
                 // 股东
                 ArrayList temp_list = new ArrayList();
                 for(short j=0;j<((JSONArray) child.get("Children")).size();j++){
@@ -449,10 +444,10 @@ public class QccService {
                     temp_list.add(item);
                 }
                 retData.put("partners", child.get("Children"));
-            }else if(child.get("Category").equals(4)){
+            }else if(child.getInteger("Category").equals(4)){
                 // 高管
                 retData.put("Employees", child.get("Children"));
-            }else if(child.get("Category").equals(9)){
+            }else if(child.getInteger("Category").equals(9)){
                 // 历史法人
                 retData.put("HistoryOpers", child.get("Children"));
             }
@@ -464,7 +459,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ){
-        JSONObject resData = qccDataService.getSplitChildDataList("HoldingCompany_GetHoldingCompany", fixResPageParam(param));
+        JSONObject resData = qccHttpDataService.getSplitChildDataList("HoldingCompany_GetHoldingCompany", fixResPageParam(param));
         return getResSplitChild(resData, "Names", isOrigin);
     }
 

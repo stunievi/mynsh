@@ -22,7 +22,7 @@ spring:
 #    url: jdbc:db2://121.0.0.236:50000/fzsys_dy
 #        username: db2inst1
 #        password: 11111111
-    driver-class-name: com.ibm.db2.jcc.DB2Driver
+#    driver-class-name: com.ibm.db2.jcc.DB2Driver
 
   devtools:
     livereload:
@@ -57,6 +57,8 @@ lfs:
   wfPassword: admin
   wfPid: 0
 loadQcc:
-    zipPath: D:\java projects\hznsh\load-qcc\src\main\resources\qcc\zip
-    txtPath: D:\java projects\hznsh\load-qcc\src\main\resources\qcc\txt
+#    zipPath: D:\java projects\hznsh\load-qcc\src\main\resources\qcc\zip
+#    txtPath: D:\java projects\hznsh\load-qcc\src\main\resources\qcc\txt
+    zipPath: /root/hz/hz-qcc/qccDataLog/zip
+    txtPath: /root/hz/hz-qcc/qccDataLog/txt
 

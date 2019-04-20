@@ -56,17 +56,18 @@
 
     function getDataTupuTz(){
         $.ajax({
-            url:"./json/guquanchuantou2.json",
+            // url:"./json/guquanchuantou2.json",
+            url: remoteApi.qccECIRelationSearchTreeRelationMap,
             type: 'GET',
             data:{
                 keyNo: companyKeyNo,
             },
             dataType: 'JSON',
             success: function (res){
-                var retData2 = res.Result;
+                var retData2 = res.Result || res.data;
                 if(retData2){
                     var data = {};
-                    if(retData2.Node && retData2.Node.Children){
+                    if(retData2.Children){
                         var touziDetailList = [];
                         var walk1 = function(touziDetailList, dataList){
                             dataList.forEach(function (item) {
@@ -84,7 +85,7 @@
                             });
                             return touziDetailList;
                         };
-                        walk1(touziDetailList, retData2.Node.Children);
+                        walk1(touziDetailList, retData2.Children);
                         // 投资
                         data.touzi = {
                             Name: companyName,
