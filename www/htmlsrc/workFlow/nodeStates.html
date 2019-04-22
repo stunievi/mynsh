@@ -741,7 +741,7 @@
                     $data = data;
                     var model = JSON.parse(data.model)
                     //当前模型
-                    var current = $.grep(model.flow, function (v) {
+                    current = $.grep(model.flow, function (v) {
                         return v.name == data.currentNodeName
                     })[0];
                     // var nodes = JSON.parse(data.nodes);
@@ -1030,8 +1030,8 @@
                             switch (item.rules[j].rule) {
                                 case "has_file":
                                     if(chks[item.ename] && chks[item.ename].length > 0){
-                                        if(!hasTag(item.rules[j].tag[0])){
-                                            layer.msg("请上传一个带有【" + item.rules[j].tag[0] + '】标签的文件')
+                                        if(!hasTag(item.rules[j].tag)){
+                                            layer.msg("请上传一个带有【" + item.rules[j].tag + '】标签的文件')
                                             return;
                                         }
                                     }
@@ -1040,8 +1040,6 @@
                     }
                 }
 
-
-                return;
 
                 postFetch(
                     remoteOrigin + "/api/auto/wfins/submit"
