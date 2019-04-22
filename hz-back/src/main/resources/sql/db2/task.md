@@ -798,7 +798,7 @@ WHERE  CURRENT TIMESTAMP BETWEEN e_time - VALUE( (    SELECT
                                        FETCH FIRST 1 ROWS ONLY), 0) days AND  e_time
 
 
-selectQccRule1
+selectQccRule
 ===
 select distinct
     DM.UID as uid,
@@ -811,4 +811,5 @@ from
     inner join T_DEPARTMENT_MANAGER as DM on p1.MAIN_BR_ID = DM.acc_code
     left join T_USER as tt on p1.CUST_MGR = tt.acc_code
 where
-    UPPER('on') = UPPER(coalesce((select var_value from t_system_variable where var_name = 'QCC_MSG_RULE_1_ON'),'off'))
+    UPPER('on') = UPPER(coalesce((select var_value from t_system_variable where var_name=#rule#),'off'))
+    
