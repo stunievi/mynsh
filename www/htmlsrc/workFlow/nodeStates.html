@@ -731,6 +731,7 @@
         var instanceId = getParam("id");
         var $data = null;
         var dealNodeList = [];
+        var current = null;
         onInit();
         function onInit() {
             // 获取任务信息
@@ -975,6 +976,8 @@
             $.each(chks, function (i,v) {
                 str[i] = v.join(",");
             });
+
+
             postFetch(
                 remoteOrigin + "/api/auto/wfins/submit"
                 ,{
@@ -1002,6 +1005,44 @@
                 $.each(chks, function (i,v) {
                     str[i] = v.join(",");
                 });
+
+                var files = collectFiles();
+                console.log(current, chks, files)
+
+                var hasTag = function (tag) {
+                    for(var n = 0; n < files.length; n++){
+                        for(var m = 0; m <files[n].tags.length; m++){
+                            if(files[n].tags[m] == tag){
+                                return true;
+                            }
+                        }
+                    }
+                    return false;
+                }
+
+                if(current.content){
+                    for(var i = 0; i < current.content.length; i++){
+                        var item = current.content[i];
+                        if(!item.rules){
+                            continue
+                        }
+                        for(var j = 0; j < item.rules.length; j++){
+                            switch (item.rules[j].rule) {
+                                case "has_file":
+                                    if(chks[item.ename] && chks[item.ename].length > 0){
+                                        if(!hasTag(item.rules[j].tag[0])){
+                                            layer.msg("请上传一个带有【" + item.rules[j].tag[0] + '】标签的文件')
+                                            return;
+                                        }
+                                    }
+                            }
+                        }
+                    }
+                }
+
+
+                return;
+
                 postFetch(
                     remoteOrigin + "/api/auto/wfins/submit"
                     ,{
