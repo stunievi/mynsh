@@ -10,5 +10,8 @@
     },
     "hotswap": [
         "com.beeasy.easyshop.ctrl"
+    ],
+    "route": [
+        "qcc -> com.beeasy.easyshop.ctrl"
     ]
 }
