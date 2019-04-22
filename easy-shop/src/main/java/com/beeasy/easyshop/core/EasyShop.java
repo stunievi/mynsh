@@ -20,7 +20,6 @@ public class EasyShop {
 
     public static void start() {
 
-//        new FileWatcher().start();
         DBService.start();
 
         EventLoopGroup bossGroup = new NioEventLoopGroup();
@@ -61,7 +60,7 @@ public class EasyShop {
     }
 
 
-    public static void registerController(String prefix, String packageName){
-        HttpServerHandler.ctrls.put(prefix, packageName);
-    }
+//    public static void registerController(String prefix, String packageName){
+//        HttpServerHandler.ctrls.put(prefix, packageName);
+//    }
 }

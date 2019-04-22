@@ -24,16 +24,6 @@ public class MyClassLoadader extends ClassLoader {
         return raw;
     }
 
-    public Object FindNewClass(String className) {
-        try {
-            byte[] b = getBytes(config.watch + "/" + className.replaceAll("\\.", "/") + ".class");
-            return defineClass(null, b, 0, b.length);
-        } catch (Exception e) {
-//			e.printStackTrace();
-        }
-        return null;
-    }
-
     @Override
     protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
         return findClass(name);

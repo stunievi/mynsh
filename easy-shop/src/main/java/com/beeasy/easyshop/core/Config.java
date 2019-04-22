@@ -2,21 +2,20 @@ package com.beeasy.easyshop.core;
 
 import cn.hutool.core.io.IoUtil;
 import com.alibaba.fastjson.JSON;
-import org.apache.commons.io.IOUtils;
 
-import java.io.*;
-import java.nio.channels.Channel;
-import java.nio.channels.FileChannel;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
 public class Config {
     public static Config config;
     public int port;
-    public String watch;
     public Map<String,Db> db;
     public Set<String> hotswap;
+    public LinkedHashSet<String> route;
 
     static {
         try (
@@ -24,6 +23,13 @@ public class Config {
             ){
             String str = IoUtil.read(fis).toString(StandardCharsets.UTF_8);
             config = JSON.parseObject(str, Config.class);
+
+            if (config.route != null) {
+                for (String s : config.route) {
+                    String[] route = s.split("\\s*->\\s*");
+                    HttpServerHandler.ctrls.put(route[0], route[1]);
+                }
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -16,11 +16,18 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.multipart.Attribute;
+import io.netty.handler.codec.http.multipart.FileUpload;
+import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
+import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import io.netty.handler.codec.http.websocketx.*;
+import io.netty.handler.codec.json.JsonObjectDecoder;
 import io.netty.util.AsciiString;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -172,6 +179,33 @@ public class HttpServerHandler extends ChannelInboundHandlerAdapter {
         return object;
     }
 
+    public static JSONObject decodePost(FullHttpRequest request) {
+        JSONObject ret = new JSONObject();
+        HttpPostRequestDecoder decoder = new HttpPostRequestDecoder(request);
+        decoder.offer(request);
+        List<InterfaceHttpData> parmList = decoder.getBodyHttpDatas();
+        for (InterfaceHttpData parm : parmList) {
+            Attribute data = null;
+            if(parm instanceof Attribute){
+                data = (Attribute) parm;
+            } else if(parm instanceof FileUpload){
+                ret.put(parm.getName(), new MultipartFile((FileUpload) parm));
+                continue;
+            }
+            try {
+                ret.put(data.getName(), data.getValue());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return ret;
+    }
+
+    private static JSON decodeJson(FullHttpRequest request){
+        ByteBuf buf = request.content();
+        String json = buf.toString(StandardCharsets.UTF_8);
+        return (JSON) JSON.parse(json);
+    }
 //    public static Map<String, Object> getGetParamsFromChannel(FullHttpRequest fullHttpRequest) {
 //
 //        Map<String, Object> params = new HashMap<String, Object>();
@@ -212,41 +246,53 @@ public class HttpServerHandler extends ChannelInboundHandlerAdapter {
     }
 
     private Object[] autoWiredParams(FullHttpRequest request, Class clz, Method method){
-        List<String> names = null;
-        try {
-            names = Asm.getMethodParamNames(clz,method);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        Class[] types = method.getParameterTypes();
-        Object[] ret = new Object[types.length];
+        Parameter[] parameters = method.getParameters();
+        Object[] ret = new Object[parameters.length];
         int idex = -1;
         int i = 0;
-        String name = null;
         JSONObject query = decodeQuery(request);
-        for (Class type : types) {
+        JSON body = null;
+        JSONObject params = new JSONObject();
+        if(HttpMethod.POST == request.method()){
+            String contentType = request.headers().getAsString("Content-Type");
+            if(contentType.contains("application/json")){
+                body = decodeJson(request);
+            } else {
+                body = decodePost(request);
+            }
+        }
+        //全放到这里
+        params.putAll(query);
+        if(body instanceof JSONObject){
+            params.putAll((JSONObject) body);
+        }
+
+        for (Parameter parameter : parameters) {
             //特殊字段
-            name = names.get(i);
+            String name = parameter.getName();
+            Class<?> type = parameter.getType();
+//            name = names.get(i);
             ret[i] = null;
             switch (name){
                 case "query":
-                    if(type.getName().equals(Map.class.getName())){
-                        ret[i] = query;
-                    }
-                    else {
-                        ret[i] = query.toJavaObject(type);
-                    }
-                    int c = 1;
-                    break;
+                    ret[i] = query.toJavaObject(type);
 
                 case "body":
+                    if (body != null) {
+                        ret[i] = body.toJavaObject(type);
+                    }
+                    break;
+
+                case "params":
+                    ret[i] = params.toJavaObject(type);
                     break;
 
                 default:
-                    String source = query.getString(name);
+                    //必然为JSONOBJECT
                     idex = type.getTypeName().indexOf("[]");
                     //是数组的情况
                     if(idex > -1){
+                        String source = query.getString(name);
                         if(isNotEmpty(source)){
                             if(source.startsWith("[") && source.endsWith("]")){
                                 JSONArray array = query.getJSONArray(name);
@@ -261,12 +307,13 @@ public class HttpServerHandler extends ChannelInboundHandlerAdapter {
                                 }
                             }
                         }
+                    } else if(type == MultipartFile.class) {
+                        ret[i] = params.get(name);
                     } else {
                         ret[i] = getParamValue(query, name, type);
                     }
                     break;
             }
-            //提取原始数据
             i++;
         }
         return ret;
@@ -278,23 +325,5 @@ public class HttpServerHandler extends ChannelInboundHandlerAdapter {
         }catch (Exception e){
             return null;
         }
-//        String typeName = type.getName();
-//        if(type == int.class){
-//            return query.getIntValue(name);
-//        } else if(type == Integer.class){
-//            return query.getInteger(name);
-//        } else if(type == boolean.class){
-//
-//        }
-//        query.getObject()
-//        return null;
-//        if(typeName.equals(int.class.getName())){
-//            return
-//        }
-//        if()
-//        switch (type.getName()){
-//            case int.class.getName():
-//                break
-//        }
     }
 }
