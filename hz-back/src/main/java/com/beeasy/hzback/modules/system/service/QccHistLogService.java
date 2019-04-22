@@ -111,50 +111,66 @@ public class QccHistLogService {
             if (!map.isEmpty()) {
 
                 JSONObject jsonObj = new JSONObject();
+                JSONObject jsonTaskObj = new JSONObject();
                 for (Map.Entry<String, Integer> entry : map.entrySet()) {
 
                     switch (entry.getKey()) {
                         // 失信信息
                         case "searchShiXin":
-                            qccRule(os, jsonObj, "searchShiXin", "01", "QCC_MSG_RULE_1_ON");
+                            qccRule(os, jsonObj, jsonTaskObj,"searchShiXin", "01", "QCC_MSG_RULE_1_ON", "QCC_TASK_MSG_RULE_1_ON");
                             break;
                         // 被执行信息
                         case "searchZhiXing":
-                            qccRule(os, jsonObj, "searchZhiXing", "02", "QCC_MSG_RULE_2_ON");
+                            qccRule(os, jsonObj, jsonTaskObj,"searchZhiXing", "02", "QCC_MSG_RULE_2_ON", "QCC_TASK_MSG_RULE_2_ON");
                             break;
                         // 裁判文书
                         case "searchJudgmentDoc":
-                            qccRule(os, jsonObj, "searchJudgmentDoc", "03", "QCC_MSG_RULE_3_ON");
+                            qccRule(os, jsonObj, jsonTaskObj,"searchJudgmentDoc", "03", "QCC_MSG_RULE_3_ON", "QCC_TASK_MSG_RULE_3_ON");
                             break;
                         // 法院公告
                         case "searchCourtAnnouncement":
-                            qccRule(os, jsonObj, "searchCourtAnnouncement", "04", "QCC_MSG_RULE_4_ON");
+                            qccRule(os, jsonObj, jsonTaskObj,"searchCourtAnnouncement", "04", "QCC_MSG_RULE_4_ON", "QCC_TASK_MSG_RULE_4_ON");
                             break;
                         // 开庭公告
                         case "searchCourtNotice":
-                            qccRule(os, jsonObj, "searchCourtNotice", "05", "QCC_MSG_RULE_5_ON");
+                            qccRule(os, jsonObj, jsonTaskObj,"searchCourtNotice", "05", "QCC_MSG_RULE_5_ON", "QCC_TASK_MSG_RULE_5_ON");
                             break;
                         // 司法拍卖
                         case "judicialSaleList":
-                            qccRule(os, jsonObj, "judicialSaleList", "06", "QCC_MSG_RULE_6_ON");
+                            qccRule(os, jsonObj, jsonTaskObj,"judicialSaleList", "06", "QCC_MSG_RULE_6_ON", "QCC_TASK_MSG_RULE_6_ON");
                             break;
                         // 环保处罚
                         case "envPunishmentList":
-                            qccRule(os, jsonObj, "envPunishmentList", "07", "QCC_MSG_RULE_7_ON");
+                            qccRule(os, jsonObj, jsonTaskObj,"envPunishmentList", "07", "QCC_MSG_RULE_7_ON", "QCC_TASK_MSG_RULE_7_ON");
                             break;
                         // 司法协助
                         case "judicialAssistance":
-                            qccRule(os, jsonObj, "judicialAssistance", "08", "QCC_MSG_RULE_8_ON");
+                            qccRule(os, jsonObj, jsonTaskObj,"judicialAssistance", "08", "QCC_MSG_RULE_8_ON", "QCC_TASK_MSG_RULE_8_ON");
                             break;
                         // 经营异常
                         case "opException":
-                            qccRule(os, jsonObj, "opException", "09", "QCC_MSG_RULE_9_ON");
+                            qccRule(os, jsonObj, jsonTaskObj,"opException", "09", "QCC_MSG_RULE_9_ON", "QCC_TASK_MSG_RULE_9_ON");
                             break;
                     }
                 }
 
                 List<SysNotice> notices = new ArrayList<>();
                 Iterator<String> sIterator = jsonObj.keySet().iterator();
+
+                // 任务规则
+                Iterator<String> taskIterator = jsonTaskObj.keySet().iterator();
+                while (taskIterator.hasNext()) {
+                    String key = taskIterator.next();
+                    //获得key值对应的value
+                    JSONArray ja1 = jsonTaskObj.getJSONArray(key);
+
+                    for (Object obj : ja1) {
+                        JSONObject jo = (JSONObject) obj;
+
+                        generateAutoTask(os, jo.getString("accCode"), jo.getString("loanAccount"));
+                    }
+                    break;
+                }
 
                 while (sIterator.hasNext()) {
                     // 获得key
@@ -226,7 +242,7 @@ public class QccHistLogService {
                             println(os, e.getMessage(), null);
                         }
 
-                        generateAutoTask(os, jo.getString("accCode"), jo.getString("loanAccount"));
+//                        generateAutoTask(os, jo.getString("accCode"), jo.getString("loanAccount"));
                     }
                     break;
 
@@ -251,11 +267,15 @@ public class QccHistLogService {
 //        ));
     }
 
-    public void qccRule(OutputStream os, JSONObject jsonObj, String key, String type, String rule) {
+    public void qccRule(OutputStream os, JSONObject jsonObj, JSONObject jsonTaskObj, String key, String type, String rule, String taskRule) {
 
-        List<JSONObject> res = (sqlManager.select("task.selectQccRule", JSONObject.class, C.newMap("type", type, "rule", rule)));
+        // 消息规则
+        List<JSONObject> res = (sqlManager.select("task.selectQccMsgRule", JSONObject.class, C.newMap("type", type, "rule", rule)));
+        // 任务规则
+        List<JSONObject> taskRes = (sqlManager.select("task.selectQccTaskRule", JSONObject.class, C.newMap("type", type, "taskRule", taskRule)));
         JSONObject object;
         JSONArray jsonArr = new JSONArray();
+        JSONArray jsonTaskArr = new JSONArray();
 
         for (JSONObject re : res) {
             // 客户经理
@@ -275,6 +295,21 @@ public class QccHistLogService {
 
             jsonArr.add(object);
             jsonObj.put(key, jsonArr);
+
+        }
+
+        for (JSONObject re : taskRes) {
+
+            String loanAccount = re.getString("loanaccount");
+            String cusName = re.getString("cusname");
+
+            JSONObject taskObject = new JSONObject();
+            taskObject.put("loanAccount", loanAccount);
+            taskObject.put("accCode", re.getString("code"));
+            taskObject.put("cusName", cusName);
+
+            jsonTaskArr.add(taskObject);
+            jsonTaskObj.put(key, jsonTaskArr);
 
         }
     }
