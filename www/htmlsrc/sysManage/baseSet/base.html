@@ -13,10 +13,12 @@
                 <li role="presentation" ><a href="#baseInfo" id="baseInfo-tab" role="tab" data-toggle="tab" aria-controls="baseInfo" aria-expanded="true">系统信息</a></li>
                 <li role="presentation" ><a href="#noticeRule" role="tab" id="noticeRule-tab" data-toggle="tab" aria-controls="noticeRule">消息规则</a></li>
                 <li role="presentation"><a href="#taskRule" role="tab" id="taskRule-tab" data-toggle="tab" aria-controls="taskRule">任务产生条件</a></li>
+                <li role="presentation"><a href="#qccNoticeRule" role="tab" id="qccNoticeRule-tab" data-toggle="tab" aria-controls="qccNoticeRule">企查查消息规则</a></li>
+                <li role="presentation"><a href="#qccTaskRule" role="tab" id="qccTaskRule-tab" data-toggle="tab" aria-controls="qccTaskRule">企查查任务产生条件</a></li>
             </ul>
             <div id="myTabContent" class="tab-content">
                 <div class="tab-pane fade" id="baseInfo" aria-labelledby="baseInfo-tab">
-                
+
                 </div>
                 <div class="tab-pane fade" id="noticeRule" aria-labelledby="noticeRule-tab">
                     <div class="panel-body">
@@ -36,12 +38,39 @@
                         <a href="javascript:;" class="btn btn-success btn-sm" id="addTaskRule"> 新增规则 </a>
                     </div>
                     <form id="taskRuleContent" name="taskRuleContent">
-                        
+
                     </form>
                     <div class="panel-body">
                         <div class="text-center">
                             <a href="javascript:;" class="btn btn-primary" id="submitRuleForm2">确定</a>
                         </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="qccNoticeRule" aria-labelledby="qccNoticeRule-tab">
+                    <div class="panel-body">
+                        <style> #qccNoticeRule .form-group{ padding: 10px 0; } </style>
+                        <form class="form-inline" name='qccNoticeRuleForm' onsubmit="return checkSubmitForm()">
+                            <div id="qccNoticeRuleForm">
+
+                            </div>
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-primary submitRuleForm3">确定</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="qccTaskRule" aria-labelledby="qccTaskRule-tab">
+                    <div class="panel-body">
+                        <style> #qccTaskRule .form-group{ padding: 10px 0; } </style>
+                        <form class="form-inline" name='qccTaskRuleForm' onsubmit="return checkSubmitForm()">
+                            <div id="qccTaskRuleForm">
+
+                            </div>
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-primary submitRuleForm3">确定</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -83,7 +112,7 @@
             </div>
         </div>
     </script>
-  
+
     <script id="noticeHtml" type="text/html">
         <div class="form-group col-xs-12">
             <div class="col-xs-8">
@@ -114,9 +143,61 @@
         <div class="col-xs-1 {{ noticeIndex < 6 ? '' : 'hide' }}">
             <a href="javascript:;" class="btn btn-xs rule-on" id="MSG_RULE_{{noticeIndex}}_ON">已开启</a>
         </div>
-       
+
         </div>
     </script>
+
+    <script id="qccNoticeHtml" type="text/html">
+        <div class="form-group col-xs-12">
+            <div class="col-xs-8">
+                <label>规则{{qccNoticeIndex}}</label>
+                {{ if qccNoticeIndex == 10086 }}
+                    {{@ content.replace(/(x{4,})/g, function(a){
+                        var l = a.length - 3;
+                        return '<input type="text" name="QCC_MSG_RULE_'+qccNoticeIndex+'_VAL'+l+'" class="form-control input-sm" style="width: 50px;margin:0 5px;height:26px;">';
+                    })}}
+                {{ else }}
+                    {{@ content.replace(/xxxxx/, '<input type="text" name="QCC_MSG_RULE_'+qccNoticeIndex+'" class="form-control input-sm" style="width: 50px;margin:0 5px;height:26px;">')}}
+                {{ /if}}
+        </div>
+        <div class="col-xs-3"  >
+            <div class="input-group">
+                <select name="QCC_MSG_RULE_{{qccNoticeIndex}}_TMPL" id="">
+                    <option value="">请选择</option>
+                    {{each msglist msgitem idex_msg}}
+                    <option value="{{msgitem.name}}">{{msgitem.name}}</option>
+                    {{/each}}
+                </select>
+                
+            </div>
+        </div>
+            <div class="col-xs-1">
+            <a href="javascript:;" class="btn btn-xs rule-on" id="QCC_MSG_RULE_{{qccNoticeIndex}}_ON">已开启</a>
+        </div>
+
+        </div>
+    </script>
+
+    <script id="qccTaskHtml" type="text/html">
+        <div class="form-group col-xs-12">
+            <div class="col-xs-8">
+                <label>规则{{qccTaskIndex}}</label>
+                {{ if qccTaskIndex == 10086 }}
+                    {{@ content.replace(/(x{4,})/g, function(a){
+                        var l = a.length - 3;
+                        return '<input type="text" name="QCC_TASK_MSG_RULE_'+qccTaskIndex+'_VAL'+l+'" class="form-control input-sm" style="width: 50px;margin:0 5px;height:26px;">';
+                    })}}
+                {{ else }}
+                    {{@ content.replace(/xxxxx/, '<input type="text" name="QCC_TASK_MSG_RULE_'+qccTaskIndex+'" class="form-control input-sm" style="width: 50px;margin:0 5px;height:26px;">')}}
+                {{ /if}}
+        </div>
+            <div class="col-xs-1">
+            <a href="javascript:;" class="btn btn-xs rule-on" id="QCC_TASK_MSG_RULE_{{qccTaskIndex}}_ON">已开启</a>
+        </div>
+
+        </div>
+    </script>
+
     <script>
         var checkedRoles = []; // 已选角色
         var panelType = getParam("panelType") || "baseInfo";
@@ -145,7 +226,7 @@
             }else{
                 that.parents(".rule-item").remove();
             }
-            
+
             return false;
         })
 
@@ -182,7 +263,26 @@
                 }));
             })
 
+            var qccNoticeRuleArr = [
+                "失信","被执行人","法院公告","裁判文书","开庭公告","司法协助","经营异常","司法拍卖","环保处罚"
+            ]
 
+            qccNoticeRuleArr = qccNoticeRuleArr.map((item,i)=>{
+                var content = "企业有新增<span style='color:red'>"+item+"</span>信息，对该企业每笔关联台帐所在支行行长/信贷主管/客户经理以及具有“总行企查查风险角色”的用户发送消息提醒";
+
+                $("#qccNoticeRuleForm").append(template("qccNoticeHtml",{
+                    qccNoticeIndex: i+1,
+                    content: content,
+                    msglist: msglist
+                }));
+
+                $("#qccTaskRuleForm").append(template("qccTaskHtml",{
+                    qccTaskIndex: i+1,
+                    content: content,
+                    msglist: msglist
+                }));
+                
+            })
 
             var origin = a[0].data;
             origin = origin || {};
@@ -258,6 +358,28 @@
 
             }
 
+            var qccNoticeRuleLength = 10;
+            while (qccNoticeRuleLength-- > 1) {
+
+                var name = "QCC_MSG_RULE_"+qccNoticeRuleLength;
+                var tmplName = name + "_TMPL";
+                $("[name="+tmplName+"]").val(origin[tmplName]);
+        
+                $("[name="+name+"]").val(origin[name]);
+
+            }
+
+            var qccTaskRuleLength = 10;
+            while (qccTaskRuleLength-- > 1) {
+
+                var name = "QCC_TASK_MSG_RULE_"+qccTaskRuleLength;
+                var tmplName = name + "_TMPL";
+                $("[name="+tmplName+"]").val(origin[tmplName]);
+        
+                $("[name="+name+"]").val(origin[name]);
+
+            }
+
             // 设置消息规则开关
             $(".rule-on").each(function(index, elm){
                 if(origin[$(elm).attr("id")] == 'on'){
@@ -301,6 +423,58 @@
                                 }
                             });
                             submitFormData(form2Data);
+                        }
+                        return false;
+                    }
+                })
+            });
+
+            // 企查查消息规则
+            var form4 = $("form[name='qccNoticeRuleForm']");
+            $().ready(function() {
+                form4.validate({
+                    rules: {
+                        'MSG_RULE_1': {
+                            range: [0, 31]
+                        }
+                    },
+                    submitHandler:function(){
+                        if(form4.valid()){
+                            var form4Data = $.unserialize(form4.serialize());
+                            $(".rule-on").each(function(index, elm){
+                                if($(elm).hasClass("on")){
+                                    form4Data[$(elm).attr("id")]  = 'on';
+                                }else{
+                                    form4Data[$(elm).attr("id")]  = 'off';
+                                }
+                            });
+                            submitFormData(form4Data);
+                        }
+                        return false;
+                    }
+                })
+            });
+
+            // 企查查任务产生条件
+            var form5 = $("form[name='qccTaskRuleForm']");
+            $().ready(function() {
+                form5.validate({
+                    rules: {
+                        'MSG_RULE_1': {
+                            range: [0, 31]
+                        }
+                    },
+                    submitHandler:function(){
+                        if(form5.valid()){
+                            var form5Data = $.unserialize(form5.serialize());
+                            $(".rule-on").each(function(index, elm){
+                                if($(elm).hasClass("on")){
+                                    form5Data[$(elm).attr("id")]  = 'on';
+                                }else{
+                                    form5Data[$(elm).attr("id")]  = 'off';
+                                }
+                            });
+                            submitFormData(form5Data);
                         }
                         return false;
                     }
@@ -390,7 +564,7 @@
             })
         })
 
-        
+
         function putRoleCallback(roles){
             checkedRoles = roles;
             var ids = [];

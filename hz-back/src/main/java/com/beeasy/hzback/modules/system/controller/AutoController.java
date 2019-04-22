@@ -11,18 +11,26 @@ import com.beeasy.mscommon.json.FJHttpMessageConverter;
 import com.beeasy.mscommon.util.U;
 import com.beeasy.mscommon.valid.Unique;
 import com.beeasy.mscommon.valid.ValidGroup;
+import org.apache.activemq.BlobMessage;
 import org.beetl.sql.core.SQLManager;
 import org.beetl.sql.core.TailBean;
 import org.beetl.sql.core.query.Query;
 import org.osgl.$;
 import org.osgl.util.C;
+import org.osgl.util.IO;
 import org.osgl.util.S;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jms.annotation.JmsListener;
+import org.springframework.jms.core.JmsMessagingTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PostConstruct;
+import javax.jms.JMSException;
+import javax.jms.TextMessage;
+import java.io.File;
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -276,6 +284,5 @@ public class AutoController {
             }
         }
     }
-
 
 }

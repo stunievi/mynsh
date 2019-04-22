@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.beetl.sql.core.SQLManager;
 import org.beetl.sql.core.TailBean;
+import org.beetl.sql.core.annotatoin.AssignID;
 import org.beetl.sql.core.annotatoin.Table;
 import org.beetl.sql.core.query.LambdaQuery;
 
@@ -19,6 +20,7 @@ import java.util.Map;
 @Setter
 public class MsgTmpl extends TailBean implements ValidGroup {
     @NotNull(groups = {ValidGroup.Edit.class})
+    @AssignID("simple")
     private Long id;
 
     @NotBlank(message = "模板名不能为空", groups = {ValidGroup.Add.class, ValidGroup.Edit.class})
