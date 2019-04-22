@@ -1,52 +1,52 @@
 <table class="qcc-table">
     <tbody>
     <!--公司信息-->
-        {{ if CompanyNameList.length > 0 }}
+        {{ if CompanyNameList && CompanyNameList.length > 0 }}
             {{each CompanyNameList item index}}
                 <tr>
                     {{if index == "0"}}
                     <td class="tb" width="18%" rowspan="{{CompanyNameList.length}}">历史名称：</td>
                     {{/if}}
-                    <td>{{item.ChangeDate}}</td>
+                    <td style="width: 100px">{{item.ChangeDate}}</td>
                     <td>{{item.CompanyName}}</td>
                 </tr>
             {{/each}}
         {{/if}}
 
 <!--法人信息-->
-    {{ if OperList.length > 0 }}
+    {{ if OperList && OperList.length > 0 }}
         {{each OperList item index}}
         <tr>
             {{if index == "0"}}
             <td class="tb" width="18%" rowspan="{{OperList.length}}">法人信息：</td>
             {{/if}}
-            <td>{{item.ChangeDate}}</td>
+            <td style="width: 100px">{{item.ChangeDate}}</td>
             <td>{{item.OperName}}</td>
         </tr>
         {{/each}}
         {{/if}}
 
     <!--历史注册资本-->
-    {{ if RegistCapiList.length > 0 }}
+    {{ if RegistCapiList && RegistCapiList.length > 0 }}
         {{each RegistCapiList item index}}
             <tr>
                 {{if index == "0"}}
                     <td class="tb" width="18%" rowspan="{{RegistCapiList.length}}">历史注册资本：</td>
                 {{/if}}
-                <td>{{item.ChangeDate}}</td>
+                <td style="width: 100px">{{item.ChangeDate}}</td>
                 <td>{{item.RegistCapi}}</td>
             </tr>
         {{/each}}
     {{/if}}
 
     <!--历史地址-->
-    {{ if AddressList.length > 0 }}
+    {{ if AddressList && AddressList.length > 0 }}
         {{each AddressList item index}}
             <tr>
                 {{if index == "0"}}
                     <td class="tb" width="18%" rowspan="{{AddressList.length}}">历史地址：</td>
                 {{/if}}
-                <td>{{item.ChangeDate}}</td>
+                <td style="width: 100px">{{item.ChangeDate}}</td>
                 <td>{{item.Address}}</td>
             </tr>
         {{/each}}
@@ -54,26 +54,26 @@
 
 
     <!--历史经营范围-->
-    {{ if ScopeList.length > 0 }}
+    {{ if ScopeList && ScopeList.length > 0 }}
         {{each ScopeList item index}}
         <tr>
             {{if index == "0"}}
             <td class="tb" width="18%" rowspan="{{ScopeList.length}}">历史经营范围：</td>
             {{/if}}
-            <td>{{item.ChangeDate}}</td>
+            <td style="width: 100px">{{item.ChangeDate}}</td>
             <td>{{item.Scope}}</td>
         </tr>
         {{/each}}
     {{/if}}
 
     <!--历史主要人员-->
-    {{ if EmployeeList.length > 0 }}
+    {{ if EmployeeList && EmployeeList.length > 0 }}
     {{each EmployeeList item index}}
         <tr>
             {{if index == "0"}}
             <td class="tb" width="18%" rowspan="{{EmployeeList.length}}">历史主要人员：</td>
             {{/if}}
-            <td>{{item.ChangeDate}}</td>
+            <td style="width: 100px">{{item.ChangeDate}}</td>
             <td>
                 {{each item.Employees item2 index2}}
                     <a href="javascript:;" data-val="{{item2.KeyNo}}">{{item2.EmployeeName}}</a>({{item2.Job}}),
@@ -84,53 +84,53 @@
     {{/if}}
 
     <!--历史分支机构-->
-    {{ if BranchList.length > 0 }}
+    {{ if BranchList && BranchList.length > 0 }}
     {{each BranchList item index}}
     <tr>
         {{if index == "0"}}
         <td class="tb" width="18%" rowspan="{{BranchList.length}}">历史分支机构：</td>
         {{/if}}
-        <td>{{item.ChangeDate}}</td>
+        <td style="width: 100px">{{item.ChangeDate}}</td>
         <td>{{item.BranchName}}</td>
     </tr>
     {{/each}}
     {{/if}}
 
     <!--历史电话-->
-    {{ if TelList.length > 0 }}
+    {{ if TelList && TelList.length > 0 }}
     {{each TelList item index}}
     <tr>
         {{if index == "0"}}
         <td class="tb" width="18%" rowspan="{{TelList.length}}">历史电话：</td>
         {{/if}}
-        <td>{{item.ChangeDate}}</td>
+        <td style="width: 100px">{{item.ChangeDate}}</td>
         <td>{{item.Tel}}</td>
     </tr>
     {{/each}}
     {{/if}}
 
     <!--历史邮箱-->
-    {{ if TelList.length > 0 }}
-    {{each TelList item index}}
+    {{ if EmailList && EmailList.length > 0 }}
+    {{each EmailList item index}}
     <tr>
         {{if index == "0"}}
-        <td class="tb" width="18%" rowspan="{{TelList.length}}">历史邮箱：</td>
+        <td class="tb" width="18%" rowspan="{{EmailList.length}}">历史邮箱：</td>
         {{/if}}
-        <td>{{item.ChangeDate}}</td>
+        <td style="width: 100px">{{item.ChangeDate}}</td>
         <td>{{item.Email}}</td>
     </tr>
     {{/each}}
     {{/if}}
 
     <!--历史邮箱-->
-    {{ if WebsiteList.length > 0 }}
+    {{ if WebsiteList && WebsiteList.length > 0 }}
     {{each WebsiteList item index}}
     <tr>
         {{if index == "0"}}
         <td class="tb" width="18%" rowspan="{{WebsiteList.length}}">历史邮箱：</td>
         {{/if}}
-        <td>{{item.ChangeDate}}</td>
-        <td>{{item.Email}}</td>
+        <td style="width: 100px">{{item.ChangeDate}}</td>
+        <td>{{item.Website}}</td>
     </tr>
     {{/each}}
     {{/if}}

@@ -8,25 +8,11 @@
     <!--#include file="./tupu-head.html" -->
 </head>
 <body style="">
-<link rel="stylesheet" type="text/css" href="https://www.qichacha.com/material/common/2013admin/js/artDialog4.1.7/skins/blue.css" />
+<!--<link rel="stylesheet" type="text/css" href="https://www.qichacha.com/material/common/2013admin/js/artDialog4.1.7/skins/blue.css" />-->
 <link rel="stylesheet" href="./css/companyDetail.css" type="text/css" />
-<style type="text/css">
-    html,body{
-        height: 100%;
-        background-color: #fff;
-    }
-
-    .mao-main{
-        width: 100%;
-    }
-    .bsBox *{
-        box-sizing:content-box;
-    }
-
-</style>
 <!--#include file="./mao-head.html" -->
 <div class="mao-screen-area" id="screenArea" style="height: 640px;">
-    <div id="main" class="mao-main" style="height: 100%; width: 100%; -webkit-tap-highlight-color: transparent; user-select: none; background-color: rgba(0, 0, 0, 0); cursor: default;" _echarts_instance_="1552551661918">
+    <div id="main" class="mao-main" style="height: 100%; width: 100%; -webkit-tap-highlight-color: transparent; user-select: none; background-color: rgba(0, 0, 0, 0); cursor: default;">
         <div style="position: relative; overflow: hidden; width: 1356px; height: 640px;">
         </div>
     </div>
@@ -41,8 +27,17 @@
         </ul>
     </div>
 </div>
+<div id="load_data" style="width: 100%;
+    height: 100%;
+    position: fixed;background: #fff;top:0;left:0;"> <img style="    width: 120px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin-left: -60px;
+    margin-top: -110px;" src="./images/preloader.gif"> </div>
+
 <div id="hoverName" class="tooltip-inner" style="position: absolute;z-index: 100;display: none;"></div>
-<script src="https://www.qichacha.com/material/theme/chacha/cms/v2/js/echarts2.js"></script>
+<script src="./js/echarts2.js"></script>
 <script type="text/javascript">
     $("#navTab li:eq(2)").addClass("active");
     var myChart;
@@ -57,64 +52,201 @@
     $(document).ready(function () {
         resizeScreen();
         myChart = echarts.init(document.getElementById('main'));
-
         //new window.zoomutil({dom: $('#mainGuquan')[0], chart:myChart}); // add zoomutil feature
         getData();
-
-
-
     });
 
     window.onresize=function(){
         resizeScreen();
-    }
+    };
     var rootData;
     var gudongData;
     var touziData;
+
+
     function getData(){
+        var companyName = decodeURI(getParam("name")) || "大连万达集团股份有限公司";
+        var companyKeyNo= decodeURI(getParam("keyNo")) || "befe52d9753b511b6aef5e33fe00f97d";
+
         $('#load_data').show();
-        // var url = INDEX_URL+"cms_guquanmap3";
-        $.ajax({
-            url:"./guquanchuantou.json",
-            // url:"http://localhost:8015/test/qcc/ECICompanyMap/GetStockAnalysisData",
-            type: 'GET',
+        var p1 = $.ajax({
+            // url: "./json/guquanchuantou1.json",
+            url: remoteApi.qccECICompanyMapGetStockAnalysisData,
             data:{
-                keyNo:getQueryString("keyNo"),
+                fullName: companyName
             },
-            dataType: 'JSON',
-            success: function (data){
-                $('#load_data').hide();
-                if(data&&data.status === 200){
-                    $('#no_data').hide();
-                    rootData = data;
-                    gudongData = data.gudong;
-                    touziData = data.touzi;
-                    transTree(gudongData,1);
-                    initTree(gudongData);
-                    transTree(touziData,2);
-                    initTree(touziData);
-                    drawGuquan();
-                    if(window.iframe){
-                        setTimeout(function() {
-                            if(touziData || gudongData.children.length>4){
-                                maoScale(2);
-                            }
-                            $('.guquan-liframe').hide();
-                            $(window.parent.document).find('#guquanIframeTool').show();
-                        }, 500);
+            dataType: 'JSON'
+        });
+        var p2 = $.ajax({
+            // url:"./json/guquanchuantou2.json",
+            url: remoteApi.qccECIRelationSearchTreeRelationMap,
+            data: {
+                keyNo: companyKeyNo
+            },
+            dataType: 'JSON'
+        });
+        var p3 = $.ajax({
+            // url:"./json/guquanchuantou3.json",
+            url: remoteApi.qccECIRelationGetCompanyEquityShareMap,
+            data: {
+                keyNo: companyKeyNo
+            },
+            dataType: 'JSON'
+        });
+        var p4 = $.ajax({
+            // url:"./json/guquanchuantou4.json",
+            url: remoteApi.qccHoldingCompanyGetHoldingCompany,
+            data: {
+                page: 1,
+                keyWord: companyName
+            },
+            dataType: 'JSON'
+        });
+        $.when(p1, p2, p3, p4).then(function (data1, data2, data3, data4) {
+            // data1 十层股权穿透图
+            // data2 投资图谱
+            // data3 股权结构图
+            // data4 控股公司
+
+            var retData1 = data1[0].Result || data1[0].data;
+            var retData2 = data2[0].Result || data2[0].data;
+            var retData3 = data3[0].Result || data3[0].data;
+            var retData4 = data4[0].Result || data4[0].data;
+
+
+            var data = {};
+            if(retData1 && retData1.StockList && retData1.StockList.Children && retData1.StockList.Children.length>0){
+                var gudongDetailList = [];
+                var walk1 = function(gudongDetailList, dataList){
+                    dataList.forEach(function (item) {
+                        item.ajaxgudong = true;
+                        item.ShouldCapi = item.FundedAmount;
+                        item.Percent = item.FundedRate;
+                        var _index = gudongDetailList.push(item);
+                        var index = _index - 1;
+                        if(item.Children && item.Children.length > 0){
+                            gudongDetailList[index].DetailList = [];
+                            walk1(gudongDetailList[index].DetailList, item.Children)
+                        }
+                    });
+                    return gudongDetailList;
+                };
+                walk1(gudongDetailList, retData1.StockList.Children);
+                // 股东
+                data.gudong = {
+                    DetailList: gudongDetailList,
+                    Name: companyName
+                };
+            }
+
+            // 受益人
+            data.syr = {
+                KeyNo: "",
+                Names: [],
+                CompanyName: companyName
+            };
+            // 控制人
+            data.kzr = {
+                "KeyNo": companyKeyNo,
+                "CompanyName": companyKeyNo,
+                "ControllerData":
+                    {
+                        "KeyNo":"",
+                        "Name":"",
+                        "Percent":"",
+                        "PercentTotal":"0%"
                     }
-                }else{
-                    $('#no_data').show();
-                    $('#screenArea').hide();
-                    if(window.iframe){
-                        $('.guquan-liframe').hide();
-                        $('.guquan-lnodata').show();
+            };
+            var actualCtrl = retData3.ActualControllerLoopPath;
+            actualCtrl.forEach(function (item) {
+                if(item.StockType == "自然人股东"){
+                    data.syr.Names.push({
+                        Name: item.Name,
+                        KeyNo: "",
+                        PercentTotal: item.FundedRatio
+                    });
+                    if(parseFloat(item.FundedRatio) > parseFloat(data.kzr.ControllerData.PercentTotal)){
+                        data.kzr.ControllerData.PercentTotal = parseFloat(item.FundedRatio);
+                        data.kzr.ControllerData.Name = item.Name;
+                        data.kzr.ControllerData.KeyNo = item.KeyNo;
                     }
                 }
+            });
+
+            var kgObj = {};
+            // 控股公司
+            if(retData4.Names){
+                data.kg = {
+                    KeyNo: companyKeyNo,
+                    CompanyName: companyKeyNo,
+                    Names: []
+                };
+                retData4.Names.forEach(function (item) {
+                    kgObj[item.KeyNo] = {
+                        "Percent": item.PercentTotal,
+                        "ShouldCapi": item.RegistCapi,
+                    };
+                    data.kg.Names.push(item)
+                });
             }
+
+            if(retData2.Node && retData2.Node.Children){
+                var touziDetailList = [];
+                var walk1 = function(touziDetailList, dataList){
+                    dataList.forEach(function (item) {
+                        item.ajaxtouzi = true;
+                        if(kgObj[item.KeyNo]){
+                            item.ShouldCapi = kgObj[item.KeyNo].ShouldCapi;
+                            item.Percent = kgObj[item.KeyNo].Percent;
+                        }
+                        var _index = touziDetailList.push(item);
+                        var index = _index - 1;
+                        if(item.Children && item.Children.length > 0){
+                            touziDetailList[index].DetailList = [];
+                            walk1(touziDetailList[index].DetailList, item.Children)
+                        }
+                    });
+                    return touziDetailList;
+                };
+                walk1(touziDetailList, retData2.Node.Children);
+                // 投资
+                data.touzi = {
+                    Name: companyName,
+                    DetailList:touziDetailList
+                };
+            }
+
+            data.status = 200;
+            if(data&&data.status === 200){
+                $('#no_data').hide();
+                rootData = data;
+                gudongData = data.gudong;
+                touziData = data.touzi;
+                transTree(gudongData,1);
+                initTree(gudongData);
+                transTree(touziData,2);
+                initTree(touziData);
+                drawGuquan();
+                if(window.iframe){
+                    setTimeout(function() {
+                        if(touziData || gudongData.children.length>4){
+                            maoScale(2);
+                        }
+                        $('.guquan-liframe').hide();
+                        $(window.parent.document).find('#guquanIframeTool').show();
+                    }, 500);
+                }
+            }else{
+                $('#no_data').show();
+                $('#screenArea').hide();
+                if(window.iframe){
+                    $('.guquan-liframe').hide();
+                    $('.guquan-lnodata').show();
+                }
+            }
+            $('#load_data').hide();
         });
     }
-
 
     function changeScreen(dom){
         if(!isFullScreen()){
@@ -136,7 +268,6 @@
 
 
     function maoRefresh(){
-
         refresh();
     }
 
@@ -1905,14 +2036,13 @@
         }
     }
 
-
-
     /*ie兼容*/
     var isIE = (!!window.ActiveXObject || "ActiveXObject" in window);
     if(isIE){
         $("#NameBar").css({'width':'270px'});
     }
 </script>
-<div style="display: none; position: fixed; left: 0px; top: 0px; width: 100%; height: 100%; cursor: move; opacity: 0; background: rgb(255, 255, 255);"></div>
+
+<div style="display:none;position: fixed; left: 0px; top: 0px; width: 100%; height: 100%; cursor: move; opacity: 0; background: rgb(255, 255, 255);"></div>
 </body>
 </html>

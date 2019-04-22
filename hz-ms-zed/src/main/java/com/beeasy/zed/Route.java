@@ -2,11 +2,8 @@ package com.beeasy.zed;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.HttpResponse;
 
-import java.util.Objects;
-import java.util.regex.Pattern;
+import java.io.IOException;
 
 public class Route {
     public String regexp;
@@ -18,6 +15,6 @@ public class Route {
     }
 
     public interface IHandler{
-        Object run(ChannelHandlerContext ctx, FullHttpRequest request);
+        Object run(ChannelHandlerContext ctx, FullHttpRequest request) throws Exception;
     }
 }

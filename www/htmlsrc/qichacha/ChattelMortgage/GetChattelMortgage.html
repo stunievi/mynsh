@@ -32,9 +32,9 @@
         SuperPost({
             url: remoteApi.qccGetChattelMortgage+"?keyWord="+$("#keyWord").val(),
             success:function(res){
-                if(res.success){
+                if(res.success && res.data){
                     $("#dataList").html(panelFormRender4({
-                        dataList: res.data
+                        dataList: res.data.list
                     }));
                     $(".media-left h2").pin({containerSelector: ".media-left"})
                 }

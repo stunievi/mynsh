@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 司法协助详情 </title>
+    <!--#include file="/htmlsrc/header.html" -->
+</head>
+<body>
+<div id="content">
+    <ul id="myTabs" class="nav nav-tabs" role="tablist" style="background: #fff">
+        <li role="presentation" class="active"><a href="#base" id="base-tab" role="tab" data-toggle="tab" data-controls="base" aria-expanded="true"><span id="status"></span>信息</a></li>
+    </ul>
+    <div id="myTabContent" class="tab-content" style="padding-top: 10px;">
+        <div role="tabpanel" class="tab-pane active in" id="home" aria-labelledby="home-tab">
+            <!-- 基本信息展示 -->
+        </div>
+    </div>
+</div>
+<script src="/htmlsrc/qichacha/tmpl/eci/qccTable.js"></script>
+<script>
+    function onPageRequest(data){
+        var cols = {
+            data: [
+                {title:"被执行人",field:"ExecutedBy", spec:true},
+                {title:"股权数额",field:"EquityAmount"},
+                {title:"执行法院",field:"EnforcementCourt"},
+                {title:"执行通知书文号",field:"ExecutionNoticeNum"},
+                {title:"类型 | 状态",field:"Status"}
+            ]
+        };
+        $("#status").html(data["Status"].substring(0, data["Status"].indexOf("|")))
+        if(data.EquityFreezeDetail && $.isEmptyObject(data.EquityFreezeDetail) === false){
+            cols["EquityFreezeDetail"] = [
+                {title:"相关企业名称",field:"CompanyName"},
+                {title:"执行事项",field:"ExecutionMatters"},
+                {title:"执行文书文号",field:"ExecutionDocNum"},
+                {title:"执行裁定书文号",field:"ExecutionVerdictNum"},
+                {title:"被执行人证件种类",field:"ExecutedPersonDocType"},
+                {title:"被执行人证件号码",field:"ExecutedPersonDocNum"},
+                {title:"冻结开始日期",field:"FreezeStartDate"},
+                {title:"冻结结束日期",field:"FreezeEndDate"},
+                {title:"冻结期限",field:"FreezeTerm"},
+                {title:"公示日期",field:"PublicDate"}
+            ]
+        }
+        if(data.EquityUnFreezeDetail && $.isEmptyObject(data.EquityUnFreezeDetail) === false){
+            cols["EquityUnFreezeDetail"] = [
+                {title:"执行事项",field:"ExecutionMatters"},
+                {title:"执行裁定书文号",field:"ExecutionVerdictNum"},
+                {title:"执行文书文号",field:"ExecutionDocNum"},
+                {title:"被执行人证件种类",field:"ExecutedPersonDocType"},
+                {title:"被执行人证件号码",field:"ExecutedPersonDocNum"},
+                {title:"解除冻结日期",field:"UnFreezeDate"},
+                {title:"公示日期",field:"PublicDate"},
+                {title:"解冻机关",field:"ThawOrgan"},
+                {title:"解冻文书号",field:"ThawDocNo"}
+            ]
+        }
+
+        if(data.JudicialPartnersChangeDetail && $.isEmptyObject(data.JudicialPartnersChangeDetail) === false){
+            cols["JudicialPartnersChangeDetail"] = [
+                {title:"执行事项",field:"ExecutionMatters"},
+                {title:"执行裁定书文号",field:"ExecutionVerdictNum"},
+                {title:"被执行人证件种类",field:"ExecutedPersonDocType"},
+                {title:"被执行人证件号码",field:"ExecutedPersonDocNum"},
+                {title:"受让人",field:"Assignee"},
+                {title:"协助执行日期",field:"AssistExecDate"},
+                {title:"受让人证件种类",field:"AssigneeDocKind"},
+                {title:"受让人证件号码",field:"AssigneeRegNo"},
+                {title:"股权所在公司名称",field:"StockCompanyName"}
+            ]
+        }
+        $("#home").html(
+            qccTableRender({
+                cols: cols,
+                data: data
+            })
+        );
+    }
+</script>
+</body>
+</html>

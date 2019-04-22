@@ -1,57 +1,33 @@
 package com.beeasy.zed;
 
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.io.IoUtil;
-import cn.hutool.core.io.resource.ClassPathResource;
-import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import com.alibaba.druid.pool.DruidDataSource;
-//import com.alibaba.fastjson.JSON;
-//import com.alibaba.fastjson.JSONArray;
-//import com.alibaba.fastjson.JSONObject;
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
-import com.zaxxer.hikari.util.DriverDataSource;
-import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.*;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.codec.http.*;
-import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
-import io.netty.handler.codec.http2.Http2CodecUtil;
-import io.netty.handler.codec.string.StringDecoder;
-import io.netty.handler.stream.ChunkedWriteHandler;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpMethod;
 import io.netty.util.CharsetUtil;
-import org.apache.activemq.ActiveMQConnectionFactory;
-import org.beetl.sql.core.*;
-import org.beetl.sql.core.db.DB2SqlStyle;
+import org.beetl.sql.core.SQLManager;
 import org.beetl.sql.core.engine.PageQuery;
-import org.beetl.sql.ext.DebugInterceptor;
 import org.osgl.$;
 import org.osgl.util.C;
 import org.osgl.util.S;
 
-import javax.jms.*;
-import javax.sql.DataSource;
-import java.nio.charset.Charset;
-import java.sql.SQLException;
 import java.util.*;
-import java.util.Queue;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static com.beeasy.zed.DBService.sqlManager;
+
+//import com.alibaba.fastjson.JSON;
+//import com.alibaba.fastjson.JSONArray;
+//import com.alibaba.fastjson.JSONObject;
 
 //@Service
 //@Transactional
 class ZedService {
 
-    private DeconstructService deconstructService;
-    private DataSource dataSource;
-//    @Autowired
-    public SQLManager sqlManager;
     public AtomicReference<SQLManager> atomSM = new AtomicReference<>();
     public JSONObject config;
 
@@ -481,97 +457,8 @@ class ZedService {
 
 
 
-    public void initDB(boolean dev){
-        JSONObject ds = config.getJSONObject("datasource");
-
-        ConnectionSource source;
-        if(dev){
-            //实例化类
-            HikariConfig hikariConfig = new HikariConfig();
-            //设置url
-            hikariConfig.setJdbcUrl(ds.getStr("url"));
-            //数据库帐号
-            hikariConfig.setUsername(ds.getStr("username"));
-            //数据库密码
-            hikariConfig.setPassword(ds.getStr("password"));
-            hikariConfig.setDriverClassName(ds.getStr("driver"));
-            hikariConfig.addDataSourceProperty("cachePrepStmts", "true");
-//            hikariConfig.addDataSourceProperty("prepStmtCacheSize", "250");
-//            hikariConfig.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
-
-            dataSource = new HikariDataSource(hikariConfig);
-            source =  ConnectionSourceHelper.getSingle(dataSource);
-        } else {
-            DruidDataSource druidDataSource = new DruidDataSource();
-            druidDataSource.setDriverClassName(ds.getStr("driver"));
-            druidDataSource.setUrl(ds.getStr("url"));
-            druidDataSource.setUsername(ds.getStr("username"));
-            druidDataSource.setPassword(ds.getStr("password"));
-            druidDataSource.setAsyncInit(true);
-            dataSource = druidDataSource;
-            source = ConnectionSourceHelper.getSingle(druidDataSource);
-        }
-        SQLLoader loader = new ClasspathLoader("/sql");
-        UnderlinedNameConversion nc = new  UnderlinedNameConversion();
-        sqlManager = new SQLManager(new DB2SqlStyle(),loader,source,nc,new Interceptor[]{new DebugInterceptor()});
-
-        atomSM.set(sqlManager);
-    }
-
-    public void initConfig(){
-        ClassPathResource resource = new ClassPathResource("config.json");
-        String content = IoUtil.read(resource.getStream(), CharsetUtil.UTF_8);
-        config = JSONUtil.parseObj(content);
-    }
-
-    public void initNetty(){
-        EventLoopGroup bossGroup = new NioEventLoopGroup();
-        EventLoopGroup workerGroup = new NioEventLoopGroup();
-        try {
-            ServerBootstrap b = new ServerBootstrap();
-            b.group(bossGroup, workerGroup)
-                    .channel(NioServerSocketChannel.class)
-
-//                    .childHandler(new ChannelInitializer<SocketChannel>() {
-//                        @Override
-//                        public void initChannel(SocketChannel ch) throws Exception {
-//                            ChannelPipeline pipeline = ch.pipeline();
-//
-//                            pipeline.addLast(new HttpServerCodec());
-//                            pipeline.addLast( new HttpObjectAggregator(1024 * 1024));
-//                            pipeline.addLast(new StringDecoder(Charset.forName("UTF-8")));
-//                            pipeline.addLast(new HttpServerHandler());
-//                        }
-//                    })
-                .childHandler(new ChannelInitializer<SocketChannel>(){
 
 
-                    @Override
-                    protected void initChannel(SocketChannel ch) throws Exception {
-                        ChannelPipeline pipeline = ch.pipeline();
-                        //将请求和应答消息编码或解码为HTTP消息
-                        pipeline.addLast(new HttpServerCodec());
-                        //将HTTP消息的多个部分组合成一条完整的HTTP消息
-                        pipeline.addLast(new HttpObjectAggregator(1024 * 1024));
-                        pipeline.addLast(new StringDecoder(Charset.forName("UTF-8")));
-                        pipeline.addLast(new ChunkedWriteHandler());
-                        pipeline.addLast(new HttpStaticHandleAdapter());
-                        pipeline.addLast(new HttpServerHandler());
-
-                    }
-                });
-            ThreadUtil.execAsync(() -> {
-                System.out.println("boot success");
-            });
-            ChannelFuture f = b.bind(config.getInt("port")).sync();
-            f.channel().closeFuture().sync();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } finally {
-            workerGroup.shutdownGracefully();
-            bossGroup.shutdownGracefully();
-        }
-    }
 
 
 

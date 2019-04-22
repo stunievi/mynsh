@@ -1,18 +1,14 @@
 package com.beeasy.zed;
 
 import cn.hutool.core.util.URLUtil;
-import com.sun.jndi.toolkit.url.UrlUtil;
-import io.netty.channel.*;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.*;
-import io.netty.handler.ssl.SslHandler;
-import io.netty.handler.stream.ChunkedNioFile;
 import io.netty.handler.stream.ChunkedNioStream;
-import org.apache.activemq.transport.nio.NIOInputStream;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
-import java.io.RandomAccessFile;
 import java.nio.channels.Channels;
 
 public class HttpStaticHandleAdapter extends SimpleChannelInboundHandler<FullHttpRequest> {
@@ -20,6 +16,11 @@ public class HttpStaticHandleAdapter extends SimpleChannelInboundHandler<FullHtt
     protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest request) throws Exception {
 // 获取URI
         String uri = request.getUri();
+        if(!uri.startsWith("/doc")){
+            ctx.fireChannelRead(request);
+            return;
+        }
+
         // 设置不支持favicon.ico文件
         if ("favicon.ico".equals(uri)) {
             return;
@@ -36,6 +37,7 @@ public class HttpStaticHandleAdapter extends SimpleChannelInboundHandler<FullHtt
         HttpResponse response = new DefaultHttpResponse(request.getProtocolVersion(), HttpResponseStatus.OK);
 
         String path = URLUtil.getPath(request.uri());
+
         // 设置文件格式内容
         if (path.endsWith(".html")){
             response.headers().set(HttpHeaders.Names.CONTENT_TYPE, "text/html; charset=UTF-8");
@@ -44,9 +46,6 @@ public class HttpStaticHandleAdapter extends SimpleChannelInboundHandler<FullHtt
         }else if(path.endsWith(".css")){
             response.headers().set(HttpHeaders.Names.CONTENT_TYPE, "text/css; charset=UTF-8");
         } else if(path.endsWith(".map")){
-            return;
-        } else {
-            ctx.fireChannelRead(request);
             return;
         }
 

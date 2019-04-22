@@ -7,6 +7,7 @@ import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.MongoIterable;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.result.DeleteResult;
+import lombok.Setter;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
@@ -18,13 +19,26 @@ import java.util.List;
 @Service
 public class MongoService {
 
-    private static MongoDatabase db;
-    private static MongoClient mongoClient;
-    private static String DefaultDatabase = "databaseName";
+    private  MongoDatabase db;
+    private  MongoClient mongoClient;
 
-    static {
-        //   连接到 mongodb 服务
-        mongoClient = new MongoClient("47.94.97.138", 27017);
+    @Setter
+    private  String DefaultDatabase;
+
+    public void start(String dbname){
+        try {
+            loadDatabase(dbname, 1);
+        }catch (Exception e){
+            System.out.println("重连mongo失败！");
+        }
+    }
+
+    public void loadDatabase(String dbName, Integer retryTimes) throws InterruptedException {
+        try {
+            if(retryTimes < 4){
+                DefaultDatabase = dbName;
+                //   连接到 mongodb 服务
+                mongoClient = new MongoClient("47.94.97.138", 27017);
 
 //        //连接到MongoDB服务 如果是远程连接可以替换“localhost”为服务器所在IP地址
 //        //ServerAddress()两个参数分别为 服务器地址 和 端口
@@ -40,20 +54,29 @@ public class MongoService {
 //        //连接到数据库
 //        MongoDatabase mongoDatabase = mongoClient.getDatabase("databaseName");
 
-        // 大部分用户使用mongodb都在安全内网下，但如果将mongodb设为安全验证模式，就需要在客户端提供用户名和密码：
-        // boolean auth = db.authenticate(myUserName, myPassword);
-        MongoClientOptions.Builder options = new MongoClientOptions.Builder();
-        // options.autoConnectRetry(true);// 自动重连true
-        // options.maxAutoConnectRetryTime(10); // the maximum auto connect retry time
-        options.connectionsPerHost(300);// 连接池设置为300个连接,默认为100
-        options.connectTimeout(15000);// 连接超时，推荐>3000毫秒
-        options.maxWaitTime(5000); //
-        options.socketTimeout(0);// 套接字超时时间，0无限制
-        options.threadsAllowedToBlockForConnectionMultiplier(5000);// 线程队列数，如果连接线程排满了队列就会抛出“Out of semaphores to get db”错误。
-        options.writeConcern(WriteConcern.SAFE);//
-        options.build();
-        //   连接到数据库
-        db = mongoClient.getDatabase(DefaultDatabase);
+                // 大部分用户使用mongodb都在安全内网下，但如果将mongodb设为安全验证模式，就需要在客户端提供用户名和密码：
+                // boolean auth = db.authenticate(myUserName, myPassword);
+                MongoClientOptions.Builder options = new MongoClientOptions.Builder();
+                // options.autoConnectRetry(true);// 自动重连true
+                // options.maxAutoConnectRetryTime(10); // the maximum auto connect retry time
+                options.connectionsPerHost(300);// 连接池设置为300个连接,默认为100
+                options.connectTimeout(15000);// 连接超时，推荐>3000毫秒
+                options.maxWaitTime(5000); //
+                options.socketTimeout(0);// 套接字超时时间，0无限制
+                options.threadsAllowedToBlockForConnectionMultiplier(5000);// 线程队列数，如果连接线程排满了队列就会抛出“Out of semaphores to get db”错误。
+                options.writeConcern(WriteConcern.SAFE);//
+                options.build();
+                //   连接到数据库
+                db = mongoClient.getDatabase(DefaultDatabase);
+            }
+        }catch (Exception e){
+            if(retryTimes > 0 && retryTimes < 4){
+                Thread.sleep(1000 * retryTimes);
+                loadDatabase(dbName, ++retryTimes);
+            }else{
+                System.out.println("重连mongo失败！");
+            }
+        }
     }
 
     /**

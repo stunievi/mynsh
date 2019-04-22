@@ -1,2 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title> 企业人员董监高信息 </title>
+    <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script src="/static/vendor/bootcss/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+</head>
+<body>
+<div id="content">
+    <div class="bs-example bs-example-tabs" data-example-id="togglable-tabs">
+        <ul id="myTabs" class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active"><a href="#data1" id="data1-tab" role="tab" data-toggle="tab" data-controls="data1" aria-expanded="true">担任法人公司信息</a></li>
+            <li role="presentation" class=""><a href="#data2" role="tab" id="data2-tab" data-toggle="tab" data-controls="data2">对外投资信息</a></li>
+            <li role="presentation" class=""><a href="#data3" role="tab" id="data3-tab" data-toggle="tab" data-controls="data3">在外任职信息</a></li>
+        </ul>
+        <div id="myTabContent" class="tab-content" style="padding-top: 10px;">
+            <div role="tabpanel" class="tab-pane active in" id="data1" aria-labelledby="data1-tab">
+                <!--担任法人公司信息-->
+            </div>
+            <div role="tabpanel" class="tab-pane" id="data2" aria-labelledby="data2-tab">
+                <!--对外投资信息-->
+            </div>
+            <div role="tabpanel" class="tab-pane" id="data3" aria-labelledby="data3-tab">
+                <!--在外任职信息-->
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/static/vendor/artTemplate/template-web.js"></script>
+<script src="/static/vendor/layui/layer/layer.js"></script>
+<script src="/static/htmljs/global.config.js"></script>
+<script src="/static/htmljs/utils.js"></script>
+<script src="../../../tmpl/js/panelTableShow.js"></script>
+<script>
+    var companyName = decodeURI(getParam("fullName"));
+    var name = decodeURI(getParam("name"));
+    $.ajax({
+        url: remoteApi.qccCIAEmployeeGetStockRelationInfo+"?fullName="+companyName+"&name="+name,
+        success: function(res){
+            if($.isEmptyObject(res.data) == false && res.success){
+                var data = res.data
+                laytableRender({
+                    page: false,
+                    id: "data1",
+                    elem: "#data1",
+                    cols:[
+                        [
+                            {title:"企业名称",field:"Name"},
+                            {title:"注册号",field:"RegNo"},
+                            {title:"注册资本",field:"RegCap"},
+                            {title:"注册资本币种",field:"RegCapCur"},
+                            {title:"企业状态",field:"Status"},
+                            {title:"企业类型",field:"EcoKind"}
+                        ]
+                    ],
+                    data: data.CIACompanyLegals
+                });
+                laytableRender({
+                    page: false,
+                    id: "data2",
+                    elem: "#data2",
+                    cols:[
+                        [
+                            {title:"认缴出资额",field:"SubConAmt"},
+                            {title:"认缴出资币种",field:"SubCurrency"},
+                            {title:"企业类型",field:"EcoKind"},
+                            {title:"企业名称",field:"Name"},
+                            {title:"注册号",field:"RegNo"},
+                            {title:"注册资本",field:"RegCap"},
+                            {title:"注册资本币种",field:"RegCapCur"},
+                            {title:"企业状态",field:"Status"}
+                        ]
+                    ],
+                    data: data.CIAForeignInvestments
+                });
+                laytableRender({
+                    page: false,
+                    id: "data3",
+                    elem: "#data3",
+                    cols:[
+                        [
+                            {title:"职位",field:"Position"},
+                            {title:"企业类型",field:"EcoKind"},
+                            {title:"企业名称",field:"Name"},
+                            {title:"注册号",field:"RegNo"},
+                            {title:"注册资本",field:"RegCap"},
+                            {title:"注册资本币种",field:"RegCapCur"},
+                            {title:"企业状态",field:"Status"}
+                        ]
+                    ],
+                    data: data.CIAForeignOffices
+                });
+            }else{
+                layErrorMsg("数据获取失败....");
+                $("#data1").html("数据获取失败....");
+                $("#data2").html("数据获取失败....");
+                $("#data3").html("数据获取失败....");
+            }
 
-企业人员董监高信息
+        }
+    })
+</script>
+</body>
+</html>

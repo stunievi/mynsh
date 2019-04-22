@@ -2,24 +2,30 @@
     <div class="container">
         <ul class="mao-title breadcrumb" style="background:none;border:none;">
             <li>
-                <a href="javascript:window.close();"> <img src="./image/ic_reply.png" />&nbsp;小米科技有限责任公司</a>
+                <a href="javascript:window.close();"> <img src="./image/ic_reply.png" />&nbsp;<b id="company_name"></b></a>
             </li>
         </ul>
         <ul id="navTab" class="mao-nav">
-            <li><a href="javascript:;">企业图谱</a></li>
-            <li><a href="javascript:;">关联图谱</a></li>
-            <li><a href="javascript:;">股权穿透图</a></li>
-            <li><a href="javascript:;">疑似实际控制人</a></li>
+            <li class="hrefClass"><a href="javascript:;">企业图谱</a></li>
+            <!--<li><a href="javascript:;">关联图谱</a></li>-->
+            <li class="hrefClass"><a href="javascript:;">股权结构图</a></li>
+            <li class="hrefClass"><a href="javascript:;">股权穿透图</a></li>
+            <li class="hrefClass"><a href="javascript:;">投资图谱</a></li>
+            <!--<li><a href="javascript:;">疑似实际控制人</a></li>-->
+            <li style="float: right;"><a href="javascript:;" class="btn" id="updateBtn" style="background: orange;color: #fff;padding: 0 8px;" >更新当前模块数据</a></li>
         </ul>
     </div>
 </div>
 <script>
-    $(document).on("click", ".mao-nav li", function () {
+    $("#company_name").html(decodeURI(getParam("name")));
+    $(document).on("click", ".mao-nav li.hrefClass", function () {
         var urlArr = [
             "./qiyetupu.html",
-            "./guanliantupu.html",
+            // "./guanliantupu.html",
+            "./guquanTupu.html",
             "./guquanchuantou.html",
-            "./yisi.html"
+            "./guquanTzTupu.html",
+            // "./yisi.html"
         ];
         var index = $(this).index();
         window.location = urlArr[index] + "?keyNo="+getParam("keyNo")+"&name="+getParam("name");

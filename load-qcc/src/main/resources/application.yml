@@ -22,12 +22,16 @@ spring:
 #    url: jdbc:db2://121.0.0.236:50000/fzsys_dy
 #        username: db2inst1
 #        password: 11111111
-    driver-class-name: com.ibm.db2.jcc.DB2Driver
+#    driver-class-name: com.ibm.db2.jcc.DB2Driver
 
   devtools:
     livereload:
       enabled: false
     #        db2-end
+
+  activemq:
+#    broker-url: tcp://47.94.97.138:8011
+    broker-url: tcp://47.94.97.138:8011?jms.blobTransferPolicy.uploadUrl=http://47.94.97.138:8012/fileserver/
 
 server:
   port: 8079
@@ -38,11 +42,6 @@ beetlsql:
 
 
 #exceltmpl: E:\\excel_tmpl\\
-
-
-
-
-
 
 uploads:
   server: http://121.0.0.236
@@ -57,3 +56,9 @@ lfs:
   wfUsername: admin
   wfPassword: admin
   wfPid: 0
+loadQcc:
+#    zipPath: D:\java projects\hznsh\load-qcc\src\main\resources\qcc\zip
+#    txtPath: D:\java projects\hznsh\load-qcc\src\main\resources\qcc\txt
+    zipPath: /root/hz/hz-qcc/qccDataLog/zip
+    txtPath: /root/hz/hz-qcc/qccDataLog/txt
+

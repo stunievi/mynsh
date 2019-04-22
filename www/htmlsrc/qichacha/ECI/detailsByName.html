@@ -5,12 +5,22 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title> 公司详情 </title>
     <!--#include file="/htmlsrc/header.html" -->
+    <script>
+        var keyNoPromise = $.Deferred();
+        var COMPANY_NAME =  decodeURI(getParam("keyWord"));
+        var COMPANY_KEY_NO = getParam("keyNo") || "";
+        var BOOTSTRAP_INDEX_FILED = {
+            title: '序号',
+            align: 'center',
+            width: 80,
+            formatter: function(value, row, index) {
+                return index + 1;
+            }
+        }
+    </script>
 </head>
 <body>
 <div id="content">
-    <div class="" id="panel-form">
-        <!-- 查询表单 -->
-    </div>
     <div id="dataList">
         <div class="qcc-detail-inner col-xs-10" data-example-id="togglable-tabs">
             <ul id="myTabs" class="nav nav-tabs" role="tablist" style="background: #fff">
@@ -21,9 +31,10 @@
                 <!--<li role="presentation" class=""><a href="#report" role="tab" id="report-tab" data-toggle="tab" data-controls="report">企业发展</a></li>-->
                 <!--<li role="presentation" class=""><a href="#assets" role="tab" id="assets-tab" data-toggle="tab" data-controls="assets">知识产权</a></li>-->
                 <li role="presentation" class=""><a href="#history" role="tab" id="history-tab" data-toggle="tab" data-controls="history">历史信息</a></li>
+                <li style="float: right;"><a href="javascript:;" class="btn" id="updateBtn" style="background: orange;color: #fff;" >更新当前模块数据</a></li>
             </ul>
             <div id="qcc-detail-content" class="tab-content" style="padding-top: 10px;">
-                <!--#include file="./detailsByName_1.html" -->
+                <!--#include file="./detailsByName_1.html"-->
                 <!--#include file="./detailsByName_2.html"-->
                 <!--##include file="./detailsByName_3.html"-->
                 <!--#include file="./detailsByName_4.html"-->
@@ -45,44 +56,74 @@
         }else{
             $($(this).attr("href")).find(".panel-collapse").collapse("hide");
         }
-    })
-
-    var id = decodeURI(getParam("id")) || '';
-    var data = {
-        keyword: id
-    };
-    // 配置查询表单
-    $("#panel-form").html(panelFormRender3({
-        panelTitle:'筛选查询（公司名、注册号、社会统一信用代码或KeyNo）',
-        col: 3,
-        list:[
-            { prop: 'keyword', label: '搜索关键字' }
-        ],
-        data: data
-    }));
-
-    $(document).on("click", "#fengxian-tab", function () {
-        SuperPost({
-            url: remoteApi.qccGetChattelMortgage,
-            success:function(res){
-                if("200" == res.Status){
-                    $("#ChattelMortgage-body").html(panelFormRender4({
-                        dataList: res["Result"]
-                    }));
-                }
-            }
-        })
     });
 
-    function checkSubmitForm() {
-        getRemoteData({
-            url: remoteApi.qccECIGetDetails,
-            data: $("form[name='form-search']").serialize(),
-            success: function(res){
-            }
+    // 更新模块数据
+    $("#updateBtn").click(function () {
+        var that = $(this);
+        that.addClass("disabled");
+        if(that.hasClass("disabled") == false){
+            return false;
+        }
+        layer.confirm("确定更新当前模块？",function(){
+            that.removeClass("disabled");
+            var loadingIndex;
+            layer.msg("指令发送中...", function () {
+                loadingIndex = layer.load();
+                var currBlockIndex = $("#myTabs li.active").index();
+                var sign;
+                if(currBlockIndex === 0){
+                    sign = "01";
+                }else if(currBlockIndex === 1){
+                    sign = "02";
+                }else if(currBlockIndex === 2){
+                    sign = "05";
+                }else if(currBlockIndex === 3){
+                    sign = "04";
+                }
+                if(sign == undefined){
+                    layer.msg("更新指令内容为空！");
+                    return
+                }
+                $.ajax({
+                    url: remoteApi.qccUpdateQccData,
+                    data: {
+                        fullName: COMPANY_NAME,
+                        sign: COMPANY_KEY_NO
+                    },
+                    success: function (res) {
+                        if(res.success){
+                            layer.msg("指令发送成功，请等待数据加工服务、数据解构服务处理！");
+                        }else{
+                            layer.msg("指令发送失败！");
+                        }
+                        layer.close(loadingIndex);
+                    }
+                });
+            });
+        },function () {
+            that.removeClass("disabled");
         });
-        return false;
-    }
+
+    });
+    // 点击【法律诉讼】模块后加载此模块数据
+    $(document).on("click", "#susong-tab", function () {
+        if(loadBlock2Status == false){
+            loadBlock2();
+        }
+    });
+    // 点击【经营风险】模块后加载此模块数据
+    $(document).on("click", "#fengxian-tab", function () {
+        if(loadBlock4Status == false){
+            loadBlock4();
+        }
+    });
+    // 点击【历史信息】模块后加载此模块数据
+    $(document).on("click", "#history-tab", function () {
+        if(loadBlock7Status == false){
+            loadBlock7();
+        }
+    });
 </script>
 </body>
 </html>

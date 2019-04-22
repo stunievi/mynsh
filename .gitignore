@@ -18,6 +18,7 @@
 *.ipr
 .idea/**
 /out/
+.idea/*
 
 ### NetBeans ###
 /nbproject/private/
@@ -31,3 +32,6 @@ target
 out
 build
 *.zip
+
+/load-qcc/src/main/resources/qcc/txt/
+/load-qcc/src/main/resources/qcc/zip/

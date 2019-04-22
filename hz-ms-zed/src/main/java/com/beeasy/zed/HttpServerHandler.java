@@ -1,43 +1,59 @@
 package com.beeasy.zed;
 
+import static com.beeasy.zed.DBService.config;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializerFeature;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.group.ChannelGroup;
+import io.netty.channel.group.DefaultChannelGroup;
+import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.websocketx.*;
+import io.netty.util.AsciiString;
+import io.netty.util.concurrent.GlobalEventExecutor;
+import org.osgl.util.S;
+
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import cn.hutool.core.util.CharsetUtil;
-import cn.hutool.json.JSONArray;
-import cn.hutool.json.JSONObject;
-import cn.hutool.json.JSONUtil;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.handler.codec.http.*;
-import io.netty.util.AsciiString;
+//import cn.hutool.json.JSONArray;
+//import cn.hutool.json.JSONObject;
+//import cn.hutool.json.JSONUtil;
 
 class HttpServerHandler extends ChannelInboundHandlerAdapter {
 
     private static List<Route> RouteList = new ArrayList<>();
+
+    public static Vector<Channel> clients = new Vector<>();
+    private WebSocketServerHandshaker handshaker = null;
+
     private static final AsciiString CONNECTION = new AsciiString("Connection");
     private static final AsciiString KEEP_ALIVE = new AsciiString("keep-alive");
     public static Throwable LastException = null;
     private static Map<String, Pattern> urlRegexs = new HashMap<>();
 
-    public static void AddRoute(Route ...routes){
+    public static void AddRoute(Route... routes) {
         RouteList.addAll(Arrays.asList(routes));
     }
 
-    public void send404(ChannelHandlerContext ctx, Object msg){
+    public void send404(ChannelHandlerContext ctx, Object msg) {
         ctx.writeAndFlush(get404());
     }
 
-    public FullHttpResponse get404(){
+    public FullHttpResponse get404() {
         JSONObject object = new JSONObject();
         object.put("Status", "500");
         object.put("Message", "错误请求");
-        String json = object.toJSONString(4);
+        String json = object.toJSONString();
         byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
         FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND, Unpooled.wrappedBuffer(bytes));
         response.headers().set("Content-Type", "application/json; charset=utf-8");
@@ -45,7 +61,7 @@ class HttpServerHandler extends ChannelInboundHandlerAdapter {
         return response;
     }
 
-    public void write(ChannelHandlerContext ctx, FullHttpResponse response, boolean keepAlive){
+    public void write(ChannelHandlerContext ctx, FullHttpResponse response, boolean keepAlive) {
         if (!keepAlive) {
             ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
         } else {
@@ -56,47 +72,71 @@ class HttpServerHandler extends ChannelInboundHandlerAdapter {
 
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws UnsupportedEncodingException {
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof FullHttpRequest) {
             // 请求，解码器将请求转换成HttpRequest对象
-            FullHttpRequest request = (FullHttpRequest) msg;
+            handleHttpRequest(ctx, (FullHttpRequest) msg);
+        }
+        else if(msg instanceof WebSocketFrame){
+            handleWebSocketRequest(ctx, (WebSocketFrame) msg);
+        }
+    }
 
-            boolean keepAlive = HttpUtil.isKeepAlive(request);
+    public void handleWebSocketRequest(ChannelHandlerContext ctx, WebSocketFrame frame){
+        if(frame instanceof CloseWebSocketFrame){
+            clients.remove(ctx.channel());
+            handshaker.close(ctx.channel(), ((CloseWebSocketFrame) frame).retain());
+        } else if(frame instanceof PingWebSocketFrame){
+            ctx.channel().write(new PongWebSocketFrame(frame.content().retain()));
+        } else if(frame instanceof TextWebSocketFrame){
+            ctx.channel().writeAndFlush(new TextWebSocketFrame(((TextWebSocketFrame) frame).text()));
+        }
+    }
 
-            for (Route route : RouteList) {
-                if(!matches(request.uri(), route.regexp)){
-                    continue;
-                }
 
-                Object object = route.handler.run(ctx, request);
-                FullHttpResponse response = null;
-                if (object == null) {
-                    response = get404();
-                } else {
-                    byte[] responseBytes;
-                    if(object instanceof String){
-                        responseBytes = ((String) object).getBytes(StandardCharsets.UTF_8);
-                    } else if(object instanceof JSONArray){
-                        ((JSONArray) object).setDateFormat("yyyy-MM-dd hh:mm:ss");
-                        responseBytes = (((JSONArray) object).toJSONString(4)).getBytes(StandardCharsets.UTF_8);
-                    } else if(object instanceof JSONObject){
-                    ((JSONObject) object).setDateFormat("yyyy-MM-dd hh:mm:ss");
-                    responseBytes = (((JSONObject) object).toJSONString(4)).getBytes(StandardCharsets.UTF_8);
-                }
-                    else{
-                        responseBytes = JSONUtil.toJsonStr(object).getBytes(StandardCharsets.UTF_8);
-                    }
-                    int contentLength = responseBytes.length;
-                    // 构造FullHttpResponse对象，FullHttpResponse包含message body
-                    response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.wrappedBuffer(responseBytes));
-                    response.headers().set("Content-Type", "application/json; charset=utf-8");
-                    response.headers().set("Content-Length", Integer.toString(contentLength));
-                }
-
-                write(ctx, response, keepAlive);
-                return;
+    public void handleHttpRequest(ChannelHandlerContext ctx, FullHttpRequest request) throws Exception{
+        String uri = request.uri();
+        if(uri.equalsIgnoreCase("/ws")){
+            WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(
+                String.format("http://0.0.0.0:%d/ws/", config.getInteger("port")), null, false);
+            handshaker = wsFactory.newHandshaker(request);
+            if (handshaker == null) {
+                WebSocketServerHandshakerFactory.sendUnsupportedVersionResponse(ctx.channel());
+            } else {
+                handshaker.handshake(ctx.channel(), request);
+                clients.add(ctx.channel());
             }
-            throw new RuntimeException();
+            return;
+        }
+
+        boolean keepAlive = HttpUtil.isKeepAlive(request);
+        for (Route route : RouteList) {
+            if (!matches(uri, route.regexp)) {
+                continue;
+            }
+
+            Object object = route.handler.run(ctx, request);
+            FullHttpResponse response = null;
+            if (object == null) {
+                response = get404();
+            } else {
+                byte[] responseBytes;
+                if (object instanceof String) {
+                    responseBytes = ((String) object).getBytes(StandardCharsets.UTF_8);
+                } else {
+                    responseBytes = JSON.toJSONString(object, SerializerFeature.WriteDateUseDateFormat, SerializerFeature.PrettyFormat).getBytes(StandardCharsets.UTF_8);
+                }
+                int contentLength = responseBytes.length;
+                // 构造FullHttpResponse对象，FullHttpResponse包含message body
+                ByteBuf buf = Unpooled.wrappedBuffer(responseBytes);
+                response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, buf);
+                response.headers().set("Content-Type", "application/json; charset=utf-8");
+                response.headers().set("Content-Length", buf.readableBytes());
+            }
+
+            write(ctx, response, keepAlive);
+
+            return;
         }
     }
 
@@ -109,9 +149,13 @@ class HttpServerHandler extends ChannelInboundHandlerAdapter {
     }
 
 
-    public static JSONObject decodeProxyQuery(FullHttpRequest fullHttpRequest){
+    public static JSONObject decodeProxyQuery(FullHttpRequest fullHttpRequest) {
         JSONObject params = new JSONObject();
-        QueryStringDecoder decoder = new QueryStringDecoder(fullHttpRequest.headers().getAsString("Proxy-Url"));
+        String proxy = fullHttpRequest.headers().getAsString("Proxy-Url");
+        if(S.empty(proxy)){
+            return decodeQuery(fullHttpRequest);
+        }
+        QueryStringDecoder decoder = new QueryStringDecoder(proxy);
         Map<String, List<String>> paramList = decoder.parameters();
         for (Map.Entry<String, List<String>> entry : paramList.entrySet()) {
             params.put(entry.getKey(), entry.getValue().get(0));
@@ -119,9 +163,9 @@ class HttpServerHandler extends ChannelInboundHandlerAdapter {
         return params;
     }
 
-    public static JSONObject decodeQuery(FullHttpRequest request){
+    public static JSONObject decodeQuery(FullHttpRequest request) {
         JSONObject params = new JSONObject();
-        QueryStringDecoder decoder = new QueryStringDecoder(request.getUri(), StandardCharsets.UTF_8);
+        QueryStringDecoder decoder = new QueryStringDecoder(request.uri(), StandardCharsets.UTF_8);
         Map<String, List<String>> paramList = decoder.parameters();
         for (Map.Entry<String, List<String>> entry : paramList.entrySet()) {
             params.put(entry.getKey(), entry.getValue().get(0));
@@ -155,15 +199,17 @@ class HttpServerHandler extends ChannelInboundHandlerAdapter {
             urlRegexs.put(pattern, p);
         }
         Matcher m = p.matcher(url);
-        if(m.find()){
-            if(url.length() == m.end()){
+        if (m.find()) {
+            if (url.length() == m.end()) {
                 return true;
             }
             char c = url.charAt(m.end());
-            if(c == '?' || c == '#' || c == '/' || c == '.'){
+            if (c == '?' || c == '#' || c == '/' || c == '.') {
                 return true;
             }
         }
         return false;
+
     }
+
 }

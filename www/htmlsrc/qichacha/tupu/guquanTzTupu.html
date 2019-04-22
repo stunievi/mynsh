@@ -1,0 +1,704 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 投资图谱 </title>
+    <!--#include file="./tupu-head.html" -->
+</head>
+<body>
+<!--#include file="./mao-head.html" -->
+
+<div class="mao-screen-area" id="screenArea">
+    <div id="main" class="mao-main" style="height: 100%; width: 100%; -webkit-tap-highlight-color: transparent; user-select: none; background-color: rgba(0, 0, 0, 0); cursor: default;">
+        <div id="guquanTzTupu">
+
+        </div>
+    </div>
+    <div class="tupu-toolbar">
+        <ul>
+            <li id="guquanTzExtent" onclick="guquanTzTupu.extend(this)">
+                <span class="extent"></span>展开</li>
+            <li onclick="guquanTzTupu.refresh()">
+                <span class="refresh"></span>刷新</li>
+            <li onclick="guquanTzTupu.scale(1)">
+                <span class="big"></span>放大</li>
+            <li onclick="guquanTzTupu.scale(2)">
+                <span class="small"></span>缩小</li>
+            <li onclick="guquanTzTupu.saveImg()">
+                <span class="save"></span>保存</li>
+        </ul>
+    </div>
+</div>
+
+<!--<div id="load_data" style="width: 100%;-->
+<!--height: 100%;-->
+<!--position: fixed;background: #fff;top:0;left:0;"> <img style="    width: 120px;-->
+<!--position: absolute;-->
+<!--left: 50%;-->
+<!--top: 50%;-->
+<!--margin-left: -60px;-->
+<!--margin-top: -110px;" src="./images/preloader.gif"> </div>-->
+
+<!--<script src="https://www.qichacha.com/material/theme/chacha/cms/v2/js/jquery.min.js"></script>-->
+<script src="./js/d3.min.js"></script>
+<script type="text/javascript">
+    $("#navTab li:eq(3)").addClass("active");
+    var guquanTzTupu;
+    var barWidth = 335;
+    var barHeight = 50;
+    var companyName = decodeURI(getParam("name")) || "大连万达集团股份有限公司";
+    var companyKeyNo= decodeURI(getParam("keyNo")) || "befe52d9753b511b6aef5e33fe00f97d";
+
+    $('#load_data').show();
+    getDataTupuTz();
+
+    function getDataTupuTz(){
+        $.ajax({
+            // url:"./json/guquanchuantou2.json",
+            url: remoteApi.qccECIRelationSearchTreeRelationMap,
+            type: 'GET',
+            data:{
+                keyNo: companyKeyNo,
+            },
+            dataType: 'JSON',
+            success: function (res){
+                var retData2 = res.Result || res.data;
+                if(retData2){
+                    var data = {};
+                    if(retData2.Children){
+                        var touziDetailList = [];
+                        var walk1 = function(touziDetailList, dataList){
+                            dataList.forEach(function (item) {
+                                item.ajaxtouzi = true;
+                                if(typeof kgObj != 'undefined' && kgObj[item.KeyNo]){
+                                    item.ShouldCapi = kgObj[item.KeyNo].ShouldCapi;
+                                    item.Percent = kgObj[item.KeyNo].Percent;
+                                }
+                                var _index = touziDetailList.push(item);
+                                var index = _index - 1;
+                                if(item.Children && item.Children.length > 0){
+                                    touziDetailList[index].DetailList = [];
+                                    walk1(touziDetailList[index].DetailList, item.Children)
+                                }
+                            });
+                            return touziDetailList;
+                        };
+                        walk1(touziDetailList, retData2.Children);
+                        // 投资
+                        data.touzi = {
+                            Name: companyName,
+                            DetailList:touziDetailList
+                        };
+                    }
+                    addFlag(data.touzi);
+                    guquanTzTupu = new drawGuquanTzTupu(data.touzi, companyKeyNo);
+                    $('#guquanTz_nodate').hide();
+                }else{
+                    $('#guquanTz_nodate').show();
+                }
+            }
+        });
+    }
+
+    function drawGuquanTzTupu(investData,keyNo){
+        var svgId = 'guquanTzTupu';
+        investData.x0 = 0;
+        investData.y0 = 0;
+        var i=0;
+        var duration = 400;
+        var isExtent = false;
+        var container;
+        var scale = 1;
+        var tree = d3.layout.tree()
+            .children(function (d) {
+                return d.DetailList;
+            })
+            .nodeSize([0, 20]);
+
+        var diagonal = d3.svg.diagonal()
+            .projection(function(d) { return [d.y, d.x]; });
+
+        var svg = d3.select("#"+svgId).append("svg").attr("xmlns","http://www.w3.org/2000/svg");
+
+        var width = $("#"+svgId).width();
+
+
+        initSvg();
+
+        update(investData);
+
+        function dragmove() {
+            var x = parseInt(container.attr("transform").split(',')[0].split('(')[1]);
+            var y = parseInt(container.attr("transform").split(',')[1].split(')')[0]);
+            container.attr("transform", "translate("+(x+d3.event.dx)+","+(y+d3.event.dy)+") scale("+scale+")");
+        }
+
+        function initSvg(){
+            $("#"+svgId+" svg").empty();
+            svg.attr("width",width-15);
+            svg.attr("height",$("#"+svgId).height()-15);
+
+            container = svg.append("g");
+            zoom = d3.behavior.drag()
+                .on("drag", dragmove);
+
+            nodes = tree.nodes(investData);
+            nodes.forEach(function(n, i) {
+                if (n.depth>0) {
+                    n._DetailList = n.DetailList;
+                    n.DetailList = null;
+                }
+            });
+            svg.call(zoom);
+            container.attr("transform", "translate("+(width/2-180)+",100)");
+        }
+
+
+        function update(source) {
+            nodes = tree.nodes(investData);
+            var nodeX = 0;
+            nodes.forEach(function (n, i) {
+                n.x = nodeX;
+                nodeX += n.height + 5;
+            });
+
+            svg.attr("height",Math.max(590, nodeX+160));
+            var height = Math.max(590, nodeX);
+            d3.select("svg").transition()
+                .duration(duration);
+
+            d3.select(self.frameElement).transition()
+                .duration(duration)
+                .style("height", height + "px");
+
+
+            // Update the nodes…
+            var node = container.selectAll("g.node")
+                .data(nodes, function(d) { return d.id || (d.id = ++i); });
+
+            var nodeEnter = node.enter().append("g")
+                .attr("class", "node")
+                .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
+                .style("opacity", 1e-6);
+
+            // Enter any new nodes at the parent's previous position.
+            nodeEnter.append("rect")
+                .attr("y", function (d) {
+
+                    if(d.depth==0){
+                        return -d.height/2
+                    }else{
+                        return -15;
+                    }
+                })
+                .attr("height", function(d){return d.height})
+                .attr("width", barWidth)
+                .style("stroke", "#999999")
+                .attr("fill","#ffffff")
+                .attr('fill-opacity',0)
+                .attr("stroke-width",0.5)
+                .on("click", click);
+            nodeEnter.append("rect")
+                .attr("y", function (d) {
+                    if(d.depth==0){
+                        return -d.height/2
+                    }else{
+                        return -15;
+                    }
+                })
+                .attr("height", function(d){return d.height})
+                .attr("width", 5)
+                .style("fill", color)
+                .style("fill-opacity",1)
+                .on("click", click);
+
+            nodeEnter.append("text")
+                .attr("dy", 3.5)
+                .attr("dx", 30.5)
+                .text(function(d) {
+                    if(d.Name && d.Name.length>24){
+                        return d.Name.substr(0,23)+'…';
+                    }else{
+                        return d.Name;
+                    }
+                })
+                .attr("fill","#333333")
+                .style("font-size", "12px")
+                .style("font-weight","bold")
+                .on("click", click);
+            nodeEnter.append("text")
+                .attr("dy", function (d) {
+                    if (d.isHold) {
+                        return 30.5;
+                    }
+                    return 15.5;
+                })
+                .attr("dx", barWidth-30)
+                .text(function (d) {
+                    if(d.depth>0&&(d.Org==0||d.Org==4||d.Org==7||d.Org==8)){
+                        // TODO:: 投资图谱详情查看按钮
+                        // if(d.KeyNo&&d.KeyNo.length==32){
+                        //     return "详情";
+                        // }else{
+                        //     return "";
+                        // }
+                    }else{
+                        return "";
+                    }
+                })
+                .style("font-size","12px")
+                .style("cursor","pointer")
+                .attr("fill","#128bed")
+                .on("click",function (d) {
+                    window.open("/firm_"+d.KeyNo+".html");
+                    //showDetail();
+                });
+            nodeEnter.each(function (d) {
+                if (d.isHold) {
+                    d3.select(this).append("rect")
+                        .attr("x", 30.5)
+                        .attr("y", 13)
+                        .attr("rx", 2)
+                        .attr("ry", 2)
+                        .attr("height", 20)
+                        .attr("width", 32)
+                        .attr("fill", "#128bed")
+                        .attr('fill-opacity', 0.08)
+                        .attr("stroke-width", 0.5);
+
+                    d3.select(this).append("text")
+                        .attr("dx", 35.5)
+                        .attr("dy", 27)
+                        .attr("fill", "#128bed")
+                        .style("font-size", "11px")
+                        .text("控股");
+                }
+            });
+            nodeEnter.append("text")
+                .attr("dy", function (d) {
+                    if (d.isHold) {
+                        return 50.5;
+                    }
+                    return 20.5;
+                })
+                .attr("dx", 30.5)
+                .style("font","11px sans-serif")
+                .attr("fill","#666666")
+                .text(function(d) {
+                    if(d.depth==0){
+                        return "";
+                    }else{
+                        return "股权比例：";
+                    }
+                });
+            nodeEnter.append("text")
+                .attr("dy", function (d) {
+                    if (d.isHold) {
+                        return 50.5;
+                    }
+                    return 20.5;
+                })
+                .attr("dx", 85.5)
+                .style("font","11px sans-serif")
+                .attr("fill","#ff7e00")
+                .text(function(d) {
+                    if(d.depth==0){
+                        return "";
+                    }else{
+                        if(d.Percent&&d.Percent!='0%'&&d.Percent!='0.00%'){
+                            return (parseFloat(d.Percent.substr(0,d.Percent.length-1)).toFixed(2)+'%'||"-");
+                        }else{
+                            return '-';
+                        }
+
+                    }
+                });
+            nodeEnter.append("text")
+                .attr("dy", function (d) {
+                    if (d.isHold) {
+                        return 50.5;
+                    }
+                    return 20.5;
+                })
+                .attr("dx", 150.5)
+                .style("font","11px sans-serif")
+                .attr("fill","#666666")
+                .text(function(d) {
+                    if (d.depth == 0) {
+                        return "";
+                    } else {
+                        if (d.CompanyCode) {
+                            return "持股数：";
+                        } else {
+                            return "认缴金额：";
+                        }
+                    }
+                });
+            nodeEnter.append("text")
+                .attr("dy", function (d) {
+                    if (d.isHold) {
+                        return 50.5;
+                    }
+                    return 20.5;
+                })
+                .attr("dx", 205.5)
+                .style("font","11px sans-serif")
+                .attr("fill","#ff7e00")
+                .text(function(d) {
+                    if (d.depth == 0) {
+                        return "";
+                    } else {
+                        if (d.CompanyCode) {
+                            if (d.StockRightNum) {
+                                return d.StockRightNum;
+                            } else {
+                                return "-";
+                            }
+                        } else {
+                            if (d.ShouldCapi) {
+                                if (d.ShouldCapi.indexOf("万元") > 0) {
+                                    var index = d.ShouldCapi.indexOf("万元");
+                                    return encodeURI($.trim(d.ShouldCapi.substr(0, index))) + "万元";
+                                } else {
+                                    var capiNum;
+                                    var capiArr = d.ShouldCapi.split(',');
+                                    if(capiArr.length>1){
+                                        capiNum = 0;
+                                        $.each(capiArr,function(index,num){
+                                            capiNum+=parseFloat(num);
+                                        });
+                                    }else{
+                                        capiNum = parseFloat(d.ShouldCapi);
+                                    }
+                                    if((capiNum+'').length>10){
+                                        capiNum = capiNum.toFixed(2);
+                                    }
+                                    return capiNum;
+                                }
+                            }
+                            return "-";
+                        }
+                    }
+                });
+            nodeEnter.append("path")
+                .attr("d", function (d) {
+                    if(d.depth==0){
+                        if(d._DetailList&&d._DetailList.length>0){
+                            return "M7 -2 H11 V-6 H13 V-2 H17 V0 H13 V4 H11 V0 H7 Z"
+                        }else if(d.DetailList&&d.DetailList.length>0){
+                            return "M7 -2 H17 V0 H7 Z"
+                        }
+                    }else{
+                        if(d._DetailList&&d._DetailList.length>0){
+                            return "M7 6 H11 V2 H13 V6 H17 V8 H13 V12 H11 V8 H7 Z"
+                        }else if(d.DetailList&&d.DetailList.length>0){
+                            return "M7 6 H17 V8 H7 Z"
+                        }
+                    }
+                })
+                .attr("fill","#bbbbbb")
+                .on("click", function (d) {
+                    if(d.depth>0 || true){
+                        click(d);
+                    }
+                });
+            nodeEnter.append("circle")
+                .attr("cx",12)
+                .attr("cy",function (d) {
+                    if(d.depth==0){
+                        return -1;
+                    }
+                    return 7;
+                })
+                .attr("r",function (d) {
+                    if(d._DetailList&&d._DetailList.length>0){
+                        return "6"
+                    }else if(d.DetailList&&d.DetailList.length>0){
+                        return "6"
+                    }
+                })
+                .attr("fill","none")
+                .attr("stroke","#999999")
+                .attr("stroke-width","0.5")
+                .on("click", function (d) {
+                    if(d.depth>0){
+                        click(d);
+                    }
+                });
+
+            // Transition nodes to their new position.
+            nodeEnter.transition()
+                .duration(duration)
+                .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; })
+                .style("opacity", 1);
+
+            node.transition()
+                .duration(duration)
+                .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; })
+                .style("opacity", 1)
+                .select("rect")
+                .style("stroke", "#999999");
+
+            node.transition()
+                .duration(duration)
+                .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; })
+                .style("opacity", 1)
+                .select("path")
+                .attr("d", function (d) {
+                    if(d.depth==0){
+                        if(d._DetailList && d._DetailList.length>0){
+                            return "M7 -2 H11 V-6 H13 V-2 H17 V0 H13 V4 H11 V0 H7 Z"
+                        }else if(d.DetailList&& d.DetailList.length>0){
+                            return "M7 -2 H17 V0 H7 Z"
+                        }
+                    }else{
+                        if(d._DetailList && d._DetailList.length>0){
+                            return "M7 6 H11 V2 H13 V6 H17 V8 H13 V12 H11 V8 H7 Z"
+                        }else if(d.DetailList&& d.DetailList.length>0){
+                            return "M7 6 H17 V8 H7 Z"
+                        }
+                    }
+                });
+
+            // Transition exiting nodes to the parent's new position.
+            node.exit().transition()
+                .duration(duration)
+                .attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
+                .style("opacity", 1e-6)
+                .remove();
+
+            // Update the links…
+            var link = container.selectAll("path.link")
+                .data(tree.links(nodes), function(d) { return d.target.id; });
+
+            // Enter any new links at the parent's previous position.
+            link.enter().insert("path", "g")
+                .attr("class", "link")
+                .attr("fill","none")
+                .attr("stroke-width","0.5px")
+                .attr("stroke","#80c3a8")
+                .attr("d", function(d) {
+                    var o = {x: source.x0, y: source.y0};
+                    return diagonal({source: o, target: o});
+                })
+                .style("stroke",function (d) {
+                    if(d.target.LargePartner=="大股东"){
+                        return "#fe5151";
+                    }
+                })
+                .transition()
+                .duration(duration)
+                .attr("d", diagonal)
+                .style("stroke",function (d) {
+                    if(d.target.LargePartner=="大股东"){
+                        return "#fe5151";
+                    }
+                });
+
+            // Transition links to their new position.
+            link.transition()
+                .duration(duration)
+                .attr("d", diagonal);
+
+            // Transition exiting nodes to the parent's new position.
+            link.exit().transition()
+                .duration(duration)
+                .attr("d", function(d) {
+                    var o = {x: source.x, y: source.y};
+                    return diagonal({source: o, target: o});
+                })
+                .remove();
+
+            // Stash the old positions for transition.
+            nodes.forEach(function(d) {
+                d.x0 = d.x;
+                d.y0 = d.y;
+            });
+        }
+
+        function click(d) {
+            if (d.DetailList) {
+                d._DetailList = d.DetailList;
+                d.DetailList = null;
+            } else {
+                d.DetailList = d._DetailList;
+                d._DetailList = null;
+            }
+            update(d);
+        }
+
+        function color(d) {
+            if(d.depth==0){
+                return "#128bed";
+            }else{
+                if(d.LargePartner=="大股东"){
+                    return "#fe5151";
+                }
+
+                if(d.Org==0||d.Org==4||d.Org==7||d.Org==8){
+                    return "#7985f3";
+                }else{
+                    return "#4aceb1";
+                }
+            }
+
+            return d._children ? "#3182bd" : d.children ? "#c6dbef" : "#fd8d3c";
+        }
+
+        function traverseTree(node){
+            if(node._DetailList){
+                node.DetailList = node._DetailList;
+                node._DetailList = null;
+            }
+
+            if(node.DetailList && node.DetailList.length>0){
+                for(var i=0; i<node.DetailList.length; i++){
+                    traverseTree(node.DetailList[i]);
+                }
+            }
+        }
+
+        function post(URL, PARAMS) {
+            var temp = document.createElement("form");
+            temp.action = URL;
+            temp.enctype = "multipart/form-data";
+            temp.method = "post";
+            temp.style.display = "none";
+            for (var x in PARAMS) {
+                var opt = document.createElement("textarea");
+                opt.name = x;
+                opt.value = PARAMS[x];
+                temp.appendChild(opt);
+            }
+            document.body.appendChild(temp);
+            temp.submit();
+            return temp;
+        }
+
+        function downloadimg(canvas) {
+            var qual = 1;
+            if(canvas.width>3000){
+                qual = 0.5;
+            }else if(canvas.width>5000){
+                qual = 0.4;
+            }
+            //设置保存图片的类型
+            var imgdata = canvas.toDataURL('image/jpeg',qual);
+            var filename = '对外投资_'+new Date().toLocaleDateString() + '.jpeg';
+            post(remoteApi.qccDownloadimg + '?filename='+filename, {img:imgdata});
+        }
+
+        this.extend = function(dom){
+            if(!isExtent){
+                traverseTree(investData);
+                update(investData);
+                $(dom).html('<span class="extented"></span>收起');
+                isExtent = true;
+            }else{
+                nodes.forEach(function(d) {
+                    if(d.depth>0){
+                        if(d.DetailList){
+                            d._DetailList= d.DetailList;
+                            d.DetailList = null;
+                        }
+                    }
+                });
+                update(investData);
+                $(dom).html('<span class="extent"></span>展开')
+                isExtent = false;
+            }
+        }
+
+        this.refresh = function(){
+            $('#guquanTzExtent').html('<span class="extent"></span>展开');
+            traverseTree(investData);
+            initSvg();
+            update(investData);
+            isExtent = false;
+            $('#guquanTzTupu').scrollTop(0);
+        }
+
+        this.scale = function(flag){
+            var ctrans = container.attr("transform").split(')')[0].replace(/[^0-9\-, ]/g,'');
+            var ctransArr = ctrans.split(/[, ]/);
+            var x = ctransArr[0];
+            var y = ctransArr[1];
+            if(flag==1){
+                if(scale<4){
+                    scale+=0.2;
+
+                }
+            }else{
+                if(scale>0.2){
+                    scale-=0.2;
+
+                }
+            }
+            container.transition()
+                .duration(500)
+                .attr("transform", "translate("+(x)+","+(y)+") scale("+scale+")");
+        }
+
+        this.saveImg = function(){
+            var jietuMask=document.createElement("div");
+            $(jietuMask).attr('style','position: fixed; background: #fff; z-index: 3000; top: 0px; bottom: 0px; left: 0px; right: 0px;');
+            document.body.appendChild(jietuMask);
+
+            var d3Svg = d3.select('#'+svgId+' svg');
+
+
+            var _svgWidth = d3Svg.attr('width');
+            var _svgHeight = d3Svg.attr('height');
+
+
+
+            var svgXml = $('#'+svgId).html();
+
+            var image = new Image();
+            image.src = 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(svgXml)));
+            //window.win = open (image.src);
+            setTimeout(function() {
+                var canvas = document.createElement('canvas');  //准备空画布
+                canvas.width = d3Svg.attr('width');
+                canvas.height = d3Svg.attr('height');
+
+                $(jietuMask).css('display','none');
+                var context = canvas.getContext('2d');  //取得画布的2d绘图上下文
+                context.fillStyle = "#fff";
+                context.fillRect(0,0,canvas.width,canvas.height);
+
+                // var shuiying = new Image();
+                // shuiying.src="https://www.qichacha.com/material/theme/chacha/cms/v2/images/shuiying2.png";
+                // for(var i=0;i < canvas.width+100; i+=300){
+                //     for(var j=0; j< canvas.height+100; j+=228){
+                //         context.drawImage(shuiying, i, j,300,228);
+                //     }
+                // }
+
+                context.drawImage(image, 0, 0);
+                // var marker = '图谱由企查查基于公开信息利用大数据分析引擎独家生成。';
+                context.font = "14px 微软雅黑";
+                context.fillStyle = "#aaaaaa";
+                //context.fillText(marker, canvas.width/2-context.measureText(marker).width/2, canvas.height-20);
+                downloadimg(canvas);
+            }, 100);
+        }
+    }
+    function addFlag(node) {
+        if (node.isActual || node.isSyr || node.LargePartner) {
+            node.height = barHeight + 30;
+        } else {
+            node.height = barHeight;
+        }
+        if (node.DetailList) {
+            for (var i = 0; i < node.DetailList.length; i++) {
+                addFlag(node.DetailList[i]);
+            }
+        }
+    }
+</script>
+
+</body>
+</html>

@@ -1,14 +1,6 @@
 package com.beeasy.zed;
 
-import cn.hutool.core.date.DateTime;
-import cn.hutool.core.thread.ThreadUtil;
-
-import javax.net.ssl.HttpsURLConnection;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.regex.Pattern;
 
 
 public class App {
@@ -17,8 +9,9 @@ public class App {
     public static DeconstructService deconstructService = new DeconstructService();
 
     public static void main(String[] args) throws ParseException {
-        zedService.initConfig();
-        zedService.initDB(false);
+        DBService.init(false);
+        //消息监听服务
+        MQService.init();
 
         //routes
         HttpServerHandler.AddRoute(new Route(("^/zed"), (ctx, req) -> {
@@ -26,11 +19,14 @@ public class App {
         }));
 
         //注册查询接口
-        QccService.register(zedService);
+        QccService.register();
         //注册解构接口
-        DeconstructService.register(zedService);
+        DeconstructService.register();
+
+        TestService.register();
 
         //起动netty
-        zedService.initNetty();
+        NettyService.start();
     }
+
 }

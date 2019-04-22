@@ -7,183 +7,293 @@
         <a class="btn btn-default" href="#susong5">失信信息</a>
         <a class="btn btn-default" href="#susong6">司法协助</a>
     </div>
+    <!--<div class="panel-qcc" id="susong1">-->
+        <!--<div class="panel-qcc-heading"><a role="button" data-toggle="collapse" href="#susong1-body">-->
+            <!--开庭公告-->
+            <!--<b id="base1-count">0</b>-->
+        <!--</a></div>-->
+        <!--<div class="panel-qcc-body panel-collapse collapse in" id="susong1-body">-->
+        <!--</div>-->
+    <!--</div>-->
     <div class="panel-qcc" id="susong1">
-        <div class="panel-qcc-heading"><a role="button" data-toggle="collapse" href="#susong1-body">
-            <b>#&nbsp;开庭公告</b>
-        </a></div>
-        <div class="panel-qcc-body panel-collapse collapse in" id="susong1-body">
-        </div>
+        <div class="panel-qcc-heading">开庭公告 <b id="susong1-count">0</b></div>
+        <div class="panel-qcc-body" id="susong1-body"></div>
     </div>
     <div class="panel-qcc" id="susong2">
-        <div class="panel-qcc-heading">裁判文书</div>
+        <div class="panel-qcc-heading">裁判文书 <b id="susong2-count">0</b></div>
         <div class="panel-qcc-body" id="susong2-body"></div>
     </div>
     <div class="panel-qcc" id="susong3">
-        <div class="panel-qcc-heading">法院公告</div>
+        <div class="panel-qcc-heading">法院公告 <b id="susong3-count">0</b></div>
         <div class="panel-qcc-body" id="susong3-body"></div>
     </div>
     <div class="panel-qcc" id="susong4">
-        <div class="panel-qcc-heading">被执行人</div>
+        <div class="panel-qcc-heading">被执行人 <b id="susong4-count">0</b></div>
         <div class="panel-qcc-body" id="susong4-body"></div>
     </div>
     <div class="panel-qcc" id="susong5">
-        <div class="panel-qcc-heading">失信信息</div>
+        <div class="panel-qcc-heading">失信信息 <b id="susong5-count">0</b></div>
         <div class="panel-qcc-body" id="susong5-body"></div>
     </div>
     <div class="panel-qcc" id="susong6">
-        <div class="panel-qcc-heading">司法协助</div>
+        <div class="panel-qcc-heading">司法协助 <b id="susong6-count">0</b></div>
         <div class="panel-qcc-body" id="susong6-body"></div>
     </div>
 </div>
 
+<script type="text/html" id="susong1_toolbar">
+    <div class="layui-toolbar">
+        <a href="javascript:;" class="btn btn-default susong1_toolbar" data-val="{{d.Id}}">查看</a>
+    </div>
+</script>
+<script type="text/html" id="susong2_toolbar">
+    <div class="layui-toolbar">
+    <a href="javascript:;" class="btn btn-default susong2_toolbar" data-val="{{d.Id}}">查看</a>
+    </div>
+</script>
+<script type="text/html" id="susong3_toolbar">
+    <div class="layui-toolbar">
+    <a href="javascript:;" class="btn btn-default susong3_toolbar" data-val="{{d.Id}}">查看</a>
+    </div>
+</script>
+<script type="text/html" id="susong4_toolbar">
+    <div class="layui-toolbar">
+        <a href="javascript:;" class="btn btn-default susong4_toolbar" data-val="{{d.Id}}">查看</a>
+    </div>
+</script>
+<script type="text/html" id="susong5_toolbar">
+    <div class="layui-toolbar">
+        <a href="javascript:;" class="btn btn-default susong5_toolbar" data-val="{{d.Id}}">查看</a>
+    </div>
+</script>
+<script type="text/html" id="susong6_toolbar">
+    <div class="layui-toolbar">
+        <a href="javascript:;" class="btn btn-default susong6_toolbar" data-val="{{d.ExecutionNoticeNum}}">查看</a>
+    </div>
+</script>
 <script>
-    // 开庭公告
-    laytableRender({
-        id: "susong1-body",
-        autoShift: false,
-        url: remoteApi.qccCourtAnnoSearchCourtNotice+"?keyWord=深圳小桔科技有限公司",
-        cols: [
-            [
-                {title:"被告/被上诉人",field:"Defendantlist"},
-                {title:"法院",field:"Executegov"},
-                {title:"原告/上诉人",field:"Prosecutorlist"},
-                {title:"开庭日期",field:"LianDate"},
-                {title:"案由",field:"CaseReason"},
-                // {title:"内部ID",field:"Id"},
-                {title:"案号",field:"CaseNo"}
-            ]
-        ],
-        onData:function (data) {
-            if(!data || data.total < 1){
-                $("#susong1").hide();
-                $("a[href='#susong1']").addClass("disabled");
-            }
-        }
+    $(document).on("click", ".susong1_toolbar", function (){
+        var id =  $(this).data("val");
+        addNavTab("CourtAnno-"+id, "开庭公告详情", "/htmlsrc/qichacha/CourtAnno/GetCourtNoticeInfo.html?id="+id);
+        return true;
+    });
+    $(document).on("click", ".susong2_toolbar", function (){
+        var id = $(this).data("val");
+        addNavTab("JudgeDocDetail-"+id, "裁判文书详情", "/htmlsrc/qichacha/JudgeDoc/GetJudgementDetail.html?id="+id);
+        return false;
+    });
+    $(document).on("click", ".susong3_toolbar", function (){
+        var id = $(this).data("val");
+        addNavTab("CourtNoticeDetail-"+id, "法院公告详细信息", "/htmlsrc/qichacha/CourtNotice/SearchCourtAnnouncementDetail.html?id="+id);
+        return true;
     });
 
-    // 裁判文书
-    laytableRender({
-        id: "susong2-body",
-        autoShift: false,
-        url: remoteApi.qccJudgeDocSearchJudgmentDoc+"?keyWord=深圳小桔科技有限公司",
-        cols: [
-            [
-                // {title:"Id",field:"Id"},
-                {title:"执行法院",field:"Court"},
-                {title:"裁判文书名字",field:"CaseName"},
-                {title:"裁判文书编号",field:"CaseNo"},
-                {title:"裁判文书类型",field:"CaseType"},
-                {title:"发布时间",field:"SubmitDate"},
-                {title:"审判时间",field:"UpdateDate"},
-                {title:"是否原告（供参考）",field:"IsProsecutor"},
-                {title:"是否被告（供参考）",field:"IsDefendant"},
-                {title:"开庭时间年份",field:"CourtYear"},
-                {title:"涉案人员角色",field:"CaseRole", width: 200},
-                {title:"法院级别",field:"CourtLevel"},
-                {title:"案由",field:"CaseReason"},
-                {title:"案由类型",field:"CaseReasonType"},
-                {title:"开庭时间月份",field:"CourtMonth"}
-            ]
-        ],
-        onData:function (data) {
-            if(!data || data.total < 1){
-                $("#susong2").hide();
-                $("a[href='#susong2']").addClass("disabled");
+    var loadBlock2Status = false;
+    function loadBlock2() {
+        loadBlock2Status = true;
+        // 开庭公告
+        laytableRender({
+            id: "susong1-body",
+            autoShift: false,
+            url: remoteApi.qccCourtAnnoSearchCourtNotice+"?fullName="+COMPANY_NAME,
+            cols: [
+                [
+                    BOOTSTRAP_INDEX_FILED,
+                    { title:'操作', templet: "#susong1_toolbar"},
+                    {title:"案号",field:"CaseNo"},
+                    {title:"开庭日期",field:"LiAnDate"},
+                    {title:"案由",field:"CaseReason"},
+                    {title:"被告人/被告/被上诉人/被申人",field:"DefendantList"},
+                    {title:"公诉人/原告/上诉人/申请人",field:"ProsecutorList"}
+
+                ]
+            ],
+            onData:function (data) {
+                if(!data || !data.total || data.total < 1){
+                    // $("#susong1").hide();
+                    $("a[href='#susong1']").addClass("disabled");
+                }else{
+                    $("#susong1-count").html(data.total);
+                }
             }
-        }
-    });
+        });
 
-    // 法院公告
-    laytableRender({
-        id: "susong3-body",
-        autoShift: false,
-        url: remoteApi.qccCourtNoticeSearchCourtAnnouncement+"?keyWord=深圳小桔科技有限公司",
-        cols: [
-            [
-                // {title:"主键",field:"Id"},
-                {title:"下载时间",field:"UploadDate"},
-                {title:"执行法院",field:"Court"},
-                {title:"内容",field:"Content"},
-                {title:"种类",field:"Category"},
-                {title:"公布日期",field:"PublishedDate"},
-                {title:"公布、页",field:"PublishedPage"},
-                {title:"公司名、当事人",field:"Party"}
-
-            ]
-        ],
-        onData:function (data) {
-            if(!data || data.total < 1){
-                $("#susong3").hide();
-                $("a[href='#susong3']").addClass("disabled");
+        // 裁判文书
+        var susong2DataList = [];
+        laytableRender({
+            id: "susong2-body",
+            autoShift: false,
+            url: remoteApi.qccJudgeDocSearchJudgmentDoc+"?fullName="+COMPANY_NAME,
+            cols: [
+                [
+                    BOOTSTRAP_INDEX_FILED,
+                    { title:'操作', templet: "#susong2_toolbar"},
+                    // {title:"Id",field:"Id"},
+                    {title:"执行法院",field:"Court"},
+                    {title:"裁判文书名字",field:"CaseName"},
+                    {title:"裁判文书编号",field:"CaseNo"},
+                    {title:"裁判文书类型",field:"CaseType"},
+                    {title:"发布时间",field:"SubmitDate"},
+                    // {title:"审判时间",field:"UpdateDate"},
+                    // {title:"是否原告（供参考）",field:"IsProsecutor"},
+                    // {title:"是否被告（供参考）",field:"IsDefendant"},
+                    // {title:"开庭时间年份",field:"CourtYear"},
+                    {title:"涉案人员角色",field:"CaseRole", width: 200},
+                    // {title:"法院级别",field:"CourtLevel"},
+                    {title:"案由",field:"CaseReason"},
+                    {title:"案由类型",field:"CaseReasonType"},
+                    // {title:"开庭时间月份",field:"CourtMonth"}
+                ]
+            ],
+            onData:function (data) {
+                if(!data || !data.total || data.total < 1){
+                    // $("#susong2").hide();
+                    $("a[href='#susong2']").addClass("disabled");
+                }else{
+                    susong2DataList = data.rows;
+                    $("#susong2-count").html(data.total);
+                    data.rows.forEach(function (item) {
+                        var CaseRole = JSON.parse(item["CaseRole"]);
+                        var roleText = "";
+                        CaseRole.forEach(function (role) {
+                            roleText += role["R"] +"：" + role["P"] + "；<br/>";
+                        });
+                        item["CaseRole"] = roleText
+                    });
+                    return data;
+                }
             }
-        }
-    });
+        });
 
-    // 失信信息
-    laytableRender({
-        id: "susong4-body",
-        autoShift: false,
-        url: remoteApi.qccCourtSearchShiXin+"?keyWord=深圳小桔科技有限公司",
-        cols: [
-            [
-                // {title:"主键",field:"Id"},
-                // {title:"官网主键（内部保留字段，一般为空）",field:"Sourceid"},
-                // {title:"唯一编号（内部保留字段，一般为空）",field:"Uniqueno"},
-                {title:"被执行人姓名/名称",field:"Name"},
-                {title:"立案时间",field:"Liandate"},
-                {title:"案号",field:"Anno"},
-                {title:"身份证号码/组织机构代码",field:"Orgno"},
-                {title:"法定代表人或者负责人姓名",field:"Ownername"},
-                {title:"执行法院",field:"Executegov"},
-                {title:"所在省份缩写",field:"Province"},
-                {title:"做出执行依据单位",field:"Executeunite"},
-                {title:"生效法律文书确定的义务",field:"Yiwu"},
-                {title:"被执行人的履行情况",field:"Executestatus"},
-                {title:"失信被执行人行为具体情形",field:"Actionremark"},
-                {title:"发布时间",field:"Publicdate"},
-                {title:"年龄",field:"Age"},
-                {title:"性别",field:"Sexy"},
-                {title:"数据更新时间（内部保留字段，现已不再更新时间）",field:"Updatedate"},
-                {title:"执行依据文号",field:"Executeno"},
-                {title:"已履行",field:"Performedpart"},
-                {title:"未履行",field:"Unperformpart"},
-                {title:"组织类型（1：自然人，2：企业，3：社会组织，空白：无法判定）",field:"OrgType"},
-                {title:"组织类型名称",field:"OrgTypeName"}
-            ]
-        ],
-        onData:function (data) {
-            if(!data || data.total < 1){
-                $("#susong4").hide();
-                $("a[href='#susong4']").addClass("disabled");
+        // 法院公告
+        laytableRender({
+            id: "susong3-body",
+            autoShift: false,
+            url: remoteApi.qccCourtNoticeSearchCourtAnnouncement+"?companyName="+COMPANY_NAME,
+            cols: [
+                [
+                    BOOTSTRAP_INDEX_FILED,
+                    { title:'内容', templet: "#susong3_toolbar"},
+                    {title:"当事人",field:"Party"},
+                    {title:"公告类型",field:"Category"},
+                    {title:"公告人",field:"Court"},
+                    {title:"刊登时间",field:"PublishedDate"}
+                ]
+            ],
+            onData:function (data) {
+                if(!data || !data.total || data.total < 1){
+                    // $("#susong3").hide();
+                    $("a[href='#susong3']").addClass("disabled");
+                }else{
+                    $("#susong3-count").html(data.total);
+                }
             }
-        }
-    });
+        });
 
-    // 执行信息
-    laytableRender({
-        id: "susong5-body",
-        autoShift: false,
-        url: remoteApi.qccCourtSearchZhiXing+"?keyWord=深圳小桔科技有限公司",
-        cols: [
-            [
-                // {title:"Id",field:"Id"},
-                // {title:"官网系统ID（内部保留字段，一般为空）",field:"Sourceid"},
-                {title:"名称",field:"Name"},
-                {title:"立案时间",field:"Liandate"},
-                {title:"立案号",field:"Anno"},
-                {title:"执行法院",field:"ExecuteGov"},
-                {title:"标地",field:"Biaodi"},
-                // {title:"状态（内部保留字段，现已不使用）",field:"Status"},
-                {title:"身份证号码/组织机构代码",field:"PartyCardNum"},
-                // {title:"数据更新时间（内部保留字段，现已不再更新时间）",field:"Updatedate"},
-            ]
-        ],
-        onData:function (data) {
-            if(!data || data.total < 1){
-                $("#susong5").hide();
-                $("a[href='#susong5']").addClass("disabled");
+        var susong5Datalist = [];
+        // 失信信息
+        laytableRender({
+            id: "susong5-body",
+            autoShift: false,
+            url: remoteApi.qccCourtSearchShiXin+"?fullName="+COMPANY_NAME,
+            cols: [
+                [
+                    BOOTSTRAP_INDEX_FILED,
+                    {title:'操作', templet: "#susong5_toolbar"},
+                    {title:"立案时间",field:"LiAnDate"},
+                    {title:"案号",field:"AnNo"},
+                    {title:"执行法院",field:"ExecuteGov"},
+                    {title:"所在省份缩写",field:"Province"},
+                    {title:"发布时间",field:"PublicDate"}
+                ]
+            ],
+            onData:function (data) {
+                if(!data || !data.total || data.total < 1){
+                    // $("#susong5").hide();
+                    $("a[href='#susong5']").addClass("disabled");
+                }else{
+                    susong5Datalist = data.rows;
+                    $("#susong5-count").html(data.total);
+                }
             }
-        }
-    });
+        });
+        $(document).on("click", ".susong5_toolbar", function (){
+            var id = $(this).data("val");
+            addNavTab("qccSearchShiXin-"+id, "失信信息详情", "/htmlsrc/qichacha/Court/GetShiXinDetail.html?id="+id, susong5Datalist[$(this).closest("tr").data("index")]);
+            return false;
+        });
 
+        var susong4DataList = [];
+        // 执行信息
+        laytableRender({
+            id: "susong4-body",
+            autoShift: false,
+            url: remoteApi.qccCourtSearchZhiXing+"?fullName="+COMPANY_NAME,
+            cols: [
+                [
+                    BOOTSTRAP_INDEX_FILED,
+                    {title:'操作', templet: "#susong4_toolbar"},
+                    {title:"立案号",field:"AnNo"},
+                    {title:"立案时间",field:"LiAnDate"},
+                    {title:"执行法院",field:"ExecuteGov"},
+                    {title:"标地",field:"BiaoDi"}
+                ]
+            ],
+            onData:function (data) {
+                if(!data || !data.total || data.total < 1){
+                    // $("#susong4").hide();
+                    $("a[href='#susong4']").addClass("disabled");
+                }else{
+                    susong4DataList = data.rows;
+                    $("#susong4-count").html(data.total);
+                }
+            }
+        });
+        $(document).on("click", ".susong4_toolbar", function (){
+            var id = $(this).data("val");
+            addNavTab("qccSearchZhiXing-"+id, "执行信息详情", "/htmlsrc/qichacha/Court/GetZhiXingDetail.html?id="+id, susong4DataList[$(this).closest("tr").data("index")]);
+            return false;
+        });
+
+        var JudicialAssistanceDataList = [];
+        // susong6-body 司法协助
+        $.ajax({
+            url: remoteApi.qccJudicialAssistanceGetJudicialAssistance+"?fullName="+COMPANY_NAME,
+            success: function (res) {
+                if(res.data == undefined || res.data.list==undefined || res.data.list.length < 1){
+                    // // $("#susong6").hide();
+                    $("a[href='#susong6']").addClass("disabled");
+                }else{
+                    JudicialAssistanceDataList = res.data.list;
+                    $("#susong6-count").html(JudicialAssistanceDataList.length);
+                }
+                laytableRender({
+                    id: "susong6-body",
+                    page: false,
+                    cols: [
+                        [
+                            BOOTSTRAP_INDEX_FILED,
+                            {title:'操作', templet: "#susong6_toolbar"},
+                            {title:"被执行人",field:"ExecutedBy" },
+                            {title:"股权数额",field:"EquityAmount" },
+                            {title:"执行法院",field:"EnforcementCourt" },
+                            {title:"执行通知书文号",field:"ExecutionNoticeNum" },
+                            {title:"类型 | 状态",field:"Status" },
+                            {title:"公司KeyNo",field:"CompanyId" },
+                            {title:"公司名称",field:"CompanyName" },
+                            {title:"统一社会信用代码",field:"CompanyCode" },
+                            {title:"注册号",field:"CompanyNo" }
+                        ]
+                    ],
+                    data: JudicialAssistanceDataList
+                });
+            }
+        });
+
+        $(document).on("click", ".susong6_toolbar", function (){
+            var id = $(this).data("val");
+            addNavTab("qccJudicialAssistanceGetJudicialAssistance-"+id, "司法协助详情", "/htmlsrc/qichacha/JudicialAssistance/GetJudicialAssistanceDetail.html?id="+id, JudicialAssistanceDataList[$(this).closest("tr").data("index")]);
+            return false;
+        });
+    }
 </script>

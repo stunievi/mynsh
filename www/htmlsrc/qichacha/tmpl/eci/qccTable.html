@@ -7,56 +7,36 @@
     <!--</tr>-->
     <!--</thead>-->
     <tbody>
-
     {{each cols value}}
-
-    {{if value.spec }}
-    <tr>
-        <td class="col-xs-2 text-right">
-           {{value.title}}
-        </td>
-
-        <td class="col-xs-12 type-info" colspan="3">
-            {{if value.handle}}
-            <a href="javascript:;" id="handle{{value.field}}">{{data[value.field]}}</a>
-            {{else}}
-            {{data[value.field]}}
-            {{/if}}
-        </td>
-    </tr>
-    {{else}}
-
-
-
-    {{if $index%2 == 0}}
-    <tr>
-        <td class="col-xs-2 text-right">
-           {{value.title}}
-        </td>
-        <td class="col-xs-4 type-info">
-            {{if value.handle}}
-            <a href="javascript:;" id="handle{{value.field}}">{{data[value.field]}}</a>
-            {{else}}
-            {{data[value.field]}}
-            {{/if}}
-        </td>
-        {{ else }}
-        <td class="col-xs-2 text-right">
-           {{value.title}}
-        </td>
-        <td class="col-xs-4 type-info">
-            {{if value.handle}}
-            <a href="javascript:;" id="handle{{value.field}}">{{data[value.field]}}</a>
-            {{else}}
-            {{data[value.field]}}
-            {{/if}}
-        </td>
-    </tr>
-    {{/if}}
-
-    {{/if}}
-
+        {{if value[0].spec && value.length === 1 }}
+            <tr>
+                <td class="col-xs-2 text-right">
+                   {{value[0].title}}
+                </td>
+                <td class="col-xs-12 type-info" colspan="3">
+                    {{if value[0].handle}}
+                        <a href="javascript:;" id="handle{{value[0].field}}">{{data[value[0].field]}}</a>
+                    {{else}}
+                        {{data[value[0].field]}}
+                    {{/if}}
+                </td>
+            </tr>
+        {{else}}
+            <tr>
+                {{each value val}}
+                    <td class="col-xs-2 text-right">
+                        {{val.title}}
+                    </td>
+                    <td class="col-xs-4 type-info">
+                        {{if val.handle}}
+                        <a href="javascript:;" id="handle{{val.field}}">{{data[val.field]}}</a>
+                        {{else}}
+                        {{data[val.field]}}
+                        {{/if}}
+                    </td>
+                {{/each}}
+            </tr>
+        {{/if}}
     {{/each}}
     </tbody>
-
 </table>

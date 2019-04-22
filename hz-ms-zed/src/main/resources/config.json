@@ -5,5 +5,11 @@
         "driver": "com.ibm.db2.jcc.DB2Driver",
         "username": "db2inst1",
         "password": "db2inst1"
+    },
+    "mqserver": "tcp://47.94.97.138:8011?jms.blobTransferPolicy.uploadUrl=http://47.94.97.138:8012/fileserver/",
+    "log": {
+        "source": "d:/delog/source",
+        "sql": "d:/delog/sql",
+        "unzip": "d:/delog/unzip"
     }
 }

@@ -1915,11 +1915,9 @@ function downloadimgIE(canvas) {
     }
     //设置保存图片的类型
     var imgdata = canvas.toDataURL('image/jpeg',qual);
-    //var filename = '{{$smarty.get.name}}的关联图谱_'+new Date().toLocaleDateString() + '.jpeg';
-    // var filename = _FILENAME + '的关联图谱.png';
     var filename = '企查查_图谱.png';
     // TODO::
-    // post(INDEX_URL+'cms_downloadimg?filename='+filename, {img:imgdata});
+    post(remoteApi.qccDownloadimg + "?filename="+filename, {img:imgdata});
 }
 //截图1
 function canvasImg(imgData){
