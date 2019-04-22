@@ -21,7 +21,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableFeignClients(value = {"com.beeasy.hzback"})
 //@EnableCaching
 @SpringBootApplication(scanBasePackages = {"com.beeasy"})
-@EntityScan(basePackages = {"com.beeasy"})
+@EntityScan(basePackages = {    "com.beeasy"})
 //@ImportResource(value = {"classpath:provider.xml"})
 //@ServletComponentScan
 public class Application {

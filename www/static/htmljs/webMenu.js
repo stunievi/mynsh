@@ -873,6 +873,13 @@ var _menu = [
                         ]
                     },
                     {
+                        name: "企查查日志",
+                        href: '/htmlsrc/sysManage/logManage/qccLog.html',
+                        api: [
+                            // remoteApi.apiSystemLog
+                        ]
+                    },
+                    {
                         name: "短信发送历史",
                         href: '/htmlsrc/sysManage/logManage/shortMsg.html',
                         api: [

@@ -2454,10 +2454,6 @@
           type: EXT_DATA
           innate: true
           required: false
-        资产选择:
-          name: zichan
-          type: diya
-          required: true
         抵债方式:
           name: type
           type: select
@@ -2943,24 +2939,19 @@
       type: end
       end: true
 
-强制执行:
-  manual: false
-  subject:
 
+贷后跟踪-企查查贷后检查:
+  manual: true
   flow:
-    发起申请:
+    填写贷后检查表:
       deal: ["市场部，客户经理", "企业金融部，办事员","企业金融部，客户经理","三农中心，客户经理","公司银行部，总行办事员","零售银行部，总行办事员"]
       deleteable: false
       type: input
       start: true
+      next: [审核签署]
       content:
         任务编号:
           name: TASK_ID
-          type: taskId
-          required: true
-          innate: true
-        任务编号（不良资产管理流程）:
-          name: TASK_PID
           type: taskId
           required: true
           innate: true
@@ -2979,7 +2970,7 @@
           type: EXT_DATA
           innate: true
           required: false
-        客户名称:
+        借款人全称:
           name: CUS_NAME
           type: EXT_DATA
           innate: true
@@ -2989,90 +2980,104 @@
           type: EXT_DATA
           innate: true
           required: false
-        贷款金额（元）:
+        五级分类:
+          name: CLA
+          type: EXT_DATA
+          innate: true
+          required: false
+        担保方式:
+          name: ASSURE_MEANS_MAIN
+          type: EXT_DATA
+          innate: true
+          required: false
+        贷款额度（万元）:
           name: LOAN_AMOUNT
           type: EXT_DATA
           innate: true
+          required: false
+        贷款用途:
+          name: USE_DEC
+          type: string
+          required: false
+        贷款期限:
+          name: LOAN_TERM
+          type: string
           required: false
         贷款余额（元）:
           name: LOAN_BALANCE
           type: EXT_DATA
           innate: true
           required: false
-        五级分类:
-          name: CLA
-          type: EXT_DATA
-          innate: true
-          required: false
-        申请说明:
-          name: apply
+        是否按合同约定用途使用贷款:
+          name: IS_FOR_CONT
+          type: select
+          required: true
+          items:  [是,否]
+        是否按约履行借款合同的其他要求:
+          name: IS_FOR_CONT_OTHER
+          type: select
+          required: true
+          items:  [是,否]
+        借款人内部管理情况:
+          name: CUST_MANAGE_IN_B
+          type: select
+          required: true
+          items:  [良好,一般,"借款人的管理层出现重大意见分歧，或法定代表人（主要经营者）品行出现了不利于贷款偿还的变化","借款人内部管理出现问题，对正常经营构成实质损害，妨碍债务的及时足额清偿"]
+        客户是否存在违法行为:
+          name: IS_CUST_VIO
+          type: select
+          required: true
+          items:  [有,无]
+        借款人其他基本情况说明:
+          name: CUST_OTHER_DTL
           type: textarea
           required: false
-        上传附件:
-          type: files
-          name: files
-          required: false
-
-      next: 法院查封
-
-    法院查封:
-      deal: ["市场部，客户经理", "企业金融部，办事员","企业金融部，客户经理","三农中心，客户经理","公司银行部，总行办事员","零售银行部，总行办事员"]
-      deleteable: false
-      type: input
-      start: false
-      content:
-        说明:
-          name: apply
+        经营情况:
+          name: OP_STATUS
+          type: select
+          required: true
+          items:  ["借款人经营状况良好，未来仍将保持良好状况","业务量有所下降，整体盈利能力下降","经营状况出现明显不利变化，或经营由盈转亏","借款人进入清算程序","借款人处于停产、半停产状态，固定资产贷款项目处于停、缓建状态","借款人涉及对其经营财务状况产生重大不利影响的未决诉讼，影响借款人偿债能力的可能性很大"]
+        税、费缴纳情况:
+          name: TAX_STATUS_B
+          type: select
+          required: true
+          items:  ["正常缴纳","报告期内被税务机关或有关部门罚款(不包括滞纳金)2次(含)以内","报告期内被税务机关或有关部门罚款超过2次以上(不包括滞纳金)","存在拖欠税款超过1年未缴纳、偷税或抗税行为等"]
+        还款意愿:
+          name: REPAYMENT_WILL
+          type: select
+          required: true
+          items:  [优秀,良好,一般,较差,差]
+        偿还能力:
+          name: REPAYMENT_ABILITY
+          type: select
+          required: true
+          items:  ["诚信记录优良，在金融机构没有拖欠贷款本息的记录","借新还旧，或者通过其他融资方式偿还","不能偿还其他债权人债务","担保的有效性出现问题，抵质押物价值明显下降，或农合机构对其失去控制，明显影响贷款归还","通过拍卖抵押品、履行保证责任等途径筹集还款资金","改制后难以落实农合机构债务，或虽落实债务但不能正常还本付息","已诉诸法律追收的贷款"]
+        抵押物是否变化:
+          name: IS_PLEDGE_CHANGE
+          type: select
+          required: true
+          items:  [是,否]
+        保证人是否变化:
+          name: IS_WARRANT_CHANGE
+          type: select
+          required: true
+          items:  [是,否]
+        简要评价:
+          name: EVALUATE_TOTAL
           type: textarea
-          required: false
-        上传附件:
-          type: files
+          required: true
+        上传附件(必须上传公司经营场地照片,抵质押物或担保人住所照片):
           name: files
-          required: false
-
-      next: 资产评估
-
-    资产评估:
-      deal: ["市场部，客户经理", "企业金融部，办事员","企业金融部，客户经理","三农中心，客户经理","公司银行部，总行办事员","零售银行部，总行办事员"]
-      deleteable: false
-      type: input
-      start: false
-      content:
-        说明:
-          name: apply
-          type: textarea
-          required: false
-        上传附件:
           type: files
-          name: files
-          required: false
+          required: true
 
-      next: 拍卖公告
-
-    拍卖公告:
-      deal: ["市场部，客户经理", "企业金融部，办事员","企业金融部，客户经理","三农中心，客户经理","公司银行部，总行办事员","零售银行部，总行办事员"]
-      deleteable: false
-      type: input
-      start: false
-      content:
-        说明:
-          name: apply
-          type: textarea
-          required: false
-        上传附件:
-          type: files
-          name: files
-          required: false
-
-      next: 拍卖
-
-    拍卖:
-      deal: ["市场部，客户经理", "企业金融部，办事员","企业金融部，客户经理","三农中心，客户经理","公司银行部，总行办事员","零售银行部，总行办事员"]
+    审核签署:
+      deal: ["市场部，直管支行副经理","市场部，直管支行经理","三农中心，二级支行行长","公司银行部，总行经理","公司银行部，总行副经理","零售银行部，总行经理","零售银行部，总行副经理","企业金融部，总经理","企业金融部，副经理","企业金融部，总行经理"]
       deleteable: false
       type: check
       key: key
       ps: ps
-      question: 是否拍卖成功？
+      question: 是否通过
       states:
       -
         item: 是
@@ -3081,441 +3086,9 @@
       -
         item: 否
         condition: 1
-        behavior: go('二次拍卖')
+        behavior: go('填写贷后检查表')
       count: 1
-      next: [结束,"二次拍卖"]
-
-    二次拍卖:
-      deal: ["市场部，客户经理", "企业金融部，办事员","企业金融部，客户经理","三农中心，客户经理","公司银行部，总行办事员","零售银行部，总行办事员"]
-      deleteable: false
-      type: check
-      key: key
-      ps: ps
-      question: 是否拍卖成功？
-      states:
-      -
-        item: 是
-        condition: 1
-        behavior: go('结束')
-      -
-        item: 否
-        condition: 1
-        behavior: go('资产评估')
-      count: 1
-      next: [结束,"资产评估"]
+      next: [填写贷后检查表,结束]
 
     结束:
       type: end
-      end: true
-
-
-房屋出租:
-  manual: false
-  subject:
-
-  flow:
-    发起申请:
-      deal: ["市场部，客户经理", "企业金融部，办事员","企业金融部，客户经理","三农中心，客户经理","公司银行部，总行办事员","零售银行部，总行办事员"]
-      deleteable: false
-      type: input
-      start: true
-      content:
-        任务编号:
-          name: TASK_ID
-          type: taskId
-          required: true
-          innate: true
-        任务编号（不良资产管理流程）:
-          name: TASK_PID
-          type: taskId
-          required: true
-          innate: true
-        借据号:
-          name: BILL_NO
-          type: EXT_DATA
-          innate: true
-          required: false
-        合同号:
-          name: CONT_NO
-          type: EXT_DATA
-          innate: true
-          required: false
-        客户号:
-          name: CUS_ID
-          type: EXT_DATA
-          innate: true
-          required: false
-        客户名称:
-          name: CUS_NAME
-          type: EXT_DATA
-          innate: true
-          required: false
-        贷款帐号:
-          name: LOAN_ACCOUNT
-          type: EXT_DATA
-          innate: true
-          required: false
-        贷款金额（元）:
-          name: LOAN_AMOUNT
-          type: EXT_DATA
-          innate: true
-          required: false
-        贷款余额（元）:
-          name: LOAN_BALANCE
-          type: EXT_DATA
-          innate: true
-          required: false
-        五级分类:
-          name: CLA
-          type: EXT_DATA
-          innate: true
-          required: false
-        申请说明:
-          name: apply
-          type: textarea
-          required: false
-        上传附件:
-          type: files
-          name: files
-          required: false
-
-      next: 出租信息填写
-
-    出租信息填写:
-      deal: ["市场部，客户经理", "企业金融部，办事员","企业金融部，客户经理","三农中心，客户经理","公司银行部，总行办事员","零售银行部，总行办事员"]
-      deleteable: false
-      type: input
-      start: false
-      content:
-        房租缴纳日期:
-          name: dt_start
-          type: datetime
-          required: true
-        租金:
-          name: apply
-          type: textarea
-          required: false
-        租期:
-          name: apply
-          type: textarea
-          required: false
-        说明:
-          name: apply
-          type: textarea
-          required: false
-        上传附件:
-          type: files
-          name: files
-          required: false
-
-      next: 租客缴纳房租
-
-    租客缴纳房租:
-      deal: ["市场部，客户经理", "企业金融部，办事员","企业金融部，客户经理","三农中心，客户经理","公司银行部，总行办事员","零售银行部，总行办事员"]
-      deleteable: false
-      type: check
-      key: key
-      ps: ps
-      question: 是否缴纳本月房租？
-      states:
-      -
-        item: 是
-        condition: 1
-        behavior: go('出租是否结束')
-      -
-        item: 否
-        condition: 1
-        behavior: go('出租信息填写')
-      count: 1
-      next: [出租是否结束,"出租信息填写"]
-
-    出租是否结束:
-      deal: ["市场部，客户经理", "企业金融部，办事员","企业金融部，客户经理","三农中心，客户经理","公司银行部，总行办事员","零售银行部，总行办事员"]
-      deleteable: false
-      type: check
-      key: key
-      ps: ps
-      question: 出租是否结束？
-      states:
-      -
-        item: 是
-        condition: 1
-        behavior: go('结束')
-      -
-        item: 否
-        condition: 1
-        behavior: go('出租信息填写')
-      count: 1
-      next: [结束,"出租信息填写"]
-
-    结束:
-      type: end
-      end: true
-
-
-资产拍卖:
-  manual: false
-  subject:
-
-  flow:
-    发起申请:
-      deal: ["市场部，客户经理", "企业金融部，办事员","企业金融部，客户经理","三农中心，客户经理","公司银行部，总行办事员","零售银行部，总行办事员"]
-      deleteable: false
-      type: input
-      start: true
-      content:
-        任务编号:
-          name: TASK_ID
-          type: taskId
-          required: true
-          innate: true
-        任务编号（不良资产管理流程）:
-          name: TASK_PID
-          type: taskId
-          required: true
-          innate: true
-        借据号:
-          name: BILL_NO
-          type: EXT_DATA
-          innate: true
-          required: false
-        合同号:
-          name: CONT_NO
-          type: EXT_DATA
-          innate: true
-          required: false
-        客户号:
-          name: CUS_ID
-          type: EXT_DATA
-          innate: true
-          required: false
-        客户名称:
-          name: CUS_NAME
-          type: EXT_DATA
-          innate: true
-          required: false
-        贷款帐号:
-          name: LOAN_ACCOUNT
-          type: EXT_DATA
-          innate: true
-          required: false
-        贷款金额（元）:
-          name: LOAN_AMOUNT
-          type: EXT_DATA
-          innate: true
-          required: false
-        贷款余额（元）:
-          name: LOAN_BALANCE
-          type: EXT_DATA
-          innate: true
-          required: false
-        五级分类:
-          name: CLA
-          type: EXT_DATA
-          innate: true
-          required: false
-        申请说明:
-          name: apply
-          type: textarea
-          required: false
-        上传附件:
-          type: files
-          name: files
-          required: false
-
-      next: 资产拍卖信息填写
-
-    资产拍卖信息填写:
-      deal: ["市场部，客户经理", "企业金融部，办事员","企业金融部，客户经理","三农中心，客户经理","公司银行部，总行办事员","零售银行部，总行办事员"]
-      deleteable: false
-      type: input
-      start: false
-      content:
-        拍卖价格:
-          name: apply
-          type: textarea
-          required: false
-        拍卖方式:
-          name: apply
-          type: textarea
-          required: false
-        说明:
-          name: apply
-          type: textarea
-          required: false
-        上传附件:
-          type: files
-          name: files
-          required: false
-
-      next: 检查是否拍卖成功
-
-    检查是否拍卖成功:
-      deal: ["市场部，客户经理", "企业金融部，办事员","企业金融部，客户经理","三农中心，客户经理","公司银行部，总行办事员","零售银行部，总行办事员"]
-      deleteable: false
-      type: check
-      key: key
-      ps: ps
-      question: 是否拍卖成功？
-      states:
-      -
-        item: 是
-        condition: 1
-        behavior: go('上传拍卖结果资料')
-      -
-        item: 否
-        condition: 1
-        behavior: go('检查是否拍卖成功')
-      count: 1
-      next: [上传拍卖结果资料,"检查是否拍卖成功"]
-
-    上传拍卖结果资料:
-      deal: ["市场部，客户经理", "企业金融部，办事员","企业金融部，客户经理","三农中心，客户经理","公司银行部，总行办事员","零售银行部，总行办事员"]
-      deleteable: false
-      type: input
-      start: false
-      content:
-        说明:
-          name: apply
-          type: textarea
-          required: false
-        上传附件:
-          type: files
-          name: files
-          required: false
-
-      next: 结束
-
-    结束:
-      type: end
-      end: true
-
-
-资产协议出售:
-  manual: false
-  subject:
-
-  flow:
-    发起申请:
-      deal: ["市场部，客户经理", "企业金融部，办事员","企业金融部，客户经理","三农中心，客户经理","公司银行部，总行办事员","零售银行部，总行办事员"]
-      deleteable: false
-      type: input
-      start: true
-      content:
-        任务编号:
-          name: TASK_ID
-          type: taskId
-          required: true
-          innate: true
-        任务编号（不良资产管理流程）:
-          name: TASK_PID
-          type: taskId
-          required: true
-          innate: true
-        借据号:
-          name: BILL_NO
-          type: EXT_DATA
-          innate: true
-          required: false
-        合同号:
-          name: CONT_NO
-          type: EXT_DATA
-          innate: true
-          required: false
-        客户号:
-          name: CUS_ID
-          type: EXT_DATA
-          innate: true
-          required: false
-        客户名称:
-          name: CUS_NAME
-          type: EXT_DATA
-          innate: true
-          required: false
-        贷款帐号:
-          name: LOAN_ACCOUNT
-          type: EXT_DATA
-          innate: true
-          required: false
-        贷款金额（元）:
-          name: LOAN_AMOUNT
-          type: EXT_DATA
-          innate: true
-          required: false
-        贷款余额（元）:
-          name: LOAN_BALANCE
-          type: EXT_DATA
-          innate: true
-          required: false
-        五级分类:
-          name: CLA
-          type: EXT_DATA
-          innate: true
-          required: false
-        申请说明:
-          name: apply
-          type: textarea
-          required: false
-        上传附件:
-          type: files
-          name: files
-          required: false
-
-      next: 上传协议出售资料
-
-    上传协议出售资料:
-      deal: ["市场部，客户经理", "企业金融部，办事员","企业金融部，客户经理","三农中心，客户经理","公司银行部，总行办事员","零售银行部，总行办事员"]
-      deleteable: false
-      type: input
-      start: false
-      content:
-        说明:
-          name: apply
-          type: textarea
-          required: false
-        上传附件:
-          type: files
-          name: files
-          required: false
-
-      next: 出售成功
-
-    出售成功:
-      deal: ["市场部，客户经理", "企业金融部，办事员","企业金融部，客户经理","三农中心，客户经理","公司银行部，总行办事员","零售银行部，总行办事员"]
-      deleteable: false
-      type: check
-      key: key
-      ps: ps
-      question: 是否出售成功？
-      states:
-      -
-        item: 是
-        condition: 1
-        behavior: go('处置过程')
-      -
-        item: 否
-        condition: 1
-        behavior: go('上传协议出售资料')
-      count: 1
-      next: [处置过程,"上传协议出售资料"]
-
-    处置过程:
-      deal: ["市场部，客户经理", "企业金融部，办事员","企业金融部，客户经理","三农中心，客户经理","公司银行部，总行办事员","零售银行部，总行办事员"]
-      deleteable: false
-      type: input
-      start: false
-      content:
-        说明:
-          name: apply
-          type: textarea
-          required: false
-        上传附件:
-          type: files
-          name: files
-          required: false
-
-      next: 结束
-
-    结束:
-      type: end
-      end: true

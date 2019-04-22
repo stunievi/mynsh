@@ -46,7 +46,9 @@ public class SysNotice extends TailBean implements ValidGroup {
         //台账信息
         ACC_LOAN,
         //短消息
-        MESSAGE
+        MESSAGE,
+        //企查查通知
+        QCC
     }
 
     public enum State {
