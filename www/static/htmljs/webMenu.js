@@ -131,11 +131,11 @@ var _menu = [
             {
                 name: "客户列表",
                 href: "/htmlsrc/comInfoQuery/company/company.list.html"
-            },
-            {
-                name: "动产抵押",
-                href: "/htmlsrc/qichacha/ChattelMortgage/ChattelMortgageDetail.html"
             }
+            // {
+            //     name: "动产抵押",
+            //     href: "/htmlsrc/qichacha/ChattelMortgage/ChattelMortgageDetail.html"
+            // }
         ]
     },
     {
@@ -151,6 +151,17 @@ var _menu = [
                 name: "台账绑定",
                 href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+encodeURI(enumWorkFlowModel.preLendingCollect),
                 api: [remoteApi.apiOdsSearchAccloan]
+            }
+        ]
+    },
+
+    {
+        name: '贷前任务',
+        children: [
+            {
+                name: '贷前任务',
+                href: '/htmlsrc/preLendingCollect/collect2.html',
+                api: [remoteApi.apigetMyInfoCollect]
             }
         ]
     },
