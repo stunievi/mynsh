@@ -1,6 +1,5 @@
 
 var _menu = [
-
     {
         id: "menu-mybench",
         name:'工作台',
@@ -131,11 +130,11 @@ var _menu = [
             {
                 name: "客户列表",
                 href: "/htmlsrc/comInfoQuery/company/company.list.html"
-            },
-            {
-                name: "动产抵押",
-                href: "/htmlsrc/qichacha/ChattelMortgage/ChattelMortgageDetail.html"
             }
+            // {
+            //     name: "动产抵押",
+            //     href: "/htmlsrc/qichacha/ChattelMortgage/ChattelMortgageDetail.html"
+            // }
         ]
     },
     {

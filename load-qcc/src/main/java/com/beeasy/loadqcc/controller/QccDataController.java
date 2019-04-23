@@ -6,16 +6,14 @@ import com.beeasy.loadqcc.config.MQConfig;
 import com.beeasy.loadqcc.entity.LoadQccDataExtParm;
 import com.beeasy.loadqcc.service.GetOriginQccService;
 import com.beeasy.loadqcc.service.MongoService;
-import com.beeasy.mscommon.Result;
 import com.mongodb.client.model.Filters;
 import org.apache.activemq.BlobMessage;
 import org.apache.activemq.command.ActiveMQTopic;
 import org.bson.Document;
-import org.osgl.util.IO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jms.annotation.JmsListener;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.stereotype.Component;
 import org.springframework.jms.core.JmsMessagingTemplate;
 
 import javax.jms.JMSException;
@@ -26,12 +24,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.List;
-import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-@RestController
-@RequestMapping("/qcc/loadData")
+@Component
 public class QccDataController {
 
     @Autowired
@@ -42,7 +38,7 @@ public class QccDataController {
     @Autowired
     GetOriginQccService getOriginQccService;
 
-    private SimpleDateFormat sdf= new SimpleDateFormat("yyyy-MM-dd");
+    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
     // 发送压缩文件
     private void sendQccZipToMQ(
@@ -70,18 +66,7 @@ public class QccDataController {
 
         // 将压缩文件放入MQ,供解构服务调用
         ActiveMQTopic mqTopic = new ActiveMQTopic("qcc-deconstruct-request");
-        jmsMessagingTemplate.convertAndSend(mqTopic, new MQConfig.FileRequest(extParam.getCommond(), extParam.getCommandId(), __zip));
-    }
-
-    // 从企查查拉取所有数据
-    @GetMapping(value = "/getAllQccData")
-    Result ECI_GetDetailsByName(
-           @RequestParam("keyWord") String keyWord
-    ){
-        LoadQccDataExtParm extParam = LoadQccDataExtParm.automatic(UUID.randomUUID().toString());
-        getOriginQccService.loadAllData(keyWord, extParam);
-        sendQccZipToMQ(extParam);
-        return Result.ok(keyWord);
+        jmsMessagingTemplate.convertAndSend(mqTopic, new MQConfig.FileRequest(extParam.getCommand(), extParam.getResDataId(), __zip));
     }
 
     // 获取公司工商信息
@@ -107,8 +92,8 @@ public class QccDataController {
     }
 
     // 监听MQ递送的更新名单
-    @JmsListener(destination = "my_msg", containerFactory = "jmsListenerContainerTopic")
-    public void test(Object o) throws JMSException, IOException {
+    @JmsListener(destination = "qcc-company-infos-request")
+    public void test(Object o) throws JMSException {
         if(o instanceof TextMessage){
             String dataStr = ((TextMessage) o).getText();
             JSONObject dataObj;

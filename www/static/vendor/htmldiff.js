@@ -47,7 +47,7 @@
      * @return {Array<String>}
      */
     var convertHtml2Words = function(html) {
-            return html.match(/<[^>]+>|[^<|>|\w]|\w+\b|\s+/mg);
+            return html.match(/<[^>]+>|[^<|>|\w]|\w+\b|\s+/mg) || [];
         };
 
     /**
@@ -73,7 +73,7 @@
             this.indexNewWords();
             this.operations = this.getOperations();
             this.performOperation();
-            return "<br/>[耗时："+(new Date - sd)+"毫秒]"+this.content.join('');
+            return this.content.join('');
         },
 
         performOperation: function() {

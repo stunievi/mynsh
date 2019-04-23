@@ -3,6 +3,7 @@ package com.beeasy.hzqcc.controller;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.mscommon.Result;
+import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsMessagingTemplate;
@@ -27,7 +28,7 @@ public class UpdateQccDataController {
             @RequestParam("fullName") String fullName,
             @RequestParam("sign") String sign
     ){
-        ActiveMQTopic mqTopic = new ActiveMQTopic("my_msg");
+        ActiveMQQueue mqQueue = new ActiveMQQueue("qcc-company-infos-request");
         // 按格式封装指令格式放入MQ
         JSONObject result = new JSONObject();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
@@ -41,7 +42,7 @@ public class UpdateQccDataController {
         result.put("OrderData", jsonArray);
 
         System.out.println("发送内容："+result.toString());
-        jmsMessagingTemplate.convertAndSend(mqTopic, result.toString());
+        jmsMessagingTemplate.convertAndSend(mqQueue, result.toString());
         return Result.ok("指令已发送！");
     }
 

@@ -30,7 +30,6 @@
     <script type="text/html" id="toolbar">
         <div class="layui-toolbar">
             <a href="javascript:;" class="btn btn-default handleShowClientInfo" data-id="{{d.CUS_ID}}" data-name="{{d.CUS_NAME}}" data-type="com">查看</a>
-            <a href="javascript:;" class="btn btn-primary handleShowECI" data-id="{{d.CUS_ID}}" data-name="{{d.CUS_NAME}}">企查查</a>
         </div>
     </script>
 
@@ -46,8 +45,8 @@
                 { label:'电话', prop:'PHONE' },
                 { label:'联系人', prop:'CONTACT_NAME' },
                 { label:'贷款金额', prop:'LOAN_AMOUNT' },
-                { label:'拖欠本金', prop:'UNPD_PRIN_BAL' }
-                , { label:'负责客户', prop:'own', type:"checkbox", value:1, checked: false}
+                { label:'拖欠本金', prop:'UNPD_PRIN_BAL' },
+                { label:'负责客户', prop:'own', type:"checkbox", value:1, checked: false}
 
             ],
             data: {
@@ -80,13 +79,6 @@
                 url: "../../workFlow/nodeAdd.html?custype=com&name="+enumWorkFlowModel.preLendingCollect+"&cusid="+that.data("id")
             }))
         })
-
-        $(document).on("click", ".handleShowECI", function (){
-            var id = $(this).data("id");
-            var name = $(this).data("name");
-            addNavTab("ECIdetail"+id, "企查查-公司详情", hrefUrl.ECIdetail+name);
-            return true;
-        });
 
         function checkSubmitForm(){
             layuiTableReload({

@@ -8,7 +8,6 @@
     <!--#include file="./tupu-head.html" -->
 </head>
 <body style="">
-<!--<link rel="stylesheet" type="text/css" href="https://www.qichacha.com/material/common/2013admin/js/artDialog4.1.7/skins/blue.css" />-->
 <link rel="stylesheet" href="./css/companyDetail.css" type="text/css" />
 <!--#include file="./mao-head.html" -->
 <div class="mao-screen-area" id="screenArea" style="height: 640px;">
@@ -52,7 +51,6 @@
     $(document).ready(function () {
         resizeScreen();
         myChart = echarts.init(document.getElementById('main'));
-        //new window.zoomutil({dom: $('#mainGuquan')[0], chart:myChart}); // add zoomutil feature
         getData();
     });
 
@@ -63,14 +61,11 @@
     var gudongData;
     var touziData;
 
-
     function getData(){
-        var companyName = decodeURI(getParam("name")) || "大连万达集团股份有限公司";
-        var companyKeyNo= decodeURI(getParam("keyNo")) || "befe52d9753b511b6aef5e33fe00f97d";
-
+        var companyName = decodeURI(getParam("name"));
+        var companyKeyNo= decodeURI(getParam("keyNo"));
         $('#load_data').show();
         var p1 = $.ajax({
-            // url: "./json/guquanchuantou1.json",
             url: remoteApi.qccECICompanyMapGetStockAnalysisData,
             data:{
                 fullName: companyName

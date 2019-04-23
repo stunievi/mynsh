@@ -128,21 +128,12 @@
                 [
                     BOOTSTRAP_INDEX_FILED,
                     { title:'操作', templet: "#susong2_toolbar"},
-                    // {title:"Id",field:"Id"},
-                    {title:"执行法院",field:"Court"},
-                    {title:"裁判文书名字",field:"CaseName"},
-                    {title:"裁判文书编号",field:"CaseNo"},
-                    {title:"裁判文书类型",field:"CaseType"},
-                    {title:"发布时间",field:"SubmitDate"},
-                    // {title:"审判时间",field:"UpdateDate"},
-                    // {title:"是否原告（供参考）",field:"IsProsecutor"},
-                    // {title:"是否被告（供参考）",field:"IsDefendant"},
-                    // {title:"开庭时间年份",field:"CourtYear"},
-                    {title:"涉案人员角色",field:"CaseRole", width: 200},
-                    // {title:"法院级别",field:"CourtLevel"},
+                    {title:"裁判文书名字",field:"CaseName", setWidth: 120},
                     {title:"案由",field:"CaseReason"},
-                    {title:"案由类型",field:"CaseReasonType"},
-                    // {title:"开庭时间月份",field:"CourtMonth"}
+                    {title:"发布时间",field:"SubmitDate"},
+                    {title:"裁判文书编号",field:"CaseNo"},
+                    {title:"涉案人员角色",field:"CaseRole"},
+                    {title:"执行法院",field:"Court"}
                 ]
             ],
             onData:function (data) {
@@ -278,11 +269,7 @@
                             {title:"股权数额",field:"EquityAmount" },
                             {title:"执行法院",field:"EnforcementCourt" },
                             {title:"执行通知书文号",field:"ExecutionNoticeNum" },
-                            {title:"类型 | 状态",field:"Status" },
-                            {title:"公司KeyNo",field:"CompanyId" },
-                            {title:"公司名称",field:"CompanyName" },
-                            {title:"统一社会信用代码",field:"CompanyCode" },
-                            {title:"注册号",field:"CompanyNo" }
+                            {title:"类型 | 状态",field:"Status" }
                         ]
                     ],
                     data: JudicialAssistanceDataList
@@ -292,6 +279,7 @@
 
         $(document).on("click", ".susong6_toolbar", function (){
             var id = $(this).data("val");
+            id = id.replace(/\(|\)/g,"");
             addNavTab("qccJudicialAssistanceGetJudicialAssistance-"+id, "司法协助详情", "/htmlsrc/qichacha/JudicialAssistance/GetJudicialAssistanceDetail.html?id="+id, JudicialAssistanceDataList[$(this).closest("tr").data("index")]);
             return false;
         });
