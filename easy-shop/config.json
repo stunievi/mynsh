@@ -12,6 +12,6 @@
         "com.beeasy.easyshop.ctrl"
     ],
     "route": [
-        "qcc -> com.beeasy.easyshop.ctrl"
+        "/qcc/:c/:a -> com.beeasy.easyshop.filter,com.beeasy.easyshop.filter2 -> com.beeasy.easyshop.ctrl"
     ]
 }

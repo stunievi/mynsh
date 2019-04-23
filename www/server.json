@@ -1,7 +1,7 @@
 [
   {
     "name": "main",
-    "server": "http://localhost:8099"
+    "server": "http://localhost"
   },
   {
     "name": "h2",

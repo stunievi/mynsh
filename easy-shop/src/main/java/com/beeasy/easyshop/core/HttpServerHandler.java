@@ -3,6 +3,7 @@ package com.beeasy.easyshop.core;
 import static com.beeasy.easyshop.core.Config.config;
 import static cn.hutool.core.util.StrUtil.*;
 
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
 import com.alibaba.fastjson.JSON;
@@ -16,6 +17,12 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.*;
+//import io.netty.handler.codec.http.cookie.Cookie;
+import io.netty.handler.codec.http.cookie.CookieDecoder;
+import io.netty.handler.codec.http.cookie.CookieEncoder;
+import io.netty.handler.codec.http.cookie.DefaultCookie;
+import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
+import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import io.netty.handler.codec.http.multipart.Attribute;
 import io.netty.handler.codec.http.multipart.FileUpload;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
@@ -37,7 +44,7 @@ import java.util.stream.Collectors;
 public class HttpServerHandler extends ChannelInboundHandlerAdapter {
 //    private static List<Route> RouteList = new ArrayList<>();
 
-    public static Map<String, String> ctrls = new HashMap<>();
+    public static List<Route> ctrls = new ArrayList<>();
     public static Vector<Channel> clients = new Vector<>();
     private WebSocketServerHandshaker handshaker = null;
 
@@ -118,22 +125,40 @@ public class HttpServerHandler extends ChannelInboundHandlerAdapter {
         }
 
         boolean keepAlive = HttpUtil.isKeepAlive(request);
-        String[] arr = URLUtil.getPath(uri).substring(1).split("\\/");
+        String path = URLUtil.getPath(uri);
+        String[] arr = path.substring(1).split("\\/");
         route:
         {
-            if (arr.length < 2) {
+            Route route = null;
+            for (Route ctrl : ctrls) {
+                if(ctrl.match(path)){
+                route = ctrl;
+                break;
+                }
+            }
+            if (route == null) {
                 break route;
             }
-            String packageName = ctrls.get(arr[0]);
-            if (packageName == null) {
-                break route;
+
+            String className = ArrayUtil.get(arr, route.cIndex);
+            String methodName = ArrayUtil.get(arr, route.aIndex);
+
+            Cookie cookie = Cookie.getInstance();
+            if(request.headers().contains(HttpHeaders.Names.COOKIE)){
+                cookie.wrap(ServerCookieDecoder.LAX.decode(request.headers().get(HttpHeaders.Names.COOKIE)));
             }
-            Class clz = (Class) (new MyClassLoadader()).loadClass(packageName + "." + arr[1]);
+            MyClassLoadader loader = new MyClassLoadader();
+            Class clz = loader.loadClass(route.packageName + "." + className);
             Object result = null;
             for (Method method : clz.getDeclaredMethods()) {
-                if (method.getName().equalsIgnoreCase(arr[2])) {
-                    Object[] args = autoWiredParams(request, clz, method);
-                    result = method.invoke(clz.newInstance(), args);
+                if (method.getName().equalsIgnoreCase(methodName)) {
+                    Object instance = clz.newInstance();
+                    Object[] args = autoWiredParams(request, clz, method, null);
+                    if (route.aops != null) {
+                        result = doAop(request,loader, route.aops, clz, method, instance, args);
+                    } else {
+                        result = method.invoke(clz.newInstance(), args);
+                    }
                     break;
                 }
             }
@@ -147,12 +172,13 @@ public class HttpServerHandler extends ChannelInboundHandlerAdapter {
                 } else {
                     responseBytes = JSON.toJSONString(result, SerializerFeature.WriteDateUseDateFormat, SerializerFeature.PrettyFormat).getBytes(StandardCharsets.UTF_8);
                 }
-                int contentLength = responseBytes.length;
+//                int contentLength = responseBytes.length;
                 // 构造FullHttpResponse对象，FullHttpResponse包含message body
                 ByteBuf buf = Unpooled.wrappedBuffer(responseBytes);
                 response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, buf);
-                response.headers().set("Content-Type", "application/json; charset=utf-8");
-                response.headers().set("Content-Length", buf.readableBytes());
+                response.headers().set(HttpHeaders.Names.CONTENT_TYPE, "application/json; charset=utf-8");
+                response.headers().set(HttpHeaders.Names.CONTENT_LENGTH, buf.readableBytes());
+                cookie.writeToResponse(response);
             }
 
             write(ctx, response, keepAlive);
@@ -245,7 +271,32 @@ public class HttpServerHandler extends ChannelInboundHandlerAdapter {
 
     }
 
-    private Object[] autoWiredParams(FullHttpRequest request, Class clz, Method method){
+    private Object doAop(FullHttpRequest request, ClassLoader loader, String[] aops, Class clz, Method method, Object instance, Object[] args) throws Exception {
+        AopInvoke invoke = null;
+        invoke = new AopInvoke(clz, method, instance, args);
+        int i = aops.length;
+        while(i-- > 0){
+            String aop = aops[i];
+            //如果有已经包装的方法
+            Class<?> clzAop = loader.loadClass(aop);
+            //查找一个名为around的方法
+            Method methodAop = null;
+            for (Method m : clzAop.getMethods()) {
+                if(m.getName().equals("around")){
+                    methodAop = m;
+                    break;
+                }
+            }
+                Map<Class, Object> staticArgs = new HashMap<>();
+                staticArgs.put(AopInvoke.class, invoke);
+                Object aopInstance = clzAop.newInstance();
+                Object[] aopArgs = autoWiredParams(request, clzAop, methodAop, staticArgs);
+                invoke = new AopInvoke(clzAop, methodAop, aopInstance, aopArgs);
+        }
+        return invoke.call();
+    }
+
+    private Object[] autoWiredParams(FullHttpRequest request, Class clz, Method method, Map<Class, Object> staticArgs){
         Parameter[] parameters = method.getParameters();
         Object[] ret = new Object[parameters.length];
         int idex = -1;
@@ -273,6 +324,12 @@ public class HttpServerHandler extends ChannelInboundHandlerAdapter {
             Class<?> type = parameter.getType();
 //            name = names.get(i);
             ret[i] = null;
+            //如果有静态，则直接使用
+            if(null != staticArgs && staticArgs.containsKey(type)){
+                ret[i] = staticArgs.get(type);
+                continue;
+            }
+
             switch (name){
                 case "query":
                     ret[i] = query.toJavaObject(type);
@@ -285,6 +342,10 @@ public class HttpServerHandler extends ChannelInboundHandlerAdapter {
 
                 case "params":
                     ret[i] = params.toJavaObject(type);
+                    break;
+
+                case "cookie":
+                    ret[i] = Cookie.getInstance();
                     break;
 
                 default:

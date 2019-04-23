@@ -3,6 +3,7 @@ package com.beeasy.easyshop.ctrl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.beeasy.easyshop.core.Cookie;
 import com.beeasy.easyshop.core.MultipartFile;
 import org.beetl.sql.core.SQLReady;
 
@@ -27,7 +28,7 @@ public class a {
         return "source word " + new b().word;
     }
 
-    public String test2(
+    public String upload(
         JSON body,
 //        JSONArray params,
         MultipartFile file
@@ -37,6 +38,20 @@ public class a {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return "";
+    }
+
+    public String cookieAdd(
+        Cookie cookie
+    ){
+        cookie.set("cubi","123l");
+        return "";
+    }
+
+    public String cookieDelete(
+        Cookie cookie
+    ){
+        cookie.delete("cubi");
         return "";
     }
 }
