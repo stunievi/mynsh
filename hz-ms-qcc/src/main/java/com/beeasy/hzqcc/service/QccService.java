@@ -15,8 +15,6 @@ import java.util.Map;
 public class QccService {
 
     @Autowired
-    QccDataService qccDataService;
-    @Autowired
     QccHttpDataService qccHttpDataService;
 
     // 返回详情

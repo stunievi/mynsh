@@ -36,6 +36,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -58,7 +59,17 @@ public class TestQcc {
             }
         });
         DBService.init(true);
+        try {
+            DBService.await();
+        } catch (ExecutionException | InterruptedException e) {
+            e.printStackTrace();
+        }
         QccService.register();
+        try {
+            QccService.await();
+        } catch (ExecutionException | InterruptedException e) {
+            e.printStackTrace();
+        }
         deconstructService = DeconstructService.register();
         ThreadUtil.execAsync(NettyService::start);
 //        clearTable("QCC_JUDGMENT_DOC");
@@ -74,26 +85,26 @@ public class TestQcc {
     @Test
     public void SearchShiXin() throws Exception {
         clearTable("QCC_SHIXIN");
-        read("/CourtV4/SearchShiXin.json?searchKey=惠州市帅星贸易有限公司");
-        checkPageMatched("/CourtV4/SearchShiXin?fullName=惠州市帅星贸易有限公司");
+        read("/CourtV4/SearchShiXin.json?searchKey=惠州市维也纳惠尔曼酒店管理有限公司");
+        checkPageMatched("/CourtV4/SearchShiXin?fullName=惠州市维也纳惠尔曼酒店管理有限公司");
     }
 
     @Test
     public void SearchZhiXing() throws Exception {
         clearTable("QCC_ZHIXING");
-        read("/CourtV4/SearchZhiXing.json?searchKey=惠州市帅星贸易有限公司");
-        checkPageMatched("/CourtV4/SearchZhiXing?fullName=惠州市帅星贸易有限公司");
+        read("/CourtV4/SearchZhiXing.json?searchKey=惠州市维也纳惠尔曼酒店管理有限公司");
+        checkPageMatched("/CourtV4/SearchZhiXing?fullName=惠州市维也纳惠尔曼酒店管理有限公司");
     }
 
     @Test
     public void SearchJudgmentDoc() throws Exception {
         clearTable("QCC_JUDGMENT_DOC_COM","QCC_JUDGMENT_DOC_CN","QCC_JUDGMENT_DOC");
-        JSONObject object = read("/JudgeDocV4/SearchJudgmentDoc.json?searchKey=惠州市帅星贸易有限公司");
+        JSONObject object = read("/JudgeDocV4/SearchJudgmentDoc.json?searchKey=惠州市维也纳惠尔曼酒店管理有限公司");
         String id = object.getByPath("Result.0.Id", String.class);
         assertNotNull(id);
         read("/JudgeDocV4/GetJudgementDetail.json?id=" + id);
 
-        checkPageMatched("/JudgeDocV4/SearchJudgmentDoc?fullName=惠州市帅星贸易有限公司");
+        checkPageMatched("/JudgeDocV4/SearchJudgmentDoc?fullName=惠州市维也纳惠尔曼酒店管理有限公司");
         JSONObject detail = checkObjectMatched("/JudgeDocV4/GetJudgementDetail?id=" + id);
         assertTrue(detail.get("Appellor") instanceof JSONArray);
         assertTrue(detail.get("DefendantList") instanceof JSONArray);
@@ -103,12 +114,12 @@ public class TestQcc {
     @Test
     public void SearchCourtAnnouncement() throws Exception {
         clearTable("QCC_COURT_ANNOUNCEMENT","QCC_COURT_ANNOUNCEMENT_PEOPLE");
-        JSONObject object = read("/CourtNoticeV4/SearchCourtAnnouncement.json?companyName=惠州市帅星贸易有限公司");
+        JSONObject object = read("/CourtNoticeV4/SearchCourtAnnouncement.json?companyName=惠州市维也纳惠尔曼酒店管理有限公司");
         String id = object.getByPath("Result.0.Id", String.class);
         assertNotNull(id);
         read("/CourtNoticeV4/SearchCourtAnnouncementDetail.json?id=" + id);
 
-        checkPageMatched("/CourtNoticeV4/SearchCourtAnnouncement?fullName=惠州市帅星贸易有限公司");
+        checkPageMatched("/CourtNoticeV4/SearchCourtAnnouncement?fullName=惠州市维也纳惠尔曼酒店管理有限公司");
         JSONObject obj = checkObjectMatched("/CourtNoticeV4/SearchCourtAnnouncementDetail?id=" + id);
         assertTrue(obj.getJSONArray("NameKeyNoCollection").size() > 0);
 
@@ -121,12 +132,12 @@ public class TestQcc {
     public void SearchCourtNotice() throws Exception {
         clearTable("QCC_COURT_NOTICE_PEOPLE", "QCC_COURT_NOTICE");
 
-        JSONObject s1 = read("/CourtAnnoV4/SearchCourtNotice.json?searchKey=惠州市帅星贸易有限公司");
+        JSONObject s1 = read("/CourtAnnoV4/SearchCourtNotice.json?searchKey=惠州市维也纳惠尔曼酒店管理有限公司");
         String id = s1.getByPath("Result.0.Id", String.class);
         assertNotNull(id);
         JSONObject s2 = read("/CourtAnnoV4/GetCourtNoticeInfo.json?id=" + id);
 
-        JSONObject page = checkResult("/CourtAnnoV4/SearchCourtNotice?fullName=惠州市帅星贸易有限公司");
+        JSONObject page = checkResult("/CourtAnnoV4/SearchCourtNotice?fullName=惠州市维也纳惠尔曼酒店管理有限公司");
         checkSim(s1, page);
         JSONObject obj = checkResult("/CourtAnnoV4/GetCourtNoticeInfo?id=" + id);
         checkSim(s2, obj);
@@ -138,8 +149,8 @@ public class TestQcc {
     @Test
     public void GetJudicialAssistance() throws Exception {
         clearTable("QCC_JUDICIAL_ASSISTANCE", "QCC_EQUITY_FREEZE_DETAIL");
-       read("/JudicialAssistance/GetJudicialAssistance.json?keyWord=惠州市帅星贸易有限公司");
-        String url = ("/JudicialAssistance/GetJudicialAssistance?fullName=惠州市帅星贸易有限公司");
+       read("/JudicialAssistance/GetJudicialAssistance.json?keyWord=惠州市维也纳惠尔曼酒店管理有限公司");
+        String url = ("/JudicialAssistance/GetJudicialAssistance?fullName=惠州市维也纳惠尔曼酒店管理有限公司");
         JSONObject result = huGet(url);
         assertEquals(result.getStr("Status"),"200");
         JSONArray list = result.getJSONArray("Result");
@@ -156,16 +167,16 @@ public class TestQcc {
     @Test
     public void GetOpException() throws Exception {
         clearTable("QCC_OP_EXCEPTION");
-        read("/ECIException/GetOpException.json?keyNo=惠州市帅星贸易有限公司");
-        String url = "/ECIException/GetOpException?fullName=惠州市帅星贸易有限公司";
+        read("/ECIException/GetOpException.json?keyNo=惠州市维也纳惠尔曼酒店管理有限公司");
+        String url = "/ECIException/GetOpException?fullName=惠州市维也纳惠尔曼酒店管理有限公司";
         JSONArray list = checkListMatched(url);
     }
 
     @Test
     public void GetJudicialSaleList() throws Exception {
         clearTable("QCC_JUDICIAL_SALE");
-        read("/JudicialSale/GetJudicialSaleList.json?keyWord=惠州市帅星贸易有限公司");
-        String url = "/JudicialSale/GetJudicialSaleList?fullName=惠州市帅星贸易有限公司";
+        read("/JudicialSale/GetJudicialSaleList.json?keyWord=惠州市维也纳惠尔曼酒店管理有限公司");
+        String url = "/JudicialSale/GetJudicialSaleList?fullName=惠州市维也纳惠尔曼酒店管理有限公司";
         JSONArray object = checkPageMatched(url);
         String id = object.getByPath("0.Id", String.class);
         assertNotNull(id);
@@ -182,8 +193,8 @@ public class TestQcc {
     public void GetLandMortgageList() throws Exception {
         clearTable("QCC_LAND_MORTGAGE");
         clearTable("JG_LM_PEOPLE_RE");
-        JSONObject source = read("/LandMortgage/GetLandMortgageList.json?keyWord=惠州市帅星贸易有限公司");
-        String url = "/LandMortgage/GetLandMortgageList?fullName=惠州市帅星贸易有限公司";
+        JSONObject source = read("/LandMortgage/GetLandMortgageList.json?keyWord=惠州市维也纳惠尔曼酒店管理有限公司");
+        String url = "/LandMortgage/GetLandMortgageList?fullName=惠州市维也纳惠尔曼酒店管理有限公司";
         JSONArray array = checkPageMatched(url);
         String id = array.getByPath("1.Id", String.class);
         assertNotNull(id);
@@ -199,8 +210,8 @@ public class TestQcc {
     @Test
     public void GetEnvPunishmentList() throws Exception {
         clearTable("QCC_ENV_PUNISHMENT_LIST");
-        read("/EnvPunishment/GetEnvPunishmentList.json?keyWord=惠州市帅星贸易有限公司");
-        JSONArray array = checkPageMatched("/EnvPunishment/GetEnvPunishmentList?fullName=惠州市帅星贸易有限公司");;
+        read("/EnvPunishment/GetEnvPunishmentList.json?keyWord=惠州市维也纳惠尔曼酒店管理有限公司");
+        JSONArray array = checkPageMatched("/EnvPunishment/GetEnvPunishmentList?fullName=惠州市维也纳惠尔曼酒店管理有限公司");;
         String id = (String) array.getByPath("0.Id");
         assertNotNull(id);
         read("/EnvPunishment/GetEnvPunishmentDetails.json?id=" + id);
@@ -213,10 +224,10 @@ public class TestQcc {
     @Test
     public void GetChattelMortgage() throws Exception {
         clearTable("QCC_CHATTEL_MORTGAGE","QCC_CMD_PLEDGE\n","QCC_CMD_PLEDGEE_LIST\n", "QCC_CMD_SECURED_CLAIM\n","QCC_CMD_GUARANTEE_LIST\n", "QCC_CMD_CANCEL_INFO\n", "QCC_CMD_CHANGE_LIST\n");
-        JSONObject source = read("/ChattelMortgage/GetChattelMortgage.json?keyWord=惠州市帅星贸易有限公司");
-        JSONObject target = checkResult("/ChattelMortgage/GetChattelMortgage?fullName=惠州市帅星贸易有限公司");
+        JSONObject source = read("/ChattelMortgage/GetChattelMortgage.json?keyWord=惠州市维也纳惠尔曼酒店管理有限公司");
+        JSONObject target = checkResult("/ChattelMortgage/GetChattelMortgage?fullName=惠州市维也纳惠尔曼酒店管理有限公司");
         checkSim(source, target);
-//        JSONArray list = checkListMatched("/ChattelMortgage/GetChattelMortgage?keyWord=惠州市帅星贸易有限公司");
+//        JSONArray list = checkListMatched("/ChattelMortgage/GetChattelMortgage?keyWord=惠州市维也纳惠尔曼酒店管理有限公司");
 //        String[] children = {"Pledge","PledgeeList","SecuredClaim", "GuaranteeList","CancelInfo", "ChangeList"};
 //        assertTrue(list.size() > 0);
 //        for (Object object : list) {
@@ -234,8 +245,8 @@ public class TestQcc {
     @Test
     public void GetDetailsByName() throws Exception {
         clearTable("QCC_DETAILS");
-        JSONObject source = read("/ECIV4/GetDetailsByName.json?keyword=惠州市帅星贸易有限公司");
-        JSONObject object = checkResult("/ECIV4/GetDetailsByName?fullName=惠州市帅星贸易有限公司");
+        JSONObject source = read("/ECIV4/GetDetailsByName.json?keyword=惠州市维也纳惠尔曼酒店管理有限公司");
+        JSONObject object = checkResult("/ECIV4/GetDetailsByName?fullName=惠州市维也纳惠尔曼酒店管理有限公司");
         double sim = sim(object.toJSONString(0), source.toJSONString(0));
         assertTrue(sim > 0.7);
         int c = 1;
@@ -252,8 +263,8 @@ public class TestQcc {
             clearTable((String) entry.getValue());
         }
         clearTable("QCC_HIS_ECI_EMPLOYEE_LIST_JOB");
-        JSONObject source = read("/History/GetHistorytEci.json?keyWord=惠州市帅星贸易有限公司");
-        JSONObject target = checkResult("/History/GetHistorytEci?fullName=惠州市帅星贸易有限公司");
+        JSONObject source = read("/History/GetHistorytEci.json?keyWord=惠州市维也纳惠尔曼酒店管理有限公司");
+        JSONObject target = checkResult("/History/GetHistorytEci?fullName=惠州市维也纳惠尔曼酒店管理有限公司");
         checkSim(source, target);
     }
 
@@ -261,8 +272,8 @@ public class TestQcc {
     @Test
     public void GetHistorytInvestment() throws Exception {
         clearTable("QCC_HIS_INVESTMENT");
-        JSONObject source = read("/History/GetHistorytInvestment.json?keyWord=惠州市帅星贸易有限公司");
-        JSONObject target = checkResult("/History/GetHistorytInvestment?fullName=惠州市帅星贸易有限公司");
+        JSONObject source = read("/History/GetHistorytInvestment.json?keyWord=惠州市维也纳惠尔曼酒店管理有限公司");
+        JSONObject target = checkResult("/History/GetHistorytInvestment?fullName=惠州市维也纳惠尔曼酒店管理有限公司");
         checkSim(source,target);
     }
 
@@ -274,80 +285,80 @@ public class TestQcc {
     @Test
     public void GetHistorytShareHolder() throws Exception {
         clearTable("QCC_HIS_SHARE_HOLDER", "QCC_HIS_SHARE_HOLDER_DETAILS");
-        JSONObject source = read("/History/GetHistorytShareHolder.json?keyWord=惠州市帅星贸易有限公司");
-        JSONObject target = checkResult("/History/GetHistorytShareHolder?fullName=惠州市帅星贸易有限公司");
+        JSONObject source = read("/History/GetHistorytShareHolder.json?keyWord=惠州市维也纳惠尔曼酒店管理有限公司");
+        JSONObject target = checkResult("/History/GetHistorytShareHolder?fullName=惠州市维也纳惠尔曼酒店管理有限公司");
         checkSim(source, target, 0.6);
     }
 
     @Test
     public void GetHistoryShiXin() throws Exception {
         clearTable("QCC_HIS_SHIXIN");
-        JSONObject source = read("/History/GetHistoryShiXin.json?keyWord=惠州市帅星贸易有限公司");
-        JSONObject target = checkResult("/History/GetHistoryShiXin?fullName=惠州市帅星贸易有限公司");
+        JSONObject source = read("/History/GetHistoryShiXin.json?keyWord=惠州市维也纳惠尔曼酒店管理有限公司");
+        JSONObject target = checkResult("/History/GetHistoryShiXin?fullName=惠州市维也纳惠尔曼酒店管理有限公司");
         checkSim(source, target);
     }
 
     @Test
     public void GetHistoryZhiXing() throws Exception {
         clearTable("QCC_HIS_ZHIXING");
-        JSONObject source = read("/History/GetHistoryZhiXing.json?keyWord=惠州市帅星贸易有限公司");
-        JSONObject target = checkResult("/History/GetHistoryZhiXing?fullName=惠州市帅星贸易有限公司");
+        JSONObject source = read("/History/GetHistoryZhiXing.json?keyWord=惠州市维也纳惠尔曼酒店管理有限公司");
+        JSONObject target = checkResult("/History/GetHistoryZhiXing?fullName=惠州市维也纳惠尔曼酒店管理有限公司");
         checkSim(source, target);
     }
 
     @Test
     public void GetHistorytCourtNotice() throws Exception {
         clearTable("QCC_HIS_COURT_NOTICE");
-        JSONObject source = read("/History/GetHistorytCourtNotice.json?keyWord=惠州市帅星贸易有限公司");
-        JSONObject target = checkResult("/History/GetHistorytCourtNotice?fullName=惠州市帅星贸易有限公司");
+        JSONObject source = read("/History/GetHistorytCourtNotice.json?keyWord=惠州市维也纳惠尔曼酒店管理有限公司");
+        JSONObject target = checkResult("/History/GetHistorytCourtNotice?fullName=惠州市维也纳惠尔曼酒店管理有限公司");
         checkSim(source, target);
     }
     @Test
     public void GetHistorytJudgement() throws Exception {
         clearTable("QCC_HIS_JUDGEMENT\n");
-        JSONObject source = read("/History/GetHistorytJudgement.json?keyWord=惠州市帅星贸易有限公司");
-        JSONObject target = checkResult("/History/GetHistorytJudgement?fullName=惠州市帅星贸易有限公司");
+        JSONObject source = read("/History/GetHistorytJudgement.json?keyWord=惠州市维也纳惠尔曼酒店管理有限公司");
+        JSONObject target = checkResult("/History/GetHistorytJudgement?fullName=惠州市维也纳惠尔曼酒店管理有限公司");
         checkSim(source, target);
     }
     @Test
     public void GetHistorytSessionNotice() throws Exception {
         clearTable("QCC_HIS_SESSION_NOTICE\n");
-        JSONObject source = read("/History/GetHistorytSessionNotice.json?keyWord=惠州市帅星贸易有限公司");
-        JSONObject target = checkResult("/History/GetHistorytSessionNotice?fullName=惠州市帅星贸易有限公司");
+        JSONObject source = read("/History/GetHistorytSessionNotice.json?keyWord=惠州市维也纳惠尔曼酒店管理有限公司");
+        JSONObject target = checkResult("/History/GetHistorytSessionNotice?fullName=惠州市维也纳惠尔曼酒店管理有限公司");
         checkSim(source, target);
     }
     @Test
     public void GetHistorytMPledge() throws Exception {
         clearTable("QCC_HIS_M_PLEDGE\n");
-        JSONObject source = read("/History/GetHistorytMPledge.json?keyWord=惠州市帅星贸易有限公司");
-        JSONObject target = checkResult("/History/GetHistorytMPledge?fullName=惠州市帅星贸易有限公司");
+        JSONObject source = read("/History/GetHistorytMPledge.json?keyWord=惠州市维也纳惠尔曼酒店管理有限公司");
+        JSONObject target = checkResult("/History/GetHistorytMPledge?fullName=惠州市维也纳惠尔曼酒店管理有限公司");
         checkSim(source, target);
     }
     @Test
     public void GetHistorytPledge() throws Exception {
         clearTable("QCC_HIS_PLEDGE\n");
-        JSONObject source = read("/History/GetHistorytPledge.json?keyWord=惠州市帅星贸易有限公司");
-        JSONObject target = checkResult("/History/GetHistorytPledge?fullName=惠州市帅星贸易有限公司");
+        JSONObject source = read("/History/GetHistorytPledge.json?keyWord=惠州市维也纳惠尔曼酒店管理有限公司");
+        JSONObject target = checkResult("/History/GetHistorytPledge?fullName=惠州市维也纳惠尔曼酒店管理有限公司");
         checkSim(source, target);
     }
     @Test
     public void GetHistorytAdminPenalty() throws Exception {
         clearTable("QCC_HIS_ADMIN_PENALTY_EL\n","QCC_HIS_ADMIN_PENALTY_CCL\n");
-        JSONObject source = read("/History/GetHistorytAdminPenalty.json?keyWord=惠州市帅星贸易有限公司");
-        JSONObject target = checkResult("/History/GetHistorytAdminPenalty?fullName=惠州市帅星贸易有限公司");
+        JSONObject source = read("/History/GetHistorytAdminPenalty.json?keyWord=惠州市维也纳惠尔曼酒店管理有限公司");
+        JSONObject target = checkResult("/History/GetHistorytAdminPenalty?fullName=惠州市维也纳惠尔曼酒店管理有限公司");
         checkSim(source, target);
     }
     @Test
     public void GetHistorytAdminLicens() throws Exception {
         clearTable("QCC_HIS_ADMIN_LICENS_EL\n", "QCC_HIS_ADMIN_LICENS_CCL\n");
-        JSONObject source = read("/History/GetHistorytAdminLicens.json?keyWord=惠州市帅星贸易有限公司");
-        JSONObject target = checkResult("/History/GetHistorytAdminLicens?fullName=惠州市帅星贸易有限公司");
+        JSONObject source = read("/History/GetHistorytAdminLicens.json?keyWord=惠州市维也纳惠尔曼酒店管理有限公司");
+        JSONObject target = checkResult("/History/GetHistorytAdminLicens?fullName=惠州市维也纳惠尔曼酒店管理有限公司");
         checkSim(source, target);
     }
     @Test
     public void SearchFresh() throws Exception {
         clearTable("QCC_FRESH");
-        JSONObject source = read("/ECIV4/SearchFresh.json?keyword=惠州市帅星贸易有限公司");
+        JSONObject source = read("/ECIV4/SearchFresh.json?keyword=惠州市维也纳惠尔曼酒店管理有限公司");
         JSONObject target = checkResult("/ECIV4/SearchFresh?keyword=北京");
         checkSim(source, target, 0.6);
     }
@@ -378,23 +389,23 @@ public class TestQcc {
         for (Map.Entry<String, Object> entry : DeconstructService.GetStockRelationInfoMap.entrySet()) {
             clearTable((String) entry.getValue());
         }
-        JSONObject source = read("/CIAEmployeeV4/GetStockRelationInfo.json?companyName=惠州市帅星贸易有限公司");
-        JSONObject target = checkResult("/CIAEmployeeV4/GetStockRelationInfo?fullName=惠州市帅星贸易有限公司");
+        JSONObject source = read("/CIAEmployeeV4/GetStockRelationInfo.json?companyName=惠州市维也纳惠尔曼酒店管理有限公司");
+        JSONObject target = checkResult("/CIAEmployeeV4/GetStockRelationInfo?fullName=惠州市维也纳惠尔曼酒店管理有限公司");
         checkSim(source, target);
     }
     @Test
     public void GetHoldingCompany() throws Exception {
         clearTable("QCC_HOLDING_COMPANY", "QCC_HOLDING_COMPANY_NAMES_PATHS", "QCC_HOLDING_COMPANY_NAMES_OPER");
-        JSONObject source = read("/HoldingCompany/GetHoldingCompany.json?keyWord=惠州市帅星贸易有限公司");
-        JSONObject target = checkResult("/HoldingCompany/GetHoldingCompany?fullName=惠州市帅星贸易有限公司");
+        JSONObject source = read("/HoldingCompany/GetHoldingCompany.json?keyWord=惠州市维也纳惠尔曼酒店管理有限公司");
+        JSONObject target = checkResult("/HoldingCompany/GetHoldingCompany?fullName=惠州市维也纳惠尔曼酒店管理有限公司");
         checkSim(source, target);
     }
 
     @Test
     public void GetStockAnalysisData() throws Exception {
         clearTable("QCC_SAD_PARTNERS", "QCC_SAD", "QCC_SAD_STOCK_LIST");
-        JSONObject source = read("/ECICompanyMap/GetStockAnalysisData.json?keyWord=惠州市帅星贸易有限公司");
-        JSONObject target = checkResult("/ECICompanyMap/GetStockAnalysisData?fullName=惠州市帅星贸易有限公司");
+        JSONObject source = read("/ECICompanyMap/GetStockAnalysisData.json?keyWord=惠州市维也纳惠尔曼酒店管理有限公司");
+        JSONObject target = checkResult("/ECICompanyMap/GetStockAnalysisData?fullName=惠州市维也纳惠尔曼酒店管理有限公司");
         checkSim(source, target);
 
     }
@@ -461,6 +472,10 @@ public class TestQcc {
         String str = IoUtil.readUtf8(
             new RandomAccessFile("D:/work/cu" + url,"r").getChannel()
         );
+//        str = str.replaceAll("", "惠州市维也纳惠尔曼酒店管理有限公司");
+        str = str.replaceAll("深圳市桑协世纪科技有限公司", "惠州市维也纳惠尔曼酒店管理有限公司");
+        str = str.replaceAll("惠州市帅星贸易有限公司", "惠州市维也纳惠尔曼酒店管理有限公司");
+
         url = S.fmt("http://localhost:3033/qcc%s%s", url, param);
         DefaultHttpHeaders headers = new DefaultHttpHeaders();
         headers.set("Proxy-Url", url);
@@ -509,7 +524,7 @@ public class TestQcc {
 
     public static void clearTable(String ...table){
         for (String s : table) {
-            String sql = S.fmt("delete from %s", s);
+            String sql = S.fmt("delete from %s where inner_company_name = '惠州市维也纳惠尔曼酒店管理有限公司'", s);
             sqlManager.executeUpdate(new SQLReady(sql));
         }
     }

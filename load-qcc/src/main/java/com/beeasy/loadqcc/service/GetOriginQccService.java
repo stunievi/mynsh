@@ -54,8 +54,8 @@ public class GetOriginQccService {
 
     private static Map<String, String> DetailUrls = new HashMap<>();
 
-//    private static String QCC_DOMAIN_PRX = "http://api.qichacha.com";
-    private static String QCC_DOMAIN_PRX = "http://localhost:8015/test/qcc";
+    private static String QCC_DOMAIN_PRX = "http://api.qichacha.com";
+//    private static String QCC_DOMAIN_PRX = "http://localhost:8015/test/qcc";
 
     static {
         // 表名, 详情接口
@@ -234,7 +234,7 @@ public class GetOriginQccService {
     // 完全原样存入数据
     private void saveOriginData(
         String collName,
-        Map<String, ?> queries,
+        Map<String, Object> queries,
         String data,
         LoadQccDataExtParm extParam
     ){
@@ -387,7 +387,7 @@ public class GetOriginQccService {
     // 获取详情数据
     private void getDetailData(
             String collName,
-            Map<String, String> queries,
+            Map<String, Object> queries,
             LoadQccDataExtParm extParam
     ){
         // 表面
@@ -421,26 +421,14 @@ public class GetOriginQccService {
             }
             saveOriginData(collName, queries, ret, extParam);
             // ！！！！注意放到save后面
-            if(isCorrectRes(ret) == false && devModel == false){
+            if(isCorrectRes(ret) == false){
                 return;
             }
             // 详情表名
             String detailCollName= DetailUrls.get(collName);
             if(null != detailCollName && !"".equals(detailCollName)){
                 JSONObject obj = JSON.parseObject(ret);
-                JSONArray arr;
-                try{
-                    arr = obj.getJSONArray("Result");
-                }catch (Exception e){
-                    if(devModel){
-                        arr = new JSONArray();
-                        arr.add(C.newMap(
-                                "Id", "testId"
-                        ));
-                    }else {
-                        return;
-                    }
-                }
+                JSONArray arr = obj.getJSONArray("Result");
                 int arrLength = arr.size();
                 // 获取详情
                 if(devModel){

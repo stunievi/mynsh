@@ -24,7 +24,7 @@
         </div>
     </div>
     <div class="panel-qcc" id="EnvPunishmentList">
-        <div class="panel-qcc-heading">环保处罚 <b id="EnvPunishmentLis-count">0</b></div>
+        <div class="panel-qcc-heading">环保处罚 <b id="EnvPunishmentList-count">0</b></div>
         <div class="panel-qcc-body" id="EnvPunishmentList-body">
         </div>
     </div>
@@ -64,6 +64,24 @@
     function loadBlock4() {
         loadBlock4Status = true;
 
+        var renderExceptions = function(dataList){
+            laytableRender({
+                title: "经营异常",
+                id: "Exceptions-body"
+                , cols: [
+                    [
+                        {title:"列入经营异常名录原因", field:"AddReason"},
+                        {title:"列入日期", field:"AddDate"},
+                        {title:"移出经营异常名录原因", field:"RomoveReason"},
+                        {title:"移出日期", field:"RemoveDate"},
+                        {title:"作出决定机关", field:"DecisionOffice"},
+                        {title:"移除决定机关", field:"RemoveDecisionOffice"}
+                    ]
+                ],
+                data: dataList
+            });
+        }
+
         // 企业经营异常信息
         $.when(keyNoPromise).then(function () {
             $.ajax({
@@ -74,27 +92,14 @@
                         dataList = res.data.list;
                         $("#Exceptions-count").html(dataList.length);
                     }else{
-                        // $("#Exceptions").hide();
                         $("a[href='#Exceptions']").addClass("disabled");
                     }
-
-                    laytableRender({
-                        title: "经营异常",
-                        id: "Exceptions-body"
-                        , cols: [
-                            [
-                                {title:"列入经营异常名录原因", field:"AddReason"},
-                                {title:"列入日期", field:"AddDate"},
-                                {title:"移出经营异常名录原因", field:"RomoveReason"},
-                                {title:"移出日期", field:"RemoveDate"},
-                                {title:"作出决定机关", field:"DecisionOffice"},
-                                {title:"移除决定机关", field:"RemoveDecisionOffice"}
-                            ]
-                        ],
-                        data: dataList
-                    });
+                    renderExceptions(dataList);
                 }
             })
+        },function () {
+            $("a[href='#Exceptions']").addClass("disabled");
+            renderExceptions([]);
         });
         laytableRender({
             id: "JudicialSaleList-body",
@@ -202,7 +207,6 @@
                     // $("#ChattelMortgage").hide();
                     $("a[href='#ChattelMortgage']").addClass("disabled");
                 }
-                chattelMortgageDataList = [{}]
                 laytableRender({
                     id: "ChattelMortgage-body",
                     page: false,

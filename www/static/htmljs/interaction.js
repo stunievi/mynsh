@@ -1,5 +1,3 @@
-
-
 // 点击查看客户详情
 $(document).on("click", ".handleShowClientInfo", function(){
     var that = $(this),
@@ -19,20 +17,14 @@ $(document).on("click", ".handleShowClientInfo", function(){
         clientName = that.data("name");
     showClientInfo(clientId, clientName, clientType);
     return true;
-})
-
+});
 
 // 查看工作流
 eventBind(".handleNodeShow", function(that){
     var nodeid = that.data("nodeid"); // 节点id
     var href = '/htmlsrc/workFlow/nodeStates.html?id='+nodeid;
     top.addTab("show-task-" + nodeid, "查看任务 - " + nodeid , href);
-
-    // handleeeNodeShowIndex = layerOpenIframe({
-    //     title: "任务查看 - " + nodeid,
-    //     url: '/htmlsrc/workFlow/nodeStates.html?id='+nodeid
-    // })
-})
+});
 
 // 查看任务时,删除任务回调
 function cancelNodeCallback() {
@@ -67,24 +59,4 @@ eventBind(".handleeeShowDetail", function(that){
         title: "查看详情",
         url: "/htmlsrc/htmllayer/detailInfo/detailInfo.html?name="+that.data('name')+"&id="+that.data('id')
     })
-})
-
-$().ready(function(){
-    // 修复more按钮在layTableList中显示问题
-    $(document).on("click", ".layui-table-body .dropdown-toggle", function(){
-        if($(".layui-table-body").height()>210){
-            if($(".layui-table-body tbody tr").length>=6){
-                $(".layui-table-body tbody tr:gt(-4)").find('.btn-group').addClass("dropup");
-            }
-        }else{
-            if($(".layui-table-body tbody tr").length==4){
-                $(".layui-table-body tbody tr:gt(-2)").find('.btn-group').addClass("dropup");
-            }
-            if($(".layui-table-body tbody tr").length==5){
-                $(".layui-table-body tbody tr:gt(-3)").find('.btn-group').addClass("dropup");
-            }
-        }
-        $(this).parents('.layui-table-fixed .layui-table-body').css({overflow: "visible"});
-        $(this).parents('.layui-table-cell').css({overflow: "visible"});
-    });
-})
+});

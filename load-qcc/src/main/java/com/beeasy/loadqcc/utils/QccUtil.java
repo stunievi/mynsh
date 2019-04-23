@@ -34,12 +34,12 @@ public class QccUtil {
         queries.put("key", AppKey);
         Map header = setHeaderInfo();
         try{
-            return JSON.toJSONString(C.newMap(
-                    "Status", "000",
-                    "Message", "命中测试调用！！！",
-                    "Result", url
-            ));
-//            return OkHttpUtil.getForHeader(url, queries, header);
+//            return JSON.toJSONString(C.newMap(
+//                    "Status", "000",
+//                    "Message", "命中测试调用！！！",
+//                    "Result", url
+//            ));
+            return OkHttpUtil.getForHeader(url, queries, header);
         }catch (Exception e){
             String dataQueries = Joiner.on("&").withKeyValueSeparator("=").join(queries);
             String fullLink = url + "?" + dataQueries;

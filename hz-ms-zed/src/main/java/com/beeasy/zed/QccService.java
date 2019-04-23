@@ -6901,11 +6901,24 @@ public class QccService {
             page = params.getIntValue("pageIndex");
             size = params.getIntValue("pageSize");
         } finally {
+            if(page < 1){
+                page = 1;
+            }
+            if(size < 1){
+                size = 10;
+            }
             pageQuery.setPageSize(size);
             pageQuery.setPageNumber(page);
         }
         pageQuery.setParas(params);
         sqlManager.pageQuery(sqlId, JSONObject.class, pageQuery);
+//        return newJsonObject(
+//            "pageNumber", pageQuery.getPageNumber(),
+//            "pageSize", pageQuery.getPageSize(),
+//            "totalRow", pageQuery.getTotalRow(),
+//            "totalPage", pageQuery.getTotalPage(),
+//            "list", JSON.toJSON(pageQuery.getList())
+//        );
         return (JSONObject) JSON.toJSON(pageQuery);
     }
 

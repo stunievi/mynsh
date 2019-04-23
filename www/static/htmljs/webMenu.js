@@ -1,6 +1,5 @@
 
 var _menu = [
-
     {
         id: "menu-mybench",
         name:'工作台',

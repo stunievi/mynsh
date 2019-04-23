@@ -33,5 +33,9 @@ out
 build
 *.zip
 
+### 企查查数据 ###
 /load-qcc/src/main/resources/qcc/txt/
 /load-qcc/src/main/resources/qcc/zip/
+
+*/__MACOSX
+__MACOSX/*
