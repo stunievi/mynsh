@@ -97,6 +97,7 @@ public class UpdateQccDataController {
 
             JSONObject jo = JSON.parseObject(((TextMessage) o).getText());
             Boolean finished = jo.getBoolean("finished");
+            String uid = "";
 
             if(finished){
                 String progressText = "";
@@ -108,20 +109,7 @@ public class UpdateQccDataController {
 
                 Iterator<String> iterator = jsStr.keySet().iterator();
 
-                String uid = (String)jsStr.get("uid");
-                while(iterator.hasNext()){
-                    String key = iterator.next();
-                    if("uid".equals(key) || "OrderId".equals(key)){
-                        continue;
-                    }
-                    //获得key值对应的value
-                    JSONArray ja1 = jsStr.getJSONArray(key);
-                    for (Object obj : ja1) {
-                        JSONObject jo1 = (JSONObject) obj;
-                        cusName = jo1.getString("Content");
-                    }
-                    break;
-                }
+                uid = (String)jsStr.get("uid");
 
                 switch (progress){
                     case "0": //
@@ -137,7 +125,73 @@ public class UpdateQccDataController {
                         progressText = "sql入库";
                         break;
                 }
-                saveQccLog(progressText +"："+ cusName, "02", "", requestId, uid);
+
+                while(iterator.hasNext()){
+                    String key = iterator.next();
+                    if("uid".equals(key) || "OrderId".equals(key)){
+                        continue;
+                    }
+                    //获得key值对应的value
+                    JSONArray ja1 = jsStr.getJSONArray(key);
+                    for (Object obj : ja1) {
+                        JSONObject jo1 = (JSONObject) obj;
+                        cusName = jo1.getString("Content");
+                        saveQccLog(progressText +"："+ cusName, "02", "", requestId, uid);
+                    }
+
+                }
+            }else{
+                String errorMessage = jo.getString("errorMessage");
+                saveQccLog("失败："+errorMessage, "02", "", "", uid);
+            }
+
+        } else if(o instanceof BlobMessage){
+            String file = IO.readContentAsString(((BlobMessage) o).getInputStream());
+            System.out.println(file);
+        }
+    }
+
+    @JmsListener(destination = "qcc-company-infos-response", containerFactory = "jmsListenerContainerTopic")
+    public void infoResponse(Object o) throws JMSException, IOException {
+        if(o instanceof TextMessage){
+
+            System.out.println(((TextMessage) o).getText());
+
+            JSONObject jo = JSON.parseObject(((TextMessage) o).getText());
+            String finished = jo.getString("finished");
+            String progressText = "";
+            String cusName = "";
+            String uid = "";
+            String progress = jo.getString("progress");
+
+            if("success".equals(finished) && "3".equals(progress)){
+                progressText = "全部成功";
+
+                String sourceRequest = jo.getString("sourceRequest");
+                JSONObject jsStr = JSONObject.parseObject(sourceRequest);
+
+                Iterator<String> iterator = jsStr.keySet().iterator();
+
+                uid = (String)jsStr.get("uid");
+                while(iterator.hasNext()){
+                    String key = iterator.next();
+                    if("uid".equals(key) || "OrderId".equals(key)){
+                        continue;
+                    }
+                    //获得key值对应的value
+                    JSONArray ja1 = jsStr.getJSONArray(key);
+                    for (Object obj : ja1) {
+                        JSONObject jo1 = (JSONObject) obj;
+                        cusName = jo1.getString("Content");
+                        saveQccLog(progressText +"："+ cusName, "02", "", "", uid);
+                    }
+
+                }
+
+            }else if("failed".equals(finished)){
+                progressText = "失败";
+                String errorMessage = jo.getString("errorMessage");
+                saveQccLog(progressText +"："+errorMessage, "02", "", "", uid);
             }
 
         } else if(o instanceof BlobMessage){
