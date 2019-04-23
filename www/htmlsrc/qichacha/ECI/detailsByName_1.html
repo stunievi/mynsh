@@ -146,7 +146,12 @@ ins { background-color: #cfc; text-decoration: none; } del { color: #999; backgr
         success: function (res) {
             var data = res.data || {};
             COMPANY_KEY_NO = data.KeyNo;
-            keyNoPromise.resolve(data.KeyNo);
+            if(data.KeyNo){
+                keyNoPromise.resolve(data.KeyNo);
+            }else{
+                $("a[href='#base1']").addClass("disabled");
+                keyNoPromise.reject("KeyNo获取失败！");
+            }
             $("#base1-body").html(
                 qccTableRender({
                     cols:[
@@ -217,7 +222,7 @@ ins { background-color: #cfc; text-decoration: none; } del { color: #999; backgr
                 cols:[
                     [
                         BOOTSTRAP_INDEX_FILED,
-                        { title:'操作', templet: "#toolbar", width: 80},
+                        { title:'操作', templet: "#toolbar", setWidth: 80},
                         {title:"姓名",field:"Name"},
                         {title:"职位",field:"Job"}
                     ]
@@ -254,7 +259,7 @@ ins { background-color: #cfc; text-decoration: none; } del { color: #999; backgr
             // 变更历史
             if(data.ChangeRecords && data.ChangeRecords.length > 0){
                 data.ChangeRecords.forEach(function (item) {
-                    item["AfterContent"] = getHTMLDiff(item["BeforeContent"], item["AfterContent"]);
+                    item["AfterContent"] = getHTMLDiff(item["BeforeContent"] || "", item["AfterContent"]);
                 });
                 $("#base11-count").html(data.ChangeRecords.length);
             }else{
@@ -277,46 +282,46 @@ ins { background-color: #cfc; text-decoration: none; } del { color: #999; backgr
             });
 
             // 联系信息
-            var contactInfo = data.ContactInfo;
+            var contactInfo = data.ContactInfo || {};
             if(JSON.stringify(contactInfo) == "{}"){
                 $("#base12").hide();
                 $("a[href='#base12']").addClass("disabled");
-            }else{
-                contactInfo["WebSite_Name"] = (contactInfo.WebSite || {}).Name || "";
-                contactInfo["WebSite_Url"] = (contactInfo.WebSite || {}).Url || "";
-                $("#base12-body").html(
-                    qccTableRender({
-                        cols:[
-                            {title:"网站名称",field:"WebSite_Name"},
-                            {title:"网站地址",field:"WebSite_Url"},
+            }
+            $("#base12-body").html(
+                qccTableRender({
+                    cols:{
+                        data: [
                             {title:"联系电话",field:"PhoneNumber"},
                             {title:"联系邮箱",field:"Email"}
                         ],
-                        data: contactInfo
-                    })
-                );
-            }
+                        WebSite: [
+                            {title:"网站名称",field:"Name"},
+                            {title:"网站地址",field:"Url"}
+                        ]
+                    },
+                    data: contactInfo
+                })
+            );
             // 行业信息
             if(JSON.stringify(data.Industry) == "{}"){
                 $("#base13").hide();
                 $("a[href='#base13']").addClass("disabled");
-            }else{
-                $("#base13-body").html(
-                    qccTableRender({
-                        cols:[
-                            {title:"行业门类code",field:"IndustryCode"},
-                            {title:"行业门类描述",field:"Industry"},
-                            {title:"行业大类code",field:"SubIndustryCode"},
-                            {title:"行业大类描述",field:"SubIndustry"},
-                            {title:"行业中类code",field:"MiddleCategoryCode"},
-                            {title:"行业中类描述",field:"MiddleCategory"},
-                            {title:"行业小类code",field:"SmallCategoryCode"},
-                            {title:"行业小类描述",field:"SmallCategory"}
-                        ],
-                        data: data.Industry
-                    })
-                )
             }
+            $("#base13-body").html(
+                qccTableRender({
+                    cols:[
+                        {title:"行业门类code",field:"IndustryCode"},
+                        {title:"行业门类描述",field:"Industry"},
+                        {title:"行业大类code",field:"SubIndustryCode"},
+                        {title:"行业大类描述",field:"SubIndustry"},
+                        {title:"行业中类code",field:"MiddleCategoryCode"},
+                        {title:"行业中类描述",field:"MiddleCategory"},
+                        {title:"行业小类code",field:"SmallCategoryCode"},
+                        {title:"行业小类描述",field:"SmallCategory"}
+                    ],
+                    data: data.Industry || {}
+                })
+            )
         }
     });
 
@@ -326,11 +331,19 @@ ins { background-color: #cfc; text-decoration: none; } del { color: #999; backgr
         url: remoteApi.qccHoldingCompanyGetHoldingCompany+"?fullName="+COMPANY_NAME,
         cols: [
             [
-                {title:"控股企业名称", field:"Name"},
+                BOOTSTRAP_INDEX_FILED,
+                {title:"控股企业名称", field:"Name", setWidth: 250},
                 {title:"投资比例", field:"PercentTotal"},
                 {title:"投资链", field:"Paths", templet: "#paths"}
             ]
-        ]
+        ],
+        onData:function (data) {
+            if(!data || !data.total || data.total < 1){
+                $("a[href='#base14']").addClass("disabled");
+            }else{
+                $("#base14-count").html(data.total);
+            }
+        }
     });
 
 </script>

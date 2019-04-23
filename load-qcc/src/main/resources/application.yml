@@ -30,7 +30,6 @@ spring:
     #        db2-end
 
   activemq:
-#    broker-url: tcp://47.94.97.138:8011
     broker-url: tcp://47.94.97.138:8011?jms.blobTransferPolicy.uploadUrl=http://47.94.97.138:8012/fileserver/
 
 server:
