@@ -5603,7 +5603,7 @@
       "examples": [
         {
           "title": "请求成功:",
-          "content": "{\n    \"Status\": \"200\",\n    \"Message\": \"查询成功\",\n    \"Result\": [\n        {\n            \"Status\": \"股权冻结|冻结\",\n            \"EnforcementCourt\": \"北京市第二中级人民法院\",\n            \"EquityUnFreezeDetail\": {\n                \"CompanyName\": \"小米\",\n                \"FreezeTerm\": \"1095\",\n                \"ExecutionVerdictNum\": \"（2017）京02民初58号\",\n                \"ExecutedPersonDocNum\": \"\",\n                \"FreezeStartDate\": \"2017-09-13 12:00:00\",\n                \"ExecutionMatters\": \"轮候冻结股权、其他投资权益\",\n                \"FreezeEndDate\": \"2020-09-12 12:00:00\",\n                \"ExecutedPersonDocType\": \"居民身份证\"\n            },\n            \"EquityAmount\": \"15000万人民币元\",\n            \"ExecutionNoticeNum\": \"（2017）京02民初58号\",\n            \"ExecutedBy\": \"霍庆华\"\n        },\n        {\n            \"Status\": \"股权冻结|冻结\",\n            \"EnforcementCourt\": \"新疆维吾尔自治区高级人民法院\",\n            \"EquityUnFreezeDetail\": {\n                \"CompanyName\": \"小米\",\n                \"FreezeTerm\": \"1095\",\n                \"ExecutionVerdictNum\": \"(2017)新执47号\",\n                \"ExecutedPersonDocNum\": \"110105011796483\",\n                \"FreezeStartDate\": \"2017-08-16 12:00:00\",\n                \"ExecutionMatters\": \"轮候冻结股权、其他投资权益\",\n                \"FreezeEndDate\": \"2020-08-16 12:00:00\",\n                \"ExecutedPersonDocType\": \"\"\n            },\n            \"EquityAmount\": \"254984.5万人民币元\",\n            \"ExecutionNoticeNum\": \"(2017)新执47号\",\n            \"ExecutedBy\": \"中国庆华能源集团有限公司\"\n        },\n        {\n            \"Status\": \"股权冻结|冻结\",\n            \"EnforcementCourt\": \"杭州市西湖区人民法院\",\n            \"EquityUnFreezeDetail\": {\n                \"CompanyName\": \"小米\",\n                \"FreezeTerm\": \"1095\",\n                \"ExecutionVerdictNum\": \"(2017)浙0106民初6913号\",\n                \"ExecutedPersonDocNum\": \"\",\n                \"FreezeStartDate\": \"2017-08-29 12:00:00\",\n                \"ExecutionMatters\": \"公示冻结股权、其他投资权益\",\n                \"FreezeEndDate\": \"2020-08-28 12:00:00\",\n                \"ExecutedPersonDocType\": \"居民身份证\"\n            },\n            \"EquityAmount\": \"15000万人民币元\",\n            \"ExecutionNoticeNum\": \"(2017)浙0106民初6913号\",\n            \"ExecutedBy\": \"霍庆华\"\n        },\n        {\n            \"Status\": \"股权冻结|冻结\",\n            \"EnforcementCourt\": \"北京市第二中级人民法院\",\n            \"EquityUnFreezeDetail\": {\n                \"CompanyName\": \"小米\",\n                \"FreezeTerm\": \"1095\",\n                \"ExecutionVerdictNum\": \"(2017)京02民初58号\",\n                \"ExecutedPersonDocNum\": \"110105011796483\",\n                \"FreezeStartDate\": \"2017-09-13 12:00:00\",\n                \"ExecutionMatters\": \"轮候冻结股权、其他投资权益\",\n                \"FreezeEndDate\": \"2020-09-12 12:00:00\",\n                \"ExecutedPersonDocType\": \"\"\n            },\n            \"EquityAmount\": \"254984.5万人民币元\",\n            \"ExecutionNoticeNum\": \"(2017)京02民初58号\",\n            \"ExecutedBy\": \"中国庆华能源集团有限公司\"\n        },\n        {\n            \"Status\": \"股权冻结|冻结\",\n            \"ExecutionNoticeNum\": \"（2016）粤01执3073号\",\n            \"EnforcementCourt\": \"广东省广州市中级人民法院\",\n            \"JudicialPartnersChangeDetail\": {\n                \"ExecutionVerdictNum\": \"（2016）粤01执3073号\",\n                \"ExecutedPersonDocNum\": \"110105011796483\",\n                \"ExecutionMatters\": \"续行冻结股权、其他投资权益\",\n                \"ExecutedPersonDocType\": \"居民身份证\"\n            },\n            \"EquityAmount\": \"15000万人民币元\",\n            \"ExecutedBy\": \"霍庆华\"\n        },\n        {\n            \"Status\": \"股权冻结|冻结\",\n            \"ExecutionNoticeNum\": \"(2017)浙0106民初6913号\",\n            \"EnforcementCourt\": \"杭州市西湖区人民法院\",\n            \"JudicialPartnersChangeDetail\": {\n                \"ExecutionVerdictNum\": \"(2017)浙0106民初6913号\",\n                \"ExecutedPersonDocNum\": \"110105011796483\",\n                \"ExecutionMatters\": \"轮候冻结股权、其他投资权益\",\n                \"ExecutedPersonDocType\": \"\"\n            },\n            \"EquityAmount\": \"254984.5万人民币元\",\n            \"ExecutedBy\": \"中国庆华能源集团有限公司\"\n        },\n        {\n            \"Status\": \"股权冻结|冻结\",\n            \"ExecutionNoticeNum\": \"(2016)粤01执3073号\",\n            \"EnforcementCourt\": \"广东省广州市中级人民法院\",\n            \"JudicialPartnersChangeDetail\": {\n                \"ExecutionVerdictNum\": \"(2016)粤01执3073号\",\n                \"ExecutedPersonDocNum\": \"110105011796483\",\n                \"ExecutionMatters\": \"公示冻结股权、其他投资权益\",\n                \"ExecutedPersonDocType\": \"\"\n            },\n            \"EquityAmount\": \"254984.5万人民币元\",\n            \"ExecutedBy\": \"中国庆华能源集团有限公司\"\n        },\n        {\n            \"Status\": \"股权冻结|冻结\",\n            \"ExecutionNoticeNum\": \"（2017）浙0106民初702、703号\",\n            \"EnforcementCourt\": \"杭州市西湖区人民法院\",\n            \"JudicialPartnersChangeDetail\": {\n                \"ExecutionVerdictNum\": \"（2017）浙0106民初702、703号\",\n                \"ExecutedPersonDocNum\": \"110105011796483\",\n                \"ExecutionMatters\": \"轮候冻结股权、其他投资权益\",\n                \"ExecutedPersonDocType\": \"\"\n            },\n            \"EquityAmount\": \"254984.5万人民币元\",\n            \"ExecutedBy\": \"中国庆华能源集团有限公司\"\n        },\n        {\n            \"Status\": \"股权冻结|冻结\",\n            \"ExecutionNoticeNum\": \"（2016）粤01执3073号\",\n            \"EnforcementCourt\": \"广东省广州市中级人民法院\",\n            \"JudicialPartnersChangeDetail\": {\n                \"ExecutionVerdictNum\": \"（2016）粤01执3073号\",\n                \"ExecutedPersonDocNum\": \"110105011796483\",\n                \"ExecutionMatters\": \"轮候冻结股权、其他投资权益\",\n                \"ExecutedPersonDocType\": \"\"\n            },\n            \"EquityAmount\": \"254984.5万人民币元\",\n            \"ExecutedBy\": \"中国庆华能源集团有限公司\"\n        }\n    ]\n}",
+          "content": "{\n    \"Status\":\"200\",\n    \"Message\":\"查询成功\",\n    \"Result\":[\n        {\n            \"EnforcementCourt\":\"北京市第二中级人民法院\",\n            \"EquityUnFreezeDetail\":{\n            },\n            \"ExecutedBy\":\"霍庆华\",\n            \"Status\":\"股权冻结|冻结\",\n            \"JudicialPartnersChangeDetail\":{\n            },\n            \"EquityAmount\":\"15000万人民币元\",\n            \"ExecutionNoticeNum\":\"（2017）京02民初58号\",\n            \"EquityFreezeDetail\":{\n                \"CompanyName\":\"霍庆华\",\n                \"FreezeTerm\":\"1095\",\n                \"ExecutionVerdictNum\":\"（2017）京02民初58号\",\n                \"ExecutedPersonDocNum\":\"\",\n                \"FreezeStartDate\":\"2017-09-13 12:00:00\",\n                \"FreezeEndDate\":\"2020-09-12 12:00:00\",\n                \"ExecutionMatters\":\"轮候冻结股权、其他投资权益\",\n                \"ExecutedPersonDocType\":\"居民身份证\"\n            }\n        },\n        {\n            \"EnforcementCourt\":\"新疆维吾尔自治区高级人民法院\",\n            \"EquityUnFreezeDetail\":{\n            },\n            \"ExecutedBy\":\"中国庆华能源集团有限公司\",\n            \"Status\":\"股权冻结|冻结\",\n            \"JudicialPartnersChangeDetail\":{\n            },\n            \"EquityAmount\":\"254984.5万人民币元\",\n            \"ExecutionNoticeNum\":\"(2017)新执47号\",\n            \"EquityFreezeDetail\":{\n                \"CompanyName\":\"中国庆华能源集团有限公司\",\n                \"FreezeTerm\":\"1095\",\n                \"ExecutionVerdictNum\":\"(2017)新执47号\",\n                \"ExecutedPersonDocNum\":\"110105011796483\",\n                \"FreezeStartDate\":\"2017-08-16 12:00:00\",\n                \"FreezeEndDate\":\"2020-08-16 12:00:00\",\n                \"ExecutionMatters\":\"轮候冻结股权、其他投资权益\",\n                \"ExecutedPersonDocType\":\"\"\n            }\n        },\n        {\n            \"EnforcementCourt\":\"杭州市西湖区人民法院\",\n            \"EquityUnFreezeDetail\":{\n            },\n            \"ExecutedBy\":\"霍庆华\",\n            \"Status\":\"股权冻结|冻结\",\n            \"JudicialPartnersChangeDetail\":{\n            },\n            \"EquityAmount\":\"15000万人民币元\",\n            \"ExecutionNoticeNum\":\"(2017)浙0106民初6913号\",\n            \"EquityFreezeDetail\":{\n                \"CompanyName\":\"霍庆华\",\n                \"FreezeTerm\":\"1095\",\n                \"ExecutionVerdictNum\":\"(2017)浙0106民初6913号\",\n                \"ExecutedPersonDocNum\":\"\",\n                \"FreezeStartDate\":\"2017-08-29 12:00:00\",\n                \"FreezeEndDate\":\"2020-08-28 12:00:00\",\n                \"ExecutionMatters\":\"公示冻结股权、其他投资权益\",\n                \"ExecutedPersonDocType\":\"居民身份证\"\n            }\n        },\n        {\n            \"EnforcementCourt\":\"北京市第二中级人民法院\",\n            \"EquityUnFreezeDetail\":{\n            },\n            \"ExecutedBy\":\"中国庆华能源集团有限公司\",\n            \"Status\":\"股权冻结|冻结\",\n            \"JudicialPartnersChangeDetail\":{\n            },\n            \"EquityAmount\":\"254984.5万人民币元\",\n            \"ExecutionNoticeNum\":\"(2017)京02民初58号\",\n            \"EquityFreezeDetail\":{\n                \"CompanyName\":\"中国庆华能源集团有限公司\",\n                \"FreezeTerm\":\"1095\",\n                \"ExecutionVerdictNum\":\"(2017)京02民初58号\",\n                \"ExecutedPersonDocNum\":\"110105011796483\",\n                \"FreezeStartDate\":\"2017-09-13 12:00:00\",\n                \"FreezeEndDate\":\"2020-09-12 12:00:00\",\n                \"ExecutionMatters\":\"轮候冻结股权、其他投资权益\",\n                \"ExecutedPersonDocType\":\"\"\n            }\n        },\n        {\n            \"EnforcementCourt\":\"广东省广州市中级人民法院\",\n            \"EquityUnFreezeDetail\":{\n                \"UnFreezeDate\":\"2017-07-26 12:00:00\",\n                \"ExecutedPersonDocNum\":\"110105011796483\",\n                \"ExecutionVerdictNum\":\"（2016）粤01执3073号\",\n                \"ExecutionMatters\":\"轮候冻结股权、其他投资权益\",\n                \"ExecutedPersonDocType\":\"\"\n            },\n            \"ExecutedBy\":\"中国庆华能源集团有限公司\",\n            \"Status\":\"股权冻结|冻结\",\n            \"JudicialPartnersChangeDetail\":{\n            },\n            \"EquityAmount\":\"254984.5万人民币元\",\n            \"ExecutionNoticeNum\":\"（2016）粤01执3073号\",\n            \"EquityFreezeDetail\":{\n            }\n        },\n        {\n            \"EnforcementCourt\":\"杭州市西湖区人民法院\",\n            \"EquityUnFreezeDetail\":{\n                \"UnFreezeDate\":\"2017-12-15 12:00:00\",\n                \"ExecutedPersonDocNum\":\"110105011796483\",\n                \"ExecutionVerdictNum\":\"(2017)浙0106民初6913号\",\n                \"ExecutionMatters\":\"轮候冻结股权、其他投资权益\",\n                \"ExecutedPersonDocType\":\"\"\n            },\n            \"ExecutedBy\":\"中国庆华能源集团有限公司\",\n            \"Status\":\"股权冻结|冻结\",\n            \"JudicialPartnersChangeDetail\":{\n            },\n            \"EquityAmount\":\"254984.5万人民币元\",\n            \"ExecutionNoticeNum\":\"(2017)浙0106民初6913号\",\n            \"EquityFreezeDetail\":{\n            }\n        },\n        {\n            \"EnforcementCourt\":\"杭州市西湖区人民法院\",\n            \"EquityUnFreezeDetail\":{\n                \"UnFreezeDate\":\"2017-12-15 12:00:00\",\n                \"ExecutedPersonDocNum\":\"110105011796483\",\n                \"ExecutionVerdictNum\":\"（2017）浙0106民初702、703号\",\n                \"ExecutionMatters\":\"轮候冻结股权、其他投资权益\",\n                \"ExecutedPersonDocType\":\"\"\n            },\n            \"ExecutedBy\":\"中国庆华能源集团有限公司\",\n            \"Status\":\"股权冻结|冻结\",\n            \"JudicialPartnersChangeDetail\":{\n            },\n            \"EquityAmount\":\"254984.5万人民币元\",\n            \"ExecutionNoticeNum\":\"（2017）浙0106民初702、703号\",\n            \"EquityFreezeDetail\":{\n            }\n        },\n        {\n            \"EnforcementCourt\":\"广东省广州市中级人民法院\",\n            \"EquityUnFreezeDetail\":{\n                \"UnFreezeDate\":\"2017-07-26 12:00:00\",\n                \"ExecutedPersonDocNum\":\"110105011796483\",\n                \"ExecutionVerdictNum\":\"(2016)粤01执3073号\",\n                \"ExecutionMatters\":\"公示冻结股权、其他投资权益\",\n                \"ExecutedPersonDocType\":\"\"\n            },\n            \"ExecutedBy\":\"中国庆华能源集团有限公司\",\n            \"Status\":\"股权冻结|冻结\",\n            \"JudicialPartnersChangeDetail\":{\n            },\n            \"EquityAmount\":\"254984.5万人民币元\",\n            \"ExecutionNoticeNum\":\"(2016)粤01执3073号\",\n            \"EquityFreezeDetail\":{\n            }\n        },\n        {\n            \"EnforcementCourt\":\"广东省广州市中级人民法院\",\n            \"EquityUnFreezeDetail\":{\n                \"UnFreezeDate\":\"2017-07-26 12:00:00\",\n                \"ExecutedPersonDocNum\":\"110105011796483\",\n                \"ExecutionVerdictNum\":\"（2016）粤01执3073号\",\n                \"ExecutionMatters\":\"续行冻结股权、其他投资权益\",\n                \"ExecutedPersonDocType\":\"居民身份证\"\n            },\n            \"ExecutedBy\":\"霍庆华\",\n            \"Status\":\"股权冻结|冻结\",\n            \"JudicialPartnersChangeDetail\":{\n            },\n            \"EquityAmount\":\"15000万人民币元\",\n            \"ExecutionNoticeNum\":\"（2016）粤01执3073号\",\n            \"EquityFreezeDetail\":{\n            }\n        }\n    ]\n}",
           "type": "json"
         }
       ]
@@ -6073,5 +6073,75 @@
         }
       ]
     }
+  },
+  {
+    "type": "ActiveMQ",
+    "url": "/",
+    "title": "MQ接口",
+    "description": "<p>该接口不是使用http发送请求，而是调用activemq的服务<a target=\"_blank\" href=\"/doc/test.html\">测试地址</a></p>",
+    "group": "QCC_MQ",
+    "version": "0.0.1",
+    "success": {
+      "examples": [
+        {
+          "title": "数据加工请求:",
+          "content": "topic: qcc-deconstruct-request\ntype: BlobMessage\nproperties: {\n    \"requestId\":\"数据ID\",\n    \"sourceRequest\":\"数据原始信息\"\n}\ncontent: 文件信息",
+          "type": "json"
+        },
+        {
+          "title": "加工回执:",
+          "content": "topic: qcc-deconstruct-response\ntype: TextMessage\ncontent: {\n    \"requestId\":\"数据ID\",\n    \"sourceRequest\":\"原始数据\",\n    \"progress\":\"进行到哪一阶段 0保存数据 1解压 2分析生成sql 3sql入库\",\n    \"finished\": \"是否完成\",\n    \"errorMessage\": \"错误信息\"\n}",
+          "type": "json"
+        },
+        {
+          "title": "重加工请求:",
+          "content": "topic: qcc-redeconstruct-request\ntype: TextMessage\ncontent: {\n    \"requestId\": \"加工失败的数据ID\",\n    \"progress\": \"从哪个阶段重新开始，1解压前 2分析生成sql前 3sql入库前\"\n}",
+          "type": "json"
+        },
+        {
+          "title": "重加工回执:",
+          "content": "topic: qcc-redeconstruct-response\n其余同加工回执",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "src/main/java/com/beeasy/zed/DeconstructService.java",
+    "groupTitle": "QCC_MQ",
+    "name": "Activemq"
+  },
+  {
+    "type": "get",
+    "url": "/log/deconstruct/:type/:id",
+    "title": "二进制日志下载接口",
+    "group": "QCC_MQ",
+    "version": "0.0.1",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "string",
+            "allowedValues": [
+              "\"source\"",
+              "\"unzip\"",
+              "\"sql\""
+            ],
+            "optional": false,
+            "field": "type",
+            "description": "<p>数据类型，分别是“解析前的原始数据”，“解压后的原始数据”,“分析后的sql数据”</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "string",
+            "optional": false,
+            "field": "id",
+            "description": "<p>数据requestId</p>"
+          }
+        ]
+      }
+    },
+    "filename": "src/main/java/com/beeasy/zed/DeconstructService.java",
+    "groupTitle": "QCC_MQ",
+    "name": "GetLogDeconstructTypeId"
   }
 ]

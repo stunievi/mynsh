@@ -40,12 +40,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import static com.beeasy.zed.DBService.sqlManager;
 import static org.junit.Assert.*;
 
 
 public class TestQcc {
 
-    public static SQLManager sqlManager;
     public static ZedService zedService;
     public static DeconstructService deconstructService;
 

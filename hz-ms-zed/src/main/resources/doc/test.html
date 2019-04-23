@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <!--<style>-->
+        <!--*{-->
+            <!--margin: 0;-->
+            <!--padding: 0;-->
+        <!--}-->
+        <!--.box{-->
+            <!--margin:10px;-->
+            <!--border:1px solid #ddd;-->
+            <!--min-height: 100px;-->
+        <!--}-->
+    <!--</style>-->
+    <script src="https://cdn.staticfile.org/jquery/3.4.0/jquery.min.js"></script>
+    <!-- 引入样式 -->
+    <!-- 先引入 Vue -->
+    <script src="https://cdn.staticfile.org/vue/2.6.10/vue.min.js"></script>
+    <!-- 引入组件库 -->
+    <link href="https://cdn.staticfile.org/element-ui/2.7.2/theme-chalk/index.css" rel="stylesheet">
+    <script src="https://cdn.staticfile.org/element-ui/2.7.2/index.js"></script>
+</head>
+<body>
+<div id="app" style="padding:50px">
+
+    <el-tabs v-model="activeName" >
+        <el-tab-pane label="数据加工" name="first">
+            <el-form ref="form" :model="form" label-width="80px">
+                <el-form-item label="数据ID">
+                    <el-input v-model="form.requestId"></el-input>
+                </el-form-item>
+                <el-form-item label="原始指令">
+                    <el-input type="textarea" v-model="form.sourceRequest"></el-input>
+                </el-form-item>
+                <el-form-item label="加工文件">
+                    <input type="file" ref="file">
+                </el-form-item>
+
+                <div style="text-align: center;">
+                    <el-button style="margin-left: 10px;" type="success" @click="sendDeconstruct" >发送到MQ</el-button>
+                </div>
+            </el-form>
+        </el-tab-pane>
+        <el-tab-pane label="任务重做" name="second">
+            <el-form ref="form2" :model="form2" label-width="80px">
+                <el-form-item label="数据ID">
+                    <el-input v-model="form2.requestId"></el-input>
+                </el-form-item>
+                <el-form-item label="流程等级">
+                    <el-input v-model="form2.progress"></el-input>
+                    <div>
+                        1. 解压前
+                        2. 分析前
+                        3. 更新到数据库前
+                    </div>
+                </el-form-item>
+
+                <div style="text-align: center;">
+                    <el-button style="margin-left: 10px;" type="success" @click="sendRefresh" >发送到MQ</el-button>
+                </div>
+            </el-form>
+        </el-tab-pane>
+        <!--<el-tab-pane label="角色管理" name="third">角色管理</el-tab-pane>-->
+        <!--<el-tab-pane label="定时任务补偿" name="fourth">定时任务补偿</el-tab-pane>-->
+    </el-tabs>
+
+
+</div>
+
+</body>
+</html>
+<script>
+
+</script>
+
+<script>
+    var ele = new Vue({
+        el: '#app',
+        data: function() {
+            return { visible: false,
+                activeName:'first',
+                form:{
+                },
+                form2:{
+                }
+            }
+        },
+        methods:{
+            sendDeconstruct(){
+                console.log(JSON.stringify(this.form))
+                console.log(this.$refs.file)
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", "/qcc/ttt");
+                var fd = new FormData();
+                fd.append("file", this.$refs.file.files[0]);
+                fd.append("requestId", this.form.requestId);
+                fd.append("sourceRequest", this.form.sourceRequest);
+                // xhr.send(new FormData(formElement));
+                xhr.send(fd);
+            },
+            sendRefresh(){
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", "/qcc/ttt2");
+                var fd = new FormData();
+                fd.append("requestId", this.form2.requestId);
+                fd.append("progress", this.form2.progress);
+                xhr.send(fd)
+            }
+        }
+    })
+
+    var ws;
+    function initWebsocket() {
+
+        ws = new WebSocket("ws://"+location.host+"/ws");
+        ws.onopen = function()
+        {
+            const h = ele.$createElement;
+            ele.$notify({
+                title: '消息',
+                message: h('i', { style: 'color: teal'}, "已经连上服务器")
+            });
+        };
+
+        ws.onmessage = function (evt)
+        {
+            const h = ele.$createElement;
+            ele.$notify({
+                title: '收到MQ消息',
+                message: h('i', { style: 'color: teal'}, evt.data)
+            });
+
+            // var received_msg = evt.data;
+            // layer.msg(evt.data)
+        };
+
+        ws.onclose = function()
+        {
+            const h = ele.$createElement;
+            ele.$notify({
+                title: '消息',
+                message: h('i', { style: 'color: teal', width:"auto"}, "已经断开服务器，请刷新")
+            });
+            // initWebsocket()
+        };
+
+        ws.onerror = function () {
+            // initWebsocket()
+        }
+    }
+
+    initWebsocket()
+</script>

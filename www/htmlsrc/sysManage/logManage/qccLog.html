@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>系统管理 - 日志管理</title>
+    <!--#include file="/htmlsrc/header.html" -->
+    
+</head>
+
+<body>
+    <div id="content">
+        <div id="panel-form">
+            <!-- 查询表单 -->
+        </div>
+        <div id="dataList">
+            <!-- 数据列表 -->
+        </div>
+    </div>
+
+    <script>
+        $("#panel-form").html(panelFormRender3({
+            panelTitle: '筛选查询',
+            list: [
+                { prop: 'userName', label: '参与用户' },
+                {
+                    prop: 'type', label: '日志类型', type: "select", vals: [
+                        { name: "所有", val: "" }
+                        , { "val": "01", "name": "更新操作" }
+                        , { "val": "02", "name": "数据解构" }]
+                },
+                { prop: 'startTime', label: '开始时间', disabled: true, type: "date" },
+                { prop: 'endTime', label: '结束时间', disabled: true, type: "date" }
+            ],
+            data: {}
+        }));
+
+        laytableRender({
+            url: remoteOrigin + "/api/auto/qcclog/getList",
+            cols: [
+                [
+                    { field: 'id', title: "ID序号" },
+                    { field: 'addTime', title: '时间' },
+                    { field: 'operator', title: '操作员' },
+                    { field: "type", title: "类型" },
+                    { field: 'content', title: '消息内容' },
+                ]
+            ]
+        });
+
+        function checkSubmitForm() {
+            var form = $("form[name='form-search']")
+            layuiTableReload({
+                where: form.serialize()
+            })
+            return false;
+        }
+    </script>
+</body>
+
+</html>

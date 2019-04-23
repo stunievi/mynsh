@@ -8,149 +8,152 @@ import org.apache.activemq.BlobMessage;
 
 import javax.jms.*;
 import java.io.File;
-import java.io.FileInputStream;
 import java.util.Vector;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.locks.Lock;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
+
+import static com.beeasy.zed.DBService.config;
 
 public class MQService {
 
-    private static ExecutorService executorService = Executors.newFixedThreadPool(8);
     private static ActiveMQConnection connection = null;
-    private static ActiveMQSession session = null;
-    private static MessageConsumer consumer = null;
-    private static MessageProducer producer = null;
-    private static Queue queue = null;
-    private static Lock lock = new ReentrantLock();
-    private static Vector<MQMessageListener> vector = new Vector<>();
+    private static AtomicBoolean ready = new AtomicBoolean(false);
+    private static Vector<Object[]> listeners = new Vector<>();
 
-    public static void initMQ(){
+    public static void await() {
+        //如果根本没初始化，那么不再等待
+        while(!ready.get()){
+             ThreadUtil.sleep(100);
+        }
+    }
+
+
+    public static void init(){
         ThreadUtil.execAsync(() -> {
-            lock.lock();
             try{
                 //1、创建工厂连接对象，需要制定ip和端口号
-                ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://47.94.97.138:8011?jms.blobTransferPolicy.uploadUrl=http://47.94.97.138:8012/fileserver/");
-//                connectionFactory.setUserName("admin");
-//                connectionFactory.setPassword("admin");
+                ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(config.getString("mqserver"));
                 //2、使用连接工厂创建一个连接对象
                 connection = (ActiveMQConnection) connectionFactory.createConnection();
                 //3、开启连接
-                connection.start();
                 //4、使用连接对象创建会话（session）对象
-                session = (ActiveMQSession) connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-                //5、使用会话对象创建目标对象，包含queue和topic（一对一和一对多）
-                Topic queue = session.createTopic("my_msg");
-                //6、使用会话对象创建生产者对象
-                consumer = session.createConsumer(queue);
-                producer = session.createProducer(queue);
-                //7、向consumer对象中设置一个messageListener对象，用来接收消息
-                consumer.setMessageListener(new MessageListener() {
 
+                connection.setExceptionListener(new ExceptionListener() {
                     @Override
-                    public void onMessage(Message message) {
-
-                        for (MQMessageListener mqMessageListener : vector) {
-                            executorService.execute(() -> {
-                                mqMessageListener.call(message);
-                            });
-                        }
-                        // TODO Auto-generated method stub
-                        if(message instanceof TextMessage){
-//                            TextMessage textMessage = (TextMessage)message;
-//                            try {
-//                                System.out.println(textMessage.getText());
-//                            } catch (JMSException e) {
-//                                // TODO Auto-generated catch block
-//                                e.printStackTrace();
-//                            }
-                        }
+                    public void onException(JMSException e) {
+                        ready.set(false);
+                        ThreadUtil.sleep(300);
+                        init();
                     }
                 });
 
+                connection.start();
+                ready.set(true);
 
+                for (Object[] listener : listeners) {
+                    bindListener((String)listener[0], (MQMessageListener) listener[1]);
+                }
             }
             catch (Exception ee){
+                ready.set(false);
                 ee.printStackTrace();
-                try {
-                    consumer.close();
-                } catch (JMSException e) {
-                    e.printStackTrace();
-                }
-                try {
-                    producer.close();
-                } catch (JMSException e) {
-                    e.printStackTrace();
-                }
-                try {
-                    session.close();
-                } catch (JMSException e) {
-                    e.printStackTrace();
-                }
-                try {
-                    connection.close();
-                } catch (JMSException e) {
-                    e.printStackTrace();
-                }
-
                 ThreadUtil.sleep(300);
-                initMQ();
-            } finally {
-                lock.unlock();
+                init();
             }
         });
     }
 
-    public static void sendMessage(Object message){
-        sendMessage(message, 300, 5);
-    }
-
-    public static void sendMessage(Object message, final int delay, int retryTimes){
+    public static void sendTopicMessage(String topic, Object message){
         ThreadUtil.execAsync(() -> {
-            lock.lock();
-            try{
+            ActiveMQSession session = null;
+            MessageProducer producer = null;
+            await();
+            try {
+                session = (ActiveMQSession) connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+                Topic t = session.createTopic(topic);
+                producer = session.createProducer(t);
                 if(message instanceof String){
                     TextMessage msg = session.createTextMessage((String) message);
                     producer.send(msg);
-                } else if (message instanceof File){
-                    BytesMessage bytesMessage = session.createBytesMessage();
-                    BlobMessage blobMessage = session.createBlobMessage((File) message);
-                    StreamMessage streamMessage = session.createStreamMessage();
-                    try (FileInputStream is = new FileInputStream((File) message)){
-                        byte[] buf = new byte[1024];
-                        int len = -1;
-                        while((len = is.read(buf)) > 0){
-                            streamMessage.writeBytes(buf, 0, len);
-                        }
-                    }
-                    catch (Exception e){
-                        e.printStackTrace();
-                    }
+                } else if(message instanceof File){
+                    BlobMessage blobMessage = (BlobMessage) session.createBlobMessage((File) message);
+                    producer.send(blobMessage);
+                } else if(message instanceof FileRequest){
+                    BlobMessage blobMessage = (BlobMessage) session.createBlobMessage((File) ((FileRequest) message).file);
+                    blobMessage.setStringProperty("requestId", ((FileRequest) message).requestId);
+                    blobMessage.setStringProperty("sourceRequest", ((FileRequest) message).sourceRequest);
                     producer.send(blobMessage);
                 }
-                lock.unlock();
-            } catch (Exception e){
+            } catch (JMSException e) {
                 e.printStackTrace();
-                lock.unlock();
-                ThreadUtil.sleep(delay);
-                int _delay = delay;
-                int _retryTimes = retryTimes;
-                _delay *= 2;
-                if(_retryTimes-- == 0){
-                    return;
+            } finally {
+                if (producer != null) {
+                    try {
+                        producer.close();
+                    } catch (JMSException e) {
+                        e.printStackTrace();
+                    }
                 }
-                sendMessage(message, _delay, _retryTimes);
+                if (session != null) {
+                    try {
+                        session.close();
+                    } catch (JMSException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         });
     }
 
-    public static void setOnMessageListener(MQMessageListener messageListener){
-        vector.add(messageListener);
+    private static void bindListener(String topic, MQMessageListener listener){
+        ActiveMQSession session = null;
+        MessageConsumer consumer = null;
+        try {
+            session = (ActiveMQSession) connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            Topic t = session.createTopic(topic);
+            consumer = session.createConsumer(t);
+            consumer.setMessageListener(m -> {
+                try {
+                    listener.call(m);
+                } catch (JMSException e) {
+                    e.printStackTrace();
+                }
+            });
+
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
     }
 
-    public interface MQMessageListener{
-        void call(Message message);
+
+    public static void listenMessage(String topic, MQMessageListener listener){
+        listeners.add(new Object[]{topic, listener});
+        if(!ready.get()){
+            return;
+        }
+        ThreadUtil.execAsync(() -> bindListener(topic, listener));
     }
+
+
+    public interface MQMessageListener{
+        void call(Message message) throws JMSException;
+    }
+
+    public static class FileRequest{
+        public String requestId;
+        public String sourceRequest;
+        public File file;
+
+        public FileRequest(String requestId, String sourceRequest, File file) {
+            this.requestId = requestId;
+            this.sourceRequest = sourceRequest;
+            this.file = file;
+        }
+    }
+
 
 }

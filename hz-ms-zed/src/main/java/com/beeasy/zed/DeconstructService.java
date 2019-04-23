@@ -1,38 +1,58 @@
 package com.beeasy.zed;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.io.IoUtil;
+import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.URLUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.*;
 import io.netty.util.CharsetUtil;
+import org.apache.activemq.BlobMessage;
 import org.beetl.sql.core.DSTransactionManager;
 import org.beetl.sql.core.SQLReady;
 import org.osgl.util.S;
 
-import java.io.UnsupportedEncodingException;
+import javax.jms.JMSException;
+import javax.jms.TextMessage;
+import java.io.*;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
 import java.nio.charset.StandardCharsets;
+import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
-import static com.beeasy.zed.DBService.sqlManager;
-import static com.beeasy.zed.Utils.jsonGetByPath;
-import static com.beeasy.zed.Utils.newJsonObject;
+import static com.beeasy.zed.DBService.*;
+import static com.beeasy.zed.Utils.*;
 
 //import cn.hutool.json.*;
 
 public class DeconstructService {
+
+    //日志存储
+    private File logSourceDir;
+    private File logSqlDir;
+    private File logUnzipDir;
+    private ReentrantLock mutex = new ReentrantLock();
+    private ExecutorService executor = Executors.newFixedThreadPool(16);
+    private Map<String, Boolean> runningTask = new HashMap<>();
 
     private ObjectId objectId = ObjectId.get();
     //    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 //    private static SimpleDateFormat isoSdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
 //    private static SimpleDateFormat iso2Sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 //    private static SimpleDateFormat ymdSdf = new SimpleDateFormat("yyyy-MM-dd");
-    private static String[] dateFormats = {"yyyy-MM-dd hh:mm:ss", "yyyy-MM-dd","yyyy-MM-dd'T'HH:mm:ssXXX", "yyyy-MM-dd'T'HH:mm:ss"};
+    private static String[] dateFormats = {"yyyy-MM-dd hh:mm:ss", "yyyy-MM-dd", "yyyy-MM-dd'T'HH:mm:ssXXX", "yyyy-MM-dd'T'HH:mm:ss"};
 
     private static ValueGenerator.Wrap DateValue = ValueGenerator.createDate();
     private static ValueGenerator.Wrap Base64Value = ValueGenerator.createBase64();
@@ -241,7 +261,7 @@ public class DeconstructService {
     private String getQuery(FullHttpRequest request, String key) {
         JSONObject params = HttpServerHandler.decodeProxyQuery(request);
         for (Map.Entry<String, Object> entry : params.entrySet()) {
-            if(entry.getKey().equalsIgnoreCase(key)){
+            if (entry.getKey().equalsIgnoreCase(key)) {
                 return (String) entry.getValue();
             }
         }
@@ -251,47 +271,117 @@ public class DeconstructService {
     public static DeconstructService register() {
         DeconstructService service = new DeconstructService();
 
-        HttpServerHandler.AddRoute(new Route(("/deconstruct"), (ctx, req) -> {
-            return service.doNettyRequest(ctx, req);
-        }));
+        ThreadUtil.execAsync(() -> {
+            JSONObject log = config.getJSONObject("log");
+            service.logSourceDir = new File(log.getString("source"));
+            service.logSqlDir = new File(log.getString("sql"));
+            service.logUnzipDir = new File(log.getString("unzip"));
+            service.logSourceDir.mkdirs();
+            service.logSqlDir.mkdirs();
+            service.logUnzipDir.mkdirs();
 
-        registerHandler("/CourtV4/SearchShiXin", service::SearchShiXin);
-        registerHandler("/CourtV4/SearchZhiXing", service::SearchZhiXing);
-        registerHandler("/JudgeDocV4/SearchJudgmentDoc", service::SearchJudgmentDoc);
-        registerHandler("/JudgeDocV4/GetJudgementDetail", service::GetJudgementDetail);
-        registerHandler("/CourtNoticeV4/SearchCourtAnnouncement", service::SearchCourtAnnouncement);
-        registerHandler("/CourtNoticeV4/SearchCourtAnnouncementDetail", service::SearchCourtAnnouncementDetail);
-        registerHandler("/CourtAnnoV4/SearchCourtNotice", service::SearchCourtNotice);
-        registerHandler("/CourtAnnoV4/GetCourtNoticeInfo", service::GetCourtNoticeInfo);
-        registerHandler("/JudicialAssistance/GetJudicialAssistance", service::GetJudicialAssistance);
-        registerHandler("/ECIException/GetOpException", service::GetOpException);
-        registerHandler("/JudicialSale/GetJudicialSaleList", service::GetJudicialSaleList);
-        registerHandler("/JudicialSale/GetJudicialSaleDetail", service::GetJudicialSaleDetail);
-        registerHandler("/LandMortgage/GetLandMortgageList", service::GetLandMortgageList);
-        registerHandler("/LandMortgage/GetLandMortgageDetails", service::GetLandMortgageDetails);
-        registerHandler("/EnvPunishment/GetEnvPunishmentList", service::GetEnvPunishmentList);
-        registerHandler("/EnvPunishment/GetEnvPunishmentDetails", service::GetEnvPunishmentDetails);
-        registerHandler("/ChattelMortgage/GetChattelMortgage", service::GetChattelMortgage);
-        registerHandler("/ECIV4/GetDetailsByName", service::GetDetailsByName);
-        registerHandler("/History/GetHistorytEci", service::GetHistorytEci);
-        registerHandler("/History/GetHistorytInvestment", service::GetHistorytInvestment);
-        registerHandler("/History/GetHistorytShareHolder", service::GetHistorytShareHolder);
-        registerHandler("/History/GetHistoryShiXin", service::GetHistoryShiXin);
-        registerHandler("/History/GetHistoryZhiXing", service::GetHistoryZhiXing);
-        registerHandler("/History/GetHistorytCourtNotice", service::GetHistorytCourtNotice);
-        registerHandler("/History/GetHistorytJudgement", service::GetHistorytJudgement);
-        registerHandler("/History/GetHistorytSessionNotice", service::GetHistorytSessionNotice);
-        registerHandler("/History/GetHistorytMPledge", service::GetHistorytMPledge);
-        registerHandler("/History/GetHistorytPledge", service::GetHistorytPledge);
-        registerHandler("/History/GetHistorytAdminPenalty", service::GetHistorytAdminPenalty);
-        registerHandler("/History/GetHistorytAdminLicens", service::GetHistorytAdminLicens);
-        registerHandler("/ECIV4/SearchFresh", service::SearchFresh);
-        registerHandler("/ECIRelationV4/SearchTreeRelationMap", service::SearchTreeRelationMap);
-        registerHandler("/ECIRelationV4/GetCompanyEquityShareMap", service::GetCompanyEquityShareMap);
-        registerHandler("/ECIRelationV4/GenerateMultiDimensionalTreeCompanyMap", service::GenerateMultiDimensionalTreeCompanyMap);
-        registerHandler("/CIAEmployeeV4/GetStockRelationInfo", service::GetStockRelationInfo);
-        registerHandler("/HoldingCompany/GetHoldingCompany", service::GetHoldingCompany);
-        registerHandler("/ECICompanyMap/GetStockAnalysisData", service::GetStockAnalysisData);
+//            HttpServerHandler.AddRoute(new Route(("/deconstruct"), (ctx, req) -> {
+//                return service.doNettyRequest(ctx, req);
+//            }));
+
+            registerHandler("/CourtV4/SearchShiXin", service::SearchShiXin);
+            registerHandler("/CourtV4/SearchZhiXing", service::SearchZhiXing);
+            registerHandler("/JudgeDocV4/SearchJudgmentDoc", service::SearchJudgmentDoc);
+            registerHandler("/JudgeDocV4/GetJudgementDetail", service::GetJudgementDetail);
+            registerHandler("/CourtNoticeV4/SearchCourtAnnouncement", service::SearchCourtAnnouncement);
+            registerHandler("/CourtNoticeV4/SearchCourtAnnouncementDetail", service::SearchCourtAnnouncementDetail);
+            registerHandler("/CourtAnnoV4/SearchCourtNotice", service::SearchCourtNotice);
+            registerHandler("/CourtAnnoV4/GetCourtNoticeInfo", service::GetCourtNoticeInfo);
+            registerHandler("/JudicialAssistance/GetJudicialAssistance", service::GetJudicialAssistance);
+            registerHandler("/ECIException/GetOpException", service::GetOpException);
+            registerHandler("/JudicialSale/GetJudicialSaleList", service::GetJudicialSaleList);
+            registerHandler("/JudicialSale/GetJudicialSaleDetail", service::GetJudicialSaleDetail);
+            registerHandler("/LandMortgage/GetLandMortgageList", service::GetLandMortgageList);
+            registerHandler("/LandMortgage/GetLandMortgageDetails", service::GetLandMortgageDetails);
+            registerHandler("/EnvPunishment/GetEnvPunishmentList", service::GetEnvPunishmentList);
+            registerHandler("/EnvPunishment/GetEnvPunishmentDetails", service::GetEnvPunishmentDetails);
+            registerHandler("/ChattelMortgage/GetChattelMortgage", service::GetChattelMortgage);
+            registerHandler("/ECIV4/GetDetailsByName", service::GetDetailsByName);
+            registerHandler("/History/GetHistorytEci", service::GetHistorytEci);
+            registerHandler("/History/GetHistorytInvestment", service::GetHistorytInvestment);
+            registerHandler("/History/GetHistorytShareHolder", service::GetHistorytShareHolder);
+            registerHandler("/History/GetHistoryShiXin", service::GetHistoryShiXin);
+            registerHandler("/History/GetHistoryZhiXing", service::GetHistoryZhiXing);
+            registerHandler("/History/GetHistorytCourtNotice", service::GetHistorytCourtNotice);
+            registerHandler("/History/GetHistorytJudgement", service::GetHistorytJudgement);
+            registerHandler("/History/GetHistorytSessionNotice", service::GetHistorytSessionNotice);
+            registerHandler("/History/GetHistorytMPledge", service::GetHistorytMPledge);
+            registerHandler("/History/GetHistorytPledge", service::GetHistorytPledge);
+            registerHandler("/History/GetHistorytAdminPenalty", service::GetHistorytAdminPenalty);
+            registerHandler("/History/GetHistorytAdminLicens", service::GetHistorytAdminLicens);
+            registerHandler("/ECIV4/SearchFresh", service::SearchFresh);
+            registerHandler("/ECIRelationV4/SearchTreeRelationMap", service::SearchTreeRelationMap);
+            registerHandler("/ECIRelationV4/GetCompanyEquityShareMap", service::GetCompanyEquityShareMap);
+            registerHandler("/ECIRelationV4/GenerateMultiDimensionalTreeCompanyMap", service::GenerateMultiDimensionalTreeCompanyMap);
+            registerHandler("/CIAEmployeeV4/GetStockRelationInfo", service::GetStockRelationInfo);
+            registerHandler("/HoldingCompany/GetHoldingCompany", service::GetHoldingCompany);
+            registerHandler("/ECICompanyMap/GetStockAnalysisData", service::GetStockAnalysisData);
+
+
+            //消息坚挺
+            MQService.listenMessage("qcc-deconstruct-request", m -> {
+                BlobMessage blobMessage = (BlobMessage) m;
+                String requestId = null;
+                String sourceRequest = null;
+                try {
+                    //这俩都没有还玩个屁
+                    requestId = blobMessage.getStringProperty("requestId");
+                    sourceRequest = blobMessage.getStringProperty("sourceRequest");
+                } catch (JMSException e) {
+                    e.printStackTrace();
+                    return;
+                }
+                if(S.empty(requestId)) return;
+                //检查是否有相同的任务
+                synchronized (service){
+                    if(service.runningTask.containsKey(requestId)){
+                        new QccDeconstructReqponse(false, 0, requestId, sourceRequest, "已经有相同的任务正在执行中");
+                        return;
+                    }
+                    service.runningTask.put(requestId, true);
+                }
+                service.onDeconstructRequest(requestId,sourceRequest,(BlobMessage) m);
+                synchronized (service){
+                    service.runningTask.remove(requestId);
+                }
+            });
+
+            MQService.listenMessage("qcc-redeconstruct-request", m ->{
+                TextMessage textMessage = (TextMessage) m;
+                JSONObject object = (JSONObject) JSON.parseObject(textMessage.getText());
+                String requestId = object.getString("requestId");
+                int progress = 0;
+                try{
+                    progress = object.getInteger("progress");
+                } finally {
+                    if(progress < 1){
+                        progress = 1;
+                    }
+                    if(progress > 3){
+                        progress = 3;
+                    }
+                }
+                if(S.empty(requestId)) return;
+                synchronized (service){
+                    if(service.runningTask.containsKey(requestId)){
+                        new QccReDeconstructResponse(false, 0, requestId, "", "已经有相同的任务正在执行中");
+                        return;
+                    }
+                    service.runningTask.put(requestId, true);
+                }
+                service.onReDeconstructRequest(requestId, progress);
+                synchronized (service){
+                    service.runningTask.remove(requestId);
+                }
+            } );
+
+            System.out.println("deconstruct service boot success");
+        });
 //        registerHandler("/History/GetHistorytJudgement", service::GetHistorytCourtNotice);
 
 //        registerHandler("/History/GetHistoryZhiXing", service::GetHistoryZhiXing);
@@ -335,7 +425,8 @@ public class DeconstructService {
             );
             deconstruct(Partners, "QCC_SAD_PARTNERS", "");
         }
-        child:{
+        child:
+        {
             JSONObject StockList = object.getJSONObject("StockList");
             if (StockList == null) {
                 break child;
@@ -699,7 +790,7 @@ public class DeconstructService {
             }, DateValue,
             "+inner_company_name", compName
         );
-        deconstruct(json, "QCC_HIS_SHIXIN", "");
+        deconstruct(json, "QCC_HIS_SHIXIN", "Id");
     }
 
 
@@ -1012,7 +1103,7 @@ public class DeconstructService {
                 deconstruct(pledgeeList, "QCC_CMD_PLEDGEE_LIST", "");
             }
             //SecuredClaim
-            JSONObject securedClaim = (JSONObject) jsonGetByPath(obj,"Detail.SecuredClaim");
+            JSONObject securedClaim = (JSONObject) jsonGetByPath(obj, "Detail.SecuredClaim");
             if (securedClaim != null) {
                 changeField(securedClaim,
                     "+cm_id", id,
@@ -1323,7 +1414,7 @@ public class DeconstructService {
         JSONArray list = new JSONArray();
         for (Object o : (JSONArray) json) {
             JSONObject object = (JSONObject) o;
-            for (String p : ((String)object.getOrDefault("Prosecutorlist", "")).split("\\t")) {
+            for (String p : ((String) object.getOrDefault("Prosecutorlist", "")).split("\\t")) {
                 list.add(newJsonObject(
                     "name", p,
                     "type", "01",
@@ -1332,7 +1423,7 @@ public class DeconstructService {
                 ));
             }
 
-            for (String p : ((String)object.getOrDefault("Defendantlist", "")).split("\\t")) {
+            for (String p : ((String) object.getOrDefault("Defendantlist", "")).split("\\t")) {
                 list.add(newJsonObject(
                     "name", p,
                     "type", "02",
@@ -1453,7 +1544,7 @@ public class DeconstructService {
                 //清空关联信息
                 doDelete("QCC_JUDGMENT_DOC_CN", "QCC_DETAILS_ID", object.getString("Id"));
                 changeField(array,
-                    "+TOTAL_NUM", jsonGetByPath(object,"CourtNoticeList.TotalNum"),
+                    "+TOTAL_NUM", jsonGetByPath(object, "CourtNoticeList.TotalNum"),
                     "+QCC_DETAILS_ID", object.getString("Id")
                 );
 //                array = JSONUtil.parseArray(array.stream()
@@ -1603,7 +1694,7 @@ public class DeconstructService {
             if (((JSONObject) obj).containsKey("Children") || ((JSONObject) obj).containsKey("children")) {
                 JSONArray children = (JSONArray) jsonGetByPath(obj, "Children");
                 if (children == null) {
-                    children = (JSONArray) jsonGetByPath(obj,"children");
+                    children = (JSONArray) jsonGetByPath(obj, "children");
                 }
                 if (children != null) {
                     String id = ret.getString("inner_id");
@@ -1663,7 +1754,7 @@ public class DeconstructService {
             StringBuilder sb = new StringBuilder();
             sb.append(S.fmt("merge into %s q1 using ( values (%s) ) as q2( %s )", tableName, String.join(",", values), String.join(",", cKeys)));
             String on = "";
-            for(i = 0; i < keys.length; i++){
+            for (i = 0; i < keys.length; i++) {
 //                sb.append(S.fmt( " and %s = '%s'", cKeys[i], object.getString(keys[i])));
                 on += " and q1." + cKeys[i] + " = " + "q2." + cKeys[i];
             }
@@ -1681,9 +1772,9 @@ public class DeconstructService {
 //            sql += sb.toString();
 //            String sql = buildUpdateSql(tableName, kv, sb.toString());
             String sql = sb.toString();
-            if(autoCommit){
+            if (autoCommit) {
                 int row = sqlManager.executeUpdate(new SQLReady(sql));
-                if(row > 0){
+                if (row > 0) {
                     return kv;
                 }
             } else {
@@ -1701,7 +1792,7 @@ public class DeconstructService {
 //            }
         }
         String sql = buildInsertSql(tableName, kv);
-        if(autoCommit){
+        if (autoCommit) {
             sqlManager.executeUpdate(new SQLReady(sql));
         } else {
             readySqls.insert.add(sql);
@@ -1731,7 +1822,7 @@ public class DeconstructService {
 
     private void doDelete(String tableName, String key, String value) {
         String sql = buildDeleteSql(tableName, key, value);
-        if(autoCommit){
+        if (autoCommit) {
             sqlManager.executeUpdate(new SQLReady(sql));
         } else {
             readySqls.delete.add(sql);
@@ -1762,7 +1853,7 @@ public class DeconstructService {
         return sb.toString();
     }
 
-    private String buildUpdateSqlFields(JSONObject kv){
+    private String buildUpdateSqlFields(JSONObject kv) {
         StringBuilder sb = new StringBuilder();
         for (String s : kv.keySet()) {
             Object obj = kv.get(s);
@@ -1812,7 +1903,7 @@ public class DeconstructService {
         return sb.toString();
     }
 
-    public String buildInsertSqlFields(JSONObject kv){
+    public String buildInsertSqlFields(JSONObject kv) {
         StringBuilder sb = new StringBuilder();
         kv.put("inner_id", objectId.nextId());
         kv.put("input_date", new Date());
@@ -1843,16 +1934,467 @@ public class DeconstructService {
         return S.eq(object.getString("Status"), "200");
     }
 
-//    private boolean matches(String url, String pattern) {
-//        pattern = "\\b" + pattern + "\\b";
-//        Pattern p = urlRegexs.get(pattern);
-//        if (p == null) {
-//            p = Pattern.compile(pattern);
-//            urlRegexs.put(pattern, p);
+
+    /**
+     * step0 保存文件
+     * @param blobMessage
+     * @param requestId
+     * @throws Exception
+     */
+    private void deconstructStep0(BlobMessage blobMessage, String requestId) throws Exception {
+        File sourcefile = new File(logSourceDir, requestId);
+        if (sourcefile.exists()) sourcefile.delete();
+        try (
+            InputStream is = blobMessage.getInputStream();
+            FileOutputStream fos = new FileOutputStream(sourcefile);
+        ) {
+            IoUtil.copy(is, fos);
+        } catch (Exception e) {
+            throw new Exception();
+        }
+    }
+
+    /**
+     * step1
+     * 解压文件
+     */
+    private void deconstructStep1(String requestId) throws IOException {
+        File unzipFile = new File(logUnzipDir, requestId);
+        if (unzipFile.exists()) unzipFile.delete();
+        unzipFile(new File(logSourceDir, requestId), unzipFile);
+    }
+
+    /**
+     * step2
+     * 分析文件
+     * 因为sqlready只用了一个容器，以及需要executor线程池处理，所以这里只能使用同步
+     *
+     * @param requestId
+     */
+    private synchronized List<String> deconstructStep2(String requestId) throws IOException, InterruptedException {
+        File unzipFile = new File(logUnzipDir, requestId);
+        List<Slice> tasks = new ArrayList<>();
+        byte[] buf = BufferPool.allocate();
+        try (
+            RandomAccessFile raf = new RandomAccessFile(unzipFile, "r");
+        ) {
+            int pos = 0;
+            int len = -1;
+            while (true) {
+                if (pos >= raf.length()) {
+                    break;
+                }
+                raf.seek(pos);
+                len = raf.readInt();
+                pos += 4;
+                raf.read(buf, 0, len);
+                String link = new String(buf, 0, len);
+                pos += len;
+                len = raf.readInt();
+                pos += 4;
+                Slice slice = new Slice(link, pos, len, null);
+                tasks.add(slice);
+                pos += len;
+            }
+        }
+
+        ThreadLocal<RandomAccessFile> local = new ThreadLocal<RandomAccessFile>() {
+            private Vector<RandomAccessFile> files = new Vector();
+
+            @Override
+            protected RandomAccessFile initialValue() {
+                try {
+                    RandomAccessFile raf = new RandomAccessFile(unzipFile, "r");
+                    files.add(raf);
+                    return raf;
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+
+            @Override
+            protected void finalize() throws Throwable {
+                for (RandomAccessFile file : files) {
+                    try {
+                        file.close();
+                    } finally {
+                    }
+                }
+                super.finalize();
+            }
+        };
+
+        final AtomicBoolean hasError = new AtomicBoolean(false);
+        readySqls = new SqlVectors();
+        CountDownLatch cl = new CountDownLatch(tasks.size());
+        boolean[] flags = new boolean[tasks.size()];
+        for (DeconstructService.Slice slice : tasks) {
+            executor.execute(() -> {
+                byte[] bs = BufferPool.allocate();
+                try {
+                    String str = null;
+                    RandomAccessFile file = local.get();
+                    file.seek(slice.bodyStart);
+                    file.read(bs, 0, (int) slice.bodyLen);
+                    str = new String(bs, 0, slice.bodyLen);
+                    destructSingle(slice.link, str);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    hasError.set(true);
+                } finally {
+                    BufferPool.deallocate(bs);
+                    cl.countDown();
+                }
+            });
+        }
+
+        cl.await();
+
+        if (hasError.get()) {
+            throw new RuntimeException();
+        }
+
+        List<String> sqls = new ArrayList<>();
+        sqls.addAll(readySqls.delete);
+        sqls.addAll(readySqls.insert);
+        sqls.addAll(readySqls.update);
+
+        return sqls;
+    }
+
+    /**
+     * step3
+     * 更新到数据库
+     * @param sqls
+     */
+    private void deconstructStep3(List<String> sqls) throws SQLException {
+        Connection conn = null;
+        try {
+            conn = dataSource.getConnection();
+            conn.setAutoCommit(false);
+            Statement stmt = conn.createStatement();
+            System.out.println("开始插入");
+            long stime = System.currentTimeMillis();
+            for (String sql : sqls) {
+                stmt.addBatch(sql);
+            }
+//            for (String sql : sqls) {
+//                try{
+//                    stmt.execute(sql);
+//                } catch (Exception e){
+//                    System.out.println(sql);
+//                }
+//            }
+            stmt.executeBatch();
+            conn.commit();
+
+            System.out.println("插入时间:" + (System.currentTimeMillis() - stime));
+
+            ;
+        } catch (SQLException e) {
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                }
+            }
+            e.printStackTrace();
+            throw e;
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    /**
+     * step4
+     *
+     * 写入sql日志
+     * @param requestId
+     * @param sqls
+     */
+    private void deconstructStep4(String requestId, List<String> sqls) {
+        ThreadUtil.execAsync(() -> {
+            File sqlfile = new File(logSqlDir, requestId);
+            if (sqlfile.exists()) sqlfile.delete();
+            FileLock lock = null;
+            try (
+                RandomAccessFile raf = new RandomAccessFile(sqlfile, "rw");
+                FileChannel channel = raf.getChannel();
+            ) {
+                lock = channel.lock();
+                for (String sql : sqls) {
+                    raf.write(sql.getBytes(StandardCharsets.UTF_8));
+                    raf.write("\r\n".getBytes());
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+
+    public void onReDeconstructRequest(String requestId, int progress){
+        if(progress < 1 || progress > 3){
+            return;
+        }
+        autoCommit = false;
+        QccReDeconstructResponse reqponse = new QccReDeconstructResponse(false, 0, requestId, "", "");
+        try{
+            List<String> sqls = null;
+            //从第一步开始解
+            if(progress <= 1){
+                reqponse.progress = 1;
+                deconstructStep1(requestId);
+            }
+            if(progress <= 2){
+                reqponse.progress = 2;
+                sqls = deconstructStep2(requestId);
+            }
+
+            reqponse.progress = 3;
+            if(progress <= 2){
+                deconstructStep3(sqls);
+                deconstructStep4(requestId, sqls);
+            } else {
+                //如果从第三步，可以直接读出sql的文件
+                File file = new File(logSqlDir, requestId);
+                sqls = new ArrayList<>();
+                ByteBuf buf = Unpooled.buffer();
+                try(
+                    RandomAccessFile raf = new RandomAccessFile(file, "r");
+                    ){
+                    long ptr = -1;
+                    long len = raf.length();
+                    while(++ptr < len){
+                        byte b = raf.readByte();
+                        buf.writeByte(b);
+                        if(b == '\r'){
+                            b = raf.readByte();
+                            ++ptr;
+                            if (b == '\n') {
+                                byte[] bytes = new byte[buf.readableBytes()];
+                                buf.readBytes(bytes);
+                                sqls.add(new String(bytes, StandardCharsets.UTF_8));
+                                buf.clear();
+                            }
+                        }
+                    }
+                }
+                deconstructStep3(sqls);
+            }
+            reqponse.finished = true;
+        } catch (Exception e){
+            reqponse.errorMessage = e.getMessage();
+            e.printStackTrace();
+        }
+        reqponse.send();
+
+    }
+
+
+    /**
+     * @api {ActiveMQ} / MQ接口
+     * @apiDescription 该接口不是使用http发送请求，而是调用activemq的服务<a target="_blank" href="/doc/test.html">测试地址</a>
+     *
+     * @apiGroup QCC-MQ
+     * @apiVersion 0.0.1
+     *
+     * @apiSuccessExample 数据加工请求:
+     * topic: qcc-deconstruct-request
+     * type: BlobMessage
+     * properties: {
+     *     "requestId":"数据ID",
+     *     "sourceRequest":"数据原始信息"
+     * }
+     * content: 文件信息
+     *
+     *
+     * @apiSuccessExample 加工回执:
+     * topic: qcc-deconstruct-response
+     * type: TextMessage
+     * content: {
+     *     "requestId":"数据ID",
+     *     "sourceRequest":"原始数据",
+     *     "progress":"进行到哪一阶段 0保存数据 1解压 2分析生成sql 3sql入库",
+     *     "finished": "是否完成",
+     *     "errorMessage": "错误信息"
+     * }
+     *
+     *
+     * @apiSuccessExample 重加工请求:
+     * topic: qcc-redeconstruct-request
+     * type: TextMessage
+     * content: {
+     *     "requestId": "加工失败的数据ID",
+     *     "progress": "从哪个阶段重新开始，1解压前 2分析生成sql前 3sql入库前"
+     * }
+     *
+     * @apiSuccessExample 重加工回执:
+     * topic: qcc-redeconstruct-response
+     * 其余同加工回执
+     */
+
+
+
+    /**
+     * @api {get} /log/deconstruct/{type}/{id} 二进制日志下载接口
+     * @apiGroup QCC-MQ
+     * @apiVersion 0.0.1
+     *
+     * @apiParam {string="source","unzip","sql"} type 数据类型，分别是“解析前的原始数据”，“解压后的原始数据”,“分析后的sql数据”
+     * @apiParam {string} id 数据requestId
+     *
+     */
+    public void onDeconstructRequest(String requestId, String sourceRequest, BlobMessage blobMessage)  {
+        autoCommit = false;
+
+        QccDeconstructReqponse reqponse = new QccDeconstructReqponse(false, 0, requestId, sourceRequest, "");
+        try{
+            deconstructStep0(blobMessage, requestId);
+            reqponse.progress = 1;
+            deconstructStep1(requestId);
+            reqponse.progress = 2;
+            List<String> sqls = deconstructStep2(requestId);
+            reqponse.progress = 3;
+            deconstructStep3(sqls);
+            deconstructStep4(requestId, sqls);
+            reqponse.finished = true;
+        } catch (Exception e){
+            reqponse.errorMessage = e.getMessage();
+            e.printStackTrace();
+        }
+        reqponse.send();
+
+//        try{
+////            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+////            Date now = new Date();
+////            String dirName = sdf.format(now);
+//            //记录
+//
+//            //解压
+//
+//
+//            //分析
+//
+//
+//            //不管如何，写入数据
+//            List<String> sqls = new ArrayList<>();
+//            sqls.addAll(readySqls.delete);
+//            sqls.addAll(readySqls.insert);
+//            sqls.addAll(readySqls.update);
+//            String finalRequestId = requestId;
+//            ThreadUtil.execAsync(() -> {
+//                File sqlfile = new File(logSqlDir, finalRequestId);
+//                if(sqlfile.exists()) sqlfile.delete();
+//                try(
+//                    RandomAccessFile raf = new RandomAccessFile(sqlfile, "rw");
+//                    ){
+//                    for (String sql : sqls) {
+//                        raf.write(sql.getBytes(StandardCharsets.UTF_8));
+//                        raf.write("\r\n".getBytes());
+//                    }
+//                }
+//                catch (Exception e){
+//                    e.printStackTrace();
+//                }
+//            });
+//
+//            if(hasError.get()){
+//                throw new RuntimeException();
+//            }
+//
+//            //插入数据库
+//            Connection conn = null;
+//            try {
+//                conn = dataSource.getConnection();
+//                conn.setAutoCommit(false);
+//                Statement stmt = conn.createStatement();
+//                System.out.println("开始插入");
+//                long stime = System.currentTimeMillis();
+//                for (String s : readySqls.delete) {
+//                    stmt.addBatch(s);
+//                }
+//                for (String s : readySqls.insert) {
+//                    stmt.addBatch(s);
+//                }
+//                for (String s : readySqls.update) {
+//                    stmt.addBatch(s);
+//                }
+//                stmt.executeBatch();
+//                conn.commit();
+//
+//                System.out.println("插入时间:" + (System.currentTimeMillis() - stime));
+//
+//                ;
+//            } catch (SQLException e) {
+//                hasError.set(true);
+//                if (conn != null) {
+//                    try {
+//                        conn.rollback();
+//                    } catch (SQLException e1) {
+//                        e1.printStackTrace();
+//                    }
+//                }
+//                e.printStackTrace();
+//            } finally {
+//                if (conn != null) {
+//                    try {
+//                        conn.close();
+//                    } catch (SQLException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//            }
+//
+//            if(hasError.get()){
+//                throw new RuntimeException();
+//            }
+//
+//            MQService.sendTopicMessage(
+//                "qcc-deconstruct-response",
+//                new QccDeconstructReqponse(
+//                    true,
+//                    "end",
+//                    requestId,
+//                    sourceRequest
+//                ).toString()
+//            );
 //        }
-//        Matcher m = p.matcher(url);
-//        return m.find();
-//    }
+//        catch (Exception e){
+//            e.printStackTrace();
+//
+//            MQService.sendTopicMessage(
+//                "qcc-deconstruct-response",
+//                new QccDeconstructReqponse(false, "end", requestId, sourceRequest).toString()
+//            );
+//        } finally {
+//            mutex.unlock();
+//        }
+    }
+
+    public void destructSingle(String url, String str) {
+        JSONObject object = JSON.parseObject(str);
+        for (Map.Entry<String, DeconstructService.DeconstructHandler> entry : DeconstructService.handlers.entrySet()) {
+            if (HttpServerHandler.matches(url, entry.getKey())) {
+                DeconstructService.DeconstructHandler handler = entry.getValue();
+                ByteBuf buf = Unpooled.buffer();
+                DefaultHttpHeaders headers = new DefaultHttpHeaders();
+                FullHttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, url, buf, headers, headers);
+                JSONObject od = (object.getJSONObject("OriginData"));
+                if (S.eq(od.getString("Status"), "200")) {
+                    handler.call(null, request, (JSON) od.get("Result"));
+                }
+            }
+        }
+    }
 
     private String camelToUnderline(String param) {
         if (param == null || "".equals(param.trim())) {
@@ -1927,7 +2469,7 @@ public class DeconstructService {
         public static ValueGenerator createStrList(String key) {
             return kv -> {
                 Object json = kv.get(key);
-                if(json instanceof JSONArray){
+                if (json instanceof JSONArray) {
                     JSONArray array = (JSONArray) json;
                     return array.toJSONString();
                 } else {
@@ -1970,13 +2512,13 @@ public class DeconstructService {
         public static ValueGenerator createDate(String key) {
             return kv -> {
                 Object value = kv.get(key);
-                if(value instanceof Date){
+                if (value instanceof Date) {
                     return value;
                 }
                 if (value == null) {
                     return null;
                 }
-                if(value instanceof String && "".equals(value)){
+                if (value instanceof String && "".equals(value)) {
                     return null;
                 }
                 for (String dateFormat : dateFormats) {
@@ -1996,7 +2538,7 @@ public class DeconstructService {
             return wrap;
         }
 
-        public static Wrap createBase64(){
+        public static Wrap createBase64() {
             Wrap wrap = new Wrap();
             wrap.type = Wrap.TYPE_BASE64;
             return wrap;
@@ -2007,11 +2549,67 @@ public class DeconstructService {
         public void call(ChannelHandlerContext ctx, FullHttpRequest request, JSON json);
     }
 
-    public static class SqlVectors{
+    public static class SqlVectors {
         public Vector<String> insert = new Vector<>();
         public Vector<String> update = new Vector<>();
         public Vector<String> delete = new Vector<>();
     }
+
+
+    public static class Slice {
+        String link;
+        long bodyStart;
+        int bodyLen;
+        String body;
+
+        public Slice(String link, long bodyStart, int bodyLen, String body) {
+            this.link = link;
+            this.bodyStart = bodyStart;
+            this.bodyLen = bodyLen;
+            this.body = body;
+        }
+    }
+
+
+    public static class QccDeconstructReqponse {
+        public boolean finished;
+        public int progress;
+        public String requestId;
+        public String sourceRequest;
+        public String errorMessage;
+
+        public QccDeconstructReqponse(boolean finished, int step, String requestId, String sourceRequest, String errorMessage) {
+            this.finished = finished;
+            this.progress = step;
+            this.requestId = requestId;
+            this.sourceRequest = sourceRequest;
+            this.errorMessage = errorMessage;
+        }
+
+        @Override
+        public String toString() {
+            return JSON.toJSONString(this);
+        }
+
+        public void send(){
+            MQService.sendTopicMessage("qcc-deconstruct-response", this.toString());
+        }
+    }
+
+    public static class QccReDeconstructResponse extends QccDeconstructReqponse{
+        public QccReDeconstructResponse(boolean finished, int step, String requestId, String sourceRequest, String errorMessage) {
+            super(finished, step, requestId, sourceRequest, errorMessage);
+        }
+
+        @Override
+        public void send() {
+            MQService.sendTopicMessage("qcc-redeconstruct-response", this.toString());
+        }
+    }
+
+
+
+
 
 //    public interface DeconstructArrayHandler{
 //        public void call(ChannelHandlerContext ctx, FullHttpRequest request, JSONArray array);

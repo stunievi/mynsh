@@ -76,6 +76,9 @@ spring:
       max-file-size: 10Mb
       max-request-size: 10Mb
 
+  activemq:
+    broker-url: tcp://47.94.97.138:8011?jms.blobTransferPolicy.uploadUrl=http://47.94.97.138:8012/fileserver/
+
 #  datasource:
 #    url: jdbc:sqlite::resource:server/data.db
 #    username:
@@ -137,6 +140,7 @@ spring:
   mvc:
     async:
       request-timeout: 30000ms
+
 
 #  dubbo:
 #    server: true

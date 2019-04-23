@@ -8,6 +8,12 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.zip.ZipInputStream;
+
 public class Utils {
     public static JSONObject newJsonObject(Object ...objects){
         JSONObject object = new JSONObject();
@@ -50,4 +56,21 @@ public class Utils {
 //    public static boolean isNotJsonNull(JSON json){
 //        return !isJsonNull(json);
     }
+
+    public static void unzipFile(File src, File dest) throws IOException {
+        try(
+            FileInputStream fis = new FileInputStream(src);
+            ZipInputStream zip = new ZipInputStream(fis);
+            FileOutputStream fos = new FileOutputStream(dest);
+        ) {
+            while (zip.getNextEntry() != null) {
+                byte[] buf = new byte[1024];
+                int num = -1;
+                while ((num = zip.read(buf, 0, buf.length)) != -1) {
+                    fos.write(buf, 0, num);
+                }
+            }
+        }
+    }
+
 }

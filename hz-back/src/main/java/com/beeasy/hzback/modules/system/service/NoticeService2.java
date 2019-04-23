@@ -2,6 +2,7 @@ package com.beeasy.hzback.modules.system.service;
 
 import com.alibaba.fastjson.JSON;
 import com.beeasy.hzback.entity.SysNotice;
+import com.beeasy.mscommon.util.U;
 import org.beetl.sql.core.SQLManager;
 import org.osgl.util.C;
 import org.springframework.beans.factory.annotation.Autowired;
