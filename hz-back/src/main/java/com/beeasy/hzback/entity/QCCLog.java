@@ -25,9 +25,11 @@ public class QCCLog extends TailBean implements ValidGroup {
     @AssignID("simple")
     Long id;
 
-    Long content;
+    String content;
     String operator;
     String type;
+    String orderId;
+    String dataId;
     Date addTime;
 
     @Override
