@@ -17,17 +17,17 @@ public class Config {
     public Set<String> hotswap;
     public LinkedHashSet<String> route;
 
-    static {
+
+    public static void init(String path){
         try (
-            FileInputStream fis = new FileInputStream("config.json");
-            ){
+            FileInputStream fis = new FileInputStream(path);
+        ){
             String str = IoUtil.read(fis).toString(StandardCharsets.UTF_8);
             config = JSON.parseObject(str, Config.class);
 
             if (config.route != null) {
                 for (String s : config.route) {
-                    String[] route = s.split("\\s*->\\s*");
-                    HttpServerHandler.ctrls.put(route[0], route[1]);
+                    HttpServerHandler.ctrls.add(new Route(s));
                 }
             }
         } catch (IOException e) {

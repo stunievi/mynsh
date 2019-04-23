@@ -18,8 +18,8 @@ import java.nio.charset.Charset;
 import static com.beeasy.easyshop.core.Config.config;
 public class EasyShop {
 
-    public static void start() {
-
+    public static void start(String configPath){
+        Config.init(configPath);
         DBService.start();
 
         EventLoopGroup bossGroup = new NioEventLoopGroup();
@@ -57,6 +57,11 @@ public class EasyShop {
             workerGroup.shutdownGracefully();
             bossGroup.shutdownGracefully();
         }
+
+    }
+
+    public static void start() {
+        start("config.json");
     }
 
 
