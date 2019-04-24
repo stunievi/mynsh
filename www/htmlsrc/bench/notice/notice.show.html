@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>工作台 - 消息列表</title>
+    <title>工作台 - 消息详情</title>
     <!--#include file="/htmlsrc/header.html" -->
     <style>
         #content li{
@@ -29,7 +29,7 @@
         <b>消息类别</b>:
         {{type}}
     </li>
-    <li><b>消息正文</b>: {{content}}</li>
+    <li><b>消息正文</b>: <%- content %></li>
 
     {{if files}}
     <li>
@@ -53,6 +53,10 @@
     </div>
 
 <script>
+    $(document).on("click", ".forPublicCustomers_z", function () {
+        var cusName = $(".forPublicCustomers_z").html();
+        showECI_Info(cusName, cusName);
+    })
     getFetch(remoteOrigin + "/api/auto/sysnotice/getOne", {id : getParam("id")}, function (data) {
         if(data.bindData){
             var obj = JSON.parse(data.bindData)
