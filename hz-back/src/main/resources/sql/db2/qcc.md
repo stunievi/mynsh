@@ -4,7 +4,7 @@ select
 @pageTag(){
     log.*,
     d.v_value as type,
-    u.USERNAME as username
+    u.TRUE_NAME as username
 @}
 from T_QCC_LOG log 
 left join t_dict d on d.name = 'qcc_log_type' and d.v_key = log.type
@@ -21,6 +21,9 @@ where 1=1
 @}
 @if(isNotEmpty(userName)){
     and OPERATOR like #'%'+ userName+ '%'#
+@}
+@pageIgnoreTag(){
+    order by log.add_time desc
 @}
 
 

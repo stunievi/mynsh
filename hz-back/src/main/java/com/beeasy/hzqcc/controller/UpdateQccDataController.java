@@ -61,17 +61,13 @@ public class UpdateQccDataController {
 
         System.out.println("发送内容："+result.toString());
         jmsMessagingTemplate.convertAndSend(mqQueue, result.toString());
-        saveQccLog("手动更新："+fullName, "01", "fzsys", "", uid);
+        String signName = getSignName(sign);
+        saveQccLog("手动更新："+fullName + "--" + signName, "01", "fzsys_"+dateTime, "", uid);
 
         return Result.ok("指令已发送！");
     }
 
     private void saveQccLog(String instructions, String type, String orderId, String dataId, String uid){
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
-        String dateTime = LocalDateTime.now(ZoneOffset.of("+8")).format(formatter);
-        if(!"".equals(orderId)){
-            orderId = orderId + dateTime;
-        }
 
         QCCLog entity = new QCCLog();
         entity.setId(U.getSnowflakeIDWorker().nextId());
@@ -96,53 +92,72 @@ public class UpdateQccDataController {
             System.out.println(((TextMessage) o).getText());
 
             JSONObject jo = JSON.parseObject(((TextMessage) o).getText());
-            Boolean finished = jo.getBoolean("finished");
+            int finished = jo.getInteger("finished");
             String uid = "";
+            String orderId = "";
+            String requestId = jo.getString("requestId");
 
-            if(finished){
-                String progressText = "";
-                String cusName = "";
-                String progress = jo.getString("progress");
-                String requestId = jo.getString("requestId");
-                String sourceRequest = jo.getString("sourceRequest");
-                JSONObject jsStr = JSONObject.parseObject(sourceRequest);
+            String progressText = "";
 
-                Iterator<String> iterator = jsStr.keySet().iterator();
+            String progress = jo.getString("progress");
 
-                uid = (String)jsStr.get("uid");
+            String sourceRequest = jo.getString("sourceRequest");
+            JSONObject jsStr = JSONObject.parseObject(sourceRequest);
 
-                switch (progress){
-                    case "0": //
-                        progressText = "保存数据";
-                        break;
-                    case "1":
-                        progressText = "解压";
-                        break;
-                    case "2":
-                        progressText = "分析生成sql";
-                        break;
-                    case "3":
-                        progressText = "sql入库";
-                        break;
+            Iterator<String> iterator = jsStr.keySet().iterator();
+
+            uid = (String)jsStr.get("uid");
+            orderId = (String)jsStr.get("OrderId");
+
+            switch (progress){
+                case "0": //
+                    progressText = "保存数据";
+                    break;
+                case "1":
+                    progressText = "解压";
+                    break;
+                case "2":
+                    progressText = "分析生成sql";
+                    break;
+                case "3":
+                    progressText = "sql入库";
+                    break;
+            }
+
+            while(iterator.hasNext()){
+                String key = iterator.next();
+                if("uid".equals(key) || "OrderId".equals(key)){
+                    continue;
+                }
+                //获得key值对应的value
+                JSONArray ja1 = jsStr.getJSONArray(key);
+                for (Object obj : ja1) {
+                    JSONObject jo1 = (JSONObject) obj;
+                    String cusName = jo1.getString("Content");
+                    String sign = getSignName(jo1.getString("Sign"));
+                    String content = "";
+
+                    if(0 == finished){ // 成功
+                        content = progressText +"成功："+ cusName + "--" + sign;
+                    }else if( 1 == finished){   // 部分失败
+                        String errorMessage = jo.getString("errorMessage");
+                        if(null != errorMessage){
+                            content = "部分失败："+errorMessage;
+                        }else{
+                            content = "部分失败："+cusName + "--" + sign;
+                        }
+
+                    }else if(-1 == finished){   // 全部失败
+                        String errorMessage = jo.getString("errorMessage");
+                        if(null != errorMessage){
+                            content = "全部失败："+errorMessage;
+                        }else{
+                            content = "全部失败："+cusName + "--" + sign;
+                        }
+                    }
+                    saveQccLog(content, "02", orderId, requestId, uid);
                 }
 
-                while(iterator.hasNext()){
-                    String key = iterator.next();
-                    if("uid".equals(key) || "OrderId".equals(key)){
-                        continue;
-                    }
-                    //获得key值对应的value
-                    JSONArray ja1 = jsStr.getJSONArray(key);
-                    for (Object obj : ja1) {
-                        JSONObject jo1 = (JSONObject) obj;
-                        cusName = jo1.getString("Content");
-                        saveQccLog(progressText +"："+ cusName, "02", "", requestId, uid);
-                    }
-
-                }
-            }else{
-                String errorMessage = jo.getString("errorMessage");
-                saveQccLog("失败："+errorMessage, "02", "", "", uid);
             }
 
         } else if(o instanceof BlobMessage){
@@ -159,13 +174,12 @@ public class UpdateQccDataController {
 
             JSONObject jo = JSON.parseObject(((TextMessage) o).getText());
             String finished = jo.getString("finished");
-            String progressText = "";
-            String cusName = "";
             String uid = "";
+            String orderId = "";
             String progress = jo.getString("progress");
+            String requestId = jo.getString("requestId");
 
             if("success".equals(finished) && "3".equals(progress)){
-                progressText = "全部成功";
 
                 String sourceRequest = jo.getString("sourceRequest");
                 JSONObject jsStr = JSONObject.parseObject(sourceRequest);
@@ -173,6 +187,7 @@ public class UpdateQccDataController {
                 Iterator<String> iterator = jsStr.keySet().iterator();
 
                 uid = (String)jsStr.get("uid");
+                orderId = (String)jsStr.get("OrderId");
                 while(iterator.hasNext()){
                     String key = iterator.next();
                     if("uid".equals(key) || "OrderId".equals(key)){
@@ -182,22 +197,50 @@ public class UpdateQccDataController {
                     JSONArray ja1 = jsStr.getJSONArray(key);
                     for (Object obj : ja1) {
                         JSONObject jo1 = (JSONObject) obj;
-                        cusName = jo1.getString("Content");
-                        saveQccLog(progressText +"："+ cusName, "02", "", "", uid);
+                        String cusName = jo1.getString("Content");
+                        String sign = getSignName(jo1.getString("Sign"));
+                        saveQccLog("获取数据全部成功："+ cusName + "--" + sign, "02", orderId, requestId, uid);
                     }
 
                 }
 
             }else if("failed".equals(finished)){
-                progressText = "失败";
                 String errorMessage = jo.getString("errorMessage");
-                saveQccLog(progressText +"："+errorMessage, "02", "", "", uid);
+                saveQccLog("获取数据失败："+errorMessage, "02", orderId, requestId, uid);
             }
 
         } else if(o instanceof BlobMessage){
             String file = IO.readContentAsString(((BlobMessage) o).getInputStream());
             System.out.println(file);
         }
+    }
+
+    private String getSignName(String signCode){
+        String signName = "";
+        switch (signCode){
+            case "00":
+                signName = "所有";
+                break;
+            case "01":
+                signName = "基本信息";
+                break;
+            case "02":
+                signName = "法律诉讼";
+                break;
+            case "03":
+                signName = "经营风险";
+                break;
+            case "04":
+                signName = "企业族谱";
+                break;
+            case "05":
+                signName = "历史信息";
+                break;
+            case "01,02,03,04,05":
+                signName = "所有";
+                break;
+        }
+        return signName;
     }
 
 }
