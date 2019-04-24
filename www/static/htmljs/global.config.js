@@ -91,56 +91,56 @@ if(matched){
 
 // 远程api
 var remoteApi = {
-	qccUpdateQccData: "/qcc/auto/updateData",
-	qccDownloadimg: "/qcc/cms/downloadimg",
+	qccUpdateQccData: "/api/qcc/auto/updateData",
+	qccDownloadimg: "/api/qcc/cms/downloadimg",
 	// 企查查
-	qccECISearchFresh: "/qcc/auto/ECI/SearchFresh", // 获取新增公司信息
-	// qccECIGetDetails: "/qcc/auto/ECIV4/GetDetails", // 获取公司详细信息
-	qccECIGetDetailsByName: "/qcc/auto/ECIV4/GetDetailsByName", // 企业关键字精确获取详细信息(Master)
-	qccECIGetBasicDetailsByName: "/qcc/auto/ECIV4/GetBasicDetailsByName", // 企业关键字精确获取详细信息(Basic)
-	qccCIAEmployeeGetStockRelationInfo: "/qcc/auto/CIAEmployeeV4/GetStockRelationInfo", // 企业人员董监高信息
-	qccHoldingCompanyGetHoldingCompany: "/qcc/auto/HoldingCompany/GetHoldingCompany", // 控股公司
+	qccECISearchFresh: "/api/qcc/auto/ECI/SearchFresh", // 获取新增公司信息
+	// qccECIGetDetails: "/api/qcc/auto/ECIV4/GetDetails", // 获取公司详细信息
+	qccECIGetDetailsByName: "/api/qcc/auto/ECIV4/GetDetailsByName", // 企业关键字精确获取详细信息(Master)
+	qccECIGetBasicDetailsByName: "/api/qcc/auto/ECIV4/GetBasicDetailsByName", // 企业关键字精确获取详细信息(Basic)
+	qccCIAEmployeeGetStockRelationInfo: "/api/qcc/auto/CIAEmployeeV4/GetStockRelationInfo", // 企业人员董监高信息
+	qccHoldingCompanyGetHoldingCompany: "/api/qcc/auto/HoldingCompany/GetHoldingCompany", // 控股公司
 
-	qccECISearch: "/qcc/auto/ECI/Search", // 企业关键字模糊搜索
-	qccECIRelationSearchTreeRelationMap: "/qcc/auto/ECIRelationV4/SearchTreeRelationMap", // 投资图谱
-	qccECIRelationGetCompanyEquityShareMap: "/qcc/auto/ECIRelationV4/GetCompanyEquityShareMap", // 股权结构图
-	qccECIRelationGenerateMultiDimensionalTreeCompanyMap: "/qcc/auto/ECIRelationV4/GenerateMultiDimensionalTreeCompanyMap", // 企业图谱
-	qccECICompanyMapGetStockAnalysisData: "/qcc/auto/ECICompanyMap/GetStockAnalysisData", // 企业股权穿透十层接口查询
+	qccECISearch: "/api/qcc/auto/ECI/Search", // 企业关键字模糊搜索
+	qccECIRelationSearchTreeRelationMap: "/api/qcc/auto/ECIRelationV4/SearchTreeRelationMap", // 投资图谱
+	qccECIRelationGetCompanyEquityShareMap: "/api/qcc/auto/ECIRelationV4/GetCompanyEquityShareMap", // 股权结构图
+	qccECIRelationGenerateMultiDimensionalTreeCompanyMap: "/api/qcc/auto/ECIRelationV4/GenerateMultiDimensionalTreeCompanyMap", // 企业图谱
+	qccECICompanyMapGetStockAnalysisData: "/api/qcc/auto/ECICompanyMap/GetStockAnalysisData", // 企业股权穿透十层接口查询
 
-	qccECIExceptionGetOpException: "/qcc/auto/ECIException/GetOpException", // 查询企业经营异常信息
-	qccJudicialAssistanceGetJudicialAssistance: "/qcc/auto/JudicialAssistance/GetJudicialAssistance", // 获取司法协助信息
-	qccCourtSearchShiXin: "/qcc/auto/CourtV4/SearchShiXin", // 查询失信列表
-	qccCourtSearchZhiXing: "/qcc/auto/CourtV4/SearchZhiXing", // 查询执行列表
-	// qccCourtGetShiXinDetail: "/qcc/auto/Court/SearchShiXin", // 获取失信详情
-	// qccGetZhiXingDetail: "/qcc/auto/Court/GetZhiXingDetail", // 获取执行详情
-	qccCourtAnnoSearchCourtNotice: "/qcc/auto/CourtAnnoV4/SearchCourtNotice", // 开庭公告查询
-	qccCourtAnnoGetCourtNoticeInfo: "/qcc/auto/CourtAnnoV4/GetCourtNoticeInfo", // 开庭公告详情查询
-	qccJudgeDocSearchJudgmentDoc: "/qcc/auto/JudgeDocV4/SearchJudgmentDoc", // 裁判文书查询
-	qccJudgeDocGetJudgementDetail: "/qcc/auto/JudgeDocV4/GetJudgementDetail", // 裁判文书详情查询
+	qccECIExceptionGetOpException: "/api/qcc/auto/ECIException/GetOpException", // 查询企业经营异常信息
+	qccJudicialAssistanceGetJudicialAssistance: "/api/qcc/auto/JudicialAssistance/GetJudicialAssistance", // 获取司法协助信息
+	qccCourtSearchShiXin: "/api/qcc/auto/CourtV4/SearchShiXin", // 查询失信列表
+	qccCourtSearchZhiXing: "/api/qcc/auto/CourtV4/SearchZhiXing", // 查询执行列表
+	// qccCourtGetShiXinDetail: "/api/qcc/auto/Court/SearchShiXin", // 获取失信详情
+	// qccGetZhiXingDetail: "/api/qcc/auto/Court/GetZhiXingDetail", // 获取执行详情
+	qccCourtAnnoSearchCourtNotice: "/api/qcc/auto/CourtAnnoV4/SearchCourtNotice", // 开庭公告查询
+	qccCourtAnnoGetCourtNoticeInfo: "/api/qcc/auto/CourtAnnoV4/GetCourtNoticeInfo", // 开庭公告详情查询
+	qccJudgeDocSearchJudgmentDoc: "/api/qcc/auto/JudgeDocV4/SearchJudgmentDoc", // 裁判文书查询
+	qccJudgeDocGetJudgementDetail: "/api/qcc/auto/JudgeDocV4/GetJudgementDetail", // 裁判文书详情查询
 	//
-	qccCourtNoticeSearchCourtAnnouncement: "/qcc/auto/CourtNoticeV4/SearchCourtAnnouncement", // 法院公告列表信息
-	qccCourtNoticeSearchCourtAnnouncementDetail: "/qcc/auto/CourtNoticeV4/SearchCourtAnnouncementDetail", // 法院公告详情
+	qccCourtNoticeSearchCourtAnnouncement: "/api/qcc/auto/CourtNoticeV4/SearchCourtAnnouncement", // 法院公告列表信息
+	qccCourtNoticeSearchCourtAnnouncementDetail: "/api/qcc/auto/CourtNoticeV4/SearchCourtAnnouncementDetail", // 法院公告详情
 
-	qccGetChattelMortgage: "/qcc/auto/ChattelMortgage/GetChattelMortgage", // 获取动产抵押信息
-	qccJudicialSaleGetJudicialSaleList: "/qcc/auto/JudicialSale/GetJudicialSaleList", // 司法拍卖列表
-	qccJudicialSaleGetJudicialSaleDetail: "/qcc/auto/JudicialSale/GetJudicialSaleDetail", // 司法拍卖详情
-	qccLandMortgageGetLandMortgageList: "/qcc/auto/LandMortgage/GetLandMortgageList", // 获取土地抵押列表
-	qccLandMortgageGetLandMortgageDetails: "/qcc/auto/LandMortgage/GetLandMortgageDetails", // 获取土地抵押详情
-	qccGetEnvPunishmentList: "/qcc/auto/EnvPunishment/GetEnvPunishmentList", // 获取环保处罚列表
-	qccGetEnvPunishmentDetails: "/qcc/auto/EnvPunishment/GetEnvPunishmentDetails", // 获取环保处罚详情
+	qccGetChattelMortgage: "/api/qcc/auto/ChattelMortgage/GetChattelMortgage", // 获取动产抵押信息
+	qccJudicialSaleGetJudicialSaleList: "/api/qcc/auto/JudicialSale/GetJudicialSaleList", // 司法拍卖列表
+	qccJudicialSaleGetJudicialSaleDetail: "/api/qcc/auto/JudicialSale/GetJudicialSaleDetail", // 司法拍卖详情
+	qccLandMortgageGetLandMortgageList: "/api/qcc/auto/LandMortgage/GetLandMortgageList", // 获取土地抵押列表
+	qccLandMortgageGetLandMortgageDetails: "/api/qcc/auto/LandMortgage/GetLandMortgageDetails", // 获取土地抵押详情
+	qccGetEnvPunishmentList: "/api/qcc/auto/EnvPunishment/GetEnvPunishmentList", // 获取环保处罚列表
+	qccGetEnvPunishmentDetails: "/api/qcc/auto/EnvPunishment/GetEnvPunishmentDetails", // 获取环保处罚详情
 	// 历史信息接口
-	qccHistoryGetHistorytEci: "/qcc/auto/History/GetHistorytEci", // 历史工商信息
-	qccHistoryGetHistorytInvestment: "/qcc/auto/History/GetHistorytInvestment", // 历史对外投资
-	qccHistoryGetHistorytShareHolder: "/qcc/auto/History/GetHistorytShareHolder", // 历史股东
-	qccHistoryGetHistoryShiXin: "/qcc/auto/History/GetHistoryShiXin", // 历史失信查询
-	qccHistoryGetHistoryZhiXing: "/qcc/auto/History/GetHistoryZhiXing", // 历史被执行
-	qccHistoryGetHistorytCourtNotice: "/qcc/auto/History/GetHistorytCourtNotice", // 历史法院公告
-	qccHistoryGetHistorytJudgement: "/qcc/auto/History/GetHistorytJudgement", // 历史裁判文书
-	qccHistoryGetHistorytSessionNotice: "/qcc/auto/History/GetHistorytSessionNotice", // 历史开庭公告
-	qccHistoryGetHistorytMPledge: "/qcc/auto/History/GetHistorytMPledge", // 历史动产抵押
-	qccHistoryGetHistorytPledge: "/qcc/auto/History/GetHistorytPledge", // 历史股权出质
-	qccHistoryGetHistorytAdminPenalty: "/qcc/auto/History/GetHistorytAdminPenalty", // 历史行政处罚
-	qccHistoryGetHistorytAdminLicens: "/qcc/auto/History/GetHistorytAdminLicens", // 历史行政许可
+	qccHistoryGetHistorytEci: "/api/qcc/auto/History/GetHistorytEci", // 历史工商信息
+	qccHistoryGetHistorytInvestment: "/api/qcc/auto/History/GetHistorytInvestment", // 历史对外投资
+	qccHistoryGetHistorytShareHolder: "/api/qcc/auto/History/GetHistorytShareHolder", // 历史股东
+	qccHistoryGetHistoryShiXin: "/api/qcc/auto/History/GetHistoryShiXin", // 历史失信查询
+	qccHistoryGetHistoryZhiXing: "/api/qcc/auto/History/GetHistoryZhiXing", // 历史被执行
+	qccHistoryGetHistorytCourtNotice: "/api/qcc/auto/History/GetHistorytCourtNotice", // 历史法院公告
+	qccHistoryGetHistorytJudgement: "/api/qcc/auto/History/GetHistorytJudgement", // 历史裁判文书
+	qccHistoryGetHistorytSessionNotice: "/api/qcc/auto/History/GetHistorytSessionNotice", // 历史开庭公告
+	qccHistoryGetHistorytMPledge: "/api/qcc/auto/History/GetHistorytMPledge", // 历史动产抵押
+	qccHistoryGetHistorytPledge: "/api/qcc/auto/History/GetHistorytPledge", // 历史股权出质
+	qccHistoryGetHistorytAdminPenalty: "/api/qcc/auto/History/GetHistorytAdminPenalty", // 历史行政处罚
+	qccHistoryGetHistorytAdminLicens: "/api/qcc/auto/History/GetHistorytAdminLicens", // 历史行政许可
 	// 法律诉讼
 
 	apiQccAutoQccLogCusCom: "/api/auto/qcclog/cusCom", // 企查查对公客户列表

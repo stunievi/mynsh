@@ -798,7 +798,7 @@ WHERE  CURRENT TIMESTAMP BETWEEN e_time - VALUE( (    SELECT
                                        FETCH FIRST 1 ROWS ONLY), 0) days AND  e_time
 
 
-selectQccRule
+selectQccMsgRule
 ===
 select distinct
     DM.UID as uid,
@@ -807,9 +807,22 @@ select distinct
     p1.LOAN_ACCOUNT as loanAccount,
     p1.cus_name as cusName
 from 
-    (select temp1.LOAN_ACCOUNT,temp1.MAIN_BR_ID,temp1.CUST_MGR,temp1.cus_name FROM DB2INST1.RPT_M_RPT_SLS_ACCT temp1 inner join DB2INST1.T_QCC_HIS_LOG Qlog on temp1.CUS_NAME=Qlog.FULL_NAME where Qlog.TYPE=#type#) p1
+    (select temp1.LOAN_ACCOUNT,temp1.MAIN_BR_ID,temp1.CUST_MGR,temp1.cus_name FROM DB2INST1.RPT_M_RPT_SLS_ACCT temp1 inner join DB2INST1.T_QCC_HIS_LOG Qlog on temp1.CUS_NAME=Qlog.FULL_NAME where Qlog.TYPE=#type# and CUS_NAME=#cusName#) p1
     inner join T_DEPARTMENT_MANAGER as DM on p1.MAIN_BR_ID = DM.acc_code
     left join T_USER as tt on p1.CUST_MGR = tt.acc_code
 where
     UPPER('on') = UPPER(coalesce((select var_value from t_system_variable where var_name=#rule#),'off'))
+    
+selectQccTaskRule
+===
+select distinct
+    tt.ACC_CODE as code,
+    p1.LOAN_ACCOUNT as loanAccount,
+    p1.cus_name as cusName
+from 
+    (select temp1.LOAN_ACCOUNT,temp1.MAIN_BR_ID,temp1.CUST_MGR,temp1.cus_name FROM DB2INST1.RPT_M_RPT_SLS_ACCT temp1 inner join DB2INST1.T_QCC_HIS_LOG Qlog on temp1.CUS_NAME=Qlog.FULL_NAME where Qlog.TYPE=#type# and CUS_NAME=#cusName#) p1
+    inner join T_DEPARTMENT_MANAGER as DM on p1.MAIN_BR_ID = DM.acc_code
+    left join T_USER as tt on p1.CUST_MGR = tt.acc_code
+where
+    UPPER('on') = UPPER(coalesce((select var_value from t_system_variable where var_name=#taskRule#),'off'))
     

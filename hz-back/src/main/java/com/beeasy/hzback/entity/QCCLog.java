@@ -25,9 +25,11 @@ public class QCCLog extends TailBean implements ValidGroup {
     @AssignID("simple")
     Long id;
 
-    Long content;
+    String content;
     String operator;
     String type;
+    String orderId;
+    String dataId;
     Date addTime;
 
     @Override
@@ -37,7 +39,7 @@ public class QCCLog extends TailBean implements ValidGroup {
 
 
     public Object cusCom(SQLManager sqlManager, JSONObject object){
-        return U.beetlPageQuery("qcc.对公客户", JSONObject.class, object);
+        return U.beetlPageQuery("accloan.对公客户", JSONObject.class, object);
     }
 
 
