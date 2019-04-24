@@ -30,6 +30,8 @@ public class LoadQccDataExtParm {
     private File qccFileDataPath;
     // 压缩包文件路径
     private File qccZipDataPath;
+    // 文件写入状态是否失败
+    private boolean writeTxtFileState;
 
     private static void setQccDataPath(
             LoadQccDataExtParm param
@@ -52,6 +54,7 @@ public class LoadQccDataExtParm {
         param.setResDataId("load-qcc"+ UUID.randomUUID());
         param.setCommandId(commandObj.getString("OrderId"));
         param.setCommand(command);
+        param.setWriteTxtFileState(true);
         param.setTrigger("automatic");
         setQccDataPath(param);
         return param;
