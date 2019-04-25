@@ -2,7 +2,7 @@ package com.beeasy.hzback.modules.system.controller;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import org.apache.activemq.command.ActiveMQTopic;
+import org.apache.activemq.command.ActiveMQQueue;
 import org.beetl.sql.core.SQLManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsMessagingTemplate;
@@ -29,7 +29,7 @@ public class InstructionChannelMQ {
     @RequestMapping(method = RequestMethod.GET)
     public void sendMsg(String msg) throws JMSException {
 
-        ActiveMQTopic mqTopic = new ActiveMQTopic("qcc-company-infos-request");
+        ActiveMQQueue mqQueue = new ActiveMQQueue("qcc-company-infos-request");
 
         JSONObject result = new JSONObject();
 
@@ -63,7 +63,7 @@ public class InstructionChannelMQ {
 //        ActiveMQTextMessage m = new ActiveMQTextMessage();
 //        m.setText(result.toString());
         System.out.println("发送内容："+result.toString());
-        jmsMessagingTemplate.convertAndSend(mqTopic, result.toString());
+        jmsMessagingTemplate.convertAndSend(mqQueue, result.toString());
         System.out.println("msg发送成功");
 
     }
