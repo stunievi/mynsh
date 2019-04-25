@@ -24,7 +24,8 @@ EXECUTE_NO,
 PERFORMED_PART,
 UNPERFORM_PART,
 ORG_TYPE,
-ORG_TYPE_NAME
+ORG_TYPE_NAME,
+INPUT_DATE
 @}
 from QCC_SHIXIN
 where inner_company_name = #fullName#
@@ -42,7 +43,8 @@ EXECUTE_GOV,
 BIAO_DI,
 STATUS,
 PARTY_CARD_NUM,
-UPDATE_DATE
+UPDATE_DATE,
+INPUT_DATE
 @}
 from QCC_ZHIXING
 where inner_company_name = #fullName#
@@ -65,7 +67,8 @@ Case_Role,
 Court_Level,
 Case_Reason,
 Case_Reason_Type,
-Court_Month
+Court_Month,
+INPUT_DATE
 @}
 from QCC_JUDGMENT_DOC
 where inner_company_name = #fullName#
@@ -115,7 +118,8 @@ appellee_arguing,
 execute_process,
 collegiate_bench,
 judege_date,
-recorder
+recorder,
+INPUT_DATE
 from 
 QCC_JUDGMENT_DOC
 where id = #id#
@@ -128,7 +132,8 @@ OPEN_DATE,
 DEFENDANT,
 CASE_REASON,
 PROSECUTOR,
-ID
+ID,
+INPUT_DATE
 from QCC_JUDGMENT_DOC_CN where QCC_DETAILS_ID = #id#
 
 查询裁判文书详情-关联公司
@@ -147,7 +152,8 @@ category,
 published_date,
 published_page,
 party,
-id
+id,
+INPUT_DATE
 @}
 from QCC_COURT_ANNOUNCEMENT
 where inner_company_name = #fullName#
@@ -161,7 +167,8 @@ SUBMIT_DATE,
 PROVINCE,
 CATEGORY,
 PUBLISHED_DATE,
-PARTY
+PARTY,
+INPUT_DATE
 from QCC_COURT_ANNOUNCEMENT
 where Id = #id#
 
@@ -182,7 +189,8 @@ no.EXECUTE_GOV,
 no.LI_AN_DATE,
 no.CASE_REASON,
 no.ID,
-no.CASE_NO
+no.CASE_NO,
+INPUT_DATE
 @}
 from 
 QCC_COURT_NOTICE no where inner_company_name = #fullName#
@@ -198,7 +206,8 @@ UNDERTAKE_DEPARTMENT,
 EXECUTE_UNITE,
 CHIEF_JUDGE,
 OPEN_TIME,
-CASE_NO
+CASE_NO,
+INPUT_DATE
 from 
 QCC_COURT_NOTICE where id = #id#
 
@@ -216,6 +225,8 @@ ja.EQUITY_AMOUNT,
 ja.ENFORCEMENT_COURT,
 ja.EXECUTION_NOTICE_NUM,
 ja.STATUS,
+ja.INPUT_DATE,
+
 d0.COMPANY_NAME as d0_COMPANY_NAME,
 d0.EXECUTION_MATTERS as d0_EXECUTION_MATTERS,
 d0.EXECUTION_DOC_NUM as d0_EXECUTION_DOC_NUM,
@@ -261,7 +272,8 @@ ADD_DATE,
 ROMOVE_REASON,
 REMOVE_DATE,
 DECISION_OFFICE,
-REMOVE_DECISION_OFFICE
+REMOVE_DECISION_OFFICE,
+INPUT_DATE
 from QCC_OP_EXCEPTION
 where inner_company_name = #fullName#
 
@@ -273,7 +285,8 @@ ID,
 title as Name,
 EXECUTE_GOV,
 ACTION_REMARK,
-YI_WU
+YI_WU,
+INPUT_DATE
 @}
 from QCC_JUDICIAL_SALE 
 where inner_company_name = #fullName#
@@ -295,7 +308,8 @@ ADMINISTRATIVE_AREA,
 MORTGAGE_ACREAGE,
 MORTGAGE_PURPOSE,
 START_DATE,
-END_DATE
+END_DATE,
+INPUT_DATE
 @}
 from QCC_LAND_MORTGAGE
 where inner_company_name = #fullName#
@@ -318,6 +332,7 @@ lm.ASSESSMENT_PRICE,
 lm.MORTGAGE_PRICE,
 lm.ON_BOARD_START_TIME,
 lm.ON_BOARD_END_TIME,
+lm.INPUT_DATE,
 re1.key_no as re1_key_no,
 re1.name as re1_name,
 re2.key_no as re2_key_no,
@@ -335,7 +350,8 @@ ID,
 CASE_NO,
 PUNISH_DATE,
 ILLEGAL_TYPE,
-PUNISH_GOV 
+PUNISH_GOV,
+INPUT_DATE
 @}
 from QCC_ENV_PUNISHMENT_LIST where inner_company_name = #fullName#
 
@@ -349,7 +365,8 @@ PUNISH_BASIS,
 PUNISHMENT_RESULT,
 PUNISH_DATE,
 PUNISH_GOV,
-IMPLEMENTATION
+IMPLEMENTATION,
+INPUT_DATE
 from QCC_ENV_PUNISHMENT_LIST where
 id = #id#
 
@@ -362,6 +379,7 @@ cm.PUBLIC_DATE,
 cm.REGISTER_OFFICE,
 cm.DEBT_SECURED_AMOUNT,
 cm.inner_id,
+cm.INPUT_DATE,
 
 ex1.Regist_No as ex1_Regist_No,
 ex1.Regist_Date as ex1_Regist_Date,
@@ -434,7 +452,8 @@ ORG_NO,
 IS_ON_STOCK,
 STOCK_NUMBER,
 STOCK_TYPE,
-IMAGE_URL
+IMAGE_URL,
+INPUT_DATE
 from QCC_DETAILS
 where inner_company_name = #fullName#
 
@@ -519,7 +538,8 @@ where inner_company_name = #fullName#
 ===
 select 
 Key_No,
-his_data
+his_data,
+INPUT_DATE
 from QCC_HIS_ECI
 where inner_company_name = #fullName#
 
@@ -545,7 +565,8 @@ REGIST_CAPI || '万元人民币' as REGIST_CAPI,
 ECON_KIND,
 STATUS,
 FUNDED_RATIO || '%' as FUNDED_RATIO,
-START_DATE
+START_DATE,
+INPUT_DATE
 @}
 from QCC_HIS_INVESTMENT						
 where inner_company_name = #fullName#
@@ -580,7 +601,8 @@ STOCK_PERCENT,
 SHOULD_CAPI,
 SHOULD_DATE,
 SHOULD_TYPE,
-Change_date_list
+Change_date_list,
+INPUT_DATE
 @}
 from QCC_HIS_SHARE_HOLDER_DETAILS
 where inner_company_name = #fullName#
@@ -604,7 +626,8 @@ LI_AN_DATE,
 ORG_NO,
 ORG_TYPE,
 ORG_TYPE_NAME,
-NAME
+NAME,
+INPUT_DATE
 @}
 from QCC_HIS_SHIXIN						
 where inner_company_name = #fullName#
@@ -622,7 +645,8 @@ LI_AN_DATE,
 ORG_NO,
 ORG_TYPE,
 ORG_TYPE_NAME,
-NAME
+NAME,
+INPUT_DATE
 @}
 from   QCC_HIS_ZHIXING						
 where inner_company_name = #fullName#
@@ -639,7 +663,8 @@ PARTY,
 PROVINCE,
 PUBLISH_PAGE,
 SUBMIT_DATE,
-PUBLISH_DATE
+PUBLISH_DATE,
+INPUT_DATE
 @}
 from QCC_HIS_COURT_NOTICE						
 where inner_company_name = #fullName#
@@ -671,7 +696,8 @@ PROSECUTOR_LIST,
 DEFENDANT_LIST,
 EXECUTE_GOV,
 CASE_NO,
-LI_AN_DATE
+LI_AN_DATE,
+INPUT_DATE
 @} 
 from QCC_HIS_SESSION_NOTICE
 where inner_company_name = #fullName#
@@ -684,7 +710,8 @@ REGISTER_NO,
 REGISTER_DATE,
 REGISTER_OFFICE,
 DEBT_SECURED_AMOUNT,
-STATUS
+STATUS,
+INPUT_DATE
 @}
 from QCC_HIS_M_PLEDGE 
 where inner_company_name = #fullName#
@@ -699,7 +726,8 @@ PLEDGEE,
 PLEDGED_AMOUNT,
 REG_DATE,
 PUBLIC_DATE,
-STATUS
+STATUS,
+INPUT_DATE
 @}
 from QCC_HIS_PLEDGE
 where inner_company_name = #fullName#
@@ -712,7 +740,8 @@ PENALTY_TYPE,
 CONTENT,
 PENALTY_DATE,
 PUBLIC_DATE,
-OFFICE_NAME
+OFFICE_NAME,
+INPUT_DATE
 from QCC_HIS_ADMIN_PENALTY_EL
 where inner_company_name = #fullName#
 
@@ -724,7 +753,8 @@ NAME,
 LI_AN_DATE,
 PROVINCE,
 OWNER_NAME,
-CASE_REASON
+CASE_REASON,
+INPUT_DATE
 from QCC_HIS_ADMIN_PENALTY_CCL
 where inner_company_name = #fullName#
 
@@ -736,7 +766,8 @@ LICENS_DOC_NAME,
 LICENS_OFFICE,
 LICENS_CONTENT,
 VALIDITY_FROM,
-VALIDITY_TO
+VALIDITY_TO,
+INPUT_DATE
 from QCC_HIS_ADMIN_LICENS_EL
 where inner_company_name = #fullName#
 
@@ -747,7 +778,8 @@ CASE_NO,
 NAME,
 LI_AN_DATE,
 PROVINCE,
-OWNER_NAME
+OWNER_NAME,
+INPUT_DATE
 from QCC_HIS_ADMIN_LICENS_CCL
 where inner_company_name = #fullName#
 
@@ -763,7 +795,8 @@ STATUS,
 NO,
 CREDIT_CODE,
 REGIST_CAPI,
-ADDRESS
+ADDRESS,
+INPUT_DATE
 @}
 from QCC_FRESH						
 where Address like #'%' + keyword + '%'#
@@ -778,7 +811,8 @@ SHORT_NAME,
 COUNT,
 LEVEL,
 inner_parent_id,
-inner_id
+inner_id,
+INPUT_DATE
 from QCC_COMPANY_MAP
 where inner_company_no = #keyNo#
 
@@ -795,7 +829,8 @@ GRADE,
 OPER_NAME,
 IN_PARENT_ACTUAL_RADIO,
 inner_id,
-inner_parent_id
+inner_parent_id,
+INPUT_DATE
 from QCC_CESM
 where inner_company_no = #keyNo#
 
@@ -806,7 +841,8 @@ NAME,
 STOCK_TYPE,
 KEY_NO,
 SUB_CON_AMT,
-FUNDED_RATIO
+FUNDED_RATIO,
+INPUT_DATE
 from QCC_CESM_ACLP
 where inner_company_no = #keyNo#
 
@@ -820,7 +856,8 @@ SHORT_NAME,
 COUNT,
 LEVEL,
 inner_id,
-inner_parent_id
+inner_parent_id,
+INPUT_DATE
 from QCC_TREE_RELATION_MAP
 where inner_company_no = #keyNo#
 
@@ -830,7 +867,8 @@ where inner_company_no = #keyNo#
 select
 KEY_NO,
 COMPANY_NAME,
-NAME_COUNT
+NAME_COUNT,
+INPUT_DATE
 from QCC_HOLDING_COMPANY
 where inner_company_name = #fullName#
 
@@ -848,7 +886,8 @@ REGIST_CAPI,
 IMAGE_URL,
 ECON_KIND,
 paths,
-oper
+oper,
+INPUT_DATE
 @}
 from QCC_HOLDING_COMPANY_NAMES
 where inner_company_name = #fullName#
@@ -876,7 +915,8 @@ ADDRESS,
 SCOPE,
 ORG_NO,
 CREDIT_CODE,
-Stock_Statistics
+Stock_Statistics,
+INPUT_DATE
 from QCC_SAD						
 where inner_company_name = #fullName#
 
@@ -890,7 +930,8 @@ STOCK_PERCENT,
 IDENTIFY_TYPE,
 IDENTIFY_NO,
 SHOULD_CAPI,
-SHOUD_DATE
+SHOUD_DATE,
+INPUT_DATE
 from QCC_SAD_PARTNERS						
 where inner_company_name = #fullName#
 
@@ -908,6 +949,7 @@ FUNDED_RATE,
 INVEST_TYPE,
 LEVEL,
 inner_id,
-inner_parent_id
+inner_parent_id,
+INPUT_DATE
 from QCC_SAD_STOCK_LIST
 where inner_company_name = #fullName#

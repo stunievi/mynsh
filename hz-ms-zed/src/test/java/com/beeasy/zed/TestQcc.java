@@ -292,7 +292,7 @@ public class TestQcc {
         clearTable("QCC_HIS_SHARE_HOLDER", "QCC_HIS_SHARE_HOLDER_DETAILS");
         JSONObject source = read("/History/GetHistorytShareHolder.json?keyWord=惠州市维也纳惠尔曼酒店管理有限公司");
         JSONObject target = checkResult("/History/GetHistorytShareHolder?fullName=惠州市维也纳惠尔曼酒店管理有限公司");
-        checkSim(source, target, 0.6);
+        checkSim(source, target, 0.5);
     }
 
     @Test
@@ -396,7 +396,7 @@ public class TestQcc {
         }
         JSONObject source = read("/CIAEmployeeV4/GetStockRelationInfo.json?companyName=惠州市维也纳惠尔曼酒店管理有限公司");
         JSONObject target = checkResult("/CIAEmployeeV4/GetStockRelationInfo?fullName=惠州市维也纳惠尔曼酒店管理有限公司");
-        checkSim(source, target);
+        checkSim(source, target, 0.6);
     }
     @Test
     public void GetHoldingCompany() throws Exception {
@@ -530,7 +530,10 @@ public class TestQcc {
     public static void clearTable(String ...table){
         for (String s : table) {
             String sql = S.fmt("delete from %s where inner_company_name = '惠州市维也纳惠尔曼酒店管理有限公司'", s);
-            sqlManager.executeUpdate(new SQLReady(sql));
+            try{
+                sqlManager.executeUpdate(new SQLReady(sql));
+            }catch (Exception e){
+            }
         }
     }
 

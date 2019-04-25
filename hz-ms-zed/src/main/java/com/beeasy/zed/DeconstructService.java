@@ -1760,6 +1760,8 @@ public class DeconstructService {
         for (Map.Entry<String, Object> entry : object.entrySet()) {
             kv.put(camelToUnderline(entry.getKey()), entry.getValue());
         }
+        kv.put("input_date", new Date());
+
         //检查是否有相同的字段
         if (S.notBlank(existKey)) {
             String[] keys = (existKey.split("\\,"));
@@ -1899,7 +1901,6 @@ public class DeconstructService {
     private String buildInsertSql(String tableName, JSONObject kv) {
         StringBuilder sb = new StringBuilder();
         kv.put("inner_id", objectId.nextId());
-        kv.put("input_date", new Date());
         sb.append("insert into ");
         sb.append(tableName);
         sb.append(" (");
