@@ -1,12 +1,12 @@
 package com.beeasy.zed;
 
-import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.thread.ThreadUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.json.JsonObjectDecoder;
 import org.beetl.sql.core.SQLManager;
 import org.beetl.sql.core.engine.PageQuery;
 import org.beetl.sql.core.mapping.BeanProcessor;
@@ -315,10 +315,10 @@ public class QccService {
      */
     private Object GetStockAnalysisData(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
         JSONObject compData = singleQuery("qcc.查询股权穿透十层信息表", params);
-        JSONArray partners = listQuery("qcc.查询股权穿透十层股东信息表", params);
+        List<JSONObject> partners = listQuery("qcc.查询股权穿透十层股东信息表", params);
         JSONObject ss = JSON.parseObject(compData.getString("StockStatistics"));
         compData.remove("StockStatistics");
-        JSONArray stockList = listQuery("qcc.查询股权穿透十层股东列表", params);
+        List<JSONObject> stockList = listQuery("qcc.查询股权穿透十层股东列表", params);
         compData.put("Partners", partners);
         return newJsonObject(
             "CompanyData", compData,
@@ -1392,16 +1392,9 @@ public class QccService {
         JSONObject result = new JSONObject();
         for (Map.Entry<String, Object> entry : DeconstructService.GetStockRelationInfoMap.entrySet()) {
             String sql = S.fmt("select * from %s where inner_company_name = '%s'", entry.getValue(), compName);
-            JSONArray array = listQuery(sql, params);
-            for (Object _object : array) {
-                JSONObject object = (JSONObject) _object;
-                Iterator<Map.Entry<String, Object>> it = object.entrySet().iterator();
-                while(it.hasNext()){
-                    Map.Entry<String, Object> _entry = it.next();
-                    if(_entry.getKey().startsWith("inner")){
-                        it.remove();
-                    }
-                }
+            List<JSONObject> array = listQuery(sql, params);
+            for (JSONObject object : array) {
+                object.entrySet().removeIf(_entry -> _entry.getKey().startsWith("inner"));
             }
             convertToQccStyle(array);
             result.put(entry.getKey(), array);
@@ -2412,9 +2405,9 @@ public class QccService {
      * @apiUse QccError
      */
     private Object GetCompanyEquityShareMap(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
-        JSONArray array = listQuery("qcc.查询股权结构图", params);
+        List<JSONObject> array = listQuery("qcc.查询股权结构图", params);
         JSONObject main = convertToTree(array);
-        JSONArray aclp = listQuery("qcc.查询股权结构-实际控股信息表", params);
+        List<JSONObject> aclp = listQuery("qcc.查询股权结构-实际控股信息表", params);
         main.put("ActualControllerLoopPath", aclp);
         return main;
     }
@@ -2751,7 +2744,7 @@ public class QccService {
      * @apiUse QccError
      */
     private Object SearchTreeRelationMap(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
-        JSONArray array = listQuery("qcc.查询企业族谱", params);
+        List<JSONObject> array = listQuery("qcc.查询企业族谱", params);
         return convertToTree(array);
     }
 
@@ -5103,10 +5096,10 @@ public class QccService {
      * @apiUse QccError
      */
     private Object GetChattelMortgage(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
-        JSONArray PledgeeList = listQuery("qcc.查询动产抵押PledgeeList", params);
-        JSONArray GuaranteeList = listQuery("qcc.查询动产抵押GuaranteeList", params);
-        JSONArray ChangeList = listQuery("qcc.查询动产抵押ChangeList", params);
-        JSONArray list = listQuery("qcc.查询动产抵押", params);
+        List<JSONObject> PledgeeList = listQuery("qcc.查询动产抵押PledgeeList", params);
+        List<JSONObject> GuaranteeList = listQuery("qcc.查询动产抵押GuaranteeList", params);
+        List<JSONObject> ChangeList = listQuery("qcc.查询动产抵押ChangeList", params);
+        List<JSONObject> list = listQuery("qcc.查询动产抵押", params);
         for (Object o : list) {
             JSONObject object = (JSONObject) o;
             JSONObject detail = new JSONObject();
@@ -5755,31 +5748,36 @@ public class QccService {
      * @apiUse QccError
      */
     private Object GetJudicialAssistance(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
-        JSONArray list = listQuery("qcc.查询司法协助信息", params);
+        List<JSONObject> list = listQuery("qcc.查询司法协助信息", params);
+        List<JSONObject>[] ds = new List[]{
+            listQuery("qcc.查询司法协助EquityFreezeDetail", params),
+            listQuery("qcc.查询司法协助EquityUnFreezeDetail", params),
+            listQuery("qcc.查询司法协助JudicialPartnersChangeDetail", params)
+        };
+        String[] keys = {
+            "EquityFreezeDetail","EquityUnFreezeDetail","JudicialPartnersChangeDetail"
+        };
         for (Object o : list) {
             JSONObject object = (JSONObject) o;
-            JSONObject[] objects = {new JSONObject(), new JSONObject(), new JSONObject()};
-            Iterator<Map.Entry<String, Object>> it = object.entrySet().iterator();
-            while (it.hasNext()) {
-                Map.Entry<String, Object> entry = it.next();
-                for (short i = 0; i < objects.length; i++) {
-                    if (entry.getKey().startsWith("D" + (i))) {
-                        objects[i].put(entry.getKey().replace("D" + (i), ""), entry.getValue());
+            String id = object.getString("InnerId");
+            object.remove("InnerId");
+            int i = 0;
+            for (List<JSONObject> d : ds) {
+                Iterator<JSONObject> it = d.iterator();
+                JSONObject goal = new JSONObject();
+                while(it.hasNext()){
+                    JSONObject obj = it.next();
+                    if(S.eq(obj.getString("JaInnerId"), id)){
+                        goal.putAll(obj);
                         it.remove();
                         break;
                     }
                 }
+                goal.remove("JaInnerId");
+                object.put(keys[i], goal);
+                i++;
             }
-            for (int i = 0; i < objects.length; i++) {
-                if (objects[i].size() == 0) {
-                    objects[i] = null;
-                }
-            }
-            object.put("EquityFreezeDetail", objects[0]);
-            object.put("EquityUnFreezeDetail", objects[1]);
-            object.put("JudicialPartnersChangeDetail", objects[2]);
         }
-
         return list;
     }
 
@@ -6295,12 +6293,12 @@ public class QccService {
         object.put("DefendantList", JSON.parseArray(object.getString("DefendantList")));
         object.put("ProsecutorList", JSON.parseArray(object.getString("ProsecutorList")));
         //
-        JSONArray courtNotices = listQuery("qcc.查询裁判文书详情-开庭公告", newJsonObject("id", params.getString("id")));
+        List<JSONObject> courtNotices = listQuery("qcc.查询裁判文书详情-开庭公告", newJsonObject("id", params.getString("id")));
         object.put("CourtNoticeList", newJsonObject(
             "TotalNum", courtNotices.size(),
             "CourtNoticeInfo", courtNotices
         ));
-        JSONArray companies = listQuery("qcc.查询裁判文书详情-关联公司", newJsonObject("id", params.getString("id")));
+        List<JSONObject> companies = listQuery("qcc.查询裁判文书详情-关联公司", newJsonObject("id", params.getString("id")));
         object.put("RelatedCompanies", companies);
 //        object.put("Content", new String(Base64.getDecoder().decode(object.getString("Content"))));
         String contentClear = object.getString("ContentClear");
@@ -6901,12 +6899,12 @@ public class QccService {
     }
 
 
-    public JSONArray listQuery(String sqlId, Map<String, Object> params) {
-        JSONArray list = new JSONArray();
+    public List<JSONObject> listQuery(String sqlId, Map<String, Object> params) {
+        List<JSONObject> list;
         if (sqlId.contains(".")) {
-            list.addAll(sqlManager.select(sqlId, JSONObject.class, params));
+            list = (sqlManager.select(sqlId, JSONObject.class, params));
         } else {
-            list.addAll(sqlManager.execute(sqlId, JSONObject.class, params));
+            list = (sqlManager.execute(sqlId, JSONObject.class, params));
         }
         return list;
     }
@@ -6945,17 +6943,15 @@ public class QccService {
         return str.substring(0, 1).toUpperCase() + str.substring(1);
     }
 
-    private static JSONObject convertToTree(JSONArray array){
+    private static JSONObject convertToTree(List<JSONObject> array){
         JSONObject map = new JSONObject();
         JSONObject main = null;
-        for (Object _object : array) {
-            JSONObject object = (JSONObject) _object;
+        for (JSONObject object : array) {
             JSONArray children = new JSONArray();
             map.put(object.getString("InnerId"), children);
             object.put("Children", children);
         }
-        for (Object _object : array) {
-            JSONObject object = (JSONObject) _object;
+        for (JSONObject object : array) {
             String pid = (String) object.getOrDefault("InnerParentId","");
             if(pid == null){
                 main = object;
@@ -6963,8 +6959,7 @@ public class QccService {
                 map.getJSONArray(pid).add(object);
             }
         }
-        for (Object _object : array) {
-            JSONObject object = (JSONObject) _object;
+        for (JSONObject object : array) {
             object.remove("InnerId");
             object.remove("InnerParentId");
         }

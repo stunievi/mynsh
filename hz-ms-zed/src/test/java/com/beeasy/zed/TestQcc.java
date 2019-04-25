@@ -371,22 +371,22 @@ public class TestQcc {
     @Test
     public void SearchTreeRelationMap() throws Exception {
         clearTable("QCC_COMPANY_MAP");
-        JSONObject source = read("/ECIRelationV4/SearchTreeRelationMap.json?keyNo=1");
-        JSONObject target = checkResult("/ECIRelationV4/SearchTreeRelationMap?keyNo=1");
+        JSONObject source = read("/ECIRelationV4/SearchTreeRelationMap.json?keyNo=692a8d87536443b042bccb655398e3a0");
+        JSONObject target = checkResult("/ECIRelationV4/SearchTreeRelationMap?keyNo=692a8d87536443b042bccb655398e3a0");
         checkSim(source, target);
     }
     @Test
     public void GetCompanyEquityShareMap() throws Exception {
         clearTable("QCC_CESM", "QCC_CESM_ACLP");
-        JSONObject source = read("/ECIRelationV4/GetCompanyEquityShareMap.json?keyNo=1");
-        JSONObject target = checkResult("/ECIRelationV4/GetCompanyEquityShareMap?keyNo=1");
+        JSONObject source = read("/ECIRelationV4/GetCompanyEquityShareMap.json?keyNo=692a8d87536443b042bccb655398e3a0");
+        JSONObject target = checkResult("/ECIRelationV4/GetCompanyEquityShareMap?keyNo=692a8d87536443b042bccb655398e3a0");
         checkSim(source, target, 0.6);
     }
     @Test
     public void GenerateMultiDimensionalTreeCompanyMap() throws Exception {
         clearTable("QCC_TREE_RELATION_MAP");
-        JSONObject source = read("/ECIRelationV4/GenerateMultiDimensionalTreeCompanyMap.json?keyNo=1");
-        JSONObject target = checkResult("/ECIRelationV4/GenerateMultiDimensionalTreeCompanyMap?keyNo=1");
+        JSONObject source = read("/ECIRelationV4/GenerateMultiDimensionalTreeCompanyMap.json?keyNo=692a8d87536443b042bccb655398e3a0");
+        JSONObject target = checkResult("/ECIRelationV4/GenerateMultiDimensionalTreeCompanyMap?keyNo=692a8d87536443b042bccb655398e3a0");
         checkSim(source, target);
     }
     @Test
