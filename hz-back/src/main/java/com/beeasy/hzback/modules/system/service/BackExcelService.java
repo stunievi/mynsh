@@ -20,7 +20,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
-public class ExcelService {
+public class BackExcelService {
 
     @Data
     @AllArgsConstructor
@@ -271,13 +271,13 @@ public class ExcelService {
 
 
         //通过表头配置导出
-        new ExcelService().exportTableToExcel("ttt.xlsx",
+        new BackExcelService().exportTableToExcel("ttt.xlsx",
             JSON.parseArray(json)
 //            , new JSONArray()
             , JSON.parseArray(data)
         );
 
         //通过模板渲染导出
-        new ExcelService().exportTableByTemplate("ttt.xlsx", "ttt2.xlsx", JSONArray.parseArray(data));
+        new BackExcelService().exportTableByTemplate("ttt.xlsx", "ttt2.xlsx", JSONArray.parseArray(data));
     }
 }

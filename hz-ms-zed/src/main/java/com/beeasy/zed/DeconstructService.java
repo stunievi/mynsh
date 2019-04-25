@@ -20,6 +20,7 @@ import org.osgl.util.S;
 import javax.jms.JMSException;
 import javax.jms.TextMessage;
 import java.io.*;
+import java.math.BigDecimal;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.charset.StandardCharsets;
@@ -1677,6 +1678,13 @@ public class DeconstructService {
             "Sourceid->Source_id",
             "Anno->An_no",
             "Biaodi->Biao_di",
+            "+Biao_di", new ValueGenerator() {
+                @Override
+                public Object call(JSONObject kv) {
+                    BigDecimal bd = new BigDecimal(kv.getString("Biao_di"));
+                    return bd.toPlainString();
+                }
+            },
             "Updatedate->Update_date",
             "+inner_company_name", getQuery(request, "searchKey")
         );

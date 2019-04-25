@@ -4,32 +4,24 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzreport.config.ExportTo;
 import com.beeasy.hzreport.config.UseSimpleSql;
-import com.beeasy.hzreport.filter.AuthFilter;
 import com.beeasy.hzreport.request.R1;
 import com.beeasy.hzreport.request.R11;
-import com.beeasy.mscommon.Result;
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.commons.lang.ObjectUtils;
+import com.beeasy.mscommon.filter.AuthFilter;
 import org.beetl.sql.core.SQLManager;
 import org.beetl.sql.core.engine.PageQuery;
-import org.osgl.$;
-import org.osgl.util.C;
 import org.osgl.util.S;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-
-import java.text.DecimalFormat;
+import java.util.*;
 
 @Service
 @Transactional
