@@ -3,5 +3,5 @@
     "version": "0.0.1",
     "description": "企查查接口",
     "title": "企查查接口",
-    "url" : "http://47.94.97.138/qcc"
+    "url" : "http://47.96.98.198:8081/qcc"
 }

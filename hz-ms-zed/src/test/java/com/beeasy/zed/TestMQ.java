@@ -1,7 +1,5 @@
 package com.beeasy.zed;
 
-import cn.hutool.core.io.IoUtil;
-import cn.hutool.core.util.CharsetUtil;
 import org.apache.activemq.BlobMessage;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -10,16 +8,9 @@ import org.osgl.util.IO;
 import org.osgl.util.S;
 
 import javax.jms.JMSException;
-import javax.jms.StreamMessage;
 import javax.jms.TextMessage;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.sql.Blob;
-import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class TestMQ {
 
@@ -37,7 +28,7 @@ public class TestMQ {
     @Test
     public void testSend() throws InterruptedException {
         CountDownLatch cl = new CountDownLatch(1);
-        MQService.listenMessage("my_msg", message -> {
+        MQService.listenMessage("queue", "fuck", message -> {
             if(message instanceof TextMessage){
                 Assert.assertTrue(S.notEmpty(String.valueOf(message)));
             } else if(message instanceof BlobMessage){
@@ -53,7 +44,7 @@ public class TestMQ {
             }
 //            cl.countDown();
         });
-        MQService.sendTopicMessage("my_msg",  new File("D:\\xp\\vmware.log"));
+        MQService.sendMessage("queue", "my_msg",  new File("D:\\xp\\vmware.log"));
         cl.await();
     }
 
