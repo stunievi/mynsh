@@ -80,7 +80,7 @@ public class UpdateQccDataController {
         sqlManager.insert(entity);
     }
 
-    @JmsListener(destination = "qcc-deconstruct-response", containerFactory = "jmsListenerContainerTopic")
+    @JmsListener(destination = "qcc-deconstruct-response")
     public void test(Object o) throws JMSException, IOException {
         if(o instanceof TextMessage){
             try{
