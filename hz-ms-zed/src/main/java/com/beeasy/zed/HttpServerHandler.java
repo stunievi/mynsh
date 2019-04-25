@@ -124,7 +124,7 @@ class HttpServerHandler extends ChannelInboundHandlerAdapter {
                 if (object instanceof String) {
                     responseBytes = ((String) object).getBytes(StandardCharsets.UTF_8);
                 } else {
-                    responseBytes = JSON.toJSONString(object, SerializerFeature.WriteDateUseDateFormat, SerializerFeature.PrettyFormat).getBytes(StandardCharsets.UTF_8);
+                    responseBytes = JSON.toJSONString(object, SerializerFeature.WriteDateUseDateFormat, SerializerFeature.PrettyFormat, SerializerFeature.WriteMapNullValue).getBytes(StandardCharsets.UTF_8);
                 }
                 int contentLength = responseBytes.length;
                 // 构造FullHttpResponse对象，FullHttpResponse包含message body

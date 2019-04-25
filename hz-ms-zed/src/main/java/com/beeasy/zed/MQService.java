@@ -55,7 +55,7 @@ public class MQService {
                 ready.set(true);
 
                 for (Object[] listener : listeners) {
-                    bindListener((String)listener[0], (MQMessageListener) listener[1]);
+                    bindListener((String)listener[0], (String)listener[1], (MQMessageListener) listener[2]);
                 }
             }
             catch (Exception ee){
@@ -67,15 +67,21 @@ public class MQService {
         });
     }
 
-    public static void sendTopicMessage(String topic, Object message){
+    public static void sendMessage(String type, String topic, Object message){
         ThreadUtil.execAsync(() -> {
             ActiveMQSession session = null;
             MessageProducer producer = null;
             await();
             try {
                 session = (ActiveMQSession) connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-                Topic t = session.createTopic(topic);
-                producer = session.createProducer(t);
+                if(type.equals("topic")){
+                    Topic t = session.createTopic(topic);
+                    producer = session.createProducer(t);
+
+                } else if(type.equals("queue")){
+                    Queue t = session.createQueue(topic);
+                    producer = session.createProducer(t);
+                }
                 if(message instanceof String){
                     TextMessage msg = session.createTextMessage((String) message);
                     producer.send(msg);
@@ -109,13 +115,18 @@ public class MQService {
         });
     }
 
-    private static void bindListener(String topic, MQMessageListener listener){
+    private static void bindListener(String type, String topic, MQMessageListener listener){
         ActiveMQSession session = null;
         MessageConsumer consumer = null;
         try {
             session = (ActiveMQSession) connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            Topic t = session.createTopic(topic);
-            consumer = session.createConsumer(t);
+            if (type.equals("topic")) {
+                Topic t = session.createTopic(topic);
+                consumer = session.createConsumer(t);
+            } else {
+                Queue q = session.createQueue(topic);
+                consumer = session.createConsumer(q);
+            }
             consumer.setMessageListener(m -> {
                 try {
                     listener.call(m);
@@ -130,12 +141,16 @@ public class MQService {
     }
 
 
-    public static void listenMessage(String topic, MQMessageListener listener){
-        listeners.add(new Object[]{topic, listener});
+    public static void listenMessage(String type, String topic, MQMessageListener listener){
+//        //暂时也这么调用一份
+//        if (type.equals("topic")) {
+//            listenMessage("queue", topic, listener);
+//        }
+        listeners.add(new Object[]{type, topic, listener});
         if(!ready.get()){
             return;
         }
-        ThreadUtil.execAsync(() -> bindListener(topic, listener));
+        ThreadUtil.execAsync(() -> bindListener(type, topic, listener));
     }
 
 

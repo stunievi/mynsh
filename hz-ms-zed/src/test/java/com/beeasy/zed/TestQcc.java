@@ -71,6 +71,11 @@ public class TestQcc {
             e.printStackTrace();
         }
         deconstructService = DeconstructService.register();
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         ThreadUtil.execAsync(NettyService::start);
 //        clearTable("QCC_JUDGMENT_DOC");
 //        clearTable("QCC_COURT_NOTICE");
@@ -192,7 +197,7 @@ public class TestQcc {
     @Test
     public void GetLandMortgageList() throws Exception {
         clearTable("QCC_LAND_MORTGAGE");
-        clearTable("JG_LM_PEOPLE_RE");
+        clearTable("QCC_LAND_MORTGAGE_PEOPLE");
         JSONObject source = read("/LandMortgage/GetLandMortgageList.json?keyWord=惠州市维也纳惠尔曼酒店管理有限公司");
         String url = "/LandMortgage/GetLandMortgageList?fullName=惠州市维也纳惠尔曼酒店管理有限公司";
         JSONArray array = checkPageMatched(url);

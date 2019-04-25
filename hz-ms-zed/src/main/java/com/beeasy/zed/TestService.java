@@ -1,6 +1,5 @@
 package com.beeasy.zed;
 
-import cn.hutool.core.io.IoUtil;
 import com.alibaba.fastjson.JSON;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
@@ -34,7 +33,7 @@ public class TestService {
                         RandomAccessFile raf = new RandomAccessFile(file, "rw");
                         ByteBuf buf = fileupload.content();
                         buf.readBytes(raf.getChannel(), 0, buf.readableBytes());
-                        MQService.sendTopicMessage("qcc-deconstruct-request", new MQService.FileRequest(requestId.getString(), sourceRequest.getString(), file));
+                        MQService.sendMessage("queue", "qcc-deconstruct-request", new MQService.FileRequest(requestId.getString(), sourceRequest.getString(), file));
                         raf.close();
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -51,7 +50,7 @@ public class TestService {
                 HttpPostRequestDecoder req = new HttpPostRequestDecoder(request);
                 MixedAttribute requestId = (MixedAttribute) req.getBodyHttpData("requestId");
                 MixedAttribute progress = (MixedAttribute) req.getBodyHttpData("progress");
-                MQService.sendTopicMessage("qcc-redeconstruct-request", JSON.toJSONString(C.newMap(
+                MQService.sendMessage("queue", "qcc-redeconstruct-request", JSON.toJSONString(C.newMap(
                     "requestId", requestId.getString(),
                     "progress", progress.getString()
                 )));
@@ -59,7 +58,7 @@ public class TestService {
             }
         }));
 
-        MQService.listenMessage("qcc-deconstruct-response", m -> {
+        MQService.listenMessage("queue", "qcc-deconstruct-response", m -> {
             if(m instanceof TextMessage){
                 for (Channel client : HttpServerHandler.clients) {
                     client.writeAndFlush(new TextWebSocketFrame(((TextMessage) m).getText()));
@@ -67,7 +66,7 @@ public class TestService {
             }
         });
 
-        MQService.listenMessage("qcc-redeconstruct-response", m -> {
+        MQService.listenMessage("queue", "qcc-redeconstruct-response", m -> {
             if(m instanceof TextMessage){
                 for (Channel client : HttpServerHandler.clients) {
                     client.writeAndFlush(new TextWebSocketFrame(((TextMessage) m).getText()));

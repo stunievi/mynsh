@@ -1,6 +1,7 @@
 package com.beeasy.zed;
 
 import java.text.ParseException;
+import static com.beeasy.zed.DBService.config;
 
 
 public class App {
@@ -18,12 +19,19 @@ public class App {
             return zedService.doNettyRequest(ctx, req);
         }));
 
-        //注册查询接口
-        QccService.register();
-        //注册解构接口
-        DeconstructService.register();
 
-        TestService.register();
+        String workMode = config.getString("workmode");
+        if(workMode.equals("search") || workMode.equals("all")){
+            //注册查询接口
+            QccService.register();
+        }
+        if(workMode.equals("deconstruct") || workMode.equals("all")){
+            //注册解构接口
+            DeconstructService.register();
+        }
+
+
+//        TestService.register();
 
         //起动netty
         NettyService.start();

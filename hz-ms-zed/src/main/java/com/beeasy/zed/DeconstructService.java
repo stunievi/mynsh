@@ -324,7 +324,7 @@ public class DeconstructService {
 
 
             //消息坚挺
-            MQService.listenMessage("qcc-deconstruct-request", m -> {
+            MQService.listenMessage("queue", "qcc-deconstruct-request", m -> {
                 BlobMessage blobMessage = (BlobMessage) m;
                 String requestId = null;
                 String sourceRequest = null;
@@ -340,7 +340,7 @@ public class DeconstructService {
                 //检查是否有相同的任务
                 synchronized (service){
                     if(service.runningTask.containsKey(requestId)){
-                        new QccDeconstructReqponse(false, 0, requestId, sourceRequest, "已经有相同的任务正在执行中");
+                        new QccDeconstructReqponse(-1, 0, requestId, sourceRequest, "已经有相同的任务正在执行中");
                         return;
                     }
                     service.runningTask.put(requestId, true);
@@ -351,7 +351,7 @@ public class DeconstructService {
                 }
             });
 
-            MQService.listenMessage("qcc-redeconstruct-request", m ->{
+            MQService.listenMessage("queue", "qcc-redeconstruct-request", m ->{
                 TextMessage textMessage = (TextMessage) m;
                 JSONObject object = (JSONObject) JSON.parseObject(textMessage.getText());
                 String requestId = object.getString("requestId");
@@ -369,7 +369,7 @@ public class DeconstructService {
                 if(S.empty(requestId)) return;
                 synchronized (service){
                     if(service.runningTask.containsKey(requestId)){
-                        new QccReDeconstructResponse(false, 0, requestId, "", "已经有相同的任务正在执行中");
+                        new QccReDeconstructResponse(-1, 0, requestId, "", "已经有相同的任务正在执行中");
                         return;
                     }
                     service.runningTask.put(requestId, true);
@@ -842,7 +842,26 @@ public class DeconstructService {
                 public boolean call(String key) {
                     return key.endsWith("Date");
                 }
-            }, DateValue
+            }, DateValue,
+            "+RegistCapi", new ValueGenerator() {
+                @Override
+                public Object call(JSONObject kv) {
+                    return kv.getString("RegistCapi").replaceAll("万人民币元|万元人民币", "");
+                }
+            },
+            "+FundedRatio", new ValueGenerator() {
+                @Override
+                public Object call(JSONObject kv) {
+                    String FundedRatio = kv.getString("FundedRatio");
+                    if(S.empty(FundedRatio)){
+                        FundedRatio = "100";
+                    } else {
+                        FundedRatio = FundedRatio.replace("%", "");
+                    }
+                    return FundedRatio;
+                }
+            }
+
         );
         doDelete("QCC_HIS_INVESTMENT", "inner_company_name", compName);
         deconstruct(json, "QCC_HIS_INVESTMENT", "");
@@ -1200,12 +1219,12 @@ public class DeconstructService {
                 break child1;
             }
             JSONObject obj = newJsonObject(
-                "cn_id", id,
+                "id", id,
                 "key_no", inner.getString("KeyNo"),
                 "name", inner.getString("Name"),
                 "type", "02"
             );
-            deconstruct(obj, "JG_LM_PEOPLE_RE", "");
+            deconstruct(obj, "QCC_LAND_MORTGAGE_PEOPLE", "");
         }
         child2:
         {
@@ -1214,12 +1233,12 @@ public class DeconstructService {
                 break child2;
             }
             JSONObject obj = newJsonObject(
-                "cn_id", id,
+                "id", id,
                 "key_no", inner.getString("KeyNo"),
                 "name", inner.getString("Name"),
                 "type", "01"
             );
-            deconstruct(obj, "JG_LM_PEOPLE_RE", "");
+            deconstruct(obj, "QCC_LAND_MORTGAGE_PEOPLE", "");
         }
     }
 
@@ -1494,7 +1513,7 @@ public class DeconstructService {
      */
     private void SearchCourtAnnouncement(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         changeField(json,
-            "-PublishedDate",
+//            "-PublishedDate",
             new ICanChange() {
                 @Override
                 public boolean call(String key) {
@@ -1971,7 +1990,7 @@ public class DeconstructService {
      *
      * @param requestId
      */
-    private synchronized List<String> deconstructStep2(String requestId) throws IOException, InterruptedException {
+    private synchronized List<String> deconstructStep2(String requestId, AtomicBoolean someError) throws IOException, InterruptedException {
         File unzipFile = new File(logUnzipDir, requestId);
         List<Slice> tasks = new ArrayList<>();
         byte[] buf = BufferPool.allocate();
@@ -2038,7 +2057,7 @@ public class DeconstructService {
                     file.seek(slice.bodyStart);
                     file.read(bs, 0, (int) slice.bodyLen);
                     str = new String(bs, 0, slice.bodyLen);
-                    destructSingle(slice.link, str);
+                    destructSingle(slice.link, str, someError);
                 } catch (Exception e) {
                     e.printStackTrace();
                     hasError.set(true);
@@ -2146,7 +2165,8 @@ public class DeconstructService {
             return;
         }
         autoCommit = false;
-        QccReDeconstructResponse reqponse = new QccReDeconstructResponse(false, 0, requestId, "", "");
+        QccReDeconstructResponse reqponse = new QccReDeconstructResponse(-1, 0, requestId, "", "");
+        AtomicBoolean someError = new AtomicBoolean(false);
         try{
             List<String> sqls = null;
             //从第一步开始解
@@ -2156,7 +2176,7 @@ public class DeconstructService {
             }
             if(progress <= 2){
                 reqponse.progress = 2;
-                sqls = deconstructStep2(requestId);
+                sqls = deconstructStep2(requestId, someError);
             }
 
             reqponse.progress = 3;
@@ -2190,7 +2210,11 @@ public class DeconstructService {
                 }
                 deconstructStep3(sqls);
             }
-            reqponse.finished = true;
+            if(someError.get()){
+                reqponse.finished = 1;
+            } else {
+                reqponse.finished = 0;
+            }
         } catch (Exception e){
             reqponse.errorMessage = e.getMessage();
             e.printStackTrace();
@@ -2208,7 +2232,7 @@ public class DeconstructService {
      * @apiVersion 0.0.1
      *
      * @apiSuccessExample 数据加工请求:
-     * topic: qcc-deconstruct-request
+     * queue: qcc-deconstruct-request
      * type: BlobMessage
      * properties: {
      *     "requestId":"数据ID",
@@ -2218,19 +2242,19 @@ public class DeconstructService {
      *
      *
      * @apiSuccessExample 加工回执:
-     * topic: qcc-deconstruct-response
+     * queue: qcc-deconstruct-response
      * type: TextMessage
      * content: {
      *     "requestId":"数据ID",
      *     "sourceRequest":"原始数据",
      *     "progress":"进行到哪一阶段 0保存数据 1解压 2分析生成sql 3sql入库",
-     *     "finished": "是否完成",
+     *     "finished": "是否完成 -1为全部失败 0为成功 1为部分成功",
      *     "errorMessage": "错误信息"
      * }
      *
      *
      * @apiSuccessExample 重加工请求:
-     * topic: qcc-redeconstruct-request
+     * queue: qcc-redeconstruct-request
      * type: TextMessage
      * content: {
      *     "requestId": "加工失败的数据ID",
@@ -2238,7 +2262,7 @@ public class DeconstructService {
      * }
      *
      * @apiSuccessExample 重加工回执:
-     * topic: qcc-redeconstruct-response
+     * queue: qcc-redeconstruct-response
      * 其余同加工回执
      */
 
@@ -2256,17 +2280,22 @@ public class DeconstructService {
     public void onDeconstructRequest(String requestId, String sourceRequest, BlobMessage blobMessage)  {
         autoCommit = false;
 
-        QccDeconstructReqponse reqponse = new QccDeconstructReqponse(false, 0, requestId, sourceRequest, "");
+        QccDeconstructReqponse reqponse = new QccDeconstructReqponse(-1, 0, requestId, sourceRequest, "");
+        AtomicBoolean someError = new AtomicBoolean(false);
         try{
             deconstructStep0(blobMessage, requestId);
             reqponse.progress = 1;
             deconstructStep1(requestId);
             reqponse.progress = 2;
-            List<String> sqls = deconstructStep2(requestId);
+            List<String> sqls = deconstructStep2(requestId, someError);
             reqponse.progress = 3;
             deconstructStep3(sqls);
             deconstructStep4(requestId, sqls);
-            reqponse.finished = true;
+            if(someError.get()){
+                reqponse.finished = 1;
+            } else {
+                reqponse.finished = 0;
+            }
         } catch (Exception e){
             reqponse.errorMessage = e.getMessage();
             e.printStackTrace();
@@ -2380,7 +2409,7 @@ public class DeconstructService {
 //        }
     }
 
-    public void destructSingle(String url, String str) {
+    public void destructSingle(String url, String str, AtomicBoolean someError) {
         JSONObject object = JSON.parseObject(str);
         for (Map.Entry<String, DeconstructService.DeconstructHandler> entry : DeconstructService.handlers.entrySet()) {
             if (HttpServerHandler.matches(url, entry.getKey())) {
@@ -2391,6 +2420,8 @@ public class DeconstructService {
                 JSONObject od = (object.getJSONObject("OriginData"));
                 if (S.eq(od.getString("Status"), "200")) {
                     handler.call(null, request, (JSON) od.get("Result"));
+                } else if(!S.startsWith(od.getString("Status"), "2")){
+                    someError.set(true);
                 }
             }
         }
@@ -2572,13 +2603,13 @@ public class DeconstructService {
 
 
     public static class QccDeconstructReqponse {
-        public boolean finished;
+        public int finished;
         public int progress;
         public String requestId;
         public String sourceRequest;
         public String errorMessage;
 
-        public QccDeconstructReqponse(boolean finished, int step, String requestId, String sourceRequest, String errorMessage) {
+        public QccDeconstructReqponse(int finished, int step, String requestId, String sourceRequest, String errorMessage) {
             this.finished = finished;
             this.progress = step;
             this.requestId = requestId;
@@ -2592,18 +2623,18 @@ public class DeconstructService {
         }
 
         public void send(){
-            MQService.sendTopicMessage("qcc-deconstruct-response", this.toString());
+            MQService.sendMessage("queue", "qcc-deconstruct-response", this.toString());
         }
     }
 
     public static class QccReDeconstructResponse extends QccDeconstructReqponse{
-        public QccReDeconstructResponse(boolean finished, int step, String requestId, String sourceRequest, String errorMessage) {
+        public QccReDeconstructResponse(int finished, int step, String requestId, String sourceRequest, String errorMessage) {
             super(finished, step, requestId, sourceRequest, errorMessage);
         }
 
         @Override
         public void send() {
-            MQService.sendTopicMessage("qcc-redeconstruct-response", this.toString());
+            MQService.sendMessage("queue", "qcc-redeconstruct-response", this.toString());
         }
     }
 

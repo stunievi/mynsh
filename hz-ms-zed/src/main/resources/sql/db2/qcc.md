@@ -69,6 +69,15 @@ Court_Month
 @}
 from QCC_JUDGMENT_DOC
 where inner_company_name = #fullName#
+@if(!isEmpty(caseReason)){
+    and Case_Reason = #caseReason#
+@}
+@if(!isEmpty(submitDateStart)){
+    and #submitDateStart# <= submit_date
+@}
+@if(!isEmpty(submitDateEnd)){
+    and #submitDateEnd# >= submit_date
+@}
 
 查询裁判文书详情
 ===
@@ -314,9 +323,9 @@ re1.name as re1_name,
 re2.key_no as re2_key_no,
 re2.name as re2_name
 from QCC_LAND_MORTGAGE lm
-left join JG_LM_PEOPLE_RE re1 on re1.cn_id = lm.id and re1.type = '02'
-left join JG_LM_PEOPLE_RE re2 on re2.cn_id = lm.id and re2.type = '01'
-where id = #id#
+left join QCC_LAND_MORTGAGE_PEOPLE re1 on re1.id = lm.id and re1.type = '02'
+left join QCC_LAND_MORTGAGE_PEOPLE re2 on re2.id = lm.id and re2.type = '01'
+where lm.id = #id#
 
 查询环保处罚列表
 ===
@@ -532,14 +541,28 @@ CHANGE_DATE,
 KEY_NO,
 COMPANY_NAME,
 OPER_NAME,
-REGIST_CAPI,
+REGIST_CAPI || '万元人民币' as REGIST_CAPI,
 ECON_KIND,
 STATUS,
-FUNDED_RATIO,
+FUNDED_RATIO || '%' as FUNDED_RATIO,
 START_DATE
 @}
 from QCC_HIS_INVESTMENT						
 where inner_company_name = #fullName#
+@if(!isEmpty(registCapiMin)){
+    and INT(REGIST_CAPI) >= #registCapiMin#
+@}
+@if(!isEmpty(registCapiMax)){
+    and INT(REGIST_CAPI) <= #registCapiMax#
+@}
+@if(!isEmpty(fundedRatioMin)){
+    and INT(FUNDED_RATIO) >= #fundedRatioMin#
+@}
+@if(!isEmpty(fundedRatioMax)){
+    and INT(FUNDED_RATIO) <= #fundedRatioMax#
+@}
+
+
 
 查询历史股东信息表
 ===
