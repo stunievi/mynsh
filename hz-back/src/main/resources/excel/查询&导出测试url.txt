@@ -1,0 +1,12 @@
+²éÑ¯£º
+
+http://localhost:8069/report/report_33?LOAN_ACCOUNT=30010000036008228
+
+http://localhost:8069/reportex/report_11
+
+
+µ¼³ö£º
+
+http://localhost:8069/report/export/report_33?LOAN_ACCOUNT=30010000036008228
+
+http://localhost:8069/report/export/mortgage_g?CONT_NO=10020116201396121

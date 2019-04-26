@@ -18,6 +18,9 @@ spring:
 #    url: jdbc:db2://118.2.82.14:50000/fzsys
 #    username: db2inst1
 #    password: 11111111
+#    url: jdbc:db2://127.0.0.1:50000/test
+#    username: db2inst1
+#    password: 111111
 
 #    url: jdbc:db2://121.0.0.236:50000/fzsys_dy
 #        username: db2inst1

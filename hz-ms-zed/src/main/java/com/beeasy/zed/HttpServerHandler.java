@@ -32,6 +32,12 @@ import java.util.regex.Pattern;
 class HttpServerHandler extends ChannelInboundHandlerAdapter {
 
     private static List<Route> RouteList = new ArrayList<>();
+    private static ThreadLocal<JSONObject> querys = new ThreadLocal<JSONObject>(){
+        @Override
+        protected JSONObject initialValue() {
+            return new JSONObject();
+        }
+    };
 
     public static Vector<Channel> clients = new Vector<>();
     private WebSocketServerHandshaker handshaker = null;
@@ -115,6 +121,9 @@ class HttpServerHandler extends ChannelInboundHandlerAdapter {
                 continue;
             }
 
+            //重置query
+            querys.get().clear();
+
             Object object = route.handler.run(ctx, request);
             FullHttpResponse response = null;
             if (object == null) {
@@ -124,7 +133,7 @@ class HttpServerHandler extends ChannelInboundHandlerAdapter {
                 if (object instanceof String) {
                     responseBytes = ((String) object).getBytes(StandardCharsets.UTF_8);
                 } else {
-                    responseBytes = JSON.toJSONString(object, SerializerFeature.WriteDateUseDateFormat, SerializerFeature.PrettyFormat).getBytes(StandardCharsets.UTF_8);
+                    responseBytes = JSON.toJSONString(object, SerializerFeature.WriteDateUseDateFormat, SerializerFeature.PrettyFormat, SerializerFeature.WriteMapNullValue).getBytes(StandardCharsets.UTF_8);
                 }
                 int contentLength = responseBytes.length;
                 // 构造FullHttpResponse对象，FullHttpResponse包含message body
@@ -164,13 +173,17 @@ class HttpServerHandler extends ChannelInboundHandlerAdapter {
     }
 
     public static JSONObject decodeQuery(FullHttpRequest request) {
-        JSONObject params = new JSONObject();
+        JSONObject query = querys.get();
+        if (query.size() > 0) {
+            return query;
+        }
         QueryStringDecoder decoder = new QueryStringDecoder(request.uri(), StandardCharsets.UTF_8);
         Map<String, List<String>> paramList = decoder.parameters();
         for (Map.Entry<String, List<String>> entry : paramList.entrySet()) {
-            params.put(entry.getKey(), entry.getValue().get(0));
+            query.put(entry.getKey(), entry.getValue().get(0));
         }
-        return params;
+        query.put("$decoded", true);
+        return query;
     }
 
 //    public static Map<String, Object> getGetParamsFromChannel(FullHttpRequest fullHttpRequest) {

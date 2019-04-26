@@ -1351,6 +1351,9 @@ public class ReportService {
             case "02":
                 return sqlManager.pageQuery("report.app_cus_3", JSONObject.class, pageQuery);
 //                break;
+            case "03":
+                return sqlManager.pageQuery("report.app_cus_4", JSONObject.class, pageQuery);
+//                break;
             default:    //参数填错返回所有客户
                 return sqlManager.pageQuery("report.app_cus_1", JSONObject.class, pageQuery);
 //                break;

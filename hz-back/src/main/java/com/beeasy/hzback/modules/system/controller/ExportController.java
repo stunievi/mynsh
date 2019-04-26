@@ -3,8 +3,8 @@ package com.beeasy.hzback.modules.system.controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.entity.WfInsAttr;
-import com.beeasy.hzback.modules.system.service.ExcelService;
 import com.beeasy.hzback.entity.WfIns;
+import com.beeasy.hzback.modules.system.service.BackExcelService;
 import com.beeasy.mscommon.RestException;
 import com.beeasy.mscommon.filter.AuthFilter;
 import com.beeasy.mscommon.util.U;
@@ -32,7 +32,7 @@ public class ExportController {
     @Autowired
     SQLManager sqlManager;
     @Autowired
-    ExcelService excelService;
+    BackExcelService excelService;
 
     @RequestMapping(value = "/excel", method = RequestMethod.GET)
     public ResponseEntity<byte[]> export(

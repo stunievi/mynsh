@@ -1,12 +1,12 @@
 package com.beeasy.zed;
 
-import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.thread.ThreadUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.json.JsonObjectDecoder;
 import org.beetl.sql.core.SQLManager;
 import org.beetl.sql.core.engine.PageQuery;
 import org.beetl.sql.core.mapping.BeanProcessor;
@@ -315,10 +315,10 @@ public class QccService {
      */
     private Object GetStockAnalysisData(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
         JSONObject compData = singleQuery("qcc.查询股权穿透十层信息表", params);
-        JSONArray partners = listQuery("qcc.查询股权穿透十层股东信息表", params);
+        List<JSONObject> partners = listQuery("qcc.查询股权穿透十层股东信息表", params);
         JSONObject ss = JSON.parseObject(compData.getString("StockStatistics"));
         compData.remove("StockStatistics");
-        JSONArray stockList = listQuery("qcc.查询股权穿透十层股东列表", params);
+        List<JSONObject> stockList = listQuery("qcc.查询股权穿透十层股东列表", params);
         compData.put("Partners", partners);
         return newJsonObject(
             "CompanyData", compData,
@@ -1392,16 +1392,9 @@ public class QccService {
         JSONObject result = new JSONObject();
         for (Map.Entry<String, Object> entry : DeconstructService.GetStockRelationInfoMap.entrySet()) {
             String sql = S.fmt("select * from %s where inner_company_name = '%s'", entry.getValue(), compName);
-            JSONArray array = listQuery(sql, params);
-            for (Object _object : array) {
-                JSONObject object = (JSONObject) _object;
-                Iterator<Map.Entry<String, Object>> it = object.entrySet().iterator();
-                while(it.hasNext()){
-                    Map.Entry<String, Object> _entry = it.next();
-                    if(_entry.getKey().startsWith("inner")){
-                        it.remove();
-                    }
-                }
+            List<JSONObject> array = listQuery(sql, params);
+            for (JSONObject object : array) {
+                object.entrySet().removeIf(_entry -> _entry.getKey().startsWith("inner"));
             }
             convertToQccStyle(array);
             result.put(entry.getKey(), array);
@@ -1416,6 +1409,7 @@ public class QccService {
      * @apiVersion 0.0.1
      *
      * @apiParam {string} keyNo 公司keyNo
+     * @apiParam {string} fullName 公司全名
      *
      * @apiSuccess {string} Name 名称
      * @apiSuccess {string} KeyNo 内部KeyNo
@@ -2304,6 +2298,7 @@ public class QccService {
      * @apiVersion 0.0.1
      *
      * @apiParam {string} keyNo 公司keyNo
+     * @apiParam {string} fullName 公司全名
      *
      * @apiSuccess {string} Name 公司名称或者人名
      * @apiSuccess {string} KeyNo 当前股东的公司keyNo
@@ -2412,9 +2407,9 @@ public class QccService {
      * @apiUse QccError
      */
     private Object GetCompanyEquityShareMap(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
-        JSONArray array = listQuery("qcc.查询股权结构图", params);
+        List<JSONObject> array = listQuery("qcc.查询股权结构图", params);
         JSONObject main = convertToTree(array);
-        JSONArray aclp = listQuery("qcc.查询股权结构-实际控股信息表", params);
+        List<JSONObject> aclp = listQuery("qcc.查询股权结构-实际控股信息表", params);
         main.put("ActualControllerLoopPath", aclp);
         return main;
     }
@@ -2425,6 +2420,7 @@ public class QccService {
      * @apiVersion 0.0.1
      *
      * @apiParam {string} keyNo 公司keyNo
+     * @apiParam {string} fullName 公司全名
      *
      * @apiSuccess {string} Name 名称
      * @apiSuccess {string} KeyNo 内部KeyNo
@@ -2751,7 +2747,7 @@ public class QccService {
      * @apiUse QccError
      */
     private Object SearchTreeRelationMap(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
-        JSONArray array = listQuery("qcc.查询企业族谱", params);
+        List<JSONObject> array = listQuery("qcc.查询企业族谱", params);
         return convertToTree(array);
     }
 
@@ -3719,8 +3715,11 @@ public class QccService {
      * @apiVersion 0.0.1
      *
      * @apiParam {string} fullName 公司全名
+     * @apiParam {int} registCapiMin 最小注册资本
+     * @apiParam {int} registCapiMax 最大注册资本
+     * @apiParam {int} fundedRatioMin 最小出资比例
+     * @apiParam {int} fundedRatioMax 最大出资比例
      * @apiUse PageParam
-     *
      *
      * @apiSuccess {string} ChangeDate 变更日期
      * @apiSuccess {string} KeyNo 公司KeyNo
@@ -3856,6 +3855,7 @@ public class QccService {
      * @apiUse QccError
      */
     private Object GetHistorytInvestment(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
+        // FIXME: 2019/4/24 REGIST_CAPI和FUNDED_RATIO 字段应该用int存储，并且在sql中不再强转为int
         return pageQuery("qcc.查询历史对外投资信息表", params);
     }
 
@@ -3872,9 +3872,9 @@ public class QccService {
      * @apiSuccess {string} CompanyNameList.ChangeDate 变更日期
      * @apiSuccess {string} CompanyNameList.CompanyName 公司名称
      *
-     * @apiSuccess {object[]} OperList 历史名称
+     * @apiSuccess {object[]} OperList 法人信息
      * @apiSuccess {string} OperList.ChangeDate 变更日期
-     * @apiSuccess {string} OperList.OperName 公司名称
+     * @apiSuccess {string} OperList.OperName 法人名称
      *
      * @apiSuccess {object[]} RegistCapiList 历史注册资本
      * @apiSuccess {string} RegistCapiList.ChangeDate 变更日期
@@ -5099,10 +5099,10 @@ public class QccService {
      * @apiUse QccError
      */
     private Object GetChattelMortgage(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
-        JSONArray PledgeeList = listQuery("qcc.查询动产抵押PledgeeList", params);
-        JSONArray GuaranteeList = listQuery("qcc.查询动产抵押GuaranteeList", params);
-        JSONArray ChangeList = listQuery("qcc.查询动产抵押ChangeList", params);
-        JSONArray list = listQuery("qcc.查询动产抵押", params);
+        List<JSONObject> PledgeeList = listQuery("qcc.查询动产抵押PledgeeList", params);
+        List<JSONObject> GuaranteeList = listQuery("qcc.查询动产抵押GuaranteeList", params);
+        List<JSONObject> ChangeList = listQuery("qcc.查询动产抵押ChangeList", params);
+        List<JSONObject> list = listQuery("qcc.查询动产抵押", params);
         for (Object o : list) {
             JSONObject object = (JSONObject) o;
             JSONObject detail = new JSONObject();
@@ -5751,31 +5751,36 @@ public class QccService {
      * @apiUse QccError
      */
     private Object GetJudicialAssistance(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
-        JSONArray list = listQuery("qcc.查询司法协助信息", params);
+        List<JSONObject> list = listQuery("qcc.查询司法协助信息", params);
+        List<JSONObject>[] ds = new List[]{
+            listQuery("qcc.查询司法协助EquityFreezeDetail", params),
+            listQuery("qcc.查询司法协助EquityUnFreezeDetail", params),
+            listQuery("qcc.查询司法协助JudicialPartnersChangeDetail", params)
+        };
+        String[] keys = {
+            "EquityFreezeDetail","EquityUnFreezeDetail","JudicialPartnersChangeDetail"
+        };
         for (Object o : list) {
             JSONObject object = (JSONObject) o;
-            JSONObject[] objects = {new JSONObject(), new JSONObject(), new JSONObject()};
-            Iterator<Map.Entry<String, Object>> it = object.entrySet().iterator();
-            while (it.hasNext()) {
-                Map.Entry<String, Object> entry = it.next();
-                for (short i = 0; i < objects.length; i++) {
-                    if (entry.getKey().startsWith("D" + (i))) {
-                        objects[i].put(entry.getKey().replace("D" + (i), ""), entry.getValue());
+            String id = object.getString("InnerId");
+            object.remove("InnerId");
+            int i = 0;
+            for (List<JSONObject> d : ds) {
+                Iterator<JSONObject> it = d.iterator();
+                JSONObject goal = new JSONObject();
+                while(it.hasNext()){
+                    JSONObject obj = it.next();
+                    if(S.eq(obj.getString("JaInnerId"), id)){
+                        goal.putAll(obj);
                         it.remove();
                         break;
                     }
                 }
+                goal.remove("JaInnerId");
+                object.put(keys[i], goal);
+                i++;
             }
-            for (int i = 0; i < objects.length; i++) {
-                if (objects[i].size() == 0) {
-                    objects[i] = null;
-                }
-            }
-            object.put("EquityFreezeDetail", objects[0]);
-            object.put("EquityUnFreezeDetail", objects[1]);
-            object.put("JudicialPartnersChangeDetail", objects[2]);
         }
-
         return list;
     }
 
@@ -6031,103 +6036,113 @@ public class QccService {
      *
      * @apiSuccessExample 请求成功:
      * {
-     *     "Status": "200",
-     *     "Message": "查询成功",
-     *     "Paging": {
-     *         "PageSize": 10,
-     *         "TotalRecords": 20,
-     *         "PageIndex": 1
+     *     "Status":"200",
+     *     "Message":"查询成功",
+     *     "Paging":{
+     *         "PageSize":10,
+     *         "TotalRecords":20,
+     *         "PageIndex":1
      *     },
-     *     "Result": [
+     *     "Result":[
      *         {
-     *             "PublishedPage": "G41",
-     *             "UploadDate": "2019-03-29 12:00:00",
-     *             "Category": "裁判文书",
-     *             "Party": "吉林省安华通讯科技发展有限公司",
-     *             "Content": "吉林省安华通讯科技发展有限公司：本院受理小米科技有限责任公司诉你侵害商标权纠纷一案，已审理终结，现依法向你公告送达（2017）吉01民初770号民事判决书。自公告之日起60日内来本院领取民事判决书，逾期即视为送达。如不服本判决，可在公告期满后15日内，向本院递交上诉状及副本，上诉于吉林省高级人民法院。逾期本判决即发生法律效力。",
-     *             "Id": "52C02354F9069DD6CF28F1EB3C398EFE",
-     *             "Court": "吉林省长春市中级人民法院"
+     *             "PublishedPage":"G41",
+     *             "UploadDate":"2019-03-29 12:00:00",
+     *             "Category":"裁判文书",
+     *             "Party":"吉林省安华通讯科技发展有限公司",
+     *             "Content":"吉林省安华通讯科技发展有限公司：本院受理小米科技有限责任公司诉你侵害商标权纠纷一案，已审理终结，现依法向你公告送达（2017）吉01民初770号民事判决书。自公告之日起60日内来本院领取民事判决书，逾期即视为送达。如不服本判决，可在公告期满后15日内，向本院递交上诉状及副本，上诉于吉林省高级人民法院。逾期本判决即发生法律效力。",
+     *             "PublishedDate":"2019-04-04 12:00:00",
+     *             "Id":"52C02354F9069DD6CF28F1EB3C398EFE",
+     *             "Court":"吉林省长春市中级人民法院"
      *         },
      *         {
-     *             "PublishedPage": "G47",
-     *             "UploadDate": "2019-03-28 12:00:00",
-     *             "Category": "起诉状副本及开庭传票",
-     *             "Party": "彭育洲",
-     *             "Content": "彭育洲:本院受理原告小米科技有限责任公司与被告彭育洲、浙江淘宝网络有限公司侵害商标权纠纷一案，现依法向你送达起诉状副本、应诉通知书、举证通知书、合议庭组成人员通知书及开庭传票等。自本公告发出之日起，经过60日视为送达，提出答辩状和举证期限均为公告送达期满后的15日内。并定于2019年6月24日上午9时于本院二十...",
-     *             "Id": "B3401AFD0F71D64E8589B4039EF8F9EB",
-     *             "Court": "杭州市余杭区人民法院"
+     *             "PublishedPage":"G47",
+     *             "UploadDate":"2019-03-28 12:00:00",
+     *             "Category":"起诉状副本及开庭传票",
+     *             "Party":"彭育洲",
+     *             "Content":"彭育洲:本院受理原告小米科技有限责任公司与被告彭育洲、浙江淘宝网络有限公司侵害商标权纠纷一案，现依法向你送达起诉状副本、应诉通知书、举证通知书、合议庭组成人员通知书及开庭传票等。自本公告发出之日起，经过60日视为送达，提出答辩状和举证期限均为公告送达期满后的15日内。并定于2019年6月24日上午9时于本院二十...",
+     *             "PublishedDate":"2019-04-02 12:00:00",
+     *             "Id":"B3401AFD0F71D64E8589B4039EF8F9EB",
+     *             "Court":"杭州市余杭区人民法院"
      *         },
      *         {
-     *             "PublishedPage": "G15",
-     *             "UploadDate": "2019-03-22 12:00:00",
-     *             "Category": "裁判文书",
-     *             "Party": "陈銮卿",
-     *             "Content": "陈銮卿（公民身份号码440524196608184264）：本院受理原告小米科技有限责任公司诉你侵害商标权纠纷一案，现依法向你公告送达(2018)粤05民初20号民事判决。本院判决你应立即停止销售侵犯8911270号商标的商品，销毁库存侵权商品，在判决生效之日起10日内支付赔偿金2.5万元。自公告发出之日起经过60日即视为送达。...",
-     *             "Id": "058D2A58AC141970DFD05935F43DD6E9",
-     *             "Court": "广东省汕头市中级人民法院"
+     *             "PublishedPage":"G15",
+     *             "UploadDate":"2019-03-22 12:00:00",
+     *             "Category":"裁判文书",
+     *             "Party":"陈銮卿",
+     *             "Content":"陈銮卿（公民身份号码440524196608184264）：本院受理原告小米科技有限责任公司诉你侵害商标权纠纷一案，现依法向你公告送达(2018)粤05民初20号民事判决。本院判决你应立即停止销售侵犯8911270号商标的商品，销毁库存侵权商品，在判决生效之日起10日内支付赔偿金2.5万元。自公告发出之日起经过60日即视为送达。...",
+     *             "PublishedDate":"2019-03-28 12:00:00",
+     *             "Id":"058D2A58AC141970DFD05935F43DD6E9",
+     *             "Court":"广东省汕头市中级人民法院"
      *         },
      *         {
-     *             "PublishedPage": "G91",
-     *             "UploadDate": "2019-03-21 12:00:00",
-     *             "Category": "起诉状副本及开庭传票",
-     *             "Party": "赖木辉",
-     *             "Content": "赖木辉：本院受理的原告小米科技有限责任公司与被告赖木辉、浙江淘宝网络有限公司侵害商标权纠纷一案，现依法向你公告送达起诉状副本、应诉通知书、举证通知书、开庭传票等。自本公告发出之日起，经过60日即视为送达，提出答辩状和举证期限均为公告送达期满后的15日内。并定于2019年6月26日下午14时30分在本院第二十三审判...",
-     *             "Id": "008F9CFA6E0C42DDE50D759B6275F77C",
-     *             "Court": "杭州市余杭区人民法院"
+     *             "PublishedPage":"G14G15中缝",
+     *             "UploadDate":"2019-03-19 12:00:00",
+     *             "Category":"起诉状副本及开庭传票",
+     *             "Party":"北京华美通联通讯器材销售中心",
+     *             "Content":"北京市东城区人民法院公告北京华美通联通讯器材销售中心：本院受理原告小米科技有限责任公司诉北京华美通联通讯器材销售中心侵害商标权纠纷一案，现依法向你公司公告送达起诉状副本、应诉通知书、举证通知书及开庭传票。自公告之日起，经过60日即视为送达。提出答辩状和举证的期限分别为公告送达期满后次日起15日和30日内。...",
+     *             "PublishedDate":"2019-03-21 12:00:00",
+     *             "Id":"E690D42D47091DADDB6E4BD541513BB1",
+     *             "Court":"北京市东城区人民法院"
      *         },
      *         {
-     *             "PublishedPage": "G68",
-     *             "UploadDate": "2019-03-20 12:00:00",
-     *             "Category": "裁判文书",
-     *             "Party": "牟平区栋财手机店",
-     *             "Content": "牟平区栋财手机店：本院受理原告小米科技有限责任公司诉被告牟平区栋财手机店侵害商标权纠纷一案，现依法向你方公告送达（2017）鲁06民初134号民事判决书，自公告之日起满60日，即视为送达。如不服本判决，可自送达之日起15日内向本院递交上诉状，上诉于山东省高级人民法院。逾期本判决即发生法律效力。...",
-     *             "Id": "AACB2C6C9ADBE303D98BA65AFB0081BF",
-     *             "Court": "山东省烟台市中级人民法院"
+     *             "PublishedPage":"G26",
+     *             "UploadDate":"2019-03-14 12:00:00",
+     *             "Category":"起诉状副本及开庭传票",
+     *             "Party":"龚坤宏",
+     *             "Content":"龚坤宏：本院受理小米科技有限责任公司诉龚坤宏侵害商标权纠纷一案，现依法向你龚坤宏公告送达起诉状副本、应诉通知书、举证通知书及开庭传票。龚坤宏自公告之日起，经过60日即视为送达。提出答辩状和举证的期限分别为公告期满后15日和30日内。并定于举证期满后7月1日下午16时00(遇法定假日顺延)在本院上海市徐汇区龙漕路...",
+     *             "PublishedDate":"2019-03-19 12:00:00",
+     *             "Id":"3667F54FDF5BB15AA8192C3FC6DDD0CE",
+     *             "Court":"上海市徐汇区人民法院"
      *         },
      *         {
-     *             "PublishedPage": "G14G15中缝",
-     *             "UploadDate": "2019-03-19 12:00:00",
-     *             "Category": "起诉状副本及开庭传票",
-     *             "Party": "北京华美通联通讯器材销售中心",
-     *             "Content": "北京市东城区人民法院公告北京华美通联通讯器材销售中心：本院受理原告小米科技有限责任公司诉北京华美通联通讯器材销售中心侵害商标权纠纷一案，现依法向你公司公告送达起诉状副本、应诉通知书、举证通知书及开庭传票。自公告之日起，经过60日即视为送达。提出答辩状和举证的期限分别为公告送达期满后次日起15日和30日内。...",
-     *             "Id": "E690D42D47091DADDB6E4BD541513BB1",
-     *             "Court": "北京市东城区人民法院"
+     *             "PublishedPage":"G91",
+     *             "UploadDate":"2019-03-21 12:00:00",
+     *             "Category":"起诉状副本及开庭传票",
+     *             "Party":"赖木辉",
+     *             "Content":"赖木辉：本院受理的原告小米科技有限责任公司与被告赖木辉、浙江淘宝网络有限公司侵害商标权纠纷一案，现依法向你公告送达起诉状副本、应诉通知书、举证通知书、开庭传票等。自本公告发出之日起，经过60日即视为送达，提出答辩状和举证期限均为公告送达期满后的15日内。并定于2019年6月26日下午14时30分在本院第二十三审判...",
+     *             "PublishedDate":"2019-03-26 12:00:00",
+     *             "Id":"008F9CFA6E0C42DDE50D759B6275F77C",
+     *             "Court":"杭州市余杭区人民法院"
      *         },
      *         {
-     *             "PublishedPage": "G26",
-     *             "UploadDate": "2019-03-14 12:00:00",
-     *             "Category": "起诉状副本及开庭传票",
-     *             "Party": "龚坤宏",
-     *             "Content": "龚坤宏：本院受理小米科技有限责任公司诉龚坤宏侵害商标权纠纷一案，现依法向你龚坤宏公告送达起诉状副本、应诉通知书、举证通知书及开庭传票。龚坤宏自公告之日起，经过60日即视为送达。提出答辩状和举证的期限分别为公告期满后15日和30日内。并定于举证期满后7月1日下午16时00(遇法定假日顺延)在本院上海市徐汇区龙漕路...",
-     *             "Id": "3667F54FDF5BB15AA8192C3FC6DDD0CE",
-     *             "Court": "上海市徐汇区人民法院"
+     *             "PublishedPage":"G68",
+     *             "UploadDate":"2019-03-20 12:00:00",
+     *             "Category":"裁判文书",
+     *             "Party":"牟平区栋财手机店",
+     *             "Content":"牟平区栋财手机店：本院受理原告小米科技有限责任公司诉被告牟平区栋财手机店侵害商标权纠纷一案，现依法向你方公告送达（2017）鲁06民初134号民事判决书，自公告之日起满60日，即视为送达。如不服本判决，可自送达之日起15日内向本院递交上诉状，上诉于山东省高级人民法院。逾期本判决即发生法律效力。...",
+     *             "PublishedDate":"2019-03-24 12:00:00",
+     *             "Id":"AACB2C6C9ADBE303D98BA65AFB0081BF",
+     *             "Court":"山东省烟台市中级人民法院"
      *         },
      *         {
-     *             "PublishedPage": "G26",
-     *             "UploadDate": "2019-03-14 12:00:00",
-     *             "Category": "起诉状副本及开庭传票",
-     *             "Party": "项春燕",
-     *             "Content": "项春燕：本院受理小米科技有限责任公司诉项春燕侵害商标权纠纷一案，现依法向你项春燕公告送达起诉状副本、应诉通知书、举证通知书及开庭传票。项春燕自公告之日起，经过60日即视为送达。提出答辩状和举证的期限分别为公告期满后15日和30日内。并定于举证期满后7月1日下午14时40分(遇法定假日顺延)在本院上海市徐汇区龙漕路...",
-     *             "Id": "3667F54FDF5BB15A26D2ADF663C0C649",
-     *             "Court": "上海市徐汇区人民法院"
+     *             "PublishedPage":"G26",
+     *             "UploadDate":"2019-03-14 12:00:00",
+     *             "Category":"起诉状副本及开庭传票",
+     *             "Party":"周远沐",
+     *             "Content":"周远沐：本院受理小米科技有限责任公司诉周远沐侵害商标权纠纷一案，现依法向你周远沐公告送达起诉状副本、应诉通知书、举证通知书及开庭传票。周远沐自公告之日起，经过60日即视为送达。提出答辩状和举证的期限分别为公告期满后15日和30日内。并定于举证期满后7月1日下午15时00分(遇法定假日顺延)在本院上海市徐汇区龙漕路...",
+     *             "PublishedDate":"2019-03-19 12:00:00",
+     *             "Id":"CF993D8969C131444897BA2A16FB3A24",
+     *             "Court":"上海市徐汇区人民法院"
      *         },
      *         {
-     *             "PublishedPage": "G18G19中缝",
-     *             "UploadDate": "2019-03-14 12:00:00",
-     *             "Category": "起诉状副本及开庭传票",
-     *             "Party": "张少鸿",
-     *             "Content": "张少鸿:本院受理原告小米科技有限责任公司诉你方侵害商标权纠纷一案，原告诉请本院判令:1.被告立即停止(2016)冀石国证字第9081号公证书公证的侵犯原告第8911270号商标专用权的行为，即停止销售和许诺销售侵权产品;2.被告赔偿原告经济损失及制止侵权所支付的费用合计五万元;3.被告承担本案诉讼费、公告费、保全费等全部费用...",
-     *             "Id": "6620FD7E3529C46E51DFABE3544CD9B9",
-     *             "Court": "深圳市龙岗区人民法院"
+     *             "PublishedPage":"G26",
+     *             "UploadDate":"2019-03-14 12:00:00",
+     *             "Category":"起诉状副本及开庭传票",
+     *             "Party":"吕晓佳",
+     *             "Content":"吕晓佳：本院受理小米科技有限责任公司诉吕晓佳侵害商标权纠纷一案，现依法向你吕晓佳公告送达起诉状副本、应诉通知书、举证通知书及开庭传票。吕晓佳自公告之日起，经过60日即视为送达。提出答辩状和举证的期限分别为公告期满后15日和30日内。并定于举证期满后7月1日下午14时20分(遇法定假日顺延)在本院上海市徐汇区龙漕路...",
+     *             "PublishedDate":"2019-03-19 12:00:00",
+     *             "Id":"7B93214CE7506672043921D14BB4FAB6",
+     *             "Court":"上海市徐汇区人民法院"
      *         },
      *         {
-     *             "PublishedPage": "G26",
-     *             "UploadDate": "2019-03-14 12:00:00",
-     *             "Category": "起诉状副本及开庭传票",
-     *             "Party": "周远沐",
-     *             "Content": "周远沐：本院受理小米科技有限责任公司诉周远沐侵害商标权纠纷一案，现依法向你周远沐公告送达起诉状副本、应诉通知书、举证通知书及开庭传票。周远沐自公告之日起，经过60日即视为送达。提出答辩状和举证的期限分别为公告期满后15日和30日内。并定于举证期满后7月1日下午15时00分(遇法定假日顺延)在本院上海市徐汇区龙漕路...",
-     *             "Id": "CF993D8969C131444897BA2A16FB3A24",
-     *             "Court": "上海市徐汇区人民法院"
+     *             "PublishedPage":"G26",
+     *             "UploadDate":"2019-03-14 12:00:00",
+     *             "Category":"起诉状副本及开庭传票",
+     *             "Party":"曲阜诚盛商贸有限公司",
+     *             "Content":"曲阜诚盛商贸有限公司：本院受理小米科技有限责任公司诉曲阜诚盛商贸有限公司侵害商标权纠纷一案，现依法向你曲阜诚盛商贸有限公司公告送达起诉状副本、应诉通知书、举证通知书及开庭传票。曲阜诚盛商贸有限公司自公告之日起，经过60日即视为送达。提出答辩状和举证的期限分别为公告期满后15日和30日内。...",
+     *             "PublishedDate":"2019-03-19 12:00:00",
+     *             "Id":"3667F54FDF5BB15A26439A69EEEC1DB0",
+     *             "Court":"上海市徐汇区人民法院"
      *         }
      *     ]
      * }
@@ -6281,12 +6296,12 @@ public class QccService {
         object.put("DefendantList", JSON.parseArray(object.getString("DefendantList")));
         object.put("ProsecutorList", JSON.parseArray(object.getString("ProsecutorList")));
         //
-        JSONArray courtNotices = listQuery("qcc.查询裁判文书详情-开庭公告", newJsonObject("id", params.getString("id")));
+        List<JSONObject> courtNotices = listQuery("qcc.查询裁判文书详情-开庭公告", newJsonObject("id", params.getString("id")));
         object.put("CourtNoticeList", newJsonObject(
             "TotalNum", courtNotices.size(),
             "CourtNoticeInfo", courtNotices
         ));
-        JSONArray companies = listQuery("qcc.查询裁判文书详情-关联公司", newJsonObject("id", params.getString("id")));
+        List<JSONObject> companies = listQuery("qcc.查询裁判文书详情-关联公司", newJsonObject("id", params.getString("id")));
         object.put("RelatedCompanies", companies);
 //        object.put("Content", new String(Base64.getDecoder().decode(object.getString("Content"))));
         String contentClear = object.getString("ContentClear");
@@ -6304,6 +6319,10 @@ public class QccService {
      * @apiVersion 0.0.1
      *
      * @apiParam {string} fullName 公司全名
+     * @apiParam {string} caseReason 案由，不传为查全部
+     * @apiParam {string} submitDateStart 最小发布时间，格式为yyyy-MM-dd
+     * @apiParam {string} submitDateEnd 最大发布时间，格式为yyyy-MM-dd
+     *
      * @apiUse PageParam
      *
      * @apiSuccess {string} Id Id
@@ -6883,12 +6902,12 @@ public class QccService {
     }
 
 
-    public JSONArray listQuery(String sqlId, Map<String, Object> params) {
-        JSONArray list = new JSONArray();
+    public List<JSONObject> listQuery(String sqlId, Map<String, Object> params) {
+        List<JSONObject> list;
         if (sqlId.contains(".")) {
-            list.addAll(sqlManager.select(sqlId, JSONObject.class, params));
+            list = (sqlManager.select(sqlId, JSONObject.class, params));
         } else {
-            list.addAll(sqlManager.execute(sqlId, JSONObject.class, params));
+            list = (sqlManager.execute(sqlId, JSONObject.class, params));
         }
         return list;
     }
@@ -6927,17 +6946,15 @@ public class QccService {
         return str.substring(0, 1).toUpperCase() + str.substring(1);
     }
 
-    private static JSONObject convertToTree(JSONArray array){
+    private static JSONObject convertToTree(List<JSONObject> array){
         JSONObject map = new JSONObject();
         JSONObject main = null;
-        for (Object _object : array) {
-            JSONObject object = (JSONObject) _object;
+        for (JSONObject object : array) {
             JSONArray children = new JSONArray();
             map.put(object.getString("InnerId"), children);
             object.put("Children", children);
         }
-        for (Object _object : array) {
-            JSONObject object = (JSONObject) _object;
+        for (JSONObject object : array) {
             String pid = (String) object.getOrDefault("InnerParentId","");
             if(pid == null){
                 main = object;
@@ -6945,8 +6962,7 @@ public class QccService {
                 map.getJSONArray(pid).add(object);
             }
         }
-        for (Object _object : array) {
-            JSONObject object = (JSONObject) _object;
+        for (JSONObject object : array) {
             object.remove("InnerId");
             object.remove("InnerParentId");
         }

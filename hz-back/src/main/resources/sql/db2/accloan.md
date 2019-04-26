@@ -687,13 +687,13 @@ and CUST_TYPE like '2%') a) b where rn =1
     and b.LOAN_BALANCE>=#START_LOAN_BALANCE#
 @}
 @if(isNotEmpty(END_LOAN_BALANCE)){
-    and b.LOAN_BALANCE>=#END_LOAN_BALANCE#
+    and b.LOAN_BALANCE<=#END_LOAN_BALANCE#
 @}
 @if(isNotEmpty(START_UNPD_PRIN_BAL)){
     and b.UNPD_PRIN_BAL>=#START_UNPD_PRIN_BAL#
 @}
 @if(isNotEmpty(END_UNPD_PRIN_BAL)){
-    and b.UNPD_PRIN_BAL>=#END_UNPD_PRIN_BAL#
+    and b.UNPD_PRIN_BAL<=#END_UNPD_PRIN_BAL#
 @}
 
 

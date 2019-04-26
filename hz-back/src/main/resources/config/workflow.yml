@@ -3704,35 +3704,25 @@
 
     信贷负责人:
       deal: ["市场部，客户经理", "企业金融部，办事员","企业金融部，客户经理","三农中心，客户经理","公司银行部，总行办事员","零售银行部，总行办事员"]
-      deleteable: true
-      type: check
-      key: key
-      ps: ps
-      question: 是否通过
-      states:
-        -
-          item: 是
-          condition: 1
-          behavior: go('信贷员')
-
-      count: 1
-      next: [信贷员]
+      deleteable: false
+      type: input
+      content:
+        审批意见:
+          name: xdfzr
+          type: textarea
+          required: true
+      next: 信贷员
 
     信贷员:
       deal: ["市场部，客户经理", "企业金融部，办事员","企业金融部，客户经理","三农中心，客户经理","公司银行部，总行办事员","零售银行部，总行办事员"]
-      deleteable: true
-      type: check
-      key: key
-      ps: ps
-      question: 是否通过
-      states:
-        -
-          item: 是
-          condition: 1
-          behavior: go('结束')
-
-      count: 1
-      next: [结束]
+      deleteable: false
+      type: input
+      content:
+        审批意见:
+          name: xdy
+          type: textarea
+          required: true
+      next: 结束
 
     结束:
       type: end
