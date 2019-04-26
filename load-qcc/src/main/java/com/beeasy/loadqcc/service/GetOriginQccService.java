@@ -232,7 +232,7 @@ public class GetOriginQccService {
     }
 
     // 完全原样存入数据
-    private void saveOriginData(
+    public void saveOriginData(
         String collName,
         Map<String, Object> queries,
         String data,
@@ -251,12 +251,13 @@ public class GetOriginQccService {
         String dataUrl = QCC_DOMAIN_PRX + "/" + collName.replace("_","/");
         String dataQueries = Joiner.on("&").withKeyValueSeparator("=").join(queries);
         String fullLink = dataUrl + "?" + dataQueries;
-
+        if(queries.containsKey("keyNo")){
+            fullLink = fullLink.concat("&fullName="+extParam.getCompanyName());
+        }
         Document dataLog = new Document().append("GetDataTime",dateNowStr).append("TriggerMode", trigger).append("CollName", collName).append("Queries", JSON.toJSONString(queries)).append("OriginData", data);
         if(queries.containsKey("pageIndex")){
             dataLog.append("PageIndex", queries.get("pageIndex"));
         }
-
         // mongo提交过来的数据库数据不再做处理
         if(!object.containsKey("QueryParam")){
             if(object.containsKey("Status") && object.getString("Status").equals("200")){

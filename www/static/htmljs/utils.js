@@ -811,17 +811,28 @@ function laytableRender(options, undefined){
         ops.showColumns = true;
     }
 
+
     //处理静态数据
     if(options.data){
         delete ops.url;
         delete ops.ajax;
         ops.data = options.data;
+        ops.onPreBody = function () {
+            if(options.onData instanceof Function){
+                options.onData();
+            }
+        };
     }
 
     //处理分页
     if(usepage){
         ops.pagination = true;
-        ops.sidePagination = "server";
+        if(options.data){
+            ops.sidePagination = "client";
+        }else{
+            ops.sidePagination = "server";
+        }
+
         ops.pageNumber = 1;
         ops.pageSize = 10;
         ops.pageList = [10,20,30,40,50];
@@ -857,10 +868,11 @@ function laytableRender(options, undefined){
     //     ops.fixedNumber = rightFixedNum;
     // }
     // console.warn(ops)
+
+    // TODO::
     elem.bootstrapTable(ops);
 
     // '#dataList';
-
     return;
 
   var urlType = options.urlType || 'self';
@@ -944,65 +956,6 @@ function laytableRender(options, undefined){
   layTableFixedOrder(cols[0], 'right');
   layTableFixedOrder(cols[0], 'left');
   layui.use(['table',"laypage"], function(){
-      // $.each(cols,function (i,v) {
-      //    $.each(v,function (ii,vv) {
-      //        if(!vv.width){
-      //            vv.width = "auto";
-      //        }
-      //    })
-      // })
-      // console.log(cols)
-      // var tableIns = null;
-      // var load = function(page,size){
-      //     $.get(options.url, {page: page, size: size}, function (res) {
-      //         res = res.data;
-      //         var data = res.content || res.list || res.data || []
-      //         if(laypage){
-      //             laypage.count = res.totalElements || res.totalRow || 0
-      //         }
-      //         if(null != tableIns){
-      //               tableIns.reload({
-      //                   data: data
-      //               });
-      //         }
-      //         else{
-      //             tableIns = layui.table.render({
-      //                 id:id
-      //                 , elem: elem
-      //                 , cols: cols
-      //                 , data: data
-      //                 , page: false
-      //                 , done: function () {
-      //                     var tablebox = $(elem).next();
-      //                     window.fuck = tablebox;
-      //                     // console.log(elem)
-      //                     var pager = $("<div>");
-      //                     pager.attr({
-      //                         "class": "layui-table-page"
-      //                     })
-      //                     tablebox.append(pager);
-      //                     if(laypage){
-      //                         laypage.elem = pager;
-      //                         laypage.jump = function(obj,first){
-      //                             if(!first){
-      //                                 load(obj.curr, obj.limit)
-      //                             }
-      //                         }
-      //                         layui.laypage.render(laypage)
-      //                     }
-      //                     // elem.append("<div></div>")
-      //                 }
-      //             })
-      //         }
-      //
-      //     },"json")
-      // };
-      // load();
-      //
-      //
-      // // alert(2)
-      // return
-
       var ops = {
           loading: options.loading == false ? false : true,
           autoShift: options.autoShift,

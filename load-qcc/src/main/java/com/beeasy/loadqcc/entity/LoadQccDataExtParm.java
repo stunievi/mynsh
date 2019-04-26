@@ -32,7 +32,8 @@ public class LoadQccDataExtParm {
     private File qccZipDataPath;
     // 文件写入状态是否失败
     private boolean writeTxtFileState;
-
+    // 公司名
+    private String companyName;
     private static void setQccDataPath(
             LoadQccDataExtParm param
     ){
