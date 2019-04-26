@@ -172,9 +172,10 @@ public class TestQcc {
     @Test
     public void GetOpException() throws Exception {
         clearTable("QCC_OP_EXCEPTION");
-        read("/ECIException/GetOpException.json?keyNo=惠州市维也纳惠尔曼酒店管理有限公司");
+        read("/ECIException/GetOpException.json?fullName=惠州市维也纳惠尔曼酒店管理有限公司&keyNo=692a8d87536443b042bccb655398e3a0");
         String url = "/ECIException/GetOpException?fullName=惠州市维也纳惠尔曼酒店管理有限公司";
         JSONArray list = checkListMatched(url);
+        int c = 1;
     }
 
     @Test
@@ -371,22 +372,22 @@ public class TestQcc {
     @Test
     public void SearchTreeRelationMap() throws Exception {
         clearTable("QCC_COMPANY_MAP");
-        JSONObject source = read("/ECIRelationV4/SearchTreeRelationMap.json?keyNo=692a8d87536443b042bccb655398e3a0");
-        JSONObject target = checkResult("/ECIRelationV4/SearchTreeRelationMap?keyNo=692a8d87536443b042bccb655398e3a0");
+        JSONObject source = read("/ECIRelationV4/SearchTreeRelationMap.json?keyNo=692a8d87536443b042bccb655398e3a0&fullName=惠州市维也纳惠尔曼酒店管理有限公司");
+        JSONObject target = checkResult("/ECIRelationV4/SearchTreeRelationMap?fullName=惠州市维也纳惠尔曼酒店管理有限公司");
         checkSim(source, target);
     }
     @Test
     public void GetCompanyEquityShareMap() throws Exception {
         clearTable("QCC_CESM", "QCC_CESM_ACLP");
-        JSONObject source = read("/ECIRelationV4/GetCompanyEquityShareMap.json?keyNo=692a8d87536443b042bccb655398e3a0");
-        JSONObject target = checkResult("/ECIRelationV4/GetCompanyEquityShareMap?keyNo=692a8d87536443b042bccb655398e3a0");
+        JSONObject source = read("/ECIRelationV4/GetCompanyEquityShareMap.json?keyNo=692a8d87536443b042bccb655398e3a0&fullName=惠州市维也纳惠尔曼酒店管理有限公司");
+        JSONObject target = checkResult("/ECIRelationV4/GetCompanyEquityShareMap?fullName=惠州市维也纳惠尔曼酒店管理有限公司");
         checkSim(source, target, 0.6);
     }
     @Test
     public void GenerateMultiDimensionalTreeCompanyMap() throws Exception {
         clearTable("QCC_TREE_RELATION_MAP");
-        JSONObject source = read("/ECIRelationV4/GenerateMultiDimensionalTreeCompanyMap.json?keyNo=692a8d87536443b042bccb655398e3a0");
-        JSONObject target = checkResult("/ECIRelationV4/GenerateMultiDimensionalTreeCompanyMap?keyNo=692a8d87536443b042bccb655398e3a0");
+        JSONObject source = read("/ECIRelationV4/GenerateMultiDimensionalTreeCompanyMap.json?keyNo=692a8d87536443b042bccb655398e3a0&fullName=惠州市维也纳惠尔曼酒店管理有限公司");
+        JSONObject target = checkResult("/ECIRelationV4/GenerateMultiDimensionalTreeCompanyMap?fullName=惠州市维也纳惠尔曼酒店管理有限公司");
         checkSim(source, target);
     }
     @Test

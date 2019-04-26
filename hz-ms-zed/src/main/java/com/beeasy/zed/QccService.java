@@ -1409,6 +1409,7 @@ public class QccService {
      * @apiVersion 0.0.1
      *
      * @apiParam {string} keyNo 公司keyNo
+     * @apiParam {string} fullName 公司全名
      *
      * @apiSuccess {string} Name 名称
      * @apiSuccess {string} KeyNo 内部KeyNo
@@ -2297,6 +2298,7 @@ public class QccService {
      * @apiVersion 0.0.1
      *
      * @apiParam {string} keyNo 公司keyNo
+     * @apiParam {string} fullName 公司全名
      *
      * @apiSuccess {string} Name 公司名称或者人名
      * @apiSuccess {string} KeyNo 当前股东的公司keyNo
@@ -2418,6 +2420,7 @@ public class QccService {
      * @apiVersion 0.0.1
      *
      * @apiParam {string} keyNo 公司keyNo
+     * @apiParam {string} fullName 公司全名
      *
      * @apiSuccess {string} Name 名称
      * @apiSuccess {string} KeyNo 内部KeyNo

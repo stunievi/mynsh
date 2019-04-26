@@ -1,3 +1,12 @@
+公司查询条件
+===
+@if(!isEmpty(keyNo)){
+and inner_company_no = #keyNo#
+@}
+@if(!isEmpty(fullName)){
+and inner_company_name = #fullName#
+@}
+
 查询失信信息
 ===
 select 
@@ -291,7 +300,9 @@ DECISION_OFFICE,
 REMOVE_DECISION_OFFICE,
 INPUT_DATE
 from QCC_OP_EXCEPTION
-where inner_company_name = #fullName#
+where 
+1 = 1
+#use("公司查询条件")#
 
 查询司法拍卖列表
 ===
@@ -830,7 +841,9 @@ inner_parent_id,
 inner_id,
 INPUT_DATE
 from QCC_COMPANY_MAP
-where inner_company_no = #keyNo#
+where 
+1 = 1
+#use("公司查询条件")#
 
 查询股权结构图
 ===
@@ -844,11 +857,15 @@ IS_ABSOLUTE_CONTROLLER,
 GRADE,
 OPER_NAME,
 IN_PARENT_ACTUAL_RADIO,
+STOCK_TYPE,
+parent_key_no,
 inner_id,
 inner_parent_id,
 INPUT_DATE
 from QCC_CESM
-where inner_company_no = #keyNo#
+where 
+1 = 1
+#use("公司查询条件")#
 
 查询股权结构-实际控股信息表
 ===
@@ -860,7 +877,9 @@ SUB_CON_AMT,
 FUNDED_RATIO,
 INPUT_DATE
 from QCC_CESM_ACLP
-where inner_company_no = #keyNo#
+where 
+1 = 1
+#use("公司查询条件")#
 
 查询投资图谱
 ===
@@ -875,8 +894,9 @@ inner_id,
 inner_parent_id,
 INPUT_DATE
 from QCC_TREE_RELATION_MAP
-where inner_company_no = #keyNo#
-
+where 
+1 = 1
+#use("公司查询条件")#
 
 查询公司信息表
 ===

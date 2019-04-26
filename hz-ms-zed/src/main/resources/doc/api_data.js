@@ -1780,6 +1780,13 @@ define({ "api": [
             "optional": false,
             "field": "keyNo",
             "description": "<p>公司keyNo</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "string",
+            "optional": false,
+            "field": "fullName",
+            "description": "<p>公司全名</p>"
           }
         ]
       }
@@ -1874,6 +1881,13 @@ define({ "api": [
             "optional": false,
             "field": "keyNo",
             "description": "<p>公司keyNo</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "string",
+            "optional": false,
+            "field": "fullName",
+            "description": "<p>公司全名</p>"
           }
         ]
       }
@@ -2045,6 +2059,13 @@ define({ "api": [
             "optional": false,
             "field": "keyNo",
             "description": "<p>公司keyNo</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "string",
+            "optional": false,
+            "field": "fullName",
+            "description": "<p>公司全名</p>"
           }
         ]
       }
