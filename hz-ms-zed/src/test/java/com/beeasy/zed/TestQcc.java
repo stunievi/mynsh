@@ -457,7 +457,7 @@ public class TestQcc {
     }
 
     public JSONObject huGet(String url) throws UnsupportedEncodingException {
-        url = "http://localhost:8081/qcc" + url;
+        url = "http://localhost:8081" + url;
         if(url.contains("?")){
             int idex = url.indexOf("?");
             url = url.substring(0, idex) + "?" + URLUtil.encode(url.substring(idex + 1));
