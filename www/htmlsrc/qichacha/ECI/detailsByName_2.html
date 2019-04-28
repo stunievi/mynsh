@@ -1,11 +1,11 @@
 <div role="tabpanel" class="tab-pane" id="susong" aria-labelledby="susong-tab">
     <div class="data-tab">
-        <a class="btn btn-default" href="#susong1">开庭公告</a>
-        <a class="btn btn-default" href="#susong2">裁判文书</a>
-        <a class="btn btn-default" href="#susong3">法院公告</a>
-        <a class="btn btn-default" href="#susong4">被执行人</a>
-        <a class="btn btn-default" href="#susong5">失信信息</a>
-        <a class="btn btn-default" href="#susong6">司法协助</a>
+        <a class="btn btn-default disabled" href="#susong1">开庭公告</a>
+        <a class="btn btn-default disabled" href="#susong2">裁判文书</a>
+        <a class="btn btn-default disabled" href="#susong3">法院公告</a>
+        <a class="btn btn-default disabled" href="#susong4">被执行人</a>
+        <a class="btn btn-default disabled" href="#susong5">失信信息</a>
+        <a class="btn btn-default disabled" href="#susong6">司法协助</a>
     </div>
     <!--<div class="panel-qcc" id="susong1">-->
         <!--<div class="panel-qcc-heading"><a role="button" data-toggle="collapse" href="#susong1-body">-->
@@ -95,7 +95,7 @@
         laytableRender({
             id: "susong1-body",
             autoShift: false,
-            url: remoteApi.qccCourtAnnoSearchCourtNotice+"?fullName="+COMPANY_NAME,
+            url: remoteApi.qccCourtAnnoSearchCourtNotice+"?size=5&fullName="+COMPANY_NAME,
             cols: [
                 [
                     BOOTSTRAP_INDEX_FILED,
@@ -109,12 +109,7 @@
                 ]
             ],
             onData:function (data) {
-                if(!data || !data.total || data.total < 1){
-                    // $("#susong1").hide();
-                    $("a[href='#susong1']").addClass("disabled");
-                }else{
-                    $("#susong1-count").html(data.total);
-                }
+                fixOnDataLoad("susong1",data);
             }
         });
 
@@ -137,11 +132,10 @@
                 ]
             ],
             onData:function (data) {
-                if(!data || !data.total || data.total < 1){
-                    // $("#susong2").hide();
-                    $("a[href='#susong2']").addClass("disabled");
-                }else{
+                if(data && data.total && data.total > 0){
+                    $("a[href='#susong2']").removeClass("disabled");
                     susong2DataList = data.rows;
+                    scrollToElm("susong2");
                     $("#susong2-count").html(data.total);
                     data.rows.forEach(function (item) {
                         var CaseRole = JSON.parse(item["CaseRole"]);
@@ -172,12 +166,7 @@
                 ]
             ],
             onData:function (data) {
-                if(!data || !data.total || data.total < 1){
-                    // $("#susong3").hide();
-                    $("a[href='#susong3']").addClass("disabled");
-                }else{
-                    $("#susong3-count").html(data.total);
-                }
+                fixOnDataLoad("susong3", data);
             }
         });
 
@@ -199,13 +188,7 @@
                 ]
             ],
             onData:function (data) {
-                if(!data || !data.total || data.total < 1){
-                    // $("#susong5").hide();
-                    $("a[href='#susong5']").addClass("disabled");
-                }else{
-                    susong5Datalist = data.rows;
-                    $("#susong5-count").html(data.total);
-                }
+                fixOnDataLoad("susong5", data);
             }
         });
         $(document).on("click", ".susong5_toolbar", function (){
@@ -231,13 +214,7 @@
                 ]
             ],
             onData:function (data) {
-                if(!data || !data.total || data.total < 1){
-                    // $("#susong4").hide();
-                    $("a[href='#susong4']").addClass("disabled");
-                }else{
-                    susong4DataList = data.rows;
-                    $("#susong4-count").html(data.total);
-                }
+                fixOnDataLoad("susong4", data);
             }
         });
         $(document).on("click", ".susong4_toolbar", function (){
@@ -251,10 +228,8 @@
         $.ajax({
             url: remoteApi.qccJudicialAssistanceGetJudicialAssistance+"?fullName="+COMPANY_NAME,
             success: function (res) {
-                if(res.data == undefined || res.data.list==undefined || res.data.list.length < 1){
-                    // // $("#susong6").hide();
-                    $("a[href='#susong6']").addClass("disabled");
-                }else{
+                if(res.data && res.data.list && res.data.list.length > 0){
+                    $("a[href='#susong6']").removeClass("disabled");
                     JudicialAssistanceDataList = res.data.list;
                     $("#susong6-count").html(JudicialAssistanceDataList.length);
                 }

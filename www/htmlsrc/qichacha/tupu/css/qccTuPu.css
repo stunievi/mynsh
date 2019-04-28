@@ -1,0 +1,248 @@
+
+/*右边显示工具*/
+.mao-toolbar{
+    position: absolute;
+    width: 50px;
+    right: 30px;
+    bottom: 50px;
+    font-size: 18px;
+    color: #5e89d7;
+    z-index: 20;
+    background: #fff;
+}
+.mao-toolbar ul{
+    width: 50px;
+    margin:0px;
+    padding: 0px;
+    box-sizing: border-box;
+    border: 1px solid #5e89d7;
+    -webkit-box-shadow:0 0 10px rgba(94, 137, 215, .5);
+    -moz-box-shadow:0 0 10px rgba(94, 137, 215, .5);
+    box-shadow:0 0 10px rgba(94, 137, 215, .5);
+
+}
+
+.mao-toolbar ul:nth-child(1){
+    margin-bottom: 8px;
+}
+.mao-toolbar ul>li{
+    width: 50px;
+    height: 50px;
+    text-align: center;
+    line-height: 50px;
+    box-sizing: border-box;
+
+}
+.mao-toolbar ul>li:not(:first-child){
+    border-top: 1px solid #5e89d7;
+}
+.mao-toolbar ul>li:hover{
+    background: #5e89d7;
+    color: #fff;
+}
+
+
+/*图表公用头*/
+.mao-head{
+    position: absolute;
+    width: 100%;
+    top: 0;
+    z-index: 10;
+}
+.mao-head .mao-title{
+    float: left;
+    font-size: 14px;
+    color: #333;
+    margin-left: -10px;
+    margin-top: 10px;
+}
+.mao-head .mao-nav{
+
+    font-size: 16px;
+    color: #666;
+    margin-left: 10px;
+    margin-top: 15px;
+}
+.mao-nav li{
+    margin-left: 20px;
+    display: inline;
+}
+.mao-nav a{
+    line-height: 1.8;
+    padding: 3px 0px;
+}
+.mao-nav a:hover{
+    color: #128bed;
+}
+.mao-nav .active>a{
+    color: #128bed;
+    border-bottom: 2px solid #128bed;
+}
+/*没数据和加载样式*/
+.mao-main{
+    width: 100%;
+    height: 100%;
+}
+.mao-main svg{
+    width: 100%;
+    height: 100%;
+}
+#load_data{
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    background: #fff;
+    top:0;
+    left:0;
+    display: none;
+}
+#load_data img{
+    width: 120px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin-left: -60px;
+    margin-top: -110px;
+}
+#no_data{
+    text-align: center;
+    margin-top: 200px;
+    display: none;
+}
+#no_data img{
+    width: 170px;
+}
+.mao-screen-area{width: 100%;height: 100%; position: relative;}
+:-webkit-full-screen.mao-screen-area{width: 100%;height: 100% !important;background: #fff; }
+:-moz-full-screen.mao-screen-area{width: 100%;height: 100% !important;background: #fff; }
+:-ms-full-screen.mao-screen-area{width: 100%;height: 100% !important;background: #fff; }
+:-o-full-screen.mao-screen-area{width: 100%;height: 100% !important;background: #fff; }
+:full-screen.mao-screen-area{width: 100%;height: 100% !important;background: #fff; }
+
+
+.tupu-shuiying::-webkit-scrollbar {
+    width: 0px;
+    height: 10px;
+}
+.final-wrap{
+    position: absolute;
+    top: 65px;
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+}
+.final-wrap-title{
+    font-size: 16px;
+    color: #333333;
+}
+.final-block{
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background: #ef6a6a;
+    border-radius: 50%;
+}
+.final-wrap-content{
+
+    color: #333;
+    font-size: 14px;
+    visibility: hidden;
+    text-align: center;
+}
+.final-radio-wrap{
+    display: inline-block;
+    height: 14px;
+    width: 80px;
+    position: relative;
+    background: url("/static/htmlImage/line_arrow.png") no-repeat 0 50%;
+    background-size: 100%;
+}
+.final-radio-wrap>span{
+    color: #128bed;
+    font-size: 12px;
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    bottom:50%;
+    left: 0px;
+}
+.guquan-legend{
+    position: absolute;
+    width: 100%;
+    padding: 0 0px;
+    visibility: hidden;
+    text-align: center;
+    top: 100px;
+}
+.guquan-legend .person-block{
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background: #80c3a8;
+    border-radius: 3px;
+}
+.guquan-legend .person-text{
+    font-size: 12px;
+    color: #333333;
+}
+.guquan-legend .ent-block{
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background: #bc9ed3;
+    border-radius: 3px;
+    margin-left: 5px;
+}
+.guquan-legend .ent-text{
+    font-size: 12px;
+    color: #333333;
+}
+.guquan-legend .big-block{
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background: #ef6a6a;
+    border-radius: 3px;
+    margin-left: 5px;
+}
+.guquan-legend .big-text{
+    font-size: 12px;
+    color: #333333;
+}
+.guquan-legend.his{
+    top: 580px;
+}
+
+.company-tupu.tz,.company-tupu.his{
+    display: none;
+}
+
+.company-tupu-tab{
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    top: 15px;
+    font-size: 16px;
+}
+.company-tupu-tab a.active{
+    color: #128bed;
+    border-bottom: solid 2px #128bed;
+    line-height: 34px;
+    display: inline-block;
+}
+
+.company-tupu .his-drop{
+    position: absolute;
+    text-align: center;
+    top: 70px;
+    left: 50%;
+    margin-left: -60px;
+    display: none;
+}
+.company-tupu .dropdown-menu>li>a{
+    text-align: left;
+}
+.company-tupu .dropdown-menu>li:hover>a{
+    background: #128bed !important;
+    color: #fff;
+}

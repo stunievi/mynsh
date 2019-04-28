@@ -13,9 +13,10 @@
     <div class="bs-example bs-example-tabs" data-example-id="togglable-tabs">
         <ul id="myTabs" class="nav nav-tabs" role="tablist">
             <li role="presentation" class="active"><a href="#home" id="home-tab" role="tab" data-toggle="tab" data-controls="home" aria-expanded="true">动产抵押</a></li>
+            <li role="presentation" class=""><a href="#home1" id="home1-tab" role="tab" data-toggle="tab" data-controls="home1" aria-expanded="true">动产抵押(样式2)</a></li>
         </ul>
         <div id="myTabContent" class="tab-content" style="padding-top: 10px;">
-            <div role="tabpanel" class="tab-pane active in" aria-labelledby="home-tab">
+            <div role="tabpanel" class="tab-pane active in" aria-labelledby="home-tab" id="home">
                 <!-- 基本信息展示 -->
                 <h5>
                     动产抵押登记信息
@@ -53,6 +54,15 @@
                 <div id="home-content-5">
 
                 </div>
+                <h5>
+                    动产抵押ChangeList
+                </h5>
+                <div id="home-content-6">
+
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane" aria-labelledby="home1-tab" id="home1">
+                s
             </div>
         </div>
     </div>
@@ -62,49 +72,16 @@
 <script src="/static/htmljs/global.config.js"></script>
 <script src="/static/htmljs/utils.js"></script>
 <script src="/htmlsrc/qichacha/tmpl/eci/qccTable.js"></script>
+<script src="/tmpl/js/chattelMortgage.js"></script>
 <script>
     function onPageRequest(data){
-        data = {
-            "RegisterOffice": "伊宁县市场监督管理局",
-            "RegisterDate": "2014-12-17 12:00:00",
-            "DebtSecuredAmount": "36236",
-            "RegisterNo": "新抵F212014030",
-            "Detail": {
-                "GuaranteeList": [
-                    {
-                        "Ownership": "",
-                        "Other": "抵押数量为：5抵押品牌为：抵押单价为：",
-                        "Name": "设备",
-                        "Remark": ""
-                    }
-                ],
-                "ChangeList": [],
-                "CancelInfo": {},
-                "Pledge": {
-                    "RegistNo": "新抵F212014030",
-                    "RegistOffice": "伊宁县市场监督管理局",
-                    "RegistDate": "2014-12-17 12:00:00"
-                },
-                "SecuredClaim": {
-                    "AssuranceScope": "1,2,3,4,",
-                    "Amount": 36236,
-                    "Kind": "买卖合同",
-                    "FulfillObligation": "2015-06-15至2027-06-14",
-                    "Remark": ""
-                },
-                "PledgeeList": [
-                    {
-                        "IdentityType": "",
-                        "IdentityNo": "",
-                        "Name": "国家开发银行股份有限公司伊犁哈萨克自治州分行"
-                    }
-                ]
-            }
-        };
         if(null == data || $.isEmptyObject(data)){
             layErrorMsg("数据获取失败....")
             $("#home").html("数据获取失败....")
         }else{
+            $("#home1").html(chattelMortgageRender(
+                data
+            ));
             var dataDetail = data.Detail || {};
             // 基本信息
             $("#home-content-1").html(qccTableRender({
@@ -186,14 +163,18 @@
                 data: dataDetail.CancelInfo
             }));
 
+            laytableRender({
+                id: "home-content-6",
+                page:false,
+                cols:[
+                    {title:"动产抵押登记变更日期", field:"ChangeDate" },
+                    {title:"动产抵押登记变更内容", field:"ChangeContent" }
+                ],
+                data: [{}]
+            })
+
             // 动产抵押ChangeList
-            // $("#home-content-6").html(qccTableRender({
-            //     cols:[
-            //         {title:"动产抵押登记变更日期", field:"ChangeDate" },
-            //         {title:"动产抵押登记变更内容", field:"ChangeContent" }
-            //     ],
-            //     data: data
-            // }));
+            $("#home-content-6").html();
 
         }
     }

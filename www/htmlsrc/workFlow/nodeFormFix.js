@@ -89,6 +89,8 @@ function fixFormAttrToEnable(formAttrs,loanAccount){
             prop: _item.ename, // key
             label: _item.cname, // 名
             required: _item.required,
+            rules: _item.rules || [],
+            show: _item.show
         };
         if(_item.type == "string"){
             //    PASS;

@@ -1,11 +1,11 @@
 <div role="tabpanel" class="tab-pane" id="fengxian" aria-labelledby="fengxian-tab">
     <!--经营风险-->
     <div class="data-tab">
-        <a class="btn btn-default" href="#Exceptions">经营异常</a>
-        <a class="btn btn-default" href="#JudicialSaleList">司法拍卖</a>
-        <a class="btn btn-default" href="#LandMortgageList">土地抵押</a>
-        <a class="btn btn-default" href="#EnvPunishmentList">环保处罚</a>
-        <a class="btn btn-default" href="#ChattelMortgage">动产抵押</a>
+        <a class="btn btn-default disabled" href="#Exceptions">经营异常</a>
+        <a class="btn btn-default disabled" href="#JudicialSaleList">司法拍卖</a>
+        <a class="btn btn-default disabled" href="#LandMortgageList">土地抵押</a>
+        <a class="btn btn-default disabled" href="#EnvPunishmentList">环保处罚</a>
+        <a class="btn btn-default disabled" href="#ChattelMortgage">动产抵押</a>
     </div>
 
     <div class="panel-qcc" id="Exceptions">
@@ -78,7 +78,10 @@
                         {title:"移除决定机关", field:"RemoveDecisionOffice"}
                     ]
                 ],
-                data: dataList
+                data: dataList,
+                onData:function (data) {
+                    fixOnDataLoad("Exceptions", data);
+                }
             });
         }
 
@@ -91,8 +94,7 @@
                     if(res.success && res.data && res.data.list && res.data.list.length>0){
                         dataList = res.data.list;
                         $("#Exceptions-count").html(dataList.length);
-                    }else{
-                        $("a[href='#Exceptions']").addClass("disabled");
+                        $("a[href='#Exceptions']").removeClass("disabled");
                     }
                     renderExceptions(dataList);
                 }
@@ -117,12 +119,7 @@
                 ]
             ],
             onData:function (data) {
-                if(!data || !data.total || data.total < 1){
-                    // $("#JudicialSaleList").hide();
-                    $("a[href='#JudicialSaleList']").addClass("disabled");
-                }else{
-                    $("#JudicialSaleList-count").html(data.total);
-                }
+                fixOnDataLoad("JudicialSaleList", data);
             }
         });
         $(document).on("click", ".toolbar1", function () {
@@ -149,12 +146,7 @@
                 ]
             ],
             onData:function (data) {
-                if(!data || !data.total || data.total < 1){
-                    // $("#LandMortgageList").hide();
-                    $("a[href='#LandMortgageList']").addClass("disabled");
-                }else{
-                    $("#LandMortgageList-count").html(data.total);
-                }
+                fixOnDataLoad("LandMortgageList", data);
             }
         });
         $(document).on("click", ".toolbar2", function () {
@@ -179,12 +171,7 @@
                 ]
             ],
             onData:function (data) {
-                if(!data || !data.total || data.total < 1){
-                    // $("#EnvPunishmentList").hide();
-                    $("a[href='#EnvPunishmentList']").addClass("disabled");
-                }else{
-                    $("#EnvPunishmentList-count").html(data.total);
-                }
+                fixOnDataLoad("EnvPunishmentList", data);
             }
         });
         $(document).on("click", ".toolbar3", function () {
@@ -200,12 +187,7 @@
                 if(res.data && res.data.list && res.data.list.length>0){
                     chattelMortgageDataList = res.data.list;
                     $("#ChattelMortgage-count").html(chattelMortgageDataList.length);
-                    // $("#ChattelMortgage-body").html(panelFormRender4({
-                    //     dataList: dataList
-                    // }));
-                }else{
-                    // $("#ChattelMortgage").hide();
-                    $("a[href='#ChattelMortgage']").addClass("disabled");
+                    $("a[href='#ChattelMortgage']").removeClass("disabled");
                 }
                 laytableRender({
                     id: "ChattelMortgage-body",

@@ -44,7 +44,7 @@
             {{# }else{ }}
             <a href="javascript:;" class="btn btn-default " data-id="{{d.id}}" data-loanid="" id="collect{{d.id}}" tab-href="/htmlsrc/htmllayer/choiceLoan.html?bindId={{d.id}}" tab-title="绑定台账" >绑定</a>
             {{# } }}
-            <button type="button" class="btn btn-danger" delete-href="{{remoteOrigin}}/api/auto/wfins/delete?id={{d.id}}">删除</button>
+            <!--<button type="button" class="btn btn-danger" delete-href="{{remoteOrigin}}/api/auto/wfins/delete?id={{d.id}}">删除</button>-->
         </div>
     </script>
     <script>
@@ -52,10 +52,10 @@
             col:3,
             panelTitle:'筛选查询',
             list:[
-                { prop: 'CUS_NAME', label: '客户名称' },
-                { prop: 'PHONE', label: '联系电话' },
-                { prop: 'CERT_CODE', label: '证件号码' },
-                { prop: 'LOAN_ACCOUNT', label: '绑定贷款' },
+                // { prop: 'CUS_NAME', label: '客户名称' },
+                // { prop: 'PHONE', label: '联系电话' },
+                // { prop: 'CERT_CODE', label: '证件号码' },
+                // { prop: 'LOAN_ACCOUNT', label: '绑定贷款' },
                 { prop: 'START_DATE', label: '开始时间', type: "date", disabled: true},
                 { prop: 'END_DATE', label: '结束时间', type:"date", disabled: true }
             ],
@@ -95,11 +95,11 @@
                     [
                         // { checkbox:true },
                         { field:'id', title:'任务编号'},
-                        { field:'cusName', title:'客户名称'},
-                        { field:'certType', title:'证件类型'},
-                        { field:'certCode', title:'证件号码'},
-                        { field:'phone', title:'联系电话'},
-                        { field:'loanAccount', title:'绑定贷款'},
+                        // { field:'cusName', title:'客户名称'},
+                        // { field:'certType', title:'证件类型'},
+                        // { field:'certCode', title:'证件号码'},
+                        // { field:'phone', title:'联系电话'},
+                        // { field:'loanAccount', title:'绑定贷款'},
                         { title:'创建时间', field: "addTime"},
                         { title:"任务状态", field: "state"},
                         { title:'操作', templet: "#toolbar", width: 120}

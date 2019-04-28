@@ -17,18 +17,30 @@
     </div>
 </div>
 <script>
-    $("#company_name").html(decodeURI(getParam("name")));
+    var companyName = decodeURI(getParam("name"));
+    var keyNo = decodeURI(getParam("keyNo"));
+    var companyKeyNo = decodeURI(getParam("keyNo"));
+    if(keyNo == ""){
+        $.ajax({
+            url: remoteApi.qccECIGetDetailsByName+"?fullName="+companyName,
+            success: function (res) {
+                if(res.success && $.isEmptyObject(res.data) === false){
+                    keyNo = res.data.KeyNo;
+                    companyKeyNo = keyNo;
+                }
+            }
+        })
+    }
+    $("#company_name").html(companyName);
     $(document).on("click", ".mao-nav li.hrefClass", function () {
         var urlArr = [
             "./qiyetupu.html",
-            // "./guanliantupu.html",
             "./guquanTupu.html",
             "./guquanchuantou.html",
-            "./guquanTzTupu.html",
-            // "./yisi.html"
+            "./guquanTzTupu.html"
         ];
         var index = $(this).index();
-        window.location = urlArr[index] + "?keyNo="+getParam("keyNo")+"&name="+getParam("name");
+        window.location = urlArr[index] + "?keyNo="+keyNo+"&name="+companyName;
     });
     if(getParam("iframe")){
         $(".mao-head").hide();
@@ -37,14 +49,13 @@
         })
     }
 
-    var COMPANY_NAME = decodeURI(getParam("name"));
     $("#updateBtn").click(function () {
         var that = $(this);
         that.addClass("disabled");
         if(that.hasClass("disabled") == false){
             return false;
         }
-        if(COMPANY_NAME == ""){
+        if(companyName == ""){
             layer.msg("公司名获取失败！");
             return false;
         }
@@ -56,7 +67,7 @@
                 $.ajax({
                     url: remoteApi.qccUpdateQccData,
                     data: {
-                        fullName: COMPANY_NAME,
+                        fullName: companyName,
                         sign: "03"
                     },
                     success: function (res) {

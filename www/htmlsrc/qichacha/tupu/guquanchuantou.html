@@ -8,8 +8,10 @@
     <!--#include file="./tupu-head.html" -->
 </head>
 <body style="">
-<link rel="stylesheet" href="./css/companyDetail.css" type="text/css" />
+<link rel="stylesheet" href="./css/qccTuPu.css" type="text/css" />
+
 <!--#include file="./mao-head.html" -->
+
 <div class="mao-screen-area" id="screenArea" style="height: 640px;">
     <div id="main" class="mao-main" style="height: 100%; width: 100%; -webkit-tap-highlight-color: transparent; user-select: none; background-color: rgba(0, 0, 0, 0); cursor: default;">
         <div style="position: relative; overflow: hidden; width: 1356px; height: 640px;">
@@ -26,16 +28,10 @@
         </ul>
     </div>
 </div>
-<div id="load_data" style="width: 100%;
-    height: 100%;
-    position: fixed;background: #fff;top:0;left:0;"> <img style="    width: 120px;
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    margin-left: -60px;
-    margin-top: -110px;" src="./images/preloader.gif"> </div>
 
-<div id="hoverName" class="tooltip-inner" style="position: absolute;z-index: 100;display: none;"></div>
+<div id="load_data"> <img src="./images/preloader.gif"> </div>
+<div id="no_data"> <div class="guquan-lnodata pnodata"> <img src="./images/nno_image.png"> <p>没有找到相关数据</p> </div> </div>
+
 <script src="./js/echarts2.js"></script>
 <script type="text/javascript">
     $("#navTab li:eq(2)").addClass("active");
@@ -62,8 +58,6 @@
     var touziData;
 
     function getData(){
-        var companyName = decodeURI(getParam("name"));
-        var companyKeyNo= decodeURI(getParam("keyNo"));
         $('#load_data').show();
         var p1 = $.ajax({
             url: remoteApi.qccECICompanyMapGetStockAnalysisData,
@@ -134,43 +128,46 @@
                 };
             }
 
-            // 受益人
-            data.syr = {
-                KeyNo: "",
-                Names: [],
-                CompanyName: companyName
-            };
-            // 控制人
-            data.kzr = {
-                "KeyNo": companyKeyNo,
-                "CompanyName": companyKeyNo,
-                "ControllerData":
-                    {
-                        "KeyNo":"",
-                        "Name":"",
-                        "Percent":"",
-                        "PercentTotal":"0%"
+
+            if(retData3 && retData3.ActualControllerLoopPath && retData3.ActualControllerLoopPath.length>0){
+                var actualCtrl = retData3.ActualControllerLoopPath;
+                // 受益人
+                data.syr = {
+                    KeyNo: "",
+                    Names: [],
+                    CompanyName: companyName
+                };
+                // 控制人
+                data.kzr = {
+                    "KeyNo": companyKeyNo,
+                    "CompanyName": companyKeyNo,
+                    "ControllerData":
+                        {
+                            "KeyNo":"",
+                            "Name":"",
+                            "Percent":"",
+                            "PercentTotal":"0%"
+                        }
+                };
+                actualCtrl.forEach(function (item) {
+                    if(item.StockType == "自然人股东"){
+                        data.syr.Names.push({
+                            Name: item.Name,
+                            KeyNo: "",
+                            PercentTotal: item.FundedRatio
+                        });
+                        if(parseFloat(item.FundedRatio) > parseFloat(data.kzr.ControllerData.PercentTotal)){
+                            data.kzr.ControllerData.PercentTotal = parseFloat(item.FundedRatio);
+                            data.kzr.ControllerData.Name = item.Name;
+                            data.kzr.ControllerData.KeyNo = item.KeyNo;
+                        }
                     }
-            };
-            var actualCtrl = retData3.ActualControllerLoopPath;
-            actualCtrl.forEach(function (item) {
-                if(item.StockType == "自然人股东"){
-                    data.syr.Names.push({
-                        Name: item.Name,
-                        KeyNo: "",
-                        PercentTotal: item.FundedRatio
-                    });
-                    if(parseFloat(item.FundedRatio) > parseFloat(data.kzr.ControllerData.PercentTotal)){
-                        data.kzr.ControllerData.PercentTotal = parseFloat(item.FundedRatio);
-                        data.kzr.ControllerData.Name = item.Name;
-                        data.kzr.ControllerData.KeyNo = item.KeyNo;
-                    }
-                }
-            });
+                });
+            }
 
             var kgObj = {};
             // 控股公司
-            if(retData4.Names){
+            if(retData4 && retData4.Names){
                 data.kg = {
                     KeyNo: companyKeyNo,
                     CompanyName: companyKeyNo,
@@ -185,7 +182,7 @@
                 });
             }
 
-            if(retData2.Node && retData2.Node.Children){
+            if(retData2 && retData2.Node && retData2.Node.Children){
                 var touziDetailList = [];
                 var walk1 = function(touziDetailList, dataList){
                     dataList.forEach(function (item) {
@@ -210,8 +207,9 @@
                     DetailList:touziDetailList
                 };
             }
-
-            data.status = 200;
+            if($.isEmptyObject(data) === false){
+                data.status = 200;
+            }
             if(data&&data.status === 200){
                 $('#no_data').hide();
                 rootData = data;
@@ -342,10 +340,6 @@
             var zdW = myChart.getZrender().getWidth();
             var zdH = myChart.getZrender().getHeight();
 
-
-
-
-
             myChart.resize();
 
             myChart.getZrender().painter.refresh();
@@ -374,7 +368,7 @@
                 for(var j=0;j<height+100;j+=228){
                     var shapeSy = new ImageShape({
                         style: {
-                            image:'https://www.qichacha.com/material/theme/chacha/cms/v2/images/shuiying2.png',
+                            image:'/shuiYin.png',
                             x: i-moveRight,
                             y: j-moveDown,
                             width:300,
@@ -1117,7 +1111,7 @@
             }else if(shapeList[i]._echartsData&&shapeList[i]._echartsData._data.syr){
                 var shape = new ImageShape({
                     style: {
-                        image:'https://www.qichacha.com/material/theme/chacha/cms/v2/images/tupu_syrbg.png',
+                        image:'./images/tupu_syrbg.png',
                         x: shapeList[i].rotation[1]-75,
                         y: shapeList[i].rotation[2]-shapeList[i].style.height/2-24,
                         width:150,
@@ -1247,7 +1241,6 @@
             for(var j=0;j<myChart.getZrender().getHeight()+100;j+=228){
                 var shapeSy = new ImageShape({
                     style: {
-//                        image:'https://www.qichacha.com/material/theme/chacha/cms/v2/image.png',
                         x: i,
                         y: j,
                         width:300,
@@ -1696,7 +1689,7 @@
                     if(data.boss_id){
                         $('#face_oss').attr('src',data.face_oss);
                     } else {
-                        $('#face_oss').attr('src','https://co-image.qichacha.com/PersonImage/' + keyNo + '.jpg' );
+                        $('#face_oss').attr('src','' );
                     }
 
                     $('#PerCom').text(data.companyname ? data.companyname : '-');
@@ -1949,7 +1942,7 @@
                         $(".mao-tupu-link").parent().show();
                     }
 
-                    var noData = '<div class="mao-noresult"> <p ><img src="https://www.qichacha.com/material/theme/chacha/cms/v2/images/nodata.png"></p>暂无信息</div>';
+                    var noData = '<div class="mao-noresult"> <p ><img src="./images/nodata.png"></p>暂无信息</div>';
 
                     //股东
                     if(data.Result.Partners && data.Result.Partners.length>0){
