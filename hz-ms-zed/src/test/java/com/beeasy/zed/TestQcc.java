@@ -172,9 +172,10 @@ public class TestQcc {
     @Test
     public void GetOpException() throws Exception {
         clearTable("QCC_OP_EXCEPTION");
-        read("/ECIException/GetOpException.json?keyNo=惠州市维也纳惠尔曼酒店管理有限公司");
+        read("/ECIException/GetOpException.json?fullName=惠州市维也纳惠尔曼酒店管理有限公司&keyNo=692a8d87536443b042bccb655398e3a0");
         String url = "/ECIException/GetOpException?fullName=惠州市维也纳惠尔曼酒店管理有限公司";
         JSONArray list = checkListMatched(url);
+        int c = 1;
     }
 
     @Test
@@ -292,7 +293,7 @@ public class TestQcc {
         clearTable("QCC_HIS_SHARE_HOLDER", "QCC_HIS_SHARE_HOLDER_DETAILS");
         JSONObject source = read("/History/GetHistorytShareHolder.json?keyWord=惠州市维也纳惠尔曼酒店管理有限公司");
         JSONObject target = checkResult("/History/GetHistorytShareHolder?fullName=惠州市维也纳惠尔曼酒店管理有限公司");
-        checkSim(source, target, 0.6);
+        checkSim(source, target, 0.5);
     }
 
     @Test
@@ -371,22 +372,22 @@ public class TestQcc {
     @Test
     public void SearchTreeRelationMap() throws Exception {
         clearTable("QCC_COMPANY_MAP");
-        JSONObject source = read("/ECIRelationV4/SearchTreeRelationMap.json?keyNo=1");
-        JSONObject target = checkResult("/ECIRelationV4/SearchTreeRelationMap?keyNo=1");
+        JSONObject source = read("/ECIRelationV4/SearchTreeRelationMap.json?keyNo=692a8d87536443b042bccb655398e3a0&fullName=惠州市维也纳惠尔曼酒店管理有限公司");
+        JSONObject target = checkResult("/ECIRelationV4/SearchTreeRelationMap?fullName=惠州市维也纳惠尔曼酒店管理有限公司");
         checkSim(source, target);
     }
     @Test
     public void GetCompanyEquityShareMap() throws Exception {
         clearTable("QCC_CESM", "QCC_CESM_ACLP");
-        JSONObject source = read("/ECIRelationV4/GetCompanyEquityShareMap.json?keyNo=1");
-        JSONObject target = checkResult("/ECIRelationV4/GetCompanyEquityShareMap?keyNo=1");
+        JSONObject source = read("/ECIRelationV4/GetCompanyEquityShareMap.json?keyNo=692a8d87536443b042bccb655398e3a0&fullName=惠州市维也纳惠尔曼酒店管理有限公司");
+        JSONObject target = checkResult("/ECIRelationV4/GetCompanyEquityShareMap?fullName=惠州市维也纳惠尔曼酒店管理有限公司");
         checkSim(source, target, 0.6);
     }
     @Test
     public void GenerateMultiDimensionalTreeCompanyMap() throws Exception {
         clearTable("QCC_TREE_RELATION_MAP");
-        JSONObject source = read("/ECIRelationV4/GenerateMultiDimensionalTreeCompanyMap.json?keyNo=1");
-        JSONObject target = checkResult("/ECIRelationV4/GenerateMultiDimensionalTreeCompanyMap?keyNo=1");
+        JSONObject source = read("/ECIRelationV4/GenerateMultiDimensionalTreeCompanyMap.json?keyNo=692a8d87536443b042bccb655398e3a0&fullName=惠州市维也纳惠尔曼酒店管理有限公司");
+        JSONObject target = checkResult("/ECIRelationV4/GenerateMultiDimensionalTreeCompanyMap?fullName=惠州市维也纳惠尔曼酒店管理有限公司");
         checkSim(source, target);
     }
     @Test
@@ -396,7 +397,7 @@ public class TestQcc {
         }
         JSONObject source = read("/CIAEmployeeV4/GetStockRelationInfo.json?companyName=惠州市维也纳惠尔曼酒店管理有限公司");
         JSONObject target = checkResult("/CIAEmployeeV4/GetStockRelationInfo?fullName=惠州市维也纳惠尔曼酒店管理有限公司");
-        checkSim(source, target);
+        checkSim(source, target, 0.6);
     }
     @Test
     public void GetHoldingCompany() throws Exception {
@@ -456,7 +457,7 @@ public class TestQcc {
     }
 
     public JSONObject huGet(String url) throws UnsupportedEncodingException {
-        url = "http://localhost:8081/qcc" + url;
+        url = "http://localhost:8081" + url;
         if(url.contains("?")){
             int idex = url.indexOf("?");
             url = url.substring(0, idex) + "?" + URLUtil.encode(url.substring(idex + 1));
@@ -530,7 +531,10 @@ public class TestQcc {
     public static void clearTable(String ...table){
         for (String s : table) {
             String sql = S.fmt("delete from %s where inner_company_name = '惠州市维也纳惠尔曼酒店管理有限公司'", s);
-            sqlManager.executeUpdate(new SQLReady(sql));
+            try{
+                sqlManager.executeUpdate(new SQLReady(sql));
+            }catch (Exception e){
+            }
         }
     }
 

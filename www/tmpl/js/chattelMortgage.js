@@ -1,6 +1,6 @@
 
 var p4 = null;
-var panelFormRender4 = function(data, callback, undefined){
+var chattelMortgageRender = function(data, callback, undefined){
     var async = callback !== undefined;
     data.swidth = $("html").width();
     if(!p4){

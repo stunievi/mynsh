@@ -260,13 +260,18 @@ public class DeconstructService {
     }
 
     private String getQuery(FullHttpRequest request, String key) {
+        return getQuery(request, key, true);
+    }
+
+    private String getQuery(FullHttpRequest request, String key, boolean throwError){
         JSONObject params = HttpServerHandler.decodeProxyQuery(request);
-        for (Map.Entry<String, Object> entry : params.entrySet()) {
-            if (entry.getKey().equalsIgnoreCase(key)) {
-                return (String) entry.getValue();
-            }
+        if(params.containsKey(key)){
+            return params.getString(key);
         }
-        throw new RuntimeException();
+        if(throwError){
+            throw new RuntimeException();
+        }
+        return "";
     }
 
     public static DeconstructService register() {
@@ -526,10 +531,12 @@ public class DeconstructService {
      */
     private void GenerateMultiDimensionalTreeCompanyMap(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         String keyNo = getQuery(request, "keyNo");
+        String compName = getQuery(request, "fullName");
         JSONObject node = (JSONObject) jsonGetByPath(json, "Node");
         changeField(
             node,
-            "+inner_company_no", keyNo
+            "+inner_company_no", keyNo,
+            "+inner_company_name", compName
         );
         doDelete("QCC_TREE_RELATION_MAP", "inner_company_no", keyNo);
         deconstruct(node, "QCC_TREE_RELATION_MAP", "");
@@ -543,9 +550,11 @@ public class DeconstructService {
      */
     private void GetCompanyEquityShareMap(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         String keyNo = getQuery(request, "keyNo");
+        String compName = getQuery(request, "fullName");
         changeField(
             json,
-            "+inner_company_no", keyNo
+            "+inner_company_no", keyNo,
+            "+inner_company_name", compName
         );
         doDelete("QCC_CESM", "inner_company_no", keyNo);
         JSONObject kv = (JSONObject) deconstruct(json, "QCC_CESM", "");
@@ -560,6 +569,7 @@ public class DeconstructService {
             }
             changeField(array,
                 "+inner_company_no", keyNo,
+                "+inner_company_name", compName,
                 "+cesm_inner_id", kv.getString("inner_id")
             );
             doDelete("QCC_CESM_ACLP", "INNER_COMPANY_NO", keyNo);
@@ -575,10 +585,12 @@ public class DeconstructService {
      */
     private void SearchTreeRelationMap(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         String keyNo = getQuery(request, "keyNo");
+        String compName = getQuery(request, "fullName");
         JSONObject node = ((JSONObject) json).getJSONObject("Node");
         changeField(
             node,
-            "+inner_company_no", keyNo
+            "+inner_company_no", keyNo,
+            "+inner_company_name", compName
         );
         doDelete("QCC_COMPANY_MAP", "INNER_COMPANY_NO", keyNo);
         deconstruct(node, "QCC_COMPANY_MAP", "");
@@ -1294,13 +1306,15 @@ public class DeconstructService {
     }
 
     private void GetOpException(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
-        String compName = getQuery(request, "keyNo");
+        String compNo = getQuery(request, "keyNo");
+        String compName = getQuery(request, "fullName");
         changeField(json,
             "+RemoveDate", DateValue,
             "+AddDate", DateValue,
+            "+inner_company_no", compNo,
             "+inner_company_name", compName
         );
-        doDelete("QCC_OP_EXCEPTION", "inner_company_name", compName);
+        doDelete("QCC_OP_EXCEPTION", "inner_company_no", compNo);
         deconstruct(json, "QCC_OP_EXCEPTION", "");
     }
 
@@ -1760,6 +1774,8 @@ public class DeconstructService {
         for (Map.Entry<String, Object> entry : object.entrySet()) {
             kv.put(camelToUnderline(entry.getKey()), entry.getValue());
         }
+        kv.put("input_date", new Date());
+
         //检查是否有相同的字段
         if (S.notBlank(existKey)) {
             String[] keys = (existKey.split("\\,"));
@@ -1899,7 +1915,6 @@ public class DeconstructService {
     private String buildInsertSql(String tableName, JSONObject kv) {
         StringBuilder sb = new StringBuilder();
         kv.put("inner_id", objectId.nextId());
-        kv.put("input_date", new Date());
         sb.append("insert into ");
         sb.append(tableName);
         sb.append(" (");

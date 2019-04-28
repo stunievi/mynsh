@@ -5,6 +5,16 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title> 公司详情 </title>
     <!--#include file="/htmlsrc/header.html" -->
+    <style>
+        html{
+            overflow: hidden !important;
+            height: 100% !important;
+        }
+        body{
+            overflow-y: scroll !important;
+            height: 100% !important;
+        }
+    </style>
     <script>
         var keyNoPromise = $.Deferred();
         var COMPANY_NAME =  decodeURI(getParam("keyWord"));
@@ -49,6 +59,26 @@
 
 <script src="/tmpl/js/chattelMortgage.js"></script>
 <script>
+    var fixOnDataLoadObj = {};
+    var scrollToElm = function (elmId) {
+        if(fixOnDataLoadObj[elmId] === undefined){
+            fixOnDataLoadObj[elmId] = true;
+        }else{
+            var container = $('body');
+            var scrollTo = $('#'+elmId);
+            // 当被隐藏的时候，滚动显示出来
+            if(scrollTo.offset().top < 0){
+                container.scrollTop( scrollTo.offset().top - container.offset().top + container.scrollTop() );
+            }
+        }
+    };
+    var fixOnDataLoad = function(elmId, data) {
+        if(data && data.total && data.total > 0){
+            $("a[href='#"+elmId+"']").removeClass("disabled");
+            scrollToElm(elmId);
+            $("#"+elmId+"-count").html(data.total);
+        }
+    };
     $("#myTabs li a").dblclick(function () {
         $(this).toggleClass("switch");
         if($(this).hasClass("switch")){

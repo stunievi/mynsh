@@ -25,36 +25,41 @@
     <script src="/static/vendor/layui/layer/layer.js"></script>
     <script src="/static/htmljs/global.config.js"></script>
     <script src="/static/htmljs/utils.js"></script>
-    <script src="../../../tmpl/js/panelTableShow.js"></script>
+    <script src="/htmlsrc/qichacha/tmpl/eci/qccTable.js"></script>
     <script>
         var id = getParam("id");
-        $.ajax({
+        SuperPost({
             url: remoteApi.qccCourtAnnoGetCourtNoticeInfo+"?id="+id,
             success: function(res){
-                if(JSON.stringify(res.data) != "{}" && res.success){
+                if($.isEmptyObject(res.data) === false && res.success){
                     var data = res.data || {};
-                    var Prosecutor = [];
-                    data["Prosecutor"].map(function (val) {
-                        val["name"] = val["Name"];
-                        val["val"] = val["KeyNo"] || val["Name"];
-                    });
-                    data["Defendant"].map(function (val) {
-                        val["name"] = val["Name"];
-                        val["val"] = val["KeyNo"] || val["Name"];
-                    });
-                    $("#home").html(panelTableShowRender2({
-                        attrs:[
-                            // {label:"省份", prop:"Province"},
-                            {label:"案由", prop:"CaseReason"},
-                            {label:"排期日期", prop:"ScheduleTime"},
-                            {label:"法院", prop:"ExecuteGov"},
-                            {label:"承办部门", prop:"UndertakeDepartment"},
-                            {label:"法庭", prop:"ExecuteUnite"},
-                            {label:"审判长/主审人", prop:"ChiefJudge"},
-                            {label:"开庭日期", prop:"OpenTime"},
-                            {label:"案号", prop:"CaseNo"},
-                            {label:"公诉人/原告/上诉人/申请人", prop:"Prosecutor", handle: true},
-                            {label:"被告/被告人/被上诉人/被申请人", prop:"Defendant", handle: true},
+                    var per1 = data["Prosecutor"] || [];
+                    var per2 = data["Defendant"] || [];
+                    if(per1 && per1 instanceof Array){
+                        per1 = per1.map(function (val) {
+                            return val["Name"];
+                        });
+                        data["Prosecutor"] = per1.join("、");
+                    }
+                    if(per2 && per2 instanceof Array){
+                        data["Defendant"] = data["Defendant"].map(function (val) {
+                            return val["Name"];
+                        });
+                        data["Defendant"] = data["Defendant"].join("、");
+                    }
+                    $("#home").html(qccTableRender({
+                        cols:[
+                            // {title:"省份", field:"Province"},
+                            {title:"案由", field:"CaseReason"},
+                            {title:"排期日期", field:"ScheduleTime"},
+                            {title:"法院", field:"ExecuteGov"},
+                            {title:"承办部门", field:"UndertakeDepartment"},
+                            {title:"法庭", field:"ExecuteUnite"},
+                            {title:"审判长/主审人", field:"ChiefJudge"},
+                            {title:"开庭日期", field:"OpenTime"},
+                            {title:"案号", field:"CaseNo"},
+                            {title:"公诉人/原告/上诉人/申请人", field:"Prosecutor", spec: true },
+                            {title:"被告/被告人/被上诉人/被申请人", field:"Defendant", spec: true }
                         ],
                         data: data
                     }));
@@ -62,6 +67,10 @@
                     layErrorMsg("数据获取失败....")
                     $("#home").html("数据获取失败....")
                 }
+            },
+            error:function () {
+                layErrorMsg("数据获取失败....")
+                $("#home").html("数据获取失败....")
             }
         });
 

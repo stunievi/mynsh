@@ -465,7 +465,7 @@
                                 {{if current.type == 'input'}}
                                 {{each current.content cnt idex }}
                                 {{if cnt.type != 'files'}}
-                                <div class="form-group">
+                                <div class="form-group" data-show="{{cnt.show}}">
                                     <label for="">
                                         {{if cnt.required}}
                                         <font style="color:red">*</font>
@@ -527,6 +527,12 @@
                                     <div>
                                         <ul class="file-list"></ul>
                                     </div>
+                                    {{if $d.modelName == '贷前流程审批' && $d.currentNodeName == '发起流程'}}
+                                    <a type="button" class="btn btn-primary btn-sm" id="print" style="" target="_blank" href="/print.html" onclick="return printList()">
+                                        <i class="glyphicon glyphicon-book"></i>
+                                        打印清单
+                                    </a>
+                                    {{/if}}
                                     {{if current.type == 'input'}}
                                     <button type="button" class="btn btn-warning btn-sm" id="uploadSelector" style="">
                                         <i class="glyphicon glyphicon-book"></i>
@@ -768,7 +774,7 @@
                            }
                         })
                     }
-                    console.log(myAttrs,current);
+                    console.log(myAttrs,current, $data);
                     $("#workline-render")
                         .empty()
                         .html(
@@ -777,6 +783,7 @@
                             myAttrs: myAttrs,
                             uid: $.cookie("userId"),
                             data: data,
+                            $d: $data,
                             nodeType: {
                                 0: 'input',
                                 1: 'check',
@@ -1020,25 +1027,38 @@
                     return false;
                 }
 
-                if(current.content){
-                    for(var i = 0; i < current.content.length; i++){
-                        var item = current.content[i];
-                        if(!item.rules){
-                            continue
-                        }
-                        for(var j = 0; j < item.rules.length; j++){
-                            switch (item.rules[j].rule) {
-                                case "has_file":
-                                    if(chks[item.ename] && chks[item.ename].length > 0){
-                                        if(!hasTag(item.rules[j].tag)){
-                                            layer.msg("请上传一个带有【" + item.rules[j].tag + '】标签的文件')
-                                            return;
-                                        }
-                                    }
-                            }
-                        }
+                console.log($data)
+                //如果确定提交，得所有能看见的打钩才行
+                if($data && $data.modelName == '贷前流程审批'){
+                    var flag = true;
+                    $("input[type=checkbox]:visible").each(function () {
+                        flag &= $(this).is(":checked")
+                    });
+                    if(!flag){
+                        layer.msg("请确定已经上传所有证件")
+                        return;
                     }
                 }
+
+                // if(current.content){
+                //     for(var i = 0; i < current.content.length; i++){
+                //         var item = current.content[i];
+                //         if(!item.rules){
+                //             continue
+                //         }
+                //         for(var j = 0; j < item.rules.length; j++){
+                //             switch (item.rules[j].rule) {
+                //                 case "has_file":
+                //                     if(chks[item.ename] && chks[item.ename].length > 0){
+                //                         if(!hasTag(item.rules[j].tag)){
+                //                             layer.msg("请上传一个带有【" + item.rules[j].tag + '】标签的文件')
+                //                             return;
+                //                         }
+                //                     }
+                //             }
+                //         }
+                //     }
+                // }
 
 
                 postFetch(
@@ -1290,4 +1310,36 @@
             })
         },30);
     })()
+</script>
+
+<script>
+    $(document).on("change","input[name],select[name]",function () {
+        var name = $(this).attr("name")
+        var obj = {}
+        $("input,select").each(function () {
+            obj[$(this).attr("name")] = this.value;
+        });
+        $("[data-show]").each(function () {
+            var _this = $(this);
+            var val = _this.data("show");
+            if(val && val.indexOf(name) > -1){
+                // var code = "var " + name + " = '" + $("[name="+name+"]").val() + "'";
+                // code = "(function(){ "+code+"; return " + val + "})()"
+                with(obj){
+                    var b = eval(val);
+                    b ? _this.show() : _this.hide()
+                }
+            }
+        });
+    });
+
+    function printList(){
+        var arr = []
+        $("input[type=checkbox]:visible:checked").each(function () {
+            var t = $(this).closest(".form-group").find("label:first").text();
+            t = $.trim(t)
+            arr.push(encodeURI(t));
+        });
+        $("#print").attr("href","/print.html?list=" + arr.join(","))
+    }
 </script>

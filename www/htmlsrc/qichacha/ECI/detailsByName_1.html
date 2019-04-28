@@ -1,19 +1,19 @@
 <div role="tabpanel" class="tab-pane active" id="base" aria-labelledby="base-tab">
     <div class="data-tab">
-        <a class="btn btn-default" href="#base1">工商信息</a>
-        <!--<a class="btn btn-default" href="#base2">企业人员董监高信息</a>-->
-        <!--<a class="btn btn-default" href="#base3">企业对外投资</a>-->
-        <!--<a class="btn btn-default" href="#base4">投资图谱</a>-->
-        <!--<a class="btn btn-default" href="#base5">疑似关系</a>-->
-        <!--<a class="btn btn-default" href="#base6">股权穿透图</a>-->
-        <!--<a class="btn btn-default" href="#base7">企业图谱</a>-->
-        <a class="btn btn-default" href="#base8">股东信息</a>
-        <a class="btn btn-default" href="#base14">控股公司</a>
-        <a class="btn btn-default" href="#base9">主要人员</a>
-        <a class="btn btn-default" href="#base10">分支机构</a>
-        <a class="btn btn-default" href="#base11">变更信息</a>
-        <a class="btn btn-default" href="#base12">联系信息</a>
-        <a class="btn btn-default" href="#base13">行业信息</a>
+        <a class="btn btn-default disabled" href="#base1">工商信息</a>
+        <!--<a class="btn btn-default disabled" href="#base2">企业人员董监高信息</a>-->
+        <!--<a class="btn btn-default disabled" href="#base3">企业对外投资</a>-->
+        <!--<a class="btn btn-default disabled" href="#base4">投资图谱</a>-->
+        <!--<a class="btn btn-default disabled" href="#base5">疑似关系</a>-->
+        <!--<a class="btn btn-default disabled" href="#base6">股权穿透图</a>-->
+        <!--<a class="btn btn-default disabled" href="#base7">企业图谱</a>-->
+        <a class="btn btn-default disabled" href="#base8">股东信息</a>
+        <a class="btn btn-default disabled" href="#base14">控股公司</a>
+        <a class="btn btn-default disabled" href="#base9">主要人员</a>
+        <a class="btn btn-default disabled" href="#base10">分支机构</a>
+        <a class="btn btn-default disabled" href="#base11">变更信息</a>
+        <a class="btn btn-default disabled" href="#base12">联系信息</a>
+        <a class="btn btn-default disabled" href="#base13">行业信息</a>
 
     </div>
 
@@ -146,10 +146,10 @@ ins { background-color: #cfc; text-decoration: none; } del { color: #999; backgr
         success: function (res) {
             var data = res.data || {};
             COMPANY_KEY_NO = data.KeyNo;
-            if(data.KeyNo){
-                keyNoPromise.resolve(data.KeyNo);
+            if(COMPANY_KEY_NO){
+                keyNoPromise.resolve(COMPANY_KEY_NO);
+                $("a[href='#base1']").removeClass("disabled");
             }else{
-                $("a[href='#base1']").addClass("disabled");
                 keyNoPromise.reject("KeyNo获取失败！");
             }
             $("#base1-body").html(
@@ -185,8 +185,7 @@ ins { background-color: #cfc; text-decoration: none; } del { color: #999; backgr
             // 股东信息
             if(data.Partners && data.Partners.length > 0){
                 $("#base8-count").html(data.Partners.length);
-            }else{
-                $("a[href='#base8']").addClass("disabled");
+                $("a[href='#base8']").removeClass("disabled");
             }
             laytableRender({
                 page: false,
@@ -212,8 +211,7 @@ ins { background-color: #cfc; text-decoration: none; } del { color: #999; backgr
             // 主要人员
             if(data.Employees && data.Employees.length > 0){
                 $("#base9-count").html(data.Employees.length);
-            }else{
-                $("a[href='#base9']").addClass("disabled");
+                $("a[href='#base9']").removeClass("disabled");
             }
             laytableRender({
                 page: false,
@@ -237,9 +235,8 @@ ins { background-color: #cfc; text-decoration: none; } del { color: #999; backgr
 
             // 分支机构
             if(data.Branches && data.Branches.length > 0){
-                $("#base10").html(data.Branches.length);
-            }else{
-                $("a[href='#base10']").addClass("disabled");
+                $("#base10-count").html(data.Branches.length);
+                $("a[href='#base10']").removeClass("disabled");
             }
             laytableRender({
                 page: false,
@@ -262,11 +259,9 @@ ins { background-color: #cfc; text-decoration: none; } del { color: #999; backgr
                     item["AfterContent"] = getHTMLDiff(item["BeforeContent"] || "", item["AfterContent"]);
                 });
                 $("#base11-count").html(data.ChangeRecords.length);
-            }else{
-                $("a[href='#base11']").addClass("disabled");
+                $("a[href='#base11']").removeClass("disabled");
             }
             laytableRender({
-                page: false,
                 id: "base11-body",
                 elem: "#base11-body",
                 cols:[
@@ -278,14 +273,24 @@ ins { background-color: #cfc; text-decoration: none; } del { color: #999; backgr
                         {title:"变更后内容",field:"AfterContent"}
                     ]
                 ],
-                data: data.ChangeRecords || []
+                data: data.ChangeRecords || [],
+                onData:function () {
+                    scrollToElm("base11");
+                }
             });
 
             // 联系信息
             var contactInfo = data.ContactInfo || {};
-            if(JSON.stringify(contactInfo) == "{}"){
-                $("#base12").hide();
-                $("a[href='#base12']").addClass("disabled");
+            var contactInfoIsEmpty = true;
+            // 判断数据object数据是否为空
+            for (var key in contactInfo){
+                if(contactInfo.hasOwnProperty(key) && contactInfo[key]){
+                    contactInfoIsEmpty = false;
+                    break;
+                }
+            }
+            if(contactInfoIsEmpty === false){
+                $("a[href='#base12']").removeClass("disabled");
             }
             $("#base12-body").html(
                 qccTableRender({
@@ -303,9 +308,8 @@ ins { background-color: #cfc; text-decoration: none; } del { color: #999; backgr
                 })
             );
             // 行业信息
-            if(JSON.stringify(data.Industry) == "{}"){
-                $("#base13").hide();
-                $("a[href='#base13']").addClass("disabled");
+            if($.isEmptyObject(data.Industry) === false){
+                $("a[href='#base13']").removeClass("disabled");
             }
             $("#base13-body").html(
                 qccTableRender({
@@ -338,11 +342,7 @@ ins { background-color: #cfc; text-decoration: none; } del { color: #999; backgr
             ]
         ],
         onData:function (data) {
-            if(!data || !data.total || data.total < 1){
-                $("a[href='#base14']").addClass("disabled");
-            }else{
-                $("#base14-count").html(data.total);
-            }
+            fixOnDataLoad("base14", data);
         }
     });
 

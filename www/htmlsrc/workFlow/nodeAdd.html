@@ -36,15 +36,17 @@
                             </div>
                         </div>
                     {{else}}
-                    <div class="col-xs-{{value.width ? value.width : 6}} form-group ">
-                        <label for="{{value.prop}}" class="col-xs-{{value.labelWidth ? value.labelWidth : 4}} text-right">
+                    <div class="col-xs-{{value.width ? value.width : 12}} form-group "
+                     data-show="{{value.show}}"
+                    >
+                        <label for="{{value.prop}}" class="col-xs-{{value.labelWidth ? value.labelWidth : 3}} text-right">
                             {{if value.required}}
                                 <span style="color:red">*</span>
                             {{/if}}
                             {{value.label}}
                         </label>
                         <div class="col-xs-8" style="padding-right: 15px;
-                        padding-left: 15px;">
+                        padding-left: 15px; max-width:400px">
                         {{if !value.type || value.type == 'input' }}
                             {{if value.inputGroup }}
                             <div class="input-group"> 
@@ -356,12 +358,13 @@
             defaultData["FXFF"] = ["贷款到期催收通知书"];
 
             // 生成form
-            console.log(addFormAttr)
+            console.warn(addFormAttr)
             $("#addForm").html(template('tmpl',{
                 isPoint: isPonit,
                 panelTitle:'添加任务 - ' + modelName,
                 formAttr: addFormAttr,
-                data: defaultData
+                data: defaultData,
+                workFlowModel: workFlowModel
                 , pubUid: getParam("pubUid")
             }));
 
@@ -478,6 +481,18 @@
                             }
                         });
 
+                        //如果确定提交，得所有能看见的打钩才行
+                        if(gotoNext == 'true' && workFlowModel.modelName == '贷前流程审批'){
+                            var flag = true;
+                            $("input[type=checkbox]:visible").each(function () {
+                                flag &= $(this).is(":checked")
+                            });
+                            if(!flag){
+                                layer.msg("请确定已经上传所有证件")
+                                return;
+                            }
+                        }
+
                         innatesData.LOAN_ACCOUNT = innatesData.LOAN_ACCOUNT || "";
 
                         var _formData = {
@@ -489,7 +504,7 @@
                             "modelId": workFlowModel.id,
                             "title": formData.title,
                             // "common": isCommon,
-                            "id": workFlowModel.autoId,
+                            // "id": workFlowModel.autoId,
                             extMap:{
                                 $data: innatesData,
                                 $common: isCommon
@@ -1029,4 +1044,25 @@
             })
         },30);
     })();
+</script>
+<script>
+    $(document).on("change","input[name],select[name]",function () {
+        var name = $(this).attr("name")
+        var obj = {}
+        $("input,select").each(function () {
+            obj[$(this).attr("name")] = this.value;
+        });
+        $("[data-show]").each(function () {
+            var _this = $(this);
+            var val = _this.data("show");
+            if(val && val.indexOf(name) > -1){
+                // var code = "var " + name + " = '" + $("[name="+name+"]").val() + "'";
+                // code = "(function(){ "+code+"; return " + val + "})()"
+                with(obj){
+                    var b = eval(val);
+                    b ? _this.show() : _this.hide()
+                }
+            }
+        });
+    });
 </script>

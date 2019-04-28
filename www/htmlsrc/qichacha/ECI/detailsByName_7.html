@@ -1,17 +1,17 @@
 <div role="tabpanel" class="tab-pane" id="history" aria-labelledby="history-tab">
     <div class="data-tab">
-        <a class="btn btn-default" href="#history1">历史工商信息</a>
-        <a class="btn btn-default" href="#history2">历史对外投资</a>
-        <a class="btn btn-default" href="#history3">历史股东</a>
-        <a class="btn btn-default" href="#history4">历史失信查询</a>
-        <a class="btn btn-default" href="#history5">历史被执行</a>
-        <a class="btn btn-default" href="#history6">历史法院公告</a>
-        <a class="btn btn-default" href="#history7">历史裁判文书</a>
-        <a class="btn btn-default" href="#history8">历史开庭公告</a>
-        <a class="btn btn-default" href="#history9">历史动产抵押</a>
-        <a class="btn btn-default" href="#history10">历史股权出资</a>
-        <a class="btn btn-default" href="#history11">历史行政处罚</a>
-        <a class="btn btn-default" href="#history12">历史行政许可</a>
+        <a class="btn btn-default disabled" href="#history1">历史工商信息</a>
+        <a class="btn btn-default disabled" href="#history2">历史对外投资</a>
+        <a class="btn btn-default disabled" href="#history3">历史股东</a>
+        <a class="btn btn-default disabled" href="#history4">历史失信查询</a>
+        <a class="btn btn-default disabled" href="#history5">历史被执行</a>
+        <a class="btn btn-default disabled" href="#history6">历史法院公告</a>
+        <a class="btn btn-default disabled" href="#history7">历史裁判文书</a>
+        <a class="btn btn-default disabled" href="#history8">历史开庭公告</a>
+        <a class="btn btn-default disabled" href="#history9">历史动产抵押</a>
+        <a class="btn btn-default disabled" href="#history10">历史股权出资</a>
+        <a class="btn btn-default disabled" href="#history11">历史行政处罚</a>
+        <a class="btn btn-default disabled" href="#history12">历史行政许可</a>
     </div>
     <div class="panel-qcc" id="history1">
         <div class="panel-qcc-heading">历史工商信息</div>
@@ -94,13 +94,11 @@
        $.ajax({
            url: remoteApi.qccHistoryGetHistorytEci+"?fullName="+COMPANY_NAME,
            success:function (res) {
-               if(res.success && res.data && JSON.stringify(res.data) != "{}"){
+               if(res.success && res.data && $.isEmptyObject(res.data) === false){
                    $("#history1-body").html(
                        hiscominfoRender(res.data)
                    )
-               }else{
-                   // $("#history1").hide();
-                   $("a[href='#history1']").addClass("disabled");
+                   $("a[href='#history1']").removeClass("disabled");
                }
            }
        });
@@ -111,6 +109,7 @@
            url: remoteApi.qccHistoryGetHistorytInvestment+"?fullName="+COMPANY_NAME,
            cols: [
                [
+                   BOOTSTRAP_INDEX_FILED,
                    {title:"变更日期",field:"ChangeDate", setWidth:100},
                    // {title:"公司KeyNo",field:"KeyNo"},
                    {title:"公司名称",field:"CompanyName"},
@@ -123,12 +122,7 @@
                ]
            ],
            onData:function (data) {
-               if(!data || !data.total || data.total < 1){
-                   // $("#history2").hide();
-                   $("a[href='#history2']").addClass("disabled");
-               }else{
-                   $("#history2-count").html(data.total);
-               }
+               fixOnDataLoad("history2", data);
            }
        });
 
@@ -139,6 +133,7 @@
            url: remoteApi.qccHistoryGetHistorytShareHolder+"?fullName="+COMPANY_NAME,
            cols: [
                [
+                   BOOTSTRAP_INDEX_FILED,
                    {title:"股东名称",field:"PartnerName"},
                    {title:"持股比例",field:"StockPercent"},
                    {title:"认缴出资额",field:"ShouldCapi"},
@@ -147,12 +142,7 @@
                ]
            ],
            onData:function (data) {
-               if(!data || !data.total || data.total < 1){
-                   // $("#history3").hide();
-                   $("a[href='#history3']").addClass("disabled");
-               }else{
-                   $("#history3-count").html(data.total);
-               }
+               fixOnDataLoad("history3", data);
            }
        });
 
@@ -163,7 +153,7 @@
            url: remoteApi.qccHistoryGetHistoryShiXin+"?fullName="+COMPANY_NAME,
            cols: [
                [
-                   // {title:"Id值",field:"Id"},
+                   BOOTSTRAP_INDEX_FILED,
                    {title:"其他有履行能力而拒不履行生效法律文书确定义务",field:"ActionRemark"},
                    {title:"执行依据文号",field:"ExecuteNo"},
                    {title:"被执行的履行情况",field:"ExecuteStatus"},
@@ -172,22 +162,17 @@
                    {title:"发布时间",field:"PublicDate"},
                    {title:"案号",field:"CaseNo"},
                    {title:"执行法院",field:"ExecuteGov"},
-                   {title:"执行依据文号",field:"Anno"},
+                   {title:"执行依据文号",field:"AnNo"},
                    {title:"省份",field:"Province"},
                    {title:"立案时间",field:"LiAnDate"},
                    {title:"组织机构代码",field:"OrgNo"},
-                   {title:"组织类型",field:"OrgType"}, // ，1：自然人，2：企业，3：社会组织，空白：无法判定）
+                   // {title:"组织类型",field:"OrgType"}, // ，1：自然人，2：企业，3：社会组织，空白：无法判定）
                    {title:"组织类型名称",field:"OrgTypeName"},
-                   {title:"名称",field:"Name"}
+                   {title:"名称",field:"Name", width: 120}
                ]
            ],
            onData:function (data) {
-               if(!data || !data.total || data.total < 1){
-                   // $("#history4").hide();
-                   $("a[href='#history4']").addClass("disabled");
-               }else{
-                   $("#history4-count").html(data.total);
-               }
+               fixOnDataLoad("history4", data);
            }
        });
        // 历史被执行
@@ -197,25 +182,21 @@
            url: remoteApi.qccHistoryGetHistoryZhiXing+"?fullName="+COMPANY_NAME,
            cols: [
                [
+                   BOOTSTRAP_INDEX_FILED,
                    {title:"标地",field:"BiaoDi"},
                    {title:"案号",field:"CaseNo"},
                    {title:"执行法院",field:"ExecuteGov"},
-                   {title:"执行依据文号",field:"Anno"},
+                   // {title:"执行依据文号",field:"AnNo"},
                    {title:"省份",field:"Province"},
                    {title:"立案时间",field:"LiAnDate"},
                    {title:"组织机构代码",field:"OrgNo"},
-                   {title:"组织类型",field:"OrgType"}, //，1：自然人，2：企业，3：社会组织，空白：无法判定）
+                   // {title:"组织类型",field:"OrgType"}, //，1：自然人，2：企业，3：社会组织，空白：无法判定）
                    {title:"组织类型名称",field:"OrgTypeName"},
                    {title:"名称",field:"Name", setWidth: 180}
                ]
            ],
            onData:function (data) {
-               if(!data || !data.total || data.total < 1){
-                   // $("#history5").hide();
-                   $("a[href='#history5']").addClass("disabled");
-               }else{
-                   $("#history5-count").html(data.total);
-               }
+               fixOnDataLoad("history5", data);
            }
        });
        // 历史法院公告
@@ -225,7 +206,7 @@
            url: remoteApi.qccHistoryGetHistorytCourtNotice+"?fullName="+COMPANY_NAME,
            cols: [
                [
-                   // {title:"Id值",field:"Id"},
+                   BOOTSTRAP_INDEX_FILED,
                    {title:"公告类型",field:"Category"},
                    {title:"内容",field:"Content"},
                    {title:"公告人",field:"Court"},
@@ -237,12 +218,7 @@
                ]
            ],
            onData:function (data) {
-               if(!data || !data.total || data.total < 1){
-                   // $("#history6").hide();
-                   $("a[href='#history6']").addClass("disabled");
-               }else{
-                   $("#history6-count").html(data.total);
-               }
+               fixOnDataLoad("history6", data);
            }
        });
        // 历史裁判文书
@@ -252,7 +228,7 @@
            url: remoteApi.qccHistoryGetHistorytJudgement+"?fullName="+COMPANY_NAME,
            cols: [
                [
-                   // {title:"Id值",field:"Id"},
+                   BOOTSTRAP_INDEX_FILED,
                    {title:"执行法院",field:"Court"},
                    {title:"案件名称",field:"CaseName"},
                    {title:"发布时间",field:"SubmitDate"},
@@ -263,12 +239,7 @@
                ]
            ],
            onData:function (data) {
-               if(!data || !data.total || data.total < 1){
-                   // $("#history7").hide();
-                   $("a[href='#history7']").addClass("disabled");
-               }else{
-                   $("#history7-count").html(data.total);
-               }
+               fixOnDataLoad("history7", data);
            }
        });
        // 历史开庭公告
@@ -278,22 +249,17 @@
            url: remoteApi.qccHistoryGetHistorytSessionNotice+"?fullName="+COMPANY_NAME,
            cols: [
                [
-                   // {title:"Id值",field:"Id"},
+                   BOOTSTRAP_INDEX_FILED,
+                   {title:"案号",field:"CaseNo"},
+                   {title:"开庭日期",field:"LianDate"},
                    {title:"案由",field:"CaseReason"},
                    {title:"公诉人/原告/上诉人/申请人",field:"ProsecutorList"},
-                   {title:"被告人/被告/被上诉人/被申请人",field:"DefendantList"},
-                   {title:"执行法院",field:"Executegov"},
-                   {title:"案号",field:"CaseNo"},
-                   {title:"开庭日期",field:"LianDate"}
+                   {title:"被告人/被告/被上诉人/被申请人",field:"DefendantList"}
+                   // {title:"执行法院",field:"ExecuteGov"},
                ]
            ],
            onData:function (data) {
-               if(!data || !data.total || data.total < 1){
-                   // $("#history8").hide();
-                   $("a[href='#history8']").addClass("disabled");
-               }else{
-                   $("#history8-count").html(data.total);
-               }
+               fixOnDataLoad("history8", data);
            }
        });
        // 历史动产抵押
@@ -311,12 +277,7 @@
                ]
            ],
            onData:function (data) {
-               if(!data || !data.total || data.total < 1){
-                   // $("#history9").hide();
-                   $("a[href='#history9']").addClass("disabled");
-               }else{
-                   $("#history9-count").html(data.total);
-               }
+               fixOnDataLoad("history9", data);
            }
        });
        // 历史动产抵押
@@ -336,12 +297,7 @@
                ]
            ],
            onData:function (data) {
-               if(!data || !data.total || data.total < 1){
-                   // $("#history10").hide();
-                   $("a[href='#history10']").addClass("disabled");
-               }else{
-                   $("#history10-count").html(data.total);
-               }
+               fixOnDataLoad("history10", data);
            }
        });
        // 历史行政处罚
@@ -398,8 +354,8 @@
                        ],
                        data: CreditChinaList
                    });
-                   if(nonData1 && nonData2){
-                       $("a[href='#history11']").addClass("disabled");
+                   if(nonData1 || nonData2){
+                       $("a[href='#history11']").removeClass("disabled");
                    }
                }
            }
@@ -458,23 +414,12 @@
                        data: CreditChinaList
                    });
 
-                   if(nonData1 && nonData2){
-                       $("a[href='#history12']").addClass("disabled");
+                   if(nonData1 || nonData2){
+                       $("a[href='#history12']").removeClass("disabled");
                    }
                }
            }
        });
-
-       // laytableRender({
-       //     id: "history3-body",
-       //     autoShift: false,
-       //     url: remoteApi.qccHistoryGetHistorytInvestment,
-       //     cols: [
-       //         [
-       //             { title:'客户号', field:'KeyNo'}
-       //         ]
-       //     ]
-       // })
    }
 
 </script>

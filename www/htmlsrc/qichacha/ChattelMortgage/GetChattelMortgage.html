@@ -15,8 +15,6 @@
         <!-- 数据列表 -->
     </div>
 </div>
-<script src="/tmpl/js/chattelMortgage.js"></script>
-<script src="/static/vendor/jquery.pin.js"></script>
 <script>
     // 配置查询表单
     $("#panel-form").html(panelFormRender3({
@@ -27,19 +25,7 @@
         ],
         data: { }
     }));
-
     function checkSubmitForm() {
-        SuperPost({
-            url: remoteApi.qccGetChattelMortgage+"?keyWord="+$("#keyWord").val(),
-            success:function(res){
-                if(res.success && res.data){
-                    $("#dataList").html(panelFormRender4({
-                        dataList: res.data.list
-                    }));
-                    $(".media-left h2").pin({containerSelector: ".media-left"})
-                }
-            }
-        })
         return false;
     }
 </script>
