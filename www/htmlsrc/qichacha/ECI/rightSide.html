@@ -29,16 +29,20 @@
     <!--</div>-->
 </div>
 <script>
-    $.when(keyNoPromise).then(function () {
-        var param = "?name="+COMPANY_NAME+"&keyNo="+COMPANY_KEY_NO;
+    var setTuPuBtnHref =  function(name, keyNo){
+        var param = "?name="+name+"&keyNo="+keyNo;
         $(".tupuBtn1").prop("href", "/htmlsrc/qichacha/tupu/guquanchuantou.html"+param);
         $(".tupuBtn2").prop("href", "/htmlsrc/qichacha/tupu/qiyetupu.html"+param);
         $(".tupuBtn3").prop("href", "/htmlsrc/qichacha/tupu/guquanTupu.html"+param);
-    },function (reason) {
-        $(".tupuBtn1, .tupuBtn2, .tupuBtn3").click(function () {
-            layer.msg(reason+"请先获取工商信息。");
-            return false;
-        });
+    }
+    $.when(keyNoPromise).then(function () {
+        setTuPuBtnHref(COMPANY_NAME, COMPANY_KEY_NO);
+    },function () {
+        setTuPuBtnHref(COMPANY_NAME, "");
+        // $(".tupuBtn1, .tupuBtn2, .tupuBtn3").click(function () {
+        //     layer.msg("keyNo获取失败请先获取工商信息。");
+        //     return false;
+        // });
     });
 
 </script>

@@ -25,7 +25,8 @@
 <script src="/static/vendor/layui/layer/layer.js"></script>
 <script src="/static/htmljs/global.config.js"></script>
 <script src="/static/htmljs/utils.js"></script>
-<script src="../../../tmpl/js/panelTableShow.js"></script>
+<!--<script src="../../../tmpl/js/panelTableShow.js"></script>-->
+<script src="/htmlsrc/qichacha/tmpl/eci/qccTable.js"></script>
 <script>
     var MortgagorName;//土地抵押人名称
     var MortgagePeople;//土地抵押权人
@@ -39,25 +40,25 @@
                 data["MortgagorName"] = data["MortgagorName"]["Name"];
                 data["MortgagePeople"] = data["MortgagePeople"]["Name"];
 
-                $("#home").html(panelTableShowRender2({
-                    attrs:[
-                        {label:"宗地标识", prop:"LandSign"},
-                        {label:"宗地编号", prop:"LandNo"},
-                        {label:"行政区", prop:"AdministrativeArea"},
-                        {label:"土地面积（公顷）", prop:"Acreage"},
-                        {label:"宗地地址", prop:"Address"},
-                        {label:"土地他项权利人证号", prop:"ObligeeNo"},
-                        {label:"土地使用权证号", prop:"UsufructNo"},
-                        {label:"土地抵押人性质", prop:"MortgagorNature"},
-                        {label:"抵押土地用途", prop:"MortgagePurpose"},
-                        {label:"抵押土地权属性质与使用权类型", prop:"NatureAndType"},
-                        {label:"抵押面积（公顷）", prop:"MortgageAcreage"},
-                        {label:"评估金额（万元）", prop:"AssessmentPrice"},
-                        {label:"抵押金额（万元）", prop:"MortgagePrice"},
-                        {label:"土地抵押登记起始时间", prop:"OnBoardStartTime"},
-                        {label:"土地抵押结束时间", prop:"OnBoardEndTime"},
-                        {label:"土地抵押人名称", prop:"MortgagorName", handle:true},
-                        {label:"土地抵押权人", prop:"MortgagePeople", handle:true}
+                $("#home").html(qccTableRender({
+                    cols:[
+                        {title:"宗地标识", field:"LandSign"},
+                        {title:"宗地编号", field:"LandNo"},
+                        {title:"行政区", field:"AdministrativeArea"},
+                        {title:"土地面积（公顷）", field:"Acreage"},
+                        {title:"宗地地址", field:"Address"},
+                        {title:"土地他项权利人证号", field:"ObligeeNo"},
+                        {title:"土地使用权证号", field:"UsufructNo"},
+                        {title:"土地抵押人性质", field:"MortgagorNature"},
+                        {title:"抵押土地用途", field:"MortgagePurpose"},
+                        {title:"抵押土地权属性质与使用权类型", field:"NatureAndType"},
+                        {title:"抵押面积（公顷）", field:"MortgageAcreage"},
+                        {title:"评估金额（万元）", field:"AssessmentPrice"},
+                        {title:"抵押金额（万元）", field:"MortgagePrice"},
+                        {title:"土地抵押登记起始时间", field:"OnBoardStartTime"},
+                        {title:"土地抵押结束时间", field:"OnBoardEndTime"},
+                        {title:"土地抵押人名称", field:"MortgagorName", handle:true},
+                        {title:"土地抵押权人", field:"MortgagePeople", handle:true}
                     ],
                     data: data
                 }));
@@ -72,9 +73,7 @@
         var id = $(this).attr("id");
         var name = id == "handleMortgagorName" ? MortgagorName["Name"] : MortgagePeople["Name"];
         id = id == "handleMortgagorName" ? MortgagorName["KeyNo"] : MortgagePeople["KeyNo"];
-
         showECI_Info(id, name);
-
     })
 
 </script>

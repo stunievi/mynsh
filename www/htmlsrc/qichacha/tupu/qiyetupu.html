@@ -22,6 +22,10 @@
         </ul>
     </div>
 </div>
+
+<div id="load_data"> <img src="./images/preloader.gif"> </div>
+<div id="no_data"> <div class="guquan-lnodata pnodata"> <img src="./images/nno_image.png"> <p>没有找到相关数据</p> </div> </div>
+
 <script src="./js/d3.v5.min.js"></script>
 <script type="text/javascript">
     $("#navTab li:eq(0)").addClass("active");
@@ -207,13 +211,13 @@
             url: remoteApi.qccECIRelationGenerateMultiDimensionalTreeCompanyMap,
             type: 'GET',
             data:{
-                keyNo: getParam("keyNo"),
+                keyNo: decodeURI(getParam("keyNo")),
             },
             dataType: 'JSON',
             success: function (res){
                 data = res.data;
                 $('#load_data').hide();
-                if(data){
+                if(data && $.isEmptyObject(data) === false){
                     $('#no_data').hide();
                     root = data;
                     branchNodes = data.Branches || [];
@@ -228,6 +232,10 @@
                     $('#no_data').show();
                     $('#screenArea').hide();
                 }
+            },
+            error: function () {
+                $('#no_data').show();
+                $('#screenArea').hide();
             }
         });
     }

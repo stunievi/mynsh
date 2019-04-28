@@ -48,16 +48,16 @@
 
     // 渲染客户列表
     laytableRender({
-        url: remoteApi.apiOdsSearchPublicClient,
+        url: remoteApi.apiQccAutoQccLogCusCom,
         cols: [
             [
-                { title:'操作', templet: "#toolbar", fixed: 'right'}
-                , { title:'客户号', field:'CUS_ID'},
+                { title:'操作', templet: "#toolbar", fixed: 'right'},
+                { title:'客户号', field:'CUS_ID'},
                 { title:'客户名称', field:'CUS_NAME' },
                 { title:'开户证件类型', field:'CERT_TYPE'},
-                { title:'开户证件号码', field:'CERT_CODE' },
+                { title:'开户证件号码', field:'ENT_CERT_CODE' },
                 { title:'主管客户经理', field:'CUST_MGR' },
-                { title:'主管机构', field:'MAIN_BR_ID' },
+                { title:'主管机构', field:'MAIN_BR_ID' }
             ]
         ]
     })

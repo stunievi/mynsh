@@ -39,3 +39,6 @@ build
 
 */__MACOSX
 __MACOSX/*
+test/*
+*/test
+/pom.xml

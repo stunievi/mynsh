@@ -232,7 +232,7 @@ public class GetOriginQccService {
     }
 
     // 完全原样存入数据
-    private void saveOriginData(
+    public void saveOriginData(
         String collName,
         Map<String, Object> queries,
         String data,
@@ -251,11 +251,43 @@ public class GetOriginQccService {
         String dataUrl = QCC_DOMAIN_PRX + "/" + collName.replace("_","/");
         String dataQueries = Joiner.on("&").withKeyValueSeparator("=").join(queries);
         String fullLink = dataUrl + "?" + dataQueries;
-
+        if(queries.containsKey("keyNo")){
+            fullLink = fullLink.concat("&fullName="+extParam.getCompanyName());
+        }
         Document dataLog = new Document().append("GetDataTime",dateNowStr).append("TriggerMode", trigger).append("CollName", collName).append("Queries", JSON.toJSONString(queries)).append("OriginData", data);
         if(queries.containsKey("pageIndex")){
             dataLog.append("PageIndex", queries.get("pageIndex"));
         }
+        // mongo提交过来的数据库数据不再做处理
+        if(!object.containsKey("QueryParam")){
+            if(object.containsKey("Status") && object.getString("Status").equals("200")){
+                // 命中Log
+                MongoCollection<Document> collLog = mongoService2.getCollection("Hit_Log");
+                collLog.insertOne(dataLog);
+
+                ArrayList filters  = new ArrayList();
+                filters.add(Filters.eq("QueryParam.triggerMode", trigger));
+                for (Map.Entry<String, ?> entry : queries.entrySet()){
+                    filters.add(Filters.eq("QueryParam.".concat(entry.getKey()), entry.getValue()));
+                }
+                // $set可以用来修改一个字段的值，如果这个字段不存在，则创建它
+                // 插入数据库
+                object.put("QueryParam.getDataTime", dateNowStr);
+                Document modifiers = new Document();
+                modifiers.append("$set", object);
+                UpdateOptions opt = new UpdateOptions();
+                opt.upsert(true);
+                coll.updateOne(Filters.and(filters), modifiers, opt);
+                // 按时间做版本插入版本库
+                filters.add(Filters.eq("QueryParam.getDataTime", dateNowStr));
+                coll2.updateOne(Filters.and(filters), modifiers, opt);
+            }else{
+                // 未命中Log
+                MongoCollection<Document> collLog = mongoService2.getCollection("Missing_Log");
+                collLog.insertOne(dataLog);
+            }
+        }
+
         // 写入文件--全部请求完成后压缩文件提交解构服务解构数据
         FileLock lock = null;
         File file = extParam.getQccFileDataPath();
@@ -275,7 +307,9 @@ public class GetOriginQccService {
             raf.write(bs);
 
         } catch (IOException e) {
+            extParam.setWriteTxtFileState(false);
             e.printStackTrace();
+            return;
         }
         finally {
             if (lock != null) {
@@ -287,37 +321,7 @@ public class GetOriginQccService {
             }
         };
 
-        // mongo提交过来的数据库数据不再做处理
-        if(object.containsKey("QueryParam")){
-            return;
-        }
 
-        if(object.containsKey("Status") && object.getString("Status").equals("200")){
-            // 命中Log
-            MongoCollection<Document> collLog = mongoService2.getCollection("Hit_Log");
-            collLog.insertOne(dataLog);
-
-            ArrayList filters  = new ArrayList();
-            filters.add(Filters.eq("QueryParam.triggerMode", trigger));
-            for (Map.Entry<String, ?> entry : queries.entrySet()){
-                filters.add(Filters.eq("QueryParam.".concat(entry.getKey()), entry.getValue()));
-            }
-            // $set可以用来修改一个字段的值，如果这个字段不存在，则创建它
-            // 插入数据库
-            object.put("QueryParam.getDataTime", dateNowStr);
-            Document modifiers = new Document();
-            modifiers.append("$set", object);
-            UpdateOptions opt = new UpdateOptions();
-            opt.upsert(true);
-            coll.updateOne(Filters.and(filters), modifiers, opt);
-            // 按时间做版本插入版本库
-            filters.add(Filters.eq("QueryParam.getDataTime", dateNowStr));
-            coll2.updateOne(Filters.and(filters), modifiers, opt);
-        }else{
-            // 未命中Log
-            MongoCollection<Document> collLog = mongoService2.getCollection("Missing_Log");
-            collLog.insertOne(dataLog);
-        }
     }
 
     /**
