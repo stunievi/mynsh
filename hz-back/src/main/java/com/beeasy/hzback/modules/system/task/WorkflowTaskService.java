@@ -3,9 +3,12 @@ package com.beeasy.hzback.modules.system.task;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.entity.SysNotice;
+import com.beeasy.hzback.entity.WfIns;
+import com.beeasy.hzback.entity.WfNodeDealer;
 import com.beeasy.hzback.entity.WorkflowTask;
 import com.beeasy.hzback.modules.system.service.NoticeService2;
 import com.beeasy.mscommon.util.U;
+import org.apache.camel.json.simple.JsonArray;
 import org.beetl.sql.core.SQLManager;
 import org.osgl.util.C;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +30,7 @@ public class WorkflowTaskService {
     @Autowired
     NoticeService2 noticeService2;
 
-    @Scheduled(cron = "0 0/1 * * * ?")
+//    @Scheduled(cron = "0 0/1 * * * ?")
     public void workflowTask() {
 
         List<JSONObject> res = (sqlManager.select("workflow.selectDealParam", JSONObject.class, C.newMap()));
@@ -37,7 +40,6 @@ public class WorkflowTaskService {
             while (sIterator.hasNext()) {
                 // 获得key
                 String key = sIterator.next();
-
 
                 if ("model".equals(key)) {
 
@@ -56,6 +58,7 @@ public class WorkflowTaskService {
                         String noticeInterval = jo.getString("notice_interval");
                         String timeout = jo.getString("timeout");
                         if (null != noticeInterval && null != timeout) {
+
                             String name = jo.getString("name");
                             if (nodeName.equals(name)) {
 
@@ -87,18 +90,43 @@ public class WorkflowTaskService {
                                         } else {
                                             WorkflowTask workflow = sqlManager.lambdaQuery(WorkflowTask.class).andEq(WorkflowTask::getTaskId, id).andEq(WorkflowTask::getCurrentNodeInstanceId, currentNodeInstanceId).single();
                                             if (null != workflow) {
+
                                                 Date da = workflow.getRemindTime();
                                                 // 如果时间跟当前时间比较大于等于配置时间，则更新时间，发送消息提醒
                                                 Instant instant = da.toInstant();
                                                 ZoneId zoneId = ZoneId.systemDefault();
 
                                                 LocalDateTime localDateTime = instant.atZone(zoneId).toLocalDateTime();
-                                                LocalDateTime now = LocalDateTime.now().plusDays(5);
+//                                                LocalDateTime now = LocalDateTime.now().plusDays(5);
+                                                LocalDateTime now = LocalDateTime.now();
                                                 Duration duration = Duration.between(localDateTime, now);
                                                 long min2 = duration.toMinutes();//相差的分钟数
+
+                                                String noticeTimeOut = jo.getString("notice_interval_out");
+                                                if(null != noticeTimeOut){
+                                                    long noticeTime = trans(noticeTimeOut);
+                                                    Date taskTime = workflow.getTaskStartTime();
+                                                    if(null != taskTime){
+                                                        Instant instant2 = taskTime.toInstant();
+                                                        ZoneId zoneId2 = ZoneId.systemDefault();
+                                                        // 当前时间
+                                                        LocalDateTime tNowTime = LocalDateTime.now();
+
+                                                        LocalDateTime tTime = instant2.atZone(zoneId2).toLocalDateTime();
+                                                        // 任务到期时间
+                                                        LocalDateTime eTime = tTime.plusMinutes(noticeTime);
+
+                                                        if(tNowTime.isAfter(eTime)){
+                                                            break;
+                                                        }
+                                                    }
+
+                                                }
+
                                                 if (min2 >= outHours) {
-                                                    sqlManager.lambdaQuery(WorkflowTask.class).andEq(WorkflowTask::getTaskId, id).delete();
-                                                    saveEntity(id, currentNodeInstanceId);
+//                                                    sqlManager.lambdaQuery(WorkflowTask.class).andEq(WorkflowTask::getTaskId, id).delete();
+//                                                    saveEntity(id, currentNodeInstanceId);
+                                                    sqlManager.lambdaQuery(WorkflowTask.class).andEq(WorkflowTask::getTaskId,id).andEq(WorkflowTask::getCurrentNodeInstanceId,currentNodeInstanceId).updateSelective(new WorkflowTask(){{setRemindTime(new Date());}});
 
                                                     // 发送消息
                                                     List<SysNotice> notices = new ArrayList<>();
@@ -106,11 +134,16 @@ public class WorkflowTaskService {
                                                     List<JSONObject> deal = (sqlManager.select("workflow.得到任务节点审批人", JSONObject.class, C.newMap("insId", id, "nodeId", currentNodeInstanceId)));
                                                     for (JSONObject de : deal) {
                                                         long days = min / (60 * 24);
-
+                                                        String str = "";
+                                                        if(0 >= days){
+                                                            str = "长时间";
+                                                        }else if(0<days){
+                                                            str = "超过"+days + "天";
+                                                        }
                                                         Long uid = de.getLong("uid");
-                                                        String renderStr = "您有任务超过" + days + "天未处理，请及时处理！";
+                                                        String renderStr = "您有任务" + str + "未处理，请及时处理！";
                                                         notices.add(
-                                                                noticeService2.makeNotice(SysNotice.Type.SYSTEM, uid, renderStr, null)
+                                                                noticeService2.makeNotice(SysNotice.Type.WORKFLOW, uid, renderStr, C.newMap("taskId", id + ""))
                                                         );
                                                     }
                                                     if (notices.size() > 0) {
@@ -140,6 +173,7 @@ public class WorkflowTaskService {
         entity.setCurrentNodeInstanceId(currentNodeInstanceId);
         entity.setRemindTime(new Date());
         entity.setId(U.getSnowflakeIDWorker().nextId());
+        entity.setTaskStartTime(new Date());
         sqlManager.insert(entity);
     }
 
@@ -166,4 +200,31 @@ public class WorkflowTaskService {
         return re;
     }
 
+    public void sendUrge(Long id){
+        // 任务实例
+        WfIns entity = sqlManager.lambdaQuery(WfIns.class).andEq(WfIns::getId,id).single();
+
+        String a = entity.getNodes();
+        JSONArray json = (JSONArray) JSONArray.parse(a);
+        Object ob = json.get(json.size()-1);
+
+        JSONObject jObject = (JSONObject) ob;
+        Long nodesId = jObject.getLong("id");
+
+        // 任务处理人
+        WfNodeDealer dealerEntity = sqlManager.lambdaQuery(WfNodeDealer.class).andEq(WfNodeDealer::getInsId,id).andEq(WfNodeDealer::getNodeId,nodesId).single();
+
+        if(null == dealerEntity){
+            return;
+        }
+        Long uid = dealerEntity.getUid();
+
+        String renderStr = "您有任务长时间未处理，请及时处理！";
+        List<SysNotice> notices = new ArrayList<>();
+        notices.add(
+                noticeService2.makeNotice(SysNotice.Type.WORKFLOW, uid, renderStr, C.newMap("taskId", id + ""))
+        );
+        sqlManager.insertBatch(SysNotice.class, notices);
+
+    }
 }
