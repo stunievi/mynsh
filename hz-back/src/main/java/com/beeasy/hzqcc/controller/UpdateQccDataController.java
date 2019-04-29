@@ -4,6 +4,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.entity.QCCLog;
+import com.beeasy.hzback.entity.SysNotice;
+import com.beeasy.hzback.entity.User;
+import com.beeasy.hzback.modules.system.service.NoticeService2;
 import com.beeasy.mscommon.Result;
 import com.beeasy.mscommon.filter.AuthFilter;
 import com.beeasy.mscommon.util.U;
@@ -11,6 +14,7 @@ import org.apache.activemq.BlobMessage;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
 import org.beetl.sql.core.SQLManager;
+import org.osgl.util.C;
 import org.osgl.util.IO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.annotation.JmsListener;
@@ -26,8 +30,10 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/qcc/auto")
@@ -37,6 +43,8 @@ public class UpdateQccDataController {
     private JmsMessagingTemplate jmsMessagingTemplate;
     @Autowired
     private SQLManager sqlManager;
+    @Autowired
+    NoticeService2 noticeService2;
 
     @RequestMapping(value ="/updateData", method = RequestMethod.GET)
     public Result sendMsg(
@@ -140,6 +148,7 @@ public class UpdateQccDataController {
                     if(0 == finished){ // 成功
                         content = progressText +"成功："+ cusName + "--" + sign;
                     }else if( 1 == finished){   // 部分失败
+                        sendToAdminMsg("数据解构部分");
                         String errorMessage = jo.getString("errorMessage");
                         if(null != errorMessage){
                             content = "部分失败："+errorMessage;
@@ -148,6 +157,7 @@ public class UpdateQccDataController {
                         }
 
                     }else if(-1 == finished){   // 全部失败
+                        sendToAdminMsg("数据解构全部");
                         String errorMessage = jo.getString("errorMessage");
                         if(null != errorMessage){
                             content = "全部失败："+errorMessage;
@@ -199,14 +209,15 @@ public class UpdateQccDataController {
                         JSONObject jo1 = (JSONObject) obj;
                         String cusName = jo1.getString("Content");
                         String sign = getSignName(jo1.getString("Sign"));
-                        saveQccLog("获取数据全部成功："+ cusName + "--" + sign, "02", orderId, requestId, uid);
+                        saveQccLog("获取数据全部成功："+ cusName + "--" + sign, "03", orderId, requestId, uid);
                     }
 
                 }
 
             }else if("failed".equals(finished)){
+                sendToAdminMsg("数据获取全部");
                 String errorMessage = jo.getString("errorMessage");
-                saveQccLog("获取数据失败："+errorMessage, "02", orderId, requestId, uid);
+                saveQccLog("获取数据失败："+errorMessage, "03", orderId, requestId, uid);
             }
 
         } else if(o instanceof BlobMessage){
@@ -241,6 +252,19 @@ public class UpdateQccDataController {
                 break;
         }
         return signName;
+    }
+
+    /**
+     * 失败后给管理员发送消息
+     */
+    private void sendToAdminMsg(String errText){
+        User user = sqlManager.lambdaQuery(User.class).andEq(User::getUsername,"admin").single();
+        String renderStr = "企查查日志"+errText+"失败！";
+        List<SysNotice> notices = new ArrayList<>();
+        notices.add(
+                noticeService2.makeNotice(SysNotice.Type.SYSTEM, user.getId(), renderStr, null)
+        );
+        sqlManager.insertBatch(SysNotice.class, notices);
     }
 
 }
