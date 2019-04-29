@@ -708,6 +708,7 @@ public class QccService {
      * @apiVersion 0.0.1
      *
      * @apiParam {string} fullName 公司全名
+     * @apiParam {string} personName 人名
      *
      * @apiSuccess {object[]} CIACompanyLegals 担任法人公司信息
      * @apiSuccess {string} CIACompanyLegals.Name 企业名称
@@ -1389,9 +1390,10 @@ public class QccService {
      */
     private Object GetStockRelationInfo(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
         String compName = (String) params.getOrDefault("fullName", "");
+        String personName = (String) params.getOrDefault("personName", "");
         JSONObject result = new JSONObject();
         for (Map.Entry<String, Object> entry : DeconstructService.GetStockRelationInfoMap.entrySet()) {
-            String sql = S.fmt("select * from %s where inner_company_name = '%s'", entry.getValue(), compName);
+            String sql = S.fmt("select * from %s where inner_company_name = '%s' and per_name = '%s'", entry.getValue(), compName, personName);
             List<JSONObject> array = listQuery(sql, params);
             for (JSONObject object : array) {
                 object.entrySet().removeIf(_entry -> _entry.getKey().startsWith("inner"));
@@ -5534,7 +5536,7 @@ public class QccService {
      *
      * @apiSuccess {object} EquityFreezeDetail 股权冻结情况
      * @apiSuccess {string} EquityFreezeDetail.CompanyName 相关企业名称
-     * @apiSuccess {string} EEquityFreezeDetail.ExecutionMatters 执行事项
+     * @apiSuccess {string} EquityFreezeDetail.ExecutionMatters 执行事项
      * @apiSuccess {string} EquityFreezeDetail.ExecutionDocNum 执行文书文号
      * @apiSuccess {string} EquityFreezeDetail.ExecutionVerdictNum 执行裁定书文号
      * @apiSuccess {string} EquityFreezeDetail.ExecutedPersonDocType 被执行人证件种类

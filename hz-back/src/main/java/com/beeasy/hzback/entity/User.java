@@ -109,7 +109,7 @@ public class User extends TailBean implements ValidGroup {
 
 
     /**
-     * @api {get} {辅助系统地址}/api/auto/user/getList 系统变量列表
+     * @api {get} {辅助系统地址}/api/auto/user/getList 用户列表
      * @apiGroup FZSYS
      * @apiVersion 0.0.1
      * @apiUse FzCommon

@@ -53,14 +53,14 @@ public class SysVar extends TailBean implements ValidGroup {
      * @apiSuccess {string} sys_name 系统名
      * @apiSuccess {string} sys_des 系统描述
      * @apiSuccess {string} msg_api_open 是否开启短信网关
-     * @apiSuccess {string} MSG_RULE_* 消息规则参数，*为消息规则几，通常用来保存发送消息的触发时间
-     * @apiSuccess {string} MSG_RULE_*_ON 消息规则参数，*为消息规则几，通常用来保存是否开启该规则
-     * @apiSuccess {string} MSG_RULE_*_TMPL 消息规则参数，*为消息规则几，通常用来保存消息对应的消息模板
-     * @apiSuccess {string} ACC_*_BIZ_TYPE 任务自动生成参数，*为生成规则几，通常用来保存产品的编号
-     * @apiSuccess {string} ACC_*_EXPECT_DAY 任务自动生成参数，*为生成规则几，通常用来保存预提醒时间（天）
-     * @apiSuccess {string} ACC_*_LOAN_CHECK 任务自动生成参数，*为生成规则几，通常用来保存检查时间间隔（月）
-     * @apiSuccess {string} ACC_*_LOAN_AMOUNT_MIN 任务自动生成参数，*为生成规则几，通常用来保存贷款额度(元）最小值
-     * @apiSuccess {string} ACC_*_LOAN_AMOUNT_MAX 任务自动生成参数，*为生成规则几，通常用来保存贷款额度(元）最大值
+     * @apiSuccess {string} MSG_RULE_x 消息规则参数，x为消息规则几，通常用来保存发送消息的触发时间
+     * @apiSuccess {string} MSG_RULE_x_ON 消息规则参数，x为消息规则几，通常用来保存是否开启该规则
+     * @apiSuccess {string} MSG_RULE_x_TMPL 消息规则参数，x为消息规则几，通常用来保存消息对应的消息模板
+     * @apiSuccess {string} ACC_x_BIZ_TYPE 任务自动生成参数，x为生成规则几，通常用来保存产品的编号
+     * @apiSuccess {string} ACC_x_EXPECT_DAY 任务自动生成参数，x为生成规则几，通常用来保存预提醒时间（天）
+     * @apiSuccess {string} ACC_x_LOAN_CHECK 任务自动生成参数，x为生成规则几，通常用来保存检查时间间隔（月）
+     * @apiSuccess {string} ACC_x_LOAN_AMOUNT_MIN 任务自动生成参数，x为生成规则几，通常用来保存贷款额度(元）最小值
+     * @apiSuccess {string} ACC_x_LOAN_AMOUNT_MAX 任务自动生成参数，x为生成规则几，通常用来保存贷款额度(元）最大值
      *
      *
      */
