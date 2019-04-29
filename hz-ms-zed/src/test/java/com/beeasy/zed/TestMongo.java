@@ -10,6 +10,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.DefaultHeaders;
 import io.netty.handler.codec.http.*;
+import org.apache.activemq.BlobMessage;
 import org.beetl.ext.fn.StringUtil;
 import org.beetl.sql.core.DSTransactionManager;
 import org.beetl.sql.core.SQLReady;
@@ -46,11 +47,13 @@ public class TestMongo {
     private static ZedService zedService = new ZedService();
 
     @BeforeClass
-    public static void onBefore(){
+    public static void onBefore() throws ExecutionException, InterruptedException {
         mongoService.start();
         DBService.init(true);
+        DBService.await();
         deconstructService = DeconstructService.register();
         deconstructService.autoCommit = false;
+
     }
 
     @AfterClass
@@ -326,6 +329,11 @@ public class TestMongo {
         }
     }
 
+
+    @Test
+    public void testSingleFile() throws FileNotFoundException {
+        deconstructService.onDeconstructRequest("1","2", new FileInputStream("D:\\work\\hznsh\\hz-ms-zed\\target\\load-qcc336c5d1b-d044-41ca-8b2f-9ac13c56a9c5"));
+    }
 
 
 

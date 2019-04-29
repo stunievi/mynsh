@@ -58,7 +58,7 @@ public class DeconstructService {
     private static ValueGenerator.Wrap DateValue = ValueGenerator.createDate();
     private static ValueGenerator.Wrap Base64Value = ValueGenerator.createBase64();
 
-    public static Map<String, DeconstructHandler> handlers = new HashMap<>();
+    public static Map<String, DeconstructHandler> handlers = new ConcurrentHashMap<>();
 
     public static JSONObject HistorytEciMap = newJsonObject(
         "CompanyNameList", "QCC_HIS_ECI_COMPANY_NAME_LIST",
@@ -351,7 +351,11 @@ public class DeconstructService {
                     }
                     service.runningTask.put(requestId, true);
                 }
-                service.onDeconstructRequest(requestId,sourceRequest,(BlobMessage) m);
+                try {
+                    service.onDeconstructRequest(requestId,sourceRequest,(BlobMessage) m);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 synchronized (service){
                     service.runningTask.remove(requestId);
                 }
@@ -1996,11 +2000,11 @@ public class DeconstructService {
      * @param requestId
      * @throws Exception
      */
-    private void deconstructStep0(BlobMessage blobMessage, String requestId) throws Exception {
+    private void deconstructStep0(InputStream inputStream, String requestId) throws Exception {
         File sourcefile = new File(logSourceDir, requestId);
         if (sourcefile.exists()) sourcefile.delete();
         try (
-            InputStream is = blobMessage.getInputStream();
+            InputStream is = inputStream;
             FileOutputStream fos = new FileOutputStream(sourcefile);
         ) {
             IoUtil.copy(is, fos);
@@ -2313,13 +2317,16 @@ public class DeconstructService {
      * @apiParam {string} id 数据requestId
      *
      */
-    public void onDeconstructRequest(String requestId, String sourceRequest, BlobMessage blobMessage)  {
-        autoCommit = false;
+    public void onDeconstructRequest(String requestId, String sourceRequest, BlobMessage blobMessage) throws IOException, JMSException {
+        onDeconstructRequest(requestId,sourceRequest,blobMessage.getInputStream());
+    }
 
+    public void onDeconstructRequest(String requestId, String sourceRequest, InputStream is)  {
+        autoCommit = false;
         QccDeconstructReqponse reqponse = new QccDeconstructReqponse(-1, 0, requestId, sourceRequest, "");
         AtomicBoolean someError = new AtomicBoolean(false);
         try{
-            deconstructStep0(blobMessage, requestId);
+            deconstructStep0(is, requestId);
             reqponse.progress = 1;
             deconstructStep1(requestId);
             reqponse.progress = 2;
@@ -2587,6 +2594,9 @@ public class DeconstructService {
                 }
                 if (value instanceof String && "".equals(value)) {
                     return null;
+                }
+                if(((String)value).charAt(0) == 160){
+                    value = ((String) value).substring(1);
                 }
                 for (String dateFormat : dateFormats) {
                     try {

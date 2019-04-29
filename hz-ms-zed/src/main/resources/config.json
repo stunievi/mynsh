@@ -12,5 +12,5 @@
         "sql": "d:/delog/sql",
         "unzip": "d:/delog/unzip"
     },
-    "workmode": "all"
+    "workmode": "search"
 }
