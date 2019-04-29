@@ -395,8 +395,8 @@ public class TestQcc {
         for (Map.Entry<String, Object> entry : DeconstructService.GetStockRelationInfoMap.entrySet()) {
             clearTable((String) entry.getValue());
         }
-        JSONObject source = read("/CIAEmployeeV4/GetStockRelationInfo.json?companyName=惠州市维也纳惠尔曼酒店管理有限公司");
-        JSONObject target = checkResult("/CIAEmployeeV4/GetStockRelationInfo?fullName=惠州市维也纳惠尔曼酒店管理有限公司");
+        JSONObject source = read("/CIAEmployeeV4/GetStockRelationInfo.json?companyName=惠州市维也纳惠尔曼酒店管理有限公司&name=雷军");
+        JSONObject target = checkResult("/CIAEmployeeV4/GetStockRelationInfo?fullName=惠州市维也纳惠尔曼酒店管理有限公司&name=雷军");
         checkSim(source, target, 0.6);
     }
     @Test

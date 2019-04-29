@@ -3529,6 +3529,9 @@
       deleteable: false
       type: input
       start: true
+      timeout: 1m
+      notice_interval: 1m
+      notice_timeout: 5m
       content:
         贷款品种选择:
           name: type
