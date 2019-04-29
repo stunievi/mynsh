@@ -43,10 +43,19 @@ public class WorkflowTaskService {
 
                 if ("model".equals(key)) {
 
+                    // 当前节点名
                     String nodeName = re.getString("currentNodeName");
 
+                    // 任务实例id
                     Long id = re.getLong("id");
-                    Long currentNodeInstanceId = re.getLong("currentNodeInstanceId");
+//                    Long currentNodeInstanceId = re.getLong("currentNodeInstanceId");
+                    String a = re.getString("nodes");
+                    JSONArray json = (JSONArray) JSONArray.parse(a);
+                    Object ob = json.get(json.size()-1);
+
+                    JSONObject jObject = (JSONObject) ob;
+                    // 当前节点id
+                    Long currentNodeInstanceId = jObject.getLong("id");
 
                     String ja1 = re.getString(key);
 
@@ -82,7 +91,7 @@ public class WorkflowTaskService {
                                     //  如果天数大于配置天数
                                     if (min > outDay) {
 //                                    if(p.getDays()>outDay){
-
+                                        // 查询是否有此实例id
                                         WorkflowTask entityTask = sqlManager.lambdaQuery(WorkflowTask.class).andEq(WorkflowTask::getTaskId, id).single();
 
                                         if (null == entityTask) {

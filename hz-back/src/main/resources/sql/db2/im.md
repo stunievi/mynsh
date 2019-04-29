@@ -82,7 +82,7 @@ where
 select no.*
 , value(d.v_value,no.type) as type
 , value(d2.v_value,no.state) as state
-, case when no.from_uid = 0 then '系统' else u.true_name end as send_utname
+, case when (no.from_uid = 0 or no.from_uid is null) then '系统' else u.true_name end as send_utname
 , u2.true_name as rec_utname
 from t_system_notice no
 left join t_user u on u.id = no.from_uid
