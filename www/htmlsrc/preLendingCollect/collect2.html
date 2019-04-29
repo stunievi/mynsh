@@ -44,10 +44,36 @@
             {{# }else{ }}
             <a href="javascript:;" class="btn btn-default " data-id="{{d.id}}" data-loanid="" id="collect{{d.id}}" tab-href="/htmlsrc/htmllayer/choiceLoan.html?bindId={{d.id}}" tab-title="绑定台账" >绑定</a>
             {{# } }}
-            <!--<button type="button" class="btn btn-danger" delete-href="{{remoteOrigin}}/api/auto/wfins/delete?id={{d.id}}">删除</button>-->
+            {{# if(d.state != "已完成"){ }}
+            <a href="javascript:;" class="btn btn-default sendMsg" data-id="{{d.id}}" data-loanid="" id="collect{{d.id}}" >发送催办</a>
+            {{# } }}<!--<button type="button" class="btn btn-danger" delete-href="{{remoteOrigin}}/api/auto/wfins/delete?id={{d.id}}">删除</button>-->
         </div>
     </script>
     <script>
+        $(document).on("click", ".sendMsg", function(){
+
+            var id = $(this).data("id");
+            layer.confirm('确定发送催办消息提醒吗？', function(index){
+            
+                $.ajax({
+                    url: '/api/workflow/sendMsg?id='+id,
+                    type: "get",
+                    noMessage: true,
+                    //   parmData: json,
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        if(data.success){
+                            layer.msg("发送成功！");
+                        }else{
+                            layer.msg("发送失败！");
+                        }
+                        layer.close(index);
+                    }
+                });
+
+            });
+        })
+
         $("#panel-form").html(panelFormRender3({
             col:3,
             panelTitle:'筛选查询',

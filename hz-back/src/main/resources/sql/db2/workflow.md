@@ -505,3 +505,15 @@ where (ins.deal_user_id = #uid#) or (
 得到可发布的模型名
 ===
 values FUNC_GET_MODEL_BY_LOAN_ACCOUNT(#loan#, #modelName#)
+
+selectDealParam
+===
+select
+ * 
+from t_workflow_instance where state='DEALING'
+
+得到任务节点审批人
+===
+select * from T_WF_INS_DEALER
+where ins_id=#insId# and node_id=#nodeId# and type='DID_DEAL'
+

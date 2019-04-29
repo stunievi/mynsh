@@ -22,4 +22,5 @@ public class WorkflowTask {
     Long   taskId;
     Long currentNodeInstanceId;
     Date remindTime;
+    Date taskStartTime;
 }

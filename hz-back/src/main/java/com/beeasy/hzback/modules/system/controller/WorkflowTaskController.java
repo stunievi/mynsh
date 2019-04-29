@@ -3,24 +3,27 @@ package com.beeasy.hzback.modules.system.controller;
 import com.beeasy.hzback.modules.system.task.WorkflowTaskService;
 import com.beeasy.mscommon.Result;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/api/workflow/task")
+@RequestMapping("/api/workflow")
 public class WorkflowTaskController {
     @Autowired
     private WorkflowTaskService workflowTask;
 
-    @RequestMapping(method = RequestMethod.GET)
+    @RequestMapping(value="/task",method = RequestMethod.GET)
     @ResponseBody
     public Result uploadFace(
     ) throws IOException {
         workflowTask.workflowTask();
+        return Result.ok();
+    }
+
+    @RequestMapping(value="/sendMsg",method = RequestMethod.GET)
+    public Result sendMsg(@RequestParam Long id) throws IOException {
+        workflowTask.sendUrge(id);
         return Result.ok();
     }
 }

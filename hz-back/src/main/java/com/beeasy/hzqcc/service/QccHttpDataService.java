@@ -3,6 +3,7 @@ package com.beeasy.hzqcc.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.mscommon.util.OkHttpUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -11,7 +12,8 @@ import java.util.Map;
 public class QccHttpDataService {
 
     // http://47.94.97.138/qcc/
-    private String QCC_HTTP_DATA_PRX = "http://127.0.0.1:8081/qcc";
+    @Value("qcc.search-api")
+    private String QCC_HTTP_DATA_PRX;
 
     JSONObject getQccData(
             String collName,
