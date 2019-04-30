@@ -101,8 +101,6 @@ public class UpdateQccDataController {
 
             JSONObject jo = JSON.parseObject(((TextMessage) o).getText());
             int finished = jo.getInteger("finished");
-            String uid = "";
-            String orderId = "";
             String requestId = jo.getString("requestId");
 
             String progressText = "";
@@ -114,8 +112,8 @@ public class UpdateQccDataController {
 
             Iterator<String> iterator = jsStr.keySet().iterator();
 
-            uid = (String)jsStr.get("uid");
-            orderId = (String)jsStr.get("OrderId");
+            String uid = (String)jsStr.get("uid");
+            String orderId = (String)jsStr.get("OrderId");
 
             switch (progress){
                 case "0": //
@@ -139,7 +137,23 @@ public class UpdateQccDataController {
                 }
                 //获得key值对应的value
                 JSONArray ja1 = jsStr.getJSONArray(key);
-                for (Object obj : ja1) {
+                if(ja1.size() <=0 || null == ja1){
+                    continue;
+                }
+                Object ob = ja1.get(0);
+                JSONObject jObject = (JSONObject) ob;
+                String cusName = jObject.getString("Content");
+                String sign = getSignName(jObject.getString("Sign"));
+                String content = "";
+
+                if(ja1.size()>1){
+                    content = toCon(finished,progressText,content,cusName,sign,"等公司",jo);
+                }else if(ja1.size() == 1){
+                    content = toCon(finished,progressText,content,cusName,sign,"",jo);
+                }
+                saveQccLog(content, "02", orderId, requestId, uid);
+
+                /*for (Object obj : ja1) {
                     JSONObject jo1 = (JSONObject) obj;
                     String cusName = jo1.getString("Content");
                     String sign = getSignName(jo1.getString("Sign"));
@@ -166,7 +180,7 @@ public class UpdateQccDataController {
                         }
                     }
                     saveQccLog(content, "02", orderId, requestId, uid);
-                }
+                }*/
 
             }
 
@@ -184,20 +198,19 @@ public class UpdateQccDataController {
 
             JSONObject jo = JSON.parseObject(((TextMessage) o).getText());
             String finished = jo.getString("finished");
-            String uid = "";
-            String orderId = "";
             String progress = jo.getString("progress");
             String requestId = jo.getString("requestId");
 
+            String sourceRequest = jo.getString("sourceRequest");
+            JSONObject jsStr = JSONObject.parseObject(sourceRequest);
+
+            String uid = (String)jsStr.get("uid");
+            String orderId = (String)jsStr.get("OrderId");
+
+            Iterator<String> iterator = jsStr.keySet().iterator();
+
             if("success".equals(finished) && "3".equals(progress)){
 
-                String sourceRequest = jo.getString("sourceRequest");
-                JSONObject jsStr = JSONObject.parseObject(sourceRequest);
-
-                Iterator<String> iterator = jsStr.keySet().iterator();
-
-                uid = (String)jsStr.get("uid");
-                orderId = (String)jsStr.get("OrderId");
                 while(iterator.hasNext()){
                     String key = iterator.next();
                     if("uid".equals(key) || "OrderId".equals(key)){
@@ -205,15 +218,26 @@ public class UpdateQccDataController {
                     }
                     //获得key值对应的value
                     JSONArray ja1 = jsStr.getJSONArray(key);
-                    for (Object obj : ja1) {
-                        JSONObject jo1 = (JSONObject) obj;
-                        String cusName = jo1.getString("Content");
-                        String sign = getSignName(jo1.getString("Sign"));
-                        saveQccLog("获取数据全部成功："+ cusName + "--" + sign, "03", orderId, requestId, uid);
+                    if(ja1.size() <=0 || null == ja1){
+                        continue;
                     }
 
+                    Object ob = ja1.get(0);
+                    JSONObject jObject = (JSONObject) ob;
+                    String cusName = jObject.getString("Content");
+                    String sign = getSignName(jObject.getString("Sign"));
+                    if(ja1.size()>1){
+                        saveQccLog("获取数据全部成功："+ cusName + "--" + sign +"等公司", "03", orderId, requestId, uid);
+                    }else if(ja1.size() == 1){
+                        saveQccLog("获取数据全部成功："+ cusName + "--" + sign, "03", orderId, requestId, uid);
+                    }
+//                    for (Object obj : ja1) {
+//                        JSONObject jo1 = (JSONObject) obj;
+//                        String cusName = jo1.getString("Content");
+//                        String sign = getSignName(jo1.getString("Sign"));
+//                        saveQccLog("获取数据全部成功："+ cusName + "--" + sign, "03", orderId, requestId, uid);
+//                    }
                 }
-
             }else if("failed".equals(finished)){
                 sendToAdminMsg("数据获取全部");
                 String errorMessage = jo.getString("errorMessage");
@@ -258,13 +282,37 @@ public class UpdateQccDataController {
      * 失败后给管理员发送消息
      */
     private void sendToAdminMsg(String errText){
-        User user = sqlManager.lambdaQuery(User.class).andEq(User::getUsername,"admin").single();
+//        User user = sqlManager.lambdaQuery(User.class).andEq(User::getUsername,"admin").single();
         String renderStr = "企查查日志"+errText+"失败！";
         List<SysNotice> notices = new ArrayList<>();
         notices.add(
-                noticeService2.makeNotice(SysNotice.Type.SYSTEM, user.getId(), renderStr, null)
+                noticeService2.makeNotice(SysNotice.Type.SYSTEM, 1, renderStr, null)
         );
         sqlManager.insertBatch(SysNotice.class, notices);
+    }
+
+    private String toCon(int finished, String progressText, String content, String cusName, String sign, String te, JSONObject jo){
+        if(0 == finished){ // 成功
+            content = progressText +"成功："+ cusName + "--" + sign + te;
+        }else if( 1 == finished){   // 部分失败
+            sendToAdminMsg("数据解构部分");
+            String errorMessage = jo.getString("errorMessage");
+            if(null != errorMessage){
+                content = "部分失败："+errorMessage;
+            }else{
+                content = "部分失败："+cusName + "--" + sign + te;
+            }
+
+        }else if(-1 == finished){   // 全部失败
+            sendToAdminMsg("数据解构全部");
+            String errorMessage = jo.getString("errorMessage");
+            if(null != errorMessage){
+                content = "全部失败："+errorMessage;
+            }else{
+                content = "全部失败："+cusName + "--" + sign + te;
+            }
+        }
+        return content;
     }
 
 }
