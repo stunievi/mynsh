@@ -717,6 +717,8 @@ public class QccService {
      * @apiSuccess {string} CIACompanyLegals.RegCapCur 注册资本币种
      * @apiSuccess {string} CIACompanyLegals.Status 企业状态
      * @apiSuccess {string} CIACompanyLegals.EcoKind 企业类型
+     * @apiSuccess {string} CIACompanyLegals.OperName 法人代表
+     * @apiSuccess {string} CIACompanyLegals.StartDate 企业注册时间
      *
      * @apiSuccess {object[]} CIAForeignInvestments 对外投资信息
      * @apiSuccess {string} CIAForeignInvestments.SubConAmt 认缴出资额
@@ -727,6 +729,8 @@ public class QccService {
      * @apiSuccess {string} CIAForeignInvestments.RegCap 注册资本
      * @apiSuccess {string} CIAForeignInvestments.RegCapCur 注册资本币种
      * @apiSuccess {string} CIAForeignInvestments.Status 企业状态
+     * @apiSuccess {string} CIAForeignInvestments.OperName 法人代表
+     * @apiSuccess {string} CIAForeignInvestments.StartDate 企业注册时间
      *
      * @apiSuccess {object[]} CIAForeignOffices 在外任职信息
      * @apiSuccess {string} CIAForeignOffices.Position 职位
@@ -736,6 +740,8 @@ public class QccService {
      * @apiSuccess {string} CIAForeignOffices.RegCap 注册资本
      * @apiSuccess {string} CIAForeignOffices.RegCapCur 注册资本币种
      * @apiSuccess {string} CIAForeignOffices.Status 企业状态
+     * @apiSuccess {string} CIAForeignOffices.OperName 法人代表
+     * @apiSuccess {string} CIAForeignOffices.StartDate 企业注册时间
      *
      * @apiSuccessExample 请求成功:
      * {
@@ -1392,8 +1398,14 @@ public class QccService {
         String compName = (String) params.getOrDefault("fullName", "");
         String personName = (String) params.getOrDefault("personName", "");
         JSONObject result = new JSONObject();
+        int i = 0;
         for (Map.Entry<String, Object> entry : DeconstructService.GetStockRelationInfoMap.entrySet()) {
-            String sql = S.fmt("select * from %s where inner_company_name = '%s' and per_name = '%s'", entry.getValue(), compName, personName);
+            String sql;
+            if(true){
+                sql =  S.fmt("select d.*, qd.Oper_Name, qd.Start_Date from %s d left join QCC_DETAILS qd on d.name = qd.inner_company_name where d.inner_company_name = '%s' and d.per_name = '%s'", entry.getValue(), compName, personName);
+            } else {
+                sql = S.fmt("select * from %s where inner_company_name = '%s' and per_name = '%s'", entry.getValue(), compName, personName);
+            }
             List<JSONObject> array = listQuery(sql, params);
             for (JSONObject object : array) {
                 object.entrySet().removeIf(_entry -> _entry.getKey().startsWith("inner"));
@@ -4541,7 +4553,9 @@ public class QccService {
         JSONObject object = singleQuery("qcc.查询历史工商信息表", param);
         JSONObject hisData = JSON.parseObject(object.getString("HisData"));
         object.remove("HisData");
-        object.putAll((Map<? extends String, ? extends Object>) hisData);
+        if (hisData != null) {
+            object.putAll((Map<? extends String, ? extends Object>) hisData);
+        }
         return object;
     }
 
@@ -6906,7 +6920,7 @@ public class QccService {
 
     public List<JSONObject> listQuery(String sqlId, Map<String, Object> params) {
         List<JSONObject> list;
-        if (sqlId.contains(".")) {
+        if (sqlId.contains("qcc.")) {
             list = (sqlManager.select(sqlId, JSONObject.class, params));
         } else {
             list = (sqlManager.execute(sqlId, JSONObject.class, params));

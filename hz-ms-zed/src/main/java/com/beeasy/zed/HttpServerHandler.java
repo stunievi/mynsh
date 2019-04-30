@@ -22,6 +22,7 @@ import org.osgl.util.S;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -45,7 +46,7 @@ class HttpServerHandler extends ChannelInboundHandlerAdapter {
     private static final AsciiString CONNECTION = new AsciiString("Connection");
     private static final AsciiString KEEP_ALIVE = new AsciiString("keep-alive");
     public static Throwable LastException = null;
-    private static Map<String, Pattern> urlRegexs = new HashMap<>();
+    private static Map<String, Pattern> urlRegexs = new ConcurrentHashMap<>();
 
     public static void AddRoute(Route... routes) {
         RouteList.addAll(Arrays.asList(routes));

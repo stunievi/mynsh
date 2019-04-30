@@ -44,8 +44,8 @@ public class DeconstructService {
     private File logSourceDir;
     private File logSqlDir;
     private File logUnzipDir;
-    private ReentrantLock mutex = new ReentrantLock();
-    private ExecutorService executor = Executors.newFixedThreadPool(16);
+//    private ReentrantLock mutex = new ReentrantLock();
+//    private ExecutorService executor = Executors.newFixedThreadPool(16);
     private Map<String, Boolean> runningTask = new HashMap<>();
 
     private ObjectId objectId = ObjectId.get();
@@ -58,7 +58,7 @@ public class DeconstructService {
     private static ValueGenerator.Wrap DateValue = ValueGenerator.createDate();
     private static ValueGenerator.Wrap Base64Value = ValueGenerator.createBase64();
 
-    public static Map<String, DeconstructHandler> handlers = new HashMap<>();
+    public static Map<String, DeconstructHandler> handlers = new ConcurrentHashMap<>();
 
     public static JSONObject HistorytEciMap = newJsonObject(
         "CompanyNameList", "QCC_HIS_ECI_COMPANY_NAME_LIST",
@@ -351,7 +351,11 @@ public class DeconstructService {
                     }
                     service.runningTask.put(requestId, true);
                 }
-                service.onDeconstructRequest(requestId,sourceRequest,(BlobMessage) m);
+                try {
+                    service.onDeconstructRequest(requestId,sourceRequest,(BlobMessage) m);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 synchronized (service){
                     service.runningTask.remove(requestId);
                 }
@@ -1996,11 +2000,11 @@ public class DeconstructService {
      * @param requestId
      * @throws Exception
      */
-    private void deconstructStep0(BlobMessage blobMessage, String requestId) throws Exception {
+    private void deconstructStep0(InputStream inputStream, String requestId) throws Exception {
         File sourcefile = new File(logSourceDir, requestId);
         if (sourcefile.exists()) sourcefile.delete();
         try (
-            InputStream is = blobMessage.getInputStream();
+            InputStream is = inputStream;
             FileOutputStream fos = new FileOutputStream(sourcefile);
         ) {
             IoUtil.copy(is, fos);
@@ -2027,84 +2031,91 @@ public class DeconstructService {
      * @param requestId
      */
     private synchronized List<String> deconstructStep2(String requestId, AtomicBoolean someError) throws IOException, InterruptedException {
+        ExecutorService executor = Executors.newCachedThreadPool();
         File unzipFile = new File(logUnzipDir, requestId);
-        List<Slice> tasks = new ArrayList<>();
-        byte[] buf = BufferPool.allocate();
-        try (
-            RandomAccessFile raf = new RandomAccessFile(unzipFile, "r");
-        ) {
+//        List<Slice> tasks = new ArrayList<>();
+        final AtomicBoolean hasError = new AtomicBoolean(false);
+        readySqls = new SqlVectors();
+//        byte[] buf = new byte[1024 * 1024];
+//        ThreadLocal<RandomAccessFile> local = new ThreadLocal<RandomAccessFile>() {
+//            private Vector<RandomAccessFile> files = new Vector();
+//
+//            @Override
+//            protected RandomAccessFile initialValue() {
+//                try {
+//                    RandomAccessFile raf = new RandomAccessFile(unzipFile, "r");
+//                    files.add(raf);
+//                    return raf;
+//                } catch (FileNotFoundException e) {
+//                    e.printStackTrace();
+//                    return null;
+//                }
+//            }
+//
+//            @Override
+//            protected void finalize() throws Throwable {
+//                for (RandomAccessFile file : files) {
+//                    try {
+//                        file.close();
+//                    } finally {
+//                    }
+//                }
+//                super.finalize();
+//            }
+//        };
+        RandomAccessFile raf = null;
+        FileChannel channel = null;
+        ByteBuf buf = Unpooled.directBuffer();
+        try {
+            raf = new RandomAccessFile(unzipFile, "r");
+            channel = raf.getChannel();
+            FileChannel finalChannel = channel;
             int pos = 0;
             int len = -1;
             while (true) {
                 if (pos >= raf.length()) {
                     break;
                 }
-                raf.seek(pos);
-                len = raf.readInt();
+                buf.clear();
+                buf.writeBytes(channel, pos, 4);
+                len = buf.getInt(0);
                 pos += 4;
-                raf.read(buf, 0, len);
-                String link = new String(buf, 0, len);
+                buf.writeBytes(channel, pos, len);
+                String str = buf.getCharSequence(4, len, StandardCharsets.UTF_8).toString();
                 pos += len;
-                len = raf.readInt();
-                pos += 4;
-                Slice slice = new Slice(link, pos, len, null);
-                tasks.add(slice);
-                pos += len;
-            }
-        }
-
-        ThreadLocal<RandomAccessFile> local = new ThreadLocal<RandomAccessFile>() {
-            private Vector<RandomAccessFile> files = new Vector();
-
-            @Override
-            protected RandomAccessFile initialValue() {
-                try {
-                    RandomAccessFile raf = new RandomAccessFile(unzipFile, "r");
-                    files.add(raf);
-                    return raf;
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                    return null;
-                }
-            }
-
-            @Override
-            protected void finalize() throws Throwable {
-                for (RandomAccessFile file : files) {
+                executor.submit(() -> {
                     try {
-                        file.close();
+                        destructSingle(str, someError);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        hasError.set(true);
                     } finally {
                     }
-                }
-                super.finalize();
+                });
             }
-        };
-
-        final AtomicBoolean hasError = new AtomicBoolean(false);
-        readySqls = new SqlVectors();
-        CountDownLatch cl = new CountDownLatch(tasks.size());
-        boolean[] flags = new boolean[tasks.size()];
-        for (DeconstructService.Slice slice : tasks) {
-            executor.execute(() -> {
-                byte[] bs = BufferPool.allocate();
-                try {
-                    String str = null;
-                    RandomAccessFile file = local.get();
-                    file.seek(slice.bodyStart);
-                    file.read(bs, 0, (int) slice.bodyLen);
-                    str = new String(bs, 0, slice.bodyLen);
-                    destructSingle(slice.link, str, someError);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    hasError.set(true);
-                } finally {
-                    BufferPool.deallocate(bs);
-                    cl.countDown();
-                }
-            });
+        }catch (Exception e){
+            e.printStackTrace();
         }
 
-        cl.await();
+        executor.shutdown();
+        executor.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
+        buf.release();
+
+        if (raf != null) {
+            try{
+                raf.close();
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+        if (channel != null) {
+            try{
+                channel.close();
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+
 
         if (hasError.get()) {
             throw new RuntimeException();
@@ -2129,8 +2140,8 @@ public class DeconstructService {
             conn = dataSource.getConnection();
             conn.setAutoCommit(false);
             Statement stmt = conn.createStatement();
-            System.out.println("开始插入");
-            long stime = System.currentTimeMillis();
+//            System.out.println("开始插入");
+//            long stime = System.currentTimeMillis();
             for (String sql : sqls) {
                 stmt.addBatch(sql);
             }
@@ -2144,7 +2155,6 @@ public class DeconstructService {
             stmt.executeBatch();
             conn.commit();
 
-            System.out.println("插入时间:" + (System.currentTimeMillis() - stime));
 
             ;
         } catch (SQLException e) {
@@ -2200,6 +2210,7 @@ public class DeconstructService {
         if(progress < 1 || progress > 3){
             return;
         }
+
         autoCommit = false;
         QccReDeconstructResponse reqponse = new QccReDeconstructResponse(-1, 0, requestId, "", "");
         AtomicBoolean someError = new AtomicBoolean(false);
@@ -2256,7 +2267,6 @@ public class DeconstructService {
             e.printStackTrace();
         }
         reqponse.send();
-
     }
 
 
@@ -2313,18 +2323,24 @@ public class DeconstructService {
      * @apiParam {string} id 数据requestId
      *
      */
-    public void onDeconstructRequest(String requestId, String sourceRequest, BlobMessage blobMessage)  {
-        autoCommit = false;
+    public void onDeconstructRequest(String requestId, String sourceRequest, BlobMessage blobMessage) throws IOException, JMSException {
+        onDeconstructRequest(requestId,sourceRequest,blobMessage.getInputStream());
+    }
 
+    public void onDeconstructRequest(String requestId, String sourceRequest, InputStream is)  {
+//        System.out.println("开始解析");
+        long stime = System.currentTimeMillis();
+        autoCommit = false;
         QccDeconstructReqponse reqponse = new QccDeconstructReqponse(-1, 0, requestId, sourceRequest, "");
         AtomicBoolean someError = new AtomicBoolean(false);
         try{
-            deconstructStep0(blobMessage, requestId);
+            deconstructStep0(is, requestId);
             reqponse.progress = 1;
             deconstructStep1(requestId);
             reqponse.progress = 2;
             List<String> sqls = deconstructStep2(requestId, someError);
             reqponse.progress = 3;
+            System.out.printf("解析完成, 时间%d\n", System.currentTimeMillis() - stime);
             deconstructStep3(sqls);
             deconstructStep4(requestId, sqls);
             if(someError.get()){
@@ -2332,6 +2348,7 @@ public class DeconstructService {
             } else {
                 reqponse.finished = 0;
             }
+            System.out.printf("入库完成, 时间%d\n", System.currentTimeMillis() - stime);
         } catch (Exception e){
             reqponse.errorMessage = e.getMessage();
             e.printStackTrace();
@@ -2445,8 +2462,9 @@ public class DeconstructService {
 //        }
     }
 
-    public void destructSingle(String url, String str, AtomicBoolean someError) {
+    public void destructSingle( String str, AtomicBoolean someError) {
         JSONObject object = JSON.parseObject(str);
+        String url = object.getString("FullLink");
         for (Map.Entry<String, DeconstructService.DeconstructHandler> entry : DeconstructService.handlers.entrySet()) {
             if (HttpServerHandler.matches(url, entry.getKey())) {
                 DeconstructService.DeconstructHandler handler = entry.getValue();
@@ -2588,6 +2606,9 @@ public class DeconstructService {
                 if (value instanceof String && "".equals(value)) {
                     return null;
                 }
+                if(((String)value).charAt(0) == 160){
+                    value = ((String) value).substring(1);
+                }
                 for (String dateFormat : dateFormats) {
                     try {
                         return DateUtil.parse((String) value, dateFormat).toJdkDate();
@@ -2623,19 +2644,19 @@ public class DeconstructService {
     }
 
 
-    public static class Slice {
-        String link;
-        long bodyStart;
-        int bodyLen;
-        String body;
-
-        public Slice(String link, long bodyStart, int bodyLen, String body) {
-            this.link = link;
-            this.bodyStart = bodyStart;
-            this.bodyLen = bodyLen;
-            this.body = body;
-        }
-    }
+//    public static class Slice {
+//        String link;
+//        long bodyStart;
+//        int bodyLen;
+//        String body;
+//
+//        public Slice(String link, long bodyStart, int bodyLen, String body) {
+//            this.link = link;
+//            this.bodyStart = bodyStart;
+//            this.bodyLen = bodyLen;
+//            this.body = body;
+//        }
+//    }
 
 
     public static class QccDeconstructReqponse {
