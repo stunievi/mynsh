@@ -107,6 +107,25 @@ public class User extends TailBean implements ValidGroup {
 //        }
 //    }
 
+
+    /**
+     * @api {get} {辅助系统地址}/api/auto/user/getList 用户列表
+     * @apiGroup FZSYS
+     * @apiVersion 0.0.1
+     * @apiUse FzCommon
+     * @apiUse FZPageParam
+     *
+     * @apiParam {string} name 账户/姓名
+     * @apiParam {int} baned 是否禁用 1/0
+     *
+     * @apiSuccess {string} trueName 真实姓名
+     * @apiSuccess {string} addTime 创建时间
+     * @apiSuccess {string} phone 手机号
+     * @apiSuccess {long} id 用户ID
+     * @apiSuccess {string} state 用户状态 启用/未启用
+     * @apiSuccess {string} username 用户名 启用/未启用
+     *
+     */
     @Override
     public String onGetListSql(Map<String, Object> params) {
         return "user.查询用户列表";

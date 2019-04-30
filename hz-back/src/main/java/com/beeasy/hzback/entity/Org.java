@@ -1,5 +1,6 @@
 package com.beeasy.hzback.entity;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.mscommon.ann.AssertMethod;
@@ -69,6 +70,21 @@ public class Org extends TailBean implements ValidGroup{
         return "user.查询组织机构列表";
     }
 
+
+    /**
+     * @api {get} {辅助系统地址}/api/auto/org/getDList 部门列表
+     * @apiGroup FZSYS
+     * @apiVersion 0.0.1
+     * @apiUse FzCommon
+     *
+     *
+     * @apiSuccess {string} name 部门名
+     * @apiSuccess {long} id id
+     * @apiSuccess {long} parentId 上级部门ID
+     * @apiSuccess {string} accCode 绑定的信贷系统代码
+     * @apiSuccess {tree[]} children[] 下级部门，字段为以上字段
+     *
+     */
     /**
      * 开放所有权限
      * @param sqlManager

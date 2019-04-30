@@ -147,6 +147,8 @@ class HttpServerHandler extends ChannelInboundHandlerAdapter {
 
             return;
         }
+
+        send404(ctx, "not found");
     }
 
     @Override

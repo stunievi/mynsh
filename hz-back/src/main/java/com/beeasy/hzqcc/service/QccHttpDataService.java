@@ -2,15 +2,34 @@ package com.beeasy.hzqcc.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.beeasy.hzback.entity.SysVar;
 import com.beeasy.mscommon.util.OkHttpUtil;
+import org.beetl.sql.core.SQLManager;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.util.Map;
 
 @Service
 public class QccHttpDataService {
 
-    private String QCC_HTTP_DATA_PRX = "http://127.0.0.1:8071/qcc/";
+    // http://47.94.97.138/qcc/
+    private String QCC_HTTP_DATA_PRX;
+
+    @Autowired
+    SQLManager sqlManager;
+
+    @PostConstruct
+    public void onInit(){
+        SysVar sysVar = sqlManager.lambdaQuery(SysVar.class)
+                .andEq(SysVar::getVarName, "qcc_url")
+                .single();
+        if (sysVar != null) {
+            QCC_HTTP_DATA_PRX = sysVar.getVarValue();
+        }
+    }
 
     JSONObject getQccData(
             String collName,

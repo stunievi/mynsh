@@ -303,7 +303,82 @@ public class WfIns extends TailBean implements ValidGroup {
 
     private static final ScriptEngine JsEngine = new ScriptEngineManager().getEngineByName("javascript");
 
+    /**
+     * @apiDefine FZPageParam
+     *
+     * @apiParam {int} page 页码，默认1
+     * @apiParam {int} size 每页数量，默认10
+     *
+     */
 
+    /**
+     * @apiDefine FzCommon
+     *
+     * @apiHeader {string} HZToken 登录后获得的令牌
+     *
+     * @apiSuccessExample 请求成功
+     * {
+     *     "success": true,
+     *     "data":{
+     *          ...
+     *     }
+     * }
+     * @apiErrorExample 请求异常:
+     * {
+     *     "success": false,
+     *     "errorMessage": "错误请求"
+     * }
+     */
+
+    /**
+     * @api {get} {辅助系统地址}/api/auto/wfins/getList 查询任务列表
+     * @apiGroup FZSYS
+     * @apiVersion 0.0.1
+     * @apiUse FzCommon
+     *
+     * @apiParam {int} daichuli 是否待处理任务 1/0
+     * @apiParam {int} yichuli 是否已处理任务 1/0
+     * @apiParam {int} ob 是否观察的任务 1/0
+     * @apiParam {int} common 是否公共任务 1/0
+     * @apiParam {int} pre 是否预任务 1/0
+     * @apiParam {int} su 是否管理员查看任务, 需有管理员权限方可生效 1/0
+     * @apiParam {int} zhipaiyijiao 是否可以指派移交, 需有该任务管理权限方可生效 1/0
+     * @apiParam {int} department 是否查看部门任务, 需有该任务管理权限方可生效 1为部门已处理, 0为部门待处理
+     * @apiParam {int} infolink 是否查看已绑定的资料收集任务 1/0
+     * @apiParam {string} modelName 任务模型名
+     * @apiParam {string} start_date/START_DATE 任务查询起始时间
+     * @apiParam {string} end_date/END_DATE 任务查询结束时间
+     * @apiParam {string} CUS_NAME 任务关联客户名（如果有)
+     * @apiParam {string} PHONE 任务关联手机号（如果有)
+     * @apiParam {string} CERT_CODE 任务关联证件号（如果有)
+     * @apiParam {string} LOAN_ACCOUNT 任务绑定贷款账号（如果有)
+     * @apiParam {string} state 任务状态
+     * @apiParam {long} id 任务ID
+     *
+     * @apiUse FZPageParam
+     *
+     *
+     * @apiSuccess {long} id id
+     * @apiSuccess {string} addTime 创建时间
+     * @apiSuccess {string} modelId 模型ID
+     * @apiSuccess {string} title 任务名
+     * @apiSuccess {int} delete 是否可以删除 1/0
+     * @apiSuccess {int} point 是否可以指派 1/0
+     * @apiSuccess {int} transform 是否可以移交 1/0
+     * @apiSuccess {string} loanAccount 贷款账号
+     * @apiSuccess {string} dealUserName 任务处理人
+     * @apiSuccess {string} state 任务状态
+     * @apiSuccess {string} autoCreated 是否系统自动创建的任务 是/否
+     * @apiSuccess {string} finishedDate 任务完成时间
+     * @apiSuccess {string} planStartTime 预任务计划开始时间
+     * @apiSuccess {string} depName 所属部门全名
+     * @apiSuccess {long} parentId 父任务ID
+     * @apiSuccess {string} startNodeName 起始节点名
+     * @apiSuccess {long} pubUserId 发布人ID
+     * @apiSuccess {string} modelName 任务模型名
+     * @apiSuccess {string} currentNodeName 当前节点名
+     *
+     */
     @Override
     public String onGetListSql(Map<String,Object> params) {
         params.put("uid", AuthFilter.getUid());

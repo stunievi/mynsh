@@ -510,15 +510,17 @@ public class DeconstructService {
      */
     private void GetStockRelationInfo(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         String compName = getQuery(request, "companyName");
+        String name = getQuery(request, "name");
         for (Map.Entry<String, Object> entry : GetStockRelationInfoMap.entrySet()) {
             JSONArray array = (JSONArray) jsonGetByPath(json, entry.getKey() + ".Result");
             if (array == null) {
                 continue;
             }
             changeField(array,
-                "+inner_company_name", compName
+                "+inner_company_name", compName,
+                "+per_name", name
             );
-            doDelete((String) entry.getValue(), "inner_company_name", compName);
+            doDelete((String) entry.getValue(), "inner_company_name,per_name", compName + "," + name);
             deconstruct(array, (String) entry.getValue(), "");
         }
     }
@@ -1873,7 +1875,18 @@ public class DeconstructService {
     }
 
     private String buildDeleteSql(String tableName, String key, String value) {
-        return S.fmt("delete from %s where %s = '%s'", tableName, key, value);
+        if(key.contains(",")){
+            String[] keys = key.split(",");
+            String[] values = value.split(",");
+            String sql = String.format("delete from %s where 1 = 1", tableName);
+            int i = 0;
+            for (String s : keys) {
+                sql += S.fmt(" and %s = '%s'", s, values[i++]);
+            }
+            return sql;
+        } else {
+            return S.fmt("delete from %s where %s = '%s'", tableName, key, value);
+        }
     }
 
     private String buildUpdateSql(String tableName, JSONObject kv, String where) {

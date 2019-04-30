@@ -395,8 +395,8 @@ public class TestQcc {
         for (Map.Entry<String, Object> entry : DeconstructService.GetStockRelationInfoMap.entrySet()) {
             clearTable((String) entry.getValue());
         }
-        JSONObject source = read("/CIAEmployeeV4/GetStockRelationInfo.json?companyName=惠州市维也纳惠尔曼酒店管理有限公司");
-        JSONObject target = checkResult("/CIAEmployeeV4/GetStockRelationInfo?fullName=惠州市维也纳惠尔曼酒店管理有限公司");
+        JSONObject source = read("/CIAEmployeeV4/GetStockRelationInfo.json?companyName=惠州市维也纳惠尔曼酒店管理有限公司&name=雷军");
+        JSONObject target = checkResult("/CIAEmployeeV4/GetStockRelationInfo?fullName=惠州市维也纳惠尔曼酒店管理有限公司&name=雷军");
         checkSim(source, target, 0.6);
     }
     @Test
@@ -457,7 +457,7 @@ public class TestQcc {
     }
 
     public JSONObject huGet(String url) throws UnsupportedEncodingException {
-        url = "http://localhost:8081/qcc" + url;
+        url = "http://localhost:8081" + url;
         if(url.contains("?")){
             int idex = url.indexOf("?");
             url = url.substring(0, idex) + "?" + URLUtil.encode(url.substring(idex + 1));

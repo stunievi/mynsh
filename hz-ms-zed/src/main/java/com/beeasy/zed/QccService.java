@@ -25,7 +25,7 @@ import static com.beeasy.zed.Utils.newJsonObject;
 public class QccService {
 
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-    private static String qccPrefix = "/qcc";
+    private static String qccPrefix = "";
     private static Future future;
 
     private static class QccBeanProcesser extends BeanProcessor {
@@ -120,7 +120,7 @@ public class QccService {
 
 
     /**
-     * @api {get} /ECICompanyMap/GetStockAnalysisData 企业股权穿透十层接口查询
+     * @api {get} {企查查数据查询服务地址}/ECICompanyMap/GetStockAnalysisData 企业股权穿透十层接口查询
      * @apiGroup QCC
      * @apiVersion 0.0.1
      *
@@ -329,7 +329,7 @@ public class QccService {
 
 
     /**
-     * @api {get} /HoldingCompany/GetHoldingCompany 控股公司信息
+     * @api {get} {企查查数据查询服务地址}/HoldingCompany/GetHoldingCompany 控股公司信息
      * @apiGroup QCC
      * @apiVersion 0.0.1
      *
@@ -703,11 +703,12 @@ public class QccService {
 
 
     /**
-     * @api {get} /CIAEmployeeV4/GetStockRelationInfo 企业人员董监高信息
+     * @api {get} {企查查数据查询服务地址}/CIAEmployeeV4/GetStockRelationInfo 企业人员董监高信息
      * @apiGroup QCC
      * @apiVersion 0.0.1
      *
      * @apiParam {string} fullName 公司全名
+     * @apiParam {string} personName 人名
      *
      * @apiSuccess {object[]} CIACompanyLegals 担任法人公司信息
      * @apiSuccess {string} CIACompanyLegals.Name 企业名称
@@ -1389,9 +1390,10 @@ public class QccService {
      */
     private Object GetStockRelationInfo(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
         String compName = (String) params.getOrDefault("fullName", "");
+        String personName = (String) params.getOrDefault("personName", "");
         JSONObject result = new JSONObject();
         for (Map.Entry<String, Object> entry : DeconstructService.GetStockRelationInfoMap.entrySet()) {
-            String sql = S.fmt("select * from %s where inner_company_name = '%s'", entry.getValue(), compName);
+            String sql = S.fmt("select * from %s where inner_company_name = '%s' and per_name = '%s'", entry.getValue(), compName, personName);
             List<JSONObject> array = listQuery(sql, params);
             for (JSONObject object : array) {
                 object.entrySet().removeIf(_entry -> _entry.getKey().startsWith("inner"));
@@ -1404,7 +1406,7 @@ public class QccService {
 
 
     /**
-     * @api {get} /ECIRelationV4/GenerateMultiDimensionalTreeCompanyMap 企业图谱
+     * @api {get} {企查查数据查询服务地址}/ECIRelationV4/GenerateMultiDimensionalTreeCompanyMap 企业图谱
      * @apiGroup QCC
      * @apiVersion 0.0.1
      *
@@ -2293,7 +2295,7 @@ public class QccService {
     }
 
     /**
-     * @api {get} /ECIRelationV4/GetCompanyEquityShareMap 股权结构图
+     * @api {get} {企查查数据查询服务地址}/ECIRelationV4/GetCompanyEquityShareMap 股权结构图
      * @apiGroup QCC
      * @apiVersion 0.0.1
      *
@@ -2415,7 +2417,7 @@ public class QccService {
     }
 
     /**
-     * @api {get} /ECIRelationV4/SearchTreeRelationMap 投资图谱
+     * @api {get} {企查查数据查询服务地址}/ECIRelationV4/SearchTreeRelationMap 投资图谱
      * @apiGroup QCC
      * @apiVersion 0.0.1
      *
@@ -2755,7 +2757,7 @@ public class QccService {
 
 
     /**
-     * @api {get} /ECIV4/SearchFresh 新增公司列表
+     * @api {get} {企查查数据查询服务地址}/ECIV4/SearchFresh 新增公司列表
      * @apiGroup QCC
      * @apiVersion 0.0.1
      *
@@ -2901,7 +2903,7 @@ public class QccService {
     }
 
     /**
-     * @api {get} /History/GetHistorytAdminLicens 历史行政许可
+     * @api {get} {企查查数据查询服务地址}/History/GetHistorytAdminLicens 历史行政许可
      * @apiGroup QCC
      * @apiVersion 0.0.1
      *
@@ -2952,7 +2954,7 @@ public class QccService {
     }
 
     /**
-     * @api {get} /History/GetHistorytAdminPenalty 历史行政处罚
+     * @api {get} {企查查数据查询服务地址}/History/GetHistorytAdminPenalty 历史行政处罚
      * @apiGroup QCC
      * @apiVersion 0.0.1
      *
@@ -3009,7 +3011,7 @@ public class QccService {
     }
 
     /**
-     * @api {get} /History/GetHistorytPledge 历史股权出质
+     * @api {get} {企查查数据查询服务地址}/History/GetHistorytPledge 历史股权出质
      * @apiGroup QCC
      * @apiVersion 0.0.1
      *
@@ -3053,7 +3055,7 @@ public class QccService {
     }
 
     /**
-     * @api {get} /History/GetHistorytMPledge 历史动产抵押
+     * @api {get} {企查查数据查询服务地址}/History/GetHistorytMPledge 历史动产抵押
      * @apiGroup QCC
      * @apiVersion 0.0.1
      *
@@ -3094,7 +3096,7 @@ public class QccService {
     }
 
     /**
-     * @api {get} /History/GetHistorytSessionNotice 历史开庭公告
+     * @api {get} {企查查数据查询服务地址}/History/GetHistorytSessionNotice 历史开庭公告
      * @apiGroup QCC
      * @apiVersion 0.0.1
      *
@@ -3164,7 +3166,7 @@ public class QccService {
     }
 
     /**
-     * @api {get} /History/GetHistorytJudgement 历史裁判文书
+     * @api {get} {企查查数据查询服务地址}/History/GetHistorytJudgement 历史裁判文书
      * @apiGroup QCC
      * @apiVersion 0.0.1
      *
@@ -3229,7 +3231,7 @@ public class QccService {
     }
 
     /**
-     * @api {get} /History/GetHistorytCourtNotice 历史法院公告
+     * @api {get} {企查查数据查询服务地址}/History/GetHistorytCourtNotice 历史法院公告
      * @apiGroup QCC
      * @apiVersion 0.0.1
      *
@@ -3355,7 +3357,7 @@ public class QccService {
     }
 
     /**
-     * @api {get} /History/GetHistoryZhiXing 历史被执行
+     * @api {get} {企查查数据查询服务地址}/History/GetHistoryZhiXing 历史被执行
      * @apiGroup QCC
      * @apiVersion 0.0.1
      *
@@ -3514,7 +3516,7 @@ public class QccService {
     }
 
     /**
-     * @api {get} /History/GetHistoryShiXin 历史失信查询
+     * @api {get} {企查查数据查询服务地址}/History/GetHistoryShiXin 历史失信查询
      * @apiGroup QCC
      * @apiVersion 0.0.1
      *
@@ -3595,7 +3597,7 @@ public class QccService {
     }
 
     /**
-     * @api {get} /History/GetHistorytShareHolder 历史股东
+     * @api {get} {企查查数据查询服务地址}/History/GetHistorytShareHolder 历史股东
      * @apiGroup QCC
      * @apiVersion 0.0.1
      *
@@ -3710,7 +3712,7 @@ public class QccService {
 
 
     /**
-     * @api {get} /History/GetHistorytInvestment 历史对外投资
+     * @api {get} {企查查数据查询服务地址}/History/GetHistorytInvestment 历史对外投资
      * @apiGroup QCC
      * @apiVersion 0.0.1
      *
@@ -3861,7 +3863,7 @@ public class QccService {
 
 
     /**
-     * @api {get} /History/GetHistorytEci 历史工商信息
+     * @api {get} {企查查数据查询服务地址}/History/GetHistorytEci 历史工商信息
      * @apiGroup QCC
      * @apiVersion 0.0.1
      *
@@ -4545,7 +4547,7 @@ public class QccService {
 
 
     /**
-     * @api {get} /ECIV4/GetDetailsByName 企业关键字精确获取详细信息(Master)
+     * @api {get} {企查查数据查询服务地址}/ECIV4/GetDetailsByName 企业关键字精确获取详细信息(Master)
      * @apiGroup QCC
      * @apiVersion 0.0.1
      *
@@ -4887,7 +4889,7 @@ public class QccService {
 
 
     /**
-     * @api {get} /ChattelMortgage/GetChattelMortgage 动产抵押信息
+     * @api {get} {企查查数据查询服务地址}/ChattelMortgage/GetChattelMortgage 动产抵押信息
      * @apiGroup QCC
      * @apiVersion 0.0.1
      *
@@ -5176,7 +5178,7 @@ public class QccService {
 
 
     /**
-     * @api {get} /EnvPunishment/GetEnvPunishmentDetails 环保处罚详情
+     * @api {get} {企查查数据查询服务地址}/EnvPunishment/GetEnvPunishmentDetails 环保处罚详情
      * @apiGroup QCC
      * @apiVersion 0.0.1
      *
@@ -5213,7 +5215,7 @@ public class QccService {
     }
 
     /**
-     * @api {get} /EnvPunishment/GetEnvPunishmentList 环保处罚列表
+     * @api {get} {企查查数据查询服务地址}/EnvPunishment/GetEnvPunishmentList 环保处罚列表
      * @apiGroup QCC
      * @apiVersion 0.0.1
      *
@@ -5262,7 +5264,7 @@ public class QccService {
 
 
     /**
-     * @api {get} /LandMortgage/GetLandMortgageDetails 土地抵押详情
+     * @api {get} {企查查数据查询服务地址}/LandMortgage/GetLandMortgageDetails 土地抵押详情
      * @apiGroup QCC
      * @apiVersion 0.0.1
      *
@@ -5351,7 +5353,7 @@ public class QccService {
 
 
     /**
-     * @api {get} /LandMortgage/GetLandMortgageList 土地抵押列表
+     * @api {get} {企查查数据查询服务地址}/LandMortgage/GetLandMortgageList 土地抵押列表
      * @apiGroup QCC
      * @apiVersion 0.0.1
      *
@@ -5404,7 +5406,7 @@ public class QccService {
 
 
     /**
-     * @api {get} /JudicialSale/GetJudicialSaleDetail 司法拍卖详情
+     * @api {get} {企查查数据查询服务地址}/JudicialSale/GetJudicialSaleDetail 司法拍卖详情
      * @apiGroup QCC
      * @apiVersion 0.0.1
      *
@@ -5436,7 +5438,7 @@ public class QccService {
 
 
     /**
-     * @api {get} /JudicialSale/GetJudicialSaleList 司法拍卖列表
+     * @api {get} {企查查数据查询服务地址}/JudicialSale/GetJudicialSaleList 司法拍卖列表
      * @apiGroup QCC
      * @apiVersion 0.0.1
      *
@@ -5484,7 +5486,7 @@ public class QccService {
 
 
     /**
-     * @api {get} /ECIException/GetOpException 企业经营异常
+     * @api {get} {企查查数据查询服务地址}/ECIException/GetOpException 企业经营异常
      * @apiGroup QCC
      * @apiVersion 0.0.1
      *
@@ -5520,7 +5522,7 @@ public class QccService {
 
 
     /**
-     * @api {get} /JudicialAssistance/GetJudicialAssistance 司法协助信息
+     * @api {get} {企查查数据查询服务地址}/JudicialAssistance/GetJudicialAssistance 司法协助信息
      * @apiGroup QCC
      * @apiVersion 0.0.1
      *
@@ -5534,7 +5536,7 @@ public class QccService {
      *
      * @apiSuccess {object} EquityFreezeDetail 股权冻结情况
      * @apiSuccess {string} EquityFreezeDetail.CompanyName 相关企业名称
-     * @apiSuccess {string} EEquityFreezeDetail.ExecutionMatters 执行事项
+     * @apiSuccess {string} EquityFreezeDetail.ExecutionMatters 执行事项
      * @apiSuccess {string} EquityFreezeDetail.ExecutionDocNum 执行文书文号
      * @apiSuccess {string} EquityFreezeDetail.ExecutionVerdictNum 执行裁定书文号
      * @apiSuccess {string} EquityFreezeDetail.ExecutedPersonDocType 被执行人证件种类
@@ -5786,7 +5788,7 @@ public class QccService {
 
 
     /**
-     * @api {get} /CourtAnnoV4/GetCourtNoticeInfo 开庭公告详情
+     * @api {get} {企查查数据查询服务地址}/CourtAnnoV4/GetCourtNoticeInfo 开庭公告详情
      * @apiGroup QCC
      * @apiVersion 0.0.1
      *
@@ -5854,7 +5856,7 @@ public class QccService {
 
 
     /**
-     * @api {get} /CourtAnnoV4/SearchCourtNotice 开庭公告列表
+     * @api {get} {企查查数据查询服务地址}/CourtAnnoV4/SearchCourtNotice 开庭公告列表
      * @apiGroup QCC
      * @apiVersion 0.0.1
      *
@@ -5964,7 +5966,7 @@ public class QccService {
 
 
     /**
-     * @api {get} /CourtNoticeV4/SearchCourtAnnouncementDetail 法院公告详情
+     * @api {get} {企查查数据查询服务地址}/CourtNoticeV4/SearchCourtAnnouncementDetail 法院公告详情
      * @apiGroup QCC
      * @apiVersion 0.0.1
      *
@@ -6016,7 +6018,7 @@ public class QccService {
     }
 
     /**
-     * @api {get} /CourtNoticeV4/SearchCourtAnnouncement 法院公告列表
+     * @api {get} {企查查数据查询服务地址}/CourtNoticeV4/SearchCourtAnnouncement 法院公告列表
      * @apiGroup QCC
      * @apiVersion 0.0.1
      *
@@ -6154,7 +6156,7 @@ public class QccService {
 
 
     /**
-     * @api {get} /JudgeDocV4/GetJudgementDetail 裁判文书详情
+     * @api {get} {企查查数据查询服务地址}/JudgeDocV4/GetJudgementDetail 裁判文书详情
      * @apiGroup QCC
      * @apiVersion 0.0.1
      *
@@ -6314,7 +6316,7 @@ public class QccService {
 
 
     /**
-     * @api {get} /JudgeDocV4/SearchJudgmentDoc 裁判文书列表
+     * @api {get} {企查查数据查询服务地址}/JudgeDocV4/SearchJudgmentDoc 裁判文书列表
      * @apiGroup QCC
      * @apiVersion 0.0.1
      *
@@ -6378,7 +6380,7 @@ public class QccService {
 
 
     /**
-     * @api {get} /CourtV4/SearchZhiXing 被执行信息
+     * @api {get} {企查查数据查询服务地址}/CourtV4/SearchZhiXing 被执行信息
      * @apiGroup QCC
      * @apiVersion 0.0.1
      *
@@ -6527,7 +6529,7 @@ public class QccService {
 
 
     /**
-     * @api {get} /CourtV4/SearchShiXin 失信信息
+     * @api {get} {企查查数据查询服务地址}/CourtV4/SearchShiXin 失信信息
      * @apiGroup QCC
      * @apiVersion 0.0.1
      *

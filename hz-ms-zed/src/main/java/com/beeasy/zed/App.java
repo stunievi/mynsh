@@ -21,6 +21,7 @@ public class App {
             return zedService.doNettyRequest(ctx, req);
         }));
 
+//        TestService.register();
 
         String workMode = config.getString("workmode");
         if(workMode.equals("deconstruct") || workMode.equals("all")){
