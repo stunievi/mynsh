@@ -276,7 +276,13 @@ public class GetOriginQccService {
         if(queries.containsKey("keyNo")){
             fullLink = fullLink.concat("&fullName="+extParam.getCompanyName());
         }
-        Document dataLog = new Document().append("GetDataTime",dateNowStr).append("CollName", collName).append("collCnName", QccCollCnName.getValue(collName)).append("Queries", JSON.toJSONString(queries)).append("OriginData", data);
+        Document dataLog = new Document()
+                .append("GetDataTime",dateNowStr)
+                .append("CollName", collName)
+                .append("collCnName", QccCollCnName.getValue(collName))
+                .append("Queries", JSON.toJSONString(queries))
+                .append("OriginData", data)
+                .append("FullLink", fullLink);
         if(queries.containsKey("pageIndex")){
             dataLog.append("PageIndex", queries.get("pageIndex"));
         }
@@ -308,41 +314,13 @@ public class GetOriginQccService {
                 collLog.insertOne(dataLog);
             }
         }
-
-        // 写入文件--全部请求完成后压缩文件提交解构服务解构数据
-        FileLock lock = null;
-        File file = extParam.getQccFileDataPath();
-        try (
-                RandomAccessFile raf = new RandomAccessFile(file, "rw");
-                FileChannel channel = raf.getChannel();
-        ){
-            lock = channel.lock();
-            dataLog.remove("collCnName");
-            String str = JSON.toJSONString(dataLog);
-            byte[] bs = (str.getBytes(StandardCharsets.UTF_8.name()));
-            raf.seek(raf.length());
-            byte[] linkbytes = fullLink.getBytes(StandardCharsets.UTF_8);
-            raf.writeInt(linkbytes.length);
-            raf.write(linkbytes);
-            //写入数据包长度
-            raf.writeInt(bs.length);
-            raf.write(bs);
-
-        } catch (IOException e) {
-            extParam.setWriteTxtFileState(false);
-            e.printStackTrace();
-            return;
+        if(extParam.getCompanyCount() < 30){
+            extParam.getCacheArr().add(dataLog);
+        }else{
+            dataLog.append("requestId", extParam.getCommandId());
+            MongoCollection<Document> collLog = mongoService2.getCollection("Response_Log");
+            collLog.insertOne(dataLog);
         }
-        finally {
-            if (lock != null) {
-                try {
-                    lock.release();
-                } catch (IOException e) {
-                    //e.printStackTrace();
-                }
-            }
-        };
-
 
     }
 
