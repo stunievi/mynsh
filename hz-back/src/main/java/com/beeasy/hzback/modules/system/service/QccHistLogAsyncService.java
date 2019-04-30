@@ -25,7 +25,7 @@ public class QccHistLogAsyncService {
     @Autowired
     private SQLManager sqlManager;
 
-    private final String URL = "http://47.94.97.138/qcc/";
+    /*private final String URL = "http://47.96.98.198:8081/qcc/";
     // 失信信息
     private final String searchShiXinURL = URL+"CourtV4/SearchShiXin";
     // 被执行信息
@@ -43,7 +43,50 @@ public class QccHistLogAsyncService {
     // 司法协助
     private final String getJudicialAssistanceURL = URL + "JudicialAssistance/GetJudicialAssistance";
     // 经营异常
-    private final String getOpExceptionURL = URL + "ECIException/GetOpException";
+    private final String getOpExceptionURL = URL + "ECIException/GetOpException";*/
+
+    //    private  String URL = "http://47.94.97.138/qcc/";
+    // 失信信息
+    private  String searchShiXinURL ;
+    // 被执行信息
+    private  String searchZhiXingURL ;
+    // 裁判文书
+    private  String searchJudgmentDocURL ;
+    // 法院公告
+    private  String searchCourtAnnouncementURL ;
+    // 开庭公告
+    private  String searchCourtNoticeURL ;
+    // 司法拍卖
+    private  String getJudicialSaleListURL ;
+    // 环保处罚
+    private  String getEnvPunishmentListURL ;
+    // 司法协助
+    private  String getJudicialAssistanceURL ;
+    // 经营异常
+    private  String getOpExceptionURL ;
+
+
+    public void onInit(String URL){
+        // 失信信息
+        searchShiXinURL = URL+"CourtV4/SearchShiXin";
+        // 被执行信息
+        searchZhiXingURL = URL + "CourtV4/SearchZhiXing";
+        // 裁判文书
+        searchJudgmentDocURL = URL + "JudgeDocV4/SearchJudgmentDoc";
+        // 法院公告
+        searchCourtAnnouncementURL = URL + "CourtNoticeV4/SearchCourtAnnouncement";
+        // 开庭公告
+        searchCourtNoticeURL = URL + "CourtAnnoV4/SearchCourtNotice";
+        // 司法拍卖
+        getJudicialSaleListURL = URL + "JudicialSale/GetJudicialSaleList";
+        // 环保处罚
+        getEnvPunishmentListURL = URL + "EnvPunishment/GetEnvPunishmentList";
+        // 司法协助
+        getJudicialAssistanceURL = URL + "JudicialAssistance/GetJudicialAssistance";
+        // 经营异常
+        getOpExceptionURL = URL + "ECIException/GetOpException";
+    }
+
 
     /**
      * 失信信息

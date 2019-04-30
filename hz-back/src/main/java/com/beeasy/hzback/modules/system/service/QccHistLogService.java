@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.Future;
@@ -40,6 +41,7 @@ public class QccHistLogService {
     NoticeService2 noticeService2;
     @Autowired
     SearchService searchService;
+    public static OutputStream os = System.out;
 
     private Pattern pattern = Pattern.compile("\\{(.+?)\\}");
     String logDir;
@@ -51,7 +53,7 @@ public class QccHistLogService {
     }
 
     @Scheduled(cron = "0 30 8 * * ?")
-    public void saveQccHisLog() {
+    public synchronized void saveQccHisLog() {
 
         JSONObject object = new JSONObject();
         Object a = sqlManager.select("accloan.对公客户", JSONObject.class, object);
@@ -102,7 +104,7 @@ public class QccHistLogService {
             System.out.println("新增数据量------------------:" + map);
 
             File dir = new File(logDir);
-            OutputStream os = null;
+//            OutputStream os = null;
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             try {
                 os = new FileOutputStream(new File(dir, sdf.format(new Date()) + ".txt"));
@@ -177,7 +179,8 @@ public class QccHistLogService {
                 while (sIterator.hasNext()) {
                     // 获得key
                     String key = sIterator.next();
-                    Long uid = null;
+                    Long uid = null;    // 信贷主管
+                    Long cusCode = null;    // 客户经理
 
                     //获得key值对应的value
                     JSONArray ja1 = jsonObj.getJSONArray(key);
@@ -188,6 +191,7 @@ public class QccHistLogService {
                         String loanAccount1 = jo.getString("loanAccount");
                         String cusName = jo.getString("cusName");
                         uid = jo.getLong("uid");
+                        cusCode = jo.getLong("cusId");
 
                         String renderStr = "对公客户：<a href=\"#\" class=\"forPublicCustomers_z\">" + cusName + "</a>，贷款账号：" + loanAccount1 + "，该用户新增";
 
@@ -238,10 +242,13 @@ public class QccHistLogService {
                             notices.add(
                                     noticeService2.makeNotice(SysNotice.Type.SYSTEM, uid, renderStr, null)
                             );
+                            notices.add(
+                                    noticeService2.makeNotice(SysNotice.Type.SYSTEM, cusCode, renderStr, null)
+                            );
                             //写入日志
 //                        logs.add(makeLog(1, re.getString("LOAN_ACCOUNT"), re.getString("REC_NO") ,null));
                         } catch (Exception e) {
-                            println(os, e.getMessage(), null);
+                            println( e.getMessage(), null);
                         }
 
 //                        generateAutoTask(os, jo.getString("accCode"), jo.getString("loanAccount"));
@@ -267,6 +274,7 @@ public class QccHistLogService {
 //        String str =  HttpUtil.get("http://47.94.97.138/qcc/CourtV4/SearchShiXin", C.newMap(
 //                "fullName", "惠州市帅星贸易有限公司","pageSize","999"
 //        ));
+        println("执行完成！");
     }
 
     public void qccRule(OutputStream os, JSONObject jsonObj, JSONObject jsonTaskObj, String key, String type, String rule, String taskRule, String cusName) {
@@ -280,9 +288,9 @@ public class QccHistLogService {
         JSONArray jsonTaskArr = new JSONArray();
 
         for (JSONObject re : res) {
-            // 客户经理
-            Long uid = re.getLong("uid");
             // 信贷主管
+            Long uid = re.getLong("uid");
+            // 客户经理
             Long cusId = re.getLong("cusid");
 
             String loanAccount = re.getString("loanaccount");
@@ -349,10 +357,11 @@ public class QccHistLogService {
         return sb.toString();
     }
 
-    private void println(OutputStream os, String template, Object... args) {
+    private void println(String template, Object... args) {
         try {
             os.write(S.fmt(template, args).getBytes());
-            os.write("\n".getBytes());
+            os.write("\n".getBytes(StandardCharsets.UTF_8.name()));
+            os.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -376,11 +385,12 @@ public class QccHistLogService {
 
 //    String CUST_MGR ="0024600";
         String modelName = "贷后跟踪-企查查贷后检查";
+        System.out.println(">>>>>>>>>>>："+CUST_MGR);
 
         //  查找任务执行人
         User user = sqlManager.lambdaQuery(User.class).andEq(User::getAccCode, CUST_MGR).single();
         if ($.isNull(user)) {
-            println(os, "贷款账号%s: 找不到对应的任务执行人", loanAccount);
+            println( "贷款账号%s: 找不到对应的任务执行人", loanAccount);
             return;
         }
 
@@ -388,13 +398,13 @@ public class QccHistLogService {
         try {
             String no = String.valueOf(SearchService.InnateMap.getOrDefault(modelName, 0));
             if (no.equals("0")) {
-                println(os, "贷款账号%s: 查询不到台账信息", loanAccount);
+                println( "贷款账号%s: 查询不到台账信息", loanAccount);
                 return;
             }
             data = sqlManager.selectSingle("accloan." + no, C.newMap("loanAccount", loanAccount), JSONObject.class);
         } finally {
             if (0 == data.size()) {
-                println(os, "贷款账号%s: 查询不到台账信息", loanAccount);
+                println( "贷款账号%s: 查询不到台账信息", loanAccount);
                 return;
             }
         }
@@ -431,5 +441,10 @@ public class QccHistLogService {
             ret.put(sysVar.getVarName().toUpperCase(), sysVar.getVarValue());
         }
         return ret;
+    }
+
+    public void deleteQccHistLog(){
+        sqlManager.lambdaQuery(QccHistLog.class).delete();
+        println("表数据删除成功！");
     }
 }
