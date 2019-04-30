@@ -10,7 +10,7 @@ import java.util.Map;
 @Service
 public class QccHttpDataService {
 
-    private String QCC_HTTP_DATA_PRX = "http://47.94.97.138/qcc/";
+    private String QCC_HTTP_DATA_PRX = "http://127.0.0.1:8071/qcc/";
 
     JSONObject getQccData(
             String collName,

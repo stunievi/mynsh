@@ -95,6 +95,7 @@ public class QccDataController {
             resObj.put("errorMessage", "");
             resObj.put("sourceRequest", extParam.getCommand());
             resObj.put("finished", "failed");
+            resObj.put("requestId", extParam.getResDataId());
 
             // 解析指令
             try{
@@ -136,7 +137,7 @@ public class QccDataController {
                         getOriginQccService.loadAllData(companyName, extParam);
                     }else{
                         // 需要keyNo的必须拿到工商信息
-                        if(command.contains("03") || command.contains("05")){
+                        if(command.contains("03") || command.contains("04")){
                             companyInfo = getCompanyInfo(companyName, extParam);
                         }
                         if(command.contains("01")){
@@ -148,16 +149,17 @@ public class QccDataController {
                             getOriginQccService.loadDataBlock2(companyName, extParam);
                         }
                         if(command.contains("03")){
+                            // 经营风险
+                            getOriginQccService.loadDataBlock5(companyName, companyInfo.getString("KeyNo"), extParam);
+                        }
+                        if(command.contains("04")){
                             // 关联族谱
                             getOriginQccService.loadDataBlock3(companyName, companyInfo.getString("KeyNo"), extParam);
                         }
-                        if(command.contains("04")){
+                        if(command.contains("05")){
                             // 历史信息
                             getOriginQccService.loadDataBlock4(companyName, extParam);
-                        }
-                        if(command.contains("05")){
-                            // 经营风险
-                            getOriginQccService.loadDataBlock5(companyName, companyInfo.getString("KeyNo"), extParam);
+
                         }
                     }
                 }
@@ -166,7 +168,7 @@ public class QccDataController {
                 resObj.put("progress", "1");
                 resObj.put("errorMessage", "企查查数据获取失败");
                 jmsMessagingTemplate.convertAndSend(mqTopic2, resObj.toJSONString());
-                getOriginQccService.saveErrLog("指令："+extParam.getCommandId()+"获取企查查数据发生异常");
+                getOriginQccService.saveErrLog("指令："+extParam.getCommandId()+"获取企查查数据发生异常" + e.toString());
                 return;
             }
 
@@ -207,7 +209,6 @@ public class QccDataController {
                 // 将压缩文件放入MQ,供解构服务调用
                 ActiveMQQueue mqQueue = new ActiveMQQueue("qcc-deconstruct-request");
                 jmsMessagingTemplate.convertAndSend(mqQueue , new MQConfig.FileRequest(extParam.getCommand(), extParam.getResDataId(), __zip));
-                resObj.put("requestId", extParam.getResDataId());
                 resObj.put("progress", "3");
                 resObj.put("finished", "success");
                 resObj.put("errorMessage", "");

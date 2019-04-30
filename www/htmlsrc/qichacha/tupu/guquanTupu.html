@@ -81,14 +81,15 @@
             },
             dataType: 'JSON',
             success: function (res){
-                var retData = res.Result || res.data;
+                var retData = res.Result || res.data || {};
                 var companyName = retData.Name;
                 var companyKeyNo = retData.KeyNo;
-                var ActualControllerData = retData.ActualControllerLoopPath[0];
+                var ActualControllerData = retData.ActualControllerLoopPath;
                 var gudongList = retData.Children;
                 var data = {};
                 // 疑似实际控制人
                 if(ActualControllerData){
+                    ActualControllerData = ActualControllerData[0];
                     data.kzr = {
                         CompanyName: companyName,
                         KeyNo: companyKeyNo,
