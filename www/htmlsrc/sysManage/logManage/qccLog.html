@@ -8,6 +8,11 @@
     <title>系统管理 - 日志管理</title>
     <!--#include file="/htmlsrc/header.html" -->
     
+    <style>
+        td{
+            white-space: nowrap;
+        }
+    </style>
 </head>
 
 <body>
@@ -42,12 +47,12 @@
             url: remoteOrigin + "/api/auto/qcclog/getList",
             cols: [
                 [
-                    { field: 'id', title: "ID序号", width:70 },
-                    { field: 'addTime', title: '时间', width:70},
+                    { field: 'addTime', title: '时间',},
                     { field: 'username', title: '操作员' },
                     { field: "type", title: "类型" },
                     { field: "orderId", title: "指令ID" },
                     { field: 'content', title: '消息内容' },
+                    { field: "dataId", title: "数据ID" }
                 ]
             ]
         });

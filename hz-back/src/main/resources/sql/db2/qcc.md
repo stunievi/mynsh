@@ -11,16 +11,16 @@ left join t_dict d on d.name = 'qcc_log_type' and d.v_key = log.type
 left join t_user u on u.id=log.OPERATOR
 where 1=1
 @if(isNotEmpty(type)){
-    and TYPE=#type#
+    and log.TYPE=#type#
 @}
 @if(isNotEmpty(endTime)){
-    and ADD_TIME<#endTime#
+    and log.ADD_TIME<=#endTime#
 @}
 @if(isNotEmpty(startTime)){
-    and ADD_TIME>=#startTime#
+    and log.ADD_TIME>=#startTime#
 @}
 @if(isNotEmpty(userName)){
-    and OPERATOR like #'%'+ userName+ '%'#
+    and u.true_name like #'%'+ userName+ '%'#
 @}
 @pageIgnoreTag(){
     order by log.add_time desc
