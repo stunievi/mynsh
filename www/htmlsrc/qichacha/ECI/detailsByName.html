@@ -47,6 +47,11 @@
                 $("#"+elmId+"-count").html(data.total);
             }
         };
+        var subDateStr = function(dateStr){
+            if(dateStr){
+                return dateStr.substring(0, 10);
+            }
+        }
     </script>
 </head>
 <body>

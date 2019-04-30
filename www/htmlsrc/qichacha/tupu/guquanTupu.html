@@ -88,8 +88,8 @@
                 var gudongList = retData.Children;
                 var data = {};
                 // 疑似实际控制人
-                if(ActualControllerData){
-                    ActualControllerData = ActualControllerData[0];
+                if(ActualControllerData && ActualControllerData[0]){
+                    ActualControllerData = ActualControllerData[0] || {};
                     data.kzr = {
                         CompanyName: companyName,
                         KeyNo: companyKeyNo,

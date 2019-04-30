@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 详情 </title>
+    <!--#include file="/htmlsrc/header.html" -->
+</head>
+<body>
+<div id="content">
+    <ul id="myTabs" class="nav nav-tabs" role="tablist" style="background: #fff">
+        <li role="presentation" class="active"><a href="#base" id="base-tab" role="tab" data-toggle="tab" data-controls="base" aria-expanded="true"><span id="status"></span>详情</a></li>
+    </ul>
+    <div id="myTabContent" class="tab-content" style="padding-top: 10px;">
+        <div role="tabpanel" class="tab-pane active in" id="home" aria-labelledby="home-tab">
+            <!-- 基本信息展示 -->
+        </div>
+    </div>
+</div>
+<script src="/htmlsrc/qichacha/tmpl/eci/qccTable.js"></script>
+<script>
+    function onPageRequest(data){
+        $("#home").html(
+            qccTableRender({
+                cols: [
+                    {title:"当事人",field:"Party"},
+                    {title:"公告类型",field:"Category"},
+                    {title:"公告人",field:"Court"},
+                    {title:"省份",field:"Province"},
+                    {title:"刊登版面",field:"PublishPage"},
+                    {title:"上传日期",field:"SubmitDate"},
+                    {title:"公示日期",field:"PublishDate"},
+                    {title:"内容",field:"Content", spec: true}
+                ],
+                data: data
+            })
+        );
+    }
+</script>
+</body>
+</html>
