@@ -30,7 +30,7 @@
         </div>
     </div>
     <div class="panel-qcc" id="history4">
-        <div class="panel-qcc-heading">历史失信查询 <b id="history4-count">0</b></div>
+        <div class="panel-qcc-heading">历史失信 <b id="history4-count">0</b></div>
         <div class="panel-qcc-body" id="history4-body">
         </div>
     </div>
@@ -85,6 +85,25 @@
         </div>
     </div>
 </div>
+
+<!--失信-->
+<script type="text/html" id="history4_toolbar">
+    <div class="layui-toolbar">
+        <a href="javascript:;" class="btn btn-default history4_toolbar" data-val="{{d.Id}}">查看</a>
+    </div>
+</script>
+<script type="text/html" id="history5_toolbar">
+    <div class="layui-toolbar">
+        <a href="javascript:;" class="btn btn-default history5_toolbar" data-val="{{d.CaseNo}}">查看</a>
+    </div>
+</script>
+<script type="text/html" id="history6_toolbar">
+    <div class="layui-toolbar">
+        <a href="javascript:;" class="btn btn-default history6_toolbar" data-val="{{d.Id}}">查看</a>
+    </div>
+</script>
+
+
 <script src="/htmlsrc/qichacha/tmpl/eci/hiscominfo.js"></script>
 <script>
     var loadBlock7Status = false;
@@ -118,11 +137,18 @@
                    {title:"公司类型",field:"EconKind"},
                    {title:"状态",field:"Status"},
                    {title:"出资比例",field:"FundedRatio"},
-                   {title:"投资日期",field:"StartDate"}
+                   {title:"投资日期",field:"StartDate", setWidth: 100}
                ]
            ],
            onData:function (data) {
+               if(data.rows){
+                   data.rows.forEach(function (row) {
+                       row["ChangeDate"] = subDateStr(row.ChangeDate);
+                       row["StartDate"] = subDateStr(row.StartDate);
+                   });
+               }
                fixOnDataLoad("history2", data);
+               return data;
            }
        });
 
@@ -146,6 +172,7 @@
            }
        });
 
+       var history4DataList = [];
        // 历史失信
        laytableRender({
            id: "history4-body",
@@ -154,27 +181,41 @@
            cols: [
                [
                    BOOTSTRAP_INDEX_FILED,
-                   {title:"其他有履行能力而拒不履行生效法律文书确定义务",field:"ActionRemark"},
-                   {title:"执行依据文号",field:"ExecuteNo"},
-                   {title:"被执行的履行情况",field:"ExecuteStatus"},
-                   {title:"做出执行依据单位",field:"ExecuteUnite"},
-                   {title:"生效法律文书确定的义务",field:"YiWu"},
+                   {title:'操作', templet: "#history4_toolbar"},
+                   // {title:"其他有履行能力而拒不履行生效法律文书确定义务",field:"ActionRemark"},
+                   // {title:"执行依据文号",field:"ExecuteNo"},
+                   // {title:"被执行的履行情况",field:"ExecuteStatus"},
+                   // {title:"做出执行依据单位",field:"ExecuteUnite"},
+                   // {title:"生效法律文书确定的义务",field:"YiWu"},
                    {title:"发布时间",field:"PublicDate"},
                    {title:"案号",field:"CaseNo"},
                    {title:"执行法院",field:"ExecuteGov"},
                    {title:"执行依据文号",field:"AnNo"},
-                   {title:"省份",field:"Province"},
+                   // {title:"省份",field:"Province"},
                    {title:"立案时间",field:"LiAnDate"},
-                   {title:"组织机构代码",field:"OrgNo"},
-                   // {title:"组织类型",field:"OrgType"}, // ，1：自然人，2：企业，3：社会组织，空白：无法判定）
-                   {title:"组织类型名称",field:"OrgTypeName"},
-                   {title:"名称",field:"Name", width: 120}
+                   // {title:"组织机构代码",field:"OrgNo"},
+                   // {title:"组织类型名称",field:"OrgTypeName"},
+                   // {title:"名称",field:"Name", width: 120}
                ]
            ],
            onData:function (data) {
+               if(data.rows){
+                   history4DataList = data.rows;
+                   data.rows.forEach(function (row) {
+                       row["PublicDate"] = subDateStr(row.PublicDate);
+                       row["LiAnDate"] = subDateStr(row.LiAnDate);
+                   });
+               }
                fixOnDataLoad("history4", data);
            }
        });
+       $(document).on("click", ".history4_toolbar", function (){
+           var id = $(this).data("val");
+           addNavTab("HistoryShiXin-"+id, "历史失信详情", "/htmlsrc/qichacha/History/HisShiXinDetail.html", history4DataList[$(this).closest("tr").data("index")]);
+           return false;
+       });
+
+       var history5DataList = [];
        // 历史被执行
        laytableRender({
            id: "history5-body",
@@ -183,22 +224,27 @@
            cols: [
                [
                    BOOTSTRAP_INDEX_FILED,
-                   {title:"标地",field:"BiaoDi"},
+                   {title:'操作', templet: "#history5_toolbar"},
                    {title:"案号",field:"CaseNo"},
-                   {title:"执行法院",field:"ExecuteGov"},
-                   // {title:"执行依据文号",field:"AnNo"},
-                   {title:"省份",field:"Province"},
                    {title:"立案时间",field:"LiAnDate"},
-                   {title:"组织机构代码",field:"OrgNo"},
-                   // {title:"组织类型",field:"OrgType"}, //，1：自然人，2：企业，3：社会组织，空白：无法判定）
-                   {title:"组织类型名称",field:"OrgTypeName"},
-                   {title:"名称",field:"Name", setWidth: 180}
+                   {title:"执行法院",field:"ExecuteGov"},
+                   {title:"省份",field:"Province"},
+                   {title:"标地",field:"BiaoDi"}
                ]
            ],
            onData:function (data) {
+               history5DataList = data.rows;
                fixOnDataLoad("history5", data);
            }
        });
+       $(document).on("click", ".history5_toolbar", function (){
+           var id = $(this).data("val");
+           id = id.replace(/\(|\)/g,"");
+           addNavTab("HistoryZhiXing-"+id, "历史被执行详情", "/htmlsrc/qichacha/History/HisZhiXingDetail.html", history5DataList[$(this).closest("tr").data("index")]);
+           return false;
+       });
+
+       var history6DataList = [];
        // 历史法院公告
        laytableRender({
            id: "history6-body",
@@ -207,19 +253,29 @@
            cols: [
                [
                    BOOTSTRAP_INDEX_FILED,
-                   {title:"公告类型",field:"Category"},
-                   {title:"内容",field:"Content"},
-                   {title:"公告人",field:"Court"},
+                   {title:'操作', templet: "#history6_toolbar"},
+                   {title:"公告类型",field:"Category", setWidth: 120},
+                   {title:"公告人",field:"Court", setWidth: 150},
                    {title:"当事人",field:"Party"},
                    {title:"省份",field:"Province"},
-                   {title:"刊登版面",field:"PublishPage"},
-                   {title:"上传日期",field:"SubmitDate"},
-                   {title:"公示日期",field:"PublishDate"}
+                   {title:"公示日期",field:"PublishDate", setWidth: 100}
                ]
            ],
            onData:function (data) {
+               if(data.rows){
+                   history6DataList = data.rows;
+                   data.rows.forEach(function (row) {
+                       row["PublishDate"] = subDateStr(row.PublishDate);
+                   });
+               }
                fixOnDataLoad("history6", data);
+               return data;
            }
+       });
+       $(document).on("click", ".history6_toolbar", function (){
+           var id = $(this).data("val");
+           addNavTab("HistorytCourtNotice-"+id, "历史法院公告详情", "/htmlsrc/qichacha/History/HisCourtNoticeDetail.html", history6DataList[$(this).closest("tr").data("index")]);
+           return false;
        });
        // 历史裁判文书
        laytableRender({
@@ -231,14 +287,30 @@
                    BOOTSTRAP_INDEX_FILED,
                    {title:"执行法院",field:"Court"},
                    {title:"案件名称",field:"CaseName"},
-                   {title:"发布时间",field:"SubmitDate"},
+                   {title:"发布时间",field:"SubmitDate", setWidth: 100},
                    {title:"案件编号",field:"CaseNo"},
-                   {title:"案件类型",field:"CaseType"},
-                   {title:"涉案人员角色",field:"CaseRole"},
-                   {title:"年份",field:"CourtYear"}
+                   // {title:"案件类型",field:"CaseType"},
+                   {title:"涉案人员角色",field:"CaseRole"}
+                   // {title:"年份",field:"CourtYear"}
                ]
            ],
            onData:function (data) {
+               if(data.rows){
+                   data.rows.forEach(function (value) {
+                       var CaseRole = [];
+                       var CaseRoleStr = "";
+                       try {
+                           CaseRole = JSON.parse(value.CaseRole);
+                           CaseRole.forEach(function (value1) {
+                               CaseRoleStr += value1["R"] + ":" + value1["P"] + "<br/>";
+                           })
+                       }catch (e) {
+                           CaseRoleStr = "";
+                       }
+                       value["CaseRole"] = CaseRoleStr;
+                       value["SubmitDate"] = subDateStr(value.SubmitDate);
+                   })
+               }
                fixOnDataLoad("history7", data);
            }
        });
@@ -311,6 +383,10 @@
                    if(res.data && res.data.EciList && res.data.EciList.length > 0){
                        nonData1 = false;
                        EciList = res.data.EciList;
+                       EciList.forEach(function (value) {
+                           value["PenaltyDate"] = subDateStr(value.PenaltyDate);
+                           value["PublicDate"] = subDateStr(value.PublicDate);
+                       });
                        $("#history11-count").html(EciList.length);
                    }
                    laytableRender({
@@ -335,6 +411,9 @@
                    if(res.data && res.data.CreditChinaList && res.data.CreditChinaList.length > 0){
                        nonData2 = false;
                        CreditChinaList = res.data.CreditChinaList;
+                       CreditChinaList.forEach(function (value) {
+                           value["PublicDate"] = subDateStr(value.PublicDate);
+                       });
                        $("#history11-1-count").html(CreditChinaList.length);
                    }
                    laytableRender({
@@ -354,7 +433,7 @@
                        ],
                        data: CreditChinaList
                    });
-                   if(nonData1 || nonData2){
+                   if(nonData1 === false || nonData2 === false){
                        $("a[href='#history11']").removeClass("disabled");
                    }
                }
@@ -414,7 +493,7 @@
                        data: CreditChinaList
                    });
 
-                   if(nonData1 || nonData2){
+                   if(nonData1===false || nonData2 === false){
                        $("a[href='#history12']").removeClass("disabled");
                    }
                }

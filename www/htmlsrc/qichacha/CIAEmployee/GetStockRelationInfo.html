@@ -38,7 +38,7 @@
     var companyName = decodeURI(getParam("fullName"));
     var name = decodeURI(getParam("name"));
     $.ajax({
-        url: remoteApi.qccCIAEmployeeGetStockRelationInfo+"?fullName="+companyName+"&name="+name,
+        url: remoteApi.qccCIAEmployeeGetStockRelationInfo+"?fullName="+companyName+"&personName="+name,
         success: function(res){
             if($.isEmptyObject(res.data) == false && res.success){
                 var data = res.data

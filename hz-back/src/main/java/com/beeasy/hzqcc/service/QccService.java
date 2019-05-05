@@ -413,16 +413,16 @@ public class QccService {
     ){
         JSONObject comInfo = qccHttpDataService.findOne("ECIRelationV4_GenerateMultiDimensionalTreeCompanyMap", param);
         if(null == comInfo){
-            return new HashMap();
+            return new JSONObject();
         }
         if(isOrigin){
             return comInfo;
         }
         comInfo = comInfo.getJSONObject("Result");
         if(null == comInfo){
-            return new HashMap();
+            return new JSONObject();
         }
-        Map retData = new HashMap();
+        Map retData = new JSONObject();
         JSONArray childs = comInfo.getJSONArray("Children");
         retData.put("Name", comInfo.getString("Name"));
         retData.put("KeyNo", comInfo.getString("KeyNo"));

@@ -58,6 +58,6 @@ lfs:
 loadQcc:
 #    zipPath: D:\java projects\hznsh\load-qcc\src\main\resources\qcc\zip
 #    txtPath: D:\java projects\hznsh\load-qcc\src\main\resources\qcc\txt
-    zipPath: /root/hz/hz-qcc/qccDataLog/zip
-    txtPath: /root/hz/hz-qcc/qccDataLog/txt
+    zipPath: /root/hz2/hz-qcc/qccDataLog/zip
+    txtPath: /root/hz2/hz-qcc/qccDataLog/txt
 

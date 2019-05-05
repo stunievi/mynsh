@@ -1,5 +1,6 @@
 package com.beeasy.hzqcc.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzqcc.service.QccService;
 import com.beeasy.mscommon.Result;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,10 +26,14 @@ public class AutoQccDataController {
         try {
             Class clazz = qccService.getClass();
             Method method = clazz.getDeclaredMethod($model.concat("_").concat($action), Map.class, boolean.class);
-            Object data = method.invoke(qccService,params, false);
-            return Result.ok(
-                    data
-            );
+            JSONObject data = (JSONObject) method.invoke(qccService,params, false);
+            if(null == data || data.isEmpty()){
+                return Result.error("查询不到数据");
+            }else{
+                return Result.ok(
+                        data
+                );
+            }
         }catch (NoSuchMethodException e){
             return Result.error("方法不存在");
         }
