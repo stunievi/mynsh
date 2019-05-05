@@ -189,3 +189,7 @@ WHERE
 	id = #uid# )
 
 
+查询总行企查查风险角色
+===
+select u.UID FROM T_USER_ORG u 
+INNER JOIN T_ORG org on u.OID=org.ID where org.name='总行企查查风险角色' 

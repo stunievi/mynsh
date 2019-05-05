@@ -68,10 +68,6 @@ public class QccHistLogService {
             JSONObject jObject = (JSONObject) jsonObject;
             String customerName = jObject.getString("CUS_NAME");
 
-            if("惠州市帅星贸易有限公司".equals(customerName)){
-                System.out.println(">>>>>>>>>");
-            }
-
             long startTime = System.currentTimeMillis();    //获取开始时间
             // 失信信息
 //            Future<String> t1 = qccHistLogAsyncService.searchShiXin("惠州市维也纳惠尔曼酒店管理有限公司", map);
@@ -187,6 +183,7 @@ public class QccHistLogService {
                     Long cusCode = null;    // 客户经理
                     // 客户经理map
                     Map<String, String> cusNameMap = new HashMap<>();
+                    Map<String, String> loanMap = new HashMap<>();
 
                     //获得key值对应的value
                     JSONArray ja1 = jsonObj.getJSONArray(key);
@@ -200,11 +197,13 @@ public class QccHistLogService {
                         cusCode = jo.getLong("cusId");
 
                         cusNameMap.put(loanAccount1 + "-" + cusCode, cusName);
+                        loanMap.put(loanAccount1, cusName);
 
                         String renderStr = getContent(map, loanAccount1, cusName);
 
                         try {
                             // 对公客户：【客户名称】，贷款账号：【贷款账号】，该用户新增【数量】条失信信息，【数量】条被执行信息。。。
+                            // 主管
                             notices.add(
                                     noticeService2.makeNotice(SysNotice.Type.SYSTEM, uid, renderStr, null)
                             );
@@ -216,22 +215,29 @@ public class QccHistLogService {
 
 //                        generateAutoTask(os, jo.getString("accCode"), jo.getString("loanAccount"));
                     }
+
                     if(cusNameMap.size()>0 || null != cusNameMap){
                         for (Map.Entry<String, String> entry : cusNameMap.entrySet()){
                             String mKey = entry.getKey();
                             String loanAccount = mKey.substring(0, mKey.indexOf("-"));
                             String code = mKey.substring(mKey.indexOf("-")+1, mKey.length());
                             String renderStr = getContent(map, loanAccount, entry.getValue());
+                            // 给客户经理发送消息
                             notices.add(
                                     noticeService2.makeNotice(SysNotice.Type.SYSTEM, Long.valueOf(code), renderStr, null)
                             );
+
                         }
                     }
-
+                    if(loanMap.size()>0 || null != loanMap){
+                        for (Map.Entry<String, String> entry : loanMap.entrySet()){
+                            String renderStr = getContent(map, entry.getKey(), entry.getValue());
+                            // 给总行企查查风险角色发送消息
+                            sendMsgTORule(renderStr, notices);
+                        }
+                    }
                     break;
-
                 }
-
                 sqlManager.insertBatch(SysNotice.class, notices);
 
                 // 发送任务
@@ -250,6 +256,21 @@ public class QccHistLogService {
 //                "fullName", "惠州市帅星贸易有限公司","pageSize","999"
 //        ));
         println("执行完成！");
+    }
+
+    /**
+     * 给总行企查查风险角色发送消息
+     */
+    private void sendMsgTORule(String renderStr, List<SysNotice> notices){
+        List<JSONObject> ruleList = sqlManager.select("user.查询总行企查查风险角色", JSONObject.class, C.newMap());
+        if(null != ruleList || ruleList.size()>0){
+            for(JSONObject rule : ruleList){
+                Long ruleId = rule.getLong("uid");
+                notices.add(
+                        noticeService2.makeNotice(SysNotice.Type.SYSTEM, ruleId, renderStr, null)
+                );
+            }
+        }
     }
 
     public String getContent(Map<String ,Integer> map, String loanAccount1, String cusName){

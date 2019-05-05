@@ -8,7 +8,6 @@ import com.beeasy.hzback.entity.WfNodeDealer;
 import com.beeasy.hzback.entity.WorkflowTask;
 import com.beeasy.hzback.modules.system.service.NoticeService2;
 import com.beeasy.mscommon.util.U;
-import org.apache.camel.json.simple.JsonArray;
 import org.beetl.sql.core.SQLManager;
 import org.osgl.util.C;
 import org.springframework.beans.factory.annotation.Autowired;
