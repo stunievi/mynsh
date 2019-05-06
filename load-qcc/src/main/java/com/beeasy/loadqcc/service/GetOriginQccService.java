@@ -18,12 +18,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
-import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -31,7 +27,7 @@ import java.util.*;
 public class GetOriginQccService {
 
     // 控制开发模式下某些变量
-    private boolean devModel = true;
+    private boolean devModel = false;
 
     @Value("${loadQcc.txtPath}")
     String LOAD_TXT_PATH;
@@ -133,12 +129,13 @@ public class GetOriginQccService {
             }
         }else{
             for(String personName : persons){
-                CIAEmployeeV4_GetStockRelationInfo(keyWord, personName, extParam);
+                if(null != personName && !personName.isEmpty()){
+                    CIAEmployeeV4_GetStockRelationInfo(keyWord, personName, extParam);
+                }
             }
         }
         // 控股企业
         HoldingCompany_GetHoldingCompany(keyWord, extParam);
-
         return comInfo;
     }
     // 法律诉讼

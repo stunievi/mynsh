@@ -17,7 +17,7 @@
                     {{if value[0].handle}}
                         <a href="javascript:;" id="handle{{value[0].field}}">{{data[value[0].field]}}</a>
                     {{else}}
-                        {{data[value[0].field]}}
+                        <%- data[value[0].field]==null ? "" : data[value[0].field]; %>
                     {{/if}}
                 </td>
             </tr>
@@ -29,9 +29,9 @@
                     </td>
                     <td class="col-xs-4 type-info">
                         {{if val.handle}}
-                        <a href="javascript:;" id="handle{{val.field}}">{{data[val.field]}}</a>
+                            <a href="javascript:;" id="handle{{val.field}}">{{data[val.field]}}</a>
                         {{else}}
-                        {{data[val.field]}}
+                            {{data[val.field]}}
                         {{/if}}
                     </td>
                 {{/each}}

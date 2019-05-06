@@ -20,6 +20,8 @@
 <script src="/htmlsrc/qichacha/tmpl/eci/qccTable.js"></script>
 <script>
     function onPageRequest(data){
+        console.log(data)
+        // data.YiWu = "<a href='javascript:;'>aa</a>"
         $("#home").html(
             qccTableRender({
                 cols: [

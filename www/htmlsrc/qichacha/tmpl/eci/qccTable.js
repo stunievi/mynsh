@@ -34,7 +34,7 @@ var qccTableRender = function(data, callback, undefined){
                     keyItem = [];
                     keyItem.push(item);
                     // 若是最后一项，则直接放入
-                    if(index === data["cols"].length - 1){
+                    if(index === data["cols"].length - 1 || data["cols"][index+1].spec){
                         cols2.push(keyItem);
                     }
                 }else{
