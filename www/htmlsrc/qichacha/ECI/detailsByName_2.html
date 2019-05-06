@@ -111,6 +111,7 @@
             onData:function (data) {
                 if(data.rows){
                     data.rows.forEach(function (row) {
+                        row["DefendantList"] = row.DefendantList.replace(/\\t/gm, "、");
                         row["LiAnDate"] = subDateStr(row.LiAnDate);
                     });
                 }
@@ -160,7 +161,7 @@
         laytableRender({
             id: "susong3-body",
             autoShift: false,
-            url: remoteApi.qccCourtNoticeSearchCourtAnnouncement+"?companyName="+COMPANY_NAME,
+            url: remoteApi.qccCourtNoticeSearchCourtAnnouncement+"?fullName="+COMPANY_NAME,
             cols: [
                 [
                     BOOTSTRAP_INDEX_FILED,
@@ -172,6 +173,11 @@
                 ]
             ],
             onData:function (data) {
+                if(data.rows){
+                    data.rows.forEach(function (row) {
+                        row["PublishedDate"] = subDateStr(row.PublishedDate);
+                    });
+                }
                 fixOnDataLoad("susong3", data);
             }
         });
@@ -194,6 +200,7 @@
                 ]
             ],
             onData:function (data) {
+                susong5Datalist = data.rows;
                 fixOnDataLoad("susong5", data);
             }
         });
