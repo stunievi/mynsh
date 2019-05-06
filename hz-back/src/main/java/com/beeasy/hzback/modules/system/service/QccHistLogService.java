@@ -181,6 +181,9 @@ public class QccHistLogService {
                     String key = sIterator.next();
                     Long uid = null;    // 信贷主管
                     Long cusCode = null;    // 客户经理
+                    // 客户经理map
+                    Map<String, String> cusNameMap = new HashMap<>();
+                    Map<String, String> loanMap = new HashMap<>();
 
                     //获得key值对应的value
                     JSONArray ja1 = jsonObj.getJSONArray(key);
@@ -193,57 +196,16 @@ public class QccHistLogService {
                         uid = jo.getLong("uid");
                         cusCode = jo.getLong("cusId");
 
-                        String renderStr = "对公客户：<a href=\"#\" class=\"forPublicCustomers_z\">" + cusName + "</a>，贷款账号：" + loanAccount1 + "，该用户新增";
+                        cusNameMap.put(loanAccount1 + "-" + cusCode, cusName);
+                        loanMap.put(loanAccount1, cusName);
 
-                        //判断是否包含指定的键值
-                        boolean shixin = map.containsKey("searchShiXin");
-                        boolean zhixing = map.containsKey("searchZhiXing");
-                        boolean judgmentDoc = map.containsKey("searchJudgmentDoc");
-                        boolean courtAnnouncement = map.containsKey("searchCourtAnnouncement");
-                        boolean courtNotice = map.containsKey("searchCourtNotice");
-                        boolean judicialSaleList = map.containsKey("getJudicialSaleList");
-                        boolean envPunishmentList = map.containsKey("getEnvPunishmentList");
-                        boolean judicialAssistance = map.containsKey("judicialAssistance");
-                        boolean opException = map.containsKey("opException");
-                        if (shixin) {         //如果条件为真
-                            int shixinInt = map.get("searchShiXin");
-                            renderStr = renderStr + shixinInt + "条失信信息，";
-                        }
-                        if (zhixing) {
-                            renderStr = renderStr + map.get("searchZhiXing") + "条被执行信息，";
-                        }
-                        if (judgmentDoc) {
-                            renderStr = renderStr + map.get("searchJudgmentDoc") + "条裁判文书，";
-                        }
-                        if (courtAnnouncement) {
-                            renderStr = renderStr + map.get("searchCourtAnnouncement") + "条法院公告，";
-                        }
-                        if (courtNotice) {
-                            renderStr = renderStr + map.get("searchCourtNotice") + "条开庭公告，";
-                        }
-                        if (judicialSaleList) {
-                            renderStr = renderStr + map.get("getJudicialSaleList") + "条司法拍卖，";
-                        }
-                        if (envPunishmentList) {
-                            renderStr = renderStr + map.get("getEnvPunishmentList") + "条环保处罚，";
-                        }
-                        if (judicialAssistance) {
-                            renderStr = renderStr + map.get("judicialAssistance") + "条司法协助，";
-                        }
-                        if (opException) {
-                            renderStr = renderStr + map.get("opException") + "条经营异常";
-                        }
-                        if (renderStr.length() > 0 && !("").equals(renderStr)) {
-                            renderStr = renderStr.substring(0, renderStr.length() - 1);
-                        }
+                        String renderStr = getContent(map, loanAccount1, cusName);
 
                         try {
                             // 对公客户：【客户名称】，贷款账号：【贷款账号】，该用户新增【数量】条失信信息，【数量】条被执行信息。。。
+                            // 主管
                             notices.add(
                                     noticeService2.makeNotice(SysNotice.Type.SYSTEM, uid, renderStr, null)
-                            );
-                            notices.add(
-                                    noticeService2.makeNotice(SysNotice.Type.SYSTEM, cusCode, renderStr, null)
                             );
                             //写入日志
 //                        logs.add(makeLog(1, re.getString("LOAN_ACCOUNT"), re.getString("REC_NO") ,null));
@@ -253,10 +215,29 @@ public class QccHistLogService {
 
 //                        generateAutoTask(os, jo.getString("accCode"), jo.getString("loanAccount"));
                     }
+
+                    if(cusNameMap.size()>0 || null != cusNameMap){
+                        for (Map.Entry<String, String> entry : cusNameMap.entrySet()){
+                            String mKey = entry.getKey();
+                            String loanAccount = mKey.substring(0, mKey.indexOf("-"));
+                            String code = mKey.substring(mKey.indexOf("-")+1, mKey.length());
+                            String renderStr = getContent(map, loanAccount, entry.getValue());
+                            // 给客户经理发送消息
+                            notices.add(
+                                    noticeService2.makeNotice(SysNotice.Type.SYSTEM, Long.valueOf(code), renderStr, null)
+                            );
+
+                        }
+                    }
+                    if(loanMap.size()>0 || null != loanMap){
+                        for (Map.Entry<String, String> entry : loanMap.entrySet()){
+                            String renderStr = getContent(map, entry.getKey(), entry.getValue());
+                            // 给总行企查查风险角色发送消息
+                            sendMsgTORule(renderStr, notices);
+                        }
+                    }
                     break;
-
                 }
-
                 sqlManager.insertBatch(SysNotice.class, notices);
 
                 // 发送任务
@@ -277,10 +258,72 @@ public class QccHistLogService {
         println("执行完成！");
     }
 
+    /**
+     * 给总行企查查风险角色发送消息
+     */
+    private void sendMsgTORule(String renderStr, List<SysNotice> notices){
+        List<JSONObject> ruleList = sqlManager.select("user.查询总行企查查风险角色", JSONObject.class, C.newMap());
+        if(null != ruleList || ruleList.size()>0){
+            for(JSONObject rule : ruleList){
+                Long ruleId = rule.getLong("uid");
+                notices.add(
+                        noticeService2.makeNotice(SysNotice.Type.SYSTEM, ruleId, renderStr, null)
+                );
+            }
+        }
+    }
+
+    public String getContent(Map<String ,Integer> map, String loanAccount1, String cusName){
+        String renderStr = "对公客户：<a href=\"#\" class=\"forPublicCustomers_z\">" + cusName + "</a>，贷款账号：" + loanAccount1 + "，该用户新增";
+
+        //判断是否包含指定的键值
+        boolean shixin = map.containsKey("searchShiXin");
+        boolean zhixing = map.containsKey("searchZhiXing");
+        boolean judgmentDoc = map.containsKey("searchJudgmentDoc");
+        boolean courtAnnouncement = map.containsKey("searchCourtAnnouncement");
+        boolean courtNotice = map.containsKey("searchCourtNotice");
+        boolean judicialSaleList = map.containsKey("getJudicialSaleList");
+        boolean envPunishmentList = map.containsKey("getEnvPunishmentList");
+        boolean judicialAssistance = map.containsKey("judicialAssistance");
+        boolean opException = map.containsKey("opException");
+        if (shixin) {         //如果条件为真
+            int shixinInt = map.get("searchShiXin");
+            renderStr = renderStr + shixinInt + "条失信信息，";
+        }
+        if (zhixing) {
+            renderStr = renderStr + map.get("searchZhiXing") + "条被执行信息，";
+        }
+        if (judgmentDoc) {
+            renderStr = renderStr + map.get("searchJudgmentDoc") + "条裁判文书，";
+        }
+        if (courtAnnouncement) {
+            renderStr = renderStr + map.get("searchCourtAnnouncement") + "条法院公告，";
+        }
+        if (courtNotice) {
+            renderStr = renderStr + map.get("searchCourtNotice") + "条开庭公告，";
+        }
+        if (judicialSaleList) {
+            renderStr = renderStr + map.get("getJudicialSaleList") + "条司法拍卖，";
+        }
+        if (envPunishmentList) {
+            renderStr = renderStr + map.get("getEnvPunishmentList") + "条环保处罚，";
+        }
+        if (judicialAssistance) {
+            renderStr = renderStr + map.get("judicialAssistance") + "条司法协助，";
+        }
+        if (opException) {
+            renderStr = renderStr + map.get("opException") + "条经营异常，";
+        }
+        if (renderStr.length() > 0 && !("").equals(renderStr)) {
+            renderStr = renderStr.substring(0, renderStr.length() - 1);
+        }
+        return renderStr;
+    }
+
     public void qccRule(OutputStream os, JSONObject jsonObj, JSONObject jsonTaskObj, String key, String type, String rule, String taskRule, String cusName) {
 
         // 消息规则
-        List<JSONObject> res = (sqlManager.select("task.selectQccMsgRule", JSONObject.class, C.newMap("type", type, "rule", rule ,"cusName", cusName)));
+            List<JSONObject> res = (sqlManager.select("task.selectQccMsgRule", JSONObject.class, C.newMap("type", type, "rule", rule ,"cusName", cusName)));
         // 任务规则
         List<JSONObject> taskRes = (sqlManager.select("task.selectQccTaskRule", JSONObject.class, C.newMap("type", type, "taskRule", taskRule,"cusName", cusName)));
         JSONObject object;
