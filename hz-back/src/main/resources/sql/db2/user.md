@@ -193,3 +193,11 @@ WHERE
 ===
 select u.UID FROM T_USER_ORG u 
 INNER JOIN T_ORG org on u.OID=org.ID where org.name='总行企查查风险角色' 
+
+信贷主管
+===
+select uid from T_USER_ORG userOrg right join 
+(select id,name from T_ORG q right join 
+(select PARENT_ID from T_ORG org  right join (select uo.oid from t_user_org uo where uo.uid=#uid#) a on a.oid= org.id) b on b.PARENT_ID=q.PARENT_ID
+where TYPE='QUARTERS' and manager='01'
+) c  on c.ID = userOrg.OID

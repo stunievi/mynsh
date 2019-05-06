@@ -29,7 +29,7 @@ public class WorkflowTaskService {
     @Autowired
     NoticeService2 noticeService2;
 
-//    @Scheduled(cron = "0 0/1 * * * ?")
+    @Scheduled(cron = "0 0 9 * * ?")
     public void workflowTask() {
 
         List<JSONObject> res = (sqlManager.select("workflow.selectDealParam", JSONObject.class, C.newMap()));

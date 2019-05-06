@@ -298,18 +298,18 @@ public class UpdateQccDataController {
             sendToAdminMsg("数据解构部分", cusName, sign);
             String errorMessage = jo.getString("errorMessage");
             if (null != errorMessage) {
-                content = "解构部分失败：" + errorMessage + cusName + sign + te;
+                content = "<span style='color:red'>解构部分失败</span>：" + errorMessage + cusName + sign + te;
             } else {
-                content = "解构部分失败：" + cusName + sign + te;
+                content = "<span style='color:red'>解构部分失败</span>：" + cusName + sign + te;
             }
 
         } else if (-1 == finished) {   // 全部失败
             sendToAdminMsg("数据解构", cusName, sign);
             String errorMessage = jo.getString("errorMessage");
             if (null != errorMessage) {
-                content = "解构失败：" + errorMessage + cusName + sign + te;
+                content = "<span style='color:red'>解构失败</span>：" + errorMessage + cusName + sign + te;
             } else {
-                content = "解构失败：" + cusName + sign + te;
+                content = "<span style='color:red'>解构失败</span>：" + cusName + sign + te;
             }
         }
         return content;
@@ -317,11 +317,11 @@ public class UpdateQccDataController {
 
     private String companyInfosResponse(String finished, String progress, String content, String cusName, String sign, String te, JSONObject jo) {
         if ("success".equals(finished) && "3".equals(progress)) {
-            content = "数据获取成功：" + cusName + sign + te;
+            content = "成功：" + cusName + sign + te;
         } else if ("failed".equals(finished)) {
             sendToAdminMsg("数据获取", cusName, sign);
             String errorMessage = jo.getString("errorMessage");
-            content = "获取数据失败：" + errorMessage + cusName + sign + te;
+            content = "<span style='color:red'>失败</span>：" + errorMessage + cusName + sign + te;
         }
         return content;
     }
