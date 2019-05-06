@@ -198,25 +198,25 @@ public class QccHistLogService {
 
                         cusNameMap.put(loanAccount1 + "-" + cusCode, cusName);
                         loanMap.put(loanAccount1, cusName);
-
-                        String renderStr = getContent(map, loanAccount1, cusName);
-
-                        try {
+//                        String renderStr = getContent(map, loanAccount1, cusName);
+//                        try {
                             // 对公客户：【客户名称】，贷款账号：【贷款账号】，该用户新增【数量】条失信信息，【数量】条被执行信息。。。
-                            // 主管
-                            notices.add(
-                                    noticeService2.makeNotice(SysNotice.Type.SYSTEM, uid, renderStr, null)
-                            );
+//                            if(null != uid){
+//                                // 主管
+//                                notices.add(
+//                                        noticeService2.makeNotice(SysNotice.Type.SYSTEM, uid, renderStr, null)
+//                                );
+//                            }
                             //写入日志
 //                        logs.add(makeLog(1, re.getString("LOAN_ACCOUNT"), re.getString("REC_NO") ,null));
-                        } catch (Exception e) {
-                            println( e.getMessage(), null);
-                        }
+//                        } catch (Exception e) {
+//                            println( e.getMessage(), null);
+//                        }
 
 //                        generateAutoTask(os, jo.getString("accCode"), jo.getString("loanAccount"));
                     }
 
-                    if(cusNameMap.size()>0 || null != cusNameMap){
+                    if(cusNameMap.size()>0 && null != cusNameMap){
                         for (Map.Entry<String, String> entry : cusNameMap.entrySet()){
                             String mKey = entry.getKey();
                             String loanAccount = mKey.substring(0, mKey.indexOf("-"));
@@ -227,17 +227,23 @@ public class QccHistLogService {
                                     noticeService2.makeNotice(SysNotice.Type.SYSTEM, Long.valueOf(code), renderStr, null)
                             );
 
+                            // 给支行行长/信贷主管发送消息
+                            sendMsgToPresident(renderStr, notices, code);
+
                         }
                     }
-                    if(loanMap.size()>0 || null != loanMap){
+                    if(loanMap.size()>0 && null != loanMap){
                         for (Map.Entry<String, String> entry : loanMap.entrySet()){
                             String renderStr = getContent(map, entry.getKey(), entry.getValue());
                             // 给总行企查查风险角色发送消息
                             sendMsgTORule(renderStr, notices);
+
                         }
                     }
+
                     break;
                 }
+
                 sqlManager.insertBatch(SysNotice.class, notices);
 
                 // 发送任务
@@ -263,7 +269,7 @@ public class QccHistLogService {
      */
     private void sendMsgTORule(String renderStr, List<SysNotice> notices){
         List<JSONObject> ruleList = sqlManager.select("user.查询总行企查查风险角色", JSONObject.class, C.newMap());
-        if(null != ruleList || ruleList.size()>0){
+        if(null != ruleList && ruleList.size()>0){
             for(JSONObject rule : ruleList){
                 Long ruleId = rule.getLong("uid");
                 notices.add(
@@ -271,6 +277,49 @@ public class QccHistLogService {
                 );
             }
         }
+    }
+
+    /**
+     * 支行行长/信贷主管
+     */
+    private void sendMsgToPresident(String renderStr, List<SysNotice> notices, String uid){
+        // 支行行长
+
+        //查询客户经理所在部门下所有岗位
+        List<JSONObject> oList = sqlManager.select("qcc.查询支行行长1", JSONObject.class, C.newMap("uid",uid));
+        // 查询客户经理所在部门的父节点下所有部门
+        List<JSONObject> pList = sqlManager.select("qcc.查询支行行长2", JSONObject.class, C.newMap("uid",uid));
+        Set<Long> uidList = new HashSet<>();
+        if(null != oList && oList.size()>0){
+            for(JSONObject rule : oList){
+                Long ruleId = rule.getLong("uid");
+                uidList.add(ruleId);
+            }
+        }
+        if(null != pList && pList.size()>0){
+            for(JSONObject rule : pList){
+                Long ruleId = rule.getLong("uid");
+                uidList.add(ruleId);
+            }
+        }
+
+        // 信贷主管
+        List<JSONObject> ruleList = sqlManager.select("user.信贷主管", JSONObject.class, C.newMap("uid",uid));
+        if(null != ruleList && ruleList.size()>0){
+            for(JSONObject rule : ruleList){
+                Long ruleId = rule.getLong("uid");
+                uidList.add(ruleId);
+            }
+        }
+
+        if(uidList.size()>0 && null != uidList){
+            for(Long list : uidList){
+                notices.add(
+                        noticeService2.makeNotice(SysNotice.Type.SYSTEM, list, renderStr, null)
+                );
+            }
+        }
+
     }
 
     public String getContent(Map<String ,Integer> map, String loanAccount1, String cusName){
