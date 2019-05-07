@@ -1,6 +1,10 @@
 package com.beeasy.zed;
 
+import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.thread.ThreadUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.db.ds.pooled.DbConfig;
+import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -12,6 +16,8 @@ import org.beetl.sql.core.engine.PageQuery;
 import org.beetl.sql.core.mapping.BeanProcessor;
 import org.osgl.util.S;
 
+import java.io.*;
+import java.nio.channels.FileChannel;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -21,6 +27,7 @@ import java.util.concurrent.Future;
 
 import static com.beeasy.zed.DBService.sqlManager;
 import static com.beeasy.zed.Utils.newJsonObject;
+import static com.beeasy.zed.DBService.config;
 
 public class QccService {
 
@@ -6320,11 +6327,32 @@ public class QccService {
         List<JSONObject> companies = listQuery("qcc.查询裁判文书详情-关联公司", newJsonObject("id", params.getString("id")));
         object.put("RelatedCompanies", companies);
 //        object.put("Content", new String(Base64.getDecoder().decode(object.getString("Content"))));
-        String contentClear = object.getString("ContentClear");
-        if (contentClear == null) {
-           contentClear = "";
+//        JSONObject log = DBService.config.getJSONObject("log");
+        try{
+            Map ps = new HashMap();
+            ps.put("fid", params.getString("id") + "-caipan");
+            String str = HttpUtil.get(String.format("http://%s/file", config.getString("static")), ps);
+            JSONObject obj = JSON.parseObject(str);
+            if(!StrUtil.equals(obj.getString("Status"), "500")){
+                object.putAll(obj);
+            }
+        } catch (Exception e){
+            e.printStackTrace();
         }
-        object.put("ContentClear", new String(Base64.getDecoder().decode(contentClear)));
+
+//        try(
+//            FileInputStream fis = new FileInputStream(new File(log.getString("blob"), params.getString("id") + "-caipan"));
+//            FileChannel channel = fis.getChannel();
+//            ) {
+//            String str = IoUtil.readUtf8(channel);
+//            object.putAll(JSON.parseObject(str));
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        String contentClear = object.getString("ContentClear");
+//        if (contentClear == null) {
+//           contentClear = "";
+//        }
         return object;
     }
 
