@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.Future;
@@ -40,6 +41,7 @@ public class QccHistLogService {
     NoticeService2 noticeService2;
     @Autowired
     SearchService searchService;
+    public static OutputStream os = System.out;
 
     private Pattern pattern = Pattern.compile("\\{(.+?)\\}");
     String logDir;
@@ -51,7 +53,7 @@ public class QccHistLogService {
     }
 
     @Scheduled(cron = "0 30 8 * * ?")
-    public void saveQccHisLog() {
+    public synchronized void saveQccHisLog() {
 
         JSONObject object = new JSONObject();
         Object a = sqlManager.select("accloan.对公客户", JSONObject.class, object);
@@ -102,7 +104,7 @@ public class QccHistLogService {
             System.out.println("新增数据量------------------:" + map);
 
             File dir = new File(logDir);
-            OutputStream os = null;
+//            OutputStream os = null;
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             try {
                 os = new FileOutputStream(new File(dir, sdf.format(new Date()) + ".txt"));
@@ -177,7 +179,11 @@ public class QccHistLogService {
                 while (sIterator.hasNext()) {
                     // 获得key
                     String key = sIterator.next();
-                    Long uid = null;
+                    Long uid = null;    // 信贷主管
+                    Long cusCode = null;    // 客户经理
+                    // 客户经理map
+                    Map<String, String> cusNameMap = new HashMap<>();
+                    Map<String, String> loanMap = new HashMap<>();
 
                     //获得key值对应的value
                     JSONArray ja1 = jsonObj.getJSONArray(key);
@@ -188,66 +194,54 @@ public class QccHistLogService {
                         String loanAccount1 = jo.getString("loanAccount");
                         String cusName = jo.getString("cusName");
                         uid = jo.getLong("uid");
+                        cusCode = jo.getLong("cusId");
 
-                        String renderStr = "对公客户：<a href=\"#\" class=\"forPublicCustomers_z\">" + cusName + "</a>，贷款账号：" + loanAccount1 + "，该用户新增";
-
-                        //判断是否包含指定的键值
-                        boolean shixin = map.containsKey("searchShiXin");
-                        boolean zhixing = map.containsKey("searchZhiXing");
-                        boolean judgmentDoc = map.containsKey("searchJudgmentDoc");
-                        boolean courtAnnouncement = map.containsKey("searchCourtAnnouncement");
-                        boolean courtNotice = map.containsKey("searchCourtNotice");
-                        boolean judicialSaleList = map.containsKey("getJudicialSaleList");
-                        boolean envPunishmentList = map.containsKey("getEnvPunishmentList");
-                        boolean judicialAssistance = map.containsKey("judicialAssistance");
-                        boolean opException = map.containsKey("opException");
-                        if (shixin) {         //如果条件为真
-                            int shixinInt = map.get("searchShiXin");
-                            renderStr = renderStr + shixinInt + "条失信信息，";
-                        }
-                        if (zhixing) {
-                            renderStr = renderStr + map.get("searchZhiXing") + "条被执行信息，";
-                        }
-                        if (judgmentDoc) {
-                            renderStr = renderStr + map.get("searchJudgmentDoc") + "条裁判文书，";
-                        }
-                        if (courtAnnouncement) {
-                            renderStr = renderStr + map.get("searchCourtAnnouncement") + "条法院公告，";
-                        }
-                        if (courtNotice) {
-                            renderStr = renderStr + map.get("searchCourtNotice") + "条开庭公告，";
-                        }
-                        if (judicialSaleList) {
-                            renderStr = renderStr + map.get("getJudicialSaleList") + "条司法拍卖，";
-                        }
-                        if (envPunishmentList) {
-                            renderStr = renderStr + map.get("getEnvPunishmentList") + "条环保处罚，";
-                        }
-                        if (judicialAssistance) {
-                            renderStr = renderStr + map.get("judicialAssistance") + "条司法协助，";
-                        }
-                        if (opException) {
-                            renderStr = renderStr + map.get("opException") + "条经营异常";
-                        }
-                        if (renderStr.length() > 0 && !("").equals(renderStr)) {
-                            renderStr = renderStr.substring(0, renderStr.length() - 1);
-                        }
-
-                        try {
+                        cusNameMap.put(loanAccount1 + "-" + cusCode, cusName);
+                        loanMap.put(loanAccount1, cusName);
+//                        String renderStr = getContent(map, loanAccount1, cusName);
+//                        try {
                             // 对公客户：【客户名称】，贷款账号：【贷款账号】，该用户新增【数量】条失信信息，【数量】条被执行信息。。。
-                            notices.add(
-                                    noticeService2.makeNotice(SysNotice.Type.SYSTEM, uid, renderStr, null)
-                            );
+//                            if(null != uid){
+//                                // 主管
+//                                notices.add(
+//                                        noticeService2.makeNotice(SysNotice.Type.SYSTEM, uid, renderStr, null)
+//                                );
+//                            }
                             //写入日志
 //                        logs.add(makeLog(1, re.getString("LOAN_ACCOUNT"), re.getString("REC_NO") ,null));
-                        } catch (Exception e) {
-                            println(os, e.getMessage(), null);
-                        }
+//                        } catch (Exception e) {
+//                            println( e.getMessage(), null);
+//                        }
 
 //                        generateAutoTask(os, jo.getString("accCode"), jo.getString("loanAccount"));
                     }
-                    break;
 
+                    if(cusNameMap.size()>0 && null != cusNameMap){
+                        for (Map.Entry<String, String> entry : cusNameMap.entrySet()){
+                            String mKey = entry.getKey();
+                            String loanAccount = mKey.substring(0, mKey.indexOf("-"));
+                            String code = mKey.substring(mKey.indexOf("-")+1, mKey.length());
+                            String renderStr = getContent(map, loanAccount, entry.getValue());
+                            // 给客户经理发送消息
+                            notices.add(
+                                    noticeService2.makeNotice(SysNotice.Type.SYSTEM, Long.valueOf(code), renderStr, null)
+                            );
+
+                            // 给支行行长/信贷主管发送消息
+                            sendMsgToPresident(renderStr, notices, code);
+
+                        }
+                    }
+                    if(loanMap.size()>0 && null != loanMap){
+                        for (Map.Entry<String, String> entry : loanMap.entrySet()){
+                            String renderStr = getContent(map, entry.getKey(), entry.getValue());
+                            // 给总行企查查风险角色发送消息
+                            sendMsgTORule(renderStr, notices);
+
+                        }
+                    }
+
+                    break;
                 }
 
                 sqlManager.insertBatch(SysNotice.class, notices);
@@ -267,12 +261,118 @@ public class QccHistLogService {
 //        String str =  HttpUtil.get("http://47.94.97.138/qcc/CourtV4/SearchShiXin", C.newMap(
 //                "fullName", "惠州市帅星贸易有限公司","pageSize","999"
 //        ));
+        println("执行完成！");
+    }
+
+    /**
+     * 给总行企查查风险角色发送消息
+     */
+    private void sendMsgTORule(String renderStr, List<SysNotice> notices){
+        List<JSONObject> ruleList = sqlManager.select("user.查询总行企查查风险角色", JSONObject.class, C.newMap());
+        if(null != ruleList && ruleList.size()>0){
+            for(JSONObject rule : ruleList){
+                Long ruleId = rule.getLong("uid");
+                notices.add(
+                        noticeService2.makeNotice(SysNotice.Type.SYSTEM, ruleId, renderStr, null)
+                );
+            }
+        }
+    }
+
+    /**
+     * 支行行长/信贷主管
+     */
+    private void sendMsgToPresident(String renderStr, List<SysNotice> notices, String uid){
+        // 支行行长
+
+        //查询客户经理所在部门下所有岗位
+        List<JSONObject> oList = sqlManager.select("qcc.查询支行行长1", JSONObject.class, C.newMap("uid",uid));
+        // 查询客户经理所在部门的父节点下所有部门
+        List<JSONObject> pList = sqlManager.select("qcc.查询支行行长2", JSONObject.class, C.newMap("uid",uid));
+        Set<Long> uidList = new HashSet<>();
+        if(null != oList && oList.size()>0){
+            for(JSONObject rule : oList){
+                Long ruleId = rule.getLong("uid");
+                uidList.add(ruleId);
+            }
+        }
+        if(null != pList && pList.size()>0){
+            for(JSONObject rule : pList){
+                Long ruleId = rule.getLong("uid");
+                uidList.add(ruleId);
+            }
+        }
+
+        // 信贷主管
+        List<JSONObject> ruleList = sqlManager.select("user.信贷主管", JSONObject.class, C.newMap("uid",uid));
+        if(null != ruleList && ruleList.size()>0){
+            for(JSONObject rule : ruleList){
+                Long ruleId = rule.getLong("uid");
+                uidList.add(ruleId);
+            }
+        }
+
+        if(uidList.size()>0 && null != uidList){
+            for(Long list : uidList){
+                notices.add(
+                        noticeService2.makeNotice(SysNotice.Type.SYSTEM, list, renderStr, null)
+                );
+            }
+        }
+
+    }
+
+    public String getContent(Map<String ,Integer> map, String loanAccount1, String cusName){
+        String renderStr = "对公客户：<a href=\"#\" class=\"forPublicCustomers_z\">" + cusName + "</a>，贷款账号：" + loanAccount1 + "，该用户新增";
+
+        //判断是否包含指定的键值
+        boolean shixin = map.containsKey("searchShiXin");
+        boolean zhixing = map.containsKey("searchZhiXing");
+        boolean judgmentDoc = map.containsKey("searchJudgmentDoc");
+        boolean courtAnnouncement = map.containsKey("searchCourtAnnouncement");
+        boolean courtNotice = map.containsKey("searchCourtNotice");
+        boolean judicialSaleList = map.containsKey("getJudicialSaleList");
+        boolean envPunishmentList = map.containsKey("getEnvPunishmentList");
+        boolean judicialAssistance = map.containsKey("judicialAssistance");
+        boolean opException = map.containsKey("opException");
+        if (shixin) {         //如果条件为真
+            int shixinInt = map.get("searchShiXin");
+            renderStr = renderStr + shixinInt + "条失信信息，";
+        }
+        if (zhixing) {
+            renderStr = renderStr + map.get("searchZhiXing") + "条被执行信息，";
+        }
+        if (judgmentDoc) {
+            renderStr = renderStr + map.get("searchJudgmentDoc") + "条裁判文书，";
+        }
+        if (courtAnnouncement) {
+            renderStr = renderStr + map.get("searchCourtAnnouncement") + "条法院公告，";
+        }
+        if (courtNotice) {
+            renderStr = renderStr + map.get("searchCourtNotice") + "条开庭公告，";
+        }
+        if (judicialSaleList) {
+            renderStr = renderStr + map.get("getJudicialSaleList") + "条司法拍卖，";
+        }
+        if (envPunishmentList) {
+            renderStr = renderStr + map.get("getEnvPunishmentList") + "条环保处罚，";
+        }
+        if (judicialAssistance) {
+            renderStr = renderStr + map.get("judicialAssistance") + "条司法协助，";
+        }
+        if (opException) {
+            renderStr = renderStr + map.get("opException") + "条经营异常，";
+        }
+        if (renderStr.length() > 0 && !("").equals(renderStr)) {
+            renderStr = renderStr.substring(0, renderStr.length() - 1);
+        }
+        return renderStr;
     }
 
     public void qccRule(OutputStream os, JSONObject jsonObj, JSONObject jsonTaskObj, String key, String type, String rule, String taskRule, String cusName) {
 
         // 消息规则
-        List<JSONObject> res = (sqlManager.select("task.selectQccMsgRule", JSONObject.class, C.newMap("type", type, "rule", rule ,"cusName", cusName)));
+            List<JSONObject> res = (sqlManager.select("task.selectQccMsgRule", JSONObject.class, C.newMap("type", type, "rule", rule ,"cusName", cusName)));
         // 任务规则
         List<JSONObject> taskRes = (sqlManager.select("task.selectQccTaskRule", JSONObject.class, C.newMap("type", type, "taskRule", taskRule,"cusName", cusName)));
         JSONObject object;
@@ -280,9 +380,9 @@ public class QccHistLogService {
         JSONArray jsonTaskArr = new JSONArray();
 
         for (JSONObject re : res) {
-            // 客户经理
-            Long uid = re.getLong("uid");
             // 信贷主管
+            Long uid = re.getLong("uid");
+            // 客户经理
             Long cusId = re.getLong("cusid");
 
             String loanAccount = re.getString("loanaccount");
@@ -349,10 +449,11 @@ public class QccHistLogService {
         return sb.toString();
     }
 
-    private void println(OutputStream os, String template, Object... args) {
+    private void println(String template, Object... args) {
         try {
             os.write(S.fmt(template, args).getBytes());
-            os.write("\n".getBytes());
+            os.write("\n".getBytes(StandardCharsets.UTF_8.name()));
+            os.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -376,11 +477,12 @@ public class QccHistLogService {
 
 //    String CUST_MGR ="0024600";
         String modelName = "贷后跟踪-企查查贷后检查";
+        System.out.println(">>>>>>>>>>>："+CUST_MGR);
 
         //  查找任务执行人
         User user = sqlManager.lambdaQuery(User.class).andEq(User::getAccCode, CUST_MGR).single();
         if ($.isNull(user)) {
-            println(os, "贷款账号%s: 找不到对应的任务执行人", loanAccount);
+            println( "贷款账号%s: 找不到对应的任务执行人", loanAccount);
             return;
         }
 
@@ -388,13 +490,13 @@ public class QccHistLogService {
         try {
             String no = String.valueOf(SearchService.InnateMap.getOrDefault(modelName, 0));
             if (no.equals("0")) {
-                println(os, "贷款账号%s: 查询不到台账信息", loanAccount);
+                println( "贷款账号%s: 查询不到台账信息", loanAccount);
                 return;
             }
             data = sqlManager.selectSingle("accloan." + no, C.newMap("loanAccount", loanAccount), JSONObject.class);
         } finally {
             if (0 == data.size()) {
-                println(os, "贷款账号%s: 查询不到台账信息", loanAccount);
+                println( "贷款账号%s: 查询不到台账信息", loanAccount);
                 return;
             }
         }
@@ -431,5 +533,10 @@ public class QccHistLogService {
             ret.put(sysVar.getVarName().toUpperCase(), sysVar.getVarValue());
         }
         return ret;
+    }
+
+    public void deleteQccHistLog(){
+        sqlManager.lambdaQuery(QccHistLog.class).delete();
+        println("表数据删除成功！");
     }
 }

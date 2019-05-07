@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.loadqcc.entity.LoadQccDataExtParm;
+import com.beeasy.loadqcc.entity.QccCollCnName;
 import com.beeasy.loadqcc.utils.QccUtil;
 import com.google.common.base.Joiner;
 import com.mongodb.client.MongoCollection;
@@ -17,12 +18,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
-import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -30,7 +27,7 @@ import java.util.*;
 public class GetOriginQccService {
 
     // 控制开发模式下某些变量
-    private boolean devModel = true;
+    private boolean devModel = false;
 
     @Value("${loadQcc.txtPath}")
     String LOAD_TXT_PATH;
@@ -99,23 +96,46 @@ public class GetOriginQccService {
             return new JSONObject();
         }
         List employees;
+        List partners;
+        Set<String> persons = new HashSet();
         try {
             employees = comInfo.getJSONArray("Employees");
+            if(null == employees){
+                employees = new JSONArray();
+            }
+            for(short i=0; i<employees.size();i++){
+                JSONObject item = (JSONObject) employees.get(i);
+                persons.add(item.getString("Name"));
+            }
+            partners = comInfo.getJSONArray("Partners");
+            if(null == partners){
+                partners = new JSONArray();
+            }
+            for(short i=0; i<partners.size();i++){
+                JSONObject item = (JSONObject) partners.get(i);
+                if(item.getString("StockType") == "自然人股东"){
+                    persons.add(item.getString("StockName"));
+                }
+            }
         }catch (Exception e){
             saveErrLog("ECI_GetDetailsByName获取工商信息解析Employees失败！");
-            employees = new JSONArray();
         }
-        int employeesLength = employees.size();
+        // 企业人员董监高信息
         if(devModel){
-            employeesLength = 1;
+            List<String> list = new ArrayList(persons);
+            if(list.size()>0){
+                String name = list.get(0);
+                CIAEmployeeV4_GetStockRelationInfo(keyWord, name, extParam);
+            }
+        }else{
+            for(String personName : persons){
+                if(null != personName && !personName.isEmpty()){
+                    CIAEmployeeV4_GetStockRelationInfo(keyWord, personName, extParam);
+                }
+            }
         }
         // 控股企业
         HoldingCompany_GetHoldingCompany(keyWord, extParam);
-        // 企业人员董监高信息
-        for(short i=0;i<employeesLength;i++){
-            JSONObject item = (JSONObject) employees.get(i);
-            CIAEmployeeV4_GetStockRelationInfo(keyWord, item.getString("Name"), extParam);
-        }
         return comInfo;
     }
     // 法律诉讼
@@ -238,14 +258,13 @@ public class GetOriginQccService {
         String data,
         LoadQccDataExtParm extParam
     ){
-        String trigger = extParam.getTrigger();
         JSONObject object = JSON.parseObject(data);
-
         // 数据全量库
         MongoCollection<Document> coll = mongoService.getCollection(collName);
         // 数据历史版本库
         MongoCollection<Document> coll2 = mongoService2.getCollection(collName);
 
+        String collCnName = (String) C.newMap("","").get("");
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
         String dateNowStr = sdf.format(new Date());
         String dataUrl = QCC_DOMAIN_PRX + "/" + collName.replace("_","/");
@@ -254,7 +273,13 @@ public class GetOriginQccService {
         if(queries.containsKey("keyNo")){
             fullLink = fullLink.concat("&fullName="+extParam.getCompanyName());
         }
-        Document dataLog = new Document().append("GetDataTime",dateNowStr).append("TriggerMode", trigger).append("CollName", collName).append("Queries", JSON.toJSONString(queries)).append("OriginData", data);
+        Document dataLog = new Document()
+                .append("GetDataTime",dateNowStr)
+                .append("CollName", collName)
+                .append("collCnName", QccCollCnName.getValue(collName))
+                .append("Queries", JSON.toJSONString(queries))
+                .append("OriginData", data)
+                .append("FullLink", fullLink);
         if(queries.containsKey("pageIndex")){
             dataLog.append("PageIndex", queries.get("pageIndex"));
         }
@@ -266,7 +291,6 @@ public class GetOriginQccService {
                 collLog.insertOne(dataLog);
 
                 ArrayList filters  = new ArrayList();
-                filters.add(Filters.eq("QueryParam.triggerMode", trigger));
                 for (Map.Entry<String, ?> entry : queries.entrySet()){
                     filters.add(Filters.eq("QueryParam.".concat(entry.getKey()), entry.getValue()));
                 }
@@ -287,40 +311,13 @@ public class GetOriginQccService {
                 collLog.insertOne(dataLog);
             }
         }
-
-        // 写入文件--全部请求完成后压缩文件提交解构服务解构数据
-        FileLock lock = null;
-        File file = extParam.getQccFileDataPath();
-        try (
-                RandomAccessFile raf = new RandomAccessFile(file, "rw");
-                FileChannel channel = raf.getChannel();
-        ){
-            lock = channel.lock();
-            String str = JSON.toJSONString(dataLog);
-            byte[] bs = (str.getBytes(StandardCharsets.UTF_8.name()));
-            raf.seek(raf.length());
-            byte[] linkbytes = fullLink.getBytes(StandardCharsets.UTF_8);
-            raf.writeInt(linkbytes.length);
-            raf.write(linkbytes);
-            //写入数据包长度
-            raf.writeInt(bs.length);
-            raf.write(bs);
-
-        } catch (IOException e) {
-            extParam.setWriteTxtFileState(false);
-            e.printStackTrace();
-            return;
+        if(extParam.getCompanyCount() < 30){
+            extParam.getCacheArr().add(dataLog);
+        }else{
+            dataLog.append("requestId", extParam.getCommandId());
+            MongoCollection<Document> collLog = mongoService2.getCollection("Response_Log");
+            collLog.insertOne(dataLog);
         }
-        finally {
-            if (lock != null) {
-                try {
-                    lock.release();
-                } catch (IOException e) {
-                    //e.printStackTrace();
-                }
-            }
-        };
-
 
     }
 

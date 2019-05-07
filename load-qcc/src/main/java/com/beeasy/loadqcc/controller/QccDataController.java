@@ -7,11 +7,15 @@ import com.beeasy.loadqcc.config.MQConfig;
 import com.beeasy.loadqcc.entity.LoadQccDataExtParm;
 import com.beeasy.loadqcc.service.GetOriginQccService;
 import com.beeasy.loadqcc.service.MongoService;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
 import org.apache.activemq.BlobMessage;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.osgl.util.C;
 import org.osgl.util.IO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,11 +26,15 @@ import org.springframework.jms.core.JmsMessagingTemplate;
 
 import javax.jms.JMSException;
 import javax.jms.TextMessage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -38,6 +46,9 @@ public class QccDataController {
     @Autowired
     @Qualifier(value = "qcc1")
     MongoService mongoService;
+    @Autowired
+    @Qualifier(value = "qcc2")
+    MongoService mongoService2;
     @Autowired
     GetOriginQccService getOriginQccService;
 
@@ -80,22 +91,76 @@ public class QccDataController {
         }
     }
 
+    private Runnable getThread(JSONObject companyData, LoadQccDataExtParm extParam) {
+        return new Runnable() {
+            @Override
+            public void run() {
+                if(extParam.isWriteTxtFileState() == false){
+                    return;
+                }
+                String companyName = companyData.getString("Content"); // 公司名
+                String command = companyData.getString("Sign"); // 指令
+                if(null == companyName|| companyName.isEmpty()){
+                    return;
+                }
+                extParam.setCompanyName(companyName);
+                if(null == command || command.isEmpty()){
+                    getOriginQccService.saveErrLog("更新企查查数据时，"+companyName+":指令为空");
+                    return;
+                }
+                // 公司公司信息
+                JSONObject companyInfo = new JSONObject();
+                // 更新所有
+                if(command.contains("00")){
+                    getOriginQccService.loadAllData(companyName, extParam);
+                }else{
+                    // 需要keyNo的必须拿到工商信息
+                    if(command.contains("03") || command.contains("04")){
+                        companyInfo = getCompanyInfo(companyName, extParam);
+                    }
+                    if(command.contains("01")){
+                        // 更新基本信息
+                        getOriginQccService.loadDataBlock1(companyName, extParam);
+                    }
+                    if(command.contains("02")){
+                        // 法律诉讼
+                        getOriginQccService.loadDataBlock2(companyName, extParam);
+                    }
+                    if(command.contains("03")){
+                        // 经营风险
+                        getOriginQccService.loadDataBlock5(companyName, companyInfo.getString("KeyNo"), extParam);
+                    }
+                    if(command.contains("04")){
+                        // 关联族谱
+                        getOriginQccService.loadDataBlock3(companyName, companyInfo.getString("KeyNo"), extParam);
+                    }
+                    if(command.contains("05")){
+                        // 历史信息
+                        getOriginQccService.loadDataBlock4(companyName, extParam);
+
+                    }
+                }
+
+            }
+        };
+    }
+
     // 监听MQ递送的更新名单
     @JmsListener(destination = "qcc-company-infos-request")
     public void test(Object o) throws JMSException {
         if(o instanceof TextMessage){
+            long beginTime = System.currentTimeMillis();
             String dataStr = ((TextMessage) o).getText();
             JSONObject dataObj;
             LoadQccDataExtParm extParam = LoadQccDataExtParm.automatic(dataStr);
             JSONArray dataList = new JSONArray(); // 数据列表
-
             // 回执
             ActiveMQTopic mqTopic2 = new ActiveMQTopic("qcc-company-infos-response");
             JSONObject resObj = new JSONObject();
             resObj.put("errorMessage", "");
             resObj.put("sourceRequest", extParam.getCommand());
             resObj.put("finished", "failed");
-
+            resObj.put("requestId", extParam.getResDataId());
             // 解析指令
             try{
                 dataObj = JSON.parseObject(dataStr);
@@ -109,67 +174,26 @@ public class QccDataController {
             }
             // 更新获取并写入数据
             try{
+                ExecutorService fixPool = Executors.newFixedThreadPool(16);
                 for(int i = 0 ; i < dataList.size() ; i++) {
                     JSONObject data = (JSONObject) dataList.get(i);
-                    String companyName = data.getString("Content"); // 公司名
-                    String command = data.getString("Sign"); // 指令
-                    if(null == companyName|| companyName.isEmpty()){
-                        continue;
-                    }
-                    extParam.setCompanyName(companyName);
-                    if(null == command || command.isEmpty()){
-                        getOriginQccService.saveErrLog("更新企查查数据时，"+companyName+":指令为空");
-                        continue;
-                    }
-                    // 公司公司信息
-                    JSONObject companyInfo = new JSONObject();
-                    if(extParam.isWriteTxtFileState() == false){
-                        resObj.put("progress", "2");
-                        resObj.put("finished", "failed");
-                        resObj.put("errorMessage", "因写入文件失败，企查查查查取数中止！");
-                        jmsMessagingTemplate.convertAndSend(mqTopic2, resObj.toJSONString());
-                        break;
-                    }
-
-                    // 更新所有
-                    if(command.contains("00")){
-                        getOriginQccService.loadAllData(companyName, extParam);
-                    }else{
-                        // 需要keyNo的必须拿到工商信息
-                        if(command.contains("03") || command.contains("05")){
-                            companyInfo = getCompanyInfo(companyName, extParam);
-                        }
-                        if(command.contains("01")){
-                            // 更新基本信息
-                            getOriginQccService.loadDataBlock1(companyName, extParam);
-                        }
-                        if(command.contains("02")){
-                            // 法律诉讼
-                            getOriginQccService.loadDataBlock2(companyName, extParam);
-                        }
-                        if(command.contains("03")){
-                            // 关联族谱
-                            getOriginQccService.loadDataBlock3(companyName, companyInfo.getString("KeyNo"), extParam);
-                        }
-                        if(command.contains("04")){
-                            // 历史信息
-                            getOriginQccService.loadDataBlock4(companyName, extParam);
-                        }
-                        if(command.contains("05")){
-                            // 经营风险
-                            getOriginQccService.loadDataBlock5(companyName, companyInfo.getString("KeyNo"), extParam);
-                        }
-                    }
+                    fixPool.execute(getThread(data, extParam));
                 }
+                fixPool.shutdown();
+                fixPool.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
+//                resObj.put("progress", "2");
+//                resObj.put("finished", "failed");
+//                resObj.put("errorMessage", "因写入文件失败，企查查查查取数中止！");
+//                jmsMessagingTemplate.convertAndSend(mqTopic2, resObj.toJSONString());
             }
             catch (Exception e){
                 resObj.put("progress", "1");
                 resObj.put("errorMessage", "企查查数据获取失败");
                 jmsMessagingTemplate.convertAndSend(mqTopic2, resObj.toJSONString());
-                getOriginQccService.saveErrLog("指令："+extParam.getCommandId()+"获取企查查数据发生异常");
+                getOriginQccService.saveErrLog("指令："+extParam.getCommandId()+"获取企查查数据发生异常" + e.toString());
                 return;
             }
-
+            System.out.println(System.currentTimeMillis() - beginTime);
             // 写入文件失败则忽略此次响应
             if(extParam.isWriteTxtFileState() == false){
                 resObj.put("progress", "2");
@@ -179,6 +203,53 @@ public class QccDataController {
                 return;
             }
 
+            // 写入文件--全部请求完成后压缩文件提交解构服务解构数据
+            FileLock lock = null;
+            File file = extParam.getQccFileDataPath();
+            try (
+                    RandomAccessFile raf = new RandomAccessFile(file, "rw");
+                    FileChannel channel = raf.getChannel();
+            ){
+                lock = channel.lock();
+                if(extParam.getCompanyCount() < 30){
+                    for (Document document : extParam.getCacheArr()) {
+                        String str = document.toJson();
+                        byte[] bs = (str.getBytes(StandardCharsets.UTF_8.name()));
+                        //写入数据包长度
+                        raf.writeInt(bs.length);
+                        raf.write(bs);
+                    }
+                }else{
+                    MongoCollection<Document> collLog = mongoService2.getCollection("Response_Log");
+                    MongoCursor<Document> data = collLog.find(Filters.eq("requestId", extParam.getCommandId())).iterator();
+                    while (data.hasNext()){
+                        Document item = data.next();
+                        String str = item.toJson();
+                        byte[] bs = (str.getBytes(StandardCharsets.UTF_8.name()));
+                        //写入数据包长度
+                        raf.writeInt(bs.length);
+                        raf.write(bs);
+                        collLog.deleteOne(Filters.eq("_id", item.getObjectId("_id")));
+                    }
+                }
+//                raf.seek(raf.length());
+//                byte[] linkbytes = fullLink.getBytes(StandardCharsets.UTF_8);
+//                raf.writeInt(linkbytes.length);
+//                raf.write(linkbytes);
+            } catch (IOException e) {
+                extParam.setWriteTxtFileState(false);
+                e.printStackTrace();
+                return;
+            }
+            finally {
+                if (lock != null) {
+                    try {
+                        lock.release();
+                    } catch (IOException e) {
+                        //e.printStackTrace();
+                    }
+                }
+            };
             // 生成zip包
             File __file = extParam.getQccFileDataPath();
             File __zip = extParam.getQccZipDataPath();
@@ -207,11 +278,11 @@ public class QccDataController {
                 // 将压缩文件放入MQ,供解构服务调用
                 ActiveMQQueue mqQueue = new ActiveMQQueue("qcc-deconstruct-request");
                 jmsMessagingTemplate.convertAndSend(mqQueue , new MQConfig.FileRequest(extParam.getCommand(), extParam.getResDataId(), __zip));
-                resObj.put("requestId", extParam.getResDataId());
                 resObj.put("progress", "3");
                 resObj.put("finished", "success");
                 resObj.put("errorMessage", "");
                 jmsMessagingTemplate.convertAndSend(mqTopic2, resObj.toJSONString());
+                System.out.println(System.currentTimeMillis() - beginTime);
             }else{
                 resObj.put("progress", "3");
                 resObj.put("errorMessage", "压缩文件不存在！");

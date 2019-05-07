@@ -101,15 +101,22 @@
                     BOOTSTRAP_INDEX_FILED,
                     { title:'操作', templet: "#susong1_toolbar"},
                     {title:"案号",field:"CaseNo"},
-                    {title:"开庭日期",field:"LiAnDate"},
-                    {title:"案由",field:"CaseReason"},
-                    {title:"被告人/被告/被上诉人/被申人",field:"DefendantList"},
-                    {title:"公诉人/原告/上诉人/申请人",field:"ProsecutorList"}
+                    {title:"开庭日期",field:"LiAnDate", setWidth: 90},
+                    {title:"案由",field:"CaseReason", setWidth: 110},
+                    {title:"被告",field:"DefendantList"},
+                    {title:"原告",field:"ProsecutorList", setWidth: 80}
 
                 ]
             ],
             onData:function (data) {
+                if(data.rows){
+                    data.rows.forEach(function (row) {
+                        row["DefendantList"] = row.DefendantList.replace(/\\t/gm, "、");
+                        row["LiAnDate"] = subDateStr(row.LiAnDate);
+                    });
+                }
                 fixOnDataLoad("susong1",data);
+                return data;
             }
         });
 
@@ -154,7 +161,7 @@
         laytableRender({
             id: "susong3-body",
             autoShift: false,
-            url: remoteApi.qccCourtNoticeSearchCourtAnnouncement+"?companyName="+COMPANY_NAME,
+            url: remoteApi.qccCourtNoticeSearchCourtAnnouncement+"?fullName="+COMPANY_NAME,
             cols: [
                 [
                     BOOTSTRAP_INDEX_FILED,
@@ -166,6 +173,11 @@
                 ]
             ],
             onData:function (data) {
+                if(data.rows){
+                    data.rows.forEach(function (row) {
+                        row["PublishedDate"] = subDateStr(row.PublishedDate);
+                    });
+                }
                 fixOnDataLoad("susong3", data);
             }
         });
@@ -188,6 +200,7 @@
                 ]
             ],
             onData:function (data) {
+                susong5Datalist = data.rows;
                 fixOnDataLoad("susong5", data);
             }
         });
@@ -214,6 +227,7 @@
                 ]
             ],
             onData:function (data) {
+                susong4DataList = data.rows;
                 fixOnDataLoad("susong4", data);
             }
         });

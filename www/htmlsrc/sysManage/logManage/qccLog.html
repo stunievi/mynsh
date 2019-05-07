@@ -7,10 +7,13 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>系统管理 - 日志管理</title>
     <!--#include file="/htmlsrc/header.html" -->
-    
+
     <style>
         td{
             white-space: nowrap;
+        }
+        tr td:nth-child(5){
+            white-space: normal !important;
         }
     </style>
 </head>
@@ -51,7 +54,7 @@
                     { field: 'username', title: '操作员' },
                     { field: "type", title: "类型" },
                     { field: "orderId", title: "指令ID" },
-                    { field: 'content', title: '消息内容' },
+                    { field: 'content', title: '消息内容', setWidth: 500 },
                     { field: "dataId", title: "数据ID" }
                 ]
             ]

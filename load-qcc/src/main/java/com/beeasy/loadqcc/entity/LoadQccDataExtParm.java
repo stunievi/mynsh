@@ -4,12 +4,17 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import lombok.Getter;
 import lombok.Setter;
+import org.bson.Document;
 
 import java.io.File;
 import java.io.RandomAccessFile;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
+import java.util.Vector;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static javafx.scene.input.KeyCode.V;
 
 @Getter
 @Setter
@@ -31,9 +36,13 @@ public class LoadQccDataExtParm {
     // 压缩包文件路径
     private File qccZipDataPath;
     // 文件写入状态是否失败
-    private boolean writeTxtFileState;
+    private AtomicBoolean writeTxtFileState = new AtomicBoolean(true);
     // 公司名
-    private String companyName;
+//    private String companyName;
+    private static ThreadLocal<String> cLocal = new ThreadLocal<>();
+    private Vector<Document> cacheArr = new Vector<>();
+    private int companyCount = 0;
+
     private static void setQccDataPath(
             LoadQccDataExtParm param
     ){
@@ -52,12 +61,33 @@ public class LoadQccDataExtParm {
     public static LoadQccDataExtParm automatic(String command){
         JSONObject commandObj = JSON.parseObject(command);
         LoadQccDataExtParm param = new LoadQccDataExtParm();
+        if(null == commandObj.getJSONArray("OrderData")){
+            param.setCompanyCount(0);
+        }else{
+            param.setCompanyCount(commandObj.getJSONArray("OrderData").size());
+        }
         param.setResDataId("load-qcc"+ UUID.randomUUID());
         param.setCommandId(commandObj.getString("OrderId"));
         param.setCommand(command);
-        param.setWriteTxtFileState(true);
+//        param.setWriteTxtFileState(true);
         param.setTrigger("automatic");
         setQccDataPath(param);
         return param;
+    }
+
+    public void setWriteTxtFileState(boolean flag) {
+        writeTxtFileState.set(flag);
+    }
+
+    public boolean isWriteTxtFileState(){
+        return writeTxtFileState.get();
+    }
+
+    public String getCompanyName() {
+        return cLocal.get();
+    }
+
+    public void setCompanyName(String companyName) {
+        cLocal.set(companyName);
     }
 }

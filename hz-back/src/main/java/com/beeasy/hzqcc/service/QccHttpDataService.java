@@ -3,10 +3,10 @@ package com.beeasy.hzqcc.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.entity.SysVar;
+import com.beeasy.hzback.modules.system.service.QccHistLogAsyncService;
 import com.beeasy.mscommon.util.OkHttpUtil;
 import org.beetl.sql.core.SQLManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -20,6 +20,8 @@ public class QccHttpDataService {
 
     @Autowired
     SQLManager sqlManager;
+    @Autowired
+    QccHistLogAsyncService qccHistLogAsyncService;
 
     @PostConstruct
     public void onInit(){
@@ -28,6 +30,7 @@ public class QccHttpDataService {
                 .single();
         if (sysVar != null) {
             QCC_HTTP_DATA_PRX = sysVar.getVarValue();
+            qccHistLogAsyncService.onInit(QCC_HTTP_DATA_PRX);
         }
     }
 

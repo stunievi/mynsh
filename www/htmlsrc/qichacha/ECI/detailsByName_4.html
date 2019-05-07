@@ -135,8 +135,7 @@
             , dataType: "json"
             , cols: [
                 [
-                    { title:'操作', templet: "#toolbar2"},
-                    // {title:"Id", field:"Id"},
+                    {title:'操作', templet: "#toolbar2"},
                     {title:"地址", field:"Address"},
                     {title:"行政区", field:"AdministrativeArea"},
                     {title:"抵押面积（公顷）", field:"MortgageAcreage"},
@@ -146,7 +145,14 @@
                 ]
             ],
             onData:function (data) {
+                if(data.rows){
+                    data.rows.forEach(function (row) {
+                        row["StartDate"] = subDateStr(row.StartDate);
+                        row["EndDate"] = subDateStr(row.EndDate);
+                    });
+                }
                 fixOnDataLoad("LandMortgageList", data);
+                return data;
             }
         });
         $(document).on("click", ".toolbar2", function () {

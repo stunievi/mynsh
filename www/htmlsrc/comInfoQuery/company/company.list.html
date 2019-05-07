@@ -68,13 +68,6 @@
         addNavTab("ECIdetail"+id, "企查查-公司详情", hrefUrl.ECIdetail+name);
         return true;
     });
-
-    function checkSubmitForm(){
-        layuiTableReload({
-            where: $("[name='form-search']").ghostsf_serialize()
-        })
-        return false;
-    }
 </script>
 </body>
 </html>

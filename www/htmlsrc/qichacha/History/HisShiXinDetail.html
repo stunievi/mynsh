@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 详情 </title>
+    <!--#include file="/htmlsrc/header.html" -->
+</head>
+<body>
+<div id="content">
+    <ul id="myTabs" class="nav nav-tabs" role="tablist" style="background: #fff">
+        <li role="presentation" class="active"><a href="#base" id="base-tab" role="tab" data-toggle="tab" data-controls="base" aria-expanded="true"><span id="status"></span>详情</a></li>
+    </ul>
+    <div id="myTabContent" class="tab-content" style="padding-top: 10px;">
+        <div role="tabpanel" class="tab-pane active in" id="home" aria-labelledby="home-tab">
+            <!-- 基本信息展示 -->
+        </div>
+    </div>
+</div>
+<script src="/htmlsrc/qichacha/tmpl/eci/qccTable.js"></script>
+<script>
+    function onPageRequest(data){
+        console.log(data)
+        // data.YiWu = "<a href='javascript:;'>aa</a>"
+        $("#home").html(
+            qccTableRender({
+                cols: [
+                    {title:"案号",field:"CaseNo"},
+                    {title:"执行法院",field:"ExecuteGov"},
+                    {title:"执行依据文号",field:"Anno"},
+                    {title:"执行依据文号",field:"ExecuteNo"},
+                    {title:"被执行的履行情况",field:"ExecuteStatus"},
+                    {title:"做出执行依据单位",field:"ExecuteUnite"},
+                    {title:"发布时间",field:"PublicDate"},
+                    {title:"省份",field:"Province"},
+                    {title:"立案时间",field:"LiAnDate"},
+                    {title:"组织机构代码",field:"OrgNo"},
+                    {title:"组织类型",field:"OrgType"},
+                    {title:"组织类型名称",field:"OrgTypeName"},
+                    {title:"名称",field:"Name"},
+                    {title:"生效法律文书确定的义务",field:"YiWu", spec: true},
+                    {title:"其他有履行能力而拒不履行生效法律文书确定义务",field:"ActionRemark", spec: true}
+                ],
+                data: data
+            })
+        );
+    }
+</script>
+</body>
+</html>

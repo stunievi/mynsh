@@ -152,10 +152,12 @@ ins { background-color: #cfc; text-decoration: none; } del { color: #999; backgr
             }else{
                 keyNoPromise.reject("KeyNo获取失败！");
             }
+            if(data.IsOnStock){
+                data.IsOnStock = data.IsOnStock == "0" ? "未上市" : "上市";
+            }
             $("#base1-body").html(
                 qccTableRender({
                     cols:[
-                        // {title:"内部KeyNo",field:"KeyNo"},
                         {title:"公司名称",field:"Name"},
                         {title:"注册号",field:"No"},
                         {title:"登记机关",field:"BelongOrg"},
@@ -172,7 +174,7 @@ ins { background-color: #cfc; text-decoration: none; } del { color: #999; backgr
                         {title:"营业结束日期",field:"TeamEnd"},
                         {title:"发照日期",field:"CheckDate"},
                         {title:"组织机构代码",field:"OrgNo"},
-                        {title:"是否上市(0为未上市，1为上市)",field:"IsOnStock"},
+                        {title:"是否上市",field:"IsOnStock"},
                         {title:"上市公司代码",field:"StockNumber"},
                         {title:"上市类型",field:"StockType"},
                         {title:"地址",field:"Address", spec: true},
@@ -221,7 +223,7 @@ ins { background-color: #cfc; text-decoration: none; } del { color: #999; backgr
                     [
                         BOOTSTRAP_INDEX_FILED,
                         { title:'操作', templet: "#toolbar", setWidth: 80},
-                        {title:"姓名",field:"Name"},
+                        {title:"姓名",field:"Name", setWidth: 120},
                         {title:"职位",field:"Job"}
                     ]
                 ],

@@ -8,7 +8,6 @@ import com.beeasy.hzback.entity.WfNodeDealer;
 import com.beeasy.hzback.entity.WorkflowTask;
 import com.beeasy.hzback.modules.system.service.NoticeService2;
 import com.beeasy.mscommon.util.U;
-import org.apache.camel.json.simple.JsonArray;
 import org.beetl.sql.core.SQLManager;
 import org.osgl.util.C;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +29,7 @@ public class WorkflowTaskService {
     @Autowired
     NoticeService2 noticeService2;
 
-//    @Scheduled(cron = "0 0/1 * * * ?")
+    @Scheduled(cron = "0 0 9 * * ?")
     public void workflowTask() {
 
         List<JSONObject> res = (sqlManager.select("workflow.selectDealParam", JSONObject.class, C.newMap()));
