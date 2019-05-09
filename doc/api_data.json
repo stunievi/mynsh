@@ -232,7 +232,7 @@
   {
     "type": "get",
     "url": "{辅助系统地址}/api/auto/user/getList",
-    "title": "系统变量列表",
+    "title": "用户列表",
     "group": "FZSYS",
     "version": "0.0.1",
     "parameter": {
@@ -1072,6 +1072,20 @@
           },
           {
             "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CIACompanyLegals.OperName",
+            "description": "<p>法人代表</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CIACompanyLegals.StartDate",
+            "description": "<p>企业注册时间</p>"
+          },
+          {
+            "group": "Success 200",
             "type": "object[]",
             "optional": false,
             "field": "CIAForeignInvestments",
@@ -1135,6 +1149,20 @@
           },
           {
             "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CIAForeignInvestments.OperName",
+            "description": "<p>法人代表</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CIAForeignInvestments.StartDate",
+            "description": "<p>企业注册时间</p>"
+          },
+          {
+            "group": "Success 200",
             "type": "object[]",
             "optional": false,
             "field": "CIAForeignOffices",
@@ -1188,6 +1216,20 @@
             "optional": false,
             "field": "CIAForeignOffices.Status",
             "description": "<p>企业状态</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CIAForeignOffices.OperName",
+            "description": "<p>法人代表</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "string",
+            "optional": false,
+            "field": "CIAForeignOffices.StartDate",
+            "description": "<p>企业注册时间</p>"
           }
         ]
       },
@@ -5535,6 +5577,47 @@
     "filename": "./hz-ms-zed/src/main/java/com/beeasy/zed/QccService.java",
     "groupTitle": "QCC",
     "name": "GetHoldingcompanyGetholdingcompany",
+    "error": {
+      "examples": [
+        {
+          "title": "请求异常:",
+          "content": "{\n    \"Status\": \"500\",\n    \"Message\": \"错误请求\"\n}",
+          "type": "json"
+        }
+      ]
+    }
+  },
+  {
+    "type": "get",
+    "url": "{企查查数据查询服务地址}/interface/count",
+    "title": "企业企查查数据统计",
+    "group": "QCC",
+    "version": "0.0.1",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "string",
+            "optional": false,
+            "field": "fullName",
+            "description": "<p>公司全名</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "请求成功:",
+          "content": "{\n\t\"Status\":\"200\",\n\t\"Message\":\"查询成功\",\n\t\"Result\":{\n\t\t\"/History/GetHistorytMPledge\":0,\n\t\t\"/ECIV4/SearchFresh\":0,\n\t\t\"/ECICompanyMap/GetStockAnalysisData\":0,\n\t\t\"/CIAEmployeeV4/GetStockRelationInfo\":0,\n\t\t\"/CourtAnnoV4/SearchCourtNotice\":0,\n\t\t\"/History/GetHistorytShareHolder\":0,\n\t\t\"/JudicialSale/GetJudicialSaleDetail\":0,\n\t\t\"/ECIRelationV4/GenerateMultiDimensionalTreeCompanyMap\":0,\n\t\t\"/LandMortgage/GetLandMortgageDetails\":0,\n\t\t\"/History/GetHistorytInvestment\":0,\n\t\t\"/History/GetHistoryZhiXing\":0,\n\t\t\"/ECIRelationV4/GetCompanyEquityShareMap\":0,\n\t\t\"/History/GetHistoryShiXin\":0,\n\t\t\"/History/GetHistorytAdminPenalty\":0,\n\t\t\"/CourtV4/SearchZhiXing\":5,\n\t\t\"/History/GetHistorytJudgement\":0,\n\t\t\"/History/GetHistorytCourtNotice\":0,\n\t\t\"/JudgeDocV4/GetJudgementDetail\":0,\n\t\t\"/CourtNoticeV4/SearchCourtAnnouncement\":9,\n\t\t\"/EnvPunishment/GetEnvPunishmentList\":0,\n\t\t\"/ECIV4/GetDetailsByName\":0,\n\t\t\"/History/GetHistorytSessionNotice\":0,\n\t\t\"/JudgeDocV4/SearchJudgmentDoc\":26,\n\t\t\"^/zed\":0,\n\t\t\"/History/GetHistorytPledge\":0,\n\t\t\"/JudicialSale/GetJudicialSaleList\":0,\n\t\t\"/file\":0,\n\t\t\"/ECIException/GetOpException\":0,\n\t\t\"/ECIRelationV4/SearchTreeRelationMap\":0,\n\t\t\"/CourtV4/SearchShiXin\":1,\n\t\t\"/LandMortgage/GetLandMortgageList\":0,\n\t\t\"/HoldingCompany/GetHoldingCompany\":0,\n\t\t\"/EnvPunishment/GetEnvPunishmentDetails\":0,\n\t\t\"/History/GetHistorytAdminLicens\":0,\n\t\t\"/JudicialAssistance/GetJudicialAssistance\":6,\n\t\t\"/CourtAnnoV4/GetCourtNoticeInfo\":0,\n\t\t\"/History/GetHistorytEci\":0,\n\t\t\"/CourtNoticeV4/SearchCourtAnnouncementDetail\":0,\n\t\t\"/ChattelMortgage/GetChattelMortgage\":0,\n\t\t\"/interface/count\":0\n       }\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "./hz-ms-zed/src/main/java/com/beeasy/zed/QccService.java",
+    "groupTitle": "QCC",
+    "name": "GetInterfaceCount",
     "error": {
       "examples": [
         {
