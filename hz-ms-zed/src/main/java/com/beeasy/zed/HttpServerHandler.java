@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
 
 class HttpServerHandler extends ChannelInboundHandlerAdapter {
 
-    private static List<Route> RouteList = new ArrayList<>();
+    public static List<Route> RouteList = new ArrayList<>();
 //    private static ThreadLocal<JSONObject> querys = new ThreadLocal<JSONObject>(){
 //        @Override
 //        protected JSONObject initialValue() {

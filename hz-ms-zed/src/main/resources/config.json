@@ -14,5 +14,5 @@
         "blob": "d:/delog/blob"
     },
     "static": "127.0.0.1:8081",
-    "workmode": "all"
+    "workmode": "search"
 }

@@ -53,7 +53,6 @@ public class TestMongo {
         DBService.await();
         deconstructService = DeconstructService.register();
         deconstructService.autoCommit = false;
-
     }
 
     @AfterClass
@@ -106,8 +105,10 @@ public class TestMongo {
 
 
     @Test
-    public void testSingleFile() throws FileNotFoundException {
-        deconstructService.onDeconstructRequest("1","2", new FileInputStream("d:/load-qccd0586ad9-6379-418b-82d8-2b896704d866"));
+    public void testSingleFile() throws FileNotFoundException, InterruptedException {
+//        clearTables();
+        Thread.sleep(1000);
+        deconstructService.onDeconstructRequest("1","2", new FileInputStream("C:\\Users\\bin\\Desktop\\qcc_hz_cus_com_data\\20190508\\jyfx-load-qcca4524d43-bde2-4843-acad-3e7b807d967c.zip"));
     }
 
 

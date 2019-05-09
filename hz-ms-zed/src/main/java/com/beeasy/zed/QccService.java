@@ -12,6 +12,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.json.JsonObjectDecoder;
 import org.beetl.sql.core.SQLManager;
+import org.beetl.sql.core.SQLReady;
 import org.beetl.sql.core.engine.PageQuery;
 import org.beetl.sql.core.mapping.BeanProcessor;
 import org.osgl.util.S;
@@ -24,6 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.beeasy.zed.DBService.sqlManager;
 import static com.beeasy.zed.Utils.newJsonObject;
@@ -121,8 +123,28 @@ public class QccService {
             registerRoute("/CIAEmployeeV4/GetStockRelationInfo", service::GetStockRelationInfo);
             registerRoute("/HoldingCompany/GetHoldingCompany", service::GetHoldingCompany);
             registerRoute("/ECICompanyMap/GetStockAnalysisData", service::GetStockAnalysisData);
+            //附加的借口
+            registerRoute("/interface/count", service::getInterfaceCount);
         });
         return service;
+    }
+
+    private Object getInterfaceCount(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
+        String compName = params.getString("fullName");
+        if(S.blank(compName)){
+            return null;
+        }
+        String sql = String.format("select interface,count from qcc_interface_count where inner_company_name = '%s'", compName);
+        List<JSONObject> objects =  sqlManager.execute(new SQLReady(sql), JSONObject.class);
+        JSONObject ret = new JSONObject();
+        HttpServerHandler.RouteList.forEach(r -> {
+            ret.put(r.regexp, new AtomicInteger(0));
+        });
+        for (JSONObject object : objects) {
+            AtomicInteger in = (AtomicInteger) ret.get(object.getString("interface"));
+            in.addAndGet(object.getInteger("count"));
+        }
+        return ret;
     }
 
 
