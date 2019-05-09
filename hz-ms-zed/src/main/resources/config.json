@@ -10,7 +10,9 @@
     "log": {
         "source": "d:/delog/source",
         "sql": "d:/delog/sql",
-        "unzip": "d:/delog/unzip"
+        "unzip": "d:/delog/unzip",
+        "blob": "d:/delog/blob"
     },
-    "workmode": "search"
+    "static": "127.0.0.1:8081",
+    "workmode": "all"
 }

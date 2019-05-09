@@ -107,7 +107,7 @@ public class TestMongo {
 
     @Test
     public void testSingleFile() throws FileNotFoundException {
-        deconstructService.onDeconstructRequest("1","2", new FileInputStream("C:\\Users\\bin\\Documents\\WeChat Files\\llyb120\\FileStorage\\File\\2019-04\\load-qcc0bc694ba-6ab4-4eb6-a067-6e4b60f1ba27(2).zip"));
+        deconstructService.onDeconstructRequest("1","2", new FileInputStream("d:/load-qccd0586ad9-6379-418b-82d8-2b896704d866"));
     }
 
 

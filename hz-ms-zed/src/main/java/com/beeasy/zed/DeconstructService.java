@@ -16,6 +16,7 @@ import org.apache.activemq.BlobMessage;
 import org.beetl.sql.core.DSTransactionManager;
 import org.beetl.sql.core.SQLReady;
 import org.osgl.util.S;
+import sun.misc.IOUtils;
 
 import javax.jms.JMSException;
 import javax.jms.TextMessage;
@@ -44,6 +45,7 @@ public class DeconstructService {
     private File logSourceDir;
     private File logSqlDir;
     private File logUnzipDir;
+    private static File blobDir;
 //    private ReentrantLock mutex = new ReentrantLock();
 //    private ExecutorService executor = Executors.newFixedThreadPool(16);
     private Map<String, Boolean> runningTask = new HashMap<>();
@@ -259,12 +261,12 @@ public class DeconstructService {
         }
     }
 
-    private String getQuery(FullHttpRequest request, String key) {
+    private static String getQuery(FullHttpRequest request, String key) {
         return getQuery(request, key, true);
     }
 
-    private String getQuery(FullHttpRequest request, String key, boolean throwError){
-        JSONObject params = HttpServerHandler.decodeProxyQuery(request);
+    private static String getQuery(FullHttpRequest request, String key, boolean throwError){
+        JSONObject params = HttpServerHandler.decodeQuery(request);
         if(params.containsKey(key)){
             return params.getString(key);
         }
@@ -282,9 +284,12 @@ public class DeconstructService {
             service.logSourceDir = new File(log.getString("source"));
             service.logSqlDir = new File(log.getString("sql"));
             service.logUnzipDir = new File(log.getString("unzip"));
+            service.blobDir = new File(log.getString("blob"));
+
             service.logSourceDir.mkdirs();
             service.logSqlDir.mkdirs();
             service.logUnzipDir.mkdirs();
+            service.blobDir.mkdirs();
 
 //            HttpServerHandler.AddRoute(new Route(("/deconstruct"), (ctx, req) -> {
 //                return service.doNettyRequest(ctx, req);
@@ -389,6 +394,20 @@ public class DeconstructService {
                     service.runningTask.remove(requestId);
                 }
             } );
+
+
+            //文件代理提供
+            HttpServerHandler.AddRoute(new Route("/file", new Route.IHandler() {
+                @Override
+                public Object run(ChannelHandlerContext ctx, FullHttpRequest request) throws Exception {
+                    String fid = getQuery(request, "fid");
+                    File file = new File(blobDir, fid);
+                    if(!file.exists()){
+                        return null;
+                    }
+                    return file;
+                }
+            }));
 
             System.out.println("deconstruct service boot success");
         });
@@ -1554,6 +1573,8 @@ public class DeconstructService {
      * @param json
      */
     private void GetJudgementDetail(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
+        String id = getQuery(request, "id");
+        writeFile(id + "-caipan", (JSONObject) json, "ContentClear", "Content", "JudgeResult", "PartyInfo","TrialProcedure", "CourtConsider", "PlaintiffRequest", "DefendantReply", "CourtInspect", "PlaintiffRequestOfFirst", "DefendantReplyOfFirst", "CourtInspectOfFirst", "CourtConsiderOfFirst", "AppellantRequest", "AppelleeArguing", "ExecuteProcess");
         changeField(json,
             new ICanChange() {
                 @Override
@@ -1561,14 +1582,13 @@ public class DeconstructService {
                     return key.endsWith("Date") && !key.equals("Judege_Date");
                 }
             }, DateValue,
-            "-Content",
             "+Appellor", ValueGenerator.createStrList("Appellor"),
             "Defendantlist->DefendantList",
             "Prosecutorlist->ProsecutorList",
             "+DefendantList", ValueGenerator.createStrList("DefendantList"),
             "+ProsecutorList", ValueGenerator.createStrList("ProsecutorList"),
 //            "+Content", Base64Value,
-            "+ContentClear", Base64Value
+            "+Id", id
         );
         deconstruct(json, "QCC_JUDGMENT_DOC", "Id");
 
@@ -2144,6 +2164,13 @@ public class DeconstructService {
 //            long stime = System.currentTimeMillis();
             for (String sql : sqls) {
                 stmt.addBatch(sql);
+//                try {
+//                    stmt.execute(sql);
+//                } catch (Exception e){
+//                    System.out.println(sql);
+//                    e.printStackTrace();
+//                }
+//                stmt.addBatch(sql);
             }
 //            for (String sql : sqls) {
 //                try{
@@ -2478,6 +2505,25 @@ public class DeconstructService {
                     someError.set(true);
                 }
             }
+        }
+    }
+
+    private void writeFile(String fileName, JSONObject object, String ...fields){
+        JSONObject obj = new JSONObject();
+        for (String field : fields) {
+            obj.put(field, object.getString(field));
+            object.remove(field);
+        }
+        File file = new File(blobDir, fileName);
+        if(file.exists()) file.delete();
+        try(
+           FileOutputStream fos = new FileOutputStream(file);
+            ){
+            IoUtil.write(fos, false, obj.toJSONString().getBytes());
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
