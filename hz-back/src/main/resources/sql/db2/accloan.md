@@ -947,12 +947,15 @@ left join t_org o2 on o2.acc_code = p1.MAIN_BR_ID
 @}
 
 
-
 where p1.CREUNIT_NO = (#use("数据源限制")#)
 --普通贷款
 and p1.LN_TYPE in ('普通贷款','银团贷款')
+
+@if(isEmpty(modelName)){
 --表内资产
-and p1.GL_CLASS not like '0%'
+    and p1.GL_CLASS not like '0%'
+@}
+
 --查询数据范围
 #use("condition_loan")#
 
