@@ -535,8 +535,11 @@ public class QccHistLogService {
         return ret;
     }
 
-    public void deleteQccHistLog(){
-        sqlManager.lambdaQuery(QccHistLog.class).delete();
-        println("表数据删除成功！");
+    public void deleteQccHistLog(String cusName){
+        if(!"".equals(cusName)){
+            sqlManager.lambdaQuery(QccHistLog.class).andEq(QccHistLog::getFullName,cusName).delete();
+            println(cusName+" 数据删除成功！");
+        }
+
     }
 }
