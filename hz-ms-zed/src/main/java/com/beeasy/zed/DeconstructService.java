@@ -2579,14 +2579,10 @@ public class DeconstructService {
             object.remove(field);
         }
         File file = new File(blobDir, fileName);
-        if(file.exists()) file.delete();
-        try(
-           FileOutputStream fos = new FileOutputStream(file);
-            ){
-            IoUtil.write(fos, false, obj.toJSONString().getBytes());
+        try{
+            FileOutputStream fos = new FileOutputStream(file);
+            IoUtil.write(fos, true, obj.toJSONString().getBytes());
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
             e.printStackTrace();
         }
     }
