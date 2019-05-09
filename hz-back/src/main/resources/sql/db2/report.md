@@ -57,7 +57,7 @@ p1.LOAN_START_DATE,
 p1.LOAN_END_DATE,
 p1.LOAN_AMOUNT,
 p1.LOAN_BALANCE,
-func_get_dict('CLA',p1.CLA) as CLA
+DB2INST1.func_get_dict('CLA',p1.CLA) as CLA
 @}
 FROM RPT_M_RPT_SLS_ACCT p1
 where 
@@ -104,7 +104,7 @@ p1.LOAN_START_DATE,
 p1.LOAN_END_DATE,
 p1.LOAN_AMOUNT,
 p1.LOAN_BALANCE,
-func_get_dict('CLA',p1.CLA) as CLA,
+DB2INST1.func_get_dict('CLA',p1.CLA) as CLA,
 p1.LOAN_BALANCE * p1.REALITY_IR_Y / 12 * (
   SELECT DAYS(to_date(#END_DATE#,'yyyyMMdd')) - DAYS(to_date(#START_DATE#,'yyyyMMdd'))
   FROM RPT_M_RPT_SLS_ACCT p2
@@ -150,7 +150,7 @@ p1.LOAN_START_DATE,
 p1.LOAN_END_DATE,
 p1.LOAN_AMOUNT,
 p1.LOAN_BALANCE,
-func_get_dict('CLA',p1.CLA) as CLA,
+DB2INST1.func_get_dict('CLA',p1.CLA) as CLA,
 p1.UNPD_PRIN_BAL,
 p1.CAP_OVERDUE_DATE
 @}
@@ -193,7 +193,7 @@ p1.LOAN_START_DATE,
 p1.LOAN_END_DATE,
 p1.LOAN_AMOUNT,
 p1.LOAN_BALANCE,
-func_get_dict('CLA',p1.CLA) as CLA,
+DB2INST1.func_get_dict('CLA',p1.CLA) as CLA,
 p1.DELAY_INT_CUMU,
 p1.INTEREST_OVERDUE_DATE
 @}
@@ -269,8 +269,8 @@ p1.LOAN_END_DATE,
 p1.INTEREST_OVERDUE_DATE,
 p1.DELAY_INT_CUMU,
 p1.UNPD_PRIN_BAL,
-func_get_dict('CLA',p1.CLA) as CLA,
-func_get_dict('ASSURE_MEANS_MAIN',p1.ASSURE_MEANS_MAIN) as ASSURE_MEANS_MAIN,
+DB2INST1.func_get_dict('CLA',p1.CLA) as CLA,
+DB2INST1.func_get_dict('ASSURE_MEANS_MAIN',p1.ASSURE_MEANS_MAIN) as ASSURE_MEANS_MAIN,
 p1.SRC_SYS_DATE
 @}
 FROM RPT_M_RPT_SLS_ACCT p1
@@ -312,7 +312,7 @@ p1.LOAN_START_DATE,
 p1.LOAN_END_DATE,
 p1.LOAN_AMOUNT,
 p1.LOAN_BALANCE,
-func_get_dict('CLA',p1.CLA) as CLA,
+DB2INST1.func_get_dict('CLA',p1.CLA) as CLA,
 p1.DELAY_INT_CUMU,
 p1.INTEREST_OVERDUE_DATE,
 p1.UNPD_PRIN_BAL,
@@ -360,7 +360,7 @@ p1.LOAN_START_DATE,
 p1.LOAN_END_DATE,
 p1.LOAN_AMOUNT,
 p1.LOAN_BALANCE,
-func_get_dict('CLA',p1.CLA) as CLA,
+DB2INST1.func_get_dict('CLA',p1.CLA) as CLA,
 p1.DELAY_INT_CUMU,
 p1.INTEREST_OVERDUE_DATE,
 p1.UNPD_PRIN_BAL,
@@ -445,8 +445,8 @@ p1.LOAN_START_DATE,
 p1.LOAN_END_DATE,
 p1.LOAN_AMOUNT,
 p1.LOAN_BALANCE,
-func_get_dict('SEVEN_RESULT',r1.CLA_RESULT_PRE) as CLA_RESULT_PRE,
-func_get_dict('SEVEN_RESULT',r1.CLA_RESULT) as CLA_RESULT,
+DB2INST1.func_get_dict('SEVEN_RESULT',r1.CLA_RESULT_PRE) as CLA_RESULT_PRE,
+DB2INST1.func_get_dict('SEVEN_RESULT',r1.CLA_RESULT) as CLA_RESULT,
 r1.CLA_DATE,
 p1.SRC_SYS_DATE
 @}
@@ -701,8 +701,8 @@ FUN_GET_ORG_BY_CODE(p1.MAIN_BR_ID) as MAIN_BR_NAME,
 p1.CUS_NAME,
 ROUND(p1.LOAN_AMOUNT/10000,2),
 ROUND(p1.LOAN_BALANCE/10000,2),
-func_get_dict('CLA',p1.CLA) as CLA,
-func_get_dict('ASSURE_MEANS_MAIN',p1.ASSURE_MEANS_MAIN) as ASSURE_MEANS_MAIN,
+DB2INST1.func_get_dict('CLA',p1.CLA) as CLA,
+DB2INST1.func_get_dict('ASSURE_MEANS_MAIN',p1.ASSURE_MEANS_MAIN) as ASSURE_MEANS_MAIN,
 p1.LOAN_TERM
 @}
 FROM RPT_M_RPT_SLS_ACCT p1
@@ -842,8 +842,8 @@ p1.LOAN_START_DATE,
 p1.LOAN_END_DATE,
 p1.REALITY_IR_Y,
 p1.TERM_TYPE,
-func_get_dict('ASSURE_MEANS_MAIN',p1.ASSURE_MEANS_MAIN) as ASSURE_MEANS_MAIN,
-func_get_dict('CLA',p1.CLA) as CLA
+DB2INST1.func_get_dict('ASSURE_MEANS_MAIN',p1.ASSURE_MEANS_MAIN) as ASSURE_MEANS_MAIN,
+DB2INST1.func_get_dict('CLA',p1.CLA) as CLA
 @}
 FROM RPT_M_RPT_SLS_ACCT p1
 where 
@@ -890,7 +890,7 @@ p1.LOAN_START_DATE,
 p1.LOAN_END_DATE,
 p1.LOAN_AMOUNT,
 p1.LOAN_BALANCE,
-func_get_dict('CLA',p1.CLA) as CLA,
+DB2INST1.func_get_dict('CLA',p1.CLA) as CLA,
 p1.DELAY_INT_CUMU,
 p1.INTEREST_OVERDUE_DATE,
 p1.UNPD_PRIN_BAL,
@@ -937,7 +937,7 @@ p1.LOAN_START_DATE,
 p1.LOAN_END_DATE,
 p1.LOAN_AMOUNT,
 p1.LOAN_BALANCE,
-func_get_dict('CLA',p1.CLA) as CLA,
+DB2INST1.func_get_dict('CLA',p1.CLA) as CLA,
 p1.TERM_TYPE,
 p1.UNPD_PRIN_BAL,
 p1.CAP_OVERDUE_DATE,
@@ -1169,8 +1169,8 @@ p1.LOAN_START_DATE,
 p1.LOAN_END_DATE,
 p1.REALITY_IR_Y,
 p1.TERM_TYPE,
-func_get_dict('ASSURE_MEANS_MAIN',p1.ASSURE_MEANS_MAIN) as ASSURE_MEANS_MAIN,
-func_get_dict('CLA',p1.CLA) as CLA,
+DB2INST1.func_get_dict('ASSURE_MEANS_MAIN',p1.ASSURE_MEANS_MAIN) as ASSURE_MEANS_MAIN,
+DB2INST1.func_get_dict('CLA',p1.CLA) as CLA,
 p1.UNPD_PRIN_BAL,
 p1.DELAY_INT_CUMU
 @}
@@ -1196,8 +1196,8 @@ SELECT
 @pageTag(){
 p1.*,
 FUN_GET_ORG_BY_CODE(p1.MAIN_BR_ID) as MAIN_BR_NAME,
-func_get_dict('ASSURE_MEANS_MAIN',p1.ASSURE_MEANS_MAIN) as ASSURE_MEANS_MAIN,
-func_get_dict('CLA',p1.CLA) as CLA
+DB2INST1.func_get_dict('ASSURE_MEANS_MAIN',p1.ASSURE_MEANS_MAIN) as ASSURE_MEANS_MAIN,
+DB2INST1.func_get_dict('CLA',p1.CLA) as CLA
 
 @}
 FROM RPT_M_RPT_SLS_ACCT p1
@@ -1216,7 +1216,7 @@ SELECT
 @pageTag(){
 g5.CONT_NO,
 g3.*,
-func_get_dict('CUS_TYPE',g3.CUS_TYP) as CUS_TYP
+DB2INST1.func_get_dict('CUS_TYPE',g3.CUS_TYP) as CUS_TYP
 
 @}
 FROM GRT_G_BASIC_INFO g3
@@ -1343,7 +1343,7 @@ select
 @pageTag(){
     u1.CUS_ID,
     u1.CUS_NAME,
---    func_get_dict('CERT_TYPE',u1.CERT_TYPE) as CERT_TYPE,
+--    DB2INST1.func_get_dict('CERT_TYPE',u1.CERT_TYPE) as CERT_TYPE,
     d1.v_value as CERT_TYPE,
     u1.CERT_CODE,
     case
@@ -1409,7 +1409,7 @@ select
 @pageTag(){
     u1.CUS_ID,
     u1.CUS_NAME,
---    func_get_dict('CERT_TYPE',u1.CERT_TYPE) as CERT_TYPE,
+--    DB2INST1.func_get_dict('CERT_TYPE',u1.CERT_TYPE) as CERT_TYPE,
     d1.v_value as CERT_TYPE,
     u1.CERT_CODE,
     case
@@ -1454,7 +1454,7 @@ select
 @pageTag(){
     u1.CUS_ID,
     u1.CUS_NAME,
---    func_get_dict('CERT_TYPE',u1.CERT_TYPE) as CERT_TYPE,
+--    DB2INST1.func_get_dict('CERT_TYPE',u1.CERT_TYPE) as CERT_TYPE,
     d1.v_value as CERT_TYPE,
     u1.CERT_CODE,
     case
@@ -1500,7 +1500,7 @@ select
 @pageTag(){
     p1.CUS_ID,
     p1.CUS_NAME,
---    func_get_dict('CERT_TYPE',u1.CERT_TYPE) as CERT_TYPE,
+--    DB2INST1.func_get_dict('CERT_TYPE',u1.CERT_TYPE) as CERT_TYPE,
     d1.v_value as CERT_TYPE,
     u1.CERT_CODE,
     case

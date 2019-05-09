@@ -48,7 +48,7 @@ where 1 = 1
 ===
 select 
 lm.*,
-func_get_dict('CERT_TYPE', type) as ctype
+DB2INST1.func_get_dict('CERT_TYPE', type) as ctype
 from t_loan_manager lm
 where LOAN_ACCOUNT = #loanAccount#
 
