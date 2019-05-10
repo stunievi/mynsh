@@ -34,13 +34,13 @@ public class QccHistLogController {
 
     }
     @RequestMapping(value = "/deleteHistLog", method = RequestMethod.GET)
-    public synchronized void deleteTable(HttpServletResponse response) throws IOException{
+    public synchronized void deleteTable(HttpServletResponse response, @RequestParam String cusName) throws IOException{
         response.setStatus(200);
         response.setContentType("text/plain; charset=utf-8");
         try {
             OutputStream os = response.getOutputStream();
             QccHistLogService.os = os;
-            qccHistLogService.deleteQccHistLog();
+            qccHistLogService.deleteQccHistLog(cusName);
 
             os.flush();
             os.close();

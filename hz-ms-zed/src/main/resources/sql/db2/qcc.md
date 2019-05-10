@@ -90,6 +90,9 @@ where inner_company_name = #fullName#
 @if(!isEmpty(submitDateEnd)){
     and #submitDateEnd# >= submit_date
 @}
+@pageIgnoreTag(){
+    order by submit_date desc
+@}
 
 查询裁判文书详情
 ===
@@ -110,7 +113,6 @@ trial_round,
 defendant_list,
 prosecutor_list,
 is_valid,
-content_clear,
 judge_result,
 party_info,
 trial_procedure,
@@ -203,6 +205,9 @@ INPUT_DATE
 @}
 from 
 QCC_COURT_NOTICE no where inner_company_name = #fullName#
+@pageIgnoreTag(){
+    order by no.LI_AN_DATE desc
+@}
 
 查询开庭公告详情
 ===
@@ -658,6 +663,9 @@ INPUT_DATE
 @}
 from QCC_HIS_SHIXIN						
 where inner_company_name = #fullName#
+@pageIgnoreTag(){
+    order by PUBLIC_DATE desc
+@}
 
 查询历史被执行信息表						
 ===
@@ -675,8 +683,11 @@ ORG_TYPE_NAME,
 NAME,
 INPUT_DATE
 @}
-from   QCC_HIS_ZHIXING						
+from  QCC_HIS_ZHIXING						
 where inner_company_name = #fullName#
+@pageIgnoreTag(){
+    order by LI_AN_DATE desc
+@}
 
 查询历史法院公告信息表
 ===
@@ -695,6 +706,9 @@ INPUT_DATE
 @}
 from QCC_HIS_COURT_NOTICE						
 where inner_company_name = #fullName#
+@pageIgnoreTag(){
+    order by Submit_Date desc
+@}
 
 
 查询历史裁判文书信息表

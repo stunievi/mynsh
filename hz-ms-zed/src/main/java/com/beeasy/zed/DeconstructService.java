@@ -7,6 +7,8 @@ import cn.hutool.core.util.URLUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.ibm.db2.jcc.am.SqlException;
+import com.sun.jndi.toolkit.url.UrlUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
@@ -16,6 +18,7 @@ import org.apache.activemq.BlobMessage;
 import org.beetl.sql.core.DSTransactionManager;
 import org.beetl.sql.core.SQLReady;
 import org.osgl.util.S;
+import sun.misc.IOUtils;
 
 import javax.jms.JMSException;
 import javax.jms.TextMessage;
@@ -24,6 +27,7 @@ import java.math.BigDecimal;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.charset.StandardCharsets;
+import java.sql.BatchUpdateException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -44,6 +48,7 @@ public class DeconstructService {
     private File logSourceDir;
     private File logSqlDir;
     private File logUnzipDir;
+    private static File blobDir;
 //    private ReentrantLock mutex = new ReentrantLock();
 //    private ExecutorService executor = Executors.newFixedThreadPool(16);
     private Map<String, Boolean> runningTask = new HashMap<>();
@@ -259,12 +264,12 @@ public class DeconstructService {
         }
     }
 
-    private String getQuery(FullHttpRequest request, String key) {
+    private static String getQuery(FullHttpRequest request, String key) {
         return getQuery(request, key, true);
     }
 
-    private String getQuery(FullHttpRequest request, String key, boolean throwError){
-        JSONObject params = HttpServerHandler.decodeProxyQuery(request);
+    private static String getQuery(FullHttpRequest request, String key, boolean throwError){
+        JSONObject params = HttpServerHandler.decodeQuery(request);
         if(params.containsKey(key)){
             return params.getString(key);
         }
@@ -282,9 +287,12 @@ public class DeconstructService {
             service.logSourceDir = new File(log.getString("source"));
             service.logSqlDir = new File(log.getString("sql"));
             service.logUnzipDir = new File(log.getString("unzip"));
+            service.blobDir = new File(log.getString("blob"));
+
             service.logSourceDir.mkdirs();
             service.logSqlDir.mkdirs();
             service.logUnzipDir.mkdirs();
+            service.blobDir.mkdirs();
 
 //            HttpServerHandler.AddRoute(new Route(("/deconstruct"), (ctx, req) -> {
 //                return service.doNettyRequest(ctx, req);
@@ -389,6 +397,20 @@ public class DeconstructService {
                     service.runningTask.remove(requestId);
                 }
             } );
+
+
+            //文件代理提供
+            HttpServerHandler.AddRoute(new Route("/file", new Route.IHandler() {
+                @Override
+                public Object run(ChannelHandlerContext ctx, FullHttpRequest request) throws Exception {
+                    String fid = getQuery(request, "fid");
+                    File file = new File(blobDir, fid);
+                    if(!file.exists()){
+                        return null;
+                    }
+                    return file;
+                }
+            }));
 
             System.out.println("deconstruct service boot success");
         });
@@ -962,7 +984,7 @@ public class DeconstructService {
                 break cym;
             }
             JSONArray array = object.getJSONArray("OriginalName");
-            if (array == null) {
+            if (array == null || array.size() == 0) {
                 break cym;
             }
             changeField(array,
@@ -980,7 +1002,7 @@ public class DeconstructService {
                 break gd;
             }
             JSONArray array = object.getJSONArray("Partners");
-            if (array == null) {
+            if (array == null || array.size() == 0) {
                 break gd;
             }
             changeField(array,
@@ -999,7 +1021,7 @@ public class DeconstructService {
                 break zyry;
             }
             JSONArray array = object.getJSONArray("Employees");
-            if (array == null) {
+            if (array == null || array.size() == 0) {
                 break zyry;
             }
             changeField(
@@ -1017,7 +1039,7 @@ public class DeconstructService {
                 break fzjg;
             }
             JSONArray array = object.getJSONArray("Branches");
-            if (array == null) {
+            if (array == null || array.size() == 0) {
                 break fzjg;
             }
             changeField(
@@ -1035,7 +1057,7 @@ public class DeconstructService {
                 break child;
             }
             JSONArray array = object.getJSONArray("ChangeRecords");
-            if (array == null) {
+            if (array == null || array.size() == 0) {
                 break child;
             }
             changeField(
@@ -1055,7 +1077,7 @@ public class DeconstructService {
                 break child;
             }
             JSONObject obj = object.getJSONObject("ContactInfo");
-            if (obj.size() == 0) {
+            if (null == obj || obj.size() == 0) {
                 break child;
             }
             changeField(
@@ -1083,7 +1105,7 @@ public class DeconstructService {
                 break child;
             }
             JSONObject obj = object.getJSONObject("Industry");
-            if (obj.size() == 0) {
+            if (null == obj || obj.size() == 0) {
                 break child;
             }
             changeField(
@@ -1403,9 +1425,10 @@ public class DeconstructService {
         //补充上诉人和被上诉人
         JSONObject object = (JSONObject) json;
         JSONArray list = new JSONArray();
-        if (object.containsKey("Prosecutor")) {
+        JSONArray array = object.getJSONArray("Prosecutor");
+        if (null != array && array.size() > 0) {
             list.addAll(
-                object.getJSONArray("Prosecutor")
+               array
                     .stream()
                     .map(_o -> {
                         JSONObject o = (JSONObject) _o;
@@ -1419,8 +1442,10 @@ public class DeconstructService {
                     .collect(Collectors.toList())
             );
         }
-        if (object.containsKey("Defendant")) {
-            list.addAll(object.getJSONArray("Defendant")
+        JSONArray Defendant = object.getJSONArray("Defendant");
+        if (null != Defendant && Defendant.size() > 0) {
+            list.addAll(
+                Defendant
                 .stream()
                 .map(_o -> {
                     JSONObject o = (JSONObject) _o;
@@ -1554,6 +1579,8 @@ public class DeconstructService {
      * @param json
      */
     private void GetJudgementDetail(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
+        String id = getQuery(request, "id");
+        writeFile(id + "-caipan", (JSONObject) json, "ContentClear", "Content", "JudgeResult", "PartyInfo","TrialProcedure", "CourtConsider", "PlaintiffRequest", "DefendantReply", "CourtInspect", "PlaintiffRequestOfFirst", "DefendantReplyOfFirst", "CourtInspectOfFirst", "CourtConsiderOfFirst", "AppellantRequest", "AppelleeArguing", "ExecuteProcess");
         changeField(json,
             new ICanChange() {
                 @Override
@@ -1561,14 +1588,13 @@ public class DeconstructService {
                     return key.endsWith("Date") && !key.equals("Judege_Date");
                 }
             }, DateValue,
-            "-Content",
             "+Appellor", ValueGenerator.createStrList("Appellor"),
             "Defendantlist->DefendantList",
             "Prosecutorlist->ProsecutorList",
             "+DefendantList", ValueGenerator.createStrList("DefendantList"),
             "+ProsecutorList", ValueGenerator.createStrList("ProsecutorList"),
 //            "+Content", Base64Value,
-            "+ContentClear", Base64Value
+            "+Id", id
         );
         deconstruct(json, "QCC_JUDGMENT_DOC", "Id");
 
@@ -1778,6 +1804,8 @@ public class DeconstructService {
         }
         JSONObject kv = new JSONObject();
         for (Map.Entry<String, Object> entry : object.entrySet()) {
+            //null有可能为一个子结构，如果为null则直接忽略
+            if(entry.getValue() == null) continue;
             kv.put(camelToUnderline(entry.getKey()), entry.getValue());
         }
         kv.put("input_date", new Date());
@@ -1875,6 +1903,8 @@ public class DeconstructService {
             sqlManager.executeUpdate(new SQLReady(sql));
         } else {
             readySqls.delete.add(sql);
+//            readySqls.deleteItems.add(new SqlVectors.DeleteItem(tableName, key, value));
+//            readySqls.addItem(tableName, key, value);
         }
     }
 
@@ -2031,7 +2061,7 @@ public class DeconstructService {
      * @param requestId
      */
     private synchronized List<String> deconstructStep2(String requestId, AtomicBoolean someError) throws IOException, InterruptedException {
-        ExecutorService executor = Executors.newCachedThreadPool();
+        ExecutorService executor = Executors.newFixedThreadPool(16);
         File unzipFile = new File(logUnzipDir, requestId);
 //        List<Slice> tasks = new ArrayList<>();
         final AtomicBoolean hasError = new AtomicBoolean(false);
@@ -2122,9 +2152,29 @@ public class DeconstructService {
         }
 
         List<String> sqls = new ArrayList<>();
+//        Map<String,Object[]> map = new HashMap<>();
+//        for (SqlVectors.DeleteItem deleteItem : readySqls.deleteItems) {
+//            Object[] t = map.get(deleteItem.table);
+//            if(t == null){
+//                t = new Object[3];
+//                map.put(deleteItem.table, t);
+//                t[0] = deleteItem.table;
+//                t[1] = deleteItem.key;
+//                t[2] = new HashSet<>();
+//            }
+//            HashSet set = (HashSet) t[2];
+//            set.add("'" + deleteItem.value + "'");
+//        }
+
+//        readySqls.deleteItems.forEach((k,v) -> {
+//            sqls.add(
+//                String.format("delete from %s where %s in (%s)", v[0], v[1], String.join(",", (Iterable<? extends CharSequence>) v[2]))
+//            );
+//        });
         sqls.addAll(readySqls.delete);
         sqls.addAll(readySqls.insert);
         sqls.addAll(readySqls.update);
+
 
         return sqls;
     }
@@ -2136,15 +2186,51 @@ public class DeconstructService {
      */
     private void deconstructStep3(List<String> sqls) throws SQLException {
         Connection conn = null;
+//        Statement stmt = null;
         try {
             conn = dataSource.getConnection();
             conn.setAutoCommit(false);
-            Statement stmt = conn.createStatement();
+//            stmt = conn.createStatement();
 //            System.out.println("开始插入");
 //            long stime = System.currentTimeMillis();
-            for (String sql : sqls) {
-                stmt.addBatch(sql);
+            int ptr = 0;
+            int loop = 1000;
+            int size = sqls.size();
+            while(ptr < size){
+                Statement stmt = conn.createStatement();
+//                stmt.closeOnCompletion();
+                List<String> slice = new ArrayList<>();
+                for(int i = 0; i < loop && ptr + i < size; i++){
+                    String sql = sqls.get(ptr+i);
+                    slice.add(sql);
+                    stmt.addBatch(sql);
+                }
+                try{
+                    stmt.executeBatch();
+                    stmt.close();
+                } catch (Exception e){
+//                    try {
+//                        IoUtil.write(new FileOutputStream("d:/errorlog"), true, String.join("\r\ngo\r\n", slice).getBytes());
+//                    } catch (FileNotFoundException e1) {
+//                        e1.printStackTrace();
+//                    }
+//                    System.exit(-1);
+                }
+                ptr += loop;
+                System.out.printf("%d\n", ptr);
+//                stmt.addBatch(sql);
             }
+//            for (String sql : sqls) {
+//                stmt.addBatch(sql);
+//            }
+//                try {
+//                    stmt.execute(sql);
+//                } catch (Exception e){
+//                    System.out.println(sql);
+//                    e.printStackTrace();
+//                }
+//                stmt.addBatch(sql);
+//            }
 //            for (String sql : sqls) {
 //                try{
 //                    stmt.execute(sql);
@@ -2152,9 +2238,8 @@ public class DeconstructService {
 //                    System.out.println(sql);
 //                }
 //            }
-            stmt.executeBatch();
+//            stmt.executeBatch();
             conn.commit();
-
 
             ;
         } catch (SQLException e) {
@@ -2168,6 +2253,7 @@ public class DeconstructService {
             e.printStackTrace();
             throw e;
         } finally {
+
             if (conn != null) {
                 try {
                     conn.close();
@@ -2198,6 +2284,7 @@ public class DeconstructService {
                 for (String sql : sqls) {
                     raf.write(sql.getBytes(StandardCharsets.UTF_8));
                     raf.write("\r\n".getBytes());
+//                    raf.write("go\r\n".getBytes());
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -2341,8 +2428,8 @@ public class DeconstructService {
             List<String> sqls = deconstructStep2(requestId, someError);
             reqponse.progress = 3;
             System.out.printf("解析完成, 时间%d\n", System.currentTimeMillis() - stime);
-            deconstructStep3(sqls);
             deconstructStep4(requestId, sqls);
+            deconstructStep3(sqls);
             if(someError.get()){
                 reqponse.finished = 1;
             } else {
@@ -2465,19 +2552,42 @@ public class DeconstructService {
     public void destructSingle( String str, AtomicBoolean someError) {
         JSONObject object = JSON.parseObject(str);
         String url = object.getString("FullLink");
-        for (Map.Entry<String, DeconstructService.DeconstructHandler> entry : DeconstructService.handlers.entrySet()) {
-            if (HttpServerHandler.matches(url, entry.getKey())) {
-                DeconstructService.DeconstructHandler handler = entry.getValue();
-                ByteBuf buf = Unpooled.buffer();
-                DefaultHttpHeaders headers = new DefaultHttpHeaders();
-                FullHttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, url, buf, headers, headers);
-                JSONObject od = (object.getJSONObject("OriginData"));
-                if (S.eq(od.getString("Status"), "200")) {
-                    handler.call(null, request, (JSON) od.get("Result"));
-                } else if(!S.startsWith(od.getString("Status"), "2")){
-                    someError.set(true);
-                }
+        String key = URLUtil.getPath(url);
+        if(handlers.containsKey(key)){
+            DeconstructService.DeconstructHandler handler = handlers.get(key);
+            ByteBuf buf = Unpooled.buffer();
+            DefaultHttpHeaders headers = new DefaultHttpHeaders();
+            FullHttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, url, buf, headers, headers);
+            JSONObject od = (object.getJSONObject("OriginData"));
+            if (S.eq(od.getString("Status"), "200")) {
+                handler.call(null, request, (JSON) od.get("Result"));
+            } else if(!S.startsWith(od.getString("Status"), "2")){
+                someError.set(true);
             }
+        }
+//        for (Map.Entry<String, DeconstructService.DeconstructHandler> entry : DeconstructService.handlers.entrySet()) {
+//            if (HttpServerHandler.matches(url, entry.getKey())) {
+//
+//            }
+//        }
+    }
+
+    private void writeFile(String fileName, JSONObject object, String ...fields){
+        JSONObject obj = new JSONObject();
+        for (String field : fields) {
+            obj.put(field, object.getString(field));
+            object.remove(field);
+        }
+        File file = new File(blobDir, fileName);
+        if(file.exists()) file.delete();
+        try(
+           FileOutputStream fos = new FileOutputStream(file);
+            ){
+            IoUtil.write(fos, false, obj.toJSONString().getBytes());
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -2638,9 +2748,36 @@ public class DeconstructService {
     }
 
     public static class SqlVectors {
-        public Vector<String> insert = new Vector<>();
-        public Vector<String> update = new Vector<>();
-        public Vector<String> delete = new Vector<>();
+        public List<String> insert = new Vector<>();
+        public List<String> update = new Vector<>();
+        public List<String> delete = new Vector<>();
+        private Map<String, Object[]> deleteItems  = new HashMap<>();
+
+        public synchronized void addItem(String table, String key, String value){
+            Object[] t = deleteItems.get(table);
+            if(t == null){
+                t = new Object[3];
+                deleteItems.put(table, t);
+                t[0] = table;
+                t[1] = key;
+                t[2] = new HashSet<>();
+            }
+            HashSet set = (HashSet) t[2];
+            set.add("'" + value + "'");
+        }
+
+//        public static class DeleteItem{
+//            public String table;
+//            public String key;
+//            public String value;
+//
+//            public DeleteItem(String table, String key, String values) {
+//                this.table = table;
+//                this.key = key;
+//                this.value = values;
+//            }
+//        }
+
     }
 
 

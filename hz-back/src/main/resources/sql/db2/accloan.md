@@ -656,7 +656,7 @@ select
 @pageTag(){
     b.CUS_ID,
     b.CUS_NAME,
-    b.CERT_TYPE,
+    d.v_value as CERT_TYPE,
     b.ENT_CERT_CODE,
     b.CUST_MGR,
     b.MAIN_BR_ID
@@ -667,7 +667,9 @@ select
 where 
 p1.ACCOUNT_STATUS in ('1','6') 
 and p1.GL_CLASS not like '0%'
-and CUST_TYPE like '2%') a) b where rn =1
+and CUST_TYPE like '2%') a) b 
+left join t_dict d on d.name = 'CERT_TYPE' and d.v_key = b.CERT_TYPE
+where rn =1
 @if(isNotEmpty(CUS_ID)){
     and b.CUS_ID like #'%' +CUS_ID +'%'#
 @}
