@@ -60,6 +60,7 @@ public class QccHistLogService {
         String str = a.toString();
 
         Map<String, Integer> map;
+        Map<String, Boolean> sendRuleMap = new HashMap<>();
 
         JSONArray json = (JSONArray) JSONArray.parse(str);
         // 对公客户
@@ -121,39 +122,48 @@ public class QccHistLogService {
                     switch (entry.getKey()) {
                         // 失信信息
                         case "searchShiXin":
-                            qccRule(os, jsonObj, jsonTaskObj,"searchShiXin", "01", "QCC_MSG_RULE_1_ON", "QCC_TASK_MSG_RULE_1_ON", customerName);
+                            boolean flag1 = qccRule(os, jsonObj, jsonTaskObj,entry.getKey(), "01", "QCC_MSG_RULE_1_ON", "QCC_TASK_MSG_RULE_1_ON", customerName);
+                            sendRuleMap.put(entry.getKey(),flag1);
                             break;
                         // 被执行信息
                         case "searchZhiXing":
-                            qccRule(os, jsonObj, jsonTaskObj,"searchZhiXing", "02", "QCC_MSG_RULE_2_ON", "QCC_TASK_MSG_RULE_2_ON", customerName);
+                            boolean flag2 = qccRule(os, jsonObj, jsonTaskObj,entry.getKey(), "02", "QCC_MSG_RULE_2_ON", "QCC_TASK_MSG_RULE_2_ON", customerName);
+                            sendRuleMap.put(entry.getKey(),flag2);
                             break;
                         // 裁判文书
                         case "searchJudgmentDoc":
-                            qccRule(os, jsonObj, jsonTaskObj,"searchJudgmentDoc", "03", "QCC_MSG_RULE_3_ON", "QCC_TASK_MSG_RULE_3_ON", customerName);
+                            boolean flag3 = qccRule(os, jsonObj, jsonTaskObj,entry.getKey(), "03", "QCC_MSG_RULE_3_ON", "QCC_TASK_MSG_RULE_3_ON", customerName);
+                            sendRuleMap.put(entry.getKey(),flag3);
                             break;
                         // 法院公告
                         case "searchCourtAnnouncement":
-                            qccRule(os, jsonObj, jsonTaskObj,"searchCourtAnnouncement", "04", "QCC_MSG_RULE_4_ON", "QCC_TASK_MSG_RULE_4_ON", customerName);
+                            boolean flag4 = qccRule(os, jsonObj, jsonTaskObj,entry.getKey(), "04", "QCC_MSG_RULE_4_ON", "QCC_TASK_MSG_RULE_4_ON", customerName);
+                            sendRuleMap.put(entry.getKey(),flag4);
                             break;
                         // 开庭公告
                         case "searchCourtNotice":
-                            qccRule(os, jsonObj, jsonTaskObj,"searchCourtNotice", "05", "QCC_MSG_RULE_5_ON", "QCC_TASK_MSG_RULE_5_ON", customerName);
+                            boolean flag5 = qccRule(os, jsonObj, jsonTaskObj,entry.getKey(), "05", "QCC_MSG_RULE_5_ON", "QCC_TASK_MSG_RULE_5_ON", customerName);
+                            sendRuleMap.put(entry.getKey(),flag5);
                             break;
                         // 司法拍卖
                         case "judicialSaleList":
-                            qccRule(os, jsonObj, jsonTaskObj,"judicialSaleList", "06", "QCC_MSG_RULE_6_ON", "QCC_TASK_MSG_RULE_6_ON", customerName);
+                            boolean flag6 = qccRule(os, jsonObj, jsonTaskObj,entry.getKey(), "06", "QCC_MSG_RULE_6_ON", "QCC_TASK_MSG_RULE_6_ON", customerName);
+                            sendRuleMap.put(entry.getKey(),flag6);
                             break;
                         // 环保处罚
                         case "envPunishmentList":
-                            qccRule(os, jsonObj, jsonTaskObj,"envPunishmentList", "07", "QCC_MSG_RULE_7_ON", "QCC_TASK_MSG_RULE_7_ON", customerName);
+                            boolean flag7 = qccRule(os, jsonObj, jsonTaskObj,entry.getKey(), "07", "QCC_MSG_RULE_7_ON", "QCC_TASK_MSG_RULE_7_ON", customerName);
+                            sendRuleMap.put(entry.getKey(),flag7);
                             break;
                         // 司法协助
                         case "judicialAssistance":
-                            qccRule(os, jsonObj, jsonTaskObj,"judicialAssistance", "08", "QCC_MSG_RULE_8_ON", "QCC_TASK_MSG_RULE_8_ON", customerName);
+                            boolean flag8 = qccRule(os, jsonObj, jsonTaskObj,entry.getKey(), "08", "QCC_MSG_RULE_8_ON", "QCC_TASK_MSG_RULE_8_ON", customerName);
+                            sendRuleMap.put(entry.getKey(),flag8);
                             break;
                         // 经营异常
                         case "opException":
-                            qccRule(os, jsonObj, jsonTaskObj,"opException", "09", "QCC_MSG_RULE_9_ON", "QCC_TASK_MSG_RULE_9_ON", customerName);
+                            boolean flag9 = qccRule(os, jsonObj, jsonTaskObj,entry.getKey(), "09", "QCC_MSG_RULE_9_ON", "QCC_TASK_MSG_RULE_9_ON", customerName);
+                            sendRuleMap.put(entry.getKey(),flag9);
                             break;
                     }
                 }
@@ -221,7 +231,7 @@ public class QccHistLogService {
                             String mKey = entry.getKey();
                             String loanAccount = mKey.substring(0, mKey.indexOf("-"));
                             String code = mKey.substring(mKey.indexOf("-")+1, mKey.length());
-                            String renderStr = getContent(map, loanAccount, entry.getValue());
+                            String renderStr = getContent(map, loanAccount, entry.getValue(), sendRuleMap);
                             // 给客户经理发送消息
                             notices.add(
                                     noticeService2.makeNotice(SysNotice.Type.SYSTEM, Long.valueOf(code), renderStr, null)
@@ -234,7 +244,7 @@ public class QccHistLogService {
                     }
                     if(loanMap.size()>0 && null != loanMap){
                         for (Map.Entry<String, String> entry : loanMap.entrySet()){
-                            String renderStr = getContent(map, entry.getKey(), entry.getValue());
+                            String renderStr = getContent(map, entry.getKey(), entry.getValue(), sendRuleMap);
                             // 给总行企查查风险角色发送消息
                             sendMsgTORule(renderStr, notices);
 
@@ -322,7 +332,7 @@ public class QccHistLogService {
 
     }
 
-    public String getContent(Map<String ,Integer> map, String loanAccount1, String cusName){
+    public String getContent(Map<String ,Integer> map, String loanAccount1, String cusName, Map<String, Boolean> sendRuleMap){
         String renderStr = "对公客户：<a href=\"#\" class=\"forPublicCustomers_z\">" + cusName + "</a>，贷款账号：" + loanAccount1 + "，该用户新增";
 
         //判断是否包含指定的键值
@@ -337,31 +347,58 @@ public class QccHistLogService {
         boolean opException = map.containsKey("opException");
         if (shixin) {         //如果条件为真
             int shixinInt = map.get("searchShiXin");
-            renderStr = renderStr + shixinInt + "条失信信息，";
+            boolean flag = sendRuleMap.get("searchShiXin");
+            if(flag){
+                renderStr = renderStr + shixinInt + "条失信信息，";
+            }
         }
         if (zhixing) {
-            renderStr = renderStr + map.get("searchZhiXing") + "条被执行信息，";
+            boolean flag = sendRuleMap.get("searchZhiXing");
+            if(flag){
+                renderStr = renderStr + map.get("searchZhiXing") + "条被执行信息，";
+            }
         }
         if (judgmentDoc) {
-            renderStr = renderStr + map.get("searchJudgmentDoc") + "条裁判文书，";
+            boolean flag = sendRuleMap.get("searchJudgmentDoc");
+            if(flag){
+                renderStr = renderStr + map.get("searchJudgmentDoc") + "条裁判文书，";
+            }
         }
         if (courtAnnouncement) {
-            renderStr = renderStr + map.get("searchCourtAnnouncement") + "条法院公告，";
+            boolean flag = sendRuleMap.get("searchCourtAnnouncement");
+            if(flag){
+                renderStr = renderStr + map.get("searchCourtAnnouncement") + "条法院公告，";
+            }
         }
         if (courtNotice) {
-            renderStr = renderStr + map.get("searchCourtNotice") + "条开庭公告，";
+            boolean flag = sendRuleMap.get("searchCourtNotice");
+            if(flag){
+                renderStr = renderStr + map.get("searchCourtNotice") + "条开庭公告，";
+            }
         }
         if (judicialSaleList) {
-            renderStr = renderStr + map.get("getJudicialSaleList") + "条司法拍卖，";
+            boolean flag = sendRuleMap.get("getJudicialSaleList");
+            if(flag){
+                renderStr = renderStr + map.get("getJudicialSaleList") + "条司法拍卖，";
+            }
         }
         if (envPunishmentList) {
-            renderStr = renderStr + map.get("getEnvPunishmentList") + "条环保处罚，";
+            boolean flag = sendRuleMap.get("getEnvPunishmentList");
+            if(flag){
+                renderStr = renderStr + map.get("getEnvPunishmentList") + "条环保处罚，";
+            }
         }
         if (judicialAssistance) {
-            renderStr = renderStr + map.get("judicialAssistance") + "条司法协助，";
+            boolean flag = sendRuleMap.get("judicialAssistance");
+            if(flag){
+                renderStr = renderStr + map.get("judicialAssistance") + "条司法协助，";
+            }
         }
         if (opException) {
-            renderStr = renderStr + map.get("opException") + "条经营异常，";
+            boolean flag = sendRuleMap.get("opException");
+            if(flag){
+                renderStr = renderStr + map.get("opException") + "条经营异常，";
+            }
         }
         if (renderStr.length() > 0 && !("").equals(renderStr)) {
             renderStr = renderStr.substring(0, renderStr.length() - 1);
@@ -369,10 +406,11 @@ public class QccHistLogService {
         return renderStr;
     }
 
-    public void qccRule(OutputStream os, JSONObject jsonObj, JSONObject jsonTaskObj, String key, String type, String rule, String taskRule, String cusName) {
+    public boolean qccRule(OutputStream os, JSONObject jsonObj, JSONObject jsonTaskObj, String key, String type, String rule, String taskRule, String cusName) {
 
         // 消息规则
             List<JSONObject> res = (sqlManager.select("task.selectQccMsgRule", JSONObject.class, C.newMap("type", type, "rule", rule ,"cusName", cusName)));
+
         // 任务规则
         List<JSONObject> taskRes = (sqlManager.select("task.selectQccTaskRule", JSONObject.class, C.newMap("type", type, "taskRule", taskRule,"cusName", cusName)));
         JSONObject object;
@@ -413,6 +451,11 @@ public class QccHistLogService {
             jsonTaskArr.add(taskObject);
             jsonTaskObj.put(key, jsonTaskArr);
 
+        }
+        if(null != res && res.size()>0){
+            return true;
+        }else{
+            return false;
         }
     }
 
