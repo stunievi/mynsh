@@ -1,0 +1,13 @@
+spring:
+  activemq:
+    broker-url: tcp://47.94.97.138:8011?jms.blobTransferPolicy.uploadUrl=http://47.94.97.138:8012/fileserver/
+
+server:
+  port: 8089
+
+mongo:
+  host: 47.94.97.138
+
+loadQcc:
+  zipPath: D:\java projects\hznsh\load-qcc\src\main\resources\qcc\zip
+  txtPath: D:\java projects\hznsh\load-qcc\src\main\resources\qcc\txt

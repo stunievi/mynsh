@@ -233,6 +233,12 @@
                ]
            ],
            onData:function (data) {
+               (data.rows || []).forEach(function (row) {
+                   row["CaseNo"] = (row.CaseNo || '').trim().replace(/\(|\)/g, function (substring) {
+                       return substring === ")" ? "）" : "（";
+                   });
+                   row["LiAnDate"] = subDateStr(row.LiAnDate);
+               });
                history5DataList = data.rows;
                fixOnDataLoad("history5", data);
            }

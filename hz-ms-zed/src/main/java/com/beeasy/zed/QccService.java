@@ -12,6 +12,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.json.JsonObjectDecoder;
 import org.beetl.sql.core.SQLManager;
+import org.beetl.sql.core.SQLReady;
 import org.beetl.sql.core.engine.PageQuery;
 import org.beetl.sql.core.mapping.BeanProcessor;
 import org.osgl.util.S;
@@ -24,6 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.beeasy.zed.DBService.sqlManager;
 import static com.beeasy.zed.Utils.newJsonObject;
@@ -121,8 +123,85 @@ public class QccService {
             registerRoute("/CIAEmployeeV4/GetStockRelationInfo", service::GetStockRelationInfo);
             registerRoute("/HoldingCompany/GetHoldingCompany", service::GetHoldingCompany);
             registerRoute("/ECICompanyMap/GetStockAnalysisData", service::GetStockAnalysisData);
+            //附加的借口
+            registerRoute("/interface/count", service::getInterfaceCount);
         });
         return service;
+    }
+
+    /**
+     * @api {get} {企查查数据查询服务地址}/interface/count 企业企查查数据统计
+     * @apiGroup QCC
+     * @apiVersion 0.0.1
+     *
+     * @apiParam {string} fullName 公司全名
+     *
+     * @apiSuccessExample 请求成功:
+     * {
+     * 	"Status":"200",
+     * 	"Message":"查询成功",
+     * 	"Result":{
+     * 		"/History/GetHistorytMPledge":0,
+     * 		"/ECIV4/SearchFresh":0,
+     * 		"/ECICompanyMap/GetStockAnalysisData":0,
+     * 		"/CIAEmployeeV4/GetStockRelationInfo":0,
+     * 		"/CourtAnnoV4/SearchCourtNotice":0,
+     * 		"/History/GetHistorytShareHolder":0,
+     * 		"/JudicialSale/GetJudicialSaleDetail":0,
+     * 		"/ECIRelationV4/GenerateMultiDimensionalTreeCompanyMap":0,
+     * 		"/LandMortgage/GetLandMortgageDetails":0,
+     * 		"/History/GetHistorytInvestment":0,
+     * 		"/History/GetHistoryZhiXing":0,
+     * 		"/ECIRelationV4/GetCompanyEquityShareMap":0,
+     * 		"/History/GetHistoryShiXin":0,
+     * 		"/History/GetHistorytAdminPenalty":0,
+     * 		"/CourtV4/SearchZhiXing":5,
+     * 		"/History/GetHistorytJudgement":0,
+     * 		"/History/GetHistorytCourtNotice":0,
+     * 		"/JudgeDocV4/GetJudgementDetail":0,
+     * 		"/CourtNoticeV4/SearchCourtAnnouncement":9,
+     * 		"/EnvPunishment/GetEnvPunishmentList":0,
+     * 		"/ECIV4/GetDetailsByName":0,
+     * 		"/History/GetHistorytSessionNotice":0,
+     * 		"/JudgeDocV4/SearchJudgmentDoc":26,
+     * 		"^/zed":0,
+     * 		"/History/GetHistorytPledge":0,
+     * 		"/JudicialSale/GetJudicialSaleList":0,
+     * 		"/file":0,
+     * 		"/ECIException/GetOpException":0,
+     * 		"/ECIRelationV4/SearchTreeRelationMap":0,
+     * 		"/CourtV4/SearchShiXin":1,
+     * 		"/LandMortgage/GetLandMortgageList":0,
+     * 		"/HoldingCompany/GetHoldingCompany":0,
+     * 		"/EnvPunishment/GetEnvPunishmentDetails":0,
+     * 		"/History/GetHistorytAdminLicens":0,
+     * 		"/JudicialAssistance/GetJudicialAssistance":6,
+     * 		"/CourtAnnoV4/GetCourtNoticeInfo":0,
+     * 		"/History/GetHistorytEci":0,
+     * 		"/CourtNoticeV4/SearchCourtAnnouncementDetail":0,
+     * 		"/ChattelMortgage/GetChattelMortgage":0,
+     * 		"/interface/count":0
+     *        }
+     * }
+     *
+     * @apiUse QccError
+     */
+    private Object getInterfaceCount(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
+        String compName = params.getString("fullName");
+        if(S.blank(compName)){
+            return null;
+        }
+        String sql = String.format("select interface,count from qcc_interface_count where inner_company_name = '%s'", compName);
+        List<JSONObject> objects =  sqlManager.execute(new SQLReady(sql), JSONObject.class);
+        JSONObject ret = new JSONObject();
+        HttpServerHandler.RouteList.forEach(r -> {
+            ret.put(r.regexp, new AtomicInteger(0));
+        });
+        for (JSONObject object : objects) {
+            AtomicInteger in = (AtomicInteger) ret.get(object.getString("interface"));
+            in.addAndGet(object.getInteger("count"));
+        }
+        return ret;
     }
 
 
