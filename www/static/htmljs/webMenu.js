@@ -154,16 +154,16 @@ var _menu = [
         ]
     },
 
-    {
-        name: '贷前任务',
-        children: [
-            {
-                name: '贷前任务',
-                href: '/htmlsrc/preLendingCollect/collect2.html',
-                api: [remoteApi.apigetMyInfoCollect]
-            }
-        ]
-    },
+    // {
+    //     name: '贷前任务',
+    //     children: [
+    //         {
+    //             name: '贷前任务',
+    //             href: '/htmlsrc/preLendingCollect/collect2.html',
+    //             api: [remoteApi.apigetMyInfoCollect]
+    //         }
+    //     ]
+    // },
     {
         name: '贷后管理',
         icon: '<span class="glyphicon glyphicon-align-left" aria-hidden="true"></span>&nbsp;',

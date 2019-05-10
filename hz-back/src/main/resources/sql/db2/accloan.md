@@ -42,7 +42,7 @@ select
     g1.GUAR_CONT_STATE,
     g1.CUSTOMER_MGR,
     g1.MAIN_BR_ID,
-    FUN_GET_ORG_BY_CODE(g1.MAIN_BR_ID) as MAIN_BR_NAME
+    DB2INST1.fun_GET_ORG_BY_CODE(g1.MAIN_BR_ID) as MAIN_BR_NAME
 @}
 from RPT_M_RPT_SLS_ACCT as p1
 left join GRT_LOANGUAR_INFO as g5 on p1.CONT_NO=g5.CONT_NO
@@ -186,11 +186,11 @@ select
     p1.LOAN_ACCOUNT,
     p1.LOAN_AMOUNT,
     p1.LOAN_BALANCE,
-    func_get_dict('CLA',p1.CLA) as CLA,
+    DB2INST1.func_get_dict('CLA',p1.CLA) as CLA,
     p1.CUS_ID,
     p1.CUS_NAME,
-    func_get_dict('CUST_TYPE',p1.CUST_TYPE) as CUST_TYPE,
-    func_get_dict('CERT_TYPE',p1.CERT_TYPE) as CERT_TYPE,
+    DB2INST1.func_get_dict('CUST_TYPE',p1.CUST_TYPE) as CUST_TYPE,
+    DB2INST1.func_get_dict('CERT_TYPE',p1.CERT_TYPE) as CERT_TYPE,
     case
     when p1.LOAN_ACCOUNT like '3001%' then
     p1.PSN_CERT_CODE
@@ -199,9 +199,9 @@ select
     end as CERT_CODE,
     u1.PHONE,
     p1.CUST_MGR,
-    FUN_GET_USER_BY_CODE(p1.CUST_MGR) as CUST_MGR_NAME,
+    DB2INST1.fun_GET_USER_BY_CODE(p1.CUST_MGR) as CUST_MGR_NAME,
     p1.MAIN_BR_ID,
-    FUN_GET_ORG_BY_CODE(p1.MAIN_BR_ID) as MAIN_BR_NAME
+    DB2INST1.fun_GET_ORG_BY_CODE(p1.MAIN_BR_ID) as MAIN_BR_NAME
 @}
 from RPT_M_RPT_SLS_ACCT as p1
 left join CUS_BASE as u1 on p1.CUS_ID=u1.CUS_ID 
@@ -225,15 +225,15 @@ select
     p1.LOAN_ACCOUNT,
     p1.LOAN_AMOUNT,
     p1.LOAN_BALANCE,
-    func_get_dict('CLA',p1.CLA) as CLA,
+    DB2INST1.func_get_dict('CLA',p1.CLA) as CLA,
     p1.CUS_ID,
     p1.CUS_NAME,
-    func_get_dict('CUST_TYPE',p1.CUST_TYPE) as CUST_TYPE,
-    func_get_dict('CERT_TYPE',p1.CERT_TYPE) as CERT_TYPE,
+    DB2INST1.func_get_dict('CUST_TYPE',p1.CUST_TYPE) as CUST_TYPE,
+    DB2INST1.func_get_dict('CERT_TYPE',p1.CERT_TYPE) as CERT_TYPE,
     p1.CUST_MGR,
-    FUN_GET_USER_BY_CODE(p1.CUST_MGR) as CUST_MGR_NAME,
+    DB2INST1.fun_GET_USER_BY_CODE(p1.CUST_MGR) as CUST_MGR_NAME,
     p1.MAIN_BR_ID,
-    FUN_GET_ORG_BY_CODE(p1.MAIN_BR_ID) as MAIN_BR_NAME
+    DB2INST1.fun_GET_ORG_BY_CODE(p1.MAIN_BR_ID) as MAIN_BR_NAME
 @}
 from RPT_M_RPT_SLS_ACCT as p1
 left join CUS_BASE as u1 on p1.CUS_ID=u1.CUS_ID 
@@ -257,10 +257,10 @@ select
     p1.LOAN_ACCOUNT,
     p1.LOAN_AMOUNT,
     p1.LOAN_BALANCE,
-    func_get_dict('CLA',p1.CLA) as CLA,
+    DB2INST1.func_get_dict('CLA',p1.CLA) as CLA,
     p1.CUS_ID,
     p1.CUS_NAME,
-    func_get_dict('ASSURE_MEANS_MAIN',p1.ASSURE_MEANS_MAIN) as ASSURE_MEANS_MAIN,
+    DB2INST1.func_get_dict('ASSURE_MEANS_MAIN',p1.ASSURE_MEANS_MAIN) as ASSURE_MEANS_MAIN,
     p1.USE_DEC,
     p1.LOAN_TERM  
 @}
@@ -285,11 +285,11 @@ select
     p1.LOAN_ACCOUNT,
     p1.LOAN_AMOUNT,
     p1.LOAN_BALANCE,
-    func_get_dict('CLA',p1.CLA) as CLA,
+    DB2INST1.func_get_dict('CLA',p1.CLA) as CLA,
     p1.CUS_ID,
     p1.CUS_NAME,
     g1.GUAR_NAME,
-    func_get_dict('ASSURE_MEANS_MAIN',p1.ASSURE_MEANS_MAIN) as ASSURE_MEANS_MAIN,
+    DB2INST1.func_get_dict('ASSURE_MEANS_MAIN',p1.ASSURE_MEANS_MAIN) as ASSURE_MEANS_MAIN,
     p1.USE_DEC,
     p1.LOAN_TERM  
 @}
@@ -316,10 +316,10 @@ select
     p1.LOAN_ACCOUNT,
     p1.LOAN_AMOUNT,
     p1.LOAN_BALANCE,
-    func_get_dict('CLA',p1.CLA) as CLA,
+    DB2INST1.func_get_dict('CLA',p1.CLA) as CLA,
     p1.CUS_ID,
 	p1.CUS_NAME,
-	func_get_dict('ASSURE_MEANS_MAIN',p1.ASSURE_MEANS_MAIN) as ASSURE_MEANS_MAIN,
+	DB2INST1.func_get_dict('ASSURE_MEANS_MAIN',p1.ASSURE_MEANS_MAIN) as ASSURE_MEANS_MAIN,
 	p1.INDIV_RSD_ADDR,
 	p1.LOAN_START_DATE,
 	p1.LOAN_END_DATE,
@@ -340,7 +340,7 @@ select
         ''
 	end as PHONE,
 	p1.USE_DEC,
-	func_get_dict('REPAYMENT_MODE',p1.REPAYMENT_MODE) as REPAYMENT_MODE,
+	DB2INST1.func_get_dict('REPAYMENT_MODE',p1.REPAYMENT_MODE) as REPAYMENT_MODE,
 	p1.UNPD_PRIN_BAL,
 	p1.DELAY_INT_CUMU,
 	p1.SEVEN_RESULT,
@@ -370,7 +370,7 @@ select
     p1.LOAN_ACCOUNT,
     p1.LOAN_AMOUNT,
     p1.LOAN_BALANCE,
-    func_get_dict('CLA',p1.CLA) as CLA,
+    DB2INST1.func_get_dict('CLA',p1.CLA) as CLA,
     p1.CUS_ID,
     p1.CUS_NAME
 @}
@@ -410,8 +410,8 @@ select
     d3.v_value as $COM_CRD_GRADE,
     u2.COM_OPT_ST as $COM_OPT_ST,
     u2.COM_REL_DGR as $COM_REL_DGR,
-    FUN_GET_USER_BY_CODE(u2.CUST_MGR) as $CUST_MGR_NAME,
-    FUN_GET_ORG_BY_CODE(u2.MAIN_BR_ID) as $MAIN_BR_NAME,
+    DB2INST1.fun_GET_USER_BY_CODE(u2.CUST_MGR) as $CUST_MGR_NAME,
+    DB2INST1.fun_GET_ORG_BY_CODE(u2.MAIN_BR_ID) as $MAIN_BR_NAME,
     u2.*
 @}
 from
@@ -475,8 +475,8 @@ select
     u3.COM_REL_DGR as $COM_REL_DGR,
     d3.v_value as $CRD_GRADE,
     u3.CRD_DATE as $CRD_DATE,
-    FUN_GET_USER_BY_CODE(u3.CUST_MGR) as CUST_MGR_NAME,
-    FUN_GET_ORG_BY_CODE(u3.MAIN_BR_ID) as MAIN_BR_NAME,
+    DB2INST1.fun_GET_USER_BY_CODE(u3.CUST_MGR) as CUST_MGR_NAME,
+    DB2INST1.fun_GET_ORG_BY_CODE(u3.MAIN_BR_ID) as MAIN_BR_NAME,
     u3.*
 @}
 from
@@ -505,7 +505,7 @@ select
     p1.LOAN_END_DATE as $LOAN_END_DATE,
     d1.v_value as $CLA,
     a1.CLA_DATE as $CLA_DATE,
-    func_get_dict('CLA_PRE',a1.CLA_PRE) as $CLA_PRE,
+    DB2INST1.func_get_dict('CLA_PRE',a1.CLA_PRE) as $CLA_PRE,
     a1.CLA_DATE_PRE as $CLA_DATE_PRE,
     d2.v_value as $INT_RATE_TYPE,
     p1.REALITY_IR_Y as $REALITY_IR_Y,
@@ -516,8 +516,8 @@ select
     p1.CAP_OVERDUE_DATE as $CAP_OVERDUE_DATE,
     p1.INTEREST_OVERDUE_DATE as $INTEREST_OVERDUE_DATE,
     d4.v_value as $AGRICULTURE_TYPE,
-    func_get_dict('COM_SCALE',p1.COM_SCALE) as $COM_SCALE,
-    func_get_dict('MAIN_FLAG',p1.MAIN_FLAG) as $MAIN_FLAG,
+    DB2INST1.func_get_dict('COM_SCALE',p1.COM_SCALE) as $COM_SCALE,
+    DB2INST1.func_get_dict('MAIN_FLAG',p1.MAIN_FLAG) as $MAIN_FLAG,
     p1.BILL_NO as $BILL_NO,
     p1.CONT_NO as $CONT_NO,
     p1.BIZ_TYPE as $BIZ_TYPE,
@@ -530,13 +530,13 @@ select
     '对公'
     end as $ct,
     a1.LOAN_TYPE_EXT as $LOAN_TYPE_EXT,
-    func_get_dict('LOAN_TYPE_EXT',a1.LOAN_TYPE_EXT) as $LOAN_TYPE_EXT,
+    DB2INST1.func_get_dict('LOAN_TYPE_EXT',a1.LOAN_TYPE_EXT) as $LOAN_TYPE_EXT,
     a1.CUR_TYPE as $CUR_TYPE, 
     p1.TERM_TYPE as $TERM_TYPE,  
     d5.v_value as $REPAYMENT_MODE,
     p1.LOAN_DIRECTION  as $LOAN_DIRECTION,  
-    FUN_GET_USER_BY_CODE(p1.CUST_MGR) as CUST_MGR_NAME,
-    FUN_GET_ORG_BY_CODE(p1.MAIN_BR_ID) as MAIN_BR_NAME,
+    DB2INST1.fun_GET_USER_BY_CODE(p1.CUST_MGR) as CUST_MGR_NAME,
+    DB2INST1.fun_GET_ORG_BY_CODE(p1.MAIN_BR_ID) as MAIN_BR_NAME,
     d6.v_value as $ACCOUNT_STATUS,
     p1.GL_CLASS as $GL_CLASS,
     a1.ISCIRCLE,
@@ -576,7 +576,7 @@ select
 @pageTag(){
     u1.CUS_ID,
     u1.CUS_NAME,
-    func_get_dict('CERT_TYPE',u1.CERT_TYPE) as CERT_TYPE,
+    DB2INST1.func_get_dict('CERT_TYPE',u1.CERT_TYPE) as CERT_TYPE,
     u1.CERT_CODE,
     case
         when (length(u2.PHONE) = 11 and u2.PHONE like '1%') then
@@ -596,9 +596,9 @@ select
     end as CONTACT_NAME,
     u2.POST_ADDR,
     u2.CUST_MGR,
-    FUN_GET_USER_BY_CODE(u2.CUST_MGR) as CUST_MGR_NAME,
+    DB2INST1.fun_GET_USER_BY_CODE(u2.CUST_MGR) as CUST_MGR_NAME,
     u2.MAIN_BR_ID,
-    FUN_GET_ORG_BY_CODE(u2.MAIN_BR_ID) as MAIN_BR_NAME,
+    DB2INST1.fun_GET_ORG_BY_CODE(u2.MAIN_BR_ID) as MAIN_BR_NAME,
     p1.LOAN_AMOUNT,
     p2.UNPD_PRIN_BAL
 @}
@@ -670,6 +670,8 @@ and p1.GL_CLASS not like '0%'
 and CUST_TYPE like '2%') a) b 
 left join t_dict d on d.name = 'CERT_TYPE' and d.v_key = b.CERT_TYPE
 where rn =1
+
+
 @if(isNotEmpty(CUS_ID)){
     and b.CUS_ID like #'%' +CUS_ID +'%'#
 @}
@@ -705,10 +707,10 @@ select
 @pageTag(){
     u4.CUS_ID,
     u4.COM_MRG_NAME,
-    func_get_dict('CERT_TYPE',u4.COM_MRG_CERT_TYP) as COM_MRG_CERT_TYP,
+    DB2INST1.func_get_dict('CERT_TYPE',u4.COM_MRG_CERT_TYP) as COM_MRG_CERT_TYP,
     u4.COM_MRG_CERT_CODE,
-    func_get_dict('COM_MRG_DUTY',u4.COM_MRG_DUTY) as COM_MRG_DUTY,
-    func_get_dict('COM_MRG_EDT',u4.COM_MRG_EDT) as COM_MRG_EDT,
+    DB2INST1.func_get_dict('COM_MRG_DUTY',u4.COM_MRG_DUTY) as COM_MRG_DUTY,
+    DB2INST1.func_get_dict('COM_MRG_EDT',u4.COM_MRG_EDT) as COM_MRG_EDT,
     u4.COM_MRG_PHN,
     u4.COM_MRG_ADRR
 @}
@@ -744,7 +746,7 @@ select
 @pageTag(){
     u1.CUS_ID,
     u1.CUS_NAME,
-    func_get_dict('CERT_TYPE',u1.CERT_TYPE) as CERT_TYPE,
+    DB2INST1.func_get_dict('CERT_TYPE',u1.CERT_TYPE) as CERT_TYPE,
     u1.CERT_CODE,
     case
         when (length(u3.MOBILE) = 11 and u3.MOBILE like '1%') then
@@ -766,9 +768,9 @@ select
     end as CONTACT_NAME,
     u3.POST_ADDR,
     u3.CUST_MGR,
-    FUN_GET_USER_BY_CODE(u3.CUST_MGR) as CUST_MGR_NAME,
+    DB2INST1.fun_GET_USER_BY_CODE(u3.CUST_MGR) as CUST_MGR_NAME,
     u3.MAIN_BR_ID,
-    FUN_GET_ORG_BY_CODE(u3.MAIN_BR_ID) as MAIN_BR_NAME,
+    DB2INST1.fun_GET_ORG_BY_CODE(u3.MAIN_BR_ID) as MAIN_BR_NAME,
     p1.LOAN_AMOUNT,
     p2.UNPD_PRIN_BAL
 @}
@@ -908,7 +910,7 @@ select
         , usr.true_name as pub_utname
         , usr.username as pub_uname
         --可以发布的模型名
-        , FUNC_GET_MODEL_BY_LOAN_ACCOUNT(p1.loan_account, #modelName#) as PUB_MODEL_NAME
+        , DB2INST1.func_GET_MODEL_BY_LOAN_ACCOUNT(p1.loan_account, #modelName#) as PUB_MODEL_NAME
     @}
     --实际控制人
     @if(isNotEmpty(lm)){
@@ -947,12 +949,15 @@ left join t_org o2 on o2.acc_code = p1.MAIN_BR_ID
 @}
 
 
-
 where p1.CREUNIT_NO = (#use("数据源限制")#)
 --普通贷款
 and p1.LN_TYPE in ('普通贷款','银团贷款')
+
+@if(isEmpty(modelName)){
 --表内资产
-and p1.GL_CLASS not like '0%'
+    and p1.GL_CLASS not like '0%'
+@}
+
 --查询数据范围
 #use("condition_loan")#
 
@@ -1079,9 +1084,9 @@ select
     LOAN_START_DATE,
     LOAN_END_DATE,
     CUST_MGR,
-    FUN_GET_USER_BY_CODE(CUST_MGR) as CUST_MGR_NAME,
+    DB2INST1.fun_GET_USER_BY_CODE(CUST_MGR) as CUST_MGR_NAME,
     MAIN_BR_ID,
-    FUN_GET_ORG_BY_CODE(MAIN_BR_ID) as MAIN_BR_NAME
+    DB2INST1.fun_GET_ORG_BY_CODE(MAIN_BR_ID) as MAIN_BR_NAME
 @}
 from
 CTR_LOAN_CONT
@@ -1242,7 +1247,7 @@ select
     else
     p1.ENT_CERT_CODE
     end as CERT_CODE,
-    func_get_dict('ASSURE_MEANS_MAIN',p1.ASSURE_MEANS_MAIN) as ASSURE_MEANS_MAIN,
+    DB2INST1.func_get_dict('ASSURE_MEANS_MAIN',p1.ASSURE_MEANS_MAIN) as ASSURE_MEANS_MAIN,
     p1.CURRENCY,
     p1.LOAN_AMOUNT,
     p1.LOAN_BALANCE,
@@ -1252,20 +1257,20 @@ select
     p1.TERM_TYPE,
     p1.PRD_TYPE,
     p1.REALITY_IR_Y,
-    func_get_dict('CLA',p1.CLA) as CLA,
+    DB2INST1.func_get_dict('CLA',p1.CLA) as CLA,
     p1.LOAN_CLA4,
     p1.SEVEN_RESULT,
     p1.USE_DEC,
-    func_get_dict('ACCOUNT_STATUS',p1.ACCOUNT_STATUS) as ACCOUNT_STATUS,
+    DB2INST1.func_get_dict('ACCOUNT_STATUS',p1.ACCOUNT_STATUS) as ACCOUNT_STATUS,
     p1.INDIV_RSD_ADDR,
-    func_get_dict('REPAYMENT_MODE',p1.REPAYMENT_MODE) as REPAYMENT_MODE,
+    DB2INST1.func_get_dict('REPAYMENT_MODE',p1.REPAYMENT_MODE) as REPAYMENT_MODE,
     p1.CAP_OVERDUE_DATE,
     p1.INTEREST_OVERDUE_DATE,
     p1.UNPD_PRIN_BAL,
     p1.DELAY_INT_CUMU,
     p1.CUST_MGR,
     p1.MAIN_BR_ID,
-    FUN_GET_ORG_BY_CODE(p1.MAIN_BR_ID) as MAIN_BR_NAME
+    DB2INST1.fun_GET_ORG_BY_CODE(p1.MAIN_BR_ID) as MAIN_BR_NAME
 @}
 from RPT_M_RPT_SLS_ACCT as p1
 left join T_LOAN_MANAGER t1 on p1.LOAN_ACCOUNT=t1.LOAN_ACCOUNT
@@ -1347,7 +1352,7 @@ select
 @pageTag(){
     g5.CONT_NO,
     g5.GUAR_CONT_NO,
-    func_get_dict('GUAR_WAY',g5.GUAR_WAY) as GUAR_WAY,
+    DB2INST1.func_get_dict('GUAR_WAY',g5.GUAR_WAY) as GUAR_WAY,
     --g5.GUAR_WAY,
     case
     when g5.GUAR_WAY in ('10000','10001') then
@@ -1364,11 +1369,11 @@ select
     g5.GUAR_WAY,
     case
     when g5.GUAR_WAY in ('10000','10001') then
-        func_get_dict('CERT_TYPE',g3.CER_TYPE)
+        DB2INST1.func_get_dict('CERT_TYPE',g3.CER_TYPE)
     when g5.GUAR_WAY in ('20000','20001') then
-        func_get_dict('CERT_TYPE',g4.CER_TYPE)
+        DB2INST1.func_get_dict('CERT_TYPE',g4.CER_TYPE)
     when g5.GUAR_WAY in ('30001','30002','30002') then
-        func_get_dict('CERT_TYPE',g2.CER_TYPE)
+        DB2INST1.func_get_dict('CERT_TYPE',g2.CER_TYPE)
     else
         ''
     end as CER_TYPE,
@@ -1385,9 +1390,9 @@ select
     g6.GAGE_NAME,
     case
     when g5.GUAR_WAY in ('10000','10001') then
-        func_get_dict('RIGHT_CERT_TYPE_CODE',g3.RIGHT_CERT_TYPE_CODE)
+        DB2INST1.func_get_dict('RIGHT_CERT_TYPE_CODE',g3.RIGHT_CERT_TYPE_CODE)
     when g5.GUAR_WAY in ('20000','20001') then
-        func_get_dict('RIGHT_CERT_TYPE_CODE',g4.RIGHT_CERT_TYPE_CODE)
+        DB2INST1.func_get_dict('RIGHT_CERT_TYPE_CODE',g4.RIGHT_CERT_TYPE_CODE)
     else
         ''
     end as RIGHT_CERT_TYPE_CODE,
@@ -1410,9 +1415,9 @@ select
     end as CORE_VALUE,
     case
     when g5.GUAR_WAY in ('10000','10001') then
-        func_get_dict('DEPOT_STATUS',g3.DEPOT_STATUS)
+        DB2INST1.func_get_dict('DEPOT_STATUS',g3.DEPOT_STATUS)
     when g5.GUAR_WAY in ('20000','20001') then
-        func_get_dict('DEPOT_STATUS',g4.DEPOT_STATUS)
+        DB2INST1.func_get_dict('DEPOT_STATUS',g4.DEPOT_STATUS)
     else
         ''
     end as DEPOT_STATUS

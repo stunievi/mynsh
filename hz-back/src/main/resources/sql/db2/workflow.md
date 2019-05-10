@@ -130,7 +130,7 @@ select gpc.*
 @}
 ) as dc
 -- 是否部门线
-, case when otype = 'QUARTERS' then max(FUNC_CAN_MANAGE(gpc.pid,ins.dep_id),FUNC_CAN_MANAGE(ins.dep_id,gpc.pid)) else 0 end as online
+, case when otype = 'QUARTERS' then max(DB2INST1.func_CAN_MANAGE(gpc.pid,ins.dep_id),DB2INST1.func_CAN_MANAGE(ins.dep_id,gpc.pid)) else 0 end as online
 from t_global_permission_center gpc, t_workflow_instance ins
 where gpc.type = 'WORKFLOW_MAIN_QUARTER' and  gpc.object_id = ins.model_id and k1 = 
 @if(isNotEmpty(name)){
@@ -152,7 +152,7 @@ select gpc.*
     else 0 end
      as dcount
  -- 是否部门线
- ,case when user_type = 'QUARTER' then max(FUNC_CAN_MANAGE(gpc.did,#did#),FUNC_CAN_MANAGE(#did#,gpc.did)) else 0 end
+ ,case when user_type = 'QUARTER' then max(DB2INST1.func_CAN_MANAGE(gpc.did,#did#),DB2INST1.func_CAN_MANAGE(#did#,gpc.did)) else 0 end
      as online
  from t_global_permission_center gpc
  where type = 'WORKFLOW_MAIN_QUARTER' and object_id = #nid#
@@ -274,7 +274,7 @@ ins.*
 , coalesce(ni.files,'') as files
 from t_workflow_instance ins
 left join t_workflow_node_instance ni on ins.current_node_instance_id = ni.id
-where ins.id = #iid# and FUNC_CAN_DEAL_BY_INS(#uid#,#iid#) > 0
+where ins.id = #iid# and DB2INST1.func_CAN_DEAL_BY_INS(#uid#,#iid#) > 0
 
 
 查询任务
@@ -504,7 +504,7 @@ where (ins.deal_user_id = #uid#) or (
 
 得到可发布的模型名
 ===
-values FUNC_GET_MODEL_BY_LOAN_ACCOUNT(#loan#, #modelName#)
+values DB2INST1.func_GET_MODEL_BY_LOAN_ACCOUNT(#loan#, #modelName#)
 
 selectDealParam
 ===
