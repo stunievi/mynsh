@@ -28,60 +28,60 @@
     <div class="bs-example bs-example-tabs" data-example-id="togglable-tabs">
         <ul id="myTabs" class="nav nav-tabs" role="tablist">
             <li role="presentation" class="active"><a href="#home" id="home-tab" role="tab" data-toggle="tab" data-controls="home" aria-expanded="true">裁判文书详情</a></li>
-            <li role="presentation" class=""><a href="#article" role="tab" id="article-tab" data-toggle="tab" data-controls="article">裁判文书内容</a></li>
+            <!--<li role="presentation" class=""><a href="#article" role="tab" id="article-tab" data-toggle="tab" data-controls="article">裁判文书内容</a></li>-->
             <li role="presentation" class=""><a href="#arcContent" role="tab" id="arcContent-tab" data-toggle="tab" data-controls="arcContent">裁判文书原文</a></li>
         </ul>
         <div id="myTabContent" class="tab-content" style="padding-top: 10px;">
             <div role="tabpanel" class="tab-pane active" id="home" aria-labelledby="home-tab">
                 <!-- 基本信息展示 -->
             </div>
-            <div role="tabpanel" class="tab-pane " id="article" aria-labelledby="article-tab">
-                <h3 class="arc-title">
+            <!--<div role="tabpanel" class="tab-pane " id="article" aria-labelledby="article-tab">-->
+                <!--<h3 class="arc-title">-->
 
-                </h3>
-                <h4 class="arc-title-1">
-                    当事人信息
-                </h4>
-                <div class="arc-content-1 arc-content">
+                <!--</h3>-->
+                <!--<h4 class="arc-title-1">-->
+                    <!--当事人信息-->
+                <!--</h4>-->
+                <!--<div class="arc-content-1 arc-content">-->
 
-                </div>
-                <h4 class="arc-title-2">
-                    审理经过
-                </h4>
-                <div class="arc-content-2 arc-content">
+                <!--</div>-->
+                <!--<h4 class="arc-title-2">-->
+                    <!--审理经过-->
+                <!--</h4>-->
+                <!--<div class="arc-content-2 arc-content">-->
 
-                </div>
-                <h4 class="arc-title-3">
-                    执行经过
-                </h4>
-                <div class="arc-content-3 arc-content">
+                <!--</div>-->
+                <!--<h4 class="arc-title-3">-->
+                    <!--执行经过-->
+                <!--</h4>-->
+                <!--<div class="arc-content-3 arc-content">-->
 
-                </div>
-                <h4 class="arc-title-4">
-                    判决结果
-                </h4>
-                <div class="arc-content-4 arc-content">
+                <!--</div>-->
+                <!--<h4 class="arc-title-4">-->
+                    <!--判决结果-->
+                <!--</h4>-->
+                <!--<div class="arc-content-4 arc-content">-->
 
-                </div>
-                <h4 class="arc-title-5">
-                    合议庭
-                </h4>
-                <div class="arc-content-5 arc-content">
+                <!--</div>-->
+                <!--<h4 class="arc-title-5">-->
+                    <!--合议庭-->
+                <!--</h4>-->
+                <!--<div class="arc-content-5 arc-content">-->
 
-                </div>
-                <h4 class="arc-title-6">
-                    判决日期
-                </h4>
-                <div class="arc-content-6 arc-content">
+                <!--</div>-->
+                <!--<h4 class="arc-title-6">-->
+                    <!--判决日期-->
+                <!--</h4>-->
+                <!--<div class="arc-content-6 arc-content">-->
 
-                </div>
-                <h4 class="arc-title-7">
-                    书记员
-                </h4>
-                <div class="arc-content-7 arc-content">
+                <!--</div>-->
+                <!--<h4 class="arc-title-7">-->
+                    <!--书记员-->
+                <!--</h4>-->
+                <!--<div class="arc-content-7 arc-content">-->
 
-                </div>
-            </div>
+                <!--</div>-->
+            <!--</div>-->
             <div role="tabpanel" class="tab-pane" id="arcContent" aria-labelledby="arcContent-tab">
                 <!-- 裁判文书原文 -->
             </div>
@@ -122,16 +122,17 @@
                     });
                     data["ProsecutorList"] = Prosecutorlist.join("、");
                 }
-                $(".arc-title").text(data["Court"] + data["CaseNo"]);
-                $(".arc-content-1").text(data["PartyInfo"] || "暂无内容");
-                $(".arc-content-2").text(data["TrialProcedure"] || "暂无内容");
-                $(".arc-content-3").text(data["ExecuteProcess"] || "暂无内容");
-                $(".arc-content-4").text(data["JudgeResult"] || "暂无内容");
-                $(".arc-content-5").text(data["CollegiateBench"] || "暂无内容");
-                $(".arc-content-6").text(data["JudgeDate"] || "暂无内容");
-                $(".arc-content-7").text(data["Recorder"] || "暂无内容");
-                data["ContentClear"] = data["ContentClear"].replace(/href=.*?com/g, 'href="javascript:;"');
+                // $(".arc-title").text(data["Court"] + data["CaseNo"]);
+                // $(".arc-content-1").text(data["PartyInfo"] || "暂无内容");
+                // $(".arc-content-2").text(data["TrialProcedure"] || "暂无内容");
+                // $(".arc-content-3").text(data["ExecuteProcess"] || "暂无内容");
+                // $(".arc-content-4").text(data["JudgeResult"] || "暂无内容");
+                // $(".arc-content-5").text(data["CollegiateBench"] || "暂无内容");
+                // $(".arc-content-6").text(data["JudgeDate"] || "暂无内容");
+                // $(".arc-content-7").text(data["Recorder"] || "暂无内容");
+                data["ContentClear"] = (data["ContentClear"] || "").replace(/href=.*?html\s*"/g, 'href="javascript:;"');
                 $("#arcContent").html(data["ContentClear"] || "暂无内容");
+                console.log(data)
                 $("#home").html(qccTableRender({
                     cols:[
                         {title:"裁判文书名字", field:"CaseName", spec: true},
@@ -145,8 +146,8 @@
                         {title:"裁判时间", field:"JudgeDate"},
                         {title:"案由", field:"CaseReason"},
                         {title:"审理程序", field:"TrialRound"},
-                        {title:"被告", field:"Defendantlist"},
-                        {title:"原告", field:"Prosecutorlist"}
+                        {title:"被告", field:"DefendantList"},
+                        {title:"原告", field:"ProsecutorList"}
                     ],
                     data: data
                 }));

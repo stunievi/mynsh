@@ -258,6 +258,7 @@ ins { background-color: #cfc; text-decoration: none; } del { color: #999; backgr
             // 变更历史
             if(data.ChangeRecords && data.ChangeRecords.length > 0){
                 data.ChangeRecords.forEach(function (item) {
+                    item["ChangeDate"] = subDateStr(item.ChangeDate);
                     item["AfterContent"] = getHTMLDiff(item["BeforeContent"] || "", item["AfterContent"]);
                 });
                 $("#base11-count").html(data.ChangeRecords.length);
@@ -269,7 +270,7 @@ ins { background-color: #cfc; text-decoration: none; } del { color: #999; backgr
                 cols:[
                     [
                         BOOTSTRAP_INDEX_FILED,
-                        {title:"变更日期",field:"ChangeDate"},
+                        {title:"变更日期",field:"ChangeDate", setWidth: 90},
                         {title:"变更事项",field:"ProjectName"},
                         {title:"变更前内容",field:"BeforeContent"},
                         {title:"变更后内容",field:"AfterContent"}

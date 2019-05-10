@@ -42,11 +42,6 @@ public class GetOriginQccService {
     }
 
     @Autowired
-    @Qualifier(value = "qcc1")
-    MongoService mongoService;
-
-    @Autowired
-    @Qualifier(value = "qcc2")
     MongoService mongoService2;
 
     private static Map<String, String> DetailUrls = new HashMap<>();
@@ -260,11 +255,9 @@ public class GetOriginQccService {
     ){
         JSONObject object = JSON.parseObject(data);
         // 数据全量库
-        MongoCollection<Document> coll = mongoService.getCollection(collName);
+//        MongoCollection<Document> coll = mongoService.getCollection(collName);
         // 数据历史版本库
         MongoCollection<Document> coll2 = mongoService2.getCollection(collName);
-
-        String collCnName = (String) C.newMap("","").get("");
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
         String dateNowStr = sdf.format(new Date());
         String dataUrl = QCC_DOMAIN_PRX + "/" + collName.replace("_","/");
@@ -285,7 +278,7 @@ public class GetOriginQccService {
         }
         // mongo提交过来的数据库数据不再做处理
         if(!object.containsKey("QueryParam")){
-            if(object.containsKey("Status") && object.getString("Status").equals("200")){
+            if("200".equals(object.getString("Status"))){
                 // 命中Log
                 MongoCollection<Document> collLog = mongoService2.getCollection("Hit_Log");
                 collLog.insertOne(dataLog);
@@ -301,23 +294,30 @@ public class GetOriginQccService {
                 modifiers.append("$set", object);
                 UpdateOptions opt = new UpdateOptions();
                 opt.upsert(true);
-                coll.updateOne(Filters.and(filters), modifiers, opt);
+
+//                coll.updateOne(Filters.and(filters), modifiers, opt);
                 // 按时间做版本插入版本库
                 filters.add(Filters.eq("QueryParam.getDataTime", dateNowStr));
                 coll2.updateOne(Filters.and(filters), modifiers, opt);
+
+                // 调用次数统计
+                extParam.setTongJiObj(collName);
+                Document countInfo = new Document().append("requestId", extParam.getCommandId()).append(collName, QccCollCnName.getValue(collName) + ":" + extParam.getTongJi(collName)).append("resDataId", extParam.getResDataId());
+                mongoService2.getCollection("Call_Api_Count").updateOne(Filters.eq("requestId",   extParam.getCommandId()), new Document().append("$set", countInfo), opt);
+
             }else{
                 // 未命中Log
                 MongoCollection<Document> collLog = mongoService2.getCollection("Missing_Log");
                 collLog.insertOne(dataLog);
             }
         }
+
         if(extParam.getCompanyCount() < 30){
             extParam.getCacheArr().add(dataLog);
-        }else{
-            dataLog.append("requestId", extParam.getCommandId());
-            MongoCollection<Document> collLog = mongoService2.getCollection("Response_Log");
-            collLog.insertOne(dataLog);
         }
+        dataLog.append("requestId", extParam.getCommandId());
+        MongoCollection<Document> collLog = mongoService2.getCollection("Response_Log");
+        collLog.insertOne(dataLog);
 
     }
 
@@ -341,7 +341,6 @@ public class GetOriginQccService {
         }else{
             return pageIndex <= Math.ceil(Paging.getFloat("TotalRecords")/Paging.getFloat(("PageSize")));
         }
-
     }
 
     // 是否为格式正确的响应数据
@@ -382,7 +381,6 @@ public class GetOriginQccService {
         }else{
             return JSON.toJSONString(JSON.toJSON(data));
         }
-
     }
 
     // 获取详情数据
@@ -441,11 +439,10 @@ public class GetOriginQccService {
                         continue;
                     }
                     String id = "";
-                    if(null != item.getString("Id") && !"".equals(item.getString("Id"))){
-                        id = item.getString("Id");
-                    }else{
+                    if(null == item.getString("Id") || "".equals(item.getString("Id"))){
                         break;
                     }
+                    id = item.getString("Id");
                     Class clazz = this.getClass();
                     Method method = null;
                     try {

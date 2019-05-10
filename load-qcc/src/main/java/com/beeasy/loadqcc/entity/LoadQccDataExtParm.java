@@ -9,10 +9,9 @@ import org.bson.Document;
 import java.io.File;
 import java.io.RandomAccessFile;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.UUID;
-import java.util.Vector;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static javafx.scene.input.KeyCode.V;
 
@@ -35,13 +34,32 @@ public class LoadQccDataExtParm {
     private File qccFileDataPath;
     // 压缩包文件路径
     private File qccZipDataPath;
-    // 文件写入状态是否失败
-    private AtomicBoolean writeTxtFileState = new AtomicBoolean(true);
     // 公司名
 //    private String companyName;
     private static ThreadLocal<String> cLocal = new ThreadLocal<>();
     private Vector<Document> cacheArr = new Vector<>();
     private int companyCount = 0;
+
+    private Map tongJiObj = new HashMap();
+
+    public void setTongJiObj(String collName, int count){
+        if(tongJiObj.containsKey(collName)){
+            ((AtomicInteger) tongJiObj.get(collName)).updateAndGet(n->n+count);
+        }else{
+            AtomicInteger atomicInteger = new AtomicInteger(count);
+            tongJiObj.put(collName, atomicInteger);
+        }
+    }
+    public void setTongJiObj(String collName){
+        setTongJiObj(collName, 1);
+    }
+    public int getTongJi(String collName){
+        if(tongJiObj.containsKey(collName)){
+            return ((AtomicInteger) tongJiObj.get(collName)).intValue();
+        }else{
+            return 0;
+        }
+    }
 
     private static void setQccDataPath(
             LoadQccDataExtParm param
@@ -69,18 +87,9 @@ public class LoadQccDataExtParm {
         param.setResDataId("load-qcc"+ UUID.randomUUID());
         param.setCommandId(commandObj.getString("OrderId"));
         param.setCommand(command);
-//        param.setWriteTxtFileState(true);
         param.setTrigger("automatic");
         setQccDataPath(param);
         return param;
-    }
-
-    public void setWriteTxtFileState(boolean flag) {
-        writeTxtFileState.set(flag);
-    }
-
-    public boolean isWriteTxtFileState(){
-        return writeTxtFileState.get();
     }
 
     public String getCompanyName() {
