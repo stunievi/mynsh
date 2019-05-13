@@ -144,6 +144,7 @@ var remoteApi = {
 	// 法律诉讼
 
 	apiQccAutoQccLogCusCom: "/api/auto/qcclog/cusCom", // 企查查对公客户列表
+	apiQccAutoQccCount: "/api/auto/qcccount/queryQccCount", // 企查查对公客户列表
 
 	apiGetRejectCollectList: '/api/workflow/getRejectCollectList', // 拒贷记录
 	apiSheetSearchYuQYSLX: '/api/data/sheet/searchYuQYSLX', // 报表, 逾期应收利息

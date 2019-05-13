@@ -51,5 +51,20 @@ select uid from T_USER_ORG userOrg
 ===
 insert into T_QCC_COUNT (ID,ADD_TIME,IF_NAME_EN,IF_NAME_CH,COUNT,ORDER_ID,DATA_ID) VALUES (#ID#,#ADD_TIME#,#IF_NAME_EN#,#IF_NAME_CH#,#COUNT#,#ORDER_ID#,#DATA_ID#)
 
+查询企查查接口调用次数
+===
+select 
+@pageTag(){
+   if_name_ch,sum(count) as number 
+@}
+from T_QCC_COUNT where 1=1
+@if(isNotEmpty(beginTime)){
+    and ADD_TIME>=#beginTime#
+@}
+@if(isNotEmpty(endTime)){
+    and ADD_TIME<=#endTime#
+@}
+group by if_name_ch
+
 
 

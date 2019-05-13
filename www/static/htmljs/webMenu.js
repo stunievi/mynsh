@@ -903,6 +903,10 @@ var _menu = [
                         ]
                     },
                     {
+                        name: "企查查接口调用次数统计",
+                        href: "/htmlsrc/sysManage/logManage/qccCount.html"
+                    },
+                    {
                         name: "短信发送历史",
                         href: '/htmlsrc/sysManage/logManage/shortMsg.html',
                         api: [
