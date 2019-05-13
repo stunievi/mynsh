@@ -89,6 +89,15 @@ public class UpdateQccDataController {
             @RequestParam("fullName") String fullName,
             @RequestParam("sign") String sign
     ) {
+        List<JSONObject> ruleList = sqlManager.select("user.查询总行企查查风险角色", JSONObject.class, C.newMap());
+        List<Long> uidList = new ArrayList<>();
+        for(JSONObject list : ruleList){
+            uidList.add(list.getLong("uid"));
+        }
+        boolean flag = uidList.contains(AuthFilter.getUid());
+        if(!flag){
+            return Result.error("您没有该功能权限！");
+        }
         ActiveMQQueue mqQueue = new ActiveMQQueue("qcc-company-infos-request");
         // 按格式封装指令格式放入MQ
         JSONObject result = new JSONObject();

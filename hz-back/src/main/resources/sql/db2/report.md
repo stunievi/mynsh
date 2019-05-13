@@ -1528,6 +1528,8 @@ left join CUS_COM as u2 on p1.CUS_ID = u2.CUS_ID
 left join CUS_INDIV as u3 on p1.CUS_ID = u3.CUS_ID
 left join t_dict d1 on d1.name = 'CERT_TYPE' and d1.V_KEY = u1.CERT_TYPE
 where p1.CREUNIT_NO != '10086'
+--查询数据范围
+#use("condition_cus")#
 
 -- 客户名称/联系人
 @if(isNotEmpty(CUS_NAME)){

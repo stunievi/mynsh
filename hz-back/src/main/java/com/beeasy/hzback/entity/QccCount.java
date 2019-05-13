@@ -1,9 +1,14 @@
 package com.beeasy.hzback.entity;
 
+import com.alibaba.fastjson.JSONObject;
+import com.beeasy.mscommon.util.U;
+import com.beeasy.mscommon.valid.ValidGroup;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.beetl.sql.core.SQLManager;
+import org.beetl.sql.core.TailBean;
 import org.beetl.sql.core.annotatoin.AssignID;
 import org.beetl.sql.core.annotatoin.Table;
 
@@ -14,7 +19,7 @@ import java.util.Date;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class QccCount {
+public class QccCount extends TailBean implements ValidGroup {
     @AssignID("simple")
     Long id;
     int count;
@@ -25,4 +30,8 @@ public class QccCount {
     String dataID;
 
     Date addTime;
+
+    public Object queryQccCount(SQLManager sqlManager, JSONObject object){
+        return U.beetlPageQuery("qcc.查询企查查接口调用次数", JSONObject.class, object);
+    }
 }

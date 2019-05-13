@@ -654,50 +654,51 @@ where u2.CREUNIT_NO = (#use("数据源限制")#)
 ===
 select 
 @pageTag(){
-    b.CUS_ID,
-    b.CUS_NAME,
+    p1.CUS_ID,
+    p1.CUS_NAME,
     d.v_value as CERT_TYPE,
-    b.ENT_CERT_CODE,
-    b.CUST_MGR,
-    b.MAIN_BR_ID
+    p1.ENT_CERT_CODE,
+    p1.CUST_MGR,
+    p1.MAIN_BR_ID
 @}
  from
 (select a.*,row_number() over(partition by CUS_NAME order by CUS_NAME) rn from 
-(select p1.* from RPT_M_RPT_SLS_ACCT p1
+(select p.* from RPT_M_RPT_SLS_ACCT p
 where 
-p1.ACCOUNT_STATUS in ('1','6') 
-and p1.GL_CLASS not like '0%'
-and CUST_TYPE like '2%') a) b 
-left join t_dict d on d.name = 'CERT_TYPE' and d.v_key = b.CERT_TYPE
+p.ACCOUNT_STATUS in ('1','6') 
+and p.GL_CLASS not like '0%'
+and CUST_TYPE like '2%') a) p1 
+left join t_dict d on d.name = 'CERT_TYPE' and d.v_key = p1.CERT_TYPE
 where rn =1
-
+--查询数据范围
+#use("condition_loan")#
 
 @if(isNotEmpty(CUS_ID)){
-    and b.CUS_ID like #'%' +CUS_ID +'%'#
+    and p1.CUS_ID like #'%' +CUS_ID +'%'#
 @}
 @if(isNotEmpty(CUS_NAME)){
-    and b.CUS_NAME like #'%'+ CUS_NAME + '%'#
+    and p1.CUS_NAME like #'%'+ CUS_NAME + '%'#
 @}
 @if(isNotEmpty(CERT_CODE)){
-    and b.ENT_CERT_CODE like #'%'+ CERT_CODE + '%'#
+    and p1.ENT_CERT_CODE like #'%'+ CERT_CODE + '%'#
 @}
 @if(isNotEmpty(START_LOAN_AMOUNT)){
-    and b.LOAN_AMOUNT>=#START_LOAN_AMOUNT#
+    and p1.LOAN_AMOUNT>=#START_LOAN_AMOUNT#
 @}
 @if(isNotEmpty(END_LOAN_AMOUNT)){
-    and b.LOAN_AMOUNT<=#END_LOAN_AMOUNT#
+    and p1.LOAN_AMOUNT<=#END_LOAN_AMOUNT#
 @}
 @if(isNotEmpty(START_LOAN_BALANCE)){
-    and b.LOAN_BALANCE>=#START_LOAN_BALANCE#
+    and p1.LOAN_BALANCE>=#START_LOAN_BALANCE#
 @}
 @if(isNotEmpty(END_LOAN_BALANCE)){
-    and b.LOAN_BALANCE<=#END_LOAN_BALANCE#
+    and p1.LOAN_BALANCE<=#END_LOAN_BALANCE#
 @}
 @if(isNotEmpty(START_UNPD_PRIN_BAL)){
-    and b.UNPD_PRIN_BAL>=#START_UNPD_PRIN_BAL#
+    and p1.UNPD_PRIN_BAL>=#START_UNPD_PRIN_BAL#
 @}
 @if(isNotEmpty(END_UNPD_PRIN_BAL)){
-    and b.UNPD_PRIN_BAL<=#END_UNPD_PRIN_BAL#
+    and p1.UNPD_PRIN_BAL<=#END_UNPD_PRIN_BAL#
 @}
 
 

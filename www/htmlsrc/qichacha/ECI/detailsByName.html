@@ -141,7 +141,7 @@
                         if(res.success){
                             layer.msg("指令发送成功，请等待相关服务处理！");
                         }else{
-                            layer.msg("指令发送失败！");
+                            layer.msg("指令发送失败！" + res.errMessage);
                         }
                         layer.close(loadingIndex);
                     }

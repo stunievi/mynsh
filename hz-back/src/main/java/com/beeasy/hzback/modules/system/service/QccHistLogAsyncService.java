@@ -364,9 +364,15 @@ public class QccHistLogAsyncService {
 
     // 发送get请求
     private String sendGET(String URL,String cusName){
-        String resultString =  HttpUtil.get(URL, C.newMap(
-                "fullName", cusName,"pageIndex","1","pageSize","999"
-        ));
+        String resultString ="";
+        try{
+            resultString =  HttpUtil.get(URL, C.newMap(
+                    "fullName", cusName,"pageIndex","1","pageSize","999"
+            ));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
         return resultString;
     }
 }

@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.entity.*;
 import com.beeasy.hzdata.service.CheckService;
 import com.beeasy.hzdata.service.SearchService;
+import com.beeasy.mscommon.filter.AuthFilter;
 import com.beeasy.mscommon.valid.ValidGroup;
 import org.beetl.sql.core.SQLManager;
 import org.osgl.$;
@@ -56,7 +57,7 @@ public class QccHistLogService {
     public synchronized void saveQccHisLog() {
 
         JSONObject object = new JSONObject();
-        Object a = sqlManager.select("accloan.对公客户", JSONObject.class, object);
+        Object a = sqlManager.select("accloan.对公客户", JSONObject.class, C.newMap("uid", AuthFilter.getUid()));
         String str = a.toString();
 
         Map<String, Integer> map;
@@ -180,8 +181,13 @@ public class QccHistLogService {
 
                     for (Object obj : ja1) {
                         JSONObject jo = (JSONObject) obj;
+                        String loanAccount = jo.getString("loanAccount");
+                        List<JSONObject> res = sqlManager.select("task.查询企查查贷后任务",JSONObject.class,C.newMap("loan",loanAccount));
+                        if(res.size()>0){
+                            continue;
+                        }
 
-                        generateAutoTask(os, jo.getString("accCode"), jo.getString("loanAccount"));
+                        generateAutoTask(os, jo.getString("accCode"), loanAccount);
                     }
                     break;
                 }
