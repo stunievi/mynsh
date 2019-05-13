@@ -294,16 +294,18 @@ public class GetOriginQccService {
                 modifiers.append("$set", object);
                 UpdateOptions opt = new UpdateOptions();
                 opt.upsert(true);
-
 //                coll.updateOne(Filters.and(filters), modifiers, opt);
                 // 按时间做版本插入版本库
                 filters.add(Filters.eq("QueryParam.getDataTime", dateNowStr));
                 coll2.updateOne(Filters.and(filters), modifiers, opt);
-
                 // 调用次数统计
                 extParam.setTongJiObj(collName);
-                Document countInfo = new Document().append("requestId", extParam.getCommandId()).append(collName, QccCollCnName.getValue(collName) + ":" + extParam.getTongJi(collName)).append("resDataId", extParam.getResDataId());
-                mongoService2.getCollection("Call_Api_Count").updateOne(Filters.eq("requestId",   extParam.getCommandId()), new Document().append("$set", countInfo), opt);
+                Document countInfo = new Document()
+                        .append("requestId", extParam.getCommandId())
+                        .append(collName, QccCollCnName.getValue(collName) + ":" + extParam.getTongJi(collName))
+                        .append("resDataId", extParam.getResDataId());
+                //
+                mongoService2.getCollection("Call_Api_Count").updateOne(Filters.eq("requestId", extParam.getCommandId()), new Document().append("$set", countInfo), opt);
 
             }else{
                 // 未命中Log

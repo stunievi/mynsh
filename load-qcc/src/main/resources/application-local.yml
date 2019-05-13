@@ -9,5 +9,5 @@ mongo:
   host: 47.94.97.138
 
 loadQcc:
-  zipPath: /root/hz2/hz-qcc/qccDataLog/zip
-  txtPath: /root/hz2/hz-qcc/qccDataLog/txt
+  zipPath: D:\java projects\hznsh\load-qcc\src\main\resources\qcc\zip
+  txtPath: D:\java projects\hznsh\load-qcc\src\main\resources\qcc\txt

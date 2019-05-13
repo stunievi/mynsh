@@ -58,7 +58,10 @@ public class QccDataController {
     ){
         JSONObject companyInfo;
         Document tmep_company_ret;
-        tmep_company_ret =  mongoService2.getCollection("ECIV4_GetDetailsByName").find(Filters.eq("QueryParam.keyword", companyName)).first();
+        tmep_company_ret =  mongoService2
+                .getCollection("ECIV4_GetDetailsByName")
+                .find(Filters.eq("QueryParam.keyword", companyName))
+                .first();
         if(null == tmep_company_ret){
             // 从企查查获取工商信息
             companyInfo = getOriginQccService.ECI_GetDetailsByName(companyName, extParam);
@@ -209,7 +212,7 @@ public class QccDataController {
                     }
                 }else{
                     MongoCursor<Document> resLogData = resLogIterable.iterator();
-                    if(null != resLogData){
+                    try {
                         while (resLogData.hasNext()){
                             Document item = resLogData.next();
                             String str = item.toJson();
@@ -217,6 +220,8 @@ public class QccDataController {
                             raf.writeInt(bs.length);
                             raf.write(bs);
                         }
+                    }finally {
+                        resLogData.close();
                     }
                 }
             } catch (IOException e) {
@@ -274,8 +279,8 @@ public class QccDataController {
                 jmsMessagingTemplate.convertAndSend(infosResMqTopic, resObj.toJSONString());
                 System.out.println(System.currentTimeMillis() - beginTime);
 
-                try{
-                    MongoCursor<Document> resLogData = resLogIterable.iterator();
+                MongoCursor<Document> resLogData = resLogIterable.iterator();
+                try {
                     while (resLogData.hasNext()){
                         Document item = resLogData.next();
                         collResLog.deleteOne(Filters.eq("_id", item.getObjectId("_id")));
@@ -283,6 +288,8 @@ public class QccDataController {
                 }catch (Exception e){
                     getOriginQccService.saveErrLog("指令："+extParam.getCommandId()+",响应日志删除失败！");
                     System.out.println("响应日志删除失败，" + e.toString());
+                }finally {
+                    resLogData.close();
                 }
             }else{
                 resObj.put("progress", "3");
