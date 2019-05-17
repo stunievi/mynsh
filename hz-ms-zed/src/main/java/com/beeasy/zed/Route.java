@@ -3,8 +3,6 @@ package com.beeasy.zed;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 
-import java.io.IOException;
-
 public class Route {
     public String regexp;
     public IHandler handler;

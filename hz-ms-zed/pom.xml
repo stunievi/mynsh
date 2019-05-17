@@ -48,11 +48,13 @@
 
     <dependencies>
 
+        <!-- https://mvnrepository.com/artifact/io.netty/netty-all -->
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
-            <version>4.1.0.Final</version>
+            <version>4.1.36.Final</version>
         </dependency>
+
 
         <!-- https://mvnrepository.com/artifact/org.osgl/osgl-tool -->
         <dependency>
@@ -107,6 +109,8 @@
             <!--<scope>system</scope>-->
             <!--<systemPath>${project.basedir}/lib/db2jcc4.jar</systemPath>-->
         </dependency>
+
+
 
         <!-- https://mvnrepository.com/artifact/com.zaxxer/HikariCP -->
         <dependency>

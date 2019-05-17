@@ -1,34 +1,30 @@
 package com.beeasy.zed;
 
-import static com.beeasy.zed.DBService.config;
-
 import cn.hutool.core.io.IoUtil;
+import cn.hutool.http.HttpStatus;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.group.ChannelGroup;
-import io.netty.channel.group.DefaultChannelGroup;
+import io.netty.channel.*;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.websocketx.*;
+import io.netty.handler.ssl.SslHandler;
+import io.netty.handler.stream.ChunkedFile;
 import io.netty.util.AsciiString;
-import io.netty.util.concurrent.GlobalEventExecutor;
-import org.osgl.util.S;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.beeasy.zed.Config.config;
+import static io.netty.handler.codec.http.HttpResponseStatus.OK;
+import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
+import static io.netty.handler.codec.rtsp.RtspResponseStatuses.NOT_FOUND;
 
 //import cn.hutool.json.JSONArray;
 //import cn.hutool.json.JSONObject;
@@ -56,21 +52,23 @@ class HttpServerHandler extends ChannelInboundHandlerAdapter {
         RouteList.addAll(Arrays.asList(routes));
     }
 
-    public void send404(ChannelHandlerContext ctx, Object msg) {
-        ctx.writeAndFlush(get404());
+    public void sendError(ChannelHandlerContext ctx, HttpResponseStatus status, Object msg) {
+        FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, status);
+        response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/html;charset=UTF-8");
+        ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
     }
 
-    public FullHttpResponse get404() {
-        JSONObject object = new JSONObject();
-        object.put("Status", "500");
-        object.put("Message", "错误请求");
-        String json = object.toJSONString();
-        byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
-        FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND, Unpooled.wrappedBuffer(bytes));
-        response.headers().set("Content-Type", "application/json; charset=utf-8");
-        response.headers().set("Content-Length", bytes.length);
-        return response;
-    }
+//    public FullHttpResponse get404() {
+//        JSONObject object = new JSONObject();
+//        object.put("Status", "500");
+//        object.put("Message", "错误请求");
+//        String json = object.toJSONString();
+//        byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
+//        FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND, Unpooled.wrappedBuffer(bytes));
+//        response.headers().set("Content-Type", "application/json; charset=utf-8");
+//        response.headers().set("Content-Length", bytes.length);
+//        return response;
+//    }
 
     public void write(ChannelHandlerContext ctx, FullHttpResponse response, boolean keepAlive) {
         if (!keepAlive) {
@@ -109,7 +107,7 @@ class HttpServerHandler extends ChannelInboundHandlerAdapter {
         String uri = request.uri();
         if(uri.equalsIgnoreCase("/ws")){
             WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(
-                String.format("http://0.0.0.0:%d/ws/", config.getInteger("port")), null, false);
+                String.format("http://0.0.0.0:%d/ws/", config.port), null, false);
             handshaker = wsFactory.newHandshaker(request);
             if (handshaker == null) {
                 WebSocketServerHandshakerFactory.sendUnsupportedVersionResponse(ctx.channel());
@@ -121,27 +119,37 @@ class HttpServerHandler extends ChannelInboundHandlerAdapter {
         }
 
         boolean keepAlive = HttpUtil.isKeepAlive(request);
+        FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK);
+        if (keepAlive) {
+            response.headers().set(CONNECTION, KEEP_ALIVE);
+        }
+
         for (Route route : RouteList) {
             if (!matches(uri, route.regexp)) {
                 continue;
             }
 
             Object object = route.handler.run(ctx, request);
-            FullHttpResponse response = null;
             if (object == null) {
-                response = get404();
+                sendError(ctx, HttpResponseStatus.valueOf(500), "");
+                return;
+
             } else {
                 byte[] responseBytes;
                 if(object instanceof File){
-                    try(
-                        FileInputStream fis = new FileInputStream((File) object);
-                        ){
-                        responseBytes = IoUtil.readBytes(fis);
-                        ByteBuf buf = Unpooled.wrappedBuffer(responseBytes);
-                        response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, buf);
-                        response.headers().set("Content-Type", "text/plain; charset=utf-8");
-                        response.headers().set("Content-Length", buf.readableBytes());
-                    }
+                    proxyFile(ctx, request, (File) object);
+                    return;
+//                    try(
+//                        FileInputStream fis = new FileInputStream((File) object);
+//                        ){
+//                        responseBytes = IoUtil.readBytes(fis);
+//                        ByteBuf buf = Unpooled.copiedBuffer(responseBytes);
+////                        response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, buf);
+//                        response.headers().set("Content-Type", "text/plain; charset=utf-8");
+//                        response.headers().set("Content-Length", buf.readableBytes());
+//                        response.content().writeBytes(buf);
+//                        buf.release();
+//                    }
 
                 } else {
                     if (object instanceof String) {
@@ -149,29 +157,31 @@ class HttpServerHandler extends ChannelInboundHandlerAdapter {
                     } else {
                         responseBytes = JSON.toJSONString(object, SerializerFeature.WriteDateUseDateFormat, SerializerFeature.PrettyFormat, SerializerFeature.WriteMapNullValue).getBytes(StandardCharsets.UTF_8);
                     }
-                    int contentLength = responseBytes.length;
                     // 构造FullHttpResponse对象，FullHttpResponse包含message body
                     ByteBuf buf = Unpooled.wrappedBuffer(responseBytes);
-                    response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, buf);
                     response.headers().set("Content-Type", "application/json; charset=utf-8");
                     response.headers().set("Content-Length", buf.readableBytes());
+                    response.content().writeBytes(buf);
+                    buf.release();
+                }
+
+                ChannelFuture future = ctx.writeAndFlush(response);
+                if(!keepAlive){
+                    future.addListener(ChannelFutureListener.CLOSE);
                 }
             }
-
-            write(ctx, response, keepAlive);
 
             return;
         }
 
-        send404(ctx, "not found");
+        sendError(ctx,HttpResponseStatus.NOT_FOUND, "not found");
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         LastException = cause;
         cause.printStackTrace();
-        ctx.writeAndFlush(get404());
-        ctx.close();
+        sendError(ctx, HttpResponseStatus.INTERNAL_SERVER_ERROR, "");
     }
 
 
@@ -239,4 +249,66 @@ class HttpServerHandler extends ChannelInboundHandlerAdapter {
 
     }
 
+
+    public void proxyFile(ChannelHandlerContext ctx, FullHttpRequest request, File file){
+        try(
+            RandomAccessFile raf = new RandomAccessFile(file, "r");
+            ){
+            long fileLength = raf.length();
+            HttpResponse response = new DefaultHttpResponse(HTTP_1_1, OK);
+            HttpUtil.setContentLength(response, fileLength);
+            response.headers().set("Content-Type", "application/json; charset=utf-8");
+//        setContentTypeHeader(response, file);
+//        setDateAndCacheHeaders(response, file);
+            if (HttpUtil.isKeepAlive(request)) {
+                response.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
+            }
+
+            // Write the initial line and the header.
+            ctx.write(response);
+
+            // Write the content.
+            ChannelFuture sendFileFuture;
+            ChannelFuture lastContentFuture;
+            if (ctx.pipeline().get(SslHandler.class) == null) {
+                sendFileFuture =
+                    ctx.write(new DefaultFileRegion(raf.getChannel(), 0, fileLength), ctx.newProgressivePromise());
+                // Write the end marker.
+                lastContentFuture = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+            } else {
+                sendFileFuture =
+                    ctx.writeAndFlush(new HttpChunkedInput(new ChunkedFile(raf, 0, fileLength, 8192)),
+                        ctx.newProgressivePromise());
+                // HttpChunkedInput will write the end marker (LastHttpContent) for us.
+                lastContentFuture = sendFileFuture;
+            }
+
+            sendFileFuture.addListener(new ChannelProgressiveFutureListener() {
+                @Override
+                public void operationProgressed(ChannelProgressiveFuture future, long progress, long total) {
+                    if (total < 0) { // total unknown
+                        System.err.println(future.channel() + " Transfer progress: " + progress);
+                    } else {
+                        System.err.println(future.channel() + " Transfer progress: " + progress + " / " + total);
+                    }
+                }
+
+                @Override
+                public void operationComplete(ChannelProgressiveFuture future) {
+                    System.err.println(future.channel() + " Transfer complete.");
+                }
+            });
+
+            // Decide whether to close the connection or not.
+            if (!HttpUtil.isKeepAlive(request)) {
+                // Close the connection when the whole content is written out.
+                lastContentFuture.addListener(ChannelFutureListener.CLOSE);
+            }
+
+//            raf.close();
+        }
+        catch (IOException e){
+            sendError(ctx, HttpResponseStatus.NOT_FOUND, "");
+        }
+    }
 }

@@ -1,58 +1,38 @@
 package com.beeasy.zed;
 
-import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.thread.ThreadUtil;
-import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.mongodb.client.MongoCollection;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.handler.codec.DefaultHeaders;
 import io.netty.handler.codec.http.*;
-import org.apache.activemq.BlobMessage;
-import org.beetl.ext.fn.StringUtil;
-import org.beetl.sql.core.DSTransactionManager;
 import org.beetl.sql.core.SQLReady;
-import org.beetl.sql.ext.gen.GenConfig;
-import org.bson.Document;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.osgl.util.IO;
 import org.osgl.util.S;
-import sun.tracing.dtrace.DTraceProviderFactory;
 
-import java.io.*;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.zip.*;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
-import static com.beeasy.zed.DBService.*;
-import static com.beeasy.zed.Utils.unzipFile;
+import static com.beeasy.zed.DBService.dataSource;
+import static com.beeasy.zed.DBService.sqlManager;
 
 public class TestMongo {
     private static MongoService mongoService = new MongoService();
-    private static DeconstructService deconstructService;
+    private static DeconstructService deconstructService = new DeconstructService();
     private static ZedService zedService = new ZedService();
 
     @BeforeClass
     public static void onBefore() throws ExecutionException, InterruptedException {
         mongoService.start();
-        DBService.init(true);
-        DBService.await();
-        deconstructService = DeconstructService.register();
-        deconstructService.autoCommit = false;
+        DBService.getInstance().initSync();
+        deconstructService.initSync();
     }
 
     @AfterClass
@@ -62,12 +42,9 @@ public class TestMongo {
 
 
 
-
-
-
     @Test
     public void clearTables(){
-        String sql = "select  tabname from syscat.tables where tabschema='DB2INST1'\n";
+        String sql = "select  tabname from syscat.tables where tabschema='DB2INST1' and tabname like 'QCC_%'\n";
         List<JSONObject> list = sqlManager.execute(new SQLReady(sql), JSONObject.class);
         try {
             Connection connection = dataSource.getConnection();
@@ -106,9 +83,7 @@ public class TestMongo {
 
     @Test
     public void testSingleFile() throws FileNotFoundException, InterruptedException {
-//        clearTables();
-        Thread.sleep(1000);
-        deconstructService.onDeconstructRequest("1","2", new FileInputStream("C:\\Users\\bin\\Desktop\\qcc_hz_cus_com_data\\20190508\\jyfx-load-qcca4524d43-bde2-4843-acad-3e7b807d967c.zip"));
+        deconstructService.onDeconstructRequest("1","2", new FileInputStream("C:\\Users\\bin\\Desktop\\qcc_hz_cus_com_data\\20190508\\qyzp-load-qcc623566e4-7b71-4969-89b1-3e0752bbb3f7.zip"));
     }
 
 

@@ -1,0 +1,50 @@
+@startuml
+interface IService{
+    + void await()
+    + void initAsync()
+    + void initSync()
+    + void destroy()
+}
+
+abstract class AbstractService{
+    + void await()
+    + void initAsync()
+    + void destroy()
+}
+
+AbstractService <|-- MQService
+IService <|.. AbstractService
+
+class MQService {
+    - MQService()
+    + void initSync()
+    + void initAsync()
+    - void init()
+    + void sendMessage(String type, String name, Object message)
+    - void bindListener(String type, String name, MQMessageListener listener)
+    + void listenMessage(String type, String name, MQMessageListener listener)
+
+    - ActiveMQConnection connection
+    - boolean ready
+    - Vector<Object[]> listeners
+    - Vector<Object[]> messageBuffer
+    - {static} MQService instance;
+}
+
+
+interface MQMessageListener {
+    + void call(Message message) throws JMSException
+}
+
+class FileRequest {
+    + String requestId;
+    + String sourceRequest;
+    + File file;
+}
+
+
+MQService o-- FileRequest : use
+MQService o-- MQMessageListener : use
+
+
+@enduml

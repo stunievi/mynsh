@@ -13,6 +13,6 @@
         "unzip": "d:/delog/unzip",
         "blob": "d:/delog/blob"
     },
-    "static": "127.0.0.1:8081",
-    "workmode": "search"
+    "file": "47.96.98.198",
+    "workmode": "all"
 }
