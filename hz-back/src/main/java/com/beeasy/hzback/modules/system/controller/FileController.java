@@ -223,6 +223,7 @@ public class FileController {
                     byte[] bytes = lfsService.downloadFile(sessionId, fid);
                     String ext = S.fileExtension(name);
                     makeHeader(response, ext, name);
+                    response.addHeader("Content-Length", bytes.length + "");
                     try(
                         OutputStream os = response.getOutputStream();
                         ){

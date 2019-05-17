@@ -1,17 +1,17 @@
 <div role="tabpanel" class="tab-pane" id="history" aria-labelledby="history-tab">
     <div class="data-tab">
-        <a class="btn btn-default disabled" href="#history1">历史工商信息</a>
-        <a class="btn btn-default disabled" href="#history2">历史对外投资</a>
-        <a class="btn btn-default disabled" href="#history3">历史股东</a>
-        <a class="btn btn-default disabled" href="#history4">历史失信查询</a>
-        <a class="btn btn-default disabled" href="#history5">历史被执行</a>
-        <a class="btn btn-default disabled" href="#history6">历史法院公告</a>
-        <a class="btn btn-default disabled" href="#history7">历史裁判文书</a>
-        <a class="btn btn-default disabled" href="#history8">历史开庭公告</a>
-        <a class="btn btn-default disabled" href="#history9">历史动产抵押</a>
-        <a class="btn btn-default disabled" href="#history10">历史股权出资</a>
-        <a class="btn btn-default disabled" href="#history11">历史行政处罚</a>
-        <a class="btn btn-default disabled" href="#history12">历史行政许可</a>
+        <a class="btn btn-default disabled" data-href="#history1">历史工商信息</a>
+        <a class="btn btn-default disabled" data-href="#history2">历史对外投资</a>
+        <a class="btn btn-default disabled" data-href="#history3">历史股东</a>
+        <a class="btn btn-default disabled" data-href="#history4">历史失信查询</a>
+        <a class="btn btn-default disabled" data-href="#history5">历史被执行</a>
+        <a class="btn btn-default disabled" data-href="#history6">历史法院公告</a>
+        <a class="btn btn-default disabled" data-href="#history7">历史裁判文书</a>
+        <a class="btn btn-default disabled" data-href="#history8">历史开庭公告</a>
+        <a class="btn btn-default disabled" data-href="#history9">历史动产抵押</a>
+        <a class="btn btn-default disabled" data-href="#history10">历史股权出资</a>
+        <a class="btn btn-default disabled" data-href="#history11">历史行政处罚</a>
+        <a class="btn btn-default disabled" data-href="#history12">历史行政许可</a>
     </div>
     <div class="panel-qcc" id="history1">
         <div class="panel-qcc-heading">历史工商信息</div>
@@ -117,7 +117,7 @@
                    $("#history1-body").html(
                        hiscominfoRender(res.data)
                    )
-                   $("a[href='#history1']").removeClass("disabled");
+                   $("a[data-href='#history1']").removeClass("disabled");
                }
            }
        });
@@ -233,6 +233,12 @@
                ]
            ],
            onData:function (data) {
+               (data.rows || []).forEach(function (row) {
+                   row["CaseNo"] = (row.CaseNo || '').trim().replace(/\(|\)/g, function (substring) {
+                       return substring === ")" ? "）" : "（";
+                   });
+                   row["LiAnDate"] = subDateStr(row.LiAnDate);
+               });
                history5DataList = data.rows;
                fixOnDataLoad("history5", data);
            }
@@ -434,7 +440,7 @@
                        data: CreditChinaList
                    });
                    if(nonData1 === false || nonData2 === false){
-                       $("a[href='#history11']").removeClass("disabled");
+                       $("a[data-href='#history11']").removeClass("disabled");
                    }
                }
            }
@@ -494,7 +500,7 @@
                    });
 
                    if(nonData1===false || nonData2 === false){
-                       $("a[href='#history12']").removeClass("disabled");
+                       $("a[data-href='#history12']").removeClass("disabled");
                    }
                }
            }

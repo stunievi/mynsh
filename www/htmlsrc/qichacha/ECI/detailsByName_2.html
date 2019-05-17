@@ -1,43 +1,71 @@
 <div role="tabpanel" class="tab-pane" id="susong" aria-labelledby="susong-tab">
     <div class="data-tab">
-        <a class="btn btn-default disabled" href="#susong1">开庭公告</a>
-        <a class="btn btn-default disabled" href="#susong2">裁判文书</a>
-        <a class="btn btn-default disabled" href="#susong3">法院公告</a>
-        <a class="btn btn-default disabled" href="#susong4">被执行人</a>
-        <a class="btn btn-default disabled" href="#susong5">失信信息</a>
-        <a class="btn btn-default disabled" href="#susong6">司法协助</a>
+        <a class="btn btn-default disabled" data-href="#susong1">开庭公告</a>
+        <a class="btn btn-default disabled" data-href="#susong2">裁判文书</a>
+        <a class="btn btn-default disabled" data-href="#susong3">法院公告</a>
+        <a class="btn btn-default disabled" data-href="#susong4">被执行人</a>
+        <a class="btn btn-default disabled" data-href="#susong5">失信信息</a>
+        <a class="btn btn-default disabled" data-href="#susong6">司法协助</a>
     </div>
-    <!--<div class="panel-qcc" id="susong1">-->
-        <!--<div class="panel-qcc-heading"><a role="button" data-toggle="collapse" href="#susong1-body">-->
-            <!--开庭公告-->
-            <!--<b id="base1-count">0</b>-->
-        <!--</a></div>-->
-        <!--<div class="panel-qcc-body panel-collapse collapse in" id="susong1-body">-->
-        <!--</div>-->
-    <!--</div>-->
     <div class="panel-qcc" id="susong1">
-        <div class="panel-qcc-heading">开庭公告 <b id="susong1-count">0</b></div>
-        <div class="panel-qcc-body" id="susong1-body"></div>
+        <div class="panel-qcc-heading">
+            <a role="button" data-toggle="collapse" href="#susong1-body">
+                开庭公告
+                <b id="susong1-count">0</b>
+            </a>
+        </div>
+        <div class="panel-qcc-body panel-collapse collapse in" id="susong1-body">
+        </div>
     </div>
     <div class="panel-qcc" id="susong2">
-        <div class="panel-qcc-heading">裁判文书 <b id="susong2-count">0</b></div>
-        <div class="panel-qcc-body" id="susong2-body"></div>
+        <div class="panel-qcc-heading">
+            <a role="button" data-toggle="collapse" href="#susong2-body">
+                裁判文书
+                <b id="susong2-count">0</b>
+            </a>
+        </div>
+        <div class="panel-qcc-body panel-collapse collapse in" id="susong2-body">
+        </div>
     </div>
     <div class="panel-qcc" id="susong3">
-        <div class="panel-qcc-heading">法院公告 <b id="susong3-count">0</b></div>
-        <div class="panel-qcc-body" id="susong3-body"></div>
+        <div class="panel-qcc-heading">
+            <a role="button" data-toggle="collapse" href="#susong3-body">
+                法院公告
+                <b id="susong3-count">0</b>
+            </a>
+        </div>
+        <div class="panel-qcc-body panel-collapse collapse in" id="susong3-body">
+        </div>
     </div>
     <div class="panel-qcc" id="susong4">
-        <div class="panel-qcc-heading">被执行人 <b id="susong4-count">0</b></div>
-        <div class="panel-qcc-body" id="susong4-body"></div>
+        <div class="panel-qcc-heading">
+            <a role="button" data-toggle="collapse" href="#susong4-body">
+                被执行人
+                <b id="susong4-count">0</b>
+            </a>
+        </div>
+        <div class="panel-qcc-body panel-collapse collapse in" id="susong4-body">
+        </div>
     </div>
     <div class="panel-qcc" id="susong5">
-        <div class="panel-qcc-heading">失信信息 <b id="susong5-count">0</b></div>
-        <div class="panel-qcc-body" id="susong5-body"></div>
+        <div class="panel-qcc-heading">
+            <a role="button" data-toggle="collapse" href="#susong5-body">
+                失信信息
+                <b id="susong5-count">0</b>
+            </a>
+        </div>
+        <div class="panel-qcc-body panel-collapse collapse in" id="susong5-body">
+        </div>
     </div>
     <div class="panel-qcc" id="susong6">
-        <div class="panel-qcc-heading">司法协助 <b id="susong6-count">0</b></div>
-        <div class="panel-qcc-body" id="susong6-body"></div>
+        <div class="panel-qcc-heading">
+            <a role="button" data-toggle="collapse" href="#susong6-body">
+                司法协助
+                <b id="susong6-count">0</b>
+            </a>
+        </div>
+        <div class="panel-qcc-body panel-collapse collapse in" id="susong6-body">
+        </div>
     </div>
 </div>
 
@@ -104,7 +132,7 @@
                     {title:"开庭日期",field:"LiAnDate", setWidth: 90},
                     {title:"案由",field:"CaseReason", setWidth: 110},
                     {title:"被告",field:"DefendantList"},
-                    {title:"原告",field:"ProsecutorList", setWidth: 80}
+                    {title:"原告",field:"ProsecutorList"}
 
                 ]
             ],
@@ -132,7 +160,7 @@
                     { title:'操作', templet: "#susong2_toolbar"},
                     {title:"裁判文书名字",field:"CaseName", setWidth: 120},
                     {title:"案由",field:"CaseReason"},
-                    {title:"发布时间",field:"SubmitDate"},
+                    {title:"发布时间",field:"SubmitDate", setWidth: 90 },
                     {title:"裁判文书编号",field:"CaseNo"},
                     {title:"涉案人员角色",field:"CaseRole"},
                     {title:"执行法院",field:"Court"}
@@ -140,7 +168,7 @@
             ],
             onData:function (data) {
                 if(data && data.total && data.total > 0){
-                    $("a[href='#susong2']").removeClass("disabled");
+                    $("a[data-href='#susong2']").removeClass("disabled");
                     susong2DataList = data.rows;
                     scrollToElm("susong2");
                     $("#susong2-count").html(data.total);
@@ -150,6 +178,7 @@
                         CaseRole.forEach(function (role) {
                             roleText += role["R"] +"：" + role["P"] + "；<br/>";
                         });
+                        item["SubmitDate"] = subDateStr(item.SubmitDate);
                         item["CaseRole"] = roleText
                     });
                     return data;
@@ -166,18 +195,16 @@
                 [
                     BOOTSTRAP_INDEX_FILED,
                     { title:'内容', templet: "#susong3_toolbar"},
-                    {title:"当事人",field:"Party"},
+                    {title:"当事人",field:"Party", setWidth: 420 },
                     {title:"公告类型",field:"Category"},
                     {title:"公告人",field:"Court"},
-                    {title:"刊登时间",field:"PublishedDate"}
+                    {title:"刊登时间",field:"PublishedDate", setWidth: 90}
                 ]
             ],
             onData:function (data) {
-                if(data.rows){
-                    data.rows.forEach(function (row) {
-                        row["PublishedDate"] = subDateStr(row.PublishedDate);
-                    });
-                }
+                (data.rows || []).forEach(function (row) {
+                    row["PublishedDate"] = subDateStr(row.PublishedDate);
+                });
                 fixOnDataLoad("susong3", data);
             }
         });
@@ -200,6 +227,10 @@
                 ]
             ],
             onData:function (data) {
+                (data.rows || []).forEach(function (row) {
+                    row["LiAnDate"] = subDateStr(row.LiAnDate);
+                    row["PublicDate"] = subDateStr(row.PublicDate);
+                });
                 susong5Datalist = data.rows;
                 fixOnDataLoad("susong5", data);
             }
@@ -227,6 +258,9 @@
                 ]
             ],
             onData:function (data) {
+                (data.rows || []).forEach(function (row) {
+                    row["LiAnDate"] = subDateStr(row.LiAnDate);
+                });
                 susong4DataList = data.rows;
                 fixOnDataLoad("susong4", data);
             }
@@ -243,7 +277,7 @@
             url: remoteApi.qccJudicialAssistanceGetJudicialAssistance+"?fullName="+COMPANY_NAME,
             success: function (res) {
                 if(res.data && res.data.list && res.data.list.length > 0){
-                    $("a[href='#susong6']").removeClass("disabled");
+                    $("a[data-href='#susong6']").removeClass("disabled");
                     JudicialAssistanceDataList = res.data.list;
                     $("#susong6-count").html(JudicialAssistanceDataList.length);
                 }

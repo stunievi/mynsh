@@ -7,6 +7,7 @@ import com.beeasy.loadqcc.config.MQConfig;
 import com.beeasy.loadqcc.entity.LoadQccDataExtParm;
 import com.beeasy.loadqcc.service.GetOriginQccService;
 import com.beeasy.loadqcc.service.MongoService;
+import com.mongodb.Block;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
@@ -44,10 +45,6 @@ public class QccDataController {
     @Autowired
     private JmsMessagingTemplate jmsMessagingTemplate;
     @Autowired
-    @Qualifier(value = "qcc1")
-    MongoService mongoService;
-    @Autowired
-    @Qualifier(value = "qcc2")
     MongoService mongoService2;
     @Autowired
     GetOriginQccService getOriginQccService;
@@ -59,9 +56,12 @@ public class QccDataController {
             String companyName,
             LoadQccDataExtParm extParam
     ){
-        JSONObject companyInfo = new JSONObject();
+        JSONObject companyInfo;
         Document tmep_company_ret;
-        tmep_company_ret =  mongoService.getCollection("ECIV4_GetDetailsByName").find(Filters.eq("QueryParam.keyword", companyName)).first();
+        tmep_company_ret =  mongoService2
+                .getCollection("ECIV4_GetDetailsByName")
+                .find(Filters.eq("QueryParam.keyword", companyName))
+                .first();
         if(null == tmep_company_ret){
             // 从企查查获取工商信息
             companyInfo = getOriginQccService.ECI_GetDetailsByName(companyName, extParam);
@@ -81,7 +81,7 @@ public class QccDataController {
 
     // 监听MQ更新名单回执
     @JmsListener(destination = "qcc-company-infos-response", containerFactory = "jmsListenerContainerTopic")
-    public void test2(Object o) throws JMSException, IOException {
+    public void qccCompanyInfosResponse(Object o) throws JMSException, IOException {
         if(o instanceof TextMessage){
             System.out.println(((TextMessage) o).getText());
         } else if(o instanceof BlobMessage){
@@ -95,9 +95,6 @@ public class QccDataController {
         return new Runnable() {
             @Override
             public void run() {
-                if(extParam.isWriteTxtFileState() == false){
-                    return;
-                }
                 String companyName = companyData.getString("Content"); // 公司名
                 String command = companyData.getString("Sign"); // 指令
                 if(null == companyName|| companyName.isEmpty()){
@@ -137,7 +134,6 @@ public class QccDataController {
                     if(command.contains("05")){
                         // 历史信息
                         getOriginQccService.loadDataBlock4(companyName, extParam);
-
                     }
                 }
 
@@ -147,15 +143,17 @@ public class QccDataController {
 
     // 监听MQ递送的更新名单
     @JmsListener(destination = "qcc-company-infos-request")
-    public void test(Object o) throws JMSException {
+    public void qccCompanyInfosRequest(Object o) throws JMSException {
+
         if(o instanceof TextMessage){
             long beginTime = System.currentTimeMillis();
             String dataStr = ((TextMessage) o).getText();
+            System.out.println(dataStr);
             JSONObject dataObj;
             LoadQccDataExtParm extParam = LoadQccDataExtParm.automatic(dataStr);
             JSONArray dataList = new JSONArray(); // 数据列表
             // 回执
-            ActiveMQTopic mqTopic2 = new ActiveMQTopic("qcc-company-infos-response");
+            ActiveMQTopic infosResMqTopic = new ActiveMQTopic("qcc-company-infos-response");
             JSONObject resObj = new JSONObject();
             resObj.put("errorMessage", "");
             resObj.put("sourceRequest", extParam.getCommand());
@@ -168,10 +166,11 @@ public class QccDataController {
             }catch (Exception e){
                 resObj.put("progress", "0");
                 resObj.put("errorMessage", "企查查数据指令解析失败");
-                jmsMessagingTemplate.convertAndSend(mqTopic2, resObj.toJSONString());
-                getOriginQccService.saveErrLog("企查查数据指令解析失败！");
+                jmsMessagingTemplate.convertAndSend(infosResMqTopic, resObj.toJSONString());
+                getOriginQccService.saveErrLog("指令："+extParam.getCommandId()+",企查查数据指令解析失败！");
                 return;
             }
+
             // 更新获取并写入数据
             try{
                 ExecutorService fixPool = Executors.newFixedThreadPool(16);
@@ -181,27 +180,19 @@ public class QccDataController {
                 }
                 fixPool.shutdown();
                 fixPool.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
-//                resObj.put("progress", "2");
-//                resObj.put("finished", "failed");
-//                resObj.put("errorMessage", "因写入文件失败，企查查查查取数中止！");
-//                jmsMessagingTemplate.convertAndSend(mqTopic2, resObj.toJSONString());
             }
             catch (Exception e){
                 resObj.put("progress", "1");
                 resObj.put("errorMessage", "企查查数据获取失败");
-                jmsMessagingTemplate.convertAndSend(mqTopic2, resObj.toJSONString());
-                getOriginQccService.saveErrLog("指令："+extParam.getCommandId()+"获取企查查数据发生异常" + e.toString());
+                jmsMessagingTemplate.convertAndSend(infosResMqTopic, resObj.toJSONString());
+                getOriginQccService.saveErrLog("指令："+extParam.getCommandId()+",获取企查查数据发生异常," + e.toString());
                 return;
             }
             System.out.println(System.currentTimeMillis() - beginTime);
-            // 写入文件失败则忽略此次响应
-            if(extParam.isWriteTxtFileState() == false){
-                resObj.put("progress", "2");
-                resObj.put("finished", "failed");
-                resObj.put("errorMessage", "因写入文件失败，企查查查查取数中止！");
-                jmsMessagingTemplate.convertAndSend(mqTopic2, resObj.toJSONString());
-                return;
-            }
+
+            // 响应日志，发送zip包后数据将会删除
+            MongoCollection<Document> collResLog = mongoService2.getCollection("Response_Log");
+            FindIterable<Document> resLogIterable = collResLog.find(Filters.eq("requestId", extParam.getCommandId()));
 
             // 写入文件--全部请求完成后压缩文件提交解构服务解构数据
             FileLock lock = null;
@@ -220,25 +211,26 @@ public class QccDataController {
                         raf.write(bs);
                     }
                 }else{
-                    MongoCollection<Document> collLog = mongoService2.getCollection("Response_Log");
-                    MongoCursor<Document> data = collLog.find(Filters.eq("requestId", extParam.getCommandId())).iterator();
-                    while (data.hasNext()){
-                        Document item = data.next();
-                        String str = item.toJson();
-                        byte[] bs = (str.getBytes(StandardCharsets.UTF_8.name()));
-                        //写入数据包长度
-                        raf.writeInt(bs.length);
-                        raf.write(bs);
-                        collLog.deleteOne(Filters.eq("_id", item.getObjectId("_id")));
+                    MongoCursor<Document> resLogData = resLogIterable.iterator();
+                    try {
+                        while (resLogData.hasNext()){
+                            Document item = resLogData.next();
+                            String str = item.toJson();
+                            byte[] bs = (str.getBytes(StandardCharsets.UTF_8.name()));
+                            raf.writeInt(bs.length);
+                            raf.write(bs);
+                        }
+                    }finally {
+                        resLogData.close();
                     }
                 }
-//                raf.seek(raf.length());
-//                byte[] linkbytes = fullLink.getBytes(StandardCharsets.UTF_8);
-//                raf.writeInt(linkbytes.length);
-//                raf.write(linkbytes);
             } catch (IOException e) {
-                extParam.setWriteTxtFileState(false);
-                e.printStackTrace();
+                // 写入文件失败则忽略此次响应
+                resObj.put("progress", "2");
+                resObj.put("finished", "failed");
+                resObj.put("errorMessage", "因写入文件发生异常，企查查取数中止！");
+                jmsMessagingTemplate.convertAndSend(infosResMqTopic, resObj.toJSONString());
+                getOriginQccService.saveErrLog("指令："+extParam.getCommandId()+"因写入文件发生异常，企查查取数中止！");
                 return;
             }
             finally {
@@ -250,6 +242,7 @@ public class QccDataController {
                     }
                 }
             };
+
             // 生成zip包
             File __file = extParam.getQccFileDataPath();
             File __zip = extParam.getQccZipDataPath();
@@ -267,13 +260,14 @@ public class QccDataController {
                     zip.write(bs, 0, len);
                 }
             }catch (IOException e){
-                getOriginQccService.saveErrLog("指令："+extParam.getCommandId()+"企查查数据zip包发送失败！");
                 resObj.put("progress", "3");
                 resObj.put("errorMessage", "压缩文件生成失败！");
-                jmsMessagingTemplate.convertAndSend(mqTopic2, resObj.toJSONString());
+                jmsMessagingTemplate.convertAndSend(infosResMqTopic, resObj.toJSONString());
+                getOriginQccService.saveErrLog("指令："+extParam.getCommandId()+",企查查数据zip包发送失败！");
                 e.printStackTrace();
                 return;
             }
+
             if(__zip.exists()){
                 // 将压缩文件放入MQ,供解构服务调用
                 ActiveMQQueue mqQueue = new ActiveMQQueue("qcc-deconstruct-request");
@@ -281,14 +275,28 @@ public class QccDataController {
                 resObj.put("progress", "3");
                 resObj.put("finished", "success");
                 resObj.put("errorMessage", "");
-                jmsMessagingTemplate.convertAndSend(mqTopic2, resObj.toJSONString());
+                resObj.put("callApiCount", JSONObject.toJSONString(extParam.getTongJiObj()));
+                jmsMessagingTemplate.convertAndSend(infosResMqTopic, resObj.toJSONString());
                 System.out.println(System.currentTimeMillis() - beginTime);
+
+                MongoCursor<Document> resLogData = resLogIterable.iterator();
+                try {
+                    while (resLogData.hasNext()){
+                        Document item = resLogData.next();
+                        collResLog.deleteOne(Filters.eq("_id", item.getObjectId("_id")));
+                    }
+                }catch (Exception e){
+                    getOriginQccService.saveErrLog("指令："+extParam.getCommandId()+",响应日志删除失败！");
+                    System.out.println("响应日志删除失败，" + e.toString());
+                }finally {
+                    resLogData.close();
+                }
             }else{
                 resObj.put("progress", "3");
                 resObj.put("errorMessage", "压缩文件不存在！");
-                jmsMessagingTemplate.convertAndSend(mqTopic2, resObj.toJSONString());
+                getOriginQccService.saveErrLog("指令："+extParam.getCommandId()+",压缩文件不存在！");
+                jmsMessagingTemplate.convertAndSend(infosResMqTopic, resObj.toJSONString());
             }
-
         }
     }
 }

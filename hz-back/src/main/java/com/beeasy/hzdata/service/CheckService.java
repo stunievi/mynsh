@@ -924,7 +924,7 @@ public class CheckService {
             for (Map item : res) {
                 String loanAccount = (String) item.get("LOAN_ACCOUNT");
                 //确定任务模型名
-                List<JSONObject> mlist = sqlManager.execute(new SQLReady(S.fmt("values FUNC_GET_MODEL_BY_LOAN_ACCOUNT(%s,'贷后跟踪')", loanAccount)),JSONObject.class);
+                List<JSONObject> mlist = sqlManager.execute(new SQLReady(S.fmt("values DB2INST1.FUNC_GET_MODEL_BY_LOAN_ACCOUNT(%s,'贷后跟踪')", loanAccount)),JSONObject.class);
                 if(mlist.size() == 0){
                     println(os, "贷款账号%s: 找不到任务对应的模型", loanAccount);
                     continue;

@@ -87,7 +87,7 @@
             url: remoteApi.qccHoldingCompanyGetHoldingCompany,
             data: {
                 page: 1,
-                keyWord: companyName
+                fullName: companyName
             },
             dataType: 'JSON'
         });
@@ -101,7 +101,6 @@
             var retData2 = data2[0].Result || data2[0].data;
             var retData3 = data3[0].Result || data3[0].data;
             var retData4 = data4[0].Result || data4[0].data;
-
 
             var data = {};
             if(retData1 && retData1.StockList && retData1.StockList.Children && retData1.StockList.Children.length>0){
@@ -167,13 +166,15 @@
 
             var kgObj = {};
             // 控股公司
-            if(retData4 && retData4.Names){
+            var retData4List = [];
+            retData4List = retData4.Names || retData4.list || [];
+            if(retData4 && retData4List.length > 0){
                 data.kg = {
                     KeyNo: companyKeyNo,
                     CompanyName: companyKeyNo,
                     Names: []
                 };
-                retData4.Names.forEach(function (item) {
+                retData4List.forEach(function (item) {
                     kgObj[item.KeyNo] = {
                         "Percent": item.PercentTotal,
                         "ShouldCapi": item.RegistCapi,
@@ -182,7 +183,13 @@
                 });
             }
 
-            if(retData2 && retData2.Node && retData2.Node.Children){
+            if(retData2){
+                var retData2DataList = [];
+                if(retData2.Node){
+                    retData2DataList = retData2.Node.Children || [];
+                }else{
+                    retData2DataList = retData2.Children || [];
+                }
                 var touziDetailList = [];
                 var walk1 = function(touziDetailList, dataList){
                     dataList.forEach(function (item) {
@@ -200,7 +207,7 @@
                     });
                     return touziDetailList;
                 };
-                walk1(touziDetailList, retData2.Node.Children);
+                walk1(touziDetailList, retData2DataList);
                 // 投资
                 data.touzi = {
                     Name: companyName,

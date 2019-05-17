@@ -11,6 +11,7 @@ import lombok.Setter;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -19,26 +20,32 @@ import java.util.List;
 @Service
 public class MongoService {
 
-    private  MongoDatabase db;
-    private  MongoClient mongoClient;
+    private static MongoDatabase db;
+    private static MongoClient mongoClient;
+//    private static String mongoHost = "47.94.97.138";
+//    private static String mongoHost = "150.0.104.10";
 
     @Setter
-    private  String DefaultDatabase;
+    private static String DefaultDatabase = "databaseName2";
 
-    public void start(String dbname){
+    public static String mongoHost = "";
+    @Value("${mongo.host}")
+    public void setmongoHost(String mongoHost) {
+        this.mongoHost = mongoHost;
         try {
-            loadDatabase(dbname, 1);
+            loadDatabase(DefaultDatabase, 1);
         }catch (Exception e){
             System.out.println("重连mongo失败！");
         }
     }
+
 
     public void loadDatabase(String dbName, Integer retryTimes) throws InterruptedException {
         try {
             if(retryTimes < 4){
                 DefaultDatabase = dbName;
                 //   连接到 mongodb 服务
-                mongoClient = new MongoClient("47.94.97.138", 27017);
+                mongoClient = new MongoClient(mongoHost, 27017);
 
 //        //连接到MongoDB服务 如果是远程连接可以替换“localhost”为服务器所在IP地址
 //        //ServerAddress()两个参数分别为 服务器地址 和 端口

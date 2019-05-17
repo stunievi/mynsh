@@ -1,11 +1,11 @@
 <div role="tabpanel" class="tab-pane" id="fengxian" aria-labelledby="fengxian-tab">
     <!--经营风险-->
     <div class="data-tab">
-        <a class="btn btn-default disabled" href="#Exceptions">经营异常</a>
-        <a class="btn btn-default disabled" href="#JudicialSaleList">司法拍卖</a>
-        <a class="btn btn-default disabled" href="#LandMortgageList">土地抵押</a>
-        <a class="btn btn-default disabled" href="#EnvPunishmentList">环保处罚</a>
-        <a class="btn btn-default disabled" href="#ChattelMortgage">动产抵押</a>
+        <a class="btn btn-default disabled" data-href="#Exceptions">经营异常</a>
+        <a class="btn btn-default disabled" data-href="#JudicialSaleList">司法拍卖</a>
+        <a class="btn btn-default disabled" data-href="#LandMortgageList">土地抵押</a>
+        <a class="btn btn-default disabled" data-href="#EnvPunishmentList">环保处罚</a>
+        <a class="btn btn-default disabled" data-href="#ChattelMortgage">动产抵押</a>
     </div>
 
     <div class="panel-qcc" id="Exceptions">
@@ -94,13 +94,13 @@
                     if(res.success && res.data && res.data.list && res.data.list.length>0){
                         dataList = res.data.list;
                         $("#Exceptions-count").html(dataList.length);
-                        $("a[href='#Exceptions']").removeClass("disabled");
+                        $("a[data-href='#Exceptions']").removeClass("disabled");
                     }
                     renderExceptions(dataList);
                 }
             })
         },function () {
-            $("a[href='#Exceptions']").addClass("disabled");
+            $("a[data-href='#Exceptions']").addClass("disabled");
             renderExceptions([]);
         });
         laytableRender({
@@ -193,7 +193,7 @@
                 if(res.data && res.data.list && res.data.list.length>0){
                     chattelMortgageDataList = res.data.list;
                     $("#ChattelMortgage-count").html(chattelMortgageDataList.length);
-                    $("a[href='#ChattelMortgage']").removeClass("disabled");
+                    $("a[data-href='#ChattelMortgage']").removeClass("disabled");
                 }
                 laytableRender({
                     id: "ChattelMortgage-body",

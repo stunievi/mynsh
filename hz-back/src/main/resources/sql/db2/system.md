@@ -48,7 +48,7 @@ where 1 = 1
 ===
 select 
 lm.*,
-func_get_dict('CERT_TYPE', type) as ctype
+DB2INST1.func_get_dict('CERT_TYPE', type) as ctype
 from t_loan_manager lm
 where LOAN_ACCOUNT = #loanAccount#
 
@@ -92,3 +92,12 @@ and state = 'UNREAD'
 order by add_time desc
 @}
 
+标为已读
+===
+update t_system_notice set state='READ' 
+where type='SYSTEM' AND state='UNREAD' AND id=#id# AND user_id=#uid#
+
+
+删除已读
+===
+delete from t_system_notice where type='SYSTEM' AND state='READ' AND user_id=#uid#

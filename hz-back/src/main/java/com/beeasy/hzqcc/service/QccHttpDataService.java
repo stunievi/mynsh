@@ -16,7 +16,7 @@ import java.util.Map;
 public class QccHttpDataService {
 
     // http://47.94.97.138/qcc/
-    private String QCC_HTTP_DATA_PRX;
+    public static String QCC_HTTP_DATA_PRX;
 
     @Autowired
     SQLManager sqlManager;

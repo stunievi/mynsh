@@ -825,5 +825,9 @@ from
     left join T_USER as tt on p1.CUST_MGR = tt.acc_code
 where
     UPPER('on') = UPPER(coalesce((select var_value from t_system_variable where var_name=#taskRule#),'off'))
+    
+查询企查查贷后任务
+===
+select * from T_WORKFLOW_INSTANCE where model_name='贷后跟踪-企查查贷后检查' and state='DEALING' and loan_account=#loan#
    
     

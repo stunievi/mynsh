@@ -1,6 +1,7 @@
 package com.beeasy.hzback.entity;
 
 import com.alibaba.fastjson.JSONObject;
+import com.beeasy.mscommon.filter.AuthFilter;
 import com.beeasy.mscommon.util.U;
 import com.beeasy.mscommon.valid.ValidGroup;
 import lombok.AllArgsConstructor;
@@ -39,6 +40,7 @@ public class QCCLog extends TailBean implements ValidGroup {
 
 
     public Object cusCom(SQLManager sqlManager, JSONObject object){
+        object.put("uid", AuthFilter.getUid());
         return U.beetlPageQuery("accloan.对公客户", JSONObject.class, object);
     }
 

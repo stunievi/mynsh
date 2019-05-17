@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 对公客户 - 企查查接口调用次数</title>
+    <!--#include file="/htmlsrc/header.html" -->
+</head>
+<body>
+<div id="content">
+    <div class="" id="panel-form">
+        <!-- 查询表单 -->
+    </div>
+    <div class="batch-operation">
+    </div>
+    <div id="dataList">
+        <!-- 数据列表 -->
+    </div>
+</div>
+<script src="/static/htmljs/interaction.js"></script>
+
+<script>
+    // 渲染筛选form
+    $("#panel-form").html(panelFormRender3({
+        col:3,
+        panelTitle:'筛选查询',
+        list:[
+            { label:'开始日期', prop:'beginTime',disabled: true, type: "date" },
+            { label:'结束日期', prop:'endTime',disabled: true, type: "date" }
+        ],
+        data: {
+            // 'own': 1
+        }
+    }));
+
+    // 渲染客户列表
+    laytableRender({
+        url: remoteApi.apiQccAutoQccCount,
+        where:{"size":100},
+        page:false,
+        cols: [
+            [
+                { title:'接口名', field:'ifNameCh'},
+                { title:'调用次数', field:'number' }
+            ]
+        ]
+    })
+
+     function checkSubmitForm() {
+        var form = $("form[name='form-search']")
+        layuiTableReload({
+            where: form.serialize()
+        })
+        return false;
+    }
+
+
+</script>
+</body>
+</html>

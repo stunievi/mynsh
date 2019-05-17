@@ -1,0 +1,15 @@
+spring:
+  activemq:
+    broker-url: tcp://150.0.100.7:61616?jms.blobTransferPolicy.uploadUrl=http://150.0.100.7:8161/fileserver/
+
+server:
+  port: 8089
+
+mongo:
+  host: 150.0.104.10
+
+loadQcc:
+  zipPath: /fzsys/qccLoad/qccDataLog/zip
+  txtPath: /fzsys/qccLoad/qccDataLog/txt
+
+
