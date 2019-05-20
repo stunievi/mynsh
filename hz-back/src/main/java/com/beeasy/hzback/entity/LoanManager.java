@@ -1,6 +1,9 @@
 package com.beeasy.hzback.entity;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.poi.excel.ExcelReader;
+import cn.hutool.poi.excel.ExcelUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.mscommon.valid.ValidGroup;
 import lombok.Getter;
@@ -13,6 +16,7 @@ import org.beetl.sql.core.annotatoin.Table;
 import org.osgl.$;
 
 import javax.validation.constraints.*;
+import java.io.File;
 import java.util.Date;
 
 @Table(name = "T_LOAN_MANAGER")
@@ -42,7 +46,7 @@ public class LoanManager extends TailBean implements ValidGroup {
     Date lastModify;
 
     Date mmhtjyrqDate;
-    Integer fcz;
+    String fcz;
     Date fczDate;
 
 
@@ -81,9 +85,9 @@ public class LoanManager extends TailBean implements ValidGroup {
         return null;
     }
 
-    public Object importExcel(SQLManager sqlManager, JSONObject params){
-        return null;
-    }
+//    public boolean importExcel(SQLManager sqlManager, File file){
+//        return false;
+//    }
 
 
 }
