@@ -3,6 +3,7 @@ package com.beeasy.zed;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
+@Deprecated
 public class BufferPool {
     private static final int BUFFER_SIZE = 2 * 1024 * 1024;		//缓冲包2M
 

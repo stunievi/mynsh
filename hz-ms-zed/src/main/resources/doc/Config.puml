@@ -1,0 +1,38 @@
+@startuml
+
+
+class Config {
+    + int port
+    + boolean dev = false
+    + DataSourceConfig datasource
+    + String mqserver
+    + WorkMode workmode
+    + LogConfig log
+    + String file
+}
+
+Config --|> WorkMode : workmode
+Config --|> DataSourceConfig : datasource
+Config --|> LogConfig : log
+
+class DataSourceConfig{
+    + String url
+    + String username
+    + String password
+    + String driver
+}
+
+class LogConfig{
+    + String source
+    + String unzip
+    + String sql
+    + String blob
+}
+
+enum WorkMode{
+    ALL
+    DECONSTRUCT
+    SEARCH
+}
+
+@enduml

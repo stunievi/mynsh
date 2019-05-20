@@ -1,0 +1,14 @@
+@startuml
+start
+:发送消息;
+:调用await等连接成功;
+while (当前已连接) is (N)
+    :放入messageBuffer中;
+note right
+等待下一次连接成功时发送
+end note
+endwhile (Y)
+:发送完毕;
+end
+
+@enduml

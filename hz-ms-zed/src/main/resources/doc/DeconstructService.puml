@@ -1,0 +1,145 @@
+@startuml
+interface IService{
+    + void await()
+    + void initAsync()
+    + void initSync()
+    + void destroy()
+}
+
+abstract class AbstractService{
+    + void await()
+    + void initAsync()
+    + void destroy()
+}
+
+AbstractService <|-- DeconstructService
+IService <|.. AbstractService
+
+class DeconstructService {
+    - DeconstructService()
+    + void initSync()
+    - GetStockAnalysisData(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json)
+    - GetHoldingCompany(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json)
+    - GetStockRelationInfo(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json)
+    - GenerateMultiDimensionalTreeCompanyMap(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json)
+    - GetCompanyEquityShareMap(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json)
+    - SearchTreeRelationMap(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json)
+    - SearchFresh(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json)
+    - GetHistorytAdminLicens(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json)
+    - GetHistorytAdminPenalty(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json)
+    - GetHistorytPledge(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json)
+    - GetHistorytMPledge(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json)
+    - GetHistorytSessionNotice(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json)
+    - GetHistorytJudgement(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json)
+    - GetHistorytCourtNotice(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json)
+    - GetHistoryZhiXing(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json)
+    - GetHistoryShiXin(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json)
+    - GetHistorytShareHolder(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json)
+    - GetHistorytInvestment(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json)
+    - GetHistorytEci(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json)
+    - GetDetailsByName(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json)
+    - GetChattelMortgage(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json)
+    - GetEnvPunishmentDetails(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json)
+    - GetEnvPunishmentList(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json)
+    - GetLandMortgageDetails(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json)
+    - GetLandMortgageList(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json)
+    - GetJudicialSaleDetail(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json)
+    - GetJudicialSaleList(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json)
+    - GetOpException(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json)
+    - GetJudicialAssistance(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json)
+    - GetCourtNoticeInfo(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json)
+    - SearchCourtNotice(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json)
+    - SearchCourtAnnouncementDetail(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json)
+    - SearchCourtAnnouncement(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json)
+    - GetJudgementDetail(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json)
+    - SearchJudgmentDoc(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json)
+    - SearchShiXin(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json)
+    - SearchZhiXing(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json)
+    - {static} void changeField(Object... objects)
+    + {static} void registerHandler(String url, DeconstructHandler handler)
+    - {static} String getQuery(FullHttpRequest request, String key)
+    - {static} String getQuery(FullHttpRequest request, String key, boolean throwError)
+    - JSON deconstruct(JSON obj, JSONObject map, Object... common)
+    - JSON deconstruct(JSON obj, String tableName, String existKey)
+    - JSONObject insertSingle(JSONObject object, String tableName, String existKey)
+    - String formatValue(JSONObject kv, String key)
+    - void formatValue(StringBuilder sb, JSONObject kv, String s)
+    - void doDelete(String tableName, String[] keys, String[] values)
+    - void doDelete(String tableName, String key, String value)
+    - String buildDeleteSql(String tableName, String key, String value)
+    - String buildUpdateSql(String tableName, JSONObject kv, String where)
+    - String buildUpdateSqlFields(JSONObject kv)
+    - String buildInsertSql(String tableName, JSONObject kv)
+    + String buildInsertSqlFields(JSONObject kv)
+    - boolean isSuccess(JSONObject object)
+    - void deconstructStep0(InputStream inputStream, String requestId) throws Exception
+    - SqlVectors deconstructStep2(String requestId, InputStream is, AtomicBoolean someError) throws IOException, InterruptedException
+    - void buildInsertBatch(Map<Object, PreparedStatement> cache, StringBuilder sb, Connection conn, String tableName, JSONObject kv) throws SQLException
+    - void deconstructStep3(SqlVectors sqlVectors) throws SQLException
+    - void deconstructStep4(String requestId, List<String> sqls)
+    - void refreshTableDefination()
+    + void onReDeconstructRequest(String requestId, int progress)
+    + void onDeconstructRequest(String requestId, String sourceRequest, BlobMessage blobMessage) throws IOException, JMSException
+    + void onDeconstructRequest(String requestId, String sourceRequest, InputStream is)
+    + void destructSingle( String str, AtomicBoolean someError)
+    - void writeFile(String fileName, JSONObject object, String ...fields)
+    - String camelToUnderline(String param)
+    - {static} Date convertDate(String format, String str)
+    - {static} Date convertYmdDate(String str)
+    - {static} Date converYmdhmsDate(String str)
+}
+
+class QccDeconstructReqponse{
+        + int finished
+        + int progress
+        + String requestId
+        + String sourceRequest
+        + String errorMessage
+        + void send()
+}
+
+class QccReDeconstructResponse{
+    + void send()
+}
+
+QccReDeconstructResponse --|> QccDeconstructReqponse
+
+class SqlVectors{
+        + Vector<Object[]> deleteItems
+        + Vector<Object[]> insertItems
+        + Vector<Object[]> updateItems
+}
+
+interface DeconstructHandler{
++ void call(ChannelHandlerContext ctx, FullHttpRequest request, JSON json)
+}
+
+interface ICanChange {
+    + boolean call(String key)
+}
+
+interface ITargetValue {
+    + Object call()
+}
+
+interface ValueGenerator{
+ + Object call(JSONObject kv)
+ + {static} ValueGenerator createStrList(String key)
+}
+
+class ValueGenerator.Wrap{
+ + Object call(JSONObject kv, String field)
+}
+
+DeconstructService o-- QccDeconstructReqponse
+DeconstructService o-- DeconstructHandler
+DeconstructService o-- QccReDeconstructResponse
+DeconstructService o-- ICanChange
+DeconstructService o-- SqlVectors
+DeconstructService o-- ITargetValue
+DeconstructService o-- ValueGenerator
+DeconstructService o-- ValueGenerator.Wrap
+
+
+
+@enduml

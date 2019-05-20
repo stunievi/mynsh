@@ -3,27 +3,18 @@ package com.beeasy.zed;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.thread.ThreadUtil;
-import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.URLUtil;
 import cn.hutool.http.HttpUtil;
-import cn.hutool.json.JSON;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.*;
-import org.beetl.sql.core.SQLBatchReady;
-import org.beetl.sql.core.SQLManager;
 import org.beetl.sql.core.SQLReady;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.model.InitializationError;
-import org.junit.runners.model.RunnerBuilder;
-import org.junit.runners.model.RunnerScheduler;
 import org.osgl.util.S;
 
 import java.io.FileNotFoundException;
@@ -37,9 +28,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import static com.beeasy.zed.DBService.sqlManager;
 import static org.junit.Assert.*;
@@ -48,7 +36,7 @@ import static org.junit.Assert.*;
 public class TestQcc {
 
     public static ZedService zedService;
-    public static DeconstructService deconstructService;
+    public static DeconstructService deconstructService = new DeconstructService();
 
     @BeforeClass
     public static void onInit(){
@@ -58,25 +46,11 @@ public class TestQcc {
                 assertNull(e);
             }
         });
-        DBService.init(true);
-        try {
-            DBService.await();
-        } catch (ExecutionException | InterruptedException e) {
-            e.printStackTrace();
-        }
-        QccService.register();
-        try {
-            QccService.await();
-        } catch (ExecutionException | InterruptedException e) {
-            e.printStackTrace();
-        }
-        deconstructService = DeconstructService.register();
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        ThreadUtil.execAsync(NettyService::start);
+        DBService.getInstance().initSync();
+        new QccService().initSync();
+        deconstructService.initSync();
+        new NettyService().initAsync();
+
 //        clearTable("QCC_JUDGMENT_DOC");
 //        clearTable("QCC_COURT_NOTICE");
 //        clearTable("QCC_COURT_ANNOUNCEMENT");
@@ -488,7 +462,7 @@ public class TestQcc {
         ByteBuf buf = Unpooled.buffer();
         buf.writeBytes(str.getBytes(StandardCharsets.UTF_8));
         FullHttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, url, buf, headers, headers);
-        deconstructService.doNettyRequest(null, request);
+//        deconstructService.doNettyRequest(null, request);
         return JSONUtil.parseObj(str);
     }
     public JSONObject read(String url) throws Exception {

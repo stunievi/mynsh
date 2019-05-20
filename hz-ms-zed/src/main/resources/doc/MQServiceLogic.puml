@@ -1,0 +1,16 @@
+@startuml
+
+start
+:发起连接;
+while(连接成功) is(N)
+:等待3秒;
+:重新连接;
+endwhile(Y)
+:调用await等连接成功;
+:绑定监听;
+note right: 循环listeners, \n调用bindListener重新绑定
+:清空消息缓冲区;
+note right: 循环messageBuffer，\n调用sendMessage重新发送
+
+end
+@enduml

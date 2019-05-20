@@ -1,24 +1,19 @@
 package com.beeasy.zed;
 
-import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.db.ds.pooled.DbConfig;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.json.JsonObjectDecoder;
 import org.beetl.sql.core.SQLManager;
 import org.beetl.sql.core.SQLReady;
 import org.beetl.sql.core.engine.PageQuery;
 import org.beetl.sql.core.mapping.BeanProcessor;
 import org.osgl.util.S;
 
-import java.io.*;
-import java.nio.channels.FileChannel;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -26,12 +21,12 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
+import static com.beeasy.zed.Config.config;
 
 import static com.beeasy.zed.DBService.sqlManager;
 import static com.beeasy.zed.Utils.newJsonObject;
-import static com.beeasy.zed.DBService.config;
 
-public class QccService {
+public class QccService extends AbstractService{
 
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
     private static String qccPrefix = "";
@@ -63,6 +58,51 @@ public class QccService {
      *
      */
 
+    @Override
+    public void initSync() {
+        QccService service = this;
+        sqlManager.setDefaultBeanProcessors(new QccBeanProcesser(sqlManager));
+        registerRoute("/CourtV4/SearchShiXin", service::SearchShiXin);
+        registerRoute("/CourtV4/SearchZhiXing", service::SearchZhiXing);
+        registerRoute("/JudgeDocV4/SearchJudgmentDoc", service::SearchJudgmentDoc);
+        registerRoute("/JudgeDocV4/GetJudgementDetail", service::GetJudgementDetail);
+        registerRoute("/CourtNoticeV4/SearchCourtAnnouncement", service::SearchCourtAnnouncement);
+        registerRoute("/CourtNoticeV4/SearchCourtAnnouncementDetail", service::SearchCourtAnnouncementDetail);
+        registerRoute("/CourtAnnoV4/SearchCourtNotice", service::SearchCourtNotice);
+        registerRoute("/CourtAnnoV4/GetCourtNoticeInfo", service::GetCourtNoticeInfo);
+        registerRoute("/JudicialAssistance/GetJudicialAssistance", service::GetJudicialAssistance);
+        registerRoute("/ECIException/GetOpException", service::GetOpException);
+        registerRoute("/JudicialSale/GetJudicialSaleList", service::GetJudicialSaleList);
+        registerRoute("/JudicialSale/GetJudicialSaleDetail", service::GetJudicialSaleDetail);
+        registerRoute("/LandMortgage/GetLandMortgageList", service::GetLandMortgageList);
+        registerRoute("/LandMortgage/GetLandMortgageDetails", service::GetLandMortgageDetails);
+        registerRoute("/EnvPunishment/GetEnvPunishmentList", service::GetEnvPunishmentList);
+        registerRoute("/EnvPunishment/GetEnvPunishmentDetails", service::GetEnvPunishmentDetails);
+        registerRoute("/ChattelMortgage/GetChattelMortgage", service::GetChattelMortgage);
+        registerRoute("/ECIV4/GetDetailsByName", service::GetDetailsByName);
+        registerRoute("/History/GetHistorytEci", service::GetHistorytEci);
+        registerRoute("/History/GetHistorytInvestment", service::GetHistorytInvestment);
+        registerRoute("/History/GetHistorytShareHolder", service::GetHistorytShareHolder);
+        registerRoute("/History/GetHistoryShiXin", service::GetHistoryShiXin);
+        registerRoute("/History/GetHistoryZhiXing", service::GetHistoryZhiXing);
+        registerRoute("/History/GetHistorytCourtNotice", service::GetHistorytCourtNotice);
+        registerRoute("/History/GetHistorytJudgement", service::GetHistorytJudgement);
+        registerRoute("/History/GetHistorytSessionNotice", service::GetHistorytSessionNotice);
+        registerRoute("/History/GetHistorytMPledge", service::GetHistorytMPledge);
+        registerRoute("/History/GetHistorytPledge", service::GetHistorytPledge);
+        registerRoute("/History/GetHistorytAdminPenalty", service::GetHistorytAdminPenalty);
+        registerRoute("/History/GetHistorytAdminLicens", service::GetHistorytAdminLicens);
+        registerRoute("/ECIV4/SearchFresh", service::SearchFresh);
+        registerRoute("/ECIRelationV4/SearchTreeRelationMap", service::SearchTreeRelationMap);
+        registerRoute("/ECIRelationV4/GetCompanyEquityShareMap", service::GetCompanyEquityShareMap);
+        registerRoute("/ECIRelationV4/GenerateMultiDimensionalTreeCompanyMap", service::GenerateMultiDimensionalTreeCompanyMap);
+        registerRoute("/CIAEmployeeV4/GetStockRelationInfo", service::GetStockRelationInfo);
+        registerRoute("/HoldingCompany/GetHoldingCompany", service::GetHoldingCompany);
+        registerRoute("/ECICompanyMap/GetStockAnalysisData", service::GetStockAnalysisData);
+        //附加的借口
+        registerRoute("/interface/count", service::getInterfaceCount);
+    }
+
     /**
      * @apiDefine QccError
      *
@@ -73,61 +113,6 @@ public class QccService {
      * }
      */
 
-    public static void await() throws ExecutionException, InterruptedException {
-       future.get();
-    }
-
-    public static QccService register() {
-        QccService service = new QccService();
-        future = ThreadUtil.execAsync(() -> {
-            try {
-                DBService.await();
-            } catch (ExecutionException | InterruptedException e) {
-                e.printStackTrace();
-            }
-            sqlManager.setDefaultBeanProcessors(new QccBeanProcesser(sqlManager));
-            registerRoute("/CourtV4/SearchShiXin", service::SearchShiXin);
-            registerRoute("/CourtV4/SearchZhiXing", service::SearchZhiXing);
-            registerRoute("/JudgeDocV4/SearchJudgmentDoc", service::SearchJudgmentDoc);
-            registerRoute("/JudgeDocV4/GetJudgementDetail", service::GetJudgementDetail);
-            registerRoute("/CourtNoticeV4/SearchCourtAnnouncement", service::SearchCourtAnnouncement);
-            registerRoute("/CourtNoticeV4/SearchCourtAnnouncementDetail", service::SearchCourtAnnouncementDetail);
-            registerRoute("/CourtAnnoV4/SearchCourtNotice", service::SearchCourtNotice);
-            registerRoute("/CourtAnnoV4/GetCourtNoticeInfo", service::GetCourtNoticeInfo);
-            registerRoute("/JudicialAssistance/GetJudicialAssistance", service::GetJudicialAssistance);
-            registerRoute("/ECIException/GetOpException", service::GetOpException);
-            registerRoute("/JudicialSale/GetJudicialSaleList", service::GetJudicialSaleList);
-            registerRoute("/JudicialSale/GetJudicialSaleDetail", service::GetJudicialSaleDetail);
-            registerRoute("/LandMortgage/GetLandMortgageList", service::GetLandMortgageList);
-            registerRoute("/LandMortgage/GetLandMortgageDetails", service::GetLandMortgageDetails);
-            registerRoute("/EnvPunishment/GetEnvPunishmentList", service::GetEnvPunishmentList);
-            registerRoute("/EnvPunishment/GetEnvPunishmentDetails", service::GetEnvPunishmentDetails);
-            registerRoute("/ChattelMortgage/GetChattelMortgage", service::GetChattelMortgage);
-            registerRoute("/ECIV4/GetDetailsByName", service::GetDetailsByName);
-            registerRoute("/History/GetHistorytEci", service::GetHistorytEci);
-            registerRoute("/History/GetHistorytInvestment", service::GetHistorytInvestment);
-            registerRoute("/History/GetHistorytShareHolder", service::GetHistorytShareHolder);
-            registerRoute("/History/GetHistoryShiXin", service::GetHistoryShiXin);
-            registerRoute("/History/GetHistoryZhiXing", service::GetHistoryZhiXing);
-            registerRoute("/History/GetHistorytCourtNotice", service::GetHistorytCourtNotice);
-            registerRoute("/History/GetHistorytJudgement", service::GetHistorytJudgement);
-            registerRoute("/History/GetHistorytSessionNotice", service::GetHistorytSessionNotice);
-            registerRoute("/History/GetHistorytMPledge", service::GetHistorytMPledge);
-            registerRoute("/History/GetHistorytPledge", service::GetHistorytPledge);
-            registerRoute("/History/GetHistorytAdminPenalty", service::GetHistorytAdminPenalty);
-            registerRoute("/History/GetHistorytAdminLicens", service::GetHistorytAdminLicens);
-            registerRoute("/ECIV4/SearchFresh", service::SearchFresh);
-            registerRoute("/ECIRelationV4/SearchTreeRelationMap", service::SearchTreeRelationMap);
-            registerRoute("/ECIRelationV4/GetCompanyEquityShareMap", service::GetCompanyEquityShareMap);
-            registerRoute("/ECIRelationV4/GenerateMultiDimensionalTreeCompanyMap", service::GenerateMultiDimensionalTreeCompanyMap);
-            registerRoute("/CIAEmployeeV4/GetStockRelationInfo", service::GetStockRelationInfo);
-            registerRoute("/HoldingCompany/GetHoldingCompany", service::GetHoldingCompany);
-            registerRoute("/ECICompanyMap/GetStockAnalysisData", service::GetStockAnalysisData);
-            //附加的借口
-            registerRoute("/interface/count", service::getInterfaceCount);
-        });
-        return service;
-    }
 
     /**
      * @api {get} {企查查数据查询服务地址}/interface/count 企业企查查数据统计
@@ -6408,9 +6393,9 @@ public class QccService {
 //        object.put("Content", new String(Base64.getDecoder().decode(object.getString("Content"))));
 //        JSONObject log = DBService.config.getJSONObject("log");
         try{
-            Map ps = new HashMap();
-            ps.put("fid", params.getString("id") + "-caipan");
-            String str = HttpUtil.get(String.format("http://%s/file", config.getString("static")), ps);
+//            Map ps = new HashMap();
+//            ps.put("fid", params.getString("id") + "-caipan");
+            String str = HttpUtil.get(String.format("http://%s/file/%s-caipan", config.file, params.getString("id")));
             JSONObject obj = JSON.parseObject(str);
             if(!StrUtil.equals(obj.getString("Status"), "500")){
                 object.putAll(obj);

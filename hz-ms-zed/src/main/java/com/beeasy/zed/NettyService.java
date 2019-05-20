@@ -11,18 +11,18 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
-import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.stream.ChunkedWriteHandler;
 
 import java.nio.charset.Charset;
+import static com.beeasy.zed.Config.config;
 
-import static com.beeasy.zed.DBService.config;
 
-public class NettyService {
+public class NettyService extends AbstractService{
 
-    public static void start(){
-        System.out.println(String.format("port is on %d", config.getInteger("port")));
+    @Override
+    public void initSync() {
+        System.out.println(String.format("port is on %d", config.port));
         Thread.currentThread().setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override
             public void uncaughtException(Thread t, Throwable e) {
@@ -47,7 +47,7 @@ public class NettyService {
 //                            pipeline.addLast(new HttpServerHandler());
 //                        }
 //                    })
-                .childHandler(new ChannelInitializer<SocketChannel>(){
+                .childHandler(new ChannelInitializer<SocketChannel>() {
 
 
                     @Override
@@ -67,7 +67,7 @@ public class NettyService {
             ThreadUtil.execAsync(() -> {
                 System.out.println("boot success");
             });
-            ChannelFuture f = b.bind(config.getInteger("port")).sync();
+            ChannelFuture f = b.bind(config.port).sync();
             f.channel().closeFuture().sync();
         } catch (InterruptedException e) {
             e.printStackTrace();

@@ -1,0 +1,13 @@
+@startuml
+start
+:启动程序;
+if (存在config.json) then (Y)
+:读取config.json;
+:解析配置;
+else (N)
+:读取Resources下自带的config.json;
+:解析配置;
+endif
+:初始化数据源;
+end
+@enduml

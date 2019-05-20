@@ -1,0 +1,30 @@
+@startuml
+
+start
+:开始加工;
+if(有原始文件) then (Y)
+:解压文件;
+fork
+    :线程1解析文件;
+fork again
+    :线程2解析文件;
+fork again
+    :...线程N解析文件;
+end fork
+:事务开启;
+:执行所有的delete操作;
+:执行所有的insert操作;
+:提交事务;
+if(事务成功) then (Y)
+:通过mq发布成功指令;
+else (N)
+:回滚数据;
+:通过mq发布失败指令;
+endif
+:加工完成;
+else (N)
+:发送重新取数指令;
+endif
+end
+
+@enduml

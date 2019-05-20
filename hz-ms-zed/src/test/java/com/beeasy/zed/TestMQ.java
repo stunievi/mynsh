@@ -9,14 +9,16 @@ import org.osgl.util.S;
 
 import javax.jms.JMSException;
 import javax.jms.TextMessage;
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 
 public class TestMQ {
 
     @BeforeClass
     public static void onBeforeClass(){
-        MQService.init();
+        MQService.getInstance().initAsync();
     }
 
     public void test(){
@@ -28,7 +30,7 @@ public class TestMQ {
     @Test
     public void testSend() throws InterruptedException {
         CountDownLatch cl = new CountDownLatch(1);
-        MQService.listenMessage("queue", "fuck", message -> {
+        MQService.getInstance().listenMessage("queue", "fuck", message -> {
             if(message instanceof TextMessage){
                 Assert.assertTrue(S.notEmpty(String.valueOf(message)));
             } else if(message instanceof BlobMessage){
@@ -38,13 +40,25 @@ public class TestMQ {
                     e.printStackTrace();
                 } catch (JMSException e) {
                     e.printStackTrace();
+                } finally {
+                    cl.countDown();
                 }
                 int c= 1;
 //                Assert.assertTrue(false);
             }
 //            cl.countDown();
         });
-        MQService.sendMessage("queue", "my_msg",  new File("D:\\xp\\vmware.log"));
+        MQService.getInstance().sendMessage("queue", "fuck",  new File("D:\\xp\\vmware.log"));
+        cl.await();
+    }
+
+    @Test
+    public void testDeconstructByMq() throws InterruptedException {
+        DBService.getInstance().initSync();
+        new DeconstructService().initSync();
+
+        MQService.getInstance().sendMessage("queue", "qcc-deconstruct-request",  new MQService.FileRequest("1","2", new File("C:\\Users\\bin\\Desktop\\qcc_hz_cus_com_data\\20190508\\flss-load-qcc528da1b6-850b-4276-a4f0-dbb73e32b353.zip")));
+        CountDownLatch cl = new CountDownLatch(1);
         cl.await();
     }
 
