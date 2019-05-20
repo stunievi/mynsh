@@ -41,7 +41,7 @@
                             {{/if}} {{value.label}}
                         </label>
                         <div class="" style="inline-block">
-                            {{if !value.type || value.type == 'date' }} {{if value.inputGroup }}
+                            {{if !value.type || value.type == 'date' || value.type == 'datetime' }} {{if value.inputGroup }}
                             <input type="text" class="form-control input-sm" id="{{value.prop}}" name="{{value.prop}}"
                                    value="{{data[value.prop]}}" {{value.disabled ? 'readonly' : ''}}>
                             <span class="input-group-btn">
@@ -52,13 +52,13 @@
                             {{else}}
                             <input type="text" class="form-control input-sm" id="{{value.prop}}" name="{{value.prop}}"
                                    value="{{data[value.prop]}}" {{value.disabled ? 'readonly' : ''}} data-type="{{value.type}}">
-                            {{if value.type == 'date'}}
+                            {{if value.type == 'date' || value.type == 'datetime'}}
                             <script>
                                 $(function () {
                                     layui.use("laydate",function () {
                                         layui.laydate.render({
                                             elem: "#{{value.prop}}"
-                                            ,type: "date"
+                                            ,type: "{{value.type}}"
                                         });
                                     })
                                 });

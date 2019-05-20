@@ -1,5 +1,6 @@
 package com.beeasy.hzback.entity;
 
+import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.mscommon.valid.ValidGroup;
 import lombok.Getter;
@@ -40,6 +41,9 @@ public class LoanManager extends TailBean implements ValidGroup {
 
     Date lastModify;
 
+    Date mmhtjyrqDate;
+    Integer fcz;
+    Date fczDate;
 
 
     @AssertTrue(message = "", groups = {Add.class,Edit.class})
@@ -55,6 +59,13 @@ public class LoanManager extends TailBean implements ValidGroup {
     public Object onExtra(SQLManager sqlManager, String action, JSONObject object) {
         switch (action){
             case "set":
+                //处理时间
+                if(object.containsKey("mmhtjyrqDate")){
+                    object.put("mmhtjyrqDate", DateUtil.parse(object.getString("mmhtjyrqDate"), "yyyy-MM-dd hh:mm:ss"));
+                }
+                if(object.containsKey("fczDate")) {
+                    object.put("fczDate", DateUtil.parse(object.getString("fczDate"), "yyyy-MM-dd hh:mm:ss"));
+                }
                 LoanManager loanManager = $.map(object).to(getClass());
                 valid(loanManager, Add.class);
                 //删除
@@ -69,4 +80,10 @@ public class LoanManager extends TailBean implements ValidGroup {
         }
         return null;
     }
+
+    public Object importExcel(SQLManager sqlManager, JSONObject params){
+        return null;
+    }
+
+
 }

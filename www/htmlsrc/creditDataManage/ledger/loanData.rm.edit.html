@@ -70,6 +70,12 @@
                     , {prop: "phone", label:"联系电话", required: true}
                     , {prop: "type", type:"select", label:"证件类型", vals: vals, required: true}
                     , {prop: "code", label:"证件号码", required: true}
+                    , {prop: "mmhtjyrqDate", label:"买卖合同交付日期", type:"datetime", disabled: true}
+                    , {prop: "fcz", type: "select" ,label:"出证状态", vals:[
+                            {name: "已出证", val:1},
+                            {name: "未出证", val:0},
+                        ]}
+                    , {prop: "fczDate", label:"出证日期", type: "datetime", disabled: true}
                 ],
                 data: data
                 , line: true
