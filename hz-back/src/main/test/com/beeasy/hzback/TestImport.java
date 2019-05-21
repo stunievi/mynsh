@@ -14,4 +14,9 @@ public class TestImport {
     public void test() throws IOException {
         new BackExcelController().importLM(new MockMultipartFile("rilegou", new FileInputStream("C:\\Users\\bin\\Desktop\\按揭类贷款新增字段.xlsx")));
     }
+
+    @Test
+    public void test2() throws IOException {
+        new BackExcelController().importDefination(new MockMultipartFile("fuck", new FileInputStream("C:/Users/bin/Desktop/sls_acct_define.xlsx")));
+    }
 }

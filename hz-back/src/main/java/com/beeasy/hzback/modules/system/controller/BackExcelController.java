@@ -1,9 +1,10 @@
 package com.beeasy.hzback.modules.system.controller;
 
 import cn.hutool.core.date.DateTime;
-import cn.hutool.core.io.IoUtil;
 import cn.hutool.poi.excel.ExcelReader;
 import cn.hutool.poi.excel.ExcelUtil;
+import com.alibaba.fastjson.JSONObject;
+import com.beeasy.hzback.entity.Definition;
 import com.beeasy.hzback.entity.LoanManager;
 import com.beeasy.mscommon.Result;
 import org.beetl.sql.core.SQLManager;
@@ -16,9 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 
 @RequestMapping("/api/excel")
 @RestController
@@ -99,4 +97,45 @@ public class BackExcelController {
             }
         }
     }
+
+    @RequestMapping("/defination/import")
+    public Result importDefination(
+        MultipartFile file
+    ){
+        File temp = null;
+        try {
+            temp = File.createTempFile("temp_de_", "");
+            file.transferTo(temp);
+            ExcelReader reader = ExcelUtil.getReader(temp);
+            reader.setSheet(0);
+            JSONObject object = new JSONObject();
+
+            for(int i = 0; i < reader.getRowCount(); i++) {
+                String en = (String) reader.readCellValue(1, i);
+                String cn = (String) reader.readCellValue(0, i);
+                object.put(cn, en);
+            }
+            sqlManager.lambdaQuery(Definition.class)
+                .andEq(Definition::getName, "accloan")
+                .delete();
+            Definition definition = new Definition();
+            definition = new Definition();
+            definition.setName("accloan");
+            definition.setConfig(object.toJSONString());
+            sqlManager.insert(definition, true);
+            return Result.ok();
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            return Result.error("导入定义失败");
+        }
+        finally {
+            if (temp != null) {
+                temp.delete();
+            }
+        }
+
+    }
+
+
 }
