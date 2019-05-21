@@ -7,6 +7,7 @@ import cn.hutool.poi.excel.ExcelUtil;
 import com.beeasy.hzback.entity.LoanManager;
 import com.beeasy.mscommon.Result;
 import org.beetl.sql.core.SQLManager;
+import org.osgl.util.C;
 import org.osgl.util.S;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,12 +40,16 @@ public class BackExcelController {
             ExcelReader reader = ExcelUtil.getReader(temp);
             reader.setSheet(0);
             //skip first row
+            int total = 0;
+            int failed = 0;
             for(int i = 1; i < reader.getRowCount(); i++){
+                total++;
                 String loanAccount;
                 try{
                     loanAccount = String.valueOf(reader.readCellValue(0, i)).trim();
                 }
                 catch (Exception e){
+                    failed++;
                     continue;
                 }
                 Object o2 = reader.readCellValue(1, i);
@@ -61,6 +66,7 @@ public class BackExcelController {
                         lm.setFczDate(d4.toJdkDate());
                         lm.setId(null);
                     } catch (Exception e){
+                        failed++;
                         continue;
                     }
 
@@ -76,8 +82,14 @@ public class BackExcelController {
                     }
                 }
             }
-            return Result.ok();
-        } catch (IOException e) {
+            return Result.ok(
+                C.newMap(
+                    "total", total,
+                    "success", total - failed,
+                    "failed", failed
+                )
+            );
+        } catch (Exception e) {
             e.printStackTrace();
             return Result.error("导入失败");
         }
