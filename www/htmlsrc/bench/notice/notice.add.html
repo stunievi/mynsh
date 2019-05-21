@@ -329,7 +329,7 @@
         var data = {
             content: $("[name=content]").val()
             , extMap:{
-                $files: $.map($("li[data-key][data-file]:visible"),function (v) {
+                $files: $.map($("li[data-key]:visible"),function (v) {
                     return ($(v).data("file"))
                 }),
                 $uids: $.map($(".user-list option").toArray(), function (v) {
