@@ -872,17 +872,17 @@
           items:  [是,否]
         买卖合同交易日期:
           name: MMHTJYRQ_DATE
-          type: datetime
+          type: fulldatetime
           required: false
         房产证:
           name: FCZ
           type: select
-          required: true
+          required: false
           items:  [已出证,未出证]
         出证时间:
           name: FCZ_DATE
-          type: datetime
-          required: true
+          type: fulldatetime
+          required: false
         有无拖欠本金、利息:
           name: YWTQBJLX
           type: select

@@ -482,8 +482,8 @@
                                     </select>
                                     {{else if cnt.type == 'textarea'}}
                                     <textarea name="{{cnt.ename}}" id="" cols="30" rows="5" class="form-control input-sm">{{myAttrs[cnt.ename]}}</textarea>
-                                    {{else if cnt.type == 'datetime'}}
-                                    <input data-type="datetime" readonly id="{{cnt.ename}}" name="{{cnt.ename}}" type="text" class="form-control input-sm" value="{{myAttrs[cnt.ename]}}">
+                                    {{else if cnt.type == 'datetime' || cnt.type == 'fulldatetime'}}
+                                    <input data-type="{{cnt.type}}" readonly id="{{cnt.ename}}" name="{{cnt.ename}}" type="text" class="form-control input-sm" value="{{myAttrs[cnt.ename]}}">
 
                                     {{else if cnt.type == 'checkbox'}}
                                     <div>
@@ -804,10 +804,21 @@
                                         ,type: "date"
                                     });
                                 })
+                                break
 
+                            case "fulldatetime":
+                                layui.use("laydate",function () {
+                                    layui.laydate.render({
+                                        elem: "#" + t.attr("id")
+                                        ,type: "datetime"
+                                    });
+                                })
                                 break
                         }
                     });
+
+
+
                 }
             );
         }

@@ -413,16 +413,46 @@
             // 再渲染特殊attr
             if(fixForm && fixForm.datetimeAttrKeys.length > 0){
                 $(function() {
-                    fixForm.datetimeAttrKeys.forEach(function(dateTimeKey){
+                    fixForm.datetimeAttrKeys.forEach(function(o){
                         layui.use("laydate",function () {
                             layui.laydate.render({
-                                elem: "#" + dateTimeKey
-                                ,type: "date"
+                                elem: "#" + o.name
+                                ,type: o.type
                             });
                         })
                     })
                 });
             }
+
+            //修复房产证
+            ;(function () {
+                // $("select[name=FCZ] option").each(function () {
+                //     if($(this).index() == 0){
+                //         $(this).val(1);
+                //     } else {
+                //         $(this).val(0);
+                //     }
+                // });
+                var FCZ = $("[name=FCZ]");
+                var val = FCZ.attr("value");
+                if(val == "1"){
+                    FCZ.val("已出证")
+                } else {
+                    FCZ.val("未出证")
+                }
+                // if(FCZ !== ""){
+                //     $("select[name=FCZ]")
+                //         .prop("disabled", true)
+                //         .val(FCZ)
+                // }
+                // if($("[name=MMHTJYRQ_DATE]").val()){
+                //     $("[name=MMHTJYRQ_DATE]").prop("disabled", true);
+                // }
+                // if($("[name=FCZ_DATE]").val()){
+                //     $("[name=FCZ_DATE]").prop("disabled", true);
+                // }
+
+            })();
 
             // form规则
             addFormRules['title'] = { required: true, minlength:2 };
