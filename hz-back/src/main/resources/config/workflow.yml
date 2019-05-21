@@ -534,6 +534,10 @@
           name: EVALUATE_TOTAL
           type: textarea
           required: true
+        贷审会决议执行情况（贷后部分）:
+          name: DHJYZXQK
+          type: textarea
+          required: false
         上传附件:
           name: files
           type: files
@@ -726,6 +730,10 @@
           name: EVALUATE_TOTAL
           type: textarea
           required: true
+        贷审会决议执行情况（贷后部分）:
+          name: DHJYZXQK
+          type: textarea
+          required: false
         上传附件:
           name: files
           type: files
@@ -882,7 +890,11 @@
         出证时间:
           name: FCZ_DATE
           type: datetime
-          required: true
+          required: false
+        出证情况说明:
+          name: FCZ_note
+          type: textarea
+          required: false
         有无拖欠本金、利息:
           name: YWTQBJLX
           type: select
@@ -964,6 +976,10 @@
           items:  ["贷款到期催收通知书","贷款分期到期催收通知书","贷款欠息催收通知书","贷款逾期通知书"]
         未发送催收通知书的原因:
           name: NO_SEND_CAUSE
+          type: textarea
+          required: false
+        贷审会决议执行情况（贷后部分）:
+          name: DHJYZXQK
           type: textarea
           required: false
         上传附件:
@@ -1207,6 +1223,10 @@
           name: NO_SEND_CAUSE
           type: textarea
           required: false
+        贷审会决议执行情况（贷后部分）:
+          name: DHJYZXQK
+          type: textarea
+          required: false
         上传附件:
           name: files
           type: files
@@ -1428,6 +1448,10 @@
           name: NO_SEND_CAUSE
           type: textarea
           required: false
+        贷审会决议执行情况（贷后部分）:
+          name: DHJYZXQK
+          type: textarea
+          required: false
         上传附件:
           name: files
           type: files
@@ -1602,6 +1626,10 @@
           name: EVALUATE_TOTAL
           type: textarea
           required: true
+        贷审会决议执行情况（贷后部分）:
+          name: DHJYZXQK
+          type: textarea
+          required: false
         上传附件:
           name: files
           type: files
@@ -3533,9 +3561,6 @@
       deleteable: false
       type: input
       start: true
-      timeout: 1m
-      notice_interval: 1m
-      notice_timeout: 5m
       content:
         贷款品种选择:
           name: type
@@ -3804,6 +3829,10 @@
           name: EVALUATE_TOTAL
           type: textarea
           required: true
+        贷审会决议执行情况（贷后部分）:
+          name: DHJYZXQK
+          type: textarea
+          required: false
     #        上传附件(必须上传公司经营场地照片,抵质押物或担保人住所照片):
     #          name: files
     #          type: files

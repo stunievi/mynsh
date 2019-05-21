@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
     <script src="/static/vendor/layui/layui.js"></script>
     <script src="/static/vendor/bootcss/js/bootstrap.min.js"></script>
+    <script src="/static/vendor/webUploader/webuploader.min.js"></script>
     <link rel="stylesheet" href="/static/htmlcss/style.css">
     <!--[if lt IE 9]>
     <script src="/static/vendor/bootcss/js/html5shiv.min.js"></script>
@@ -32,6 +33,12 @@
         </div>
         <div class="batch-operation">
             <!-- <button type="button" class="btn btn-default btn-sm" id="batchDel">批量删除 </button> -->
+            <!-- <input id="file" type="file" name="file" onclick="upload()" />
+            <input type="button" onclick="upload()" class="btn btn-success fileinput-button" value="导入"> -->
+            <div id="picker" style="" class="hide">
+                <i class="glyphicon glyphicon-book"></i>
+                导入excel
+            </div>
         </div>
         <div id="dataList">
         </div>
@@ -54,38 +61,55 @@
                 <a href="javascript:;" class="btn btn-default" tab-href="/htmlsrc/creditDataManage/ledger/bind.preLendingCollect.html?loanid={{d.LOAN_ACCOUNT}}">资料绑定</a>
                 {{# } }}
             {{# } }}
-            {{# if (linkPerson == 1){ }}
-            <a href="javascript:;" class="btn btn-default" tab-href="/htmlsrc/creditDataManage/ledger/loan.html?su=1&linkLoanAccount={{d.LOAN_ACCOUNT}}">关联人查询</a>
+            {{# if(su==1 && linkPerson == 1){ }}
+            <button type="button" class="btn btn-default" tab-href="/htmlsrc/creditDataManage/ledger/loanData.rm.edit.html?rm={{d.LOAN_ACCOUNT}}">编辑实际控制人</button>
             {{# } }}
-            <a href="javascript:;" class="btn handleShow btn-default" data-loanid="{{d.LOAN_ACCOUNT}}" data-name="{{d.CUS_NAME}}">查看</a>
-        </div>
-    </script>
+            
+            <!--{{# if (linkPerson == 1){ }}
+                <a href="javascript:;" class="btn btn-default" tab-href="/htmlsrc/creditDataManage/ledger/loan.html?su=1&linkLoanAccount={{d.LOAN_ACCOUNT}}">关联人查询</a>
+                {{# } }}-->
+                <a href="javascript:;" class="btn handleShow btn-default" data-loanid="{{d.LOAN_ACCOUNT}}" data-name="{{d.CUS_NAME}}">查看</a>
+            </div>
+        </script>
+        
+        <script type="text/html" id="_CRD_GRADE"> {{# if(d.CRD_GRADE){return getOdsEnumVal(d, 'CRD_GRADE');}else{return getOdsEnumVal(d, 'COM_CRD_GRADE');}}} </script>
+        
+        <ul id="context-menu" class="dropdown-menu">
+            <li data-item="edit"><a>Edit</a></li>
+            <li data-item="delete"><a>Delete</a></li>
+            <li data-item="action1"><a>Action Here</a></li>
+            <li data-item="action2"><a>And Action Here</a></li>
+        </ul>
+        
+        <script type="text/html" id="fcz">
+            {{# if (d.LM_FCZ == 0) { }}
+            <span>未出证</span>
+            {{# }else if(d.LM_FCZ == 1){ }}
+            <span>已出证</span>
+            {{# } }}
+        </script>
+        
+        <script>
+            var workFlow = decodeURI(getParam("workFlow"));
+            var su = getParam("su");
+            var linkPerson = getParam("linkPerson") || 0
+            var _history = getParam("history") || 0
+            var linkLoanAccount = getParam("linkLoanAccount") || ""
+            // 是否只显示不良台账
+            var register = '';
+            // toolbar宽度
+            var toolbarWidth = 150;
+            if(su==1 && linkPerson == 1){
+                $("#picker").removeClass("hide");
 
-    <script type="text/html" id="_CRD_GRADE"> {{# if(d.CRD_GRADE){return getOdsEnumVal(d, 'CRD_GRADE');}else{return getOdsEnumVal(d, 'COM_CRD_GRADE');}}} </script>
-
-    <ul id="context-menu" class="dropdown-menu">
-        <li data-item="edit"><a>Edit</a></li>
-        <li data-item="delete"><a>Delete</a></li>
-        <li data-item="action1"><a>Action Here</a></li>
-        <li data-item="action2"><a>And Action Here</a></li>
-    </ul>
-
-    <script>
-        var workFlow = decodeURI(getParam("workFlow"));
-        var su = getParam("su");
-        var linkPerson = getParam("linkPerson") || 0
-        var _history = getParam("history") || 0
-        var linkLoanAccount = getParam("linkLoanAccount") || ""
-        // 是否只显示不良台账
-        var register = '';
-        // toolbar宽度
-        var toolbarWidth = 150;
+            }
         if(enumWorkFlowModel.preLendingCollect == workFlow){
             toolbarWidth = 190;
         }
         var _data = {};
         // 基础显示字段
         var cols = [
+            
             { field:'toolbar', title:'操作', templet: '#toolbar', pos: "right", fix: 'right' }
             , { title :'主管机构', field:'MAIN_BR_NAME' },
             { title :'贷款帐号', field:'LOAN_ACCOUNT' },
@@ -94,7 +118,14 @@
             { title :'贷款金额(元)', field:'LOAN_AMOUNT', money: true },
             { title :'贷款余额(元)', field:'LOAN_BALANCE', money: true },
             { title :'欠息累计(元)', field:'DELAY_INT_CUMU', money: true },
-            { title :'拖欠本金(元)', field:'UNPD_PRIN_BAL', money: true },
+            { title :'拖欠本金(元)', field:'UNPD_PRIN_BAL', money: true } ,
+            {title:"实际控制人姓名", field:"LM_NAME"}
+             ,{title:"实际控制人类别", field:"LM_TYPE"}
+             ,{title:"实际控制人电话", field:"LM_PHONE"}
+             ,{title:"实际控制人证件号码", field:"LM_CODE"},
+             { title :'买卖合同交付日期', field:'LM_MMHTJYRQ_DATE'},
+             { title :'出证状态', field:'LM_FCZ',templet: "#fcz"},
+            { title :'出证日期', field:'LM_FCZ_DATE' },
             { title :'五级分类', field:'CLA'},
             { title :'主担保方式', field:'ASSURE_MEANS_MAIN' },
             { title :'年利率', field:'REALITY_IR_Y' },
@@ -149,8 +180,14 @@
                     , {name:"对公", val:"3002"}
                     ,{name:"对私", val:"3001"}
                 ]}
-            , {label:"贷款用途", prop:"USE_DEC"}
+            , {label:"贷款用途", prop:"USE_DEC"},
+            {label:"产品细分类名", prop:"BIZ_TYPE_DETAIL",type:"select", vals:[
+                { name: '--请选择--', val: ''}
+                , {name:"所有", val:""}
+                ,{name:"按揭类贷款", val:"按揭类贷款"}
+            ]}
         ];
+        // searchCond.push({ label:'1', prop:'lm',type:"checkbox",  checked:true, value:1 })
 
         if(su == 1){
             searchCond.push(
@@ -203,7 +240,7 @@
             }));
         }
 
-        var getDataUrl = remoteOrigin + remoteApi.apiOdsSearchAccloan+"?register="+register;
+        var getDataUrl = remoteOrigin + remoteApi.apiOdsSearchAccloan+"?register="+register+"&lm=1";
         if(su){
             // getDataUrl += "&su="+su;
         }
@@ -265,6 +302,51 @@
             var str =$('[name=form-search]').ghostsf_serialize().replace(/(\d+)-/g,'$1');
             location.href = remoteOrigin + "/api/report/export/rpt?" + str;
         });
+
+        function initupload(data) {
+
+            var uploader = WebUploader.create({
+                swf: '/static/vendor/webUploader/Uploader.swf',
+                server: remoteOrigin + "/api/excel/loanmanager/import", //上传接口
+                pick: '#picker',
+                auto: true,
+                fileVal: 'file',
+                resize: false,
+                dupliacate: false
+            });
+
+            uploader.on("uploadBeforeSend", function(obj, data, headers){
+                layer.msg("导入中。。。");
+            })
+
+            uploader.on('uploadError', function (file, res) {
+                layer.msg("导入失败！");
+
+            });
+            // 单个文件上传成功
+            uploader.on('uploadSuccess', function (file, res) {
+                layer.msg("导入成功！");
+            })
+
+
+        }
+
+        initupload()
+
+        // function upload() {
+        //     var formData = new FormData();
+        //     formData.append("file", $("#file")[0].files[0]);
+        //     $.ajax({
+        //         url: "/api/excel/loanmanager/import",
+        //         type: 'POST',
+        //         data: formData,
+        //         processData: false,
+        //         contentType: false,
+        //         success: function (data) {
+        //             console.log(data);
+        //         }
+        //     });
+        // }
     </script>
 </body>
 </html>

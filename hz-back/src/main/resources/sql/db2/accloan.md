@@ -919,6 +919,9 @@ select
         , lm.code as lm_code
         , lm.phone as lm_phone
         , lm.type as lm_type
+        , lm.MMHTJYRQ_DATE as lm_MMHTJYRQ_DATE
+        , lm.FCZ as lm_FCZ
+        , lm.FCZ_DATE as lm_FCZ_DATE
     @}
 @}
 from RPT_M_RPT_SLS_ACCT as p1
@@ -1043,6 +1046,11 @@ and ((UNPD_PRIN_BAL=0) or (UNPD_PRIN_BAL is null)) and ((DELAY_INT_CUMU=0) or (D
 -- 贷款用途
 @if(isNotEmpty(USE_DEC)){
     and p1.USE_DEC like #'%' + USE_DEC + '%'#
+@}
+
+-- 产品细分类名 2019.5.20
+@if(isNotEmpty(BIZ_TYPE_DETAIL)){
+    and p1.BIZ_TYPE_DETAIL like #'%' + '按揭' + '%'#
 @}
 
 

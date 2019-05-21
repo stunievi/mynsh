@@ -154,16 +154,7 @@ var _menu = [
         ]
     },
 
-    // {
-    //     name: '贷前任务',
-    //     children: [
-    //         {
-    //             name: '贷前任务',
-    //             href: '/htmlsrc/preLendingCollect/collect2.html',
-    //             api: [remoteApi.apigetMyInfoCollect]
-    //         }
-    //     ]
-    // },
+
     {
         name: '贷后管理',
         icon: '<span class="glyphicon glyphicon-align-left" aria-hidden="true"></span>&nbsp;',
@@ -388,84 +379,7 @@ var _menu = [
             }
         ]
     },
-    {
-        name: "资产台账管理",
-        children: [
-            {
-                name: "资产台账",
-                href: "/htmlsrc/creditDataManage/ledger/grt.list.html"
-            },
-            {
-                name: "强制执行",
-                children: [
-                    {
-                        name: "任务发起",
-                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+encodeURI(enumWorkFlowModel.qiangzhizhixing),
-                    },
-                    {
-                        name: "强制执行记录",
-                        href: "/htmlsrc/taskManage/taskList.html?workFlow="+encodeURI(enumWorkFlowModel.qiangzhizhixing),
-                    },
-                    {
-                        name: "历史记录",
-                        href:"/htmlsrc/creditDataManage/ledger/loan.html?history=1&workFlow="+encodeURI(enumWorkFlowModel.qiangzhizhixing)
-                    }
-                ]
-            },
-            {
-                name: "房屋出租",
-                children: [
-                    {
-                        name: "任务发起",
-                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+encodeURI(enumWorkFlowModel.fangwuchuzu),
-                    },
-                    {
-                        name: "房屋出租记录",
-                        href: "/htmlsrc/taskManage/taskList.html?workFlow="+encodeURI(enumWorkFlowModel.fangwuchuzu),
-                    },
-                    {
-                        name: "历史记录",
-                        href:"/htmlsrc/creditDataManage/ledger/loan.html?history=1&workFlow="+encodeURI(enumWorkFlowModel.fangwuchuzu)
-                    }
-                ]
-            },
-            {
-                name: "资产拍卖",
-                children: [
-                    {
-                        name: "任务发起",
-                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+encodeURI(enumWorkFlowModel.zichanpaimai),
-                    },
-                    {
-                        name: "资产拍卖记录",
-                        href: "/htmlsrc/taskManage/taskList.html?workFlow="+encodeURI(enumWorkFlowModel.zichanpaimai),
-                    },
-                    {
-                        name: "历史记录",
-                        href:"/htmlsrc/creditDataManage/ledger/loan.html?history=1&workFlow="+encodeURI(enumWorkFlowModel.zichanpaimai)
-                    }
-                ]
-            },
-            {
-                name: "资产协议出售",
-                children: [
-                    {
-                        name: "任务发起",
-                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+encodeURI(enumWorkFlowModel.zichanxieyichushou),
-                    },
-                    {
-                        name: "资产协议出售记录",
-                        href: "/htmlsrc/taskManage/taskList.html?workFlow="+encodeURI(enumWorkFlowModel.zichanxieyichushou),
-                    },
-                    {
-                        name: "历史记录",
-                        href:"/htmlsrc/creditDataManage/ledger/loan.html?history=1&workFlow="+encodeURI(enumWorkFlowModel.zichanxieyichushou)
-                    }
-                ]
-            }
 
-        ]
-    } ,
     {
         name: '文件管理',
         icon: '<span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>&nbsp;',
@@ -920,6 +834,98 @@ var _menu = [
 ];
 
 if(location.href.indexOf("localhost") > -1 || location.href.indexOf("47.94.97.138") > -1){
+_menu.push(
+    {
+        name: "资产台账管理",
+        children: [
+            {
+                name: "资产台账",
+                href: "/htmlsrc/creditDataManage/ledger/grt.list.html"
+            },
+            {
+                name: "强制执行",
+                children: [
+                    {
+                        name: "任务发起",
+                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+encodeURI(enumWorkFlowModel.qiangzhizhixing),
+                    },
+                    {
+                        name: "强制执行记录",
+                        href: "/htmlsrc/taskManage/taskList.html?workFlow="+encodeURI(enumWorkFlowModel.qiangzhizhixing),
+                    },
+                    {
+                        name: "历史记录",
+                        href:"/htmlsrc/creditDataManage/ledger/loan.html?history=1&workFlow="+encodeURI(enumWorkFlowModel.qiangzhizhixing)
+                    }
+                ]
+            },
+            {
+                name: "房屋出租",
+                children: [
+                    {
+                        name: "任务发起",
+                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+encodeURI(enumWorkFlowModel.fangwuchuzu),
+                    },
+                    {
+                        name: "房屋出租记录",
+                        href: "/htmlsrc/taskManage/taskList.html?workFlow="+encodeURI(enumWorkFlowModel.fangwuchuzu),
+                    },
+                    {
+                        name: "历史记录",
+                        href:"/htmlsrc/creditDataManage/ledger/loan.html?history=1&workFlow="+encodeURI(enumWorkFlowModel.fangwuchuzu)
+                    }
+                ]
+            },
+            {
+                name: "资产拍卖",
+                children: [
+                    {
+                        name: "任务发起",
+                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+encodeURI(enumWorkFlowModel.zichanpaimai),
+                    },
+                    {
+                        name: "资产拍卖记录",
+                        href: "/htmlsrc/taskManage/taskList.html?workFlow="+encodeURI(enumWorkFlowModel.zichanpaimai),
+                    },
+                    {
+                        name: "历史记录",
+                        href:"/htmlsrc/creditDataManage/ledger/loan.html?history=1&workFlow="+encodeURI(enumWorkFlowModel.zichanpaimai)
+                    }
+                ]
+            },
+            {
+                name: "资产协议出售",
+                children: [
+                    {
+                        name: "任务发起",
+                        href: "/htmlsrc/creditDataManage/ledger/loan.html?workFlow="+encodeURI(enumWorkFlowModel.zichanxieyichushou),
+                    },
+                    {
+                        name: "资产协议出售记录",
+                        href: "/htmlsrc/taskManage/taskList.html?workFlow="+encodeURI(enumWorkFlowModel.zichanxieyichushou),
+                    },
+                    {
+                        name: "历史记录",
+                        href:"/htmlsrc/creditDataManage/ledger/loan.html?history=1&workFlow="+encodeURI(enumWorkFlowModel.zichanxieyichushou)
+                    }
+                ]
+            }
+
+        ]
+    }
+);
+    _menu.push(
+        {
+            name: '贷前任务',
+            children: [
+                {
+                    name: '贷前任务',
+                    href: '/htmlsrc/preLendingCollect/collect2.html',
+                    api: [remoteApi.apigetMyInfoCollect]
+                }
+            ]
+        }
+    );
     _menu.push({
         "name":"实验室功能"
         , "children":[
