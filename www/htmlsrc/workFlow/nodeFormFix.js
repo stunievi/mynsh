@@ -117,7 +117,16 @@ function fixFormAttrToEnable(formAttrs,loanAccount){
             item.type = "textarea";
         }else if(_item.type == 'datetime'){
             item.disabled = true;
-            datetimeAttrKeys.push(_item.ename);
+            datetimeAttrKeys.push({
+                name: _item.ename,
+                type: "date"
+            });
+        }else if(_item.type == 'fulldatetime'){
+            item.disabled = true;
+            datetimeAttrKeys.push({
+                name: _item.ename,
+                type: "datetime"
+            });
         }
         else if(_item.type == 'diya' && loanAccount){
             getFetch(remoteOrigin + "/api/search/accloan/04?LOAN_ACCOUNT="+loanAccount+"&order=asc&size=1000&page=1", {},function (res) {

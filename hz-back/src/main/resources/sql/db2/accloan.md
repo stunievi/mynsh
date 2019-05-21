@@ -344,12 +344,14 @@ select
 	p1.UNPD_PRIN_BAL,
 	p1.DELAY_INT_CUMU,
 	p1.SEVEN_RESULT,
-	p1.LOAN_TERM
+	p1.LOAN_TERM,
+	lm.*
 @}
 from RPT_M_RPT_SLS_ACCT as p1 
 left join CUS_BASE as u1 on p1.CUS_ID=u1.CUS_ID
 left join cus_com as u2 on p1.CUS_ID = u2.CUS_ID
 left join cus_indiv as u3 on p1.CUS_ID = u3.CUS_ID
+left join t_loan_manager lm on p1.loan_account = lm.loan_account
 where p1.CREUNIT_NO = (#use("数据源限制")#)
 --普通贷款
 and p1.LN_TYPE in ('普通贷款','银团贷款')
