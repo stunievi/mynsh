@@ -673,6 +673,10 @@ var _menu = [
                     }
                 ]
             },
+            {
+                name:'数据维护',
+                href: '/htmlsrc/sysManage/dataManage/dataMaintain.html',
+            },
             // {
             //     name: '安全设置',
             //     children: [

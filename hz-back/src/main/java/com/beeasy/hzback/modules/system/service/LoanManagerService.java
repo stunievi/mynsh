@@ -27,7 +27,7 @@ public class LoanManagerService {
     SQLManager sqlManager;
 
     /**
-     * 检查按揭类贷款账户信息中的出证状态和买卖合同交付日期，若出证状态为“未出证”且买卖合同交付日期为空的，产生贷后任务要求管户经理录入买卖合同交付日期
+     * 检查按揭类贷款账户信息中的出证状态和购房合同约定交房日期，若出证状态为“未出证”且购房合同约定交房日期为空的，产生贷后任务要求管户经理录入购房合同约定交房日期
      */
     @Scheduled(cron = "0 0 9 * * ?")
     public void sendTaskRule1(){
@@ -42,7 +42,7 @@ public class LoanManagerService {
             String loanAccount = jsonObject.getString("loanAccount");
             String accCode = jsonObject.getString("custMgr");
 
-            //未出证且买卖合同交付日期为空
+            //未出证且购房合同约定交房日期为空
             if(("0".equals(czStatus) || null == czStatus) && (null == payDate)){
                 generateAutoTask(accCode,loanAccount);
             }
@@ -52,7 +52,7 @@ public class LoanManagerService {
     }
 
     /**
-     * 在出证状态为“未出证”且买卖合同交付日期不为空时，在距离买卖合同交付日期还有一个月（三十天）时产生贷后任务要求管户经理录入相关出证信息，无法按时出证须录入具体原因（类型为文本）。
+     * 在出证状态为“未出证”且购房合同约定交房日期不为空时，在距离购房合同约定交房日期还有一个月（三十天）时产生贷后任务要求管户经理录入相关出证信息，无法按时出证须录入具体原因（类型为文本）。
      */
     @Scheduled(cron = "0 10 9 * * ?")
     public void sendTaskRule2(){
@@ -73,7 +73,7 @@ public class LoanManagerService {
             String loanAccount = jsonObject.getString("loanAccount");
             String accCode = jsonObject.getString("custMgr");
 
-            //出证状态为“未出证”且买卖合同交付日期不为空时
+            //出证状态为“未出证”且购房合同约定交房日期不为空时
             if(("0".equals(czStatus) || null == czStatus) && (null != payDate)){
                 Instant instant = payDate.toInstant();
                 ZoneId zoneId = ZoneId.systemDefault();

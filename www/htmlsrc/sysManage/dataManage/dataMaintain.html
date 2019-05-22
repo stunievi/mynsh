@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>系统管理 - 数据维护</title>
+    <!--#include file="/htmlsrc/header.html" -->
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script src="/static/vendor/bootcss/js/bootstrap.min.js"></script>
+    <script src="/static/vendor/webUploader/webuploader.min.js"></script>
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+</head>
+<body>
+    <div id="content">
+        <div class="bs-example bs-example-tabs" data-example-id="togglable-tabs">
+            <ul id="myTabs" class="nav nav-tabs" role="tablist">
+                
+                <li role="presentation" ><a href="#taskProduceRule" id="taskProduceRule-tab" role="tab" data-toggle="tab" aria-controls="taskProduceRule" aria-expanded="true">信贷中间表</a></li>
+
+            </ul>
+            <div id="myTabContent" class="tab-content">
+
+
+                <div class="tab-pane fade" id="taskProduceRule" aria-labelledby="taskProduceRule-tab">
+                    <div class="panel-body">
+                        <style> #taskProduceRule .form-group{ padding: 10px 0; } </style>
+                        
+                        <form class="form-inline" name='taskProduceRuleForm' onsubmit="return checkSubmitForm()">
+                            <div id="taskProduceRuleForm">
+                                
+
+                            </div>
+                            <!-- <div class="text-center">
+                                <button type="submit" class="btn btn-primary submitTaskRuleForm">确定</button>
+                            </div> -->
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script id="taskProduceRuleHtml" type="text/html">
+        <!-- <div class="panel-heading">{{panelTitle}}</div> -->
+        <div class="panel-body">
+            <form class="form-horizontal">
+                
+                <!-- <div class="col-xs-12">
+                    <ul id="uploadfiles" class="file-list">
+                    </ul>
+                </div> -->
+                <div style="padding:10px 0;">
+                    <!-- <style>
+                        .webuploader-pick{
+                            background-color: #f0ad4e;
+                            display: block;
+                        }
+                    </style> -->
+                    <div>导入定义文件：</div>
+                    <div id="picker1" style="float: none; display: inline-block;margin-right:10px; vertical-align: middle">
+                        <i class="glyphicon glyphicon-book"></i>
+                        上传附件
+                    </div>
+
+                    <div style="margin: 50px 0">
+                        <div>导入数据文件：</div>
+                        <div id="picker2" style="float: none; display: inline-block;margin-right:10px; vertical-align: middle">
+                            <i class="glyphicon glyphicon-book"></i>
+                            上传附件
+                        </div>
+                    </div>
+                    
+        
+                </div>
+            </form>
+        </div>
+    </script>
+    
+
+    <script>
+
+        function initupload1(data) {
+
+            var uploader = WebUploader.create({
+                swf: '/static/vendor/webUploader/Uploader.swf',
+                server: remoteOrigin + "/api/excel/loanmanager/import", //导入定义
+                pick: '#picker1',
+                auto: true,
+                fileVal: 'file',
+                resize: false,
+                dupliacate: false
+            });
+
+            uploader.on("uploadBeforeSend", function(obj, data, headers){
+                layer.msg("导入中。。。");
+            })
+
+            uploader.on('uploadError', function (file, res) {
+                layer.msg("导入失败！");
+
+            });
+            // 单个文件上传成功
+            uploader.on('uploadSuccess', function (file, res) {
+                console.log("定义：",res)
+                if(res.success){
+                    layer.msg("后台已开始分析文件，请等待消息通知。");
+                }else{
+                    layer.msg("导入失败！请使用信贷中间表转换定义文件.xlsx进行导入！");
+                }
+            })
+
+
+        }
+
+        function initupload2(data) {
+
+            var uploader = WebUploader.create({
+                swf: '/static/vendor/webUploader/Uploader.swf',
+                server: remoteOrigin + "/api/excel/xindai/import", // 导入数据
+                pick: '#picker2',
+                auto: true,
+                fileVal: 'file',
+                resize: false,
+                dupliacate: false
+            });
+
+            uploader.on("uploadBeforeSend", function(obj, data, headers){
+                layer.msg("导入中。。。");
+            })
+
+            uploader.on('uploadError', function (file, res) {
+                layer.msg("导入失败！");
+
+            });
+            // 单个文件上传成功
+            uploader.on('uploadSuccess', function (file, res) {
+                console.log("数据：",res)
+                if(res.success){
+                    layer.msg("后台已开始分析文件，请等待消息通知。");
+                }else{
+                    layer.msg("导入失败！请使用sls_acct_09100.del.gz进行导入！");
+                }
+            })
+
+
+        }
+
+        var checkedRoles = []; // 已选角色
+        var panelType = getParam("panelType") || "taskProduceRule";
+        $('#myTabs a[href="#'+panelType+'"]').tab('show');
+        $('#myTabs a').click(function(){
+            rememberParam("panelType", $(this).attr("href").substring(1));
+        })
+
+         $("#taskProduceRuleForm").html(template('taskProduceRuleHtml',{
+
+            // isPoint: isPonit,
+            // formAttr: addFormAttr,
+            // data: defaultData,
+            // workFlowModel: workFlowModel
+            // , pubUid: getParam("pubUid")
+        }));
+
+        initupload1();
+        initupload2();
+
+
+        // function checkSubmitForm(){
+        //     return false;
+        // }
+    </script>
+</body>
+</html>

@@ -82,7 +82,7 @@
         </ul>
         
         <script type="text/html" id="fcz">
-            {{# if (d.LM_FCZ == 0) { }}
+            {{# if (d.LM_FCZ == 0 || d.LM_FCZ == null) { }}
             <span>未出证</span>
             {{# }else if(d.LM_FCZ == 1){ }}
             <span>已出证</span>
@@ -123,7 +123,7 @@
              ,{title:"实际控制人类别", field:"LM_TYPE"}
              ,{title:"实际控制人电话", field:"LM_PHONE"}
              ,{title:"实际控制人证件号码", field:"LM_CODE"},
-             { title :'买卖合同交付日期', field:'LM_MMHTJYRQ_DATE'},
+             { title :'购房合同约定交房日期', field:'LM_MMHTJYRQ_DATE'},
              { title :'出证状态', field:'LM_FCZ',templet: "#fcz"},
             { title :'出证日期', field:'LM_FCZ_DATE'},
             { title :'五级分类', field:'CLA'},
