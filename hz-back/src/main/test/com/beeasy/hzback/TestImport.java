@@ -19,4 +19,9 @@ public class TestImport {
     public void test2() throws IOException {
         new BackExcelController().importDefination(new MockMultipartFile("fuck", new FileInputStream("C:/Users/bin/Desktop/sls_acct_define.xlsx")));
     }
+
+    @Test
+    public void test3() throws IOException {
+        new BackExcelController().importXinDai(new MockMultipartFile("fuck", new FileInputStream("C:/Users/bin/Desktop/sls_acct_09100.del.gz")));
+    }
 }
