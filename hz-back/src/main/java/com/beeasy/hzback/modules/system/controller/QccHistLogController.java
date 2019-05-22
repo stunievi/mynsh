@@ -1,7 +1,9 @@
 package com.beeasy.hzback.modules.system.controller;
 
+import com.beeasy.hzback.modules.system.service.MessageSend;
 import com.beeasy.hzback.modules.system.service.QccHistLogService;
 import com.beeasy.mscommon.Result;
+import org.beetl.sql.core.SQLManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,6 +17,8 @@ public class QccHistLogController {
 
     @Autowired
     private QccHistLogService qccHistLogService;
+    @Autowired
+    MessageSend s;
 
     @RequestMapping(value = "/test1", method = RequestMethod.GET)
     public void uploadFace(HttpServletResponse response) throws IOException {
@@ -49,5 +53,11 @@ public class QccHistLogController {
         } finally {
             QccHistLogService.os = System.out;
         }
+    }
+
+
+    @RequestMapping(value = "/toMsg", method = RequestMethod.GET)
+    public void a() throws IOException{
+        s.checkDate();
     }
 }

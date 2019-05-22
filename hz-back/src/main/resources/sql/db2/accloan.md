@@ -1054,6 +1054,11 @@ and ((UNPD_PRIN_BAL=0) or (UNPD_PRIN_BAL is null)) and ((DELAY_INT_CUMU=0) or (D
 @if(isNotEmpty(BIZ_TYPE_DETAIL)){
     and p1.BIZ_TYPE_DETAIL like #'%' + '按揭' + '%'#
 @}
+-- 出证状态
+@if(isNotEmpty(FCZ)){
+    and lm.FCZ =#FCZ#
+@}
+
 
 
 -- 不良台账
