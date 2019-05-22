@@ -50,7 +50,7 @@
     <script src="/static/htmljs/utils.js"></script>
     <script src="/tmpl/js/panelForm.js"></script>
     <script src="/static/htmljs/fixLayTableList.js"></script>
-
+    
 
     <!-- toolbar渲染模板 -->
     <script type="text/html" id="toolbar">
@@ -125,7 +125,7 @@
              ,{title:"实际控制人证件号码", field:"LM_CODE"},
              { title :'买卖合同交付日期', field:'LM_MMHTJYRQ_DATE'},
              { title :'出证状态', field:'LM_FCZ',templet: "#fcz"},
-            { title :'出证日期', field:'LM_FCZ_DATE' },
+            { title :'出证日期', field:'LM_FCZ_DATE'},
             { title :'五级分类', field:'CLA'},
             { title :'主担保方式', field:'ASSURE_MEANS_MAIN' },
             { title :'年利率', field:'REALITY_IR_Y' },
@@ -185,6 +185,11 @@
                 { name: '--请选择--', val: ''}
                 , {name:"所有", val:""}
                 ,{name:"按揭类贷款", val:"按揭类贷款"}
+            ]},
+            {label:"出证状态", prop:"FCZ",type:"select", vals:[
+                { name: '--请选择--', val: ''}
+                , {name:"未出证", val:"0"}
+                ,{name:"已出证", val:"1"}
             ]}
         ];
         // searchCond.push({ label:'1', prop:'lm',type:"checkbox",  checked:true, value:1 })
@@ -259,7 +264,14 @@
             cellMinWidth: 110,
             url: getDataUrl,
             cols: [ cols ]
-            , showColumns: true
+            , showColumns: true,
+            onData:function(res){
+                for(var i=0;i<res.rows.length;i++){
+                    var data = res.rows[i];
+                    data["LM_FCZ_DATE"] = (data["LM_FCZ_DATE"] || '').substring(0, 10);
+                }
+               return res;
+            }
         });
         // 发起任务
         eventBind(".handleLaunch", function(that){
@@ -325,8 +337,16 @@
             });
             // 单个文件上传成功
             uploader.on('uploadSuccess', function (file, res) {
-                layer.msg("导入成功！");
+                console.log(res)
+                if(res.success){
+                    var data = res.data;
+                    layer.msg("数据总条数："+data.total+"，成功："+data.success+"条，失败："+data.failed +"条");
+                }else{
+                    layer.msg("导入失败！请选择正确的模板导入！");
+                }
             })
+
+
 
 
         }

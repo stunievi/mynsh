@@ -49,13 +49,15 @@ public class MessageSend {
         List<JSONObject> vars = sqlManager.execute(new SQLReady("select count(1) from t_system_variable where var_name = 'msg_api_open' and var_value = '1'"), JSONObject.class);
         if (vars.size() == 0 || vars.get(0).getInteger("1") == 0) {
             System.out.println("短信网关配置没有打开");
-            System.exit(-1);
+//            System.exit(-1);
+            return;
         }
 
         int connectRe = handler.init("118.2.82.252", "hzrcbJava", "hzrcb@pwd2896880", "javaApiMsg", "mas");
         if (connectRe != APIClient.IMAPI_SUCC) {
             System.out.println("无法连接短信接口");
-            System.exit(-1);
+//            System.exit(-1);
+            return;
         }
 
 
@@ -92,6 +94,7 @@ public class MessageSend {
             LocalDate now = LocalDate.now();
 
             long betweenDays = beginDateTime.until(now, ChronoUnit.DAYS);
+            //判断当前日期是否超过读取日期两天
             if(betweenDays>2){
                 sendMsg();
             }

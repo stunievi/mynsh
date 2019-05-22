@@ -886,7 +886,7 @@
           name: FCZ
           type: select
           required: false
-          items:  [已出证,未出证]
+          items:  [未出证,已出证]
         出证时间:
           name: FCZ_DATE
           type: fulldatetime

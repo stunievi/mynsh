@@ -17,11 +17,12 @@ multipul:
       username: db2inst1
       password: db2inst1
       alias: fzsys_hy
-    - name: h2
-      driver: com.ibm.db2.jcc.DB2Driver
-      url: jdbc:db2://47.94.97.138:50000/test
-      username: db2inst2
-      password: db2inst2
+#      name: h2
+#        driver: com.ibm.db2.jcc.DB2Driver
+#        url: jdbc:db2://47.94.97.138:50000/test
+#        username: db2inst2
+#        password: db2inst2
+
 
 filecloud:
   server: http://47.94.97.138/disk
@@ -79,7 +80,7 @@ spring:
   activemq:
     broker-url: tcp://47.94.97.138:8011?jms.blobTransferPolicy.uploadUrl=http://47.94.97.138:8012/fileserver/
 
-#  datasource:
+  #  datasource:
 #    url: jdbc:sqlite::resource:server/data.db
 #    username:
 #    password:

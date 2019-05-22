@@ -832,16 +832,22 @@ select * from T_WORKFLOW_INSTANCE where model_name='贷后跟踪-企查查贷后
 
 查询按揭类贷款账户信息
 ===
-select loan_account,MMHTJYRQ_DATE as pay_date from T_LOAN_MANAGER where FCZ='0'
+select 
+    p1.LOAN_ACCOUNT,
+    p1.CUST_MGR,
+    t1.MMHTJYRQ_DATE as pay_date,
+    t1.FCZ as cz_status,
+    t1.FCZ_DATE as cz_date
+from RPT_M_RPT_SLS_ACCT as p1
+left join T_LOAN_MANAGER as t1 on p1.LOAN_ACCOUNT = t1.LOAN_ACCOUNT
+where p1.BIZ_TYPE_DETAIL like '%按揭%'
+--普通贷款
+and p1.LN_TYPE in ('普通贷款','银团贷款')
+--表内资产
+and p1.GL_CLASS not like '0%'
+--台帐状态
+and p1.ACCOUNT_STATUS = '1'
+and UPPER('on') = UPPER(coalesce((select var_value from t_system_variable where var_name=#rule#),'off'))
 
-贷后跟踪-零售银行部个人按揭任务根据台账查询客户经理
-===
-select distinct
-    tt.ACC_CODE,
-    tt.id as uid,
-    p1.LOAN_ACCOUNT
-from 
-     DB2INST1.RPT_M_RPT_SLS_ACCT p1
-    left join T_USER as tt on p1.CUST_MGR = tt.acc_code
-    where p1.LOAN_ACCOUNT=#loanAccount#
+
     

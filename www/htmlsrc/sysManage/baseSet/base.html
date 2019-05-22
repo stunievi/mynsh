@@ -12,6 +12,7 @@
             <ul id="myTabs" class="nav nav-tabs" role="tablist">
                 <li role="presentation" ><a href="#baseInfo" id="baseInfo-tab" role="tab" data-toggle="tab" aria-controls="baseInfo" aria-expanded="true">系统信息</a></li>
                 <li role="presentation" ><a href="#noticeRule" role="tab" id="noticeRule-tab" data-toggle="tab" aria-controls="noticeRule">消息规则</a></li>
+                <li role="presentation" ><a href="#taskProduceRule" id="taskProduceRule-tab" role="tab" data-toggle="tab" aria-controls="taskProduceRule" aria-expanded="true">任务产生规则</a></li>
                 <li role="presentation"><a href="#taskRule" role="tab" id="taskRule-tab" data-toggle="tab" aria-controls="taskRule">任务产生条件</a></li>
                 <li role="presentation"><a href="#qccNoticeRule" role="tab" id="qccNoticeRule-tab" data-toggle="tab" aria-controls="qccNoticeRule">企查查消息规则</a></li>
                 <li role="presentation"><a href="#qccTaskRule" role="tab" id="qccTaskRule-tab" data-toggle="tab" aria-controls="qccTaskRule">企查查任务产生条件</a></li>
@@ -69,6 +70,20 @@
                             </div>
                             <div class="text-center">
                                 <button type="submit" class="btn btn-primary submitRuleForm3">确定</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="taskProduceRule" aria-labelledby="taskProduceRule-tab">
+                    <div class="panel-body">
+                        <style> #taskProduceRule .form-group{ padding: 10px 0; } </style>
+                        <form class="form-inline" name='taskProduceRuleForm' onsubmit="return checkSubmitForm()">
+                            <div id="taskProduceRuleForm">
+
+                            </div>
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-primary submitTaskRuleForm">确定</button>
                             </div>
                         </form>
                     </div>
@@ -147,6 +162,7 @@
         </div>
     </script>
 
+    <!-- 企查查消息规则 -->
     <script id="qccNoticeHtml" type="text/html">
         <div class="form-group col-xs-12">
             <div class="col-xs-8">
@@ -194,6 +210,28 @@
         </div>
             <div class="col-xs-1">
             <a href="javascript:;" class="btn btn-xs rule-on" id="QCC_TASK_MSG_RULE_{{qccTaskIndex}}_ON">已开启</a>
+        </div>
+
+        </div>
+    </script>
+
+    <!-- 任务产生规则 -->
+    <script id="taskProduceRuleHtml" type="text/html">
+        <div class="form-group col-xs-12">
+            <div class="col-xs-8">
+                <label>规则{{taskProduceRuleIndex}}</label>
+                {{ if taskProduceRuleIndex == 10086 }}
+                    {{@ content.replace(/(x{4,})/g, function(a){
+                        var l = a.length - 3;
+                        return '<input type="text" name="TASK_PRODUCE_RULE_'+taskProduceRuleIndex+'_VAL'+l+'" class="form-control input-sm" style="width: 50px;margin:0 5px;height:26px;">';
+                    })}}
+                {{ else }}
+                    {{@ content.replace(/xxxxx/, '<input type="text" name="TASK_PRODUCE_RULE_'+taskProduceRuleIndex+'" class="form-control input-sm" style="width: 50px;margin:0 5px;height:26px;">')}}
+                {{ /if}}
+        </div>
+
+            <div class="col-xs-1">
+            <a href="javascript:;" class="btn btn-xs rule-on" id="TASK_PRODUCE_RULE_{{taskProduceRuleIndex}}_ON">已开启</a>
         </div>
 
         </div>
@@ -284,6 +322,21 @@
                 }));
                 
             })
+
+            // todo
+            var taskProduceRuleArr = [
+                '检查按揭类贷款账户信息中的出证状态和买卖合同交付日期，若出证状态为“未出证”且买卖合同交付日期为空的，产生贷后任务要求管户经理录入买卖合同交付日期',
+                '在出证状态为“未出证”且买卖合同交付日期不为空时，在距离买卖合同交付日期还有xxxxx天时产生贷后任务要求管户经理录入相关出证信息，无法按时出证须录入具体原因（类型为文本）。',
+            ]
+            taskProduceRuleArr.forEach(function(item, index){
+                $("#taskProduceRuleForm").append(template("taskProduceRuleHtml",{
+                    taskProduceRuleIndex: index+1,
+                    content: item,
+                    msglist: msglist
+                }));
+            })
+
+
 
             var origin = a[0].data;
             origin = origin || {};
@@ -409,6 +462,17 @@
 
             }
 
+            var taskProduceRuleLength = 4;
+            while (taskProduceRuleLength-- > 1) {
+
+                var name = "TASK_PRODUCE_RULE_"+taskProduceRuleLength;
+                var tmplName = name + "_TMPL";
+                $("[name="+tmplName+"]").val(origin[tmplName]);
+        
+                $("[name="+name+"]").val(origin[name]);
+
+            }
+
             // 设置消息规则开关
             $(".rule-on").each(function(index, elm){
                 if(origin[$(elm).attr("id")] == 'on'){
@@ -504,6 +568,32 @@
                                 }
                             });
                             submitFormData(form5Data);
+                        }
+                        return false;
+                    }
+                })
+            });
+            
+            // 任务产生规则
+            var form6 = $("form[name='taskProduceRuleForm']");
+            $().ready(function() {
+                form6.validate({
+                    rules: {
+                        'MSG_RULE_1': {
+                            range: [0, 31]
+                        }
+                    },
+                    submitHandler:function(){
+                        if(form6.valid()){
+                            var form6Data = $.unserialize(form6.serialize());
+                            $(".rule-on").each(function(index, elm){
+                                if($(elm).hasClass("on")){
+                                    form6Data[$(elm).attr("id")]  = 'on';
+                                }else{
+                                    form6Data[$(elm).attr("id")]  = 'off';
+                                }
+                            });
+                            submitFormData(form6Data);
                         }
                         return false;
                     }
