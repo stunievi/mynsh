@@ -1,5 +1,6 @@
 package com.beeasy.hzback.entity;
 
+import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -1157,6 +1158,50 @@ public class WfIns extends TailBean implements ValidGroup {
                 sqlManager.lambdaQuery(User.class).andEq(User::getId, uid).andEq(User::getPassword, password).count() > 0
                 , "密码错误, 无法继续操作"
             );
+        }
+
+        //如果是按揭贷后任务
+        if (wfIns.modelName.contains("按揭")) {
+            LoanManager loanManager = sqlManager.lambdaQuery(LoanManager.class)
+                .andEq(LoanManager::getLoanAccount, wfIns.loanAccount)
+                .single();
+            if (loanManager == null) {
+                loanManager = new LoanManager();
+            }
+            //写回loan_manager
+            for (WfInsAttr attr : attrs) {
+                switch (attr.getAttrKey()){
+                    case "FCZ":
+                        if(attr.getAttrValue().equals("已出证")){
+                            loanManager.setFcz("1");
+                        } else {
+                            loanManager.setFcz("0");
+                        }
+                        break;
+
+                    case "FCZ_DATE":
+                        try{
+                            loanManager.setFczDate(DateUtil.parse(attr.attrValue, "yyyy-MM-dd hh:mm:ss"));
+                        }
+                        catch (Exception e){
+                        }
+                        break;
+
+                    case "MMHTJYRQ_DATE":
+                        try{
+                            loanManager.setMmhtjyrqDate(DateUtil.parse(attr.attrValue, "yyyy-MM-dd hh:mm:ss"));
+                        }
+                        catch (Exception e){}
+                        break;
+
+
+                }
+                if (loanManager.getId() == null) {
+                    sqlManager.insert(loanManager);
+                } else {
+                    sqlManager.updateById(loanManager);
+                }
+            }
         }
 
         //标记为已处理

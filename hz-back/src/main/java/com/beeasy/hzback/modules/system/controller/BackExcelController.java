@@ -216,7 +216,7 @@ public class BackExcelController {
                 sb.append(",");
                 poss.add(i);
             }
-            sb.deleteCharAt(sb.length() - 1);
+            sb.append("SOC_NO,DATA_CENTER_NO,CREUNIT_NO,SRC_SYS_CD");
             sb.append(")values(");
             String prefix = sb.toString();
 //            for (Integer integer : poss) {
@@ -250,8 +250,8 @@ public class BackExcelController {
                             sb.append(",");
                         }
                         values.clear();
-                        sb.deleteCharAt(sb.length() - 1);
-                        sb.append(")");
+                        //补充多余的字段
+                        sb.append("'003','021','0801','PRT')");
                         sqls.add(sb.toString());
                         lastPos = pos + 1;
 
@@ -272,10 +272,10 @@ public class BackExcelController {
             }
 
             Connection fake = null;
-            try(
+            Statement fakeStmt = null;
+            try{
                 Connection connection = fake = dataSource.getConnection();
-                Statement stmt = connection.createStatement();
-            ){
+                Statement stmt = fakeStmt = connection.createStatement();
                 connection.setAutoCommit(false);
                 stmt.executeUpdate("delete from TEMP_RPT_M_RPT_SLS_ACCT");
                 int limit = 0;
@@ -297,69 +297,9 @@ public class BackExcelController {
                     }
                     stmt.addBatch(sql);
                 }
-//                while((line = reader.readLine()) != null ){
-//                    values.clear();
-//                    int ptr = 0;
-//                    int lastPos = 0;
-//                    boolean openTag = false;
-//                    while(ptr < line.length()){
-//                        char c = line.charAt(ptr);
-//                        switch (c){
-//                            case ',':
-//                                //如果仍在字符串内
-//                                if(openTag){
-//                                    break;
-//                                }
-//                                //
-//                                String value = line.substring(lastPos, ptr);
-//                                values.add(formatValue(value)) ;
-//                                lastPos = ptr + 1;
-//                                break;
-//
-//                            case '"':
-//                                openTag = !openTag;
-//                                break;
-//
-//                            case '\\':
-//                                //无条件前进一步
-//                                ptr++;
-//                                break;
-//                        }
-//
-//                        ptr++;
-//                    }
-//                    //补上最后一个
-//                    String value = line.substring(lastPos);
-//                    values.add(formatValue(value));
-//                    sb.setLength(0);
-//                    sb.append(prefix);
-//                    for (Integer integer : poss) {
-//                        sb.append(values.get(integer));
-//                        sb.append(",");
-////                        stmt.setObject(++i, values.get(integer));
-//                    }
-//                    sb.deleteCharAt(sb.length() - 1);
-//                    sb.append(")");
-//                    try{
-//                        stmt.executeUpdate(sb.toString());
-//                    }
-//                    catch (Exception e){
-//                        e.printStackTrace();
-//                    }
-
-//                    if(limit++ > 500){
-//                        stmt.executeBatch();
-//                        stmt.close();
-//                        stmt = connection.createStatement();
-//                        limit = 0;
-//                        System.out.println("dealed 500");
-//                    }
-//                    stmt.addBatch(sb.toString());
-//                }
 
                 stmt.executeBatch();
                 connection.commit();
-                connection.setAutoCommit(true);
             }
             catch (Exception e){
                 if (fake != null) {
@@ -370,6 +310,24 @@ public class BackExcelController {
                     }
                 }
                 throw e;
+            } finally {
+                if (fakeStmt != null) {
+                    try{
+                        fakeStmt.close();
+                    }
+                    catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+                if (fake != null) {
+                    try{
+                        fake.setAutoCommit(true);
+                        fake.close();
+                    }
+                    catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
             }
 
             noticeService2.addNotice(SysNotice.Type.SYSTEM, uid, "导入信贷中间表成功", null);
