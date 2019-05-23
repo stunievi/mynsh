@@ -1196,11 +1196,14 @@ public class WfIns extends TailBean implements ValidGroup {
 
 
                 }
-                if (loanManager.getId() == null) {
-                    sqlManager.insert(loanManager);
-                } else {
-                    sqlManager.updateById(loanManager);
-                }
+
+            }
+
+            if (loanManager.getId() == null) {
+                loanManager.setLoanAccount(wfIns.loanAccount);
+                sqlManager.insert(loanManager);
+            } else {
+                sqlManager.updateById(loanManager);
             }
         }
 

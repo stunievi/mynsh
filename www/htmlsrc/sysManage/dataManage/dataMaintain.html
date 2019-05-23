@@ -28,11 +28,8 @@
                         <form class="form-inline" name='taskProduceRuleForm' onsubmit="return checkSubmitForm()">
                             <div id="taskProduceRuleForm">
                                 
-
                             </div>
-                            <!-- <div class="text-center">
-                                <button type="submit" class="btn btn-primary submitTaskRuleForm">确定</button>
-                            </div> -->
+                            
                         </form>
                     </div>
                 </div>
@@ -56,14 +53,14 @@
                             display: block;
                         }
                     </style> -->
-                    <div>导入定义文件：</div>
+                    <div>导入定义文件（信贷中间表转换定义文件.xlsx）</div>
                     <div id="picker1" style="float: none; display: inline-block;margin-right:10px; vertical-align: middle">
                         <i class="glyphicon glyphicon-book"></i>
                         上传附件
                     </div>
 
                     <div style="margin: 50px 0">
-                        <div>导入数据文件：</div>
+                        <div>导入数据文件（sls_acct_09100.del.gz）</div>
                         <div id="picker2" style="float: none; display: inline-block;margin-right:10px; vertical-align: middle">
                             <i class="glyphicon glyphicon-book"></i>
                             上传附件
@@ -79,73 +76,7 @@
 
     <script>
 
-        function initupload1(data) {
-
-            var uploader = WebUploader.create({
-                swf: '/static/vendor/webUploader/Uploader.swf',
-                server: remoteOrigin + "/api/excel/loanmanager/import", //导入定义
-                pick: '#picker1',
-                auto: true,
-                fileVal: 'file',
-                resize: false,
-                dupliacate: false
-            });
-
-            uploader.on("uploadBeforeSend", function(obj, data, headers){
-                layer.msg("导入中。。。");
-            })
-
-            uploader.on('uploadError', function (file, res) {
-                layer.msg("导入失败！");
-
-            });
-            // 单个文件上传成功
-            uploader.on('uploadSuccess', function (file, res) {
-                console.log("定义：",res)
-                if(res.success){
-                    layer.msg("后台已开始分析文件，请等待消息通知。");
-                }else{
-                    layer.msg("导入失败！请使用信贷中间表转换定义文件.xlsx进行导入！");
-                }
-            })
-
-
-        }
-
-        function initupload2(data) {
-
-            var uploader = WebUploader.create({
-                swf: '/static/vendor/webUploader/Uploader.swf',
-                server: remoteOrigin + "/api/excel/xindai/import", // 导入数据
-                pick: '#picker2',
-                auto: true,
-                fileVal: 'file',
-                resize: false,
-                dupliacate: false
-            });
-
-            uploader.on("uploadBeforeSend", function(obj, data, headers){
-                layer.msg("导入中。。。");
-            })
-
-            uploader.on('uploadError', function (file, res) {
-                layer.msg("导入失败！");
-
-            });
-            // 单个文件上传成功
-            uploader.on('uploadSuccess', function (file, res) {
-                console.log("数据：",res)
-                if(res.success){
-                    layer.msg("后台已开始分析文件，请等待消息通知。");
-                }else{
-                    layer.msg("导入失败！请使用sls_acct_09100.del.gz进行导入！");
-                }
-            })
-
-
-        }
-
-        var checkedRoles = []; // 已选角色
+         var checkedRoles = []; // 已选角色
         var panelType = getParam("panelType") || "taskProduceRule";
         $('#myTabs a[href="#'+panelType+'"]').tab('show');
         $('#myTabs a').click(function(){
@@ -164,10 +95,76 @@
         initupload1();
         initupload2();
 
+        function initupload1(data) {
 
-        // function checkSubmitForm(){
-        //     return false;
-        // }
+            var uploader = WebUploader.create({
+                swf: '/static/vendor/webUploader/Uploader.swf',
+                server: remoteOrigin + "/api/excel/loanmanager/import", //导入定义文件
+                pick: '#picker1',
+                auto: true,
+                fileVal: 'file',
+                resize: false,
+                // 只允许选择excel文件。
+                // accept: {
+                //     title: 'file',
+                //     extensions: 'xls,xlsx',
+                //     mimeTypes: 'application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                // },
+                dupliacate: true
+            });
+
+            uploader.on("uploadBeforeSend", function(obj, data, headers){
+                layer.msg("导入中。。。");
+            })
+
+            uploader.on('uploadError', function (file, res) {
+                layer.msg("导入失败！");
+
+            });
+            // 单个文件上传成功
+            uploader.on('uploadSuccess', function (file, res) {
+                
+                if(res.success){
+                    layer.msg("后台已开始分析文件，请等待消息通知。");
+                }else{
+                    layer.msg("导入失败！请使用信贷中间表转换定义文件.xlsx进行导入！");
+                }
+            });
+
+
+        }
+
+        function initupload2(data) {
+
+            var uploader = WebUploader.create({
+                swf: '/static/vendor/webUploader/Uploader.swf',
+                server: remoteOrigin + "/api/excel/xindai/import", // 导入数据文件
+                pick: '#picker2',
+                auto: true,
+                fileVal: 'file',
+                resize: false,
+                dupliacate: false
+            });
+
+            uploader.on("uploadBeforeSend", function(obj, data, headers){
+                layer.msg("导入中。。。");
+            })
+
+            uploader.on('uploadError', function (file, res) {
+                layer.msg("导入失败！");
+
+            });
+            // 单个文件上传成功
+            uploader.on('uploadSuccess', function (file, res) {
+                
+                if(res.success){
+                    layer.msg("后台已开始分析文件，请等待消息通知。");
+                }else{
+                    layer.msg("导入失败！请使用sls_acct_09100.del.gz进行导入！");
+                }
+            })
+
+        }
     </script>
 </body>
 </html>
