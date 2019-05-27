@@ -1,6 +1,7 @@
 package com.beeasy.hzback.modules.system.service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.beeasy.hzback.entity.SysNotice;
 import com.beeasy.hzback.entity.SysVar;
 import com.beeasy.hzback.entity.User;
 import com.beeasy.hzback.entity.WfIns;
@@ -17,23 +18,31 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class LoanManagerService {
 
     @Autowired
     SQLManager sqlManager;
+    @Autowired
+    NoticeService2 noticeService2;
+
 
     /**
-     * 检查按揭类贷款账户信息中的出证状态和购房合同约定交房日期，若出证状态为“未出证”且购房合同约定交房日期为空的，产生贷后任务要求管户经理录入购房合同约定交房日期
+     * 检查按揭类贷款账户信息中的出证状态、购房合同约定交房日期和未按时出证情况说明，若出证状态为“未出证”且购房合同约定交房日期对比当前日期已经超过540天且未按时出证情况说明为空，则产生贷后任务要求管户经理必须录入未按时出证情况说明；
      */
-    @Scheduled(cron = "0 0 9 * * ?")
-    public void sendTaskRule1(){
-        List<JSONObject> lists = sqlManager.select("task.查询按揭类贷款账户信息", JSONObject.class, C.newMap("rule","TASK_PRODUCE_RULE_1_ON"));
+    @Scheduled(cron = "0 10 9 * * ?")
+    public void sendTaskRule(){
+        List<JSONObject> lists = sqlManager.select("task.查询按揭类贷款账户信息task", JSONObject.class, C.newMap("rule","TASK_PRODUCE_RULE_1_ON"));
         if(null == lists || lists.size()==0){
             return;
+        }
+
+        SysVar sysVar = sqlManager.lambdaQuery(SysVar.class).andEq(SysVar::getVarName,"TASK_PRODUCE_RULE_1").single();
+        String varValue = sysVar.getVarValue();
+        if(null == varValue || "".equals(varValue)){
+            varValue = "0";
         }
         for(JSONObject jsonObject : lists){
 
@@ -41,26 +50,94 @@ public class LoanManagerService {
             String czStatus = jsonObject.getString("czStatus");
             String loanAccount = jsonObject.getString("loanAccount");
             String accCode = jsonObject.getString("custMgr");
+            String sm = jsonObject.getString("sm");
 
-            //未出证且购房合同约定交房日期为空
-            if(("0".equals(czStatus) || null == czStatus) && (null == payDate)){
-                generateAutoTask(accCode,loanAccount);
+            //出证状态为“未出证”且购房合同约定交房日期对比当前日期已经超过540天且未按时出证情况说明为空
+            if(("0".equals(czStatus) || null == czStatus) && (null == payDate) && ("".equals(sm) || null == sm)){
+
+                Instant instant = payDate.toInstant();
+                ZoneId zoneId = ZoneId.systemDefault();
+
+                LocalDateTime localDateTime = instant.atZone(zoneId).toLocalDateTime();
+                LocalDateTime now = LocalDateTime.now();
+                Duration duration = Duration.between(localDateTime, now);
+                long day = duration.toDays();//相差的天数
+                if(day > Long.parseLong(varValue)){
+                    generateAutoTask(accCode,loanAccount);
+                }
+
             }
 
         }
+    }
+
+
+
+    /**
+     * 检查按揭类贷款账户信息中的出证状态和购房合同约定交房日期，发送消息给管户经理
+     */
+    @Scheduled(cron = "0 0 9 * * ?")
+    public void sendMessageRule1(){
+        List<JSONObject> lists = sqlManager.select("task.查询按揭类贷款账户信息message", JSONObject.class, C.newMap());
+        if(null == lists || lists.size()==0){
+            return;
+        }
+
+        SysVar sysVar = sqlManager.lambdaQuery(SysVar.class).andEq(SysVar::getVarName,"MSG_RULE_20").single();
+        String varValue = sysVar.getVarValue();
+        if(null == varValue || "".equals(varValue)){
+            varValue = "0";
+        }
+        Set<Long> uidList = new HashSet<>();
+
+        List<SysNotice> notices = new ArrayList<>();
+        String renderStr = "请在信贷数据管理-贷款资料-贷款台帐界面中，使用按揭贷款信息批量维护按钮，批量导入数据";
+        for(JSONObject jsonObject : lists){
+
+            Date payDate = jsonObject.getDate("payDate");
+            String czStatus = jsonObject.getString("czStatus");
+            String loanAccount = jsonObject.getString("loanAccount");
+            String accCode = jsonObject.getString("custMgr");
+            Long uid = jsonObject.getLong("id");
+
+            //未出证且购房合同约定交房日期为空
+            if(("0".equals(czStatus) || null == czStatus) && (null == payDate)){
+                uidList.add(uid);
+
+            }
+
+            //出证状态为“未出证”且购房合同约定交房日期不为空时
+            if(("0".equals(czStatus) || null == czStatus) && (null != payDate)){
+                Instant instant = payDate.toInstant();
+                ZoneId zoneId = ZoneId.systemDefault();
+
+                LocalDateTime localDateTime = instant.atZone(zoneId).toLocalDateTime();
+                LocalDateTime now = LocalDateTime.now();
+                Duration duration = Duration.between(localDateTime, now);
+                long day = duration.toDays();//相差的天数
+                System.out.println(day);
+                if(day == Long.parseLong(varValue)){
+                    uidList.add(uid);
+                }
+            }
+
+
+        }
+            notices = noticeService2.makeNotice(SysNotice.Type.SYSTEM, uidList, renderStr, null);
+        sqlManager.insertBatch(SysNotice.class, notices);
 
     }
 
     /**
-     * 在出证状态为“未出证”且购房合同约定交房日期不为空时，在距离购房合同约定交房日期还有一个月（三十天）时产生贷后任务要求管户经理录入相关出证信息，无法按时出证须录入具体原因（类型为文本）。
+     * 在出证状态为“未出证”且购房合同约定交房日期不为空时，在距离购房合同约定交房日期还有一个月（三十天）时发送消息给管户经理
      */
-    @Scheduled(cron = "0 10 9 * * ?")
-    public void sendTaskRule2(){
-        List<JSONObject> lists = sqlManager.select("task.查询按揭类贷款账户信息", JSONObject.class, C.newMap("rule","TASK_PRODUCE_RULE_2_ON"));
+    /*@Scheduled(cron = "0 10 9 * * ?")
+    public void sendMessageRule2(){
+        List<JSONObject> lists = sqlManager.select("task.查询按揭类贷款账户信息message", JSONObject.class, C.newMap());
         if(null == lists || lists.size()==0){
             return;
         }
-        SysVar sysVar = sqlManager.lambdaQuery(SysVar.class).andEq(SysVar::getVarName,"TASK_PRODUCE_RULE_2").single();
+        SysVar sysVar = sqlManager.lambdaQuery(SysVar.class).andEq(SysVar::getVarName,"MSG_RULE_20").single();
         String varValue = sysVar.getVarValue();
         if(null == varValue || "".equals(varValue)){
             varValue = "0";
@@ -90,7 +167,7 @@ public class LoanManagerService {
 
         }
 
-    }
+    }*/
 
     /***** 自动生成任务start *****/
     public void generateAutoTask(String CUST_MGR, String loanAccount) {

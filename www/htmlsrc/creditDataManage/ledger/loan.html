@@ -37,7 +37,7 @@
             <input type="button" onclick="upload()" class="btn btn-success fileinput-button" value="导入"> -->
             <div id="picker" style="" class="hide">
                 <i class="glyphicon glyphicon-book"></i>
-                导入excel
+                按揭贷款信息批量维护
             </div>
         </div>
         <div id="dataList">
@@ -258,6 +258,9 @@
         if(linkLoanAccount){
             getDataUrl += '&linkLoanAccount=' + getParam("linkLoanAccount")
         }
+        if(linkPerson){
+            getDataUrl += '&own=1'
+        }
 //        remoteApi.apiOdsSearchAccloan+"?register="+register+"&modelName="+encodeURI(workFlow)
         // 渲染台账列表
         laytableRender({
@@ -333,6 +336,7 @@
 
             uploader.on('uploadError', function (file, res) {
                 layer.msg("导入失败！");
+                uploader.removeFile(file)
 
             });
             // 单个文件上传成功
@@ -344,6 +348,7 @@
                 }else{
                     layer.msg("导入失败！请选择正确的模板导入！");
                 }
+                uploader.removeFile(file)
             })
 
 

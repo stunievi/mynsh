@@ -54,8 +54,8 @@ public class BackExcelController {
 
     @RequestMapping("/loanmanager/import")
     public Result importLM(
-        MultipartFile file
-    ){
+            MultipartFile file
+    ) {
         File temp = null;
         LoanManager lm = new LoanManager();
         try {
@@ -66,58 +66,70 @@ public class BackExcelController {
             //skip first row
             int total = 0;
             int failed = 0;
-            for(int i = 1; i < reader.getRowCount(); i++){
+            for (int i = 1; i < reader.getRowCount(); i++) {
                 total++;
                 String loanAccount;
-                try{
+                try {
                     loanAccount = String.valueOf(reader.readCellValue(0, i)).trim();
-                }
-                catch (Exception e){
+                } catch (Exception e) {
                     failed++;
                     continue;
                 }
                 Object o2 = reader.readCellValue(1, i);
                 Object o3 = reader.readCellValue(2, i);
                 Object o4 = reader.readCellValue(3, i);
+                Object o5 = reader.readCellValue(4, i);
+                Object o6 = reader.readCellValue(5, i);
+                Object o7 = reader.readCellValue(6, i);
+                Object o8 = reader.readCellValue(7, i);
                 if (S.notBlank(loanAccount)) {
-                    try{
+                    try {
                         DateTime d2 = (DateTime) o2;
                         String i3 = String.valueOf(o3).trim();
                         DateTime d4 = (DateTime) o4;
+                        String i5 = String.valueOf(o5).trim();
+                        String i6 = String.valueOf(o6);
+                        String i7 = String.valueOf(o7);
+                        String i8 = String.valueOf(o8);
+
                         lm.setLoanAccount(loanAccount);
                         lm.setMmhtjyrqDate(d2.toJdkDate());
                         lm.setFcz(S.notEmpty(i3) && S.neq(i3, "0") ? "1" : "0");
                         lm.setFczDate(d4.toJdkDate());
                         lm.setId(null);
-                    } catch (Exception e){
+                        lm.setYy(i5);
+                        lm.setSm(i6);
+                        lm.setKfsqc(i7);
+                        lm.setLpqc(i8);
+
+                    } catch (Exception e) {
                         failed++;
                         continue;
                     }
 
                     long count = sqlManager.lambdaQuery(LoanManager.class)
-                        .andEq(LoanManager::getLoanAccount, loanAccount)
-                        .count();
+                            .andEq(LoanManager::getLoanAccount, loanAccount)
+                            .count();
                     if (count > 0) {
                         sqlManager.lambdaQuery(LoanManager.class)
-                            .andEq(LoanManager::getLoanAccount, loanAccount)
-                            .updateSelective(lm);
+                                .andEq(LoanManager::getLoanAccount, loanAccount)
+                                .updateSelective(lm);
                     } else {
                         sqlManager.insert(lm);
                     }
                 }
             }
             return Result.ok(
-                C.newMap(
-                    "total", total,
-                    "success", total - failed,
-                    "failed", failed
-                )
+                    C.newMap(
+                            "total", total,
+                            "success", total - failed,
+                            "failed", failed
+                    )
             );
         } catch (Exception e) {
             e.printStackTrace();
             return Result.error("导入失败");
-        }
-        finally {
+        } finally {
             if (temp != null) {
                 temp.delete();
             }
@@ -126,8 +138,8 @@ public class BackExcelController {
 
     @RequestMapping("/defination/import")
     public Result importDefination(
-        MultipartFile file
-    ){
+            MultipartFile file
+    ) {
         File temp = null;
         try {
             temp = File.createTempFile("temp_de_", "");
@@ -136,26 +148,24 @@ public class BackExcelController {
             reader.setSheet(0);
             JSONObject object = new JSONObject();
 
-            for(int i = 1; i < reader.getRowCount(); i++) {
+            for (int i = 1; i < reader.getRowCount(); i++) {
                 String en = (String) reader.readCellValue(1, i);
                 String cn = (String) reader.readCellValue(0, i);
                 object.put(cn, en);
             }
             sqlManager.lambdaQuery(Definition.class)
-                .andEq(Definition::getName, "accloan")
-                .delete();
+                    .andEq(Definition::getName, "accloan")
+                    .delete();
             Definition definition = new Definition();
             definition = new Definition();
             definition.setName("accloan");
             definition.setConfig(object.toJSONString());
             sqlManager.insert(definition, true);
             return Result.ok();
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return Result.error("导入定义失败");
-        }
-        finally {
+        } finally {
             if (temp != null) {
                 temp.delete();
             }
@@ -166,8 +176,8 @@ public class BackExcelController {
 
     @RequestMapping("/xindai/import")
     public Result importXinDai(
-        MultipartFile file
-    ){
+            MultipartFile file
+    ) {
         long uid = AuthFilter.getUid();
         new Thread(() -> {
             import_xin_dai(uid, file);
@@ -175,25 +185,32 @@ public class BackExcelController {
         return Result.ok();
     }
 
-    private void import_xin_dai(long uid, MultipartFile file){
+    private void import_xin_dai(long uid, MultipartFile file) {
         //解压文件
-        try(
-            InputStream is = file.getInputStream();
-        ){
+        try (
+                InputStream is = file.getInputStream();
+        ) {
             //读取定义
             Definition definition = sqlManager.lambdaQuery(Definition.class)
-                .andEq(Definition::getName, "accloan")
-                .single();
+                    .andEq(Definition::getName, "accloan")
+                    .single();
             if (definition == null) {
                 throw new Exception();
             }
             JSONObject map = JSON.parseObject(definition.getConfig());
-
-            byte[] bs = ZipUtil.unGzip(is);
+            byte[] bs;
+            if (file.getName().endsWith(".del")) {
+                bs = IoUtil.readBytes(is);
+            } else if(file.getName().endsWith(".gz")){
+                bs = ZipUtil.unGzip(is);
+            } else {
+                throw new IOException();
+            }
             int pos = 0;
-            scan:{
-                while(pos < bs.length){
-                    switch (bs[pos]){
+            scan:
+            {
+                while (pos < bs.length) {
+                    switch (bs[pos]) {
                         case '\n':
                             break scan;
                     }
@@ -205,9 +222,9 @@ public class BackExcelController {
             pos++;
             //读取第二行
             StringBuilder sb = new StringBuilder();
-            sb.append("insert into TEMP_RPT_M_RPT_SLS_ACCT (");
+            sb.append("insert into RPT_M_RPT_SLS_ACCT (");
             List<Integer> poss = new ArrayList<>();
-            for(int i = 0; i < dfs.length; i++){
+            for (int i = 0; i < dfs.length; i++) {
                 String key = map.getString(dfs[i]);
                 if (S.empty(key)) {
                     continue;
@@ -230,10 +247,10 @@ public class BackExcelController {
             boolean openTag = false;
             List<String> sqls = new ArrayList<>();
             List<String> values = new ArrayList<>();
-            while(pos < bs.length){
-                switch (bs[pos]){
+            while (pos < bs.length) {
+                switch (bs[pos]) {
                     case ',':
-                        if(openTag){
+                        if (openTag) {
                             break;
                         }
                         values.add(formatValue(new String(bs, lastPos, pos - lastPos, CharsetUtil.GBK)));
@@ -273,11 +290,11 @@ public class BackExcelController {
 
             Connection fake = null;
             Statement fakeStmt = null;
-            try{
+            try {
                 Connection connection = fake = dataSource.getConnection();
                 Statement stmt = fakeStmt = connection.createStatement();
                 connection.setAutoCommit(false);
-                stmt.executeUpdate("delete from TEMP_RPT_M_RPT_SLS_ACCT");
+                stmt.executeUpdate("delete from RPT_M_RPT_SLS_ACCT");
                 int limit = 0;
                 int block = 1;
                 for (String sql : sqls) {
@@ -288,7 +305,7 @@ public class BackExcelController {
 //                        System.out.println(sql);
 //                        throw e;
 //                    }
-                    if(++limit > 1000){
+                    if (++limit > 1000) {
                         stmt.executeBatch();
                         stmt.clearBatch();
                         System.out.printf("dealed %d", (limit - 1) * (block));
@@ -300,8 +317,7 @@ public class BackExcelController {
 
                 stmt.executeBatch();
                 connection.commit();
-            }
-            catch (Exception e){
+            } catch (Exception e) {
                 if (fake != null) {
                     try {
                         fake.rollback();
@@ -312,19 +328,17 @@ public class BackExcelController {
                 throw e;
             } finally {
                 if (fakeStmt != null) {
-                    try{
+                    try {
                         fakeStmt.close();
-                    }
-                    catch (Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
                 if (fake != null) {
-                    try{
+                    try {
                         fake.setAutoCommit(true);
                         fake.close();
-                    }
-                    catch (Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
@@ -338,12 +352,12 @@ public class BackExcelController {
     }
 
 
-    private String formatValue(String value){
-        if(S.empty(value)){
+    private String formatValue(String value) {
+        if (S.empty(value)) {
             return null;
-        } else if(value.startsWith("+")) {
+        } else if (value.startsWith("+")) {
             return new BigDecimal(value).toString();
-        }else{
+        } else {
             return value.replaceAll("\\s*\"", "'");
         }
     }

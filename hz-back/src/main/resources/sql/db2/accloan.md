@@ -7,7 +7,7 @@ condition_loan
 --查询数据范围（总行角色看所有，贷款机构看所属一级支行）
 and (((select count(1) from t_global_permission_center where uid = #uid# and type = 'DATA_SEARCH_CONDITION')>0)
     or ((0=(select count(1) from t_global_permission_center where uid = #uid# and type = 'DATA_SEARCH_CONDITION')) and (p1.MAIN_BR_ID in 
-        (select substr(acc_code,1,5) from T_ORG where PARENT_ID = (select ID from T_ORG where acc_code = (SELECT substr(MAIN_BR_ID,1,5) FROM T_DEPARTMENT_USER WHERE UID=#uid#)) and TYPE = 'DEPARTMENT') or (p1.MAIN_BR_ID = (SELECT MAIN_BR_ID FROM T_DEPARTMENT_USER WHERE UID=#uid#)))
+        (select substr(acc_code,1,5) from T_ORG where PARENT_ID in (select ID from T_ORG where acc_code in (SELECT substr(MAIN_BR_ID,1,5) FROM T_DEPARTMENT_USER WHERE UID=#uid#)) and TYPE = 'DEPARTMENT') or (p1.MAIN_BR_ID in (SELECT MAIN_BR_ID FROM T_DEPARTMENT_USER WHERE UID=#uid#)))
 ))
 
 condition_cus
@@ -15,8 +15,8 @@ condition_cus
 --查询数据范围（总行角色看所有，贷款机构看所属一级支行）
 and (((select count(1) from t_global_permission_center where uid = #uid# and type = 'DATA_SEARCH_CONDITION')>0)
     or ((0=(select count(1) from t_global_permission_center where uid = #uid# and type = 'DATA_SEARCH_CONDITION')) and ((u2.MAIN_BR_ID in 
-        (select substr(acc_code,1,5) from T_ORG where PARENT_ID = (select ID from T_ORG where acc_code = (SELECT substr(MAIN_BR_ID,1,5) FROM T_DEPARTMENT_USER WHERE UID=#uid#)) and TYPE = 'DEPARTMENT') or (u2.MAIN_BR_ID = (SELECT MAIN_BR_ID FROM T_DEPARTMENT_USER WHERE UID=#uid#))) or 
-        (u3.MAIN_BR_ID in (select substr(acc_code,1,5) from T_ORG where PARENT_ID = (select ID from T_ORG where acc_code = (SELECT substr(MAIN_BR_ID,1,5) FROM T_DEPARTMENT_USER WHERE UID=#uid#)) and TYPE = 'DEPARTMENT') or (u3.MAIN_BR_ID = (SELECT MAIN_BR_ID FROM T_DEPARTMENT_USER WHERE UID=#uid#))))
+        (select substr(acc_code,1,5) from T_ORG where PARENT_ID in (select ID from T_ORG where acc_code in (SELECT substr(MAIN_BR_ID,1,5) FROM T_DEPARTMENT_USER WHERE UID=#uid#)) and TYPE = 'DEPARTMENT') or (u2.MAIN_BR_ID in (SELECT MAIN_BR_ID FROM T_DEPARTMENT_USER WHERE UID=#uid#))) or 
+        (u3.MAIN_BR_ID in (select substr(acc_code,1,5) from T_ORG where PARENT_ID in (select ID from T_ORG where acc_code in (SELECT substr(MAIN_BR_ID,1,5) FROM T_DEPARTMENT_USER WHERE UID=#uid#)) and TYPE = 'DEPARTMENT') or (u3.MAIN_BR_ID in (SELECT MAIN_BR_ID FROM T_DEPARTMENT_USER WHERE UID=#uid#))))
 ))
 
 03
@@ -907,7 +907,11 @@ select
         end as CONTACT_NAME,
     value(d21.v_value,d22.v_value) as CRD_GRADE,
     d1.v_value as CUST_TYPE,
-    d2.v_value as CERT_TYPE,d3.v_value as ASSURE_MEANS_MAIN,d4.v_value as CLA,d5.v_value as ACCOUNT_STATUS,d6.v_value as REPAYMENT_MODE,
+    d2.v_value as CERT_TYPE,
+    d3.v_value as ASSURE_MEANS_MAIN,
+    d4.v_value as CLA,
+    d5.v_value as ACCOUNT_STATUS,
+    d6.v_value as REPAYMENT_MODE,
     o1.name as FINA_BR_name, o2.name as main_br_name
     -- user
     @if(isNotEmpty(modelName)){

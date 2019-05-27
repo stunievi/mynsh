@@ -64,7 +64,7 @@ public class ExcelController {
                     result = reportService.query(no, params, pageable);
                 }
                 else{
-                    result = sqlManager.select( no, JSONObject.class, params);
+                    result = sqlManager.select( "report." + no, JSONObject.class, params);
                 }
             }
             else{

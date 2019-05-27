@@ -48,6 +48,11 @@ public class LoanManager extends TailBean implements ValidGroup {
     Date mmhtjyrqDate;
     String fcz;
     Date fczDate;
+    String wczResult;
+    String yy;
+    String sm;
+    String kfsqc;
+    String lpqc;
 
 
     @AssertTrue(message = "", groups = {Add.class,Edit.class})

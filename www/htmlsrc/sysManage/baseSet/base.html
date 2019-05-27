@@ -293,6 +293,8 @@
                 '诉讼流程的缴费节点设置xxxxx天有效，该节点未办理则每天提醒直至有效期结束',
                 '对私客户提前xxxxx天提醒客户经理证件到期',
                 '对公客户提前xxxxx天提醒客记经理组织机构代码证年检日到期',
+                '检查按揭类贷款账户信息中的出证状态和购房合同约定交房日期，若出证状态为“未出证”且购房合同约定交房日期为空的，发送消息给管户经理',
+                '在出证状态为“未出证”且购房合同约定交房日期不为空时，在距离购房合同约定交房日期还有xxxxx天时发送消息给管户经理录入相关出证信息',
             ]
             noticeRuleArr.forEach(function(item, index){
                 $("#noticeRuleForm").append(template("noticeHtml",{
@@ -315,6 +317,21 @@
                     msglist: msglist
                 }));
 
+                // $("#qccTaskRuleForm").append(template("qccTaskHtml",{
+                //     qccTaskIndex: i+1,
+                //     content: content,
+                //     msglist: msglist
+                // }));
+                
+            })
+
+            var qccNoticeRuleArr2 = [
+                "失信","被执行人","裁判文书","法院公告","开庭公告","司法拍卖","环保处罚","司法协助","经营异常"
+            ]
+            qccNoticeRuleArr2 = qccNoticeRuleArr2.map((item,i)=>{
+                var content = "企业有新增<span style='color:red'>"+item+"</span>信息，对该企业每笔关联台帐客户经理发送任务";
+
+
                 $("#qccTaskRuleForm").append(template("qccTaskHtml",{
                     qccTaskIndex: i+1,
                     content: content,
@@ -325,8 +342,7 @@
 
             // todo
             var taskProduceRuleArr = [
-                '检查按揭类贷款账户信息中的出证状态和购房合同约定交房日期，若出证状态为“未出证”且购房合同约定交房日期为空的，产生贷后任务要求管户经理录入购房合同约定交房日期',
-                '在出证状态为“未出证”且购房合同约定交房日期不为空时，在距离购房合同约定交房日期还有xxxxx天时产生贷后任务要求管户经理录入相关出证信息，无法按时出证须录入具体原因（类型为文本）。',
+                '检查按揭类贷款账户信息中的出证状态、购房合同约定交房日期和未按时出证情况说明，若出证状态为“未出证”且购房合同约定交房日期对比当前日期已经超过xxxxx天且未按时出证情况说明为空，则产生贷后任务要求管户经理必须录入未按时出证情况说明',
             ]
             taskProduceRuleArr.forEach(function(item, index){
                 $("#taskProduceRuleForm").append(template("taskProduceRuleHtml",{
@@ -356,7 +372,7 @@
                         ]},
                     {prop:"ods_br_id", label: "信贷数据机构代码"},
                     {prop:"qcc_url", label: "企查查接口地址"},
-                    {prop:"data_early_warning", label: "数据预警发送短信手机号码（多个用“，”隔开）"}
+                    {prop:"data_early_warning", label: "数据预警发送短信手机号码（多个用“，”分隔）"}
                     // ,
                     // { prop: 'sys_default_role', label: '默认角色', width:12, labelWidth:2, inputGroup:"选择角色",disabled:true}
                 ],
@@ -422,7 +438,7 @@
                 })
             });
 
-            var noticeRuleLength = 19;
+            var noticeRuleLength = 21;
             while (noticeRuleLength-- > 1) {
 
                 var name = "MSG_RULE_"+noticeRuleLength;

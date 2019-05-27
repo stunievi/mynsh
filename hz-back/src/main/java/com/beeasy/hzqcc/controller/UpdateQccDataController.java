@@ -294,7 +294,7 @@ public class UpdateQccDataController {
             }
 
             JSONObject countObject = jo.getJSONObject("callApiCount");
-            if(null != countObject){
+            if(null != countObject && countObject.size() >0){
                 Iterator<String> it = countObject.keySet().iterator();
                 while (it.hasNext()) {
                     String key = it.next();
@@ -363,7 +363,8 @@ public class UpdateQccDataController {
     private String deconstructResponse(int finished, String progressText, String content, String cusName, String sign, String te, JSONObject jo) {
         if (0 == finished) { // 成功
             content = progressText + "成功：" + cusName + sign + te;
-        } else if (1 == finished) {   // 部分失败
+        }
+        /*else if (1 == finished) {   // 部分失败
             sendToAdminMsg("数据解构部分", cusName, sign);
             String errorMessage = jo.getString("errorMessage");
             if (null != errorMessage) {
@@ -372,7 +373,8 @@ public class UpdateQccDataController {
                 content = "<span style='color:red'>解构部分失败</span>：" + cusName + sign + te;
             }
 
-        } else if (-1 == finished) {   // 全部失败
+        }*/
+        else if (-1 == finished) {   // 全部失败
             sendToAdminMsg("数据解构", cusName, sign);
             String errorMessage = jo.getString("errorMessage");
             if (null != errorMessage) {

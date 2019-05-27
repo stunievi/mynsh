@@ -1078,7 +1078,7 @@ public class ReportService {
 
     //信贷中间表
     @ExportTo("信贷中间表.xlsx")
-    @UseSimpleSql
+    @UseSimpleSql(usePage = false)
     public void rpt(
             Map<String,Object> paramMap, Pageable pageable
     ){

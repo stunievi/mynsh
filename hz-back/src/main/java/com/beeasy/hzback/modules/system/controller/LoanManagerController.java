@@ -16,8 +16,7 @@ public class LoanManagerController {
 
     @RequestMapping(value = "/loanManager/test1", method = RequestMethod.GET)
     public Result a() {
-        loanManagerService.sendTaskRule1();
-        loanManagerService.sendTaskRule2();
+        loanManagerService.sendMessageRule1();
         return Result.ok();
     }
 }

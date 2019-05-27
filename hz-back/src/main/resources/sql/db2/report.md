@@ -3,7 +3,8 @@ condition
 --查询数据范围（总行角色看所有，贷款机构看所属一级支行）
 and (((select count(1) from t_global_permission_center where uid = #uid# and type = 'DATA_SEARCH_CONDITION')>0)
     or ((0=(select count(1) from t_global_permission_center where uid = #uid# and type = 'DATA_SEARCH_CONDITION')) and (p1.MAIN_BR_ID in 
-        (select substr(acc_code,1,5) from T_ORG where PARENT_ID = (select ID from T_ORG where acc_code = (SELECT substr(MAIN_BR_ID,1,5) FROM T_DEPARTMENT_USER WHERE UID=#uid#)) and TYPE = 'DEPARTMENT') or (p1.MAIN_BR_ID = (SELECT MAIN_BR_ID FROM T_DEPARTMENT_USER WHERE UID=#uid#)))
+        (select substr(acc_code,1,5) from T_ORG where PARENT_ID in (select ID from T_ORG where acc_code in
+         (SELECT substr(MAIN_BR_ID,1,5) FROM T_DEPARTMENT_USER WHERE UID=#uid#)) and TYPE = 'DEPARTMENT') or (p1.MAIN_BR_ID in (SELECT MAIN_BR_ID FROM T_DEPARTMENT_USER WHERE UID=#uid#)))
 ))
 
 condition_cus
@@ -11,8 +12,8 @@ condition_cus
 --查询数据范围（总行角色看所有，贷款机构看所属一级支行）
 and (((select count(1) from t_global_permission_center where uid = #uid# and type = 'DATA_SEARCH_CONDITION')>0)
     or ((0=(select count(1) from t_global_permission_center where uid = #uid# and type = 'DATA_SEARCH_CONDITION')) and ((u2.MAIN_BR_ID in 
-        (select substr(acc_code,1,5) from T_ORG where PARENT_ID = (select ID from T_ORG where acc_code = (SELECT substr(MAIN_BR_ID,1,5) FROM T_DEPARTMENT_USER WHERE UID=#uid#)) and TYPE = 'DEPARTMENT') or (u2.MAIN_BR_ID = (SELECT MAIN_BR_ID FROM T_DEPARTMENT_USER WHERE UID=#uid#))) or 
-        (u3.MAIN_BR_ID in (select substr(acc_code,1,5) from T_ORG where PARENT_ID = (select ID from T_ORG where acc_code = (SELECT substr(MAIN_BR_ID,1,5) FROM T_DEPARTMENT_USER WHERE UID=#uid#)) and TYPE = 'DEPARTMENT') or (u3.MAIN_BR_ID = (SELECT MAIN_BR_ID FROM T_DEPARTMENT_USER WHERE UID=#uid#))))
+        (select substr(acc_code,1,5) from T_ORG where PARENT_ID in (select ID from T_ORG where acc_code in (SELECT substr(MAIN_BR_ID,1,5) FROM T_DEPARTMENT_USER WHERE UID=#uid#)) and TYPE = 'DEPARTMENT') or (u2.MAIN_BR_ID in (SELECT MAIN_BR_ID FROM T_DEPARTMENT_USER WHERE UID=#uid#))) or 
+        (u3.MAIN_BR_ID in (select substr(acc_code,1,5) from T_ORG where PARENT_ID in (select ID from T_ORG where acc_code in (SELECT substr(MAIN_BR_ID,1,5) FROM T_DEPARTMENT_USER WHERE UID=#uid#)) and TYPE = 'DEPARTMENT') or (u3.MAIN_BR_ID in (SELECT MAIN_BR_ID FROM T_DEPARTMENT_USER WHERE UID=#uid#))))
 ))
 
 信贷中间表
@@ -1190,7 +1191,7 @@ and REPAYMENT_MODE = '202'
 --排序
 --order by p1.MAIN_BR_ID
 
-rpt
+rpt2
 ===
 SELECT 
 @pageTag(){
@@ -1209,6 +1210,164 @@ and p1.GL_CLASS not like '0%'
 
 --排序
 --order by p1.MAIN_BR_ID
+
+
+rpt
+===
+select
+    p1.*,
+    DB2INST1.fun_GET_ORG_BY_CODE(p1.MAIN_BR_ID) as MAIN_BR_NAME2
+    -- user
+    --实际控制人
+        , lm.name as lm_name
+        , lm.code as lm_code
+        , lm.phone as lm_phone
+        , lm.type as lm_type
+        , lm.MMHTJYRQ_DATE as lm_MMHTJYRQ_DATE
+        , lm.FCZ as lm_FCZ
+        , lm.FCZ_DATE as lm_FCZ_DATE,
+        , lm.yy as lm_yy,
+        , lm.sm as lm_sm,
+        , lm.kafsq as lm_kafsq,
+        , lm.lpqc as lm_lpqc,
+        value(d21.v_value,d22.v_value) as CRD_GRADE,
+            d1.v_value as CUST_TYPE,
+            d2.v_value as CERT_TYPE,
+            d3.v_value as ASSURE_MEANS_MAIN,
+            d4.v_value as CLA,
+            d5.v_value as ACCOUNT_STATUS,
+            d6.v_value as REPAYMENT_MODE
+from RPT_M_RPT_SLS_ACCT as p1
+left join CUS_BASE as u1 on p1.CUS_ID=u1.CUS_ID
+left join  CUS_COM as u2 on p1.CUS_ID=u2.CUS_ID
+left join CUS_INDIV as u3 on p1.CUS_ID=u3.CUS_ID
+left join t_loan_manager lm on lm.loan_account = p1.loan_account
+
+left join t_dict d1 on d1.name = 'CUST_TYPE' and d1.V_KEY = p1.CUST_TYPE
+left join t_dict d2 on d2.name = 'CERT_TYPE' and d2.V_KEY = p1.CERT_TYPE
+left join t_dict d3 on d3.name = 'ASSURE_MEANS_MAIN' and d3.V_KEY = p1.ASSURE_MEANS_MAIN
+left join t_dict d4 on d4.name = 'CLA' and d4.V_KEY = p1.CLA
+left join t_dict d5 on d5.name = 'ACCOUNT_STATUS' and d5.V_KEY = p1.ACCOUNT_STATUS
+left join t_dict d6 on d6.name = 'REPAYMENT_MODE' and d6.V_KEY = p1.REPAYMENT_MODE
+
+left join t_dict d21 on d21.name = 'COM_CRD_GRADE' and d21.V_KEY = u2.COM_CRD_GRADE
+left join t_dict d22 on d22.name = 'CRD_GRADE' and d22.V_KEY = u3.CRD_GRADE
+
+--历史台账
+@if(isNotEmpty(history)){
+    inner join T_WORKFLOW_INSTANCE hins on hins.state = 'FINISHED' and hins.model_name = #modelName# and hins.loan_account = p1.loan_account
+@}
+
+
+where p1.CREUNIT_NO != '10087'
+--普通贷款
+and p1.LN_TYPE in ('普通贷款','银团贷款')
+
+--查询数据范围
+#use("condition")#
+    and (
+    p1.loan_account in (select loan_account from t_loan_belong where uid = #uid#)
+    or exists(select 1 from t_global_permission_center where uid = #uid# and type = 'DATA_SEARCH_CONDITION')
+    )
+-- 贷款分类（一般贷款台帐固定为“普通贷款”）
+@if(isNotEmpty(LN_TYPE)){
+    and p1.LN_TYPE = #LN_TYPE#
+@}
+-- 贷款帐号
+@if(isNotEmpty(LOAN_ACCOUNT)){
+    and p1.LOAN_ACCOUNT like #'%' + LOAN_ACCOUNT + '%'#
+@}
+
+-- 借据号
+@if(isNotEmpty(BILL_NO)){
+    and p1.BILL_NO like #'%' + BILL_NO + '%'#
+@}
+
+-- 合同号
+@if(isNotEmpty(CONT_NO)){
+    and p1.CONT_NO like #'%' + CONT_NO + '%'#
+@}
+
+-- 客户号
+@if(isNotEmpty(CUS_ID)){
+    and p1.CUS_ID like #'%' + CUS_ID + '%'#
+@}
+
+-- 客户名称
+@if(isNotEmpty(CUS_NAME)){
+    and p1.CUS_NAME like #'%' + CUS_NAME + '%'#
+@}
+
+-- 台账状态
+@if(isNotEmpty(ACCOUNT_STATUS)){
+    and p1.ACCOUNT_STATUS= #ACCOUNT_STATUS#
+@}
+
+-- 五级分类标志
+@if(isNotEmpty(CLA)){
+    and p1.CLA = #CLA#
+@}
+
+-- 是否逾期
+@if(timeout == '1' || timeout == 1){
+and (UNPD_PRIN_BAL>0 or DELAY_INT_CUMU>0)
+@}else if(timeout == '0' || timeout == 0){
+and ((UNPD_PRIN_BAL=0) or (UNPD_PRIN_BAL is null)) and ((DELAY_INT_CUMU=0) or (DELAY_INT_CUMU is null))
+@}
+
+-- 联系人
+@if(isNotEmpty(CONTACT_NAME)){
+    and u1.CONTACT_NAME like #'%' + CONTACT_NAME + '%'#
+@}
+
+-- 联系电话
+@if(isNotEmpty(PHONE)){
+    and u1.PHONE like #'%' + PHONE + '%'#
+@}
+
+-- 贷款起始日（开始）
+@if(isNotEmpty(LOAN_START_DATE_S)){
+    and p1.LOAN_START_DATE >= #LOAN_START_DATE_S#
+@}
+
+-- 贷款起始日（结束）
+@if(isNotEmpty(LOAN_START_DATE_E)){
+    and p1.LOAN_START_DATE <= #LOAN_START_DATE_E#
+@}
+
+-- 贷款类型
+@if(isNotEmpty(LOAN_TYPE)){
+    and p1.LOAN_ACCOUNT like #'%' + LOAN_TYPE + '%'#
+@}
+
+-- 贷款用途
+@if(isNotEmpty(USE_DEC)){
+    and p1.USE_DEC like #'%' + USE_DEC + '%'#
+@}
+
+-- 产品细分类名 2019.5.20
+@if(isNotEmpty(BIZ_TYPE_DETAIL)){
+    and p1.BIZ_TYPE_DETAIL like #'%' + '按揭' + '%'#
+@}
+-- 出证状态
+@if(isNotEmpty(FCZ)){
+    and lm.FCZ =#FCZ#
+@}
+
+
+
+-- 不良台账
+@if(!isEmpty(register)){
+@if(register == 'true'){
+    and (select count(*) from t_workflow_instance ins where ins.model_name in ('不良资产主流程') and ins.state <> 'FINISHED' and ins.loan_account = p1.LOAN_ACCOUNT) > 0
+@}else if(register == 'false'){
+    and (select count(*) from t_workflow_instance ins where ins.model_name in ('不良资产主流程') and ins.state <> 'FINISHED' and ins.loan_account = p1.LOAN_ACCOUNT) = 0
+@}
+@}
+
+
+   order by p1.ACCOUNT_STATUS 
+
 
 mortgage_g
 ===
@@ -1277,11 +1436,11 @@ where uid = #uid# and type = 'DATA_SEARCH_CONDITION'
 union all
 SELECT count(1) as IS_LOANBANK
 FROM T_LOAN_ORG 
-WHERE MAIN_BR_ID_OLD = (SELECT MAIN_BR_ID FROM T_DEPARTMENT_USER WHERE UID=#uid#)
+WHERE MAIN_BR_ID_OLD in (SELECT MAIN_BR_ID FROM T_DEPARTMENT_USER WHERE UID=#uid#)
 union all
 SELECT count(1) as IS_LOANBANK_M
 FROM T_LOAN_ORG 
-WHERE MAIN_BR_ID_OLD in (select substr(acc_code,1,5) from T_ORG where PARENT_ID = (select ID from T_ORG where acc_code = (SELECT substr(MAIN_BR_ID,1,5) FROM T_DEPARTMENT_USER WHERE UID=#uid#)) and TYPE = 'DEPARTMENT')
+WHERE MAIN_BR_ID_OLD in (select substr(acc_code,1,5) from T_ORG where PARENT_ID in (select ID from T_ORG where acc_code in (SELECT substr(MAIN_BR_ID,1,5) FROM T_DEPARTMENT_USER WHERE UID=#uid#)) and TYPE = 'DEPARTMENT')
 
 app_userstatus_2
 ===
@@ -1289,14 +1448,14 @@ select distinct PARENT_ID,MAIN_BR_NAME_NEW_LVE_ONE
 from T_LOAN_ORG 
 where MAIN_BR_ID_OLD in 
     (select substr(acc_code,1,5) from T_ORG 
-    where PARENT_ID = 
+    where PARENT_ID in 
         (select ID from T_ORG 
-        where acc_code = 
+        where acc_code in 
             (SELECT MAIN_BR_ID FROM T_DEPARTMENT_USER WHERE UID=#uid#)
         ) 
         and TYPE = 'DEPARTMENT'
     ) 
-    or (MAIN_BR_ID_OLD = 
+    or (MAIN_BR_ID_OLD in 
         (SELECT substr(MAIN_BR_ID,1,5) FROM T_DEPARTMENT_USER WHERE UID=#uid#)
     )
 
