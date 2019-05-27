@@ -1315,7 +1315,7 @@ and p1.LN_TYPE in ('普通贷款','银团贷款')
 --表内资产
 and p1.GL_CLASS not like '0%'
 --查询数据范围
-#use("condition")#
+#globalUse("accloan.condition_loan")#
 
 -- 贷款类型
 @if(isNotEmpty(LOAN_TYPE_C)){
