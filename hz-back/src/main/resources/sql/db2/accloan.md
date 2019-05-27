@@ -345,7 +345,9 @@ select
 	p1.DELAY_INT_CUMU,
 	p1.SEVEN_RESULT,
 	p1.LOAN_TERM,
-	lm.*
+	lm.MMHTJYRQ_DATE,
+	lm.FCZ,
+	lm.FCZ_DATE
 @}
 from RPT_M_RPT_SLS_ACCT as p1 
 left join CUS_BASE as u1 on p1.CUS_ID=u1.CUS_ID

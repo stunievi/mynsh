@@ -878,7 +878,7 @@
           type: select
           required: true
           items:  [是,否]
-        买卖合同交易日期:
+        购房合同约定交房日期:
           name: MMHTJYRQ_DATE
           type: fulldatetime
           required: false

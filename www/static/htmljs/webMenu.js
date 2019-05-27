@@ -115,11 +115,12 @@ var _menu = [
                     {
                         name: "实际控制人查询"
                         , href: "/htmlsrc/creditDataManage/ledger/loanData.rm.list.html"
-                    },
+                    }
+                    /*,
                     {
                         name: "全行共享查询",
                         href: "/htmlsrc/creditDataManage/ledger/loan.html?su=1"
-                    }
+                    }*/
                 ]
             }
         ]
@@ -672,6 +673,10 @@ var _menu = [
                         api: [ ]
                     }
                 ]
+            },
+            {
+                name:'数据维护',
+                href: '/htmlsrc/sysManage/dataManage/dataMaintain.html',
             },
             // {
             //     name: '安全设置',
