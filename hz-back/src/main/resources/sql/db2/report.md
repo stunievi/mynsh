@@ -1277,11 +1277,11 @@ where uid = #uid# and type = 'DATA_SEARCH_CONDITION'
 union all
 SELECT count(1) as IS_LOANBANK
 FROM T_LOAN_ORG 
-WHERE MAIN_BR_ID_OLD = (SELECT MAIN_BR_ID FROM T_DEPARTMENT_USER WHERE UID=#uid#)
+WHERE MAIN_BR_ID_OLD in (SELECT MAIN_BR_ID FROM T_DEPARTMENT_USER WHERE UID=#uid#)
 union all
 SELECT count(1) as IS_LOANBANK_M
 FROM T_LOAN_ORG 
-WHERE MAIN_BR_ID_OLD in (select substr(acc_code,1,5) from T_ORG where PARENT_ID = (select ID from T_ORG where acc_code = (SELECT substr(MAIN_BR_ID,1,5) FROM T_DEPARTMENT_USER WHERE UID=#uid#)) and TYPE = 'DEPARTMENT')
+WHERE MAIN_BR_ID_OLD in (select substr(acc_code,1,5) from T_ORG where PARENT_ID in (select ID from T_ORG where acc_code in (SELECT substr(MAIN_BR_ID,1,5) FROM T_DEPARTMENT_USER WHERE UID=#uid#)) and TYPE = 'DEPARTMENT')
 
 app_userstatus_2
 ===
@@ -1289,14 +1289,14 @@ select distinct PARENT_ID,MAIN_BR_NAME_NEW_LVE_ONE
 from T_LOAN_ORG 
 where MAIN_BR_ID_OLD in 
     (select substr(acc_code,1,5) from T_ORG 
-    where PARENT_ID = 
+    where PARENT_ID in 
         (select ID from T_ORG 
-        where acc_code = 
+        where acc_code in 
             (SELECT MAIN_BR_ID FROM T_DEPARTMENT_USER WHERE UID=#uid#)
         ) 
         and TYPE = 'DEPARTMENT'
     ) 
-    or (MAIN_BR_ID_OLD = 
+    or (MAIN_BR_ID_OLD in 
         (SELECT substr(MAIN_BR_ID,1,5) FROM T_DEPARTMENT_USER WHERE UID=#uid#)
     )
 
