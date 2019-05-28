@@ -830,27 +830,8 @@ where
 ===
 select * from T_WORKFLOW_INSTANCE where model_name='贷后跟踪-企查查贷后检查' and state='DEALING' and loan_account=#loan#
 
-查询按揭类贷款账户信息task
-===
-select 
-    p1.LOAN_ACCOUNT,
-    p1.CUST_MGR,
-    lm.MMHTJYRQ_DATE as pay_date,
-    lm.FCZ as cz_status,
-    lm.FCZ_DATE as cz_date
-from RPT_M_RPT_SLS_ACCT as p1
-left join T_LOAN_MANAGER as lm on p1.LOAN_ACCOUNT = lm.LOAN_ACCOUNT
-where p1.BIZ_TYPE_DETAIL like '%按揭%'
---普通贷款
-and p1.LN_TYPE in ('普通贷款','银团贷款')
---表内资产
-and p1.GL_CLASS not like '0%'
---台帐状态
-and p1.ACCOUNT_STATUS = '1'
-and UPPER('on') = UPPER(coalesce((select var_value from t_system_variable where var_name=#rule#),'off'))
 
-
-查询按揭类贷款账户信息message
+查询按揭类贷款账户信息
 ===
 select 
     p1.LOAN_ACCOUNT,
@@ -870,5 +851,6 @@ and p1.LN_TYPE in ('普通贷款','银团贷款')
 and p1.GL_CLASS not like '0%'
 --台帐状态
 and p1.ACCOUNT_STATUS = '1'
+and UPPER('on') = UPPER(coalesce((select var_value from t_system_variable where var_name=#rule#),'off'))
 
     

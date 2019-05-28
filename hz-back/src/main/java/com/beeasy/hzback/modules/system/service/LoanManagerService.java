@@ -5,6 +5,7 @@ import com.beeasy.hzback.entity.SysNotice;
 import com.beeasy.hzback.entity.SysVar;
 import com.beeasy.hzback.entity.User;
 import com.beeasy.hzback.entity.WfIns;
+import com.beeasy.hzback.modules.system.util.DateUtil;
 import com.beeasy.hzdata.service.SearchService;
 import com.beeasy.mscommon.valid.ValidGroup;
 import org.beetl.sql.core.SQLManager;
@@ -14,10 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.util.*;
 
 @Service
@@ -34,7 +32,7 @@ public class LoanManagerService {
      */
     @Scheduled(cron = "0 10 9 * * ?")
     public void sendTaskRule(){
-        List<JSONObject> lists = sqlManager.select("task.查询按揭类贷款账户信息task", JSONObject.class, C.newMap("rule","TASK_PRODUCE_RULE_1_ON"));
+        List<JSONObject> lists = sqlManager.select("task.查询按揭类贷款账户信息", JSONObject.class, C.newMap("rule","TASK_PRODUCE_RULE_1_ON"));
         if(null == lists || lists.size()==0){
             return;
         }
@@ -54,23 +52,15 @@ public class LoanManagerService {
 
             //出证状态为“未出证”且购房合同约定交房日期对比当前日期已经超过540天且未按时出证情况说明为空
             if(("0".equals(czStatus) || null == czStatus) && (null == payDate) && ("".equals(sm) || null == sm)){
-
-                Instant instant = payDate.toInstant();
-                ZoneId zoneId = ZoneId.systemDefault();
-
-                LocalDateTime localDateTime = instant.atZone(zoneId).toLocalDateTime();
-                LocalDateTime now = LocalDateTime.now();
-                Duration duration = Duration.between(localDateTime, now);
-                long day = duration.toDays();//相差的天数
+                LocalDate localDate = DateUtil.dateToLocalDate(payDate);
+                LocalDate now = LocalDate.now();
+                long day = DateUtil.betweenDay(localDate, now);//相差的天数
                 if(day > Long.parseLong(varValue)){
                     generateAutoTask(accCode,loanAccount);
                 }
-
             }
-
         }
     }
-
 
 
     /**
@@ -78,96 +68,56 @@ public class LoanManagerService {
      */
     @Scheduled(cron = "0 0 9 * * ?")
     public void sendMessageRule1(){
-        List<JSONObject> lists = sqlManager.select("task.查询按揭类贷款账户信息message", JSONObject.class, C.newMap());
-        if(null == lists || lists.size()==0){
-            return;
-        }
+        List<JSONObject> lists1 = sqlManager.select("task.查询按揭类贷款账户信息", JSONObject.class, C.newMap("rule","MSG_RULE_19_ON"));
+        List<JSONObject> lists2 = sqlManager.select("task.查询按揭类贷款账户信息", JSONObject.class, C.newMap("rule","MSG_RULE_20_ON"));
 
-        SysVar sysVar = sqlManager.lambdaQuery(SysVar.class).andEq(SysVar::getVarName,"MSG_RULE_20").single();
-        String varValue = sysVar.getVarValue();
-        if(null == varValue || "".equals(varValue)){
-            varValue = "0";
-        }
         Set<Long> uidList = new HashSet<>();
-
         List<SysNotice> notices = new ArrayList<>();
         String renderStr = "请在信贷数据管理-贷款资料-贷款台帐界面中，使用按揭贷款信息批量维护按钮，批量导入数据";
-        for(JSONObject jsonObject : lists){
 
-            Date payDate = jsonObject.getDate("payDate");
-            String czStatus = jsonObject.getString("czStatus");
-            String loanAccount = jsonObject.getString("loanAccount");
-            String accCode = jsonObject.getString("custMgr");
-            Long uid = jsonObject.getLong("id");
+        if(null != lists1 && lists1.size()>0){
+            for(JSONObject jsonObject : lists1) {
 
-            //未出证且购房合同约定交房日期为空
-            if(("0".equals(czStatus) || null == czStatus) && (null == payDate)){
-                uidList.add(uid);
+                Date payDate = jsonObject.getDate("payDate");
+                String czStatus = jsonObject.getString("czStatus");
+                Long uid = jsonObject.getLong("id");
 
-            }
-
-            //出证状态为“未出证”且购房合同约定交房日期不为空时
-            if(("0".equals(czStatus) || null == czStatus) && (null != payDate)){
-                Instant instant = payDate.toInstant();
-                ZoneId zoneId = ZoneId.systemDefault();
-
-                LocalDateTime localDateTime = instant.atZone(zoneId).toLocalDateTime();
-                LocalDateTime now = LocalDateTime.now();
-                Duration duration = Duration.between(localDateTime, now);
-                long day = duration.toDays();//相差的天数
-                System.out.println(day);
-                if(day == Long.parseLong(varValue)){
+                //未出证且购房合同约定交房日期为空
+                if (("0".equals(czStatus) || null == czStatus) && (null == payDate)) {
                     uidList.add(uid);
                 }
             }
-
-
         }
-            notices = noticeService2.makeNotice(SysNotice.Type.SYSTEM, uidList, renderStr, null);
-        sqlManager.insertBatch(SysNotice.class, notices);
+        if(null != lists2 && lists2.size()>0){
+            SysVar sysVar = sqlManager.lambdaQuery(SysVar.class).andEq(SysVar::getVarName,"MSG_RULE_20").single();
+            String varValue = sysVar.getVarValue();
+            if(null == varValue || "".equals(varValue)){
+                varValue = "0";
+            }
+            for(JSONObject jsonObject : lists2) {
+                Date payDate = jsonObject.getDate("payDate");
+                String czStatus = jsonObject.getString("czStatus");
+                Long uid = jsonObject.getLong("id");
+                //出证状态为“未出证”且购房合同约定交房日期不为空时
+                if(("0".equals(czStatus) || null == czStatus) && (null != payDate)){
+                    LocalDate localDate = DateUtil.dateToLocalDate(payDate);
 
-    }
-
-    /**
-     * 在出证状态为“未出证”且购房合同约定交房日期不为空时，在距离购房合同约定交房日期还有一个月（三十天）时发送消息给管户经理
-     */
-    /*@Scheduled(cron = "0 10 9 * * ?")
-    public void sendMessageRule2(){
-        List<JSONObject> lists = sqlManager.select("task.查询按揭类贷款账户信息message", JSONObject.class, C.newMap());
-        if(null == lists || lists.size()==0){
-            return;
-        }
-        SysVar sysVar = sqlManager.lambdaQuery(SysVar.class).andEq(SysVar::getVarName,"MSG_RULE_20").single();
-        String varValue = sysVar.getVarValue();
-        if(null == varValue || "".equals(varValue)){
-            varValue = "0";
-        }
-
-        for(JSONObject jsonObject : lists){
-
-            Date payDate = jsonObject.getDate("payDate");
-            String czStatus = jsonObject.getString("czStatus");
-            String loanAccount = jsonObject.getString("loanAccount");
-            String accCode = jsonObject.getString("custMgr");
-
-            //出证状态为“未出证”且购房合同约定交房日期不为空时
-            if(("0".equals(czStatus) || null == czStatus) && (null != payDate)){
-                Instant instant = payDate.toInstant();
-                ZoneId zoneId = ZoneId.systemDefault();
-
-                LocalDateTime localDateTime = instant.atZone(zoneId).toLocalDateTime();
-                LocalDateTime now = LocalDateTime.now();
-                Duration duration = Duration.between(localDateTime, now);
-                long day = duration.toDays();//相差的天数
-                System.out.println(day);
-                if(day == Long.parseLong(varValue)){
-                    generateAutoTask(accCode,loanAccount);
+                    LocalDate now = LocalDate.now();
+//                    Duration duration = Duration.between(localDate, now);
+//                    long day = duration.toDays();//相差的天数
+                    long days = DateUtil.betweenDay(localDate, now);
+                    if(days == Long.parseLong(varValue)){
+                        uidList.add(uid);
+                    }
                 }
             }
-
         }
 
-    }*/
+
+        notices = noticeService2.makeNotice(SysNotice.Type.SYSTEM, uidList, renderStr, null);
+        sqlManager.insertBatch(SysNotice.class, notices);
+    }
+
 
     /***** 自动生成任务start *****/
     public void generateAutoTask(String CUST_MGR, String loanAccount) {

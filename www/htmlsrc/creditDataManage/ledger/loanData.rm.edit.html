@@ -77,10 +77,13 @@
                             {name: "已出证", val:1},
                         ]}
                     , {prop: "fczDate", label:"出证日期", type: "datetime", disabled: true}
-                    , {prop: "yy", label:"未按时出证原因"}
-                    , {prop: "sm", label:"未按时出证情况说明"}
-                    , {prop: "kfsqc", label:"开发商全称", required: true}
-                    , {prop: "lpqc", label:"楼盘全称", required: true}
+                    , {prop: "reason", label:"未按时出证原因", type: "select" ,vals:[
+                            {name: "客户自身手续未完善", val:'01'},
+                            {name: "开发商未完成竣工验收", val:'02'},
+                        ]}
+                    , {prop: "explain", label:"未按时出证情况说明", type: "textarea"}
+                    , {prop: "developerFullName", label:"开发商全称（以购房合同为准）", required: true}
+                    , {prop: "lpFullName", label:"楼盘全称（以购房合同为准）", required: true}
                 ],
                 data: data
                 , line: true

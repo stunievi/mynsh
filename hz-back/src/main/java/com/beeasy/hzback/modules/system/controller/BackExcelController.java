@@ -97,10 +97,10 @@ public class BackExcelController {
                         lm.setFcz(S.notEmpty(i3) && S.neq(i3, "0") ? "1" : "0");
                         lm.setFczDate(d4.toJdkDate());
                         lm.setId(null);
-                        lm.setYy(i5);
-                        lm.setSm(i6);
-                        lm.setKfsqc(i7);
-                        lm.setLpqc(i8);
+                        lm.setReason(i5);
+                        lm.setExplain(i6);
+                        lm.setDeveloperFullName(i7);
+                        lm.setLpFullName(i8);
 
                     } catch (Exception e) {
                         failed++;

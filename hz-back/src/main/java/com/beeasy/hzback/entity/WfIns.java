@@ -1193,7 +1193,12 @@ public class WfIns extends TailBean implements ValidGroup {
                         }
                         catch (Exception e){}
                         break;
-
+                    case "DHJYZXQK":
+                        try{
+                            loanManager.setDshjyzxqk(attr.getAttrValue());
+                        }
+                        catch (Exception e){}
+                        break;
 
                 }
 
