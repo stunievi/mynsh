@@ -11,6 +11,7 @@ import com.beeasy.mscommon.valid.ValidGroup;
 import org.beetl.sql.core.SQLManager;
 import org.osgl.$;
 import org.osgl.util.C;
+import org.osgl.util.S;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -51,7 +52,7 @@ public class LoanManagerService {
             String explain = jsonObject.getString("explain");
 
             //出证状态为“未出证”且购房合同约定交房日期对比当前日期已经超过540天且未按时出证情况说明为空
-            if(("0".equals(czStatus) || null == czStatus) && (null == payDate) && ("".equals(explain) || null == explain)){
+            if(("0".equals(czStatus) || S.isBlank(czStatus)) && (null != payDate) && (S.isBlank(explain))){
                 LocalDate localDate = DateUtil.dateToLocalDate(payDate);
                 LocalDate now = LocalDate.now();
                 long day = DateUtil.betweenDay(localDate, now);//相差的天数
@@ -83,7 +84,7 @@ public class LoanManagerService {
                 Long uid = jsonObject.getLong("id");
 
                 //未出证且购房合同约定交房日期为空
-                if (("0".equals(czStatus) || null == czStatus) && (null == payDate)) {
+                if (("0".equals(czStatus) || S.isBlank(czStatus)) && (null == payDate)) {
 //                    uidList.add(uid);
                     if (null != maps.get(uid) && (0 != maps.get(uid))) {
                         maps.put(uid, maps.get(uid) + 1);
@@ -127,7 +128,8 @@ public class LoanManagerService {
                 String czStatus = jsonObject.getString("czStatus");
                 Long uid = jsonObject.getLong("id");
                 //出证状态为“未出证”且购房合同约定交房日期不为空时
-                if(("0".equals(czStatus) || null == czStatus) && (null != payDate)){
+                if(("0".equals(czStatus) || S.isBlank(czStatus)) && (null != payDate)){
+
                     LocalDate localDate = DateUtil.dateToLocalDate(payDate);
 
                     LocalDate now = LocalDate.now();

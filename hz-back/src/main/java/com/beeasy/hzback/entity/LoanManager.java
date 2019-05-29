@@ -14,6 +14,7 @@ import org.beetl.sql.core.annotatoin.AssignID;
 import org.beetl.sql.core.annotatoin.SeqID;
 import org.beetl.sql.core.annotatoin.Table;
 import org.osgl.$;
+import org.osgl.util.S;
 
 import javax.validation.constraints.*;
 import java.io.File;
@@ -71,10 +72,14 @@ public class LoanManager extends TailBean implements ValidGroup {
             case "set":
                 //处理时间
                 if(object.containsKey("mmhtjyrqDate")){
-                    object.put("mmhtjyrqDate", DateUtil.parse(object.getString("mmhtjyrqDate"), "yyyy-MM-dd hh:mm:ss"));
+                    if(S.isNotBlank(object.getString("mmhtjyrqDate"))){
+                        object.put("mmhtjyrqDate", DateUtil.parse(object.getString("mmhtjyrqDate"), "yyyy-MM-dd hh:mm:ss"));
+                    }
                 }
                 if(object.containsKey("fczDate")) {
-                    object.put("fczDate", DateUtil.parse(object.getString("fczDate"), "yyyy-MM-dd hh:mm:ss"));
+                    if(S.isNotBlank(object.getString("fczDate"))){
+                        object.put("fczDate", DateUtil.parse(object.getString("fczDate"), "yyyy-MM-dd hh:mm:ss"));
+                    }
                 }
                 LoanManager loanManager = $.map(object).to(getClass());
                 valid(loanManager, Add.class);

@@ -71,9 +71,9 @@
             <!--</exclusions>-->
         </dependency>
         <dependency>
-            <groupId>com.beeasy</groupId>
-            <artifactId>hz-msg-send</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>3.1.14</version>
         </dependency>
         <!--<dependency>-->
         <!--<groupId>com.beeasy</groupId>-->

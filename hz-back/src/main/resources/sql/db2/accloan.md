@@ -930,7 +930,7 @@ select
         , lm.phone as lm_phone
         , lm.type as lm_type
         , lm.MMHTJYRQ_DATE as lm_MMHTJYRQ_DATE
-        , d7.V_VALUE as lm_FCZ
+        , lm.FCZ as lm_FCZ
         , lm.FCZ_DATE as lm_FCZ_DATE
         , d8.v_value as lm_REASON
         , lm.EXPLAIN as lm_EXPLAIN
@@ -960,7 +960,6 @@ left join t_org o2 on o2.acc_code = p1.MAIN_BR_ID
 @}
 @if(isNotEmpty(lm)){
     left join t_loan_manager lm on lm.loan_account = p1.loan_account
-    left join t_dict d7 on d7.name = 'FCZ_STATUS' and d7.V_KEY = lm.FCZ
     left join t_dict d8 on d8.name = 'FCZ_REASON' and d8.V_KEY = lm.REASON
 @}
 --历史台账
