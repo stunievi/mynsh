@@ -840,7 +840,7 @@ select
     lm.MMHTJYRQ_DATE as pay_date,
     lm.FCZ as cz_status,
     lm.FCZ_DATE as cz_date,
-    lm.sm 
+    lm.explain 
 from RPT_M_RPT_SLS_ACCT as p1
 left join T_LOAN_MANAGER as lm on p1.LOAN_ACCOUNT = lm.LOAN_ACCOUNT
 left join T_USER as u on p1.CUST_MGR = u.acc_code
