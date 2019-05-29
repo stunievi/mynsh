@@ -70,18 +70,18 @@ public class BackExcelController {
                 total++;
                 String loanAccount;
                 try {
-                    loanAccount = String.valueOf(reader.readCellValue(0, i)).trim();
+                    loanAccount = String.valueOf(reader.readCellValue(1, i)).trim();
                 } catch (Exception e) {
                     failed++;
                     continue;
                 }
-                Object o2 = reader.readCellValue(1, i);
-                Object o3 = reader.readCellValue(2, i);
-                Object o4 = reader.readCellValue(3, i);
-                Object o5 = reader.readCellValue(4, i);
-                Object o6 = reader.readCellValue(5, i);
-                Object o7 = reader.readCellValue(6, i);
-                Object o8 = reader.readCellValue(7, i);
+                Object o2 = reader.readCellValue(2, i);
+                Object o3 = reader.readCellValue(3, i);
+                Object o4 = reader.readCellValue(4, i);
+                Object o5 = reader.readCellValue(5, i);
+                Object o6 = reader.readCellValue(6, i);
+                Object o7 = reader.readCellValue(7, i);
+                Object o8 = reader.readCellValue(8, i);
                 if (S.notBlank(loanAccount)) {
                     try {
                         DateTime d2 = (DateTime) o2;

@@ -51,9 +51,7 @@ public class LoanManager extends TailBean implements ValidGroup {
     String wczResult;
     String reason;
     String explain;
-    @NotBlank(message = "开发商全称不能为空", groups = {ValidGroup.Add.class, ValidGroup.Edit.class})
     String developerFullName;
-    @NotBlank(message = "楼盘全称不能为空", groups = {ValidGroup.Add.class, ValidGroup.Edit.class})
     String lpFullName;
     String dshjyzxqk;
 

@@ -69,11 +69,11 @@ public class LoanManagerService {
     @Scheduled(cron = "0 0 9 * * ?")
     public void sendMessageRule1(){
         List<JSONObject> lists1 = sqlManager.select("task.查询按揭类贷款账户信息", JSONObject.class, C.newMap("rule","MSG_RULE_19_ON"));
-        List<JSONObject> lists2 = sqlManager.select("task.查询按揭类贷款账户信息", JSONObject.class, C.newMap("rule","MSG_RULE_20_ON"));
 
         Set<Long> uidList = new HashSet<>();
         List<SysNotice> notices = new ArrayList<>();
-        String renderStr = "请在信贷数据管理-贷款资料-贷款台帐界面中，使用按揭贷款信息批量维护按钮，批量导入数据";
+
+        int total = 0;
 
         if(null != lists1 && lists1.size()>0){
             for(JSONObject jsonObject : lists1) {
@@ -85,9 +85,28 @@ public class LoanManagerService {
                 //未出证且购房合同约定交房日期为空
                 if (("0".equals(czStatus) || null == czStatus) && (null == payDate)) {
                     uidList.add(uid);
+                    total++;
                 }
             }
         }
+
+        String renderStr = "您有"+total+"条按揭类贷款台账需要补录交房日期，请在信贷数据管理-贷款资料-贷款台帐界面中，使用按揭贷款信息批量维护按钮，批量导入数据";
+
+        notices = noticeService2.makeNotice(SysNotice.Type.SYSTEM, uidList, renderStr, null);
+        sqlManager.insertBatch(SysNotice.class, notices);
+    }
+
+    /**
+     * 在出证状态为“未出证”且购房合同约定交房日期不为空时，在距离购房合同约定交房日期还有30天时发送消息给管户经理录入相关出证信息
+     */
+    @Scheduled(cron = "0 0 9 * * ?")
+    public void sendMessageRule2(){
+        List<JSONObject> lists2 = sqlManager.select("task.查询按揭类贷款账户信息", JSONObject.class, C.newMap("rule","MSG_RULE_20_ON"));
+
+        Set<Long> uidList = new HashSet<>();
+        List<SysNotice> notices = new ArrayList<>();
+
+        int total = 0;
         if(null != lists2 && lists2.size()>0){
             SysVar sysVar = sqlManager.lambdaQuery(SysVar.class).andEq(SysVar::getVarName,"MSG_RULE_20").single();
             String varValue = sysVar.getVarValue();
@@ -108,11 +127,12 @@ public class LoanManagerService {
                     long days = DateUtil.betweenDay(localDate, now);
                     if(days == Long.parseLong(varValue)){
                         uidList.add(uid);
+                        total++;
                     }
                 }
             }
         }
-
+        String renderStr = "您有"+total+"条按揭类贷款台账交房日期即将到期，请及时补录出证信息，请在信贷数据管理-贷款资料-贷款台帐界面中，使用按揭贷款信息批量维护按钮，批量导入数据";
 
         notices = noticeService2.makeNotice(SysNotice.Type.SYSTEM, uidList, renderStr, null);
         sqlManager.insertBatch(SysNotice.class, notices);
