@@ -128,6 +128,7 @@
             { title :'出证日期', field:'LM_FCZ_DATE'},
             { title :'未按时出证原因', field:'LM_REASON'},
             { title :'未按时出证情况说明', field:'LM_EXPLAIN'},
+            { title :'贷审会执行情况', field:'LM_DSHJYZXQK'},
             { title :'开发商全称', field:'LM_DEVELOPER_FULL_NAME'},
             { title :'楼盘全称', field:'LM_LP_FULL_NAME'},
             { title :'主营范围', field:'COM_MAIN_OPT_SCP'},
@@ -252,7 +253,7 @@
                 col: 3,
                 list: searchCond,
                 data: _data
-                , excel: su == 1
+                // , excel: su == 1
             }));
         }
 
@@ -270,7 +271,7 @@
             getDataUrl += '&linkLoanAccount=' + getParam("linkLoanAccount")
         }
         if(linkPerson){
-            getDataUrl += '&own=1'
+            // getDataUrl += '&own=1'
         }
 //        remoteApi.apiOdsSearchAccloan+"?register="+register+"&modelName="+encodeURI(workFlow)
         // 渲染台账列表

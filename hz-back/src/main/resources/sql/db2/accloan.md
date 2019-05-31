@@ -934,6 +934,7 @@ select
         , lm.FCZ_DATE as lm_FCZ_DATE
         , d8.v_value as lm_REASON
         , lm.EXPLAIN as lm_EXPLAIN
+        , lm.DSHJYZXQK as lm_DSHJYZXQK
         , lm.DEVELOPER_FULL_NAME as lm_DEVELOPER_FULL_NAME
         , lm.LP_FULL_NAME as lm_LP_FULL_NAME
     @}
