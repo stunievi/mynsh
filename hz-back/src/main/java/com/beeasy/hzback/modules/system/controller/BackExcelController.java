@@ -84,18 +84,33 @@ public class BackExcelController {
                 Object o8 = reader.readCellValue(8, i);
                 if (S.notBlank(loanAccount)) {
                     try {
-                        DateTime d2 = (DateTime) o2;
+                        DateTime d2 = null;
+                        try{
+                            d2 = (DateTime) o2;
+                        }
+                        catch (Exception e){
+//                            continue;
+                        }
                         String i3 = String.valueOf(o3).trim();
-                        DateTime d4 = (DateTime) o4;
+                        DateTime d4 = null;
+                        //即使为空也可以导入
+                        try{
+                            d4 = (DateTime) o4;
+                        } catch (Exception e){
+                        }
                         String i5 = String.valueOf(o5).trim();
                         String i6 = String.valueOf(o6);
                         String i7 = String.valueOf(o7);
                         String i8 = String.valueOf(o8);
 
                         lm.setLoanAccount(loanAccount);
-                        lm.setMmhtjyrqDate(d2.toJdkDate());
+                        if(d2 != null){
+                            lm.setMmhtjyrqDate(d2.toJdkDate());
+                        }
                         lm.setFcz(S.notEmpty(i3) && S.neq(i3, "0") ? "1" : "0");
-                        lm.setFczDate(d4.toJdkDate());
+                        if (d4 != null) {
+                            lm.setFczDate(d4.toJdkDate());
+                        }
                         lm.setId(null);
                         lm.setReason(i5);
                         lm.setExplain(i6);
@@ -199,9 +214,9 @@ public class BackExcelController {
             }
             JSONObject map = JSON.parseObject(definition.getConfig());
             byte[] bs;
-            if (file.getName().endsWith(".del")) {
+            if (file.getOriginalFilename().endsWith(".del")) {
                 bs = IoUtil.readBytes(is);
-            } else if(file.getName().endsWith(".gz")){
+            } else if(file.getOriginalFilename().endsWith(".gz")){
                 bs = ZipUtil.unGzip(is);
             } else {
                 throw new IOException();
