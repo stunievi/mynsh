@@ -124,8 +124,15 @@
              ,{title:"实际控制人电话", field:"LM_PHONE"}
              ,{title:"实际控制人证件号码", field:"LM_CODE"},
              { title :'购房合同约定交房日期', field:'LM_MMHTJYRQ_DATE'},
-             { title :'出证状态', field:'LM_FCZ',templet: "#fcz"},
+             { title :'出证状态', field:'LM_FCZ', templet: '#fcz'},
             { title :'出证日期', field:'LM_FCZ_DATE'},
+            { title :'未按时出证原因', field:'LM_REASON'},
+            { title :'未按时出证情况说明', field:'LM_EXPLAIN'},
+            { title :'贷审会执行情况', field:'LM_DSHJYZXQK'},
+            { title :'开发商全称', field:'LM_DEVELOPER_FULL_NAME'},
+            { title :'楼盘全称', field:'LM_LP_FULL_NAME'},
+            { title :'主营范围', field:'COM_MAIN_OPT_SCP'},
+            { title :'兼营范围', field:'COM_PART_OPT_SCP'},
             { title :'五级分类', field:'CLA'},
             { title :'主担保方式', field:'ASSURE_MEANS_MAIN' },
             { title :'年利率', field:'REALITY_IR_Y' },
@@ -190,7 +197,12 @@
                 { name: '--请选择--', val: ''}
                 , {name:"未出证", val:"0"}
                 ,{name:"已出证", val:"1"}
-            ]}
+            ]},
+            { label:'未按时出证原因', prop:'REASON',type:"select", vals:[
+                { name: '--请选择--', val: ''}
+                , {name:"客户自身手续未完善", val:"01"}
+                ,{name:"开发商未完成竣工验收", val:"02"}
+            ] }
         ];
         // searchCond.push({ label:'1', prop:'lm',type:"checkbox",  checked:true, value:1 })
 
@@ -241,7 +253,7 @@
                 col: 3,
                 list: searchCond,
                 data: _data
-                , excel: su == 1
+                // , excel: su == 1
             }));
         }
 
@@ -259,7 +271,7 @@
             getDataUrl += '&linkLoanAccount=' + getParam("linkLoanAccount")
         }
         if(linkPerson){
-            getDataUrl += '&own=1'
+            // getDataUrl += '&own=1'
         }
 //        remoteApi.apiOdsSearchAccloan+"?register="+register+"&modelName="+encodeURI(workFlow)
         // 渲染台账列表

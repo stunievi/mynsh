@@ -912,7 +912,9 @@ select
     d4.v_value as CLA,
     d5.v_value as ACCOUNT_STATUS,
     d6.v_value as REPAYMENT_MODE,
-    o1.name as FINA_BR_name, o2.name as main_br_name
+    o1.name as FINA_BR_name, o2.name as main_br_name,
+    u2.COM_MAIN_OPT_SCP,
+    u2.COM_PART_OPT_SCP
     -- user
     @if(isNotEmpty(modelName)){
         , usr.id as pub_user_id
@@ -930,6 +932,11 @@ select
         , lm.MMHTJYRQ_DATE as lm_MMHTJYRQ_DATE
         , lm.FCZ as lm_FCZ
         , lm.FCZ_DATE as lm_FCZ_DATE
+        , d8.v_value as lm_REASON
+        , lm.EXPLAIN as lm_EXPLAIN
+        , lm.DSHJYZXQK as lm_DSHJYZXQK
+        , lm.DEVELOPER_FULL_NAME as lm_DEVELOPER_FULL_NAME
+        , lm.LP_FULL_NAME as lm_LP_FULL_NAME
     @}
 @}
 from RPT_M_RPT_SLS_ACCT as p1
@@ -954,6 +961,7 @@ left join t_org o2 on o2.acc_code = p1.MAIN_BR_ID
 @}
 @if(isNotEmpty(lm)){
     left join t_loan_manager lm on lm.loan_account = p1.loan_account
+    left join t_dict d8 on d8.name = 'FCZ_REASON' and d8.V_KEY = lm.REASON
 @}
 --历史台账
 @if(isNotEmpty(history)){
@@ -1062,7 +1070,11 @@ and ((UNPD_PRIN_BAL=0) or (UNPD_PRIN_BAL is null)) and ((DELAY_INT_CUMU=0) or (D
 @}
 -- 出证状态
 @if(isNotEmpty(FCZ)){
-    and lm.FCZ =#FCZ#
+    and lm.FCZ = #FCZ#
+@}
+-- 未按时出证原因
+@if(isNotEmpty(REASON)){
+    and lm.REASON = #REASON#
 @}
 
 
