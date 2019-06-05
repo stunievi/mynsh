@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.beeasy.hzback.core.helper.ChineseToEnglish;
+import com.beeasy.hzback.core.util.Log;
 import com.beeasy.hzback.modules.cloud.CloudService;
 import com.beeasy.hzback.modules.system.service.FileService;
 import com.beeasy.hzback.view.DManager;
@@ -39,7 +40,7 @@ import static java.util.stream.Collectors.toSet;
 @Table(name = "T_USER")
 @Getter
 @Setter
-public class User extends TailBean implements ValidGroup {
+public class User extends ValidGroup {
     @Null(groups = Add.class)
     @NotNull(groups = Edit.class)
     @AssignID("simple")
@@ -213,6 +214,15 @@ public class User extends TailBean implements ValidGroup {
         sqlManager.lambdaQuery(User.class)
                 .andEq(User::getId, u.getId())
                 .updateSelective(u);
+        try{
+            if(AuthFilter.getUid().equals(id)){
+                Log.log("设置个人信息");
+            } else {
+                Log.log("编辑 %d 用户信息", id);
+            }
+        }
+        catch (Exception e){
+        }
         return this;
     }
 

@@ -4,6 +4,7 @@ package com.beeasy.hzback.modules.system.controller;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.beeasy.hzback.core.util.Log;
 import com.beeasy.hzback.entity.Org;
 import com.beeasy.hzback.modules.system.cache.SystemConfigCache;
 import com.beeasy.hzback.modules.system.service.UserService;
@@ -523,6 +524,11 @@ public class UserController {
     public Result deleteOrg(
         @RequestParam long id
     ){
+        sqlManager.lambdaQuery(Org.class)
+            .andEq(Org::getId, (id))
+            .select(Org::getName, Org::getType).forEach(o -> {
+            Log.log("删除%s %s", Org.getTypeName(o.getType()), o.getName());
+        });
         userService.deleteOrg(id);
         return Result.ok();
     }

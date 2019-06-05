@@ -4,6 +4,7 @@ import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.beeasy.hzback.core.util.Log;
 import com.beeasy.hzback.modules.system.service.NoticeService2;
 import com.beeasy.hzback.view.DManager;
 import com.beeasy.hzback.view.DepartmentUser;
@@ -40,7 +41,7 @@ import static java.util.stream.Collectors.toList;
 @Table(name = "T_WORKFLOW_INSTANCE")
 @Getter
 @Setter
-public class WfIns extends TailBean implements ValidGroup {
+public class WfIns extends ValidGroup {
     @AssignID("simple")
     Long id;
     Long        currentNodeInstanceId;
@@ -629,6 +630,7 @@ public class WfIns extends TailBean implements ValidGroup {
              */
             case "getSUList":
                 User.AssertMethod("系统管理.任务管理", "授权失败");
+//                Log.log("查找任务管理列表");
                 object.put("su", 1);
                 return U.beetlPageQuery("workflow.查询任务列表", JSONObject.class, object);
 

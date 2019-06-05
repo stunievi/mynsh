@@ -21,7 +21,7 @@ import java.util.Map;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class QCCLog extends TailBean implements ValidGroup {
+public class QCCLog extends ValidGroup {
 
     @AssignID("simple")
     Long id;

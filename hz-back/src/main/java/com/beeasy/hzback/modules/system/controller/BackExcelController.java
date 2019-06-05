@@ -9,6 +9,7 @@ import cn.hutool.poi.excel.ExcelReader;
 import cn.hutool.poi.excel.ExcelUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.beeasy.hzback.core.util.Log;
 import com.beeasy.hzback.entity.Definition;
 import com.beeasy.hzback.entity.LoanManager;
 import com.beeasy.hzback.entity.SysNotice;
@@ -143,6 +144,7 @@ public class BackExcelController {
                     }
                 }
             }
+            Log.log("批量导入按揭贷款信息 %d 条, 成功 %d 条, 失败 %d 条", total, total - failed, failed);
             noticeService2.addNotice(SysNotice.Type.SYSTEM, uid, String.format("批量导入按揭贷款信息结果：总%d条，成功%d条，失败%d条", total, total - failed, failed), null);
         } catch (Exception e) {
             e.printStackTrace();
@@ -179,6 +181,7 @@ public class BackExcelController {
             definition.setName("accloan");
             definition.setConfig(object.toJSONString());
             sqlManager.insert(definition, true);
+            Log.log("导入信贷中间表转换定义文件");
             return Result.ok();
         } catch (Exception e) {
             e.printStackTrace();
@@ -335,6 +338,8 @@ public class BackExcelController {
 
                 stmt.executeBatch();
                 connection.commit();
+
+                Log.log("导入信贷中间表数据文件");
             } catch (Exception e) {
                 if (fake != null) {
                     try {

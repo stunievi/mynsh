@@ -19,7 +19,7 @@ import java.util.Date;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class QccCount extends TailBean implements ValidGroup {
+public class QccCount extends ValidGroup {
     @AssignID("simple")
     Long id;
     int count;
