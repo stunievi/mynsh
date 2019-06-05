@@ -149,14 +149,14 @@ public class BackExcelController {
             Log.log("批量导入按揭贷款信息 %d 条, 成功 %d 条, 失败 %d 条", total, total - failed, failed);
             noticeService2.addNotice(SysNotice.Type.SYSTEM, uid, String.format("批量导入按揭贷款信息结果：总%d条，成功%d条，失败%d条", total, total - failed, failed), null);
             if(!"1".equals(uid)){
-                noticeService2.addNotice(SysNotice.Type.SYSTEM, 1, String.format("操作人："+user.getTrueName()+"。批量导入按揭贷款信息结果：总%d条，成功%d条，失败%d条", total, total - failed, failed), null);
+                noticeService2.addNotice(SysNotice.Type.SYSTEM, 1, String.format("执行人："+user.getTrueName()+"。批量导入按揭贷款信息结果：总%d条，成功%d条，失败%d条", total, total - failed, failed), null);
             }
 
         } catch (Exception e) {
             e.printStackTrace();
             noticeService2.addNotice(SysNotice.Type.SYSTEM, uid, "批量导入按揭贷款信息失败", null);
             if(!"1".equals(uid)){
-                noticeService2.addNotice(SysNotice.Type.SYSTEM, 1, "操作人："+user.getTrueName()+"。批量导入按揭贷款信息失败", null);
+                noticeService2.addNotice(SysNotice.Type.SYSTEM, 1, "执行人："+user.getTrueName()+"。批量导入按揭贷款信息失败", null);
             }
         } finally {
             if (temp != null) {

@@ -379,13 +379,13 @@
         initupload()
 
         $(document).on("click", "#templateDownload", function() {
-            getFetch(
-                remoteOrigin + "/api/report/export/mortgage/templateDownload"
-                , {}
-                , function () {
-                    onInfront()
-                }
-            ),
+            // getFetch(
+            //     remoteOrigin + "/api/report/export/mortgage/templateDownload"
+            //     , {}
+            //     , function () {
+            //         onInfront()
+            //     }
+            // ),
             location.href = remoteOrigin + "/api/report/export/mortgage/templateDownload"
         })
 
