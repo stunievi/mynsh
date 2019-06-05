@@ -57,6 +57,12 @@ public class BackExcelController {
     public Result importLM(
             MultipartFile file
     ) {
+        long uid = AuthFilter.getUid();
+        ThreadUtil.execAsync(() -> import_lm(uid, file));
+        return Result.ok();
+    }
+
+    private void import_lm(long uid, MultipartFile file) {
         File temp = null;
         Date nowDate = new Date();
         Long uid = AuthFilter.getUid();
@@ -88,18 +94,17 @@ public class BackExcelController {
                 if (S.notBlank(loanAccount)) {
                     try {
                         DateTime d2 = null;
-                        try{
+                        try {
                             d2 = (DateTime) o2;
-                        }
-                        catch (Exception e){
+                        } catch (Exception e) {
 //                            continue;
                         }
                         String i3 = String.valueOf(o3).trim();
                         DateTime d4 = null;
                         //即使为空也可以导入
-                        try{
+                        try {
                             d4 = (DateTime) o4;
-                        } catch (Exception e){
+                        } catch (Exception e) {
                         }
                         String i5 = String.valueOf(o5).trim();
                         String i6 = String.valueOf(o6);
@@ -107,7 +112,7 @@ public class BackExcelController {
                         String i8 = String.valueOf(o8);
 
                         lm.setLoanAccount(loanAccount);
-                        if(d2 != null){
+                        if (d2 != null) {
                             lm.setMmhtjyrqDate(d2.toJdkDate());
                         }
                         lm.setFcz(S.notEmpty(i3) && S.neq(i3, "0") ? "1" : "0");
@@ -128,27 +133,21 @@ public class BackExcelController {
                     }
 
                     long count = sqlManager.lambdaQuery(LoanManager.class)
-                            .andEq(LoanManager::getLoanAccount, loanAccount)
-                            .count();
+                        .andEq(LoanManager::getLoanAccount, loanAccount)
+                        .count();
                     if (count > 0) {
                         sqlManager.lambdaQuery(LoanManager.class)
-                                .andEq(LoanManager::getLoanAccount, loanAccount)
-                                .updateSelective(lm);
+                            .andEq(LoanManager::getLoanAccount, loanAccount)
+                            .updateSelective(lm);
                     } else {
                         sqlManager.insert(lm);
                     }
                 }
             }
-            return Result.ok(
-                    C.newMap(
-                            "total", total,
-                            "success", total - failed,
-                            "failed", failed
-                    )
-            );
+            noticeService2.addNotice(SysNotice.Type.SYSTEM, uid, String.format("批量导入按揭贷款信息结果：总%d条，成功%d条，失败%d条", total, total - failed, failed), null);
         } catch (Exception e) {
             e.printStackTrace();
-            return Result.error("导入失败");
+            noticeService2.addNotice(SysNotice.Type.SYSTEM, uid, "批量导入按揭贷款信息失败", null);
         } finally {
             if (temp != null) {
                 temp.delete();

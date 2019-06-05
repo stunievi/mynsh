@@ -166,21 +166,23 @@
 
             var kgObj = {};
             // 控股公司
-            var retData4List = [];
-            retData4List = retData4.Names || retData4.list || [];
-            if(retData4 && retData4List.length > 0){
-                data.kg = {
+           
+            if(retData4){
+                var retData4List = retData4.Names || retData4.list || [];
+                if(retData4List.length > 0){
+                    data.kg = {
                     KeyNo: companyKeyNo,
                     CompanyName: companyKeyNo,
                     Names: []
-                };
-                retData4List.forEach(function (item) {
-                    kgObj[item.KeyNo] = {
-                        "Percent": item.PercentTotal,
-                        "ShouldCapi": item.RegistCapi,
                     };
-                    data.kg.Names.push(item)
-                });
+                    retData4List.forEach(function (item) {
+                        kgObj[item.KeyNo] = {
+                            "Percent": item.PercentTotal,
+                            "ShouldCapi": item.RegistCapi,
+                        };
+                        data.kg.Names.push(item)
+                    });
+                }
             }
 
             if(retData2){

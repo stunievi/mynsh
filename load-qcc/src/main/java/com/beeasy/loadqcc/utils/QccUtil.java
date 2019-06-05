@@ -1,7 +1,6 @@
 package com.beeasy.loadqcc.utils;
 
 import com.alibaba.fastjson.JSON;
-import com.beeasy.mscommon.util.OkHttpUtil;
 import com.google.common.base.Joiner;
 import org.osgl.util.C;
 import org.springframework.util.DigestUtils;
