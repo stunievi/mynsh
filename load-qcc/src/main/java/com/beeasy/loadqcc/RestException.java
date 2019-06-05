@@ -1,4 +1,4 @@
-package com.beeasy.mscommon;
+package com.beeasy.loadqcc;
 
 import lombok.Getter;
 

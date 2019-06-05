@@ -37,6 +37,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @RequestMapping("/api/excel")
@@ -63,6 +64,7 @@ public class BackExcelController {
 
     private void import_lm(long uid, MultipartFile file) {
         File temp = null;
+        Date nowDate = new Date();
         LoanManager lm = new LoanManager();
         try {
             temp = File.createTempFile("temp_lm_", "");
@@ -121,6 +123,8 @@ public class BackExcelController {
                         lm.setExplain(i6);
                         lm.setDeveloperFullName(i7);
                         lm.setLpFullName(i8);
+                        lm.setLastModify(nowDate);
+                        lm.setModifyUid(uid);
 
                     } catch (Exception e) {
                         failed++;

@@ -1,6 +1,6 @@
-package com.beeasy.mscommon.util;
+package com.beeasy.loadqcc.utils;
 
-import com.beeasy.mscommon.RestException;
+import com.beeasy.loadqcc.RestException;
 import okhttp3.*;
 //import org.apache.commons.lang3.exception.ExceptionUtils;
 import okio.BufferedSink;
