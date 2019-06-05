@@ -51,6 +51,10 @@ if(typeof $ !== "undefined"){
     $.getJSON("/server.json?v="+Math.random(), function (json) {
         top.SERVER_LIST = json;
     });
+
+	$.ajaxSetup ({
+		cache: false //关闭AJAX缓存
+	});
 }
 
 var getRemoteOrigin = function(server){
