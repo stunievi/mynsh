@@ -65,7 +65,6 @@ public class BackExcelController {
     private void import_lm(long uid, MultipartFile file) {
         File temp = null;
         Date nowDate = new Date();
-        Long uid = AuthFilter.getUid();
         LoanManager lm = new LoanManager();
         try {
             temp = File.createTempFile("temp_lm_", "");
