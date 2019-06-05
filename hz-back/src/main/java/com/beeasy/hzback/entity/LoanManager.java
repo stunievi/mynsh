@@ -55,6 +55,7 @@ public class LoanManager extends TailBean implements ValidGroup {
     String developerFullName;
     String lpFullName;
     String dshjyzxqk;
+    Long modifyUid;
 
 
     @AssertTrue(message = "", groups = {Add.class,Edit.class})
