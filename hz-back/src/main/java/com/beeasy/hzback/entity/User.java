@@ -1,5 +1,6 @@
 package com.beeasy.hzback.entity;
 
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
@@ -129,6 +130,12 @@ public class User extends ValidGroup {
      */
     @Override
     public String onGetListSql(Map<String, Object> params) {
+        String name = (String) params.get("name");
+        if(StrUtil.isEmpty(name)){
+            name = "";
+        }
+        name = name.trim();
+        params.put("name", name);
         return "user.查询用户列表";
     }
 
