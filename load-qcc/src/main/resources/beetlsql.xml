@@ -4,11 +4,11 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
     <!-- DAO接口所在包名，Spring会自动查找其下的类 -->
     <!--<bean name="beetlSqlScannerConfigurer" class="org.beetl.sql.ext.spring4.BeetlSqlScannerConfigurer">-->
-        <!--&lt;!&ndash; 哪些类可以自动注入 &ndash;&gt;-->
-        <!--<property name="basePackage" value="org.beetl.sql.ext.spring4"/>-->
-        <!--&lt;!&ndash; 通过类后缀 来自动注入Dao &ndash;&gt;-->
-        <!--<property name="daoSuffix" value="Dao"/>-->
-        <!--<property name="sqlManagerFactoryBeanName" value="sqlManagerFactoryBean"/>-->
+    <!--&lt;!&ndash; 哪些类可以自动注入 &ndash;&gt;-->
+    <!--<property name="basePackage" value="org.beetl.sql.ext.spring4"/>-->
+    <!--&lt;!&ndash; 通过类后缀 来自动注入Dao &ndash;&gt;-->
+    <!--<property name="daoSuffix" value="Dao"/>-->
+    <!--<property name="sqlManagerFactoryBeanName" value="sqlManagerFactoryBean"/>-->
     <!--</bean>-->
     <bean id="sqlManagerFactoryBean" class="org.beetl.sql.ext.spring4.SqlManagerFactoryBean">
         <property name="cs">
