@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 @Table(name = "C_FILE")
 @Getter
 @Setter
-public class CFile extends TailBean implements ValidGroup {
+public class CFile extends ValidGroup {
     @AssignID("simple")
     Long id;
 

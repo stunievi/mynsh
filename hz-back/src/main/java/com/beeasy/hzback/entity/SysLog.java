@@ -18,7 +18,7 @@ import java.util.Map;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SysLog extends TailBean implements ValidGroup {
+public class SysLog extends ValidGroup {
     @AssignID("simple")
     Long id;
 

@@ -19,7 +19,7 @@ import java.util.List;
 @Table(name = "T_APP_UI")
 @Getter
 @Setter
-public class AppUi extends TailBean implements ValidGroup {
+public class AppUi extends ValidGroup {
     @AssignID("simple")
     Long id;
     String key;

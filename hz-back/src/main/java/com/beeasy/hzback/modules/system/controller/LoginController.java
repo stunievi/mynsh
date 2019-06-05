@@ -1,5 +1,6 @@
 package com.beeasy.hzback.modules.system.controller;
 
+import com.beeasy.hzback.core.util.Log;
 import com.beeasy.hzback.entity.User;
 import com.beeasy.hzback.entity.UserToken;
 import com.beeasy.mscommon.RestException;
@@ -83,6 +84,7 @@ public class LoginController {
             request.getSession().setAttribute(Server, server);
 
             response.addCookie(new Cookie(Token, userToken.getToken()));
+            Log.log("登录成功");
             return Result.ok(
                     C.newMap(
                             "token", userToken.getToken()

@@ -26,7 +26,7 @@ import static com.beeasy.hzback.entity.SysNotice.State.UNREAD;
 @Table(name = "T_SYSTEM_NOTICE")
 @Getter
 @Setter
-public class SysNotice extends TailBean implements ValidGroup {
+public class SysNotice extends ValidGroup {
     @AssignID("simple")
     private Long id;
     Long fromUid;

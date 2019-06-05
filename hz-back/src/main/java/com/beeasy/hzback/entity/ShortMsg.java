@@ -13,7 +13,7 @@ import java.util.Map;
 @Table(name = "T_SHORT_MESSAGE_LOG")
 @Getter
 @Setter
-public class ShortMsg extends TailBean implements ValidGroup {
+public class ShortMsg extends ValidGroup {
     private Long id;
     private String phone;
     private String message;

@@ -6,6 +6,7 @@ import com.beeasy.mscommon.RestException;
 import com.beeasy.mscommon.entity.BeetlPager;
 import com.beeasy.mscommon.util.U;
 import org.beetl.sql.core.SQLManager;
+import org.beetl.sql.core.TailBean;
 import org.beetl.sql.core.engine.PageQuery;
 import org.beetl.sql.ext.spring4.SqlManagerFactoryBean;
 import org.osgl.util.S;
@@ -20,7 +21,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public interface ValidGroup {
+public abstract class ValidGroup extends TailBean {
 
     public interface Add{}
     public interface Edit{}
@@ -32,63 +33,63 @@ public interface ValidGroup {
     public interface Set{}
     public interface Get{}
 
-    default String onGetListSql(Map<String,Object> params){
+    public String onGetListSql(Map<String,Object> params){
         return "";
     }
 
-    default Object onGetList(SQLManager sqlManager, Map<String,Object> params){
+    public Object onGetList(SQLManager sqlManager, Map<String,Object> params){
         return null;
     }
 
-    default Object onAfterGetList(SQLManager sqlManager, Map<String,Object> params, Object result){
+    public Object onAfterGetList(SQLManager sqlManager, Map<String,Object> params, Object result){
         return result;
     }
 
-    default void onBeforeEdit(SQLManager sqlManager){}
-    default Object onEdit(SQLManager sqlManager){
+    public void onBeforeEdit(SQLManager sqlManager){}
+    public Object onEdit(SQLManager sqlManager){
         sqlManager.updateById(this);
         return this;
     }
-    default Object onAfterEdit(SQLManager sqlManager, Object object){
+    public Object onAfterEdit(SQLManager sqlManager, Object object){
         return object;
     }
-    default void onBeforeAdd(SQLManager sqlManager){
+    public void onBeforeAdd(SQLManager sqlManager){
     }
-    default Object onAdd(SQLManager sqlManager){
+    public Object onAdd(SQLManager sqlManager){
         sqlManager.insert(this, true);
         return this;
     }
 
-    default Object onAfterAdd(SQLManager sqlManager, Object result){
+    public Object onAfterAdd(SQLManager sqlManager, Object result){
         return result;
     }
 
-    default void onBeforeDelete(SQLManager sqlManager, Long[] id){
+    public void onBeforeDelete(SQLManager sqlManager, Long[] id){
     }
 
-    default void onDelete(SQLManager sqlManager, Long[] id){
+    public void onDelete(SQLManager sqlManager, Long[] id){
         for (Long aLong : id) {
            sqlManager.deleteById(getClass(), aLong);
         }
     }
-    default void onAfterDelete(SQLManager sqlManager, Long[] id){
+    public void onAfterDelete(SQLManager sqlManager, Long[] id){
     }
 
-    default Object onExtra(SQLManager sqlManager, String action, JSONObject object){return null; };
+    public Object onExtra(SQLManager sqlManager, String action, JSONObject object){return null; };
 
     /** getone **/
-    default void onBeforeGetOne(SQLManager sqlManager, Object id){
+    public void onBeforeGetOne(SQLManager sqlManager, Object id){
     }
-    default JSONObject onGetOne(SQLManager sqlManager, Object id){
+    public JSONObject onGetOne(SQLManager sqlManager, Object id){
         return (JSONObject) JSON.toJSON(sqlManager.single(this.getClass(),id));
     }
-    default JSONObject onAfterGetOne(SQLManager sqlManager, JSONObject object){
+    public JSONObject onAfterGetOne(SQLManager sqlManager, JSONObject object){
         return object;
     }
-    default String onGetOneSql(SQLManager sqlManager, Object id){ return null; }
+    public String onGetOneSql(SQLManager sqlManager, Object id){ return null; }
     /** end **/
 
-    default void Assert(Object ...objects){
+    public void Assert(Object ...objects){
         if(objects.length < 1){
             throw new RestException();
         }
@@ -125,17 +126,17 @@ public interface ValidGroup {
 //            throw new RestException();
 //        }
     }
-//    default void Assert(boolean b, String msg){
+//    public void Assert(boolean b, String msg){
 //        if(!b){
 //            throw new RestException(msg);
 //        }
 //    }
-//    default void Assert(boolean b, String msg, Object... objs){
+//    public void Assert(boolean b, String msg, Object... objs){
 //        if(!b){
 //            throw new RestException(msg,objs);
 //        }
 //    }
-    default void AssertNotEmpty(Object ...objects){
+    public void AssertNotEmpty(Object ...objects){
         Object[] args = new Object[objects.length + 1];
         args[0] = S.notEmpty((String) objects[0]);
         for(short i = 1; i < objects.length; i++){
@@ -143,7 +144,7 @@ public interface ValidGroup {
         }
         Assert(args);
     }
-    default void AssertEq(Object ...objects){
+    public void AssertEq(Object ...objects){
         Object[] args = new Object[objects.length + 1];
         args[0] = Objects.equals(objects[0], objects[1]);
         for(short i = 2; i < objects.length; i++){
@@ -152,7 +153,7 @@ public interface ValidGroup {
         Assert(args);
     }
 
-    default void valid(Object object, Class validClz){
+    public void valid(Object object, Class validClz){
         java.util.Set<ConstraintViolation<Object>> errors = U.getValidator().validate(object, validClz);
         String str = errors.stream()
             .map(ConstraintViolation::getMessage)
