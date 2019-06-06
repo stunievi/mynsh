@@ -16,7 +16,6 @@ import org.apache.activemq.BlobMessage;
 import org.beetl.sql.core.DSTransactionManager;
 import org.beetl.sql.core.SQLReady;
 import org.osgl.util.S;
-import sun.misc.IOUtils;
 
 import javax.jms.JMSException;
 import javax.jms.TextMessage;
@@ -2182,7 +2181,7 @@ public class DeconstructService extends AbstractService{
      * 更新到数据库
      * @param sqls
      */
-    private void deconstructStep3(SqlVectors sqlVectors) throws SQLException {
+    public void deconstructStep3(SqlVectors sqlVectors) throws SQLException {
         List<PreparedStatement> sqldebug = new ArrayList<>();
 //        List<JSONObject> sqldebug2 = new ArrayList<>();
         try (

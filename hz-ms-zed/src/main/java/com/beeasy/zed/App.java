@@ -22,6 +22,7 @@ public class App {
 
     public static void main(String[] args) throws ParseException, InterruptedException, ExecutionException, FileNotFoundException {
 
+        System.setProperty("java.version", "11.0");
         DBService.getInstance().initSync();
 
         //test
