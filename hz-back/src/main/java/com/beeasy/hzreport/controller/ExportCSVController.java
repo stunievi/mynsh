@@ -1,6 +1,7 @@
 package com.beeasy.hzreport.controller;
 
 import com.alibaba.fastjson.JSONObject;
+import com.beeasy.hzback.core.util.Log;
 import com.beeasy.hzreport.service.ExcelService;
 import com.beeasy.hzreport.service.ReportService;
 import com.beeasy.mscommon.filter.AuthFilter;
@@ -111,6 +112,7 @@ public class ExportCSVController {
                         createCSV(i,no + ".xlsx", list,csvWtriter);
                     }
                 }
+                Log.log("贷款台账导出csv文件");
             }catch (Exception e){
                 e.printStackTrace();
             }finally {

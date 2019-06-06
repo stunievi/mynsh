@@ -13,6 +13,7 @@ import com.beeasy.hzback.core.util.Log;
 import com.beeasy.hzback.entity.Definition;
 import com.beeasy.hzback.entity.LoanManager;
 import com.beeasy.hzback.entity.SysNotice;
+import com.beeasy.hzback.entity.User;
 import com.beeasy.hzback.modules.system.service.NoticeService2;
 import com.beeasy.mscommon.RestException;
 import com.beeasy.mscommon.Result;
@@ -67,6 +68,7 @@ public class BackExcelController {
         File temp = null;
         Date nowDate = new Date();
         LoanManager lm = new LoanManager();
+        User user = sqlManager.lambdaQuery(User.class).andEq(User::getId,uid).single();
         try {
             temp = File.createTempFile("temp_lm_", "");
             file.transferTo(temp);
@@ -146,9 +148,16 @@ public class BackExcelController {
             }
             Log.log("批量导入按揭贷款信息 %d 条, 成功 %d 条, 失败 %d 条", total, total - failed, failed);
             noticeService2.addNotice(SysNotice.Type.SYSTEM, uid, String.format("批量导入按揭贷款信息结果：总%d条，成功%d条，失败%d条", total, total - failed, failed), null);
+            if(!"1".equals(uid)){
+                noticeService2.addNotice(SysNotice.Type.SYSTEM, 1, String.format("执行人："+user.getTrueName()+"。批量导入按揭贷款信息结果：总%d条，成功%d条，失败%d条", total, total - failed, failed), null);
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
             noticeService2.addNotice(SysNotice.Type.SYSTEM, uid, "批量导入按揭贷款信息失败", null);
+            if(!"1".equals(uid)){
+                noticeService2.addNotice(SysNotice.Type.SYSTEM, 1, "执行人："+user.getTrueName()+"。批量导入按揭贷款信息失败", null);
+            }
         } finally {
             if (temp != null) {
                 temp.delete();
