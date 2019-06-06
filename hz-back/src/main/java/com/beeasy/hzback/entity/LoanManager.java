@@ -23,7 +23,7 @@ import java.util.Date;
 @Table(name = "T_LOAN_MANAGER")
 @Getter
 @Setter
-public class LoanManager extends TailBean implements ValidGroup {
+public class LoanManager extends ValidGroup {
     @Null(groups = ValidGroup.Add.class)
     @AssignID("simple")
     Long id;
@@ -55,6 +55,7 @@ public class LoanManager extends TailBean implements ValidGroup {
     String developerFullName;
     String lpFullName;
     String dshjyzxqk;
+    Long modifyUid;
 
 
     @AssertTrue(message = "", groups = {Add.class,Edit.class})

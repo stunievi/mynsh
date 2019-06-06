@@ -16,7 +16,7 @@ import java.util.Date;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class QccHistLog extends TailBean implements ValidGroup {
+public class QccHistLog extends ValidGroup {
 
     @AssignID("simple")
     Long id;

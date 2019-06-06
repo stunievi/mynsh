@@ -41,7 +41,7 @@ import static com.beeasy.mscommon.valid.ValidGroup.*;
 @Table(name = "T_WORKFLOW_MODEL")
 @Getter
 @Setter
-public class WfModel extends TailBean implements ValidGroup {
+public class WfModel extends ValidGroup {
 
     @Null(groups = ValidGroup.Add.class)
     @NotNull(groups = ValidGroup.Edit.class)

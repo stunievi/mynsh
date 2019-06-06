@@ -1,10 +1,10 @@
 {
     "port": "8081",
     "datasource": {
-        "url": "jdbc:db2://47.96.98.198:50000/dxmy",
+        "url": "jdbc:db2://47.106.216.52:50000/dxmy:currentSchema=DB2INST1;",
         "driver": "com.ibm.db2.jcc.DB2Driver",
         "username": "db2inst1",
-        "password": "111111"
+        "password": "db2inst1"
     },
     "mqserver": "tcp://47.94.97.138:8011?jms.blobTransferPolicy.uploadUrl=http://47.94.97.138:8012/fileserver/",
     "log": {

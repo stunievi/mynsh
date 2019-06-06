@@ -9,9 +9,11 @@ import cn.hutool.poi.excel.ExcelReader;
 import cn.hutool.poi.excel.ExcelUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.beeasy.hzback.core.util.Log;
 import com.beeasy.hzback.entity.Definition;
 import com.beeasy.hzback.entity.LoanManager;
 import com.beeasy.hzback.entity.SysNotice;
+import com.beeasy.hzback.entity.User;
 import com.beeasy.hzback.modules.system.service.NoticeService2;
 import com.beeasy.mscommon.RestException;
 import com.beeasy.mscommon.Result;
@@ -37,6 +39,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @RequestMapping("/api/excel")
@@ -63,7 +66,9 @@ public class BackExcelController {
 
     private void import_lm(long uid, MultipartFile file) {
         File temp = null;
+        Date nowDate = new Date();
         LoanManager lm = new LoanManager();
+        User user = sqlManager.lambdaQuery(User.class).andEq(User::getId,uid).single();
         try {
             temp = File.createTempFile("temp_lm_", "");
             file.transferTo(temp);
@@ -121,6 +126,8 @@ public class BackExcelController {
                         lm.setExplain(i6);
                         lm.setDeveloperFullName(i7);
                         lm.setLpFullName(i8);
+                        lm.setLastModify(nowDate);
+                        lm.setModifyUid(uid);
 
                     } catch (Exception e) {
                         failed++;
@@ -139,10 +146,18 @@ public class BackExcelController {
                     }
                 }
             }
+            Log.log("批量导入按揭贷款信息 %d 条, 成功 %d 条, 失败 %d 条", total, total - failed, failed);
             noticeService2.addNotice(SysNotice.Type.SYSTEM, uid, String.format("批量导入按揭贷款信息结果：总%d条，成功%d条，失败%d条", total, total - failed, failed), null);
+            if(!"1".equals(uid)){
+                noticeService2.addNotice(SysNotice.Type.SYSTEM, 1, String.format("执行人："+user.getTrueName()+"。批量导入按揭贷款信息结果：总%d条，成功%d条，失败%d条", total, total - failed, failed), null);
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
             noticeService2.addNotice(SysNotice.Type.SYSTEM, uid, "批量导入按揭贷款信息失败", null);
+            if(!"1".equals(uid)){
+                noticeService2.addNotice(SysNotice.Type.SYSTEM, 1, "执行人："+user.getTrueName()+"。批量导入按揭贷款信息失败", null);
+            }
         } finally {
             if (temp != null) {
                 temp.delete();
@@ -175,6 +190,7 @@ public class BackExcelController {
             definition.setName("accloan");
             definition.setConfig(object.toJSONString());
             sqlManager.insert(definition, true);
+            Log.log("导入信贷中间表转换定义文件");
             return Result.ok();
         } catch (Exception e) {
             e.printStackTrace();
@@ -331,6 +347,8 @@ public class BackExcelController {
 
                 stmt.executeBatch();
                 connection.commit();
+
+                Log.log("导入信贷中间表数据文件");
             } catch (Exception e) {
                 if (fake != null) {
                     try {

@@ -39,6 +39,11 @@
                 <i class="glyphicon glyphicon-book"></i>
                 按揭贷款信息批量维护
             </div>
+            <!--<a href="#" class="btn btn-success" id="templateDownload">导入模板下载</a>-->
+            <button type="button" class="btn btn-success" id="templateDownload">
+                导入模板下载
+            </button>
+
         </div>
         <div id="dataList">
         </div>
@@ -101,6 +106,7 @@
             var toolbarWidth = 150;
             if(su==1 && linkPerson == 1){
                 $("#picker").removeClass("hide");
+                $("#templateDownload").removeClass("hide");
 
             }
         if(enumWorkFlowModel.preLendingCollect == workFlow){
@@ -253,7 +259,7 @@
                 col: 3,
                 list: searchCond,
                 data: _data
-                // , excel: su == 1
+                , excel: su == 1
             }));
         }
 
@@ -327,7 +333,8 @@
         }
         $(".btn-export").click(function () {
             var str =$('[name=form-search]').ghostsf_serialize().replace(/(\d+)-/g,'$1');
-            location.href = remoteOrigin + "/api/report/export/rpt?" + str;
+            location.href = remoteOrigin + "/api/report/csv/credit?" + str;
+            layer.msg("请稍后。。。");
         });
 
         function initupload(data) {
@@ -355,8 +362,9 @@
             uploader.on('uploadSuccess', function (file, res) {
                 console.log(res)
                 if(res.success){
-                    var data = res.data;
-                    layer.msg("数据总条数："+data.total+"，成功："+data.success+"条，失败："+data.failed +"条");
+                    // var data = res.data;
+                    // layer.msg("数据总条数："+data.total+"，成功："+data.success+"条，失败："+data.failed +"条");
+                    layer.msg("正在导入数据，系统稍后会将导入结果发送至收件箱，请注意查收！");
                 }else{
                     layer.msg("导入失败！请选择正确的模板导入！");
                 }
@@ -370,7 +378,18 @@
 
         initupload()
 
-        // function upload() {
+        $(document).on("click", "#templateDownload", function() {
+            // getFetch(
+            //     remoteOrigin + "/api/report/export/mortgage/templateDownload"
+            //     , {}
+            //     , function () {
+            //         onInfront()
+            //     }
+            // ),
+            location.href = remoteOrigin + "/api/report/export/mortgage/templateDownload"
+        })
+
+            // function upload() {
         //     var formData = new FormData();
         //     formData.append("file", $("#file")[0].files[0]);
         //     $.ajax({

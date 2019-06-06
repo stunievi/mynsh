@@ -20,7 +20,7 @@ import java.util.Map;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class InfoLink extends TailBean implements ValidGroup {
+public class InfoLink extends ValidGroup {
     @Null(groups = Add.class)
     @AssignID("simple")
     Long id;

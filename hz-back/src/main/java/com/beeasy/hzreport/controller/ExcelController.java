@@ -1,6 +1,7 @@
 package com.beeasy.hzreport.controller;
 
 import com.alibaba.fastjson.JSONObject;
+import com.beeasy.hzback.core.util.Log;
 import com.beeasy.hzreport.config.ExportTo;
 import com.beeasy.hzreport.config.UseSimpleSql;
 import com.beeasy.hzreport.service.ExcelService;
@@ -27,6 +28,7 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -119,6 +121,13 @@ public class ExcelController {
         return download("抵押物明细.xlsx", bytes);
     }
 
+    @RequestMapping(value = "/mortgage/templateDownload")
+    public ResponseEntity<byte[]> templateDownload(){
+        List<JSONObject> result = new ArrayList<>();
+        byte[] bytes = excelService.exportTableByTemplate2("按揭类出证信息导入模板.xlsx", result);
+        Log.log("按揭类出证信息导入模板下载");
+        return download("按揭类出证信息导入模板.xlsx", bytes);
+    }
 
     private ResponseEntity<byte[]> download(String filename, byte[] bytes){
         HttpHeaders headers = new HttpHeaders();

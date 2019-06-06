@@ -21,7 +21,7 @@ import java.util.Map;
 @Getter
 @Setter
 @Table(name = "T_GATE")
-public class Gate extends TailBean implements ValidGroup {
+public class Gate extends ValidGroup {
     @AssignID("simple")
     Long id;
     String type;
