@@ -84,6 +84,7 @@ public class ExcelController {
             else if(result instanceof List){
                 bytes = excelService.exportTableByTemplate2(no + ".xlsx", (List<JSONObject>) result);
             }
+            ReportController.logCase(no,3);
             return download(exportTo.value(), bytes);
         } catch (NoSuchMethodException e) {
         } catch (IllegalAccessException e) {
