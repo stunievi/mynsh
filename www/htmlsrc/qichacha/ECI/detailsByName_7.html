@@ -88,18 +88,14 @@
 
 <!--失信-->
 <script type="text/html" id="history4_toolbar">
-    <div class="layui-toolbar">
-        <a href="javascript:;" class="btn btn-default history4_toolbar" data-val="{{d.Id}}">查看</a>
-    </div>
+    <a href="javascript:;" class="history4_toolbar" data-val="{{d.Id}}">{{d.CaseNo}}</a>
 </script>
 <script type="text/html" id="history5_toolbar">
-    <div class="layui-toolbar">
-        <a href="javascript:;" class="btn btn-default history5_toolbar" data-val="{{d.CaseNo}}">查看</a>
-    </div>
+    <a href="javascript:;" class="history5_toolbar" data-val="{{d.CaseNo}}">{{d.CaseNo}}</a>
 </script>
 <script type="text/html" id="history6_toolbar">
     <div class="layui-toolbar">
-        <a href="javascript:;" class="btn btn-default history6_toolbar" data-val="{{d.Id}}">查看</a>
+        <a href="javascript:;" class="btn btn-default history6_toolbar" data-val="{{d.Id}}">详情</a>
     </div>
 </script>
 
@@ -129,15 +125,15 @@
            cols: [
                [
                    BOOTSTRAP_INDEX_FILED,
-                   {title:"变更日期",field:"ChangeDate", setWidth:100},
+                   // {title:"变更日期",field:"ChangeDate", setWidth:100},
                    // {title:"公司KeyNo",field:"KeyNo"},
-                   {title:"公司名称",field:"CompanyName"},
-                   {title:"法人名称",field:"OperName"},
+                   {title:"被投资企业名称",field:"CompanyName"},
+                   {title:"被投资法定代表人",field:"OperName"},
                    {title:"注册资本",field:"RegistCapi"},
-                   {title:"公司类型",field:"EconKind"},
-                   {title:"状态",field:"Status"},
-                   {title:"出资比例",field:"FundedRatio"},
-                   {title:"投资日期",field:"StartDate", setWidth: 100}
+                   // {title:"公司类型",field:"EconKind"},
+                   // {title:"状态",field:"Status"},
+                   {title:"出资比例",field:"FundedRatio"}
+                   // {title:"投资日期",field:"StartDate", setWidth: 100}
                ]
            ],
            onData:function (data) {
@@ -181,14 +177,14 @@
            cols: [
                [
                    BOOTSTRAP_INDEX_FILED,
-                   {title:'操作', templet: "#history4_toolbar"},
+                   // {title:'操作', templet: "#history4_toolbar"},
+                   {title:"案号", templet: "#history4_toolbar",field:"CaseNo"},
                    // {title:"其他有履行能力而拒不履行生效法律文书确定义务",field:"ActionRemark"},
                    // {title:"执行依据文号",field:"ExecuteNo"},
                    // {title:"被执行的履行情况",field:"ExecuteStatus"},
                    // {title:"做出执行依据单位",field:"ExecuteUnite"},
                    // {title:"生效法律文书确定的义务",field:"YiWu"},
                    {title:"发布时间",field:"PublicDate"},
-                   {title:"案号",field:"CaseNo"},
                    {title:"执行法院",field:"ExecuteGov"},
                    {title:"执行依据文号",field:"AnNo"},
                    // {title:"省份",field:"Province"},
@@ -224,8 +220,8 @@
            cols: [
                [
                    BOOTSTRAP_INDEX_FILED,
-                   {title:'操作', templet: "#history5_toolbar"},
-                   {title:"案号",field:"CaseNo"},
+                   // {title:'操作', templet: "#history5_toolbar"},
+                   {title:"案号", templet: "#history5_toolbar",field:"CaseNo"},
                    {title:"立案时间",field:"LiAnDate"},
                    {title:"执行法院",field:"ExecuteGov"},
                    {title:"省份",field:"Province"},
@@ -259,12 +255,12 @@
            cols: [
                [
                    BOOTSTRAP_INDEX_FILED,
-                   {title:'操作', templet: "#history6_toolbar"},
+                   {title:"公示日期",field:"PublishDate", setWidth: 100},
                    {title:"公告类型",field:"Category", setWidth: 120},
-                   {title:"公告人",field:"Court", setWidth: 150},
+                   // {title:"公告人",field:"Court", setWidth: 150},
                    {title:"当事人",field:"Party"},
-                   {title:"省份",field:"Province"},
-                   {title:"公示日期",field:"PublishDate", setWidth: 100}
+                   // {title:"省份",field:"Province"},
+                   {title:'内容', templet: "#history6_toolbar"}
                ]
            ],
            onData:function (data) {
@@ -291,12 +287,14 @@
            cols: [
                [
                    BOOTSTRAP_INDEX_FILED,
-                   {title:"执行法院",field:"Court"},
                    {title:"案件名称",field:"CaseName"},
-                   {title:"发布时间",field:"SubmitDate", setWidth: 100},
-                   {title:"案件编号",field:"CaseNo"},
+                   // 案由
+                   // 案件金额
+                   {title:"发布日期",field:"SubmitDate", setWidth: 100},
+                   {title:"执行法院",field:"Court"},
+                   {title:"案号",field:"CaseNo"},
                    // {title:"案件类型",field:"CaseType"},
-                   {title:"涉案人员角色",field:"CaseRole"}
+                   {title:"案件身份",field:"CaseRole", templet:"#_CaseRole", width: 500}
                    // {title:"年份",field:"CourtYear"}
                ]
            ],
@@ -467,10 +465,10 @@
                                BOOTSTRAP_INDEX_FILED,
                                {title:"许可文件编号",field:"LicensDocNo"},
                                {title:"许可文件名称",field:"LicensDocName"},
-                               {title:"许可机关",field:"LicensOffice"},
-                               {title:"许可内容",field:"LicensContent"},
                                {title:"有效期自",field:"ValidityFrom"},
-                               {title:"有效期至",field:"ValidityTo"}
+                               {title:"有效期至",field:"ValidityTo"},
+                               {title:"许可机关",field:"LicensOffice"},
+                               {title:"许可内容",field:"LicensContent"}
                            ]
                        ],
                        data: EciList

@@ -375,9 +375,9 @@ select
     
     @if(isNotEmpty(LOAN_ACCOUNT)){
         @if(isNotEmpty(infolink)){
-            and li.loan_account = #LOAN_ACCOUNT#
+            and li.loan_account like #'%' + LOAN_ACCOUNT + '%'# 
         @} else {
-            and ins.loan_account = #LOAN_ACCOUNT#
+            and ins.loan_account like #'%' + LOAN_ACCOUNT + '%'# 
         @}
     @}
     
@@ -402,6 +402,12 @@ select
     --字段删选 start
     @if(isNotEmpty(CUS_NAME)){
         and ins.f1 like #'%' + CUS_NAME + '%'#
+    @}
+    @if(!isEmpty(PHONE)){
+        and ins.f2 like #'%' + PHONE + '%'#
+    @}
+    @if(!isEmpty(CERT_CODE)){
+        and ins.f4 like #'%' + CERT_CODE + '%'#
     @}
     --字段筛选 end
     --预任务

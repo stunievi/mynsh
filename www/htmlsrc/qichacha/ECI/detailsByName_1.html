@@ -13,7 +13,7 @@
         <a class="btn btn-default disabled" data-href="#base10">分支机构</a>
         <a class="btn btn-default disabled" data-href="#base11">变更信息</a>
         <a class="btn btn-default disabled" data-href="#base12">联系信息</a>
-        <a class="btn btn-default disabled" data-href="#base13">行业信息</a>
+        <!--<a class="btn btn-default disabled" data-href="#base13">行业信息</a>-->
     </div>
     <div class="panel-qcc" id="base1">
         <div class="panel-qcc-heading">工商信息</div>
@@ -50,11 +50,11 @@
         <div class="panel-qcc-body" id="base12-body">
         </div>
     </div>
-    <div class="panel-qcc" id="base13">
-        <div class="panel-qcc-heading">行业信息</div>
-        <div class="panel-qcc-body" id="base13-body">
-        </div>
-    </div>
+    <!--<div class="panel-qcc" id="base13">-->
+        <!--<div class="panel-qcc-heading">行业信息</div>-->
+        <!--<div class="panel-qcc-body" id="base13-body">-->
+        <!--</div>-->
+    <!--</div>-->
 </div>
 <style>
     .path {
@@ -74,11 +74,12 @@
 </style>
 <script type="text/html" id="toolbar">
     <div class="layui-toolbar">
-        <a href="javascript:;" class="btn btn-default showStockRelationInfo" data-name="{{d.Name}}">关联信息</a>
+        <a href="javascript:;" class="showStockRelationInfo" data-name="{{d.Name}}">{{d.Name}}</a>
     </div>
 </script>
+<!--cfc-->
 <style>
-ins { background-color: #cfc; text-decoration: none; } del { color: #999; background-color: #FEC8C8; } .text { float:left; width: 30%; border: 1px solid blue; margin: 10px; }
+ins { background-color: #FEC8C8; text-decoration: none; } del { color: #999; background-color: #FEC8C8; } .text { float:left; width: 30%; border: 1px solid blue; margin: 10px; }
 </style>
 
 <!--投资路径模板-->
@@ -93,6 +94,25 @@ ins { background-color: #cfc; text-decoration: none; } del { color: #999; backgr
             {{# }) }}
         <br/>
     {{# }) }}
+</script>
+<script type="text/html" id="test">
+    <table class="table table-bordered qcc-table-1" border="1">
+        <tbody>
+        {{each data value}}
+        <tr>
+            {{each value val index}}
+            <td class="col-xs-1 text-right">
+                {{index + 1}}
+            </td>
+            <td class=" {{value[index+1] ? col-xs-5 : col-xs-11}} type-info">
+                {{val}}
+            </td>
+            {{/each}}
+        </tr>
+        {{/each}}
+        </tbody>
+    </table>
+
 </script>
 <!--// 对比差异-->
 <script src="/static/vendor/htmldiff.js"></script>
@@ -112,28 +132,35 @@ ins { background-color: #cfc; text-decoration: none; } del { color: #999; backgr
             if(data.IsOnStock){
                 data.IsOnStock = data.IsOnStock == "0" ? "未上市" : "上市";
             }
+            data.SubIndustry = (data.Industry || {}).SubIndustry || "";
+            // if(data.Industry.SubIndustry){}
+
             $("#base1-body").html(
                 qccTableRender({
                     cols:[
-                        {title:"公司名称",field:"Name"},
-                        {title:"注册号",field:"No"},
-                        {title:"登记机关",field:"BelongOrg"},
                         {title:"法人名",field:"OperName"},
-                        {title:"成立日期",field:"StartDate"},
-                        {title:"吊销日期",field:"EndDate"},
-                        {title:"企业状态",field:"Status"},
-                        {title:"省份",field:"Province"},
-                        {title:"更新日期",field:"UpdatedDate"},
-                        {title:"社会统一信用代码",field:"CreditCode"},
+                        {title:"公司名称",field:"Name"},
                         {title:"注册资本",field:"RegistCapi"},
+                        {title:"实缴资本",field:"RecCap"},
+                        {title:"企业状态",field:"Status"},
+                        {title:"成立日期",field:"StartDate"},
+                        {title:"社会统一信用代码",field:"CreditCode"},
+                        // 纳税人识别号
+                        {title:"注册号",field:"No"},
+                        {title:"组织机构代码",field:"OrgNo"},
                         {title:"企业类型",field:"EconKind"},
+                        {title:"所属行业",field:"SubIndustry"},
+                        // 核准日期
+                        {title:"登记机关",field:"BelongOrg"},
+                        {title:"省份",field:"Province"},
+                        // {title:"吊销日期",field:"EndDate"},
+                        // {title:"更新日期",field:"UpdatedDate"},
                         {title:"营业开始日期",field:"TermStart"},
                         {title:"营业结束日期",field:"TeamEnd"},
-                        {title:"发照日期",field:"CheckDate"},
-                        {title:"组织机构代码",field:"OrgNo"},
-                        {title:"是否上市",field:"IsOnStock"},
-                        {title:"上市公司代码",field:"StockNumber"},
-                        {title:"上市类型",field:"StockType"},
+                        {title:"核准日期",field:"CheckDate"},
+                        // {title:"是否上市",field:"IsOnStock"},
+                        // {title:"上市公司代码",field:"StockNumber"},
+                        // {title:"上市类型",field:"StockType"},
                         {title:"地址",field:"Address", spec: true},
                         {title:"经营范围",field:"Scope", spec: true}
                     ],
@@ -154,14 +181,14 @@ ins { background-color: #cfc; text-decoration: none; } del { color: #999; backgr
                     [
                         BOOTSTRAP_INDEX_FILED,
                         {title:"股东",field:"StockName"},
-                        {title:"股东类型",field:"StockType"},
-                        {title:"出资比例",field:"StockPercent"},
+                        // {title:"股东类型",field:"StockType"},
+                        {title:"持股比例",field:"StockPercent"},
                         {title:"认缴出资额",field:"ShouldCapi"},
                         {title:"认缴出资时间",field:"ShoudDate"},
-                        {title:"认缴出资方式",field:"InvestType"},
-                        {title:"实际出资方式",field:"InvestName"},
-                        {title:"实缴出资额",field:"RealCapi"},
-                        {title:"实缴时间",field:"CapiDate"}
+                        // {title:"认缴出资方式",field:"InvestType"},
+                        // {title:"实际出资方式",field:"InvestName"},
+                        // {title:"实缴出资额",field:"RealCapi"},
+                        // {title:"实缴时间",field:"CapiDate"}
                     ]
                 ],
                 data: data.Partners || []
@@ -179,9 +206,8 @@ ins { background-color: #cfc; text-decoration: none; } del { color: #999; backgr
                 cols:[
                     [
                         BOOTSTRAP_INDEX_FILED,
-                        { title:'操作', templet: "#toolbar", setWidth: 80},
-                        {title:"姓名",field:"Name", setWidth: 120},
-                        {title:"职位",field:"Job"}
+                        { title:'姓名', templet: "#toolbar", setWidth: 580},
+                        {title:"职务",field:"Job"}
                     ]
                 ],
                 data: data.Employees || []
@@ -196,27 +222,28 @@ ins { background-color: #cfc; text-decoration: none; } del { color: #999; backgr
             if(data.Branches && data.Branches.length > 0){
                 $("#base10-count").html(data.Branches.length);
                 $("a[data-href='#base10']").removeClass("disabled");
+                var branches = [];
+                var dataBranches = data.Branches;
+                while((dataBranches || []).length > 0){
+                    branches.push([
+                        dataBranches.shift()["Name"],
+                        dataBranches.shift()["Name"]
+                    ]);
+                }
+                $("#base10-body").html(
+                    template('test', {
+                        data: branches
+                    })
+                );
             }
-            laytableRender({
-                page: false,
-                id: "base10-body",
-                elem: "#base10-body",
-                cols:[
-                    [
-                        BOOTSTRAP_INDEX_FILED,
-                        {title:"注册号或社会统一信用代码",field:"RegNo"},
-                        {title:"名称",field:"Name"},
-                        {title:"登记机关",field:"BelongOrg"}
-                    ]
-                ],
-                data: data.Branches || []
-            });
-
             // 变更历史
             if(data.ChangeRecords && data.ChangeRecords.length > 0){
                 data.ChangeRecords.forEach(function (item) {
                     item["ChangeDate"] = subDateStr(item.ChangeDate);
-                    item["AfterContent"] = getHTMLDiff(item["BeforeContent"] || "", item["AfterContent"]);
+                    var a = getHTMLDiff(item["BeforeContent"] || "", item["AfterContent"]);
+                    var b = getHTMLDiff(item["AfterContent"] || "", item["BeforeContent"]);
+                    item["AfterContent"] = a.replace(/<del(.|\n)*?del>/gmi,"");
+                    item["BeforeContent"] = b.replace(/<del(.|\n)*?del>/gmi,"");
                 });
                 $("#base11-count").html(data.ChangeRecords.length);
                 $("a[data-href='#base11']").removeClass("disabled");
@@ -267,25 +294,26 @@ ins { background-color: #cfc; text-decoration: none; } del { color: #999; backgr
                     data: contactInfo
                 })
             );
+
             // 行业信息
-            if($.isEmptyObject(data.Industry) === false){
-                $("a[data-href='#base13']").removeClass("disabled");
-            }
-            $("#base13-body").html(
-                qccTableRender({
-                    cols:[
-                        {title:"行业门类code",field:"IndustryCode"},
-                        {title:"行业门类描述",field:"Industry"},
-                        {title:"行业大类code",field:"SubIndustryCode"},
-                        {title:"行业大类描述",field:"SubIndustry"},
-                        {title:"行业中类code",field:"MiddleCategoryCode"},
-                        {title:"行业中类描述",field:"MiddleCategory"},
-                        {title:"行业小类code",field:"SmallCategoryCode"},
-                        {title:"行业小类描述",field:"SmallCategory"}
-                    ],
-                    data: data.Industry || {}
-                })
-            )
+            // if($.isEmptyObject(data.Industry) === false){
+            //     $("a[data-href='#base13']").removeClass("disabled");
+            // }
+            // $("#base13-body").html(
+            //     qccTableRender({
+            //         cols:[
+            //             {title:"行业门类code",field:"IndustryCode"},
+            //             {title:"行业门类描述",field:"Industry"},
+            //             {title:"行业大类code",field:"SubIndustryCode"},
+            //             {title:"行业大类描述",field:"SubIndustry"},
+            //             {title:"行业中类code",field:"MiddleCategoryCode"},
+            //             {title:"行业中类描述",field:"MiddleCategory"},
+            //             {title:"行业小类code",field:"SmallCategoryCode"},
+            //             {title:"行业小类描述",field:"SmallCategory"}
+            //         ],
+            //         data: data.Industry || {}
+            //     })
+            // )
         }
     });
 

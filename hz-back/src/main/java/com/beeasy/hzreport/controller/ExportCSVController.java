@@ -1,9 +1,17 @@
 package com.beeasy.hzreport.controller;
 
+import cn.hutool.core.thread.ThreadUtil;
+import cn.hutool.core.util.CharsetUtil;
+import cn.hutool.core.util.ZipUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.core.util.Log;
+import com.beeasy.hzback.entity.SysNotice;
+import com.beeasy.hzback.entity.SystemFile;
+import com.beeasy.hzback.modules.system.controller.FileController;
+import com.beeasy.hzback.modules.system.service.NoticeService2;
 import com.beeasy.hzreport.service.ExcelService;
 import com.beeasy.hzreport.service.ReportService;
+import com.beeasy.mscommon.Result;
 import com.beeasy.mscommon.filter.AuthFilter;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -12,24 +20,21 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.beetl.sql.core.SQLManager;
 import org.beetl.sql.core.engine.PageQuery;
 import org.osgl.util.C;
+import org.osgl.util.S;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.lang.reflect.Method;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.nio.file.Files;
+import java.util.*;
 
 @Controller
 @RequestMapping("/api/report/csv")
@@ -41,6 +46,27 @@ public class ExportCSVController {
     ReportService reportService;
     @Autowired
     SQLManager sqlManager;
+
+    @Autowired
+    FileController fileController;
+    @Autowired
+    NoticeService2 noticeService2;
+
+    public String test(File file, long uid){
+        //要上传的文件
+//        File file = null;
+        try(
+                FileInputStream fis = new FileInputStream(file);
+        ) {
+            String re = fileController.upload(new MockMultipartFile("信贷中间表zzz.csv", "信贷中间表zzz.csv", MediaType.APPLICATION_OCTET_STREAM_VALUE, fis), "信贷中间表zzz.csv", null, SystemFile.Type.MESSAGE, null, S.uuid(), uid);
+            JSONObject jsonObject = JSONObject.parseObject(re);
+            JSONObject data = jsonObject.getJSONObject("data");
+            return data.getString("id");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
 
     private static class Point {
         int x;
@@ -77,50 +103,56 @@ public class ExportCSVController {
         }
     }
 
+
     @RequestMapping(value = "/credit")
-    public void exportex(
+    public Result export(
             @RequestParam Map<String,Object> params
-            , @PageableDefault(value = 5000, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable, HttpServletResponse response
-    ) throws ClassNotFoundException {
+            , @PageableDefault(value = 5000, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        long uid = AuthFilter.getUid();
+//        new Thread(() -> {
+//            exportCSV(params,pageable,uid);
+//        }).start();
+        ThreadUtil.execAsync(() -> exportCSV(params,pageable,uid));
+        return Result.ok();
+    }
+
+    public void exportCSV(@RequestParam Map<String,Object> params
+            , Pageable pageable,long uid
+    ){
         String no = "rpt";
-        try {
-            params.put("uid", AuthFilter.getUid());
-            Method method = reportService.getClass().getMethod(no, Map.class , Pageable.class);
+        File file = createFile();
+        params.put("uid", uid);
+        Object result;
+        List<List<JSONObject>> list = C.newList();
 
-            Object result;
-
-            BufferedWriter csvWtriter = null;
-            try{
-                //文件下载
-                response.setContentType("application/csv;charset=gb18030");
-                response.setHeader("Content-disposition", "attachment; filename=" + URLEncoder.encode("信贷中间表.csv", "UTF-8"));
-                ServletOutputStream out = response.getOutputStream();
-                csvWtriter = new BufferedWriter(new OutputStreamWriter(out, "GBK"), 1024);
-
-                boolean flag = true;
+            try(
+                RandomAccessFile raf = new RandomAccessFile(file, "rw");
+            ){
                 int i = 0;
-
-                while (flag){
-                    i++;
+                while (++i > 0){
                     result= query(i,no, params, pageable);
 
                     if(((PageQuery) result).getList().isEmpty()){
-                        flag = false;
+                        break;
                     }else{
-                        List<List<JSONObject>> list = C.newList();
-                        list.add((List<JSONObject>) ((PageQuery) result).getList());
-                        createCSV(i,no + ".xlsx", list,csvWtriter);
+                        list.clear();
+                        list.add(((PageQuery) result).getList());
+                        createCSV(file, i,no + ".xlsx", list, raf);
                     }
                 }
                 Log.log("贷款台账导出csv文件");
+
             }catch (Exception e){
                 e.printStackTrace();
             }finally {
-                try {
-                    csvWtriter.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                File compressed = ZipUtil.zip(file);
+                String fid = test(compressed, uid);
+                noticeService2.addNotice(SysNotice.Type.SYSTEM, uid, String.format("导出文件：<a href=\"/api/file/download?fid="+fid+"&name=信贷中间表.zip\" target=\"_Blank\" class=\"forExportCsv_z\">信贷中间表</a>"), null);
+
+                compressed.delete();
+                file.delete();
+                //file.delete();
             }
 
             /*if(result instanceof List){
@@ -128,8 +160,6 @@ public class ExportCSVController {
                 list.add((List<JSONObject>) result);
 //                bytes = createCSV(no + ".xlsx", list,rsponse);
             }*/
-        } catch (NoSuchMethodException e) {
-        }
     }
 
     private PageQuery query(int i, String no, Map params, Pageable pageable){
@@ -137,19 +167,32 @@ public class ExportCSVController {
 
         pageQuery.setParas(params);
         pageQuery.setPageNumber(i);
-        pageQuery.setPageSize(5000);
+        pageQuery.setPageSize(1000);
         return sqlManager.pageQuery("report." + no+"_export", JSONObject.class, pageQuery);
     }
 
+    private File createFile(){
+        File file = null;
+        try {
+            file = Files.createTempFile("a", ".csv").toFile();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+        return file;
+    }
     /**
      * 写入数据
      * @param num
      * @param tmpl
      * @param datas
-     * @param csvWtriter
      * @return
      */
-    private void createCSV(int num, String tmpl, List<List<JSONObject>> datas, BufferedWriter csvWtriter) {
+    private void createCSV(File file, int num, String tmpl, List<List<JSONObject>> datas, RandomAccessFile raf) throws IOException {
+
+        raf.seek(raf.length());
+
+
+
         ClassPathResource resource = new ClassPathResource("excel/" + tmpl);
 
         // 表格头
@@ -158,6 +201,8 @@ public class ExportCSVController {
         //数据
         List<List<Object>> dataList = new ArrayList<List<Object>>();
         List<Object> rowList = null;
+
+//        BufferedWriter csvWtriter = null;
 
 //        String fileName = "testCSV.csv";//文件名称
 //        String filePath = "e:/test/"; //文件路径
@@ -171,6 +216,8 @@ public class ExportCSVController {
 //                parent.mkdirs();
 //            }
 //            csvFile.createNewFile();
+
+//            csvWtriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "GB2312"), 1024);
 
 //            //文件下载
 //            response.setContentType("application/csv;charset=gb18030");
@@ -263,44 +310,38 @@ public class ExportCSVController {
                 if(null == headList || !headList.isEmpty()){
                     headList.remove(headList.size()-1);
                 }
-                writeRow(headList, csvWtriter);
+                writeRow(headList, raf);
             }
 
             // 写入文件内容
             for (List<Object> row : dataList) {
-                writeRow(row, csvWtriter);
+                writeRow(row, raf);
             }
 
-            csvWtriter.flush();
+
+            //csvWtriter.flush();
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-//        finally {
-//            try {
-//                csvWtriter.close();
-//            } catch (IOException e) {
-////                e.printStackTrace();
-////            }
-////        }
     }
 
     /**
      * 写一行数据
      *
      * @param row       数据列表
-     * @param csvWriter
+     * @param
      * @throws IOException
      */
-    private static void writeRow(List<Object> row, BufferedWriter csvWriter) throws IOException {
+    private static void writeRow(List<Object> row, RandomAccessFile raf) throws IOException {
         for (Object data : row) {
             if(null == data || "null".equals(data)){
                 data = "";
             }
             StringBuffer sb = new StringBuffer();
             String rowStr = sb.append("\"").append(data).append("\",").toString();
-            csvWriter.write(rowStr);
+            raf.write(rowStr.getBytes(CharsetUtil.GBK));
         }
-        csvWriter.newLine();
+        raf.writeChar('\n');
     }
 }

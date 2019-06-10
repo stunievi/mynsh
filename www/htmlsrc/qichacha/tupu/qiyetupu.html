@@ -188,13 +188,13 @@
             context.fillStyle = "#fff";
             context.fillRect(0,0,canvas.width,canvas.height);
 
-            var shuiying = new Image();
-            shuiying.src="https://www.qichacha.com/material/theme/chacha/cms/v2";//背景图片
-            for(var i=0;i < canvas.width+100; i+=600){
-                for(var j=0; j< canvas.height+100; j+=456){
-                    context.drawImage(shuiying, i, j);
-                }
-            }
+            // var shuiying = new Image();
+            // shuiying.src="https://www.qichacha.com/material/theme/chacha/cms/v2";//背景图片
+            // for(var i=0;i < canvas.width+100; i+=600){
+            //     for(var j=0; j< canvas.height+100; j+=456){
+            //         context.drawImage(shuiying, i, j);
+            //     }
+            // }
 
             context.drawImage(image, 0, 0);
             var marker = '企业图谱。';
@@ -207,37 +207,47 @@
 
     function getData(){
         $('#load_data').show();
-        $.ajax({
+
+        var p1 = $.ajax({
+            url: remoteApi.qccECIGetDetailsByName + "?fullName=" + companyName
+        });
+        var p2 = $.ajax({
             url: remoteApi.qccECIRelationGenerateMultiDimensionalTreeCompanyMap,
             type: 'GET',
             data:{
                 keyNo: decodeURI(getParam("keyNo")),
             },
-            dataType: 'JSON',
-            success: function (res){
-                data = res.data;
-                $('#load_data').hide();
-                if(data && $.isEmptyObject(data) === false){
-                    $('#no_data').hide();
-                    root = data;
-                    branchNodes = data.Branches || [];
-                    investNodes = data.EquityShareDetail || [];
-                    hoperNodes = data.HistoryOpers || [];
-                    hstockNodes = data.HistoryPartners || [];
-                    employNodes = data.Employees || [];
-                    stockNodes = data.partners || [];
-                    initNodes();
-                    draw();
-                }else{
-                    $('#no_data').show();
-                    $('#screenArea').hide();
-                }
-            },
-            error: function () {
+            dataType: 'JSON'
+        });
+        $.when(p1, p2).then(function (res1, res2) {
+            var data1 = res1[0].data || {};
+            var branches = data1["Branches"];
+            var partners = data1["Partners"];
+            
+            var data2 = res2[0].data;
+            $('#load_data').hide();
+            if(data2 && $.isEmptyObject(data2) === false){
+                $('#no_data').hide();
+                root = data2;
+                branchNodes = data2.Branches || branches || [];
+                investNodes = data2.EquityShareDetail || [];
+                hoperNodes = data2.HistoryOpers || [];
+                hstockNodes = data2.HistoryPartners || [];
+                employNodes = data2.Employees || [];
+                stockNodes = partners || data2.partners || [];
+                initNodes();
+                draw();
+            }else{
                 $('#no_data').show();
                 $('#screenArea').hide();
             }
-        });
+
+        },function () {
+            $('#no_data').show();
+            $('#screenArea').hide();
+        })
+
+
     }
 
     function initNodes() {
@@ -1364,8 +1374,8 @@
         enterNodeContainer.append("rect")
             .attr("width", function (d) {
                 if (d.Name) {
-                    if (d.Job) {
-                        return 40 + getLength(d.Name) * 6 + getLength(d.Job) * 6
+                    if (d.Job || d.ShortName) {
+                        return 40 + getLength(d.Name) * 6 + getLength(d.Job || d.ShortName) * 6
                     }
                     return 30 + d.Name.length * 12;
                 }
@@ -1374,8 +1384,8 @@
             .attr("height", 28)
             .attr("x", function (d) {
                 if (d.Name) {
-                    if (d.Job) {
-                        return 0 - 40 - getLength(d.Name) * 6 - getLength(d.Job) * 6;
+                    if (d.Job || d.ShortName) {
+                        return 0 - 40 - getLength(d.Name) * 6 - getLength(d.Job || d.ShortName) * 6;
                     }
                     return 0 - 30 - getLength(d.Name) * 6;
                 }
@@ -1392,8 +1402,8 @@
             enterNodeContainer.append("text")
                 .attr("x", function (d) {
                     if (d.Name) {
-                        if (d.Job) {
-                            return 15 - 40 - getLength(d.Name) * 6 - getLength(d.Job) * 6;
+                        if (d.Job || d.ShortName) {
+                            return 15 - 40 - getLength(d.Name) * 6 - getLength(d.Job || d.ShortName) * 6;
                         }
                         return 15 - 30 - getLength(d.Name) * 6;
                     }
@@ -1411,8 +1421,8 @@
             enterNodeContainer.append("text")
                 .attr("x", function (d) {
                     if (d.Name) {
-                        if (d.Job) {
-                            return 15 - 40 - getLength(d.Name) * 6 - getLength(d.Job) * 6;
+                        if (d.Job || d.ShortName) {
+                            return 15 - 40 - getLength(d.Name) * 6 - getLength(d.Job || d.ShortName) * 6;
                         }
                         return 15 - 30 - getLength(d.Name) * 6;
                     }
@@ -1431,13 +1441,13 @@
         enterNodeContainer.append("text")
             .attr("x", function (d) {
                 if (d.Name) {
-                    return 15 - 30 - getLength(d.Job) * 6;
+                    return 15 - 30 - getLength(d.Job || d.ShortName) * 6;
                 }
                 return -70;
             })
             .attr("y", 18)
             .text(function (d) {
-                return d.Job
+                return d.Job || d.ShortName
             })
             .attr("class", "employ-job")
             .attr("fill", "#8a8a8a")
@@ -1584,7 +1594,6 @@
                     if (d.StockPercent) {
                         return 15 - 40 - getLength(d.StockName) * 6 - getLength(d.StockPercent) * 6
                     }
-                    console.log(getLength(d.StockName), d.StockName);
                     return 15 - 30 - getLength(d.StockName) * 6;
                 }
                 return -70;

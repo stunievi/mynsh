@@ -76,7 +76,8 @@
             <td style="width: 100px">{{item.ChangeDate}}</td>
             <td>
                 {{each item.Employees item2 index2}}
-                    <a href="javascript:;" data-val="{{item2.KeyNo}}">{{item2.EmployeeName}}</a>({{item2.Job}}),
+                {{item2.EmployeeName}}({{item2.Job}})
+                    <!--<a href="javascript:;" data-val="{{item2.KeyNo}}"></a>,-->
                 {{/each}}
             </td>
         </tr>
