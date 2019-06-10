@@ -27,6 +27,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -145,10 +146,13 @@ public class CFileController {
         }
         response.setContentType(mimeType);
         response.setContentLength((int) file.getSize());
-        String headerKey = "Content-Disposition";
-        String headerValue = String.format("attachment; filename=\"%s\"",
-            file.getName());
-        response.setHeader(headerKey, headerValue);
+        try {
+            String fileName = URLEncoder.encode(file.getName(), "UTF-8");
+            response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"; filename*=utf-8''" + fileName);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            throw new RestException("下载失败");
+        }
         try(
             InputStream is = new FileInputStream(file.getPath());
             OutputStream os = response.getOutputStream();
