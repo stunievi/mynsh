@@ -41,31 +41,19 @@
                 $("#home").html(qccTableRender(
                     {
                         cols: [
-                            {title:"公告法院", field:"Court"},
-                            {title:"上传日期", field:"SubmitDate"},
-                            {title:"所在省份代码", field:"Province"},
-                            {title:"类别", field:"Category"},
+                            {title:"当事人", field:"Party"},
+                            {title:"公告类别", field:"Category"},
                             {title:"刊登日期", field:"PublishDate"},
-                            {title:"当事人", field:"Party", spec: true},
-                            {title:"当事人信息", field:"NameKeyNoCollection", spec: true},
+                            // 刊登版面
+                            {title:"上传日期", field:"SubmitDate"},
+                            {title:"公告人", field:"Court"},
+                            // {title:"所在省份代码", field:"Province"},
+                            // {title:"当事人信息", field:"NameKeyNoCollection", spec: true},
                             {title:"内容", field:"Content", spec: true}
                         ],
                         data: data
                     }
                 ));
-                // $("#home").html(panelTableShowRender2({
-                //     attrs:[
-                //         {label:"公告法院", prop:"Court"},
-                //         {label:"内容", prop:"Content"},
-                //         {label:"上传日期", prop:"SubmitDate"},
-                //         {label:"所在省份代码", prop:"Province"},
-                //         {label:"类别", prop:"Category"},
-                //         {label:"刊登日期", prop:"PublishDate"},
-                //         {label:"当事人", prop:"Party"},
-                //         {label:"当事人信息", prop:"NameKeyNoCollection"}
-                //     ],
-                //     data: data
-                // }));
             }else{
                 layErrorMsg("数据获取失败....")
                 $("#home").html("数据获取失败....")

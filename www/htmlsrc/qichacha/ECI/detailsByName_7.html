@@ -186,9 +186,9 @@
                    // {title:"生效法律文书确定的义务",field:"YiWu"},
                    {title:"发布时间",field:"PublicDate"},
                    {title:"执行法院",field:"ExecuteGov"},
-                   {title:"执行依据文号",field:"AnNo"},
-                   // {title:"省份",field:"Province"},
+                   // {title:"执行依据文号",field:"AnNo"},
                    {title:"立案时间",field:"LiAnDate"},
+                   {title:"省份",field:"Province"}
                    // {title:"组织机构代码",field:"OrgNo"},
                    // {title:"组织类型名称",field:"OrgTypeName"},
                    // {title:"名称",field:"Name", width: 120}
@@ -221,10 +221,10 @@
                [
                    BOOTSTRAP_INDEX_FILED,
                    // {title:'操作', templet: "#history5_toolbar"},
-                   {title:"案号", templet: "#history5_toolbar",field:"CaseNo"},
+                   {title:"案号", field:"CaseNo"},
                    {title:"立案时间",field:"LiAnDate"},
                    {title:"执行法院",field:"ExecuteGov"},
-                   {title:"省份",field:"Province"},
+                   // {title:"省份",field:"Province"},
                    {title:"标地",field:"BiaoDi"}
                ]
            ],
@@ -400,12 +400,12 @@
                        cols: [
                            [
                                BOOTSTRAP_INDEX_FILED,
-                               {title:"文号",field:"DocNo"},
+                               {title:"决定文书号",field:"DocNo"},
                                {title:"违法行为类型",field:"PenaltyType"},
                                {title:"处罚内容",field:"Content"},
-                               {title:"决定日期",field:"PenaltyDate"},
-                               {title:"作出行政公示日期",field:"PublicDate"},
-                               {title:"决定机关",field:"OfficeName"}
+                               {title:"公示日期",field:"PublicDate"},
+                               {title:"决定机关",field:"OfficeName"},
+                               {title:"决定日期",field:"PenaltyDate"}
                            ]
                        ],
                        data: EciList

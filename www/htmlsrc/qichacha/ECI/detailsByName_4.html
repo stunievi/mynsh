@@ -39,17 +39,13 @@
 
 <!--toolbar-->
 <script type="text/html" id="toolbar1">
-    <div class="layui-toolbar">
-        <a href="javascript:;" class="btn btn-default toolbar1" data-val="{{d.Id}}">详情</a>
-    </div>
+   <a href="javascript:;" class="toolbar1" data-val="{{d.Id}}">详情</a>
 </script>
 <script type="text/html" id="toolbar2">
-    <div class="layui-toolbar">
-        <a href="javascript:;" class="btn btn-default toolbar2" data-val="{{d.Id}}">{{d.Address}}</a>
-    </div>
+    <a href="javascript:;" class="toolbar2" data-val="{{d.Id}}">{{d.Address}}</a>
 </script>
 <script type="text/html" id="toolbar3">
-    <a href="javascript:;" class="btn btn-default toolbar3" data-val="{{d.Id}}">{{d.CaseNo}}</a>
+    <a href="javascript:;" class="toolbar3" data-val="{{d.Id}}">{{d.CaseNo}}</a>
 </script>
 <script type="text/html" id="toolbar4">
    <a href="javascript:;" class="toolbar4" data-val="{{d.RegisterNo}}">{{d.RegisterNo}}</a>
@@ -59,19 +55,21 @@
     var loadBlock4Status = false;
     function loadBlock4() {
         loadBlock4Status = true;
-
         var renderExceptions = function(dataList){
+            dataList.forEach(function (row) {
+                row["RemoveDate"] = subDateStr(row.RemoveDate) || "";
+            });
             laytableRender({
                 title: "经营异常",
                 id: "Exceptions-body"
                 , cols: [
                     [
-                        {title:"列入经营异常名录原因", field:"AddReason"},
                         {title:"列入日期", field:"AddDate"},
-                        {title:"移出经营异常名录原因", field:"RomoveReason"},
-                        {title:"移出日期", field:"RemoveDate"},
+                        {title:"列入经营异常名录原因", field:"AddReason"},
                         {title:"作出决定机关", field:"DecisionOffice"},
-                        {title:"移除决定机关", field:"RemoveDecisionOffice"}
+                        {title:"移出日期", field:"RemoveDate"},
+                        // {title:"移除决定机关", field:"RemoveDecisionOffice"},
+                        {title:"移出经营异常名录原因", field:"RomoveReason"} // 企查查为准！
                     ]
                 ],
                 data: dataList,
@@ -171,12 +169,17 @@
                     // { title:'操作', templet: "#toolbar3"},
                     // {title:"Id", field:"Id"},
                     {title:"决定书文号", templet: "#toolbar3", field:"CaseNo"},
-                    {title:"处罚日期", field:"PunishDate"},
                     {title:"违法类型", field:"IllegalType"},
-                    {title:"处罚单位", field:"PunishGov"}
+                    {title:"处罚单位", field:"PunishGov"},
+                    {title:"处罚日期", field:"PunishDate"}
                 ]
             ],
             onData:function (data) {
+                if(data.rows){
+                    data.rows.forEach(function (row) {
+                        row["PunishDate"] = subDateStr(row.PunishDate) || "-";
+                    });
+                }
                 fixOnDataLoad("EnvPunishmentList", data);
             }
         });
