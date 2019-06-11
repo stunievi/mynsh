@@ -53,7 +53,7 @@ public class QccHistLogService {
     @Scheduled(cron = "0 30 8 * * ?")
     public synchronized void saveQccHisLog() {
 
-        List<JSONObject> object = sqlManager.select("accloan.对公客户", JSONObject.class, C.newMap("uid", AuthFilter.getUid()));
+        List<JSONObject> object = sqlManager.select("accloan.对公客户", JSONObject.class, C.newMap("uid", "1"));
 
         Map<String, Integer> map;
         Map<String, Boolean> sendRuleMap = new HashMap<>();

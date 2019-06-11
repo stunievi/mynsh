@@ -147,8 +147,8 @@ var remoteApi = {
 	qccHistoryGetHistorytAdminLicens: "/api/qcc/auto/History/GetHistorytAdminLicens", // 历史行政许可
 	// 法律诉讼
 
-	apiQccAutoQccLogCusCom: "/api/auto/qcclog/cusCom", // 企查查对公客户列表
-	apiQccAutoQccCount: "/api/auto/qcccount/queryQccCount", // 企查查对公客户列表
+	apiQccAutoQccLogCusCom: "/api/auto/qcclog/cusCom?flag="+Math.random() * 10, // 企查查对公客户列表
+	apiQccAutoQccCount: "/api/auto/qcccount/queryQccCount", // 企查查接口调用次数
 
 	apiGetRejectCollectList: '/api/workflow/getRejectCollectList', // 拒贷记录
 	apiSheetSearchYuQYSLX: '/api/data/sheet/searchYuQYSLX', // 报表, 逾期应收利息

@@ -18,6 +18,7 @@ import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.beetl.sql.core.SQLManager;
+import org.beetl.sql.core.SQLReady;
 import org.beetl.sql.core.engine.PageQuery;
 import org.osgl.util.C;
 import org.osgl.util.S;
@@ -148,7 +149,14 @@ public class ExportCSVController {
             }finally {
                 File compressed = ZipUtil.zip(file);
                 String fid = test(compressed, uid);
-                noticeService2.addNotice(SysNotice.Type.SYSTEM, uid, String.format("导出文件：<a href=\"/api/file/download?fid="+fid+"&name=信贷中间表.zip\" target=\"_Blank\" class=\"forExportCsv_z\">信贷中间表</a>"), null);
+                List<JSONObject> objs = sqlManager.execute(new SQLReady("SELECT src_sys_date FROM RPT_M_RPT_SLS_ACCT FETCH FIRST 1 ROWS ONLY"),JSONObject.class);
+                String sysDate = "";
+                try{
+                    sysDate = objs.get(0).getString("srcSysDate");
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+                noticeService2.addNotice(SysNotice.Type.SYSTEM, uid, String.format("贷款台账  "+sysDate+"导出成功！<a href=\"/api/file/download?fid="+fid+"&name=贷款台账.zip\" target=\"_Blank\" class=\"forExportCsv_z\">点击下载</a>"), null);
 
                 compressed.delete();
                 file.delete();
