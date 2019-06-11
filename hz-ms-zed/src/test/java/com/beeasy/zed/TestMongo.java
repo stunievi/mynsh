@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
 import org.beetl.sql.core.SQLReady;
 import org.junit.AfterClass;
@@ -13,6 +14,7 @@ import org.osgl.util.S;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -83,7 +85,22 @@ public class TestMongo {
 
     @Test
     public void testSingleFile() throws FileNotFoundException, InterruptedException {
-        deconstructService.onDeconstructRequest("1","2", new FileInputStream("C:\\Users\\bin\\Desktop\\qcc_hz_cus_com_data\\20190508\\qyzp-load-qcc623566e4-7b71-4969-89b1-3e0752bbb3f7.zip"));
+        deconstructService.onDeconstructRequest("1","2", new FileInputStream("C:\\Users\\bin\\Desktop\\qcc_hz_cus_com_data\\20190508\\jyfx-load-qcca4524d43-bde2-4843-acad-3e7b807d967c.zip"));
+    }
+
+
+    public void testSingleJson() throws NoSuchMethodException, SQLException {
+        String path = "/ECIV4/GetDetailsByName";
+        String compName = "";
+        JSONObject json = null;
+        DeconstructService.DeconstructHandler handler = deconstructService.handlers.get(path);
+        ByteBuf buf = Unpooled.buffer();
+        DefaultHttpHeaders headers = new DefaultHttpHeaders();
+        FullHttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "http://www.baidu.com" + path + "?keyword=" + compName, buf, headers, headers);
+
+        handler.call(null, request, json);
+        deconstructService.deconstructStep3(deconstructService.readySqls);
+
     }
 
 

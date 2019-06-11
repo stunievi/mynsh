@@ -50,6 +50,7 @@
     <!-- toolbar渲染模板 -->
     <script type="text/html" id="toolbar">
         <div class="layui-toolbar">
+        <span id="exportSpan_z" value="{{d.id}}"></span>
             <a href="javascript:;" class="btn btn-default" tab-href="/htmlsrc/bench/notice/notice.show.html?id={{d.id}}">查看</a>
             {{# if(d.type == '任务通知'){ }}
             <button type="button" class="btn btn-default" tab-href="/htmlsrc/workFlow/nodeStates.html?id={{JSON.parse(d.bindData).taskId}}">查看任务</button>
@@ -118,6 +119,12 @@
             var cusName = $(this).html();
             addNavTab("ECIdetail"+cusName, "企查查-公司详情-"+cusName, hrefUrl.ECIdetail+cusName);
             // showECI_Info(cusName, cusName);
+        })
+        $(document).on("click", ".forExport_z", function () {
+            var id = $("#exportSpan_z").attr("value");
+            getFetch(remoteOrigin + "/api/auto/sysnotice/read", {id: id}, function () {
+                onInfront()
+            });
         })
 
         $(document).on("click", ".handleShow", function(){
