@@ -1211,6 +1211,7 @@ public class DeconstructService extends AbstractService{
      * 司法拍卖详情
      *
      * @param channelHandlerContext
+     *
      * @param request
      * @param json
      */
@@ -2166,7 +2167,11 @@ public class DeconstructService extends AbstractService{
                             if( tableName.contains("QCC_TREE_RELATION_MAP") && entry.getValue().equals("企业法人")){
                                 int d = 1;
                             }
-                            p.setObject(idex + 1, entry.getValue());
+                            if(entry.getValue() instanceof Date){
+                                p.setString(idex + 1, DateUtil.format((Date) entry.getValue(), "yyyy-MM-dd hh:mm:ss"));
+                            } else {
+                                p.setObject(idex + 1, entry.getValue());
+                            }
                             break;
                     }
                 }

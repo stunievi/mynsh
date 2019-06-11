@@ -13,7 +13,7 @@
     <div class="bs-example bs-example-tabs" data-example-id="togglable-tabs">
         <ul id="myTabs" class="nav nav-tabs" role="tablist">
             <li role="presentation" class="active"><a href="#home" id="home-tab" role="tab" data-toggle="tab" data-controls="home" aria-expanded="true">动产抵押</a></li>
-            <li role="presentation" class=""><a href="#home1" id="home1-tab" role="tab" data-toggle="tab" data-controls="home1" aria-expanded="true">动产抵押(样式2)</a></li>
+            <!--<li role="presentation" class=""><a href="#home1" id="home1-tab" role="tab" data-toggle="tab" data-controls="home1" aria-expanded="true">动产抵押(样式2)</a></li>-->
         </ul>
         <div id="myTabContent" class="tab-content" style="padding-top: 10px;">
             <div role="tabpanel" class="tab-pane active in" aria-labelledby="home-tab" id="home">
@@ -61,9 +61,9 @@
 
                 </div>
             </div>
-            <div role="tabpanel" class="tab-pane" aria-labelledby="home1-tab" id="home1">
-                s
-            </div>
+            <!--<div role="tabpanel" class="tab-pane" aria-labelledby="home1-tab" id="home1">-->
+                <!--s-->
+            <!--</div>-->
         </div>
     </div>
 </div>
@@ -72,26 +72,27 @@
 <script src="/static/htmljs/global.config.js"></script>
 <script src="/static/htmljs/utils.js"></script>
 <script src="/htmlsrc/qichacha/tmpl/eci/qccTable.js"></script>
-<script src="/tmpl/js/chattelMortgage.js"></script>
+<!--<script src="/tmpl/js/chattelMortgage.js"></script>-->
 <script>
     function onPageRequest(data){
         if(null == data || $.isEmptyObject(data)){
             layErrorMsg("数据获取失败....")
             $("#home").html("数据获取失败....")
         }else{
-            $("#home1").html(chattelMortgageRender(
-                data
-            ));
+            // $("#home1").html(chattelMortgageRender(
+            //     data
+            // ));
             var dataDetail = data.Detail || {};
             // 基本信息
             $("#home-content-1").html(qccTableRender({
                 cols:[
+                    {title:"登记机关",field:"RegisterOffice", spec: true},
                     {title:'登记编号', field:"RegisterNo"},
-                    {title:"登记时间",field:"RegisterDate" },
-                    {title:"公示时间",field:"PublicDate" },
-                    {title:"登记机关",field:"RegisterOffice" },
-                    {title:"被担保债权数额",field:"DebtSecuredAmount" },
-                    {title:"状态",field:"Status" },
+                    {title:"登记日期",field:"RegisterDate" }
+                    // {title:"公示时间",field:"PublicDate" },
+                    // {title:"登记机关",field:"RegisterOffice" },
+                    // {title:"被担保债权数额",field:"DebtSecuredAmount" },
+                    // {title:"状态",field:"Status" },
                 ],
                 data: data
             }));

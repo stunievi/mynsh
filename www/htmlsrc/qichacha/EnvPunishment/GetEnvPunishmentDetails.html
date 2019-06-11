@@ -25,23 +25,24 @@
 <script src="/static/vendor/layui/layer/layer.js"></script>
 <script src="/static/htmljs/global.config.js"></script>
 <script src="/static/htmljs/utils.js"></script>
-<script src="../../../tmpl/js/panelTableShow.js"></script>
+<!--<script src="../../../tmpl/js/panelTableShow.js"></script>-->
+<script src="/htmlsrc/qichacha/tmpl/eci/qccTable.js"></script>
 <script>
     SuperPost({
         url: remoteApi.qccGetEnvPunishmentDetails+"?id="+getParam("id"),
         success: function(res){
             if(res.success && res.data){
                 var data = res.data || {};
-                $("#home").html(panelTableShowRender2({
-                    attrs:[
-                        {label:"决定书文号", prop:"CaseNo"},
-                        {label:"违法类型", prop:"IllegalType"},
-                        {label:"处罚事由", prop:"PunishReason"},
-                        {label:"处罚依据", prop:"PunishBasis"},
-                        {label:"处罚结果", prop:"PunishmentResult"},
-                        {label:"处罚日期", prop:"PunishDate"},
-                        {label:"处罚单位", prop:"PunishGov"},
-                        {label:"执行情况", prop:"Implementation"}
+                $("#home").html(qccTableRender({
+                    cols:[
+                        {title:"决定书文号", field:"CaseNo", spec: true},
+                        {title:"处罚事由", field:"PunishReason", spec: true},
+                        {title:"违法类型", field:"IllegalType"},
+                        {title:"处罚依据", field:"PunishBasis"},
+                        {title:"处罚结果", field:"PunishmentResult"},
+                        {title:"处罚单位", field:"PunishGov"},
+                        {title:"处罚日期", field:"PunishDate"},
+                        {title:"执行情况", field:"Implementation"}
                     ],
                     data: data
                 }));
