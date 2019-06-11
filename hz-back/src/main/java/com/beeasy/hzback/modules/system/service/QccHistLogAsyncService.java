@@ -9,18 +9,16 @@ import com.beeasy.mscommon.util.U;
 import org.beetl.sql.core.SQLManager;
 import org.osgl.util.C;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Future;
 
 @Service
-@Async
+//@Async
 public class QccHistLogAsyncService {
     @Autowired
     private SQLManager sqlManager;
@@ -87,237 +85,152 @@ public class QccHistLogAsyncService {
         getOpExceptionURL = URL + "ECIException/GetOpException";
     }
 
-
     /**
      * 失信信息
-     * @param cusName
-     * @param map
      */
-    public Future<String> searchShiXin(String cusName, Map<String, Integer> map){
-
-        JSONArray ja = sendURL(searchShiXinURL, cusName);
-        int shixinInt = 0;
+    public Map<String, String> searchShiXin(){
+        Map<String, String> map = new HashMap<>();
+        JSONArray ja = sendURL(searchShiXinURL);
         for (int i = 0; i < ja.size(); i++) {
             JSONObject jo2 = ja.getJSONObject(i);
             String qccId = jo2.getString("Id");
+            String cusName = jo2.getString("Name");
+            map.put(cusName + "-" + qccId, cusName);
 
-            // 查询有无记录
-            QccHistLog qccHistLogEntity = sqlManager.lambdaQuery(QccHistLog.class)
-                    .andEq(QccHistLog::getQccId, qccId)
-                    .andEq(QccHistLog::getFullName,cusName).single();
-
-            if(null == qccHistLogEntity){
-                shixinInt = shixinInt+1;
-                // 保存数据
-                saveEntity(cusName,qccId, "01");
-                map.put("searchShiXin",shixinInt);
-                System.out.println("searchShiXin 失信："+shixinInt);
-            }
-//        }
         }
-        return new AsyncResult<>("");
+        return map;
     }
 
     /**
      * 被执行信息
-     * @param cusName
-     * @param map
      */
-    public Future<String> searchZhiXing(String cusName, Map<String, Integer> map){
+    public Map<String, String> searchZhiXing(){
 
-        JSONArray ja = sendURL(searchZhiXingURL, cusName);
+        JSONArray ja = sendURL(searchZhiXingURL);
 
-        int zhiXingInt = 0;
+        Map<String, String> map = new HashMap<>();
         for (int i = 0; i < ja.size(); i++) {
             JSONObject jo2 = ja.getJSONObject(i);
             String qccId = jo2.getString("Id");
+            String cusName = jo2.getString("Name");
 
-            // 查询有无记录
-            QccHistLog qccHistLogEntity = sqlManager.lambdaQuery(QccHistLog.class)
-                    .andEq(QccHistLog::getQccId, qccId)
-                    .andEq(QccHistLog::getFullName,cusName).single();
+            map.put(cusName + "-" +qccId, cusName);
 
-            if(null == qccHistLogEntity){
-                zhiXingInt = zhiXingInt+1;
-                // 保存数据
-                saveEntity(cusName,qccId, "02");
-                map.put("searchZhiXing",zhiXingInt);
-                System.out.println("searchZhiXing 被执行："+zhiXingInt);
-            }
         }
-        return new AsyncResult<>("");
+        return map;
     }
 
     /**
      * 裁判文书
-     * @param cusName
-     * @param map
      */
-    public Future<String> searchJudgmentDoc(String cusName, Map<String, Integer> map){
-        JSONArray ja = sendURL(searchJudgmentDocURL, cusName);
-        int judgmentInt = 0;
+    public Map<String, String> searchJudgmentDoc(){
+        JSONArray ja = sendURL(searchJudgmentDocURL);
+        Map<String, String> map = new HashMap<>();
         for (int i = 0; i < ja.size(); i++) {
             JSONObject jo2 = ja.getJSONObject(i);
             String qccId = jo2.getString("Id");
-            // 查询有无记录
-            QccHistLog qccHistLogEntity = sqlManager.lambdaQuery(QccHistLog.class)
-                    .andEq(QccHistLog::getQccId, qccId)
-                    .andEq(QccHistLog::getFullName,cusName).single();
-            if(null == qccHistLogEntity){
-                judgmentInt = judgmentInt+1;
-                // 保存数据
-                saveEntity(cusName,qccId, "03");
-                map.put("searchJudgmentDoc",judgmentInt);
-                System.out.println("searchJudgmentDoc 裁判文书："+judgmentInt);
-            }
+            String cusName = jo2.getString("Name");
+            map.put(cusName + "-" +qccId, cusName);
+
         }
-        return new AsyncResult<>("");
+        return map;
     }
 
     /**
      * 法院公告
-     * @param cusName
-     * @param map
      */
-    public Future<String> searchCourtAnnouncement(String cusName, Map<String, Integer> map){
-        JSONArray ja = sendURL(searchCourtAnnouncementURL, cusName);
-        int courtAnnouncementInt = 0;
+    public Map<String, String> searchCourtAnnouncement(){
+        JSONArray ja = sendURL(searchCourtAnnouncementURL);
+        Map<String, String> map = new HashMap<>();
+
         for (int i = 0; i < ja.size(); i++) {
             JSONObject jo2 = ja.getJSONObject(i);
             String qccId = jo2.getString("Id");
-            // 查询有无记录
-            QccHistLog qccHistLogEntity = sqlManager.lambdaQuery(QccHistLog.class)
-                    .andEq(QccHistLog::getQccId, qccId)
-                    .andEq(QccHistLog::getFullName,cusName).single();
-            if(null == qccHistLogEntity){
-                courtAnnouncementInt = courtAnnouncementInt+1;
-                // 保存数据
-                saveEntity(cusName,qccId, "04");
-                map.put("searchCourtAnnouncement",courtAnnouncementInt);
-                System.out.println("searchCourtAnnouncement 法院公告："+courtAnnouncementInt);
-            }
+            String cusName = jo2.getString("Name");
+            map.put(cusName + "-" +qccId, cusName);
         }
-        return new AsyncResult<>("");
+        return map;
     }
 
     /**
      * 开庭公告
-     * @param cusName
-     * @param map
      */
-    public Future<String> searchCourtNotice(String cusName, Map<String, Integer> map){
-        JSONArray ja = sendURL(searchCourtNoticeURL, cusName);
-        int courtNoticeInt = 0;
+    public Map<String,String> searchCourtNotice(){
+        JSONArray ja = sendURL(searchCourtNoticeURL);
+        Map<String, String> map = new HashMap<>();
+
         for (int i = 0; i < ja.size(); i++) {
             JSONObject jo2 = ja.getJSONObject(i);
             String qccId = jo2.getString("Id");
-            // 查询有无记录
-            QccHistLog qccHistLogEntity = sqlManager.lambdaQuery(QccHistLog.class)
-                    .andEq(QccHistLog::getQccId, qccId)
-                    .andEq(QccHistLog::getFullName,cusName).single();
-            if(null == qccHistLogEntity){
-                courtNoticeInt = courtNoticeInt+1;
-                // 保存数据
-                saveEntity(cusName,qccId, "05");
-                map.put("searchCourtNotice",courtNoticeInt);
-                System.out.println("searchCourtNotice 开庭公告："+courtNoticeInt);
-            }
+            String cusName = jo2.getString("Name");
+            map.put(cusName + "-" +qccId, cusName);
+
         }
-        return new AsyncResult<>("");
+        return map;
     }
 
     /**
      * 司法拍卖
-     * @param cusName
-     * @param map
      */
-    public Future<String> getJudicialSaleList(String cusName, Map<String, Integer> map){
-        JSONArray ja = sendURL(getJudicialSaleListURL, cusName);
-        int judicialSaleListInt = 0;
+    public Map<String, String> getJudicialSaleList(){
+        JSONArray ja = sendURL(getJudicialSaleListURL);
+        Map<String, String> map = new HashMap<>();
         for (int i = 0; i < ja.size(); i++) {
             JSONObject jo2 = ja.getJSONObject(i);
             String qccId = jo2.getString("Id");
-            // 查询有无记录
-            QccHistLog qccHistLogEntity = sqlManager.lambdaQuery(QccHistLog.class)
-                    .andEq(QccHistLog::getQccId, qccId)
-                    .andEq(QccHistLog::getFullName,cusName).single();
-            if(null == qccHistLogEntity){
-                judicialSaleListInt = judicialSaleListInt+1;
-                // 保存数据
-                saveEntity(cusName,qccId, "06");
-                map.put("getJudicialSaleList",judicialSaleListInt);
-                System.out.println("getJudicialSaleList 司法拍卖："+judicialSaleListInt);
-            }
+            String cusName = jo2.getString("Name");
+            map.put(cusName + "-" +qccId, cusName);
+
         }
-        return new AsyncResult<>("");
+        return map;
     }
 
     /**
      * 环保处罚
-     * @param cusName
-     * @param map
      */
-    public Future<String> getEnvPunishmentList(String cusName, Map<String, Integer> map){
-        JSONArray ja = sendURL(getEnvPunishmentListURL, cusName);
-        int envPunishmentListInt = 0;
+    public Map<String, String> getEnvPunishmentList(){
+        JSONArray ja = sendURL(getEnvPunishmentListURL);
+        Map<String, String> map = new HashMap<>();
+
         for (int i = 0; i < ja.size(); i++) {
             JSONObject jo2 = ja.getJSONObject(i);
             String qccId = jo2.getString("Id");
-            // 查询有无记录
-            QccHistLog qccHistLogEntity = sqlManager.lambdaQuery(QccHistLog.class)
-                    .andEq(QccHistLog::getQccId, qccId)
-                    .andEq(QccHistLog::getFullName,cusName).single();
-            if(null == qccHistLogEntity){
-                envPunishmentListInt = envPunishmentListInt+1;
-                // 保存数据
-                saveEntity(cusName,qccId, "07");
-                map.put("getEnvPunishmentList",envPunishmentListInt);
-                System.out.println("getEnvPunishmentList 环保处罚"+envPunishmentListInt);
-            }
+            String cusName = jo2.getString("Name");
+            map.put(cusName + "-" +qccId, cusName);
         }
-        return new AsyncResult<>("");
+        return map;
     }
 
     /**
      * 司法协助
-     * @param cusName
-     * @param map
      */
-    public Future<String> getJudicialAssistance(String cusName, Map<String, Integer> map){
-        JSONArray ja = sendURL(getJudicialAssistanceURL, cusName);
-        int judicialAssistanceInt = 0;
+    public Map<String, String> getJudicialAssistance(){
+        JSONArray ja = sendURL(getJudicialAssistanceURL);
+        Map<String, String> map = new HashMap<>();
+
         for (int i = 0; i < ja.size(); i++) {
             JSONObject jo2 = ja.getJSONObject(i);
             String qccId = jo2.getString("ExecutionNoticeNum");
-            // 查询有无记录
-            QccHistLog qccHistLogEntity = sqlManager.lambdaQuery(QccHistLog.class)
-                    .andEq(QccHistLog::getQccId, qccId)
-                    .andEq(QccHistLog::getFullName,cusName).single();
-            if(null == qccHistLogEntity){
-                judicialAssistanceInt = judicialAssistanceInt+1;
-                // 保存数据
-                saveEntity(cusName,qccId, "08");
-                map.put("judicialAssistance",judicialAssistanceInt);
-                System.out.println("judicialAssistance 司法协助"+judicialAssistanceInt);
-            }
+            String cusName = jo2.getString("Name");
+            map.put(cusName + "-" +qccId, cusName);
+
         }
-        return new AsyncResult<>("");
+        return map;
     }
 
     /**
      * 经营异常
-     * @param cusName
-     * @param map
      */
-    public Future<String> getOpException(String cusName, Map<String, Integer> map){
-        JSONArray ja = sendURL(getOpExceptionURL, cusName);
-        int opExceptionInt = 0;
+    public Map<String, String> getOpException(){
+        JSONArray ja = sendURL(getOpExceptionURL);
+        Map<String, String> map = new HashMap<>();
         for (int i = 0; i < ja.size(); i++) {
             JSONObject jo2 = ja.getJSONObject(i);
             String decisionOffice = jo2.getString("DecisionOffice");
 
             String qccId = decisionOffice;
             String addDate = jo2.getString("AddDate");
+            String cusName = jo2.getString("Name");
 
             if(null != addDate){
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -325,25 +238,24 @@ public class QccHistLogAsyncService {
                 String time = sdf.format(ts);
                 qccId = qccId + time;
             }
+            map.put(cusName + "-" +qccId, cusName);
 
-            // 查询有无记录
-            QccHistLog qccHistLogEntity = sqlManager.lambdaQuery(QccHistLog.class)
-                    .andEq(QccHistLog::getQccId, qccId)
-                    .andEq(QccHistLog::getFullName,cusName).single();
-            if(null == qccHistLogEntity){
-                opExceptionInt = opExceptionInt+1;
-                // 保存数据
-                saveEntity(cusName,qccId, "09");
-                map.put("opException",opExceptionInt);
-                System.out.println("opException 经营异常"+opExceptionInt);
-            }
+
         }
-        return new AsyncResult<>("");
+        return map;
     }
 
-    private JSONArray sendURL(String URL, String cusName){
+//    private JSONArray sendURL(String URL, String cusName){
+//        // 发送请求
+//        String resultString = sendGET(URL, cusName);
+//        JSONObject objectStr = JSON.parseObject(resultString);
+//
+//        JSONArray ja = objectStr.getJSONArray("Result");
+//        return ja;
+//    }
+    private JSONArray sendURL(String URL){
         // 发送请求
-        String resultString = sendGET(URL, cusName);
+        String resultString = sendGET(URL);
         JSONObject objectStr = JSON.parseObject(resultString);
 
         JSONArray ja = objectStr.getJSONArray("Result");
@@ -351,7 +263,7 @@ public class QccHistLogAsyncService {
     }
 
     // 保存数据
-    private void saveEntity(String cusName, String qccId, String type){
+    public void saveEntity(String cusName, String qccId, String type){
         QccHistLog entity = new QccHistLog();
         entity.setId(U.getSnowflakeIDWorker().nextId());
         entity.setAddTime(new Date());
@@ -363,11 +275,11 @@ public class QccHistLogAsyncService {
     }
 
     // 发送get请求
-    private String sendGET(String URL,String cusName){
+    private String sendGET(String URL){
         String resultString ="";
         try{
             resultString =  HttpUtil.get(URL, C.newMap(
-                    "fullName", cusName,"pageIndex","1","pageSize","999"
+                    "pageIndex","1","pageSize","9999"
             ));
         }catch (Exception e){
             e.printStackTrace();
@@ -375,4 +287,16 @@ public class QccHistLogAsyncService {
 
         return resultString;
     }
+//    private String sendGET(String URL,String cusName){
+//        String resultString ="";
+//        try{
+//            resultString =  HttpUtil.get(URL, C.newMap(
+//                    "fullName", cusName,"pageIndex","1","pageSize","999"
+//            ));
+//        }catch (Exception e){
+//            e.printStackTrace();
+//        }
+//
+//        return resultString;
+//    }
 }
