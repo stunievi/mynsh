@@ -46,14 +46,14 @@ import static com.beeasy.zed.Config.config;
 
 //import cn.hutool.json.*;
 
-public class DeconstructService extends AbstractService{
+public class DeconstructService extends AbstractService {
 
     //日志存储
     private File logSourceDir;
-//    private File logSqlDir;
+    //    private File logSqlDir;
 //    private File logUnzipDir;
     private File blobDir;
-//    private ReentrantLock mutex = new ReentrantLock();
+    //    private ReentrantLock mutex = new ReentrantLock();
 //    private ExecutorService executor = Executors.newFixedThreadPool(16);
     private Map<String, Boolean> runningTask = new HashMap<>();
 
@@ -65,28 +65,29 @@ public class DeconstructService extends AbstractService{
     private static String[] dateFormats = {"yyyy-MM-dd hh:mm:ss", "yyyy-MM-dd", "yyyy-MM-dd'T'HH:mm:ssXXX", "yyyy-MM-dd'T'HH:mm:ss"};
 
     private static ValueGenerator.Wrap DateValue = ValueGenerator.createDate();
+    private static ValueGenerator.Wrap ProvinceValue = ValueGenerator.createProvince();
 //    private static ValueGenerator.Wrap Base64Value = ValueGenerator.createBase64();
 
     public static Map<String, DeconstructHandler> handlers = new ConcurrentHashMap<>();
 
     public static JSONObject HistorytEciMap = newJsonObject(
-        "CompanyNameList", "QCC_HIS_ECI_COMPANY_NAME_LIST",
-        "OperList", "QCC_HIS_ECI_OPER_LIST",
-        "RegistCapiList", "QCC_HIS_ECI_REGIST_CAPI_LIST",
-        "AddressList", "QCC_HIS_ECI_ADDRESS_LIST",
-        "ScopeList", "QCC_HIS_ECI_SCOPE_LIST",
-        "EmployeeList", "QCC_HIS_ECI_EMPLOYEE_LIST",
+            "CompanyNameList", "QCC_HIS_ECI_COMPANY_NAME_LIST",
+            "OperList", "QCC_HIS_ECI_OPER_LIST",
+            "RegistCapiList", "QCC_HIS_ECI_REGIST_CAPI_LIST",
+            "AddressList", "QCC_HIS_ECI_ADDRESS_LIST",
+            "ScopeList", "QCC_HIS_ECI_SCOPE_LIST",
+            "EmployeeList", "QCC_HIS_ECI_EMPLOYEE_LIST",
 //        "EmployeeList.Employees@inner_id->el_inner_id", "QCC_HIS_ECI_EMPLOYEE_LIST.QCC_HIS_ECI_EMPLOYEE_LIST_JOB",
-        "BranchList", "QCC_HIS_ECI_BRANCH_LIST",
-        "TelList", "QCC_HIS_ECI_TEL_LIST",
-        "EmailList", "QCC_HIS_ECI_EMAIL_LIST",
-        "WebsiteList", "QCC_HIS_ECI_WEBSITE_LIST"
+            "BranchList", "QCC_HIS_ECI_BRANCH_LIST",
+            "TelList", "QCC_HIS_ECI_TEL_LIST",
+            "EmailList", "QCC_HIS_ECI_EMAIL_LIST",
+            "WebsiteList", "QCC_HIS_ECI_WEBSITE_LIST"
     );
 
     public static JSONObject GetStockRelationInfoMap = newJsonObject(
-        "CIACompanyLegals", "QCC_CIA_COMPANY_LEGALS",
-        "CIAForeignInvestments", "QCC_CIA_FOREIGN_INVESTMENTS",
-        "CIAForeignOffices", "QCC_CIA_FOREIGN_OFFICES"
+            "CIACompanyLegals", "QCC_CIA_COMPANY_LEGALS",
+            "CIAForeignInvestments", "QCC_CIA_FOREIGN_INVESTMENTS",
+            "CIAForeignOffices", "QCC_CIA_FOREIGN_OFFICES"
     );
 
     public SqlVectors readySqls = new SqlVectors();
@@ -100,8 +101,8 @@ public class DeconstructService extends AbstractService{
     /**
      * 字段修正
      *
-     * @param json
-     * @param changelist
+     * @param objects
+     * @param objects
      */
     private static void changeField(Object... objects) {
 //        if (objects.length == 3 && objects[0] instanceof JSON && objects[1] instanceof ICanChange && objects[2] instanceof ITargetValue) {
@@ -193,19 +194,19 @@ public class DeconstructService extends AbstractService{
         return getQuery(request, key, true);
     }
 
-    private static String getQuery(FullHttpRequest request, String key, boolean throwError){
+    private static String getQuery(FullHttpRequest request, String key, boolean throwError) {
         JSONObject params = HttpServerHandler.decodeQuery(request);
-        if(params.containsKey(key)){
+        if (params.containsKey(key)) {
             return params.getString(key);
         }
-        if(throwError){
+        if (throwError) {
             throw new RuntimeException();
         }
         return "";
     }
 
     @Override
-    public void initSync(){
+    public void initSync() {
         DeconstructService service = this;
         service.logSourceDir = new File(config.log.source);
         service.blobDir = new File(config.log.blob);
@@ -269,53 +270,53 @@ public class DeconstructService extends AbstractService{
                 e.printStackTrace();
                 return;
             }
-            if(S.empty(requestId)) return;
+            if (S.empty(requestId)) return;
             //检查是否有相同的任务
-            synchronized (service){
-                if(service.runningTask.containsKey(requestId)){
+            synchronized (service) {
+                if (service.runningTask.containsKey(requestId)) {
                     new QccDeconstructReqponse(-1, 0, requestId, sourceRequest, "已经有相同的任务正在执行中");
                     return;
                 }
                 service.runningTask.put(requestId, true);
             }
             try {
-                service.onDeconstructRequest(requestId,sourceRequest,(BlobMessage) m);
+                service.onDeconstructRequest(requestId, sourceRequest, (BlobMessage) m);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            synchronized (service){
+            synchronized (service) {
                 service.runningTask.remove(requestId);
             }
         });
 
-        MQService.getInstance().listenMessage("queue", "qcc-redeconstruct-request", m ->{
+        MQService.getInstance().listenMessage("queue", "qcc-redeconstruct-request", m -> {
             TextMessage textMessage = (TextMessage) m;
             JSONObject object = (JSONObject) JSON.parseObject(textMessage.getText());
             String requestId = object.getString("requestId");
             int progress = 0;
-            try{
+            try {
                 progress = object.getInteger("progress");
             } finally {
-                if(progress < 1){
+                if (progress < 1) {
                     progress = 1;
                 }
-                if(progress > 3){
+                if (progress > 3) {
                     progress = 3;
                 }
             }
-            if(S.empty(requestId)) return;
-            synchronized (service){
-                if(service.runningTask.containsKey(requestId)){
+            if (S.empty(requestId)) return;
+            synchronized (service) {
+                if (service.runningTask.containsKey(requestId)) {
                     new QccReDeconstructResponse(-1, 0, requestId, "", "已经有相同的任务正在执行中");
                     return;
                 }
                 service.runningTask.put(requestId, true);
             }
             service.onReDeconstructRequest(requestId, progress);
-            synchronized (service){
+            synchronized (service) {
                 service.runningTask.remove(requestId);
             }
-        } );
+        });
 
 
         //文件代理提供
@@ -324,7 +325,7 @@ public class DeconstructService extends AbstractService{
             public Object run(ChannelHandlerContext ctx, FullHttpRequest request) throws Exception {
                 String fid = getQuery(request, "fid");
                 File file = new File(blobDir, fid);
-                if(!file.exists()){
+                if (!file.exists()) {
                     return null;
                 }
                 return file;
@@ -338,6 +339,7 @@ public class DeconstructService extends AbstractService{
 
     /**
      * 十层穿透
+     *
      * @param channelHandlerContext
      * @param request
      * @param json
@@ -347,15 +349,15 @@ public class DeconstructService extends AbstractService{
         JSONObject object = (JSONObject) json;
         JSONObject CompanyData = object.getJSONObject("CompanyData");
         changeField(
-            CompanyData,
-            "+TermStart", DateValue,
-            "+TeamEnd", DateValue,
-            "+CheckDate", DateValue,
-            "+StartDate", DateValue,
-            "+EndDate", DateValue,
-            "+UpdatedDate", DateValue,
-            "+stock_statistics", object.getJSONObject("StockStatistics").toJSONString(),
-            "+inner_company_name", compName
+                CompanyData,
+                "+TermStart", DateValue,
+                "+TeamEnd", DateValue,
+                "+CheckDate", DateValue,
+                "+StartDate", DateValue,
+                "+EndDate", DateValue,
+                "+UpdatedDate", DateValue,
+                "+stock_statistics", object.getJSONObject("StockStatistics").toJSONString(),
+                "+inner_company_name", compName
         );
         deconstruct(CompanyData, "QCC_SAD", "inner_company_name");
         doDelete("QCC_SAD_PARTNERS", "inner_company_name", compName);
@@ -367,7 +369,7 @@ public class DeconstructService extends AbstractService{
                 break child;
             }
             changeField(Partners,
-                "+inner_company_name", compName
+                    "+inner_company_name", compName
             );
             deconstruct(Partners, "QCC_SAD_PARTNERS", "");
         }
@@ -378,8 +380,8 @@ public class DeconstructService extends AbstractService{
                 break child;
             }
             changeField(
-                StockList,
-                "+inner_company_name", compName
+                    StockList,
+                    "+inner_company_name", compName
             );
             deconstruct(StockList, "QCC_SAD_STOCK_LIST", "");
 
@@ -388,6 +390,7 @@ public class DeconstructService extends AbstractService{
 
     /**
      * 控股公司查询
+     *
      * @param channelHandlerContext
      * @param request
      * @param json
@@ -395,8 +398,8 @@ public class DeconstructService extends AbstractService{
     private void GetHoldingCompany(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         String compName = getQuery(request, "keyWord");
         changeField(
-            json,
-            "+inner_company_name", compName
+                json,
+                "+inner_company_name", compName
         );
         deconstruct(json, "QCC_HOLDING_COMPANY", "inner_company_name");
         doDelete("QCC_HOLDING_COMPANY_NAMES", "inner_company_name", compName);
@@ -421,10 +424,10 @@ public class DeconstructService extends AbstractService{
                     paths = new JSONArray();
                 }
                 changeField(name,
-                    "+inner_company_name", compName,
-                    "+Paths", paths.toJSONString(),
-                    "+Oper", oper.toJSONString(),
-                    "+StartDate", DateValue
+                        "+inner_company_name", compName,
+                        "+Paths", paths.toJSONString(),
+                        "+Oper", oper.toJSONString(),
+                        "+StartDate", DateValue
                 );
                 JSONObject kv = (JSONObject) deconstruct(name, "QCC_HOLDING_COMPANY_NAMES", "");
                 // FIXME: 2019/4/14 路径结构有问题，不解构
@@ -434,8 +437,8 @@ public class DeconstructService extends AbstractService{
 //                    );
 //                deconstruct(paths, "QCC_HOLDING_COMPANY_NAMES_PATHS", "");
                 changeField(oper,
-                    "+inner_company_name", compName,
-                    "+parent_inner_id", kv.getString("inner_id")
+                        "+inner_company_name", compName,
+                        "+parent_inner_id", kv.getString("inner_id")
                 );
                 deconstruct(oper, "QCC_HOLDING_COMPANY_NAMES_OPER", "");
             }
@@ -444,6 +447,7 @@ public class DeconstructService extends AbstractService{
 
     /**
      * 企业人员董监高信息
+     *
      * @param channelHandlerContext
      * @param request
      * @param json
@@ -457,16 +461,17 @@ public class DeconstructService extends AbstractService{
                 continue;
             }
             changeField(array,
-                "+inner_company_name", compName,
-                "+per_name", name
+                    "+inner_company_name", compName,
+                    "+per_name", name
             );
-            doDelete((String) entry.getValue(), new String[]{"inner_company_name","per_name"}, new String[]{compName ,name});
+            doDelete((String) entry.getValue(), new String[]{"inner_company_name", "per_name"}, new String[]{compName, name});
             deconstruct(array, (String) entry.getValue(), "");
         }
     }
 
     /**
      * 企业图谱
+     *
      * @param channelHandlerContext
      * @param request
      * @param json
@@ -476,9 +481,9 @@ public class DeconstructService extends AbstractService{
         String compName = getQuery(request, "fullName");
         JSONObject node = (JSONObject) jsonGetByPath(json, "Node");
         changeField(
-            node,
-            "+inner_company_no", keyNo,
-            "+inner_company_name", compName
+                node,
+                "+inner_company_no", keyNo,
+                "+inner_company_name", compName
         );
         doDelete("QCC_TREE_RELATION_MAP", "inner_company_no", keyNo);
         deconstruct(node, "QCC_TREE_RELATION_MAP", "");
@@ -486,6 +491,7 @@ public class DeconstructService extends AbstractService{
 
     /**
      * 股权结构
+     *
      * @param channelHandlerContext
      * @param request
      * @param json
@@ -494,9 +500,9 @@ public class DeconstructService extends AbstractService{
         String keyNo = getQuery(request, "keyNo");
         String compName = getQuery(request, "fullName");
         changeField(
-            json,
-            "+inner_company_no", keyNo,
-            "+inner_company_name", compName
+                json,
+                "+inner_company_no", keyNo,
+                "+inner_company_name", compName
         );
         doDelete("QCC_CESM", "inner_company_no", keyNo);
         JSONObject kv = (JSONObject) deconstruct(json, "QCC_CESM", "");
@@ -510,9 +516,9 @@ public class DeconstructService extends AbstractService{
                 break child;
             }
             changeField(array,
-                "+inner_company_no", keyNo,
-                "+inner_company_name", compName,
-                "+cesm_inner_id", kv.getString("inner_id")
+                    "+inner_company_no", keyNo,
+                    "+inner_company_name", compName,
+                    "+cesm_inner_id", kv.getString("inner_id")
             );
             doDelete("QCC_CESM_ACLP", "INNER_COMPANY_NO", keyNo);
             deconstruct(array, "QCC_CESM_ACLP", "");
@@ -521,6 +527,7 @@ public class DeconstructService extends AbstractService{
 
     /**
      * 企业族谱
+     *
      * @param channelHandlerContext
      * @param request
      * @param json
@@ -530,9 +537,9 @@ public class DeconstructService extends AbstractService{
         String compName = getQuery(request, "fullName");
         JSONObject node = ((JSONObject) json).getJSONObject("Node");
         changeField(
-            node,
-            "+inner_company_no", keyNo,
-            "+inner_company_name", compName
+                node,
+                "+inner_company_no", keyNo,
+                "+inner_company_name", compName
         );
         doDelete("QCC_COMPANY_MAP", "INNER_COMPANY_NO", keyNo);
         deconstruct(node, "QCC_COMPANY_MAP", "");
@@ -541,20 +548,22 @@ public class DeconstructService extends AbstractService{
 
     /**
      * 新增公司
+     *
      * @param channelHandlerContext
      * @param request
      * @param json
      */
     private void SearchFresh(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         changeField(
-            json,
-            "+StartDate", DateValue
+                json,
+                "+StartDate", DateValue
         );
         deconstruct(json, "QCC_FRESH", "KeyNo");
     }
 
     /**
      * 历史行政许可
+     *
      * @param channelHandlerContext
      * @param request
      * @param json
@@ -565,20 +574,20 @@ public class DeconstructService extends AbstractService{
         JSONArray EciList = object.getJSONArray("EciList");
         JSONArray CreditChinaList = object.getJSONArray("CreditChinaList");
         changeField(
-            EciList,
-            new ICanChange() {
-                @Override
-                public boolean call(String key) {
-                    return key.endsWith("Date");
-                }
-            }, DateValue,
-            "+inner_company_name", compName
+                EciList,
+                new ICanChange() {
+                    @Override
+                    public boolean call(String key) {
+                        return key.endsWith("Date");
+                    }
+                }, DateValue,
+                "+inner_company_name", compName
         );
         changeField(
-            CreditChinaList,
-            "LianDate->LiAnDate",
-            "+LiAnDate", DateValue,
-            "+inner_company_name", compName
+                CreditChinaList,
+                "LianDate->LiAnDate",
+                "+LiAnDate", DateValue,
+                "+inner_company_name", compName
         );
         doDelete("QCC_HIS_ADMIN_LICENS_EL", "inner_company_name", compName);
         doDelete("QCC_HIS_ADMIN_LICENS_CCL", "inner_company_name", compName);
@@ -588,6 +597,7 @@ public class DeconstructService extends AbstractService{
 
     /**
      * 历史行政处罚
+     *
      * @param channelHandlerContext
      * @param request
      * @param json
@@ -598,20 +608,20 @@ public class DeconstructService extends AbstractService{
         JSONArray EciList = object.getJSONArray("EciList");
         JSONArray CreditChinaList = object.getJSONArray("CreditChinaList");
         changeField(
-            EciList,
-            new ICanChange() {
-                @Override
-                public boolean call(String key) {
-                    return key.endsWith("Date");
-                }
-            }, DateValue,
-            "+inner_company_name", compName
+                EciList,
+                new ICanChange() {
+                    @Override
+                    public boolean call(String key) {
+                        return key.endsWith("Date");
+                    }
+                }, DateValue,
+                "+inner_company_name", compName
         );
         changeField(
-            CreditChinaList,
-            "LianDate->LiAnDate",
-            "+LiAnDate", DateValue,
-            "+inner_company_name", compName
+                CreditChinaList,
+                "LianDate->LiAnDate",
+                "+LiAnDate", DateValue,
+                "+inner_company_name", compName
         );
         doDelete("QCC_HIS_ADMIN_PENALTY_EL", "inner_company_name", compName);
         doDelete("QCC_HIS_ADMIN_PENALTY_CCL", "inner_company_name", compName);
@@ -621,6 +631,7 @@ public class DeconstructService extends AbstractService{
 
     /**
      * 历史股权出质
+     *
      * @param channelHandlerContext
      * @param request
      * @param json
@@ -628,13 +639,13 @@ public class DeconstructService extends AbstractService{
     private void GetHistorytPledge(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         String compName = getQuery(request, "keyWord");
         changeField(json,
-            new ICanChange() {
-                @Override
-                public boolean call(String key) {
-                    return key.endsWith("Date");
-                }
-            }, DateValue,
-            "+inner_company_name", compName
+                new ICanChange() {
+                    @Override
+                    public boolean call(String key) {
+                        return key.endsWith("Date");
+                    }
+                }, DateValue,
+                "+inner_company_name", compName
         );
         doDelete("QCC_HIS_PLEDGE", "inner_company_name", compName);
         deconstruct(json, "QCC_HIS_PLEDGE", "");
@@ -642,6 +653,7 @@ public class DeconstructService extends AbstractService{
 
     /**
      * 历史动产抵押
+     *
      * @param channelHandlerContext
      * @param request
      * @param json
@@ -649,9 +661,9 @@ public class DeconstructService extends AbstractService{
     private void GetHistorytMPledge(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         String compName = getQuery(request, "keyWord");
         changeField(
-            json,
-            "+RegisterDate", DateValue,
-            "+inner_company_name", compName
+                json,
+                "+RegisterDate", DateValue,
+                "+inner_company_name", compName
         );
         doDelete("QCC_HIS_M_PLEDGE", "inner_company_name", compName);
         deconstruct(json, "QCC_HIS_M_PLEDGE", "");
@@ -659,6 +671,7 @@ public class DeconstructService extends AbstractService{
 
     /**
      * 历史开庭公告
+     *
      * @param channelHandlerContext
      * @param request
      * @param json
@@ -666,16 +679,17 @@ public class DeconstructService extends AbstractService{
     private void GetHistorytSessionNotice(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         String compName = getQuery(request, "keyWord");
         changeField(
-            json,
-            "+inner_company_name", compName,
-            "Executegov->ExecuteGov",
-            "LianDate->LiAnDate"
+                json,
+                "+inner_company_name", compName,
+                "Executegov->ExecuteGov",
+                "LianDate->LiAnDate"
         );
         deconstruct(json, "QCC_HIS_SESSION_NOTICE", "Id");
     }
 
     /**
      * 历史裁判文书
+     *
      * @param channelHandlerContext
      * @param request
      * @param json
@@ -683,13 +697,13 @@ public class DeconstructService extends AbstractService{
     private void GetHistorytJudgement(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         String compName = getQuery(request, "keyWord");
         changeField(json,
-            new ICanChange() {
-                @Override
-                public boolean call(String key) {
-                    return key.endsWith("Date");
-                }
-            }, DateValue,
-            "+inner_company_name", compName
+                new ICanChange() {
+                    @Override
+                    public boolean call(String key) {
+                        return key.endsWith("Date");
+                    }
+                }, DateValue,
+                "+inner_company_name", compName
         );
         deconstruct(json, "QCC_HIS_JUDGEMENT", "Id");
     }
@@ -698,14 +712,14 @@ public class DeconstructService extends AbstractService{
     private void GetHistorytCourtNotice(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         String compName = getQuery(request, "keyWord");
         changeField(
-            json,
-            new ICanChange() {
-                @Override
-                public boolean call(String key) {
-                    return key.endsWith("Date");
-                }
-            }, DateValue,
-            "+inner_company_name", compName
+                json,
+                new ICanChange() {
+                    @Override
+                    public boolean call(String key) {
+                        return key.endsWith("Date");
+                    }
+                }, DateValue,
+                "+inner_company_name", compName
         );
         deconstruct(json, "QCC_HIS_COURT_NOTICE", "Id");
     }
@@ -713,14 +727,14 @@ public class DeconstructService extends AbstractService{
     private void GetHistoryZhiXing(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         String compName = getQuery(request, "keyWord");
         changeField(json,
-            "Anno->AnNo",
-            new ICanChange() {
-                @Override
-                public boolean call(String key) {
-                    return key.endsWith("Date");
-                }
-            }, DateValue,
-            "+inner_company_name", compName
+                "Anno->AnNo",
+                new ICanChange() {
+                    @Override
+                    public boolean call(String key) {
+                        return key.endsWith("Date");
+                    }
+                }, DateValue,
+                "+inner_company_name", compName
         );
         doDelete("QCC_HIS_ZHIXING", "inner_company_name", compName);
         deconstruct(json, "QCC_HIS_ZHIXING", "");
@@ -729,6 +743,7 @@ public class DeconstructService extends AbstractService{
 
     /**
      * 历史失信
+     *
      * @param channelHandlerContext
      * @param request
      * @param json
@@ -736,14 +751,14 @@ public class DeconstructService extends AbstractService{
     private void GetHistoryShiXin(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         String compName = getQuery(request, "keyWord");
         changeField(json,
-            "Anno->AnNo",
-            new ICanChange() {
-                @Override
-                public boolean call(String key) {
-                    return key.endsWith("Date");
-                }
-            }, DateValue,
-            "+inner_company_name", compName
+                "Anno->AnNo",
+                new ICanChange() {
+                    @Override
+                    public boolean call(String key) {
+                        return key.endsWith("Date");
+                    }
+                }, DateValue,
+                "+inner_company_name", compName
         );
         deconstruct(json, "QCC_HIS_SHIXIN", "Id");
     }
@@ -751,6 +766,7 @@ public class DeconstructService extends AbstractService{
 
     /**
      * 历史股东
+     *
      * @param channelHandlerContext
      * @param request
      * @param json
@@ -765,9 +781,9 @@ public class DeconstructService extends AbstractService{
         JSONArray details = object.getJSONArray("Details");
 
         changeField(
-            details,
-            "+ChangeDateList", ChangeDateList.toJSONString(),
-            "+inner_company_name", compName
+                details,
+                "+ChangeDateList", ChangeDateList.toJSONString(),
+                "+inner_company_name", compName
         );
         doDelete("QCC_HIS_SHARE_HOLDER_DETAILS", "inner_company_name", compName);
         deconstruct(details, "QCC_HIS_SHARE_HOLDER_DETAILS", "");
@@ -783,6 +799,7 @@ public class DeconstructService extends AbstractService{
 
     /**
      * 历史对外投资
+     *
      * @param channelHandlerContext
      * @param request
      * @param json
@@ -790,32 +807,32 @@ public class DeconstructService extends AbstractService{
     private void GetHistorytInvestment(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         String compName = getQuery(request, "keyWord");
         changeField(
-            json,
-            "+inner_company_name", compName,
-            new ICanChange() {
-                @Override
-                public boolean call(String key) {
-                    return key.endsWith("Date");
-                }
-            }, DateValue,
-            "+RegistCapi", new ValueGenerator() {
-                @Override
-                public Object call(JSONObject kv) {
-                    return kv.getString("RegistCapi").replaceAll("万人民币元|万元人民币", "");
-                }
-            },
-            "+FundedRatio", new ValueGenerator() {
-                @Override
-                public Object call(JSONObject kv) {
-                    String FundedRatio = kv.getString("FundedRatio");
-                    if(S.empty(FundedRatio)){
-                        FundedRatio = "100";
-                    } else {
-                        FundedRatio = FundedRatio.replace("%", "");
+                json,
+                "+inner_company_name", compName,
+                new ICanChange() {
+                    @Override
+                    public boolean call(String key) {
+                        return key.endsWith("Date");
                     }
-                    return FundedRatio;
+                }, DateValue,
+                "+RegistCapi", new ValueGenerator() {
+                    @Override
+                    public Object call(JSONObject kv) {
+                        return kv.getString("RegistCapi").replaceAll("万人民币元|万元人民币", "");
+                    }
+                },
+                "+FundedRatio", new ValueGenerator() {
+                    @Override
+                    public Object call(JSONObject kv) {
+                        String FundedRatio = kv.getString("FundedRatio");
+                        if (S.empty(FundedRatio)) {
+                            FundedRatio = "100";
+                        } else {
+                            FundedRatio = FundedRatio.replace("%", "");
+                        }
+                        return FundedRatio;
+                    }
                 }
-            }
 
         );
         doDelete("QCC_HIS_INVESTMENT", "inner_company_name", compName);
@@ -824,6 +841,7 @@ public class DeconstructService extends AbstractService{
 
     /**
      * 历史工商信息
+     *
      * @param channelHandlerContext
      * @param request
      * @param json
@@ -831,8 +849,8 @@ public class DeconstructService extends AbstractService{
     private void GetHistorytEci(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         String compName = getQuery(request, "keyWord");
         changeField(json,
-            "+inner_company_name", compName,
-            "+his_data", json.toJSONString()
+                "+inner_company_name", compName,
+                "+his_data", json.toJSONString()
         );
         deconstruct(json, "QCC_HIS_ECI", "inner_company_name");
         JSONObject object = (JSONObject) json;
@@ -841,13 +859,13 @@ public class DeconstructService extends AbstractService{
 
             JSON obj = (JSON) object.get(key);
             changeField(obj,
-                "+inner_company_name", compName,
-                new ICanChange() {
-                    @Override
-                    public boolean call(String key) {
-                        return key.endsWith("Date");
-                    }
-                }, DateValue);
+                    "+inner_company_name", compName,
+                    new ICanChange() {
+                        @Override
+                        public boolean call(String key) {
+                            return key.endsWith("Date");
+                        }
+                    }, DateValue);
             doDelete((String) entry.getValue(), "inner_company_name", compName);
             JSON finalobjs = deconstruct(obj, (String) entry.getValue(), "");
             if (entry.getKey().equals("EmployeeList")) {
@@ -857,8 +875,8 @@ public class DeconstructService extends AbstractService{
                     JSONArray arr = o.getJSONArray("employees");
                     for (Object a : arr) {
                         changeField(a,
-                            "+inner_company_name", compName,
-                            "+el_inner_id", o.getString("inner_id")
+                                "+inner_company_name", compName,
+                                "+el_inner_id", o.getString("inner_id")
                         );
                     }
                     deconstruct(arr, "QCC_HIS_ECI_EMPLOYEE_LIST_JOB", "");
@@ -879,17 +897,20 @@ public class DeconstructService extends AbstractService{
     private void GetDetailsByName(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         String compName = getQuery(request, "keyword");
         changeField(
-            json,
-            "+inner_company_name", compName,
-            "+UpdatedDate", DateValue,
-            "+StartDate", DateValue,
-            "+EndDate", DateValue,
-            "+TermStart", DateValue,
-            "+TeamEnd", DateValue,
-            "+CheckDate", DateValue,
-            "+UpdatedDate", DateValue
+                json,
+                "+inner_company_name", compName,
+                "+UpdatedDate", DateValue,
+                "+StartDate", DateValue,
+                "+EndDate", DateValue,
+                "+TermStart", DateValue,
+                "+TeamEnd", DateValue,
+                "+CheckDate", DateValue,
+                "+UpdatedDate", DateValue,
+                "+Province", ProvinceValue
         );
         JSONObject object = (JSONObject) json;
+
+
         JSONObject kv = (JSONObject) deconstruct(json, "QCC_DETAILS", "inner_company_name");
         //曾用名
         cym:
@@ -899,8 +920,8 @@ public class DeconstructService extends AbstractService{
                 break cym;
             }
             changeField(array,
-                "+ChangeDate", ValueGenerator.createDate("ChangeDate"),
-                "+inner_company_name", compName
+                    "+ChangeDate", ValueGenerator.createDate("ChangeDate"),
+                    "+inner_company_name", compName
             );
             doDelete("QCC_DETAILS_ORIGINAL_NAME", "inner_company_name", compName);
             deconstruct(array, "QCC_DETAILS_ORIGINAL_NAME", "");
@@ -917,9 +938,9 @@ public class DeconstructService extends AbstractService{
                 break gd;
             }
             changeField(array,
-                "+CapiDate", DateValue,
-                "+ShoudDate", DateValue,
-                "+inner_company_name", compName
+                    "+CapiDate", DateValue,
+                    "+ShoudDate", DateValue,
+                    "+inner_company_name", compName
             );
             doDelete("QCC_DETAILS_PARTNERS", "inner_company_name", compName);
             deconstruct(array, "QCC_DETAILS_PARTNERS", "");
@@ -933,8 +954,8 @@ public class DeconstructService extends AbstractService{
                 break zyry;
             }
             changeField(
-                array,
-                "+inner_company_name", compName
+                    array,
+                    "+inner_company_name", compName
             );
             doDelete("QCC_DETAILS_EMPLOYEES", "inner_company_name", compName);
             deconstruct(array, "QCC_DETAILS_EMPLOYEES", "");
@@ -951,8 +972,8 @@ public class DeconstructService extends AbstractService{
                 break fzjg;
             }
             changeField(
-                array,
-                "+inner_company_name", compName
+                    array,
+                    "+inner_company_name", compName
             );
             doDelete("QCC_DETAILS_BRANCHES", "inner_company_name", compName);
             deconstruct(array, "QCC_DETAILS_BRANCHES", "");
@@ -969,9 +990,9 @@ public class DeconstructService extends AbstractService{
                 break child;
             }
             changeField(
-                array,
-                "+ChangeDate", DateValue,
-                "+inner_company_name", compName
+                    array,
+                    "+ChangeDate", DateValue,
+                    "+inner_company_name", compName
             );
             doDelete("QCC_DETAILS_CHANGE_RECORDS", "inner_company_name", compName);
             deconstruct(array, "QCC_DETAILS_CHANGE_RECORDS", "");
@@ -989,18 +1010,18 @@ public class DeconstructService extends AbstractService{
                 break child;
             }
             changeField(
-                obj,
-                "+web_site", new ValueGenerator() {
-                    @Override
-                    public Object call(JSONObject kv) {
-                        JSONArray object1 = kv.getJSONArray("WebSite");
-                        if (object1 == null) {
-                            object1 = new JSONArray();
+                    obj,
+                    "+web_site", new ValueGenerator() {
+                        @Override
+                        public Object call(JSONObject kv) {
+                            JSONArray object1 = kv.getJSONArray("WebSite");
+                            if (object1 == null) {
+                                object1 = new JSONArray();
+                            }
+                            return object1.toJSONString();
                         }
-                        return object1.toJSONString();
-                    }
-                },
-                "+inner_company_name", compName
+                    },
+                    "+inner_company_name", compName
             );
             doDelete("QCC_DETAILS_CONTACT_INFO", "inner_company_name", compName);
             deconstruct(obj, "QCC_DETAILS_CONTACT_INFO", "");
@@ -1017,8 +1038,8 @@ public class DeconstructService extends AbstractService{
                 break child;
             }
             changeField(
-                obj,
-                "+inner_company_name", compName
+                    obj,
+                    "+inner_company_name", compName
             );
             doDelete("QCC_DETAILS_INDUSTRY", "inner_company_name", compName);
             deconstruct(obj, "QCC_DETAILS_INDUSTRY", "");
@@ -1045,10 +1066,10 @@ public class DeconstructService extends AbstractService{
         for (Object object : array) {
             JSONObject obj = (JSONObject) object;
             changeField(
-                obj,
-                "+RegisterDate", DateValue,
-                "+PublicDate", DateValue,
-                "+inner_company_name", compName
+                    obj,
+                    "+RegisterDate", DateValue,
+                    "+PublicDate", DateValue,
+                    "+inner_company_name", compName
             );
             JSONObject ret = (JSONObject) deconstruct(obj, "QCC_CHATTEL_MORTGAGE", "");
             String id = ret.getString("inner_id");
@@ -1056,17 +1077,17 @@ public class DeconstructService extends AbstractService{
             JSONObject pledge = (JSONObject) jsonGetByPath(obj, "Detail.Pledge");
             if (pledge != null) {
                 changeField(pledge,
-                    "+cm_id", id,
-                    "+inner_company_name", compName,
-                    "+REGIST_DATE", DateValue);
+                        "+cm_id", id,
+                        "+inner_company_name", compName,
+                        "+REGIST_DATE", DateValue);
                 deconstruct(pledge, "QCC_CMD_PLEDGE", "");
             }
             //PledgeeList
             JSONArray pledgeeList = (JSONArray) jsonGetByPath(obj, "Detail.PledgeeList");
             if (pledgeeList != null) {
                 changeField(pledgeeList,
-                    "+cm_id", id,
-                    "+inner_company_name", compName
+                        "+cm_id", id,
+                        "+inner_company_name", compName
                 );
                 deconstruct(pledgeeList, "QCC_CMD_PLEDGEE_LIST", "");
             }
@@ -1074,16 +1095,16 @@ public class DeconstructService extends AbstractService{
             JSONObject securedClaim = (JSONObject) jsonGetByPath(obj, "Detail.SecuredClaim");
             if (securedClaim != null) {
                 changeField(securedClaim,
-                    "+cm_id", id,
-                    "+inner_company_name", compName);
+                        "+cm_id", id,
+                        "+inner_company_name", compName);
                 deconstruct(securedClaim, "QCC_CMD_SECURED_CLAIM", "");
             }
             //GuaranteeList
             JSONArray GuaranteeList = (JSONArray) jsonGetByPath(obj, "Detail.GuaranteeList");
             if (GuaranteeList != null) {
                 changeField(GuaranteeList,
-                    "+cm_id", id,
-                    "+inner_company_name", compName
+                        "+cm_id", id,
+                        "+inner_company_name", compName
                 );
                 deconstruct(GuaranteeList, "QCC_CMD_GUARANTEE_LIST", "");
             }
@@ -1092,9 +1113,9 @@ public class DeconstructService extends AbstractService{
             JSONObject CancelInfo = (JSONObject) jsonGetByPath(obj, "Detail.CancelInfo");
             if (CancelInfo != null) {
                 changeField(CancelInfo,
-                    "+cm_id", id,
-                    "+CancelDate", DateValue,
-                    "+inner_company_name", compName);
+                        "+cm_id", id,
+                        "+CancelDate", DateValue,
+                        "+inner_company_name", compName);
                 deconstruct(CancelInfo, "QCC_CMD_CANCEL_INFO", "");
             }
 
@@ -1102,9 +1123,9 @@ public class DeconstructService extends AbstractService{
             JSONArray ChangeList = (JSONArray) jsonGetByPath(obj, "Detail.ChangeList");
             if (ChangeList != null) {
                 changeField(ChangeList,
-                    "+cm_id", id,
-                    "+ChangeDate", DateValue,
-                    "+inner_company_name", compName
+                        "+cm_id", id,
+                        "+ChangeDate", DateValue,
+                        "+inner_company_name", compName
                 );
                 deconstruct(ChangeList, "QCC_CMD_CHANGE_LIST", "");
             }
@@ -1121,8 +1142,8 @@ public class DeconstructService extends AbstractService{
     private void GetEnvPunishmentDetails(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         String id = getQuery(request, "id");
         changeField(json,
-            "+PunishDate", DateValue,
-            "+Id", id
+                "+PunishDate", DateValue,
+                "+Id", id
         );
         deconstruct(json, "QCC_ENV_PUNISHMENT_LIST", "Id");
     }
@@ -1137,8 +1158,8 @@ public class DeconstructService extends AbstractService{
     private void GetEnvPunishmentList(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         String compName = getQuery(request, "keyWord");
         changeField(json,
-            "+inner_company_name", compName,
-            "+PunishDate", DateValue
+                "+inner_company_name", compName,
+                "+PunishDate", DateValue
         );
         deconstruct(json, "QCC_ENV_PUNISHMENT_LIST", "Id");
     }
@@ -1153,10 +1174,10 @@ public class DeconstructService extends AbstractService{
     private void GetLandMortgageDetails(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         String id = getQuery(request, "id");
         changeField(
-            json,
-            "+OnBoardStartTime", DateValue,
-            "+OnBoardEndTime", DateValue,
-            "+Id", id
+                json,
+                "+OnBoardStartTime", DateValue,
+                "+OnBoardEndTime", DateValue,
+                "+Id", id
         );
         deconstruct(json, "QCC_LAND_MORTGAGE", "Id");
         JSONObject object = (JSONObject) json;
@@ -1168,10 +1189,10 @@ public class DeconstructService extends AbstractService{
                 break child1;
             }
             JSONObject obj = newJsonObject(
-                "id", id,
-                "key_no", inner.getString("KeyNo"),
-                "name", inner.getString("Name"),
-                "type", "02"
+                    "id", id,
+                    "key_no", inner.getString("KeyNo"),
+                    "name", inner.getString("Name"),
+                    "type", "02"
             );
             deconstruct(obj, "QCC_LAND_MORTGAGE_PEOPLE", "");
         }
@@ -1182,10 +1203,10 @@ public class DeconstructService extends AbstractService{
                 break child2;
             }
             JSONObject obj = newJsonObject(
-                "id", id,
-                "key_no", inner.getString("KeyNo"),
-                "name", inner.getString("Name"),
-                "type", "01"
+                    "id", id,
+                    "key_no", inner.getString("KeyNo"),
+                    "name", inner.getString("Name"),
+                    "type", "01"
             );
             deconstruct(obj, "QCC_LAND_MORTGAGE_PEOPLE", "");
         }
@@ -1201,9 +1222,9 @@ public class DeconstructService extends AbstractService{
     private void GetLandMortgageList(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         String compName = getQuery(request, "keyWord");
         changeField(json,
-            "+StartDate", DateValue,
-            "+EndDate", DateValue,
-            "+inner_company_name", compName
+                "+StartDate", DateValue,
+                "+EndDate", DateValue,
+                "+inner_company_name", compName
         );
         deconstruct(json, "QCC_LAND_MORTGAGE", "Id");
     }
@@ -1218,7 +1239,7 @@ public class DeconstructService extends AbstractService{
     private void GetJudicialSaleDetail(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         String id = getQuery(request, "id");
         changeField(json,
-            "+Id", id
+                "+Id", id
 //            "+Context", Base64Value
         );
         deconstruct(json, "QCC_JUDICIAL_SALE", "Id");
@@ -1234,9 +1255,9 @@ public class DeconstructService extends AbstractService{
     private void GetJudicialSaleList(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         String compName = getQuery(request, "keyWord");
         changeField(json,
-            "Executegov->ExecuteGov",
-            "Name->title",
-            "+inner_company_name", compName
+                "Executegov->ExecuteGov",
+                "Name->title",
+                "+inner_company_name", compName
         );
         deconstruct(json, "QCC_JUDICIAL_SALE", "Id");
     }
@@ -1245,10 +1266,10 @@ public class DeconstructService extends AbstractService{
         String compNo = getQuery(request, "keyNo");
         String compName = getQuery(request, "fullName");
         changeField(json,
-            "+RemoveDate", DateValue,
-            "+AddDate", DateValue,
-            "+inner_company_no", compNo,
-            "+inner_company_name", compName
+                "+RemoveDate", DateValue,
+                "+AddDate", DateValue,
+                "+inner_company_no", compNo,
+                "+inner_company_name", compName
         );
         doDelete("QCC_OP_EXCEPTION", "inner_company_no", compNo);
         deconstruct(json, "QCC_OP_EXCEPTION", "");
@@ -1266,7 +1287,7 @@ public class DeconstructService extends AbstractService{
         doDelete("QCC_JUDICIAL_ASSISTANCE", "inner_company_name", companyName);
         doDelete("QCC_EQUITY_FREEZE_DETAIL", "inner_company_name", companyName);
         changeField(json,
-            "+inner_company_name", getQuery(request, "keyWord")
+                "+inner_company_name", getQuery(request, "keyWord")
         );
         JSONArray _array = (JSONArray) deconstruct(json, "QCC_JUDICIAL_ASSISTANCE", "");
         JSONArray array = (JSONArray) json;
@@ -1277,12 +1298,12 @@ public class DeconstructService extends AbstractService{
                 JSONObject detail = object.getJSONObject("EquityFreezeDetail");
                 if (detail != null && detail.size() > 0) {
                     changeField(detail,
-                        "+FreezeStartDate", DateValue,
-                        "+FreezeEndDate", DateValue,
-                        "+PublicDate", DateValue,
-                        "+ja_inner_id", _array.getJSONObject(i).getString("inner_id"),
-                        "+inner_company_name", companyName,
-                        "+FREEZE_TYPE", "1"
+                            "+FreezeStartDate", DateValue,
+                            "+FreezeEndDate", DateValue,
+                            "+PublicDate", DateValue,
+                            "+ja_inner_id", _array.getJSONObject(i).getString("inner_id"),
+                            "+inner_company_name", companyName,
+                            "+FREEZE_TYPE", "1"
                     );
                     deconstruct(detail, "QCC_EQUITY_FREEZE_DETAIL", "");
                 }
@@ -1291,11 +1312,11 @@ public class DeconstructService extends AbstractService{
                 JSONObject detail = object.getJSONObject("EquityUnFreezeDetail");
                 if (detail != null && detail.size() > 0) {
                     changeField(detail,
-                        "+UnFreezeDate", DateValue,
-                        "+PublicDate", DateValue,
-                        "+ja_inner_id", _array.getJSONObject(i).getString("inner_id"),
-                        "+inner_company_name", companyName,
-                        "+FREEZE_TYPE", "2"
+                            "+UnFreezeDate", DateValue,
+                            "+PublicDate", DateValue,
+                            "+ja_inner_id", _array.getJSONObject(i).getString("inner_id"),
+                            "+inner_company_name", companyName,
+                            "+FREEZE_TYPE", "2"
                     );
                     deconstruct(detail, "QCC_EQUITY_FREEZE_DETAIL", "");
                 }
@@ -1304,10 +1325,10 @@ public class DeconstructService extends AbstractService{
                 JSONObject detail = object.getJSONObject("JudicialPartnersChangeDetail");
                 if (detail != null && detail.size() > 0) {
                     changeField(detail,
-                        "+AssistExecDate", DateValue,
-                        "+ja_inner_id", array.getJSONObject(i).getString("inner_id"),
-                        "+inner_company_name", companyName,
-                        "+FREEZE_TYPE", "3"
+                            "+AssistExecDate", DateValue,
+                            "+ja_inner_id", array.getJSONObject(i).getString("inner_id"),
+                            "+inner_company_name", companyName,
+                            "+FREEZE_TYPE", "3"
                     );
                     deconstruct(detail, "QCC_EQUITY_FREEZE_DETAIL", "");
                 }
@@ -1327,7 +1348,7 @@ public class DeconstructService extends AbstractService{
     private void GetCourtNoticeInfo(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         String id = getQuery(request, "id");
         changeField(json,
-            "+Id", id
+                "+Id", id
         );
         deconstruct(json, "QCC_COURT_NOTICE", "Id");
         //补充上诉人和被上诉人
@@ -1336,35 +1357,35 @@ public class DeconstructService extends AbstractService{
         JSONArray array = object.getJSONArray("Prosecutor");
         if (null != array && array.size() > 0) {
             list.addAll(
-               array
-                    .stream()
-                    .map(_o -> {
-                        JSONObject o = (JSONObject) _o;
-                        JSONObject kv = new JSONObject();
-                        kv.put("name", o.getString("Name"));
-                        kv.put("id", id);
-                        kv.put("key_no", o.getString("KeyNo"));
-                        kv.put("type", "01");
-                        return kv;
-                    })
-                    .collect(Collectors.toList())
+                    array
+                            .stream()
+                            .map(_o -> {
+                                JSONObject o = (JSONObject) _o;
+                                JSONObject kv = new JSONObject();
+                                kv.put("name", o.getString("Name"));
+                                kv.put("id", id);
+                                kv.put("key_no", o.getString("KeyNo"));
+                                kv.put("type", "01");
+                                return kv;
+                            })
+                            .collect(Collectors.toList())
             );
         }
         JSONArray Defendant = object.getJSONArray("Defendant");
         if (null != Defendant && Defendant.size() > 0) {
             list.addAll(
-                Defendant
-                .stream()
-                .map(_o -> {
-                    JSONObject o = (JSONObject) _o;
-                    JSONObject kv = new JSONObject();
-                    kv.put("name", o.getString("Name"));
-                    kv.put("id", id);
-                    kv.put("key_no", o.getString("KeyNo"));
-                    kv.put("type", "02");
-                    return kv;
-                })
-                .collect(Collectors.toList())
+                    Defendant
+                            .stream()
+                            .map(_o -> {
+                                JSONObject o = (JSONObject) _o;
+                                JSONObject kv = new JSONObject();
+                                kv.put("name", o.getString("Name"));
+                                kv.put("id", id);
+                                kv.put("key_no", o.getString("KeyNo"));
+                                kv.put("type", "02");
+                                return kv;
+                            })
+                            .collect(Collectors.toList())
             );
         }
 
@@ -1389,29 +1410,29 @@ public class DeconstructService extends AbstractService{
             JSONObject object = (JSONObject) o;
             for (String p : ((String) object.getOrDefault("Prosecutorlist", "")).split("\\t")) {
                 list.add(newJsonObject(
-                    "name", p,
-                    "type", "01",
-                    "id", object.getString("Id"),
-                    "inner_company_name", compName
+                        "name", p,
+                        "type", "01",
+                        "id", object.getString("Id"),
+                        "inner_company_name", compName
                 ));
             }
 
             for (String p : ((String) object.getOrDefault("Defendantlist", "")).split("\\t")) {
                 list.add(newJsonObject(
-                    "name", p,
-                    "type", "02",
-                    "id", object.getString("Id"),
-                    "inner_company_name", compName
+                        "name", p,
+                        "type", "02",
+                        "id", object.getString("Id"),
+                        "inner_company_name", compName
                 ));
             }
         }
         changeField(json,
-            "-Defendantlist",
-            "-Prosecutorlist",
-            "Executegov->Execute_gov",
-            "LianDate", DateValue,
-            "LianDate->Li_an_Date",
-            "+inner_company_name", compName
+                "-Defendantlist",
+                "-Prosecutorlist",
+                "Executegov->Execute_gov",
+                "LianDate", DateValue,
+                "LianDate->Li_an_Date",
+                "+inner_company_name", compName
         );
         deconstruct(json, "QCC_COURT_NOTICE", "Id");
 
@@ -1428,14 +1449,14 @@ public class DeconstructService extends AbstractService{
      */
     private void SearchCourtAnnouncementDetail(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         changeField(json,
-            new ICanChange() {
-                @Override
-                public boolean call(String key) {
-                    return key.endsWith("Date");
-                }
-            }, DateValue,
-            "PublishDate->PublishedDate",
-            "+Id", getQuery(request, "id")
+                new ICanChange() {
+                    @Override
+                    public boolean call(String key) {
+                        return key.endsWith("Date");
+                    }
+                }, DateValue,
+                "PublishDate->PublishedDate",
+                "+Id", getQuery(request, "id")
 //            "PublishDate->PublishedDate"
         );
         deconstruct(json, "QCC_COURT_ANNOUNCEMENT", "Id");
@@ -1450,8 +1471,8 @@ public class DeconstructService extends AbstractService{
                 break nkn;
             }
             changeField(
-                array,
-                "+id", object.getString("Id")
+                    array,
+                    "+id", object.getString("Id")
             );
             doDelete("QCC_COURT_ANNOUNCEMENT_PEOPLE", "id", object.getString("Id"));
             deconstruct(array, "QCC_COURT_ANNOUNCEMENT_PEOPLE", "");
@@ -1468,13 +1489,13 @@ public class DeconstructService extends AbstractService{
     private void SearchCourtAnnouncement(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         changeField(json,
 //            "-PublishedDate",
-            new ICanChange() {
-                @Override
-                public boolean call(String key) {
-                    return key.endsWith("Date");
-                }
-            }, DateValue,
-            "+inner_company_name", getQuery(request, "companyName")
+                new ICanChange() {
+                    @Override
+                    public boolean call(String key) {
+                        return key.endsWith("Date");
+                    }
+                }, DateValue,
+                "+inner_company_name", getQuery(request, "companyName")
         );
         deconstruct(json, "QCC_COURT_ANNOUNCEMENT", "Id");
     }
@@ -1488,21 +1509,21 @@ public class DeconstructService extends AbstractService{
      */
     private void GetJudgementDetail(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         String id = getQuery(request, "id");
-        writeFile(id + "-caipan", (JSONObject) json, "ContentClear", "Content", "JudgeResult", "PartyInfo","TrialProcedure", "CourtConsider", "PlaintiffRequest", "DefendantReply", "CourtInspect", "PlaintiffRequestOfFirst", "DefendantReplyOfFirst", "CourtInspectOfFirst", "CourtConsiderOfFirst", "AppellantRequest", "AppelleeArguing", "ExecuteProcess");
+        writeFile(id + "-caipan", (JSONObject) json, "ContentClear", "Content", "JudgeResult", "PartyInfo", "TrialProcedure", "CourtConsider", "PlaintiffRequest", "DefendantReply", "CourtInspect", "PlaintiffRequestOfFirst", "DefendantReplyOfFirst", "CourtInspectOfFirst", "CourtConsiderOfFirst", "AppellantRequest", "AppelleeArguing", "ExecuteProcess");
         changeField(json,
-            new ICanChange() {
-                @Override
-                public boolean call(String key) {
-                    return key.endsWith("Date") && !key.equals("Judege_Date");
-                }
-            }, DateValue,
-            "+Appellor", ValueGenerator.createStrList("Appellor"),
-            "Defendantlist->DefendantList",
-            "Prosecutorlist->ProsecutorList",
-            "+DefendantList", ValueGenerator.createStrList("DefendantList"),
-            "+ProsecutorList", ValueGenerator.createStrList("ProsecutorList"),
+                new ICanChange() {
+                    @Override
+                    public boolean call(String key) {
+                        return key.endsWith("Date") && !key.equals("Judege_Date");
+                    }
+                }, DateValue,
+                "+Appellor", ValueGenerator.createStrList("Appellor"),
+                "Defendantlist->DefendantList",
+                "Prosecutorlist->ProsecutorList",
+                "+DefendantList", ValueGenerator.createStrList("DefendantList"),
+                "+ProsecutorList", ValueGenerator.createStrList("ProsecutorList"),
 //            "+Content", Base64Value,
-            "+Id", id
+                "+Id", id
         );
         deconstruct(json, "QCC_JUDGMENT_DOC", "Id");
 
@@ -1518,8 +1539,8 @@ public class DeconstructService extends AbstractService{
                 //清空关联信息
                 doDelete("QCC_JUDGMENT_DOC_CN", "QCC_DETAILS_ID", object.getString("Id"));
                 changeField(array,
-                    "+TOTAL_NUM", jsonGetByPath(object, "CourtNoticeList.TotalNum"),
-                    "+QCC_DETAILS_ID", object.getString("Id")
+                        "+TOTAL_NUM", jsonGetByPath(object, "CourtNoticeList.TotalNum"),
+                        "+QCC_DETAILS_ID", object.getString("Id")
                 );
 //                array = JSONUtil.parseArray(array.stream()
 //                    .map(i -> {
@@ -1544,7 +1565,7 @@ public class DeconstructService extends AbstractService{
                     break rc;
                 }
                 changeField(array,
-                    "+QCC_DETAILS_ID", object.getString("Id")
+                        "+QCC_DETAILS_ID", object.getString("Id")
                 );
 
                 doDelete("QCC_JUDGMENT_DOC_COM", "QCC_DETAILS_ID", object.getString("Id"));
@@ -1575,9 +1596,9 @@ public class DeconstructService extends AbstractService{
      */
     private void SearchJudgmentDoc(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         changeField(json,
-            "+SubmitDate", DateValue,
-            "+UpdateDate", DateValue,
-            "+inner_company_name", getQuery(request, "searchKey")
+                "+SubmitDate", DateValue,
+                "+UpdateDate", DateValue,
+                "+inner_company_name", getQuery(request, "searchKey")
         );
         deconstruct(json, "QCC_JUDGMENT_DOC", "Id");
     }
@@ -1585,32 +1606,32 @@ public class DeconstructService extends AbstractService{
     /**
      * 失信信息列表
      *
-     * @param ctx
+     * @param channelHandlerContext
      * @param request
-     * @param array
+     * @param json
      */
     private void SearchShiXin(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         changeField(
-            json,
-            "+Liandate", DateValue,
-            "+Publicdate", DateValue,
-            "Sourceid->Source_id",
-            "Uniqueno->Unique_no",
-            "Liandate->Li_an_date",
-            "Anno->an_no",
-            "Orgno->org_no",
-            "Ownername->Owner_name",
-            "Executegov->Execute_gov",
-            "Executeunite->Execute_unite",
-            "Yiwu->Yi_wu",
-            "Executestatus->Execute_status",
-            "Actionremark->Action_remark",
-            "Publicdate->Public_date",
-            "Updatedate->Update_date",
-            "Executeno->Execute_no",
-            "Performedpart->Performed_part",
-            "Unperformpart->Unperform_part",
-            "+inner_company_name", getQuery(request, "searchKey")
+                json,
+                "+Liandate", DateValue,
+                "+Publicdate", DateValue,
+                "Sourceid->Source_id",
+                "Uniqueno->Unique_no",
+                "Liandate->Li_an_date",
+                "Anno->an_no",
+                "Orgno->org_no",
+                "Ownername->Owner_name",
+                "Executegov->Execute_gov",
+                "Executeunite->Execute_unite",
+                "Yiwu->Yi_wu",
+                "Executestatus->Execute_status",
+                "Actionremark->Action_remark",
+                "Publicdate->Public_date",
+                "Updatedate->Update_date",
+                "Executeno->Execute_no",
+                "Performedpart->Performed_part",
+                "Unperformpart->Unperform_part",
+                "+inner_company_name", getQuery(request, "searchKey")
         );
         deconstruct(json, "QCC_SHIXIN", "Id");
     }
@@ -1625,22 +1646,22 @@ public class DeconstructService extends AbstractService{
      */
     private void SearchZhiXing(ChannelHandlerContext ctx, FullHttpRequest request, JSON array) {
         changeField(
-            array,
-            "+Liandate", DateValue,
-            "Sourceid->Source_id",
-            "Liandate->Li_an_date",
-            "Sourceid->Source_id",
-            "Anno->An_no",
-            "Biaodi->Biao_di",
-            "+Biao_di", new ValueGenerator() {
-                @Override
-                public Object call(JSONObject kv) {
-                    BigDecimal bd = new BigDecimal(kv.getString("Biao_di"));
-                    return bd.toPlainString();
-                }
-            },
-            "Updatedate->Update_date",
-            "+inner_company_name", getQuery(request, "searchKey")
+                array,
+                "+Liandate", DateValue,
+                "Sourceid->Source_id",
+                "Liandate->Li_an_date",
+                "Sourceid->Source_id",
+                "Anno->An_no",
+                "Biaodi->Biao_di",
+                "+Biao_di", new ValueGenerator() {
+                    @Override
+                    public Object call(JSONObject kv) {
+                        BigDecimal bd = new BigDecimal(kv.getString("Biao_di"));
+                        return bd.toPlainString();
+                    }
+                },
+                "Updatedate->Update_date",
+                "+inner_company_name", getQuery(request, "searchKey")
         );
         deconstruct(array, "QCC_ZHIXING", "Id");
     }
@@ -1713,13 +1734,13 @@ public class DeconstructService extends AbstractService{
         JSONObject kv = new JSONObject();
         for (Map.Entry<String, Object> entry : object.entrySet()) {
             //null有可能为一个子结构，如果为null则直接忽略
-            if(entry.getValue() == null) continue;
+            if (entry.getValue() == null) continue;
             kv.put(camelToUnderline(entry.getKey()), entry.getValue());
         }
         kv.put("input_date", new Date());
         kv.put("inner_id", objectId.nextId());
         JSONObject nkv = new JSONObject();
-        kv.forEach((k,v) -> nkv.put(k.toUpperCase(), v));
+        kv.forEach((k, v) -> nkv.put(k.toUpperCase(), v));
 
         //检查是否有相同的字段
         if (S.notBlank(existKey)) {
@@ -1742,9 +1763,9 @@ public class DeconstructService extends AbstractService{
 
             /**
              * super insert
-              */
+             */
             readySqls.updateItems.add(new Object[]{tableName.toUpperCase(), cKeys, values, nkv});
-            if(true){
+            if (true) {
                 return kv;
             }
 
@@ -1777,8 +1798,8 @@ public class DeconstructService extends AbstractService{
 //                    return kv;
 //                }
 //            } else {
-                readySqls.update.add(sql);
-                return kv;
+            readySqls.update.add(sql);
+            return kv;
 //            }
 //            List<JSONObject> ret = sqlManager.execute(new SQLReady(sql), JSONObject.class);
 //            if(ret.size() > 0){
@@ -1796,18 +1817,18 @@ public class DeconstructService extends AbstractService{
 //            sqlManager.executeUpdate(new SQLReady(sql));
 //        } else {
 
-            readySqls.insertItems.add(new Object[]{tableName.toUpperCase(), nkv});
+        readySqls.insertItems.add(new Object[]{tableName.toUpperCase(), nkv});
 //        }
         return kv;
     }
 
-    private String formatValue(JSONObject kv, String key){
+    private String formatValue(JSONObject kv, String key) {
         Object object = kv.get(key);
         if (object == null) {
             return null;
-        }else if (object instanceof Date) {
+        } else if (object instanceof Date) {
             String d = DateUtil.format((Date) object, "yyyy-MM-dd hh:mm:ss");
-            if(S.empty(d)){
+            if (S.empty(d)) {
                 return null;
             } else {
                 return d;
@@ -1832,18 +1853,22 @@ public class DeconstructService extends AbstractService{
             return;
         } else {
             String value = kv.getString(s);
+            if (null != App.concurrentMapWordCounts.get(value) && App.concurrentMapWordCounts.get(value).equals("")) {
+                value = App.concurrentMapWordCounts.get(value);
+            }
             sb.append(S.fmt("'%s'", value));
         }
         sb.append(",");
     }
 
-    private void doDelete(String tableName, String[] keys, String[] values){
+    private void doDelete(String tableName, String[] keys, String[] values) {
 //        if(autoCommit) {
 //
 //        } else {
-            readySqls.addItem(tableName, keys, values);
+        readySqls.addItem(tableName, keys, values);
 //        }
     }
+
     private void doDelete(String tableName, String key, String value) {
 //        if (autoCommit) {
 //            String sql = buildDeleteSql(tableName, key, value);
@@ -1851,12 +1876,12 @@ public class DeconstructService extends AbstractService{
 //        } else {
 //            readySqls.delete.add(sql);
 //            readySqls.deleteItems.add(new SqlVectors.DeleteItem(tableName, key, value));
-            readySqls.addItem(tableName, key, value);
+        readySqls.addItem(tableName, key, value);
 //        }
     }
 
     private String buildDeleteSql(String tableName, String key, String value) {
-        if(key.contains(",")){
+        if (key.contains(",")) {
             String[] keys = key.split(",");
             String[] values = value.split(",");
             String sql = String.format("delete from %s where 1 = 1", tableName);
@@ -1973,7 +1998,8 @@ public class DeconstructService extends AbstractService{
 
     /**
      * step0 保存文件
-     * @param blobMessage
+     *
+     * @param inputStream
      * @param requestId
      * @throws Exception
      */
@@ -1981,8 +2007,8 @@ public class DeconstructService extends AbstractService{
         File sourcefile = new File(logSourceDir, requestId);
         if (sourcefile.exists()) sourcefile.delete();
         try (
-            InputStream is = inputStream;
-            FileOutputStream fos = new FileOutputStream(sourcefile);
+                InputStream is = inputStream;
+                FileOutputStream fos = new FileOutputStream(sourcefile);
         ) {
             IoUtil.copy(is, fos);
         } catch (Exception e) {
@@ -2007,9 +2033,9 @@ public class DeconstructService extends AbstractService{
         final AtomicBoolean hasError = new AtomicBoolean(false);
         readySqls = new SqlVectors();
 
-        try(
-            InputStream fis = is;
-            ZipInputStream zip = new ZipInputStream(fis);
+        try (
+                InputStream fis = is;
+                ZipInputStream zip = new ZipInputStream(fis);
         ) {
             //暂时只允许一个文件
             ZipEntry entry = zip.getNextEntry();
@@ -2114,65 +2140,65 @@ public class DeconstructService extends AbstractService{
     }
 
     private void buildInsertBatch(Map<Object, PreparedStatement> cache, StringBuilder sb, Connection conn, String tableName, JSONObject kv) throws SQLException {
-            PreparedStatement p = cache.get(tableName);
-            Table table = tables.get(tableName);
-            if (p == null) {
-                sb.setLength(0);
-                sb.append("insert into ");
-                sb.append(tableName);
-                sb.append("(");
-                for (String column : table.columns) {
-                    sb.append(column);
-                    sb.append(",");
-                }
-                sb.deleteCharAt(sb.length() - 1);
-                sb.append(")values(");
-                for (String column : table.columns) {
-                    sb.append("?,");
-                }
-                sb.deleteCharAt(sb.length() - 1);
-                sb.append(")");
-                String sql = sb.toString();
-                p = conn.prepareStatement(sql);
-                cache.put(tableName, p);
-            }
-
-            int i = 0;
+        PreparedStatement p = cache.get(tableName);
+        Table table = tables.get(tableName);
+        if (p == null) {
+            sb.setLength(0);
+            sb.append("insert into ");
+            sb.append(tableName);
+            sb.append("(");
             for (String column : table.columns) {
-                p.setObject(++i, null);
+                sb.append(column);
+                sb.append(",");
             }
+            sb.deleteCharAt(sb.length() - 1);
+            sb.append(")values(");
+            for (String column : table.columns) {
+                sb.append("?,");
+            }
+            sb.deleteCharAt(sb.length() - 1);
+            sb.append(")");
+            String sql = sb.toString();
+            p = conn.prepareStatement(sql);
+            cache.put(tableName, p);
+        }
 
-            for (Map.Entry<String, Object> entry : kv.entrySet()) {
-                int idex = table.columns.indexOf(entry.getKey());
-                if(idex > -1){
-                    String type = table.types.get(idex);
-                    switch (type){
-                        case "TIMESTAMP":
-                            if(entry.getValue() instanceof Date){
-                                p.setObject(idex + 1, entry.getValue());
-                            }
-                            break;
+        int i = 0;
+        for (String column : table.columns) {
+            p.setObject(++i, null);
+        }
 
-                        case "DECIMAL":
-                            String value = String.valueOf(entry.getValue());
-                            value = value.replaceAll("万", "0000");
-                            value = value.replaceAll("人民币元", "");
-                            p.setBigDecimal(idex + 1, new BigDecimal(value));
-                            break;
-
-                        default:
-                            if(entry.getValue() instanceof JSONArray || entry.getValue() instanceof JSONObject){
-                                break;
-                            }
-                            if( tableName.contains("QCC_TREE_RELATION_MAP") && entry.getValue().equals("企业法人")){
-                                int d = 1;
-                            }
+        for (Map.Entry<String, Object> entry : kv.entrySet()) {
+            int idex = table.columns.indexOf(entry.getKey());
+            if (idex > -1) {
+                String type = table.types.get(idex);
+                switch (type) {
+                    case "TIMESTAMP":
+                        if (entry.getValue() instanceof Date) {
                             p.setObject(idex + 1, entry.getValue());
+                        }
+                        break;
+
+                    case "DECIMAL":
+                        String value = String.valueOf(entry.getValue());
+                        value = value.replaceAll("万", "0000");
+                        value = value.replaceAll("人民币元", "");
+                        p.setBigDecimal(idex + 1, new BigDecimal(value));
+                        break;
+
+                    default:
+                        if (entry.getValue() instanceof JSONArray || entry.getValue() instanceof JSONObject) {
                             break;
-                    }
+                        }
+                        if (tableName.contains("QCC_TREE_RELATION_MAP") && entry.getValue().equals("企业法人")) {
+                            int d = 1;
+                        }
+                        p.setObject(idex + 1, entry.getValue());
+                        break;
                 }
             }
-            p.addBatch();
+        }
+        p.addBatch();
 
 //            p.executeUpdate();
     }
@@ -2180,14 +2206,15 @@ public class DeconstructService extends AbstractService{
     /**
      * step3
      * 更新到数据库
-     * @param sqls
+     *
+     * @param sqlVectors
      */
-    private void deconstructStep3(SqlVectors sqlVectors) throws SQLException {
+    public void deconstructStep3(SqlVectors sqlVectors) throws SQLException {
         List<PreparedStatement> sqldebug = new ArrayList<>();
 //        List<JSONObject> sqldebug2 = new ArrayList<>();
         try (
-            Connection conn = dataSource.getConnection();
-            ){
+                Connection conn = dataSource.getConnection();
+        ) {
             conn.setAutoCommit(false);
 //            stmt = conn.createStatement();
             long stime = System.currentTimeMillis();
@@ -2197,7 +2224,7 @@ public class DeconstructService extends AbstractService{
             Map<Object, PreparedStatement> deleteCache = new HashMap<>();
 
             for (Object[] deleteItem : sqlVectors.deleteItems) {
-                if((boolean)deleteItem[0]){
+                if ((boolean) deleteItem[0]) {
                     //use 2 params
                     PreparedStatement p = deleteCache.get(deleteItem[1]);
                     if (p == null) {
@@ -2205,16 +2232,16 @@ public class DeconstructService extends AbstractService{
                         sb.append("delete from ");
                         sb.append(deleteItem[1]);
                         sb.append(" where ");
-                        sb.append(((String[])deleteItem[2])[0]);
+                        sb.append(((String[]) deleteItem[2])[0]);
                         sb.append(" = ? and ");
-                        sb.append(((String[])deleteItem[2])[1]);
+                        sb.append(((String[]) deleteItem[2])[1]);
                         sb.append(" = ?");
 //                        String sql = String.format("delete from %s where %s = ? and %s = ?", deleteItem[1], ((String[])deleteItem[2])[0], ((String[])deleteItem[2])[1]);
                         p = conn.prepareStatement(sb.toString());
                         deleteCache.put(deleteItem[1], p);
                     }
-                    p.setString(1, ((String[])deleteItem[3])[0]);
-                    p.setString(2, ((String[])deleteItem[3])[1]);
+                    p.setString(1, ((String[]) deleteItem[3])[0]);
+                    p.setString(2, ((String[]) deleteItem[3])[1]);
                     p.addBatch();
                 } else {
                     PreparedStatement p = deleteCache.get(deleteItem[1]);
@@ -2237,7 +2264,7 @@ public class DeconstructService extends AbstractService{
 
             //deal insert
             for (Object[] insertItem : sqlVectors.insertItems) {
-                buildInsertBatch(insertCache, sb, conn, (String)insertItem[0], (JSONObject)insertItem[1]);
+                buildInsertBatch(insertCache, sb, conn, (String) insertItem[0], (JSONObject) insertItem[1]);
             }
 
 
@@ -2308,7 +2335,7 @@ public class DeconstructService extends AbstractService{
             stime = System.currentTimeMillis();
 
             for (Map.Entry<Object, PreparedStatement> entry : insertCache.entrySet()) {
-                System.out.printf(entry.getKey() + "\n");
+                System.out.printf(entry.getKey() + "\n xxxxxxxxx");
                 entry.getValue().executeBatch();
                 IoUtil.closeIfPosible(entry.getValue());
             }
@@ -2322,8 +2349,9 @@ public class DeconstructService extends AbstractService{
 
     /**
      * step4
-     *
+     * <p>
      * 写入sql日志
+     *
      * @param requestId
      * @param sqls
      */
@@ -2334,8 +2362,8 @@ public class DeconstructService extends AbstractService{
             if (sqlfile.exists()) sqlfile.delete();
             FileLock lock = null;
             try (
-                RandomAccessFile raf = new RandomAccessFile(sqlfile, "rw");
-                FileChannel channel = raf.getChannel();
+                    RandomAccessFile raf = new RandomAccessFile(sqlfile, "rw");
+                    FileChannel channel = raf.getChannel();
             ) {
                 lock = channel.lock();
                 for (String sql : sqls) {
@@ -2349,16 +2377,17 @@ public class DeconstructService extends AbstractService{
         });
     }
 
-    private static class Table{
+    private static class Table {
         String name;
         List<String> columns = new ArrayList<>();
         List<Integer> lengths = new ArrayList<>();
         List<String> types = new ArrayList<>();
 
     }
+
     private Map<String, Table> tables = new HashMap<>();
 
-    private void refreshTableDefination(){
+    private void refreshTableDefination() {
         String sql = "select table_name as t, column_name as c, data_type as type, CHARACTER_MAXIMUM_LENGTH as len from sysibm.columns where table_schema = 'DB2INST1' and TABLE_NAME like 'QCC_%'";
         List<JSONObject> list = sqlManager.execute(new SQLReady(sql), JSONObject.class);
         //分析定义
@@ -2377,28 +2406,28 @@ public class DeconstructService extends AbstractService{
     }
 
     @Deprecated
-    public void onReDeconstructRequest(String requestId, int progress){
-        if(progress < 1 || progress > 3){
+    public void onReDeconstructRequest(String requestId, int progress) {
+        if (progress < 1 || progress > 3) {
             return;
         }
 
 //        autoCommit = false;
         QccReDeconstructResponse reqponse = new QccReDeconstructResponse(-1, 0, requestId, "", "");
         AtomicBoolean someError = new AtomicBoolean(false);
-        try{
+        try {
             List<String> sqls = null;
             //从第一步开始解
-            if(progress <= 1){
+            if (progress <= 1) {
                 reqponse.progress = 1;
 //                deconstructStep1(requestId);
             }
-            if(progress <= 2){
+            if (progress <= 2) {
                 reqponse.progress = 2;
                 deconstructStep2(requestId, null, someError);
             }
 
             reqponse.progress = 3;
-            if(progress <= 2){
+            if (progress <= 2) {
                 deconstructStep3(null);
                 deconstructStep4(requestId, sqls);
             } else {
@@ -2406,15 +2435,15 @@ public class DeconstructService extends AbstractService{
                 File file = new File("", requestId);
                 sqls = new ArrayList<>();
                 ByteBuf buf = Unpooled.buffer();
-                try(
-                    RandomAccessFile raf = new RandomAccessFile(file, "r");
-                    ){
+                try (
+                        RandomAccessFile raf = new RandomAccessFile(file, "r");
+                ) {
                     long ptr = -1;
                     long len = raf.length();
-                    while(++ptr < len){
+                    while (++ptr < len) {
                         byte b = raf.readByte();
                         buf.writeByte(b);
-                        if(b == '\r'){
+                        if (b == '\r') {
                             b = raf.readByte();
                             ++ptr;
                             if (b == '\n') {
@@ -2428,12 +2457,12 @@ public class DeconstructService extends AbstractService{
                 }
                 deconstructStep3(null);
             }
-            if(someError.get()){
+            if (someError.get()) {
                 reqponse.finished = 1;
             } else {
                 reqponse.finished = 0;
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             reqponse.errorMessage = e.getMessage();
             e.printStackTrace();
         }
@@ -2484,27 +2513,24 @@ public class DeconstructService extends AbstractService{
      */
 
 
-
     /**
      * @api {get} /log/deconstruct/{type}/{id} 二进制日志下载接口
      * @apiGroup QCC-MQ
      * @apiVersion 0.0.1
-     *
      * @apiParam {string="source","unzip","sql"} type 数据类型，分别是“解析前的原始数据”，“解压后的原始数据”,“分析后的sql数据”
      * @apiParam {string} id 数据requestId
-     *
      */
     public void onDeconstructRequest(String requestId, String sourceRequest, BlobMessage blobMessage) throws IOException, JMSException {
-        onDeconstructRequest(requestId,sourceRequest,blobMessage.getInputStream());
+        onDeconstructRequest(requestId, sourceRequest, blobMessage.getInputStream());
     }
 
-    public void onDeconstructRequest(String requestId, String sourceRequest, InputStream is)  {
+    public void onDeconstructRequest(String requestId, String sourceRequest, InputStream is) {
 //        System.out.println("开始解析");
         long stime = System.currentTimeMillis();
 //        autoCommit = false;
         QccDeconstructReqponse reqponse = new QccDeconstructReqponse(-1, 0, requestId, sourceRequest, "");
         AtomicBoolean someError = new AtomicBoolean(false);
-        try{
+        try {
 //            deconstructStep0(is, requestId);
 //            reqponse.progress = 1;
 //            deconstructStep1(requestId);
@@ -2515,13 +2541,13 @@ public class DeconstructService extends AbstractService{
             System.out.printf("解析完成, 时间%d\n", System.currentTimeMillis() - stime);
 //            deconstructStep4(requestId, sqls);
             deconstructStep3(sqls);
-            if(someError.get()){
+            if (someError.get()) {
                 reqponse.finished = 1;
             } else {
                 reqponse.finished = 0;
             }
             System.out.printf("入库完成, 时间%d\n", System.currentTimeMillis() - stime);
-        } catch (Exception e){
+        } catch (Exception e) {
             reqponse.errorMessage = e.getMessage();
             e.printStackTrace();
         }
@@ -2634,11 +2660,11 @@ public class DeconstructService extends AbstractService{
 //        }
     }
 
-    public void destructSingle( String str, AtomicBoolean someError) {
+    public void destructSingle(String str, AtomicBoolean someError) {
         JSONObject object = JSON.parseObject(str);
         String url = object.getString("FullLink");
         String key = URLUtil.getPath(url);
-        if(handlers.containsKey(key)){
+        if (handlers.containsKey(key)) {
             DeconstructService.DeconstructHandler handler = handlers.get(key);
             ByteBuf buf = Unpooled.buffer();
             DefaultHttpHeaders headers = new DefaultHttpHeaders();
@@ -2646,7 +2672,7 @@ public class DeconstructService extends AbstractService{
             JSONObject od = (object.getJSONObject("OriginData"));
             if (S.eq(od.getString("Status"), "200")) {
                 handler.call(null, request, (JSON) od.get("Result"));
-            } else if(!S.startsWith(od.getString("Status"), "2")){
+            } else if (!S.startsWith(od.getString("Status"), "2")) {
                 someError.set(true);
             }
         }
@@ -2657,14 +2683,14 @@ public class DeconstructService extends AbstractService{
 //        }
     }
 
-    private void writeFile(String fileName, JSONObject object, String ...fields){
+    private void writeFile(String fileName, JSONObject object, String... fields) {
         JSONObject obj = new JSONObject();
         for (String field : fields) {
             obj.put(field, object.getString(field));
             object.remove(field);
         }
         File file = new File(blobDir, fileName);
-        try{
+        try {
             FileOutputStream fos = new FileOutputStream(file);
             IoUtil.write(fos, true, obj.toJSONString().getBytes());
         } catch (FileNotFoundException e) {
@@ -2759,11 +2785,20 @@ public class DeconstructService extends AbstractService{
             private static final int TYPE_DATE = 760;
             private static final int TYPE_ELSE = 114;
             private static final int TYPE_BASE64 = 613;
+            private static final int TYPE_PROVINCE = 811;
             public int type;
 
             public Object call(JSONObject kv, String field) {
                 ValueGenerator vg = null;
                 switch (type) {
+                    case TYPE_PROVINCE:
+                        vg = new ValueGenerator() {
+                            @Override
+                            public Object call(JSONObject kv) {
+                                return Version.convertProvince(kv.getString(field));
+                            }
+                        };
+                        break;
                     case TYPE_DATE:
                         vg = ValueGenerator.createDate(field);
                         break;
@@ -2797,7 +2832,7 @@ public class DeconstructService extends AbstractService{
                 if (value instanceof String && "".equals(value)) {
                     return null;
                 }
-                if(((String)value).charAt(0) == 160){
+                if (((String) value).charAt(0) == 160) {
                     value = ((String) value).substring(1);
                 }
                 for (String dateFormat : dateFormats) {
@@ -2817,6 +2852,12 @@ public class DeconstructService extends AbstractService{
             return wrap;
         }
 
+        public static Wrap createProvince() {
+            Wrap wrap = new Wrap();
+            wrap.type = Wrap.TYPE_PROVINCE;
+            return wrap;
+        }
+
         public static Wrap createBase64() {
             Wrap wrap = new Wrap();
             wrap.type = Wrap.TYPE_BASE64;
@@ -2832,15 +2873,16 @@ public class DeconstructService extends AbstractService{
         public List<String> insert = new Vector<>();
         public List<String> update = new Vector<>();
         public List<String> delete = new Vector<>();
-//        private Map<String, Object[]> deleteItems  = new HashMap<>();
+        //        private Map<String, Object[]> deleteItems  = new HashMap<>();
         public Vector<Object[]> deleteItems = new Vector<>();
         public Vector<Object[]> insertItems = new Vector<>();
         public Vector<Object[]> updateItems = new Vector<>();
 
-        public void addItem(String table, String key, String value){
+        public void addItem(String table, String key, String value) {
             deleteItems.add(new Object[]{false, table, key, value});
         }
-        public  void addItem(String table, String[] key, String[] value){
+
+        public void addItem(String table, String[] key, String[] value) {
             deleteItems.add(new Object[]{true, table, key, value});
 //            Object[] t = deleteItems.get(table);
 //            if(t == null){
@@ -2904,12 +2946,12 @@ public class DeconstructService extends AbstractService{
             return JSON.toJSONString(this);
         }
 
-        public void send(){
+        public void send() {
             MQService.getInstance().sendMessage("queue", "qcc-deconstruct-response", this.toString());
         }
     }
 
-    public static class QccReDeconstructResponse extends QccDeconstructReqponse{
+    public static class QccReDeconstructResponse extends QccDeconstructReqponse {
         public QccReDeconstructResponse(int finished, int step, String requestId, String sourceRequest, String errorMessage) {
             super(finished, step, requestId, sourceRequest, errorMessage);
         }
@@ -2919,9 +2961,6 @@ public class DeconstructService extends AbstractService{
             MQService.getInstance().sendMessage("queue", "qcc-redeconstruct-response", this.toString());
         }
     }
-
-
-
 
 
 //    public interface DeconstructArrayHandler{

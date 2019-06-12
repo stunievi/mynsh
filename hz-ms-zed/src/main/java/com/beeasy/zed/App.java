@@ -1,38 +1,50 @@
 package com.beeasy.zed;
 
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.text.ParseException;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
 import static com.beeasy.zed.Config.config;
 
 
-
 public class App {
+    public static ConcurrentMap<String, String> concurrentMapWordCounts = new ConcurrentHashMap<>();
+
+    static {
+        JSONObject jsonObject = JSONObject.parseObject(Utils.readFile().toString());
+        JSONArray array = jsonObject.getJSONArray("Result");
+        for (Object o : array) {
+            JSONObject j = JSONObject.parseObject(o.toString());
+            concurrentMapWordCounts.put(j.getString("Code"), j.getString("ProvinceName"));
+        }
+    }
+
+
 
 //    public static ZedService zedService = new ZedService();
 //    public static DeconstructService deconstructService = new DeconstructService();
 
     public static void main(String[] args) throws ParseException, InterruptedException, ExecutionException, FileNotFoundException {
-
         DBService.getInstance().initSync();
-
+        if(Version.version.versionName >= 1.0){
+            Version.update();
+        }
         //test
-        if(args.length > 1){
-            if(StrUtil.equals(args[0],"test")){
+        if (args.length > 1) {
+            if (StrUtil.equals(args[0], "test")) {
                 DeconstructService deconstructService = new DeconstructService();
                 deconstructService.initSync();
                 long stime = System.currentTimeMillis();
-                for(int i = 1; i < args.length; i++){
+                for (int i = 1; i < args.length; i++) {
                     File file = new File(args[i]);
-                    deconstructService.onDeconstructRequest("1","2", new FileInputStream(file));
+                    deconstructService.onDeconstructRequest("1", "2", new FileInputStream(file));
                 }
 
 //                args[1] = args[1].replaceAll("\\*", ".+?");
@@ -64,7 +76,6 @@ public class App {
         }
 
 
-
         //routes
 //        HttpServerHandler.AddRoute(new Route(("^/zed"), (ctx, req) -> {
 //            return zedService.doNettyRequest(ctx, req);
@@ -72,18 +83,17 @@ public class App {
 
 //        TestService.register();
 
-        if(config.workmode.equals(Config.WorkMode.DECONSTRUCT) || config.workmode.equals(Config.WorkMode.ALL)){
+        if (config.workmode.equals(Config.WorkMode.DECONSTRUCT) || config.workmode.equals(Config.WorkMode.ALL)) {
             //消息监听服务
             MQService.getInstance().initAsync();
             //注册解构接口
             new DeconstructService().initAsync();
         }
-        if(config.workmode.equals(Config.WorkMode.SEARCH) || config.workmode.equals(Config.WorkMode.ALL)){
+        if (config.workmode.equals(Config.WorkMode.SEARCH) || config.workmode.equals(Config.WorkMode.ALL)) {
             //注册查询接口
             new QccService().initAsync();
             //起动netty
             new NettyService().initSync();
-
         } else {
             new CountDownLatch(1).await();
         }

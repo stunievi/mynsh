@@ -4,39 +4,45 @@ package com.beeasy.zed;
 //import cn.hutool.json.JSONNull;
 //import cn.hutool.json.JSONObject;
 
+import cn.hutool.core.io.IoUtil;
+import cn.hutool.core.io.resource.ClassPathResource;
+import cn.hutool.core.util.CharsetUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.google.common.io.Resources;
+import org.osgl.util.Charsets;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
+import java.net.URL;
+import java.util.Enumeration;
 import java.util.zip.ZipInputStream;
 
 public class Utils {
-    public static JSONObject newJsonObject(Object ...objects){
+    public static JSONObject newJsonObject(Object... objects) {
         JSONObject object = new JSONObject();
-        for(short i = 0; i < objects.length; i+=2){
-            object.put((String) objects[i], objects[i+1]);
+        for (short i = 0; i < objects.length; i += 2) {
+            object.put((String) objects[i], objects[i + 1]);
         }
         return object;
     }
 
-    public static Object jsonGetByPath(JSON json, String path){
+    public static Object jsonGetByPath(JSON json, String path) {
         String[] paths = path.split("\\.");
         Object obj = json;
         for (String s : paths) {
-            if(obj instanceof JSONObject){
-                if(((JSONObject) obj).containsKey(s)){
+            if (obj instanceof JSONObject) {
+                if (((JSONObject) obj).containsKey(s)) {
                     obj = ((JSONObject) obj).get(s);
                 } else {
                     return null;
                 }
-            } else if(obj instanceof JSONArray){
-                try{
+            } else if (obj instanceof JSONArray) {
+                try {
                     int n = Integer.parseInt(s);
-                    if(((JSONArray) obj).size() >= n){
+                    if (((JSONArray) obj).size() >= n) {
                         return null;
                     }
                     obj = ((JSONArray) obj).get(n);
@@ -58,10 +64,10 @@ public class Utils {
     }
 
     public static void unzipFile(File src, File dest) throws IOException {
-        try(
-            FileInputStream fis = new FileInputStream(src);
-            ZipInputStream zip = new ZipInputStream(fis);
-            FileOutputStream fos = new FileOutputStream(dest);
+        try (
+                FileInputStream fis = new FileInputStream(src);
+                ZipInputStream zip = new ZipInputStream(fis);
+                FileOutputStream fos = new FileOutputStream(dest);
         ) {
             while (zip.getNextEntry() != null) {
                 byte[] buf = new byte[1024];
@@ -72,5 +78,23 @@ public class Utils {
             }
         }
     }
+
+
+    public static StringBuilder readFile() {
+        ClassPathResource resource = new ClassPathResource("shengfenxinxiduiyingbiao.json");
+        String s;
+        StringBuilder result = new StringBuilder();
+        BufferedReader br = null;
+        try {
+            br = new BufferedReader(new InputStreamReader(resource.getStream()));
+            while ((s = br.readLine()) != null) {
+                result.append(System.lineSeparator() + s);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
 
 }
