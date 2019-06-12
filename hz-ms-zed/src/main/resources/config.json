@@ -1,7 +1,7 @@
 {
     "port": "8081",
     "datasource": {
-        "url": "jdbc:db2://47.106.216.52:50000/dxmy",
+        "url": "jdbc:db2://47.106.216.52:50000/dxmy:currentSchema=DB2INST1;",
         "driver": "com.ibm.db2.jcc.DB2Driver",
         "username": "db2inst1",
         "password": "db2inst1"

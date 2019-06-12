@@ -34,16 +34,16 @@
         }else{
             $("#home").html(qccTableRender({
                 cols:[
-                    {title:"被执行人姓名/名称", field:"Name"},
-                    {title:"立案时间", field:"LiAnDate"},
-                    {title:"案号", field:"AnNo"},
-                    {title:"执行法院", field:"ExecuteGov"},
-                    {title:"标地", field:"BiaoDi"},
-                    {title:"状态", field:"Status"},
+                    {title:"被执行人", field:"Name"},
                     {title:"身份证号码/组织机构代码", field:"PartyCardNum"},
-                    {title:"记录更新时间", field:"UpdateDate"},
-                    {title:"组织类型", field:"OrgType"},
-                    {title:"组织类型名称", field:"OrgTypeName"}
+                    {title:"执行标地", field:"BiaoDi"},
+                    {title:"执行法院", field:"ExecuteGov"},
+                    {title:"立案日期", field:"LiAnDate"},
+                    {title:"案号", field:"AnNo"}
+                    // {title:"状态", field:"Status"},
+                    // {title:"记录更新时间", field:"UpdateDate"},
+                    // {title:"组织类型", field:"OrgType"},
+                    // {title:"组织类型名称", field:"OrgTypeName"}
                 ],
                 data: data
             }));

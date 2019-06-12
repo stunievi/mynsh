@@ -17,7 +17,7 @@ import java.util.Map;
 @Table(name = "T_GPS_RECORD")
 @Getter
 @Setter
-public class GPSRecord implements ValidGroup {
+public class GPSRecord extends ValidGroup {
     @AssignID("simple")
     Long id;
 

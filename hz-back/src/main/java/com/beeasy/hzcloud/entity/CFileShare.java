@@ -19,7 +19,7 @@ import java.util.Map;
 @Table(name = "C_FILE_SHARE")
 @Getter
 @Setter
-public class CFileShare extends TailBean implements ValidGroup {
+public class CFileShare extends ValidGroup {
 
     @AssignID("simple")
     private Long id;

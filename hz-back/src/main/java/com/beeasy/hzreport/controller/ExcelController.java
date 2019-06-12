@@ -1,6 +1,7 @@
 package com.beeasy.hzreport.controller;
 
 import com.alibaba.fastjson.JSONObject;
+import com.beeasy.hzback.core.util.Log;
 import com.beeasy.hzreport.config.ExportTo;
 import com.beeasy.hzreport.config.UseSimpleSql;
 import com.beeasy.hzreport.service.ExcelService;
@@ -125,6 +126,7 @@ public class ExcelController {
     public ResponseEntity<byte[]> templateDownload(){
         List<JSONObject> result = new ArrayList<>();
         byte[] bytes = excelService.exportTableByTemplate2("按揭类出证信息导入模板.xlsx", result);
+        Log.log("按揭类出证信息导入模板下载");
         return download("按揭类出证信息导入模板.xlsx", bytes);
     }
 

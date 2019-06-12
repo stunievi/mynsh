@@ -49,17 +49,17 @@
                     }
                     $("#home").html(qccTableRender({
                         cols:[
-                            // {title:"省份", field:"Province"},
-                            {title:"案由", field:"CaseReason"},
-                            {title:"排期日期", field:"ScheduleTime"},
-                            {title:"法院", field:"ExecuteGov"},
-                            {title:"承办部门", field:"UndertakeDepartment"},
-                            {title:"法庭", field:"ExecuteUnite"},
-                            {title:"审判长/主审人", field:"ChiefJudge"},
-                            {title:"开庭日期", field:"OpenTime"},
+                            {title:"案由", field:"CaseReason", spec: true},
                             {title:"案号", field:"CaseNo"},
+                            {title:"开庭时间", field:"OpenTime"},
+                            {title:"地区", field:"Province"},
+                            {title:"排期日期", field:"ScheduleTime"},
+                            {title:"承办部门", field:"UndertakeDepartment"},
+                            {title:"审判长/主审人", field:"ChiefJudge"},
                             {title:"公诉人/原告/上诉人/申请人", field:"Prosecutor", spec: true },
-                            {title:"被告/被告人/被上诉人/被申请人", field:"Defendant", spec: true }
+                            {title:"被告/被告人/被上诉人/被申请人", field:"Defendant", spec: true },
+                            {title:"法院", field:"ExecuteGov"},
+                            {title:"法庭", field:"ExecuteUnite"}
                         ],
                         data: data
                     }));

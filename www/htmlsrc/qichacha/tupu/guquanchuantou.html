@@ -192,6 +192,9 @@
                 }else{
                     retData2DataList = retData2.Children || [];
                 }
+
+
+
                 var touziDetailList = [];
                 var walk1 = function(touziDetailList, dataList){
                     dataList.forEach(function (item) {
@@ -209,11 +212,20 @@
                     });
                     return touziDetailList;
                 };
+
                 walk1(touziDetailList, retData2DataList);
+                if(touziDetailList.length===2){
+                    var data2 = touziDetailList[1];
+                    if(data2["Name"]== "对外投资"){
+                        touziDetailList = data2["Children"];
+                    }else{
+                        touziDetailList = touziDetailList[0]["Children"];
+                    }
+                }
                 // 投资
                 data.touzi = {
                     Name: companyName,
-                    DetailList:touziDetailList
+                    DetailList: touziDetailList
                 };
             }
             if($.isEmptyObject(data) === false){

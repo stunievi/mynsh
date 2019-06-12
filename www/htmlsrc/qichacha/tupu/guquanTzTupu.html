@@ -41,8 +41,8 @@
     var guquanTzTupu;
     var barWidth = 335;
     var barHeight = 50;
-    var companyName = decodeURI(getParam("name"));
-    var companyKeyNo= decodeURI(getParam("keyNo"));
+    // var companyName = decodeURI(getParam("name"));
+    // var companyKeyNo= decodeURI(getParam("keyNo"));
 
     $('#load_data').show();
     getDataTupuTz();
@@ -78,7 +78,16 @@
                             });
                             return touziDetailList;
                         };
-                        walk1(touziDetailList, retData2.Children);
+
+                        var touziRetdataList = retData2.Children;
+                        for(var i=0;i<3;i++){
+                            var touziDataitem = touziRetdataList[i];
+                            if(touziDataitem["Category"] == "2"){
+                                touziRetdataList = touziDataitem["Children"];
+                                break;
+                            }
+                        }
+                        walk1(touziDetailList, touziRetdataList);
                         // 投资
                         data.touzi = {
                             Name: companyName,

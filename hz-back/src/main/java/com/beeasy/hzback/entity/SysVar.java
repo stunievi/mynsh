@@ -2,6 +2,7 @@ package com.beeasy.hzback.entity;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.beeasy.hzback.core.util.Log;
 import com.beeasy.mscommon.entity.BeetlPager;
 import com.beeasy.mscommon.filter.AuthFilter;
 import com.beeasy.mscommon.util.U;
@@ -28,7 +29,7 @@ import java.util.stream.Collectors;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SysVar extends TailBean implements ValidGroup {
+public class SysVar extends ValidGroup {
     @AssignID("simple")
     Long id;
     String varName;
@@ -73,6 +74,7 @@ public class SysVar extends TailBean implements ValidGroup {
         for (SysVar sysVar : list) {
             map.put(sysVar.getVarName(), sysVar.getVarValue());
         }
+//        Log.log("查询系统环境变量");
         return map;
     }
 
@@ -111,6 +113,7 @@ public class SysVar extends TailBean implements ValidGroup {
                         .delete();
                 }
                 sqlManager.insertBatch(SysVar.class, vars);
+                Log.log("设置系统环境变量");
                 break;
 
             /**
@@ -126,6 +129,7 @@ public class SysVar extends TailBean implements ValidGroup {
                 }
                 catch (Exception e){
                 }
+//                Log.log("查询系统数据版本");
                 return info;
 
 

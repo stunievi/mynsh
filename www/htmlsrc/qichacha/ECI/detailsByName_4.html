@@ -39,43 +39,37 @@
 
 <!--toolbar-->
 <script type="text/html" id="toolbar1">
-    <div class="layui-toolbar">
-        <a href="javascript:;" class="btn btn-default toolbar1" data-val="{{d.Id}}">查看</a>
-    </div>
+   <a href="javascript:;" class="toolbar1" data-val="{{d.Id}}">详情</a>
 </script>
 <script type="text/html" id="toolbar2">
-    <div class="layui-toolbar">
-        <a href="javascript:;" class="btn btn-default toolbar2" data-val="{{d.Id}}">查看</a>
-    </div>
+    <a href="javascript:;" class="toolbar2" data-val="{{d.Id}}">{{d.Address}}</a>
 </script>
 <script type="text/html" id="toolbar3">
-    <div class="layui-toolbar">
-        <a href="javascript:;" class="btn btn-default toolbar3" data-val="{{d.Id}}">查看</a>
-    </div>
+    <a href="javascript:;" class="toolbar3" data-val="{{d.Id}}">{{d.CaseNo}}</a>
 </script>
 <script type="text/html" id="toolbar4">
-    <div class="layui-toolbar">
-        <a href="javascript:;" class="btn btn-default toolbar4" data-val="{{d.RegisterNo}}">查看</a>
-    </div>
+   <a href="javascript:;" class="toolbar4" data-val="{{d.RegisterNo}}">{{d.RegisterNo}}</a>
 </script>
 
 <script>
     var loadBlock4Status = false;
     function loadBlock4() {
         loadBlock4Status = true;
-
         var renderExceptions = function(dataList){
+            dataList.forEach(function (row) {
+                row["RemoveDate"] = subDateStr(row.RemoveDate) || "";
+            });
             laytableRender({
                 title: "经营异常",
                 id: "Exceptions-body"
                 , cols: [
                     [
-                        {title:"列入经营异常名录原因", field:"AddReason"},
                         {title:"列入日期", field:"AddDate"},
-                        {title:"移出经营异常名录原因", field:"RomoveReason"},
-                        {title:"移出日期", field:"RemoveDate"},
+                        {title:"列入经营异常名录原因", field:"AddReason"},
                         {title:"作出决定机关", field:"DecisionOffice"},
-                        {title:"移除决定机关", field:"RemoveDecisionOffice"}
+                        {title:"移出日期", field:"RemoveDate"},
+                        // {title:"移除决定机关", field:"RemoveDecisionOffice"},
+                        {title:"移出经营异常名录原因", field:"RomoveReason"} // 企查查为准！
                     ]
                 ],
                 data: dataList,
@@ -110,12 +104,13 @@
             , dataType: "json"
             , cols: [
                 [
-                    { title:'操作', templet: "#toolbar1"},
+                    BOOTSTRAP_INDEX_FILED,
                     // {title:"主键", field:"Id"},
                     {title:"标题", field:"Name"},
-                    {title:"委托法院", field:"Executegov"},
                     {title:"拍卖时间", field:"ActionRemark"},
-                    {title:"起拍价", field:"YiWu"}
+                    {title:"委托法院", field:"ExecuteGov"},
+                    { title:'内容', templet: "#toolbar1"}
+                    // {title:"起拍价", field:"YiWu"}
                 ]
             ],
             onData:function (data) {
@@ -135,20 +130,23 @@
             , dataType: "json"
             , cols: [
                 [
-                    {title:'操作', templet: "#toolbar2"},
-                    {title:"地址", field:"Address"},
+                    // {title:'操作', templet: "#toolbar2"},
+                    {title:"土地坐落", templet: "#toolbar2",  field:"Address"},
+                    {title:"抵押时间", field: "LandMortgageTime"},
                     {title:"行政区", field:"AdministrativeArea"},
                     {title:"抵押面积（公顷）", field:"MortgageAcreage"},
-                    {title:"抵押土地用途", field:"MortgagePurpose"},
-                    {title:"开始日期", field:"StartDate"},
-                    {title:"结束日期", field:"EndDate"}
+                    {title:"抵押土地用途", field:"MortgagePurpose"}
+                    // {title:"开始日期", field:"StartDate"},
+                    // {title:"结束日期", field:"EndDate"}
                 ]
             ],
             onData:function (data) {
                 if(data.rows){
                     data.rows.forEach(function (row) {
-                        row["StartDate"] = subDateStr(row.StartDate);
-                        row["EndDate"] = subDateStr(row.EndDate);
+                        row["StartDate"] = subDateStr(row.StartDate) || "";
+                        row["EndDate"] = subDateStr(row.EndDate) || "";
+                        row["LandMortgageTime"] = row["StartDate"] + " - " + row["EndDate"];
+
                     });
                 }
                 fixOnDataLoad("LandMortgageList", data);
@@ -168,15 +166,20 @@
             , dataType: "json"
             , cols: [
                 [
-                    { title:'操作', templet: "#toolbar3"},
+                    // { title:'操作', templet: "#toolbar3"},
                     // {title:"Id", field:"Id"},
-                    {title:"决定书文号", field:"CaseNo"},
-                    {title:"处罚日期", field:"PunishDate"},
+                    {title:"决定书文号", templet: "#toolbar3", field:"CaseNo"},
                     {title:"违法类型", field:"IllegalType"},
-                    {title:"处罚单位", field:"PunishGov"}
+                    {title:"处罚单位", field:"PunishGov"},
+                    {title:"处罚日期", field:"PunishDate"}
                 ]
             ],
             onData:function (data) {
+                if(data.rows){
+                    data.rows.forEach(function (row) {
+                        row["PunishDate"] = subDateStr(row.PunishDate) || "-";
+                    });
+                }
                 fixOnDataLoad("EnvPunishmentList", data);
             }
         });
@@ -201,8 +204,8 @@
                     cols: [
                         [
                             BOOTSTRAP_INDEX_FILED,
-                            {title:'操作', templet: "#toolbar4" },
-                            {title:'登记编号', field:"RegisterNo" },
+                            // {title:'操作', templet: "#toolbar4" },
+                            {title:'登记编号', templet: "#toolbar4",  field:"RegisterNo" },
                             {title:"登记日期",field:"RegisterDate" },
                             {title:"登记机关",field:"RegisterOffice" },
                             {title:"被担保债权数额",field:"DebtSecuredAmount" },

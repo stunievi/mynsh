@@ -261,7 +261,11 @@
                 data: _data
                 , excel: su == 1
             }));
+
+            $(".btn-export").addClass("glyphicon glyphicon-floppy-disk");
+            $(".btn-export").html("导出csv");
         }
+
 
         var getDataUrl = remoteOrigin + remoteApi.apiOdsSearchAccloan+"?register="+register+"&lm=1";
         if(su){
@@ -333,9 +337,21 @@
         }
         $(".btn-export").click(function () {
             var str =$('[name=form-search]').ghostsf_serialize().replace(/(\d+)-/g,'$1');
-            location.href = remoteOrigin + "/api/report/csv/credit?" + str;
-            layer.msg("请稍后。。。");
+            // location.href = remoteOrigin + "/api/report/csv/credit?" + str;
+
+
+            getFetch(
+                    remoteOrigin + "/api/report/csv/credit?" + str
+                    , {}
+                    , function () {
+                        onInfront()
+                    }
+                ),
+
+            layer.msg("正在导出数据，系统稍后会将导出文件发送至收件箱，请注意查收！",
+                {time: 8000});
         });
+
 
         function initupload(data) {
 
@@ -379,13 +395,13 @@
         initupload()
 
         $(document).on("click", "#templateDownload", function() {
-            getFetch(
-                remoteOrigin + "/api/report/export/mortgage/templateDownload"
-                , {}
-                , function () {
-                    onInfront()
-                }
-            ),
+            // getFetch(
+            //     remoteOrigin + "/api/report/export/mortgage/templateDownload"
+            //     , {}
+            //     , function () {
+            //         onInfront()
+            //     }
+            // ),
             location.href = remoteOrigin + "/api/report/export/mortgage/templateDownload"
         })
 

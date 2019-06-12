@@ -1,5 +1,6 @@
 package com.beeasy.hzback.modules.system.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.entity.SysVar;
 import com.beeasy.hzback.entity.SystemFile;
@@ -96,8 +97,12 @@ public class FileController {
         String tags,
         @RequestParam SystemFile.Type type
         , String dir
-        , String uuid
+        , String uuid,
+        Long uid
     ) {
+        if (uid == null) {
+            uid = AuthFilter.getUid();
+        }
         switch (getStorageEngine()) {
             case "linkapp":
                 try {
@@ -112,16 +117,16 @@ public class FileController {
                     if (S.notEmpty(tags)) {
                         lfsService.editTags(sessionId, fid, tags);
                     }
-                    return Result.ok(
-                        C.newMap(
-                            "id", fid
-                            , "name", name
-                            , "tags", tags
-                            , "creator", AuthFilter.getUid()
-                            , "uuid", uuid
-                            , "sname", file.getOriginalFilename()
-                        )
-                    ).toJson();
+                    return JSON.toJSONString(Result.ok(
+                            C.newMap(
+                                    "id", fid
+                                    , "name", name
+                                    , "tags", tags
+                                    , "creator", uid
+                                    , "uuid", uuid
+                                    , "sname", file.getOriginalFilename()
+                            )
+                    ));
                 } catch (Exception e) {
                     e.printStackTrace();
                     return Result.error(uuid).toJson();
@@ -138,16 +143,16 @@ public class FileController {
                     return Result.error(uuid).toJson();
                 }
                 CFile cFile = (CFile) result.getData();
-                return Result.ok(
+                return JSON.toJSONString(Result.ok(
                     C.newMap(
                         "id", cFile.getId()
                         , "name", name
                         , "tags", tags
-                        , "creator", AuthFilter.getUid()
+                        , "creator", uid
                         , "uuid", uuid
                         , "sname", file.getOriginalFilename()
                     )
-                ).toJson();
+                ));
 
         }
 

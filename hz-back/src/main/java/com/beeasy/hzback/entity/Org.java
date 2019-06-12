@@ -3,6 +3,7 @@ package com.beeasy.hzback.entity;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.beeasy.hzback.core.util.Log;
 import com.beeasy.mscommon.ann.AssertMethod;
 import com.beeasy.mscommon.entity.BeetlPager;
 import com.beeasy.mscommon.util.U;
@@ -21,17 +22,17 @@ import org.osgl.util.S;
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.beeasy.hzback.entity.Org.Type.DEPARTMENT;
-import static com.beeasy.hzback.entity.Org.Type.QUARTERS;
+import static com.beeasy.hzback.entity.Org.Type.*;
 
 @Table(name = "T_ORG")
 @Getter
 @Setter
-public class Org extends TailBean implements ValidGroup{
+public class Org extends ValidGroup{
 
     @NotNull(message = "ID不能为空", groups = ValidGroup.Edit.class)
     @AssignID("simple")
@@ -55,6 +56,21 @@ public class Org extends TailBean implements ValidGroup{
 
     public enum Type {
         DEPARTMENT, QUARTERS, ROLE
+    }
+
+
+    public static String getTypeName(Type type){
+        switch (type){
+            case DEPARTMENT:
+                return "部门";
+
+            case QUARTERS:
+                return "岗位";
+
+            case ROLE:
+                return "角色";
+        }
+        return "";
     }
 
     /**
@@ -96,14 +112,39 @@ public class Org extends TailBean implements ValidGroup{
         return "user.查询组织机构";
     }
 
+
     @Override
     public void onBeforeAdd(SQLManager sqlManager) {
         User.AssertMethod("系统管理.组织架构.部门管理", "系统管理.组织架构.岗位管理", "系统管理.组织架构.角色管理");
     }
 
     @Override
+    public Object onAdd(SQLManager sqlManager) {
+        Object ret = super.onAdd(sqlManager);
+        Log.log("新增%s %s",getTypeName(type), name);
+        return ret;
+    }
+
+    @Override
+    public void onDelete(SQLManager sqlManager, Long[] id) {
+        sqlManager.lambdaQuery(Org.class)
+            .andIn(Org::getId, Arrays.asList(id))
+            .select(Org::getName, Org::getType).forEach(o -> {
+                Log.log("删除%s %s", getTypeName(o.getType()), o.getName());
+            });
+        super.onDelete(sqlManager, id);
+    }
+
+    @Override
     public void onBeforeEdit(SQLManager sqlManager) {
         onBeforeAdd(sqlManager);
+    }
+
+    @Override
+    public Object onEdit(SQLManager sqlManager) {
+        Object ret = super.onEdit(sqlManager);
+        Log.log("编辑%s %s", getTypeName(type), name);
+        return ret;
     }
 
     @AssertTrue(message = "已经有同名项", groups = {ValidGroup.Add.class, ValidGroup.Edit.class})
