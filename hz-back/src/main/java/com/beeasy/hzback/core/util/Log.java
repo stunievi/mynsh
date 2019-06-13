@@ -17,31 +17,24 @@ import java.io.IOException;
 
 public class Log {
 
-//    @Autowired
-//    FileController fileController;
-//
-//    public void test(){
-//        //要上传的文件
-//        File file = null;
-//        try(
-//            FileInputStream fis = new FileInputStream(file);
-//            ) {
-//            fileController.upload(new MockMultipartFile("1.xlsx", fis), "1.xlsx", null, SystemFile.Type.MESSAGE, null, S.uuid());
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
-
+    public static void log(String content, int number) {
+        try {
+            if (number == 3) {
+                U.getBean(SystemLogService.class).writeLog(AuthFilter.getUid(), content + "下载excel表格", null);
+            } else {
+                U.getBean(SystemLogService.class).writeLog(AuthFilter.getUid(), content, null);
+            }
+        } catch (Exception e) {
+        }
+    }
     public static void log(String content, Object ...args){
         try{
             U.getBean(SystemLogService.class)
-                .writeLog(AuthFilter.getUid(), S.fmt(content, args), null);
+                    .writeLog(AuthFilter.getUid(), S.fmt(content, args), null);
         }
         catch (Exception e){
         }
 
-
-
-
     }
+
 }

@@ -37,7 +37,9 @@ ORG_TYPE_NAME,
 INPUT_DATE
 @}
 from QCC_SHIXIN
-where inner_company_name = #fullName#
+where 
+1 = 1
+#use("公司查询条件")#
 
 查询被执行信息
 ===
@@ -56,7 +58,8 @@ UPDATE_DATE,
 INPUT_DATE
 @}
 from QCC_ZHIXING
-where inner_company_name = #fullName#
+where 1 =1 
+#use("公司查询条件")#
 
 查询裁判文书列表
 ===
@@ -77,10 +80,11 @@ Court_Level,
 Case_Reason,
 Case_Reason_Type,
 Court_Month,
+inner_company_name as name,
 INPUT_DATE
 @}
 from QCC_JUDGMENT_DOC
-where inner_company_name = #fullName#
+#use("公司查询条件")#
 @if(!isEmpty(caseReason)){
     and Case_Reason = #caseReason#
 @}
@@ -164,11 +168,12 @@ published_date,
 published_page,
 party,
 id,
+inner_company_name as name,
 INPUT_DATE
 @}
 from QCC_COURT_ANNOUNCEMENT
-where inner_company_name = #fullName#
-
+where 1 = 1
+#use("公司查询条件")#
 查询法院公告详情
 ===
 select 
@@ -201,10 +206,12 @@ no.LI_AN_DATE,
 no.CASE_REASON,
 no.ID,
 no.CASE_NO,
+inner_company_name as name,
 INPUT_DATE
 @}
 from 
-QCC_COURT_NOTICE no where inner_company_name = #fullName#
+QCC_COURT_NOTICE no where  1=1 
+#use("公司查询条件")#
 @pageIgnoreTag(){
     order by no.LI_AN_DATE desc
 @}
@@ -240,9 +247,14 @@ ja.EQUITY_AMOUNT,
 ja.ENFORCEMENT_COURT,
 ja.EXECUTION_NOTICE_NUM,
 ja.STATUS,
+ja.inner_company_name as name,
 ja.INPUT_DATE
 from QCC_JUDICIAL_ASSISTANCE ja
+@if(!isEmpty(fullName)){
 where ja.inner_company_name = #fullName#
+@}
+
+
 
 查询司法协助EquityFreezeDetail
 ===
@@ -257,9 +269,14 @@ d0.FREEZE_START_DATE as FREEZE_START_DATE,
 d0.FREEZE_END_DATE as FREEZE_END_DATE,
 d0.FREEZE_TERM as FREEZE_TERM,
 d0.PUBLIC_DATE as PUBLIC_DATE,
+d0.inner_company_name as name,
 d0.ja_inner_id
 from QCC_EQUITY_FREEZE_DETAIL d0 
-where d0.inner_company_name = #fullName# and FREEZE_TYPE = 1
+where 
+@if(!isEmpty(fullName)){
+d0.inner_company_name = #fullName# and
+@}
+FREEZE_TYPE = 1
 
 查询司法协助EquityUnFreezeDetail
 ===
@@ -273,9 +290,14 @@ d1.UN_FREEZE_DATE as UN_FREEZE_DATE,
 d1.PUBLIC_DATE as PUBLIC_DATE,
 d1.THAW_ORGAN as THAW_ORGAN,
 d1.THAW_DOC_NO as THAW_DOC_NO,
+d1.inner_company_name as name,
 d1.ja_inner_id
 from QCC_EQUITY_FREEZE_DETAIL d1 
-where d1.inner_company_name = #fullName# and FREEZE_TYPE = 2
+where 
+@if(!isEmpty(fullName)){
+d1.inner_company_name = #fullName# and 
+@}
+FREEZE_TYPE = 2
 
 查询司法协助JudicialPartnersChangeDetail
 ===
@@ -289,9 +311,14 @@ d2.ASSIST_EXEC_DATE as ASSIST_EXEC_DATE,
 d2.ASSIGNEE_DOC_KIND as ASSIGNEE_DOC_KIND,
 d2.ASSIGNEE_REG_NO as ASSIGNEE_REG_NO,
 d2.STOCK_COMPANY_NAME as STOCK_COMPANY_NAME,
+d2.inner_company_name as name,
 d2.ja_inner_id
 from QCC_EQUITY_FREEZE_DETAIL d2
-where d2.inner_company_name = #fullName# and FREEZE_TYPE = 3
+where
+ @if(!isEmpty(fullName)){
+ d2.inner_company_name = #fullName# and
+ @}
+FREEZE_TYPE = 3
 
 
 查询企业经营异常信息
@@ -303,6 +330,7 @@ ROMOVE_REASON,
 REMOVE_DATE,
 DECISION_OFFICE,
 REMOVE_DECISION_OFFICE,
+inner_company_name as name,
 INPUT_DATE
 from QCC_OP_EXCEPTION
 where 
@@ -318,10 +346,13 @@ title as Name,
 EXECUTE_GOV,
 ACTION_REMARK,
 YI_WU,
+inner_company_name as name,
 INPUT_DATE
 @}
 from QCC_JUDICIAL_SALE 
-where inner_company_name = #fullName#
+where
+1=1
+#use("公司查询条件")#
 
 查询司法拍卖详情
 ===
@@ -383,9 +414,12 @@ CASE_NO,
 PUNISH_DATE,
 ILLEGAL_TYPE,
 PUNISH_GOV,
+inner_company_name as name,
 INPUT_DATE
 @}
-from QCC_ENV_PUNISHMENT_LIST where inner_company_name = #fullName#
+from QCC_ENV_PUNISHMENT_LIST where 
+1 =1 
+#use("公司查询条件")#
 
 查询环保处罚详情
 ===

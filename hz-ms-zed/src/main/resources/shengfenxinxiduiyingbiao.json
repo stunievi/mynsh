@@ -1,0 +1,294 @@
+{
+  "Status": "200",
+  "Message": "查询成功",
+  "Result": [
+    {
+      "ID": "10",
+      "Code": "CN",
+      "ProvinceName": "总局",
+      "PinYin": "Zongju",
+      "MinSearchLen": "2",
+      "Status": "1",
+      "RegionId": "9"
+    },
+    {
+      "ID": "11",
+      "Code": "BJ",
+      "ProvinceName": "北京",
+      "PinYin": "BeiJing",
+      "MinSearchLen": "2",
+      "Status": "1",
+      "RegionId": "2"
+    },
+    {
+      "ID": "12",
+      "Code": "TJ",
+      "ProvinceName": "天津",
+      "PinYin": "Tianjin",
+      "MinSearchLen": "2",
+      "Status": "1",
+      "RegionId": "2"
+    },
+    {
+      "ID": "13",
+      "Code": "HB",
+      "ProvinceName": "河北",
+      "PinYin": "Hebei",
+      "MinSearchLen": "2",
+      "Status": "1",
+      "RegionId": "2"
+    },
+    {
+      "ID": "14",
+      "Code": "SX",
+      "ProvinceName": "山西",
+      "PinYin": "Shanxi",
+      "MinSearchLen": "2",
+      "Status": "1",
+      "RegionId": "2"
+    },
+    {
+      "ID": "15",
+      "Code": "NMG",
+      "ProvinceName": "内蒙古",
+      "PinYin": "NeiMengGu",
+      "MinSearchLen": "2",
+      "Status": "1",
+      "RegionId": "2"
+    },
+    {
+      "ID": "21",
+      "Code": "LN",
+      "ProvinceName": "辽宁",
+      "PinYin": "Liaoning",
+      "MinSearchLen": "2",
+      "Status": "1",
+      "RegionId": "3"
+    },
+    {
+      "ID": "22",
+      "Code": "JL",
+      "ProvinceName": "吉林",
+      "PinYin": "Jilin",
+      "MinSearchLen": "2",
+      "Status": "1",
+      "RegionId": "3"
+    },
+    {
+      "ID": "23",
+      "Code": "HLJ",
+      "ProvinceName": "黑龙江",
+      "PinYin": "Heilongjiang",
+      "MinSearchLen": "2",
+      "Status": "1",
+      "RegionId": "3"
+    },
+    {
+      "ID": "31",
+      "Code": "SH",
+      "ProvinceName": "上海",
+      "PinYin": "Shanghai",
+      "MinSearchLen": "2",
+      "Status": "1",
+      "RegionId": "4"
+    },
+    {
+      "ID": "32",
+      "Code": "JS",
+      "ProvinceName": "江苏",
+      "PinYin": "Jiangsu",
+      "MinSearchLen": "2",
+      "Status": "1",
+      "RegionId": "4"
+    },
+    {
+      "ID": "33",
+      "Code": "ZJ",
+      "ProvinceName": "浙江",
+      "PinYin": "Zhejiang",
+      "MinSearchLen": "2",
+      "Status": "1",
+      "RegionId": "4"
+    },
+    {
+      "ID": "34",
+      "Code": "AH",
+      "ProvinceName": "安徽",
+      "PinYin": "Anhui",
+      "MinSearchLen": "2",
+      "Status": "1",
+      "RegionId": "4"
+    },
+    {
+      "ID": "35",
+      "Code": "FJ",
+      "ProvinceName": "福建",
+      "PinYin": "Fujian",
+      "MinSearchLen": "2",
+      "Status": "1",
+      "RegionId": "4"
+    },
+    {
+      "ID": "36",
+      "Code": "JX",
+      "ProvinceName": "江西",
+      "PinYin": "Jiangxi",
+      "MinSearchLen": "2",
+      "Status": "1",
+      "RegionId": "4"
+    },
+    {
+      "ID": "37",
+      "Code": "SD",
+      "ProvinceName": "山东",
+      "PinYin": "Shandong",
+      "MinSearchLen": "2",
+      "Status": "1",
+      "RegionId": "4"
+    },
+    {
+      "ID": "41",
+      "Code": "HEN",
+      "ProvinceName": "河南",
+      "PinYin": "Henan",
+      "MinSearchLen": "2",
+      "Status": "1",
+      "RegionId": "6"
+    },
+    {
+      "ID": "42",
+      "Code": "HUB",
+      "ProvinceName": "湖北",
+      "PinYin": "Hubei",
+      "MinSearchLen": "2",
+      "Status": "1",
+      "RegionId": "6"
+    },
+    {
+      "ID": "43",
+      "Code": "HUN",
+      "ProvinceName": "湖南",
+      "PinYin": "Hunan",
+      "MinSearchLen": "2",
+      "Status": "1",
+      "RegionId": "6"
+    },
+    {
+      "ID": "44",
+      "Code": "GD",
+      "ProvinceName": "广东",
+      "PinYin": "Guangdong",
+      "MinSearchLen": "1",
+      "Status": "1",
+      "RegionId": "5"
+    },
+    {
+      "ID": "45",
+      "Code": "GX",
+      "ProvinceName": "广西",
+      "PinYin": "Guangxi",
+      "MinSearchLen": "2",
+      "Status": "1",
+      "RegionId": "5"
+    },
+    {
+      "ID": "46",
+      "Code": "HAIN",
+      "ProvinceName": "海南",
+      "PinYin": "Hainan",
+      "MinSearchLen": "2",
+      "Status": "1",
+      "RegionId": "5"
+    },
+    {
+      "ID": "50",
+      "Code": "CQ",
+      "ProvinceName": "重庆",
+      "PinYin": "Chongqing",
+      "MinSearchLen": "2",
+      "Status": "1",
+      "RegionId": "7"
+    },
+    {
+      "ID": "51",
+      "Code": "SC",
+      "ProvinceName": "四川",
+      "PinYin": "Sichuan",
+      "MinSearchLen": "2",
+      "Status": "1",
+      "RegionId": "7"
+    },
+    {
+      "ID": "52",
+      "Code": "GZ",
+      "ProvinceName": "贵州",
+      "PinYin": "Guizhou",
+      "MinSearchLen": "2",
+      "Status": "1",
+      "RegionId": "7"
+    },
+    {
+      "ID": "53",
+      "Code": "YN",
+      "ProvinceName": "云南",
+      "PinYin": "Yunnan",
+      "MinSearchLen": "2",
+      "Status": "1",
+      "RegionId": "7"
+    },
+    {
+      "ID": "54",
+      "Code": "XZ",
+      "ProvinceName": "西藏",
+      "PinYin": "Xizang",
+      "MinSearchLen": "2",
+      "Status": "1",
+      "RegionId": "7"
+    },
+    {
+      "ID": "61",
+      "Code": "SAX",
+      "ProvinceName": "陕西",
+      "PinYin": "Shanxi",
+      "MinSearchLen": "3",
+      "Status": "1",
+      "RegionId": "8"
+    },
+    {
+      "ID": "62",
+      "Code": "GS",
+      "ProvinceName": "甘肃",
+      "PinYin": "Gansu",
+      "MinSearchLen": "2",
+      "Status": "1",
+      "RegionId": "8"
+    },
+    {
+      "ID": "63",
+      "Code": "QH",
+      "ProvinceName": "青海",
+      "PinYin": "Qinghai",
+      "MinSearchLen": "2",
+      "Status": "1",
+      "RegionId": "8"
+    },
+    {
+      "ID": "64",
+      "Code": "NX",
+      "ProvinceName": "宁夏",
+      "PinYin": "Ningxia",
+      "MinSearchLen": "2",
+      "Status": "1",
+      "RegionId": "8"
+    },
+    {
+      "ID": "65",
+      "Code": "XJ",
+      "ProvinceName": "新疆",
+      "PinYin": "Xinjiang",
+      "MinSearchLen": "2",
+      "Status": "1",
+      "RegionId": "8"
+    }
+  ]
+}

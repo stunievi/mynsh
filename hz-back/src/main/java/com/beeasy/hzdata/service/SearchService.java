@@ -3,6 +3,7 @@ package com.beeasy.hzdata.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.beeasy.hzback.core.util.Log;
 import com.beeasy.hzback.entity.GP;
 import com.beeasy.hzback.view.GPC;
 import com.beeasy.mscommon.entity.BeetlPager;
@@ -51,20 +52,20 @@ public class SearchService {
 //    );
 
     public static volatile Map<String, Integer> InnateMap = C.newMap(
-        "贷后跟踪-零售银行部个人按揭", 105,
-        "贷后跟踪-小微部个人类", 104,
-        "贷后跟踪-零售银行部个人经营", 105,
-        "贷后跟踪-零售银行部个人消费", 105,
-        "贷后跟踪-小微部公司类", 103,
+            "贷后跟踪-零售银行部个人按揭", 105,
+            "贷后跟踪-小微部个人类", 104,
+            "贷后跟踪-零售银行部个人经营", 105,
+            "贷后跟踪-零售银行部个人消费", 105,
+            "贷后跟踪-小微部公司类", 103,
             "贷后跟踪-企查查贷后检查", 329
 
     );
 
     public PageQuery<JSONObject> search(
-        String no,
-        Map<String, Object> params,
-        long uid,
-        boolean su
+            String no,
+            Map<String, Object> params,
+            long uid,
+            boolean su
 //        ,BeetlPager beetlPager
     ) {
         su = true;
@@ -72,39 +73,39 @@ public class SearchService {
 //        User user = null;
         Set<String> overLimit = C.newSet("229", "219", "214", "217");
         Set<String> noLimit = C.newSet("201", "215", "216", "202", "218", "203", "03", "220", "04", "230");
-        if(S.eq((String) params.get("own"), "1")){
+        if (S.eq((String) params.get("own"), "1")) {
             own = true;
         }
         //台账特殊处理
-        if(S.eq(no,"219") && S.notEmpty((String) params.get("modelName"))){
+        if (S.eq(no, "219") && S.notEmpty((String) params.get("modelName"))) {
             own = true;
         }
-        if(own){
-            params.put("own",1);
+        if (own) {
+            params.put("own", 1);
         }
         params.put("uid", uid);
 
         PageQuery<JSONObject> pageQuery = U.beetlPageQuery("accloan." + no, JSONObject.class, params);
         //查找结果限制
-        if(no.equalsIgnoreCase("201") || no.equalsIgnoreCase("202") || no.equalsIgnoreCase("203")){
+        if (no.equalsIgnoreCase("201") || no.equalsIgnoreCase("202") || no.equalsIgnoreCase("203")) {
             //查找该用户的
             Set<String> allowFields = sqlManager.lambdaQuery(GPC.class)
-                .andEq(GPC::getUid, uid)
-                .andEq(GPC::getType, GP.Type.DATA_SEARCH_RESULT)
-                .andEq(GPC::getObjectId, no)
-                .select(GPC::getDescription)
-                .stream()
-                .map(GPC::getDescription)
-                .filter(S::notEmpty)
-                .flatMap(d -> Arrays.stream(d.split(",")))
-                .collect(Collectors.toSet());
+                    .andEq(GPC::getUid, uid)
+                    .andEq(GPC::getType, GP.Type.DATA_SEARCH_RESULT)
+                    .andEq(GPC::getObjectId, no)
+                    .select(GPC::getDescription)
+                    .stream()
+                    .map(GPC::getDescription)
+                    .filter(S::notEmpty)
+                    .flatMap(d -> Arrays.stream(d.split(",")))
+                    .collect(Collectors.toSet());
 
             for (JSONObject map : pageQuery.getList()) {
                 Iterator it = map.entrySet().iterator();
                 while (it.hasNext()) {
                     Map.Entry entry = (Map.Entry) it.next();
                     //
-                    if(entry.getKey() instanceof String && ((String) entry.getKey()).startsWith("$")){
+                    if (entry.getKey() instanceof String && ((String) entry.getKey()).startsWith("$")) {
                         continue;
                     }
                     if (!allowFields.contains(entry.getKey())) {
@@ -113,7 +114,62 @@ public class SearchService {
                 }
             }
         }
-        if(true){
+
+        switch (no) {
+            case "229":
+                Log.log("查询所有客户",0);
+                break;
+            case "214":
+                Log.log("查询对公客户",0);
+                break;
+            case "217":
+                Log.log("查询对私客户",0);
+                break;
+            case "219":
+                Log.log("查询贷款资料",0);
+                break;
+            case "232":
+                Log.log("查询抵押物信息",0);
+                break;
+            case "231":
+                Log.log("查询实际控制人",0);
+                break;
+            case "203":
+                Log.log("查询台账信息",0);
+                break;
+            case "03":
+                Log.log("查询担保合同",0);
+                break;
+            case "220":
+                Log.log("查询贷款合同",0);
+                break;
+            case "04":
+                Log.log("查询抵押物明细",0);
+                break;
+            case "230":
+                Log.log("查询还款记录",0);
+                break;
+            case "320":
+                Log.log("查询还款明细",0);
+                break;
+            case "201":
+                Log.log("查询对公客户基本信息",0);
+                break;
+            case "215":
+                Log.log("查询对公客户高管信息",0);
+                break;
+            case "216":
+                Log.log("查询对公客户联系信息",0);
+                break;
+            case "202":
+                Log.log("查询对私客户详情基本信息",0);
+                break;
+            case "218":
+                Log.log("查询对私客户收入情况",0);
+                break;
+        }
+
+        if (true) {
             return pageQuery;
         }
 
@@ -122,16 +178,16 @@ public class SearchService {
 
             if (no.equals("219")) {
                 pageQuery.setList(
-                    pageQuery.getList().stream()
-                        .map(map -> {
+                        pageQuery.getList().stream()
+                                .map(map -> {
 //                    Map<String, String> map = (Map<String, String>) o;
-                            //补充关联用户
+                                    //补充关联用户
 //                    User u = accCodes.get(map.getOrDefault("CUST_MGR", ""));
 //                    if (null != u) {
 //                        map.put("pubUserId", u.getId() + "");
 //                        map.put("pubUserName", u.getTrueName());
 //                    }
-                            String loanAccount = (String) map.getOrDefault("LOAN_ACCOUNT", "");
+                                    String loanAccount = (String) map.getOrDefault("LOAN_ACCOUNT", "");
 //                    if (modelName.contains("贷后跟踪")) {
 //                        String name = loanModelNames.getOrDefault(loanAccount, "");
 //                        for (WfModel m : finalModels) {
@@ -150,23 +206,23 @@ public class SearchService {
 //                        map.put("pubModelName", finalModels.get(0).getModelName());
 //                    }
 
-                            //当有任务正在进行时, 禁止发起相同的登记和不良资产管理流程
-                            if (modelName.equals("不良资产登记")) {
-                                long count = sqlManager.lambdaQuery(WfIns.class)
-                                    .andEq(WfIns::getModelName, modelName)
-                                    .andEq(WfIns::getLoanAccount, loanAccount)
-                                    .andNotIn(WfIns::getState, C.newList(WfIns.State.CANCELED, WfIns.State.FINISHED))
-                                    .count();
+                                    //当有任务正在进行时, 禁止发起相同的登记和不良资产管理流程
+                                    if (modelName.equals("不良资产登记")) {
+                                        long count = sqlManager.lambdaQuery(WfIns.class)
+                                                .andEq(WfIns::getModelName, modelName)
+                                                .andEq(WfIns::getLoanAccount, loanAccount)
+                                                .andNotIn(WfIns::getState, C.newList(WfIns.State.CANCELED, WfIns.State.FINISHED))
+                                                .count();
 //                        Map r = sqlManager.selectSingle("accloan.countSameBL", C.newMap("MODEL_NAME", modelName, "LOAN_ACCOUNT", loanAccount), Map.class);
 //                        int count = (int) r.getOrDefault("1", 0);
-                                if (count > 0) {
-                                    map.put("CAN_PUB", 0);
-                                }
-                            }
-                            return map;
+                                        if (count > 0) {
+                                            map.put("CAN_PUB", 0);
+                                        }
+                                    }
+                                    return map;
 
-                        })
-                        .collect(Collectors.toList())
+                                })
+                                .collect(Collectors.toList())
                 );
             }
             //对公客户

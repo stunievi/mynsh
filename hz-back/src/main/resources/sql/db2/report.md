@@ -1521,6 +1521,10 @@ and ((UNPD_PRIN_BAL=0) or (UNPD_PRIN_BAL is null)) and ((DELAY_INT_CUMU=0) or (D
 @if(isNotEmpty(FCZ)){
    and lm.FCZ =#FCZ#
 @}
+-- 未按时出证原因
+@if(isNotEmpty(REASON)){
+    and lm.REASON = #REASON#
+@}
 
 -- 不良台账
 @if(!isEmpty(register)){

@@ -120,7 +120,7 @@
             addNavTab("ECIdetail"+cusName, "企查查-公司详情-"+cusName, hrefUrl.ECIdetail+cusName);
             // showECI_Info(cusName, cusName);
         })
-        $(document).on("click", ".forExport_z", function () {
+        $(document).on("click", ".forExportCsv_z", function () {
             var id = $("#exportSpan_z").attr("value");
             getFetch(remoteOrigin + "/api/auto/sysnotice/read", {id: id}, function () {
                 onInfront()
