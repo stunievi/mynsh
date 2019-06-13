@@ -14,7 +14,7 @@ import java.util.concurrent.ExecutionException;
 import static com.beeasy.zed.Config.config;
 
 
-public classApp {
+public class App {
     public static ConcurrentMap<String, String> concurrentMapWordCounts = new ConcurrentHashMap<>();
 
     static {
