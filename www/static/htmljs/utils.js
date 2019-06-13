@@ -710,6 +710,7 @@ function laytableRender(options, undefined){
     var selector = options.form || "[name=form-search]";
 
     var usepage = options.page === undefined;
+
     var ops = {
         url: url
         , dataType: options.dataType == 'json' ? "json" : "jsonp"
@@ -753,6 +754,12 @@ function laytableRender(options, undefined){
                     data[i] = options.where[i];
                 }
             }
+            // data["__v"] = Math.random();
+            // if(url.indexOf("?")>-1){
+            //     url += "&__v="+Math.random();
+            // }else{
+            //     url +="?__v="+Math.random();
+            // }
             var ajaxOps = ({
                 url: request.url
                 , dataType:"json"

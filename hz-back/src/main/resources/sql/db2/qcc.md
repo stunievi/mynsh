@@ -55,7 +55,7 @@ insert into T_QCC_COUNT (ID,ADD_TIME,IF_NAME_EN,IF_NAME_CH,COUNT,ORDER_ID,DATA_I
 ===
 select 
 @pageTag(){
-   if_name_ch,sum(count) as number 
+   if_name_en,sum(count) as number 
 @}
 from T_QCC_COUNT where 1=1
 @if(isNotEmpty(beginTime)){
@@ -64,7 +64,7 @@ from T_QCC_COUNT where 1=1
 @if(isNotEmpty(endTime)){
     and ADD_TIME<=#endTime#
 @}
-group by if_name_ch
+group by if_name_en
 
 
 

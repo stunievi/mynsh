@@ -5,7 +5,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.entity.*;
 import com.beeasy.hzdata.service.CheckService;
 import com.beeasy.hzdata.service.SearchService;
-import com.beeasy.mscommon.filter.AuthFilter;
 import com.beeasy.mscommon.valid.ValidGroup;
 import org.beetl.sql.core.SQLManager;
 import org.osgl.$;
@@ -335,12 +334,12 @@ public class QccHistLogService {
                             sendRuleMap.put(entry.getKey(),flag5);
                             break;
                         // 司法拍卖
-                        case "judicialSaleList":
+                        case "getJudicialSaleList":
                             boolean flag6 = qccRule(jsonObj, jsonTaskObj,entry.getKey(), "06", "QCC_MSG_RULE_6_ON", "QCC_TASK_MSG_RULE_6_ON", customerName);
                             sendRuleMap.put(entry.getKey(),flag6);
                             break;
                         // 环保处罚
-                        case "envPunishmentList":
+                        case "getEnvPunishmentList":
                             boolean flag7 = qccRule(jsonObj, jsonTaskObj,entry.getKey(), "07", "QCC_MSG_RULE_7_ON", "QCC_TASK_MSG_RULE_7_ON", customerName);
                             sendRuleMap.put(entry.getKey(),flag7);
                             break;

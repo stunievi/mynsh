@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.beetl.sql.core.SQLManager;
+import org.osgl.util.C;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsMessagingTemplate;
 import org.springframework.stereotype.Component;
@@ -36,7 +37,7 @@ public class InstructionChannelMQ {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
         String dateTime = LocalDateTime.now(ZoneOffset.of("+8")).format(formatter);
 
-        Object a = sqlManager.select("qcc.对公客户", JSONObject.class, result);
+        Object a = sqlManager.select("accloan.对公客户", JSONObject.class, C.newMap("uid",1));
         String str = a.toString();
         result.put("OrderId", "fzsys_"+dateTime);
 
@@ -45,10 +46,10 @@ public class InstructionChannelMQ {
         JSONArray jsonArray = new JSONArray();
         for (Object obj : json) {
             JSONObject jo = (JSONObject)obj;
-            String cusName= jo.getString("cusName");
+            String cusName= jo.getString("CUS_NAME");
 
             user = new JSONObject();
-            user.put("Sign", "00");
+            user.put("Sign", "05");
             user.put("Content", cusName);
 
             jsonArray.add(user);

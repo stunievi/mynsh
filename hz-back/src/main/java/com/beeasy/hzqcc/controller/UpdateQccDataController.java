@@ -361,7 +361,7 @@ public class UpdateQccDataController {
     }
 
     private String deconstructResponse(int finished, String progressText, String content, String cusName, String sign, String te, JSONObject jo) {
-        if (0 == finished) { // 成功
+        if (0 == finished || 1 == finished) { // 成功
             content = progressText + "成功：" + cusName + sign + te;
         }
         /*else if (1 == finished) {   // 部分失败
@@ -389,12 +389,43 @@ public class UpdateQccDataController {
     private String companyInfosResponse(String finished, String progress, String content, String cusName, String sign, String te, JSONObject jo) {
         if ("success".equals(finished) && "3".equals(progress)) {
             content = "成功：" + cusName + sign + te;
-        } else if ("failed".equals(finished)) {
+        } else if("warning".equals(finished)){
+            // todo 部分成功需要处理
+            content = "部分成功" + cusName + sign + te;
+
+        }else if ("failed".equals(finished)) {
             sendToAdminMsg("数据获取", cusName, sign);
             String errorMessage = jo.getString("errorMessage");
             content = "<span style='color:red'>失败</span>：" + errorMessage + cusName + sign + te;
         }
         return content;
+    }
+
+
+    @RequestMapping(value = "/qccCount", method = RequestMethod.GET)
+    public Result sendMsg1(
+             String beginTime,
+             String endTime
+    ) {
+        List<JSONObject> lists = sqlManager.select("qcc.查询企查查接口调用次数",JSONObject.class, C.newMap("beginTime",beginTime,"endTime",endTime));
+        Map<String, String> maps = new HashMap<>();
+
+        for(Map.Entry<String, String> dataMap: data.entrySet()){
+            String key = dataMap.getKey();
+
+            if (null == maps.get(key) || ("".equals(maps.get(key)))) {
+                maps.put(key, "0");
+            }
+            for (JSONObject jsonObject : lists){
+                String ifNameEn = jsonObject.getString("ifNameEn");
+                if(ifNameEn.equals(key)){
+                    String num = jsonObject.getString("number");
+                    maps.put(key, num);
+                }
+            }
+        }
+
+        return Result.ok(maps);
     }
 
 }

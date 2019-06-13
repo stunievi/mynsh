@@ -15,10 +15,12 @@ import org.osgl.util.S;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.*;
 import java.util.*;
 
+@Transactional
 @Service
 public class LoanManagerService {
 
@@ -33,33 +35,36 @@ public class LoanManagerService {
      */
     @Scheduled(cron = "0 10 9 * * ?")
     public void sendTaskRule(){
-        List<JSONObject> lists = sqlManager.select("task.查询按揭类贷款账户信息", JSONObject.class, C.newMap("rule","TASK_PRODUCE_RULE_1_ON"));
+        List<JSONObject> lists = sqlManager.select("task.查询按揭类贷款账户信息产生任务", JSONObject.class, C.newMap("rule","TASK_PRODUCE_RULE_1_ON"));
         if(null == lists || lists.size()==0){
             return;
         }
+//        lists = lists.subList(0,2);
 
-        SysVar sysVar = sqlManager.lambdaQuery(SysVar.class).andEq(SysVar::getVarName,"TASK_PRODUCE_RULE_1").single();
-        String varValue = sysVar.getVarValue();
-        if(null == varValue || "".equals(varValue)){
-            varValue = "0";
-        }
+//        SysVar sysVar = sqlManager.lambdaQuery(SysVar.class).andEq(SysVar::getVarName,"TASK_PRODUCE_RULE_1").single();
+//        String varValue = sysVar.getVarValue();
+//        if(null == varValue || "".equals(varValue)){
+//            varValue = "0";
+//        }
+
         for(JSONObject jsonObject : lists){
 
-            Date payDate = jsonObject.getDate("payDate");
-            String czStatus = jsonObject.getString("czStatus");
             String loanAccount = jsonObject.getString("loanAccount");
             String accCode = jsonObject.getString("custMgr");
-            String explain = jsonObject.getString("explain");
 
             //出证状态为“未出证”且购房合同约定交房日期对比当前日期已经超过540天且未按时出证情况说明为空
-            if(("0".equals(czStatus) || S.isBlank(czStatus)) && (null != payDate) && (S.isBlank(explain))){
-                LocalDate localDate = DateUtil.dateToLocalDate(payDate);
-                LocalDate now = LocalDate.now();
-                long day = DateUtil.betweenDay(localDate, now);//相差的天数
-                if(day > Long.parseLong(varValue)){
+//            if(("0".equals(czStatus) || S.isBlank(czStatus)) && (null != payDate) && (S.isBlank(explain))){
+//                LocalDate localDate = DateUtil.dateToLocalDate(payDate);
+//                LocalDate now = LocalDate.now();
+//                long day = DateUtil.betweenDay(localDate, now);//相差的天数
+//                if(day > Long.parseLong(varValue)){
+                    List<JSONObject> res = sqlManager.select("task.查询贷后任务",JSONObject.class,C.newMap("modelName","贷后跟踪-零售银行部个人按揭","loan",loanAccount));
+                    if(null != res && res.size()>0){
+                        continue;
+                    }
                     generateAutoTask(accCode,loanAccount);
-                }
-            }
+//                }
+//            }
         }
     }
 

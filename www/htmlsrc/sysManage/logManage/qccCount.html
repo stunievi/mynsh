@@ -34,17 +34,96 @@
     }));
 
     // 渲染客户列表
-    laytableRender({
-        url: remoteApi.apiQccAutoQccCount,
-        where:{"size":100},
-        page:false,
-        cols: [
-            [
-                { title:'接口名', field:'ifNameCh'},
-                { title:'调用次数', field:'number' }
+
+    getFetch(remoteApi.apiQccAutoQccCount, function (data) {
+        laytableRender({
+            data: [data],
+            page:false,
+            cols: [
+                // [
+                //     { title:'接口名', field:'ifNameCh', rowspan: 2},
+                //     { title:'调用次数', field:'number', rowspan: 2 }
+                // ],
+
+                // [
+                //     { title:'企查查接口名称'} //colspan即横跨的单元格数，这种情况下不用设置field和width
+                //     ,{ title:'子接口中文名'}
+                //     ,{ title:'调用次数'}
+                //
+                // ],[
+                //     {title: '企业工商数据查询',rowspan:3}
+                // ], [
+                //     {field: 'ECIV4_GetDetailsByName', title: '企业关键字精确获取详细信息（Master）'}
+                // ], [
+                //     {field: 'ECIV4_SearchFresh', title: '获取新增的公司信息'}
+                // ]
+
+                // ,[
+                //     {title:'控股公司查询',rowspan: 3}
+                // ],[
+                //     {field: 'HoldingCompany_GetHoldingCompany', title: '获取控股公司信息'}
+                // ]
+                [
+                    { title:'企业工商数据查询', align: 'center', colspan: 2} //colspan即横跨的单元格数，这种情况下不用设置field和width
+                    ,{title:'控股公司查询', align: 'center'}
+                    ,{title:'企业人员董监高信息', align: 'center'}
+                    ,{title:'失信被执行人信息', align: 'center',colspan: 2}
+                    ,{title:'查询裁判文书', align: 'center',colspan: 2}
+                    ,{title:'查询法院公告', align: 'center',colspan: 2}
+                    ,{title:'查询开庭公告', align: 'center',colspan: 2}
+                    ,{title:'司法协助查询', align: 'center'}
+                    ,{title:'企业经营异常信息', align: 'center'}
+                    ,{title:'司法拍卖', align: 'center',colspan: 2}
+                    ,{title:'土地抵押接口', align: 'center',colspan: 2}
+                    ,{title:'环保处罚接口', align: 'center',colspan: 2}
+                    ,{title:'动产抵押查询', align: 'center'}
+                    ,{title:'企业族谱查询', align: 'center',colspan: 3}
+                    ,{title:'企业股权穿透十层接口', align: 'center'}
+                    ,{title:'历史信息接口', align: 'center',colspan: 12}
+                ], [
+                    {field: 'ECIV4_GetDetailsByName', title: '企业关键字精确获取详细信息（Master）'}
+                    ,{field: 'ECIV4_SearchFresh', title: '获取新增的公司信息'}
+                    ,{field: 'HoldingCompany_GetHoldingCompany', title: '获取控股公司信息'}
+                    ,{field: 'CIAEmployeeV4_GetStockRelationInfo', title: '企业人员董监高信息'}
+                    ,{field: 'CourtV4_SearchShiXin', title: '失信信息'}
+                    ,{field: 'CourtV4_SearchZhiXing', title: '被执行信息'}
+                    ,{field: 'JudgeDocV4_SearchJudgmentDoc', title: '裁判文书查询'}
+                    ,{field: 'JudgeDocV4_GetJudgementDetail', title: '裁判文书详情查询'}
+                    ,{field: 'CourtNoticeV4_SearchCourtAnnouncement', title: '法院公告查询'}
+                    ,{field: 'CourtNoticeV4_SearchCourtAnnouncementDetail', title: '法院公告详情查询'}
+                    ,{field: 'CourtAnnoV4_SearchCourtNotice', title: '开庭公告查询'}
+                    ,{field: 'CourtAnnoV4_GetCourtNoticeInfo', title: '开庭公告详情查询'}
+                    ,{field: 'JudicialAssistance_GetJudicialAssistance', title: '获取司法协助信息'}
+
+                    ,{field: 'ECIException_GetOpException', title: '查询企业经营异常信息'}
+                    ,{field: 'JudicialSale_GetJudicialSaleList', title: '司法拍卖列表'}
+                    ,{field: 'JudicialSale_GetJudicialSaleDetail', title: '司法拍卖详情'}
+                    ,{field: 'LandMortgage_GetLandMortgageList', title: '获取土地抵押列表'}
+                    ,{field: 'LandMortgage_GetLandMortgageDetails', title: '获取土地抵押详情'}
+                    ,{field: 'EnvPunishment_GetEnvPunishmentList', title: '获取环保处罚列表'}
+                    ,{field: 'EnvPunishment_GetEnvPunishmentDetails', title: '获取环保处罚详情'}
+                    ,{field: 'ChattelMortgage_GetChattelMortgage', title: '获取动产抵押信息'}
+                    ,{field: 'ECIRelationV4_SearchTreeRelationMap', title: '投资图谱'}
+                    ,{field: 'ECIRelationV4_GetCompanyEquityShareMap', title: '股权结构图'}
+                    ,{field: 'ECIRelationV4_GenerateMultiDimensionalTreeCompanyMap', title: '企业图谱'}
+                    ,{field: 'ECICompanyMap_GetStockAnalysisData', title: '企业股权穿透十层接口查询'}
+                    ,{field: 'History_GetHistorytEci', title: '历史工商信息'}
+                    ,{field: 'History_GetHistorytInvestment', title: '历史对外投资'}
+                    ,{field: 'History_GetHistorytShareHolder', title: '历史股东'}
+                    ,{field: 'History_GetHistoryShiXin', title: '历史失信信息'}
+                    ,{field: 'History_GetHistoryZhiXing', title: '历史被执行'}
+                    ,{field: 'History_GetHistorytCourtNotice', title: '历史法院公告'}
+                    ,{field: 'History_GetHistorytJudgement', title: '历史裁判文书'}
+                    ,{field: 'History_GetHistorytSessionNotice', title: '历史开庭公告'}
+                    ,{field: 'History_GetHistorytMPledge', title: '历史动产抵押'}
+                    ,{field: 'History_GetHistorytPledge', title: '历史股权出质'}
+                    ,{field: 'History_GetHistorytAdminPenalty', title: '历史行政处罚'}
+                    ,{field: 'History_GetHistorytAdminLicens', title: '历史行政许可'}
+                ]
             ]
-        ]
+        })
     })
+
 
      function checkSubmitForm() {
         var form = $("form[name='form-search']")
