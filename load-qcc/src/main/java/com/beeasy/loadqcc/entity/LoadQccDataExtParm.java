@@ -4,14 +4,18 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.Synchronized;
 import org.bson.Document;
+import org.springframework.scheduling.annotation.Async;
 
 import java.io.File;
 import java.io.RandomAccessFile;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicIntegerArray;
 
 import static javafx.scene.input.KeyCode.V;
 
@@ -39,8 +43,27 @@ public class LoadQccDataExtParm {
     private static ThreadLocal<String> cLocal = new ThreadLocal<>();
     private Vector<Document> cacheArr = new Vector<>();
     private int companyCount = 0;
-
+    // api调用次数统计
     private Map tongJiObj = new HashMap();
+    // 发生异常的api
+    private Map<String, ConcurrentHashMap> errorApi = new ConcurrentHashMap<>();
+
+    public synchronized void setErrorApi(String collName, String status){
+        if(errorApi.containsKey(collName)){
+            Map item = errorApi.get(collName);
+            if(item.containsKey(status)){
+                ((AtomicInteger) item.get(status)).incrementAndGet();
+            }else{
+                AtomicInteger atomicInteger = new AtomicInteger(1);
+                item.put(status, atomicInteger);
+            }
+        }else{
+            AtomicInteger atomicInteger = new AtomicInteger(1);
+            ConcurrentHashMap states = new ConcurrentHashMap<>();
+            states.put(status, atomicInteger);
+            errorApi.put(collName, states);
+        }
+    }
 
     public void setTongJiObj(String collName, int count){
         if(tongJiObj.containsKey(collName)){
