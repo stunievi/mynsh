@@ -6,13 +6,13 @@ import com.beeasy.loadqcc.service.Get3;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.beetl.sql.core.SQLManager;
+//import org.beetl.sql.core.SQLManager;
 
 @RestController
 public class test {
 
-    @Autowired
-    SQLManager sqlManager;
+//    @Autowired
+//    SQLManager sqlManager;
 
     @Autowired
     Get1 get1;

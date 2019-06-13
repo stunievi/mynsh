@@ -278,7 +278,8 @@ public class GetOriginQccService {
         }
         // mongo提交过来的数据库数据不再做处理
         if(!object.containsKey("QueryParam")){
-            if("200".equals(object.getString("Status"))){
+            String apiStatus = object.getString("Status");
+            if("200".equals(apiStatus)){
                 // 命中Log
                 MongoCollection<Document> collLog = mongoService2.getCollection("Hit_Log");
                 collLog.insertOne(dataLog);
@@ -307,19 +308,22 @@ public class GetOriginQccService {
                 //
                 mongoService2.getCollection("Call_Api_Count").updateOne(Filters.eq("requestId", extParam.getCommandId()), new Document().append("$set", countInfo), opt);
 
-            }else{
+            }else if("201".equals(apiStatus)){
                 // 未命中Log
                 MongoCollection<Document> collLog = mongoService2.getCollection("Missing_Log");
                 collLog.insertOne(dataLog);
+            }else{
+                extParam.setErrorApi(collName, apiStatus);
             }
+
         }
 
         if(extParam.getCompanyCount() < 30){
             extParam.getCacheArr().add(dataLog);
         }
-        dataLog.append("requestId", extParam.getCommandId());
-        MongoCollection<Document> collLog = mongoService2.getCollection("Response_Log");
-        collLog.insertOne(dataLog);
+//        dataLog.append("requestId", extParam.getCommandId());
+//        MongoCollection<Document> collLog = mongoService2.getCollection("Response_Log");
+//        collLog.insertOne(dataLog);
 
     }
 

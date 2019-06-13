@@ -6,14 +6,14 @@ server:
   port: 8089
 
 
-multipul:
-  datasources:
-    - name: main
-      driver: com.ibm.db2.jcc.DB2Driver
-      url: jdbc:db2://47.94.97.138:50000/test
-      username: db2inst1
-      password: db2inst1
-      alias: fzsys_hy
+#multipul:
+#  datasources:
+#    - name: main
+#      driver: com.ibm.db2.jcc.DB2Driver
+#      url: jdbc:db2://47.94.97.138:50000/test
+#      username: db2inst1
+#      password: db2inst1
+#      alias: fzsys_hy
 
 mongo:
   host: 47.94.97.138

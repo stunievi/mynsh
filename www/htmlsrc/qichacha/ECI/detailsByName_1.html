@@ -132,6 +132,7 @@ ins { background-color: #FEC8C8; text-decoration: none; } del { color: #999; bac
             if(data.IsOnStock){
                 data.IsOnStock = data.IsOnStock == "0" ? "未上市" : "上市";
             }
+            data["TermTime"] = subDateStr(data.TermStart) + " 至 " + subDateStr(data.TeamEnd);
             data.SubIndustry = (data.Industry || {}).SubIndustry || "";
             // if(data.Industry.SubIndustry){}
 
@@ -145,23 +146,25 @@ ins { background-color: #FEC8C8; text-decoration: none; } del { color: #999; bac
                         {title:"经营状态",field:"Status"},
                         {title:"成立日期",field:"StartDate"},
                         {title:"社会统一信用代码",field:"CreditCode"},
-                        // 纳税人识别号
+                        //# 纳税人识别号
                         {title:"注册号",field:"No"},
                         {title:"组织机构代码",field:"OrgNo"},
                         {title:"企业类型",field:"EconKind"},
                         {title:"所属行业",field:"SubIndustry"},
-                        // 核准日期
+                        {title:"核准日期",field:"CheckDate"},
                         {title:"登记机关",field:"BelongOrg"},
-                        {title:"省份",field:"Province"},
+                        {title:"所属地区",field:"Province"},
+                        // #英文名，曾用名，参保人数，人员规模
                         // {title:"吊销日期",field:"EndDate"},
                         // {title:"更新日期",field:"UpdatedDate"},
-                        {title:"营业开始日期",field:"TermStart"},
-                        {title:"营业结束日期",field:"TeamEnd"},
-                        {title:"核准日期",field:"CheckDate"},
+                        {title:"营业期限",field:"TermTime"},
+                        // {title:"营业开始日期",field:"TermStart"},
+                        // {title:"营业结束日期",field:"TeamEnd"},
+
                         // {title:"是否上市",field:"IsOnStock"},
                         // {title:"上市公司代码",field:"StockNumber"},
                         // {title:"上市类型",field:"StockType"},
-                        {title:"地址",field:"Address", spec: true},
+                        {title:"企业地址",field:"Address", spec: true},
                         {title:"经营范围",field:"Scope", spec: true}
                     ],
                     data: data

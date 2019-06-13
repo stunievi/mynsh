@@ -146,7 +146,6 @@ public class QccDataController {
     public void qccCompanyInfosRequest(Object o) throws JMSException {
 
         if(o instanceof TextMessage){
-            long beginTime = System.currentTimeMillis();
             String dataStr = ((TextMessage) o).getText();
             System.out.println(dataStr);
             JSONObject dataObj;
@@ -188,7 +187,15 @@ public class QccDataController {
                 getOriginQccService.saveErrLog("指令："+extParam.getCommandId()+",获取企查查数据发生异常," + e.toString());
                 return;
             }
-            System.out.println(System.currentTimeMillis() - beginTime);
+
+            if(null!=extParam.getErrorApi() && extParam.getErrorApi().size()>0){
+                resObj.put("progress", "1");
+                resObj.put("errorMessage", "企查查数据获取部分成功");
+                resObj.put("finished", "warning");
+                resObj.put("errorApi", JSONObject.toJSONString(extParam.getErrorApi()));
+                jmsMessagingTemplate.convertAndSend(infosResMqTopic, resObj.toJSONString());
+                getOriginQccService.saveErrLog("指令："+extParam.getCommandId()+",获取企查查数据部分失败！");
+            }
 
             // 响应日志，发送zip包后数据将会删除
             MongoCollection<Document> collResLog = mongoService2.getCollection("Response_Log");
@@ -277,7 +284,6 @@ public class QccDataController {
                 resObj.put("errorMessage", "");
                 resObj.put("callApiCount", JSONObject.toJSONString(extParam.getTongJiObj()));
                 jmsMessagingTemplate.convertAndSend(infosResMqTopic, resObj.toJSONString());
-                System.out.println(System.currentTimeMillis() - beginTime);
 
                 MongoCursor<Document> resLogData = resLogIterable.iterator();
                 try {

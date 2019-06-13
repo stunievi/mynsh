@@ -1,6 +1,7 @@
 package com.beeasy.hzreport.controller;
 
 import com.alibaba.fastjson.JSONObject;
+import com.beeasy.hzback.core.util.Log;
 import com.beeasy.hzreport.config.UseSimpleSql;
 import com.beeasy.hzreport.service.ReportService;
 import com.beeasy.mscommon.Result;
@@ -83,27 +84,26 @@ public class ReportController {
     @RequestMapping(value = "/report/{no}")
     public Result reportex(
             @PathVariable String no
-            , @RequestParam Map<String,Object> params
+            , @RequestParam Map<String, Object> params
             , @PageableDefault(value = 15, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
-            ) throws ClassNotFoundException {
+    ) throws ClassNotFoundException {
         try {
             params.put("uid", AuthFilter.getUid());
-            Method method = reportService.getClass().getMethod(no, Map.class , Pageable.class);
+            Method method = reportService.getClass().getMethod(no, Map.class, Pageable.class);
             UseSimpleSql simpleSql = Class.forName(ReportService.class.getName())
                     .getMethod(no, Map.class, Pageable.class)
                     .getAnnotation(UseSimpleSql.class);
             Object result;
-            if(null != simpleSql){
-                if(simpleSql.usePage()){
-                    result = reportService.query( no, params, pageable);
-                }
-                else{
+            if (null != simpleSql) {
+                if (simpleSql.usePage()) {
+                    result = reportService.query(no, params, pageable);
+                } else {
                     result = sqlManager.select("report." + no, JSONObject.class, params);
                 }
-            }
-            else{
+            } else {
                 result = method.invoke(reportService, params, pageable);
             }
+            logCase(no,0);
 
             return Result.ok(result);
         } catch (NoSuchMethodException e) {
@@ -111,6 +111,76 @@ public class ReportController {
         } catch (InvocationTargetException e) {
         }
         return Result.error();
+    }
+
+    public static void logCase(String no,int number){
+        switch (no) {
+            case "report_1":
+                Log.log("查询信贷质量情况", number);
+                break;
+            case "report_9":
+                Log.log("查询五级分类不良贷款现金回收明细信息",number);
+                break;
+            case "report_10":
+                Log.log("查询五级分类不良贷款上调明细信息",number);
+                break;
+            case "report_11":
+                Log.log("一般贷款上一年年度统计信息",number);
+                break;
+            case "report_12":
+                Log.log("查询信贷营销情况（一般贷款）",number);
+                break;
+            case "report_17":
+                Log.log("查询信贷资产质量情况",number);
+                break;
+            case "report_19":
+                Log.log("查询担保类型划分信息",number);
+                break;
+            case "report_20":
+                Log.log("前十大户和最大单户情况",number);
+                break;
+            case "report_21":
+                Log.log("查询房地产开发贷款情况",number);
+                break;
+            case "report_25":
+                Log.log("查询正常贷款的五大欠息户",number);
+                break;
+            case "report_26":
+                Log.log("查询新增贷款利率结构信息",number);
+                break;
+
+            case "report_30":
+                Log.log("查询预期台账统计信息",number);
+                break;
+            case "report_31":
+                Log.log("查询新增贷款统计信息",number);
+                break;
+            case "report_32":
+                Log.log("查询新增贷款利率结构信息",number);
+                break;
+            case "report_33":
+                Log.log("查询分期贷款单户明细信息",number);
+                break;
+            case "report_6":
+                Log.log("查询表内正常贷款欠息信息",number);
+                break;
+            case "report_7":
+                Log.log("查询隐性不良贷款明细信息",number);
+                break;
+            case "report_8":
+                Log.log("查询五级分类不良贷款明细信息",number);
+                break;
+            case "report_27":
+                Log.log("查询新增贷款明细信息",number);
+                break;
+            case "report_28":
+                Log.log("查询新增不良贷款明细信息",number);
+                break;
+            case "report_29":
+                Log.log("查询预期台账明细信息",number);
+                break;
+        }
+
     }
 
 //
@@ -317,12 +387,12 @@ public class ReportController {
     @RequestMapping(value = "/report/report_33")
     public Result report_33(
             @PageableDefault(value = 15, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable,
-            @RequestParam Map<String,Object> params
-    ){
+            @RequestParam Map<String, Object> params
+    ) {
         return Result.ok(
                 C.newMap(
-                        "head",reportService.report_33_head(params,pageable)
-                        , "body",reportService.report_33_body(params,pageable)
+                        "head", reportService.report_33_head(params, pageable)
+                        , "body", reportService.report_33_body(params, pageable)
                 )
         );
     }
@@ -330,60 +400,58 @@ public class ReportController {
     //分期贷款应还未还明细表
 
 
-
     //APP接口-获取用户信息
     @RequestMapping(value = "/report/app_userstatus")
     public Result app_userstatus(
             @PageableDefault(value = 15, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable,
-            @RequestParam Map<String,Object> params
-    ){
-        return Result.ok(reportService.app_userstatus(params,pageable));
+            @RequestParam Map<String, Object> params
+    ) {
+        return Result.ok(reportService.app_userstatus(params, pageable));
     }
 
     //APP接口-获取五级分类统计
     @RequestMapping(value = "/report/app_cla")
     public Result app_cla(
             @PageableDefault(value = 15, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable,
-            @RequestParam Map<String,Object> params
-    ){
-        return Result.ok(reportService.app_cla(params,pageable));
+            @RequestParam Map<String, Object> params
+    ) {
+        return Result.ok(reportService.app_cla(params, pageable));
     }
 
     //APP接口-获取客户信息
     @RequestMapping(value = "/report/app_cus")
     public Result app_cus(
             @PageableDefault(value = 15, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable,
-            @RequestParam Map<String,Object> params
-    ){
-        return Result.ok(reportService.app_cus(params,pageable));
+            @RequestParam Map<String, Object> params
+    ) {
+        return Result.ok(reportService.app_cus(params, pageable));
     }
 
     @RequestMapping(value = "/report/app_loan")
     public Result app_loan(
             @PageableDefault(value = 15, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable,
-            @RequestParam Map<String,Object> params
-    ){
-        return Result.ok(reportService.app_loan(params,pageable));
+            @RequestParam Map<String, Object> params
+    ) {
+        return Result.ok(reportService.app_loan(params, pageable));
     }
 
     //APP接口-获取台帐分类统计
     @RequestMapping(value = "/report/app_loan_class_all")
     public Result app_loan_class_all(
             @PageableDefault(value = 15, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable,
-            @RequestParam Map<String,Object> params
-    ){
-        return Result.ok(reportService.app_loan_class_all(params,pageable));
+            @RequestParam Map<String, Object> params
+    ) {
+        return Result.ok(reportService.app_loan_class_all(params, pageable));
     }
 
     //APP接口-获取台帐分类统计1
     @RequestMapping(value = "/report/app_loan_class")
     public Result app_loan_class(
             @PageableDefault(value = 15, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable,
-            @RequestParam Map<String,Object> params
-    ){
-        return Result.ok(reportService.app_loan_class(params,pageable));
+            @RequestParam Map<String, Object> params
+    ) {
+        return Result.ok(reportService.app_loan_class(params, pageable));
     }
-
 
 
 }

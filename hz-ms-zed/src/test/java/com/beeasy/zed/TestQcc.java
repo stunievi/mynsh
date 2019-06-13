@@ -8,18 +8,23 @@ import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.alibaba.fastjson.JSON;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
 import org.beetl.sql.core.SQLReady;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.osgl.util.E;
 import org.osgl.util.S;
 
 import java.io.FileNotFoundException;
 import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
@@ -224,9 +229,9 @@ public class TestQcc {
      */
     @Test
     public void GetDetailsByName() throws Exception {
-        clearTable("QCC_DETAILS");
+//        clearTable("QCC_DETAILS");
         JSONObject source = read("/ECIV4/GetDetailsByName.json?keyword=惠州市维也纳惠尔曼酒店管理有限公司");
-        JSONObject object = checkResult("/ECIV4/GetDetailsByName?fullName=惠州市维也纳惠尔曼酒店管理有限公司");
+        JSONObject object = checkResult("/ECIV4/GetDetailsByName?fullName=博罗长城学校");
         double sim = sim(object.toJSONString(0), source.toJSONString(0));
         assertTrue(sim > 0.7);
         int c = 1;
@@ -450,7 +455,7 @@ public class TestQcc {
             url = url.substring(0, url.indexOf("?"));
         }
         String str = IoUtil.readUtf8(
-            new RandomAccessFile("D:/work/cu" + url,"r").getChannel()
+            new RandomAccessFile("D:/download" + url,"r").getChannel()
         );
 //        str = str.replaceAll("", "惠州市维也纳惠尔曼酒店管理有限公司");
         str = str.replaceAll("深圳市桑协世纪科技有限公司", "惠州市维也纳惠尔曼酒店管理有限公司");
@@ -463,7 +468,8 @@ public class TestQcc {
         buf.writeBytes(str.getBytes(StandardCharsets.UTF_8));
         FullHttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, url, buf, headers, headers);
 //        deconstructService.doNettyRequest(null, request);
-        return JSONUtil.parseObj(str);
+        return JSONUtil.
+                parseObj(str);
     }
     public JSONObject read(String url) throws Exception {
         return read(url, null);
@@ -586,5 +592,19 @@ public class TestQcc {
         }
     }
 
+    @Test
+    public void getName(){
+        Class clazz = null;
+        try {
+            JSON json = JSON.parseObject(TestMongo.str);
+            clazz = Class.forName("com.beeasy.zed.DeconstructService");
+            Method method = clazz.getDeclaredMethod("GetDetailsByName", ChannelHandlerContext.class,FullHttpRequest.class, JSON.class);
+            method.setAccessible(true);
+            Object obj = method.invoke(clazz.newInstance(), null,new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "/ECIV4/GetDetailsByName.json?keyword=惠州市维也纳惠尔曼酒店管理有限公司", Unpooled.buffer(),  new DefaultHttpHeaders(),  new DefaultHttpHeaders()),json);
+            System.out.println(obj+"xxxxxxxxxx");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 }
