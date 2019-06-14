@@ -422,6 +422,8 @@ public class Link {
         }
         List<Obj> diyas = sqlManager.select("accloan.04", Obj.class, o("loans", rptlist));
         var total = new BigDecimal(0);
+        //由于一个人可能有多个担保品，所以用担保人ID来计算每个人所持有的类型
+        var map = o();
         for (Obj diya : diyas) {
             try {
                 total = total.add(diya.getBigDecimal("core_value"));
@@ -429,20 +431,47 @@ public class Link {
                 e.printStackTrace();
                 continue;
             }
+            var key = diya.getStr("guar_no") + "|" + diya.getStr("guar_name");
+
+            //按照人头计算
+            BigDecimal value = (BigDecimal) map.get(key);
+            if (value == null) {
+                value = new BigDecimal(0);
+            }
+            try{
+                value = value.add(diya.getBigDecimal("core_value"));
+            }
+            catch (Exception e){}
+            map.put(key, value);
         }
+
+
         if (total.compareTo(BigDecimal.ZERO) == 0) {
             return;
         }
         var limit = new BigDecimal("0.33333");
         BigDecimal finalTotal = total;
+
+        var nos = a();
+        map.forEach((k,v) -> {
+            try {
+                BigDecimal vv = (BigDecimal) v;
+                if(vv.divide(finalTotal).compareTo(limit) >= 0){
+                    nos.add(k);
+                }
+            } catch (Exception ee) {
+            }
+        });
+
         var batch = diyas
             .stream()
             .filter(e -> {
-                try {
-                    return (e.getBigDecimal("core_value").divide(finalTotal).compareTo(limit) >= 0);
-                } catch (Exception ee) {
-                    return false;
-                }
+                return nos.contains(e.getStr("guar_no") + "|" + e.getStr("guar_name"));
+//                try {
+//                    return (e.getBigDecimal("core_value").divide(finalTotal).compareTo(limit) >= 0);
+//                } catch (Exception ee) {
+//                    return false;
+//                }
             })
             .map(e -> e.getStr("cus_id") + "|" + e.getStr("guar_name"))
             .distinct()
