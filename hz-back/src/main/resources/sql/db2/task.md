@@ -807,10 +807,11 @@ select distinct
     p1.LOAN_ACCOUNT as loanAccount,
     p1.cus_name as cusName
 from 
-    (select temp1.LOAN_ACCOUNT,temp1.MAIN_BR_ID,temp1.CUST_MGR,temp1.cus_name FROM DB2INST1.RPT_M_RPT_SLS_ACCT temp1 inner join DB2INST1.T_QCC_HIS_LOG Qlog on temp1.CUS_NAME=Qlog.FULL_NAME where Qlog.TYPE=#type# and CUS_NAME=#cusName#) p1
+    (select temp1.LOAN_ACCOUNT,temp1.MAIN_BR_ID,temp1.CUST_MGR,temp1.LN_TYPE,temp1.cus_name FROM DB2INST1.RPT_M_RPT_SLS_ACCT temp1 inner join DB2INST1.T_QCC_HIS_LOG Qlog on temp1.CUS_NAME=Qlog.FULL_NAME where Qlog.TYPE=#type# and CUS_NAME=#cusName#) p1
     left join T_DEPARTMENT_MANAGER as DM on p1.MAIN_BR_ID = DM.acc_code
     left join T_USER as tt on p1.CUST_MGR = tt.acc_code
 where
+    p1.LN_TYPE in ('普通贷款','银团贷款') and 
     UPPER('on') = UPPER(coalesce((select var_value from t_system_variable where var_name=#rule#),'off'))
     
 selectQccTaskRule
@@ -820,10 +821,11 @@ select distinct
     p1.LOAN_ACCOUNT as loanAccount,
     p1.cus_name as cusName
 from 
-    (select temp1.LOAN_ACCOUNT,temp1.MAIN_BR_ID,temp1.CUST_MGR,temp1.cus_name FROM DB2INST1.RPT_M_RPT_SLS_ACCT temp1 inner join DB2INST1.T_QCC_HIS_LOG Qlog on temp1.CUS_NAME=Qlog.FULL_NAME where Qlog.TYPE=#type# and CUS_NAME=#cusName#) p1
+    (select temp1.LOAN_ACCOUNT,temp1.MAIN_BR_ID,temp1.CUST_MGR,temp1.LN_TYPE,temp1.cus_name FROM DB2INST1.RPT_M_RPT_SLS_ACCT temp1 inner join DB2INST1.T_QCC_HIS_LOG Qlog on temp1.CUS_NAME=Qlog.FULL_NAME where Qlog.TYPE=#type# and CUS_NAME=#cusName#) p1
     left join T_DEPARTMENT_MANAGER as DM on p1.MAIN_BR_ID = DM.acc_code
     left join T_USER as tt on p1.CUST_MGR = tt.acc_code
 where
+    p1.LN_TYPE in ('普通贷款','银团贷款') and 
     UPPER('on') = UPPER(coalesce((select var_value from t_system_variable where var_name=#taskRule#),'off'))
     
 查询企查查贷后任务
@@ -852,5 +854,32 @@ and p1.GL_CLASS not like '0%'
 --台帐状态
 and p1.ACCOUNT_STATUS = '1'
 and UPPER('on') = UPPER(coalesce((select var_value from t_system_variable where var_name=#rule#),'off'))
+
+查询按揭类贷款账户信息产生任务
+===
+select 
+    p1.LOAN_ACCOUNT,
+    p1.CUST_MGR,
+    u.id,
+    lm.MMHTJYRQ_DATE as pay_date,
+    lm.FCZ_DATE as cz_date
+from RPT_M_RPT_SLS_ACCT as p1
+left join T_LOAN_MANAGER as lm on p1.LOAN_ACCOUNT = lm.LOAN_ACCOUNT
+left join T_USER as u on p1.CUST_MGR = u.acc_code
+where p1.BIZ_TYPE_DETAIL like '%按揭%'
+--普通贷款
+and p1.LN_TYPE in ('普通贷款','银团贷款')
+--表内资产
+and p1.GL_CLASS not like '0%'
+--台帐状态
+and p1.ACCOUNT_STATUS = '1'
+and lm.FCZ <> 1
+and DAYS(current date) - DAYS(lm.MMHTJYRQ_DATE)>(select var_value from T_SYSTEM_VARIABLE where var_name='TASK_PRODUCE_RULE_1')
+and trim(lm.EXPLAIN) =''
+and UPPER('on') = UPPER(coalesce((select var_value from t_system_variable where var_name=#rule#),'off'))
+
+查询贷后任务
+===
+select * from T_WORKFLOW_INSTANCE where model_name=#modelName# and state='DEALING' and loan_account=#loan#
 
     

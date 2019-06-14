@@ -1,0 +1,18 @@
+@startuml
+start
+:初始化数据源;
+if (同步初始化) then (Y)
+:在主线程初始化;
+else (N)
+:在线程池中初始化;
+:调用await等待初始化完毕;
+endif
+:构造数据连接池;
+if (开发模式) then (Y)
+:使用hikaricp连接池;
+else (N)
+:使用druid连接池;
+endif
+:初始化完毕;
+end
+@enduml

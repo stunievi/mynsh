@@ -72,7 +72,7 @@ public class MsgTmpl extends ValidGroup {
             .forEach(e -> {
                 Log.log("删除消息模板 %s", e.getName());
             });
-        super.onBeforeDelete(sqlManager, id);
+        super.onDelete(sqlManager, id);
     }
 
 
