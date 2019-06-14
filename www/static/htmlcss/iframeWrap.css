@@ -81,10 +81,10 @@ body {
   display: block;
   float: left;
   margin-bottom: 0px;
-  margin-left: 5px;
-  border-top: 2px solid #2dc3e8;
   height: 35px;
   overflow: hidden;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
   background: #dedede;
   background: rgba(0, 0, 0, 0.05);
   color: #777;
@@ -104,8 +104,14 @@ body {
   max-width: 108px;
   color: #777;
 }
-#myTab > li.active {
-  border-top: 2px solid #2dc3e8;
+#myTab > li > a:before {
+  content: "";
+  height: 4px;
+  width: 4px;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  background: #000;
 }
 .tabbable {
   border: none;

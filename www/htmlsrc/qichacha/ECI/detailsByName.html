@@ -17,6 +17,9 @@
         .panel-qcc-heading a{
             color: #000;
         }
+        .panel-heading {
+            padding: 6px 15px;
+        }
     </style>
     <script>
         var keyNoPromise = $.Deferred();
@@ -47,17 +50,37 @@
                 }
             }
         };
-        var fixOnDataLoad = function (elmId, data) {
+        var qccNoDataFillFun = function (row) {
+            for(var key in row){
+                if(row.hasOwnProperty(key)){
+                    if(!row[key]){
+                        row[key] = " - ";
+                    }
+                }
+            }
+        };
+        var fixOnDataLoad = function (elmId, data, fixFun) {
+            console.log(elmId)
             if(data && data.total && data.total > 0){
                 $("a[data-href='#"+elmId+"']").removeClass("disabled");
                 scrollToElm(elmId);
                 $("#"+elmId+"-count").html(data.total);
             }
+            if(data.rows && data.rows.length>0){
+                data.rows.forEach(function (row) {
+                    if(fixFun && typeof fixFun == "function"){
+                        fixFun(row);
+                    }
+                    qccNoDataFillFun(row);
+                });
+            }
+
         };
         var subDateStr = function(dateStr){
             if(dateStr){
                 return dateStr.substring(0, 10);
             }
+            return " - ";
         }
     </script>
 </head>

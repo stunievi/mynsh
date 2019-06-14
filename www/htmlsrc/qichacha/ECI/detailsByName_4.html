@@ -57,7 +57,9 @@
         loadBlock4Status = true;
         var renderExceptions = function(dataList){
             dataList.forEach(function (row) {
-                row["RemoveDate"] = subDateStr(row.RemoveDate) || "";
+                row["AddDate"] = subDateStr(row.AddDate);
+                row["RemoveDate"] = subDateStr(row.RemoveDate);
+                qccNoDataFillFun(row);
             });
             laytableRender({
                 title: "经营异常",
@@ -74,7 +76,7 @@
                 ],
                 data: dataList,
                 onData:function (data) {
-                    fixOnDataLoad("Exceptions", data);
+                    // fixOnDataLoad("Exceptions", data);
                 }
             });
         }
@@ -141,16 +143,12 @@
                 ]
             ],
             onData:function (data) {
-                if(data.rows){
-                    data.rows.forEach(function (row) {
-                        row["StartDate"] = subDateStr(row.StartDate) || "";
-                        row["EndDate"] = subDateStr(row.EndDate) || "";
-                        row["LandMortgageTime"] = row["StartDate"] + " - " + row["EndDate"];
+                fixOnDataLoad("LandMortgageList", data, function (row) {
+                    row["StartDate"] = subDateStr(row.StartDate) || "";
+                    row["EndDate"] = subDateStr(row.EndDate) || "";
+                    row["LandMortgageTime"] = row["StartDate"] + " - " + row["EndDate"];
 
-                    });
-                }
-                fixOnDataLoad("LandMortgageList", data);
-                return data;
+                });
             }
         });
         $(document).on("click", ".toolbar2", function () {
@@ -166,8 +164,6 @@
             , dataType: "json"
             , cols: [
                 [
-                    // { title:'操作', templet: "#toolbar3"},
-                    // {title:"Id", field:"Id"},
                     {title:"决定书文号", templet: "#toolbar3", field:"CaseNo"},
                     {title:"违法类型", field:"IllegalType"},
                     {title:"处罚单位", field:"PunishGov"},
@@ -175,12 +171,9 @@
                 ]
             ],
             onData:function (data) {
-                if(data.rows){
-                    data.rows.forEach(function (row) {
-                        row["PunishDate"] = subDateStr(row.PunishDate) || "-";
-                    });
-                }
-                fixOnDataLoad("EnvPunishmentList", data);
+                fixOnDataLoad("EnvPunishmentList", data, function (row) {
+                    row["PunishDate"] = subDateStr(row.PunishDate);
+                });
             }
         });
         $(document).on("click", ".toolbar3", function () {

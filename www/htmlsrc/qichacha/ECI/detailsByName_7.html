@@ -125,26 +125,22 @@
            cols: [
                [
                    BOOTSTRAP_INDEX_FILED,
-                   // {title:"变更日期",field:"ChangeDate", setWidth:100},
-                   // {title:"公司KeyNo",field:"KeyNo"},
                    {title:"被投资企业名称",field:"CompanyName"},
                    {title:"被投资法定代表人",field:"OperName"},
                    {title:"注册资本",field:"RegistCapi"},
+                   {title:"出资比例",field:"FundedRatio"}
                    // {title:"公司类型",field:"EconKind"},
                    // {title:"状态",field:"Status"},
-                   {title:"出资比例",field:"FundedRatio"}
+                   // {title:"变更日期",field:"ChangeDate", setWidth:100},
+                   // {title:"公司KeyNo",field:"KeyNo"},
                    // {title:"投资日期",field:"StartDate", setWidth: 100}
                ]
            ],
            onData:function (data) {
-               if(data.rows){
-                   data.rows.forEach(function (row) {
-                       row["ChangeDate"] = subDateStr(row.ChangeDate);
-                       row["StartDate"] = subDateStr(row.StartDate);
-                   });
-               }
-               fixOnDataLoad("history2", data);
-               return data;
+               fixOnDataLoad("history2", data, function (row) {
+                   row["ChangeDate"] = subDateStr(row.ChangeDate);
+                   row["StartDate"] = subDateStr(row.StartDate);
+               });
            }
        });
 
@@ -156,11 +152,11 @@
            cols: [
                [
                    BOOTSTRAP_INDEX_FILED,
-                   {title:"股东名称",field:"PartnerName"},
+                   {title:"股东",field:"PartnerName"},
+                   {title:"出资类型",field:"ShouldType"},
                    {title:"持股比例",field:"StockPercent"},
                    {title:"认缴出资额",field:"ShouldCapi"},
-                   {title:"认缴出资日期",field:"ShouldDate"},
-                   {title:"出资类型",field:"ShouldType"}
+                   {title:"认缴出资日期",field:"ShouldDate"}
                ]
            ],
            onData:function (data) {
@@ -195,14 +191,11 @@
                ]
            ],
            onData:function (data) {
-               if(data.rows){
-                   history4DataList = data.rows;
-                   data.rows.forEach(function (row) {
-                       row["PublicDate"] = subDateStr(row.PublicDate);
-                       row["LiAnDate"] = subDateStr(row.LiAnDate);
-                   });
-               }
-               fixOnDataLoad("history4", data);
+               fixOnDataLoad("history4", data, function (row) {
+                   row["PublicDate"] = subDateStr(row.PublicDate);
+                   row["LiAnDate"] = subDateStr(row.LiAnDate);
+               });
+               history4DataList = data.rows;
            }
        });
        $(document).on("click", ".history4_toolbar", function (){
@@ -220,7 +213,6 @@
            cols: [
                [
                    BOOTSTRAP_INDEX_FILED,
-                   // {title:'操作', templet: "#history5_toolbar"},
                    {title:"案号", field:"CaseNo"},
                    {title:"立案时间",field:"LiAnDate"},
                    {title:"执行法院",field:"ExecuteGov"},
@@ -229,20 +221,18 @@
                ]
            ],
            onData:function (data) {
-               (data.rows || []).forEach(function (row) {
+               fixOnDataLoad("history5", data, function (row) {
                    row["CaseNo"] = (row.CaseNo || '').trim().replace(/\(|\)/g, function (substring) {
                        return substring === ")" ? "）" : "（";
                    });
                    row["LiAnDate"] = subDateStr(row.LiAnDate);
                });
                history5DataList = data.rows;
-               fixOnDataLoad("history5", data);
            }
        });
        $(document).on("click", ".history5_toolbar", function (){
            var id = $(this).data("val");
-           id = id.replace(/\(|\)/g,"");
-           addNavTab("HistoryZhiXing-"+id, "历史被执行详情", "/htmlsrc/qichacha/History/HisZhiXingDetail.html", history5DataList[$(this).closest("tr").data("index")]);
+           addNavTab("历史被执行详情", "/htmlsrc/qichacha/History/HisZhiXingDetail.html"+id, history5DataList[$(this).closest("tr").data("index")]);
            return false;
        });
 
@@ -257,21 +247,15 @@
                    BOOTSTRAP_INDEX_FILED,
                    {title:"公示日期",field:"PublishDate", setWidth: 100},
                    {title:"公告类型",field:"Category", setWidth: 120},
-                   // {title:"公告人",field:"Court", setWidth: 150},
                    {title:"当事人",field:"Party"},
-                   // {title:"省份",field:"Province"},
                    {title:'内容', templet: "#history6_toolbar"}
                ]
            ],
            onData:function (data) {
-               if(data.rows){
-                   history6DataList = data.rows;
-                   data.rows.forEach(function (row) {
-                       row["PublishDate"] = subDateStr(row.PublishDate);
-                   });
-               }
-               fixOnDataLoad("history6", data);
-               return data;
+               fixOnDataLoad("history6", data, function (row) {
+                   row["PublishDate"] = subDateStr(row.PublishDate);
+               });
+               history6DataList = data.rows;
            }
        });
        $(document).on("click", ".history6_toolbar", function (){

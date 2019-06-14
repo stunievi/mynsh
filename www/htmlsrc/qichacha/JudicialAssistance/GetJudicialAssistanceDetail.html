@@ -2,8 +2,6 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title> 司法协助详情 </title>
     <!--#include file="/htmlsrc/header.html" -->
@@ -25,7 +23,8 @@
         var cols = {
             data: [
                 {title:"被执行人",field:"ExecutedBy", spec:true},
-                {title:"股权数额",field:"EquityAmount"},
+                // 股权数额
+                {title:"被执行人持有股权，其它投资权益数额",field:"EquityAmount"},
                 {title:"执行法院",field:"EnforcementCourt"},
                 {title:"执行通知书文号",field:"ExecutionNoticeNum"},
                 {title:"类型 | 状态",field:"Status"}
@@ -34,7 +33,8 @@
         $("#status").html(data["Status"].substring(0, data["Status"].indexOf("|")))
         if(data.EquityFreezeDetail && $.isEmptyObject(data.EquityFreezeDetail) === false){
             cols["EquityFreezeDetail"] = [
-                {title:"相关企业名称",field:"CompanyName"},
+                // 相关企业名称
+                {title:"冻结股权标的企业",field:"CompanyName"},
                 {title:"执行事项",field:"ExecutionMatters"},
                 {title:"执行文书文号",field:"ExecutionDocNum"},
                 {title:"执行裁定书文号",field:"ExecutionVerdictNum"},

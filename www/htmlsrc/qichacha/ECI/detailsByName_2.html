@@ -85,9 +85,7 @@
     </div>
 </script>
 <script type="text/html" id="susong4_toolbar">
-    <div class="layui-toolbar">
-        <a href="javascript:;" class="btn btn-default susong4_toolbar" data-val="{{d.Id}}">{{d.AnNo}}</a>
-    </div>
+    <a href="javascript:;" class="susong4_toolbar" data-val="{{d.Id}}">{{d.AnNo}}</a>
 </script>
 <script type="text/html" id="susong5_toolbar">
     <div class="layui-toolbar">
@@ -126,7 +124,6 @@
                 [
                     BOOTSTRAP_INDEX_FILED,
                     { title:'案号', templet: "#susong1_toolbar"},
-                    // {title:"案号",field:"CaseNo"},
                     {title:"开庭时间",field:"LiAnDate", setWidth: 90},
                     {title:"案由",field:"CaseReason", setWidth: 110},
                     {title:"公诉人/原告/上诉人/申请",field:"ProsecutorList"},
@@ -135,14 +132,10 @@
                 ]
             ],
             onData:function (data) {
-                if(data.rows){
-                    data.rows.forEach(function (row) {
-                        row["DefendantList"] = row.DefendantList.replace(/\\t/gm, "、");
-                        row["LiAnDate"] = subDateStr(row.LiAnDate);
-                    });
-                }
-                fixOnDataLoad("susong1",data);
-                return data;
+                fixOnDataLoad("susong1",data, function (row) {
+                    row["DefendantList"] = row.DefendantList.replace(/\\t/gm, "、");
+                    row["LiAnDate"] = subDateStr(row.LiAnDate);
+                });
             }
         });
 
@@ -156,7 +149,6 @@
                 [
                     BOOTSTRAP_INDEX_FILED,
                     { title:'裁判文书名字', templet: "#susong2_toolbar", setWidth: 120},
-                    // {title:"裁判文书名字",field:"CaseName", setWidth: 120},
                     {title:"案由",field:"CaseReason"},
                     // 案件金额
                     {title:"发布时间",field:"SubmitDate", setWidth: 90 },
@@ -166,22 +158,15 @@
                 ]
             ],
             onData:function (data) {
-                if(data && data.total && data.total > 0){
-                    $("a[data-href='#susong2']").removeClass("disabled");
-                    susong2DataList = data.rows;
-                    scrollToElm("susong2");
-                    $("#susong2-count").html(data.total);
-                    data.rows.forEach(function (item) {
-                        var CaseRole = JSON.parse(item["CaseRole"]);
-                        var roleText = "";
-                        CaseRole.forEach(function (role) {
-                            roleText += role["R"] +"：" + role["P"] + "；<br/>";
-                        });
-                        item["SubmitDate"] = subDateStr(item.SubmitDate);
-                        item["CaseRole"] = roleText
+                fixOnDataLoad("susong2",data, function (row) {
+                    var CaseRole = JSON.parse(row["CaseRole"]);
+                    var roleText = "";
+                    CaseRole.forEach(function (role) {
+                        roleText += role["R"] +"：" + role["P"] + "；<br/>";
                     });
-                    return data;
-                }
+                    row["SubmitDate"] = subDateStr(row["SubmitDate"]);
+                    row["CaseRole"] = roleText;
+                });
             }
         });
 
@@ -201,10 +186,9 @@
                 ]
             ],
             onData:function (data) {
-                (data.rows || []).forEach(function (row) {
+                fixOnDataLoad("susong3", data, function (row) {
                     row["PublishedDate"] = subDateStr(row.PublishedDate);
                 });
-                fixOnDataLoad("susong3", data);
             }
         });
 
@@ -227,12 +211,11 @@
                 ]
             ],
             onData:function (data) {
-                (data.rows || []).forEach(function (row) {
+                fixOnDataLoad("susong5", data, function (row) {
                     row["LiAnDate"] = subDateStr(row.LiAnDate);
                     row["PublicDate"] = subDateStr(row.PublicDate);
                 });
-                susong5Datalist = data.rows;
-                fixOnDataLoad("susong5", data);
+                susong5Datalist = data.rows || [];
             }
         });
         $(document).on("click", ".susong5_toolbar", function (){
@@ -250,7 +233,6 @@
             cols: [
                 [
                     BOOTSTRAP_INDEX_FILED,
-                    // {title:'操作', templet: "#susong4_toolbar"},
                     {title:"案号", templet: "#susong4_toolbar", field:"AnNo"},
                     {title:"立案时间",field:"LiAnDate"},
                     {title:"执行法院",field:"ExecuteGov"},
@@ -278,7 +260,12 @@
             success: function (res) {
                 if(res.data && res.data.list && res.data.list.length > 0){
                     $("a[data-href='#susong6']").removeClass("disabled");
-                    JudicialAssistanceDataList = res.data.list;
+                    var dataList = res.data.list;
+                    dataList.forEach(function (row) {
+                        row["EquityFreezeDetail_CompanyName"] = (row["EquityFreezeDetail"] || {})["CompanyName"] || " - ";
+                        qccNoDataFillFun(row);
+                    })
+                    JudicialAssistanceDataList = dataList;
                     $("#susong6-count").html(JudicialAssistanceDataList.length);
                 }
                 laytableRender({
@@ -287,11 +274,11 @@
                     cols: [
                         [
                             BOOTSTRAP_INDEX_FILED,
-                            // {title:'操作', templet: "#susong6_toolbar"},
                             {title:"被执行人",field:"ExecutedBy" },
+                            {title:"冻结股权标的企业",field:"EquityFreezeDetail_CompanyName"},
                             {title:"股权数额",field:"EquityAmount" },
-                            {title:"执行法院",field:"EnforcementCourt" },
                             {title:"执行通知书文号", templet: "#susong6_toolbar",field:"ExecutionNoticeNum" },
+                            {title:"执行法院",field:"EnforcementCourt" },
                             {title:"类型 | 状态",field:"Status" }
                         ]
                     ],
