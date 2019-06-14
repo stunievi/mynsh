@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 
 import static com.github.llyb120.nami.core.DBService.sqlManager;
 import static com.github.llyb120.nami.core.Json.*;
+import static com.github.llyb120.nami.core.Config.config;
 
 public class Link {
 
@@ -222,7 +223,7 @@ public class Link {
     }
 
     public static void do11_2(String compNames) {
-        var str = HttpUtil.get("http://47.96.98.198:8081/ECIV4/GetDetailsByName", o("fullName", compNames));
+        var str = HttpUtil.get(getUrl("/ECIV4/GetDetailsByName"), o("fullName", compNames));
         var obj = Json.parseObject(str);
         var operName = "";
         if(obj.getStr("Status", "500").equals("200")){
@@ -245,7 +246,7 @@ public class Link {
                     notice.setContent(compNames + "企业法人有变动！");
                     notice.setBind_data(JSON.toJSONString(null));
                     notice.setAdd_time(new Date());
-                    sqlManager.insert(notice, true);
+//                    sqlManager.insert(notice, true);
                 }else{
                     String certCode = cusCom.getCert_code();
                     var p = sqlManager.lambdaQuery(RptMRptSlsAcct.class).andEq(RptMRptSlsAcct::getEnt_cert_code, certCode).andEq(RptMRptSlsAcct::getCus_name, operName).select();
@@ -789,7 +790,7 @@ public class Link {
      * @param compNames
      */
     private static Arr hasLoan(Collection<String> names) {
-        List<Obj> allows = sqlManager.select("accloan.存量对公客户", Obj.class, o("names", names));
+        List<Obj> allows = sqlManager.select("accloan.cun_cus_com", Obj.class, o("names", names));
 //        var allows = sqlManager.lambdaQuery(CusComList.class)
 //            .andIn(CusComList::getCus_name, names)
 //            .select();
@@ -858,7 +859,7 @@ public class Link {
 
     private static Obj getCompanyDetail(String compName){
         try{
-            var str = HttpUtil.get("http://47.96.98.198:8081/ECIV4/GetDetailsByName", o("fullName", compName));
+            var str = HttpUtil.get(getUrl("/ECIV4/GetDetailsByName"), o("fullName", compName));
             return (Obj) Json.parseObject(str).getByPath("Result");
         } catch (Exception e){
             return null;
@@ -867,7 +868,7 @@ public class Link {
 
     private static Obj getCia(String compName, String perName){
         try{
-            var str = HttpUtil.get("http://47.96.98.198:8081/CIAEmployeeV4/GetStockRelationInfo", o("fullName", compName, "personName", perName));
+            var str = HttpUtil.get(getUrl("/CIAEmployeeV4/GetStockRelationInfo"), o("fullName", compName, "personName", perName));
             return (Obj) Json.parseObject(str).getByPath("Result");
         } catch (Exception e){
             return null;
@@ -877,7 +878,7 @@ public class Link {
 
     private static Obj getHoldingCompany(String compName, int page){
         try{
-            var str = HttpUtil.get("http://47.96.98.198:8081/HoldingCompany/GetHoldingCompany", o("fullName", compName, "paegIndex", page, "pageSize", 100));
+            var str = HttpUtil.get(getUrl("/HoldingCompany/GetHoldingCompany"), o("fullName", compName, "paegIndex", page, "pageSize", 100));
             var obj = (Obj) Json.parseObject(str);
             var paging = obj.getObj("Paging");
             //没有下一页了
@@ -889,5 +890,10 @@ public class Link {
         catch (Exception e){
             return null;
         }
+    }
+
+    private static String getUrl(String path){
+        var str = config.ext.getStr("qcc-search-url");
+        return String.format("%s%s", str, path);
     }
 }

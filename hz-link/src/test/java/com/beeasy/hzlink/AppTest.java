@@ -33,7 +33,7 @@ public class AppTest {
 
     @BeforeClass
     public static void before() {
-        ThreadUtil.execAsync(() -> App.main(new String[]{"-c", "config_back.json"}));
+        ThreadUtil.execAsync(() -> App.main(new String[]{"-c", "config.json"}));
         while (sqlManager == null) {
             ThreadUtil.sleep(100);
         }

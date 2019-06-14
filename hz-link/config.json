@@ -36,7 +36,8 @@
         "notices: t_user.id => t_system_notice.user_id"
     ],
     "ext": {
-        "chakra" : "D:\\work\\easyshop\\easy-shop\\js"
+        "chakra" : "D:\\work\\easyshop\\easy-shop\\js",
+        "qcc-search-url": "http://47.96.98.198:8081"
     },
     "dev": true,
     "upload" : "d:/uploads"

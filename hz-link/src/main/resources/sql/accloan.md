@@ -8,8 +8,7 @@ g1.GUAR_NAME,
 g1.CER_TYPE,
 g1.CER_NO,
 g6.GAGE_NAME,
-p1.cus_id and g1.guar_no = #guar_no#
- as cus_id,
+p1.cus_id,
 case
 
 when p1.ASSURE_MEANS_MAIN = '10' then
@@ -38,7 +37,7 @@ where
     and p1.LOAN_ACCOUNT in (#join(loans)#)
     
     
-存量对公客户
+cun_cus_com
 ===
 select 
 p1.CUS_NAME
