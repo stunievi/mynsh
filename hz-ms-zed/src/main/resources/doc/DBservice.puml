@@ -1,0 +1,31 @@
+@startuml
+
+
+interface IService{
+    + void await()
+    + void initAsync()
+    + void initSync()
+    + void destroy()
+}
+
+abstract class AbstractService{
+    + void await()
+    + void initAsync()
+    + void destroy()
+}
+
+AbstractService <|-- DBService
+IService <|.. AbstractService
+
+class DBService {
+    - DBService()
+    + void initSync()
+    + {static} DBService getInstance()
+    + {static} SQLManager sqlManager
+    + {static} DataSource dataSource
+    - {static} DBService instance
+}
+
+
+
+@enduml

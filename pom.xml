@@ -66,11 +66,9 @@
         <!--<module>hz-ms-file</module>-->
         <!--<module>hz-rpc-common</module>-->
         <!--<module>hz-test</module>-->
-        <module>hz-msg-send</module>
         <module>full-text-search</module>
         <!--<module>gateway</module>-->
         <module>hz-ms-zed</module>
-        <module>test</module>
     </modules>
 
 
