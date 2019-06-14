@@ -11,6 +11,7 @@ import org.beetl.sql.core.SQLManager;
 import org.beetl.sql.core.engine.PageQuery;
 import org.osgl.util.C;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -42,6 +43,9 @@ public class ExcelController {
     ExcelService excelService;
     @Autowired
     SQLManager sqlManager;
+
+    @Value("${filepath.path}")
+    String path;
 
 //    private static final Map<String,String> templates = C.newMap(
 //            "report_1", "惠州农商银行信贷资产质量情况统计表（月报表）"
@@ -128,6 +132,14 @@ public class ExcelController {
         byte[] bytes = excelService.exportTableByTemplate2("按揭类出证信息导入模板.xlsx", result);
         Log.log("按揭类出证信息导入模板下载");
         return download("按揭类出证信息导入模板.xlsx", bytes);
+    }
+
+    @RequestMapping(value = "/mortgage/definitionFileDownload")
+    public ResponseEntity<byte[]> dingyiDownload(){
+        List<JSONObject> result = new ArrayList<>();
+        byte[] bytes = excelService.exportExcel2(path, result);
+        Log.log("信贷中间表转换定义文件导出");
+        return download("信贷中间表转换定义文件.xlsx", bytes);
     }
 
     private ResponseEntity<byte[]> download(String filename, byte[] bytes){

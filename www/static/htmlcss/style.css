@@ -277,3 +277,24 @@ body {
   background: #5da1ef;
   color: #fcfcfc;
 }
+
+.table_zy {
+  width: 100%;
+  margin: 0 auto;
+  margin-bottom: 20px;
+}
+.table_zy .tb {
+  background: #5da1ef;
+  color: #fcfcfc;
+}
+.table_zy td {
+  padding: 8px 8px 8px 8px;
+  border: #E0E0E0 1px solid;
+  word-break: break-all;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #000000;
+}
+.table_head_zy{
+  font-weight:bold
+}

@@ -53,11 +53,22 @@
                             display: block;
                         }
                     </style> -->
-                    <div>导入定义文件（信贷中间表转换定义文件.xlsx）</div>
-                    <div id="picker1" style="float: none; display: inline-block;margin-right:10px; vertical-align: middle">
-                        <i class="glyphicon glyphicon-book"></i>
-                        上传附件
+                    <div>导出定义文件（信贷中间表转换定义文件.xlsx）</div>
+                    <div id="picker3" style="float: none; display: inline-block;margin-right:10px; vertical-align: middle">
+                        <button type="button" class="btn btn-success" id="definitionFileDownload">
+                            导出定义文件
+                        </button>
                     </div>
+
+                    <div style="margin: 50px 0">
+
+                        <div>导入定义文件（信贷中间表转换定义文件.xlsx）</div>
+                        <div id="picker1" style="float: none; display: inline-block;margin-right:10px; vertical-align: middle">
+                            <i class="glyphicon glyphicon-book"></i>
+                            上传附件
+                        </div>
+                    </div>
+
 
                     <div style="margin: 50px 0">
                         <div>导入数据文件（sls_acct_09100.del.gz）</div>
@@ -166,6 +177,11 @@
                     layer.msg("导入失败！请使用sls_acct_09100.del.gz进行导入！");
                 }
                 uploader.removeFile(file)
+            })
+
+            $(document).on("click", "#definitionFileDownload", function() {
+
+                location.href = remoteOrigin + "/api/report/export/mortgage/definitionFileDownload"
             })
 
         }
