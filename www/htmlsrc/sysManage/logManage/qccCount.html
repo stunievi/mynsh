@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title> 对公客户 - 企查查接口调用次数</title>
     <!--#include file="/htmlsrc/header.html" -->
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
 </head>
 <body>
 <div id="content">
@@ -13,13 +14,264 @@
     </div>
     <div class="batch-operation">
     </div>
-    <div id="dataList">
+    <table class="table_zy" id="dataList">
         <!-- 数据列表 -->
-    </div>
+    </table>
 </div>
 <script src="/static/htmljs/interaction.js"></script>
 
+<script type="text/html" id="model_temp">
+    <tr class="table_head_zy">
+        <td>企查查接口名称</td>
+        <td>子接口中文名</td>
+        <td>调用次数</td>
+    </tr>
+     {{each cols value index}}
+        {{each value val i}}
+     {{val.name}}
+            <tr>
+             {{if i == 0}}
+                 <td rowspan="{{value.length}}">
+                     {{index}}
+                 </td>
+             {{/if}}
+             <td>
+                 {{val.name}}
+             </td>
+             <td>
+                 {{data[val.prop]}}
+             </td>
+            </tr>
+        {{/each}}
+    {{/each}}
+</script>
+
 <script>
+
+    var data = [];
+
+    function test(){
+        var form = $("form[name='form-search']")
+        var param = $.unserialize(form.serialize());
+        $.ajax({
+            url: remoteApi.apiQccAutoQccCount,
+            type: 'GET',
+            data:param,
+            contentType: false,
+            success:function (res) {
+                if(res.success && res.data){
+
+                    data = res.data;
+                    $("#dataList").html(
+                        template("model_temp",{
+                            cols: cols,
+                            data:data,
+                        })
+                    );
+
+                }
+            }
+        });
+    }
+
+    test();
+
+    var cols = {
+        "企业工商数据查":[
+            {
+                name: "企业关键字精确获取详细信息(Master)",
+                prop: "ECIV4_GetDetailsByName"
+            },
+            {
+                name: "获取新增的公司信息",
+                prop: "ECIV4_SearchFresh"
+            }
+        ],
+        "控股公司查询": [
+            {
+                name: "获取控股公司信息",
+                prop: "HoldingCompany_GetHoldingCompany"
+            }
+        ],
+        "企业人员董监高信息": [
+            {
+                name: "企业人员董监高信息",
+                prop: "CIAEmployeeV4_GetStockRelationInfo"
+            }
+        ],
+        "失信被执行人信息": [
+            {
+                name: "失信信息",
+                prop: "CourtV4_SearchShiXin"
+            },{
+                name: "被执行信息",
+                prop: "CourtV4_SearchZhiXing"
+            }
+        ],
+        "查询裁判文书": [
+            {
+                name: "裁判文书查询",
+                prop: "JudgeDocV4_SearchJudgmentDoc"
+            }
+            ,{
+                name: "裁判文书详情查询",
+                prop: "JudgeDocV4_GetJudgementDetail"
+            }
+        ],
+        "查询法院公告": [
+            {
+                name: "法院公告查询",
+                prop: "CourtNoticeV4_SearchCourtAnnouncement"
+            }
+            ,{
+                name: "法院公告详情查询",
+                prop: "CourtNoticeV4_SearchCourtAnnouncementDetail"
+            }
+        ],
+        "查询开庭公告": [
+            {
+                name: "开庭公告查询",
+                prop: "CourtAnnoV4_SearchCourtNotice"
+            }
+            ,{
+                name: "开庭公告详情查询",
+                prop: "CourtAnnoV4_GetCourtNoticeInfo"
+            }
+        ],
+        "司法协助查询": [
+            {
+                name: "获取司法协助信息",
+                prop: "JudicialAssistance_GetJudicialAssistance"
+            }
+        ],
+        "企业经营异常信息": [
+            {
+                name: "查询企业经营异常信息",
+                prop: "ECIException_GetOpException"
+            }
+        ],
+        "司法拍卖": [
+            {
+                name: "司法拍卖列表",
+                prop: "JudicialSale_GetJudicialSaleList"
+            }
+            ,{
+                name: "司法拍卖详情",
+                prop: "JudicialSale_GetJudicialSaleDetail"
+            }
+        ],
+        "土地抵押接口": [
+            {
+                name: "获取土地抵押列表",
+                prop: "LandMortgage_GetLandMortgageList"
+            }
+            ,{
+                name: "获取土地抵押详情",
+                prop: "LandMortgage_GetLandMortgageDetails"
+            }
+        ],
+        "环保处罚接口": [
+            {
+                name: "获取环保处罚列表",
+                prop: "EnvPunishment_GetEnvPunishmentList"
+            }
+            ,{
+                name: "获取环保处罚详情",
+                prop: "EnvPunishment_GetEnvPunishmentDetails"
+            }
+        ],
+        "动产抵押查询": [
+            {
+                name: "获取动产抵押信息",
+                prop: "ChattelMortgage_GetChattelMortgage"
+            }
+        ],
+        "企业族谱查询": [
+            {
+                name: "投资图谱",
+                prop: "ECIRelationV4_SearchTreeRelationMap"
+            }
+            ,{
+                name: "股权结构图",
+                prop: "ECIRelationV4_GetCompanyEquityShareMap"
+            }
+            ,{
+                name: "企业图谱",
+                prop: "ECIRelationV4_GenerateMultiDimensionalTreeCompanyMap"
+            }
+        ],
+        "企业股权穿透十层接口": [
+            {
+                name: "企业股权穿透十层接口查询",
+                prop: "ECICompanyMap_GetStockAnalysisData"
+            }
+        ],
+        "历史信息接口": [
+            {
+                name: "历史工商信息",
+                prop: "History_GetHistorytEci"
+            }
+            ,{
+                name: "历史对外投资",
+                prop: "History_GetHistorytInvestment"
+            }
+            ,{
+                name: "历史股东",
+                prop: "History_GetHistorytShareHolder"
+            }
+            ,{
+                name: "历史失信信息",
+                prop: "History_GetHistoryShiXin"
+            }
+            ,{
+                name: "历史被执行",
+                prop: "History_GetHistoryZhiXing"
+            }
+            ,{
+                name: "历史法院公告",
+                prop: "History_GetHistorytCourtNotice"
+            }
+            ,{
+                name: "历史裁判文书",
+                prop: "History_GetHistorytJudgement"
+            }
+            ,{
+                name: "历史开庭公告",
+                prop: "History_GetHistorytSessionNotice"
+            }
+            ,{
+                name: "历史动产抵押",
+                prop: "History_GetHistorytMPledge"
+            }
+            ,{
+                name: "历史股权出质",
+                prop: "History_GetHistorytPledge"
+            }
+            ,{
+                name: "历史行政处罚",
+                prop: "History_GetHistorytAdminPenalty"
+            }
+            ,{
+                name: "历史行政许可",
+                prop: "History_GetHistorytAdminLicens"
+            }
+        ]
+    }
+    var a1 = {"aa":"123","bb":"222"}
+    // $("#dataList").html(
+    //     template("model_temp",{
+    //         cols: cols,
+    //         data:data,
+    //     })
+    // );
+    // var tableZ= "<table border='1'><tbody><tr><td width='18%' rowspan='2'>测试1</td><td width='18%' rowspan='2'>值1</td></tr></tbody></table >";
+    //
+    //
+    // $("#dataList").html(tableZ);
+
+
+
+
     // 渲染筛选form
     $("#panel-form").html(panelFormRender3({
         col:3,
@@ -35,7 +287,7 @@
 
     // 渲染客户列表
 
-    getFetch(remoteApi.apiQccAutoQccCount, function (data) {
+    /*getFetch(remoteApi.apiQccAutoQccCount, function (data) {
         laytableRender({
             data: [data],
             page:false,
@@ -122,17 +374,17 @@
                 ]
             ]
         })
-    })
+    })*/
 
 
      function checkSubmitForm() {
-        var form = $("form[name='form-search']")
-        layuiTableReload({
-            where: form.serialize()
-        })
+
+         test();
+        // layuiTableReload({
+        //     where: form.serialize()
+        // })
         return false;
     }
-
 
 </script>
 </body>

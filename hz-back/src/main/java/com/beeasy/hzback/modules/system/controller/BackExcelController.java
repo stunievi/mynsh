@@ -15,15 +15,12 @@ import com.beeasy.hzback.entity.LoanManager;
 import com.beeasy.hzback.entity.SysNotice;
 import com.beeasy.hzback.entity.User;
 import com.beeasy.hzback.modules.system.service.NoticeService2;
-import com.beeasy.mscommon.RestException;
 import com.beeasy.mscommon.Result;
 import com.beeasy.mscommon.filter.AuthFilter;
-import org.apache.poi.ss.extractor.ExcelExtractor;
 import org.beetl.sql.core.SQLManager;
-import org.beetl.sql.core.annotatoin.AssignID;
-import org.osgl.util.C;
 import org.osgl.util.S;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -32,10 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.sql.DataSource;
 import java.io.*;
 import java.math.BigDecimal;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -54,6 +48,9 @@ public class BackExcelController {
     DataSource dataSource;
     @Autowired
     NoticeService2 noticeService2;
+
+    @Value("${filepath.path}")
+    String path;
 
     @RequestMapping("/loanmanager/import")
     public Result importLM(
@@ -170,10 +167,14 @@ public class BackExcelController {
             MultipartFile file
     ) {
         File temp = null;
+        File dir = null;
         try {
-            temp = File.createTempFile("temp_de_", "");
-            file.transferTo(temp);
-            ExcelReader reader = ExcelUtil.getReader(temp);
+
+            dir = new File(path);
+            dir.getParentFile().mkdirs();
+            file.transferTo(dir);
+
+            ExcelReader reader = ExcelUtil.getReader(dir);
             reader.setSheet(0);
             JSONObject object = new JSONObject();
 
@@ -191,14 +192,23 @@ public class BackExcelController {
             definition.setConfig(object.toJSONString());
             sqlManager.insert(definition, true);
             Log.log("导入信贷中间表转换定义文件");
+
+//            String filePath="F:\\";
+//            String filePath = "/home/fzsysafter/app/";
+//            String fileName = "dingyi.xlsx";
+
+
             return Result.ok();
         } catch (Exception e) {
             e.printStackTrace();
+            if(null != dir){
+                dir.delete();
+            }
             return Result.error("导入定义失败");
         } finally {
-            if (temp != null) {
-                temp.delete();
-            }
+//            if (temp != null) {
+//                temp.delete();
+//            }
         }
 
     }

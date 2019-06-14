@@ -257,6 +257,77 @@ public class ExcelService {
         return new byte[0];
     }
 
+
+    // 导出本地文件
+    public byte[] exportExcel2(String tmpl, List<JSONObject> data) {
+        List<List<JSONObject>> list = C.newList();
+        list.add(data);
+        return exportExcel(tmpl, list);
+    }
+
+    // 导出本地文件
+    public byte[] exportExcel(String tmpl, List<List<JSONObject>> datas) {
+        File file = new File(tmpl);
+        InputStream in = null;
+//        ClassPathResource resource = new ClassPathResource("excel/" + tmpl);
+        try (
+//        InputStream fis = resource.getInputStream();
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+
+        ) {
+            in = new FileInputStream(file);
+            XSSFWorkbook workbook = new XSSFWorkbook(in);
+            int $count = 0;
+            for (List<JSONObject> data : datas) {
+                XSSFSheet sheet = workbook.getSheetAt($count++);
+                Point start = null;
+                int maxcol = 0;
+                boolean isTarget = false;
+                Map<Short, String> fields = new HashMap<>();
+                scan:
+                {
+                    for (short i = 0; i <= sheet.getLastRowNum(); i++) {
+                        XSSFRow row = sheet.getRow(i);
+                        if (null == row) {
+                            continue;
+                        }
+                        for (short j = 0; j <= row.getLastCellNum(); j++) {
+                            XSSFCell cell = row.getCell(j);
+                            if (null == cell) {
+                                continue;
+                            }
+                            String value;
+                            try{
+                                value = cell.getStringCellValue().trim();
+                            }
+                            catch (Exception e){
+                                continue;
+                            }
+                            if(isTarget){
+                                if(!value.isEmpty()){
+                                    fields.put(j, value);
+                                    cell.setCellValue("");
+                                }
+                            }
+                        }
+                        //最长列
+                        maxcol = Math.max(row.getLastCellNum(), maxcol);
+                        if(isTarget){
+                            break scan;
+                        }
+                    }
+                }
+
+            }
+            workbook.write(bos);
+            return bos.toByteArray();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new byte[0];
+    }
+
     public byte[] exportTableByTemplate2(String tmpl, List<JSONObject> data) {
         List<List<JSONObject>> list = C.newList();
         list.add(data);

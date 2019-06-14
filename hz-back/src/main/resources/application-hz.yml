@@ -138,6 +138,10 @@ spring:
       request-timeout: 30000ms
 
 
+filepath:
+  path: /home/fzsysafter/app/transformDefinitionFile.xlsx
+
+
 #  dubbo:
 #    server: true
 #    registry: N/A
