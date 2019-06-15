@@ -179,9 +179,9 @@ ins { background-color: #FEC8C8; text-decoration: none; } del { color: #999; bac
                 $("#base8-count").html(data.Partners.length);
                 $("a[data-href='#base8']").removeClass("disabled");
 
-                $.each(data.Partners, function (i,v) {
-                    v.ShouldCapi += "万";
-                })
+                // $.each(data.Partners, function (i,v) {
+                //     v.ShouldCapi += "万";
+                // })
             }
             laytableRender({
                 page: false,
