@@ -175,6 +175,10 @@ ins { background-color: #FEC8C8; text-decoration: none; } del { color: #999; bac
             if(data.Partners && data.Partners.length > 0){
                 $("#base8-count").html(data.Partners.length);
                 $("a[data-href='#base8']").removeClass("disabled");
+
+                $.each(data.Partners, function (i,v) {
+                    v.ShouldCapi += "万";
+                })
             }
             laytableRender({
                 page: false,
