@@ -25,13 +25,13 @@
 
                 </div>
                 <h5>
-                    抵押权人信息
+                    抵押权人
                 </h5>
                 <div id="home-content-2">
 
                 </div>
                 <h5>
-                    抵押权人信息List
+                    抵押权人信息
                 </h5>
                 <div id="home-content-2-1">
 
@@ -43,7 +43,7 @@
 
                 </div>
                 <h5>
-                    抵押物信息List
+                    抵押物信息
                 </h5>
                 <div id="home-content-4">
 
@@ -55,7 +55,7 @@
 
                 </div>
                 <h5>
-                    动产抵押ChangeList
+                    动产抵押变更
                 </h5>
                 <div id="home-content-6">
 
@@ -88,11 +88,10 @@
                 cols:[
                     {title:"登记机关",field:"RegisterOffice", spec: true},
                     {title:'登记编号', field:"RegisterNo"},
-                    {title:"登记日期",field:"RegisterDate" }
-                    // {title:"公示时间",field:"PublicDate" },
-                    // {title:"登记机关",field:"RegisterOffice" },
-                    // {title:"被担保债权数额",field:"DebtSecuredAmount" },
-                    // {title:"状态",field:"Status" },
+                    {title:"登记日期",field:"RegisterDate" },
+                    {title:"公示时间",field:"PublicDate" },
+                    {title:"被担保债权数额",field:"DebtSecuredAmount" },
+                    {title:"状态",field:"Status" },
                 ],
                 data: data
             }));
@@ -105,7 +104,7 @@
                 ],
                 data: dataDetail.Pledge
             }));
-            // 动产抵押Pledge_list
+            // 抵押权人信息
             var pledgeList = dataDetail.PledgeeList;
             var pledgeListDataObj = {};
             var cols21 = [];
@@ -122,7 +121,7 @@
                 data: pledgeListDataObj
             }));
             //
-            // 动产抵押SecuredClaim
+            // 被担保主债权信息
             $("#home-content-3").html(qccTableRender({
                 cols:[
                     {title:"债务人履行债务的期限", field:"FulfillObligation", spec: true},
@@ -171,11 +170,11 @@
                     {title:"动产抵押登记变更日期", field:"ChangeDate" },
                     {title:"动产抵押登记变更内容", field:"ChangeContent" }
                 ],
-                data: [{}]
-            })
+                data: data.ChangeList || []
+            });
 
             // 动产抵押ChangeList
-            $("#home-content-6").html();
+            //$("#home-content-6").html();
 
         }
     }

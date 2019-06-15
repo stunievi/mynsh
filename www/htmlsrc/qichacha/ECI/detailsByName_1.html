@@ -98,11 +98,11 @@ ins { background-color: #FEC8C8; text-decoration: none; } del { color: #999; bac
 <script type="text/html" id="test">
     <table class="table table-bordered qcc-table-1" border="1">
         <tbody>
-        {{each data value}}
+        {{each data value pos}}
         <tr>
             {{each value val index}}
             <td class="col-xs-1 text-right">
-                {{index + 1}}
+                {{pos*2 + index + 1}}
             </td>
             <td class=" {{value[index+1] ? col-xs-5 : col-xs-11}} type-info">
                 {{val}}
@@ -132,6 +132,10 @@ ins { background-color: #FEC8C8; text-decoration: none; } del { color: #999; bac
             if(data.IsOnStock){
                 data.IsOnStock = data.IsOnStock == "0" ? "未上市" : "上市";
             }
+            data["StartDate"] = subDateStr(data["StartDate"]);
+            data["CheckDate"] = subDateStr(data["CheckDate"]);
+            data["EndDate"] = subDateStr(data["EndDate"]);
+            data["UpdatedDate"] = subDateStr(data["UpdatedDate"]);
             data["TermTime"] = subDateStr(data.TermStart) + " 至 " + subDateStr(data.TeamEnd);
             data.SubIndustry = (data.Industry || {}).SubIndustry || "";
             // if(data.Industry.SubIndustry){}
@@ -155,15 +159,14 @@ ins { background-color: #FEC8C8; text-decoration: none; } del { color: #999; bac
                         {title:"登记机关",field:"BelongOrg"},
                         {title:"所属地区",field:"Province"},
                         // #英文名，曾用名，参保人数，人员规模
-                        // {title:"吊销日期",field:"EndDate"},
-                        // {title:"更新日期",field:"UpdatedDate"},
+                        {title:"吊销日期",field:"EndDate"},//
+                        {title:"更新日期",field:"UpdatedDate"},//
                         {title:"营业期限",field:"TermTime"},
                         // {title:"营业开始日期",field:"TermStart"},
                         // {title:"营业结束日期",field:"TeamEnd"},
-
-                        // {title:"是否上市",field:"IsOnStock"},
-                        // {title:"上市公司代码",field:"StockNumber"},
-                        // {title:"上市类型",field:"StockType"},
+                        {title:"是否上市",field:"IsOnStock"},//
+                        {title:"上市公司代码",field:"StockNumber"},//
+                        {title:"上市类型",field:"StockType"},//
                         {title:"企业地址",field:"Address", spec: true},
                         {title:"经营范围",field:"Scope", spec: true}
                     ],
@@ -231,11 +234,16 @@ ins { background-color: #FEC8C8; text-decoration: none; } del { color: #999; bac
                 $("a[data-href='#base10']").removeClass("disabled");
                 var branches = [];
                 var dataBranches = data.Branches;
-                while((dataBranches || []).length > 0){
-                    branches.push([
-                        dataBranches.shift()["Name"],
-                        dataBranches.shift()["Name"]
-                    ]);
+                for(var i = 0;i<dataBranches.length;){
+                    var arr = [];
+                    if(dataBranches[i]){
+                        arr.push(dataBranches[i]["Name"])
+                    }
+                    if(dataBranches[i+1]){
+                        arr.push(dataBranches[i+1]["Name"]);
+                    }
+                    branches.push(arr);
+                    i=i+2;
                 }
                 $("#base10-body").html(
                     template('test', {
