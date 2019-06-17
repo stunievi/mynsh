@@ -346,7 +346,7 @@ title as Name,
 EXECUTE_GOV,
 ACTION_REMARK,
 YI_WU,
-inner_company_name as name,
+--inner_company_name as name,
 INPUT_DATE
 @}
 from QCC_JUDICIAL_SALE 
