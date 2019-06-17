@@ -84,6 +84,7 @@ inner_company_name as name,
 INPUT_DATE
 @}
 from QCC_JUDGMENT_DOC
+where 1=1
 #use("公司查询条件")#
 @if(!isEmpty(caseReason)){
     and Case_Reason = #caseReason#
@@ -760,6 +761,32 @@ COURT_YEAR
 @}
 from QCC_HIS_JUDGEMENT
 where inner_company_name = #fullName#
+
+
+
+
+查询股权穿透信息
+===
+select
+@pageTag(){
+ID,
+KEY_NO,
+NAME,
+INNER_COMPANY_NAME,
+SHORT_STATUS,
+STOCK_RIGHT_NUM,
+SHOULD_CAPI,
+GRADE，
+COUNT，
+IN_PARENT_ACTUAL_RADIO，
+FUNDED_RATIO，
+CATEGORY
+@}
+from QCC_GQ_CHUANTOU
+where inner_company_name = #fullName#
+
+
+
 
 查询历史开庭公告信息表
 ===

@@ -17,10 +17,11 @@ public class TimeUtuil {
     @Autowired
     SQLManager sqlManager;
 
-    //3.添加定时任务
-//    @Scheduled(cron = "0/5 * * * * ?")
+    //3.添加定时任务 每天凌晨一点执行一次
+    @Scheduled(cron = "0 0 1 * * ?")
+//    @Scheduled(cron = "0 20 17 * * ?")
     //或直接指定时间间隔，例如：5秒
-    //@Scheduled(fixedRate=5000)
+//    @Scheduled(fixedRate=5000)
     public void time() {
         List<JSONObject> vars = sqlManager.execute(new SQLReady("select count(1) from t_system_variable where var_name = 'qcc_pq_api_open' and var_value = '1'"), JSONObject.class);
         if (vars.size() == 0 || vars.get(0).getInteger("1") == 0) {
@@ -33,7 +34,9 @@ public class TimeUtuil {
         switch (date) {
             case 1:
             case 16:
-                SendMessage.main("01");
+            case 17:
+                SendMessage.main("02");
+                SendMessage.main("03");
                 //调用一次
                 break;
         }
@@ -42,10 +45,9 @@ public class TimeUtuil {
             case "5/1":
             case "8/1":
             case "11/1":
-            case "6/14":
                 SendMessage.main("01");
-//                SendMessage.main("04");
-//                SendMessage.main("05");
+                SendMessage.main("04");
+                SendMessage.main("05");
                 break;
         }
     }

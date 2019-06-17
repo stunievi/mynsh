@@ -18,10 +18,10 @@ public class SendMessage {
         Destination destination;//消息目的地
         MessageProducer producer;//消息发送者
 
-        factory = new ActiveMQConnectionFactory(ActiveMQConnection.DEFAULT_USER, ActiveMQConnection.DEFAULT_PASSWORD,
-                "tcp://47.94.97.138:8011");
 //        factory = new ActiveMQConnectionFactory(ActiveMQConnection.DEFAULT_USER, ActiveMQConnection.DEFAULT_PASSWORD,
-//                "tcp://150.0.100.7:61616");
+//                "tcp://47.94.97.138:8011");
+        factory = new ActiveMQConnectionFactory(ActiveMQConnection.DEFAULT_USER, ActiveMQConnection.DEFAULT_PASSWORD,
+                "tcp://150.0.100.7:61616");
 
         List<String> cus_name_list = new ArrayList<String>();   //公司名称列表
 
@@ -79,11 +79,16 @@ public class SendMessage {
                     StrGetFlag1 = "未知";
                     break;
             }
-            String StrLogContent = "系统跑批：存量对公客户(数量："+ String.valueOf(cus_name_list.size()) + ")-" + StrGetFlag1;
-            DB2Op.writeLog(StrLogContent,StrID);
-            //向ActiveMQ发送字符串指令
-            TextMessage textMessage = session.createTextMessage(msg);
+            try {
+                String StrLogContent = "系统跑批：存量对公客户(数量："+ String.valueOf(cus_name_list.size()) + ")-" + StrGetFlag1;
+                DB2Op.writeLog(StrLogContent,StrID);
+                //向ActiveMQ发送字符串指令
+                TextMessage textMessage = session.createTextMessage(msg);
                 producer.send(textMessage);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
 
 //
 //            //根据存量对公客户名单拼装指令内容
