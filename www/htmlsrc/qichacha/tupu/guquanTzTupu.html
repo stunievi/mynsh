@@ -41,19 +41,43 @@
     var guquanTzTupu;
     var barWidth = 335;
     var barHeight = 50;
-    // var companyName = decodeURI(getParam("name"));
-    // var companyKeyNo= decodeURI(getParam("keyNo"));
 
     $('#load_data').show();
     getDataTupuTz();
 
+    // 将投资图谱数据整理为树形结构
+    // var dataArr = data.BreakThroughList;
+    // var parseArr = [];
+    // function walk(parseArr, parentName, level, path){
+    //     if(level > 5){
+    //         return;
+    //     }
+    //     dataArr.forEach(function(item){
+    //         item.DetailInfoList.forEach(function(relateItem){
+    //             var pathArr = relateItem.Path.split(/\(.*?->/);
+    //             var pathStr = pathArr.join("");
+    //             // 确定投资路径，层级深度，公司名
+    //             if(pathStr.indexOf(path) > -1 && relateItem.Level == level
+    //                 && pathArr[level - 1] == parentName){
+    //                 var data = {
+    //                     Name: pathArr[level],
+    //                     Children: []
+    //                 };
+    //                 walk(data.Children, item.Name, level + 1, pathStr);
+    //                 parseArr.push(data);
+    //             }
+    //         });
+    //     });
+    // }
+    // walk(parseArr, "小米科技有限责任公司", 1, "");
+
     function getDataTupuTz(){
         $.ajax({
             // url:"./json/guquanchuantou2.json",
-            url: remoteApi.qccECIRelationSearchTreeRelationMap,
+            url: remoteApi.qccECIInvestmentThroughGetInfo,
             type: 'GET',
             data:{
-                keyNo: companyKeyNo,
+                fullName: companyName
             },
             dataType: 'JSON',
             success: function (res){
@@ -614,7 +638,7 @@
                     }
                 });
                 update(investData);
-                $(dom).html('<span class="extent"></span>展开')
+                $(dom).html('<span class="extent"></span>展开');
                 isExtent = false;
             }
         }

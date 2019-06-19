@@ -19,12 +19,6 @@
     </div>
 </div>
 <script src="/static/htmljs/interaction.js"></script>
-<!-- toolbar渲染模板 -->
-<script type="text/html" id="toolbar">
-    <div class="layui-toolbar">
-        <a href="javascript:;" class="btn btn-default handleShowECI" data-id="{{d.CUS_ID}}" data-name="{{d.CUS_NAME}}">查看</a>
-    </div>
-</script>
 
 <script>
     // 渲染筛选form
@@ -52,7 +46,9 @@
         url: remoteApi.apiQccAutoQccLogCusCom,
         cols: [
             [
-                { title:'操作', templet: "#toolbar", fixed: 'right'},
+                { title:'操作', templet: function (data,index) {
+                        return '<a href="javascript:;" class="btn btn-default btn-xs handleShowECI" data-id="'+data.id+'" data-name="'+data.CUS_NAME+'">查看</a>';
+                    }, fixed: 'right'},
                 { title:'客户号', field:'CUS_ID'},
                 { title:'客户名称', field:'CUS_NAME' },
                 { title:'开户证件类型', field:'CERT_TYPE'},

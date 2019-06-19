@@ -52,10 +52,8 @@
         };
         var qccNoDataFillFun = function (row) {
             for(var key in row){
-                if(row.hasOwnProperty(key)){
-                    if(!row[key]){
-                        row[key] = " - ";
-                    }
+                if(!row[key]){
+                    row[key] = " - ";
                 }
             }
         };
@@ -110,7 +108,6 @@
         </div>
         <!--#include file="./rightSide.html" -->
         <div class="goup-container" style="display: none">
-
         </div>
     </div>
 </div>
@@ -133,6 +130,7 @@
     }
 </style>
 <script>
+    // 滚动页面后固定顶部tab栏
     $("html,body").scroll(function () {
         if($(this).scrollTop() > 120){
             $("#myTabs").width($("#qcc-detail-content").width());
@@ -141,6 +139,7 @@
             $("#myTabs").removeClass("fixed");
         }
     });
+    // 跳转指定元素
     $(".data-tab a").click(function () {
         if($(this).hasClass("disabled")){
             return false;
@@ -151,6 +150,7 @@
             $("body,html").animate({scrollTop: targetTop - fixTop})
         }
     });
+    // 折叠&&展开子模块，【仅[法律诉讼]模块支持】
     $("#myTabs li a").dblclick(function () {
         $(this).toggleClass("switch");
         if($(this).hasClass("switch")){
@@ -209,25 +209,26 @@
         });
     });
     $(document).on("click", "#base-tab", function () {
+        // 返回模块顶部
         $(".goup-container").trigger("click");
     });
     // 点击【法律诉讼】模块后加载此模块数据
     $(document).on("click", "#susong-tab", function () {
-        if(loadBlock2Status == false){
+        if(loadBlock2Status === false){
             loadBlock2();
         }
         $(".goup-container").trigger("click");
     });
     // 点击【经营风险】模块后加载此模块数据
     $(document).on("click", "#fengxian-tab", function () {
-        if(loadBlock4Status == false){
+        if(loadBlock4Status === false){
             loadBlock4();
         }
         $(".goup-container").trigger("click");
     });
     // 点击【历史信息】模块后加载此模块数据
     $(document).on("click", "#history-tab", function () {
-        if(loadBlock7Status == false){
+        if(loadBlock7Status === false){
             loadBlock7();
         }
         $(".goup-container").trigger("click");

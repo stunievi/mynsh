@@ -111,15 +111,16 @@
         addNavTab("CourtNoticeDetail-"+id, "法院公告详细信息", "/htmlsrc/qichacha/CourtNotice/SearchCourtAnnouncementDetail.html?id="+id);
         return true;
     });
-
+    // 模块数据是否加载标识
     var loadBlock2Status = false;
+    // 加载模块数据
     function loadBlock2() {
         loadBlock2Status = true;
         // 开庭公告
         laytableRender({
             id: "susong1-body",
             autoShift: false,
-            url: remoteApi.qccCourtAnnoSearchCourtNotice+"?size=5&fullName="+COMPANY_NAME,
+            url: remoteApi.qccCourtAnnoSearchCourtNotice+"?fullName="+COMPANY_NAME,
             cols: [
                 [
                     BOOTSTRAP_INDEX_FILED,
@@ -262,7 +263,6 @@
                     $("a[data-href='#susong6']").removeClass("disabled");
                     var dataList = res.data.list;
                     dataList.forEach(function (row) {
-                        row["EquityFreezeDetail_CompanyName"] = (row["EquityFreezeDetail"] || {})["CompanyName"] || " - ";
                         qccNoDataFillFun(row);
                     })
                     JudicialAssistanceDataList = dataList;
@@ -275,7 +275,7 @@
                         [
                             BOOTSTRAP_INDEX_FILED,
                             {title:"被执行人",field:"ExecutedBy" },
-                            {title:"冻结股权标的企业",field:"EquityFreezeDetail_CompanyName"},
+                            {title:"冻结股权标的企业",field:"Name"},
                             {title:"股权数额",field:"EquityAmount" },
                             {title:"执行通知书文号", templet: "#susong6_toolbar",field:"ExecutionNoticeNum" },
                             {title:"执行法院",field:"EnforcementCourt" },

@@ -155,7 +155,7 @@
                    {title:"股东",field:"PartnerName"},
                    {title:"出资类型",field:"ShouldType"},
                    {title:"持股比例",field:"StockPercent"},
-                   {title:"认缴出资额",field:"ShouldCapi"},
+                   {title:"认缴出资额(万元)",field:"ShouldCapi"},
                    {title:"认缴出资日期",field:"ShouldDate"}
                ]
            ],
@@ -232,7 +232,7 @@
        });
        $(document).on("click", ".history5_toolbar", function (){
            var id = $(this).data("val");
-           addNavTab("历史被执行详情", "/htmlsrc/qichacha/History/HisZhiXingDetail.html"+id, history5DataList[$(this).closest("tr").data("index")]);
+           addNavTab("HistoryZhiXing"+id,"历史被执行详情", "/htmlsrc/qichacha/History/HisZhiXingDetail.html"+id, history5DataList[$(this).closest("tr").data("index")]);
            return false;
        });
 
@@ -311,7 +311,7 @@
                [
                    BOOTSTRAP_INDEX_FILED,
                    {title:"案号",field:"CaseNo"},
-                   {title:"开庭日期",field:"LianDate"},
+                   {title:"开庭日期",field:"LiAnDate"},
                    {title:"案由",field:"CaseReason"},
                    {title:"公诉人/原告/上诉人/申请人",field:"ProsecutorList"},
                    {title:"被告人/被告/被上诉人/被申请人",field:"DefendantList"}
@@ -319,7 +319,9 @@
                ]
            ],
            onData:function (data) {
-               fixOnDataLoad("history8", data);
+               fixOnDataLoad("history8", data, function (row) {
+                   row["LiAnDate"] = subDateStr(row["LiAnDate"]);
+               });
            }
        });
        // 历史动产抵押
@@ -462,6 +464,10 @@
                    if(res.data && res.data.CreditChinaList && res.data.CreditChinaList.length > 0){
                        nonData2 = false;
                        CreditChinaList = res.data.CreditChinaList;
+                       CreditChinaList.forEach(function (value) {
+                           value["LiAnDate"] = subDateStr(value["LiAnDate"]);
+                           qccNoDataFillFun(value)
+                       });
                        $("#history12-1-count").html(CreditChinaList.length);
                    }
                    laytableRender({
@@ -473,7 +479,7 @@
                                BOOTSTRAP_INDEX_FILED,
                                {title:"编号",field:"CaseNo"},
                                {title:"项目名称",field:"Name"},
-                               {title:"决定日期",field:"LianDate"},
+                               {title:"决定日期",field:"LiAnDate"},
                                {title:"地域",field:"Province"},
                                {title:"公司",field:"OwnerName"}
                            ]
@@ -487,6 +493,7 @@
                }
            }
        });
+
    }
 
 </script>

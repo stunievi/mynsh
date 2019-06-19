@@ -643,12 +643,19 @@ function laytableRender(options, undefined){
     //处理cols
     $.each(options.cols, function (i,v) {
         $.each(v, function (ii,vv) {
-            if(vv.templet){
-                var templet = $(vv.templet).html();
-                vv.formatter = function (index,row) {
-                    var html = layui.laytpl(templet).render(row)
-                    return html;
+            if(vv && vv.templet){
+                if(typeof vv.templet == "function"){
+                    vv.formatter = function (value, row, index) {
+                        return vv.templet(row, index);
+                    }
+                }else{
+                    var templet = $(vv.templet).html();
+                    vv.formatter = function (index,row) {
+                        var html = layui.laytpl(templet).render(row)
+                        return html;
+                    }
                 }
+
             }
             if(!vv.valign){
                 vv.valign = 'middle'

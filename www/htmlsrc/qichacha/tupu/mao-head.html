@@ -10,7 +10,7 @@
             <!--<li><a href="javascript:;">关联图谱</a></li>-->
             <li class="hrefClass"><a href="javascript:;">股权结构图</a></li>
             <li class="hrefClass"><a href="javascript:;">股权穿透图</a></li>
-            <!--<li class="hrefClass"><a href="javascript:;">投资图谱</a></li>-->
+            <li class="hrefClass"><a href="javascript:;">企业对外投资</a></li>
             <!--<li><a href="javascript:;">疑似实际控制人</a></li>-->
             <li style="float: right;"><a href="javascript:;" class="btn" id="updateBtn" style="background: orange;color: #fff;padding: 0 8px;" >更新当前模块数据</a></li>
         </ul>
@@ -36,8 +36,8 @@
         var urlArr = [
             "./qiyetupu.html",
             "./guquanTupu.html",
-            "./guquanchuantou.html"
-            // "./guquanTzTupu.html"
+            "./guquanchuantou.html",
+            "./guquanTzTupu.html"
         ];
         var index = $(this).index();
         window.location = urlArr[index] + "?keyNo="+keyNo+"&name="+companyName;

@@ -26,14 +26,13 @@
     {{#
         var a = [];
         var CaseRole = JSON.parse(d.CaseRole);
-        console.log('CaseRole', CaseRole);
         for(var i=0;i < CaseRole.length;i++){
         var val = CaseRole[i];
         a.push(val['P']+'【'+ val['R'] + '】');
         }
         return a.join("、");
     }}
-    </script>
+</script>
 
     <script>
         // 配置查询表单

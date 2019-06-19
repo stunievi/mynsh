@@ -104,8 +104,10 @@ var remoteApi = {
 	qccECIGetBasicDetailsByName: "/api/qcc/auto/ECIV4/GetBasicDetailsByName", // 企业关键字精确获取详细信息(Basic)
 	qccCIAEmployeeGetStockRelationInfo: "/api/qcc/auto/CIAEmployeeV4/GetStockRelationInfo", // 企业人员董监高信息
 	qccHoldingCompanyGetHoldingCompany: "/api/qcc/auto/HoldingCompany/GetHoldingCompany", // 控股公司
-
+	qccECIInvestmentGetInvestmentList: "/api/qcc/auto/ECIInvestment/GetInvestmentList", // 对外投资列表
 	qccECISearch: "/api/qcc/auto/ECI/Search", // 企业关键字模糊搜索
+	qccECIInvestmentThroughGetInfo: "/api/qcc/auto/ECIInvestmentThrough/GetInfo", // 企业对外投资穿透
+
 	qccECIRelationSearchTreeRelationMap: "/api/qcc/auto/ECIRelationV4/SearchTreeRelationMap", // 投资图谱
 	qccECIRelationGetCompanyEquityShareMap: "/api/qcc/auto/ECIRelationV4/GetCompanyEquityShareMap", // 股权结构图
 	qccECIRelationGenerateMultiDimensionalTreeCompanyMap: "/api/qcc/auto/ECIRelationV4/GenerateMultiDimensionalTreeCompanyMap", // 企业图谱
