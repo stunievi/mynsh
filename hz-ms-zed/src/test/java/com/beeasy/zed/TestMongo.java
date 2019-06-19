@@ -25,11 +25,14 @@ import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 import static com.beeasy.zed.DBService.dataSource;
 import static com.beeasy.zed.DBService.sqlManager;
@@ -303,6 +306,42 @@ public class TestMongo {
     @Test
     public void testSingleFile() throws FileNotFoundException, InterruptedException {
         deconstructService.onDeconstructRequest("1", "2", new FileInputStream("C:\\Users\\DELL\\Desktop\\flss-load-qcc528da1.zip"));
+    }
+
+    @Test
+    public void importe(){
+        File file = new File("C:\\Users\\DELL\\Desktop\\qccData\\zip");
+        List<File> files = new ArrayList<>();
+        walk(files, file);
+
+        files = files.stream()
+                .sorted(new Comparator<File>() {
+                    @Override
+                    public int compare(File o1, File o2) {
+                        return Long.compare(o1.lastModified(), o2.lastModified());
+                    }
+                })
+                .collect(Collectors.toList());
+        for (File f : files) {
+            try {
+                deconstructService.onDeconstructRequest("1", "2", new FileInputStream(f));//;"C:\\Users\\DELL\\Desktop\\flss-load-qcc528da1.zip"));
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+
+        }
+        int d = 1;
+
+    }
+
+    private void walk(List<File> files, File file){
+        for (File listFile : file.listFiles()) {
+            if(listFile.isDirectory()){
+                walk(files, listFile);
+            } else {
+                files.add(listFile);
+            }
+        }
     }
 
 

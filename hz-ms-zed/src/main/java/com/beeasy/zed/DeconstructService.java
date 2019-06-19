@@ -2368,7 +2368,6 @@ public class DeconstructService extends AbstractService {
             stime = System.currentTimeMillis();
 
             for (Map.Entry<Object, PreparedStatement> entry : insertCache.entrySet()) {
-                System.out.printf(entry.getKey() + "\n xxxxxxxxx");
                 entry.getValue().executeBatch();
                 IoUtil.closeIfPosible(entry.getValue());
             }

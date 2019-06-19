@@ -770,17 +770,8 @@ where inner_company_name = #fullName#
 select
 @pageTag(){
 ID,
-KEY_NO,
-NAME,
+RESULT,
 INNER_COMPANY_NAME,
-SHORT_STATUS,
-STOCK_RIGHT_NUM,
-SHOULD_CAPI,
-GRADE，
-COUNT，
-IN_PARENT_ACTUAL_RADIO，
-FUNDED_RATIO，
-CATEGORY
 @}
 from QCC_GQ_CHUANTOU
 where inner_company_name = #fullName#

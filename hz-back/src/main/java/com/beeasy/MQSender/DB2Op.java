@@ -31,14 +31,14 @@ public class DB2Op {
         List<String> list = new ArrayList<String>();
         try {
             Class.forName("com.ibm.db2.jcc.DB2Driver").newInstance();
-//            String url = "jdbc:db2://47.94.97.138:50000/test";
-//            String user = "db2inst1";
-//            String password = "db2inst1";
+            String url = "jdbc:db2://47.94.97.138:50000/test";
+            String user = "db2inst1";
+            String password = "db2inst1";
 
 
-            String url = "jdbc:db2://150.0.104.8:50000/fzsys";
-            String user = "fzsys";
-            String password = "11111111";
+//            String url = "jdbc:db2://150.0.104.8:50000/fzsys";
+//            String user = "fzsys";
+//            String password = "11111111";
 
 
             Connection conn = DriverManager.getConnection(url,user,password);
@@ -73,12 +73,14 @@ public class DB2Op {
         boolean Result = false;
         try {
             Class.forName("com.ibm.db2.jcc.DB2Driver").newInstance();
-//            String url = "jdbc:db2://47.94.97.138:50000/test";
-//            String user = "db2inst1";
-//            String password = "db2inst1";
-            String url = "jdbc:db2://150.0.104.8:50000/fzsys";
-            String user = "fzsys";
-            String password = "11111111";
+            String url = "jdbc:db2://47.94.97.138:50000/test";
+            String user = "db2inst1";
+            String password = "db2inst1";
+
+
+//            String url = "jdbc:db2://150.0.104.8:50000/fzsys";
+//            String user = "fzsys";
+//            String password = "11111111";
 
             Connection conn = DriverManager.getConnection(url,user,password);
             SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//设置日期格式
