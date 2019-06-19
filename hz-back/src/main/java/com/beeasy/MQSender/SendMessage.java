@@ -79,11 +79,16 @@ public class SendMessage {
                     StrGetFlag1 = "未知";
                     break;
             }
-            String StrLogContent = "系统跑批：存量对公客户(数量："+ String.valueOf(cus_name_list.size()) + ")-" + StrGetFlag1;
-            DB2Op.writeLog(StrLogContent,StrID);
-            //向ActiveMQ发送字符串指令
-            TextMessage textMessage = session.createTextMessage(msg);
+            try {
+                String StrLogContent = "系统跑批：存量对公客户(数量："+ String.valueOf(cus_name_list.size()) + ")-" + StrGetFlag1;
+                DB2Op.writeLog(StrLogContent,StrID);
+                //向ActiveMQ发送字符串指令
+                TextMessage textMessage = session.createTextMessage(msg);
                 producer.send(textMessage);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
 
 //
 //            //根据存量对公客户名单拼装指令内容

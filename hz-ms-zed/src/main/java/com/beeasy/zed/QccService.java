@@ -78,6 +78,7 @@ public class QccService extends AbstractService{
         registerRoute("/LandMortgage/GetLandMortgageDetails", service::GetLandMortgageDetails);
         registerRoute("/EnvPunishment/GetEnvPunishmentList", service::GetEnvPunishmentList);
         registerRoute("/EnvPunishment/GetEnvPunishmentDetails", service::GetEnvPunishmentDetails);
+        registerRoute("/EquityThrough/GetEquityThrough",service::GetEquityThrough);
         registerRoute("/ChattelMortgage/GetChattelMortgage", service::GetChattelMortgage);
         registerRoute("/ECIV4/GetDetailsByName", service::GetDetailsByName);
         registerRoute("/History/GetHistorytEci", service::GetHistorytEci);
@@ -5300,6 +5301,85 @@ public class QccService extends AbstractService{
     }
 
     /**
+     *
+     * @api {get} {企查查数据查询服务地址}/EquityThrough/GetEquityThrough 查询股权穿透信息
+     *
+     * {
+     *     "OrderNumber": "EQUITYTHROUGH2019040817072690532597",
+     *     "Result": {
+     *         "KeyNo": "befe52d9753b511b6aef5e33fe00f97d",
+     *         "Name": "大连万达集团股份有限公司",
+     *         "Count": "2",
+     *         "Children": [
+     *             {
+     *                 "KeyNo": "971e2cafbecd8c978e959d69fc305f42",
+     *                 "Name": "大连合兴投资有限公司",
+     *                 "Category": "0",
+     *                 "FundedRatio": "99.76%",
+     *                 "InParentActualRadio": "99.76%",
+     *                 "Count": "2",
+     *                 "Grade": "1",
+     *                 "ShouldCapi": "99760",
+     *                 "StockRightNum": "",
+     *                 "Children": [
+     *                     {
+     *                         "KeyNo": "pea5ac417585edc0effd7d23406510da",
+     *                         "Name": "王健林",
+     *                         "Category": "2",
+     *                         "FundedRatio": "98.00%",
+     *                         "InParentActualRadio": "97.76%",
+     *                         "Count": "0",
+     *                         "Grade": "2",
+     *                         "ShouldCapi": "7702.8",
+     *                         "StockRightNum": "",
+     *                         "Children": null,
+     *                         "ShortStatus": ""
+     *                     },
+     *                     {
+     *                         "KeyNo": "pdd3325c48473fcd64180921d82ead80",
+     *                         "Name": "王思聪",
+     *                         "Category": "2",
+     *                         "FundedRatio": "2.00%",
+     *                         "InParentActualRadio": "2.00%",
+     *                         "Count": "0",
+     *                         "Grade": "2",
+     *                         "ShouldCapi": "157.2",
+     *                         "StockRightNum": "",
+     *                         "Children": null,
+     *                         "ShortStatus": ""
+     *                     }
+     *                 ],
+     *                 "ShortStatus": "存续"
+     *             },
+     *             {
+     *                 "KeyNo": "pea5ac417585edc0effd7d23406510da",
+     *                 "Name": "王健林",
+     *                 "Category": "2",
+     *                 "FundedRatio": "0.24%",
+     *                 "InParentActualRadio": "0.24%",
+     *                 "Count": "0",
+     *                 "Grade": "1",
+     *                 "ShouldCapi": "240",
+     *                 "StockRightNum": "",
+     *                 "Children": null,
+     *                 "ShortStatus": ""
+     *             }
+     *         ]
+     *     },
+     *     "Status": "200",
+     *     "Message": "查询成功"
+     * }
+     * @param channelHandlerContext
+     * @param request
+     * @param params
+     * @return
+     */
+    private Object GetEquityThrough(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
+        return singleQuery("qcc.查询股权穿透信息", params);
+    }
+
+
+    /**
      * @api {get} {企查查数据查询服务地址}/EnvPunishment/GetEnvPunishmentList 环保处罚列表
      * @apiGroup QCC
      * @apiVersion 0.0.1
@@ -6395,7 +6475,7 @@ public class QccService extends AbstractService{
         try{
 //            Map ps = new HashMap();
 //            ps.put("fid", params.getString("id") + "-caipan");
-            String str = HttpUtil.get(String.format("http://%s/file/%s-caipan", config.file, params.getString("id")));
+            String str = HttpUtil.get(String.format("http://%s/file?fid=%s-caipan", config.file, params.getString("id")));
             JSONObject obj = JSON.parseObject(str);
             if(!StrUtil.equals(obj.getString("Status"), "500")){
                 object.putAll(obj);

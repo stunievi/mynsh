@@ -15,6 +15,7 @@ import io.netty.util.CharsetUtil;
 import org.apache.activemq.BlobMessage;
 import org.beetl.sql.core.DSTransactionManager;
 import org.beetl.sql.core.SQLReady;
+import org.osgl.util.E;
 import org.osgl.util.S;
 
 import javax.jms.JMSException;
@@ -235,6 +236,7 @@ public class DeconstructService extends AbstractService {
         registerHandler("/EnvPunishment/GetEnvPunishmentDetails", service::GetEnvPunishmentDetails);
         registerHandler("/ChattelMortgage/GetChattelMortgage", service::GetChattelMortgage);
         registerHandler("/ECIV4/GetDetailsByName", service::GetDetailsByName);
+        registerHandler("/EquityThrough/GetEquityThrough",service::GetEquityThrough);
         registerHandler("/History/GetHistorytEci", service::GetHistorytEci);
         registerHandler("/History/GetHistorytInvestment", service::GetHistorytInvestment);
         registerHandler("/History/GetHistorytShareHolder", service::GetHistorytShareHolder);
@@ -681,7 +683,8 @@ public class DeconstructService extends AbstractService {
                 json,
                 "+inner_company_name", compName,
                 "Executegov->ExecuteGov",
-                "LianDate->LiAnDate"
+                "LianDate->LiAnDate",
+                "+LiAnDate", DateValue
         );
         deconstruct(json, "QCC_HIS_SESSION_NOTICE", "Id");
     }
@@ -708,6 +711,12 @@ public class DeconstructService extends AbstractService {
     }
 
 
+    /**
+     *  历史法院公告
+     * @param channelHandlerContext
+     * @param request
+     * @param json
+     */
     private void GetHistorytCourtNotice(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         String compName = getQuery(request, "keyWord");
         changeField(
@@ -718,7 +727,8 @@ public class DeconstructService extends AbstractService {
                         return key.endsWith("Date");
                     }
                 }, DateValue,
-                "+inner_company_name", compName
+                "+inner_company_name", compName,
+                "+Province", ProvinceValue
         );
         deconstruct(json, "QCC_HIS_COURT_NOTICE", "Id");
     }
@@ -1043,6 +1053,29 @@ public class DeconstructService extends AbstractService {
             doDelete("QCC_DETAILS_INDUSTRY", "inner_company_name", compName);
             deconstruct(obj, "QCC_DETAILS_INDUSTRY", "");
         }
+    }
+
+
+    /**
+     * 获取股权穿透信息
+     * @param channelHandlerContext
+     * @param request
+     * @param json
+     */
+    public void GetEquityThrough(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json){
+
+        changeField(json,
+//            "-PublishedDate",
+//                new ICanChange() {
+//                    @Override
+//                    public boolean call(String key) {
+//                        return key.endsWith("Date");
+//                    }
+//                }, DateValue,
+                "+inner_company_name", getQuery(request, "companyName")
+        );
+        deconstruct(json, "QCC_GQ_CHUANTOU", "Id");
+
     }
 
     /**
@@ -1456,7 +1489,8 @@ public class DeconstructService extends AbstractService {
                     }
                 }, DateValue,
                 "PublishDate->PublishedDate",
-                "+Id", getQuery(request, "id")
+                "+Id", getQuery(request, "id"),
+                "+Province",ProvinceValue
 //            "PublishDate->PublishedDate"
         );
         deconstruct(json, "QCC_COURT_ANNOUNCEMENT", "Id");
@@ -2335,7 +2369,6 @@ public class DeconstructService extends AbstractService {
             stime = System.currentTimeMillis();
 
             for (Map.Entry<Object, PreparedStatement> entry : insertCache.entrySet()) {
-                System.out.printf(entry.getKey() + "\n xxxxxxxxx");
                 entry.getValue().executeBatch();
                 IoUtil.closeIfPosible(entry.getValue());
             }

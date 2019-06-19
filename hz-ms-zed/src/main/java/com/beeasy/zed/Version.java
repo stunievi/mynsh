@@ -46,15 +46,28 @@ public class Version {
         }
     }
 
-    public static void update() {
+    public static void update(String tabName) {
         //解决sql问题
-        String sql = "select name,province from  QCC_DETAILS";
+        String sql = "select inner_company_name,province from  "+ tabName;
         List<JSONObject> list = sqlManager.execute(new SQLReady(sql), JSONObject.class);
         for (int i = 0; i < list.size(); i++) {
             if (null != list.get(i).getString("province") && null != App.concurrentMapWordCounts.get(list.get(i).getString("province")) && !App.concurrentMapWordCounts.get(list.get(i).getString("province")).equals("")) {
-                String updateSql = "update QCC_DETAILS set province = '" + App.concurrentMapWordCounts.get(list.get(i).getString("province")) + "'  where  name = '" + list.get(i).getString("name") + "'";
+                String updateSql = "update " + tabName + " set province = '" + App.concurrentMapWordCounts.get(list.get(i).getString("province")) + "'  where  inner_company_name = '" + list.get(i).getString("innerCompanyName") + "'";
                 sqlManager.executeUpdate(new SQLReady(updateSql));
             }
         }
     }
+
+//    public static void updateFayuan() {
+//        //解决sql问题
+//        String sql = "select name,province from  QCC_DETAILS";
+//        List<JSONObject> list = sqlManager.execute(new SQLReady(sql), JSONObject.class);
+//        for (int i = 0; i < list.size(); i++) {
+//            if (null != list.get(i).getString("province") && null != App.concurrentMapWordCounts.get(list.get(i).getString("province")) && !App.concurrentMapWordCounts.get(list.get(i).getString("province")).equals("")) {
+//                String updateSql = "update QCC_DETAILS set province = '" + App.concurrentMapWordCounts.get(list.get(i).getString("province")) + "'  where  name = '" + list.get(i).getString("name") + "'";
+//                sqlManager.executeUpdate(new SQLReady(updateSql));
+//            }
+//        }
+//    }
+
 }

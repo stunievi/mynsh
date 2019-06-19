@@ -76,6 +76,8 @@ public class DB2Op {
             String url = "jdbc:db2://47.94.97.138:50000/test";
             String user = "db2inst1";
             String password = "db2inst1";
+
+
 //            String url = "jdbc:db2://150.0.104.8:50000/fzsys";
 //            String user = "fzsys";
 //            String password = "11111111";
@@ -97,7 +99,6 @@ public class DB2Op {
             return Result;
 
         } catch (Exception sqle) {
-            System.out.println(sqle);
             return Result;
         }
 
