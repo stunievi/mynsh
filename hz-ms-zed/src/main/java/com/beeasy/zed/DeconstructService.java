@@ -683,7 +683,8 @@ public class DeconstructService extends AbstractService {
                 json,
                 "+inner_company_name", compName,
                 "Executegov->ExecuteGov",
-                "LianDate->LiAnDate"
+                "LianDate->LiAnDate",
+                "+LiAnDate", DateValue
         );
         deconstruct(json, "QCC_HIS_SESSION_NOTICE", "Id");
     }
