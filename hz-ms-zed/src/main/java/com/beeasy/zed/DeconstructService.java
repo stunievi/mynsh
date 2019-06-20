@@ -236,7 +236,7 @@ public class DeconstructService extends AbstractService {
         registerHandler("/EnvPunishment/GetEnvPunishmentDetails", service::GetEnvPunishmentDetails);
         registerHandler("/ChattelMortgage/GetChattelMortgage", service::GetChattelMortgage);
         registerHandler("/ECIV4/GetDetailsByName", service::GetDetailsByName);
-        registerHandler("/EquityThrough/GetEquityThrough",service::GetEquityThrough);
+        registerHandler("/ECIInvestmentThrough/GetInfo",service::GetInfo);
         registerHandler("/ECIInvestment/GetInvestmentList",service::GetInvestmentList);
         registerHandler("/History/GetHistorytEci", service::GetHistorytEci);
         registerHandler("/History/GetHistorytInvestment", service::GetHistorytInvestment);
@@ -1063,7 +1063,7 @@ public class DeconstructService extends AbstractService {
      * @param request
      * @param json
      */
-    public void GetEquityThrough(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json){
+    public void GetInfo(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json){
 
         changeField(json,
 //            "-PublishedDate",
