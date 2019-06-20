@@ -237,6 +237,7 @@ public class DeconstructService extends AbstractService {
         registerHandler("/ChattelMortgage/GetChattelMortgage", service::GetChattelMortgage);
         registerHandler("/ECIV4/GetDetailsByName", service::GetDetailsByName);
         registerHandler("/EquityThrough/GetEquityThrough",service::GetEquityThrough);
+        registerHandler("/ECIInvestment/GetInvestmentList",service::GetInvestmentList);
         registerHandler("/History/GetHistorytEci", service::GetHistorytEci);
         registerHandler("/History/GetHistorytInvestment", service::GetHistorytInvestment);
         registerHandler("/History/GetHistorytShareHolder", service::GetHistorytShareHolder);
@@ -1072,11 +1073,34 @@ public class DeconstructService extends AbstractService {
 //                        return key.endsWith("Date");
 //                    }
 //                }, DateValue,
-                "+inner_company_name", getQuery(request, "companyName")
+                "+inner_company_name", getQuery(request, "keyWord")
         );
-        deconstruct(json, "QCC_GQ_CHUANTOU", "Id");
-
+        deconstruct(json, "QCC_GQ_CHUANTOU", "INNER_ID");
     }
+
+
+    /**
+     * 获取企业对外投资信息
+     * @param channelHandlerContext
+     * @param request
+     * @param json
+     */
+    public void GetInvestmentList(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json){
+
+        changeField(json,
+//            "-PublishedDate",
+//                new ICanChange() {
+//                    @Override
+//                    public boolean call(String key) {
+//                        return key.endsWith("Date");
+//                    }
+//                }, DateValue,
+                "+inner_company_name", getQuery(request, "keyWord")
+        );
+
+        deconstruct(json, "QCC_DUIWAITOUZI", "inner_id");
+    }
+
 
     /**
      * 动产抵押表
@@ -1771,6 +1795,11 @@ public class DeconstructService extends AbstractService {
             if (entry.getValue() == null) continue;
             kv.put(camelToUnderline(entry.getKey()), entry.getValue());
         }
+        if(tableName.equals("QCC_GQ_CHUANTOU")){
+            JSONArray jsonArray = new JSONArray();
+            getJsonTree(object,jsonArray,object.getString("CompanyName"),1,"");
+            kv.put("result",jsonArray.toString());
+        }
         kv.put("input_date", new Date());
         kv.put("inner_id", objectId.nextId());
         JSONObject nkv = new JSONObject();
@@ -1869,6 +1898,33 @@ public class DeconstructService extends AbstractService {
             }
         } else {
             return kv.getString(key);
+        }
+    }
+    public static JSONObject newJsonObeject(Object o) {
+        JSONObject json1 = JSONObject.parseObject(o.toString());
+        return json1;
+    }
+    //解析股权穿透，并将其解为tree结构
+    public static void getJsonTree(JSONObject json,JSONArray arrass, String parentName, int leve, String path) {
+        if (leve > 5) return;
+        JSONArray jsonArray = json.getJSONArray("BreakThroughList");
+        for (Object o : jsonArray) {
+            JSONObject jsonObject = JSONObject.parseObject(o.toString());
+            JSONArray array = jsonObject.getJSONArray("DetailInfoList");
+            for (Object itme : array) {
+                JSONObject json1 = newJsonObeject(itme);
+                String Level = json1.getString("Level");
+                String jiequAry = json1.getString("Path").replaceAll("\\(.*?->", "");
+                String[] jiexiStr = json1.getString("Path").split("\\(.*?->");
+                if (jiequAry.indexOf(path) > -1 && leve == Integer.parseInt(Level) && jiexiStr[leve - 1].equals(parentName)) {
+                    JSONObject object = new JSONObject();
+                    JSONArray array1 = new JSONArray();
+                    object.put("Name", jiexiStr[leve]);
+                    object.put("ChildList", array1);
+                    getJsonTree(json,array1, jiexiStr[leve], leve + 1, path);
+                    arrass.add(object);
+                }
+            }
         }
     }
 
