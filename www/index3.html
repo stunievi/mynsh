@@ -874,7 +874,7 @@
         //未读消息抓取
         ;(function loop() {
 
-            getFetch("/api/message/getList",{},function (res) {
+            getFetch(remoteApi.apiMessageGetList,{},function (res) {
                 if(!res.success){
                     if(res.errMessage == '请检查是否登录'){
                         loginOut();

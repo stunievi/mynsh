@@ -178,6 +178,7 @@ var remoteApi = {
     apiSysMsgTmplAdd: '/api/system/msgTmpl/add', // 添加消息模板
 	apiSysMsgTmplDel: '/api/system/msgTmpl/delete', // 删除消息模板
     apiSysMsgTmplEdit: '/api/system/msgTmpl/edit', // 编辑消息模板
+	apiMessageGetList: "/api/message/getList", // 用户未读消息列表
 		// 用户
 	apiCheckOnline: '/api/checkOnline', // 检查用户是否在线
 	apiUserSetRoles: '/api/user/setRoles', // 用户批量设置角色 

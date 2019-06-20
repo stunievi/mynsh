@@ -18,164 +18,37 @@
     <!--<link rel="stylesheet" href="/static/htmlcss/style.css">-->
     <link rel="stylesheet" href="/static/htmlcss/star.css">
     <link rel="stylesheet" href="/static/htmlcss/bstyle.css">
-    <script>
-        // var token = $.cookie('authorization');
-        // if(token){
-        //     window.location.href = "index3.html"
-        // }
-    </script>
-
-    <style>
-        *{
-            margin: 0;
-            padding: 0;
-        }
-        .btx{
-            width: 300px;
-            background: rgba(0,0,0,.35);
-            border-radius: 0;
-            border: 1px solid rgba(255,255,255,.7);
-            color:white;
-            text-align: center;
-        }
-        input::-webkit-input-placeholder {
-            color: white;
-            text-align: center;
-        }
-
-
-
-         button {
-            width: 200px;
-            font-family: 'Hind Guntur', sans-serif;
-            font-size: 15px;
-            line-height: 1;
-            color: #fff;
-            letter-spacing: 0.025em;
-
-            background: #379aff;
-            padding: 8px 15px;
-            cursor: pointer;
-            border: 0;
-            overflow: hidden;
-
-        }
-
-        button span {
-            display: block;
-            position: relative;
-            z-index: 10;
-        }
-
-
-
-
-        input:-webkit-autofill {
-            -webkit-box-shadow: 0 0 0px 1000px rgba(0,0,0,0) inset !important;
-        }
-        em{
-            display: none!important;
-        }
-
-        /*@media \0screen\,screen\9{*/
-            /*button {*/
-                /*!*margin-left: 0;*!*/
-            /*}*/
-        /*}*/
-
-        /*button{*/
-            /*margin-left: 0\0;*/
-            /*!*margin-left: 95px\9\0;*!*/
-        /*}*/
-        body{
-            background: black\0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-        }
-        #star{
-            width: 100%;
-            height: 100%;
-            position: fixed;
-            left: 0;
-            top: 0;
-            overflow: hidden;
-            z-index: 1;
-        }
-        .point {
-            width: 1px;
-            height: 1px;
-            position: absolute;
-            background: white;
-            border-radius: 100%;
-            box-shadow:0 0 18px #ddd;
-        }
-        #username,#password{
-            background: black\0;
-        }
-
-        /*em{*/
-            /*display: none !important;*/
-        /*}*/
-
-    </style>
+    <link rel="stylesheet" href="/static/htmlcss/login.css">
 
 </head>
 <body>
 
-<div id="star">
+    <div id="star">
 
-</div>
-<!--<div id='stars'></div>-->
-<!--<div id='stars2'></div>-->
-<!--<div id='stars3'></div>-->
-<div id='title' style="position: relative;z-index: 2;">
-  <span class="tle">
-    辅助管理系统
-  </span>
-
-    <div style="margin-top: 10px">
-        <form autocomplete="off" name="form">
-            <input type="text" class="btx" placeholder="请输入账户名" style="" id="username" name="username" >
-            <div></div>
-            <input type="password" class="btx" placeholder="请输入密码" style="margin-top: -40px;" id="password" name="password" >
-            <input type="hidden" name="server" value="main">
-            <div style="text-align: center;width: 200px;margin: 0 auto;margin-top: -35px" >
-                <button type="submit">
-                    <span>登录</span>
-                </button>
-            </div>
-        </form>
     </div>
-</div>
+    <!--<div id='stars'></div>-->
+    <!--<div id='stars2'></div>-->
+    <!--<div id='stars3'></div>-->
+    <div id='title' style="position: relative;z-index: 2;">
+        <span class="tle">
+        辅助管理系统
+        </span>
 
-<!--<table style="width: 100%;height:100%;left:0;top:0;position: fixed;z-index: 100;display: none;">-->
-    <!--<tr>-->
-        <!--<td valign="center" align="center">-->
-            <!--<form class="" name="form" style="width: 400px">-->
-                <!--<h2 class="text-center" style="padding-bottom:40px">辅助管理系统</h2>-->
-                <!--<div class="form-group text-center ">-->
-                    <!--&lt;!&ndash; <label for="username" class="col-sm-2 control-label">账户</label> &ndash;&gt;-->
-                    <!--<input type="text" class="form-control" id="username" name="username" placeholder="请输入账户名">-->
-                <!--</div>-->
-                <!--<div class="form-group text-center">-->
-                    <!--&lt;!&ndash; <label for="password" class="col-sm-2 control-label">密码</label> &ndash;&gt;-->
-                    <!--<input type="password" class="form-control" id="password" name="password" placeholder="请输入密码">-->
-                <!--</div>-->
-                <!--<div class="form-group">-->
-                    <!--<div class="text-center" style="margin-top:10px;">-->
-                        <!--<button type="submit" class="btn btn-block btn-primary" style="padding:6px 20px">提交</button>-->
-                    <!--</div>-->
-                <!--</div>-->
-            <!--</form>-->
-        <!--</td>-->
-    <!--</tr>-->
-<!--</table>-->
-
-
-
+        <div style="margin-top: 10px">
+            <form autocomplete="off" name="form">
+                <input type="text" class="btx" placeholder="请输入账户名" style="" id="username" name="username" >
+                <div></div>
+                <input type="password" class="btx" placeholder="请输入密码" style="margin-top: -40px;" id="password" name="password" >
+                <input type="hidden" name="server" value="main">
+                <div style="text-align: center;width: 200px;margin: 0 auto;margin-top: -35px" >
+                    <button type="submit">
+                        <span>登录</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
     <div class="login-wrap" style="display: none;">
-
     </div>
     <script src="/static/vendor/layui/layer/layer.js"></script>
     <script src="/static/vendor/validate/jquery.validate.min.js"></script>
@@ -183,6 +56,13 @@
     <script src="/static/htmljs/utils.js"></script>
     <script src="./static/htmljs/store.js"></script>
     <script>
+
+        $.get(remoteApi.apiMessageGetList, function (res) {
+            if(res.errMessage != "请检查是否登录"){
+                location.href = "index3.html";
+            }
+        });
+
         var form = $("form[name='form']");
         form.validate({
             rules: {
@@ -210,10 +90,10 @@
                             $.cookie('userName', user.trueName);
                             $.cookie('userId', user.id);
                             $.cookie('authorization', origin.token);
-                            store.set("lastLogin", new Date().getTime())
-                            store.set("$user", user)
-                            store.set("token", origin.token)
-                            location.href = "index3.html"
+                            store.set("lastLogin", new Date().getTime());
+                            store.set("$user", user);
+                            store.set("token", origin.token);
+                            location.href = "index3.html";
                         }
                     )
                 }
@@ -225,9 +105,8 @@
 
 <script>
     $("[name=server]").val(top.SERVER || 'main');
-</script>
-<script>
-    show(document.getElementById("star"))
+
+    show(document.getElementById("star"));
 
     function show(dom) {
         var p = p || {};
@@ -274,7 +153,7 @@
         // var c = canvas.getContext('2d');
 
         var points = [];
-        var pointDivs = []
+        var pointDivs = [];
 
         function initPoints() {
             for (var i = 0; i < numPoints; i++) {
