@@ -769,14 +769,35 @@ where inner_company_name = #fullName#
 ===
 select
 @pageTag(){
-ID,
+INNER_ID,
 RESULT,
-INNER_COMPANY_NAME,
+INNER_COMPANY_NAME
 @}
 from QCC_GQ_CHUANTOU
 where inner_company_name = #fullName#
 
 
+
+查询企业对外投资列表
+===
+select
+@pageTag(){
+INNER_ID,
+INNER_COMPANY_NAME,
+INPUT_DATE,
+CREDIT_CODE,
+ECON_KIND,
+FUNDED_RATIO,
+IMAGE_UIL,
+KEY_NO,
+NAME,
+OPER_NAME,
+REGIST_CAPI,
+START_DATE,
+STATUS
+@}
+from QCC_DUIWAITOUZI
+where inner_company_name = #fullName#
 
 
 查询历史开庭公告信息表

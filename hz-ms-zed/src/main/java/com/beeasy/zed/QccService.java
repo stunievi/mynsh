@@ -79,6 +79,7 @@ public class QccService extends AbstractService{
         registerRoute("/EnvPunishment/GetEnvPunishmentList", service::GetEnvPunishmentList);
         registerRoute("/EnvPunishment/GetEnvPunishmentDetails", service::GetEnvPunishmentDetails);
         registerRoute("/EquityThrough/GetEquityThrough",service::GetEquityThrough);
+        registerRoute("/ECIInvestment/GetInvestmentList",service::GetInvestmentList);
         registerRoute("/ChattelMortgage/GetChattelMortgage", service::GetChattelMortgage);
         registerRoute("/ECIV4/GetDetailsByName", service::GetDetailsByName);
         registerRoute("/History/GetHistorytEci", service::GetHistorytEci);
@@ -5377,6 +5378,56 @@ public class QccService extends AbstractService{
     private Object GetEquityThrough(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
         return singleQuery("qcc.查询股权穿透信息", params);
     }
+
+    /**
+     * 获取企业对外投资信息
+     * @param channelHandlerContext
+     * @param request
+     * @param params
+     * @return
+     * {
+     *   "OrderNumber": "ECIINVESTMENT2019050618031140385111",
+     *   "Paging": {
+     *     "PageSize": 2,
+     *     "PageIndex": 1,
+     *     "TotalRecords": 37
+     *   },
+     *   "Result": [
+     *     {
+     *       "CreditCode": "91110108MA01JE3W0B",
+     *       "EconKind": "有限责任公司(法人独资)",
+     *       "FundedRatio": "100%",
+     *       "ImageUrl": "https://qccdata.qichacha.com/AutoImage/c607730ab3d1cb8f6c1c5de9f1caf57c.jpg?x-oss-process=image/resize,w_120",
+     *       "KeyNo": "c607730ab3d1cb8f6c1c5de9f1caf57c",
+     *       "Name": "北京桔财动力科技有限公司",
+     *       "No": null,
+     *       "OperName": "吉跃奇",
+     *       "RegistCapi": "5000万元人民币",
+     *       "StartDate": "2019-04-12",
+     *       "Status": "在业"
+     *     },
+     *     {
+     *       "CreditCode": "91310114MA1GW61HX2",
+     *       "EconKind": "有限责任公司（自然人投资或控股的法人独资）",
+     *       "FundedRatio": "100%",
+     *       "ImageUrl": "https://qccdata.qichacha.com/AutoImage/0ac8ea650d0207e45d23df08ae88fb6c.jpg?x-oss-process=image/resize,w_120",
+     *       "KeyNo": "0ac8ea650d0207e45d23df08ae88fb6c",
+     *       "Name": "上海滴滴沃芽科技有限公司",
+     *       "No": null,
+     *       "OperName": "郑建强",
+     *       "RegistCapi": "1000万元人民币",
+     *       "StartDate": "2019-03-01",
+     *       "Status": "存续"
+     *     }
+     *   ],
+     *   "Status": "200",
+     *   "Message": "查询成功"
+     * }
+     */
+    private Object GetInvestmentList(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
+        return singleQuery("qcc.查询企业对外投资列表", params);
+    }
+
 
 
     /**
