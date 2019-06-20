@@ -33,9 +33,9 @@ public class App {
 
     public static void main(String[] args) throws ParseException, InterruptedException, ExecutionException, FileNotFoundException {
         DBService.getInstance().initSync();
-        if(Version.version.versionName >= 1.0){
-            Version.update();
-        }
+//        if(Version.version.versionName >= 1.0){
+//            Version.update("QCC_COURT_ANNOUNCEMENT");
+//        }
         //test
         if (args.length > 1) {
             if (StrUtil.equals(args[0], "test")) {

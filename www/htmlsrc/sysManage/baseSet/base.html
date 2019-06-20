@@ -257,12 +257,12 @@
                 <!--</span>-->
             </div>
         </div>
-        <div class="col-xs-1 {{ noticeIndex < 6 || 16< noticeIndex ? '' : 'hide' }}">
+        <div class="col-xs-1 {{ noticeIndex < 6 ||  16< noticeIndex? '' : 'hide' }}">
             <a href="javascript:;" class="btn btn-xs rule-on" id="MSG_RULE_{{noticeIndex}}_ON">已开启</a>
         </div>
-        <!--<div class="col-xs-1 {{16< noticeIndex? '' : 'hide' }}">-->
-            <!--<a href="javascript:;" class="btn btn-xs rule-on" id="MSG_RULE_{{noticeIndex}}_ON">已开启</a>-->
-        <!--</div>-->
+<!--        <div class="col-xs-1 {{16< noticeIndex? '' : 'hide' }}">-->
+<!--            <a href="javascript:;" class="btn btn-xs rule-on" id="MSG_RULE_{{noticeIndex}}_ON">已开启</a>-->
+<!--        </div>-->
 
         </div>
     </script>
@@ -474,6 +474,7 @@
                     { prop: 'sys_des', label: '系统用途' , type:'textarea', width:12, labelWidth:2},
                     { prop: 'sys_default_role_ids', type: "hidden" },
                     { prop: "msg_api_open", label:"是否启用短信网关", type:"checkbox",value:1 },
+                    { prop: "qcc_pq_api_open", label:"是否启用企查查跑批(法律诉讼，经营风险，每月1号，16号跑批一次，基本信息，企业图谱，历史信息每年2月，5月，8月，11月的一号跑批一次)", type:"checkbox",value:1 },
                     { prop: "file_storage_engine", type: "radio", label:"文件存储引擎", vals:[
                             {name:"linkapp私有云", val:"linkapp"}
                             // {name:"文件存储alpha", val:"self"}

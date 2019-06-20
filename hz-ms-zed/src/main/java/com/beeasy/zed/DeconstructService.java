@@ -15,6 +15,7 @@ import io.netty.util.CharsetUtil;
 import org.apache.activemq.BlobMessage;
 import org.beetl.sql.core.DSTransactionManager;
 import org.beetl.sql.core.SQLReady;
+import org.osgl.util.E;
 import org.osgl.util.S;
 
 import javax.jms.JMSException;
@@ -235,6 +236,8 @@ public class DeconstructService extends AbstractService {
         registerHandler("/EnvPunishment/GetEnvPunishmentDetails", service::GetEnvPunishmentDetails);
         registerHandler("/ChattelMortgage/GetChattelMortgage", service::GetChattelMortgage);
         registerHandler("/ECIV4/GetDetailsByName", service::GetDetailsByName);
+        registerHandler("/ECIInvestmentThrough/GetInfo",service::GetInfo);
+        registerHandler("/ECIInvestment/GetInvestmentList",service::GetInvestmentList);
         registerHandler("/History/GetHistorytEci", service::GetHistorytEci);
         registerHandler("/History/GetHistorytInvestment", service::GetHistorytInvestment);
         registerHandler("/History/GetHistorytShareHolder", service::GetHistorytShareHolder);
@@ -681,7 +684,8 @@ public class DeconstructService extends AbstractService {
                 json,
                 "+inner_company_name", compName,
                 "Executegov->ExecuteGov",
-                "LianDate->LiAnDate"
+                "LianDate->LiAnDate",
+                "+LiAnDate", DateValue
         );
         deconstruct(json, "QCC_HIS_SESSION_NOTICE", "Id");
     }
@@ -708,6 +712,12 @@ public class DeconstructService extends AbstractService {
     }
 
 
+    /**
+     *  历史法院公告
+     * @param channelHandlerContext
+     * @param request
+     * @param json
+     */
     private void GetHistorytCourtNotice(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         String compName = getQuery(request, "keyWord");
         changeField(
@@ -718,7 +728,8 @@ public class DeconstructService extends AbstractService {
                         return key.endsWith("Date");
                     }
                 }, DateValue,
-                "+inner_company_name", compName
+                "+inner_company_name", compName,
+                "+Province", ProvinceValue
         );
         deconstruct(json, "QCC_HIS_COURT_NOTICE", "Id");
     }
@@ -1044,6 +1055,52 @@ public class DeconstructService extends AbstractService {
             deconstruct(obj, "QCC_DETAILS_INDUSTRY", "");
         }
     }
+
+
+    /**
+     * 获取股权穿透信息
+     * @param channelHandlerContext
+     * @param request
+     * @param json
+     */
+    public void GetInfo(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json){
+
+        changeField(json,
+//            "-PublishedDate",
+//                new ICanChange() {
+//                    @Override
+//                    public boolean call(String key) {
+//                        return key.endsWith("Date");
+//                    }
+//                }, DateValue,
+                "+inner_company_name", getQuery(request, "keyWord")
+        );
+        deconstruct(json, "QCC_GQ_CHUANTOU", "INNER_ID");
+    }
+
+
+    /**
+     * 获取企业对外投资信息
+     * @param channelHandlerContext
+     * @param request
+     * @param json
+     */
+    public void GetInvestmentList(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json){
+
+        changeField(json,
+//            "-PublishedDate",
+//                new ICanChange() {
+//                    @Override
+//                    public boolean call(String key) {
+//                        return key.endsWith("Date");
+//                    }
+//                }, DateValue,
+                "+inner_company_name", getQuery(request, "keyWord")
+        );
+
+        deconstruct(json, "QCC_DUIWAITOUZI", "inner_id");
+    }
+
 
     /**
      * 动产抵押表
@@ -1456,7 +1513,8 @@ public class DeconstructService extends AbstractService {
                     }
                 }, DateValue,
                 "PublishDate->PublishedDate",
-                "+Id", getQuery(request, "id")
+                "+Id", getQuery(request, "id"),
+                "+Province",ProvinceValue
 //            "PublishDate->PublishedDate"
         );
         deconstruct(json, "QCC_COURT_ANNOUNCEMENT", "Id");
@@ -1737,6 +1795,11 @@ public class DeconstructService extends AbstractService {
             if (entry.getValue() == null) continue;
             kv.put(camelToUnderline(entry.getKey()), entry.getValue());
         }
+        if(tableName.equals("QCC_GQ_CHUANTOU")){
+            JSONArray jsonArray = new JSONArray();
+            getJsonTree(object,jsonArray,object.getString("CompanyName"),1,"");
+            kv.put("result",jsonArray.toString());
+        }
         kv.put("input_date", new Date());
         kv.put("inner_id", objectId.nextId());
         JSONObject nkv = new JSONObject();
@@ -1835,6 +1898,33 @@ public class DeconstructService extends AbstractService {
             }
         } else {
             return kv.getString(key);
+        }
+    }
+    public static JSONObject newJsonObeject(Object o) {
+        JSONObject json1 = JSONObject.parseObject(o.toString());
+        return json1;
+    }
+    //解析股权穿透，并将其解为tree结构
+    public static void getJsonTree(JSONObject json,JSONArray arrass, String parentName, int leve, String path) {
+        if (leve > 5) return;
+        JSONArray jsonArray = json.getJSONArray("BreakThroughList");
+        for (Object o : jsonArray) {
+            JSONObject jsonObject = JSONObject.parseObject(o.toString());
+            JSONArray array = jsonObject.getJSONArray("DetailInfoList");
+            for (Object itme : array) {
+                JSONObject json1 = newJsonObeject(itme);
+                String Level = json1.getString("Level");
+                String jiequAry = json1.getString("Path").replaceAll("\\(.*?->", "");
+                String[] jiexiStr = json1.getString("Path").split("\\(.*?->");
+                if (jiequAry.indexOf(path) > -1 && leve == Integer.parseInt(Level) && jiexiStr[leve - 1].equals(parentName)) {
+                    JSONObject object = new JSONObject();
+                    JSONArray array1 = new JSONArray();
+                    object.put("Name", jiexiStr[leve]);
+                    object.put("ChildList", array1);
+                    getJsonTree(json,array1, jiexiStr[leve], leve + 1, path);
+                    arrass.add(object);
+                }
+            }
         }
     }
 
@@ -2335,7 +2425,6 @@ public class DeconstructService extends AbstractService {
             stime = System.currentTimeMillis();
 
             for (Map.Entry<Object, PreparedStatement> entry : insertCache.entrySet()) {
-                System.out.printf(entry.getKey() + "\n xxxxxxxxx");
                 entry.getValue().executeBatch();
                 IoUtil.closeIfPosible(entry.getValue());
             }
