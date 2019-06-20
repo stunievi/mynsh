@@ -101,7 +101,7 @@ public class Link {
             var cia = getCia(compName, s);
             if (cia != null) {
                 for (Obj ciaCompanyLegals : cia.getArr("CIACompanyLegals").toObjList()) {
-                    ret.add(a(ciaCompanyLegals.getStr("Name"), ciaCompanyLegals.getStr(""), "法人"));
+                    ret.add(a(ciaCompanyLegals.getStr("Name"), s, "法人"));
                 }
                 for (Obj ciaForeignOffices : cia.getArr("CIAForeignOffices").toObjList()) {
                     if(ciaForeignOffices.getStr("Position", "").contains("董事")){
@@ -120,7 +120,7 @@ public class Link {
                             }
                             val = i.toString();
                         }
-                        var percent = convertToMoney(val + "万").divide(convertToMoney(ciaForeignInvestments.getStr("RegCap")), 2);
+                        var percent = convertToMoney(val + "万").divide(convertToMoney(ciaForeignInvestments.getStr("RegCap")));
                         if (percent.floatValue() >= 0.25) {
                             ret.add(a(ciaForeignInvestments.getStr("Name"), s, "自然人股东", percent.multiply(new BigDecimal(100))));
                         }
@@ -200,7 +200,7 @@ public class Link {
         var cache = o();
         var batch = a();
         for (Arr objects : ret.toArrList()) {
-            var key = objects.getString(0) + objects.getString(1);
+            var key = objects.getString(0) + objects.getString(1) + objects.getString(2);
             if (cache.containsKey(key)) {
                 continue;
             }
@@ -879,7 +879,7 @@ public class Link {
         if (sstr.contains("万")) {
             sstr = sstr.replaceAll("万港?美?元?|\\s+", "");
             bg = new BigDecimal(sstr);
-            bg = bg.multiply(new BigDecimal(1000));
+            bg = bg.multiply(new BigDecimal(10000));
         } else {
             bg = new BigDecimal(sstr);
         }

@@ -54,16 +54,16 @@ public class App {
                         return ;
                     }
                     Link.do11_1(name);
-                    Link.do11_2(name);
-                    Link.do11_3(name);
-                    Link.do11_4(name);
-                    Link.do11_5_1(name, true);
-                    Link.do11_5(name);
-                    Link.do11_6(name);
-
-                    Link.do12_2(name);
-                    Link.do12_3(name);
-                    Link.do12_4(name);
+//                    Link.do11_2(name);
+//                    Link.do11_3(name);
+//                    Link.do11_4(name);
+//                    Link.do11_5_1(name, true);
+//                    Link.do11_5(name);
+//                    Link.do11_6(name);
+//
+//                    Link.do12_2(name);
+//                    Link.do12_3(name);
+//                    Link.do12_4(name);
                 });
             }
             exec.shutdown();

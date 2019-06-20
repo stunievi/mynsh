@@ -13,7 +13,6 @@ import com.beeasy.mscommon.RestException;
 import com.beeasy.mscommon.filter.AuthFilter;
 import com.beeasy.mscommon.util.U;
 import com.beeasy.mscommon.valid.ValidGroup;
-import jdk.nashorn.internal.runtime.regexp.joni.Regex;
 import lombok.Getter;
 import lombok.Setter;
 import org.beetl.sql.core.SQLManager;
@@ -296,6 +295,8 @@ public class WfIns extends ValidGroup {
         set("$node", node);
         set("$gpc", gpc);
         set("$innateMap", innateMap);
+
+        Log.log("发起任务");
 
         return true;
     }
@@ -643,6 +644,7 @@ public class WfIns extends ValidGroup {
                 User.AssertMethod("系统管理.工作流管理", "权限校验失败");
                 return sqlManager.select("user.查询授权列表", JSONObject.class, object);
         }
+        Log.log("处理任务");
         return null;
     }
 
@@ -896,6 +898,8 @@ public class WfIns extends ValidGroup {
             .andNotEq(WfNodeDealer::getUid, user.getId())
             .andEq(WfNodeDealer::getType, CAN_DEAL)
             .updateSelective(C.newMap("type", NOT_DEAL));
+
+        Log.log("领取公共任务");
 
     }
 
@@ -1395,7 +1399,6 @@ public class WfIns extends ValidGroup {
 //            case "check":
 //                break;
 //        }
-
 
     }
 

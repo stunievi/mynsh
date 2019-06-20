@@ -8,12 +8,10 @@ import cn.hutool.core.util.ZipUtil;
 import cn.hutool.poi.excel.ExcelReader;
 import cn.hutool.poi.excel.ExcelUtil;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.core.util.Log;
-import com.beeasy.hzback.entity.Definition;
-import com.beeasy.hzback.entity.LoanManager;
-import com.beeasy.hzback.entity.SysNotice;
-import com.beeasy.hzback.entity.User;
+import com.beeasy.hzback.entity.*;
 import com.beeasy.hzback.modules.system.service.NoticeService2;
 import com.beeasy.mscommon.Result;
 import com.beeasy.mscommon.filter.AuthFilter;
@@ -23,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -35,6 +34,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @RequestMapping("/api/excel")
 @RestController
@@ -402,6 +403,133 @@ public class BackExcelController {
         } else {
             return value.replaceAll("\\s*\"", "'");
         }
+    }
+
+
+//    public Result importL123213List(
+//            MultipartFile file
+//    ){
+//        long uid = AuthFilter.getUid();
+//        try {
+//            File temp = File.createTempFile("temp_lm_", "");
+//            file.transferTo(temp);
+//            ThreadUtil.execAsync(() -> import_lm1(uid, temp));
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        return Result.ok();
+//    }
+    // 任务产生条件导入
+    @RequestMapping("/sysVar/import")
+    public Result import_lm1(MultipartFile file) {
+        File temp = null;
+        try {
+            temp = File.createTempFile("temp_lm_", "");
+            file.transferTo(temp);
+            ExcelReader reader = ExcelUtil.getReader(temp);
+            reader.setSheet(0);
+            //skip first row
+            int total = 0;
+            int failed = 0;
+            if(!"*产品编号".equals(String.valueOf(reader.readCellValue(0, 0)).trim())){
+                return Result.error();
+            }
+
+            List<SysVar> sysVars = new ArrayList<>();
+            for (int i = 1; i < reader.getRowCount(); i++) {
+                total++;
+                String proNumber;
+                try {
+                    proNumber = String.valueOf(reader.readCellValue(0, i)).trim();
+                } catch (Exception e) {
+                    failed++;
+                    continue;
+                }
+
+                Object o2 = reader.readCellValue(1, i);
+                String i2 = String.valueOf(o2).trim();
+                Object o3 = reader.readCellValue(2, i);
+                Object o4 = reader.readCellValue(3, i);
+                Object o5 = reader.readCellValue(4, i);
+                if (S.notBlank(proNumber) && null != o2) {
+                    try {
+
+                        String i3 = String.valueOf(o3).trim();
+                        String i4 = String.valueOf(o4).trim();
+
+                        String i5 = String.valueOf(o5).trim();
+                        String BIZ_TYPE = "ACC_"+(total-1)+"_BIZ_TYPE";
+                        String LOAN_CHECK = "ACC_"+(total-1)+"_LOAN_CHECK";
+                        saveSysVar(BIZ_TYPE, proNumber, sysVars);
+                        saveSysVar(LOAN_CHECK, i2, sysVars);
+
+                        if(null != o3){
+                            String LOAN_AMOUNT_MAX = "ACC_"+(total-1)+"_LOAN_AMOUNT_MAX";
+                            saveSysVar(LOAN_AMOUNT_MAX, i3, sysVars);
+                        }
+                        if(null != o4){
+                            String LOAN_AMOUNT_MIN = "ACC_"+(total-1)+"_LOAN_AMOUNT_MIN";
+                            saveSysVar(LOAN_AMOUNT_MIN, i4, sysVars);
+                        }
+                        if(null != o5){
+                            String EXPECT_DAY = "ACC_"+(total-1)+"_EXPECT_DAY";
+                            saveSysVar(EXPECT_DAY, i5, sysVars);
+                        }
+
+                    } catch (Exception e) {
+                        failed++;
+                        continue;
+                    }
+                }
+            }
+            sqlManager.lambdaQuery(SysVar.class)
+                    .andLike(SysVar::getVarName, "ACC_%")
+                    .delete();
+            sqlManager.insertBatch(SysVar.class, sysVars);
+            Log.log("导入贷后检查任务产生规则 %d 条, 成功 %d 条, 失败 %d 条", total, total - failed, failed);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }finally {
+            if (temp != null) {
+                temp.delete();
+            }
+        }
+        return Result.ok();
+    }
+
+    private void saveSysVar(String name, String value, List<SysVar> sysVars){
+
+        SysVar sysVar = new SysVar();
+        sysVar.setId(null);
+//        sysVar.setId(U.getSnowflakeIDWorker().nextId());
+        sysVar.setVarValue(value);
+        sysVar.setVarName(name);
+        sysVars.add(sysVar);
+    }
+
+    @RequestMapping(value = "/getList", method = RequestMethod.GET)
+    public Result querySys(){
+        List<SysVar> sysVarList= sqlManager.lambdaQuery(SysVar.class).andLike(SysVar::getVarName,"ACC_%").select();
+
+        JSONArray resp = new JSONArray();
+//        int i = 0;
+        for (int i=0;i<sysVarList.size();i++){
+            JSONObject jsonObject = new JSONObject();
+            for (SysVar list : sysVarList) {
+                String regEx="[^0-9]";
+                Pattern p = Pattern.compile(regEx);
+                Matcher m = p.matcher(list.getVarName());
+                System.out.println( m.replaceAll("").trim());
+                if(i == Integer.parseInt(m.replaceAll("").trim())){
+                    jsonObject.put(list.getVarName().replaceAll("\\d+", ""), list.getVarValue());
+                }
+            }
+            if(!jsonObject.isEmpty()){
+                resp.add(jsonObject);
+            }
+        }
+        return Result.ok(resp);
     }
 
 }

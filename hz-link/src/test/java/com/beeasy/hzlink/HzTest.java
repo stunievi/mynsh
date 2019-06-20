@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.math.BigDecimal;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -40,6 +41,10 @@ public class HzTest {
     }
 
 
+    @Test
+    public void test11_1(){
+        Link.do11_1("惠州美好实业发展有限公司");
+    }
 
     @Test
     public void test11_5() throws InterruptedException {
@@ -86,4 +91,7 @@ public class HzTest {
         exec.shutdown();;
         exec.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
     }
+
+
+
 }

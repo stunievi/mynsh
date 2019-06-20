@@ -25,6 +25,15 @@ where 1 = 1
 @if(isNotEmpty(userName)){
     and u.true_name like #'%'+userName+'%'# 
 @}
+@if(isNotEmpty(startTime)){
+    and log.ADD_TIME>=#startTime# 
+@}
+@if(isNotEmpty(endTime)){
+    and log.ADD_TIME<=#endTime#
+@}
+@if(isNotEmpty(method)){
+    and log.method like #'%'+method+'%'# 
+@}
 @pageIgnoreTag(){
     order by log.add_time desc
 @}
