@@ -78,7 +78,7 @@ public class QccService extends AbstractService{
         registerRoute("/LandMortgage/GetLandMortgageDetails", service::GetLandMortgageDetails);
         registerRoute("/EnvPunishment/GetEnvPunishmentList", service::GetEnvPunishmentList);
         registerRoute("/EnvPunishment/GetEnvPunishmentDetails", service::GetEnvPunishmentDetails);
-        registerRoute("/EquityThrough/GetEquityThrough",service::GetEquityThrough);
+        registerRoute("/ECIInvestmentThrough/GetInfo",service::GetInfo);
         registerRoute("/ECIInvestment/GetInvestmentList",service::GetInvestmentList);
         registerRoute("/ChattelMortgage/GetChattelMortgage", service::GetChattelMortgage);
         registerRoute("/ECIV4/GetDetailsByName", service::GetDetailsByName);
@@ -5375,8 +5375,11 @@ public class QccService extends AbstractService{
      * @param params
      * @return
      */
-    private Object GetEquityThrough(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
-        return singleQuery("qcc.查询股权穿透信息", params);
+    private Object GetInfo(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
+        Object object = singleQuery("qcc.查询股权穿透信息", params);
+        JSONObject  jsonObject = JSONObject.parseObject(object.toString());
+        jsonObject.put("Result",JSONArray.parseArray(jsonObject.getString("Result")) );
+        return jsonObject;
     }
 
     /**
@@ -6526,11 +6529,13 @@ public class QccService extends AbstractService{
         try{
 //            Map ps = new HashMap();
 //            ps.put("fid", params.getString("id") + "-caipan");
+            System.out.println(String.format("\"http://%s/file?fid=%s-caipan\"", config.file, params.getString("id")));
             String str = HttpUtil.get(String.format("http://%s/file?fid=%s-caipan", config.file, params.getString("id")));
             JSONObject obj = JSON.parseObject(str);
-            if(!StrUtil.equals(obj.getString("Status"), "500")){
-                object.putAll(obj);
-            }
+            object.putAll(obj);
+//            if(!StrUtil.equals(obj.getString("Status"), "500")){
+//                object.putAll(obj);
+//            }
         } catch (Exception e){
             e.printStackTrace();
         }

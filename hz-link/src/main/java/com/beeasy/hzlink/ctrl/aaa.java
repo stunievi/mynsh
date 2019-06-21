@@ -12,6 +12,7 @@ import com.github.llyb120.nami.excel.ExportUtil;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.beetl.sql.core.engine.PageQuery;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
@@ -55,5 +56,11 @@ public class aaa {
             e.printStackTrace();
         }
         return null;
+    }
+
+
+    // 关联方清单模板下载
+    public MultipartFile linkListDownload(){
+        return new MultipartFile("惠州农村商业银行股份有限公司关联方名单模板.xlsx", new File("E:\\惠州农村商业银行股份有限公司关联方名单模板.xlsx"));
     }
 }

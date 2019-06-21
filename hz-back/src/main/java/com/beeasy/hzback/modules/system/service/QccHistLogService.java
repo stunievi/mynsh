@@ -373,8 +373,12 @@ public class QccHistLogService {
                         if(res.size()>0){
                             continue;
                         }
+                        try {
+                            generateAutoTask(jo.getString("accCode"), loanAccount);
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
 
-                        generateAutoTask(jo.getString("accCode"), loanAccount);
                     }
                     break;
                 }

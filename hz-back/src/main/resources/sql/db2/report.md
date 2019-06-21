@@ -3,7 +3,8 @@ condition
 --查询数据范围（总行角色看所有，贷款机构看所属一级支行）
 and (((select count(1) from t_global_permission_center where uid = #uid# and type = 'DATA_SEARCH_CONDITION')>0)
     or ((0=(select count(1) from t_global_permission_center where uid = #uid# and type = 'DATA_SEARCH_CONDITION')) and (p1.MAIN_BR_ID in 
-        (select substr(acc_code,1,5) from T_ORG where PARENT_ID in (select ID from T_ORG where acc_code in (SELECT substr(MAIN_BR_ID,1,5) FROM T_DEPARTMENT_USER WHERE UID=#uid#)) and TYPE = 'DEPARTMENT') or (p1.MAIN_BR_ID in (SELECT MAIN_BR_ID FROM T_DEPARTMENT_USER WHERE UID=#uid#)))
+        (select substr(acc_code,1,5) from T_ORG where PARENT_ID in (select ID from T_ORG where acc_code in (SELECT substr(MAIN_BR_ID,1,5) FROM T_DEPARTMENT_USER WHERE UID=#uid#)) and TYPE = 'DEPARTMENT') or (p1.MAIN_BR_ID in (SELECT MAIN_BR_ID FROM T_DEPARTMENT_USER WHERE UID=#uid#)
+        or  (((09131 = (	SELECT	MAIN_BR_ID 	FROM	T_DEPARTMENT_USER 		WHERE	UID=#uid#) ) and  p1.MAIN_BR_ID in 009213) or      ((09323 = (	SELECT			MAIN_BR_ID 	FROM		T_DEPARTMENT_USER 		WHERE	UID=#uid#) ) and  p1.MAIN_BR_ID in 009375 ))))
 ))
 
 condition_cus
@@ -1433,10 +1434,12 @@ and p1.GL_CLASS not like '0%'
 
 --查询数据范围
 #use("condition")#
-   and (
-   p1.loan_account in (select loan_account from t_loan_belong where uid = #uid#)
-   or exists(select 1 from t_global_permission_center where uid = #uid# and type = 'DATA_SEARCH_CONDITION')
-   )
+@if(isNotEmpty(own)){
+    and (
+    p1.loan_account in (select loan_account from t_loan_belong where uid = #uid#)
+    or exists(select 1 from t_global_permission_center where uid = #uid# and type = 'DATA_SEARCH_CONDITION')
+    )
+@}
 -- 贷款分类（一般贷款台帐固定为“普通贷款”）
 @if(isNotEmpty(LN_TYPE)){
    and p1.LN_TYPE = #LN_TYPE#

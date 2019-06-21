@@ -854,6 +854,7 @@ function laytableRender(options, undefined){
     //处理分页
     if(usepage){
         ops.pagination = true;
+        ops.showJumpto = true;
         if(options.data){
             ops.sidePagination = "client";
         }else{
