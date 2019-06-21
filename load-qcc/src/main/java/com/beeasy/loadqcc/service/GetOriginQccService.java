@@ -176,7 +176,7 @@ public class GetOriginQccService {
         // 企业股权穿透十层接口查询
         ECICompanyMap_GetStockAnalysisData(keyWord,extParam);
         // 企业对外投资穿透
-//        ECIInvestmentThrough_GetInfo(keyWord,extParam);
+        ECIInvestmentThrough_GetInfo(keyWord,extParam);
     }
     // 历史信息
     public void loadDataBlock4(

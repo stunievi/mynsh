@@ -58,7 +58,7 @@
             }
         };
         var fixOnDataLoad = function (elmId, data, fixFun) {
-            console.log(elmId)
+            console.log(data, elmId)
             if(data && data.total && data.total > 0){
                 $("a[data-href='#"+elmId+"']").removeClass("disabled");
                 scrollToElm(elmId);

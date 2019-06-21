@@ -402,12 +402,20 @@ function choiceManifest(options){
 }
 
 function loginOut(){
+    top.layer.load();
   var keys = document.cookie.match(/[^ =;]+(?=\=)/g);
   if(keys) {
       for(var i = keys.length; i--;)
           document.cookie = keys[i] + '=0;expires=' + new Date(0).toUTCString()
   };
-  top.location.href = "/login.html";
+  if(localStorage){
+      localStorage.clear()
+  }
+  getFetch("/api/logout");
+
+  setTimeout(function () {
+      top.location.href = "/login.html";
+  },1000)
 }
 
 // 向服务器提交数据框架

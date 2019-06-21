@@ -2,11 +2,11 @@
     <div class="data-tab">
         <a class="btn btn-default disabled" data-href="#base1">工商信息</a>
         <!--<a class="btn btn-default disabled" href="#base2">企业人员董监高信息</a>-->
-        <a class="btn btn-default disabled" href="#base3">企业对外投资</a>
-        <!--<a class="btn btn-default disabled" href="#base4">投资图谱</a>-->
-        <!--<a class="btn btn-default disabled" href="#base5">疑似关系</a>-->
-        <!--<a class="btn btn-default disabled" href="#base6">股权穿透图</a>-->
-        <!--<a class="btn btn-default disabled" href="#base7">企业图谱</a>-->
+        <a class="btn btn-default disabled" data-href="#base3">企业对外投资</a>
+        <!--<a class="btn btn-default disabled" data-href="#base4">投资图谱</a>-->
+        <!--<a class="btn btn-default disabled" data-href="#base5">疑似关系</a>-->
+        <!--<a class="btn btn-default disabled" data-href="#base6">股权穿透图</a>-->
+        <!--<a class="btn btn-default disabled" data-href="#base7">企业图谱</a>-->
         <a class="btn btn-default disabled" data-href="#base8">股东信息</a>
         <a class="btn btn-default disabled" data-href="#base14">控股公司</a>
         <a class="btn btn-default disabled" data-href="#base9">主要人员</a>
@@ -386,7 +386,7 @@ ins { background-color: #FEC8C8; text-decoration: none; } del { color: #999; bac
             ]
         ],
         onData:function (data) {
-            fixOnDataLoad("base3-body",data, function (row) {
+            fixOnDataLoad("base3",data, function (row) {
                 row["StartDate"] = subDateStr(row["StartDate"]);
             });
         }

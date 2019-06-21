@@ -2,9 +2,8 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
     <meta name="renderer" content="webkit" />
-    <meta name="author" content="leslie" />
+    <title>股权穿透图</title>
     <!--#include file="./tupu-head.html" -->
 </head>
 <body style="">
@@ -91,16 +90,27 @@
             },
             dataType: 'JSON'
         });
-        $.when(p1, p2, p3, p4).then(function (data1, data2, data3, data4) {
+
+        var p5 = $.ajax({
+            url: remoteApi.qccECIInvestmentThroughGetInfo,
+            data: {
+                fullName: companyName
+            },
+            dataType: 'JSON'
+        });
+
+        $.when(p1, p2, p3, p4, p5).then(function (data1, data2, data3, data4, data5) {
             // data1 十层股权穿透图
             // data2 投资图谱
             // data3 股权结构图
             // data4 控股公司
+            // data5 对外投资穿透
 
             var retData1 = data1[0].Result || data1[0].data;
             var retData2 = data2[0].Result || data2[0].data;
             var retData3 = data3[0].Result || data3[0].data;
             var retData4 = data4[0].Result || data4[0].data;
+            var retData5 = data5[0].Result || data5[0].data;
 
             var data = {};
             if(retData1 && retData1.StockList && retData1.StockList.Children && retData1.StockList.Children.length>0){
@@ -166,14 +176,13 @@
 
             var kgObj = {};
             // 控股公司
-           
             if(retData4){
                 var retData4List = retData4.Names || retData4.list || [];
                 if(retData4List.length > 0){
                     data.kg = {
-                    KeyNo: companyKeyNo,
-                    CompanyName: companyKeyNo,
-                    Names: []
+                        KeyNo: companyKeyNo,
+                        CompanyName: companyKeyNo,
+                        Names: []
                     };
                     retData4List.forEach(function (item) {
                         kgObj[item.KeyNo] = {
@@ -185,16 +194,18 @@
                 }
             }
 
-            if(retData2){
+            if(retData5){
+                data.touzi = {
+                    Name: companyName,
+                    DetailList: retData5["DetailList"]
+                };
+            }else if(retData2){
                 var retData2DataList = [];
                 if(retData2.Node){
                     retData2DataList = retData2.Node.Children || [];
                 }else{
                     retData2DataList = retData2.Children || [];
                 }
-
-
-
                 var touziDetailList = [];
                 var walk1 = function(touziDetailList, dataList){
                     dataList.forEach(function (item) {
@@ -228,6 +239,7 @@
                     DetailList: touziDetailList
                 };
             }
+
             if($.isEmptyObject(data) === false){
                 data.status = 200;
             }

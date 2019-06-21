@@ -57,8 +57,8 @@
     <script src="./static/htmljs/store.js"></script>
     <script>
 
-        $.get(remoteApi.apiMessageGetList, function (res) {
-            if(res.errMessage != "请检查是否登录"){
+        $.get("/api/auto/sysvar/getDataVersion", function (res) {
+            if(res.errMessage != "请检查是否登录" && res.success){
                 location.href = "index3.html";
             }
         });

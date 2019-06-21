@@ -13,6 +13,7 @@ import io.swagger.annotations.ApiOperation;
 import org.beetl.sql.core.SQLManager;
 import org.osgl.util.C;
 import org.osgl.util.S;
+import org.springframework.boot.web.servlet.server.Session;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
@@ -34,6 +35,15 @@ import static com.beeasy.mscommon.filter.AuthFilter.*;
 @RequestMapping("/api")
 public class LoginController {
 
+    @RequestMapping(value = "/logout")
+    public Result logout(HttpServletRequest request){
+        String token = (String) request.getSession().getAttribute(Token);
+        U.getSQLManager().lambdaQuery(UserToken.class)
+                .andEq(UserToken::getToken, token)
+                .delete();
+        request.getSession().removeAttribute(Token);
+        return Result.ok();
+    }
 
     @ApiOperation(value = "登录接口", notes = "根据用户名和密码换取JWT秘钥，连续3次登录失败会被锁定15分钟不可登录")
     @ApiImplicitParams({

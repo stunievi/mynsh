@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title> 投资图谱 </title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1" />
+    <meta name="renderer" content="webkit" />
+    <title> 企业对外投资图谱 </title>
     <!--#include file="./tupu-head.html" -->
 </head>
 <body>
@@ -84,40 +84,42 @@
                 var retData2 = res.Result || res.data;
                 if(retData2){
                     var data = {};
-                    if(retData2.Children){
-                        var touziDetailList = [];
-                        var walk1 = function(touziDetailList, dataList){
-                            dataList.forEach(function (item) {
-                                item.ajaxtouzi = true;
-                                if(typeof kgObj != 'undefined' && kgObj[item.KeyNo]){
-                                    item.ShouldCapi = kgObj[item.KeyNo].ShouldCapi;
-                                    item.Percent = kgObj[item.KeyNo].Percent;
-                                }
-                                var _index = touziDetailList.push(item);
-                                var index = _index - 1;
-                                if(item.Children && item.Children.length > 0){
-                                    touziDetailList[index].DetailList = [];
-                                    walk1(touziDetailList[index].DetailList, item.Children)
-                                }
-                            });
-                            return touziDetailList;
-                        };
-
-                        var touziRetdataList = retData2.Children;
-                        for(var i=0;i<3;i++){
-                            var touziDataitem = touziRetdataList[i];
-                            if(touziDataitem["Category"] == "2"){
-                                touziRetdataList = touziDataitem["Children"];
-                                break;
-                            }
-                        }
-                        walk1(touziDetailList, touziRetdataList);
-                        // 投资
-                        data.touzi = {
-                            Name: companyName,
-                            DetailList:touziDetailList
-                        };
-                    }
+                //     if(retData2.Children){
+                //         var touziDetailList = [];
+                //         var walk1 = function(touziDetailList, dataList){
+                //             dataList.forEach(function (item) {
+                //                 item.ajaxtouzi = true;
+                //                 if(typeof kgObj != 'undefined' && kgObj[item.KeyNo]){
+                //                     item.ShouldCapi = kgObj[item.KeyNo].ShouldCapi;
+                //                     item.Percent = kgObj[item.KeyNo].Percent;
+                //                 }
+                //                 var _index = touziDetailList.push(item);
+                //                 var index = _index - 1;
+                //                 if(item.Children && item.Children.length > 0){
+                //                     touziDetailList[index].DetailList = [];
+                //                     walk1(touziDetailList[index].DetailList, item.Children)
+                //                 }
+                //             });
+                //             return touziDetailList;
+                //         };
+                //
+                //         var touziRetdataList = retData2.Children;
+                //         for(var i=0;i<3;i++){
+                //             var touziDataitem = touziRetdataList[i];
+                //             if(touziDataitem["Category"] == "2"){
+                //                 touziRetdataList = touziDataitem["Children"];
+                //                 break;
+                //             }
+                //         }
+                //         walk1(touziDetailList, touziRetdataList);
+                //         console.log(touziDetailList);
+                //     }
+                    // 投资
+                    data.touzi = {
+                        Name: companyName,
+                        DetailList: retData2["DetailList"]
+                    };
+                    // console.log(data)
                     addFlag(data.touzi);
                     guquanTzTupu = new drawGuquanTzTupu(data.touzi, companyKeyNo);
                 }else{
@@ -407,7 +409,7 @@
                                     if((capiNum+'').length>10){
                                         capiNum = capiNum.toFixed(2);
                                     }
-                                    return capiNum;
+                                    return capiNum + "万元";
                                 }
                             }
                             return "-";
@@ -719,7 +721,7 @@
         }
     }
     function addFlag(node) {
-        if (node.isActual || node.isSyr || node.LargePartner) {
+        if (node.isActual || node.isSyr || node.LargePartner || node.isHold) {
             node.height = barHeight + 30;
         } else {
             node.height = barHeight;
