@@ -5376,7 +5376,10 @@ public class QccService extends AbstractService{
      * @return
      */
     private Object GetInfo(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
-        return singleQuery("qcc.查询股权穿透信息", params);
+        Object object = singleQuery("qcc.查询股权穿透信息", params);
+        JSONObject  jsonObject = JSONObject.parseObject(object.toString());
+        jsonObject.put("Result",JSONArray.parseArray(jsonObject.getString("Result")) );
+        return jsonObject;
     }
 
     /**
