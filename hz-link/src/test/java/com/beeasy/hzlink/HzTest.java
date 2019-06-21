@@ -62,13 +62,13 @@ public class HzTest {
 
     @Test
     public void test11_6() throws InterruptedException {
-        sqlManager.lambdaQuery(CusCom.class)
-            .select()
-            .forEach(e -> {
-                exec.submit(() -> {
-                    Link.do11_6(e.getCus_name());
-                });
-            });
+//        sqlManager.lambdaQuery(CusCom.class)
+//            .select()
+//            .forEach(e -> {
+//                exec.submit(() -> {
+//                    Link.do11_6(e.getCus_name());
+//                });
+//            });
     }
 
     @Test

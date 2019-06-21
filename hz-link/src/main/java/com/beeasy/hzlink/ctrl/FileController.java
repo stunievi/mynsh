@@ -1,5 +1,6 @@
 package com.beeasy.hzlink.ctrl;
 
+import cn.hutool.core.io.resource.ClassPathResource;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzlink.model.Link111;
@@ -7,6 +8,7 @@ import com.beeasy.hzlink.model.TSystemVariable;
 import com.github.llyb120.nami.core.MultipartFile;
 import com.github.llyb120.nami.excel.ExportUtil;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.beetl.core.resource.ClasspathResource;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -38,7 +40,6 @@ public class FileController {
                     String regEx="[^0-9]";
                     Pattern p = Pattern.compile(regEx);
                     Matcher m = p.matcher(list.getVar_name());
-                    System.out.println( m.replaceAll("").trim());
                     if(i == Integer.parseInt(m.replaceAll("").trim())){
                         jsonObject.put(list.getVar_name().replaceAll("\\d+", ""), list.getVar_value());
                     }
@@ -61,7 +62,7 @@ public class FileController {
 
             }
 
-            return ExportUtil.toXls("贷后检查任务产生规则.xlsx", new FileInputStream("src/main/resources/excel/report_34.xlsx"), o(
+            return ExportUtil.toXls("贷后检查任务产生规则.xlsx", new ClassPathResource("excel/report_34.xlsx").getStream(), o(
                     "values", data
             ));
 
@@ -77,7 +78,8 @@ public class FileController {
     public MultipartFile linkListDownload(){
         File file1 = null;
         try{
-            file1 = new File("src/main/resources/excel/report_1.xlsx");
+            file1 = new ClassPathResource("excel/report_1.xlsx").getFile();
+//            file1 = new File("src/main/resources/excel/report_1.xlsx");
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -87,7 +89,8 @@ public class FileController {
     public MultipartFile shareholderListDownload(){
         File file1 = null;
         try{
-            file1 = new File("src/main/resources/excel/report_2.xls");
+            file1 = new ClassPathResource("excel/report_2.xlsx").getFile();
+//            file1 = new File("src/main/resources/excel/report_2.xls");
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -98,7 +101,8 @@ public class FileController {
     public MultipartFile enterprisesListDownload(){
         File file1 = null;
         try{
-            file1 = new File("src/main/resources/excel/report_3.xlsx");
+            file1 = new ClassPathResource("excel/report_3.xlsx").getFile();
+//            file1 = new File("src/main/resources/excel/report_3.xlsx");
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -121,7 +125,7 @@ public class FileController {
                 map.put("enterpriseName",list.getLink_left());
                 data.add(map);
             }
-            return ExportUtil.toXls("cubi.xls", new FileInputStream("e:/附件6-集团客户明细导出模板.xls"), o(
+            return ExportUtil.toXls("集团客户清单.xls", new FileInputStream("e:/附件6-集团客户明细导出模板.xls"), o(
                     "values", data
             ));
         } catch (IOException e) {

@@ -40,11 +40,19 @@ public class App {
             }
         }
         if(generate){
+
+
             String finalConf = conf;
             ThreadUtil.execAsync(() -> Nami.start(finalConf));
             while (sqlManager == null) {
                 ThreadUtil.sleep(100);
             }
+
+//            Link.do11_5("");
+//            Link.do11_6();
+//            if(true){
+//                System.exit(0);
+//            }
             var exec = Executors.newFixedThreadPool(16);
             List<Obj> list = sqlManager.select("accloan.cun_cus_com", Obj.class, o());
             for (Obj obj : list) {
@@ -53,12 +61,12 @@ public class App {
                     if(StrUtil.isEmpty(name)){
                         return ;
                     }
-                    Link.do11_1(name);
-//                    Link.do11_2(name);
+//                    Link.do11_1(name);
+                    Link.do11_2(name);
 //                    Link.do11_3(name);
 //                    Link.do11_4(name);
 //                    Link.do11_5_1(name, true);
-//                    Link.do11_5(name);
+
 //                    Link.do11_6(name);
 //
 //                    Link.do12_2(name);

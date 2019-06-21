@@ -53,3 +53,20 @@ where rn = 1
 @if(has(names)){
     and p1.cus_name in (#join(names)#)
 @}
+@if(has(certCode)){
+    and p1.psn_cert_code = #certCode#
+@}
+
+11_5
+===
+SELECT  distinct b.guar_name,b.CER_NO,b.CER_TYPE,b.TYPE_CN,p.cus_id,p.cus_name FROM DB2INST1.DAN_BAO_REN b inner join (select cus_id, cus_name,cont_no from RPT_M_RPT_SLS_ACCT where cus_id in(select p1.CUS_ID from (select a.*,row_number() over(partition by CUS_NAME order by CUS_NAME) rn from (select pt.* from RPT_M_RPT_SLS_ACCT pt where  pt.ACCOUNT_STATUS in ('1','6') and pt.GL_CLASS not like '0%'  and CUST_TYPE like '2%') a) p1  where rn =1)) p on p.CONT_NO=b.CONT_NO where 1=1
+@if(isNotEmpty(guarName)){
+    and guar_name=#guarName#cun_cus_com
+@}
+@if(isNotEmpty(guarName)){
+    and cer_no = #cerNo#
+@}
+
+11_6
+===
+SELECT  distinct b.guar_name,b.CER_NO,p.cus_id,p.cus_name FROM DB2INST1.DAN_BAO_REN b  inner join RPT_M_RPT_SLS_ACCT p on p.CONT_NO = b.CONT_NO

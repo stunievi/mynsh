@@ -106,23 +106,32 @@
     </div>
 
     <script >
-        // 基础显示字段
-        var cols = [
+        onInitTable();
+        function onInitTable(){
+            if($("#dataList table").length){
+                layuiTableReload({
+                })
+                return;
+            }
+            // 基础显示字段
+            var cols = [
 
-            { title :'产品编号', field:'ACC__BIZ_TYPE' },
-            { title :'检查时间间隔（单位：天）', field:'ACC__LOAN_CHECK' },
-            { title :'贷款余额大于等于（单位：元）', field:'ACC__LOAN_AMOUNT_MAX' },
-            { title :'贷款余额小于等于（单位：元）', field:'ACC__LOAN_AMOUNT_MIN' },
-            { title :'预提醒时间（单位：天）', field:'ACC__EXPECT_DAY' }
-        ];
-        laytableRender({
-            cellMinWidth: 110,
-            url: "/api/excel/getList",
-            cols: [ cols ]
-            ,page:false,
+                { title :'产品编号', field:'ACC__BIZ_TYPE' },
+                { title :'检查时间间隔（单位：天）', field:'ACC__LOAN_CHECK' },
+                { title :'贷款余额大于等于（单位：元）', field:'ACC__LOAN_AMOUNT_MAX' },
+                { title :'贷款余额小于等于（单位：元）', field:'ACC__LOAN_AMOUNT_MIN' },
+                { title :'预提醒时间（单位：天）', field:'ACC__EXPECT_DAY' }
+            ];
+            laytableRender({
+                cellMinWidth: 110,
+                url: "/api/excel/getList",
+                cols: [ cols ]
+                ,page:false,
 
 
-        });
+            });
+
+        }
 
         function initupload() {
 
@@ -147,11 +156,11 @@
             });
             // 单个文件上传成功
             uploader.on('uploadSuccess', function (file, res) {
-                console.log(res)
                 if(res.success){
                     // var data = res.data;
                     // layer.msg("数据总条数："+data.total+"，成功："+data.success+"条，失败："+data.failed +"条");
                     layer.msg("导入成功！");
+                    onInitTable();
                 }else{
                     layer.msg("导入失败！请选择正确的模板导入！");
                 }
@@ -164,13 +173,6 @@
 
         $("#ruleTaskDownload").click(function () {
 
-            // getFetch(
-            //     remoteOrigin + "/api/report/export/mortgage/asdasd" + str
-            //     , {}
-            //     , function () {
-            //         onInfront()
-            //     }
-            // )
             location.href = remoteOrigin + "/link/FileController/ruleTask"
 
         });
