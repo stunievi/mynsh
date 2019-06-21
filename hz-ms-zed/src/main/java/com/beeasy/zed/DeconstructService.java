@@ -1073,7 +1073,7 @@ public class DeconstructService extends AbstractService {
 //                        return key.endsWith("Date");
 //                    }
 //                }, DateValue,
-                "+inner_company_name", getQuery(request, "keyWord")
+                "+inner_company_name", getQuery(request, "searchKey")
         );
         deconstruct(json, "QCC_GQ_CHUANTOU", "INNER_ID");
     }
@@ -1914,12 +1914,18 @@ public class DeconstructService extends AbstractService {
             for (Object itme : array) {
                 JSONObject json1 = newJsonObeject(itme);
                 String Level = json1.getString("Level");
-                String jiequAry = json1.getString("Path").replaceAll("\\(.*?->", "");
-                String[] jiexiStr = json1.getString("Path").split("\\(.*?->");
+                String jiequAry = json1.getString("Path").replaceAll("\\([\\d|.]+%\\)->", "");
+                String[] jiexiStr = json1.getString("Path").split("\\([\\d|.]+%\\)->");
                 if (jiequAry.indexOf(path) > -1 && leve == Integer.parseInt(Level) && jiexiStr[leve - 1].equals(parentName)) {
                     JSONObject object = new JSONObject();
                     JSONArray array1 = new JSONArray();
                     object.put("Name", jiexiStr[leve]);
+                    object.put("StockType", json1.getString("StockType"));
+                    object.put("StockPercent", json1.getString("StockPercent"));
+                    object.put("Level",  json1.getString("Level"));
+                    object.put("BreakThroughStockPercent",  json1.getString("BreakThroughStockPercent"));
+                    object.put("CapitalType",  json1.getString("CapitalType"));
+                    object.put("ShouldCapi",  json1.getString("ShouldCapi"));
                     object.put("ChildList", array1);
                     getJsonTree(json,array1, jiexiStr[leve], leve + 1, path);
                     arrass.add(object);

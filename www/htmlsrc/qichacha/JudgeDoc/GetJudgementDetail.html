@@ -131,8 +131,12 @@
                 // $(".arc-content-6").text(data["JudgeDate"] || "暂无内容");
                 // $(".arc-content-7").text(data["Recorder"] || "暂无内容");
                 data["ContentClear"] = (data["ContentClear"] || "").replace(/href=.*?html\s*"/g, 'href="javascript:;"');
-                $("#arcContent").html(data["ContentClear"] || "暂无内容");
-                console.log(data)
+                if(data["ContentClear"]){
+                    $("#arcContent").html(data["ContentClear"] || "暂无内容");
+                }else{
+                    console.error("裁判文书内容为空！");
+                }
+
                 $("#home").html(qccTableRender({
                     cols:[
                         {title:"裁判文书名字", field:"CaseName", spec: true},

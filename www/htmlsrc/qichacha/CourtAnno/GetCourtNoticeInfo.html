@@ -31,42 +31,43 @@
         SuperPost({
             url: remoteApi.qccCourtAnnoGetCourtNoticeInfo+"?id="+id,
             success: function(res){
-                if($.isEmptyObject(res.data) === false && res.success){
-                    var data = res.data || {};
-                    var per1 = data["Prosecutor"] || [];
-                    var per2 = data["Defendant"] || [];
-                    if(per1 && per1 instanceof Array){
-                        per1 = per1.map(function (val) {
-                            return val["Name"];
-                        });
-                        data["Prosecutor"] = per1.join("、");
-                    }
-                    if(per2 && per2 instanceof Array){
-                        data["Defendant"] = data["Defendant"].map(function (val) {
-                            return val["Name"];
-                        });
-                        data["Defendant"] = data["Defendant"].join("、");
-                    }
-                    $("#home").html(qccTableRender({
-                        cols:[
-                            {title:"案由", field:"CaseReason", spec: true},
-                            {title:"案号", field:"CaseNo"},
-                            {title:"开庭时间", field:"OpenTime"},
-                            {title:"地区", field:"Province"},
-                            {title:"排期日期", field:"ScheduleTime"},
-                            {title:"承办部门", field:"UndertakeDepartment"},
-                            {title:"审判长/主审人", field:"ChiefJudge"},
-                            {title:"公诉人/原告/上诉人/申请人", field:"Prosecutor", spec: true },
-                            {title:"被告/被告人/被上诉人/被申请人", field:"Defendant", spec: true },
-                            {title:"法院", field:"ExecuteGov"},
-                            {title:"法庭", field:"ExecuteUnite"}
-                        ],
-                        data: data
-                    }));
-                }else{
-                    layErrorMsg("数据获取失败....")
-                    $("#home").html("数据获取失败....")
+                if($.isEmptyObject(res.data) || res.success === false){
+                    layErrorMsg("数据获取失败....");
+                    $("#home").html("数据获取失败....");
+                    return false;
                 }
+                var data = res.data || {};
+                var per1 = data["Prosecutor"] || [];
+                var per2 = data["Defendant"] || [];
+                if(per1 && per1 instanceof Array){
+                    per1 = per1.map(function (val) {
+                        return val["Name"];
+                    });
+                    data["Prosecutor"] = per1.join("、");
+                }
+                if(per2 && per2 instanceof Array){
+                    data["Defendant"] = data["Defendant"].map(function (val) {
+                        return val["Name"];
+                    });
+                    data["Defendant"] = data["Defendant"].join("、");
+                }
+                $("#home").html(qccTableRender({
+                    cols:[
+                        {title:"案由", field:"CaseReason", spec: true},
+                        {title:"案号", field:"CaseNo"},
+                        {title:"开庭时间", field:"OpenTime"},
+                        {title:"地区", field:"Province"},
+                        {title:"排期日期", field:"ScheduleTime"},
+                        {title:"承办部门", field:"UndertakeDepartment"},
+                        {title:"审判长/主审人", field:"ChiefJudge"},
+                        {title:"公诉人/原告/上诉人/申请人", field:"Prosecutor", spec: true },
+                        {title:"被告/被告人/被上诉人/被申请人", field:"Defendant", spec: true },
+                        {title:"法院", field:"ExecuteGov"},
+                        {title:"法庭", field:"ExecuteUnite"}
+                    ],
+                    data: data
+                }));
+
             },
             error:function () {
                 layErrorMsg("数据获取失败....")

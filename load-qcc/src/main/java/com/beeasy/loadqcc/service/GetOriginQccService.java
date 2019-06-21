@@ -129,6 +129,8 @@ public class GetOriginQccService {
                 }
             }
         }
+        // 企业对外投资
+        ECIInvestment_GetInvestmentList(keyWord, extParam);
         // 控股企业
         HoldingCompany_GetHoldingCompany(keyWord, extParam);
         return comInfo;
@@ -173,6 +175,8 @@ public class GetOriginQccService {
         ECIRelationV4_GetCompanyEquityShareMap(keyNo,extParam);
         // 企业股权穿透十层接口查询
         ECICompanyMap_GetStockAnalysisData(keyWord,extParam);
+        // 企业对外投资穿透
+        ECIInvestmentThrough_GetInfo(keyWord,extParam);
     }
     // 历史信息
     public void loadDataBlock4(
@@ -520,6 +524,19 @@ public class GetOriginQccService {
         }
         JSONObject retObj = resObj.getJSONObject("Result");
         return retObj;
+    }
+
+    // 企业对外投资列表
+    public void ECIInvestment_GetInvestmentList(
+            String keyWord,
+            LoadQccDataExtParm extParam
+    ){
+        Map queries = C.newMap(
+                "searchKey", keyWord,
+                "pageIndex", 1,
+                "pageSize", 50
+        );
+        getDataList2("ECIInvestment_GetInvestmentList", queries, "", extParam);
     }
 
     // 控股企业
@@ -927,6 +944,18 @@ public class GetOriginQccService {
                 "keyWord", keyWord
         );
         getDetailData("ECICompanyMap_GetStockAnalysisData", queries, extParam);
+    }
+
+    // 企业对外投资穿透
+    public void ECIInvestmentThrough_GetInfo(
+            String keyWord,
+            LoadQccDataExtParm extParam
+    ){
+        Map queries = C.newMap(
+                "searchKey", keyWord,
+                "percent", 0
+        );
+        getDetailData("ECIInvestmentThrough_GetInfo", queries, extParam);
     }
 
 }

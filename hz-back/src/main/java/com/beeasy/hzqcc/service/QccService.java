@@ -483,6 +483,16 @@ public class QccService {
         return getResDetails(tupuInfo, isOrigin);
     }
 
+    // 企业推外投资穿透
+    public Map ECIInvestmentThrough_GetInfo(
+            Map param,
+            boolean isOrigin
+    ) {
+        Log.log("企查查查询:" + param.get("fullName") + "企业对外投资穿透",0);
+        JSONObject tupuInfo = qccHttpDataService.findOne("ECIInvestmentThrough_GetInfo", param);
+        return getResDetails(tupuInfo, isOrigin);
+    }
+
     // 企业图谱
     public Map ECIRelationV4_GenerateMultiDimensionalTreeCompanyMap(
             Map param,
@@ -531,6 +541,16 @@ public class QccService {
         return retData;
     }
 
+    // 企业对外投资列表
+    public Map ECIInvestment_GetInvestmentList(
+            Map param,
+            boolean isOrigin
+    ){
+        Log.log("企查查查询:" + param.get("fullName") + "企业对外投资列表",0);
+        JSONObject resData = qccHttpDataService.getDataList("ECIInvestment_GetInvestmentList", fixResPageParam(param));
+        return getResDataList(resData, isOrigin);
+    }
+
     // 获取控股公司信息
     public Map HoldingCompany_GetHoldingCompany(
             Map param,
@@ -540,5 +560,7 @@ public class QccService {
         JSONObject resData = qccHttpDataService.getSplitChildDataList("HoldingCompany_GetHoldingCompany", fixResPageParam(param));
         return getResSplitChild(resData, "Names", isOrigin);
     }
+
+
 
 }

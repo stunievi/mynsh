@@ -7,6 +7,7 @@ public class  QccCollCnName {
 
     private static final Map<String, String> data = new HashMap<>();
     static {
+        data.put("ECIInvestment_GetInvestmentList","企业对外投资列表");
         data.put("ChattelMortgage_GetChattelMortgage","动产抵押信息");
         data.put("CIAEmployeeV4_GetStockRelationInfo","企业人员董监高信息");
         data.put("CourtAnnoV4_GetCourtNoticeInfo","开庭公告详情");
@@ -20,6 +21,7 @@ public class  QccCollCnName {
         data.put("ECIRelationV4_GenerateMultiDimensionalTreeCompanyMap","企业图谱");
         data.put("ECIRelationV4_GetCompanyEquityShareMap","股权结构图");
         data.put("ECIRelationV4_SearchTreeRelationMap","投资图谱");
+        data.put("ECIInvestmentThrough_GetInfo", "企业对外投资穿透");
         data.put("ECIV4_GetDetailsByName","企业关键字精确获取详细信息(Master)");
         data.put("ECIV4_SearchFresh","新增公司列表");
         data.put("EnvPunishment_GetEnvPunishmentDetails","环保处罚详情");

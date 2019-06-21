@@ -104,8 +104,10 @@ var remoteApi = {
 	qccECIGetBasicDetailsByName: "/api/qcc/auto/ECIV4/GetBasicDetailsByName", // 企业关键字精确获取详细信息(Basic)
 	qccCIAEmployeeGetStockRelationInfo: "/api/qcc/auto/CIAEmployeeV4/GetStockRelationInfo", // 企业人员董监高信息
 	qccHoldingCompanyGetHoldingCompany: "/api/qcc/auto/HoldingCompany/GetHoldingCompany", // 控股公司
-
+	qccECIInvestmentGetInvestmentList: "/api/qcc/auto/ECIInvestment/GetInvestmentList", // 对外投资列表
 	qccECISearch: "/api/qcc/auto/ECI/Search", // 企业关键字模糊搜索
+	qccECIInvestmentThroughGetInfo: "/api/qcc/auto/ECIInvestmentThrough/GetInfo", // 企业对外投资穿透
+
 	qccECIRelationSearchTreeRelationMap: "/api/qcc/auto/ECIRelationV4/SearchTreeRelationMap", // 投资图谱
 	qccECIRelationGetCompanyEquityShareMap: "/api/qcc/auto/ECIRelationV4/GetCompanyEquityShareMap", // 股权结构图
 	qccECIRelationGenerateMultiDimensionalTreeCompanyMap: "/api/qcc/auto/ECIRelationV4/GenerateMultiDimensionalTreeCompanyMap", // 企业图谱
@@ -176,6 +178,7 @@ var remoteApi = {
     apiSysMsgTmplAdd: '/api/system/msgTmpl/add', // 添加消息模板
 	apiSysMsgTmplDel: '/api/system/msgTmpl/delete', // 删除消息模板
     apiSysMsgTmplEdit: '/api/system/msgTmpl/edit', // 编辑消息模板
+	apiMessageGetList: "/api/message/getList", // 用户未读消息列表
 		// 用户
 	apiCheckOnline: '/api/checkOnline', // 检查用户是否在线
 	apiUserSetRoles: '/api/user/setRoles', // 用户批量设置角色 

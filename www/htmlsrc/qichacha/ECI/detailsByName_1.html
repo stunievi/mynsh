@@ -2,11 +2,11 @@
     <div class="data-tab">
         <a class="btn btn-default disabled" data-href="#base1">工商信息</a>
         <!--<a class="btn btn-default disabled" href="#base2">企业人员董监高信息</a>-->
-        <!--<a class="btn btn-default disabled" href="#base3">企业对外投资</a>-->
-        <!--<a class="btn btn-default disabled" href="#base4">投资图谱</a>-->
-        <!--<a class="btn btn-default disabled" href="#base5">疑似关系</a>-->
-        <!--<a class="btn btn-default disabled" href="#base6">股权穿透图</a>-->
-        <!--<a class="btn btn-default disabled" href="#base7">企业图谱</a>-->
+        <a class="btn btn-default disabled" data-href="#base3">企业对外投资</a>
+        <!--<a class="btn btn-default disabled" data-href="#base4">投资图谱</a>-->
+        <!--<a class="btn btn-default disabled" data-href="#base5">疑似关系</a>-->
+        <!--<a class="btn btn-default disabled" data-href="#base6">股权穿透图</a>-->
+        <!--<a class="btn btn-default disabled" data-href="#base7">企业图谱</a>-->
         <a class="btn btn-default disabled" data-href="#base8">股东信息</a>
         <a class="btn btn-default disabled" data-href="#base14">控股公司</a>
         <a class="btn btn-default disabled" data-href="#base9">主要人员</a>
@@ -18,6 +18,11 @@
     <div class="panel-qcc" id="base1">
         <div class="panel-qcc-heading">工商信息</div>
         <div class="panel-qcc-body" id="base1-body">
+        </div>
+    </div>
+    <div class="panel-qcc" id="base3">
+        <div class="panel-qcc-heading">企业对外投资</div>
+        <div class="panel-qcc-body" id="base3-body">
         </div>
     </div>
     <div class="panel-qcc" id="base8">
@@ -101,12 +106,14 @@ ins { background-color: #FEC8C8; text-decoration: none; } del { color: #999; bac
         {{each data value pos}}
         <tr>
             {{each value val index}}
-            <td class="col-xs-1 text-right">
-                {{pos*2 + index + 1}}
-            </td>
-            <td class=" {{value[index+1] ? col-xs-5 : col-xs-11}} type-info">
-                {{val}}
-            </td>
+                {{if val}}
+                <td class="col-xs-1 text-right">
+                    {{pos*2 + index + 1}}
+                </td>
+                <td class=" {{value[index+1] ? col-xs-5 : col-xs-11}} type-info">
+                    {{val}}
+                </td>
+                {{/if}}
             {{/each}}
         </tr>
         {{/each}}
@@ -118,8 +125,9 @@ ins { background-color: #FEC8C8; text-decoration: none; } del { color: #999; bac
 <script src="/static/vendor/htmldiff.js"></script>
 <script src="/htmlsrc/qichacha/tmpl/eci/qccTable.js"></script>
 <script>
+
     $.ajax({
-        url: remoteApi.qccECIGetDetailsByName+"?fullName="+COMPANY_NAME,
+        url: remoteApi.qccECIGetDetailsByName+"?fullName="+encodeURI(COMPANY_NAME),
         success: function (res) {
             var data = res.data || {};
             COMPANY_KEY_NO = data.KeyNo;
@@ -160,7 +168,7 @@ ins { background-color: #FEC8C8; text-decoration: none; } del { color: #999; bac
                         {title:"所属地区",field:"Province"},
                         // #英文名，曾用名，参保人数，人员规模
                         {title:"吊销日期",field:"EndDate"},//
-                        {title:"更新日期",field:"UpdatedDate"},//
+                        // {title:"更新日期",field:"UpdatedDate"},//
                         {title:"营业期限",field:"TermTime"},
                         // {title:"营业开始日期",field:"TermStart"},
                         // {title:"营业结束日期",field:"TeamEnd"},
@@ -175,13 +183,13 @@ ins { background-color: #FEC8C8; text-decoration: none; } del { color: #999; bac
             );
 
             // 股东信息
-            if(data.Partners && data.Partners.length > 0){
-                $("#base8-count").html(data.Partners.length);
-                $("a[data-href='#base8']").removeClass("disabled");
-
-                // $.each(data.Partners, function (i,v) {
-                //     v.ShouldCapi += "万";
-                // })
+            if(data.Partners){
+                if(data.Partners.length > 0){
+                    $("#base8-count").html(data.Partners.length);
+                    $("a[data-href='#base8']").removeClass("disabled");
+                }
+            }else {
+                console.error("股东信息不存在！");
             }
             laytableRender({
                 page: false,
@@ -193,7 +201,7 @@ ins { background-color: #FEC8C8; text-decoration: none; } del { color: #999; bac
                         {title:"股东",field:"StockName"},
                         // {title:"股东类型",field:"StockType"},
                         {title:"持股比例",field:"StockPercent"},
-                        {title:"认缴出资额",field:"ShouldCapi"},
+                        {title:"认缴出资额(万元)",field:"ShouldCapi"},
                         {title:"认缴出资时间",field:"ShoudDate"},
                         // {title:"认缴出资方式",field:"InvestType"},
                         // {title:"实际出资方式",field:"InvestName"},
@@ -205,9 +213,13 @@ ins { background-color: #FEC8C8; text-decoration: none; } del { color: #999; bac
             });
 
             // 主要人员
-            if(data.Employees && data.Employees.length > 0){
-                $("#base9-count").html(data.Employees.length);
-                $("a[data-href='#base9']").removeClass("disabled");
+            if(data.Employees){
+                if(data.Employees.length > 0){
+                    $("#base9-count").html(data.Employees.length);
+                    $("a[data-href='#base9']").removeClass("disabled");
+                }
+            }else{
+                console.error("主要人员不存在！");
             }
             laytableRender({
                 page: false,
@@ -229,27 +241,29 @@ ins { background-color: #FEC8C8; text-decoration: none; } del { color: #999; bac
             });
 
             // 分支机构
-            if(data.Branches && data.Branches.length > 0){
-                $("#base10-count").html(data.Branches.length);
-                $("a[data-href='#base10']").removeClass("disabled");
-                var branches = [];
-                var dataBranches = data.Branches;
-                for(var i = 0;i<dataBranches.length;){
-                    var arr = [];
-                    if(dataBranches[i]){
-                        arr.push(dataBranches[i]["Name"])
+            if(data.Branches){
+                if(data.Branches.length > 0){
+                    $("#base10-count").html(data.Branches.length);
+                    $("a[data-href='#base10']").removeClass("disabled");
+                    var branches = [];
+                    var dataBranches = data.Branches;
+                    for(var i = 0;i<dataBranches.length;){
+                        var arr = [];
+                        arr.push(dataBranches[i]["Name"]);
+                        if(dataBranches[i+1]){
+                            arr.push(dataBranches[i+1]["Name"]);
+                        }
+                        branches.push(arr);
+                        i=i+2;
                     }
-                    if(dataBranches[i+1]){
-                        arr.push(dataBranches[i+1]["Name"]);
-                    }
-                    branches.push(arr);
-                    i=i+2;
+                    $("#base10-body").html(
+                        template('test', {
+                            data: branches
+                        })
+                    );
                 }
-                $("#base10-body").html(
-                    template('test', {
-                        data: branches
-                    })
-                );
+            }else{
+                console.error("分支机构不存在！");
             }
             // 变更历史
             if(data.ChangeRecords && data.ChangeRecords.length > 0){
@@ -346,6 +360,35 @@ ins { background-color: #FEC8C8; text-decoration: none; } del { color: #999; bac
         ],
         onData:function (data) {
             fixOnDataLoad("base14", data);
+        }
+    });
+
+    // 企业对外投资列表
+    laytableRender({
+        id: "base3-body",
+        autoShift: false,
+        // url: remoteApi.qccCourtAnnoSearchCourtNotice+"?fullName="+COMPANY_NAME,
+        url: remoteApi.qccECIInvestmentGetInvestmentList+"?fullName="+COMPANY_NAME,
+        cols: [
+            [
+                BOOTSTRAP_INDEX_FILED,
+                {title:"企业名称",field:"Name"},
+                {title:"法人名称",field:"OperName"},
+                {title:"注册资本",field:"RegistCapi"},
+                {title:"出资比列",field:"FundedRatio"},
+                {title:"成立日期",field:"StartDate"},
+                {title:"状态",field:"Status"}
+                // {title:"社会统一信用代码",field:"CreditCode"},
+                // {title:"企业类型",field:"EconKind"},
+                // {title:"公司Logo",field:"ImageUrl"},
+                // {title:"KeyNo",field:"KeyNo"},
+                // {title:"注册号",field:"No"},
+            ]
+        ],
+        onData:function (data) {
+            fixOnDataLoad("base3",data, function (row) {
+                row["StartDate"] = subDateStr(row["StartDate"]);
+            });
         }
     });
 
