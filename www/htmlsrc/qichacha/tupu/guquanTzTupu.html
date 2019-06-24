@@ -72,68 +72,79 @@
     // walk(parseArr, "小米科技有限责任公司", 1, "");
 
     function getDataTupuTz(){
-        $.ajax({
-            // url:"./json/guquanchuantou2.json",
+        // 投资图谱 - Deprecated
+        var p2 = $.ajax({
+            url: remoteApi.qccECIRelationSearchTreeRelationMap,
+            data: {
+                keyNo: companyKeyNo
+            },
+            dataType: 'JSON'
+        });
+        // 投资穿透
+        var p1 = $.ajax({
             url: remoteApi.qccECIInvestmentThroughGetInfo,
-            type: 'GET',
-            data:{
+            data: {
                 fullName: companyName
             },
-            dataType: 'JSON',
-            success: function (res){
-                var retData2 = res.Result || res.data;
-                if(retData2){
-                    var data = {};
-                //     if(retData2.Children){
-                //         var touziDetailList = [];
-                //         var walk1 = function(touziDetailList, dataList){
-                //             dataList.forEach(function (item) {
-                //                 item.ajaxtouzi = true;
-                //                 if(typeof kgObj != 'undefined' && kgObj[item.KeyNo]){
-                //                     item.ShouldCapi = kgObj[item.KeyNo].ShouldCapi;
-                //                     item.Percent = kgObj[item.KeyNo].Percent;
-                //                 }
-                //                 var _index = touziDetailList.push(item);
-                //                 var index = _index - 1;
-                //                 if(item.Children && item.Children.length > 0){
-                //                     touziDetailList[index].DetailList = [];
-                //                     walk1(touziDetailList[index].DetailList, item.Children)
-                //                 }
-                //             });
-                //             return touziDetailList;
-                //         };
-                //
-                //         var touziRetdataList = retData2.Children;
-                //         for(var i=0;i<3;i++){
-                //             var touziDataitem = touziRetdataList[i];
-                //             if(touziDataitem["Category"] == "2"){
-                //                 touziRetdataList = touziDataitem["Children"];
-                //                 break;
-                //             }
-                //         }
-                //         walk1(touziDetailList, touziRetdataList);
-                //         console.log(touziDetailList);
-                //     }
-                    // 投资
-                    data.touzi = {
-                        Name: companyName,
-                        DetailList: retData2["DetailList"]
+            dataType: 'JSON'
+        });
+
+        $.when(p1, p2).then(function (data1, data2) {
+            var retData1 = data1[0].Result || data1[0].data;
+            var retData2 = data2[0].Result || data2[0].data;
+
+            var data = {};
+            if(retData1 && retData1["DetailList"]){
+                // 投资
+                data.touzi = {
+                    Name: companyName,
+                    DetailList: retData1["DetailList"]
+                };
+                addFlag(data.touzi);
+                guquanTzTupu = new drawGuquanTzTupu(data.touzi, companyKeyNo);
+            } else if(retData2){
+                if(retData2.Children){
+                    var touziDetailList = [];
+                    var walk1 = function(touziDetailList, dataList){
+                        dataList.forEach(function (item) {
+                            item.ajaxtouzi = true;
+                            if(typeof kgObj != 'undefined' && kgObj[item.KeyNo]){
+                                item.ShouldCapi = kgObj[item.KeyNo].ShouldCapi;
+                                item.Percent = kgObj[item.KeyNo].Percent;
+                            }
+                            var _index = touziDetailList.push(item);
+                            var index = _index - 1;
+                            if(item.Children && item.Children.length > 0){
+                                touziDetailList[index].DetailList = [];
+                                walk1(touziDetailList[index].DetailList, item.Children)
+                            }
+                        });
+                        return touziDetailList;
                     };
-                    // console.log(data)
-                    addFlag(data.touzi);
-                    guquanTzTupu = new drawGuquanTzTupu(data.touzi, companyKeyNo);
-                }else{
-                    $('#no_data').show();
-                    $('#screenArea').hide();
+
+                    var touziRetdataList = retData2.Children;
+                    for(var i=0;i<3;i++){
+                        var touziDataitem = touziRetdataList[i];
+                        if(touziDataitem["Category"] == "2"){
+                            touziRetdataList = touziDataitem["Children"];
+                            break;
+                        }
+                    }
+                    walk1(touziDetailList, touziRetdataList);
                 }
-                $('#load_data').hide();
-            },
-            error: function () {
+                data.touzi = {
+                    Name: companyName,
+                    DetailList: touziDetailList
+                };
+                addFlag(data.touzi);
+                guquanTzTupu = new drawGuquanTzTupu(data.touzi, companyKeyNo);
+            }else{
                 $('#no_data').show();
                 $('#screenArea').hide();
-                $('#load_data').hide();
             }
+            $('#load_data').hide();
         });
+
     }
 
     function drawGuquanTzTupu(investData,keyNo){

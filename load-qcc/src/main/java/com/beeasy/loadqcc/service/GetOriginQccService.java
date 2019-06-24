@@ -309,7 +309,6 @@ public class GetOriginQccService {
                         .append("requestId", extParam.getCommandId())
                         .append(collName, QccCollCnName.getValue(collName) + ":" + extParam.getTongJi(collName))
                         .append("resDataId", extParam.getResDataId());
-                //
                 mongoService2.getCollection("Call_Api_Count").updateOne(Filters.eq("requestId", extParam.getCommandId()), new Document().append("$set", countInfo), opt);
 
             }else if("201".equals(apiStatus)){
@@ -324,11 +323,11 @@ public class GetOriginQccService {
 
         if(extParam.getCompanyCount() < 30){
             extParam.getCacheArr().add(dataLog);
+        }else{
+            dataLog.append("requestId", extParam.getCommandId());
+            MongoCollection<Document> collLog = mongoService2.getCollection("Response_Log");
+            collLog.insertOne(dataLog);
         }
-//        dataLog.append("requestId", extParam.getCommandId());
-//        MongoCollection<Document> collLog = mongoService2.getCollection("Response_Log");
-//        collLog.insertOne(dataLog);
-
     }
 
     /**
