@@ -58,18 +58,24 @@ public class BackExcelController {
             MultipartFile file
     ) {
         long uid = AuthFilter.getUid();
-        ThreadUtil.execAsync(() -> import_lm(uid, file));
+        try {
+            File temp = File.createTempFile("temp_lm_", "");
+            file.transferTo(temp);
+            ThreadUtil.execAsync(() -> import_lm(uid, temp));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         return Result.ok();
     }
 
-    private void import_lm(long uid, MultipartFile file) {
-        File temp = null;
+    private void import_lm(long uid, File temp) {
+//        File temp = null;
         Date nowDate = new Date();
         LoanManager lm = new LoanManager();
         User user = sqlManager.lambdaQuery(User.class).andEq(User::getId,uid).single();
         try {
-            temp = File.createTempFile("temp_lm_", "");
-            file.transferTo(temp);
+//            temp = File.createTempFile("temp_lm_", "");
+//            file.transferTo(temp);
             ExcelReader reader = ExcelUtil.getReader(temp);
             reader.setSheet(0);
             //skip first row

@@ -348,7 +348,7 @@ public class ExportCSVController {
             }
             StringBuffer sb = new StringBuffer();
             String rowStr = sb.append("\"").append(data).append("\",").toString();
-            raf.write(rowStr.getBytes(CharsetUtil.GBK));
+            raf.write(rowStr.replaceAll("\r|\n", "").getBytes(CharsetUtil.GBK));
         }
         raf.writeChar('\n');
     }

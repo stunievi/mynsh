@@ -4,6 +4,7 @@ import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzlink.model.*;
 import com.github.llyb120.nami.core.Arr;
 import com.github.llyb120.nami.core.Json;
@@ -98,6 +99,24 @@ public class Link {
 
         //检查董监高
         for (String s : arr) {
+            //如果这个人已经在股东里出现，切持股比例满足，则直接加入
+            for (Obj obj : dps.toObjList()) {
+                if(!obj.getStr("StockType", "").equals("自然人股东")){
+                    continue;
+                }
+                if(!obj.getStr("StockName","").equals(s)){
+                    continue;
+                }
+                //算不出来的一概忽略
+                try {
+                    var p = Float.parseFloat(obj.getStr("StockPercent").replaceAll("%", ""));
+                    if (p >= 25) {
+                        ret.add(a(compName, s, "自然人股东", new BigDecimal(p)));
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
             var cia = getCia(compName, s);
             if (cia != null) {
                 for (Obj ciaCompanyLegals : cia.getArr("CIACompanyLegals").toObjList()) {
@@ -235,7 +254,6 @@ public class Link {
                 String legalName = cusCom.getLegal_name();
                 // 法人不一致，发送消息提醒
                 if(!operName.equals(legalName)){
-
                     var user = sqlManager.lambdaQuery(TUser.class).andEq(TUser::getAcc_code,cusCom.getCust_mgr()).single();
 
                     TSystemNotice notice = new TSystemNotice();
@@ -248,17 +266,26 @@ public class Link {
                     notice.setAdd_time(new Date());
 //                    sqlManager.insert(notice, true);
                 }else{
-                    String certCode = cusCom.getCert_code();
-                    var p = sqlManager.lambdaQuery(RptMRptSlsAcct.class).andEq(RptMRptSlsAcct::getEnt_cert_code, certCode).andEq(RptMRptSlsAcct::getCus_name, operName).select();
-                    if(null != p && !p.isEmpty()){
+                    String legalCertCode = cusCom.getLegal_cert_code();
+
+                    // 检查是否有贷款
+                    List<Obj> prt = sqlManager.select("accloan.cun_cus_com", Obj.class, o("names", operName, "certCode",legalCertCode));
+
+//                    var p = sqlManager.lambdaQuery(RptMRptSlsAcct.class).andEq(RptMRptSlsAcct::getPsn_cert_code, legalCertCode).andEq(RptMRptSlsAcct::getCus_name, operName).select();
+                    if(null != prt && !prt.isEmpty()){
                         Link111 link111 = new Link111();
                         link111.setOrigin_name(compNames);
                         link111.setId(IdUtil.objectId());
                         link111.setLink_left(compNames);
-                        link111.setLink_right(certCode + "|" +operName);
+                        link111.setLink_right(legalCertCode + "|" +operName);
                         link111.setLink_type("自然人");
                         link111.setLink_rule("11.2");
                         link111.setIs_company(1);
+
+                        sqlManager.lambdaQuery(Link111.class)
+                                .andEq(Link111::getLink_rule, "11.2")
+                                .andEq(Link111::getOrigin_name, compNames)
+                                .delete();
                         sqlManager.insert(link111, true);
                     }
                 }
@@ -500,46 +527,114 @@ public class Link {
 
 
     public static void do11_5(String compName) {
-        var diyas = sqlManager.lambdaQuery(Link111.class)
-            .andEq(Link111::getLink_rule, "11.5.1")
-            .andEq(Link111::getOrigin_name, compName)
-            .select();
+
+        System.out.println(sqlManager);
         var batch = a();
-        for (Link111 diya : diyas) {
-            var p = diya.getLink_right().split("\\|");
-            if (p.length != 2) {
+        Map<String, String> map = new LinkedHashMap<>();
+
+        List<Obj> objs = sqlManager.select("accloan.11_5", Obj.class, o());
+        for (Obj list : objs) {
+            String guarName = list.getStr("guar_name");
+            String cerNo = list.getStr("cer_no");
+            String cusName = list.getStr("cus_name");
+            List<Obj> objList = sqlManager.select("accloan.11_5", Obj.class, o("guarName",guarName,"cerNo",cerNo));
+            if(objList.size() == 1){
                 continue;
             }
-            var loans = sqlManager.lambdaQuery(RptMRptSlsAcct.class)
-                .andEq(RptMRptSlsAcct::getCus_id, p[0])
-                .select(RptMRptSlsAcct::getCus_name);
-            for (RptMRptSlsAcct loan : loans) {
-                if (loan.getCus_name().equals(compName)) {
-                    continue;
+            for (Obj obj : objList) {
+                if(!cusName.equals(obj.getStr("cus_name"))){
+                    if(null != map.get(guarName + cusName) && !map.get(guarName+cusName).isEmpty()){
+                        System.out.println(map);
+                        continue;
+                    }
+                    var link = new Link111();
+                    link.setId(IdUtil.objectId());
+                    link.setLink_rule("11.5");
+                    link.setOrigin_name(cusName);
+                    link.setLink_type("担保关联");
+                    link.setLink_left(cusName);
+                    link.setLink_right(guarName);
+                    link.setIs_company(1);
+                    batch.add(link);
+                    map.put(guarName + cusName,guarName);
                 }
-                var link = new Link111();
-                link.setId(IdUtil.objectId());
-                link.setLink_rule("11.5");
-                link.setOrigin_name(compName);
-                link.setLink_type("担保关联");
-                link.setLink_left(compName);
-                link.setLink_right(loan.getCus_name());
-                link.setIs_company(1);
-                batch.add(link);
+            }
+            if (batch.isNotEmpty()) {
+                sqlManager.lambdaQuery(Link111.class)
+                        .andEq(Link111::getLink_rule, "11.5")
+                        .andEq(Link111::getOrigin_name, cusName)
+                        .delete();
             }
         }
         if (batch.isNotEmpty()) {
-            sqlManager.lambdaQuery(Link111.class)
-                .andEq(Link111::getLink_rule, "11.5")
-                .andEq(Link111::getOrigin_name, compName)
-                .delete();
             sqlManager.insertBatch(Link111.class, batch);
         }
+
+
+//        var diyas = sqlManager.lambdaQuery(Link111.class)
+//            .andEq(Link111::getLink_rule, "11.5.1")
+//            .andEq(Link111::getOrigin_name, compName)
+//            .select();
+//        var batch = a();
+//        for (Link111 diya : diyas) {
+//            var p = diya.getLink_right().split("\\|");
+//            if (p.length != 2) {
+//                continue;
+//            }
+//            var loans = sqlManager.lambdaQuery(RptMRptSlsAcct.class)
+//                .andEq(RptMRptSlsAcct::getCus_id, p[0])
+//                .select(RptMRptSlsAcct::getCus_name);
+//            for (RptMRptSlsAcct loan : loans) {
+//                if (loan.getCus_name().equals(compName)) {
+//                    continue;
+//                }
+//                var link = new Link111();
+//                link.setId(IdUtil.objectId());
+//                link.setLink_rule("11.5");
+//                link.setOrigin_name(compName);
+//                link.setLink_type("担保关联");
+//                link.setLink_left(compName);
+//                link.setLink_right(loan.getCus_name());
+//                link.setIs_company(1);
+//                batch.add(link);
+//            }
+//        }
+//        if (batch.isNotEmpty()) {
+//            sqlManager.lambdaQuery(Link111.class)
+//                .andEq(Link111::getLink_rule, "11.5")
+//                .andEq(Link111::getOrigin_name, compName)
+//                .delete();
+//            sqlManager.insertBatch(Link111.class, batch);
+//        }
     }
 
 
-    public static void do11_6(String compName){
-        var diyas = sqlManager.lambdaQuery(Link111.class)
+    public static void do11_6(){
+
+        List<Obj> objList = sqlManager.select("accloan.11_6",Obj.class,o());
+        var batch = a();
+        for (Obj list : objList) {
+            var link = new Link111() ;
+            link.setId(IdUtil.objectId());
+            link.setLink_rule("11.6");
+            link.setLink_left(list.getStr("cus_name"));
+            link.setOrigin_name(list.getStr("cus_name"));
+            link.setLink_right(list.getStr("guar_name"));
+            link.setLink_type("担保关联");
+            link.setIs_company(1);
+            batch.add(link);
+            if(batch.isNotEmpty()){
+                sqlManager.lambdaQuery(Link111.class)
+                        .andEq(Link111::getLink_rule, "11.6")
+                        .andEq(Link111::getOrigin_name, list.getStr("cus_name"))
+                        .delete();
+            }
+        }
+        if(batch.isNotEmpty()){
+
+            sqlManager.insertBatch(Link111.class, batch);
+        }
+        /*var diyas = sqlManager.lambdaQuery(Link111.class)
             .andEq(Link111::getLink_rule, "11.5.1")
             .andEq(Link111::getOrigin_name, compName)
             .select();
@@ -571,7 +666,7 @@ public class Link {
                 .andEq(Link111::getOrigin_name, compName)
                 .delete();
             sqlManager.insertBatch(Link111.class, batch);
-        }
+        }*/
     }
 
 
@@ -816,7 +911,7 @@ public class Link {
 
     /**
      * 检查某些公司是否在我行有贷款
-     * @param compNames
+     * @param names
      */
     private static Arr hasLoan(Collection<String> names) {
         List<Obj> allows = sqlManager.select("accloan.cun_cus_com", Obj.class, o("names", names));
