@@ -1,70 +1,64 @@
-#myTabContent .btn {
-  margin-right: 10px;
-  margin-bottom: 5px;
+html {
+  overflow: hidden !important;
+  height: 100% !important;
 }
-.panel-group .panel {
-  margin-bottom: 15px;
+body {
+  overflow-y: scroll !important;
+  height: 100% !important;
 }
-.panel-qcc {
-  border: white 1px solid;
-  margin-bottom: 15px;
-  box-shadow: none;
+#content {
+  background: #fff;
 }
-.panel-qcc-heading {
-  padding: 0px;
-  margin-bottom: 10px;
-  padding-top: 15px;
-  font-size: 16px;
-  color: #222;
-  font-weight: 600;
-  line-height: 1.8;
+.panel-qcc-heading a {
+  color: #000;
 }
-.panel-qcc-body .fixed-table-container tbody td {
-  border: 1px solid #ddd;
+.panel-heading {
+  padding: 6px 15px;
 }
-.panel-qcc-body .fixed-table-container {
-  border: 0;
-  border-top: #ddd 1px solid;
+.fixed {
+  background: #fff;
+  position: fixed;
+  top: 0;
+  z-index: 999;
 }
-.panel-qcc-body tbody tr td:first-child,
-.panel-qcc-body thead tr th:first-child {
-  border-left: #ddd 1px solid !important;
-}
-.panel-qcc-body tbody tr:first-child td {
-  border-top: #ddd 1px solid;
-}
-.panel-qcc-body table tr th:not(:last-child) {
-  border-right: #F2F9FC 1px solid;
-}
-.panel-qcc-body table tr th {
+.path {
+  display: inline-block;
+  width: 84px;
+  height: 26px;
+  background: url('/static/htmlImage/line_arrow.png') no-repeat right bottom;
+  background-size: 75px 8px;
+  padding-bottom: 10px;
+  font-size: 12px;
+  color: #128bed;
   text-align: center;
-  background: #5da1ef;
-  border: #5da1ef 1px solid;
-  color: #fcfcfc;
-  border-collapse: collapse;
-  padding: 12px 12px 12px 12px;
-  font-weight: normal;
-  line-height: 19px;
+  position: relative;
+  top: -9px;
+  margin-right: 6px;
 }
-.panel-qcc .pagination > li {
-  display: block;
+ins {
+  background-color: #FEC8C8;
+  text-decoration: none;
+}
+del {
+  color: #999;
+  background-color: #FEC8C8;
+}
+.text {
   float: left;
-  margin: 0 5px;
+  width: 30%;
+  border: 1px solid blue;
+  margin: 10px;
 }
-.qcc-table {
-  width: 100%;
-  margin: 0 auto;
-  margin-bottom: 20px;
+.com-logo-preview {
+  display: none;
+  position: absolute;
+  z-index: 10;
 }
-.qcc-table .tb {
-  background: #5da1ef;
-  color: #fcfcfc;
+.type-file-show {
+  position: relative;
 }
-.qcc-table td {
-  padding: 10px 10px 11px 10px;
-  border: #E4EEF6 1px solid;
-  word-break: break-all;
-  font-size: 14px;
-  line-height: 1.6;
-  color: #222;
+.type-file-show:hover .com-logo-preview {
+  left: 40px;
+  top: -5px;
+  display: block !important;
 }

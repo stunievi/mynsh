@@ -970,6 +970,8 @@
         }
     })();
 
+    // mars
+    $.cookie('spec', getParam("spec"));
 
     //系统数据版本
     getFetch(remoteOrigin + "/api/auto/sysvar/getDataVersion", function (data) {
@@ -984,8 +986,6 @@
         // $(window).trigger("resize");
     });
 </script>
-
-
 <script>
     //消息提醒
     ;(function () {

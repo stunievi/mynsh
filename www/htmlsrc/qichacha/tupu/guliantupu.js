@@ -1941,13 +1941,13 @@ function canvasImg(imgData){
         //     context.drawImage(shuiying, canvas.width/2-80, canvas.height/2-40,160,80);
         // }
 
-        var shuiying = new Image();
-        shuiying.src="/material/theme/chacha/cms/v2/images/shuiying2.png";
-        for(var i=0;i < canvas.width+100; i+=600){
-            for(var j=0; j< canvas.height+100; j+=456){
-                context.drawImage(shuiying, i, j);
-            }
-        }
+        // var shuiying = new Image();
+        // shuiying.src="/material/theme/chacha/cms/v2/images/shuiying2.png";
+        // for(var i=0;i < canvas.width+100; i+=600){
+        //     for(var j=0; j< canvas.height+100; j+=456){
+        //         context.drawImage(shuiying, i, j);
+        //     }
+        // }
 
         //画图谱
         context.drawImage(img, 0, 0);

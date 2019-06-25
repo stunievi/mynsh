@@ -23,7 +23,8 @@
             <li onclick="maoScale(2);"><span class="small"></span>缩小</li>
             <li onclick="maoRefresh();"><span class="refresh"></span>刷新</li>
             <li id="changeScreen" onclick="changeScreen(this);"><span class="screen"></span>全屏</li>
-            <li onclick="saveImg();zhugeTrack('图谱-保存',{'图谱类型':'股权穿透图'});"><span class="save"></span>保存</li>
+            <!--zhugeTrack('图谱-保存',{'图谱类型':'股权穿透图'});-->
+            <li onclick="saveImg();"><span class="save"></span>保存</li>
         </ul>
     </div>
 </div>
@@ -397,24 +398,24 @@
             myChart.getZrender().addShape(shape1);
 
 
-            for(var i=0;i<width+100;i+=300){
-                for(var j=0;j<height+100;j+=228){
-                    var shapeSy = new ImageShape({
-                        style: {
-                            image:'/shuiYin.png',
-                            x: i-moveRight,
-                            y: j-moveDown,
-                            width:300,
-                            height:228
-
-                        }
-                    });
-                    shapeSy.zlevel=1;
-                    shapeSy.z=-1;
-                    shapeSy.ndelete = true;
-                    myChart.getZrender().addShape(shapeSy);
-                }
-            }
+            // for(var i=0;i<width+100;i+=300){
+            //     for(var j=0;j<height+100;j+=228){
+            //         var shapeSy = new ImageShape({
+            //             style: {
+            //                 image:'/shuiYin.png',
+            //                 x: i-moveRight,
+            //                 y: j-moveDown,
+            //                 width:300,
+            //                 height:228
+            //
+            //             }
+            //         });
+            //         shapeSy.zlevel=1;
+            //         shapeSy.z=-1;
+            //         shapeSy.ndelete = true;
+            //         myChart.getZrender().addShape(shapeSy);
+            //     }
+            // }
 
             var shape3 = new Text({
                 style: {

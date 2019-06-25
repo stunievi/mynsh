@@ -5,28 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title> 公司详情 </title>
     <!--#include file="/htmlsrc/header.html" -->
-    <style>
-        html{
-            overflow: hidden !important;
-            height: 100% !important;
-        }
-        body{
-            overflow-y: scroll !important;
-            height: 100% !important;
-        }
-        .panel-qcc-heading a{
-            color: #000;
-        }
-        .panel-heading {
-            padding: 6px 15px;
-        }
-        .fixed{
-            background: #fff;
-            position: fixed;
-            top: 0;
-            z-index: 999;
-        }
-    </style>
+    <link rel="stylesheet" href="/static/htmlcss/qccStyle.css">
     <script>
         var keyNoPromise = $.Deferred();
         var COMPANY_NAME =  decodeURI(getParam("keyWord"));
@@ -67,10 +46,13 @@
         };
         var fixOnDataLoad = function (elmId, data, fixFun) {
             if(data && data.total && data.total > 0){
-                $("a[data-href='#"+elmId+"']").removeClass("disabled");
+                var handle = $("a[data-href='#"+elmId+"']");
+                if(!handle.hasClass("loaded")){
+                    handle.append("&nbsp;"+data.total);
+                    handle.removeClass("disabled").addClass("loaded");
+                    $("#"+elmId+"-count").html(data.total);
+                }
                 scrollToElm(elmId);
-                $("a[data-href='#"+elmId+"']").append("&nbsp;"+data.total);
-                $("#"+elmId+"-count").html(data.total);
             }
             if(data.rows && data.rows.length>0){
                 data.rows.forEach(function (row) {
@@ -80,7 +62,6 @@
                     qccNoDataFillFun(row);
                 });
             }
-
         };
         var subDateStr = function(dateStr){
             if(dateStr){
@@ -102,7 +83,15 @@
                 <!--<li role="presentation" class=""><a href="#report" role="tab" id="report-tab" data-toggle="tab" data-controls="report">企业发展</a></li>-->
                 <!--<li role="presentation" class=""><a href="#assets" role="tab" id="assets-tab" data-toggle="tab" data-controls="assets">知识产权</a></li>-->
                 <li role="presentation" class=""><a href="#history" role="tab" id="history-tab" data-toggle="tab" data-controls="history">历史信息</a></li>
-                <li style="float: right;"><a href="javascript:;" class="btn" id="updateBtn" style="background: orange;color: #fff;" ><i class="
+                <li class="pull-right hide fullscreen-wrap">
+                    <a href="javascript:;" class="btn" id="fullscreenBtn" style="background: orange;color: #fff;" ><i class="glyphicon glyphicon-resize-full"></i></a>
+                </li>
+                <li class="pull-right hide change-com-wrap">
+                    <a href="javascript:;" class="btn" id="change-com" style="background: orange;color: #fff;" ><i class="
+                glyphicon glyphicon-pencil"></i></a>
+                </li>
+
+                <li style="float: right;" class="eci-toolbar"><a href="javascript:;" class="btn" id="updateBtn" style="background: orange;color: #fff;" ><i class="
 glyphicon glyphicon-refresh"></i>&nbsp;&nbsp;更新当前模块数据</a></li>
             </ul>
             <div id="qcc-detail-content" class="tab-content" style="padding-top: 10px;">
@@ -121,6 +110,7 @@ glyphicon glyphicon-refresh"></i>&nbsp;&nbsp;更新当前模块数据</a></li>
     </div>
 </div>
 <script src="/static/vendor/jquery.goup.min.js"></script>
+
 <script>
     $.goup({
         goupSpeed: 100,
@@ -231,6 +221,33 @@ glyphicon glyphicon-refresh"></i>&nbsp;&nbsp;更新当前模块数据</a></li>
         }
         $(".goup-container").trigger("click");
     });
+    if($.cookie("spec")){
+        // 全屏
+        $(".fullscreen-wrap").removeClass("hide");
+        $("#fullscreenBtn").click(function () {
+            changeScreen("#fullscreenBtn");
+        });
+        function changeScreen(dom){
+            if(!isFullScreen()){
+                $(dom).html('<i class="glyphicon glyphicon-resize-small"></i>');
+                launchFullScreen($('html')[0]);
+            }else{
+                $(dom).html('<i class="glyphicon glyphicon-resize-full"></i>');
+                exitFullScreen();
+            }
+        }
+        //
+        $(".change-com-wrap").removeClass("hide");
+        $("#change-com").click(function () {
+            layer.prompt({title: '请输入公司名！', formType: 3}, function(val, index){
+                var dom = top.$("#iframe-content-wrap .active iframe");
+                var srcStr = dom.attr("src");
+                srcStr = putUrlParam("keyWord", (val || '').trim(), srcStr);
+                dom.attr("src", srcStr);
+            });
+        });
+    }
 </script>
+<script src="/static/htmljs/qcc.custom.js"></script>
 </body>
 </html>

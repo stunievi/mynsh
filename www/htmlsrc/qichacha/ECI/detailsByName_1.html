@@ -16,7 +16,13 @@
         <!--<a class="btn btn-default disabled" data-href="#base13">行业信息</a>-->
     </div>
     <div class="panel-qcc" id="base1">
-        <div class="panel-qcc-heading">工商信息</div>
+        <div class="panel-qcc-heading">
+            <span class="type-file-show hide">
+                <img class="com-logo" src="" width="30" height="30" alt="" style="margin-right: 10px;">
+                <img class="com-logo-preview" src="">
+            </span>
+            工商信息
+        </div>
         <div class="panel-qcc-body" id="base1-body">
         </div>
     </div>
@@ -61,31 +67,11 @@
         <!--</div>-->
     <!--</div>-->
 </div>
-<style>
-    .path {
-        display: inline-block;
-        width: 84px;
-        height: 26px;
-        background: url('/static/htmlImage/line_arrow.png') no-repeat right bottom;
-        background-size: 75px 8px;
-        padding-bottom: 10px;
-        font-size: 12px;
-        color: #128bed;
-        text-align: center;
-        position: relative;
-        top: -9px;
-        margin-right: 6px;
-    }
-</style>
 <script type="text/html" id="toolbar">
     <div class="layui-toolbar">
         <a href="javascript:;" class="showStockRelationInfo" data-name="{{d.Name}}">{{d.Name}}</a>
     </div>
 </script>
-<!--cfc-->
-<style>
-ins { background-color: #FEC8C8; text-decoration: none; } del { color: #999; background-color: #FEC8C8; } .text { float:left; width: 30%; border: 1px solid blue; margin: 10px; }
-</style>
 
 <!--投资路径模板-->
 <script type="text/html" id="paths">
@@ -125,12 +111,19 @@ ins { background-color: #FEC8C8; text-decoration: none; } del { color: #999; bac
 <script src="/static/vendor/htmldiff.js"></script>
 <script src="/htmlsrc/qichacha/tmpl/eci/qccTable.js"></script>
 <script>
-
     $.ajax({
         url: remoteApi.qccECIGetDetailsByName+"?fullName="+encodeURI(COMPANY_NAME),
         success: function (res) {
             var data = res.data || {};
             COMPANY_KEY_NO = data.KeyNo;
+            // 公司logo
+            if(data["ImageUrl"] && $.cookie("spec")){
+                $.get(data["ImageUrl"], function () {
+                    $(".type-file-show").removeClass("hide");
+                    $(".com-logo").prop("src", data["ImageUrl"]);
+                    $(".com-logo-preview").prop("src", data["ImageUrl"]);
+                });
+            }
             if(COMPANY_KEY_NO){
                 keyNoPromise.resolve(COMPANY_KEY_NO);
                 $("a[data-href='#base1']").removeClass("disabled");
@@ -140,14 +133,19 @@ ins { background-color: #FEC8C8; text-decoration: none; } del { color: #999; bac
             if(data.IsOnStock){
                 data.IsOnStock = data.IsOnStock == "0" ? "未上市" : "上市";
             }
+            if(data["OriginalName"] && data["OriginalName"].length>0){
+                 var arr = [];
+                data["OriginalName"].forEach(function(item){
+                    arr.push(item["Name"]);
+                });
+                data["OriginalNameStr"] = arr.join("、");
+            }
             data["StartDate"] = subDateStr(data["StartDate"]);
             data["CheckDate"] = subDateStr(data["CheckDate"]);
             data["EndDate"] = subDateStr(data["EndDate"]);
             data["UpdatedDate"] = subDateStr(data["UpdatedDate"]);
             data["TermTime"] = subDateStr(data.TermStart) + " 至 " + subDateStr(data.TeamEnd);
             data.SubIndustry = (data.Industry || {}).SubIndustry || "";
-            // if(data.Industry.SubIndustry){}
-
             $("#base1-body").html(
                 qccTableRender({
                     cols:[
@@ -166,7 +164,11 @@ ins { background-color: #FEC8C8; text-decoration: none; } del { color: #999; bac
                         {title:"核准日期",field:"CheckDate"},
                         {title:"登记机关",field:"BelongOrg"},
                         {title:"所属地区",field:"Province"},
-                        // #英文名，曾用名，参保人数，人员规模
+                        {title:"英文名",field:"EnglishName"},
+                        // #曾用名
+                        {title:"曾用名",field:"OriginalNameStr"},
+                        {title:"参保人数",field:"InsuredCount"},
+                        {title:"人员规模",field:"PersonScope"},
                         {title:"吊销日期",field:"EndDate"},//
                         // {title:"更新日期",field:"UpdatedDate"},//
                         {title:"营业期限",field:"TermTime"},
@@ -185,6 +187,10 @@ ins { background-color: #FEC8C8; text-decoration: none; } del { color: #999; bac
             // 股东信息
             if(data.Partners){
                 if(data.Partners.length > 0){
+                    data.Partners.forEach(function (item) {
+                        item["ShoudDate"] = subDateStr(item["ShoudDate"]);
+                        // item["CapiDate"] = subDateStr(item["CapiDate"]);
+                    });
                     $("#base8-count").html(data.Partners.length);
                     $("a[data-href='#base8']").removeClass("disabled");
                 }
@@ -202,10 +208,10 @@ ins { background-color: #FEC8C8; text-decoration: none; } del { color: #999; bac
                         // {title:"股东类型",field:"StockType"},
                         {title:"持股比例",field:"StockPercent"},
                         {title:"认缴出资额(万元)",field:"ShouldCapi"},
-                        {title:"认缴出资时间",field:"ShoudDate"},
+                        {title:"认缴出资时间",field:"ShoudDate"}
                         // {title:"认缴出资方式",field:"InvestType"},
                         // {title:"实际出资方式",field:"InvestName"},
-                        // {title:"实缴出资额",field:"RealCapi"},
+                        // {title:"实缴出资额(万元)",field:"RealCapi"},
                         // {title:"实缴时间",field:"CapiDate"}
                     ]
                 ],
@@ -391,5 +397,4 @@ ins { background-color: #FEC8C8; text-decoration: none; } del { color: #999; bac
             });
         }
     });
-
 </script>
