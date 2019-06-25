@@ -5378,7 +5378,8 @@ public class QccService extends AbstractService{
     private Object GetInfo(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
         Object object = singleQuery("qcc.查询股权穿透信息", params);
         JSONObject  jsonObject = JSONObject.parseObject(object.toString());
-        jsonObject.put("Result",JSONArray.parseArray(jsonObject.getString("Result")) );
+        jsonObject.put("DetailList",JSONArray.parseArray(jsonObject.getString("Result")) );
+        jsonObject.remove("Result");
         return jsonObject;
     }
 
@@ -5428,7 +5429,7 @@ public class QccService extends AbstractService{
      * }
      */
     private Object GetInvestmentList(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
-        return singleQuery("qcc.查询企业对外投资列表", params);
+        return pageQuery("qcc.查询企业对外投资列表", params);
     }
 
 

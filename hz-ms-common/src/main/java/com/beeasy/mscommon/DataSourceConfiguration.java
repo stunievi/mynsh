@@ -9,6 +9,7 @@ import org.beetl.sql.core.db.DB2SqlStyle;
 import org.beetl.sql.core.db.DBStyle;
 import org.beetl.sql.ext.DebugInterceptor;
 import org.osgl.util.S;
+import org.osgl.util.Str;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
@@ -29,6 +30,10 @@ import java.util.Map;
 @EnableTransactionManagement
 @ConfigurationProperties(prefix = "multipul")  // 配置文件中的前缀
 public class DataSourceConfiguration implements TransactionManagementConfigurer {
+
+    public static String DB_URL;
+    public static  String DB_USER;
+    public static String DB_PASSWORD;
 
     @Getter
     @Setter
@@ -82,6 +87,9 @@ public class DataSourceConfiguration implements TransactionManagementConfigurer 
                         .username(server.username)
                         .password(server.password)
                         .build();
+                DB_URL = server.url;
+                DB_USER = server.username;
+                DB_PASSWORD = server.password;
                 if(S.eq(server.name, "main")){
                     dft = dataSource;
                 }

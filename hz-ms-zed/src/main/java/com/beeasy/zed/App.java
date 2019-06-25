@@ -3,19 +3,25 @@ package com.beeasy.zed;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import org.beetl.sql.core.SQLReady;
 
 import java.io.*;
 import java.text.ParseException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 
 import static com.beeasy.zed.Config.config;
+import static com.beeasy.zed.DBService.sqlManager;
 
 
 public class App {
     public static ConcurrentMap<String, String> concurrentMapWordCounts = new ConcurrentHashMap<>();
+    public static Map hashMap = new HashMap();
 
     static {
         JSONObject jsonObject = JSONObject.parseObject(Utils.readFile().toString());
@@ -24,8 +30,12 @@ public class App {
             JSONObject j = JSONObject.parseObject(o.toString());
             concurrentMapWordCounts.put(j.getString("Code"), j.getString("ProvinceName"));
         }
+        String sql = "select name,inner_company_name  from qcc_holding_company_names";
+        List<JSONObject> list = sqlManager.execute(new SQLReady(sql), com.alibaba.fastjson.JSONObject.class);
+        for (int i = 0; i < list.size(); i++) {
+            hashMap.put(list.get(i).getString("name") + list.get(i).getString("innerCompanyName"), list.get(i).getString("innerCompanyName"));
+        }
     }
-
 
 
 //    public static ZedService zedService = new ZedService();
