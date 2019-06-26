@@ -39,7 +39,8 @@ function addNavTab(id, tabName, url,args,callback){
         tabName:     tab页签的显示文本
         url:      打开的iframe的url
         */
-         top.addTab(id, tabName, url,args,callback);
+        var md5Id = md5(id);
+        top.addTab(md5Id, tabName, url,args,callback);
     }
 }
 
@@ -1130,34 +1131,6 @@ function layuiTableReload(options){
     }
     elem.bootstrapTable("refresh",ops);
     return;
-
-    layui.use('table', function(){
-        layui.table.reload(id, {
-            page: page
-            ,
-            where: where,
-            responseHandler:function(res){
-              if(success){
-                // 返回原始数据origin
-                if(urlType == 'disk'){
-                  success(res)
-                }else{
-                  success(res.data)
-                }
-              }
-              /*
-                劫持请求返回的数据,处理后重新拿到，必须【原数据结构不变】
-              */
-              if(resHandler){
-                var fixRes = resHandler(res);
-                return fixRes == undefined ? res : fixRes;
-              }else{
-                return res;
-              }
-            }
-        });
-    })
-    return false;
 }
 // 获取选中ids
 function getLayuiTabelCheckIds(keyName, elemIdName){
@@ -1170,15 +1143,6 @@ function getLayuiTabelCheckIds(keyName, elemIdName){
   return $.map(selections, function (v) {
       return v[keyName];
   });
-  // var ids = [];
-  // layui.use('table', function(){
-  //     var checkStatus = layui.table.checkStatus(elemIdName)
-  //     data = checkStatus.data;
-  //     data.forEach(function(elm){
-  //       ids.push(elm[keyName])
-  //     })
-  // })
-  // return ids;
 }
 
 //layer加载中
@@ -1477,19 +1441,19 @@ function dateFormate1(value, iSmillis){
 // php式格式化时间戳
 function dateFormate(i,g){var h,e;var c=["Sun","Mon","Tues","Wednes","Thurs","Fri","Satur","January","February","March","April","May","June","July","August","September","October","November","December"];var b=/\\?(.?)/gi;var a=function(f,k){return e[f]?e[f]():k};var d=function(k,f){k=String(k);while(k.length<f){k="0"+k}return k};e={d:function(){return d(e.j(),2)},D:function(){return e.l().slice(0,3)},j:function(){return h.getDate()},l:function(){return c[e.w()]+"day"},N:function(){return e.w()||7},S:function(){var f=e.j();var k=f%10;if(k<=3&&parseInt((f%100)/10,10)===1){k=0}return["st","nd","rd"][k-1]||"th"},w:function(){return h.getDay()},z:function(){var k=new Date(e.Y(),e.n()-1,e.j());var f=new Date(e.Y(),0,1);return Math.round((k-f)/86400000)},W:function(){var k=new Date(e.Y(),e.n()-1,e.j()-e.N()+3);var f=new Date(k.getFullYear(),0,4);return d(1+Math.round((k-f)/86400000/7),2)},F:function(){return c[6+e.n()]},m:function(){return d(e.n(),2)},M:function(){return e.F().slice(0,3)},n:function(){return h.getMonth()+1},t:function(){return(new Date(e.Y(),e.n(),0)).getDate()},L:function(){var f=e.Y();return f%4===0&f%100!==0|f%400===0},o:function(){var l=e.n();var f=e.W();var k=e.Y();return k+(l===12&&f<9?1:l===1&&f>9?-1:0)},Y:function(){return h.getFullYear()},y:function(){return e.Y().toString().slice(-2)},a:function(){return h.getHours()>11?"pm":"am"},A:function(){return e.a().toUpperCase()},B:function(){var k=h.getUTCHours()*3600;var f=h.getUTCMinutes()*60;var l=h.getUTCSeconds();return d(Math.floor((k+f+l+3600)/86.4)%1000,3)},g:function(){return e.G()%12||12},G:function(){return h.getHours()},h:function(){return d(e.g(),2)},H:function(){return d(e.G(),2)},i:function(){return d(h.getMinutes(),2)},s:function(){return d(h.getSeconds(),2)},u:function(){return d(h.getMilliseconds()*1000,6)},e:function(){var f="Not supported (see source code of date() for timezone on how to add support)";throw new Error(f)},I:function(){var k=new Date(e.Y(),0);var m=Date.UTC(e.Y(),0);var f=new Date(e.Y(),6);var l=Date.UTC(e.Y(),6);return((k-m)!==(f-l))?1:0},O:function(){var k=h.getTimezoneOffset();var f=Math.abs(k);return(k>0?"-":"+")+d(Math.floor(f/60)*100+f%60,4)},P:function(){var f=e.O();return(f.substr(0,3)+":"+f.substr(3,2))},T:function(){return"UTC"},Z:function(){return -h.getTimezoneOffset()*60},c:function(){return"Y-m-d\\TH:i:sP".replace(b,a)},r:function(){return"D, d M Y H:i:s O".replace(b,a)},U:function(){return h/1000|0}};var j=function(k,f){h=(f===undefined?new Date():(f instanceof Date)?new Date(f):new Date(f*1000));return k.replace(b,a)};return j(i,g)};
 
-function showECI_Info(id, name) {
+function showECI_Info(name) {
     var showA = function () {
         if($("#showECIcheck").prop("checked")){
             $.cookie("showECI", 1,{path: "/"});
         }
-        addNavTab("ECIdetail"+id, "企查查-公司详情-"+name, hrefUrl.ECIdetail+id);
+        addNavTab("ECIdetail"+name, "企查查 - " + name, hrefUrl.ECIdetail + name);
         layer.close(index);
     };
     var showB = function () {
         if($("#showECIcheck").prop("checked")){
             $.cookie("showECI", 2,{path: "/"});
         }
-        addNavTab("clientList", "所有客户", "/htmlsrc/dataQuery/clientList/clientList.html?name="+name);
+        addNavTab("客户资料 - 所有客户 - " + name, "/htmlsrc/dataQuery/clientList/clientList.html?name="+name);
         layer.close(index);
     };
     if($.cookie("showECI")){
@@ -1502,7 +1466,7 @@ function showECI_Info(id, name) {
         var index = layer.confirm("",{
             title: false,
             shadeClose: true,
-            content : '<div id="output_detail" class="pace-done" style="padding: 10px;" ><p >'+ '【企查查】直接查看详情； 【内部】则在我负责的客户中搜索公司名；' + '</p>本次登录记住选择，不再提醒！<input type=checkbox name=details id=showECIcheck></div>',
+            content : '<div id="output_detail" class="pace-done" style="padding: 10px;" ><p >'+ '【企查查】直接查看详情； 【行内】则在我负责的客户中搜索公司名；' + '</p>本次登录记住选择，不再提醒！<input type=checkbox name=details id=showECIcheck></div>',
             btn: ['企查查', '系统内']
         },function(){
             showA();
@@ -1511,6 +1475,15 @@ function showECI_Info(id, name) {
         });
     }
 }
+
+$(document).on("click", ".iframe-target", function () {
+    var href = $(this).data("href");
+    var title = $(this).data("title");
+    addNavTab(title, href);
+});
+$(document).on("click", ".show-client-target",function () {
+    showECI_Info($(this).data("val"))
+});
 
 if(typeof $ !== "undefined"){
     $.fn.ghostsf_serialize = function () {
@@ -1535,7 +1508,6 @@ if(typeof $ !== "undefined"){
             window.top.$('.dropdown-context').css({display: ''}).find('.drop-left').removeClass('drop-left');
         });
     });
-
 }
 
 

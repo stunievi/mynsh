@@ -56,8 +56,8 @@
     });
 
     $(document).on("click", ".handleShow", function (){
-        var id = $(this).data("id");
-        addNavTab("ECIdetail"+id, "企查查-公司详情", hrefUrl.ECIdetail+id);
+        var name = $(this).data("id");
+        addNavTab("ECIdetail"+name, "企查查-公司详情", hrefUrl.ECIdetail+name);
         return true;
     });
 </script>

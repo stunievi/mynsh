@@ -58,21 +58,6 @@ res.data = {
     totalPages: Number
 }
 ```
-# 与服务器交互--[增删改查](/hznsh/static/htmljs/utils.js)
-```js
-    // 无状态登陆，通过token获取服务器数据
-    headers = {
-        "Authorization": $.cookie('authorization')
-    }
-    // 向服务器提交【添加】请求
-    postRemoteData();
-    // 向服务器提交【更新】请求
-    putRemoteData();
-    // 向服务器提交【删除】请求
-    delRemoteData();
-    // 向服务器提交【获取】请求
-    getRemoteData();
-```
 向服务器提交数据框架函数 postFrameFun(),其中【因考虑兼容ie8跨域请求，自行封装[SuperPost](/static/htmljs/utils.js#SuperPost)异步获取数据】 报错信息，请求失败等提示皆封装此函数中。
 只有当请求成功且服务器执行成功才会将res.data返回至callback(origin); 
 callback字符标识函数
@@ -138,3 +123,4 @@ laytable选中数据
 贷款台账详情: 'loan' + id , '贷款台账详情 - {{loanid}} - {{name}}', "/htmlsrc/creditDataManage/ledger/loan.show.html?loanid={{loanid}}"
 贷款资料详情: 'loandata' + id
 任务详情: 'worktask' + id
+企查查公司详情: "ECIdetail" + 公司名

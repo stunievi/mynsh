@@ -67,14 +67,6 @@
             }
         }
     });
-
-    $(document).on("click", "#handleMortgagePeople,#handleMortgagorName", function () {
-        var id = $(this).attr("id");
-        var name = id == "handleMortgagorName" ? MortgagorName["Name"] : MortgagePeople["Name"];
-        id = id == "handleMortgagorName" ? MortgagorName["KeyNo"] : MortgagePeople["KeyNo"];
-        showECI_Info(id, name);
-    })
-
 </script>
 </body>
 </html>

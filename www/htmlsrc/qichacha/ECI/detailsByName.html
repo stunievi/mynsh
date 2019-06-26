@@ -9,6 +9,7 @@
     <script>
         var keyNoPromise = $.Deferred();
         var COMPANY_NAME =  decodeURI(getParam("keyWord"));
+        var CUS_ID=  decodeURI(getParam("cusId"));
         var COMPANY_KEY_NO = getParam("keyNo") || "";
         var BOOTSTRAP_INDEX_FILED = {
             title: '序号',
@@ -84,15 +85,19 @@
                 <!--<li role="presentation" class=""><a href="#assets" role="tab" id="assets-tab" data-toggle="tab" data-controls="assets">知识产权</a></li>-->
                 <li role="presentation" class=""><a href="#history" role="tab" id="history-tab" data-toggle="tab" data-controls="history">历史信息</a></li>
                 <li class="pull-right hide fullscreen-wrap">
-                    <a href="javascript:;" class="btn" id="fullscreenBtn" style="background: orange;color: #fff;" ><i class="glyphicon glyphicon-resize-full"></i></a>
+                    <a href="javascript:;" class="btn" title="全屏" id="fullscreenBtn" style="background: orange;color: #fff;" ><i class="glyphicon glyphicon-resize-full"></i></a>
+                </li>
+                <li class="pull-right hide qcc-com-info-wrap">
+                    <a href="javascript:;" target="_blank" class="btn" id="qcc-com-info" title="企查查官网信息" style="background: orange;color: #fff;" ><i class="glyphicon glyphicon-cloud"></i></a>
+                </li>
+                <li class="pull-right hide com-info-wrap">
+                    <a href="javascript:;" class="btn iframe-target" title="行内信息" id="com-info" style="background: orange;color: #fff;" ><i class="glyphicon glyphicon-link"></i></a>
                 </li>
                 <li class="pull-right hide change-com-wrap">
-                    <a href="javascript:;" class="btn" id="change-com" style="background: orange;color: #fff;" ><i class="
+                    <a href="javascript:;" class="btn" id="change-com" title="切换公司" style="background: orange;color: #fff;" ><i class="
                 glyphicon glyphicon-pencil"></i></a>
                 </li>
-
-                <li style="float: right;" class="eci-toolbar"><a href="javascript:;" class="btn" id="updateBtn" style="background: orange;color: #fff;" ><i class="
-glyphicon glyphicon-refresh"></i>&nbsp;&nbsp;更新当前模块数据</a></li>
+                <li style="float: right;" class="eci-toolbar"><a href="javascript:;" class="btn" id="updateBtn" title="更新当前模块数据" style="background: orange;color: #fff;" ><i class="glyphicon glyphicon-refresh"></i><span>&nbsp;&nbsp;更新当前模块</span></a></li>
             </ul>
             <div id="qcc-detail-content" class="tab-content" style="padding-top: 10px;">
                 <!--#include file="./detailsByName_1.html"-->
@@ -222,6 +227,7 @@ glyphicon glyphicon-refresh"></i>&nbsp;&nbsp;更新当前模块数据</a></li>
         $(".goup-container").trigger("click");
     });
     if($.cookie("spec")){
+        $("#updateBtn").find("span").hide();
         // 全屏
         $(".fullscreen-wrap").removeClass("hide");
         $("#fullscreenBtn").click(function () {
@@ -236,7 +242,7 @@ glyphicon glyphicon-refresh"></i>&nbsp;&nbsp;更新当前模块数据</a></li>
                 exitFullScreen();
             }
         }
-        //
+        // 根据输入公司名切换公司
         $(".change-com-wrap").removeClass("hide");
         $("#change-com").click(function () {
             layer.prompt({title: '请输入公司名！', formType: 3}, function(val, index){
@@ -245,6 +251,14 @@ glyphicon glyphicon-refresh"></i>&nbsp;&nbsp;更新当前模块数据</a></li>
                 srcStr = putUrlParam("keyWord", (val || '').trim(), srcStr);
                 dom.attr("src", srcStr);
             });
+        });
+        // 行内的公司信息
+        $(".com-info-wrap").removeClass("hide");
+        $("#com-info").data("href", hrefUrl.comClientInfo+CUS_ID).data("title", "行内 - " + COMPANY_NAME);
+        // 外链企查查官网查询
+        $.when(keyNoPromise).then(function (keyNo) {
+            $(".qcc-com-info-wrap").removeClass("hide");
+            $("#qcc-com-info").attr("href", "https://www.qichacha.com/firm_"+keyNo+".html");
         });
     }
 </script>

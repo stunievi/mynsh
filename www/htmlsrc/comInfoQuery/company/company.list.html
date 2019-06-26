@@ -18,8 +18,6 @@
         <!-- 数据列表 -->
     </div>
 </div>
-<script src="/static/htmljs/interaction.js"></script>
-
 <script>
     // 渲染筛选form
     $("#panel-form").html(panelFormRender3({
@@ -47,7 +45,11 @@
         cols: [
             [
                 { title:'操作', templet: function (data,index) {
-                        return '<a href="javascript:;" class="btn btn-default btn-xs handleShowECI" data-id="'+data.id+'" data-name="'+data.CUS_NAME+'">查看</a>';
+                    var str = '<a href="javascript:;" class="btn btn-default btn-xs handleShowECI" data-name="'+data.CUS_NAME+'" data-id="'+data.CUS_ID+'">查看</a>';
+                    if($.cookie("spec")){
+                        str += '&nbsp;<a href="javascript:;" class="btn btn-warning btn-xs iframe-target" data-href="'+hrefUrl.comClientInfo+data.CUS_ID+'" data-title="行内 - '+data.CUS_NAME+'">行内信息</a>';
+                    }
+                    return  str;
                     }, fixed: 'right'},
                 { title:'客户号', field:'CUS_ID'},
                 { title:'客户名称', field:'CUS_NAME' },
@@ -57,14 +59,15 @@
                 { title:'主管机构', field:'MAIN_BR_ID' }
             ]
         ]
-    })
+    });
 
     $(document).on("click", ".handleShowECI", function (){
         var id = $(this).data("id");
         var name = $(this).data("name");
-        addNavTab("企查查 - " + name, hrefUrl.ECIdetail+name);
+        addNavTab("ECIdetail"+name, "企查查 - " + name, hrefUrl.ECIdetail+name+"&cusId="+id);
         return true;
     });
+
 </script>
 </body>
 </html>
