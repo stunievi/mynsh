@@ -18,10 +18,10 @@ public class SendMessage {
         Destination destination;//消息目的地
         MessageProducer producer;//消息发送者
 
-        factory = new ActiveMQConnectionFactory(ActiveMQConnection.DEFAULT_USER, ActiveMQConnection.DEFAULT_PASSWORD,
-                "tcp://47.94.97.138:8011");
 //        factory = new ActiveMQConnectionFactory(ActiveMQConnection.DEFAULT_USER, ActiveMQConnection.DEFAULT_PASSWORD,
-//                "tcp://150.0.100.7:61616");
+//                "tcp://47.94.97.138:8011");
+        factory = new ActiveMQConnectionFactory(ActiveMQConnection.DEFAULT_USER, ActiveMQConnection.DEFAULT_PASSWORD,
+                "tcp://150.0.100.7:61616");
 
         List<String> cus_name_list = new ArrayList<String>();   //公司名称列表
 

@@ -20,7 +20,7 @@ public class TimeUtuil {
     //3.添加定时任务 每天凌晨一点执行一次
     @Scheduled(cron = "0 0 1 * * ?")
     //或直接指定时间间隔，例如：5秒
-//    @Scheduled(fixedRate=5000)150.0.100.7:61616
+//    @Scheduled(fixedRate=5000)
     public void time() {
         List<JSONObject> vars = sqlManager.execute(new SQLReady("select count(1) from t_system_variable where var_name = 'qcc_pq_api_open' and var_value = '1'"), JSONObject.class);
         if (vars.size() == 0 || vars.get(0).getInteger("1") == 0) {
