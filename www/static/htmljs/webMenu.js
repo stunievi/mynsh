@@ -676,7 +676,39 @@ var _menu = [
             },
             {
                 name:'数据维护',
-                href: '/htmlsrc/sysManage/dataManage/dataMaintain.html',
+                children:[
+                    {
+                        name: '信贷中间表',
+                        href: '/htmlsrc/sysManage/dataManage/dataMaintain.html',
+                        api: []
+                    }
+                    /*,{
+                        name: '资本净额维护',
+                        href: '/htmlsrc/sysManage/dataManage/netCapital.html',
+                        api: []
+                    }*/
+                    ,{
+                        name: '关联方清单维护',
+                        href: '/htmlsrc/sysManage/dataManage/linkList.html',
+                        api: []
+                    }
+                    ,{
+                        name: '股东清单维护',
+                        href: '/htmlsrc/sysManage/dataManage/shareholderList.html',
+                        api: []
+                    }
+                    /*,{
+                        name: '集团客户清单',
+                        href: '/htmlsrc/sysManage/dataManage/enterpriseCustomer.html?system=1',
+                        api: []
+                    }
+                    ,{
+                        name: '触发',
+                        href: '/htmlsrc/sysManage/dataManage/touchRule.html',
+                        api: []
+                    }*/
+
+                ]
             },
             // {
             //     name: '安全设置',

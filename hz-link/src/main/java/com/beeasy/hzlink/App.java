@@ -49,7 +49,7 @@ public class App {
             }
 
 //            Link.do11_5("");
-//            Link.do11_6();
+            Link.do11_6();
 //            if(true){
 //                System.exit(0);
 //            }
@@ -62,7 +62,7 @@ public class App {
                         return ;
                     }
 //                    Link.do11_1(name);
-                    Link.do11_2(name);
+//                    Link.do11_2(name);
 //                    Link.do11_3(name);
 //                    Link.do11_4(name);
 //                    Link.do11_5_1(name, true);

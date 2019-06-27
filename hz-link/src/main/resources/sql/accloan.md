@@ -59,14 +59,52 @@ where rn = 1
 
 11_5
 ===
-SELECT  distinct b.guar_name,b.CER_NO,b.CER_TYPE,b.TYPE_CN,p.cus_id,p.cus_name FROM DB2INST1.DAN_BAO_REN b inner join (select cus_id, cus_name,cont_no from RPT_M_RPT_SLS_ACCT where cus_id in(select p1.CUS_ID from (select a.*,row_number() over(partition by CUS_NAME order by CUS_NAME) rn from (select pt.* from RPT_M_RPT_SLS_ACCT pt where  pt.ACCOUNT_STATUS in ('1','6') and pt.GL_CLASS not like '0%'  and CUST_TYPE like '2%') a) p1  where rn =1)) p on p.CONT_NO=b.CONT_NO where 1=1
-@if(isNotEmpty(guarName)){
-    and guar_name=#guarName#cun_cus_com
-@}
-@if(isNotEmpty(guarName)){
-    and cer_no = #cerNo#
-@}
+ 
+SELECT * FROM
+(
+select cus_name,GUAR_NAME,CER_NO,CER_TYPE,GUAR_WAY,TYPE_CN,a.PSN_CERT_CODE,a.ENT_CERT_CODE from
+(select distinct cont_no,CUS_NAME,PSN_CERT_CODE,ENT_CERT_CODE from RPT_M_RPT_SLS_ACCT
+where GL_CLASS not like '0%'
+and LN_TYPE in ('普通贷款','银团贷款')
+and ACCOUNT_STATUS = 1) as a
+inner join DAN_BAO_REN as b on a.CONT_NO =b.CONT_NO
+)
+WHERE CER_NO IN
+(SELECT CER_NO FROM
+(select distinct guar_name,cer_no from
+(select * from
+(select a.*,row_number() over(partition by GUAR_NAME,CER_NO order by GUAR_NAME) rn 
+from 
+(
+select * from
+(select distinct cont_no,CUS_NAME from RPT_M_RPT_SLS_ACCT
+where GL_CLASS not like '0%'
+and LN_TYPE in ('普通贷款','银团贷款')
+and ACCOUNT_STATUS = 1) as a
+inner join DAN_BAO_REN as b on a.CONT_NO =b.CONT_NO
+) a
+) b 
+where rn >1
+)
+) 
+)
+order by GUAR_NAME
 
 11_6
 ===
-SELECT  distinct b.guar_name,b.CER_NO,p.cus_id,p.cus_name FROM DB2INST1.DAN_BAO_REN b  inner join RPT_M_RPT_SLS_ACCT p on p.CONT_NO = b.CONT_NO
+select a.CUS_NAME,a.CERT_CODE,a.GUAR_NAME,a.CER_NO,p.LOAN_ACCOUNT,p.LOAN_BALANCE from
+(
+select d.CER_NO,min(d.GUAR_NAME) as GUAR_NAME,min(c.CUS_NAME) as CUS_NAME,min(c.CERT_CODE) as CERT_CODE from
+(
+select distinct cont_no,CUS_NAME,CERT_TYPE,case PSN_CERT_CODE when '' then ENT_CERT_CODE else PSN_CERT_CODE end as CERT_CODE from RPT_M_RPT_SLS_ACCT
+where GL_CLASS not like '0%'
+and LN_TYPE in ('普通贷款','银团贷款')
+and ACCOUNT_STATUS = 1) as c
+inner join DAN_BAO_REN as d on c.CONT_NO =d.CONT_NO and c.CERT_CODE <> d.CER_NO
+group by CER_NO
+) as a
+inner join RPT_M_RPT_SLS_ACCT as p on p.CUS_NAME= a.GUAR_NAME and (a.CER_NO = p.PSN_CERT_CODE or a.CER_NO = p.ENT_CERT_CODE)
+and p.GL_CLASS not like '0%'
+and p.LN_TYPE in ('普通贷款','银团贷款')
+and p.ACCOUNT_STATUS = 1
+order by a.GUAR_NAME

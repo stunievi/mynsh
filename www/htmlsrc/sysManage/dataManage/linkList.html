@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>系统管理-数据维护-关联方清单维护</title>
+    <!--<link href="/static/vendor/bootcss/css/bootstrap.min.css" rel="stylesheet">-->
+    <!-- <link rel="stylesheet" href="/static/vendor/jqui/jquery-ui.css"> -->
+    <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script src="/static/vendor/bootcss/js/bootstrap.min.js"></script>
+    <script src="/static/vendor/webUploader/webuploader.min.js"></script>
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+    <!--[if lt IE 9]>
+    <script src="/static/vendor/bootcss/js/html5shiv.min.js"></script>
+    <script src="/static/vendor/bootcss/js/respond.min.js"></script>
+    <![endif]-->
+    <style>
+        td{
+            white-space: nowrap;
+        }
+        input[name=flip-su]{
+            margin: 0;
+        }
+        #content{
+            overflow: visible;
+        }
+    </style>
+</head>
+<body>
+    <div id="content">
+        <div class="" id="panel-form">
+        </div>
+        <div class="batch-operation">
+            <div id="picker" style="">
+                <i class="glyphicon glyphicon-book"></i>
+                导入关联方清单文件
+            </div>
+            <button type="button" class="btn btn-success" id="templateDownload">
+                下载关联方清单模板
+            </button>
+
+        </div>
+        <div id="dataList">
+        </div>
+    </div>
+    <script src="/static/vendor/artTemplate/template-web.js"></script>
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="/tmpl/js/panelForm.js"></script>
+    <script src="/static/htmljs/fixLayTableList.js"></script>
+        
+        <script>
+            var register = '';
+
+        var _data = {};
+        // 基础显示字段
+        var cols = [
+
+            { title :'关联人名称', field:'RELATED_NAME' }
+            ,{ title :'关联类型', field:'LINK_RULE' }
+            ,{ title :'关联信息（要素）', field:'LINK_INFO' }
+            ,{ title :'关联人证件号码', field:'CERT_CODE' }
+            ,{ title :'备注信息1（关系说明）', field:'REMARK_1' }
+            ,{ title :'备注信息2（相关信息）', field:'REMARK_2' }
+            ,{ title :'备注信息3（控制程度）', field:'REMARK_3' }
+        ];
+
+        var searchCond = [
+            { label:'客户', prop:'cusName' }
+            , { label:'证件号码', prop:'certCode' }
+            , { label:'取数规则', prop:'linkRule' }
+        ];
+
+        if(searchCond.length){
+            $("#panel-form").html(panelFormRender3({
+                panelTitle: '筛选查询',
+                col: 3,
+                list: searchCond,
+                data: _data
+            }));
+
+        }
+
+        var getDataUrl = remoteOrigin + "/api/search/link/1202";
+
+        // 渲染列表
+        laytableRender({
+            cellMinWidth: 110,
+            url: getDataUrl,
+            cols: [ cols ]
+            ,
+            onData:function(res){
+                for(var i=0;i<res.rows.length;i++){
+                    var data = res.rows[i];
+                    data["LM_FCZ_DATE"] = (data["LM_FCZ_DATE"] || '').substring(0, 10);
+                }
+               return res;
+            }
+        });
+
+        // 详情
+        eventBind(".handleShow", function(that){
+            addNavTab('loan-'+that.data("loanid"), "台账详情 - "+that.data("loanid")+" - " + that.data("name"), hrefUrl.loanInfo+that.data("loanid"));
+        });
+        // 筛选
+        function checkSubmitForm(){
+            layuiTableReload({
+                where: $("[name='form-search']").ghostsf_serialize().replace(/(\d+)-/g,'$1'),
+                resHandler: function(res){
+                    translateOdsInData(res.data.content);
+                    return res;
+                }
+            });
+            return false;
+        }
+
+
+        function initupload(data) {
+
+            var uploader = WebUploader.create({
+                swf: '/static/vendor/webUploader/Uploader.swf',
+                server: remoteOrigin + "/api/excel/partyList/import", //上传接口
+                pick: '#picker',
+                auto: true,
+                fileVal: 'file',
+                resize: false,
+                dupliacate: false
+            });
+
+            uploader.on("uploadBeforeSend", function(obj, data, headers){
+                layer.msg("导入中。。。");
+            })
+
+            uploader.on('uploadError', function (file, res) {
+                layer.msg("导入失败！");
+                uploader.removeFile(file)
+
+            });
+            // 单个文件上传成功
+            uploader.on('uploadSuccess', function (file, res) {
+                if(res.success){
+                    layer.msg("正在导入数据，系统稍后会将导入结果发送至收件箱，请注意查收！");
+                }else{
+                    layer.msg("导入失败！请选择正确的模板导入！");
+                }
+                uploader.removeFile(file)
+            })
+        }
+
+        initupload()
+
+        $(document).on("click", "#templateDownload", function() {
+            location.href = remoteOrigin + "/link/FileController/linkListDownload"
+        })
+
+    </script>
+</body>
+</html>

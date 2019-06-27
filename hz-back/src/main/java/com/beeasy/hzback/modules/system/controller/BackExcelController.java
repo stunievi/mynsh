@@ -152,14 +152,14 @@ public class BackExcelController {
             }
             Log.log("批量导入按揭贷款信息 %d 条, 成功 %d 条, 失败 %d 条", total, total - failed, failed);
             noticeService2.addNotice(SysNotice.Type.SYSTEM, uid, String.format("批量导入按揭贷款信息结果：总%d条，成功%d条，失败%d条", total, total - failed, failed), null);
-            if(!"1".equals(uid)){
+            if(1!= uid){
                 noticeService2.addNotice(SysNotice.Type.SYSTEM, 1, String.format("执行人："+user.getTrueName()+"。批量导入按揭贷款信息结果：总%d条，成功%d条，失败%d条", total, total - failed, failed), null);
             }
 
         } catch (Exception e) {
             e.printStackTrace();
             noticeService2.addNotice(SysNotice.Type.SYSTEM, uid, "批量导入按揭贷款信息失败", null);
-            if(!"1".equals(uid)){
+            if(1!= uid){
                 noticeService2.addNotice(SysNotice.Type.SYSTEM, 1, "执行人："+user.getTrueName()+"。批量导入按揭贷款信息失败", null);
             }
         } finally {
@@ -536,6 +536,227 @@ public class BackExcelController {
             }
         }
         return Result.ok(resp);
+    }
+
+    /**
+     * 股东清单数据导入
+     */
+    @RequestMapping("/holderList/import")
+    public Result importHL(
+            MultipartFile file
+    ) {
+        long uid = AuthFilter.getUid();
+        try {
+            File temp = File.createTempFile("temp_lm_", "");
+            file.transferTo(temp);
+            ThreadUtil.execAsync(() -> import_hl(uid, temp));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return Result.ok();
+    }
+
+    private void import_hl(long uid, File temp) {
+        Date nowDate = new Date();
+        RelatedPartyList entity = new RelatedPartyList();
+        ShareHolderList gdEntity = new ShareHolderList();
+        try {
+            ExcelReader reader = ExcelUtil.getReader(temp);
+            reader.setSheet(0);
+            //skip first row
+            int total = 0;
+            int failed = 0;
+            if(reader.getRowCount()>0){
+                sqlManager.lambdaQuery(RelatedPartyList.class)
+                        .delete();
+
+                sqlManager.lambdaQuery(ShareHolderList.class)
+                        .delete();
+            }
+            for (int i = 1; i < reader.getRowCount(); i++) {
+                total++;
+                String i1;
+                try {
+                    i1 = String.valueOf(reader.readCellValue(1, i)).trim();
+                } catch (Exception e) {
+                    failed++;
+                    continue;
+                }
+                if (S.notBlank(i1)) {
+                    try {
+                        String i2 = String.valueOf(reader.readCellValue(2, i)).trim();
+                        String i3 = String.valueOf(reader.readCellValue(3, i)).trim();
+                        String i4 = String.valueOf(reader.readCellValue(4, i));
+
+                        String i5 = String.valueOf(reader.readCellValue(5, i)).trim();
+                        String i6 = String.valueOf(reader.readCellValue(6, i));
+                        String i7 = String.valueOf(reader.readCellValue(7, i));
+                        String i8 = String.valueOf(reader.readCellValue(8, i));
+                        String i9 = String.valueOf(reader.readCellValue(9, i)).trim();
+                        String i10 = String.valueOf(reader.readCellValue(10, i)).trim();
+                        String i11 = String.valueOf(reader.readCellValue(11, i)).trim();
+                        String i12 = String.valueOf(reader.readCellValue(12, i)).trim();
+                        String i13 = String.valueOf(reader.readCellValue(13, i)).trim();
+                        String i14 = String.valueOf(reader.readCellValue(14, i)).trim();
+                        String i15 = String.valueOf(reader.readCellValue(15, i)).trim();
+                        String i16 = String.valueOf(reader.readCellValue(16, i)).trim();
+                        String i17 = String.valueOf(reader.readCellValue(17, i)).trim();
+                        String i18 = String.valueOf(reader.readCellValue(18, i)).trim();
+                        String i19 = String.valueOf(reader.readCellValue(19, i)).trim();
+                        String i20 = String.valueOf(reader.readCellValue(20, i)).trim();
+                        String i21 = String.valueOf(reader.readCellValue(21, i)).trim();
+                        String i22 = String.valueOf(reader.readCellValue(22, i)).trim();
+                        String i23 = String.valueOf(reader.readCellValue(23, i)).trim();
+                        String i24 = String.valueOf(reader.readCellValue(24, i)).trim();
+                        String i25 = String.valueOf(reader.readCellValue(25, i)).trim();
+
+                        entity.setId(null);
+                        entity.setAddTime(nowDate);
+                        entity.setRelatedName(i5);
+                        entity.setLinkRule("12.1");
+                        entity.setLinkInfo(i6);
+                        entity.setCertCode(i16);
+                        entity.setRemark_1("");
+                        entity.setRemark_2(i18);
+                        entity.setRemark_3("");
+                        entity.setDataFlag("01");
+
+                        gdEntity.setId(null);
+                        gdEntity.setAddTime(nowDate);
+                        gdEntity.setOpenBrId(i1);
+                        gdEntity.setOpenBrName(i2);
+                        gdEntity.setOpenDate(i3);
+                        gdEntity.setGdType(i4);
+                        gdEntity.setCusName(i5);
+                        gdEntity.setGjpzhm(i6);
+                        gdEntity.setGpzh(i7);
+                        gdEntity.setZgg(i8);
+                        gdEntity.setTzg(i9);
+                        gdEntity.setGp(i10);
+                        gdEntity.setGfhj(i11);
+                        gdEntity.setJszh(i12);
+                        gdEntity.setFhzhkhjg(i13);
+                        gdEntity.setFhzhzt(i14);
+                        gdEntity.setCertType(i15);
+                        gdEntity.setCertCode(i16);
+                        gdEntity.setIndivHouhRegAdd(i17);
+                        gdEntity.setPostAddr(i18);
+                        gdEntity.setPhone(i19);
+                        gdEntity.setMobile(i20);
+                        gdEntity.setIndivComPhn(i21);
+                        gdEntity.setFphone(i22);
+                        gdEntity.setFaxCode(i23);
+                        gdEntity.setIsTurn(i24);
+                        gdEntity.setGqdjtgqqFlg(i25);
+
+                    } catch (Exception e) {
+                        failed++;
+                        continue;
+                    }
+
+                    sqlManager.insert(entity);
+
+                    sqlManager.insert(gdEntity);
+
+                }
+            }
+//            Log.log("批量导入股东清单 %d 条, 成功 %d 条, 失败 %d 条", total, total - failed, failed);
+            noticeService2.addNotice(SysNotice.Type.SYSTEM, uid, String.format("批量导入股东清单结果：总%d条，成功%d条，失败%d条", total, total - failed, failed), null);
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            noticeService2.addNotice(SysNotice.Type.SYSTEM, uid, "批量导入股东清单失败", null);
+
+        } finally {
+            if (temp != null) {
+                temp.delete();
+            }
+        }
+    }
+    /**
+     * 关联方清单数据导入
+     */
+    @RequestMapping("/partyList/import")
+    public Result importRP(
+            MultipartFile file
+    ) {
+        long uid = AuthFilter.getUid();
+        try {
+            File temp = File.createTempFile("temp_lm_", "");
+            file.transferTo(temp);
+            ThreadUtil.execAsync(() -> import_party(uid, temp));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return Result.ok();
+    }
+
+    private void import_party(long uid, File temp) {
+        Date nowDate = new Date();
+        RelatedPartyList entity = new RelatedPartyList();
+        try {
+            ExcelReader reader = ExcelUtil.getReader(temp);
+            reader.setSheet(0);
+            //skip first row
+            int total = 0;
+            int failed = 0;
+            if(reader.getRowCount()>0){
+                sqlManager.lambdaQuery(RelatedPartyList.class)
+                        .delete();
+            }
+            for (int i = 3; i < reader.getRowCount(); i++) {
+                total++;
+                String i1;
+                try {
+                    i1 = String.valueOf(reader.readCellValue(1, i)).trim();
+                } catch (Exception e) {
+                    failed++;
+                    continue;
+                }
+                if (S.notBlank(i1)) {
+                    try {
+                        String i2 = String.valueOf(reader.readCellValue(2, i)).trim();
+                        String i3 = String.valueOf(reader.readCellValue(3, i)).trim();
+                        String i4 = String.valueOf(reader.readCellValue(4, i));
+                        String i5 = String.valueOf(reader.readCellValue(5, i)).trim();
+                        String i6 = String.valueOf(reader.readCellValue(6, i));
+                        String i7 = String.valueOf(reader.readCellValue(7, i));
+
+                        entity.setId(null);
+                        entity.setAddTime(nowDate);
+                        entity.setRelatedName(i1);
+                        String[] rule = i2.split("\\-");
+                        if(rule.length>=2){
+                            entity.setLinkRule(rule[0]);
+                        }else{
+                            entity.setLinkRule("");
+                        }
+                        entity.setLinkInfo(i3);
+                        entity.setCertCode(i4);
+                        entity.setRemark_1(i5);
+                        entity.setRemark_2(i6);
+                        entity.setRemark_3(i7);
+                        entity.setDataFlag("01");
+                    } catch (Exception e) {
+                        failed++;
+                        continue;
+                    }
+
+                    sqlManager.insert(entity);
+                }
+            }
+//            Log.log("批量导入关联清单 %d 条, 成功 %d 条, 失败 %d 条", total, total - failed, failed);
+            noticeService2.addNotice(SysNotice.Type.SYSTEM, uid, String.format("批量导入关联清单结果：总%d条，成功%d条，失败%d条", total, total - failed, failed), null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            noticeService2.addNotice(SysNotice.Type.SYSTEM, uid, "批量导入关联清单失败", null);
+
+        } finally {
+            if (temp != null) {
+                temp.delete();
+            }
+        }
     }
 
 }

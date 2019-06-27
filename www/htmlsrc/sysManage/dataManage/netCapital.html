@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>系统管理 - 资本净额维护</title>
+    <!--#include file="/htmlsrc/header.html" -->
+</head>
+<body>
+<div id="content">
+    <div class="bs-example bs-example-tabs" data-example-id="togglable-tabs">
+        <ul id="myTabs" class="nav nav-tabs" role="tablist">
+            <li role="presentation" ><a href="#baseInfo" id="baseInfo-tab" role="tab" data-toggle="tab" aria-controls="baseInfo" aria-expanded="true">资本净额维护</a></li>
+        </ul>
+        <div id="myTabContent" class="tab-content">
+            <div class="tab-pane fade" id="baseInfo" aria-labelledby="baseInfo-tab">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var panelType = getParam("panelType") || "baseInfo";
+    $('#myTabs a[href="#'+panelType+'"]').tab('show');
+
+
+    getFetch(remoteOrigin + '/api/auto/sysvar/getList', function (data) {
+        $("#baseInfo").html(panelFormRender3({
+            formName: 'baseInfo',
+            button: [
+                {name: "确定", type: "submit"}
+            ],
+            list:[
+                { prop: '_name', label: '核心一级资本', width:12, labelWidth:2},
+                { prop: 'sys_capital', label: '一级资本' , width:12, labelWidth:2},
+                { prop:"dwarning", label: "资本净额"}
+            ],
+            data: data
+            , line: true
+        }));
+
+        // 设置基本信息
+        var form = $("form[name='baseInfo']");
+        $().ready(function() {
+            form.validate({
+                rules: {
+                    'sys_name': "required"
+                },
+                submitHandler:function(){
+
+                    var pattern =/[^-\d.]/g;
+                    var str = $("[name='dwarning']").val();
+                    // 资本净额验证
+                    if(str == 'undefined' || $.trim(str) == ''){
+                        layer.msg("请输入金额！");
+                        return false;
+                    }
+                    if(str == 'undefined' || String(str) == 'null' || $.trim(str) == '' || pattern.test(str)){
+                        layer.msg("请输入正确的金额！");
+                        return false;
+                    }
+
+
+                    if(form.valid()){
+                        postFetch(
+                            remoteOrigin + "/api/auto1/sysvar/set"
+                            , form.ghostsf_serialize()
+                            , function () {
+                                layer.msg("修改成功！");
+                            }
+                        )
+                    }
+                }
+            })
+        });
+    })
+
+
+    function checkSubmitForm(){
+        return false;
+    }
+</script>
+</body>
+</html>
