@@ -305,7 +305,7 @@ public class TestMongo {
 
     @Test
     public void testSingleFile() throws FileNotFoundException, InterruptedException {
-        deconstructService. onDeconstructRequest("1", "2", new FileInputStream("C:\\Users\\DELL\\Desktop\\chuantou.zip"));
+        deconstructService. onDeconstructRequest("1", "2", new FileInputStream("C:\\Users\\DELL\\Desktop\\qcc_sifaxie.zip"));
     }
 
     @Test
@@ -343,18 +343,6 @@ public class TestMongo {
             }
         }
     }
-
-
-    public JSONObject qccGet(String url) throws UnsupportedEncodingException {
-        url = "http://localhost:8081" + url;
-        if (url.contains("?")) {
-            int idex = url.indexOf("?");
-            url = url.substring(0, idex) + "?" + URLUtil.encode(url.substring(idex + 1));
-        }
-        String str = HttpUtil.get(url);
-        return JSONObject.parseObject(str);
-    }
-
 
     @Test
     public void filxTest() {

@@ -65,7 +65,6 @@ public class Get2 {
                 JSONArray holdingCompanys = holdingCompanysResult.getJSONArray("Names");
                 for (Object item : holdingCompanys){
                     JSONObject com = (JSONObject) item;
-
                     float stockPercent = Float.valueOf(com.getString("PercentTotal").replace("%", ""));
                     // 控股（25%及以上）公司列表
                     if(stockPercent >= 25 ){

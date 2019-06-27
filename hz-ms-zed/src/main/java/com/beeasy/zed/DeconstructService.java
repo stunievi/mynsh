@@ -1,6 +1,7 @@
 package com.beeasy.zed;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.exceptions.UtilException;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.URLUtil;
@@ -22,6 +23,7 @@ import javax.jms.JMSException;
 import javax.jms.TextMessage;
 import java.io.*;
 import java.math.BigDecimal;
+import java.net.*;
 import java.nio.channels.Channel;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
@@ -69,6 +71,7 @@ public class DeconstructService extends AbstractService {
 //    private static ValueGenerator.Wrap Base64Value = ValueGenerator.createBase64();
 
     public static Map<String, DeconstructHandler> handlers = new ConcurrentHashMap<>();
+
 
     public static JSONObject HistorytEciMap = newJsonObject(
             "CompanyNameList", "QCC_HIS_ECI_COMPANY_NAME_LIST",
@@ -236,8 +239,8 @@ public class DeconstructService extends AbstractService {
         registerHandler("/EnvPunishment/GetEnvPunishmentDetails", service::GetEnvPunishmentDetails);
         registerHandler("/ChattelMortgage/GetChattelMortgage", service::GetChattelMortgage);
         registerHandler("/ECIV4/GetDetailsByName", service::GetDetailsByName);
-        registerHandler("/ECIInvestmentThrough/GetInfo",service::GetInfo);
-        registerHandler("/ECIInvestment/GetInvestmentList",service::GetInvestmentList);
+        registerHandler("/ECIInvestmentThrough/GetInfo", service::GetInfo);
+        registerHandler("/ECIInvestment/GetInvestmentList", service::GetInvestmentList);
         registerHandler("/History/GetHistorytEci", service::GetHistorytEci);
         registerHandler("/History/GetHistorytInvestment", service::GetHistorytInvestment);
         registerHandler("/History/GetHistorytShareHolder", service::GetHistorytShareHolder);
@@ -713,7 +716,8 @@ public class DeconstructService extends AbstractService {
 
 
     /**
-     *  历史法院公告
+     * 历史法院公告
+     *
      * @param channelHandlerContext
      * @param request
      * @param json
@@ -1058,13 +1062,14 @@ public class DeconstructService extends AbstractService {
 
 
     /**
-     * 获取股权穿透信息
+     * 获取企业对外投资穿透
+     *
      * @param channelHandlerContext
      * @param request
      * @param json
      */
-    public void GetInfo(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json){
-
+    public void GetInfo(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
+        String compName = getQuery(request, "searchKey");
         changeField(json,
 //            "-PublishedDate",
 //                new ICanChange() {
@@ -1073,20 +1078,22 @@ public class DeconstructService extends AbstractService {
 //                        return key.endsWith("Date");
 //                    }
 //                }, DateValue,
-                "+inner_company_name", getQuery(request, "searchKey")
+                "+inner_company_name", compName
         );
+        doDelete("QCC_GQ_CHUANTOU", "inner_company_name", compName);
         deconstruct(json, "QCC_GQ_CHUANTOU", "INNER_ID");
     }
 
 
     /**
-     * 获取企业对外投资信息
+     * 获取企业对外投资列表
+     *
      * @param channelHandlerContext
      * @param request
      * @param json
      */
-    public void GetInvestmentList(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json){
-
+    public void GetInvestmentList(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
+        String companyName = getQuery(request, "searchKey");
         changeField(json,
 //            "-PublishedDate",
 //                new ICanChange() {
@@ -1095,10 +1102,12 @@ public class DeconstructService extends AbstractService {
 //                        return key.endsWith("Date");
 //                    }
 //                }, DateValue,
-                "+inner_company_name", getQuery(request, "keyWord")
+                "+inner_company_name", companyName
         );
 
-        deconstruct(json, "QCC_DUIWAITOUZI", "inner_id");
+
+        doDelete("QCC_DUIWAITOUZI", "inner_company_name", companyName);
+        deconstruct(json, "QCC_DUIWAITOUZI", "");
     }
 
 
@@ -1289,7 +1298,6 @@ public class DeconstructService extends AbstractService {
      * 司法拍卖详情
      *
      * @param channelHandlerContext
-     *
      * @param request
      * @param json
      */
@@ -1405,7 +1413,8 @@ public class DeconstructService extends AbstractService {
     private void GetCourtNoticeInfo(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
         String id = getQuery(request, "id");
         changeField(json,
-                "+Id", id
+                "+Id", id,
+                "+Open_Time",DateValue
         );
         deconstruct(json, "QCC_COURT_NOTICE", "Id");
         //补充上诉人和被上诉人
@@ -1487,7 +1496,7 @@ public class DeconstructService extends AbstractService {
                 "-Defendantlist",
                 "-Prosecutorlist",
                 "Executegov->Execute_gov",
-                "LianDate", DateValue,
+                "+LianDate", DateValue,
                 "LianDate->Li_an_Date",
                 "+inner_company_name", compName
         );
@@ -1514,7 +1523,7 @@ public class DeconstructService extends AbstractService {
                 }, DateValue,
                 "PublishDate->PublishedDate",
                 "+Id", getQuery(request, "id"),
-                "+Province",ProvinceValue
+                "+Province", ProvinceValue
 //            "PublishDate->PublishedDate"
         );
         deconstruct(json, "QCC_COURT_ANNOUNCEMENT", "Id");
@@ -1795,10 +1804,10 @@ public class DeconstructService extends AbstractService {
             if (entry.getValue() == null) continue;
             kv.put(camelToUnderline(entry.getKey()), entry.getValue());
         }
-        if(tableName.equals("QCC_GQ_CHUANTOU")){
+        if (tableName.equals("QCC_GQ_CHUANTOU")) {
             JSONArray jsonArray = new JSONArray();
-            getJsonTree(object,jsonArray,object.getString("CompanyName"),1,"");
-            kv.put("result",jsonArray.toString());
+            getJsonTree(object, jsonArray, object.getString("CompanyName"), 1, "");
+            kv.put("result", jsonArray.toString());
         }
         kv.put("input_date", new Date());
         kv.put("inner_id", objectId.nextId());
@@ -1900,12 +1909,14 @@ public class DeconstructService extends AbstractService {
             return kv.getString(key);
         }
     }
+
     public static JSONObject newJsonObeject(Object o) {
         JSONObject json1 = JSONObject.parseObject(o.toString());
         return json1;
     }
-    //解析股权穿透，并将其解为tree结构
-    public static void getJsonTree(JSONObject json,JSONArray arrass, String parentName, int leve, String path) {
+
+    //解析企业对外投资，并将其解为tree结构
+    public static void getJsonTree(JSONObject json, JSONArray arrass, String parentName, int leve, String path) {
         if (leve > 5) return;
         JSONArray jsonArray = json.getJSONArray("BreakThroughList");
         for (Object o : jsonArray) {
@@ -1919,18 +1930,42 @@ public class DeconstructService extends AbstractService {
                 if (jiequAry.indexOf(path) > -1 && leve == Integer.parseInt(Level) && jiexiStr[leve - 1].equals(parentName)) {
                     JSONObject object = new JSONObject();
                     JSONArray array1 = new JSONArray();
+                    object.put("isHold", getHoldIsBoolean(jiexiStr[leve] + parentName, parentName));
                     object.put("Name", jiexiStr[leve]);
+                    object.put("KeyNo", jsonObject.getString("KeyNo"));
                     object.put("StockType", json1.getString("StockType"));
                     object.put("StockPercent", json1.getString("StockPercent"));
-                    object.put("Level",  json1.getString("Level"));
-                    object.put("BreakThroughStockPercent",  json1.getString("BreakThroughStockPercent"));
-                    object.put("CapitalType",  json1.getString("CapitalType"));
-                    object.put("ShouldCapi",  json1.getString("ShouldCapi"));
-                    object.put("ChildList", array1);
-                    getJsonTree(json,array1, jiexiStr[leve], leve + 1, path);
+                    object.put("Level", json1.getString("Level"));
+                    object.put("BreakThroughStockPercent", json1.getString("BreakThroughStockPercent"));
+                    object.put("CapitalType", json1.getString("CapitalType"));
+                    object.put("ShouldCapi", json1.getString("ShouldCapi"));
+                    object.put("Percent", json1.getString("StockPercent"));
+                    object.put("PercentTotal", json1.getString("StockPercent"));
+                    object.put("DetailList", array1);
+                    getJsonTree(json, array1, jiexiStr[leve], leve + 1, path);
                     arrass.add(object);
                 }
             }
+        }
+    }
+
+    private static int holdInt = 1;
+
+    public static Boolean getHoldIsBoolean(String name, String parentName) {
+        Map hashMap = new HashMap();
+        //获取是否控股公司
+        if(holdInt == 1) {
+            String sql = "select name,inner_company_name  from qcc_holding_company_names";
+            List<JSONObject> list = sqlManager.execute(new SQLReady(sql), com.alibaba.fastjson.JSONObject.class);
+            for (int i = 0; i < list.size(); i++) {
+                hashMap.put(list.get(i).getString("name") + list.get(i).getString("innerCompanyName"), list.get(i).getString("innerCompanyName"));
+            }
+            holdInt +=1;
+        }
+        try {
+            return hashMap.get(name).equals(parentName);
+        } catch (Exception e) {
+            return false;
         }
     }
 
@@ -2289,6 +2324,10 @@ public class DeconstructService extends AbstractService {
                         if (tableName.contains("QCC_TREE_RELATION_MAP") && entry.getValue().equals("企业法人")) {
                             int d = 1;
                         }
+                        if (entry.getValue() instanceof Date) {
+                            p.setString(idex + 1, DateUtil.format((Date)entry.getValue(), "yyyy-MM-dd hh:mm:ss"));
+                            break;
+                        }
                         p.setObject(idex + 1, entry.getValue());
                         break;
                 }
@@ -2431,14 +2470,20 @@ public class DeconstructService extends AbstractService {
             stime = System.currentTimeMillis();
 
             for (Map.Entry<Object, PreparedStatement> entry : insertCache.entrySet()) {
-                entry.getValue().executeBatch();
+                try {
+                    entry.getValue().executeBatch();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 IoUtil.closeIfPosible(entry.getValue());
             }
             System.out.printf("insert takes %d ms\n", System.currentTimeMillis() - stime);
-
-            conn.commit();
-
-            ;
+            try {
+                conn.commit();
+            }catch (Exception e){
+                conn.rollback();
+                throw e;
+            }
         }
     }
 
@@ -2758,7 +2803,7 @@ public class DeconstructService extends AbstractService {
     public void destructSingle(String str, AtomicBoolean someError) {
         JSONObject object = JSON.parseObject(str);
         String url = object.getString("FullLink");
-        String key = URLUtil.getPath(url);
+        String key = DeconstructService.getPath(url);
         if (handlers.containsKey(key)) {
             DeconstructService.DeconstructHandler handler = handlers.get(key);
             ByteBuf buf = Unpooled.buffer();
@@ -2776,6 +2821,17 @@ public class DeconstructService extends AbstractService {
 //
 //            }
 //        }
+    }
+
+    public static String getPath(String uriStr) {
+        URL uri = null;
+
+        try {
+            uri = new URL(uriStr);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        return uri.getPath();
     }
 
     private void writeFile(String fileName, JSONObject object, String... fields) {

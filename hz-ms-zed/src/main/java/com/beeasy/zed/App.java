@@ -3,15 +3,20 @@ package com.beeasy.zed;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import org.beetl.sql.core.SQLReady;
 
 import java.io.*;
 import java.text.ParseException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 
 import static com.beeasy.zed.Config.config;
+import static com.beeasy.zed.DBService.sqlManager;
 
 
 public class App {
@@ -25,7 +30,6 @@ public class App {
             concurrentMapWordCounts.put(j.getString("Code"), j.getString("ProvinceName"));
         }
     }
-
 
 
 //    public static ZedService zedService = new ZedService();

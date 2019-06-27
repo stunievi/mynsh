@@ -20,6 +20,12 @@
         .panel-heading {
             padding: 6px 15px;
         }
+        .fixed{
+            background: #fff;
+            position: fixed;
+            top: 0;
+            z-index: 999;
+        }
     </style>
     <script>
         var keyNoPromise = $.Deferred();
@@ -32,8 +38,10 @@
             formatter: function(value, row, index) {
                 return index + 1;
             }
-        }
+        };
+        // 首次加载忽略滚动
         var fixOnDataLoadObj = {};
+        // 锚点
         var scrollToElm = function (elmId) {
             if(fixOnDataLoadObj[elmId] === undefined){
                 fixOnDataLoadObj[elmId] = true;
@@ -58,10 +66,10 @@
             }
         };
         var fixOnDataLoad = function (elmId, data, fixFun) {
-            console.log(data, elmId)
             if(data && data.total && data.total > 0){
                 $("a[data-href='#"+elmId+"']").removeClass("disabled");
                 scrollToElm(elmId);
+                $("a[data-href='#"+elmId+"']").append("&nbsp;"+data.total);
                 $("#"+elmId+"-count").html(data.total);
             }
             if(data.rows && data.rows.length>0){
@@ -94,7 +102,8 @@
                 <!--<li role="presentation" class=""><a href="#report" role="tab" id="report-tab" data-toggle="tab" data-controls="report">企业发展</a></li>-->
                 <!--<li role="presentation" class=""><a href="#assets" role="tab" id="assets-tab" data-toggle="tab" data-controls="assets">知识产权</a></li>-->
                 <li role="presentation" class=""><a href="#history" role="tab" id="history-tab" data-toggle="tab" data-controls="history">历史信息</a></li>
-                <li style="float: right;"><a href="javascript:;" class="btn" id="updateBtn" style="background: orange;color: #fff;" >更新当前模块数据</a></li>
+                <li style="float: right;"><a href="javascript:;" class="btn" id="updateBtn" style="background: orange;color: #fff;" ><i class="
+glyphicon glyphicon-refresh"></i>&nbsp;&nbsp;更新当前模块数据</a></li>
             </ul>
             <div id="qcc-detail-content" class="tab-content" style="padding-top: 10px;">
                 <!--#include file="./detailsByName_1.html"-->
@@ -111,7 +120,6 @@
         </div>
     </div>
 </div>
-<script src="/tmpl/js/chattelMortgage.js"></script>
 <script src="/static/vendor/jquery.goup.min.js"></script>
 <script>
     $.goup({
@@ -120,16 +128,6 @@
         containerColor: "#ffa500",
         locationOffset: 100
     });
-</script>
-<style>
-    .fixed{
-        background: #fff;
-        position: fixed;
-        top: 0;
-        z-index: 999;
-    }
-</style>
-<script>
     // 滚动页面后固定顶部tab栏
     $("html,body").scroll(function () {
         if($(this).scrollTop() > 120){
@@ -139,7 +137,7 @@
             $("#myTabs").removeClass("fixed");
         }
     });
-    // 锚点
+    // 触发锚点
     $(".data-tab a").click(function () {
         if($(this).hasClass("disabled")){
             return false;

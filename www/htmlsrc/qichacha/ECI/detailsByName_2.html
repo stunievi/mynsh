@@ -96,21 +96,6 @@
     <a href="javascript:;" class="susong6_toolbar" data-val="{{d.ExecutionNoticeNum}}">{{d.ExecutionNoticeNum}}</a>
 </script>
 <script>
-    $(document).on("click", ".susong1_toolbar", function (){
-        var id =  $(this).data("val");
-        addNavTab("CourtAnno-"+id, "开庭公告详情", "/htmlsrc/qichacha/CourtAnno/GetCourtNoticeInfo.html?id="+id);
-        return true;
-    });
-    $(document).on("click", ".susong2_toolbar", function (){
-        var id = $(this).data("val");
-        addNavTab("JudgeDocDetail-"+id, "裁判文书详情", "/htmlsrc/qichacha/JudgeDoc/GetJudgementDetail.html?id="+id);
-        return false;
-    });
-    $(document).on("click", ".susong3_toolbar", function (){
-        var id = $(this).data("val");
-        addNavTab("CourtNoticeDetail-"+id, "法院公告详细信息", "/htmlsrc/qichacha/CourtNotice/SearchCourtAnnouncementDetail.html?id="+id);
-        return true;
-    });
     // 模块数据是否加载标识
     var loadBlock2Status = false;
     // 加载模块数据
@@ -286,12 +271,27 @@
                 });
             }
         });
-
-        $(document).on("click", ".susong6_toolbar", function (){
-            var id = $(this).data("val");
-            id = id.replace(/\(|\)/g,"");
-            addNavTab("qccJudicialAssistanceGetJudicialAssistance-"+id, "司法协助详情", "/htmlsrc/qichacha/JudicialAssistance/GetJudicialAssistanceDetail.html?id="+id, JudicialAssistanceDataList[$(this).closest("tr").data("index")]);
-            return false;
-        });
     }
+
+    $(document).on("click", ".susong6_toolbar", function (){
+        var id = $(this).data("val");
+        id = id.replace(/\(|\)/g,"");
+        addNavTab("qccJudicialAssistanceGetJudicialAssistance-"+id, "司法协助详情", "/htmlsrc/qichacha/JudicialAssistance/GetJudicialAssistanceDetail.html?id="+id, JudicialAssistanceDataList[$(this).closest("tr").data("index")]);
+        return false;
+    });
+    $(document).on("click", ".susong1_toolbar", function (){
+        var id =  $(this).data("val");
+        addNavTab("开庭公告详情", "/htmlsrc/qichacha/CourtAnno/GetCourtNoticeInfo.html?id="+id);
+        return false;
+    });
+    $(document).on("click", ".susong2_toolbar", function (){
+        var id = $(this).data("val");
+        addNavTab("裁判文书详情", "/htmlsrc/qichacha/JudgeDoc/GetJudgementDetail.html?id="+id);
+        return false;
+    });
+    $(document).on("click", ".susong3_toolbar", function (){
+        var id = $(this).data("val");
+        addNavTab("法院公告详细信息", "/htmlsrc/qichacha/CourtNotice/SearchCourtAnnouncementDetail.html?id="+id);
+        return false;
+    });
 </script>
