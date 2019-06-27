@@ -21,7 +21,6 @@ import static com.beeasy.zed.DBService.sqlManager;
 
 public class App {
     public static ConcurrentMap<String, String> concurrentMapWordCounts = new ConcurrentHashMap<>();
-    public static Map hashMap = new HashMap();
 
     static {
         JSONObject jsonObject = JSONObject.parseObject(Utils.readFile().toString());
@@ -29,11 +28,6 @@ public class App {
         for (Object o : array) {
             JSONObject j = JSONObject.parseObject(o.toString());
             concurrentMapWordCounts.put(j.getString("Code"), j.getString("ProvinceName"));
-        }
-        String sql = "select name,inner_company_name  from qcc_holding_company_names";
-        List<JSONObject> list = sqlManager.execute(new SQLReady(sql), com.alibaba.fastjson.JSONObject.class);
-        for (int i = 0; i < list.size(); i++) {
-            hashMap.put(list.get(i).getString("name") + list.get(i).getString("innerCompanyName"), list.get(i).getString("innerCompanyName"));
         }
     }
 

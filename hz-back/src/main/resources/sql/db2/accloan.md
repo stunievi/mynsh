@@ -1504,3 +1504,39 @@ select * from IQP_REPAY_SCH where LOAN_ACCOUNT = #accountId#
 329
 ===
 select * from RPT_M_RPT_SLS_ACCT where loan_account = #loanAccount#
+
+查询产品名称
+===
+select prd_name from PRD_BASICINFO where prd_code =#prdCode#
+
+1201
+===
+select
+@pageTag(){
+    s.*
+@}
+from T_SHARE_HOLDER_LIST s where 1=1
+@if(isNotEmpty(cusName)){
+    and cus_name like #'%' + cusName + '%'#
+@}
+@if(isNotEmpty(certCode)){
+    and cert_code like #'%' + certCode + '%'#
+@}
+
+
+1202
+===
+select
+@pageTag(){
+    rp.*
+@}
+from T_RELATED_PARTY_LIST rp where 1=1
+@if(isNotEmpty(cusName)){
+    and RELATED_NAME like #'%' + cusName + '%'#
+@}
+@if(isNotEmpty(certCode)){
+    and cert_code like #'%' + certCode + '%'#
+@}
+@if(isNotEmpty(linkRule)){
+    and link_rule like #'%' + linkRule + '%'#
+@}

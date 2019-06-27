@@ -636,13 +636,13 @@ public class TestQcc {
     @Test
     public void testSql() {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String sql = "select on_board_start_time, on_board_end_time,end_date,start_date ,inner_company_name from QCC_LAND_MORTGAGE";
+        String sql = "select on_board_start_time, on_board_end_time,end_date,start_date ,id from QCC_LAND_MORTGAGE";
 
 //        String sql = "select on_board_start_time, on_board_end_time,end_date,start_date ,inner_company_name from QCC_LAND_MORTGAGE where inner_company_name = '惠州市海东置业有限公司'";
 
         List<com.alibaba.fastjson.JSONObject> list = sqlManager.execute(new SQLReady(sql), com.alibaba.fastjson.JSONObject.class);
         for (int i = 1; i < list.size(); i++) {
-            String updateSql = "update QCC_LAND_MORTGAGE set on_board_start_time = '" + simpleDateFormat.format(new Date(list.get(i).getString("onBoardStartTime"))) + "',  on_board_end_time = '" + simpleDateFormat.format(new Date(list.get(i).getString("onBoardEndTime"))) + "', start_date = '" + simpleDateFormat.format(new Date(list.get(i).getString("startDate"))) + "' ,end_date = '" + simpleDateFormat.format(new Date(list.get(i).getString("endDate"))) + "'where  inner_company_name = '" + list.get(i).getString("innerCompanyName") + "'";
+            String updateSql = "update QCC_LAND_MORTGAGE set on_board_start_time = '" + simpleDateFormat.format(new Date(list.get(i).getString("onBoardStartTime"))) + "',  on_board_end_time = '" + simpleDateFormat.format(new Date(list.get(i).getString("onBoardEndTime"))) + "', start_date = '" + simpleDateFormat.format(new Date(list.get(i).getString("startDate"))) + "' ,end_date = '" + simpleDateFormat.format(new Date(list.get(i).getString("endDate"))) + "'where  id = '" + list.get(i).getString("id") + "'";
             sqlManager.executeUpdate(new SQLReady(updateSql));
 //        String updateSql = "update QCC_LAND_MORTGAGE set   start_date = '" + simpleDateFormat.format(new Date(list.get(0).getString("startDate"))) + "' ,end_date = '" + simpleDateFormat.format(new Date(list.get(0).getString("endDate"))) + "'where  inner_company_name = '"+ list.get(0).getString("innerCompanyName")+"'";
 //        sqlManager.executeUpdate(new SQLReady(updateSql));
@@ -650,20 +650,24 @@ public class TestQcc {
 
     }
 
-    //测试能够链接到内网
-    @Test
-    public void testLianJieNeiWang() {
-        String sql = "select on_board_start_time, on_board_end_time,end_date,start_date ,inner_company_name from QCC_LAND_MORTGAGE where inner_company_name = '惠州市海东置业有限公司'";
-
-        List<com.alibaba.fastjson.JSONObject> list = sqlManager.execute(new SQLReady(sql), com.alibaba.fastjson.JSONObject.class);
-        System.out.println(list + "xxxxxxxxxxx");
-    }
-
 
     @Test
     public void testSqlDate() {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String sql = "select inner_id,shoud_date from QCC_DETAILS_PARTNERS";
+        String sql = "select inner_id,capi_date from QCC_DETAILS_PARTNERS";
+        List<com.alibaba.fastjson.JSONObject> list = sqlManager.execute(new SQLReady(sql), com.alibaba.fastjson.JSONObject.class);
+        for (int i = 1; i < list.size(); i++) {
+            if (null != list.get(i).getString("capiDate")) {
+                String updateSql = "update QCC_DETAILS_PARTNERS set capi_date = '" + simpleDateFormat.format(new Date(list.get(i).getString("capiDate"))) + "' where  inner_id = '" + list.get(i).getString("innerId") + "' and capi_date  is not null";
+                sqlManager.executeUpdate(new SQLReady(updateSql));
+            }
+        }
+    }
+
+    @Test
+    public void testSqlDate2() {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String sql = "select shoud_date,inner_id from QCC_DETAILS_PARTNERS";
         List<com.alibaba.fastjson.JSONObject> list = sqlManager.execute(new SQLReady(sql), com.alibaba.fastjson.JSONObject.class);
         for (int i = 1; i < list.size(); i++) {
             if (null != list.get(i).getString("shoudDate")) {
@@ -672,6 +676,7 @@ public class TestQcc {
             }
         }
     }
+
 
     @Test
     public void testSelectSql(){
@@ -682,6 +687,26 @@ public class TestQcc {
             map.put(list.get(i).getString("name")+ "=>"+ list.get(i).getString("innerCompanyName"),list.get(i).getString("innerCompanyName"));
         }
         System.out.println(map.toString());
+    }
+
+
+    //简单粗暴删除所有QCC开头的数据
+    @Test
+    public  void selectAndDelete(){
+        String sql = "select TABNAME from syscat.tables where  tabschema='DB2INST1' and   tabname like 'QCC_%'";
+        List<com.alibaba.fastjson.JSONObject> list = sqlManager.execute(new SQLReady(sql), com.alibaba.fastjson.JSONObject.class);
+        System.out.println(list.toString());
+        for (int i = 0; i < list.size(); i++) {
+            String delSq = "delete from " +  list.get(i).getString("tabname");
+            System.out.println(delSq);
+            try {
+                sqlManager.executeUpdate(new SQLReady(delSq));
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            System.out.println(delSq);
+        }
+
     }
 
 }

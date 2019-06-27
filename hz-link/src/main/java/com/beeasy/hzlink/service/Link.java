@@ -9,10 +9,13 @@ import com.beeasy.hzlink.model.*;
 import com.github.llyb120.nami.core.Arr;
 import com.github.llyb120.nami.core.Json;
 import com.github.llyb120.nami.core.Obj;
+import org.jxls.common.Size;
 
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.github.llyb120.nami.core.DBService.sqlManager;
@@ -304,39 +307,69 @@ public class Link {
 
     public static void do11_3(String compName) {
         System.out.println("do11_3:" + compName);
-        var batch = a();
-        var arr = getCompanyHolders(compName);
-        //控股25%以上的公司列表
-        for (String s : arr.toStrArr()) {
-            var page = 1;
-            while (true) {
-                var list = getHoldingCompany(compName, page++);
-                if (list == null) {
-                    break;
-                }
-                for (Obj names : list.getArr("Names").toObjList()) {
-                    try {
-                        var percent = new BigDecimal(names.getStr("PercentTotal", "").replace("%", ""));
-                        if (percent.floatValue() >= 25) {
-                            Link111 link111 = new Link111();
-                            link111.setId(IdUtil.objectId());
-                            link111.setLink_rule("11.3");
-                            link111.setOrigin_name(compName);
-                            link111.setLink_left(compName);
-                            link111.setLink_right(names.getStr("Name"));
-                            link111.setLink_type("企业:" + s);
-                            link111.setIs_company(1);
-                            link111.setStock_percent(percent);
-                            batch.add(link111);
+        var batch = new ArrayList<Link111>();
+        var detail = getCompanyDetail(compName);
+        if (detail == null) {
+            return;
+        }
+        for (Obj obj : detail.getArr("Partners").toObjList()) {
+            if(!obj.getStr("StockType","").equals("企业法人")){
+                continue;
+            }
+            //算不出来的一概忽略
+            try {
+                var p = new BigDecimal(obj.getStr("StockPercent").replaceAll("%", ""));
+                if (p.floatValue() >= 25) {
+                    var name = obj.getStr("StockName");
+//                    var arr = getCompanyHolders(compName);
+                    //控股25%以上的公司列表
+//                    for (String s : arr.toStrArr()) {
+                        var page = 1;
+                        while (true) {
+                            var list = getHoldingCompany(name, page++);
+                            if (list == null) {
+                                break;
+                            }
+                            for (Obj names : list.getArr("Names").toObjList()) {
+                                if(!names.getStr("Level","").contains("1")){
+                                    continue;
+                                }
+                                try {
+                                    var percent = new BigDecimal(names.getStr("PercentTotal", "").replace("%", ""));
+                                    if (percent.floatValue() >= 25) {
+                                        Link111 link111 = new Link111();
+                                        link111.setId(IdUtil.objectId());
+                                        link111.setLink_rule("11.3");
+                                        link111.setOrigin_name(compName);
+                                        link111.setLink_left(name);
+                                        link111.setLink_right(names.getStr("Name"));
+                                        link111.setLink_type("企业:" + name);
+                                        link111.setIs_company(1);
+                                        link111.setStock_percent(percent);
+                                        batch.add(link111);
+                                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
                         }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+//                    }
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
 
-        if (batch.isNotEmpty()) {
+        Set<String> names = batch.stream()
+                .map(e -> e.getLink_right())
+                .collect(Collectors.toSet());
+        var leftNames = hasLoan(names);
+        batch = (ArrayList<Link111>) batch
+                .stream()
+                .filter(e -> leftNames.contains(e.getLink_right()))
+                .collect(Collectors.toList());
+
+        if (!batch.isEmpty()) {
             sqlManager.lambdaQuery(Link111.class)
                 .andEq(Link111::getLink_rule, "11.3")
                 .andEq(Link111::getOrigin_name, compName)
@@ -528,47 +561,182 @@ public class Link {
 
     public static void do11_5(String compName) {
 
-        System.out.println(sqlManager);
-        var batch = a();
-        Map<String, String> map = new LinkedHashMap<>();
+        Long start = System.currentTimeMillis();
+        var batch = new Vector<Link111>();
+        Map<String, String> map = new Hashtable<>();
 
         List<Obj> objs = sqlManager.select("accloan.11_5", Obj.class, o());
+        if(objs.size()>0){
+            sqlManager.lambdaQuery(Link111.class)
+                        .andEq(Link111::getLink_rule, "11.5")
+                        .delete();
+        }
+        Map<String, Set<String>> maps = new HashMap<>();
+        Set<String> set = new HashSet<>();
+        Set<String> li = null;
         for (Obj list : objs) {
-            String guarName = list.getStr("guar_name");
-            String cerNo = list.getStr("cer_no");
-            String cusName = list.getStr("cus_name");
-            List<Obj> objList = sqlManager.select("accloan.11_5", Obj.class, o("guarName",guarName,"cerNo",cerNo));
+            li = new HashSet<>();
+            String guarName1 = list.getStr("guar_name");
+            String cerNo1 = list.getStr("cer_no");
+
+            String cusName1 = list.getStr("cus_name");
+            String psnCert = list.getStr("psn_cert_code");
+            String entCert = list.getStr("ent_cert_code");
+            String cert = "";
+            if("".equals(psnCert) ){
+                cert = entCert;
+            }
+            if("".equals(entCert)){
+                cert = psnCert;
+            }
+            String s = guarName1 +"|"+ cerNo1 + "|" + cusName1 +"|" + cert;
+            if(!set.contains(s)){
+                set.add(s);
+            }
+
+            if (null != maps.get(guarName1) && !maps.get(guarName1).isEmpty()) {
+                maps.get(guarName1).add(s);
+            } else {
+                li.add(s);
+                maps.put(guarName1, li);
+            }
+
+//                String guarName = list.getStr("guar_name");
+//                String cerNo = list.getStr("cer_no");
+//                String cusName = list.getStr("cus_name");
+//                if(!guarName.equals(cusName)){
+//                    map.put(guarName + "|" + cusName, cerNo);
+//                }
+
+
+                /*List<Obj> objList = sqlManager.select("accloan.11_5", Obj.class, o("guarName",guarName,"cerNo",cerNo));
+
+                if(objList.size() == 1){
+                    continue;
+                }
+                for (Obj obj : objList) {
+                    if(!guarName.equals(obj.getStr("guar_name")) && !cusName.equals(obj.getStr("cus_name"))){
+                            if (null != map.get(guarName +"|"+ cusName) && !map.get(guarName +"|"+ cusName).isEmpty()) {
+                                continue;
+                            }
+                            var link = new Link111();
+                            link.setId(IdUtil.objectId());
+                            link.setLink_rule("11.5");
+                            link.setOrigin_name(obj.getStr("cus_name"));
+                            link.setLink_type("担保关联");
+                            link.setLink_left(cusName);
+                            link.setLink_right(guarName);
+                            link.setIs_company(1);
+                            batch.add(link);
+                            map.put(guarName +"|"+ cusName, guarName);
+                        }
+                }*/
+//            if (batch.isNotEmpty()) {
+//                sqlManager.lambdaQuery(Link111.class)
+//                        .andEq(Link111::getLink_rule, "11.5")
+//                        .andEq(Link111::getOrigin_name, cusName)
+//                        .delete();
+//            }
+        }
+        List<String> s = new ArrayList<>();
+        for(Map.Entry<String, Set<String>> aa : maps.entrySet()){
+            s = new ArrayList<>();
+            if(aa.getValue().size()>=3){
+                    System.out.println("key:"+aa.getKey()+"value:"+aa.getValue());
+                for(String value : aa.getValue()){
+
+                    var p = value.split("\\|");
+                    String cus_name = "";
+                    String guar_name = "";
+                    if(p.length==4){
+                        cus_name = p[2];
+                    }
+                    s.add(cus_name);
+
+//                    var link = new Link111();
+//                    link.setId(IdUtil.objectId());
+//                    link.setLink_rule("11.5");
+//                    link.setOrigin_name(cus_name);
+//                    link.setLink_type("担保关联");
+//                    link.setLink_left(aa.getKey());
+//                    link.setLink_right(aa.getKey());
+//                    link.setIs_company(1);
+//                    batch.add(link);
+                }
+//                int n = 0;
+                for(int i=0;i<s.size()-1;i++){
+
+                    for(int j=i+1;j<s.size();j++){
+                        /*System.out.println(aa.getKey()+"-----"+s.get(i)+">>>"+s.get(j));
+
+                        var link = new Link111();
+                        link.setId(IdUtil.objectId());
+                        link.setLink_rule("11.5");
+                        link.setOrigin_name(s.get(i));
+                        link.setLink_type("担保关联");
+                        link.setLink_left(aa.getKey());
+                        link.setLink_right(s.get(j));
+                        link.setIs_company(1);
+                        batch.add(link);*/
+                    }
+                }
+            }
+        }
+
+        /*for(Map.Entry<String, String> mm: map.entrySet()){
+
+            var key = mm.getKey();
+            var p = key.split("\\|");
+            var guarName = p[0];
+            var cusName = p[1];
+            List<Obj> objList = sqlManager.select("accloan.11_5", Obj.class, o("guarName",guarName,"cerNo",mm.getValue()));
+
             if(objList.size() == 1){
                 continue;
             }
             for (Obj obj : objList) {
-                if(!cusName.equals(obj.getStr("cus_name"))){
-                    if(null != map.get(guarName + cusName) && !map.get(guarName+cusName).isEmpty()){
-                        System.out.println(map);
-                        continue;
-                    }
+                if(!key.equals(obj.getStr("guar_name") + "|" + obj.getStr("cus_name"))){
+//                    if (null != map.get(guarName +"|"+ cusName) && !map.get(guarName +"|"+ cusName).isEmpty()) {
+//                        continue;
+//                    }
                     var link = new Link111();
                     link.setId(IdUtil.objectId());
                     link.setLink_rule("11.5");
-                    link.setOrigin_name(cusName);
+                    link.setOrigin_name(obj.getStr("cus_name"));
                     link.setLink_type("担保关联");
                     link.setLink_left(cusName);
                     link.setLink_right(guarName);
                     link.setIs_company(1);
                     batch.add(link);
-                    map.put(guarName + cusName,guarName);
+//                    map.put(guarName +"|"+ cusName, guarName);
                 }
             }
-            if (batch.isNotEmpty()) {
-                sqlManager.lambdaQuery(Link111.class)
-                        .andEq(Link111::getLink_rule, "11.5")
-                        .andEq(Link111::getOrigin_name, cusName)
-                        .delete();
-            }
+
+
+//            var link = new Link111();
+//            link.setId(IdUtil.objectId());
+//            link.setLink_rule("11.5");
+//
+//            link.setOrigin_name(cusName);
+//            link.setLink_type("担保关联");
+//            link.setLink_left(cusName);
+//            link.setLink_right(guarName);
+//            link.setIs_company(1);
+//            batch.add(link);
+        }*/
+
+        var i = 0;
+        var step = 1000;
+        for (; i < batch.size() / step + 1; i++) {
+            var end = (i+1) * step;
+            sqlManager.insertBatch(Link111.class, batch.subList(i * step, Math.min(end, batch.size())));
         }
-        if (batch.isNotEmpty()) {
-            sqlManager.insertBatch(Link111.class, batch);
-        }
+
+//        if (batch.isNotEmpty()) {
+//            sqlManager.insertBatch(Link111.class, batch);
+//        }
+
+        System.out.println("11_5运行时间：" + (System.currentTimeMillis() - start));
 
 
 //        var diyas = sqlManager.lambdaQuery(Link111.class)

@@ -89,7 +89,7 @@ public class FileController {
     public MultipartFile shareholderListDownload(){
         File file1 = null;
         try{
-            file1 = new ClassPathResource("excel/report_2.xlsx").getFile();
+            file1 = new ClassPathResource("excel/report_2.xls").getFile();
 //            file1 = new File("src/main/resources/excel/report_2.xls");
         }catch (Exception e){
             e.printStackTrace();

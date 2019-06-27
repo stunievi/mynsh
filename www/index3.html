@@ -152,7 +152,6 @@
             padding-top: 0;
         }
 
-
         /*im*/
         .layui-layim-status .layim-menu-box,.layui-layim-remark,.layui-icon.layim-tool-skin, .layim-tool-face{
             display: none !important;
@@ -161,11 +160,11 @@
             color: white;
         }
         /*.layui-layim-list li span{*/
-            /*margin-top: 10px !important;*/
+        /*margin-top: 10px !important;*/
         /*}*/
 
         /*.blue.jquery-accordion-menu b{*/
-            /*font-size: 12px !important;*/
+        /*font-size: 12px !important;*/
         /*}*/
 
         .closebtn{
@@ -213,6 +212,48 @@
         #demo-list{
             overflow: hidden;
         }
+        /*角标 */
+        .ii{
+            /*display: none;*/
+            /*background: #f00;*/
+            /*border-radius: 50%;*/
+            /*width: 20px;*/
+            /*height: 20px;*/
+            /*top: 65px;*/
+            /*right: 0px;*/
+            /*position: absolute;*/
+            /*text-align: center;*/
+            /*color: #FFF;*/
+            /*z-index: 99999;*/
+
+            min-width: 20px;
+            padding: 1px 2px 1px 1px;
+            position: absolute;
+            /*right: 58px;*/
+            left: 65px;
+            /*margin-top: 0px;*/
+            font-size: 11px;
+            font-weight: 800;
+            color: #555;
+            text-align: center;
+            line-height: 18px;
+            background: #f0f0f0;
+            border-radius: 100%;
+        }
+        .gii{
+
+            min-width: 20px;
+            padding: 1px 2px 1px 1px;
+            position: absolute;
+            right: 40px;
+            font-size: 11px;
+            font-weight: 800;
+            color: #555;
+            text-align: center;
+            line-height: 18px;
+            background: #f0f0f0;
+            border-radius: 100%;
+        }
 
     </style>
     <!--<script src="static/vendor/bootcss/js/bootstrap.min.js"></script>-->
@@ -244,11 +285,11 @@
                         <!-- 页面标签列表 -->
                         <ul class="nav nav-tabs" id="myTab" style="overflow: hidden;">
                             <!--<a href="javascript:;" class="pull-left" id="closeAllIframe"><span-->
-                                    <!--class="glyphicon glyphicon glyphicon-remove" title="关闭所有页面"></span></a>-->
+                            <!--class="glyphicon glyphicon glyphicon-remove" title="关闭所有页面"></span></a>-->
                             <!--<a href="javascript:;" class="pull-left" id="closeOtherIframe"><span-->
-                                    <!--class="glyphicon glyphicon glyphicon-remove-circle" title="关闭其它页面"></span></a>-->
+                            <!--class="glyphicon glyphicon glyphicon-remove-circle" title="关闭其它页面"></span></a>-->
                             <!--<a href="javascript:;" class="pull-left" id="reloadIframe"><span-->
-                                    <!--class="glyphicon glyphicon-repeat" title="刷新当前页面"></span></a>-->
+                            <!--class="glyphicon glyphicon-repeat" title="刷新当前页面"></span></a>-->
                         </ul>
                         <!-- 页面内容列表，和页面标签列表对应 -->
                         <div class="tab-content" id="iframe-content-wrap">
@@ -550,6 +591,21 @@
     <div class="facebox">
         <p>辅助管理系统</p>
         <b style="font-size: 12px;font-weight: normal;">数据版本: <span>查询中...</span></b>
+        <div>
+            <span>
+                <a tab-href="/htmlsrc/bench/notice/notice.list.html" style="color: white;cursor:pointer;text-decoration:none;" tab-title='查看消息' tile="查看消息" tab-id='ckxx'>
+                    <span id="msgNum" class="ii">0</span>
+                    <img src="static/htmlImage/msg-system.png" width="20" height="20"/>
+                    <!--<i class="layui-icon layui-icon-notice"></i>-->
+                </a>
+            </span>
+            <span style="padding-left: 45px">
+            <a tab-href="/htmlsrc/bench/myBench.html" style="color: white;cursor:pointer;text-decoration:none;" tab-title='我的工作台' tile="我的工作台" tab-id='wdgzt'>
+                <span id="gztNum" class="gii">0</span>
+                <img src="static/htmlImage/gongzuotai.png" width="20" height="20"/>
+            </a>
+            </span>
+        </div>
         <div class="ln"></div>
         <img src="{{face}}" alt="" width="100" height="100" >
         <div style="margin-bottom: 10px;">
@@ -573,15 +629,15 @@
                     <b href="#" onclick="menuclick('{{idex}}','{{item2.name}}','{{item2.href}}')" >{{item2.name}}</b>
                     {{if item2.children && item2.children.length}}
                     <ul class="submenu">
-                    {{each item2.children item3 idex3}}
-                    {{if item3 && item3.name}}
-                    {{set id = item1.name + '.' + item2.name + '.' + item3.name}}
-                    {{set idex = idex1 + '-' + idex2 + '-' + idex3}}
-                    <li data-id="{{id}}">
-                        <b href="#" onclick="menuclick('{{idex}}','{{item3.name}}','{{item3.href}}')" class="m-item">{{item3.name}}</b>
-                    </li>
-                    {{/if}}
-                    {{/each}}
+                        {{each item2.children item3 idex3}}
+                        {{if item3 && item3.name}}
+                        {{set id = item1.name + '.' + item2.name + '.' + item3.name}}
+                        {{set idex = idex1 + '-' + idex2 + '-' + idex3}}
+                        <li data-id="{{id}}">
+                            <b href="#" onclick="menuclick('{{idex}}','{{item3.name}}','{{item3.href}}')" class="m-item">{{item3.name}}</b>
+                        </li>
+                        {{/if}}
+                        {{/each}}
                     </ul>
                     {{/if}}
                 </li>
@@ -596,7 +652,6 @@
 </script>
 
 <script>
-
     //render left menu
     var html = template.render($("#menu-tmpl").html(),{
         data: menu,
@@ -893,7 +948,7 @@
                 $.each(res.data,function (i,v) {
                     layim.getMessage(makeMessage(v))
                     if(cur && (cur.data.id == v.fromId || cur.data.id == v.toId)){
-                       needtoread = curChatWindow.data.id
+                        needtoread = curChatWindow.data.id
                     }
                 });
                 if(needtoread > -1){
@@ -936,18 +991,18 @@
     (function () {
         //pass ie11
         // if(document.all){
-            $(window).resize(function () {
-                var h = $(window).height();
-                $("td").each(function () {
-                    $(this)
-                        .css("height", h);
-                    $(this).find("#x-wrap-menu-wrap").css("height",h);
-                    // var h = $(this).height();
-                    // $(this).find(".autobox").css("height", h);
-                        // .css("height", $(this).height());
-                })
-                $(".closebtn").css("top", h / 2)
-            }).trigger("resize")
+        $(window).resize(function () {
+            var h = $(window).height();
+            $("td").each(function () {
+                $(this)
+                    .css("height", h);
+                $(this).find("#x-wrap-menu-wrap").css("height",h);
+                // var h = $(this).height();
+                // $(this).find(".autobox").css("height", h);
+                // .css("height", $(this).height());
+            })
+            $(".closebtn").css("top", h / 2)
+        }).trigger("resize")
         // }
 
         // new CusScrollBar({
@@ -992,9 +1047,9 @@
         var cache = {};
         function msgnotice() {
             var p1 =
-            getFetch(
-                remoteOrigin + "/api/auto/sysnotice/getUList"
-            );
+                getFetch(
+                    remoteOrigin + "/api/auto/sysnotice/getUList"
+                );
             var p2 = getFetch(remoteOrigin + "/api/auto/wfins/getList?daichuli=1",{page:1,size:1})
             $.when(p1,p2).then(function (a,b) {
                 var total = 0;
@@ -1022,8 +1077,15 @@
                 e2.find('b:first .jquery-accordion-menu-label').remove();
                 e2.find("b:first").append($("<span class='jquery-accordion-menu-label'>"+count2+"</span>"))
                 var e3 = $("li[data-id='工作台.收件箱']")
+
                 e3.find('b:first .jquery-accordion-menu-label').remove();
                 e3.find("b:first").append($("<span class='jquery-accordion-menu-label'>"+count1+"</span>"))
+
+                $("#msgNum").show();
+                $("#msgNum").text(count1);
+                $("#gztNum").show();
+                $("#gztNum").text(count2);
+
                 console.log(count1,count2,total)
             })
         }

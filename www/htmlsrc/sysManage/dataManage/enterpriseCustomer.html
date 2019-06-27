@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>系统管理-数据维护-集团客户清单</title>
+    <!--<link href="/static/vendor/bootcss/css/bootstrap.min.css" rel="stylesheet">-->
+    <!-- <link rel="stylesheet" href="/static/vendor/jqui/jquery-ui.css"> -->
+    <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script src="/static/vendor/bootcss/js/bootstrap.min.js"></script>
+    <script src="/static/vendor/webUploader/webuploader.min.js"></script>
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+    <!--[if lt IE 9]>
+    <script src="/static/vendor/bootcss/js/html5shiv.min.js"></script>
+    <script src="/static/vendor/bootcss/js/respond.min.js"></script>
+    <![endif]-->
+    <style>
+        td{
+            white-space: nowrap;
+        }
+        input[name=flip-su]{
+            margin: 0;
+        }
+        #content{
+            overflow: visible;
+        }
+        .rule_z{
+            float: left;
+            padding-left: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div id="content">
+
+        <div class="" id="panel-form">
+        </div>
+
+        <div class="batch-operation">
+            <button type="button" class="btn btn-success hide" id="touchRule">
+                触发规则
+            </button>
+            <div id="picker" style="" class="">
+                <i class="glyphicon glyphicon-book"></i>
+                导入客户清单文件
+            </div>
+        </div>
+
+        <div id="dataList">
+        </div>
+    </div>
+    <script src="/static/vendor/artTemplate/template-web.js"></script>
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="/tmpl/js/panelForm.js"></script>
+    <script src="/static/htmljs/fixLayTableList.js"></script>
+
+
+    <!-- toolbar渲染模板 -->
+    <script type="text/html" id="toolbar">
+        <div class="layui-toolbar">
+            <a href="javascript:;" class="btn handleShow btn-default" data-loanid="{{d.LOAN_ACCOUNT}}" data-name="{{d.CUS_NAME}}">查看</a>
+        </div>
+    </script>
+
+    <script type="text/html" id="touchRuleForm">
+        <div class="col-xs-12" style="margin-top:10px;">
+
+            <div >
+                <input type="checkbox" value="11" name="tRule">全部</input>
+            </div>
+            <div style="padding: 5px 10px 10px 0px">
+                <span class="rule_z">
+                    <input type="checkbox" value="11.1" name="tRule">11.1-有共同的关联自然人</input>
+                </span>
+                <span class="rule_z">
+                    <input type="checkbox" value="11.2" name="tRule">11.2-关联自然人有贷款</input>
+                </span>
+                <span class="rule_z">
+                    <input type="checkbox" value="11.3" name="tRule">11.3-有共同的关联企业</input>
+                </span>
+            <!--</div>-->
+            <!--<div >-->
+                <span class="rule_z">
+                    <input type="checkbox" value="11.4" name="tRule">11.4-关联企业有贷款</input>
+                </span>
+                <span class="rule_z">
+                    <input type="checkbox" value="11.5" name="tRule">11.5-有共同的担保人</input>
+                </span>
+                <span class="rule_z">
+                    <input type="checkbox" value="11.6" name="tRule">11.6-担保人有贷款</input>
+                </span>
+
+            </div>
+
+        </div>
+        <div class="col-xs-12 text-center" style="margin-top:10px;">
+            <a type="button" class="btn btn-default" onClick="cancelPopup()">取消</a>
+            <a type="button " class="btn btn-primary" onClick="confirmPopup()">确定</a>
+        </div>
+    </script>
+
+        <script>
+
+        var system = getParam("system");
+        if(system == "1"){
+            $("#touchRule").removeClass("hide");
+        }
+        var register = '';
+
+        var _data = {};
+        // 基础显示字段
+        var cols = [
+
+            { field:'toolbar', title:'操作', templet: '#toolbar', pos: "right", fix: 'right' }
+            , { title :'主管机构', field:'MAIN_BR_NAME' },
+            { title :'主管机构ID', field:'MAIN_BR_ID' }
+        ];
+
+        var searchCond = [
+            { label:'台帐分类', prop:'LN_TYPE', type:"select", vals:[
+                    { name: '--请选择--', val: ''},
+                    {val:"保函",name:"保函"},
+                    {val:"置换贷款",name:"置换贷款"}
+                ]
+            },
+            { label:'联系电话', prop:'PHONE' }
+            , {label:"贷款起始日（开始）", prop:"LOAN_START_DATE_S", type:"date", disabled:true}
+            , {label:"贷款起始日（结束）", prop:"LOAN_START_DATE_E", type:"date", disabled:true}
+        ];
+
+        if(searchCond.length){
+            $("#panel-form").html(panelFormRender3({
+                panelTitle: '筛选查询',
+                col: 3,
+                list: searchCond,
+                data: _data
+                , excel: system == 1
+            }));
+
+        }
+
+        var getDataUrl = remoteOrigin + remoteApi.apiOdsSearchAccloan+"?register="+register+"&lm=1";
+
+        // 渲染列表
+        laytableRender({
+            cellMinWidth: 110,
+            url: getDataUrl,
+            cols: [ cols ]
+            ,
+            onData:function(res){
+                for(var i=0;i<res.rows.length;i++){
+                    var data = res.rows[i];
+                    data["LM_FCZ_DATE"] = (data["LM_FCZ_DATE"] || '').substring(0, 10);
+                }
+               return res;
+            }
+        });
+
+        eventBind('#touchRule', function(that){
+            touchRuleIndex = layer.open({
+                title:'触发规则',
+                type: 1,
+                area: ['333px', '275px'], //宽高
+                content: $("#touchRuleForm").html() // 新增文件夹名称
+            });
+        });
+
+        function cancelPopup(){
+            layer.close(touchRuleIndex)
+        }
+        function confirmPopup(){
+
+
+            var data = $('input:checkbox[name="tRule"]:checked').map(function () {
+                return $(this).val();
+            }).get().join(",");
+
+            // var dirId = $("input[name='parentDirId']").val();
+            // var dirName = $("input[name='dirName']").val();
+            SuperPost({
+                url: "/link/LinkController/touchRule?rule="+data,
+                success: function(res){
+                    layer.close(touchRuleIndex);
+                    reloadByDirId(); // 刷新页面更新数据
+                }
+            })
+        }
+
+        // 详情
+        eventBind(".handleShow", function(that){
+            addNavTab('loan-'+that.data("loanid"), "台账详情 - "+that.data("loanid")+" - " + that.data("name"), hrefUrl.loanInfo+that.data("loanid"));
+        });
+        // 筛选
+        function checkSubmitForm(){
+            layuiTableReload({
+                where: $("[name='form-search']").ghostsf_serialize().replace(/(\d+)-/g,'$1'),
+                resHandler: function(res){
+                    translateOdsInData(res.data.content);
+                    return res;
+                }
+            });
+            return false;
+        }
+
+        function initupload() {
+
+            var uploader = WebUploader.create({
+                swf: '/static/vendor/webUploader/Uploader.swf',
+                server: remoteOrigin + "/api/excel/loanmanager/import131", //上传接口
+                pick: '#picker',
+                auto: true,
+                fileVal: 'file',
+                resize: false,
+                dupliacate: false
+            });
+
+            uploader.on("uploadBeforeSend", function(obj, data, headers){
+                layer.msg("导入中。。。");
+            })
+
+            uploader.on('uploadError', function (file, res) {
+                layer.msg("导入失败！");
+                uploader.removeFile(file)
+            });
+            // 单个文件上传成功
+            uploader.on('uploadSuccess', function (file, res) {
+                console.log(res)
+                if(res.success){
+                    // var data = res.data;
+                    // layer.msg("数据总条数："+data.total+"，成功："+data.success+"条，失败："+data.failed +"条");
+                    layer.msg("正在导入数据，系统稍后会将导入结果发送至收件箱，请注意查收！");
+                }else{
+                    layer.msg("导入失败！请选择正确的模板导入！");
+                }
+                uploader.removeFile(file)
+            })
+        }
+
+        initupload()
+
+        $(".btn-export").click(function () {
+            var str =$('[name=form-search]').ghostsf_serialize().replace(/(\d+)-/g,'$1');
+            // location.href = remoteOrigin + "/api/report/csv/credit?" + str;
+
+
+            getFetch(
+                remoteOrigin + "/api/report/csv/credit111?" + str
+                , {}
+                , function () {
+                    onInfront()
+                }
+            ),
+
+            layer.alert("正在导出数据，系统稍后会将导出文件发送至收件箱，请注意查收！");
+        });
+
+
+    </script>
+</body>
+</html>
