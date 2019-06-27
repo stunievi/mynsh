@@ -132,7 +132,7 @@
                 // $(".arc-content-7").text(data["Recorder"] || "暂无内容");
                 data["ContentClear"] = (data["ContentClear"] || "").replace(/href=.*?html\s*"/g, 'href="javascript:;"');
                 $("#arcContent").html(data["ContentClear"] || "暂无内容");
-                if(data["ContentClear"]){
+                if(!data["ContentClear"]){
                     console.error("裁判文书内容为空！");
                 }
 

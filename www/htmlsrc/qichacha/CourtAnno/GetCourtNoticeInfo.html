@@ -51,6 +51,7 @@
                     });
                     data["Defendant"] = data["Defendant"].join("、");
                 }
+                data["OpenTime"] = data["OpenTime"] ? data["OpenTime"] : data["LiAnDate"];
                 $("#home").html(qccTableRender({
                     cols:[
                         {title:"案由", field:"CaseReason", spec: true},

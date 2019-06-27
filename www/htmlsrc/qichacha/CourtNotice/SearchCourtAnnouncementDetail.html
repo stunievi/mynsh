@@ -3,10 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title> 法院公告详情 </title>
-    <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
-    <script src="/static/vendor/layui/layui.js"></script>
-    <script src="/static/vendor/bootcss/js/bootstrap.min.js"></script>
-    <link rel="stylesheet" href="/static/htmlcss/style.css">
+    <!--#include file="/htmlsrc/header.html" -->
 </head>
 <body>
 <div id="content">
@@ -21,10 +18,10 @@
         </div>
     </div>
 </div>
-<script src="/static/vendor/artTemplate/template-web.js"></script>
-<script src="/static/vendor/layui/layer/layer.js"></script>
-<script src="/static/htmljs/global.config.js"></script>
-<script src="/static/htmljs/utils.js"></script>
+<!--<script src="/static/vendor/artTemplate/template-web.js"></script>-->
+<!--<script src="/static/vendor/layui/layer/layer.js"></script>-->
+<!--<script src="/static/htmljs/global.config.js"></script>-->
+<!--<script src="/static/htmljs/utils.js"></script>-->
 <!--<script src="../../../tmpl/js/panelTableShow.js"></script>-->
 <script src="/htmlsrc/qichacha/tmpl/eci/qccTable.js"></script>
 <script>
@@ -37,6 +34,8 @@
                 data["NameKeyNoCollection"].forEach(function (val) {
                     NameKeyNoCollection.push(val["Name"])
                 });
+                data["PublishDate"] = subDateStr(data["PublishDate"]);
+                data["SubmitDate"] = subDateStr(data["SubmitDate"]);
                 data["NameKeyNoCollection"] = NameKeyNoCollection.join("、");
                 $("#home").html(qccTableRender(
                     {
@@ -44,7 +43,7 @@
                             {title:"当事人", field:"Party"},
                             {title:"公告类别", field:"Category"},
                             {title:"刊登日期", field:"PublishDate"},
-                            // 刊登版面
+                            {title:"刊登版面", field:"PublishedPage"},
                             {title:"上传日期", field:"SubmitDate"},
                             {title:"公告人", field:"Court"},
                             {title:"所在省份代码", field:"Province"},

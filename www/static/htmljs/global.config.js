@@ -69,6 +69,7 @@ var getRemoteOrigin = function(server){
 
 Object.defineProperty(window, "remoteOrigin", {
 	get: function () {
+	return location.origin;
 		return getRemoteOrigin(top.SERVER) || getRemoteOrigin() || "";
     }
 });

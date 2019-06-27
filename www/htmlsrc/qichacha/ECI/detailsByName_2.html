@@ -93,7 +93,7 @@
     </div>
 </script>
 <script type="text/html" id="susong6_toolbar">
-    <a href="javascript:;" class="susong6_toolbar" data-val="{{d.ExecutionNoticeNum}}">{{d.ExecutionNoticeNum}}</a>
+    <a href="javascript:;" class="susong6_toolbar">{{d.ExecutionNoticeNum}}</a>
 </script>
 <script>
     // 模块数据是否加载标识
@@ -120,7 +120,6 @@
             onData:function (data) {
                 fixOnDataLoad("susong1",data, function (row) {
                     row["DefendantList"] = row.DefendantList.replace(/\\t/gm, "、");
-                    row["LiAnDate"] = subDateStr(row.LiAnDate);
                 });
             }
         });
@@ -164,7 +163,7 @@
             cols: [
                 [
                     BOOTSTRAP_INDEX_FILED,
-                    {title:"当事人",field:"Party", setWidth: 420 },
+                    {title:"被上诉人",field:"Party", setWidth: 420 },
                     {title:"公告类型",field:"Category"},
                     {title:"公告人",field:"Court"},
                     {title:"刊登日期",field:"PublishedDate", setWidth: 90},
@@ -249,7 +248,7 @@
                     var dataList = res.data.list;
                     dataList.forEach(function (row) {
                         qccNoDataFillFun(row);
-                    })
+                    });
                     JudicialAssistanceDataList = dataList;
                     $("#susong6-count").html(JudicialAssistanceDataList.length);
                 }
@@ -271,14 +270,17 @@
                 });
             }
         });
+
+        $(document).on("click", ".susong6_toolbar", function (){
+            var data = JudicialAssistanceDataList[$(this).closest("tr").data("index")];
+            var id = data["ExecutionNoticeNum"]+data["ExecutedBy"]+data["Status"];
+            addNavTab("qccJudicialAssistanceGetJudicialAssistance-"+id, "司法协助详情", "/htmlsrc/qichacha/JudicialAssistance/GetJudicialAssistanceDetail.html?id="+id, data);
+            return false;
+        });
+
     }
 
-    $(document).on("click", ".susong6_toolbar", function (){
-        var id = $(this).data("val");
-        id = id.replace(/\(|\)/g,"");
-        addNavTab("qccJudicialAssistanceGetJudicialAssistance-"+id, "司法协助详情", "/htmlsrc/qichacha/JudicialAssistance/GetJudicialAssistanceDetail.html?id="+id, JudicialAssistanceDataList[$(this).closest("tr").data("index")]);
-        return false;
-    });
+
     $(document).on("click", ".susong1_toolbar", function (){
         var id =  $(this).data("val");
         addNavTab("开庭公告详情", "/htmlsrc/qichacha/CourtAnno/GetCourtNoticeInfo.html?id="+id);
