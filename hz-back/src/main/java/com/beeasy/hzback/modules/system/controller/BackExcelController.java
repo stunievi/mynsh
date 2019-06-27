@@ -16,6 +16,7 @@ import com.beeasy.hzback.modules.system.service.NoticeService2;
 import com.beeasy.mscommon.Result;
 import com.beeasy.mscommon.filter.AuthFilter;
 import org.beetl.sql.core.SQLManager;
+import org.osgl.util.C;
 import org.osgl.util.S;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -526,8 +527,15 @@ public class BackExcelController {
                 String regEx="[^0-9]";
                 Pattern p = Pattern.compile(regEx);
                 Matcher m = p.matcher(list.getVarName());
-                System.out.println( m.replaceAll("").trim());
+//                System.out.println( m.replaceAll("").trim());
                 if(i == Integer.parseInt(m.replaceAll("").trim())){
+                    jsonObject.put("serial_number",i+1);
+                    if("ACC__BIZ_TYPE".equals(list.getVarName().replaceAll("\\d+", ""))){
+                        List<JSONObject> lists = sqlManager.select("accloan.查询产品名称", JSONObject.class, C.newMap("prdCode",list.getVarValue()));
+                        if(null != lists && !lists.isEmpty()){
+                            jsonObject.put("prd_name", lists.get(0).getString("PRD_NAME"));
+                        }
+                    }
                     jsonObject.put(list.getVarName().replaceAll("\\d+", ""), list.getVarValue());
                 }
             }

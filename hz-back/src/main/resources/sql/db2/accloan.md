@@ -1505,6 +1505,9 @@ select * from IQP_REPAY_SCH where LOAN_ACCOUNT = #accountId#
 ===
 select * from RPT_M_RPT_SLS_ACCT where loan_account = #loanAccount#
 
+查询产品名称
+===
+select prd_name from PRD_BASICINFO where prd_code =#prdCode#
 
 1201
 ===
