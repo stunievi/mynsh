@@ -389,9 +389,61 @@ public class UpdateQccDataController {
     private String companyInfosResponse(String finished, String progress, String content, String cusName, String sign, String te, JSONObject jo) {
         if ("success".equals(finished) && "3".equals(progress)) {
             content = "成功：" + cusName + sign + te;
-        } else if("warning".equals(finished)){
-            // todo 部分成功需要处理
+        } else if("warning".equals(finished) && "1".equals(progress)){
+            // todo 部分成功需要处理发送具有管理员角色人员
+            String qcjiekou = "";
+            String ycjiekou = "";
             content = "部分成功" + cusName + sign + te;
+            JSONObject jsStr = jo.getJSONObject("errorApi");
+            Iterator<String> iterator = jsStr.keySet().iterator();
+            List<SysNotice> notices = new ArrayList<>();
+            while (iterator.hasNext()){
+                String key = iterator.next();
+                JSONObject ja1 = jsStr.getJSONObject(key);
+                if (ja1.size() <= 0 || null == ja1) {
+                    continue;
+                }
+                Iterator<String> iterator2 = ja1.keySet().iterator();
+                while (iterator2.hasNext()){
+                    String key2 = iterator2.next();
+//                    JSONObject ja2 = ja1.getJSONObject(key2);
+//                    if (ja2.size() <= 0 || null == ja2) {
+//                        continue;
+//                    }
+                    //112	当前账户已欠费
+                    //102	当前KEY已欠费
+                    if("102".equals(key2) || "112".equals(key2)){
+                        qcjiekou = qcjiekou + data.get(key) + "，";
+                    }else{
+                        ycjiekou = ycjiekou + data.get(key) + "，";
+                    }
+                }
+
+            }
+            List<JSONObject> userList = sqlManager.select("accloan.查询角色", JSONObject.class,C.newMap("name","系统管理员"));
+            if (qcjiekou.length() > 0 && !("").equals(qcjiekou)) {
+                qcjiekou = qcjiekou.substring(0,qcjiekou.length()-1) +"接口已欠费，";
+            }
+            if (ycjiekou.length() > 0 && !("").equals(ycjiekou)) {
+                ycjiekou = ycjiekou.substring(0,ycjiekou.length()-1) +"接口异常";
+            }
+            String msg = qcjiekou + ycjiekou;
+            for(JSONObject jsonObject:userList){
+                Long uid = jsonObject.getLong("UID");
+                notices.add(
+                    noticeService2.makeNotice(SysNotice.Type.SYSTEM, uid, msg, null)
+                );
+//                SysNotice notice = new SysNotice();
+//                notice.setState(SysNotice.State.UNREAD);
+//                notice.setType(SysNotice.Type.SYSTEM);
+//                notice.setUserId(uid);
+//                notice.setContent(msg);
+//                notice.setBindData(null);
+//                notice.setAddTime(new Date());
+//                sqlManager.insert(notice);
+            }
+            sqlManager.insertBatch(SysNotice.class, notices);
+
 
         }else if ("failed".equals(finished)) {
             sendToAdminMsg("数据获取", cusName, sign);

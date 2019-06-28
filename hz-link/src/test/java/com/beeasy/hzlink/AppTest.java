@@ -60,7 +60,8 @@ public class AppTest {
 //        var a = sqlManager.execute(new SQLReady("values 1"), Obj.class);
 //        int d = 1;
 
-        Link.do11_1("惠州市键荣置业有限公司");
+//        Link.do11_1("惠州市键荣置业有限公司");
+        Link.queryCusList("11.1");
     }
 
     @Test

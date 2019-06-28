@@ -1056,7 +1056,7 @@
                 var data = a[0].data;
                 var count1 = Number(data.totalRow);
                 total += count1;
-                $.each(data.list || [], function (i,v) {
+                /*$.each(data.list || [], function (i,v) {
                     if(cache[v.id]){
                         return;
                     }
@@ -1065,7 +1065,7 @@
                     });
                     $(".toast-info:last").attr("data-id", v.id)
                     cache[v.id] = 1;
-                });
+                });*/
 
                 data = b[0].data;
                 var count2 = Number(data.totalRow);

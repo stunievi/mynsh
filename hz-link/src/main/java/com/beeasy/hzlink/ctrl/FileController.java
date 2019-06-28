@@ -76,37 +76,50 @@ public class FileController {
 
     // 关联方清单模板下载
     public MultipartFile linkListDownload(){
-        File file1 = null;
+        try {
+            return ExportUtil.toXls("惠州农村商业银行股份有限公司关联方名单模板.xlsx", new ClassPathResource("excel/report_1.xlsx").getStream(), o(
+            ));
+        }catch (IOException e) {
+            e.printStackTrace();
+        } catch (InvalidFormatException e) {
+            e.printStackTrace();
+        }
+        return  null;
+
+        /*File file1 = null;
         try{
             file1 = new ClassPathResource("excel/report_1.xlsx").getFile();
 //            file1 = new File("src/main/resources/excel/report_1.xlsx");
         }catch (Exception e){
             e.printStackTrace();
         }
-        return new MultipartFile("惠州农村商业银行股份有限公司关联方名单模板.xlsx", file1);
+        return new MultipartFile("惠州农村商业银行股份有限公司关联方名单模板.xlsx", file1);*/
     }
     // 股东清单模板下载
     public MultipartFile shareholderListDownload(){
-        File file1 = null;
-        try{
-            file1 = new ClassPathResource("excel/report_2.xls").getFile();
-//            file1 = new File("src/main/resources/excel/report_2.xls");
-        }catch (Exception e){
+        try {
+            return ExportUtil.toXls("股东明细导入格式.xls", new ClassPathResource("excel/report_2.xls").getStream(), o(
+            ));
+        }catch (IOException e) {
+            e.printStackTrace();
+        } catch (InvalidFormatException e) {
             e.printStackTrace();
         }
-        return new MultipartFile("股东明细导入格式.xls", file1);
+        return  null;
     }
 
     // 企业名单模板下载
     public MultipartFile enterprisesListDownload(){
-        File file1 = null;
-        try{
-            file1 = new ClassPathResource("excel/report_3.xlsx").getFile();
-//            file1 = new File("src/main/resources/excel/report_3.xlsx");
-        }catch (Exception e){
+        try {
+            return ExportUtil.toXls("惠州农村商业银行股份有限公司重点企业名单.xlsx", new ClassPathResource("excel/report_3.xlsx").getStream(), o(
+            ));
+        }catch (IOException e) {
+            e.printStackTrace();
+        } catch (InvalidFormatException e) {
             e.printStackTrace();
         }
-        return new MultipartFile("惠州农村商业银行股份有限公司重点企业名单.xlsx", file1);
+        return  null;
+
     }
 
     // 集团客户清单导出

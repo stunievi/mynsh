@@ -46,7 +46,7 @@
                 导入股东清单文件
             </div>
             <button type="button" class="btn btn-success" id="templateDownload">
-                导入模板下载
+                下载股东清单模板
             </button>
         </div>
 
@@ -249,13 +249,11 @@
 
         $(document).on("click", "#templateDownload", function() {
 
-            location.href = remoteOrigin + "/api/report/export/mortgage1/shareholderListDownload"
+            location.href = remoteOrigin + "/link/FileController/shareholderListDownload"
         })
 
         $(".btn-export").click(function () {
             var str =$('[name=form-search]').ghostsf_serialize().replace(/(\d+)-/g,'$1');
-            // location.href = remoteOrigin + "/api/report/csv/credit?" + str;
-
 
             getFetch(
                 remoteOrigin + "/api/report/csv/credit111?" + str

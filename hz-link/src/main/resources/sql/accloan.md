@@ -59,36 +59,46 @@ where rn = 1
 
 11_5
 ===
- 
-SELECT * FROM
+with pp as
 (
-select cus_name,GUAR_NAME,CER_NO,CER_TYPE,GUAR_WAY,TYPE_CN,a.PSN_CERT_CODE,a.ENT_CERT_CODE from
-(select distinct cont_no,CUS_NAME,PSN_CERT_CODE,ENT_CERT_CODE from RPT_M_RPT_SLS_ACCT
+SELECT min(CUS_NAME) as CUS_NAME,min(CERT_TYPE) as CERT_TYPE,CERT_CODE,min(GUAR_NAME) as GUAR_NAME,min(CER_TYPE) as CER_TYPE,CER_NO FROM
+(
+select a.CONT_NO,a.CUS_NAME,a.CERT_TYPE,case PSN_CERT_CODE when '' then ENT_CERT_CODE else PSN_CERT_CODE end as CERT_CODE,b.GUAR_NAME,b.CER_NO,b.CER_TYPE,b.GUAR_WAY,b.TYPE_CN  from
+(
+select distinct cont_no,CUS_NAME,CERT_TYPE,PSN_CERT_CODE,ENT_CERT_CODE from RPT_M_RPT_SLS_ACCT
 where GL_CLASS not like '0%'
 and LN_TYPE in ('普通贷款','银团贷款')
-and ACCOUNT_STATUS = 1) as a
+and ACCOUNT_STATUS = 1
+) as a
 inner join DAN_BAO_REN as b on a.CONT_NO =b.CONT_NO
 )
 WHERE CER_NO IN
-(SELECT CER_NO FROM
-(select distinct guar_name,cer_no from
+--取多次出现的担保人的证件号码
+(select distinct CER_NO from
 (select * from
-(select a.*,row_number() over(partition by GUAR_NAME,CER_NO order by GUAR_NAME) rn 
+(select e.*,row_number() over(partition by CER_NO,GUAR_NAME order by CER_NO) rn 
 from 
 (
-select * from
-(select distinct cont_no,CUS_NAME from RPT_M_RPT_SLS_ACCT
+select d.GUAR_NAME,d.CER_NO  from
+(
+select distinct cont_no from RPT_M_RPT_SLS_ACCT
 where GL_CLASS not like '0%'
 and LN_TYPE in ('普通贷款','银团贷款')
-and ACCOUNT_STATUS = 1) as a
-inner join DAN_BAO_REN as b on a.CONT_NO =b.CONT_NO
-) a
-) b 
+and ACCOUNT_STATUS = 1) as c
+inner join DAN_BAO_REN as d on c.CONT_NO =d.CONT_NO
+) e
+) f
 where rn >1
 )
 ) 
+group by CER_NO,CERT_CODE
 )
-order by GUAR_NAME
+
+select * from pp where CER_NO in (
+  select CER_NO from pp
+  group by CER_NO
+  having count(*) > 1
+)
 
 11_6
 ===
@@ -108,3 +118,7 @@ and p.GL_CLASS not like '0%'
 and p.LN_TYPE in ('普通贷款','银团贷款')
 and p.ACCOUNT_STATUS = 1
 order by a.GUAR_NAME
+
+根据取数规则查询
+===
+SELECT * FROM DB2INST1.LINK_11_1 where link_rule=#linkRule# and origin_name <> LINK_LEFT
