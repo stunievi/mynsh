@@ -29,7 +29,7 @@ public class TimeUtuil {
         }
         Calendar c = Calendar.getInstance();//可以对每个时间域单独修改
         final int date = c.get(Calendar.DATE);
-        final String monthDate =  c.get(Calendar.MONTH) + 1 + "/" + date;
+        final String monthDate = c.get(Calendar.MONTH) + 1 + "/" + date;
         switch (date) {
             case 1:
             case 16:

@@ -5,6 +5,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
@@ -28,6 +29,7 @@ public class CrossDomainFilter implements Filter {
         response.setHeader("Pragma","no-cache");
         response.setHeader("Expires","0");
 //        System.out.println("*********************************过滤器被使用**************************");
+        //response.setHeader("Connection", "Close");
         filterChain.doFilter(servletRequest, response);
     }
 

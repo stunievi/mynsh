@@ -611,19 +611,6 @@ public class TestQcc {
         }
     }
 
-    @Test
-    public void getName() {
-        Class clazz = null;
-        try {
-            JSON json = JSON.parseObject(TestMongo.str);
-            clazz = Class.forName("com.beeasy.zed.DeconstructService");
-            Method method = clazz.getDeclaredMethod("GetDetailsByName", ChannelHandlerContext.class, FullHttpRequest.class, JSON.class);
-            method.setAccessible(true);
-            Object obj = method.invoke(clazz.newInstance(), null, new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "/ECIV4/GetDetailsByName.json?keyword=惠州市维也纳惠尔曼酒店管理有限公司", Unpooled.buffer(), new DefaultHttpHeaders(), new DefaultHttpHeaders()), json);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     //根据inner_company_name 修改省份
     @Test
@@ -704,7 +691,6 @@ public class TestQcc {
             }catch (Exception e){
                 e.printStackTrace();
             }
-            System.out.println(delSq);
         }
 
     }

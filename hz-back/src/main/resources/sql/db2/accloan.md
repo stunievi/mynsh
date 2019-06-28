@@ -1509,6 +1509,10 @@ select * from RPT_M_RPT_SLS_ACCT where loan_account = #loanAccount#
 ===
 select prd_name from PRD_BASICINFO where prd_code =#prdCode#
 
+查询角色
+===
+select uid from t_user_org u inner join T_ORG  o on o.ID=u.oid and o.NAME = #name#
+
 1201
 ===
 select

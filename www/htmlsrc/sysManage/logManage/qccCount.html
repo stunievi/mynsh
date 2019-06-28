@@ -23,26 +23,30 @@
 <script type="text/html" id="model_temp">
     <tr class="table_head_zy">
         <td>企查查接口名称</td>
+        <td>总计</td>
         <td>子接口中文名</td>
         <td>调用次数</td>
     </tr>
-     {{each cols value index}}
-        {{each value val i}}
-     {{val.name}}
-            <tr>
-             {{if i == 0}}
-                 <td rowspan="{{value.length}}">
-                     {{index}}
-                 </td>
-             {{/if}}
-             <td>
-                 {{val.name}}
-             </td>
-             <td>
-                 {{data[val.prop]}}
-             </td>
-            </tr>
-        {{/each}}
+    {{each cols value index}}
+    {{each value.arr val i}}
+    {{val.name}}
+    <tr>
+        {{if i == 0}}
+        <td rowspan="{{value.length}}">
+            {{index}}
+        </td>
+        <td rowspan="{{value.length}}">
+            {{value.count}}
+        </td>
+        {{/if}}
+        <td>
+            {{val.name}}
+        </td>
+        <td>
+            {{data[val.prop]}}
+        </td>
+    </tr>
+    {{/each}}
     {{/each}}
 </script>
 
@@ -60,8 +64,15 @@
             contentType: false,
             success:function (res) {
                 if(res.success && res.data){
-
                     data = res.data;
+                    for(var key in cols){
+                        var count = 0;
+                        cols[key].forEach(function (item) {
+                            count += data[item["prop"]]*1;
+                        });
+                        cols[key]["arr"] = cols[key];
+                        cols[key]["count"] = count;
+                    }
                     $("#dataList").html(
                         template("model_temp",{
                             cols: cols,
@@ -376,9 +387,9 @@
     })*/
 
 
-     function checkSubmitForm() {
+    function checkSubmitForm() {
 
-         test();
+        test();
         // layuiTableReload({
         //     where: form.serialize()
         // })

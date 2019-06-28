@@ -1,5 +1,6 @@
 package com.beeasy.hzlink.service;
 
+import cn.hutool.core.lang.Snowflake;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
@@ -9,6 +10,9 @@ import com.beeasy.hzlink.model.*;
 import com.github.llyb120.nami.core.Arr;
 import com.github.llyb120.nami.core.Json;
 import com.github.llyb120.nami.core.Obj;
+import org.apache.poi.hssf.record.SaveRecalcRecord;
+import org.beetl.sql.ext.SnowflakeIDAutoGen;
+import org.beetl.sql.ext.SnowflakeIDWorker;
 import org.jxls.common.Size;
 
 import java.math.BigDecimal;
@@ -215,10 +219,10 @@ public class Link {
         });
 
         //整理数据
-        sqlManager.lambdaQuery(Link111.class)
-            .andEq(Link111::getOrigin_name, compName)
-            .andEq(Link111::getLink_rule, "11.1")
-            .delete();
+//        sqlManager.lambdaQuery(Link111.class)
+//            .andEq(Link111::getOrigin_name, compName)
+//            .andEq(Link111::getLink_rule, "11.1")
+//            .delete();
         var cache = o();
         var batch = a();
         for (Arr objects : ret.toArrList()) {
@@ -242,6 +246,8 @@ public class Link {
         }
 //        sqlManager.insert(batch.get(0), true);
         sqlManager.insertBatch(Link111.class, batch);
+
+
     }
 
     public static void do11_2(String compNames) {
@@ -562,178 +568,49 @@ public class Link {
     public static void do11_5(String compName) {
 
         Long start = System.currentTimeMillis();
-        var batch = new Vector<Link111>();
-        Map<String, String> map = new Hashtable<>();
+//        var batch = a();
 
         List<Obj> objs = sqlManager.select("accloan.11_5", Obj.class, o());
         if(objs.size()>0){
-            sqlManager.lambdaQuery(Link111.class)
-                        .andEq(Link111::getLink_rule, "11.5")
+            sqlManager.lambdaQuery(TGroupCusList.class)
+                        .andEq(TGroupCusList::getLink_rule, "11.5")
                         .delete();
         }
-        Map<String, Set<String>> maps = new HashMap<>();
-        Set<String> set = new HashSet<>();
-        Set<String> li = null;
+        Date nowDdate = new Date();
         for (Obj list : objs) {
-            li = new HashSet<>();
-            String guarName1 = list.getStr("guar_name");
-            String cerNo1 = list.getStr("cer_no");
+            String guarName = list.getStr("guar_name");
+            String linkCertCode = list.getStr("cer_no");
 
-            String cusName1 = list.getStr("cus_name");
-            String psnCert = list.getStr("psn_cert_code");
-            String entCert = list.getStr("ent_cert_code");
-            String cert = "";
-            if("".equals(psnCert) ){
-                cert = entCert;
-            }
-            if("".equals(entCert)){
-                cert = psnCert;
-            }
-            String s = guarName1 +"|"+ cerNo1 + "|" + cusName1 +"|" + cert;
-            if(!set.contains(s)){
-                set.add(s);
-            }
+            String cusName = list.getStr("cus_name");
+            String certCode = list.getStr("cert_code");
 
-            if (null != maps.get(guarName1) && !maps.get(guarName1).isEmpty()) {
-                maps.get(guarName1).add(s);
-            } else {
-                li.add(s);
-                maps.put(guarName1, li);
-            }
+            var tGroupCusList = new TGroupCusList();
+            tGroupCusList.setId(IdUtil.createSnowflake(0,0).nextId());
+            tGroupCusList.setAdd_time(nowDdate);
+            tGroupCusList.setCus_name(cusName);
+            tGroupCusList.setCert_code(certCode);
+            tGroupCusList.setLink_name(guarName);
+            tGroupCusList.setLink_cert_code(linkCertCode);
+            tGroupCusList.setLink_rule("11.5");
+            tGroupCusList.setRemark_1("担保关联");
+            tGroupCusList.setRemark_2("");
+            tGroupCusList.setRemark_3("");
+            tGroupCusList.setData_flag("01");
 
-//                String guarName = list.getStr("guar_name");
-//                String cerNo = list.getStr("cer_no");
-//                String cusName = list.getStr("cus_name");
-//                if(!guarName.equals(cusName)){
-//                    map.put(guarName + "|" + cusName, cerNo);
-//                }
+            sqlManager.insert(tGroupCusList);
+//            batch.add(tGroupCusList);
 
-
-                /*List<Obj> objList = sqlManager.select("accloan.11_5", Obj.class, o("guarName",guarName,"cerNo",cerNo));
-
-                if(objList.size() == 1){
-                    continue;
-                }
-                for (Obj obj : objList) {
-                    if(!guarName.equals(obj.getStr("guar_name")) && !cusName.equals(obj.getStr("cus_name"))){
-                            if (null != map.get(guarName +"|"+ cusName) && !map.get(guarName +"|"+ cusName).isEmpty()) {
-                                continue;
-                            }
-                            var link = new Link111();
-                            link.setId(IdUtil.objectId());
-                            link.setLink_rule("11.5");
-                            link.setOrigin_name(obj.getStr("cus_name"));
-                            link.setLink_type("担保关联");
-                            link.setLink_left(cusName);
-                            link.setLink_right(guarName);
-                            link.setIs_company(1);
-                            batch.add(link);
-                            map.put(guarName +"|"+ cusName, guarName);
-                        }
-                }*/
-//            if (batch.isNotEmpty()) {
-//                sqlManager.lambdaQuery(Link111.class)
-//                        .andEq(Link111::getLink_rule, "11.5")
-//                        .andEq(Link111::getOrigin_name, cusName)
-//                        .delete();
-//            }
-        }
-        List<String> s = new ArrayList<>();
-        for(Map.Entry<String, Set<String>> aa : maps.entrySet()){
-            s = new ArrayList<>();
-            if(aa.getValue().size()>=3){
-                    System.out.println("key:"+aa.getKey()+"value:"+aa.getValue());
-                for(String value : aa.getValue()){
-
-                    var p = value.split("\\|");
-                    String cus_name = "";
-                    String guar_name = "";
-                    if(p.length==4){
-                        cus_name = p[2];
-                    }
-                    s.add(cus_name);
-
-//                    var link = new Link111();
-//                    link.setId(IdUtil.objectId());
-//                    link.setLink_rule("11.5");
-//                    link.setOrigin_name(cus_name);
-//                    link.setLink_type("担保关联");
-//                    link.setLink_left(aa.getKey());
-//                    link.setLink_right(aa.getKey());
-//                    link.setIs_company(1);
-//                    batch.add(link);
-                }
-//                int n = 0;
-                for(int i=0;i<s.size()-1;i++){
-
-                    for(int j=i+1;j<s.size();j++){
-                        /*System.out.println(aa.getKey()+"-----"+s.get(i)+">>>"+s.get(j));
-
-                        var link = new Link111();
-                        link.setId(IdUtil.objectId());
-                        link.setLink_rule("11.5");
-                        link.setOrigin_name(s.get(i));
-                        link.setLink_type("担保关联");
-                        link.setLink_left(aa.getKey());
-                        link.setLink_right(s.get(j));
-                        link.setIs_company(1);
-                        batch.add(link);*/
-                    }
-                }
-            }
         }
 
-        /*for(Map.Entry<String, String> mm: map.entrySet()){
-
-            var key = mm.getKey();
-            var p = key.split("\\|");
-            var guarName = p[0];
-            var cusName = p[1];
-            List<Obj> objList = sqlManager.select("accloan.11_5", Obj.class, o("guarName",guarName,"cerNo",mm.getValue()));
-
-            if(objList.size() == 1){
-                continue;
-            }
-            for (Obj obj : objList) {
-                if(!key.equals(obj.getStr("guar_name") + "|" + obj.getStr("cus_name"))){
-//                    if (null != map.get(guarName +"|"+ cusName) && !map.get(guarName +"|"+ cusName).isEmpty()) {
-//                        continue;
-//                    }
-                    var link = new Link111();
-                    link.setId(IdUtil.objectId());
-                    link.setLink_rule("11.5");
-                    link.setOrigin_name(obj.getStr("cus_name"));
-                    link.setLink_type("担保关联");
-                    link.setLink_left(cusName);
-                    link.setLink_right(guarName);
-                    link.setIs_company(1);
-                    batch.add(link);
-//                    map.put(guarName +"|"+ cusName, guarName);
-                }
-            }
-
-
-//            var link = new Link111();
-//            link.setId(IdUtil.objectId());
-//            link.setLink_rule("11.5");
-//
-//            link.setOrigin_name(cusName);
-//            link.setLink_type("担保关联");
-//            link.setLink_left(cusName);
-//            link.setLink_right(guarName);
-//            link.setIs_company(1);
-//            batch.add(link);
-        }*/
-
-        var i = 0;
+        /*var i = 0;
         var step = 1000;
         for (; i < batch.size() / step + 1; i++) {
             var end = (i+1) * step;
-            sqlManager.insertBatch(Link111.class, batch.subList(i * step, Math.min(end, batch.size())));
-        }
+            sqlManager.insertBatch(TGroupCusList.class, batch.subList(i * step, Math.min(end, batch.size())));
+        }*/
 
 //        if (batch.isNotEmpty()) {
-//            sqlManager.insertBatch(Link111.class, batch);
+//            sqlManager.insertBatch(TGroupCusList.class, batch);
 //        }
 
         System.out.println("11_5运行时间：" + (System.currentTimeMillis() - start));
@@ -1187,5 +1064,74 @@ public class Link {
     private static String getUrl(String path){
         var str = config.ext.getStr("qcc-search-url");
         return String.format("%s%s", str, path);
+    }
+
+    public static void saveGroupCusList(JSONObject jsonObject){
+        TGroupCusList entity = new TGroupCusList();
+        entity.setId(IdUtil.createSnowflake(0, 0).nextId());
+        entity.setAdd_time(jsonObject.getDate("nowDdate"));
+        entity.setCus_name(jsonObject.getString("cusName"));
+        entity.setCert_code(jsonObject.getString("certCode"));
+        entity.setLink_name(jsonObject.getString("guarName"));
+        entity.setLink_cert_code(jsonObject.getString("linkCertCode"));
+        entity.setLink_rule(jsonObject.getString("rule"));
+        entity.setRemark_1(jsonObject.getString("remark1"));
+        entity.setRemark_2(jsonObject.getString("remark2"));
+        entity.setRemark_3(jsonObject.getString("remark3"));
+        entity.setData_flag("01");
+        sqlManager.insert(entity);
+
+    }
+
+    public static void queryCusList(String linkRule){
+        List<JSONObject> lists = sqlManager.select("accloan.根据取数规则查询", JSONObject.class, o("linkRule",linkRule));
+        Map<String, String> cMap = new HashMap<>();
+        for(JSONObject a : lists){
+            String linkLeft = a.getString("link_left");
+            String linkRight = a.getString("link_right");
+            String linkType = a.getString("link_type");
+            String stockPercent = a.getString("stock_percent");
+            if(null == cMap.get(linkLeft + "|" + linkRight) || cMap.get(linkLeft + "|" + linkRight).isEmpty()){
+                cMap.put(linkLeft + "|" + linkRight, linkType);
+            }else{
+                String org = cMap.get(linkLeft + "|" + linkRight);
+                if(!org.contains(linkType)){
+                    org = org + "," + linkType;
+                }
+                if(null != stockPercent){
+                    if(!org.contains(stockPercent)){
+                        org = org +"|" + stockPercent;
+                    }
+                }
+                cMap.put(linkLeft + "|" + linkRight, org);
+            }
+        }
+        Date nowDate = new Date();
+        for(Map.Entry<String, String > map : cMap.entrySet()){
+            var cp = map.getKey().split("\\|");
+            String cusName = "";
+            String comp = "";
+            if(cp.length>=2){
+                comp = cp[0];
+                cusName = cp[1];
+            }
+            var ts = map.getValue().split("\\|");
+            String type = "";
+            String stockPercent = "";
+            if(ts.length>=2){
+                type = ts[0];
+                stockPercent = ts[1];
+            }
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("nowDdate", nowDate);
+            jsonObject.put("cusName", comp);
+            jsonObject.put("guarName", cusName);
+            jsonObject.put("rule","11.1");
+            jsonObject.put("remark1",type);
+            jsonObject.put("remark2",stockPercent);
+            jsonObject.put("remark3","");
+
+            saveGroupCusList(jsonObject);
+        }
     }
 }
