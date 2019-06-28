@@ -1807,7 +1807,7 @@ public class DeconstructService extends AbstractService {
         }
         if (tableName.equals("QCC_GQ_CHUANTOU")) {
             JSONArray jsonArray = new JSONArray();
-            getJsonTree(object, jsonArray, object.getString("CompanyName"), 1, "");
+            getJsonTree(object, jsonArray, object.getString("CompanyName"), 1, "",object.getString("CompanyName"));
             kv.put("result", jsonArray.toString());
         }
         kv.put("input_date", new Date());
@@ -1917,7 +1917,7 @@ public class DeconstructService extends AbstractService {
     }
 
     //解析企业对外投资，并将其解为tree结构
-    public static void getJsonTree(JSONObject json, JSONArray arrass, String parentName, int leve, String path) {
+    public static void getJsonTree(JSONObject json, JSONArray arrass, String parentName, int leve, String path,String dingjiParent) {
         if (leve > 5) return;
         JSONArray jsonArray = json.getJSONArray("BreakThroughList");
         for (Object o : jsonArray) {
@@ -1931,9 +1931,10 @@ public class DeconstructService extends AbstractService {
                 if (jiequAry.indexOf(path) > -1 && leve == Integer.parseInt(Level) && jiexiStr[leve - 1].equals(parentName)) {
                     JSONObject object = new JSONObject();
                     JSONArray array1 = new JSONArray();
-                    object.put("isHold", getHoldIsBoolean(jiexiStr[leve] + parentName, parentName));
+                    object.put("isHold", getHoldIsBoolean(jiexiStr[leve], dingjiParent));
                     object.put("Name", jiexiStr[leve]);
                     object.put("KeyNo", jsonObject.getString("KeyNo"));
+                    object.put("ajaxtouzi", true);
                     object.put("StockType", json1.getString("StockType"));
                     object.put("StockPercent", json1.getString("StockPercent"));
                     object.put("Level", json1.getString("Level"));
@@ -1943,7 +1944,7 @@ public class DeconstructService extends AbstractService {
                     object.put("Percent", json1.getString("StockPercent"));
                     object.put("PercentTotal", json1.getString("StockPercent"));
                     object.put("DetailList", array1);
-                    getJsonTree(json, array1, jiexiStr[leve], leve + 1, path);
+                    getJsonTree(json, array1, jiexiStr[leve], leve + 1, path,dingjiParent);
                     arrass.add(object);
                 }
             }
@@ -1951,15 +1952,14 @@ public class DeconstructService extends AbstractService {
     }
 
     private static int holdInt = 1;
-
+    public volatile static Map hashMap = new HashMap();
     public static Boolean getHoldIsBoolean(String name, String parentName) {
-        Map hashMap = new HashMap();
         //获取是否控股公司
         if(holdInt == 1) {
             String sql = "select name,inner_company_name  from qcc_holding_company_names";
             List<JSONObject> list = sqlManager.execute(new SQLReady(sql), com.alibaba.fastjson.JSONObject.class);
             for (int i = 0; i < list.size(); i++) {
-                hashMap.put(list.get(i).getString("name") + list.get(i).getString("innerCompanyName"), list.get(i).getString("innerCompanyName"));
+                hashMap.put(list.get(i).getString("name"), list.get(i).getString("innerCompanyName"));
             }
             holdInt +=1;
         }

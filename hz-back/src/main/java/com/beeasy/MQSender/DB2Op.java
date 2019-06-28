@@ -36,10 +36,10 @@ public class DB2Op {
 //            String user = "db2inst1";
 //            String password = "db2inst1";
 
-
-            String url = "jdbc:db2://150.0.104.8:50000/fzsys";
-            String user = "fzsys";
-            String password = "11111111";
+//
+//            String url = "jdbc:db2://150.0.104.8:50000/fzsys";
+//            String user = "fzsys";
+//            String password = "11111111";
 
 
             Connection conn = DriverManager.getConnection(DataSourceConfiguration.DB_URL, DataSourceConfiguration.DB_USER, DataSourceConfiguration.DB_PASSWORD);
