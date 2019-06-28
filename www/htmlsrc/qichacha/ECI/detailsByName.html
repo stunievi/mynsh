@@ -85,7 +85,7 @@
                     <a href="javascript:;" target="_blank" class="btn" id="qcc-com-info" title="企查查官网信息" style="background: orange;color: #fff;" ><i class="glyphicon glyphicon-cloud"></i></a>
                 </li>
                 <li class="pull-right hide com-info-wrap">
-                    <a href="javascript:;" class="btn iframe-target" title="行内信息" id="com-info" style="background: orange;color: #fff;" ><i class="glyphicon glyphicon-link"></i></a>
+                    <a href="javascript:;" class="btn" title="行内信息" id="com-info" style="background: orange;color: #fff;" ><i class="glyphicon glyphicon-link"></i></a>
                 </li>
                 <li class="pull-right hide change-com-wrap">
                     <a href="javascript:;" class="btn" id="change-com" title="切换公司" style="background: orange;color: #fff;" ><i class="
@@ -248,7 +248,7 @@
         });
         // 行内的公司信息
         $(".com-info-wrap").removeClass("hide");
-        $("#com-info").data("href", hrefUrl.comClientInfo+CUS_ID).data("title", "行内 - " + COMPANY_NAME);
+        $("#com-info").attr("tab-href", hrefUrl.comClientInfo+CUS_ID).attr("tab-title", "行内 - " + COMPANY_NAME);
         // 外链企查查官网查询
         $.when(keyNoPromise).then(function (keyNo) {
             $(".qcc-com-info-wrap").removeClass("hide");

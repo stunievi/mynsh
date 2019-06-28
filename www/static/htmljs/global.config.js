@@ -635,7 +635,7 @@ var odsEnmuData = {"MORTGAGE_FLG":{"0":"否","1":"是"},"GUARANTY_TYPE":{"10001"
     		if(!id){
     			id = "new-tab-" + top.getCountDown()
 			}
-			top.addTab(
+			top.addNavTab(
 				id
 				, $(this).attr("tab-title") || $(this).text()
 				, $(this).attr("tab-href")

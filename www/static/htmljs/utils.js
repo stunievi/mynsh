@@ -1503,14 +1503,8 @@ function showECI_Info(name) {
         });
     }
 }
-
-$(document).on("click", ".iframe-target", function () {
-    var href = $(this).data("href");
-    var title = $(this).data("title");
-    addNavTab(title, href);
-});
 $(document).on("click", ".show-client-target",function () {
-    showECI_Info($(this).data("val"))
+    showECI_Info($(this).data("val"));
 });
 
 if(typeof $ !== "undefined"){

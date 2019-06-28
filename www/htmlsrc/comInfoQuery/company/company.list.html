@@ -45,9 +45,9 @@
         cols: [
             [
                 { title:'操作', templet: function (data,index) {
-                    var str = '<a href="javascript:;" class="btn btn-default btn-xs handleShowECI" data-name="'+data.CUS_NAME+'" data-id="'+data.CUS_ID+'">查看</a>';
+                    var str = '<a href="javascript:;" class="btn btn-default btn-xs" tab-title="企查查 - '+data.CUS_NAME+'" tab-href="'+hrefUrl.ECIdetail+data.CUS_NAME+"&cusId="+data.CUS_ID+'" tab-id="ECIdetail'+data.CUS_NAME+'">查看</a>';
                     if($.cookie("spec")){
-                        str += '&nbsp;<a href="javascript:;" class="btn btn-warning btn-xs iframe-target" data-href="'+hrefUrl.comClientInfo+data.CUS_ID+'" data-title="行内 - '+data.CUS_NAME+'">行内信息</a>';
+                        str += '&nbsp;<a href="javascript:;" class="btn btn-warning btn-xs" tab-href="'+hrefUrl.comClientInfo+data.CUS_ID+'" tab-title="行内 - '+data.CUS_NAME+'">行内信息</a>';
                     }
                     return  str;
                     }, fixed: 'right'},
@@ -61,12 +61,12 @@
         ]
     });
 
-    $(document).on("click", ".handleShowECI", function (){
-        var id = $(this).data("id");
-        var name = $(this).data("name");
-        addNavTab("ECIdetail"+name, "企查查 - " + name, hrefUrl.ECIdetail+name+"&cusId="+id);
-        return true;
-    });
+    // $(document).on("click", ".handleShowECI", function (){
+    //     var id = $(this).data("id");
+    //     var name = $(this).data("name");
+    //     addNavTab("ECIdetail"+name, "企查查 - " + name, hrefUrl.ECIdetail+name+"&cusId="+id);
+    //     return true;
+    // });
 
 </script>
 </body>
