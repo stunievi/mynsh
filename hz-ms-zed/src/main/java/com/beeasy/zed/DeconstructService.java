@@ -1562,7 +1562,8 @@ public class DeconstructService extends AbstractService {
                         return key.endsWith("Date");
                     }
                 }, DateValue,
-                "+inner_company_name", getQuery(request, "companyName")
+                "+inner_company_name", getQuery(request, "companyName"),
+                "-Content"
         );
         deconstruct(json, "QCC_COURT_ANNOUNCEMENT", "Id");
     }
@@ -2423,7 +2424,19 @@ public class DeconstructService extends AbstractService {
                     nkv = kv;
                     objects[3] = nkv;
                 } else {
-                    nkv.putAll(kv);
+                    JSONObject finalNkv = nkv;
+                    kv.forEach((k, v) -> {
+                        if(v instanceof String){
+                            if (S.isNotEmpty((String)v) && S.isEmpty(finalNkv.getString(k))) {
+                                finalNkv.put(k, v);
+                            }
+                        } else {
+                            if(null != v && finalNkv.get(k) == null){
+                                finalNkv.put(k,v);
+                            }
+                        }
+                    });
+//                    nkv.putAll(kv);
                 }
             }
 

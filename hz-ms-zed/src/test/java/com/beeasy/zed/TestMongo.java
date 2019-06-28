@@ -305,12 +305,13 @@ public class TestMongo {
 
     @Test
     public void testSingleFile() throws FileNotFoundException, InterruptedException {
-        deconstructService. onDeconstructRequest("1", "2", new FileInputStream("C:\\Users\\DELL\\Desktop\\qcc_sifaxie.zip"));
+        deconstructService. onDeconstructRequest("1", "2", new FileInputStream("C:\\Users\\DELL\\Desktop\\flss-load.zip"));
     }
 
     @Test
     public void importe(){
-        File file = new File("C:\\Users\\DELL\\Desktop\\qccData\\zip");
+//        File file = new File("C:\\Users\\DELL\\Desktop\\zip");
+        File file = new File("C:\\Users\\DELL\\Desktop\\datalog\\zip");
         List<File> files = new ArrayList<>();
         walk(files, file);
 
