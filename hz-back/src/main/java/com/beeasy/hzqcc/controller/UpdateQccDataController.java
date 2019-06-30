@@ -422,25 +422,26 @@ public class UpdateQccDataController {
             }
             List<JSONObject> userList = sqlManager.select("accloan.查询角色", JSONObject.class,C.newMap("name","系统管理员"));
             if (qcjiekou.length() > 0 && !("").equals(qcjiekou)) {
-                qcjiekou = qcjiekou.substring(0,qcjiekou.length()-1) +"接口已欠费，";
+                String qc = qcjiekou.substring(0,qcjiekou.length()-1);
+                if(null != qc && !"".equals(qc)){
+                    qcjiekou = qc +"接口已欠费，";
+                }
             }
             if (ycjiekou.length() > 0 && !("").equals(ycjiekou)) {
-                ycjiekou = ycjiekou.substring(0,ycjiekou.length()-1) +"接口异常";
+                String yc = ycjiekou.substring(0,ycjiekou.length()-1);
+                if(null != yc && !"".equals(yc)){
+                    ycjiekou = yc +"接口异常";
+                }
             }
             String msg = qcjiekou + ycjiekou;
+            if(msg.endsWith("，")){
+                msg = msg.substring(0, msg.length()-1);
+            }
             for(JSONObject jsonObject:userList){
                 Long uid = jsonObject.getLong("UID");
                 notices.add(
                     noticeService2.makeNotice(SysNotice.Type.SYSTEM, uid, msg, null)
                 );
-//                SysNotice notice = new SysNotice();
-//                notice.setState(SysNotice.State.UNREAD);
-//                notice.setType(SysNotice.Type.SYSTEM);
-//                notice.setUserId(uid);
-//                notice.setContent(msg);
-//                notice.setBindData(null);
-//                notice.setAddTime(new Date());
-//                sqlManager.insert(notice);
             }
             sqlManager.insertBatch(SysNotice.class, notices);
 
