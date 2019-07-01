@@ -74,7 +74,6 @@ public class QccHistLogService {
             JSONObject jObject = (JSONObject) jsonObject;
             String customerName = jObject.getString("CUS_NAME");
 
-            long startTime = System.currentTimeMillis();    //获取开始时间
             // 失信信息
             int shixinInt = 0;
             if(shixinMap.containsValue(customerName)){
@@ -297,9 +296,7 @@ public class QccHistLogService {
                 }
             }
 
-            long endTime = System.currentTimeMillis();    //获取结束时间
-            System.out.println("---------------程序运行时间--：" + (endTime - startTime) + "ms");
-            System.out.println("新增数据量------------------:" + map);
+            Date nowDate = new Date();
 
             if (!map.isEmpty()) {
 
@@ -357,6 +354,7 @@ public class QccHistLogService {
                 }
 
                 List<SysNotice> notices = new ArrayList<>();
+                List<QccRisk> qccRiskList = new ArrayList<>();
                 Iterator<String> sIterator = jsonObj.keySet().iterator();
 
                 // 任务规则
@@ -387,13 +385,17 @@ public class QccHistLogService {
                     // 获得key
                     String key = sIterator.next();
                     Long uid = null;    // 信贷主管
-                    Long cusCode = null;    // 客户经理
+                    Long cusCode = null;    // 客户经理id
+                    String accCode = "";    // 客户经理accCode
                     // 客户经理map
                     Map<String, String> cusNameMap = new HashMap<>();
                     Map<String, String> loanMap = new HashMap<>();
 
                     //获得key值对应的value
                     JSONArray ja1 = jsonObj.getJSONArray(key);
+
+                    Set<String> cusNameList = new HashSet<>();
+                    String riskInfoStr = "";
 
                     for (Object obj : ja1) {
 
@@ -402,6 +404,9 @@ public class QccHistLogService {
                         String cusName = jo.getString("cusName");
                         uid = jo.getLong("uid");
                         cusCode = jo.getLong("cusId");
+                        accCode = jo.getString("accCode");
+
+                        cusNameList.add(cusName);
 
                         cusNameMap.put(loanAccount1 + "-" + cusCode, cusName);
                         loanMap.put(loanAccount1, cusName);
@@ -429,13 +434,19 @@ public class QccHistLogService {
                             String loanAccount = mKey.substring(0, mKey.indexOf("-"));
                             String code = mKey.substring(mKey.indexOf("-")+1, mKey.length());
                             String renderStr = getContent(map, loanAccount, entry.getValue(), sendRuleMap);
-                            // 给客户经理发送消息
-                            notices.add(
-                                    noticeService2.makeNotice(SysNotice.Type.SYSTEM, Long.valueOf(code), renderStr, null)
-                            );
+                            riskInfoStr = renderStr.substring(renderStr.indexOf("该用户新增") + 3, renderStr.length());
 
-                            // 给支行行长/信贷主管发送消息
-                            sendMsgToPresident(renderStr, notices, code);
+                            try {
+                                // 给客户经理发送消息
+                                notices.add(
+                                        noticeService2.makeNotice(SysNotice.Type.SYSTEM, Long.valueOf(code), renderStr, null)
+                                );
+
+                                // 给支行行长/信贷主管发送消息
+                                sendMsgToPresident(renderStr, notices, code);
+                            } catch (Exception e) {
+                                println( e.getMessage(), null);
+                            }
 
                         }
                     }
@@ -448,10 +459,16 @@ public class QccHistLogService {
                         }
                     }
 
+                    for (String cusName : cusNameList) {
+                        // 企查查风险信息
+                        qccRiskList.add(saveQccRisk(nowDate, cusName, riskInfoStr, accCode));
+                    }
+
                     break;
                 }
 
                 sqlManager.insertBatch(SysNotice.class, notices);
+                sqlManager.insertBatch(QccRisk.class, qccRiskList);
 
                 // 发送任务
             /*for(Map.Entry<String, String> entry : m1.entrySet()){
@@ -781,5 +798,28 @@ public class QccHistLogService {
             println(cusName+" 数据删除成功！");
         }
 
+    }
+
+    private QccRisk saveQccRisk(Date nowDate, String cusName, String riskInfo, String accCode){
+
+        List<JSONObject> lists = sqlManager.select("qcc.查询客户信息", JSONObject.class, C.newMap("cusName", cusName));
+        String cusId = "";
+        String certCode = "";
+        String mainBrId = "";
+        if(null != lists && lists.size()>0){
+            cusId = lists.get(0).getString("cusId");
+            certCode = lists.get(0).getString("certCode");
+            mainBrId = lists.get(0).getString("mainBrId");
+        }
+
+        QccRisk entity = new QccRisk();
+        entity.setAddTime(nowDate);
+        entity.setCusId(cusId);
+        entity.setCusName(cusName);
+        entity.setCertCode(certCode);
+        entity.setRiskInfo(riskInfo);
+        entity.setMainBrId(mainBrId);
+        entity.setCustMgr(accCode);
+        return entity;
     }
 }

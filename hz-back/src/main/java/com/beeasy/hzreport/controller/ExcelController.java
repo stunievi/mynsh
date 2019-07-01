@@ -142,6 +142,38 @@ public class ExcelController {
         return download("信贷中间表转换定义文件.xlsx", bytes);
     }
 
+    /**
+     * 企查查风险信息导出
+     * @return
+     */
+    @RequestMapping(value = "/riskInfo/exportExcel")
+    public ResponseEntity<byte[]> riskInfoExport(
+            @PageableDefault(value = 5000, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
+            ,@RequestParam Map<String,Object> params){
+        List<JSONObject> result = null;
+        params.put("uid", AuthFilter.getUid());
+        String startTime = params.get("startTime").toString();
+        String endTime = params.get("endTime").toString();
+        if(!"".equals(startTime)){
+            String y = startTime.substring(0,4);
+            String m = startTime.substring(4,6);
+            String d = startTime.substring(6,8);
+            params.put("startTime",y+"-"+m+"-"+d);
+        }
+        if(!"".equals(endTime)){
+            String y = endTime.substring(0,4);
+            String m = endTime.substring(4,6);
+            String d = endTime.substring(6,8);
+            params.put("endTime",y+"-"+m+"-"+d);
+        }
+
+        result = sqlManager.select( "accloan.企查查风险信息查询", JSONObject.class, params);
+
+        byte[] bytes = excelService.exportTableByTemplate2("report_34.xlsx", result);
+        Log.log("企查查风险信息导出");
+        return download("企查查风险信息.xlsx", bytes);
+    }
+
     private ResponseEntity<byte[]> download(String filename, byte[] bytes){
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);

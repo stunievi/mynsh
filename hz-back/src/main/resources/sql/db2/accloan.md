@@ -1513,6 +1513,36 @@ select prd_name from PRD_BASICINFO where prd_code =#prdCode#
 ===
 select uid from t_user_org u inner join T_ORG  o on o.ID=u.oid and o.NAME = #name#
 
+
+企查查风险信息查询
+===
+select
+@pageTag(){
+    *
+@}
+from T_QCC_RISK p1
+where 1=1
+@if(isNotEmpty(cusName)){
+    and p1.CUS_NAME like #'%' + cusName + '%'#
+@}
+@if(isNotEmpty(cusId)){
+    and p1.CUS_ID like #'%' +cusId + '%'#
+@}
+@if(isNotEmpty(certCode)){
+    and p1.CERT_CODE like #'%' +certCode + '%'#
+@}
+@if(isNotEmpty(endTime)){
+    and p1.ADD_TIME<=#endTime#
+@}
+@if(isNotEmpty(startTime)){
+    and p1.ADD_TIME>=#startTime#
+@}
+--查询数据范围
+#use("condition_loan")#
+@pageIgnoreTag(){
+    order by p1.ADD_TIME desc
+@}
+
 1201
 ===
 select

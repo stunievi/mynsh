@@ -4,8 +4,10 @@ import cn.hutool.core.io.resource.ClassPathResource;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzlink.model.Link111;
+import com.beeasy.hzlink.model.TQccRisk;
 import com.beeasy.hzlink.model.TSystemVariable;
 import com.github.llyb120.nami.core.MultipartFile;
+import com.github.llyb120.nami.core.Obj;
 import com.github.llyb120.nami.excel.ExportUtil;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.beetl.core.resource.ClasspathResource;
@@ -13,6 +15,9 @@ import org.beetl.core.resource.ClasspathResource;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -148,4 +153,51 @@ public class FileController {
         }
         return null;
     }
+
+    /**
+     * 企查查风险信息导出
+     */
+    public MultipartFile riskInfoExport(String cusId, String cusName, String certCode, String startTime, String endTime){
+
+        try {
+            System.out.println(cusId);
+            JSONObject object = new JSONObject();
+            object.put("cusId",cusId);
+            object.put("cusName",cusName);
+            object.put("certCode",certCode);
+            if(!"".equals(startTime)){
+                String y = startTime.substring(0,4);
+                String m = startTime.substring(4,6);
+                String d = startTime.substring(6,8);
+                object.put("startTime",y+"-"+m+"-"+d);
+            }
+            if(!"".equals(endTime)){
+                String y = endTime.substring(0,4);
+                String m = endTime.substring(4,6);
+                String d = endTime.substring(6,8);
+                object.put("endTime",y+"-"+m+"-"+d);
+            }
+            var lists = sqlManager.select("accloan.企查查风险信息查询" ,JSONObject.class, object);
+
+            var data = a();
+            for (JSONObject list : lists) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("cusId",list.getString("cus_id"));
+                map.put("cusName",list.getString("cus_name"));
+                map.put("certCode",list.getString("cert_code"));
+                map.put("addTime",list.getString("add_time"));
+                map.put("riskInfo",list.getString("risk_info"));
+                data.add(map);
+            }
+            return ExportUtil.toXls("企查查风险信息.xlsx", new ClassPathResource("excel/report_33.xlsx").getStream(), o(
+                    "values", data
+            ));
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InvalidFormatException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }
