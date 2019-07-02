@@ -55,14 +55,12 @@
     var loadBlock4Status = false;
     function loadBlock4() {
         loadBlock4Status = true;
-        var renderExceptions = function(dataList){
-            dataList.forEach(function (row) {
-                row["AddDate"] = subDateStr(row.AddDate);
-                row["RemoveDate"] = subDateStr(row.RemoveDate);
-                qccNoDataFillFun(row);
-            });
+        // 企业经营异常信息
+        $.when(keyNoPromise).then(function () {
             laytableRender({
+                page: false,
                 title: "经营异常",
+                url: remoteApi.qccECIExceptionGetOpException+"?keyNo="+COMPANY_KEY_NO,
                 id: "Exceptions-body"
                 , cols: [
                     [
@@ -74,31 +72,17 @@
                         {title:"移出经营异常名录原因", field:"RomoveReason"} // 企查查为准！
                     ]
                 ],
-                data: dataList,
                 onData:function (data) {
-                    // fixOnDataLoad("Exceptions", data);
+                    fixOnDataLoad("Exceptions", {
+                        rows: data
+                    }, function (row) {
+                        row["AddDate"] = subDateStr(row["AddDate"]);
+                        row["RemoveDate"] = subDateStr(row["RemoveDate"]);
+                    });
                 }
             });
-        };
-
-        // 企业经营异常信息
-        $.when(keyNoPromise).then(function () {
-            $.ajax({
-                url: remoteApi.qccECIExceptionGetOpException+"?keyNo="+COMPANY_KEY_NO,
-                success: function (res) {
-                    var dataList = [];
-                    if(res.success && res.data && res.data.list && res.data.list.length>0){
-                        dataList = res.data.list;
-                        $("#Exceptions-count").html(dataList.length);
-                        $("a[data-href='#Exceptions']").removeClass("disabled");
-                    }
-                    renderExceptions(dataList);
-                }
-            })
-        },function () {
-            $("a[data-href='#Exceptions']").addClass("disabled");
-            renderExceptions([]);
         });
+        // 司法拍卖
         laytableRender({
             id: "JudicialSaleList-body",
             title: "司法拍卖列表"
@@ -147,7 +131,6 @@
                     row["StartDate"] = subDateStr(row.StartDate) || "";
                     row["EndDate"] = subDateStr(row.EndDate) || "";
                     row["LandMortgageTime"] = row["StartDate"] + " - " + row["EndDate"];
-
                 });
             }
         });
