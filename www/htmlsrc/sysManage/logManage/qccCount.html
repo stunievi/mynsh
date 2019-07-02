@@ -97,6 +97,14 @@
                 name: "获取新增的公司信息",
                 prop: "ECIV4_SearchFresh"
             }
+            ,{
+                name: "企业对外投资穿透",
+                prop: "ECIInvestmentThrough_GetInfo"
+            },
+            {
+                name: "企业对外投资列表",
+                prop: "ECIInvestment_GetInvestmentList"
+            }
         ],
         "控股公司查询": [
             {
@@ -287,8 +295,8 @@
         col:3,
         panelTitle:'筛选查询',
         list:[
-            { label:'开始日期', prop:'beginTime',disabled: true, type: "date" },
-            { label:'结束日期', prop:'endTime',disabled: true, type: "date" }
+            { label:'开始日期', prop:'beginTime',disabled: true, type: "datetime" },
+            { label:'结束日期', prop:'endTime',disabled: true, type: "datetime" }
         ],
         data: {
             // 'own': 1

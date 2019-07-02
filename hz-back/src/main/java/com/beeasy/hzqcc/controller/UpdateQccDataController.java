@@ -82,6 +82,9 @@ public class UpdateQccDataController {
         data.put("JudicialSale_GetJudicialSaleList","司法拍卖列表");
         data.put("LandMortgage_GetLandMortgageDetails","土地抵押详情");
         data.put("LandMortgage_GetLandMortgageList","土地抵押列表");
+
+        data.put("ECIInvestmentThrough_GetInfo", "企业对外投资穿透");
+        data.put("ECIInvestment_GetInvestmentList","企业对外投资列表");
     }
 
     @RequestMapping(value = "/updateData", method = RequestMethod.GET)

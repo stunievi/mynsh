@@ -294,6 +294,8 @@
                 for(var i=0;i<res.rows.length;i++){
                     var data = res.rows[i];
                     data["LM_FCZ_DATE"] = (data["LM_FCZ_DATE"] || '').substring(0, 10);
+                    data["LM_MMHTJYRQ_DATE"] = (data["LM_MMHTJYRQ_DATE"] || '').substring(0, 10);
+                    data["LM_EXPLAIN"] = ("null" == data["LM_EXPLAIN"] ? '-': data["LM_EXPLAIN"]);
                 }
                return res;
             }
