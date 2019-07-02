@@ -306,7 +306,7 @@ public class ExportCSVController {
                         if(null == key) continue;
                         String value = d.getString(key);
                         if("LM_FCZ_DATE".equals(key) || "LM_MMHTJYRQ_DATE".equals(key)){
-                            if(value.length()>10){
+                            if(value != null && value.length()>10 ){
                                 value = value.substring(0,10);
                             }
 

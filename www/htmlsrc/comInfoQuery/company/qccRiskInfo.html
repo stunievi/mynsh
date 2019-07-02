@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>对公客户贷后信息 - 风险信息</title>
+    <!--#include file="/htmlsrc/header.html" -->
+
+    <style>
+        td{
+            white-space: nowrap;
+        }
+        tr td:nth-child(5){
+            white-space: normal !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="content">
+        <div id="panel-form">
+            <!-- 查询表单 -->
+        </div>
+        <div id="dataList">
+            <!-- 数据列表 -->
+        </div>
+    </div>
+    <script type="text/html" id="cusTemp">
+        <a class="customrName"  target="_blank" style="cursor:pointer;">{{d.CUS_NAME}}</a>
+    </script>
+
+    <script>
+        $("#panel-form").html(panelFormRender3({
+            panelTitle: '筛选查询',
+            list: [
+                { prop: 'cusName', label: '企业名称' },
+                { prop: 'certCode', label: '证件号码' },
+                { prop: 'cusId', label: '客户号' },
+                { prop: 'startTime', label: '开始时间', disabled: true, type: "date" },
+                { prop: 'endTime', label: '结束时间', disabled: true, type: "date" }
+            ],
+            data: {},
+            excel:true
+        }));
+
+        laytableRender({
+            url: remoteOrigin + "/api/auto/qccrisk/getList",
+            cols: [
+                [
+                    { field: 'CUS_ID', title: '客户号'},
+                    { field: 'CUS_NAME', title: '企业名称',templet:'#cusTemp' },
+                    { field: "CERT_CODE", title: "证件号码" },
+                    { field: "ADD_TIME", title: "更新时间" },
+                    { field: 'RISK_INFO', title: '风险信息', setWidth: 500 }
+                ]
+            ]
+        });
+
+        $(".btn-export").click(function () {
+            var str =$('[name=form-search]').ghostsf_serialize().replace(/(\d+)-/g,'$1');
+            // location.href = remoteOrigin + "/link/FileController/riskInfoExport?" + str
+            location.href = remoteOrigin + "/api/report/export/riskInfo/exportExcel?" + str
+
+                // layer.alert("正在导出数据，系统稍后会将导出文件发送至收件箱，请注意查收！");
+        });
+
+        $(document).on("click", ".customrName", function () {
+            var cusName = $(this).html();
+            addNavTab("ECIdetail"+cusName, "企查查-公司详情-"+cusName, hrefUrl.ECIdetail+cusName);
+        });
+
+
+        function checkSubmitForm() {
+            var form = $("form[name='form-search']")
+            layuiTableReload({
+                where: form.serialize()
+            })
+            return false;
+        }
+    </script>
+</body>
+
+</html>

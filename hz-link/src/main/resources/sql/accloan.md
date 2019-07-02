@@ -122,3 +122,30 @@ order by a.GUAR_NAME
 根据取数规则查询
 ===
 SELECT * FROM DB2INST1.LINK_11_1 where link_rule=#linkRule# and origin_name <> LINK_LEFT
+
+企查查风险信息查询
+===
+select
+@pageTag(){
+    *
+@}
+from T_QCC_RISK risk 
+where 1=1
+@if(isNotEmpty(cusName)){
+    and risk.CUS_NAME like #'%' + cusName + '%'#
+@}
+@if(isNotEmpty(cusId)){
+    and risk.CUS_ID like #'%' +cusId + '%'#
+@}
+@if(isNotEmpty(certCode)){
+    and risk.CERT_CODE like #'%' +certCode + '%'#
+@}
+@if(isNotEmpty(endTime)){
+    and risk.ADD_TIME<=#endTime#
+@}
+@if(isNotEmpty(startTime)){
+    and risk.ADD_TIME>=#startTime#
+@}
+@pageIgnoreTag(){
+    order by risk.ADD_TIME desc
+@}
