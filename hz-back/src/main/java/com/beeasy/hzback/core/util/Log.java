@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Map;
 
 public class Log {
 
@@ -35,6 +36,12 @@ public class Log {
         catch (Exception e){
         }
 
+    }
+    public static void qccLog(String content,  Map map,String foot){
+        if(null != map.get("fullName")){
+            content =  content   + map.get("fullName") + foot;
+            U.getBean(SystemLogService.class).writeLog(AuthFilter.getUid(), content, null);
+        }
     }
 
 }

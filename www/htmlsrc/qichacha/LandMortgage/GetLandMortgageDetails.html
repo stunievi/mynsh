@@ -39,6 +39,8 @@
                 MortgagePeople = data["MortgagePeople"];
                 data["MortgagorName"] = data["MortgagorName"]["Name"];
                 data["MortgagePeople"] = data["MortgagePeople"]["Name"];
+                data["OnBoardStartTime"] = subDateStr(data["OnBoardStartTime"]);
+                data["OnBoardEndTime"] = subDateStr(data["OnBoardEndTime"]);
                 $("#home").html(qccTableRender({
                     cols:[
                         {title:"宗地标识", field:"LandSign"},

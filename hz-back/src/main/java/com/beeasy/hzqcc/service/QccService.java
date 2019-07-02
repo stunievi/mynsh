@@ -136,7 +136,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ) {
-        Log.log("企查查查询:" + param.get("fullName") + "基本信息（Master）",0);
+        Log.qccLog("企查查查询:" , param,"基本信息（Master）");
         JSONObject data = qccHttpDataService.findOne("ECIV4_GetDetailsByName", param);
         return getResDetails(data, isOrigin);
     }
@@ -146,7 +146,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ) {
-        Log.log("企查查查询:" + param.get("fullName") + "基本信息（Basic）",0);
+        Log.qccLog("企查查查询:" ,param,"基本信息（Basic）");
         JSONObject data = qccHttpDataService.findOne("ECIV4_GetBasicDetailsByName", param);
         return getResDetails(data, isOrigin);
     }
@@ -156,7 +156,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ) {
-        Log.log("企查查查询:" + param.get("fullName") + "企业人员董监高信息",0);
+        Log.qccLog("企查查查询:" ,param,"企业人员董监高信息");
         JSONObject data = qccHttpDataService.findOne("CIAEmployeeV4_GetStockRelationInfo", param);
         return getResDetails(data, isOrigin);
     }
@@ -166,7 +166,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ) {
-        Log.log("企查查查询:" + param.get("fullName") + "裁判文书",0);
+        Log.qccLog("企查查查询:", param, "裁判文书");
         JSONObject data = qccHttpDataService.getDataList("JudgeDocV4_SearchJudgmentDoc", fixResPageParam(param));
         return getResDataList(data, isOrigin);
     }
@@ -186,7 +186,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ) {
-        Log.log("企查查查询:" + param.get("fullName") + "开庭公告",0);
+        Log.qccLog("企查查查询:" ,param, "开庭公告");
         JSONObject data = qccHttpDataService.getDataList("CourtAnnoV4_SearchCourtNotice", fixResPageParam(param));
         return getResDataList(data, isOrigin);
     }
@@ -206,7 +206,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ) {
-        Log.log("企查查查询:" + param.get("fullName") + "失信信息",0);
+        Log.qccLog("企查查查询:" ,param,"失信信息");
         JSONObject data = qccHttpDataService.getDataList("CourtV4_SearchShiXin", fixResPageParam(param));
         return getResDataList(data, isOrigin);
     }
@@ -216,7 +216,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ) {
-        Log.log("企查查查询:" + param.get("fullName") + "被执行信息",0);
+        Log.qccLog("企查查查询:" , param, "被执行信息");
         JSONObject data = qccHttpDataService.getDataList("CourtV4_SearchZhiXing", fixResPageParam(param));
         return getResDataList(data, isOrigin);
     }
@@ -226,7 +226,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ) {
-        Log.log("企查查查询:" + param.get("fullName") + "法院公告信息",0);
+        Log.qccLog("企查查查询:" ,param, "法院公告信息");
         JSONObject data = qccHttpDataService.getDataList("CourtNoticeV4_SearchCourtAnnouncement", fixResPageParam(param));
         return getResDataList(data, isOrigin);
     }
@@ -246,7 +246,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ) {
-        Log.log("企查查查询:" + param.get("fullName") + "司法协助信息",0);
+        Log.qccLog("企查查查询:" , param,"司法协助信息");
         JSONObject data = qccHttpDataService.findOne("JudicialAssistance_GetJudicialAssistance", param);
         return getResDataArr(data, isOrigin);
     }
@@ -256,7 +256,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ) {
-        Log.log("企查查查询:" + param.get("fullName") + "企业经营异常信息",0);
+        Log.qccLog("企查查查询:" , param,"企业经营异常信息");
         JSONObject data = qccHttpDataService.findOne("ECIException_GetOpException", param);
         return getResDataArr(data, isOrigin);
 
@@ -267,7 +267,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ) {
-        Log.log("企查查查询:" + param.get("fullName") + "历史工商信息",0);
+        Log.qccLog("企查查查询:" , param,"历史工商信息");
         JSONObject data = qccHttpDataService.findOne("History_GetHistorytEci", param);
         return getResDetails(data, isOrigin);
     }
@@ -277,7 +277,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ) {
-        Log.log("企查查查询:" + param.get("fullName") + "历史股东信息",0);
+        Log.qccLog("企查查查询:" ,param, "历史股东信息");
         JSONObject resData = qccHttpDataService.getSplitChildDataList("History_GetHistorytShareHolder", fixResPageParam(param));
         return getResDataList(resData, isOrigin);
     }
@@ -287,7 +287,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ) {
-        Log.log("企查查查询:" + param.get("fullName") + "历史对外投资信息",0);
+        Log.qccLog("企查查查询:" , param, "历史对外投资信息");
         JSONObject data = qccHttpDataService.getDataList("History_GetHistorytInvestment", fixResPageParam(param));
         return getResDataList(data, isOrigin);
     }
@@ -297,7 +297,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ) {
-        Log.log("企查查查询:" + param.get("fullName") + "历史失信查询",0);
+        Log.qccLog("企查查查询:" , param,"历史失信查询");
         JSONObject data = qccHttpDataService.getDataList("History_GetHistoryShiXin", fixResPageParam(param));
         return getResDataList(data, isOrigin);
     }
@@ -307,7 +307,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ) {
-        Log.log("企查查查询:" + param.get("fullName") + "历史被执行信息",0);
+        Log.qccLog("企查查查询:" , param,"历史被执行信息");
         JSONObject data = qccHttpDataService.getDataList("History_GetHistoryZhiXing", fixResPageParam(param));
         return getResDataList(data, isOrigin);
     }
@@ -317,7 +317,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ) {
-        Log.log("企查查查询:" + param.get("fullName") + "历史法院公告",0);
+        Log.qccLog("企查查查询:" , param,"历史法院公告");
         JSONObject data = qccHttpDataService.getDataList("History_GetHistorytCourtNotice", fixResPageParam(param));
         return getResDataList(data, isOrigin);
     }
@@ -327,7 +327,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ) {
-        Log.log("企查查查询:" + param.get("fullName") + "历史裁判文书",0);
+        Log.qccLog("企查查查询:" , param,"历史裁判文书");
         JSONObject data = qccHttpDataService.getDataList("History_GetHistorytJudgement", fixResPageParam(param));
         return getResDataList(data, isOrigin);
     }
@@ -337,7 +337,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ) {
-        Log.log("企查查查询:" + param.get("fullName") + "历史开庭公告",0);
+        Log.qccLog("企查查查询:" ,param,"历史开庭公告");
         JSONObject data = qccHttpDataService.getDataList("History_GetHistorytSessionNotice", fixResPageParam(param));
         return getResDataList(data, isOrigin);
     }
@@ -347,7 +347,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ) {
-        Log.log("企查查查询:" + param.get("fullName") + "历史动产抵押",0);
+        Log.qccLog("企查查查询:" ,param,"历史动产抵押");
         JSONObject data = qccHttpDataService.getDataList("History_GetHistorytMPledge", fixResPageParam(param));
         return getResDataList(data, isOrigin);
     }
@@ -357,7 +357,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ) {
-        Log.log("企查查查询:" + param.get("fullName") + "历史股权出质",0);
+        Log.qccLog("企查查查询:" , param,"历史股权出质");
         JSONObject data = qccHttpDataService.getDataList("History_GetHistorytPledge", fixResPageParam(param));
         return getResDataList(data, isOrigin);
     }
@@ -367,7 +367,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ) {
-        Log.log("企查查查询:" + param.get("fullName") + "历史行政处罚",0);
+        Log.qccLog("企查查查询:" , param,"历史行政处罚");
         JSONObject data = qccHttpDataService.findOne("History_GetHistorytAdminPenalty", param);
         return getResDetails(data, isOrigin);
     }
@@ -377,7 +377,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ) {
-        Log.log("企查查查询:" + param.get("fullName") + "历史行政许可",0);
+        Log.qccLog("企查查查询:" , param,"历史行政许可");
         JSONObject data = qccHttpDataService.findOne("History_GetHistorytAdminLicens", param);
         return getResDetails(data, isOrigin);
     }
@@ -387,7 +387,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ) {
-        Log.log("企查查查询:" + param.get("fullName") + "环保处罚信息",0);
+        Log.qccLog("企查查查询:" , param,"环保处罚信息");
 
         JSONObject data = qccHttpDataService.getDataList("EnvPunishment_GetEnvPunishmentList", fixResPageParam(param));
         return getResDataList(data, isOrigin);
@@ -408,7 +408,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ) {
-        Log.log("企查查查询:" + param.get("fullName") + "土地抵押列表信息",0);
+        Log.qccLog("企查查查询:" , param, "土地抵押列表信息");
         JSONObject data = qccHttpDataService.getDataList("LandMortgage_GetLandMortgageList", fixResPageParam(param));
         return getResDataList(data, isOrigin);
     }
@@ -428,7 +428,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ) {
-        Log.log("企查查查询:" + param.get("fullName") + "司法拍卖信息",0);
+        Log.qccLog("企查查查询:" , param, "司法拍卖信息");
         JSONObject data = qccHttpDataService.getDataList("JudicialSale_GetJudicialSaleList", fixResPageParam(param));
         return getResDataList(data, isOrigin);
     }
@@ -448,7 +448,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ) {
-        Log.log("企查查查询:" + param.get("fullName") + "动产抵押信息",0);
+        Log.qccLog("企查查查询:" ,param, "动产抵押信息");
         JSONObject data = qccHttpDataService.findOne("ChattelMortgage_GetChattelMortgage", param);
         return getResDataArr(data, isOrigin);
     }
@@ -458,7 +458,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ) {
-        Log.log("企查查查询:" + param.get("fullName") + "股权结构图",0);
+        Log.qccLog("企查查查询:" , param,"股权结构图");
         JSONObject tupuInfo = qccHttpDataService.findOne("ECIRelationV4_GetCompanyEquityShareMap", param);
         return getResDetails(tupuInfo, isOrigin);
     }
@@ -468,7 +468,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ) {
-        Log.log("企查查查询:" + param.get("fullName") + "十层股权穿透图",0);
+        Log.qccLog("企查查查询:" , param,"十层股权穿透图");
         JSONObject tupuInfo = qccHttpDataService.findOne("ECICompanyMap_GetStockAnalysisData", param);
         return getResDetails(tupuInfo, isOrigin);
     }
@@ -478,7 +478,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ) {
-        Log.log("企查查查询:" + param.get("fullName") + "投资图谱",0);
+        Log.qccLog("企查查查询:" , param,"投资图谱");
         JSONObject tupuInfo = qccHttpDataService.findOne("ECIRelationV4_SearchTreeRelationMap", param);
         return getResDetails(tupuInfo, isOrigin);
     }
@@ -488,7 +488,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ) {
-        Log.log("企查查查询:" + param.get("fullName") + "企业对外投资穿透",0);
+        Log.qccLog("企查查查询:" , param,"企业对外投资穿透");
         JSONObject tupuInfo = qccHttpDataService.findOne("ECIInvestmentThrough_GetInfo", param);
         return getResDetails(tupuInfo, isOrigin);
     }
@@ -498,7 +498,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ) {
-        Log.log("企查查查询:" + param.get("fullName") + "企业图谱",0);
+        Log.qccLog("企查查查询:" , param, "企业图谱");
         JSONObject comInfo = qccHttpDataService.findOne("ECIRelationV4_GenerateMultiDimensionalTreeCompanyMap", param);
         if (null == comInfo) {
             return new JSONObject();
@@ -546,7 +546,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ){
-        Log.log("企查查查询:" + param.get("fullName") + "企业对外投资列表",0);
+        Log.qccLog("企查查查询:" , param,"企业对外投资列表");
         JSONObject resData = qccHttpDataService.getDataList("ECIInvestment_GetInvestmentList", fixResPageParam(param));
         return getResDataList(resData, isOrigin);
     }
@@ -556,7 +556,7 @@ public class QccService {
             Map param,
             boolean isOrigin
     ) {
-        Log.log("企查查查询:" + param.get("fullName") + "控股公司信息",0);
+        Log.qccLog("企查查查询:" , param,"控股公司信息");
         JSONObject resData = qccHttpDataService.getSplitChildDataList("HoldingCompany_GetHoldingCompany", fixResPageParam(param));
         return getResSplitChild(resData, "Names", isOrigin);
     }

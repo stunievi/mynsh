@@ -406,8 +406,12 @@
         });  
         // 单个文件上传成功
         uploader.on('uploadSuccess', function(file, res) {
-             console.log(res)
-            $('#'+file.id ).find('.state').text(res.msg || "已上传").addClass('info');
+            if(res.status == "SUCCESS"){
+                $('#'+file.id ).find('.state').text('已上传').addClass('info');
+            }else{
+                console.error(res);
+                $('#'+file.id ).find('.state').text(res.msg).addClass('info');
+            }
         });  
         // 本次添加文件全部添加到队列后
         uploader.on('filesQueued', function(files) {

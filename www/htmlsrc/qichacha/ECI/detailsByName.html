@@ -19,7 +19,7 @@
                 return index + 1;
             }
         };
-        // 首次加载忽略滚动
+        // 首次加载忽略滚动字典
         var fixOnDataLoadObj = {};
         // 锚点
         var scrollToElm = function (elmId) {
@@ -46,12 +46,13 @@
             }
         };
         var fixOnDataLoad = function (elmId, data, fixFun) {
-            if(data && data.total && data.total > 0){
+            if(data && (data.total && data.total > 0 || data.rows.length > 0)){
                 var handle = $("a[data-href='#"+elmId+"']");
                 if(!handle.hasClass("loaded")){
-                    handle.append("&nbsp;"+data.total);
+                    var count = data.total ? data.total : data.total = data.rows.length & data.rows.length;
+                    handle.append("&nbsp;"+count);
                     handle.removeClass("disabled").addClass("loaded");
-                    $("#"+elmId+"-count").html(data.total);
+                    $("#"+elmId+"-count").html(count);
                 }
                 scrollToElm(elmId);
             }
@@ -111,6 +112,7 @@
 <script src="/static/vendor/jquery.goup.min.js"></script>
 
 <script>
+    // 回到顶部
     $.goup({
         goupSpeed: 100,
         bottomOffset: 50,

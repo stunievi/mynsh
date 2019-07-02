@@ -69,11 +69,6 @@
     </div>
 </div>
 
-<script type="text/html" id="susong1_toolbar">
-    <div class="layui-toolbar">
-        <a href="javascript:;" class="susong1_toolbar" data-val="{{d.Id}}">{{d.CaseNo}}</a>
-    </div>
-</script>
 <script type="text/html" id="susong2_toolbar">
     <div class="layui-toolbar">
     <a href="javascript:;" class="susong2_toolbar" data-val="{{d.Id}}">{{d.CaseName}}</a>
@@ -109,7 +104,10 @@
             cols: [
                 [
                     BOOTSTRAP_INDEX_FILED,
-                    { title:'案号', templet: "#susong1_toolbar"},
+                    { title:'案号', templet: function (row) {
+                            return '<a href="javascript:;" tab-title="开庭公告详情" tab-href="/htmlsrc/qichacha/CourtAnno/GetCourtNoticeInfo.html?id='+row["Id"]+'">'+row["CaseNo"]+'</a>';
+                        }
+                    },
                     {title:"开庭时间",field:"LiAnDate", setWidth: 90},
                     {title:"案由",field:"CaseReason", setWidth: 110},
                     {title:"公诉人/原告/上诉人/申请",field:"ProsecutorList"},
@@ -280,12 +278,6 @@
 
     }
 
-
-    $(document).on("click", ".susong1_toolbar", function (){
-        var id =  $(this).data("val");
-        addNavTab("开庭公告详情", "/htmlsrc/qichacha/CourtAnno/GetCourtNoticeInfo.html?id="+id);
-        return false;
-    });
     $(document).on("click", ".susong2_toolbar", function (){
         var id = $(this).data("val");
         addNavTab("裁判文书详情", "/htmlsrc/qichacha/JudgeDoc/GetJudgementDetail.html?id="+id);
