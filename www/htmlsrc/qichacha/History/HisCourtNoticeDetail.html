@@ -20,6 +20,7 @@
 <script src="/htmlsrc/qichacha/tmpl/eci/qccTable.js"></script>
 <script>
     function onPageRequest(data){
+        data["SubmitDate"] = subDateStr(data["SubmitDate"]);
         $("#home").html(
             qccTableRender({
                 cols: [

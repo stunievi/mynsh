@@ -186,13 +186,14 @@
 
             // 股东信息
             if(data.Partners){
-                if(data.Partners.length > 0){
+                var partnersCount = data.Partners.length;
+                if(partnersCount > 0){
                     data.Partners.forEach(function (item) {
                         item["ShoudDate"] = subDateStr(item["ShoudDate"]);
                         // item["CapiDate"] = subDateStr(item["CapiDate"]);
+                        $("#base8-count").html(partnersCount);
                     });
-                    $("#base8-count").html(data.Partners.length);
-                    $("a[data-href='#base8']").removeClass("disabled");
+                    $("a[data-href='#base8']").removeClass("disabled").append("&nbsp;"+partnersCount);
                 }
             }else {
                 console.error("股东信息不存在！");
@@ -220,9 +221,10 @@
 
             // 主要人员
             if(data.Employees){
-                if(data.Employees.length > 0){
-                    $("#base9-count").html(data.Employees.length);
-                    $("a[data-href='#base9']").removeClass("disabled");
+                var employeesCount = data.Employees.length;
+                if(employeesCount > 0){
+                    $("#base9-count").html(employeesCount);
+                    $("a[data-href='#base9']").removeClass("disabled").append("&nbsp;"+employeesCount);
                 }
             }else{
                 console.error("主要人员不存在！");
@@ -248,12 +250,13 @@
 
             // 分支机构
             if(data.Branches){
-                if(data.Branches.length > 0){
-                    $("#base10-count").html(data.Branches.length);
-                    $("a[data-href='#base10']").removeClass("disabled");
+                var branchesCount = data.Branches.length;
+                if(branchesCount > 0){
+                    $("#base10-count").html(branchesCount);
+                    $("a[data-href='#base10']").removeClass("disabled").append("&nbsp;"+branchesCount);
                     var branches = [];
                     var dataBranches = data.Branches;
-                    for(var i = 0;i<dataBranches.length;){
+                    for(var i = 0;i<branchesCount;){
                         var arr = [];
                         arr.push(dataBranches[i]["Name"]);
                         if(dataBranches[i+1]){

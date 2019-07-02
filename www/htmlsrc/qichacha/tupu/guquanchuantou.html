@@ -1356,7 +1356,6 @@
 
 
     function ajaxtouzidata(node,KeyNo) {
-
         if(!node.isTouzi || node.ajaxtouzi){
             return;
         }
@@ -1522,7 +1521,7 @@
         }
         //设置保存图片的类型
         var imgdata = canvas.toDataURL('image/jpeg',qual);
-        var filename = '小米科技有限责任公司的股权穿透图_'+new Date().toLocaleDateString() + '.jpeg';
+        var filename = '股权穿透图_'+new Date().toLocaleDateString() + '.jpeg';
         post(INDEX_URL+'cms_downloadimg?filename='+filename, {img:imgdata});
     }
     function post(URL, PARAMS) {

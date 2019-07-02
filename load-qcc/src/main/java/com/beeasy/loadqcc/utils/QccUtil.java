@@ -33,8 +33,9 @@ public class QccUtil {
         queries.put("key", AppKey);
         Map header = setHeaderInfo();
         try{
+//            int i = (int)(10+Math.random()*(20-10+1));
 //            return JSON.toJSONString(C.newMap(
-//                    "Status", "000",
+//                    "Status", i+"0",
 //                    "Message", "命中测试调用！！！",
 //                    "Result", url
 //            ));
