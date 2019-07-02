@@ -188,6 +188,9 @@
             success:function(res){
                 if(res.data && res.data.list && res.data.list.length>0){
                     chattelMortgageDataList = res.data.list;
+                    chattelMortgageDataList.forEach(function (value) {
+                        value["RegisterDate"] = subDateStr(value["RegisterDate"]);
+                    });
                     $("#ChattelMortgage-count").html(chattelMortgageDataList.length);
                     $("a[data-href='#ChattelMortgage']").removeClass("disabled");
                 }

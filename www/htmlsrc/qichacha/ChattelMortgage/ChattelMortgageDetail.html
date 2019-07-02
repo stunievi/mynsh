@@ -154,13 +154,15 @@
                 data: guaranteeListDataObj
             }));
 
+            var cancelInfo = dataDetail.CancelInfo || {};
+            cancelInfo["CancelDate"] = subDateStr(cancelInfo["CancelDate"]);
             // 	动产抵押CancelInfo
             $("#home-content-5").html(qccTableRender({
                 cols:[
                     {title:"动产抵押登记注销时间", field:"CancelDate" },
                     {title:"动产抵押登记注销原因", field:"CancelReason" }
                 ],
-                data: dataDetail.CancelInfo
+                data: cancelInfo
             }));
 
             laytableRender({
