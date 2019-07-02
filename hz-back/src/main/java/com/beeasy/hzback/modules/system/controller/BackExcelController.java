@@ -142,13 +142,19 @@ public class BackExcelController {
                     long count = sqlManager.lambdaQuery(LoanManager.class)
                         .andEq(LoanManager::getLoanAccount, loanAccount)
                         .count();
-                    if (count > 0) {
+                    /*if (count > 0) {
                         sqlManager.lambdaQuery(LoanManager.class)
                             .andEq(LoanManager::getLoanAccount, loanAccount)
                             .updateSelective(lm);
                     } else {
                         sqlManager.insert(lm);
+                    }*/
+                    if (count > 0) {
+                        sqlManager.lambdaQuery(LoanManager.class)
+                                .andEq(LoanManager::getLoanAccount, loanAccount)
+                                .delete();
                     }
+                    sqlManager.insert(lm);
                 }
             }
             Log.log("批量导入按揭贷款信息 %d 条, 成功 %d 条, 失败 %d 条", total, total - failed, failed);
