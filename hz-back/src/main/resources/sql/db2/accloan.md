@@ -1520,27 +1520,32 @@ select
 @pageTag(){
     *
 @}
-from T_QCC_RISK p1
+from T_QCC_RISK a
 where 1=1
 @if(isNotEmpty(cusName)){
-    and p1.CUS_NAME like #'%' + cusName + '%'#
+    and a.CUS_NAME like #'%' + cusName + '%'#
 @}
 @if(isNotEmpty(cusId)){
-    and p1.CUS_ID like #'%' +cusId + '%'#
+    and a.CUS_ID like #'%' +cusId + '%'#
 @}
 @if(isNotEmpty(certCode)){
-    and p1.CERT_CODE like #'%' +certCode + '%'#
+    and a.CERT_CODE like #'%' +certCode + '%'#
 @}
 @if(isNotEmpty(endTime)){
-    and p1.ADD_TIME<=#endTime#
+    and a.ADD_TIME<=#endTime#
 @}
 @if(isNotEmpty(startTime)){
-    and p1.ADD_TIME>=#startTime#
+    and a.ADD_TIME>=#startTime#
 @}
+and CUS_NAME in
+(
+select CUS_NAME from RPT_M_RPT_SLS_ACCT as p1
+where 1=1
 --查询数据范围
 #use("condition_loan")#
+)
 @pageIgnoreTag(){
-    order by p1.ADD_TIME desc
+    order by a.ADD_TIME desc
 @}
 
 1201

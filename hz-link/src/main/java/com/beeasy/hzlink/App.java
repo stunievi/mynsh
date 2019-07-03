@@ -43,10 +43,11 @@ public class App {
 
 
             String finalConf = conf;
-            ThreadUtil.execAsync(() -> Nami.start(finalConf));
-            while (sqlManager == null) {
-                ThreadUtil.sleep(100);
-            }
+            Nami.start(finalConf);
+//            ThreadUtil.execAsync(() -> Nami.start(finalConf));
+//            while (sqlManager == null) {
+//                ThreadUtil.sleep(100);
+//            }
 
 //            Link.do11_5("");
 //            Link.do11_6();

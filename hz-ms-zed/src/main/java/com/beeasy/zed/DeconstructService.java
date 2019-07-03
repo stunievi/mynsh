@@ -1081,7 +1081,7 @@ public class DeconstructService extends AbstractService {
                 "+inner_company_name", compName
         );
         doDelete("QCC_GQ_CHUANTOU", "inner_company_name", compName);
-        deconstruct(json, "QCC_GQ_CHUANTOU", "INNER_ID");
+        deconstruct(json, "QCC_GQ_CHUANTOU", "");
     }
 
 
@@ -1414,7 +1414,7 @@ public class DeconstructService extends AbstractService {
         String id = getQuery(request, "id");
         changeField(json,
                 "+Id", id,
-                "+Open_Time",DateValue
+                "+Open_Time", DateValue
         );
         deconstruct(json, "QCC_COURT_NOTICE", "Id");
         //补充上诉人和被上诉人
@@ -1807,7 +1807,7 @@ public class DeconstructService extends AbstractService {
         }
         if (tableName.equals("QCC_GQ_CHUANTOU")) {
             JSONArray jsonArray = new JSONArray();
-            getJsonTree(object, jsonArray, object.getString("CompanyName"), 1, "",object.getString("CompanyName"));
+            getJsonTree(object, jsonArray, object.getString("CompanyName"), 1, "", object.getString("CompanyName"));
             kv.put("result", jsonArray.toString());
         }
         kv.put("input_date", new Date());
@@ -1917,7 +1917,7 @@ public class DeconstructService extends AbstractService {
     }
 
     //解析企业对外投资，并将其解为tree结构
-    public static void getJsonTree(JSONObject json, JSONArray arrass, String parentName, int leve, String path,String dingjiParent) {
+    public static void getJsonTree(JSONObject json, JSONArray arrass, String parentName, int leve, String path, String dingjiParent) {
         if (leve > 5) return;
         JSONArray jsonArray = json.getJSONArray("BreakThroughList");
         for (Object o : jsonArray) {
@@ -1944,7 +1944,7 @@ public class DeconstructService extends AbstractService {
                     object.put("Percent", json1.getString("StockPercent"));
                     object.put("PercentTotal", json1.getString("StockPercent"));
                     object.put("DetailList", array1);
-                    getJsonTree(json, array1, jiexiStr[leve], leve + 1, path,dingjiParent);
+                    getJsonTree(json, array1, jiexiStr[leve], leve + 1, path, dingjiParent);
                     arrass.add(object);
                 }
             }
@@ -1953,15 +1953,16 @@ public class DeconstructService extends AbstractService {
 
     private static int holdInt = 1;
     public volatile static Map hashMap = new HashMap();
+
     public static Boolean getHoldIsBoolean(String name, String parentName) {
         //获取是否控股公司
-        if(holdInt == 1) {
+        if (holdInt == 1) {
             String sql = "select name,inner_company_name  from qcc_holding_company_names";
             List<JSONObject> list = sqlManager.execute(new SQLReady(sql), com.alibaba.fastjson.JSONObject.class);
             for (int i = 0; i < list.size(); i++) {
                 hashMap.put(list.get(i).getString("name"), list.get(i).getString("innerCompanyName"));
             }
-            holdInt +=1;
+            holdInt += 1;
         }
         try {
             return hashMap.get(name).equals(parentName);
@@ -2314,7 +2315,7 @@ public class DeconstructService extends AbstractService {
                     case "DECIMAL":
                         String value = String.valueOf(entry.getValue());
                         value = value.replaceAll("万", "0000");
-                        value = value.replaceAll("人民币元", "");
+                        value = value.replaceAll("[\\u4e00-\\u9fa5]", "");
                         p.setBigDecimal(idex + 1, new BigDecimal(value));
                         break;
 
@@ -2326,7 +2327,7 @@ public class DeconstructService extends AbstractService {
                             int d = 1;
                         }
                         if (entry.getValue() instanceof Date) {
-                            p.setString(idex + 1, DateUtil.format((Date)entry.getValue(), "yyyy-MM-dd hh:mm:ss"));
+                            p.setString(idex + 1, DateUtil.format((Date) entry.getValue(), "yyyy-MM-dd hh:mm:ss"));
                             break;
                         }
                         p.setObject(idex + 1, entry.getValue());
@@ -2426,13 +2427,13 @@ public class DeconstructService extends AbstractService {
                 } else {
                     JSONObject finalNkv = nkv;
                     kv.forEach((k, v) -> {
-                        if(v instanceof String){
-                            if (S.isNotEmpty((String)v) && S.isEmpty(finalNkv.getString(k))) {
+                        if (v instanceof String) {
+                            if (S.isNotEmpty((String) v) && S.isEmpty(finalNkv.getString(k))) {
                                 finalNkv.put(k, v);
                             }
                         } else {
-                            if(null != v && finalNkv.get(k) == null){
-                                finalNkv.put(k,v);
+                            if (null != v && finalNkv.get(k) == null) {
+                                finalNkv.put(k, v);
                             }
                         }
                     });
@@ -2483,17 +2484,13 @@ public class DeconstructService extends AbstractService {
             stime = System.currentTimeMillis();
 
             for (Map.Entry<Object, PreparedStatement> entry : insertCache.entrySet()) {
-                try {
-                    entry.getValue().executeBatch();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                entry.getValue().executeBatch();
                 IoUtil.closeIfPosible(entry.getValue());
             }
             System.out.printf("insert takes %d ms\n", System.currentTimeMillis() - stime);
             try {
                 conn.commit();
-            }catch (Exception e){
+            } catch (Exception e) {
                 conn.rollback();
                 throw e;
             }
