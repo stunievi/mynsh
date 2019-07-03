@@ -43,18 +43,17 @@ public class App {
 
 
             String finalConf = conf;
-            Nami.start(finalConf);
-//            ThreadUtil.execAsync(() -> Nami.start(finalConf));
-//            while (sqlManager == null) {
-//                ThreadUtil.sleep(100);
-//            }
+            ThreadUtil.execAsync(() -> Nami.start(finalConf));
+            while (sqlManager == null) {
+                ThreadUtil.sleep(100);
+            }
 
 //            Link.do11_5("");
 //            Link.do11_6();
 //            if(true){
 //                System.exit(0);
 //            }
-            /*var exec = Executors.newFixedThreadPool(16);
+            var exec = Executors.newFixedThreadPool(16);
             List<Obj> list = sqlManager.select("accloan.cun_cus_com", Obj.class, o());
             for (Obj obj : list) {
                 exec.submit(() -> {
@@ -81,10 +80,11 @@ public class App {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            System.exit(0);*/
+            System.exit(0);
 
         } else {
             Nami.start(conf);
+            System.out.println("启动。。。。");
         }
     }
 
