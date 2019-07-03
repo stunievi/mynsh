@@ -46,7 +46,7 @@
                 导入股东清单文件
             </div>
             <button type="button" class="btn btn-success" id="templateDownload">
-                下载股东清单模板
+                导出股东清单文件
             </button>
         </div>
 
@@ -248,8 +248,9 @@
         initupload()
 
         $(document).on("click", "#templateDownload", function() {
-
-            location.href = remoteOrigin + "/link/FileController/shareholderListDownload"
+            var str =$('[name=form-search]').ghostsf_serialize();
+            // location.href = remoteOrigin + "/link/FileController/shareholderListDownload"
+            location.href = remoteOrigin + "/link/FileController/shareholderListExport?" + str
         })
 
         $(".btn-export").click(function () {

@@ -165,3 +165,35 @@ where 1=1
 @pageIgnoreTag(){
     order by a.ADD_TIME desc
 @}
+
+1201
+===
+select
+@pageTag(){
+    ROW_NUMBER()OVER(ORDER BY id) as number, s.*
+@}
+from T_SHARE_HOLDER_LIST s where 1=1
+@if(isNotEmpty(cusName)){
+    and cus_name like #'%' + cusName + '%'#
+@}
+@if(isNotEmpty(certCode)){
+    and cert_code like #'%' + certCode + '%'#
+@}
+
+
+1202
+===
+select
+@pageTag(){
+    ROW_NUMBER()OVER(ORDER BY id) as number, rp.*
+@}
+from T_RELATED_PARTY_LIST rp where 1=1
+@if(isNotEmpty(cusName)){
+    and RELATED_NAME like #'%' + cusName + '%'#
+@}
+@if(isNotEmpty(certCode)){
+    and cert_code like #'%' + certCode + '%'#
+@}
+@if(isNotEmpty(linkRule)){
+    and link_rule like #'%' + linkRule + '%'#
+@}

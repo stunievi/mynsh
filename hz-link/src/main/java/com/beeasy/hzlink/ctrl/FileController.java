@@ -156,6 +156,39 @@ public class FileController {
         }
         return null;
     }
+    /**
+     * 股东清单文件导出
+     */
+    public MultipartFile shareholderListExport(Obj query){
+        List<Obj> lists = sqlManager.select("accloan.1201", Obj.class,query);
+        try {
+            return ExportUtil.toXls("股东清单.xls", new ClassPathResource("excel/report_2_1.xls").getStream(), o(
+                    "values", lists
+            ));
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InvalidFormatException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * 关联方清单文件导出
+     */
+    public MultipartFile linkListExport(Obj query){
+        List<Obj> lists = sqlManager.select("accloan.1202", Obj.class,query);
+        try {
+            return ExportUtil.toXls("关联方清单.xlsx", new ClassPathResource("excel/report_1_1.xlsx").getStream(), o(
+                    "values", lists
+            ));
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InvalidFormatException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     /**
      * 企查查风险信息导出

@@ -37,7 +37,7 @@
                 导入关联方清单文件
             </div>
             <button type="button" class="btn btn-success" id="templateDownload">
-                下载关联方清单模板
+                导出关联方清单文件
             </button>
 
         </div>
@@ -69,9 +69,9 @@
         ];
 
         var searchCond = [
-            { label:'客户', prop:'cusName' }
+            { label:'关联人名称', prop:'cusName' }
             , { label:'证件号码', prop:'certCode' }
-            , { label:'取数规则', prop:'linkRule' }
+            , { label:'关联类型', prop:'linkRule' }
         ];
 
         if(searchCond.length){
@@ -153,7 +153,8 @@
         initupload()
 
         $(document).on("click", "#templateDownload", function() {
-            location.href = remoteOrigin + "/link/FileController/linkListDownload"
+            var str =$('[name=form-search]').ghostsf_serialize();
+            location.href = remoteOrigin + "/link/FileController/linkListExport?" + str
         })
 
     </script>
