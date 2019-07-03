@@ -222,9 +222,7 @@
            ],
            onData:function (data) {
                fixOnDataLoad("history5", data, function (row) {
-                   row["CaseNo"] = (row.CaseNo || '').trim().replace(/\(|\)/g, function (substring) {
-                       return substring === ")" ? "）" : "（";
-                   });
+                   row["CaseNo"] = formatBrackets(row.CaseNo);
                    row["LiAnDate"] = subDateStr(row.LiAnDate);
                });
                history5DataList = data.rows;

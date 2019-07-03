@@ -65,6 +65,7 @@
             success:function (res) {
                 if(res.success && res.data){
                     data = res.data;
+                    var totalCount = 0;
                     for(var key in cols){
                         var count = 0;
                         cols[key].forEach(function (item) {
@@ -72,7 +73,23 @@
                         });
                         cols[key]["arr"] = cols[key];
                         cols[key]["count"] = count;
+                        totalCount += count;
                     }
+                    /**
+                     * @Author gotomars
+                     * @Description 添加统计信息
+                     * @Date 16:04 2019/7/2
+                     **/
+                    cols["统计"] = {
+                        count: totalCount,
+                        arr: [
+                            {
+                                name: "",
+                                prop: "totalCount"
+                            }
+                        ]
+                    };
+                    data["totalCount"] = totalCount;
                     $("#dataList").html(
                         template("model_temp",{
                             cols: cols,
@@ -287,8 +304,8 @@
         col:3,
         panelTitle:'筛选查询',
         list:[
-            { label:'开始日期', prop:'beginTime',disabled: true, type: "date" },
-            { label:'结束日期', prop:'endTime',disabled: true, type: "date" }
+            { label:'开始日期', prop:'beginTime',disabled: true, type: "datetime" },
+            { label:'结束日期', prop:'endTime',disabled: true, type: "datetime" }
         ],
         data: {
             // 'own': 1
