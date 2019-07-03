@@ -79,16 +79,16 @@
                 <!--<li role="presentation" class=""><a href="#report" role="tab" id="report-tab" data-toggle="tab" data-controls="report">企业发展</a></li>-->
                 <!--<li role="presentation" class=""><a href="#assets" role="tab" id="assets-tab" data-toggle="tab" data-controls="assets">知识产权</a></li>-->
                 <li role="presentation" class=""><a href="#history" role="tab" id="history-tab" data-toggle="tab" data-controls="history">历史信息</a></li>
-                <li class="pull-right hide fullscreen-wrap">
+                <li class="pull-right hide lab-hide">
                     <a href="javascript:;" class="btn" title="全屏" id="fullscreenBtn" style="background: orange;color: #fff;" ><i class="glyphicon glyphicon-resize-full"></i></a>
                 </li>
                 <li class="pull-right hide qcc-com-info-wrap">
                     <a href="javascript:;" target="_blank" class="btn" id="qcc-com-info" title="企查查官网信息" style="background: orange;color: #fff;" ><i class="glyphicon glyphicon-cloud"></i></a>
                 </li>
-                <li class="pull-right hide com-info-wrap">
+                <li class="pull-right hide lab-hide">
                     <a href="javascript:;" class="btn" title="行内信息" id="com-info" style="background: orange;color: #fff;" ><i class="glyphicon glyphicon-link"></i></a>
                 </li>
-                <li class="pull-right hide change-com-wrap">
+                <li class="pull-right hide lab-hide">
                     <a href="javascript:;" class="btn" id="change-com" title="切换公司" style="background: orange;color: #fff;" ><i class="
                 glyphicon glyphicon-pencil"></i></a>
                 </li>
@@ -225,7 +225,7 @@
     if($.cookie("spec")){
         $("#updateBtn").find("span").hide();
         // 全屏
-        $(".fullscreen-wrap").removeClass("hide");
+        $(".lab-hide").removeClass("hide");
         $("#fullscreenBtn").click(function () {
             changeScreen("#fullscreenBtn");
         });
@@ -239,17 +239,15 @@
             }
         }
         // 根据输入公司名切换公司
-        $(".change-com-wrap").removeClass("hide");
         $("#change-com").click(function () {
             layer.prompt({title: '请输入公司名！', formType: 3}, function(val, index){
                 var dom = top.$("#iframe-content-wrap .active iframe");
                 var srcStr = dom.attr("src");
-                srcStr = putUrlParam("keyWord", (val || '').trim(), srcStr);
+                srcStr = putUrlParam("keyWord", formatBrackets(val), srcStr);
                 dom.attr("src", srcStr);
             });
         });
         // 行内的公司信息
-        $(".com-info-wrap").removeClass("hide");
         $("#com-info").attr("tab-href", hrefUrl.comClientInfo+CUS_ID).attr("tab-title", "行内 - " + COMPANY_NAME);
         // 外链企查查官网查询
         $.when(keyNoPromise).then(function (keyNo) {

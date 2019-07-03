@@ -130,7 +130,7 @@
                 fixOnDataLoad("LandMortgageList", data, function (row) {
                     row["StartDate"] = subDateStr(row.StartDate) || "";
                     row["EndDate"] = subDateStr(row.EndDate) || "";
-                    row["LandMortgageTime"] = row["StartDate"] + " - " + row["EndDate"];
+                    row["LandMortgageTime"] = row["StartDate"] + " 至 " + row["EndDate"];
                 });
             }
         });

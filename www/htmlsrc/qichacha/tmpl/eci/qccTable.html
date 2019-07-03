@@ -24,7 +24,7 @@
                         {{if val.handle}}
                             <a href="javascript:;" id="handle{{val.field}}">{{data[val.field] || ' - '}}</a>
                         {{else}}
-                            {{data[val.field] || ' - '}}
+                            <%- data[val.field] || " - "; %>
                         {{/if}}
                     </td>
                 {{/each}}
