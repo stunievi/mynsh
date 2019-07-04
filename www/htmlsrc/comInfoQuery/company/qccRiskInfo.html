@@ -59,11 +59,10 @@
         });
 
         $(".btn-export").click(function () {
-            var str =$('[name=form-search]').ghostsf_serialize().replace(/(\d+)-/g,'$1');
-            // location.href = remoteOrigin + "/link/FileController/riskInfoExport?" + str
-            location.href = remoteOrigin + "/api/report/export/riskInfo/exportExcel?" + str
+                var str =$('[name=form-search]').ghostsf_serialize();
+            location.href = remoteOrigin + "/link/FileController/riskInfoExport?" + str
+            // location.href = remoteOrigin + "/api/report/export/riskInfo/exportExcel?" + str
 
-                // layer.alert("正在导出数据，系统稍后会将导出文件发送至收件箱，请注意查收！");
         });
 
         $(document).on("click", ".customrName", function () {

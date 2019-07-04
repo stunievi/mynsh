@@ -76,9 +76,9 @@
 <!--投资路径模板-->
 <script type="text/html" id="paths">
     {{#  layui.each(d.Paths, function(index, item){ }}
-        <b>路径 {{index + 1 }} (占比约 {{d.PercentTotal}}):</b>
+        <b>路径 {{index + 1 }} (占比约 {{item[item.length-1].PercentTotal}}):</b>
         <br/>
-            {{d.Name}}
+            {{COMPANY_NAME}}
             {{#  layui.each(item, function(i, t){ }}
                 <span class="path">{{t.PercentTotal}}</span>
             {{t.Name}}
@@ -146,6 +146,7 @@
             data["UpdatedDate"] = subDateStr(data["UpdatedDate"]);
             data["TermTime"] = subDateStr(data.TermStart) + " 至 " + subDateStr(data.TeamEnd);
             data.SubIndustry = (data.Industry || {}).SubIndustry || "";
+            data["Name"] = $.cookie("spec") ? '<a href="javascript:;" class="show-client-target" key-no="'+data["KeyNo"]+'">'+data["Name"]+'</a>' :  data["Name"];
             $("#base1-body").html(
                 qccTableRender({
                     cols:[
@@ -362,7 +363,10 @@
         cols: [
             [
                 BOOTSTRAP_INDEX_FILED,
-                {title:"控股企业名称", field:"Name", setWidth: 250},
+                {title:"控股企业名称", field:"Name", setWidth: 250, templet: function (data) {
+                        return $.cookie("spec") ? '<a href="javascript:;" class="show-client-target" key-no="'+data["KeyNo"]+'">'+data["Name"]+'</a>' :  data["Name"];
+                    }
+                },
                 {title:"投资比例", field:"PercentTotal"},
                 {title:"投资链", field:"Paths", templet: "#paths"}
             ]
@@ -380,7 +384,10 @@
         cols: [
             [
                 BOOTSTRAP_INDEX_FILED,
-                {title:"企业名称",field:"Name"},
+                {title:"企业名称",field:"Name",templet: function (data,index) {
+                        return $.cookie("spec") ? '<a href="javascript:;" class="show-client-target" key-no="'+data["KeyNo"]+'">'+data["Name"]+'</a>' :  data["Name"];
+                    }
+                },
                 {title:"法人名称",field:"OperName"},
                 {title:"注册资本",field:"RegistCapi"},
                 {title:"出资比列",field:"FundedRatio"},

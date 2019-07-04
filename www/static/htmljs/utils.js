@@ -1442,13 +1442,22 @@ function dateFormate1(value, iSmillis){
 function dateFormate(i,g){var h,e;var c=["Sun","Mon","Tues","Wednes","Thurs","Fri","Satur","January","February","March","April","May","June","July","August","September","October","November","December"];var b=/\\?(.?)/gi;var a=function(f,k){return e[f]?e[f]():k};var d=function(k,f){k=String(k);while(k.length<f){k="0"+k}return k};e={d:function(){return d(e.j(),2)},D:function(){return e.l().slice(0,3)},j:function(){return h.getDate()},l:function(){return c[e.w()]+"day"},N:function(){return e.w()||7},S:function(){var f=e.j();var k=f%10;if(k<=3&&parseInt((f%100)/10,10)===1){k=0}return["st","nd","rd"][k-1]||"th"},w:function(){return h.getDay()},z:function(){var k=new Date(e.Y(),e.n()-1,e.j());var f=new Date(e.Y(),0,1);return Math.round((k-f)/86400000)},W:function(){var k=new Date(e.Y(),e.n()-1,e.j()-e.N()+3);var f=new Date(k.getFullYear(),0,4);return d(1+Math.round((k-f)/86400000/7),2)},F:function(){return c[6+e.n()]},m:function(){return d(e.n(),2)},M:function(){return e.F().slice(0,3)},n:function(){return h.getMonth()+1},t:function(){return(new Date(e.Y(),e.n(),0)).getDate()},L:function(){var f=e.Y();return f%4===0&f%100!==0|f%400===0},o:function(){var l=e.n();var f=e.W();var k=e.Y();return k+(l===12&&f<9?1:l===1&&f>9?-1:0)},Y:function(){return h.getFullYear()},y:function(){return e.Y().toString().slice(-2)},a:function(){return h.getHours()>11?"pm":"am"},A:function(){return e.a().toUpperCase()},B:function(){var k=h.getUTCHours()*3600;var f=h.getUTCMinutes()*60;var l=h.getUTCSeconds();return d(Math.floor((k+f+l+3600)/86.4)%1000,3)},g:function(){return e.G()%12||12},G:function(){return h.getHours()},h:function(){return d(e.g(),2)},H:function(){return d(e.G(),2)},i:function(){return d(h.getMinutes(),2)},s:function(){return d(h.getSeconds(),2)},u:function(){return d(h.getMilliseconds()*1000,6)},e:function(){var f="Not supported (see source code of date() for timezone on how to add support)";throw new Error(f)},I:function(){var k=new Date(e.Y(),0);var m=Date.UTC(e.Y(),0);var f=new Date(e.Y(),6);var l=Date.UTC(e.Y(),6);return((k-m)!==(f-l))?1:0},O:function(){var k=h.getTimezoneOffset();var f=Math.abs(k);return(k>0?"-":"+")+d(Math.floor(f/60)*100+f%60,4)},P:function(){var f=e.O();return(f.substr(0,3)+":"+f.substr(3,2))},T:function(){return"UTC"},Z:function(){return -h.getTimezoneOffset()*60},c:function(){return"Y-m-d\\TH:i:sP".replace(b,a)},r:function(){return"D, d M Y H:i:s O".replace(b,a)},U:function(){return h/1000|0}};var j=function(k,f){h=(f===undefined?new Date():(f instanceof Date)?new Date(f):new Date(f*1000));return k.replace(b,a)};return j(i,g)};
 
 var subDateStr = function(dateStr){
-    if(dateStr && dateStr.length>10){
+    if(dateStr && dateStr.length>=10){
         return dateStr.substring(0, 10);
+    }else if(dateStr){
+        console.error("请查看字段格式",dateStr);
     }
     return " - ";
+};
+// 格式化括号
+function formatBrackets(str) {
+    if(str){
+       return str.trim().replace(")", "）").replace("(", "（");
+    }
+    return "";
 }
-
-function showECI_Info(name) {
+function showECI_Info(name, keyNo) {
+    name = formatBrackets(name);
     var showA = function () {
         if($("#showECIcheck").prop("checked")){
             $.cookie("showECI", 1,{path: "/"});
@@ -1476,11 +1485,11 @@ function showECI_Info(name) {
                     addNavTab("客户资料 - 所有客户 - " + name, "/htmlsrc/dataQuery/clientList/clientList.html?name="+name);
                     return;
                 }else{
-                    layer.msg("没有查询到相关公司！");
+                    layer.msg("没有查询到该公司！");
                 }
             },
             error: function () {
-                layer.msg("没有查询到相关公司！");
+                layer.msg("没有查询到该公司！");
             }
         });
     };
@@ -1495,16 +1504,28 @@ function showECI_Info(name) {
             title: false,
             shadeClose: true,
             content : '<div id="output_detail" class="pace-done" style="padding: 10px;" ><p >'+ '【企查查】直接查看详情； 【行内】则在我负责的客户中搜索公司名；' + '</p>本次登录记住选择，不再提醒！<input type=checkbox name=details id=showECIcheck></div>',
-            btn: ['企查查', '行内']
-        },function(){
-            showA();
-        },function(){
-            showB();
+            btn: ['企查查', '行内', '外网查询'],
+            btn1: function () {
+                showA();
+            },
+            btn2: function () {
+                showB();
+            },
+            btn3: function (){
+                if(keyNo && keyNo!=="undefined"){
+                    top.window.open("https://www.qichacha.com/firm_"+keyNo+".html", "_blank");
+                }else{
+                    top.window.open("https://www.qichacha.com/search?key="+name);
+                }
+            }
         });
     }
 }
+$(document).on("click", "[client-name]",function () {
+    showECI_Info($(this).attr("client-name"), $(this).attr("key-no"));
+});
 $(document).on("click", ".show-client-target",function () {
-    showECI_Info($(this).data("val"));
+    showECI_Info($(this).html().trim(), $(this).attr("key-no"));
 });
 
 if(typeof $ !== "undefined"){

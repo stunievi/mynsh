@@ -1,8 +1,10 @@
 package com.beeasy.hzlink.ctrl;
 
 import cn.hutool.core.io.resource.ClassPathResource;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.beeasy.hzlink.filter.Auth;
 import com.beeasy.hzlink.model.Link111;
 import com.beeasy.hzlink.model.TQccRisk;
 import com.beeasy.hzlink.model.TSystemVariable;
@@ -19,6 +21,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -153,19 +156,52 @@ public class FileController {
         }
         return null;
     }
+    /**
+     * 股东清单文件导出
+     */
+    public MultipartFile shareholderListExport(Obj query){
+        List<Obj> lists = sqlManager.select("accloan.1201", Obj.class,query);
+        try {
+            return ExportUtil.toXls("股东清单.xls", new ClassPathResource("excel/report_2_1.xls").getStream(), o(
+                    "values", lists
+            ));
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InvalidFormatException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * 关联方清单文件导出
+     */
+    public MultipartFile linkListExport(Obj query){
+        List<Obj> lists = sqlManager.select("accloan.1202", Obj.class,query);
+        try {
+            return ExportUtil.toXls("关联方清单.xlsx", new ClassPathResource("excel/report_1_1.xlsx").getStream(), o(
+                    "values", lists
+            ));
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InvalidFormatException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     /**
      * 企查查风险信息导出
      */
-    public MultipartFile riskInfoExport(String cusId, String cusName, String certCode, String startTime, String endTime){
+    public MultipartFile riskInfoExport(String cusId, String cusName, String certCode, String startTime, String endTime, Obj query){
 
         try {
-            System.out.println(cusId);
-            JSONObject object = new JSONObject();
-            object.put("cusId",cusId);
-            object.put("cusName",cusName);
-            object.put("certCode",certCode);
-            if(!"".equals(startTime)){
+            query.put("uid",Auth.getUid());
+//            JSONObject object = new JSONObject();
+//            object.put("cusId",cusId);
+//            object.put("cusName",cusName);
+//            object.put("certCode",certCode);
+            /*if(!"".equals(startTime)){
                 String y = startTime.substring(0,4);
                 String m = startTime.substring(4,6);
                 String d = startTime.substring(6,8);
@@ -176,11 +212,12 @@ public class FileController {
                 String m = endTime.substring(4,6);
                 String d = endTime.substring(6,8);
                 object.put("endTime",y+"-"+m+"-"+d);
-            }
-            var lists = sqlManager.select("accloan.企查查风险信息查询" ,JSONObject.class, object);
+            }*/
+            List<Obj> lists = sqlManager.select("accloan.企查查风险信息查询" ,Obj.class, query);
 
             var data = a();
-            for (JSONObject list : lists) {
+            for (Obj list : lists) {
+
                 Map<String, Object> map = new HashMap<>();
                 map.put("cusId",list.getString("cus_id"));
                 map.put("cusName",list.getString("cus_name"));

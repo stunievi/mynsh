@@ -581,8 +581,8 @@ public class BackExcelController {
             int total = 0;
             int failed = 0;
             if(reader.getRowCount()>0){
-                sqlManager.lambdaQuery(RelatedPartyList.class)
-                        .delete();
+//                sqlManager.lambdaQuery(RelatedPartyList.class)
+//                        .delete();
 
                 sqlManager.lambdaQuery(ShareHolderList.class)
                         .delete();
@@ -596,13 +596,15 @@ public class BackExcelController {
                     failed++;
                     continue;
                 }
+                String i5 = "";
+                String i16 = "";
                 if (S.notBlank(i1)) {
                     try {
                         String i2 = String.valueOf(reader.readCellValue(2, i)).trim();
                         String i3 = String.valueOf(reader.readCellValue(3, i)).trim();
                         String i4 = String.valueOf(reader.readCellValue(4, i));
 
-                        String i5 = String.valueOf(reader.readCellValue(5, i)).trim();
+                        i5 = String.valueOf(reader.readCellValue(5, i)).trim();
                         String i6 = String.valueOf(reader.readCellValue(6, i));
                         String i7 = String.valueOf(reader.readCellValue(7, i));
                         String i8 = String.valueOf(reader.readCellValue(8, i));
@@ -613,7 +615,7 @@ public class BackExcelController {
                         String i13 = String.valueOf(reader.readCellValue(13, i)).trim();
                         String i14 = String.valueOf(reader.readCellValue(14, i)).trim();
                         String i15 = String.valueOf(reader.readCellValue(15, i)).trim();
-                        String i16 = String.valueOf(reader.readCellValue(16, i)).trim();
+                        i16 = String.valueOf(reader.readCellValue(16, i)).trim();
                         String i17 = String.valueOf(reader.readCellValue(17, i)).trim();
                         String i18 = String.valueOf(reader.readCellValue(18, i)).trim();
                         String i19 = String.valueOf(reader.readCellValue(19, i)).trim();
@@ -668,6 +670,16 @@ public class BackExcelController {
                         continue;
                     }
 
+                    long count = sqlManager.lambdaQuery(RelatedPartyList.class)
+                            .andEq(RelatedPartyList::getRelatedName, i5)
+                            .andEq(RelatedPartyList::getCertCode, i16)
+                            .count();
+                    if(count>0){
+                        sqlManager.lambdaQuery(RelatedPartyList.class)
+                                .andEq(RelatedPartyList::getRelatedName, i5)
+                                .andEq(RelatedPartyList::getCertCode, i16)
+                                .delete();
+                    }
                     sqlManager.insert(entity);
 
                     sqlManager.insert(gdEntity);
@@ -720,7 +732,6 @@ public class BackExcelController {
                         .delete();
             }
             for (int i = 3; i < reader.getRowCount(); i++) {
-                total++;
                 String i1;
                 try {
                     i1 = String.valueOf(reader.readCellValue(1, i)).trim();
@@ -729,6 +740,7 @@ public class BackExcelController {
                     continue;
                 }
                 if (S.notBlank(i1)) {
+                total++;
                     try {
                         String i2 = String.valueOf(reader.readCellValue(2, i)).trim();
                         String i3 = String.valueOf(reader.readCellValue(3, i)).trim();

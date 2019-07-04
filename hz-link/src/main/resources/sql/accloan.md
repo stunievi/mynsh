@@ -1,3 +1,12 @@
+condition_loan
+===
+--查询数据范围（总行角色看所有，贷款机构看所属一级支行）
+and (((select count(1) from t_global_permission_center where uid = #uid# and type = 'DATA_SEARCH_CONDITION')>0)
+    or ((0=(select count(1) from t_global_permission_center where uid = #uid# and type = 'DATA_SEARCH_CONDITION')) and (p1.MAIN_BR_ID in 
+        (select substr(acc_code,1,5) from T_ORG where PARENT_ID in (select ID from T_ORG where acc_code in (SELECT substr(MAIN_BR_ID,1,5) FROM T_DEPARTMENT_USER WHERE UID=#uid#)) and TYPE = 'DEPARTMENT') or (p1.MAIN_BR_ID in (SELECT MAIN_BR_ID FROM T_DEPARTMENT_USER WHERE UID=#uid#) 
+        or  (((09131 = (	SELECT	MAIN_BR_ID 	FROM	T_DEPARTMENT_USER 		WHERE	UID=#uid#) ) and  p1.MAIN_BR_ID in 009213) or      ((09323 = (	SELECT			MAIN_BR_ID 	FROM		T_DEPARTMENT_USER 		WHERE	UID=#uid#) ) and  p1.MAIN_BR_ID in 009375 ))))
+))
+
 04
 ===
 select
@@ -129,23 +138,62 @@ select
 @pageTag(){
     *
 @}
-from T_QCC_RISK risk 
+from T_QCC_RISK a
 where 1=1
-@if(isNotEmpty(cusName)){
-    and risk.CUS_NAME like #'%' + cusName + '%'#
+@if("" != cusName){
+    and a.CUS_NAME like #'%' + cusName + '%'#
 @}
-@if(isNotEmpty(cusId)){
-    and risk.CUS_ID like #'%' +cusId + '%'#
+@if("" != cusId){
+    and a.CUS_ID like #'%' +cusId + '%'#
+@}
+@if("" != certCode){
+    and a.CERT_CODE like #'%' +certCode + '%'#
+@}
+@if("" != endTime){
+    and a.ADD_TIME<=#endTime#
+@}
+@if("" != startTime){
+    and a.ADD_TIME>=#startTime#
+@}
+and CUS_NAME in
+(
+select CUS_NAME from RPT_M_RPT_SLS_ACCT as p1
+where 1=1
+--查询数据范围
+#use("condition_loan")#
+)
+@pageIgnoreTag(){
+    order by a.ADD_TIME desc
+@}
+
+1201
+===
+select
+@pageTag(){
+    ROW_NUMBER()OVER(ORDER BY id) as number, s.*
+@}
+from T_SHARE_HOLDER_LIST s where 1=1
+@if(isNotEmpty(cusName)){
+    and cus_name like #'%' + cusName + '%'#
 @}
 @if(isNotEmpty(certCode)){
-    and risk.CERT_CODE like #'%' +certCode + '%'#
+    and cert_code like #'%' + certCode + '%'#
 @}
-@if(isNotEmpty(endTime)){
-    and risk.ADD_TIME<=#endTime#
+
+
+1202
+===
+select
+@pageTag(){
+    ROW_NUMBER()OVER(ORDER BY id) as number, rp.*
 @}
-@if(isNotEmpty(startTime)){
-    and risk.ADD_TIME>=#startTime#
+from T_RELATED_PARTY_LIST rp where 1=1
+@if(isNotEmpty(cusName)){
+    and RELATED_NAME like #'%' + cusName + '%'#
 @}
-@pageIgnoreTag(){
-    order by risk.ADD_TIME desc
+@if(isNotEmpty(certCode)){
+    and cert_code like #'%' + certCode + '%'#
+@}
+@if(isNotEmpty(linkRule)){
+    and link_rule like #'%' + linkRule + '%'#
 @}
