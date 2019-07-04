@@ -105,7 +105,7 @@ public class TestMongo {
 
     @Test
     public void testSingleFile() throws FileNotFoundException, InterruptedException {
-        deconstructService. onDeconstructRequest("1", "2", new FileInputStream("C:\\Users\\DELL\\Desktop\\falvsusong-0701.zip"));
+        deconstructService. onDeconstructRequest("1", "2", new FileInputStream("C:\\Users\\DELL\\Desktop\\jingyingfengxian-0701.zip"));
     }
 
     @Test

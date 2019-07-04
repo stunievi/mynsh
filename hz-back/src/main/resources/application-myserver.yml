@@ -146,6 +146,7 @@ spring:
 
 filepath:
   path: /home/fzsysafter/app/transformDefinitionFile.xlsx
+  whitelistpath: /hz/whitelist
 
 
 

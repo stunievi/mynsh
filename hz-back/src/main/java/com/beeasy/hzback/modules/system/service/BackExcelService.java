@@ -235,6 +235,7 @@ public class BackExcelService {
             XSSFWorkbook workbook = new XSSFWorkbook(is);
             XSSFSheet sheet = workbook.getSheetAt(0);
             for(short i = 0; i <= sheet.getLastRowNum(); i++){
+                if( null == sheet.getRow(i) ) continue;
                 XSSFRow row = sheet.getRow(i);
                 for(short j = 0; j <= row.getLastCellNum(); j++){
                     XSSFCell cell = row.getCell(j);

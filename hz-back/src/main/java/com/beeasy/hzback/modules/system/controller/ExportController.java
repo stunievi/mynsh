@@ -36,51 +36,68 @@ public class ExportController {
 
     @RequestMapping(value = "/excel", method = RequestMethod.GET)
     public ResponseEntity<byte[]> export(
-        @RequestParam long id
-    ){
-        WfIns ins = sqlManager.selectSingle("workflow.查询贷后检查表", C.newMap("id",id), WfIns.class);
-        if(!WfIns.canManage(AuthFilter.getUid(), ins.getId())){
+            @RequestParam long id
+    ) {
+        WfIns ins = sqlManager.selectSingle("workflow.查询贷后检查表", C.newMap("id", id), WfIns.class);
+        if (!WfIns.canManage(AuthFilter.getUid(), ins.getId())) {
             throw new RestException();
         }
-        try{
-            if(!ins.getState().equals(WfIns.State.FINISHED)){
+        try {
+            if (!ins.getState().equals(WfIns.State.FINISHED)) {
                 throw new Exception();
             }
             //只有贷后跟踪可以导出
-            if(!ins.getModelName().contains("贷后跟踪")){
+            if (!ins.getModelName().contains("贷后跟踪")) {
                 throw new Exception();
             }
-            List<WfInsAttr> attrList =  sqlManager.lambdaQuery(WfInsAttr.class)
-                .andEq(WfInsAttr::getInsId, id)
-                .select(WfInsAttr::getAttrCname, WfInsAttr::getAttrValue);
+            List<WfInsAttr> attrList = sqlManager.lambdaQuery(WfInsAttr.class)
+                    .andEq(WfInsAttr::getInsId, id)
+                    .select(WfInsAttr::getAttrCname, WfInsAttr::getAttrValue);
+            for (WfInsAttr wfInsAttr : attrList) {
+                if(wfInsAttr.getAttrCname().equals("担保方式") &&  null !=  wfInsAttr.getAttrValue() ){
+                    switch (wfInsAttr.getAttrValue()){
+                        case "10":
+                            wfInsAttr.setAttrValue("抵押");
+                            break;
+                        case "00":
+                            wfInsAttr.setAttrValue("信用");
+                            break;
+                        case "20":
+                            wfInsAttr.setAttrValue("质押");
+                            break;
+                        case "30":
+                            wfInsAttr.setAttrValue("保证");
+                            break;
+                    }
+                }
+            }
             JSONObject attrs = new JSONObject();
             for (WfInsAttr wfInsAttr : attrList) {
-                attrs.put(wfInsAttr.getAttrCname(), wfInsAttr.getAttrValue()); 
+                attrs.put(wfInsAttr.getAttrCname(), wfInsAttr.getAttrValue());
             }
             attrs.put("检查次数", ins.get("nowNum"));
             attrs.put("总检查次数", ins.get("totalNum"));
             attrs.put("当前年", ins.get("currYear"));
             //处理个别属性
-            switch (ins.getModelName()){
+            switch (ins.getModelName()) {
                 case "贷后跟踪-零售银行部个人按揭":
                     //是否每一期能准时还本付息
 //                    String
                     //房产证
-                    String fc = U.stGet(attrs,"房产证");
-                    String fcdate = U.stGet(attrs,"出证时间");
-                    if(S.eq(fc,"未出证")){
+                    String fc = U.stGet(attrs, "房产证");
+                    String fcdate = U.stGet(attrs, "出证时间");
+                    if (S.eq(fc, "未出证")) {
                         attrs.put("房产证", S.fmt("未出证(预计出证时间:  %s )", fcdate));
                     }
                     //拖欠
-                    String tq = U.stGet(attrs,"有无拖欠本金、利息");
-                    String tqj = U.stGet(attrs,"拖欠本金、利息金额（元）");
-                    if(S.eq(tq,"是")){
+                    String tq = U.stGet(attrs, "有无拖欠本金、利息");
+                    String tqj = U.stGet(attrs, "拖欠本金、利息金额（元）");
+                    if (S.eq(tq, "是")) {
                         attrs.put("拖欠本金、利息金额（元）", S.fmt("是 %s 万元", tqj));
                     }
 
                     break;
             }
-
             byte[] bytes = excelService.exportExcelByTemplate(S.fmt("excel/%s.xlsx", ins.getModelName()), attrs);
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
@@ -92,8 +109,7 @@ public class ExportController {
             }
             headers.set("Content-Disposition", "attachment; filename=\"" + fileName + "\"; filename*=utf-8''" + fileName);
             return new ResponseEntity<byte[]>(bytes, headers, HttpStatus.OK);
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             return new ResponseEntity<>(new byte[0], HttpStatus.OK);
         }
     }
