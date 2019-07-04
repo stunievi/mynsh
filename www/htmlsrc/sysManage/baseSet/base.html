@@ -484,7 +484,8 @@
                         ]},
                     {prop:"ods_br_id", label: "信贷数据机构代码"},
                     {prop:"qcc_url", label: "企查查接口地址"},
-                    {prop:"data_early_warning", label: "数据预警发送短信手机号码（多个用“，”分隔）"}
+                    {prop:"data_early_warning", label: "数据预警发送短信手机号码（多个用“，”分隔）"},
+                    {prop:"file_white_list", label: "文件格式白名单（多个用“，”分隔）"}
                     // ,
                     // { prop: 'sys_default_role', label: '默认角色', width:12, labelWidth:2, inputGroup:"选择角色",disabled:true}
                 ],
@@ -531,12 +532,12 @@
                              layer.msg("请使用正确的分隔符！");
                              return false;
                          }else{
-                            if (!myreg.test(earlyWarning)) {
+                            if (!myreg.test(earlyWarning) && "" != earlyWarning) {
                                 layer.msg("请输入正确的手机号码！");
                                 return false;
                             }
                          }
-                            
+
                         if(form.valid()){
                             postFetch(
                                 remoteOrigin + "/api/auto/sysvar/set"

@@ -19,7 +19,8 @@
     },
     "route": [
         "/:c/:a -> com.beeasy.easyshop.filter.auth -> com.beeasy.easyshop.ctrl",
-        "/test/:c/:a -> com.beeasy.hzlink.filter.Auth -> com.beeasy.hzlink.ctrl"
+        "/test/:c/:a -> com.beeasy.hzlink.filter.Auth -> com.beeasy.hzlink.ctrl",
+        "/test2/:c/:a -> com.beeasy.hzlink.ctrl"
     ],
     "cors": {
         "origin": "*",

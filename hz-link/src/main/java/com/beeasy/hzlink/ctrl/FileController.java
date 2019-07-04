@@ -1,25 +1,20 @@
 package com.beeasy.hzlink.ctrl;
 
 import cn.hutool.core.io.resource.ClassPathResource;
-import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzlink.filter.Auth;
 import com.beeasy.hzlink.model.Link111;
-import com.beeasy.hzlink.model.TQccRisk;
 import com.beeasy.hzlink.model.TSystemVariable;
 import com.github.llyb120.nami.core.MultipartFile;
 import com.github.llyb120.nami.core.Obj;
+import com.github.llyb120.nami.core.R;
 import com.github.llyb120.nami.excel.ExportUtil;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.beetl.core.resource.ClasspathResource;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +26,12 @@ import static com.github.llyb120.nami.core.Json.a;
 import static com.github.llyb120.nami.core.Json.o;
 
 public class FileController {
+
+    public R upload(MultipartFile file) throws IOException {
+        file.transferTo(new File("E:/text"));
+        return R.ok();
+    }
+
 
     // 任务产生条件
     public MultipartFile ruleTask(){

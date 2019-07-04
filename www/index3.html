@@ -499,7 +499,7 @@
         {{each data item1 idex1}}
         {{if item1 && item1.name}}
         {{set id = item1.name}}
-        <li data-id="{{id}}">
+        <li data-id="{{id}}" style="display: none">
             <b href="#">{{item1.name}}</b>
             {{if item1.children && item1.children.length}}
             <ul class="submenu">
@@ -507,7 +507,7 @@
                 {{if item2 && item2.name}}
                 {{set id = item1.name + '.' + item2.name}}
                 {{set idex = idex1 + '-' + idex2}}
-                <li data-id="{{id}}">
+                <li data-id="{{id}}" style="display: none">
                     <b href="#" onclick="menuclick('{{id}}','{{item2.name}}','{{item2.href}}')" >{{item2.name}}</b>
                     {{if item2.children && item2.children.length}}
                     <ul class="submenu">
@@ -515,7 +515,7 @@
                         {{if item3 && item3.name}}
                         {{set id = item1.name + '.' + item2.name + '.' + item3.name}}
                         {{set idex = idex1 + '-' + idex2 + '-' + idex3}}
-                        <li data-id="{{id}}">
+                        <li data-id="{{id}}" style="display: none">
                             <b href="#" onclick="menuclick('{{id}}','{{item3.name}}','{{item3.href}}')" class="m-item">{{item3.name}}</b>
                         </li>
                         {{/if}}
