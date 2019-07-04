@@ -81,51 +81,51 @@ spring:
     broker-url: tcp://47.94.97.138:8011?jms.blobTransferPolicy.uploadUrl=http://47.94.97.138:8012/fileserver/
 
   #  datasource:
-#    url: jdbc:sqlite::resource:server/data.db
-#    username:
-#    password:
-#    driver-class-name: org.sqlite.JDBC
+  #    url: jdbc:sqlite::resource:server/data.db
+  #    username:
+  #    password:
+  #    driver-class-name: org.sqlite.JDBC
 
-#  jpa:
-#    hibernate:
-#      ddl-auto: none
-#    show-sql: true
-#    properties:
-#      hibernate:
-#        dialect: com.beeasy.hzback.core.helper.DB2DialectFK
+  #  jpa:
+  #    hibernate:
+  #      ddl-auto: none
+  #    show-sql: true
+  #    properties:
+  #      hibernate:
+  #        dialect: com.beeasy.hzback.core.helper.DB2DialectFK
 
-#  datasource:
-#    name: test
-#    #mysql
-#    #    url: jdbc:mysql://127.0.0.1:3306/test?useUnicode=true&characterEncoding=utf-8&useSSL=false
-#    #    username: root
-#    #        password: "!Q1q2w3e4r"
-#    #    password: 123
-#    #    driver-class-name: com.mysql.jdbc.Driver
-#    #        mysql-end
-#    #        db2
-#    url: jdbc:db2://47.94.97.138:50000/test
-#    username: db2inst1
-#    password: db2inst1
-#    driver-class-name: com.ibm.db2.jcc.DB2Driver
-#    #        db2-end
-#    # 使用druid数据源
-#    type: org.springframework.jdbc.datasource.DriverManagerDataSource
-#    #    type: com.alibaba.druid.pool.DruidDataSource
-#    druid:
-#  #      filters: stat
-#  #      maxActive: 20
-#  #      initialSize: 1
-#  #      maxWait: 60000
-#  #      minIdle: 1
-#  #      timeBetweenEvictionRunsMillis: 60000
-#  #      minEvictableIdleTimeMillis: 300000
-#        validationQuery: select count(1) from t_user
-#  #      testWhileIdle: true
-#  #      testOnBorrow: false
-#  #      testOnReturn: false
-#  #      poolPreparedStatements: true
-#  #      maxOpenPreparedStatements: 20
+  #  datasource:
+  #    name: test
+  #    #mysql
+  #    #    url: jdbc:mysql://127.0.0.1:3306/test?useUnicode=true&characterEncoding=utf-8&useSSL=false
+  #    #    username: root
+  #    #        password: "!Q1q2w3e4r"
+  #    #    password: 123
+  #    #    driver-class-name: com.mysql.jdbc.Driver
+  #    #        mysql-end
+  #    #        db2
+  #    url: jdbc:db2://47.94.97.138:50000/test
+  #    username: db2inst1
+  #    password: db2inst1
+  #    driver-class-name: com.ibm.db2.jcc.DB2Driver
+  #    #        db2-end
+  #    # 使用druid数据源
+  #    type: org.springframework.jdbc.datasource.DriverManagerDataSource
+  #    #    type: com.alibaba.druid.pool.DruidDataSource
+  #    druid:
+  #  #      filters: stat
+  #  #      maxActive: 20
+  #  #      initialSize: 1
+  #  #      maxWait: 60000
+  #  #      minIdle: 1
+  #  #      timeBetweenEvictionRunsMillis: 60000
+  #  #      minEvictableIdleTimeMillis: 300000
+  #        validationQuery: select count(1) from t_user
+  #  #      testWhileIdle: true
+  #  #      testOnBorrow: false
+  #  #      testOnReturn: false
+  #  #      poolPreparedStatements: true
+  #  #      maxOpenPreparedStatements: 20
 
 
   redis:
@@ -145,7 +145,7 @@ spring:
 
 
 filepath:
-  path: /home/fzsysafter/app/transformDefinitionFile.xlsx
+  path: /hz/transformDefinitionFile.xlsx
   whitelistpath: /hz/whitelist
 
 
