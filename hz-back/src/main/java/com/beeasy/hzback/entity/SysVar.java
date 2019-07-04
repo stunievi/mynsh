@@ -1,9 +1,8 @@
 package com.beeasy.hzback.entity;
 
-import com.alibaba.fastjson.JSONArray;
+import cn.hutool.core.util.CharsetUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.core.util.Log;
-import com.beeasy.mscommon.entity.BeetlPager;
 import com.beeasy.mscommon.filter.AuthFilter;
 import com.beeasy.mscommon.util.U;
 import com.beeasy.mscommon.valid.ValidGroup;
@@ -13,13 +12,16 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.beetl.sql.core.SQLManager;
 import org.beetl.sql.core.SQLReady;
-import org.beetl.sql.core.TailBean;
 import org.beetl.sql.core.annotatoin.AssignID;
-import org.beetl.sql.core.annotatoin.AutoID;
 import org.beetl.sql.core.annotatoin.Table;
 import org.osgl.util.C;
 import org.osgl.util.S;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -36,6 +38,12 @@ public class SysVar extends ValidGroup {
     String varValue;
     Boolean canDelete = true;
 
+    public SysVar(Long id, String varName, String varValue, boolean canDelete) {
+        this.id=id;
+        this.varName=varName;
+        this.varValue=varValue;
+        this.canDelete=canDelete;
+    }
 
 
     /****/
@@ -89,6 +97,7 @@ public class SysVar extends ValidGroup {
      * @apiHeader {String} content-type applicaton/json; charset=utf-8
      *
      */
+
     @Override
     public Object onExtra(SQLManager sqlManager, String action, JSONObject object) {
         switch (action){
@@ -98,11 +107,11 @@ public class SysVar extends ValidGroup {
              */
             case "set":
                 User.AssertMethod("系统管理.系统设置.系统设置", "实验室功能.系统更新");
-                if(object.size() > 0){
+                /*if(object.size() > 0){
                     sqlManager.lambdaQuery(SysVar.class)
                             .andIn(SysVar::getVarName, object.keySet())
                             .delete();
-                }
+                }*/
                 List<SysVar> vars = object.entrySet().stream()
                     .map(item -> new SysVar(null,item.getKey(), (String)item.getValue(), true))
                     .collect(Collectors.toList());
@@ -111,6 +120,50 @@ public class SysVar extends ValidGroup {
                     sqlManager.lambdaQuery(SysVar.class)
                         .andLike(SysVar::getVarName, "ACC_%")
                         .delete();
+                }
+
+                for (SysVar var : vars) {
+                    if(var.getVarName().equals("file_white_list")){
+
+//                        File file = new File("hz-back/src/main/resources/whiteList.txt");
+
+//                        FileWriter fw = null;
+//                        BufferedWriter bw = null;
+                        RandomAccessFile raf =null;
+                        Environment env = U.getBean(Environment.class);
+                        String path = env.getProperty("filepath.whitelistpath");
+                        try {
+//                        File file = new File(ResourceUtils.getURL("classpath:").getPath());
+                            File file = new File(path);
+//                        File file = new File(ResourceUtils.getURL("classpath:").getPath() + "/whiteList.txt");
+                            if(file.exists()){
+                                file.delete();
+                            }
+//                            file.createNewFile();
+                            file.getParentFile().mkdirs();
+                            String value ="";
+                            if(S.isNotBlank(var.getVarValue())){
+                                value = var.getVarValue()+",";
+                            }
+                            raf = new RandomAccessFile(file, "rw");
+                            raf.write(value.replace("，",",").replaceAll(" ", "").getBytes(CharsetUtil.UTF_8));
+//                            fw = new FileWriter(file);
+//                            bw = new BufferedWriter(fw);
+//                            bw.write(var.getVarValue());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } finally {
+                            try {
+                                if(null != raf){
+                                    raf.close();
+                                }
+//                                bw.close();
+//                                fw.close();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
                 }
                 sqlManager.insertBatch(SysVar.class, vars);
                 Log.log("设置系统环境变量");
