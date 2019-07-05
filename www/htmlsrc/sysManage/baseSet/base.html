@@ -485,8 +485,8 @@
                         ]},
                     {prop:"ods_br_id", label: "信贷数据机构代码"},
                     {prop:"qcc_url", label: "企查查接口地址"},
-                    {prop:"data_early_warning", label: "数据预警发送短信手机号码（多个用“，”分隔）"},
-                    {prop:"file_white_list", label: "文件格式白名单（多个用“，”分隔）"}
+                    {prop:"data_early_warning", label: "数据预警发送短信手机号码（多个用“,”分隔）"},
+                    {prop:"file_white_list", label: "文件格式白名单（多个用“,”分隔）"}
                     // ,
                     // { prop: 'sys_default_role', label: '默认角色', width:12, labelWidth:2, inputGroup:"选择角色",disabled:true}
                 ],
@@ -540,9 +540,13 @@
                          }
 
                         if(form.valid()){
-                            postFetch(
+                            var _data = form.ghostsf_serialize();
+                                doIfDev(function () {
+                                    _data = _data.replace(/file_storage_engine=[^\&]*?/, "file_storage_engine=self")
+                                });
+                                postFetch(
                                 remoteOrigin + "/api/auto/sysvar/set"
-                                , form.ghostsf_serialize()
+                                , _data
                                 , function () {
                                     layer.msg("修改成功！");
                                 }

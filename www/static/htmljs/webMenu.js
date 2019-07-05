@@ -701,12 +701,12 @@ var _menu = [
                         href: '/htmlsrc/sysManage/dataManage/shareholderList.html',
                         api: []
                     }
-                    /*,{
+                    ,{
                         name: '集团客户清单',
                         href: '/htmlsrc/sysManage/dataManage/enterpriseCustomer.html?system=1',
                         api: []
                     }
-                    ,{
+                    /*,{
                         name: '触发',
                         href: '/htmlsrc/sysManage/dataManage/touchRule.html',
                         api: []
