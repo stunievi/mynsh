@@ -38,13 +38,6 @@ public class SysVar extends ValidGroup {
     String varValue;
     Boolean canDelete = true;
 
-    public SysVar(Long id, String varName, String varValue, boolean canDelete) {
-        this.id=id;
-        this.varName=varName;
-        this.varValue=varValue;
-        this.canDelete=canDelete;
-    }
-
 
     /****/
     @Override
@@ -78,7 +71,7 @@ public class SysVar extends ValidGroup {
         //直接返回全部
         Map map = C.newMap();
         List<SysVar> list = sqlManager.lambdaQuery(SysVar.class)
-            .select();
+                .select();
         for (SysVar sysVar : list) {
             map.put(sysVar.getVarName(), sysVar.getVarValue());
         }
@@ -107,35 +100,30 @@ public class SysVar extends ValidGroup {
              */
             case "set":
                 User.AssertMethod("系统管理.系统设置.系统设置", "实验室功能.系统更新");
-                /*if(object.size() > 0){
+                if(object.size() > 0){
                     sqlManager.lambdaQuery(SysVar.class)
                             .andIn(SysVar::getVarName, object.keySet())
                             .delete();
-                }*/
+                }
                 List<SysVar> vars = object.entrySet().stream()
-                    .map(item -> new SysVar(null,item.getKey(), (String)item.getValue(), true))
-                    .collect(Collectors.toList());
+                        .map(item -> new SysVar(null,item.getKey(), (String)item.getValue(), true))
+                        .collect(Collectors.toList());
                 //补强: 如果有这个字段, 那么先删除所有有这个字段的
                 if(vars.stream().anyMatch(v -> v.getVarName().startsWith("ACC_"))){
                     sqlManager.lambdaQuery(SysVar.class)
-                        .andLike(SysVar::getVarName, "ACC_%")
-                        .delete();
+                            .andLike(SysVar::getVarName, "ACC_%")
+                            .delete();
                 }
 
                 for (SysVar var : vars) {
                     if(var.getVarName().equals("file_white_list")){
-
 //                        File file = new File("hz-back/src/main/resources/whiteList.txt");
-
-//                        FileWriter fw = null;
-//                        BufferedWriter bw = null;
                         RandomAccessFile raf =null;
+                        // 获取属性配制文件中的值
                         Environment env = U.getBean(Environment.class);
                         String path = env.getProperty("filepath.whitelistpath");
                         try {
-//                        File file = new File(ResourceUtils.getURL("classpath:").getPath());
                             File file = new File(path);
-//                        File file = new File(ResourceUtils.getURL("classpath:").getPath() + "/whiteList.txt");
                             if(file.exists()){
                                 file.delete();
                             }
@@ -147,9 +135,6 @@ public class SysVar extends ValidGroup {
                             }
                             raf = new RandomAccessFile(file, "rw");
                             raf.write(value.replace("，",",").replaceAll(" ", "").getBytes(CharsetUtil.UTF_8));
-//                            fw = new FileWriter(file);
-//                            bw = new BufferedWriter(fw);
-//                            bw.write(var.getVarValue());
                         } catch (IOException e) {
                             e.printStackTrace();
                         } finally {
@@ -157,8 +142,6 @@ public class SysVar extends ValidGroup {
                                 if(null != raf){
                                     raf.close();
                                 }
-//                                bw.close();
-//                                fw.close();
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
@@ -209,14 +192,14 @@ public class SysVar extends ValidGroup {
      */
     public Object getConfig(SQLManager sqlManager, JSONObject object){
         List<String> keys = U.toList(object.getString("key"),String.class)
-            .stream()
-            .filter(S::notBlank)
-            .distinct()
-            .collect(Collectors.toList());
+                .stream()
+                .filter(S::notBlank)
+                .distinct()
+                .collect(Collectors.toList());
         JSONObject map = new JSONObject();
         for (SysVar item : sqlManager.lambdaQuery(SysVar.class)
-            .andIn(SysVar::getVarName, keys)
-            .select()) {
+                .andIn(SysVar::getVarName, keys)
+                .select()) {
             map.put(item.getVarName(), item.getVarValue());
         }
         return map;
