@@ -18,10 +18,10 @@
         <div id="myTabContent" class="tab-content" style="padding-top: 10px;">
             <div role="tabpanel" class="tab-pane active in" aria-labelledby="home-tab" id="home">
                 <!-- 基本信息展示 -->
-                <h5>
+                <h5 class="home-content-1 hide">
                     动产抵押登记信息
                 </h5>
-                <div id="home-content-1">
+                <div class="home-content-1 hide" id="home-content-1">
 
                 </div>
                 <h5>
@@ -42,10 +42,10 @@
                 <div id="home-content-3">
 
                 </div>
-                <h5>
+                <h5 class="home-content-4 hide">
                     抵押物信息
                 </h5>
-                <div id="home-content-4">
+                <div class="home-content-4 hide" id="home-content-4">
 
                 </div>
                 <h5>
@@ -54,10 +54,10 @@
                 <div id="home-content-5">
 
                 </div>
-                <h5>
+                <h5 class="home-content-6 hide">
                     动产抵押变更
                 </h5>
-                <div id="home-content-6">
+                <div class="home-content-6 hide" id="home-content-6">
 
                 </div>
             </div>
@@ -72,29 +72,32 @@
 <script src="/static/htmljs/global.config.js"></script>
 <script src="/static/htmljs/utils.js"></script>
 <script src="/htmlsrc/qichacha/tmpl/eci/qccTable.js"></script>
-<!--<script src="/tmpl/js/chattelMortgage.js"></script>-->
 <script>
     function onPageRequest(data){
+        // console.log(data);
         if(null == data || $.isEmptyObject(data)){
-            layErrorMsg("数据获取失败....")
+            layErrorMsg("数据获取失败....");
             $("#home").html("数据获取失败....")
         }else{
-            // $("#home1").html(chattelMortgageRender(
-            //     data
-            // ));
-            var dataDetail = data.Detail || {};
-            // 基本信息
-            $("#home-content-1").html(qccTableRender({
-                cols:[
-                    {title:"登记机关",field:"RegisterOffice", spec: true},
-                    {title:'登记编号', field:"RegisterNo"},
-                    {title:"登记日期",field:"RegisterDate" },
-                    {title:"公示时间",field:"PublicDate" },
-                    {title:"被担保债权数额",field:"DebtSecuredAmount" },
-                    {title:"状态",field:"Status" },
-                ],
-                data: data
-            }));
+            if(data.Detail){
+                var dataDetail = data.Detail || {};
+                // 基本信息
+                $(".home-content-1").removeClass("hide");
+                $("#home-content-1").html(qccTableRender({
+                    cols:[
+                        {title:"登记机关",field:"RegisterOffice", spec: true},
+                        {title:'登记编号', field:"RegisterNo"},
+                        {title:"登记日期",field:"RegisterDate" },
+                        {title:"公示时间",field:"PublicDate" },
+                        {title:"被担保债权数额",field:"DebtSecuredAmount" },
+                        {title:"状态",field:"Status" },
+                    ],
+                    data: data
+                }));
+            }else{
+                console.error("基本信息字段不存在！");
+            }
+
             // 动产抵押Pledge
             $("#home-content-2").html(qccTableRender({
                 cols:[
@@ -134,25 +137,28 @@
             }));
 
             // 动产抵押Pledge_list
-            var guaranteeList = dataDetail.GuaranteeList;
-            var guaranteeListDataObj = {};
-            var cols4 = [];
-            guaranteeList.forEach(function (value, index) {
-                cols4.push({title:"名称", field:"Name"+index });
-                cols4.push({title:"所有权归属", field:"Ownership"+index });
-                cols4.push({title:"数量、质量、状况、所在地等情况", field:"Other"+index });
-                cols4.push({title:"备注", field:"Remark"+index });
-                guaranteeListDataObj["Name"+index] = value["Name"];
-                guaranteeListDataObj["Ownership"+index] = value["Ownership"];
-                guaranteeListDataObj["Other"+index] = value["Other"];
-                guaranteeListDataObj["Remark"+index] = value["Remark"];
-            });
+            if(dataDetail.GuaranteeList && dataDetail.GuaranteeList.length > 0){
+                var guaranteeList = dataDetail.GuaranteeList;
+                var guaranteeListDataObj = {};
+                var cols4 = [];
+                guaranteeList.forEach(function (value, index) {
+                    cols4.push({title:"名称", field:"Name"+index });
+                    cols4.push({title:"所有权归属", field:"Ownership"+index });
+                    cols4.push({title:"数量、质量、状况、所在地等情况", field:"Other"+index });
+                    cols4.push({title:"备注", field:"Remark"+index });
+                    guaranteeListDataObj["Name"+index] = value["Name"];
+                    guaranteeListDataObj["Ownership"+index] = value["Ownership"];
+                    guaranteeListDataObj["Other"+index] = value["Other"];
+                    guaranteeListDataObj["Remark"+index] = value["Remark"];
+                });
+                // 动产抵押GuaranteeList
+                $(".home-content-4").removeClass("hide");
+                $("#home-content-4").html(qccTableRender({
+                    cols:cols4,
+                    data: guaranteeListDataObj
+                }));
+            }
 
-            // 动产抵押GuaranteeList
-            $("#home-content-4").html(qccTableRender({
-                cols:cols4,
-                data: guaranteeListDataObj
-            }));
 
             var cancelInfo = dataDetail.CancelInfo || {};
             cancelInfo["CancelDate"] = subDateStr(cancelInfo["CancelDate"]);
@@ -165,16 +171,18 @@
                 data: cancelInfo
             }));
 
-            laytableRender({
-                id: "home-content-6",
-                page:false,
-                cols:[
-                    {title:"动产抵押登记变更日期", field:"ChangeDate" },
-                    {title:"动产抵押登记变更内容", field:"ChangeContent" }
-                ],
-                data: data.ChangeList || []
-            });
-
+            if(data.ChangeList && data.ChangeList.length > 0){
+                $(".home-content-6").removeClass("hide");
+                laytableRender({
+                    id: "home-content-6",
+                    page:false,
+                    cols:[
+                        {title:"动产抵押登记变更日期", field:"ChangeDate" },
+                        {title:"动产抵押登记变更内容", field:"ChangeContent" }
+                    ],
+                    data: data.ChangeList || []
+                });
+            }
             // 动产抵押ChangeList
             //$("#home-content-6").html();
 

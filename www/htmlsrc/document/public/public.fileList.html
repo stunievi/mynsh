@@ -379,13 +379,19 @@
         });
         // 上传失败
         uploader.on('uploadError', function(file, res) {
-            $('#'+file.id ).find('.state').text('上传失败').addClass('info');
-        });  
+            console.error(res);
+            if(res == "501"){
+                $('#'+file.id ).find('.state').text('文件类型不在白名单内！').addClass('info');
+            }else{
+                $('#'+file.id ).find('.state').text('上传失败').addClass('info');
+            }
+        });
         // 单个文件上传成功
         uploader.on('uploadSuccess', function(file, res) {
             if(res.success){
                 $('#'+file.id ).find('.state').text('已上传').addClass('info');
             }else{
+                console.error(res);
                 var err = res.errMessage || '上传失败';
                 $('#'+file.id ).find('.state').text(err).addClass('info');
             }

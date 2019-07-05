@@ -174,8 +174,9 @@
                     chattelMortgageDataList.forEach(function (value) {
                         value["RegisterDate"] = subDateStr(value["RegisterDate"]);
                     });
-                    $("#ChattelMortgage-count").html(chattelMortgageDataList.length);
-                    $("a[data-href='#ChattelMortgage']").removeClass("disabled");
+                    var count = chattelMortgageDataList.length;
+                    $("#ChattelMortgage-count").html(count);
+                    $("a[data-href='#ChattelMortgage']").removeClass("disabled").append("&nbsp;"+count);
                 }
                 laytableRender({
                     id: "ChattelMortgage-body",

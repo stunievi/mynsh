@@ -276,16 +276,20 @@
                 console.error("分支机构不存在！");
             }
             // 变更历史
-            if(data.ChangeRecords && data.ChangeRecords.length > 0){
-                data.ChangeRecords.forEach(function (item) {
-                    item["ChangeDate"] = subDateStr(item.ChangeDate);
-                    var a = getHTMLDiff(item["BeforeContent"] || "", item["AfterContent"]);
-                    var b = getHTMLDiff(item["AfterContent"] || "", item["BeforeContent"]);
-                    item["AfterContent"] = a.replace(/<del(.|\n)*?del>/gmi,"");
-                    item["BeforeContent"] = b.replace(/<del(.|\n)*?del>/gmi,"");
-                });
-                $("#base11-count").html(data.ChangeRecords.length);
-                $("a[data-href='#base11']").removeClass("disabled");
+            if(data.ChangeRecords){
+                var changecCount = data.ChangeRecords.length;
+                if(changecCount > 0){
+                    data.ChangeRecords.forEach(function (item) {
+                        item["ChangeDate"] = subDateStr(item.ChangeDate);
+                        var a = getHTMLDiff(item["BeforeContent"] || "", item["AfterContent"]);
+                        var b = getHTMLDiff(item["AfterContent"] || "", item["BeforeContent"]);
+                        item["AfterContent"] = a.replace(/<del(.|\n)*?del>/gmi,"");
+                        item["BeforeContent"] = b.replace(/<del(.|\n)*?del>/gmi,"");
+                    });
+                    $("#base11-count").html(changecCount);
+                    $("a[data-href='#base11']").removeClass("disabled").append("&nbsp;"+changecCount);
+                }
+
             }
             laytableRender({
                 id: "base11-body",

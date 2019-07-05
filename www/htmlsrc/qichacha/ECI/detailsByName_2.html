@@ -117,7 +117,7 @@
             ],
             onData:function (data) {
                 fixOnDataLoad("susong1",data, function (row) {
-                    row["DefendantList"] = row.DefendantList.replace(/\\t/gm, "、");
+                    row["DefendantList"] = (row.DefendantList || "").replace(/\\t/gm, "、");
                 });
             }
         });
@@ -242,13 +242,14 @@
             url: remoteApi.qccJudicialAssistanceGetJudicialAssistance+"?fullName="+COMPANY_NAME,
             success: function (res) {
                 if(res.data && res.data.list && res.data.list.length > 0){
-                    $("a[data-href='#susong6']").removeClass("disabled");
-                    var dataList = res.data.list;
+                    var dataList = res.data.list || [];
+                    var count = dataList.length;
+                    $("a[data-href='#susong6']").removeClass("disabled").append("&nbsp;"+count);
                     dataList.forEach(function (row) {
                         qccNoDataFillFun(row);
                     });
                     JudicialAssistanceDataList = dataList;
-                    $("#susong6-count").html(JudicialAssistanceDataList.length);
+                    $("#susong6-count").html(count);
                 }
                 laytableRender({
                     id: "susong6-body",
