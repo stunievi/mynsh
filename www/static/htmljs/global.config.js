@@ -194,7 +194,7 @@ var remoteApi = {
 	apiRoleCreate: '/api/user/role/create', // 创建角色
 	apicanAccpetWorks: '/api/workflow/canAccpetWorks', // 得到用户可接受的任务
 	apiGetSysVar: '/api/system/var/get', // 获取系统变量
-	apiSetSysVar: '/api/system/var/set', // 设置系统变量
+	apiSetSysVar: '/api/system/sysvar/set', // 设置系统变量
 	apiModifyPassword: '/api/user/modifyPassword', // 更改密码
 	apiModifyProfile: '/api/user/modifyProfile', // 修改个人基本信息
 	apiLogin: '/api/login', // 登录

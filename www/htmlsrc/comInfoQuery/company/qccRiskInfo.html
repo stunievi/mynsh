@@ -27,9 +27,6 @@
             <!-- 数据列表 -->
         </div>
     </div>
-    <script type="text/html" id="cusTemp">
-        <a class="customrName"  target="_blank" style="cursor:pointer;">{{d.CUS_NAME}}</a>
-    </script>
 
     <script>
         $("#panel-form").html(panelFormRender3({
@@ -44,13 +41,21 @@
             data: {},
             excel:true
         }));
-
         laytableRender({
             url: remoteOrigin + "/api/auto/qccrisk/getList",
             cols: [
                 [
                     { field: 'CUS_ID', title: '客户号'},
-                    { field: 'CUS_NAME', title: '企业名称',templet:'#cusTemp' },
+                    { field: 'CUS_NAME', title: '企业名称',templet: function (row) {
+                        /**
+                         * @Author gotomars
+                         * @Description fix
+                         * @Date 18:20 2019/7/3
+                         **/
+                            var name = row["CUS_NAME"];
+                            return '<a tab-href="'+hrefUrl.ECIdetail+name+'" tab-title="企查查-公司详情-'+name+'" tab-id="ECIdetail'+name+'">'+name+'</a>';
+                        }
+                    },
                     { field: "CERT_CODE", title: "证件号码" },
                     { field: "ADD_TIME", title: "更新时间" },
                     { field: 'RISK_INFO', title: '风险信息', setWidth: 500 }
@@ -64,12 +69,6 @@
             // location.href = remoteOrigin + "/api/report/export/riskInfo/exportExcel?" + str
 
         });
-
-        $(document).on("click", ".customrName", function () {
-            var cusName = $(this).html();
-            addNavTab("ECIdetail"+cusName, "企查查-公司详情-"+cusName, hrefUrl.ECIdetail+cusName);
-        });
-
 
         function checkSubmitForm() {
             var form = $("form[name='form-search']")

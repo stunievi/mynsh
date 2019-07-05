@@ -667,7 +667,6 @@ var _menu = [
                         name: '系统设置',
                         href: '/htmlsrc/sysManage/baseSet/base.html',
                         api: [
-                            remoteApi.apiSetSysVar,
                             remoteApi.apiSetSysVar
                         ]
                     },
@@ -685,12 +684,12 @@ var _menu = [
                         name: '信贷中间表',
                         href: '/htmlsrc/sysManage/dataManage/dataMaintain.html',
                         api: []
-                    }
-                    /*,{
+                    },
+                    {
                         name: '资本净额维护',
                         href: '/htmlsrc/sysManage/dataManage/netCapital.html',
                         api: []
-                    }*/
+                    }
                     ,{
                         name: '关联方清单维护',
                         href: '/htmlsrc/sysManage/dataManage/linkList.html',
@@ -701,6 +700,38 @@ var _menu = [
                         href: '/htmlsrc/sysManage/dataManage/shareholderList.html',
                         api: []
                     }
+                    // {
+                    //     name: "资本净额维护",
+                    //     href:""
+                    // },
+                    // {
+                    //     name: "关联方维护",
+                    //     href:""
+                    // },
+                    // {
+                    //     name: "股东维护",
+                    //     href:""
+                    // },
+                    // {
+                    //     name: "集团客户取数",
+                    //     href:""
+                    // },
+                    // {
+                    //     name: "股东关联取数",
+                    //     href:""
+                    // },
+                    // {
+                    //     name: "集团客户维护",
+                    //     href:""
+                    // },
+                    // {
+                    //     name: "股东关联维护",
+                    //     href:""
+                    // },
+                    // {
+                    //     name: "关联方日志查询",
+                    //     href:""
+                    // }
                     /*,{
                         name: '集团客户清单',
                         href: '/htmlsrc/sysManage/dataManage/enterpriseCustomer.html?system=1',
