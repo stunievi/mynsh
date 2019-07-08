@@ -733,7 +733,7 @@ SELECT
 	sub.*,
 	MAX(case 
 	    when last_time is null then CURRENT TIMESTAMP
-	    else last_time + #v3# MONTHS 
+	    else last_time + #v3# days 
     end, CURRENT TIMESTAMP) as plan_start_time  
 FROM
 	(	SELECT
@@ -759,15 +759,19 @@ FROM
 			--信贷产品号
 			AND p1.BIZ_TYPE = #v0#
 			--贷款额度
-			AND p1.LOAN_AMOUNT >= #v1# 
-			AND p1.LOAN_AMOUNT <= #v2#
+			@if(isNotEmpty(v1)){
+                AND p1.LOAN_AMOUNT >= #v1# 
+			@}
+			@if(isNotEmpty(v2)){
+                AND p1.LOAN_AMOUNT <= #v2#
+			@}
 			--台帐状态
 			AND
 			p1.ACCOUNT_STATUS = 1 ) AS sub 
 WHERE
 	last_time IS NULL OR
 	( last_time IS NOT NULL AND
-	CURRENT TIMESTAMP > last_time + #v3# MONTHS - #v4# days )
+	CURRENT TIMESTAMP > last_time + #v3# days - #v4# days )
 
 
 规则17
