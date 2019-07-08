@@ -423,7 +423,7 @@ public class WfIns extends ValidGroup {
         object.put("nodes", nodes);
         return object;
     }
-    
+
 
     @Override
     public Object onAdd(SQLManager sqlManager) {
