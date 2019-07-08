@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.core.util.Log;
 import com.beeasy.hzback.modules.system.service.NoticeService2;
+import com.beeasy.hzback.modules.system.service.TaskSyncService;
 import com.beeasy.hzback.view.DManager;
 import com.beeasy.hzback.view.DepartmentUser;
 import com.beeasy.hzback.view.GPC;
@@ -1386,6 +1387,12 @@ public class WfIns extends ValidGroup {
                     }
                 }
             }).start();
+        }
+
+
+        //任务结束时，拷贝任务
+        if(wfIns.getState() == FINISHED && wfIns.getModelName().contains("贷后跟踪") && wfIns.autoCreated){
+            U.getBean(TaskSyncService.class).sync(wfIns);
         }
 //        List<Long> uids = sqlManager.lambdaQuery(WfInsAttr.class)
 //            .andEq(WfInsAttr::getInsId, wfIns.getId())
