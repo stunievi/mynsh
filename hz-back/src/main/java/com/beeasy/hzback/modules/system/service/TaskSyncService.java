@@ -1,13 +1,16 @@
 package com.beeasy.hzback.modules.system.service;
 
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.text.csv.CsvUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.RandomUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.ZipUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.entity.WfIns;
 import com.beeasy.hzback.entity.WfInsAttr;
 import com.beeasy.hzback.entity.WfNodeDealer;
+import lombok.AllArgsConstructor;
 import org.apache.activemq.command.ActiveMQTopic;
 import org.beetl.sql.core.SQLManager;
 import org.beetl.sql.core.SQLReady;
@@ -108,6 +111,22 @@ public class TaskSyncService {
             if(list.size() == 0){
                 break;
             }
+            list = list.stream()
+                .map(e -> {
+                    JSONObject obj = new JSONObject();
+                    e.forEach((k,v) -> {
+                        if (k.equalsIgnoreCase("rn")) {
+                            return;
+                        }
+                        //这里的数字竟然不会转，只能手动转一下
+                        if(k.startsWith("remark")){
+                            k = k.replace("remark", "remark_");
+                        }
+                        obj.put(StrUtil.toUnderlineCase(k), v);
+                    });
+                    return obj;
+                })
+                .collect(Collectors.toList());
             try (
                     RandomAccessFile raf = new RandomAccessFile(temp, "rw");
             ) {
@@ -128,10 +147,7 @@ public class TaskSyncService {
             ZipUtil.zip(zfile, paths, iss);
 
             ActiveMQTopic topic = new ActiveMQTopic("data-sync");
-            Properties properties = new Properties();
-            properties.setProperty("table", table);
-            topic.setProperties(properties);
-            jmsMessagingTemplate.convertAndSend(topic, zfile);
+            jmsMessagingTemplate.convertAndSend(topic, new SyncRequest(table, zfile));
 
         } finally {
             for (InputStream inputStream : iss) {
@@ -150,6 +166,13 @@ public class TaskSyncService {
         }
 
 
+    }
+
+
+    @AllArgsConstructor
+    public static class SyncRequest{
+        public String table;
+        public File file;
     }
 
 }
