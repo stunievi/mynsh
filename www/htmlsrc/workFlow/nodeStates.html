@@ -1190,7 +1190,7 @@
                         $("li[data-key=" + res.errMessagee + "]")
                             .find(".state")
                             .removeClass("state")
-                            .text("上传失败, 请稍后重试");
+                            .text(res.errMessage || "上传失败, 请稍后重试");
                     }
                     //上传完毕回调
                     // console.log(res)
