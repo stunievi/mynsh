@@ -1,5 +1,6 @@
 package com.beeasy.hzback.modules.system.config;
 
+import com.beeasy.hzback.modules.system.service.TaskSyncService;
 import org.apache.activemq.ActiveMQSession;
 import org.apache.activemq.BlobMessage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,9 +37,14 @@ public class MqConfig {
             public Message toMessage(Object o, Session session) throws JMSException, MessageConversionException {
                 if(o instanceof GenericMessage){
                     if(((GenericMessage) o).getPayload() instanceof File){
-                        return ((ActiveMQSession)session).createBlobMessage((File) ((GenericMessage) o).getPayload());
+                        return ((ActiveMQSession) session).createBlobMessage((File) ((GenericMessage) o).getPayload());
                     } else if (((GenericMessage) o).getPayload() instanceof String){
                         return session.createTextMessage((String) ((GenericMessage) o).getPayload());
+                    } else if(((GenericMessage) o).getPayload() instanceof TaskSyncService.SyncRequest){
+                        TaskSyncService.SyncRequest syncRequest = (TaskSyncService.SyncRequest) ((GenericMessage) o).getPayload();
+                        BlobMessage msg = ((ActiveMQSession) session).createBlobMessage(syncRequest.file);
+                        msg.setStringProperty("table", syncRequest.table);
+                        return msg;
                     }
                 }
                 return null;

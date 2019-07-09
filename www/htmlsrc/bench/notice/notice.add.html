@@ -209,7 +209,7 @@
                     $("li[data-key=" + file.uuid + "]")
                         .find(".state")
                         .removeClass("state")
-                        .text("上传失败, 请稍后重试");
+                        .text(res.errMessage || "上传失败, 请稍后重试");
                     uploader.removeFile(file)
                 }
                 // if(res.success){
