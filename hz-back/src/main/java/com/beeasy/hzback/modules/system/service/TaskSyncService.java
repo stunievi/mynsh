@@ -30,6 +30,9 @@ public class TaskSyncService {
         for (JSONObject jsonObject : list) {
             String la = jsonObject.getString("loanAccount");
             String bo = jsonObject.getString("billNo");
+            if(la.equals(wfIns.getLoanAccount())){
+                continue;
+            }
             wfIns.setId(null);
             wfIns.setLoanAccount(la);
             wfIns.setBillNo(bo);

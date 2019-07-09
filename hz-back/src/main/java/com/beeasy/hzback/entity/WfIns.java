@@ -449,7 +449,7 @@ public class WfIns extends ValidGroup {
             //替换为所有合同号的总金额
             List<JSONObject> list = sqlManager.execute(new SQLReady(String.format("select sum(loan_balance) from RPT_M_RPT_SLS_ACCT where cont_no = '%s'", innateMap.getString("CONT_NO"))), JSONObject.class);
             BigDecimal money = list.get(0).getBigDecimal("1");
-            innateMap.put("CONT_NO", money);
+            innateMap.put("LOAN_BALANCE", money);
 
         }
 

@@ -729,49 +729,26 @@ WHERE
 
 selectGentaskUL
 ===
-SELECT
-	sub.*,
-	MAX(case 
-	    when last_time is null then CURRENT TIMESTAMP
-	    else last_time + #v3# days 
-    end, CURRENT TIMESTAMP) as plan_start_time  
-FROM
-	(	SELECT
-			p1.LOAN_ACCOUNT,
-			p1.BILL_NO ,
-			p1.PRD_TYPE ,
-			p1.CUST_MGR ,
-			(	SELECT
-					ins.plan_start_time 
-				FROM
-					t_workflow_instance ins 
-				WHERE
-					ins.model_name LIKE '%贷后跟踪%' AND
-					ins.LOAN_ACCOUNT = p1.LOAN_ACCOUNT AND
-					ins.auto_created = 1 
-				ORDER BY
-					plan_start_time DESC FETCH FIRST 1 ROWS ONLY ) AS last_time 
-		FROM
-			RPT_M_RPT_SLS_ACCT p1 
-		WHERE
-			--法人机构号（惠州农商银行0801）
-			p1.CREUNIT_NO = '0801'
-			--信贷产品号
-			AND p1.BIZ_TYPE = #v0#
-			--贷款额度
-			@if(isNotEmpty(v1)){
-                AND p1.LOAN_AMOUNT >= #v1# 
-			@}
-			@if(isNotEmpty(v2)){
-                AND p1.LOAN_AMOUNT <= #v2#
-			@}
-			--台帐状态
-			AND
-			p1.ACCOUNT_STATUS = 1 ) AS sub 
-WHERE
-	last_time IS NULL OR
-	( last_time IS NOT NULL AND
-	CURRENT TIMESTAMP > last_time + #v3# days - #v4# days )
+select p1.LOAN_ACCOUNT,
+        p1.BILL_NO ,
+        p1.PRD_TYPE ,
+        p1.CUST_MGR ,
+        days (current date) - days (DATE (TO_DATE(LOAN_START_DATE,'YYYY-MM-DD'))) as dDays 
+        from RPT_M_RPT_SLS_ACCT p1
+where LN_TYPE in ('普通贷款','银团贷款')
+    and ACCOUNT_STATUS = 1
+    --信贷产品号
+    AND p1.BIZ_TYPE = #v0#
+    --表内资产
+    and p1.GL_CLASS not like '0%'
+    --贷款额度
+    @if(isNotEmpty(v1)){
+        AND p1.LOAN_AMOUNT >= #v1# 
+    @}
+    @if(isNotEmpty(v2)){
+        AND p1.LOAN_AMOUNT <= #v2#
+    @}
+    
 
 
 规则17

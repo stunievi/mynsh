@@ -191,20 +191,26 @@ public class LoanManagerService {
             }
         }
 
-        WfIns ins = new WfIns();
-        ins.setModelName(modelName);
-        ins.setPubUserId(user.getId());
-        ins.setDealUserId(user.getId());
-        ins.setPlanStartTime(new Date());
-        ins.setTitle(modelName);
-        ins.setLoanAccount("");
-        ins.set("$data", data);
-        ins.set("$startNodeData", new JSONObject());
-        ins.set("$uid", user.getId());
-        ins.setAutoCreated(true);
-        ins.valid(ins, ValidGroup.Add.class);
-        ins.onBeforeAdd(sqlManager);
-        ins.onAdd(sqlManager);
+        try {
+            WfIns ins = new WfIns();
+            ins.setModelName(modelName);
+            ins.setPubUserId(user.getId());
+            ins.setDealUserId(user.getId());
+            ins.setPlanStartTime(new Date());
+            ins.setTitle(modelName);
+            ins.setLoanAccount("");
+            ins.set("$data", data);
+            ins.set("$startNodeData", new JSONObject());
+            ins.set("$uid", user.getId());
+            ins.setAutoCreated(true);
+            ins.valid(ins, ValidGroup.Add.class);
+            ins.onBeforeAdd(sqlManager);
+            ins.onAdd(sqlManager);
+        }catch (WfIns.SameContNoException e){
+            e.printStackTrace();
+        }catch (Exception e){
+            throw e;
+        }
 
     }
 }
