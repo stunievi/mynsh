@@ -29,7 +29,7 @@ public class TestController {
 
 
     @RequestMapping(value = "/test2")
-    public void t2() throws IOException {
-        U.getBean(TaskSyncService.class).syncDataToDataPool("T_RELATED_PARTY_LIST");
+    public void t2(String table) throws IOException {
+        U.getBean(TaskSyncService.class).syncDataToDataPool(table);
     }
 }
