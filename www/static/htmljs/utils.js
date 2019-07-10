@@ -44,10 +44,6 @@ function addNavTab(id, tabName, url,args,callback){
     }
 }
 
-// 获取用户列表
-function getUserList(){
-  return top.topCacheUserList || [];
-}
 // 获取用户某个key的val
 function getUserValById(uid, key){
   key = key || "name";
@@ -262,21 +258,6 @@ function setCheckedQuarter(dataList, checkedArr){
       if(typeof dataList[l].children != 'undefined'){
           if(dataList[l].children.length > 0){
               setCheckedQuarter(dataList[l].children, checkedArr)
-          }
-      }
-  }
-}
-// 设置选中的部门
-function setCheckedDept(dataList, checkedArr){
-  var l = dataList.length;
-  while(l-- > 0){
-      dataList[l].open = true;
-      if(checkedArr.indexOf(dataList[l].id) >= 0){
-          dataList[l].checked = true;
-      }
-      if(typeof dataList[l].children != 'undefined'){
-          if(dataList[l].children.length > 0){
-              setCheckedDept(dataList[l].children, checkedArr)
           }
       }
   }
@@ -596,35 +577,6 @@ function bindLongDelete(selector) {
     })
 }
 
-// 修正位置
-// laytable要求：如果是固定在左，该列必须放在表头最前面；如果是固定在右，该列必须放在表头最后面。
-function layTableFixedOrder(src, pos) {
-  var counter = src.length - 1;
-  var arr = [];
-  while (true) {
-      var result = src[counter].pos == pos ? true : false;
-      if (result) {
-          arr.push(src[counter])
-          src.splice(counter, 1);
-          counter = src.length - 1;
-      } else {
-          counter--;
-      }
-      if (counter < 0) {
-          if(pos =='right'){
-              arr.forEach(function(elm){
-                  src.push(elm)
-              })
-          }else if(pos=='left'){
-              arr.forEach(function(elm){
-                  src.unshift(elm)
-              })
-          }
-          break;
-      }
-  }
-}
-
 /*
   需要固定的列必须放在数组首列，
   固定于左侧的列将筛选后放置于cols[0]头部
@@ -647,6 +599,17 @@ function laytableRender(options, undefined){
     if(elem[0].tagName != 'TABLE'){
         elem.append("<table id='table-"+id+"'></table>")
         elem = elem.find("table");
+    }
+
+    if(options.showIndex){
+        options.cols[0].unshift({
+            title: '序号',
+            align: 'center',
+            setWidth: 40,
+            formatter: function(value, row, index) {
+                return index + 1;
+            }
+        });
     }
 
     //处理cols
@@ -786,8 +749,8 @@ function laytableRender(options, undefined){
                 }
                 , data: data
                 , success: function (res) {
-                    var rows = (res.success && res.data) ? (res.data.content || res.data.list || res.data) : (res.rows || []);
-                    var total = (res.success && res.data) ? (res.data.totalElements || res.data.totalRow || res.data.length) : (res.total || 0);
+                    var rows = ((res.code || res.success) && res.data) ? (res.data.content || res.data.list || res.data) : (res.rows || []);
+                    var total = ((res.code || res.success) && res.data) ? (res.data.totalElements || res.data.totalRow || res.data.length) : (res.total || 0);
                     var ret = usepage ? {
                         rows: rows
                         , total: total
@@ -904,154 +867,6 @@ function laytableRender(options, undefined){
     // '#dataList';
     return;
 
-  var urlType = options.urlType || 'self';
-  var id = options.id || "dataList";
-  var elem = options.elem || '#dataList';
-  var url = options.url;
-  if(options.urlType == 'disk'){
-      url = remoteClound + url;
-  }
-  var layout = options.layout || ['prev','page', 'next', 'limit', 'count', 'skip'];
-  var done = options.done || function(res, curr, count){
-      // console.log(this,this.elem.find("td[data-field=hide]"))
-      // $("table td[data-field=hide]").remove()
-      // console.log(this.elem)
-    // rememberParam('page', curr);
-  };
-  var currPage = options.currPage;
-  var laypage = options.page === undefined ? {
-      theme:'#1E9FFF',
-      first: '首页',
-      last: '末页',
-      prev: '上一页',
-      next: '下一页',
-      curr: currPage || 1,
-      layout: layout
-  } : false;
-  var dataName = options.dataName==undefined ?'data.content': options.dataName;
-  var resHandler = options.resHandler;
-  var success = options.success;
-  var cols = options.cols;
-  var where = options.where;
-  var cellMinWidth = options.cellMinWidth;
-  var response = {
-      statusName: 'success',
-      statusCode: true,
-      msgName: 'errMessage',
-      countName: 'data.totalElements',
-      dataName: dataName
-  };
-  var request = {
-    pageName: 'page',
-    limitName: 'size'
-  }
-  // 私有云
-  if(urlType == 'disk'){
-    dataName = 'rows';
-    response = {
-        statusName: 'status',
-        statusCode: "SUCCESS",
-        msgName: 'msg',
-        countName: 'total',
-        dataName: 'rows'
-    }
-    request = {
-      pageName: 'page',
-      limitName: 'pageSize'
-    }
-  }
-  if(typeof where === 'string'){
-    where = $.unserialize(where) || {};
-  }
-  if(where && where.page){
-    where.page = where.page - 1;
-  }
-  // laytable要求：如果是固定在左，该列必须放在表头最前面；如果是固定在右，该列必须放在表头最后面。
-  cols[0].forEach(function(elm){
-    var pos = getParam(elm.field) || elm.pos;
-    if(pos){
-        elm.pos = pos;
-        if(pos.indexOf('no')>=0){
-            delete elm.fixed;
-        }else{
-          elm.fixed = pos;
-        }
-    }else{
-        delete elm.fixed
-    }
-  });
-  // 将需要固定的列重新筛选后重新插入
-  // laytable要求：如果是固定在左，该列必须放在表头最前面；如果是固定在右，该列必须放在表头最后面。
-  layTableFixedOrder(cols[0], 'right');
-  layTableFixedOrder(cols[0], 'left');
-  layui.use(['table',"laypage"], function(){
-      var ops = {
-          loading: options.loading == false ? false : true,
-          autoShift: options.autoShift,
-          urlType: urlType,
-          cellMinWidth: cellMinWidth,
-          where: where,
-          width: null,
-          id: id,
-          limit: options.limit,
-          elem: elem,
-          // header: {
-          //     "Authorization": $.cookie('authorization')
-          // },
-          url: url,
-          request: request,
-          page: laypage,
-          // response: response,
-          done: done,
-          parseData: function(res){
-              // console.log('parsedata',res,{
-              //     code: res.success ? 0 : -1
-              //     , msg: res.errMessage
-              //     , count: res.data.totalElements || res.data.totalRow || res.data.length || 0
-              //     , data: res.data.content || res.data.list || res.data
-              // })
-              var parse = {
-                  code: (res.success || (res.status == 'SUCCESS')) ? 0 : -1
-                  , msg: res.errMessage || res.msg
-                  , count: res.data ? (res.data.totalElements || res.data.totalRow || res.data.length) : res.total || 0
-                  , data: res.data ? (res.data.content || res.data.list || res.data) : res.rows || []
-              };
-              console.log(parse)
-              return parse;
-          },
-          responseHandler:function(res){
-              if(success){
-                  // 返回原始数据origin
-                  if(urlType == 'disk'){
-                      success(res);
-                  }else{
-                      success(res.data);
-                  }
-              }
-              /*
-                劫持请求返回的数据,处理后重新拿到，必须【原数据结构不变】
-              */
-              if(resHandler){
-                  var fixRes = resHandler(res);
-                  // console.log(fixRes)
-                  // console.log(fixRes == undefined ? res : fixRes)
-                  return fixRes == undefined ? res : fixRes;
-              }else{
-                  return res;
-              }
-          },
-          cols: cols
-      }
-      if(options.title){
-          ops.title = options.title
-      }
-      if(options.defaultToolbar){
-          ops.toolbar = true
-          ops.defaultToolbar = options.defaultToolbar
-      }
-      console.log(ops)
-    layui.table.render(ops);
-  });
 }
 
 function checkSubmitForm(){
@@ -1150,15 +965,6 @@ function layerLoad(){
   return layer.load(1, {
     shade: [0.1,'#fff'] //0.1透明度的白色背景
   });
-}
-
-// 打印错误信息
-function logErrMsg(res){
-  if(res.errMessage){
-    console.error(res.errMessage);
-  }else{
-    console.error("请检查参数格式");
-  }
 }
 
 // layer提示错误信息
@@ -1527,6 +1333,20 @@ $(document).on("click", "[client-name]",function () {
 $(document).on("click", ".show-client-target",function () {
     showECI_Info($(this).html().trim(), $(this).attr("key-no"));
 });
+//
+var formRequest = function (options) {
+    var config = $.extend(true, { method: 'post' }, options);
+    var $iframe = $('<iframe id="down-file-iframe" />');
+    var $form = $('<form target="down-file-iframe" content-type="application/json" method="' + config.method + '" />');
+    $form.attr('action', config.url);
+    for (var key in config.data) {
+        $form.append("<input type=\"hidden\" name='" + key + "' value=\'" + JSON.stringify(config.data[key]) + "' />");
+    }
+    $iframe.append($form);
+    $(document.body).append($iframe);
+    $form[0].submit();
+    $iframe.remove();
+};
 
 if(typeof $ !== "undefined"){
     $.fn.ghostsf_serialize = function () {

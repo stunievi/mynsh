@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>系统管理-数据维护-股东关联</title>
+    <!--#include file="/htmlsrc/header.html" -->
+</head>
+<body>
+<div id="content">
+    <div class="bs-example bs-example-tabs" data-example-id="togglable-tabs">
+        <ul id="myTabs" class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active"><a href="#tab1" role="tab" data-toggle="tab" aria-controls="tab1" aria-expanded="true">查询</a></li>
+            <li role="presentation" ><a href="#tab2" role="tab" data-toggle="tab" aria-controls="tab2">取数</a></li>
+        </ul>
+        <div id="myTabContent" class="tab-content">
+            <div id="panel-form">
+            </div>
+            <div class="batch-operation">
+                <div id="picker" class="tab1">
+                    <i class="glyphicon glyphicon-book "></i>
+                    导入股东关联清单文件
+                </div>
+                <button class="btn-success btn tab1" id="btn-export">导出股东关联清单文件</button>
+                <button type="button" class="btn btn-warning tab2 hide" id="touchRule">
+                    触发规则
+                </button>
+                <button class="btn-success btn tab2 hide" id="btn-export2">导出（系统取数）</button>
+            </div>
+            <div id="dataList">
+            </div>
+        </div>
+    </div>
+</div>
+<!--取数规则模板-->
+<script type="text/html" id="touchRuleForm">
+    <div class="col-xs-12" style="margin-top:10px;">
+        <div>
+            <input type="checkbox" value="11" name="tRule">全部</input>
+        </div>
+        <div style="padding: 5px 10px 10px 0px">
+            {{each rules value index}}
+            <span class="rule_z">
+                        <input type="checkbox" value="{{index}}" name="tRule">{{value}}</input>
+                    </span>
+            <br/>
+            {{/each}}
+        </div>
+    </div>
+</script>
+<script src="/static/htmljs/uploader.js"></script>
+<script>
+    var _html = template("touchRuleForm",{
+        rules: {
+            "12.1": "12.1-股东明细",
+            "12.2": "12.2-企业股东关联自然人",
+            "12.3": "12.3-企业股东关联的企业股东",
+            "12.4": "12.4-企业股东关联的控股公司",
+            "12.5": "12.5-自然人股东关联企业"
+        }
+    });
+    var dataFlag = "02";
+    var activeIndex = true;
+    $("#myTabs li").click(function () {
+        if($(this).hasClass("active")){
+            return;
+        }
+        activeIndex = !activeIndex;
+        if(activeIndex){
+            // 查询
+            $(".tab1").removeClass("hide");
+            $(".tab2").addClass("hide");
+            $("input[name='DATA_FLAG']").val("02");
+            checkSubmitForm();
+        }else{
+            // 取数
+            $(".tab2").removeClass("hide");
+            $(".tab1").addClass("hide");
+            $("input[name='DATA_FLAG']").val("01");
+            checkSubmitForm();
+        }
+    });
+
+    $("#panel-form").html(panelFormRender3({
+        panelTitle: '筛选查询',
+        col: 3,
+        list: [
+            { label:'证件号码', prop:'CERT_CODE' },
+            { label:'关联人名称', prop:'RELATED_NAME' },
+            { label:'关联类型', prop:'LINK_RULE', type:"select", vals:[
+                    { name: '--请选择--', val: ''},
+                    {val:"12.1", name:"12.1-股东明细"},
+                    {val:"12.2", name:"12.2-企业股东关联自然人"},
+                    {val:"12.3", name:"12.3-企业股东关联的企业股东"},
+                    {val:"12.4", name:"12.4-企业股东关联的控股公司"},
+                    {val:"12.5", name:"12.5-自然人股东关联企业"}
+                ]
+            },
+            {
+                type:"hidden", prop: "DATA_FLAG"
+            }
+        ],
+        data: {
+            DATA_FLAG: "02"
+        }
+    }));
+
+    // 渲染列表
+    laytableRender({
+        showIndex: true,
+        cellMinWidth: 110,
+        url: "/link/LinkController/list2",
+        cols: [ [
+            {title:'关联人名称', field:'RELATED_NAME' },
+            {title:'关联类型', field:'LINK_RULE' },
+            {title:'关联信息（要素）', field:'LINK_INFO' },
+            {title:'关联人证件号码', field:'CERT_CODE' },
+            {title:'备注信息1（关系说明）', field:'REMARK_1' },
+            {title:'备注信息2（相关信息）', field:'REMARK_2' },
+            {title:'备注信息3（控制程度）', field:'REMARK_3' }
+        ] ]
+    });
+
+
+    eventBind('#touchRule', function(that){
+        layer.confirm(_html,{
+            btn:["确定","取消"]
+        },function () {
+            var data = $('input:checkbox[name="tRule"]:checked').map(function () {
+                return $(this).val();
+            }).get().join(",");
+            $.ajax({
+                url: "/link/LinkController/touchRule?rule="+data,
+                success: function(res){
+                    layer.close(touchRuleIndex);
+                    reloadByDirId(); // 刷新页面更新数据
+                },
+                error:function () {
+                    layer.msg("发生错误！");
+                }
+            })
+        });
+    });
+
+    // 筛选
+    function checkSubmitForm(that){
+        layuiTableReload({
+            where: $("[name='form-search']").ghostsf_serialize().replace(/(\d+)-/g,'$1'),
+            resHandler: function(res){
+                translateOdsInData(res.data.content);
+                return res;
+            }
+        });
+        return false;
+    }
+    var uploader = uploadFactory({
+        server: remoteOrigin + "/api/excel/auto/import",
+        formData: {
+            actType: "holderLink"
+        }
+    });
+    uploader.on('uploadError', function (file, res) {
+        layer.msg("导入失败！");
+        uploader.removeFile(file)
+    });
+    // 单个文件上传成功
+    uploader.on('uploadSuccess', function (file, res) {
+        if(res.success){
+            layer.msg("正在导入数据，系统稍后会将导入结果发送至收件箱，请注意查收！");
+        }else{
+            layer.msg("导入失败！请选择正确的模板导入！");
+        }
+        uploader.removeFile(file)
+    });
+
+    $("#btn-export").click(function () {
+        formRequest({
+            url: remoteOrigin + "/api/report/export/diy/holderLink",
+            data: {
+                head: [[
+                    {"field":"number","title":"序号"},
+                    {"field":"relatedName","title":"关联人名称"}
+                ]],
+                query: {}
+            }
+        });
+    });
+    $("#btn-export2").click(function () {
+        var str =$('[name=form-search]').ghostsf_serialize().replace(/(\d+)-/g,'$1');
+        location.href = remoteOrigin + "/link/FileController/groupCusListExport?DATA_FLAG=01";
+    });
+</script>
+</body>
+</html>
