@@ -596,12 +596,12 @@ public class BackExcelController {
                         saveSysVar(LOAN_CHECK, i2, sysVars);
 
                         if(null != o3){
-                            String LOAN_AMOUNT_MAX = "ACC_"+(total-1)+"_LOAN_AMOUNT_MAX";
-                            saveSysVar(LOAN_AMOUNT_MAX, i3, sysVars);
+                            String LOAN_AMOUNT_MIN = "ACC_"+(total-1)+"_LOAN_AMOUNT_MIN";
+                            saveSysVar(LOAN_AMOUNT_MIN, i3, sysVars);
                         }
                         if(null != o4){
-                            String LOAN_AMOUNT_MIN = "ACC_"+(total-1)+"_LOAN_AMOUNT_MIN";
-                            saveSysVar(LOAN_AMOUNT_MIN, i4, sysVars);
+                            String LOAN_AMOUNT_MAX = "ACC_"+(total-1)+"_LOAN_AMOUNT_MAX";
+                            saveSysVar(LOAN_AMOUNT_MAX, i4, sysVars);
                         }
                         if(null != o5){
                             String EXPECT_DAY = "ACC_"+(total-1)+"_EXPECT_DAY";
@@ -654,11 +654,11 @@ public class BackExcelController {
                 Matcher m = p.matcher(list.getVarName());
 //                System.out.println( m.replaceAll("").trim());
                 if(i == Integer.parseInt(m.replaceAll("").trim())){
-                    jsonObject.put("serial_number",i+1);
+                    jsonObject.put("SERIAL_NUMBER",i+1);
                     if("ACC__BIZ_TYPE".equals(list.getVarName().replaceAll("\\d+", ""))){
                         List<JSONObject> lists = sqlManager.select("accloan.查询产品名称", JSONObject.class, C.newMap("prdCode",list.getVarValue()));
                         if(null != lists && !lists.isEmpty()){
-                            jsonObject.put("prd_name", lists.get(0).getString("PRD_NAME"));
+                            jsonObject.put("PRO_NAME", lists.get(0).getString("PRD_NAME"));
                         }
                     }
                     jsonObject.put(list.getVarName().replaceAll("\\d+", ""), list.getVarValue());
@@ -848,6 +848,7 @@ public class BackExcelController {
             int failed = 0;
             if(reader.getRowCount()>0){
                 sqlManager.lambdaQuery(RelatedPartyList.class)
+                        .andNotEq(RelatedPartyList::getLinkRule,"12.1")
                         .delete();
             }
             for (int i = 3; i < reader.getRowCount(); i++) {

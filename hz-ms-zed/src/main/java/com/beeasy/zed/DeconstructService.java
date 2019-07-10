@@ -4,7 +4,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.exceptions.UtilException;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.thread.ThreadUtil;
-import cn.hutool.core.util.URLUtil;
+import cn.hutool.core.util.*;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -15,6 +15,7 @@ import io.netty.handler.codec.http.*;
 import io.netty.util.CharsetUtil;
 import org.apache.activemq.BlobMessage;
 import org.beetl.sql.core.DSTransactionManager;
+import org.beetl.sql.core.SQLBatchReady;
 import org.beetl.sql.core.SQLReady;
 import org.osgl.util.E;
 import org.osgl.util.S;
@@ -32,6 +33,7 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -323,6 +325,22 @@ public class DeconstructService extends AbstractService {
             }
         });
 
+
+        //数据同步
+        MQService.getInstance().listenMessage("topic", "data-sync", m -> {
+            BlobMessage blobMessage = (BlobMessage) m;
+            String table = blobMessage.getStringProperty("table");
+            if (StrUtil.isBlank(table)) {
+                return;
+            }
+            try (
+                    InputStream is = blobMessage.getInputStream();
+            ) {
+                doDataSync(table, is);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
 
         //文件代理提供
         HttpServerHandler.AddRoute(new Route("/file", new Route.IHandler() {
@@ -3121,6 +3139,122 @@ public class DeconstructService extends AbstractService {
         public void send() {
             MQService.getInstance().sendMessage("queue", "qcc-redeconstruct-response", this.toString());
         }
+    }
+
+
+    public void doDataSync(String table, InputStream is) {
+        File temp = null;
+        File tempDir = null;
+        FileOutputStream fos = null;
+        Connection connection = null;
+        Statement statement = null;
+        try {
+            //zipfile
+            temp = File.createTempFile("123", "123");
+            fos = new FileOutputStream(temp);
+            IoUtil.copy(is, fos);
+            //outdir
+            String folder = System.getProperty("java.io.tmpdir");
+            tempDir = new File(folder, StrUtil.uuid());
+            tempDir.mkdirs();
+            ZipUtil.unzip(temp, tempDir, StandardCharsets.UTF_8);
+            //conn
+            connection = dataSource.getConnection();
+            connection.setAutoCommit(false);
+            statement = connection.createStatement();
+
+            statement.executeUpdate("delete from " + table);
+
+            //入库
+            StringBuilder sb = new StringBuilder();
+            for (File file : tempDir.listFiles()) {
+                if (!file.isFile()) {
+                    continue;
+                }
+                String sql = null;
+                try (
+                        FileInputStream fis = new FileInputStream(file);
+                ) {
+                    byte[] bs = IoUtil.readBytes(fis);
+                    List<JSONObject> list = ObjectUtil.unserialize(bs);
+                    if (list.size() == 0) {
+                        continue;
+                    }
+                    for (JSONObject jsonObject : list) {
+                        sb.setLength(0);
+                        sb.append("insert into ");
+                        sb.append(table);
+                        sb.append("(");
+                        for (String s : list.get(0).keySet()) {
+                            sb.append(s);
+                            sb.append(",");
+                        }
+                        sb.deleteCharAt(sb.length() - 1);
+                        sb.append(")values(");
+                        for (String s : list.get(0).keySet()) {
+                            String value = jsonObject.getString(s);
+                            if (value == null) {
+                                sb.append("null");
+                            } else {
+                                sb.append("'");
+                                sb.append(value);
+                                sb.append("'");
+                            }
+                            sb.append(",");
+                        }
+                        sb.deleteCharAt(sb.length() - 1);
+                        sb.append(")");
+                        statement.addBatch(sb.toString());
+                    }
+                    statement.executeBatch();
+                    statement.clearBatch();
+                }
+            }
+            connection.commit();
+        } catch (Exception e) {
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace();
+        } finally {
+            if (statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (connection != null) {
+                try {
+                    connection.setAutoCommit(true);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (temp != null) {
+                temp.delete();
+            }
+            if (tempDir != null) {
+                tempDir.delete();
+            }
+        }
+
+        System.out.println("sync success");
+
     }
 
 

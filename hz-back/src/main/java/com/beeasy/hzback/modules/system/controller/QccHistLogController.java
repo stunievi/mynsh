@@ -21,7 +21,7 @@ public class QccHistLogController {
     MessageSend s;
 
     @RequestMapping(value = "/test1", method = RequestMethod.GET)
-    public void uploadFace(HttpServletResponse response) throws IOException {
+    public void test(HttpServletResponse response) throws IOException {
         response.setStatus(200);
         response.setContentType("text/plain; charset=utf-8");
         try {
@@ -37,6 +37,25 @@ public class QccHistLogController {
         }
 
     }
+
+    @RequestMapping(value = "/test2", method = RequestMethod.GET)
+    public void qccRisk(HttpServletResponse response){
+        response.setStatus(200);
+        response.setContentType("text/plain; charset=utf-8");
+        try {
+            OutputStream os = response.getOutputStream();
+            qccHistLogService.os = os;
+            qccHistLogService.saveQccRisk();
+            os.flush();
+            os.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            qccHistLogService.os = System.out;
+        }
+
+    }
+
     @RequestMapping(value = "/deleteHistLog", method = RequestMethod.GET)
     public synchronized void deleteTable(HttpServletResponse response, @RequestParam String cusName) throws IOException{
         response.setStatus(200);

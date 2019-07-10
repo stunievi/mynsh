@@ -49,7 +49,8 @@ public class QccHistLogService {
         logDir = file.getAbsolutePath();
     }
 
-    @Scheduled(cron = "0 30 8 * * ?")
+    // TODO 暂时注释
+//    @Scheduled(cron = "0 30 8 * * ?")
     public synchronized void saveQccHisLog() {
 
         List<JSONObject> object = sqlManager.select("accloan.对公客户", JSONObject.class, C.newMap("uid", "1"));
@@ -357,8 +358,9 @@ public class QccHistLogService {
                 List<QccRisk> qccRiskList = new ArrayList<>();
                 Iterator<String> sIterator = jsonObj.keySet().iterator();
 
+                // TODO 暂时注释
                 // 任务规则
-                Iterator<String> taskIterator = jsonTaskObj.keySet().iterator();
+                /*Iterator<String> taskIterator = jsonTaskObj.keySet().iterator();
                 while (taskIterator.hasNext()) {
                     String key = taskIterator.next();
                     //获得key值对应的value
@@ -379,7 +381,7 @@ public class QccHistLogService {
 
                     }
                     break;
-                }
+                }*/
 
                 while (sIterator.hasNext()) {
                     // 获得key
@@ -424,7 +426,6 @@ public class QccHistLogService {
 //                        } catch (Exception e) {
 //                            println( e.getMessage(), null);
 //                        }
-
 //                        generateAutoTask(os, jo.getString("accCode"), jo.getString("loanAccount"));
                     }
 
@@ -436,7 +437,8 @@ public class QccHistLogService {
                             String renderStr = getContent(map, loanAccount, entry.getValue(), sendRuleMap);
                             riskInfoStr = renderStr.substring(renderStr.indexOf("该用户新增") + 3, renderStr.length());
 
-                            try {
+                            // TODO 暂时注释
+                            /*try {
                                 // 给客户经理发送消息
                                 notices.add(
                                         noticeService2.makeNotice(SysNotice.Type.SYSTEM, Long.valueOf(code), renderStr, null)
@@ -446,18 +448,19 @@ public class QccHistLogService {
                                 sendMsgToPresident(renderStr, notices, code);
                             } catch (Exception e) {
                                 println( e.getMessage(), null);
-                            }
+                            }*/
 
                         }
                     }
-                    if(loanMap.size()>0 && null != loanMap){
+                    // TODO 暂时注释
+                    /*if(loanMap.size()>0 && null != loanMap){
                         for (Map.Entry<String, String> entry : loanMap.entrySet()){
                             String renderStr = getContent(map, entry.getKey(), entry.getValue(), sendRuleMap);
                             // 给总行企查查风险角色发送消息
                             sendMsgTORule(renderStr, notices);
 
                         }
-                    }
+                    }*/
 
                     for (String cusName : cusNameList) {
                         // 企查查风险信息
@@ -467,8 +470,9 @@ public class QccHistLogService {
                     break;
                 }
 
-                sqlManager.insertBatch(SysNotice.class, notices);
-                sqlManager.insertBatch(QccRisk.class, qccRiskList);
+                // TODO 暂时注释
+                /*sqlManager.insertBatch(SysNotice.class, notices);
+                sqlManager.insertBatch(QccRisk.class, qccRiskList);*/
 
                 // 发送任务
             /*for(Map.Entry<String, String> entry : m1.entrySet()){
@@ -757,21 +761,27 @@ public class QccHistLogService {
                 return;
             }
         }
+        try {
+            WfIns ins = new WfIns();
+            ins.setModelName(modelName);
+            ins.setPubUserId(user.getId());
+            ins.setDealUserId(user.getId());
+            ins.setPlanStartTime(new Date());
+            ins.setTitle(modelName);
+            ins.setLoanAccount("");
+            ins.set("$data", data);
+            ins.set("$startNodeData", new JSONObject());
+            ins.set("$uid", user.getId());
+            ins.setAutoCreated(true);
+            ins.valid(ins, ValidGroup.Add.class);
+            ins.onBeforeAdd(sqlManager);
+            ins.onAdd(sqlManager);
 
-        WfIns ins = new WfIns();
-        ins.setModelName(modelName);
-        ins.setPubUserId(user.getId());
-        ins.setDealUserId(user.getId());
-        ins.setPlanStartTime(new Date());
-        ins.setTitle(modelName);
-        ins.setLoanAccount("");
-        ins.set("$data", data);
-        ins.set("$startNodeData", new JSONObject());
-        ins.set("$uid", user.getId());
-        ins.setAutoCreated(true);
-        ins.valid(ins, ValidGroup.Add.class);
-        ins.onBeforeAdd(sqlManager);
-        ins.onAdd(sqlManager);
+        }catch (WfIns.SameContNoException e){
+            e.printStackTrace();
+        }catch (Exception e){
+            throw e;
+        }
 
     }
 
@@ -810,6 +820,9 @@ public class QccHistLogService {
             cusId = lists.get(0).getString("cusId");
             certCode = lists.get(0).getString("certCode");
             mainBrId = lists.get(0).getString("mainBrId");
+            if("".equals(accCode)){
+                accCode = lists.get(0).getString("CUST_MGR");
+            }
         }
 
         QccRisk entity = new QccRisk();
@@ -821,5 +834,192 @@ public class QccHistLogService {
         entity.setMainBrId(mainBrId);
         entity.setCustMgr(accCode);
         return entity;
+    }
+
+
+    /**
+     * 企查查风险信息
+     */
+    @Scheduled(cron = "0 30 6 * * ?")
+    public synchronized void saveQccRisk() {
+
+        List<JSONObject> object = sqlManager.select("accloan.对公客户", JSONObject.class, C.newMap("uid", "1"));
+
+        Map<String, Integer> map;
+        Map<String, Boolean> sendRuleMap = new HashMap<>();
+        List<QccRisk> qccRiskList = new ArrayList<>();
+
+        // 获取失信、被执行等数据
+        Map<String, String> shixinMap = qccHistLogAsyncService.searchShiXin();
+        Map<String, String> zhixingMap = qccHistLogAsyncService.searchZhiXing();
+        Map<String, String> judgmentDocMap = qccHistLogAsyncService.searchJudgmentDoc();
+        Map<String, String> courtAnnouncementMap = qccHistLogAsyncService.searchCourtAnnouncement();
+        Map<String, String> courtNoticeMap = qccHistLogAsyncService.searchCourtNotice();
+        Map<String, String> envPunishmentMap = qccHistLogAsyncService.getEnvPunishmentList();
+        Map<String, String> cudicialAssistanceMap = qccHistLogAsyncService.getJudicialAssistance();
+        Map<String, String> judicialSaleMap = qccHistLogAsyncService.getJudicialSaleList();
+        Map<String, String> opExceptionMap = qccHistLogAsyncService.getOpException();
+
+        // 对公客户
+        for (Object jsonObject : object) {
+            map = new HashMap<>();
+            JSONObject jObject = (JSONObject) jsonObject;
+            String customerName = jObject.getString("CUS_NAME");
+
+            // 失信信息
+            int shixinInt = 0;
+            if(shixinMap.containsValue(customerName)){
+                for(Map.Entry<String, String> sxMap : shixinMap.entrySet()){
+                    if(customerName.equals(sxMap.getValue())){
+                        shixinInt = shixinInt+1;
+                        sendRuleMap.put("searchShiXin",true);
+                        if(null != map.get("searchShiXin") && 0 != map.get("searchShiXin") ){
+                            map.put("searchShiXin", shixinInt);
+                        }else{
+                            map.put("searchShiXin",1);
+                        }
+                    }
+                }
+            }
+            // 被执行信息
+            int zhiXingInt = 0;
+            if(zhixingMap.containsValue(customerName)){
+                for(Map.Entry<String, String> zxMap : zhixingMap.entrySet()){
+                    if(customerName.equals(zxMap.getValue())){
+                        zhiXingInt = zhiXingInt+1;
+                        sendRuleMap.put("searchZhiXing",true);
+                        if(null != map.get("searchZhiXing") && 0 != map.get("searchZhiXing") ){
+                            map.put("searchZhiXing", zhiXingInt);
+                        }else{
+                            map.put("searchZhiXing",1);
+                        }
+                    }
+                }
+            }
+
+            // 裁判文书
+            int judgmentInt = 0;
+            if(judgmentDocMap.containsValue(customerName)){
+                for(Map.Entry<String, String> jdMap : judgmentDocMap.entrySet()){
+                    if(customerName.equals(jdMap.getValue())){
+                        judgmentInt = judgmentInt+1;
+                        sendRuleMap.put("searchJudgmentDoc",true);
+                        if(null != map.get("searchJudgmentDoc") && 0 != map.get("searchJudgmentDoc") ){
+                            map.put("searchJudgmentDoc", judgmentInt);
+                        }else{
+                            map.put("searchJudgmentDoc",1);
+                        }
+                    }
+                }
+            }
+            // 法院公告
+            int courtAnnouncementInt = 0;
+            if(courtAnnouncementMap.containsValue(customerName)){
+                for(Map.Entry<String, String> ggMap : courtAnnouncementMap.entrySet()){
+                    if(customerName.equals(ggMap.getValue())){
+                        courtAnnouncementInt = courtAnnouncementInt+1;
+                        sendRuleMap.put("searchCourtAnnouncement",true);
+                        if(null != map.get("searchCourtAnnouncement") && 0 != map.get("searchCourtAnnouncement") ){
+                            map.put("searchCourtAnnouncement", courtAnnouncementInt);
+                        }else{
+                            map.put("searchCourtAnnouncement",1);
+                        }
+                    }
+                }
+            }
+            // 开庭公告
+            int courtNoticeInt = 0;
+            if(courtNoticeMap.containsValue(customerName)){
+                for(Map.Entry<String, String> cnMap : courtNoticeMap.entrySet()){
+                    if(customerName.equals(cnMap.getValue())){
+                        courtNoticeInt = courtNoticeInt+1;
+                        sendRuleMap.put("searchCourtNotice",true);
+                        if(null != map.get("searchCourtNotice") && 0 != map.get("searchCourtNotice") ){
+                            map.put("searchCourtNotice", courtNoticeInt);
+                        }else{
+                            map.put("searchCourtNotice",1);
+                        }
+                    }
+                }
+            }
+            // 司法拍卖
+            int judicialSaleListInt = 0;
+            if(judicialSaleMap.containsValue(customerName)){
+                for(Map.Entry<String, String> jsMap : judicialSaleMap.entrySet()){
+                    if(customerName.equals(jsMap.getValue())){
+                        judicialSaleListInt = judicialSaleListInt+1;
+                        sendRuleMap.put("getJudicialSaleList",true);
+                        if(null != map.get("getJudicialSaleList") && 0 != map.get("getJudicialSaleList") ){
+                            map.put("getJudicialSaleList", judicialSaleListInt);
+                        }else{
+                            map.put("getJudicialSaleList",1);
+                        }
+                    }
+                }
+            }
+
+            // 环保处罚
+            int envPunishmentListInt = 0;
+            if(envPunishmentMap.containsValue(customerName)){
+                for(Map.Entry<String, String> jsMap : envPunishmentMap.entrySet()){
+                    if(customerName.equals(jsMap.getValue())){
+                        envPunishmentListInt = envPunishmentListInt+1;
+                        sendRuleMap.put("getEnvPunishmentList",true);
+                        if(null != map.get("getEnvPunishmentList") && 0 != map.get("getEnvPunishmentList") ){
+                            map.put("getEnvPunishmentList", envPunishmentListInt);
+                        }else{
+                            map.put("getEnvPunishmentList",1);
+                        }
+                    }
+                }
+            }
+            // 司法协助
+            int judicialAssistanceInt = 0;
+            if(cudicialAssistanceMap.containsValue(customerName)){
+                for (Map.Entry<String, String> caMap : cudicialAssistanceMap.entrySet()){
+                    if(customerName.equals(caMap.getValue())){
+                        judicialAssistanceInt = judicialAssistanceInt+1;
+                        sendRuleMap.put("judicialAssistance",true);
+                        if(null != map.get("judicialAssistance") && 0 != map.get("judicialAssistance") ){
+                            map.put("judicialAssistance", judicialAssistanceInt);
+                        }else{
+                            map.put("judicialAssistance",1);
+                        }
+                    }
+                }
+            }
+
+            // 经营异常
+            int opExceptionInt = 0;
+            if(opExceptionMap.containsValue(customerName)){
+                for(Map.Entry<String, String> opMap : opExceptionMap.entrySet()){
+                    if(customerName.equals(opMap.getValue())){
+                        opExceptionInt = opExceptionInt+1;
+                        sendRuleMap.put("opException",true);
+                        if(null != map.get("opException") && 0 != map.get("opException") ){
+                            map.put("opException", opExceptionInt);
+                        }else{
+                            map.put("opException",1);
+                        }
+                    }
+                }
+            }
+
+            Date nowDate = new Date();
+            if (!map.isEmpty()) {
+
+                String riskInfoStr = "";
+                String renderStr = getContent(map, "0", customerName, sendRuleMap);
+                riskInfoStr = renderStr.substring(renderStr.indexOf("该用户新增") + 3, renderStr.length());
+                // 企查查风险信息
+                qccRiskList.add(saveQccRisk(nowDate, customerName, riskInfoStr, ""));
+            }
+        }
+        if(qccRiskList.size()>0){
+            sqlManager.lambdaQuery(QccRisk.class).delete();
+        }
+        sqlManager.insertBatch(QccRisk.class, qccRiskList);
+
+        println("执行完成！");
     }
 }

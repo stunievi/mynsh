@@ -687,3 +687,10 @@ if(window.top != window){
 	})
 }
 
+
+function doIfDev(callback) {
+	if(location.origin.indexOf("localhost") > -1 || location.origin.indexOf("127.0.0.1") > -1 || location.origin.indexOf("47.94.97.138") > -1){
+		callback.call()
+	}
+}
+

@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.core.util.Log;
 import com.beeasy.hzback.modules.system.service.NoticeService2;
+import com.beeasy.hzback.modules.system.service.TaskSyncService;
 import com.beeasy.hzback.view.DManager;
 import com.beeasy.hzback.view.DepartmentUser;
 import com.beeasy.hzback.view.GPC;
@@ -20,6 +21,7 @@ import org.beetl.sql.core.SQLReady;
 import org.beetl.sql.core.TailBean;
 import org.beetl.sql.core.annotatoin.AssignID;
 import org.beetl.sql.core.annotatoin.Table;
+import org.osgl.util.BigDecimalValueObjectCodec;
 import org.osgl.util.C;
 import org.osgl.util.S;
 import org.springframework.util.DigestUtils;
@@ -28,6 +30,7 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.validation.constraints.AssertTrue;
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -290,6 +293,7 @@ public class WfIns extends ValidGroup {
         }
 
 
+
         //保存数据到下一个chain
         set("$model", model);
         set("$node", node);
@@ -422,12 +426,34 @@ public class WfIns extends ValidGroup {
     }
 
 
-
     @Override
     public Object onAdd(SQLManager sqlManager) {
         JSONObject innateMap = (JSONObject) get("$innateMap");
         JSONObject model = (JSONObject) get("$model");
         JSONObject node = (JSONObject) get("$node");
+
+        //如果是自动生成，检查X天内是否有一个相同贷款账号且未办理的任务
+        if(autoCreated && modelName.contains("贷后跟踪")){
+            long count = sqlManager.lambdaQuery(WfIns.class)
+                    .andEq(WfIns::getF7, innateMap.getString("CONT_NO"))
+                    .andEq(WfIns::getState, DEALING)
+                    .andEq(WfIns::getAutoCreated, true)
+                    .andLike(WfIns::getModelName, "%贷后跟踪%")
+                    .count();
+            if(count > 0){
+                throw new SameContNoException("同一个贷款账号只生成同一个任务");
+            } else {
+                f7 = innateMap.getString("CONT_NO");
+            }
+
+            //替换为所有合同号的总金额
+            List<JSONObject> list = sqlManager.execute(new SQLReady(String.format("select sum(loan_balance) from RPT_M_RPT_SLS_ACCT where cont_no = '%s'", innateMap.getString("CONT_NO"))), JSONObject.class);
+            BigDecimal money = list.get(0).getBigDecimal("1");
+            innateMap.put("LOAN_BALANCE", money);
+
+        }
+
+
         //创建节点列表
         JSONArray arr = new JSONArray();
         JSONObject startNode = createNodeIns(node);
@@ -1368,6 +1394,12 @@ public class WfIns extends ValidGroup {
                 }
             }).start();
         }
+
+
+        //任务结束时，拷贝任务
+        if(wfIns.getState() == FINISHED && wfIns.getModelName().contains("贷后跟踪") && wfIns.autoCreated){
+            U.getBean(TaskSyncService.class).sync(wfIns);
+        }
 //        List<Long> uids = sqlManager.lambdaQuery(WfInsAttr.class)
 //            .andEq(WfInsAttr::getInsId, wfIns.getId())
 //            .andEq(WfInsAttr::getNodeId, nIns.getLong("id"))
@@ -1628,4 +1660,14 @@ public class WfIns extends ValidGroup {
         }
         return $noticeService2;
     }
+
+
+    public static class SameContNoException extends RuntimeException{
+        private String _msg;
+
+        public SameContNoException(String _msg) {
+            this._msg = _msg;
+        }
+    }
+
 }

@@ -69,7 +69,7 @@ group by if_name_en
 
 查询客户信息
 ===
-select CUS_ID, CERT_CODE, MAIN_BR_ID from CUS_COM 
+select CUS_ID, CERT_CODE, MAIN_BR_ID,CUST_MGR  from CUS_COM 
 where cus_name = #cusName#
 
 
