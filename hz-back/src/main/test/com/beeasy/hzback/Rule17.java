@@ -1,7 +1,6 @@
 package com.beeasy.hzback;
 
 import com.alibaba.fastjson.JSONObject;
-import com.beeasy.hzback.TmallApplicationTests;
 import com.beeasy.hzback.entity.SysNotice;
 import com.beeasy.hzdata.service.CheckService;
 import org.beetl.sql.core.SQLManager;
@@ -14,11 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.lang.reflect.Executable;
 import java.util.List;
 
 
-public class Rule17 extends TmallApplicationTests {
+public class Rule17  {
 
     @Autowired
     SQLManager sqlManager;
