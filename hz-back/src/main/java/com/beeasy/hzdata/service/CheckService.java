@@ -927,20 +927,29 @@ public class CheckService {
             String LOAN_AMOUNT_MIN = (configs.get(String.format("ACC_%s_LOAN_AMOUNT_MIN", id)));
             String LOAN_CHECK = (configs.get(String.format("ACC_%s_LOAN_CHECK", id)));
             String EXPECT_DAY = (configs.get(String.format("ACC_%s_EXPECT_DAY", id)));
-            if(S.isBlank(BIZ_TYPE_SUB) || S.isBlank(LOAN_AMOUNT_MAX) || S.isBlank(LOAN_CHECK) || S.isBlank(EXPECT_DAY) || S.isBlank(LOAN_AMOUNT_MIN)){
+            if(S.isBlank(BIZ_TYPE_SUB) || S.isBlank(LOAN_CHECK)){
                 println(os, "配置错误");
                 continue;
+            }
+            if(null == EXPECT_DAY){
+                EXPECT_DAY ="0";
             }
             List<Map> res = sqlManager.select("task.selectGentaskUL",Map.class, C.newMap(
                     "v0",BIZ_TYPE_SUB,
                     "v1",LOAN_AMOUNT_MIN,
-                    "v2", LOAN_AMOUNT_MAX,
-                    "v3", LOAN_CHECK,
-                    "v4", EXPECT_DAY
+                    "v2", LOAN_AMOUNT_MAX
             ));
             println(os, "找到待处理条数%d", res.size());
             for (Map item : res) {
                 String loanAccount = (String) item.get("LOAN_ACCOUNT");
+                Integer dDays = (Integer) item.get("dDays");
+
+                //任务产生时间=贷款合同起始日期（借款日）+n*检查时间间隔，其中n>=1
+                if(null != LOAN_CHECK && null != dDays){
+                    if(dDays % (Integer.parseInt(LOAN_CHECK)-Integer.parseInt(EXPECT_DAY)) != 0){
+                        continue;
+                    }
+                }
                 //确定任务模型名
                 List<JSONObject> mlist = sqlManager.execute(new SQLReady(S.fmt("values DB2INST1.FUNC_GET_MODEL_BY_LOAN_ACCOUNT(%s,'贷后跟踪')", loanAccount)),JSONObject.class);
                 if(mlist.size() == 0){
@@ -966,7 +975,7 @@ public class CheckService {
                         println(os,"贷款账号%s: 查询不到台账信息", loanAccount);
                         continue;
                     }
-                    PageQuery<JSONObject> pageQuery = searchService.search(no,C.newMap("LOAN_ACCOUNT",loanAccount, "page", 1, "size", 100), 0, true);
+                    PageQuery<JSONObject> pageQuery = searchService.search(no,C.newMap("LOAN_ACCOUNT",loanAccount, "page", 1, "size", 100), 1, true);
                     if(pageQuery.getList().size() > 0){
                         data.putAll(pageQuery.getList().get(0));
                     }
@@ -979,24 +988,30 @@ public class CheckService {
                 }
                 //rpc调用生成任务
                 //todo:
-                String err = "";
-                WfIns ins = new WfIns();
-                ins.setModelName(modelName);
-                ins.setPubUserId(user.getId());
-                ins.setDealUserId(user.getId());
-                ins.setPlanStartTime(new Date());
-                ins.setTitle(modelName);
-                ins.set("$data", JSON.toJSON(data));
-                ins.set("$startNodeData", new JSONObject());
-                ins.set("$uid", user.getId());
-                ins.setAutoCreated(true);
-                ins.valid(ins, ValidGroup.Add.class);
-                ins.onBeforeAdd(sqlManager);
-                ins.onAdd(sqlManager);
+                try {
+                    String err = "";
+                    WfIns ins = new WfIns();
+                    ins.setModelName(modelName);
+                    ins.setPubUserId(user.getId());
+                    ins.setDealUserId(user.getId());
+                    ins.setPlanStartTime(new Date());
+                    ins.setTitle(modelName);
+                    ins.set("$data", JSON.toJSON(data));
+                    ins.set("$startNodeData", new JSONObject());
+                    ins.set("$uid", user.getId());
+                    ins.setAutoCreated(true);
+                    ins.valid(ins, ValidGroup.Add.class);
+                    ins.onBeforeAdd(sqlManager);
+                    ins.onAdd(sqlManager);
 //                String err = workflowService2.autoStartTask("ACC_LOAN",item.get("LOAN_ACCOUNT").toString(), modelName, user.getId(), data, ((Date) item.getOrDefault("PLAN_START_TIME", new Date())).getTime() );
-                if(S.notEmpty(err)){
+                    if (S.notEmpty(err)) {
                     println( os, "贷款账号%s: 自动生成任务失败, 错误信息: %s", loanAccount, err);
-                    continue;
+                        continue;
+                    }
+                }catch (WfIns.SameContNoException e){
+                    e.printStackTrace();
+                }catch (Exception e){
+                    throw e;
                 }
                 println(os, "贷款账号%s: 自动生成任务成功", loanAccount, loanAccount);
             }

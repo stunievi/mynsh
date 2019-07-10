@@ -2,13 +2,14 @@ package com.beeasy.hzlink.ctrl;
 
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.beeasy.hzlink.model.TGroupCusList;
 import com.beeasy.hzlink.service.Link;
-import com.github.llyb120.nami.core.Nami;
+import com.beeasy.hzlink.util.U;
 import com.github.llyb120.nami.core.Obj;
 import com.github.llyb120.nami.core.R;
+import org.beetl.sql.core.engine.PageQuery;
 
-import javax.xml.transform.Result;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -18,6 +19,20 @@ import static com.github.llyb120.nami.core.DBService.sqlManager;
 import static com.github.llyb120.nami.core.Json.o;
 
 public class LinkController {
+
+    // 集团客户
+    public R list(Obj query){
+        return R.ok(
+                U.beetlPageQuery("list.search_group_cus_list", JSONObject.class, query)
+        );
+    }
+
+    // 股东关联
+    public R list2(Obj query){
+        return R.ok(
+                U.beetlPageQuery("list.search_holder_link", JSONObject.class, query)
+        );
+    }
 
     public R touchRule (String rule){
         if(null == rule || "".equals(rule) || rule.isEmpty()){
@@ -54,7 +69,7 @@ public class LinkController {
                                 break;
                             case "11.1":
                                 System.out.println("11.1");
-    //                            Link.do11_1(name);
+                                Link.do11_1(name);
                                 break;
                             case "11.2":
                                 System.out.println("11.2");
@@ -82,7 +97,7 @@ public class LinkController {
                                 break;
                             case "12":
                                 System.out.println("12");
-    //                            Link.do12_2(name);
+//                                Link.do12_2(name);
     //                            Link.do12_3(name);
     //                            Link.do12_4(name);
                                 break;

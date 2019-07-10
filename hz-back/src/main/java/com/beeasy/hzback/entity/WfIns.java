@@ -292,23 +292,7 @@ public class WfIns extends ValidGroup {
             );
         }
 
-        //如果是自动生成，检查X天内是否有一个相同贷款账号且未办理的任务
-        if(autoCreated && modelName.contains("贷后跟踪")){
-            long count = sqlManager.lambdaQuery(WfIns.class)
-                    .andEq(WfIns::getLoanAccount, loanAccount)
-                    .andEq(WfIns::getState, DEALING)
-                    .andEq(WfIns::getAutoCreated, true)
-                    .count();
-            if(count > 0){
-                throw new RestException("同一个贷款账号只生成同一个任务");
-            }
 
-            //替换为所有合同号的总金额
-            List<JSONObject> list = sqlManager.execute(new SQLReady(String.format("select sum(loan_balance) from RPT_M_RPT_SLS_ACCT where cont_no = '%s'", innateMap.getString("CONT_NO"))), JSONObject.class);
-            BigDecimal money = list.get(0).getBigDecimal("1");
-            innateMap.put("CONT_NO", money);
-
-        }
 
         //保存数据到下一个chain
         set("$model", model);
@@ -442,12 +426,34 @@ public class WfIns extends ValidGroup {
     }
 
 
-
     @Override
     public Object onAdd(SQLManager sqlManager) {
         JSONObject innateMap = (JSONObject) get("$innateMap");
         JSONObject model = (JSONObject) get("$model");
         JSONObject node = (JSONObject) get("$node");
+
+        //如果是自动生成，检查X天内是否有一个相同贷款账号且未办理的任务
+        if(autoCreated && modelName.contains("贷后跟踪")){
+            long count = sqlManager.lambdaQuery(WfIns.class)
+                    .andEq(WfIns::getF7, innateMap.getString("CONT_NO"))
+                    .andEq(WfIns::getState, DEALING)
+                    .andEq(WfIns::getAutoCreated, true)
+                    .andLike(WfIns::getModelName, "%贷后跟踪%")
+                    .count();
+            if(count > 0){
+                throw new SameContNoException("同一个贷款账号只生成同一个任务");
+            } else {
+                f7 = innateMap.getString("CONT_NO");
+            }
+
+            //替换为所有合同号的总金额
+            List<JSONObject> list = sqlManager.execute(new SQLReady(String.format("select sum(loan_balance) from RPT_M_RPT_SLS_ACCT where cont_no = '%s'", innateMap.getString("CONT_NO"))), JSONObject.class);
+            BigDecimal money = list.get(0).getBigDecimal("1");
+            innateMap.put("LOAN_BALANCE", money);
+
+        }
+
+
         //创建节点列表
         JSONArray arr = new JSONArray();
         JSONObject startNode = createNodeIns(node);
@@ -1654,4 +1660,14 @@ public class WfIns extends ValidGroup {
         }
         return $noticeService2;
     }
+
+
+    public static class SameContNoException extends RuntimeException{
+        private String _msg;
+
+        public SameContNoException(String _msg) {
+            this._msg = _msg;
+        }
+    }
+
 }
