@@ -4,6 +4,7 @@ import cn.hutool.core.date.DateTime;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.CharsetUtil;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ZipUtil;
 import cn.hutool.poi.excel.ExcelReader;
 import cn.hutool.poi.excel.ExcelUtil;
@@ -16,6 +17,7 @@ import com.beeasy.hzback.modules.system.service.NoticeService2;
 import com.beeasy.mscommon.Result;
 import com.beeasy.mscommon.filter.AuthFilter;
 import org.beetl.sql.core.SQLManager;
+import org.beetl.sql.core.db.KeyHolder;
 import org.osgl.util.C;
 import org.osgl.util.S;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,11 +34,10 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 
 @RequestMapping("/api/excel")
 @RestController
@@ -53,6 +54,124 @@ public class BackExcelController {
 
     @Value("${filepath.path}")
     String path;
+
+    @RequestMapping("/auto/import")
+    public Result importExcelData(
+            MultipartFile file,
+            String actType
+    ){
+        if(null==actType || actType.isEmpty()){
+            return Result.error("未知导入类型");
+        }
+        long uid = AuthFilter.getUid();
+        try {
+            if("groupCusList".equals(actType)){
+                File temp = File.createTempFile("group_cus_list", "");
+                file.transferTo(temp);
+                ThreadUtil.execAsync(() -> import_groupCusList(uid, temp));
+            }else if("holderLink".equals(actType)){
+                File temp = File.createTempFile("holder_link", "");
+                file.transferTo(temp);
+                ThreadUtil.execAsync(() -> import_holderLink(uid, temp));
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return Result.ok();
+    }
+
+    // 导入股东关联
+    private  void  import_holderLink(long uid, File temp){
+        User user = sqlManager.lambdaQuery(User.class).andEq(User::getId,uid).single();
+        try {
+            ExcelReader reader = ExcelUtil.getReader(temp);
+            reader.setSheet(0);
+            HashMap data = new HashMap();
+            int rowCount = reader.getRowCount();
+            Date nowDate = new Date();
+            // 用户导入
+            data.put("data_flag", "02");
+            data.put("add_time", nowDate);
+            int total = 0;
+            for (int i = 1; i < rowCount; i++) {
+                List<Object> row = reader.readRow(i);
+                if(row.size() > 10){
+                    ++total;
+                    data.put("id", IdUtil.createSnowflake(0,0).nextId());
+                    // 0 序号
+                    data.put("related_name", row.get(1));
+                    data.put("cert_code", row.get(2));
+                    // 3 一级支行
+                    // 4 股东
+                    // 5 股东身份证号
+                    // 6 股东持股
+                    data.put("link_rule", row.get(7));// 7 关联类型
+                    data.put("remark_1", row.get(8));
+                    data.put("remark_2", row.get(9));
+                    data.put("remark_3", row.get(10));
+                    sqlManager.insert("list.insert_holder_link", data, null, "id");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            noticeService2.addNotice(SysNotice.Type.SYSTEM, uid, "导入股东关联信息失败", null);
+            if(1!= uid){
+                noticeService2.addNotice(SysNotice.Type.SYSTEM, 1, "执行人："+user.getTrueName()+"。导入股东关联信息失败", null);
+            }
+        } finally {
+            if (temp != null) {
+                temp.delete();
+            }
+        }
+    }
+
+    // 导入集团客户
+    private  void  import_groupCusList(long uid, File temp){
+        User user = sqlManager.lambdaQuery(User.class).andEq(User::getId,uid).single();
+        try {
+            ExcelReader reader = ExcelUtil.getReader(temp);
+            reader.setSheet(0);
+            HashMap data = new HashMap();
+            Date nowDate = new Date();
+            // 用户导入
+            data.put("data_flag", "02");
+            data.put("add_time", nowDate);
+            int total = 0;
+            List<String> keys = Arrays.asList(
+                "cus_name",
+                "cert_code",
+                "link_name",
+                "link_cert_code",
+                "link_rule",
+                "remark_1",
+                "remark_2",
+                "remark_3");
+            for (int i = 1; i < reader.getRowCount(); i++) {
+                List<Object> row = reader.readRow(i);
+                if(row.size() > 8){
+                    ++total;
+                    data.put("id", IdUtil.createSnowflake(0,0).nextId());
+                    IntStream.range(0, keys.size()).forEach(index -> data.put(keys.get(index), row.get(index+1)) );
+                    sqlManager.insert("list.insert_group_cus", data, null, "id");
+                }
+            }
+            Log.log("批量导入集团客户信息 %d 条", total);
+            noticeService2.addNotice(SysNotice.Type.SYSTEM, uid, String.format("批量导入集团客户信息：总%d条", total), null);
+            if(1!= uid){
+                noticeService2.addNotice(SysNotice.Type.SYSTEM, 1, String.format("执行人："+user.getTrueName()+"。批量导入集团客户信息：总%d条", total), null);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            noticeService2.addNotice(SysNotice.Type.SYSTEM, uid, "导入集团客户信息失败", null);
+            if(1!= uid){
+                noticeService2.addNotice(SysNotice.Type.SYSTEM, 1, "执行人："+user.getTrueName()+"。导入集团客户信息失败", null);
+            }
+        } finally {
+            if (temp != null) {
+                temp.delete();
+            }
+        }
+    }
 
     @RequestMapping("/loanmanager/import")
     public Result importLM(

@@ -6,6 +6,7 @@ import com.beeasy.hzback.entity.*;
 import com.beeasy.hzback.modules.system.service.NoticeService2;
 import com.beeasy.mscommon.util.U;
 import com.beeasy.mscommon.valid.ValidGroup;
+import com.sun.xml.bind.v2.TODO;
 import lombok.extern.slf4j.Slf4j;
 import org.beetl.sql.core.SQLManager;
 import org.beetl.sql.core.SQLReady;
@@ -161,6 +162,7 @@ public class CheckService {
                     rule7(os);
                     rule18(os);
                     rule17(os);
+                    rule21(os);
                     rule10086(os);
                     generateAutoTask(os);
                     manager.commit(transactionStatus);
@@ -458,6 +460,22 @@ public class CheckService {
         }
         sqlManager.insertBatch(SysNotice.class, notices);
         sqlManager.insertBatch(NoticeTriggerLog.class, logs);
+    }
+
+    public void rule21(OutputStream os){
+        //TODO SQL 语句暂定
+        MsgTmpl template = getTemplate(21);
+        Assert(null != template && S.notBlank(template.getTemplate()),os, "找不到消息模板");
+        //定义模板
+        List<JSONObject> shujudate = sqlManager.execute(new SQLReady("SELECT src_sys_date FROM RPT_M_RPT_SLS_ACCT FETCH FIRST 1 ROWS ONLY"),JSONObject.class);
+        String srcSysDate = shujudate.get(0).getString("srcSysDate");
+        String str = srcSysDate.substring(4)+"年"+srcSysDate.substring(4,6)+"月"+srcSysDate.substring(6,8)+"日";
+        String moban =  String.format("截止%s，{客户名称}客户{贷款名称}贷款已逾期，如已还款请忽略此消息",str);
+
+
+        System.out.println(str);
+//        List<JSONObject> res = sqlManager.select("task.规则21", JSONObject.class, C.newMap());
+
     }
 
     public void rule18(OutputStream os){

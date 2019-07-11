@@ -694,36 +694,21 @@ var _menu = [
                         name: '关联方清单维护',
                         href: '/htmlsrc/sysManage/dataManage/linkList.html',
                         api: []
-                    }
-                    ,{
+                    },
+                    {
                         name: '股东清单维护',
                         href: '/htmlsrc/sysManage/dataManage/shareholderList.html',
                         api: []
+                    },
+                    {
+                        name: '集团客户维护',
+                        href: '/htmlsrc/sysManage/dataManage/enterpriseCustomer.html',
+                        api: []
+                    },
+                    {
+                        name: "股东关联维护",
+                        href: "/htmlsrc/sysManage/dataManage/holderLink.html"
                     }
-                    // {
-                    //     name: "资本净额维护",
-                    //     href:""
-                    // },
-                    // {
-                    //     name: "关联方维护",
-                    //     href:""
-                    // },
-                    // {
-                    //     name: "股东维护",
-                    //     href:""
-                    // },
-                    // {
-                    //     name: "集团客户取数",
-                    //     href:""
-                    // },
-                    // {
-                    //     name: "股东关联取数",
-                    //     href:""
-                    // },
-                    // {
-                    //     name: "集团客户维护",
-                    //     href:""
-                    // },
                     // {
                     //     name: "股东关联维护",
                     //     href:""
@@ -732,12 +717,8 @@ var _menu = [
                     //     name: "关联方日志查询",
                     //     href:""
                     // }
+
                     /*,{
-                        name: '集团客户清单',
-                        href: '/htmlsrc/sysManage/dataManage/enterpriseCustomer.html?system=1',
-                        api: []
-                    }
-                    ,{
                         name: '触发',
                         href: '/htmlsrc/sysManage/dataManage/touchRule.html',
                         api: []

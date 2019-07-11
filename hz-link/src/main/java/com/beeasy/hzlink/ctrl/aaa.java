@@ -1,6 +1,8 @@
 package com.beeasy.hzlink.ctrl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.beeasy.hzlink.model.CusBase;
 import com.beeasy.hzlink.model.Link111;
 import com.beeasy.hzlink.model.TSystemNotice;
 import com.beeasy.hzlink.model.TUser;
@@ -30,6 +32,29 @@ public class aaa {
         return my_user;
     }
 
+    public class aaaa{
+        public String a;
+        public String b;
+
+        public String getA() {
+            return a;
+        }
+
+        public void setA(String a) {
+            this.a = a;
+        }
+
+        public String getB() {
+            return b;
+        }
+
+        public void setB(String b) {
+            this.b = b;
+        }
+    }
+    public Object fuckli(String a, Obj query, Obj body, Obj params, CusBase aaa){
+        return a + " ding666666662 " + query.toJSONString() + JSON.toJSONString(aaa);
+    }
 
 
     public void test(String fullName){

@@ -192,6 +192,27 @@ public class FileController {
     }
 
     /**
+     * 集团客户列表导出
+     */
+    public MultipartFile groupCusListExport(Obj query){
+        String fileName = "集团客户列表.xlsx";
+        if("01".equals(query.get("DATA_FLAG"))){
+            fileName = "集团客户列表 - 系统取数.xlsx";
+        }
+        List<Obj> lists = sqlManager.select("list.list1", Obj.class, query);
+        try {
+            return ExportUtil.toXls(fileName, new ClassPathResource("excel/report_1_2.xlsx").getStream(), o(
+                    "values", lists
+            ));
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InvalidFormatException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
      * 企查查风险信息导出
      */
     public MultipartFile riskInfoExport(String cusId, String cusName, String certCode, String startTime, String endTime, Obj query){

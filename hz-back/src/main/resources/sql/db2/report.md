@@ -2256,3 +2256,59 @@ left join (select LOAN_BALANCE,LOAN_ACCOUNT from pp where CLA in ('30','40','50'
 
 
 
+
+acc_guanlian_count
+===
+select
+count(1) as count_number
+from
+	t_related_party_list 
+where 
+LINK_RULE between 1.1 and 3.0
+@if(isNotEmpty(CUS_NAME)){
+    and RELATED_NAME =  #CUS_NAME#
+@}
+@if(isNotEmpty(CERT_CODE)){
+    and CERT_CODE =  #CERT_CODE#
+@}
+
+
+
+
+app_guanlian_list
+===
+select
+@pageTag(){
+search.add_time add_time,
+search.cus_name cus_name,
+search.cert_code cert_code,
+search.operator operator,
+search.MAIN_BR_ID main_by_id,
+org.name oname ,
+user.TRUE_NAME uname
+@}
+from T_LOAN_RELATED_SEARCH  as search
+left  join t_org org on MAIN_BR_ID = org.id 
+ left join t_user user on operator = user.id where 
+ ('admin' = (select username from t_user where id = #uid#)or operator = #uid#)
+-- 证件号码
+@if(isNotEmpty(CERT_CODE)){
+    and CERT_CODE like #'%' + CERT_CODE + '%'#
+@}
+-- 客户名称
+@if(isNotEmpty(CUS_NAME)){
+    and CUS_NAME like #'%' + CUS_NAME + '%'#
+@}
+
+
+
+
+
+
+
+uid_oname_search
+===
+select tab.uname uname,tab.uid uid,t.name oname,t.ACC_CODE from t_org t full join 
+(select org.id oid,org.name oname,org.parent_id opid,u.id uid,u.true_name  uname from t_user as u full 
+   join t_user_org as uo on u.id = uo.uid  full join t_org as
+ org on uo.oid = org.id where org.type = 'QUARTERS')  tab on t.id = tab.opid

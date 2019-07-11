@@ -95,7 +95,9 @@ public class ExcelService {
                 String field = col.getString("field");
                 Point p = findEmptyPoint(count, blocks);
                 //合并单元格
-                sheet.addMergedRegion(new CellRangeAddress(p.getX(), p.getX() + rowspan - 1, p.getY(), p.getY() + colspan - 1));
+                if(rowspan!=1||colspan!=1){
+                    sheet.addMergedRegion(new CellRangeAddress(p.getX(), p.getX() + rowspan - 1, p.getY(), p.getY() + colspan - 1));
+                }
                 //标记为已用格子
                 fillRect(blocks, p, rowspan, colspan, col.getString("title"));
                 //标记字段

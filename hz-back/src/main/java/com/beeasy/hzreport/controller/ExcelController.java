@@ -1,5 +1,7 @@
 package com.beeasy.hzreport.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.core.util.Log;
 import com.beeasy.hzreport.config.ExportTo;
@@ -30,6 +32,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -173,6 +176,37 @@ public class ExcelController {
         Log.log("企查查风险信息导出");
         return download("企查查风险信息.xlsx", bytes);
     }
+
+    /**
+     * @Author gotomars
+     * @Description 自定义列表导出
+     * @Date 9:39 2019/7/10
+     **/
+    @RequestMapping(value = "/diy/{act}")
+    public ResponseEntity<byte[]> riskInfoExport(
+            @PathVariable String act,
+            @RequestParam("head") String headData,
+            @RequestParam("query") String queryData
+    ){
+        JSONArray head = JSON.parseArray(headData);
+        JSONObject query = JSON.parseObject(queryData);
+        List<JSONObject> result = null;
+        String fileName = "";
+        String sqlId = "";
+        if("groupCusList".equals(act)){
+            fileName = "集团客户信息.xlsx";
+            sqlId = "list.search_group_cus_list";
+        }else if("holderLink".equals(act)){
+            fileName = "股东关联信息.xlsx";
+            sqlId = "list.search_holder_link";
+        } else {
+            throw new RuntimeException("非法请求");
+        }
+        result = sqlManager.select( sqlId, JSONObject.class, query);
+        byte[] bytes = excelService.exportTableToExcel(head, JSONArray.parseArray(JSON.toJSONString(result)));
+        return download(fileName, bytes);
+    }
+
 
     private ResponseEntity<byte[]> download(String filename, byte[] bytes){
         HttpHeaders headers = new HttpHeaders();

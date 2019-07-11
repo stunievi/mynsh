@@ -427,6 +427,25 @@ public class ReportController {
         return Result.ok(reportService.app_cus(params, pageable));
     }
 
+    //APP接口-获取关联信息
+    @RequestMapping(value = "/report/app_guanlian_list")
+    public Result app_guanlian_list(
+            @PageableDefault(value = 15, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable,
+            @RequestParam Map<String, Object> params
+    ) {
+        return Result.ok(reportService.app_guanlian_list(params, pageable));
+    }
+
+    //APP接口-获取关联信息
+    @RequestMapping(value = "/report/app_guanlian_count")
+    public Result app_guanlian_count(
+            @PageableDefault(value = 15, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable,
+            @RequestParam Map<String, Object> params
+    ) {
+        return Result.ok(reportService.app_guanlian_count(params, pageable));
+    }
+
+
     @RequestMapping(value = "/report/app_loan")
     public Result app_loan(
             @PageableDefault(value = 15, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable,
