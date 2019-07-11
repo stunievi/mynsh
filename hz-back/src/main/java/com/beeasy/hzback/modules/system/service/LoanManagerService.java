@@ -209,7 +209,7 @@ public class LoanManagerService {
         }catch (WfIns.SameContNoException e){
             e.printStackTrace();
         }catch (Exception e){
-            throw e;
+            e.printStackTrace();
         }
 
     }

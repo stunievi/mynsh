@@ -729,12 +729,15 @@ WHERE
 
 selectGentaskUL
 ===
-select p1.LOAN_ACCOUNT,
+select 
+        c.cont_no, c.LOAN_START_DATE as start_date, 
+        p1.LOAN_ACCOUNT,
         p1.BILL_NO ,
         p1.PRD_TYPE ,
         p1.CUST_MGR ,
-        days (current date) - days (DATE (TO_DATE(LOAN_START_DATE,'YYYY-MM-DD'))) as dDays 
+        days (current date) - days (DATE (TO_DATE(c.LOAN_START_DATE,'YYYY-MM-DD'))) as dDays 
         from RPT_M_RPT_SLS_ACCT p1
+        left join CTR_LOAN_CONT c on p1.CONT_NO=c.CONT_NO
 where LN_TYPE in ('普通贷款','银团贷款')
     and ACCOUNT_STATUS = 1
     --信贷产品号
