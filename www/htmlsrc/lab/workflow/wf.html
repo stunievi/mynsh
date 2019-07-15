@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <!-- necessary stylesheets -->
+    <link rel="stylesheet" href="https://unpkg.com/bpmn-js@4.0.1/dist/assets/diagram-js.css" />
+    <link rel="stylesheet" href="https://unpkg.com/bpmn-js@4.0.1/dist/assets/bpmn-font/css/bpmn.css" />
+
+    <script src="https://unpkg.com/bpmn-js@4.0.1/dist/bpmn-modeler.development.js"></script>
+</head>
+<body>
+
+<div id="canvas"></div>
+</body>
+</html>
+<script>
+    var bpmnJS = new BpmnJS({
+        container: '#canvas'
+    });
+</script>
