@@ -19,9 +19,9 @@ import java.util.List;
 import static com.github.llyb120.nami.core.Config.config;
 
 public class MongoService {
-    private static MongoDatabase db;
+    public static MongoDatabase db;
     public static MongoClient mongoClient;
-    private static String DefaultDatabase = "databaseName";
+    private static String DefaultDatabase = "hz-bpm";
 
     static {
        start();
@@ -56,8 +56,9 @@ public class MongoService {
         // 大部分用户使用mongodb都在安全内网下，但如果将mongodb设为安全验证模式，就需要在客户端提供用户名和密码：
         // boolean auth = db.authenticate(myUserName, myPassword);
         MongoClientOptions.Builder options = new MongoClientOptions.Builder();
-        // options.autoConnectRetry(true);// 自动重连true
-        // options.maxAutoConnectRetryTime(10); // the maximum auto connect retry time
+//        options.retr
+//         options.autoConnectRetry(true);// 自动重连true
+//         options.maxAutoConnectRetryTime(10); // the maximum auto connect retry time
         options.connectionsPerHost(300);// 连接池设置为300个连接,默认为100
         options.connectTimeout(15000);// 连接超时，推荐>3000毫秒
         options.maxWaitTime(5000); //

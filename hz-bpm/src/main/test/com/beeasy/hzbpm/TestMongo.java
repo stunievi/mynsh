@@ -5,6 +5,7 @@ import org.bson.Document;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import static com.beeasy.hzbpm.service.MongoService.db;
 import static com.beeasy.hzbpm.service.MongoService.mongoClient;
 
 public class TestMongo {
@@ -19,8 +20,9 @@ public class TestMongo {
     public void test(){
         var doc = new Document();
         doc.put("a","b");
-        mongoClient.getDatabase("test").getCollection("a").insertOne(doc);
-      var  b =   mongoClient.getDatabase("test").getCollection("a").countDocuments();
+//        db.getCollection("fuck").inserton
+//        db.getCollection("fuck");
+//      var  b =  db.getCollection("a").countDocuments();
       var c = 1;
     }
 }

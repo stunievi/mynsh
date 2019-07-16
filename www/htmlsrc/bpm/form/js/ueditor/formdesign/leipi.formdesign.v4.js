@@ -58,9 +58,9 @@ UE.plugins['text'] = function () {
 			  this.hide();
 		},
 		_delete:function(){
-			if( window.confirm('确认删除该控件吗？') ) {
+			// if( window.confirm('确认删除该控件吗？') ) {
 				baidu.editor.dom.domUtils.remove(this.anchorEl,false);
-			}
+			// }
 			this.hide();
 		}
 	} );
@@ -134,9 +134,9 @@ UE.plugins['macros'] = function () {
               this.hide();
         },
         _delete:function(){
-            if( window.confirm('确认删除该控件吗？') ) {
+            // if( window.confirm('确认删除该控件吗？') ) {
                 baidu.editor.dom.domUtils.remove(this.anchorEl,false);
-            }
+            // }
             this.hide();
         }
     } );
@@ -362,9 +362,9 @@ UE.plugins['radios'] = function () {
               this.hide();
         },
         _delete:function(){
-            if( window.confirm('确认删除该控件吗？') ) {
+            // if( window.confirm('确认删除该控件吗？') ) {
                 baidu.editor.dom.domUtils.remove(this.anchorEl,false);
-            }
+            // }
             this.hide();
         }
     } );
@@ -440,9 +440,9 @@ UE.plugins['checkboxs'] = function () {
               this.hide();
         },
         _delete:function(){
-            if( window.confirm('确认删除该控件吗？') ) {
+            // if( window.confirm('确认删除该控件吗？') ) {
                 baidu.editor.dom.domUtils.remove(this.anchorEl,false);
-            }
+            // }
             this.hide();
         }
     } );
@@ -518,9 +518,9 @@ UE.plugins['textarea'] = function () {
               this.hide();
         },
         _delete:function(){
-            if( window.confirm('确认删除该控件吗？') ) {
+            // if( window.confirm('确认删除该控件吗？') ) {
                 baidu.editor.dom.domUtils.remove(this.anchorEl,false);
-            }
+            // }
             this.hide();
         }
     } );
@@ -593,9 +593,9 @@ UE.plugins['select'] = function () {
               this.hide();
         },
         _delete:function(){
-            if( window.confirm('确认删除该控件吗？') ) {
+            // if( window.confirm('确认删除该控件吗？') ) {
                 baidu.editor.dom.domUtils.remove(this.anchorEl,false);
-            }
+            // }
             this.hide();
         }
     } );
@@ -675,9 +675,9 @@ UE.plugins['progressbar'] = function () {
               this.hide();
         },
         _delete:function(){
-            if( window.confirm('确认删除该控件吗？') ) {
+            // if( window.confirm('确认删除该控件吗？') ) {
                 baidu.editor.dom.domUtils.remove(this.anchorEl,false);
-            }
+            // }
             this.hide();
         }
     } );
@@ -751,9 +751,9 @@ UE.plugins['qrcode'] = function () {
               this.hide();
         },
         _delete:function(){
-            if( window.confirm('确认删除该控件吗？') ) {
+            // if( window.confirm('确认删除该控件吗？') ) {
                 baidu.editor.dom.domUtils.remove(this.anchorEl,false);
-            }
+            // }
             this.hide();
         }
     } );
@@ -827,9 +827,9 @@ UE.plugins['listctrl'] = function () {
               this.hide();
         },
         _delete:function(){
-            if( window.confirm('确认删除该控件吗？') ) {
+            // if( window.confirm('确认删除该控件吗？') ) {
                 baidu.editor.dom.domUtils.remove(this.anchorEl,false);
-            }
+            // }
             this.hide();
         }
     } );
@@ -950,148 +950,150 @@ UE.plugins['leipi_template'] = function () {
         }
     };
 };
-
-UE.registerUI('button_leipi',function(editor,uiName){
-    if(!this.options.toolleipi)
-    {
-        return false;
-    }
-    //注册按钮执行时的command命令，使用命令默认就会带有回退操作
-    editor.registerCommand(uiName,{
-        execCommand:function(){
-            editor.execCommand('leipi');
-        }
-    });
-    //创建一个button
-    var btn = new UE.ui.Button({
-        //按钮的名字
-        name:uiName,
-        //提示
-        title:"表单设计器",
-        //需要添加的额外样式，指定icon图标，这里默认使用一个重复的icon
-        cssRules :'background-position: -401px -40px;',
-        //点击时执行的命令
-        onclick:function () {
-            //这里可以不用执行命令,做你自己的操作也可
-           editor.execCommand(uiName);
-        }
-    });
-/*
-    //当点到编辑内容上时，按钮要做的状态反射
-    editor.addListener('selectionchange', function () {
-        var state = editor.queryCommandState(uiName);
-        if (state == -1) {
-            btn.setDisabled(true);
-            btn.setChecked(false);
-        } else {
-            btn.setDisabled(false);
-            btn.setChecked(state);
-        }
-    });
-*/
-    //因为你是添加button,所以需要返回这个button
-    return btn;
-});
-UE.registerUI('button_template',function(editor,uiName){
-    if(!this.options.toolleipi)
-    {
-        return false;
-    }
-    //注册按钮执行时的command命令，使用命令默认就会带有回退操作
-    editor.registerCommand(uiName,{
-        execCommand:function(){
-            try {
-                leipiFormDesign.exec('leipi_template');
-                //leipiFormDesign.fnCheckForm('save');
-            } catch ( e ) {
-                alert('打开模板异常');
-            }
-            
-        }
-    });
-    //创建一个button
-    var btn = new UE.ui.Button({
-        //按钮的名字
-        name:uiName,
-        //提示
-        title:"表单模板",
-        //需要添加的额外样式，指定icon图标，这里默认使用一个重复的icon
-        cssRules :'background-position: -339px -40px;',
-        //点击时执行的命令
-        onclick:function () {
-            //这里可以不用执行命令,做你自己的操作也可
-           editor.execCommand(uiName);
-        }
-    });
-
-    //因为你是添加button,所以需要返回这个button
-    return btn;
-});
-UE.registerUI('button_preview',function(editor,uiName){
-    if(!this.options.toolleipi)
-    {
-        return false;
-    }
-    //注册按钮执行时的command命令，使用命令默认就会带有回退操作
-    editor.registerCommand(uiName,{
-        execCommand:function(){
-            try {
-                leipiFormDesign.fnReview();
-            } catch ( e ) {
-                alert('leipiFormDesign.fnReview 预览异常');
-            }
-        }
-    });
-    //创建一个button
-    var btn = new UE.ui.Button({
-        //按钮的名字
-        name:uiName,
-        //提示
-        title:"预览",
-        //需要添加的额外样式，指定icon图标，这里默认使用一个重复的icon
-        cssRules :'background-position: -420px -19px;',
-        //点击时执行的命令
-        onclick:function () {
-            //这里可以不用执行命令,做你自己的操作也可
-           editor.execCommand(uiName);
-        }
-    });
-
-    //因为你是添加button,所以需要返回这个button
-    return btn;
-});
-
-UE.registerUI('button_save',function(editor,uiName){
-    if(!this.options.toolleipi)
-    {
-        return false;
-    }
-    //注册按钮执行时的command命令，使用命令默认就会带有回退操作
-    editor.registerCommand(uiName,{
-        execCommand:function(){
-            try {
-                leipiFormDesign.fnCheckForm('save');
-            } catch ( e ) {
-                alert('leipiFormDesign.fnCheckForm("save") 保存异常');
-            }
-            
-        }
-    });
-    //创建一个button
-    var btn = new UE.ui.Button({
-        //按钮的名字
-        name:uiName,
-        //提示
-        title:"保存表单",
-        //需要添加的额外样式，指定icon图标，这里默认使用一个重复的icon
-        cssRules :'background-position: -481px -20px;',
-        //点击时执行的命令
-        onclick:function () {
-            //这里可以不用执行命令,做你自己的操作也可
-           editor.execCommand(uiName);
-        }
-    });
-
-    //因为你是添加button,所以需要返回这个button
-    return btn;
-});
+//
+// UE.registerUI('button_leipi',function(editor,uiName){
+//     if(!this.options.toolleipi)
+//     {
+//         return false;
+//     }
+//     //注册按钮执行时的command命令，使用命令默认就会带有回退操作
+//     editor.registerCommand(uiName,{
+//         execCommand:function(){
+//             editor.execCommand('leipi');
+//         }
+//     });
+//     //创建一个button
+//     var btn = new UE.ui.Button({
+//         //按钮的名字
+//         name:uiName,
+//         //提示
+//         title:"表单设计器",
+//         //需要添加的额外样式，指定icon图标，这里默认使用一个重复的icon
+//         cssRules :'background-position: -401px -40px;',
+//         //点击时执行的命令
+//         onclick:function () {
+//             //这里可以不用执行命令,做你自己的操作也可
+//            editor.execCommand(uiName);
+//         }
+//     });
+// /*
+//     //当点到编辑内容上时，按钮要做的状态反射
+//     editor.addListener('selectionchange', function () {
+//         var state = editor.queryCommandState(uiName);
+//         if (state == -1) {
+//             btn.setDisabled(true);
+//             btn.setChecked(false);
+//         } else {
+//             btn.setDisabled(false);
+//             btn.setChecked(state);
+//         }
+//     });
+// */
+//     //因为你是添加button,所以需要返回这个button
+//     return btn;
+// });
+// UE.registerUI('button_template',function(editor,uiName){
+//     if(!this.options.toolleipi)
+//     {
+//         return false;
+//     }
+//     //注册按钮执行时的command命令，使用命令默认就会带有回退操作
+//     editor.registerCommand(uiName,{
+//         execCommand:function(){
+//             try {
+//                 leipiFormDesign.exec('leipi_template');
+//                 //leipiFormDesign.fnCheckForm('save');
+//             } catch ( e ) {
+//                 alert('打开模板异常');
+//             }
+//
+//         }
+//     });
+//     //创建一个button
+//     var btn = new UE.ui.Button({
+//         //按钮的名字
+//         name:uiName,
+//         //提示
+//         title:"表单模板",
+//         //需要添加的额外样式，指定icon图标，这里默认使用一个重复的icon
+//         cssRules :'background-position: -339px -40px;',
+//         //点击时执行的命令
+//         onclick:function () {
+//             //这里可以不用执行命令,做你自己的操作也可
+//            editor.execCommand(uiName);
+//         }
+//     });
+//
+//     //因为你是添加button,所以需要返回这个button
+//     return btn;
+// });
+//
+//
+// UE.registerUI('button_preview',function(editor,uiName){
+//     if(!this.options.toolleipi)
+//     {
+//         return false;
+//     }
+//     //注册按钮执行时的command命令，使用命令默认就会带有回退操作
+//     editor.registerCommand(uiName,{
+//         execCommand:function(){
+//             try {
+//                 leipiFormDesign.fnReview();
+//             } catch ( e ) {
+//                 alert('leipiFormDesign.fnReview 预览异常');
+//             }
+//         }
+//     });
+//     //创建一个button
+//     var btn = new UE.ui.Button({
+//         //按钮的名字
+//         name:uiName,
+//         //提示
+//         title:"预览",
+//         //需要添加的额外样式，指定icon图标，这里默认使用一个重复的icon
+//         cssRules :'background-position: -420px -19px;',
+//         //点击时执行的命令
+//         onclick:function () {
+//             //这里可以不用执行命令,做你自己的操作也可
+//            editor.execCommand(uiName);
+//         }
+//     });
+//
+//     //因为你是添加button,所以需要返回这个button
+//     return btn;
+// });
+//
+// UE.registerUI('button_save',function(editor,uiName){
+//     if(!this.options.toolleipi)
+//     {
+//         return false;
+//     }
+//     //注册按钮执行时的command命令，使用命令默认就会带有回退操作
+//     editor.registerCommand(uiName,{
+//         execCommand:function(){
+//             try {
+//                 leipiFormDesign.fnCheckForm('save');
+//             } catch ( e ) {
+//                 alert('leipiFormDesign.fnCheckForm("save") 保存异常');
+//             }
+//
+//         }
+//     });
+//     //创建一个button
+//     var btn = new UE.ui.Button({
+//         //按钮的名字
+//         name:uiName,
+//         //提示
+//         title:"保存表单",
+//         //需要添加的额外样式，指定icon图标，这里默认使用一个重复的icon
+//         cssRules :'background-position: -481px -20px;',
+//         //点击时执行的命令
+//         onclick:function () {
+//             //这里可以不用执行命令,做你自己的操作也可
+//            editor.execCommand(uiName);
+//         }
+//     });
+//
+//     //因为你是添加button,所以需要返回这个button
+//     return btn;
+// });

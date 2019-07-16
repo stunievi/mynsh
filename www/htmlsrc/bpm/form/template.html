@@ -1,0 +1,59 @@
+<div class="alert">
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+    <strong>提醒：</strong>单选框和复选框，如：<code>{|-</code>选项<code>-|}</code>两边边界是防止误删除控件，程序会把它们替换为空，请不要手动删除！
+</div>
+<form method="post" class="" id="saveform" name="saveform" action="/index.php?s=/index/parse.html">
+    <input type="hidden" name="_id" id="fields" value="{{data._id}}">
+    <div class="form-group">
+        <label class="span2">表单名</label>
+        <input type="text" class="span10 form-control" value="{{data.name}}" name="name">
+    </div>
+    <div class="form-group">
+        <label class="span2">表单说明</label>
+        <textarea style="resize:vertical" type="text" class="span10 form-control" name="desc">{{data.desc || ""}}</textarea>
+    </div>
+
+    <div class="row">
+        <div class="span2">
+            <ul class="nav nav-list">
+                <li class="nav-header">表单控件</li>
+                <li><a href="javascript:void(0);" onclick="leipiFormDesign.exec('text');"
+                       class="btn btn-link">文本框</a></li>
+                <li><a href="javascript:void(0);" onclick="leipiFormDesign.exec('textarea');"
+                       class="btn btn-link">多行文本</a>
+                </li>
+                <li><a href="javascript:void(0);" onclick="leipiFormDesign.exec('select');"
+                       class="btn btn-link">下拉菜单</a>
+                </li>
+                <li><a href="javascript:void(0);" onclick="leipiFormDesign.exec('radios');"
+                       class="btn btn-link">单选框</a></li>
+                <li><a href="javascript:void(0);" onclick="leipiFormDesign.exec('checkboxs');"
+                       class="btn btn-link">复选框</a>
+                </li>
+                <!--                    <li><a href="javascript:void(0);" onclick="leipiFormDesign.exec('macros');"-->
+                <!--                           class="btn btn-link">宏控件</a></li>-->
+                <!--                    <li><a href="javascript:void(0);" onclick="leipiFormDesign.exec('progressbar');"-->
+                <!--                           class="btn btn-link">进度条</a></li>-->
+                <!--                    <li><a href="javascript:void(0);" onclick="leipiFormDesign.exec('qrcode');"-->
+                <!--                           class="btn btn-link">二维码</a></li>-->
+                <!--                    <li><a href="javascript:void(0);" onclick="leipiFormDesign.exec('listctrl');" class="btn btn-link">列表控件</a>-->
+                <!--                    </li>-->
+                <!--                    <li><a href="javascript:void(0);" onclick="leipiFormDesign.exec('more');" class="btn btn-link">一起参与...</a>-->
+                <!--                    </li>-->
+
+            </ul>
+
+        </div>
+
+        <div class="span10">
+            <script id="myFormDesign" type="text/plain" style="width:100%;">{{#data.content || ""}}</script>
+        </div>
+
+
+    </div><!--end row-->
+
+    <div class="text-center" style="text-align: center; padding-top: 20px;">
+        <a href="javascript:;" class="btn btn-primary save" style="padding-left: 20px;padding-right: 20px;">保存</a>
+    </div>
+
+</form>
