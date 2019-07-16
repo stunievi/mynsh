@@ -1374,3 +1374,43 @@ if(typeof $ !== "undefined"){
 }
 
 
+function getRemoteEnum(names, completePromise) {
+    var complete;
+    if(completePromise ===undefined){
+        complete = $.Deferred()
+    }
+    var getArr = [];
+    if(names instanceof Array){
+        names.forEach(function (value) {
+            getArr.push(getFetch(remoteOrigin + "/api/auto/dict/getList", {name: value, size: 100}));
+        });
+        $.when.apply(this, getArr).done(function () {
+            var resArr = [];
+            if(names.length === 1){
+                resArr.push(arguments);
+            }else{
+                resArr = Array.prototype.slice.call(arguments)
+            }
+            var retObj = {};
+            resArr.forEach(function (value) {
+                var dataList = value[0].data.list || [];
+                dataList.forEach(function (value1) {
+                    var keyName = value1["name"];
+                    if(names.indexOf(keyName) > -1){
+                        if(!retObj[keyName]){
+                            retObj[keyName] = [{name:"--请选择--", val:""}];
+                        }
+                        retObj[keyName].push({val: value1.vKey, name: value1.vValue});
+                    }
+                });
+            });
+            if(completePromise === undefined){
+                complete.resolve(retObj);
+            }else{
+                completePromise.resolve(retObj);
+            }
+        });
+    }
+    return completePromise ? completePromise : complete;
+}
+

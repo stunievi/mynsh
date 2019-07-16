@@ -84,27 +84,16 @@
                     if(form.valid()){
                         var data = $.unserialize(form.serialize());
                         data.type = 'DEPARTMENT';
-                        postFetch(remoteOrigin + "/api/auto/org/add", data, function () {
+                        $.ajax({
+                            url: remoteOrigin + "/api/auto/org/add",
+                            success: function () {
+
+                            }
+                        });
+                        postFetch(remoteOrigin + , data, function () {
                             closeCurrentIframe();
 
                         })
-                        // getFetch(remoteOrigin + "/api/user/org/add", form.serialize() + "&type=DEPARTMENT", function (data) {
-                        //     closeCurrentIframe();
-                        //     // console.log(data)
-                        //     // if(parent.addDeptCallback) {
-                        //     //                 parent.addDeptCallback(data);
-                        //     // }
-                        // })
-                        // postRemoteData({
-                        //     url: remoteApi.apiDepartment,
-                        //     data: form.serialize(),
-                        //     callback: function(origin){
-                        //         if(parent.addDeptCallback){
-                        //             parent.addDeptCallback(origin);
-                        //         }
-                        //         return true;
-                        //     }
-                        // })
                     }
                 }
             })

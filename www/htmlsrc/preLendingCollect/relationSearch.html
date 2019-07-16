@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>贷前管理 - 关联方查询</title>
+    <!--#include file="/htmlsrc/header.html" -->
+</head>
+<body>
+<div id="content">
+    <div class="" id="panel-form">
+    </div>
+    <div class="batch-operation">
+        <a type="button" class="btn btn-success handleAdd" href="javascript:;" tab-href="/htmlsrc/preLendingCollect/relationSearchAdd.html" tab-title="新增" >新增</a>
+    </div>
+    <div id="dataList">
+    </div>
+</div>
+<script>
+    $.when(getRemoteEnum(["CERT_TYPE"])).then(function (res) {
+        $("#panel-form").html(panelFormRender3({
+            col:3,
+            panelTitle:'筛选查询',
+            list:[
+                { label :'客户名称', prop:'CUS_NAME' },
+                { label :'证件类型', prop:'CERT_TYPE', type:"select", vals: res["CERT_TYPE"]  },
+                { label :'证件号码', prop:'CERT_CODE', required: true}
+                // { label :'受理金额', prop:'ACCEPT_AMT' }
+            ],
+            data:{ } // 默认值
+        }));
+
+        var form = $("form[name='form-search']"); // 当前form
+        $().ready(function() {
+            form.validate({
+                rules: {
+                    CERT_CODE: { minlength: 10 }
+                },
+                submitHandler: function(){
+                    if(form.valid()){
+                        layuiTableReload();
+                    }
+                    return false
+                }
+            })
+        });
+
+    });
+
+    laytableRender({
+        showIndex: true,
+        url: remoteOrigin + "/api/relatedSearch/compare",
+        cols: [
+            [
+                { title:'添加时间', field: "addTime"},
+                { title:'客户名称', field: "cusName"},
+                { title:"证件号码", field: "certCode"},
+                { title:"占资本净额比例", field: "ratio"}
+            ]
+        ]
+    });
+    function checkSubmitForm() {
+        return false;
+    }
+</script>
+</body>
+</html>

@@ -533,8 +533,9 @@ var odsEnmuData = {"MORTGAGE_FLG":{"0":"否","1":"是"},"GUARANTY_TYPE":{"10001"
                 if(!res.success){
                     if(res.errMessage == '请检查是否登录'){
                         loginOut();
-                    }
-                    else if(res.errMessage != ""){
+                    }else if(error){
+                    	error(res);
+					}else if(res.errMessage != ""){
                         layer.msg(res.errMessage, {icon: 5})
                     }
                     return;
@@ -633,7 +634,7 @@ var odsEnmuData = {"MORTGAGE_FLG":{"0":"否","1":"是"},"GUARANTY_TYPE":{"10001"
     	$(document).on("click","[tab-href]", function () {
     		var id = $(this).attr('tab-id');
     		if(!id){
-    			id = "new-tab-" + top.getCountDown()
+    			id = $(this).attr("tab-href")
 			}
 			top.addNavTab(
 				id

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>系统管理 - 日志管理 - 关联方日志</title>
+    <!--#include file="/htmlsrc/header.html" -->
+</head>
+
+<body>
+<div id="content">
+    <div id="panel-form">
+        <!-- 查询表单 -->
+    </div>
+    <div id="dataList">
+        <!-- 数据列表 -->
+    </div>
+</div>
+
+<script>
+    $("#panel-form").html(panelFormRender3({
+        panelTitle: '筛选查询',
+        list: [
+            { prop: 'CUS_NAME', label: '客户名称' },
+            { prop: 'CERT_CODE', label: '证件号' },
+            { prop: 'START_TIME', label: '开始时间', disabled: true, type: "date" },
+            { prop: 'END_TIME', label: '结束时间', disabled: true, type: "date" }
+        ],
+        data: {}
+    }));
+
+    laytableRender({
+        showIndex: true,
+        url: remoteOrigin + "/api/auto/LoanRelatedSearch/getDList",
+        cols: [
+            [
+                { field: 'addTime', title: '时间' },
+                { field: 'cusName', title: '客户名称' },
+                { field: "certCode", title: "证件号" },
+                { field: 'uname', title: '操作员' }
+            ]
+        ]
+    });
+</script>
+</body>
+</html>

@@ -37,7 +37,17 @@ public class Log {
         }
 
     }
-    public static void qccLog(String content,  Map map,String foot){
+
+    public static void logByUid(String content, long uid, Object ...args){
+        try{
+            U.getBean(SystemLogService.class)
+                    .writeLog(uid, S.fmt(content, args), null);
+        }
+        catch (Exception e){
+        }
+    }
+
+    public static void qccLog(String content,  Map map, String foot){
         if(null != map.get("fullName")){
             content =  content   + map.get("fullName") + foot;
             U.getBean(SystemLogService.class).writeLog(AuthFilter.getUid(), content, null);

@@ -865,9 +865,11 @@ var _menu = [
                     {
                         name: "企查查日志",
                         href: '/htmlsrc/sysManage/logManage/qccLog.html',
-                        api: [
-                            // remoteApi.apiSystemLog
-                        ]
+                        api: [ ]
+                    },
+                    {
+                        name: "关联方查询日志",
+                        href: "/htmlsrc/sysManage/logManage/relationSearchLog.html"
                     },
                     {
                         name: "企查查接口调用次数统计",
@@ -975,6 +977,11 @@ _menu.push(
                     name: '贷前任务',
                     href: '/htmlsrc/preLendingCollect/collect2.html',
                     api: [remoteApi.apigetMyInfoCollect]
+                },
+                {
+                    name: '关联方查询',
+                    href: '/htmlsrc/preLendingCollect/relationSearch.html',
+                    api: []
                 }
             ]
         }

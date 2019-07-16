@@ -201,3 +201,13 @@ select uid from T_USER_ORG userOrg right join
 (select PARENT_ID from T_ORG org  right join (select uo.oid from t_user_org uo where uo.uid=#uid#) a on a.oid= org.id) b on b.PARENT_ID=q.PARENT_ID
 where TYPE='QUARTERS' and manager='01'
 ) c  on c.ID = userOrg.OID
+
+是否拥有客户经理或办事员权限
+===
+select count(1) FROM T_USER_ORG u 
+INNER JOIN T_ORG org on u.OID=org.ID where u.uid = #uid# and org.name in ('办事员','客户经理')
+
+查询总行关联方风险角色
+===
+select u.UID FROM T_USER_ORG u 
+INNER JOIN T_ORG org on u.OID=org.ID where org.name='总行关联方风险角色' 

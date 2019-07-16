@@ -424,11 +424,17 @@
             pick:'#picker',
             auto:true,
             fileVal: 'filedata',
-            resize: false,
+            resize: false
+        });
+        uploader.on("beforeFileQueued", function (file) {
+           if(file["size"] < 1){
+                layer.msg("空文件！");
+                return false
+           }
         });
         uploader.on("uploadBeforeSend", function(obj, data, headers){
             data.pid = currDirId;
-        })
+        });
         // 单个文件上传进度
         uploader.on('uploadProgress', function( file, percentage ) {
             var $li = $( '#' + file.id),
@@ -440,19 +446,22 @@
         // 上传失败
         uploader.on('uploadError', function(file, res) {
             console.error(arguments);
-            $('#'+file.id ).find('.state').text('上传失败').addClass('info');
+            $('#'+file.id ).find('.state').text('文件上传失败，请检查文件类型是否在白名单内').addClass('info');
         });
         // 单个文件上传成功
         uploader.on('uploadSuccess', function(file, res) {
-            if(res.success){
+            if(res["status"] == "SUCCESS"){
                 $('#'+file.id ).find('.state').text('已上传').addClass('info');
             }else{
                 console.error(res);
-                $('#'+file.id ).find('.state').text(res.errMessage).addClass('info');
+                $('#'+file.id ).find('.state').text(res.errMessage || res.msg).addClass('info');
             }
         });  
         // 本次添加文件全部添加到队列后
         uploader.on('filesQueued', function(files) {
+            if(files.length < 1){
+                return;
+            }
             // 判断上传进度layer是否打开
             if(!$(".layui-layer-page").length){
                 layer.open({
@@ -482,7 +491,7 @@
         // })
         // 移除上传
         $(document).on('click', '.handleRemove', function() {
-            uploader.removeFile($(this).data("id"));
+            uploader.removeFile($(this).data("id"), true);
             $(this).parents("tr.item").remove();
         })
 

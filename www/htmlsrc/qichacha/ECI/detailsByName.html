@@ -121,11 +121,13 @@
     });
     // 滚动页面后固定顶部tab栏
     $("html,body").scroll(function () {
-        if($(this).scrollTop() > 120){
+        if($(this).scrollTop() > $('.data-tab:visible').height()){
             $("#myTabs").width($("#qcc-detail-content").width());
             $("#myTabs").addClass("fixed");
+            $('.qcc-detail-inner').css("padding-top","37.5px");
         }else{
             $("#myTabs").removeClass("fixed");
+            $('.qcc-detail-inner').css("padding-top","0");
         }
     });
     // 触发锚点
@@ -135,8 +137,9 @@
         }else{
             var target = $(this).data("href");
             var targetTop = $(target).offset().top;
-            var fixTop = targetTop > 150 ? 76 : 0;
-            $("body,html").animate({scrollTop: targetTop - fixTop})
+            // var fixTop = targetTop > 150 ? 76 : 0;
+            var fixTop = $(this).closest('.data-tab').height() + 37.4;
+            $("body,html").animate({scrollTop: targetTop - 37.4})
         }
     });
     // 折叠&&展开子模块，【仅[法律诉讼]模块支持】

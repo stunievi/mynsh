@@ -195,14 +195,17 @@ public class ExcelController {
         String sqlId = "";
         if("groupCusList".equals(act)){
             fileName = "集团客户信息.xlsx";
-            sqlId = "list.search_group_cus_list";
+            sqlId = "link.search_group_cus_list";
         }else if("holderLink".equals(act)){
             fileName = "股东关联信息.xlsx";
-            sqlId = "list.search_holder_link";
+            sqlId = "link.search_holder_link";
         } else {
             throw new RuntimeException("非法请求");
         }
         result = sqlManager.select( sqlId, JSONObject.class, query);
+        if(null!=result){
+            System.out.println(result.get(0).toJSONString());
+        }
         byte[] bytes = excelService.exportTableToExcel(head, JSONArray.parseArray(JSON.toJSONString(result)));
         return download(fileName, bytes);
     }

@@ -2308,7 +2308,7 @@ left  join t_org org on MAIN_BR_ID = org.id
 
 uid_oname_search
 ===
-select tab.uname uname,tab.uid uid,t.name oname,t.ACC_CODE from t_org t full join 
+select tab.uname uname,tab.uid uid,t.name oname,t.ACC_CODE,tab.oname from t_org t full join 
 (select org.id oid,org.name oname,org.parent_id opid,u.id uid,u.true_name  uname from t_user as u full 
    join t_user_org as uo on u.id = uo.uid  full join t_org as
  org on uo.oid = org.id where org.type = 'QUARTERS')  tab on t.id = tab.opid
