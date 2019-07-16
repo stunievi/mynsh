@@ -941,13 +941,25 @@ public class CheckService {
             ));
             println(os, "找到待处理条数%d", res.size());
             for (Map item : res) {
+                String startDate = (String) item.get("START_DATE");
+                String contNo = (String) item.get("CONT_NO");
+                if(S.isBlank(startDate) || S.isBlank(contNo)){
+                    continue;
+                }
                 String loanAccount = (String) item.get("LOAN_ACCOUNT");
                 Integer dDays = (Integer) item.get("dDays");
 
                 //任务产生时间=贷款合同起始日期（借款日）+n*检查时间间隔，其中n>=1
                 if(null != LOAN_CHECK && null != dDays){
-                    if(dDays % (Integer.parseInt(LOAN_CHECK)-Integer.parseInt(EXPECT_DAY)) != 0){
-                        continue;
+                    if("".equals(EXPECT_DAY)){
+                        if(dDays % (Integer.parseInt(LOAN_CHECK)) != 0){
+                            continue;
+                        }
+                    }else{
+
+                        if(dDays % (Integer.parseInt(LOAN_CHECK)-Integer.parseInt(EXPECT_DAY)) != 0){
+                            continue;
+                        }
                     }
                 }
                 //确定任务模型名
@@ -1011,7 +1023,7 @@ public class CheckService {
                 }catch (WfIns.SameContNoException e){
                     e.printStackTrace();
                 }catch (Exception e){
-                    throw e;
+                    e.printStackTrace();
                 }
                 println(os, "贷款账号%s: 自动生成任务成功", loanAccount, loanAccount);
             }

@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <!--#include file="/htmlsrc/header.html" -->
+
+</head>
+<body>
+<div id="content">
+    <div class="batch-operation">
+        <a class="btn btn-success" href="javascript:;" tab-title="添加表单" tab-href="/htmlsrc/bpm/form/form.add.html">添加表单</a>
+<!--        <div class="btn-group">-->
+<!--            <button type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">更改启用状态<span class="caret"></span></button>-->
+<!--            <ul class="dropdown-menu">-->
+<!--                <li><a href="javascript:;" onclick="updateBaned(enumUserState.disabled)">禁用</a></li>-->
+<!--                <li><a href="javascript:;" onclick="updateBaned(enumUserState.enable)">启用</a></li>-->
+<!--            </ul>-->
+<!--        </div>-->
+    </div>
+    <div id="dataList"></div>
+</div>
+</body>
+</html>
+<script id="toolbar" type="text/html">
+    <div class="layui-toolbar">
+        <a class="btn btn-warning btn-mini edit" href="javascript:;" data-id="{{d._id}}" >编辑</a>
+        <a class="btn btn-danger btn-mini del" del-href="{{remoteOrigin}}/api/bpm/form/delete?_id={{d._id}}">删除</a>
+    </div>
+</script>
+<script>
+    var data = [];
+    function onInfront(){
+        if($("#dataList table").length){
+            var form = $("form[name='form-search']")
+            layuiTableReload({
+                where: form.serialize()
+            })
+            return;
+        }
+
+        laytableRender({
+            url: remoteOrigin + "/api/bpm/form/list",
+            currPage: getParam("page") || 1,
+            where: {
+                // name: userName
+            },
+            cols: [
+                [
+                    {field:'idex', title:'序号', align:"center" },
+                    {field:'name', title:'表单名', align:"center" },
+                    {field:'desc', title:'表单描述', align:"center", width:250 },
+                    // {field:'createTime', title:'添加时间', align:"center"},
+                    {field:'lastModify', title:'最后修改时间', align:"center"},
+                    // {field:'trueName', title:'姓名', width: 150, align:"center" },
+                    // {field: 'username', title: '用戶名', width: 150, align:"center" },
+                    // {field:'state', title:'状态',  width: 80, align:"center"},
+                    // {field:'phone', title:'电话', width: 150, align:"center" },
+                    {title:'操作', templet: "#toolbar"}
+                ]
+            ],
+            done: function(res, curr){
+                layCurrPage = curr;
+            },
+            onData : function(d){
+                data = d.rows;
+                // console.log(data)
+            }
+        });
+    }
+    onInfront();
+
+    $(document).on("click", ".edit", function () {
+        var id =  $(this).data("id");
+        $.each(data || [], function (i,v) {
+            if(v._id ==  id){
+                addNavTab(id, "编辑表单", "/htmlsrc/bpm/form/form.add.html", v)
+            }
+        });
+    });
+
+    $(document).on("click", ".del", function () {
+        if(confirm("确认删除？")){
+            getFetch($(this).attr("del-href"), function () {
+                if(window.onInfront){
+                    window.onInfront();
+                }
+            });
+        }
+    })
+</script>

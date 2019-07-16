@@ -5,6 +5,8 @@ import com.beeasy.hzback.modules.system.service.TaskSyncService;
 import com.beeasy.mscommon.util.U;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.beetl.sql.core.SQLManager;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,6 +17,8 @@ import java.util.Date;
 @RequestMapping
 @RestController
 public class TestController {
+    @Autowired
+    SQLManager sqlManager;
 
     @RequestMapping(value = "/test", produces = MediaType.APPLICATION_JSON_VALUE)
     public String test() throws JsonProcessingException {

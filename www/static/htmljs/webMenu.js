@@ -1211,6 +1211,21 @@ _menu.push(
     // })
 }
 
+
+doIfDev(function () {
+    _menu.push(
+        {
+            name:"流程管理",
+            children: [
+                {
+                    name:"表单配置",
+                    href: "/htmlsrc/bpm/form/form.html"
+                }
+            ]
+        }
+    )
+});
+
 Array.prototype.notempty = function(){
     for(var i=0; i<this.length; i++){
         if(this[i] == "" || typeof(this[i]) == "undefined"){
