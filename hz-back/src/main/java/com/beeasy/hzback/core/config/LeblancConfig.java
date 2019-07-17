@@ -130,7 +130,7 @@ public class LeblancConfig {
                 @Override
                 public Map<String, Object> toMap(String sqlId, Class<?> c, ResultSet rs) throws SQLException {
                     Map<String, Object> result = BeanKit.getMapIns(c);
-                    boolean notConvert = sqlId.endsWith("UL") || sqlId.startsWith("accloan.") || sqlId.startsWith("report.");
+                    boolean notConvert = sqlId.endsWith("UL") || sqlId.startsWith("accloan.") || sqlId.startsWith("report.") || sqlId.startsWith("link.");
                     if (c == null) {
                         throw new SQLException("不能映射成Map:" + c);
                     } else {

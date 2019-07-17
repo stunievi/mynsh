@@ -1,5 +1,6 @@
 package com.beeasy.hzback.modules.system.config;
 
+import com.beeasy.hzback.modules.system.service.LinkSeachService;
 import com.beeasy.hzback.modules.system.service.TaskSyncService;
 import org.apache.activemq.ActiveMQSession;
 import org.apache.activemq.BlobMessage;
@@ -44,6 +45,12 @@ public class MqConfig {
                         TaskSyncService.SyncRequest syncRequest = (TaskSyncService.SyncRequest) ((GenericMessage) o).getPayload();
                         BlobMessage msg = ((ActiveMQSession) session).createBlobMessage(syncRequest.file);
                         msg.setStringProperty("table", syncRequest.table);
+                        return msg;
+                    }else if(((GenericMessage) o).getPayload() instanceof LinkSeachService.LinkRequest){
+                        LinkSeachService.LinkRequest syncRequest = (LinkSeachService.LinkRequest) ((GenericMessage) o).getPayload();
+                        BlobMessage msg = ((ActiveMQSession) session).createBlobMessage(syncRequest.Content);
+                        msg.setStringProperty("Sign", syncRequest.Sign);
+                        msg.setStringProperty("OrderId", syncRequest.OrderId);
                         return msg;
                     }
                 }

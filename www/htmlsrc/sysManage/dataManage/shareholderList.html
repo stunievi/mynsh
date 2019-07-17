@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
     <script src="/static/vendor/layui/layui.js"></script>
     <script src="/static/vendor/bootcss/js/bootstrap.min.js"></script>
-    <script src="/static/vendor/webUploader/webuploader.min.js"></script>
     <link rel="stylesheet" href="/static/htmlcss/style.css">
     <!--[if lt IE 9]>
     <script src="/static/vendor/bootcss/js/html5shiv.min.js"></script>
@@ -92,7 +91,7 @@
             <a type="button " class="btn btn-primary" onClick="confirmPopup()">确定</a>
         </div>
     </script>
-
+    <script src="/static/htmljs/uploader.js"></script>
         <script>
 
         var system = getParam("system");
@@ -210,43 +209,12 @@
             });
             return false;
         }
-
-        function initupload() {
-
-            var uploader = WebUploader.create({
-                swf: '/static/vendor/webUploader/Uploader.swf',
-                server: remoteOrigin + "/api/excel/holderList/import", //上传接口
-                pick: '#picker',
-                auto: true,
-                fileVal: 'file',
-                resize: false,
-                dupliacate: false
-            });
-
-            uploader.on("uploadBeforeSend", function(obj, data, headers){
-                layer.msg("导入中。。。");
-            })
-
-            uploader.on('uploadError', function (file, res) {
-                layer.msg("导入失败！");
-                uploader.removeFile(file)
-            });
-            // 单个文件上传成功
-            uploader.on('uploadSuccess', function (file, res) {
-                console.log(res)
-                if(res.success){
-                    // var data = res.data;
-                    // layer.msg("数据总条数："+data.total+"，成功："+data.success+"条，失败："+data.failed +"条");
-                    layer.msg("正在导入数据，系统稍后会将导入结果发送至收件箱，请注意查收！");
-                }else{
-                    layer.msg("导入失败！请选择正确的模板导入！");
-                }
-                uploader.removeFile(file)
-            })
-        }
-
-        initupload();
-
+        uploadFactory({
+            server: remoteOrigin + "/api/excel/auto/import",
+            formData: {
+                actType: "holderList"
+            }
+        });
         $(document).on("click", "#templateDownload", function() {
             var str =$('[name=form-search]').ghostsf_serialize();
             // location.href = remoteOrigin + "/link/FileController/shareholderListDownload"

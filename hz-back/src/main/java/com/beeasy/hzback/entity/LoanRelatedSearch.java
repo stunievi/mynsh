@@ -51,7 +51,7 @@ public class LoanRelatedSearch extends ValidGroup {
         SysVar sysNetCapital = sqlManager.lambdaQuery(SysVar.class).andEq(SysVar::getVarName, "NET_CAPITAL").single();
         long tetCapital = Long.parseLong(sysNetCapital.getVarValue());
         BigDecimal b = new BigDecimal(acceptAmt/tetCapital);
-        double ratioVal = b.setScale(2,   BigDecimal.ROUND_HALF_UP).doubleValue();
+        double ratioVal = b.setScale(6,   BigDecimal.ROUND_HALF_UP).doubleValue();
         switch (action){
             case "insert":
                 long count = sqlManager.lambdaQuery(LoanRelatedSearch.class)

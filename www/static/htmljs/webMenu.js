@@ -66,6 +66,23 @@ var _menu = [
             //     ]
             // },
             {
+                name: "关联方",
+                children: [
+                    {
+                        name: "集团客户贷款",
+                        href: "/htmlsrc/creditDataManage/linkLoan/groupCusListLoan.html"
+                    },
+                    {
+                        name: "关联方贷款",
+                        href: "/htmlsrc/creditDataManage/linkLoan/linkListLoan.html"
+                    },
+                    {
+                       name: "股东及股东关联贷款",
+                        href: "/htmlsrc/creditDataManage/linkLoan/stockholderLoan.html"
+                    }
+                ]
+            },
+            {
                 name: "客户资料",
                 children:[
                     {

@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.entity.RelatedPartyList;
 import com.beeasy.hzback.entity.SysNotice;
+import com.beeasy.hzback.entity.SysVar;
 import com.beeasy.hzback.modules.system.service.LinkSeachService;
 import com.beeasy.hzback.modules.system.service.NoticeService2;
 import com.beeasy.mscommon.Result;
@@ -15,6 +16,7 @@ import org.osgl.util.S;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -64,6 +66,29 @@ public class LinkController {
         }else{
             noticeService2.addNotice(SysNotice.Type.SYSTEM, AuthFilter.getUid(), String.format("客户：%s，证件号：%s，不是关联方贷款，贷款金额占资本净额的比例为：%.2f", cusName, certCode, 11.1), null);
         }
+        return Result.ok(dataList);
+    }
+
+    // 集团客户，关联方，股东及股东关联台账
+    @RequestMapping(value = "linkLoan/{linkModel}")
+    public Result linkLoan(
+            @PathVariable String linkModel,
+            @RequestParam Map<String, Object> params
+    ){
+        //TODO:: 总行关联方风险角色用户可以在此查询及导出贷款明细。
+        // groupCus ， linkList ， stockHolder
+        params.put("uid", AuthFilter.getUid());
+        params.put("LINK_MODEL", linkModel);
+        PageQuery<JSONObject> dataList = U.beetlPageQuery("link.loan_link_list", JSONObject.class, params);
+
+        SysVar sysNetCapital = sqlManager.lambdaQuery(SysVar.class).andEq(SysVar::getVarName, "NET_CAPITAL").single();
+        double tetCapital = Double.parseDouble(sysNetCapital.getVarValue()) * 10000;
+        dataList.getList().forEach(item->{
+            double acceptAmt = item.getLong("LOAN_AMOUNT");
+            BigDecimal b = new BigDecimal(acceptAmt/ tetCapital).multiply(new BigDecimal(100));
+            double ratioVal = b.setScale(6,   BigDecimal.ROUND_HALF_UP).doubleValue();
+            item.put("RATIO", ratioVal + "%");
+        });
         return Result.ok(dataList);
     }
 }
