@@ -124,7 +124,11 @@
             getFetch(remoteOrigin + "/api/auto/sysnotice/read", {id: id}, function () {
                 onInfront()
             });
-        })
+        });
+        $(document).on("click", ".loanRelatedSearch", function () {
+            var certCode = $(this).data("cert-code");
+            addNavTab("关联方台账", "/htmlsrc/creditDataManage/linkLoan/linkListLoan.html?certCode="+certCode)
+        });
 
         $(document).on("click", ".handleShow", function(){
             var type = $(this).data("type");

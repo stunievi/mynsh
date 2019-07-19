@@ -41,34 +41,6 @@ public class LinkController {
         return Result.ok(linkSeachService.gdSeach(no,params));
     }
 
-    @RequestMapping(value = "relatedSearch/compare")
-    public Result compare(
-            @RequestParam Map<String, Object> params
-    ){
-        JSONObject object = (JSONObject) JSON.toJSON(params);
-        object.put("uid", AuthFilter.getUid());
-        String cusName = object.getString("CUS_NAME");
-        String certCode = object.getString("CERT_CODE");
-        PageQuery<JSONObject> dataList = U.beetlPageQuery("link.loan_related_search", JSONObject.class, object);
-        if(S.isBlank(certCode)){
-            return Result.ok(dataList);
-        }
-        boolean find = sqlManager.lambdaQuery(RelatedPartyList.class).andEq(RelatedPartyList::getCertCode,certCode).count() > 0;
-        if(find){
-                        /*贷前关联方查询功能。该功能是为了给客户经理提供贷款是否属于关联方贷款信息，若查询后得知是关联方贷款，则提示客户经理：“该笔贷款属于关联方贷款，不得发放信用贷款，贷款金额占资本净额的比例为XX%”,同时系统发布此条信息至具有“总行关联方风险角色”的用户邮箱，总行具有该角色用户可以通过点击该信息，获知其受理贷款的具体情况，同时可以查看关联方贷款列表，获取更为详细的信息。若查询得知不属于关联方贷款，则提示客户经理：“该笔贷款不是关联方贷款，贷款金额占资本净额的比例为XX%”。
-                        是否关联方的判定依据：基础数据中的关联方清单。
-*/
-            List<JSONObject> list = sqlManager.select("user.查询总行关联方风险角色", JSONObject.class, object);
-            for(JSONObject item : list){
-                noticeService2.addNotice(SysNotice.Type.SYSTEM, item.getLong("uid"), String.format("客户：%s，证件号：%s，属于关联方贷款，不得发放信用贷款，贷款金额占资本净额的比例为%.2f", cusName, certCode,  11.1), null);
-            }
-            noticeService2.addNotice(SysNotice.Type.SYSTEM, AuthFilter.getUid(), String.format("客户：%s，证件号：%s，属于关联方贷款，不得发放信用贷款，贷款金额占资本净额的比例为%.2f", cusName, certCode, 11.1), null);
-        }else{
-            noticeService2.addNotice(SysNotice.Type.SYSTEM, AuthFilter.getUid(), String.format("客户：%s，证件号：%s，不是关联方贷款，贷款金额占资本净额的比例为：%.2f", cusName, certCode, 11.1), null);
-        }
-        return Result.ok(dataList);
-    }
-
     // 集团客户，关联方，股东及股东关联台账
     @RequestMapping(value = "linkLoan/{linkModel}")
     public Result linkLoan(

@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>新增资质客户</title>
+    <!--#include file="/htmlsrc/header.html" -->
+</head>
+<body>
+<div id="content">
+    <div id="editForm">
+        <form name="form-search" class="form-horizontal">
+            <div class="row panel-form-input-group">
+                <div class="col-xs-12 form-group ">
+                    <label for="CUS_NAME" class="col-xs-3 text-right">
+                        <span style="color:red">*</span>客户名称</label>
+                    <div class="col-xs-6">
+                        <input type="text" class="form-control input-sm" id="CUS_NAME" name="CUS_NAME" value="" autocomplete="off"></div>
+                </div>
+                <div class="col-xs-12 form-group  has-success">
+                    <label for="CUS_TYPE" class="col-xs-3 text-right">
+                        <span style="color:red">*</span>客户类型</label>
+                    <div class="col-xs-6">
+                        <select class="form-control input-sm" id="CUS_TYPE" name="CUS_TYPE" value="">
+                            <option value="01">对公客户</option>
+                            <option value="02">对私客户</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 form-group hide" id="COMPANY_NAME_WRAP">
+                    <label for="COMPANY_NAME" class="col-xs-3 text-right">
+                        <span style="color:red">*</span>辅助公司名</label>
+                    <div class="col-xs-6">
+                        <input type="text" class="form-control input-sm" id="COMPANY_NAME" name="COMPANY_NAME" value=""></div>
+                </div>
+            </div>
+            <div class="row text-center">
+                <button type="reset" class="btn btn-default">重 置</button>
+                <button type="submit" class="btn btn-primary">确 定</button></div>
+        </form>
+    </div>
+</div>
+<script>
+    $("#CUS_TYPE").change(function () {
+        var val = $(this).val();
+        var tar = $("#COMPANY_NAME_WRAP");
+        val=="02" ? tar.removeClass("hide") : tar.addClass("hide").val("");
+    });
+    var form = $("form[name='form-search']"); // 当前form
+    $().ready(function() {
+        form.validate({
+            rules: {
+                CUS_NAME: { required: true, minlength: 2 },
+                CUS_TYPE: "required"
+            },
+            submitHandler: function(){
+                if(form.valid()){
+                    var data = $.unserialize(form.serialize());
+                    if($("#CUS_TYPE").val() == "02" && $.trim($("#COMPANY_NAME").val()) == ""){
+                        layer.msg("对私客户，辅助公司名不能为空！");
+                        return false;
+                    }
+                    postFetch(remoteOrigin + "/api/auto/QualCus/insert", data, function () {
+                        closeCurrentIframe();
+                    },function () {
+                        layer.msg("添加失败！");
+                    });
+                }
+                return false;
+            }
+        })
+    });
+</script>
+</body>
+</html>

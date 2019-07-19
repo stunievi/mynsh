@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>贷前管理 - 客户资质查询</title>
+    <!--#include file="/htmlsrc/header.html" -->
+</head>
+<body>
+<div id="content">
+    <div class="" id="panel-form">
+    </div>
+    <div class="batch-operation">
+        <a type="button" class="btn btn-success handleAdd" href="javascript:;" tab-href="/htmlsrc/preLendingCollect/qualCusList.add.html" tab-title="新增资质客户" >新增</a>
+    </div>
+    <div id="dataList">
+    </div>
+</div>
+<script>
+    $("#panel-form").html(panelFormRender3({
+        col:3,
+        panelTitle:'筛选查询',
+        list:[
+            { label :'客户名称', prop:'CUS_NAME' },
+            { label :'客户类型', prop:'CUS_TYPE', type:"select", vals: [
+                    {val:"", name:"--请选择--"},
+                    {val:"01", name:"对公客户"},
+                    {val:"02", name:"对私客户"}
+                ]  },
+            { label :'辅助公司名', prop:'COMPANY_NAME'}
+        ],
+        data:{ } // 默认值
+    }));
+
+    laytableRender({
+        // showIndex: true,
+        url: remoteOrigin + "/api/auto/QualCus/getDList",
+        cols: [
+            [
+                { title:'操作', templet: function (data,index) {
+                        var str = '<a href="javascript:;" class="btn btn-default btn-xs" tab-title="关联方" tab-href="">关联方</a>&nbsp;';
+                        if(data["CUS_TYPE"] == "01"){
+                            str += '<a href="javascript:;" class="btn btn-default btn-xs" tab-title="企查查 - '+data.CUS_NAME+'" tab-href="'+hrefUrl.ECIdetail+data.CUS_NAME+'&from=qualCus" tab-id="ECIdetail-Qual'+data.CUS_NAME+'">经营风险</a>';
+                        }
+                    return  str;
+                }, fixed: 'right'},
+                { title:'客户名称', field: "CUS_NAME"},
+                { title:'辅助公司名称', field: "COMPANY_NAME"},
+                { title:"操作人", field: "USER_TRUE_NAME"},
+                { title:'添加时间', field: "ADD_TIME"}
+                // ,{ title:"主管机构", field: ""}
+            ]
+        ]
+    });
+</script>
+</body>
+</html>

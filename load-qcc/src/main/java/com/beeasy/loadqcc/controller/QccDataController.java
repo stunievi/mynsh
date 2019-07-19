@@ -3,6 +3,7 @@ package com.beeasy.loadqcc.controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.beeasy.loadqcc.ReqQccParam;
 import com.beeasy.loadqcc.config.MQConfig;
 import com.beeasy.loadqcc.entity.LoadQccDataExtParm;
 import com.beeasy.loadqcc.service.GetOriginQccService;
@@ -32,6 +33,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -52,32 +54,32 @@ public class QccDataController {
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
     // 获取公司工商信息
-    private JSONObject getCompanyInfo(
-            String companyName,
-            LoadQccDataExtParm extParam
-    ){
-        JSONObject companyInfo;
-        Document tmep_company_ret;
-        tmep_company_ret =  mongoService2
-                .getCollection("ECIV4_GetDetailsByName")
-                .find(Filters.eq("QueryParam.keyword", companyName))
-                .first();
-        if(null == tmep_company_ret){
-            // 从企查查获取工商信息
-            companyInfo = getOriginQccService.ECI_GetDetailsByName(companyName, extParam);
-        }else{
-            companyInfo = (JSONObject) JSON.toJSON(tmep_company_ret);
-            companyInfo = companyInfo.getJSONObject("Result");
-            getOriginQccService.saveOriginData("ECIV4_GetDetailsByName", C.newMap(
-                    "keyword", companyName
-            ), JSON.toJSONString(tmep_company_ret), extParam);
-        }
-        if(null == companyInfo || companyInfo.isEmpty()){
-            getOriginQccService.saveErrLog("更新企查查数据时，"+companyName+":公司工商信息获取失败！");
-            return companyInfo;
-        }
-        return companyInfo;
-    }
+//    private JSONObject getCompanyInfo(
+//            String companyName,
+//            LoadQccDataExtParm extParam
+//    ){
+//        JSONObject companyInfo;
+//        Document tmep_company_ret;
+//        tmep_company_ret =  mongoService2
+//                .getCollection("ECIV4_GetDetailsByName")
+//                .find(Filters.eq("QueryParam.keyword", companyName))
+//                .first();
+//        if(null == tmep_company_ret){
+//            // 从企查查获取工商信息
+//            companyInfo = getOriginQccService.ECI_GetDetailsByName(companyName, extParam);
+//        }else{
+//            companyInfo = (JSONObject) JSON.toJSON(tmep_company_ret);
+//            companyInfo = companyInfo.getJSONObject("Result");
+//            getOriginQccService.saveOriginData("ECIV4_GetDetailsByName", C.newMap(
+//                    "keyword", companyName
+//            ), JSON.toJSONString(tmep_company_ret), extParam);
+//        }
+//        if(null == companyInfo || companyInfo.isEmpty()){
+//            getOriginQccService.saveErrLog("更新企查查数据时，"+companyName+":公司工商信息获取失败！");
+//            return companyInfo;
+//        }
+//        return companyInfo;
+//    }
 
     // 监听MQ更新名单回执
     @JmsListener(destination = "qcc-company-infos-response", containerFactory = "jmsListenerContainerTopic")
@@ -95,45 +97,78 @@ public class QccDataController {
         return new Runnable() {
             @Override
             public void run() {
-                String companyName = companyData.getString("Content"); // 公司名
+                String companyName = ""; // 公司名
+                String userName = ""; // 人员名
                 String command = companyData.getString("Sign"); // 指令
-                if(null == companyName|| companyName.isEmpty()){
-                    return;
-                }
-                extParam.setCompanyName(companyName);
                 if(null == command || command.isEmpty()){
                     getOriginQccService.saveErrLog("更新企查查数据时，"+companyName+":指令为空");
                     return;
                 }
+                if(command.contains("07")){
+                    companyName = companyData.getString("Content2");
+                    userName = companyData.getString("Content1");
+                }else{
+                    companyName = Optional.ofNullable(companyData.getString("Content")).orElse(companyData.getString("Content1"));
+                }
+                if(null == companyName|| companyName.isEmpty()){
+                    return;
+                }
+                extParam.setCompanyName(companyName);
+
+                ReqQccParam reqQccParam = new ReqQccParam();
+                reqQccParam.setCompanyName(companyName);
+                reqQccParam.setUserName(userName);
                 // 公司公司信息
                 JSONObject companyInfo = new JSONObject();
                 // 更新所有
                 if(command.contains("00")){
-                    getOriginQccService.loadAllData(companyName, extParam);
+                    reqQccParam.setSign("00");
+                    getOriginQccService.loadAllData(reqQccParam, extParam);
                 }else{
                     // 需要keyNo的必须拿到工商信息
                     if(command.contains("03") || command.contains("04")){
-                        companyInfo = getCompanyInfo(companyName, extParam);
+                        companyInfo = getOriginQccService.ECI_GetDetailsByName(companyName, extParam);
+                        reqQccParam.setKeyNo(companyInfo.getString("KeyNo"));
                     }
                     if(command.contains("01")){
                         // 更新基本信息
-                        getOriginQccService.loadDataBlock1(companyName, extParam);
+                        reqQccParam.setSign("01");
+                        getOriginQccService.loadDataBlock1(reqQccParam, extParam);
                     }
                     if(command.contains("02")){
                         // 法律诉讼
+                        reqQccParam.setSign("02");
                         getOriginQccService.loadDataBlock2(companyName, extParam);
                     }
                     if(command.contains("03")){
                         // 经营风险
-                        getOriginQccService.loadDataBlock5(companyName, companyInfo.getString("KeyNo"), extParam);
+                        reqQccParam.setSign("03");
+                        getOriginQccService.loadDataBlock5(companyName, reqQccParam.getKeyNo(), extParam);
                     }
                     if(command.contains("04")){
                         // 关联族谱
-                        getOriginQccService.loadDataBlock3(companyName, companyInfo.getString("KeyNo"), extParam);
+                        reqQccParam.setSign("04");
+                        getOriginQccService.loadDataBlock3(reqQccParam, extParam);
                     }
                     if(command.contains("05")){
                         // 历史信息
+                        reqQccParam.setSign("05");
                         getOriginQccService.loadDataBlock4(companyName, extParam);
+                    }
+                    if(command.contains("06")){
+                        // 工商信息
+                        reqQccParam.setSign("06");
+                        getOriginQccService.ECI_GetBasicDetailsByName(reqQccParam, extParam);
+                    }
+                    if(command.contains("07")){
+                        // 企业董监高
+                        reqQccParam.setSign("07");
+                        getOriginQccService.CIAEmployeeV4_GetStockRelationInfo(reqQccParam, extParam);
+                    }
+                    if(command.contains("08")){
+                        // 对外投资穿透
+                        reqQccParam.setSign("08");
+                        getOriginQccService.ECIInvestmentThrough_GetInfo(reqQccParam, extParam);
                     }
                 }
 

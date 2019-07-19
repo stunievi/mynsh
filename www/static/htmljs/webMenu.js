@@ -999,6 +999,11 @@ _menu.push(
                     name: '关联方查询',
                     href: '/htmlsrc/preLendingCollect/relationSearch.html',
                     api: []
+                },
+                {
+                    name: '客户资质查询',
+                    href: '/htmlsrc/preLendingCollect/qualCusList.html',
+                    api: []
                 }
             ]
         }

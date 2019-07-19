@@ -11,7 +11,6 @@ import com.beeasy.hzcloud.entity.CFile;
 import com.beeasy.mscommon.RestException;
 import com.beeasy.mscommon.Result;
 import com.beeasy.mscommon.filter.AuthFilter;
-import com.beeasy.mscommon.util.U;
 import org.beetl.sql.core.SQLManager;
 import org.osgl.$;
 import org.osgl.util.C;

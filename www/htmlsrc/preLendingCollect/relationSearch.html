@@ -49,13 +49,13 @@
 
     laytableRender({
         showIndex: true,
-        url: remoteOrigin + "/api/relatedSearch/compare",
+        url: remoteOrigin + "/api/auto/LoanRelatedSearch/getDList",
         cols: [
             [
-                { title:'添加时间', field: "addTime"},
-                { title:'客户名称', field: "cusName"},
-                { title:"证件号码", field: "certCode"},
-                { title:"占资本净额比例", field: "ratio"}
+                { title:'添加时间', field: "ADD_TIME"},
+                { title:'客户名称', field: "CUS_NAME"},
+                { title:"证件号码", field: "CERT_CODE"},
+                { title:"占资本净额比例", field: "RATIO"}
             ]
         ]
     });
