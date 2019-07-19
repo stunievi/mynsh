@@ -1007,6 +1007,33 @@ and p1.LN_TYPE in ('普通贷款','银团贷款')
 @}
 
 
+report_xiaoli
+===
+select CAPINT_OVERDUE_DATE,UNPD_PRIN_BAL  from RPT_M_RPT_SLS_ACCT
+where
+--法人机构号（惠州农商银行0801
+CREUNIT_NO != '10086'
+--拖欠本金是否大于0
+and UNPD_PRIN_BAL > 0
+--表内资产
+and GL_CLASS not like '0%'
+--贷款类型
+and LN_TYPE in ('普通贷款','银团贷款')
+-- 主管机构
+@if(null != MAIN_BR_ID){
+    and MAIN_BR_ID in (#join(MAIN_BR_ID)#)
+@}
+--期限类型
+@if(isNotEmpty(LOAN_TERM_MIN)){
+    and LOAN_TERM > #LOAN_TERM_MIN#
+@}
+@if(isNotEmpty(LOAN_TERM_MAX)){
+    and LOAN_TERM <= #LOAN_TERM_MAX#
+@}
+
+
+
+
 report_31
 ===
 select
@@ -2257,7 +2284,7 @@ left join (select LOAN_BALANCE,LOAN_ACCOUNT from pp where CLA in ('30','40','50'
 
 
 
-acc_guanlian_count
+app_guanlian_count
 ===
 select
 count(1) as count_number
@@ -2273,42 +2300,45 @@ LINK_RULE between 1.1 and 3.0
 @}
 
 
-
-
 app_guanlian_list
 ===
-select
+select 
 @pageTag(){
-search.add_time add_time,
-search.cus_name cus_name,
-search.cert_code cert_code,
-search.operator operator,
-search.MAIN_BR_ID main_by_id,
-org.name oname ,
-user.TRUE_NAME uname
+search.add_time,
+search.cus_name,
+search.CERT_TYPE ,
+search.cert_code ,
+search.ACCEPT_AMT ,
+search.search as is_search,
+user.true_name uname,
+org.name oname
 @}
-from T_LOAN_RELATED_SEARCH  as search
-left  join t_org org on MAIN_BR_ID = org.id 
- left join t_user user on operator = user.id where 
- ('admin' = (select username from t_user where id = #uid#)or operator = #uid#)
+from
+T_Loan_RELATED_search  as search  
+left join t_org as org on org.id = search.main_br_id
+left join t_user as user  on search.operator = user.id
+where  (((select su from t_user where id = #uid#)  = 1) or  search.operator = #uid#)
 -- 证件号码
 @if(isNotEmpty(CERT_CODE)){
-    and CERT_CODE like #'%' + CERT_CODE + '%'#
+    and search.CERT_CODE like #'%' + CERT_CODE + '%'#
 @}
 -- 客户名称
 @if(isNotEmpty(CUS_NAME)){
-    and CUS_NAME like #'%' + CUS_NAME + '%'#
+    or search.CUS_NAME like #'%' + CUS_NAME + '%'#
 @}
-
-
-
-
-
+@pageIgnoreTag(){
+   order by search.add_time  desc
+@}
 
 
 uid_oname_search
 ===
-select tab.uname uname,tab.uid uid,t.name oname,t.ACC_CODE,tab.oname from t_org t full join 
-(select org.id oid,org.name oname,org.parent_id opid,u.id uid,u.true_name  uname from t_user as u full 
-   join t_user_org as uo on u.id = uo.uid  full join t_org as
- org on uo.oid = org.id where org.type = 'QUARTERS')  tab on t.id = tab.opid
+ select * from T_ORG_USER where uid = #uid#
+ 
+ 
+ 
+is_user_admin
+===
+select su from t_user where id = #uid#
+ 
+ 

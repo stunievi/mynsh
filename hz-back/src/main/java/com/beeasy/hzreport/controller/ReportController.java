@@ -436,6 +436,15 @@ public class ReportController {
         return Result.ok(reportService.app_guanlian_list(params, pageable));
     }
 
+    //app判断当前用户是否是办事员或客户经理
+    @RequestMapping(value = "/report/is_org")
+    public Result is_org(
+            @PageableDefault(value = 15, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable,
+            @RequestParam Map<String, Object> params
+    ) {
+        return Result.ok(reportService.is_org(params, pageable));
+    }
+
     //APP接口-获取关联信息
     @RequestMapping(value = "/report/app_guanlian_count")
     public Result app_guanlian_count(
