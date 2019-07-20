@@ -55,7 +55,7 @@
         <dependency>
             <groupId>com.github.llyb120</groupId>
             <artifactId>nami</artifactId>
-            <version>1.1.0-RELEASE</version>
+            <version>1.1.2-RELEASE</version>
         </dependency>
 
         <dependency>
@@ -66,11 +66,11 @@
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.jxls/jxls -->
-        <dependency>
-            <groupId>org.jxls</groupId>
-            <artifactId>jxls</artifactId>
-            <version>2.6.0</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.jxls</groupId>-->
+<!--            <artifactId>jxls</artifactId>-->
+<!--            <version>2.6.0</version>-->
+<!--        </dependency>-->
 <!--        &lt;!&ndash; https://mvnrepository.com/artifact/org.jxls/jxls-jexcel &ndash;&gt;-->
 <!--        <dependency>-->
 <!--            <groupId>org.jxls</groupId>-->
@@ -80,13 +80,18 @@
 
 
         <!-- https://mvnrepository.com/artifact/org.jxls/jxls-poi -->
-        <dependency>
-            <groupId>org.jxls</groupId>
-            <artifactId>jxls-poi</artifactId>
-            <version>2.6.0-rc1</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.jxls</groupId>-->
+<!--            <artifactId>jxls-poi</artifactId>-->
+<!--            <version>2.6.0-rc1</version>-->
+<!--        </dependency>-->
 
 
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>fastjson</artifactId>
+                <version>1.2.47</version>
+            </dependency>
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongo-java-driver</artifactId>

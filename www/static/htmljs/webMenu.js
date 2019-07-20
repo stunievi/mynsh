@@ -1211,6 +1211,10 @@ doIfDev(function () {
             name:"流程管理",
             children: [
                 {
+                    name: "流程分类",
+                    href: "/htmlsrc/bpm/cat/cat.html"
+                },
+                {
                     name:"表单配置",
                     href: "/htmlsrc/bpm/form/form.html"
                 }

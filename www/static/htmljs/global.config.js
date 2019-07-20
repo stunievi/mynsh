@@ -489,6 +489,7 @@ var odsEnmuData = {"MORTGAGE_FLG":{"0":"否","1":"是"},"GUARANTY_TYPE":{"10001"
             	Token: top.store.get("token") || ""
 			}
             , success: function(res){
+            	layer.closeAll()
             	if(res.success || res.Status=="200"){
 					callback && callback(res.data)
 				}else{

@@ -21871,356 +21871,360 @@ UE.plugins['tablesort'] = function () {
 
 UE.plugins['contextmenu'] = function () {
     var me = this;
-    me.setOpt('enableContextMenu',true);
-    if(me.getOpt('enableContextMenu') === false){
+    me.setOpt('enableContextMenu', true);
+    if (me.getOpt('enableContextMenu') === false) {
         return;
     }
-    var lang = me.getLang( "contextMenu" ),
-            menu,
-            items = me.options.contextMenu || [
-                {label:lang['selectall'], cmdName:'selectall'},
-                {
-                    label:lang.cleardoc,
-                    cmdName:'cleardoc',
-                    exec:function () {
-                        if ( confirm( lang.confirmclear ) ) {
-                            this.execCommand( 'cleardoc' );
+    console.log(me)
+    var lang = me.getLang("contextMenu"),
+        menu;
+    var items_factory = function () {
+        return me.options.contextMenu || [
+            {label: lang['selectall'], cmdName: 'selectall'},
+            {
+                label: lang.cleardoc,
+                cmdName: 'cleardoc',
+                exec: function () {
+                    if (confirm(lang.confirmclear)) {
+                        this.execCommand('cleardoc');
+                    }
+                }
+            },
+            '-',
+            {
+                label: lang.unlink,
+                cmdName: 'unlink'
+            },
+            '-',
+            {
+                group: lang.paragraph,
+                icon: 'justifyjustify',
+                subMenu: [
+                    {
+                        label: lang.justifyleft,
+                        cmdName: 'justify',
+                        value: 'left'
+                    },
+                    {
+                        label: lang.justifyright,
+                        cmdName: 'justify',
+                        value: 'right'
+                    },
+                    {
+                        label: lang.justifycenter,
+                        cmdName: 'justify',
+                        value: 'center'
+                    },
+                    {
+                        label: lang.justifyjustify,
+                        cmdName: 'justify',
+                        value: 'justify'
+                    }
+                ]
+            },
+            '-',
+            {
+                group: lang.table,
+                icon: 'table',
+                subMenu: [
+                    {
+                        label: lang.inserttable,
+                        cmdName: 'inserttable'
+                    },
+                    {
+                        label: lang.deletetable,
+                        cmdName: 'deletetable'
+                    },
+                    '-',
+                    {
+                        label: lang.deleterow,
+                        cmdName: 'deleterow'
+                    },
+                    {
+                        label: lang.deletecol,
+                        cmdName: 'deletecol'
+                    },
+                    {
+                        label: lang.insertcol,
+                        cmdName: 'insertcol'
+                    },
+                    {
+                        label: lang.insertcolnext,
+                        cmdName: 'insertcolnext'
+                    },
+                    {
+                        label: lang.insertrow,
+                        cmdName: 'insertrow'
+                    },
+                    {
+                        label: lang.insertrownext,
+                        cmdName: 'insertrownext'
+                    },
+                    '-',
+                    {
+                        label: lang.insertcaption,
+                        cmdName: 'insertcaption'
+                    },
+                    {
+                        label: lang.deletecaption,
+                        cmdName: 'deletecaption'
+                    },
+                    {
+                        label: lang.inserttitle,
+                        cmdName: 'inserttitle'
+                    },
+                    {
+                        label: lang.deletetitle,
+                        cmdName: 'deletetitle'
+                    },
+                    {
+                        label: lang.inserttitlecol,
+                        cmdName: 'inserttitlecol'
+                    },
+                    {
+                        label: lang.deletetitlecol,
+                        cmdName: 'deletetitlecol'
+                    },
+                    '-',
+                    {
+                        label: lang.mergecells,
+                        cmdName: 'mergecells'
+                    },
+                    {
+                        label: lang.mergeright,
+                        cmdName: 'mergeright'
+                    },
+                    {
+                        label: lang.mergedown,
+                        cmdName: 'mergedown'
+                    },
+                    '-',
+                    {
+                        label: lang.splittorows,
+                        cmdName: 'splittorows'
+                    },
+                    {
+                        label: lang.splittocols,
+                        cmdName: 'splittocols'
+                    },
+                    {
+                        label: lang.splittocells,
+                        cmdName: 'splittocells'
+                    },
+                    '-',
+                    {
+                        label: lang.averageDiseRow,
+                        cmdName: 'averagedistributerow'
+                    },
+                    {
+                        label: lang.averageDisCol,
+                        cmdName: 'averagedistributecol'
+                    },
+                    '-',
+                    {
+                        label: lang.edittd,
+                        cmdName: 'edittd',
+                        exec: function () {
+                            if (UE.ui['edittd']) {
+                                new UE.ui['edittd'](this);
+                            }
+                            this.getDialog('edittd').open();
+                        }
+                    },
+                    {
+                        label: lang.edittable,
+                        cmdName: 'edittable',
+                        exec: function () {
+                            if (UE.ui['edittable']) {
+                                new UE.ui['edittable'](this);
+                            }
+                            this.getDialog('edittable').open();
+                        }
+                    },
+                    {
+                        label: lang.setbordervisible,
+                        cmdName: 'setbordervisible'
+                    }
+                ]
+            },
+            {
+                group: lang.tablesort,
+                icon: 'tablesort',
+                subMenu: [
+                    {
+                        label: lang.enablesort,
+                        cmdName: 'enablesort'
+                    },
+                    {
+                        label: lang.disablesort,
+                        cmdName: 'disablesort'
+                    },
+                    '-',
+                    {
+                        label: lang.reversecurrent,
+                        cmdName: 'sorttable',
+                        value: 'reversecurrent'
+                    },
+                    {
+                        label: lang.orderbyasc,
+                        cmdName: 'sorttable',
+                        value: 'orderbyasc'
+                    },
+                    {
+                        label: lang.reversebyasc,
+                        cmdName: 'sorttable',
+                        value: 'reversebyasc'
+                    },
+                    {
+                        label: lang.orderbynum,
+                        cmdName: 'sorttable',
+                        value: 'orderbynum'
+                    },
+                    {
+                        label: lang.reversebynum,
+                        cmdName: 'sorttable',
+                        value: 'reversebynum'
+                    }
+                ]
+            },
+            {
+                group: lang.borderbk,
+                icon: 'borderBack',
+                subMenu: [
+                    {
+                        label: lang.setcolor,
+                        cmdName: "interlacetable",
+                        exec: function () {
+                            this.execCommand("interlacetable");
+                        }
+                    },
+                    {
+                        label: lang.unsetcolor,
+                        cmdName: "uninterlacetable",
+                        exec: function () {
+                            this.execCommand("uninterlacetable");
+                        }
+                    },
+                    {
+                        label: lang.setbackground,
+                        cmdName: "settablebackground",
+                        exec: function () {
+                            this.execCommand("settablebackground", {repeat: true, colorList: ["#bbb", "#ccc"]});
+                        }
+                    },
+                    {
+                        label: lang.unsetbackground,
+                        cmdName: "cleartablebackground",
+                        exec: function () {
+                            this.execCommand("cleartablebackground");
+                        }
+                    },
+                    {
+                        label: lang.redandblue,
+                        cmdName: "settablebackground",
+                        exec: function () {
+                            this.execCommand("settablebackground", {repeat: true, colorList: ["red", "blue"]});
+                        }
+                    },
+                    {
+                        label: lang.threecolorgradient,
+                        cmdName: "settablebackground",
+                        exec: function () {
+                            this.execCommand("settablebackground", {repeat: true, colorList: ["#aaa", "#bbb", "#ccc"]});
                         }
                     }
-                },
-                '-',
-                {
-                    label:lang.unlink,
-                    cmdName:'unlink'
-                },
-                '-',
-                {
-                    group:lang.paragraph,
-                    icon:'justifyjustify',
-                    subMenu:[
-                        {
-                            label:lang.justifyleft,
-                            cmdName:'justify',
-                            value:'left'
-                        },
-                        {
-                            label:lang.justifyright,
-                            cmdName:'justify',
-                            value:'right'
-                        },
-                        {
-                            label:lang.justifycenter,
-                            cmdName:'justify',
-                            value:'center'
-                        },
-                        {
-                            label:lang.justifyjustify,
-                            cmdName:'justify',
-                            value:'justify'
-                        }
-                    ]
-                },
-                '-',
-                {
-                    group:lang.table,
-                    icon:'table',
-                    subMenu:[
-                        {
-                            label:lang.inserttable,
-                            cmdName:'inserttable'
-                        },
-                        {
-                            label:lang.deletetable,
-                            cmdName:'deletetable'
-                        },
-                        '-',
-                        {
-                            label:lang.deleterow,
-                            cmdName:'deleterow'
-                        },
-                        {
-                            label:lang.deletecol,
-                            cmdName:'deletecol'
-                        },
-                        {
-                            label:lang.insertcol,
-                            cmdName:'insertcol'
-                        },
-                        {
-                            label:lang.insertcolnext,
-                            cmdName:'insertcolnext'
-                        },
-                        {
-                            label:lang.insertrow,
-                            cmdName:'insertrow'
-                        },
-                        {
-                            label:lang.insertrownext,
-                            cmdName:'insertrownext'
-                        },
-                        '-',
-                        {
-                            label:lang.insertcaption,
-                            cmdName:'insertcaption'
-                        },
-                        {
-                            label:lang.deletecaption,
-                            cmdName:'deletecaption'
-                        },
-                        {
-                            label:lang.inserttitle,
-                            cmdName:'inserttitle'
-                        },
-                        {
-                            label:lang.deletetitle,
-                            cmdName:'deletetitle'
-                        },
-                        {
-                            label:lang.inserttitlecol,
-                            cmdName:'inserttitlecol'
-                        },
-                        {
-                            label:lang.deletetitlecol,
-                            cmdName:'deletetitlecol'
-                        },
-                        '-',
-                        {
-                            label:lang.mergecells,
-                            cmdName:'mergecells'
-                        },
-                        {
-                            label:lang.mergeright,
-                            cmdName:'mergeright'
-                        },
-                        {
-                            label:lang.mergedown,
-                            cmdName:'mergedown'
-                        },
-                        '-',
-                        {
-                            label:lang.splittorows,
-                            cmdName:'splittorows'
-                        },
-                        {
-                            label:lang.splittocols,
-                            cmdName:'splittocols'
-                        },
-                        {
-                            label:lang.splittocells,
-                            cmdName:'splittocells'
-                        },
-                        '-',
-                        {
-                            label:lang.averageDiseRow,
-                            cmdName:'averagedistributerow'
-                        },
-                        {
-                            label:lang.averageDisCol,
-                            cmdName:'averagedistributecol'
-                        },
-                        '-',
-                        {
-                            label:lang.edittd,
-                            cmdName:'edittd',
-                            exec:function () {
-                                if ( UE.ui['edittd'] ) {
-                                    new UE.ui['edittd']( this );
-                                }
-                                this.getDialog('edittd').open();
-                            }
-                        },
-                        {
-                            label:lang.edittable,
-                            cmdName:'edittable',
-                            exec:function () {
-                                if ( UE.ui['edittable'] ) {
-                                    new UE.ui['edittable']( this );
-                                }
-                                this.getDialog('edittable').open();
-                            }
-                        },
-                        {
-                            label:lang.setbordervisible,
-                            cmdName:'setbordervisible'
-                        }
-                    ]
-                },
-                {
-                    group:lang.tablesort,
-                    icon:'tablesort',
-                    subMenu:[
-                        {
-                            label:lang.enablesort,
-                            cmdName:'enablesort'
-                        },
-                        {
-                            label:lang.disablesort,
-                            cmdName:'disablesort'
-                        },
-                        '-',
-                        {
-                            label:lang.reversecurrent,
-                            cmdName:'sorttable',
-                            value:'reversecurrent'
-                        },
-                        {
-                            label:lang.orderbyasc,
-                            cmdName:'sorttable',
-                            value:'orderbyasc'
-                        },
-                        {
-                            label:lang.reversebyasc,
-                            cmdName:'sorttable',
-                            value:'reversebyasc'
-                        },
-                        {
-                            label:lang.orderbynum,
-                            cmdName:'sorttable',
-                            value:'orderbynum'
-                        },
-                        {
-                            label:lang.reversebynum,
-                            cmdName:'sorttable',
-                            value:'reversebynum'
-                        }
-                    ]
-                },
-                {
-                    group:lang.borderbk,
-                    icon:'borderBack',
-                    subMenu:[
-                        {
-                            label:lang.setcolor,
-                            cmdName:"interlacetable",
-                            exec:function(){
-                                this.execCommand("interlacetable");
-                            }
-                        },
-                        {
-                            label:lang.unsetcolor,
-                            cmdName:"uninterlacetable",
-                            exec:function(){
-                                this.execCommand("uninterlacetable");
-                            }
-                        },
-                        {
-                            label:lang.setbackground,
-                            cmdName:"settablebackground",
-                            exec:function(){
-                                this.execCommand("settablebackground",{repeat:true,colorList:["#bbb","#ccc"]});
-                            }
-                        },
-                        {
-                            label:lang.unsetbackground,
-                            cmdName:"cleartablebackground",
-                            exec:function(){
-                                this.execCommand("cleartablebackground");
-                            }
-                        },
-                        {
-                            label:lang.redandblue,
-                            cmdName:"settablebackground",
-                            exec:function(){
-                                this.execCommand("settablebackground",{repeat:true,colorList:["red","blue"]});
-                            }
-                        },
-                        {
-                            label:lang.threecolorgradient,
-                            cmdName:"settablebackground",
-                            exec:function(){
-                                this.execCommand("settablebackground",{repeat:true,colorList:["#aaa","#bbb","#ccc"]});
-                            }
-                        }
-                    ]
-                },
-                {
-                    group:lang.aligntd,
-                    icon:'aligntd',
-                    subMenu:[
-                        {
-                            cmdName:'cellalignment',
-                            value:{align:'left',vAlign:'top'}
-                        },
-                        {
-                            cmdName:'cellalignment',
-                            value:{align:'center',vAlign:'top'}
-                        },
-                        {
-                            cmdName:'cellalignment',
-                            value:{align:'right',vAlign:'top'}
-                        },
-                        {
-                            cmdName:'cellalignment',
-                            value:{align:'left',vAlign:'middle'}
-                        },
-                        {
-                            cmdName:'cellalignment',
-                            value:{align:'center',vAlign:'middle'}
-                        },
-                        {
-                            cmdName:'cellalignment',
-                            value:{align:'right',vAlign:'middle'}
-                        },
-                        {
-                            cmdName:'cellalignment',
-                            value:{align:'left',vAlign:'bottom'}
-                        },
-                        {
-                            cmdName:'cellalignment',
-                            value:{align:'center',vAlign:'bottom'}
-                        },
-                        {
-                            cmdName:'cellalignment',
-                            value:{align:'right',vAlign:'bottom'}
-                        }
-                    ]
-                },
-                {
-                    group:lang.aligntable,
-                    icon:'aligntable',
-                    subMenu:[
-                        {
-                            cmdName:'tablealignment',
-                            className: 'left',
-                            label:lang.tableleft,
-                            value:"left"
-                        },
-                        {
-                            cmdName:'tablealignment',
-                            className: 'center',
-                            label:lang.tablecenter,
-                            value:"center"
-                        },
-                        {
-                            cmdName:'tablealignment',
-                            className: 'right',
-                            label:lang.tableright,
-                            value:"right"
-                        }
-                    ]
-                },
-                '-',
-                {
-                    label:lang.insertparagraphbefore,
-                    cmdName:'insertparagraph',
-                    value:true
-                },
-                {
-                    label:lang.insertparagraphafter,
-                    cmdName:'insertparagraph'
-                },
-                {
-                    label:lang['copy'],
-                    cmdName:'copy'
-                },
-                {
-                    label:lang['paste'],
-                    cmdName:'paste'
-                }
-            ];
-    if ( !items.length ) {
-        return;
+                ]
+            },
+            {
+                group: lang.aligntd,
+                icon: 'aligntd',
+                subMenu: [
+                    {
+                        cmdName: 'cellalignment',
+                        value: {align: 'left', vAlign: 'top'}
+                    },
+                    {
+                        cmdName: 'cellalignment',
+                        value: {align: 'center', vAlign: 'top'}
+                    },
+                    {
+                        cmdName: 'cellalignment',
+                        value: {align: 'right', vAlign: 'top'}
+                    },
+                    {
+                        cmdName: 'cellalignment',
+                        value: {align: 'left', vAlign: 'middle'}
+                    },
+                    {
+                        cmdName: 'cellalignment',
+                        value: {align: 'center', vAlign: 'middle'}
+                    },
+                    {
+                        cmdName: 'cellalignment',
+                        value: {align: 'right', vAlign: 'middle'}
+                    },
+                    {
+                        cmdName: 'cellalignment',
+                        value: {align: 'left', vAlign: 'bottom'}
+                    },
+                    {
+                        cmdName: 'cellalignment',
+                        value: {align: 'center', vAlign: 'bottom'}
+                    },
+                    {
+                        cmdName: 'cellalignment',
+                        value: {align: 'right', vAlign: 'bottom'}
+                    }
+                ]
+            },
+            {
+                group: lang.aligntable,
+                icon: 'aligntable',
+                subMenu: [
+                    {
+                        cmdName: 'tablealignment',
+                        className: 'left',
+                        label: lang.tableleft,
+                        value: "left"
+                    },
+                    {
+                        cmdName: 'tablealignment',
+                        className: 'center',
+                        label: lang.tablecenter,
+                        value: "center"
+                    },
+                    {
+                        cmdName: 'tablealignment',
+                        className: 'right',
+                        label: lang.tableright,
+                        value: "right"
+                    }
+                ]
+            },
+            '-',
+            {
+                label: lang.insertparagraphbefore,
+                cmdName: 'insertparagraph',
+                value: true
+            },
+            {
+                label: lang.insertparagraphafter,
+                cmdName: 'insertparagraph'
+            },
+            {
+                label: lang['copy'],
+                cmdName: 'copy'
+            },
+            {
+                label: lang['paste'],
+                cmdName: 'paste'
+            }
+        ];
     }
+};
+    // if ( !items.length ) {
+    //     return;
+    // }
     var uiUtils = UE.ui.uiUtils;
 
     me.addListener( 'contextmenu', function ( type, evt ) {
@@ -22229,6 +22233,10 @@ UE.plugins['contextmenu'] = function () {
         me.fireEvent( 'beforeselectionchange' );
         if ( menu ) {
             menu.destroy();
+        }
+        var items = items_factory();
+        if(evt.target ){
+            items.shift()
         }
         for ( var i = 0, ti, contextItems = []; ti = items[i]; i++ ) {
             var last;
@@ -23850,136 +23858,137 @@ UE.plugin.register('autoupload', function (){
     }
 });
 
+//qiuqiuni
 // plugins/autosave.js
-UE.plugin.register('autosave', function (){
-
-    var me = this,
-        //无限循环保护
-        lastSaveTime = new Date(),
-        //最小保存间隔时间
-        MIN_TIME = 20,
-        //auto save key
-        saveKey = null;
-
-    function save ( editor ) {
-
-        var saveData;
-
-        if ( new Date() - lastSaveTime < MIN_TIME ) {
-            return;
-        }
-
-        if ( !editor.hasContents() ) {
-            //这里不能调用命令来删除， 会造成事件死循环
-            saveKey && me.removePreferences( saveKey );
-            return;
-        }
-
-        lastSaveTime = new Date();
-
-        editor._saveFlag = null;
-
-        saveData = me.body.innerHTML;
-
-        if ( editor.fireEvent( "beforeautosave", {
-            content: saveData
-        } ) === false ) {
-            return;
-        }
-
-        me.setPreferences( saveKey, saveData );
-
-        editor.fireEvent( "afterautosave", {
-            content: saveData
-        } );
-
-    }
-
-    return {
-        defaultOptions: {
-            //默认间隔时间
-            saveInterval: 500
-        },
-        bindEvents:{
-            'ready':function(){
-
-                var _suffix = "-drafts-data",
-                    key = null;
-
-                if ( me.key ) {
-                    key = me.key + _suffix;
-                } else {
-                    key = ( me.container.parentNode.id || 'ue-common' ) + _suffix;
-                }
-
-                //页面地址+编辑器ID 保持唯一
-                saveKey = ( location.protocol + location.host + location.pathname ).replace( /[.:\/]/g, '_' ) + key;
-
-            },
-
-            'contentchange': function () {
-
-                if ( !saveKey ) {
-                    return;
-                }
-
-                if ( me._saveFlag ) {
-                    window.clearTimeout( me._saveFlag );
-                }
-
-                if ( me.options.saveInterval > 0 ) {
-
-                    me._saveFlag = window.setTimeout( function () {
-
-                        save( me );
-
-                    }, me.options.saveInterval );
-
-                } else {
-
-                    save(me);
-
-                }
-
-
-            }
-        },
-        commands:{
-            'clearlocaldata':{
-                execCommand:function (cmd, name) {
-                    if ( saveKey && me.getPreferences( saveKey ) ) {
-                        me.removePreferences( saveKey )
-                    }
-                },
-                notNeedUndo: true,
-                ignoreContentChange:true
-            },
-
-            'getlocaldata':{
-                execCommand:function (cmd, name) {
-                    return saveKey ? me.getPreferences( saveKey ) || '' : '';
-                },
-                notNeedUndo: true,
-                ignoreContentChange:true
-            },
-
-            'drafts':{
-                execCommand:function (cmd, name) {
-                    if ( saveKey ) {
-                        me.body.innerHTML = me.getPreferences( saveKey ) || '<p>'+domUtils.fillHtml+'</p>';
-                        me.focus(true);
-                    }
-                },
-                queryCommandState: function () {
-                    return saveKey ? ( me.getPreferences( saveKey ) === null ? -1 : 0 ) : -1;
-                },
-                notNeedUndo: true,
-                ignoreContentChange:true
-            }
-        }
-    }
-
-});
+// UE.plugin.register('autosave', function (){
+//
+//     var me = this,
+//         //无限循环保护
+//         lastSaveTime = new Date(),
+//         //最小保存间隔时间
+//         MIN_TIME = 20,
+//         //auto save key
+//         saveKey = null;
+//
+//     function save ( editor ) {
+//
+//         var saveData;
+//
+//         if ( new Date() - lastSaveTime < MIN_TIME ) {
+//             return;
+//         }
+//
+//         if ( !editor.hasContents() ) {
+//             //这里不能调用命令来删除， 会造成事件死循环
+//             saveKey && me.removePreferences( saveKey );
+//             return;
+//         }
+//
+//         lastSaveTime = new Date();
+//
+//         editor._saveFlag = null;
+//
+//         saveData = me.body.innerHTML;
+//
+//         if ( editor.fireEvent( "beforeautosave", {
+//             content: saveData
+//         } ) === false ) {
+//             return;
+//         }
+//
+//         me.setPreferences( saveKey, saveData );
+//
+//         editor.fireEvent( "afterautosave", {
+//             content: saveData
+//         } );
+//
+//     }
+//
+//     return {
+//         defaultOptions: {
+//             //默认间隔时间
+//             saveInterval: 500
+//         },
+//         bindEvents:{
+//             'ready':function(){
+//
+//                 var _suffix = "-drafts-data",
+//                     key = null;
+//
+//                 if ( me.key ) {
+//                     key = me.key + _suffix;
+//                 } else {
+//                     key = ( me.container.parentNode.id || 'ue-common' ) + _suffix;
+//                 }
+//
+//                 //页面地址+编辑器ID 保持唯一
+//                 saveKey = ( location.protocol + location.host + location.pathname ).replace( /[.:\/]/g, '_' ) + key;
+//
+//             },
+//
+//             'contentchange': function () {
+//
+//                 if ( !saveKey ) {
+//                     return;
+//                 }
+//
+//                 if ( me._saveFlag ) {
+//                     window.clearTimeout( me._saveFlag );
+//                 }
+//
+//                 if ( me.options.saveInterval > 0 ) {
+//
+//                     me._saveFlag = window.setTimeout( function () {
+//
+//                         save( me );
+//
+//                     }, me.options.saveInterval );
+//
+//                 } else {
+//
+//                     save(me);
+//
+//                 }
+//
+//
+//             }
+//         },
+//         commands:{
+//             'clearlocaldata':{
+//                 execCommand:function (cmd, name) {
+//                     if ( saveKey && me.getPreferences( saveKey ) ) {
+//                         me.removePreferences( saveKey )
+//                     }
+//                 },
+//                 notNeedUndo: true,
+//                 ignoreContentChange:true
+//             },
+//
+//             'getlocaldata':{
+//                 execCommand:function (cmd, name) {
+//                     return saveKey ? me.getPreferences( saveKey ) || '' : '';
+//                 },
+//                 notNeedUndo: true,
+//                 ignoreContentChange:true
+//             },
+//
+//             'drafts':{
+//                 execCommand:function (cmd, name) {
+//                     if ( saveKey ) {
+//                         me.body.innerHTML = me.getPreferences( saveKey ) || '<p>'+domUtils.fillHtml+'</p>';
+//                         me.focus(true);
+//                     }
+//                 },
+//                 queryCommandState: function () {
+//                     return saveKey ? ( me.getPreferences( saveKey ) === null ? -1 : 0 ) : -1;
+//                 },
+//                 notNeedUndo: true,
+//                 ignoreContentChange:true
+//             }
+//         }
+//     }
+//
+// });
 
 // plugins/charts.js
 UE.plugin.register('charts', function (){
