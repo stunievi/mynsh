@@ -124,3 +124,4 @@ laytable选中数据
 贷款资料详情: 'loandata' + id
 任务详情: 'worktask' + id
 企查查公司详情: "ECIdetail" + 公司名
+企查查资质公司详情: "ECIdetail-Qual" + 公司名

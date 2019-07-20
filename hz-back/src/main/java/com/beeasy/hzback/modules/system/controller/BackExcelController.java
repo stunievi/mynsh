@@ -13,27 +13,41 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.core.util.Log;
 import com.beeasy.hzback.entity.*;
+import com.beeasy.hzback.modules.system.service.LinkSeachService;
 import com.beeasy.hzback.modules.system.service.NoticeService2;
 import com.beeasy.mscommon.Result;
 import com.beeasy.mscommon.filter.AuthFilter;
+import com.beeasy.mscommon.util.U;
+import org.apache.activemq.BlobMessage;
+import org.apache.activemq.command.ActiveMQQueue;
 import org.beetl.sql.core.SQLManager;
+import org.beetl.sql.core.SQLReady;
 import org.beetl.sql.core.db.KeyHolder;
 import org.osgl.util.C;
+import org.osgl.util.IO;
 import org.osgl.util.S;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jms.annotation.JmsListener;
+import org.springframework.jms.core.JmsMessagingTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.jms.JMSException;
+import javax.jms.TextMessage;
 import javax.sql.DataSource;
 import java.io.*;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -49,8 +63,15 @@ public class BackExcelController {
 
     @Autowired
     DataSource dataSource;
+
     @Autowired
     NoticeService2 noticeService2;
+
+    @Autowired
+    LinkSeachService linkSeachService;
+
+    @Autowired
+    JmsMessagingTemplate jmsMessagingTemplate;
 
     @Value("${filepath.path}")
     String path;
@@ -66,13 +87,20 @@ public class BackExcelController {
         long uid = AuthFilter.getUid();
         try {
             if("groupCusList".equals(actType)){
+                // 集团客户
                 File temp = File.createTempFile("group_cus_list", "");
                 file.transferTo(temp);
                 ThreadUtil.execAsync(() -> import_groupCusList(uid, temp));
             }else if("holderLink".equals(actType)){
+                // 股东关联
                 File temp = File.createTempFile("holder_link", "");
                 file.transferTo(temp);
                 ThreadUtil.execAsync(() -> import_holderLink(uid, temp));
+            }else if("holderList".equals(actType)){
+                // 股东
+                File temp = File.createTempFile("holder_list", "");
+                file.transferTo(temp);
+                ThreadUtil.execAsync(() -> import_hl(uid, temp));
             }
         }catch (Exception e){
             e.printStackTrace();
@@ -84,6 +112,7 @@ public class BackExcelController {
     private  void  import_holderLink(long uid, File temp){
         User user = sqlManager.lambdaQuery(User.class).andEq(User::getId,uid).single();
         try {
+            sqlManager.update("link.delete_02_holder_link");
             ExcelReader reader = ExcelUtil.getReader(temp);
             reader.setSheet(0);
             HashMap data = new HashMap();
@@ -93,25 +122,41 @@ public class BackExcelController {
             data.put("data_flag", "02");
             data.put("add_time", nowDate);
             int total = 0;
+            JSONArray dataList = new JSONArray();
+            JSONObject extParam = linkSeachService.creatLinkParam("14", uid);
             for (int i = 1; i < rowCount; i++) {
                 List<Object> row = reader.readRow(i);
                 if(row.size() > 10){
+                    linkSeachService.writeLinkData(extParam, row);
                     ++total;
-                    data.put("id", IdUtil.createSnowflake(0,0).nextId());
+                    long id = IdUtil.createSnowflake(0,0).nextId();
+                    data.put("id", id);
                     // 0 序号
                     data.put("related_name", row.get(1));
-                    data.put("cert_code", row.get(2));
+                    data.put("cert_code", "");
                     // 3 一级支行
                     // 4 股东
                     // 5 股东身份证号
                     // 6 股东持股
-                    data.put("link_rule", row.get(7));// 7 关联类型
-                    data.put("remark_1", row.get(8));
-                    data.put("remark_2", row.get(9));
-                    data.put("remark_3", row.get(10));
-                    sqlManager.insert("list.insert_holder_link", data, null, "id");
+                    data.put("link_rule", "");// 7 关联类型
+                    data.put("remark_1", "");
+                    data.put("remark_2", "");
+                    data.put("remark_3", "");
+                    sqlManager.insert("link.insert_holder_link", data, null, "id");
+                    // TODO::
+                    RelatedPartyList d = sqlManager.single(RelatedPartyList.class, id);
+                    JSONObject item = (JSONObject) JSON.toJSON(d);
+                    JSONObject insertResData = new JSONObject();
+                    item.forEach((k,v)->{
+                        insertResData.put(U.camelToUnderline(k).toUpperCase(), v);
+                    });
+                    dataList.add(insertResData);
                 }
             }
+            linkSeachService.writeLinkData(extParam, false);
+            // 发送MQ
+//            linkImportMQSend("14", dataList, uid);
+            linkImportMQSend(extParam);
         } catch (Exception e) {
             e.printStackTrace();
             noticeService2.addNotice(SysNotice.Type.SYSTEM, uid, "导入股东关联信息失败", null);
@@ -129,6 +174,7 @@ public class BackExcelController {
     private  void  import_groupCusList(long uid, File temp){
         User user = sqlManager.lambdaQuery(User.class).andEq(User::getId,uid).single();
         try {
+            sqlManager.update("link.delete_02_group_cus");
             ExcelReader reader = ExcelUtil.getReader(temp);
             reader.setSheet(0);
             HashMap data = new HashMap();
@@ -137,6 +183,7 @@ public class BackExcelController {
             data.put("data_flag", "02");
             data.put("add_time", nowDate);
             int total = 0;
+            JSONArray dataList = new JSONArray();
             List<String> keys = Arrays.asList(
                 "cus_name",
                 "cert_code",
@@ -150,11 +197,22 @@ public class BackExcelController {
                 List<Object> row = reader.readRow(i);
                 if(row.size() > 8){
                     ++total;
-                    data.put("id", IdUtil.createSnowflake(0,0).nextId());
-                    IntStream.range(0, keys.size()).forEach(index -> data.put(keys.get(index), row.get(index+1)) );
-                    sqlManager.insert("list.insert_group_cus", data, null, "id");
+                    long id = IdUtil.createSnowflake(0,0).nextId();
+                    data.put("id", id);
+                    IntStream.range(0, keys.size()).forEach(index -> data.put(keys.get(index), String.valueOf(row.get(index+1)).trim()) );
+                    sqlManager.insert("link.insert_group_cus", data, null, "id");
+                    List<JSONObject> list = sqlManager.select("link.search_group_cus_list", JSONObject.class, C.newMap("ID", id));
+                    // TODO::
+                    JSONObject findData = new JSONObject();
+                    list.get(0).forEach((k,v)->{
+                        findData.put(U.camelToUnderline(k).toUpperCase(), v);
+                    });
+                    dataList.add(findData);
                 }
             }
+            // 发送MQ
+            linkImportMQSend("13", dataList, uid);
+
             Log.log("批量导入集团客户信息 %d 条", total);
             noticeService2.addNotice(SysNotice.Type.SYSTEM, uid, String.format("批量导入集团客户信息：总%d条", total), null);
             if(1!= uid){
@@ -172,6 +230,56 @@ public class BackExcelController {
             }
         }
     }
+
+    private void linkImportMQSend(JSONObject jsonObject){
+        ActiveMQQueue mqQueue = new ActiveMQQueue("link-infos-request");
+        jmsMessagingTemplate.convertAndSend(mqQueue , new LinkSeachService.LinkRequest(
+                jsonObject.getString("OrderId"),
+                jsonObject.getString("Sign"),
+                (File) jsonObject.get("zipPath")
+        ));
+        this.logLink(jsonObject.getString("Sign"), jsonObject.getLong("uid"));
+    }
+
+    private void logLink(
+            String sign,
+            long uid
+    ){
+        if("14".equals(sign)){
+            Log.logByUid("系统将【股东关联清单】发送至MQ", uid);
+        }else if ("13".equals(sign)){
+            Log.logByUid("系统将【集团客户清单】发送至MQ", uid);
+        }else if ("12".equals(sign)){
+            Log.logByUid("系统将【股东清单】发送至MQ", uid);
+        }else if ("11".equals(sign)){
+            Log.logByUid("系统将【关联方清单】发送至MQ", uid);
+        }
+    }
+
+    private void linkImportMQSend(String sign, JSONArray jsonArray, long uid){
+        // 11：关联方清单；12：股东清单；13：集团客户清单；14：股东关联清单；
+        ActiveMQQueue mqQueue = new ActiveMQQueue("link-infos-request");
+        // 按格式封装指令格式放入MQ
+        JSONObject result = new JSONObject();
+        SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmssSSS");//设置日期格式
+        Date nowDate = new Date();
+        result.put("OrderId", "fzsys_" + df.format(nowDate));
+        result.put("Sign", sign);
+        result.put("Content", jsonArray);
+        jmsMessagingTemplate.convertAndSend(mqQueue, result.toString());
+        this.logLink(sign, uid);
+    }
+
+    @JmsListener(destination = "link-infos-request")
+    public void linkInfosRequest(Object MQReq) throws IOException, JMSException {
+        if (MQReq instanceof TextMessage) {
+            System.out.println(((TextMessage) MQReq).getText());
+        }else if (MQReq instanceof BlobMessage) {
+            String file = IO.readContentAsString(((BlobMessage) MQReq).getInputStream());
+            System.out.println(file);
+        }
+    }
+
 
     @RequestMapping("/loanmanager/import")
     public Result importLM(
@@ -674,21 +782,6 @@ public class BackExcelController {
     /**
      * 股东清单数据导入
      */
-    @RequestMapping("/holderList/import")
-    public Result importHL(
-            MultipartFile file
-    ) {
-        long uid = AuthFilter.getUid();
-        try {
-            File temp = File.createTempFile("temp_lm_", "");
-            file.transferTo(temp);
-            ThreadUtil.execAsync(() -> import_hl(uid, temp));
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        return Result.ok();
-    }
-
     private void import_hl(long uid, File temp) {
         Date nowDate = new Date();
         RelatedPartyList entity = new RelatedPartyList();

@@ -163,24 +163,11 @@
         });
         return false;
     }
-    var uploader = uploadFactory({
+    uploadFactory({
         server: remoteOrigin + "/api/excel/auto/import",
         formData: {
             actType: "groupCusList"
         }
-    });
-    uploader.on('uploadError', function (file, res) {
-        layer.msg("导入失败！");
-        uploader.removeFile(file)
-    });
-    // 单个文件上传成功
-    uploader.on('uploadSuccess', function (file, res) {
-        if(res.success){
-            layer.msg("正在导入数据，系统稍后会将导入结果发送至收件箱，请注意查收！");
-        }else{
-            layer.msg("导入失败！请选择正确的模板导入！");
-        }
-        uploader.removeFile(file)
     });
 
     $("#btn-export").click(function () {

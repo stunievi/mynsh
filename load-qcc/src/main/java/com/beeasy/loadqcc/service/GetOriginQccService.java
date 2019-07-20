@@ -3,6 +3,7 @@ package com.beeasy.loadqcc.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.beeasy.loadqcc.ReqQccParam;
 import com.beeasy.loadqcc.entity.LoadQccDataExtParm;
 import com.beeasy.loadqcc.entity.QccCollCnName;
 import com.beeasy.loadqcc.utils.QccUtil;
@@ -13,7 +14,6 @@ import com.mongodb.client.model.UpdateOptions;
 import org.bson.Document;
 import org.osgl.util.C;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -76,9 +76,10 @@ public class GetOriginQccService {
 
     // 基本信息
     public JSONObject loadDataBlock1(
-            String keyWord,
+            ReqQccParam reqQccParam,
             LoadQccDataExtParm extParam
     ){
+        String keyWord = reqQccParam.getCompanyName();
         if(null == keyWord || keyWord.isEmpty()){
             saveErrLog("下载【基本信息数据块】时公司名为空");
             return new JSONObject();
@@ -120,12 +121,14 @@ public class GetOriginQccService {
             List<String> list = new ArrayList(persons);
             if(list.size()>0){
                 String name = list.get(0);
-                CIAEmployeeV4_GetStockRelationInfo(keyWord, name, extParam);
+                reqQccParam.setUserName(name);
+                CIAEmployeeV4_GetStockRelationInfo(reqQccParam, extParam);
             }
         }else{
             for(String personName : persons){
                 if(null != personName && !personName.isEmpty()){
-                    CIAEmployeeV4_GetStockRelationInfo(keyWord, personName, extParam);
+                    reqQccParam.setUserName(personName);
+                    CIAEmployeeV4_GetStockRelationInfo(reqQccParam, extParam);
                 }
             }
         }
@@ -159,10 +162,11 @@ public class GetOriginQccService {
     }
     // 关联族谱
     public void loadDataBlock3(
-        String keyWord,
-        String keyNo,
+        ReqQccParam reqQccParam,
         LoadQccDataExtParm extParam
     ){
+        String keyWord = reqQccParam.getCompanyName();
+        String keyNo = reqQccParam.getKeyNo();
         if(null == keyWord || keyWord.isEmpty() || null == keyNo || keyNo.isEmpty()){
             saveErrLog("下载【关联族谱数据块】时公司名或keyNo为空");
             return;
@@ -176,7 +180,7 @@ public class GetOriginQccService {
         // 企业股权穿透十层接口查询
         ECICompanyMap_GetStockAnalysisData(keyWord,extParam);
         // 企业对外投资穿透
-        ECIInvestmentThrough_GetInfo(keyWord,extParam);
+        ECIInvestmentThrough_GetInfo(reqQccParam, extParam);
     }
     // 历史信息
     public void loadDataBlock4(
@@ -236,16 +240,18 @@ public class GetOriginQccService {
 
     // 下载企查查数据
     public void loadAllData(
-            String keyWord,
+            ReqQccParam reqQccParam,
             LoadQccDataExtParm extParam
     ){
-        JSONObject comInfo = loadDataBlock1(keyWord, extParam);
+        String keyWord = reqQccParam.getCompanyName();
+        JSONObject comInfo = loadDataBlock1(reqQccParam, extParam);
         if(null == comInfo || comInfo.size() <1){
             return;
         }
         String keyNo = comInfo.getString("KeyNo");
+        reqQccParam.setKeyNo(keyNo);
         loadDataBlock2(keyWord, extParam);
-        loadDataBlock3(keyWord, keyNo, extParam);
+        loadDataBlock3(reqQccParam, extParam);
         loadDataBlock4(keyWord, extParam);
         loadDataBlock5(keyWord, keyNo, extParam);
     }
@@ -273,7 +279,7 @@ public class GetOriginQccService {
         Document dataLog = new Document()
                 .append("GetDataTime",dateNowStr)
                 .append("CollName", collName)
-                .append("collCnName", QccCollCnName.getValue(collName))
+                .append("CollCnName", QccCollCnName.getValue(collName))
                 .append("Queries", JSON.toJSONString(queries))
                 .append("OriginData", data)
                 .append("FullLink", fullLink);
@@ -318,7 +324,6 @@ public class GetOriginQccService {
             }else{
                 extParam.setErrorApi(collName, apiStatus);
             }
-
         }
 
         if(extParam.getCompanyCount() < 30){
@@ -379,7 +384,10 @@ public class GetOriginQccService {
         String dateNowStr = sdf.format(new Date());
         List filters = new ArrayList();
         for (Map.Entry<String, ?> entry : queries.entrySet()){
-            filters.add(Filters.eq("QueryParam.".concat(entry.getKey()), entry.getValue()));
+            String key = entry.getKey();
+            if(!C.newList("sign").contains(key)){
+                filters.add(Filters.eq("QueryParam.".concat(key), entry.getValue()));
+            }
         }
         if(!devModel){
             filters.add(Filters.eq("QueryParam.getDataTime", dateNowStr));
@@ -480,14 +488,15 @@ public class GetOriginQccService {
 
     /**
      *  企业关键字精确获取详细信息（basic）
-     * @param keyWord 现定为使用公司名做搜索。但企查查支持搜索关键字（公司名、注册号、社会统一信用代码或KeyNo）
+     * @param reqQccParam 现定为使用公司名做搜索。但企查查支持搜索关键字（公司名、注册号、社会统一信用代码或KeyNo）
      */
     public JSONObject ECI_GetBasicDetailsByName(
-            String keyWord,
+            ReqQccParam reqQccParam,
             LoadQccDataExtParm extParam
     ){
         Map query = C.newMap(
-                "keyWord", keyWord
+                "keyWord", reqQccParam.getCompanyName(),
+                "sign", reqQccParam.getSign()
         );
         String res = QccUtil.getData(QCC_DOMAIN_PRX + "/ECIV4/GetBasicDetailsByName", query);
         saveOriginData("ECIV4_GetBasicDetailsByName", query, res, extParam);
@@ -553,17 +562,15 @@ public class GetOriginQccService {
 
     /**
      * 企业人员董监高信息
-     * @param companyName 公司名
-     * @param name 高管名
      */
     public void CIAEmployeeV4_GetStockRelationInfo(
-        String companyName,
-        String name,
+        ReqQccParam reqQccParam,
         LoadQccDataExtParm extParam
     ){
         Map query = C.newMap(
-                "companyName", companyName,
-                "name", name
+                "companyName", reqQccParam.getCompanyName(),
+                "name", reqQccParam.getUserName(),
+                "sign", reqQccParam.getSign()
         );
         getDetailData("CIAEmployeeV4_GetStockRelationInfo", query, extParam);
     }
@@ -947,12 +954,13 @@ public class GetOriginQccService {
 
     // 企业对外投资穿透
     public void ECIInvestmentThrough_GetInfo(
-            String keyWord,
+            ReqQccParam reqQccParam,
             LoadQccDataExtParm extParam
     ){
         Map queries = C.newMap(
-                "searchKey", keyWord,
-                "percent", 0
+                "searchKey", reqQccParam.getCompanyName(),
+                "percent", 0,
+                "sign", reqQccParam.getSign()
         );
         getDetailData("ECIInvestmentThrough_GetInfo", queries, extParam);
     }

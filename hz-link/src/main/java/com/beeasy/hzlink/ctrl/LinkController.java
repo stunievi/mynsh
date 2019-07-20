@@ -23,14 +23,14 @@ public class LinkController {
     // 集团客户
     public R list(Obj query){
         return R.ok(
-                U.beetlPageQuery("list.search_group_cus_list", JSONObject.class, query)
+                U.beetlPageQuery("link.search_group_cus_list", JSONObject.class, query)
         );
     }
 
     // 股东关联
     public R list2(Obj query){
         return R.ok(
-                U.beetlPageQuery("list.search_holder_link", JSONObject.class, query)
+                U.beetlPageQuery("link.search_holder_link", JSONObject.class, query)
         );
     }
 
@@ -50,7 +50,6 @@ public class LinkController {
 //            String str = jsonArray.getString(i);
             for (Obj obj : list) {
                 try{
-
                     exec.submit(() -> {
                         var name = obj.getStr("cus_name");
                         if(StrUtil.isEmpty(name)){

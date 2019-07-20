@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>信贷数据管理 - 关联方 - 股东及股东关联</title>
+    <!--#include file="/htmlsrc/header.html" -->
+</head>
+<body>
+<div id="content">
+
+    <div class="" id="panel-form">
+    </div>
+
+    <div class="batch-operation">
+        <button type="button" class="btn btn-success" id="btn-export">
+            导出股东及股东关联台账
+        </button>
+    </div>
+    <div id="dataList">
+    </div>
+</div>
+<script>
+    $("#panel-form").html(panelFormRender3({
+        panelTitle: '筛选查询',
+        list: [
+            { label:'客户', prop:'CUS_NAME' },
+            { label:'客户号', prop:'CUS_ID' },
+            { label:'证件号码', prop:'CERT_CODE' }
+        ],
+        data: {}
+    }));
+
+    var fields = [
+        { title:'客户', field:'LOAN_CUS_NAME', width: 120},
+        { title:'证件号码', field:'CERT_CODE' },
+        { title:'贷款帐号', field:'LOAN_ACCOUNT' },
+        { title:'贷款所有行', field:'MAIN_BR_NAME', width: 120},
+        { title:'占资本净额比例', field:'RATIO' },
+        { title:'主担保方式', field:'ASSURE_MEANS_MAIN' },
+
+        { title :'开户机构', field:'OPEN_BR_ID' },
+        { title :'机构名称', field:'OPEN_BR_NAME', width: 320}
+        ,{ title :'开户日期', field:'OPEN_DATE', width: 320}
+        ,{ title :'股东类型', field:'GD_TYPE' }
+        ,{ title :'户名', field:'CUS_NAME', width: 120 }
+        ,{ title :'股金凭证号码', field:'GJPZHM' }
+        ,{ title :'股金/股票账号', field:'GPZH' }
+        ,{ title :'资格股', field:'ZGG' }
+        ,{ title :'投资股', field:'TZG' }
+        ,{ title :'股票', field:'GP' }
+        ,{ title :'股份合计', field:'GFHJ' }
+        ,{ title :'结算帐号（分红关联帐号）', field:'JSZH' }
+        ,{ title :'分红账号开户机构', field:'FHZHKHJG', width: 320}
+        ,{ title :'分红账号状态', field:'FHZHZT' }
+        ,{ title :'证件类型', field:'CERT_TYPE' }
+        ,{ title :'证件号码', field:'CERT_CODE' }
+        ,{ title :'户口地址', field:'INDIV_HOUH_REG_ADD', width: 420}
+        ,{ title :'股东联系电话', field:'PHONE' }
+        ,{ title :'移动电话', field:'MOBILE' }
+        ,{ title :'单位电话', field:'INDIV_COM_PHN' }
+        ,{ title :'家庭电话', field:'FPHONE' }
+        ,{ title :'传真', field:'FAX_CODE' }
+        ,{ title :'是否转股票', field:'IS_TURN' }
+        ,{ title :'股权登记托管确权标志', field:'GQDJTGQQ_FLG' }
+    ];
+
+    var layFields = [
+        { title: "查看", templet:function (row) {
+                return '<a href="javascript:;" class="btn btn-xs btn-default" tab-id="loan-'+row['LOAN_ACCOUNT']+'" tab-href="'+hrefUrl.loanInfo+row['LOAN_ACCOUNT']+'">查看</a>';
+            }
+        }
+    ];
+
+    layFields = layFields.concat(fields);
+
+    laytableRender({
+        cellMinWidth: 110,
+        url: remoteOrigin + "/api/linkLoan/stockHolder",
+        cols: [ layFields ],
+        onData:function(res){
+        }
+    });
+
+    $("#btn-export").click(function () {
+        formRequest({
+            url: remoteOrigin + "/api/report/export/diy/stockHolderLoan",
+            data: {
+                head: [ fields ],
+                query: $.unserialize($('[name=form-search]').serialize())
+            }
+        });
+    });
+
+</script>
+</body>
+</html>

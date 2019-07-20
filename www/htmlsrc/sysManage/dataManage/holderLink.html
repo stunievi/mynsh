@@ -145,7 +145,7 @@
     // 筛选
     function checkSubmitForm(that){
         layuiTableReload({
-            where: $("[name='form-search']").ghostsf_serialize().replace(/(\d+)-/g,'$1'),
+            where: $("[name='form-search']").serialize(),
             resHandler: function(res){
                 translateOdsInData(res.data.content);
                 return res;
@@ -181,13 +181,13 @@
                     {"field":"number","title":"序号"},
                     {"field":"relatedName","title":"关联人名称"}
                 ]],
-                query: {}
+                query: $.unserialize($('[name=form-search]').serialize())
             }
         });
     });
     $("#btn-export2").click(function () {
-        var str =$('[name=form-search]').ghostsf_serialize().replace(/(\d+)-/g,'$1');
-        location.href = remoteOrigin + "/link/FileController/groupCusListExport?DATA_FLAG=01";
+        var str =$('[name=form-search]').serialize();
+        location.href = remoteOrigin + "/link/FileController/groupCusListExport?"+str;
     });
 </script>
 </body>

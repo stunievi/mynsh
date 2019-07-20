@@ -9,6 +9,7 @@
     <script>
         var keyNoPromise = $.Deferred();
         var COMPANY_NAME =  decodeURI(getParam("keyWord"));
+        var pageFrom = getParam("from");
         var CUS_ID=  decodeURI(getParam("cusId"));
         var COMPANY_KEY_NO = getParam("keyNo") || "";
         var BOOTSTRAP_INDEX_FILED = {
@@ -73,12 +74,12 @@
         <div class="qcc-detail-inner col-xs-10" data-example-id="togglable-tabs">
             <ul id="myTabs" class="nav nav-tabs" role="tablist" style="background: #fff">
                 <li role="presentation" class="active"><a href="#base" id="base-tab" role="tab" data-toggle="tab" data-controls="base" aria-expanded="true">基本信息</a></li>
-                <li role="presentation" class=""><a href="#susong" role="tab" id="susong-tab" data-toggle="tab" data-controls="susong" title="双击展开/关闭全部">法律诉讼</a></li>
+                <li role="presentation" class="hide"><a href="#susong" role="tab" id="susong-tab" data-toggle="tab" data-controls="susong" title="双击展开/关闭全部">法律诉讼</a></li>
                 <!--<li role="presentation" class=""><a href="#run" role="tab" id="run-tab" data-toggle="tab" data-controls="run">经营状况</a></li>-->
-                <li role="presentation" class=""><a href="#fengxian" role="tab" id="fengxian-tab" data-toggle="tab" data-controls="fengxian">经营风险</a></li>
+                <li role="presentation" class="hide"><a href="#fengxian" role="tab" id="fengxian-tab" data-toggle="tab" data-controls="fengxian">经营风险</a></li>
                 <!--<li role="presentation" class=""><a href="#report" role="tab" id="report-tab" data-toggle="tab" data-controls="report">企业发展</a></li>-->
                 <!--<li role="presentation" class=""><a href="#assets" role="tab" id="assets-tab" data-toggle="tab" data-controls="assets">知识产权</a></li>-->
-                <li role="presentation" class=""><a href="#history" role="tab" id="history-tab" data-toggle="tab" data-controls="history">历史信息</a></li>
+                <li role="presentation" class="hide"><a href="#history" role="tab" id="history-tab" data-toggle="tab" data-controls="history">历史信息</a></li>
                 <li class="pull-right hide lab-hide">
                     <a href="javascript:;" class="btn" title="全屏" id="fullscreenBtn" style="background: orange;color: #fff;" ><i class="glyphicon glyphicon-resize-full"></i></a>
                 </li>
@@ -94,6 +95,13 @@
                 </li>
                 <li style="float: right;" class="eci-toolbar"><a href="javascript:;" class="btn" id="updateBtn" title="更新当前模块数据" style="background: orange;color: #fff;" ><i class="glyphicon glyphicon-refresh"></i><span>&nbsp;&nbsp;更新当前模块</span></a></li>
             </ul>
+            <script>
+                if(pageFrom == "qualCus"){
+                    $("#fengxian-tab").parent("li").removeClass("hide");
+                }else{
+                    $("#history-tab, #fengxian-tab, #susong-tab").parent("li").removeClass("hide");
+                }
+            </script>
             <div id="qcc-detail-content" class="tab-content" style="padding-top: 10px;">
                 <!--#include file="./detailsByName_1.html"-->
                 <!--#include file="./detailsByName_2.html"-->
@@ -121,11 +129,13 @@
     });
     // 滚动页面后固定顶部tab栏
     $("html,body").scroll(function () {
-        if($(this).scrollTop() > 120){
+        if($(this).scrollTop() > $('.data-tab:visible').height()){
             $("#myTabs").width($("#qcc-detail-content").width());
             $("#myTabs").addClass("fixed");
+            $('.qcc-detail-inner').css("padding-top","37.5px");
         }else{
             $("#myTabs").removeClass("fixed");
+            $('.qcc-detail-inner').css("padding-top","0");
         }
     });
     // 触发锚点
@@ -135,8 +145,9 @@
         }else{
             var target = $(this).data("href");
             var targetTop = $(target).offset().top;
-            var fixTop = targetTop > 150 ? 76 : 0;
-            $("body,html").animate({scrollTop: targetTop - fixTop})
+            // var fixTop = targetTop > 150 ? 76 : 0;
+            var fixTop = $(this).closest('.data-tab').height() + 37.4;
+            $("body,html").animate({scrollTop: targetTop - 37.4})
         }
     });
     // 折叠&&展开子模块，【仅[法律诉讼]模块支持】

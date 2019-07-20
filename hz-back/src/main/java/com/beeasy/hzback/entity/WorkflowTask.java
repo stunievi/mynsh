@@ -19,7 +19,7 @@ public class WorkflowTask {
     @AssignID("simple")
     Long id;
 
-    Long   taskId;
+    Long taskId;
     Long currentNodeInstanceId;
     Date remindTime;
     Date taskStartTime;

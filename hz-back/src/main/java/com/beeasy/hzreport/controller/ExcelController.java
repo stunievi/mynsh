@@ -190,19 +190,35 @@ public class ExcelController {
     ){
         JSONArray head = JSON.parseArray(headData);
         JSONObject query = JSON.parseObject(queryData);
+        query.put("uid", AuthFilter.getUid());
         List<JSONObject> result = null;
         String fileName = "";
         String sqlId = "";
         if("groupCusList".equals(act)){
             fileName = "集团客户信息.xlsx";
-            sqlId = "list.search_group_cus_list";
+            sqlId = "link.search_group_cus_list";
         }else if("holderLink".equals(act)){
             fileName = "股东关联信息.xlsx";
-            sqlId = "list.search_holder_link";
-        } else {
+            sqlId = "link.search_holder_link";
+        }else if("linkListLoan".equals(act)){
+            query.put("LINK_MODEL", "linkList");
+            fileName = "关联方贷款.xlsx";
+            sqlId = "link.loan_link_list";
+        }else if("groupCusLoan".equals(act)){
+            query.put("LINK_MODEL", "groupCus");
+            fileName = "集团客户贷款.xlsx";
+            sqlId = "link.loan_link_list";
+        }else if("stockHolderLoan".equals(act)){
+            query.put("LINK_MODEL", "stockHolder");
+            fileName = "股东及股东关联方贷款.xlsx";
+            sqlId = "link.loan_link_list";
+        }else {
             throw new RuntimeException("非法请求");
         }
         result = sqlManager.select( sqlId, JSONObject.class, query);
+        if(null!=result){
+            System.out.println(result.get(0).toJSONString());
+        }
         byte[] bytes = excelService.exportTableToExcel(head, JSONArray.parseArray(JSON.toJSONString(result)));
         return download(fileName, bytes);
     }

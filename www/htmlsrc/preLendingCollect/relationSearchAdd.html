@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>新增查询关联方</title>
+    <!--#include file="/htmlsrc/header.html" -->
+</head>
+<body>
+    <div id="content">
+        <div id="editForm">
+        </div>
+    </div>
+    <script>
+        $.when(getRemoteEnum(["CERT_TYPE"])).then(function (res) {
+            $("#editForm").html(panelFormRender2({
+                panelTitle:'添加关联方',
+                list:[
+                    { prop: 'CUS_NAME', label: '客户名称', required: true},
+                    { prop: 'CERT_TYPE', label: "证件类型", required: true, type:"select", vals: res["CERT_TYPE"] },
+                    { prop: 'CERT_CODE', label: "证件号码", required: true},
+                    { prop: 'ACCEPT_AMT', label: "受理金额（万元）", required: true}
+                ],
+                data: { }
+            }));
+
+            var form = $("form[name='form-search']"); // 当前form
+            $().ready(function() {
+                form.validate({
+                    rules: {
+                        cus_name: { required: true, minlength: 2 }
+                    },
+                    submitHandler: function(){
+                        if(form.valid()){
+                            var data = $.unserialize(form.serialize());
+                            postFetch(remoteOrigin + "/api/auto/LoanRelatedSearch/insert", data, function () {
+                                closeCurrentIframe();
+                            },function () {
+                                layer.msg("添加失败！");
+                            });
+                        }
+                    }
+                })
+            });
+        });
+
+        function checkSubmitForm(){
+            return false;
+        }
+    </script>
+</body>
+</html>

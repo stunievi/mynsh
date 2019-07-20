@@ -913,6 +913,8 @@ select
     d4.v_value as CLA,
     d5.v_value as ACCOUNT_STATUS,
     d6.v_value as REPAYMENT_MODE,
+    --贷前关联方查询（临时）
+    d23.v_value as LOAN_RELATED_SEARCH,
     o1.name as FINA_BR_name, o2.name as main_br_name,
     u2.COM_MAIN_OPT_SCP,
     u2.COM_PART_OPT_SCP
@@ -944,6 +946,8 @@ from RPT_M_RPT_SLS_ACCT as p1
 left join CUS_BASE as u1 on p1.CUS_ID=u1.CUS_ID
 left join  CUS_COM as u2 on p1.CUS_ID=u2.CUS_ID
 left join CUS_INDIV as u3 on p1.CUS_ID=u3.CUS_ID
+--贷前关联方查询（临时）
+left join t_loan_related_search as lrs on lrs.CERT_CODE = value(p1.PSN_CERT_CODE, p1.ENT_CERT_CODE)
 left join t_dict d1 on d1.name = 'CUST_TYPE' and d1.V_KEY = p1.CUST_TYPE
 left join t_dict d2 on d2.name = 'CERT_TYPE' and d2.V_KEY = p1.CERT_TYPE
 left join t_dict d3 on d3.name = 'ASSURE_MEANS_MAIN' and d3.V_KEY = p1.ASSURE_MEANS_MAIN
@@ -953,6 +957,8 @@ left join t_dict d6 on d6.name = 'REPAYMENT_MODE' and d6.V_KEY = p1.REPAYMENT_MO
 
 left join t_dict d21 on d21.name = 'COM_CRD_GRADE' and d21.V_KEY = u2.COM_CRD_GRADE
 left join t_dict d22 on d22.name = 'CRD_GRADE' and d22.V_KEY = u3.CRD_GRADE
+
+left join t_dict d23 on d23.name = 'LOAN_RELATED_SEARCH_RET' and d23.V_KEY = lrs.RESULT
 
 left join t_user u on u.acc_code = p1.cust_mgr
 left join t_org o1 on o1.acc_code = p1.FINA_BR_ID
@@ -1100,6 +1106,12 @@ and ((UNPD_PRIN_BAL=0) or (UNPD_PRIN_BAL is null)) and ((DELAY_INT_CUMU=0) or (D
         and g2.RELATION_LENDER = #RELATION_LENDER#
         @}
     )
+@}
+
+--贷前关联方查询（临时）
+@if(isNotEmpty(LOAN_RELATED_SEARCH)){
+    and lrs.RESULT = #LOAN_RELATED_SEARCH#
+    and lrs.OPERATOR = #uid#
 @}
 
 @pageIgnoreTag(){

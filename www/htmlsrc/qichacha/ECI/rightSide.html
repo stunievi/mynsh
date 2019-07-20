@@ -1,32 +1,32 @@
 <div class="col-xs-2">
-    <div class="panel panel-default">
+    <div class="panel panel-default right-pic1 hide">
         <div class="panel-heading">股权穿透图</div>
         <div class="panel-body" style="width:100%;text-align: center">
             <img src="/htmlsrc/qichacha/tupu/image/chuantou.png" alt="股权穿透"style="width:100%">
             <a class="btn btn-primary btn-sm tupuBtn1" href="javascript:;" target="_blank">查看股权穿透</a>
         </div>
     </div>
-    <div class="panel panel-default">
+    <div class="panel panel-default right-pic2 hide">
         <div class="panel-heading">企业图谱</div>
         <div class="panel-body" style="width:100%;text-align: center">
             <img src="/htmlsrc/qichacha/tupu/image/tupu.png" alt="企业图谱"style="width:100%">
             <a class="btn btn-primary btn-sm tupuBtn2" href="javascript:;" target="_blank">查看企业图谱</a>
         </div>
     </div>
-    <div class="panel panel-default">
+    <div class="panel panel-default right-pic3 hide">
         <div class="panel-heading">股权结构图</div>
         <div class="panel-body" style="width:100%;text-align: center">
             <img src="/htmlsrc/qichacha/tupu/image/muhou.png" alt="股权结构图"style="width:100%">
             <a class="btn btn-primary btn-sm tupuBtn3" href="javascript:;" target="_blank">查看股权结构图</a>
         </div>
     </div>
-    <!--<div class="panel panel-default">-->
-        <!--<div class="panel-heading">关联图谱</div>-->
-        <!--<div class="panel-body" style="width:100%;text-align: center">-->
-            <!--<img src="/htmlsrc/qichacha/tupu/image/muhou.png" alt="关联图谱"style="width:100%">-->
-            <!--<a class="btn btn-primary btn-sm tupuBtn3" href="javascript:;" target="_blank">查看关联图谱</a>-->
-        <!--</div>-->
-    <!--</div>-->
+    <div class="panel panel-default right-pic4 hide">
+        <div class="panel-heading">企业对外投资穿透</div>
+        <div class="panel-body" style="width:100%;text-align: center">
+            <img src="/htmlsrc/qichacha/tupu/image/chuantou.png" alt="企业对外投资穿透"style="width:100%">
+            <a class="btn btn-primary btn-sm tupuBtn4" href="javascript:;" target="_blank">企业对外投资穿透</a>
+        </div>
+    </div>
 </div>
 <script>
     var setTuPuBtnHref =  function(name, keyNo){
@@ -34,8 +34,14 @@
         $(".tupuBtn1").prop("href", "/htmlsrc/qichacha/tupu/guquanchuantou.html"+param);
         $(".tupuBtn2").prop("href", "/htmlsrc/qichacha/tupu/qiyetupu.html"+param);
         $(".tupuBtn3").prop("href", "/htmlsrc/qichacha/tupu/guquanTupu.html"+param);
+        $(".tupuBtn4").prop("href", "/htmlsrc/qichacha/tupu/guquanTzTupu.html"+param);
     }
     $.when(keyNoPromise).then(function () {
+        if(pageFrom == "qualCus"){
+            $(".right-pic4").removeClass("hide");
+        }else{
+            $(".right-pic1, .right-pic2, .right-pic3, .right-pic4").removeClass("hide");
+        }
         setTuPuBtnHref(COMPANY_NAME, COMPANY_KEY_NO);
     },function () {
         setTuPuBtnHref(COMPANY_NAME, "");

@@ -155,7 +155,8 @@
             { title :'贷款用途', field:'USE_DEC' ,width: 150},
             { title :'台帐状态', field:'ACCOUNT_STATUS' },
             { title :'客户经理ID', field:'CUST_MGR' },
-            { title :'主管机构ID', field:'MAIN_BR_ID' }
+            { title :'主管机构ID', field:'MAIN_BR_ID' },
+            { title :'贷前关联查询', field:'LOAN_RELATED_SEARCH' }
         ];
 
         var searchCond = [
@@ -208,7 +209,13 @@
                 { name: '--请选择--', val: ''}
                 , {name:"客户自身手续未完善", val:"01"}
                 ,{name:"开发商未完成竣工验收", val:"02"}
-            ] }
+            ] },
+            { label:'贷前关联查询', prop:'LOAN_RELATED_SEARCH', type:"select", vals:[
+                    { name: '--请选择--', val: ''},
+                    {val:"01",name:"是"},
+                    {val:"02",name:"否"}
+                ]
+            }
         ];
         // searchCond.push({ label:'1', prop:'lm',type:"checkbox",  checked:true, value:1 })
 

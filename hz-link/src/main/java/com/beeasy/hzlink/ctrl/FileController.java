@@ -199,7 +199,7 @@ public class FileController {
         if("01".equals(query.get("DATA_FLAG"))){
             fileName = "集团客户列表 - 系统取数.xlsx";
         }
-        List<Obj> lists = sqlManager.select("list.list1", Obj.class, query);
+        List<Obj> lists = sqlManager.select("link.search_group_cus_list", Obj.class, query);
         try {
             return ExportUtil.toXls(fileName, new ClassPathResource("excel/report_1_2.xlsx").getStream(), o(
                     "values", lists
