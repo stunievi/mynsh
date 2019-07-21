@@ -4,7 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
 import com.github.llyb120.nami.core.AopInvoke;
 import com.github.llyb120.nami.core.R;
-import com.github.llyb120.nami.json.JsonMap;
+import com.github.llyb120.nami.json.Obj;
 import com.github.llyb120.nami.server.Cookie;
 import org.beetl.sql.core.SQLReady;
 
@@ -29,7 +29,7 @@ public class Auth {
             return R.fail();
         }
         token = URLUtil.decode(token);
-        List<JsonMap> objs = sqlManager.execute(new SQLReady(String.format("select * from t_user_token where token = '%s' fetch first 1 rows only", token)), JsonMap.class);
+        List<Obj> objs = sqlManager.execute(new SQLReady(String.format("select * from t_user_token where token = '%s' fetch first 1 rows only", token)), Obj.class);
         if(objs.size() == 0){
             return R.fail();
         }

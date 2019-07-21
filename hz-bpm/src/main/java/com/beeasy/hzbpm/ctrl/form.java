@@ -10,10 +10,14 @@ import org.beetl.sql.core.engine.PageQuery;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 import static com.beeasy.hzbpm.service.MongoService.db;
 import static com.github.llyb120.nami.json.Json.a;
+import static com.github.llyb120.nami.json.Json.o;
 import static com.github.llyb120.nami.server.Vars.$get;
 import static com.github.llyb120.nami.server.Vars.$request;
 
@@ -25,22 +29,22 @@ public class form {
         if(page == null) page = 1;
         if(size == null) size = 20;
         MongoCollection<Document> collection = db.getCollection("form");
-        Json list = a();
+//        Json list = a();
         PageQuery pq = new PageQuery((long) page, (long) size);
         pq.setTotalRow(collection.countDocuments());
-        Integer finalPage = page;
-        Integer finalSize = size;
-        collection.find()
-                .sort(new Document("lastModify", -1))
-                .skip((page - 1) * size)
-                .limit(size).iterator()
-                .forEachRemaining(d -> {
-                    String id = d.getObjectId("_id").toHexString();
-                    d.put("_id", id);
-                    d.put("idex", list.size() + 1 + (finalPage - 1) * finalSize);
-                    list.add(d);
-                });
-        pq.setList(list.list());
+        Collection list = collection.aggregate(
+                a(
+                        o("$sort", o("lastModify", -1)),
+                        o("$project", o(
+                                "_id", o("$toString", "$_id"),
+                                "name",1,
+                                "form", 1,
+                                "desc", 1,
+                                "lastModify", 1
+                        ))
+                ).toBsonArray()
+        ).into(new ArrayList());
+        pq.setList((List) list);
         return Result.ok(pq);
     }
 
@@ -50,7 +54,7 @@ public class form {
         $request.put("createTime", new Date());
         $request.put("lastModify", new Date());
         String id = $request.s("_id");
-        $request.remove("_id");
+        $request.delete("_id");
         //名字
         if(StrUtil.isBlank($request.s("name"))){
             return Result.error("表单名不能为空");

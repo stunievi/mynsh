@@ -21878,8 +21878,7 @@ UE.plugins['contextmenu'] = function () {
     console.log(me)
     var lang = me.getLang("contextMenu"),
         menu;
-    var items_factory = function () {
-        return me.options.contextMenu || [
+    var items = me.options.contextMenu || [
             {label: lang['selectall'], cmdName: 'selectall'},
             {
                 label: lang.cleardoc,
@@ -22220,8 +22219,6 @@ UE.plugins['contextmenu'] = function () {
                 cmdName: 'paste'
             }
         ];
-    }
-};
     // if ( !items.length ) {
     //     return;
     // }
@@ -22234,10 +22231,10 @@ UE.plugins['contextmenu'] = function () {
         if ( menu ) {
             menu.destroy();
         }
-        var items = items_factory();
-        if(evt.target ){
-            items.shift()
-        }
+        // var items = items_factory();
+        // if(evt.target ){
+        //     items.shift()
+        // }
         for ( var i = 0, ti, contextItems = []; ti = items[i]; i++ ) {
             var last;
             (function ( item ) {
@@ -22323,6 +22320,12 @@ UE.plugins['contextmenu'] = function () {
         if ( contextItems[contextItems.length - 1] == '-' ) {
             contextItems.pop();
         }
+
+        if($(evt.target).is("[leipiplugins]")){
+            contextItems.push("-")
+        }
+
+        console.log(contextItems)
 
         menu = new UE.ui.Menu( {
             items:contextItems,

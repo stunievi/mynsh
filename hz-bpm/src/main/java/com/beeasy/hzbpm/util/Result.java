@@ -13,6 +13,13 @@ public class Result {
         return ret;
     }
 
+    public static Result ok(){
+        Result ret = new Result();
+        ret.success = true;
+        ret.data = true;
+        return ret;
+    }
+
     public static Result error(String msg){
         Result ret = new Result();
         ret.success = false;
