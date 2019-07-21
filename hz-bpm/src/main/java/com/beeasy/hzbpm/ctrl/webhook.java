@@ -8,7 +8,9 @@ public class webhook {
 
     public void hook() throws IOException {
         Async.execute(() -> {
-            Runtime.getRuntime().exec("bash /hz/build.sh");
+            Runtime runtime = Runtime.getRuntime();
+            runtime.exec("ps -ef |grep build.sh |awk '{print $2}'|xargs kill -9").waitFor();
+            runtime.exec("bash /hz/build.sh").waitFor();
         });
     }
 }
