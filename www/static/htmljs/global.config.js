@@ -489,6 +489,7 @@ var odsEnmuData = {"MORTGAGE_FLG":{"0":"否","1":"是"},"GUARANTY_TYPE":{"10001"
             	Token: top.store.get("token") || ""
 			}
             , success: function(res){
+            	layer.closeAll()
             	if(res.success || res.Status=="200"){
 					callback && callback(res.data)
 				}else{
@@ -693,5 +694,11 @@ function doIfDev(callback) {
 	if(location.origin.indexOf("localhost") > -1 || location.origin.indexOf("127.0.0.1") > -1 || location.origin.indexOf("47.94.97.138") > -1){
 		callback.call()
 	}
+}
+
+function loadTimeout() {
+	layer.load(0, {time: 5000}, function () {
+		layer.msg("请稍后重试");
+	});
 }
 

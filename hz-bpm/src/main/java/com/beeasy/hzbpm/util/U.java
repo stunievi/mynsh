@@ -1,30 +1,32 @@
 package com.beeasy.hzbpm.util;
 
 import com.alibaba.fastjson.JSON;
-import com.github.llyb120.nami.core.Obj;
+import com.github.llyb120.nami.json.Json;
 import org.beetl.sql.core.engine.PageQuery;
+import org.bson.BsonArray;
+import org.bson.BsonValue;
+import org.bson.Document;
+import org.bson.conversions.Bson;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import static com.github.llyb120.nami.core.DBService.sqlManager;
+import static com.github.llyb120.nami.ext.beetlsql.BeetlSql.sqlManager;
+
 
 public class U {
 
-    public static <T> PageQuery<T> beetlPageQuery(String sqlId, Class<T> clz, Obj params){
+    public static <T> PageQuery<T> beetlPageQuery(String sqlId, Class<T> clz, Json params){
         PageQuery pageQuery = new PageQuery<>();
         int page = 1;
         int size = 10;
         try {
-            page = params.getIntValue("pageIndex");
+            page = params.i("pageIndex");
             if(page < 1){
-                page = params.getIntValue("page");
+                page = params.i("page");
             }
-            size = params.getIntValue("pageSize");
+            size = params.i("pageSize");
             if(size < 1){
-                size = params.getIntValue("size");
+                size = params.i("size");
             }
         } finally {
             if(page < 1){
@@ -49,6 +51,19 @@ public class U {
         });
         retObj.setList(dataList);
         return retObj;
+    }
+
+    public static Document toDoc(Object object){
+        return Document.parse(JSON.toJSONString(object));
+    }
+
+    public static List<? extends Bson> toList(Collection object){
+        ArrayList<Bson> list = new ArrayList<Bson>();
+        BsonArray arr = BsonArray.parse(JSON.toJSONString(object));
+        for (BsonValue bsonValue : arr) {
+            list.add((Bson) bsonValue);
+        }
+        return (List<? extends Bson>) list;
     }
 
 }

@@ -1,14 +1,12 @@
 package com.beeasy.hzbpm.ctrl;
 
 import com.github.llyb120.nami.core.MultipartFile;
-import com.github.llyb120.nami.core.Obj;
 import com.github.llyb120.nami.core.R;
-
-import java.io.BufferedInputStream;
+import com.github.llyb120.nami.json.Json;
 
 public class MongoControlller {
 
-    public R ff(Obj query){
+    public R ff(Json query){
         MultipartFile file = null;
 
 //        ObjectId savedFile = gridFsTemplate.store(null, "", "", null);

@@ -66,7 +66,11 @@ function createElement(type, name)
     <tbody id='itemAttr'>
         <tr>
             <th><span>控件样式</span></th>
-            <th><span>可见性</span></th>
+            <th>
+                <span>
+                    自定义求值语句
+                </span>
+            </th>
         </tr>
         <tr>
             <td>
@@ -76,7 +80,9 @@ function createElement(type, name)
                 
             </td>
             <td>
-                <label class="checkbox"> <input id="orghide" type="checkbox"> 隐藏 </label>
+                <textarea type="text" id="expression" placeholder="填写该项时，类型选择无效"></textarea>
+<!--                <input type="text">-->
+<!--                <label class="checkbox"> <input id="orghide" type="checkbox"> 隐藏 </label>-->
             </td>
         </tr>
     </tbody>
@@ -89,16 +95,18 @@ window.onload = function() {
     if( UE.plugins[thePlugins].editdom ) {
         oNode = UE.plugins[thePlugins].editdom;
         var gTitle=oNode.getAttribute('title').replace(/&quot;/g,"\""),gHidden=oNode.getAttribute('orghide'),gFontSize=oNode.getAttribute('orgfontsize'),gWidth=oNode.getAttribute('orgwidth'),gType=oNode.getAttribute('orgtype');
+        var gExpression = oNode.getAttribute("expression").replace(/&quot;/g,"\"")
         gTitle = gTitle==null ? '' : gTitle;
         $G('orgname').value = gTitle;
         //if( oNode.tagName == 'INPUT' ) {}
-        if(oNode.getAttribute('orghide')=='1'){
-            $G('orghide').checked = true;
-        }
+        // if(oNode.getAttribute('orghide')=='1'){
+        //     $G('orghide').checked = true;
+        // }
         $G('orgname').value    = gTitle;
         $G('orgtype').value    = gType; 
         $G('orgwidth').value = gWidth;
         $G('orgfontsize').value = gFontSize;
+        $G('expression').value = gExpression;
     }
 }
 
@@ -113,6 +121,7 @@ dialog.onok = function (){
         return false;
     }
     var gTitle=$G('orgname').value.replace(/\"/g,"&quot;"),gFontSize=$G('orgfontsize').value,gWidth=$G('orgwidth').value,gType=$G('orgtype').value;
+    var gExpression = $G('expression').value.replace(/\"/g,"&quot;");
     if( !oNode ) {
         try {
                 /*
@@ -125,17 +134,18 @@ dialog.onok = function (){
                 }*/
                 oNode = createElement('input','leipiNewField');
                 oNode.setAttribute('type','text');
-                oNode.setAttribute('value','{macros}');
+                oNode.setAttribute('value',gExpression? gExpression: gType);
                 
                 oNode.setAttribute('title',gTitle);
                 oNode.setAttribute('name','leipiNewField');
                 oNode.setAttribute('leipiPlugins',thePlugins);
                 oNode.setAttribute('orgtype',gType); 
-                if( $G('orghide').checked ) {
-                    oNode.setAttribute('orghide', '1' ) ;
-                } else {
-                    oNode.setAttribute('orghide', '0' ) ;
-                }
+                oNode.setAttribute("expression", gExpression);
+                // if( $G('orghide').checked ) {
+                //     oNode.setAttribute('orghide', '1' ) ;
+                // } else {
+                //     oNode.setAttribute('orghide', '0' ) ;
+                // }
                 if( gFontSize != '' ) {
                     oNode.style.fontSize = gFontSize + 'px';
                     oNode.setAttribute('orgfontsize',gFontSize );
@@ -171,11 +181,11 @@ dialog.onok = function (){
         oNewNode.setAttribute('name',norgname);
         oNewNode.setAttribute('leipiPlugins',thePlugins ); 
         oNewNode.setAttribute('orgtype',gType); 
-        if( $G('orghide').checked ) {
-            oNewNode.setAttribute('orghide', '1' ) ;
-        } else {
-            oNewNode.setAttribute('orghide', '0' ) ;
-        }
+        // if( $G('orghide').checked ) {
+        //     oNewNode.setAttribute('orghide', '1' ) ;
+        // } else {
+        //     oNewNode.setAttribute('orghide', '0' ) ;
+        // }
         if( gFontSize != '' ) {
             oNewNode.style.fontSize = gFontSize + 'px';
             oNewNode.setAttribute('orgfontsize',gFontSize );
