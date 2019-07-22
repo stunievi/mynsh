@@ -103,6 +103,7 @@ public class QccService extends AbstractService{
         registerRoute("/ECICompanyMap/GetStockAnalysisData", service::GetStockAnalysisData);
         //附加的借口
         registerRoute("/interface/count", service::getInterfaceCount);
+        registerRoute("/qccExportData/fengxian", service::exportQccDataFengxian);
     }
 
     /**
@@ -189,6 +190,34 @@ public class QccService extends AbstractService{
             in.addAndGet(object.getInteger("count"));
         }
         return ret;
+    }
+
+
+    private Object exportQccDataFengxian(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
+        JSONArray dataArr = new JSONArray();
+        // 经营异常
+        JSONObject dataOjb1 = new JSONObject();
+        JSONArray dataList1 = new JSONArray();
+        dataOjb1.put("sheetName", "经营异常" + dataList1.size());
+        dataOjb1.put("dataList", dataList1);
+        dataArr.add(dataOjb1);
+
+        // 司法拍卖
+        JSONObject dataOjb2 = new JSONObject();
+        JSONArray dataList2 = new JSONArray();
+        dataOjb2.put("sheetName", "司法拍卖" + dataList2.size());
+        dataOjb2.put("dataList", dataList2);
+        dataArr.add(dataOjb2);
+
+        JSONObject retData = new JSONObject();
+        retData.put("eachData", dataArr);
+        JSONArray sheetNames = new JSONArray();
+        dataArr.forEach(item->{
+            JSONObject val = (JSONObject) item;
+            sheetNames.add(val.getString("sheetName"));
+        });
+        retData.put("sheetNames", sheetNames);
+        return retData;
     }
 
 
