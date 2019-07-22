@@ -10,18 +10,27 @@
     <!--#include file="/htmlsrc/header.html" -->
     <script src="../../../static/htmljs/jstree/jstree.js"></script>
 
+
 </head>
 <body>
-<div id="content">
+<div id="content" style="flex-direction: row; display: flex; justify-content: flex-start">
 <!--    <div class="alert alert-warning">编辑完成后记得保存</div>-->
 
-    <div id="jstree_demo">
+    <div id="jstree_demo" style="width: 200px; overflow: auto;">
 
+    </div>
+    <div id="dataList" style="flex: 1;margin-left: 10px;margin-right: 10px;">
     </div>
 </div>
 
 </body>
 </html>
+<script id="toolbar" type="text/html">
+    <div class="layui-toolbar">
+        <a class="btn btn-warning btn-mini edit" href="javascript:;" data-id="{{d._id}}" >编辑</a>
+        <a class="btn btn-danger btn-mini del" del-href="{{remoteOrigin}}/api/bpm/form/delete?_id={{d._id}}">删除</a>
+    </div>
+</script>
 <script>
     function reportMenu(node) {
         // access node as: node.id);
@@ -56,6 +65,56 @@
     //     });
     //     return items
     // }
+
+    var lastClickedNode = null;
+
+    function onInfront() {
+        loadFormList(lastClickedNode);
+    }
+
+    function loadFormList(n){
+        if(!n){
+            return
+        }
+        loadTimeout();
+        getFetch("/api/bpm/form/list", {pid: n.node.original._id}, function (data) {
+            layer.closeAll();
+            $("#dataList").empty()
+            laytableRender({
+                // url: remoteOrigin + "/api/bpm/form/list",
+                // currPage: getParam("page") || 1,
+                data: data||[],
+                page:false,
+                cols: [
+                    [
+                        // {field:'idex', title:'序号', align:"center" },
+                        {field:'name', title:'表单名', align:"center" },
+                        {field:'desc', title:'表单描述', align:"center", width:250 },
+                        // {field:'createTime', title:'添加时间', align:"center"},
+                        {field:'lastModify', title:'最后修改时间', align:"center"},
+                        // {field:'trueName', title:'姓名', width: 150, align:"center" },
+                        // {field: 'username', title: '用戶名', width: 150, align:"center" },
+                        // {field:'state', title:'状态',  width: 80, align:"center"},
+                        // {field:'phone', title:'电话', width: 150, align:"center" },
+                        {title:'操作', templet: "#toolbar"}
+                    ]
+                ],
+                done: function(res, curr){
+                    layCurrPage = curr;
+                }
+                // onData : function(d){
+                //     data = d.rows;
+                //     // console.log(data)
+                // }
+            });
+        });
+
+
+    }
+
+
+
+
     loadTimeout()
     getFetch("/api/bpm/cat/all", function (msg) {
         layer.closeAll();
@@ -96,6 +155,14 @@
                             },
                             "_class": "class"
                         },
+                        createForm:{
+                            "label": "添加表单",
+                            action: function () {
+                                var ins = $("#jstree_demo").jstree();
+                                ins.show_contextmenu(node)
+                                addNavTab("bpm-form-add", "添加表单", "/htmlsrc/bpm/form/form.add.html")
+                            }
+                        },
                         renameItem: {
                             "label": "重命名",
                             "action": function(obj) {
@@ -103,10 +170,7 @@
                                     layer.msg("顶级分类无法编辑");
                                     return;
                                 }
-                                $("#jstree_demo").jstree().edit(node,function (val) {
-                                    alert(val)
-                                    console.log(val)
-                                });
+                                $("#jstree_demo").jstree().edit(node);
                             }
                         },
                         deleteItem: {
@@ -165,7 +229,26 @@
             getFetch("/api/bpm/cat/rename", {id: n.node.original._id, name: name}, function () {
                 layer.closeAll();
             });
+        }).on("select_node.jstree", function (e,n) {
+            lastClickedNode = n;
+            loadFormList(n)
         });
     });
+
+    $(document).on("click", ".edit", function () {
+        var id =  $(this).data("id");
+        addNavTab(id, "编辑表单", "/htmlsrc/bpm/form/form.add.html?id=" + id)
+    });
+
+    $(document).on("click", ".del", function () {
+        if(confirm("确认删除？")){
+            getFetch($(this).attr("del-href"), function () {
+                if(window.onInfront){
+                    window.onInfront();
+                }
+            });
+        }
+    })
+
 
 </script>
