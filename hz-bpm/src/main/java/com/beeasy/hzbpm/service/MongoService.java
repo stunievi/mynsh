@@ -16,6 +16,7 @@ import org.bson.types.ObjectId;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import static com.github.llyb120.nami.core.Config.config;
 
 public class MongoService {
@@ -28,10 +29,10 @@ public class MongoService {
     }
 
     private static void start() {
-        var cfg = config.var.getStr("mongo");
-        var colon = cfg.indexOf(":");
-        var host = "127.0.0.1";
-        var port = 27027;
+        String cfg = config.var.s("mongo");
+        int colon = cfg.indexOf(":");
+        String host = "127.0.0.1";
+        int port = 27027;
         if (colon > -1) {
             host = cfg.substring(0, colon);
             port = Integer.parseInt(cfg.substring(colon + 1));

@@ -13,8 +13,8 @@
     </div>
 
     <div class="batch-operation">
-        <button type="button" class="btn btn-success" id="download">
-            导出
+        <button type="button" class="btn btn-success" id="btn-export">
+            导出关联方贷款
         </button>
     </div>
     <div id="dataList">
@@ -28,34 +28,48 @@
             { label:'客户号', prop:'CUS_ID' },
             { label:'证件号码', prop:'CERT_CODE' }
         ],
-        data: {}
+        data: {
+            CERT_CODE: getParam("certCode")
+        }
     }));
+
+    var fields = [
+        { title:'客户', field:'LOAN_CUS_NAME', width: 80},
+        { title:'证件号码', field:'CERT_CODE' },
+        { title:'贷款帐号', field:'LOAN_ACCOUNT' },
+        { title:'贷款所有行', field:'MAIN_BR_NAME', width: 120},
+        { title:'占资本净额比例', field:'RATIO' },
+        { title:'主担保方式', field:'ASSURE_MEANS_MAIN' },
+
+        {title:'关联人名称', field:'RELATED_NAME' },
+        {title:'关联类型', field:'LINK_RULE' },
+        {title:'关联信息（要素）', field:'LINK_INFO' },
+        {title:'关联人证件号码', field:'CERT_CODE' },
+        {title:'备注信息1（关系说明）', field:'REMARK_1' },
+        {title:'备注信息2（相关信息）', field:'REMARK_2' },
+        {title:'备注信息3（控制程度）', field:'REMARK_3' }
+    ];
+    var layFields = [
+        { title: "查看", templet:function (row) {
+                return '<a href="javascript:;" class="btn btn-xs btn-default" tab-id="loan-'+row['LOAN_ACCOUNT']+'" tab-href="'+hrefUrl.loanInfo+row['LOAN_ACCOUNT']+'">查看</a>';
+            }
+        }
+    ];
+    layFields = layFields.concat(fields);
     laytableRender({
         cellMinWidth: 110,
         url: remoteOrigin + "/api/linkLoan/linkList",
-        cols: [ [
-            { title: "查看", templet:function (row) {
-                    return '<a href="javascript:;" class="btn btn-xs btn-default" tab-id="loan-'+row['LOAN_ACCOUNT']+'" tab-href="'+hrefUrl.loanInfo+row['LOAN_ACCOUNT']+'">查看</a>';
-                }
-            },
-            { title:'客户', field:'LOAN_CUS_NAME', width: 80},
-            { title:'证件号码', field:'CERT_CODE' },
-            { title:'贷款帐号', field:'LOAN_ACCOUNT' },
-            { title:'贷款所有行', field:'MAIN_BR_NAME', width: 120},
-            { title:'占资本净额比例', field:'RATIO' },
-            { title:'主担保方式', field:'ASSURE_MEANS_MAIN' },
+        cols: [ layFields ]
+    });
 
-
-            {title:'关联人名称', field:'RELATED_NAME' },
-            {title:'关联类型', field:'LINK_RULE' },
-            {title:'关联信息（要素）', field:'LINK_INFO' },
-            {title:'关联人证件号码', field:'CERT_CODE' },
-            {title:'备注信息1（关系说明）', field:'REMARK_1' },
-            {title:'备注信息2（相关信息）', field:'REMARK_2' },
-            {title:'备注信息3（控制程度）', field:'REMARK_3' }
-        ] ],
-        onData:function(res){
-        }
+    $("#btn-export").click(function () {
+        formRequest({
+            url: remoteOrigin + "/api/report/export/diy/linkListLoan",
+            data: {
+                head: [ fields ],
+                query: $.unserialize($('[name=form-search]').serialize())
+            }
+        });
     });
 </script>
 </body>

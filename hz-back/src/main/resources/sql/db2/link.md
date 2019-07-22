@@ -74,32 +74,6 @@ loan_related_search
 ---关联方查询日志
 select
 @pageTag(){
-    *
-@}
-from T_LOAN_RELATED_SEARCH where OPERATOR = #uid#
--- 证件号码
-@if(isNotEmpty(CERT_CODE)){
-    and CERT_CODE like #'%' + CERT_CODE + '%'#
-@}
--- 客户名称
-@if(isNotEmpty(CUS_NAME)){
-    and CUS_NAME like #'%' + CUS_NAME + '%'#
-@}
-@if(isNotEmpty(END_TIME)){
-    and ADD_TIME<=#END_TIME#
-@}
-@if(isNotEmpty(START_TIME)){
-    and ADD_TIME>=#START_TIME#
-@}
-@pageIgnoreTag(){
-    order by add_time desc
-@}
-
-loan_related_search_log
-===
----关联方查询日志
-select
-@pageTag(){
     search.add_time add_time,
     search.ratio ratio,
     search.cus_name cus_name,
@@ -149,6 +123,7 @@ loan_link_list
 ===
 select
 @pageTag(){
+    ROW_NUMBER()OVER(ORDER BY p1.CUS_ID) as number,
     p1.LOAN_AMOUNT,
     p1.MAIN_BR_ID,
     DB2INST1.fun_GET_ORG_BY_CODE(p1.MAIN_BR_ID) as MAIN_BR_NAME,
@@ -196,4 +171,31 @@ and d1.CERT_CODE = value(p1.PSN_CERT_CODE, p1.ENT_CERT_CODE)
 @}
 @pageIgnoreTag(){
    order by p1.ACCOUNT_STATUS 
+@}
+
+
+查询资质客户
+===
+select 
+@pageTag(){
+   cus.*,
+   user.TRUE_NAME as USER_TRUE_NAME
+@}
+from t_qual_cus as cus 
+left join t_user user on operator = user.id
+where 1=1 and ('admin' = (select username from t_user where id = #uid#) or operator = #uid#)
+-- 客户名称
+@if(isNotEmpty(CUS_NAME)){
+    and cus.CUS_NAME like #'%' + CUS_NAME + '%'#
+@}
+--客户类型
+@if(isNotEmpty(CUS_TYPE)){
+    and cus.CUS_TYPE = #CUS_TYPE#
+@}
+-- 客户名称
+@if(isNotEmpty(COMPANY_NAME)){
+    and cus.COMPANY_NAME like #'%' + COMPANY_NAME + '%'#
+@}
+@pageIgnoreTag(){
+   order by cus.ADD_TIME 
 @}
