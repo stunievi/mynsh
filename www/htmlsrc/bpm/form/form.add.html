@@ -57,6 +57,7 @@
 <script type="text/javascript">
 
     var id = getParam("id");
+    var pid = getParam("pid");
     var ajax = [
         $.get("./template.html")
     ];
@@ -350,7 +351,8 @@
                     var data = {
                         _id: $("[name=_id]").val(),
                         name: $("[name=name]").val(),
-                        desc: $("[name=desc]").val()
+                        desc: $("[name=desc]").val(),
+                        pid: pid
                         // content: leipiEditor.getContent(),
                     };
                     data.form =  leipiFormDesign.parse_form(leipiEditor.getContent());

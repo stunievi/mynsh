@@ -160,7 +160,7 @@
                             action: function () {
                                 var ins = $("#jstree_demo").jstree();
                                 ins.show_contextmenu(node)
-                                addNavTab("bpm-form-add", "添加表单", "/htmlsrc/bpm/form/form.add.html")
+                                addNavTab("bpm-form-add", "添加表单", "/htmlsrc/bpm/form/form.add.html?pid=" + node.original._id)
                             }
                         },
                         renameItem: {

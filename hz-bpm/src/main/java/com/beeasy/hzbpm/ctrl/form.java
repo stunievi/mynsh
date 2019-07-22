@@ -14,10 +14,7 @@ import org.beetl.sql.core.engine.PageQuery;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static com.beeasy.hzbpm.service.MongoService.db;
 import static com.github.llyb120.nami.json.Json.a;
@@ -29,19 +26,21 @@ public class form {
 
     public Result list(String pid){
         MongoCollection<Document> collection = db.getCollection("form");
-        Collection list = collection.aggregate(
-                a(
-                        o("$match", o("pid", o("$eq", null == pid? null : new ObjectId(pid)))),
-                        o("$sort", o("lastModify", -1)),
-                        o("$project", o(
-                                "_id", o("$toString", "$_id"),
-                                "name",1,
+        List ops = new LinkedList<>();
+        ops.add(
+                new Document("$match", new Document("pid", null == pid? null : new ObjectId(pid)))
+        );
+        ops.addAll(         a(
+                o("$sort", o("lastModify", -1)),
+                o("$project", o(
+                        "_id", o("$toString", "$_id"),
+                        "name",1,
 //                                "form", 1,
-                                "desc", 1,
-                                "lastModify", 1
-                        ))
-                ).toBsonArray()
-        ).into(new ArrayList());
+                        "desc", 1,
+                        "lastModify", 1
+                ))
+        ).toBsonArray());
+        Collection list = collection.aggregate(ops).into(new ArrayList());
         return Result.ok(list);
     }
 
@@ -58,7 +57,10 @@ public class form {
 //        $request.put("createTime", new Date());
 //        $request.put("lastModify", new Date());
         String id = $request.s("_id");
+        String pid = $request.s("pid");
         $request.remove("_id");
+        $request.remove("pid");
+
         //名字
         if(StrUtil.isBlank($request.s("name"))){
             return Result.error("表单名不能为空");
@@ -84,15 +86,14 @@ public class form {
         ObjectId mid;
         if(StrUtil.isBlank(id)){
             mid = new ObjectId();
-            //add
-//            doc = U.toDoc($request);
-//            collection.insertOne(doc);
+            //只在新增的时候放入pid
+            if(StrUtil.isNotBlank(pid)){
+                doc.put("pid", new ObjectId(pid));
+            } else {
+                doc.put("pid", null);
+            }
         } else {
             mid = new ObjectId(id);
-//            doc = U.toDoc($request);
-//            doc.put("createTime", new Date());
-//            doc.put("lastModify", new Date());
-//            collection.replaceOne(new BasicDBObject("_id", new ObjectId(id)), doc);
         }
         collection.updateOne(Filters.eq("_id", mid), new Document("$set", doc), new UpdateOptions().upsert(true));
         return (Result.ok(doc));
