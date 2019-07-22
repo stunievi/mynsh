@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 绑定表单</title>
+    <!--#include file="/htmlsrc/header.html" -->
+    <!--<script src="/static/vendor/bootcss/js/bootstrap-suggest.js"></script>-->
+    <link rel="stylesheet" href="/static/vendor/ztree/css/zTreeStyle/zTreeStyle.css">
+    <script src="/static/vendor/ztree/js/jquery.ztree.all.min.js"></script>
+    <script src="/static/vendor/bootcss/js/bootstrap-suggest.js"></script>
+    <style>
+        #content{
+            overflow: visible;
+        }
+        .dropdown-menu-right{
+            left: 0 !important;
+        }
+    </style>
+</head>
+<body>
+<div id="content">
+    <div class="col-xs-12 col-md-6" style="margin-bottom: 10px;">
+        <div class="form-group">
+            <label>输入想要查询的部门/岗位/角色并选择, 按tab添加全部</label>
+            <input type="text" class="form-control" id="suggest" value="" disabled>
+            <div class="input-group-btn">
+                <!--<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">-->
+                <!--<span class="caret"></span>-->
+                <!--</button>-->
+                <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                </ul>
+            </div>
+        </div>
+        <!-- /btn-group -->
+        <!--<input type="text" class="form-control" id="suggest">-->
+    </div>
+    <div class="col-xs-12 col-md-6" style="margin-bottom: 10px;">
+        <div class="" id="dataList">
+
+        </div>
+    </div>
+
+    <div class="col-xs-12 col-sm-6">
+        <h5>表单</h5>
+        <hr>
+        <div id="formList"></div>
+    </div>
+    <div class="col-xs-12" style="padding-top: 10px;text-align: center;">
+        <button class="btn btn-danger btn-remove-all" style="margin-right: 10px;"><i class="glyphicon glyphicon-trash"></i> 清空</button>
+        <button class="btn-save btn btn-primary"><i class="glyphicon glyphicon-ok"></i> 保存</button>
+    </div>
+</div>
+
+<script type="text/html" id="userToolbar">
+    <div class="layui-toolbar">
+        <button data-name="{{d.word}}" data-id="{{d.id}}" class="btn btn-danger btn-sm btn-remove">删除</button>
+    </div>
+</script>
+
+<script type="text/html" id="model_temp">
+    <table id="formData">
+        <tr >
+            <td>字段名</td>
+        </tr>
+        {{each formList value index}}
+        <tr>
+            <td><input class="formInfo" type="checkbox" name="list" value="{{value.name}}"><span>{{value.title}}</span><span class="hide">{{value.type}}</span></td>
+        </tr>
+        {{/each}}
+    </table>
+</script>
+<script>
+
+    var quarters = [];
+    var taskId = getParam("taskId");
+    var modelName = getParam("name");
+    var formId = getParam("formId");
+    var formList = [];
+    var selected = [];
+    var sourceData = null;
+    var items = [];
+
+    $.ajax({
+        type:"get",
+        url:"/bpm/form/queryFormData?_id="+formId,
+        async:false,
+        success:function(data){
+            var list = data.data[0].form.data;
+            console.log(">>>>",data.data[0].form.data)
+            for (var i = 0; i < list.length; i++) {
+                formList.push({"name":list[i].name,"title":list[i].title,"type":list[i].type})
+            }
+        }
+    });
+    $("#formList").html(
+        template("model_temp",{
+            formList:formList
+        })
+    );
+    var p1 = getFetch(remoteOrigin + "/api/user/org/getRQDList")
+    $.when(p1).then(function (a,b,c) {
+        var d1 = a.data;
+        var ret = {value:[]}
+        console.log("ret.value",ret.value)
+        sourceData = ret.value = $.map(d1 || [], function (v) {
+            return {word: v.fullName, id: v.id, type: v.type}
+            // return {word: (v.type == "QUARTERS" ? "[岗位]" : "[角色]") + "" + v.fullName}
+        });
+        /* var items = $.map(d2 || [], function (v) {
+             return {word: v.oname, id: v.id}
+         })*/
+        addItems(items);
+        onload()
+    });
+
+    function onload(){
+        $("#suggest").bsSuggest({
+            // url: remoteOrigin + "/api/user/org/getDQList"
+            data: {
+                value: sourceData
+            }
+            , allowNoKeyword: false
+            , multiWord: true
+            , separator: " "
+            , twoWayMatch: false
+            // , getDataMethod: "url"
+            // , jsonp: "callback"
+            , delay: 100
+            // , clearable: true
+
+            //     fnProcessData: function (data) {
+            //     if(!data.success || !data.data || !data.data.length){
+            //         return false
+            //     }
+            //
+            //     addItems([])
+            //     return ret;
+            //     // console.log(data)
+            // }
+        });
+
+    }
+    function addItems(items) {
+        $.each(items, function (i,v) {
+            selected.push(v);
+        });
+        // selected = selected.reverse()
+        var map = {};
+        $.each(selected,function (i,v) {
+            if(!v.word){
+                return;
+            }
+            //过滤不需要的
+            var target = $.grep(sourceData, function (vv) {
+                return vv.word == v.word
+            });
+            if(!target.length){
+                return;
+            }
+            map[v.word] = target[0].id +"," +target[0].type+"," +target[0].word;
+        });
+        selected = [];
+        console.log("map:",map);
+        for(var key in map){
+            selected.push({word:key,id:map[key]});
+        }
+        $("#dataList").empty();
+        laytableRender({
+            page: false,
+            cols:[
+                [
+                    {title:"部门/岗位/角色", field:"word"}
+                    , {title:"操作", templet:"#userToolbar"}
+                ]
+            ]
+            , data : selected
+        });
+    }
+    var temp = null;
+    function beforeSuggest(p) {
+        if(p.length > 0){
+            temp = $.extend({}, p);
+            // p.unshift({word:"[全部]" + $('#suggest').val()})
+        }
+    }
+    $("#suggest").on("keydown", function (e) {
+        // console.log(e.keyCode)
+        // if(e.keyCode != 13){
+        //    return;
+        // }
+        var val = $.trim($(this).val());
+        if(e.keyCode == 9 && null != temp){
+            addItems(temp);
+            temp = null;
+            $(this).val("")
+        }
+        else if(e.keyCode == 13){
+            addItems([{word:val}])
+            $(this).val("")
+        }
+    });
+    $(document).on("click", ".btn-remove", function(){
+        var name = $(this).data('name');
+        selected = $.grep(selected, function (v) {
+            return v.word != name;
+        });
+        addItems([])
+    });
+    $(document).on("mousedown", ".dropdown-menu tr", function () {
+        setTimeout(function () {
+            var val = $.trim($("#suggest").val());
+            addItems([{word:val}])
+            $("#suggest").val("")
+        },50)
+    });
+
+
+    var fulldata = null;
+    var nodeId = -1;
+    function onPageRequest(data){
+        fulldata = data.data;
+        nodeId = data.nodeId;
+
+        // if(fulldata && fulldata.ext[nodeId]){
+        //     //还原页面
+        // }
+        var startEvent = nodeId.indexOf("StartEvent_")
+        if(!startEvent){
+
+        }
+
+
+        var ext = data.data.ext;
+        console.log("还原页面值：",fulldata)
+        for(var i=0;i<ext.length;i++){
+            console.log("当前节点是否已经有值：",ext[i].taskId == nodeId)
+            if(ext[i].taskId == nodeId && fulldata){
+
+                // 表单赋值
+                var dataId = fulldata.ext[i].dataId.split(",");
+                for(var j=0;j<dataId.length;j++){
+
+                    $("input:checkbox[name='list']").each(function(){
+                        if($(this).val()==dataId[j]){
+                            $(this).attr("checked","checked");
+                        }
+                    })
+                }
+            }
+        }
+        // 岗位/部门/角色 赋值
+        var rqdElement = fulldata.rqd;
+        for(var i=0;i<rqdElement.length;i++){
+            items.push({"word":rqdElement[i].key,"id":rqdElement[i].value})
+            // addItems([{word:rqdElement[i].key}])
+        }
+        // addItems(item);
+    }
+
+    $(document).on("click",".btn-save", function () {
+        var ids = $.map($(".btn-remove[data-id]").toArray(), function (v) {
+            var id = $(v).attr("data-id")
+            return id;
+        });
+        if(ids.length == 0){
+            return
+        }
+        var quarters = [];
+        var role=[];
+        var department=[];
+        for(var i=0;i<ids.length;i++){
+            var arr = ids[i].split(",");
+            // rqd.push()
+            fulldata.rqd.push({"key":arr[2],"value":arr[0]+","+arr[1]})
+            if("QUARTERS" == arr[1]){
+                quarters.push(arr[0]);
+            }else if("DEPARTMENT" == arr[1]){
+                department.push(arr[0]);
+            }else if("ROLE" == arr[1]){
+                role.push(arr[0]);
+            }
+        }
+        dataName = $("input:checkbox[name='list']:checked").map(function(index,elem) {
+            return $(elem).val();
+        }).get().join(',');
+        dataTitle = $("input:checkbox[name='list']:checked").map(function(index,elem) {
+            return $(elem).next().text();
+        }).get().join(',');
+        dataType = $("input:checkbox[name='list']:checked").map(function(index,elem) {
+            return $(elem).next().next().text();
+        }).get().join(',');
+
+        var event = nodeId.split("_")
+        if(event.length>0){
+            if("StartEvent" == event[0]){
+                fulldata.startEvent.push({"taskId":taskId,"quarters":quarters.join(","),"role":role.join(","),"dept":department.join(","),"uid":uid,"formId":formId,"dataId":dataName,"dataTitle":dataTitle,"dataType":dataType})
+            }else if("Task" == event[0]){
+                fulldata.ext.push({"taskId":taskId,"quarters":quarters.join(","),"role":role.join(","),"dept":department.join(","),"uid":uid,"formId":formId,"dataId":dataName,"dataTitle":dataTitle,"dataType":dataType})
+            }else if("EndEvent" == event[0]){
+
+            }
+        }
+
+        closeCurrentIframe();
+
+        /*getFetch(remoteOrigin + "/api/auto/wfins/setP", {
+            objectId: getParam("id")
+            , k1: decodeURI(getParam("name"))
+            , type: type
+            , oids: ids.join(",")
+        }, function () {
+            closeCurrentIframe()
+        });*/
+    });
+
+    var uid = getParam("id"); // 用户ID
+    var roleList = []; // 角色列表
+
+    $().ready(function(){
+        var form = $("form[name='binding-form']");
+        form.validate({
+            rules: {
+                phone: { required: true, mobile:true }
+            },
+            submitHandler: function(){
+                var formData = $.unserialize(form.serialize());
+                var zTreeObj = $.fn.zTree.getZTreeObj("treeDemo")
+                var checkedNodes = zTreeObj.getCheckedNodes();
+                var ids = $.grep(checkedNodes, function (v) {
+                    return v.type == 'QUARTERS'
+                });
+                ids = $.map(ids, function (v) {
+                    return v.id;
+                });
+
+                dataName = $("input:checkbox[name='list']:checked").map(function(index,elem) {
+                    return $(elem).val();
+                }).get().join(',');
+                dataTitle = $("input:checkbox[name='list']:checked").map(function(index,elem) {
+                    return $(elem).next().text();
+                }).get().join(',');
+                dataType = $("input:checkbox[name='list']:checked").map(function(index,elem) {
+                    return $(elem).next().next().text();
+                }).get().join(',');
+                // alert($(".formInfo").next().text());
+
+                var rids = getLayuiTabelCheckIds();
+                ids = ids.concat(rids);
+
+                formData.extMap = {
+                    oids: ids
+                };
+                // formData['qids'] = [];
+                // nodes.forEach(function(item){
+                //     formData['qids'].push(item.partid)
+                // });
+                // formData['rids'] = checkedRoleIds;
+                // formData.tails = {
+                //     oids: formData.qids.concat(formData.rids)
+                // }
+
+                /*postFetch(remoteOrigin + "/bpm/BpmXmlController/saveTask",formData, function () {
+                    closeCurrentIframe();
+                });*/
+
+
+                /*if(nodeId == -1){
+                    //alert("正在请求数据，请稍后")
+                    alert("该页面不支持刷新操作，请重新打开")
+                    return;
+                }
+                fulldata.ext[nodeId] = {
+                    a:2,
+                    b:3,
+                    source: 'kjl;jl;j;jl'
+                };
+
+                closeCurrentIframe()
+
+                return false;*/
+
+                var quarters = ids.join(',');
+                var role = $("#role").val();
+                var dept = $("#dept").val();
+                var uid = $("#uid").val();
+
+                fulldata.ext.push({"taskId":taskId,"quarters":quarters,"role":role,"dept":dept,"uid":uid,"formId":formId,"dataId":dataName,"dataTitle":dataTitle,"dataType":dataType})
+
+                closeCurrentIframe();
+
+                /*$.ajax({
+                    type:"get",
+                    url: "/bpm/BpmXmlController/saveTask?taskId="+taskId+"&&quarters="+a+"&&role="+b+"&&dept="+c+"&&uid="+d+"&&formId="+formId+"&&dataId="+dataName+"&&dataTitle="+dataTitle+"&&dataType="+dataType,
+                    async:false,
+                    success:function(obj){
+                        if(obj["data"].length>0){
+                            console.log(obj)
+                        }
+                    }
+                });*/
+
+                /*$.ajax({
+                    type:"get",
+                    url: "/bpm/BpmXmlController/saveTask?taskId="+taskId+"&&quarters="+ids+"&&formId="+formId+"&&dataId="+dataName+"&&dataTitle="+dataTitle+"&&dataType="+dataType,
+                    async:false,
+                    success:function(obj){
+                        if(obj["data"].length>0){
+                            console.log(obj)
+                        }
+                    }
+                });*/
+
+                // postRemoteData({
+                //     dt: "json",
+                //     loading: true,
+                //     url: remoteApi.apiUser,
+                //     data: formData,
+                //     callback: function(){
+                //         if(parent.addUserCallback){
+                //             parent.addUserCallback();
+                //         }
+                //         parent.layer.close(index);
+                //     }
+                // })
+            }
+        })
+    })
+    function checkSubmitForm(){
+        return false;
+    }
+</script>
+</body>
+</html>

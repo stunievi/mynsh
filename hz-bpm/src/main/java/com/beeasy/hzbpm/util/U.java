@@ -2,6 +2,7 @@ package com.beeasy.hzbpm.util;
 
 import com.alibaba.fastjson.JSON;
 import com.github.llyb120.nami.json.Json;
+import com.github.llyb120.nami.json.Obj;
 import org.beetl.sql.core.engine.PageQuery;
 import org.bson.BsonArray;
 import org.bson.BsonValue;
@@ -15,7 +16,7 @@ import static com.github.llyb120.nami.ext.beetlsql.BeetlSql.sqlManager;
 
 public class U {
 
-    public static <T> PageQuery<T> beetlPageQuery(String sqlId, Class<T> clz, Json params){
+    public static <T> PageQuery<T> beetlPageQuery(String sqlId, Class<T> clz, Obj params){
         PageQuery pageQuery = new PageQuery<>();
         int page = 1;
         int size = 10;
