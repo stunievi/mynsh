@@ -182,12 +182,13 @@
     var formList = [];
     var fulldata = {
 
-        formId:1,
-        modelId:id,
-        name:"",
+        // formId:1,
+        // modelId:id,
+        // name:"",
         startEvent:[],
-        ext:[],
-        rqd:[]
+        ext:{},
+        rqd:[],
+        taskList:[]
     }
 
     $.ajax({
@@ -261,7 +262,82 @@
                     if(null != bpmXml && "" != bpmXml){
                         xml = bpmXml;
 
+                        console.log("-----",obj["data"][0].data)
+
                         $("#modelName").val(obj["data"][0].modelName);
+                        var data = obj["data"][0].data;
+                        var _formId;
+                        for(var i=0;i<data.length;i++){
+                            if(data[i].start){
+                                _formId = data[i].start[0].form.formId;
+                                var _items = data[i].start[0].form.items;
+                                var _permission = data[i].start[0].permission;
+                                var _name = [];
+                                var _title = [];
+                                var _type = [];
+                                var _dept = [];
+                                var _quarters = [];
+                                var _role = [];
+                                var _user = [];
+                                var  _taskId = data[i].taskId;
+
+                                _items.forEach(function (item) {
+                                    _name = item.name;
+                                    _title = item.title;
+                                    _type = item.type;
+                                })
+
+                                _permission.dept.forEach(function (dept) {
+                                    _dept = dept.join(",");
+                                })
+                                _permission.role.forEach(function (role) {
+                                    _role = role.join(",");
+                                })
+                                _permission.quarters.forEach(function (quarters) {
+                                    _quarters = quarters.join(",");
+                                })
+                                _permission.user.forEach(function (user) {
+                                    _user = user.join(",");
+                                })
+
+                                fulldata.ext[_taskId] = {"taskId":_taskId,"quarters":_quarters,"role":_role,"dept":_dept,"uid":_user,"formId":_formId,"dataId":_name,"dataTitle":_title,"dataType":_type}
+                            }else if(data[i].node){
+                                _formId = data[i].node[0].form.formId;
+                                var _items = data[i].node[0].form.items;
+                                var _permission = data[i].node[0].permission;
+                                var _name = [];
+                                var _title = [];
+                                var _type = [];
+                                var _dept = [];
+                                var _quarters = [];
+                                var _role = [];
+                                var _user = [];
+                                var _taskId = data[i].taskId;
+
+                                _items.forEach(function (item) {
+                                    _name = item.name;
+                                    _title = item.title;
+                                    _type = item.type;
+                                })
+
+                                _permission.dept.forEach(function (dept) {
+                                    _dept = dept.join(",");
+                                })
+                                _permission.role.forEach(function (role) {
+                                    _role = role.join(",");
+                                })
+                                _permission.quarters.forEach(function (quarters) {
+                                    _quarters = quarters.join(",");
+                                })
+                                _permission.user.forEach(function (user) {
+                                    _user = user.join(",");
+                                })
+
+                                fulldata.ext[_taskId] = {"taskId":_taskId,"quarters":_quarters,"role":_role,"dept":_dept,"uid":_user,"formId":_formId,"dataId":_name,"dataTitle":_title,"dataType":_type}
+                                console.log("ss:",fulldata.ext)
+                            }
+                        }
+
                         // $("#dealerId").val("bb");
                     }
                     // obj["data"][0].data.forEach(function(item){

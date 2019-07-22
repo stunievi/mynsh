@@ -45,6 +45,10 @@ var _menu = [
             {
                 name: "个人信息",
                 href: "/htmlsrc/bench/personalInfo.html"
+            },
+            {
+                name: "工作流",
+                href: "/htmlsrc/bpm/workFlow/workFlowManage.html"
             }
         ]
     },
@@ -1246,10 +1250,6 @@ doIfDev(function () {
                 {
                     name:"表单配置",
                     href: "/htmlsrc/bpm/form/form.html"
-                },
-                {
-                    name: "工作流",
-                    href: "/htmlsrc/bpm/workFlow/workFlowManage.html"
                 }
             ]
         }
