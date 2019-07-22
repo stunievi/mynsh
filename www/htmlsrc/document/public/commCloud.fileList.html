@@ -385,7 +385,8 @@
             pick:'#picker',
             auto:true,
             fileVal: 'filedata',
-            resize: false
+            resize: false,
+            duplicate:true
         });
         uploader.on("beforeFileQueued", function (file) {
             if(file["size"] < 1){
