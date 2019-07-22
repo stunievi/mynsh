@@ -48,41 +48,41 @@ UE.plugins['text'] = function () {
 			dialog.open();
 		}
 	};
-	var popup = new baidu.editor.ui.Popup( {
-		editor:this,
-		content: '',
-		className: 'edui-bubble',
-		_edittext: function () {
-			  baidu.editor.plugins[thePlugins].editdom = popup.anchorEl;
-			  me.execCommand(thePlugins);
-			  this.hide();
-		},
-		_delete:function(){
-			// if( window.confirm('确认删除该控件吗？') ) {
-				baidu.editor.dom.domUtils.remove(this.anchorEl,false);
-			// }
-			this.hide();
-		}
-	} );
-	popup.render();
-	me.addListener( 'mouseover', function( t, evt ) {
-		evt = evt || window.event;
-		var el = evt.target || evt.srcElement;
-        var leipiPlugins = el.getAttribute('leipiplugins');
-		if ( /input/ig.test( el.tagName ) && leipiPlugins==thePlugins) {
-			var html = popup.formatHtml(
-				'<nobr>文本框: <span onclick=$$._edittext() class="edui-clickable">编辑</span>&nbsp;&nbsp;<span onclick=$$._delete() class="edui-clickable">删除</span></nobr>' );
-			if ( html ) {
-				popup.getDom( 'content' ).innerHTML = html;
-				popup.anchorEl = el;
-				popup.showAnchor( popup.anchorEl );
-			} else {
-				popup.hide();
-			}
-		} else {
-            popup.hide()
-        }
-	});
+	// var popup = new baidu.editor.ui.Popup( {
+	// 	editor:this,
+	// 	content: '',
+	// 	className: 'edui-bubble',
+	// 	_edittext: function () {
+	// 		  baidu.editor.plugins[thePlugins].editdom = popup.anchorEl;
+	// 		  me.execCommand(thePlugins);
+	// 		  this.hide();
+	// 	},
+	// 	_delete:function(){
+	// 		// if( window.confirm('确认删除该控件吗？') ) {
+	// 			baidu.editor.dom.domUtils.remove(this.anchorEl,false);
+	// 		// }
+	// 		this.hide();
+	// 	}
+	// } );
+	// popup.render();
+	// me.addListener( 'mouseover', function( t, evt ) {
+	// 	evt = evt || window.event;
+	// 	var el = evt.target || evt.srcElement;
+    //     var leipiPlugins = el.getAttribute('leipiplugins');
+	// 	if ( /input/ig.test( el.tagName ) && leipiPlugins==thePlugins) {
+	// 		var html = popup.formatHtml(
+	// 			'<nobr>文本框: <span onclick=$$._edittext() class="edui-clickable">编辑</span>&nbsp;&nbsp;<span onclick=$$._delete() class="edui-clickable">删除</span></nobr>' );
+	// 		if ( html ) {
+	// 			popup.getDom( 'content' ).innerHTML = html;
+	// 			popup.anchorEl = el;
+	// 			popup.showAnchor( popup.anchorEl );
+	// 		} else {
+	// 			popup.hide();
+	// 		}
+	// 	} else {
+    //         popup.hide()
+    //     }
+	// });
 };
 /**
  * 宏控件
@@ -124,41 +124,41 @@ UE.plugins['macros'] = function () {
             dialog.open();
         }
     };
-    var popup = new baidu.editor.ui.Popup( {
-        editor:this,
-        content: '',
-        className: 'edui-bubble',
-        _edittext: function () {
-              baidu.editor.plugins[thePlugins].editdom = popup.anchorEl;
-              me.execCommand(thePlugins);
-              this.hide();
-        },
-        _delete:function(){
-            // if( window.confirm('确认删除该控件吗？') ) {
-                baidu.editor.dom.domUtils.remove(this.anchorEl,false);
-            // }
-            this.hide();
-        }
-    } );
-    popup.render();
-    me.addListener( 'mouseover', function( t, evt ) {
-        evt = evt || window.event;
-        var el = evt.target || evt.srcElement;
-        var leipiPlugins = el.getAttribute('leipiplugins');
-        if ( /input/ig.test( el.tagName ) && leipiPlugins==thePlugins) {
-            var html = popup.formatHtml(
-                '<nobr>宏控件: <span onclick=$$._edittext() class="edui-clickable">编辑</span>&nbsp;&nbsp;<span onclick=$$._delete() class="edui-clickable">删除</span></nobr>' );
-            if ( html ) {
-                popup.getDom( 'content' ).innerHTML = html;
-                popup.anchorEl = el;
-                popup.showAnchor( popup.anchorEl );
-            } else {
-                popup.hide();
-            }
-        } else {
-            popup.hide()
-        }
-    });
+    // var popup = new baidu.editor.ui.Popup( {
+    //     editor:this,
+    //     content: '',
+    //     className: 'edui-bubble',
+    //     _edittext: function () {
+    //           baidu.editor.plugins[thePlugins].editdom = popup.anchorEl;
+    //           me.execCommand(thePlugins);
+    //           this.hide();
+    //     },
+    //     _delete:function(){
+    //         // if( window.confirm('确认删除该控件吗？') ) {
+    //             baidu.editor.dom.domUtils.remove(this.anchorEl,false);
+    //         // }
+    //         this.hide();
+    //     }
+    // } );
+    // popup.render();
+    // me.addListener( 'mouseover', function( t, evt ) {
+    //     evt = evt || window.event;
+    //     var el = evt.target || evt.srcElement;
+    //     var leipiPlugins = el.getAttribute('leipiplugins');
+    //     if ( /input/ig.test( el.tagName ) && leipiPlugins==thePlugins) {
+    //         var html = popup.formatHtml(
+    //             '<nobr>宏控件: <span onclick=$$._edittext() class="edui-clickable">编辑</span>&nbsp;&nbsp;<span onclick=$$._delete() class="edui-clickable">删除</span></nobr>' );
+    //         if ( html ) {
+    //             popup.getDom( 'content' ).innerHTML = html;
+    //             popup.anchorEl = el;
+    //             popup.showAnchor( popup.anchorEl );
+    //         } else {
+    //             popup.hide();
+    //         }
+    //     } else {
+    //         popup.hide()
+    //     }
+    // });
 };
 /**
  * 单选框
@@ -352,43 +352,43 @@ UE.plugins['radios'] = function () {
             dialog.open();
         }
     };
-    var popup = new baidu.editor.ui.Popup( {
-        editor:this,
-        content: '',
-        className: 'edui-bubble',
-        _edittext: function () {
-              baidu.editor.plugins[thePlugins].editdom = popup.anchorEl;
-              me.execCommand(thePlugins);
-              this.hide();
-        },
-        _delete:function(){
-            // if( window.confirm('确认删除该控件吗？') ) {
-                baidu.editor.dom.domUtils.remove(this.anchorEl,false);
-            // }
-            this.hide();
-        }
-    } );
-    popup.render();
-    me.addListener( 'mouseover', function( t, evt ) {
-        evt = evt || window.event;
-        var el = evt.target || evt.srcElement;
-        var leipiPlugins = el.getAttribute('leipiplugins');
-        if ( /span/ig.test( el.tagName ) && leipiPlugins==thePlugins) {
-            var html = popup.formatHtml(
-                '<nobr>单选框组: <span onclick=$$._edittext() class="edui-clickable">编辑</span>&nbsp;&nbsp;<span onclick=$$._delete() class="edui-clickable">删除</span></nobr>' );
-            if ( html ) {
-                var elInput = el.getElementsByTagName("input");
-                var rEl = elInput.length>0 ? elInput[0] : el;
-                popup.getDom( 'content' ).innerHTML = html;
-                popup.anchorEl = el;
-                popup.showAnchor( rEl);
-            } else {
-                popup.hide();
-            }
-        } else {
-            popup.hide()
-        }
-    });
+    // var popup = new baidu.editor.ui.Popup( {
+    //     editor:this,
+    //     content: '',
+    //     className: 'edui-bubble',
+    //     _edittext: function () {
+    //           baidu.editor.plugins[thePlugins].editdom = popup.anchorEl;
+    //           me.execCommand(thePlugins);
+    //           this.hide();
+    //     },
+    //     _delete:function(){
+    //         // if( window.confirm('确认删除该控件吗？') ) {
+    //             baidu.editor.dom.domUtils.remove(this.anchorEl,false);
+    //         // }
+    //         this.hide();
+    //     }
+    // } );
+    // popup.render();
+    // me.addListener( 'mouseover', function( t, evt ) {
+    //     evt = evt || window.event;
+    //     var el = evt.target || evt.srcElement;
+    //     var leipiPlugins = el.getAttribute('leipiplugins');
+    //     if ( /span/ig.test( el.tagName ) && leipiPlugins==thePlugins) {
+    //         var html = popup.formatHtml(
+    //             '<nobr>单选框组: <span onclick=$$._edittext() class="edui-clickable">编辑</span>&nbsp;&nbsp;<span onclick=$$._delete() class="edui-clickable">删除</span></nobr>' );
+    //         if ( html ) {
+    //             var elInput = el.getElementsByTagName("input");
+    //             var rEl = elInput.length>0 ? elInput[0] : el;
+    //             popup.getDom( 'content' ).innerHTML = html;
+    //             popup.anchorEl = el;
+    //             popup.showAnchor( rEl);
+    //         } else {
+    //             popup.hide();
+    //         }
+    //     } else {
+    //         popup.hide()
+    //     }
+    // });
 };
 /**
  * 复选框组
@@ -430,43 +430,43 @@ UE.plugins['checkboxs'] = function () {
             dialog.open();
         }
     };
-    var popup = new baidu.editor.ui.Popup( {
-        editor:this,
-        content: '',
-        className: 'edui-bubble',
-        _edittext: function () {
-              baidu.editor.plugins[thePlugins].editdom = popup.anchorEl;
-              me.execCommand(thePlugins);
-              this.hide();
-        },
-        _delete:function(){
-            // if( window.confirm('确认删除该控件吗？') ) {
-                baidu.editor.dom.domUtils.remove(this.anchorEl,false);
-            // }
-            this.hide();
-        }
-    } );
-    popup.render();
-    me.addListener( 'mouseover', function( t, evt ) {
-        evt = evt || window.event;
-        var el = evt.target || evt.srcElement;
-        var leipiPlugins = el.getAttribute('leipiplugins');
-        if ( /span/ig.test( el.tagName ) && leipiPlugins==thePlugins) {
-            var html = popup.formatHtml(
-                '<nobr>复选框组: <span onclick=$$._edittext() class="edui-clickable">编辑</span>&nbsp;&nbsp;<span onclick=$$._delete() class="edui-clickable">删除</span></nobr>' );
-            if ( html ) {
-                var elInput = el.getElementsByTagName("input");
-                var rEl = elInput.length>0 ? elInput[0] : el;
-                popup.getDom( 'content' ).innerHTML = html;
-                popup.anchorEl = el;
-                popup.showAnchor( rEl);
-            } else {
-                popup.hide();
-            }
-        } else {
-            popup.hide()
-        }
-    });
+    // var popup = new baidu.editor.ui.Popup( {
+    //     editor:this,
+    //     content: '',
+    //     className: 'edui-bubble',
+    //     _edittext: function () {
+    //           baidu.editor.plugins[thePlugins].editdom = popup.anchorEl;
+    //           me.execCommand(thePlugins);
+    //           this.hide();
+    //     },
+    //     _delete:function(){
+    //         // if( window.confirm('确认删除该控件吗？') ) {
+    //             baidu.editor.dom.domUtils.remove(this.anchorEl,false);
+    //         // }
+    //         this.hide();
+    //     }
+    // } );
+    // popup.render();
+    // me.addListener( 'mouseover', function( t, evt ) {
+    //     evt = evt || window.event;
+    //     var el = evt.target || evt.srcElement;
+    //     var leipiPlugins = el.getAttribute('leipiplugins');
+    //     if ( /span/ig.test( el.tagName ) && leipiPlugins==thePlugins) {
+    //         var html = popup.formatHtml(
+    //             '<nobr>复选框组: <span onclick=$$._edittext() class="edui-clickable">编辑</span>&nbsp;&nbsp;<span onclick=$$._delete() class="edui-clickable">删除</span></nobr>' );
+    //         if ( html ) {
+    //             var elInput = el.getElementsByTagName("input");
+    //             var rEl = elInput.length>0 ? elInput[0] : el;
+    //             popup.getDom( 'content' ).innerHTML = html;
+    //             popup.anchorEl = el;
+    //             popup.showAnchor( rEl);
+    //         } else {
+    //             popup.hide();
+    //         }
+    //     } else {
+    //         popup.hide()
+    //     }
+    // });
 };
 /**
  * 多行文本框
@@ -508,40 +508,40 @@ UE.plugins['textarea'] = function () {
             dialog.open();
         }
     };
-    var popup = new baidu.editor.ui.Popup( {
-        editor:this,
-        content: '',
-        className: 'edui-bubble',
-        _edittext: function () {
-              baidu.editor.plugins[thePlugins].editdom = popup.anchorEl;
-              me.execCommand(thePlugins);
-              this.hide();
-        },
-        _delete:function(){
-            // if( window.confirm('确认删除该控件吗？') ) {
-                baidu.editor.dom.domUtils.remove(this.anchorEl,false);
-            // }
-            this.hide();
-        }
-    } );
-    popup.render();
-    me.addListener( 'mouseover', function( t, evt ) {
-        evt = evt || window.event;
-        var el = evt.target || evt.srcElement;
-        if ( /textarea/ig.test( el.tagName ) ) {
-            var html = popup.formatHtml(
-                '<nobr>多行文本框: <span onclick=$$._edittext() class="edui-clickable">编辑</span>&nbsp;&nbsp;<span onclick=$$._delete() class="edui-clickable">删除</span></nobr>' );
-            if ( html ) {
-                popup.getDom( 'content' ).innerHTML = html;
-                popup.anchorEl = el;
-                popup.showAnchor( popup.anchorEl );
-            } else {
-                popup.hide();
-            }
-        } else {
-            popup.hide()
-        }
-    });
+    // var popup = new baidu.editor.ui.Popup( {
+    //     editor:this,
+    //     content: '',
+    //     className: 'edui-bubble',
+    //     _edittext: function () {
+    //           baidu.editor.plugins[thePlugins].editdom = popup.anchorEl;
+    //           me.execCommand(thePlugins);
+    //           this.hide();
+    //     },
+    //     _delete:function(){
+    //         // if( window.confirm('确认删除该控件吗？') ) {
+    //             baidu.editor.dom.domUtils.remove(this.anchorEl,false);
+    //         // }
+    //         this.hide();
+    //     }
+    // } );
+    // popup.render();
+    // me.addListener( 'mouseover', function( t, evt ) {
+    //     evt = evt || window.event;
+    //     var el = evt.target || evt.srcElement;
+    //     if ( /textarea/ig.test( el.tagName ) ) {
+    //         var html = popup.formatHtml(
+    //             '<nobr>多行文本框: <span onclick=$$._edittext() class="edui-clickable">编辑</span>&nbsp;&nbsp;<span onclick=$$._delete() class="edui-clickable">删除</span></nobr>' );
+    //         if ( html ) {
+    //             popup.getDom( 'content' ).innerHTML = html;
+    //             popup.anchorEl = el;
+    //             popup.showAnchor( popup.anchorEl );
+    //         } else {
+    //             popup.hide();
+    //         }
+    //     } else {
+    //         popup.hide()
+    //     }
+    // });
 };
 /**
  * 下拉菜单
@@ -583,46 +583,46 @@ UE.plugins['select'] = function () {
             dialog.open();
         }
     };
-    var popup = new baidu.editor.ui.Popup( {
-        editor:this,
-        content: '',
-        className: 'edui-bubble',
-        _edittext: function () {
-              baidu.editor.plugins[thePlugins].editdom = popup.anchorEl;
-              me.execCommand(thePlugins);
-              this.hide();
-        },
-        _delete:function(){
-            // if( window.confirm('确认删除该控件吗？') ) {
-                baidu.editor.dom.domUtils.remove(this.anchorEl,false);
-            // }
-            this.hide();
-        }
-    } );
-    popup.render();
-    me.addListener( 'mouseover', function( t, evt ) {
-        evt = evt || window.event;
-        var el = evt.target || evt.srcElement;
-        var leipiPlugins = el.getAttribute('leipiplugins');
-        if ( /select|span/ig.test( el.tagName ) && leipiPlugins==thePlugins) {
-            var html = popup.formatHtml(
-                '<nobr>下拉菜单: <span onclick=$$._edittext() class="edui-clickable">编辑</span>&nbsp;&nbsp;<span onclick=$$._delete() class="edui-clickable">删除</span></nobr>' );
-            if ( html ) {
-                if(el.tagName=='SPAN')
-                {
-                    var elInput = el.getElementsByTagName("select");
-                    el = elInput.length>0 ? elInput[0] : el;
-                }
-                popup.getDom( 'content' ).innerHTML = html;
-                popup.anchorEl = el;
-                popup.showAnchor( popup.anchorEl );
-            } else {
-                popup.hide();
-            }
-        } else {
-            popup.hide()
-        }
-    });
+    // var popup = new baidu.editor.ui.Popup( {
+    //     editor:this,
+    //     content: '',
+    //     className: 'edui-bubble',
+    //     _edittext: function () {
+    //           baidu.editor.plugins[thePlugins].editdom = popup.anchorEl;
+    //           me.execCommand(thePlugins);
+    //           this.hide();
+    //     },
+    //     _delete:function(){
+    //         // if( window.confirm('确认删除该控件吗？') ) {
+    //             baidu.editor.dom.domUtils.remove(this.anchorEl,false);
+    //         // }
+    //         this.hide();
+    //     }
+    // } );
+    // popup.render();
+    // me.addListener( 'mouseover', function( t, evt ) {
+    //     evt = evt || window.event;
+    //     var el = evt.target || evt.srcElement;
+    //     var leipiPlugins = el.getAttribute('leipiplugins');
+    //     if ( /select|span/ig.test( el.tagName ) && leipiPlugins==thePlugins) {
+    //         var html = popup.formatHtml(
+    //             '<nobr>下拉菜单: <span onclick=$$._edittext() class="edui-clickable">编辑</span>&nbsp;&nbsp;<span onclick=$$._delete() class="edui-clickable">删除</span></nobr>' );
+    //         if ( html ) {
+    //             if(el.tagName=='SPAN')
+    //             {
+    //                 var elInput = el.getElementsByTagName("select");
+    //                 el = elInput.length>0 ? elInput[0] : el;
+    //             }
+    //             popup.getDom( 'content' ).innerHTML = html;
+    //             popup.anchorEl = el;
+    //             popup.showAnchor( popup.anchorEl );
+    //         } else {
+    //             popup.hide();
+    //         }
+    //     } else {
+    //         popup.hide()
+    //     }
+    // });
 
 };
 /**
@@ -665,41 +665,41 @@ UE.plugins['progressbar'] = function () {
             dialog.open();
         }
     };
-    var popup = new baidu.editor.ui.Popup( {
-        editor:this,
-        content: '',
-        className: 'edui-bubble',
-        _edittext: function () {
-              baidu.editor.plugins[thePlugins].editdom = popup.anchorEl;
-              me.execCommand(thePlugins);
-              this.hide();
-        },
-        _delete:function(){
-            // if( window.confirm('确认删除该控件吗？') ) {
-                baidu.editor.dom.domUtils.remove(this.anchorEl,false);
-            // }
-            this.hide();
-        }
-    } );
-    popup.render();
-    me.addListener( 'mouseover', function( t, evt ) {
-        evt = evt || window.event;
-        var el = evt.target || evt.srcElement;
-        var leipiPlugins = el.getAttribute('leipiplugins');
-        if ( /img/ig.test( el.tagName ) && leipiPlugins==thePlugins) {
-            var html = popup.formatHtml(
-                '<nobr>进度条: <span onclick=$$._edittext() class="edui-clickable">编辑</span>&nbsp;&nbsp;<span onclick=$$._delete() class="edui-clickable">删除</span></nobr>' );
-            if ( html ) {
-                popup.getDom( 'content' ).innerHTML = html;
-                popup.anchorEl = el;
-                popup.showAnchor( popup.anchorEl );
-            } else {
-                popup.hide();
-            }
-        } else {
-            popup.hide()
-        }
-    });
+    // var popup = new baidu.editor.ui.Popup( {
+    //     editor:this,
+    //     content: '',
+    //     className: 'edui-bubble',
+    //     _edittext: function () {
+    //           baidu.editor.plugins[thePlugins].editdom = popup.anchorEl;
+    //           me.execCommand(thePlugins);
+    //           this.hide();
+    //     },
+    //     _delete:function(){
+    //         // if( window.confirm('确认删除该控件吗？') ) {
+    //             baidu.editor.dom.domUtils.remove(this.anchorEl,false);
+    //         // }
+    //         this.hide();
+    //     }
+    // } );
+    // popup.render();
+    // me.addListener( 'mouseover', function( t, evt ) {
+    //     evt = evt || window.event;
+    //     var el = evt.target || evt.srcElement;
+    //     var leipiPlugins = el.getAttribute('leipiplugins');
+    //     if ( /img/ig.test( el.tagName ) && leipiPlugins==thePlugins) {
+    //         var html = popup.formatHtml(
+    //             '<nobr>进度条: <span onclick=$$._edittext() class="edui-clickable">编辑</span>&nbsp;&nbsp;<span onclick=$$._delete() class="edui-clickable">删除</span></nobr>' );
+    //         if ( html ) {
+    //             popup.getDom( 'content' ).innerHTML = html;
+    //             popup.anchorEl = el;
+    //             popup.showAnchor( popup.anchorEl );
+    //         } else {
+    //             popup.hide();
+    //         }
+    //     } else {
+    //         popup.hide()
+    //     }
+    // });
 };
 /**
  * 二维码
@@ -741,41 +741,41 @@ UE.plugins['qrcode'] = function () {
             dialog.open();
         }
     };
-    var popup = new baidu.editor.ui.Popup( {
-        editor:this,
-        content: '',
-        className: 'edui-bubble',
-        _edittext: function () {
-              baidu.editor.plugins[thePlugins].editdom = popup.anchorEl;
-              me.execCommand(thePlugins);
-              this.hide();
-        },
-        _delete:function(){
-            // if( window.confirm('确认删除该控件吗？') ) {
-                baidu.editor.dom.domUtils.remove(this.anchorEl,false);
-            // }
-            this.hide();
-        }
-    } );
-    popup.render();
-    me.addListener( 'mouseover', function( t, evt ) {
-        evt = evt || window.event;
-        var el = evt.target || evt.srcElement;
-        var leipiPlugins = el.getAttribute('leipiplugins');
-        if ( /img/ig.test( el.tagName ) && leipiPlugins==thePlugins) {
-            var html = popup.formatHtml(
-                '<nobr>二维码: <span onclick=$$._edittext() class="edui-clickable">编辑</span>&nbsp;&nbsp;<span onclick=$$._delete() class="edui-clickable">删除</span></nobr>' );
-            if ( html ) {
-                popup.getDom( 'content' ).innerHTML = html;
-                popup.anchorEl = el;
-                popup.showAnchor( popup.anchorEl );
-            } else {
-                popup.hide();
-            }
-        } else {
-            popup.hide()
-        }
-    });
+    // var popup = new baidu.editor.ui.Popup( {
+    //     editor:this,
+    //     content: '',
+    //     className: 'edui-bubble',
+    //     _edittext: function () {
+    //           baidu.editor.plugins[thePlugins].editdom = popup.anchorEl;
+    //           me.execCommand(thePlugins);
+    //           this.hide();
+    //     },
+    //     _delete:function(){
+    //         // if( window.confirm('确认删除该控件吗？') ) {
+    //             baidu.editor.dom.domUtils.remove(this.anchorEl,false);
+    //         // }
+    //         this.hide();
+    //     }
+    // } );
+    // popup.render();
+    // me.addListener( 'mouseover', function( t, evt ) {
+    //     evt = evt || window.event;
+    //     var el = evt.target || evt.srcElement;
+    //     var leipiPlugins = el.getAttribute('leipiplugins');
+    //     if ( /img/ig.test( el.tagName ) && leipiPlugins==thePlugins) {
+    //         var html = popup.formatHtml(
+    //             '<nobr>二维码: <span onclick=$$._edittext() class="edui-clickable">编辑</span>&nbsp;&nbsp;<span onclick=$$._delete() class="edui-clickable">删除</span></nobr>' );
+    //         if ( html ) {
+    //             popup.getDom( 'content' ).innerHTML = html;
+    //             popup.anchorEl = el;
+    //             popup.showAnchor( popup.anchorEl );
+    //         } else {
+    //             popup.hide();
+    //         }
+    //     } else {
+    //         popup.hide()
+    //     }
+    // });
 };
 /**
  * 列表控件
@@ -817,41 +817,41 @@ UE.plugins['listctrl'] = function () {
             dialog.open();
         }
     };
-    var popup = new baidu.editor.ui.Popup( {
-        editor:this,
-        content: '',
-        className: 'edui-bubble',
-        _edittext: function () {
-              baidu.editor.plugins[thePlugins].editdom = popup.anchorEl;
-              me.execCommand(thePlugins);
-              this.hide();
-        },
-        _delete:function(){
-            // if( window.confirm('确认删除该控件吗？') ) {
-                baidu.editor.dom.domUtils.remove(this.anchorEl,false);
-            // }
-            this.hide();
-        }
-    } );
-    popup.render();
-    me.addListener( 'mouseover', function( t, evt ) {
-        evt = evt || window.event;
-        var el = evt.target || evt.srcElement;
-        var leipiPlugins = el.getAttribute('leipiplugins');
-        if ( /input/ig.test( el.tagName ) && leipiPlugins==thePlugins) {
-            var html = popup.formatHtml(
-                '<nobr>列表控件: <span onclick=$$._edittext() class="edui-clickable">编辑</span>&nbsp;&nbsp;<span onclick=$$._delete() class="edui-clickable">删除</span></nobr>' );
-            if ( html ) {
-                popup.getDom( 'content' ).innerHTML = html;
-                popup.anchorEl = el;
-                popup.showAnchor( popup.anchorEl );
-            } else {
-                popup.hide();
-            }
-        } else {
-            popup.hide()
-        }
-    });
+    // var popup = new baidu.editor.ui.Popup( {
+    //     editor:this,
+    //     content: '',
+    //     className: 'edui-bubble',
+    //     _edittext: function () {
+    //           baidu.editor.plugins[thePlugins].editdom = popup.anchorEl;
+    //           me.execCommand(thePlugins);
+    //           this.hide();
+    //     },
+    //     _delete:function(){
+    //         // if( window.confirm('确认删除该控件吗？') ) {
+    //             baidu.editor.dom.domUtils.remove(this.anchorEl,false);
+    //         // }
+    //         this.hide();
+    //     }
+    // } );
+    // popup.render();
+    // me.addListener( 'mouseover', function( t, evt ) {
+    //     evt = evt || window.event;
+    //     var el = evt.target || evt.srcElement;
+    //     var leipiPlugins = el.getAttribute('leipiplugins');
+    //     if ( /input/ig.test( el.tagName ) && leipiPlugins==thePlugins) {
+    //         var html = popup.formatHtml(
+    //             '<nobr>列表控件: <span onclick=$$._edittext() class="edui-clickable">编辑</span>&nbsp;&nbsp;<span onclick=$$._delete() class="edui-clickable">删除</span></nobr>' );
+    //         if ( html ) {
+    //             popup.getDom( 'content' ).innerHTML = html;
+    //             popup.anchorEl = el;
+    //             popup.showAnchor( popup.anchorEl );
+    //         } else {
+    //             popup.hide();
+    //         }
+    //     } else {
+    //         popup.hide()
+    //     }
+    // });
 };
 
 UE.plugins['more'] = function () {
