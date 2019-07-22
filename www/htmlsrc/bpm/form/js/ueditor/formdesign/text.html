@@ -4,7 +4,7 @@
     <title>文本框</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" >
-    <meta name="generator" content="www.leipi.org" />
+
     <link rel="stylesheet" href="bootstrap/css/bootstrap.css">
     <!--[if lte IE 6]>
     <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap-ie6.css">
@@ -66,7 +66,7 @@ function createElement(type, name)
     </tr>
     <tr>
         <th><span>&nbsp;&nbsp;&nbsp;&nbsp;长&nbsp;&nbsp;X&nbsp;&nbsp;宽&nbsp;&nbsp;&nbsp;&&nbsp;&nbsp;&nbsp;字体大小</span> </th>
-        <th><span>可见性</span> </th>
+        <th><span style="display: none;">可见性</span> </th>
     </tr>
     <tr>
         <td>
@@ -78,7 +78,7 @@ function createElement(type, name)
 
         </td>
         <td>
-            <label class="checkbox inline"><input id="orghide" type="checkbox"/> 隐藏 </label>
+            <label style="display: none;"  class="checkbox inline"><input id="orghide" type="checkbox"/> 隐藏 </labels>
         </td>
     </tr>
 
@@ -163,7 +163,7 @@ dialog.onok = function (){
             try {
                 editor.execCommand('error');
             } catch ( e ) {
-                alert('控件异常，请到 [雷劈网] 反馈或寻求帮助！');
+                alert('请慢些操作...');
             }
             return false;
         }

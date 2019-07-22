@@ -625,6 +625,81 @@ UE.plugins['select'] = function () {
     // });
 
 };
+
+
+UE.plugins['datetime'] = function () {
+    var me = this,thePlugins = 'datetime';
+    me.commands[thePlugins] = {
+        execCommand:function () {
+            var dialog = new UE.ui.Dialog({
+                iframeUrl:this.options.UEDITOR_HOME_URL + UE.leipiFormDesignUrl+'/datetime.html',
+                name:thePlugins,
+                editor:this,
+                title: '日期控件',
+                cssRules:"width:590px;height:370px;",
+                buttons:[
+                    {
+                        className:'edui-okbutton',
+                        label:'确定',
+                        onclick:function () {
+                            dialog.close(true);
+                        }
+                    },
+                    {
+                        className:'edui-cancelbutton',
+                        label:'取消',
+                        onclick:function () {
+                            dialog.close(false);
+                        }
+                    }]
+            });
+            dialog.render();
+            dialog.open();
+        }
+    };
+    // var popup = new baidu.editor.ui.Popup( {
+    //     editor:this,
+    //     content: '',
+    //     className: 'edui-bubble',
+    //     _edittext: function () {
+    //           baidu.editor.plugins[thePlugins].editdom = popup.anchorEl;
+    //           me.execCommand(thePlugins);
+    //           this.hide();
+    //     },
+    //     _delete:function(){
+    //         // if( window.confirm('确认删除该控件吗？') ) {
+    //             baidu.editor.dom.domUtils.remove(this.anchorEl,false);
+    //         // }
+    //         this.hide();
+    //     }
+    // } );
+    // popup.render();
+    // me.addListener( 'mouseover', function( t, evt ) {
+    //     evt = evt || window.event;
+    //     var el = evt.target || evt.srcElement;
+    //     var leipiPlugins = el.getAttribute('leipiplugins');
+    //     if ( /select|span/ig.test( el.tagName ) && leipiPlugins==thePlugins) {
+    //         var html = popup.formatHtml(
+    //             '<nobr>下拉菜单: <span onclick=$$._edittext() class="edui-clickable">编辑</span>&nbsp;&nbsp;<span onclick=$$._delete() class="edui-clickable">删除</span></nobr>' );
+    //         if ( html ) {
+    //             if(el.tagName=='SPAN')
+    //             {
+    //                 var elInput = el.getElementsByTagName("select");
+    //                 el = elInput.length>0 ? elInput[0] : el;
+    //             }
+    //             popup.getDom( 'content' ).innerHTML = html;
+    //             popup.anchorEl = el;
+    //             popup.showAnchor( popup.anchorEl );
+    //         } else {
+    //             popup.hide();
+    //         }
+    //     } else {
+    //         popup.hide()
+    //     }
+    // });
+
+};
+
 /**
  * 进度条
  * @command progressbar

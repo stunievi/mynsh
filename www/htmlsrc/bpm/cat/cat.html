@@ -27,6 +27,7 @@
 </html>
 <script id="toolbar" type="text/html">
     <div class="layui-toolbar">
+        <a class="btn btn-primary btn-mini" href="javascript:;" tab-href='/htmlsrc/bpm/form/preview.html?id={{d._id}}' tab-title='预览' >预览</a>
         <a class="btn btn-warning btn-mini edit" href="javascript:;" data-id="{{d._id}}" >编辑</a>
         <a class="btn btn-danger btn-mini del" del-href="{{remoteOrigin}}/api/bpm/form/delete?_id={{d._id}}">删除</a>
     </div>
@@ -140,7 +141,7 @@
                     console.log()
                     return {
                         createItem: {
-                            "label": "添加类型",
+                            "label": "添加分类",
                             "action": function(obj){
                                 console.log(node)
                                 var ins = $("#jstree_demo").jstree();
