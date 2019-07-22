@@ -39,7 +39,7 @@ public class cat {
                                 )
                         )
                 )
-        ).toBsonArray()).into(new ArrayList());
+        ).toBson()).into(new ArrayList());
         return Result.ok(Json.tree(ret, "pid", "_id"));
     }
 
@@ -49,7 +49,7 @@ public class cat {
         Document doc = o(
                 "name", "新分类",
                 "pid", null
-        ).toBsonDoc();
+        ).toBson();
         if ("top".equalsIgnoreCase(pid)) {
         } else {
             doc.put("pid", new ObjectId(pid));

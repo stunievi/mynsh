@@ -27,20 +27,19 @@ public class form {
     public Result list(String pid){
         MongoCollection<Document> collection = db.getCollection("form");
         List ops = new LinkedList<>();
-        ops.add(
-                new Document("$match", new Document("pid", null == pid? null : new ObjectId(pid)))
-        );
-        ops.addAll(         a(
-                o("$sort", o("lastModify", -1)),
-                o("$project", o(
-                        "_id", o("$toString", "$_id"),
-                        "name",1,
+        Collection list = collection.aggregate(
+                a(
+                        o("$match", o("pid", null == pid? null : new ObjectId(pid))),
+                        o("$sort", o("lastModify", -1)),
+                        o("$project", o(
+                                "_id", o("$toString", "$_id"),
+                                "name",1,
 //                                "form", 1,
-                        "desc", 1,
-                        "lastModify", 1
-                ))
-        ).toBsonArray());
-        Collection list = collection.aggregate(ops).into(new ArrayList());
+                                "desc", 1,
+                                "lastModify", 1
+                        ))
+                ).toBson()
+        ).into(new ArrayList());
         return Result.ok(list);
     }
 
@@ -80,7 +79,7 @@ public class form {
 //        if(same > 0){
 //            return Result.error("已经有同名的表单");
 //        }
-        Document doc = $request.toBsonDoc();
+        Document doc = $request.toBson();
         doc.put("createTime", new Date());
         doc.put("lastModify", new Date());
         ObjectId mid;
