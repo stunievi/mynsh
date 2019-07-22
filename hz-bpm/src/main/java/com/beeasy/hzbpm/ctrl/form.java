@@ -1,9 +1,12 @@
 package com.beeasy.hzbpm.ctrl;
 
+
+
 import cn.hutool.core.util.StrUtil;
 import com.beeasy.hzbpm.util.Result;
 import com.beeasy.hzbpm.util.U;
-import com.github.llyb120.nami.json.Json;
+import com.github.llyb120.nami.core.R;
+import com.github.llyb120.nami.json.Arr;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoCollection;
 import org.beetl.sql.core.engine.PageQuery;
@@ -54,7 +57,7 @@ public class form {
         $request.put("createTime", new Date());
         $request.put("lastModify", new Date());
         String id = $request.s("_id");
-        $request.delete("_id");
+        $request.remove("_id");
         //名字
         if(StrUtil.isBlank($request.s("name"))){
             return Result.error("表单名不能为空");
@@ -103,4 +106,20 @@ public class form {
 //    private void walk(org.w3c.dom.Document node){
 //
 //    }
+
+    public R queryForm(){
+        Arr li = a();
+        db.getCollection("form").find().projection(new Document("name",1).append("_id", 1).append("form.data",1)).into(li);
+        li.forEach(o -> ((Document)o).put("_id", ((Document) o).get("_id").toString()));
+
+        return R.ok(li);
+    }
+
+    public R queryFormData(String _id){
+        Arr li = a();
+        db.getCollection("form").find(new BasicDBObject("_id", new ObjectId(_id))).into(li);
+        li.forEach(o -> ((Document)o).put("_id", ((Document) o).get("_id").toString()));
+
+        return R.ok(li);
+    }
 }

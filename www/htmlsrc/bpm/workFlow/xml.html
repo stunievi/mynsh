@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>Hello World</title>
+
+    <!-- required modeler styles -->
+    <link rel="stylesheet" href="/static/bpm/assets/diagram-js.css"/>
+    <link rel="stylesheet" href="/static/bpm/assets/bpmn-font/css/bpmn.css"/>
+
+    <!-- modeler distro -->
+    <script src="/static/bpm/bpmn-modeler.development.js" type="text/javascript"></script>
+
+    <!-- needed for this example only -->
+    <script src="/static/bpm/jquery.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="/static/vendor/artTemplate/template-web.js"></script>
+    <!--#include file="/htmlsrc/header.html" -->
+
+    <!-- example styles -->
+    <style>
+        html, body, #canvas {
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        .diagram-note {
+            background-color: rgba(66, 180, 21, 0.7);
+            color: White;
+            border-radius: 5px;
+            font-family: Arial;
+            font-size: 12px;
+            padding: 5px;
+            min-height: 16px;
+            width: 50px;
+            text-align: center;
+        }
+        .needs-discussion:not(.djs-connection) .djs-visual > :nth-child(1) {
+            stroke: rgba(66, 180, 21, 0.7) !important; /* color elements as red */
+        }
+        #save-button {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+        }
+    </style>
+</head>
+<body>
+<div id="content">
+    <div class="bs-example bs-example-tabs" data-example-id="togglable-tabs">
+        <ul id="myTabs" class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active li1"><a href="#tab1" role="tab" data-toggle="tab" aria-controls="tab1" aria-expanded="true">表单</a></li>
+            <li role="presentation" class="li2"><a href="#tab2" role="tab" data-toggle="tab" aria-controls="tab2">流程</a></li>
+        </ul>
+        <div id="myTabContent" class="tab-content">
+            <div id="panel-form">
+            </div>
+            <div class="batch-operation">
+
+                <form name="form-search" class="form-horizontal tab1" novalidate="novalidate">
+                    <div class="row panel-form-input-group">
+
+                        <div class="col-xs-12 form-group " data-show="" style="margin-top: 20px;">
+                            <label class="col-xs-3 text-right">
+                                <span style="color:red">*</span>
+                                表单
+                            </label>
+                            <div id="formId" class="col-xs-8" style="padding-right: 15px;
+                        padding-left: 15px; max-width:400px">
+
+                                <!--<select class="form-control input-sm" id="dealerId" name="dealerId" value="">
+                                    <option value="aa">aa</option>
+                                    <option value="bb">bb</option>
+                                </select>-->
+
+                            </div>
+                        </div>
+
+                        <div class="col-xs-12 form-group " data-show="">
+                            <label for="modelName" class="col-xs-3 text-right">
+
+                                <span style="color:red">*</span>
+
+                                工作流名称
+                            </label>
+                            <div class="col-xs-8" style="padding-right: 15px;
+                        padding-left: 15px; max-width:400px">
+
+                                <input type="text" class="form-control input-sm" id="modelName" name="modelName">
+
+                            </div>
+                        </div>
+                        <!--<div class="col-xs-12 form-group " data-show="">
+                            <label class="col-xs-3 text-right">
+                                <span style="color:red">*</span>
+                                可发起人
+                            </label>
+                            <div class="col-xs-8" style="padding-right: 15px;
+                        padding-left: 15px; max-width:400px">
+
+
+                            </div>
+                        </div>-->
+
+
+                    </div>
+                    <div class="col-xs-12 text-center" style="padding:20px 0;">
+                        <button type="button" href="javascript:;" class="btn btn-info" id="nextStep" style="margin-right: 10px;">
+                            下一步
+                        </button>
+
+                    </div>
+                    <!--<div class="col-xs-12 text-center" style="padding:20px 0;">
+
+                        <button type="button" href="javascript:;" class="btn btn-info" id="submitData" style="margin-right: 10px;">
+                            <i class="glyphicon glyphicon-floppy-disk"></i>
+                            保存
+                        </button>
+
+                    </div>-->
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="canvas" class="tab2 hide"></div>
+
+<button id="save-button" class="btn btn-info tab2 hide">保存</button>
+
+<script type="text/html" id="bindingForm">
+    <div class="cols-xs-12">
+        <div class="col-xs-12 col-sm-6" >
+            <h5>选择岗位</h5>
+            <hr>
+            <ul id="treeDemo" class="ztree"></ul>
+        </div>
+
+        <div class="col-xs-12 col-sm-6">
+            <h5>选择角色</h5>
+            <hr>
+            <div id="dataList"></div>
+        </div>
+    </div>
+    <div class="col-xs-12" style="margin-top:10px;">
+        <div style="padding: 5px 10px 10px 0px">
+            审批人类型<select class="form-control input-sm" id="spr" name="dealerId" value="">
+                <option value="post">岗位</option>
+                <option value="rule">角色</option>
+                <option value="uid">人员</option>
+            </select>
+            <!--{{each rules value index}}
+            <span class="rule_z">
+                <input type="checkbox" value="{{index}}" name="tRule">{{value}}</input>
+            </span>
+            <br/>
+            {{/each}}-->
+
+            {{each rData value index}}
+            <span class="rule_z">
+                <input type="checkbox" value="{{index}}" name="role">{{value.name}}</input>
+            </span>
+            {{/each}}
+        </div>
+    </div>
+    <div class="col-xs-12 text-center" style="margin-top:10px;">
+        <a type="button " class="btn btn-primary" onClick="confirmPopup()">确定</a>
+        <a type="button" class="btn btn-default" onClick="cancelPopup()">取消</a>
+    </div>
+</script>
+<script type="text/html" id="model_temp">
+    <select class="form-control input-sm" id="selectForm">
+        {{each formList value index}}
+        <!--<input type="text" class="" value="{{value.title}}">-->
+            <option value="{{value.id}}">{{value.name}}</option>
+        {{/each}}
+    </select>
+</script>
+
+<script>
+    var formList = [];
+    var fulldata = {
+
+        formId:1,
+        modelId:id,
+        name:"",
+        startEvent:[],
+        ext:[],
+        rqd:[]
+    }
+
+    $.ajax({
+        type:"get",
+        url:"/bpm/form/queryForm",
+        async:false,
+        success:function(data){
+                for (var i = 0; i < data.data.length; i++) {
+                    formList.push({"id":data.data[i]._id,"name":data.data[i].name})
+            }
+        }
+    });
+    $("#formId").html(
+        template("model_temp",{
+            formList:formList
+        })
+    );
+
+    var activeIndex = true;
+    // 点击下一步
+    $("#nextStep").click(function () {
+        $(".li2").addClass("active");
+        $(".li1").removeClass("active");
+        $(".tab2").removeClass("hide");
+        $(".tab1").addClass("hide");
+        activeIndex = false;
+    })
+    $("#myTabs li").click(function () {
+        if($(this).hasClass("active")){
+            return;
+        }
+        activeIndex = !activeIndex;
+        if(activeIndex){
+            $(".tab1").removeClass("hide");
+            $(".tab2").addClass("hide");
+        }else{
+            $(".tab2").removeClass("hide");
+            $(".tab1").addClass("hide");
+        }
+    });
+
+    var diagramUrl = 'https://cdn.rawgit.com/bpmn-io/bpmn-js-examples/dfceecba/starter/diagram.bpmn11';
+    // modeler instance
+    var bpmnModeler = new BpmnJS({
+        container: '#canvas',
+        keyboard: {
+            bindTo: window
+        }
+    });
+
+    var xml ="";
+    $.ajax({
+        type:"get",
+        url:"/static/bpm/newDiagram.bpmn",
+        async:false,
+        success:function(data){
+            xml = data;
+        }
+    });
+    var flag = getParam("flag");
+    var id = getParam("id");
+
+    if(1 == flag){
+        $.ajax({
+            type:"get",
+            url: "/bpm/BpmXmlController/queryBPMXML?_id="+id,
+            async:false,
+            success:function(obj){
+                if(obj["data"].length>0){
+                    var bpmXml = obj["data"][0].b_xml;
+                    if(null != bpmXml && "" != bpmXml){
+                        xml = bpmXml;
+
+                        $("#modelName").val(obj["data"][0].modelName);
+                        // $("#dealerId").val("bb");
+                    }
+                    // obj["data"][0].data.forEach(function(item){
+                    //     var _taskId = item.taskId;
+                    //     var _formId;
+                    //     var _name=[];
+                    //     var _title=[];
+                    //     var _type=[];
+                    //
+                    //     var _dept=[];
+                    //     var _quarters=[];
+                    //     var _role=[];
+                    //     var _user=[];
+                    //     if(item.start){
+                    //         item.start.forEach(function (e) {
+                    //             console.log("-----",e)
+                    //             /*if(e.formId){
+                    //                 _formId = e.formId;
+                    //                 for(var i=0;i<e.items.length;i++){
+                    //                     _name.push(e.items[i].name)
+                    //                     _title.push(e.items[i].title)
+                    //                     _type.push(e.items[i].type)
+                    //                 }
+                    //             }*/
+                    //             /*else if(e.dept){
+                    //                 for(var i=0;i<e.dept.length;i++){
+                    //                     _dept.push(e.dept)
+                    //                 }
+                    //             }else if(e.quarters){
+                    //                 for(var i=0;i<e.quarters.length;i++){
+                    //                     _quarters.push(e.quarters)
+                    //                 }
+                    //             }else if(e.role){
+                    //                 for(var i=0;i<e.role.length;i++){
+                    //                     _role.push(e.role)
+                    //                 }
+                    //             }else if(e.user){
+                    //                 for(var i=0;i<e.user.length;i++){
+                    //                     _user.push(e.user)
+                    //                 }
+                    //             }*/
+                    //         })
+                    //         fulldata.startEvent.push({"taskId":_taskId,"quarters":_quarters.join(","),"role":_role.join(","),"dept":_dept.join(","),"uid":_user.join(","),"formId":_formId,"dataId":_name.join(","),"dataTitle":_title.join(","),"dataType":_type.join(",")})
+                    //     }
+                    //     /*else if(item.node){
+                    //         item.node.forEach(function (e) {
+                    //             fulldata.ext.push(e)
+                    //             console.log(">>>>>>>>>>>>>>>>>>>>",e)
+                    //         })
+                    //     }*/
+                    //
+                    // });
+
+
+                }
+            }
+        });
+    }
+
+    var roleData = [];
+    // 角色
+    function getRole(){
+        $.ajax({
+            url: remoteOrigin + "/api/auto/org/getList?role=1&page=1&size=1000",
+            type: 'GET',
+            contentType: false,
+            success:function (res) {
+                if(res.success && res.data){
+                    roleData = res.data.list;
+                    console.log("data:",roleData)
+
+                }
+            }
+        });
+    }
+    getRole();
+
+    bpmnModeler.importXML(xml, function(err) {
+
+        if (err) {
+            console.log('error rendering', err);
+        } else {
+            console.log('rendered');
+        }
+    });
+
+    /**
+     * Save diagram contents and print them to the console.
+     */
+    function exportDiagram() {
+        bpmnModeler.saveXML({ format: true }, function(err, xml) {
+            if (err) {
+                return console.error('could not save BPMN 2.0 diagram', err);
+            }
+            console.log(">>>>>>>>>>>>>>>",fulldata)
+            var modelName = $("#modelName").val();
+            $.ajax({
+                url: "/bpm/BpmXmlController/saveBPMXML?xml="+xml+"&&data="+JSON.stringify(fulldata)+"&&_id="+id+"&&modelName="+modelName,
+                success: function (res) {
+                    console.log("res",res)
+                    if(!res.data || code != 200){
+                        layer.msg(res.errMessage);
+                    }
+                }
+            });
+        });
+    }
+    /**
+     * Open diagram in our modeler instance.
+     *
+     * @param {String} bpmnXML diagram to display
+     */
+    function openDiagram(bpmnXML) {
+        // import diagram
+        bpmnModeler.importXML(bpmnXML, function(err) {
+            if (err) {
+                return console.error('could not import BPMN 2.0 diagram', err);
+            }
+            // access modeler components
+            var canvas = bpmnModeler.get('canvas');
+            var overlays = bpmnModeler.get('overlays');
+            // zoom to fit full viewport
+            canvas.zoom('fit-viewport');
+            // attach an overlay to a node
+            overlays.add('SCAN_OK', 'note', {
+                position: {
+                    bottom: 0,
+                    right: 0
+                },
+                html: '<div class="diagram-note">Mixed up the labels?</div>'
+            });
+            // add marker
+            canvas.addMarker('SCAN_OK', 'needs-discussion');
+        });
+    }
+    // load external diagram file via AJAX and open it
+    $.get(diagramUrl, openDiagram, 'text');
+    // wire save button
+    $('#save-button').click(exportDiagram);
+
+    var _html = template("bindingForm",{
+        rules: {
+            "aaa": "bbb",
+            "bbb": "bbb",
+            "ccc": "<input type='text'/>asdsa"
+        },
+        rData:roleData
+    });
+
+
+    function bd(e,obj) {
+        fulldata.taskId=obj.id;
+        var modelName = $("#modelName").val();
+        var form = $("#selectForm").val();
+        console.log("当前选中id:",obj.id)
+
+        addNavTab(obj.id, "节点配置", "/htmlsrc/bpm/workFlow/bindingForm.html?taskId="+obj.id+"&&formId="+ form + "&&name"+modelName,{nodeId:obj.id, data:fulldata});
+        /*touchRuleIndex = layer.open({
+            title:'表单',
+            type: 1,
+            area: ['600px', '400px'], //宽高
+            content: _html
+        });*/
+    }
+
+    function cancelPopup(){
+        layer.close(touchRuleIndex)
+    }
+    function confirmPopup(){
+        var data = $('input:checkbox[name="tRule"]:checked').map(function () {
+            return $(this).val();
+        }).get().join(",");
+
+        SuperPost({
+            /*url: "/link/LinkController/touchRule?rule="+data,
+            success: function(res){
+                layer.close(touchRuleIndex);
+            }*/
+        })
+    }
+</script>
+</body>
+</html>

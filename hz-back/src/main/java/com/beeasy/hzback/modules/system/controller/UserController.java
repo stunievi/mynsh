@@ -400,6 +400,14 @@ public class UserController {
         ).toString();
     }
 
+    @RequestMapping(value = "/org/getRQDList")
+    public String getRQDList(
+    ){
+        return Result.ok(
+                sqlManager.execute(new SQLReady("select id, full_name, type from t_org_ext where type in ('ROLE','QUARTERS','DEPARTMENT') "),JSONObject.class)
+        ).toJson();
+    }
+
     @RequestMapping(value = "/org/getDQList")
     public String getDQList(
     ){
