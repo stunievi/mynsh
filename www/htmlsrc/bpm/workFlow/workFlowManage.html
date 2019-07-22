@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>工作流 - 工作流列表</title>
+    <!--#include file="/htmlsrc/header.html" -->
+    <style>
+        td{
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <div id="content"> 
+        <div class="" id="panel-form">
+        </div>
+        <div class="batch-operation">
+            <a type="button" class="btn btn-success handleAdd" href="javascript:;" tab-title="新增流程" >新增流程</a>
+            <script>
+                $(".handleAdd").attr("tab-href","/htmlsrc/bpm/workFlow/xml.html");
+            </script>
+        </div>
+        <div id="dataList">
+        </div>
+    </div>
+    <!-- toolbar渲染模板 -->
+    <script type="text/html" id="toolbar">
+        <div class="layui-toolbar">
+
+            <a href="javascript:;" class="btn btn-default updateBpmXml" data-id="{{d.id}}" data-loanid="" id="collect{{d.id}}" tab-href="/htmlsrc/bpm/workFlow/xml.html?flag=1&&id={{d._id}}" tab-title="修改" >修改</a>
+
+            <button type="button" class="btn btn-danger deleteBpmXml" data-id="{{d._id}}">删除</button>
+        </div>
+    </script>
+    <script>
+        /*$("#panel-form").html(panelFormRender3({
+            col:3,
+            panelTitle:'筛选查询',
+            list:[
+            ],
+            data:{} // 默认值
+        }));*/
+
+
+        // 获取数据列表并渲染
+       function onInfront(){
+            if($("#dataList table").length){
+                layuiTableReload({
+                    where: $("[name='form-search']").serialize()
+                });
+                return;
+            }
+            laytableRender({
+                // data: [data],
+                url: remoteOrigin + "/bpm/BpmXmlController/queryBPMXML",
+                cols: [
+                    [
+                        /*{ field:'_id', title:'流程id'},
+                        { field:'b_name', title:'流程'},*/
+                        { field:'modelName', title:'工作流名称'},
+                        { field:'createTime', title:'创建时间'},
+                        { title:'操作', templet: "#toolbar", width: 120}
+                    ]
+                ]
+            })
+        }
+        onInfront();
+
+        // 删除
+        $(document).on("click", ".deleteBpmXml", function(){
+            var _id =  $(this).data("id");
+            actConfirm(function(){
+                getRemoteData({
+                    url: "/bpm/BpmXmlController/deleteBPMXML?_id="+_id,
+                    callback: function(origin){
+                        alert(origin)
+                        /*layer.msg("删除成功");
+                        onInfront();*/
+                    }
+                })
+            })
+        })
+        /*$(document).on("click", ".updateBpmXml", function(){
+            var name =  $(this).data("name");
+            actConfirm(function(){
+                $.ajax({
+                    type:"get",
+                    url: "/bpm/BpmXmlController/queryBPMXML?bName="+name,
+                    success:function(obj){
+                        if(obj["data"].length>0){
+                            var xml = obj["data"][0].bpmXml;
+                            addNavTab("uptXml", "流程修改", "/htmlsrc/bpm/workFlow/xml.html?flag=1&&name="+name);
+
+                        }
+                    }
+                });
+            })
+        })*/
+
+        function addWorkNodeCallback(){
+            layuiTableReload();
+        }
+
+        // 得到当前页筛选条件
+        function getFilterData() {
+            var formObj = $.unserialize($("[name='form-search']").serialize())
+            formObj.page = currPage;
+            return formObj;
+        }
+    </script>
+</body>
+</html>
