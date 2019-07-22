@@ -1240,13 +1240,17 @@ doIfDev(function () {
             name:"流程管理",
             children: [
                 {
-                    name: "表单配置",
+                    name: "流程分类",
                     href: "/htmlsrc/bpm/cat/cat.html"
-                }
+                },
                 // {
                 //     name:"表单配置",
                 //     href: "/htmlsrc/bpm/form/form.html"
-                // }
+                // },
+                {
+                    name: "工作流",
+                    href: "/htmlsrc/bpm/workFlow/workFlowManage.html"
+                }
             ]
         }
     )

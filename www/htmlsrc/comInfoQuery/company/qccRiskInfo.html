@@ -64,7 +64,7 @@
         });
 
         $(".btn-export").click(function () {
-                var str =$('[name=form-search]').ghostsf_serialize();
+                var str =$('[name=form-search]').ghostsf_serialize().replace(/(\d+)-/g,'$1');
             location.href = remoteOrigin + "/link/FileController/riskInfoExport?" + str
             // location.href = remoteOrigin + "/api/report/export/riskInfo/exportExcel?" + str
 
