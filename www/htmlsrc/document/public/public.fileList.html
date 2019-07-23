@@ -388,6 +388,7 @@
         uploader.on('uploadError', function(file, res) {
             console.error(arguments);
             $('#'+file.id ).find('.state').text('文件上传失败，请检查文件类型是否在白名单内').addClass('info');
+            uploader.removeFile(file);
         });
         // 单个文件上传成功
         uploader.on('uploadSuccess', function(file, res) {
@@ -397,6 +398,7 @@
                 console.error(res);
                 $('#'+file.id ).find('.state').text(res.errMessage || res.msg).addClass('info');
             }
+            uploader.removeFile(file);
         });  
         // 本次添加文件全部添加到队列后
         uploader.on('filesQueued', function(files) {
