@@ -1,42 +1,59 @@
-[
-  {
-    "id": "StartEvent_1y45yut",
-    "node": [
-      {
-        "permission": {
-          "quarters": [
-            "客户经理",
-            "办事员"
-          ],
-          "role": [
-            "基础角色"
-          ],
-          "user": [
-            1,
-            2,
-            3,
-            4
-          ]
-        },
-        "form": {
-          "id": "5d2d3121f237f92903d71280",
-          "items": [{
-            "name": "data_1",
-            "title": "ha",
-            "type": "text"
-          }]
+Bpm{
+  "start": Node,
+  "end": Node
+}
 
-        }
-      }
-    ]
-  },
-  {
-    "id": "ExclusiveGateway_15hu1pt",
-    "going": [
-      {
-        "expression": "金额<=3000",
-        "nextId": "SequenceFlow_0kg28rb"
-      }
-    ]
-  }
-]
+
+Node{
+
+}
+
+
+
+
+
+
+//
+//
+//[
+//  {
+//    "id": "StartEvent_1y45yut",
+//    "node": [
+//      {
+//        "permission": {
+//          "quarters": [
+//            "客户经理",
+//            "办事员"
+//          ],
+//          "role": [
+//            "基础角色"
+//          ],
+//          "user": [
+//            1,
+//            2,
+//            3,
+//            4
+//          ]
+//        },
+//        "form": {
+//          "id": "5d2d3121f237f92903d71280",
+//          "items": [{
+//            "name": "data_1",
+//            "title": "ha",
+//            "type": "text"
+//          }]
+//
+//        }
+//      }
+//    ]
+//  },
+//  {
+//    "id": "ExclusiveGateway_15hu1pt",
+//    "going": [
+//      {
+//        "expression": "金额<=3000",
+//        "nextId": "SequenceFlow_0kg28rb"
+//      }
+//    ]
+//  }
+//]

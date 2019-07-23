@@ -116,6 +116,9 @@
                     </div>
                 </div>
 
+                <div>审批条件</div>
+
+
                 <!--<div class="col-xs-12">-->
                     <!--<div class="col-xs-12 col-md-6" style="margin-bottom: 10px;">-->
                         <!--<div class="form-group">-->
@@ -194,14 +197,14 @@
         var formList = [];
         var selected = [];
         var items = [];
+        var sourceData = null;
 
         $.ajax({
             type:"get",
-            url:"/bpm/form/queryFormData?_id="+formId,
+            url:"/api/bpm/form/queryFormData?_id="+formId,
             async:false,
             success:function(data){
                 var list = data.data[0].form.data;
-                console.log(">>>>",data.data[0].form.data)
                 for (var i = 0; i < list.length; i++) {
                     formList.push({"name":list[i].name,"title":list[i].title,"type":list[i].type})
                 }
@@ -276,8 +279,6 @@
             selected = [];
             console.log(map);
             for(var key in map){
-                console.log(key)
-                console.log(map[key])
                 selected.push({word:key,id:map[key]});
             }
             $("#dataList1").empty();
@@ -347,7 +348,10 @@
             console.log("还原页面值：",fulldata)
             // for(var i=0;i<ext.length;i++){
 
-                console.log("当前节点是否已经有值：",ext[nodeId].taskId == nodeId)
+                // console.log("当前节点是否已经有值：",ext[nodeId].taskId == nodeId)
+            if(undefined == fulldata.ext[nodeId]){
+                return;
+            }
 
                 dataIdArr = fulldata.ext[nodeId].dataId.split(",");
                 roleArr = fulldata.ext[nodeId].role.split(",");
@@ -355,6 +359,7 @@
                 quarterArr = fulldata.ext[nodeId].quarters.split(",");
 
                 // 表单赋值
+            console.log("|||",dataIdArr)
                 for(var j=0;j<dataIdArr.length;j++){
 
                     $("input:checkbox[name='list']").each(function(){
@@ -364,12 +369,21 @@
                     })
                 }
 
-                // 人员
-                var rqdElement = fulldata.rqd;
-                for(var m=0;m<rqdElement.length;m++){
-                    items.push({"word":rqdElement[m].key,"id":rqdElement[m].value})
-                    // addItems([{word:rqdElement[i].key}])
+                if(null != fulldata.ext[nodeId].uid && "" != fulldata.ext[nodeId].uid){
+                    var uu = fulldata.ext[nodeId].uid.split(",");
+                    uu.forEach(function (ite) {
+                        var rqdElement = fulldata.assUser;
+                        for(var m=0;m<rqdElement.length;m++){
+                            if(ite == rqdElement[m].value){
+                                items.push({"word":rqdElement[m].key,"id":rqdElement[m].value})
+                                // addItems([{word:rqdElement[i].key}])
+                            }
+
+                        }
+                    })
+                    // 人员
                 }
+
 
                 /*$("#role").val(fulldata.ext[i].role);
                 $("#dept").val(fulldata.ext[i].dept);
@@ -422,7 +436,7 @@
                     var uid=[];
                     for(var i=0;i<userIds.length;i++){
                         var arr = userIds[i].split(",");
-                        fulldata.rqd.push({"key":arr[1],"value":arr[0]})
+                        fulldata.assUser.push({"key":arr[1],"value":arr[0]})
                         uid.push(arr[0]);
                     }
 
