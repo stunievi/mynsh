@@ -13,8 +13,7 @@ import org.bson.BsonArray;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
-import java.util.Date;
-import java.util.UUID;
+import java.util.*;
 
 import static com.beeasy.hzbpm.service.MongoService.db;
 import static com.github.llyb120.nami.json.Json.a;
@@ -57,20 +56,38 @@ public class BpmXmlController {
         }
         JSONObject jsonObject = (JSONObject) JSON.parse($request.get("data").toString());
         JSONArray jsonArray = new JSONArray();
-        if(jsonObject.getJSONArray("startEvent").size()>0){
-            JSONArray startEvent = jsonObject.getJSONArray("startEvent");
-            JSONObject start = saveStartEvent((JSONObject) startEvent.get(0));
-            jsonArray.add(start);
+//        if(jsonObject.getJSONArray("startEvent").size()>0){
+//            JSONArray startEvent = jsonObject.getJSONArray("startEvent");
+//            JSONObject start = saveStartEvent((JSONObject) startEvent.get(0));
+//            jsonArray.add(start);
+//
+//        }
+        Set<Object> task = new HashSet<>();
+        JSONArray jr = jsonObject.getJSONArray("taskList");
+        for (Object obj : jr) {
+            JSONObject jo = (JSONObject) obj;
+            task.add(jo.get("taskId"));
+        }
+
+
+        if(jsonObject.getJSONObject("ext").size()>0){
+            for(Object t : task){
+                String [] startFlag = t.toString().split("_");
+
+                JSONObject ext = (JSONObject) jsonObject.getJSONObject("ext").get(t);
+                JSONObject object = saveTask(ext, startFlag[0]);
+                jsonArray.add(object);
+            }
 
         }
-        if(jsonObject.getJSONArray("ext").size()>0){
+        /*if(jsonObject.getJSONArray("ext").size()>0){
             JSONArray ext = jsonObject.getJSONArray("ext");
             for (Object obj : ext) {
                 JSONObject jo = (JSONObject) obj;
                 JSONObject object = saveTask(jo);
                 jsonArray.add(object);
             }
-        }
+        }*/
         System.out.println("json:"+jsonArray);
 
 
@@ -176,7 +193,7 @@ public class BpmXmlController {
     /**
      * 保存节点信息
      */
-    public JSONObject saveTask(JSONObject query){
+    public JSONObject saveTask(JSONObject query, String isStart){
 //        JSONArray jsonArray = new JSONArray();
 //        JSONObject task = new JSONObject();
 //        task.put("taskId",query.get("taskId"));
@@ -297,7 +314,11 @@ public class BpmXmlController {
 
         JSONArray nodeArr = new JSONArray();
         nodeArr.add(object);
-        jsonObject.put("node",nodeArr);
+        if("StartEvent".equals(isStart)){
+            jsonObject.put("start",nodeArr);
+        }else{
+            jsonObject.put("node",nodeArr);
+        }
         System.out.println(jsonObject);
 
         return jsonObject;
@@ -356,7 +377,7 @@ public class BpmXmlController {
             JSONObject nodeJson = new JSONObject();
             nodeJson.put("name",dataId[i]);
             nodeJson.put("title",dataTitle[i]);
-            if(dataType.length>0){
+            if(dataType.length == dataId.length){
                 nodeJson.put("type",dataType[i]);
             }
             item.add(nodeJson);

@@ -101,7 +101,7 @@
 
                     <div class="col-xs-12 col-md-6" style="margin-bottom: 10px;">
                         <div class="form-group">
-                            <label>输入想要查询的人员并选择, 按tab添加全部, 如需多个关键字, 使用逗号分隔</label>
+                            <label>输入想要查询的人员并选择, 按tab添加全部</label>
                             <input type="text" class="form-control" id="suggest" value="" disabled>
                             <div class="input-group-btn">
                                 <ul class="dropdown-menu dropdown-menu-right" role="menu">
@@ -109,7 +109,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-xs-12">
+                    <div class="col-xs-12 col-md-6" style="margin-bottom: 10px;">
                         <div id="dataList1">
                             <!-- 用户列表 -->
                         </div>
@@ -187,6 +187,7 @@
         var quarterArr = [];
         var deptArr = [];
         var roleArr = [];
+        var dataIdArr = [];
         var taskId = getParam("taskId");
         var modelName = getParam("name");
         var formId = getParam("formId");
@@ -341,92 +342,43 @@
             //     //还原页面
             // }
             var ext = data.data.ext;
+
             var _startEvent = data.data.startEvent;
             console.log("还原页面值：",fulldata)
-            for(var i=0;i<ext.length;i++){
+            // for(var i=0;i<ext.length;i++){
 
-                console.log("当前节点是否已经有值：",ext[i].taskId == nodeId)
-                if(ext[i].taskId == nodeId && fulldata){
+                console.log("当前节点是否已经有值：",ext[nodeId].taskId == nodeId)
 
+                dataIdArr = fulldata.ext[nodeId].dataId.split(",");
+                roleArr = fulldata.ext[nodeId].role.split(",");
+                deptArr = fulldata.ext[nodeId].dept.split(",");
+                quarterArr = fulldata.ext[nodeId].quarters.split(",");
 
-                    dataId = fulldata.ext[i].dataId.split(",");
-                    roleArr = fulldata.ext[i].role.split(",");
-                    deptArr = fulldata.ext[i].dept.split(",");
-                    quarterArr = fulldata.ext[i].quarters.split(",");
+                // 表单赋值
+                for(var j=0;j<dataIdArr.length;j++){
 
-
-                    // 表单赋值
-                    for(var j=0;j<dataId.length;j++){
-
-                        $("input:checkbox[name='list']").each(function(){
-                            if($(this).val()==dataId[j]){
-                                $(this).attr("checked","checked");
-                            }
-                        })
-                    }
-                    // 角色
-
-                    // 部门赋值
-                    $.fn.zTree.init($("#treeDemo1"), setting, data);
-
-
-                    // 岗位赋值
-                    $.fn.zTree.init($("#treeDemo"), setting, data);
-                    /*var treeObj = $.fn.zTree.getZTreeObj("treeDemo");
-
-                    for(var i=0;i<quarterArr.length;i++){
-                        var node = treeObj.getNodeByParam("id", quarterArr[i], null)
-                        if(null != node){
-                            treeObj.checkNode(node, true, true);
+                    $("input:checkbox[name='list']").each(function(){
+                        if($(this).val()==dataIdArr[j]){
+                            $(this).attr("checked","checked");
                         }
-                    }*/
-
-                    // 人员
-                    var rqdElement = fulldata.rqd;
-                    for(var i=0;i<rqdElement.length;i++){
-                        items.push({"word":rqdElement[i].key,"id":rqdElement[i].value})
-                        // addItems([{word:rqdElement[i].key}])
-                    }
-
-
-                    /*$("#role").val(fulldata.ext[i].role);
-                    $("#dept").val(fulldata.ext[i].dept);
-                    $("#uid").val(fulldata.ext[i].uid);
-                    $("#quarters").val(fulldata.ext[i].quarters);*/
-
-                }else if(_startEvent[i].taskId == nodeId && fulldata){
-                    dataId = fulldata.startEvent[i].dataId.split(",");
-                    roleArr = fulldata.startEvent[i].role.split(",");
-                    deptArr = fulldata.startEvent[i].dept.split(",");
-                    quarterArr = fulldata.startEvent[i].quarters.split(",");
-
-                    // 表单赋值
-                    for(var j=0;j<dataId.length;j++){
-
-                        $("input:checkbox[name='list']").each(function(){
-                            if($(this).val()==dataId[j]){
-                                $(this).attr("checked","checked");
-                            }
-                        })
-                    }
-
-                    // 部门赋值
-                    $.fn.zTree.init($("#treeDemo1"), setting, data);
-
-                    // 岗位赋值
-                    $.fn.zTree.init($("#treeDemo"), setting, data);
-
-                    // 人员
-                    var rqdElement = fulldata.rqd;
-                    for(var i=0;i<rqdElement.length;i++){
-                        items.push({"word":rqdElement[i].key,"id":rqdElement[i].value})
-                        // addItems([{word:rqdElement[i].key}])
-                    }
+                    })
                 }
-            }
+
+                // 人员
+                var rqdElement = fulldata.rqd;
+                for(var m=0;m<rqdElement.length;m++){
+                    items.push({"word":rqdElement[m].key,"id":rqdElement[m].value})
+                    // addItems([{word:rqdElement[i].key}])
+                }
+
+                /*$("#role").val(fulldata.ext[i].role);
+                $("#dept").val(fulldata.ext[i].dept);
+                $("#uid").val(fulldata.ext[i].uid);
+                $("#quarters").val(fulldata.ext[i].quarters);*/
+
+            // }
 
         }
-
 
         /*$("#taskType").on("change",function(){
             var type = $("option:selected",this).val();
@@ -564,16 +516,22 @@
                     var role = "";
                     // var dept = $("#dept").val();
 
+
                     var event = nodeId.split("_")
                     if(event.length>0){
-                        if("StartEvent" == event[0]){
-                            fulldata.startEvent.push({"taskId":taskId,"quarters":quarters,"role":roleIds.join(","),"dept":depts,"uid":uid.join(","),"formId":formId,"dataId":dataName,"dataTitle":dataTitle,"dataType":dataType})
-                        }else if("Task" == event[0]){
-                            fulldata.ext.push({"taskId":taskId,"quarters":quarters,"role":roleIds.join(","),"dept":depts,"uid":uid.join(","),"formId":formId,"dataId":dataName,"dataTitle":dataTitle,"dataType":dataType})
-                        }else if("EndEvent" == event[0]){
-
-                        }
+                        fulldata.taskList.push({taskId})
+                        fulldata.ext[taskId] = {"taskId":taskId,"quarters":quarters,"role":roleIds.join(","),"dept":depts,"uid":uid.join(","),"formId":formId,"dataId":dataName,"dataTitle":dataTitle,"dataType":dataType}
+                        // if("StartEvent" == event[0]){
+                        //     fulldata.startEvent.push({"taskId":taskId,"quarters":quarters,"role":roleIds.join(","),"dept":depts,"uid":uid.join(","),"formId":formId,"dataId":dataName,"dataTitle":dataTitle,"dataType":dataType})
+                        // }else if("Task" == event[0]){
+                        //     fulldata.ext[taskId] = {"taskId":taskId,"quarters":quarters,"role":roleIds.join(","),"dept":depts,"uid":uid.join(","),"formId":formId,"dataId":dataName,"dataTitle":dataTitle,"dataType":dataType}
+                        //     // fulldata.ext.push({"taskId":taskId,"quarters":quarters,"role":roleIds.join(","),"dept":depts,"uid":uid.join(","),"formId":formId,"dataId":dataName,"dataTitle":dataTitle,"dataType":dataType})
+                        // }else if("EndEvent" == event[0]){
+                        //
+                        // }
                     }
+
+                    console.log("数据：",fulldata)
 
                     // fulldata.ext.push({"taskId":taskId,"quarters":quarters,"role":role,"dept":depts,"uid":uid,"formId":formId,"dataId":dataName,"dataTitle":dataTitle,"dataType":dataType})
 

@@ -1,7 +1,7 @@
-<div class="alert">
-    <button type="button" class="close" data-dismiss="alert">&times;</button>
-    <strong>提醒：</strong>单选框和复选框，如：<code>{|-</code>选项<code>-|}</code>两边边界是防止误删除控件，程序会把它们替换为空，请不要手动删除！
-</div>
+<!--<div class="alert">-->
+<!--    <button type="button" class="close" data-dismiss="alert">&times;</button>-->
+<!--    <strong>提醒：</strong>单选框和复选框，如：<code>{|-</code>选项<code>-|}</code>两边边界是防止误删除控件，程序会把它们替换为空，请不要手动删除！-->
+<!--</div>-->
 <form method="post" class="" id="saveform" name="saveform" action="/index.php?s=/index/parse.html">
     <input type="hidden" name="_id" id="fields" value="{{data._id}}">
     <div class="form-group">
@@ -32,6 +32,8 @@
                 </li>
                 <li><a href="javascript:void(0);" onclick="leipiFormDesign.exec('macros');"
                        class="btn btn-link">宏控件</a></li>
+                <li><a href="javascript:void(0);" onclick="leipiFormDesign.exec('datetime');"
+                       class="btn btn-link">日期控件</a></li>
                 <!--                    <li><a href="javascript:void(0);" onclick="leipiFormDesign.exec('progressbar');"-->
                 <!--                           class="btn btn-link">进度条</a></li>-->
                 <!--                    <li><a href="javascript:void(0);" onclick="leipiFormDesign.exec('qrcode');"-->
@@ -46,7 +48,7 @@
         </div>
 
         <div class="span10">
-            <script id="myFormDesign" type="text/plain" style="width:100%;">{{@data.form ? data.form.template : ""}}</script>
+            <script id="myFormDesign" type="text/plain" style="width:100%;">{{# (data.form ? data.form.template : "")}}</script>
         </div>
 
 

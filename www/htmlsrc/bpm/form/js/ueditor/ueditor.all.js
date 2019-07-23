@@ -22323,6 +22323,23 @@ UE.plugins['contextmenu'] = function () {
 
         if($(evt.target).is("[leipiplugins]")){
             contextItems.push("-")
+            var t = $(evt.target);
+            var type = t.attr("leipiplugins");
+            contextItems.push({
+                label: "表单编辑",
+                className: "edui-for-edittable",
+                onclick: function(){
+                    baidu.editor.plugins[type].editdom = t[0]
+                    me.execCommand(type)
+                }
+            })
+            contextItems.push({
+                label: "表单删除",
+                className: "edui-for-deleterow",
+                onclick: function(){
+                    baidu.editor.dom.domUtils.remove(t[0],false);
+                }
+            })
         }
 
         console.log(contextItems)

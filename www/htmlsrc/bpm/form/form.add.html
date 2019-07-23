@@ -56,14 +56,26 @@
 <!-- script start-->
 <script type="text/javascript">
 
-    function onPageRequest(arg) {
-        arg = arg || {}
-        $.get("./template.html", function (xml) {
-            var tmpl = template.compile(xml);
-            $(".container").html(tmpl({data: arg}));
-            init();
-        });
+    var id = getParam("id");
+    var pid = getParam("pid");
+    var ajax = [
+        $.get("./template.html")
+    ];
+    if(id){
+        ajax.push($.get("/api/bpm/form/one", {id: id}))
     }
+
+    $.when.apply(null, ajax).then(function (a,b) {
+        if(typeof b == 'string'){
+            var tmpl = template.compile(a);
+            $(".container").html(tmpl({data:{}}))
+        } else {
+            var tmpl = template.compile(a[0]);
+            $(".container").html(tmpl({data: b[0].data}));
+        }
+        init();
+    })
+
 
     function init() {
         leipiEditor = UE.getEditor('myFormDesign', {
@@ -98,13 +110,16 @@
                 fields 字段总数
             */
             parse_form: function (template, fields) {
-
+                var idex = $("[leipiplugins]").length;
                 var getAttrs = function(t){
                     var ret = {};
                     $.each(t.attributes, function() {
                         // this.attributes is not a plain object, but an array
                         // of attribute nodes, which contain both the name and value
                         if(this.specified) {
+                            if(this.name == 'name' && this.value == "leipiNewField"){
+                                this.value = "data_" + (++idex);
+                            }
                             ret[this.name] = this.value;
                             // console.log(this.name, this.value);
                         }
@@ -112,15 +127,59 @@
                     return ret;
                 }
 
-                $(template).find("[leipiplugins]").each(function () {
+                var form = []
+                var box = $("<div>").append(template);
+                box.find("input[leipiplugins], span[leipiplugins], textarea[leipiplugins]").each(function () {
                     var t = $(this);
                     var type = t.attr("leipiplugins");
-                    var attrs = getAttrs(this)
-                    console.log(attrs)
+                    var data = null;
                     switch (type) {
-                        // case ""
+                        case "text":
+                        case "textarea":
+                        case "macros":
+                            var attrs = getAttrs(this)
+                            data = attrs;
+                            break
+
+                        case "select":
+                            var select = $(this).find("select");
+                            if(select.length){
+                                var attrs = getAttrs(select[0])
+                                data = attrs;
+                                data.values = []
+                                $(this).find("options").each(function () {
+                                    data.values.push($(this).val())
+                                });
+                            }
+                            break
+
+                        case "radios":
+                        case "checkboxs":
+                            var items = $(this).find("input");
+                            if(items.length > 0){
+                                data = getAttrs(this);
+                                items.each(function () {
+                                    data.values.push($(this).val())
+                                });
+                                data.name = items[0].attr("name");
+                            }
+                            break;
                     }
+                    if(data){
+                        form.push(data)
+                        t.replaceWith("<span>{"+data.name+"}</span>")
+                    }
+
                 });
+
+                return {
+                    template: template,
+                    parse: box.html(),
+                    data: form
+                }
+                // console.log(box,box.html())
+
+                return;
 
                 //正则  radios|checkboxs|select 匹配的边界 |--|  因为当使用 {} 时js报错
                 var preg = /(\|-<span(((?!<span).)*leipiplugins=\"(radios|checkboxs|select)\".*?)>(.*?)<\/span>-\||<(img|input|textarea|select).*?(<\/select>|<\/textarea>|\/>))/gi,
@@ -293,11 +352,11 @@
                     var data = {
                         _id: $("[name=_id]").val(),
                         name: $("[name=name]").val(),
-                        desc: $("[name=desc]").val()
+                        desc: $("[name=desc]").val(),
+                        pid: pid
                         // content: leipiEditor.getContent(),
                     };
                     data.form =  leipiFormDesign.parse_form(leipiEditor.getContent());
-                    return;
 
                     layer.load(0, {time: 5000})
                     $.ajax({

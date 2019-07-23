@@ -697,6 +697,7 @@ function doIfDev(callback) {
 }
 
 function loadTimeout() {
+	layer.closeAll();
 	layer.load(0, {time: 5000}, function () {
 		layer.msg("请稍后重试");
 	});

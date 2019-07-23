@@ -1,18 +1,23 @@
 package com.beeasy.hzbpm.ctrl;
 
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.poi.excel.ExcelReader;
+import cn.hutool.poi.excel.ExcelUtil;
+import cn.hutool.poi.excel.ExcelWriter;
 import com.beeasy.hzbpm.util.Result;
 import com.github.llyb120.nami.json.Json;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 import com.mongodb.client.result.UpdateResult;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.bson.BsonDocument;
 import org.bson.Document;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -39,7 +44,7 @@ public class cat {
                                 )
                         )
                 )
-        ).toBsonArray()).into(new ArrayList());
+        ).toBson()).into(new ArrayList());
         return Result.ok(Json.tree(ret, "pid", "_id"));
     }
 
@@ -49,7 +54,7 @@ public class cat {
         Document doc = o(
                 "name", "新分类",
                 "pid", null
-        ).toBsonDoc();
+        ).toBson();
         if ("top".equalsIgnoreCase(pid)) {
         } else {
             doc.put("pid", new ObjectId(pid));

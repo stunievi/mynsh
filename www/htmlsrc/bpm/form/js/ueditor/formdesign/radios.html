@@ -4,7 +4,7 @@
     <title>复选框</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" >
-    <meta name="generator" content="www.leipi.org" />
+
     <link rel="stylesheet" href="bootstrap/css/bootstrap.css">
     <!--[if lte IE 6]>
     <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap-ie6.css">
@@ -248,16 +248,16 @@ dialog.onok = function (){
                 return false;
             }
             //{|- 使用边界，防止用户删除了span标签
-            var html = '{|-<span leipiplugins="radios" title="'+gTitle+'" name="leipiNewField">';
+            var html = '<span leipiplugins="radios" title="'+gTitle+'" name="leipiNewField">';
                 html +=options;
-                html +='</span>-|}';
+                html +='</span>';
             editor.execCommand('insertHtml',html);
             return true ;
         } catch ( e ) {
             try {
                 editor.execCommand('error');
             } catch ( e ) {
-                alert('控件异常，请到 [雷劈网] 反馈或寻求帮助！');
+                alert('请慢些操作...');
             }
             return false;
         }
