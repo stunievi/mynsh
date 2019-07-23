@@ -197,7 +197,7 @@
 
         $.ajax({
             type:"get",
-            url:"/bpm/form/queryFormData?_id="+formId,
+            url:"/api/bpm/form/queryFormData?_id="+formId,
             async:false,
             success:function(data){
                 var list = data.data[0].form.data;

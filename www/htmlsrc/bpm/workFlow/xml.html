@@ -193,7 +193,7 @@
 
     $.ajax({
         type:"get",
-        url:"/bpm/form/queryForm",
+        url:"/api/bpm/form/queryForm",
         async:false,
         success:function(data){
                 for (var i = 0; i < data.data.length; i++) {
@@ -435,7 +435,7 @@
             console.log(">>>>>>>>>>>>>>>",fulldata)
             var modelName = $("#modelName").val();
             $.ajax({
-                url: "/bpm/BpmXmlController/saveBPMXML?xml="+xml+"&&data="+JSON.stringify(fulldata)+"&&_id="+id+"&&modelName="+modelName,
+                url: "/api/bpm/BpmXmlController/saveBPMXML?xml="+xml+"&&data="+JSON.stringify(fulldata)+"&&_id="+id+"&&modelName="+modelName,
                 success: function (res) {
                     console.log("res",res)
                     if(!res.data || code != 200){
