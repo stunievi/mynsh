@@ -38,7 +38,7 @@ public class BpmXmlController {
         String id = $request.s("_id");
         $request.remove("_id");
         $request.remove("_");
-        $request.put("data", JSON.parse($request.get("data").toString()));
+//        $request.put("data", JSON.parse($request.get("data").toString()));
 
         long same = 0;
         if(StrUtil.isBlank(id)){
@@ -68,7 +68,6 @@ public class BpmXmlController {
             JSONObject jo = (JSONObject) obj;
             task.add(jo.get("taskId"));
         }
-
 
         if(jsonObject.getJSONObject("ext").size()>0){
             for(Object t : task){
@@ -100,6 +99,7 @@ public class BpmXmlController {
 
         Document doc;
         if(StrUtil.isBlank(id)){
+            $request.put("data", BsonArray.parse(jsonArray.toString()));
             doc = new Document($request);
             collection.insertOne(doc);
         } else {
