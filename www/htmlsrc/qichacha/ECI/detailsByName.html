@@ -83,6 +83,12 @@
                 <li class="pull-right hide lab-hide">
                     <a href="javascript:;" class="btn" title="全屏" id="fullscreenBtn" style="background: orange;color: #fff;" ><i class="glyphicon glyphicon-resize-full"></i></a>
                 </li>
+
+                <li class="pull-right">
+                    <a href="javascript:;" class="btn" title="导出企查查风险" id="exportFengXian" style="background: orange;color: #fff;" ><i class="glyphicon glyphicon-floppy-disk"></i></a>
+                </li>
+
+
                 <li class="pull-right hide qcc-com-info-wrap">
                     <a href="javascript:;" target="_blank" class="btn" id="qcc-com-info" title="企查查官网信息" style="background: orange;color: #fff;" ><i class="glyphicon glyphicon-cloud"></i></a>
                 </li>
@@ -233,6 +239,16 @@
         }
         $(".goup-container").trigger("click");
     });
+
+    $("#exportFengXian").click(function () {
+        formRequest({
+            url: remoteOrigin + "/link/FileController/qccFengXianExport",
+            data: {
+                fullName: COMPANY_NAME
+            }
+        })
+    });
+
     if($.cookie("spec")){
         $("#updateBtn").find("span").hide();
         // 全屏

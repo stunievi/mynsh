@@ -1,26 +1,30 @@
 package com.beeasy.hzlink.ctrl;
 
 import cn.hutool.core.io.resource.ClassPathResource;
+import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzlink.filter.Auth;
 import com.beeasy.hzlink.model.Link111;
 import com.beeasy.hzlink.model.TSystemVariable;
+import com.github.llyb120.nami.core.Json;
 import com.github.llyb120.nami.core.MultipartFile;
 import com.github.llyb120.nami.core.Obj;
 import com.github.llyb120.nami.core.R;
 import com.github.llyb120.nami.excel.ExportUtil;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.jxls.common.Context;
+import org.jxls.util.JxlsHelper;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.github.llyb120.nami.core.Config.config;
 import static com.github.llyb120.nami.core.DBService.sqlManager;
 import static com.github.llyb120.nami.core.Json.a;
 import static com.github.llyb120.nami.core.Json.o;
@@ -258,5 +262,46 @@ public class FileController {
         }
         return null;
     }
+
+    private static String getUrl(String path){
+        var str = config.ext.getStr("qcc-search-url");
+        return String.format("%s%s", str, path);
+    }
+
+    // 导出企查查原始风险数据
+    public MultipartFile qccFengXianExport(String cusName) throws IOException {
+        String fileName = "企查查风险信息-原始企查查数据.xlsx";
+        String str = HttpUtil.get(getUrl("/qccExportData/fengxian"), o("fullName", cusName));
+        Obj eachData = Json.parseObject(str).getObj("Result");
+
+        File temp = File.createTempFile("123", ".xls");
+        try(
+                var is = new ClassPathResource("excel/t.xlsx").getStream();
+                var fos = new FileOutputStream(temp);
+        ){
+            var context = new Context();
+            eachData.forEach((k,v) -> context.putVar(String.valueOf(k),v));
+            JxlsHelper
+                    .getInstance()
+                    .setUseFastFormulaProcessor(false)
+                    .processTemplate(is, fos, context);
+        }
+        try {
+            var fis = new FileInputStream(temp);
+            XSSFWorkbook wb = new XSSFWorkbook(fis);
+            //删除模板Sheet
+            wb.removeSheetAt(wb.getSheetIndex("template"));
+            FileOutputStream fileOut = new FileOutputStream(temp);
+            wb.write(fileOut);
+            fileOut.flush();
+            fileOut.close();
+            fis.close();
+            return new MultipartFile(fileName, temp, true);
+        }catch (Exception e){
+
+        }
+        return null;
+    }
+
 
 }
