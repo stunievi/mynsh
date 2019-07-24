@@ -421,7 +421,7 @@
             console.log('error rendering', err);
         } else {
             console.log('rendered');
-        }
+            myTabs}
     });
 
     /**
@@ -494,7 +494,9 @@
         var form = $("#selectForm").val();
         console.log("当前选中id:",obj.id)
 
-        addNavTab(obj.id, "节点配置", "/htmlsrc/bpm/workFlow/bindingForm.html?taskId="+obj.id+"&&formId="+ form + "&&name"+modelName,{nodeId:obj.id, data:fulldata});
+        window.open("./node.edit.html","node_edit_" + obj.id, "left=200, top=100, width=800, height=500, location=no")
+
+        // addNavTab(obj.id, "节点配置", "/htmlsrc/bpm/workFlow/bindingForm.html?taskId="+obj.id+"&&formId="+ form + "&&name"+modelName,{nodeId:obj.id, data:fulldata});
         /*touchRuleIndex = layer.open({
             title:'表单',
             type: 1,
