@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="/static/vendor/ztree/css/zTreeStyle/zTreeStyle.css">
     <script src="/static/vendor/ztree/js/jquery.ztree.all.min.js"></script>
     <script src="/static/vendor/bootcss/js/bootstrap-suggest.js"></script>
+    <script src="../../../static/vendor/artTemplate/template-web.js"></script>
     <style>
         #content{
             overflow: visible;
@@ -21,7 +22,24 @@
 <body>
     <div id="content">
 
-        <div id="addUserForm" class="col-xs-12" style="padding-bottom: 20px;padding-top:10px;">
+        <ul id="myTabs" class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active li1"><a href="#tab1" role="tab" data-toggle="tab" aria-controls="tab1" aria-expanded="true">基本配置</a></li>
+            <li role="presentation" class="li2"><a href="#tab2" role="tab" data-toggle="tab" aria-controls="tab2">权限配置</a></li>
+            <li role="presentation" class="li2"><a href="#tab3" role="tab" data-toggle="tab" aria-controls="tab3">字段配置</a></li>
+        </ul>
+        <div id="myTabContent" class="tab-content">
+            <div id="tab1" class="tab-pane">
+                1
+            </div>
+            <div id="tab2" class="tab-pane">
+                <!--#include file="./permission.html" -->
+            </div>
+            <div id="tab3" class="tab-pane">
+                <!--#include file="./fields.html" -->
+            </div>
+        </div>
+
+        <div id="addUserForm" class="col-xs-12" style="padding-bottom: 20px;padding-top:10px;display: none;">
             <form name="binding-form" class="form-horizontal" onsubmit="return checkSubmitForm(this)" novalidate="novalidate">
                 <div class="row panel-form-input-group">
 
@@ -167,7 +185,7 @@
             {{/each}}
         </table>
     </script>
-    <script>
+    <script type="text/plain">
 
         var setting = {
             view: {
@@ -595,7 +613,7 @@
 </body>
 </html>
 
-<script>
+<script type="text/plain">
     (function () {
 
 
@@ -686,3 +704,5 @@
     })();
 
 </script>
+
+

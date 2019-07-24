@@ -32,7 +32,7 @@ public class form {
         List ops = new LinkedList<>();
         Collection list = collection.aggregate(
                 a(
-                        o("$match", o("pid", null == pid? null : new ObjectId(pid))),
+                        o("$match", o("pid", StrUtil.isBlank(pid)? null : new ObjectId(pid))),
                         o("$sort", o("lastModify", -1)),
                         o("$project", o(
                                 "_id", o("$toString", "$_id"),
