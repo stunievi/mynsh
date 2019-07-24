@@ -1244,7 +1244,7 @@ doIfDev(function () {
             name:"流程管理",
             children: [
                 {
-                    name: "流程分类",
+                    name: "表单设计",
                     href: "/htmlsrc/bpm/cat/cat.html"
                 },
                 // {
@@ -1252,7 +1252,7 @@ doIfDev(function () {
                 //     href: "/htmlsrc/bpm/form/form.html"
                 // },
                 {
-                    name: "工作流",
+                    name: "流程设计",
                     href: "/htmlsrc/bpm/workFlow/workFlowManage.html"
                 }
             ]

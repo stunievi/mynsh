@@ -187,7 +187,7 @@
         // name:"",
         startEvent:[],
         ext:{},
-        rqd:[],
+        assUser:[],
         taskList:[]
     }
 
@@ -248,6 +248,16 @@
             xml = data;
         }
     });
+
+    /*var p1 = getFetch(remoteOrigin + "/api/auto/user/getList?page=1&size=2000")
+    $.when(p1).then(function (a,b,c) {
+        var d1 = a.data.list;
+        d1.forEach(function (da) {
+            userSourceData[da.id] = da.trueName;
+        })
+
+    });*/
+
     var flag = getParam("flag");
     var id = getParam("id");
 
@@ -261,6 +271,19 @@
                     var bpmXml = obj["data"][0].b_xml;
                     if(null != bpmXml && "" != bpmXml){
                         xml = bpmXml;
+
+                        var userSourceData = {};
+                        $.ajax({
+                            type:"get",
+                            url: remoteOrigin + "/api/auto/user/getList?page=1&size=2000",
+                            async:false,
+                            success:function(obj){
+                                var d1 = obj.data.list;
+                                d1.forEach(function (da) {
+                                    userSourceData[da.id] = da.trueName;
+                                })
+                            }
+                        })
 
                         console.log("-----",obj["data"][0].data)
 
@@ -282,9 +305,9 @@
                                 var  _taskId = data[i].taskId;
 
                                 _items.forEach(function (item) {
-                                    _name = item.name;
-                                    _title = item.title;
-                                    _type = item.type;
+                                    _name.push(item.name);
+                                    _title.push(item.title);
+                                    _type.push(item.type);
                                 })
 
                                 _permission.dept.forEach(function (dept) {
@@ -300,7 +323,13 @@
                                     _user = user.join(",");
                                 })
 
-                                fulldata.ext[_taskId] = {"taskId":_taskId,"quarters":_quarters,"role":_role,"dept":_dept,"uid":_user,"formId":_formId,"dataId":_name,"dataTitle":_title,"dataType":_type}
+                                var u = _user.split(",");
+                                u.forEach(function (us) {
+                                    fulldata.assUser.push({"key":userSourceData[us],"value":us})
+
+                                })
+
+                                fulldata.ext[_taskId] = {"taskId":_taskId,"quarters":_quarters,"role":_role,"dept":_dept,"uid":_user,"formId":_formId,"dataId":_name.join(","),"dataTitle":_title.join(","),"dataType":_type.join(",")}
                             }else if(data[i].node){
                                 _formId = data[i].node[0].form.formId;
                                 var _items = data[i].node[0].form.items;
@@ -332,6 +361,12 @@
                                 _permission.user.forEach(function (user) {
                                     _user = user.join(",");
                                 })
+                                var u = _user.split(",");
+                                u.forEach(function (us) {
+                                    fulldata.assUser.push({"key":userSourceData[us],"value":us})
+
+                                })
+
 
                                 fulldata.ext[_taskId] = {"taskId":_taskId,"quarters":_quarters,"role":_role,"dept":_dept,"uid":_user,"formId":_formId,"dataId":_name,"dataTitle":_title,"dataType":_type}
                                 console.log("ss:",fulldata.ext)

@@ -61,6 +61,22 @@
             ,line: true
         }));
 
+        /**
+         * @Author gotomars
+         * @Description 切换密码输入框显示
+         * @Date 16:29 2019/7/22
+         **/
+        $("[for='password']").append('<span class="glyphicon glyphicon-eye-open show-password" aria-hidden="true"></span>');
+        $(document).on("click", ".show-password", function () {
+            if($(this).hasClass("glyphicon-eye-open")){
+                $(this).removeClass("glyphicon-eye-open").addClass("glyphicon-eye-close");
+                $("#password").attr("type", "password");
+            }else{
+                $(this).removeClass("glyphicon-eye-close").addClass("glyphicon-eye-open");
+                $("#password").attr("type", "text");
+            }
+        });
+
         $("#editForm [type=submit]").closest(".row").before($("#sel-box").show());
 
         (function () {
