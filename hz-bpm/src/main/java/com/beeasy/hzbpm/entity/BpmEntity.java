@@ -1,5 +1,7 @@
 package com.beeasy.hzbpm.entity;
 
+import org.bson.types.ObjectId;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +11,8 @@ public class BpmEntity {
 
     //要么用ID避免节点递归的情况，
     //要么FASTJSON转成string避免节点递归
+
+    ObjectId formId;
 
     //表单的原始模板
     String template;
