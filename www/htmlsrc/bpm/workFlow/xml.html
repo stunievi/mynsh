@@ -179,6 +179,32 @@
 </script>
 
 <script>
+    window.form = null;
+    window.fields = [];
+    window.bpmData = {
+        nodes:{}
+    };
+
+    function loadForm(){
+        var id = $("#selectForm").val()
+        loadTimeout()
+        $.get("/api/bpm/form/one", {id:id}, function (msg) {
+            layer.closeAll();
+            if(msg.success){
+                form = msg.data;
+            }
+            $.each(msg.data.form.data ||[], function (i,v) {
+                fields.push(v.title)
+            })
+        }, 'json')
+    }
+
+    $(document).on('change',"#selectForm",function () {
+        loadForm()
+    });
+</script>
+
+<script>
     var formList = [];
     var fulldata = {
 
@@ -579,6 +605,8 @@
         rData:roleData
     });
 
+    loadForm()
+
     // 获取选中的表单值
     function formInfoData() {
         var form = $("#selectForm").val();
@@ -607,7 +635,26 @@
         var form = $("#selectForm").val();
         console.log("当前选中id:",obj.id)
 
-        window.open("./node.edit.html","node_edit_" + obj.id, "left=200, top=100, width=800, height=500, location=no")
+        bpmData.nodes[obj.id] = bpmData.nodes[obj.id] || {
+            fields:{
+                all_fields: [],
+                required_fields:[],
+            },
+            permission:{
+                //中文
+                ps: [],
+                qs: [],
+                ds: [],
+                rs: [],
+                //id
+                pids:[],
+                qids:[],
+                dids:[],
+                rids:[]
+            },
+            condition: []
+        };
+        window.open("./node.edit.html?id=" + obj.id,"node_edit_" + obj.id, "left=200, top=100, width=800, height=500, location=no")
 
         // addNavTab(obj.id, "节点配置", "/htmlsrc/bpm/workFlow/bindingForm.html?taskId="+obj.id+"&&formId="+ form + "&&name"+modelName,{nodeId:obj.id, data:fulldata});
         /*touchRuleIndex = layer.open({
