@@ -13,24 +13,33 @@
 
 </head>
 <body>
-<div id="content">
-    <div class="selected"></div>
-    <div>
-        <input type="text" id="search" placeholder="输入关键字进行检索">
-        <div id="jstree_demo">
+<input type="text" class="form-control input-sm" id="user" name="user" style="margin-top: 10px">
+<div id="content"  style="flex-direction: row; display: flex; justify-content: flex-start">
+    <!--<div class="selected"></div>-->
+    <!--<div>-->
+        <!--<input type="text" id="search" placeholder="输入关键字进行检索">-->
+        <div id="jstree_demo"  style="width: 330px; overflow: auto;">
 
         </div>
-    </div>
+        <div id="dataList" style="flex: 1;margin-left: 10px;margin-right: 10px;">
+        </div>
+    <!--</div>-->
 </div>
 
 </body>
 </html>
+<script id="toolbar" type="text/html">
+    <div class="layui-toolbar">
+        <a class="btn btn-warning btn-mini edit" href="javascript:;" data-name="{{d.name}}" >选择</a>
+    </div>
+</script>
 <script>
 
     // var context = null;
     // function onPageRequest(ctx){
     //     context = ctx;
     // }
+    var lastClickedNode = null;
     var type = getParam("type");
     if(!type) type = "q";
 
@@ -74,12 +83,76 @@
                 // ]
             },
             "plugins" : [
-                "checkbox",
+                // "checkbox",
                 // "contextmenu",
                 "search",
                 "types", "wholerow"
             ]
         });
+
+        function loadFormList(n){
+            if(!n){
+                return
+            }
+            loadTimeout();
+            $.ajax({
+                type:"post",
+                url:"/api/bpm/org/getUser",
+                data: JSON.stringify({"oid":n=='top'?undefined:n.node.original.id}),
+                headers:{
+                    "Content-Type": "application/json"
+                },
+                success:function(data){
+                    layer.closeAll();
+                    $("#dataList").empty()
+                    laytableRender({
+                        // url: remoteOrigin + "/api/bpm/form/list",
+                        // currPage: getParam("page") || 1,
+                        data: data.data||[],
+                        page:false,
+                        cols: [
+                            [
+                                {field:'id', title:'用户ID', align:"center" },
+                                {field:'name', title:'姓名', align:"center" },
+                                {field:'acc_code', title:'用户名', align:"center" },
+                                {field:'phone', title:'电话', align:"center" },
+                                {title:'操作', templet: "#toolbar"}
+                            ]
+                        ],
+                        done: function(res, curr){
+                            layCurrPage = curr;
+                        }
+                    });
+                }
+            });
+
+
+            // getFetch("/api/bpm/org/getUser", {oid: n=='top'?undefined:n.node.original.id}, function (data) {
+            //     layer.closeAll();
+            //     $("#dataList").empty()
+            //     laytableRender({
+            //         // url: remoteOrigin + "/api/bpm/form/list",
+            //         // currPage: getParam("page") || 1,
+            //         data: data||[],
+            //         page:false,
+            //         cols: [
+            //             [
+            //                 {field:'name', title:'姓名', align:"center" },
+            //                 {field:'id', title:'代码', align:"center", width:250 },
+            //                 {title:'操作', templet: "#toolbar"}
+            //             ]
+            //         ],
+            //         done: function(res, curr){
+            //             layCurrPage = curr;
+            //         }
+            //     });
+            // });
+
+
+        }
+
+        //选中第一个节点
+        loadFormList('top')
 
         var ins = $("#jstree_demo").jstree();
         var walk = function(node){
@@ -116,8 +189,13 @@
         }).on("check_all.jstree", function () {
             console.log(arguments)
         }).on("select_node.jstree", function (e,n) {
-            console.log(ins.get_checked())
-            setChecked()
+
+            lastClickedNode = n;
+            loadFormList(n)
+
+
+            // console.log(ins.get_checked())
+            // setChecked()
             // walk(n.node);
             // $.each(no)
             // console.log(n.node);
@@ -127,5 +205,20 @@
             // walk(n.node)
         });
     },"json");
+
+    $(document).on("click", ".edit", function () {
+        var name =  $(this).data("name");
+        var us = $("#user").val();
+        var user ;
+
+        user = "" == us ? name : us +"," + name;
+        // if("" == us){
+        //     user = name;
+        // }else{
+        //     user = us +"," + name;
+        // }
+        $("#user").val(user);
+
+    });
 
 </script>

@@ -33,5 +33,9 @@ public class org {
         return null;
     }
 
+    public Result getUser(String oid){
+        return Result.ok(sqlManager.execute(new SQLReady("SELECT u.id,u.ACC_CODE,u.PHONE,u.true_name as name FROM DB2INST1.T_USER_ORG o inner join t_user u on o.uid=u.id and o.oid="+oid),Obj.class));
+    }
+
 
 }
