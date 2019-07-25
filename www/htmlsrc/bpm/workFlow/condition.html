@@ -108,14 +108,14 @@
         },
         "plugins": [
             "contextmenu", "dnd", "search",
-            "state", "types", "wholerow"
+            "types", "wholerow"
         ]
     });
 
     $("#condition").on("rename_node.jstree", function (e,n) {
         opener.bpmData.nodes[nodeId].condition = ins.get_json()[0].children;
     });
-    
+
     var ins =  $('#condition').jstree()
     $(function () {
         if(opener.bpmData.nodes[nodeId].condition .length){
