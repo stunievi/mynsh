@@ -322,6 +322,7 @@
             } else {
                 btn2.classList.remove('btn-cursor')
             }
+
         }
 
         $('.arrow-btn').click(function () {
@@ -349,8 +350,27 @@
                 origin.parent().prev().find('.checkbox-all').prop('checked', false);
             }
             btn_status();
+
+            updateData();
         })
-    })
+
+        function updateData() {
+            var arr = [];
+            $(".unselect-ul li").each(function () {
+                var name = $(this).find("span").text();
+                arr.push(name);
+            });
+            opener.bpmData.nodes[nodeId].fields.all_fields = arr;
+        }
+
+
+        //load
+        $.each(opener.bpmData.nodes[nodeId].fields.all_fields, function (i,v) {
+            // console.log(v,$(".form-fields label[for=tyue-checkbox-blue-"+v+"]"))
+            $(".form-fields input[id=tyue-checkbox-blue-"+v+"]").click();
+        })
+        $(".arrow-btn.left").click()
+    });
 
     function stopFunc(e) {
         e.stopPropagation ? e.stopPropagation() : e.cancelBubble = true;

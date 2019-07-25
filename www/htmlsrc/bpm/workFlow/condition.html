@@ -11,7 +11,7 @@
                 {
                     'id': 'top',
                     'text': '全部条件',
-                    'state': {'opened': true, 'selected': true},
+                    'state': {'opened': true, },
                     'children': [
                         // {
                         //     id:"fuck",
@@ -113,6 +113,9 @@
     });
 
     $("#condition").on("rename_node.jstree", function (e,n) {
+        opener.bpmData.nodes[nodeId].condition = ins.get_json()[0].children;
+    }).on("move_node.jstree", function () {
+        console.log("drag end")
         opener.bpmData.nodes[nodeId].condition = ins.get_json()[0].children;
     });
 
