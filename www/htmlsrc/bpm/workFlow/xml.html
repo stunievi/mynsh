@@ -180,6 +180,7 @@
 
 <script>
     var formList = [];
+    var pid = getParam("pid");
     var fulldata = {
 
         // formId:1,
@@ -188,7 +189,8 @@
         startEvent:[],
         ext:{},
         assUser:[],
-        taskList:[]
+        taskList:[],
+        pid: pid
     }
 
     $.ajax({
@@ -264,7 +266,7 @@
     if(1 == flag){
         $.ajax({
             type:"get",
-            url: "/bpm/BpmXmlController/queryBPMXML?_id="+id,
+            url: "/api/bpm/BpmXmlController/one?_id="+id,
             async:false,
             success:function(obj){
                 if(obj["data"].length>0){
@@ -526,15 +528,15 @@
 
             console.log(">>>>>>>>>>>>>>>",fulldata)
 
-            // $.ajax({
-            //     url: "/api/bpm/BpmXmlController/saveBPMXML?xml="+xml+"&&data="+JSON.stringify(fulldata)+"&&_id="+id+"&&modelName="+modelName,
-            //     success: function (res) {
-            //         console.log("res",res)
-            //         if(!res.data || code != 200){
-            //             layer.msg(res.errMessage);
-            //         }
-            //     }
-            // });
+            $.ajax({
+                url: "/api/bpm/BpmXmlController/saveBPMXML?xml="+xml+"&&data="+JSON.stringify(fulldata)+"&&_id="+id+"&&modelName="+modelName+"&&pid="+pid,
+                success: function (res) {
+                    console.log("res",res)
+                    if(!res.data || code != 200){
+                        layer.msg(res.errMessage);
+                    }
+                }
+            });
         });
     }
     /**

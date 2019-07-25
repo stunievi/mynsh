@@ -22,7 +22,7 @@ import static com.beeasy.hzbpm.service.MongoService.db;
 
 public class workflow {
 
-    // 获取表单信息
+    // 生成最终的流程文件
     public Result saveWorkFlow(Obj body){
 
         MongoCollection<Document> collection = db.getCollection("workflow");
