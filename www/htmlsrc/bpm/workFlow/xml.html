@@ -467,17 +467,74 @@
             if (err) {
                 return console.error('could not save BPMN 2.0 diagram', err);
             }
-            console.log(">>>>>>>>>>>>>>>",fulldata)
+            console.log("---xml",xml)
+            var _xml = $.parseXML(xml);
+            var _eventMap = {};
+            var _xmlMap = {};
+            var startEvent;
+            var endEvent;
+            $(_xml).find('process').each(function(){
+                var _sequenceFlow = $(this).children('sequenceFlow');
+                _sequenceFlow.each(function () {
+                    var targetRef = $(this).attr("targetRef");
+                    var nextNodes = {"nextEvent":targetRef}
+                    var sourceRef = $(this).attr("sourceRef");
+                    var sr = sourceRef.split("_");
+                    var tr = targetRef.split("_");
+                    if(sr.length>0 && "StartEvent" == sr[0]){
+                        startEvent = sourceRef;
+                    }
+                    if(tr.length>0 && "EndEvent" == tr[0]){
+                        endEvent = targetRef;
+                    }
+                    _eventMap[sourceRef] = {"taskId":sourceRef,"nextNodes":nextNodes}
+                })
+            });
+            var _formDataMap = {}
+            var form = $("#selectForm").val();
             var modelName = $("#modelName").val();
             $.ajax({
-                url: "/api/bpm/BpmXmlController/saveBPMXML?xml="+xml+"&&data="+JSON.stringify(fulldata)+"&&_id="+id+"&&modelName="+modelName,
-                success: function (res) {
-                    console.log("res",res)
-                    if(!res.data || code != 200){
-                        layer.msg(res.errMessage);
+                type:"get",
+                async:false,
+                url:"/api/bpm/form/queryFormData?_id="+form,
+                success:function(res){
+                    if(res.code==200&& res.data.length>0){
+                        var data = res.data[0].form.data;
+                        data.forEach(function (e) {
+                            _formDataMap[e.title] = e;
+                        })
                     }
                 }
             });
+            _xmlMap = {"workflowName":modelName,"fields":_formDataMap,"node":_eventMap,"start":startEvent,"end":endEvent}
+            console.log("xmlMap----",_xmlMap)
+
+            $.ajax({
+                url:"/api/bpm/workflow/saveWorkFlow",
+                type:"post",
+                data: JSON.stringify(_xmlMap),
+                headers:{
+                    "Content-Type": "application/json"
+                },
+                dataType: "json",
+                success:function(res){
+                        alert(2222)
+                    if(res.code==200){
+                    }
+                }
+            });
+
+            console.log(">>>>>>>>>>>>>>>",fulldata)
+
+            // $.ajax({
+            //     url: "/api/bpm/BpmXmlController/saveBPMXML?xml="+xml+"&&data="+JSON.stringify(fulldata)+"&&_id="+id+"&&modelName="+modelName,
+            //     success: function (res) {
+            //         console.log("res",res)
+            //         if(!res.data || code != 200){
+            //             layer.msg(res.errMessage);
+            //         }
+            //     }
+            // });
         });
     }
     /**
@@ -521,6 +578,27 @@
         },
         rData:roleData
     });
+
+    // 获取选中的表单值
+    function formInfoData() {
+        var form = $("#selectForm").val();
+        $.ajax({
+            type:"get",
+            url:"/api/bpm/form/queryFormData?_id="+form,
+            success:function(res){
+                var _formDataMap = {}
+                if(res.code==200&& res.data.length>0){
+                    var data = res.data[0].form.data;
+
+                    data.forEach(function (e) {
+                        _formDataMap[e.title] = e;
+                    })
+                    console.log("sss",_formDataMap)
+                }
+                return _formDataMap;
+            }
+        });
+    }
 
 
     function bd(e,obj) {
