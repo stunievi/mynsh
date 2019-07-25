@@ -26,6 +26,7 @@
 </body>
 </html>
 <script>
+    var nodeId = location.search.match(/id=(.+)&?/)[1]
 
     // var context = null;
     // function onPageRequest(ctx){
@@ -82,33 +83,36 @@
         });
 
         var ins = $("#jstree_demo").jstree();
-        var walk = function(node){
-            // if(context){
-                // console.log(context,(ins.is_checked(node)))
-            window.opener['selectp'](type, ins.is_checked(node), node.original.text);
-            // }
-            $.each(node.children || [], function (i,v) {
-                var node = ins.get_node(v);
-                walk(node);
-            });
-        };
+        // var walk = function(node){
+        //     // if(context){
+        //         // console.log(context,(ins.is_checked(node)))
+        //     window.opener['selectp'](type, ins.is_checked(node), node.original.text);
+        //     // }
+        //     $.each(node.children || [], function (i,v) {
+        //         var node = ins.get_node(v);
+        //         walk(node);
+        //     });
+        // };
 
         var setChecked = function(){
             var chks =  ins.get_checked();
             var ret = [];
+            var ids = []
             $.each(chks ||[], function (i,v) {
                 var node = ins.get_node(v);
                 console.log(node)
                 if(type == 'q'){
                     if(node.original.type == 'QUARTERS'){
                         ret.push(node.original.full_name);
+                        ids.push(node.original.id)
                     }
                     return;
                 }
                 ret.push(node.original.text);
+                ids.push(node.original.id)
             });
-            console.log(ret)
-            window.opener['selectp'](type, ret);
+            console.log(ret, ids)
+            window.opener['selectp'](type, ret, ids);
         }
 
         $("#jstree_demo").on("check_node.jstree", function () {
@@ -126,6 +130,14 @@
             setChecked();
             // walk(n.node)
         });
+
+
+        //还原页面
+        var ids = opener.opener.bpmData.nodes[nodeId].permission[type + "ids"]
+        $.each(ids, function (i,v) {
+            ins.select_node(v)
+        })
+
     },"json");
 
 </script>

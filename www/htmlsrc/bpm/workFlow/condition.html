@@ -1,0 +1,128 @@
+<div id="condition">
+
+</div>
+<script>
+    $('#condition').jstree({
+        "core": {
+            "animation": 0,
+            "check_callback": true,
+            "themes": {"stripes": true},
+            'data': [
+                {
+                    'id': 'top',
+                    'text': '全部条件',
+                    'state': {'opened': true, },
+                    'children': [
+                        // {
+                        //     id:"fuck",
+                        //     text:"rile",
+                        //     "type":"rule"
+                        // }
+                    ],
+                    "type": "group"
+                },
+            ]
+        },
+        'contextmenu': {
+            'select_node': false,
+            'items': function (node) {
+                return {
+                    createItem: {
+                        "label": "添加分组",
+                        "action": function(obj){
+                            console.log(ins)
+
+                            ins.show_contextmenu(node)
+                            ins.create_node(node, {
+                                id: new Date().getTime(),
+                                text:"AND",
+                                type:"group"
+                            });
+                            ins.open_node(node);
+                            opener.bpmData.nodes[nodeId].condition = ins.get_json()[0].children;
+                            //     ins.open_node(node);
+                            // layer.load(0, {time: 5000});
+                            // getFetch("/api/bpm/cat/add", {pid: node.original.id || node.original._id}, function (msg) {
+                            //     layer.closeAll()
+                            //     console.log(msg);
+                            //     ins.create_node(node, msg);
+                            //     ins.open_node(node);
+                            // });
+                        },
+                        "_class": "class"
+                    },
+                    createForm:{
+                        "label": "添加条件",
+                        action: function () {
+                            ins.show_contextmenu(node)
+                            ins.create_node(node, {
+                                id: new Date().getTime(),
+                                text:"1 == 1",
+                                type:"rule"
+                            });
+                            ins.open_node(node);
+                            opener.bpmData.nodes[nodeId].condition = ins.get_json()[0].children;
+                        }
+                    },
+                    renameItem: {
+                        "label": "设置表达式",
+                        "action": function(obj) {
+                            if(node.id == 'top'){
+                                layer.msg("顶级条件组无法编辑");
+                                return;
+                            }
+                            ins.edit(node);
+                        }
+                    },
+                    deleteItem: {
+                        "label": "删除",
+                        "action": function() {
+                            if(node.id == 'top'){
+                                layer.msg("顶级条件组无法删除");
+                                return;
+                            }
+                            ins.delete_node(node)
+                            opener.bpmData.nodes[nodeId].condition = ins.get_json()[0].children;
+
+                            // if(node.children && node.children.length > 0){
+                            //     layer.msg("无法删除一个非空分类");
+                            //     return
+                            // }
+                            // console.log(node)
+                            // $("#jstree_demo").jstree().delete_node(node)
+                            // this.delete_node(node);
+                        }
+                    }
+                };
+            }
+        },
+        "types": {
+            "group": {
+                icon: "glyphicon glyphicon-book",
+                valid_children:["group", "rule"]
+            },
+            "rule": {
+                icon:  "glyphicon glyphicon-file",
+                valid_children:[]
+            }
+        },
+        "plugins": [
+            "contextmenu", "dnd", "search",
+            "types", "wholerow"
+        ]
+    });
+
+    $("#condition").on("rename_node.jstree", function (e,n) {
+        opener.bpmData.nodes[nodeId].condition = ins.get_json()[0].children;
+    }).on("move_node.jstree", function () {
+        console.log("drag end")
+        opener.bpmData.nodes[nodeId].condition = ins.get_json()[0].children;
+    });
+
+    var ins =  $('#condition').jstree()
+    $(function () {
+        if(opener.bpmData.nodes[nodeId].condition .length){
+            ins._append_json_data("top", opener.bpmData.nodes[nodeId].condition)
+        }
+    });
+</script>
