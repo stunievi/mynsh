@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class BpmEntity {
+public class BpmModel {
 
 
     //要么用ID避免节点递归的情况，
