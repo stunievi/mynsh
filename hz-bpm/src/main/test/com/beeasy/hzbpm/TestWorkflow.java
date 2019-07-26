@@ -23,17 +23,17 @@ public class TestWorkflow {
     public void test() {
         long uid = 522;
 
-
-        MongoCollection<Document> col = db.getCollection("workflow");
-//        col.mapReduce("function(){return 1}", "function(){return 2}");
-        Document data = col.aggregate(
-                a(
-                        o("$match", o("_id", new ObjectId("5d3aab8fda77c245f138fd2d"))),
-                        o("$project", o("arrangementData", 1))
-                ).toBson()
-        ).first();
-        Document arrangementData = (Document) data.get("arrangementData");
-        BpmService service = new BpmService(arrangementData);
+//        MongoCollection<Document> col = db.getCollection("workflow");
+////        col.mapReduce("function(){return 1}", "function(){return 2}");
+//        Document data = col.aggregate(
+//                a(
+//                        o("$match", o("_id", new ObjectId("5d3aab8fda77c245f138fd2d"))),
+//                        o("$project", o("arrangementData", 1))
+//                ).toBson()
+//        ).first();
+//        Document arrangementData = (Document) data.get("arrangementData");
+//        BpmService service = BpmService.ofModel(arrangementData);
+        BpmService service = BpmService.ofModel("5d3aab8fda77c245f138fd2d");
         service.canPub(1069519488812056576l);
 //        BpmModel dd = Json.cast(arrangementData, BpmModel.class);
         int d = 2;

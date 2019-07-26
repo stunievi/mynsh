@@ -1,12 +1,17 @@
 package com.beeasy.hzbpm.service;
 
 import com.github.llyb120.nami.json.Obj;
+import com.mongodb.client.MongoCollection;
 import org.beetl.sql.core.SQLReady;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 
 import java.util.List;
 
+import static com.beeasy.hzbpm.service.MongoService.db;
 import static com.github.llyb120.nami.ext.beetlsql.BeetlSql.sqlManager;
+import static com.github.llyb120.nami.json.Json.a;
+import static com.github.llyb120.nami.json.Json.o;
 
 public class BpmService {
 
@@ -23,6 +28,21 @@ public class BpmService {
         BpmService bpmService = new BpmService();
         bpmService.model = document;
         return bpmService;
+    }
+
+    public static BpmService ofModel(final String modelId){
+        MongoCollection<Document> col = db.getCollection("workflow");
+//        col.mapReduce("function(){return 1}", "function(){return 2}");
+        Document data = col.aggregate(
+                a(
+                        o("$match", o("_id", new ObjectId(modelId))),
+                        o("$project", o("arrangementData", 1))
+                ).toBson()
+        ).first();
+        if (data == null) {
+            return null;
+        }
+        return ofModel((Document)data.get("arrangementData"));
     }
 
     public static BpmService ofIns(String id){
@@ -45,9 +65,10 @@ public class BpmService {
     }
 
 
-//    public Object createBpmInstance(long uid, Obj data){
-
-//    }
+    public Object createBpmInstance(long uid, Obj data){
+//
+        return null;
+    }
 
 
 
