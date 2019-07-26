@@ -30,7 +30,7 @@
 </html>
 <script id="toolbar" type="text/html">
     <div class="layui-toolbar">
-        <a class="btn btn-warning btn-mini edit" href="javascript:;" data-name="{{d.name}}" >选择</a>
+        <a class="btn btn-warning btn-mini edit" href="javascript:;" data-name="{{d.name}}" data-id="{{d.id}}">选择</a>
     </div>
 </script>
 <script>
@@ -205,19 +205,20 @@
             // walk(n.node)
         });
     },"json");
+    var ret = [];
+    var ids = []
 
     $(document).on("click", ".edit", function () {
         var name =  $(this).data("name");
+        var uid = $(this).data("id");
         var us = $("#user").val();
         var user ;
 
         user = "" == us ? name : us +"," + name;
-        // if("" == us){
-        //     user = name;
-        // }else{
-        //     user = us +"," + name;
-        // }
         $("#user").val(user);
+        ret.push(name);
+        ids.push(uid)
+        window.opener['selectp']("p", ret, ids);
 
     });
 
