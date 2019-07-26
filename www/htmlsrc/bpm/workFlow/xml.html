@@ -291,11 +291,18 @@
             var _xmlMap = {};
             var startEvent;
             var endEvent;
+                var ex =[];
+                var exList ={};
             $(_xml).find('process').each(function(){
                 var _sequenceFlow = $(this).children('sequenceFlow');
                 _sequenceFlow.each(function () {
+
+                    var nextEvent = [];
+                    var node = {};
                     var targetRef = $(this).attr("targetRef");
-                    var nextNodes = {"nextEvent":targetRef}
+                    node["node"] = targetRef;
+                    nextEvent.push(node)
+                    var nextNodes = {"nextEvent":nextEvent}
                     var sourceRef = $(this).attr("sourceRef");
                     var sr = sourceRef.split("_");
                     var tr = targetRef.split("_");
@@ -305,6 +312,7 @@
                     if(tr.length>0 && "EndEvent" == tr[0]){
                         endEvent = targetRef;
                     }
+
                     var nodeExt =[];    // 节点对应的表单属性
                     nodeExt.push(window.bpmData.nodes[sourceRef].fields.all_fields);
                     // 可以处理的人的ID
@@ -313,10 +321,39 @@
                     var qids =(window.bpmData.nodes[sourceRef].permission.qids);
                     var rids =(window.bpmData.nodes[sourceRef].permission.rids);
                     var dids =(window.bpmData.nodes[sourceRef].permission.dids);
-                    _eventMap[sourceRef] = {"taskId":sourceRef,"ext":nodeExt,"uids":pids,"qids":qids,"rids":rids,"dids":dids,"nextNodes":nextNodes}
+                    if(sr.length>0 && "ExclusiveGateway" == sr[0]){
+                        ex.push({sourceRef,targetRef});
+                        exList[sourceRef] = ex;
+                    }else{
+                        _eventMap[sourceRef] = {"taskId":sourceRef,"ext":nodeExt,"uids":pids,"qids":qids,"rids":rids,"dids":dids,"nextNodes":nextNodes}
+                    }
                 })
             });
-            console.log("==",bpmData)
+            $.each(exList, function(i) {
+                console.log(i);
+                console.log(exList[i]);
+                var nextEvent = [];
+                var node = {};
+
+                var nodeExt =[];    // 节点对应的表单属性
+                nodeExt.push(window.bpmData.nodes[sourceRef].fields.all_fields);
+                // 可以处理的人的ID
+                var pids =(window.bpmData.nodes[sourceRef].permission.pids);
+                // 可以处理的组织架构ID
+                var qids =(window.bpmData.nodes[sourceRef].permission.qids);
+                var rids =(window.bpmData.nodes[sourceRef].permission.rids);
+                var dids =(window.bpmData.nodes[sourceRef].permission.dids);
+                for(var ex=0;ex<exList[i].length;ex++){
+                    var targetRef = exList[i][ex].targetRef;
+                    node["expression"] = "";
+                    node["node"] = targetRef;
+                    nextEvent.push(node)
+                }
+                    var nextNodes = {"nextEvent":nextEvent}
+                    console.log("eee",nextNodes)
+                _eventMap[exList[i].sourceRef] = {"taskId":exList[i],"ext":nodeExt,"uids":pids,"qids":qids,"rids":rids,"dids":dids,"nextNodes":nextNodes}
+            });
+
 
             var _formDataMap = {}
             var formId = $("#selectForm").val();
@@ -334,7 +371,7 @@
                     }
                 }
             });
-            _xmlMap = {"formId":formId,"template":form.form.template,"rendered":form.form.parse,"workflowName":modelName,"fields":_formDataMap,"node":_eventMap,"start":startEvent,"end":endEvent}
+            _xmlMap = {"formId":formId,"template":form.form.template,"rendered":form.form.parse,"workflowName":modelName,"fields":_formDataMap,"nodes":_eventMap,"start":startEvent,"end":endEvent}
             console.log("xmlMap----",_xmlMap)
 
             var da = {
@@ -359,6 +396,11 @@
                 dataType: "json",
                 success:function(res){
                     console.log()
+                    if(res.success){
+                        layer.msg("提交成功！")
+                    }else{
+                        layer.msg("提交失败！")
+                    }
                 }
             });
 

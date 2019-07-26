@@ -187,6 +187,16 @@ public class workflow {
 
         // 岗位
         List<Long> qInfo = sqlManager.execute(new SQLReady("select id from t_user u where exists(select 1 from t_user_org where uid = u.id and oid in "+qidList+")"),Long.class);
+//        for(String qid :qidList){
+//            List<Long> qInfo = sqlManager.execute(new SQLReady("select id from t_user u where exists(select 1 from t_user_org where uid = u.id and oid = "+qid+")"),Long.class);
+//            if(qInfo.contains(uid)){
+//                for(Long u : qInfo){
+//                    if(u.equals(uid)){
+//                        List<Obj> dept = sqlManager.execute(new SQLReady("select parent_id as deptId,name as deptName from t_org where id=(select parent_id from t_org where id="+u+")"),Obj.class);
+//                    }
+//                }
+//            }
+//        }
         // 角色
         List<Long> rInfo = sqlManager.execute(new SQLReady("select id from t_user u where exists(select 1 from t_user_org where uid = u.id and oid in "+ridList+")"),Long.class);
         // 部门
@@ -201,7 +211,9 @@ public class workflow {
         if(!uidSet.contains(uid)){
             return Result.error("没有权限发起流程！");
         }
-            //任务所属部门
+        //任务所属部门
+
+
 //        List<Obj> userInfo = sqlManager.execute(new SQLReady("select u.id,u.true_name as name,o.oid from t_user u inner join t_user_org o on o.uid=u.id and uid="+uid),Obj.class);
 //
 //        List<String> didList = (List<String>) ((Document) startNode).get("dids");
