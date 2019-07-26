@@ -1,11 +1,13 @@
 package com.beeasy.loadqcc.utils;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.Joiner;
 import org.osgl.util.C;
 import org.springframework.util.DigestUtils;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 public class QccUtil {
@@ -28,7 +30,9 @@ public class QccUtil {
     }
 
     // get请求数据
-    public static String getData(String url, Map queries){
+    public static String getData(String url, Map reqQueries){
+        Map queries = JSON.parseObject(JSON.toJSONString(reqQueries));
+        queries.remove("sign");
         // 补充key，企查查请求格式
         queries.put("key", AppKey);
         Map header = setHeaderInfo();

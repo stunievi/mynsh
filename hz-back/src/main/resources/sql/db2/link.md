@@ -199,3 +199,19 @@ where 1=1 and ('admin' = (select username from t_user where id = #uid#) or opera
 @pageIgnoreTag(){
    order by cus.ADD_TIME 
 @}
+
+查询资质客户关联方
+===
+select 
+@pageTag(){
+   cus.*,
+   user.TRUE_NAME as USER_TRUE_NAME
+@}
+from T_QUAL_CUS_RELATED as cus 
+left join t_user user on operator = user.id
+where 1=1 and ('admin' = (select username from t_user where id = #uid#) or operator = #uid#)
+--资质客户ID
+and cus.QUAL_CUS_ID = #QUAL_CUS_ID#
+@pageIgnoreTag(){
+   order by cus.ADD_TIME 
+@}
