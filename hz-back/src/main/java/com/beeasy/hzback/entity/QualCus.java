@@ -1,5 +1,6 @@
 package com.beeasy.hzback.entity;
 
+import cn.hutool.core.util.IdUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.core.util.Log;
@@ -41,10 +42,10 @@ public class QualCus extends ValidGroup {
         object.put("uid", uid);
         String cusType = object.getString("CUS_TYPE");
         String cusName = Optional.ofNullable(object.getString("CUS_NAME")).get().trim();
-        String companyName = object.getString("COMPANY_NAME");
+        String companyName = Optional.ofNullable(object.getString("COMPANY_NAME")).get().trim();
         switch (action) {
             case "insert":
-                String requestSign = "06";
+                String requestSign = "06,08";
                 Assert(S.noBlank(cusName) , "客户名称不能为空!");
                 Assert(S.noBlank(cusType) && C.list("01", "02").contains(cusType), "客户类型不存在!");
                 if(null!=cusType && "02".equals(cusType)){
@@ -53,6 +54,8 @@ public class QualCus extends ValidGroup {
                 }
 
                 QualCus insertData = new QualCus();
+                long id = IdUtil.createSnowflake(0,0).nextId();
+                insertData.setId(id);
                 insertData.setCusName(cusName);
                 insertData.setAddTime(nowDate);
 //                insertData.setCusType("");
@@ -60,9 +63,9 @@ public class QualCus extends ValidGroup {
                 insertData.setOperator(uid);
                 insertData.setCusType(cusType);
                 insertData.setCompanyName(companyName);
-                sqlManager.insert(insertData, true);
+                sqlManager.insert(insertData);
 
-                // TODO:: 触发获取企查查信息
+                // 触发MQ获取企查查信息
                 JmsMessagingTemplate jmsMessagingTemplate = U.getBean(JmsMessagingTemplate.class);
                 ActiveMQQueue mqQueue = new ActiveMQQueue("qcc-company-infos-request");
                 JSONObject requestData = new JSONObject();

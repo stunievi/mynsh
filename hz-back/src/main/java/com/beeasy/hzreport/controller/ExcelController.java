@@ -212,6 +212,9 @@ public class ExcelController {
             query.put("LINK_MODEL", "stockHolder");
             fileName = "股东及股东关联方贷款.xlsx";
             sqlId = "link.loan_link_list";
+        }else if("qualCusLink".equals(act)){
+            fileName = "资质客户关联方.xlsx";
+            sqlId = "link.查询资质客户关联方";
         }else {
             throw new RuntimeException("非法请求");
         }
