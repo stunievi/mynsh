@@ -33587,19 +33587,24 @@
 	      }
 	    });
 	  }
-	  assign(actions, {
-            'BindingForms': {
-                group: 'connect',
-                className: 'bpmn-icon-lane-insert-above',
-                title: translate('Binding Forms'),
-                action: {
-                    click: function (e) {
-                        console.log(arguments)
-                        bd(e,businessObject)
+
+	  // console.log(businessObject)
+        if(businessObject.$type == 'bpmn:Task' || businessObject.$type == 'bpmn:StartEvent' || businessObject.$type == 'bpmn:EndEvent'){
+            assign(actions, {
+                'BindingForms': {
+                    group: 'connect',
+                    className: 'bpmn-icon-lane-insert-above',
+                    title: "设置节点",//translate('Binding Forms'),
+                    action: {
+                        click: function (e) {
+                            console.log(arguments)
+                            bd(e,businessObject)
+                        }
                     }
                 }
-            }
-        });
+            });
+        }
+
 
 	  return actions;
 	};

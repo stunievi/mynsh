@@ -179,7 +179,34 @@
 </script>
 
 <script>
+    window.form = null;
+    window.fields = [];
+    window.bpmData = {
+        nodes:{}
+    };
+
+    function loadForm(){
+        var id = $("#selectForm").val()
+        loadTimeout()
+        $.get("/api/bpm/form/one", {id:id}, function (msg) {
+            layer.closeAll();
+            if(msg.success){
+                form = msg.data;
+            }
+            $.each(msg.data.form.data ||[], function (i,v) {
+                fields.push(v.title)
+            })
+        }, 'json')
+    }
+
+    $(document).on('change',"#selectForm",function () {
+        loadForm()
+    });
+</script>
+
+<script>
     var formList = [];
+    var pid = getParam("pid");
     var fulldata = {
 
         // formId:1,
@@ -187,13 +214,14 @@
         // name:"",
         startEvent:[],
         ext:{},
-        rqd:[],
-        taskList:[]
+        assUser:[],
+        taskList:[],
+        pid: pid
     }
 
     $.ajax({
         type:"get",
-        url:"/bpm/form/queryForm",
+        url:"/api/bpm/form/queryForm",
         async:false,
         success:function(data){
                 for (var i = 0; i < data.data.length; i++) {
@@ -248,19 +276,42 @@
             xml = data;
         }
     });
+
+    /*var p1 = getFetch(remoteOrigin + "/api/auto/user/getList?page=1&size=2000")
+    $.when(p1).then(function (a,b,c) {
+        var d1 = a.data.list;
+        d1.forEach(function (da) {
+            userSourceData[da.id] = da.trueName;
+        })
+
+    });*/
+
     var flag = getParam("flag");
     var id = getParam("id");
 
     if(1 == flag){
         $.ajax({
             type:"get",
-            url: "/bpm/BpmXmlController/queryBPMXML?_id="+id,
+            url: "/api/bpm/BpmXmlController/one?_id="+id,
             async:false,
             success:function(obj){
                 if(obj["data"].length>0){
                     var bpmXml = obj["data"][0].b_xml;
                     if(null != bpmXml && "" != bpmXml){
                         xml = bpmXml;
+
+                        var userSourceData = {};
+                        $.ajax({
+                            type:"get",
+                            url: remoteOrigin + "/api/auto/user/getList?page=1&size=2000",
+                            async:false,
+                            success:function(obj){
+                                var d1 = obj.data.list;
+                                d1.forEach(function (da) {
+                                    userSourceData[da.id] = da.trueName;
+                                })
+                            }
+                        })
 
                         console.log("-----",obj["data"][0].data)
 
@@ -282,9 +333,9 @@
                                 var  _taskId = data[i].taskId;
 
                                 _items.forEach(function (item) {
-                                    _name = item.name;
-                                    _title = item.title;
-                                    _type = item.type;
+                                    _name.push(item.name);
+                                    _title.push(item.title);
+                                    _type.push(item.type);
                                 })
 
                                 _permission.dept.forEach(function (dept) {
@@ -300,7 +351,13 @@
                                     _user = user.join(",");
                                 })
 
-                                fulldata.ext[_taskId] = {"taskId":_taskId,"quarters":_quarters,"role":_role,"dept":_dept,"uid":_user,"formId":_formId,"dataId":_name,"dataTitle":_title,"dataType":_type}
+                                var u = _user.split(",");
+                                u.forEach(function (us) {
+                                    fulldata.assUser.push({"key":userSourceData[us],"value":us})
+
+                                })
+
+                                fulldata.ext[_taskId] = {"taskId":_taskId,"quarters":_quarters,"role":_role,"dept":_dept,"uid":_user,"formId":_formId,"dataId":_name.join(","),"dataTitle":_title.join(","),"dataType":_type.join(",")}
                             }else if(data[i].node){
                                 _formId = data[i].node[0].form.formId;
                                 var _items = data[i].node[0].form.items;
@@ -332,6 +389,12 @@
                                 _permission.user.forEach(function (user) {
                                     _user = user.join(",");
                                 })
+                                var u = _user.split(",");
+                                u.forEach(function (us) {
+                                    fulldata.assUser.push({"key":userSourceData[us],"value":us})
+
+                                })
+
 
                                 fulldata.ext[_taskId] = {"taskId":_taskId,"quarters":_quarters,"role":_role,"dept":_dept,"uid":_user,"formId":_formId,"dataId":_name,"dataTitle":_title,"dataType":_type}
                                 console.log("ss:",fulldata.ext)
@@ -421,7 +484,7 @@
             console.log('error rendering', err);
         } else {
             console.log('rendered');
-        }
+            myTabs}
     });
 
     /**
@@ -432,10 +495,67 @@
             if (err) {
                 return console.error('could not save BPMN 2.0 diagram', err);
             }
-            console.log(">>>>>>>>>>>>>>>",fulldata)
+            console.log("---xml",xml)
+            var _xml = $.parseXML(xml);
+            var _eventMap = {};
+            var _xmlMap = {};
+            var startEvent;
+            var endEvent;
+            $(_xml).find('process').each(function(){
+                var _sequenceFlow = $(this).children('sequenceFlow');
+                _sequenceFlow.each(function () {
+                    var targetRef = $(this).attr("targetRef");
+                    var nextNodes = {"nextEvent":targetRef}
+                    var sourceRef = $(this).attr("sourceRef");
+                    var sr = sourceRef.split("_");
+                    var tr = targetRef.split("_");
+                    if(sr.length>0 && "StartEvent" == sr[0]){
+                        startEvent = sourceRef;
+                    }
+                    if(tr.length>0 && "EndEvent" == tr[0]){
+                        endEvent = targetRef;
+                    }
+                    _eventMap[sourceRef] = {"taskId":sourceRef,"nextNodes":nextNodes}
+                })
+            });
+            var _formDataMap = {}
+            var form = $("#selectForm").val();
             var modelName = $("#modelName").val();
             $.ajax({
-                url: "/bpm/BpmXmlController/saveBPMXML?xml="+xml+"&&data="+JSON.stringify(fulldata)+"&&_id="+id+"&&modelName="+modelName,
+                type:"get",
+                async:false,
+                url:"/api/bpm/form/queryFormData?_id="+form,
+                success:function(res){
+                    if(res.code==200&& res.data.length>0){
+                        var data = res.data[0].form.data;
+                        data.forEach(function (e) {
+                            _formDataMap[e.title] = e;
+                        })
+                    }
+                }
+            });
+            _xmlMap = {"workflowName":modelName,"fields":_formDataMap,"node":_eventMap,"start":startEvent,"end":endEvent}
+            console.log("xmlMap----",_xmlMap)
+
+            $.ajax({
+                url:"/api/bpm/workflow/saveWorkFlow",
+                type:"post",
+                data: JSON.stringify(_xmlMap),
+                headers:{
+                    "Content-Type": "application/json"
+                },
+                dataType: "json",
+                success:function(res){
+                        alert(2222)
+                    if(res.code==200){
+                    }
+                }
+            });
+
+            console.log(">>>>>>>>>>>>>>>",fulldata)
+
+            $.ajax({
+                url: "/api/bpm/BpmXmlController/saveBPMXML?xml="+xml+"&&data="+JSON.stringify(fulldata)+"&&_id="+id+"&&modelName="+modelName+"&&pid="+pid,
                 success: function (res) {
                     console.log("res",res)
                     if(!res.data || code != 200){
@@ -487,6 +607,29 @@
         rData:roleData
     });
 
+    loadForm()
+
+    // 获取选中的表单值
+    function formInfoData() {
+        var form = $("#selectForm").val();
+        $.ajax({
+            type:"get",
+            url:"/api/bpm/form/queryFormData?_id="+form,
+            success:function(res){
+                var _formDataMap = {}
+                if(res.code==200&& res.data.length>0){
+                    var data = res.data[0].form.data;
+
+                    data.forEach(function (e) {
+                        _formDataMap[e.title] = e;
+                    })
+                    console.log("sss",_formDataMap)
+                }
+                return _formDataMap;
+            }
+        });
+    }
+
 
     function bd(e,obj) {
         fulldata.taskId=obj.id;
@@ -494,7 +637,28 @@
         var form = $("#selectForm").val();
         console.log("当前选中id:",obj.id)
 
-        addNavTab(obj.id, "节点配置", "/htmlsrc/bpm/workFlow/bindingForm.html?taskId="+obj.id+"&&formId="+ form + "&&name"+modelName,{nodeId:obj.id, data:fulldata});
+        bpmData.nodes[obj.id] = bpmData.nodes[obj.id] || {
+            fields:{
+                all_fields: [],
+                required_fields:[],
+            },
+            permission:{
+                //中文
+                ps: [],
+                qs: [],
+                ds: [],
+                rs: [],
+                //id
+                pids:[],
+                qids:[],
+                dids:[],
+                rids:[]
+            },
+            condition: []
+        };
+        window.open("./node.edit.html?id=" + obj.id,"node_edit_" + obj.id, "left=200, top=100, width=800, height=500, location=no")
+
+        // addNavTab(obj.id, "节点配置", "/htmlsrc/bpm/workFlow/bindingForm.html?taskId="+obj.id+"&&formId="+ form + "&&name"+modelName,{nodeId:obj.id, data:fulldata});
         /*touchRuleIndex = layer.open({
             title:'表单',
             type: 1,

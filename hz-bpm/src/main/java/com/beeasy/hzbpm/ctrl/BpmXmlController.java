@@ -4,11 +4,14 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.beeasy.hzbpm.util.Result;
 import com.github.llyb120.nami.core.R;
 import com.github.llyb120.nami.json.Arr;
 import com.github.llyb120.nami.json.Obj;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.UpdateOptions;
 import org.bson.BsonArray;
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -17,6 +20,7 @@ import java.util.*;
 
 import static com.beeasy.hzbpm.service.MongoService.db;
 import static com.github.llyb120.nami.json.Json.a;
+import static com.github.llyb120.nami.json.Json.o;
 import static com.github.llyb120.nami.server.Vars.$request;
 
 public class BpmXmlController {
@@ -36,9 +40,11 @@ public class BpmXmlController {
         $request.put("b_name", next());
         $request.put("b_xml", $request.s("xml"));
         String id = $request.s("_id");
+        String pid = $request.s("pid");
         $request.remove("_id");
         $request.remove("_");
-        $request.put("data", JSON.parse($request.get("data").toString()));
+        $request.remove("pid");
+//        $request.put("data", JSON.parse($request.get("data").toString()));
 
         long same = 0;
         if(StrUtil.isBlank(id)){
@@ -69,7 +75,6 @@ public class BpmXmlController {
             task.add(jo.get("taskId"));
         }
 
-
         if(jsonObject.getJSONObject("ext").size()>0){
             for(Object t : task){
                 String [] startFlag = t.toString().split("_");
@@ -98,15 +103,30 @@ public class BpmXmlController {
 
 //        mongoClient.getDatabase("hz-bpm").getCollection("bpmXML").insertOne(doc);
 
-        Document doc;
+        /*Document doc;
         if(StrUtil.isBlank(id)){
+            $request.put("data", BsonArray.parse(jsonArray.toString()));
             doc = new Document($request);
             collection.insertOne(doc);
         } else {
             doc = new Document($request);
             doc.put("data", BsonArray.parse(jsonArray.toString()));
             collection.replaceOne(new BasicDBObject("_id", new ObjectId(id)), doc);
+        }*/
+        Document doc = $request.toBson();
+        ObjectId mid;
+        if(StrUtil.isBlank(id)){
+            mid = new ObjectId();
+            //只在新增的时候放入pid
+            if(StrUtil.isNotBlank(pid)){
+                doc.put("pid", new ObjectId(pid));
+            } else {
+                doc.put("pid", null);
+            }
+        } else {
+            mid = new ObjectId(id);
         }
+        collection.updateOne(Filters.eq("_id", mid), new Document("$set", doc), new UpdateOptions().upsert(true));
 
         return R.ok();
     }
@@ -115,11 +135,25 @@ public class BpmXmlController {
      * 查询
      * @return
      */
-    public R queryBPMXML(String _id){
-
+    public Result queryBPMXML(String _id, String pid){
 
         MongoCollection<Document> collection = db.getCollection("bpmXML");
-        Arr list = a();
+        Collection list = collection.aggregate(
+                a(
+                        o("$match", o("pid", StrUtil.isBlank(pid)? null : new ObjectId(pid))),
+                        o("$sort", o("createTime", -1)),
+                        o("$project", o(
+                                "_id", o("$toString", "$_id"),
+                                "modelName",1,
+//                                "data", 1,
+                                "createTime", 1
+                        ))
+                ).toBson()
+        ).into(new ArrayList());
+        return Result.ok(list);
+
+
+        /*Arr list = a();
         if(null == _id){
             collection.find().iterator()
                     .forEachRemaining(d -> {
@@ -136,7 +170,7 @@ public class BpmXmlController {
                         d.put("_id", id);
                         list.add(d);
                     });
-        }
+        }*/
 
         /*FindIterable<Document> lists;
         if(null == _id){
@@ -160,6 +194,29 @@ public class BpmXmlController {
         }
 
         System.out.println("i="+i);*/
+//        return R.ok(list);
+    }
+
+    public R one(String _id){
+        MongoCollection<Document> collection = db.getCollection("bpmXML");
+        Arr list = a();
+        if(null == _id){
+            collection.find().iterator()
+                    .forEachRemaining(d -> {
+                        String id = d.getObjectId("_id").toHexString();
+                        d.put("_id", id);
+                        list.add(d);
+                    });
+        }else{
+            collection.find(new Document(){{
+                put("_id", new ObjectId(_id));
+            }}).iterator()
+                    .forEachRemaining(d -> {
+                        String id = d.getObjectId("_id").toHexString();
+                        d.put("_id", id);
+                        list.add(d);
+                    });
+        }
         return R.ok(list);
     }
 
