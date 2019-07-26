@@ -1,9 +1,7 @@
 package com.beeasy.hzbpm;
 
-import com.beeasy.hzbpm.entity.BpmEntity;
 import com.beeasy.hzbpm.service.BpmService;
 import com.github.llyb120.nami.core.Nami;
-import com.github.llyb120.nami.json.Json;
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -37,7 +35,7 @@ public class TestWorkflow {
         Document arrangementData = (Document) data.get("arrangementData");
         BpmService service = new BpmService(arrangementData);
         service.canPub(1069519488812056576l);
-//        BpmEntity dd = Json.cast(arrangementData, BpmEntity.class);
+//        BpmModel dd = Json.cast(arrangementData, BpmModel.class);
         int d = 2;
     }
 }

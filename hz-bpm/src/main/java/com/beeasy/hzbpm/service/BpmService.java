@@ -1,25 +1,35 @@
 package com.beeasy.hzbpm.service;
 
-import com.github.llyb120.nami.json.Arr;
 import com.github.llyb120.nami.json.Obj;
 import org.beetl.sql.core.SQLReady;
 import org.bson.Document;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import static com.github.llyb120.nami.ext.beetlsql.BeetlSql.sqlManager;
-import static com.github.llyb120.nami.json.Json.a;
 
 public class BpmService {
 
-    private Document bpm = null;
+    //BpmModel
+    private Document model = null;
+
+    //BpmInstance
+    private Document ins = null;
 //    public long uid;
-    public BpmService(Document document){
-        this.bpm = document;
+    private BpmService(){
     }
 
+    public static BpmService ofModel(Document document){
+        BpmService bpmService = new BpmService();
+        bpmService.model = document;
+        return bpmService;
+    }
+
+    public static BpmService ofIns(String id){
+        BpmService bpmService = new BpmService();
+//        bpmService.model = document;
+        return bpmService;
+    }
 
     /**
      * 检查一个用户是否可以发布该流程
@@ -38,17 +48,17 @@ public class BpmService {
 //    public Object createBpmInstance(long uid, Obj data){
 
 //    }
-    
+
 
 
 
 
     public Document getNode(String nodeId){
-        Document nodes = (Document) bpm.get("nodes");
+        Document nodes = (Document) model.get("nodes");
         if(nodeId.equals("start")){
-            return (Document) nodes.get(bpm.getString("start"));
+            return (Document) nodes.get(model.getString("start"));
         } else if(nodeId.equals("end")){
-            return (Document) nodes.get(bpm.getString("end"));
+            return (Document) nodes.get(model.getString("end"));
         } else {
             return (Document) nodes.get(nodeId);
         }

@@ -4,7 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-public class BpmInsEntity {
+public class BpmInstance {
 
     //任务ID
     String _id;
@@ -29,7 +29,7 @@ public class BpmInsEntity {
     String depName;
 
     //整理好的数据实体
-    BpmEntity bpmEntity;
+    BpmModel bpmModel;
 
     Date createTime;
     Date lastMoidfyTime;
