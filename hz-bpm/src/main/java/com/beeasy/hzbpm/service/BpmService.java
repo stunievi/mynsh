@@ -1,5 +1,7 @@
 package com.beeasy.hzbpm.service;
 
+import com.beeasy.hzbpm.entity.BpmModel;
+import com.github.llyb120.nami.json.Json;
 import com.github.llyb120.nami.json.Obj;
 import com.mongodb.client.MongoCollection;
 import org.beetl.sql.core.SQLReady;
@@ -7,6 +9,7 @@ import org.bson.Document;
 import org.bson.types.ObjectId;
 
 import java.util.List;
+import java.util.Map;
 
 import static com.beeasy.hzbpm.service.MongoService.db;
 import static com.github.llyb120.nami.ext.beetlsql.BeetlSql.sqlManager;
@@ -16,7 +19,7 @@ import static com.github.llyb120.nami.json.Json.o;
 public class BpmService {
 
     //BpmModel
-    private Document model = null;
+    private BpmModel model = null;
 
     //BpmInstance
     private Document ins = null;
@@ -25,9 +28,9 @@ public class BpmService {
     }
 
     public static BpmService ofModel(Document document){
-        BpmService bpmService = new BpmService();
-        bpmService.model = document;
-        return bpmService;
+        return null;
+//        bpmService.model = Json.cast(document, BpmModel.class);
+//        return bpmService;
     }
 
     public static BpmService ofModel(final String modelId){
@@ -42,7 +45,9 @@ public class BpmService {
         if (data == null) {
             return null;
         }
-        return ofModel((Document)data.get("arrangementData"));
+        BpmService bpmService = new BpmService();
+        bpmService.model = Json.cast(o("nodes", data.get("arrangementData")), BpmModel.class);
+        return bpmService;
     }
 
     public static BpmService ofIns(String id){
@@ -57,10 +62,10 @@ public class BpmService {
      * @return
      */
     public boolean canPub(long uid){
-        Document node = getNode("start");
+        BpmModel.Node node = getNode("start");
         List<Obj> list = sqlManager.execute(new SQLReady("select uid,oid,pid from t_org_user where uid = ?", uid), Obj.class);
         return list.stream().anyMatch(e -> {
-            return ((List)node.get("qids")).contains(e.s("oid")) || ((List)node.get("rids")).contains(e.s("oid")) || ((List)node.get("dids")).contains(e.s("pid")) || ((List)node.get("uids")).contains(e.s("uid"));
+            return (node.qids).contains(e.s("oid")) || (node.rids).contains(e.s("oid")) || (node.dids).contains(e.s("pid")) || (node.uids).contains(e.s("uid"));
         });
     }
 
@@ -70,18 +75,22 @@ public class BpmService {
         return null;
     }
 
+    public Object getNextNodePersons(long uid, Obj attrs){
+        //查找所有的属性
+        Document oldAttrs = new Document((Document) ins.get("attrs"));
+        oldAttrs.putAll(attrs);
+        //查找下一个可用的节点
+
+    }
 
 
-
-
-    public Document getNode(String nodeId){
-        Document nodes = (Document) model.get("nodes");
+    public BpmModel.Node getNode(String nodeId){
         if(nodeId.equals("start")){
-            return (Document) nodes.get(model.getString("start"));
+            return model.nodes.get(model.start);
         } else if(nodeId.equals("end")){
-            return (Document) nodes.get(model.getString("end"));
+            return model.nodes.get(model.end);
         } else {
-            return (Document) nodes.get(nodeId);
+            return model.nodes.get(nodeId);
         }
     }
 

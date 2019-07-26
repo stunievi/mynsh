@@ -12,19 +12,19 @@ public class BpmModel {
     //要么用ID避免节点递归的情况，
     //要么FASTJSON转成string避免节点递归
 
-    ObjectId formId;
+    public ObjectId formId;
 
     //表单的原始模板
-    String template;
+    public String template;
 
     //表单的展示模板
-    String rendered;
+    public String rendered;
 
     //表单字段配置
     @Deprecated
-    Map<String, FormField> fields;
+    public Map<String, FormField> fields;
 
-    Map<String, Node> nodes;
+    public Map<String, Node> nodes;
 
     //起始节点ID，只能有一个，多个的情况下禁止保存
     public String start;
@@ -40,16 +40,16 @@ public class BpmModel {
         NodeExt ext;
 
         //可以处理的人的ID
-        List<Long> uids;
+        public List<Long> uids;
 
         //可以处理的组织架构ID
-        List<Long> qids;
-        List<Long> dids;
-        List<Long> rids;
+        public List<Long> qids;
+        public List<Long> dids;
+        public List<Long> rids;
 
 
         //节点跳转的方向
-        List<NextNode> nextNodes = new ArrayList<>();
+        public List<NextNode> nextNodes = new ArrayList<>();
     }
 
     /**
