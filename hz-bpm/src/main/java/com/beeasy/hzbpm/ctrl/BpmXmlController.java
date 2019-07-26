@@ -25,20 +25,24 @@ import static com.github.llyb120.nami.server.Vars.$request;
 
 public class BpmXmlController {
 
-    public R saveBPMXML(String xml, String name, String _id, Obj query){
+    public Result saveBPMXML(String xml, String name, String _id, Obj query, Obj bady){
         /*if(null != name || "" != name){
             Bson filter = Filters.eq("b_name",name);
-            mongoClient.getDatabase("hz-bpm").getCollection("bpmXML").deleteOne(filter);
+            mongoClient.getDatabase("hz-bpm").getCollection("workflow").deleteOne(filter);
 
         }*/
-        MongoCollection<Document> collection = db.getCollection("bpmXML");
+        MongoCollection<Document> collection = db.getCollection("workflow");
         if(StrUtil.isBlank($request.s("modelName"))){
-            return R.fail("工作流名称不能为空!");
+            return Result.error("工作流名称不能为空!");
         }
 
         $request.put("createTime", new Date());
-        $request.put("b_name", next());
-        $request.put("b_xml", $request.s("xml"));
+        $request.put("b_id", next());
+//        JSONObject arrangementData = (JSONObject) $request.get("arrangementData");
+//        String formId= arrangementData.getString("formId");
+//        arrangementData.put("formId",new ObjectId(formId));
+//        $request.put("arrangementData",arrangementData);
+
         String id = $request.s("_id");
         String pid = $request.s("pid");
         $request.remove("_id");
@@ -58,7 +62,7 @@ public class BpmXmlController {
             );
         }
         if(same > 0){
-            return R.fail("已经有同名的工作流名称!");
+            return Result.error("已经有同名的工作流名称!");
         }
         JSONObject jsonObject = (JSONObject) JSON.parse($request.get("data").toString());
         JSONArray jsonArray = new JSONArray();
@@ -128,7 +132,7 @@ public class BpmXmlController {
         }
         collection.updateOne(Filters.eq("_id", mid), new Document("$set", doc), new UpdateOptions().upsert(true));
 
-        return R.ok();
+        return Result.ok();
     }
 
     /**
@@ -137,7 +141,7 @@ public class BpmXmlController {
      */
     public Result queryBPMXML(String _id, String pid){
 
-        MongoCollection<Document> collection = db.getCollection("bpmXML");
+        MongoCollection<Document> collection = db.getCollection("workflow");
         Collection list = collection.aggregate(
                 a(
                         o("$match", o("pid", StrUtil.isBlank(pid)? null : new ObjectId(pid))),
@@ -174,10 +178,10 @@ public class BpmXmlController {
 
         /*FindIterable<Document> lists;
         if(null == _id){
-            lists = mongoClient.getDatabase("hz-bpm").getCollection("bpmXML").find();
+            lists = mongoClient.getDatabase("hz-bpm").getCollection("workflow").find();
         }else{
             Bson filter = Filters.eq("b_name",bName);
-            lists = mongoClient.getDatabase("hz-bpm").getCollection("bpmXML").find(filter);
+            lists = mongoClient.getDatabase("hz-bpm").getCollection("workflow").find(filter);
         }
 
         MongoCursor<Document> mongoCursor = lists.iterator();
@@ -189,7 +193,7 @@ public class BpmXmlController {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("id", obj.get("_id").toString());
             jsonObject.put("name", obj.get("b_name"));
-            jsonObject.put("bpmXml", obj.get("b_xml"));
+            jsonObject.put("workflow", obj.get("b_xml"));
             jsonArray.add(jsonObject);
         }
 
@@ -198,7 +202,7 @@ public class BpmXmlController {
     }
 
     public R one(String _id){
-        MongoCollection<Document> collection = db.getCollection("bpmXML");
+        MongoCollection<Document> collection = db.getCollection("workflow");
         Arr list = a();
         if(null == _id){
             collection.find().iterator()
@@ -227,10 +231,10 @@ public class BpmXmlController {
      */
     public R deleteBPMXML(String _id){
         /*Bson filter = Filters.eq("b_name",bName);
-        mongoClient.getDatabase("hz-bpm").getCollection("bpmXML").deleteOne(filter);
+        mongoClient.getDatabase("hz-bpm").getCollection("workflow").deleteOne(filter);
         return R.ok();*/
 
-        MongoCollection<Document> collection = db.getCollection("bpmXML");
+        MongoCollection<Document> collection = db.getCollection("workflow");
         Document ret = collection.findOneAndDelete(new Document() {{
             put("_id", new ObjectId(_id));
         }});
@@ -383,7 +387,7 @@ public class BpmXmlController {
 
     /*public R getId(String _id){
         var list = a();
-        var collection = db.getCollection("bpmXML");
+        var collection = db.getCollection("workflow");
         collection.find(new Document(){{
             put("_id", new ObjectId(_id));
         }}).iterator()

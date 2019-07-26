@@ -68,11 +68,6 @@
                             <div id="formId" class="col-xs-8" style="padding-right: 15px;
                         padding-left: 15px; max-width:400px">
 
-                                <!--<select class="form-control input-sm" id="dealerId" name="dealerId" value="">
-                                    <option value="aa">aa</option>
-                                    <option value="bb">bb</option>
-                                </select>-->
-
                             </div>
                         </div>
 
@@ -90,18 +85,6 @@
 
                             </div>
                         </div>
-                        <!--<div class="col-xs-12 form-group " data-show="">
-                            <label class="col-xs-3 text-right">
-                                <span style="color:red">*</span>
-                                可发起人
-                            </label>
-                            <div class="col-xs-8" style="padding-right: 15px;
-                        padding-left: 15px; max-width:400px">
-
-
-                            </div>
-                        </div>-->
-
 
                     </div>
                     <div class="col-xs-12 text-center" style="padding:20px 0;">
@@ -110,14 +93,6 @@
                         </button>
 
                     </div>
-                    <!--<div class="col-xs-12 text-center" style="padding:20px 0;">
-
-                        <button type="button" href="javascript:;" class="btn btn-info" id="submitData" style="margin-right: 10px;">
-                            <i class="glyphicon glyphicon-floppy-disk"></i>
-                            保存
-                        </button>
-
-                    </div>-->
                 </form>
 
             </div>
@@ -129,46 +104,6 @@
 
 <button id="save-button" class="btn btn-info tab2 hide">保存</button>
 
-<script type="text/html" id="bindingForm">
-    <div class="cols-xs-12">
-        <div class="col-xs-12 col-sm-6" >
-            <h5>选择岗位</h5>
-            <hr>
-            <ul id="treeDemo" class="ztree"></ul>
-        </div>
-
-        <div class="col-xs-12 col-sm-6">
-            <h5>选择角色</h5>
-            <hr>
-            <div id="dataList"></div>
-        </div>
-    </div>
-    <div class="col-xs-12" style="margin-top:10px;">
-        <div style="padding: 5px 10px 10px 0px">
-            审批人类型<select class="form-control input-sm" id="spr" name="dealerId" value="">
-                <option value="post">岗位</option>
-                <option value="rule">角色</option>
-                <option value="uid">人员</option>
-            </select>
-            <!--{{each rules value index}}
-            <span class="rule_z">
-                <input type="checkbox" value="{{index}}" name="tRule">{{value}}</input>
-            </span>
-            <br/>
-            {{/each}}-->
-
-            {{each rData value index}}
-            <span class="rule_z">
-                <input type="checkbox" value="{{index}}" name="role">{{value.name}}</input>
-            </span>
-            {{/each}}
-        </div>
-    </div>
-    <div class="col-xs-12 text-center" style="margin-top:10px;">
-        <a type="button " class="btn btn-primary" onClick="confirmPopup()">确定</a>
-        <a type="button" class="btn btn-default" onClick="cancelPopup()">取消</a>
-    </div>
-</script>
 <script type="text/html" id="model_temp">
     <select class="form-control input-sm" id="selectForm">
         {{each formList value index}}
@@ -277,15 +212,6 @@
         }
     });
 
-    /*var p1 = getFetch(remoteOrigin + "/api/auto/user/getList?page=1&size=2000")
-    $.when(p1).then(function (a,b,c) {
-        var d1 = a.data.list;
-        d1.forEach(function (da) {
-            userSourceData[da.id] = da.trueName;
-        })
-
-    });*/
-
     var flag = getParam("flag");
     var id = getParam("id");
 
@@ -295,8 +221,9 @@
             url: "/api/bpm/BpmXmlController/one?_id="+id,
             async:false,
             success:function(obj){
+
                 if(obj["data"].length>0){
-                    var bpmXml = obj["data"][0].b_xml;
+                    var bpmXml = obj["data"][0].xml;
                     if(null != bpmXml && "" != bpmXml){
                         xml = bpmXml;
 
@@ -313,147 +240,10 @@
                             }
                         })
 
-                        console.log("-----",obj["data"][0].data)
-
                         $("#modelName").val(obj["data"][0].modelName);
-                        var data = obj["data"][0].data;
-                        var _formId;
-                        for(var i=0;i<data.length;i++){
-                            if(data[i].start){
-                                _formId = data[i].start[0].form.formId;
-                                var _items = data[i].start[0].form.items;
-                                var _permission = data[i].start[0].permission;
-                                var _name = [];
-                                var _title = [];
-                                var _type = [];
-                                var _dept = [];
-                                var _quarters = [];
-                                var _role = [];
-                                var _user = [];
-                                var  _taskId = data[i].taskId;
-
-                                _items.forEach(function (item) {
-                                    _name.push(item.name);
-                                    _title.push(item.title);
-                                    _type.push(item.type);
-                                })
-
-                                _permission.dept.forEach(function (dept) {
-                                    _dept = dept.join(",");
-                                })
-                                _permission.role.forEach(function (role) {
-                                    _role = role.join(",");
-                                })
-                                _permission.quarters.forEach(function (quarters) {
-                                    _quarters = quarters.join(",");
-                                })
-                                _permission.user.forEach(function (user) {
-                                    _user = user.join(",");
-                                })
-
-                                var u = _user.split(",");
-                                u.forEach(function (us) {
-                                    fulldata.assUser.push({"key":userSourceData[us],"value":us})
-
-                                })
-
-                                fulldata.ext[_taskId] = {"taskId":_taskId,"quarters":_quarters,"role":_role,"dept":_dept,"uid":_user,"formId":_formId,"dataId":_name.join(","),"dataTitle":_title.join(","),"dataType":_type.join(",")}
-                            }else if(data[i].node){
-                                _formId = data[i].node[0].form.formId;
-                                var _items = data[i].node[0].form.items;
-                                var _permission = data[i].node[0].permission;
-                                var _name = [];
-                                var _title = [];
-                                var _type = [];
-                                var _dept = [];
-                                var _quarters = [];
-                                var _role = [];
-                                var _user = [];
-                                var _taskId = data[i].taskId;
-
-                                _items.forEach(function (item) {
-                                    _name = item.name;
-                                    _title = item.title;
-                                    _type = item.type;
-                                })
-
-                                _permission.dept.forEach(function (dept) {
-                                    _dept = dept.join(",");
-                                })
-                                _permission.role.forEach(function (role) {
-                                    _role = role.join(",");
-                                })
-                                _permission.quarters.forEach(function (quarters) {
-                                    _quarters = quarters.join(",");
-                                })
-                                _permission.user.forEach(function (user) {
-                                    _user = user.join(",");
-                                })
-                                var u = _user.split(",");
-                                u.forEach(function (us) {
-                                    fulldata.assUser.push({"key":userSourceData[us],"value":us})
-
-                                })
-
-
-                                fulldata.ext[_taskId] = {"taskId":_taskId,"quarters":_quarters,"role":_role,"dept":_dept,"uid":_user,"formId":_formId,"dataId":_name,"dataTitle":_title,"dataType":_type}
-                                console.log("ss:",fulldata.ext)
-                            }
-                        }
-
-                        // $("#dealerId").val("bb");
+                        window.bpmData = obj["data"][0].bpmData;
+                        console.log("window.bpmData:",window.bpmData)
                     }
-                    // obj["data"][0].data.forEach(function(item){
-                    //     var _taskId = item.taskId;
-                    //     var _formId;
-                    //     var _name=[];
-                    //     var _title=[];
-                    //     var _type=[];
-                    //
-                    //     var _dept=[];
-                    //     var _quarters=[];
-                    //     var _role=[];
-                    //     var _user=[];
-                    //     if(item.start){
-                    //         item.start.forEach(function (e) {
-                    //             console.log("-----",e)
-                    //             /*if(e.formId){
-                    //                 _formId = e.formId;
-                    //                 for(var i=0;i<e.items.length;i++){
-                    //                     _name.push(e.items[i].name)
-                    //                     _title.push(e.items[i].title)
-                    //                     _type.push(e.items[i].type)
-                    //                 }
-                    //             }*/
-                    //             /*else if(e.dept){
-                    //                 for(var i=0;i<e.dept.length;i++){
-                    //                     _dept.push(e.dept)
-                    //                 }
-                    //             }else if(e.quarters){
-                    //                 for(var i=0;i<e.quarters.length;i++){
-                    //                     _quarters.push(e.quarters)
-                    //                 }
-                    //             }else if(e.role){
-                    //                 for(var i=0;i<e.role.length;i++){
-                    //                     _role.push(e.role)
-                    //                 }
-                    //             }else if(e.user){
-                    //                 for(var i=0;i<e.user.length;i++){
-                    //                     _user.push(e.user)
-                    //                 }
-                    //             }*/
-                    //         })
-                    //         fulldata.startEvent.push({"taskId":_taskId,"quarters":_quarters.join(","),"role":_role.join(","),"dept":_dept.join(","),"uid":_user.join(","),"formId":_formId,"dataId":_name.join(","),"dataTitle":_title.join(","),"dataType":_type.join(",")})
-                    //     }
-                    //     /*else if(item.node){
-                    //         item.node.forEach(function (e) {
-                    //             fulldata.ext.push(e)
-                    //             console.log(">>>>>>>>>>>>>>>>>>>>",e)
-                    //         })
-                    //     }*/
-                    //
-                    // });
-
 
                 }
             }
@@ -515,16 +305,26 @@
                     if(tr.length>0 && "EndEvent" == tr[0]){
                         endEvent = targetRef;
                     }
-                    _eventMap[sourceRef] = {"taskId":sourceRef,"nextNodes":nextNodes}
+                    var nodeExt =[];    // 节点对应的表单属性
+                    nodeExt.push(window.bpmData.nodes[sourceRef].fields.all_fields);
+                    // 可以处理的人的ID
+                    var pids =(window.bpmData.nodes[sourceRef].permission.pids);
+                    // 可以处理的组织架构ID
+                    var qids =(window.bpmData.nodes[sourceRef].permission.qids);
+                    var rids =(window.bpmData.nodes[sourceRef].permission.rids);
+                    var dids =(window.bpmData.nodes[sourceRef].permission.dids);
+                    _eventMap[sourceRef] = {"taskId":sourceRef,"ext":nodeExt,"uids":pids,"qids":qids,"rids":rids,"dids":dids,"nextNodes":nextNodes}
                 })
             });
+            console.log("==",bpmData)
+
             var _formDataMap = {}
-            var form = $("#selectForm").val();
+            var formId = $("#selectForm").val();
             var modelName = $("#modelName").val();
             $.ajax({
                 type:"get",
                 async:false,
-                url:"/api/bpm/form/queryFormData?_id="+form,
+                url:"/api/bpm/form/queryFormData?_id="+formId,
                 success:function(res){
                     if(res.code==200&& res.data.length>0){
                         var data = res.data[0].form.data;
@@ -534,35 +334,46 @@
                     }
                 }
             });
-            _xmlMap = {"workflowName":modelName,"fields":_formDataMap,"node":_eventMap,"start":startEvent,"end":endEvent}
+            _xmlMap = {"formId":formId,"template":form.form.template,"rendered":form.form.parse,"workflowName":modelName,"fields":_formDataMap,"node":_eventMap,"start":startEvent,"end":endEvent}
             console.log("xmlMap----",_xmlMap)
 
+            var da = {
+                _id:id,
+                xml:xml,
+                pid:pid,
+                modelName:modelName,
+                data:fulldata,
+                bpmData:bpmData,
+                arrangementData:_xmlMap
+            }
+
+
             $.ajax({
-                url:"/api/bpm/workflow/saveWorkFlow",
+                // url:"/api/bpm/workflow/saveWorkFlow",
+                url:"/api/bpm/BpmXmlController/saveBPMXML",
                 type:"post",
-                data: JSON.stringify(_xmlMap),
+                data: JSON.stringify(da),
                 headers:{
                     "Content-Type": "application/json"
                 },
                 dataType: "json",
                 success:function(res){
-                        alert(2222)
-                    if(res.code==200){
-                    }
+                    console.log()
                 }
             });
 
             console.log(">>>>>>>>>>>>>>>",fulldata)
 
-            $.ajax({
-                url: "/api/bpm/BpmXmlController/saveBPMXML?xml="+xml+"&&data="+JSON.stringify(fulldata)+"&&_id="+id+"&&modelName="+modelName+"&&pid="+pid,
+            /*$.ajax({
+                url: "/api/bpm/BpmXmlController/saveBPMXML?xml="+xml+"&&data="+JSON.stringify(fulldata)+"&&_id="+id+"&&modelName="+modelName+"&&pid="+pid+"&bpmData="+JSON.stringify(window.bpmData),
                 success: function (res) {
+
                     console.log("res",res)
                     if(!res.data || code != 200){
                         layer.msg(res.errMessage);
                     }
                 }
-            });
+            });*/
         });
     }
     /**
@@ -598,14 +409,6 @@
     // wire save button
     $('#save-button').click(exportDiagram);
 
-    var _html = template("bindingForm",{
-        rules: {
-            "aaa": "bbb",
-            "bbb": "bbb",
-            "ccc": "<input type='text'/>asdsa"
-        },
-        rData:roleData
-    });
 
     loadForm()
 
@@ -636,6 +439,8 @@
         var modelName = $("#modelName").val();
         var form = $("#selectForm").val();
         console.log("当前选中id:",obj.id)
+        console.log("bpmData:",bpmData.nodes[obj.id])
+
 
         bpmData.nodes[obj.id] = bpmData.nodes[obj.id] || {
             fields:{
@@ -658,13 +463,6 @@
         };
         window.open("./node.edit.html?id=" + obj.id,"node_edit_" + obj.id, "left=200, top=100, width=800, height=500, location=no")
 
-        // addNavTab(obj.id, "节点配置", "/htmlsrc/bpm/workFlow/bindingForm.html?taskId="+obj.id+"&&formId="+ form + "&&name"+modelName,{nodeId:obj.id, data:fulldata});
-        /*touchRuleIndex = layer.open({
-            title:'表单',
-            type: 1,
-            area: ['600px', '400px'], //宽高
-            content: _html
-        });*/
     }
 
     function cancelPopup(){

@@ -26,6 +26,7 @@ import static com.beeasy.hzbpm.service.MongoService.db;
 import static com.github.llyb120.nami.ext.beetlsql.BeetlSql.sqlManager;
 import static com.github.llyb120.nami.json.Json.a;
 import static com.github.llyb120.nami.json.Json.o;
+import static com.github.llyb120.nami.server.Vars.$request;
 
 public class workflow {
 
@@ -87,12 +88,12 @@ public class workflow {
         MongoCollection<Document> collection = db.getCollection("workflow");
         collection.find(new Document(){{
 //            put("data.formId", new ObjectId(formId));
-            put("data.workflowName", "名称");
+            put("arrangementData.formId", formId);
         }}).iterator()
                 .forEachRemaining(d -> {
                     String id = d.getObjectId("_id").toHexString();
                     d.put("_id", id);
-                    list.add(d.get("data"));
+                    list.add(d.get("arrangementData"));
 
                 });
         return list;
@@ -145,17 +146,35 @@ public class workflow {
      * 提交
      */
     public Result submitIns(Obj bady){
+        System.out.println($request);
         Long uid = Auth.getUid();
-        String formId = bady.s("formId");
+        String formId = $request.s("formId");
         Arr bpmWorkflow = bpmWorkflow(formId);
+
+        // 开始节点填入字段
+        Object extArr = null;
 
         for(Object li : bpmWorkflow){
             Document a = (Document) li;
             String start = (String) a.get("start");
             Map<String, Object> nodeMap = (Map<String, Object>) a.get("node");
-            Object startNode = nodeMap.get(start);
+            Map startNodeMap = (Map) nodeMap.get(start);
+            Iterator iter = startNodeMap.entrySet().iterator();
+            while (iter.hasNext()) {
+                Map.Entry entry = (Map.Entry) iter.next();
+                Object key = entry.getKey();
+                if("ext".equals(entry.getKey())){
+                    List<Object> val = (List<Object>) entry.getValue();
+
+                    for(Object va : val){
+                        extArr = va;
+                    }
+                break;
+                }
+            }
 
         }
+        System.out.println(extArr);
 
         Object startNode = startNode();
         Set<Long> uidSet = new HashSet<>();
@@ -194,6 +213,7 @@ public class workflow {
 //                orgSet.add(list.s("oid"));
 //            }
 //        }
+        // 提交字段
 
 
 
