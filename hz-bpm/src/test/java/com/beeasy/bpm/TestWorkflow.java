@@ -24,10 +24,16 @@ public class TestWorkflow {
 
     @Test
     public void test1() {
+
         Obj obj = new Obj();
         obj.put("data","测试");
+        obj.put("请假类型","1");
+        obj.put("请假原因","2");
+        obj.put("天数","3");
 
-        BpmService service = BpmService.ofIns("5d3ab883da77c245f138fd30",obj);
+        String uid = "520";
+
+        BpmService service = BpmService.ofIns("5d3c1f16b1e015024916dbd8",obj,uid);
         int d = 2;
     }
 }

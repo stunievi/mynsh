@@ -1,38 +1,40 @@
 package com.beeasy.hzbpm.entity;
 
+import com.github.llyb120.nami.json.Obj;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-public class BpmInstance {
+public class BpmInstance extends Obj {
 
     //任务ID
-    String _id;
+    public String _id;
 
     //任务状态
-    String state;
+    public String state;
 
     //工作流xml模型
-    String bpmId;
+    public String bpmId;
 
     //原始名字
-    String bpmName;
+    public String bpmName;
 
     //用户ID
-    Long pubUid;
+    public Long pubUid;
     //用户名
-    String pubUName;
+    public String pubUName;
 
     //任务所属部门ID, 取用户所在部门ID，用符合授权的那一个，如果有多个符合的，选第一个
-    String depId;
+    public String depId;
     //任务所属部门名
-    String depName;
+    public String depName;
 
     //整理好的数据实体
-    BpmModel bpmModel;
+    public BpmModel bpmModel;
 
-    Date createTime;
-    Date lastMoidfyTime;
+    public Date createTime;
+    public Date lastMoidfyTime;
 
     public List<CurrentNode> currentNodes;
 
@@ -49,7 +51,7 @@ public class BpmInstance {
 
 
     //数据提交历史（记录）
-    List<DataLog> logs;
+    public List<DataLog> logs;
 
 
     static class DataLog{
