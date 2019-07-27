@@ -302,7 +302,9 @@
                     var targetRef = $(this).attr("targetRef");
                     node["node"] = targetRef;
                     nextEvent.push(node)
-                    var nextNodes = {"nextEvent":nextEvent}
+                    var nextNodes = [];
+                    nextNodes.push(node);
+                    // var nextNodes = {"nextEvent":nextEvent}
                     var sourceRef = $(this).attr("sourceRef");
                     var sr = sourceRef.split("_");
                     var tr = targetRef.split("_");
@@ -349,7 +351,8 @@
                     node["node"] = targetRef;
                     nextEvent.push(node)
                 }
-                    var nextNodes = {"nextEvent":nextEvent}
+                var nextNodes = [];
+                nextNodes.push(node);
                     console.log("eee",nextNodes)
                 _eventMap[exList[i].sourceRef] = {"taskId":exList[i],"ext":nodeExt,"uids":pids,"qids":qids,"rids":rids,"dids":dids,"nextNodes":nextNodes}
             });
