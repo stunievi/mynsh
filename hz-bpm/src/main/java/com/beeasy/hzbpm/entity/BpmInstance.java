@@ -34,7 +34,7 @@ public class BpmInstance {
     Date createTime;
     Date lastMoidfyTime;
 
-    List<CurrentNode> currentNodes;
+    public List<CurrentNode> currentNodes;
 
     //所有的属性集中在这里,直接初始化好,每当有人提交数据时，更新这个字段
     /**
@@ -45,7 +45,7 @@ public class BpmInstance {
      *     "字段3":"",
      * }
      */
-    Map<String,String> attrs;
+    public Map<String,String> attrs;
 
 
     //数据提交历史（记录）
@@ -70,11 +70,11 @@ public class BpmInstance {
     }
 
 
-    static class CurrentNode{
+    public static class CurrentNode{
         //当前节点的ID
-        String nodeId;
+        public String nodeId;
 
         //当前正在处理这个节点的人
-        List<Long> uids;
+        public List<Long> uids;
     }
 }

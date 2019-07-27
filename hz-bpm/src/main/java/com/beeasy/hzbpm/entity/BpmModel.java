@@ -59,11 +59,11 @@ public class BpmModel {
     public static class NextNode{
         //节点的跳转条件配置
         //条件表达式
-        String expression;
+        public String expression;
 //        Condition condition;
 
         //需要跳转的节点ID
-        String node;
+        public String node;
     }
 
 

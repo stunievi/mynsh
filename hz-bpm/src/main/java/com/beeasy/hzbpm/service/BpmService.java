@@ -1,9 +1,12 @@
 package com.beeasy.hzbpm.service;
 
+import cn.hutool.core.util.StrUtil;
+import com.beeasy.hzbpm.entity.BpmInstance;
 import COM.ibm.db2.app.UDF;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzbpm.entity.BpmModel;
+import com.github.llyb120.nami.json.Arr;
 import com.beeasy.hzbpm.filter.Auth;
 import com.github.llyb120.nami.json.Json;
 import com.github.llyb120.nami.json.Obj;
@@ -32,7 +35,7 @@ public class BpmService {
     private BpmModel model = null;
 
     //BpmInstance
-    private Document ins = null;
+    private BpmInstance ins = null;
 //    public long uid;
     private BpmService(){
     }
@@ -158,15 +161,76 @@ public class BpmService {
         return null;
     }
 
-    public Object getNextNodePersons(long uid, Obj attrs){
+    /**
+     * 通过当前提交的属性查询下一个应该移交的节点
+     * @param uid 提交属性的人，必须是当前节点的经办人
+     * @param attrs 提交到该任务上的属性
+     * @return
+     */
+    public BpmModel.Node getNextNode(long uid, Obj attrs){
         //查找所有的属性
-        Document oldAttrs = new Document((Document) ins.get("attrs"));
+        Obj oldAttrs = new Obj(ins.attrs);
         oldAttrs.putAll(attrs);
+        //当前处理的节点
+        BpmInstance.CurrentNode currentNode  = ins.currentNodes.stream()
+                .filter(e -> e.uids.contains(uid))
+                .findFirst()
+                .orElse(null);
+        if (currentNode == null) {
+            error("当前节点查询失败");
+        }
         //查找下一个可用的节点
-        return null;
+        BpmModel.Node node = getNode(currentNode.nodeId);
+        if (node == null) {
+            error("当前节点查询失败");
+        }
+        BpmModel.Node target = null;
+        for (BpmModel.NextNode nextNode : node.nextNodes) {
+            //如果表达式位空，则直接使用该节点
+            if(StrUtil.isBlank(nextNode.expression)){
+                target = getNode(nextNode.node);
+                break;
+            } else if(runExpression(nextNode.expression)){
+                target = getNode(nextNode.node) ;
+                break;
+            }
+        }
+        if (target == null) {
+            error("找不到符合跳转条件的下一节点");
+        }
+        return target;
     }
 
+    /**
+     * 查询下一个节点的可处理人，以本部门的为最优先
+     * @param uid
+     * @param attrs
+     * @return
+     */
+    public List<Obj> getNextNodePersons(long uid, Obj attrs){
+        BpmModel.Node target = getNextNode(uid, attrs);
+        //查询这个节点所有命中的人
+        return sqlManager.select("workflow.查找节点处理人员", Obj.class, o(
+            "uid", uid,
+            "uids", target.uids.isEmpty() ? a(-1) : target.uids    ,
+                "qids", target.qids.isEmpty() ? a(-1) : target.qids    ,
+                "rids", target.rids.isEmpty() ? a(-1) : target.rids    ,
+                "dids", target.dids.isEmpty() ? a(-1) : target.dids
+        ));
+    }
 
+    private void error(String errMessage){
+        throw new RuntimeException(errMessage);
+    }
+    private boolean runExpression(String expression){
+        return false;
+    }
+
+    /**
+     * 通过节点ID查询节点
+     * @param nodeId start表示开始，end表示结束，其余情况使用ID查询
+     * @return
+     */
     public BpmModel.Node getNode(String nodeId){
         if(nodeId.equals("start")){
             return model.nodes.get(model.start);
