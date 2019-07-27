@@ -1,14 +1,23 @@
 package com.beeasy.hzbpm;
 
 import com.beeasy.hzbpm.service.BpmService;
+import com.github.llyb120.nami.core.DBService;
 import com.github.llyb120.nami.core.Nami;
+import com.github.llyb120.nami.json.Arr;
+import com.github.llyb120.nami.json.Obj;
 import com.mongodb.client.MongoCollection;
+import org.beetl.sql.core.SQLReady;
 import org.bson.Document;
 import org.bson.types.ObjectId;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.sql.Array;
+import java.util.List;
+
 import static com.beeasy.hzbpm.service.MongoService.db;
+import static com.github.llyb120.nami.ext.beetlsql.BeetlSql.sqlManager;
 import static com.github.llyb120.nami.json.Json.a;
 import static com.github.llyb120.nami.json.Json.o;
 
@@ -33,9 +42,20 @@ public class TestWorkflow {
 //        ).first();
 //        Document arrangementData = (Document) data.get("arrangementData");
 //        BpmService service = BpmService.ofModel(arrangementData);
-        BpmService service = BpmService.ofModel("5d3aab8fda77c245f138fd2d");
-        service.canPub(1069519488812056576l);
+        BpmService service = BpmService.ofModel("5d3ab883da77c245f138fd30");
+        boolean flag = service.canPub(1069519488812056576l);
+        Assert.assertTrue(flag);
 //        BpmModel dd = Json.cast(arrangementData, BpmModel.class);
+//        int d = 2;
+    }
+
+
+    @Test
+    public void test02(){
+        Arr uid = a(1,2,3);
+        List<Obj> list = sqlManager.execute(new SQLReady(String.format("select * from t_org_user where uid in (%s)",  uid.join(",","'")) ), Obj.class);
         int d = 2;
+//        BpmService service =  BpmService.ofModel("5d3ab883da77c245f138fd30");
+
     }
 }
