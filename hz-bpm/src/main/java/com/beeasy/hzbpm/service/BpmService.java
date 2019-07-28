@@ -28,6 +28,7 @@ public class BpmService {
 
     //BpmModel
     private BpmModel model = null;
+    private String modelId;
 
     private Document arrangementData = null;
 
@@ -37,11 +38,6 @@ public class BpmService {
     private BpmService(){
     }
 
-    public static BpmService ofModel(Document document){
-        return null;
-//        bpmService.model = Json.cast(document, BpmModel.class);
-//        return bpmService;
-    }
 
     public static BpmService ofModel(final String modelId){
         MongoCollection<Document> col = db.getCollection("workflow");
@@ -56,15 +52,56 @@ public class BpmService {
             return null;
         }
         BpmService bpmService = new BpmService();
+        bpmService.modelId = modelId;
         bpmService.arrangementData = (Document) data.get("arrangementData");
         bpmService.model = Json.cast(data.get("arrangementData"), BpmModel.class);
         return bpmService;
     }
 
-    public static BpmService ofIns(String id, Obj data, String uid){
+    public static BpmService ofIns(String insId){
+        MongoCollection<Document> col = db.getCollection("bpmInstance");
+//        col.mapReduce("function(){return 1}", "function(){return 2}");
+        Document data = col.aggregate(
+                a(
+                        o("$match", o("_id", new ObjectId(insId)))
+                ).toBson()
+        ).first();
+        if (data == null) {
+            return null;
+        }
+        BpmService bpmService = new BpmService();
+        bpmService.arrangementData = (Document) data.get("bpmModel");
+        bpmService.ins = Json.cast(data, BpmInstance.class);
+        bpmService.model = bpmService.ins.bpmModel;
+        bpmService.modelId = bpmService.ins.bpmId.toString();
+        return bpmService;
+    }
 
+//    public static BpmService ofIns(String id, Obj data, String uid){
+////
+//
+//
+//        return bpmService;
+//    }
+
+    /**
+     * 检查一个用户是否可以发布该流程
+     * @param uid
+     * @return
+     */
+    public boolean canPub(long uid){
+        BpmModel.Node node = getNode("start");
+        List<Obj> list = sqlManager.execute(new SQLReady("select uid,oid,pid from t_org_user where uid = ?", uid), Obj.class);
+        return list.stream().anyMatch(e -> {
+            return (node.qids).contains(e.s("oid")) || (node.rids).contains(e.s("oid")) || (node.dids).contains(e.s("pid")) || (node.uids).contains(e.s("uid"));
+        });
+    }
+
+
+    public BpmInstance createBpmInstance(long uid,  Obj data){
         Map<String,Object> attrs = new HashMap<>();
-        BpmService bpmService = BpmService.ofModel(id);
+        BpmService bpmService = this;
+//        BpmService bpmService = BpmService.ofModel(modelId);
 
         // 开始节点
         String startNode = bpmService.model.start;
@@ -116,10 +153,10 @@ public class BpmService {
         currentNodes.add(currentNode);
 
         MongoCollection<Document> collection = db.getCollection("bpmInstance");
-        BpmInstance ins = new BpmInstance();
+//        BpmInstance ins = new BpmInstance();
         Obj obj = new Obj();
         obj.put("state","DEALING");
-        obj.put("bpmId",id);
+        obj.put("bpmId",new ObjectId(modelId));
         obj.put("bpmName",bpmService.model.workflowName);
         obj.put("pubUid",uid);
         obj.put("pubUName",uName);
@@ -133,29 +170,8 @@ public class BpmService {
         obj.put("lastMoidfyTime",new Date());
 
         Document doc = obj.toBson();
-        bpmService.ins = Json.cast(obj,BpmInstance.class);
         collection.insertOne(doc);
-
-        return bpmService;
-    }
-
-    /**
-     * 检查一个用户是否可以发布该流程
-     * @param uid
-     * @return
-     */
-    public boolean canPub(long uid){
-        BpmModel.Node node = getNode("start");
-        List<Obj> list = sqlManager.execute(new SQLReady("select uid,oid,pid from t_org_user where uid = ?", uid), Obj.class);
-        return list.stream().anyMatch(e -> {
-            return (node.qids).contains(e.s("oid")) || (node.rids).contains(e.s("oid")) || (node.dids).contains(e.s("pid")) || (node.uids).contains(e.s("uid"));
-        });
-    }
-
-
-    public Object createBpmInstance(long uid, Obj data){
-//
-        return null;
+        return Json.cast(doc,BpmInstance.class);
     }
 
     /**

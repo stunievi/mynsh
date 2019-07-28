@@ -8,7 +8,6 @@ import java.util.Map;
 
 public class BpmModel {
 
-
     //要么用ID避免节点递归的情况，
     //要么FASTJSON转成string避免节点递归
 

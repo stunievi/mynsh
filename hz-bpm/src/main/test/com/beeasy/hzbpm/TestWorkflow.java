@@ -1,5 +1,6 @@
 package com.beeasy.hzbpm;
 
+import com.beeasy.hzbpm.entity.BpmInstance;
 import com.beeasy.hzbpm.service.BpmService;
 import com.github.llyb120.nami.core.DBService;
 import com.github.llyb120.nami.core.Nami;
@@ -57,5 +58,19 @@ public class TestWorkflow {
         int d = 2;
 //        BpmService service =  BpmService.ofModel("5d3ab883da77c245f138fd30");
 
+    }
+
+
+
+    @Test
+    public void test03_createInstance() {
+        Obj obj = new Obj();
+        obj.put("data","测试");
+        obj.put("请假类型","1");
+        obj.put("请假原因","2");
+        obj.put("天数","3");
+        BpmService service = BpmService.ofModel("5d3c1f16b1e015024916dbd8");
+        BpmInstance bpmInstance = service.createBpmInstance(520,  obj);
+        Assert.assertNotNull(bpmInstance._id);
     }
 }
