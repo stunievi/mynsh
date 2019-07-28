@@ -13,6 +13,7 @@ public class BpmModel {
     //要么FASTJSON转成string避免节点递归
 
     public ObjectId formId;
+    public String workflowName;
 
     //表单的原始模板
     public String template;
@@ -38,17 +39,20 @@ public class BpmModel {
 
     public static class Node{
         //节点ID
-        String id;
+        public String id;
         //节点对应的表单属性
-        NodeExt ext;
+        public List<String> allFields;
+
+        //必填的字段name
+        public List<String> requiredFields;
 
         //可以处理的人的ID
         public List<Long> uids;
 
         //可以处理的组织架构ID
-        public List<Long> qids;
-        public List<Long> dids;
-        public List<Long> rids;
+        public List<String> qids;
+        public List<String> dids;
+        public List<String> rids;
 
 
         //节点跳转的方向
@@ -76,13 +80,10 @@ public class BpmModel {
     /**
      * 节点的表单配置
      */
-    public static class NodeExt{
-        //所有需要填写的字段name
-        List<String> allFields;
-
-        //必填的字段name
-        List<String> requiredFields;
-    }
+//    public static class NodeExt{
+//        //所有需要填写的字段name
+//
+//    }
 
 
     public static class FormField{

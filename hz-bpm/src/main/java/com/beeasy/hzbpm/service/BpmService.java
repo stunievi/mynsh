@@ -2,8 +2,10 @@ package com.beeasy.hzbpm.service;
 
 import cn.hutool.core.util.StrUtil;
 import com.beeasy.hzbpm.entity.BpmInstance;
+import COM.ibm.db2.app.UDF;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzbpm.entity.BpmModel;
-import com.github.llyb120.nami.json.Arr;
 import com.github.llyb120.nami.json.Json;
 import com.github.llyb120.nami.json.Obj;
 import com.mongodb.client.MongoCollection;
@@ -11,8 +13,11 @@ import org.beetl.sql.core.SQLReady;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.beeasy.hzbpm.service.MongoService.db;
 import static com.github.llyb120.nami.ext.beetlsql.BeetlSql.sqlManager;
@@ -23,6 +28,8 @@ public class BpmService {
 
     //BpmModel
     private BpmModel model = null;
+
+    private Document arrangementData = null;
 
     //BpmInstance
     private BpmInstance ins = null;
@@ -49,13 +56,86 @@ public class BpmService {
             return null;
         }
         BpmService bpmService = new BpmService();
+        bpmService.arrangementData = (Document) data.get("arrangementData");
         bpmService.model = Json.cast(data.get("arrangementData"), BpmModel.class);
         return bpmService;
     }
 
-    public static BpmService ofIns(String id){
-        BpmService bpmService = new BpmService();
-//        bpmService.model = document;
+    public static BpmService ofIns(String id, Obj data, String uid){
+
+        Map<String,Object> attrs = new HashMap<>();
+        BpmService bpmService = BpmService.ofModel(id);
+
+        // 开始节点
+        String startNode = bpmService.model.start;
+        List<String> qids = bpmService.model.nodes.get(startNode).qids;
+        List<String> rids = bpmService.model.nodes.get(startNode).rids;
+        List<String> dids = bpmService.model.nodes.get(startNode).dids;
+
+        String qid =  qids.stream().map(q -> "'" + q + "'").collect(Collectors.joining(","));
+        String rid =  rids.stream().map(r -> "'" + r + "'").collect(Collectors.joining(","));
+        String did =  dids.stream().map(d -> "'" + d + "'").collect(Collectors.joining(","));
+
+        List<Obj> list = sqlManager.execute(new SQLReady(String.format("select uid,utname,pid,pname from t_org_user where (oid in (%s) or oid in (%s) or pid in (%s)) and uid='%s'", qid,rid,did,uid)), Obj.class);
+        List<Obj> list2 = sqlManager.execute(new SQLReady(String.format("select uid,utname,pid,pname from t_org_user where uid='%s'", uid)), Obj.class);
+        list.addAll(list2);
+
+//        List<Long> ql = bpmService.model.nodes.get(startNode).qids;
+
+        List<String> allFields = bpmService.model.nodes.get(startNode).allFields;
+        for(String all : allFields){
+            attrs.put(all,data.get(all));
+        }
+        String deptName = "";
+        long deptId = 0L;
+        String uName = "";
+        if(list.size()>0){
+            for(Obj li :list){
+                if(null != li.get("pid")){
+                    deptId = (long) li.get("pid");
+                    deptName = (String) li.get("pname");
+                    uName = (String) li.get("utname");
+                    break;
+                }
+            }
+        }
+        JSONObject dataLog = new JSONObject();
+        dataLog.put("nodeId",startNode);
+        dataLog.put("time",new Date());
+        dataLog.put("uid", uid);
+        dataLog.put("attrs", attrs);
+        JSONArray logs = new JSONArray();
+        logs.add(dataLog);
+
+        JSONObject currentNode = new JSONObject();
+        currentNode.put("nodeId",startNode);
+        JSONArray uids = new JSONArray();
+        uids.add(uid);
+        currentNode.put("uids",uids);
+        JSONArray currentNodes = new JSONArray();
+        currentNodes.add(currentNode);
+
+        MongoCollection<Document> collection = db.getCollection("bpmInstance");
+        BpmInstance ins = new BpmInstance();
+        Obj obj = new Obj();
+        obj.put("state","DEALING");
+        obj.put("bpmId",id);
+        obj.put("bpmName",bpmService.model.workflowName);
+        obj.put("pubUid",uid);
+        obj.put("pubUName",uName);
+        obj.put("depId",deptId);
+        obj.put("depName",deptName);
+        obj.put("bpmModel",bpmService.arrangementData);
+        obj.put("currentNodes",currentNodes);
+        obj.put("attrs",attrs);
+        obj.put("logs",logs);
+        obj.put("createTime",new Date());
+        obj.put("lastMoidfyTime",new Date());
+
+        Document doc = obj.toBson();
+        bpmService.ins = Json.cast(obj,BpmInstance.class);
+        collection.insertOne(doc);
+
         return bpmService;
     }
 
