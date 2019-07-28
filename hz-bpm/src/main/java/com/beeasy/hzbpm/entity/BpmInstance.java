@@ -7,7 +7,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-public class BpmInstance extends Obj {
+public class BpmInstance {
 
     //任务ID
     public ObjectId _id;
