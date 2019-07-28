@@ -32,6 +32,9 @@ public class BpmModel {
     //结束节点ID，只能有一个，多个的情况下禁止保存
     public String end;
 
+    //列表字段
+    public List<String> listFields;
+
 
     public static class Node{
         //节点ID

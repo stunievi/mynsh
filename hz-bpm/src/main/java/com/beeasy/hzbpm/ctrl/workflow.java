@@ -30,6 +30,16 @@ import static com.github.llyb120.nami.server.Vars.$request;
 
 public class workflow {
 
+
+    private MongoCollection<Document> getCollection(){
+        return db.getCollection("workflow");
+    }
+
+    public Object menu(){
+        MongoCollection<Document> col = getCollection();
+        return null;
+    }
+
     /**
      * 生成最终的流程文件
       */

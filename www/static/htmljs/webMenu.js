@@ -1258,6 +1258,11 @@ doIfDev(function () {
             ]
         }
     )
+    _menu.push({
+        name:"任务管理",
+        children: [
+        ]
+    })
 });
 
 Array.prototype.notempty = function(){
