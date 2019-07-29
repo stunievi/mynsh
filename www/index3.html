@@ -535,17 +535,22 @@
 
 <script>
     //render left menu
-    var html = template.render($("#menu-tmpl").html(),{
-        data: menu,
-        uid: $.cookie("userId"),
-        uname: $.cookie("userName"),
-        white: whitelist,
-        // face: "http://iph.href.lu/80x80"
-        face: "/file/avatar/" + $.cookie("userId") + ".jpg?v=" + Math.random()
-    });
-    $("#jquery-accordion-menu").html(html);
+    (function () {
+        getFetch("/api/bpm/workflow/menu", function () {
 
-    jQuery("#jquery-accordion-menu").jqueryAccordionMenu();
+        });
+        var html = template.render($("#menu-tmpl").html(),{
+            data: menu,
+            uid: $.cookie("userId"),
+            uname: $.cookie("userName"),
+            white: whitelist,
+            // face: "http://iph.href.lu/80x80"
+            face: "/file/avatar/" + $.cookie("userId") + ".jpg?v=" + Math.random()
+        });
+        $("#jquery-accordion-menu").html(html);
+
+        jQuery("#jquery-accordion-menu").jqueryAccordionMenu();
+    })();
 
     function menuclick(id,name,href){
         if(href){

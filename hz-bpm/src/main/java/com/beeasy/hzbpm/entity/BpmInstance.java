@@ -1,40 +1,42 @@
 package com.beeasy.hzbpm.entity;
 
+import com.github.llyb120.nami.json.Obj;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-public class BpmInsEntity {
+public class BpmInstance extends Obj {
 
     //任务ID
-    String _id;
+    public String _id;
 
     //任务状态
-    String state;
+    public String state;
 
     //工作流xml模型
-    String bpmId;
+    public String bpmId;
 
     //原始名字
-    String bpmName;
+    public String bpmName;
 
     //用户ID
-    Long pubUid;
+    public Long pubUid;
     //用户名
-    String pubUName;
+    public String pubUName;
 
     //任务所属部门ID, 取用户所在部门ID，用符合授权的那一个，如果有多个符合的，选第一个
-    String depId;
+    public String depId;
     //任务所属部门名
-    String depName;
+    public String depName;
 
     //整理好的数据实体
-    BpmEntity bpmEntity;
+    public BpmModel bpmModel;
 
-    Date createTime;
-    Date lastMoidfyTime;
+    public Date createTime;
+    public Date lastMoidfyTime;
 
-    List<CurrentNode> currentNodes;
+    public List<CurrentNode> currentNodes;
 
     //所有的属性集中在这里,直接初始化好,每当有人提交数据时，更新这个字段
     /**
@@ -45,11 +47,11 @@ public class BpmInsEntity {
      *     "字段3":"",
      * }
      */
-    Map<String,String> attrs;
+    public Map<String,String> attrs;
 
 
     //数据提交历史（记录）
-    List<DataLog> logs;
+    public List<DataLog> logs;
 
 
     static class DataLog{
@@ -70,11 +72,11 @@ public class BpmInsEntity {
     }
 
 
-    static class CurrentNode{
+    public static class CurrentNode{
         //当前节点的ID
-        String nodeId;
+        public String nodeId;
 
         //当前正在处理这个节点的人
-        List<Long> uids;
+        public List<Long> uids;
     }
 }
