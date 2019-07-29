@@ -81,10 +81,11 @@
 
     $("#setq,#setr,#setd,#setp").click(function () {
         var type = $(this).attr("id").replace("set","");
+        var ps = $("#ps").val();
         if(type != 'p'){
             window.open("/htmlsrc/bpm/workFlow/selectQ.html?type=" + type +"&id=" + nodeId, "set" + type, "left=300, top=100, width=500, height=500, location=no");
         } else {
-            window.open("/htmlsrc/bpm/workFlow/selectP.html?type=q", "set" + type, "left=300, top=80, width=700, height=550, location=no");
+            window.open("/htmlsrc/bpm/workFlow/selectP.html?type=p&ps="+encodeURI(ps)+"&id=" + nodeId, "set" + type, "left=300, top=80, width=700, height=550, location=no");
         }
     });
 </script>

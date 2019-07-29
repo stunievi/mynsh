@@ -31,6 +31,8 @@ public class BpmService {
 
     private Document arrangementData = null;
 
+    private String xml = "";
+
     //BpmInstance
     private BpmInstance ins = null;
 //    public long uid;
@@ -58,6 +60,28 @@ public class BpmService {
         BpmService bpmService = new BpmService();
         bpmService.arrangementData = (Document) data.get("arrangementData");
         bpmService.model = Json.cast(data.get("arrangementData"), BpmModel.class);
+        return bpmService;
+    }
+
+    /**
+     * 查询xml
+     * @param modelId
+     * @return
+     */
+    public static BpmService getXML(final String modelId){
+        MongoCollection<Document> col = db.getCollection("workflow");
+//        col.mapReduce("function(){return 1}", "function(){return 2}");
+        Document data = col.aggregate(
+                a(
+                        o("$match", o("_id", new ObjectId(modelId))),
+                        o("$project", o("xml", 1))
+                ).toBson()
+        ).first();
+        if (data == null) {
+            return null;
+        }
+        BpmService bpmService = new BpmService();
+        bpmService.xml = (String) data.get("xml");
         return bpmService;
     }
 
@@ -129,6 +153,7 @@ public class BpmService {
         obj.put("currentNodes",currentNodes);
         obj.put("attrs",attrs);
         obj.put("logs",logs);
+        obj.put("xml",bpmService.xml);
         obj.put("createTime",new Date());
         obj.put("lastMoidfyTime",new Date());
 
