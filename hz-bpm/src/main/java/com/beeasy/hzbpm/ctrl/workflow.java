@@ -1,29 +1,27 @@
 package com.beeasy.hzbpm.ctrl;
 
-import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzbpm.filter.Auth;
+import com.beeasy.hzbpm.service.BpmService;
 import com.beeasy.hzbpm.util.Result;
 import com.github.llyb120.nami.json.Arr;
 import com.github.llyb120.nami.json.Obj;
-import com.mongodb.BasicDBObject;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOptions;
 import org.beetl.sql.core.SQLReady;
+import org.beetl.sql.core.engine.PageQuery;
 import org.bson.BsonArray;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
-import javax.xml.crypto.Data;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.beeasy.hzbpm.service.MongoService.db;
+import static com.beeasy.hzbpm.bean.MongoService.db;
 import static com.github.llyb120.nami.ext.beetlsql.BeetlSql.sqlManager;
 import static com.github.llyb120.nami.json.Json.a;
 import static com.github.llyb120.nami.json.Json.o;
@@ -36,6 +34,11 @@ public class workflow {
         return db.getCollection("workflow");
     }
 
+
+    /**
+     * 菜单
+     * @return
+     */
     public Object menu(){
         MongoCollection<Document> col = getCollection();
         return Result.ok(col.aggregate(a(
@@ -61,11 +64,13 @@ public class workflow {
             size = 20;
         }
         MongoCollection<Document> col = db.getCollection("bpmInstance");
-        List list = col.aggregate(a(
-                o("$match", o(
-                        "bpmId", new ObjectId(id),
-                        "logs.uid", Auth.getUid()
-                )),
+        Obj match =o(
+                "bpmId", new ObjectId(id),
+                "logs.uid", Auth.getUid()
+        );
+        int count = (int) col.countDocuments(match.toBson());
+        List list = (List)col.aggregate(a(
+                o("$match", match),
                 o("$project", o(
                         "_id", o("$toString", "$_id"),
                         "attrs",1,
@@ -86,7 +91,21 @@ public class workflow {
                     return obj;
                 })
                 .collect(Collectors.toList());
-        return Result.ok(list);
+        PageQuery pq = new PageQuery();
+        pq.setPageNumber(page);
+        pq.setPageSize(size);
+        pq.setList(list);
+        pq.setTotalRow(count);
+        return Result.ok(pq);
+    }
+
+    public Object preparePub(String id){
+        try{
+            BpmService service = BpmService.ofModel(id);
+            return Result.ok(service.preparePub(Auth.getUid() + ""));
+        } catch (BpmService.BpmException e){
+            return Result.error(e.error);
+        }
     }
 
 

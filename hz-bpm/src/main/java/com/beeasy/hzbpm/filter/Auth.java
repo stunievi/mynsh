@@ -29,7 +29,7 @@ public class Auth {
             return R.fail();
         }
         token = URLUtil.decode(token);
-        List<Obj> objs = sqlManager.execute(new SQLReady(String.format("select * from t_user_token where token = '%s' fetch first 1 rows only", token)), Obj.class);
+        List<Obj> objs = sqlManager.execute(new SQLReady(String.format("select user_id from t_user_token where token = '%s' fetch first 1 rows only", token)), Obj.class);
         if(objs.size() == 0){
             return R.fail();
         }

@@ -15,6 +15,17 @@
 </head>
 <body>
 <div id="content">
+    <div class="batch-operation">
+        <a class="btn btn-success pub" href="javascript:;" >发起新流程</a>
+<!--        <div class="btn-group">-->
+<!--            <button type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">更改启用状态<span class="caret"></span></button>-->
+<!--            <ul class="dropdown-menu">-->
+<!--                <li><a href="javascript:;" onclick="updateBaned(enumUserState.disabled)">禁用</a></li>-->
+<!--                <li><a href="javascript:;" onclick="updateBaned(enumUserState.enable)">启用</a></li>-->
+<!--            </ul>-->
+<!--        </div>-->
+    </div>
+
     <div id="dataList"></div>
 </div>
 </body>
@@ -64,6 +75,11 @@
         done: function(res, curr){
             layCurrPage = curr;
         }
+    });
+
+
+    $(document).on("click", ".pub", function () {
+        window.open("./ins.pub.html?id=" + id, "pub" + id, "left=100, top=100, width=700, height=600");
     });
 
     // $("#panel-form").html(panelFormRender({

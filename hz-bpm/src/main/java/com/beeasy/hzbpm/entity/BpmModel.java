@@ -21,8 +21,7 @@ public class BpmModel {
     public String rendered;
 
     //表单字段配置
-    @Deprecated
-    public Map<String, FormField> fields;
+    public Map<String, Map> fields;
 
     public Map<String, Node> nodes;
 
@@ -47,7 +46,7 @@ public class BpmModel {
         public List<String> requiredFields;
 
         //可以处理的人的ID
-        public List<Long> uids;
+        public List<String> uids;
 
         //可以处理的组织架构ID
         public List<String> qids;
@@ -86,24 +85,25 @@ public class BpmModel {
 //    }
 
 
-    public static class FormField{
-        //form表里的字段配置
-        /**
-         *
-         * {
-         *                 "name" : "data_1",
-         *                 "type" : "text",
-         *                 "value" : "宏控件：当前用户姓名",
-         *                 "title" : "申请人姓名",
-         *                 "leipiplugins" : "macros",
-         *                 "orgtype" : "当前用户姓名",
-         *                 "expression" : "",
-         *                 "orgwidth" : "150",
-         *                 "style" : "width: 150px;"
-         *             },
-         *
-         */
-    }
+//    public static class FormField{
+//        //form表里的字段配置
+//        /**
+//         *
+//         * {
+//         *                 "name" : "data_1",
+//         *                 "type" : "text",
+//         *                 "value" : "宏控件：当前用户姓名",
+//         *                 "title" : "申请人姓名",
+//         *                 "leipiplugins" : "macros",
+//         *                 "orgtype" : "当前用户姓名",
+//         *                 "expression" : "",
+//         *                 "orgwidth" : "150",
+//         *                 "style" : "width: 150px;"
+//         *             },
+//         *
+//         */
+//        public String name;
+//    }
 }
 
 

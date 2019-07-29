@@ -2,25 +2,18 @@ package com.beeasy.hzbpm;
 
 import com.beeasy.hzbpm.entity.BpmInstance;
 import com.beeasy.hzbpm.service.BpmService;
-import com.github.llyb120.nami.core.DBService;
 import com.github.llyb120.nami.core.Nami;
 import com.github.llyb120.nami.json.Arr;
 import com.github.llyb120.nami.json.Obj;
-import com.mongodb.client.MongoCollection;
 import org.beetl.sql.core.SQLReady;
-import org.bson.Document;
-import org.bson.types.ObjectId;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.sql.Array;
 import java.util.List;
 
-import static com.beeasy.hzbpm.service.MongoService.db;
 import static com.github.llyb120.nami.ext.beetlsql.BeetlSql.sqlManager;
 import static com.github.llyb120.nami.json.Json.a;
-import static com.github.llyb120.nami.json.Json.o;
 
 public class TestWorkflow {
 
