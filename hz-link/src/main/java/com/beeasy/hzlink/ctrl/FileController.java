@@ -273,7 +273,9 @@ public class FileController {
         String fileName = "企查查风险信息-原始企查查数据.xlsx";
         String str = HttpUtil.get(getUrl("/qccExportData/fengxian"), o("fullName", fullName));
         Obj eachData = Json.parseObject(str).getObj("Result");
-
+        if(eachData==null){
+            return null;
+        }
         File temp = File.createTempFile("123", ".xls");
         try(
                 var is = new ClassPathResource("excel/t.xlsx").getStream();

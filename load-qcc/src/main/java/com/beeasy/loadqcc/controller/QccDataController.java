@@ -105,8 +105,12 @@ public class QccDataController {
                     return;
                 }
                 if(command.contains("07")){
+                    // 获取董监高信息
                     companyName = companyData.getString("Content2");
                     userName = companyData.getString("Content1");
+                    if(null==userName || userName.isEmpty()){
+                        return;
+                    }
                 }else{
                     companyName = Optional.ofNullable(companyData.getString("Content")).orElse(companyData.getString("Content1"));
                 }
@@ -127,7 +131,7 @@ public class QccDataController {
                 }else{
                     // 需要keyNo的必须拿到工商信息
                     if(command.contains("03") || command.contains("04")){
-                        companyInfo = getOriginQccService.ECI_GetDetailsByName(companyName, extParam);
+                        companyInfo = getOriginQccService.ECI_GetDetailsByName(reqQccParam, extParam);
                         reqQccParam.setKeyNo(companyInfo.getString("KeyNo"));
                     }
                     if(command.contains("01")){
@@ -156,17 +160,17 @@ public class QccDataController {
                         getOriginQccService.loadDataBlock4(companyName, extParam);
                     }
                     if(command.contains("06")){
-                        // 工商信息，解构后返还董监高名单
+                        // 工商信息，解构后返回董监高名单！！！
                         reqQccParam.setSign("06");
-                        getOriginQccService.ECI_GetBasicDetailsByName(reqQccParam, extParam);
+                        getOriginQccService.ECI_GetDetailsByName(reqQccParam, extParam);
                     }
                     if(command.contains("99")){
-                        // 只拿工商信息
+                        // 工商信息
                         reqQccParam.setSign("99");
-                        getOriginQccService.ECI_GetBasicDetailsByName(reqQccParam, extParam);
+                        getOriginQccService.ECI_GetDetailsByName(reqQccParam, extParam);
                     }
                     if(command.contains("07")){
-                        // 企业董监高， 解构后返还关联公司名单
+                        // 企业董监高， 解构后返还关联公司名单！！！
                         reqQccParam.setSign("07");
                         getOriginQccService.CIAEmployeeV4_GetStockRelationInfo(reqQccParam, extParam);
                     }

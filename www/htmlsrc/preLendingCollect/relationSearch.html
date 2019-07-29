@@ -17,6 +17,28 @@
     </div>
 </div>
 <script>
+
+    function onInfront(){
+        if($("#dataList table").length){
+            layuiTableReload({
+                where: $("[name=form-search]").serialize()
+            });
+            return;
+        }
+        laytableRender({
+            showIndex: true,
+            url: remoteOrigin + "/api/auto/LoanRelatedSearch/getDList",
+            cols: [
+                [
+                    { title:'添加时间', field: "ADD_TIME"},
+                    { title:'客户名称', field: "CUS_NAME"},
+                    { title:"证件号码", field: "CERT_CODE"},
+                    { title:"占资本净额比例", field: "RATIO"}
+                ]
+            ]
+        });
+    }
+
     $.when(getRemoteEnum(["CERT_TYPE"])).then(function (res) {
         $("#panel-form").html(panelFormRender3({
             col:3,
@@ -38,7 +60,7 @@
                 },
                 submitHandler: function(){
                     if(form.valid()){
-                        layuiTableReload();
+                        onInfront();
                     }
                     return false
                 }
@@ -47,19 +69,10 @@
 
     });
 
-    laytableRender({
-        showIndex: true,
-        url: remoteOrigin + "/api/auto/LoanRelatedSearch/getDList",
-        cols: [
-            [
-                { title:'添加时间', field: "ADD_TIME"},
-                { title:'客户名称', field: "CUS_NAME"},
-                { title:"证件号码", field: "CERT_CODE"},
-                { title:"占资本净额比例", field: "RATIO"}
-            ]
-        ]
-    });
+    onInfront();
+
     function checkSubmitForm() {
+        onInfront();
         return false;
     }
 </script>
