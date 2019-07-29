@@ -57,7 +57,8 @@ public class TestMQ {
         DBService.getInstance().initSync();
         new DeconstructService().initSync();
 
-        MQService.getInstance().sendMessage("queue", "qcc-deconstruct-request",  new MQService.FileRequest("1","2", new File("C:\\Users\\bin\\Desktop\\qcc_hz_cus_com_data\\20190508\\flss-load-qcc528da1b6-850b-4276-a4f0-dbb73e32b353.zip")));
+
+        MQService.getInstance().sendMessage("queue", "qcc-deconstruct-request",  new MQService.FileRequest("1","2", new File("C:\\Users\\DELL\\Desktop\\testString.zip")));
         CountDownLatch cl = new CountDownLatch(1);
         cl.await();
     }

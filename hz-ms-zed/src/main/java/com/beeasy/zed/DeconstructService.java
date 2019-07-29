@@ -8,17 +8,20 @@ import cn.hutool.core.util.*;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.google.common.base.Splitter;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
 import io.netty.util.CharsetUtil;
 import org.apache.activemq.BlobMessage;
+import org.apache.activemq.command.ActiveMQQueue;
 import org.beetl.sql.core.DSTransactionManager;
 import org.beetl.sql.core.SQLBatchReady;
 import org.beetl.sql.core.SQLReady;
 import org.osgl.util.E;
 import org.osgl.util.S;
+import org.osgl.util.Str;
 
 import javax.jms.JMSException;
 import javax.jms.TextMessage;
@@ -34,6 +37,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -941,7 +947,6 @@ public class DeconstructService extends AbstractService {
                 "+Province", ProvinceValue
         );
         JSONObject object = (JSONObject) json;
-
 
         JSONObject kv = (JSONObject) deconstruct(json, "QCC_DETAILS", "inner_company_name");
         //曾用名
@@ -2507,6 +2512,8 @@ public class DeconstructService extends AbstractService {
             }
             System.out.printf("insert takes %d ms\n", System.currentTimeMillis() - stime);
             try {
+                if(null != isTrueOrFalse  &&  isTrueOrFalse .equals("07")){
+                }
                 conn.commit();
             } catch (Exception e) {
                 conn.rollback();
@@ -2828,10 +2835,86 @@ public class DeconstructService extends AbstractService {
 //        }
     }
 
+    private  volatile String isTrueOrFalse;
     public void destructSingle(String str, AtomicBoolean someError) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
+        String dateTime = LocalDateTime.now(ZoneOffset.of("+8")).format(formatter);
         JSONObject object = JSON.parseObject(str);
         String url = object.getString("FullLink");
         String key = DeconstructService.getPath(url);
+        String params  = getParam(url,"sign");
+        JSONObject json;
+        if(null != params && params.equals("06") ){
+            isTrueOrFalse = "06";
+            String companyName  = getParam(url,"keyword");
+            JSONArray employeesArray = object.getJSONObject("OriginData").getJSONObject("Result").getJSONArray("Employees");
+            List  list=new ArrayList();
+            json = new JSONObject();
+            JSONArray jsonArray = new JSONArray();
+            //把数组中的值都取出来
+            for (Object o : employeesArray) {
+                list.add(JSONObject.parseObject(o.toString()).getString("Name"));
+            }
+            JSONObject result = new JSONObject();
+
+            //对数组去重
+            List removeList =  removeDuplicate(list);
+
+            for (int i = 0; i < removeList.size(); i++) {
+                JSONObject user = new JSONObject();
+                user.put("Sign", "07");
+                user.put("Content2", companyName);
+                user.put("Content1",removeList.get(i));
+                jsonArray.add(user);
+            }
+            result.put("OrderData", jsonArray);
+            result.put("OrderId", "fzsys_" + dateTime);
+            ActiveMQQueue mqQueue = new ActiveMQQueue("qcc-company-infos-request");
+            MQService.getInstance().sendMessage("queue", "qcc-company-infos-request", result.toString());
+        }
+        if(null != params && params.equals("08") ){
+            isTrueOrFalse = "08";
+        }
+        if(null != params && params.equals("07")){
+            isTrueOrFalse = "07";
+            JSONObject jsonObject = JSONObject.parseObject(object.getString("OriginData")).getJSONObject("Result");
+            List companyName = new ArrayList();
+            try {
+                JSONArray CIAForeignInvestments = jsonObject.getJSONObject("CIAForeignInvestments").getJSONArray("Result");
+                for (Object o : CIAForeignInvestments) {
+                    companyName.add(JSONObject.parseObject(o.toString()).getString("Name"));
+                }
+            }catch (Exception e){
+
+            }
+            try {
+                JSONArray CIACompanyLegals = jsonObject.getJSONObject("CIACompanyLegals").getJSONArray("Result");
+                for (Object o : CIACompanyLegals) {
+                    companyName.add(JSONObject.parseObject(o.toString()).getString("Name"));
+                }
+            } catch (Exception e) {
+            }
+            try {
+                JSONArray CIAForeignOffices = jsonObject.getJSONObject("CIAForeignOffices").getJSONArray("Result");
+                for (Object o : CIAForeignOffices) {
+                    companyName.add(JSONObject.parseObject(o.toString()).getString("Name"));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            List removeCompanyName = removeDuplicate(companyName);
+            JSONArray jsonArray = new JSONArray();
+            for (int i = 0; i < removeCompanyName.size(); i++) {
+                JSONObject user = new JSONObject();
+                user.put("Sign", "99");
+                user.put("Content",removeCompanyName.get(i));
+                jsonArray.add(user);
+            }
+            JSONObject result = new JSONObject();
+            result.put("OrderData", jsonArray);
+            result.put("OrderId", "fzsys_" + dateTime);
+            MQService.getInstance().sendMessage("queue", "qcc-company-infos-request", result.toString());
+        }
         if (handlers.containsKey(key)) {
             DeconstructService.DeconstructHandler handler = handlers.get(key);
             ByteBuf buf = Unpooled.buffer();
@@ -2851,9 +2934,28 @@ public class DeconstructService extends AbstractService {
 //        }
     }
 
+
+    //数组去重
+    public static List removeDuplicate(List list){
+        List listTemp = new ArrayList();
+        for(int i=0;i<list.size();i++){
+            if(!listTemp.contains(list.get(i))){
+                listTemp.add(list.get(i));
+            }
+        }
+        return listTemp;
+    }
+
+
+    public static String getParam(String url, String name) {
+        String params = url.substring(url.indexOf("?") + 1, url.length());
+        Map<String, String> split = Splitter.on("&").withKeyValueSeparator("=").split(params);
+        return split.get(name);
+    }
+
+
     public static String getPath(String uriStr) {
         URL uri = null;
-
         try {
             uri = new URL(uriStr);
         } catch (MalformedURLException e) {

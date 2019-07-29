@@ -47,6 +47,7 @@ public class TestMongo {
         mongoService.start();
         DBService.getInstance().initSync();
         deconstructService.initSync();
+        MQService.getInstance().initSync();
         vvv();
     }
 
@@ -105,7 +106,7 @@ public class TestMongo {
 
     @Test
     public void testSingleFile() throws FileNotFoundException, InterruptedException {
-        deconstructService. onDeconstructRequest("1", "2", new FileInputStream("C:\\Users\\DELL\\Desktop\\jingyingfengxian-0701.zip"));
+        deconstructService. onDeconstructRequest("1", "2", new FileInputStream("C:\\Users\\DELL\\Desktop\\load-qcc05db5664-208d-4399-8763-11221c0b212d.zip"));
     }
 
     @Test

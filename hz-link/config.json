@@ -2,10 +2,10 @@
     "port": "8083",
     "db": {
         "main": {
-            "url": "jdbc:db2://47.94.97.138:50000/test:currentSchema=DB2INST1;",
+            "url": "jdbc:db2://192.168.11.241:50000/test:currentSchema=DB2INST1;",
             "driver": "com.ibm.db2.jcc.DB2Driver",
             "username": "db2inst1",
-            "password": "db2inst1",
+            "password": "db2inst1@123",
             "style": "_"
         }
     },
@@ -18,7 +18,7 @@
         "parallel": true
     },
     "route": [
-        "/:c/:a -> com.beeasy.easyshop.filter.auth -> com.beeasy.easyshop.ctrl",
+        "/:c/:a -> com.beeasy.hzlink.filter.Auth -> com.beeasy.hzlink.ctrl",
         "/test/:c/:a -> com.beeasy.hzlink.filter.Auth -> com.beeasy.hzlink.ctrl",
         "/test2/:c/:a -> com.beeasy.hzlink.ctrl"
     ],
@@ -38,7 +38,7 @@
     ],
     "ext": {
         "chakra" : "D:\\work\\easyshop\\easy-shop\\js",
-        "qcc-search-url": "http://47.96.98.198:8081"
+        "qcc-search-url": "http://localhost:8082"
     },
     "dev": true,
     "upload" : "d:/uploads"
