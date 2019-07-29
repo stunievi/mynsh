@@ -63,7 +63,7 @@ function uploadFactory(conf){
             if(res.success){
                 layer.msg("正在处理，系统稍后会将导入结果发送至收件箱，请注意查收！");
             }else{
-                layer.msg("失败！请查看文件格式是否正确！");
+                layer.msg("失败！请检查文件格式是否正确！");
             }
             uploader.removeFile(file)
         });

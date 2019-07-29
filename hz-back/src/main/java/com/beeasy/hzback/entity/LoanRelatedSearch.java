@@ -86,7 +86,7 @@ public class LoanRelatedSearch extends ValidGroup {
                 insertSearch.setAcceptAmt(acceptAmt);
                 sqlManager.insert(insertSearch, true);
                 Log.log("新增贷前关联人查询: %s, %s", cusName, certCode);
-                return true;
+                return find;
             case "getDList":
 //                User.AssertMethod("系统管理.日志管理.关联方查询日志");
                 return U.beetlPageQuery("link.loan_related_search", JSONObject.class, object);
