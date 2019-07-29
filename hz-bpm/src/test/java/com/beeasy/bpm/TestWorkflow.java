@@ -11,7 +11,6 @@ import org.bson.types.ObjectId;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import static com.beeasy.hzbpm.service.MongoService.db;
 import static com.github.llyb120.nami.json.Json.a;
 import static com.github.llyb120.nami.json.Json.o;
 
@@ -33,7 +32,7 @@ public class TestWorkflow {
 
         String uid = "520";
 
-        BpmService service = BpmService.ofIns("5d3e96abbd581a0c9cb8d4d8",obj,uid);
+//        BpmService service = BpmService.ofIns("5d3e96abbd581a0c9cb8d4d8",obj,uid);
 //        BpmService service1 = BpmService.getXML("5d3c1f16b1e015024916dbd8");
         int d = 2;
     }
