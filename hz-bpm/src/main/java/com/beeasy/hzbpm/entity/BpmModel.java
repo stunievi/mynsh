@@ -36,6 +36,7 @@ public class BpmModel {
     public List<String> listFields;
 
 
+
     public static class Node{
         //节点ID
         public String id;

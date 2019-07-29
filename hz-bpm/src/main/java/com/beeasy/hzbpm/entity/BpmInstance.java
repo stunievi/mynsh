@@ -35,7 +35,10 @@ public class BpmInstance {
     public BpmModel bpmModel;
 
     public Date createTime;
-    public Date lastMoidfyTime;
+    public Date lastModifyTime;
+
+    //原始xml
+    public String xml;
 
     public List<CurrentNode> currentNodes;
 

@@ -89,7 +89,7 @@ public class BpmService {
      * @param uid
      * @return
      */
-    public boolean canPub(long uid){
+    public boolean canPub(String uid){
         BpmModel.Node node = getNode("start");
         List<Obj> list = sqlManager.execute(new SQLReady("select uid,oid,pid from t_org_user where uid = ?", uid), Obj.class);
         return list.stream().anyMatch(e -> {
@@ -98,6 +98,12 @@ public class BpmService {
     }
 
 
+    /**
+     *
+     * @param uid
+     * @param data
+     * @return
+     */
     public BpmInstance createBpmInstance(long uid,  Obj data){
         Map<String,Object> attrs = new HashMap<>();
         BpmService bpmService = this;

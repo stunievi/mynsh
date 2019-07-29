@@ -536,20 +536,63 @@
 <script>
     //render left menu
     (function () {
-        getFetch("/api/bpm/workflow/menu", function () {
 
-        });
-        var html = template.render($("#menu-tmpl").html(),{
-            data: menu,
-            uid: $.cookie("userId"),
-            uname: $.cookie("userName"),
-            white: whitelist,
-            // face: "http://iph.href.lu/80x80"
-            face: "/file/avatar/" + $.cookie("userId") + ".jpg?v=" + Math.random()
-        });
-        $("#jquery-accordion-menu").html(html);
+        $.when($.get("/api/bpm/workflow/menu"), $.get(remoteOrigin + "/api/auto/user/getMyMethods")).then(function (a,b) {
+            var msg = a[0].data;
+            $.each(menu, function (i,v) {
+                if(v.name == '任务管理'){
+                    $.each(msg||[], function (ii,vv) {
+                        v.children.push({
+                            name: vv.modelName,
+                            href: "./htmlsrc/bpm/ins/ins.list.html?id=" + vv._id + "&fields=" + encodeURI(JSON.stringify(vv.listFields||[]))
+                        })
+                    });
+                }
+            });
 
-        jQuery("#jquery-accordion-menu").jqueryAccordionMenu();
+            var html = template.render($("#menu-tmpl").html(),{
+                data: menu,
+                uid: $.cookie("userId"),
+                uname: $.cookie("userName"),
+                white: whitelist,
+                // face: "http://iph.href.lu/80x80"
+                face: "/file/avatar/" + $.cookie("userId") + ".jpg?v=" + Math.random()
+            });
+            $("#jquery-accordion-menu").html(html);
+            jQuery("#jquery-accordion-menu").jqueryAccordionMenu();
+
+
+            var whitelist = b[0].data;
+            console.log(whitelist)
+            if(whitelist.indexOf("_all_") > -1){
+                $("#demo-list li").show();
+                return
+            }
+            $("#demo-list li").each(function () {
+                var _this = $(this)
+                var id = $(this).data("id");
+                if(whitelist.indexOf(id) > -1){
+                    _this.show()
+                    //if a item has be showed, its parents must be showed!!
+                    _this.parents("#demo-list li").show()
+                }
+            });
+
+            $("li[data-id*=任务管理]").show();
+            // $("li[data-id=任务管理]").show();
+        });
+
+        // getFetch("/api/bpm/workflow/menu", function (msg) {
+        //
+        // });
+        //
+        // getFetch(
+        //     remoteOrigin + "/api/auto/user/getMyMethods",
+        //     function (whitelist) {
+        //
+        //     }
+        // );
+
     })();
 
     function menuclick(id,name,href){
@@ -563,24 +606,7 @@
     // $('[data-original]').lazyload({});
 
     //method white-list
-    getFetch(
-        remoteOrigin + "/api/auto/user/getMyMethods",
-        function (whitelist) {
-            if(whitelist.indexOf("_all_") > -1){
-                $("#demo-list li").show();
-                return
-            }
-            $("#demo-list li").each(function () {
-                var _this = $(this)
-                var id = $(this).data("id");
-                if(whitelist.indexOf(id) > -1){
-                    _this.show()
-                    //if a item has be showed, its parents must be showed!!
-                    _this.parents("#demo-list li").show()
-                }
-            })
-        }
-    );
+
 
 
     //fix iframe

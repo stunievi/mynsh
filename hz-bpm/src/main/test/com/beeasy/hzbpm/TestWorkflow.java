@@ -44,7 +44,7 @@ public class TestWorkflow {
 //        Document arrangementData = (Document) data.get("arrangementData");
 //        BpmService service = BpmService.ofModel(arrangementData);
         BpmService service = BpmService.ofModel("5d3ab883da77c245f138fd30");
-        boolean flag = service.canPub(1069519488812056576l);
+        boolean flag = service.canPub("1069519488812056576l");
         Assert.assertTrue(flag);
 //        BpmModel dd = Json.cast(arrangementData, BpmModel.class);
 //        int d = 2;
