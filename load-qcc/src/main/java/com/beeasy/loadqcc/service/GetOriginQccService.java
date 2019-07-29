@@ -296,7 +296,9 @@ public class GetOriginQccService {
 
                 ArrayList filters  = new ArrayList();
                 for (Map.Entry<String, ?> entry : queries.entrySet()){
-                    filters.add(Filters.eq("QueryParam.".concat(entry.getKey()), entry.getValue()));
+                    if(!Arrays.asList("sign").contains(entry.getKey())){
+                        filters.add(Filters.eq("QueryParam.".concat(entry.getKey()), entry.getValue()));
+                    }
                 }
                 // $set可以用来修改一个字段的值，如果这个字段不存在，则创建它
                 // 插入数据库

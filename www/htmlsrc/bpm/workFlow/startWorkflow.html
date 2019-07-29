@@ -17,12 +17,6 @@
     <div id="jstree_demo" style="width: 200px; overflow: auto;">
 
     </div>
-    <!--<div class="batch-operation">
-        <a type="button" class="btn btn-success handleAdd" href="javascript:;" tab-title="新增流程" >新增流程</a>
-        <script>
-            $(".handleAdd").attr("tab-href","/htmlsrc/bpm/workFlow/xml.html");
-        </script>
-    </div>-->
     <div id="dataList" style="flex: 1;margin-left: 10px;margin-right: 10px;">
     </div>
 </div>
@@ -31,8 +25,7 @@
 </html>
 <script id="toolbar" type="text/html">
     <div class="layui-toolbar">
-        <a class="btn btn-warning btn-mini edit" href="javascript:;" data-id="{{d._id}}" >修改</a>
-        <a class="btn btn-danger btn-mini del" data-id="{{d._id}}">删除</a>
+        <a class="btn btn-success del" data-id="{{d._id}}">发起流程</a>
     </div>
 </script>
 <script>
@@ -156,17 +149,8 @@
     });
 
     $(document).on("click", ".del", function () {
-        var _id =  $(this).data("id");
-        actConfirm(function(){
-            getRemoteData({
-                url: "/bpm/BpmXmlController/deleteBPMXML?_id="+_id,
-                callback: function(origin){
-                    alert(origin)
-                    /*layer.msg("删除成功");
-                    onInfront();*/
-                }
-            })
-        })
+        var id =  $(this).data("id");
+        window.open("./pub.html?id="+id, "pub", "left=200, top=100, width=800, height=600, location=no")
     })
 
 

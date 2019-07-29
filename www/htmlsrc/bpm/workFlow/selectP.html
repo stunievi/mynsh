@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>权限配置</title>
+
+    <link rel="stylesheet" href="../../../static/htmljs/jstree/themes/default/style.css">
+    <!--#include file="/htmlsrc/header.html" -->
+    <script src="../../../static/htmljs/jstree/jstree.js"></script>
+
+</head>
+<body>
+<input type="text" class="form-control input-sm" id="user" name="user" style="margin-top: 10px">
+<div id="content"  style="flex-direction: row; display: flex; justify-content: flex-start">
+    <!--<div class="selected"></div>-->
+    <!--<div>-->
+        <!--<input type="text" id="search" placeholder="输入关键字进行检索">-->
+        <div id="jstree_demo"  style="width: 330px; overflow: auto;">
+
+        </div>
+        <div id="dataList" style="flex: 1;margin-left: 10px;margin-right: 10px;">
+        </div>
+    <!--</div>-->
+</div>
+
+</body>
+</html>
+<script id="toolbar" type="text/html">
+    <div class="layui-toolbar">
+        <a class="btn btn-warning btn-mini edit" href="javascript:;" data-name="{{d.name}}" data-id="{{d.id}}">选择</a>
+    </div>
+</script>
+<script>
+
+    // var context = null;
+    // function onPageRequest(ctx){
+    //     context = ctx;
+    // }
+    var lastClickedNode = null;
+    var type = getParam("type");
+    if(!type) type = "q";
+
+    loadTimeout()
+    $.get("/api/bpm/org/all",{type:type}, function (msg) {
+        layer.closeAll()
+        msg = msg.data
+        var timer = null;
+        $("#search").keyup(function () {
+            if(timer){
+                clearTimeout(timer);
+                timer = null;
+            }
+            setTimeout(function () {
+                var val = $.trim($("#search").val());
+                var ins = $('#jstree_demo').jstree(true);
+                ins.search(val, false, true);
+            },250);
+        });
+
+        //展开根目录
+        if(msg.length){
+            msg[0].state = {
+                opened: true
+            };
+        }
+        $('#jstree_demo').jstree({
+            "core" : {
+                "animation" : 0,
+                "check_callback" : true,
+                "themes" : { "stripes" : true },
+                'data' :msg
+                //     [
+                //     msg
+                //     // {
+                //     //     'id' : 'top',
+                //     //     'text' : '全部分类',
+                //     //     'state' : { 'opened' : true, 'selected' : true },
+                //     //     'children' : (msg)
+                //     // },
+                // ]
+            },
+            "plugins" : [
+                // "checkbox",
+                // "contextmenu",
+                "search",
+                "types", "wholerow"
+            ]
+        });
+
+        function loadFormList(n){
+            if(!n){
+                return
+            }
+            loadTimeout();
+            $.ajax({
+                type:"post",
+                url:"/api/bpm/org/getUser",
+                data: JSON.stringify({"oid":n=='top'?undefined:n.node.original.id}),
+                headers:{
+                    "Content-Type": "application/json"
+                },
+                success:function(data){
+                    layer.closeAll();
+                    $("#dataList").empty()
+                    laytableRender({
+                        // url: remoteOrigin + "/api/bpm/form/list",
+                        // currPage: getParam("page") || 1,
+                        data: data.data||[],
+                        page:false,
+                        cols: [
+                            [
+                                {field:'id', title:'用户ID', align:"center" },
+                                {field:'name', title:'姓名', align:"center" },
+                                {field:'acc_code', title:'用户名', align:"center" },
+                                {field:'phone', title:'电话', align:"center" },
+                                {title:'操作', templet: "#toolbar"}
+                            ]
+                        ],
+                        done: function(res, curr){
+                            layCurrPage = curr;
+                        }
+                    });
+                }
+            });
+
+
+            // getFetch("/api/bpm/org/getUser", {oid: n=='top'?undefined:n.node.original.id}, function (data) {
+            //     layer.closeAll();
+            //     $("#dataList").empty()
+            //     laytableRender({
+            //         // url: remoteOrigin + "/api/bpm/form/list",
+            //         // currPage: getParam("page") || 1,
+            //         data: data||[],
+            //         page:false,
+            //         cols: [
+            //             [
+            //                 {field:'name', title:'姓名', align:"center" },
+            //                 {field:'id', title:'代码', align:"center", width:250 },
+            //                 {title:'操作', templet: "#toolbar"}
+            //             ]
+            //         ],
+            //         done: function(res, curr){
+            //             layCurrPage = curr;
+            //         }
+            //     });
+            // });
+
+
+        }
+
+        //选中第一个节点
+        loadFormList('top')
+
+        var ins = $("#jstree_demo").jstree();
+        var walk = function(node){
+            // if(context){
+            // console.log(context,(ins.is_checked(node)))
+            window.opener['selectp'](type, ins.is_checked(node), node.original.text);
+            // }
+            $.each(node.children || [], function (i,v) {
+                var node = ins.get_node(v);
+                walk(node);
+            });
+        };
+
+        var setChecked = function(){
+            var chks =  ins.get_checked();
+            var ret = [];
+            $.each(chks ||[], function (i,v) {
+                var node = ins.get_node(v);
+                console.log(node)
+                if(type == 'q'){
+                    if(node.original.type == 'QUARTERS'){
+                        ret.push(node.original.full_name);
+                    }
+                    return;
+                }
+                ret.push(node.original.text);
+            });
+            console.log(ret)
+            window.opener['selectp'](type, ret);
+        }
+
+        $("#jstree_demo").on("check_node.jstree", function () {
+            console.log(arguments);
+        }).on("check_all.jstree", function () {
+            console.log(arguments)
+        }).on("select_node.jstree", function (e,n) {
+
+            lastClickedNode = n;
+            loadFormList(n)
+
+
+            // console.log(ins.get_checked())
+            // setChecked()
+            // walk(n.node);
+            // $.each(no)
+            // console.log(n.node);
+            // console.log(ins.is_checked(n), ins.is_checked(n.node))
+        }).on("deselect_node.jstree", function (e,n) {
+            setChecked();
+            // walk(n.node)
+        });
+    },"json");
+    var ret = [];
+    var ids = []
+
+    $(document).on("click", ".edit", function () {
+        var name =  $(this).data("name");
+        var uid = $(this).data("id");
+        var us = $("#user").val();
+        var user ;
+
+        user = "" == us ? name : us +"," + name;
+        $("#user").val(user);
+        ret.push(name);
+        ids.push(uid)
+        window.opener['selectp']("p", ret, ids);
+
+    });
+
+</script>

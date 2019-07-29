@@ -78,7 +78,7 @@
             return
         }
         loadTimeout();
-        getFetch("/api/bpm/form/list", {pid: n.node.original._id}, function (data) {
+        getFetch("/api/bpm/form/list", {pid: n=='top'?undefined:n.node.original._id}, function (data) {
             layer.closeAll();
             $("#dataList").empty()
             laytableRender({
@@ -219,10 +219,14 @@
             },
             "plugins" : [
                 "contextmenu", "search",
-                "state", "types", "wholerow"
+                // "state",
+                "types", "wholerow"
             ]
         });
 
+        var ins = $('#jstree_demo').jstree();
+        //选中第一个节点
+        loadFormList('top')
 
         $("#jstree_demo").on("rename_node.jstree", function (e,n) {
             var name = n.text;

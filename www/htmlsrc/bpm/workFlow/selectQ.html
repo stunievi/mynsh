@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>权限配置</title>
+
+    <link rel="stylesheet" href="../../../static/htmljs/jstree/themes/default/style.css">
+    <!--#include file="/htmlsrc/header.html" -->
+    <script src="../../../static/htmljs/jstree/jstree.js"></script>
+
+</head>
+<body>
+<div id="content">
+    <div class="selected"></div>
+    <div>
+        <input type="text" id="search" placeholder="输入关键字进行检索">
+        <div id="jstree_demo">
+
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
+<script>
+    var nodeId = location.search.match(/id=(.+)&?/)[1]
+
+    // var context = null;
+    // function onPageRequest(ctx){
+    //     context = ctx;
+    // }
+    var type = getParam("type");
+    if(!type) type = "q";
+
+    loadTimeout()
+    $.get("/api/bpm/org/all",{type:type}, function (msg) {
+        layer.closeAll()
+        msg = msg.data
+        var timer = null;
+        $("#search").keyup(function () {
+            if(timer){
+                clearTimeout(timer);
+                timer = null;
+            }
+            setTimeout(function () {
+                var val = $.trim($("#search").val());
+                var ins = $('#jstree_demo').jstree(true);
+                ins.search(val, false, true);
+            },250);
+        });
+
+        //展开根目录
+        if(msg.length){
+            msg[0].state = {
+                opened: true
+            };
+        }
+        $('#jstree_demo').jstree({
+            "core" : {
+                "animation" : 0,
+                "check_callback" : true,
+                "themes" : { "stripes" : true },
+                'data' :msg
+                //     [
+                //     msg
+                //     // {
+                //     //     'id' : 'top',
+                //     //     'text' : '全部分类',
+                //     //     'state' : { 'opened' : true, 'selected' : true },
+                //     //     'children' : (msg)
+                //     // },
+                // ]
+            },
+            "plugins" : [
+                "checkbox",
+                // "contextmenu",
+                "search",
+                 "types", "wholerow"
+            ]
+        });
+
+        var ins = $("#jstree_demo").jstree();
+        // var walk = function(node){
+        //     // if(context){
+        //         // console.log(context,(ins.is_checked(node)))
+        //     window.opener['selectp'](type, ins.is_checked(node), node.original.text);
+        //     // }
+        //     $.each(node.children || [], function (i,v) {
+        //         var node = ins.get_node(v);
+        //         walk(node);
+        //     });
+        // };
+
+        var setChecked = function(){
+            var chks =  ins.get_checked();
+            var ret = [];
+            var ids = []
+            $.each(chks ||[], function (i,v) {
+                var node = ins.get_node(v);
+                console.log(node)
+                if(type == 'q'){
+                    if(node.original.type == 'QUARTERS'){
+                        ret.push(node.original.full_name);
+                        ids.push(node.original.id)
+                    }
+                    return;
+                }
+                ret.push(node.original.text);
+                ids.push(node.original.id)
+            });
+            console.log(ret, ids)
+            window.opener['selectp'](type, ret, ids);
+        }
+
+        $("#jstree_demo").on("check_node.jstree", function () {
+            console.log(arguments);
+        }).on("check_all.jstree", function () {
+            console.log(arguments)
+        }).on("select_node.jstree", function (e,n) {
+            console.log(ins.get_checked())
+            setChecked()
+            // walk(n.node);
+            // $.each(no)
+            // console.log(n.node);
+            // console.log(ins.is_checked(n), ins.is_checked(n.node))
+        }).on("deselect_node.jstree", function (e,n) {
+            setChecked();
+            // walk(n.node)
+        });
+
+
+        //还原页面
+        var ids = opener.opener.bpmData.nodes[nodeId].permission[type + "ids"]
+        $.each(ids, function (i,v) {
+            ins.select_node(v)
+        })
+
+    },"json");
+
+</script>

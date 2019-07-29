@@ -156,12 +156,17 @@ public class QccDataController {
                         getOriginQccService.loadDataBlock4(companyName, extParam);
                     }
                     if(command.contains("06")){
-                        // 工商信息
+                        // 工商信息，解构后返还董监高名单
                         reqQccParam.setSign("06");
                         getOriginQccService.ECI_GetBasicDetailsByName(reqQccParam, extParam);
                     }
+                    if(command.contains("99")){
+                        // 只拿工商信息
+                        reqQccParam.setSign("99");
+                        getOriginQccService.ECI_GetBasicDetailsByName(reqQccParam, extParam);
+                    }
                     if(command.contains("07")){
-                        // 企业董监高
+                        // 企业董监高， 解构后返还关联公司名单
                         reqQccParam.setSign("07");
                         getOriginQccService.CIAEmployeeV4_GetStockRelationInfo(reqQccParam, extParam);
                     }

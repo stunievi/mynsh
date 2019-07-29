@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 绑定表单</title>
+    <!--#include file="/htmlsrc/header.html" -->
+    <!--<script src="/static/vendor/bootcss/js/bootstrap-suggest.js"></script>-->
+<!--    <link rel="stylesheet" href="/static/vendor/ztree/css/zTreeStyle/zTreeStyle.css">-->
+<!--    <script src="/static/vendor/ztree/js/jquery.ztree.all.min.js"></script>-->
+<!--    <script src="/static/vendor/bootcss/js/bootstrap-suggest.js"></script>-->
+    <script src="../../../static/vendor/artTemplate/template-web.js"></script>
+    <link rel="stylesheet" href="../../../static/htmljs/jstree/themes/default/style.css">
+    <script src="../../../static/htmljs/jstree/jstree.js"></script>
+    <style>
+        #content{
+            overflow: visible;
+        }
+        .dropdown-menu-right{
+            left: 0 !important;
+        }
+    </style>
+</head>
+<body>
+    <div id="content">
+
+        <ul id="myTabs" class="nav nav-tabs" role="tablist">
+<!--            <li role="presentation" class="active li1"><a href="#tab1" role="tab" data-toggle="tab" aria-controls="tab1" aria-expanded="true">基本配置</a></li>-->
+            <li role="presentation" class="active li2"><a href="#tab2" role="tab" data-toggle="tab" aria-controls="tab2">处理人</a></li>
+            <li role="presentation" class="li2"><a href="#tab3" role="tab" data-toggle="tab" aria-controls="tab3">填写字段</a></li>
+            <li role="presentation" class="li2"><a href="#tab4" role="tab" data-toggle="tab" aria-controls="tab4">转入条件</a></li>
+        </ul>
+        <div id="myTabContent" class="tab-content">
+<!--            <div id="tab1" class="tab-pane">-->
+<!--                1-->
+<!--            </div>-->
+            <div id="tab2" class="tab-pane active">
+                <!--#include file="./permission.html" -->
+            </div>
+            <div id="tab3" class="tab-pane">
+                <!--#include file="./fields.html" -->
+            </div>
+            <div id="tab4" class="tab-pane">
+                <!--#include file="./condition.html" -->
+            </div>
+        </div>
+
+    </div>
+
+
+    <script>
+        var nodeId = location.search.match(/id=(.+)&?/)[1]
+    </script>
+
+</body>
+</html>
+

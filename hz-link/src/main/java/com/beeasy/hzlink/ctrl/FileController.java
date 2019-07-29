@@ -269,9 +269,9 @@ public class FileController {
     }
 
     // 导出企查查原始风险数据
-    public MultipartFile qccFengXianExport(String cusName) throws IOException {
+    public MultipartFile qccFengXianExport(String fullName) throws IOException {
         String fileName = "企查查风险信息-原始企查查数据.xlsx";
-        String str = HttpUtil.get(getUrl("/qccExportData/fengxian"), o("fullName", cusName));
+        String str = HttpUtil.get(getUrl("/qccExportData/fengxian"), o("fullName", fullName));
         Obj eachData = Json.parseObject(str).getObj("Result");
 
         File temp = File.createTempFile("123", ".xls");

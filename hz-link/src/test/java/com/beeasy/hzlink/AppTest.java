@@ -99,7 +99,7 @@ public class AppTest {
         ClassPathResource resource = new ClassPathResource("pojo.tmpl");
         genConfig.setTemplate(IoUtil.read(resource.getStream(), CharsetUtil.UTF_8));
         String[] models = new String[]{
-            "LINK_11_1"
+            "T_QUAL_CUS_RELATED"
         };
         for (String model : models) {
             sqlManager.genPojoCode(model, "com.beeasy.hzlink.model", genConfig);

@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>资质客户关联方</title>
+    <!--#include file="/htmlsrc/header.html" -->
+</head>
+<body>
+    <div id="content">
+        <div class="bs-example bs-example-tabs" data-example-id="togglable-tabs">
+            <ul id="myTabs" class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active"><a href="#list" id="list-tab" role="tab" data-toggle="tab" data-controls="list" aria-expanded="true">关联方列表</a></li>
+
+                <li class="pull-right" style="">
+                    <a href="javascript:;" class="btn" title="导出关联方列表" id="btn-export" style="background: orange;color: #fff;"><i class="glyphicon glyphicon-floppy-disk"></i>&nbsp;导出关联方列表</a>
+                </li>
+
+            </ul>
+        </div>
+        <div id="myTabContent" class="tab-content" style="padding-top: 10px;">
+            <div role="tabpanel" class="tab-pane active in" id="list" aria-labelledby="list-tab">
+                <div id="list-content">
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var dataId = getParam("id");
+        laytableRender({
+            showIndex:true,
+            url: remoteOrigin + '/api/auto/QualCusRelated/getDList?QUAL_CUS_ID=' + dataId,
+            id: "list",
+            elem: "#list-content",
+            cols: [
+                [
+                    { title:'目标客户名称', field:'CUS_NAME' },
+                    { title:'证件号码', field:'CERT_CODE' },
+                    { title:'地址信息', field:'ADDR_INFO' },
+                    { title:'取数规则', field:'GET_RULE' }
+                ]
+            ]
+        });
+
+        $("#btn-export").click(function () {
+            formRequest({
+                url: remoteOrigin + "/api/report/export/diy/qualCusLink",
+                data: {
+                    head: [ [
+                        { title:'目标客户名称', field:'CUS_NAME' },
+                        { title:'证件号码', field:'CERT_CODE' },
+                        { title:'地址信息', field:'ADDR_INFO' },
+                        { title:'取数规则', field:'GET_RULE' }
+                    ] ],
+                    query: {
+                        QUAL_CUS_ID: dataId
+                    }
+                }
+            });
+        });
+
+    </script>
+</body>
+</html>
