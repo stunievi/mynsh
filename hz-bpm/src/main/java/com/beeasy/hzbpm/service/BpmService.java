@@ -119,11 +119,6 @@ public class BpmService {
                 "allFields", model.fields,
                 "formFields", node.allFields,
                 "requiredFields", node.requiredFields,
-//                "all_fields", model.fields.entrySet()
-//                .stream()
-//                .filter(e -> node.allFields.contains(e.getKey()))
-//                .map(e -> e.getValue())
-//                .toArray(),
                 "form", model.template,
                 "attrs", attrs,
                 "xml", xml,
