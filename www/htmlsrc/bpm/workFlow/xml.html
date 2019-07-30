@@ -128,6 +128,7 @@
             if(msg.success){
                 form = msg.data;
             }
+            window.fields = [];
             $.each(msg.data.form.data ||[], function (i,v) {
                 fields.push(v.title)
             })

@@ -51,6 +51,9 @@
             border-bottom: 2px solid deepskyblue;
             color: deepskyblue;;
                  }
+        .__tab{
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -62,6 +65,10 @@
     <div id="pbody">
         <div id="form" class="__tab" style="width: 740px; margin: 0 auto;">
 
+            <div>
+                <a href="javascript:;">保存</a>
+                <a href="javascript:;">提交</a>
+            </div>
         </div>
         <div id="canvas" class="__tab">
         </div>
@@ -79,7 +86,7 @@
         $(this).addClass("active");
         var id = $(this).index();
         $("#pbody > .__tab").hide().eq(id).show();
-    });
+    }).eq(0).click();
 
     var id = getParam("id");
     $.get("/api/bpm/workflow/preparePub", {id: id}, function (msg) {
@@ -119,7 +126,7 @@
         });
 
 
-        $("#form").html(msg.data.form)
+        $("#form").prepend(msg.data.form)
         //全部设为disabled
         $("input[leipiplugins], textarea[leipiplugins], select[leipiplugins]").val("").prop("disabled", "disabled");
         //select默认选第一个
