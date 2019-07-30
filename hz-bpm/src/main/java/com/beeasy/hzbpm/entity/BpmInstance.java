@@ -81,6 +81,6 @@ public class BpmInstance {
         public String nodeId;
 
         //当前正在处理这个节点的人
-        public List<Long> uids;
+        public List<String> uids;
     }
 }

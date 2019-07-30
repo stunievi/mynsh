@@ -137,12 +137,14 @@
             'contextmenu': {
                 'select_node': false,
                 'items': function (node) {
-                    console.log(arguments)
-                    console.log()
                     return {
                         createItem: {
                             "label": "添加分类",
                             "action": function(obj){
+                                if(node.parents.length >= 2){
+                                    layer.msg("最多只支持1级分类");
+                                    return;
+                                }
                                 console.log(node)
                                 var ins = $("#jstree_demo").jstree();
                                 ins.show_contextmenu(node)

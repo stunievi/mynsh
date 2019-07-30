@@ -63,6 +63,15 @@ public class BpmService {
         return bpmService;
     }
 
+    public static BpmService ofIns(Document data){
+        BpmService bpmService = new BpmService();
+        bpmService.arrangementData = (Document) data.get("bpmModel");
+        bpmService.ins = Json.cast(data, BpmInstance.class);
+        bpmService.model = bpmService.ins.bpmModel;
+        bpmService.modelId = bpmService.ins.bpmId.toString();
+        return bpmService;
+    }
+
     public static BpmService ofIns(String insId) {
         MongoCollection<Document> col = db.getCollection("bpmInstance");
 //        col.mapReduce("function(){return 1}", "function(){return 2}");
@@ -74,12 +83,7 @@ public class BpmService {
         if (data == null) {
             return null;
         }
-        BpmService bpmService = new BpmService();
-        bpmService.arrangementData = (Document) data.get("bpmModel");
-        bpmService.ins = Json.cast(data, BpmInstance.class);
-        bpmService.model = bpmService.ins.bpmModel;
-        bpmService.modelId = bpmService.ins.bpmId.toString();
-        return bpmService;
+        return ofIns(data);
     }
 
 //    public static BpmService ofIns(String id, Obj data, String uid){
@@ -110,18 +114,11 @@ public class BpmService {
         }
         BpmModel.Node node = getNode("start");
         Obj attrs = o();
-        for (String allField : node.allFields) {
-            Map<String, String> field = model.fields.get(allField);
-            if (field == null) {
-                continue;
-            }
-            if ("macros".equals(field.get("leipiplugins"))) {
-                attrs.put(field.get("title"), calMacro(uid, field));
-            }
-        }
+        addMacroFields(uid, node, attrs);
         return o(
                 "allFields", model.fields,
                 "formFields", node.allFields,
+                "requiredFields", node.requiredFields,
 //                "all_fields", model.fields.entrySet()
 //                .stream()
 //                .filter(e -> node.allFields.contains(e.getKey()))
@@ -132,6 +129,39 @@ public class BpmService {
                 "xml", xml,
                 "current", model.start
         );
+    }
+
+    public void validateAttrs(String uid, BpmModel.Node node, Obj attrs){
+        //补充宏字段
+        addMacroFields(uid, node, attrs);
+        //验证必填字段
+        for (String requiredField : node.requiredFields) {
+            Map<String, String> field = model.fields.get(requiredField);
+            if (field == null) {
+                continue;
+            }
+            if(StrUtil.isBlank(attrs.s(requiredField))){
+                error("字段[%s]不能为空", requiredField);
+            }
+        }
+    }
+
+    /**
+     * 补充宏控件指向的字段
+     * @param uid
+     * @param node
+     * @param attrs
+     */
+    private void addMacroFields(String uid, BpmModel.Node node, Obj attrs){
+        for (String allField : node.allFields) {
+            Map<String, String> field = model.fields.get(allField);
+            if (field == null) {
+                continue;
+            }
+            if ("macros".equals(field.get("leipiplugins"))) {
+                attrs.put(field.get("title"), calMacro(uid, field));
+            }
+        }
     }
 
 
@@ -165,10 +195,16 @@ public class BpmService {
      * @param data
      * @return
      */
-    public BpmInstance createBpmInstance(long uid, Obj data) {
+    public Document createBpmInstance(String uid, Obj data) {
         Map<String, Object> attrs = new HashMap<>();
         BpmService bpmService = this;
 //        BpmService bpmService = BpmService.ofModel(modelId);
+
+        if(!canPub(uid)){
+            error("用户没有权限发布任务");
+        }
+
+        validateAttrs(uid, getNode("start"), data);
 
         // 开始节点
         String startNode = bpmService.model.start;
@@ -179,7 +215,6 @@ public class BpmService {
         String qid = qids.stream().map(q -> "'" + q + "'").collect(Collectors.joining(","));
         String rid = rids.stream().map(r -> "'" + r + "'").collect(Collectors.joining(","));
         String did = dids.stream().map(d -> "'" + d + "'").collect(Collectors.joining(","));
-
 
 
         List<Obj> list = sqlManager.execute(new SQLReady(String.format("select uid,utname,pid,pname from t_org_user where (oid in (%s) or oid in (%s) or pid in (%s)) and uid='%s'", qids.isEmpty() ? "-1" : qid, rids.isEmpty() ? "-1" : rid, dids.isEmpty() ? "-1" : did, uid)), Obj.class);
@@ -237,11 +272,12 @@ public class BpmService {
         obj.put("logs", logs);
         obj.put("xml", xml);
         obj.put("createTime", new Date());
-        obj.put("lastMoidfyTime", new Date());
+        obj.put("lastModifyTime", new Date());
 
         Document doc = obj.toBson();
         collection.insertOne(doc);
-        return Json.cast(doc, BpmInstance.class);
+        return doc;
+//        return Json.cast(doc, BpmInstance.class);
     }
 
     /**
@@ -251,7 +287,7 @@ public class BpmService {
      * @param attrs 提交到该任务上的属性
      * @return
      */
-    public BpmModel.Node getNextNode(long uid, Obj attrs) {
+    public BpmModel.Node getNextNode(String uid, Obj attrs) {
         //查找所有的属性
         Obj oldAttrs = new Obj(ins.attrs);
         oldAttrs.putAll(attrs);
@@ -292,7 +328,7 @@ public class BpmService {
      * @param attrs
      * @return
      */
-    public List<Obj> getNextNodePersons(long uid, Obj attrs) {
+    public List<Obj> getNextNodePersons(String uid, Obj attrs) {
         BpmModel.Node target = getNextNode(uid, attrs);
         //查询这个节点所有命中的人
         return sqlManager.select("workflow.查找节点处理人员", Obj.class, o(
@@ -304,8 +340,8 @@ public class BpmService {
         ));
     }
 
-    private static void error(String errMessage) {
-        throw new BpmException(errMessage);
+    private static void error(String errMessage, Object ...objects) {
+        throw new BpmException(String.format(errMessage, objects));
     }
 
     private boolean runExpression(String expression) {

@@ -1,10 +1,13 @@
 package com.beeasy.hzbpm.ctrl;
 
+import cn.hutool.core.util.URLUtil;
 import com.alibaba.fastjson.JSONArray;
+import com.beeasy.hzbpm.entity.BpmInstance;
 import com.beeasy.hzbpm.filter.Auth;
 import com.beeasy.hzbpm.service.BpmService;
 import com.beeasy.hzbpm.util.Result;
 import com.github.llyb120.nami.json.Arr;
+import com.github.llyb120.nami.json.Json;
 import com.github.llyb120.nami.json.Obj;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
@@ -23,8 +26,7 @@ import java.util.stream.Collectors;
 
 import static com.beeasy.hzbpm.bean.MongoService.db;
 import static com.github.llyb120.nami.ext.beetlsql.BeetlSql.sqlManager;
-import static com.github.llyb120.nami.json.Json.a;
-import static com.github.llyb120.nami.json.Json.o;
+import static com.github.llyb120.nami.json.Json.*;
 import static com.github.llyb120.nami.server.Vars.$request;
 
 public class workflow {
@@ -40,14 +42,75 @@ public class workflow {
      * @return
      */
     public Object menu(){
-        MongoCollection<Document> col = getCollection();
-        return Result.ok(col.aggregate(a(
-                o("$project",o("_id", o(
+        MongoCollection<Document> collection = db.getCollection("cat");
+        Arr cats = collection.aggregate(a(
+                o(
+                        "$lookup", o(
+                                "from","workflow",
+                                "localField", "_id",
+                                "foreignField", "pid",
+                                "as","wfs"
+                        )
+                ),
+                o(
+                        "$project", o(
+                                "_id", o(
                                         "$toString", "$_id"
-                                ), "modelName",1,
-                            "listFields", "$arrangementData.listFields"
-                        ))
-        ).toBson()).into(a()));
+                                ),
+                                "name",1,
+                                "pid", o(
+                                        "$toString", "$pid"
+                                ),
+                                "wfs._id", 1,
+                                "wfs.modelName",1,
+                                "wfs.arrangementData.listFields", 1
+                        )
+                )
+        ).toBson()).into(a());
+        List ret = (List) tree((Collection)cats, "pid", "_id");
+
+//        Arr wfs = getCollection().aggregate(a(
+//                o("$project",o("_id", o(
+//                                        "$toString", "$_id"
+//                                ), "modelName",1,
+//                            "listFields", "$arrangementData.listFields"
+//                        ))
+//        ).toBson()).into(a());
+
+//        MongoCollection<Document> catcol = db.getCollection("cat");
+        for (Object o : ret) {
+            walkCats((Map) o);
+        }
+        Result ok = Result.ok(ret);
+        return ok;
+    }
+
+    private void walkCats(Map cat){
+        List children = new ArrayList();
+        //扔进去工作流
+        List wfs = (List) cat.get("wfs");
+        children.addAll(wfs);
+        for (Object o : wfs) {
+            Map map = (Map) o;
+            map.put("_id", ((ObjectId)map.get("_id")).toString());
+            map.put("name", map.get("modelName"));
+            Map ar = (Map) map.get("arrangementData");
+            map.put("href", "./htmlsrc/bpm/ins/ins.list.html?id=" + map.get("_id") + "&fields=" + URLUtil.encode(Json.stringify(ar.get("listFields"))));
+        }
+        List _children = (List) cat.get("children");
+        if (_children != null) {
+            children.addAll(_children);
+            for (Object child : _children) {
+                walkCats((Map) child);
+            }
+        }
+        if(!children.isEmpty()){
+            cat.put("children", children);
+        } else {
+            cat.remove("children");
+        }
+        cat.remove("wfs");
+
     }
 
 
@@ -66,7 +129,7 @@ public class workflow {
         MongoCollection<Document> col = db.getCollection("bpmInstance");
         Obj match =o(
                 "bpmId", new ObjectId(id),
-                "logs.uid", Auth.getUid()
+                "logs.uid", Auth.getUid() + ""
         );
         int count = (int) col.countDocuments(match.toBson());
         List list = (List)col.aggregate(a(
@@ -77,6 +140,7 @@ public class workflow {
                         "createTime", 1,
                         "lastModifyTime", 1
                 )),
+                o("$sort",o("lastModifyTime", -1)),
                 o("$skip", (page - 1) * size),
                 o("$limit", size)
         ).toBson()).into(a())
@@ -106,6 +170,32 @@ public class workflow {
         } catch (BpmService.BpmException e){
             return Result.error(e.error);
         }
+    }
+
+
+    /**
+     * 创建任务实例
+     * @param id
+     * @param data
+     * @return
+     */
+    public Object createIns(String id, Obj data){
+        BpmService service = BpmService.ofModel(id);
+        Document ins = service.createBpmInstance(Auth.getUid() + "", data);
+        return Result.ok(ins.getObjectId("_id").toString());
+//        service = BpmService.ofIns(ins);
+//        return Result.ok(service.getNextNodePersons(Auth.getUid() + "", o()));
+    }
+
+
+    /**
+     * 得到下一节点的可执行人
+     * @param id
+     * @return
+     */
+    public Object getNextDealers(String id){
+        BpmService service = BpmService.ofIns(id);
+        return Result.ok(service.getNextNodePersons(Auth.getUid() + "", o()));
     }
 
 

@@ -541,12 +541,15 @@
             var msg = a[0].data;
             $.each(menu, function (i,v) {
                 if(v.name == '任务管理'){
-                    $.each(msg||[], function (ii,vv) {
-                        v.children.push({
-                            name: vv.modelName,
-                            href: "./htmlsrc/bpm/ins/ins.list.html?id=" + vv._id + "&fields=" + encodeURI(JSON.stringify(vv.listFields||[]))
-                        })
-                    });
+                    v.children = v.children.concat(msg || [])
+                    // v.children.push(msg||[]);
+                    // $.each(msg||[], function (ii,vv) {
+                    //     v.children.push({
+                    //         name: vv.modelName,
+                    //         href: "./htmlsrc/bpm/ins/ins.list.html?id=" + vv._id + "&fields=" + encodeURI(JSON.stringify(vv.listFields||[]))
+                    //     })
+                    // });
+                    console.log(v.children)
                 }
             });
 
