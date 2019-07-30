@@ -401,15 +401,17 @@
             url: "/api/bpm/BpmXmlController/one?_id="+id,
             async:false,
             success:function(obj){
+                console.log("obj",obj)
                 if(obj.code != 200){
                     //show error
+                    layer.msg(obj.errMessage)
                     return;
                 }
-                $("#selectForm").val(obj.data[0].arrangementData.formId);
+                $("#selectForm").val(obj.data.arrangementData.formId);
 
                 // obj.data
-                if(obj["data"].length>0){
-                    var bpmXml = obj["data"][0].xml;
+                // if(obj["data"].length>0){
+                    var bpmXml = obj.data.xml;
                     if(null != bpmXml && "" != bpmXml){
                         xml = bpmXml;
 
@@ -426,13 +428,13 @@
                             }
                         })
 
-                        $("#modelName").val(obj["data"][0].modelName);
-                        window.bpmData = obj["data"][0].bpmData;
-                        listFields = obj["data"][0].arrangementData.listFields;
+                        $("#modelName").val(obj.data.modelName);
+                        window.bpmData = obj.data.bpmData;
+                        listFields = obj.data.arrangementData.listFields;
 
                     }
 
-                }
+                // }
             }
         });
     }
@@ -561,6 +563,10 @@
             // 结束节点
             $(_xml).find('endEvent').each(function(){
                 var sourceRef = $(this).attr("id");
+                if(undefined ==  window.bpmData.nodes[sourceRef]){
+                    layer.msg("请配置节点信息！");
+                    return;
+                }
                 var allFields = window.bpmData.nodes[sourceRef].fields.all_fields;
                 var requiredFields = window.bpmData.nodes[sourceRef].fields.required_fields;
                 // 可以处理的人的ID
