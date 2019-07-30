@@ -159,7 +159,7 @@
         var _id =  $(this).data("id");
         actConfirm(function(){
             getRemoteData({
-                url: "/bpm/BpmXmlController/deleteBPMXML?_id="+_id,
+                url: "/api/bpm/BpmXmlController/deleteBPMXML?_id="+_id,
                 callback: function(origin){
                     alert(origin)
                     /*layer.msg("删除成功");

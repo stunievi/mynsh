@@ -180,7 +180,9 @@ public class BpmService {
         String rid = rids.stream().map(r -> "'" + r + "'").collect(Collectors.joining(","));
         String did = dids.stream().map(d -> "'" + d + "'").collect(Collectors.joining(","));
 
-        List<Obj> list = sqlManager.execute(new SQLReady(String.format("select uid,utname,pid,pname from t_org_user where (oid in (%s) or oid in (%s) or pid in (%s)) and uid='%s'", qid, rid, did, uid)), Obj.class);
+
+
+        List<Obj> list = sqlManager.execute(new SQLReady(String.format("select uid,utname,pid,pname from t_org_user where (oid in (%s) or oid in (%s) or pid in (%s)) and uid='%s'", qids.isEmpty() ? "-1" : qid, rids.isEmpty() ? "-1" : rid, dids.isEmpty() ? "-1" : did, uid)), Obj.class);
         List<Obj> list2 = sqlManager.execute(new SQLReady(String.format("select uid,utname,pid,pname from t_org_user where uid='%s'", uid)), Obj.class);
         list.addAll(list2);
 
@@ -233,6 +235,7 @@ public class BpmService {
         obj.put("currentNodes", currentNodes);
         obj.put("attrs", attrs);
         obj.put("logs", logs);
+        obj.put("xml", xml);
         obj.put("createTime", new Date());
         obj.put("lastMoidfyTime", new Date());
 
