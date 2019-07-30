@@ -37,10 +37,11 @@ public class BpmXmlController {
 
         $request.put("createTime", new Date());
         $request.put("b_id", next());
-//        JSONObject arrangementData = (JSONObject) $request.get("arrangementData");
-//        String formId= arrangementData.getString("formId");
-//        arrangementData.put("formId",new ObjectId(formId));
-//        $request.put("arrangementData",arrangementData);
+        Obj arrangementData = (Obj) $request.get("arrangementData");
+        String formId= arrangementData.get("formId").toString();
+        arrangementData.put("formId",new ObjectId(formId));
+        $request.put("arrangementData",arrangementData);
+        $request.put("formId",new ObjectId(formId));
 
         String id = $request.s("_id");
         String pid = $request.s("pid");
@@ -202,12 +203,28 @@ public class BpmXmlController {
 
     public R one(String _id){
         MongoCollection<Document> collection = db.getCollection("workflow");
-        Arr list = a();
+        Document doc = collection.find(Filters.eq("_id", new ObjectId(_id))).first();
+        doc.put("_id", doc.getObjectId("_id").toString());
+        if(null != doc.getObjectId("formId")){
+            String formId = doc.getObjectId("formId").toHexString();
+            doc.put("formId", formId);
+        }
+        Document arrangementData = (Document) doc.get("arrangementData");
+        String form = arrangementData.get("formId").toString();
+        arrangementData.put("formId",form);
+        doc.put("arrangementData",arrangementData);
+
+        return R.ok(doc);
+        /*Arr list = a();
         if(null == _id){
             collection.find().iterator()
                     .forEachRemaining(d -> {
                         String id = d.getObjectId("_id").toHexString();
                         d.put("_id", id);
+                        if(null != d.getObjectId("formId")){
+                            String formId = d.getObjectId("formId").toHexString();
+                            d.put("formId", formId);
+                        }
                         list.add(d);
                     });
         }else{
@@ -216,11 +233,15 @@ public class BpmXmlController {
             }}).iterator()
                     .forEachRemaining(d -> {
                         String id = d.getObjectId("_id").toHexString();
+                        if(null != d.getObjectId("formId")){
+                            String formId = d.getObjectId("formId").toHexString();
+                            d.put("formId", formId);
+                        }
                         d.put("_id", id);
                         list.add(d);
                     });
         }
-        return R.ok(list);
+        return R.ok(list);*/
     }
 
     /**

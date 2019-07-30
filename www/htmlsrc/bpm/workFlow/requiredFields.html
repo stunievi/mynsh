@@ -59,7 +59,7 @@
         top: 5px !important
     }
 
-    .checkboxs {
+    .req_checkboxs {
         vertical-align: middle
     }
 
@@ -141,7 +141,7 @@
         background: #00a0e8
     }
 
-    .arrow-btns {
+    .req-arrow-btns {
         width: 100%;
         position: absolute;
         top: 50%;
@@ -163,7 +163,7 @@
         -moz-transition: all .3s ease
     }
 
-    .arrow-btn {
+    .req-arrow-btn {
         display: block;
         position: relative;
         width: 40px;
@@ -179,7 +179,7 @@
         font-size: 30px
     }
 
-    .arrow-btn svg {
+    .req-arrow-btn svg {
         padding: 11px;
         width: 17px;
         height: 17px;
@@ -189,11 +189,11 @@
 
 </style>
 
-<script type="text/html" id="field_item">
+<script type="text/html" id="req_field_item">
     {{each fields field}}
     <li>
-        <input type="checkbox" class="checkboxs" id="tyue-checkbox-blue-{{field}}"/>
-        <label for="tyue-checkbox-blue-{{field}}"></label>
+        <input type="checkbox" class="req_checkboxs" id="req-tyue-checkbox-blue-{{field}}"/>
+        <label for="req-tyue-checkbox-blue-{{field}}"></label>
         <span>{{field}}</span>
     </li>
     {{/each}}
@@ -214,11 +214,11 @@
             </div>
         </div>
         <div class="arrows-box">
-            <div class="arrow-btns">
-                <button class="arrow-btn req-right" id="rightButton">
+            <div class="req-arrow-btns">
+                <button class="req-arrow-btn req-right" id="rightButton">
                     &#8250;
                 </button>
-                <button class="arrow-btn req-left" id="leftButton">
+                <button class="req-arrow-btn req-left" id="leftButton">
                     &#8249;
                 </button>
             </div>
@@ -241,7 +241,7 @@
 <script>
     // var fields = [];
 
-    var tpml = template.compile($("#field_item").html());
+    var tpml = template.compile($("#req_field_item").html());
     //load
     // $.get("/api/bpm/form/one",{id: window.opener.$("#selectForm").val()}, function (msg) {
     //     if(!msg.success){
@@ -263,13 +263,13 @@
     $(function () {
         $('.req-checkbox-all').click(function () {
             if ($(this).prop('checked')) {
-                $(this).parent().next().find('.checkboxs').prop('checked', true);
+                $(this).parent().next().find('.req_checkboxs').prop('checked', true);
             } else {
-                $(this).parent().next().find('.checkboxs').prop('checked', false);
+                $(this).parent().next().find('.req_checkboxs').prop('checked', false);
             }
             btn_status();
         })
-        $('.req-select-content').on('click', '.checkboxs', function (e) {
+        $('.req-select-content').on('click', '.req_checkboxs', function (e) {
             var checkedAll = $(this).parents('.req-select-content').prev().find('.req-checkbox-all');
             var checkboxs = $(this).prop('checked');
             if (!checkboxs && checkedAll.prop('checked')) {
@@ -277,7 +277,7 @@
             } else if (checkboxs && !checkedAll.prop('checked')) {
                 var lis = $(this).parents('ul').children();
                 for (var i = 0; i < lis.length; i++) {
-                    if ($(lis[i]).find('.checkboxs').prop('checked')) {
+                    if ($(lis[i]).find('.req_checkboxs').prop('checked')) {
                         if (i == lis.length - 1) {
                             checkedAll.prop('checked', true)
                         }
@@ -289,7 +289,7 @@
             stopFunc(e);
         });
         $('.req-select-content').on('click', 'li', function () {
-            $(this).children('.checkboxs').click();
+            $(this).children('.req_checkboxs').click();
             btn_status();
         })
 
@@ -325,7 +325,7 @@
 
         }
 
-        $('.arrow-btn').click(function () {
+        $('.req-arrow-btn').click(function () {
             var checkboxs, origin, target, num = 0;
             if ($(this).hasClass('req-right')) {
                 origin = $('.req-unselect-ul');
@@ -334,7 +334,7 @@
                 origin = $('.req-selected-ul');
                 target = $('.req-unselect-ul');
             }
-            checkboxs = origin.find('.checkboxs');
+            checkboxs = origin.find('.req_checkboxs');
             for (var i = 0; i < checkboxs.length; i++) {
                 if ($(checkboxs[i]).prop('checked')) {
                     var that = $(checkboxs[i]).parent().clone();
@@ -366,10 +366,10 @@
         console.log("..",opener.bpmData.nodes[nodeId].fields.required_fields)
         //load
         $.each(opener.bpmData.nodes[nodeId].fields.required_fields, function (i,v) {
-            // console.log(v,$(".form-fields label[for=tyue-checkbox-blue-"+v+"]"))
-            $("#reqFields input[id='tyue-checkbox-blue-"+v+"']").click();
+            // console.log(v,$(".form-fields label[for=req-tyue-checkbox-blue-"+v+"]"))
+            $("#reqFields input[id='req-tyue-checkbox-blue-"+v+"']").click();
         })
-        $(".arrow-btn.req-left").click()
+        $(".req-arrow-btn.req-left").click()
     });
 
     function stopFunc(e) {
