@@ -100,14 +100,61 @@ public class BpmService {
      * @return
      */
     public boolean canPub(String uid) {
-        BpmModel.Node node = getNode("start");
-        List<Obj> list = sqlManager.execute(new SQLReady("select uid,oid,pid from t_org_user where uid = ?", uid), Obj.class);
-        return list.stream().anyMatch(e -> {
-            return (node.qids).contains(e.s("oid")) || (node.rids).contains(e.s("oid")) || (node.dids).contains(e.s("pid")) || (node.uids).contains(e.s("uid"));
-        });
+        return canDeal(uid, "start");
+//        BpmModel.Node node = getNode("start");
+//        List<Obj> list = sqlManager.execute(new SQLReady("select uid,oid,pid from t_org_user where uid = ?", uid), Obj.class);
+//        return list.stream().anyMatch(e -> {
+//            return (node.qids).contains(e.s("oid")) || (node.rids).contains(e.s("oid")) || (node.dids).contains(e.s("pid")) || (node.uids).contains(e.s("uid"));
+//        });
     }
 
+    /**
+     * 是否可以处理某些节点
+     * @param uid
+     * @param nodeIds
+     * @return
+     */
+    public boolean canDeal(String uid, String... nodeIds){
+        List<Obj> list = sqlManager.execute(new SQLReady("select uid,oid,pid from t_org_user where uid = ?", uid), Obj.class);
+        for (String nodeId : nodeIds) {
+            BpmModel.Node node = getNode(nodeId);
+            if(list.stream().anyMatch(e -> {
+                return (node.qids).contains(e.s("oid")) || (node.rids).contains(e.s("oid")) || (node.dids).contains(e.s("pid")) || (node.uids).contains(e.s("uid"));
+            })){
+                return true;
+            }
+        }
+        return false;
+    }
 
+    /**
+     * 是否可以处理当前节点
+     * @param uid
+     * @return
+     */
+    public boolean canDealCurrent(final String uid){
+        return ins.currentNodes.stream().anyMatch(e -> e.uids.contains(uid));
+    }
+
+    /**
+     * 将任务更新到最新的状态
+     * @return
+     */
+    public void sync(){
+        BpmService service = ofIns(ins._id.toString());
+        model = service.model;
+        modelId = service.modelId;
+        ins = service.ins;
+        arrangementData = service.arrangementData;
+        xml = service.xml;
+    }
+
+    /**
+     * 发布前数据整理
+     *
+     * @param uid
+     * @return
+     */
     public Obj preparePub(String uid) {
         if (!canPub(uid)) {
             error("你没有权限发布该任务");
