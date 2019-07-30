@@ -300,16 +300,13 @@
             //load
             $.each(listFields, function (i,v) {
                 // console.log(v,$(".form-fields label[for=tyue-checkbox-blue-"+v+"]"))
-                $(".form-fields input[id=tyue-checkbox-blue-"+v+"]").click();
+                $(".form-fields input[id='tyue-checkbox-blue-"+v+"']").click();
             })
             $(".arrow-btn.left").click()
 
         }, 'json')
     }
 
-    $(document).on('change',"#selectForm",function () {
-        loadForm()
-    });
 </script>
 
 <script>
@@ -345,6 +342,10 @@
             formList:formList
         })
     );
+
+    $(document).on('change',"#selectForm",function () {
+        loadForm()
+    });
 
     var activeIndex = true;
     // 点击下一步
@@ -400,7 +401,13 @@
             url: "/api/bpm/BpmXmlController/one?_id="+id,
             async:false,
             success:function(obj){
+                if(obj.code != 200){
+                    //show error
+                    return;
+                }
+                $("#selectForm").val(obj.data[0].arrangementData.formId);
 
+                // obj.data
                 if(obj["data"].length>0){
                     var bpmXml = obj["data"][0].xml;
                     if(null != bpmXml && "" != bpmXml){

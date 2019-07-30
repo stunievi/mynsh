@@ -27,7 +27,7 @@
             text-align: center;
         }
         #canvas{
-            width: 100%;
+            width: 800px;
             height: 800px;
         }
         #phead {
@@ -110,16 +110,16 @@
 
 
             // zoom to fit full viewport
-            canvas.zoom('fit-viewport');
+            // canvas.zoom('fit-viewport');
 
             // attach an overlay to a node
-            overlays.add(msg.data.current, 'note', {
-                position: {
-                    bottom: -10,
-                    right: 40
-                },
-                html: '<div class="diagram-note">当前位置</div>'
-            });
+            // overlays.add(msg.data.current, 'note', {
+            //     position: {
+            //         bottom: -10,
+            //         right: 40
+            //     },
+            //     html: '<div class="diagram-note">当前位置</div>'
+            // });
 
             // add marker
             canvas.addMarker(msg.data.current, 'needs-discussion');
