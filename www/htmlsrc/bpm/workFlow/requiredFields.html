@@ -1,17 +1,17 @@
 <style>
 
-    .fields li {
+    .req-fields li {
         list-style: none;
         cursor: pointer;
         position: relative
     }
 
-    .selection-container {
+    .req-selection-container {
         height: 350px;
         margin: 10px
     }
 
-    .select-box {
+    .req-select-box {
         width: 250px;
         height: 100%;
         float: left;
@@ -19,7 +19,7 @@
         border-radius: 4px
     }
 
-    .arrows-box {
+    .req-arrows-box {
         width: 110px;
         height: 100%;
         float: left;
@@ -33,7 +33,7 @@
         overflow-x: hidden
     }
 
-    .select-box-title {
+    .req-select-box-title {
         height: 40px;
         line-height: 40px;
         font-size: 16px;
@@ -49,12 +49,12 @@
         color: #000
     }
 
-    .select-box-title label:before {
+    .req-select-box-title label:before {
         left: -14px !important;
         top: 4px !important
     }
 
-    .select-box-title label:after {
+    .req-select-box-title label:after {
         left: -10px !important;
         top: 5px !important
     }
@@ -77,7 +77,7 @@
         font-family: å¾®è½¯é›…é»‘
     }
 
-    .select-box input[type=checkbox] {
+    .req-select-box input[type=checkbox] {
         position: absolute;
         left: 13px;
         top: 3px;
@@ -86,7 +86,7 @@
         opacity: 0
     }
 
-    .select-box label {
+    .req-select-box label {
         position: absolute;
         left: 30px;
         top: 9px;
@@ -94,11 +94,11 @@
         line-height: 20px
     }
 
-    .select-box span {
+    .req-select-box span {
         padding-left: 20px
     }
 
-    .select-box label:before {
+    .req-select-box label:before {
         content: '';
         position: absolute;
         left: -14px;
@@ -112,7 +112,7 @@
         -moz-transition: all .3s ease
     }
 
-    .select-box label:after {
+    .req-select-box label:after {
         content: '';
         position: absolute;
         left: -10px;
@@ -132,12 +132,12 @@
         -moz-transition: all .3s ease
     }
 
-    .select-box input[type=checkbox]:checked + label:before {
+    .req-select-box input[type=checkbox]:checked + label:before {
         background: #00a0e8;
         border-color: #00a0e8
     }
 
-    .select-box input[type=checkbox]:checked + label:after {
+    .req-select-box input[type=checkbox]:checked + label:after {
         background: #00a0e8
     }
 
@@ -199,12 +199,12 @@
     {{/each}}
 </script>
 
-<div class="fields">
-    <div class="selection-container">
-        <div class="select-box req-left" id="req-check">
-            <div class="select-box-title">
-                <input type="checkbox" class="req-checkbox-all" id="checkbox-all1"/>
-                <label for="checkbox-all1"></label>
+<div class="req-fields">
+    <div class="req-selection-container">
+        <div class="req-select-box req-left" id="req-check">
+            <div class="req-select-box-title">
+                <input type="checkbox" class="req-checkbox-all" id="req-checkbox-all1"/>
+                <label for="req-checkbox-all1"></label>
                 <span>选中字段</span>
             </div>
             <div class="req-select-content">
@@ -213,7 +213,7 @@
                 </ul>
             </div>
         </div>
-        <div class="arrows-box">
+        <div class="req-arrows-box">
             <div class="req-arrow-btns">
                 <button class="req-arrow-btn req-right" id="rightButton">
                     &#8250;
@@ -223,14 +223,14 @@
                 </button>
             </div>
         </div>
-        <div class="select-box req-right" id="req-all">
-            <div class="select-box-title">
-                <input type="checkbox" class="req-checkbox-all" id="checkbox-all2"/>
-                <label for="checkbox-all2"></label>
+        <div class="req-select-box req-right" id="req-all">
+            <div class="req-select-box-title">
+                <input type="checkbox" class="req-checkbox-all" id="req-checkbox-all2"/>
+                <label for="req-checkbox-all2"></label>
                 <span>所有字段</span>
             </div>
             <div class="req-select-content">
-                <ul class="req-selected-ul form-fields" id="reqFields">
+                <ul class="req-selected-ul req-form-fields" id="reqFields">
 
                 </ul>
             </div>

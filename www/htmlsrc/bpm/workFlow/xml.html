@@ -509,22 +509,30 @@
                         endNum++;
                     }
 
+                    var allFields =[];
+                    var requiredFields = [];
+                    var pids = [];
+                    var qids = [];
+                    var rids = [];
+                    var dids = [];
                     if(undefined ==  window.bpmData.nodes[sourceRef]){
-                        errFlag = true;
+                        /*errFlag = true;
                         layer.msg("请配置节点信息！");
-                        return;
+                        return;*/
+                    }else{
+                        allFields = window.bpmData.nodes[sourceRef].fields.all_fields;
+                        requiredFields = window.bpmData.nodes[sourceRef].fields.required_fields;
+                        // 可以处理的人的ID
+                        pids = arrToStr(window.bpmData.nodes[sourceRef].permission.pids);
+                        // 可以处理的组织架构ID
+                        qids =arrToStr(window.bpmData.nodes[sourceRef].permission.qids);
+                        rids =arrToStr(window.bpmData.nodes[sourceRef].permission.rids);
+                        dids =arrToStr(window.bpmData.nodes[sourceRef].permission.dids);
                     }
 
                     // var nodeExt =[];    // 节点对应的表单属性
                     // nodeExt.push(window.bpmData.nodes[sourceRef].fields.all_fields);
-                    var allFields = window.bpmData.nodes[sourceRef].fields.all_fields;
-                    var requiredFields = window.bpmData.nodes[sourceRef].fields.required_fields;
-                    // 可以处理的人的ID
-                    var pids = arrToStr(window.bpmData.nodes[sourceRef].permission.pids);
-                    // 可以处理的组织架构ID
-                    var qids =arrToStr(window.bpmData.nodes[sourceRef].permission.qids);
-                    var rids =arrToStr(window.bpmData.nodes[sourceRef].permission.rids);
-                    var dids =arrToStr(window.bpmData.nodes[sourceRef].permission.dids);
+
                     if(sr.length>0 && "ExclusiveGateway" == sr[0]){
                         ex.push({sourceRef,targetRef});
                         exList[sourceRef] = ex;
@@ -541,14 +549,23 @@
                 var nextEvent = [];
                 var node = {};
 
-                var nodeExt =[];    // 节点对应的表单属性
-                nodeExt.push(window.bpmData.nodes[sourceRef].fields.all_fields);
-                // 可以处理的人的ID
-                var pids =arrToStr(window.bpmData.nodes[sourceRef].permission.pids);
-                // 可以处理的组织架构ID
-                var qids =arrToStr(window.bpmData.nodes[sourceRef].permission.qids);
-                var rids =arrToStr(window.bpmData.nodes[sourceRef].permission.rids);
-                var dids =arrToStr(window.bpmData.nodes[sourceRef].permission.dids);
+                var allFields =[];
+                var requiredFields = [];
+                var pids = [];
+                var qids = [];
+                var rids = [];
+                var dids = [];
+                if(undefined ==  window.bpmData.nodes[sourceRef]){
+                }else{
+                    allFields = window.bpmData.nodes[sourceRef].fields.all_fields;
+                    requiredFields = window.bpmData.nodes[sourceRef].fields.required_fields;
+                    // 可以处理的人的ID
+                    pids = arrToStr(window.bpmData.nodes[sourceRef].permission.pids);
+                    // 可以处理的组织架构ID
+                    qids =arrToStr(window.bpmData.nodes[sourceRef].permission.qids);
+                    rids =arrToStr(window.bpmData.nodes[sourceRef].permission.rids);
+                    dids =arrToStr(window.bpmData.nodes[sourceRef].permission.dids);
+                }
                 for(var ex=0;ex<exList[i].length;ex++){
                     var targetRef = exList[i][ex].targetRef;
                     node["expression"] = "";
@@ -557,24 +574,29 @@
                 }
                 var nextNodes = [];
                 nextNodes.push(node);
-                _eventMap[exList[i].sourceRef] = {"taskId":exList[i],"ext":nodeExt,"uids":pids,"qids":qids,"rids":rids,"dids":dids,"nextNodes":nextNodes}
+                _eventMap[exList[i].sourceRef] = {"taskId":exList[i],"allFields":allFields,"requiredFields":requiredFields,"uids":pids,"qids":qids,"rids":rids,"dids":dids,"nextNodes":nextNodes}
             });
 
             // 结束节点
             $(_xml).find('endEvent').each(function(){
                 var sourceRef = $(this).attr("id");
+                var allFields =[];
+                var requiredFields = [];
+                var pids = [];
+                var qids = [];
+                var rids = [];
+                var dids = [];
                 if(undefined ==  window.bpmData.nodes[sourceRef]){
-                    layer.msg("请配置节点信息！");
-                    return;
+                }else{
+                    allFields = window.bpmData.nodes[sourceRef].fields.all_fields;
+                    requiredFields = window.bpmData.nodes[sourceRef].fields.required_fields;
+                    // 可以处理的人的ID
+                    pids = arrToStr(window.bpmData.nodes[sourceRef].permission.pids);
+                    // 可以处理的组织架构ID
+                    qids =arrToStr(window.bpmData.nodes[sourceRef].permission.qids);
+                    rids =arrToStr(window.bpmData.nodes[sourceRef].permission.rids);
+                    dids =arrToStr(window.bpmData.nodes[sourceRef].permission.dids);
                 }
-                var allFields = window.bpmData.nodes[sourceRef].fields.all_fields;
-                var requiredFields = window.bpmData.nodes[sourceRef].fields.required_fields;
-                // 可以处理的人的ID
-                var pids = arrToStr(window.bpmData.nodes[sourceRef].permission.pids);
-                // 可以处理的组织架构ID
-                var qids =arrToStr(window.bpmData.nodes[sourceRef].permission.qids);
-                var rids =arrToStr(window.bpmData.nodes[sourceRef].permission.rids);
-                var dids =arrToStr(window.bpmData.nodes[sourceRef].permission.dids);
                 _eventMap[sourceRef] = {"taskId":sourceRef,"allFields":allFields,"requiredFields":requiredFields,"uids":pids,"qids":qids,"rids":rids,"dids":dids,"nextNodes":[]}
                 window.sbpmData.nodes[sourceRef] = (window.bpmData.nodes[sourceRef]);
             })
