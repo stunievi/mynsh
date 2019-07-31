@@ -76,7 +76,7 @@
 
             </div>
 
-            <div class="action" style="display: none;">
+            <div class="action" style="display: none;text-align: center;">
                 <a href="javascript:;" id="save">保存</a>
                 <a href="javascript:;" id="submit">提交</a>
             </div>
@@ -105,6 +105,8 @@
         if(!id){
             id = getParam("id");
         }
+
+        console.log(type,id)
         // var id = getParam("id");
         layer.load(0, {
             time: 5000
@@ -205,8 +207,11 @@
                 if(type == 'pub'){
                     url = "/api/bpm/workflow/createIns";
                 } else {
-                    //todo
-                    url = "";
+                    if(gonext){
+                        url = "/api/bpm/workflow/subIns";
+                    }else{
+                        url = "/api/bpm/workflow/saveIns";
+                    }
                 }
                 var data = {};
                 $.each(msg.data.formFields || [], function (i, v) {
@@ -239,7 +244,9 @@
                                 window.close();
                             }
                         } else {
-                            //todo
+                            if(gonext){
+                                window.open("./choose.html?id=" + msg.data, "choosepersons", "top=100, left=100, width=500, height=300")
+                            }
                         }
                     }
                 })

@@ -233,8 +233,25 @@ public class workflow {
      */
     public Result saveIns(String id,Obj data){
         BpmService service = BpmService.ofIns(id);
-        return Result.ok(service.saveIns(Auth.getUid() + "", data, null));
+        return Result.ok(service.saveIns(Auth.getUid() + "", data, false));
     }
+
+    /**
+     * 提交节点数据
+     * @param id
+     * @param data
+     * @return
+     */
+    public Result subIns(String id,Obj data){
+        BpmService service = BpmService.ofIns(id);
+        boolean bl = service.submitIns(Auth.getUid() + "", data);
+        if(bl){
+            return Result.ok(id);
+        }else{
+            return Result.error("节点保存错误！");
+        }
+    }
+
 
     /**
      * 生成最终的流程文件

@@ -11,7 +11,7 @@
     </style>
 </head>
 <body>
-    <div id="content">
+    <div id="content" class="hide">
         <div style="width: 500px;margin: 0 auto;">
             <ul id="ulist" style="height: 200px; overflow: auto;margin: 0 auto;">
             </ul>
@@ -52,18 +52,15 @@
             data: msg.data
         }))
         $('input:radio:first').attr('checked', 'checked');
-        radioValue();
+
+        $("#content").removeClass("hide");
     },"json")
 
-    function radioValue() {
-        $(":radio").click(function(){
-            var person=$('input[name="person"]:checked').val();
-        });
+    var submitFn = function(){
+        submit();
     }
 
-    $("#submit").click(function () {
-        submit()
-    })
+    $("#submit").unbind("click",submitFn).bind("click",submitFn);
 
     function submit() {
         var person=$('input[name="person"]:checked').val();
