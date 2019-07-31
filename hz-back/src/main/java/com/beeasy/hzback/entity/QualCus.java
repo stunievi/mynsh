@@ -51,18 +51,18 @@ public class QualCus extends ValidGroup {
                 if(null!=cusType && "02".equals(cusType)){
                     requestSign = "07";
                     Assert(S.noBlank(companyName), "对私客户辅助公司名不能为空!");
-                   long count = sqlManager.lambdaQuery(QualCus.class)
-                           .andEq(QualCus::getCusName, cusName)
-                           .andEq(QualCus::getCompanyName, companyName)
-                           .andEq(QualCus::getOperator, uid)
-                           .count();
-                   Assert(count == 0, "已有相同的对私客户！");
+//                   long count = sqlManager.lambdaQuery(QualCus.class)
+//                           .andEq(QualCus::getCusName, cusName)
+//                           .andEq(QualCus::getCompanyName, companyName)
+//                           .andEq(QualCus::getOperator, uid)
+//                           .count();
+//                   Assert(count == 0, "已有相同的对私客户！");
                 }else{
-                   long count = sqlManager.lambdaQuery(QualCus.class)
-                           .andEq(QualCus::getCusName, cusName)
-                           .andEq(QualCus::getOperator, uid)
-                           .count();
-                   Assert(count == 0, "已有相同的对公客户！");
+//                   long count = sqlManager.lambdaQuery(QualCus.class)
+//                           .andEq(QualCus::getCusName, cusName)
+//                           .andEq(QualCus::getOperator, uid)
+//                           .count();
+//                   Assert(count == 0, "已有相同的对公客户！");
                 }
 
                 QualCus insertData = new QualCus();

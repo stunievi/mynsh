@@ -339,8 +339,8 @@ public class UserService {
      *             2: org ->
      *             3: user ->
      * @param uids
-     * @param qids
-     * @param clean if true, clear all items which selected througn channel
+//     * @param qids
+//     * @param  if true, clear all items which selected througn channel
      */
     public void setUserQuarters(int chan, long[] uids, long[] oids, boolean clear){
         switch (chan){
@@ -581,7 +581,25 @@ public class UserService {
     }
 
 
-
-
+    /**
+     * @Author gotomars
+     * @Description 根据角色获取用户
+     * @Date 17:09 2019/7/30
+     **/
+    public List getUserByRoles(List<String> roles){
+       return sqlManager.select("user.查询相关角色用户", JSONObject.class, C.newMap("roles", roles));
+    }
+    /**
+     * @Author gotomars
+     * @Description 检查用户是否含有指定角色
+     * @Date 17:20 2019/7/30
+     **/
+    public boolean checkUserInRoles(long uid, List roles){
+        JSONObject where = new JSONObject();
+        where.put("uid", uid);
+        where.put("roles", roles);
+        JSONObject permission = sqlManager.selectSingle("user.查询用户是否拥有指定角色",  where, JSONObject.class);
+        return null != permission  && permission .getInteger("1") > 0;
+    }
 
 }
