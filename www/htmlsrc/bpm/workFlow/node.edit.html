@@ -20,6 +20,8 @@
             left: 0 !important;
         }
     </style>
+    <link rel="stylesheet" href="fields.css">
+    <script src="fields.js"></script>
 </head>
 <body>
     <div id="content">
@@ -39,10 +41,8 @@
                 <!--#include file="./permission.html" -->
             </div>
             <div id="tab3" class="tab-pane">
-                <!--#include file="./fields.html" -->
             </div>
             <div id="tab5" class="tab-pane">
-                <!--#include file="./requiredFields.html" -->
             </div>
             <div id="tab4" class="tab-pane">
                 <!--#include file="./condition.html" -->
@@ -54,6 +54,8 @@
 
     <script>
         var nodeId = location.search.match(/id=(.+)&?/)[1]
+        $("#tab3").fsSelector("all", opener.fields, opener.bpmData.nodes[nodeId].fields.all_fields)
+        $("#tab5").fsSelector("required", opener.fields, opener.bpmData.nodes[nodeId].fields.required_fields)
     </script>
 
 </body>
