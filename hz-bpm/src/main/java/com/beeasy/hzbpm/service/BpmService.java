@@ -586,6 +586,11 @@ public class BpmService {
         }
     }
 
+
+    public boolean isFinished(){
+        return ins != null && "FINISHED".equalsIgnoreCase(ins.state);
+    }
+
     /**
      * 得到某个用户当前的节点
      *
@@ -593,7 +598,7 @@ public class BpmService {
      * @return
      */
     public BpmModel.Node getCurrentNode(String uid) {
-        if("FINISHED".equalsIgnoreCase(ins.state)){
+        if(isFinished()){
             return getNode("end");
         }
         String nodeId = ins.currentNodes.stream()
@@ -608,6 +613,9 @@ public class BpmService {
     }
 
     public List<String> getCurrentNodeIds() {
+        if(isFinished()){
+            return (List)a("end");
+        }
         return ins.currentNodes
                 .stream()
                 .map(e -> e.nodeId)
@@ -615,6 +623,9 @@ public class BpmService {
     }
 
     public List<BpmModel.Node> getCurrentNodes() {
+        if(isFinished()){
+            return (List)a(getNode("end"));
+        }
         return ins.currentNodes
                 .stream()
                 .map(e -> getNode(e.nodeId))
