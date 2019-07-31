@@ -414,9 +414,9 @@ public class BpmService {
 //        bpmService.ins.lastModifyTime = new Date();
 
         Obj update = o();
-        if (nextPersonId != null) {
-            nextApprover(uid, nextPersonId, update);
-        }
+//        if (nextPersonId != null) {
+//            nextApprover(uid, nextPersonId, update);
+//        }
         Obj set = o(
                 "$set", update,
 //                "$set", o(
@@ -426,7 +426,7 @@ public class BpmService {
                         "logs", dataLog
                 )
 //                ,
-//                "$push",o(
+//                "$set",o(
 //                        "attrs", attrs
 //                )
         );
@@ -465,8 +465,8 @@ public class BpmService {
      * @param uid 提交人
      * @param nextUid 下一步处理人
      */
-    private void nextApprover(String uid, String nextUid, Obj update){
-//        BpmService bpmService = this;
+    public boolean nextApprover(String uid, String nextUid, Obj update){
+        BpmService bpmService = this;
 
         // 下一节点
         BpmModel.Node nextNode = getNextNode(uid, o());
@@ -482,10 +482,11 @@ public class BpmService {
 
         update.put("currentNodes", a(currentNode));
 
-//        MongoCollection<Document> collection = db.getCollection("bpmInstance");
-//
-//        UpdateResult res = collection.updateOne(Filters.eq("_id", bpmService.ins._id),new Document("$set", new Document("currentNodes", BsonArray.parse(ja.toString()))));
+        MongoCollection<Document> collection = db.getCollection("bpmInstance");
 
+        UpdateResult res = collection.updateOne(Filters.eq("_id", bpmService.ins._id),new Document("$set", new Document("currentNodes", update.toBson())));
+
+        return res.getModifiedCount() > 0;
     }
 
 

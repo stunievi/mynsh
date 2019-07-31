@@ -62,7 +62,7 @@ public class BpmXmlController {
             );
         }
         if(same > 0){
-            return Result.error("已经有同名的工作流名称!");
+            return Result.error("已经有同名的工作流名称！");
         }
         JSONObject jsonObject = (JSONObject) JSON.parse($request.get("data").toString());
         JSONArray jsonArray = new JSONArray();

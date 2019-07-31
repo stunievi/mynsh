@@ -205,9 +205,9 @@ public class workflow {
      * @param nextUid
      * @return
      */
-    public Object saveIns(String id, String nextUid){
+    public Object nextApprover(String id, String nextUid){
         BpmService service = BpmService.ofIns(id);
-        return Result.ok(service.saveIns(Auth.getUid() + "", o(), nextUid));
+        return Result.ok(service.nextApprover(Auth.getUid() + "",  nextUid,o()));
     }
 
 
