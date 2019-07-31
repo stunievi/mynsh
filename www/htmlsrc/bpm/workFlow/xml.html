@@ -7,6 +7,7 @@
     <!-- required modeler styles -->
     <link rel="stylesheet" href="/static/bpm/assets/diagram-js.css"/>
     <link rel="stylesheet" href="/static/bpm/assets/bpmn-font/css/bpmn.css"/>
+    <link rel="stylesheet" href="../../../static/htmlcss/fields.css">
 
     <!-- modeler distro -->
     <script src="/static/bpm/bpmn-modeler.development.js" type="text/javascript"></script>
@@ -19,10 +20,15 @@
 
     <!-- example styles -->
     <style>
-        html, body, #canvas {
-            height: 100%;
+        html, body {
+            height: 100%!important;
             padding: 0;
             margin: 0;
+        }
+        #canvas{
+            padding: 0;
+            margin: 0;
+            height: 1000px;
         }
         .diagram-note {
             background-color: rgba(66, 180, 21, 0.7);
@@ -44,13 +50,115 @@
             left: 20px;
         }
     </style>
+
 </head>
 <body>
+
 <div id="content">
+    <div class="bs-example bs-example-tabs" data-example-id="togglable-tabs">
+        <ul id="myTabs" class="nav nav-tabs" role="tablist">
+            <li role="presentation" ><a href="#tab1" id="tab1-tab" role="tab" data-toggle="tab" aria-controls="baseInfo" aria-expanded="true">表单</a></li>
+            <li role="presentation" ><a href="#tab2" role="tab" id="tab2-tab" data-toggle="tab" aria-controls="">流程</a></li>
+            <li role="presentation" ><a href="#tab3" id="tab3-tab" role="tab" data-toggle="tab" aria-controls="taskProduceRule" aria-expanded="true">表单字段</a></li>
+
+        </ul>
+        <div id="myTabContent" class="tab-content">
+            <div class="tab-pane fade" id="tab1" aria-labelledby="tab1-tab">
+                <form name="form-search" class="form-horizontal tab1" novalidate="novalidate">
+                    <div class="row panel-form-input-group">
+
+                        <div class="col-xs-12 form-group " data-show="" style="margin-top: 20px;">
+                            <label class="col-xs-3 text-right">
+                                <span style="color:red">*</span>
+                                表单
+                            </label>
+                            <div id="formId" class="col-xs-8" style="padding-right: 15px;padding-left: 15px; max-width:400px">
+                            </div>
+                        </div>
+
+                        <div class="col-xs-12 form-group " data-show="">
+                            <label for="modelName" class="col-xs-3 text-right">
+                                <span style="color:red">*</span>
+
+                                工作流名称
+                            </label>
+                            <div class="col-xs-8" style="padding-right: 15px;
+                        padding-left: 15px; max-width:400px">
+                                <input type="text" class="form-control input-sm" id="modelName" name="modelName">
+
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col-xs-12 text-center" style="padding:20px 0;">
+                        <button type="button" href="javascript:;" class="btn btn-info" id="nextStep" style="margin-right: 10px;">
+                            下一步
+                        </button>
+
+                    </div>
+                </form>
+            </div>
+            <div class="tab-pane fade" id="tab2" aria-labelledby="tab2-tab">
+                <!--<div class="panel-body">-->
+                    <div id="canvas" class="tab2"></div>
+
+                    <!--<button id="save-button" class="btn btn-info tab2">保存</button>-->
+                <!--</div>-->
+            </div>
+
+            <div class="tab-pane fade" id="tab3" aria-labelledby="tab3-tab">
+                <div class="fields">
+                    <div class="selection-container">
+                        <div class="select-box left">
+                            <div class="select-box-title">
+                                <input type="checkbox" class="checkbox-all" id="checkbox-all1"/>
+                                <label for="checkbox-all1"></label>
+                                <span>选中字段</span>
+                            </div>
+                            <div class="select-content">
+                                <ul class="unselect-ul selected-fields">
+
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="arrows-box">
+                            <div class="arrow-btns">
+                                <button class="arrow-btn right">
+                                    &#8250;
+                                </button>
+                                <button class="arrow-btn left">
+                                    &#8249;
+                                </button>
+                            </div>
+                        </div>
+                        <div class="select-box right">
+                            <div class="select-box-title">
+                                <input type="checkbox" class="checkbox-all" id="checkbox-all2"/>
+                                <label for="checkbox-all2"></label>
+                                <span>所有字段</span>
+                            </div>
+                            <div class="select-content">
+                                <ul class="selected-ul form-fields">
+
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button id="save-button" class="btn btn-info tab2">保存</button>
+
+        </div>
+    </div>
+</div>
+
+<!--<div id="content">
     <div class="bs-example bs-example-tabs" data-example-id="togglable-tabs">
         <ul id="myTabs" class="nav nav-tabs" role="tablist">
             <li role="presentation" class="active li1"><a href="#tab1" role="tab" data-toggle="tab" aria-controls="tab1" aria-expanded="true">表单</a></li>
             <li role="presentation" class="li2"><a href="#tab2" role="tab" data-toggle="tab" aria-controls="tab2">流程</a></li>
+            <li role="presentation" class="li3"><a href="#tab3" role="tab" data-toggle="tab" aria-controls="tab3">设置</a></li>
         </ul>
         <div id="myTabContent" class="tab-content">
             <div id="panel-form">
@@ -96,21 +204,72 @@
                 </form>
 
             </div>
+            <div id="tab3" class="tab-pane tab3 hide">
+                <div class="fields">
+                    <div class="selection-container">
+                        <div class="select-box left">
+                            <div class="select-box-title">
+                                <input type="checkbox" class="checkbox-all" id="checkbox-all1"/>
+                                <label for="checkbox-all1"></label>
+                                <span>选中字段</span>
+                            </div>
+                            <div class="select-content">
+                                <ul class="unselect-ul selected-fields">
+
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="arrows-box">
+                            <div class="arrow-btns">
+                                <button class="arrow-btn right">
+                                    &#8250;
+                                </button>
+                                <button class="arrow-btn left">
+                                    &#8249;
+                                </button>
+                            </div>
+                        </div>
+                        <div class="select-box right">
+                            <div class="select-box-title">
+                                <input type="checkbox" class="checkbox-all" id="checkbox-all2"/>
+                                <label for="checkbox-all2"></label>
+                                <span>所有字段</span>
+                            </div>
+                            <div class="select-content">
+                                <ul class="selected-ul form-fields">
+
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <div id="canvas" class="tab2 hide"></div>
 
-<button id="save-button" class="btn btn-info tab2 hide">保存</button>
+<button id="save-button" class="btn btn-info tab2 hide">保存</button>-->
 
 <script type="text/html" id="model_temp">
     <select class="form-control input-sm" id="selectForm">
         {{each formList value index}}
         <!--<input type="text" class="" value="{{value.title}}">-->
-            <option value="{{value.id}}">{{value.name}}</option>
+        <option value="{{value.id}}">{{value.name}}</option>
         {{/each}}
     </select>
+</script>
+
+ <!--设置-字段-->
+<script type="text/html" id="field_item">
+    {{each fields field}}
+    <li>
+        <input type="checkbox" class="checkboxs" id="tyue-checkbox-blue-{{field}}"/>
+        <label for="tyue-checkbox-blue-{{field}}"></label>
+        <span>{{field}}</span>
+    </li>
+    {{/each}}
 </script>
 
 <script>
@@ -119,6 +278,10 @@
     window.bpmData = {
         nodes:{}
     };
+    window.sbpmData = {
+        nodes:{}
+    };
+    var listFields = [];
 
     function loadForm(){
         var id = $("#selectForm").val()
@@ -128,18 +291,28 @@
             if(msg.success){
                 form = msg.data;
             }
+            window.fields = [];
             $.each(msg.data.form.data ||[], function (i,v) {
                 fields.push(v.title)
             })
+
+            fieldItem();
+            //load
+            $.each(listFields, function (i,v) {
+                // console.log(v,$(".form-fields label[for=tyue-checkbox-blue-"+v+"]"))
+                $(".form-fields input[id='tyue-checkbox-blue-"+v+"']").click();
+            })
+            $(".arrow-btn.left").click()
+
         }, 'json')
     }
 
-    $(document).on('change',"#selectForm",function () {
-        loadForm()
-    });
 </script>
 
 <script>
+
+
+    $('#myTabs a[href="#tab1"]').tab('show');
     var formList = [];
     var pid = getParam("pid");
     var fulldata = {
@@ -159,8 +332,8 @@
         url:"/api/bpm/form/queryForm",
         async:false,
         success:function(data){
-                for (var i = 0; i < data.data.length; i++) {
-                    formList.push({"id":data.data[i]._id,"name":data.data[i].name})
+            for (var i = 0; i < data.data.length; i++) {
+                formList.push({"id":data.data[i]._id,"name":data.data[i].name})
             }
         }
     });
@@ -170,16 +343,21 @@
         })
     );
 
+    $(document).on('change',"#selectForm",function () {
+        loadForm()
+    });
+
     var activeIndex = true;
     // 点击下一步
     $("#nextStep").click(function () {
-        $(".li2").addClass("active");
-        $(".li1").removeClass("active");
-        $(".tab2").removeClass("hide");
-        $(".tab1").addClass("hide");
+        $('#myTabs a[href="#tab2"]').tab('show');
+        // $(".li2").addClass("active");
+        // $(".li1").removeClass("active");
+        // $(".tab2").removeClass("hide");
+        // $(".tab1").addClass("hide");
         activeIndex = false;
     })
-    $("#myTabs li").click(function () {
+    /*$("#myTabs li").click(function () {
         if($(this).hasClass("active")){
             return;
         }
@@ -187,11 +365,13 @@
         if(activeIndex){
             $(".tab1").removeClass("hide");
             $(".tab2").addClass("hide");
+            $(".tab3").removeClass("hide");
         }else{
             $(".tab2").removeClass("hide");
             $(".tab1").addClass("hide");
+            $(".tab3").removeClass("hide");
         }
-    });
+    });*/
 
     var diagramUrl = 'https://cdn.rawgit.com/bpmn-io/bpmn-js-examples/dfceecba/starter/diagram.bpmn11';
     // modeler instance
@@ -221,9 +401,17 @@
             url: "/api/bpm/BpmXmlController/one?_id="+id,
             async:false,
             success:function(obj){
+                console.log("obj",obj)
+                if(obj.code != 200){
+                    //show error
+                    layer.msg(obj.errMessage)
+                    return;
+                }
+                $("#selectForm").val(obj.data.arrangementData.formId);
 
-                if(obj["data"].length>0){
-                    var bpmXml = obj["data"][0].xml;
+                // obj.data
+                // if(obj["data"].length>0){
+                    var bpmXml = obj.data.xml;
                     if(null != bpmXml && "" != bpmXml){
                         xml = bpmXml;
 
@@ -240,12 +428,13 @@
                             }
                         })
 
-                        $("#modelName").val(obj["data"][0].modelName);
-                        window.bpmData = obj["data"][0].bpmData;
-                        console.log("window.bpmData:",window.bpmData)
+                        $("#modelName").val(obj.data.modelName);
+                        window.bpmData = obj.data.bpmData;
+                        listFields = obj.data.arrangementData.listFields;
+
                     }
 
-                }
+                // }
             }
         });
     }
@@ -261,7 +450,6 @@
                 if(res.success && res.data){
                     roleData = res.data.list;
                     console.log("data:",roleData)
-
                 }
             }
         });
@@ -274,7 +462,7 @@
             console.log('error rendering', err);
         } else {
             console.log('rendered');
-            myTabs}
+            }
     });
 
     /**
@@ -291,8 +479,12 @@
             var _xmlMap = {};
             var startEvent;
             var endEvent;
-                var ex =[];
-                var exList ={};
+            var ex =[];
+            var exList ={};
+
+            var startNum = 0;
+            var endNum = 0;
+            var errFlag = false;
             $(_xml).find('process').each(function(){
                 var _sequenceFlow = $(this).children('sequenceFlow');
                 _sequenceFlow.each(function () {
@@ -310,9 +502,17 @@
                     var tr = targetRef.split("_");
                     if(sr.length>0 && "StartEvent" == sr[0]){
                         startEvent = sourceRef;
+                        startNum++;
                     }
                     if(tr.length>0 && "EndEvent" == tr[0]){
                         endEvent = targetRef;
+                        endNum++;
+                    }
+
+                    if(undefined ==  window.bpmData.nodes[sourceRef]){
+                        errFlag = true;
+                        layer.msg("请配置节点信息！");
+                        return;
                     }
 
                     // var nodeExt =[];    // 节点对应的表单属性
@@ -320,17 +520,19 @@
                     var allFields = window.bpmData.nodes[sourceRef].fields.all_fields;
                     var requiredFields = window.bpmData.nodes[sourceRef].fields.required_fields;
                     // 可以处理的人的ID
-                    var pids =(window.bpmData.nodes[sourceRef].permission.pids);
+                    var pids = arrToStr(window.bpmData.nodes[sourceRef].permission.pids);
                     // 可以处理的组织架构ID
-                    var qids =(window.bpmData.nodes[sourceRef].permission.qids);
-                    var rids =(window.bpmData.nodes[sourceRef].permission.rids);
-                    var dids =(window.bpmData.nodes[sourceRef].permission.dids);
+                    var qids =arrToStr(window.bpmData.nodes[sourceRef].permission.qids);
+                    var rids =arrToStr(window.bpmData.nodes[sourceRef].permission.rids);
+                    var dids =arrToStr(window.bpmData.nodes[sourceRef].permission.dids);
                     if(sr.length>0 && "ExclusiveGateway" == sr[0]){
                         ex.push({sourceRef,targetRef});
                         exList[sourceRef] = ex;
                     }else{
                         _eventMap[sourceRef] = {"taskId":sourceRef,"allFields":allFields,"requiredFields":requiredFields,"uids":pids,"qids":qids,"rids":rids,"dids":dids,"nextNodes":nextNodes}
                     }
+
+                    window.sbpmData.nodes[sourceRef] = (window.bpmData.nodes[sourceRef]);
                 })
             });
             $.each(exList, function(i) {
@@ -342,11 +544,11 @@
                 var nodeExt =[];    // 节点对应的表单属性
                 nodeExt.push(window.bpmData.nodes[sourceRef].fields.all_fields);
                 // 可以处理的人的ID
-                var pids =(window.bpmData.nodes[sourceRef].permission.pids);
+                var pids =arrToStr(window.bpmData.nodes[sourceRef].permission.pids);
                 // 可以处理的组织架构ID
-                var qids =(window.bpmData.nodes[sourceRef].permission.qids);
-                var rids =(window.bpmData.nodes[sourceRef].permission.rids);
-                var dids =(window.bpmData.nodes[sourceRef].permission.dids);
+                var qids =arrToStr(window.bpmData.nodes[sourceRef].permission.qids);
+                var rids =arrToStr(window.bpmData.nodes[sourceRef].permission.rids);
+                var dids =arrToStr(window.bpmData.nodes[sourceRef].permission.dids);
                 for(var ex=0;ex<exList[i].length;ex++){
                     var targetRef = exList[i][ex].targetRef;
                     node["expression"] = "";
@@ -355,61 +557,89 @@
                 }
                 var nextNodes = [];
                 nextNodes.push(node);
-                    console.log("eee",nextNodes)
                 _eventMap[exList[i].sourceRef] = {"taskId":exList[i],"ext":nodeExt,"uids":pids,"qids":qids,"rids":rids,"dids":dids,"nextNodes":nextNodes}
             });
 
-
-            var _formDataMap = {}
-            var formId = $("#selectForm").val();
-            var modelName = $("#modelName").val();
-            $.ajax({
-                type:"get",
-                async:false,
-                url:"/api/bpm/form/queryFormData?_id="+formId,
-                success:function(res){
-                    if(res.code==200&& res.data.length>0){
-                        var data = res.data[0].form.data;
-                        data.forEach(function (e) {
-                            _formDataMap[e.title] = e;
-                        })
-                    }
+            // 结束节点
+            $(_xml).find('endEvent').each(function(){
+                var sourceRef = $(this).attr("id");
+                if(undefined ==  window.bpmData.nodes[sourceRef]){
+                    layer.msg("请配置节点信息！");
+                    return;
                 }
-            });
-            _xmlMap = {"formId":formId,"template":form.form.template,"rendered":form.form.parse,"workflowName":modelName,"fields":_formDataMap,"nodes":_eventMap,"start":startEvent,"end":endEvent}
-            console.log("xmlMap----",_xmlMap)
+                var allFields = window.bpmData.nodes[sourceRef].fields.all_fields;
+                var requiredFields = window.bpmData.nodes[sourceRef].fields.required_fields;
+                // 可以处理的人的ID
+                var pids = arrToStr(window.bpmData.nodes[sourceRef].permission.pids);
+                // 可以处理的组织架构ID
+                var qids =arrToStr(window.bpmData.nodes[sourceRef].permission.qids);
+                var rids =arrToStr(window.bpmData.nodes[sourceRef].permission.rids);
+                var dids =arrToStr(window.bpmData.nodes[sourceRef].permission.dids);
+                _eventMap[sourceRef] = {"taskId":sourceRef,"allFields":allFields,"requiredFields":requiredFields,"uids":pids,"qids":qids,"rids":rids,"dids":dids,"nextNodes":[]}
+                window.sbpmData.nodes[sourceRef] = (window.bpmData.nodes[sourceRef]);
+            })
+            console.log("_eventMap",_eventMap);
 
-            var da = {
-                _id:id,
-                xml:xml,
-                pid:pid,
-                modelName:modelName,
-                data:fulldata,
-                bpmData:bpmData,
-                arrangementData:_xmlMap
+            if(!errFlag){
+                if(startNum == 0 || endNum == 0 || startNum>1 || endNum>1){
+                    layer.msg("开始或结束节点有且只能存在一个！");
+                    return;
+                }
+
+                var _formDataMap = {}
+                var formId = $("#selectForm").val();
+                var modelName = $("#modelName").val();
+                if("" == modelName.trim()){
+                    layer.msg("工作流名称不能为空！");
+                    return;
+                }
+                $.ajax({
+                    type:"get",
+                    async:false,
+                    url:"/api/bpm/form/queryFormData?_id="+formId,
+                    success:function(res){
+                        if(res.code==200&& res.data.length>0){
+                            var data = res.data[0].form.data;
+                            data.forEach(function (e) {
+                                _formDataMap[e.title] = e;
+                            })
+                        }
+                    }
+                });
+                _xmlMap = {"formId":formId,"template":form.form.template,"rendered":form.form.parse,"workflowName":modelName,"fields":_formDataMap,"nodes":_eventMap,"start":startEvent,"end":endEvent,"listFields":listFields}
+                console.log("xmlMap----",_xmlMap)
+
+                var da = {
+                    _id:id,
+                    xml:xml,
+                    pid:pid,
+                    modelName:modelName,
+                    data:fulldata,
+                    bpmData:sbpmData,
+                    arrangementData:_xmlMap
+                }
+
+
+                $.ajax({
+                    // url:"/api/bpm/workflow/saveWorkFlow",
+                    url:"/api/bpm/BpmXmlController/saveBPMXML",
+                    type:"post",
+                    data: JSON.stringify(da),
+                    headers:{
+                        "Content-Type": "application/json"
+                    },
+                    dataType: "json",
+                    success:function(res){
+                        console.log()
+                        if(res.success){
+                            layer.msg("提交成功！")
+                        }else{
+                            layer.msg("提交失败！")
+                        }
+                    }
+                });
             }
 
-
-            $.ajax({
-                // url:"/api/bpm/workflow/saveWorkFlow",
-                url:"/api/bpm/BpmXmlController/saveBPMXML",
-                type:"post",
-                data: JSON.stringify(da),
-                headers:{
-                    "Content-Type": "application/json"
-                },
-                dataType: "json",
-                success:function(res){
-                    console.log()
-                    if(res.success){
-                        layer.msg("提交成功！")
-                    }else{
-                        layer.msg("提交失败！")
-                    }
-                }
-            });
-
-            console.log(">>>>>>>>>>>>>>>",fulldata)
 
             /*$.ajax({
                 url: "/api/bpm/BpmXmlController/saveBPMXML?xml="+xml+"&&data="+JSON.stringify(fulldata)+"&&_id="+id+"&&modelName="+modelName+"&&pid="+pid+"&bpmData="+JSON.stringify(window.bpmData),
@@ -480,6 +710,13 @@
         });
     }
 
+    function arrToStr(arr) {
+        var ret = []
+        $.each(arr ||[], function (i,v) {
+            ret.push(v+"")
+        });
+        return ret
+    }
 
     function bd(e,obj) {
         fulldata.taskId=obj.id;
@@ -528,5 +765,129 @@
         })
     }
 </script>
+<script>
+
+    function fieldItem(){
+        $(".form-fields").html(
+            template("field_item",{
+                fields: window.fields
+            }))
+    }
+    // var fields = [];
+
+    var tpml = template.compile($("#field_item").html());
+
+    $(function () {
+        $('.checkbox-all').click(function () {
+            if ($(this).prop('checked')) {
+                $(this).parent().next().find('.checkboxs').prop('checked', true);
+            } else {
+                $(this).parent().next().find('.checkboxs').prop('checked', false);
+            }
+            btn_status();
+        })
+        $('.select-content').on('click', '.checkboxs', function (e) {
+            var checkedAll = $(this).parents('.select-content').prev().find('.checkbox-all');
+            var checkboxs = $(this).prop('checked');
+            if (!checkboxs && checkedAll.prop('checked')) {
+                checkedAll.prop('checked', false);
+            } else if (checkboxs && !checkedAll.prop('checked')) {
+                var lis = $(this).parents('ul').children();
+                for (var i = 0; i < lis.length; i++) {
+                    if ($(lis[i]).find('.checkboxs').prop('checked')) {
+                        if (i == lis.length - 1) {
+                            checkedAll.prop('checked', true)
+                        }
+                    } else {
+                        break;
+                    }
+                }
+            }
+            stopFunc(e);
+        });
+        $('.select-content').on('click', 'li', function () {
+            $(this).children('.checkboxs').click();
+            btn_status();
+        })
+
+        function btn_status() {
+            var btn1 = document.getElementsByClassName('right')[0]
+            var btn2 = document.getElementsByClassName('left')[1]
+            var left_ul = document.getElementsByClassName('unselect-ul')
+            var right_ul = document.getElementsByClassName('selected-ul')
+            var left_ul_li = left_ul[0].children
+            var right_ul_li = right_ul[0].children
+            var left_btn = false
+            var right_btn = false
+            for (var i = 0; i < left_ul_li.length; i++) {
+                if (left_ul_li[i].firstElementChild.checked == true) {
+                    left_btn = true
+                }
+            }
+            for (var i = 0; i < right_ul_li.length; i++) {
+                if (right_ul_li[i].firstElementChild.checked == true) {
+                    right_btn = true
+                }
+            }
+            if (left_btn) {
+                btn1.classList.add('btn-cursor')
+            } else {
+                btn1.classList.remove('btn-cursor')
+            }
+            if (right_btn) {
+                btn2.classList.add('btn-cursor')
+            } else {
+                btn2.classList.remove('btn-cursor')
+            }
+
+        }
+
+        $('.arrow-btn').click(function () {
+            var checkboxs, origin, target, num = 0;
+            if ($(this).hasClass('right')) {
+                origin = $('.unselect-ul');
+                target = $('.selected-ul');
+            } else {
+                origin = $('.selected-ul');
+                target = $('.unselect-ul');
+            }
+            checkboxs = origin.find('.checkboxs');
+            for (var i = 0; i < checkboxs.length; i++) {
+                if ($(checkboxs[i]).prop('checked')) {
+                    var that = $(checkboxs[i]).parent().clone();
+                    that.children('input').prop('checked', false);
+                    target.append(that);
+                    $(checkboxs[i]).parent().remove();
+                } else {
+                    num++;
+                }
+            }
+            if (checkboxs.length == num) {
+            } else {
+                origin.parent().prev().find('.checkbox-all').prop('checked', false);
+            }
+            btn_status();
+
+            updateData();
+        })
+
+        function updateData() {
+            var arr = [];
+            $(".unselect-ul li").each(function () {
+                var name = $(this).find("span").text();
+                arr.push(name);
+            });
+            listFields = arr;
+        }
+
+
+    });
+
+    function stopFunc(e) {
+        e.stopPropagation ? e.stopPropagation() : e.cancelBubble = true;
+    }
+
+</script>
+
 </body>
 </html>

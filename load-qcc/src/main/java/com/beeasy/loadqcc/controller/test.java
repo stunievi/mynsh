@@ -3,6 +3,7 @@ package com.beeasy.loadqcc.controller;
 import com.beeasy.loadqcc.service.Get1;
 import com.beeasy.loadqcc.service.Get2;
 import com.beeasy.loadqcc.service.Get3;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

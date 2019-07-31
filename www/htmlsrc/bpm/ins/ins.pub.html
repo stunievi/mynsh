@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>发起任务</title>
+    <!--#include file="./ueditor.css.html" -->
+    <script src="../../../static/vendor/jquery/jquery.js"></script>
+    <script src="../../../static/htmljs/utils.js"></script>
+
+    <script src="../../../static/bpm/bpmn-viewer.js"></script>
+    <style>
+        .needs-discussion:not(.djs-connection) .djs-visual > :nth-child(1) {
+            stroke: rgba(66, 180, 21, 0.7) !important; /* color elements as red */
+        }
+        .diagram-note {
+            background-color: rgba(66, 180, 21, 0.7);
+            color: White;
+            border-radius: 5px;
+            font-family: Arial;
+            font-size: 12px;
+            padding: 5px;
+            min-height: 16px;
+            width: 50px;
+            text-align: center;
+        }
+        #canvas{
+            width: 800px;
+            height: 800px;
+        }
+        #phead {
+            list-style: none;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 10px;
+        }
+        #phead li{
+            padding-left: 15px;
+            padding-right: 15px;
+            float: left;
+            cursor: pointer;
+            font-size: 13px;
+            /*margin-bottom: -1px;*/
+            padding-bottom: 10px;
+        }
+        #phead li.active{
+            border-bottom: 2px solid deepskyblue;
+            color: deepskyblue;;
+                 }
+        .__tab{
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div id="panel" style="padding: 10px;">
+    <ul id="phead">
+        <li class="active">表单</li>
+        <li>流程图</li>
+    </ul>
+    <div id="pbody">
+        <div id="form" class="__tab" style="width: 740px; margin: 0 auto;">
+
+            <div>
+                <a href="javascript:;">保存</a>
+                <a href="javascript:;">提交</a>
+            </div>
+        </div>
+        <div id="canvas" class="__tab">
+        </div>
+    </div>
+</div>
+
+
+
+</body>
+</html>
+<script>
+
+    $("#phead li").click(function () {
+        $("#phead li").removeClass("active")
+        $(this).addClass("active");
+        var id = $(this).index();
+        $("#pbody > .__tab").hide().eq(id).show();
+    }).eq(0).click();
+
+    var id = getParam("id");
+    $.get("/api/bpm/workflow/preparePub", {id: id}, function (msg) {
+        if (!msg.success) {
+            alert(msg.errMessage)
+            return;
+        }
+
+        //绘图
+        var bpmnViewer = new BpmnJS({
+            container: '#canvas'
+        });
+        bpmnViewer.importXML(msg.data.xml, function (err) {
+            if (err) {
+                return console.error('could not import BPMN 2.0 diagram', err);
+            }
+
+            // access viewer components
+            var canvas = bpmnViewer.get('canvas');
+            var overlays = bpmnViewer.get('overlays');
+
+
+            // zoom to fit full viewport
+            // canvas.zoom('fit-viewport');
+
+            // attach an overlay to a node
+            // overlays.add(msg.data.current, 'note', {
+            //     position: {
+            //         bottom: -10,
+            //         right: 40
+            //     },
+            //     html: '<div class="diagram-note">当前位置</div>'
+            // });
+
+            // add marker
+            canvas.addMarker(msg.data.current, 'needs-discussion');
+        });
+
+
+        $("#form").prepend(msg.data.form)
+        //全部设为disabled
+        $("input[leipiplugins], textarea[leipiplugins], select[leipiplugins]").val("").prop("disabled", "disabled");
+        //select默认选第一个
+        $("select[leipiplugins]").each(function () {
+            $(this).val($(this).find("option:first").val())
+        })
+
+        //当前节点可编辑
+        $.each(msg.data.formFields || [], function (i, v) {
+            $("[name=" + msg.data.allFields[v].name + "]").removeProp("disabled").css("border-color", "blue")
+        });
+        //字段赋值
+        $.each(msg.data.attrs, function (i, v) {
+            var field = msg.data.allFields[i];
+            if (!field) return
+            var t = $("[name=" + field.name + "]")
+            if (field.leipiplugins == 'macros') {
+                t.prop("readonly", "true")
+            }
+            t.val(v)
+        });
+
+        //必填字段标红
+
+
+    }, "json");
+</script>

@@ -10,7 +10,7 @@ import org.w3c.dom.NodeList;
 
 import java.util.List;
 
-import static com.beeasy.hzbpm.service.MongoService.db;
+import static com.beeasy.hzbpm.bean.MongoService.db;
 
 public class Bpm {
 

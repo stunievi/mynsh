@@ -1250,11 +1250,11 @@ doIfDev(function () {
                 {
                     name: "流程设计",
                     href: "/htmlsrc/bpm/workFlow/workFlowManage.html"
-                },
-                {
-                    name: "发起流程",
-                    href: "/htmlsrc/bpm/workFlow/startWorkflow.html"
                 }
+                // {
+                //     name: "发起流程",
+                //     href: "/htmlsrc/bpm/workFlow/startWorkflow.html"
+                // }
             ]
         }
     )

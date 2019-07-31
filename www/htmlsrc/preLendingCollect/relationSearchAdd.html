@@ -33,8 +33,16 @@
                     submitHandler: function(){
                         if(form.valid()){
                             var data = $.unserialize(form.serialize());
-                            postFetch(remoteOrigin + "/api/auto/LoanRelatedSearch/insert", data, function () {
-                                closeCurrentIframe();
+                            postFetch(remoteOrigin + "/api/auto/LoanRelatedSearch/insert", data, function (res) {
+                                if(res){
+                                    layer.msg("【是】关联方，禁止贷款！", function () {
+                                        closeCurrentIframe();
+                                    });
+                                }else{
+                                    layer.msg("【非】关联方，可以贷款！", function () {
+                                        closeCurrentIframe();
+                                    })
+                                }
                             },function () {
                                 layer.msg("添加失败！");
                             });

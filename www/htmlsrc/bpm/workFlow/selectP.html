@@ -13,7 +13,7 @@
 
 </head>
 <body>
-<input type="text" class="form-control input-sm" id="user" name="user" style="margin-top: 10px">
+<!--<input type="text" class="form-control input-sm" id="user" name="user" style="margin-top: 10px" readonly>-->
 <div id="content"  style="flex-direction: row; display: flex; justify-content: flex-start">
     <!--<div class="selected"></div>-->
     <!--<div>-->
@@ -34,6 +34,7 @@
     </div>
 </script>
 <script>
+    var nodeId = location.search.match(/id=(.+)&?/)[1]
 
     // var context = null;
     // function onPageRequest(ctx){
@@ -41,10 +42,12 @@
     // }
     var lastClickedNode = null;
     var type = getParam("type");
+    var ps = decodeURI(getParam("ps"));
     if(!type) type = "q";
+    $("#user").val(ps)
 
     loadTimeout()
-    $.get("/api/bpm/org/all",{type:type}, function (msg) {
+    $.get("/api/bpm/org/all",{type:"q"}, function (msg) {
         layer.closeAll()
         msg = msg.data
         var timer = null;
@@ -208,16 +211,26 @@
     var ret = [];
     var ids = []
 
+    //还原页面
+    var pids = opener.opener.bpmData.nodes[nodeId].permission[type + "ids"]
+    $.each(pids, function (i,v) {
+        ids.push(v + "")
+    })
+    var id = opener.opener.bpmData.nodes[nodeId].permission["ps"]
+    $.each(id, function (i,v) {
+        ret.push(v)
+    })
+
     $(document).on("click", ".edit", function () {
         var name =  $(this).data("name");
         var uid = $(this).data("id");
         var us = $("#user").val();
         var user ;
 
-        user = "" == us ? name : us +"," + name;
+        user = "" == us ? name : us +";" + name;
         $("#user").val(user);
         ret.push(name);
-        ids.push(uid)
+        ids.push(uid + "")
         window.opener['selectp']("p", ret, ids);
 
     });

@@ -87,7 +87,7 @@ public class GetOriginQccService {
         // 企业关键字精确获取详细信息(basic)
         // ECI_GetBasicDetailsByName(keyWord);
         // 企业关键字精确获取详细信息(master),基本信息，行业信息，股东信息，主要成员，分支机构，变更信息，联系信息
-        JSONObject comInfo = ECI_GetDetailsByName(keyWord, extParam);
+        JSONObject comInfo = ECI_GetDetailsByName(reqQccParam, extParam);
         if(null == comInfo || comInfo.isEmpty()){
             return new JSONObject();
         }
@@ -510,16 +510,15 @@ public class GetOriginQccService {
     }
     /**
      * 企业关键字精确获取详细信息（master）
-     * @param keyWord
-     * @return
      */
     public JSONObject ECI_GetDetailsByName(
-            String keyWord,
+            ReqQccParam reqQccParam,
             LoadQccDataExtParm extParam
     ){
         // 企查查为 keyword !!!
         Map query = C.newMap(
-                "keyword", keyWord
+                "keyword", reqQccParam.getCompanyName(),
+                "sign", reqQccParam.getSign()
         );
         String collName = "ECIV4_GetDetailsByName";
         String res = haveTodayData(collName, query);
@@ -529,7 +528,7 @@ public class GetOriginQccService {
         saveOriginData(collName, query, res, extParam);
         JSONObject resObj = JSON.parseObject(res);
         if(!"200".equals(resObj.getString("Status"))){
-            saveErrLog("工商信息获取失败，请确定【"+keyWord+"】公司存在");
+            saveErrLog("工商信息获取失败，请确定【"+reqQccParam.getCompanyName()+"】公司存在");
             return new JSONObject();
         }
         JSONObject retObj = resObj.getJSONObject("Result");
