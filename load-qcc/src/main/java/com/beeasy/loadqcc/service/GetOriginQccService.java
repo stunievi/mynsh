@@ -409,15 +409,18 @@ public class GetOriginQccService {
             LoadQccDataExtParm extParam
     ){
         // 表面
-        String tableName = collName;
-        // 远程数据地址
+        String ret = getQccData(collName, queries);
+        saveOriginData(collName, queries, ret, extParam);
+    }
+
+    private String getQccData(String collName, Map queries){
         String dataUrl = QCC_DOMAIN_PRX + "/" + collName.replace("_","/");
-        String ret = haveTodayData(tableName, queries);
+        String ret = haveTodayData(collName, queries);
         // 判断当前条件下今天是否已经获取过数据
         if(null == ret){
             ret = QccUtil.getData(dataUrl, queries);
         }
-        saveOriginData(tableName, queries, ret, extParam);
+        return ret;
     }
 
     // 获取列表数据，有详情数据
@@ -521,10 +524,7 @@ public class GetOriginQccService {
                 "sign", reqQccParam.getSign()
         );
         String collName = "ECIV4_GetDetailsByName";
-        String res = haveTodayData(collName, query);
-        if(null == res){
-            res = QccUtil.getData(QCC_DOMAIN_PRX + "/ECIV4/GetDetailsByName", query);
-        }
+        String res = getQccData(collName, query);
         saveOriginData(collName, query, res, extParam);
         JSONObject resObj = JSON.parseObject(res);
         if(!"200".equals(resObj.getString("Status"))){
