@@ -102,7 +102,6 @@
             <div class="tab-pane fade" id="tab2" aria-labelledby="tab2-tab">
                 <!--<div class="panel-body">-->
                     <div id="canvas" class="tab2"></div>
-
                     <!--<button id="save-button" class="btn btn-info tab2">保存</button>-->
                 <!--</div>-->
             </div>
@@ -117,105 +116,6 @@
     </div>
 </div>
 
-<!--<div id="content">
-    <div class="bs-example bs-example-tabs" data-example-id="togglable-tabs">
-        <ul id="myTabs" class="nav nav-tabs" role="tablist">
-            <li role="presentation" class="active li1"><a href="#tab1" role="tab" data-toggle="tab" aria-controls="tab1" aria-expanded="true">表单</a></li>
-            <li role="presentation" class="li2"><a href="#tab2" role="tab" data-toggle="tab" aria-controls="tab2">流程</a></li>
-            <li role="presentation" class="li3"><a href="#tab3" role="tab" data-toggle="tab" aria-controls="tab3">设置</a></li>
-        </ul>
-        <div id="myTabContent" class="tab-content">
-            <div id="panel-form">
-            </div>
-            <div class="batch-operation">
-
-                <form name="form-search" class="form-horizontal tab1" novalidate="novalidate">
-                    <div class="row panel-form-input-group">
-
-                        <div class="col-xs-12 form-group " data-show="" style="margin-top: 20px;">
-                            <label class="col-xs-3 text-right">
-                                <span style="color:red">*</span>
-                                表单
-                            </label>
-                            <div id="formId" class="col-xs-8" style="padding-right: 15px;
-                        padding-left: 15px; max-width:400px">
-
-                            </div>
-                        </div>
-
-                        <div class="col-xs-12 form-group " data-show="">
-                            <label for="modelName" class="col-xs-3 text-right">
-
-                                <span style="color:red">*</span>
-
-                                工作流名称
-                            </label>
-                            <div class="col-xs-8" style="padding-right: 15px;
-                        padding-left: 15px; max-width:400px">
-
-                                <input type="text" class="form-control input-sm" id="modelName" name="modelName">
-
-                            </div>
-                        </div>
-
-                    </div>
-                    <div class="col-xs-12 text-center" style="padding:20px 0;">
-                        <button type="button" href="javascript:;" class="btn btn-info" id="nextStep" style="margin-right: 10px;">
-                            下一步
-                        </button>
-
-                    </div>
-                </form>
-
-            </div>
-            <div id="tab3" class="tab-pane tab3 hide">
-                <div class="fields">
-                    <div class="selection-container">
-                        <div class="select-box left">
-                            <div class="select-box-title">
-                                <input type="checkbox" class="checkbox-all" id="checkbox-all1"/>
-                                <label for="checkbox-all1"></label>
-                                <span>选中字段</span>
-                            </div>
-                            <div class="select-content">
-                                <ul class="unselect-ul selected-fields">
-
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="arrows-box">
-                            <div class="arrow-btns">
-                                <button class="arrow-btn right">
-                                    &#8250;
-                                </button>
-                                <button class="arrow-btn left">
-                                    &#8249;
-                                </button>
-                            </div>
-                        </div>
-                        <div class="select-box right">
-                            <div class="select-box-title">
-                                <input type="checkbox" class="checkbox-all" id="checkbox-all2"/>
-                                <label for="checkbox-all2"></label>
-                                <span>所有字段</span>
-                            </div>
-                            <div class="select-content">
-                                <ul class="selected-ul form-fields">
-
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div id="canvas" class="tab2 hide"></div>
-
-<button id="save-button" class="btn btn-info tab2 hide">保存</button>-->
-
 <script type="text/html" id="model_temp">
     <select class="form-control input-sm" id="selectForm">
         {{each formList value index}}
@@ -226,7 +126,6 @@
 </script>
 
  <!--设置-字段-->
-
 
 <script>
     window.form = null;
@@ -261,15 +160,11 @@
 
 <script>
 
-
     $('#myTabs a[href="#tab1"]').tab('show');
     var formList = [];
     var pid = getParam("pid");
     var fulldata = {
 
-        // formId:1,
-        // modelId:id,
-        // name:"",
         startEvent:[],
         ext:{},
         assUser:[],
@@ -323,7 +218,7 @@
         }
     });*/
 
-    var diagramUrl = 'https://cdn.rawgit.com/bpmn-io/bpmn-js-examples/dfceecba/starter/diagram.bpmn11';
+    // var diagramUrl = 'https://cdn.rawgit.com/bpmn-io/bpmn-js-examples/dfceecba/starter/diagram.bpmn11';
     // modeler instance
     var bpmnModeler = new BpmnJS({
         container: '#canvas',
@@ -351,7 +246,6 @@
             url: "/api/bpm/BpmXmlController/one?_id="+id,
             async:false,
             success:function(obj){
-                console.log("obj",obj)
                 if(obj.code != 200){
                     //show error
                     layer.msg(obj.errMessage)
@@ -365,7 +259,7 @@
                     if(null != bpmXml && "" != bpmXml){
                         xml = bpmXml;
 
-                        var userSourceData = {};
+                        /*var userSourceData = {};
                         $.ajax({
                             type:"get",
                             url: remoteOrigin + "/api/auto/user/getList?page=1&size=2000",
@@ -376,7 +270,7 @@
                                     userSourceData[da.id] = da.trueName;
                                 })
                             }
-                        })
+                        })*/
 
                         $("#modelName").val(obj.data.modelName);
                         window.bpmData = obj.data.bpmData;
@@ -412,7 +306,7 @@
             console.log('error rendering', err);
         } else {
             console.log('rendered');
-            }
+        }
     });
 
     /**
@@ -423,7 +317,6 @@
             if (err) {
                 return console.error('could not save BPMN 2.0 diagram', err);
             }
-            console.log("---xml",xml)
             var _xml = $.parseXML(xml);
             var _eventMap = {};
             var _xmlMap = {};
@@ -524,7 +417,7 @@
                 }
                 var nextNodes = [];
                 nextNodes.push(node);
-                _eventMap[exList[i].sourceRef] = {"taskId":exList[i],"allFields":allFields,"requiredFields":requiredFields,"uids":pids,"qids":qids,"rids":rids,"dids":dids,"nextNodes":nextNodes}
+                _eventMap[exList[i].sourceRef] = {"id":exList[i],"allFields":allFields,"requiredFields":requiredFields,"uids":pids,"qids":qids,"rids":rids,"dids":dids,"nextNodes":nextNodes}
             });
 
             // 结束节点
@@ -550,7 +443,6 @@
                 _eventMap[sourceRef] = {"taskId":sourceRef,"allFields":allFields,"requiredFields":requiredFields,"uids":pids,"qids":qids,"rids":rids,"dids":dids,"nextNodes":[]}
                 window.sbpmData.nodes[sourceRef] = (window.bpmData.nodes[sourceRef]);
             })
-            console.log("_eventMap",_eventMap);
 
             if(!errFlag){
                 if(startNum == 0 || endNum == 0 || startNum>1 || endNum>1){
@@ -604,19 +496,21 @@
                     success:function(res){
                         console.log()
                         if(res.success){
-                            layer.msg("提交成功！")
+                            layer.alert("保存成功！", { icon: 1, closeBtn: 0 }, function () {
+                                closeCurrentIframe();
+                            } );
                         }else{
-                            layer.msg("提交失败！")
+                            layer.alert("保存失败！"+res.errMessage, { icon: 2, closeBtn: 0 }, function () {
+                                layer.closeAll();
+                            } )
                         }
                     }
                 });
             }
 
-
             /*$.ajax({
                 url: "/api/bpm/BpmXmlController/saveBPMXML?xml="+xml+"&&data="+JSON.stringify(fulldata)+"&&_id="+id+"&&modelName="+modelName+"&&pid="+pid+"&bpmData="+JSON.stringify(window.bpmData),
                 success: function (res) {
-
                     console.log("res",res)
                     if(!res.data || code != 200){
                         layer.msg(res.errMessage);
@@ -654,33 +548,32 @@
         });
     }
     // load external diagram file via AJAX and open it
-    $.get(diagramUrl, openDiagram, 'text');
+    // $.get(diagramUrl, openDiagram, 'text');
     // wire save button
     $('#save-button').click(exportDiagram);
-
 
     loadForm()
 
     // 获取选中的表单值
-    function formInfoData() {
-        var form = $("#selectForm").val();
-        $.ajax({
-            type:"get",
-            url:"/api/bpm/form/queryFormData?_id="+form,
-            success:function(res){
-                var _formDataMap = {}
-                if(res.code==200&& res.data.length>0){
-                    var data = res.data[0].form.data;
-
-                    data.forEach(function (e) {
-                        _formDataMap[e.title] = e;
-                    })
-                    console.log("sss",_formDataMap)
-                }
-                return _formDataMap;
-            }
-        });
-    }
+    // function formInfoData() {
+    //     var form = $("#selectForm").val();
+    //     $.ajax({
+    //         type:"get",
+    //         url:"/api/bpm/form/queryFormData?_id="+form,
+    //         success:function(res){
+    //             var _formDataMap = {}
+    //             if(res.code==200&& res.data.length>0){
+    //                 var data = res.data[0].form.data;
+    //
+    //                 data.forEach(function (e) {
+    //                     _formDataMap[e.title] = e;
+    //                 })
+    //                 console.log("sss",_formDataMap)
+    //             }
+    //             return _formDataMap;
+    //         }
+    //     });
+    // }
 
     function arrToStr(arr) {
         var ret = []
@@ -696,7 +589,6 @@
         var form = $("#selectForm").val();
         console.log("当前选中id:",obj.id)
         console.log("bpmData:",bpmData.nodes[obj.id])
-
 
         bpmData.nodes[obj.id] = bpmData.nodes[obj.id] || {
             fields:{
@@ -720,25 +612,6 @@
         window.open("./node.edit.html?id=" + obj.id,"node_edit_" + obj.id, "left=200, top=100, width=800, height=500, location=no")
 
     }
-
-    function cancelPopup(){
-        layer.close(touchRuleIndex)
-    }
-    function confirmPopup(){
-        var data = $('input:checkbox[name="tRule"]:checked').map(function () {
-            return $(this).val();
-        }).get().join(",");
-
-        SuperPost({
-            /*url: "/link/LinkController/touchRule?rule="+data,
-            success: function(res){
-                layer.close(touchRuleIndex);
-            }*/
-        })
-    }
-</script>
-
-<script>
 
 </script>
 

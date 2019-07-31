@@ -441,15 +441,14 @@ public class BpmService {
 
     /**
      * 保存节点数据
-     *
      * @param data
      */
-    public boolean saveIns(String uid, Obj data, String nextPersonId) {
+    public boolean saveIns(String uid, Obj data, String nextPersonId){
         BpmService bpmService = this;
         String nodeId = bpmService.ins.currentNodes.get(0).nodeId;
         List<String> allFields = bpmService.ins.bpmModel.nodes.get(nodeId).allFields;
 
-        Map<String, Object> attrs = new HashMap<>();
+        Map<String , Object> attrs = new HashMap<>();
         for (String all : allFields) {
             attrs.put(all, data.get(all));
         }
@@ -465,26 +464,26 @@ public class BpmService {
 //        bpmService.ins.lastModifyTime = new Date();
 
         Obj update = o();
-        if (nextPersonId != null) {
-            nextApprover(uid, nextPersonId, update);
-        }
+//        if (nextPersonId != null) {
+//            nextApprover(uid, nextPersonId, update);
+//        }
         Obj set = o(
                 "$set", update,
 //                "$set", o(
 //                        "lastModifyTime",new Date()
 //                ),
-                "$push", o(
+                "$push",o(
                         "logs", dataLog
                 )
 //                ,
-//                "$push",o(
+//                "$set",o(
 //                        "attrs", attrs
 //                )
         );
 
         //更新数据库
         MongoCollection<Document> collection = db.getCollection("bpmInstance");
-        UpdateResult res = collection.updateOne(Filters.eq("_id", bpmService.ins._id), set.toBson());
+        UpdateResult res = collection.updateOne(Filters.eq("_id", bpmService.ins._id),set.toBson());
         return res.getModifiedCount() > 0;
 
     }
@@ -514,16 +513,15 @@ public class BpmService {
 
     /**
      * 保存选取的下一步处理人
-     *
-     * @param uid     提交人
+     * @param uid 提交人
      * @param nextUid 下一步处理人
      */
-    private void nextApprover(String uid, String nextUid, Obj update) {
-//        BpmService bpmService = this;
+    public boolean nextApprover(String uid, String nextUid, Obj update){
+        BpmService bpmService = this;
 
         // 下一节点
         BpmModel.Node nextNode = getNextNode(uid, o());
-        if (!canDeal(nextUid, nextNode.id)) {
+        if(!canDeal(nextUid, nextNode.id)){
             error("此处理人无权限处理任务！");
         }
 
@@ -535,10 +533,11 @@ public class BpmService {
 
         update.put("currentNodes", a(currentNode));
 
-//        MongoCollection<Document> collection = db.getCollection("bpmInstance");
-//
-//        UpdateResult res = collection.updateOne(Filters.eq("_id", bpmService.ins._id),new Document("$set", new Document("currentNodes", BsonArray.parse(ja.toString()))));
+        MongoCollection<Document> collection = db.getCollection("bpmInstance");
 
+        UpdateResult res = collection.updateOne(Filters.eq("_id", bpmService.ins._id),new Document("$set", new Document("currentNodes", update.toBson())));
+
+        return res.getModifiedCount() > 0;
     }
 
 

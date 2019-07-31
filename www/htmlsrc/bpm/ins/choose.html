@@ -68,7 +68,7 @@
     function submit() {
         var person=$('input[name="person"]:checked').val();
         $.ajax({
-            url: "/api/bpm/workflow/saveIns",
+            url: "/api/bpm/workflow/nextApprover",
             type:"post",
             headers:{
                 "Content-Type": "application/json"
