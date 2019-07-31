@@ -1,4 +1,4 @@
-package com.beeasy.hzbpm.service;
+package com.beeasy.hzbpm.bean;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.MongoClient;

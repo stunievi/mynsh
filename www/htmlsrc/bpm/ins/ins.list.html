@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <!--#include file="/htmlsrc/header.html" -->
+    <style>
+        td{
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+<div id="content">
+    <div class="batch-operation">
+        <a class="btn btn-success pub" href="javascript:;" >发起新流程</a>
+<!--        <div class="btn-group">-->
+<!--            <button type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">更改启用状态<span class="caret"></span></button>-->
+<!--            <ul class="dropdown-menu">-->
+<!--                <li><a href="javascript:;" onclick="updateBaned(enumUserState.disabled)">禁用</a></li>-->
+<!--                <li><a href="javascript:;" onclick="updateBaned(enumUserState.enable)">启用</a></li>-->
+<!--            </ul>-->
+<!--        </div>-->
+    </div>
+
+    <div id="dataList"></div>
+</div>
+</body>
+</html>
+<script type="text/html" id="toolbar">
+    <div class="layui-toolbar">
+        <!--<a class="btn btn-default handleSetMenu" href="javascript:;" data-id="{{d.id}}">功能权限</a>-->
+        <!--<a class="btn btn-default" href="javascript:;" data-id="{{d.id}}" tab-title="设置岗位/角色" tab-href="/htmlsrc/sysManage/userManage/user.org.html?id={{d.id}}">岗位/角色</a>-->
+        <!--<a class="btn btn-default handlePutRole" href="javascript:;" data-id="{{d.id}}">角色</a>-->
+        <a class="btn btn-warning" href="javascript:;">查看</a>
+        <!--<a class="btn btn-default handleShow" href="javascript:;" data-id="{{d.id}}" data-name="{{d.trueName}}">查看</a>-->
+<!--        <button class="btn btn-danger" delete-href="{{remoteOrigin}}/api/auto/user/delete?id={{d.id}}">删除</button>-->
+    </div>
+</script>
+<script>
+    var id = getParam("id");
+    var fields = decodeURI(getParam("fields"));
+    fields = JSON.parse(fields);
+    var cols = [];
+    $.each(fields, function (i,v) {
+        cols.push({
+            title: v,
+            field: v
+        })
+    });
+    cols.push({
+        title:"创建时间",
+        field:"createTime",
+    })
+    cols.push({
+        title:"上次提交时间",
+        field:"lastModifyTime",
+    })
+    cols.push({
+        title:"操作",
+        templet: "#toolbar"
+    })
+
+    console.log(cols)
+    laytableRender({
+        url: remoteOrigin + "/api/bpm/workflow/insList",
+        currPage: getParam("page") || 1,
+        where: {
+            id: id
+        },
+        cols: [cols],
+        done: function(res, curr){
+            layCurrPage = curr;
+        }
+    });
+
+
+    $(document).on("click", ".pub", function () {
+        window.open("./ins.pub.html?id=" + id, "dealtask", "left=100, top=100, width=800, height=600");
+    });
+
+    // $("#panel-form").html(panelFormRender({
+    //     panelTitle:'筛选查询',
+    //     list:[
+    //         { prop: 'name', label: '账户/姓名' },
+    //         { prop: 'baned', label: '是否启用', type: 'select', vals: selectData.userState}
+    //     ],
+    //     data: {
+    //         name: userName
+    //     }
+    // }));
+</script>

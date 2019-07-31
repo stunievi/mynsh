@@ -5,7 +5,7 @@ import com.github.llyb120.nami.core.Nami;
 import java.util.concurrent.CountDownLatch;
 
 import static com.github.llyb120.nami.ext.beetlsql.BeetlSql.sqlManager;
-import static com.beeasy.hzbpm.service.MongoService.db;
+import static com.beeasy.hzbpm.bean.MongoService.db;
 
 public class App {
 

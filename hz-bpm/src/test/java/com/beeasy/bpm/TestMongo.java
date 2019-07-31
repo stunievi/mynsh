@@ -5,7 +5,7 @@
 //import org.junit.BeforeClass;
 //import org.junit.Test;
 //
-//import static com.beeasy.hzbpm.service.MongoService.mongoClient;
+//import static com.beeasy.hzbpm.bean.MongoService.mongoClient;
 //
 //public class TestMongo {
 //

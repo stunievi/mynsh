@@ -1,21 +1,22 @@
 package com.beeasy.hzbpm.entity;
 
 import com.github.llyb120.nami.json.Obj;
+import org.bson.types.ObjectId;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-public class BpmInstance extends Obj {
+public class BpmInstance {
 
     //任务ID
-    public String _id;
+    public ObjectId _id;
 
     //任务状态
     public String state;
 
     //工作流xml模型
-    public String bpmId;
+    public ObjectId bpmId;
 
     //原始名字
     public String bpmName;
@@ -34,7 +35,10 @@ public class BpmInstance extends Obj {
     public BpmModel bpmModel;
 
     public Date createTime;
-    public Date lastMoidfyTime;
+    public Date lastModifyTime;
+
+    //原始xml
+    public String xml;
 
     public List<CurrentNode> currentNodes;
 
@@ -77,6 +81,6 @@ public class BpmInstance extends Obj {
         public String nodeId;
 
         //当前正在处理这个节点的人
-        public List<Long> uids;
+        public List<String> uids;
     }
 }

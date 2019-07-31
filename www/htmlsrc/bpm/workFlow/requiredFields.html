@@ -1,17 +1,17 @@
 <style>
 
-    .fields li {
+    .req-fields li {
         list-style: none;
         cursor: pointer;
         position: relative
     }
 
-    .selection-container {
+    .req-selection-container {
         height: 350px;
         margin: 10px
     }
 
-    .select-box {
+    .req-select-box {
         width: 250px;
         height: 100%;
         float: left;
@@ -19,21 +19,21 @@
         border-radius: 4px
     }
 
-    .arrows-box {
+    .req-arrows-box {
         width: 110px;
         height: 100%;
         float: left;
         position: relative
     }
 
-    .select-content {
+    .req-select-content {
         width: 100%;
         height: 320px;
         overflow-y: auto;
         overflow-x: hidden
     }
 
-    .select-box-title {
+    .req-select-box-title {
         height: 40px;
         line-height: 40px;
         font-size: 16px;
@@ -49,35 +49,35 @@
         color: #000
     }
 
-    .select-box-title label:before {
+    .req-select-box-title label:before {
         left: -14px !important;
         top: 4px !important
     }
 
-    .select-box-title label:after {
+    .req-select-box-title label:after {
         left: -10px !important;
         top: 5px !important
     }
 
-    .checkboxs {
+    .req_checkboxs {
         vertical-align: middle
     }
 
-    .unselect-ul {
+    .req-unselect-ul {
         padding: 10px 0
     }
 
-    .selected-ul {
+    .req-selected-ul {
         padding: 10px 0
     }
 
-    .select-content li {
+    .req-select-content li {
         padding: 5px 15px;
         font-size: 12px;
         font-family: å¾®è½¯é›…é»‘
     }
 
-    .select-box input[type=checkbox] {
+    .req-select-box input[type=checkbox] {
         position: absolute;
         left: 13px;
         top: 3px;
@@ -86,7 +86,7 @@
         opacity: 0
     }
 
-    .select-box label {
+    .req-select-box label {
         position: absolute;
         left: 30px;
         top: 9px;
@@ -94,11 +94,11 @@
         line-height: 20px
     }
 
-    .select-box span {
+    .req-select-box span {
         padding-left: 20px
     }
 
-    .select-box label:before {
+    .req-select-box label:before {
         content: '';
         position: absolute;
         left: -14px;
@@ -112,7 +112,7 @@
         -moz-transition: all .3s ease
     }
 
-    .select-box label:after {
+    .req-select-box label:after {
         content: '';
         position: absolute;
         left: -10px;
@@ -132,16 +132,16 @@
         -moz-transition: all .3s ease
     }
 
-    .select-box input[type=checkbox]:checked + label:before {
+    .req-select-box input[type=checkbox]:checked + label:before {
         background: #00a0e8;
         border-color: #00a0e8
     }
 
-    .select-box input[type=checkbox]:checked + label:after {
+    .req-select-box input[type=checkbox]:checked + label:after {
         background: #00a0e8
     }
 
-    .arrow-btns {
+    .req-arrow-btns {
         width: 100%;
         position: absolute;
         top: 50%;
@@ -163,7 +163,7 @@
         -moz-transition: all .3s ease
     }
 
-    .arrow-btn {
+    .req-arrow-btn {
         display: block;
         position: relative;
         width: 40px;
@@ -179,7 +179,7 @@
         font-size: 30px
     }
 
-    .arrow-btn svg {
+    .req-arrow-btn svg {
         padding: 11px;
         width: 17px;
         height: 17px;
@@ -189,48 +189,48 @@
 
 </style>
 
-<script type="text/html" id="field_item">
+<script type="text/html" id="req_field_item">
     {{each fields field}}
     <li>
-        <input type="checkbox" class="checkboxs" id="tyue-checkbox-blue-{{field}}"/>
-        <label for="tyue-checkbox-blue-{{field}}"></label>
+        <input type="checkbox" class="req_checkboxs" id="req-tyue-checkbox-blue-{{field}}"/>
+        <label for="req-tyue-checkbox-blue-{{field}}"></label>
         <span>{{field}}</span>
     </li>
     {{/each}}
 </script>
 
-<div class="fields">
-    <div class="selection-container">
-        <div class="select-box left">
-            <div class="select-box-title">
-                <input type="checkbox" class="checkbox-all" id="checkbox-all1"/>
-                <label for="checkbox-all1"></label>
+<div class="req-fields">
+    <div class="req-selection-container">
+        <div class="req-select-box req-left" id="req-check">
+            <div class="req-select-box-title">
+                <input type="checkbox" class="req-checkbox-all" id="req-checkbox-all1"/>
+                <label for="req-checkbox-all1"></label>
                 <span>选中字段</span>
             </div>
-            <div class="select-content">
-                <ul class="unselect-ul selected-fields">
+            <div class="req-select-content">
+                <ul class="req-unselect-ul selected-fields">
 
                 </ul>
             </div>
         </div>
-        <div class="arrows-box">
-            <div class="arrow-btns">
-                <button class="arrow-btn right">
+        <div class="req-arrows-box">
+            <div class="req-arrow-btns">
+                <button class="req-arrow-btn req-right" id="rightButton">
                     &#8250;
                 </button>
-                <button class="arrow-btn left">
+                <button class="req-arrow-btn req-left" id="leftButton">
                     &#8249;
                 </button>
             </div>
         </div>
-        <div class="select-box right">
-            <div class="select-box-title">
-                <input type="checkbox" class="checkbox-all" id="checkbox-all2"/>
-                <label for="checkbox-all2"></label>
+        <div class="req-select-box req-right" id="req-all">
+            <div class="req-select-box-title">
+                <input type="checkbox" class="req-checkbox-all" id="req-checkbox-all2"/>
+                <label for="req-checkbox-all2"></label>
                 <span>所有字段</span>
             </div>
-            <div class="select-content">
-                <ul class="selected-ul form-fields">
+            <div class="req-select-content">
+                <ul class="req-selected-ul req-form-fields" id="reqFields">
 
                 </ul>
             </div>
@@ -241,7 +241,7 @@
 <script>
     // var fields = [];
 
-    var tpml = template.compile($("#field_item").html());
+    var tpml = template.compile($("#req_field_item").html());
     //load
     // $.get("/api/bpm/form/one",{id: window.opener.$("#selectForm").val()}, function (msg) {
     //     if(!msg.success){
@@ -256,28 +256,28 @@
 
 
     console.log(opener.fields)
-    $(".form-fields").html(tpml({
+    $("#reqFields").html(tpml({
         fields: opener.fields
     }))
 
     $(function () {
-        $('.checkbox-all').click(function () {
+        $('.req-checkbox-all').click(function () {
             if ($(this).prop('checked')) {
-                $(this).parent().next().find('.checkboxs').prop('checked', true);
+                $(this).parent().next().find('.req_checkboxs').prop('checked', true);
             } else {
-                $(this).parent().next().find('.checkboxs').prop('checked', false);
+                $(this).parent().next().find('.req_checkboxs').prop('checked', false);
             }
             btn_status();
         })
-        $('.select-content').on('click', '.checkboxs', function (e) {
-            var checkedAll = $(this).parents('.select-content').prev().find('.checkbox-all');
+        $('.req-select-content').on('click', '.req_checkboxs', function (e) {
+            var checkedAll = $(this).parents('.req-select-content').prev().find('.req-checkbox-all');
             var checkboxs = $(this).prop('checked');
             if (!checkboxs && checkedAll.prop('checked')) {
                 checkedAll.prop('checked', false);
             } else if (checkboxs && !checkedAll.prop('checked')) {
                 var lis = $(this).parents('ul').children();
                 for (var i = 0; i < lis.length; i++) {
-                    if ($(lis[i]).find('.checkboxs').prop('checked')) {
+                    if ($(lis[i]).find('.req_checkboxs').prop('checked')) {
                         if (i == lis.length - 1) {
                             checkedAll.prop('checked', true)
                         }
@@ -288,16 +288,16 @@
             }
             stopFunc(e);
         });
-        $('.select-content').on('click', 'li', function () {
-            $(this).children('.checkboxs').click();
+        $('.req-select-content').on('click', 'li', function () {
+            $(this).children('.req_checkboxs').click();
             btn_status();
         })
 
         function btn_status() {
-            var btn1 = document.getElementsByClassName('right')[0]
-            var btn2 = document.getElementsByClassName('left')[1]
-            var left_ul = document.getElementsByClassName('unselect-ul')
-            var right_ul = document.getElementsByClassName('selected-ul')
+            var btn1 = document.getElementsByClassName('req-right')[0]
+            var btn2 = document.getElementsByClassName('req-left')[1]
+            var left_ul = document.getElementsByClassName('req-unselect-ul')
+            var right_ul = document.getElementsByClassName('req-selected-ul')
             var left_ul_li = left_ul[0].children
             var right_ul_li = right_ul[0].children
             var left_btn = false
@@ -325,16 +325,16 @@
 
         }
 
-        $('.arrow-btn').click(function () {
+        $('.req-arrow-btn').click(function () {
             var checkboxs, origin, target, num = 0;
-            if ($(this).hasClass('right')) {
-                origin = $('.unselect-ul');
-                target = $('.selected-ul');
+            if ($(this).hasClass('req-right')) {
+                origin = $('.req-unselect-ul');
+                target = $('.req-selected-ul');
             } else {
-                origin = $('.selected-ul');
-                target = $('.unselect-ul');
+                origin = $('.req-selected-ul');
+                target = $('.req-unselect-ul');
             }
-            checkboxs = origin.find('.checkboxs');
+            checkboxs = origin.find('.req_checkboxs');
             for (var i = 0; i < checkboxs.length; i++) {
                 if ($(checkboxs[i]).prop('checked')) {
                     var that = $(checkboxs[i]).parent().clone();
@@ -347,7 +347,7 @@
             }
             if (checkboxs.length == num) {
             } else {
-                origin.parent().prev().find('.checkbox-all').prop('checked', false);
+                origin.parent().prev().find('.req-checkbox-all').prop('checked', false);
             }
             btn_status();
 
@@ -356,20 +356,20 @@
 
         function updateData() {
             var arr = [];
-            $(".unselect-ul li").each(function () {
+            $(".req-unselect-ul li").each(function () {
                 var name = $(this).find("span").text();
                 arr.push(name);
             });
-            opener.bpmData.nodes[nodeId].fields.all_fields = arr;
+            opener.bpmData.nodes[nodeId].fields.required_fields = arr;
         }
 
-
+        console.log("..",opener.bpmData.nodes[nodeId].fields.required_fields)
         //load
-        $.each(opener.bpmData.nodes[nodeId].fields.all_fields, function (i,v) {
-            // console.log(v,$(".form-fields label[for=tyue-checkbox-blue-"+v+"]"))
-            $(".form-fields input[id='tyue-checkbox-blue-"+v+"']").click();
+        $.each(opener.bpmData.nodes[nodeId].fields.required_fields, function (i,v) {
+            // console.log(v,$(".form-fields label[for=req-tyue-checkbox-blue-"+v+"]"))
+            $("#reqFields input[id='req-tyue-checkbox-blue-"+v+"']").click();
         })
-        $(".arrow-btn.left").click()
+        $(".req-arrow-btn.req-left").click()
     });
 
     function stopFunc(e) {
