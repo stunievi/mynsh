@@ -137,6 +137,15 @@ public class BpmService {
     }
 
     /**
+     * 某个用户是否可以查看当前的这个流程
+     * @return
+     */
+    public boolean canSee(String uid){
+        return ins.logs.stream()
+        .anyMatch(e -> e.uid.equals(uid));
+    }
+
+    /**
      * 将任务更新到最新的状态
      * @return
      */
@@ -178,7 +187,40 @@ public class BpmService {
         );
     }
 
+
+    /**
+     * 查询当前流程的详细信息
+     * @param uid
+     * @return
+     */
+    public Obj getInsInfo(String uid){
+        if(!canSee(uid)){
+            error("无权查看这个流程");
+        }
+        BpmModel.Node currentNode = getCurrentNode(uid);
+        //是否有权限查看
+
+        Obj ret = o(
+            "allFields", model.fields,
+            "formFields", (null != currentNode) ? currentNode.allFields : a(),
+            "requiredFields", (null != currentNode) ? currentNode.requiredFields : a(),
+            "form", model.template,
+            "attrs", ins.attrs,
+            "xml", xml,
+            "current", currentNode.id
+        );
+        return ret;
+    }
+
+    /**
+     * 校验所填写的属性是否合法
+     * @param uid
+     * @param node
+     * @param attrs
+     */
     public void validateAttrs(String uid, BpmModel.Node node, Obj attrs){
+        //过滤不该我填的属性
+
         //补充宏字段
         addMacroFields(uid, node, attrs);
         //验证必填字段
@@ -409,6 +451,24 @@ public class BpmService {
         } else {
             return model.nodes.get(nodeId);
         }
+    }
+
+    /**
+     * 得到某个用户当前的节点
+     *
+     * @param uid
+     * @return
+     */
+    public BpmModel.Node getCurrentNode(String uid){
+        String nodeId = ins.currentNodes.stream()
+                .filter(e -> e.uids.contains(uid))
+                .map(e -> e.nodeId)
+                .findFirst()
+                .orElse(null);
+        if (nodeId == null) {
+            return null;
+        }
+        return getNode(nodeId);
     }
 
 
