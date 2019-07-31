@@ -200,6 +200,18 @@ public class workflow {
 
 
     /**
+     * 保存选取的下一步处理人
+     * @param id
+     * @param nextUid
+     * @return
+     */
+    public Object nextApprover(String id, String nextUid){
+        BpmService service = BpmService.ofIns(id);
+        return Result.ok(service.nextApprover(Auth.getUid() + "", nextUid));
+    }
+
+
+    /**
      * 生成最终的流程文件
       */
     public Result saveWorkFlow(Obj body){
