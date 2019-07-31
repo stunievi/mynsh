@@ -4,6 +4,7 @@ package com.beeasy.hzback.entity;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.core.util.Log;
 import com.beeasy.hzback.modules.system.service.NoticeService2;
+import com.beeasy.hzback.modules.system.service.UserService;
 import com.beeasy.mscommon.filter.AuthFilter;
 import com.beeasy.mscommon.util.U;
 import com.beeasy.mscommon.valid.ValidGroup;
@@ -15,6 +16,7 @@ import org.beetl.sql.core.SQLManager;
 import org.beetl.sql.core.annotatoin.AssignID;
 import org.beetl.sql.core.annotatoin.Table;
 import org.beetl.sql.core.engine.PageQuery;
+import org.osgl.util.C;
 import org.osgl.util.S;
 
 import java.math.BigDecimal;
@@ -58,17 +60,16 @@ public class LoanRelatedSearch extends ValidGroup {
         switch (action){
             case "insert":
                 NoticeService2 noticeService2 = U.getBean(NoticeService2.class);
-//                JSONObject permission = sqlManager.selectSingle("user.是否拥有客户经理或办事员权限",  object, JSONObject.class);
-//                Assert(null != permission  && permission .getInteger("1") > 0 , "您没有权限添加!");
+                UserService userService = U.getBean(UserService.class);
+                Assert(userService.checkUserInRoles(uid, C.newList("客户经理", "办事员")), "您没有权限添加!");
                 Assert(S.noBlank(cusName) , "客户名称不能为空!");
                 Assert(S.noBlank(certCode) , "证件号不能为空!");
                 Assert(acceptAmt > 0 , "受理金额不能小于0!");
 
                 boolean find = sqlManager.lambdaQuery(RelatedPartyList.class).andEq(RelatedPartyList::getCertCode, certCode).count() > 0;
                 if(find){
-                    List<JSONObject> list = sqlManager.select("user.查询总行关联方风险角色", JSONObject.class, object);
+                    List<JSONObject> list = userService.getUserByRoles(C.newList("总行关联方风险角色"));
                     for(JSONObject item : list){
-
                         noticeService2.addNotice(SysNotice.Type.SYSTEM, item.getLong("uid"), String.format("<a href=\"javascript:;\" class=\"loanRelatedSearch\" data-cert-code=\"%s\">客户：%s，证件号：%s</a>，属于关联方贷款，不得发放信用贷款，受理金额（%f万元）占资本净额的比例为%s", cusName, certCode, acceptAmt,  ratioPercentVal), null);
                     }
                     noticeService2.addNotice(SysNotice.Type.SYSTEM, AuthFilter.getUid(), String.format("<a href=\"javascript:;\" class=\"loanRelatedSearch\" data-cert-code=\"%s\">客户：%s，证件号：%s</a>，属于关联方贷款，不得发放信用贷款，受理金额（%f万元）占资本净额的比例为%s", certCode, cusName, certCode, acceptAmt, ratioPercentVal), null);
