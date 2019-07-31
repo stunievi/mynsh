@@ -4,11 +4,13 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.entity.QCCLog;
+import com.beeasy.hzback.entity.QualCusRelated;
 import com.beeasy.hzback.entity.SysNotice;
 import com.beeasy.hzback.modules.system.service.NoticeService2;
 import com.beeasy.mscommon.Result;
 import com.beeasy.mscommon.filter.AuthFilter;
 import com.beeasy.mscommon.util.U;
+import netscape.javascript.JSObject;
 import org.apache.activemq.BlobMessage;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.beetl.sql.core.SQLManager;
@@ -82,7 +84,6 @@ public class UpdateQccDataController {
         data.put("JudicialSale_GetJudicialSaleList","司法拍卖列表");
         data.put("LandMortgage_GetLandMortgageDetails","土地抵押详情");
         data.put("LandMortgage_GetLandMortgageList","土地抵押列表");
-
         data.put("ECIInvestmentThrough_GetInfo", "企业对外投资穿透");
         data.put("ECIInvestment_GetInvestmentList","企业对外投资列表");
     }
@@ -179,59 +180,49 @@ public class UpdateQccDataController {
                     break;
             }
 
-            while (iterator.hasNext()) {
-                String key = iterator.next();
-                if ("uid".equals(key) || "OrderId".equals(key)) {
-                    continue;
-                }
-                //获得key值对应的value
-                JSONArray ja1 = jsStr.getJSONArray(key);
-                if (ja1.size() <= 0 || null == ja1) {
-                    continue;
-                }
-                Object ob = ja1.get(0);
-                JSONObject jObject = (JSONObject) ob;
-                String cusName = jObject.getString("Content");
-                String sign = getSignName(jObject.getString("Sign"));
+            //获得key值对应的value
+            JSONArray ja1 = jsStr.getJSONArray("OrderData");
+            Object ob = ja1.get(0);
+            JSONObject jObject = (JSONObject) ob;
+            String cusName = jObject.getString("Content");
+            String sign = getSignName(jObject.getString("Sign"));
+            String content = "";
+
+            if (ja1.size() > 1) {
+                content = deconstructResponse(finished, progressText, content, cusName, "", "等公司", jo);
+            } else if (ja1.size() == 1) {
+                content = deconstructResponse(finished, progressText, content, cusName, "--" + sign, "", jo);
+            }
+            saveQccLog(content, "02", orderId, requestId, uid);
+
+            /*for (Object obj : ja1) {
+                JSONObject jo1 = (JSONObject) obj;
+                String cusName = jo1.getString("Content");
+                String sign = getSignName(jo1.getString("Sign"));
                 String content = "";
 
-                if (ja1.size() > 1) {
-                    content = deconstructResponse(finished, progressText, content, cusName, "", "等公司", jo);
-                } else if (ja1.size() == 1) {
-                    content = deconstructResponse(finished, progressText, content, cusName, "--" + sign, "", jo);
+                if(0 == finished){ // 成功
+                    content = progressText +"成功："+ cusName + "--" + sign;
+                }else if( 1 == finished){   // 部分失败
+                    sendToAdminMsg("数据解构部分");
+                    String errorMessage = jo.getString("errorMessage");
+                    if(null != errorMessage){
+                        content = "部分失败："+errorMessage;
+                    }else{
+                        content = "部分失败："+cusName + "--" + sign;
+                    }
+
+                }else if(-1 == finished){   // 全部失败
+                    sendToAdminMsg("数据解构全部");
+                    String errorMessage = jo.getString("errorMessage");
+                    if(null != errorMessage){
+                        content = "全部失败："+errorMessage;
+                    }else{
+                        content = "全部失败："+cusName + "--" + sign;
+                    }
                 }
                 saveQccLog(content, "02", orderId, requestId, uid);
-
-                /*for (Object obj : ja1) {
-                    JSONObject jo1 = (JSONObject) obj;
-                    String cusName = jo1.getString("Content");
-                    String sign = getSignName(jo1.getString("Sign"));
-                    String content = "";
-
-                    if(0 == finished){ // 成功
-                        content = progressText +"成功："+ cusName + "--" + sign;
-                    }else if( 1 == finished){   // 部分失败
-                        sendToAdminMsg("数据解构部分");
-                        String errorMessage = jo.getString("errorMessage");
-                        if(null != errorMessage){
-                            content = "部分失败："+errorMessage;
-                        }else{
-                            content = "部分失败："+cusName + "--" + sign;
-                        }
-
-                    }else if(-1 == finished){   // 全部失败
-                        sendToAdminMsg("数据解构全部");
-                        String errorMessage = jo.getString("errorMessage");
-                        if(null != errorMessage){
-                            content = "全部失败："+errorMessage;
-                        }else{
-                            content = "全部失败："+cusName + "--" + sign;
-                        }
-                    }
-                    saveQccLog(content, "02", orderId, requestId, uid);
-                }*/
-
-            }
+            }*/
 
         } else if (o instanceof BlobMessage) {
             String file = IO.readContentAsString(((BlobMessage) o).getInputStream());
@@ -242,80 +233,41 @@ public class UpdateQccDataController {
     @JmsListener(destination = "qcc-company-infos-response", containerFactory = "jmsListenerContainerTopic")
     public void infoResponse(Object o) throws JMSException, IOException {
         if (o instanceof TextMessage) {
-
             System.out.println(((TextMessage) o).getText());
+            JSONObject resObj = JSON.parseObject(((TextMessage) o).getText());
+            String finished = resObj.getString("finished");
+            String progress = resObj.getString("progress");
+            String requestId = resObj.getString("requestId");
+            String sourceRequestStr = resObj.getString("sourceRequest");
+            JSONObject sourceRequestObj = JSONObject.parseObject(sourceRequestStr);
+            String uid = sourceRequestObj.getString("uid");
+            String orderId = sourceRequestObj.getString("OrderId");
+            JSONArray orderData = sourceRequestObj.getJSONArray("OrderData");
+            JSONObject firstItem = orderData.getJSONObject(0);
+            String firstItemCusName = Optional.ofNullable(firstItem.getString("Content")).orElse(firstItem.getString("Content1"));
+            String firstItemLinkCusName = Optional.ofNullable(firstItem.getString("Content2")).orElse("");
+            String firstItemSign = getSignName(firstItem.getString("Sign"));
+            String qccLogCusName = firstItemCusName + firstItemLinkCusName;
 
-            JSONObject jo = JSON.parseObject(((TextMessage) o).getText());
-            String finished = jo.getString("finished");
-            String progress = jo.getString("progress");
-            String requestId = jo.getString("requestId");
-
-            String sourceRequest = jo.getString("sourceRequest");
-
-            JSONObject jsStr = JSONObject.parseObject(sourceRequest);
-
-            String uid = (String) jsStr.get("uid");
-            String orderId = (String) jsStr.get("OrderId");
-
-            Iterator<String> iterator = jsStr.keySet().iterator();
-            //----
-            /*JSONArray ja2 = jsStr.getJSONArray("OrderData");
-            JSONObject jObject2 = (JSONObject) ja2.get(0);
-            String sign2 = getSignName(jObject2.getString("Sign"));
-            System.out.println(jObject2.getString("Content"));*/
-            //---
-            while (iterator.hasNext()) {
-                String key = iterator.next();
-                if ("uid".equals(key) || "OrderId".equals(key)) {
-                    continue;
-                }
-                //获得key值对应的value
-                JSONArray ja1 = jsStr.getJSONArray(key);
-                if (ja1.size() <= 0 || null == ja1) {
-                    continue;
-                }
-
-                Object ob = ja1.get(0);
-                JSONObject jObject = (JSONObject) ob;
-                String cusName = jObject.getString("Content");
-                String sign = getSignName(jObject.getString("Sign"));
-
-                String content = "";
-
-                if (ja1.size() > 1) {
-                    content = companyInfosResponse(finished, progress, content, cusName, "", "等公司", jo);
-                } else if (ja1.size() == 1) {
-                    content = companyInfosResponse(finished, progress, content, cusName, "--" + sign, "", jo);
-                }
-                saveQccLog(content, "03", orderId, requestId, uid);
-//                    for (Object obj : ja1) {
-//                        JSONObject jo1 = (JSONObject) obj;
-//                        String cusName = jo1.getString("Content");
-//                        String sign = getSignName(jo1.getString("Sign"));
-//                        saveQccLog("获取数据全部成功："+ cusName + "--" + sign, "03", orderId, requestId, uid);
-//                    }
+            // 企查查调用日志
+            String content = "";
+            if (orderData.size() > 1) {
+                content = companyInfosResponse(finished, progress, content, qccLogCusName, "", "等", resObj);
+            } else if (orderData.size() == 1) {
+                content = companyInfosResponse(finished, progress, content, qccLogCusName, "--" + firstItemSign, "", resObj);
             }
+            saveQccLog(content, "03", orderId, requestId, uid);
 
-            JSONObject countObject = jo.getJSONObject("callApiCount");
+            // 企查查接口调用且命中次数统计
+            JSONObject countObject = resObj.getJSONObject("callApiCount");
             if(null != countObject && countObject.size() >0){
                 Iterator<String> it = countObject.keySet().iterator();
                 while (it.hasNext()) {
                     String key = it.next();
                     int value = countObject.getInteger(key);
-
                     sqlManager.update("qcc.保存企查查接口调用次数",C.newMap("ID",U.getSnowflakeIDWorker().nextId(),"ADD_TIME",new Date(),"IF_NAME_EN",key,"IF_NAME_CH",data.get(key),"COUNT",value,"ORDER_ID",orderId,"DATA_ID",requestId));
-                    /*QccCount entity = new QccCount();
-                    entity.setId(U.getSnowflakeIDWorker().nextId());
-                    entity.setCount(value);
-                    entity.setAddTime(new Date());
-                    entity.setIfNameCH(data.get(key));
-                    entity.setIfNameEN(key);
-                    entity.setOrderID(orderId);
-                    entity.setDataID(requestId);
-                    sqlManager.insert(entity);*/
                 }
             }
-
         } else if (o instanceof BlobMessage) {
             String file = IO.readContentAsString(((BlobMessage) o).getInputStream());
             System.out.println(file);
@@ -323,29 +275,36 @@ public class UpdateQccDataController {
     }
 
     private String getSignName(String signCode) {
+        if(signCode == null){
+            return  "";
+        }
         String signName = "";
-        switch (signCode) {
-            case "00":
-                signName = "所有";
-                break;
-            case "01":
-                signName = "基本信息";
-                break;
-            case "02":
-                signName = "法律诉讼";
-                break;
-            case "03":
-                signName = "经营风险";
-                break;
-            case "04":
-                signName = "企业族谱";
-                break;
-            case "05":
-                signName = "历史信息";
-                break;
-            case "01,02,03,04,05":
-                signName = "所有";
-                break;
+        if(signCode.contains("00")){
+            signName += "所有模块、";
+        }
+        if(signCode.contains("01")){
+            signName += "基本信息模块、";
+        }
+        if(signCode.contains("02")){
+            signName +="法律诉讼模块、";
+        }
+        if(signCode.contains("03")){
+            signName +="经营风险模块、";
+        }
+        if(signCode.contains("04")){
+            signName +="企业族谱模块、";
+        }
+        if(signCode.contains("05")){
+            signName +="历史信息模块、";
+        }
+        if(signCode.contains("06") || signCode.contains("99")){
+            signName +="企业关键字精确获取详细信息（master）、";
+        }
+        if(signCode.contains("07")){
+            signName +="企业人员董监高信息、";
+        }
+        if(signCode.contains("08")){
+            signName +="对外投资穿透、";
         }
         return signName;
     }
@@ -482,6 +441,30 @@ public class UpdateQccDataController {
         }
 
         return Result.ok(maps);
+    }
+
+
+    // 资质客户企查查关联方
+    @JmsListener(destination = "qcc-company-infos-zizhikehu")
+    public void qualCusQccLinkRequest(Object o) throws JMSException {
+        if(o instanceof TextMessage){
+            String dataStr = ((TextMessage) o).getText();
+            JSONObject dataObj = JSON.parseObject(dataStr);
+            JSONArray cusNames = dataObj.getJSONArray("mubiaokehu");
+            Date nowDate = new Date();
+            QualCusRelated item = new QualCusRelated();
+            item.setAddTime(nowDate);
+            item.setQualCusId(dataObj.getLong("QualCusId"));
+            item.setGetRuleInfo(dataObj.getString("qushuguizeshuming"));
+            item.setOperator(dataObj.getLong("uid"));
+            item.setGetRule(dataObj.getString("qushuguize"));
+            cusNames.forEach(cusItem->{
+                JSONObject cusInfo = (JSONObject) cusItem;
+                item.setId(U.getSnowflakeIDWorker().nextId());
+                item.setCusName(cusInfo.getString("cusName"));
+                sqlManager.insert(item);
+            });
+        }
     }
 
 }

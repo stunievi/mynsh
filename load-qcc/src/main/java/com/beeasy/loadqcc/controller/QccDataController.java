@@ -53,34 +53,6 @@ public class QccDataController {
 
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
-    // 获取公司工商信息
-//    private JSONObject getCompanyInfo(
-//            String companyName,
-//            LoadQccDataExtParm extParam
-//    ){
-//        JSONObject companyInfo;
-//        Document tmep_company_ret;
-//        tmep_company_ret =  mongoService2
-//                .getCollection("ECIV4_GetDetailsByName")
-//                .find(Filters.eq("QueryParam.keyword", companyName))
-//                .first();
-//        if(null == tmep_company_ret){
-//            // 从企查查获取工商信息
-//            companyInfo = getOriginQccService.ECI_GetDetailsByName(companyName, extParam);
-//        }else{
-//            companyInfo = (JSONObject) JSON.toJSON(tmep_company_ret);
-//            companyInfo = companyInfo.getJSONObject("Result");
-//            getOriginQccService.saveOriginData("ECIV4_GetDetailsByName", C.newMap(
-//                    "keyword", companyName
-//            ), JSON.toJSONString(tmep_company_ret), extParam);
-//        }
-//        if(null == companyInfo || companyInfo.isEmpty()){
-//            getOriginQccService.saveErrLog("更新企查查数据时，"+companyName+":公司工商信息获取失败！");
-//            return companyInfo;
-//        }
-//        return companyInfo;
-//    }
-
     // 监听MQ更新名单回执
     @JmsListener(destination = "qcc-company-infos-response", containerFactory = "jmsListenerContainerTopic")
     public void qccCompanyInfosResponse(Object o) throws JMSException, IOException {
