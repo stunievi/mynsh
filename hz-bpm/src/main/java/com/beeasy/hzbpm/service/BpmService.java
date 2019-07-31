@@ -70,12 +70,13 @@ public class BpmService {
         return bpmService;
     }
 
-    public static BpmService ofIns(Document data){
+    public static BpmService ofIns(Document data) {
         BpmService bpmService = new BpmService();
         bpmService.arrangementData = (Document) data.get("bpmModel");
         bpmService.ins = Json.cast(data, BpmInstance.class);
         bpmService.model = bpmService.ins.bpmModel;
         bpmService.modelId = bpmService.ins.bpmId.toString();
+        bpmService.xml = bpmService.ins.xml;
         return bpmService;
     }
 
@@ -117,17 +118,18 @@ public class BpmService {
 
     /**
      * 是否可以处理某些节点
+     *
      * @param uid
      * @param nodeIds
      * @return
      */
-    public boolean canDeal(String uid, String... nodeIds){
+    public boolean canDeal(String uid, String... nodeIds) {
         List<Obj> list = sqlManager.execute(new SQLReady("select uid,oid,pid from t_org_user where uid = ?", uid), Obj.class);
         for (String nodeId : nodeIds) {
             BpmModel.Node node = getNode(nodeId);
-            if(list.stream().anyMatch(e -> {
+            if (list.stream().anyMatch(e -> {
                 return (node.qids).contains(e.s("oid")) || (node.rids).contains(e.s("oid")) || (node.dids).contains(e.s("pid")) || (node.uids).contains(e.s("uid"));
-            })){
+            })) {
                 return true;
             }
         }
@@ -136,27 +138,30 @@ public class BpmService {
 
     /**
      * 是否可以处理当前节点
+     *
      * @param uid
      * @return
      */
-    public boolean canDealCurrent(final String uid){
+    public boolean canDealCurrent(final String uid) {
         return ins.currentNodes.stream().anyMatch(e -> e.uids.contains(uid));
     }
 
     /**
      * 某个用户是否可以查看当前的这个流程
+     *
      * @return
      */
-    public boolean canSee(String uid){
+    public boolean canSee(String uid) {
         return ins.logs.stream()
-        .anyMatch(e -> e.uid.equals(uid));
+                .anyMatch(e -> e.uid.equals(uid));
     }
 
     /**
      * 将任务更新到最新的状态
+     *
      * @return
      */
-    public void sync(){
+    public void sync() {
         BpmService service = ofIns(ins._id.toString());
         model = service.model;
         modelId = service.modelId;
@@ -185,42 +190,44 @@ public class BpmService {
                 "form", model.template,
                 "attrs", attrs,
                 "xml", xml,
-                "current", model.start
+                "current", a(model.start)
         );
     }
 
 
     /**
      * 查询当前流程的详细信息
+     *
      * @param uid
      * @return
      */
-    public Obj getInsInfo(String uid){
-        if(!canSee(uid)){
+    public Obj getInsInfo(String uid) {
+        if (!canSee(uid)) {
             error("无权查看这个流程");
         }
         BpmModel.Node currentNode = getCurrentNode(uid);
         //是否有权限查看
 
         Obj ret = o(
-            "allFields", model.fields,
-            "formFields", (null != currentNode) ? currentNode.allFields : a(),
-            "requiredFields", (null != currentNode) ? currentNode.requiredFields : a(),
-            "form", model.template,
-            "attrs", ins.attrs,
-            "xml", xml,
-            "current", currentNode.id
+                "allFields", model.fields,
+                "formFields", (null != currentNode) ? currentNode.allFields : a(),
+                "requiredFields", (null != currentNode) ? currentNode.requiredFields : a(),
+                "form", model.template,
+                "attrs", ins.attrs,
+                "xml", xml,
+                "current", null != currentNode ? a(currentNode.id) : getCurrentNodeIds()
         );
         return ret;
     }
 
     /**
      * 校验所填写的属性是否合法
+     *
      * @param uid
      * @param node
      * @param attrs
      */
-    public void validateAttrs(String uid, BpmModel.Node node, Obj attrs){
+    public void validateAttrs(String uid, BpmModel.Node node, Obj attrs) {
         //过滤不该我填的属性
 
         //补充宏字段
@@ -231,7 +238,7 @@ public class BpmService {
             if (field == null) {
                 continue;
             }
-            if(StrUtil.isBlank(attrs.s(requiredField))){
+            if (StrUtil.isBlank(attrs.s(requiredField))) {
                 error("字段[%s]不能为空", requiredField);
             }
         }
@@ -239,11 +246,12 @@ public class BpmService {
 
     /**
      * 补充宏控件指向的字段
+     *
      * @param uid
      * @param node
      * @param attrs
      */
-    private void addMacroFields(String uid, BpmModel.Node node, Obj attrs){
+    private void addMacroFields(String uid, BpmModel.Node node, Obj attrs) {
         for (String allField : node.allFields) {
             Map<String, String> field = model.fields.get(allField);
             if (field == null) {
@@ -291,7 +299,7 @@ public class BpmService {
         BpmService bpmService = this;
 //        BpmService bpmService = BpmService.ofModel(modelId);
 
-        if(!canPub(uid)){
+        if (!canPub(uid)) {
             error("用户没有权限发布任务");
         }
 
@@ -482,15 +490,16 @@ public class BpmService {
 
     /**
      * 提交节点信息
+     *
      * @param uid
      * @param data
      */
-    public void submitIns(String uid, Obj data){
-        if(!canPub(uid)){
+    public void submitIns(String uid, Obj data) {
+        if (!canPub(uid)) {
             error("用户没有权限发布任务");
         }
 
-        if(!canDealCurrent(uid)){
+        if (!canDealCurrent(uid)) {
             error("用户没有权限处理任务");
         }
         BpmService bpmService = this;
@@ -526,13 +535,13 @@ public class BpmService {
 
         MongoCollection<Document> collection = db.getCollection("bpmInstance");
 
-        UpdateResult res = collection.updateOne(Filters.eq("_id", bpmService.ins._id),new Document("$set", new Document("currentNodes", update.toBson())));
+        UpdateResult res = collection.updateOne(Filters.eq("_id", bpmService.ins._id),new Document("$set", update.toBson()));
 
         return res.getModifiedCount() > 0;
     }
 
 
-    private static void error(String errMessage, Object ...objects) {
+    private static void error(String errMessage, Object... objects) {
         throw new BpmException(String.format(errMessage, objects));
     }
 
@@ -562,7 +571,7 @@ public class BpmService {
      * @param uid
      * @return
      */
-    public BpmModel.Node getCurrentNode(String uid){
+    public BpmModel.Node getCurrentNode(String uid) {
         String nodeId = ins.currentNodes.stream()
                 .filter(e -> e.uids.contains(uid))
                 .map(e -> e.nodeId)
@@ -574,6 +583,20 @@ public class BpmService {
         return getNode(nodeId);
     }
 
+    public List<String> getCurrentNodeIds() {
+        return ins.currentNodes
+                .stream()
+                .map(e -> e.nodeId)
+                .collect(Collectors.toList());
+    }
+
+    public List<BpmModel.Node> getCurrentNodes() {
+        return ins.currentNodes
+                .stream()
+                .map(e -> getNode(e.nodeId))
+                .filter(e -> e != null)
+                .collect(Collectors.toList());
+    }
 
     public static class BpmException extends RuntimeException {
         public String error = "";

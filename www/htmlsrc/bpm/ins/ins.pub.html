@@ -61,6 +61,7 @@
             display: none;
         }
     </style>
+    <script src="../../../static/htmljs/layer/layer.js"></script>
 </head>
 <body>
 <div id="panel" style="padding: 10px;">
@@ -71,7 +72,11 @@
     <div id="pbody">
         <div id="form" class="__tab" style="width: 740px; margin: 0 auto;">
 
-            <div>
+            <div id="form-content">
+
+            </div>
+
+            <div class="action" style="display: none;">
                 <a href="javascript:;" id="save">保存</a>
                 <a href="javascript:;" id="submit">提交</a>
             </div>
@@ -93,122 +98,173 @@
         $("#pbody > .__tab").hide().eq(id).show();
     }).eq(0).click();
 
-    var id = getParam("id");
-    $.get("/api/bpm/workflow/preparePub", {id: id}, function (msg) {
-        if (!msg.success) {
-            alert(msg.errMessage)
-            return;
+    function load(type, id) {
+        if(!type){
+            type = getParam("type");
+        }
+        if(!id){
+            id = getParam("id");
+        }
+        // var id = getParam("id");
+        layer.load(0, {
+            time: 5000
+        });
+
+        if(type == 'pub'){
+            document.title = "发布任务";
+        } else {
+            document.title = "处理任务";
         }
 
-        //绘图
-        var bpmnViewer = new BpmnJS({
-            container: '#canvas'
-        });
-        bpmnViewer.importXML(msg.data.xml, function (err) {
-            if (err) {
-                return console.error('could not import BPMN 2.0 diagram', err);
+        var ajax = null;
+        if(type == 'pub'){
+            ajax =  $.get("/api/bpm/workflow/preparePub", {id: id});
+        } else {
+            ajax = $.get("/api/bpm/workflow/getInsInfo", {id: id});
+        }
+
+        $.when(ajax).then(function (msg) {
+            layer.closeAll();
+            if (!msg.success) {
+                layer.msg(msg.errMessage)
+                return;
             }
 
-            // access viewer components
-            var canvas = bpmnViewer.get('canvas');
-            var overlays = bpmnViewer.get('overlays');
+
+            //绘图
+            $("#canvas").empty();
+
+            var bpmnViewer = new BpmnJS({
+                container: '#canvas'
+            });
+            bpmnViewer.importXML(msg.data.xml, function (err) {
+                if (err) {
+                    return console.error('could not import BPMN 2.0 diagram', err);
+                }
+
+                // access viewer components
+                var canvas = bpmnViewer.get('canvas');
+                var overlays = bpmnViewer.get('overlays');
 
 
-            // zoom to fit full viewport
-            // canvas.zoom('fit-viewport');
+                // zoom to fit full viewport
+                // canvas.zoom('fit-viewport');
 
-            // attach an overlay to a node
-            // overlays.add(msg.data.current, 'note', {
-            //     position: {
-            //         bottom: -10,
-            //         right: 40
-            //     },
-            //     html: '<div class="diagram-note">当前位置</div>'
-            // });
+                // attach an overlay to a node
+                // overlays.add(msg.data.current, 'note', {
+                //     position: {
+                //         bottom: -10,
+                //         right: 40
+                //     },
+                //     html: '<div class="diagram-note">当前位置</div>'
+                // });
 
-            // add marker
-            canvas.addMarker(msg.data.current, 'needs-discussion');
-        });
-
-
-        $("#form").prepend(msg.data.form)
-        //全部设为disabled
-        $("input[leipiplugins], textarea[leipiplugins], select[leipiplugins]").val("").prop("disabled", "disabled");
-        //select默认选第一个
-        $("select[leipiplugins]").each(function () {
-            $(this).val($(this).find("option:first").val())
-        })
-
-        //当前节点可编辑
-        $.each(msg.data.formFields || [], function (i, v) {
-            $("[name=" + msg.data.allFields[v].name + "]").removeProp("disabled").css("border-color", "blue")
-        });
-
-        //必填字段标红
-        $.each(msg.data.requiredFields || [], function (i, v) {
-            $("[name=" + msg.data.allFields[v].name + "]").removeProp("disabled").css("border-color", "red")
-        });
-
-        //字段赋值
-        $.each(msg.data.attrs, function (i, v) {
-            var field = msg.data.allFields[i];
-            if (!field) return
-            var t = $("[name=" + field.name + "]")
-            if (field.leipiplugins == 'macros') {
-                t.prop("readonly", "true")
-            }
-            t.val(v)
-        });
-
-        //必填字段标红
-
-
-        //事件
-
-        function submit(gonext){
-            var data = {};
-            $.each(msg.data.formFields || [], function (i, v) {
-                var key = v;
-                var val = $("[name=" + msg.data.allFields[v].name + "]").val();
-                data[key] = val;
+                // add marker
+                $.each(msg.data.current || [], function (i,v) {
+                    canvas.addMarker(v, 'needs-discussion');
+                })
             });
 
-            $.ajax({
-                url: "/api/bpm/workflow/createIns",
-                type:"post",
-                headers:{
-                    "Content-Type": "application/json"
-                },
-                dataType:"json",
-                data: JSON.stringify({
-                    id: id,
-                    data: data
-                }),
-                success: function (msg) {
-                    if(!msg.success){
-                        alert("提交失败");
-                    }
-                    window.opener.location.reload()
-                    if(gonext){
-                        window.open("./choose.html?id=" + msg.data, "choosepersons", "top=100, left=100, width=500, height=300")
-                    } else {
-                        window.close();
-                    }
-                    console.log(msg)
-                }
+
+            $("#form-content").html(msg.data.form)
+            //全部设为disabled
+            $("input[leipiplugins], textarea[leipiplugins], select[leipiplugins]").val("").prop("disabled", "disabled");
+            //select默认选第一个
+            $("select[leipiplugins]").each(function () {
+                $(this).val($(this).find("option:first").val())
             })
 
-            console.log(data)
-        }
+            //当前节点可编辑
+            $.each(msg.data.formFields || [], function (i, v) {
+                $("[name=" + msg.data.allFields[v].name + "]").removeProp("disabled").css("border-color", "blue")
+            });
 
-        $("#save").click(function () {
-            submit(false);
-        });
+            //必填字段标红
+            $.each(msg.data.requiredFields || [], function (i, v) {
+                $("[name=" + msg.data.allFields[v].name + "]").removeProp("disabled").css("border-color", "red")
+            });
 
-        $("#submit").click(function () {
-            submit(true)
-        })
+            //字段赋值
+            $.each(msg.data.attrs, function (i, v) {
+                var field = msg.data.allFields[i];
+                if (!field) return
+                var t = $("[name=" + field.name + "]")
+                if (field.leipiplugins == 'macros') {
+                    t.prop("readonly", "true")
+                }
+                t.val(v)
+            });
+
+            //必填字段标红
 
 
-    }, "json");
+            //事件
+
+            function submit(gonext){
+                var url = "";
+                if(type == 'pub'){
+                    url = "/api/bpm/workflow/createIns";
+                } else {
+                    //todo
+                    url = "";
+                }
+                var data = {};
+                $.each(msg.data.formFields || [], function (i, v) {
+                    var key = v;
+                    var val = $("[name=" + msg.data.allFields[v].name + "]").val();
+                    data[key] = val;
+                });
+
+                $.ajax({
+                    url: url, //"/api/bpm/workflow/createIns",
+                    type:"post",
+                    headers:{
+                        "Content-Type": "application/json"
+                    },
+                    dataType:"json",
+                    data: JSON.stringify({
+                        id: id,
+                        data: data
+                    }),
+                    success: function (msg) {
+                        if(!msg.success){
+                            alert("提交失败");
+                        }
+                        window.opener.location.reload()
+                        if(type == 'pub'){
+                            load("deal", msg.data)
+                            if(gonext){
+                                window.open("./choose.html?id=" + msg.data, "choosepersons", "top=100, left=100, width=500, height=300")
+                            } else {
+                                window.close();
+                            }
+                        } else {
+                            //todo
+                        }
+                    }
+                })
+
+                console.log(data)
+            }
+
+            var clickFn = function(){
+                submit(false);
+            }
+            $("#save").unbind("click", clickFn).bind("click", clickFn)
+
+            var clickFn2 = function(){
+                submit(true);
+            };
+            $("#submit").unbind("click", clickFn2).bind("click", clickFn2);
+
+            $(".action").show();
+
+
+        }, "json");
+    }
+
+
+    //加载页面
+    load();
+
 </script>

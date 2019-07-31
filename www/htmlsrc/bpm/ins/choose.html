@@ -82,8 +82,12 @@
                 if(!msg.success){
                     alert("提交失败");
                 }
+                window.opener.load("deal", id);
                 window.close();
             }
+            // complete: function () {
+            //     layer.close
+            // }
         })
     }
 

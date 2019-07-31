@@ -173,6 +173,12 @@ public class workflow {
     }
 
 
+    public Object getInsInfo(String id){
+        BpmService service = BpmService.ofIns(id);
+        return Result.ok(service.getInsInfo(Auth.getUid() + ""));
+    }
+
+
     /**
      * 创建任务实例
      * @param id
