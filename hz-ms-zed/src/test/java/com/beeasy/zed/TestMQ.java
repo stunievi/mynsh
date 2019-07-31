@@ -58,7 +58,7 @@ public class TestMQ {
         new DeconstructService().initSync();
 
 
-        MQService.getInstance().sendMessage("queue", "qcc-deconstruct-request",  new MQService.FileRequest("1","2", new File("C:\\Users\\DELL\\Desktop\\testString.zip")));
+        MQService.getInstance().sendMessage("queue", "qcc-deconstruct-request",  new MQService.FileRequest("load-qcc2a97da10-0d68-4899-9b79-8e4b34eb097d","{\"uid\":\"1\",\"QualCusId\":\"1156407230422056960\",\"OrderData\":[{\"Content2\":\"\",\"Content1\":\"惠州报业传媒集团有限公司\",\"Sign\":\"06,08\",\"OrderId\":\"fzsys_20190731113223253\"}]}", new File("C:\\Users\\DELL\\Desktop\\load-qcc2a97da10-0d68-4899-9b79-8e4b34eb097d.zip")));
         CountDownLatch cl = new CountDownLatch(1);
         cl.await();
     }

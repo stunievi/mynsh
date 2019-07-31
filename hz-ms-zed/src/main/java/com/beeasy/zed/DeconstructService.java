@@ -2526,15 +2526,16 @@ public class DeconstructService extends AbstractService {
                 resultToPengfei.put("qushuguizeshuming", null != qushuguizeshuming ? "对私客户关联公司，通过董监高接口查询关联公司" : qushuguizeshuming);
                 resultToPengfei.put("mubiaokehu", restltToPengfeiArray);
                 MQService.getInstance().sendMessage("queue", "qcc-company-infos-zizhikehu", resultToPengfei.toString());
-            }
-            else if ((null != Sign && Sign.equals("06,08")) || (null != Sign && Sign.equals("99") ) ) {
+                restltToPengfeiArray.clear();
+            } else if ((null != Sign && Sign.equals("06,08")) || (null != Sign && Sign.equals("99"))) {
                 JSONObject resultToPengfei = new JSONObject();
                 resultToPengfei.put("uid", uid);
                 resultToPengfei.put("QualCusId", QualCusId);
-                resultToPengfei.put("qushuguize", Sign.equals("06,08")  ?  "13.2" : qushuguize);
-                resultToPengfei.put("qushuguizeshuming",Sign.equals("06,08")  ?"通过投资穿透查询公司信息，获取控股比例大于25%的资质客户关联信息" : qushuguizeshuming);
+                resultToPengfei.put("qushuguize", Sign.equals("06,08") ? "13.2" : qushuguize);
+                resultToPengfei.put("qushuguizeshuming", Sign.equals("06,08") ? "通过投资穿透查询公司信息，获取控股比例大于25%的资质客户关联信息" : qushuguizeshuming);
                 resultToPengfei.put("mubiaokehu", restltToPengfeiArray);
                 MQService.getInstance().sendMessage("queue", "qcc-company-infos-zizhikehu", resultToPengfei.toString());
+                restltToPengfeiArray.clear();
             }
 
             try {
@@ -2735,11 +2736,14 @@ public class DeconstructService extends AbstractService {
 //            reqponse.progress = 1;
 //            deconstructStep1(requestId);
             JSONObject jsonObject = JSONObject.parseObject(sourceRequest);
-            Sign = JSONArray.parseObject(JSONArray.parseArray(jsonObject.getString("OrderData")).get(0).toString()).getString("Sign");
-            if (Sign.equals("99") || Sign.equals("07")) {
+            if (null != JSONArray.parseObject(JSONArray.parseArray(jsonObject.getString("OrderData")).get(0).toString()).getString("Sign")) {
+                Sign = JSONArray.parseObject(JSONArray.parseArray(jsonObject.getString("OrderData")).get(0).toString()).getString("Sign");
+            }
+
+            if (null != Sign && (Sign.equals("99") || Sign.equals("07"))) {
                 if (null != JSONObject.parseObject(String.valueOf(JSONObject.parseObject(sourceRequest).getJSONArray("OrderData").get(0))).getString("QualCusId")) {
                     QualCusId = JSONObject.parseObject(String.valueOf(JSONObject.parseObject(sourceRequest).getJSONArray("OrderData").get(0))).getString("QualCusId");
-                }else {
+                } else {
                     QualCusId = jsonObject.getString("QualCusId");
                 }
                 if (null != JSONObject.parseObject(String.valueOf(JSONObject.parseObject(sourceRequest).getJSONArray("OrderData").get(0))).getString("qushuguizeshuming")) {
@@ -2750,7 +2754,7 @@ public class DeconstructService extends AbstractService {
                 }
                 if (null != JSONObject.parseObject(String.valueOf(JSONObject.parseObject(sourceRequest).getJSONArray("OrderData").get(0))).getString("uid")) {
                     uid = JSONObject.parseObject(String.valueOf(JSONObject.parseObject(sourceRequest).getJSONArray("OrderData").get(0))).getString("uid");
-                }else {
+                } else {
                     uid = jsonObject.getString("uid");
                 }
             } else {
@@ -2980,15 +2984,16 @@ public class DeconstructService extends AbstractService {
         JSONObject user = new JSONObject();
         JSONArray jsonArray = new JSONArray();
         Iterator<String> it = companyPartners.iterator();
+        String cusName;
         while (it.hasNext()) {
-            String cusName = it.next();
+            cusName = it.next();
             user.put("Sign", "99");
             user.put("uid", uid);
             user.put("QualCusId", QualCusId);
             user.put("qushuguizeshuming", "通过投资穿透，获取控股比例大于25%的资质客户信息");
             user.put("qushuguize", "13.2");
             user.put("Content", cusName);
-            restltToPengfeiArray.add(Utils.newJsonObject("cusName", companyName));
+            restltToPengfeiArray.add(Utils.newJsonObject("cusName", cusName));
             jsonArray.add(user);
         }
         result.put("OrderData", jsonArray);
@@ -3000,8 +3005,8 @@ public class DeconstructService extends AbstractService {
         String companyName = getParam(url, "keyword");
         JSONArray employeesArray;
         if (null != object.getJSONObject("OriginData").getJSONObject("Result").getJSONArray("Employees")) {
-            employeesArray =  object.getJSONObject("OriginData").getJSONObject("Result").getJSONArray("Employees");
-        }else {
+            employeesArray = object.getJSONObject("OriginData").getJSONObject("Result").getJSONArray("Employees");
+        } else {
             return;
         }
         List list = new ArrayList();
@@ -3020,6 +3025,7 @@ public class DeconstructService extends AbstractService {
             user.put("QualCusId", QualCusId);
             user.put("uid", uid);
             user.put("Content1", removeList.get(i));
+            restltToPengfeiArray.add(Utils.newJsonObject("cusName", removeList.get(i)));
             user.put("qushuguizeshuming", "通过获取公司主要人员关联的董监高信息，获取资质客户信息");
             user.put("qushuguize", "13.1");
             jsonArray.add(user);
