@@ -51,7 +51,7 @@ public class BpmInstance {
      *     "字段3":"",
      * }
      */
-    public Map<String,String> attrs;
+    public Map<String,Object> attrs;
 
 
     //数据提交历史（记录）
@@ -66,13 +66,13 @@ public class BpmInstance {
         public Date time;
 
         //提交人
-        public Long uid;
+        public String uid;
 
         //...
         //提交人是以什么身份进行提交的（当时这个节点的授权）
 
         //当时这个人提交的所有数据
-        public Map<String,String> attrs;
+        public Map<String,Object> attrs;
     }
 
 

@@ -2,29 +2,36 @@ package com.beeasy.hzbpm.service;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSON;
 import com.beeasy.hzbpm.entity.BpmInstance;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzbpm.entity.BpmModel;
 import com.beeasy.hzbpm.filter.Auth;
+import com.beeasy.hzbpm.util.Result;
 import com.github.llyb120.nami.json.Json;
 import com.github.llyb120.nami.json.Obj;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.UpdateOptions;
+import com.mongodb.client.result.UpdateResult;
 import org.beetl.sql.core.SQLReady;
+import org.bson.BsonArray;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import sun.net.httpserver.AuthFilter;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.beeasy.hzbpm.bean.MongoService.db;
 import static com.github.llyb120.nami.ext.beetlsql.BeetlSql.sqlManager;
 import static com.github.llyb120.nami.json.Json.a;
 import static com.github.llyb120.nami.json.Json.o;
+import static com.github.llyb120.nami.server.Vars.$request;
 
 public class BpmService {
 
@@ -175,11 +182,6 @@ public class BpmService {
                 "allFields", model.fields,
                 "formFields", node.allFields,
                 "requiredFields", node.requiredFields,
-//                "all_fields", model.fields.entrySet()
-//                .stream()
-//                .filter(e -> node.allFields.contains(e.getKey()))
-//                .map(e -> e.getValue())
-//                .toArray(),
                 "form", model.template,
                 "attrs", attrs,
                 "xml", xml,
@@ -428,6 +430,106 @@ public class BpmService {
                 "dids", target.dids.isEmpty() ? a(-1) : target.dids
         ));
     }
+
+    /**
+     * 保存节点数据
+     * @param data
+     */
+    public boolean saveIns(String uid, Obj data, String nextPersonId){
+        BpmService bpmService = this;
+        String nodeId = bpmService.ins.currentNodes.get(0).nodeId;
+        List<String> allFields = bpmService.ins.bpmModel.nodes.get(nodeId).allFields;
+
+        Map<String , Object> attrs = new HashMap<>();
+        for (String all : allFields) {
+            attrs.put(all, data.get(all));
+        }
+//        bpmService.ins.attrs.putAll(attrs);
+
+        BpmInstance.DataLog dataLog = new BpmInstance.DataLog();
+        dataLog.nodeId = nodeId;
+        dataLog.time = new Date();
+        dataLog.uid = uid;
+        dataLog.attrs = attrs;
+
+//        bpmService.ins.logs.add(dataLog);
+//        bpmService.ins.lastModifyTime = new Date();
+
+        Obj update = o();
+        if (nextPersonId != null) {
+            nextApprover(uid, nextPersonId, update);
+        }
+        Obj set = o(
+                "$set", update,
+//                "$set", o(
+//                        "lastModifyTime",new Date()
+//                ),
+                "$push",o(
+                        "logs", dataLog
+                )
+//                ,
+//                "$push",o(
+//                        "attrs", attrs
+//                )
+        );
+
+        //更新数据库
+        MongoCollection<Document> collection = db.getCollection("bpmInstance");
+        UpdateResult res = collection.updateOne(Filters.eq("_id", bpmService.ins._id),set.toBson());
+        return res.getModifiedCount() > 0;
+
+    }
+
+    /**
+     * 提交节点信息
+     * @param uid
+     * @param data
+     */
+    public void submitIns(String uid, Obj data){
+        if(!canPub(uid)){
+            error("用户没有权限发布任务");
+        }
+
+        if(!canDealCurrent(uid)){
+            error("用户没有权限处理任务");
+        }
+        BpmService bpmService = this;
+        String nodeId = bpmService.ins.currentNodes.get(0).nodeId;
+
+        // 验证必填字段，处理宏字段
+        validateAttrs(uid, getNode(nodeId), data);
+        saveIns(uid, data, null);
+
+    }
+
+    /**
+     * 保存选取的下一步处理人
+     * @param uid 提交人
+     * @param nextUid 下一步处理人
+     */
+    private void nextApprover(String uid, String nextUid, Obj update){
+//        BpmService bpmService = this;
+
+        // 下一节点
+        BpmModel.Node nextNode = getNextNode(uid, o());
+        if(!canDeal(nextUid, nextNode.id)){
+            error("此处理人无权限处理任务！");
+        }
+
+        BpmInstance.CurrentNode currentNode = new BpmInstance.CurrentNode();
+        currentNode.nodeId = nextNode.id;
+        List<String> uids = new ArrayList<>();
+        uids.add(nextUid);
+        currentNode.uids = uids;
+
+        update.put("currentNodes", a(currentNode));
+
+//        MongoCollection<Document> collection = db.getCollection("bpmInstance");
+//
+//        UpdateResult res = collection.updateOne(Filters.eq("_id", bpmService.ins._id),new Document("$set", new Document("currentNodes", BsonArray.parse(ja.toString()))));
+
+    }
+
 
     private static void error(String errMessage, Object ...objects) {
         throw new BpmException(String.format(errMessage, objects));
