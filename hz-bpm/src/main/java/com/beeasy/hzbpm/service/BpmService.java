@@ -574,6 +574,9 @@ public class BpmService {
      * @return
      */
     public BpmModel.Node getCurrentNode(String uid) {
+        if("FINISHED".equalsIgnoreCase(ins.state)){
+            return getNode("end");
+        }
         String nodeId = ins.currentNodes.stream()
                 .filter(e -> e.uids.contains(uid))
                 .map(e -> e.nodeId)
