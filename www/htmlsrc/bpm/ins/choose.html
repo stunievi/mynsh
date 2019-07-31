@@ -23,10 +23,11 @@
 </body>
 </html>
 <script type="text/html" id="ps">
-{{each data item}}
+{{each data item index}}
 <li>
     <label>
         <input type="radio" name="person" value="{{item.uid}}">
+
         &nbsp;
         {{item.utname}}
         &nbsp;
@@ -50,6 +51,7 @@
         console.log(msg.data,tmpl({
             data: msg.data
         }))
+        $('input:radio:first').attr('checked', 'checked');
         radioValue();
     },"json")
 
@@ -66,7 +68,7 @@
     function submit() {
         var person=$('input[name="person"]:checked').val();
         $.ajax({
-            url: "/api/bpm/workflow/nextApprover",
+            url: "/api/bpm/workflow/saveIns",
             type:"post",
             headers:{
                 "Content-Type": "application/json"

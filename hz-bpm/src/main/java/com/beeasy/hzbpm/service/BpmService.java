@@ -2,6 +2,7 @@ package com.beeasy.hzbpm.service;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSON;
 import com.beeasy.hzbpm.entity.BpmInstance;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -10,10 +11,14 @@ import com.beeasy.hzbpm.filter.Auth;
 import com.beeasy.hzbpm.util.Result;
 import com.github.llyb120.nami.json.Json;
 import com.github.llyb120.nami.json.Obj;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOptions;
+import com.mongodb.client.result.UpdateResult;
 import org.beetl.sql.core.SQLReady;
+import org.bson.BsonArray;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
@@ -388,7 +393,7 @@ public class BpmService {
      * 保存节点数据
      * @param data
      */
-    public Result saveIns(String uid, Obj data){
+    public boolean saveIns(String uid, Obj data, String nextPersonId){
         BpmService bpmService = this;
         String nodeId = bpmService.ins.currentNodes.get(0).nodeId;
         List<String> allFields = bpmService.ins.bpmModel.nodes.get(nodeId).allFields;
@@ -397,7 +402,7 @@ public class BpmService {
         for (String all : allFields) {
             attrs.put(all, data.get(all));
         }
-        bpmService.ins.attrs.putAll(attrs);
+//        bpmService.ins.attrs.putAll(attrs);
 
         BpmInstance.DataLog dataLog = new BpmInstance.DataLog();
         dataLog.nodeId = nodeId;
@@ -405,13 +410,31 @@ public class BpmService {
         dataLog.uid = uid;
         dataLog.attrs = attrs;
 
-        bpmService.ins.logs.add(dataLog);
-        bpmService.ins.lastModifyTime = new Date();
+//        bpmService.ins.logs.add(dataLog);
+//        bpmService.ins.lastModifyTime = new Date();
 
-        MongoCollection<Document> workflow = db.getCollection("workflow");
-        workflow.updateOne(Filters.eq("_id", bpmService.ins._id),new Document("$set", bpmService.ins), new UpdateOptions().upsert(true));
+        Obj update = o();
+        if (nextPersonId != null) {
+            nextApprover(uid, nextPersonId, update);
+        }
+        Obj set = o(
+                "$set", update,
+//                "$set", o(
+//                        "lastModifyTime",new Date()
+//                ),
+                "$push",o(
+                        "logs", dataLog
+                )
+//                ,
+//                "$push",o(
+//                        "attrs", attrs
+//                )
+        );
 
-        return Result.ok();
+        //更新数据库
+        MongoCollection<Document> collection = db.getCollection("bpmInstance");
+        UpdateResult res = collection.updateOne(Filters.eq("_id", bpmService.ins._id),set.toBson());
+        return res.getModifiedCount() > 0;
 
     }
 
@@ -420,7 +443,7 @@ public class BpmService {
      * @param uid
      * @param data
      */
-    public Result submitIns(String uid, Obj data){
+    public void submitIns(String uid, Obj data){
         if(!canPub(uid)){
             error("用户没有权限发布任务");
         }
@@ -433,9 +456,8 @@ public class BpmService {
 
         // 验证必填字段，处理宏字段
         validateAttrs(uid, getNode(nodeId), data);
-        saveIns(uid, data);
+        saveIns(uid, data, null);
 
-        return Result.ok();
     }
 
     /**
@@ -443,34 +465,27 @@ public class BpmService {
      * @param uid 提交人
      * @param nextUid 下一步处理人
      */
-    public Result nextApprover(String uid, String nextUid){
-        BpmService bpmService = this;
-        List<Obj> allUid = getNextNodePersons(uid, o());
-//        if(!allUid.contains(nextUid)){
-//            error("选择人员不是流程下一步可处理人！");
-//        }
+    private void nextApprover(String uid, String nextUid, Obj update){
+//        BpmService bpmService = this;
 
         // 下一节点
-        BpmModel.Node node = getNextNode(uid, o());
-        List<BpmModel.NextNode> nodeList = node.nextNodes;
-        String nodeId = "";
-        for(BpmModel.NextNode list : nodeList){
-//            if(list.expression){
-                nodeId = list.node;
-//            }
-
+        BpmModel.Node nextNode = getNextNode(uid, o());
+        if(!canDeal(nextUid, nextNode.taskId)){
+            error("此处理人无权限处理任务！");
         }
+
         BpmInstance.CurrentNode currentNode = new BpmInstance.CurrentNode();
-        currentNode.nodeId = nodeId;
+        currentNode.nodeId = nextNode.taskId;
         List<String> uids = new ArrayList<>();
         uids.add(nextUid);
         currentNode.uids = uids;
-        bpmService.ins.currentNodes.add(currentNode);
 
-        MongoCollection<Document> workflow = db.getCollection("workflow");
-        workflow.updateOne(Filters.eq("_id", bpmService.ins._id),new Document("$set", bpmService.ins), new UpdateOptions().upsert(true));
+        update.put("currentNodes", a(currentNode));
 
-        return Result.ok();
+//        MongoCollection<Document> collection = db.getCollection("bpmInstance");
+//
+//        UpdateResult res = collection.updateOne(Filters.eq("_id", bpmService.ins._id),new Document("$set", new Document("currentNodes", BsonArray.parse(ja.toString()))));
+
     }
 
 
