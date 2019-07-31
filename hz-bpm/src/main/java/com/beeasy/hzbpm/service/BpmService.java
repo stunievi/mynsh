@@ -153,7 +153,9 @@ public class BpmService {
      */
     public boolean canSee(String uid) {
         return ins.logs.stream()
-                .anyMatch(e -> e.uid.equals(uid));
+                .anyMatch(e -> e.uid.equals(uid)) ||
+                ins.currentNodes.stream()
+                .anyMatch(e -> e.uids.contains(uid));
     }
 
     /**

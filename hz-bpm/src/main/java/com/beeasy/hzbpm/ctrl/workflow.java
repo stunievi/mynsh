@@ -127,9 +127,18 @@ public class workflow {
             size = 20;
         }
         MongoCollection<Document> col = db.getCollection("bpmInstance");
-        Obj match =o(
-                "bpmId", new ObjectId(id),
-                "logs.uid", Auth.getUid() + ""
+        Obj match = o(
+                "$and", a(
+                        o("bpmId", new ObjectId(id)),
+                        o("$or", a(
+                                        o("logs.uid", Auth.getUid() + ""),
+                                        o("currentNodes", o(
+                                            "$elemMatch", o(
+                                                    "uids",Auth.getUid() + ""
+                                                )
+                                        ))
+                        ))
+                )
         );
         int count = (int) col.countDocuments(match.toBson());
         List list = (List)col.aggregate(a(
