@@ -535,7 +535,7 @@ public class BpmService {
 
         MongoCollection<Document> collection = db.getCollection("bpmInstance");
 
-        UpdateResult res = collection.updateOne(Filters.eq("_id", bpmService.ins._id),new Document("$set", new Document("currentNodes", update.toBson())));
+        UpdateResult res = collection.updateOne(Filters.eq("_id", bpmService.ins._id),new Document("$set", update.toBson()));
 
         return res.getModifiedCount() > 0;
     }
