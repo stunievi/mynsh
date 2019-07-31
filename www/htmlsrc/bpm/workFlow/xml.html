@@ -380,7 +380,7 @@
                         ex.push({sourceRef,targetRef});
                         exList[sourceRef] = ex;
                     }else{
-                        _eventMap[sourceRef] = {"taskId":sourceRef,"allFields":allFields,"requiredFields":requiredFields,"uids":pids,"qids":qids,"rids":rids,"dids":dids,"nextNodes":nextNodes}
+                        _eventMap[sourceRef] = {"id":sourceRef,"allFields":allFields,"requiredFields":requiredFields,"uids":pids,"qids":qids,"rids":rids,"dids":dids,"nextNodes":nextNodes}
                     }
 
                     window.sbpmData.nodes[sourceRef] = (window.bpmData.nodes[sourceRef]);
@@ -440,7 +440,7 @@
                     rids =arrToStr(window.bpmData.nodes[sourceRef].permission.rids);
                     dids =arrToStr(window.bpmData.nodes[sourceRef].permission.dids);
                 }
-                _eventMap[sourceRef] = {"taskId":sourceRef,"allFields":allFields,"requiredFields":requiredFields,"uids":pids,"qids":qids,"rids":rids,"dids":dids,"nextNodes":[]}
+                _eventMap[sourceRef] = {"id":sourceRef,"allFields":allFields,"requiredFields":requiredFields,"uids":pids,"qids":qids,"rids":rids,"dids":dids,"nextNodes":[]}
                 window.sbpmData.nodes[sourceRef] = (window.bpmData.nodes[sourceRef]);
             })
 
