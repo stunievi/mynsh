@@ -164,7 +164,7 @@
         var data = {};
         $.each(Data.formFields || [], function (i, v) {
             var key = v;
-            var val = FormBody.find("[name=" + msg.data.allFields[v].name + "]").val();
+            var val = FormBody.find("[name=" + Data.allFields[v].name + "]").val();
             data[key] = val;
         });
 
@@ -280,32 +280,22 @@
             // FormHtml = msg.data.form;
             $("#iframe").attr("src", "./form.html?v=" + Math.random())
 
-            // $("#iframe").contents().find("body").html(msg.data.form)
-            // $("#form-content").html(msg.data.form)
-
-
 
             //事件
-
-
-            var clickFn = function(){
-                submit(false);
-            }
-            $("#save").unbind("click", clickFn).bind("click", clickFn)
-
-            var clickFn2 = function(){
-                submit(true);
-            };
-            $("#submit").unbind("click", clickFn2).bind("click", clickFn2);
-
             $(".action").show();
-
-
         }, "json");
     }
 
 
     //加载页面
     load();
+
+    $("#save").click(function () {
+        submit(false);
+    });
+
+    $("#submit").click(function () {
+        submit(true);
+    })
 
 </script>
