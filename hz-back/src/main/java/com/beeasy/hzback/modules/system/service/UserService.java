@@ -598,8 +598,8 @@ public class UserService {
         JSONObject where = new JSONObject();
         where.put("uid", uid);
         where.put("roles", roles);
-        JSONObject permission = sqlManager.selectSingle("user.查询用户是否拥有指定角色",  where, JSONObject.class);
-        return null != permission  && permission .getInteger("1") > 0;
+        JSONObject permission = sqlManager.selectSingle("user.查询用户是否包含指定角色",  where, JSONObject.class);
+        return null != permission  && permission.getInteger("1") > 0;
     }
 
 }
