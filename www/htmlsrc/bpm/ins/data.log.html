@@ -86,8 +86,8 @@
     }
 
     var tmpl = template.compile($("#list").html())
-    function loadLogs(){
-        $.get("/api/bpm/workflow/logList", {id:getParam("id"), nodeId: getParam("nodeId")}, function (msg) {
+    function loadLogs(id){
+        $.get("/api/bpm/workflow/logList", {id:id||getParam("id"), nodeId: getParam("nodeId")}, function (msg) {
             if(msg.success){
                 //整理成按日排列的
                 var ret = {};

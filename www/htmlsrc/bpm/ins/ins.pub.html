@@ -246,8 +246,6 @@
                     alert("提交失败");
                 }
 
-                loadLogs();
-
                 window.opener.location.reload()
                 if(window.type == 'pub'){
                     load("deal", msg.data)
@@ -310,6 +308,8 @@
                 layer.msg(msg.errMessage)
                 return;
             }
+
+            loadLogs(msg.data);
 
             //绘图
             $("#canvas").empty();
