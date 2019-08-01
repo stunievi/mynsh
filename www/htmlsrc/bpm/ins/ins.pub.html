@@ -6,7 +6,8 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>发起任务</title>
-    <!--#include file="./ueditor.css.html" -->
+    <link rel="stylesheet" href="../../../static/vendor/bootcss/css/bootstrap.css">
+
     <script src="../../../static/vendor/jquery/jquery.js"></script>
     <script src="../../../static/htmljs/utils.js"></script>
 
@@ -72,6 +73,54 @@
     <div id="pbody">
         <div id="form" class="__tab" style="width: 740px; margin: 0 auto;">
 
+            <script>
+                window.Data = null;
+                window.FormBody = null;
+                // window.FormHtml = "";
+                function setIframeHeight(iframe) {
+                    if(Data != null){
+                        var body = FormBody = $(iframe).contents().find("body");
+                        body.html(Data.form);
+                        //全部设为disabled
+                        body.find("input[leipiplugins], textarea[leipiplugins], select[leipiplugins]").val("").prop("disabled", "disabled");
+                        //select默认选第一个
+                        body.find("select[leipiplugins]").each(function () {
+                            $(this).val($(this).find("option:first").val())
+                        })
+
+                        //当前节点可编辑
+                        $.each(Data.formFields || [], function (i, v) {
+                            body.find("[name=" + Data.allFields[v].name + "]").removeProp("disabled").css("border-color", "blue")
+                        });
+
+                        //必填字段标红
+                        $.each(Data.requiredFields || [], function (i, v) {
+                            body.find("[name=" + Data.allFields[v].name + "]").removeProp("disabled").css("border-color", "red")
+                        });
+
+                        //字段赋值
+                        $.each(Data.attrs, function (i, v) {
+                            var field = Data.allFields[i];
+                            if (!field) return
+                            var t = body.find("[name=" + field.name + "]")
+                            if (field.leipiplugins == 'macros') {
+                                t.prop("readonly", "true")
+                            }
+                            t.val(v)
+                        });
+
+                        //必填字段标红
+                    }
+                    // console.log("fuck")
+                    if (iframe) {
+                        var iframeWin = iframe.contentWindow || iframe.contentDocument.parentWindow;
+                        if (iframeWin.document.body) {
+                            iframe.height = iframeWin.document.documentElement.scrollHeight || iframeWin.document.body.scrollHeight;
+                        }
+                    }
+                };
+            </script>
+            <iframe id="iframe" src="" scrolling="no" frameborder="0" width="100%" onload="setIframeHeight(this)"></iframe>
             <div id="form-content">
 
             </div>
@@ -91,12 +140,67 @@
 </html>
 <script>
 
+
+
     $("#phead li").click(function () {
         $("#phead li").removeClass("active")
         $(this).addClass("active");
         var id = $(this).index();
         $("#pbody > .__tab").hide().eq(id).show();
     }).eq(0).click();
+
+
+    function submit(gonext){
+        var url = "";
+        if(type == 'pub'){
+            url = "/api/bpm/workflow/createIns";
+        } else {
+            if(gonext){
+                url = "/api/bpm/workflow/subIns";
+            }else{
+                url = "/api/bpm/workflow/saveIns";
+            }
+        }
+        var data = {};
+        $.each(Data.formFields || [], function (i, v) {
+            var key = v;
+            var val = FormBody.find("[name=" + msg.data.allFields[v].name + "]").val();
+            data[key] = val;
+        });
+
+        $.ajax({
+            url: url, //"/api/bpm/workflow/createIns",
+            type:"post",
+            headers:{
+                "Content-Type": "application/json"
+            },
+            dataType:"json",
+            data: JSON.stringify({
+                id: id,
+                data: data
+            }),
+            success: function (msg) {
+                if(!msg.success){
+                    alert("提交失败");
+                }
+                window.opener.location.reload()
+                if(type == 'pub'){
+                    load("deal", msg.data)
+                    if(gonext){
+                        window.open("./choose.html?id=" + msg.data, "choosepersons", "top=100, left=100, width=500, height=300")
+                    } else {
+                        window.close();
+                    }
+                } else {
+                    if(gonext){
+                        window.open("./choose.html?id=" + msg.data, "choosepersons", "top=100, left=100, width=500, height=300")
+                    }
+                }
+            }
+        })
+
+        console.log(data)
+    }
 
     function load(type, id) {
         if(!type){
@@ -166,92 +270,17 @@
                 })
             });
 
+            Data = msg.data;
+            // FormHtml = msg.data.form;
+            $("#iframe").attr("src", "./form.html?v=" + Math.random())
 
-            $("#form-content").html(msg.data.form)
-            //全部设为disabled
-            $("input[leipiplugins], textarea[leipiplugins], select[leipiplugins]").val("").prop("disabled", "disabled");
-            //select默认选第一个
-            $("select[leipiplugins]").each(function () {
-                $(this).val($(this).find("option:first").val())
-            })
-
-            //当前节点可编辑
-            $.each(msg.data.formFields || [], function (i, v) {
-                $("[name=" + msg.data.allFields[v].name + "]").removeProp("disabled").css("border-color", "blue")
-            });
-
-            //必填字段标红
-            $.each(msg.data.requiredFields || [], function (i, v) {
-                $("[name=" + msg.data.allFields[v].name + "]").removeProp("disabled").css("border-color", "red")
-            });
-
-            //字段赋值
-            $.each(msg.data.attrs, function (i, v) {
-                var field = msg.data.allFields[i];
-                if (!field) return
-                var t = $("[name=" + field.name + "]")
-                if (field.leipiplugins == 'macros') {
-                    t.prop("readonly", "true")
-                }
-                t.val(v)
-            });
-
-            //必填字段标红
+            // $("#iframe").contents().find("body").html(msg.data.form)
+            // $("#form-content").html(msg.data.form)
+            
 
 
             //事件
 
-            function submit(gonext){
-                var url = "";
-                if(type == 'pub'){
-                    url = "/api/bpm/workflow/createIns";
-                } else {
-                    if(gonext){
-                        url = "/api/bpm/workflow/subIns";
-                    }else{
-                        url = "/api/bpm/workflow/saveIns";
-                    }
-                }
-                var data = {};
-                $.each(msg.data.formFields || [], function (i, v) {
-                    var key = v;
-                    var val = $("[name=" + msg.data.allFields[v].name + "]").val();
-                    data[key] = val;
-                });
-
-                $.ajax({
-                    url: url, //"/api/bpm/workflow/createIns",
-                    type:"post",
-                    headers:{
-                        "Content-Type": "application/json"
-                    },
-                    dataType:"json",
-                    data: JSON.stringify({
-                        id: id,
-                        data: data
-                    }),
-                    success: function (msg) {
-                        if(!msg.success){
-                            alert("提交失败");
-                        }
-                        window.opener.location.reload()
-                        if(type == 'pub'){
-                            load("deal", msg.data)
-                            if(gonext){
-                                window.open("./choose.html?id=" + msg.data, "choosepersons", "top=100, left=100, width=500, height=300")
-                            } else {
-                                window.close();
-                            }
-                        } else {
-                            if(gonext){
-                                window.open("./choose.html?id=" + msg.data, "choosepersons", "top=100, left=100, width=500, height=300")
-                            }
-                        }
-                    }
-                })
-
-                console.log(data)
-            }
 
             var clickFn = function(){
                 submit(false);
