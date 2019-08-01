@@ -1,5 +1,4 @@
-
-.fields li {
+.selection-container li {
     list-style: none;
     cursor: pointer;
     position: relative

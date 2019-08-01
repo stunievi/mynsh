@@ -2,29 +2,38 @@ package com.beeasy.hzbpm.service;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSON;
 import com.beeasy.hzbpm.entity.BpmInstance;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzbpm.entity.BpmModel;
 import com.beeasy.hzbpm.filter.Auth;
+import com.beeasy.hzbpm.util.Result;
 import com.github.llyb120.nami.json.Json;
 import com.github.llyb120.nami.json.Obj;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.UpdateOptions;
+import com.mongodb.client.result.UpdateResult;
 import org.beetl.sql.core.SQLReady;
+import org.bson.BsonArray;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import sun.net.httpserver.AuthFilter;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.beeasy.hzbpm.bean.MongoService.db;
 import static com.github.llyb120.nami.ext.beetlsql.BeetlSql.sqlManager;
 import static com.github.llyb120.nami.json.Json.a;
 import static com.github.llyb120.nami.json.Json.o;
+import static com.github.llyb120.nami.server.Vars.$request;
 
 public class BpmService {
 
@@ -63,12 +72,13 @@ public class BpmService {
         return bpmService;
     }
 
-    public static BpmService ofIns(Document data){
+    public static BpmService ofIns(Document data) {
         BpmService bpmService = new BpmService();
         bpmService.arrangementData = (Document) data.get("bpmModel");
         bpmService.ins = Json.cast(data, BpmInstance.class);
         bpmService.model = bpmService.ins.bpmModel;
         bpmService.modelId = bpmService.ins.bpmId.toString();
+        bpmService.xml = bpmService.ins.xml;
         return bpmService;
     }
 
@@ -110,17 +120,18 @@ public class BpmService {
 
     /**
      * 是否可以处理某些节点
+     *
      * @param uid
      * @param nodeIds
      * @return
      */
-    public boolean canDeal(String uid, String... nodeIds){
+    public boolean canDeal(String uid, String... nodeIds) {
         List<Obj> list = sqlManager.execute(new SQLReady("select uid,oid,pid from t_org_user where uid = ?", uid), Obj.class);
         for (String nodeId : nodeIds) {
             BpmModel.Node node = getNode(nodeId);
-            if(list.stream().anyMatch(e -> {
+            if (list.stream().anyMatch(e -> {
                 return (node.qids).contains(e.s("oid")) || (node.rids).contains(e.s("oid")) || (node.dids).contains(e.s("pid")) || (node.uids).contains(e.s("uid"));
-            })){
+            })) {
                 return true;
             }
         }
@@ -129,18 +140,32 @@ public class BpmService {
 
     /**
      * 是否可以处理当前节点
+     *
      * @param uid
      * @return
      */
-    public boolean canDealCurrent(final String uid){
+    public boolean canDealCurrent(final String uid) {
         return ins.currentNodes.stream().anyMatch(e -> e.uids.contains(uid));
     }
 
     /**
-     * 将任务更新到最新的状态
+     * 某个用户是否可以查看当前的这个流程
+     *
      * @return
      */
-    public void sync(){
+    public boolean canSee(String uid) {
+        return ins.logs.stream()
+                .anyMatch(e -> e.uid.equals(uid)) ||
+                ins.currentNodes.stream()
+                .anyMatch(e -> e.uids.contains(uid));
+    }
+
+    /**
+     * 将任务更新到最新的状态
+     *
+     * @return
+     */
+    public void sync() {
         BpmService service = ofIns(ins._id.toString());
         model = service.model;
         modelId = service.modelId;
@@ -166,28 +191,58 @@ public class BpmService {
                 "allFields", model.fields,
                 "formFields", node.allFields,
                 "requiredFields", node.requiredFields,
-//                "all_fields", model.fields.entrySet()
-//                .stream()
-//                .filter(e -> node.allFields.contains(e.getKey()))
-//                .map(e -> e.getValue())
-//                .toArray(),
                 "form", model.template,
                 "attrs", attrs,
                 "xml", xml,
-                "current", model.start
+                "current", a(model.start)
         );
     }
 
-    public void validateAttrs(String uid, BpmModel.Node node, Obj attrs){
+
+    /**
+     * 查询当前流程的详细信息
+     *
+     * @param uid
+     * @return
+     */
+    public Obj getInsInfo(String uid) {
+        if (!canSee(uid)) {
+            error("无权查看这个流程");
+        }
+        BpmModel.Node currentNode = getCurrentNode(uid);
+        //是否有权限查看
+
+        Obj ret = o(
+                "allFields", model.fields,
+                "formFields", (null != currentNode) ? currentNode.allFields : a(),
+                "requiredFields", (null != currentNode) ? currentNode.requiredFields : a(),
+                "form", model.template,
+                "attrs", ins.attrs,
+                "xml", xml,
+                "current", null != currentNode ? a(currentNode.id) : getCurrentNodeIds()
+        );
+        return ret;
+    }
+
+    /**
+     * 校验所填写的属性是否合法
+     *
+     * @param uid
+     * @param node
+     * @param attrs
+     */
+    public void validateAttrs(String uid, BpmModel.Node node, Obj attrs) {
+        //过滤不该我填的属性
+
         //补充宏字段
-        addMacroFields(uid, node, attrs);
+//        addMacroFields(uid, node, attrs);
         //验证必填字段
         for (String requiredField : node.requiredFields) {
             Map<String, String> field = model.fields.get(requiredField);
             if (field == null) {
                 continue;
             }
-            if(StrUtil.isBlank(attrs.s(requiredField))){
+            if (StrUtil.isBlank(attrs.s(requiredField))) {
                 error("字段[%s]不能为空", requiredField);
             }
         }
@@ -195,11 +250,12 @@ public class BpmService {
 
     /**
      * 补充宏控件指向的字段
+     *
      * @param uid
      * @param node
      * @param attrs
      */
-    private void addMacroFields(String uid, BpmModel.Node node, Obj attrs){
+    private void addMacroFields(String uid, BpmModel.Node node, Obj attrs) {
         for (String allField : node.allFields) {
             Map<String, String> field = model.fields.get(allField);
             if (field == null) {
@@ -219,6 +275,8 @@ public class BpmService {
                 case "当前用户姓名":
                     String uname = sqlManager.execute(new SQLReady("select true_name from t_user where id = ?", uid), Obj.class).get(0).s("true_name");
                     return uname;
+                case "当前用户ID":
+                    return uid;
 
                 case "当前用户部门":
                     return sqlManager.execute(new SQLReady("select pname from t_org_user where uid = ? and otype <> 'ROLE'", uid), Obj.class)
@@ -228,6 +286,16 @@ public class BpmService {
 
                 case "当前日期+时间":
                     return DateUtil.format(new Date(), "yyyy-MM-dd hh:mm:ss");
+                case "当前日期":
+                    return DateUtil.format(new Date(), "yyyy-MM-dd");
+                case "当前年份":
+                    return DateUtil.format(new Date(), "yyyy");
+                case "当前时间":
+                    return DateUtil.format(new Date(), "hh:mm");
+                case "当前星期":
+                    LocalDate date = LocalDate.now();
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("E");
+                    return date.format(formatter);
 
             }
             return null;
@@ -247,17 +315,19 @@ public class BpmService {
         BpmService bpmService = this;
 //        BpmService bpmService = BpmService.ofModel(modelId);
 
-        if(!canPub(uid)){
+        if (!canPub(uid)) {
             error("用户没有权限发布任务");
         }
 
-        validateAttrs(uid, getNode("start"), data);
+        BpmModel.Node startNode = getNode("start");
+        addMacroFields(uid, startNode, data);
+        validateAttrs(uid, startNode, data);
 
         // 开始节点
-        String startNode = bpmService.model.start;
-        List<String> qids = bpmService.model.nodes.get(startNode).qids;
-        List<String> rids = bpmService.model.nodes.get(startNode).rids;
-        List<String> dids = bpmService.model.nodes.get(startNode).dids;
+        String startNodeId = bpmService.model.start;
+        List<String> qids = bpmService.model.nodes.get(startNodeId).qids;
+        List<String> rids = bpmService.model.nodes.get(startNodeId).rids;
+        List<String> dids = bpmService.model.nodes.get(startNodeId).dids;
 
         String qid = qids.stream().map(q -> "'" + q + "'").collect(Collectors.joining(","));
         String rid = rids.stream().map(r -> "'" + r + "'").collect(Collectors.joining(","));
@@ -270,7 +340,7 @@ public class BpmService {
 
 //        List<Long> ql = bpmService.model.nodes.get(startNode).qids;
 
-        List<String> allFields = bpmService.model.nodes.get(startNode).allFields;
+        List<String> allFields = bpmService.model.nodes.get(startNodeId).allFields;
         for (String all : allFields) {
             attrs.put(all, data.get(all));
         }
@@ -288,7 +358,7 @@ public class BpmService {
             }
         }
         JSONObject dataLog = new JSONObject();
-        dataLog.put("nodeId", startNode);
+        dataLog.put("nodeId", startNodeId);
         dataLog.put("time", new Date());
         dataLog.put("uid", uid);
         dataLog.put("attrs", attrs);
@@ -296,7 +366,7 @@ public class BpmService {
         logs.add(dataLog);
 
         JSONObject currentNode = new JSONObject();
-        currentNode.put("nodeId", startNode);
+        currentNode.put("nodeId", startNodeId);
         JSONArray uids = new JSONArray();
         uids.add(uid);
         currentNode.put("uids", uids);
@@ -387,7 +457,127 @@ public class BpmService {
         ));
     }
 
-    private static void error(String errMessage, Object ...objects) {
+    /**
+     * 保存节点数据
+     * @param data
+     */
+    public boolean saveIns(String uid, Obj data, boolean validate){
+        //candeal
+        if (!canDealCurrent(uid)) {
+            error("用户没有权限处理任务");
+        }
+
+        addMacroFields(uid, getCurrentNode(uid), data);
+        if(validate){
+            validateAttrs(uid, getCurrentNode(uid), data);
+        }
+
+        BpmService bpmService = this;
+        String nodeId = bpmService.ins.currentNodes.get(0).nodeId;
+        List<String> allFields = bpmService.ins.bpmModel.nodes.get(nodeId).allFields;
+
+        Map<String , Object> attrs = new HashMap<>();
+        for (String all : allFields) {
+            attrs.put(all, data.get(all));
+        }
+//        bpmService.ins.attrs.putAll(attrs);
+
+        BpmInstance.DataLog dataLog = new BpmInstance.DataLog();
+        dataLog.id = new ObjectId();
+        dataLog.nodeId = nodeId;
+        dataLog.time = new Date();
+        dataLog.uid = uid;
+        dataLog.attrs = attrs;
+
+//        bpmService.ins.logs.add(dataLog);
+//        bpmService.ins.lastModifyTime = new Date();
+
+        Obj update = o();
+//        if (nextPersonId != null) {
+//            nextApprover(uid, nextPersonId, update);
+//        }
+        Obj set = o(
+//                "$set", update,
+//                "$set", o(
+//                        "lastModifyTime",new Date()
+//                ),
+                "$push",o(
+                        "logs", dataLog
+                )
+//                ,
+//                "$set",o(
+//                        "attrs", attrs
+//                )
+        );
+
+        //更新数据库
+        MongoCollection<Document> collection = db.getCollection("bpmInstance");
+        UpdateResult res = collection.updateOne(Filters.eq("_id", bpmService.ins._id),set.toBson());
+        return res.getModifiedCount() > 0;
+
+    }
+
+    /**
+     * 提交节点信息
+     *
+     * @param uid
+     * @param data
+     */
+    public boolean submitIns(String uid, Obj data) {
+        boolean bl = true;
+//        if (!canPub(uid)) {
+//            error("用户没有权限发布任务");
+//        }
+
+        BpmService bpmService = this;
+        String nodeId = bpmService.ins.currentNodes.get(0).nodeId;
+
+        bl = saveIns(uid, data, true);
+
+        BpmModel.Node nextNode = getNextNode(uid, o());
+
+        // 判断是否为结束节点
+        if(nextNode.id.equals(bpmService.ins.bpmModel.end)){
+            Obj state = null;
+            state.put("state", "FINISHED");
+            MongoCollection<Document> collection = db.getCollection("bpmInstance");
+            UpdateResult res = collection.updateOne(Filters.eq("_id", bpmService.ins._id),new Document("$set", state.toBson()));
+            bl = res.getModifiedCount()>0;
+        }
+        return bl;
+    }
+
+    /**
+     * 保存选取的下一步处理人
+     * @param uid 提交人
+     * @param nextUid 下一步处理人
+     */
+    public boolean nextApprover(String uid, String nextUid, Obj update){
+        BpmService bpmService = this;
+
+        // 下一节点
+        BpmModel.Node nextNode = getNextNode(uid, o());
+        if(!canDeal(nextUid, nextNode.id)){
+            error("此处理人无权限处理任务！");
+        }
+
+        BpmInstance.CurrentNode currentNode = new BpmInstance.CurrentNode();
+        currentNode.nodeId = nextNode.id;
+        List<String> uids = new ArrayList<>();
+        uids.add(nextUid);
+        currentNode.uids = uids;
+
+        update.put("currentNodes", a(currentNode));
+
+        MongoCollection<Document> collection = db.getCollection("bpmInstance");
+
+        UpdateResult res = collection.updateOne(Filters.eq("_id", bpmService.ins._id),new Document("$set", update.toBson()));
+
+        return res.getModifiedCount() > 0;
+    }
+
+
+    private static void error(String errMessage, Object... objects) {
         throw new BpmException(String.format(errMessage, objects));
     }
 
@@ -411,6 +601,52 @@ public class BpmService {
         }
     }
 
+
+    public boolean isFinished(){
+        return ins != null && "FINISHED".equalsIgnoreCase(ins.state);
+    }
+
+    /**
+     * 得到某个用户当前的节点
+     *
+     * @param uid
+     * @return
+     */
+    public BpmModel.Node getCurrentNode(String uid) {
+        if(isFinished()){
+            return getNode("end");
+        }
+        String nodeId = ins.currentNodes.stream()
+                .filter(e -> e.uids.contains(uid))
+                .map(e -> e.nodeId)
+                .findFirst()
+                .orElse(null);
+        if (nodeId == null) {
+            return null;
+        }
+        return getNode(nodeId);
+    }
+
+    public List<String> getCurrentNodeIds() {
+        if(isFinished()){
+            return (List)a("end");
+        }
+        return ins.currentNodes
+                .stream()
+                .map(e -> e.nodeId)
+                .collect(Collectors.toList());
+    }
+
+    public List<BpmModel.Node> getCurrentNodes() {
+        if(isFinished()){
+            return (List)a(getNode("end"));
+        }
+        return ins.currentNodes
+                .stream()
+                .map(e -> getNode(e.nodeId))
+                .filter(e -> e != null)
+                .collect(Collectors.toList());
+    }
 
     public static class BpmException extends RuntimeException {
         public String error = "";

@@ -1,14 +1,12 @@
-<script type="text/html" id="field_item">
-    {{each fields field}}
-    <li>
-        <input type="checkbox" class="checkboxs" id="tyue-checkbox-blue-{{field}}"/>
-        <label for="tyue-checkbox-blue-{{field}}"></label>
-        <span>{{field}}</span>
-    </li>
-    {{/each}}
-</script>
-
-<div class="fields">
+    <script type="text/html" class="field_item">
+        {{each fields field}}
+        <li>
+            <input type="checkbox" class="checkboxs" id="{{prefix}}-tyue-checkbox-blue-{{field}}"/>
+            <label for="{{prefix}}-tyue-checkbox-blue-{{field}}"></label>
+            <span>{{field}}</span>
+        </li>
+        {{/each}}
+    </script>
     <div class="selection-container">
         <div class="select-box left">
             <div class="select-box-title">
@@ -45,30 +43,3 @@
             </div>
         </div>
     </div>
-</div>
-
-<script>
-    // var fields = [];
-
-    var tpml = template.compile($("#field_item").html());
-    //load
-    // $.get("/api/bpm/form/one",{id: window.opener.$("#selectForm").val()}, function (msg) {
-    //     if(!msg.success){
-    //         return
-    //     }
-    //     $.each(msg.data.form.data ||[], function (i,v) {
-    //         fields.push(msg.data.name + ":" + v.title)
-    //     })
-    //     initFields()
-    //
-    // },'json');
-
-
-    console.log(opener.fields)
-    $(".form-fields").html(tpml({
-        fields: opener.fields
-    }))
-
-
-</script>
-
