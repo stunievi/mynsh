@@ -335,10 +335,7 @@
                     var nextEvent = [];
                     var node = {};
                     var targetRef = $(this).attr("targetRef");
-                    node["node"] = targetRef;
-                    nextEvent.push(node)
-                    var nextNodes = [];
-                    nextNodes.push(node);
+
                     // var nextNodes = {"nextEvent":nextEvent}
                     var sourceRef = $(this).attr("sourceRef");
                     var sr = sourceRef.split("_");
@@ -373,12 +370,22 @@
                         dids =arrToStr(window.bpmData.nodes[sourceRef].permission.dids);
                         var conList = window.bpmData.nodes[sourceRef].condition;
 
-                        var con = "1=1";
+                        _expression = "";
                         if(conList){
-                            preorder(conList)
+                            $.each(conList,function (e) {
+                                var c = conList[e];
+                                preorder(c,false)
+                            })
 
-                        }else{
                         }
+                        if(_expression.length>4){
+                            _expression = _expression.substr(_expression.indexOf("get")),_expression.length
+                        }
+                        node["node"] = targetRef;
+                        node["expression"] = _expression;
+                        nextEvent.push(node)
+                        var nextNodes = [];
+                        nextNodes.push(node);
                     }
 
                     // var nodeExt =[];    // 节点对应的表单属性
@@ -419,7 +426,17 @@
                 }
                 for(var ex=0;ex<exList[i].length;ex++){
                     var targetRef = exList[i][ex].targetRef;
-                    node["expression"] = "";
+                    _expression = "";
+                    if(conList){
+                        $.each(conList,function (e) {
+                            var c = conList[e];
+                            preorder(c,false)
+                        })
+                    }
+                    if(_expression.length>4){
+                        _expression = _expression.substr(_expression.indexOf("get")),_expression.length
+                    }
+                    node["expression"] = _expression;
                     node["node"] = targetRef;
                     nextEvent.push(node)
                 }
@@ -490,7 +507,7 @@
                     bpmData:sbpmData,
                     arrangementData:_xmlMap
                 }
-
+                console.log("_expression：",_expression);
 
                 $.ajax({
                     // url:"/api/bpm/workflow/saveWorkFlow",
@@ -504,9 +521,9 @@
                     success:function(res){
                         console.log()
                         if(res.success){
-                            layer.alert("保存成功！", { icon: 1, closeBtn: 0 }, function () {
-                                closeCurrentIframe();
-                            } );
+                            // layer.alert("保存成功！", { icon: 1, closeBtn: 0 }, function () {
+                                // closeCurrentIframe();
+                            // } );
                         }else{
                             layer.alert("保存失败！"+res.errMessage, { icon: 2, closeBtn: 0 }, function () {
                                 layer.closeAll();
@@ -621,13 +638,67 @@
 
     }
 
-    function preorder(root) {
+    var _expression = "";
+    var exp = "";
+    function preorder(root,flag) {
         if (!root) {
             return;
         }
-        var left = root.children;
-        left && preorder(left);
+        if(root.type=="rule" ){
+            root.text = conversion(root.text)
+
+            var textSub = root.text.substr(1,root.text.lastIndexOf("]")-1);
+            var textLe = root.text.substr(root.text.lastIndexOf("]")+1,root.text.length);
+            if(flag){
+                _expression = _expression+exp +" "+'getValue("'+textSub+'")'+textLe+" ";
+            }else{
+                _expression = _expression+'getValue("'+textSub+'")'+textLe +" ";
+            }
+        }else if(root.type=="group"){
+            var children = root.children;
+            if(("AND" == root.text.toUpperCase() || "OR" == root.text.toUpperCase())){
+                exp = root.text.toUpperCase();
+                if("AND" == exp){
+                    exp = "&&";
+                }else if("OR" == exp){
+                    exp = "||"
+                }
+                // _expression = _expression+root.text + " ";
+                $.each(children, function (i) {
+                    preorder(children[i],true);
+                })
+            }
+        }
     }
+
+    function conversion(str) {
+        // return str ? str.replace(/(大于|小于|大于等于|小于等于|等于')/g, (a) => {
+        //     return {
+        //         '小于': '<',
+        //         '大于等于': '>=',
+        //         '小于等于': '<=',
+        //         '大于': '>',
+        //         '等于': '=',
+        //     }[a]
+        // }) : '';
+        if(-1 != str.indexOf("大于")){
+            str = str.replace("大于",">");
+        }
+        if(-1 != str.indexOf("小于")){
+            str = str.replace("小于","<");
+        }
+        if(-1 != str.indexOf("大于等于")){
+            str = str.replace("大于等于",">=");
+        }
+        if(-1 != str.indexOf("小于等于")){
+            str = str.replace("小于等于","<=");
+        }
+        if(-1 != str.indexOf("等于")){
+            str = str.replace("等于","=");
+        }
+        return str;
+    }
+
 
 </script>
 
