@@ -90,6 +90,8 @@
 </body>
 </html>
 <script>
+    window.type = "";
+    window.id = "";
 
     $("#phead li").click(function () {
         $("#phead li").removeClass("active")
@@ -101,9 +103,11 @@
     function load(type, id) {
         if(!type){
             type = getParam("type");
+            window.type = type;
         }
         if(!id){
             id = getParam("id");
+            window.id = id;
         }
 
         console.log(type,id)
@@ -119,10 +123,10 @@
         }
 
         var ajax = null;
-        if(type == 'pub'){
-            ajax =  $.get("/api/bpm/workflow/preparePub", {id: id});
+        if(window.type == 'pub'){
+            ajax =  $.get("/api/bpm/workflow/preparePub", {id: window.id});
         } else {
-            ajax = $.get("/api/bpm/workflow/getInsInfo", {id: id});
+            ajax = $.get("/api/bpm/workflow/getInsInfo", {id: window.id});
         }
 
         $.when(ajax).then(function (msg) {
@@ -203,7 +207,7 @@
 
             function submit(gonext){
                 var url = "";
-                if(type == 'pub'){
+                if(window.type == 'pub'){
                     url = "/api/bpm/workflow/createIns";
                 } else {
                     if(gonext){
@@ -235,8 +239,10 @@
                             alert("提交失败");
                         }
                         window.opener.location.reload()
-                        if(type == 'pub'){
+                        if(window.type == 'pub'){
                             load("deal", msg.data)
+                            window.type = "deal";
+                            window.id = msg.data;
                             if(gonext){
                                 window.open("./choose.html?id=" + msg.data, "choosepersons", "top=100, left=100, width=500, height=300")
                             } else {

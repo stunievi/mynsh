@@ -371,6 +371,14 @@
                         qids =arrToStr(window.bpmData.nodes[sourceRef].permission.qids);
                         rids =arrToStr(window.bpmData.nodes[sourceRef].permission.rids);
                         dids =arrToStr(window.bpmData.nodes[sourceRef].permission.dids);
+                        var conList = window.bpmData.nodes[sourceRef].condition;
+
+                        var con = "1=1";
+                        if(conList){
+                            preorder(conList)
+
+                        }else{
+                        }
                     }
 
                     // var nodeExt =[];    // 节点对应的表单属性
@@ -611,6 +619,14 @@
         };
         window.open("./node.edit.html?id=" + obj.id,"node_edit_" + obj.id, "left=200, top=100, width=800, height=500, location=no")
 
+    }
+
+    function preorder(root) {
+        if (!root) {
+            return;
+        }
+        var left = root.children;
+        left && preorder(left);
     }
 
 </script>

@@ -24,6 +24,8 @@ import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import sun.net.httpserver.AuthFilter;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -273,6 +275,8 @@ public class BpmService {
                 case "当前用户姓名":
                     String uname = sqlManager.execute(new SQLReady("select true_name from t_user where id = ?", uid), Obj.class).get(0).s("true_name");
                     return uname;
+                case "当前用户ID":
+                    return uid;
 
                 case "当前用户部门":
                     return sqlManager.execute(new SQLReady("select pname from t_org_user where uid = ? and otype <> 'ROLE'", uid), Obj.class)
@@ -282,6 +286,16 @@ public class BpmService {
 
                 case "当前日期+时间":
                     return DateUtil.format(new Date(), "yyyy-MM-dd hh:mm:ss");
+                case "当前日期":
+                    return DateUtil.format(new Date(), "yyyy-MM-dd");
+                case "当前年份":
+                    return DateUtil.format(new Date(), "yyyy");
+                case "当前时间":
+                    return DateUtil.format(new Date(), "hh:mm");
+                case "当前星期":
+                    LocalDate date = LocalDate.now();
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("E");
+                    return date.format(formatter);
 
             }
             return null;
@@ -469,6 +483,7 @@ public class BpmService {
 //        bpmService.ins.attrs.putAll(attrs);
 
         BpmInstance.DataLog dataLog = new BpmInstance.DataLog();
+        dataLog.id = new ObjectId();
         dataLog.nodeId = nodeId;
         dataLog.time = new Date();
         dataLog.uid = uid;

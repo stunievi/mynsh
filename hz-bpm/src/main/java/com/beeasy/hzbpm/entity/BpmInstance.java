@@ -59,6 +59,8 @@ public class BpmInstance {
 
 
     public static class DataLog{
+        public ObjectId id;
+
         //当时所在的节点ID
         public String nodeId;
 
