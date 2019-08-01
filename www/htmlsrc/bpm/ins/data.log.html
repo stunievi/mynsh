@@ -1,0 +1,116 @@
+<div id="timeline"></div>
+    <style>
+        .VivaTimeline dl{position:relative;top:0;padding:20px 0;margin:0}.VivaTimeline dl:before{position:absolute;top:0;bottom:0;left:50%;z-index:100;width:2px;margin-left:-1px;content:'';background-color:#ccd1d9}.VivaTimeline dl dt{position:relative;top:30px;z-index:200;width:120px;padding:3px 5px;margin:0 auto 30px;font-weight:400;color:#fff;text-align:center;background-color:#aab2bd;border-radius:4px;-webkit-border-radius:4px;-moz-border-radius:4px}.VivaTimeline dl dd{position:relative;z-index:200}.VivaTimeline dl dd .circ{position:absolute;top:40px;left:50%;z-index:200;width:22px;height:22px;margin-left:-11px;background-color:#4fc1e9;border:4px solid #f5f7fa;border-radius:50%;-webkit-border-radius:50%;-moz-border-radius:50%}.VivaTimeline dl dd .time{position:absolute;top:31px;left:50%;display:inline-block;width:100px;padding:10px 20px;color:#4fc1e9}.VivaTimeline dl dd .events{position:relative;width:47%;padding:10px 0 0;margin-top:31px;background-color:#ccc;border-radius:4px;-webkit-border-radius:4px;-moz-border-radius:4px}.VivaTimeline dl dd .events:before{position:absolute;top:12px;width:0;height:0;content:'';border-style:solid;border-width:6px}.VivaTimeline dl dd .events .events-object{margin:0 auto}.VivaTimeline dl dd .events .events-header{min-height:30px;line-height:20px;text-align:center;font-size:16px;font-weight:700;cursor:pointer}.VivaTimeline dl dd .events .events-body{overflow:hidden;zoom:1;background-color:#eee;padding:10px}.VivaTimeline dl dd .events .events-body .row{display:none}.VivaTimeline dl dd .events .events-body .events-desc{text-indent:2em;padding:0 15px}.VivaTimeline dl dd .events .events-footer{text-align:center}.VivaTimeline dl dd .events .events-footer ol{list-style:none;margin:0 auto;padding:0}.VivaTimeline dl dd .events .events-footer ol li{background:#32b487;border-radius:5px;margin:10px;display:inline-block;width:10px;height:10px;cursor:pointer}.VivaTimeline dl dd .events .events-footer ol .active{transform:scale(2)}.VivaTimeline dl dd.pos-right .time{margin-left:-100px;text-align:right}.VivaTimeline dl dd.pos-right .events{float:right}.VivaTimeline dl dd.pos-right .events:before{left:-12px;border-color:transparent #ccc transparent transparent}.VivaTimeline dl dd.pos-left .time{margin-left:0;text-align:left}.VivaTimeline dl dd.pos-left .events{float:left}.VivaTimeline dl dd.pos-left .events:before{right:-12px;border-color:transparent transparent transparent #ccc}.VivaTimeline .carousel-indicators{bottom:0}@media screen and (max-width:767px){.VivaTimeline dl:before{left:90px}.VivaTimeline dl dt{margin:0 30px 30px}.VivaTimeline dl dd .circ{left:90px}.VivaTimeline dl dd .time{left:20px}.VivaTimeline dl dd.pos-left .time{padding:10px 0;margin-left:0;text-align:left}.VivaTimeline dl dd.pos-left .events{float:right;width:73%;margin-right:4%}.VivaTimeline dl dd.pos-left .events:before{left:-12px;border-color:transparent #ccc transparent transparent}.VivaTimeline dl dd.pos-right .time{padding:10px 0;margin-left:0;text-align:left}.VivaTimeline dl dd.pos-right .events{float:right;width:73%;margin-right:4%}}@media screen and (max-width:500px){.VivaTimeline dl dd.pos-left .events{float:right;width:63%;margin-right:4%}.VivaTimeline dl dd.pos-right .events{float:right;width:63%;margin-right:4%}}
+    </style>
+    <script>
+        ;(function($,window,document,undefined){var pluginName='vivaTimeline';var Timeline=function(element,opt){this.target=element;this.carouselInterval;this.checkImgLoad;this.imgLoad=false;this._init(opt);this._event();}
+            Timeline.options={carousel:true,carouselTime:10000}
+            Timeline.prototype={_init:function(_opt){var self=this;self.options=$.extend(true,{},Timeline.options,_opt);self.target.find('.events-body').each(function(){var rowcount=$(this).find('.row').length;if(rowcount>1){var html="<ol>";for(var i=0;i<rowcount;i++){html+="<li data-target='"+i+"'></li>";}
+                    html+="</ol>";$(this).siblings('.events-footer').html(html).find('li').first().addClass('active');}});self.target.find('.events-body').each(function(){$(this).find('.row').first().show().siblings().hide();});self.target.find('img').on('load',function(){self.target.find('.events-body').each(function(){var maxHeight=0;$(this).find('.row').each(function(){if($(this).height()>maxHeight){maxHeight=$(this).height();}});$(this).find('.row').height(maxHeight);});});},_event:function(){var self=this;self.target.find('.events-header').click(function(){$(this).siblings('.events-body').slideToggle().end().siblings('.events-footer').toggle();});self.target.find('.events-footer li').click(function(){self._carousel($(this));});if(self.options.carousel){self.carouselInterval=setInterval(function(){self._carousel();},self.options.carouselTime);self.target.find('.events').hover(function(){clearInterval(self.carouselInterval);self.carouselInterval=null;},function(){if(self.carouselInterval==undefined){self.carouselInterval=setInterval(function(){self._carousel();},self.options.carouselTime);}});}},_carousel:function(_container){var self=this;if(_container==undefined){self.target.find('.events-footer .active').each(function(){var nextTarget;if($(this).is(':last-child')){nextTarget=$(this).siblings().first();}
+                else{nextTarget=$(this).next();}
+                    self._carousel(nextTarget);});}
+                else{var target=_container.data().target;_container.addClass('active').siblings().removeClass('active');_container.closest('.events-footer').siblings('.events-body').find('.row').eq(target).show().siblings().hide();}}}
+            $.fn[pluginName]=function(options,args){var timeline;this.each(function(){timeline=new Timeline($(this),options);});return this;}})(jQuery,window,document);
+    </script>
+<script type="text/html" id="list">
+<div class="timeline">
+    <div class="VivaTimeline">
+        <dl>
+            {{each logs item index}}
+            <dt>{{index}}</dt>
+            {{each item log}}
+            <dd class="pos-left clearfix">
+                <div class="circ"></div>
+                <div class="time">{{log.time}}</div>
+                <div class="events">
+                    <div class="events-header">{{log.uname}}</div>
+                    <div class="events-body">
+                        <div>
+                            {{each log.attrs v i}}
+                            <p>{{i}}：{{v}}</p>
+                            {{/each}}
+                            <div>
+                                <a href="javascript:;">回溯</a>
+                            </div>
+                        </div>
+<!--                        <div class="row" style="display: block;">-->
+<!--                            <div class="col-md-6 pull-left">-->
+<!--                                <img class="events-object img-responsive img-rounded" src="img/dog01.png">-->
+<!--                            </div>-->
+<!--                            <div class="events-desc">-->
+<!--                                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                        <div class="row" style="display: none;">-->
+<!--                            <div class="col-md-6 pull-left">-->
+<!--                                <img class="events-object img-responsive img-rounded" src="img/dog02.png">-->
+<!--                            </div>-->
+<!--                            <div class="events-desc">-->
+<!--                                Morbi at nisi vitae mauris pretium egestas. Morbi placerat risus ligula, nec placerat urna porta vel. Nullam sollicitudin orci quis odio eleifend, ut facilisis orci lobortis. Vivamus sed lobortis odio. Nam volutpat, leo a ullamcorper luctus, sapien libero auctor est, sed semper massa turpis sed quam. Mauris posuere, libero in ultricies dignissim, lacus purus egestas urna, nec semper lorem tellus non eros. Nam at bibendum libero. Curabitur a ante et orci cursus tincidunt. Vivamus dictum, libero et rhoncus congue, nulla erat mollis dui, vitae cursus dui justo quis velit. In a tellus arcu. Nam at lobortis nisl. Donec consequat placerat eros, quis elementum mauris sodales a. Maecenas id feugiat velit. Phasellus dictum eleifend varius. Cras nec orci turpis. Aenean ut turpis nibh.-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                        <div class="row" style="display: none;">-->
+<!--                            <div class="col-md-6 pull-left">-->
+<!--                                <img class="events-object img-responsive img-rounded" src="img/dog03.png">-->
+<!--                            </div>-->
+<!--                            <div class="events-desc">-->
+<!--                                Cras condimentum, metus ut vehicula euismod, odio massa pulvinar neque, id gravida neque est et sem. Proin consequat id nibh quis molestie. Quisque vehicula purus id purus elementum facilisis. Phasellus sodales nibh quis neque rhoncus aliquet. Nunc eget ipsum efficitur, pretium arcu et, gravida purus. Phasellus tempor lacus ac enim pulvinar elementum. Integer aliquet justo lacinia nunc tempus vulputate.-->
+<!--                            </div>-->
+<!--                        </div>-->
+                    </div>
+                </div>
+            </dd>
+            {{/each}}
+            {{/each}}
+        </dl>
+    </div>
+
+</div>
+</script>
+
+<script>
+    Date.prototype.Format = function (fmt) { //author: meizz
+        var o = {
+            "M+": this.getMonth() + 1, //月份
+            "d+": this.getDate(), //日
+            "H+": this.getHours(), //小时
+            "m+": this.getMinutes(), //分
+            "s+": this.getSeconds(), //秒
+            "q+": Math.floor((this.getMonth() + 3) / 3), //季度
+            "S": this.getMilliseconds() //毫秒
+        };
+        if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+        for (var k in o)
+            if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+        return fmt;
+    }
+
+    var tmpl = template.compile($("#list").html())
+    $.get("/api/bpm/workflow/logList", {id:getParam("id"), nodeId: getParam("nodeId")}, function (msg) {
+        if(msg.success){
+            //整理成按日排列的
+            var ret = {};
+            $.each(msg.data||[], function (i,v) {
+                var d = new Date(v.time);
+                var item = ret[d.Format("yyyy-MM-dd")] || [];
+                ret[d.Format("yyyy-MM-dd")] = item;
+                v.time = d.Format("HH:mm:ss");
+                item.push(v);
+            });
+            console.log(ret)
+            $("#timeline").html(tmpl({
+                logs: ret
+            }));
+            $('.VivaTimeline').vivaTimeline({
+                carousel: false,
+                carouselTime: 3000
+            });
+            $(".pos-left").each(function (i,v) {
+                if(i % 2 == 1){
+                    $(this).removeClass("pos-left").addClass("pos-right")
+                }
+                // console.log(i,v)
+            })
+        }
+    }, "json");
+</script>

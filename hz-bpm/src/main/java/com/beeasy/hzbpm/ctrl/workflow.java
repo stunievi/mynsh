@@ -1,5 +1,6 @@
 package com.beeasy.hzbpm.ctrl;
 
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.beeasy.hzbpm.entity.BpmInstance;
@@ -36,6 +37,38 @@ public class workflow {
         return db.getCollection("workflow");
     }
 
+
+    public Object logList(String id, String nodeId){
+        MongoCollection<Document> collection = db.getCollection("bpmInstance");
+        Arr condition = a(
+                o(
+                        "$match", o(
+                                "_id", new ObjectId(id)
+                        )
+
+                )
+        );
+        if(StrUtil.isBlank(nodeId)){
+            condition.add(o(
+                    "$project", o("logs", 1)
+            ));
+        } else {
+            condition.add(
+                    o(
+                            "$project", o(
+                                    "logs", o(
+                                            "$filter", o(
+                                                    "input", "$logs",
+                                                    "as", "item",
+                                                    "cond", o("$eq", a("$$item.nodeId", nodeId))
+                                            )
+                                    )
+                            )
+                    )
+            );
+        }
+        return Result.ok(collection.aggregate(condition.toBson()).first().get("logs"));
+    }
 
     /**
      * 菜单

@@ -69,6 +69,7 @@ public class BpmInstance {
 
         //提交人
         public String uid;
+        public String uname;
 
         //...
         //提交人是以什么身份进行提交的（当时这个节点的授权）
