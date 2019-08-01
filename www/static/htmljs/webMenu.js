@@ -552,7 +552,7 @@ var _menu = [
                         href: "/htmlsrc/creditDataManage/reports/reports_r26.html"
                     },
                     {
-                        name: "逾期台帐统计表"
+                        name: "正常类贷款逾期统计表"
                         , href: "/htmlsrc/creditDataManage/reports/reports_r30.html"
                     },
                     //{

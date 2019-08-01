@@ -49,15 +49,12 @@
         , page: false
         , cols: [
             [
-                {"title":"贷款机构","field":"MAIN_BR_NAME", rowspan: 2}
-                , {"title":"贷款金额","field":"LOAN_AMOUNT", rowspan: 2, align:"center"}
-                , {"title":"贷款余额","field":"LOAN_BALANCE", rowspan: 2, align:"center"}
-                , {field:"", title:"一般贷款", colspan: 2, align:"center"}
-                , {"title":"总计","field":"TOTAL", rowspan:2, align:"center"}
-            ]
-            , [
-                {"title":"拖欠本金","field":"UNPD_PRIN_BAL" , align:"center"}
-                ,{"title":"拖欠利息","field":"DELAY_INT_CUMU", align:"center"}
+                {"title":"贷款机构","field":"MAIN_BR_NAME", }
+                , {"title":"逾期30天内","field":"THIRTY",  align:"center"}
+                , {"title":"逾期30-60天","field":"THIRTY_TO_SIXTY",  align:"center"}
+                , {"title":"逾期60-90天","field":"SIXTY_TO_NINETY",  align:"center"}
+                , {"title":"逾期90天以上","field":"NINETY",  align:"center"}
+                , {"title":"总计","field":"TOTAL",  align:"center"}
             ]
         ]
 

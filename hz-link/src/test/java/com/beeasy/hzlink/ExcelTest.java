@@ -234,21 +234,22 @@ public class ExcelTest {
         JSONObject jsonObject = JSONObject.parseObject(s.toString());
 //        JSONArray departments = JSONObject.parseArray("[{\"name\":\"d\",\"chief\":{\"name\":\"a\"},\"headcount\":\"s\",\"link\":\"www\",\"staff\":[{\"name\":\"a\"}]},{\"name\":\"dd\",\"chief\":{\"name\":\"a\"},\"headcount\":\"s\",\"link\":\"www\",\"staff\":[{\"name\":\"a\"}]}]");
         JSONArray eachData = jsonObject.getJSONObject("Result").getJSONArray("eachData");
-        try (FileInputStream is = new FileInputStream("D:/java projects/hznsh/hz-link/src/main/resources/excel/t2.xlsx")) {
-            OutputStream os = new FileOutputStream(new File("D:/java projects/hznsh/hz-link/src/main/resources/excel/test.xlsx"));
-            Context context = PoiTransformer.createInitialContext();
-            context.putVar("eachData", eachData);
-            context.putVar("sheetNames", jsonObject.getJSONObject("Result").getJSONArray("sheetNames")
-            );
-            JxlsHelper.getInstance().setUseFastFormulaProcessor(false).setDeleteTemplateSheet(true).processTemplate(is, os, context);
 
-            FileInputStream fis = new FileInputStream("D:/java projects/hznsh/hz-link/src/main/resources/excel/test.xlsx");
+        try (FileInputStream is = new FileInputStream("D:/mynsh/mynsh/hz-link/src/main/resources/excel/t.xlsx")) {
+                OutputStream os = new FileOutputStream(new File("D:/mynsh/mynsh/hz-link/src/main/resources/excel/test.xlsx"));
+                Context context = PoiTransformer.createInitialContext();
+                context.putVar("eachData", eachData);
+                context.putVar("sheetNames", jsonObject.getJSONObject("Result").getJSONArray("sheetNames")
+                );
+                JxlsHelper.getInstance().setUseFastFormulaProcessor(false).setDeleteTemplateSheet(true).processTemplate(is, os, context);
+
+            FileInputStream fis = new FileInputStream("D:/mynsh/mynsh/hz-link/src/main/resources/excel/test.xlsx");
             XSSFWorkbook wb = new XSSFWorkbook(fis);
 
             //删除Sheet
             wb.removeSheetAt(wb.getSheetIndex("template"));
 
-            FileOutputStream fileOut = new FileOutputStream("D:/java projects/hznsh/hz-link/src/main/resources/excel/test.xlsx");
+            FileOutputStream fileOut = new FileOutputStream("D:/mynsh/mynsh/hz-link/src/main/resources/excel/test.xlsx");
             wb.write(fileOut);
             fileOut.flush();
             fileOut.close();

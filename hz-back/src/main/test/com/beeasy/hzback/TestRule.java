@@ -17,6 +17,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.HashMap;
 import java.util.List;
 
 @RunWith(SpringRunner.class)
@@ -52,7 +53,7 @@ public class TestRule {
     }
     @Test
     public void testUid(){
-        reportService.getUidAndOname();
+        reportService.app_guanlian_insert(new HashMap<>());
     }
 
 

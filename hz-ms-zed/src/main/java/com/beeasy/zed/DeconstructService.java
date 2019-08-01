@@ -8,17 +8,20 @@ import cn.hutool.core.util.*;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.google.common.base.Splitter;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
 import io.netty.util.CharsetUtil;
 import org.apache.activemq.BlobMessage;
+import org.apache.activemq.command.ActiveMQQueue;
 import org.beetl.sql.core.DSTransactionManager;
 import org.beetl.sql.core.SQLBatchReady;
 import org.beetl.sql.core.SQLReady;
 import org.osgl.util.E;
 import org.osgl.util.S;
+import org.osgl.util.Str;
 
 import javax.jms.JMSException;
 import javax.jms.TextMessage;
@@ -34,6 +37,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -209,6 +215,13 @@ public class DeconstructService extends AbstractService {
         }
         return "";
     }
+
+
+    String uid;
+    String QualCusId;
+    String Sign;
+    String qushuguizeshuming;
+    String qushuguize;
 
     @Override
     public void initSync() {
@@ -941,7 +954,6 @@ public class DeconstructService extends AbstractService {
                 "+Province", ProvinceValue
         );
         JSONObject object = (JSONObject) json;
-
 
         JSONObject kv = (JSONObject) deconstruct(json, "QCC_DETAILS", "inner_company_name");
         //曾用名
@@ -2506,6 +2518,26 @@ public class DeconstructService extends AbstractService {
                 IoUtil.closeIfPosible(entry.getValue());
             }
             System.out.printf("insert takes %d ms\n", System.currentTimeMillis() - stime);
+            if (null != Sign && Sign.equals("07")) {
+                JSONObject resultToPengfei = new JSONObject();
+                resultToPengfei.put("uid", uid);
+                resultToPengfei.put("QualCusId", QualCusId);
+                resultToPengfei.put("qushuguize", null != qushuguize ? "13.1" : qushuguize);
+                resultToPengfei.put("qushuguizeshuming", null != qushuguizeshuming ? "对私客户关联公司，通过董监高接口查询关联公司" : qushuguizeshuming);
+                resultToPengfei.put("mubiaokehu", restltToPengfeiArray);
+                MQService.getInstance().sendMessage("queue", "qcc-company-infos-zizhikehu", resultToPengfei.toString());
+                restltToPengfeiArray.clear();
+            } else if ((null != Sign && Sign.equals("06,08")) || (null != Sign && Sign.equals("99"))) {
+                JSONObject resultToPengfei = new JSONObject();
+                resultToPengfei.put("uid", uid);
+                resultToPengfei.put("QualCusId", QualCusId);
+                resultToPengfei.put("qushuguize", Sign.equals("06,08") ? "13.2" : qushuguize);
+                resultToPengfei.put("qushuguizeshuming", Sign.equals("06,08") ? "通过投资穿透查询公司信息，获取控股比例大于25%的资质客户关联信息" : qushuguizeshuming);
+                resultToPengfei.put("mubiaokehu", restltToPengfeiArray);
+                MQService.getInstance().sendMessage("queue", "qcc-company-infos-zizhikehu", resultToPengfei.toString());
+                restltToPengfeiArray.clear();
+            }
+
             try {
                 conn.commit();
             } catch (Exception e) {
@@ -2698,10 +2730,38 @@ public class DeconstructService extends AbstractService {
 //        autoCommit = false;
         QccDeconstructReqponse reqponse = new QccDeconstructReqponse(-1, 0, requestId, sourceRequest, "");
         AtomicBoolean someError = new AtomicBoolean(false);
+
         try {
 //            deconstructStep0(is, requestId);
 //            reqponse.progress = 1;
 //            deconstructStep1(requestId);
+            JSONObject jsonObject = JSONObject.parseObject(sourceRequest);
+            if (null != JSONArray.parseObject(JSONArray.parseArray(jsonObject.getString("OrderData")).get(0).toString()).getString("Sign")) {
+                Sign = JSONArray.parseObject(JSONArray.parseArray(jsonObject.getString("OrderData")).get(0).toString()).getString("Sign");
+            }
+
+            if (null != Sign && (Sign.equals("99") || Sign.equals("07"))) {
+                if (null != JSONObject.parseObject(String.valueOf(JSONObject.parseObject(sourceRequest).getJSONArray("OrderData").get(0))).getString("QualCusId")) {
+                    QualCusId = JSONObject.parseObject(String.valueOf(JSONObject.parseObject(sourceRequest).getJSONArray("OrderData").get(0))).getString("QualCusId");
+                } else {
+                    QualCusId = jsonObject.getString("QualCusId");
+                }
+                if (null != JSONObject.parseObject(String.valueOf(JSONObject.parseObject(sourceRequest).getJSONArray("OrderData").get(0))).getString("qushuguizeshuming")) {
+                    qushuguizeshuming = JSONObject.parseObject(String.valueOf(JSONObject.parseObject(sourceRequest).getJSONArray("OrderData").get(0))).getString("qushuguizeshuming");
+                }
+                if (null != JSONObject.parseObject(String.valueOf(JSONObject.parseObject(sourceRequest).getJSONArray("OrderData").get(0))).getString("qushuguize")) {
+                    qushuguize = JSONObject.parseObject(String.valueOf(JSONObject.parseObject(sourceRequest).getJSONArray("OrderData").get(0))).getString("qushuguize");
+                }
+                if (null != JSONObject.parseObject(String.valueOf(JSONObject.parseObject(sourceRequest).getJSONArray("OrderData").get(0))).getString("uid")) {
+                    uid = JSONObject.parseObject(String.valueOf(JSONObject.parseObject(sourceRequest).getJSONArray("OrderData").get(0))).getString("uid");
+                } else {
+                    uid = jsonObject.getString("uid");
+                }
+            } else {
+                QualCusId = jsonObject.getString("QualCusId");
+                uid = jsonObject.getString("uid");
+
+            }
             reqponse.progress = 2;
             //直接进行解压并解析
             SqlVectors sqls = deconstructStep2(requestId, is, someError);
@@ -2828,10 +2888,33 @@ public class DeconstructService extends AbstractService {
 //        }
     }
 
+    JSONObject result = new JSONObject();
+
     public void destructSingle(String str, AtomicBoolean someError) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
+        String dateTime = LocalDateTime.now(ZoneOffset.of("+8")).format(formatter);
         JSONObject object = JSON.parseObject(str);
         String url = object.getString("FullLink");
         String key = DeconstructService.getPath(url);
+        String params = getParam(url, "sign");
+        if (Sign.equals("06,08")) {
+            if (null != params && params.equals("06")) {
+                zizhikehu06(url, object, dateTime);
+            }
+            if (null != params && params.equals("08")) {
+                zizhikehu08(object, url, dateTime);
+            }
+            MQService.getInstance().sendMessage("queue", "qcc-company-infos-request", result.toString());
+        }
+        if (null != params && params.equals("07")) {
+            zizhikehu07(object, dateTime);
+        }
+
+        if (null != params && params.equals("99")) {
+            JSONObject Result = JSONObject.parseObject(object.getString("OriginData")).getJSONObject("Result");
+            restltToPengfeiArray.add(Utils.newJsonObject("cusName", Result.getString("Name"), "Address", Result.getString("Address")));
+        }
+
         if (handlers.containsKey(key)) {
             DeconstructService.DeconstructHandler handler = handlers.get(key);
             ByteBuf buf = Unpooled.buffer();
@@ -2851,9 +2934,154 @@ public class DeconstructService extends AbstractService {
 //        }
     }
 
+
+    public void zizhikehu07(JSONObject object, String dateTime) {
+        JSONObject jsonObject = JSONObject.parseObject(object.getString("OriginData")).getJSONObject("Result");
+        List companyName = new ArrayList();
+        if (null != jsonObject.getJSONObject("CIAForeignInvestments").getJSONArray("Result")) {
+            for (Object o : jsonObject.getJSONObject("CIAForeignInvestments").getJSONArray("Result")) {
+                companyName.add(JSONObject.parseObject(o.toString()).getString("Name"));
+            }
+        }
+        if (null != jsonObject.getJSONObject("CIACompanyLegals").getJSONArray("Result")) {
+            for (Object o : jsonObject.getJSONObject("CIACompanyLegals").getJSONArray("Result")) {
+                companyName.add(JSONObject.parseObject(o.toString()).getString("Name"));
+            }
+        }
+
+        if (null != jsonObject.getJSONObject("CIAForeignOffices").getJSONArray("Result")) {
+            for (Object o : jsonObject.getJSONObject("CIAForeignOffices").getJSONArray("Result")) {
+                companyName.add(JSONObject.parseObject(o.toString()).getString("Name"));
+            }
+        }
+        if (companyName.size() < 1) {
+            return;
+        }
+        List removeCompanyName = removeDuplicate(companyName);
+        JSONArray jsonArray = new JSONArray();
+        JSONObject result = new JSONObject();
+        for (int i = 0; i < removeCompanyName.size(); i++) {
+            JSONObject user = new JSONObject();
+            user.put("Sign", "99");
+            user.put("Content", removeCompanyName.get(i));
+            user.put("uid", uid);
+            user.put("QualCusId", QualCusId);
+            restltToPengfeiArray.add(Utils.newJsonObject("cusName", removeCompanyName.get(i)));
+            jsonArray.add(user);
+        }
+        result.put("OrderData", jsonArray);
+        result.put("OrderId", "fzsys_" + dateTime);
+        MQService.getInstance().sendMessage("queue", "qcc-company-infos-request", result.toString());
+    }
+
+    JSONArray restltToPengfeiArray = new JSONArray();
+
+
+    public void zizhikehu08(JSONObject object, String url, String dateTime) {
+        String companyName = getParam(url, "searchKey");
+        JSONObject Result = JSONObject.parseObject(object.getString("OriginData")).getJSONObject("Result");
+        getDayu25(Result, companyName, 1, "");
+        JSONObject user = new JSONObject();
+        JSONArray jsonArray = new JSONArray();
+        Iterator<String> it = companyPartners.iterator();
+        String cusName;
+        while (it.hasNext()) {
+            cusName = it.next();
+            user.put("Sign", "99");
+            user.put("uid", uid);
+            user.put("QualCusId", QualCusId);
+            user.put("qushuguizeshuming", "通过投资穿透，获取控股比例大于25%的资质客户信息");
+            user.put("qushuguize", "13.2");
+            user.put("Content", cusName);
+            restltToPengfeiArray.add(Utils.newJsonObject("cusName", cusName));
+            jsonArray.add(user);
+        }
+        result.put("OrderData", jsonArray);
+        result.put("OrderId", "fzsys_" + dateTime);
+        MQService.getInstance().sendMessage("queue", "qcc-company-infos-request", result.toString());
+    }
+
+    public void zizhikehu06(String url, JSONObject object, String dateTime) {
+        String companyName = getParam(url, "keyword");
+        JSONArray employeesArray;
+        if (null != object.getJSONObject("OriginData").getJSONObject("Result").getJSONArray("Employees")) {
+            employeesArray = object.getJSONObject("OriginData").getJSONObject("Result").getJSONArray("Employees");
+        } else {
+            return;
+        }
+        List list = new ArrayList();
+        JSONArray jsonArray = new JSONArray();
+        //把数组中的值都取出来
+        for (Object o : employeesArray) {
+            list.add(JSONObject.parseObject(o.toString()).getString("Name"));
+        }
+        //对数组去重
+        List removeList = removeDuplicate(list);
+
+        for (int i = 0; i < removeList.size(); i++) {
+            JSONObject user = new JSONObject();
+            user.put("Sign", "07");
+            user.put("Content2", companyName);
+            user.put("QualCusId", QualCusId);
+            user.put("uid", uid);
+            user.put("Content1", removeList.get(i));
+            restltToPengfeiArray.add(Utils.newJsonObject("cusName", removeList.get(i)));
+            user.put("qushuguizeshuming", "通过获取公司主要人员关联的董监高信息，获取资质客户信息");
+            user.put("qushuguize", "13.1");
+            jsonArray.add(user);
+        }
+        result.put("OrderData", jsonArray);
+        result.put("OrderId", "fzsys_" + dateTime);
+        MQService.getInstance().sendMessage("queue", "qcc-company-infos-request", result.toString());
+    }
+
+    Set<String> companyPartners = new HashSet();
+
+    public void getDayu25(JSONObject json, String parentName, int leve, String path) {
+        if (leve > 5) return;
+        JSONArray jsonArray = json.getJSONArray("BreakThroughList");
+        for (Object o : jsonArray) {
+            JSONObject jsonObject = JSONObject.parseObject(o.toString());
+            JSONArray array = jsonObject.getJSONArray("DetailInfoList");
+            for (Object itme : array) {
+                JSONObject json1 = newJsonObeject(itme);
+                String Level = json1.getString("Level");
+                String jiequAry = json1.getString("Path").replaceAll("\\([\\d|.]+%\\)->", "");
+                String[] jiexiStr = json1.getString("Path").split("\\([\\d|.]+%\\)->");
+                if (jiequAry.indexOf(path) > -1 && leve == Integer.parseInt(Level) && jiexiStr[leve - 1].equals(parentName)) {
+                    JSONArray array1 = new JSONArray();
+                    float stockPercent = Float.valueOf(json1.getString("StockPercent").replace("%", ""));
+                    if (stockPercent >= 25) {
+                        companyPartners.add(jiexiStr[leve]);
+                    }
+                    getDayu25(json, jiexiStr[leve], leve + 1, path);
+                }
+            }
+        }
+    }
+
+
+    //数组去重
+    public static List removeDuplicate(List list) {
+        List listTemp = new ArrayList();
+        for (int i = 0; i < list.size(); i++) {
+            if (!listTemp.contains(list.get(i))) {
+                listTemp.add(list.get(i));
+            }
+        }
+        return listTemp;
+    }
+
+
+    public static String getParam(String url, String name) {
+        String params = url.substring(url.indexOf("?") + 1, url.length());
+        Map<String, String> split = Splitter.on("&").withKeyValueSeparator("=").split(params);
+        return split.get(name);
+    }
+
+
     public static String getPath(String uriStr) {
         URL uri = null;
-
         try {
             uri = new URL(uriStr);
         } catch (MalformedURLException e) {

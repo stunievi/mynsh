@@ -58,8 +58,6 @@ public class Config {
         ALL,
         DECONSTRUCT,
         SEARCH
-
-        ;
     }
 
 }

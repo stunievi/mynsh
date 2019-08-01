@@ -1054,3 +1054,47 @@ inner_parent_id,
 INPUT_DATE
 from QCC_SAD_STOCK_LIST
 where inner_company_name = #fullName#
+
+
+导出经营异常excel数据
+===
+select
+*
+from
+QCC_OP_EXCEPTION
+where
+inner_company_name = #fullName#
+
+
+
+
+导出司法拍卖excel数据
+===
+select
+*
+from
+QCC_JUDICIAL_SALE
+where
+inner_company_name = #fullName#
+
+
+导出土地抵押excel数据
+===
+select
+*
+from
+QCC_LAND_MORTGAGE
+where
+inner_company_name = #fullName#
+
+导出环保处罚excel数据
+===
+select
+*
+from
+QCC_ENV_PUNISHMENT_LIST
+where
+inner_company_name = #fullName#
+
+
+

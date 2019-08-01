@@ -3,11 +3,14 @@ package com.beeasy.hzreport.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzback.entity.LoanRelatedSearch;
+import com.beeasy.hzback.entity.LoanRelatedSearchEntity;
 import com.beeasy.hzreport.config.ExportTo;
 import com.beeasy.hzreport.config.UseSimpleSql;
 import com.beeasy.hzreport.request.R1;
 import com.beeasy.hzreport.request.R11;
+import com.beeasy.hzreport.utils.LiUtils;
 import com.beeasy.mscommon.filter.AuthFilter;
+
 import org.beetl.sql.core.SQLManager;
 import org.beetl.sql.core.engine.PageQuery;
 import org.osgl.util.S;
@@ -19,10 +22,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+
+import static java.math.RoundingMode.*;
 
 @Service
 @Transactional
@@ -730,14 +736,15 @@ public class ReportService {
     ) {
     }
 
-    //逾期台帐统计表
-    @ExportTo("逾期台帐统计表.xlsx")
+    //正常类贷款逾期统计表
+    @ExportTo("正常类贷款逾期统计表.xlsx")
     public Object report_30(
             Map<String, Object> paramMap, Pageable pageable
 //            Integer LOAN_TERM_MIN,Integer LOAN_TERM_MAX
     ) {
         Date dtSrcSysNow = getSrcDateFromRpt();     //获取信贷中间表源系统日期
         List retAll = new ArrayList();
+        List reslList= new ArrayList();
         String strTemp = "";
         //遍历所有贷款机构
         for (int i = 0; i < MAIN_BR_NAME.length; i++) {
@@ -776,17 +783,42 @@ public class ReportService {
             }
             map.putAll(paramMap);
 
-            List<JSONObject> ret = sqlManager.select("report.report_30", JSONObject.class, map);
+            List<JSONObject> ret = sqlManager.select("report.report_xiaoli", JSONObject.class, map);
+            JSONObject resl = new JSONObject();
+            BigDecimal thirty = new BigDecimal(0);
+            BigDecimal thirtyToSixty = new BigDecimal(0);
+            BigDecimal sixtyToNinety = new BigDecimal(0);
+            BigDecimal ninety = new BigDecimal(0);
+            BigDecimal totalNumber;
+
             for (JSONObject map1 : ret) {
+                int capOverdueoDate = (int) LiUtils.getDistanceDays(map1.getString("CAPINT_OVERDUE_DATE"));
+                if (capOverdueoDate > -30) {
+                    thirty = thirty.add(new BigDecimal(map1.getString("UNPD_PRIN_BAL")));
+                } else if (-30 >= capOverdueoDate && capOverdueoDate >= -60) {
+                    thirtyToSixty = thirtyToSixty.add(new BigDecimal(map1.getString("UNPD_PRIN_BAL")));
+                } else if (-60 > capOverdueoDate && capOverdueoDate >= -90) {
+                    sixtyToNinety = sixtyToNinety.add(new BigDecimal(map1.getString("UNPD_PRIN_BAL")));
+                } else {
+                    ninety = ninety.add(new BigDecimal(map1.getString("UNPD_PRIN_BAL")));
+                }
 //                BigDecimal loan_amount = (BigDecimal) map1.getOrDefault("LOAN_AMOUNT", new BigDecimal(0));
 //                BigDecimal loan_balance = (BigDecimal) map1.getOrDefault("LOAN_BALANCE", new BigDecimal(0));
 //                BigDecimal unpd_prin_bal = (BigDecimal) map1.getOrDefault("UNPD_PRIN_BAL", new BigDecimal(0));
 //                BigDecimal delay_int_cumu = (BigDecimal) map1.getOrDefault("DELAY_INT_CUMU", new BigDecimal(0));
 //                BigDecimal total = (BigDecimal) map1.getOrDefault("TOTAL", new BigDecimal(0));
-                map1.put("MAIN_BR_NAME", MAIN_BR_NAME[i]);
             }
-            retAll.addAll(ret);
+            totalNumber =thirty.add(thirtyToSixty).add(sixtyToNinety).add(ninety);
+//            map1.put("MAIN_BR_NAME", MAIN_BR_NAME[i]);
+            resl.put("MAIN_BR_NAME",MAIN_BR_NAME[i]);
+            resl.put("THIRTY", thirty.divide(BigDecimal.valueOf(10000), 2, HALF_UP));
+            resl.put("THIRTY_TO_SIXTY",thirtyToSixty.divide(BigDecimal.valueOf(10000), 2, HALF_UP));
+            resl.put("SIXTY_TO_NINETY",sixtyToNinety.divide(BigDecimal.valueOf(10000), 2, HALF_UP));
+            resl.put("NINETY",ninety.divide(BigDecimal.valueOf(10000), 2, HALF_UP));
+            resl.put("TOTAL", totalNumber.divide(BigDecimal.valueOf(10000), 2, HALF_UP));
+            reslList.add(resl);
         }
+        retAll.addAll(reslList);
         return retAll;
     }
 
@@ -1326,45 +1358,51 @@ public class ReportService {
         return sqlManager.pageQuery("report.app_guanlian_list", JSONObject.class, pageQuery);
     }
 
+    public Object is_org(
+            Map<String, Object> paramMap, Pageable pageable
+    ) {
+        long uid = AuthFilter.getUid();
+        paramMap.put("uid", uid);
+        //参数不填返回所有客户
+        JSONObject jsonObject = sqlManager.selectSingle("report.is_user_admin", paramMap, JSONObject.class);
+        JSONObject object = sqlManager.selectSingle("user.是否拥有客户经理或办事员权限", paramMap, JSONObject.class);
+        object.put("SU", jsonObject.getIntValue("SU"));
+        return object;
+
+    }
 
 
     //app接口-查询用户输入的客户是否包含在贷前关联表里面
     public Object app_guanlian_count(
             Map<String, Object> paramMap, Pageable pageable
     ) {
-        app_guanlian_insert(paramMap);
-        return sqlManager.select("report.acc_guanlian_count", JSONObject.class, paramMap);
-    }
 
-    //自己制作一个伪static代码块
-    public static  volatile  int i  = 0;
-    Map map = new HashMap();
-    //app添加数据工具类，用于初始化用户部门Map数据,一次取出方便后续遍历
-    public void getUidAndOname(){
-        if(i > 0)return;
-        i++;
-        List<JSONObject> list =  sqlManager.select("report.uid_oname_search", JSONObject.class,null);
-        for (Object o : list) {
-            JSONObject json = JSONObject.parseObject(o.toString());
-            map.put(json.getString("UID"),json);
-        }
+        List list = sqlManager.select("report.app_guanlian_count", JSONObject.class, paramMap);
+        JSONObject jsonObject = JSONObject.parseObject(String.valueOf(list.get(0)));
+        paramMap.put("COUNT_NUMBER", jsonObject.getString("COUNT_NUMBER"));
+        app_guanlian_insert(paramMap);
+        return list;
     }
 
 
     public int app_guanlian_insert(Map<String, Object> paramMap) {
         long uid = AuthFilter.getUid();
-        getUidAndOname();
-        JSONObject jsonObject = JSONObject.parseObject((String) map.get(String.valueOf(uid)));
-        LoanRelatedSearch relatedSearchEntity = new LoanRelatedSearch();
-        relatedSearchEntity.setAddTime(new Date());
-        try {
-            relatedSearchEntity.setMainById(jsonObject.getString("ACC_CODE"));
-        }catch (Exception e){
-            relatedSearchEntity.setMainById("");
+        LoanRelatedSearchEntity relatedSearchEntity = new LoanRelatedSearchEntity();
+        paramMap.put("uid", uid);
+        List<JSONObject> list = sqlManager.select("report.uid_oname_search", JSONObject.class, paramMap);
+        for (JSONObject jsonObject : list) {
+            if (jsonObject.getString("OTYPE").equals("QUARTERS")) {
+                relatedSearchEntity.setMainBrId(jsonObject.getString("PID"));
+                break;
+            }
         }
+        relatedSearchEntity.setAddTime(new Date());
         relatedSearchEntity.setOperator(String.valueOf(AuthFilter.getUid()));
         relatedSearchEntity.setCusName((String) paramMap.get("CUS_NAME"));
         relatedSearchEntity.setCertCode((String) paramMap.get("CERT_CODE"));
+        relatedSearchEntity.setCertType((String) paramMap.get("CERT_TYPE"));
+        relatedSearchEntity.setAcceptAmt(String.valueOf(paramMap.get("ACCEPT_AMT")));
+        relatedSearchEntity.setSearch(paramMap.get("COUNT_NUMBER").equals("0") ? "否" : "是");
         return sqlManager.insert(relatedSearchEntity, true);
     }
 
