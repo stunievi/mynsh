@@ -6,7 +6,7 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>发起任务</title>
-    <link rel="stylesheet" href="../../../static/vendor/bootcss/css/bootstrap.css">
+    <!--#include file="/htmlsrc/header.html" -->
     <!--#include file="./ueditor.css.html" -->
 
     <script src="../../../static/vendor/jquery/jquery.js"></script>
@@ -116,13 +116,41 @@
 
                         //当前节点可编辑
                         $.each(Data.formFields || [], function (i, v) {
-                            body.find("[name=" + Data.allFields[v].name + "]").removeProp("disabled").css("border-color", "blue")
+                            var elem = body.find("[name=" + Data.allFields[v].name + "]");
+                            elem.removeProp("disabled").css("border-color", "blue")
+                            if(elem.is("[leipiplugins=datetime]")){
+                                elem.prop("readonly","true")
+
+                                ;(function (title, type) {
+                                    layui.use("laydate",function () {
+                                        layui.laydate.render({
+                                            elem: "[leipiplugins=datetime][title="+title+"]"
+                                            ,type: (function () {
+                                               switch (type) {
+                                                   case "日期" :
+                                                       return "date";
+
+                                                   case "日期+时间":
+                                                       return "datetime";
+
+                                                   case "时间":
+                                                       return "time";
+                                               }
+                                            })()
+                                        });
+                                    })
+                                })(elem[0].title, elem.attr("orgformat"));
+                            }
                         });
 
                         //必填字段标红
                         $.each(Data.requiredFields || [], function (i, v) {
                             body.find("[name=" + Data.allFields[v].name + "]").removeProp("disabled").css("border-color", "red")
                         });
+
+                        //时间字段
+
+
 
                         //字段赋值
                         $.each(Data.attrs, function (i, v) {
@@ -156,7 +184,7 @@
         </div>
         <div id="canvas" class="__tab">
         </div>
-        <div>
+        <div class="__tab">
             <!--#include file="./data.log.html" -->
         </div>
     </div>
