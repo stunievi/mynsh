@@ -11,22 +11,23 @@
     </style>
 </head>
 <body>
-    <div id="content">
+    <div id="content" class="hide">
         <div style="width: 500px;margin: 0 auto;">
             <ul id="ulist" style="height: 200px; overflow: auto;margin: 0 auto;">
             </ul>
             <div style="text-align: center; padding-top: 20px;">
-                <a href="javascript:;">确定</a>
+                <a href="javascript:;" id="submit">确定</a>
             </div>
         </div>
     </div>
 </body>
 </html>
 <script type="text/html" id="ps">
-{{each data item}}
+{{each data item index}}
 <li>
     <label>
-        <input type="radio" name="person" value="{{item.id}}">
+        <input type="radio" name="person" value="{{item.uid}}">
+
         &nbsp;
         {{item.utname}}
         &nbsp;
@@ -50,5 +51,45 @@
         console.log(msg.data,tmpl({
             data: msg.data
         }))
+        $('input:radio:first').attr('checked', 'checked');
+
+        $("#content").removeClass("hide");
     },"json")
+
+    var submitFn = function(){
+        submit();
+    }
+
+    $("#submit").unbind("click",submitFn).bind("click",submitFn);
+
+    function submit() {
+        var person=$('input[name="person"]:checked').val();
+        $.ajax({
+            url: "/api/bpm/workflow/nextApprover",
+            type:"post",
+            headers:{
+                "Content-Type": "application/json"
+            },
+            dataType:"json",
+            data: JSON.stringify({
+                id: id,
+                nextUid: person
+            }),
+            success: function (msg) {
+                if(!msg.success){
+                    alert("提交失败");
+                }
+                window.opener.load("deal", id);
+                opener.type = "deal";
+                opener.id = id;
+                window.opener.scrollTo(0,0);
+                alert("提交成功");
+                window.close();
+            }
+            // complete: function () {
+            //     layer.close
+            // }
+        })
+    }
+
 </script>
