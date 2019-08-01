@@ -462,6 +462,7 @@ public class UpdateQccDataController {
                 JSONObject cusInfo = (JSONObject) cusItem;
                 item.setId(U.getSnowflakeIDWorker().nextId());
                 item.setCusName(cusInfo.getString("cusName"));
+                item.setAddrInfo(Optional.ofNullable(cusInfo.getString("address")).orElse(""));
                 sqlManager.insert(item);
             });
         }

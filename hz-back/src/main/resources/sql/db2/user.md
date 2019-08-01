@@ -202,7 +202,7 @@ select uid from T_USER_ORG userOrg right join
 where TYPE='QUARTERS' and manager='01'
 ) c  on c.ID = userOrg.OID
 
-查询用户是否拥有指定角色
+查询用户是否包含指定角色
 ===
 select count(1) FROM T_USER_ORG u 
 INNER JOIN T_ORG org on u.OID=org.ID where u.uid = #uid# and org.name in (#join(roles)#)
