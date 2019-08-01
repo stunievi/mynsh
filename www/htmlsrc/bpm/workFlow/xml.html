@@ -641,14 +641,15 @@
     var _expression = "";
     var exp = "";
     function preorder(root,flag) {
+        var text = root.text;
         if (!root) {
             return;
         }
         if(root.type=="rule" ){
-            root.text = conversion(root.text)
+            text = conversion(text)
 
-            var textSub = root.text.substr(1,root.text.lastIndexOf("]")-1);
-            var textLe = root.text.substr(root.text.lastIndexOf("]")+1,root.text.length);
+            var textSub = text.substr(1,text.lastIndexOf("]")-1);
+            var textLe = text.substr(text.lastIndexOf("]")+1,text.length);
             if(flag){
                 _expression = _expression+exp +" "+'getValue("'+textSub+'")'+textLe+" ";
             }else{
@@ -656,8 +657,8 @@
             }
         }else if(root.type=="group"){
             var children = root.children;
-            if(("AND" == root.text.toUpperCase() || "OR" == root.text.toUpperCase())){
-                exp = root.text.toUpperCase();
+            if(("AND" == text.toUpperCase() || "OR" == text.toUpperCase())){
+                exp = text.toUpperCase();
                 if("AND" == exp){
                     exp = "&&";
                 }else if("OR" == exp){

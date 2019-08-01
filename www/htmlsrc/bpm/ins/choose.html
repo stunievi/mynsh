@@ -79,11 +79,11 @@
                 if(!msg.success){
                     alert("提交失败");
                 }
+                window.opener.layer.msg("提交成功！",{time:8000})
                 window.opener.load("deal", id);
                 opener.type = "deal";
                 opener.id = id;
                 window.opener.scrollTo(0,0);
-                alert("提交成功");
                 window.close();
             }
             // complete: function () {
