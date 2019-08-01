@@ -86,31 +86,33 @@
     }
 
     var tmpl = template.compile($("#list").html())
-    $.get("/api/bpm/workflow/logList", {id:getParam("id"), nodeId: getParam("nodeId")}, function (msg) {
-        if(msg.success){
-            //整理成按日排列的
-            var ret = {};
-            $.each(msg.data||[], function (i,v) {
-                var d = new Date(v.time);
-                var item = ret[d.Format("yyyy-MM-dd")] || [];
-                ret[d.Format("yyyy-MM-dd")] = item;
-                v.time = d.Format("HH:mm:ss");
-                item.push(v);
-            });
-            console.log(ret)
-            $("#timeline").html(tmpl({
-                logs: ret
-            }));
-            $('.VivaTimeline').vivaTimeline({
-                carousel: false,
-                carouselTime: 3000
-            });
-            $(".pos-left").each(function (i,v) {
-                if(i % 2 == 1){
-                    $(this).removeClass("pos-left").addClass("pos-right")
-                }
-                // console.log(i,v)
-            })
-        }
-    }, "json");
+    function loadLogs(){
+        $.get("/api/bpm/workflow/logList", {id:getParam("id"), nodeId: getParam("nodeId")}, function (msg) {
+            if(msg.success){
+                //整理成按日排列的
+                var ret = {};
+                $.each(msg.data||[], function (i,v) {
+                    var d = new Date(v.time);
+                    var item = ret[d.Format("yyyy-MM-dd")] || [];
+                    ret[d.Format("yyyy-MM-dd")] = item;
+                    v.time = d.Format("HH:mm:ss");
+                    item.push(v);
+                });
+                console.log(ret)
+                $("#timeline").html(tmpl({
+                    logs: ret
+                }));
+                $('.VivaTimeline').vivaTimeline({
+                    carousel: false,
+                    carouselTime: 3000
+                });
+                $(".pos-left").each(function (i,v) {
+                    if(i % 2 == 1){
+                        $(this).removeClass("pos-left").addClass("pos-right")
+                    }
+                    // console.log(i,v)
+                })
+            }
+        }, "json");
+    }
 </script>
