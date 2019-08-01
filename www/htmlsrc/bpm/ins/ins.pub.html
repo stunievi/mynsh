@@ -6,7 +6,8 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>发起任务</title>
-    <link rel="stylesheet" href="../../../static/vendor/bootcss/css/bootstrap.css">
+    <!--#include file="/htmlsrc/header.html" -->
+    <!--#include file="./ueditor.css.html" -->
 
     <script src="../../../static/vendor/jquery/jquery.js"></script>
     <script src="../../../static/htmljs/utils.js"></script>
@@ -62,14 +63,39 @@
         .__tab {
             display: none;
         }
+
+        body{
+            /*overflow: hidden;*/
+        }
+
+        /*#iframe-container{*/
+        /*    position: relative;*/
+        /*    overflow: hidden;*/
+        /*    padding-bottom: 160%;*/
+        /*}*/
+
+        /*#iframe{*/
+        /*    position: absolute;*/
+        /*    top: 0;*/
+        /*    left: 0;*/
+        /*    width: 100%;*/
+        /*    height: 100%;*/
+        /*    border: 0;*/
+        /*}*/
     </style>
     <script src="../../../static/htmljs/layer/layer.js"></script>
+
+    <link rel="stylesheet" href="jquery.webui-popover.min.css">
+    <script src="jquery.webui-popover.min.js"></script>
+    <script src="right_menu.js"></script>
+    <script src="../../../static/vendor/artTemplate/template-web.js"></script>
 </head>
 <body>
 <div id="panel" style="padding: 10px;">
     <ul id="phead">
         <li class="active">表单</li>
         <li>流程图</li>
+        <li class="process">流程日志</li>
     </ul>
     <div id="pbody">
         <div id="form" class="__tab" style="width: 740px; margin: 0 auto;">
@@ -78,9 +104,9 @@
                 window.Data = null;
                 window.FormBody = null;
                 // window.FormHtml = "";
-                function setIframeHeight(iframe) {
+                function loadForm() {
                     if(Data != null){
-                        var body = FormBody = $(iframe).contents().find("body");
+                        var body = FormBody = $("#form-content")//$(iframe).contents().find("body");
                         body.html(Data.form);
                         //全部设为disabled
                         body.find("input[leipiplugins], textarea[leipiplugins], select[leipiplugins]").val("").prop("disabled", "disabled");
@@ -91,13 +117,41 @@
 
                         //当前节点可编辑
                         $.each(Data.formFields || [], function (i, v) {
-                            body.find("[name=" + Data.allFields[v].name + "]").removeProp("disabled").css("border-color", "blue")
+                            var elem = body.find("[name=" + Data.allFields[v].name + "]");
+                            elem.removeProp("disabled").css("border-color", "blue")
+                            if(elem.is("[leipiplugins=datetime]")){
+                                elem.prop("readonly","true")
+
+                                ;(function (title, type) {
+                                    layui.use("laydate",function () {
+                                        layui.laydate.render({
+                                            elem: "[leipiplugins=datetime][title="+title+"]"
+                                            ,type: (function () {
+                                               switch (type) {
+                                                   case "日期" :
+                                                       return "date";
+
+                                                   case "日期+时间":
+                                                       return "datetime";
+
+                                                   case "时间":
+                                                       return "time";
+                                               }
+                                            })()
+                                        });
+                                    })
+                                })(elem[0].title, elem.attr("orgformat"));
+                            }
                         });
 
                         //必填字段标红
                         $.each(Data.requiredFields || [], function (i, v) {
                             body.find("[name=" + Data.allFields[v].name + "]").removeProp("disabled").css("border-color", "red")
                         });
+
+                        //时间字段
+
+
 
                         //字段赋值
                         $.each(Data.attrs, function (i, v) {
@@ -113,17 +167,15 @@
                         //必填字段标红
                     }
                     // console.log("fuck")
-                    if (iframe) {
-                        var iframeWin = iframe.contentWindow || iframe.contentDocument.parentWindow;
-                        if (iframeWin.document.body) {
-                            iframe.height = iframeWin.document.documentElement.scrollHeight || iframeWin.document.body.scrollHeight;
-                        }
-                    }
+                    // if (iframe) {
+                    //     var iframeWin = iframe.contentWindow || iframe.contentDocument.parentWindow;
+                    //     if (iframeWin.document.body) {
+                    //         iframe.height = iframeWin.document.documentElement.scrollHeight || iframeWin.document.body.scrollHeight;
+                    //     }
+                    // }
                 };
             </script>
-            <iframe id="iframe" src="" scrolling="no" frameborder="0" width="100%" onload="setIframeHeight(this)"></iframe>
             <div id="form-content">
-
             </div>
 
             <div class="action" style="display: none;text-align: center;">
@@ -133,8 +185,17 @@
         </div>
         <div id="canvas" class="__tab">
         </div>
+        <div class="__tab">
+            <!--#include file="./data.log.html" -->
+        </div>
     </div>
 </div>
+
+<DIV class=contextMenu id=myMenu1 style="display: none;">
+    <UL>
+        <LI id=open style="font-size: 12px;line-height: 20px;vertical-align: middle;"><IMG width="20px" height="20px" style="margin-top: -3px;margin-right: 5px;" src="his.png">提交历史</LI>
+    </UL>
+</DIV>
 
 
 </body>
@@ -210,6 +271,9 @@
     }
 
     function load(type, id) {
+        $(".action").hide();
+        $(".process").hide();
+
         if(!type){
             type = getParam("type");
             window.type = type;
@@ -276,18 +340,64 @@
                 // add marker
                 $.each(msg.data.current || [], function (i,v) {
                     canvas.addMarker(v, 'needs-discussion');
-                })
+                });
+
+                $('.djs-element.djs-shape[data-element-id]').contextMenu('myMenu1', {
+                    bindings: {
+                        'open': function(t) {
+                            var nodeId = $(t).attr("data-element-id");
+                            window.open("./data.log.page.html?nodeId=" + nodeId + "&id=" + id, "workflow-data-log", "top=100, left=200, width=550, height=600. location=no")
+                        }
+                    }
+                });
+
             });
 
             Data = msg.data;
             // FormHtml = msg.data.form;
-            $("#iframe").attr("src", "./form.html?v=" + Math.random())
+            loadForm()
+            // $("#iframe").attr("src", "./form.html?v=" + Math.random())
 
 
             //事件
-            $(".action").show();
+            if(type == 'pub'){
+                $(".action").show();
+            } else if(type == 'deal' && msg.data.deal){
+                $(".action").show();
+            } else {
+                if(type == 'deal'){
+                    document.title = "查看任务";
+                }
+            }
+
+            if(type != "pub"){
+                $(".process").show()
+            }
         }, "json");
     }
+
+
+
+    // $(document).on("click", ".djs-element.djs-shape[data-element-id]", function () {
+    //     if(type == 'pub'){
+    //         return;
+    //     }
+    //     var nodeId = $(this).attr("data-element-id");
+    //     window.open("./data.log.html?nodeId=" + nodeId + "&id=" + id, "workflow-data-log", "top=100, left=200, width=500, height=400. location=no")
+    //     pop = $(this),;
+    //     $(this).webuiPopover("destroy")
+    //         .webuiPopover({
+    //             title:"提交记录",
+    //             url:"./data.log.html",
+    //             trigger:"sticky",
+    //             type:"async",
+    //             dismissible: true,
+    //             closeable: true
+    //         });
+    // });
+    // $(document).on("mouseleave", ".djs-element.djs-shape[data-element-id]", function () {
+    //     $(".djs-element.djs-shape[data-element-id]").webuiPopover("destroy");
+    // })
 
 
     //加载页面
