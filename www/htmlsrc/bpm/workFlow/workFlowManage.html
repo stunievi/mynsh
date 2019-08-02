@@ -114,12 +114,64 @@
                 'select_node': false,
                 'items': function (node) {
                     return {
+                        createItem: {
+                            "label": "添加分类",
+                            "action": function(obj){
+                                if(node.parents.length >= 2){
+                                    layer.msg("最多只支持1级分类");
+                                    return;
+                                }
+                                console.log(node)
+                                var ins = $("#jstree_demo").jstree();
+                                ins.show_contextmenu(node)
+                                layer.load(0, {time: 5000});
+                                getFetch("/api/bpm/cat/add", {pid: node.original.id || node.original._id,type:"1"}, function (msg) {
+                                    layer.closeAll()
+                                    console.log(msg);
+                                    ins.create_node(node, msg);
+                                    ins.open_node(node);
+                                });
+                            },
+                            "_class": "class"
+                        },
                         createForm:{
                             "label": "新增流程",
                             action: function () {
                                 var ins = $("#jstree_demo").jstree();
                                 ins.show_contextmenu(node)
                                 addNavTab("bpm-xml-add", "新增流程", "/htmlsrc/bpm/workFlow/xml.html?pid=" + node.original._id)
+                            }
+                        },
+                        renameItem: {
+                            "label": "重命名",
+                            "action": function(obj) {
+                                if(node.id == 'top'){
+                                    layer.msg("顶级分类无法编辑");
+                                    return;
+                                }
+                                $("#jstree_demo").jstree().edit(node);
+                            }
+                        },
+                        deleteItem: {
+                            "label": "删除",
+                            "action": function() {
+                                if(node.id == 'top'){
+                                    layer.msg("顶级分类无法删除");
+                                    return;
+                                }
+                                loadTimeout()
+                                getFetch("/api/bpm/cat/delete", {id: node.original._id}, function (msg) {
+                                    layer.closeAll();
+                                    $("#jstree_demo").jstree().delete_node(node)
+                                });
+
+                                // if(node.children && node.children.length > 0){
+                                //     layer.msg("无法删除一个非空分类");
+                                //     return
+                                // }
+                                // console.log(node)
+                                // $("#jstree_demo").jstree().delete_node(node)
+                                // this.delete_node(node);
                             }
                         }
                     };
