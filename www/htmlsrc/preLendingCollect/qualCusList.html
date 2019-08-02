@@ -21,12 +21,7 @@
         col:3,
         panelTitle:'筛选查询',
         list:[
-            { label :'客户名称', prop:'CUS_NAME' },
-            // { label :'客户类型', prop:'CUS_TYPE', type:"select", vals: [
-            //         {val:"", name:"--请选择--"},
-            //         {val:"01", name:"对公客户"},
-            //         {val:"02", name:"对私客户"}
-            //     ]  },
+            { label :'目标客户名称', prop:'CUS_NAME' },
             { label :'辅助公司名', prop:'COMPANY_NAME'}
         ],
         data:{ } // 默认值
@@ -38,7 +33,7 @@
         cols: [
             [
                 { title:'操作', templet: function (data,index) {
-                        var cusName = data.CUS_NAME;
+                        var cusName = formatBrackets(data.CUS_NAME);
                         var str = '<a href="javascript:;" class="btn btn-default btn-xs" tab-title="资质客户关联方 - '+cusName+'" tab-href="/htmlsrc/preLendingCollect/qualCusLinkCus.html?id='+data.ID+'">关联方</a>&nbsp;';
                         if(data["CUS_TYPE"] == "01"){
                             str += '<a href="javascript:;" class="btn btn-default btn-xs" tab-title="企查查 - '+cusName+'" tab-href="'+hrefUrl.ECIdetail+cusName+'&from=qualCus" tab-id="ECIdetail-Qual'+cusName+'">经营风险</a>';

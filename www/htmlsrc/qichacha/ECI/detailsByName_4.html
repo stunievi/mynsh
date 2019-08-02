@@ -73,6 +73,9 @@
                     ]
                 ],
                 onData:function (data) {
+                    if(data && data.length > 0){
+                        $(".export-fengxian-wrap").addClass("haveException").show();
+                    }
                     fixOnDataLoad("Exceptions", {
                         rows: data
                     }, function (row) {
@@ -100,6 +103,9 @@
                 ]
             ],
             onData:function (data) {
+                if(data["rows"].length > 0){
+                    $(".export-fengxian-wrap").addClass("haveException").show();
+                }
                 fixOnDataLoad("JudicialSaleList", data);
             }
         });
@@ -127,6 +133,9 @@
                 ]
             ],
             onData:function (data) {
+                if(data["rows"].length > 0){
+                    $(".export-fengxian-wrap").addClass("haveException").show();
+                }
                 fixOnDataLoad("LandMortgageList", data, function (row) {
                     row["StartDate"] = subDateStr(row.StartDate) || "";
                     row["EndDate"] = subDateStr(row.EndDate) || "";
@@ -154,6 +163,9 @@
                 ]
             ],
             onData:function (data) {
+                if(data["rows"].length > 0){
+                    $(".export-fengxian-wrap").addClass("haveException").show();
+                }
                 fixOnDataLoad("EnvPunishmentList", data, function (row) {
                     row["PunishDate"] = subDateStr(row.PunishDate);
                 });
@@ -170,6 +182,7 @@
             url: remoteApi.qccGetChattelMortgage+"?fullName="+COMPANY_NAME,
             success:function(res){
                 if(res.data && res.data.list && res.data.list.length>0){
+                    $(".export-fengxian-wrap").addClass("haveException").show();
                     chattelMortgageDataList = res.data.list;
                     chattelMortgageDataList.forEach(function (value) {
                         value["RegisterDate"] = subDateStr(value["RegisterDate"]);

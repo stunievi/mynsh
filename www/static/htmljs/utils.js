@@ -1340,7 +1340,7 @@ var formRequest = function (options) {
     var $form = $('<form target="down-file-iframe" content-type="application/json" method="' + config.method + '" />');
     $form.attr('action', config.url);
     for (var key in config.data) {
-        $form.append("<input type=\"hidden\" name='" + key + "' value=\'" + JSON.stringify(config.data[key]) + "' />");
+        $form.append("<input type=\"hidden\" name="+ key + " value=" + JSON.stringify(config.data[key]) + " />");
     }
     $iframe.append($form);
     $(document.body).append($iframe);

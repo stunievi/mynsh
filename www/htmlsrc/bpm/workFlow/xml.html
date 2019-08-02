@@ -367,7 +367,10 @@
                         qids =arrToStr(window.bpmData.nodes[sourceRef].permission.qids);
                         rids =arrToStr(window.bpmData.nodes[sourceRef].permission.rids);
                         dids =arrToStr(window.bpmData.nodes[sourceRef].permission.dids);
-                        var conList = window.bpmData.nodes[targetRef].condition;
+                        var conList;
+                        if(undefined !=  window.bpmData.nodes[targetRef]){
+                            conList = window.bpmData.nodes[targetRef].condition;
+                        }
 
                         // _expression = "";
                         // if(conList){

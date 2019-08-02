@@ -189,73 +189,61 @@ public class QccService extends AbstractService {
     }
 
 
+    // 导入企查查获取到的信息
+    private static final Map<String, String> exportBlockNames = new HashMap<>();
+    static {
+        exportBlockNames.put("经营异常", "jingyingyichang");
+        exportBlockNames.put("司法拍卖", "sifapaimai");
+        exportBlockNames.put("土地抵押", "tudidiya");
+        exportBlockNames.put("环保处罚", "huanbaochufa");
+        exportBlockNames.put("动产抵押", "dongchandiya");
+    }
+    private void getQccExportExcelData(
+            JSONArray dataArr,
+            String blockName,
+            Map params
+    ){
+        List<JSONObject> dataList = listQuery("qcc.导出" + blockName, params);
+        if (null != dataList && dataList.size() > 0) {
+            dataArr.add(C.newMap(
+                    "sheetName", blockName + dataList.size(),
+                    "sheetEngName", exportBlockNames.get(blockName),
+                    "dataList", dataList
+            ));
+        }
+    }
+
     private Object exportQccDataFengxian(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
         JSONArray dataArr = new JSONArray();
         // 经营异常
-        if (getJingYingExcleNoXq("qcc.导出经营异常excel数据", params, "经营异常", "jingyingyichang").getJSONArray("dataList").size() > 0) {
-            dataArr.add(getJingYingExcleNoXq("qcc.导出经营异常excel数据", params, "经营异常", "jingyingyichang"));
-        }
-        //司法拍卖
-        if (getJingYingExcel("qcc.导出司法拍卖excel数据", "司法拍卖", "sifapaimai", params, "qcc.查询司法拍卖详情").getJSONArray("dataList").size() > 0) {
-            dataArr.add(getJingYingExcel("qcc.导出司法拍卖excel数据", "司法拍卖", "sifapaimai", params, "qcc.查询司法拍卖详情"));
-        }
-        //土地抵押
-        if (getJingYingExcel("qcc.导出土地抵押excel数据", "土地抵押", "tudidiya", params, "qcc.查询土地抵押详情").getJSONArray("dataList").size() > 0) {
-            dataArr.add(getJingYingExcel("qcc.导出土地抵押excel数据", "土地抵押", "tudidiya", params, "qcc.查询土地抵押详情"));
-        }
-        //环保处罚
-        if (getJingYingExcel("qcc.导出环保处罚excel数据", "环保处罚", "huanbaochufa", params, "qcc.查询环保处罚详情").getJSONArray("dataList").size() > 0) {
-            dataArr.add(getJingYingExcel("qcc.导出环保处罚excel数据", "环保处罚", "huanbaochufa", params, "qcc.查询环保处罚详情"));
-        }
+        getQccExportExcelData(dataArr, "经营异常", params);
+        // 司法拍卖
+        getQccExportExcelData(dataArr, "司法拍卖", params);
+        // 土地抵押
+        getQccExportExcelData(dataArr, "土地抵押", params);
+        // 环保处罚
+        getQccExportExcelData(dataArr, "环保处罚", params);
         //动产抵押
-        if (getJingYingExcleNoXq("qcc.查询动产抵押", params, "动产抵押", "dongchandiya").getJSONArray("dataList").size() > 0) {
-            dataArr.add(getJingYingExcleNoXq("qcc.查询动产抵押", params, "动产抵押", "dongchandiya"));
-        }
+        getQccExportExcelData(dataArr, "动产抵押", params);
 
         JSONObject retData = new JSONObject();
-        retData.put("eachData", dataArr);
-        JSONArray sheetNames = new JSONArray();
-        dataArr.forEach(item -> {
-            JSONObject val = (JSONObject) item;
-            sheetNames.add(val.getString("sheetName"));
-        });
         if (dataArr.size() > 0) {
+            JSONArray sheetNames = new JSONArray();
+            dataArr.forEach(item -> {
+                JSONObject val = (JSONObject) JSON.toJSON(item);
+                sheetNames.add(val.getString("sheetName"));
+            });
             retData.put("sheetNames", sheetNames);
         } else {
-            retData.put("sheetNames", C.newList().add("无数据"));
+            dataArr.add(C.newMap(
+                    "sheetName", "无数据",
+                    "sheetEngName", "noData",
+                    "dataList", C.newList()
+            ));
+            retData.put("sheetNames", C.newList("无数据"));
         }
+        retData.put("eachData", dataArr);
         return retData;
-    }
-
-
-    public JSONObject getJingYingExcleNoXq(String sqlId, JSONObject params, String name, String engName) {
-        JSONObject dataOjb5 = new JSONObject();
-        List dataList5 = listQuery(sqlId, params);
-        dataOjb5.put("sheetName", name + dataList5.size());
-        dataOjb5.put("sheetEngName", engName);
-        dataOjb5.put("dataList", dataList5);
-        return dataOjb5;
-    }
-
-
-    public JSONObject getJingYingExcel(String sqlId, String name, String engName, JSONObject params, String xqSqlId) {
-        //环保处罚
-        JSONObject dataOjb4 = new JSONObject();
-        List dataList4 = listQuery(sqlId, params);
-        List dataJsonList4 = new ArrayList();
-        for (Object o : dataList4) {
-            JSONObject jsonObject = JSONObject.parseObject(o.toString());
-            JSONObject object = singleQuery(xqSqlId, newJsonObject("id", jsonObject.getString("Id")));
-            Map<String, Object> map = object;
-            for (Map.Entry<String, Object> entry : map.entrySet()) {
-                jsonObject.put(entry.getKey(), entry.getValue());
-            }
-            dataJsonList4.add(jsonObject);
-        }
-        dataOjb4.put("sheetName", name + dataJsonList4.size());
-        dataOjb4.put("sheetEngName", engName);
-        dataOjb4.put("dataList", dataJsonList4);
-        return dataOjb4;
     }
 
     /**
