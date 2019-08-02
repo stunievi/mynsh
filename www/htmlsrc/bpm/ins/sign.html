@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <!--#include file="/htmlsrc/header.html" -->
+    <script src="jSignature.min.js"></script>
+
+    <style>
+        .jSignature{
+            height: 450px !important;
+        }
+    </style>
+</head>
+<body>
+<div id="signature" style="background: #ddd; width: 480px; height: 450px; margin: 0 auto;"></div>
+<div style="text-align: center; padding-top: 5px;">
+    <a href="javascript:;" class="btn btn-sm btn-danger" style="margin-right: 10px;">重置</a>
+    <a href="javascript:;" class="btn btn-sm btn-primary">确定</a>
+</div>
+</body>
+</html>
+<script>
+    $("#signature").jSignature()
+    $(".btn-danger").click(function () {
+        $("#signature").jSignature("reset")
+    });
+
+    $('.btn-primary').click(function () {
+        // alert(2)
+        var datapair = $("#signature").jSignature("getData", "image");
+        console.log(datapair)
+    });
+</script>
