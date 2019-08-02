@@ -134,14 +134,6 @@
                     var type = t.attr("leipiplugins");
                     var data = null;
                     switch (type) {
-                        case "text":
-                        case "textarea":
-                        case "macros":
-                        case "datetime":
-                            var attrs = getAttrs(this)
-                            data = attrs;
-                            data.name = md5(data.title)
-                            break
 
                         case "select":
                             var select = $(this).find("select");
@@ -168,6 +160,12 @@
                                 // data.name = items[0].attr("name");
                             }
                             break;
+
+                        default:
+                            var attrs = getAttrs(this)
+                            data = attrs;
+                            data.name = md5(data.title)
+                            break
                     }
                     if(data){
                         form.push(data)

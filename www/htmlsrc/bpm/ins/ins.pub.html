@@ -300,6 +300,7 @@
             ajax =  $.get("/api/bpm/workflow/preparePub", {id: window.id});
         } else {
             ajax = $.get("/api/bpm/workflow/getInsInfo", {id: window.id});
+            loadLogs(window.id);
         }
 
         $.when(ajax).then(function (msg) {
@@ -308,8 +309,6 @@
                 layer.msg(msg.errMessage)
                 return;
             }
-
-            loadLogs(msg.data);
 
             //绘图
             $("#canvas").empty();

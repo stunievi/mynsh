@@ -376,8 +376,10 @@
                                 var c = conList[e];
                                 preorder(c,false)
                             })
-
                         }
+                        console.warn(conList)
+                        console.warn(preorderZheng(conList,"and"))
+
                         if(_expression.length>4){
                             _expression = _expression.substr(_expression.indexOf("get")),_expression.length
                         }
@@ -640,34 +642,70 @@
 
     var _expression = "";
     var exp = "";
+
+    function preorderZheng(item,type) {
+        if(!item || !item.length){
+            return;
+        }
+        var arr = [];
+        $.each(item, function (i,v) {
+               if(v.type == 'rule'){
+                   arr.push(conversion(v.text).replace(/\[(.+?)\]/g, "getValue('$1')"));
+               } else if(v.type == 'group'){
+                   arr.push(preorderZheng(v.children,v.text));
+               }
+        });
+        arr = arr.filter(function (e) {
+            return e
+        });
+        switch (type.toUpperCase()) {
+            case "AND":
+                return "(" + arr.join(" && ") + ")";
+
+            case "OR":
+                return "(" + arr.join(" || ") + ")";
+        }
+    }
+
     function preorder(root,flag) {
         var text = root.text;
         if (!root) {
             return;
         }
         if(root.type=="rule" ){
-            text = conversion(text)
+            return conversion(text).replace(/\[(.+?)\]/g, "getValue('$1')")
 
-            var textSub = text.substr(1,text.lastIndexOf("]")-1);
-            var textLe = text.substr(text.lastIndexOf("]")+1,text.length);
-            if(flag){
-                _expression = _expression+exp +" "+'getValue("'+textSub+'")'+textLe+" ";
-            }else{
-                _expression = _expression+'getValue("'+textSub+'")'+textLe +" ";
-            }
+            // var textSub = text.substr(1,text.lastIndexOf("]")-1);
+            // var textLe = text.substr(text.lastIndexOf("]")+1,text.length);
+            // if(flag){
+            //     _expression = _expression+exp +" "+'getValue("'+textSub+'")'+textLe+" ";
+            // }else{
+            //     _expression = _expression+'getValue("'+textSub+'")'+textLe +" ";
+            // }
         }else if(root.type=="group"){
             var children = root.children;
-            if(("AND" == text.toUpperCase() || "OR" == text.toUpperCase())){
-                exp = text.toUpperCase();
-                if("AND" == exp){
-                    exp = "&&";
-                }else if("OR" == exp){
-                    exp = "||"
+            var arr = [];
+            $.each(children, function (i) {
+                var str = preorder(children[i],true);
+                if(str){
+                    arr.push(str);
                 }
+            });
+            if(!arr.length){
+                return "";
+            }
+            if(("AND" == text.toUpperCase())){
+                return "(" + arr.join("&&") + ")";
+            }
+            if( "OR" == text.toUpperCase()){
+                return "(" + arr.join("||") + ")";
+                // exp = text.toUpperCase();
+                // if("AND" == exp){
+                //     exp = "&&";
+                // }else if("OR" == exp){
+                //     exp = "||"
+                // }
                 // _expression = _expression+root.text + " ";
-                $.each(children, function (i) {
-                    preorder(children[i],true);
-                })
             }
         }
     }
