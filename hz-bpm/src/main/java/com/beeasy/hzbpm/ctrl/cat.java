@@ -22,7 +22,7 @@ public class cat {
     public Result all(String type) {
         MongoCollection<Document> collection = db.getCollection("cat");
         Collection ret = collection.aggregate(a(
-                o("$match",o("type",type)),
+//                o("$match",o("type",type)),
                 o(
                         "$project", o(
                                 "_id", o(
