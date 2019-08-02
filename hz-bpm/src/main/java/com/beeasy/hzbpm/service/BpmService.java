@@ -508,6 +508,9 @@ public class BpmService {
 //        if (nextPersonId != null) {
 //            nextApprover(uid, nextPersonId, update);
 //        }
+        for (Map.Entry<String, Object> entry : attrs.entrySet()) {
+            update.put("attrs." + entry.getKey(), entry.getValue());
+        }
         Obj set = o(
 //                "$set", update,
 //                "$set", o(
@@ -515,11 +518,8 @@ public class BpmService {
 //                ),
                 "$push",o(
                         "logs", dataLog
-                )
-//                ,
-//                "$set",o(
-//                        "attrs", attrs
-//                )
+                ),
+                "$set", update
         );
 
         //更新数据库
