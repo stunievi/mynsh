@@ -316,6 +316,7 @@ public class BpmService {
      */
     public Document createBpmInstance(String uid, Obj data) {
         Map<String, Object> attrs = new HashMap<>();
+        Map<String, Object> allAttrs = new HashMap<>();
         BpmService bpmService = this;
 //        BpmService bpmService = BpmService.ofModel(modelId);
 
@@ -344,8 +345,14 @@ public class BpmService {
 
 //        List<Long> ql = bpmService.model.nodes.get(startNode).qids;
 
+        Map<String, Map> fields = bpmService.model.fields;
+        for(Map.Entry<String, Map> field : fields.entrySet()){
+            allAttrs.put(field.getKey(),"");
+        }
+
         List<String> allFields = startNode.allFields;
         for (String all : allFields) {
+            allAttrs.put(all, data.get(all));
             attrs.put(all, data.get(all));
         }
 //        String deptName = "";
@@ -392,7 +399,7 @@ public class BpmService {
 //        obj.put("depName", deptName);
         obj.put("bpmModel", bpmService.arrangementData);
         obj.put("currentNodes", currentNodes);
-        obj.put("attrs", attrs);
+        obj.put("attrs", allAttrs);
         obj.put("logs", logs);
         obj.put("xml", xml);
         obj.put("createTime", new Date());
