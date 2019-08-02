@@ -19,6 +19,7 @@ import org.apache.activemq.command.ActiveMQQueue;
 import org.beetl.sql.core.DSTransactionManager;
 import org.beetl.sql.core.SQLBatchReady;
 import org.beetl.sql.core.SQLReady;
+import org.osgl.util.C;
 import org.osgl.util.E;
 import org.osgl.util.S;
 import org.osgl.util.Str;
@@ -46,6 +47,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -215,13 +217,6 @@ public class DeconstructService extends AbstractService {
         }
         return "";
     }
-
-
-    String uid;
-    String QualCusId;
-    String Sign;
-    String qushuguizeshuming;
-    String qushuguize;
 
     @Override
     public void initSync() {
@@ -2179,6 +2174,188 @@ public class DeconstructService extends AbstractService {
         }
     }
 
+    private void destructLinkNameSingle(
+            String str,
+            ArrayList linkItems,
+            ArrayList transferItems
+    ){
+        JSONObject object = JSON.parseObject(str);
+        String url = object.getString("FullLink");
+//        String key = DeconstructService.getPath(url);
+        String sign = getParam(url, "sign");
+        JSONObject originData = object.getJSONObject("OriginData");
+        JSONObject originRes = originData.getJSONObject("Result");
+        if (S.neq(originData.getString("Status"), "200")) {
+            return;
+        }
+        if("06".equals(sign)){
+            String fullName = getParam(url, "keyword");
+            // 企业关键字精确获取详细信息(Master)，解构后将董监高名单发送至MQ！！！
+            String getRuleInfo = "公司主要人员或股东";
+            String getRule = "13.1";
+            // 主要人员
+            JSONArray perArr1 = originRes.getJSONArray("Employees");
+            perArr1.forEach(val -> {
+                JSONObject p = (JSONObject) val;
+                String name = p.getString("Name");
+                synchronized (linkItems){
+                    linkItems.add(C.newMap(
+                            "cusName", name,
+                            "getRule", getRule,
+                            "getRuleInfo", getRuleInfo
+                    ));
+                }
+                synchronized(transferItems){
+                    transferItems.add(C.newMap(
+                            "Content1", name,
+                            "Content2", fullName,
+                            "Sign", "07"
+                    ));
+                }
+            });
+            // 股东信息 - 自然人股东
+            JSONArray perArr2 = originRes.getJSONArray("Partners");
+            perArr2.forEach(val -> {
+                JSONObject p = (JSONObject) val;
+                float stockPercent = Float.valueOf(p.getString("StockPercent").replace("%", ""));
+                if(stockPercent >= 25 && "自然人股东".equals(p.getString("StockType"))){
+                    String name = p.getString("StockName");
+                    synchronized (linkItems){
+                        linkItems.add(C.newMap(
+                                "cusName", name,
+                                "getRule", getRule,
+                                "getRuleInfo", getRuleInfo
+                        ));
+                    }
+                    synchronized(transferItems){
+                        transferItems.add(C.newMap(
+                                "Content1", name,
+                                "Content2", fullName,
+                                "Sign", "07"
+                        ));
+                    }
+                }
+            });
+        }else if("07".equals(sign)){
+            // 企业董监高， 解构后将关联公司名单发送至MQ！！！
+            JSONObject jsonObject = JSONObject.parseObject(object.getString("OriginData")).getJSONObject("Result");
+            List companyName = new ArrayList();
+            JSONArray CIAForeignInvestments = originRes.getJSONObject("CIAForeignInvestments").getJSONArray("Result");
+            JSONArray CIACompanyLegals = originRes.getJSONObject("CIACompanyLegals").getJSONArray("Result");
+            JSONArray CIAForeignOffices = originRes.getJSONObject("CIAForeignOffices").getJSONArray("Result");
+            JSONArray joinList = new JSONArray();
+            if(null!=CIAForeignInvestments){
+                joinList.addAll(CIAForeignInvestments);
+            }
+            if(null!=CIACompanyLegals){
+                joinList.addAll(CIACompanyLegals);
+            }
+            if(null!=CIAForeignOffices){
+                joinList.addAll(CIAForeignOffices);
+            }
+            for (Object o : joinList) {
+                String cusName = ((JSONObject) o).getString("Name");
+                 synchronized(transferItems) {
+                    transferItems.add(C.newMap(
+                            "Content1", cusName,
+                            "Sign", "99"
+                    ));
+                }
+            }
+        }else if("08".equals(sign)){
+            String fullName = getParam(url, "searchKey");
+            JSONArray companyPartners = new JSONArray();
+            getDayu25(originRes, fullName, 1, "", companyPartners);
+            companyPartners.forEach(name->{
+                transferItems.add(C.newMap(
+                        "Content1", name,
+                        "Sign", "98"
+                ));
+            });
+        }else if("99".equals(sign) || "98".equals(sign) ){
+            String fullName = getParam(url, "keyword");
+            String getRule;
+            String getRuleInfo;
+            if(sign.equals("99")){
+                getRule = "13.3";
+                getRuleInfo = "公司主要人员或股东关联公司";
+            }else{
+                getRule = "13.2";
+                getRuleInfo = "投资穿透控股比例大于25%";
+            }
+            String address = originRes.getString("Address");
+            synchronized (linkItems){
+                linkItems.add(C.newMap(
+                        "cusName", fullName,
+                        "getRule", getRule,
+                        "address", address,
+                        "getRuleInfo", getRuleInfo
+                ));
+            }
+        }
+    }
+
+    // 获取关联方名单
+    private synchronized void deconstructLinkNames(
+            String requestId,
+            String sourceRequest,
+            AtomicReference<byte[]> ref
+    ) throws InterruptedException, IOException {
+        ExecutorService executor = Executors.newFixedThreadPool(16);
+        final AtomicBoolean hasError = new AtomicBoolean(false);
+        JSONObject sourceReqObj = JSONObject.parseObject(sourceRequest);
+
+        String qualCusId = sourceReqObj.getString("QualCusId");
+        long uid = sourceReqObj.getLong("Uid");
+
+        // 关联方名单
+        HashMap linkNames = new HashMap();
+        ArrayList linkItems = new ArrayList();
+        linkNames.put("QualCusId", qualCusId);
+        linkNames.put("Uid", uid);
+
+        // 递归更新名单
+        HashMap transferNames = new HashMap();
+        ArrayList transferItems = new ArrayList();
+        transferNames.put("QualCusId", qualCusId);
+        transferNames.put("Uid", uid);
+
+        // 文件
+        byte[] bytes = ref.get();
+        ByteBuf buf = Unpooled.wrappedBuffer(bytes);
+        int pos = 0;
+        int len = -1;
+        while (pos < bytes.length) {
+            len = buf.getInt(pos);
+            pos += 4;
+            String str = buf.getCharSequence(pos, len, StandardCharsets.UTF_8).toString();
+            pos += len;
+            executor.submit(() -> {
+                try {
+                    destructLinkNameSingle(str, linkItems, transferItems);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    hasError.set(true);
+                } finally {
+                }
+            });
+        }
+        buf.release();
+
+        executor.shutdown();
+        executor.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
+
+        if(linkItems.size()>0){
+            linkNames.put("LinkItems", linkItems);
+            MQService.getInstance().sendMessage("queue", "qual-cus-qcc-link-request", JSON.toJSONString(linkNames));
+        }
+
+        if(transferItems.size()> 0){
+            transferNames.put("OrderData", transferItems);
+            MQService.getInstance().sendMessage("queue", "qcc-company-infos-request", JSON.toJSONString(transferNames));
+        }
+    }
+
 
     /**
      * step2
@@ -2188,7 +2365,7 @@ public class DeconstructService extends AbstractService {
      *
      * @param requestId
      */
-    private synchronized SqlVectors deconstructStep2(String requestId, InputStream is, AtomicBoolean someError) throws IOException, InterruptedException {
+    private synchronized SqlVectors deconstructStep2(String requestId, InputStream is, AtomicBoolean someError, AtomicReference reference) throws IOException, InterruptedException {
 
         ExecutorService executor = Executors.newFixedThreadPool(16);
 //        File unzipFile = new File(logUnzipDir, requestId);
@@ -2203,6 +2380,9 @@ public class DeconstructService extends AbstractService {
             //暂时只允许一个文件
             ZipEntry entry = zip.getNextEntry();
             byte[] bytes = IoUtil.readBytes(zip);
+            if (reference != null) {
+                reference.set(bytes);
+            }
 
             //写入日志
             ThreadUtil.execAsync(() -> {
@@ -2518,25 +2698,6 @@ public class DeconstructService extends AbstractService {
                 IoUtil.closeIfPosible(entry.getValue());
             }
             System.out.printf("insert takes %d ms\n", System.currentTimeMillis() - stime);
-            if (null != Sign && Sign.equals("07")) {
-                JSONObject resultToPengfei = new JSONObject();
-                resultToPengfei.put("uid", uid);
-                resultToPengfei.put("QualCusId", QualCusId);
-                resultToPengfei.put("qushuguize", null != qushuguize ? "13.1" : qushuguize);
-                resultToPengfei.put("qushuguizeshuming", null != qushuguizeshuming ? "对私客户关联公司，通过董监高接口查询关联公司" : qushuguizeshuming);
-                resultToPengfei.put("mubiaokehu", restltToPengfeiArray);
-                MQService.getInstance().sendMessage("queue", "qcc-company-infos-zizhikehu", resultToPengfei.toString());
-                restltToPengfeiArray.clear();
-            } else if ((null != Sign && Sign.equals("06,08")) || (null != Sign && Sign.equals("99"))) {
-                JSONObject resultToPengfei = new JSONObject();
-                resultToPengfei.put("uid", uid);
-                resultToPengfei.put("QualCusId", QualCusId);
-                resultToPengfei.put("qushuguize", Sign.equals("06,08") ? "13.2" : qushuguize);
-                resultToPengfei.put("qushuguizeshuming", Sign.equals("06,08") ? "通过投资穿透查询公司信息，获取控股比例大于25%的资质客户关联信息" : qushuguizeshuming);
-                resultToPengfei.put("mubiaokehu", restltToPengfeiArray);
-                MQService.getInstance().sendMessage("queue", "qcc-company-infos-zizhikehu", resultToPengfei.toString());
-                restltToPengfeiArray.clear();
-            }
 
             try {
                 conn.commit();
@@ -2623,7 +2784,7 @@ public class DeconstructService extends AbstractService {
             }
             if (progress <= 2) {
                 reqponse.progress = 2;
-                deconstructStep2(requestId, null, someError);
+                deconstructStep2(requestId, null, someError, null);
             }
 
             reqponse.progress = 3;
@@ -2736,35 +2897,12 @@ public class DeconstructService extends AbstractService {
 //            reqponse.progress = 1;
 //            deconstructStep1(requestId);
             JSONObject jsonObject = JSONObject.parseObject(sourceRequest);
-            if (null != JSONArray.parseObject(JSONArray.parseArray(jsonObject.getString("OrderData")).get(0).toString()).getString("Sign")) {
-                Sign = JSONArray.parseObject(JSONArray.parseArray(jsonObject.getString("OrderData")).get(0).toString()).getString("Sign");
-            }
 
-            if (null != Sign && (Sign.equals("99") || Sign.equals("07"))) {
-                if (null != JSONObject.parseObject(String.valueOf(JSONObject.parseObject(sourceRequest).getJSONArray("OrderData").get(0))).getString("QualCusId")) {
-                    QualCusId = JSONObject.parseObject(String.valueOf(JSONObject.parseObject(sourceRequest).getJSONArray("OrderData").get(0))).getString("QualCusId");
-                } else {
-                    QualCusId = jsonObject.getString("QualCusId");
-                }
-                if (null != JSONObject.parseObject(String.valueOf(JSONObject.parseObject(sourceRequest).getJSONArray("OrderData").get(0))).getString("qushuguizeshuming")) {
-                    qushuguizeshuming = JSONObject.parseObject(String.valueOf(JSONObject.parseObject(sourceRequest).getJSONArray("OrderData").get(0))).getString("qushuguizeshuming");
-                }
-                if (null != JSONObject.parseObject(String.valueOf(JSONObject.parseObject(sourceRequest).getJSONArray("OrderData").get(0))).getString("qushuguize")) {
-                    qushuguize = JSONObject.parseObject(String.valueOf(JSONObject.parseObject(sourceRequest).getJSONArray("OrderData").get(0))).getString("qushuguize");
-                }
-                if (null != JSONObject.parseObject(String.valueOf(JSONObject.parseObject(sourceRequest).getJSONArray("OrderData").get(0))).getString("uid")) {
-                    uid = JSONObject.parseObject(String.valueOf(JSONObject.parseObject(sourceRequest).getJSONArray("OrderData").get(0))).getString("uid");
-                } else {
-                    uid = jsonObject.getString("uid");
-                }
-            } else {
-                QualCusId = jsonObject.getString("QualCusId");
-                uid = jsonObject.getString("uid");
-
-            }
             reqponse.progress = 2;
             //直接进行解压并解析
-            SqlVectors sqls = deconstructStep2(requestId, is, someError);
+            AtomicReference<byte[]> ref = new AtomicReference<>();
+            SqlVectors sqls = deconstructStep2(requestId, is, someError, ref);
+            deconstructLinkNames(requestId, sourceRequest, ref);
             reqponse.progress = 3;
             System.out.printf("解析完成, 时间%d\n", System.currentTimeMillis() - stime);
 //            deconstructStep4(requestId, sqls);
@@ -2896,24 +3034,6 @@ public class DeconstructService extends AbstractService {
         JSONObject object = JSON.parseObject(str);
         String url = object.getString("FullLink");
         String key = DeconstructService.getPath(url);
-        String params = getParam(url, "sign");
-        if (Sign.equals("06,08")) {
-            if (null != params && params.equals("06")) {
-                zizhikehu06(url, object, dateTime);
-            }
-            if (null != params && params.equals("08")) {
-                zizhikehu08(object, url, dateTime);
-            }
-            MQService.getInstance().sendMessage("queue", "qcc-company-infos-request", result.toString());
-        }
-        if (null != params && params.equals("07")) {
-            zizhikehu07(object, dateTime);
-        }
-
-        if (null != params && params.equals("99")) {
-            JSONObject Result = JSONObject.parseObject(object.getString("OriginData")).getJSONObject("Result");
-            restltToPengfeiArray.add(Utils.newJsonObject("cusName", Result.getString("Name"), "Address", Result.getString("Address")));
-        }
 
         if (handlers.containsKey(key)) {
             DeconstructService.DeconstructHandler handler = handlers.get(key);
@@ -2934,110 +3054,7 @@ public class DeconstructService extends AbstractService {
 //        }
     }
 
-
-    public void zizhikehu07(JSONObject object, String dateTime) {
-        JSONObject jsonObject = JSONObject.parseObject(object.getString("OriginData")).getJSONObject("Result");
-        List companyName = new ArrayList();
-        if (null != jsonObject.getJSONObject("CIAForeignInvestments").getJSONArray("Result")) {
-            for (Object o : jsonObject.getJSONObject("CIAForeignInvestments").getJSONArray("Result")) {
-                companyName.add(JSONObject.parseObject(o.toString()).getString("Name"));
-            }
-        }
-        if (null != jsonObject.getJSONObject("CIACompanyLegals").getJSONArray("Result")) {
-            for (Object o : jsonObject.getJSONObject("CIACompanyLegals").getJSONArray("Result")) {
-                companyName.add(JSONObject.parseObject(o.toString()).getString("Name"));
-            }
-        }
-
-        if (null != jsonObject.getJSONObject("CIAForeignOffices").getJSONArray("Result")) {
-            for (Object o : jsonObject.getJSONObject("CIAForeignOffices").getJSONArray("Result")) {
-                companyName.add(JSONObject.parseObject(o.toString()).getString("Name"));
-            }
-        }
-        if (companyName.size() < 1) {
-            return;
-        }
-        List removeCompanyName = removeDuplicate(companyName);
-        JSONArray jsonArray = new JSONArray();
-        JSONObject result = new JSONObject();
-        for (int i = 0; i < removeCompanyName.size(); i++) {
-            JSONObject user = new JSONObject();
-            user.put("Sign", "99");
-            user.put("Content", removeCompanyName.get(i));
-            user.put("uid", uid);
-            user.put("QualCusId", QualCusId);
-            restltToPengfeiArray.add(Utils.newJsonObject("cusName", removeCompanyName.get(i)));
-            jsonArray.add(user);
-        }
-        result.put("OrderData", jsonArray);
-        result.put("OrderId", "fzsys_" + dateTime);
-        MQService.getInstance().sendMessage("queue", "qcc-company-infos-request", result.toString());
-    }
-
-    JSONArray restltToPengfeiArray = new JSONArray();
-
-
-    public void zizhikehu08(JSONObject object, String url, String dateTime) {
-        String companyName = getParam(url, "searchKey");
-        JSONObject Result = JSONObject.parseObject(object.getString("OriginData")).getJSONObject("Result");
-        getDayu25(Result, companyName, 1, "");
-        JSONObject user = new JSONObject();
-        JSONArray jsonArray = new JSONArray();
-        Iterator<String> it = companyPartners.iterator();
-        String cusName;
-        while (it.hasNext()) {
-            cusName = it.next();
-            user.put("Sign", "99");
-            user.put("uid", uid);
-            user.put("QualCusId", QualCusId);
-            user.put("qushuguizeshuming", "通过投资穿透，获取控股比例大于25%的资质客户信息");
-            user.put("qushuguize", "13.2");
-            user.put("Content", cusName);
-            restltToPengfeiArray.add(Utils.newJsonObject("cusName", cusName));
-            jsonArray.add(user);
-        }
-        result.put("OrderData", jsonArray);
-        result.put("OrderId", "fzsys_" + dateTime);
-        MQService.getInstance().sendMessage("queue", "qcc-company-infos-request", result.toString());
-    }
-
-    public void zizhikehu06(String url, JSONObject object, String dateTime) {
-        String companyName = getParam(url, "keyword");
-        JSONArray employeesArray;
-        if (null != object.getJSONObject("OriginData").getJSONObject("Result").getJSONArray("Employees")) {
-            employeesArray = object.getJSONObject("OriginData").getJSONObject("Result").getJSONArray("Employees");
-        } else {
-            return;
-        }
-        List list = new ArrayList();
-        JSONArray jsonArray = new JSONArray();
-        //把数组中的值都取出来
-        for (Object o : employeesArray) {
-            list.add(JSONObject.parseObject(o.toString()).getString("Name"));
-        }
-        //对数组去重
-        List removeList = removeDuplicate(list);
-
-        for (int i = 0; i < removeList.size(); i++) {
-            JSONObject user = new JSONObject();
-            user.put("Sign", "07");
-            user.put("Content2", companyName);
-            user.put("QualCusId", QualCusId);
-            user.put("uid", uid);
-            user.put("Content1", removeList.get(i));
-            restltToPengfeiArray.add(Utils.newJsonObject("cusName", removeList.get(i)));
-            user.put("qushuguizeshuming", "通过获取公司主要人员关联的董监高信息，获取资质客户信息");
-            user.put("qushuguize", "13.1");
-            jsonArray.add(user);
-        }
-        result.put("OrderData", jsonArray);
-        result.put("OrderId", "fzsys_" + dateTime);
-        MQService.getInstance().sendMessage("queue", "qcc-company-infos-request", result.toString());
-    }
-
-    Set<String> companyPartners = new HashSet();
-
-    public void getDayu25(JSONObject json, String parentName, int leve, String path) {
+    public void getDayu25(JSONObject json, String parentName, int leve, String path, JSONArray companyPartners) {
         if (leve > 5) return;
         JSONArray jsonArray = json.getJSONArray("BreakThroughList");
         for (Object o : jsonArray) {
@@ -3054,7 +3071,7 @@ public class DeconstructService extends AbstractService {
                     if (stockPercent >= 25) {
                         companyPartners.add(jiexiStr[leve]);
                     }
-                    getDayu25(json, jiexiStr[leve], leve + 1, path);
+                    getDayu25(json, jiexiStr[leve], leve + 1, path, companyPartners);
                 }
             }
         }

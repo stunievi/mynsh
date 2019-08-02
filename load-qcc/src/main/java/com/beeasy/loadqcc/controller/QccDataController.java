@@ -141,6 +141,11 @@ public class QccDataController {
                         reqQccParam.setSign("99");
                         getOriginQccService.ECI_GetDetailsByName(reqQccParam, extParam);
                     }
+                    if(command.contains("98")){
+                        // 工商信息
+                        reqQccParam.setSign("98");
+                        getOriginQccService.ECI_GetDetailsByName(reqQccParam, extParam);
+                    }
                     if(command.contains("07")){
                         // 企业董监高， 解构后返还关联公司名单！！！
                         reqQccParam.setSign("07");
