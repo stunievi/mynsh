@@ -2201,8 +2201,8 @@ public class DeconstructService extends AbstractService {
                 synchronized (linkItems){
                     linkItems.add(C.newMap(
                             "cusName", name,
-                            "getRule", getRule,
-                            "getRuleInfo", getRuleInfo
+                            "getRule", "13.1",
+                            "getRuleInfo", "公司主要人员"
                     ));
                 }
                 synchronized(transferItems){
@@ -2223,8 +2223,8 @@ public class DeconstructService extends AbstractService {
                     synchronized (linkItems){
                         linkItems.add(C.newMap(
                                 "cusName", name,
-                                "getRule", getRule,
-                                "getRuleInfo", getRuleInfo
+                                "getRule", "13.1",
+                                "getRuleInfo", "公司股东"
                         ));
                     }
                     synchronized(transferItems){
@@ -2263,6 +2263,7 @@ public class DeconstructService extends AbstractService {
                 }
             }
         }else if("08".equals(sign)){
+            // 投资穿透
             String fullName = getParam(url, "searchKey");
             JSONArray companyPartners = new JSONArray();
             getDayu25(originRes, fullName, 1, "", companyPartners);
@@ -2278,10 +2279,10 @@ public class DeconstructService extends AbstractService {
             String getRuleInfo;
             if(sign.equals("99")){
                 getRule = "13.3";
-                getRuleInfo = "公司主要人员或股东关联公司";
+                getRuleInfo = "公司主要人员关联企业";
             }else{
                 getRule = "13.2";
-                getRuleInfo = "投资穿透控股比例大于25%";
+                getRuleInfo = "公司持股比例大于25%";
             }
             String address = originRes.getString("Address");
             synchronized (linkItems){

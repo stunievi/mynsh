@@ -1056,7 +1056,7 @@ from QCC_SAD_STOCK_LIST
 where inner_company_name = #fullName#
 
 
-导出经营异常excel数据
+导出经营异常
 ===
 select
 *
@@ -1065,10 +1065,7 @@ QCC_OP_EXCEPTION
 where
 inner_company_name = #fullName#
 
-
-
-
-导出司法拍卖excel数据
+导出司法拍卖
 ===
 select
 *
@@ -1078,7 +1075,7 @@ where
 inner_company_name = #fullName#
 
 
-导出土地抵押excel数据
+导出土地抵押
 ===
 select
 *
@@ -1087,7 +1084,7 @@ QCC_LAND_MORTGAGE
 where
 inner_company_name = #fullName#
 
-导出环保处罚excel数据
+导出环保处罚
 ===
 select
 *
@@ -1095,6 +1092,33 @@ from
 QCC_ENV_PUNISHMENT_LIST
 where
 inner_company_name = #fullName#
+
+导出动产抵押
+===
+select
+cm.REGISTER_NO,
+cm.REGISTER_DATE,
+cm.PUBLIC_DATE,
+cm.REGISTER_OFFICE,
+cm.DEBT_SECURED_AMOUNT,
+cm.inner_id,
+cm.INPUT_DATE,
+
+ex1.Regist_No as ex1_Regist_No,
+ex1.Regist_Date as ex1_Regist_Date,
+ex1.Regist_Office as ex1_Regist_Office,
+ex2.KIND as ex2_kind,
+ex2.AMOUNT as ex2_AMOUNT,
+ex2.ASSURANCE_SCOPE as ex2_ASSURANCE_SCOPE,
+ex2.FULFILL_OBLIGATION as ex2_FULFILL_OBLIGATION,
+ex2.REMARK as ex2_REMARK,
+ex3.Cancel_Date as ex3_Cancel_Date,
+ex3.Cancel_Reason as ex3_Cancel_Reason
+from QCC_CHATTEL_MORTGAGE cm 
+left join QCC_CMD_PLEDGE ex1 on ex1.CM_ID = cm.inner_id
+left join QCC_CMD_SECURED_CLAIM ex2 on ex2.CM_ID = cm.inner_id
+left join QCC_CMD_CANCEL_INFO ex3 on ex3.CM_ID = cm.inner_id
+where cm.inner_company_name = #fullName#
 
 
 

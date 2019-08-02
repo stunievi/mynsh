@@ -217,15 +217,19 @@
 
     $("#myTabs li a[data-controls]").click(function () {
         var blockName = $(this).data("controls");
-        $(".export-fengxian-wrap").hide();
+        var exportFengXianBtn  = $(".export-fengxian-wrap");
+        exportFengXianBtn.hide();
         if(blockName=='susong' && loadBlock2Status === false){
             // 点击【法律诉讼】模块后加载此模块数据
             loadBlock2();
         }else if(blockName=='fengxian'){
-            $(".export-fengxian-wrap").show();
             if(loadBlock4Status === false){
                 // 点击【经营风险】模块后加载此模块数据
                 loadBlock4();
+            }else{
+                if(exportFengXianBtn.hasClass("haveException")){
+                    $(".export-fengxian-wrap").show();
+                }
             }
         }else if(blockName=='history' && loadBlock7Status === false){
             // 点击【历史信息】模块后加载此模块数据

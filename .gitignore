@@ -42,3 +42,4 @@ __MACOSX/*
 test/*
 */test
 /pom.xml
+*.rar
