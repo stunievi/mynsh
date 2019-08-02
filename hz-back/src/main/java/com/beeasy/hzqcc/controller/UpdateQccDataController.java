@@ -443,28 +443,39 @@ public class UpdateQccDataController {
         return Result.ok(maps);
     }
 
-
     // 资质客户企查查关联方
-    @JmsListener(destination = "qcc-company-infos-zizhikehu")
-    public void qualCusQccLinkRequest(Object o) throws JMSException {
+    @JmsListener(destination = "qual-cus-qcc-link-request")
+    public void qualCusQccLinInfoskRequest(Object o) throws JMSException {
+        System.out.println(o);
         if(o instanceof TextMessage){
             String dataStr = ((TextMessage) o).getText();
             JSONObject dataObj = JSON.parseObject(dataStr);
-            JSONArray cusNames = dataObj.getJSONArray("mubiaokehu");
+            JSONArray linkItems = dataObj.getJSONArray("LinkItems");
             Date nowDate = new Date();
+            long qualCusId = dataObj.getLong("QualCusId");
             QualCusRelated item = new QualCusRelated();
             item.setAddTime(nowDate);
-            item.setQualCusId(dataObj.getLong("QualCusId"));
-            item.setGetRuleInfo(dataObj.getString("qushuguizeshuming"));
-            item.setOperator(dataObj.getLong("uid"));
-            item.setGetRule(dataObj.getString("qushuguize"));
-            cusNames.forEach(cusItem->{
+            item.setOperator(dataObj.getLong("Uid"));
+            item.setQualCusId(qualCusId);
+            for(Object cusItem : linkItems){
                 JSONObject cusInfo = (JSONObject) cusItem;
-                item.setId(U.getSnowflakeIDWorker().nextId());
-                item.setCusName(cusInfo.getString("cusName"));
-                item.setAddrInfo(Optional.ofNullable(cusInfo.getString("address")).orElse(""));
-                sqlManager.insert(item);
-            });
+                String cusName = cusInfo.getString("cusName");
+                String getRule = cusInfo.getString("getRule");
+                String getRuleInfo = cusInfo.getString("getRuleInfo");
+                boolean find = sqlManager.lambdaQuery(QualCusRelated.class)
+                        .andEq(QualCusRelated::getQualCusId, qualCusId)
+                        .andEq(QualCusRelated::getCusName, cusName)
+                        .andEq(QualCusRelated::getGetRule, getRule)
+                        .count() > 0;
+                if(find == false){
+                    item.setId(U.getSnowflakeIDWorker().nextId());
+                    item.setCusName(cusName);
+                    item.setGetRule(getRule);
+                    item.setGetRuleInfo(getRuleInfo);
+                    item.setAddrInfo(Optional.ofNullable(cusInfo.getString("address")).orElse(""));
+                    sqlManager.insert(item);
+                }
+            }
         }
     }
 

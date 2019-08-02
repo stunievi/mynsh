@@ -83,7 +83,7 @@ public class QualCus extends ValidGroup {
                 JSONObject requestData = new JSONObject();
                 SimpleDateFormat df1 = new SimpleDateFormat("yyyyMMddHHmmssSSS");//设置日期格式
                 String StrID = "fzsys_" + df1.format(nowDate);
-                requestData.put("uid", uid);
+                requestData.put("Uid", uid);
                 JSONObject user = new JSONObject();
                 user.put("OrderId", StrID);
                 if("07".equals(requestSign)){
