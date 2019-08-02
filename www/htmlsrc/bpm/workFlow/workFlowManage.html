@@ -93,7 +93,7 @@
     }
 
     loadTimeout()
-    getFetch("/api/bpm/cat/all", function (msg) {
+    getFetch("/api/bpm/cat/all", {type:"1"},function (msg) {
         layer.closeAll();
         console.log(msg)
         $('#jstree_demo').jstree({
