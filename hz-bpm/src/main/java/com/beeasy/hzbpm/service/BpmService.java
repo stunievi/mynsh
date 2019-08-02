@@ -66,6 +66,8 @@ public class BpmService {
         }
         BpmService bpmService = new BpmService();
         bpmService.modelId = modelId;
+
+
         bpmService.arrangementData = (Document) data.get("arrangementData");
         bpmService.model = Json.cast(data.get("arrangementData"), BpmModel.class);
         bpmService.xml = data.getString("xml");

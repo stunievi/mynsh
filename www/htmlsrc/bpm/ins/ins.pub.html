@@ -13,6 +13,7 @@
     <script src="../../../static/htmljs/utils.js"></script>
 
     <script src="../../../static/bpm/bpmn-viewer.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
     <style>
         .needs-discussion:not(.djs-connection) .djs-visual > :nth-child(1) {
             stroke: rgba(66, 180, 21, 0.7) !important; /* color elements as red */
@@ -258,6 +259,8 @@
                 } else {
                     if(gonext){
                         window.open("./choose.html?id=" + msg.data, "choosepersons", "top=100, left=100, width=500, height=300")
+                    }else{
+                        layer.msg("保存成功！")
                     }
                 }
 
@@ -282,7 +285,7 @@
 
         console.log(type,id)
         // var id = getParam("id");
-        layer.load(0, {
+        var layerIndex = layer.load(0, {
             time: 5000
         });
 
@@ -301,7 +304,7 @@
         }
 
         $.when(ajax).then(function (msg) {
-            layer.closeAll();
+            layer.close(layerIndex);
             if (!msg.success) {
                 layer.msg(msg.errMessage)
                 return;
