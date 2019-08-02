@@ -22,9 +22,12 @@ public class Auth {
         }
     };
 
-    public Object around(AopInvoke invoke, Cookie cookie) throws Exception {
+    public Object around(AopInvoke invoke, Cookie cookie, Obj headers) throws Exception {
         uids.set(-1l);
         String token = cookie.get("authorization");
+        if(StrUtil.isBlank(token)){
+            token = headers.s("HZToken");
+        }
         if (StrUtil.isBlank(token)) {
             return R.fail();
         }
