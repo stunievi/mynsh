@@ -66,6 +66,8 @@ public class BpmService {
         }
         BpmService bpmService = new BpmService();
         bpmService.modelId = modelId;
+
+
         bpmService.arrangementData = (Document) data.get("arrangementData");
         bpmService.model = Json.cast(data.get("arrangementData"), BpmModel.class);
         bpmService.xml = data.getString("xml");
@@ -219,7 +221,8 @@ public class BpmService {
                 "form", model.template,
                 "attrs", ins.attrs,
                 "xml", xml,
-                "current", null != currentNode ? a(currentNode.id) : getCurrentNodeIds()
+                "current", null != currentNode ? a(currentNode.id) : getCurrentNodeIds(),
+                "deal", (null != currentNode && canDeal(uid, currentNode.id)) ? true : false
         );
         return ret;
     }
@@ -324,49 +327,52 @@ public class BpmService {
         validateAttrs(uid, startNode, data);
 
         // 开始节点
-        String startNodeId = bpmService.model.start;
-        List<String> qids = bpmService.model.nodes.get(startNodeId).qids;
-        List<String> rids = bpmService.model.nodes.get(startNodeId).rids;
-        List<String> dids = bpmService.model.nodes.get(startNodeId).dids;
-
-        String qid = qids.stream().map(q -> "'" + q + "'").collect(Collectors.joining(","));
-        String rid = rids.stream().map(r -> "'" + r + "'").collect(Collectors.joining(","));
-        String did = dids.stream().map(d -> "'" + d + "'").collect(Collectors.joining(","));
-
-
-        List<Obj> list = sqlManager.execute(new SQLReady(String.format("select uid,utname,pid,pname from t_org_user where (oid in (%s) or oid in (%s) or pid in (%s)) and uid='%s'", qids.isEmpty() ? "-1" : qid, rids.isEmpty() ? "-1" : rid, dids.isEmpty() ? "-1" : did, uid)), Obj.class);
-        List<Obj> list2 = sqlManager.execute(new SQLReady(String.format("select uid,utname,pid,pname from t_org_user where uid='%s'", uid)), Obj.class);
-        list.addAll(list2);
+//        String startNodeId = bpmService.model.start;
+//        List<String> qids = bpmService.model.nodes.get(startNodeId).qids;
+//        List<String> rids = bpmService.model.nodes.get(startNodeId).rids;
+//        List<String> dids = bpmService.model.nodes.get(startNodeId).dids;
+//
+//        String qid = qids.stream().map(q -> "'" + q + "'").collect(Collectors.joining(","));
+//        String rid = rids.stream().map(r -> "'" + r + "'").collect(Collectors.joining(","));
+//        String did = dids.stream().map(d -> "'" + d + "'").collect(Collectors.joining(","));
+//
+//
+//        List<Obj> list = sqlManager.execute(new SQLReady(String.format("select uid,utname,pid,pname from t_org_user where (oid in (%s) or oid in (%s) or pid in (%s)) and uid='%s'", qids.isEmpty() ? "-1" : qid, rids.isEmpty() ? "-1" : rid, dids.isEmpty() ? "-1" : did, uid)), Obj.class);
+//        List<Obj> list2 = sqlManager.execute(new SQLReady(String.format("select uid,utname,pid,pname from t_org_user where uid='%s'", uid)), Obj.class);
+//        list.addAll(list2);
 
 //        List<Long> ql = bpmService.model.nodes.get(startNode).qids;
 
-        List<String> allFields = bpmService.model.nodes.get(startNodeId).allFields;
+        List<String> allFields = startNode.allFields;
         for (String all : allFields) {
             attrs.put(all, data.get(all));
         }
-        String deptName = "";
-        long deptId = 0L;
-        String uName = "";
-        if (list.size() > 0) {
-            for (Obj li : list) {
-                if (null != li.get("pid")) {
-                    deptId = (long) li.get("pid");
-                    deptName = (String) li.get("pname");
-                    uName = (String) li.get("utname");
-                    break;
-                }
-            }
-        }
+//        String deptName = "";
+//        long deptId = 0L;
+        String uName = getUserName(uid);
+//        if (list.size() > 0) {
+//            for (Obj li : list) {
+//                if (null != li.get("pid")) {
+//                    deptId = (long) li.get("pid");
+//                    deptName = (String) li.get("pname");
+//                    uName = (String) li.get("utname");
+//                    break;
+//                }
+//            }
+//        }
+
         JSONObject dataLog = new JSONObject();
-        dataLog.put("nodeId", startNodeId);
+        dataLog.put("id", new ObjectId());
+        dataLog.put("nodeId", startNode.id);
         dataLog.put("time", new Date());
         dataLog.put("uid", uid);
         dataLog.put("attrs", attrs);
+        dataLog.put("uname", uName);
         JSONArray logs = new JSONArray();
         logs.add(dataLog);
 
         JSONObject currentNode = new JSONObject();
-        currentNode.put("nodeId", startNodeId);
+        currentNode.put("nodeId", startNode.id);
         JSONArray uids = new JSONArray();
         uids.add(uid);
         currentNode.put("uids", uids);
@@ -381,8 +387,8 @@ public class BpmService {
         obj.put("bpmName", bpmService.model.workflowName);
         obj.put("pubUid", uid);
         obj.put("pubUName", uName);
-        obj.put("depId", deptId);
-        obj.put("depName", deptName);
+//        obj.put("depId", deptId);
+//        obj.put("depName", deptName);
         obj.put("bpmModel", bpmService.arrangementData);
         obj.put("currentNodes", currentNodes);
         obj.put("attrs", attrs);
@@ -488,6 +494,7 @@ public class BpmService {
         dataLog.time = new Date();
         dataLog.uid = uid;
         dataLog.attrs = attrs;
+        dataLog.uname = getUserName(uid);
 
 //        bpmService.ins.logs.add(dataLog);
 //        bpmService.ins.lastModifyTime = new Date();
@@ -583,6 +590,14 @@ public class BpmService {
 
     private boolean runExpression(String expression) {
         return false;
+    }
+
+    private String getUserName(String uid){
+        return sqlManager.execute(new SQLReady("select true_name from t_user where id = ?", uid), Obj.class)
+                .stream()
+                .map(e -> e.s("true_name"))
+                .findFirst()
+                .orElse(null);
     }
 
     /**

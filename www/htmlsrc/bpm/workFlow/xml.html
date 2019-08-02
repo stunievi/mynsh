@@ -293,7 +293,6 @@
             success:function (res) {
                 if(res.success && res.data){
                     roleData = res.data.list;
-                    console.log("data:",roleData)
                 }
             }
         });
@@ -335,10 +334,7 @@
                     var nextEvent = [];
                     var node = {};
                     var targetRef = $(this).attr("targetRef");
-                    node["node"] = targetRef;
-                    nextEvent.push(node)
-                    var nextNodes = [];
-                    nextNodes.push(node);
+
                     // var nextNodes = {"nextEvent":nextEvent}
                     var sourceRef = $(this).attr("sourceRef");
                     var sr = sourceRef.split("_");
@@ -371,14 +367,22 @@
                         qids =arrToStr(window.bpmData.nodes[sourceRef].permission.qids);
                         rids =arrToStr(window.bpmData.nodes[sourceRef].permission.rids);
                         dids =arrToStr(window.bpmData.nodes[sourceRef].permission.dids);
-                        var conList = window.bpmData.nodes[sourceRef].condition;
+                        var conList = window.bpmData.nodes[targetRef].condition;
 
-                        var con = "1=1";
-                        if(conList){
-                            preorder(conList)
+                        // _expression = "";
+                        // if(conList){
+                        //     $.each(conList,function (e) {
+                        //         var c = conList[e];
+                        //         preorder(c,false)
+                        //     })
+                        // }
+                        var _expression = preorderZheng(conList,"and");
 
-                        }else{
-                        }
+                        node["node"] = targetRef;
+                        node["expression"] = _expression;
+                        nextEvent.push(node)
+                        var nextNodes = [];
+                        nextNodes.push(node);
                     }
 
                     // var nodeExt =[];    // 节点对应的表单属性
@@ -395,8 +399,6 @@
                 })
             });
             $.each(exList, function(i) {
-                console.log(i);
-                console.log(exList[i]);
                 var nextEvent = [];
                 var node = {};
 
@@ -406,6 +408,7 @@
                 var qids = [];
                 var rids = [];
                 var dids = [];
+                var conList;
                 if(undefined ==  window.bpmData.nodes[sourceRef]){
                 }else{
                     allFields = window.bpmData.nodes[sourceRef].fields.all_fields;
@@ -419,7 +422,10 @@
                 }
                 for(var ex=0;ex<exList[i].length;ex++){
                     var targetRef = exList[i][ex].targetRef;
-                    node["expression"] = "";
+                    conList = window.bpmData.nodes[targetRef].condition;
+
+                    var _expression = preorderZheng(conList,"and");
+                    node["expression"] = _expression;
                     node["node"] = targetRef;
                     nextEvent.push(node)
                 }
@@ -437,6 +443,8 @@
                 var qids = [];
                 var rids = [];
                 var dids = [];
+                // var nextNodes = [];
+                // var node = {};
                 if(undefined ==  window.bpmData.nodes[sourceRef]){
                 }else{
                     allFields = window.bpmData.nodes[sourceRef].fields.all_fields;
@@ -447,6 +455,11 @@
                     qids =arrToStr(window.bpmData.nodes[sourceRef].permission.qids);
                     rids =arrToStr(window.bpmData.nodes[sourceRef].permission.rids);
                     dids =arrToStr(window.bpmData.nodes[sourceRef].permission.dids);
+                    // var conList = window.bpmData.nodes[sourceRef].condition;
+                    // var _expression = preorderZheng(conList,"and");
+                    //
+                    // node["expression"] = _expression;
+                    // nextNodes.push(node);
                 }
                 _eventMap[sourceRef] = {"id":sourceRef,"allFields":allFields,"requiredFields":requiredFields,"uids":pids,"qids":qids,"rids":rids,"dids":dids,"nextNodes":[]}
                 window.sbpmData.nodes[sourceRef] = (window.bpmData.nodes[sourceRef]);
@@ -479,7 +492,6 @@
                     }
                 });
                 _xmlMap = {"formId":formId,"template":form.form.template,"rendered":form.form.parse,"workflowName":modelName,"fields":_formDataMap,"nodes":_eventMap,"start":startEvent,"end":endEvent,"listFields":listFields}
-                console.log("xmlMap----",_xmlMap)
 
                 var da = {
                     _id:id,
@@ -491,7 +503,6 @@
                     arrangementData:_xmlMap
                 }
 
-
                 $.ajax({
                     // url:"/api/bpm/workflow/saveWorkFlow",
                     url:"/api/bpm/BpmXmlController/saveBPMXML",
@@ -502,11 +513,10 @@
                     },
                     dataType: "json",
                     success:function(res){
-                        console.log()
                         if(res.success){
-                            layer.alert("保存成功！", { icon: 1, closeBtn: 0 }, function () {
-                                closeCurrentIframe();
-                            } );
+                            // layer.alert("保存成功！", { icon: 1, closeBtn: 0 }, function () {
+                                // closeCurrentIframe();
+                            // } );
                         }else{
                             layer.alert("保存失败！"+res.errMessage, { icon: 2, closeBtn: 0 }, function () {
                                 layer.closeAll();
@@ -596,7 +606,6 @@
         var modelName = $("#modelName").val();
         var form = $("#selectForm").val();
         console.log("当前选中id:",obj.id)
-        console.log("bpmData:",bpmData.nodes[obj.id])
 
         bpmData.nodes[obj.id] = bpmData.nodes[obj.id] || {
             fields:{
@@ -621,13 +630,104 @@
 
     }
 
-    function preorder(root) {
-        if (!root) {
+    // var _expression = "";
+    // var exp = "";
+
+    function preorderZheng(item,type) {
+        if(!item || !item.length){
             return;
         }
-        var left = root.children;
-        left && preorder(left);
+        var arr = [];
+        $.each(item, function (i,v) {
+               if(v.type == 'rule'){
+                   arr.push(conversion(v.text).replace(/\[(.+?)\]/g, "getValue('$1')"));
+               } else if(v.type == 'group'){
+                   arr.push(preorderZheng(v.children,v.text));
+               }
+        });
+        arr = arr.filter(function (e) {
+            return e
+        });
+        switch (type.toUpperCase()) {
+            case "AND":
+                return "(" + arr.join(" && ") + ")";
+
+            case "OR":
+                return "(" + arr.join(" || ") + ")";
+        }
     }
+
+    // function preorder(root,flag) {
+    //     var text = root.text;
+    //     if (!root) {
+    //         return;
+    //     }
+    //     if(root.type=="rule" ){
+    //         return conversion(text).replace(/\[(.+?)\]/g, "getValue('$1')")
+    //
+    //         // var textSub = text.substr(1,text.lastIndexOf("]")-1);
+    //         // var textLe = text.substr(text.lastIndexOf("]")+1,text.length);
+    //         // if(flag){
+    //         //     _expression = _expression+exp +" "+'getValue("'+textSub+'")'+textLe+" ";
+    //         // }else{
+    //         //     _expression = _expression+'getValue("'+textSub+'")'+textLe +" ";
+    //         // }
+    //     }else if(root.type=="group"){
+    //         var children = root.children;
+    //         var arr = [];
+    //         $.each(children, function (i) {
+    //             var str = preorder(children[i],true);
+    //             if(str){
+    //                 arr.push(str);
+    //             }
+    //         });
+    //         if(!arr.length){
+    //             return "";
+    //         }
+    //         if(("AND" == text.toUpperCase())){
+    //             return "(" + arr.join("&&") + ")";
+    //         }
+    //         if( "OR" == text.toUpperCase()){
+    //             return "(" + arr.join("||") + ")";
+    //             // exp = text.toUpperCase();
+    //             // if("AND" == exp){
+    //             //     exp = "&&";
+    //             // }else if("OR" == exp){
+    //             //     exp = "||"
+    //             // }
+    //             // _expression = _expression+root.text + " ";
+    //         }
+    //     }
+    // }
+
+    function conversion(str) {
+        // return str ? str.replace(/(大于|小于|大于等于|小于等于|等于')/g, (a) => {
+        //     return {
+        //         '小于': '<',
+        //         '大于等于': '>=',
+        //         '小于等于': '<=',
+        //         '大于': '>',
+        //         '等于': '=',
+        //     }[a]
+        // }) : '';
+        if(-1 != str.indexOf("大于")){
+            str = str.replace("大于",">");
+        }
+        if(-1 != str.indexOf("小于")){
+            str = str.replace("小于","<");
+        }
+        if(-1 != str.indexOf("大于等于")){
+            str = str.replace("大于等于",">=");
+        }
+        if(-1 != str.indexOf("小于等于")){
+            str = str.replace("小于等于","<=");
+        }
+        if(-1 != str.indexOf("等于")){
+            str = str.replace("等于","=");
+        }
+        return str;
+    }
+
 
 </script>
 
