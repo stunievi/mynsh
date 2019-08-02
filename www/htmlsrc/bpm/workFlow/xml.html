@@ -381,7 +381,7 @@
                         node["node"] = targetRef;
                         node["expression"] = _expression;
                         nextEvent.push(node)
-                        var nextNodes = [];
+                        var nextNodes = (_eventMap[sourceRef] && _eventMap[sourceRef].nextNodes) ? _eventMap[sourceRef].nextNodes : [];
                         nextNodes.push(node);
                     }
 
@@ -701,6 +701,15 @@
     // }
 
     function conversion(str) {
+        return (str || "")
+            .replace(/大于等于/g, ">=")
+            .replace(/小于等于/g, "<=")
+            .replace(/大于/g, ">")
+            .replace(/小于/g, "<")
+            .replace(/不等于/g, "!=")
+            .replace(/等于/g, "==")
+            .replace(/“|”/g, "\"")
+            .replace(/‘|’/g, "'");
         // return str ? str.replace(/(大于|小于|大于等于|小于等于|等于')/g, (a) => {
         //     return {
         //         '小于': '<',
@@ -710,22 +719,22 @@
         //         '等于': '=',
         //     }[a]
         // }) : '';
-        if(-1 != str.indexOf("大于")){
-            str = str.replace("大于",">");
-        }
-        if(-1 != str.indexOf("小于")){
-            str = str.replace("小于","<");
-        }
-        if(-1 != str.indexOf("大于等于")){
-            str = str.replace("大于等于",">=");
-        }
-        if(-1 != str.indexOf("小于等于")){
-            str = str.replace("小于等于","<=");
-        }
-        if(-1 != str.indexOf("等于")){
-            str = str.replace("等于","=");
-        }
-        return str;
+        // if(-1 != str.indexOf("大于")){
+        //     str = str.replace("大于",">");
+        // }
+        // if(-1 != str.indexOf("小于")){
+        //     str = str.replace("小于","<");
+        // }
+        // if(-1 != str.indexOf("大于等于")){
+        //     str = str.replace("大于等于",">=");
+        // }
+        // if(-1 != str.indexOf("小于等于")){
+        //     str = str.replace("小于等于","<=");
+        // }
+        // if(-1 != str.indexOf("等于")){
+        //     str = str.replace("等于","==");
+        // }
+        // return str;
     }
 
 

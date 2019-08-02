@@ -3,6 +3,7 @@ package com.beeasy.hzbpm.service;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
+import com.beeasy.hzbpm.bean.JsEngine;
 import com.beeasy.hzbpm.entity.BpmInstance;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -430,13 +431,17 @@ public class BpmService {
         BpmModel.Node target = null;
         for (BpmModel.NextNode nextNode : node.nextNodes) {
             //如果表达式位空，则直接使用该节点
-            if (StrUtil.isBlank(nextNode.expression)) {
-                target = getNode(nextNode.node);
-                break;
-            } else if (runExpression(nextNode.expression)) {
+            if(JsEngine.runExpression(oldAttrs, nextNode.expression)){
                 target = getNode(nextNode.node);
                 break;
             }
+//            if (StrUtil.isBlank(nextNode.expression)) {
+//                target = getNode(nextNode.node);
+//                break;
+//            } else if (runExpression(nextNode.expression)) {
+//                target = getNode(nextNode.node);
+//                break;
+//            }
         }
         if (target == null) {
             error("找不到符合跳转条件的下一节点");
@@ -541,11 +546,11 @@ public class BpmService {
 
         bl = saveIns(uid, data, true);
 
-        BpmModel.Node nextNode = getNextNode(uid, o());
+        BpmModel.Node nextNode = getNextNode(uid, data);
 
         // 判断是否为结束节点
         if(nextNode.id.equals(bpmService.ins.bpmModel.end)){
-            Obj state = null;
+            Obj state = o();
             state.put("state", "FINISHED");
             MongoCollection<Document> collection = db.getCollection("bpmInstance");
             UpdateResult res = collection.updateOne(Filters.eq("_id", bpmService.ins._id),new Document("$set", state.toBson()));
@@ -589,6 +594,8 @@ public class BpmService {
     }
 
     private boolean runExpression(String expression) {
+
+
         return false;
     }
 
