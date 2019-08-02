@@ -19,9 +19,10 @@ import static com.github.llyb120.nami.json.Json.o;
 
 public class cat {
 
-    public Result all() {
+    public Result all(String type) {
         MongoCollection<Document> collection = db.getCollection("cat");
         Collection ret = collection.aggregate(a(
+                o("$match",o("type",type)),
                 o(
                         "$project", o(
                                 "_id", o(
@@ -38,7 +39,7 @@ public class cat {
     }
 
 
-    public Result add(String pid) {
+    public Result add(String pid, String type) {
         MongoCollection<Document> collection = db.getCollection("cat");
         Document doc = o(
                 "name", "新分类",
@@ -50,6 +51,7 @@ public class cat {
         }
         collection.insertOne(doc);
         doc.put("text", doc.getString("name"));
+        doc.put("type", doc.getString("type"));
         doc.put("_id", doc.getObjectId("_id").toString());
         if (!"top".equalsIgnoreCase(pid)) {
             doc.put("pid", doc.getObjectId("pid").toString());
