@@ -197,7 +197,7 @@ where 1=1 and ('admin' = (select username from t_user where id = #uid#) or opera
     and cus.COMPANY_NAME like #'%' + COMPANY_NAME + '%'#
 @}
 @pageIgnoreTag(){
-   order by cus.ADD_TIME 
+   order by cus.ADD_TIME DESC
 @}
 
 查询资质客户关联方
@@ -213,5 +213,5 @@ where 1=1 and ('admin' = (select username from t_user where id = #uid#) or opera
 --资质客户ID
 and cus.QUAL_CUS_ID = #QUAL_CUS_ID#
 @pageIgnoreTag(){
-   order by cus.ADD_TIME 
+   order by cus.ADD_TIME DESC
 @}
