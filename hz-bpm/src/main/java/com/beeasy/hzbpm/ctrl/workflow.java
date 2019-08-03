@@ -77,6 +77,7 @@ public class workflow {
     public Object menu(){
         MongoCollection<Document> collection = db.getCollection("cat");
         Arr cats = collection.aggregate(a(
+                o("$match",o("type","1")),
                 o(
                         "$lookup", o(
                                 "from","workflow",
@@ -277,12 +278,11 @@ public class workflow {
      */
     public Result subIns(String id,Obj data){
         BpmService service = BpmService.ofIns(id);
-        boolean bl = service.submitIns(Auth.getUid() + "", data);
-        if(bl){
-            return Result.ok(id);
-        }else{
-            return Result.error("节点保存错误！");
-        }
+        Object bl = service.submitIns(Auth.getUid() + "", data);
+        Map<Object, Object> res = new HashMap<>();
+        res.put("id",id);
+        res.put("res",bl);
+        return Result.ok(res);
     }
 
 

@@ -2,16 +2,20 @@ package com.beeasy.hzbpm.service;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.XmlUtil;
 import com.alibaba.fastjson.JSON;
 import com.beeasy.hzbpm.bean.JsEngine;
 import com.beeasy.hzbpm.entity.BpmInstance;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzbpm.entity.BpmModel;
+import com.beeasy.hzbpm.entity.FormEntity;
 import com.beeasy.hzbpm.filter.Auth;
 import com.beeasy.hzbpm.util.Result;
+import com.github.llyb120.nami.json.Arr;
 import com.github.llyb120.nami.json.Json;
 import com.github.llyb120.nami.json.Obj;
+import com.mongodb.BasicDBObject;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
@@ -23,8 +27,15 @@ import org.bson.BsonArray;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import sun.net.httpserver.AuthFilter;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -43,7 +54,11 @@ public class BpmService {
     private String modelId;
     private String xml;
 
+    private FormEntity formEntity = null;
+    private String formId;
+
     private Document arrangementData = null;
+    private Document bpmData = null;
 
     //BpmInstance
     private BpmInstance ins = null;
@@ -59,7 +74,7 @@ public class BpmService {
         Document data = col.aggregate(
                 a(
                         o("$match", o("_id", new ObjectId(modelId))),
-                        o("$project", o("arrangementData", 1, "xml", 1))
+                        o("$project", o("bpmData", 1, "xml", 1,"formId", 1, "arrangementData",1))
                 ).toBson()
         ).first();
         if (data == null) {
@@ -69,10 +84,63 @@ public class BpmService {
         bpmService.modelId = modelId;
 
 
+        bpmService.bpmData = (Document) data.get("bpmData");
         bpmService.arrangementData = (Document) data.get("arrangementData");
         bpmService.model = Json.cast(data.get("arrangementData"), BpmModel.class);
         bpmService.xml = data.getString("xml");
+        bpmService.formId = data.getObjectId("formId").toHexString();
+//        arrangementData(bpmService.bpmData, bpmService.formId,bpmService.xml);
         return bpmService;
+    }
+
+    public static void arrangementData(Document data, String formId, String xml){
+        BpmService bpmService = new BpmService();
+        Document doc = getForm(formId);
+        bpmService.formEntity = Json.cast(doc.get("form"), FormEntity.class);
+        System.out.println(bpmService.formEntity.data);
+
+        BpmModel bpmModel = new BpmModel();
+        bpmModel.template = bpmService.formEntity.template;
+        bpmModel.rendered = bpmService.formEntity.parse;
+        bpmModel.formId = new ObjectId(formId);
+//        bpmService.model.workflowName = (String) data.get("workflowName");
+
+        Map<String, Map> fieldMap = new HashMap<>();
+        for(Map list : bpmService.formEntity.data){
+            fieldMap.put((String) list.get(list),list);
+
+        }
+        for(int i = 0;i < bpmService.formEntity.data.size();i++)
+        {
+            Map<String,Object> map = bpmService.formEntity.data.get(i);
+            String title = map.get("title").toString();
+            fieldMap.put(title,map);
+        }
+        bpmModel.fields = fieldMap;
+//        System.out.println(xml.replaceAll("\\\\\"","\""));
+//        int pos = xml.indexOf(">");
+//        xml = xml.substring(pos + 1);
+//        org.w3c.dom.Document doc2 = XmlUtil.readXML(xml);
+//        NodeList nodeList = doc2.getElementsByTagName("process");
+//        for (int i = 0; i < nodeList.getLength(); i++) {
+//            Node item = nodeList.item(i);
+//            NamedNodeMap attrs = item.getAttributes();
+//            Obj obj = o();
+//            for (int j = 0; j < attrs.getLength(); j++) {
+//                Node attrItem = attrs.item(j);
+//                obj.put(attrItem.getNodeName(), attrItem.getNodeValue());
+//            }
+//        }
+
+        bpmService.model = bpmModel;
+        System.out.println(bpmService.model);
+
+    }
+
+    private static Document getForm(String formId){
+        Document doc = db.getCollection("form").find(new BasicDBObject("_id", new ObjectId(formId))).first();
+        doc.put("_id", doc.getObjectId("_id").toString());
+        return doc;
     }
 
     public static BpmService ofIns(Document data) {
@@ -542,8 +610,8 @@ public class BpmService {
      * @param uid
      * @param data
      */
-    public boolean submitIns(String uid, Obj data) {
-        boolean bl = true;
+    public Object submitIns(String uid, Obj data) {
+        Object bl;
 //        if (!canPub(uid)) {
 //            error("用户没有权限发布任务");
 //        }
@@ -559,10 +627,18 @@ public class BpmService {
         if(nextNode.id.equals(bpmService.ins.bpmModel.end)){
             Obj state = o();
             state.put("state", "FINISHED");
+//            state.put("currentNodes", a(nextNode.id));
             MongoCollection<Document> collection = db.getCollection("bpmInstance");
             UpdateResult res = collection.updateOne(Filters.eq("_id", bpmService.ins._id),new Document("$set", state.toBson()));
-            bl = res.getModifiedCount()>0;
+//            bl = res.getModifiedCount()>0;
+            if(res.getModifiedCount()>0){
+                bl = "提交成功，该流程已结束！";
+            }
+
         }
+//        if(bpmService.ins.bpmModel.end == bpmService.ins.currentNodes.get(0).nodeId){
+//            bl = "该流程已完结！";
+//        }
         return bl;
     }
 

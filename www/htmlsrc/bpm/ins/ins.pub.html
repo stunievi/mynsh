@@ -258,7 +258,12 @@
                     }
                 } else {
                     if(gonext){
-                        window.open("./choose.html?id=" + msg.data, "choosepersons", "top=100, left=100, width=500, height=300")
+                        if(msg.data.res == true){
+                            window.open("./choose.html?id=" + msg.data.id, "choosepersons", "top=100, left=100, width=500, height=300")
+                        }else{
+                            layer.msg(msg.data.res)
+                        }
+                        console.log(msg.data.res);
                     }else{
                         layer.msg("保存成功！")
                     }

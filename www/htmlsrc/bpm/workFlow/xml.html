@@ -517,9 +517,9 @@
                     dataType: "json",
                     success:function(res){
                         if(res.success){
-                            // layer.alert("保存成功！", { icon: 1, closeBtn: 0 }, function () {
-                                // closeCurrentIframe();
-                            // } );
+                            layer.alert("保存成功！", { icon: 1, closeBtn: 0 }, function () {
+                                closeCurrentIframe();
+                            } );
                         }else{
                             layer.alert("保存失败！"+res.errMessage, { icon: 2, closeBtn: 0 }, function () {
                                 layer.closeAll();
