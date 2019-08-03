@@ -270,8 +270,8 @@
                             window.open("./choose.html?id=" + msg.data.id, "choosepersons", "top=100, left=100, width=500, height=300")
                         }else{
                             layer.msg(msg.data.res)
+                            load(window.type, window.id)
                         }
-                        console.log(msg.data.res);
                     }else{
                         layer.msg("保存成功！")
                     }

@@ -30,7 +30,6 @@ import org.bson.types.ObjectId;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import sun.net.httpserver.AuthFilter;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -627,7 +626,7 @@ public class BpmService {
         if(nextNode.id.equals(bpmService.ins.bpmModel.end)){
             Obj state = o();
             state.put("state", "FINISHED");
-//            state.put("currentNodes", a(nextNode.id));
+//            state.put("currentNodes", a(uid, nextNode.id));
             MongoCollection<Document> collection = db.getCollection("bpmInstance");
             UpdateResult res = collection.updateOne(Filters.eq("_id", bpmService.ins._id),new Document("$set", state.toBson()));
 //            bl = res.getModifiedCount()>0;
