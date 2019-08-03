@@ -118,7 +118,7 @@
                         //当前节点可编辑
                         $.each(Data.formFields || [], function (i, v) {
                             var elem = body.find("[name=" + Data.allFields[v].name + "]");
-                            elem.removeProp("disabled").css("border-color", "blue")
+                            elem.removeProp("disabled").css("border", "1px solid blue")
                             if(elem.is("[leipiplugins=datetime]")){
                                 elem.prop("readonly","true")
 
@@ -141,6 +141,14 @@
                                         });
                                     })
                                 })(elem[0].title, elem.attr("orgformat"));
+                            }
+
+                            if(elem.is("[leipiplugins=sign]")){
+                                elem.click(function () {
+                                    var id = $(this).attr("name");
+                                    var src = $(this).attr("src");
+                                    window.open("./sign.html?name=" + id + "&src=" + src, "bpm-sign", "left=100, top=100, width=500, height=500, location=no")
+                                });
                             }
                         });
 

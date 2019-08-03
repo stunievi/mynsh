@@ -7,6 +7,7 @@ import com.beeasy.hzbpm.entity.BpmInstance;
 import com.beeasy.hzbpm.filter.Auth;
 import com.beeasy.hzbpm.service.BpmService;
 import com.beeasy.hzbpm.util.Result;
+import com.github.llyb120.nami.core.MultipartFile;
 import com.github.llyb120.nami.json.Arr;
 import com.github.llyb120.nami.json.Json;
 import com.github.llyb120.nami.json.Obj;
@@ -29,6 +30,7 @@ import static com.beeasy.hzbpm.bean.MongoService.db;
 import static com.github.llyb120.nami.ext.beetlsql.BeetlSql.sqlManager;
 import static com.github.llyb120.nami.json.Json.*;
 import static com.github.llyb120.nami.server.Vars.$request;
+import static com.beeasy.hzbpm.bean.FileStorage.storage;
 
 public class workflow {
 
@@ -37,6 +39,15 @@ public class workflow {
         return db.getCollection("workflow");
     }
 
+
+
+    public Object uploadImage(String base64){
+        return Result.ok(storage.upload(base64));
+    }
+
+    public MultipartFile download(String path){
+        return storage.download(path);
+    }
 
     public Object logList(String id, String nodeId){
         MongoCollection<Document> collection = db.getCollection("bpmInstance");
