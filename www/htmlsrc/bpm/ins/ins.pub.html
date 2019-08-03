@@ -256,14 +256,16 @@
 
                 window.opener.location.reload()
                 if(window.type == 'pub'){
-                    load("deal", msg.data)
-                    window.type = "deal";
-                    window.id = msg.data;
+                    // window.type = "deal";
+                    // window.id = msg.data;
+                    // load("deal", msg.data)
                     if(gonext){
                         window.open("./choose.html?id=" + msg.data, "choosepersons", "top=100, left=100, width=500, height=300")
-                    } else {
-                        window.close();
                     }
+                    location.href = "./ins.pub.html?type=deal&id=" + msg.data
+                    // else {
+                    //     window.close();
+                    // }
                 } else {
                     if(gonext){
                         if(msg.data.res == true){
