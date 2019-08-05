@@ -192,7 +192,8 @@ public class workflow {
                         "_id", o("$toString", "$_id"),
                         "attrs",1,
                         "createTime", 1,
-                        "lastModifyTime", 1
+                        "lastModifyTime", 1,
+                        "currentNodes", 1
                 )),
                 o("$sort",o("lastModifyTime", -1)),
                 o("$skip", (page - 1) * size),
@@ -201,10 +202,21 @@ public class workflow {
                 .stream()
                 .map(e -> {
                     Document doc = (Document) e;
+                    String uname = "";
+
+                    List<String> curr = (List<String>) doc.get("currentNodes");
+                    Object ob = curr.get(0);
+                    List<String> uids = (List<String>) ((Document) ob).get("uids");
+                    if(null != uids && uids.size()>0){
+                        uname = sqlManager.execute(new SQLReady("select true_name from t_user where id = ?", uids.get(0)), Obj.class).get(0).s("true_name");
+                    }
+                    String su = sqlManager.execute(new SQLReady("select su from t_user where id = ?", Auth.getUid()), Obj.class).get(0).s("su");
                     Obj obj = o();
-                    obj.put("_id",doc.get("_id"));
+                    obj.put("id",doc.get("_id"));
                     obj.put("lastModifyTime",doc.get("lastModifyTime"));
                     obj.put("createTime",doc.get("createTime"));
+//                    obj.put("uName",uname);
+                    obj.put("isAdmin",su);
                     obj.putAll((Map)doc.get("attrs"));
                     return obj;
                 })
@@ -322,6 +334,21 @@ public class workflow {
         }
 
         return (Result.ok(doc));
+    }
+
+    /**
+     * 删除流程
+     */
+    public Object deleteIns(String id){
+        if(null == id){
+            return Result.error("流程id为空！");
+        }
+        MongoCollection<Document> collection = db.getCollection("bpmInstance");
+        Document ret = collection.findOneAndDelete(new Document() {{
+            put("_id", new ObjectId(id));
+        }});
+        return Result.ok(ret != null);
+
     }
 
 

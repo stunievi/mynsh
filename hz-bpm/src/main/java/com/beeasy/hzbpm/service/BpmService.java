@@ -468,6 +468,7 @@ public class BpmService {
         JSONObject dataLog = new JSONObject();
         dataLog.put("id", new ObjectId());
         dataLog.put("nodeId", startNode.id);
+        dataLog.put("msg", startNode.name);
         dataLog.put("time", new Date());
         dataLog.put("uid", uid);
         dataLog.put("attrs", attrs);
@@ -613,6 +614,7 @@ public class BpmService {
         BpmInstance.DataLog dataLog = new BpmInstance.DataLog();
         dataLog.id = new ObjectId();
         dataLog.nodeId = nodeId;
+        dataLog.msg = bpmService.ins.bpmModel.nodes.get(nodeId).name;
         dataLog.time = new Date();
         dataLog.uid = uid;
         dataLog.attrs = attrs;
@@ -669,7 +671,7 @@ public class BpmService {
         if(nextNode.id.equals(bpmService.ins.bpmModel.end)){
             Obj state = o();
             state.put("state", "FINISHED");
-//            state.put("currentNodes", a(uid, nextNode.id));
+            state.put("currentNodes", a(nextNode.id));
             MongoCollection<Document> collection = db.getCollection("bpmInstance");
             UpdateResult res = collection.updateOne(Filters.eq("_id", bpmService.ins._id),new Document("$set", state.toBson()));
 //            bl = res.getModifiedCount()>0;
@@ -713,6 +715,7 @@ public class BpmService {
         LocalDateTime maxTimeout = dateTime(timeoutSet.maxTimeout, timeout);
 
         Date nowDate = toDate(nowTime);
+        currentNode.msg = bpmService.ins.bpmModel.nodes.get(nextNode.id).name;
         currentNode.nowTime = nowDate;
         currentNode.timeout = toDate(timeout);
         currentNode.maxTimeout = toDate(maxTimeout);

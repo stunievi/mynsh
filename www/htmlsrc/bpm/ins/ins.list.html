@@ -37,6 +37,11 @@
         <!--<a class="btn btn-default handlePutRole" href="javascript:;" data-id="{{d.id}}">角色</a>-->
         <a class="btn btn-warning btn-show" href="javascript:;" data-id="{{d._id}}">查看</a>
         <a class="btn btn-warning btn-edit" href="javascript:;" data-id="{{d._id}}">编辑</a>
+        {{# if(d.isAdmin == "1"){ }}
+        <button class="btn btn-danger" delete-href="{{remoteOrigin}}/api/bpm/workflow/deleteIns?id={{d.id}}">删除</button>
+        <button class="btn btn-danger" delete-href="{{remoteOrigin}}/api/bpm/workflow/delet?id={{d.id}}">暂停</button>
+        <button class="btn btn-danger" delete-href="{{remoteOrigin}}/api/bpm/workflow/delete?id={{d.id}}">结束</button>
+        {{# } }}
         <!--<a class="btn btn-default handleShow" href="javascript:;" data-id="{{d.id}}" data-name="{{d.trueName}}">查看</a>-->
 <!--        <button class="btn btn-danger" delete-href="{{remoteOrigin}}/api/auto/user/delete?id={{d.id}}">删除</button>-->
     </div>
@@ -46,12 +51,20 @@
     var fields = decodeURI(getParam("fields"));
     fields = JSON.parse(fields);
     var cols = [];
+    cols.push({
+        title:"流程ID",
+        field:"id",
+    })
     $.each(fields, function (i,v) {
         cols.push({
             title: v,
             field: v
         })
     });
+    cols.push({
+        title:"当前经办人",
+        field:"uName",
+    })
     cols.push({
         title:"创建时间",
         field:"createTime",

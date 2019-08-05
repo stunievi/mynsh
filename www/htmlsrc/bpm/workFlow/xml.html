@@ -354,6 +354,7 @@
                     var dids = [];
                     var timeout = "";
                     var maxTimeout = "";
+                    var taskName = "";
                     if(undefined ==  window.bpmData.nodes[sourceRef]){
                         /*errFlag = true;
                         layer.msg("请配置节点信息！");
@@ -370,6 +371,7 @@
 
                         timeout = window.bpmData.nodes[sourceRef].timeoutSet.timeout;
                         maxTimeout = window.bpmData.nodes[sourceRef].timeoutSet.maxTimeout;
+                        taskName = window.bpmData.nodes[sourceRef].name;
                         var timeoutSet = {};
                         timeoutSet["timeout"] = timeout;
                         timeoutSet["maxTimeout"] = maxTimeout;
@@ -401,7 +403,7 @@
                         ex.push({sourceRef,targetRef});
                         exList[sourceRef] = ex;
                     }else{
-                        _eventMap[sourceRef] = {"id":sourceRef,"allFields":allFields,"requiredFields":requiredFields,"uids":pids,"qids":qids,"rids":rids,"dids":dids,"nextNodes":nextNodes,"timeoutSet":timeoutSet}
+                        _eventMap[sourceRef] = {"id":sourceRef,"name":taskName,"allFields":allFields,"requiredFields":requiredFields,"uids":pids,"qids":qids,"rids":rids,"dids":dids,"nextNodes":nextNodes,"timeoutSet":timeoutSet}
                     }
 
                     window.sbpmData.nodes[sourceRef] = (window.bpmData.nodes[sourceRef]);
@@ -418,6 +420,7 @@
                 var rids = [];
                 var dids = [];
                 var conList;
+                var taskName = "";
                 if(undefined ==  window.bpmData.nodes[sourceRef]){
                 }else{
                     allFields = window.bpmData.nodes[sourceRef].fields.all_fields;
@@ -428,6 +431,7 @@
                     qids =arrToStr(window.bpmData.nodes[sourceRef].permission.qids);
                     rids =arrToStr(window.bpmData.nodes[sourceRef].permission.rids);
                     dids =arrToStr(window.bpmData.nodes[sourceRef].permission.dids);
+                    taskName = window.bpmData.nodes[sourceRef].name;
                 }
                 for(var ex=0;ex<exList[i].length;ex++){
                     var targetRef = exList[i][ex].targetRef;
@@ -440,7 +444,7 @@
                 }
                 var nextNodes = [];
                 nextNodes.push(node);
-                _eventMap[exList[i].sourceRef] = {"id":exList[i],"allFields":allFields,"requiredFields":requiredFields,"uids":pids,"qids":qids,"rids":rids,"dids":dids,"nextNodes":nextNodes}
+                _eventMap[exList[i].sourceRef] = {"id":exList[i],"name":taskName,"allFields":allFields,"requiredFields":requiredFields,"uids":pids,"qids":qids,"rids":rids,"dids":dids,"nextNodes":nextNodes}
             });
 
             // 结束节点
@@ -452,6 +456,7 @@
                 var qids = [];
                 var rids = [];
                 var dids = [];
+                var taskName = "";
                 // var nextNodes = [];
                 // var node = {};
                 if(undefined ==  window.bpmData.nodes[sourceRef]){
@@ -464,13 +469,14 @@
                     qids =arrToStr(window.bpmData.nodes[sourceRef].permission.qids);
                     rids =arrToStr(window.bpmData.nodes[sourceRef].permission.rids);
                     dids =arrToStr(window.bpmData.nodes[sourceRef].permission.dids);
+                    taskName = window.bpmData.nodes[sourceRef].name;
                     // var conList = window.bpmData.nodes[sourceRef].condition;
                     // var _expression = preorderZheng(conList,"and");
                     //
                     // node["expression"] = _expression;
                     // nextNodes.push(node);
                 }
-                _eventMap[sourceRef] = {"id":sourceRef,"allFields":allFields,"requiredFields":requiredFields,"uids":pids,"qids":qids,"rids":rids,"dids":dids,"nextNodes":[]}
+                _eventMap[sourceRef] = {"id":sourceRef,"name":taskName,"allFields":allFields,"requiredFields":requiredFields,"uids":pids,"qids":qids,"rids":rids,"dids":dids,"nextNodes":[]}
                 window.sbpmData.nodes[sourceRef] = (window.bpmData.nodes[sourceRef]);
             })
 
@@ -615,6 +621,7 @@
         var modelName = $("#modelName").val();
         var form = $("#selectForm").val();
         console.log("当前选中id:",obj)
+        bpmData.nodes[obj.id].name = obj.name;
 
         bpmData.nodes[obj.id] = bpmData.nodes[obj.id] || {
             fields:{
