@@ -619,9 +619,11 @@ public class BpmService {
         dataLog.attrs = attrs;
         dataLog.uname = getUserName(uid);
         if(mode.equalsIgnoreCase("edit")){
-            dataLog.msg = String.format("编辑流程", node.name);
+            dataLog.msg = "编辑流程";
         } else {
-            dataLog.msg = String.format("提交【%s】", node.name);
+            if(StrUtil.isNotBlank(node.name)) {
+                dataLog.msg = String.format("提交【%s】", node.name);
+            }
         }
 
 //        bpmService.ins.logs.add(dataLog);
