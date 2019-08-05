@@ -4,6 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.beeasy.hzbpm.entity.BpmInstance;
+import com.beeasy.hzbpm.exception.BpmException;
 import com.beeasy.hzbpm.filter.Auth;
 import com.beeasy.hzbpm.service.BpmService;
 import com.beeasy.hzbpm.util.Result;
@@ -40,6 +41,30 @@ public class workflow {
     }
 
 
+    public Object pause(String id){
+        BpmService service = BpmService.ofIns(id);
+        service.pause(Auth.getUid() + "");
+        return Result.ok();
+    }
+
+    public Object resume(String id) {
+        BpmService service = BpmService.ofIns(id);
+        service.resume(Auth.getUid() + "");
+        return Result.ok();
+    }
+
+    public Object forceEnd(String id) {
+        BpmService service = BpmService.ofIns(id);
+        service.forceEnd(Auth.getUid() + "");
+        return Result.ok();
+    }
+
+    public Object forceResume(String id) {
+        BpmService service = BpmService.ofIns(id);
+        service.forceResume(Auth.getUid() + "");
+        return Result.ok();
+    }
+
 
     public Object uploadImage(String base64){
         return Result.ok(storage.upload(base64));
@@ -47,6 +72,12 @@ public class workflow {
 
     public MultipartFile download(String path){
         return storage.download(path);
+    }
+
+    public Object urge(String id, String msg){
+        BpmService service = BpmService.ofIns(id);
+        service.urge(Auth.getUid() + "", msg);
+        return Result.ok();
     }
 
     public Object logList(String id, String nodeId){
@@ -171,6 +202,7 @@ public class workflow {
         if (size == null || size < 1) {
             size = 20;
         }
+        String uid = Auth.getUid()+"";
         MongoCollection<Document> col = db.getCollection("bpmInstance");
         Obj match = o(
                 "$and", a(
@@ -191,9 +223,12 @@ public class workflow {
                 o("$project", o(
                         "_id", o("$toString", "$_id"),
                         "attrs",1,
+                        "pubUid",1,
+                        "pubUName",1,
                         "createTime", 1,
                         "lastModifyTime", 1,
-                        "currentNodes", 1
+                        "currentNodes", 1,
+                        "state",1
                 )),
                 o("$sort",o("lastModifyTime", -1)),
                 o("$skip", (page - 1) * size),
@@ -202,22 +237,24 @@ public class workflow {
                 .stream()
                 .map(e -> {
                     Document doc = (Document) e;
-                    String uname = "";
-
-                    List<String> curr = (List<String>) doc.get("currentNodes");
-                    Object ob = curr.get(0);
-                    List<String> uids = (List<String>) ((Document) ob).get("uids");
-                    if(null != uids && uids.size()>0){
-                        uname = sqlManager.execute(new SQLReady("select true_name from t_user where id = ?", uids.get(0)), Obj.class).get(0).s("true_name");
-                    }
-                    String su = sqlManager.execute(new SQLReady("select su from t_user where id = ?", Auth.getUid()), Obj.class).get(0).s("su");
                     Obj obj = o();
-                    obj.put("id",doc.get("_id"));
-                    obj.put("lastModifyTime",doc.get("lastModifyTime"));
-                    obj.put("createTime",doc.get("createTime"));
-//                    obj.put("uName",uname);
-                    obj.put("isAdmin",su);
+                    obj.putAll(doc);
                     obj.putAll((Map)doc.get("attrs"));
+                    obj.remove("attrs");
+                    BpmService bpmService = BpmService.ofIns(doc);
+                    obj.put("deal", bpmService.canDealCurrent(uid));
+                    obj.put("edit", bpmService.canEdit(uid));
+                    obj.put("forceEnd", bpmService.canForceEnd(uid));
+                    obj.put("forceResume", bpmService.canForceResume(uid));
+                    obj.put("pause", bpmService.canPause(uid));
+                    obj.put("resume", bpmService.canResume(uid));
+                    obj.put("urge", bpmService.canUrge(uid));
+
+                    String names = bpmService.ins.currentNodes.stream()
+                            .flatMap(ee -> ee.unames.stream())
+                            .collect(Collectors.joining(","));
+                    obj.put("uName", names);
+
                     return obj;
                 })
                 .collect(Collectors.toList());
@@ -230,12 +267,8 @@ public class workflow {
     }
 
     public Object preparePub(String id){
-        try{
-            BpmService service = BpmService.ofModel(id);
-            return Result.ok(service.preparePub(Auth.getUid() + ""));
-        } catch (BpmService.BpmException e){
-            return Result.error(e.error);
-        }
+        BpmService service = BpmService.ofModel(id);
+        return Result.ok(service.preparePub(Auth.getUid() + ""));
     }
 
 

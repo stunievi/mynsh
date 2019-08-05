@@ -22,7 +22,7 @@ public class BpmInstance {
     public String bpmName;
 
     //用户ID
-    public Long pubUid;
+    public String pubUid;
     //用户名
     public String pubUName;
 
