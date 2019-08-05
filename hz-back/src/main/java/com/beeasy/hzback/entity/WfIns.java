@@ -637,7 +637,7 @@ public class WfIns extends ValidGroup {
                 batchPoint(sqlManager, object.getString("modelIds"), object.getLong("toUid"));
                 break;
             case "setP":
-                setP(sqlManager, object)f;
+                setP(sqlManager, object);
                 break;
 
             case "cancel":

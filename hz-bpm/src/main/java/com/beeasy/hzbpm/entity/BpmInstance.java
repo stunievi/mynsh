@@ -88,5 +88,15 @@ public class BpmInstance {
 
         //当前正在处理这个节点的人
         public List<String> uids;
+
+        // 当前时间
+        public Date nowTime;
+
+        // 超时提醒时间
+        public Date timeout;
+
+        // 最大超时提醒时间
+        public Date maxTimeout;
+
     }
 }

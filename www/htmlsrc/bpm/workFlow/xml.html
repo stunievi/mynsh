@@ -125,8 +125,6 @@
     </select>
 </script>
 
- <!--设置-字段-->
-
 <script>
     window.form = null;
     window.fields = [];
@@ -354,6 +352,8 @@
                     var qids = [];
                     var rids = [];
                     var dids = [];
+                    var timeout = "";
+                    var maxTimeout = "";
                     if(undefined ==  window.bpmData.nodes[sourceRef]){
                         /*errFlag = true;
                         layer.msg("请配置节点信息！");
@@ -367,6 +367,12 @@
                         qids =arrToStr(window.bpmData.nodes[sourceRef].permission.qids);
                         rids =arrToStr(window.bpmData.nodes[sourceRef].permission.rids);
                         dids =arrToStr(window.bpmData.nodes[sourceRef].permission.dids);
+
+                        timeout = window.bpmData.nodes[sourceRef].timeoutSet.timeout;
+                        maxTimeout = window.bpmData.nodes[sourceRef].timeoutSet.maxTimeout;
+                        var timeoutSet = {};
+                        timeoutSet["timeout"] = timeout;
+                        timeoutSet["maxTimeout"] = maxTimeout;
                         var conList;
                         if(undefined !=  window.bpmData.nodes[targetRef]){
                             conList = window.bpmData.nodes[targetRef].condition;
@@ -395,7 +401,7 @@
                         ex.push({sourceRef,targetRef});
                         exList[sourceRef] = ex;
                     }else{
-                        _eventMap[sourceRef] = {"id":sourceRef,"allFields":allFields,"requiredFields":requiredFields,"uids":pids,"qids":qids,"rids":rids,"dids":dids,"nextNodes":nextNodes}
+                        _eventMap[sourceRef] = {"id":sourceRef,"allFields":allFields,"requiredFields":requiredFields,"uids":pids,"qids":qids,"rids":rids,"dids":dids,"nextNodes":nextNodes,"timeoutSet":timeoutSet}
                     }
 
                     window.sbpmData.nodes[sourceRef] = (window.bpmData.nodes[sourceRef]);
@@ -494,7 +500,7 @@
                         }
                     }
                 });
-                _xmlMap = {"formId":formId,"template":form.form.template,"rendered":form.form.parse,"workflowName":modelName,"fields":_formDataMap,"nodes":_eventMap,"start":startEvent,"end":endEvent,"listFields":listFields}
+                _xmlMap = {"formId":formId,"template":"","rendered":"","workflowName":modelName,"fields":null,"nodes":_eventMap,"start":startEvent,"end":endEvent,"listFields":listFields}
 
                 var da = {
                     _id:id,
@@ -608,7 +614,7 @@
         fulldata.taskId=obj.id;
         var modelName = $("#modelName").val();
         var form = $("#selectForm").val();
-        console.log("当前选中id:",obj.id)
+        console.log("当前选中id:",obj)
 
         bpmData.nodes[obj.id] = bpmData.nodes[obj.id] || {
             fields:{
@@ -627,7 +633,11 @@
                 dids:[],
                 rids:[]
             },
-            condition: []
+            condition: [],
+            timeoutSet:{
+                timeout:"",
+                maxTimeout:"",
+            }
         };
         window.open("./node.edit.html?id=" + obj.id,"node_edit_" + obj.id, "left=200, top=100, width=800, height=500, location=no")
 

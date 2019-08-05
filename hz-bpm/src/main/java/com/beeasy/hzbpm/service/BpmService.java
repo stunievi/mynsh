@@ -35,7 +35,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.time.LocalDate;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -90,11 +90,11 @@ public class BpmService {
         bpmService.model = Json.cast(data.get("arrangementData"), BpmModel.class);
         bpmService.xml = data.getString("xml");
         bpmService.formId = data.getObjectId("formId").toHexString();
-//        arrangementData(bpmService.bpmData, bpmService.formId,bpmService.xml);
+        bpmService.model = arrangementData(bpmService.bpmData, bpmService.model, bpmService.formId,bpmService.xml,bpmService.modelId);
         return bpmService;
     }
 
-    public static void arrangementData(Document data, String formId, String xml){
+    public static BpmModel arrangementData(Document data, BpmModel arrData, String formId, String xml, String modelId){
         BpmService bpmService = new BpmService();
         Document doc = getForm(formId);
         bpmService.formEntity = Json.cast(doc.get("form"), FormEntity.class);
@@ -107,10 +107,10 @@ public class BpmService {
 //        bpmService.model.workflowName = (String) data.get("workflowName");
 
         Map<String, Map> fieldMap = new HashMap<>();
-        for(Map list : bpmService.formEntity.data){
-            fieldMap.put((String) list.get(list),list);
-
-        }
+//        for(Map list : bpmService.formEntity.data){
+//            fieldMap.put((String) list.get(list),list);
+//
+//        }
         for(int i = 0;i < bpmService.formEntity.data.size();i++)
         {
             Map<String,Object> map = bpmService.formEntity.data.get(i);
@@ -118,6 +118,23 @@ public class BpmService {
             fieldMap.put(title,map);
         }
         bpmModel.fields = fieldMap;
+
+        bpmModel.workflowName = arrData.workflowName;
+
+        bpmModel.listFields = arrData.listFields;
+
+        bpmModel.nodes = arrData.nodes;
+        bpmModel.start = arrData.start;
+        bpmModel.end = arrData.end;
+
+        bpmService.model = bpmModel;
+
+//        Obj update = o();
+//        update.put("arrangementData",bpmService.model);
+
+        //配置节点，超时提醒时间，最大超时提醒时间/ 文本框，        select,小时，天
+
+
 //        System.out.println(xml.replaceAll("\\\\\"","\""));
 //        int pos = xml.indexOf(">");
 //        xml = xml.substring(pos + 1);
@@ -133,8 +150,9 @@ public class BpmService {
 //            }
 //        }
 
-        bpmService.model = bpmModel;
+
         System.out.println(bpmService.model);
+        return bpmService.model;
 
     }
 
@@ -685,6 +703,19 @@ public class BpmService {
         uids.add(nextUid);
         currentNode.uids = uids;
 
+
+        // 得到下一节点超时提醒配置信息
+        BpmModel.TimeoutSet timeoutSet = bpmService.ins.bpmModel.nodes.get(nextNode.id).timeoutSet;
+        LocalDateTime nowTime = LocalDateTime.now();
+
+        LocalDateTime timeout = dateTime(timeoutSet.timeout, nowTime);
+        LocalDateTime maxTimeout = dateTime(timeoutSet.maxTimeout, timeout);
+
+        Date nowDate = toDate(nowTime);
+        currentNode.nowTime = nowDate;
+        currentNode.timeout = toDate(timeout);
+        currentNode.maxTimeout = toDate(maxTimeout);
+
         update.put("currentNodes", a(currentNode));
 
         MongoCollection<Document> collection = db.getCollection("bpmInstance");
@@ -692,6 +723,38 @@ public class BpmService {
         UpdateResult res = collection.updateOne(Filters.eq("_id", bpmService.ins._id),new Document("$set", update.toBson()));
 
         return res.getModifiedCount() > 0;
+    }
+
+
+    private LocalDateTime dateTime(String dateTime, LocalDateTime nowDateTime){
+        if(null == dateTime){
+            return null;
+        }
+        String [] dateArr = dateTime.split("_");
+        if(dateArr.length!=2){
+            return null;
+        }
+        if(dateArr[1].equals("day")){
+            nowDateTime = nowDateTime.plusDays(Long.parseLong(dateArr[0]));
+
+        }else if(dateArr[1].equals("hours")){
+            nowDateTime = nowDateTime.plusHours(Long.parseLong(dateArr[0]));
+        }
+
+        return nowDateTime;
+    }
+
+    /**
+     * 日期格式转换
+     * @param localDateTime
+     * @return
+     */
+    private Date toDate(LocalDateTime localDateTime){
+        ZoneId zoneId = ZoneId.systemDefault();
+        ZonedDateTime zdt = localDateTime.atZone(zoneId);
+
+        Date date = Date.from(zdt.toInstant());
+        return date;
     }
 
 

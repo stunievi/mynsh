@@ -32,6 +32,7 @@
             <li role="presentation" class="li2"><a href="#tab3" role="tab" data-toggle="tab" aria-controls="tab3">填写字段</a></li>
             <li role="presentation" class="li2"><a href="#tab5" role="tab" data-toggle="tab" aria-controls="tab5">必填字段</a></li>
             <li role="presentation" class="li2"><a href="#tab4" role="tab" data-toggle="tab" aria-controls="tab4">转入条件</a></li>
+            <li role="presentation" class="li2"><a href="#tab6" role="tab" data-toggle="tab" aria-controls="tab6">超时提醒</a></li>
         </ul>
         <div id="myTabContent" class="tab-content">
 <!--            <div id="tab1" class="tab-pane">-->
@@ -47,6 +48,39 @@
             <div id="tab4" class="tab-pane">
                 <!--#include file="./condition.html" -->
             </div>
+            <div id="tab6" class="tab-pane">
+                <div class="col-xs-12 form-group " data-show="" style="margin-top: 20px;">
+                    <label class="col-xs-3 text-right">
+                        超时提醒时间
+                    </label>
+
+                    <div class="col-xs-8" style="padding-right: 15px;
+                        padding-left: 15px; max-width:200px">
+                        <input type="text" class="form-control input-sm timeout" id="timeout" name="timeout">
+                        <select class="form-control input-sm timeout" id="selectTime">
+                            <option value="hours">小时</option>
+                            <option value="day">天</option>
+                        </select>
+
+                    </div>
+                </div>
+
+                <div class="col-xs-12 form-group " data-show="">
+                    <label class="col-xs-3 text-right">
+                        最大超时提醒时间
+                    </label>
+
+                    <div class="col-xs-8" style="padding-right: 15px;
+                        padding-left: 15px; max-width:200px">
+                            <input type="text" class="form-control input-sm maxTimeout" id="maxTimeout" name="maxTimeout">
+                        <select class="form-control input-sm maxTimeout" id="selectMax">
+                            <option value="hours">小时</option>
+                            <option value="day">天</option>
+                        </select>
+
+                    </div>
+                </div>
+            </div>
         </div>
 
     </div>
@@ -54,6 +88,43 @@
 
     <script>
         var nodeId = location.search.match(/id=(.+)&?/)[1]
+
+        getTimeoutSet()
+
+        function getTimeoutSet(){
+            $('.timeout').change(function(e){
+                var time = $("#timeout").val();
+                var selectVal = $("#selectTime").val();
+                opener.bpmData.nodes[nodeId].timeoutSet.timeout = time + "_" + selectVal;
+            });
+            $('.maxTimeout').change(function(e){
+                var time = $("#maxTimeout").val();
+                var selectVal = $("#selectMax").val();
+                opener.bpmData.nodes[nodeId].timeoutSet.maxTimeout = time + "_" + selectVal;
+            });
+            // $(".maxTimeout").bind('input propertychange',function(){
+            //     var val = $(this).val();
+            //     var selectVal = $("#selectTime").val()
+            //     opener.bpmData.nodes[nodeId].timeoutSet.timeout = val + "_" + selectVal;
+            // })
+            // $("#maxTimeout").bind('input propertychange',function(){
+            //     var val = $(this).val();
+            //     var selectVal = $("#selectMax").val()
+            //     opener.bpmData.nodes[nodeId].timeoutSet.maxTimeout = val + "_" + selectVal;
+            // })
+        }
+
+        var timeout = opener.bpmData.nodes[nodeId].timeoutSet.timeout.split("_");
+        var maxTimeout = opener.bpmData.nodes[nodeId].timeoutSet.maxTimeout.split("_");
+        if(timeout.length>0){
+            $("#timeout").val(timeout[0])
+        }
+        if(maxTimeout.length>0){
+            $("#maxTimeout").val(maxTimeout[0])
+        }
+
+
+
         $("#tab3").fsSelector("all", opener.fields, opener.bpmData.nodes[nodeId].fields.all_fields)
         $("#tab5").fsSelector("required", opener.fields, opener.bpmData.nodes[nodeId].fields.required_fields)
     </script>
