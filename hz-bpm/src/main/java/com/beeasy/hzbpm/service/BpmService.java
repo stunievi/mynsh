@@ -10,6 +10,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzbpm.entity.BpmModel;
 import com.beeasy.hzbpm.entity.FormEntity;
+import com.beeasy.hzbpm.exception.BpmException;
 import com.beeasy.hzbpm.filter.Auth;
 import com.beeasy.hzbpm.util.Result;
 import com.github.llyb120.nami.json.Arr;
@@ -164,10 +165,12 @@ public class BpmService {
 
     public static BpmService ofIns(Document data) {
         BpmService bpmService = new BpmService();
-        bpmService.arrangementData = (Document) data.get("bpmModel");
+//        bpmService.arrangementData = (Document) data.get("bpmModel");
         bpmService.ins = Json.cast(data, BpmInstance.class);
         bpmService.model = bpmService.ins.bpmModel;
-        bpmService.modelId = bpmService.ins.bpmId.toString();
+        if(bpmService.ins.bpmId != null){
+            bpmService.modelId = bpmService.ins.bpmId.toString();
+        }
         bpmService.xml = bpmService.ins.xml;
         return bpmService;
     }
@@ -184,6 +187,70 @@ public class BpmService {
             return null;
         }
         return ofIns(data);
+    }
+
+    public boolean forceResume(String uid){
+        if(!canForceResume(uid)){
+            error("无权强制恢复任务");
+        }
+        MongoCollection<Document> col = db.getCollection("bpmInstance");
+        UpdateResult result = col.updateOne(
+                Filters.eq("_id", ins._id),
+                o(
+                        "$set", o(
+                                "state", "流转中"
+                        )
+                ).toBson()
+        );
+        return result.getModifiedCount() > 0;
+    }
+
+    public boolean forceEnd(String uid){
+        if(!canForceEnd(uid)){
+            error("无权强制结束任务");
+        }
+        MongoCollection<Document> col = db.getCollection("bpmInstance");
+        UpdateResult result = col.updateOne(
+                Filters.eq("_id", ins._id),
+                o(
+                        "$set", o(
+                                "state", "强制结束"
+                        )
+                ).toBson()
+        );
+        return result.getModifiedCount() > 0;
+    }
+
+    public boolean resume(String uid){
+        if(!canResume(uid)){
+            error("无权恢复任务");
+        }
+        MongoCollection<Document> col = db.getCollection("bpmInstance");
+        UpdateResult result = col.updateOne(
+                Filters.eq("_id", ins._id),
+                o(
+                        "$set", o(
+                                "state", "流转中"
+                        )
+                ).toBson()
+        );
+        return result.getModifiedCount() > 0;
+    }
+
+    public boolean pause(String uid){
+        if(!canPause(uid)){
+            error("无权暂停任务");
+        }
+        MongoCollection<Document> col = db.getCollection("bpmInstance");
+        UpdateResult result = col.updateOne(
+                Filters.eq("_id", ins._id),
+                o(
+                        "$set", o(
+                                "state", "已暂停"
+                        )
+                ).toBson()
+        );
+        return result.getModifiedCount() > 0;
     }
 
 //    public static BpmService ofIns(String id, Obj data, String uid){
@@ -210,12 +277,16 @@ public class BpmService {
 
     /**
      * 是否可以处理某些节点
+     * 使用model上的字段
      *
      * @param uid
      * @param nodeIds
      * @return
      */
     public boolean canDeal(String uid, String... nodeIds) {
+//        if (!ins.state.equalsIgnoreCase("流转中")) {
+//            return false;
+//        }
         List<Obj> list = sqlManager.execute(new SQLReady("select uid,oid,pid from t_org_user where uid = ?", uid), Obj.class);
         for (String nodeId : nodeIds) {
             BpmModel.Node node = getNode(nodeId);
@@ -235,7 +306,7 @@ public class BpmService {
      * @return
      */
     public boolean canDealCurrent(final String uid) {
-        return ins.currentNodes.stream().anyMatch(e -> e.uids.contains(uid));
+        return isRunning() && ins.currentNodes.stream().anyMatch(e -> e.uids.contains(uid));
     }
 
     /**
@@ -256,7 +327,38 @@ public class BpmService {
      * @return
      */
     public boolean canEdit(String uid){
-        return !ins.state.equalsIgnoreCase("FINISHED") && isSu(uid);
+        return !isFinished() && isSu(uid);
+    }
+
+    /**
+     * 是否可以挂起任务
+     * @param uid
+     * @return
+     */
+    public boolean canPause(String uid){
+        return isRunning() && isSu(uid);
+    }
+
+    /**
+     * 是否可以恢复被挂起的任务
+     * @param uid
+     * @return
+     */
+    public boolean canResume(String uid){
+        return ins.state.equalsIgnoreCase("已暂停") && isSu(uid);
+    }
+
+    /**
+     * 是否可以强制结束任务
+     * @param uid
+     * @return
+     */
+    public boolean canForceEnd(String uid){
+        return isRunning() && isSu(uid);
+    }
+
+    public boolean canForceResume(String uid){
+        return ins.state.equalsIgnoreCase("强制结束") && isSu(uid);
     }
 
     /**
@@ -485,7 +587,7 @@ public class BpmService {
         MongoCollection<Document> collection = db.getCollection("bpmInstance");
 //        BpmInstance ins = new BpmInstance();
         Obj obj = new Obj();
-        obj.put("state", "DEALING");
+        obj.put("state", "流转中");
         obj.put("bpmId", new ObjectId(modelId));
         obj.put("bpmName", bpmService.model.workflowName);
         obj.put("pubUid", uid);
@@ -676,7 +778,7 @@ public class BpmService {
         // 判断是否为结束节点
         if(nextNode.id.equals(bpmService.ins.bpmModel.end)){
             Obj state = o();
-            state.put("state", "FINISHED");
+            state.put("state", "已办结");
 //            state.put("currentNodes", a(uid, nextNode.id));
             MongoCollection<Document> collection = db.getCollection("bpmInstance");
             UpdateResult res = collection.updateOne(Filters.eq("_id", bpmService.ins._id),new Document("$set", state.toBson()));
@@ -825,8 +927,12 @@ public class BpmService {
     }
 
 
+    public boolean isRunning(){
+        return  ins.state.equalsIgnoreCase("流转中");
+    }
+
     public boolean isFinished(){
-        return ins != null && "FINISHED".equalsIgnoreCase(ins.state);
+        return ins != null && ("已办结".equalsIgnoreCase(ins.state) || "强制结束".equalsIgnoreCase(ins.state));
     }
 
     /**
@@ -869,15 +975,6 @@ public class BpmService {
                 .map(e -> getNode(e.nodeId))
                 .filter(e -> e != null)
                 .collect(Collectors.toList());
-    }
-
-    public static class BpmException extends RuntimeException {
-        public String error = "";
-
-        public BpmException(String message) {
-            super(message);
-            error = message;
-        }
     }
 
 }

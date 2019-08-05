@@ -4,6 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.beeasy.hzbpm.entity.BpmInstance;
+import com.beeasy.hzbpm.exception.BpmException;
 import com.beeasy.hzbpm.filter.Auth;
 import com.beeasy.hzbpm.service.BpmService;
 import com.beeasy.hzbpm.util.Result;
@@ -39,6 +40,30 @@ public class workflow {
         return db.getCollection("workflow");
     }
 
+
+    public Object pause(String id){
+        BpmService service = BpmService.ofIns(id);
+        service.pause(Auth.getUid() + "");
+        return Result.ok();
+    }
+
+    public Object resume(String id) {
+        BpmService service = BpmService.ofIns(id);
+        service.resume(Auth.getUid() + "");
+        return Result.ok();
+    }
+
+    public Object forceEnd(String id) {
+        BpmService service = BpmService.ofIns(id);
+        service.forceEnd(Auth.getUid() + "");
+        return Result.ok();
+    }
+
+    public Object forceResume(String id) {
+        BpmService service = BpmService.ofIns(id);
+        service.forceResume(Auth.getUid() + "");
+        return Result.ok();
+    }
 
 
     public Object uploadImage(String base64){
@@ -171,6 +196,7 @@ public class workflow {
         if (size == null || size < 1) {
             size = 20;
         }
+        String uid = Auth.getUid()+"";
         MongoCollection<Document> col = db.getCollection("bpmInstance");
         Obj match = o(
                 "$and", a(
@@ -191,8 +217,12 @@ public class workflow {
                 o("$project", o(
                         "_id", o("$toString", "$_id"),
                         "attrs",1,
+                        "pubUid",1,
+                        "pubUName",1,
                         "createTime", 1,
-                        "lastModifyTime", 1
+                        "lastModifyTime", 1,
+                        "currentNodes", 1,
+                        "state",1
                 )),
                 o("$sort",o("lastModifyTime", -1)),
                 o("$skip", (page - 1) * size),
@@ -202,10 +232,16 @@ public class workflow {
                 .map(e -> {
                     Document doc = (Document) e;
                     Obj obj = o();
-                    obj.put("_id",doc.get("_id"));
-                    obj.put("lastModifyTime",doc.get("lastModifyTime"));
-                    obj.put("createTime",doc.get("createTime"));
+                    obj.putAll(doc);
                     obj.putAll((Map)doc.get("attrs"));
+                    obj.remove("attrs");
+                    BpmService bpmService = BpmService.ofIns(doc);
+                    obj.put("deal", bpmService.canDealCurrent(uid));
+                    obj.put("edit", bpmService.canEdit(uid));
+                    obj.put("forceEnd", bpmService.canForceEnd(uid));
+                    obj.put("forceResume", bpmService.canForceResume(uid));
+                    obj.put("pause", bpmService.canPause(uid));
+                    obj.put("resume", bpmService.canResume(uid));
                     return obj;
                 })
                 .collect(Collectors.toList());
@@ -218,12 +254,8 @@ public class workflow {
     }
 
     public Object preparePub(String id){
-        try{
-            BpmService service = BpmService.ofModel(id);
-            return Result.ok(service.preparePub(Auth.getUid() + ""));
-        } catch (BpmService.BpmException e){
-            return Result.error(e.error);
-        }
+        BpmService service = BpmService.ofModel(id);
+        return Result.ok(service.preparePub(Auth.getUid() + ""));
     }
 
 

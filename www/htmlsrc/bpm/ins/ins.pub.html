@@ -265,7 +265,8 @@
             }),
             success: function (msg) {
                 if(!msg.success){
-                    alert("提交失败");
+                    layer.msg(msg.errMessage)
+                    return
                 }
 
                 window.opener.location.reload()

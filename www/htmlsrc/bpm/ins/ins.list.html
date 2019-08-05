@@ -35,8 +35,27 @@
         <!--<a class="btn btn-default handleSetMenu" href="javascript:;" data-id="{{d.id}}">功能权限</a>-->
         <!--<a class="btn btn-default" href="javascript:;" data-id="{{d.id}}" tab-title="设置岗位/角色" tab-href="/htmlsrc/sysManage/userManage/user.org.html?id={{d.id}}">岗位/角色</a>-->
         <!--<a class="btn btn-default handlePutRole" href="javascript:;" data-id="{{d.id}}">角色</a>-->
-        <a class="btn btn-warning btn-show" href="javascript:;" data-id="{{d._id}}">查看</a>
-        <a class="btn btn-warning btn-edit" href="javascript:;" data-id="{{d._id}}">编辑</a>
+        <a class="btn btn-default btn-show" href="javascript:;" data-id="{{d._id}}">查看</a>
+        {{# if(d.edit){ }}
+        <a class="btn btn-default btn-edit" href="javascript:;" data-id="{{d._id}}">编辑</a>
+        {{#} }}
+
+        {{# if(d.pause){ }}
+        <a class="btn btn-default btn-pause" href="javascript:;" data-id="{{d._id}}">暂停</a>
+        {{#} }}
+
+        {{# if(d.resume){ }}
+        <a class="btn btn-default btn-resume" href="javascript:;" data-id="{{d._id}}">恢复</a>
+        {{#} }}
+
+        {{# if(d.forceEnd){ }}
+        <a class="btn btn-default btn-forceEnd" href="javascript:;" data-id="{{d._id}}">强制结束</a>
+        {{#} }}
+
+        {{# if(d.forceResume){ }}
+        <a class="btn btn-default btn-forceResume" href="javascript:;" data-id="{{d._id}}">恢复</a>
+        {{#} }}
+
         <!--<a class="btn btn-default handleShow" href="javascript:;" data-id="{{d.id}}" data-name="{{d.trueName}}">查看</a>-->
 <!--        <button class="btn btn-danger" delete-href="{{remoteOrigin}}/api/auto/user/delete?id={{d.id}}">删除</button>-->
     </div>
@@ -52,6 +71,10 @@
             field: v
         })
     });
+    cols.push({
+        title:"任务状态",
+        field:"state"
+    })
     cols.push({
         title:"创建时间",
         field:"createTime",
@@ -94,6 +117,37 @@
         // window.open("./ins.pub.html?type=deal&id=" + id, "dealtask", "left=100, top=100, width=800, height=600");
     })
 
+    $(document).on("click", ".btn-pause", function () {
+        var id = $(this).data("id");
+        loadTimeout()
+        $.get("/api/bpm/workflow/pause",{id:id}, function () {
+            location.reload()
+        });
+    });
+
+    $(document).on("click", ".btn-resume", function () {
+        var id = $(this).data("id");
+        loadTimeout()
+        $.get("/api/bpm/workflow/resume",{id:id}, function () {
+            location.reload()
+        });
+    });
+
+    $(document).on("click", ".btn-forceEnd", function () {
+        var id = $(this).data("id");
+        loadTimeout()
+        $.get("/api/bpm/workflow/forceEnd",{id:id}, function () {
+            location.reload()
+        });
+    });
+
+    $(document).on("click", ".btn-forceResume", function () {
+        var id = $(this).data("id");
+        loadTimeout()
+        $.get("/api/bpm/workflow/forceResume",{id:id}, function () {
+            location.reload()
+        });
+    });
 
     function openPubPage(type, id) {
         window.open("./ins.pub.html?type="+type+"&id=" + id, "dealtask", "left=100, top=100, width=800, height=600");
