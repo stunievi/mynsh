@@ -492,7 +492,7 @@ public class BpmService {
         obj.put("pubUName", uName);
 //        obj.put("depId", deptId);
 //        obj.put("depName", deptName);
-        obj.put("bpmModel", bpmService.arrangementData);
+        obj.put("bpmModel", bpmService.model);
         obj.put("currentNodes", currentNodes);
         obj.put("attrs", allAttrs);
         obj.put("logs", logs);
