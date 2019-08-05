@@ -858,6 +858,10 @@ public class BpmService {
         List<String> uids = new ArrayList<>();
         uids.add(nextUid);
         currentNode.uids = uids;
+        List<String> unames = new ArrayList<>();
+        String uName = getUserName(nextUid);
+        unames.add(uName);
+        currentNode.unames = unames;
 
 
         // 得到下一节点超时提醒配置信息
@@ -867,7 +871,7 @@ public class BpmService {
             LocalDateTime timeout = dateTime(timeoutSet.timeout, nowTime);
             LocalDateTime maxTimeout = dateTime(timeoutSet.maxTimeout, timeout);
 
-            Date nowDate = toDate(nowTime);
+//            Date nowDate = toDate(nowTime);
 //            currentNode.nowTime = nowDate;
             currentNode.timeout = toDate(timeout);
             currentNode.maxTimeout = toDate(maxTimeout);
