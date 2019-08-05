@@ -63,7 +63,7 @@ public class TestWorkflow {
         obj.put("请假类型","1");
         obj.put("请假原因","2");
         obj.put("天数","3");
-        BpmService service = BpmService.ofModel("5d43a1d979cb547237a77999");
+        BpmService service = BpmService.ofModel("5d46529788eb634bcf82a36f");
 //        Document bpmInstance = service.createBpmInstance(520+"",  obj);
 //        Assert.assertNotNull(bpmInstance._id);
     }
