@@ -167,6 +167,9 @@
 
             //当前节点可编辑
             $.each(Data.formFields || [], function (i, v) {
+                if(!Data.allFields[v]){
+                    return
+                }
                 var elem = body.find("[name=" + Data.allFields[v].name + "]");
                 elem.removeProp("disabled").css("border", "1px solid blue")
                 if(elem.is("[leipiplugins=datetime]")){
@@ -247,6 +250,9 @@
         var data = {};
         $.each(Data.formFields || [], function (i, v) {
             var key = v;
+            if(!Data.allFields[v]){
+                return
+            }
             var val = FormBody.find("[name=" + Data.allFields[v].name + "]").val();
             data[key] = val;
         });

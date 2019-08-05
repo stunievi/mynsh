@@ -23,6 +23,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOptions;
+import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 import org.beetl.sql.core.SQLReady;
 import org.bson.BsonArray;
@@ -177,6 +178,9 @@ public class BpmService {
     }
 
     public static BpmService ofIns(String insId) {
+        if (StrUtil.isBlank(insId)) {
+            error("流程ID不能为空");
+        }
         MongoCollection<Document> col = db.getCollection("bpmInstance");
 //        col.mapReduce("function(){return 1}", "function(){return 2}");
         Document data = col.aggregate(
@@ -185,7 +189,7 @@ public class BpmService {
                 ).toBson()
         ).first();
         if (data == null) {
-            return null;
+            error("无法找到ID为%s的流程", insId);
         }
         return ofIns(data);
     }
@@ -263,6 +267,15 @@ public class BpmService {
                 Notice.sendSystem(s, "来自流程 %s 的催办消息: %s", ins._id.toString(), msg);
             }
         }
+    }
+
+    public boolean delete(String uid){
+        if(!canDelete(uid)){
+            error("无权删除");
+        }
+        MongoCollection<Document> collection = db.getCollection("bpmInstance");
+        DeleteResult result = collection.deleteOne(Filters.eq("_id", ins._id));
+        return result.getDeletedCount() > 0;
     }
 
 //    public static BpmService ofIns(String id, Obj data, String uid){
@@ -381,6 +394,15 @@ public class BpmService {
 
     public boolean canForceResume(String uid){
         return ins.state.equalsIgnoreCase("强制结束") && isSu(uid);
+    }
+
+    /**
+     * 是否可以删除任务
+     * @param uid
+     * @return
+     */
+    public boolean canDelete(String uid){
+        return isSu(uid);
     }
 
     /**

@@ -249,8 +249,10 @@ public class workflow {
                     obj.put("pause", bpmService.canPause(uid));
                     obj.put("resume", bpmService.canResume(uid));
                     obj.put("urge", bpmService.canUrge(uid));
+                    obj.put("del", bpmService.canDelete(uid));
 
                     String names = bpmService.ins.currentNodes.stream()
+                            .filter(ee -> ee.unames != null)
                             .flatMap(ee -> ee.unames.stream())
                             .collect(Collectors.joining(","));
                     obj.put("uName", names);
@@ -373,15 +375,9 @@ public class workflow {
      * 删除流程
      */
     public Object deleteIns(String id){
-        if(null == id){
-            return Result.error("流程id为空！");
-        }
-        MongoCollection<Document> collection = db.getCollection("bpmInstance");
-        Document ret = collection.findOneAndDelete(new Document() {{
-            put("_id", new ObjectId(id));
-        }});
-        return Result.ok(ret != null);
-
+        BpmService service = BpmService.ofIns(id);
+        service.delete(Auth.getUid() + "");
+        return Result.ok();
     }
 
 
