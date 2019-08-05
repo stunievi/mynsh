@@ -862,15 +862,16 @@ public class BpmService {
 
         // 得到下一节点超时提醒配置信息
         BpmModel.TimeoutSet timeoutSet = bpmService.ins.bpmModel.nodes.get(nextNode.id).timeoutSet;
-        LocalDateTime nowTime = LocalDateTime.now();
+        if (timeoutSet != null) {
+            LocalDateTime nowTime = LocalDateTime.now();
+            LocalDateTime timeout = dateTime(timeoutSet.timeout, nowTime);
+            LocalDateTime maxTimeout = dateTime(timeoutSet.maxTimeout, timeout);
 
-        LocalDateTime timeout = dateTime(timeoutSet.timeout, nowTime);
-        LocalDateTime maxTimeout = dateTime(timeoutSet.maxTimeout, timeout);
-
-        Date nowDate = toDate(nowTime);
-        currentNode.nowTime = nowDate;
-        currentNode.timeout = toDate(timeout);
-        currentNode.maxTimeout = toDate(maxTimeout);
+            Date nowDate = toDate(nowTime);
+//            currentNode.nowTime = nowDate;
+            currentNode.timeout = toDate(timeout);
+            currentNode.maxTimeout = toDate(maxTimeout);
+        }
 
         update.put("currentNodes", a(currentNode));
 

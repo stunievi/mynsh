@@ -256,6 +256,7 @@
             var val = FormBody.find("[name=" + Data.allFields[v].name + "]").val();
             data[key] = val;
         });
+        // console.log(Data.formFields,data)
 
         $.ajax({
             url: url, //"/api/bpm/workflow/createIns",

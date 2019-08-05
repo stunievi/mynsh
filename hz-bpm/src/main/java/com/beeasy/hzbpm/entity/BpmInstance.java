@@ -93,7 +93,7 @@ public class BpmInstance {
         public List<String> unames;
 
         // 当前时间
-        public Date nowTime;
+//        public Date nowTime;
 
         // 超时提醒时间
         public Date timeout;
