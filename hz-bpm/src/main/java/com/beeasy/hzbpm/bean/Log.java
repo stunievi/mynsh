@@ -10,6 +10,10 @@ import static com.github.llyb120.nami.ext.beetlsql.BeetlSql.sqlManager;
 
 public class Log {
 
+    public static void log(Long uid, String msg, Object ...args){
+        log(uid + "", msg, args);
+    }
+
     public static void log(String uid, String msg, Object ...args){
         msg = String.format(msg, args);
         String finalMsg = msg;
