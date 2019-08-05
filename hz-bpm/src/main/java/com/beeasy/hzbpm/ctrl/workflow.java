@@ -74,6 +74,12 @@ public class workflow {
         return storage.download(path);
     }
 
+    public Object urge(String id, String msg){
+        BpmService service = BpmService.ofIns(id);
+        service.urge(Auth.getUid() + "", msg);
+        return Result.ok();
+    }
+
     public Object logList(String id, String nodeId){
         MongoCollection<Document> collection = db.getCollection("bpmInstance");
         Arr condition = a(
@@ -242,6 +248,7 @@ public class workflow {
                     obj.put("forceResume", bpmService.canForceResume(uid));
                     obj.put("pause", bpmService.canPause(uid));
                     obj.put("resume", bpmService.canResume(uid));
+                    obj.put("urge", bpmService.canUrge(uid));
                     return obj;
                 })
                 .collect(Collectors.toList());

@@ -1,12 +1,11 @@
 package com.beeasy.hzbpm;
 
-import com.beeasy.hzbpm.entity.BpmInstance;
+import com.beeasy.hzbpm.bean.Notice;
 import com.beeasy.hzbpm.service.BpmService;
 import com.github.llyb120.nami.core.Nami;
 import com.github.llyb120.nami.json.Arr;
 import com.github.llyb120.nami.json.Obj;
 import org.beetl.sql.core.SQLReady;
-import org.bson.Document;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -67,4 +66,12 @@ public class TestWorkflow {
 //        Document bpmInstance = service.createBpmInstance(520+"",  obj);
 //        Assert.assertNotNull(bpmInstance._id);
     }
+
+
+    @Test
+    public void test04_() throws InterruptedException {
+        Notice.sendSystem("522", "你今天吃饭了吗");
+        Thread.sleep(10000);
+    }
+
 }

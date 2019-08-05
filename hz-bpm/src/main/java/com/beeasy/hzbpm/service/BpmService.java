@@ -5,6 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.XmlUtil;
 import com.alibaba.fastjson.JSON;
 import com.beeasy.hzbpm.bean.JsEngine;
+import com.beeasy.hzbpm.bean.Notice;
 import com.beeasy.hzbpm.entity.BpmInstance;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -253,6 +254,17 @@ public class BpmService {
         return result.getModifiedCount() > 0;
     }
 
+    public void urge(String uid, String msg){
+        if(!canUrge(uid)){
+            error("无权催办");
+        }
+        for (BpmInstance.CurrentNode currentNode : ins.currentNodes) {
+            for (String s : currentNode.uids) {
+                Notice.sendSystem(s, "来自流程 %s 的催办消息: %s", ins._id.toString(), msg);
+            }
+        }
+    }
+
 //    public static BpmService ofIns(String id, Obj data, String uid){
 ////
 //
@@ -319,6 +331,16 @@ public class BpmService {
                 .anyMatch(e -> e.uid.equals(uid)) ||
                 ins.currentNodes.stream()
                 .anyMatch(e -> e.uids.contains(uid));
+    }
+
+    /**
+     * 是否可以催办当前任务
+     * @param uid
+     * @return
+     */
+    public boolean canUrge(String uid){
+        //发起者或者管理员
+        return isRunning() && (uid.equals(ins.pubUid) || isSu(uid));
     }
 
     /**
