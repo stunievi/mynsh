@@ -64,6 +64,9 @@ public class BpmInstance {
         //当时所在的节点ID
         public String nodeId;
 
+        //提交到该节点上的信息，通常是节点名
+        public String msg;
+
         //提交时间
         public Date time;
 

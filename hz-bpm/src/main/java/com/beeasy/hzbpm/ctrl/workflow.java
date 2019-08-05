@@ -276,9 +276,9 @@ public class workflow {
      * @param data
      * @return
      */
-    public Result saveIns(String id,Obj data){
+    public Result saveIns(String id,Obj data,String mode){
         BpmService service = BpmService.ofIns(id);
-        return Result.ok(service.saveIns(Auth.getUid() + "", data, false));
+        return Result.ok(service.saveIns(Auth.getUid() + "", data, false, mode));
     }
 
     /**
