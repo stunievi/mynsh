@@ -836,19 +836,25 @@ public class BpmService {
         List<String> uids = new ArrayList<>();
         uids.add(nextUid);
         currentNode.uids = uids;
+        List<String> unames = new ArrayList<>();
+        String uName = getUserName(nextUid);
+        unames.add(uName);
+        currentNode.unames = unames;
 
 
         // 得到下一节点超时提醒配置信息
         BpmModel.TimeoutSet timeoutSet = bpmService.ins.bpmModel.nodes.get(nextNode.id).timeoutSet;
         LocalDateTime nowTime = LocalDateTime.now();
+        if(null != timeoutSet){
+            LocalDateTime timeout = dateTime(timeoutSet.timeout, nowTime);
+            LocalDateTime maxTimeout = dateTime(timeoutSet.maxTimeout, timeout);
 
-        LocalDateTime timeout = dateTime(timeoutSet.timeout, nowTime);
-        LocalDateTime maxTimeout = dateTime(timeoutSet.maxTimeout, timeout);
+            Date nowDate = toDate(nowTime);
+            currentNode.nowTime = nowDate;
+            currentNode.timeout = toDate(timeout);
+            currentNode.maxTimeout = toDate(maxTimeout);
+        }
 
-        Date nowDate = toDate(nowTime);
-        currentNode.nowTime = nowDate;
-        currentNode.timeout = toDate(timeout);
-        currentNode.maxTimeout = toDate(maxTimeout);
 
         update.put("currentNodes", a(currentNode));
 

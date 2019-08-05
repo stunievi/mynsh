@@ -251,7 +251,7 @@ public class workflow {
                     obj.put("urge", bpmService.canUrge(uid));
 
                     String names = bpmService.ins.currentNodes.stream()
-                            .flatMap(ee -> ee.unames.stream())
+                            .flatMap(ee -> ee.uids.stream())
                             .collect(Collectors.joining(","));
                     obj.put("uName", names);
 

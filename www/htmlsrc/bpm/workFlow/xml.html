@@ -136,6 +136,8 @@
     };
     var listFields = [];
 
+    var taskNameMap = {};
+
     function loadForm(){
         var id = $("#selectForm").val()
         loadTimeout()
@@ -271,7 +273,14 @@
                         })*/
 
                         $("#modelName").val(obj.data.modelName);
+
                         window.bpmData = obj.data.bpmData;
+                        for (var nodeId in bpmData.nodes) {
+                            bpmData.nodes[nodeId].timeoutSet = bpmData.nodes[nodeId].timeoutSet || {
+                                timeout:"",
+                                maxTimeout:""
+                            }
+                        }
                         listFields = obj.data.arrangementData.listFields;
 
                     }
@@ -326,6 +335,27 @@
             var endNum = 0;
             var errFlag = false;
             $(_xml).find('process').each(function(){
+                var _startEvent = $(this).children('startEvent');
+                var _task = $(this).children('task');
+                var _endEvent = $(this).children('endEvent');
+                if(_startEvent.length>1){
+                    startNum = _startEvent.length;
+                }
+                if(_endEvent.length>1){
+                    endNum = _endEvent.length;
+                }
+                var _startId = _startEvent.attr("id");
+                var _startName = _startEvent.attr("name");
+                taskNameMap[_startId] = _startName;
+                var _endId = _endEvent.attr("id");
+                var _endName = _endEvent.attr("name");
+                taskNameMap[_endId] = _endName;
+                _task.each(function () {
+                    var _taskId = $(this).attr("id");
+                    var _taskName = $(this).attr("name");
+                    taskNameMap[_taskId] = _taskName;
+                })
+
                 var _sequenceFlow = $(this).children('sequenceFlow');
                 _sequenceFlow.each(function () {
 
@@ -371,7 +401,7 @@
 
                         timeout = window.bpmData.nodes[sourceRef].timeoutSet.timeout;
                         maxTimeout = window.bpmData.nodes[sourceRef].timeoutSet.maxTimeout;
-                        taskName = window.bpmData.nodes[sourceRef].name;
+                        taskName = taskNameMap[sourceRef];
                         var timeoutSet = {};
                         timeoutSet["timeout"] = timeout;
                         timeoutSet["maxTimeout"] = maxTimeout;
@@ -431,7 +461,7 @@
                     qids =arrToStr(window.bpmData.nodes[sourceRef].permission.qids);
                     rids =arrToStr(window.bpmData.nodes[sourceRef].permission.rids);
                     dids =arrToStr(window.bpmData.nodes[sourceRef].permission.dids);
-                    taskName = window.bpmData.nodes[sourceRef].name;
+                    taskName = taskNameMap[sourceRef];
                 }
                 for(var ex=0;ex<exList[i].length;ex++){
                     var targetRef = exList[i][ex].targetRef;
@@ -469,7 +499,7 @@
                     qids =arrToStr(window.bpmData.nodes[sourceRef].permission.qids);
                     rids =arrToStr(window.bpmData.nodes[sourceRef].permission.rids);
                     dids =arrToStr(window.bpmData.nodes[sourceRef].permission.dids);
-                    taskName = window.bpmData.nodes[sourceRef].name;
+                    taskName = taskNameMap[sourceRef];
                     // var conList = window.bpmData.nodes[sourceRef].condition;
                     // var _expression = preorderZheng(conList,"and");
                     //
@@ -486,26 +516,26 @@
                     return;
                 }
 
-                var _formDataMap = {}
+                // var _formDataMap = {}
                 var formId = $("#selectForm").val();
                 var modelName = $("#modelName").val();
                 if("" == modelName.trim()){
                     layer.msg("工作流名称不能为空！");
                     return;
                 }
-                $.ajax({
-                    type:"get",
-                    async:false,
-                    url:"/api/bpm/form/queryFormData?_id="+formId,
-                    success:function(res){
-                        if(res.code==200&& res.data.length>0){
-                            var data = res.data[0].form.data;
-                            data.forEach(function (e) {
-                                _formDataMap[e.title] = e;
-                            })
-                        }
-                    }
-                });
+                // $.ajax({
+                //     type:"get",
+                //     async:false,
+                //     url:"/api/bpm/form/queryFormData?_id="+formId,
+                //     success:function(res){
+                //         if(res.code==200&& res.data.length>0){
+                //             var data = res.data[0].form.data;
+                //             data.forEach(function (e) {
+                //                 _formDataMap[e.title] = e;
+                //             })
+                //         }
+                //     }
+                // });
                 _xmlMap = {"formId":formId,"template":"","rendered":"","workflowName":modelName,"fields":null,"nodes":_eventMap,"start":startEvent,"end":endEvent,"listFields":listFields}
 
                 var da = {
@@ -621,7 +651,7 @@
         var modelName = $("#modelName").val();
         var form = $("#selectForm").val();
         console.log("当前选中id:",obj)
-        bpmData.nodes[obj.id].name = obj.name;
+        // bpmData.nodes[obj.id].name = obj.name;
 
         bpmData.nodes[obj.id] = bpmData.nodes[obj.id] || {
             fields:{
