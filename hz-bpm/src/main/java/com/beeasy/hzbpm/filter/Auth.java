@@ -44,6 +44,7 @@ public class Auth {
         try{
             return invoke.call();
         } catch (Exception e){
+            e.printStackTrace();
             Throwable cause = e.getCause();
             if (cause != null) {
                 if(cause instanceof BpmException){
