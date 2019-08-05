@@ -593,6 +593,7 @@ public class BpmService {
 
         BpmService bpmService = this;
         String nodeId = bpmService.ins.currentNodes.get(0).nodeId;
+        BpmModel.Node node = getNode(nodeId);
 
         Map<String , Object> attrs = new HashMap<>();
         List<String> allFields = null;
@@ -603,6 +604,7 @@ public class BpmService {
                 allFields.add(entry.getKey());
             }
         } else {
+            //一般模式下， 只处理允许处理的字段
             allFields = bpmService.ins.bpmModel.nodes.get(nodeId).allFields;
         }
         for (String all : allFields) {
@@ -616,6 +618,11 @@ public class BpmService {
         dataLog.uid = uid;
         dataLog.attrs = attrs;
         dataLog.uname = getUserName(uid);
+        if(mode.equalsIgnoreCase("edit")){
+            dataLog.msg = String.format("编辑流程", node.name);
+        } else {
+            dataLog.msg = String.format("提交【%s】", node.name);
+        }
 
 //        bpmService.ins.logs.add(dataLog);
 //        bpmService.ins.lastModifyTime = new Date();
