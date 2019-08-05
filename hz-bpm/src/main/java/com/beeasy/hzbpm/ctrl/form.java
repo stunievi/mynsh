@@ -3,6 +3,8 @@ package com.beeasy.hzbpm.ctrl;
 
 
 import cn.hutool.core.util.StrUtil;
+import com.beeasy.hzbpm.bean.Log;
+import com.beeasy.hzbpm.filter.Auth;
 import com.beeasy.hzbpm.util.Result;
 import com.github.llyb120.nami.core.R;
 import com.github.llyb120.nami.json.Arr;
@@ -13,6 +15,7 @@ import com.mongodb.client.model.UpdateOptions;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
+import java.sql.Struct;
 import java.util.*;
 
 import static com.beeasy.hzbpm.bean.MongoService.db;
@@ -93,6 +96,12 @@ public class form {
             mid = new ObjectId(id);
         }
         collection.updateOne(Filters.eq("_id", mid), new Document("$set", doc), new UpdateOptions().upsert(true));
+        //log
+        if(StrUtil.isBlank(id)){
+            Log.log(Auth.getUid() + "", "创建表单 %s", doc.getString("name"));
+        } else {
+            Log.log(Auth.getUid() + "", "编辑表单 %s", doc.getString("name"));
+        }
         return (Result.ok(doc));
     }
 
@@ -101,6 +110,7 @@ public class form {
         Document ret = collection.findOneAndDelete(new Document() {{
             put("_id", new ObjectId(_id));
         }});
+        Log.log(Auth.getUid() + "", "删除表单 %s", ret.getString("name"));
         return Result.ok(ret != null);
     }
 

@@ -11,7 +11,7 @@ import static com.github.llyb120.nami.ext.beetlsql.BeetlSql.sqlManager;
 
 public class Notice {
 
-    private static Snowflake snowflake = IdUtil.createSnowflake(0l,0l);
+    public static Snowflake snowflake = IdUtil.createSnowflake(0l,0l);
 
     public static void sendSystem(String uid, String msg, Object ...args){
         msg = String.format(msg, args);
