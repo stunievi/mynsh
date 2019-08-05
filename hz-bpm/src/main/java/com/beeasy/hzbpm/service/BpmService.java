@@ -62,6 +62,8 @@ public class BpmService {
     //BpmInstance
     private BpmInstance ins = null;
 
+    private Map<String,Obj> userCache = new HashMap<>();
+
     //    public long uid;
     private BpmService() {
     }
@@ -228,6 +230,15 @@ public class BpmService {
                 .anyMatch(e -> e.uid.equals(uid)) ||
                 ins.currentNodes.stream()
                 .anyMatch(e -> e.uids.contains(uid));
+    }
+
+    /**
+     * 是否可以编辑这个流程
+     * @param uid
+     * @return
+     */
+    public boolean canEdit(String uid){
+        return !ins.state.equalsIgnoreCase("FINISHED") && isSu(uid);
     }
 
     /**
@@ -546,9 +557,15 @@ public class BpmService {
      * 保存节点数据
      * @param data
      */
-    public boolean saveIns(String uid, Obj data, boolean validate){
+    public boolean saveIns(String uid, Obj data, boolean validate, String mode){
         //candeal
-        if (!canDealCurrent(uid)) {
+        //编辑模式，只验证是否有编辑权限
+        if(mode.equals("edit")){
+            if(!canEdit(uid)){
+                error("没有权限编辑该任务");
+            }
+        }
+        else if (!canDealCurrent(uid)) {
             error("用户没有权限处理任务");
         }
 
@@ -559,13 +576,21 @@ public class BpmService {
 
         BpmService bpmService = this;
         String nodeId = bpmService.ins.currentNodes.get(0).nodeId;
-        List<String> allFields = bpmService.ins.bpmModel.nodes.get(nodeId).allFields;
 
         Map<String , Object> attrs = new HashMap<>();
+        List<String> allFields = null;
+        if(mode.equalsIgnoreCase("edit")){
+            //编辑模式下，开放所有字段
+            allFields = new ArrayList<>();
+            for (Map.Entry<String, Map> entry : ins.bpmModel.fields.entrySet()) {
+                allFields.add(entry.getKey());
+            }
+        } else {
+            allFields = bpmService.ins.bpmModel.nodes.get(nodeId).allFields;
+        }
         for (String all : allFields) {
             attrs.put(all, data.get(all));
         }
-//        bpmService.ins.attrs.putAll(attrs);
 
         BpmInstance.DataLog dataLog = new BpmInstance.DataLog();
         dataLog.id = new ObjectId();
@@ -618,7 +643,7 @@ public class BpmService {
         BpmService bpmService = this;
         String nodeId = bpmService.ins.currentNodes.get(0).nodeId;
 
-        bl = saveIns(uid, data, true);
+        bl = saveIns(uid, data, true, "deal");
 
         BpmModel.Node nextNode = getNextNode(uid, data);
 
@@ -675,19 +700,42 @@ public class BpmService {
         throw new BpmException(String.format(errMessage, objects));
     }
 
-    private boolean runExpression(String expression) {
 
-
-        return false;
+    private synchronized String getUserName(String uid){
+        Obj obj = initUserCache(uid);
+        if (!obj.containsKey("true_name")) {
+            String trueName = sqlManager.execute(new SQLReady("select true_name from t_user where id = ?", uid), Obj.class)
+                    .stream()
+                    .map(e -> e.s("true_name"))
+                    .findFirst()
+                    .orElse(null);
+            obj.put("true_name", trueName);
+        }
+        return obj.s("true_name");
     }
 
-    private String getUserName(String uid){
-        return sqlManager.execute(new SQLReady("select true_name from t_user where id = ?", uid), Obj.class)
-                .stream()
-                .map(e -> e.s("true_name"))
-                .findFirst()
-                .orElse(null);
+    private synchronized boolean isSu(String uid){
+        Obj obj = initUserCache(uid);
+        if(!obj.containsKey("is_su")){
+            Boolean su = sqlManager.execute(new SQLReady("select su from t_user where id = ?", uid), Obj.class)
+                    .stream()
+                    .map(e -> e.b("su"))
+                    .findFirst()
+                    .orElse(null);
+            obj.put("is_su", su != null && su.equals(true));
+        }
+        return obj.b("is_su");
     }
+
+    private synchronized Obj initUserCache(String uid){
+        Obj obj = userCache.get(uid);
+        if (obj == null) {
+            obj = o();
+            userCache.put(uid, obj);
+        }
+        return obj;
+    }
+
 
     /**
      * 通过节点ID查询节点

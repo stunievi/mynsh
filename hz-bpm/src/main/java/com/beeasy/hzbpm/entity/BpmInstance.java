@@ -82,6 +82,7 @@ public class BpmInstance {
     public static class CurrentNode{
         //当前节点的ID
         public String nodeId;
+        public String msg;
 
         //当前正在处理这个节点的人
         public List<String> uids;

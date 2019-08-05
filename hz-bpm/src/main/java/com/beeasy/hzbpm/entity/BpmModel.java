@@ -39,6 +39,8 @@ public class BpmModel {
     public static class Node{
         //节点ID
         public String id;
+        public String name;
+
         //节点对应的表单属性
         public List<String> allFields;
 
