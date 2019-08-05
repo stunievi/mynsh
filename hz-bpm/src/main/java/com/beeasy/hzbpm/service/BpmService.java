@@ -355,8 +355,7 @@ public class BpmService {
         if (StrUtil.isBlank(expression)) {
             switch (node.get("orgtype")) {
                 case "当前用户姓名":
-                    String uname = sqlManager.execute(new SQLReady("select true_name from t_user where id = ?", uid), Obj.class).get(0).s("true_name");
-                    return uname;
+                    return getUserName(uid);
                 case "当前用户ID":
                     return uid;
 
