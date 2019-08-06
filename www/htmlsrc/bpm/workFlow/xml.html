@@ -338,13 +338,15 @@
                 var _startEvent = $(this).children('startEvent');
                 var _task = $(this).children('task');
                 var _endEvent = $(this).children('endEvent');
-                if(_startEvent.length>1){
+                // if(_startEvent.length>1){
                     startNum = _startEvent.length;
-                }
-                if(_endEvent.length>1){
+                // }
+                // if(_endEvent.length>1){
                     endNum = _endEvent.length;
-                }
+                // }
                 var _startId = _startEvent.attr("id");
+                startEvent = _startEvent.attr("id");
+                endEvent = _endEvent.attr("id");
                 var _startName = _startEvent.attr("name");
                 taskNameMap[_startId] = _startName;
                 var _endId = _endEvent.attr("id");
@@ -367,14 +369,14 @@
                     var sourceRef = $(this).attr("sourceRef");
                     var sr = sourceRef.split("_");
                     var tr = targetRef.split("_");
-                    if(sr.length>0 && "StartEvent" == sr[0]){
-                        startEvent = sourceRef;
-                        startNum++;
-                    }
-                    if(tr.length>0 && "EndEvent" == tr[0]){
-                        endEvent = targetRef;
-                        endNum++;
-                    }
+                    // if(sr.length>0 && "StartEvent" == sr[0]){
+                    //     startEvent = sourceRef;
+                    //     startNum++;
+                    // }
+                    // if(tr.length>0 && "EndEvent" == tr[0]){
+                    //     endEvent = targetRef;
+                    //     endNum++;
+                    // }
 
                     var allFields =[];
                     var requiredFields = [];
