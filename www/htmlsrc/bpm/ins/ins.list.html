@@ -60,7 +60,7 @@
         <a class="btn btn-default btn-urge" href="javascript:;" data-id="{{d._id}}">催办</a>
         {{#} }}
 
-        {{# if(d.urge){ }}
+        {{# if(d.del){ }}
         <a class="btn btn-danger btn-delete" href="javascript:;" data-id="{{d._id}}">删除</a>
         {{#} }}
         <!--<a class="btn btn-default handleShow" href="javascript:;" data-id="{{d.id}}" data-name="{{d.trueName}}">查看</a>-->
@@ -74,7 +74,7 @@
     var cols = [];
     cols.push({
         title:"流程ID",
-        field:"_id",
+        field:"id",
     })
     $.each(fields, function (i,v) {
         cols.push({

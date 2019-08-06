@@ -22,10 +22,10 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.FindOneAndUpdateOptions;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
-import org.apache.poi.util.StringUtil;
 import org.beetl.sql.core.SQLReady;
 import org.bson.BsonArray;
 import org.bson.Document;
@@ -39,9 +39,11 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.sql.Struct;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static com.beeasy.hzbpm.bean.MongoService.db;
@@ -69,8 +71,8 @@ public class BpmService {
     private Map<String,Obj> userCache = new HashMap<>();
 
     //    public long uid;
-    private BpmService() {
-    }
+//    private BpmService() {
+//    }
 
 
     public static BpmService ofModel(final String modelId) {
@@ -277,6 +279,36 @@ public class BpmService {
         MongoCollection<Document> collection = db.getCollection("bpmInstance");
         DeleteResult result = collection.deleteOne(Filters.eq("_id", ins._id));
         return result.getDeletedCount() > 0;
+    }
+
+
+    public static Arr optimizeLogs(List<Map> logs){
+        Arr list = a();
+        for (Map log : logs) {
+            if(list.isEmpty()){
+                list.add(o(
+                    "startDate", log.get("date"),
+                    "endDate", null,
+                    "attrs", log.get("attrs"),
+                        "nodeId", log.get("nodeId"),
+                        "uid", log.get("uid"),
+                        "uname", log.get("uname")
+                ));
+            } else {
+                if(log.get("type").equals("save")){
+                    //取出上一个相同的，进行覆盖
+                    int i = list.size();
+                    while(i-- > 0){
+                        Obj item = (Obj) list.get(i);
+                        if(item.s("nodeId").equals(log.get("nodeId")) && item.s("uid").equals(log.get("uid"))){
+                            item.get("attrs", Obj.class).putAll((Map<? extends String, ?>) log.get("attrs"));
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return list;
     }
 
 //    public static BpmService ofIns(String id, Obj data, String uid){
@@ -619,6 +651,8 @@ public class BpmService {
         dataLog.put("uid", uid);
         dataLog.put("attrs", attrs);
         dataLog.put("uname", uName);
+        dataLog.put("type", "save");
+
         JSONArray logs = new JSONArray();
         logs.add(dataLog);
 
@@ -633,10 +667,10 @@ public class BpmService {
         JSONArray currentNodes = new JSONArray();
         currentNodes.add(currentNode);
 
-
         MongoCollection<Document> collection = db.getCollection("bpmInstance");
 //        BpmInstance ins = new BpmInstance();
         Obj obj = new Obj();
+        obj.put("id", getIncrementId());
         obj.put("state", "流转中");
         obj.put("bpmId", new ObjectId(modelId));
         obj.put("bpmName", bpmService.model.workflowName);
@@ -646,7 +680,18 @@ public class BpmService {
 //        obj.put("depName", deptName);
         obj.put("bpmModel", bpmService.model);
         obj.put("currentNodes", currentNodes);
+
+        //流程处理日志
+//        BpmInstance.HandleLog handleLog = new BpmInstance.HandleLog();
+//        handleLog.startDate = new Date();
+//        handleLog.nodeId = startNode.id;
+//        handleLog.nodeName = startNode.name;
+//        handleLog.uid = uid;
+//        handleLog.uname = uName;
+//        handleLog.nodeName
+//        obj.put("handleLogs", a(handleLog));
         obj.put("attrs", allAttrs);
+        //流程提交日志
         obj.put("logs", logs);
         obj.put("xml", xml);
         obj.put("createTime", new Date());
@@ -683,24 +728,46 @@ public class BpmService {
             error("当前节点查询失败");
         }
         BpmModel.Node target = null;
-        for (BpmModel.NextNode nextNode : node.nextNodes) {
-            //如果表达式位空，则直接使用该节点
-            if(JsEngine.runExpression(oldAttrs, nextNode.expression)){
-                target = getNode(nextNode.node);
-                break;
-            }
-//            if (StrUtil.isBlank(nextNode.expression)) {
-//                target = getNode(nextNode.node);
-//                break;
-//            } else if (runExpression(nextNode.expression)) {
+        if(node.nextNodes.size() == 0) {
+            error("没有配置下一个流转的节点");
+        }
+        //如果接下来只有一个，无论如何都采用
+        else if(node.nextNodes.size() == 1){
+            target = getNode(node.nextNodes.get(0).node);
+        } else {
+            //优先判断有表达式的
+            target = node.nextNodes.stream()
+                    .sorted((a,b) -> getExpressionLevel(b.expression).compareTo(getExpressionLevel(a.expression)))
+                    .filter(e -> JsEngine.runExpression(oldAttrs, e.expression))
+                    .map(e -> getNode(e.node))
+                    .findFirst()
+                    .orElse(null);
+        }
+//        for (BpmModel.NextNode nextNode : node.nextNodes) {
+//            //如果表达式位空，则直接使用该节点
+//            if(JsEngine.runExpression(oldAttrs, nextNode.expression)){
 //                target = getNode(nextNode.node);
 //                break;
 //            }
-        }
+////            if (StrUtil.isBlank(nextNode.expression)) {
+////                target = getNode(nextNode.node);
+////                break;
+////            } else if (runExpression(nextNode.expression)) {
+////                target = getNode(nextNode.node);
+////                break;
+////            }
+//        }
         if (target == null) {
             error("找不到符合跳转条件的下一节点");
         }
         return target;
+    }
+    private Integer getExpressionLevel(String expression){
+        if(StrUtil.isNotBlank(expression)){
+            return 1;
+        } else {
+            return 0;
+        }
     }
 
     /**
@@ -772,10 +839,12 @@ public class BpmService {
         dataLog.uname = getUserName(uid);
         if(mode.equalsIgnoreCase("edit")){
             dataLog.msg = "编辑流程";
+            dataLog.type = "edit";
         } else {
             if(StrUtil.isNotBlank(node.name)) {
                 dataLog.msg = String.format("提交【%s】", node.name);
             }
+            dataLog.type = "save";
         }
 
 //        bpmService.ins.logs.add(dataLog);
@@ -785,8 +854,6 @@ public class BpmService {
 //        if (nextPersonId != null) {
 //            nextApprover(uid, nextPersonId, update);
 //        }
-
-
         for (Map.Entry<String, Object> entry : attrs.entrySet()) {
             update.put("attrs." + entry.getKey(), entry.getValue());
         }
@@ -833,7 +900,7 @@ public class BpmService {
         if(nextNode.id.equals(bpmService.ins.bpmModel.end)){
             Obj state = o();
             state.put("state", "已办结");
-//            state.put("currentNodes", a(uid, nextNode.id));
+            state.put("currentNodes", a());
             MongoCollection<Document> collection = db.getCollection("bpmInstance");
             UpdateResult res = collection.updateOne(Filters.eq("_id", bpmService.ins._id),new Document("$set", state.toBson()));
 //            bl = res.getModifiedCount()>0;
@@ -855,6 +922,8 @@ public class BpmService {
      */
     public boolean nextApprover(String uid, String nextUid, Obj update){
         BpmService bpmService = this;
+
+        BpmModel.Node node = getCurrentNode(uid);
 
         // 下一节点
         BpmModel.Node nextNode = getNextNode(uid, o());
@@ -887,17 +956,26 @@ public class BpmService {
         }
 
         update.put("currentNodes", a(currentNode));
-
         MongoCollection<Document> collection = db.getCollection("bpmInstance");
-
-        UpdateResult res = collection.updateOne(Filters.eq("_id", bpmService.ins._id),new Document("$set", update.toBson()));
+        UpdateResult res = collection.updateOne(Filters.eq("_id", bpmService.ins._id),o("$set", update,
+                "$push", o("logs", o(
+                            "id", new ObjectId(),
+                        "nodeId", node.id,
+                        "msg", "转交节点",
+                        "time", new Date(),
+                        "uid", uid,
+                        "uname", getUserName(uid),
+                        "type", "flow",
+                        "attrs",a()
+                        ))).toBson()
+        );
 
         return res.getModifiedCount() > 0;
     }
 
 
     private LocalDateTime dateTime(String dateTime, LocalDateTime nowDateTime){
-        if(null == dateTime || "".equals(dateTime)){
+        if(StrUtil.isBlank(dateTime)){
             return null;
         }
         String [] dateArr = dateTime.split("_");
@@ -936,7 +1014,7 @@ public class BpmService {
     }
 
 
-    private synchronized String getUserName(String uid){
+    public synchronized String getUserName(String uid){
         Obj obj = initUserCache(uid);
         if (!obj.containsKey("true_name")) {
             String trueName = sqlManager.execute(new SQLReady("select true_name from t_user where id = ?", uid), Obj.class)
@@ -949,7 +1027,7 @@ public class BpmService {
         return obj.s("true_name");
     }
 
-    private synchronized boolean isSu(String uid){
+    public synchronized boolean isSu(String uid){
         Obj obj = initUserCache(uid);
         if(!obj.containsKey("is_su")){
             Boolean su = sqlManager.execute(new SQLReady("select su from t_user where id = ?", uid), Obj.class)
@@ -962,7 +1040,7 @@ public class BpmService {
         return obj.b("is_su");
     }
 
-    private synchronized Obj initUserCache(String uid){
+    private Obj initUserCache(String uid){
         Obj obj = userCache.get(uid);
         if (obj == null) {
             obj = o();
@@ -1037,6 +1115,21 @@ public class BpmService {
                 .map(e -> getNode(e.nodeId))
                 .filter(e -> e != null)
                 .collect(Collectors.toList());
+    }
+
+
+
+    public static String getIncrementId(){
+        MongoCollection<Document> col = db.getCollection("id");
+        Document doc = col.findOneAndUpdate(o().toBson(), o(
+                "$inc", o(
+                        "id", 1
+                )
+        ).toBson(), new FindOneAndUpdateOptions().upsert(true));
+        if (doc == null) {
+            return "1";
+        }
+        return doc.getInteger("id").toString();
     }
 
 }

@@ -36,12 +36,12 @@ import static com.beeasy.hzbpm.bean.FileStorage.storage;
 public class workflow {
 
 
-    private MongoCollection<Document> getCollection(){
+    private MongoCollection<Document> getCollection() {
         return db.getCollection("workflow");
     }
 
 
-    public Object pause(String id){
+    public Object pause(String id) {
         BpmService service = BpmService.ofIns(id);
         service.pause(Auth.getUid() + "");
         return Result.ok();
@@ -66,21 +66,21 @@ public class workflow {
     }
 
 
-    public Object uploadImage(String base64){
+    public Object uploadImage(String base64) {
         return Result.ok(storage.upload(base64));
     }
 
-    public MultipartFile download(String path){
+    public MultipartFile download(String path) {
         return storage.download(path);
     }
 
-    public Object urge(String id, String msg){
+    public Object urge(String id, String msg) {
         BpmService service = BpmService.ofIns(id);
         service.urge(Auth.getUid() + "", msg);
         return Result.ok();
     }
 
-    public Object logList(String id, String nodeId){
+    public Object logList(String id, String nodeId) {
         MongoCollection<Document> collection = db.getCollection("bpmInstance");
         Arr condition = a(
                 o(
@@ -90,7 +90,7 @@ public class workflow {
 
                 )
         );
-        if(StrUtil.isBlank(nodeId)){
+        if (StrUtil.isBlank(nodeId)) {
             condition.add(o(
                     "$project", o("logs", 1)
             ));
@@ -109,23 +109,37 @@ public class workflow {
                     )
             );
         }
-        return Result.ok(collection.aggregate(condition.toBson()).first().get("logs"));
+        return Result.ok(((List<Map>) collection.aggregate(condition.toBson()).first().get("logs")));
+    }
+
+
+    public Object copyBpm(String id){
+        MongoCollection<Document> col = db.getCollection("workflow");
+        Document doc = col.find(Filters.eq("_id", new ObjectId(id))).first();
+        if (doc == null) {
+            return Result.error("复制失败");
+        }
+        doc.put("modelName", doc.getString("modelName") + "副本");
+        doc.remove("_id");
+        col.insertOne(doc);
+        return Result.ok();
     }
 
     /**
      * 菜单
+     *
      * @return
      */
-    public Object menu(){
+    public Object menu() {
         MongoCollection<Document> collection = db.getCollection("cat");
         Arr cats = collection.aggregate(a(
-                o("$match",o("type","1")),
+                o("$match", o("type", "1")),
                 o(
                         "$lookup", o(
-                                "from","workflow",
+                                "from", "workflow",
                                 "localField", "_id",
                                 "foreignField", "pid",
-                                "as","wfs"
+                                "as", "wfs"
                         )
                 ),
                 o(
@@ -133,17 +147,17 @@ public class workflow {
                                 "_id", o(
                                         "$toString", "$_id"
                                 ),
-                                "name",1,
+                                "name", 1,
                                 "pid", o(
                                         "$toString", "$pid"
                                 ),
                                 "wfs._id", 1,
-                                "wfs.modelName",1,
+                                "wfs.modelName", 1,
                                 "wfs.arrangementData.listFields", 1
                         )
                 )
         ).toBson()).into(a());
-        List ret = (List) tree((Collection)cats, "pid", "_id");
+        List ret = (List) tree((Collection) cats, "pid", "_id");
 
 //        Arr wfs = getCollection().aggregate(a(
 //                o("$project",o("_id", o(
@@ -161,14 +175,14 @@ public class workflow {
         return ok;
     }
 
-    private void walkCats(Map cat){
+    private void walkCats(Map cat) {
         List children = new ArrayList();
         //扔进去工作流
         List wfs = (List) cat.get("wfs");
         children.addAll(wfs);
         for (Object o : wfs) {
             Map map = (Map) o;
-            map.put("_id", ((ObjectId)map.get("_id")).toString());
+            map.put("_id", ((ObjectId) map.get("_id")).toString());
             map.put("name", map.get("modelName"));
             Map ar = (Map) map.get("arrangementData");
             map.put("href", "./htmlsrc/bpm/ins/ins.list.html?id=" + map.get("_id") + "&fields=" + URLUtil.encode(Json.stringify(ar.get("listFields"))));
@@ -180,7 +194,7 @@ public class workflow {
                 walkCats((Map) child);
             }
         }
-        if(!children.isEmpty()){
+        if (!children.isEmpty()) {
             cat.put("children", children);
         } else {
             cat.remove("children");
@@ -192,45 +206,55 @@ public class workflow {
 
     /**
      * 查询和我有关的流程
+     *
      * @param id
      * @return
      */
-    public Object insList(String id, Integer page, Integer size){
+    public Object insList(String id, Integer page, Integer size) {
         if (page == null || page < 1) {
             page = 1;
         }
         if (size == null || size < 1) {
             size = 20;
         }
-        String uid = Auth.getUid()+"";
+        BpmService util = new BpmService();
+        String uid = Auth.getUid() + "";
         MongoCollection<Document> col = db.getCollection("bpmInstance");
-        Obj match = o(
-                "$and", a(
-                        o("bpmId", new ObjectId(id)),
-                        o("$or", a(
-                                        o("logs.uid", Auth.getUid() + ""),
-                                        o("currentNodes", o(
+        Obj match = null;
+        if (util.isSu(uid)) {
+            match = o("$and", a(
+                            o("bpmId", new ObjectId(id))
+                    )
+            );
+        } else {
+            match = o("$and", a(
+                            o("bpmId", new ObjectId(id)),
+                            o("$or", a(
+                                    o("logs.uid", Auth.getUid() + ""),
+                                    o("currentNodes", o(
                                             "$elemMatch", o(
-                                                    "uids",Auth.getUid() + ""
-                                                )
-                                        ))
-                        ))
-                )
-        );
+                                                    "uids", Auth.getUid() + ""
+                                            )
+                                    ))
+                            ))
+                    )
+            );
+        }
         int count = (int) col.countDocuments(match.toBson());
-        List list = (List)col.aggregate(a(
+        List list = (List) col.aggregate(a(
                 o("$match", match),
                 o("$project", o(
                         "_id", o("$toString", "$_id"),
-                        "attrs",1,
-                        "pubUid",1,
-                        "pubUName",1,
+                        "id", 1,
+                        "attrs", 1,
+                        "pubUid", 1,
+                        "pubUName", 1,
                         "createTime", 1,
                         "lastModifyTime", 1,
                         "currentNodes", 1,
-                        "state",1
+                        "state", 1
                 )),
-                o("$sort",o("lastModifyTime", -1)),
+                o("$sort", o("lastModifyTime", -1)),
                 o("$skip", (page - 1) * size),
                 o("$limit", size)
         ).toBson()).into(a())
@@ -239,7 +263,7 @@ public class workflow {
                     Document doc = (Document) e;
                     Obj obj = o();
                     obj.putAll(doc);
-                    obj.putAll((Map)doc.get("attrs"));
+                    obj.putAll((Map) doc.get("attrs"));
                     obj.remove("attrs");
                     BpmService bpmService = BpmService.ofIns(doc);
                     obj.put("deal", bpmService.canDealCurrent(uid));
@@ -268,13 +292,13 @@ public class workflow {
         return Result.ok(pq);
     }
 
-    public Object preparePub(String id){
+    public Object preparePub(String id) {
         BpmService service = BpmService.ofModel(id);
         return Result.ok(service.preparePub(Auth.getUid() + ""));
     }
 
 
-    public Object getInsInfo(String id){
+    public Object getInsInfo(String id) {
         BpmService service = BpmService.ofIns(id);
         return Result.ok(service.getInsInfo(Auth.getUid() + ""));
     }
@@ -282,11 +306,12 @@ public class workflow {
 
     /**
      * 创建任务实例
+     *
      * @param id
      * @param data
      * @return
      */
-    public Object createIns(String id, Obj data){
+    public Object createIns(String id, Obj data) {
         BpmService service = BpmService.ofModel(id);
         Document ins = service.createBpmInstance(Auth.getUid() + "", data);
         return Result.ok(ins.getObjectId("_id").toString());
@@ -297,10 +322,11 @@ public class workflow {
 
     /**
      * 得到下一节点的可执行人
+     *
      * @param id
      * @return
      */
-    public Object getNextDealers(String id){
+    public Object getNextDealers(String id) {
         BpmService service = BpmService.ofIns(id);
         return Result.ok(service.getNextNodePersons(Auth.getUid() + "", o()));
     }
@@ -308,46 +334,49 @@ public class workflow {
 
     /**
      * 保存选取的下一步处理人
+     *
      * @param id
      * @param nextUid
      * @return
      */
-    public Object nextApprover(String id, String nextUid){
+    public Object nextApprover(String id, String nextUid) {
         BpmService service = BpmService.ofIns(id);
-        return Result.ok(service.nextApprover(Auth.getUid() + "",  nextUid,o()));
+        return Result.ok(service.nextApprover(Auth.getUid() + "", nextUid, o()));
     }
 
     /**
      * 保存节点数据
+     *
      * @param id
      * @param data
      * @return
      */
-    public Result saveIns(String id,Obj data,String mode){
+    public Result saveIns(String id, Obj data, String mode) {
         BpmService service = BpmService.ofIns(id);
         return Result.ok(service.saveIns(Auth.getUid() + "", data, false, mode));
     }
 
     /**
      * 提交节点数据
+     *
      * @param id
      * @param data
      * @return
      */
-    public Result subIns(String id,Obj data){
+    public Result subIns(String id, Obj data) {
         BpmService service = BpmService.ofIns(id);
         Object bl = service.submitIns(Auth.getUid() + "", data);
         Map<Object, Object> res = new HashMap<>();
-        res.put("id",id);
-        res.put("res",bl);
+        res.put("id", id);
+        res.put("res", bl);
         return Result.ok(res);
     }
 
 
     /**
      * 生成最终的流程文件
-      */
-    public Result saveWorkFlow(Obj body){
+     */
+    public Result saveWorkFlow(Obj body) {
 
         MongoCollection<Document> collection = db.getCollection("workflow");
         JSONArray jsonArray = new JSONArray();
@@ -357,13 +386,13 @@ public class workflow {
         doc.put("data", BsonArray.parse(jsonArray.toString()));
         String workflowName = body.s("workflowName");
 
-        Bson filter = Filters.eq("workflowName",workflowName);
+        Bson filter = Filters.eq("workflowName", workflowName);
         FindIterable<Document> lists = collection.find(filter);
         MongoCursor<Document> mongoCursor = lists.iterator();
 
-        if(mongoCursor.hasNext()){
+        if (mongoCursor.hasNext()) {
             collection.updateOne(Filters.eq("workflowName", workflowName), new Document("$set", doc), new UpdateOptions().upsert(true));
-        }else{
+        } else {
             collection.insertOne(doc);
 
         }
@@ -374,7 +403,7 @@ public class workflow {
     /**
      * 删除流程
      */
-    public Object deleteIns(String id){
+    public Object deleteIns(String id) {
         BpmService service = BpmService.ofIns(id);
         service.delete(Auth.getUid() + "");
         return Result.ok();

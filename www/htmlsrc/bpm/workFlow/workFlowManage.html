@@ -31,6 +31,7 @@
 </html>
 <script id="toolbar" type="text/html">
     <div class="layui-toolbar">
+        <a class="btn btn-warning btn-mini copy" href="javascript:;" data-id="{{d._id}}" >复制</a>
         <a class="btn btn-warning btn-mini edit" href="javascript:;" data-id="{{d._id}}" >修改</a>
         <a class="btn btn-danger btn-mini del" data-id="{{d._id}}">删除</a>
     </div>
@@ -207,17 +208,27 @@
         addNavTab(id, "修改", "/htmlsrc/bpm/workFlow/xml.html?flag=1&&id=" + id)
     });
 
+    $(document).on("click", ".copy", function () {
+        var id =  $(this).data("id");
+        loadTimeout()
+        $.get("/api/bpm/workflow/copyBpm", {id:id}, function () {
+            layer.closeAll();
+            onInfront()
+        });
+        // addNavTab(id, "修改", "/htmlsrc/bpm/workFlow/xml.html?flag=1&&id=" + id)
+    });
+
     $(document).on("click", ".del", function () {
         var _id =  $(this).data("id");
         actConfirm(function(){
-            getRemoteData({
-                url: "/api/bpm/BpmXmlController/deleteBPMXML?_id="+_id,
-                callback: function(origin){
-                    alert(origin)
-                    /*layer.msg("删除成功");
-                    onInfront();*/
+            $.get(
+                "/api/bpm/BpmXmlController/deleteBPMXML?_id="+_id,
+                function(origin){
+                    // alert(origin)
+                    layer.msg("删除成功");
+                    onInfront();
                 }
-            })
+            )
         })
     })
 
