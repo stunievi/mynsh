@@ -661,6 +661,9 @@ public class BpmService {
         JSONArray uids = new JSONArray();
         uids.add(uid);
         currentNode.put("uids", uids);
+        JSONArray unames = new JSONArray();
+        unames.add(getUserName(uid));
+        currentNode.put("unames", unames);
         JSONArray currentNodes = new JSONArray();
         currentNodes.add(currentNode);
 
@@ -977,6 +980,9 @@ public class BpmService {
         }
         String [] dateArr = dateTime.split("_");
         if(dateArr.length!=2){
+            return null;
+        }
+        if(dateArr[0].equals("0")){
             return null;
         }
         if(dateArr[1].equals("day")){
