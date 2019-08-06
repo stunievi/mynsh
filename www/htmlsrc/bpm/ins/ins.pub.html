@@ -222,7 +222,15 @@
                 if (field.leipiplugins == 'macros') {
                     t.prop("readonly", "true")
                 }
-                t.val(v)
+
+                if(t.is("[leipiplugins=sign]")){
+                    var matched = v.match(/^\[img\](.+)$/);
+                    if(matched){
+                        t.attr('src', matched[1])
+                    }
+                } else {
+                    t.val(v)
+                }
             });
 
             //必填字段标红
@@ -253,7 +261,18 @@
             if(!Data.allFields[v]){
                 return
             }
-            var val = FormBody.find("[name=" + Data.allFields[v].name + "]").val();
+            var elem = FormBody.find("[name=" + Data.allFields[v].name + "]");
+            var val;
+            if(elem.is("[leipiplugins=sign]")){
+                val = elem.attr("src");
+                if(val.indexOf("sign.png") > -1){
+                    val = "";
+                } else {
+                    val = "[img]" + val;
+                }
+            } else {
+                val = elem.val();
+            }
             data[key] = val;
         });
         // console.log(Data.formFields,data)
