@@ -982,6 +982,9 @@ public class BpmService {
         if(dateArr.length!=2){
             return null;
         }
+        if(dateArr[0].equals("0")){
+            return null;
+        }
         if(dateArr[1].equals("day")){
             nowDateTime = nowDateTime.plusDays(Long.parseLong(dateArr[0]));
 
@@ -998,7 +1001,7 @@ public class BpmService {
      * @return
      */
     private Date toDate(LocalDateTime localDateTime){
-        if(null == localDateTime || "".equals(localDateTime)){
+        if(null == localDateTime){
             return null;
         }
         ZoneId zoneId = ZoneId.systemDefault();
