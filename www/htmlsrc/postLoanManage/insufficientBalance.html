@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 贷后管理 - 还款余额不足 </title>
+    <!--#include file="/htmlsrc/header.html" -->
+</head>
+<body>
+<style>
+    .rowLine > td,
+    .rowLine2 > td{
+        padding: 0 !important;
+    }
+</style>
+<div id="content">
+    <div class="" id="panel-form">
+    </div>
+    <div id="dataList">
+    </div>
+</div>
+<script type="text/html" id="toolbar1">
+    <a href="javascript:;" class="rowLineBtn btn btn-default btn-xs" data-val="{{d.CERT_CODE}}" data-deep="1">展开 -</a>
+</script>
+
+<script type="text/html" id="deep2Html">
+    <table class="table">
+        <thead>
+        <tr>
+            <th>操作</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Username</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="rowLine2">
+            <td>
+                <a href="javascript:;" class="rowLine2Btn btn btn-default btn-xs" data-deep="2">展开 --</a>
+            </td>
+            <td>Mark</td>
+            <td>Otto</td>
+            <td>@mdo</td>
+        </tr>
+        </tbody>
+    </table>
+</script>
+
+
+<script type="text/html" id="deep3Html">
+    <table class="table">
+        <thead>
+        <tr>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Username</th>
+            <th>Username</th>
+            <th>Username</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="">
+            <td>Mark</td>
+            <td>Otto</td>
+            <td>@mdo</td>
+            <td>@mdo</td>
+            <td>@mdo</td>
+        </tr>
+        </tbody>
+    </table>
+</script>
+
+<script>
+
+    $("#panel-form").html(panelFormRender3({
+        col:3,
+        panelTitle:'筛选查询',
+        list:[
+            { label :'客户号', prop:'CUS_ID' },
+            { label :'客户名称', prop:'CUS_NAME' },
+            { label :'证件号码', prop:'CERT_CODE' }
+        ],
+        data:{ } // 默认值
+    }));
+
+    laytableRender({
+        url: remoteOrigin + "/api/auto/LoanRelatedSearch/getDList",
+        cols: [
+            [
+                { title:'操作', templet: "#toolbar1"},
+                { title:'添加时间', field: "ADD_TIME"},
+                { title:'客户名称', field: "CUS_NAME"},
+                { title:"证件号码", field: "CERT_CODE"},
+                { title:"占资本净额比例", field: "RATIO"}
+            ]
+        ]
+    });
+
+    $(document).on("click", ".rowLineBtn", function () {
+        if($(this).hasClass("open")){
+            $(this).removeClass("open");
+        }else{
+            $(this).addClass("open");
+            $(this).parents("tr").after("<tr class='rowLine'> <td></td><td class='rowLine12Content' colspan='4'></td></tr>>");
+            // $("#deep2Html").html()
+            $(".rowLine12Content").html(
+                template('deep2Html', {
+
+                })
+            );
+        }
+    });
+    $(document).on("click", ".rowLine2Btn", function () {
+
+        if($(this).hasClass("open")){
+            $(this).parents(".rowLine2").next(".row13").remove();
+            $(this).removeClass("open");
+        }else{
+            $(this).addClass("open");
+            $(this).parents(".rowLine2").after("<tr class='rowLine2'> <td></td><td class='rowLine13Content' colspan='4'></td></tr>>");
+            // $("#deep3Html").html()
+            $(".rowLine13Content").html(
+                template('deep3Html', {
+
+                })
+            );
+        }
+
+
+    });
+
+</script>
+</body>
+</html>

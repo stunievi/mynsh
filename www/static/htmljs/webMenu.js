@@ -6,6 +6,10 @@ var _menu = [
         icon: '<span class="glyphicon glyphicon-align-left" aria-hidden="true"></span>&nbsp',
         children:[
             {
+                name: "还款余额不足",
+                href: "/htmlsrc/postLoanManage/insufficientBalance.html"
+            },
+            {
                 id: "menu-mybench-bench",
                 name: '我的工作台',
                 href: '/htmlsrc/bench/myBench.html',

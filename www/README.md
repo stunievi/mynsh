@@ -98,7 +98,7 @@ callback字符标识函数
 "T"开头变量为模板变量： 如，TPanelList，变量对应为[文件](/tmpl/js/panleList.js)，[示例文件](/tmpl/html/panelList.html)。
 ***Render函数为渲染函数，例，/tmpl/js/panleList.js中panelFormRender。
 
-"enum***"开头变量为枚举变量
+~~"enum***"开头变量为枚举变量~~
 
 ~~"selectData.***"变量为select下来框选项 selectData~~
 
@@ -114,6 +114,13 @@ laytable选中数据
 ```js
     var ids = getLayuiTabelCheckIds();
 ```
+
+
+# iframe页面
+
+切换iframe自动执行函数: onInfront
+
+关闭当前iframe: closeCurrentIframe
 
 # addNavTab中id规范
 工作流: 'workflow' + id,
