@@ -360,6 +360,8 @@
                 var _endId = _endEvent.attr("id");
                 var _endName = _endEvent.attr("name");
                 taskNameMap[_endId] = _endName;
+
+
                 _task.each(function () {
                     var _taskId = $(this).attr("id");
                     var _taskName = $(this).attr("name");
@@ -371,7 +373,13 @@
                         _eventMap = arrData(_taskId, targetRef, _eventMap);
 
                     })
+
+                    if(_outgoing.length == 0){
+                        _eventMap = arrData(_taskId, "", _eventMap);
+                    }
                 })
+
+
 
 
                 // var _sequenceFlow = $(this).children('sequenceFlow');
