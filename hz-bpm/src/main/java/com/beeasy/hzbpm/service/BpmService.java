@@ -71,8 +71,8 @@ public class BpmService {
     private Map<String,Obj> userCache = new HashMap<>();
 
     //    public long uid;
-    private BpmService() {
-    }
+//    private BpmService() {
+//    }
 
 
     public static BpmService ofModel(final String modelId) {
@@ -691,7 +691,6 @@ public class BpmService {
         } else {
             //优先判断有表达式的
             target = node.nextNodes.stream()
-                    .filter(e -> StrUtil.isNotBlank(e.expression))
                     .sorted((a,b) -> getExpressionLevel(b.expression).compareTo(getExpressionLevel(a.expression)))
                     .filter(e -> JsEngine.runExpression(oldAttrs, e.expression))
                     .map(e -> getNode(e.node))
@@ -853,7 +852,7 @@ public class BpmService {
         if(nextNode.id.equals(bpmService.ins.bpmModel.end)){
             Obj state = o();
             state.put("state", "已办结");
-//            state.put("currentNodes", a(uid, nextNode.id));
+            state.put("currentNodes", a());
             MongoCollection<Document> collection = db.getCollection("bpmInstance");
             UpdateResult res = collection.updateOne(Filters.eq("_id", bpmService.ins._id),new Document("$set", state.toBson()));
 //            bl = res.getModifiedCount()>0;
@@ -954,7 +953,7 @@ public class BpmService {
     }
 
 
-    private synchronized String getUserName(String uid){
+    public synchronized String getUserName(String uid){
         Obj obj = initUserCache(uid);
         if (!obj.containsKey("true_name")) {
             String trueName = sqlManager.execute(new SQLReady("select true_name from t_user where id = ?", uid), Obj.class)
@@ -967,7 +966,7 @@ public class BpmService {
         return obj.s("true_name");
     }
 
-    private synchronized boolean isSu(String uid){
+    public synchronized boolean isSu(String uid){
         Obj obj = initUserCache(uid);
         if(!obj.containsKey("is_su")){
             Boolean su = sqlManager.execute(new SQLReady("select su from t_user where id = ?", uid), Obj.class)
@@ -980,7 +979,7 @@ public class BpmService {
         return obj.b("is_su");
     }
 
-    private synchronized Obj initUserCache(String uid){
+    private Obj initUserCache(String uid){
         Obj obj = userCache.get(uid);
         if (obj == null) {
             obj = o();
