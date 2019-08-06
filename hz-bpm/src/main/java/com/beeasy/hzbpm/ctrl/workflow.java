@@ -109,7 +109,7 @@ public class workflow {
                     )
             );
         }
-        return Result.ok(collection.aggregate(condition.toBson()).first().get("logs"));
+        return Result.ok(((List<Map>) collection.aggregate(condition.toBson()).first().get("logs")));
     }
 
 

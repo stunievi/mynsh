@@ -281,6 +281,36 @@ public class BpmService {
         return result.getDeletedCount() > 0;
     }
 
+
+    public static Arr optimizeLogs(List<Map> logs){
+        Arr list = a();
+        for (Map log : logs) {
+            if(list.isEmpty()){
+                list.add(o(
+                    "startDate", log.get("date"),
+                    "endDate", null,
+                    "attrs", log.get("attrs"),
+                        "nodeId", log.get("nodeId"),
+                        "uid", log.get("uid"),
+                        "uname", log.get("uname")
+                ));
+            } else {
+                if(log.get("type").equals("save")){
+                    //取出上一个相同的，进行覆盖
+                    int i = list.size();
+                    while(i-- > 0){
+                        Obj item = (Obj) list.get(i);
+                        if(item.s("nodeId").equals(log.get("nodeId")) && item.s("uid").equals(log.get("uid"))){
+                            item.get("attrs", Obj.class).putAll((Map<? extends String, ?>) log.get("attrs"));
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return list;
+    }
+
 //    public static BpmService ofIns(String id, Obj data, String uid){
 ////
 //
@@ -621,6 +651,8 @@ public class BpmService {
         dataLog.put("uid", uid);
         dataLog.put("attrs", attrs);
         dataLog.put("uname", uName);
+        dataLog.put("type", "save");
+
         JSONArray logs = new JSONArray();
         logs.add(dataLog);
 
@@ -645,7 +677,18 @@ public class BpmService {
 //        obj.put("depName", deptName);
         obj.put("bpmModel", bpmService.model);
         obj.put("currentNodes", currentNodes);
+
+        //流程处理日志
+//        BpmInstance.HandleLog handleLog = new BpmInstance.HandleLog();
+//        handleLog.startDate = new Date();
+//        handleLog.nodeId = startNode.id;
+//        handleLog.nodeName = startNode.name;
+//        handleLog.uid = uid;
+//        handleLog.uname = uName;
+//        handleLog.nodeName
+//        obj.put("handleLogs", a(handleLog));
         obj.put("attrs", allAttrs);
+        //流程提交日志
         obj.put("logs", logs);
         obj.put("xml", xml);
         obj.put("createTime", new Date());
@@ -793,10 +836,12 @@ public class BpmService {
         dataLog.uname = getUserName(uid);
         if(mode.equalsIgnoreCase("edit")){
             dataLog.msg = "编辑流程";
+            dataLog.type = "edit";
         } else {
             if(StrUtil.isNotBlank(node.name)) {
                 dataLog.msg = String.format("提交【%s】", node.name);
             }
+            dataLog.type = "save";
         }
 
 //        bpmService.ins.logs.add(dataLog);
@@ -875,6 +920,8 @@ public class BpmService {
     public boolean nextApprover(String uid, String nextUid, Obj update){
         BpmService bpmService = this;
 
+        BpmModel.Node node = getCurrentNode(uid);
+
         // 下一节点
         BpmModel.Node nextNode = getNextNode(uid, o());
         if(!canDeal(nextUid, nextNode.id)){
@@ -907,7 +954,18 @@ public class BpmService {
 
         update.put("currentNodes", a(currentNode));
         MongoCollection<Document> collection = db.getCollection("bpmInstance");
-        UpdateResult res = collection.updateOne(Filters.eq("_id", bpmService.ins._id),new Document("$set", update.toBson()));
+        UpdateResult res = collection.updateOne(Filters.eq("_id", bpmService.ins._id),o("$set", update,
+                "$push", o("logs", o(
+                            "id", new ObjectId(),
+                        "nodeId", node.id,
+                        "msg", "转交节点",
+                        "time", new Date(),
+                        "uid", uid,
+                        "uname", getUserName(uid),
+                        "type", "flow",
+                        "attrs",a()
+                        ))).toBson()
+        );
 
         return res.getModifiedCount() > 0;
     }

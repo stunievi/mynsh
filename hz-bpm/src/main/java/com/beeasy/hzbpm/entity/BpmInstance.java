@@ -45,6 +45,7 @@ public class BpmInstance {
 
     public List<CurrentNode> currentNodes;
 
+
     //所有的属性集中在这里,直接初始化好,每当有人提交数据时，更新这个字段
     /**
      * {
@@ -60,6 +61,7 @@ public class BpmInstance {
     //数据提交历史（记录）
     public List<DataLog> logs;
 
+//    public List<HandleLog> handleLogs;
 
     public static class DataLog{
         public ObjectId id;
@@ -77,6 +79,9 @@ public class BpmInstance {
         public String uid;
         public String uname;
 
+        //日志类型
+        public String type;
+
         //...
         //提交人是以什么身份进行提交的（当时这个节点的授权）
 
@@ -84,6 +89,14 @@ public class BpmInstance {
         public Map<String,Object> attrs;
     }
 
+//    public static class HandleLog{
+//        public String nodeId;
+//        public String nodeName;
+//        public String uid;
+//        public String uname;
+//        public Date startDate;
+//        public Date endDate;
+//    }
 
     public static class CurrentNode{
         //当前节点的ID
