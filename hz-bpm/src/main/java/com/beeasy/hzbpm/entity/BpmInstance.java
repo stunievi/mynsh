@@ -12,6 +12,9 @@ public class BpmInstance {
     //任务ID
     public ObjectId _id;
 
+    //给人看的ID
+    public String id;
+
     //任务状态
     public String state;
 

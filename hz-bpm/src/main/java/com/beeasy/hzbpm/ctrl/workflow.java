@@ -222,6 +222,7 @@ public class workflow {
                 o("$match", match),
                 o("$project", o(
                         "_id", o("$toString", "$_id"),
+                        "id",1,
                         "attrs",1,
                         "pubUid",1,
                         "pubUName",1,

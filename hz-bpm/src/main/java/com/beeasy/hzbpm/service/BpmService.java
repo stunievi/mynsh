@@ -22,6 +22,7 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.FindOneAndUpdateOptions;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
@@ -634,6 +635,7 @@ public class BpmService {
         MongoCollection<Document> collection = db.getCollection("bpmInstance");
 //        BpmInstance ins = new BpmInstance();
         Obj obj = new Obj();
+        obj.put("id", getIncrementId());
         obj.put("state", "流转中");
         obj.put("bpmId", new ObjectId(modelId));
         obj.put("bpmName", bpmService.model.workflowName);
@@ -1053,6 +1055,21 @@ public class BpmService {
                 .map(e -> getNode(e.nodeId))
                 .filter(e -> e != null)
                 .collect(Collectors.toList());
+    }
+
+
+
+    public static String getIncrementId(){
+        MongoCollection<Document> col = db.getCollection("id");
+        Document doc = col.findOneAndUpdate(o().toBson(), o(
+                "$inc", o(
+                        "id", 1
+                )
+        ).toBson(), new FindOneAndUpdateOptions().upsert(true));
+        if (doc == null) {
+            return "1";
+        }
+        return doc.getInteger("id").toString();
     }
 
 }
