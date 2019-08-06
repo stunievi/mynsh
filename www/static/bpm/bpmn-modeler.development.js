@@ -41882,6 +41882,8 @@
 	    return null;
 	  }
 
+
+
 	  if (!is$1(connection, 'bpmn:DataAssociation')) {
 
 	    if (canConnectMessageFlow(source, target)) {
@@ -41912,6 +41914,11 @@
 	      type: 'bpmn:Association'
 	    };
 	  }
+
+
+        if(source && target && /startevent/i.test(target.id) ){
+            return { type: 'bpmn:SequenceFlow' };
+        }
 
 	  return false;
 	}
