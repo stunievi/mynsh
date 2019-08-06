@@ -125,8 +125,6 @@
     </select>
 </script>
 
- <!--设置-字段-->
-
 <script>
     window.form = null;
     window.fields = [];
@@ -137,6 +135,8 @@
         nodes:{}
     };
     var listFields = [];
+
+    var taskNameMap = {};
 
     function loadForm(){
         var id = $("#selectForm").val()
@@ -273,7 +273,14 @@
                         })*/
 
                         $("#modelName").val(obj.data.modelName);
+
                         window.bpmData = obj.data.bpmData;
+                        for (var nodeId in bpmData.nodes) {
+                            bpmData.nodes[nodeId].timeoutSet = bpmData.nodes[nodeId].timeoutSet || {
+                                timeout:"",
+                                maxTimeout:""
+                            }
+                        }
                         listFields = obj.data.arrangementData.listFields;
 
                     }
@@ -328,6 +335,27 @@
             var endNum = 0;
             var errFlag = false;
             $(_xml).find('process').each(function(){
+                var _startEvent = $(this).children('startEvent');
+                var _task = $(this).children('task');
+                var _endEvent = $(this).children('endEvent');
+                if(_startEvent.length>1){
+                    startNum = _startEvent.length;
+                }
+                if(_endEvent.length>1){
+                    endNum = _endEvent.length;
+                }
+                var _startId = _startEvent.attr("id");
+                var _startName = _startEvent.attr("name");
+                taskNameMap[_startId] = _startName;
+                var _endId = _endEvent.attr("id");
+                var _endName = _endEvent.attr("name");
+                taskNameMap[_endId] = _endName;
+                _task.each(function () {
+                    var _taskId = $(this).attr("id");
+                    var _taskName = $(this).attr("name");
+                    taskNameMap[_taskId] = _taskName;
+                })
+
                 var _sequenceFlow = $(this).children('sequenceFlow');
                 _sequenceFlow.each(function () {
 
@@ -354,6 +382,9 @@
                     var qids = [];
                     var rids = [];
                     var dids = [];
+                    var timeout = "";
+                    var maxTimeout = "";
+                    var taskName = "";
                     if(undefined ==  window.bpmData.nodes[sourceRef]){
                         /*errFlag = true;
                         layer.msg("请配置节点信息！");
@@ -367,6 +398,13 @@
                         qids =arrToStr(window.bpmData.nodes[sourceRef].permission.qids);
                         rids =arrToStr(window.bpmData.nodes[sourceRef].permission.rids);
                         dids =arrToStr(window.bpmData.nodes[sourceRef].permission.dids);
+
+                        timeout = window.bpmData.nodes[sourceRef].timeoutSet.timeout;
+                        maxTimeout = window.bpmData.nodes[sourceRef].timeoutSet.maxTimeout;
+                        taskName = taskNameMap[sourceRef];
+                        var timeoutSet = {};
+                        timeoutSet["timeout"] = timeout;
+                        timeoutSet["maxTimeout"] = maxTimeout;
                         var conList;
                         if(undefined !=  window.bpmData.nodes[targetRef]){
                             conList = window.bpmData.nodes[targetRef].condition;
@@ -395,7 +433,7 @@
                         ex.push({sourceRef,targetRef});
                         exList[sourceRef] = ex;
                     }else{
-                        _eventMap[sourceRef] = {"id":sourceRef,"allFields":allFields,"requiredFields":requiredFields,"uids":pids,"qids":qids,"rids":rids,"dids":dids,"nextNodes":nextNodes}
+                        _eventMap[sourceRef] = {"id":sourceRef,"name":taskName,"allFields":allFields,"requiredFields":requiredFields,"uids":pids,"qids":qids,"rids":rids,"dids":dids,"nextNodes":nextNodes,"timeoutSet":timeoutSet}
                     }
 
                     window.sbpmData.nodes[sourceRef] = (window.bpmData.nodes[sourceRef]);
@@ -412,6 +450,7 @@
                 var rids = [];
                 var dids = [];
                 var conList;
+                var taskName = "";
                 if(undefined ==  window.bpmData.nodes[sourceRef]){
                 }else{
                     allFields = window.bpmData.nodes[sourceRef].fields.all_fields;
@@ -422,6 +461,7 @@
                     qids =arrToStr(window.bpmData.nodes[sourceRef].permission.qids);
                     rids =arrToStr(window.bpmData.nodes[sourceRef].permission.rids);
                     dids =arrToStr(window.bpmData.nodes[sourceRef].permission.dids);
+                    taskName = taskNameMap[sourceRef];
                 }
                 for(var ex=0;ex<exList[i].length;ex++){
                     var targetRef = exList[i][ex].targetRef;
@@ -434,7 +474,7 @@
                 }
                 var nextNodes = [];
                 nextNodes.push(node);
-                _eventMap[exList[i].sourceRef] = {"id":exList[i],"allFields":allFields,"requiredFields":requiredFields,"uids":pids,"qids":qids,"rids":rids,"dids":dids,"nextNodes":nextNodes}
+                _eventMap[exList[i].sourceRef] = {"id":exList[i],"name":taskName,"allFields":allFields,"requiredFields":requiredFields,"uids":pids,"qids":qids,"rids":rids,"dids":dids,"nextNodes":nextNodes}
             });
 
             // 结束节点
@@ -446,25 +486,27 @@
                 var qids = [];
                 var rids = [];
                 var dids = [];
+                var taskName = "";
                 // var nextNodes = [];
                 // var node = {};
                 if(undefined ==  window.bpmData.nodes[sourceRef]){
                 }else{
-                    allFields = window.bpmData.nodes[sourceRef].fields.all_fields;
-                    requiredFields = window.bpmData.nodes[sourceRef].fields.required_fields;
+                    // allFields = window.bpmData.nodes[sourceRef].fields.all_fields;
+                    // requiredFields = window.bpmData.nodes[sourceRef].fields.required_fields;
                     // 可以处理的人的ID
                     pids = arrToStr(window.bpmData.nodes[sourceRef].permission.pids);
                     // 可以处理的组织架构ID
                     qids =arrToStr(window.bpmData.nodes[sourceRef].permission.qids);
                     rids =arrToStr(window.bpmData.nodes[sourceRef].permission.rids);
                     dids =arrToStr(window.bpmData.nodes[sourceRef].permission.dids);
+                    taskName = taskNameMap[sourceRef];
                     // var conList = window.bpmData.nodes[sourceRef].condition;
                     // var _expression = preorderZheng(conList,"and");
                     //
                     // node["expression"] = _expression;
                     // nextNodes.push(node);
                 }
-                _eventMap[sourceRef] = {"id":sourceRef,"allFields":allFields,"requiredFields":requiredFields,"uids":pids,"qids":qids,"rids":rids,"dids":dids,"nextNodes":[]}
+                _eventMap[sourceRef] = {"id":sourceRef,"name":taskName,"allFields":allFields,"requiredFields":requiredFields,"uids":pids,"qids":qids,"rids":rids,"dids":dids,"nextNodes":[]}
                 window.sbpmData.nodes[sourceRef] = (window.bpmData.nodes[sourceRef]);
             })
 
@@ -474,27 +516,27 @@
                     return;
                 }
 
-                var _formDataMap = {}
+                // var _formDataMap = {}
                 var formId = $("#selectForm").val();
                 var modelName = $("#modelName").val();
                 if("" == modelName.trim()){
                     layer.msg("工作流名称不能为空！");
                     return;
                 }
-                $.ajax({
-                    type:"get",
-                    async:false,
-                    url:"/api/bpm/form/queryFormData?_id="+formId,
-                    success:function(res){
-                        if(res.code==200&& res.data.length>0){
-                            var data = res.data[0].form.data;
-                            data.forEach(function (e) {
-                                _formDataMap[e.title] = e;
-                            })
-                        }
-                    }
-                });
-                _xmlMap = {"formId":formId,"template":form.form.template,"rendered":form.form.parse,"workflowName":modelName,"fields":_formDataMap,"nodes":_eventMap,"start":startEvent,"end":endEvent,"listFields":listFields}
+                // $.ajax({
+                //     type:"get",
+                //     async:false,
+                //     url:"/api/bpm/form/queryFormData?_id="+formId,
+                //     success:function(res){
+                //         if(res.code==200&& res.data.length>0){
+                //             var data = res.data[0].form.data;
+                //             data.forEach(function (e) {
+                //                 _formDataMap[e.title] = e;
+                //             })
+                //         }
+                //     }
+                // });
+                _xmlMap = {"formId":formId,"template":"","rendered":"","workflowName":modelName,"fields":null,"nodes":_eventMap,"start":startEvent,"end":endEvent,"listFields":listFields}
 
                 var da = {
                     _id:id,
@@ -517,9 +559,9 @@
                     dataType: "json",
                     success:function(res){
                         if(res.success){
-                            // layer.alert("保存成功！", { icon: 1, closeBtn: 0 }, function () {
-                                // closeCurrentIframe();
-                            // } );
+                            layer.alert("保存成功！", { icon: 1, closeBtn: 0 }, function () {
+                                closeCurrentIframe();
+                            } );
                         }else{
                             layer.alert("保存失败！"+res.errMessage, { icon: 2, closeBtn: 0 }, function () {
                                 layer.closeAll();
@@ -608,7 +650,8 @@
         fulldata.taskId=obj.id;
         var modelName = $("#modelName").val();
         var form = $("#selectForm").val();
-        console.log("当前选中id:",obj.id)
+        console.log("当前选中id:",obj)
+        // bpmData.nodes[obj.id].name = obj.name;
 
         bpmData.nodes[obj.id] = bpmData.nodes[obj.id] || {
             fields:{
@@ -627,7 +670,11 @@
                 dids:[],
                 rids:[]
             },
-            condition: []
+            condition: [],
+            timeoutSet:{
+                timeout:"",
+                maxTimeout:"",
+            }
         };
         window.open("./node.edit.html?id=" + obj.id,"node_edit_" + obj.id, "left=200, top=100, width=800, height=500, location=no")
 

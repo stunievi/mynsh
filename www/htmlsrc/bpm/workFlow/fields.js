@@ -91,11 +91,11 @@
                 t.find('.arrow-btn').click(function () {
                     var checkboxs, origin, target, num = 0;
                     if ($(this).hasClass('right')) {
-                        origin = $('.unselect-ul');
-                        target = $('.selected-ul');
+                        origin = t.find('.unselect-ul');
+                        target = t.find('.selected-ul');
                     } else {
-                        origin = $('.selected-ul');
-                        target = $('.unselect-ul');
+                        origin = t.find('.selected-ul');
+                        target = t.find('.unselect-ul');
                     }
                     checkboxs = origin.find('.checkboxs');
                     for (var i = 0; i < checkboxs.length; i++) {

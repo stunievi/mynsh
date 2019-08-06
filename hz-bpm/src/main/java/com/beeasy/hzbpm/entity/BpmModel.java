@@ -39,6 +39,8 @@ public class BpmModel {
     public static class Node{
         //节点ID
         public String id;
+        public String name;
+
         //节点对应的表单属性
         public List<String> allFields;
 
@@ -56,6 +58,9 @@ public class BpmModel {
 
         //节点跳转的方向
         public List<NextNode> nextNodes = new ArrayList<>();
+
+        // 超时时间设置
+        public TimeoutSet timeoutSet;
     }
 
     /**
@@ -69,6 +74,17 @@ public class BpmModel {
 
         //需要跳转的节点ID
         public String node;
+    }
+
+    /**
+     * 超时时间设置
+     */
+    public static class TimeoutSet{
+        //超时时间
+        public String timeout;
+
+        //最大超时时间
+        public String maxTimeout;
     }
 
 

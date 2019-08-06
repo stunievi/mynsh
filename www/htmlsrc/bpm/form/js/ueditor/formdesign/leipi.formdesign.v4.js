@@ -700,6 +700,45 @@ UE.plugins['datetime'] = function () {
 
 };
 
+(function () {
+    var createPlugin = function (name) {
+        UE.plugins[name] = function () {
+            var me = this,thePlugins = name;//'datetime';
+            me.commands[thePlugins] = {
+                execCommand:function () {
+                    var dialog = new UE.ui.Dialog({
+                        iframeUrl:this.options.UEDITOR_HOME_URL + UE.leipiFormDesignUrl+'/' + name + ".html",//'/datetime.html',
+                        name:thePlugins,
+                        editor:this,
+                        title: '签名控件',
+                        cssRules:"width:590px;height:370px;",
+                        buttons:[
+                            {
+                                className:'edui-okbutton',
+                                label:'确定',
+                                onclick:function () {
+                                    dialog.close(true);
+                                }
+                            },
+                            {
+                                className:'edui-cancelbutton',
+                                label:'取消',
+                                onclick:function () {
+                                    dialog.close(false);
+                                }
+                            }]
+                    });
+                    dialog.render();
+                    dialog.open();
+                }
+            };
+        }
+    } ;
+
+    createPlugin("sign");
+
+})();
+
 /**
  * 进度条
  * @command progressbar

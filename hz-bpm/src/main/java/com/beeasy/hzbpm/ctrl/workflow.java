@@ -4,9 +4,11 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.beeasy.hzbpm.entity.BpmInstance;
+import com.beeasy.hzbpm.exception.BpmException;
 import com.beeasy.hzbpm.filter.Auth;
 import com.beeasy.hzbpm.service.BpmService;
 import com.beeasy.hzbpm.util.Result;
+import com.github.llyb120.nami.core.MultipartFile;
 import com.github.llyb120.nami.json.Arr;
 import com.github.llyb120.nami.json.Json;
 import com.github.llyb120.nami.json.Obj;
@@ -29,6 +31,7 @@ import static com.beeasy.hzbpm.bean.MongoService.db;
 import static com.github.llyb120.nami.ext.beetlsql.BeetlSql.sqlManager;
 import static com.github.llyb120.nami.json.Json.*;
 import static com.github.llyb120.nami.server.Vars.$request;
+import static com.beeasy.hzbpm.bean.FileStorage.storage;
 
 public class workflow {
 
@@ -37,6 +40,45 @@ public class workflow {
         return db.getCollection("workflow");
     }
 
+
+    public Object pause(String id){
+        BpmService service = BpmService.ofIns(id);
+        service.pause(Auth.getUid() + "");
+        return Result.ok();
+    }
+
+    public Object resume(String id) {
+        BpmService service = BpmService.ofIns(id);
+        service.resume(Auth.getUid() + "");
+        return Result.ok();
+    }
+
+    public Object forceEnd(String id) {
+        BpmService service = BpmService.ofIns(id);
+        service.forceEnd(Auth.getUid() + "");
+        return Result.ok();
+    }
+
+    public Object forceResume(String id) {
+        BpmService service = BpmService.ofIns(id);
+        service.forceResume(Auth.getUid() + "");
+        return Result.ok();
+    }
+
+
+    public Object uploadImage(String base64){
+        return Result.ok(storage.upload(base64));
+    }
+
+    public MultipartFile download(String path){
+        return storage.download(path);
+    }
+
+    public Object urge(String id, String msg){
+        BpmService service = BpmService.ofIns(id);
+        service.urge(Auth.getUid() + "", msg);
+        return Result.ok();
+    }
 
     public Object logList(String id, String nodeId){
         MongoCollection<Document> collection = db.getCollection("bpmInstance");
@@ -77,6 +119,7 @@ public class workflow {
     public Object menu(){
         MongoCollection<Document> collection = db.getCollection("cat");
         Arr cats = collection.aggregate(a(
+                o("$match",o("type","1")),
                 o(
                         "$lookup", o(
                                 "from","workflow",
@@ -159,6 +202,7 @@ public class workflow {
         if (size == null || size < 1) {
             size = 20;
         }
+        String uid = Auth.getUid()+"";
         MongoCollection<Document> col = db.getCollection("bpmInstance");
         Obj match = o(
                 "$and", a(
@@ -179,8 +223,12 @@ public class workflow {
                 o("$project", o(
                         "_id", o("$toString", "$_id"),
                         "attrs",1,
+                        "pubUid",1,
+                        "pubUName",1,
                         "createTime", 1,
-                        "lastModifyTime", 1
+                        "lastModifyTime", 1,
+                        "currentNodes", 1,
+                        "state",1
                 )),
                 o("$sort",o("lastModifyTime", -1)),
                 o("$skip", (page - 1) * size),
@@ -190,10 +238,25 @@ public class workflow {
                 .map(e -> {
                     Document doc = (Document) e;
                     Obj obj = o();
-                    obj.put("_id",doc.get("_id"));
-                    obj.put("lastModifyTime",doc.get("lastModifyTime"));
-                    obj.put("createTime",doc.get("createTime"));
+                    obj.putAll(doc);
                     obj.putAll((Map)doc.get("attrs"));
+                    obj.remove("attrs");
+                    BpmService bpmService = BpmService.ofIns(doc);
+                    obj.put("deal", bpmService.canDealCurrent(uid));
+                    obj.put("edit", bpmService.canEdit(uid));
+                    obj.put("forceEnd", bpmService.canForceEnd(uid));
+                    obj.put("forceResume", bpmService.canForceResume(uid));
+                    obj.put("pause", bpmService.canPause(uid));
+                    obj.put("resume", bpmService.canResume(uid));
+                    obj.put("urge", bpmService.canUrge(uid));
+                    obj.put("del", bpmService.canDelete(uid));
+
+                    String names = bpmService.ins.currentNodes.stream()
+                            .filter(ee -> ee.unames != null)
+                            .flatMap(ee -> ee.unames.stream())
+                            .collect(Collectors.joining(","));
+                    obj.put("uName", names);
+
                     return obj;
                 })
                 .collect(Collectors.toList());
@@ -206,12 +269,8 @@ public class workflow {
     }
 
     public Object preparePub(String id){
-        try{
-            BpmService service = BpmService.ofModel(id);
-            return Result.ok(service.preparePub(Auth.getUid() + ""));
-        } catch (BpmService.BpmException e){
-            return Result.error(e.error);
-        }
+        BpmService service = BpmService.ofModel(id);
+        return Result.ok(service.preparePub(Auth.getUid() + ""));
     }
 
 
@@ -264,9 +323,9 @@ public class workflow {
      * @param data
      * @return
      */
-    public Result saveIns(String id,Obj data){
+    public Result saveIns(String id,Obj data,String mode){
         BpmService service = BpmService.ofIns(id);
-        return Result.ok(service.saveIns(Auth.getUid() + "", data, false));
+        return Result.ok(service.saveIns(Auth.getUid() + "", data, false, mode));
     }
 
     /**
@@ -277,12 +336,11 @@ public class workflow {
      */
     public Result subIns(String id,Obj data){
         BpmService service = BpmService.ofIns(id);
-        boolean bl = service.submitIns(Auth.getUid() + "", data);
-        if(bl){
-            return Result.ok(id);
-        }else{
-            return Result.error("节点保存错误！");
-        }
+        Object bl = service.submitIns(Auth.getUid() + "", data);
+        Map<Object, Object> res = new HashMap<>();
+        res.put("id",id);
+        res.put("res",bl);
+        return Result.ok(res);
     }
 
 
@@ -311,6 +369,15 @@ public class workflow {
         }
 
         return (Result.ok(doc));
+    }
+
+    /**
+     * 删除流程
+     */
+    public Object deleteIns(String id){
+        BpmService service = BpmService.ofIns(id);
+        service.delete(Auth.getUid() + "");
+        return Result.ok();
     }
 
 

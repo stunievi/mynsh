@@ -22,7 +22,7 @@ public class BpmInstance {
     public String bpmName;
 
     //用户ID
-    public Long pubUid;
+    public String pubUid;
     //用户名
     public String pubUName;
 
@@ -64,6 +64,9 @@ public class BpmInstance {
         //当时所在的节点ID
         public String nodeId;
 
+        //提交到该节点上的信息，通常是节点名
+        public String msg;
+
         //提交时间
         public Date time;
 
@@ -82,8 +85,21 @@ public class BpmInstance {
     public static class CurrentNode{
         //当前节点的ID
         public String nodeId;
+        //提交到该节点上的信息，通常是节点名
+        public String msg;
 
         //当前正在处理这个节点的人
         public List<String> uids;
+        public List<String> unames;
+
+        // 当前时间
+//        public Date nowTime;
+
+        // 超时提醒时间
+        public Date timeout;
+
+        // 最大超时提醒时间
+        public Date maxTimeout;
+
     }
 }

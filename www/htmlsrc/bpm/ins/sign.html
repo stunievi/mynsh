@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <!--#include file="/htmlsrc/header.html" -->
+    <script src="jSignature.min.js"></script>
+
+    <style>
+        .jSignature{
+            height: 450px !important;
+        }
+    </style>
+    <script src="../../../static/htmljs/layer/layer.js"></script>
+</head>
+<body>
+<div id="signature" style="background: #ddd; width: 480px; height: 450px; margin: 0 auto;"></div>
+<div style="text-align: center; padding-top: 5px;">
+    <a href="javascript:;" class="btn btn-sm btn-danger" style="margin-right: 10px;">重置</a>
+    <a href="javascript:;" class="btn btn-sm btn-primary">确定</a>
+</div>
+</body>
+</html>
+<script>
+    var src = getParam("src");
+    $("#signature").jSignature()
+    if(src){
+        if(src.indexOf("sign.png") == -1){
+            getBase64(src)
+                .then(function(base64){
+                    // console.log(base64);
+                    $("#signature").jSignature("setData", base64)
+                },function(err){
+                    console.log(err);//打印异常信息
+                });
+        }
+    }
+    $(".btn-danger").click(function () {
+        $("#signature").jSignature("reset")
+    });
+
+    $('.btn-primary').click(function () {
+        // alert(2)
+        var datapair = $("#signature").jSignature("getData", "image");
+        var index = layer.load(0, {time:5000});
+        $.ajax({
+            url: "/api/bpm/workflow/uploadImage",
+            type:"post",
+            dataType:"json",
+            headers:{
+                "Content-Type": "application/json"
+            },
+            data:JSON.stringify({base64: "data:" + datapair[0]+","+datapair[1]}),
+            success: function (msg) {
+                layer.close(index);
+                opener.$("[name='" + getParam("name") + "']").attr("src", "/api/bpm/workflow/download?path=" + msg.data)
+                window.close();
+            },
+        });
+        console.log(datapair)
+    });
+
+
+    function getBase64(img){
+        function getBase64Image(img,width,height) {//width、height调用时传入具体像素值，控制大小 ,不传则默认图像大小
+            var canvas = document.createElement("canvas");
+            canvas.width = width ? width : img.width;
+            canvas.height = height ? height : img.height;
+
+            var ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            var dataURL = canvas.toDataURL();
+            return dataURL;
+        }
+        var image = new Image();
+        image.crossOrigin = '';
+        image.src = img;
+        var deferred=$.Deferred();
+        if(img){
+            image.onload =function (){
+                deferred.resolve(getBase64Image(image));//将base64传给done上传处理
+            }
+            return deferred.promise();//问题要让onload完成后再return sessionStorage['imgTest']
+        }
+    }
+</script>
