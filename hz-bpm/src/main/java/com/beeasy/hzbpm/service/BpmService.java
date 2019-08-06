@@ -38,9 +38,11 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.sql.Struct;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static com.beeasy.hzbpm.bean.MongoService.db;
@@ -678,24 +680,47 @@ public class BpmService {
             error("当前节点查询失败");
         }
         BpmModel.Node target = null;
-        for (BpmModel.NextNode nextNode : node.nextNodes) {
-            //如果表达式位空，则直接使用该节点
-            if(JsEngine.runExpression(oldAttrs, nextNode.expression)){
-                target = getNode(nextNode.node);
-                break;
-            }
-//            if (StrUtil.isBlank(nextNode.expression)) {
-//                target = getNode(nextNode.node);
-//                break;
-//            } else if (runExpression(nextNode.expression)) {
+        if(node.nextNodes.size() == 0) {
+            error("没有配置下一个流转的节点");
+        }
+        //如果接下来只有一个，无论如何都采用
+        else if(node.nextNodes.size() == 1){
+            target = getNode(node.nextNodes.get(0).node);
+        } else {
+            //优先判断有表达式的
+            target = node.nextNodes.stream()
+                    .filter(e -> StrUtil.isNotBlank(e.expression))
+                    .sorted((a,b) -> getExpressionLevel(b.expression).compareTo(getExpressionLevel(a.expression)))
+                    .filter(e -> JsEngine.runExpression(oldAttrs, e.expression))
+                    .map(e -> getNode(e.node))
+                    .findFirst()
+                    .orElse(null);
+        }
+//        for (BpmModel.NextNode nextNode : node.nextNodes) {
+//            //如果表达式位空，则直接使用该节点
+//            if(JsEngine.runExpression(oldAttrs, nextNode.expression)){
 //                target = getNode(nextNode.node);
 //                break;
 //            }
-        }
+////            if (StrUtil.isBlank(nextNode.expression)) {
+////                target = getNode(nextNode.node);
+////                break;
+////            } else if (runExpression(nextNode.expression)) {
+////                target = getNode(nextNode.node);
+////                break;
+////            }
+//        }
         if (target == null) {
             error("找不到符合跳转条件的下一节点");
         }
         return target;
+    }
+    private Integer getExpressionLevel(String expression){
+        if(StrUtil.isNotBlank(expression)){
+            return 1;
+        } else {
+            return 0;
+        }
     }
 
     /**
