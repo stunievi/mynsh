@@ -870,11 +870,15 @@ function laytableRender(options, undefined){
 }
 
 function checkSubmitForm(){
-  var form = $("form[name='form-search']")
-  layuiTableReload({
-      where: form.serialize()
-  })
-  return false;
+    if(typeof onInfront === "function"){
+        onInfront();
+    }else{
+        var form = $("form[name='form-search']")
+        layuiTableReload({
+            where: form.serialize()
+        });
+    }
+    return false;
 }
 
 function layTableRenderStaticData(options){

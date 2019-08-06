@@ -158,12 +158,16 @@ public class UpdateQccDataController {
             String progress = jo.getString("progress");
 
             String sourceRequest = jo.getString("sourceRequest");
-            JSONObject jsStr = JSONObject.parseObject(sourceRequest);
+            JSONObject sourceRequestObj = JSONObject.parseObject(sourceRequest);
+            JSONArray orderData = sourceRequestObj.getJSONArray("OrderData");
+            JSONObject firstItem = orderData.getJSONObject(0);
+            String firstItemCusName = Optional.ofNullable(firstItem.getString("Content")).orElse(firstItem.getString("Content1"));
+            String firstItemLinkCusName = Optional.ofNullable(firstItem.getString("Content2")).orElse("");
+            String firstItemSign = getSignName(firstItem.getString("Sign"));
+            String qccLogCusName = firstItemCusName + " - " + firstItemLinkCusName;
 
-            Iterator<String> iterator = jsStr.keySet().iterator();
-
-            String uid = (String) jsStr.get("uid");
-            String orderId = (String) jsStr.get("OrderId");
+            String uid = Optional.ofNullable(sourceRequestObj.getString("uid")).orElse(sourceRequestObj.getString("Uid"));
+            String orderId = sourceRequestObj.getString("OrderId");
 
             switch (progress) {
                 case "0": //
@@ -181,17 +185,11 @@ public class UpdateQccDataController {
             }
 
             //获得key值对应的value
-            JSONArray ja1 = jsStr.getJSONArray("OrderData");
-            Object ob = ja1.get(0);
-            JSONObject jObject = (JSONObject) ob;
-            String cusName = jObject.getString("Content");
-            String sign = getSignName(jObject.getString("Sign"));
             String content = "";
-
-            if (ja1.size() > 1) {
-                content = deconstructResponse(finished, progressText, content, cusName, "", "等公司", jo);
-            } else if (ja1.size() == 1) {
-                content = deconstructResponse(finished, progressText, content, cusName, "--" + sign, "", jo);
+            if (orderData.size() > 1) {
+                content = deconstructResponse(finished, progressText, content, qccLogCusName, "", "等公司", jo);
+            } else {
+                content = deconstructResponse(finished, progressText, content, qccLogCusName, "--" + firstItemSign, "", jo);
             }
             saveQccLog(content, "02", orderId, requestId, uid);
 
@@ -240,7 +238,7 @@ public class UpdateQccDataController {
             String requestId = resObj.getString("requestId");
             String sourceRequestStr = resObj.getString("sourceRequest");
             JSONObject sourceRequestObj = JSONObject.parseObject(sourceRequestStr);
-            String uid = sourceRequestObj.getString("uid");
+            String uid = Optional.ofNullable(sourceRequestObj.getString("uid")).orElse(sourceRequestObj.getString("Uid"));
             String orderId = sourceRequestObj.getString("OrderId");
             JSONArray orderData = sourceRequestObj.getJSONArray("OrderData");
             JSONObject firstItem = orderData.getJSONObject(0);
@@ -297,7 +295,7 @@ public class UpdateQccDataController {
         if(signCode.contains("05")){
             signName +="历史信息模块、";
         }
-        if(signCode.contains("06") || signCode.contains("99")){
+        if(signCode.contains("06") || signCode.contains("99") || signCode.contains("98")){
             signName +="企业关键字精确获取详细信息（master）、";
         }
         if(signCode.contains("07")){
