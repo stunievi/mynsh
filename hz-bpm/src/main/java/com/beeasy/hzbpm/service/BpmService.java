@@ -893,21 +893,19 @@ public class BpmService {
 
         // 得到下一节点超时提醒配置信息
         BpmModel.TimeoutSet timeoutSet = bpmService.ins.bpmModel.nodes.get(nextNode.id).timeoutSet;
-//        if (timeoutSet != null) {
-//            LocalDateTime nowTime = LocalDateTime.now();
-//            LocalDateTime timeout = dateTime(timeoutSet.timeout, nowTime);
-//            LocalDateTime maxTimeout = dateTime(timeoutSet.maxTimeout, timeout);
-//
-////            Date nowDate = toDate(nowTime);
-////            currentNode.nowTime = nowDate;
-//            currentNode.timeout = toDate(timeout);
-//            currentNode.maxTimeout = toDate(maxTimeout);
-//        }
+        if (timeoutSet != null) {
+            LocalDateTime nowTime = LocalDateTime.now();
+            LocalDateTime timeout = dateTime(timeoutSet.timeout, nowTime);
+            LocalDateTime maxTimeout = dateTime(timeoutSet.maxTimeout, timeout);
+
+//            Date nowDate = toDate(nowTime);
+//            currentNode.nowTime = nowDate;
+            currentNode.timeout = toDate(timeout);
+            currentNode.maxTimeout = toDate(maxTimeout);
+        }
 
         update.put("currentNodes", a(currentNode));
-
         MongoCollection<Document> collection = db.getCollection("bpmInstance");
-
         UpdateResult res = collection.updateOne(Filters.eq("_id", bpmService.ins._id),new Document("$set", update.toBson()));
 
         return res.getModifiedCount() > 0;
@@ -915,7 +913,7 @@ public class BpmService {
 
 
     private LocalDateTime dateTime(String dateTime, LocalDateTime nowDateTime){
-        if(null == dateTime){
+        if(StrUtil.isBlank(dateTime)){
             return null;
         }
         String [] dateArr = dateTime.split("_");
