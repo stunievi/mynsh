@@ -25,6 +25,7 @@ import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
+import org.apache.poi.util.StringUtil;
 import org.beetl.sql.core.SQLReady;
 import org.bson.BsonArray;
 import org.bson.Document;
@@ -626,8 +627,12 @@ public class BpmService {
         JSONArray uids = new JSONArray();
         uids.add(uid);
         currentNode.put("uids", uids);
+        JSONArray unames = new JSONArray();
+        unames.add(getUserName(uid));
+        currentNode.put("unames", unames);
         JSONArray currentNodes = new JSONArray();
         currentNodes.add(currentNode);
+
 
         MongoCollection<Document> collection = db.getCollection("bpmInstance");
 //        BpmInstance ins = new BpmInstance();
@@ -780,6 +785,8 @@ public class BpmService {
 //        if (nextPersonId != null) {
 //            nextApprover(uid, nextPersonId, update);
 //        }
+
+
         for (Map.Entry<String, Object> entry : attrs.entrySet()) {
             update.put("attrs." + entry.getKey(), entry.getValue());
         }
@@ -890,7 +897,7 @@ public class BpmService {
 
 
     private LocalDateTime dateTime(String dateTime, LocalDateTime nowDateTime){
-        if(null == dateTime){
+        if(null == dateTime || "".equals(dateTime)){
             return null;
         }
         String [] dateArr = dateTime.split("_");
@@ -913,7 +920,7 @@ public class BpmService {
      * @return
      */
     private Date toDate(LocalDateTime localDateTime){
-        if(null == localDateTime){
+        if(null == localDateTime || "".equals(localDateTime)){
             return null;
         }
         ZoneId zoneId = ZoneId.systemDefault();
