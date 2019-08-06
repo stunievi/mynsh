@@ -815,10 +815,12 @@ public class BpmService {
 //                ),
                 "$push",o(
                         "logs", dataLog
-                ),
-                "$set", update
+                )
         );
 
+        if(update.size()>0){
+            set.put("$set", update);
+        }
         //更新数据库
         MongoCollection<Document> collection = db.getCollection("bpmInstance");
         UpdateResult res = collection.updateOne(Filters.eq("_id", bpmService.ins._id),set.toBson());
@@ -936,6 +938,9 @@ public class BpmService {
      * @return
      */
     private Date toDate(LocalDateTime localDateTime){
+        if(null == localDateTime){
+            return null;
+        }
         ZoneId zoneId = ZoneId.systemDefault();
         ZonedDateTime zdt = localDateTime.atZone(zoneId);
 
