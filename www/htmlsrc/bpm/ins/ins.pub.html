@@ -299,7 +299,11 @@
                     return
                 }
 
-                window.opener.location.reload()
+                //app 没有opener
+                if(window.opener){
+                    window.opener.location.reload()
+                }
+
                 if(window.type == 'pub'){
                     // window.type = "deal";
                     // window.id = msg.data;

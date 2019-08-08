@@ -19,7 +19,7 @@
     <!--<script src="/static/vendor/jquery/scrollbar.js"></script>-->
     <!--<script src="/static/htmljs/jquery.lazyload.min.js"></script>-->
     <script src="/static/vendor/layui/layer/layer.js"></script>
-    <script src="/static/htmljs/menu.js"></script>
+<!--    <script src="/static/htmljs/menu.js"></script>-->
     <script src="/static/vendor/artTemplate/template-web.js"></script>
     <script src="./static/htmljs/context.js"></script>
     <script src="/static/htmljs/layui/layui.js"></script>
@@ -209,7 +209,7 @@
             display: block;
         }
         #demo-list{
-            overflow: hidden;
+            /*overflow: hidden;*/
         }
         .user-bench-info .count-num{
             display: table;
@@ -324,7 +324,7 @@
 <script>
     context.init({preventDoubleContext: false});
     // 默认打开页面
-    addNavTab("工作台.我的工作台", "我的工作台", '/htmlsrc/bench/myBench.html');
+    addNavTab("工作台.我的工作台", "我的工作台", '/htmlsrc/bench/myBenchhtml');
 
     $("#side-start").click(function () {
         $("#x-wrap-menu-wrap").width(169);
@@ -466,6 +466,80 @@
 </script>
 </body>
 </html>
+<style>
+    .hovermenu{
+        box-sizing: border-box;
+        position: fixed;
+        display: none;
+        left: 200px;
+        width: 300px;
+        background: #efefef;
+        border-right: 1px solid #ddd;
+        top: 0;
+        padding: 10px;
+        padding-bottom: 40px;
+        /*background: #4A89DC;*/
+        box-shadow: 2px 0 5px rgba(0,0,0,.4);
+        z-index: -1;
+        overflow-y: auto;
+    }
+    .toucharea{
+        position: absolute;
+        width: 60px;
+        height: 200px;
+        border-radius: 200px;
+        /*background: red;*/
+        right: -30px;
+        top: -80px;
+        display: none;
+        z-index: 2;
+    }
+    .d4{
+        /*margin-left: 110px;*/
+        float: left;
+        width: 0;
+        height: 0;
+        border-width: 10px;
+        border-style: solid;
+        border-color: transparent #efefef transparent transparent;
+        position: absolute;
+        top: 10px;
+        right: 0px;
+        display: none;
+        z-index: 3;
+    }
+    .menu-level-0:hover .hovermenu{
+        display: block !important;
+    }
+    .menu-level-0:hover .toucharea {
+        display: block;
+    }
+    .menu-level-0:hover .d4{
+        display: block;
+    }
+    .menu-level-1{
+        font-size: 14px;
+        clear: both;
+        padding-top: 20px;
+        padding-bottom: 10px;
+        /*padding-bottom: 20px;*/
+    }
+    .menu-level-1:first-child{
+        padding-top: 0;
+    }
+    .clickable{
+        color: #337ab7;
+        cursor: pointer;
+    }
+    .menu-level-2{
+        font-size: 12px;
+        float: left;
+        margin-right: 10px;
+        white-space: nowrap;
+        overflow: hidden;
+        padding-bottom: 5px;
+    }
+</style>
 <script type="text/html" id="menu-tmpl">
     <div class="facebox">
         <p>辅助管理系统</p>
@@ -499,33 +573,30 @@
         {{each data item1 idex1}}
         {{if item1 && item1.name}}
         {{set id = item1.name}}
-        <li data-id="{{id}}" style="display: none">
+        <li data-id="{{id}}" style="display: none" class="menuitem menu-level-0">
             <b href="#">{{item1.name}}</b>
             {{if item1.children && item1.children.length}}
-            <ul class="submenu">
+            <div class="d4"></div>
+            <div class="toucharea"></div>
+            <div class="hovermenu" >
                 {{each item1.children item2 idex2}}
                 {{if item2 && item2.name}}
                 {{set id = item1.name + '.' + item2.name}}
                 {{set idex = idex1 + '-' + idex2}}
-                <li data-id="{{id}}" style="display: none">
-                    <b href="#" onclick="menuclick('{{id}}','{{item2.name}}','{{item2.href}}')" >{{item2.name}}</b>
-                    {{if item2.children && item2.children.length}}
-                    <ul class="submenu">
-                        {{each item2.children item3 idex3}}
-                        {{if item3 && item3.name}}
-                        {{set id = item1.name + '.' + item2.name + '.' + item3.name}}
-                        {{set idex = idex1 + '-' + idex2 + '-' + idex3}}
-                        <li data-id="{{id}}" style="display: none">
-                            <b href="#" onclick="menuclick('{{id}}','{{item3.name}}','{{item3.href}}')" class="m-item">{{item3.name}}</b>
-                        </li>
-                        {{/if}}
-                        {{/each}}
-                    </ul>
-                    {{/if}}
-                </li>
+                <p data-id="{{id}}" onclick="menuclick('{{id}}','{{item2.name}}','{{item2.href}}')" class="menu-item menu-level-1 {{item2.href ? 'clickable':''}}">{{item2.name}}</p>
+                <div></div>
+                {{if item2.children && item2.children.length}}
+                {{each item2.children item3 idex3}}
+                {{if item3 && item3.name}}
+                {{set id = item1.name + '.' + item2.name + '.' + item3.name}}
+                {{set idex = idex1 + '-' + idex2 + '-' + idex3}}
+                <span data-id="{{id}}" onclick="menuclick('{{id}}','{{item3.name}}','{{item3.href}}')" class="menu-item menu-level-2 {{item3.href ? 'clickable':''}}" >{{item3.name}}</span>
                 {{/if}}
                 {{/each}}
-            </ul>
+                {{/if}}
+                {{/if}}
+                {{/each}}
+            </div>
             {{/if}}
         </li>
         {{/if}}
@@ -536,12 +607,12 @@
 <script>
     //render left menu
     (function () {
-
         $.when($.get("/api/bpm/workflow/menu"), $.get(remoteOrigin + "/api/auto/user/getMyMethods")).then(function (a,b) {
             var msg = a[0].data;
             $.each(menu, function (i,v) {
                 if(v.name == '任务管理'){
-                    v.children.push(msg||[]);
+                    v.children = v.children.concat(msg || [])
+                    // v.children.push(msg||[]);
                     // $.each(msg||[], function (ii,vv) {
                     //     v.children.push({
                     //         name: vv.modelName,
@@ -561,22 +632,76 @@
                 face: "/file/avatar/" + $.cookie("userId") + ".jpg?v=" + Math.random()
             });
             $("#jquery-accordion-menu").html(html);
-            jQuery("#jquery-accordion-menu").jqueryAccordionMenu();
+
+            // var hms = $(".hovermenu");
+            // var timer = null;
+            // $("#demo-list").mouseover(function (e) {
+            //     console.log(e)
+            // });
+            
+            $(".menu-level-0").mouseenter(function () {
+                    var t = $(this);
+                    var hm = t.find(".hovermenu");
+                    hm.height($(window).height());
+            })
+                // .each(function () {
+            //     var t = $(this);
+            //     var hm = t.find(".hovermenu");
+            //     t.mouseenter(function () {
+            //         hm.height($(window).height());
+            //     });
+
+                // t.hover(function () {
+                //     var t = $(this);
+                //     hm.height($(window).height());
+                //     //没有则立刻显示
+                //     window.cubi = hms
+                //     if(timer){
+                //         clearTimeout(timer);
+                //         timer = null;
+                //     }
+                //
+                //     // console.log(hms.filter(":visible").length)
+                //     // if(!hms.filter(":visible").length){
+                //     //     hms.hide();
+                //     //     hm.show();
+                //     //     return
+                //     // }
+                //     // alert(3)
+                //     timer = setTimeout(function () {
+                //         // alert(2)
+                //         hms.hide();
+                //         hm.show();
+                //     },60);
+                //     // $(".hovermenu").height($(window).height())
+                // }, function () {
+                //     // hm.hide();
+                //     if(timer){
+                //         clearTimeout(timer);
+                //         timer = null;
+                //     }
+                //     timer = setTimeout(function () {
+                //         hms.hide()
+                //     },150);
+                // });
+            // });
+            // jQuery("#jquery-accordion-menu").jqueryAccordionMenu();
 
 
             var whitelist = b[0].data;
             console.log(whitelist)
             if(whitelist.indexOf("_all_") > -1){
-                $("#demo-list li").show();
+                $("#demo-list .menuitem").show();
                 return
             }
-            $("#demo-list li").each(function () {
+            $("#demo-list .menuitem").each(function () {
                 var _this = $(this)
                 var id = $(this).data("id");
                 if(whitelist.indexOf(id) > -1){
                     _this.show()
                     //if a item has be showed, its parents must be showed!!
-                    _this.parents("#demo-list li").show()
+                    _this.parents("#demo-list .menuitem").show()
+                    _this.prev("p.menuitem:first").show();
                 }
             });
 
@@ -679,6 +804,7 @@
         // if(document.all){
         $(window).resize(function () {
             var h = $(window).height();
+            // $(".hovermenu").css("height", h);
             $("td").each(function () {
                 $(this)
                     .css("height", h);
