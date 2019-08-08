@@ -117,9 +117,15 @@
         var timeout = opener.bpmData.nodes[nodeId].timeoutSet.timeout.split("_");
         var maxTimeout = opener.bpmData.nodes[nodeId].timeoutSet.maxTimeout.split("_");
         if(timeout.length>0){
+            if(timeout[0]==""){
+                timeout[0] = "0";
+            }
             $("#timeout").val(timeout[0])
         }
         if(maxTimeout.length>0){
+            if(maxTimeout[0]==""){
+                maxTimeout[0] = "0";
+            }
             $("#maxTimeout").val(maxTimeout[0])
         }
 
