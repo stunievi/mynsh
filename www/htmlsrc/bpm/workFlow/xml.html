@@ -51,6 +51,10 @@
         }
     </style>
     <script src="fields.js"></script>
+    <script src="../lib/menu/jquery.contextMenu.min.js"></script>
+    <script src="../lib/menu/jquery.ui.position.min.js"></script>
+    <link rel="stylesheet" href="../lib/menu/jquery.contextMenu.min.css">
+    <link rel="stylesheet" href="../lib/font/css/font-awesome.min.css">
 
 </head>
 <body>
@@ -890,3 +894,22 @@
 
 </body>
 </html>
+
+
+<script>
+    //图形配置
+    $.contextMenu({
+        // define which elements trigger this menu
+        selector: ".djs-element.djs-shape[data-element-id]",
+        // define the elements of the menu
+        items: {
+            m1: {name: "处理人", icon: "fa-cloud-download", callback: function(key, opt){ alert("Foo!"); }},
+            m2: {name: "填写字段", callback: function(key, opt){ alert("Bar!") }},
+            m3: {name: "必填字段", callback: function(key, opt){ alert("Bar!") }},
+            m4: {name: "超时提醒", callback: function(key, opt){ alert("Bar!") }}
+        }
+        // there's more, have a look at the demos and docs...
+    });
+
+
+</script>

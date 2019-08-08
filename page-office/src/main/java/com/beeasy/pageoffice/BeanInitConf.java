@@ -23,7 +23,7 @@ public class BeanInitConf {
     public ServletRegistrationBean servletRegistrationBean() {
         Server poserver = new Server();
         //设置PageOffice注册成功后,license.lic文件存放的目录
-        poserver.setSysPath(posyspath);
+//        poserver.setSysPath(posyspath);
         ServletRegistrationBean srb = new ServletRegistrationBean(poserver);
         // 下面是把资源文件暴露出来，必须配置，否则页面访问不了
         srb.addUrlMappings("/poserver.zz", "/posetup.exe", "/pageoffice.js", "/jquery.min.js", "/pobstyle.css", "/sealsetup.exe");
