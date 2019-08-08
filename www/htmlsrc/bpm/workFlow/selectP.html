@@ -233,31 +233,17 @@
     $(document).on("click", ".edit", function () {
         var name =  $(this).data("name");
         var uid = $(this).data("id");
-        var us = $("#user").val();
-        var user ;
+        // var us = $("#user").val();
+        // var user ;
 
-        user = "" == us ? name : us +";" + name;
-        $("#user").val(user);
+        // user = "" == us ? name : us +";" + name;
+        // $("#user").val(user);
         // ret.push(name);
         // ids.push(uid + "")
 
 
-        // $('.edit').tagsInput({
-        //     'onAddTag': function(input, value) {
-        //         // $("#tags_addTag").append($('<div>', {id: uid + '_addTag'}));
-        //         console.log('tag added', input, value);
-        //     },
-        //     'onRemoveTag': function(input, value) {
-        //         console.log('tag removed', input, value);
-        //     },
-        //     'onChange': function(input, value) {
-        //         console.log('change triggered', input, value);
-        //     }
-        // });
-
         tagAppend(uid,name);
         checkUser();
-
 
     });
 
@@ -272,17 +258,21 @@
 
     });
 
+    // 追加人员
     function tagAppend(uid, name) {
         // if($("#"+uid+"")){
         //     alert(111)
         // }
         var isRepeat = $("#userTag").find("#"+uid+"");
+
+        // 根据id判断是否已经存在
         if(isRepeat.length==0){
             $(".tagsinput").append("<span id='"+uid+"' class='tag'><span class='tag-text'>"+name+"</span><button class='tag-remove' id='remove'></button></span>");
         }
 
     }
 
+    // 获取选择的人，传值
     function checkUser() {
         ret = [];
         ids = [];
@@ -290,7 +280,6 @@
             ret.push(this.innerText);
             ids.push(this.id + "")
         })
-            console.log(ids,ret);
         window.opener['selectp']("p", ret, ids);
     }
 
