@@ -26,28 +26,28 @@
 {{each data item index}}
 <li>
     <label>
-        <input type="radio" name="person" value="{{item.uid}}">
-        <span name="ss" class="hide">{{item.utname}}</span>
+        <input type="checkbox" name="person" value="{{item.uid}}">
 
         &nbsp;
-        {{item.utname}}
+        {{item.msg}}
         &nbsp;
         {{item.uname}}
         &nbsp;
-        {{if item.otype == 'ROLE'}}
-        {{item.oname}}
-        {{else if item.otype == 'QUARTERS'}}
-        {{item.pname}}-{{item.oname}}
-        {{/if}}
 
     </label>
 </li>
 {{/each}}
 </script>
 <script>
-    var id = getParam("id");
+    // var id = getParam("id");
+    var id = "5d4b84d7c07cbc586a3843d3";
     var tmpl = template.compile($("#ps").html())
-    $.get("/api/bpm/workflow/getNextDealers", {id:id}, function (msg) {
+    $.get("/api/bpm/workflow/logList", {id:id}, function (msg) {
+        console.log(msg.data)
+        if(msg.success){
+
+        }
+
         $("#ulist").html(tmpl({
             data: msg.data
         }));
@@ -68,37 +68,11 @@
     function submit() {
         var person=$('input[name="person"]:checked').val();
         var s=$('span[name="'+person+'"]').text();
-        window.opener.userId = person;
+        window.opener.msgUser[person] = "2222";
+        alert(person)
         // window.opener.userName = person;
-        window.close();
+        // window.close();
 
-
-        // $.ajax({
-        //     url: "/api/bpm/workflow/nextApprover",
-        //     type:"post",
-        //     headers:{
-        //         "Content-Type": "application/json"
-        //     },
-        //     dataType:"json",
-        //     data: JSON.stringify({
-        //         id: id,
-        //         nextUid: person
-        //     }),
-        //     success: function (msg) {
-        //         if(!msg.success){
-        //             alert("提交失败");
-        //         }
-        //         window.opener.layer.msg("提交成功！")
-        //         window.opener.load("deal", id);
-        //         opener.type = "deal";
-        //         opener.id = id;
-        //         window.opener.scrollTo(0,0);
-        //         window.close();
-        //     }
-        //     // complete: function () {
-        //     //     layer.close
-        //     // }
-        // })
     }
 
 </script>

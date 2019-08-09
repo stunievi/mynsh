@@ -40,9 +40,11 @@
                 按揭贷款信息批量维护
             </div>
             <!--<a href="#" class="btn btn-success" id="templateDownload">导入模板下载</a>-->
-            <button type="button" class="btn btn-success" id="templateDownload">
-                导入模板下载
-            </button>
+            <div class="temp-down hide">
+                <button type="button" class="btn btn-success" id="templateDownload">
+                    导入模板下载
+                </button>
+            </div>
 
         </div>
         <div id="dataList">
@@ -107,6 +109,7 @@
             if(su==1 && linkPerson == 1){
                 $("#picker").removeClass("hide");
                 $("#templateDownload").removeClass("hide");
+                $(".temp-down").removeClass("hide");
 
             }
         if(enumWorkFlowModel.preLendingCollect == workFlow){

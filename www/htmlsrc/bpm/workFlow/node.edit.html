@@ -19,6 +19,14 @@
         .dropdown-menu-right{
             left: 0 !important;
         }
+        .select-timeout{
+            margin-left: 2px;
+            float: left;
+        }
+        .inp-timeout{
+            width: 100px;
+            float: left;
+        }
     </style>
     <link rel="stylesheet" href="fields.css">
     <script src="fields.js"></script>
@@ -56,11 +64,15 @@
 
                     <div class="col-xs-8" style="padding-right: 15px;
                         padding-left: 15px; max-width:200px">
-                        <input type="text" class="form-control input-sm timeout" id="timeout" name="timeout">
-                        <select class="form-control input-sm timeout" id="selectTime">
-                            <option value="hours">小时</option>
-                            <option value="day">天</option>
-                        </select>
+                        <div class="inp-timeout">
+                            <input type="text" class="form-control input-sm timeout" id="timeout" name="timeout">
+                        </div>
+                        <div class="select-timeout">
+                            <select class="form-control input-sm timeout" id="selectTime">
+                                <option value="hours">小时</option>
+                                <option value="day">天</option>
+                            </select>
+                        </div>
 
                     </div>
                 </div>
@@ -71,12 +83,17 @@
                     </label>
 
                     <div class="col-xs-8" style="padding-right: 15px;
-                        padding-left: 15px; max-width:200px">
+                        padding-left: 15px;">
+                        <div class="inp-timeout">
                             <input type="text" class="form-control input-sm maxTimeout" id="maxTimeout" name="maxTimeout">
-                        <select class="form-control input-sm maxTimeout" id="selectMax">
-                            <option value="hours">小时</option>
-                            <option value="day">天</option>
-                        </select>
+                        </div>
+                        <div class="select-timeout">
+                            <select class="form-control input-sm maxTimeout" id="selectMax">
+                                <option value="hours">小时</option>
+                                <option value="day">天</option>
+                            </select>
+
+                        </div>
 
                     </div>
                 </div>

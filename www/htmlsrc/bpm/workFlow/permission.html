@@ -13,6 +13,9 @@
         <td>
             <a href="javascript:;" class="btn btn-sm setq" id="setq">设置</a>
         </td>
+        <td style="padding-left: 1px;">
+            <a href="javascript:;" class="btn btn-sm" id="clean-q" value="q">清空</a>
+        </td>
     </tr>
     <tr>
         <td valign="top">角色</td>
@@ -21,6 +24,9 @@
         </td>
         <td>
             <a href="javascript:;" class="btn btn-sm" id="setr">设置</a>
+        </td>
+        <td>
+            <a href="javascript:;" class="btn btn-sm setq" id="clean-r" value="r">清空</a>
         </td>
     </tr>
     <tr>
@@ -31,6 +37,9 @@
         <td>
             <a href="javascript:;" class="btn btn-sm" id="setd">设置</a>
         </td>
+        <td>
+            <a href="javascript:;" class="btn btn-sm" id="clean-d" value="d">清空</a>
+        </td>
     </tr>
     <tr>
         <td valign="top">人员</td>
@@ -39,6 +48,9 @@
         </td>
         <td>
             <a href="javascript:;" class="btn btn-sm" id="setp">设置</a>
+        </td>
+        <td>
+            <a href="javascript:;" class="btn btn-sm" id="clean-p" value="p">清空</a>
         </td>
     </tr>
 </table>
@@ -81,11 +93,17 @@
 
     $("#setq,#setr,#setd,#setp").click(function () {
         var type = $(this).attr("id").replace("set","");
-        var ps = $("#ps").val();
         if(type != 'p'){
             window.open("/htmlsrc/bpm/workFlow/selectQ.html?type=" + type +"&id=" + nodeId, "set" + type, "left=300, top=100, width=500, height=500, location=no");
         } else {
-            window.open("/htmlsrc/bpm/workFlow/selectP.html?type=p&ps="+encodeURI(ps)+"&id=" + nodeId, "set" + type, "left=300, top=80, width=700, height=550, location=no");
+            window.open("/htmlsrc/bpm/workFlow/selectP.html?type=p&id=" + nodeId, "set" + type, "left=300, top=80, width=700, height=550, location=no");
         }
     });
+
+    $("#clean-d,#clean-p,#clean-q,#clean-r").click(function () {
+        var type = $(this).attr("value");
+        opener.bpmData.nodes[nodeId].permission[type + "s"] = [];
+        opener.bpmData.nodes[nodeId].permission[type + "ids"] = [];
+        $("#"+type+"s").val("");
+    })
 </script>
