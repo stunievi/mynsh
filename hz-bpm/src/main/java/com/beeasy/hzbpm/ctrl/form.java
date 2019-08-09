@@ -14,6 +14,8 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOptions;
+import com.mongodb.client.result.UpdateResult;
+import org.bson.BsonValue;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
@@ -25,26 +27,6 @@ import static com.github.llyb120.nami.json.Json.*;
 import static com.github.llyb120.nami.server.Vars.$request;
 
 public class form {
-
-    public Result list(String pid){
-        MongoCollection<Document> collection = db.getCollection("form");
-        List ops = new LinkedList<>();
-        Collection list = collection.aggregate(
-                a(
-                        o("$match", o("pid", StrUtil.isBlank(pid)? null : new ObjectId(pid))),
-                        o("$sort", o("lastModify", -1)),
-                        o("$project", o(
-                                "_id", o("$toString", "$_id"),
-                                "name",1,
-//                                "form", 1,
-                                "desc", 1,
-                                "lastModify", 1
-                        ))
-                ).toBson()
-        ).into(new ArrayList());
-        return Result.ok(list);
-    }
-
 
     public Object listex(){
         MongoCollection<Document> collection = db.getCollection("cat");
@@ -60,7 +42,7 @@ public class form {
                 ),
                 o(
                         "$project", o(
-                                "_id", o(
+                                "id", o(
                                         "$toString", "$_id"
                                 ),
                                 "text", "$name",
@@ -73,7 +55,7 @@ public class form {
                                                "input", "$children" ,
                                                 "as", "item",
                                                 "in", o(
-                                                        "_id", o("$toString", "$$item._id"),
+                                                        "id", o("$toString", "$$item._id"),
                                                         "text", "$$item.name",
                                                         "type", "form"
                                                 )
@@ -82,24 +64,7 @@ public class form {
                         )
                 )
         ).toBson()).into(a());
-//        for (Object cat : cats) {
-//            Obj obj = (Obj) cat;
-//            Arr children = (Arr) obj.get("children");
-//            if (children == null) {
-//                children = a();
-//                obj.put("children", children);
-//            }
-//            if(obj.containsKey("wfs")){
-//                List<Map> wfs = (List<Map>) obj.get("wfs");
-//                for (Map wf : wfs) {
-//                    wf.put("text", wf.get("name"));
-//                    ObjectId id = (ObjectId) wf.get("_id");
-//                    wf.put("_id", wf)
-//                }
-//            }
-//        }
-
-        Json tree = tree((List)cats, "pid", "_id");
+        Json tree = tree((List)cats, "pid", "id");
         return Result.ok(tree);
     }
 
@@ -113,32 +78,15 @@ public class form {
 
     public Object add(){
         MongoCollection<Document> collection = db.getCollection("form");
-//        $request.put("createTime", new Date());
-//        $request.put("lastModify", new Date());
-        String id = $request.s("_id");
+        String id = $request.s("id");
         String pid = $request.s("pid");
-        $request.remove("_id");
+        $request.remove("id");
         $request.remove("pid");
 
         //名字
         if(StrUtil.isBlank($request.s("name"))){
             return Result.error("表单名不能为空");
         }
-//        long same = 0;
-//        if(StrUtil.isBlank(id)){
-//            //不能有同名的
-//            same = collection.countDocuments(new BasicDBObject("name", $request.s("name")));
-//        } else {
-//            //除我之外不能有同名的
-//            same = collection.countDocuments(
-//                    new BasicDBObject()
-//                    .append("_id", new BasicDBObject("$ne", new ObjectId(id)))
-//                    .append("name", $request.s("name"))
-//            );
-//        }
-//        if(same > 0){
-//            return Result.error("已经有同名的表单");
-//        }
         Document doc = $request.toBson();
         doc.put("createTime", new Date());
         doc.put("lastModify", new Date());
@@ -154,20 +102,48 @@ public class form {
         } else {
             mid = new ObjectId(id);
         }
-        collection.updateOne(Filters.eq("_id", mid), new Document("$set", doc), new UpdateOptions().upsert(true));
+        BsonValue nid = collection.updateOne(Filters.eq("_id", mid), new Document("$set", doc), new UpdateOptions().upsert(true)).getUpsertedId();
         //log
         if(StrUtil.isBlank(id)){
             Log.log(Auth.getUid() + "", "创建表单 %s", doc.getString("name"));
         } else {
             Log.log(Auth.getUid() + "", "编辑表单 %s", doc.getString("name"));
         }
-        return (Result.ok(doc));
+        return (Result.ok(o(
+                "id", nid == null ? id : nid.asObjectId().getValue().toString(),
+                "text", doc.get("name"),
+                "pid", pid,
+                "type", "form"
+        )));
     }
 
-    public Result delete(String _id){
+    public Object move(String id, String pid){
+        MongoCollection<Document> collection = db.getCollection("form");
+        UpdateResult ret = collection.updateOne(Filters.eq("_id", new ObjectId(id)), o("$set", o("pid", new ObjectId(pid))).toBson());
+        return Result.ok(ret.getModifiedCount() > 0);
+    }
+
+    public Object copy(String id){
+        MongoCollection<Document> collection = db.getCollection("form");
+        Document item = collection.find(Filters.eq("_id", new ObjectId(id))).first();
+        if (item == null) {
+            return Result.error();
+        }
+        item.remove("_id");
+        item.put("name", item.getString("name") + "副本");
+        collection.insertOne(item);
+        return Result.ok(o(
+                "id", item.getObjectId("_id").toString() ,
+                "text", item.get("name"),
+                "pid", item.getObjectId("pid").toString(),
+                "type", "form"
+        ));
+    }
+
+    public Result delete(String id){
         MongoCollection<Document> collection = db.getCollection("form");
         Document ret = collection.findOneAndDelete(new Document() {{
-            put("_id", new ObjectId(_id));
+            put("_id", new ObjectId(id));
         }});
         Log.log(Auth.getUid() + "", "删除表单 %s", ret.getString("name"));
         return Result.ok(ret != null);

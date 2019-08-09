@@ -46,17 +46,20 @@ public class cat {
                 "type", type,
                 "pid", null
         ).toBson();
-        if ("top".equalsIgnoreCase(pid)) {
-        } else {
+        if(StrUtil.isNotBlank(pid)){
             doc.put("pid", new ObjectId(pid));
         }
+//        if ("top".equalsIgnoreCase(pid)) {
+//        } else {
+//        }
         collection.insertOne(doc);
-        doc.put("text", doc.getString("name"));
-        doc.put("_id", doc.getObjectId("_id").toString());
-        if (!"top".equalsIgnoreCase(pid)) {
-            doc.put("pid", doc.getObjectId("pid").toString());
-        }
-        return Result.ok(doc);
+        return Result.ok(o(
+                "_id", doc.get("_id").toString(),
+                "text", doc.getString("name"),
+                "pid", pid,
+                "children", a(),
+                "type", "cat"
+        ));
     }
 
 

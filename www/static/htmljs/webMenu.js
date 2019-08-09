@@ -1245,7 +1245,7 @@ doIfDev(function () {
             children: [
                 {
                     name: "表单设计",
-                    href: "/htmlsrc/bpm/cat/cat.html"
+                    href: "/htmlsrc/bpm/form/cat.html"
                 },
                 // {
                 //     name:"表单配置",

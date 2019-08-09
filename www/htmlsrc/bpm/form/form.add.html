@@ -357,7 +357,7 @@
                     leipiEditor.sync();/*同步内容*/
 
                     var data = {
-                        _id: $("[name=_id]").val(),
+                        id: $("[name=_id]").val(),
                         name: $("[name=name]").val(),
                         desc: $("[name=desc]").val(),
                         pid: pid
@@ -380,11 +380,13 @@
                                 layer.msg(msg.errMessage)
                                 return
                             }
-
-                            var id = (frameElement && frameElement.id);
-                            if(id){
-                                top.$("a[data-iframe=" + id + "]").next("i").click()
-                            }
+                            parent.onFormEdited(data.id ? "edit" : "add", msg.data);
+                            // console.log(msg);
+                            //
+                            // var id = (frameElement && frameElement.id);
+                            // if(id){
+                            //     top.$("a[data-iframe=" + id + "]").next("i").click()
+                            // }
                         }
                     });
 
