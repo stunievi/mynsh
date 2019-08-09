@@ -8,6 +8,8 @@ import com.beeasy.hzbpm.filter.Auth;
 import com.beeasy.hzbpm.util.Result;
 import com.github.llyb120.nami.core.R;
 import com.github.llyb120.nami.json.Arr;
+import com.github.llyb120.nami.json.Json;
+import com.github.llyb120.nami.json.Obj;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
@@ -19,8 +21,7 @@ import java.sql.Struct;
 import java.util.*;
 
 import static com.beeasy.hzbpm.bean.MongoService.db;
-import static com.github.llyb120.nami.json.Json.a;
-import static com.github.llyb120.nami.json.Json.o;
+import static com.github.llyb120.nami.json.Json.*;
 import static com.github.llyb120.nami.server.Vars.$request;
 
 public class form {
@@ -42,6 +43,64 @@ public class form {
                 ).toBson()
         ).into(new ArrayList());
         return Result.ok(list);
+    }
+
+
+    public Object listex(){
+        MongoCollection<Document> collection = db.getCollection("cat");
+        Arr cats = collection.aggregate(a(
+                o("$match", o("type", "0")),
+                o(
+                        "$lookup", o(
+                                "from", "form",
+                                "localField", "_id",
+                                "foreignField", "pid",
+                                "as", "children"
+                        )
+                ),
+                o(
+                        "$project", o(
+                                "_id", o(
+                                        "$toString", "$_id"
+                                ),
+                                "text", "$name",
+                                "pid", o(
+                                        "$toString", "$pid"
+                                ),
+                                "type", "cat",
+                                "children",o(
+                                        "$map",o(
+                                               "input", "$children" ,
+                                                "as", "item",
+                                                "in", o(
+                                                        "_id", o("$toString", "$$item._id"),
+                                                        "text", "$$item.name",
+                                                        "type", "form"
+                                                )
+                                        )
+                                )
+                        )
+                )
+        ).toBson()).into(a());
+//        for (Object cat : cats) {
+//            Obj obj = (Obj) cat;
+//            Arr children = (Arr) obj.get("children");
+//            if (children == null) {
+//                children = a();
+//                obj.put("children", children);
+//            }
+//            if(obj.containsKey("wfs")){
+//                List<Map> wfs = (List<Map>) obj.get("wfs");
+//                for (Map wf : wfs) {
+//                    wf.put("text", wf.get("name"));
+//                    ObjectId id = (ObjectId) wf.get("_id");
+//                    wf.put("_id", wf)
+//                }
+//            }
+//        }
+
+        Json tree = tree((List)cats, "pid", "_id");
+        return Result.ok(tree);
     }
 
     public Object one(String id){

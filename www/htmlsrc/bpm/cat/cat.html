@@ -11,6 +11,11 @@
     <script src="../../../static/htmljs/jstree/jstree.js"></script>
 
 
+    <style>
+        #content{
+            height: 100vh;
+        }
+    </style>
 </head>
 <body>
 <div id="content" style="flex-direction: row; display: flex; justify-content: flex-start">
@@ -20,6 +25,7 @@
 
     </div>
     <div id="dataList" style="flex: 1;margin-left: 10px;margin-right: 10px;">
+        <iframe style="display: none;" id="form-edit" src="" width="100%" height="100%" frameborder="0"></iframe>
     </div>
 </div>
 
@@ -69,56 +75,62 @@
 
     var lastClickedNode = null;
 
-    function onInfront() {
-        loadFormList(lastClickedNode);
-    }
+    // function onInfront() {
+    //     loadFormList(lastClickedNode);
+    // }
 
-    function loadFormList(n){
-        if(!n){
-            return
-        }
-        loadTimeout();
-        getFetch("/api/bpm/form/list", {pid: n=='top'?undefined:n.node.original._id}, function (data) {
-            layer.closeAll();
-            $("#dataList").empty()
-            laytableRender({
-                // url: remoteOrigin + "/api/bpm/form/list",
-                // currPage: getParam("page") || 1,
-                data: data||[],
-                page:false,
-                cols: [
-                    [
-                        // {field:'idex', title:'序号', align:"center" },
-                        {field:'name', title:'表单名', align:"center" },
-                        {field:'desc', title:'表单描述', align:"center", width:250 },
-                        // {field:'createTime', title:'添加时间', align:"center"},
-                        {field:'lastModify', title:'最后修改时间', align:"center"},
-                        // {field:'trueName', title:'姓名', width: 150, align:"center" },
-                        // {field: 'username', title: '用戶名', width: 150, align:"center" },
-                        // {field:'state', title:'状态',  width: 80, align:"center"},
-                        // {field:'phone', title:'电话', width: 150, align:"center" },
-                        {title:'操作', templet: "#toolbar"}
-                    ]
-                ],
-                done: function(res, curr){
-                    layCurrPage = curr;
-                }
-                // onData : function(d){
-                //     data = d.rows;
-                //     // console.log(data)
-                // }
-            });
-        });
-
-
-    }
+    // function loadFormList(n){
+    //     return;
+    //     if(!n){
+    //         return
+    //     }
+    //     loadTimeout();
+    //     $.get("/api/bpm/form/list", {pid: n=='top'?undefined:n.node.original._id}, function (data) {
+    //         layer.closeAll();
+    //         data = data.data;
+    //         $("#dataList").empty()
+    //         laytableRender({
+    //             // url: remoteOrigin + "/api/bpm/form/list",
+    //             // currPage: getParam("page") || 1,
+    //             data: data||[],
+    //             page:false,
+    //             cols: [
+    //                 [
+    //                     // {field:'idex', title:'序号', align:"center" },
+    //                     {field:'name', title:'表单名', align:"center" },
+    //                     {field:'desc', title:'表单描述', align:"center", width:250 },
+    //                     // {field:'createTime', title:'添加时间', align:"center"},
+    //                     {field:'lastModify', title:'最后修改时间', align:"center"},
+    //                     // {field:'trueName', title:'姓名', width: 150, align:"center" },
+    //                     // {field: 'username', title: '用戶名', width: 150, align:"center" },
+    //                     // {field:'state', title:'状态',  width: 80, align:"center"},
+    //                     // {field:'phone', title:'电话', width: 150, align:"center" },
+    //                     {title:'操作', templet: "#toolbar"}
+    //                 ]
+    //             ],
+    //             done: function(res, curr){
+    //                 layCurrPage = curr;
+    //             }
+    //             // onData : function(d){
+    //             //     data = d.rows;
+    //             //     // console.log(data)
+    //             // }
+    //         });
+    //     },"json");
+    //
+    //
+    // }
 
 
 
 
     loadTimeout()
-    getFetch("/api/bpm/cat/all", {type:"0"},function (msg) {
+    $.get("/api/bpm/form/listex", {type:"0"},function (msg) {
         layer.closeAll();
+        if(!msg.success){
+           return
+        }
+        msg = msg.data;
         console.log(msg)
         $('#jstree_demo').jstree({
             "core" : {
@@ -129,6 +141,7 @@
                     {
                         'id' : 'top',
                         'text' : '全部分类',
+                        "type":"home",
                         'state' : { 'opened' : true, 'selected' : true },
                         'children' : (msg)
                     }
@@ -137,10 +150,84 @@
             'contextmenu': {
                 'select_node': false,
                 'items': function (node) {
+                    var menu = {};
+                    if(node.type == 'cat' || node.type == 'home'){
+                        menu.createCat = {
+                            "label": "添加分类",
+                            "action": function(obj){
+                                if(node.original._id.type != ""){
+                                }
+                                if(node.parents.length >= 2){
+                                    layer.msg("最多只支持1级分类");
+                                    return;
+                                }
+                                console.log(node)
+                                var ins = $("#jstree_demo").jstree();
+                                ins.show_contextmenu(node)
+                                layer.load(0, {time: 5000});
+                                getFetch("/api/bpm/cat/add", {pid: node.original.id || node.original._id,type:"0"}, function (msg) {
+                                    layer.closeAll()
+                                    console.log(msg);
+                                    ins.create_node(node, msg);
+                                    ins.open_node(node);
+                                });
+                            },
+                        }
+                    } else {
+                    }
+                    if(node.type == 'cat'){
+                        menu.createForm = {
+                            label: "添加表单",
+                            action: function () {
+                                var frame = $("#form-edit");
+                                frame.data("id", "")
+                                    .attr("src", "../form/form.add.html?pid=" + node.original._id + "&v=" + Math.random())
+                                    .show()
+                            }
+                        } 
+                    }
+                    if(node.id != 'top'){
+                        menu.rename = {
+                            "label": "重命名",
+                            "action": function(obj) {
+                                if(node.id == 'top'){
+                                    layer.msg("顶级分类无法编辑");
+                                    return;
+                                }
+                                $("#jstree_demo").jstree().edit(node);
+                            }
+                        }
+                        menu.delete = {
+                            "label": "删除",
+                            "action": function() {
+                                if(node.id == 'top'){
+                                    layer.msg("顶级分类无法删除");
+                                    return;
+                                }
+                                loadTimeout()
+                                getFetch("/api/bpm/cat/delete", {id: node.original._id}, function (msg) {
+                                    layer.closeAll();
+                                    $("#jstree_demo").jstree().delete_node(node)
+                                });
+
+                                // if(node.children && node.children.length > 0){
+                                //     layer.msg("无法删除一个非空分类");
+                                //     return
+                                // }
+                                // console.log(node)
+                                // $("#jstree_demo").jstree().delete_node(node)
+                                // this.delete_node(node);
+                            }
+                        }
+                    }
+                    return menu;
+
                     return {
                         createItem: {
                             "label": "添加分类",
                             "action": function(obj){
+                                if(node.original._id.type != ""){
+                                }
                                 if(node.parents.length >= 2){
                                     layer.msg("最多只支持1级分类");
                                     return;
@@ -167,14 +254,7 @@
                             }
                         },
                         renameItem: {
-                            "label": "重命名",
-                            "action": function(obj) {
-                                if(node.id == 'top'){
-                                    layer.msg("顶级分类无法编辑");
-                                    return;
-                                }
-                                $("#jstree_demo").jstree().edit(node);
-                            }
+
                         },
                         deleteItem: {
                             "label": "删除",
@@ -202,6 +282,22 @@
                 }
             },
             "types" : {
+                    "#":{
+                        icon: "glyphicon glyphicon-book",
+                        valid_children: ["cat"]
+                    },
+                    "home":{
+                        icon: "glyphicon glyphicon-book",
+                        valid_children: ["cat"]
+                    },
+                    "cat": {
+                        icon: "glyphicon glyphicon-book",
+                        valid_children:["form", "cat"]
+                    },
+                    "form": {
+                        icon:  "glyphicon glyphicon-file",
+                        valid_children:[]
+                    }
                 // "#" : {
                 //     "max_children" : 1,
                 //     "max_depth" : 4,
@@ -222,13 +318,15 @@
             "plugins" : [
                 "contextmenu", "search",
                 // "state",
+                "dnd",
                 "types", "wholerow"
             ]
         });
 
         var ins = $('#jstree_demo').jstree();
+        ins.open_all();
         //选中第一个节点
-        loadFormList('top')
+        // loadFormList('top')
 
         $("#jstree_demo").on("rename_node.jstree", function (e,n) {
             var name = n.text;
@@ -237,10 +335,22 @@
                 layer.closeAll();
             });
         }).on("select_node.jstree", function (e,n) {
-            lastClickedNode = n;
-            loadFormList(n)
+            var frame = $("#form-edit");
+            var did = frame.data("id");
+            if(n.node.original.type != 'form'){
+                $("#form-edit").hide()
+                return
+            }
+            var id = n.node.original._id;
+            if(did == id){
+                frame.show()
+                return;
+            }
+            frame.show()
+                .data("id", id)
+                .attr("src", "../form/form.add.html?id=" + id + "&v=" + Math.random())
         });
-    });
+    }, "json");
 
     $(document).on("click", ".edit", function () {
         var id =  $(this).data("id");
