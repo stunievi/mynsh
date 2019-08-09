@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>条件设置</title>
+    <script src="../lib/jquery/jquery.js"></script>
+    <style>
+        body{
+            padding: 10px;
+        }
+        select{
+            height: auto !important;
+            margin-bottom: 0 !important;
+        }
+        .table th, .table td{
+            vertical-align: middle;
+        }
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+    <script src="../form/css/bootstrap/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="../form/css/bootstrap/css/bootstrap.css">
+    <script src="../lib/vue/vue.js"></script>
+</head>
+<body>
+    <div id="app" v-cloak>
+        <h5>基础条件</h5>
+        <button type="button" class="btn btn-mini btn-primary add-condition" @click="addCondition()">添加条件</button>
+        <table class="table " style="margin-top: 10px;" >
+            <tr>
+                <th>序号</th>
+                <th width="200">字段名</th>
+                <th width="250">运算符</th>
+                <th width="100">字段值</th>
+                <th>操作</th>
+            </tr>
+            <tbody id="condition-body">
+                <tr v-for="(item,i) in data.conditions">
+                    <td valign="center">[{{i+1}}]</td>
+                    <td>
+                        <select v-model="item.field" class="" name="" id="">
+                            <option value="">请选择</option>
+                            <option :value="vv" v-for="(vv,ii) in fields">{{vv}}</option>
+                        </select>
+                    </td>
+                    <td>
+                        <div class="radio" v-for="(vv) in ops" style="display: inline-block; margin-right: 10px;">
+                            <label>
+                                <input type="radio" :value="vv" v-model="item.op">
+                                {{vv}}
+                            </label>
+                        </div>
+                    </td>
+                    <td>
+                        <input type="text" class="input-mini" v-model="item.value">
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-mini btn-danger" @click="remove(i)">删除</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <hr>
+        <h5>高级条件</h5>
+        <div class="form-control">
+            <input type="text" class="input-mini" style="width: 90%;" placeholder="组合条件，例如[1] and ([2] or [3])" v-model="data.expression">
+        </div>
+        <hr>
+        <div style="text-align: center;">
+            <button type="button" class="btn btn-primary" @click="save">确定</button>
+        </div>
+    </div>
+</body>
+</html>
+<script>
+    var id = location.search.match(/id=([^&]+)/)[1];
+    //fix
+    opener.bpmData.lines = opener.bpmData.lines || {};
+
+    var app = new Vue({
+        el: "#app",
+        data:{
+            data:JSON.parse(JSON.stringify(opener.bpmData.lines[id] || {
+                conditions: [],
+                expression: ""
+            })),
+            fields: opener.fields.concat(),
+            ops: ["等于", "大于", "小于", "大于等于", "小于等于", "不等于"]
+        },
+        methods:{
+            addCondition: function () {
+                console.log(this.data)
+                this.data.conditions.push({
+                    field: "",
+                    op: "等于",
+                    value: ""
+                })
+            },
+            remove: function (i) {
+                this.data.conditions.splice(i, 1);
+            },
+            save: function () {
+                var data = JSON.parse(JSON.stringify(this.data));
+                opener.bpmData.lines[id] = data;
+                window.close()
+            }
+        }
+
+    });
+
+
+
+</script>

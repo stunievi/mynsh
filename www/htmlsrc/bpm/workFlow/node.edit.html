@@ -25,28 +25,26 @@
 </head>
 <body>
     <div id="content">
-
         <ul id="myTabs" class="nav nav-tabs" role="tablist">
 <!--            <li role="presentation" class="active li1"><a href="#tab1" role="tab" data-toggle="tab" aria-controls="tab1" aria-expanded="true">基本配置</a></li>-->
-            <li role="presentation" class="active li2"><a href="#tab2" role="tab" data-toggle="tab" aria-controls="tab2">处理人</a></li>
-            <li role="presentation" class="li2"><a href="#tab3" role="tab" data-toggle="tab" aria-controls="tab3">填写字段</a></li>
-            <li role="presentation" class="li2"><a href="#tab5" role="tab" data-toggle="tab" aria-controls="tab5">必填字段</a></li>
-            <li role="presentation" class="li2"><a href="#tab4" role="tab" data-toggle="tab" aria-controls="tab4">转入条件</a></li>
-            <li role="presentation" class="li2"><a href="#tab6" role="tab" data-toggle="tab" aria-controls="tab6">超时提醒</a></li>
+            <li role="presentation" class="li2 dealers"><a href="#tab2" role="tab" data-toggle="tab" aria-controls="tab2">处理人</a></li>
+            <li role="presentation" class="li2 fields"><a href="#tab3" role="tab" data-toggle="tab" aria-controls="tab3">填写字段</a></li>
+            <li role="presentation" class="li2 rfields"><a href="#tab5" role="tab" data-toggle="tab" aria-controls="tab5">必填字段</a></li>
+            <li style="display: none;" role="presentation" class="li2"><a href="#tab4" role="tab" data-toggle="tab" aria-controls="tab4">转入条件</a></li>
+            <li role="presentation" class="li2 timeout"><a href="#tab6" role="tab" data-toggle="tab" aria-controls="tab6">超时提醒</a></li>
         </ul>
         <div id="myTabContent" class="tab-content">
 <!--            <div id="tab1" class="tab-pane">-->
 <!--                1-->
 <!--            </div>-->
-            <div id="tab2" class="tab-pane active">
+            <div id="tab2" class="tab-pane">
                 <!--#include file="./permission.html" -->
             </div>
             <div id="tab3" class="tab-pane">
             </div>
             <div id="tab5" class="tab-pane">
             </div>
-            <div id="tab4" class="tab-pane">
-                <!--#include file="./condition.html" -->
+            <div style="display: none;" id="tab4" class="tab-pane">
             </div>
             <div id="tab6" class="tab-pane">
                 <div class="col-xs-12 form-group " data-show="" style="margin-top: 20px;">
@@ -87,7 +85,20 @@
 
 
     <script>
-        var nodeId = location.search.match(/id=(.+)&?/)[1]
+        var nodeId = location.search.match(/id=([^&]+)/)[1]
+        ;(function () {
+            var matched = location.search.match(/page=([^&]+)/);
+            var page;
+            if(matched){
+                page = matched[1];
+            } else {
+                page = "dealers";
+            }
+            var t = $("." + page);
+            var idex = t.index();
+            t.addClass("active").siblings().removeClass("active");
+            $("#myTabContent .tab-pane").eq(idex).addClass("active").siblings().removeClass("active");
+        })();
 
         getTimeoutSet()
 
