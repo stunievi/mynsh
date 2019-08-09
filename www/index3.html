@@ -541,7 +541,8 @@
             var msg = a[0].data;
             $.each(menu, function (i,v) {
                 if(v.name == '任务管理'){
-                    v.children.push(msg||[]);
+                    v.children = v.children.concat(msg || [])
+                    // v.children.push(msg||[]);
                     // $.each(msg||[], function (ii,vv) {
                     //     v.children.push({
                     //         name: vv.modelName,

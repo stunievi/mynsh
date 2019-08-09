@@ -39,7 +39,7 @@ public class cat {
     }
 
 
-    public Result add(String pid, String type) {
+    public Result formAdd(String pid, String type) {
         MongoCollection<Document> collection = db.getCollection("cat");
         Document doc = o(
                 "name", "新分类",
@@ -49,9 +49,6 @@ public class cat {
         if(StrUtil.isNotBlank(pid)){
             doc.put("pid", new ObjectId(pid));
         }
-//        if ("top".equalsIgnoreCase(pid)) {
-//        } else {
-//        }
         collection.insertOne(doc);
         return Result.ok(o(
                 "_id", doc.get("_id").toString(),
@@ -60,6 +57,26 @@ public class cat {
                 "children", a(),
                 "type", "cat"
         ));
+    }
+
+    public Result add(String pid, String type) {
+        MongoCollection<Document> collection = db.getCollection("cat");
+        Document doc = o(
+                "name", "新分类",
+                "pid", null
+        ).toBson();
+        if ("top".equalsIgnoreCase(pid)) {
+        } else {
+            doc.put("pid", new ObjectId(pid));
+        }
+        collection.insertOne(doc);
+        doc.put("text", doc.getString("name"));
+        doc.put("type", doc.getString("type"));
+        doc.put("_id", doc.getObjectId("_id").toString());
+        if (!"top".equalsIgnoreCase(pid)) {
+            doc.put("pid", doc.getObjectId("pid").toString());
+        }
+        return Result.ok(doc);
     }
 
 
