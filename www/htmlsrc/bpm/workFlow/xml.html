@@ -934,19 +934,49 @@ return
 
 
 <script>
+    function openConfigPage(id,page){
+        window.open("./node.edit.html?id=" + id + "&page=" + page ,"node_edit_" + id, "left=200, top=100, width=800, height=500, location=no")
+    }
+
     //图形配置
     $.contextMenu({
         // define which elements trigger this menu
         selector: ".djs-element.djs-shape[data-element-id]",
         // define the elements of the menu
         items: {
-            m1: {name: "处理人", icon: "fa-cloud-download", callback: function(key, opt){ alert("Foo!"); }},
-            m2: {name: "填写字段", callback: function(key, opt){ alert("Bar!") }},
-            m3: {name: "必填字段", callback: function(key, opt){ alert("Bar!") }},
-            m4: {name: "超时提醒", callback: function(key, opt){ alert("Bar!") }}
+            m1: {name: "处理人", icon: "fa-user-o", callback: function(key, opt){
+                var id = $(this).attr("data-element-id");
+                openConfigPage(id, "dealers")
+            }},
+            m2: {name: "填写字段", icon:"fa-pencil-square-o", callback: function(key, opt){
+                var id = $(this).attr("data-element-id");
+                openConfigPage(id, "fields");
+            }},
+            m3: {name: "必填字段", icon:"fa-pencil-square-o", callback: function(key, opt){
+                var id = $(this).attr("data-element-id");
+                openConfigPage(id, "rfields");
+            }},
+            m4: {name: "超时提醒", icon:"fa-bell", callback: function(key, opt){
+                var id = $(this).attr("data-element-id");
+                openConfigPage(id, "timeout");
+            }}
         }
         // there's more, have a look at the demos and docs...
     });
+
+    $.contextMenu({
+        selector: "[data-element-id*=SequenceFlow]",
+        items:{
+            m1: {
+                name: "条件设置",
+                icon: "fa-check-square-o",
+                callback: function () {
+                    var id = $(this).attr("data-element-id");
+                    window.open("./lineCondition.html?id=" + id,"line_edit", "left=200, top=100, width=800, height=500, location=no")
+                }
+            }
+        }
+    })
 
 
 </script>
