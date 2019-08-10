@@ -134,11 +134,13 @@
     window.fields = [];
     // 用于配置页面赋值传值
     window.bpmData = {
-        nodes:{}
+        nodes:{},
+        lines:{}
     };
     // bpmData赋值，用于过滤无用节点
     window.sbpmData = {
-        nodes:{}
+        nodes:{},
+        lines:{}
     };
     // 表单字段list
     var listFields = [];
@@ -379,7 +381,7 @@
                     _outgoing.each(function () {
                         var targetRef = sequenceFlowMap[$(this).text()];
                         try {
-                            _eventMap = arrData(_taskId, targetRef, _eventMap);
+                            _eventMap = arrData(_taskId, targetRef, _eventMap, $(this).text());
                         }catch (e) {
                             isInArr=e;
                         }
@@ -530,7 +532,7 @@ return
                     var targetRef = sequenceFlowMap[$(this).text()];
 
                     try {
-                        _eventMap = arrData(_taskId, targetRef, _eventMap);
+                        _eventMap = arrData(_taskId, targetRef, _eventMap, $(this).text());
                     }catch (e) {
                         isInArr = e;
                     }
@@ -570,6 +572,7 @@ return
                 }
                 _eventMap[sourceRef] = {"id":sourceRef,"name":taskName,"allFields":allFields,"requiredFields":requiredFields,"uids":pids,"qids":qids,"rids":rids,"dids":dids,"nextNodes":[]}
                 window.sbpmData.nodes[sourceRef] = (window.bpmData.nodes[sourceRef]);
+                window.sbpmData.lines[sourceRef] = (window.bpmData.lines[sourceRef]);
             })
 
             if(!errFlag){
@@ -758,26 +761,31 @@ return
         }
         var arr = [];
         $.each(item, function (i,v) {
-               if(v.type == 'rule'){
-                   arr.push(conversion(v.text).replace(/\[(.+?)\]/g, "getValue('$1')"));
-               } else if(v.type == 'group'){
-                   arr.push(preorderZheng(v.children,v.text));
-               }
+            arr.push("getValue('"+v.field+"')" + conversion(v.op)+ "'"+v.value+"'")
+
+               // if(v.type == 'rule'){
+               //     arr.push(conversion(v.text).replace(/\[(.+?)\]/g, "getValue('$1')"));
+               // } else if(v.type == 'group'){
+               //     arr.push(preorderZheng(v.children,v.text));
+               // }
+
+            // ((getValue('市场部同意与否') == '不同意' || getValue('审查岗同意与否') == '不同意' || getValue('风险部同意与否') == '同意' || getValue('风险部同意与否') == '不同意'))
         });
         arr = arr.filter(function (e) {
             return e
         });
-        switch (type.toUpperCase()) {
-            case "AND":
-                return "(" + arr.join(" && ") + ")";
-
-            case "OR":
-                return "(" + arr.join(" || ") + ")";
-        }
+        return "(" + arr.join(" && ") + ")";
+        // switch (type.toUpperCase()) {
+        //     case "AND":
+        //         return "(" + arr.join(" && ") + ")";
+        //
+        //     case "OR":
+        //         return "(" + arr.join(" || ") + ")";
+        // }
     }
 
     // 流程节点数据整理
-    function arrData(_taskId,targetRef, _eventMap) {
+    function arrData(_taskId,targetRef, _eventMap, sequenceFlowId) {
         var nextEvent = [];
         var node = {};
 
@@ -791,6 +799,7 @@ return
         var maxTimeout = "";
         var taskName = "";
         var isInArr = 0;    // 用于判断节点必填字段是否在填写字段中
+        var expression = "";// 条件表达式
         if(undefined ==  window.bpmData.nodes[_taskId]){
 
         }else{
@@ -820,10 +829,39 @@ return
             if(undefined !=  window.bpmData.nodes[targetRef]){
                 conList = window.bpmData.nodes[targetRef].condition;
             }
-            var _expression = preorderZheng(conList,"and");
+            if(undefined != window.bpmData.lines[sequenceFlowId]){
+                conList = window.bpmData.lines[sequenceFlowId].conditions;
+                var expre = window.bpmData.lines[sequenceFlowId].expression;
+                if("" == expre.trim()){
+                    expression = preorderZheng(conList,"and",expre);
+                    console.log("---",expression)
+                }else{
+                    var arr = {};
+                    var reg = /\d+/g;
+                    var ms = expre.replace(/\[(.+?)\]/g, "$1").match(reg)
+                    for(var m=0;m<ms.length;m++){
+                        if(undefined != conList[ms[m]-1]){
+                            arr[ms[m]] =("getValue('"+conList[ms[m]-1].field+"')" + conversion(conList[ms[m]-1].op)+ "'"+conList[ms[m]-1].value+"'")
+
+                        }
+
+                    }
+
+                    // [3] and [1] and [4]
+                    for(var s=0;s<ms.length;s++){
+                        if(undefined != arr[ms[s]]){
+                            expre = expre.replace("["+ms[s]+"]",arr[ms[s]]);
+                        }
+                    }
+                    expression = "("+expre+")";
+                    console.log("----",expression)
+                }
+
+            }
+            // var _expression = preorderZheng(conList,"and");
 
             node["node"] = targetRef;
-            node["expression"] = _expression;
+            node["expression"] = expression;
             nextEvent.push(node)
             var nextNodes = (_eventMap[_taskId] && _eventMap[_taskId].nextNodes) ? _eventMap[_taskId].nextNodes : [];
             nextNodes.push(node);
@@ -838,6 +876,7 @@ return
         }
 
         window.sbpmData.nodes[_taskId] = (window.bpmData.nodes[_taskId]);
+        window.sbpmData.lines[sequenceFlowId] = (window.bpmData.lines[sequenceFlowId]);
         if(isInArr == "-1"){
             // isIn["flag"] = true;
             throw true;
