@@ -16,7 +16,6 @@
     <script src="/static/bpm/jquery.js"></script>
     <script src="/static/htmljs/utils.js"></script>
     <script src="/static/vendor/artTemplate/template-web.js"></script>
-    <!--#include file="/htmlsrc/header.html" -->
 
     <!-- example styles -->
     <style>
@@ -53,8 +52,11 @@
     <script src="fields.js"></script>
     <script src="../lib/menu/jquery.contextMenu.min.js"></script>
     <script src="../lib/menu/jquery.ui.position.min.js"></script>
+    <link rel="stylesheet" href="../lib/css/style.css">
     <link rel="stylesheet" href="../lib/menu/jquery.contextMenu.min.css">
     <link rel="stylesheet" href="../lib/font/css/font-awesome.min.css">
+    <script src="../lib/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+    <script src="../lib/layer/layer.js"></script>
 
 </head>
 <body>
@@ -150,7 +152,7 @@
 
     function loadForm(){
         var id = $("#selectForm").val()
-        loadTimeout()
+        layer.load(0, {time: 5000})
         $.get("/api/bpm/form/one", {id:id}, function (msg) {
             layer.closeAll();
             if(msg.success){
@@ -303,7 +305,7 @@
     // 角色
     function getRole(){
         $.ajax({
-            url: remoteOrigin + "/api/auto/org/getList?role=1&page=1&size=1000",
+            url: "/api/auto/org/getList?role=1&page=1&size=1000",
             type: 'GET',
             contentType: false,
             success:function (res) {
@@ -995,6 +997,13 @@ return
                 var id = $(this).attr("data-element-id");
                 openConfigPage(id, "rfields");
             }},
+            m5: {
+                name: "权限配置",
+                icon: "fa-laptop",
+                callback: function () {
+                    openConfigPage(id, "permission")
+                }
+            },
             m4: {name: "超时提醒", icon:"fa-bell", callback: function(key, opt){
                 var id = $(this).attr("data-element-id");
                 openConfigPage(id, "timeout");
