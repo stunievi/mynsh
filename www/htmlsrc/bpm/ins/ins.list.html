@@ -63,6 +63,10 @@
             </td>
             <td valign="top">
                 <div class="col-xs-12">
+                    <div class="batch-operation">
+                        <a class="btn btn-success pub" href="javascript:;" >发起新流程</a>
+                    </div>
+
                     <div class="bs-example bs-example-tabs" data-example-id="togglable-tabs">
                         <ul id="myTabsBpm" class="nav nav-tabs" role="tablist" style="margin-bottom: 10px;">
                             <li><a href="#taskBpm1" role="tab"  data-toggle="tab" aria-controls="taskBpm1" aria-expanded="true" onclick="initTable('taskBpm1',window.id,'todo')">待处理任务</a></li>
@@ -473,7 +477,9 @@
     }
 
     $(document).on("click", ".pub", function () {
-        openPubPage("pub", id);
+        if(undefined != window.id){
+            openPubPage("pub", window.id);
+        }
         // window.open("./ins.pub.html?type=pub&id=" + id, "dealtask", "left=100, top=100, width=800, height=600");
     });
     $(document).on("click", ".btn-show", function () {
@@ -489,7 +495,7 @@
 
     $(document).on("click", ".btn-pause", function () {
         var id = $(this).data("id");
-        // loadTimeout()
+        layer.load(0, {time: 5000})
         $.get("/api/bpm/workflow/pause",{id:id}, function () {
             location.reload()
         });
@@ -497,7 +503,7 @@
 
     $(document).on("click", ".btn-resume", function () {
         var id = $(this).data("id");
-        // loadTimeout()
+        layer.load(0, {time: 5000})
         $.get("/api/bpm/workflow/resume",{id:id}, function () {
             location.reload()
         });
@@ -505,7 +511,7 @@
 
     $(document).on("click", ".btn-forceEnd", function () {
         var id = $(this).data("id");
-        // loadTimeout()
+        layer.load(0, {time: 5000})
         $.get("/api/bpm/workflow/forceEnd",{id:id}, function () {
             location.reload()
         });
@@ -513,7 +519,7 @@
 
     $(document).on("click", ".btn-forceResume", function () {
         var id = $(this).data("id");
-        loadTimeout()
+        layer.load(0, {time: 5000})
         $.get("/api/bpm/workflow/forceResume",{id:id}, function () {
             location.reload()
         });
@@ -523,7 +529,7 @@
         var id = $(this).data("id");
         layer.prompt({title: '填写催办内容', formType: 2}, function(text, index){
             layer.close(index);
-            loadTimeout()
+            layer.load(0, {time: 5000})
             $.get("/api/bpm/workflow/urge",{id:id, msg: text}, function (msg) {
                 layer.closeAll()
                 if(!msg.success){
@@ -539,7 +545,7 @@
         if(!confirm("确定删除")){
             return
         }
-        // loadTimeout()
+        layer.load(0, {time: 5000})
         $.get("/api/bpm/workflow/deleteIns",{id:id}, function (msg) {
             location.reload();
         },"json");

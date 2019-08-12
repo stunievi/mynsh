@@ -62,10 +62,10 @@ public class BpmModel {
         // 超时时间设置
         public TimeoutSet timeoutSet;
 
-        public boolean allowUpload = false;
-//        public boolean allowUpload = false;
-//        public boolean allowUpload = false;
-//        public boolean allowUpload = false;
+        public boolean allowUpload;
+        public boolean allowDownload;
+        public boolean allowBack;
+        public boolean departmentFirst;
     }
 
     /**
