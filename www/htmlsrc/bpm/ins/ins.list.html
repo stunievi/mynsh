@@ -31,6 +31,10 @@
             line-height: 1.5;
             border-radius: 3px;
         }
+        .bootstrap-table .fixed-table-container .fixed-table-body .fixed-table-loading .loading-wrap .loading-text{
+            font-size: 1px;
+            margin-right: 6px;
+        }
     </style>
     <link rel="stylesheet" href="../lib/bootstrap-3.3.7-dist/css/bootstrap.min.css">
     <script src="../lib/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
@@ -422,10 +426,9 @@
 <script>
     var tmpl = template.compile($('#toolbar').html())
     function initTable(tableId,id, type){
-        console.log(id,type)
-        if(undefined == id){
-            return;
-        }
+        // if(undefined == id){
+        //     return;
+        // }
         //销毁表格
         $("#"+tableId+"-taskList").bootstrapTable("destroy");
         $("#"+tableId+"-taskList").bootstrapTable({

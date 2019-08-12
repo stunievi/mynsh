@@ -471,9 +471,8 @@ public class workflow {
         MongoCollection<Document> col = db.getCollection("bpmInstance");
         Obj match = null;
 
-            if (util.isSu(uid)) {
+        if (util.isSu(uid)) {
             if(StrUtil.isNotBlank(id)){
-
 //                match = o("$and", a(
 //                        o("bpmId", new ObjectId(id)),
 //                        o("$or", a(
@@ -623,7 +622,6 @@ public class workflow {
                                             )
                                     )
                                 ))
-
                                 )
                         );
                         break;
@@ -639,8 +637,6 @@ public class workflow {
                         break;
                 }
             }
-
-
         }
         int count = (int) col.countDocuments(match.toBson());
         List list = (List) col.aggregate(a(
