@@ -1001,6 +1001,7 @@ return
                 name: "权限配置",
                 icon: "fa-laptop",
                 callback: function () {
+                    var id = $(this).attr("data-element-id");
                     openConfigPage(id, "permission")
                 }
             },
