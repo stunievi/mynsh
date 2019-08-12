@@ -25,6 +25,7 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -41,6 +42,16 @@ public class workflow {
         return db.getCollection("workflow");
     }
 
+
+
+    public Result upload(MultipartFile file) throws IOException {
+        return Result.ok(
+                o(
+                        "name", file.fileName,
+                        "id", storage.upload(file)
+                )
+        );
+    }
 
     /**
      * 任务模型树列表
@@ -388,9 +399,9 @@ public class workflow {
      * @param nextUid
      * @return
      */
-    public Object nextApprover(String id, String nextUid) {
+    public Object nextApprover(String id, String nextUid, String nextNodeId) {
         BpmService service = BpmService.ofIns(id);
-        return Result.ok(service.nextApprover(Auth.getUid() + "", nextUid, o()));
+        return Result.ok(service.nextApprover(Auth.getUid() + "", nextUid, o(), nextNodeId));
     }
 
     /**

@@ -710,7 +710,7 @@ public class BpmService {
      * @param attrs 提交到该任务上的属性
      * @return
      */
-    public BpmModel.Node getNextNode(String uid, Obj attrs) {
+    public List<BpmModel.Node> getNextNodes(String uid, Obj attrs) {
         //查找所有的属性
         Obj oldAttrs = new Obj(ins.attrs);
         oldAttrs.putAll(attrs);
@@ -727,22 +727,23 @@ public class BpmService {
         if (node == null) {
             error("当前节点查询失败");
         }
-        BpmModel.Node target = null;
-        if(node.nextNodes.size() == 0) {
-            error("没有配置下一个流转的节点");
-        }
-        //如果接下来只有一个，无论如何都采用
-        else if(node.nextNodes.size() == 1){
-            target = getNode(node.nextNodes.get(0).node);
-        } else {
-            //优先判断有表达式的
-            target = node.nextNodes.stream()
-                    .sorted((a,b) -> getExpressionLevel(b.expression).compareTo(getExpressionLevel(a.expression)))
-                    .filter(e -> JsEngine.runExpression(oldAttrs, e.expression))
-                    .map(e -> getNode(e.node))
-                    .findFirst()
-                    .orElse(null);
-        }
+
+        List ret =  node.nextNodes.stream()
+                .filter(e -> JsEngine.runExpression(oldAttrs, e.expression))
+                .map(e -> getNode(e.node))
+                .collect(Collectors.toList());
+//        BpmModel.Node target = null;
+//        if(node.nextNodes.size() == 0) {
+//            error("没有配置下一个流转的节点");
+//        } else {
+//            //优先判断有表达式的
+//            target = node.nextNodes.stream()
+//                    .sorted((a,b) -> getExpressionLevel(b.expression).compareTo(getExpressionLevel(a.expression)))
+//                    .filter(e -> JsEngine.runExpression(oldAttrs, e.expression))
+//                    .map(e -> getNode(e.node))
+//                    .findFirst()
+//                    .orElse(null);
+//        }
 //        for (BpmModel.NextNode nextNode : node.nextNodes) {
 //            //如果表达式位空，则直接使用该节点
 //            if(JsEngine.runExpression(oldAttrs, nextNode.expression)){
@@ -757,11 +758,12 @@ public class BpmService {
 ////                break;
 ////            }
 //        }
-        if (target == null) {
+        if (ret.isEmpty()) {
             error("找不到符合跳转条件的下一节点");
         }
-        return target;
+        return ret;
     }
+
     private Integer getExpressionLevel(String expression){
         if(StrUtil.isNotBlank(expression)){
             return 1;
@@ -778,15 +780,23 @@ public class BpmService {
      * @return
      */
     public List<Obj> getNextNodePersons(String uid, Obj attrs) {
-        BpmModel.Node target = getNextNode(uid, attrs);
+        List<BpmModel.Node> nodes = getNextNodes(uid, attrs);
         //查询这个节点所有命中的人
-        return sqlManager.select("workflow.查找节点处理人员", Obj.class, o(
-                "uid", uid,
-                "uids", target.uids.isEmpty() ? a(-1) : target.uids,
-                "qids", target.qids.isEmpty() ? a(-1) : target.qids,
-                "rids", target.rids.isEmpty() ? a(-1) : target.rids,
-                "dids", target.dids.isEmpty() ? a(-1) : target.dids
-        ));
+        return nodes.stream()
+                .map(target -> {
+                    return o(
+                            "nodeId", target.id,
+                            "nodeName", target.name,
+                            "dealers", sqlManager.select("workflow.查找节点处理人员", Obj.class, o(
+                                    "uid", uid,
+                                    "uids", target.uids.isEmpty() ? a(-1) : target.uids,
+                                    "qids", target.qids.isEmpty() ? a(-1) : target.qids,
+                                    "rids", target.rids.isEmpty() ? a(-1) : target.rids,
+                                    "dids", target.dids.isEmpty() ? a(-1) : target.dids
+                            ))
+                    );
+                })
+                .collect(Collectors.toList());
     }
 
     /**
@@ -894,10 +904,9 @@ public class BpmService {
 
         bl = saveIns(uid, data, true, "deal");
 
-        BpmModel.Node nextNode = getNextNode(uid, data);
-
-        // 判断是否为结束节点
-        if(nextNode.id.equals(bpmService.ins.bpmModel.end)){
+        List<BpmModel.Node> nextNodes = getNextNodes(uid, data);
+        //有且只有一个是结束的时候，直接结束
+        if(nextNodes.size() == 1 && nextNodes.get(0).id.equals(bpmService.ins.bpmModel.end)){
             Obj state = o();
             state.put("state", "已办结");
             state.put("currentNodes", a());
@@ -907,8 +916,14 @@ public class BpmService {
             if(res.getModifiedCount()>0){
                 bl = "提交成功，该流程已结束！";
             }
-
         }
+//        多个的时候让用户选择往哪
+//        BpmModel.Node nextNode = getNextNode(uid, data);
+
+        // 判断是否为结束节点
+//        if(nextNode.id.equals(bpmService.ins.bpmModel.end)){
+//
+//        }
 //        if(bpmService.ins.bpmModel.end == bpmService.ins.currentNodes.get(0).nodeId){
 //            bl = "该流程已完结！";
 //        }
@@ -920,13 +935,20 @@ public class BpmService {
      * @param uid 提交人
      * @param nextUid 下一步处理人
      */
-    public boolean nextApprover(String uid, String nextUid, Obj update){
+    public boolean nextApprover(String uid, String nextUid, Obj update, String nodeId){
         BpmService bpmService = this;
 
         BpmModel.Node node = getCurrentNode(uid);
 
         // 下一节点
-        BpmModel.Node nextNode = getNextNode(uid, o());
+        List<BpmModel.Node> nextNodes = getNextNodes(uid, o());
+        BpmModel.Node nextNode = nextNodes.stream()
+                .filter(e -> StrUtil.equals(e.id, nodeId))
+                .findFirst()
+                .orElse(null);
+        if (nextNode == null) {
+            error("无权跳转这个节点");
+        }
         if(!canDeal(nextUid, nextNode.id)){
             error("此处理人无权限处理任务！");
         }
