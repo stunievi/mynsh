@@ -89,7 +89,7 @@
                 <tr>
                     <td width="200" style=" ">
                         <label class="next-step" v-for="v in nodes">
-                            <input type="checkbox" v-model="v.checked" @change="onNodeChecked(v)">
+                            <input type="checkbox" v-model="data.nodeIds" :value="v.nodeId" @change="onNodeChecked(v)">
                             <div class="bg">
                                 {{v.nodeName}}
                             </div>
@@ -97,10 +97,10 @@
                     </td>
                     <td>
                         <div style="margin-left: 10px">
-                            <ul v-for="v in nodes" v-if="v.checked">
+                            <ul v-for="v in nodes" v-if="data.nodeIds.length && data.nodeIds.indexOf(v.nodeId) > -1">
                                 <li v-for="vv in v.dealers">
                                     <label >
-                                        <input type="radio" v-model="vv.checked" :name="v.nodeId">
+                                        <input type="radio" v-model="data.uids" :name="v.nodeId" :value="vv.uid">
                                         {{vv.utname}} {{vv.uname}} {{vv.oname}}
                                     </label>
                                 </li>
@@ -154,7 +154,7 @@
         </div>
         <div class="panel-body">
             <div class="work-msg-op-title">下一步骤：
-                <i class="fa fa-bell" :class="{checked: nextStepNotice}" aria-hidden="true" title="发送站内信" @click="nextStepNotice = !nextStepNotice"></i>
+                <i class="fa fa-bell" :class="{checked: data.nextStepNotice}" aria-hidden="true" title="发送站内信" @click="nextStepNotice = !nextStepNotice"></i>
                 <i class="fa fa-envelope" aria-hidden="true" title="发送短信"></i>
             </div>
             <div class="work-msg-op-title">发起人：
@@ -188,7 +188,7 @@
                         提醒内容：
                     </td>
                     <td>
-                        <input type="text" class="form-control input-sm" id="modelName" name="modelName" placeholder="您有新的工作需要办理">
+                        <input type="text" v-model="data.message" class="form-control input-sm" id="modelName" name="modelName" placeholder="您有新的工作需要办理">
                     </td>
                 </tr>
             </table>
@@ -332,25 +332,24 @@
         el: "#app",
         data: {
             nodes:[],
-            nextStepNotice: true
+            data:{
+                nodeIds:[],
+                uids: [],
+                nextStepNotice: true,
+                message: ""
+            }
         },
         methods:{
             onNodeChecked: function (item) {
-                $.each(data.data, function (i,v) {
-                    if(v != item){
-                        v.checked = false;
-                    }
-                });
+                this.data.nodeIds = [item.nodeId];
             }
         }
     });
 
-    $.each(data.data, function (i,v) {
-        v.checked = false;
-        $.each(v.dealers, function (ii,vv) {
-            vv.checked = false;
-        });
-    });
+    // $.each(data.data, function (i,v) {
+    //     // v.checked = false;
+    //     v.targetUid = -1;
+    // });
 
     console.log(JSON.parse(JSON.stringify(data.data)))
 
