@@ -904,10 +904,9 @@ public class BpmService {
 
         bl = saveIns(uid, data, true, "deal");
 
-        BpmModel.Node nextNode = getNextNode(uid, data);
-
-        // 判断是否为结束节点
-        if(nextNode.id.equals(bpmService.ins.bpmModel.end)){
+        List<BpmModel.Node> nextNodes = getNextNodes(uid, data);
+        //有且只有一个是结束的时候，直接结束
+        if(nextNodes.size() == 1 && nextNodes.get(0).id.equals(bpmService.ins.bpmModel.end)){
             Obj state = o();
             state.put("state", "已办结");
             state.put("currentNodes", a());
@@ -917,8 +916,14 @@ public class BpmService {
             if(res.getModifiedCount()>0){
                 bl = "提交成功，该流程已结束！";
             }
-
         }
+//        多个的时候让用户选择往哪
+//        BpmModel.Node nextNode = getNextNode(uid, data);
+
+        // 判断是否为结束节点
+//        if(nextNode.id.equals(bpmService.ins.bpmModel.end)){
+//
+//        }
 //        if(bpmService.ins.bpmModel.end == bpmService.ins.currentNodes.get(0).nodeId){
 //            bl = "该流程已完结！";
 //        }
@@ -930,13 +935,20 @@ public class BpmService {
      * @param uid 提交人
      * @param nextUid 下一步处理人
      */
-    public boolean nextApprover(String uid, String nextUid, Obj update){
+    public boolean nextApprover(String uid, String nextUid, Obj update, String nodeId){
         BpmService bpmService = this;
 
         BpmModel.Node node = getCurrentNode(uid);
 
         // 下一节点
-        BpmModel.Node nextNode = getNextNode(uid, o());
+        List<BpmModel.Node> nextNodes = getNextNodes(uid, o());
+        BpmModel.Node nextNode = nextNodes.stream()
+                .filter(e -> StrUtil.equals(e.id, nodeId))
+                .findFirst()
+                .orElse(null);
+        if (nextNode == null) {
+            error("无权跳转这个节点");
+        }
         if(!canDeal(nextUid, nextNode.id)){
             error("此处理人无权限处理任务！");
         }

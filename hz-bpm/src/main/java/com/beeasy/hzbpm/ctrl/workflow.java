@@ -399,9 +399,9 @@ public class workflow {
      * @param nextUid
      * @return
      */
-    public Object nextApprover(String id, String nextUid) {
+    public Object nextApprover(String id, String nextUid, String nextNodeId) {
         BpmService service = BpmService.ofIns(id);
-        return Result.ok(service.nextApprover(Auth.getUid() + "", nextUid, o()));
+        return Result.ok(service.nextApprover(Auth.getUid() + "", nextUid, o(), nextNodeId));
     }
 
     /**
