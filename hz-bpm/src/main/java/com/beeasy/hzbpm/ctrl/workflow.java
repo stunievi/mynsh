@@ -269,26 +269,28 @@ public class workflow {
         Obj match = null;
         if (util.isSu(uid)) {
             match = o("$and", a(
-                    o("bpmId", new ObjectId(id))
+//                            o("bpmId", new ObjectId(id))
                     )
             );
         } else {
             match = o("$and", a(
-                    o("bpmId", new ObjectId(id)),
-                    o("$or", a(
-                            o("logs.uid", Auth.getUid() + ""),
-                            o("currentNodes", o(
-                                    "$elemMatch", o(
-                                            "uids", Auth.getUid() + ""
-                                    )
+//                            o("bpmId", new ObjectId(id)),
+                            o("$or", a(
+                                    o("logs.uid", Auth.getUid() + ""),
+                                    o("currentNodes", o(
+                                            "$elemMatch", o(
+                                                    "uids", Auth.getUid() + ""
+                                            )
+                                    ))
                             ))
-                    ))
                     )
             );
         }
-        int count = (int) col.countDocuments(match.toBson());
+        int count = (int) col.countDocuments(
+                //match.toBson()
+        );
         List list = (List) col.aggregate(a(
-                o("$match", match),
+//                o("$match", match),
                 o("$project", o(
                         "_id", o("$toString", "$_id"),
                         "id", 1,
