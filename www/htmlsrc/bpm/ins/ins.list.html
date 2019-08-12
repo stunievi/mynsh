@@ -23,6 +23,7 @@
         }
         #content{
             padding: 10px !important;
+            overflow: auto;
         }
     </style>
     <link rel="stylesheet" href="../lib/bootstrap-3.3.7-dist/css/bootstrap.min.css">
@@ -40,6 +41,9 @@
         }
     </script>
     <script src="../lib/layer/layer.js"></script>
+    <link rel="stylesheet" href="../lib/bootstrap-table/bootstrap-table.min.css">
+    <script src="../lib/bootstrap-table/bootstrap-table.min.js"></script>
+    <script src="../lib/bootstrap-table/locale/bootstrap-table-zh-CN.js"></script>
 </head>
 <body>
 <div id="content">
@@ -49,7 +53,10 @@
                 <div id="jstree_demo" style="height: 100%;overflow: auto">
                 </div>
             </td>
-            <td>
+            <td valign="top">
+                <div id="dataList">
+
+                </div>
             </td>
         </tr>
     </table>
@@ -64,7 +71,6 @@
 <!--        </div>-->
     </div>
 
-    <div id="dataList"></div>
 </div>
 </body>
 </html>
@@ -339,4 +345,36 @@
             //     .attr(attr"src", "../form/form.add.html?id=" + id + "&v=" + Math.random())
         });
     }, "json");
+</script>
+
+<script>
+
+    $("#dataList").bootstrapTable({
+        columns:[
+            {
+                title:"ID",
+                field:"id"
+            }
+        ],
+        pagination: true,
+        sidePagination: "server",
+        ajax: function(params){
+            console.log(params)
+            var url = "/api/bpm/workflow/insList";
+            //换算分页
+            var data = params.data;
+            data.size = data.limit;
+            data.page = (data.offset / data.limit) + 1;
+            $.get(url + '?' + $.param(params.data)).then(function (res) {
+                console.log(res);
+                if(!res.success){
+                    //todo:
+                }
+                params.success({
+                    rows: res.data.list,
+                    total: res.data.totalRow
+                })
+            },"json")
+        }
+    })
 </script>

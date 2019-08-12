@@ -46,6 +46,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
+import static com.beeasy.hzbpm.bean.Data.userCache;
 import static com.beeasy.hzbpm.bean.MongoService.db;
 import static com.github.llyb120.nami.ext.beetlsql.BeetlSql.sqlManager;
 import static com.github.llyb120.nami.json.Json.a;
@@ -68,7 +69,6 @@ public class BpmService {
     //BpmInstance
     public BpmInstance ins = null;
 
-    private Map<String,Obj> userCache = new HashMap<>();
 
     //    public long uid;
 //    private BpmService() {
