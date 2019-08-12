@@ -6,9 +6,8 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
-    <link rel="stylesheet" href="../../../static/htmljs/jstree/themes/default/style.css">
+    <link rel="stylesheet" href="../lib/css/style.css">
     <script src="../lib/jquery/jquery.js"></script>
-    <script src="../../../static/htmljs/jstree/jstree.js"></script>
     <style>
         td{
             white-space: nowrap;
@@ -31,12 +30,10 @@
             line-height: 1.5;
             border-radius: 3px;
         }
-        .bootstrap-table .fixed-table-container .fixed-table-body .fixed-table-loading .loading-wrap .loading-text{
-            font-size: 1px;
-            margin-right: 6px;
-        }
+        /*.table-bordered{*/
+        /*    bottom: 0;*/
+        /*}*/
     </style>
-    <link rel="stylesheet" href="../lib/bootstrap-3.3.7-dist/css/bootstrap.min.css">
     <script src="../lib/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
     <script>
         function getParam(name, url) {
@@ -50,11 +47,13 @@
             return '';
         }
     </script>
+    <link rel="stylesheet" href="../lib/jstree/themes/default/style.min.css">
     <script src="../lib/layer/layer.js"></script>
     <link rel="stylesheet" href="../lib/bootstrap-table/bootstrap-table.min.css">
     <script src="../lib/bootstrap-table/bootstrap-table.min.js"></script>
     <script src="../lib/bootstrap-table/locale/bootstrap-table-zh-CN.js"></script>
     <script src="../../../static/vendor/artTemplate/template-web.js"></script>
+    <script src="../lib/jstree/jstree.js"></script>
 </head>
 <body>
 <div id="content">
@@ -67,11 +66,8 @@
             </td>
             <td valign="top">
                 <div class="col-xs-12">
-                    <div class="batch-operation">
-                        <a class="btn btn-success pub" href="javascript:;" >发起新流程</a>
-                    </div>
-
                     <div class="bs-example bs-example-tabs" data-example-id="togglable-tabs">
+                        <a class="btn btn-sm btn-success pub" href="javascript:;" style="float:right;">发起新流程</a>
                         <ul id="myTabsBpm" class="nav nav-tabs" role="tablist" style="margin-bottom: 10px;">
                             <li><a href="#taskBpm1" role="tab"  data-toggle="tab" aria-controls="taskBpm1" aria-expanded="true" onclick="initTable('taskBpm1',window.id,'todo')">待处理任务</a></li>
                             <li><a href="#taskBpm2" role="tab"  data-toggle="tab" aria-controls="taskBpm2" aria-expanded="true" onclick="initTable('taskBpm2',window.id,'processed')">已处理的任务</a></li>
@@ -79,13 +75,13 @@
                         </ul>
                         <div id="myTabContentBpm" class="tab-content" style="min-height:120px;">
                             <div role="tabpanel" class="tab-pane" id="taskBpm1" aria-labelledby="taskBpm1-tab">
-                                <div id="taskBpm1-taskList"> </div>
+                                <table id="taskBpm1-taskList"> </table>
                             </div>
                             <div role="tabpanel" class="tab-pane" id="taskBpm2" aria-labelledby="taskBpm2-tab">
-                                <div id="taskBpm2-taskList"> </div>
+                                <table id="taskBpm2-taskList"> </table>
                             </div>
                             <div role="tabpanel" class="tab-pane" id="taskBpm3" aria-labelledby="taskBpm3-tab">
-                                <div id="taskBpm3-taskList"> </div>
+                                <table id="taskBpm3-taskList"> </table>
                             </div>
                         </div>
                     </div>
