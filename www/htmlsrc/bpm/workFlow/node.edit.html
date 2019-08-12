@@ -4,11 +4,13 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title> 绑定表单</title>
-    <!--#include file="/htmlsrc/header.html" -->
     <!--<script src="/static/vendor/bootcss/js/bootstrap-suggest.js"></script>-->
 <!--    <link rel="stylesheet" href="/static/vendor/ztree/css/zTreeStyle/zTreeStyle.css">-->
 <!--    <script src="/static/vendor/ztree/js/jquery.ztree.all.min.js"></script>-->
 <!--    <script src="/static/vendor/bootcss/js/bootstrap-suggest.js"></script>-->
+    <link rel="stylesheet" href="../lib/css/style.css">
+
+    <script src="../lib/jquery/jquery.js"></script>
     <script src="../../../static/vendor/artTemplate/template-web.js"></script>
     <link rel="stylesheet" href="../../../static/htmljs/jstree/themes/default/style.css">
     <script src="../../../static/htmljs/jstree/jstree.js"></script>
@@ -30,6 +32,7 @@
     </style>
     <link rel="stylesheet" href="fields.css">
     <script src="fields.js"></script>
+    <script src="../lib/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
 </head>
 <body>
     <div id="content">
@@ -39,6 +42,7 @@
             <li role="presentation" class="li2 fields"><a href="#tab3" role="tab" data-toggle="tab" aria-controls="tab3">填写字段</a></li>
             <li role="presentation" class="li2 rfields"><a href="#tab5" role="tab" data-toggle="tab" aria-controls="tab5">必填字段</a></li>
             <li style="display: none;" role="presentation" class="li2"><a href="#tab4" role="tab" data-toggle="tab" aria-controls="tab4">转入条件</a></li>
+            <li role="presentation" class="li2 permission"><a href="#tab7" role="tab" data-toggle="tab" aria-controls="tab7">权限配置</a></li>
             <li role="presentation" class="li2 timeout"><a href="#tab6" role="tab" data-toggle="tab" aria-controls="tab6">超时提醒</a></li>
         </ul>
         <div id="myTabContent" class="tab-content">
@@ -46,14 +50,21 @@
 <!--                1-->
 <!--            </div>-->
             <div id="tab2" class="tab-pane">
-                <!--#include file="./permission.html" -->
             </div>
+            <script>
+                $("#tab2").load("./dealers.html")
+            </script>
             <div id="tab3" class="tab-pane">
             </div>
             <div id="tab5" class="tab-pane">
             </div>
             <div style="display: none;" id="tab4" class="tab-pane">
             </div>
+            <div class="tab-pane" id="tab7">
+            </div>
+            <script>
+                $("#tab7").load("./permission.html")
+            </script>
             <div id="tab6" class="tab-pane">
                 <div class="col-xs-12 form-group " data-show="" style="margin-top: 20px;">
                     <label class="col-xs-3 text-right">
@@ -96,6 +107,7 @@
                     </div>
                 </div>
             </div>
+
         </div>
 
     </div>

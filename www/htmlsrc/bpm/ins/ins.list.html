@@ -50,6 +50,7 @@
     <table width="100%" height="100%">
         <tr>
             <td width="200">
+                <div id="fix"></div>
                 <div id="jstree_demo" style="height: 100%;overflow: auto">
                 </div>
             </td>
@@ -251,6 +252,10 @@
 </script>
 
 <script>
+    $("#content").scroll(function () {
+        $("#jstree_demo").css("padding-top", $(this).scrollTop());//.height()
+    });
+
     layer.load(0, {time:5000});
     $.get("/api/bpm/workflow/modelList", function (msg) {
         layer.closeAll();
