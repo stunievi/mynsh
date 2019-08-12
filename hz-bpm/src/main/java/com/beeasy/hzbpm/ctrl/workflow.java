@@ -113,7 +113,7 @@ public class workflow {
     }
 
 
-    public Object copyBpm(String id){
+    public Object copyBpm(String id) {
         MongoCollection<Document> col = db.getCollection("workflow");
         Document doc = col.find(Filters.eq("_id", new ObjectId(id))).first();
         if (doc == null) {
@@ -224,20 +224,20 @@ public class workflow {
         Obj match = null;
         if (util.isSu(uid)) {
             match = o("$and", a(
-                            o("bpmId", new ObjectId(id))
+                    o("bpmId", new ObjectId(id))
                     )
             );
         } else {
             match = o("$and", a(
-                            o("bpmId", new ObjectId(id)),
-                            o("$or", a(
-                                    o("logs.uid", Auth.getUid() + ""),
-                                    o("currentNodes", o(
-                                            "$elemMatch", o(
-                                                    "uids", Auth.getUid() + ""
-                                            )
-                                    ))
+                    o("bpmId", new ObjectId(id)),
+                    o("$or", a(
+                            o("logs.uid", Auth.getUid() + ""),
+                            o("currentNodes", o(
+                                    "$elemMatch", o(
+                                            "uids", Auth.getUid() + ""
+                                    )
                             ))
+                    ))
                     )
             );
         }
@@ -411,6 +411,124 @@ public class workflow {
     }
 
 
+    public Object getInsList(String type, Integer page, Integer size) {
+        if (page == null || page < 1) {
+            page = 1;
+        }
+        if (size == null || size < 1) {
+            size = 20;
+        }
+        BpmService util = new BpmService();
+        String uid = Auth.getUid() + "";
+        MongoCollection<Document> col = db.getCollection("bpmInstance");
+        Obj match = null;
+        if (util.isSu(uid)) {
+            match = o("$and", a(
+                    o("state", type)
+                    )
+            );
+        } else {
+
+            switch (type) {
+                case "todo":   // 待处理
+                    match = o("$and", a(
+                            o("state", "流转中"),
+                            o("$or", a(
+                                    o("currentNodes", o(
+                                            "$elemMatch", o(
+                                                    "uids", Auth.getUid() + ""
+                                            )
+                                    ))
+                            ))
+                            )
+                    );
+                    break;
+                case "processed":   // 已处理
+                    match = o("$and", a(
+//                            o("state", "流转中"),
+                            o("$or", a(
+                                    o("state", "流转中"),
+                                    o("state", "已办结")
+                            )),
+                            o("logs.uid", Auth.getUid() + ""),
+                            o("currentNodes", o(
+                                            "$not", o(
+                                                    "$elemMatch", o(
+                                                            "uids", Auth.getUid() + ""
+                                                    )
+                                            )
+
+                            ))
+
+                            )
+                    );
+                    break;
+                case "over":   // 已办结
+                    match = o("$and", a(
+                            o("state", "已办结"),
+                            o("$or", a(
+                                    o("logs.uid", Auth.getUid() + "")
+
+                            ))
+                            )
+                    );
+                    break;
+            }
+
+        }
+        int count = (int) col.countDocuments(match.toBson());
+        List list = (List) col.aggregate(a(
+                o("$match", match),
+                o("$project", o(
+                        "_id", o("$toString", "$_id"),
+                        "id", 1,
+                        "attrs", 1,
+                        "pubUid", 1,
+                        "pubUName", 1,
+                        "createTime", 1,
+                        "bpmName", 1,
+                        "lastModifyTime", 1,
+                        "currentNodes", 1,
+                        "state", 1
+                )),
+                o("$sort", o("lastModifyTime", -1)),
+                o("$skip", (page - 1) * size),
+                o("$limit", size)
+        ).toBson()).into(a())
+                .stream()
+                .map(e -> {
+                    Document doc = (Document) e;
+
+                    Obj obj = o();
+                    obj.putAll(doc);
+                    obj.putAll((Map) doc.get("attrs"));
+                    obj.remove("attrs");
+                    BpmService bpmService = BpmService.ofIns(doc);
+                    obj.put("deal", bpmService.canDealCurrent(uid));
+                    obj.put("edit", bpmService.canEdit(uid));
+                    obj.put("forceEnd", bpmService.canForceEnd(uid));
+                    obj.put("forceResume", bpmService.canForceResume(uid));
+                    obj.put("pause", bpmService.canPause(uid));
+                    obj.put("resume", bpmService.canResume(uid));
+                    obj.put("urge", bpmService.canUrge(uid));
+                    obj.put("del", bpmService.canDelete(uid));
+
+                    String names = bpmService.ins.currentNodes.stream()
+                            .filter(ee -> ee.unames != null)
+                            .flatMap(ee -> ee.unames.stream())
+                            .collect(Collectors.joining(","));
+                    obj.put("uName", names);
+
+                    return obj;
+                })
+                .collect(Collectors.toList());
+        PageQuery pq = new PageQuery();
+        pq.setPageNumber(page);
+        pq.setPageSize(size);
+        pq.setList(list);
+        pq.setTotalRow(count);
+        return Result.ok(pq);
+    }
     /***********************************/
 
 }
