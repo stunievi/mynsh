@@ -6,16 +6,54 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
-    <!--#include file="/htmlsrc/header.html" -->
+    <link rel="stylesheet" href="../../../static/htmljs/jstree/themes/default/style.css">
+    <script src="../lib/jquery/jquery.js"></script>
+    <script src="../../../static/htmljs/jstree/jstree.js"></script>
     <style>
         td{
             white-space: nowrap;
         }
+        html,body,#content{
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            margin: 0 !important;
+            padding: 0 !important;
+            box-sizing: border-box;
+        }
+        #content{
+            padding: 10px !important;
+        }
     </style>
+    <link rel="stylesheet" href="../lib/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+    <script src="../lib/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+    <script>
+        function getParam(name, url) {
+            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+            if(url){
+                var r = url.substr(1).match(reg);
+            }else{
+                var r = window.location.search.substr(1).match(reg);
+            }
+            if (r != null) return r[2];
+            return '';
+        }
+    </script>
+    <script src="../lib/layer/layer.js"></script>
 </head>
 <body>
 <div id="content">
-    <div class="batch-operation">
+    <table width="100%" height="100%">
+        <tr>
+            <td width="200">
+                <div id="jstree_demo" style="height: 100%;overflow: auto">
+                </div>
+            </td>
+            <td>
+            </td>
+        </tr>
+    </table>
+    <div class="batch-operation" style="display: none">
         <a class="btn btn-success pub" href="javascript:;" >发起新流程</a>
 <!--        <div class="btn-group">-->
 <!--            <button type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">更改启用状态<span class="caret"></span></button>-->
@@ -67,7 +105,7 @@
 <!--        <button class="btn btn-danger" delete-href="{{remoteOrigin}}/api/auto/user/delete?id={{d.id}}">删除</button>-->
     </div>
 </script>
-<script>
+<script type="text/plain">
     var id = getParam("id");
     var fields = decodeURI(getParam("fields"));
     fields = JSON.parse(fields);
@@ -204,4 +242,101 @@
     //         name: userName
     //     }
     // }));
+</script>
+
+<script>
+    layer.load(0, {time:5000});
+    $.get("/api/bpm/workflow/modelList", function (msg) {
+        layer.closeAll();
+        if(!msg.success){
+            return
+        }
+        msg = msg.data;
+        // console.log(msg)
+        $('#jstree_demo').jstree({
+            "core" : {
+                "animation" : 0,
+                "check_callback" : true,
+                "themes" : { "stripes" : true },
+                'data' :[
+                    {
+                        'id' : 'root',
+                        'text' : '全部分类',
+                        "type":"home",
+                        'state' : { 'opened' : true, 'selected' : true },
+                        'children' : (msg)
+                    }
+                ]
+            },
+            "types" : {
+                "#":{
+                    icon: "glyphicon glyphicon-book",
+                    valid_children: ["cat"]
+                },
+                "home":{
+                    icon: "glyphicon glyphicon-book",
+                    valid_children: ["cat"]
+                },
+                "cat": {
+                    icon: "glyphicon glyphicon-book",
+                    valid_children:["form", "cat"]
+                },
+                "form": {
+                    icon:  "glyphicon glyphicon-file",
+                    valid_children:[]
+                }
+                // "#" : {
+                //     "max_children" : 1,
+                //     "max_depth" : 4,
+                //     "valid_children" : ["root"]
+                // },
+                // "root" : {
+                //     "icon" : "/static/3.3.8/assets/images/tree_icon.png",
+                //     "valid_children" : ["default"]
+                // },
+                // "default" : {
+                //     "valid_children" : ["default","file"]
+                // },
+                // "file" : {
+                //     "icon" : "glyphicon glyphicon-file",
+                //     "valid_children" : []
+                // }
+            },
+            "plugins" : [
+                "search",
+                // "state",
+                // "dnd",
+                "types", "wholerow"
+            ]
+        });
+
+        window.ins = $('#jstree_demo').jstree(true);
+        // setTimeout(function () {
+        //     var root = ins.get_node("root");
+        //     ins.open_all(root);
+        // },0)
+        //选中第一个节点
+        // loadFormList('top')
+
+        $("#jstree_demo").on("select_node.jstree", function (e,n) {
+            if(n.node.type != 'form'){
+                return false;
+            }
+            // alert(2)
+            // var frame = $("#form-edit");
+            // var did = frame.data("id");
+            // if(n.node.original.type != 'form'){
+            //     $("#form-edit").hide()
+            //     return
+            // }
+            // var id = n.node.original.id;
+            // if(did == id){
+            //     frame.show()
+            //     return;
+            // }
+            // frame.show()
+            //     .data("id", id)
+            //     .attr(attr"src", "../form/form.add.html?id=" + id + "&v=" + Math.random())
+        });
+    }, "json");
 </script>

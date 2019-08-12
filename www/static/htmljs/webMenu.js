@@ -1254,6 +1254,10 @@ doIfDev(function () {
                 {
                     name: "流程设计",
                     href: "/htmlsrc/bpm/workFlow/workFlowManage.html"
+                },
+                {
+                    name: "任务管理",
+                    href: "/htmlsrc/bpm/ins/ins.list.html"
                 }
                 // {
                 //     name: "发起流程",

@@ -41,6 +41,51 @@ public class workflow {
     }
 
 
+    /**
+     * 任务模型树列表
+     * @return
+     */
+    public Object modelList(){
+        MongoCollection<Document> collection = db.getCollection("cat");
+        Arr cats = collection.aggregate(a(
+                o("$match", o("type", "1")),
+                o(
+                        "$lookup", o(
+                                "from", "workflow",
+                                "localField", "_id",
+                                "foreignField", "pid",
+                                "as", "children"
+                        )
+                ),
+                o(
+                        "$project", o(
+                                "id", o(
+                                        "$toString", "$_id"
+                                ),
+                                "text", "$name",
+                                "pid", o(
+                                        "$toString", "$pid"
+                                ),
+                                "type", "cat",
+                                "state.opened", "true",
+                                "children",o(
+                                        "$map",o(
+                                                "input", "$children" ,
+                                                "as", "item",
+                                                "in", o(
+                                                        "id", o("$toString", "$$item._id"),
+                                                        "text", "$$item.modelName",
+                                                        "type", "form"
+                                                )
+                                        )
+                                )
+                        )
+                )
+        ).toBson()).into(a());
+        Json tree = tree((List)cats, "pid", "id");
+        return Result.ok(tree);
+    }
+
     public Object pause(String id) {
         BpmService service = BpmService.ofIns(id);
         service.pause(Auth.getUid() + "");
