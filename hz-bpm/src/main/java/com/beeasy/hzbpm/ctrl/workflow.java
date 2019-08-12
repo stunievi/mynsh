@@ -497,7 +497,8 @@ public class workflow {
                                 //                            o("state", "流转中"),
                                 o("$or", a(
                                         o("state", "流转中"),
-                                        o("state", "已办结")
+                                        o("state", "已办结"),
+                                        o("state", "已暂停")
                                 ))
 
                                 )
@@ -533,7 +534,8 @@ public class workflow {
                                 //                            o("state", "流转中"),
                                 o("$or", a(
                                         o("state", "流转中"),
-                                        o("state", "已办结")
+                                        o("state", "已办结"),
+                                        o("state", "已暂停")
                                 ))
 
                                 )
@@ -570,7 +572,8 @@ public class workflow {
                                 //                            o("state", "流转中"),
                                 o("$or", a(
                                         o("state", "流转中"),
-                                        o("state", "已办结")
+                                        o("state", "已办结"),
+                                        o("state", "已暂停")
                                 )),
                                 o("logs.uid", Auth.getUid() + ""),
                                 o("currentNodes", o(
