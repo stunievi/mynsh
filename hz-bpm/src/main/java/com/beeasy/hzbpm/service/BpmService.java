@@ -730,10 +730,6 @@ public class BpmService {
         BpmModel.Node target = null;
         if(node.nextNodes.size() == 0) {
             error("没有配置下一个流转的节点");
-        }
-        //如果接下来只有一个，无论如何都采用
-        else if(node.nextNodes.size() == 1){
-            target = getNode(node.nextNodes.get(0).node);
         } else {
             //优先判断有表达式的
             target = node.nextNodes.stream()

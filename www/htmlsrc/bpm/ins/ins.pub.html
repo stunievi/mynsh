@@ -7,11 +7,12 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>发起任务</title>
 
+    <link rel="stylesheet" href="../lib/css/style.css">
     <link rel="stylesheet" href="./ueditor.css">
+
     <script src="../../../static/vendor/jquery/jquery.js"></script>
     <script src="../../../static/htmljs/utils.js"></script>
 
-    <script src="/static/vendor/layui/layer/layer.js"></script>
     <style>
         .needs-discussion:not(.djs-connection) .djs-visual > :nth-child(1) {
             stroke: rgba(66, 180, 21, 0.7) !important; /* color elements as red */
@@ -92,6 +93,10 @@
     </script>
     <script src="../lib/bpm/bpmn-viewer.js"></script>
     <script src="../lib/layer/layer.js"></script>
+    <script src="../lib/laydate/laydate.js"></script>
+    <link rel="stylesheet" href="../lib/web-uploader/webuploader.css">
+    <script src="../lib/web-uploader/webuploader.min.js"></script>
+    <script src="../lib/vue/vue.js"></script>
 </head>
 <body>
 <div id="panel" style="padding: 10px;">
@@ -113,8 +118,13 @@
             </div>
 
             <div class="action" style="display: none;text-align: center;">
-                <a href="javascript:;" id="save">保存</a>
-                <a href="javascript:;" id="submit">提交</a>
+                <label class="btn btn-primary btn-sm" style="position:relative;overflow: hidden">
+                    <div id="picker" style="width: 1px;height: 1px;position:absolute;left: -100px;top: -100px;">
+                    </div>
+                    上传
+                </label>
+                <a class="btn btn-primary btn-sm" href="javascript:;" id="save">保存</a>
+                <a class="btn btn-primary btn-sm" href="javascript:;" id="submit">提交</a>
             </div>
         </div>
         <div id="canvas" class="__tab">
@@ -179,8 +189,7 @@
                     elem.prop("readonly","true")
 
                     ;(function (title, type) {
-                        layui.use("laydate",function () {
-                            layui.laydate.render({
+                            laydate.render({
                                 elem: "[leipiplugins=datetime][title="+title+"]"
                                 ,type: (function () {
                                     switch (type) {
@@ -194,7 +203,6 @@
                                             return "time";
                                     }
                                 })()
-                            });
                         })
                     })(elem[0].title, elem.attr("orgformat"));
                 }
@@ -478,6 +486,26 @@
 
     $("#submit").click(function () {
         submit(true);
-    })
+    });
+
+    ;(function () {
+        //初始化webuploader
+        var uploader = WebUploader.create({
+            // swf文件路径
+            swf: '../lib/web-uploader/Uploader.swf',
+            // 文件接收服务端。
+            server: '/api/bpm/workflow/upload',
+            // 选择文件的按钮。可选。
+            // 内部根据当前运行是创建，可能是input元素，也可能是flash.
+            pick: '#picker',
+            // 不压缩image, 默认如果是jpeg，文件上传前会压缩一把再上传！
+            resize: false,
+            auto: true,
+            duplicate: true,
+            fileVal: "file"
+        });
+    })();
 
 </script>
+
+
