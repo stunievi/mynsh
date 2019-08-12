@@ -24,3 +24,22 @@
         </label>
     </div>
 </div>
+
+<script>
+    var nodeId = location.search.match(/id=([^&]+)/)[1]
+    opener.bpmData.nodes[nodeId].quanxian = opener.bpmData.nodes[nodeId].quanxian || [];
+    $("input[name='permission']").on('click',function(){
+        var arr_v = new Array();
+        $('input[name="permission"]:checked').each(function(){
+            // opener.bpmData.nodes[nodeId].allowUpload = true;
+            arr_v.push($(this).val());
+        });
+        opener.bpmData.nodes[nodeId].quanxian = arr_v;
+
+    })
+
+    $.each(opener.bpmData.nodes[nodeId].quanxian,function(i,item){
+        $("input[name='permission'][value="+item+"]").attr("checked","checked");
+
+    });
+</script>

@@ -630,9 +630,10 @@ return
                     dataType: "json",
                     success:function(res){
                         if(res.success){
-                            layer.alert("保存成功！", { icon: 1, closeBtn: 0 }, function () {
-                                closeCurrentIframe();
-                            } );
+                            layer.msg("保存成功！")
+                            // layer.alert("保存成功！", { icon: 1, closeBtn: 0 }, function () {
+                            //     closeCurrentIframe();
+                            // } );
                         }else{
                             layer.alert("保存失败！"+res.errMessage, { icon: 2, closeBtn: 0 }, function () {
                                 layer.closeAll();
@@ -747,7 +748,9 @@ return
             timeoutSet:{
                 timeout:"0",
                 maxTimeout:"0",
-            }
+            },
+            // allowUpload:false,
+            quanxian:[]
         };
         window.open("./node.edit.html?id=" + obj.id,"node_edit_" + obj.id, "left=200, top=100, width=800, height=500, location=no")
 
@@ -821,10 +824,20 @@ return
             rids =arrToStr(window.bpmData.nodes[_taskId].permission.rids);
             dids =arrToStr(window.bpmData.nodes[_taskId].permission.dids);
 
+            var arr = window.bpmData.nodes[_taskId].quanxian || [];
+
+            var allowUpload = arr.indexOf("allowUpload") > -1;
+            var allowDownload = arr.indexOf("allowDownload") > -1;
+            var allowBack = arr.indexOf("allowBack") > -1;
+            var departmentFirst = arr.indexOf("departmentFirst") > -1;
+            console.log("---===",window.bpmData.nodes[_taskId].quanxian)
+
             timeout = window.bpmData.nodes[_taskId].timeoutSet.timeout;
             maxTimeout = window.bpmData.nodes[_taskId].timeoutSet.maxTimeout;
             taskName = taskNameMap[_taskId];
             var timeoutSet = {};
+
+
             timeoutSet["timeout"] = timeout;
             timeoutSet["maxTimeout"] = maxTimeout;
             var conList;
@@ -846,7 +859,6 @@ return
                             arr[ms[m]] =("getValue('"+conList[ms[m]-1].field+"')" + conversion(conList[ms[m]-1].op)+ "'"+conList[ms[m]-1].value+"'")
 
                         }
-
                     }
 
                     // [3] and [1] and [4]
@@ -874,7 +886,7 @@ return
             ex.push({_taskId,targetRef});
             exList[_taskId] = ex;
         }else{
-            _eventMap[_taskId] = {"id":_taskId,"name":taskName,"allFields":allFields,"requiredFields":requiredFields,"uids":pids,"qids":qids,"rids":rids,"dids":dids,"nextNodes":nextNodes,"timeoutSet":timeoutSet}
+            _eventMap[_taskId] = {"id":_taskId,"name":taskName,"allFields":allFields,"requiredFields":requiredFields,"uids":pids,"qids":qids,"rids":rids,"dids":dids,"nextNodes":nextNodes,"timeoutSet":timeoutSet,"allowUpload":allowUpload,"allowDownload":allowDownload,"allowBack":allowBack,"departmentFirst":departmentFirst}
         }
 
         window.sbpmData.nodes[_taskId] = (window.bpmData.nodes[_taskId]);

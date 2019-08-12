@@ -70,35 +70,35 @@
         var s=$('span[name="'+person+'"]').text();
         window.opener.userId = person;
         // window.opener.userName = person;
-        window.close();
+        // window.close();
 
 
-        // $.ajax({
-        //     url: "/api/bpm/workflow/nextApprover",
-        //     type:"post",
-        //     headers:{
-        //         "Content-Type": "application/json"
-        //     },
-        //     dataType:"json",
-        //     data: JSON.stringify({
-        //         id: id,
-        //         nextUid: person
-        //     }),
-        //     success: function (msg) {
-        //         if(!msg.success){
-        //             alert("提交失败");
-        //         }
-        //         window.opener.layer.msg("提交成功！")
-        //         window.opener.load("deal", id);
-        //         opener.type = "deal";
-        //         opener.id = id;
-        //         window.opener.scrollTo(0,0);
-        //         window.close();
-        //     }
-        //     // complete: function () {
-        //     //     layer.close
-        //     // }
-        // })
+        $.ajax({
+            url: "/api/bpm/workflow/nextApprover",
+            type:"post",
+            headers:{
+                "Content-Type": "application/json"
+            },
+            dataType:"json",
+            data: JSON.stringify({
+                id: id,
+                nextUid: person
+            }),
+            success: function (msg) {
+                if(!msg.success){
+                    alert("提交失败");
+                }
+                window.opener.layer.msg("提交成功！")
+                window.opener.load("deal", id);
+                opener.type = "deal";
+                opener.id = id;
+                window.opener.scrollTo(0,0);
+                window.close();
+            }
+            // complete: function () {
+            //     layer.close
+            // }
+        })
     }
 
 </script>
