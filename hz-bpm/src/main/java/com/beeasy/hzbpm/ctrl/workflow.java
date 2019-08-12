@@ -3,6 +3,7 @@ package com.beeasy.hzbpm.ctrl;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzbpm.entity.BpmInstance;
 import com.beeasy.hzbpm.exception.BpmException;
 import com.beeasy.hzbpm.filter.Auth;
@@ -269,12 +270,12 @@ public class workflow {
         Obj match = null;
         if (util.isSu(uid)) {
             match = o("$and", a(
-//                            o("bpmId", new ObjectId(id))
+                            o("bpmId", new ObjectId(id))
                     )
             );
         } else {
             match = o("$and", a(
-//                            o("bpmId", new ObjectId(id)),
+                            o("bpmId", new ObjectId(id)),
                             o("$or", a(
                                     o("logs.uid", Auth.getUid() + ""),
                                     o("currentNodes", o(
@@ -290,7 +291,7 @@ public class workflow {
                 //match.toBson()
         );
         List list = (List) col.aggregate(a(
-//                o("$match", match),
+                o("$match", match),
                 o("$project", o(
                         "_id", o("$toString", "$_id"),
                         "id", 1,
@@ -458,7 +459,7 @@ public class workflow {
     }
 
 
-    public Object getInsList(String type, Integer page, Integer size) {
+    public Object getInsList(String type, String id, Integer page, Integer size) {
         if (page == null || page < 1) {
             page = 1;
         }
@@ -469,58 +470,176 @@ public class workflow {
         String uid = Auth.getUid() + "";
         MongoCollection<Document> col = db.getCollection("bpmInstance");
         Obj match = null;
-        if (util.isSu(uid)) {
-            match = o("$and", a(
-                    o("state", type)
-                    )
-            );
-        } else {
 
-            switch (type) {
-                case "todo":   // 待处理
-                    match = o("$and", a(
-                            o("state", "流转中"),
-                            o("$or", a(
-                                    o("currentNodes", o(
+            if (util.isSu(uid)) {
+            if(StrUtil.isNotBlank(id)){
+
+//                match = o("$and", a(
+//                        o("bpmId", new ObjectId(id)),
+//                        o("$or", a(
+//                                o("state", "流转中"),
+//                                o("state", "已办结")
+//                        ))
+//                        )
+//                );
+                switch (type) {
+                    case "todo":   // 待处理
+                        match = o("$and", a(
+                                o("bpmId", new ObjectId(id)),
+                                o("state", "流转中")
+                                )
+                        );
+                        break;
+                    case "processed":   // 已处理
+                        match = o("$and", a(
+                                o("bpmId", new ObjectId(id)),
+                                //                            o("state", "流转中"),
+                                o("$or", a(
+                                        o("state", "流转中"),
+                                        o("state", "已办结")
+                                ))
+
+                                )
+                        );
+                        break;
+                    case "over":   // 已办结
+                        match = o("$and", a(
+                                o("bpmId", new ObjectId(id)),
+                                o("state", "已办结")
+                                )
+                        );
+                        break;
+                }
+            }else{
+//                match = o("$and", a(
+//                        o("$or", a(
+//                                o("state", "流转中"),
+//                                o("state", "已办结")
+//                        ))
+//                        )
+//                );
+                switch (type) {
+                    case "todo":   // 待处理
+                        match = o("$and", a(
+                                o("state", "流转中")
+                                )
+                        );
+                        break;
+                    case "processed":   // 已处理
+                        match = o("$and", a(
+                                //                            o("state", "流转中"),
+                                o("$or", a(
+                                        o("state", "流转中"),
+                                        o("state", "已办结")
+                                ))
+
+                                )
+                        );
+                        break;
+                    case "over":   // 已办结
+                        match = o("$and", a(
+                                    o("state", "已办结")
+                                )
+                        );
+                        break;
+                }
+            }
+        } else {
+            if(StrUtil.isNotBlank(id)){
+                switch (type) {
+                    case "todo":   // 待处理
+                        match = o("$and", a(
+                                o("bpmId", new ObjectId(id)),
+                                o("state", "流转中"),
+                                o("$or", a(
+                                        o("currentNodes", o(
+                                                "$elemMatch", o(
+                                                        "uids", Auth.getUid() + ""
+                                                )
+                                        ))
+                                ))
+                                )
+                        );
+                        break;
+                    case "processed":   // 已处理
+                        match = o("$and", a(
+                                o("bpmId", new ObjectId(id)),
+                                //                            o("state", "流转中"),
+                                o("$or", a(
+                                        o("state", "流转中"),
+                                        o("state", "已办结")
+                                )),
+                                o("logs.uid", Auth.getUid() + ""),
+                                o("currentNodes", o(
+                                        "$not", o(
+                                                "$elemMatch", o(
+                                                        "uids", Auth.getUid() + ""
+                                                )
+                                        )
+                                ))
+
+                                )
+                        );
+                        break;
+                    case "over":   // 已办结
+                        match = o("$and", a(
+                                o("bpmId", new ObjectId(id)),
+                                o("state", "已办结"),
+                                o("$or", a(
+                                        o("logs.uid", Auth.getUid() + "")
+
+                                ))
+                                )
+                        );
+                        break;
+                }
+            }else{
+                switch (type) {
+                    case "todo":   // 待处理
+                        match = o("$and", a(
+                                o("state", "流转中"),
+                                o("$or", a(
+                                        o("currentNodes", o(
+                                                "$elemMatch", o(
+                                                        "uids", Auth.getUid() + ""
+                                                )
+                                        ))
+                                ))
+                                )
+                        );
+                        break;
+                    case "processed":   // 已处理
+                        match = o("$and", a(
+    //                            o("state", "流转中"),
+                                o("$or", a(
+                                        o("state", "流转中"),
+                                        o("state", "已办结")
+                                )),
+                                o("logs.uid", Auth.getUid() + ""),
+                                o("currentNodes", o(
+                                    "$not", o(
                                             "$elemMatch", o(
                                                     "uids", Auth.getUid() + ""
                                             )
-                                    ))
-                            ))
-                            )
-                    );
-                    break;
-                case "processed":   // 已处理
-                    match = o("$and", a(
-//                            o("state", "流转中"),
-                            o("$or", a(
-                                    o("state", "流转中"),
-                                    o("state", "已办结")
-                            )),
-                            o("logs.uid", Auth.getUid() + ""),
-                            o("currentNodes", o(
-                                            "$not", o(
-                                                    "$elemMatch", o(
-                                                            "uids", Auth.getUid() + ""
-                                                    )
-                                            )
+                                    )
+                                ))
 
-                            ))
+                                )
+                        );
+                        break;
+                    case "over":   // 已办结
+                        match = o("$and", a(
+                                o("state", "已办结"),
+                                o("$or", a(
+                                        o("logs.uid", Auth.getUid() + "")
 
-                            )
-                    );
-                    break;
-                case "over":   // 已办结
-                    match = o("$and", a(
-                            o("state", "已办结"),
-                            o("$or", a(
-                                    o("logs.uid", Auth.getUid() + "")
-
-                            ))
-                            )
-                    );
-                    break;
+                                ))
+                                )
+                        );
+                        break;
+                }
             }
+
 
         }
         int count = (int) col.countDocuments(match.toBson());
