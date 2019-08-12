@@ -6,13 +6,11 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>发起任务</title>
-    <!--#include file="/htmlsrc/header.html" -->
-    <!--#include file="./ueditor.css.html" -->
 
+    <link rel="stylesheet" href="./ueditor.css">
     <script src="../../../static/vendor/jquery/jquery.js"></script>
     <script src="../../../static/htmljs/utils.js"></script>
 
-    <script src="../../../static/bpm/bpmn-viewer.js"></script>
     <script src="/static/vendor/layui/layer/layer.js"></script>
     <style>
         .needs-discussion:not(.djs-connection) .djs-visual > :nth-child(1) {
@@ -83,7 +81,6 @@
         /*    border: 0;*/
         /*}*/
     </style>
-    <script src="../../../static/htmljs/layer/layer.js"></script>
 
     <link rel="stylesheet" href="jquery.webui-popover.min.css">
     <script src="jquery.webui-popover.min.js"></script>
@@ -93,6 +90,8 @@
         window.type = getParam("type");
         window.id = getParam("id");
     </script>
+    <script src="../lib/bpm/bpmn-viewer.js"></script>
+    <script src="../lib/layer/layer.js"></script>
 </head>
 <body>
 <div id="panel" style="padding: 10px;">
