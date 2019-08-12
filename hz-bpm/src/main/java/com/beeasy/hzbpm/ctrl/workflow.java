@@ -482,9 +482,8 @@ public class workflow {
         MongoCollection<Document> col = db.getCollection("bpmInstance");
         Obj match = null;
 
-            if (util.isSu(uid)) {
+        if (util.isSu(uid)) {
             if(StrUtil.isNotBlank(id)){
-
 //                match = o("$and", a(
 //                        o("bpmId", new ObjectId(id)),
 //                        o("$or", a(
@@ -497,8 +496,10 @@ public class workflow {
                     case "todo":   // 待处理
                         match = o("$and", a(
                                 o("bpmId", new ObjectId(id)),
-                                o("state", "流转中")
-                                )
+                                o("$or", a(
+                                        o("state", "流转中"),
+                                        o("state", "已暂停")
+                                )))
                         );
                         break;
                     case "processed":   // 已处理
@@ -532,8 +533,10 @@ public class workflow {
                 switch (type) {
                     case "todo":   // 待处理
                         match = o("$and", a(
-                                o("state", "流转中")
-                                )
+                                o("$or", a(
+                                        o("state", "流转中"),
+                                        o("state", "已暂停")
+                                )))
                         );
                         break;
                     case "processed":   // 已处理
@@ -634,7 +637,6 @@ public class workflow {
                                             )
                                     )
                                 ))
-
                                 )
                         );
                         break;
@@ -650,8 +652,6 @@ public class workflow {
                         break;
                 }
             }
-
-
         }
         int count = (int) col.countDocuments(match.toBson());
         List list = (List) col.aggregate(a(

@@ -422,10 +422,9 @@
 <script>
     var tmpl = template.compile($('#toolbar').html())
     function initTable(tableId,id, type){
-        console.log(id,type)
-        if(undefined == id){
-            return;
-        }
+        // if(undefined == id){
+        //     return;
+        // }
         //销毁表格
         $("#"+tableId+"-taskList").bootstrapTable("destroy");
         $("#"+tableId+"-taskList").bootstrapTable({
@@ -435,10 +434,12 @@
                 //     field:"id"
                 // },
                 { field: 'id', title: "流程ID" },
-                { field: 'state', title: "任务状态" },
+                { field: 'bpmName', title: "流程名称" },
+                { field: 'createTime',title: "流程发起时间" },
+                { field: 'pubUName',title: "流程发起人" },
+                { field: 'state', title: "流程状态" },
                 { field: 'uName',title: "当前经办人" },
-                { field: 'createTime',title: "创建时间" },
-                { field: 'lastModifyTime',title: "上次提交时间" },
+                // { field: 'lastModifyTime',title: "上次提交时间" },
                 { title: "操作", formatter: function (value,row, index) {
                     return tmpl({
                         d: row
