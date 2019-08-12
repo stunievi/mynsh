@@ -8,19 +8,23 @@
 </head>
 <body>
 <style>
-    .rowLine > td,
-    .rowLine2 > td{
+    .rowContent{
         padding: 0 !important;
     }
 </style>
 <div id="content">
     <div class="" id="panel-form">
     </div>
+    <div class="batch-operation">
+        <button type="button" class="btn btn-success" id="export">
+            导出
+        </button>
+    </div>
     <div id="dataList">
     </div>
 </div>
 <script type="text/html" id="toolbar1">
-    <a href="javascript:;" class="rowLineBtn btn btn-default btn-xs" data-val="{{d.CERT_CODE}}" data-deep="1">展开 -</a>
+    <a href="javascript:;" class="rowLineBtn btn btn-default btn-xs" data-val="{{d.CUS_ID}}">展开 </a>
 </script>
 
 <script type="text/html" id="deep2Html">
@@ -28,50 +32,54 @@
         <thead>
         <tr>
             <th>操作</th>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Username</th>
+            <th>账户号</th>
+            <th>账户余额</th>
+            <th>应收合计</th>
         </tr>
         </thead>
         <tbody>
-        <tr class="rowLine2">
-            <td>
-                <a href="javascript:;" class="rowLine2Btn btn btn-default btn-xs" data-deep="2">展开 --</a>
-            </td>
-            <td>Mark</td>
-            <td>Otto</td>
-            <td>@mdo</td>
-        </tr>
+        {{each dataList d}}
+            <tr class="rowLine2">
+                <td width="80">
+                    <a href="javascript:;" class="rowLine2Btn btn btn-default btn-xs" data-val="{{d.REPAYMENT_ACCOUNT}}">展开</a>
+                </td>
+                <td>{{d.REPAYMENT_ACCOUNT}}</td>
+                <td>{{d.CURR_BAL}}</td>
+                <td>{{d.TOTAL_REPAY}}</td>
+            </tr>
+        {{/each}}
         </tbody>
     </table>
 </script>
-
 
 <script type="text/html" id="deep3Html">
     <table class="table">
         <thead>
         <tr>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Username</th>
-            <th>Username</th>
-            <th>Username</th>
+            <th>贷款账号</th>
+            <th>合同号</th>
+            <th>还款方式</th>
+            <th>应收本金</th>
+            <th>应收利息</th>
+            <th>应收合计</th>
         </tr>
         </thead>
         <tbody>
-        <tr class="">
-            <td>Mark</td>
-            <td>Otto</td>
-            <td>@mdo</td>
-            <td>@mdo</td>
-            <td>@mdo</td>
-        </tr>
+        {{each dataList d}}
+            <tr class="">
+                <td>{{d.LOAN_ACCOUNT}}</td>
+                <td>{{d.CONT_NO}}</td>
+                <td>{{d.REPAY_SCHED}}</td>
+                <td>{{d.UNPD_CAP}}</td>
+                <td>{{d.UNPD_INT}}</td>
+                <td>{{d.TOTAL_REPAY}}</td>
+            </tr>
+        {{/each}}
         </tbody>
     </table>
 </script>
 
 <script>
-
     $("#panel-form").html(panelFormRender3({
         col:3,
         panelTitle:'筛选查询',
@@ -84,51 +92,111 @@
     }));
 
     laytableRender({
-        url: remoteOrigin + "/api/auto/LoanRelatedSearch/getDList",
+        url: remoteOrigin + "/api/repayment/warn/cusList",
         cols: [
             [
                 { title:'操作', templet: "#toolbar1"},
-                { title:'添加时间', field: "ADD_TIME"},
                 { title:'客户名称', field: "CUS_NAME"},
-                { title:"证件号码", field: "CERT_CODE"},
-                { title:"占资本净额比例", field: "RATIO"}
+                { title:'证件号码', field: "CERT_CODE"},
+                { title:"客户号", field: "CUS_ID"},
+                { title:"联系电话", field: "PHONE"},
+                { title:"行内存款账户总余额", field: "TOTAL_BAL"},
+                { title:"本月应收", field: "TOTAL_REPAY"}
             ]
         ]
     });
 
+    // 客户名称、证件号码、客户号、联系电话、行内存款账户总余额、本月应收
+
+    // 客户信息 -> 还款账户
     $(document).on("click", ".rowLineBtn", function () {
+        var id = $(this).data("val") || 13;
+        var classId = "rowLine1Id" + id;
+        var pRow = $(this).parents("tr[data-index]").next("." + classId);
         if($(this).hasClass("open")){
-            $(this).removeClass("open");
-        }else{
-            $(this).addClass("open");
-            $(this).parents("tr").after("<tr class='rowLine'> <td></td><td class='rowLine12Content' colspan='4'></td></tr>>");
-            // $("#deep2Html").html()
-            $(".rowLine12Content").html(
-                template('deep2Html', {
-
-                })
-            );
+            $(this).removeClass("open").text("展开");
+            pRow.hide();
+            return;
         }
+        $(this).addClass("open").text("收起");
+        if($(this).hasClass("load")){
+            pRow.show();
+            return;
+        }
+        var that = $(this);
+        $.ajax({
+            url: remoteOrigin + "/api/repayment/warn/account",
+            data: {
+                cusId: id
+            },
+            success: function (res) {
+                if (res.success) {
+                    console.log(res);
+                    that.addClass("load");
+                    that.parents("tr").after("<tr class='rowLine " + classId + "'> <td></td><td class='rowContent' colspan='6'></td></tr>>");
+                    $("." + classId).find(".rowContent").html(
+                        template('deep2Html', {
+                            dataList: res.data
+                        })
+                    );
+                } else {
+                    console.warn(res);
+                    layer.msg("not found data");
+                }
+            }
+        });
     });
+    // 还款账户 -> 关联台账
     $(document).on("click", ".rowLine2Btn", function () {
-
+        var id = $(this).data("val") || 13;
+        var classId = "rowLine2Id" + id;
+        var pRow = $(this).parents(".rowLine2").next("." + classId);
+        // 关闭操作
         if($(this).hasClass("open")){
-            $(this).parents(".rowLine2").next(".row13").remove();
-            $(this).removeClass("open");
-        }else{
-            $(this).addClass("open");
-            $(this).parents(".rowLine2").after("<tr class='rowLine2'> <td></td><td class='rowLine13Content' colspan='4'></td></tr>>");
-            // $("#deep3Html").html()
-            $(".rowLine13Content").html(
-                template('deep3Html', {
-
-                })
-            );
+            pRow.hide();
+            $(this).removeClass("open").text("展开");
+            return;
         }
-
-
+        // 展开操作
+        $(this).addClass("open").text("收起");
+        if($(this).hasClass("load")){
+            pRow.show();
+            return;
+        }
+        var that = $(this);
+        $.ajax({
+            url: remoteOrigin + "/api/repayment/warn/linkLoan",
+            data: {
+                accountId: id
+            },
+            success: function (res) {
+                if(res.success){
+                    console.log(res);
+                    that.addClass("load");
+                    that.parents(".rowLine2").after("<tr class='rowLine2 "+classId+"'> <td></td><td class='rowContent' colspan='3'></td></tr>>");
+                    $("." + classId).find(".rowContent").html(
+                        template('deep3Html', {
+                            dataList: res.data
+                        })
+                    );
+                }else{
+                    console.warn(res);
+                    layer.msg("not found data");
+                }
+            }
+        });
     });
+    // 客户名称、证件号码、客户号、联系电话、行内存款账户总余额、本月应收
+    // 账户号、账户余额、应收合计
+    // 贷款账号、合同号、还款方式、应收本金、应收利息、应收合计
 
+    $("#export").click(function () {
+        var str = $('[name=form-search]').serialize();
+        formRequest({
+            url: remoteOrigin + "/link/FileController/repayExport",
+            data: $.unserialize(str)
+        })
+    });
 </script>
 </body>
 </html>

@@ -21,6 +21,7 @@ import org.junit.Test;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.nio.charset.Charset;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -52,6 +53,14 @@ public class AppTest {
         exec.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
 
         int d = 1;
+    }
+
+
+    @Test
+    public void test22(){
+        String sql = "select distinct cus_id from RPT_M_RPT_SLS_ACCT where LN_TYPE = '普通贷款' and GL_CLASS not like '0%' and ACCOUNT_STATUS = 1";
+        List<JSONObject> list = sqlManager.execute(new SQLReady(sql), com.alibaba.fastjson.JSONObject.class);
+        return;
     }
 
 
@@ -99,7 +108,9 @@ public class AppTest {
         ClassPathResource resource = new ClassPathResource("pojo.tmpl");
         genConfig.setTemplate(IoUtil.read(resource.getStream(), CharsetUtil.UTF_8));
         String[] models = new String[]{
-            "T_QUAL_CUS_RELATED"
+                "T_REPAY_CUS_LIST",
+                "T_REPAY_ACCT_INFO",
+                "T_LOAN_ACCT_INFO"
         };
         for (String model : models) {
             sqlManager.genPojoCode(model, "com.beeasy.hzlink.model", genConfig);

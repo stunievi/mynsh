@@ -197,3 +197,19 @@ from T_RELATED_PARTY_LIST rp where 1=1
 @if(isNotEmpty(linkRule)){
     and link_rule like #'%' + linkRule + '%'#
 @}
+
+repay_cus_list
+===
+select * from T_REPAY_CUS_LIST
+
+repay_acct_info_list
+===
+select * from T_REPAY_ACCT_INFO
+
+repay_acct_info
+===
+select * from T_REPAY_ACCT_INFO where CUS_ID = #cus_id#
+
+repay_loan_acct_info
+===
+select * from T_LOAN_ACCT_INFO where REPAYMENT_ACCOUNT = #repayment_account#
