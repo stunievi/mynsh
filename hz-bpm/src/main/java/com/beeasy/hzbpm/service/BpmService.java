@@ -1017,39 +1017,45 @@ public class BpmService {
     }
 
 
-    public synchronized String getUserName(String uid){
-        Obj obj = initUserCache(uid);
-        if (!obj.containsKey("true_name")) {
-            String trueName = sqlManager.execute(new SQLReady("select true_name from t_user where id = ?", uid), Obj.class)
-                    .stream()
-                    .map(e -> e.s("true_name"))
-                    .findFirst()
-                    .orElse(null);
-            obj.put("true_name", trueName);
+    public String getUserName(String uid){
+        synchronized (userCache){
+            Obj obj = initUserCache(uid);
+            if (!obj.containsKey("true_name")) {
+                String trueName = sqlManager.execute(new SQLReady("select true_name from t_user where id = ?", uid), Obj.class)
+                        .stream()
+                        .map(e -> e.s("true_name"))
+                        .findFirst()
+                        .orElse(null);
+                obj.put("true_name", trueName);
+            }
+            return obj.s("true_name");
         }
-        return obj.s("true_name");
     }
 
-    public synchronized boolean isSu(String uid){
-        Obj obj = initUserCache(uid);
-        if(!obj.containsKey("is_su")){
-            Boolean su = sqlManager.execute(new SQLReady("select su from t_user where id = ?", uid), Obj.class)
-                    .stream()
-                    .map(e -> e.b("su"))
-                    .findFirst()
-                    .orElse(null);
-            obj.put("is_su", su != null && su.equals(true));
+    public boolean isSu(String uid){
+        synchronized (userCache){
+            Obj obj = initUserCache(uid);
+            if(!obj.containsKey("is_su")){
+                Boolean su = sqlManager.execute(new SQLReady("select su from t_user where id = ?", uid), Obj.class)
+                        .stream()
+                        .map(e -> e.b("su"))
+                        .findFirst()
+                        .orElse(null);
+                obj.put("is_su", su != null && su.equals(true));
+            }
+            return obj.b("is_su");
         }
-        return obj.b("is_su");
     }
 
     private Obj initUserCache(String uid){
-        Obj obj = userCache.get(uid);
-        if (obj == null) {
-            obj = o();
-            userCache.put(uid, obj);
+        synchronized (userCache){
+            Obj obj = userCache.get(uid);
+            if (obj == null) {
+                obj = o();
+                userCache.put(uid, obj);
+            }
+            return obj;
         }
-        return obj;
     }
 
 
