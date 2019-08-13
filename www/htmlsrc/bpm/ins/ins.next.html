@@ -72,7 +72,7 @@
 <div id="app">
     <div class="panel panel-default">
         <div class="panel-heading">
-            当前步骤为第<font color="red">几</font>步[节点名]
+            当前步骤为[节点名]
             <font color="red">
                 <div self_type="self" style="display:inline;">处理人</div>
                 <div style="display:inline;">流程状态 </div>
@@ -105,9 +105,9 @@
                                     </label>
                                 </li>
                             </ul>
-                            <button id="chooseUser" class="btn btn-primary btn-sm">选择人员</button>
-                            <div id="mainUser" class="tagsinput" style="width: auto; min-height: auto; height: auto;">主办人
-                            </div>
+                            <!--<button id="chooseUser" class="btn btn-primary btn-sm">选择人员</button>-->
+                            <!--<div id="mainUser" class="tagsinput" style="width: auto; min-height: auto; height: auto;">主办人-->
+                            <!--</div>-->
                         </div>
                     </td>
                 </tr>
@@ -154,31 +154,31 @@
         </div>
         <div class="panel-body">
             <div class="work-msg-op-title">下一步骤：
-                <i class="fa fa-bell" :class="{checked: data.nextStepNotice}" aria-hidden="true" title="发送站内信" @click="nextStepNotice = !nextStepNotice"></i>
-                <i class="fa fa-envelope" aria-hidden="true" title="发送短信"></i>
+                <i class="fa fa-bell" :class="{checked: data.nextStepNotice}" aria-hidden="true" title="发送站内信" @click="data.nextStepNotice = !data.nextStepNotice"></i>
+                <i class="fa fa-envelope" :class="{checked: data.nextStepShort}" aria-hidden="true" title="发送短信" @click="data.nextStepShort = !data.nextStepShort"></i>
             </div>
             <div class="work-msg-op-title">发起人：
-                <i class="fa fa-bell" aria-hidden="true" title="发送站内信"></i>
-                <i class="fa fa-envelope" aria-hidden="true" title="发送短信"></i>
+                <i class="fa fa-bell" aria-hidden="true" title="发送站内信" :class="{checked: data.startNotice}" @click="data.startNotice = !data.startNotice"></i>
+                <i class="fa fa-envelope" aria-hidden="true" title="发送短信" :class="{checked: data.startShort}" @click="data.startShort = !data.startShort"></i>
             </div>
             <div class="work-msg-op-title">全部经办人：
-                <i class="fa fa-bell" aria-hidden="true" title="发送站内信"></i>
-                <i class="fa fa-envelope" aria-hidden="true" title="发送短信"></i>
+                <i class="fa fa-bell" aria-hidden="true" title="发送站内信" :class="{checked: data.allNotice}" @click="data.allNotice = !data.allNotice"></i>
+                <i class="fa fa-envelope" aria-hidden="true" title="发送短信" :class="{checked: data.allShort}" @click="data.allShort = !data.allShort"></i>
             </div>
 
             <hr style="clear: both; margin-top: 10px;margin-bottom: 10px;">
 
 
-            <table width="100%">
-                <tr>
-                    <td width="150">提醒指定步骤经办人：</td>
-                    <td>
-                        <button id="chooseMsg" class="btn btn-primary">选择人员</button>
-                        <div id="msgUser" class="tagsinput" style="width: auto; min-height: auto; height: auto;">
-                        </div>
-                    </td>
-                </tr>
-            </table>
+            <!--<table width="100%">-->
+                <!--<tr>-->
+                    <!--<td width="150">提醒指定步骤经办人：</td>-->
+                    <!--<td>-->
+                        <!--<button id="chooseMsg" class="btn btn-primary">选择人员</button>-->
+                        <!--<div id="msgUser" class="tagsinput" style="width: auto; min-height: auto; height: auto;">-->
+                        <!--</div>-->
+                    <!--</td>-->
+                <!--</tr>-->
+            <!--</table>-->
 
             <hr style="clear: both; margin-top: 10px;margin-bottom: 10px;">
 
@@ -230,7 +230,7 @@
     <!--        </div>-->
     <!--    </div>-->
     <div style="text-align: center; padding-top: 20px;">
-        <a href="javascript:;" id="submit">确定</a>
+        <a href="javascript:;" id="submit" @click="submit()">确定</a>
     </div>
 </div>
 
@@ -259,6 +259,14 @@
     $("#submit").unbind("click",submitFn).bind("click",submitFn);
 
     function submit() {
+
+        console.log("submit:",JSON.stringify(app.$data.data))
+        var d = app.$data.data;
+        if(d.uid.length<0){
+            layer.msg("请选择下一步人员")
+            return;
+        }
+
         var person=$('input[name="person"]:checked').val();
         $.ajax({
             url: "/api/bpm/workflow/nextApprover",
@@ -269,7 +277,7 @@
             dataType:"json",
             data: JSON.stringify({
                 id: id,
-                nextUid: person
+                nextUid: d.uid[0]
             }),
             success: function (msg) {
                 if(!msg.success){
@@ -288,29 +296,29 @@
         })
     }
 
-    $("#chooseUser").click(function () {
-        var opener = window.open("./choose.html?id=" + id, "choosepersons", "top=100, left=100, width=500, height=300")
-        opener.onload = function () {
-            var _$ = document.querySelector.bind(opener.document);
-            _$('#submit').onclick = function (e) {
-                $("#mainUser").append("<span id='"+window.userId+"' class='tag'><span class='tag-text'>"+window.userId+"</span><button class='tag-remove' id='remove'></button></span>");
-            }
-        }
-    })
+    // $("#chooseUser").click(function () {
+    //     var opener = window.open("./choose.html?id=" + id, "choosepersons", "top=100, left=100, width=500, height=300")
+    //     opener.onload = function () {
+    //         var _$ = document.querySelector.bind(opener.document);
+    //         _$('#submit').onclick = function (e) {
+    //             $("#mainUser").append("<span id='"+window.userId+"' class='tag'><span class='tag-text'>"+window.userId+"</span><button class='tag-remove' id='remove'></button></span>");
+    //         }
+    //     }
+    // })
 
-    $("#chooseMsg").click(function () {
-        var opener = window.open("./msg.choose.html?id=" + id, "msgchoosepersons", "top=100, left=100, width=500, height=300")
-        opener.onload = function () {
-            var _$ = document.querySelector.bind(opener.document);
-            _$('#submit').onclick = function (e) {
-                for(var i in window.msgUser){
-                    alert(window.msgUser[i])
-                }
-
-                $("#msgUser").append("<span id='"+window.msgUser+"' class='tag'><span class='tag-text'>"+window.userId+"</span><button class='tag-remove' id='remove'></button></span>");
-            }
-        }
-    });
+    // $("#chooseMsg").click(function () {
+    //     var opener = window.open("./msg.choose.html?id=" + id, "msgchoosepersons", "top=100, left=100, width=500, height=300")
+    //     opener.onload = function () {
+    //         var _$ = document.querySelector.bind(opener.document);
+    //         _$('#submit').onclick = function (e) {
+    //             for(var i in window.msgUser){
+    //                 alert(window.msgUser[i])
+    //             }
+    //
+    //             $("#msgUser").append("<span id='"+window.msgUser+"' class='tag'><span class='tag-text'>"+window.userId+"</span><button class='tag-remove' id='remove'></button></span>");
+    //         }
+    //     }
+    // });
 
     $("#mainUser").on("click",".tag-remove",function(){
         $(this).parent().remove();
@@ -326,7 +334,9 @@
     });
 
 
-    var data = {"success":true,"errMessage":"","data":[{"nodeName":"市场部经理","dealers":[{"uid":"1","uname":"admin","phone":"15094011010","oname":"总行企查查风险角色","pname":null,"utname":"cghb","oacc_code":null,"pid":null,"otype":"ROLE","oid":"1118306017164132352","ooo":1000,"acc_code":"genggeng"},{"uid":"265","uname":"0024605","phone":"15811112418","oname":"总行企查查风险角色","pname":null,"utname":"高古丹","oacc_code":null,"pid":null,"otype":"ROLE","oid":"1118306017164132352","ooo":100,"acc_code":"0024605"},{"uid":"266","uname":"0052268","phone":"15811112419","oname":"总行企查查风险角色","pname":null,"utname":"张俊业","oacc_code":null,"pid":null,"otype":"ROLE","oid":"1118306017164132352","ooo":100,"acc_code":"0052268"},{"uid":"574","uname":"0025750","phone":"15811112727","oname":"总行企查查风险角色","pname":null,"utname":"何玉云","oacc_code":null,"pid":null,"otype":"ROLE","oid":"1118306017164132352","ooo":100,"acc_code":"0025750"},{"uid":"1342","uname":"0040672","phone":"15811113495","oname":"总行企查查风险角色","pname":null,"utname":"李玉麟","oacc_code":null,"pid":null,"otype":"ROLE","oid":"1118306017164132352","ooo":100,"acc_code":"0040672"}],"nodeId":"Task_1rtduak"}]};
+    // var data = {"success":true,"errMessage":"","data":[{"nodeName":"市场部经理","dealers":[{"uid":"1","uname":"admin","phone":"15094011010","oname":"总行企查查风险角色","pname":null,"utname":"cghb","oacc_code":null,"pid":null,"otype":"ROLE","oid":"1118306017164132352","ooo":1000,"acc_code":"genggeng"},{"uid":"265","uname":"0024605","phone":"15811112418","oname":"总行企查查风险角色","pname":null,"utname":"高古丹","oacc_code":null,"pid":null,"otype":"ROLE","oid":"1118306017164132352","ooo":100,"acc_code":"0024605"},{"uid":"266","uname":"0052268","phone":"15811112419","oname":"总行企查查风险角色","pname":null,"utname":"张俊业","oacc_code":null,"pid":null,"otype":"ROLE","oid":"1118306017164132352","ooo":100,"acc_code":"0052268"},{"uid":"574","uname":"0025750","phone":"15811112727","oname":"总行企查查风险角色","pname":null,"utname":"何玉云","oacc_code":null,"pid":null,"otype":"ROLE","oid":"1118306017164132352","ooo":100,"acc_code":"0025750"},{"uid":"1342","uname":"0040672","phone":"15811113495","oname":"总行企查查风险角色","pname":null,"utname":"李玉麟","oacc_code":null,"pid":null,"otype":"ROLE","oid":"1118306017164132352","ooo":100,"acc_code":"0040672"}],"nodeId":"Task_1rtduak"}]};
+
+
 
     var app = new Vue({
         el: "#app",
@@ -336,6 +346,11 @@
                 nodeIds:[],
                 uids: [],
                 nextStepNotice: true,
+                nextStepShort: false,
+                startNotice: false,
+                startShort: false,
+                allNotice: false,
+                allShort: false,
                 message: ""
             }
         },
@@ -351,10 +366,24 @@
     //     v.targetUid = -1;
     // });
 
-    console.log(JSON.parse(JSON.stringify(data.data)))
+    // JSON.stringify(app.$data.data)
+
+    // console.log(JSON.parse(JSON.stringify(data.data)))
 
     // $.get(function () {
-        app.nodes = data.data
+    //     app.nodes = data.data
     // })
+
+    $.get("/api/bpm/workflow/getNextDealers", {id:id}, function (msg) {
+        // $("#ulist").html(tmpl({
+        //     data: msg.data
+        // }));
+        console.log("msg:",msg.data)
+        app.nodes = msg.data;
+        // $('input:radio:first').attr('checked', 'checked');
+
+    },"json")
+
+    console.log("app:",JSON.stringify(app.$data.data))
 
 </script>
