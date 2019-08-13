@@ -24,6 +24,7 @@ import org.bson.BsonArray;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
+import sun.net.httpserver.AuthFilter;
 
 import java.io.IOException;
 import java.util.*;
@@ -48,7 +49,10 @@ public class workflow {
         return Result.ok(
                 o(
                         "name", file.fileName,
-                        "id", storage.upload(file)
+                        "type", file.contentType,
+                        "id", storage.upload(file),
+                        "creator", Auth.getUid() + "",
+                        "action", "upload"
                 )
         );
     }
@@ -127,8 +131,13 @@ public class workflow {
         return Result.ok(storage.upload(base64));
     }
 
-    public MultipartFile download(String path) {
-        return storage.download(path);
+    public MultipartFile download(String path, String name) {
+        MultipartFile file = storage.download(path);
+        if(StrUtil.isNotBlank(name)){
+            file.fileName = name;
+        }
+        return file;
+
     }
 
     public Object urge(String id, String msg) {
@@ -371,9 +380,9 @@ public class workflow {
      * @param data
      * @return
      */
-    public Object createIns(String id, Obj data) {
+    public Object createIns(String id, Obj data, Arr files) {
         BpmService service = BpmService.ofModel(id);
-        Document ins = service.createBpmInstance(Auth.getUid() + "", data);
+        Document ins = service.createBpmInstance(Auth.getUid() + "", data, files);
         return Result.ok(ins.getObjectId("_id").toString());
 //        service = BpmService.ofIns(ins);
 //        return Result.ok(service.getNextNodePersons(Auth.getUid() + "", o()));
@@ -411,9 +420,9 @@ public class workflow {
      * @param data
      * @return
      */
-    public Result saveIns(String id, Obj data, String mode) {
+    public Result saveIns(String id, Obj data, String mode, Arr files) {
         BpmService service = BpmService.ofIns(id);
-        return Result.ok(service.saveIns(Auth.getUid() + "", data, false, mode));
+        return Result.ok(service.saveIns(Auth.getUid() + "", data, false, mode, files));
     }
 
     /**
@@ -423,9 +432,9 @@ public class workflow {
      * @param data
      * @return
      */
-    public Result subIns(String id, Obj data) {
+    public Result subIns(String id, Obj data, Arr files) {
         BpmService service = BpmService.ofIns(id);
-        Object bl = service.submitIns(Auth.getUid() + "", data);
+        Object bl = service.submitIns(Auth.getUid() + "", data, files);
         Map<Object, Object> res = new HashMap<>();
         res.put("id", id);
         res.put("res", bl);

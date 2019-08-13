@@ -57,6 +57,7 @@ public class BpmInstance {
      */
     public Map<String,Object> attrs;
 
+//    public List<AddonFile> files;
 
     //数据提交历史（记录）
     public List<DataLog> logs;
@@ -87,6 +88,8 @@ public class BpmInstance {
 
         //当时这个人提交的所有数据
         public Map<String,Object> attrs;
+
+        public List<AddonFile> files;
     }
 
 //    public static class HandleLog{
@@ -117,5 +120,13 @@ public class BpmInstance {
         // 最大超时提醒时间
         public Date maxTimeout;
 
+    }
+
+
+    public static class AddonFile{
+        public String id;
+        public String name;
+        public String creator;
+        public String action;
     }
 }

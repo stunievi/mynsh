@@ -424,7 +424,9 @@
 
 <script>
     var tmpl = template.compile($('#toolbar').html())
+    var last = null
     function initTable(tableId,id, type){
+        last = arguments
         // if(undefined == id){
         //     return;
         // }
