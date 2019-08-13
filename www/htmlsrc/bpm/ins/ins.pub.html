@@ -117,21 +117,39 @@
             <div id="form-content">
             </div>
 
+            <div id="file-app">
+                <div style="padding-bottom: 20px;" v-if="files.length">
+                    <div v-for="(v,i) in files" v-if="v.action != 'delete' || (v.resp && v.resp.action != 'delete')">
+                        {{v.name}}
+                        &nbsp;
+                        &nbsp;
+                        {{v.state}}
+                        {{v.percent}}
+                        <a href="javascript:;" @click="remove(i)" v-if="!v.creator || v.creator == uid">删除</a>
+                        <a :href="'/api/bpm/workflow/download?name=' + (v.name || v.resp.name) + '&path=' + (v.id || v.resp.id)" v-if="!v.uploading || v.state == '成功'">下载</a>
+                    </div>
+                </div>
+            </div>
+
             <div class="action" style="display: none;text-align: center;">
-                <label class="btn btn-primary btn-sm" style="position:relative;overflow: hidden">
+                <label class="btn btn-warning btn-sm" style="position:relative;overflow: hidden" id="upload">
                     <div id="picker" style="width: 1px;height: 1px;position:absolute;left: -100px;top: -100px;">
                     </div>
                     上传
                 </label>
+                <a class="btn btn-danger btn-sm" href="javascript:;" id="goBack">回退</a>
                 <a class="btn btn-primary btn-sm" href="javascript:;" id="save">保存</a>
                 <a class="btn btn-primary btn-sm" href="javascript:;" id="submit">提交</a>
             </div>
         </div>
         <div id="canvas" class="__tab">
         </div>
-        <div class="__tab">
-            <!--#include file="./data.log.html" -->
+        <div class="__tab" id="dataLog">
+            <!--#include file="./data.log.html"-->
         </div>
+        <script>
+            // $("#dataLog").load("./data.log.html");
+        </script>
     </div>
 </div>
 
@@ -288,6 +306,18 @@
         });
         // console.log(Data.formFields,data)
 
+        //提交所有这个节点上的文件
+        var _files = files.files
+            .filter(function (e) {
+                return !e.uploading;
+            })
+            .filter(function (e) {
+                return e.resp || e.action == "delete";
+            })
+            .map(function (e) {
+                return e.resp ? e.resp : e;
+            });
+
         $.ajax({
             url: url, //"/api/bpm/workflow/createIns",
             type:"post",
@@ -298,7 +328,8 @@
             data: JSON.stringify({
                 id: id,
                 data: data,
-                mode: type
+                mode: type,
+                files: _files
             }),
             success: function (msg) {
                 if(!msg.success){
@@ -308,7 +339,7 @@
 
                 //app 没有opener
                 if(window.opener){
-                    window.opener.location.reload()
+                    window.opener.initTable.apply(null, opener.last)
                 }
                 var iWidth = "650";                         //弹出窗口的宽度;
                 var iHeight = "590";                        //弹出窗口的高度;
@@ -351,6 +382,8 @@
 
     function load() {
         $(".action").hide();
+        $("#upload").hide();
+        $("#goBack").hide();
         $(".process").hide();
 
         // if(!type){
@@ -434,6 +467,10 @@
             });
 
             Data = msg.data;
+
+            if(msg.data.files && msg.data.files.length){
+                files.files = msg.data.files
+            }
             // FormHtml = msg.data.form;
             loadForm()
             // $("#iframe").attr("src", "./form.html?v=" + Math.random())
@@ -451,6 +488,14 @@
                 if(type == 'deal'){
                     document.title = "查看任务";
                 }
+            }
+
+            if(msg.data.allowBack){
+                $("#goBack").show();
+            }
+
+            if(msg.data.node && msg.data.node.allowUpload){
+                $("#upload").show();
             }
 
             if(type != "pub"){
@@ -494,6 +539,20 @@
         submit(true);
     });
 
+    $("#goBack").click(function () {
+        layer.confirm('确定回退？', function(index){
+            //do something
+            layer.close(index);
+            $.get("/api/bpm/workflow/goBack", {id: id}, function (msg) {
+                if(!msg.success){
+                    return layer.msg(msg.errMessage)
+                }
+                load();
+            },"json");
+        });
+    });
+
+
     ;(function () {
         //初始化webuploader
         var uploader = WebUploader.create({
@@ -509,9 +568,51 @@
             auto: true,
             duplicate: true,
             fileVal: "file"
+        }).on("uploadStart", function (file) {
+            file.percent = "0%";
+            file.state = '上传中';
+            file.uploading = true;
+            files.files.push(file);
+            // console.log(file)
+        }).on("uploadProgress", function (file,percentage ) {
+            file.percent = (percentage * 100).toFixed(0) + "%";
+        }).on("uploadSuccess", function (file,response) {
+            if(response.success){
+                file.state = "成功";
+                file.uploading = false;
+                file.resp = response.data;
+            } else {
+                file.state = "失败";
+            }
+        }).on("uploadError", function (file) {
+            file.state = "失败";
+        }).on("uploadComplete", function (file) {
+            file.percent = "";
         });
     })();
 
+    var files = new Vue({
+        el: "#file-app",
+        data:{
+            files: [],
+            uid: JSON.parse(localStorage.$user).id
+        },
+        methods: {
+            remove: function (i) {
+                var item = this.files[i];
+                //上传中直接再见
+                if(item.uploading){
+                    this.files.splice(i);
+                    return
+                }
+                if(item.resp){
+                    item.resp.action = "delete";
+                } else {
+                    item.action = "delete";
+                }
+            }
+        }
+    })
 </script>
 
 

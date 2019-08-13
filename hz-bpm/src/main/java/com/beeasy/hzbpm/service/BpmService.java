@@ -199,6 +199,36 @@ public class BpmService {
         return ofIns(data);
     }
 
+
+    /**
+     * 回退到上一节点
+     * @param uid
+     * @return
+     */
+    public boolean goBack(String uid){
+        if(!canGoBack(uid)){
+            error("无权回退任务");
+        }
+        //查找上一节点的ID
+        int i = ins.logs.size();
+        String nodeId = null;
+        while(i-- > 0){
+            BpmInstance.DataLog log = ins.logs.get(i);
+            if(log.type.equals("submit") || log.type.equals("goBack")){
+                nodeId = log.nodeId;
+            }
+        }
+        if (nodeId == null) {
+            error("找不到要回退的节点");
+        }
+        MongoCollection<Document> col = db.getCollection("bpmInstance");
+        BpmInstance.CurrentNode currentNode = new BpmInstance.CurrentNode();
+        //todo: 把这个curreentNode替换掉
+
+        //todo: 记录log，type为goBack
+        return true;
+    }
+
     public boolean forceResume(String uid){
         if(!canForceResume(uid)){
             error("无权强制恢复任务");
@@ -440,6 +470,34 @@ public class BpmService {
         return isSu(uid);
     }
 
+
+    /**
+     * 是否可以上传附件
+     * @param uid
+     * @return
+     */
+    public boolean canUpload(String uid){
+        BpmModel.Node node = getCurrentNode(uid);
+        if (node == null) {
+            return false;
+        }
+        return canDeal(uid, node.id) && node.allowUpload;
+    }
+
+
+    /**
+     * 是否可以回退
+     * @param uid
+     * @return
+     */
+    public boolean canGoBack(String uid){
+        BpmModel.Node node = getCurrentNode(uid);
+        if (node == null) {
+            return false;
+        }
+        return isRunning() && canDeal(uid, node.id) && node.allowBack;
+    }
+
     /**
      * 将任务更新到最新的状态
      *
@@ -474,7 +532,8 @@ public class BpmService {
                 "form", model.template,
                 "attrs", attrs,
                 "xml", xml,
-                "current", a(model.start)
+                "current", a(model.start),
+                "node", node
         );
     }
 
@@ -492,6 +551,22 @@ public class BpmService {
         BpmModel.Node currentNode = getCurrentNode(uid);
         //是否有权限查看
 
+        //回溯节点附件
+        List<String> needToDelete = new ArrayList<>();
+        List<BpmInstance.AddonFile> files = ins.logs.stream()
+                .filter(e -> e.files != null && e.files.size() > 0)
+                .flatMap(e -> e.files.stream())
+                .filter(e -> {
+                    if(StrUtil.equals(e.action, "delete")){
+                        needToDelete.add(e.id);
+                        return false;
+                    }
+                    return true;
+                })
+                .collect(Collectors.toList());
+
+        files.removeIf(e -> needToDelete.contains(e.id));
+
         Obj ret = o(
                 "allFields", model.fields,
                 "formFields", (null != currentNode) ? currentNode.allFields : a(),
@@ -500,7 +575,10 @@ public class BpmService {
                 "attrs", ins.attrs,
                 "xml", xml,
                 "current", null != currentNode ? a(currentNode.id) : getCurrentNodeIds(),
-                "deal", (null != currentNode && canDeal(uid, currentNode.id)) ? true : false
+                "deal", (null != currentNode && canDeal(uid, currentNode.id)) ? true : false,
+                "files", files,
+                "node", currentNode,
+                "allowBack", canGoBack(uid)
         );
         return ret;
     }
@@ -590,7 +668,7 @@ public class BpmService {
      * @param data
      * @return
      */
-    public Document createBpmInstance(String uid, Obj data) {
+    public Document createBpmInstance(String uid, Obj data, Arr files) {
         Map<String, Object> attrs = new HashMap<>();
         Map<String, Object> allAttrs = new HashMap<>();
         BpmService bpmService = this;
@@ -652,6 +730,10 @@ public class BpmService {
         dataLog.put("time", new Date());
         dataLog.put("uid", uid);
         dataLog.put("attrs", attrs);
+        if(!canUpload(uid)){
+            files = a();
+        }
+        dataLog.put("files", files);
         dataLog.put("uname", uName);
         dataLog.put("type", "save");
 
@@ -823,7 +905,7 @@ public class BpmService {
      * 保存节点数据
      * @param data
      */
-    public boolean saveIns(String uid, Obj data, boolean validate, String mode){
+    public boolean saveIns(String uid, Obj data, boolean validate, String mode, Arr files){
         //candeal
         //编辑模式，只验证是否有编辑权限
         if(mode.equals("edit")){
@@ -867,6 +949,10 @@ public class BpmService {
         dataLog.uid = uid;
         dataLog.attrs = attrs;
         dataLog.uname = getUserName(uid);
+        if(canUpload(uid)){
+            files.clear();
+        }
+        dataLog.files = (List)files;
         if(mode.equalsIgnoreCase("edit")){
             dataLog.msg = "编辑流程";
             dataLog.type = "edit";
@@ -913,7 +999,7 @@ public class BpmService {
      * @param uid
      * @param data
      */
-    public Object submitIns(String uid, Obj data) {
+    public Object submitIns(String uid, Obj data, Arr files) {
         Object bl;
 //        if (!canPub(uid)) {
 //            error("用户没有权限发布任务");
@@ -922,7 +1008,7 @@ public class BpmService {
         BpmService bpmService = this;
         String nodeId = bpmService.ins.currentNodes.get(0).nodeId;
 
-        bl = saveIns(uid, data, true, "deal");
+        bl = saveIns(uid, data, true, "deal", files);
 
         List<BpmModel.Node> nextNodes = getNextNodes(uid, data);
         //有且只有一个是结束的时候，直接结束
@@ -1178,6 +1264,9 @@ public class BpmService {
     public BpmModel.Node getCurrentNode(String uid) {
         if(isFinished()){
             return getNode("end");
+        }
+        if (ins == null) {
+            return getNode("start");
         }
         String nodeId = ins.currentNodes.stream()
                 .filter(e -> e.uids.contains(uid))
