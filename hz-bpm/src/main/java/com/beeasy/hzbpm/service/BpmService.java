@@ -214,9 +214,10 @@ public class BpmService {
         String nodeId = null;
         String lastUid = null;
         String lastUname = null;
+        BpmModel.Node currNode = getCurrentNode(uid);
         while(i-- > 0){
             BpmInstance.DataLog log = ins.logs.get(i);
-            if(log.type.equals("submit")){
+            if(log.type.equals("submit") && !log.nodeId.equals(currNode.id)){
                 nodeId = log.nodeId;
                 lastUid = log.uid;
                 lastUname = log.uname;
