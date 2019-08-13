@@ -866,16 +866,22 @@ public class BpmService {
         //查询这个节点所有命中的人
         return nodes.stream()
                 .map(target -> {
+                    Obj params = o(
+                            "uid", uid,
+                            "uids", target.uids.isEmpty() ? a(-1) : target.uids,
+                            "qids", target.qids.isEmpty() ? a(-1) : target.qids,
+                            "rids", target.rids.isEmpty() ? a(-1) : target.rids,
+                            "dids", target.dids.isEmpty() ? a(-1) : target.dids
+                    );
+                    //只保留本部门
+                    if(target.departmentFirst){
+                        params.put("dep", 1);
+                    }
+                    List<Obj> dls = sqlManager.select("workflow.查找节点处理人员", Obj.class, params);
                     return o(
                             "nodeId", target.id,
                             "nodeName", target.name,
-                            "dealers", sqlManager.select("workflow.查找节点处理人员", Obj.class, o(
-                                    "uid", uid,
-                                    "uids", target.uids.isEmpty() ? a(-1) : target.uids,
-                                    "qids", target.qids.isEmpty() ? a(-1) : target.qids,
-                                    "rids", target.rids.isEmpty() ? a(-1) : target.rids,
-                                    "dids", target.dids.isEmpty() ? a(-1) : target.dids
-                            ))
+                            "dealers", dls
                     );
                 })
                 .collect(Collectors.toList());
