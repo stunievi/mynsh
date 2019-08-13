@@ -858,10 +858,29 @@ public class BpmService {
             error("当前节点查询失败");
         }
 
-        List ret =  node.nextNodes.stream()
+        List<BpmModel.Node> ret =  node.nextNodes.stream()
                 .filter(e -> JsEngine.runExpression(oldAttrs, e.expression))
                 .map(e -> getNode(e.node))
                 .collect(Collectors.toList());
+
+        int limit = 20;
+        while(ret.stream().anyMatch(e -> e.id.startsWith("ExclusiveGateway"))){
+            if(limit-- == 0){
+                error("似乎有错误的循环引用");
+            }
+            ret = ret.stream()
+                    .flatMap(e -> {
+                        if(e.id.startsWith("ExclusiveGateway")){
+                            return e.nextNodes.stream()
+                                    .filter(ee -> JsEngine.runExpression(oldAttrs, ee.expression))
+                                    .map(ee -> getNode(ee.node));
+                        } else {
+                            return Arrays.asList(e).stream();
+                        }
+                    })
+                    .collect(Collectors.toList());
+        }
+
 //        BpmModel.Node target = null;
 //        if(node.nextNodes.size() == 0) {
 //            error("没有配置下一个流转的节点");
