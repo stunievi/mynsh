@@ -118,7 +118,7 @@
             </div>
 
             <div class="action" style="display: none;text-align: center;">
-                <label class="btn btn-primary btn-sm" style="position:relative;overflow: hidden">
+                <label class="btn btn-primary btn-sm" style="position:relative;overflow: hidden" id="upload">
                     <div id="picker" style="width: 1px;height: 1px;position:absolute;left: -100px;top: -100px;">
                     </div>
                     上传
@@ -345,6 +345,7 @@
 
     function load() {
         $(".action").hide();
+        $("#upload").hide();
         $(".process").hide();
 
         // if(!type){
@@ -445,6 +446,10 @@
                 if(type == 'deal'){
                     document.title = "查看任务";
                 }
+            }
+
+            if(msg.data.node && msg.data.node.allowUpload){
+                $("#upload").show();
             }
 
             if(type != "pub"){

@@ -472,7 +472,8 @@ public class BpmService {
                 "form", model.template,
                 "attrs", attrs,
                 "xml", xml,
-                "current", a(model.start)
+                "current", a(model.start),
+                "node", node
         );
     }
 
