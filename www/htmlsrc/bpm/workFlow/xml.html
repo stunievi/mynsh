@@ -356,7 +356,7 @@
                 })
 
                 var _startEvent = $(this).children('startEvent');
-                var _task = $(this).children('task');
+                var _task = $(this).children('task,exclusiveGateway');
                 var _endEvent = $(this).children('endEvent');
                 // if(_startEvent.length>1){
                     startNum = _startEvent.length;
@@ -574,7 +574,7 @@ return
                 }
                 _eventMap[sourceRef] = {"id":sourceRef,"name":taskName,"allFields":allFields,"requiredFields":requiredFields,"uids":pids,"qids":qids,"rids":rids,"dids":dids,"nextNodes":[]}
                 window.sbpmData.nodes[sourceRef] = (window.bpmData.nodes[sourceRef]);
-                window.sbpmData.lines[sourceRef] = (window.bpmData.lines[sourceRef]);
+                // window.sbpmData.lines[sourceRef] = (window.bpmData.lines[sourceRef]);
             })
 
             if(!errFlag){
@@ -816,6 +816,7 @@ return
                     isInArr = i;
                 }
             })
+            console.log(requiredFields,allFields)
 
             // 可以处理的人的ID
             pids = arrToStr(window.bpmData.nodes[_taskId].permission.pids);
@@ -844,33 +845,37 @@ return
             if(undefined !=  window.bpmData.nodes[targetRef]){
                 conList = window.bpmData.nodes[targetRef].condition;
             }
-            if(undefined != window.bpmData.lines[sequenceFlowId]){
-                conList = window.bpmData.lines[sequenceFlowId].conditions;
-                var expre = window.bpmData.lines[sequenceFlowId].expression;
-                if("" == expre.trim()){
-                    expression = preorderZheng(conList,"and",expre);
-                    console.log("---",expression)
-                }else{
-                    var arr = {};
-                    var reg = /\d+/g;
-                    var ms = expre.replace(/\[(.+?)\]/g, "$1").match(reg)
-                    for(var m=0;m<ms.length;m++){
-                        if(undefined != conList[ms[m]-1]){
-                            arr[ms[m]] =("getValue('"+conList[ms[m]-1].field+"')" + conversion(conList[ms[m]-1].op)+ "'"+conList[ms[m]-1].value+"'")
+            if(undefined != window.bpmData.lines){
+                if(undefined != window.bpmData.lines[sequenceFlowId]){
+                    conList = window.bpmData.lines[sequenceFlowId].conditions;
+                    var expre = window.bpmData.lines[sequenceFlowId].expression;
+                    expre = (expre || "").replace(/and/gi, " && ").replace(/or/gi, " || ");
+                    if("" == expre.trim()){
+                        expression = preorderZheng(conList,"and",expre);
+                        console.log("---",expression)
+                    }else{
+                        var arr = {};
+                        var reg = /\d+/g;
+                        var ms = expre.replace(/\[(.+?)\]/g, "$1").match(reg)
+                        for(var m=0;m<ms.length;m++){
+                            if(undefined != conList[ms[m]-1]){
+                                arr[ms[m]] =("getValue('"+conList[ms[m]-1].field+"')" + conversion(conList[ms[m]-1].op)+ "'"+conList[ms[m]-1].value+"'")
 
+                            }
                         }
+
+                        // [3] and [1] and [4]
+                        for(var s=0;s<ms.length;s++){
+
+                            if(undefined != arr[ms[s]]){
+                                expre = expre.replace("["+ms[s]+"]",arr[ms[s]]);
+                            }
+                        }
+                        expression = "("+expre+")";
+                        console.log("----",expression)
                     }
 
-                    // [3] and [1] and [4]
-                    for(var s=0;s<ms.length;s++){
-                        if(undefined != arr[ms[s]]){
-                            expre = expre.replace("["+ms[s]+"]",arr[ms[s]]);
-                        }
-                    }
-                    expression = "("+expre+")";
-                    console.log("----",expression)
                 }
-
             }
             // var _expression = preorderZheng(conList,"and");
 
@@ -882,7 +887,7 @@ return
         }
 
         var sr = _taskId.split("_");
-        if(sr.length>0 && "ExclusiveGateway" == sr[0]){
+        if(sr.length>0 && "ExclusiveGateway777777777" == sr[0]){
             ex.push({_taskId,targetRef});
             exList[_taskId] = ex;
         }else{
@@ -890,7 +895,9 @@ return
         }
 
         window.sbpmData.nodes[_taskId] = (window.bpmData.nodes[_taskId]);
-        window.sbpmData.lines[sequenceFlowId] = (window.bpmData.lines[sequenceFlowId]);
+        if(window.bpmData.lines){
+            window.sbpmData.lines[sequenceFlowId] = (window.bpmData.lines[sequenceFlowId]);
+        }
         if(isInArr == "-1"){
             // isIn["flag"] = true;
             throw true;
@@ -988,6 +995,31 @@ return
 
 <script>
     function openConfigPage(id,page){
+        bpmData.nodes[id] = bpmData.nodes[id] || {
+            fields:{
+                all_fields: [],
+                required_fields:[],
+            },
+            permission:{
+                //中文
+                ps: [],
+                qs: [],
+                ds: [],
+                rs: [],
+                //id
+                pids:[],
+                qids:[],
+                dids:[],
+                rids:[]
+            },
+            condition: [],
+            timeoutSet:{
+                timeout:"0",
+                maxTimeout:"0",
+            },
+            // allowUpload:false,
+            quanxian:[]
+        };
         window.open("./node.edit.html?id=" + id + "&page=" + page ,"node_edit_" + id, "left=200, top=100, width=800, height=500, location=no")
     }
 

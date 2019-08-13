@@ -25,7 +25,6 @@ import org.bson.BsonArray;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
-import sun.net.httpserver.AuthFilter;
 
 import java.io.IOException;
 import java.util.*;

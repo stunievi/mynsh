@@ -338,7 +338,7 @@
                 }
 
                 //app 没有opener
-                if(window.opener){
+                if(window.opener && window.opener.initTable){
                     window.opener.initTable.apply(null, opener.last)
                 }
                 var iWidth = "650";                         //弹出窗口的宽度;

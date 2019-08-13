@@ -60,9 +60,9 @@
     <div class="col-xs-12">
         <div class="bs-example bs-example-tabs" data-example-id="togglable-tabs">
             <ul id="myTabsBpm" class="nav nav-tabs" role="tablist" style="margin-bottom: 10px;">
-                <li><a href="#taskBpm1" role="tab"  data-toggle="tab" aria-controls="taskBpm1" aria-expanded="true" onclick="getTaskBpmList('taskBpm1')">待处理任务</a></li>
-                <li><a href="#taskBpm2" role="tab"  data-toggle="tab" aria-controls="taskBpm2" aria-expanded="true" onclick="getTaskBpmList('taskBpm2')">已处理的任务</a></li>
-                <li><a href="#taskBpm3" role="tab"  data-toggle="tab" aria-controls="taskBpm3" aria-expanded="true" onclick="getTaskBpmList('taskBpm3')">已办结的任务</a></li>
+                <li><a href="#taskBpm1" role="tab"  data-toggle="tab" aria-controls="taskBpm1" aria-expanded="true" onclick="getTaskBpmList('taskBpm1')">待处理流程</a></li>
+                <li><a href="#taskBpm2" role="tab"  data-toggle="tab" aria-controls="taskBpm2" aria-expanded="true" onclick="getTaskBpmList('taskBpm2')">已处理的流程</a></li>
+                <li><a href="#taskBpm3" role="tab"  data-toggle="tab" aria-controls="taskBpm3" aria-expanded="true" onclick="getTaskBpmList('taskBpm3')">已办结的流程</a></li>
             </ul>
             <div id="myTabContentBpm" class="tab-content" style="min-height:120px;">
                 <div role="tabpanel" class="tab-pane" id="taskBpm1" aria-labelledby="taskBpm1-tab">
@@ -187,7 +187,7 @@
         var cols1 = [ //标题栏
             { field: 'id', title: "流程ID" },
             { field: 'bpmName', title: "流程名" },
-            { field: 'state', title: "任务状态" },
+            { field: 'state', title: "流程状态" },
             { field: 'uName',title: "当前经办人" },
             { field: 'createTime',title: "创建时间" },
             { field: 'lastModifyTime',title: "上次提交时间" }

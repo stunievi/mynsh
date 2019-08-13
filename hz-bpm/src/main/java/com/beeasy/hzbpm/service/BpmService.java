@@ -35,7 +35,6 @@ import org.bson.types.ObjectId;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import sun.plugin2.message.Message;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -434,7 +433,7 @@ public class BpmService {
      * @return
      */
     public boolean canSee(String uid) {
-        return ins.logs.stream()
+        return isSu(uid) || ins.logs.stream()
                 .anyMatch(e -> e.uid.equals(uid)) ||
                 ins.currentNodes.stream()
                 .anyMatch(e -> e.uids.contains(uid));
