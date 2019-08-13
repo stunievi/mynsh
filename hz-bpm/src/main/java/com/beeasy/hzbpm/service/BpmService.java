@@ -212,13 +212,18 @@ public class BpmService {
         //查找上一节点的ID
         int i = ins.logs.size();
         String nodeId = null;
+        String lastUid = null;
+        String lastUname = null;
         while(i-- > 0){
             BpmInstance.DataLog log = ins.logs.get(i);
-            if(log.type.equals("submit") || log.type.equals("goBack")){
+            if(log.type.equals("submit")){
                 nodeId = log.nodeId;
+                lastUid = log.uid;
+                lastUname = log.uname;
             }
         }
-        if (nodeId == null) {
+        BpmModel.Node node = getNode(nodeId);
+        if (node == null) {
             error("找不到要回退的节点");
         }
         MongoCollection<Document> col = db.getCollection("bpmInstance");
@@ -1243,6 +1248,9 @@ public class BpmService {
      * @return
      */
     public BpmModel.Node getNode(String nodeId) {
+        if (nodeId == null) {
+            return null;
+        }
         if (nodeId.equals("start")) {
             return model.nodes.get(model.start);
         } else if (nodeId.equals("end")) {
