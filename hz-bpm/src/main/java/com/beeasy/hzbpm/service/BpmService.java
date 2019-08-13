@@ -953,12 +953,53 @@ public class BpmService {
     /**
      * 保存选取的下一步处理人
      * @param uid 提交人
-     * @param nextUid 下一步处理人
      */
-    public boolean nextApprover(String uid, String nextUid, Obj update, String nodeId){
+    public boolean nextApprover(String uid, Obj update, Obj body){
+        if(body == null ){
+            error("下一步骤参数不能为空");
+        }
         BpmService bpmService = this;
-
         BpmModel.Node node = getCurrentNode(uid);
+
+        List<String> nextNodeId = (List<String>) body.get("nodeIds");
+        if(nextNodeId.size()<0 && nextNodeId.isEmpty()){
+            error("请选择下一节点");
+        }
+//        List<String> nextUidList = (List<String>) body.get("uids");
+//        if(nextUidList.size()<0){
+//            error("请选择下一步骤操作人员");
+//        }
+        String nextUid = (String) body.get("uids");
+        if(nextNodeId.get(0).startsWith("EndEvent")){
+            Obj state = o();
+            state.put("state", "已办结");
+            state.put("currentNodes", a());
+            MongoCollection<Document> collection = db.getCollection("bpmInstance");
+            UpdateResult res = collection.updateOne(Filters.eq("_id", bpmService.ins._id),o("$set", state.toBson(),
+                    "$push", o("logs", o(
+                            "id", new ObjectId(),
+                            "nodeId", nextNodeId.get(0),
+                            "msg", String.format("转交节点【%s】",node.name),
+                            "time", new Date(),
+                            "uid", uid,
+                            "uname", getUserName(uid),
+                            "type", "flow",
+                            "attrs",a()
+                    ))).toBson()
+            );
+            return res.getModifiedCount()>0;
+
+        }else{
+            if(StrUtil.isBlank(nextUid)){
+                error("请选择下一步骤操作人员");
+            }
+        }
+
+        String nodeId = nextNodeId.get(0);
+//        String nextUid = nextUidList.get(0);
+
+
+
 
         // 下一节点
         List<BpmModel.Node> nextNodes = getNextNodes(uid, o());
@@ -1004,7 +1045,7 @@ public class BpmService {
                 "$push", o("logs", o(
                             "id", new ObjectId(),
                         "nodeId", node.id,
-                        "msg", "转交节点",
+                        "msg", String.format("从【%s】转交节点到【%s】",node.name,nextNode.name),
                         "time", new Date(),
                         "uid", uid,
                         "uname", getUserName(uid),
@@ -1012,6 +1053,7 @@ public class BpmService {
                         "attrs",a()
                         ))).toBson()
         );
+        sendNotice(body);
 
         return res.getModifiedCount() > 0;
     }
@@ -1187,7 +1229,16 @@ public class BpmService {
     /**
      * 下一步节点发送通知
      */
-    public void sendNotice(Obj body, String nextUid){
+    public void sendNotice(Obj body){
+        if(body.isEmpty() || null == body){
+            return;
+        }
+//        List<String> nextUidList = (List<String>) body.get("uids");
+//        if(nextUidList.size()<0){
+//            error("请选择下一步骤操作人员");
+//        }
+        String nextUid = (String) body.get("uids");
+
         BpmService bpmService = this;
         boolean nextStepNotice = (boolean) body.get("nextStepNotice");
         boolean nextStepShort = (boolean) body.get("nextStepShort");

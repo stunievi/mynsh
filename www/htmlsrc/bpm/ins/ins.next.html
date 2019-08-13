@@ -301,7 +301,7 @@
             data:{
                 id:id,
                 nodeIds:[],
-                uids: [],
+                uids: "",
                 nextStepNotice: true,
                 nextStepShort: false,
                 startNotice: false,
@@ -357,6 +357,7 @@
                 // $("#ulist").html(tmpl({
                 //     data: msg.data
                 // }));
+                layer.closeAll();
                 if(msg.success){
                     t.nodes = msg.data.next;
                     t.current = msg.data.node;

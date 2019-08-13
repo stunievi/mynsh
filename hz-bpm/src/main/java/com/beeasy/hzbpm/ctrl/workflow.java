@@ -414,18 +414,9 @@ public class workflow {
      */
     public Object nextApprover(String id, Obj body) {
         BpmService service = BpmService.ofIns(id);
-        String nextUid ="";
-        List<String> nextNodeId = new ArrayList<>();
-        if(body != null ){
-            nextUid = (String) body.get("uids");
 
-            nextNodeId = (List<String>) body.get("nodeIds");
-            if(nextNodeId.size()<0 && nextNodeId.isEmpty()){
-                return Result.error("请选择下一节点");
-            }
-            service.sendNotice(body, nextUid);
-        }
-        return Result.ok(service.nextApprover(Auth.getUid() + "", nextUid, o(), nextNodeId.get(0)));
+
+        return Result.ok(service.nextApprover(Auth.getUid() + "", o(), body));
     }
 
     /**
