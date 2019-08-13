@@ -132,11 +132,12 @@
             </div>
 
             <div class="action" style="display: none;text-align: center;">
-                <label class="btn btn-primary btn-sm" style="position:relative;overflow: hidden" id="upload">
+                <label class="btn btn-warning btn-sm" style="position:relative;overflow: hidden" id="upload">
                     <div id="picker" style="width: 1px;height: 1px;position:absolute;left: -100px;top: -100px;">
                     </div>
                     上传
                 </label>
+                <a class="btn btn-danger btn-sm" href="javascript:;" id="goBack">回退</a>
                 <a class="btn btn-primary btn-sm" href="javascript:;" id="save">保存</a>
                 <a class="btn btn-primary btn-sm" href="javascript:;" id="submit">提交</a>
             </div>
@@ -376,6 +377,7 @@
     function load() {
         $(".action").hide();
         $("#upload").hide();
+        $("#goBack").hide();
         $(".process").hide();
 
         // if(!type){
@@ -482,6 +484,10 @@
                 }
             }
 
+            if(msg.data.allowBack){
+                $("#goBack").show();
+            }
+
             if(msg.data.node && msg.data.node.allowUpload){
                 $("#upload").show();
             }
@@ -525,6 +531,19 @@
 
     $("#submit").click(function () {
         submit(true);
+    });
+
+    $("#goBack").click(function () {
+        layer.confirm('确定回退？', function(index){
+            //do something
+            layer.close(index);
+            $.get("/api/bpm/workflow/goBack", {id: id}, function (msg) {
+                if(!msg.success){
+                    return layer.msg(msg.errMessage)
+                }
+                load();
+            },"json");
+        });
     });
 
 

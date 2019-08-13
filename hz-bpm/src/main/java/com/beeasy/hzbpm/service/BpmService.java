@@ -197,6 +197,36 @@ public class BpmService {
         return ofIns(data);
     }
 
+
+    /**
+     * 回退到上一节点
+     * @param uid
+     * @return
+     */
+    public boolean goBack(String uid){
+        if(!canGoBack(uid)){
+            error("无权回退任务");
+        }
+        //查找上一节点的ID
+        int i = ins.logs.size();
+        String nodeId = null;
+        while(i-- > 0){
+            BpmInstance.DataLog log = ins.logs.get(i);
+            if(log.type.equals("submit") || log.type.equals("goBack")){
+                nodeId = log.nodeId;
+            }
+        }
+        if (nodeId == null) {
+            error("找不到要回退的节点");
+        }
+        MongoCollection<Document> col = db.getCollection("bpmInstance");
+        BpmInstance.CurrentNode currentNode = new BpmInstance.CurrentNode();
+        //todo: 把这个curreentNode替换掉
+
+        //todo: 记录log，type为goBack
+        return true;
+    }
+
     public boolean forceResume(String uid){
         if(!canForceResume(uid)){
             error("无权强制恢复任务");
@@ -442,15 +472,28 @@ public class BpmService {
     /**
      * 是否可以上传附件
      * @param uid
-     * @param nodeId
      * @return
      */
-    public boolean canUpload(String uid, String nodeId){
-        BpmModel.Node node = getNode(nodeId);
+    public boolean canUpload(String uid){
+        BpmModel.Node node = getCurrentNode(uid);
         if (node == null) {
             return false;
         }
-        return canDeal(uid, nodeId) && node.allowUpload;
+        return canDeal(uid, node.id) && node.allowUpload;
+    }
+
+
+    /**
+     * 是否可以回退
+     * @param uid
+     * @return
+     */
+    public boolean canGoBack(String uid){
+        BpmModel.Node node = getCurrentNode(uid);
+        if (node == null) {
+            return false;
+        }
+        return isRunning() && canDeal(uid, node.id) && node.allowBack;
     }
 
     /**
@@ -532,7 +575,8 @@ public class BpmService {
                 "current", null != currentNode ? a(currentNode.id) : getCurrentNodeIds(),
                 "deal", (null != currentNode && canDeal(uid, currentNode.id)) ? true : false,
                 "files", files,
-                "node", currentNode
+                "node", currentNode,
+                "allowBack", canGoBack(uid)
         );
         return ret;
     }
@@ -684,7 +728,7 @@ public class BpmService {
         dataLog.put("time", new Date());
         dataLog.put("uid", uid);
         dataLog.put("attrs", attrs);
-        if(!canUpload(uid, startNode.id)){
+        if(!canUpload(uid)){
             files = a();
         }
         dataLog.put("files", files);
@@ -885,7 +929,7 @@ public class BpmService {
         dataLog.uid = uid;
         dataLog.attrs = attrs;
         dataLog.uname = getUserName(uid);
-        if(canUpload(uid, node.id)){
+        if(canUpload(uid)){
             files.clear();
         }
         dataLog.files = (List)files;
@@ -1157,6 +1201,9 @@ public class BpmService {
     public BpmModel.Node getCurrentNode(String uid) {
         if(isFinished()){
             return getNode("end");
+        }
+        if (ins == null) {
+            return getNode("start");
         }
         String nodeId = ins.currentNodes.stream()
                 .filter(e -> e.uids.contains(uid))

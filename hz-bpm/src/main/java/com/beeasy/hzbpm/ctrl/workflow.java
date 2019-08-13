@@ -126,6 +126,12 @@ public class workflow {
         return Result.ok();
     }
 
+    public Object goBack(String id){
+        BpmService service = BpmService.ofIns(id);
+        service.goBack(Auth.getUid() + "");
+        return Result.ok();
+    }
+
 
     public Object uploadImage(String base64) {
         return Result.ok(storage.upload(base64));
