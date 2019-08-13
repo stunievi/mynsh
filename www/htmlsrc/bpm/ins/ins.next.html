@@ -317,10 +317,10 @@
                 if(!d.message){
                     d.message = "您有新的工作需要办理，流程id：" + app.$data.ins.id + "，流程：" + app.$data.ins.bpmName;
                 }
-                if(d.uids == undefined || d.uids.length<0){
-                    alert("请选择下一步人员")
-                    return;
-                }
+                // if(d.uids == undefined || d.uids.length<0){
+                //     layer.msg("请选择下一步人员")
+                //     return;
+                // }
 
                 $.ajax({
                     url: "/api/bpm/workflow/nextApprover",
@@ -332,7 +332,7 @@
                     data: JSON.stringify(d),
                     success: function (msg) {
                         if(!msg.success){
-                            window.opener.layer.msg("提交失败");
+                            layer.msg("提交失败！"+msg.errMessage);
                             return;
                         }
                         window.opener.layer.msg("提交成功！")
@@ -369,7 +369,7 @@
                         t.data.uids = t.nodes[0].dealers[0].uid
                     }
                 }else{
-                    // layer.msg(msg.errMessage)
+                    layer.msg(msg.errMessage)
                 }
 
             },"json")

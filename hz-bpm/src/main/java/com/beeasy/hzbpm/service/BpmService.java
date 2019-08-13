@@ -214,6 +214,7 @@ public class BpmService {
         String nodeId = null;
         String lastUid = null;
         String lastUname = null;
+        // 当前节点
         BpmModel.Node currNode = getCurrentNode(uid);
         while(i-- > 0){
             BpmInstance.DataLog log = ins.logs.get(i);
@@ -221,18 +222,40 @@ public class BpmService {
                 nodeId = log.nodeId;
                 lastUid = log.uid;
                 lastUname = log.uname;
+                break;
             }
         }
         BpmModel.Node node = getNode(nodeId);
         if (node == null) {
             error("找不到要回退的节点");
         }
-        MongoCollection<Document> col = db.getCollection("bpmInstance");
+
+        // 当前节点
         BpmInstance.CurrentNode currentNode = new BpmInstance.CurrentNode();
-        //todo: 把这个curreentNode替换掉
+        currentNode.nodeId = node.id;
+        currentNode.nodeName = node.name;
+        currentNode.uids = (List)a(lastUid);
+        currentNode.unames = (List)a(lastUname);
+
 
         //todo: 记录log，type为goBack
-        return true;
+        Obj update = o();
+        update.put("currentNodes", a(currentNode));
+        MongoCollection<Document> collection = db.getCollection("bpmInstance");
+        UpdateResult res = collection.updateOne(Filters.eq("_id", ins._id),o("$set", update,
+                "$push", o("logs", o(
+                        "id", new ObjectId(),
+                        "nodeId", node.id,
+                        "msg", String.format("从【%s】回退节点到【%s】",currNode.name,node.name),
+                        "time", new Date(),
+                        "uid", uid,
+                        "uname", getUserName(uid),
+                        "type", "goBack",
+                        "attrs",a()
+                ))).toBson()
+        );
+
+        return res.getModifiedCount()>0;
     }
 
     public boolean forceResume(String uid){
@@ -1060,7 +1083,7 @@ public class BpmService {
         BpmModel.Node node = getCurrentNode(uid);
 
         List<String> nextNodeId = (List<String>) body.get("nodeIds");
-        if(nextNodeId.size()<0 && nextNodeId.isEmpty()){
+        if(nextNodeId.size()==0 && nextNodeId.isEmpty()){
             error("请选择下一节点");
         }
 //        List<String> nextUidList = (List<String>) body.get("uids");
@@ -1081,7 +1104,7 @@ public class BpmService {
                             "time", new Date(),
                             "uid", uid,
                             "uname", getUserName(uid),
-                            "type", "flow",
+                            "type", "submit",
                             "attrs",a()
                     ))).toBson()
             );
@@ -1147,7 +1170,7 @@ public class BpmService {
                         "time", new Date(),
                         "uid", uid,
                         "uname", getUserName(uid),
-                        "type", "flow",
+                        "type", "submit",
                         "attrs",a()
                         ))).toBson()
         );
