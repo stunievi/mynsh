@@ -67,15 +67,16 @@
     </style>
     <script src="../lib/jquery/jquery.js"></script>
     <script src="../lib/vue/vue.js"></script>
+    <script src="../lib/layer/layer.js"></script>
 </head>
 <body>
 <div id="app">
     <div class="panel panel-default">
         <div class="panel-heading">
-            当前步骤为[节点名]
+            当前步骤为[{{current.nodeName}}]
             <font color="red">
-                <div self_type="self" style="display:inline;">处理人</div>
-                <div style="display:inline;">流程状态 </div>
+                <div self_type="self" style="display:inline;">{{current.unames.join(',')}}</div>
+                <div style="display:inline;">{{ins.state}} </div>
             </font>
         </div>
     </div>
@@ -87,7 +88,7 @@
         <div class="panel-body">
             <table width="100%">
                 <tr>
-                    <td width="200" style=" ">
+                    <td width="200" style=" " valign="top">
                         <label class="next-step" v-for="v in nodes">
                             <input type="checkbox" v-model="data.nodeIds" :value="v.nodeId" @change="onNodeChecked(v)">
                             <div class="bg">
@@ -96,15 +97,15 @@
                         </label>
                     </td>
                     <td>
-                        <div style="margin-left: 10px">
-                            <ul v-for="v in nodes" v-if="data.nodeIds.length && data.nodeIds.indexOf(v.nodeId) > -1">
-                                <li v-for="vv in v.dealers">
+                        <div style="margin-left: 20px;overflow: auto;min-height: 100px;max-height: 170px">
+                            <div v-for="v in nodes" v-if="data.nodeIds.length && data.nodeIds.indexOf(v.nodeId) > -1">
+                                <div v-for="vv in v.dealers">
                                     <label >
                                         <input type="radio" v-model="data.uids" :name="v.nodeId" :value="vv.uid">
                                         {{vv.utname}} {{vv.uname}} {{vv.oname}}
                                     </label>
-                                </li>
-                            </ul>
+                                </div>
+                            </div>
                             <!--<button id="chooseUser" class="btn btn-primary btn-sm">选择人员</button>-->
                             <!--<div id="mainUser" class="tagsinput" style="width: auto; min-height: auto; height: auto;">主办人-->
                             <!--</div>-->
@@ -168,7 +169,6 @@
 
             <hr style="clear: both; margin-top: 10px;margin-bottom: 10px;">
 
-
             <!--<table width="100%">-->
                 <!--<tr>-->
                     <!--<td width="150">提醒指定步骤经办人：</td>-->
@@ -188,7 +188,7 @@
                         提醒内容：
                     </td>
                     <td>
-                        <input type="text" v-model="data.message" class="form-control input-sm" id="modelName" name="modelName" placeholder="您有新的工作需要办理">
+                        <input type="text" v-model="data.message" class="form-control input-sm" id="modelName" name="modelName" :placeholder="'您有新的工作需要办理，流程id：' + ins.id + '，流程：' + ins.bpmName">
                     </td>
                 </tr>
             </table>
@@ -230,7 +230,7 @@
     <!--        </div>-->
     <!--    </div>-->
     <div style="text-align: center; padding-top: 20px;">
-        <a href="javascript:;" id="submit" @click="submit()">确定</a>
+        <a href="javascript:;" id="submit" @click="submit()" class="btn btn-primary btn-sm">确定</a>
     </div>
 </div>
 
@@ -248,53 +248,10 @@
 </html>
 <script>
     var id = getParam("id");
-    window.userId = null;
-    window.userName = null;
-    window.msgUser = {};
-
-    var submitFn = function(){
-        submit();
-    }
-
-    $("#submit").unbind("click",submitFn).bind("click",submitFn);
-
-    function submit() {
-
-        console.log("submit:",JSON.stringify(app.$data.data))
-        var d = app.$data.data;
-        if(d.uid.length<0){
-            layer.msg("请选择下一步人员")
-            return;
-        }
-
-        var person=$('input[name="person"]:checked').val();
-        $.ajax({
-            url: "/api/bpm/workflow/nextApprover",
-            type:"post",
-            headers:{
-                "Content-Type": "application/json"
-            },
-            dataType:"json",
-            data: JSON.stringify({
-                id: id,
-                nextUid: d.uid[0]
-            }),
-            success: function (msg) {
-                if(!msg.success){
-                    alert("提交失败");
-                }
-                window.opener.layer.msg("提交成功！")
-                window.opener.load("deal", id);
-                opener.type = "deal";
-                opener.id = id;
-                window.opener.scrollTo(0,0);
-                window.close();
-            }
-            // complete: function () {
-            //     layer.close
-            // }
-        })
-    }
+    layer.load(0, {time: 5000})
+    // window.userId = null;
+    // window.userName = null;
+    // window.msgUser = {};
 
     // $("#chooseUser").click(function () {
     //     var opener = window.open("./choose.html?id=" + id, "choosepersons", "top=100, left=100, width=500, height=300")
@@ -320,29 +277,29 @@
     //     }
     // });
 
-    $("#mainUser").on("click",".tag-remove",function(){
-        $(this).parent().remove();
-    });
-
-    $(".fa-bell,.fa-envelope").click(function () {
-        $(this).toggleClass("checked")
-    });
-
-    $("#selectTaskName li").click(function() {
-        $(this).siblings('li').removeClass('selectedCss');  		// 删除其他兄弟元素的样式
-        $(this).addClass('selectedCss');
-    });
-
-
-    // var data = {"success":true,"errMessage":"","data":[{"nodeName":"市场部经理","dealers":[{"uid":"1","uname":"admin","phone":"15094011010","oname":"总行企查查风险角色","pname":null,"utname":"cghb","oacc_code":null,"pid":null,"otype":"ROLE","oid":"1118306017164132352","ooo":1000,"acc_code":"genggeng"},{"uid":"265","uname":"0024605","phone":"15811112418","oname":"总行企查查风险角色","pname":null,"utname":"高古丹","oacc_code":null,"pid":null,"otype":"ROLE","oid":"1118306017164132352","ooo":100,"acc_code":"0024605"},{"uid":"266","uname":"0052268","phone":"15811112419","oname":"总行企查查风险角色","pname":null,"utname":"张俊业","oacc_code":null,"pid":null,"otype":"ROLE","oid":"1118306017164132352","ooo":100,"acc_code":"0052268"},{"uid":"574","uname":"0025750","phone":"15811112727","oname":"总行企查查风险角色","pname":null,"utname":"何玉云","oacc_code":null,"pid":null,"otype":"ROLE","oid":"1118306017164132352","ooo":100,"acc_code":"0025750"},{"uid":"1342","uname":"0040672","phone":"15811113495","oname":"总行企查查风险角色","pname":null,"utname":"李玉麟","oacc_code":null,"pid":null,"otype":"ROLE","oid":"1118306017164132352","ooo":100,"acc_code":"0040672"}],"nodeId":"Task_1rtduak"}]};
-
-
+    // $("#mainUser").on("click",".tag-remove",function(){
+    //     $(this).parent().remove();
+    // });
+    //
+    // $(".fa-bell,.fa-envelope").click(function () {
+    //     $(this).toggleClass("checked")
+    // });
+    //
+    // $("#selectTaskName li").click(function() {
+    //     $(this).siblings('li').removeClass('selectedCss');  		// 删除其他兄弟元素的样式
+    //     $(this).addClass('selectedCss');
+    // });
 
     var app = new Vue({
         el: "#app",
         data: {
             nodes:[],
+            current:{
+                unames:[]
+            },
+            ins:{},
             data:{
+                id:id,
                 nodeIds:[],
                 uids: [],
                 nextStepNotice: true,
@@ -355,9 +312,66 @@
             }
         },
         methods:{
+            submit: function(){
+                var d = app.$data.data;
+                if(!d.message){
+                    d.message = "您有新的工作需要办理，流程id：" + app.$data.ins.id + "，流程：" + app.$data.ins.bpmName;
+                }
+                if(d.uids == undefined || d.uids.length<0){
+                    alert("请选择下一步人员")
+                    return;
+                }
+
+                $.ajax({
+                    url: "/api/bpm/workflow/nextApprover",
+                    type:"post",
+                    headers:{
+                        "Content-Type": "application/json"
+                    },
+                    dataType:"json",
+                    data: JSON.stringify(d),
+                    success: function (msg) {
+                        if(!msg.success){
+                            window.opener.layer.msg("提交失败");
+                            return;
+                        }
+                        window.opener.layer.msg("提交成功！")
+                        window.opener.load("deal", id);
+                        opener.type = "deal";
+                        opener.id = id;
+                        window.opener.scrollTo(0,0);
+                        window.close();
+                    }
+                    // complete: function () {
+                    //     layer.close
+                    // }
+                })
+            },
             onNodeChecked: function (item) {
                 this.data.nodeIds = [item.nodeId];
             }
+        },
+        mounted: function () {
+            var t = this;
+            $.get("/api/bpm/workflow/getNextDealers", {id:id}, function (msg) {
+                // $("#ulist").html(tmpl({
+                //     data: msg.data
+                // }));
+                if(msg.success){
+                    t.nodes = msg.data.next;
+                    t.current = msg.data.node;
+                    t.ins = msg.data.ins;
+
+                    if(t.nodes && t.nodes.length == 1){
+                        // 操作数据就是操作视图
+                        t.data.nodeIds = [t.nodes[0].nodeId]
+                        t.data.uids = t.nodes[0].dealers[0].uid
+                    }
+                }else{
+                    // layer.msg(msg.errMessage)
+                }
+
+            },"json")
         }
     });
 
@@ -368,22 +382,12 @@
 
     // JSON.stringify(app.$data.data)
 
-    // console.log(JSON.parse(JSON.stringify(data.data)))
 
     // $.get(function () {
     //     app.nodes = data.data
     // })
 
-    $.get("/api/bpm/workflow/getNextDealers", {id:id}, function (msg) {
-        // $("#ulist").html(tmpl({
-        //     data: msg.data
-        // }));
-        console.log("msg:",msg.data)
-        app.nodes = msg.data;
-        // $('input:radio:first').attr('checked', 'checked');
 
-    },"json")
 
-    console.log("app:",JSON.stringify(app.$data.data))
 
 </script>

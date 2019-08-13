@@ -5,6 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.XmlUtil;
 import com.alibaba.fastjson.JSON;
 import com.beeasy.hzbpm.bean.JsEngine;
+import com.beeasy.hzbpm.bean.MessageSend;
 import com.beeasy.hzbpm.bean.Notice;
 import com.beeasy.hzbpm.entity.BpmInstance;
 import com.alibaba.fastjson.JSONArray;
@@ -34,6 +35,7 @@ import org.bson.types.ObjectId;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import sun.plugin2.message.Message;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -658,6 +660,7 @@ public class BpmService {
 
         JSONObject currentNode = new JSONObject();
         currentNode.put("nodeId", startNode.id);
+        currentNode.put("nodeName", startNode.name);
         JSONArray uids = new JSONArray();
         uids.add(uid);
         currentNode.put("uids", uids);
@@ -701,6 +704,23 @@ public class BpmService {
         collection.insertOne(doc);
         return doc;
 //        return Json.cast(doc, BpmInstance.class);
+    }
+
+    /**
+     * 获取当前节点信息
+     * @param uid
+     * @return
+     */
+    public BpmInstance.CurrentNode getCurrent(String uid){
+        //当前处理的节点
+        BpmInstance.CurrentNode currentNode = ins.currentNodes.stream()
+                .filter(e -> e.uids.contains(uid))
+                .findFirst()
+                .orElse(null);
+        if (currentNode == null) {
+            error("当前节点查询失败");
+        }
+        return currentNode;
     }
 
     /**
@@ -962,6 +982,7 @@ public class BpmService {
         String uName = getUserName(nextUid);
         unames.add(uName);
         currentNode.unames = unames;
+        currentNode.nodeName = nextNode.name;
 
 
         // 得到下一节点超时提醒配置信息
@@ -1163,4 +1184,63 @@ public class BpmService {
         return doc.getInteger("id").toString();
     }
 
+    /**
+     * 下一步节点发送通知
+     */
+    public void sendNotice(Obj body, String nextUid){
+        BpmService bpmService = this;
+        boolean nextStepNotice = (boolean) body.get("nextStepNotice");
+        boolean nextStepShort = (boolean) body.get("nextStepShort");
+        boolean startNotice = (boolean) body.get("startNotice");
+        boolean startShort = (boolean) body.get("startShort");
+        boolean allNotice = (boolean) body.get("allNotice");
+        boolean allShort = (boolean) body.get("allShort");
+        String message = (String) body.get("message");
+
+        //发送消息人员
+        Set<String> sendUser = new HashSet<>();
+
+        if(nextStepNotice){
+            // 下一步骤
+            sendUser.add(nextUid);
+        }
+        if(startNotice){
+            // 发起人
+            sendUser.add(bpmService.ins.pubUid);
+        }
+        if(allNotice){
+            // 全部经办人
+            List<BpmInstance.DataLog> logs = bpmService.ins.logs;
+            for(BpmInstance.DataLog list : logs){
+                sendUser.add(list.uid);
+            }
+        }
+        if(sendUser.size()>0){
+            Notice.sendSystem(sendUser, message);
+        }
+//
+//        // 发送短信
+//        if(nextStepShort){
+//            MessageSend.send(getPhone(nextUid), message);
+//        }
+//        if(startShort){
+//            // 发起人
+//            MessageSend.send(getPhone(bpmService.ins.pubUid), message);
+//        }
+//        if(allShort){
+//            // 全部经办人
+//            List<BpmInstance.DataLog> logs = bpmService.ins.logs;
+//            for(BpmInstance.DataLog list : logs){
+//                MessageSend.send(getPhone(list.uid), message);
+//            }
+//        }
+    }
+
+//    private String getPhone(String uid){
+//        String phone = sqlManager.execute(new SQLReady("select phone from t_user where id = ?", uid), Obj.class).stream()
+//                .map(e -> e.s("phone"))
+//                .findFirst()
+//                .orElse(null);
+//        return phone;
+//    }
 }
