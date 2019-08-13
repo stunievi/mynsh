@@ -341,6 +341,11 @@
                 if(window.opener){
                     window.opener.initTable.apply(null, opener.last)
                 }
+                var iWidth = "650";                         //弹出窗口的宽度;
+                var iHeight = "590";                        //弹出窗口的高度;
+                //window.screen.height获得屏幕的高，window.screen.width获得屏幕的宽
+                var iTop = (window.screen.height-30-iHeight)/2;       //获得窗口的垂直位置;
+                var iLeft = (window.screen.width-10-iWidth)/2;        //获得窗口的水平位置;
 
                 if(window.type == 'pub'){
                     // window.type = "deal";
@@ -348,7 +353,7 @@
                     // load("deal", msg.data)
                     if(gonext){
                         // window.open("./choose.html?id=" + msg.data, "choosepersons", "top=100, left=100, width=500, height=300")
-                        window.open("./ins.next.html?id=" + msg.data, "nextpersons", "top=50, left=150, width=550, height=400")
+                        window.open("./ins.next.html?id=" + msg.data, "nextpersons", "top="+iTop+", left="+iLeft+", width=670, height=570")
                     }
                     location.href = "./ins.pub.html?type=deal&id=" + msg.data
                     // else {
@@ -357,7 +362,8 @@
                 } else {
                     if(gonext){
                         if(msg.data.res == true){
-                            window.open("./choose.html?id=" + msg.data.id, "choosepersons", "top=100, left=100, width=500, height=300")
+                            // window.open("./choose.html?id=" + msg.data.id, "choosepersons", "top=100, left=100, width=500, height=300")
+                            window.open("./ins.next.html?id=" + msg.data.id, "nextpersons", "top="+iTop+", left="+iLeft+", width=670, height=570")
                         }else{
                             layer.msg(msg.data.res)
                             load(window.type, window.id)

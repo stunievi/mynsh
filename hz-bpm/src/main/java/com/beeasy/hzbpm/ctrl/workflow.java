@@ -5,6 +5,7 @@ import cn.hutool.core.util.URLUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzbpm.entity.BpmInstance;
+import com.beeasy.hzbpm.entity.BpmModel;
 import com.beeasy.hzbpm.exception.BpmException;
 import com.beeasy.hzbpm.filter.Auth;
 import com.beeasy.hzbpm.service.BpmService;
@@ -403,7 +404,20 @@ public class workflow {
      */
     public Object getNextDealers(String id) {
         BpmService service = BpmService.ofIns(id);
-        return Result.ok(service.getNextNodePersons(Auth.getUid() + "", o()));
+
+        Object object = service.getNextNodePersons(Auth.getUid() + "", o());
+        BpmInstance.CurrentNode currentNode = service.getCurrent(Auth.getUid() + "");
+        return Result.ok(
+                o(
+                        "node", currentNode,
+                        "next",                 object,
+                        "ins", o(
+                                "id", service.ins.id,
+                                "state",service.ins.state,
+                                "bpmName",service.ins.bpmName
+                        )
+
+                ));
     }
 
 
@@ -411,12 +425,13 @@ public class workflow {
      * 保存选取的下一步处理人
      *
      * @param id
-     * @param nextUid
      * @return
      */
-    public Object nextApprover(String id, String nextUid, String nextNodeId) {
+    public Object nextApprover(String id, Obj body) {
         BpmService service = BpmService.ofIns(id);
-        return Result.ok(service.nextApprover(Auth.getUid() + "", nextUid, o(), nextNodeId));
+
+
+        return Result.ok(service.nextApprover(Auth.getUid() + "", o(), body));
     }
 
     /**

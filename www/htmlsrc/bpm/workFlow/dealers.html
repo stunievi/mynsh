@@ -73,7 +73,6 @@
     });
 
     function selectp(type, names, ids) {
-        console.log("Fuck", nodeId, ids)
         ps[type+'s'] = names;
         opener.bpmData.nodes[nodeId].permission[type + "s"] = names;
         opener.bpmData.nodes[nodeId].permission[type + "ids"] = ids;

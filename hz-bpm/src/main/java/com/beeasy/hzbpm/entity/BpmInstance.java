@@ -104,6 +104,8 @@ public class BpmInstance {
     public static class CurrentNode{
         //当前节点的ID
         public String nodeId;
+        public String nodeName;
+
         //提交到该节点上的信息，通常是节点名
         public String msg;
 

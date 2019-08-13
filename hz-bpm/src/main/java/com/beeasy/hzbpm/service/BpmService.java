@@ -5,6 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.XmlUtil;
 import com.alibaba.fastjson.JSON;
 import com.beeasy.hzbpm.bean.JsEngine;
+import com.beeasy.hzbpm.bean.MessageSend;
 import com.beeasy.hzbpm.bean.Notice;
 import com.beeasy.hzbpm.entity.BpmInstance;
 import com.alibaba.fastjson.JSONArray;
@@ -34,6 +35,7 @@ import org.bson.types.ObjectId;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import sun.plugin2.message.Message;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -740,6 +742,7 @@ public class BpmService {
 
         JSONObject currentNode = new JSONObject();
         currentNode.put("nodeId", startNode.id);
+        currentNode.put("nodeName", startNode.name);
         JSONArray uids = new JSONArray();
         uids.add(uid);
         currentNode.put("uids", uids);
@@ -783,6 +786,23 @@ public class BpmService {
         collection.insertOne(doc);
         return doc;
 //        return Json.cast(doc, BpmInstance.class);
+    }
+
+    /**
+     * 获取当前节点信息
+     * @param uid
+     * @return
+     */
+    public BpmInstance.CurrentNode getCurrent(String uid){
+        //当前处理的节点
+        BpmInstance.CurrentNode currentNode = ins.currentNodes.stream()
+                .filter(e -> e.uids.contains(uid))
+                .findFirst()
+                .orElse(null);
+        if (currentNode == null) {
+            error("当前节点查询失败");
+        }
+        return currentNode;
     }
 
     /**
@@ -1025,12 +1045,53 @@ public class BpmService {
     /**
      * 保存选取的下一步处理人
      * @param uid 提交人
-     * @param nextUid 下一步处理人
      */
-    public boolean nextApprover(String uid, String nextUid, Obj update, String nodeId){
+    public boolean nextApprover(String uid, Obj update, Obj body){
+        if(body == null ){
+            error("下一步骤参数不能为空");
+        }
         BpmService bpmService = this;
-
         BpmModel.Node node = getCurrentNode(uid);
+
+        List<String> nextNodeId = (List<String>) body.get("nodeIds");
+        if(nextNodeId.size()<0 && nextNodeId.isEmpty()){
+            error("请选择下一节点");
+        }
+//        List<String> nextUidList = (List<String>) body.get("uids");
+//        if(nextUidList.size()<0){
+//            error("请选择下一步骤操作人员");
+//        }
+        String nextUid = (String) body.get("uids");
+        if(nextNodeId.get(0).startsWith("EndEvent")){
+            Obj state = o();
+            state.put("state", "已办结");
+            state.put("currentNodes", a());
+            MongoCollection<Document> collection = db.getCollection("bpmInstance");
+            UpdateResult res = collection.updateOne(Filters.eq("_id", bpmService.ins._id),o("$set", state.toBson(),
+                    "$push", o("logs", o(
+                            "id", new ObjectId(),
+                            "nodeId", nextNodeId.get(0),
+                            "msg", String.format("转交节点【%s】",node.name),
+                            "time", new Date(),
+                            "uid", uid,
+                            "uname", getUserName(uid),
+                            "type", "flow",
+                            "attrs",a()
+                    ))).toBson()
+            );
+            return res.getModifiedCount()>0;
+
+        }else{
+            if(StrUtil.isBlank(nextUid)){
+                error("请选择下一步骤操作人员");
+            }
+        }
+
+        String nodeId = nextNodeId.get(0);
+//        String nextUid = nextUidList.get(0);
+
+
+
 
         // 下一节点
         List<BpmModel.Node> nextNodes = getNextNodes(uid, o());
@@ -1054,6 +1115,7 @@ public class BpmService {
         String uName = getUserName(nextUid);
         unames.add(uName);
         currentNode.unames = unames;
+        currentNode.nodeName = nextNode.name;
 
 
         // 得到下一节点超时提醒配置信息
@@ -1075,7 +1137,7 @@ public class BpmService {
                 "$push", o("logs", o(
                             "id", new ObjectId(),
                         "nodeId", node.id,
-                        "msg", "转交节点",
+                        "msg", String.format("从【%s】转交节点到【%s】",node.name,nextNode.name),
                         "time", new Date(),
                         "uid", uid,
                         "uname", getUserName(uid),
@@ -1083,6 +1145,7 @@ public class BpmService {
                         "attrs",a()
                         ))).toBson()
         );
+        sendNotice(body);
 
         return res.getModifiedCount() > 0;
     }
@@ -1258,4 +1321,72 @@ public class BpmService {
         return doc.getInteger("id").toString();
     }
 
+    /**
+     * 下一步节点发送通知
+     */
+    public void sendNotice(Obj body){
+        if(body.isEmpty() || null == body){
+            return;
+        }
+//        List<String> nextUidList = (List<String>) body.get("uids");
+//        if(nextUidList.size()<0){
+//            error("请选择下一步骤操作人员");
+//        }
+        String nextUid = (String) body.get("uids");
+
+        BpmService bpmService = this;
+        boolean nextStepNotice = (boolean) body.get("nextStepNotice");
+        boolean nextStepShort = (boolean) body.get("nextStepShort");
+        boolean startNotice = (boolean) body.get("startNotice");
+        boolean startShort = (boolean) body.get("startShort");
+        boolean allNotice = (boolean) body.get("allNotice");
+        boolean allShort = (boolean) body.get("allShort");
+        String message = (String) body.get("message");
+
+        //发送消息人员
+        Set<String> sendUser = new HashSet<>();
+
+        if(nextStepNotice){
+            // 下一步骤
+            sendUser.add(nextUid);
+        }
+        if(startNotice){
+            // 发起人
+            sendUser.add(bpmService.ins.pubUid);
+        }
+        if(allNotice){
+            // 全部经办人
+            List<BpmInstance.DataLog> logs = bpmService.ins.logs;
+            for(BpmInstance.DataLog list : logs){
+                sendUser.add(list.uid);
+            }
+        }
+        if(sendUser.size()>0){
+            Notice.sendSystem(sendUser, message);
+        }
+//
+//        // 发送短信
+//        if(nextStepShort){
+//            MessageSend.send(getPhone(nextUid), message);
+//        }
+//        if(startShort){
+//            // 发起人
+//            MessageSend.send(getPhone(bpmService.ins.pubUid), message);
+//        }
+//        if(allShort){
+//            // 全部经办人
+//            List<BpmInstance.DataLog> logs = bpmService.ins.logs;
+//            for(BpmInstance.DataLog list : logs){
+//                MessageSend.send(getPhone(list.uid), message);
+//            }
+//        }
+    }
+
+//    private String getPhone(String uid){
+//        String phone = sqlManager.execute(new SQLReady("select phone from t_user where id = ?", uid), Obj.class).stream()
+//                .map(e -> e.s("phone"))
+//                .findFirst()
+//                .orElse(null);
+//        return phone;
+//    }
 }
