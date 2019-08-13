@@ -67,7 +67,7 @@
             <td valign="top">
                 <div class="col-xs-12">
                     <div class="bs-example bs-example-tabs" data-example-id="togglable-tabs">
-                        <a class="btn btn-sm btn-success pub" href="javascript:;" style="float:right;">发起新流程</a>
+                        <a class="btn btn-sm btn-success pub hide" href="javascript:;" style="float:right;">发起新流程</a>
                         <ul id="myTabsBpm" class="nav nav-tabs" role="tablist" style="margin-bottom: 10px;">
                             <li><a href="#taskBpm1" role="tab"  data-toggle="tab" aria-controls="taskBpm1" aria-expanded="true" onclick="initTable('taskBpm1',window.id,'todo')">待处理任务</a></li>
                             <li><a href="#taskBpm2" role="tab"  data-toggle="tab" aria-controls="taskBpm2" aria-expanded="true" onclick="initTable('taskBpm2',window.id,'processed')">已处理的任务</a></li>
@@ -394,6 +394,8 @@
 
         $("#jstree_demo").on("select_node.jstree", function (e,n) {
             if(n.node.type != 'form'){
+                $(".pub").addClass("hide");
+                initTable("taskBpm1",null,"todo")
                 return false;
             }
             // var frame = $("#form-edit");
@@ -403,6 +405,7 @@
             //     $("#form-edit").hide()
             //     return
             // }
+            $(".pub").removeClass("hide");
             window.id = n.node.original.id;
             initTable("taskBpm1",window.id,"todo")
             var panelType =  getParam("panelType") || "taskBpm1";
@@ -461,6 +464,8 @@
                     console.log(res);
                     if(!res.success){
                         //todo:
+                        console.log(res)
+                        layer.msg("请求失败！")
                     }
                     params.success({
                         rows: res.data.list,
