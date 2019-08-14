@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>发起任务</title>
+
+    <link rel="stylesheet" href="../lib/css/style.css">
+    <link rel="stylesheet" href="./ueditor.css">
+
+    <script src="../../../static/vendor/jquery/jquery.js"></script>
+    <script src="../../../static/htmljs/utils.js"></script>
+
+    <style>
+        .needs-discussion:not(.djs-connection) .djs-visual > :nth-child(1) {
+            stroke: rgba(66, 180, 21, 0.7) !important; /* color elements as red */
+        }
+
+        .diagram-note {
+            background-color: rgba(66, 180, 21, 0.7);
+            color: White;
+            border-radius: 5px;
+            font-family: Arial;
+            font-size: 12px;
+            padding: 5px;
+            min-height: 16px;
+            width: 50px;
+            text-align: center;
+        }
+
+        #canvas {
+            width: 100%;
+            height: 800px;
+        }
+
+        #phead {
+            list-style: none;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 10px;
+        }
+
+        #phead li {
+            padding-left: 15px;
+            padding-right: 15px;
+            float: left;
+            cursor: pointer;
+            font-size: 13px;
+            /*margin-bottom: -1px;*/
+            padding-bottom: 10px;
+        }
+
+        #phead li.active {
+            border-bottom: 2px solid deepskyblue;
+            color: deepskyblue;;
+        }
+
+        .__tab {
+            display: none;
+        }
+
+        body{
+            /*overflow: hidden;*/
+        }
+
+    </style>
+
+    <link rel="stylesheet" href="jquery.webui-popover.min.css">
+    <script src="jquery.webui-popover.min.js"></script>
+    <script src="right_menu.js"></script>
+    <script src="../../../static/vendor/artTemplate/template-web.js"></script>
+    <script>
+        window.type = getParam("type");
+        window.id = getParam("id");
+    </script>
+    <script src="../lib/bpm/bpmn-viewer.js"></script>
+    <script src="../lib/layer/layer.js"></script>
+    <script src="../lib/laydate/laydate.js"></script>
+    <link rel="stylesheet" href="../lib/web-uploader/webuploader.css">
+    <script src="../lib/web-uploader/webuploader.min.js"></script>
+    <script src="../lib/vue/vue.js"></script>
+</head>
+<body>
+<div id="panel" style="padding: 10px;">
+    <div id="pbody">
+
+        <div class="__tab" id="dataLog">
+            <!--#include file="./data.log.html"-->
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>
+<script>
+
+    $("#pbody > .__tab").show();
+
+    function load() {
+
+        var layerIndex = layer.load(0, {
+            time: 5000
+        });
+
+        if(type == 'pub'){
+            document.title = "发布任务";
+        } else {
+            document.title = "处理任务";
+        }
+
+        var ajax = null;
+        if(window.type == 'pub'){
+            ajax =  $.get("/api/bpm/workflow/preparePub", {id: window.id});
+        } else {
+            ajax = $.get("/api/bpm/workflow/getInsInfo", {id: window.id});
+            loadLogs(window.id);
+        }
+
+        $.when(ajax).then(function (msg) {
+            layer.close(layerIndex);
+            if (!msg.success) {
+                layer.msg(msg.errMessage)
+                return;
+            }
+
+            Data = msg.data;
+
+            if(msg.data.files && msg.data.files.length){
+                files.files = msg.data.files
+            }
+            loadForm()
+            // $("#iframe").attr("src", "./form.html?v=" + Math.random())
+
+            //事件
+            // if(type == 'pub'){
+            //     $(".action").show();
+            // } else if((type == 'deal' && msg.data.deal) || (type == 'edit')){
+            //     $(".action").show();
+            //     if(type == 'edit'){
+            //         $(".action #submit").hide();
+            //     }
+            // } else {
+            //     if(type == 'deal'){
+            //         document.title = "查看任务";
+            //     }
+            // }
+
+        }, "json");
+    }
+    //加载页面
+    load();
+
+</script>
