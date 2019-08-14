@@ -238,7 +238,7 @@ public class BpmService {
         currentNode.unames = (List)a(lastUname);
 
 
-        //todo: 记录log，type为goBack
+        // 记录log，type为goBack
         Obj update = o();
         update.put("currentNodes", a(currentNode));
         MongoCollection<Document> collection = db.getCollection("bpmInstance");
@@ -968,7 +968,11 @@ public class BpmService {
             error("用户没有权限处理任务");
         }
 
-        addMacroFields(uid, getCurrentNode(uid), data);
+        // 编辑不修改宏字段
+        if(!mode.equals("edit")){
+            addMacroFields(uid, getCurrentNode(uid), data);
+        }
+
         if(validate){
             validateAttrs(uid, getCurrentNode(uid), data);
         }
