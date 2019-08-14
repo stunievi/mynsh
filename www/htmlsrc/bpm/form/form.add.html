@@ -141,7 +141,7 @@
                                 var attrs = getAttrs(select[0])
                                 data = attrs;
                                 data.values = []
-                                $(this).find("options").each(function () {
+                                $(this).find("option").each(function () {
                                     data.values.push($(this).val())
                                 });
                                 data.name = md5(data.title)
