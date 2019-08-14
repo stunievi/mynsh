@@ -46,6 +46,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.beeasy.hzbpm.bean.Data.userCache;
 import static com.beeasy.hzbpm.bean.MongoService.db;
@@ -872,7 +873,7 @@ public class BpmService {
                                     .filter(ee -> JsEngine.runExpression(oldAttrs, ee.expression))
                                     .map(ee -> getNode(ee.node));
                         } else {
-                            return Arrays.asList(e).stream();
+                            return Stream.of(e);
                         }
                     })
                     .collect(Collectors.toList());
