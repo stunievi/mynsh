@@ -100,10 +100,27 @@
                 timeType:"",
                 timeValue:"",
                 timeKey: "",
+
+                type:"",
+                id:""
             }
         },
         methods:{
             sub_log(val) {
+                switch (val) {
+                    case 1:
+                        //dan
+                        startFragment("form", this.id, this.type)
+                        break;
+                    case 2:
+                        //to
+                        startFragment("canvas", this.id, this.type)
+                        break;
+                    case 3:
+                        //li
+                        startFragment("log", this.id, this.type)
+                        break;
+                }
                 console.log('sub_log', val);
                 this.$refs.target_1.collapse();
             },
@@ -161,11 +178,58 @@
                 })
             },
             submit(gonext){
-                   
+                var params = this.$route.params;
+                var url;
+                if(params.type == 'pub'){
+                    url = "/api/bpm/workflow/createIns";
+                } else {
+                    url = "/api/bpm/workflow/saveIns";
+                };
+
+                if(params.type == 'pub' && gonext){
+                    return
+                }
+
+                var data = {
+                    id: params.id,
+                    data: this.attrs,
+                    mode: params.type,
+                    files: []
+                }
+
+                $.ajax({
+                    url: url, //"/api/bpm/workflow/createIns",
+                    type: "post",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    dataType: "json",
+                    data: JSON.stringify(data),
+                    success: msg => {
+                        if(!msg.success){
+                            return showMsg(msg.errMessage)
+                        }
+
+                        if(params.type == 'pub'){
+                            showMsg("发布成功");
+                            this.$router.replace({
+                                name: "form",
+                                params:{
+                                    id: msg.data,
+                                    type: "deal"
+                                }
+                            });
+                        } else if(!gonext){
+                            showMsg("保存成功");
+                        }
+                    }
+                });
             },
             load(){
                 console.log(this.$route)
                 var params = this.$route.params;
+                this.type = params.type;
+                this.id = params.id;
                 var url = "";
                 if(params.type == 'pub'){
                     url = "/api/bpm/workflow/preparePub";

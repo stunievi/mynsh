@@ -108,10 +108,35 @@
 <script>
     $.ajaxSetup({
         headers:{
-            "HZToken":"main|f066eb20-09e4-4bd5-91a8-df9200c7699e"
+            "HZToken": getToken()
         },
         crossDomain: true
     });
+
+    function getToken() {
+        if(typeof android != "undefined"){
+            return android.jsGetToken()
+        } else {
+            return "main|f066eb20-09e4-4bd5-91a8-df9200c7699e";
+        }
+    }
+
+    function showMsg(str) {
+        if(typeof android != "undefined"){
+            android.showToast(str)
+        } else {
+            var instance = MINT.Toast(str);
+            setTimeout(() => {
+                instance.close();
+            }, 1500);
+        }
+    }
+
+    function startFragment(name,id, type) {
+        if(typeof android != "undefined") {
+            android.jsStartFragment(name,id,type);
+        }
+    }
 
 </script>
 
