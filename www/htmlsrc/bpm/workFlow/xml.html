@@ -239,6 +239,7 @@
     });
 
     var xml ="";
+    // 加载空流程
     $.ajax({
         type:"get",
         url:"/static/bpm/newDiagram.bpmn",
@@ -372,6 +373,10 @@
                 var _endId = _endEvent.attr("id");
                 var _endName = _endEvent.attr("name");
                 taskNameMap[_endId] = _endName;
+                // bpmData.nodes[_startId] = bpmData.nodes[_startId] || []
+                // bpmData.nodes[_endId] = bpmData.nodes[_endId] || []
+                initVar(_startId);
+                initVar(_endId);
 
 
                 _task.each(function () {
@@ -379,6 +384,8 @@
                     var _taskName = $(this).attr("name");
                     taskNameMap[_taskId] = _taskName;
 
+                    // bpmData.nodes[_taskId] = bpmData.nodes[_taskId] || []
+                    initVar(_taskId);
                     var _outgoing = $(this).children('outgoing');
                     _outgoing.each(function () {
                         var targetRef = sequenceFlowMap[$(this).text()];
@@ -557,20 +564,23 @@ return
                 // var node = {};
                 if(undefined ==  window.bpmData.nodes[sourceRef]){
                 }else{
-                    // allFields = window.bpmData.nodes[sourceRef].fields.all_fields;
-                    // requiredFields = window.bpmData.nodes[sourceRef].fields.required_fields;
-                    // 可以处理的人的ID
-                    pids = arrToStr(window.bpmData.nodes[sourceRef].permission.pids);
-                    // 可以处理的组织架构ID
-                    qids =arrToStr(window.bpmData.nodes[sourceRef].permission.qids);
-                    rids =arrToStr(window.bpmData.nodes[sourceRef].permission.rids);
-                    dids =arrToStr(window.bpmData.nodes[sourceRef].permission.dids);
-                    taskName = taskNameMap[sourceRef];
-                    // var conList = window.bpmData.nodes[sourceRef].condition;
-                    // var _expression = preorderZheng(conList,"and");
-                    //
-                    // node["expression"] = _expression;
-                    // nextNodes.push(node);
+                    if(window.bpmData.nodes[sourceRef].permission){
+
+                        // allFields = window.bpmData.nodes[sourceRef].fields.all_fields;
+                        // requiredFields = window.bpmData.nodes[sourceRef].fields.required_fields;
+                        // 可以处理的人的ID
+                        pids = arrToStr(window.bpmData.nodes[sourceRef].permission.pids);
+                        // 可以处理的组织架构ID
+                        qids =arrToStr(window.bpmData.nodes[sourceRef].permission.qids);
+                        rids =arrToStr(window.bpmData.nodes[sourceRef].permission.rids);
+                        dids =arrToStr(window.bpmData.nodes[sourceRef].permission.dids);
+                        taskName = taskNameMap[sourceRef];
+                        // var conList = window.bpmData.nodes[sourceRef].condition;
+                        // var _expression = preorderZheng(conList,"and");
+                        //
+                        // node["expression"] = _expression;
+                        // nextNodes.push(node);
+                    }
                 }
                 _eventMap[sourceRef] = {"id":sourceRef,"name":taskName,"allFields":allFields,"requiredFields":requiredFields,"uids":pids,"qids":qids,"rids":rids,"dids":dids,"nextNodes":[]}
                 window.sbpmData.nodes[sourceRef] = (window.bpmData.nodes[sourceRef]);
@@ -808,82 +818,85 @@ return
         if(undefined ==  window.bpmData.nodes[_taskId]){
 
         }else{
-            allFields = window.bpmData.nodes[_taskId].fields.all_fields;
-            requiredFields = window.bpmData.nodes[_taskId].fields.required_fields;
-            requiredFields.forEach(function (item) {
-                var i = $.inArray(item,allFields);
-                if("-1" == i){
-                    isInArr = i;
-                }
-            })
-            console.log(requiredFields,allFields)
+            if(window.bpmData.nodes[_taskId].fields){
 
-            // 可以处理的人的ID
-            pids = arrToStr(window.bpmData.nodes[_taskId].permission.pids);
-            // 可以处理的组织架构ID
-            qids =arrToStr(window.bpmData.nodes[_taskId].permission.qids);
-            rids =arrToStr(window.bpmData.nodes[_taskId].permission.rids);
-            dids =arrToStr(window.bpmData.nodes[_taskId].permission.dids);
-
-            var arr = window.bpmData.nodes[_taskId].quanxian || [];
-
-            var allowUpload = arr.indexOf("allowUpload") > -1;
-            var allowDownload = arr.indexOf("allowDownload") > -1;
-            var allowBack = arr.indexOf("allowBack") > -1;
-            var departmentFirst = arr.indexOf("departmentFirst") > -1;
-            console.log("---===",window.bpmData.nodes[_taskId].quanxian)
-
-            timeout = window.bpmData.nodes[_taskId].timeoutSet.timeout;
-            maxTimeout = window.bpmData.nodes[_taskId].timeoutSet.maxTimeout;
-            taskName = taskNameMap[_taskId];
-            var timeoutSet = {};
-
-
-            timeoutSet["timeout"] = timeout;
-            timeoutSet["maxTimeout"] = maxTimeout;
-            var conList;
-            if(undefined !=  window.bpmData.nodes[targetRef]){
-                conList = window.bpmData.nodes[targetRef].condition;
-            }
-            if(undefined != window.bpmData.lines){
-                if(undefined != window.bpmData.lines[sequenceFlowId]){
-                    conList = window.bpmData.lines[sequenceFlowId].conditions;
-                    var expre = window.bpmData.lines[sequenceFlowId].expression;
-                    expre = (expre || "").replace(/and/gi, " && ").replace(/or/gi, " || ");
-                    if("" == expre.trim()){
-                        expression = preorderZheng(conList,"and",expre);
-                        console.log("---",expression)
-                    }else{
-                        var arr = {};
-                        var reg = /\d+/g;
-                        var ms = expre.replace(/\[(.+?)\]/g, "$1").match(reg)
-                        for(var m=0;m<ms.length;m++){
-                            if(undefined != conList[ms[m]-1]){
-                                arr[ms[m]] =("getValue('"+conList[ms[m]-1].field+"')" + conversion(conList[ms[m]-1].op)+ "'"+conList[ms[m]-1].value+"'")
-
-                            }
-                        }
-
-                        // [3] and [1] and [4]
-                        for(var s=0;s<ms.length;s++){
-
-                            if(undefined != arr[ms[s]]){
-                                expre = expre.replace("["+ms[s]+"]",arr[ms[s]]);
-                            }
-                        }
-                        expression = "("+expre+")";
-                        console.log("----",expression)
+                allFields = window.bpmData.nodes[_taskId].fields.all_fields;
+                requiredFields = window.bpmData.nodes[_taskId].fields.required_fields;
+                requiredFields.forEach(function (item) {
+                    var i = $.inArray(item,allFields);
+                    if("-1" == i){
+                        isInArr = i;
                     }
+                })
+                console.log(requiredFields,allFields)
 
+                // 可以处理的人的ID
+                pids = arrToStr(window.bpmData.nodes[_taskId].permission.pids);
+                // 可以处理的组织架构ID
+                qids =arrToStr(window.bpmData.nodes[_taskId].permission.qids);
+                rids =arrToStr(window.bpmData.nodes[_taskId].permission.rids);
+                dids =arrToStr(window.bpmData.nodes[_taskId].permission.dids);
+
+                var arr = window.bpmData.nodes[_taskId].quanxian || [];
+
+                var allowUpload = arr.indexOf("allowUpload") > -1;
+                var allowDownload = arr.indexOf("allowDownload") > -1;
+                var allowBack = arr.indexOf("allowBack") > -1;
+                var departmentFirst = arr.indexOf("departmentFirst") > -1;
+                console.log("---===",window.bpmData.nodes[_taskId].quanxian)
+
+                timeout = window.bpmData.nodes[_taskId].timeoutSet.timeout;
+                maxTimeout = window.bpmData.nodes[_taskId].timeoutSet.maxTimeout;
+                taskName = taskNameMap[_taskId];
+                var timeoutSet = {};
+
+
+                timeoutSet["timeout"] = timeout;
+                timeoutSet["maxTimeout"] = maxTimeout;
+                var conList;
+                if(undefined !=  window.bpmData.nodes[targetRef]){
+                    conList = window.bpmData.nodes[targetRef].condition;
                 }
-            }
-            // var _expression = preorderZheng(conList,"and");
+                if(undefined != window.bpmData.lines){
+                    if(undefined != window.bpmData.lines[sequenceFlowId]){
+                        conList = window.bpmData.lines[sequenceFlowId].conditions;
+                        var expre = window.bpmData.lines[sequenceFlowId].expression;
+                        expre = (expre || "").replace(/and/gi, " && ").replace(/or/gi, " || ");
+                        if("" == expre.trim()){
+                            expression = preorderZheng(conList,"and",expre);
+                            console.log("---",expression)
+                        }else{
+                            var arr = {};
+                            var reg = /\d+/g;
+                            var ms = expre.replace(/\[(.+?)\]/g, "$1").match(reg)
+                            for(var m=0;m<ms.length;m++){
+                                if(undefined != conList[ms[m]-1]){
+                                    arr[ms[m]] =("getValue('"+conList[ms[m]-1].field+"')" + conversion(conList[ms[m]-1].op)+ "'"+conList[ms[m]-1].value+"'")
 
-            node["node"] = targetRef;
-            node["expression"] = expression;
-            nextEvent.push(node)
-            var nextNodes = (_eventMap[_taskId] && _eventMap[_taskId].nextNodes) ? _eventMap[_taskId].nextNodes : [];
-            nextNodes.push(node);
+                                }
+                            }
+
+                            // [3] and [1] and [4]
+                            for(var s=0;s<ms.length;s++){
+
+                                if(undefined != arr[ms[s]]){
+                                    expre = expre.replace("["+ms[s]+"]",arr[ms[s]]);
+                                }
+                            }
+                            expression = "("+expre+")";
+                            console.log("----",expression)
+                        }
+
+                    }
+                }
+                // var _expression = preorderZheng(conList,"and");
+
+            }
+                node["node"] = targetRef;
+                node["expression"] = expression;
+                nextEvent.push(node)
+                var nextNodes = (_eventMap[_taskId] && _eventMap[_taskId].nextNodes) ? _eventMap[_taskId].nextNodes : [];
+                nextNodes.push(node);
         }
 
         var sr = _taskId.split("_");
@@ -985,16 +998,8 @@ return
         // }
         // return str;
     }
-
-
-</script>
-
-</body>
-</html>
-
-
-<script>
-    function openConfigPage(id,page){
+    
+    function initVar(id) {
         bpmData.nodes[id] = bpmData.nodes[id] || {
             fields:{
                 all_fields: [],
@@ -1020,6 +1025,18 @@ return
             // allowUpload:false,
             quanxian:[]
         };
+    }
+
+
+</script>
+
+</body>
+</html>
+
+
+<script>
+    function openConfigPage(id,page){
+        initVar(id);
         window.open("./node.edit.html?id=" + id + "&page=" + page ,"node_edit_" + id, "left=200, top=100, width=800, height=500, location=no")
     }
 
