@@ -387,6 +387,9 @@
                     // bpmData.nodes[_taskId] = bpmData.nodes[_taskId] || []
                     initVar(_taskId);
                     var _outgoing = $(this).children('outgoing');
+                    // for (let i = 0; i < _outgoing.length; i++) {
+                    //     var ss = _outgoing.eq(i);
+                    // }
                     _outgoing.each(function () {
                         var targetRef = sequenceFlowMap[$(this).text()];
                         try {
@@ -537,17 +540,13 @@ return
                 var _outgoing = $(this).children('outgoing');
                 var _taskId = $(this).attr("id");
                 _outgoing.each(function () {
-
                     var targetRef = sequenceFlowMap[$(this).text()];
-
                     try {
                         _eventMap = arrData(_taskId, targetRef, _eventMap, $(this).text());
                     }catch (e) {
                         isInArr = e;
                     }
-
                 })
-
             })
 
             // 结束节点

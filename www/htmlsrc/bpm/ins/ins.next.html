@@ -13,9 +13,9 @@
     <script>
         function getParam(name, url) {
             var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
-            if(url){
+            if (url) {
                 var r = url.substr(1).match(reg);
-            }else{
+            } else {
                 var r = window.location.search.substr(1).match(reg);
             }
             if (r != null) return r[2];
@@ -23,21 +23,25 @@
         }
     </script>
     <style>
-        .checked{
+        .checked {
             color: #0e90d2;
         }
-        .fa-bell,.fa-envelope{
+
+        .fa-bell, .fa-envelope {
             cursor: pointer;
         }
-        .fa{
+
+        .fa {
             font-size: 18px;
         }
-        body{
+
+        body {
             padding-left: 10px;
             padding-right: 10px;
             padding-top: 10px;
         }
-        .next-step{
+
+        .next-step {
             width: 200px;
             height: 30px;
             line-height: 30px;
@@ -46,11 +50,13 @@
             position: relative;
             overflow: hidden;
         }
-        .next-step input{
+
+        .next-step input {
             position: relative;
             z-index: 2;
         }
-        .bg{
+
+        .bg {
             position: absolute;
             top: 0;
             left: 0;
@@ -59,9 +65,10 @@
             z-index: 1;
             padding-left: 25px;
         }
-        input:checked+.bg{
+
+        input:checked + .bg {
             background: #337ab7;
-            color:white;
+            color: white;
         }
 
     </style>
@@ -76,7 +83,7 @@
             当前步骤为[{{current.nodeName}}]
             <font color="red">
                 <div self_type="self" style="display:inline;">{{current.unames.join(',')}}</div>
-                <div style="display:inline;">{{ins.state}} </div>
+                <div style="display:inline;">{{ins.state}}</div>
             </font>
         </div>
     </div>
@@ -100,7 +107,7 @@
                         <div style="margin-left: 20px;overflow: auto;min-height: 100px;max-height: 170px">
                             <div v-for="v in nodes" v-if="data.nodeIds.length && data.nodeIds.indexOf(v.nodeId) > -1">
                                 <div v-for="vv in v.dealers">
-                                    <label >
+                                    <label>
                                         <input type="radio" v-model="data.uids" :name="v.nodeId" :value="vv.uid">
                                         {{vv.utname}} {{vv.uname}} {{vv.oname}}
                                     </label>
@@ -155,29 +162,35 @@
         </div>
         <div class="panel-body">
             <div class="work-msg-op-title">下一步骤：
-                <i class="fa fa-bell" :class="{checked: data.nextStepNotice}" aria-hidden="true" title="发送站内信" @click="data.nextStepNotice = !data.nextStepNotice"></i>
-                <i class="fa fa-envelope" :class="{checked: data.nextStepShort}" aria-hidden="true" title="发送短信" @click="data.nextStepShort = !data.nextStepShort"></i>
+                <i class="fa fa-bell" :class="{checked: data.nextStepNotice}" aria-hidden="true" title="发送站内信"
+                   @click="data.nextStepNotice = !data.nextStepNotice"></i>
+                <i class="fa fa-envelope" :class="{checked: data.nextStepShort}" aria-hidden="true" title="发送短信"
+                   @click="data.nextStepShort = !data.nextStepShort"></i>
             </div>
             <div class="work-msg-op-title">发起人：
-                <i class="fa fa-bell" aria-hidden="true" title="发送站内信" :class="{checked: data.startNotice}" @click="data.startNotice = !data.startNotice"></i>
-                <i class="fa fa-envelope" aria-hidden="true" title="发送短信" :class="{checked: data.startShort}" @click="data.startShort = !data.startShort"></i>
+                <i class="fa fa-bell" aria-hidden="true" title="发送站内信" :class="{checked: data.startNotice}"
+                   @click="data.startNotice = !data.startNotice"></i>
+                <i class="fa fa-envelope" aria-hidden="true" title="发送短信" :class="{checked: data.startShort}"
+                   @click="data.startShort = !data.startShort"></i>
             </div>
             <div class="work-msg-op-title">全部经办人：
-                <i class="fa fa-bell" aria-hidden="true" title="发送站内信" :class="{checked: data.allNotice}" @click="data.allNotice = !data.allNotice"></i>
-                <i class="fa fa-envelope" aria-hidden="true" title="发送短信" :class="{checked: data.allShort}" @click="data.allShort = !data.allShort"></i>
+                <i class="fa fa-bell" aria-hidden="true" title="发送站内信" :class="{checked: data.allNotice}"
+                   @click="data.allNotice = !data.allNotice"></i>
+                <i class="fa fa-envelope" aria-hidden="true" title="发送短信" :class="{checked: data.allShort}"
+                   @click="data.allShort = !data.allShort"></i>
             </div>
 
             <hr style="clear: both; margin-top: 10px;margin-bottom: 10px;">
 
             <!--<table width="100%">-->
-                <!--<tr>-->
-                    <!--<td width="150">提醒指定步骤经办人：</td>-->
-                    <!--<td>-->
-                        <!--<button id="chooseMsg" class="btn btn-primary">选择人员</button>-->
-                        <!--<div id="msgUser" class="tagsinput" style="width: auto; min-height: auto; height: auto;">-->
-                        <!--</div>-->
-                    <!--</td>-->
-                <!--</tr>-->
+            <!--<tr>-->
+            <!--<td width="150">提醒指定步骤经办人：</td>-->
+            <!--<td>-->
+            <!--<button id="chooseMsg" class="btn btn-primary">选择人员</button>-->
+            <!--<div id="msgUser" class="tagsinput" style="width: auto; min-height: auto; height: auto;">-->
+            <!--</div>-->
+            <!--</td>-->
+            <!--</tr>-->
             <!--</table>-->
 
             <hr style="clear: both; margin-top: 10px;margin-bottom: 10px;">
@@ -188,7 +201,10 @@
                         提醒内容：
                     </td>
                     <td>
-                        <input type="text" v-model="data.message" class="form-control input-sm" id="modelName" name="modelName" :placeholder="'您有新的工作需要办理，流程id：' + ins.id + '，流程：' + ins.bpmName">
+                        <!--<input type="text" v-model="data.message" class="form-control input-sm" id="modelName"-->
+                               <!--name="modelName" :placeholder="'您有新的工作需要办理，流程id：' + ins.id + '，流程：' + ins.bpmName">-->
+                        <input type="text" v-model="data.message" class="form-control input-sm" id="modelName"
+                               name="modelName" :placeholder= "reversedMessage">
                     </td>
                 </tr>
             </table>
@@ -235,20 +251,32 @@
 </div>
 
 
-    <!--<div id="content">-->
-        <!--<div style="width: 500px;margin: 0 auto;">-->
-            <!--<ul id="ulist" style="height: 200px; overflow: auto;margin: 0 auto;">-->
-            <!--</ul>-->
-            <!--<div style="text-align: center; padding-top: 20px;">-->
-                <!--<a href="javascript:;" id="submit">确定</a>-->
-            <!--</div>-->
-        <!--</div>-->
-    <!--</div>-->
+<!--<div id="content">-->
+<!--<div style="width: 500px;margin: 0 auto;">-->
+<!--<ul id="ulist" style="height: 200px; overflow: auto;margin: 0 auto;">-->
+<!--</ul>-->
+<!--<div style="text-align: center; padding-top: 20px;">-->
+<!--<a href="javascript:;" id="submit">确定</a>-->
+<!--</div>-->
+<!--</div>-->
+<!--</div>-->
 </body>
 </html>
 <script>
     var id = getParam("id");
     layer.load(0, {time: 5000})
+
+    function getData() {
+        try{
+            if (opener && opener.getData) {
+                return (opener.getData())
+            }
+        } catch (e) {
+        }
+        return {};
+    }
+
+
     // window.userId = null;
     // window.userName = null;
     // window.msgUser = {};
@@ -293,14 +321,14 @@
     var app = new Vue({
         el: "#app",
         data: {
-            nodes:[],
-            current:{
-                unames:[]
+            nodes: [],
+            current: {
+                unames: []
             },
-            ins:{},
-            data:{
-                id:id,
-                nodeIds:[],
+            ins: {},
+            data: {
+                id: id,
+                nodeIds: [],
                 uids: "",
                 nextStepNotice: true,
                 nextStepShort: false,
@@ -311,35 +339,59 @@
                 message: ""
             }
         },
-        methods:{
-            submit: function(){
+        computed:{
+            reversedMessage: function () {
+                if(app.$data.data.nodeIds[0] && app.$data.data.nodeIds[0].indexOf("EndEvent") != -1){
+                    return this.message = "流程已办结，流程id：" + app.$data.ins.id + "，流程：" + app.$data.ins.bpmName;
+
+                }else{
+                    return this.message = "您有新的工作需要办理，流程id：" + app.$data.ins.id + "，流程：" + app.$data.ins.bpmName;
+                }
+                return null;
+            }
+        },
+        methods: {
+            submit: function () {
                 var d = app.$data.data;
-                if(!d.message){
-                    d.message = "您有新的工作需要办理，流程id：" + app.$data.ins.id + "，流程：" + app.$data.ins.bpmName;
+                if (!d.message) {
+                    console.log(d.nodeIds)
+                    if(d.nodeIds[0] && d.nodeIds[0].indexOf("EndEvent") != -1){
+                        d.message = "流程已办结，流程id：" + app.$data.ins.id + "，流程：" + app.$data.ins.bpmName;
+                    }else{
+                        d.message = "您有新的工作需要办理，流程id：" + app.$data.ins.id + "，流程：" + app.$data.ins.bpmName;
+                    }
                 }
                 // if(d.uids == undefined || d.uids.length<0){
                 //     layer.msg("请选择下一步人员")
                 //     return;
                 // }
 
+                var _data = getData();
+                d.data = _data.data
+                d.files = _data.files
+
                 $.ajax({
                     url: "/api/bpm/workflow/nextApprover",
-                    type:"post",
-                    headers:{
+                    type: "post",
+                    headers: {
                         "Content-Type": "application/json"
                     },
-                    dataType:"json",
+                    dataType: "json",
                     data: JSON.stringify(d),
                     success: function (msg) {
-                        if(!msg.success){
-                            layer.msg("提交失败！"+msg.errMessage);
+                        if (!msg.success) {
+                            layer.msg("提交失败！" + msg.errMessage);
                             return;
                         }
-                        window.opener.layer.msg("提交成功！")
+                        if(d.nodeIds[0] && d.nodeIds[0].indexOf("EndEvent") != -1 ){
+                            window.opener.layer.msg(msg.data);
+                        }else{
+                            window.opener.layer.msg("提交成功！");
+                        }
                         window.opener.load("deal", id);
                         opener.type = "deal";
                         opener.id = id;
-                        window.opener.scrollTo(0,0);
+                        window.opener.scrollTo(0, 0);
                         window.close();
                     }
                     // complete: function () {
@@ -353,41 +405,35 @@
         },
         mounted: function () {
             var t = this;
-            $.get("/api/bpm/workflow/getNextDealers", {id:id}, function (msg) {
-                // $("#ulist").html(tmpl({
-                //     data: msg.data
-                // }));
-                layer.closeAll();
-                if(msg.success){
-                    t.nodes = msg.data.next;
-                    t.current = msg.data.node;
-                    t.ins = msg.data.ins;
+            $.ajax({
+                url: "/api/bpm/workflow/getNextDealers",
+                type:"post",
+                headers:{
+                    "Content-Type": "application/json"
+                },
+                data: JSON.stringify({id: id, data: getData().data}),
+                success: function (msg) {
+                    // $("#ulist").html(tmpl({
+                    //     data: msg.data
+                    // }));
+                    layer.closeAll();
+                    if (msg.success) {
+                        t.nodes = msg.data.next;
+                        t.current = msg.data.node;
+                        t.ins = msg.data.ins;
 
-                    if(t.nodes && t.nodes.length == 1){
-                        // 操作数据就是操作视图
-                        t.data.nodeIds = [t.nodes[0].nodeId]
-                        t.data.uids = t.nodes[0].dealers[0].uid
+                        if (t.nodes && t.nodes.length == 1) {
+                            // 操作数据就是操作视图
+                            t.data.nodeIds = [t.nodes[0].nodeId]
+                            t.data.uids = t.nodes[0].dealers[0].uid
+                        }
+                    } else {
+                        layer.msg(msg.errMessage)
                     }
-                }else{
-                    layer.msg(msg.errMessage)
                 }
-
-            },"json")
+            })
         }
-    });
-
-    // $.each(data.data, function (i,v) {
-    //     // v.checked = false;
-    //     v.targetUid = -1;
-    // });
-
-    // JSON.stringify(app.$data.data)
-
-
-    // $.get(function () {
-    //     app.nodes = data.data
-    // })
-
+    })
 
 
 

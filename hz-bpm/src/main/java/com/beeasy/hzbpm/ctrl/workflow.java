@@ -401,10 +401,10 @@ public class workflow {
      * @param id
      * @return
      */
-    public Object getNextDealers(String id) {
+    public Object getNextDealers(String id, Obj data) {
         BpmService service = BpmService.ofIns(id);
 
-        Object object = service.getNextNodePersons(Auth.getUid() + "", o());
+        Object object = service.getNextNodePersons(Auth.getUid() + "", data);
         BpmInstance.CurrentNode currentNode = service.getCurrent(Auth.getUid() + "");
         return Result.ok(
                 o(
@@ -426,11 +426,9 @@ public class workflow {
      * @param id
      * @return
      */
-    public Object nextApprover(String id, Obj body) {
+    public Object nextApprover(String id, Obj data, Arr files, Obj body) {
         BpmService service = BpmService.ofIns(id);
-
-
-        return Result.ok(service.nextApprover(Auth.getUid() + "", o(), body));
+        return Result.ok(service.nextApprover(Auth.getUid() + "", o(), body, data,files));
     }
 
     /**
