@@ -1,28 +1,85 @@
+<style>
+    .my-icon-button {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background-color: #26a2ff;
+        color: #fff;
+        line-height: 30px;
+        text-align: center;
+    }
+</style>
 <script id="form-tmpl" type="text/html">
-    <div class="full">
+    <div class="full" id="form">
         <div v-for="v in fields">
-            <mt-field :label="v.title" v-if="v.leipiplugins == 'text'" placeholder="" v-model="attrs[v.title]" ></mt-field>
+            <mt-field :label="v.title" v-if="v.leipiplugins == 'text'" :placeholder="v.title" v-model="attrs[v.title]" ></mt-field>
             <mt-cell v-if="v.leipiplugins == 'macros'" :title="v.title" :value="attrs[v.title]">
             </mt-cell>
-            <mt-cell v-if="v.leipiplugins == 'select'" :title="v.title" is-link @click.native="select(v)">
+            <mt-cell v-if="v.leipiplugins == 'select'" :title="v.title" is-link @click.native="select(v)" :value="attrs[v.title]">
+            </mt-cell>
+            <mt-field v-if="v.leipiplugins == 'textarea'" :label="v.title" :placeholder="v.title" type="textarea" rows="3" v-modal="attrs[v.title]"></mt-field>
+            <mt-cell v-if="v.leipiplugins == 'datetime'" :title="v.title" is-link @click.native="pickTime(v)" :value="attrs[v.title]">
             </mt-cell>
         </div>
+
+        <mt-actionsheet
+                :actions="selectOptions"
+                v-model="selectVisible">
+        </mt-actionsheet>
+
+        <mt-datetime-picker
+                v-if="timeType != ''"
+                @confirm="pickTimeOk"
+                ref="datePicker"
+                :type="timeType"
+                v-model="timeValue">
+        </mt-datetime-picker>
 
         <mt-popup
                 v-model="popupVisible"
                 position="bottom">
-
-            <mt-radio
-                    v-if="popType == 'select'"
-                    title="单选框列表"
-                    v-model="value"
-                    :options="selectOptions">
-            </mt-radio>
+<!--            <mt-radio-->
+<!--                    v-if="popType == 'select'"-->
+<!--                    title="单选框列表"-->
+<!--                    v-model="value"-->
+<!--                    :options="selectOptions"-->
+<!--            >-->
+<!--            </mt-radio>-->
         </mt-popup>
+
+
+        <mt-palette-button
+                content="详"
+                           direction="lt" class="pb" :radius="80" ref="target_1"
+                mainButtonStyle="color:#fff;background-color:#26a2ff;"
+                           style="right:20px;position:absolute;bottom: 20px;">
+            <div class="my-icon-button indexicon icon-popup" @touchstart="sub_log(1)">单</div>
+            <div class="my-icon-button indexicon icon-popup" @touchstart="sub_log(2)">图</div>
+            <div class="my-icon-button indexicon icon-popup" @touchstart="sub_log(3)">历</div>
+        </mt-palette-button>
     </div>
 </script>
 
 <script>
+    Date.prototype.Format = function(fmt)
+    { //author: meizz
+        var o = {
+            "M+" : this.getMonth()+1,                 //月份
+            "d+" : this.getDate(),                    //日
+            "h+" : this.getHours(),                   //小时
+            "m+" : this.getMinutes(),                 //分
+            "s+" : this.getSeconds(),                 //秒
+            "q+" : Math.floor((this.getMonth()+3)/3), //季度
+            "S"  : this.getMilliseconds()             //毫秒
+        };
+        if(/(y+)/.test(fmt))
+            fmt=fmt.replace(RegExp.$1, (this.getFullYear()+"").substr(4 - RegExp.$1.length));
+        for(var k in o)
+            if(new RegExp("("+ k +")").test(fmt))
+                fmt = fmt.replace(RegExp.$1, (RegExp.$1.length==1) ? (o[k]) : (("00"+ o[k]).substr((""+ o[k]).length)));
+        return fmt;
+    }
+
     const Form = Vue.component("Form", {
         template:$("#form-tmpl").html(),
         data(){
@@ -30,15 +87,73 @@
                 fields: [],
                 attrs:{},
                 popType: "",
-                popupVisible: true,
-                selectOptions: [],
-                html: ""
+                popupVisible: false,
+                selectVisible: false,
+                selectOptions:  [],
+                html: "",
+                value: "",
+                timeType:"",
+                timeValue:"",
+                timeKey: "",
             }
         },
         methods:{
+            sub_log(val) {
+                console.log('sub_log', val);
+                this.$refs.target_1.collapse();
+            },
+            getDateType(v){
+                switch (v.orgformat) {
+                    case "日期":
+                        return "date";
+                    case "时间":
+                        return "time";
+                    default:
+                        return "datetime";
+                }
+            },
+            pickTime(v){
+                this.timeKey = v.title;
+                this.timeType = this.getDateType(v);
+                this.$nextTick(() => {
+                    this.$refs.datePicker.open();
+                })
+                // console.log(this.timeType)
+                 // this.$refs.datePicker.open();
+            },
+            pickTimeOk(v){
+                switch (this.timeType) {
+                    case "datetime":
+                        v = v.Format("yyyy-MM-dd hh:mm:ss");
+                        break
+
+                    case "time":
+                        v = v.Format("hh:mm:ss");
+                        break;
+
+                    case "date":
+                        v = v.Format("yyyy-MM-dd");
+                        break;
+                }
+                console.log(arguments, this.timeKey, this.timeValue, v)
+                Vue.set(this.attrs, this.timeKey, v);
+                // this.set(this.attrs, this.timeKey, v);
+                // this.attrs.set(this.timeKey, v);
+            },
             select(v){
-                this.popType = 'select'
-                this.popupVisible = true;
+                // this.popType = 'select'
+                // this.popupVisible = true;
+                console.log(v.values)
+                var t = this;
+                this.selectVisible = true;
+                this.selectOptions = v.values.map(e => {
+                    return {
+                        name: e,
+                        method() {
+                            t.attrs[v.title] = e;
+                        }
+                    }
+                })
             },
             load(){
                 console.log(this.$route)

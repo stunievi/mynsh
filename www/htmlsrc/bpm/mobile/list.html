@@ -141,17 +141,15 @@
                             if(!keys.length) {
                                 return []
                             } else {
-                                items = (this.models[keys[0]].children || [])
+                                return (this.models[keys[0]].children || [])
                                     .filter(e => e.type == 'form')
-                                    // .map(e => e.text)
-                                return items.map(e => e.text)
+                                    .map(e => e.text)
                             }
                         })(),
                         className: 'slot3',
                         textAlign: 'left'
                     }
                 ];
-                this.slots[2].items = items;
             },
             onValuesChange(picker,e) {
                 if(!this.models[e[0]]){
@@ -163,19 +161,30 @@
                 );
             },
             pub(){
-                var name = this.$refs.picker.getSlotValue(1);
-                var idex = (this.slots[2].values || []).indexOf(name);
-                //todo 需要有提示
-                if(idex > -1){
-                    var id = this.slots[2].items[idex].id;
-                    this.$router.push({
-                        name:"form",
-                        params:{
-                            type:"pub",
-                            id:id
-                        }
-                    })
+                var name = this.$refs.picker.getSlotValue(0);
+                console.log(name,this.models)
+                if(!this.models[name]){
+                    return
                 }
+                var values = this.models[name].children || [];
+                 name = this.$refs.picker.getSlotValue(1);
+                console.log(values)
+                for (var i = 0; i < values.length; i++) {
+                   if(values[i].text == name){
+                       var id = values[i].id;
+                       this.$router.push({
+                           name:"form",
+                           params:{
+                               type:"pub",
+                               id:id
+                           }
+                       })
+                      break
+                   }
+                }
+
+
+                //todo 需要有提示
             }
         },
         mounted: function () {
