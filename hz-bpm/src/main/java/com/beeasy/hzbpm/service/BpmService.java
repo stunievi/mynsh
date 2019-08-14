@@ -828,9 +828,7 @@ public class BpmService {
                 .filter(e -> e.uids.contains(uid))
                 .findFirst()
                 .orElse(null);
-        if (currentNode == null) {
-            error("当前节点查询失败");
-        }
+
         return currentNode;
     }
 
@@ -844,12 +842,11 @@ public class BpmService {
     public List<BpmModel.Node> getNextNodes(String uid, Obj attrs) {
         //查找所有的属性
         Obj oldAttrs = new Obj(ins.attrs);
-        oldAttrs.putAll(attrs);
+        if (attrs != null) {
+            oldAttrs.putAll(attrs);
+        }
         //当前处理的节点
-        BpmInstance.CurrentNode currentNode = ins.currentNodes.stream()
-                .filter(e -> e.uids.contains(uid))
-                .findFirst()
-                .orElse(null);
+        BpmInstance.CurrentNode currentNode = getCurrent(uid);
         if (currentNode == null) {
             error("当前节点查询失败");
         }
@@ -1094,11 +1091,35 @@ public class BpmService {
      * 保存选取的下一步处理人
      * @param uid 提交人
      */
-    public boolean nextApprover(String uid, Obj update, Obj body){
+    public Object nextApprover(String uid, Obj update, Obj body, Obj data,Arr files){
         if(body == null ){
             error("下一步骤参数不能为空");
         }
+        Object bl;
+
         BpmService bpmService = this;
+
+        boolean saveIns = saveIns(uid, data, true, "deal", files);
+        if(!saveIns){
+            error("数据保存错误");
+        }
+
+        List<BpmModel.Node> nextNodes1 = getNextNodes(uid, data);
+        //有且只有一个是结束的时候，直接结束
+        if(nextNodes1.size() == 1 && nextNodes1.get(0).id.equals(bpmService.ins.bpmModel.end)){
+            Obj state = o();
+            state.put("state", "已办结");
+            state.put("currentNodes", a());
+            MongoCollection<Document> collection = db.getCollection("bpmInstance");
+            UpdateResult res = collection.updateOne(Filters.eq("_id", bpmService.ins._id),new Document("$set", state.toBson()));
+//            bl = res.getModifiedCount()>0;
+            if(res.getModifiedCount()>0){
+                bl = "提交成功，该流程已结束！";
+                sendNotice(body);
+                return bl;
+            }
+        }
+
         BpmModel.Node node = getCurrentNode(uid);
 
         List<String> nextNodeId = (List<String>) body.get("nodeIds");
@@ -1397,11 +1418,11 @@ public class BpmService {
         //发送消息人员
         Set<String> sendUser = new HashSet<>();
 
-        if(nextStepNotice){
+        if(nextStepNotice && StrUtil.isNotBlank(nextUid)){
             // 下一步骤
             sendUser.add(nextUid);
         }
-        if(startNotice){
+        if(startNotice && StrUtil.isNotBlank(bpmService.ins.pubUid)){
             // 发起人
             sendUser.add(bpmService.ins.pubUid);
         }
@@ -1412,7 +1433,7 @@ public class BpmService {
                 sendUser.add(list.uid);
             }
         }
-        if(sendUser.size()>0){
+        if(null != sendUser && sendUser.size()>0){
             Notice.sendSystem(sendUser, message);
         }
 //

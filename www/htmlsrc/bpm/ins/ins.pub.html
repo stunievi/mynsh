@@ -273,17 +273,8 @@
         // }
     };
 
-    function submit(gonext){
-        var url = "";
-        if(type == 'pub'){
-            url = "/api/bpm/workflow/createIns";
-        } else {
-            if(gonext){
-                url = "/api/bpm/workflow/subIns";
-            }else{
-                url = "/api/bpm/workflow/saveIns";
-            }
-        }
+    // 子页面调用函数
+    function getData() {
         var data = {};
         $.each(Data.formFields || [], function (i, v) {
             var key = v;
@@ -304,7 +295,6 @@
             }
             data[key] = val;
         });
-        // console.log(Data.formFields,data)
 
         //提交所有这个节点上的文件
         var _files = files.files
@@ -317,7 +307,74 @@
             .map(function (e) {
                 return e.resp ? e.resp : e;
             });
+        return ({
+            data: data,
+            files: _files
+        })
+    }
 
+    function submit(gonext){
+        var url = "";
+        if(type == 'pub'){
+            url = "/api/bpm/workflow/createIns";
+        } else {
+            if(gonext){
+                url = "/api/bpm/workflow/subIns";
+            }else{
+                url = "/api/bpm/workflow/saveIns";
+            }
+        }
+        var data = getData();
+        // $.each(Data.formFields || [], function (i, v) {
+        //     var key = v;
+        //     if(!Data.allFields[v]){
+        //         return
+        //     }
+        //     var elem = FormBody.find("[name=" + Data.allFields[v].name + "]");
+        //     var val;
+        //     if(elem.is("[leipiplugins=sign]")){
+        //         val = elem.attr("src");
+        //         if(val.indexOf("sign.png") > -1){
+        //             val = "";
+        //         } else {
+        //             val = "[img]" + val;
+        //         }
+        //     } else {
+        //         val = elem.val();
+        //     }
+        //     data[key] = val;
+        // });
+        // // console.log(Data.formFields,data)
+        //
+        // //提交所有这个节点上的文件
+        // var _files = files.files
+        //     .filter(function (e) {
+        //         return !e.uploading;
+        //     })
+        //     .filter(function (e) {
+        //         return e.resp || e.action == "delete";
+        //     })
+        //     .map(function (e) {
+        //         return e.resp ? e.resp : e;
+        //     });
+        var iWidth = "650";                         //弹出窗口的宽度;
+        var iHeight = "590";                        //弹出窗口的高度;
+        //window.screen.height获得屏幕的高，window.screen.width获得屏幕的宽
+        var iTop = (window.screen.height-30-iHeight)/2;       //获得窗口的垂直位置;
+        var iLeft = (window.screen.width-10-iWidth)/2;        //获得窗口的水平位置;
+        if(type != 'pub' && gonext){
+            // var da = JSON.stringify({
+            //     id: id,
+            //     data: data,
+            //     mode: type,
+            //     files: _files
+            // })
+            window.open("./ins.next.html?id=" + id, "nextpersons", "top="+iTop+", left="+iLeft+", width=670, height=570")
+            return;
+        }
+
+        data.id = id;
+        data.mode = type;
         $.ajax({
             url: url, //"/api/bpm/workflow/createIns",
             type:"post",
@@ -325,12 +382,7 @@
                 "Content-Type": "application/json"
             },
             dataType:"json",
-            data: JSON.stringify({
-                id: id,
-                data: data,
-                mode: type,
-                files: _files
-            }),
+            data: JSON.stringify(data),
             success: function (msg) {
                 if(!msg.success){
                     layer.msg(msg.errMessage)
@@ -341,11 +393,6 @@
                 if(window.opener && window.opener.initTable){
                     window.opener.initTable.apply(null, opener.last)
                 }
-                var iWidth = "650";                         //弹出窗口的宽度;
-                var iHeight = "590";                        //弹出窗口的高度;
-                //window.screen.height获得屏幕的高，window.screen.width获得屏幕的宽
-                var iTop = (window.screen.height-30-iHeight)/2;       //获得窗口的垂直位置;
-                var iLeft = (window.screen.width-10-iWidth)/2;        //获得窗口的水平位置;
 
                 if(window.type == 'pub'){
                     // window.type = "deal";
@@ -536,6 +583,7 @@
     });
 
     $("#submit").click(function () {
+        // getData();
         submit(true);
     });
 
