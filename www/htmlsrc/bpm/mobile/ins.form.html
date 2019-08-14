@@ -2,13 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>表单</title>
 
     <link rel="stylesheet" href="../lib/css/style.css">
-    <link rel="stylesheet" href="./ueditor.css">
+    <link rel="stylesheet" href="../ins/ueditor.css">
 
     <script src="../../../static/vendor/jquery/jquery.js"></script>
     <script src="../../../static/htmljs/utils.js"></script>
@@ -76,6 +74,7 @@
     <script>
         window.type = getParam("type");
         window.id = getParam("id");
+        window.uid = getParam("uid");
     </script>
     <script src="../lib/bpm/bpmn-viewer.js"></script>
     <script src="../lib/layer/layer.js"></script>
@@ -162,55 +161,55 @@
             // })
 
             //编辑模式
-            if(type == 'edit'){
-                Data.formFields = [];
-                for(var i in Data.allFields){
-                    Data.formFields.push(i)
-                }
-            }
+            // if(type == 'edit'){
+            //     Data.formFields = [];
+            //     for(var i in Data.allFields){
+            //         Data.formFields.push(i)
+            //     }
+            // }
 
             //当前节点可编辑
-            $.each(Data.formFields || [], function (i, v) {
-                if(!Data.allFields[v]){
-                    return
-                }
-                var elem = body.find("[name=" + Data.allFields[v].name + "]");
-                elem.removeProp("disabled").css("border", "1px solid blue")
-                if(elem.is("[leipiplugins=datetime]")){
-                    elem.prop("readonly","true")
-
-                    ;(function (title, type) {
-                            laydate.render({
-                                elem: "[leipiplugins=datetime][title="+title+"]"
-                                ,type: (function () {
-                                    switch (type) {
-                                        case "日期" :
-                                            return "date";
-
-                                        case "日期+时间":
-                                            return "datetime";
-
-                                        case "时间":
-                                            return "time";
-                                    }
-                                })()
-                        })
-                    })(elem[0].title, elem.attr("orgformat"));
-                }
-
-                if(elem.is("[leipiplugins=sign]")){
-                    elem.click(function () {
-                        var id = $(this).attr("name");
-                        var src = $(this).attr("src");
-                        window.open("./sign.html?name=" + id + "&src=" + src, "bpm-sign", "left=100, top=100, width=500, height=500, location=no")
-                    });
-                }
-            });
+            // $.each(Data.formFields || [], function (i, v) {
+            //     if(!Data.allFields[v]){
+            //         return
+            //     }
+            //     var elem = body.find("[name=" + Data.allFields[v].name + "]");
+            //     // elem.removeProp("disabled").css("border", "1px solid blue")
+            //     if(elem.is("[leipiplugins=datetime]")){
+            //         elem.prop("readonly","true")
+            //
+            //         ;(function (title, type) {
+            //                 laydate.render({
+            //                     elem: "[leipiplugins=datetime][title="+title+"]"
+            //                     ,type: (function () {
+            //                         switch (type) {
+            //                             case "日期" :
+            //                                 return "date";
+            //
+            //                             case "日期+时间":
+            //                                 return "datetime";
+            //
+            //                             case "时间":
+            //                                 return "time";
+            //                         }
+            //                     })()
+            //             })
+            //         })(elem[0].title, elem.attr("orgformat"));
+            //     }
+            //
+            //     if(elem.is("[leipiplugins=sign]")){
+            //         elem.click(function () {
+            //             var id = $(this).attr("name");
+            //             var src = $(this).attr("src");
+            //             window.open("./sign.html?name=" + id + "&src=" + src, "bpm-sign", "left=100, top=100, width=500, height=500, location=no")
+            //         });
+            //     }
+            // });
 
             //必填字段标红
-            $.each(Data.requiredFields || [], function (i, v) {
-                body.find("[name=" + Data.allFields[v].name + "]").removeProp("disabled").css("border-color", "red")
-            });
+            // $.each(Data.requiredFields || [], function (i, v) {
+            //     body.find("[name=" + Data.allFields[v].name + "]").removeProp("disabled").css("border-color", "red")
+            // });
 
             //时间字段
 
@@ -325,9 +324,9 @@
 
             //事件
             if(type == 'pub'){
-                $(".action").show();
+                // $(".action").show();
             } else if((type == 'deal' && msg.data.deal) || (type == 'edit')){
-                $(".action").show();
+                // $(".action").show();
                 if(type == 'edit'){
                     $(".action #submit").hide();
                 }
@@ -337,17 +336,17 @@
                 }
             }
 
-            if(msg.data.allowBack){
-                $("#goBack").show();
-            }
-
-            if(msg.data.node && msg.data.node.allowUpload){
-                $("#upload").show();
-            }
-
-            if(type != "pub"){
-                $(".process").show()
-            }
+            // if(msg.data.allowBack){
+            //     $("#goBack").show();
+            // }
+            //
+            // if(msg.data.node && msg.data.node.allowUpload){
+            //     $("#upload").show();
+            // }
+            //
+            // if(type != "pub"){
+            //     $(".process").show()
+            // }
         }, "json");
     }
 
@@ -421,7 +420,7 @@
         el: "#file-app",
         data:{
             files: [],
-            uid: JSON.parse(localStorage.$user).id
+            uid: uid
         },
         methods: {
             remove: function (i) {

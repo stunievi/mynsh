@@ -20,9 +20,12 @@
             <mt-field v-if="v.leipiplugins == 'textarea'" :label="v.title" :placeholder="v.title" type="textarea" rows="3" v-modal="attrs[v.title]"></mt-field>
             <mt-cell v-if="v.leipiplugins == 'datetime'" :title="v.title" is-link @click.native="pickTime(v)" :value="attrs[v.title]">
             </mt-cell>
+            <mt-cell v-if="v.leipiplugins == 'sign'" :title="v.title" @click.native="sign(v)">
+                <img width="40" height="40" :src="formatSign(attrs[v.title])"  >
+            </mt-cell>
         </div>
 
-        <div style="text-align: center; padding-top: 30px">
+        <div style="text-align: center; padding-top: 30px" v-if="deal">
             <mt-button type="primary" @click="submit(false)" style="margin-right: 15px;" size="small">保存</mt-button>
             <mt-button type="primary" @click="submit(true)" size="small">提交</mt-button>
         </div>
@@ -62,6 +65,8 @@
             <div class="my-icon-button indexicon icon-popup" @touchstart="sub_log(2)">图</div>
             <div class="my-icon-button indexicon icon-popup" @touchstart="sub_log(3)">历</div>
         </mt-palette-button>
+
+        <Sign v-if="canSign" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%;"></Sign>
     </div>
 </script>
 
@@ -102,10 +107,34 @@
                 timeKey: "",
 
                 type:"",
-                id:""
+                id:"",
+                deal: false,
+                canSign: false,
+                signKey: ""
             }
         },
         methods:{
+            sign(v){
+                this.signKey = v.title
+                this.canSign = true;
+                // this.$router.push({
+                //     name: "sign",
+                //     params:{
+                //         title: v.title
+                //     }
+                // })
+            },
+
+            formatSign(file){
+                if(!file){
+                    return "../form/sign.png"
+                }
+                if(file.indexOf("[img]") == -1){
+                    return "/api/bpm/workflow/download?path=" + file;
+                } else {
+                    return file.replace("[img]", "");
+                }
+            },
             sub_log(val) {
                 switch (val) {
                     case 1:
@@ -190,6 +219,7 @@
                     return
                 }
 
+
                 var data = {
                     id: params.id,
                     data: this.attrs,
@@ -240,6 +270,7 @@
                     if(!msg.success){
                         return
                     }
+                    this.deal = msg.data.deal;
                     this.attrs = msg.data.attrs || {}
                     this.fields = msg.data.formFields
                         .map(e => msg.data.allFields[e])
@@ -250,6 +281,11 @@
         },
         mounted(){
             this.load()
+            eventBus.$on('sign_ok', (data) => {        //赋值给首页的附近医院数据模型
+                console.log(data)
+                Vue.set(this.attrs, this.signKey, "[img]/api/bpm/workflow/download?path=" + data.url);
+                this.canSign = false;
+            });
         }
     });
 </script>
