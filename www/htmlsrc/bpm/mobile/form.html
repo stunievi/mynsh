@@ -1,4 +1,7 @@
 <style>
+    #form .mint-popup.mint-popup-bottom {
+        width: 100%;
+    }
     .my-icon-button {
         width: 30px;
         height: 30px;
@@ -11,21 +14,26 @@
 </style>
 <script id="form-tmpl" type="text/html">
     <div class="full" id="form">
-        <div v-for="v in fields">
-            <mt-field :label="v.title" v-if="v.leipiplugins == 'text'" :placeholder="v.title" v-model="attrs[v.title]" ></mt-field>
-            <mt-cell v-if="v.leipiplugins == 'macros'" :title="v.title" :value="attrs[v.title]">
-            </mt-cell>
-            <mt-cell v-if="v.leipiplugins == 'select'" :title="v.title" is-link @click.native="select(v)" :value="attrs[v.title]">
-            </mt-cell>
-            <mt-field v-if="v.leipiplugins == 'textarea'" :label="v.title" :placeholder="v.title" type="textarea" rows="3" v-modal="attrs[v.title]"></mt-field>
-            <mt-cell v-if="v.leipiplugins == 'datetime'" :title="v.title" is-link @click.native="pickTime(v)" :value="attrs[v.title]">
-            </mt-cell>
-            <mt-cell v-if="v.leipiplugins == 'sign'" :title="v.title" @click.native="sign(v)">
-                <img width="40" height="40" :src="formatSign(attrs[v.title])"  >
-            </mt-cell>
+        <div>
+            <div v-for="v in fields" v-if="fields.length">
+                <mt-field :label="v.title" v-if="v.leipiplugins == 'text'" :placeholder="v.title" v-model="attrs[v.title]" ></mt-field>
+                <mt-cell v-if="v.leipiplugins == 'macros'" :title="v.title" :value="attrs[v.title]">
+                </mt-cell>
+                <mt-cell v-if="v.leipiplugins == 'select'" :title="v.title" is-link @click.native="select(v)" :value="attrs[v.title]">
+                </mt-cell>
+                <mt-field v-if="v.leipiplugins == 'textarea'" :label="v.title" :placeholder="v.title" type="textarea" rows="3" v-modal="attrs[v.title]"></mt-field>
+                <mt-cell v-if="v.leipiplugins == 'datetime'" :title="v.title" is-link @click.native="pickTime(v)" :value="attrs[v.title]">
+                </mt-cell>
+                <mt-cell v-if="v.leipiplugins == 'sign'" :title="v.title" @click.native="sign(v)">
+                    <img width="40" height="40" :src="formatSign(attrs[v.title])"  >
+                </mt-cell>
+            </div>
+            <div v-if="!fields.length" style="height: 300px;line-height: 300px; text-align: center">
+                无可以填写的信息，请查看任务详情
+            </div>
         </div>
 
-        <div style="text-align: center; padding-top: 30px" v-if="deal">
+        <div style="text-align: center; padding-top: 30px" v-if="fields.length">
             <mt-button type="primary" @click="submit(false)" style="margin-right: 15px;" size="small">保存</mt-button>
             <mt-button type="primary" @click="submit(true)" size="small">提交</mt-button>
         </div>
@@ -65,6 +73,15 @@
             <div class="my-icon-button indexicon icon-popup" @touchstart="sub_log(2)">图</div>
             <div class="my-icon-button indexicon icon-popup" @touchstart="sub_log(3)">历</div>
         </mt-palette-button>
+
+        <mt-popup
+                v-model="chooseUserVisible"
+                position="bottom">
+            <mt-picker :slots="slots" ref="picker" @change="onValuesChange"></mt-picker>
+            <div style="text-align: center; padding-bottom: 20px;">
+                <mt-button style="width: 80%;" type="primary" @click="flow">确定</mt-button>
+            </div>
+        </mt-popup>
 
         <Sign v-if="canSign" :url="formatSign(attrs[signKey])" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%;"></Sign>
     </div>
@@ -110,7 +127,11 @@
                 id:"",
                 deal: false,
                 canSign: false,
-                signKey: ""
+                signKey: "",
+
+                chooseUserVisible: false,
+                slots:[],
+                next: []
             }
         },
         methods:{
@@ -215,7 +236,8 @@
                     url = "/api/bpm/workflow/saveIns";
                 };
 
-                if(params.type == 'pub' && gonext){
+                if(params.type != 'pub' && gonext){
+                    this.getDealers();
                     return
                 }
 
@@ -251,6 +273,8 @@
                             });
                         } else if(!gonext){
                             showMsg("保存成功");
+                        } else {
+                            this.getDealers();
                         }
                     }
                 });
@@ -277,6 +301,115 @@
                         .filter(e => e)
 
                 },"json");
+            },
+            getDealers(){
+                console.log(this)
+                $.ajax({
+                    url: "/api/bpm/workflow/getNextDealers",
+                    type:"post",
+                    headers:{
+                        "Content-Type": "application/json"
+                    },
+                    data: JSON.stringify({id: this.$route.params.id, data: this.attrs}),
+                    success: (msg) => {
+                        if(!msg.success){
+                            showMsg(msg.errMessage);
+                            return;
+                        }
+                        this.next = msg.data.next;
+
+                        this.slots = [
+                            {
+                                flex: 1,
+                                values: (msg.data.next||[]).map(e => e.nodeName),
+                                className: 'slot1',
+                                textAlign: 'right'
+                            }, {
+                                divider: true,
+                                content: '-',
+                                className: 'slot2'
+                            },
+                            {
+                                flex: 1,
+                                values: [],
+                                className: 'slot3',
+                                textAlign: 'left'
+                            }
+                        ];
+
+                        this.chooseUserVisible = true;
+                        this.$nextTick(() => {
+                            this.onValuesChange(this.$refs.picker, [(this.next[0] || {}).nodeName])
+                        })
+                    }
+                })
+            },
+            onValuesChange(picker, e){
+                console.log(e)
+                for (let i = 0; i < this.next.length; i++) {
+                    if(this.next[i].nodeName == e[0]){
+                        picker.setSlotValues(1,(this.next[i].dealers||[])
+                            .map(e => e.utname + " " + e.uname)
+                        );
+                    }
+                }
+            },
+            flow(){
+                var name = this.$refs.picker.getSlotValue(0);
+                for (let i = 0; i < this.next.length; i++) {
+                    if(this.next[i].nodeName == name){
+                        var values = this.next[i].dealers || [];
+                        name = this.$refs.picker.getSlotValue(1);
+                        for (let j = 0; j < values.length; j++) {
+                            if(name == values[j].utname + " " + values[j].uname){
+                                $.ajax({
+                                    url: "/api/bpm/workflow/nextApprover",
+                                    type: "post",
+                                    headers: {
+                                        "Content-Type": "application/json"
+                                    },
+                                    dataType: "json",
+                                    data: JSON.stringify({
+                                        files:[],
+                                        data:this.attrs,
+                                        id: this.id,
+                                        nodeIds: [this.next[i].nodeId],
+                                        uids: values[j].uid,
+                                        nextStepNotice: false,
+                                        nextStepShort: false,
+                                        startNotice: false,
+                                        startShort: false,
+                                        allNotice: false,
+                                        allShort: false,
+                                        message:""
+                                    }),
+                                    success: function (msg) {
+                                        if (!msg.success) {
+                                            return;
+                                        }
+                                        showMsg("提交成功");
+                                        location.reload();
+                                        // if(d.nodeIds[0] && d.nodeIds[0].indexOf("EndEvent") != -1 ){
+                                        //     window.opener.layer.msg(msg.data);
+                                        // }else{
+                                        //     window.opener.layer.msg("提交成功！");
+                                        // }
+                                        // window.opener.load("deal", id);
+                                        // opener.type = "deal";
+                                        // opener.id = id;
+                                        // window.opener.scrollTo(0, 0);
+                                        // window.close();
+                                    }
+                                    // complete: function () {
+                                    //     layer.close
+                                    // }
+                                })
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                }
             }
         },
         mounted(){
