@@ -204,7 +204,7 @@
                         <!--<input type="text" v-model="data.message" class="form-control input-sm" id="modelName"-->
                                <!--name="modelName" :placeholder="'您有新的工作需要办理，流程id：' + ins.id + '，流程：' + ins.bpmName">-->
                         <input type="text" v-model="data.message" class="form-control input-sm" id="modelName"
-                               name="modelName" :placeholder= "reversedMessage">
+                               name="modelName" :placeholder= "changeMessage">
                     </td>
                 </tr>
             </table>
@@ -340,13 +340,13 @@
             }
         },
         computed:{
-            reversedMessage: function () {
-                if(app.$data.data.nodeIds[0] && app.$data.data.nodeIds[0].indexOf("EndEvent") != -1){
-                    return this.message = "流程已办结，流程id：" + app.$data.ins.id + "，流程：" + app.$data.ins.bpmName;
+            changeMessage: function () {
+                    if(this.data.nodeIds[0] && this.data.nodeIds[0].indexOf("EndEvent") != -1){
+                        return this.message = "您参与的流程已办结，流程id：" + this.ins.id + "，流程：" + this.ins.bpmName;
 
-                }else{
-                    return this.message = "您有新的工作需要办理，流程id：" + app.$data.ins.id + "，流程：" + app.$data.ins.bpmName;
-                }
+                    }else{
+                        return this.message = "您有新的工作需要办理，流程id：" + this.ins.id + "，流程：" + this.ins.bpmName;
+                    }
                 return null;
             }
         },
@@ -354,9 +354,8 @@
             submit: function () {
                 var d = app.$data.data;
                 if (!d.message) {
-                    console.log(d.nodeIds)
                     if(d.nodeIds[0] && d.nodeIds[0].indexOf("EndEvent") != -1){
-                        d.message = "流程已办结，流程id：" + app.$data.ins.id + "，流程：" + app.$data.ins.bpmName;
+                        d.message = "您参与的流程已办结，流程id：" + app.$data.ins.id + "，流程：" + app.$data.ins.bpmName;
                     }else{
                         d.message = "您有新的工作需要办理，流程id：" + app.$data.ins.id + "，流程：" + app.$data.ins.bpmName;
                     }
