@@ -1,0 +1,68 @@
+<script id="form-tmpl" type="text/html">
+    <div class="full">
+        <div v-for="v in fields">
+            <mt-field :label="v.title" v-if="v.leipiplugins == 'text'" placeholder="" v-model="attrs[v.title]" ></mt-field>
+            <mt-cell v-if="v.leipiplugins == 'macros'" :title="v.title" :value="attrs[v.title]">
+            </mt-cell>
+            <mt-cell v-if="v.leipiplugins == 'select'" :title="v.title" is-link @click.native="select(v)">
+            </mt-cell>
+        </div>
+
+        <mt-popup
+                v-model="popupVisible"
+                position="bottom">
+
+            <mt-radio
+                    v-if="popType == 'select'"
+                    title="单选框列表"
+                    v-model="value"
+                    :options="selectOptions">
+            </mt-radio>
+        </mt-popup>
+    </div>
+</script>
+
+<script>
+    const Form = Vue.component("Form", {
+        template:$("#form-tmpl").html(),
+        data(){
+            return {
+                fields: [],
+                attrs:{},
+                popType: "",
+                popupVisible: true,
+                selectOptions: [],
+                html: ""
+            }
+        },
+        methods:{
+            select(v){
+                this.popType = 'select'
+                this.popupVisible = true;
+            },
+            load(){
+                console.log(this.$route)
+                var params = this.$route.params;
+                var url = "";
+                if(params.type == 'pub'){
+                    url = "/api/bpm/workflow/preparePub";
+                } else {
+                    url = "/api/bpm/workflow/getInsInfo";
+                }
+                $.get(url, {id:params.id}, (msg) => {
+                    if(!msg.success){
+                        return
+                    }
+                    this.attrs = msg.data.attrs || {}
+                    this.fields = msg.data.formFields
+                        .map(e => msg.data.allFields[e])
+                        .filter(e => e)
+
+                },"json");
+            }
+        },
+        mounted(){
+            this.load()
+        }
+    });
+</script>

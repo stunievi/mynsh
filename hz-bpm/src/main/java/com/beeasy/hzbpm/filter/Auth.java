@@ -32,6 +32,9 @@ public class Auth {
         if(StrUtil.isBlank(token)){
             token = headers.s("HZToken");
         }
+        if(StrUtil.isBlank(token)){
+            token = headers.s("Token");
+        }
         if (StrUtil.isBlank(token)) {
             return R.fail();
         }
