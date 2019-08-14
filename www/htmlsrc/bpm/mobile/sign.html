@@ -21,6 +21,9 @@
 <script>
     const Sign = Vue.component("Sign", {
         template:$("#sign-tmpl").html(),
+        props:{
+           url: String
+        },
         data(){
             return {
                 stageInfo:'',
@@ -129,6 +132,16 @@
             canvas.width = this.$refs.canvasHW.offsetWidth
             this.canvasTxt = canvas.getContext('2d')
             this.stageInfo = canvas.getBoundingClientRect();
+
+            if(this.url){
+                var img = new Image();
+                img.onload = () => {
+                    console.log(img, canvas.width, canvas.height)
+                    this.canvasTxt.drawImage(img,0,0);
+                }
+                img.src = this.url;
+
+            }
 
         }
     });
