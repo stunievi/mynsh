@@ -153,6 +153,7 @@
                             var items = $(this).find("input");
                             if(items.length > 0){
                                 data = getAttrs(this);
+                                data.values = [];
                                 items.each(function () {
                                     data.values.push($(this).val())
                                 });
@@ -381,6 +382,7 @@
                                 return
                             }
                             parent.onFormEdited(data.id ? "edit" : "add", msg.data);
+                            layer.msg("保存成功")
                             // console.log(msg);
                             //
                             // var id = (frameElement && frameElement.id);

@@ -5,13 +5,7 @@
 </style>
 <script id="list-tmpl" type="text/html">
     <div id="ins-list" class="full">
-        <mt-navbar v-model="active">
-            <mt-tab-item :id="v.id" v-for="v in items">{{v.title}}</mt-tab-item>
-        </mt-navbar>
-        <mt-tab-container id="tab-body" v-model="active" :swipeable="true">
-            <mt-tab-container-item :id="v.id" v-for="v in items">
-                <!--                <mt-loadmore :top-method="loadTop" :ref="v.id" :top-status.sync="topStatus" v-if="v.list.length">-->
-                <div v-for="vv in v.list" class="bpm-item box6" v-if="v.list.length" @click="show(vv._id)">
+                <div v-for="vv in list" class="bpm-item box6" v-if="list.length" @click="show(vv)">
                     <div class="flex-row">
                         <img class="face" src="./face.jpg" width="60" height="60" alt="">
                         <div class="flex-col flex-center pl20">
@@ -36,9 +30,7 @@
                 <div v-else class="bpm-empty">
                     已经没有数据了
                 </div>
-            </mt-tab-container-item>
 
-        </mt-tab-container>
 
         <mt-palette-button content="+" id="addTask" @click.native="addTask()">
             <div class="my-icon-button"></div>
@@ -63,6 +55,7 @@
         template: $("#list-tmpl").html(),
         data() {
             return {
+                list:[],
                 items: [
                     {
                         id: "wait",
@@ -99,27 +92,23 @@
             loadTop: function () {
                 this.$refs.loadmore.onTopLoaded();
             },
-            load(id, type) {
+            load(type = "todo") {
                 $.get("/api/bpm/workflow/getInsList", {
                     type: type
                 }, (msg) => {
                     if (msg.success) {
-                        this.items.forEach(e => {
-                            if (e.id == id) {
-                                e.list = msg.data.list
-                            }
-                        });
+                        this.list = msg.data.list;
+                        // this.items.forEach(e => {
+                        //     if (e.id == id) {
+                        //         e.list = msg.data.list
+                        //     }
+                        // });
                     }
                 }, "json");
             },
-            show(id) {
-                this.$router.push({
-                    name: "form",
-                    params: {
-                        id: id,
-                        type: "deal"
-                    }
-                })
+            show(v) {
+                console.log(v.deal)
+                startFragment("tab4", v._id, "deal", v.deal ? "1" : "0");
             },
             addTask() {
                 this.popupVisible = true;
@@ -172,13 +161,14 @@
                 for (var i = 0; i < values.length; i++) {
                    if(values[i].text == name){
                        var id = values[i].id;
-                       this.$router.push({
-                           name:"form",
-                           params:{
-                               type:"pub",
-                               id:id
-                           }
-                       })
+                       startFragment("tab4", id, "pub", "1");
+                       // this.$router.push({
+                       //     name:"form",
+                       //     params:{
+                       //         type:"pub",
+                       //         id:id
+                       //     }
+                       // })
                       break
                    }
                 }
@@ -188,9 +178,10 @@
             }
         },
         mounted: function () {
-            this.load("wait", "todo")
-            this.load("over", "processed")
-            this.load("end", "over")
+            // this.load("wait", "todo")
+            // this.load("over", "processed")
+            // this.load("end", "over")
+            this.load(this.$route.params.type)
 
             //初始化流程
             $.get("/api/bpm/workflow/modelList", (msg) => {

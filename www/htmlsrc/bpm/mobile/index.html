@@ -110,15 +110,17 @@
         headers:{
             "HZToken": getToken()
         },
-        crossDomain: true
+        crossDomain: true,
+        cache: false
     });
 
     function getToken() {
         if(typeof android != "undefined"){
             return android.jsGetToken()
         } else {
-            return "main|0eb217ab-a093-413e-a82e-4a57c6971e7d";
-            return "main|f066eb20-09e4-4bd5-91a8-df9200c7699e";
+            return "main|986bacde-f14b-4bf0-98b6-601072e84e7f";
+            // return "main|0eb217ab-a093-413e-a82e-4a57c6971e7d";
+            // return "main|f066eb20-09e4-4bd5-91a8-df9200c7699e";
         }
     }
 
@@ -133,9 +135,15 @@
         }
     }
 
-    function startFragment(name,id, type) {
+    function startFragment(name,id, type, flag = "0") {
         if(typeof android != "undefined") {
-            android.jsStartFragment(name,id,type);
+            android.jsStartFragment(name,id,type, flag);
+        }
+    }
+
+    function onBack(name,id, type, flag = "0") {
+        if(typeof android != "undefined") {
+            android.onBack(name,id,type, flag);
         }
     }
 
@@ -147,8 +155,8 @@
 <!--#include file="./next.html"-->
 <script>
     const routes  = [
-        {path: "/", component: InsList, meta:{keepAlive: false}},
-        {name: "form", path: "/show/:type/:id", component: Form, meta: {keepAlive: true}},
+        {path: "/:type", component: InsList, meta:{keepAlive: false}},
+        {name: "form", path: "/show/:type/:id/:flag", component: Form, meta: {keepAlive: true}},
         {name: "next", path: "/next/:type/:id", component: Next, meta: {keepAlive: false}},
         {name: "sign", path: "/sign", component: Sign, meta: {keepAlive: false}},
     ];
