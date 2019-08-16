@@ -67,21 +67,23 @@
             <td valign="top">
                 <div class="col-xs-12">
                     <div class="bs-example bs-example-tabs" data-example-id="togglable-tabs">
-                        <a class="btn btn-sm btn-success pub hide" href="javascript:;" style="float:right;">发起新流程</a>
+
+                        <a class="btn btn-sm btn-danger batchDelete hide" href="javascript:;" style="float:right;">批量删除</a>
+                        <a class="btn btn-sm btn-success pub hide" href="javascript:;" style="float:right;margin-right: 5px">发起新流程</a>
                         <ul id="myTabsBpm" class="nav nav-tabs" role="tablist" style="margin-bottom: 10px;">
-                            <li><a href="#taskBpm1" role="tab"  data-toggle="tab" aria-controls="taskBpm1" aria-expanded="true" onclick="initTable('taskBpm1',window.id,'todo')">待处理任务</a></li>
-                            <li><a href="#taskBpm2" role="tab"  data-toggle="tab" aria-controls="taskBpm2" aria-expanded="true" onclick="initTable('taskBpm2',window.id,'processed')">已处理的任务</a></li>
-                            <li><a href="#taskBpm3" role="tab"  data-toggle="tab" aria-controls="taskBpm3" aria-expanded="true" onclick="initTable('taskBpm3',window.id,'over')">已办结的任务</a></li>
+                            <li><a href="#todo" role="tab"  data-toggle="tab" aria-controls="todo" aria-expanded="true" onclick="initTable(window.id,'todo')">待处理任务</a></li>
+                            <li><a href="#processed" role="tab"  data-toggle="tab" aria-controls="processed" aria-expanded="true" onclick="initTable(window.id,'processed')">已处理的任务</a></li>
+                            <li><a href="#over" role="tab"  data-toggle="tab" aria-controls="over" aria-expanded="true" onclick="initTable(window.id,'over')">已办结的任务</a></li>
                         </ul>
                         <div id="myTabContentBpm" class="tab-content" style="min-height:120px;">
-                            <div role="tabpanel" class="tab-pane" id="taskBpm1" aria-labelledby="taskBpm1-tab">
-                                <table id="taskBpm1-taskList"> </table>
+                            <div role="tabpanel" class="tab-pane" id="todo" aria-labelledby="todo-tab">
+                                <table id="todo-taskList"> </table>
                             </div>
-                            <div role="tabpanel" class="tab-pane" id="taskBpm2" aria-labelledby="taskBpm2-tab">
-                                <table id="taskBpm2-taskList"> </table>
+                            <div role="tabpanel" class="tab-pane" id="processed" aria-labelledby="processed-tab">
+                                <table id="processed-taskList"> </table>
                             </div>
-                            <div role="tabpanel" class="tab-pane" id="taskBpm3" aria-labelledby="taskBpm3-tab">
-                                <table id="taskBpm3-taskList"> </table>
+                            <div role="tabpanel" class="tab-pane" id="over" aria-labelledby="over-tab">
+                                <table id="over-taskList"> </table>
                             </div>
                         </div>
                     </div>
@@ -395,7 +397,8 @@
         $("#jstree_demo").on("select_node.jstree", function (e,n) {
             if(n.node.type != 'form'){
                 $(".pub").addClass("hide");
-                initTable("taskBpm1",null,"todo")
+                initTable(null,"todo")
+                window.currentTab = "todo";
                 return false;
             }
             // var frame = $("#form-edit");
@@ -407,8 +410,8 @@
             // }
             $(".pub").removeClass("hide");
             window.id = n.node.original.id;
-            initTable("taskBpm1",window.id,"todo")
-            var panelType =  getParam("panelType") || "taskBpm1";
+            initTable(window.id,"todo")
+            var panelType =  getParam("panelType") || "todo";
             $('#myTabsBpm a[href="#'+panelType+'"]').tab('show');
             onInfront();
             // if(did == id){
@@ -424,64 +427,114 @@
 
 <script>
     var tmpl = template.compile($('#toolbar').html())
+    // 记录选中
     var last = null
-    function initTable(tableId,id, type){
+    function initTable(id, type){
         last = arguments
         // if(undefined == id){
         //     return;
         // }
+
+        var fields = decodeURI(getParam("fields"));
+        // fields = JSON.parse(fields);
+        console.log(fields)
+        var cols = [];
+        cols.push({checkbox: true})
+        cols.push({
+            title:"流程ID",
+            field:"id",
+        })
+        // $.each(fields, function (i,v) {
+        //     cols.push({
+        //         title: v,
+        //         field: v
+        //     })
+        // });
+        cols.push({
+            title:"任务状态",
+            field:"state"
+        })
+        cols.push({
+            title:"当前经办人",
+            field:"uName",
+        })
+        cols.push({
+            title:"创建时间",
+            field:"createTime",
+        })
+        cols.push({
+            title:"上次提交时间",
+            field:"lastModifyTime",
+        })
+        cols.push({
+            title: "操作", formatter: function (value,row, index) {
+                return tmpl({
+                    d: row
+                })
+            }
+        })
+
         //销毁表格
-        $("#"+tableId+"-taskList").bootstrapTable("destroy");
-        $("#"+tableId+"-taskList").bootstrapTable({
+        $("#"+type+"-taskList").bootstrapTable("destroy");
+        $("#"+type+"-taskList").bootstrapTable({
             columns:[
                 // {
                 //     title:"ID",
                 //     field:"id"
                 // },
-                { field: 'id', title: "流程ID" },
-                { field: 'bpmName', title: "流程名称" },
-                { field: 'createTime',title: "流程发起时间" },
-                { field: 'pubUName',title: "流程发起人" },
-                { field: 'state', title: "流程状态" },
-                { field: 'uName',title: "当前经办人" },
-                // { field: 'lastModifyTime',title: "上次提交时间" },
-                { title: "操作", formatter: function (value,row, index) {
-                    return tmpl({
-                        d: row
-                    })
-                    } },
+                cols
+                // { checkbox: true},
+                // { field: 'id', title: "流程ID" },
+                // { field: 'bpmName', title: "流程名称" },
+                // { field: 'createTime',title: "流程发起时间" },
+                // { field: 'pubUName',title: "流程发起人" },
+                // { field: 'state', title: "流程状态" },
+                // { field: 'uName',title: "当前经办人" },
+                // // { field: 'lastModifyTime',title: "上次提交时间" },
+                // { title: "操作", formatter: function (value,row, index) {
+                //     return tmpl({
+                //         d: row
+                //     })
+                //     } },
             ],
             pagination: true,
             sidePagination: "server",
             ajax: function(params){
                 params.data.id = id;
                 params.data.type = type;
-                console.log("params:",params)
+                // console.log("params:",params)
                 var url = "/api/bpm/workflow/getInsList";
                 //换算分页
                 var data = params.data;
                 data.size = data.limit;
                 data.page = (data.offset / data.limit) + 1;
                 $.get(url + '?' + $.param(params.data)).then(function (res) {
-                    console.log(res);
+                    // console.log(res);
                     if(!res.success){
-                        //todo:
-                        console.log(res)
+                        //
                         layer.msg("请求失败！")
                     }
                     params.success({
                         rows: res.data.list,
-                        total: res.data.totalRow
+                        total: res.data.totalRow,
                     })
+                    if(res.data.list[0] && res.data.list[0].del){
+                        $(".batchDelete").removeClass("hide")
+                    }
                 },"json")
             }
         })
     }
-    var panelType =  getParam("panelType") || "taskBpm1";
+
+    $('#myTabsBpm a').click(function(){
+        window.currentTab = $(this).attr("href").substring(1);
+    })
+    var panelType =  getParam("panelType") || window.currentTab || "todo";
     $('#myTabsBpm a[href="#'+panelType+'"]').tab('show');
     onInfront();
     function onInfront(){
-        initTable("taskBpm1",window.id,"todo");
+        initTable(window.id,"todo");
+        window.currentTab = "todo";
     }
 
     $(document).on("click", ".pub", function () {
@@ -489,6 +542,40 @@
             openPubPage("pub", window.id);
         }
         // window.open("./ins.pub.html?type=pub&id=" + id, "dealtask", "left=100, top=100, width=800, height=600");
+    });
+    $(document).on("click", ".batchDelete", function () {
+
+        var checkedItems = $('#'+window.currentTab+'-taskList').bootstrapTable('getSelections');
+        var ids = [];
+        $.each(checkedItems, function(index, item) {
+            ids.push(item._id);
+        });
+        console.log(ids)
+        if(!confirm("确定删除")){
+            return
+        }
+        layer.load(0, {time: 5000})
+        // $.get("/api/bpm/workflow/deleteInss",{ids:ids}, function (msg) {
+        //     location.reload();
+        // },"json");
+        $.ajax({
+            url: "/api/bpm/workflow/deleteInss",
+            type: "post",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            dataType: "json",
+            data: JSON.stringify({ids}),
+            success: function (msg) {
+                if(!msg.success){
+                    layer.msg(msg.errMessage)
+                    return
+                }
+                // location.reload();
+                initTable.apply(null, last);
+                layer.closeAll();
+            }
+        })
     });
     $(document).on("click", ".btn-show", function () {
         var id = $(this).data("id");
@@ -555,7 +642,10 @@
         }
         layer.load(0, {time: 5000})
         $.get("/api/bpm/workflow/deleteIns",{id:id}, function (msg) {
-            location.reload();
+            // location.reload();
+            // initTable(window.id,window.currentTab);
+            initTable.apply(null, last)
+            layer.closeAll();
         },"json");
     });
 

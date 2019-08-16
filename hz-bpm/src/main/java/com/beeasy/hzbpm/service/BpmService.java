@@ -328,7 +328,7 @@ public class BpmService {
         }
         for (BpmInstance.CurrentNode currentNode : ins.currentNodes) {
             for (String s : currentNode.uids) {
-                Notice.sendSystem(s, "来自流程 %s 的催办消息: %s", ins._id.toString(), msg);
+                Notice.sendSystem(s, "来自流程 %s 的催办消息: %s", ins.id, msg);
             }
         }
     }
@@ -339,6 +339,22 @@ public class BpmService {
         }
         MongoCollection<Document> collection = db.getCollection("bpmInstance");
         DeleteResult result = collection.deleteOne(Filters.eq("_id", ins._id));
+        return result.getDeletedCount() > 0;
+    }
+
+    public boolean delete(String uid, Obj body){
+        if(!canDelete(uid)){
+            error("无权删除");
+        }
+        if(null == body){
+            error("请求错误");
+        }
+//        String [] idArr = (String[]) body.get("ids");
+//        List<String> ids = Arrays.asList(idArr);
+        List<String> ids = (List<String>) body.get("ids");
+        MongoCollection<Document> collection = db.getCollection("bpmInstance");
+
+        DeleteResult result = collection.deleteMany(Filters.in("_id",ids.stream().map(e ->new ObjectId(e)).toArray()));//.collect(Collectors.toList())));
         return result.getDeletedCount() > 0;
     }
 

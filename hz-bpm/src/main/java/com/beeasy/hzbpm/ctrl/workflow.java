@@ -496,6 +496,11 @@ public class workflow {
         return Result.ok();
     }
 
+    public Object deleteInss(Obj ids,Obj data, Obj body){
+        BpmService service = new BpmService();
+        service.delete(Auth.getUid() + "",body);
+        return Result.ok();
+    }
 
     public Object getInsList(String type, String id, Integer page, Integer size) {
         if (page == null || page < 1) {
@@ -526,7 +531,12 @@ public class workflow {
                                 o("$or", a(
                                         o("state", "流转中"),
                                         o("state", "已暂停")
-                                )))
+                                ))
+//                                o("state",a(
+//                                                "$not", "已办结"
+//                                        ))
+//                                )
+                                )
                         );
                         break;
                     case "processed":   // 已处理
@@ -538,6 +548,9 @@ public class workflow {
                                         o("state", "已办结"),
                                         o("state", "已暂停")
                                 ))
+//                                o("state",a(
+//                                        "$not", "已办结"
+//                                ))
 
                                 )
                         );

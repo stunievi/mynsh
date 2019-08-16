@@ -114,8 +114,10 @@
                 // window.FormHtml = "";
 
             </script>
+            <!--startprint-->
             <div id="form-content">
             </div>
+            <!--endprint-->
 
             <div id="file-app">
                 <div style="padding-bottom: 20px;" v-if="files.length">
@@ -131,6 +133,9 @@
                 </div>
             </div>
 
+            <div class="print-s" style="display: none;text-align: center;">
+                <a class="btn btn-danger btn-sm" href="javascript:;" id="wPrint">打印</a>
+            </div>
             <div class="action" style="display: none;text-align: center;">
                 <label class="btn btn-warning btn-sm" style="position:relative;overflow: hidden" id="upload">
                     <div id="picker" style="width: 1px;height: 1px;position:absolute;left: -100px;top: -100px;">
@@ -534,6 +539,7 @@
             } else {
                 if(type == 'deal'){
                     document.title = "查看任务";
+                    $(".print-s").show();
                 }
             }
 
@@ -662,6 +668,23 @@
             }
         }
     })
+
+
+    $("#wPrint").click(function () {
+        wPrint();
+    });
+
+    function wPrint(){
+        bdhtml=window.document.body.innerHTML;//获取当前页的html代码
+        sprnstr="<!--startprint-->";//设置打印开始区域
+        eprnstr="<!--endprint-->";//设置打印结束区域
+        prnhtml=bdhtml.substring(bdhtml.indexOf(sprnstr)+17); //从开始代码向后取html
+        prnhtml=prnhtml.substring(0,prnhtml.indexOf(eprnstr));//从结束代码向前取html
+        window.document.body.innerHTML=prnhtml;
+        loadForm();
+        window.print();
+        location.reload()
+    }
 </script>
 
 
