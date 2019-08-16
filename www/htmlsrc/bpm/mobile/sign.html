@@ -7,12 +7,12 @@
 </style>
 <script type="text/html" id="sign-tmpl">
     <div class="full" id="sign">
-        <div ref="canvasHW" style="display: flex; flex: 1">
+        <div ref="canvasHW" id="canvas-wrap" style="display: flex; flex: 1">
             <canvas ref="canvas" @touchstart='touchStart' @touchmove='touchMove' @touchend='touchEnd' style="background: #ccc">
-
             </canvas>
         </div>
         <div style="text-align: center; padding-top: 20px;padding-bottom: 20px;">
+            <mt-button type="primary" @click="back()" style="margin-right: 15px;" size="small">返回</mt-button>
             <mt-button type="primary" @click="clear()" style="margin-right: 15px;" size="small">重置</mt-button>
             <mt-button type="primary" @click="save()" size="small">保存</mt-button>
         </div>
@@ -60,10 +60,7 @@
                     },
                     data:JSON.stringify({base64: this.imgUrl}),
                     success: (msg) => {
-                        eventBus.$emit('sign_ok',{
-                            title: this.$route.params.title,
-                            url: msg.data
-                        });
+                        eventBus.$emit('sign_ok', msg.data);
                     },
                 });
 
@@ -124,16 +121,20 @@
                     this.points.push(obj)
                 }
             },
+
+            back(){
+                eventBus.$emit('sign_cancel');
+            }
         },
 
         mounted(){
             var canvas = this.$refs.canvas;
-            canvas.height = this.$refs.canvasHW.offsetHeight;
-            canvas.width = this.$refs.canvasHW.offsetWidth
+            canvas.height = $("#canvas-wrap").height();//this.$refs.canvasHW.offsetHeight;
+            canvas.width = $("#canvas-wrap").width();//this.$refs.canvasHW.offsetWidth
             this.canvasTxt = canvas.getContext('2d')
             this.stageInfo = canvas.getBoundingClientRect();
 
-            if(this.url){
+            if(this.url && url.indexOf("sign.png") == -1){
                 var img = new Image();
                 img.onload = () => {
                     console.log(img, canvas.width, canvas.height)

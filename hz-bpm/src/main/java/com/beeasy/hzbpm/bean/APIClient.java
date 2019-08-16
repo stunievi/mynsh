@@ -11,7 +11,7 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class APIClient {
+public class APIClient  {
     public static final int IMAPI_SUCC = 0;
     public static final int IMAPI_CONN_ERR = -1;
     public static final int IMAPI_CONN_CLOSE_ERR = -2;

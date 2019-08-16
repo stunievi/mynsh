@@ -11,25 +11,25 @@
         line-height: 30px;
         text-align: center;
     }
+    .mint-cell-title{
+        white-space: nowrap;
+    }
 </style>
 <script id="form-tmpl" type="text/html">
     <div class="full" id="form">
         <div>
-            <div v-for="v in fields" v-if="fields.length">
+            <div v-for="v in fields">
                 <mt-field :label="v.title" v-if="v.leipiplugins == 'text'" :placeholder="v.title" v-model="attrs[v.title]" ></mt-field>
                 <mt-cell v-if="v.leipiplugins == 'macros'" :title="v.title" :value="attrs[v.title]">
                 </mt-cell>
                 <mt-cell v-if="v.leipiplugins == 'select'" :title="v.title" is-link @click.native="select(v)" :value="attrs[v.title]">
                 </mt-cell>
-                <mt-field v-if="v.leipiplugins == 'textarea'" :label="v.title" :placeholder="v.title" type="textarea" rows="3" v-modal="attrs[v.title]"></mt-field>
+                <mt-field v-if="v.leipiplugins == 'textarea'" :label="v.title" :placeholder="v.title" type="textarea" rows="3"  v-model="attrs[v.title]"></mt-field>
                 <mt-cell v-if="v.leipiplugins == 'datetime'" :title="v.title" is-link @click.native="pickTime(v)" :value="attrs[v.title]">
                 </mt-cell>
                 <mt-cell v-if="v.leipiplugins == 'sign'" :title="v.title" @click.native="sign(v)">
                     <img width="40" height="40" :src="formatSign(attrs[v.title])"  >
                 </mt-cell>
-            </div>
-            <div v-if="!fields.length" style="height: 300px;line-height: 300px; text-align: center">
-                无可以填写的信息，请查看任务详情
             </div>
         </div>
 
@@ -68,7 +68,7 @@
                 content="详"
                            direction="lt" class="pb" :radius="80" ref="target_1"
                 mainButtonStyle="color:#fff;background-color:#26a2ff;"
-                           style="right:20px;position:absolute;bottom: 20px;">
+                           style="right:20px;position:absolute;bottom: 20px; display: none">
             <div class="my-icon-button indexicon icon-popup" @touchstart="sub_log(1)">单</div>
             <div class="my-icon-button indexicon icon-popup" @touchstart="sub_log(2)">图</div>
             <div class="my-icon-button indexicon icon-popup" @touchstart="sub_log(3)">历</div>
@@ -135,6 +135,10 @@
             }
         },
         methods:{
+            getUrl(){
+                return './ins.form.html?type=deal&id=' + this.$route.params.id + "&uid=1"
+            },
+
             sign(v){
                 this.signKey = v.title
                 this.canSign = true;
@@ -151,7 +155,7 @@
                     return "../form/sign.png"
                 }
                 if(file.indexOf("[img]") == -1){
-                    return "/api/bpm/workflow/download?path=" + file;
+                    return "/api/bpm/workflow/download?path=" + encodeURI(file);
                 } else {
                     return file.replace("[img]", "");
                 }
@@ -264,13 +268,14 @@
 
                         if(params.type == 'pub'){
                             showMsg("发布成功");
-                            this.$router.replace({
-                                name: "form",
-                                params:{
-                                    id: msg.data,
-                                    type: "deal"
-                                }
-                            });
+                            onBack("tab4", msg.data, "deal", "1");
+                            // this.$router.replace({
+                            //     name: "form",
+                            //     params:{
+                            //         id: msg.data,
+                            //         type: "deal"
+                            //     }
+                            // });
                         } else if(!gonext){
                             showMsg("保存成功");
                         } else {
@@ -281,6 +286,7 @@
             },
             load(){
                 console.log(this.$route)
+                this.chooseUserVisible = false;
                 var params = this.$route.params;
                 this.type = params.type;
                 this.id = params.id;
@@ -372,7 +378,7 @@
                                     data: JSON.stringify({
                                         files:[],
                                         data:this.attrs,
-                                        id: this.id,
+                                        id: this.$route.params.id,
                                         nodeIds: [this.next[i].nodeId],
                                         uids: values[j].uid,
                                         nextStepNotice: false,
@@ -383,12 +389,13 @@
                                         allShort: false,
                                         message:""
                                     }),
-                                    success: function (msg) {
+                                    success: (msg) => {
                                         if (!msg.success) {
                                             return;
                                         }
                                         showMsg("提交成功");
-                                        location.reload();
+                                        onBack("tab4", this.$route.params.id, "deal", "0");
+                                        // this.load();
                                         // if(d.nodeIds[0] && d.nodeIds[0].indexOf("EndEvent") != -1 ){
                                         //     window.opener.layer.msg(msg.data);
                                         // }else{
@@ -414,9 +421,12 @@
         },
         mounted(){
             this.load()
-            eventBus.$on('sign_ok', (data) => {        //赋值给首页的附近医院数据模型
-                console.log(data)
-                Vue.set(this.attrs, this.signKey, "[img]/api/bpm/workflow/download?path=" + data.url);
+            eventBus.$on('sign_ok', (url) => {        //赋值给首页的附近医院数据模型
+                Vue.set(this.attrs, this.signKey, "[img]/api/bpm/workflow/download?path=" + (url));
+                this.canSign = false;
+            });
+
+            eventBus.$on("sign_cancel", data => {
                 this.canSign = false;
             });
         }
