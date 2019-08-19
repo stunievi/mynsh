@@ -11,6 +11,10 @@
     .rowContent{
         padding: 0 !important;
     }
+    tr.rowTitle2 td{
+        padding: 0 !important;
+        font-weight: bold;
+    }
 </style>
 <div id="content">
     <div class="" id="panel-form">
@@ -28,22 +32,19 @@
 </script>
 
 <script type="text/html" id="deep2Html">
-    <table class="table">
-        <thead>
-        <tr>
-            <th>操作</th>
-            <th>账户号</th>
-            <th>账户余额</th>
-            <th>应收合计</th>
-        </tr>
-        </thead>
-        <tbody>
+    <table class="table table-hover">
         {{each dataList d}}
+            <tr class="rowTitle2">
+                <td>操作</td>
+                <td width="199">还款账号</td>
+                <td>账户余额</td>
+                <td>应收合计</td>
+            </tr>
             <tr class="rowLine2">
                 <td width="80">
                     <a href="javascript:;" class="rowLine2Btn btn btn-default btn-xs" data-val="{{d.REPAYMENT_ACCOUNT}}">展开</a>
                 </td>
-                <td>{{d.REPAYMENT_ACCOUNT}}</td>
+                <td width="199">{{d.REPAYMENT_ACCOUNT}}</td>
                 <td>{{d.CURR_BAL}}</td>
                 <td>{{d.TOTAL_REPAY}}</td>
             </tr>
@@ -53,7 +54,7 @@
 </script>
 
 <script type="text/html" id="deep3Html">
-    <table class="table">
+    <table class="table table-hover">
         <thead>
         <tr>
             <th>贷款账号</th>
@@ -96,9 +97,9 @@
         cols: [
             [
                 { title:'操作', templet: "#toolbar1"},
-                { title:'客户名称', field: "CUS_NAME"},
-                { title:'证件号码', field: "CERT_CODE"},
-                { title:"客户号", field: "CUS_ID"},
+                { title:'客户名称', field: "CUS_NAME",setWidth:280},
+                { title:'证件号码', field: "CERT_CODE",setWidth:180},
+                { title:"客户号", field: "CUS_ID",setWidth:180},
                 { title:"联系电话", field: "PHONE"},
                 { title:"行内存款账户总余额", field: "TOTAL_BAL"},
                 { title:"本月应收", field: "TOTAL_REPAY"}

@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -94,6 +95,7 @@ public class TaskRunner {
             repayCus.setCusId(cus.getString("CUS_ID"));
             repayCus.setCusName(cus.getString("CUS_NAME"));
             repayCus.setCertType(cus.getString("CERT_TYPE"));
+            repayCus.setEnoughRepay(0);
             // TODO:: get phone
 //            repayCus.setPhone();
             sqlManager.insert(repayCus);
@@ -148,7 +150,7 @@ public class TaskRunner {
      * @Description 系统定时跑批检索存量客户的还款账户余额，以及计算该客户所有贷款台帐本月应还本金及利息，将还款账户余额不足的客户信息输出到系统查询界面，以便相关人员跟进处理。
      * @Date 11:01 2019/8/6
      **/
-    @Scheduled(cron = "0 30 2 * * ?")
+//    @Scheduled(cron = "0 30 2 * * ?")
     public void updateLoanLinkSearchState() throws ParseException {
         int taskDate = Integer.parseInt(getConfig("MSG_RULE_10"));
         Date date = new Date();
@@ -206,23 +208,24 @@ public class TaskRunner {
                         principal = accLoan.getLoanRepay();
                     }
                     loanRepayTotal = interest.add(principal);
-                    // 更新台账
-                    accLoan.setUnpdCap(principal);
-                    accLoan.setUnpdInt(interest);
-                    accLoan.setTotalRepay(loanRepayTotal);
+                    // 更新台账：应收本金、应收利息和应收合计
+                    accLoan.setUnpdCap(principal.setScale(2, BigDecimal.ROUND_HALF_UP));
+                    accLoan.setUnpdInt(interest.setScale(2, BigDecimal.ROUND_HALF_UP));
+                    accLoan.setTotalRepay(loanRepayTotal.setScale(2,BigDecimal.ROUND_HALF_UP));
                     sqlManager.lambdaQuery(RepayLoan.class).update(accLoan);
                     accRepayTotal.add(loanRepayTotal);
                 }
-                // 更新账户信息
-                account.setTotalRepay(accRepayTotal);
+                // 更新账户：应收合计
+                account.setTotalRepay(accRepayTotal.setScale(2,BigDecimal.ROUND_HALF_UP));
                 sqlManager.lambdaQuery(RepayAcc.class).update(account);
                 cusRepayTotal.add(accRepayTotal);
             }
-            // 更新客户信息： 行内存款账户总余额、本月应收
-            if(cusBalTotal.compareTo(cusRepayTotal) == -1){
-                cusInfo.setEnoughRepay(0);
+            // 更新客户： 行内存款账户总余额、总应收
+            if(cusBalTotal.compareTo(cusRepayTotal) > -1){
+                cusInfo.setEnoughRepay(1);
             }
-            cusInfo.setTotalRepay(cusRepayTotal);
+            cusInfo.setTotalBal(cusBalTotal.setScale(2, BigDecimal.ROUND_HALF_UP));
+            cusInfo.setTotalRepay(cusRepayTotal.setScale(2, BigDecimal.ROUND_HALF_UP));
             sqlManager.lambdaQuery(RepayCus.class).update(cusInfo);
         }
         return;

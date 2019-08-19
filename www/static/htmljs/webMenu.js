@@ -5,10 +5,10 @@ var _menu = [
         name:'工作台',
         icon: '<span class="glyphicon glyphicon-align-left" aria-hidden="true"></span>&nbsp',
         children:[
-            {
-                name: "还款余额不足",
-                href: "/htmlsrc/postLoanManage/insufficientBalance.html"
-            },
+            // {
+            //     name: "还款余额不足",
+            //     href: "/htmlsrc/postLoanManage/insufficientBalance.html"
+            // },
             {
                 id: "menu-mybench-bench",
                 name: '我的工作台',
@@ -185,6 +185,10 @@ var _menu = [
         name: '贷后管理',
         icon: '<span class="glyphicon glyphicon-align-left" aria-hidden="true"></span>&nbsp;',
         children: [
+            {
+                name: "还款余额不足",
+                href: "/htmlsrc/postLoanManage/insufficientBalance.html"
+            },
             {
                 name: "指派/移交",
                 href: "/htmlsrc/taskManage/taskTransfer.html?workFlow="+encodeURI(enumWorkFlowModel.postLoanTask),

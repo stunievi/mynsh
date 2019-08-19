@@ -1625,14 +1625,14 @@ select
 @}
 from T_REPAY_CUS_LIST
 where 1=1
-@if(isNotEmpty(cusName)){
-    and CUS_NAME like #'%' + cusName + '%'#
+@if(isNotEmpty(CUS_NAME)){
+    and CUS_NAME like #'%' + CUS_NAME + '%'#
 @}
-@if(isNotEmpty(certCode)){
-    and CERT_CODE like #'%' + certCode + '%'#
+@if(isNotEmpty(CERT_CODE)){
+    and CERT_CODE like #'%' + CERT_CODE + '%'#
 @}
-@if(isNotEmpty(cusId)){
-    and CUS_ID like #'%' + cusId + '%'#
+@if(isNotEmpty(CUS_ID)){
+    and CUS_ID like #'%' + CUS_ID + '%'#
 @}
 @pageIgnoreTag(){
     order by CUS_ID desc

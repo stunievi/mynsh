@@ -19,5 +19,7 @@ mongo:
   host: 47.94.97.138
 
 loadQcc:
-  zipPath: D:\mynsh\mynsh\load-qcc\src\main\resources\zip
-  txtPath: D:\mynsh\mynsh\load-qcc\src\main\resources\txt
+  zipPath: D:\java projects\hznsh\load-qcc\src\main\resources\qcc\zip
+  txtPath: D:\java projects\hznsh\load-qcc\src\main\resources\qcc\txt
+  riskZipPath: D:\java projects\hznsh\load-qcc\src\main\resources\qcc\riskZip
+  riskTxtPath: D:\java projects\hznsh\load-qcc\src\main\resources\qcc\riskTxt
