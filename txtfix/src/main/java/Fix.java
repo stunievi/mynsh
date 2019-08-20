@@ -49,10 +49,9 @@ public class Fix {
         InputStream fis = new FileInputStream(file);
         OutputStream fos = new FileOutputStream(outFile) ;
 
-//        List<Integer> skips = new ArrayList<>();
-//        boolean checkFirst = false;
         byte last = -1;
-        byte[] bs = new byte[4096];
+        //2m buffer
+        byte[] bs = new byte[1024*1024*2];
         while(true){
             int n = fis.read(bs);
             if (n < 0) {
@@ -64,6 +63,14 @@ public class Fix {
                 //如果上次没检查完，则优先检查第一个
                 if(bs[0] == (byte)0x7c){
                     fos.write(' ');
+                } else if(bs[0] == '\n'){
+                    //如果上一个是7c，则7C替换为空格
+                    if(last == '|'){
+                        last = ' ';
+                    } else {
+                        bs[0] = ' ';
+                    }
+                    fos.write(last);
                 } else {
                     fos.write(last);
                 }
@@ -85,19 +92,24 @@ public class Fix {
                         break check;
                     }
                 }
+
+                if(i > 0){
+                    if(bs[i] == '\n'){
+                        //如果上一个是7c，则7C替换为空格
+                        if(bs[i - 1] == '|'){
+                            bs[i - 1] = ' ';
+                        } else {
+                            bs[i] = ' ';
+                        }
+                    }
+                }
             }
 
             //如果可以余一个
             if(last > 0){
                 n -= 1;
             }
-//            int now = 0;
-//            if(skips.size() > 0){
-//                for (Integer skip : skips) {
-//                    fos.write(bs, now, skip - now);
-//                    now++;
-//                }
-//            }
+
             //补上最后的
             fos.write(bs, 0, n);
         }
