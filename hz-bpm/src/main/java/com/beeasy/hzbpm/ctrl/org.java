@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.github.llyb120.nami.ext.beetlsql.BeetlSql.sqlManager;
+import static com.github.llyb120.nami.server.Vars.$get;
 
 public class org {
 
@@ -35,6 +36,16 @@ public class org {
 
     public Result getUser(String oid){
         return Result.ok(sqlManager.execute(new SQLReady("SELECT u.id,u.ACC_CODE,u.PHONE,u.true_name as name FROM DB2INST1.T_USER_ORG o inner join t_user u on o.uid=u.id and o.oid="+oid),Obj.class));
+    }
+
+
+    public Result list(){
+        List<Obj> list = sqlManager.execute(new SQLReady("select name as text, id, parent_id, type from t_org where type in ('QUARTERS', 'DEPARTMENT')"), Obj.class);
+        return Result.ok(Json.tree(list, "parent_id", "id"));
+    }
+
+    public Result one(){
+        return Result.ok(sqlManager.execute(new SQLReady("select * from t_org where id = ?", $get.s("id")), Obj.class));
     }
 
 
