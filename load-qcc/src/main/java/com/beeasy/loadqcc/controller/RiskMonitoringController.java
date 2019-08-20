@@ -13,11 +13,6 @@ import java.util.Map;
 @RestController
 public class RiskMonitoringController {
 
-    @Autowired
-    RiskMonitorService riskMonitorService;
-
-    // 企查查风险回调地址
-
     /**
      * orderNo	String	是	订单号
      * downloadUrl	String	是	下载监控数据URL
@@ -28,6 +23,8 @@ public class RiskMonitoringController {
     public void qccRiskMonitoringCallback(
             @RequestParam Map<String,Object> params
     ) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+
+        RiskMonitorService riskMonitorService = new RiskMonitorService();
         riskMonitorService.resRiskData((JSONObject) params);
     }
 

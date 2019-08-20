@@ -87,7 +87,8 @@
         list:[
             { label :'客户号', prop:'CUS_ID' },
             { label :'客户名称', prop:'CUS_NAME' },
-            { label :'证件号码', prop:'CERT_CODE' }
+            { label :'证件号码', prop:'CERT_CODE' },
+            { label :'还款余额不足', prop:'ENOUGH_REPAY', type:"checkbox", checked: true, value:0 }
         ],
         data:{ } // 默认值
     }));
@@ -192,7 +193,7 @@
     // 贷款账号、合同号、还款方式、应收本金、应收利息、应收合计
 
     $("#export").click(function () {
-        var str = $('[name=form-search]').serialize();
+        var str = $('[name=form-search]').ghostsf_serialize();
         formRequest({
             url: remoteOrigin + "/link/FileController/repayExport",
             data: $.unserialize(str)

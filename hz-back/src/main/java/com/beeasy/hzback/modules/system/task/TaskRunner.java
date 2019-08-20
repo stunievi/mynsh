@@ -87,7 +87,8 @@ public class TaskRunner {
         sqlManager.execute(new SQLReady(S.fmt("delete from %s where 1 = 1", "T_LOAN_ACCT_INFO")), null);
         // 生成数据
         Date now = new Date();
-        List<JSONObject> cusList = sqlManager.select("普通贷款客户列表", JSONObject.class);
+        List<JSONObject> cusList = sqlManager.select("accloan.repay_cus", JSONObject.class);
+        BigDecimal bigZero = new BigDecimal(0);
         for (JSONObject cus : cusList){
             RepayCus repayCus = new RepayCus();
             repayCus.setId(U.getSnowflakeIDWorker().nextId());
@@ -100,36 +101,36 @@ public class TaskRunner {
 //            repayCus.setPhone();
             sqlManager.insert(repayCus);
         }
-        List<JSONObject> accountList = sqlManager.select("客户还款账户列表", JSONObject.class);
+        List<JSONObject> accountList = sqlManager.select("accloan.repay_pe_payment_account", JSONObject.class);
         for (JSONObject account : accountList){
             RepayAcc repayAcc = new RepayAcc();
             repayAcc.setId(U.getSnowflakeIDWorker().nextId());
-            repayAcc.setCurrBal(account.getBigDecimal("CURR_BAL"));
+            repayAcc.setCurrBal(Optional.ofNullable(account.getBigDecimal("CURR_BAL")).orElse(bigZero));
             repayAcc.setCusId(account.getString("CUS_ID"));
             repayAcc.setRepaymentAccount(account.getString("REPAYMENT_ACCOUNT"));
             repayAcc.setAddTime(now);
             sqlManager.insert(repayAcc);
         }
-        List<JSONObject> accLoanList = sqlManager.select("客户还款账户列表", JSONObject.class);
+        List<JSONObject> accLoanList = sqlManager.select("accloan.repay_loan", JSONObject.class);
         for (JSONObject loan : accLoanList){
             RepayLoan repayLoan = new RepayLoan();
             repayLoan.setId(U.getSnowflakeIDWorker().nextId());
             repayLoan.setAccountClass(loan.getString("ACCOUNT_CLASS"));
             repayLoan.setAccountClass4(loan.getString(""));
-            repayLoan.setActlAddapprvAmt(loan.getBigDecimal("ACTL_ADDAPPRV_AMT"));
+            repayLoan.setActlAddapprvAmt(Optional.ofNullable(loan.getBigDecimal("ACTL_ADDAPPRV_AMT")).orElse(bigZero));
             repayLoan.setActType(loan.getString(""));
 
             repayLoan.setContNo(loan.getString("CONT_NO"));
             repayLoan.setCusId(loan.getString("CUS_ID"));
             repayLoan.setCusName(loan.getString("CUS_NAME"));
-            repayLoan.setDueAmt(loan.getBigDecimal("DUE_AMT"));
-            repayLoan.setIntAccr(loan.getBigDecimal("INT_ACCR"));
+            repayLoan.setDueAmt(Optional.ofNullable(loan.getBigDecimal("DUE_AMT")).orElse(bigZero));
+            repayLoan.setIntAccr(Optional.ofNullable(loan.getBigDecimal("INT_ACCR")).orElse(bigZero));
 
-            repayLoan.setIntIncr(loan.getBigDecimal("INT_INCR"));
+            repayLoan.setIntIncr(Optional.ofNullable(loan.getBigDecimal("INT_INCR")).orElse(bigZero));
             repayLoan.setIntRepayFreq(loan.getString("REPAY_FREQ"));
             repayLoan.setLoanAccount(loan.getString("LOAN_ACCOUNT"));
             repayLoan.setLoanAccount16(loan.getString("LOAN_ACCOUNT_16"));
-            repayLoan.setLoanRepay(loan.getBigDecimal("LOAN_REPAY"));
+            repayLoan.setLoanRepay(Optional.ofNullable(loan.getBigDecimal("LOAN_REPAY")).orElse(bigZero));
 
             repayLoan.setNextDueDate(loan.getString("NEXT_DUE_DATE"));
             repayLoan.setRepaymentAccount(loan.getString("REPAYMENT_ACCOUNT"));
@@ -141,7 +142,7 @@ public class TaskRunner {
             repayLoan.setStat(loan.getString("STAT"));
             repayLoan.setAddTime(now);
 
-            sqlManager.insert(loan);
+            sqlManager.insert(repayLoan);
         }
     }
 
@@ -151,7 +152,7 @@ public class TaskRunner {
      * @Date 11:01 2019/8/6
      **/
 //    @Scheduled(cron = "0 30 2 * * ?")
-    public void updateLoanLinkSearchState() throws ParseException {
+    public void  updateLoanLinkSearchState() throws ParseException {
         int taskDate = Integer.parseInt(getConfig("MSG_RULE_10"));
         Date date = new Date();
         Calendar calendar = Calendar.getInstance();
@@ -166,14 +167,17 @@ public class TaskRunner {
 
         // --计算账户还款余额情况
         // 筛选出已贷款客户
-        List<RepayCus> cusList = new ArrayList<>();
+        List<RepayCus> cusList = sqlManager.select("accloan.repay_cus_arr", RepayCus.class);
         for(RepayCus cusInfo : cusList){
+            String cusId = cusInfo.getCusId();
             // 客户待还款总额
             BigDecimal cusRepayTotal = new BigDecimal(0);
             // 行内存款账户总余额
             BigDecimal cusBalTotal = cusInfo.getTotalBal();
             // 筛选出还款账户
-            List<RepayAcc> accountList = new ArrayList<>();
+            List<RepayAcc> accountList = sqlManager.select("accloan.repay_acct_info", RepayAcc.class, C.newMap(
+                    "cusId", cusId
+            ));
             for(RepayAcc account : accountList){
                 // 还款账户待还款总额
                 BigDecimal accRepayTotal = new BigDecimal(0);
@@ -181,7 +185,9 @@ public class TaskRunner {
                 BigDecimal CURR_BAL = account.getCurrBal();
                 cusBalTotal.add(CURR_BAL);
                 // 账户关联台账
-                List<RepayLoan> accLoanList = new ArrayList<>();
+                List<RepayLoan> accLoanList = sqlManager.select("accloan.repay_loan_acct_info", RepayLoan.class, C.newMap(
+                        "repaymentAccount", account.getRepaymentAccount()
+                ));
                 for(RepayLoan accLoan : accLoanList){
                     // 本期台账需还款总额
                     BigDecimal loanRepayTotal;
@@ -212,12 +218,12 @@ public class TaskRunner {
                     accLoan.setUnpdCap(principal.setScale(2, BigDecimal.ROUND_HALF_UP));
                     accLoan.setUnpdInt(interest.setScale(2, BigDecimal.ROUND_HALF_UP));
                     accLoan.setTotalRepay(loanRepayTotal.setScale(2,BigDecimal.ROUND_HALF_UP));
-                    sqlManager.lambdaQuery(RepayLoan.class).update(accLoan);
+                    sqlManager.updateById(accLoan);
                     accRepayTotal.add(loanRepayTotal);
                 }
                 // 更新账户：应收合计
                 account.setTotalRepay(accRepayTotal.setScale(2,BigDecimal.ROUND_HALF_UP));
-                sqlManager.lambdaQuery(RepayAcc.class).update(account);
+                sqlManager.updateById(account);
                 cusRepayTotal.add(accRepayTotal);
             }
             // 更新客户： 行内存款账户总余额、总应收
@@ -226,8 +232,12 @@ public class TaskRunner {
             }
             cusInfo.setTotalBal(cusBalTotal.setScale(2, BigDecimal.ROUND_HALF_UP));
             cusInfo.setTotalRepay(cusRepayTotal.setScale(2, BigDecimal.ROUND_HALF_UP));
-            sqlManager.lambdaQuery(RepayCus.class).update(cusInfo);
+            sqlManager.updateById(cusInfo);
         }
         return;
+
     }
+
+
+
 }

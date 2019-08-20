@@ -3,8 +3,6 @@ package com.beeasy.loadqcc.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.beeasy.loadqcc.entity.LoadQccDataExtParm;
-import com.beeasy.loadqcc.entity.RiskDataExtParam;
 import com.beeasy.loadqcc.utils.QccUtil;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
@@ -14,16 +12,13 @@ import org.osgl.util.C;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jms.core.JmsMessagingTemplate;
-import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
-@Service
 public class RiskMonitorService {
 
     @Autowired
@@ -38,11 +33,14 @@ public class RiskMonitorService {
     @Value("${loadQcc.riskZipPath}")
     String LOAD_RISK_ZIP_PATH;
 
-    @PostConstruct
-    public void init(){
-        RiskDataExtParam.LOAD_RISK_TXT_PATH = LOAD_RISK_TXT_PATH;
-        RiskDataExtParam.LOAD_RISK_ZIP_PATH = LOAD_RISK_ZIP_PATH;
-    }
+    // 文件路径
+    private File qccFileDataPath;
+    // 压缩包路径
+    private File qccZipDataPath;
+    private String orderNo;
+    private String downloadUrl;
+    private String unzipPassword;
+    private JSONObject zipData;
 
     /**
      * 被执行人信息详情 riskMonitor_zhixingDtl
@@ -102,9 +100,9 @@ public class RiskMonitorService {
 
     private void saveRiskBlockData(
         MongoCollection coll,
-        String orderNo,
         JSONObject object
     ){
+        String orderNo = this.orderNo;
         if(null == object){
             return;
         }
@@ -116,51 +114,81 @@ public class RiskMonitorService {
         coll.updateOne(Filters.eq("orderNo", orderNo), modifiers, opt);
     }
 
-    // 获取zip包，解压，返回zip包数据
-    public JSONObject unZipRiskData(
-        String orderNo,
-        String url,
-        String password
+    // 保存详情
+    private void saveRiskDtlData(
+            MongoCollection coll,
+            JSONObject relationParam,
+            JSONObject object
     ){
-//        mongoService.
+        String orderNo = relationParam.getString("orderNo");
+        String dataId = relationParam.getString("id");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+        String dateNowStr = sdf.format(new Date());
+        if(null == object){
+            return;
+        }
+        object.put("getDataTime", dateNowStr);
+        object.put("id", dataId);
+        object.put("orderNo", orderNo);
+        Document modifiers = new Document();
+        modifiers.append("$set", object);
+        UpdateOptions opt = new UpdateOptions();
+        opt.upsert(true);
+        List filters = new ArrayList();
+        filters.add(Filters.eq("orderNo", orderNo));
+        filters.add(Filters.eq("id", dataId));
+        filters.add(Filters.eq("getDataTime", dateNowStr));
+        coll.updateOne(Filters.and(filters), modifiers, opt);
+    }
+
+
+    // 获取企查查zip包，解压，返回zip包数据
+    public JSONObject unZipRiskData(){
+        String downloadUrl = this.downloadUrl;
+        String unzipPassword = this.unzipPassword;
+
+        JSONObject zipData = new JSONObject();
+
         // 企业监控文件
         MongoCollection<Document> coll = mongoService.getCollection("corp.json");
-        saveRiskBlockData(coll, orderNo, new JSONObject());
+        saveRiskBlockData(coll, zipData.getJSONObject("corp"));
         // 人员监控文件
         MongoCollection<Document> coll2 = mongoService.getCollection("person.json");
-        saveRiskBlockData(coll2, orderNo, new JSONObject());
+        saveRiskBlockData(coll2,  zipData.getJSONObject("person"));
         // 企业新闻舆情推送文件(推送数量限制请参考企查查专业版: 监控设置-推送设置)
         MongoCollection<Document> coll3 = mongoService.getCollection("corp_news.json");
-        saveRiskBlockData(coll3, orderNo, new JSONObject());
-        return new JSONObject();
+        saveRiskBlockData(coll3, zipData.getJSONObject("corp_news"));
+
+        this.zipData = zipData;
+        return zipData;
     }
 
     // 循环列表获取详情
     public void invokeDtl(
-        String orderNo,
-        JSONArray dataList,
-        RiskDataExtParam extParam
+        JSONArray dataList
     ) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         if(null == dataList || dataList.size() < 1){
             return;
         }
         for(Object item : dataList){
             JSONObject dataItem = (JSONObject) item;
+            // id String  监控记录唯一 ID
+            String id = dataItem.getString("id");
             String type = dataItem.getString("key");
+            JSONObject relationParam = new JSONObject();
+            relationParam.put("id", id);
+            relationParam.put("orderNo", orderNo);
             String dtlApi = corpDtlApi.get(type);
-            Method method = this.getClass().getDeclaredMethod(dtlApi, JSONObject.class, RiskDataExtParam.class);
-            JSONObject retData = (JSONObject) method.invoke(this, dataItem, extParam);
+            Method method = this.getClass().getDeclaredMethod(dtlApi, JSONObject.class);
+            JSONObject retData = (JSONObject) method.invoke(this, dataItem);
             MongoCollection<Document> coll = mongoService.getCollection("riskMonitor_"+dtlApi);
-            saveRiskBlockData(coll, orderNo, retData);
+            saveRiskDtlData(coll, relationParam, retData);
         }
     }
 
     // 获取数据列表
-    public void getDataListDtl(
-        String orderNo,
-        JSONObject zipData,
-        RiskDataExtParam extParam
-    ) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public void getDataListDtl() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        JSONObject zipData = this.zipData;
         // 企业监控文件
         JSONObject corpData = zipData.getJSONObject("corp");
         JSONArray corpList = corpData.getJSONArray("result");
@@ -168,53 +196,58 @@ public class RiskMonitorService {
         JSONObject personData = zipData.getJSONObject("person");
         JSONArray personList = personData.getJSONArray("result");
 
-        invokeDtl(orderNo, corpList, extParam);
-        invokeDtl(orderNo, personList, extParam);
+        invokeDtl(corpList);
+        invokeDtl(personList);
 
     }
+
+
 
     // 根据下载文件信息整理数据
     public void resRiskData(
         JSONObject reqData
     ) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         // 下载文件的url地址信息
-        RiskDataExtParam extParam = new RiskDataExtParam(reqData);
 
-        String orderNo = extParam.getOrderNo();
-        String downloadUrl = extParam.getDownloadUrl();
-        String unzipPassword = extParam.getUnzipPassword();
+        this.orderNo = reqData.getString("orderNo");
+        this.downloadUrl = reqData.getString("downloadUrl");
+        this.unzipPassword = reqData.getString("unzipPassword");
         // 解压获取zip内数据 - 详见，[风险监控接口.pdf](https://pro.qichacha.com/p/api/download?id=1P2ZH50CDMQFR9OCDMN4EDDI60A6PQ9T)
-        JSONObject zipData = unZipRiskData(orderNo, downloadUrl, unzipPassword);
 
-        getDataListDtl(orderNo, zipData, extParam);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        File filePath = new File(LOAD_RISK_TXT_PATH , sdf.format(new Date()));
+        File zipPath = new File(LOAD_RISK_ZIP_PATH , sdf.format(new Date()));
+        zipPath.mkdirs();
+        filePath.mkdirs();
+        File __file = new File(filePath,orderNo + ".txt");
+        File __zip = new File(zipPath,orderNo + ".zip");
+
+        this.qccFileDataPath = __file;
+        this.qccZipDataPath = __zip;
+
+        unZipRiskData();
+
+        getDataListDtl();
     }
 
     // 获取企查查数据
-    private JSONObject getRiskRemoteData(
+    private static JSONObject getRiskRemoteData(
             String url,
-            Map params,
-            RiskDataExtParam extParam
+            Map params
     ){
         String resStr = QccUtil.getData(url, params);
         return JSONObject.parseObject(resStr);
     }
-    private JSONObject getRiskRemoteData(
-            String url,
-            Map params
-    ){
-        return getRiskRemoteData(url, params, null);
-    }
-
     /**
      * 添加关注公司名单
      * keyWord	String	是	关键字（公司名、注册号、社会统一信用代码）
      */
     public JSONObject setRadarCompany(String keyWord){
         return getRiskRemoteData(
-                "https://pro.qichacha.com/api/radar/setRadarCompany",
-                C.newMap(
-                        "keyWord", keyWord
-                )
+            "https://pro.qichacha.com/api/radar/setRadarCompany",
+            C.newMap(
+                    "keyWord", keyWord
+            )
         );
     }
     /**
@@ -240,13 +273,13 @@ public class RiskMonitorService {
      * */
     public JSONObject setRadarPerson(int mode, String personName, String personId, String corpName){
         return getRiskRemoteData(
-                "https://pro.qichacha.com/api/radar/setRadarPerson",
-                C.newMap(
-                    "mode", mode,
-                    "personName", personName,
-                    "personId", personId,
-                    "corpName", corpName
-                )
+            "https://pro.qichacha.com/api/radar/setRadarPerson",
+            C.newMap(
+                "mode", mode,
+                "personName", personName,
+                "personId", personId,
+                "corpName", corpName
+            )
         );
     }
     /**
@@ -255,10 +288,10 @@ public class RiskMonitorService {
      */
     public JSONObject cancelRadarPerson(String radarPersonId){
         return getRiskRemoteData(
-                "https://pro.qichacha.com/api/radar/cancelRadarPerson",
-                C.newMap(
-                        "radarPersonId", radarPersonId
-                )
+            "https://pro.qichacha.com/api/radar/cancelRadarPerson",
+            C.newMap(
+                    "radarPersonId", radarPersonId
+            )
         );
     }
     /**
@@ -268,10 +301,10 @@ public class RiskMonitorService {
      * orderNo    String	订单号
      * createDate	String	创建时间
      */
-    public JSONObject listLatestOrderNo(){
+    public static JSONObject listLatestOrderNo(){
         return getRiskRemoteData(
-                "https://pro.qichacha.com/api/radar/listLatestOrderNo",
-                C.newMap()
+            "https://pro.qichacha.com/api/radar/listLatestOrderNo",
+            C.newMap()
         );
     }
     /**
@@ -284,14 +317,14 @@ public class RiskMonitorService {
      *             downloadUrlExpiredTime	String	下载压缩包地址失效时间
      *             unzipPassword	String	压缩包解压密码
      */
-    public JSONObject getDownloadUrl(
+    public static JSONObject getDownloadUrl(
             String orderNo
     ){
         return getRiskRemoteData(
-                "https://pro.qichacha.com/api/radar/getDownloadUrl",
-                C.newMap(
-                        "orderNo", orderNo
-                )
+            "https://pro.qichacha.com/api/radar/getDownloadUrl",
+            C.newMap(
+                    "orderNo", orderNo
+            )
         );
     }
 
@@ -307,15 +340,13 @@ public class RiskMonitorService {
      * anNo	String	案号
      */
     public JSONObject zhixingDtl(
-            JSONObject reqItemData,
-            RiskDataExtParam extParam
+            JSONObject reqItemData
     ){
         return getRiskRemoteData(
                 "https://pro.qichacha.com/api/corpdtl/riskMonitor/zhixingDtl",
                 C.newMap(
                         "detailId", reqItemData.getString("detailId")
-                ),
-                extParam
+                )
         );
     }
 
@@ -337,15 +368,13 @@ public class RiskMonitorService {
      * yiWu	String	生效法律文书确定的义务
      */
     public JSONObject shixinDtl(
-        JSONObject reqItemData,
-        RiskDataExtParam extParam
+        JSONObject reqItemData
     ){
         return getRiskRemoteData(
                 "https://pro.qichacha.com/api/corpdtl/riskMonitor/shixinDtl",
                 C.newMap(
                         "detailId", reqItemData.getString("detailId")
-                ),
-                extParam
+                )
         );
     }
 
@@ -356,8 +385,7 @@ public class RiskMonitorService {
      * content	String	拍卖内容
      */
     public JSONObject judicialSaleDtl(
-        JSONObject reqItemData,
-        RiskDataExtParam extParam
+        JSONObject reqItemData
     ){
         return getRiskRemoteData(
                 "https://pro.qichacha.com/api/corpdtl/riskMonitor/judicialSaleDtl",
@@ -374,8 +402,7 @@ public class RiskMonitorService {
      * content	String	裁判文书内容
      */
     public JSONObject judgementDtl(
-        JSONObject reqItemData,
-        RiskDataExtParam extParam
+        JSONObject reqItemData
     ){
         return getRiskRemoteData(
                 "https://pro.qichacha.com/api/corpdtl/riskMonitor/judgementDtl",
@@ -398,8 +425,7 @@ public class RiskMonitorService {
      * content	String	内容
      */
     public JSONObject courtAnncDtl(
-        JSONObject reqItemData,
-        RiskDataExtParam extParam
+        JSONObject reqItemData
     ){
         return getRiskRemoteData(
                 "https://pro.qichacha.com/api/corpdtl/riskMonitor/courtAnncDtl",
@@ -432,14 +458,13 @@ public class RiskMonitorService {
      * undertakeDepartment	String	承办部门
      */
     public JSONObject courtNoticeDtl(
-        JSONObject reqItemData,
-        RiskDataExtParam extParam
+        JSONObject reqItemData
     ){
         return getRiskRemoteData(
-                "https://pro.qichacha.com/api/corpdtl/riskMonitor/courtNoticeDtl",
-                C.newMap(
-                        "detailId", reqItemData.getString("detailId")
-                )
+            "https://pro.qichacha.com/api/corpdtl/riskMonitor/courtNoticeDtl",
+            C.newMap(
+                    "detailId", reqItemData.getString("detailId")
+            )
         );
     }
 
@@ -454,8 +479,7 @@ public class RiskMonitorService {
      * status	String	状态
      */
     public JSONObject cmpsPldgListDtl(
-            JSONObject reqItemData,
-            RiskDataExtParam extParam
+            JSONObject reqItemData
     ){
         String corpKeyNo = reqItemData.getString("corpKeyNo");
         String registerNo = reqItemData.getString("beforeValue");
@@ -467,8 +491,7 @@ public class RiskMonitorService {
                 C.newMap(
                         "corpKeyNo", corpKeyNo,
                         "registerNo", registerNo
-                ),
-                extParam
+                )
         );
     }
 
@@ -511,15 +534,13 @@ public class RiskMonitorService {
      *      agencyPersonCerNo	String	证件号码
      */
     public JSONObject taxIllegalDtl(
-        JSONObject reqItemData,
-        RiskDataExtParam extParam
+        JSONObject reqItemData
     ){
         return getRiskRemoteData(
                 "https://pro.qichacha.com/api/corpdtl/riskMonitor/taxIllegalDtl",
                 C.newMap(
                         "detailId", reqItemData.getString("detailId")
-                ),
-                extParam
+                )
         );
     }
 
@@ -546,15 +567,13 @@ public class RiskMonitorService {
      * publishDate	String	发布日期(YYYY-MM-DD)
      */
     public JSONObject getDetailOfOweNotice(
-        JSONObject reqItemData,
-        RiskDataExtParam extParam
+        JSONObject reqItemData
     ){
         return getRiskRemoteData(
                 "https://pro.qichacha.com/api/corpdtl/riskMonitor/getDetailOfOweNotice",
                 C.newMap(
                         "detailId", reqItemData.getString("detailId")
-                ),
-                extParam
+                )
         );
     }
 
@@ -565,15 +584,13 @@ public class RiskMonitorService {
      * content	String	公告内容
      */
     public JSONObject getQccDeliveryNoticeDtl(
-        JSONObject reqItemData,
-        RiskDataExtParam extParam
+        JSONObject reqItemData
     ){
         return getRiskRemoteData(
                 "https://pro.qichacha.com/api/corpdtl/riskMonitor/getQccDeliveryNoticeDtl",
                 C.newMap(
                         "detailId", reqItemData.getString("detailId")
-                ),
-                extParam
+                )
         );
     }
 

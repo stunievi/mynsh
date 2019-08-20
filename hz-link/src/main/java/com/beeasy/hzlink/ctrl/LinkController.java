@@ -38,94 +38,88 @@ public class LinkController {
         if(null == rule || "".equals(rule) || rule.isEmpty()){
             return null;
         }
-        List<String> ruleStrs = Arrays.asList(rule.split(","));
+        List<String> ruleArr = Arrays.asList(rule.split(","));
         while (sqlManager == null) {
             ThreadUtil.sleep(100);
         }
         var exec = Executors.newFixedThreadPool(10);
-        List<Obj> list = sqlManager.select("accloan.cun_cus_com", Obj.class, o());
+        List<Obj> cusList = sqlManager.select("accloan.cun_cus_com", Obj.class, o());
 
-        for (String str :ruleStrs){
-//        for(int i=0;i<jsonArray.size();i++){
-//            String str = jsonArray.getString(i);
-            for (Obj obj : list) {
-                try{
-                    exec.submit(() -> {
-                        var name = obj.getStr("cus_name");
-                        if(StrUtil.isEmpty(name)){
-                            return ;
-                        }
-                        switch (str){
-                            case "11":
-                                System.out.println("11");
-    //                            Link.do11_1(name);
-    //                            Link.do11_2(name);
-    //                            Link.do11_3(name);
-    //                            Link.do11_4(name);
-    //                            Link.do11_5_1(name, true);
-    //                            Link.do11_5(name);
-    //                            Link.do11_6(name);
-                                break;
-                            case "11.1":
-                                System.out.println("11.1");
-                                Link.do11_1(name);
-                                break;
-                            case "11.2":
-                                System.out.println("11.2");
-    //                            Link.do11_2(name);
-                                break;
-                            case "11.3":
-                                System.out.println("11.3");
-    //                            Link.do11_3(name);
-                                break;
-                            case "11.4":
-                                System.out.println("11.4");
-    //                            Link.do11_4(name);
-                                break;
-                            case "11.5":
-                                System.out.println("11.5");
-    //                            Link.do11_5(name);
-                                break;
-                            case "11.5.1":
-                                System.out.println("11.5.1");
-    //                            Link.do11_5_1(name, true);
-                                break;
-                            case "11.6":
-                                System.out.println("11.6");
-    //                            Link.do11_6(name);
-                                break;
-                            case "12":
-                                System.out.println("12");
-//                                Link.do12_2(name);
-    //                            Link.do12_3(name);
-    //                            Link.do12_4(name);
-                                break;
-                            case "12.2":
-                                System.out.println("12.2");
-    //                            Link.do12_2(name);
-                                break;
-                            case "12.3":
-                                System.out.println("12.3");
-    //                            Link.do12_3(name);
-                                break;
-                            case "12.4":
-                                System.out.println("12.4");
-    //                            Link.do12_4(name);
-                                break;
-                        }
+        for (Obj obj : cusList) {
+            try{
+                exec.submit(() -> {
+                    var name = obj.getStr("cus_name");
+                    if(StrUtil.isEmpty(name)){
+                        return ;
+                    }
+                    if(ruleArr.contains("11.1")){
+                        System.out.println("11.1");
+                        Link.do11_1(name);
+                    }
+                    if(ruleArr.contains("11.2")){
+                        System.out.println("11.2");
+                        Link.do11_2(name);
+                    }
+                    if(ruleArr.contains("11.3")){
+                        System.out.println("11.3");
+                        Link.do11_3(name);
+                    }
+                    if(ruleArr.contains("11.4")){
+                        System.out.println("11.4");
+                        Link.do11_4(name);
+                    }
+                    if(ruleArr.contains("11.5")){
+                        System.out.println("11.5");
+                        Link.do11_5(name);
+                    }
+                    if(ruleArr.contains("11.5.1")){
+                        System.out.println("11.5.1");
+                        Link.do11_5_1(name, true);
+                    }
+                    if(ruleArr.contains("11.6")){
+                        System.out.println("11.6");
+                        Link.do11_6();
+                    }
 
-                    });
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-            }
-
-            if("11".equals(str) || "12".equals(str)){
-                break;
+                    if(ruleArr.contains("12.2")){
+                        System.out.println("12.2");
+                        Link.do12_2(name);
+                    }
+                    if(ruleArr.contains("12.3")){
+                        System.out.println("12.3");
+                        Link.do12_3(name);
+                    }
+                    if(ruleArr.contains("12.4")){
+                        System.out.println("12.4");
+                        Link.do12_4(name);
+                    }
+                });
+            }catch (Exception e){
+                e.printStackTrace();
             }
         }
-        exec.shutdown();
+
+        List<Obj> holderList = sqlManager.select("accloan.自然人股东", Obj.class, o());
+        for (Obj obj : holderList) {
+            try{
+                exec.submit(() -> {
+                    var name = obj.getStr("cus_name");
+                    var certCode = obj.getStr("cert_code");
+                    if(StrUtil.isEmpty(name) || StrUtil.isBlank(certCode)){
+                        return;
+                    }
+                    if(ruleArr.contains("12.5")){
+                        System.out.println("12.5");
+                        Link.do12_5(name, certCode);
+                    }
+                });
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+
         try {
+            exec.shutdown();
             exec.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
         } catch (InterruptedException e) {
             e.printStackTrace();

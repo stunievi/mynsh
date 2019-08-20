@@ -122,7 +122,7 @@
     });
 
     eventBind('#touchRule', function(that){
-        layer.confirm(_html,{
+        var touchRuleIndex = layer.confirm(_html,{
             btn:["确定","取消"]
         },function () {
             var data = $('input:checkbox[name="tRule"]:checked').map(function () {
