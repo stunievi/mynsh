@@ -17,3 +17,21 @@ where
 @}
 order by ooo desc
 fetch first 20 rows only
+
+
+查找部门人员
+===
+WITH RPL (ID,parent_id) AS 
+(
+  SELECT ID,parent_id FROM t_org WHERE ID=#did# and type = 'DEPARTMENT'
+  UNION ALL 
+  SELECT child.id,child.parent_id FROM RPL parent,t_org child WHERE parent.id=child.parent_id and child.type = 'DEPARTMENT'
+)
+select uid,uname,utname,pname from t_org_user where pid in (select id from RPL) order by pname asc
+
+查找部门人员-新版关联
+===
+select u.true_name,u.username, u.id 
+from t_user_org uo 
+inner join t_user u on uo.uid = u.id
+where uo.oid = #id#

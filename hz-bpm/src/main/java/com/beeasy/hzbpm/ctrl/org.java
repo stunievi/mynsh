@@ -1,5 +1,6 @@
 package com.beeasy.hzbpm.ctrl;
 
+import cn.hutool.core.util.StrUtil;
 import com.beeasy.hzbpm.util.Result;
 import com.github.llyb120.nami.json.Json;
 import com.github.llyb120.nami.json.Obj;
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.github.llyb120.nami.ext.beetlsql.BeetlSql.sqlManager;
+import static com.github.llyb120.nami.json.Json.o;
 import static com.github.llyb120.nami.server.Vars.$get;
 
 public class org {
@@ -39,13 +41,50 @@ public class org {
     }
 
 
-    public Result list(){
-        List<Obj> list = sqlManager.execute(new SQLReady("select name as text, id, parent_id, type from t_org where type in ('QUARTERS', 'DEPARTMENT')"), Obj.class);
+    public Result list(String type){
+        String sql;
+        if(StrUtil.isBlank(type)){
+            sql = "select name as text, id, parent_id, type from t_org where type in ('QUARTERS', 'DEPARTMENT')";
+        } else {
+            sql = String.format("select name as text, id, parent_id, type from t_org where type = '%s'", type);
+        }
+        List<Obj> list = sqlManager.execute(new SQLReady(sql), Obj.class);
         return Result.ok(Json.tree(list, "parent_id", "id"));
     }
 
     public Result one(){
-        return Result.ok(sqlManager.execute(new SQLReady("select * from t_org where id = ?", $get.s("id")), Obj.class));
+        List<Obj> list = sqlManager.execute(new SQLReady("select * from t_org where id = ?", $get.s("id")), Obj.class);
+        //附加关联的人
+        Obj item = list.isEmpty() ? null : list.get(0);
+        if (item == null) {
+            return Result.ok(item);
+        }
+        item.put("us", sqlManager.select("workflow.查找部门人员-新版关联", Obj.class, o("id", item.s("id"))));
+        return Result.ok(item);
+    }
+
+    public Object dus(String id){
+        return Result.ok(
+                sqlManager.select("workflow.查找部门人员", Obj.class, o("did", id))
+        );
+    }
+
+    public Object rus(String id){
+        return Result.ok(
+                sqlManager.execute(new SQLReady("select uid,uname,utname,otype from t_org_user where oid = ?", id), Obj.class)
+        );
+    }
+
+    /**
+     * 乾坤大挪移
+     *
+     * @param id
+     * @param pid
+     * @return
+     */
+    public Object move(String id, String pid){
+        int ret = sqlManager.executeUpdate(new SQLReady("update t_org set parent_id = ? where id = ?", pid, id));
+        return Result.ok(ret > 0);
     }
 
 
