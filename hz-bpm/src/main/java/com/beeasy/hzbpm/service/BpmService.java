@@ -1434,9 +1434,15 @@ public class BpmService {
         boolean allNotice = (boolean) body.get("allNotice");
         boolean allShort = (boolean) body.get("allShort");
         String message = (String) body.get("message");
+        List<String> reUser = (List<String>) body.get("reUser");
 
         //发送消息人员
         Set<String> sendUser = new HashSet<>();
+
+        if(null != reUser && !reUser.isEmpty()){
+            // 指定经办人
+            sendUser.addAll(reUser);
+        }
 
         if(nextStepNotice && StrUtil.isNotBlank(nextUid)){
             // 下一步骤

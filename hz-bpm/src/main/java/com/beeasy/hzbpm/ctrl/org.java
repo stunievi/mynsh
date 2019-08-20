@@ -6,6 +6,7 @@ import com.github.llyb120.nami.json.Json;
 import com.github.llyb120.nami.json.Obj;
 import org.beetl.sql.core.SQLReady;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -88,4 +89,22 @@ public class org {
     }
 
 
+    public Object getUserByDept(String[] pid, String type){
+        if(null == pid){
+            return Result.ok();
+        }
+        switch (type) {
+            case "d":
+                List<String> pids = Arrays.asList(pid);
+                String id = pids.stream().map(p -> "'" + p + "'").collect(Collectors.joining(","));
+                return Result.ok(sqlManager.execute(new SQLReady(String.format("select * from t_org_user where pid in (%s)",pids.isEmpty() ? "-1": id)),Obj.class));
+            case "r":
+                List<String> rids = Arrays.asList(pid);
+                String rid = rids.stream().map(r -> "'" + r + "'").collect(Collectors.joining(","));
+                return Result.ok(sqlManager.execute(new SQLReady(String.format("select  id as uid,true_name as utname,acc_code as uname from t_user u where 1 = 1 and exists(select 1 from t_user_org where uid = u.id and oid in (%s)) ",rids.isEmpty() ? "-1": rid)),Obj.class));
+                default:
+                    return Result.ok();
+
+        }
+    }
 }
