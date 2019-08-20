@@ -23,8 +23,8 @@ public class TestUnpkg {
     private ExecutorService executorService = Executors.newFixedThreadPool(16);
     @Test
     public void test() throws IOException, InterruptedException {
-        String url = "https://unpkg.com/browse/element-ui@2.11.1/";
-        String target = "d:/element-ui";
+        String url = "https://unpkg.com/browse/mint-ui@2.2.13/";
+        String target = "d:/mint-ui";
 
         File dir = new File(target);
         dir.mkdirs();
