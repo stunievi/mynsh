@@ -104,7 +104,7 @@
                         </label>
                     </td>
                     <td>
-                        <div style="margin-left: 20px;overflow: auto;min-height: 100px;max-height: 170px">
+                        <div style="margin-left: 20px;overflow: auto;min-height: 40px;max-height: 70px">主办人：
                             <div v-for="v in nodes" v-if="data.nodeIds.length && data.nodeIds.indexOf(v.nodeId) > -1">
                                 <div v-for="vv in v.dealers">
                                     <label>
@@ -116,6 +116,14 @@
                             <!--<button id="chooseUser" class="btn btn-primary btn-sm">选择人员</button>-->
                             <!--<div id="mainUser" class="tagsinput" style="width: auto; min-height: auto; height: auto;">主办人-->
                             <!--</div>-->
+                        </div>
+                        <div style="margin-left: 20px;overflow: auto;min-height: 150px;max-height: 1px">
+                            <div >
+                                经办人：
+                                <textarea readonly cols="50" rows="3">{{agentfn}}</textarea>
+                            </div>
+                            <a href="javascript:;" id="sel" @click="sel()" class="btn btn-primary btn-sm">选择人员</a>
+                            <a href="javascript:;" id="clean-sel" @click="cleanSel()">清空</a>
                         </div>
                     </td>
                 </tr>
@@ -182,16 +190,18 @@
 
             <hr style="clear: both; margin-top: 10px;margin-bottom: 10px;">
 
-            <!--<table width="100%">-->
-            <!--<tr>-->
-            <!--<td width="150">提醒指定步骤经办人：</td>-->
-            <!--<td>-->
-            <!--<button id="chooseMsg" class="btn btn-primary">选择人员</button>-->
-            <!--<div id="msgUser" class="tagsinput" style="width: auto; min-height: auto; height: auto;">-->
-            <!--</div>-->
-            <!--</td>-->
-            <!--</tr>-->
-            <!--</table>-->
+            <table width="100%">
+                <tr>
+                    <td width="150">提醒指定步骤经办人：</td>
+                    <td>
+                        <textarea readonly name="" v-model="reUserName" id="reUserName" cols="50" rows="3"></textarea>
+                    </td>
+                    <td style="padding-left: 1px">
+                        <a href="javascript:;"id="selectUser" @click="selectUser()">选择</a>
+                        <a href="javascript:;" id="clean-select" @click="cleanUser()">清空</a>
+                    </td>
+                </tr>
+            </table>
 
             <hr style="clear: both; margin-top: 10px;margin-bottom: 10px;">
 
@@ -305,18 +315,10 @@
     //     }
     // });
 
-    // $("#mainUser").on("click",".tag-remove",function(){
-    //     $(this).parent().remove();
-    // });
-    //
-    // $(".fa-bell,.fa-envelope").click(function () {
-    //     $(this).toggleClass("checked")
-    // });
-    //
-    // $("#selectTaskName li").click(function() {
-    //     $(this).siblings('li').removeClass('selectedCss');  		// 删除其他兄弟元素的样式
-    //     $(this).addClass('selectedCss');
-    // });
+    // window.zuserId=[];
+    // window.zuserName=[];
+    window.sponsor = "";
+
 
     var app = new Vue({
         el: "#app",
@@ -337,9 +339,14 @@
                 allNotice: false,
                 allShort: false,
                 message: ""
-            }
+            },
+            reUserName:[],
+            agent:{},   //下一步骤 经办人
         },
         computed:{
+            agentfn: function(){
+                return Object.values(this.agent).join(",")
+            },
             changeMessage: function () {
                     if(this.data.nodeIds[0] && this.data.nodeIds[0].indexOf("EndEvent") != -1){
                         return this.message = "您参与的流程已办结，流程id：" + this.ins.id + "，流程：" + this.ins.bpmName;
@@ -368,6 +375,15 @@
                 var _data = getData();
                 d.data = _data.data
                 d.files = _data.files
+
+                d.sponsor = window.sponsor;   // 主办人
+                // 下一步骤 经办人
+                var agent = [];
+                $.each(app.$data.agent,function (i, item) {
+                    agent.push(i);
+                })
+                d.agent = agent;        //下一步骤 经办人
+                d.reUser = window.users;    // 提醒指定步骤经办人
 
                 $.ajax({
                     url: "/api/bpm/workflow/nextApprover",
@@ -400,6 +416,24 @@
             },
             onNodeChecked: function (item) {
                 this.data.nodeIds = [item.nodeId];
+            },
+            selectUser :function () {
+                window.open("./agent.select.html?id=" + id, "userSelect", "top=100, left=100, width=500, height=300")
+            },
+            cleanUser:function () {
+                app.$data.reUserName = [];
+                window.users = [];
+            },
+            sel:function () {
+                 window.open("./next.select.html?id=" + id+"&sponsor="+window.sponsor, "userSelect", "top=100, left=100, width=500, height=300")
+                // console.log(win)
+                // win.document.body.onload = function(){
+                //     win.abc()
+                // }
+            },
+            cleanSel:function(){
+                window.sponsor = "";
+                app.$data.agent = {};
             }
         },
         mounted: function () {

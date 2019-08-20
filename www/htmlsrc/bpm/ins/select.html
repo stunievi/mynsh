@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>选择人员</title>
+    <!--<script src="/static/vendor/bootcss/js/bootstrap-suggest.js"></script>-->
+    <!--    <link rel="stylesheet" href="/static/vendor/ztree/css/zTreeStyle/zTreeStyle.css">-->
+    <!--    <script src="/static/vendor/ztree/js/jquery.ztree.all.min.js"></script>-->
+    <!--    <script src="/static/vendor/bootcss/js/bootstrap-suggest.js"></script>-->
+    <link rel="stylesheet" href="../lib/css/style.css">
+    <script src="../lib/jquery/jquery.js"></script>
+    <link rel="stylesheet" href="../../../static/htmljs/jstree/themes/default/style.css">
+    <script src="../../../static/htmljs/jstree/jstree.js"></script>
+    <script src="../lib/layer/layer.js"></script>
+    <style>
+        #content{
+            overflow: visible;
+        }
+        .dropdown-menu-right{
+            left: 0 !important;
+        }
+        .select-timeout{
+            margin-left: 2px;
+            float: left;
+        }
+        .inp-timeout{
+            width: 100px;
+            float: left;
+        }
+        .selected-tab{
+            margin: 5px;
+            cursor: pointer;
+        }
+    </style>
+    <link rel="stylesheet" href="fields.css">
+    <script src="fields.js"></script>
+    <script src="../lib/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+    <script src="../../../static/vendor/artTemplate/template-web.js"></script>
+</head>
+<body>
+<div id="content">
+    <div class="bs-example bs-example-tabs" data-example-id="togglable-tabs">
+        <ul id="myTabs" class="nav nav-tabs" role="tablist">
+            <li role="presentation" ><a href="#tab1" id="tab1-tab" role="tab" data-toggle="tab" aria-controls="selected" aria-expanded="true">已选</a></li>
+            <li role="presentation" ><a href="#tab2" role="tab" id="tab2-tab" data-toggle="tab" aria-controls="dept">部门</a></li>
+            <li role="presentation" ><a href="#tab3" id="tab3-tab" role="tab" data-toggle="tab" aria-controls="role">角色</a></li>
+
+        </ul>
+        <div id="myTabContent" class="tab-content">
+            <div class="tab-pane fade" id="tab1" aria-labelledby="tab1-tab">
+                <div class="selected-tab hide" title="已选人员">已选人员</div>
+                <div class="selected-tab hide" id="addAll">全部添加</div>
+                <div class="selected-tab hide" id="delAll">全部删除</div>
+                <div id="nobody">暂无选择人员</div>
+                <div id="selected-item">
+
+                </div>
+            </div>
+            <div id="tab2" class="tab-pane fade" aria-labelledby="tab2-tab" style="flex-direction: row; display: flex; justify-content: flex-start">
+                <div class="selected"></div>
+                <!--<div>-->
+                <!--<input type="text" id="search" placeholder="输入关键字进行检索">-->
+                <div id="jstree_demo1" style="width: 330px; overflow: auto;">
+
+                </div>
+                <div id="dataList1" style="flex: 1;margin-left: 10px;margin-right: 10px;">
+                </div>
+                <!--</div>-->
+            </div>
+
+            <div id="tab3" class="tab-pane fade" aria-labelledby="tab3-tab" style="flex-direction: row; display: flex; justify-content: flex-start">
+                <div class="selected"></div>
+                <!--<div>-->
+                <!--<input type="text" id="search2" placeholder="输入关键字进行检索">-->
+                <div id="jstree_demo2" style="width: 330px; overflow: auto;">
+
+                </div>
+                <div id="dataList2" style="flex: 1;margin-left: 10px;margin-right: 10px;">
+                </div>
+                <!--</div>-->
+            </div>
+            <button id="save-button" class="btn btn-info tab2 btn-sm">保存</button>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    // $('#myTabs a[href="#tab2"]').tab('show');
+    var selectUser = {};
+
+    (function () {
+        var t = $(".dealers");
+        var idex = t.index();
+        t.addClass("active").siblings().removeClass("active");
+        $("#myTabContent .tab-pane").eq(idex).addClass("active").siblings().removeClass("active");
+    })();
+    getDept();
+    getRole();
+    function getDept() {
+        var type = "d";
+        // var type = getParam("type");
+        // alert(type)
+        if(!type) type = "d";
+
+        // loadTimeout()
+        $.get("/api/bpm/org/all",{type:type}, function (msg) {
+            layer.closeAll()
+            msg = msg.data
+            var timer = null;
+            $("#search").keyup(function () {
+                if(timer){
+                    clearTimeout(timer);
+                    timer = null;
+                }
+                setTimeout(function () {
+                    var val = $.trim($("#search").val());
+                    var ins = $('#jstree_demo1').jstree(true);
+                    ins.search(val, false, true);
+                },250);
+            });
+
+            //展开根目录
+            if(msg.length){
+                msg[0].state = {
+                    opened: true
+                };
+            }
+            $('#jstree_demo1').jstree({
+                "core" : {
+                    "animation" : 0,
+                    "check_callback" : true,
+                    "themes" : { "stripes" : true },
+                    'data' :msg
+                    //     [
+                    //     msg
+                    //     // {
+                    //     //     'id' : 'top',
+                    //     //     'text' : '全部分类',
+                    //     //     'state' : { 'opened' : true, 'selected' : true },
+                    //     //     'children' : (msg)
+                    //     // },
+                    // ]
+                },
+                "plugins" : [
+                    "checkbox",
+                    // "contextmenu",
+                    "search",
+                    "types", "wholerow"
+                ]
+            });
+            //选中第一个节点
+            loadFormList('top')
+
+            var ins = $("#jstree_demo1").jstree();
+            // var walk = function(node){
+            //     // if(context){
+            //         // console.log(context,(ins.is_checked(node)))
+            //     window.opener['selectp'](type, ins.is_checked(node), node.original.text);
+            //     // }
+            //     $.each(node.children || [], function (i,v) {
+            //         var node = ins.get_node(v);
+            //         walk(node);
+            //     });
+            // };
+            function loadFormList(n){
+                if(!n){
+                    return
+                }
+                // loadTimeout();
+                var tmpl = template.compile($("#user").html())
+                $.ajax({
+                    type:"post",
+                    url:"/api/bpm/org/getUserByDept",
+                    data: JSON.stringify({"pid":n=='top'?undefined:ins.get_checked(),"type":type}),
+                    headers:{
+                        "Content-Type": "application/json"
+                    },
+                    success:function(data){
+
+
+                        layer.closeAll();
+                        $("#dataList1").html(tmpl({
+                            data: data.data
+                        }));
+
+                        $('input[name="person"]').click(function(){
+                            // selectUser = {};
+                            delete selectUser[$(this).attr("class")];
+                            $("input[name='person']:checked").each(function(i){
+                                selectUser[$(this).attr("class")] = $(this).val();
+                            })
+                            $("#selected-item").html("");
+                            $.each(selectUser,function (index, item) {
+                                $("#selected-item").append("<div><label><input name='sel-user' type='checkbox' value='"+index+"' checked>"+item+"</label></div>")
+                            })
+                            selFn();
+                        })
+
+                        //赋值
+                        $.each(selectUser || {},function (i, item) {
+                            $("input[name='person']").each(function() {
+
+                                if($(this).attr("class") == i){
+                                    $("input[name='person'][class='"+i+"']").attr("checked",true);
+                                }
+                            });
+
+                        })
+
+                    }
+                });
+
+            }
+
+            var setChecked = function(){
+                var chks =  ins.get_checked();
+                var ret = [];
+                var ids = []
+                $.each(chks ||[], function (i,v) {
+                    var node = ins.get_node(v);
+                    console.log("node",node)
+                    if(type == 'q'){
+                        if(node.original.type == 'QUARTERS'){
+                            ret.push(node.original.full_name);
+                            ids.push(node.original.id + "")
+                        }
+                        return;
+                    }
+                    ret.push(node.original.text);
+                    ids.push(node.original.id)
+                });
+                console.log("^^",ret, ids)
+                // window.opener['selectp'](type, ret, ids);
+            }
+
+            $("#jstree_demo1").on("check_node.jstree", function () {
+                console.log("--:",arguments);
+            }).on("check_all.jstree", function () {
+                console.log("//",arguments)
+            }).on("select_node.jstree", function (e,n) {
+                console.log(n,ins.get_checked())
+                setChecked()
+                loadFormList(n);
+
+                // walk(n.node);
+                // $.each(no)
+                // console.log(n.node);
+                // console.log(ins.is_checked(n), ins.is_checked(n.node))
+            }).on("deselect_node.jstree", function (e,n) {
+                setChecked();
+                loadFormList(n);
+                // walk(n.node)
+            });
+
+
+        },"json");
+
+    }
+
+    function getRole() {
+        var type = "r";
+        // var type = getParam("type");
+        // alert(type)
+        if(!type) type = "r";
+
+        // loadTimeout()
+        $.get("/api/bpm/org/all",{type:type}, function (msg) {
+            layer.closeAll()
+            msg = msg.data
+            // var timer = null;
+            // $("#search").keyup(function () {
+            //     if(timer){
+            //         clearTimeout(timer);
+            //         timer = null;
+            //     }
+            //     setTimeout(function () {
+            //         var val = $.trim($("#search").val());
+            //         var ins = $('#jstree_demo2').jstree(true);
+            //         ins.search(val, false, true);
+            //     },250);
+            // });
+
+            //展开根目录
+            if(msg.length){
+                msg[0].state = {
+                    opened: true
+                };
+            }
+            $('#jstree_demo2').jstree({
+                "core" : {
+                    "animation" : 0,
+                    "check_callback" : true,
+                    "themes" : { "stripes" : true },
+                    'data' :msg
+                    //     [
+                    //     msg
+                    //     // {
+                    //     //     'id' : 'top',
+                    //     //     'text' : '全部分类',
+                    //     //     'state' : { 'opened' : true, 'selected' : true },
+                    //     //     'children' : (msg)
+                    //     // },
+                    // ]
+                },
+                "plugins" : [
+                    "checkbox",
+                    // "contextmenu",
+                    "search",
+                    "types", "wholerow"
+                ]
+            });
+            //选中第一个节点
+            loadFormList2('top')
+
+            var ins = $("#jstree_demo2").jstree();
+            // var walk = function(node){
+            //     // if(context){
+            //         // console.log(context,(ins.is_checked(node)))
+            //     window.opener['selectp'](type, ins.is_checked(node), node.original.text);
+            //     // }
+            //     $.each(node.children || [], function (i,v) {
+            //         var node = ins.get_node(v);
+            //         walk(node);
+            //     });
+            // };
+            function loadFormList2(n){
+                if(!n){
+                    return
+                }
+                // loadTimeout();
+                var tmpl = template.compile($("#user").html())
+                $.ajax({
+                    type:"post",
+                    url:"/api/bpm/org/getUserByDept",
+                    data: JSON.stringify({"pid":n=='top'?undefined:ins.get_checked(),"type":type}),
+                    headers:{
+                        "Content-Type": "application/json"
+                    },
+                    success:function(data){
+
+
+                        layer.closeAll();
+                        $("#dataList2").html(tmpl({
+                            data: data.data
+                        }));
+
+                        $('input[name="person"]').click(function(){
+                            // selectUser = {};
+                            delete selectUser[$(this).attr("class")];
+                            // var person=$('input[name="person"]:checked').val();
+                            $("input[name='person']:checked").each(function(i){
+                                // ids.push($(this).val())
+                                selectUser[$(this).attr("class")] = $(this).val();
+                            })
+                            // console.log(selectUser)
+                            var setmpl = template.compile($("#selectedUser").html())
+                            // $("#selected-item").html(setmpl({
+                            //     data: selectUser
+                            // }));
+                            //
+                            // console.log(selectUser,setmpl({
+                            //     data: selectUser
+                            // }))
+
+                            $("#selected-item").html("");
+                            $.each(selectUser,function (i, item) {
+                                $("#selected-item").append("<div><label><input name='sel-user' type='checkbox' value='"+i+"' checked>"+item+"</label></div>")
+                            })
+
+                            selFn();
+                        })
+
+                        //赋值
+                        $.each(selectUser || {},function (i, item) {
+                            $("input[name='person']").each(function() {
+
+                                if($(this).attr("class") == i){
+                                    $("input[name='person'][class='"+i+"']").attr("checked",true);
+                                }
+                            });
+
+                        })
+
+                    }
+                });
+
+            }
+
+            var setChecked = function(){
+                var chks =  ins.get_checked();
+                var ret = [];
+                var ids = []
+                $.each(chks ||[], function (i,v) {
+                    var node = ins.get_node(v);
+                    console.log("node",node)
+                    if(type == 'q'){
+                        if(node.original.type == 'QUARTERS'){
+                            ret.push(node.original.full_name);
+                            ids.push(node.original.id + "")
+                        }
+                        return;
+                    }
+                    ret.push(node.original.text);
+                    ids.push(node.original.id)
+                });
+                // window.opener['selectp'](type, ret, ids);
+            }
+
+            $("#jstree_demo2").on("check_node.jstree", function () {
+                console.log("--:",arguments);
+            }).on("check_all.jstree", function () {
+                console.log("//",arguments)
+            }).on("select_node.jstree", function (e,n) {
+                console.log(n,ins.get_checked())
+                setChecked()
+                loadFormList2(n);
+                // walk(n.node);
+                // $.each(no)
+                // console.log(n.node);
+                // console.log(ins.is_checked(n), ins.is_checked(n.node))
+            }).on("deselect_node.jstree", function (e,n) {
+                setChecked();
+                loadFormList2(n);
+                // walk(n.node)
+            });
+
+
+        },"json");
+
+    }
+
+    function selFn(){
+        console.log("aaa",selectUser)
+        if(!selectUser){
+            $(".selected-tab").hide();
+            $("#nobody").removeClass("hide")
+        }else{
+            $(".selected-tab").show();
+            $("#nobody").addClass("hide")
+        }
+    }
+
+    $('#save-button').click(function(){
+        $("input[name='sel-user']:checked").each(function(i){
+            alert($(this).val())
+        })
+
+    })
+
+    $('#addAll').click(function(){
+        $("input[name='sel-user']").attr("checked","checked");
+    })
+
+    $('#delAll').click(function(){
+        $("input[name='sel-user']").attr("checked",false);
+    })
+
+</script>
+
+<script type="text/html" id="user">
+    {{each data item index}}
+    <div>
+        <label>
+            <input type="checkbox" name="person" class="{{item.uid}}" value="{{item.utname}}">
+            <span>{{item.utname}}</span>
+
+        </label>
+    </div>
+    {{/each}}
+</script>
+
+
+</body>
+</html>
+
