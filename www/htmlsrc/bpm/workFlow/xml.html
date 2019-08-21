@@ -1049,6 +1049,12 @@ return
                 var id = $(this).attr("data-element-id");
                 openConfigPage(id, "dealers")
             }},
+            m6: {
+                name:"智能选人", icon: "fa-filter",callback: function () {
+                    var id = $(this).attr("data-element-id");
+                    openConfigPage(id, "smart")
+                }
+            },
             m2: {name: "填写字段", icon:"fa-pencil-square-o", callback: function(key, opt){
                 var id = $(this).attr("data-element-id");
                 openConfigPage(id, "fields");
