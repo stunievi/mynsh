@@ -19,7 +19,7 @@
         </div>
         <div v-if="data.chooseRule != 'none'">
             <h6>部门针对对象</h6>
-            <select class="form-control" >
+            <select class="form-control" v-model="data.targetRule">
                 <option :value="i" v-for="(v,i) in opener.getNode()">{{nodeId == i ? "当前步骤" : v}}</option>
             </select>
         </div>
@@ -38,7 +38,8 @@
             return {
                 data:{
                     filterRule:"all",
-                    chooseRule:"none"
+                    chooseRule:"none",
+                    targetRule: this.nodeId
                 }
             }
         },

@@ -37,6 +37,9 @@
         .fa-file-o{
             color: #00a0e8;
         }
+        .manager-box{
+            display: flex; flex-direction: row; align-items: center
+        }
     </style>
     <link rel="stylesheet" href="../lib/font/css/font-awesome.css">
     <link rel="stylesheet" href="../lib/bootstrap-3.3.7-dist/css/bootstrap.min.css">
@@ -59,6 +62,36 @@
                     </td>
                     <td>
                         排序：<input type="text" v-model="data.sort">
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="100" >
+                        <div class="manager-box">
+                            <span>部门主管：</span>
+                            <input class="form-control" type="text" readonly style="background: #eee; flex:1">
+                            <a href="">添加</a>
+                            <a href="">清空</a>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="100">
+                        <div class="manager-box">
+                            <span>上级主管领导：</span>
+                            <input class="form-control" type="text" readonly style="background: #eee; flex:1">
+                            <a href="">添加</a>
+                            <a href="">清空</a>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="100">
+                        <div class="manager-box">
+                            <span>上级分管领导：</span>
+                            <input class="form-control" type="text" readonly style="background: #eee; flex:1">
+                            <a href="">添加</a>
+                            <a href="">清空</a>
+                        </div>
                     </td>
                 </tr>
                 <tr>
