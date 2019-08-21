@@ -208,6 +208,12 @@ select count(1) FROM T_USER_ORG u
 INNER JOIN T_ORG org on u.OID=org.ID where u.uid = #uid# and org.name in (#join(roles)#)
 
 
+是否拥有客户经理或办事员权限
+===
+select count(1) FROM T_USER_ORG u 
+INNER JOIN T_ORG org on u.OID=org.ID where u.uid = #uid# and org.name in ('办事员','客户经理')
+
+
 查询相关角色用户
 ===
 select u.UID FROM T_USER_ORG u 

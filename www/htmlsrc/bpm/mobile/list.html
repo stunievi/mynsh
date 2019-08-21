@@ -5,31 +5,31 @@
 </style>
 <script id="list-tmpl" type="text/html">
     <div id="ins-list" class="full">
-                <div v-for="vv in list" class="bpm-item box6" v-if="list.length" @click="show(vv)">
-                    <div class="flex-row">
-                        <img class="face" src="./face.jpg" width="60" height="60" alt="">
-                        <div class="flex-col flex-center pl20">
-                            <div class="fz15">{{vv.pubUName}}【{{vv.bpmName}}】</div>
-                            <div class="fz14">{{vv.createTime}}</div>
-                        </div>
-                    </div>
-                    <div class="pt10 cgray fz14">
-                        <div>流水号：{{vv.id}}</div>
-                        <div>流程状态：{{vv.state}}</div>
-                        <div>当前经办人：{{vv.uName}}</div>
-                        <div>最后处理时间：{{vv.lastModifyTime}}</div>
-                    </div>
-                    <div class="box6_corner_lf"></div>
-                    <div class="box6_corner_rt"></div>
+        <div v-for="vv in list" class="bpm-item box6" v-if="list.length" @click="show(vv)">
+            <div class="flex-row">
+                <img class="face" src="./face.jpg" width="60" height="60" alt="">
+                <div class="flex-col flex-center pl20">
+                    <div class="fz15">{{vv.pubUName}}【{{vv.bpmName}}】</div>
+                    <div class="fz14">{{vv.createTime}}</div>
                 </div>
-                <!--                    <div slot="top" class="mint-loadmore-top">-->
-                <!--                        <span v-show="topStatus !== 'loading'" :class="{ 'rotate': topStatus === 'drop' }">↓</span>-->
-                <!--                        <span v-show="topStatus === 'loading'">Loading...</span>-->
-                <!--                    </div>-->
-                <!--                </mt-loadmore>-->
-                <div v-else class="bpm-empty">
-                    已经没有数据了
-                </div>
+            </div>
+            <div class="pt10 cgray fz14">
+                <div>流水号：{{vv.id}}</div>
+                <div>流程状态：{{vv.state}}</div>
+                <div>当前经办人：{{vv.uName}}</div>
+                <div>最后处理时间：{{vv.lastModifyTime}}</div>
+            </div>
+            <div class="box6_corner_lf"></div>
+            <div class="box6_corner_rt"></div>
+        </div>
+        <!--                    <div slot="top" class="mint-loadmore-top">-->
+        <!--                        <span v-show="topStatus !== 'loading'" :class="{ 'rotate': topStatus === 'drop' }">↓</span>-->
+        <!--                        <span v-show="topStatus === 'loading'">Loading...</span>-->
+        <!--                    </div>-->
+        <!--                </mt-loadmore>-->
+        <div v-else class="bpm-empty">
+            已经没有数据了
+        </div>
 
 
         <mt-palette-button content="+" id="addTask" @click.native="addTask()">
@@ -45,7 +45,6 @@
                 <mt-button style="width: 80%;" type="primary" @click="pub">发布流程</mt-button>
             </div>
         </mt-popup>
-
     </div>
 
 </script>
@@ -55,7 +54,7 @@
         template: $("#list-tmpl").html(),
         data() {
             return {
-                list:[],
+                list: [],
                 items: [
                     {
                         id: "wait",
@@ -82,7 +81,7 @@
 
                 popupVisible: false,
                 slots: [],
-                models:{}
+                models: {}
             }
         },
         methods: {
@@ -93,9 +92,15 @@
                 this.$refs.loadmore.onTopLoaded();
             },
             load(type = "todo") {
-                $.get("/api/bpm/workflow/getInsList", {
-                    type: type
-                }, (msg) => {
+                let params  = {type:type}
+                if(this.$route.params.id !== "1"){
+                    params = {
+                        id:this.$route.params.id,
+                        type :type
+                    }
+                }
+                console.log("idididi",this.$route.params.id);
+                $.get("/api/bpm/workflow/getInsList", params, (msg) => {
                     if (msg.success) {
                         this.list = msg.data.list;
                         // this.items.forEach(e => {
@@ -127,7 +132,7 @@
                     }, {
                         flex: 1,
                         values: (() => {
-                            if(!keys.length) {
+                            if (!keys.length) {
                                 return []
                             } else {
                                 return (this.models[keys[0]].children || [])
@@ -140,40 +145,40 @@
                     }
                 ];
             },
-            onValuesChange(picker,e) {
-                if(!this.models[e[0]]){
+            onValuesChange(picker, e) {
+                if (!this.models[e[0]]) {
                     return
                 }
-                picker.setSlotValues(1,(this.models[e[0]].children||[])
+                picker.setSlotValues(1, (this.models[e[0]].children || [])
                     .filter(e => e.type == 'form')
                     .map(e => e.text)
                 );
             },
-            pub(){
+            pub() {
                 var name = this.$refs.picker.getSlotValue(0);
-                console.log(name,this.models)
-                if(!this.models[name]){
+                console.log(name, this.models)
+                if (!this.models[name]) {
                     return
                 }
                 var values = this.models[name].children || [];
-                 name = this.$refs.picker.getSlotValue(1);
+                name = this.$refs.picker.getSlotValue(1);
                 console.log(values)
                 for (var i = 0; i < values.length; i++) {
-                   if(values[i].text == name){
-                       var id = values[i].id;
-                       startFragment("tab4", id, "pub", "1");
-                       // this.$router.push({
-                       //     name:"form",
-                       //     params:{
-                       //         type:"pub",
-                       //         id:id
-                       //     }
-                       // })
-                      break
-                   }
+                    if (values[i].text == name) {
+                        var id = values[i].id;
+                        startFragment("tab4", id, "pub", "1");
+                        // this.$router.push({
+                        //     name:"form",
+                        //     params:{
+                        //         type:"pub",
+                        //         id:id
+                        //     }
+                        // })
+                        break
+                    }
                 }
 
-
+                this.popupVisible = false
                 //todo 需要有提示
             }
         },
@@ -185,7 +190,7 @@
 
             //初始化流程
             $.get("/api/bpm/workflow/modelList", (msg) => {
-                if(!msg.success){
+                if (!msg.success) {
                     return
                 }
                 ;(msg.data || []).forEach(e => {

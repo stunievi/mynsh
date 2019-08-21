@@ -12,7 +12,10 @@
     <script src="https://unpkg.com/mint-ui/lib/index.js"></script>
     <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
     <style>
-        body { margin:0; }
+        body {
+            margin: 0;
+        }
+
         /*#top{*/
         /*    position: fixed;*/
         /*    width: 100%;*/
@@ -23,73 +26,89 @@
         /*#tab-body{*/
         /*    padding-top: 1.2rem;*/
         /*}*/
-        #app{
+        #app {
             width: 100vw;
             height: 100vh;
             display: flex;
             flex-direction: column;
         }
-        #tab-body{
+
+        #tab-body {
             overflow: auto;
         }
-        .bpm-item{
+
+        .bpm-item {
             padding: 10px;
             border-bottom: 1px solid #ddd;
         }
-        .mint-tab-container-item{
+
+        .mint-tab-container-item {
             height: 100vh;
         }
-        .bpm-empty{
+
+        .bpm-empty {
             margin-top: 30px;
             text-align: center;
             /*height: 100vh;*/
         }
-        .full{
+
+        .full {
             width: 100vw;
             height: 100vh;
             display: flex;
             flex-direction: column;
             position: relative;
         }
-        .flex{
+
+        .flex {
             display: flex;
         }
-        .flex-row{
+
+        .flex-row {
             flex-direction: row;
             display: flex;
         }
-        .flex-col{
+
+        .flex-col {
             flex-direction: column;
             display: flex;
         }
-        .flex-center{
+
+        .flex-center {
             justify-content: center;
         }
-        .pl20{
+
+        .pl20 {
             padding-left: 10px;
         }
-        .pt10{
+
+        .pt10 {
             padding-top: 10px;
         }
-        .cgray{
+
+        .cgray {
             color: #aaa;
         }
-        .fz14{
+
+        .fz14 {
             font-size: 14px;
         }
-        .fz15{
+
+        .fz15 {
             font-size: 15px;
         }
+
         /*#wait,#over,#end{*/
         /*    flex:1;*/
         /*}*/
 
-        #addTask{
+        #addTask {
             position: absolute;
             right: 20px;
             bottom: 20px;
         }
-        .mint-main-button{
+
+        .mint-main-button {
             color: rgb(255, 255, 255);
             background-color: rgb(38, 162, 255);
         }
@@ -107,7 +126,7 @@
 </body>
 <script>
     $.ajaxSetup({
-        headers:{
+        headers: {
             "HZToken": getToken()
         },
         crossDomain: true,
@@ -115,17 +134,17 @@
     });
 
     function getToken() {
-        if(typeof android != "undefined"){
+        if (typeof android != "undefined") {
             return android.jsGetToken()
         } else {
-            return "main|fdc9d371-f0e0-4fb6-8e65-0124d34c35ef";
+            return "main|df4c1e05-8fdc-46f0-85bb-c391e47edc6c";
             // return "main|0eb217ab-a093-413e-a82e-4a57c6971e7d";
             // return "main|f066eb20-09e4-4bd5-91a8-df9200c7699e";
         }
     }
 
     function showMsg(str) {
-        if(typeof android != "undefined"){
+        if (typeof android != "undefined") {
             android.showToast(str)
         } else {
             var instance = MINT.Toast(str);
@@ -135,15 +154,27 @@
         }
     }
 
-    function startFragment(name,id, type, flag = "0") {
-        if(typeof android != "undefined") {
-            android.jsStartFragment(name,id,type, flag);
+    function startFragment(name, id, type, flag = "0") {
+        if (typeof android != "undefined") {
+            android.jsStartFragment(name, id, type, flag);
         }
     }
 
-    function onBack(name,id, type, flag = "0") {
-        if(typeof android != "undefined") {
-            android.onBack(name,id,type, flag);
+    function onBack(name, id, type, flag = "0") {
+        if (typeof android != "undefined") {
+            android.onBack(name, id, type, flag);
+        }
+    }
+
+    function uploadImg() {
+        if (typeof android != "undefined") {
+            android.uploadImg();
+        }
+    }
+
+    function upload() {
+        if (typeof android != "undefined") {
+            android.upload();
         }
     }
 
@@ -154,8 +185,8 @@
 <!--#include file="./sign.html"-->
 <!--#include file="./next.html"-->
 <script>
-    const routes  = [
-        {path: "/:type", component: InsList, meta:{keepAlive: false}},
+    const routes = [
+        {path: "/:type/:id", component: InsList, meta: {keepAlive: false}},
         {name: "form", path: "/show/:type/:id/:flag", component: Form, meta: {keepAlive: true}},
         {name: "next", path: "/next/:type/:id", component: Next, meta: {keepAlive: false}},
         {name: "sign", path: "/sign", component: Sign, meta: {keepAlive: false}},
