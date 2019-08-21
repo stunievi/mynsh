@@ -435,15 +435,42 @@
         //     return;
         // }
 
-        var fields;
-        // fields = JSON.parse(fields);
-        console.log(fields)
+
+
+        var fields = [];
+        // $.get("/api/bpm/workflow/getFields", {
+        //     id: id
+        // }, function (msg)  {
+        //     if (msg.success) {
+        //         fields = [];
+        //         fields = msg.data[0].arrangementData.listFields;
+        //         console.log(fields)
+        //
+        //     }
+        // }, "json");
+
+        $.ajax({
+            type:"get",
+            url:"/api/bpm/workflow/getFields?id="+id,
+            async:false,
+            success:function(data){
+                if (data.success && data.data[0]) {
+
+                    fields = data.data[0].arrangementData.listFields;
+                }
+
+            }
+        });
+
         var cols = [];
         cols.push({checkbox: true})
         cols.push({
             title:"流程ID",
             field:"id",
         })
+
+        console.log("----",fields)
+
         $.each(fields, function (i,v) {
             cols.push({
                 title: v,
@@ -514,11 +541,11 @@
                         //
                         layer.msg("请求失败！")
                     }
-                    if(res.data.list[0].bpmModel.listFields){
-                        fields = res.data.list[0].bpmModel.listFields;
-                        console.log(fields)
-
-                    }
+                    // if(res.data.list[0].bpmModel.listFields){
+                    //     fields = res.data.list[0].bpmModel.listFields;
+                    //     console.log(fields)
+                    //
+                    // }
                     params.success({
                         rows: res.data.list,
                         total: res.data.totalRow,

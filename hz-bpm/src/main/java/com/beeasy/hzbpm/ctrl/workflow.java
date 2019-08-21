@@ -752,23 +752,23 @@ public class workflow {
     }
 
 
-//    public Object getFields() {
-//        MongoCollection<Document> collection = db.getCollection("workflow");
-//        Arr workflows = collection.aggregate(a(
-//                o("$match", o("type", "1")),
-//                o(
-//                        "$project", o(
-//                                "_id", o(
-//                                        "$toString", "$_id"
-//                                ),
-//                                "arrangementData.listFields", 1
-//                        )
-//                )
-//        ).toBson()).into(a());
-//        List ret = (List) tree((Collection) workflows, "pid", "_id");
-//
-//        return Result.ok(ret);
-//    }
+    // 获取表单字段
+    public Object getFields(String id) {
+        MongoCollection<Document> collection = db.getCollection("workflow");
+        Arr workflows = collection.aggregate(a(
+                o("$match", o("_id", new ObjectId(id))),
+                o(
+                    "$project", o(
+                            "_id", o(
+                                    "$toString", "$_id"
+                            ),
+                            "arrangementData.listFields", 1
+                    )
+                )
+        ).toBson()).into(a());
+
+        return Result.ok(workflows);
+    }
     /***********************************/
 
 }
