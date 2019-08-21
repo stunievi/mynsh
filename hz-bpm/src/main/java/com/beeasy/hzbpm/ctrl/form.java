@@ -38,6 +38,12 @@ import static com.github.llyb120.nami.server.Vars.$request;
 public class form {
 
 
+    /**
+     * 导入
+     * @param file
+     * @return
+     * @throws IOException
+     */
     public Object load(MultipartFile file) throws IOException {
         //解压
         File temp = File.createTempFile("123",".zip");
@@ -82,6 +88,13 @@ public class form {
         return Result.error();
     }
 
+
+    /**
+     * 导出
+     * @param ids
+     * @return
+     * @throws IOException
+     */
     public Object export(String[] ids) throws IOException {
         List<ObjectId> oids = Stream.of(ids).map(e -> new ObjectId(e)).collect(Collectors.toList());
         MongoCollection<Document> catcol = db.getCollection("cat");
