@@ -7,6 +7,7 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.ZipUtil;
+import cn.hutool.script.ScriptUtil;
 import com.beeasy.hzbpm.bean.Log;
 import com.beeasy.hzbpm.filter.Auth;
 import com.beeasy.hzbpm.util.Result;
@@ -52,9 +53,8 @@ public class form {
             tempdir.mkdirs();
             file.transferTo(temp);
             ZipUtil.unzip(temp.getAbsolutePath(), tempdir.getAbsolutePath());
-
-                int ccount = 0;
-                int fcount = 0;
+            int ccount = 0;
+            int fcount = 0;
             for (File listFile : tempdir.listFiles()) {
                 UpdateResult ret;
                 if(listFile.getName().equals("cat")){
