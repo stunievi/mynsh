@@ -66,6 +66,10 @@ public class BpmModel {
         public boolean allowDownload = false;
         public boolean allowBack = false;
         public boolean departmentFirst = false;
+
+
+        //smart
+//        public String
     }
 
     /**
