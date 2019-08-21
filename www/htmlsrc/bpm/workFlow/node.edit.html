@@ -17,6 +17,8 @@
     <style>
         #content{
             overflow: visible;
+            width: 100vw;
+            height: 100vh;
         }
         .dropdown-menu-right{
             left: 0 !important;
@@ -36,104 +38,85 @@
     <script src="../lib/vue/vue.js"></script>
 </head>
 <body>
-    <div id="content">
-        <ul id="myTabs" class="nav nav-tabs" role="tablist">
-<!--            <li role="presentation" class="active li1"><a href="#tab1" role="tab" data-toggle="tab" aria-controls="tab1" aria-expanded="true">基本配置</a></li>-->
-            <li role="presentation" class="li2 dealers"><a href="#tab2" role="tab" data-toggle="tab" aria-controls="tab2">处理人</a></li>
-            <li role="presentation" class="li2 smart"><a href="#tab8" role="tab" data-toggle="tab" aria-controls="tab2">智能选人</a></li>
-            <li role="presentation" class="li2 fields"><a href="#tab3" role="tab" data-toggle="tab" aria-controls="tab3">填写字段</a></li>
-            <li role="presentation" class="li2 rfields"><a href="#tab5" role="tab" data-toggle="tab" aria-controls="tab5">必填字段</a></li>
-            <li style="display: none;" role="presentation" class="li2"><a href="#tab4" role="tab" data-toggle="tab" aria-controls="tab4">转入条件</a></li>
-            <li role="presentation" class="li2 permission"><a href="#tab7" role="tab" data-toggle="tab" aria-controls="tab7">权限配置</a></li>
-            <li role="presentation" class="li2 timeout"><a href="#tab6" role="tab" data-toggle="tab" aria-controls="tab6">超时提醒</a></li>
-        </ul>
-        <div id="myTabContent" class="tab-content">
-<!--            <div id="tab1" class="tab-pane">-->
-<!--                1-->
-<!--            </div>-->
-            <div id="tab2" class="tab-pane">
-            </div>
-            <div id="tab8" class="tab-pane">
-                <node-smart/>
-            </div>
-            <div id="tab3" class="tab-pane">
-            </div>
-            <div id="tab5" class="tab-pane">
-            </div>
-            <div style="display: none;" id="tab4" class="tab-pane">
-            </div>
-            <div class="tab-pane" id="tab7">
-            </div>
-            <div id="tab6" class="tab-pane">
-                <div class="col-xs-12 form-group " data-show="" style="margin-top: 20px;">
-                    <label class="col-xs-3 text-right">
-                        超时提醒时间
-                    </label>
+    <div id="content" style="display: flex; flex-direction: column; ">
+        <div style="flex: 1">
+            <ul id="myTabs" class="nav nav-tabs" role="tablist">
+                <!--            <li role="presentation" class="active li1"><a href="#tab1" role="tab" data-toggle="tab" aria-controls="tab1" aria-expanded="true">基本配置</a></li>-->
+                <li role="presentation" class="li2 dealers"><a href="#tab2" role="tab" data-toggle="tab" aria-controls="tab2">处理人</a></li>
+                <li role="presentation" class="li2 smart"><a href="#tab8" role="tab" data-toggle="tab" aria-controls="tab2">智能选人</a></li>
+                <li role="presentation" class="li2 fields"><a href="#tab3" role="tab" data-toggle="tab" aria-controls="tab3">填写字段</a></li>
+                <li role="presentation" class="li2 rfields"><a href="#tab5" role="tab" data-toggle="tab" aria-controls="tab5">必填字段</a></li>
+                <li style="display: none;" role="presentation" class="li2"><a href="#tab4" role="tab" data-toggle="tab" aria-controls="tab4">转入条件</a></li>
+                <li role="presentation" class="li2 permission"><a href="#tab7" role="tab" data-toggle="tab" aria-controls="tab7">权限配置</a></li>
+                <li role="presentation" class="li2 timeout"><a href="#tab6" role="tab" data-toggle="tab" aria-controls="tab6">超时提醒</a></li>
+            </ul>
+            <div id="myTabContent" class="tab-content">
+                <!--            <div id="tab1" class="tab-pane">-->
+                <!--                1-->
+                <!--            </div>-->
+                <div id="tab2" class="tab-pane">
+                </div>
+                <div id="tab8" class="tab-pane">
+                    <node-smart :node-id="nodeId" ref="smart"/>
+                </div>
+                <div id="tab3" class="tab-pane">
+                </div>
+                <div id="tab5" class="tab-pane">
+                </div>
+                <div style="display: none;" id="tab4" class="tab-pane">
+                </div>
+                <div class="tab-pane" id="tab7">
+                </div>
+                <div id="tab6" class="tab-pane">
+                    <div class="col-xs-12 form-group " data-show="" style="margin-top: 20px;">
+                        <label class="col-xs-3 text-right">
+                            超时提醒时间
+                        </label>
 
-                    <div class="col-xs-8" style="padding-right: 15px;
+                        <div class="col-xs-8" style="padding-right: 15px;
                         padding-left: 15px; max-width:200px">
-                        <div class="inp-timeout">
-                            <input type="text" class="form-control input-sm timeout" id="timeout" name="timeout">
-                        </div>
-                        <div class="select-timeout">
-                            <select class="form-control input-sm timeout" id="selectTime">
-                                <option value="hours">小时</option>
-                                <option value="day">天</option>
-                            </select>
-                        </div>
+                            <div class="inp-timeout">
+                                <input type="text" class="form-control input-sm timeout" id="timeout" name="timeout">
+                            </div>
+                            <div class="select-timeout">
+                                <select class="form-control input-sm timeout" id="selectTime">
+                                    <option value="hours">小时</option>
+                                    <option value="day">天</option>
+                                </select>
+                            </div>
 
+                        </div>
                     </div>
-                </div>
 
-                <div class="col-xs-12 form-group " data-show="">
-                    <label class="col-xs-3 text-right">
-                        最大超时提醒时间
-                    </label>
+                    <div class="col-xs-12 form-group " data-show="">
+                        <label class="col-xs-3 text-right">
+                            最大超时提醒时间
+                        </label>
 
-                    <div class="col-xs-8" style="padding-right: 15px;
+                        <div class="col-xs-8" style="padding-right: 15px;
                         padding-left: 15px;">
-                        <div class="inp-timeout">
-                            <input type="text" class="form-control input-sm maxTimeout" id="maxTimeout" name="maxTimeout">
-                        </div>
-                        <div class="select-timeout">
-                            <select class="form-control input-sm maxTimeout" id="selectMax">
-                                <option value="hours">小时</option>
-                                <option value="day">天</option>
-                            </select>
+                            <div class="inp-timeout">
+                                <input type="text" class="form-control input-sm maxTimeout" id="maxTimeout" name="maxTimeout">
+                            </div>
+                            <div class="select-timeout">
+                                <select class="form-control input-sm maxTimeout" id="selectMax">
+                                    <option value="hours">小时</option>
+                                    <option value="day">天</option>
+                                </select>
+
+                            </div>
 
                         </div>
-
                     </div>
                 </div>
             </div>
+        </div>
 
+        <div style="text-align: center; padding-top: 8px;padding-bottom: 8px;">
+            <a href="javascript:;" class="btn btn-primary" @click="save()">保存</a>
         </div>
 
     </div>
-
-
-    <script>
-        var nodeId = location.search.match(/id=([^&]+)/)[1]
-        ;(function () {
-            var matched = location.search.match(/page=([^&]+)/);
-            var page;
-            if(matched){
-                page = matched[1];
-            } else {
-                page = "dealers";
-            }
-            var t = $("." + page);
-            var idex = t.index();
-            t.addClass("active").siblings().removeClass("active");
-            $("#myTabContent .tab-pane").eq(idex).addClass("active").siblings().removeClass("active");
-        })();
-
-
-
-
-
-
-    </script>
 
 
 </body>
@@ -145,33 +128,53 @@
                 html = $(html);
                 var script = html.filter("script");
                 var template = html.filter("template");
+                var style = html.filter("style");
                 script = "(function(){ " + script.html() + "; return component; })();";
                 var data = eval(script);
                 data.template = template.html();
                 resolve(data)
+                if(style.length){
+                    $("head").append(style)
+                }
             });
         });
     }
 
     loadComponent("node-smart", "./smart.html");
 
-    new Vue({
+    var app = new Vue({
         el:"#content",
         data:{
-
+            nodeId:""
         },
         methods:{
-
+            save(){
+                console.log(this.$refs.smart.getData())
+            }
         },
         mounted(){
+            var nodeId = location.search.match(/id=([^&]+)/)[1]
+            ;(function () {
+                var matched = location.search.match(/page=([^&]+)/);
+                var page;
+                if(matched){
+                    page = matched[1];
+                } else {
+                    page = "dealers";
+                }
+                var t = $("." + page);
+                var idex = t.index();
+                t.addClass("active").siblings().removeClass("active");
+                $("#myTabContent .tab-pane").eq(idex).addClass("active").siblings().removeClass("active");
+            })();
+
+            this.nodeId = nodeId;
+
             $("#tab2").load("./dealers.html")
             $("#tab7").load("./permission.html")
 
             $("#tab3").fsSelector("all", opener.fields, opener.bpmData.nodes[nodeId].fields.all_fields)
             $("#tab5").fsSelector("required", opener.fields, opener.bpmData.nodes[nodeId].fields.required_fields)
-
-
-
 
             //郑郑的粗鄙代码
             getTimeoutSet()
