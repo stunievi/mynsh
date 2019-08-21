@@ -1,16 +1,69 @@
 <template>
-    <div>
-        123312
+    <div class="smart" >
+        <div>
+            <h6>选人过滤规则</h6>
+            <select class="form-control" name="" id="" style="width: 200px;">
+                <option value="all">允许选择全部的经办人</option>
+            </select>
+            <p style="">说明:选人过滤规则在流程转交选择经办人时生效，默认设置为允许选择全部指定的经办</p>
+        </div>
+        <div>
+            <h6>自动选人规则</h6>
+            <select class="form-control" name="" id="" style="width: 200px;" v-model="data.chooseRule">
+                <option value="none">不进行自动选择</option>
+                <option value="publisher">自动选择流程发起人</option>
+                <option value="self_manager">自动选择本部门主管</option>
+                <option value="top_manager">自动选择上级主管领导</option>
+            </select>
+            <p>说明:通过自动选人规则，是流程经办人通过指定的规则智能选择。默认设置为:不能自动选择。注意，请同时设置好经办权限，自动选择规则才能生效</p>
+        </div>
+        <div v-if="data.chooseRule != 'none'">
+            <h6>部门针对对象</h6>
+            <select name="" id="">
+            </select>
+        </div>
     </div>
 </template>
 
 <script>
     var component = {
+        // props:{
+        //     smartChoose:{
+        //         type:Object,
+        //         default:{}
+        //     }
+        // },
+        methods:{
+            getData(){
+                return JSON.stringify(this.data);
+            }
+        },
         data() {
-
+            return {
+                data:{
+                    filterRule:"all",
+                    chooseRule:"none"
+                }
+            }
         },
         mounted(){
 
         }
     }
 </script>
+
+<style>
+    .smart{
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+    .smart h6{
+        font-weight: bold;
+    }
+    .smart select{
+        width: 200px;
+    }
+    .smart p{
+        font-size: 12px;color:red; padding-top: 8px;
+    }
+</style>
