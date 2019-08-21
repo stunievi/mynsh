@@ -96,14 +96,14 @@
             </div>
         </div>
         <div role="tabpanel" class="tab-pane" id="taskBpm4" aria-labelledby="taskBpm4-tab">
-            <div style="text-align: center">
+            <div style="text-align: center; height: 100%;">
                 <div style="padding-left: 10px;padding-right: 10px; padding-bottom: 5px;">
-                    <input v-model="uSearchKey" type="text" class="form-control" placeholder="输入人名关键字，只会展示前50个">
+                    <input v-model="uSearchKey" type="text" class="form-control" placeholder="输入人名关键字，只会展示前30个">
                 </div>
                 <div class="ulist">
-                    <div class="action item" @click="cancelAll(rus)">全部删除</div>
-                    <div class="action item" @click="chooseAll(rus)">全部选择</div>
-                    <div class="item" :class="{selected: selected[v.uid]}" v-for="v in rus" @click="choose(v)">{{v.utname}}</div>
+                    <div class="action item" @click="cancelAll(uus)">全部删除</div>
+                    <div class="action item" @click="chooseAll(uus)">全部选择</div>
+                    <div class="item" :class="{selected: selected[v.uid]}" v-for="v in uus" @click="choose(v)">{{v.utname}}</div>
                 </div>
             </div>
         </div>
@@ -119,15 +119,21 @@
         data:{
             dus:[],
             rus:[],
-            selected:{}
+            uus:[],
+            selected:{},
+            uSearchKey:""
         },
         watch:{
             uSearchKey: function (nval) {
+                var t = this;
                 if(timer){
                     clearTimeout(timer);
                 }
                 timer = setTimeout(function () {
-
+                    $.get("/api/bpm/org/users", {keyword: nval}, function (msg) {
+                        if(!msg.success) return
+                        t.uus = msg.data || [];
+                    })
                 },100);
             }
         },

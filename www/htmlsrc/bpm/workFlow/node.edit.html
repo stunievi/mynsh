@@ -33,12 +33,14 @@
     <link rel="stylesheet" href="fields.css">
     <script src="fields.js"></script>
     <script src="../lib/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+    <script src="../lib/vue/vue.js"></script>
 </head>
 <body>
     <div id="content">
         <ul id="myTabs" class="nav nav-tabs" role="tablist">
 <!--            <li role="presentation" class="active li1"><a href="#tab1" role="tab" data-toggle="tab" aria-controls="tab1" aria-expanded="true">基本配置</a></li>-->
             <li role="presentation" class="li2 dealers"><a href="#tab2" role="tab" data-toggle="tab" aria-controls="tab2">处理人</a></li>
+            <li role="presentation" class="li2 smart"><a href="#tab8" role="tab" data-toggle="tab" aria-controls="tab2">智能选人</a></li>
             <li role="presentation" class="li2 fields"><a href="#tab3" role="tab" data-toggle="tab" aria-controls="tab3">填写字段</a></li>
             <li role="presentation" class="li2 rfields"><a href="#tab5" role="tab" data-toggle="tab" aria-controls="tab5">必填字段</a></li>
             <li style="display: none;" role="presentation" class="li2"><a href="#tab4" role="tab" data-toggle="tab" aria-controls="tab4">转入条件</a></li>
@@ -51,9 +53,9 @@
 <!--            </div>-->
             <div id="tab2" class="tab-pane">
             </div>
-            <script>
-                $("#tab2").load("./dealers.html")
-            </script>
+            <div id="tab8" class="tab-pane">
+                <node-smart/>
+            </div>
             <div id="tab3" class="tab-pane">
             </div>
             <div id="tab5" class="tab-pane">
@@ -62,9 +64,6 @@
             </div>
             <div class="tab-pane" id="tab7">
             </div>
-            <script>
-                $("#tab7").load("./permission.html")
-            </script>
             <div id="tab6" class="tab-pane">
                 <div class="col-xs-12 form-group " data-show="" style="margin-top: 20px;">
                     <label class="col-xs-3 text-right">
@@ -129,52 +128,92 @@
             $("#myTabContent .tab-pane").eq(idex).addClass("active").siblings().removeClass("active");
         })();
 
-        getTimeoutSet()
-
-        function getTimeoutSet(){
-            $('.timeout').change(function(e){
-                var time = $("#timeout").val();
-                var selectVal = $("#selectTime").val();
-                opener.bpmData.nodes[nodeId].timeoutSet.timeout = time + "_" + selectVal;
-            });
-            $('.maxTimeout').change(function(e){
-                var time = $("#maxTimeout").val();
-                var selectVal = $("#selectMax").val();
-                opener.bpmData.nodes[nodeId].timeoutSet.maxTimeout = time + "_" + selectVal;
-            });
-            // $(".maxTimeout").bind('input propertychange',function(){
-            //     var val = $(this).val();
-            //     var selectVal = $("#selectTime").val()
-            //     opener.bpmData.nodes[nodeId].timeoutSet.timeout = val + "_" + selectVal;
-            // })
-            // $("#maxTimeout").bind('input propertychange',function(){
-            //     var val = $(this).val();
-            //     var selectVal = $("#selectMax").val()
-            //     opener.bpmData.nodes[nodeId].timeoutSet.maxTimeout = val + "_" + selectVal;
-            // })
-        }
-
-        var timeout = opener.bpmData.nodes[nodeId].timeoutSet.timeout.split("_");
-        var maxTimeout = opener.bpmData.nodes[nodeId].timeoutSet.maxTimeout.split("_");
-        if(timeout.length>0){
-            if(timeout[0]==""){
-                timeout[0] = "0";
-            }
-            $("#timeout").val(timeout[0])
-        }
-        if(maxTimeout.length>0){
-            if(maxTimeout[0]==""){
-                maxTimeout[0] = "0";
-            }
-            $("#maxTimeout").val(maxTimeout[0])
-        }
 
 
 
-        $("#tab3").fsSelector("all", opener.fields, opener.bpmData.nodes[nodeId].fields.all_fields)
-        $("#tab5").fsSelector("required", opener.fields, opener.bpmData.nodes[nodeId].fields.required_fields)
+
+
     </script>
+
 
 </body>
 </html>
+<script>
+    function loadComponent(name, src){
+        Vue.component(name, function (resolve,reject) {
+            $.get(src, function (html) {
+                html = $(html);
+                var script = html.filter("script");
+                var template = html.filter("template");
+                script = "(function(){ " + script.html() + "; return component; })();";
+                var data = eval(script);
+                data.template = template.html();
+                resolve(data)
+            });
+        });
+    }
+
+    loadComponent("node-smart", "./smart.html");
+
+    new Vue({
+        el:"#content",
+        data:{
+
+        },
+        methods:{
+
+        },
+        mounted(){
+            $("#tab2").load("./dealers.html")
+            $("#tab7").load("./permission.html")
+
+            $("#tab3").fsSelector("all", opener.fields, opener.bpmData.nodes[nodeId].fields.all_fields)
+            $("#tab5").fsSelector("required", opener.fields, opener.bpmData.nodes[nodeId].fields.required_fields)
+
+
+
+
+            //郑郑的粗鄙代码
+            getTimeoutSet()
+
+            function getTimeoutSet(){
+                $('.timeout').change(function(e){
+                    var time = $("#timeout").val();
+                    var selectVal = $("#selectTime").val();
+                    opener.bpmData.nodes[nodeId].timeoutSet.timeout = time + "_" + selectVal;
+                });
+                $('.maxTimeout').change(function(e){
+                    var time = $("#maxTimeout").val();
+                    var selectVal = $("#selectMax").val();
+                    opener.bpmData.nodes[nodeId].timeoutSet.maxTimeout = time + "_" + selectVal;
+                });
+                // $(".maxTimeout").bind('input propertychange',function(){
+                //     var val = $(this).val();
+                //     var selectVal = $("#selectTime").val()
+                //     opener.bpmData.nodes[nodeId].timeoutSet.timeout = val + "_" + selectVal;
+                // })
+                // $("#maxTimeout").bind('input propertychange',function(){
+                //     var val = $(this).val();
+                //     var selectVal = $("#selectMax").val()
+                //     opener.bpmData.nodes[nodeId].timeoutSet.maxTimeout = val + "_" + selectVal;
+                // })
+            }
+
+            var timeout = opener.bpmData.nodes[nodeId].timeoutSet.timeout.split("_");
+            var maxTimeout = opener.bpmData.nodes[nodeId].timeoutSet.maxTimeout.split("_");
+            if(timeout.length>0){
+                if(timeout[0]==""){
+                    timeout[0] = "0";
+                }
+                $("#timeout").val(timeout[0])
+            }
+            if(maxTimeout.length>0){
+                if(maxTimeout[0]==""){
+                    maxTimeout[0] = "0";
+                }
+                $("#maxTimeout").val(maxTimeout[0])
+            }
+        }
+    });
+</script>
 
