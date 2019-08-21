@@ -2,10 +2,15 @@ package com.beeasy.hzbpm.ctrl;
 
 
 
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.ZipUtil;
 import com.beeasy.hzbpm.bean.Log;
 import com.beeasy.hzbpm.filter.Auth;
 import com.beeasy.hzbpm.util.Result;
+import com.github.llyb120.nami.core.MultipartFile;
 import com.github.llyb120.nami.core.R;
 import com.github.llyb120.nami.json.Arr;
 import com.github.llyb120.nami.json.Json;
@@ -13,20 +18,84 @@ import com.github.llyb120.nami.json.Obj;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.ReplaceOptions;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.UpdateResult;
 import org.bson.BsonValue;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
+import java.io.*;
 import java.sql.Struct;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.beeasy.hzbpm.bean.MongoService.db;
 import static com.github.llyb120.nami.json.Json.*;
 import static com.github.llyb120.nami.server.Vars.$request;
 
 public class form {
+
+
+    public Object load(MultipartFile file) throws IOException {
+        //解压
+        File temp = File.createTempFile("123",".zip");
+        File tempdir = new File(temp.getParentFile(), StrUtil.uuid());
+        try{
+            tempdir.mkdirs();
+            file.transferTo(temp);
+            ZipUtil.unzip(temp.getAbsolutePath(), tempdir.getAbsolutePath());
+
+                int ccount = 0;
+                int fcount = 0;
+            for (File listFile : tempdir.listFiles()) {
+                UpdateResult ret;
+                if(listFile.getName().equals("cat")){
+                    List<Document> cats = ObjectUtil.unserialize(FileUtil.readBytes(listFile));
+                    MongoCollection<Document> catcol = db.getCollection("cat");
+                    for (Document cat : cats) {
+                        ret = catcol.replaceOne(Filters.eq("_id", cat.getObjectId("_id")), cat, new ReplaceOptions().upsert(true));
+                        ccount++;
+                    }
+
+                } else if(listFile.getName().equals("form")){
+                    List<Document> cats = ObjectUtil.unserialize(FileUtil.readBytes(listFile));
+                    MongoCollection<Document> catcol = db.getCollection("form");
+                    for (Document cat : cats) {
+                        ret = catcol.replaceOne(Filters.eq("_id", cat.getObjectId("_id")), cat, new ReplaceOptions().upsert(true));
+                        fcount += 1;
+                    }
+                }
+            }
+            return Result.ok(o(
+                    "cat", ccount,
+                    "form", fcount
+            ));
+        } catch (Exception e){
+            e.printStackTrace();
+        } finally {
+            temp.delete();
+            tempdir.delete();
+        }
+
+        return Result.error();
+    }
+
+    public Object export(String[] ids) throws IOException {
+        List<ObjectId> oids = Stream.of(ids).map(e -> new ObjectId(e)).collect(Collectors.toList());
+        MongoCollection<Document> catcol = db.getCollection("cat");
+        Arr cats = catcol.find(Filters.in("_id", oids)).into(a());
+        MongoCollection<Document> formcol = db.getCollection("form");
+        Arr forms = formcol.find(Filters.in("_id",oids)).into(a());
+        File temp = File.createTempFile("123","456");
+        temp.deleteOnExit();
+        temp = ZipUtil.zip(temp, new String[]{"cat", "form"}, new InputStream[]{
+            new ByteArrayInputStream(ObjectUtil.serialize(cats)),
+            new ByteArrayInputStream(ObjectUtil.serialize(forms)),
+        });
+        return new MultipartFile("export-" + DateUtil.now() + ".data", temp, true);
+    }
 
     public Object listex(){
         MongoCollection<Document> collection = db.getCollection("cat");
@@ -64,6 +133,12 @@ public class form {
                         )
                 )
         ).toBson()).into(a());
+        for (Object cat : cats) {
+            Map map = (Map) cat;
+            map.put("state", o(
+                    "opened", true
+            ));
+        }
         Json tree = tree((List)cats, "pid", "id");
         return Result.ok(tree);
     }
