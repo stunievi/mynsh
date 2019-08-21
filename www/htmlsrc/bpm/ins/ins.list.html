@@ -435,7 +435,7 @@
         //     return;
         // }
 
-        var fields = decodeURI(getParam("fields"));
+        var fields;
         // fields = JSON.parse(fields);
         console.log(fields)
         var cols = [];
@@ -444,12 +444,12 @@
             title:"流程ID",
             field:"id",
         })
-        // $.each(fields, function (i,v) {
-        //     cols.push({
-        //         title: v,
-        //         field: v
-        //     })
-        // });
+        $.each(fields, function (i,v) {
+            cols.push({
+                title: v,
+                field: v
+            })
+        });
         cols.push({
             title:"任务状态",
             field:"state"
@@ -513,6 +513,11 @@
                     if(!res.success){
                         //
                         layer.msg("请求失败！")
+                    }
+                    if(res.data.list[0].bpmModel.listFields){
+                        fields = res.data.list[0].bpmModel.listFields;
+                        console.log(fields)
+
                     }
                     params.success({
                         rows: res.data.list,

@@ -169,7 +169,7 @@
     }
 
     layer.load(0, {time:5000});
-    $.get("/api/bpm/form/listex", {type:"0"},function (msg) {
+    $.get("/api/bpm/form/listex", {type:"form"},function (msg) {
         layer.closeAll();
         if(!msg.success){
            return
@@ -434,7 +434,7 @@
     // })
 
     $("#export").click(function () {
-        window.open("../com/export.html", "form-export", "left=100, top=100, width=500, height=400, location=no")
+        window.open("../com/export.html?type=form", "form-export", "left=100, top=100, width=500, height=400, location=no")
     });
 
     $("#import").click(function () {
@@ -445,6 +445,7 @@
             // alert(3)
             var fd = new FormData();
             fd.append("file", file);
+            fd.append("type", "form");
             // alert(2)
             $.ajax({
                 url: "/api/bpm/form/load",

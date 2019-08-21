@@ -97,7 +97,7 @@
                         </div>
 
                     </div>
-                    <div class="col-xs-12 text-center" style="padding:20px 0;">
+                    <div class="col-xs-12 text-center" style="padding:20px 0;display: none">
                         <button type="button" href="javascript:;" class="btn btn-info" id="nextStep" style="margin-right: 10px;">
                             下一步
                         </button>
@@ -117,6 +117,7 @@
             <script>
             </script>
             <button id="save-button" class="btn btn-info tab2">保存</button>
+            <button id="aaa" class="btn btn-info tab2 hide">获取节点</button>
 
         </div>
     </div>
@@ -1085,6 +1086,40 @@ return
                 }
             }
         }
+    })
+
+
+    function getNode() {
+        var nodeMap = {};
+        bpmnModeler.saveXML({ format: true }, function(err, xml) {
+            if (err) {
+                return console.error('could not save BPMN 2.0 diagram', err);
+            }
+            var _xml = $.parseXML(xml);
+            $(_xml).find('process').each(function(){
+                var _startEvent = $(this).children('startEvent');
+                var _task = $(this).children('task,exclusiveGateway');
+                var _endEvent = $(this).children('endEvent');
+
+                var _startId = _startEvent.attr("id");
+                var _startName = _startEvent.attr("name");
+                nodeMap[_startId] = _startName;
+
+                var _endId = _endEvent.attr("id");
+                var _endName = _endEvent.attr("name");
+                nodeMap[_endId] = _endName;
+                _task.each(function () {
+                    var _taskId = $(this).attr("id");
+                    var _taskName = $(this).attr("name");
+                    nodeMap[_taskId] = _taskName;
+                })
+            })
+        })
+        return nodeMap;
+    }
+
+    $("#aaa").click(function () {
+        console.log(getNode())
     })
 
 
