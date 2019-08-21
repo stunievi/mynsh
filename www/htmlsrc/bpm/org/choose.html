@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>选择人员</title>
+    <link rel="stylesheet" href="../lib/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../lib/bootstrap-3.3.7-dist/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="../lib/css/style.css">
+    <script src="../lib/jquery/jquery.js"></script>
+    <script src="../lib/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+    <script src="../lib/jstree/jstree.min.js"></script>
+    <link rel="stylesheet" href="../lib/jstree/themes/default/style.min.css">
+    <script src="../lib/vue/vue.js"></script>
+    <style>
+        htlm,body,#app{
+            width: 100vw;
+            height: 100vh;
+            /*width: 500px;*/
+            /*height: 400px;*/
+            overflow: hidden;
+        }
+        #app{
+            display: flex;
+            flex-direction: column;
+        }
+        .tab-content{
+            flex: 1;
+        }
+        .tab-pane{
+            width: 100%;
+            height: 100%;
+        }
+        .ulist{
+            text-align: center;
+            flex: 1;
+            overflow: auto;
+            height: 100%;
+        }
+        .ulist .item{
+            width: 100%;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            color: #666;
+        }
+        .selected{
+            background: #409eff;
+            color:white !important;
+        }
+        .action{
+            color: #333;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <ul id="myTabsBpm" class="nav nav-tabs" role="tablist" style="margin-bottom: 10px;">
+        <li class="active"><a href="#taskBpm1" class="" role="tab"  data-toggle="tab" aria-controls="taskBpm1" aria-expanded="true" >已选</a></li>
+        <li><a href="#taskBpm2" role="tab"  data-toggle="tab" aria-controls="taskBpm2" aria-expanded="true" >部门</a></li>
+        <li><a href="#taskBpm3" role="tab"  data-toggle="tab" aria-controls="taskBpm3" aria-expanded="true" >角色</a></li>
+        <li><a href="#taskBpm4" role="tab"  data-toggle="tab" aria-controls="taskBpm3" aria-expanded="true" >人员</a></li>
+    </ul>
+    <div id="myTabContentBpm" class="tab-content" style="min-height:120px;">
+        <div role="tabpanel" class="tab-pane active" id="taskBpm1" aria-labelledby="taskBpm1-tab">
+            <div class="ulist">
+                <div class="action item" @click="cancelAll(selected)">全部删除</div>
+                <div class="action item" :class="{selected: selected[v.uid]}" v-for="(v,i) in selected" @click="choose(v)">{{v}}</div>
+            </div>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="taskBpm2" aria-labelledby="taskBpm2-tab" style="">
+            <div style="display: flex; flex-direction: row; height: 100%;">
+                <div id="jstree_demo" style="overflow:auto;">
+                </div>
+                <div class="ulist">
+                    <div class="action item" @click="cancelAll(dus)">全部删除</div>
+                    <div class="action item" @click="chooseAll(dus)">全部选择</div>
+                    <div class="item" :class="{selected: selected[v.uid]}" v-for="v in dus" @click="choose(v)">{{v.utname}}</div>
+                </div>
+            </div>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="taskBpm3" aria-labelledby="taskBpm3-tab">
+            <div style="display: flex; flex-direction: row; height: 100%;">
+                <div id="jstree_demo2" style="overflow:auto;">
+                </div>
+                <div class="ulist">
+                    <div class="action item" @click="cancelAll(rus)">全部删除</div>
+                    <div class="action item" @click="chooseAll(rus)">全部选择</div>
+                    <div class="item" :class="{selected: selected[v.uid]}" v-for="v in rus" @click="choose(v)">{{v.utname}}</div>
+                </div>
+            </div>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="taskBpm4" aria-labelledby="taskBpm4-tab">
+            <div style="text-align: center">
+                <div style="padding-left: 10px;padding-right: 10px; padding-bottom: 5px;">
+                    <input v-model="uSearchKey" type="text" class="form-control" placeholder="输入人名关键字，只会展示前50个">
+                </div>
+                <div class="ulist">
+                    <div class="action item" @click="cancelAll(rus)">全部删除</div>
+                    <div class="action item" @click="chooseAll(rus)">全部选择</div>
+                    <div class="item" :class="{selected: selected[v.uid]}" v-for="v in rus" @click="choose(v)">{{v.utname}}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+<script>
+
+    var timer = null;
+    var app =   new Vue({
+        el: "#app",
+        data:{
+            dus:[],
+            rus:[],
+            selected:{}
+        },
+        watch:{
+            uSearchKey: function (nval) {
+                if(timer){
+                    clearTimeout(timer);
+                }
+                timer = setTimeout(function () {
+
+                },100);
+            }
+        },
+        methods:{
+            chooseAll(items){
+                var t = this;
+                items.forEach(function (v) {
+                    console.log(v)
+                    Vue.set(t.selected, v.uid, v.utname)
+                })
+                this.notify()
+            },
+            cancelAll(items){
+                if(items == this.selected){
+                    this.selected = {};
+                    this.notify()
+                    return
+                }
+                var t = this;
+                items.forEach(function (v) {
+                    Vue.delete(t.selected, v.uid);
+                });
+                this.notify()
+            },
+            choose: function (v) {
+                if(this.selected[v.uid]){
+                    Vue.delete(this.selected, v.uid);
+                }  else {
+                    Vue.set(this.selected, v.uid, v.utname)
+                }
+                console.log(this.selected)
+                this.notify()
+            },
+            notify(){
+                if(opener && opener.onChooseCallback){
+                    opener.onChooseCallback(JSON.parse(JSON.stringify(this.selected)));
+                }
+            },
+            initDep(){
+                var t = this;
+                $.get("/api/bpm/org/list", {type:"DEPARTMENT"}, function (msg) {
+                    if(!msg.success){return}
+
+                    if(msg.data.length){
+                        msg.data[0].state = {
+                            opened: true
+                        }
+                    }
+                    $('#jstree_demo').jstree({
+                        "core": {
+                            "animation": 0,
+                            "check_callback": true,
+                            "themes": {"stripes": true},
+                            'data': msg.data
+                        },
+                        "plugins" : [
+                            "contextmenu", "search",
+                            "types", "wholerow"
+                        ]
+                    });
+                    var timer = null;
+                    $("#jstree_demo").on("select_node.jstree", function (e,n) {
+                        var id = n.node.id;
+                        if(timer){
+                            clearTimeout(timer);
+                            timer = null;
+                        }
+                        timer = setTimeout(function () {
+                            $.get("/api/bpm/org/dus",{id:id}, function (msg) {
+                                t.dus = msg.data || []
+                            },"json")
+                        },1000/16);
+                    })
+
+                }, 'json')
+            },
+
+            initRole: function(){
+                var t = this;
+                $.get("/api/bpm/org/list", {type:"ROLE"}, function (msg) {
+                    if(!msg.success){return}
+
+                    if(msg.data.length){
+                        msg.data.forEach(function (e) {
+                            e.state = {
+                                opened: true
+                            }
+                        })
+                    }
+                    $('#jstree_demo2').jstree({
+                        "core": {
+                            "animation": 0,
+                            "check_callback": true,
+                            "themes": {"stripes": true},
+                            'data': msg.data
+                        },
+                        "plugins" : [
+                            "contextmenu", "search",
+                            "types", "wholerow"
+                        ]
+                    });
+                    var timer = null;
+                    $("#jstree_demo2").on("select_node.jstree", function (e,n) {
+                        var id = n.node.id;
+                        if(timer){
+                            clearTimeout(timer);
+                            timer = null;
+                        }
+                        timer = setTimeout(function () {
+                            $.get("/api/bpm/org/rus",{id:id}, function (msg) {
+                                t.rus = msg.data || []
+                            },"json")
+                        },1000/16);
+                    })
+
+                }, 'json')
+            }
+        },
+        mounted: function(){
+            this.initDep()
+            this.initRole()
+
+            if(opener && opener.onChooseInit){
+                console.log(this)
+                this.selected = JSON.parse(JSON.stringify(opener.onChooseInit()));
+            }
+        }
+    });
+
+
+</script>

@@ -23,17 +23,33 @@
         #content{
             padding: 10px !important;
         }
+        .fa-folder-o{
+            color: #f90;
+        }
+        .fa-file-o{
+            color: #00a0e8;
+        }
     </style>
     <script src="../lib/layer/layer.js"></script>
     <link rel="stylesheet" href="../lib/bootstrap-3.3.7-dist/css/bootstrap.min.css">
     <script src="../lib/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="../lib/bootstrap-3.3.7-dist/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="../lib/font/css/font-awesome.min.css">
 </head>
 <body>
 <div id="content" style="flex-direction: row; display: flex; justify-content: flex-start">
 <!--    <div class="alert alert-warning">编辑完成后记得保存</div>-->
 
-    <div id="jstree_demo" style="width: 200px; overflow: auto;">
+    <div style="display: flex; flex-direction: column">
 
+        <div id="jstree_demo" style=" overflow: auto; flex:1">
+
+        </div>
+
+        <div style="text-align: center; padding-bottom: 10px;">
+            <a class="btn btn-success btn-sm" href="javascript:;" id="export">导出</a>
+            <a class="btn btn-primary btn-sm" href="javascript:;" id="import">导入</a>
+        </div>
     </div>
     <div id="dataList" style="flex: 1;margin-left: 10px;margin-right: 10px;">
         <iframe style="display: none;" id="form-edit" src="" width="100%" height="100%" frameborder="0"></iframe>
@@ -159,6 +175,7 @@
            return
         }
         msg = msg.data;
+
         // console.log(msg)
         $('#jstree_demo').jstree({
             "core" : {
@@ -327,19 +344,19 @@
             },
             "types" : {
                     "#":{
-                        icon: "glyphicon glyphicon-book",
+                        icon: "fa fa-home",
                         valid_children: ["cat"]
                     },
                     "home":{
-                        icon: "glyphicon glyphicon-book",
+                        icon: "fa fa-home",
                         valid_children: ["cat"]
                     },
                     "cat": {
-                        icon: "glyphicon glyphicon-book",
+                        icon: "fa fa-folder-o",
                         valid_children:["form", "cat"]
                     },
                     "form": {
-                        icon:  "glyphicon glyphicon-file",
+                        icon:  "fa fa-file-o",
                         valid_children:[]
                     }
                 // "#" : {
@@ -364,11 +381,12 @@
                 // "state",
                 "dnd",
                 "types", "wholerow"
+                // "checkbox"
             ]
         });
 
         window.ins = $('#jstree_demo').jstree();
-        ins.open_all();
+        // ins.open_all();
         //选中第一个节点
         // loadFormList('top')
 
@@ -415,5 +433,38 @@
     //     }
     // })
 
+    $("#export").click(function () {
+        window.open("../com/export.html", "form-export", "left=100, top=100, width=500, height=400, location=no")
+    });
+
+    $("#import").click(function () {
+        $("<input type='file'>").change(function (e) {
+            // alert(2)
+            // console.log(e.target.files)
+            var file = e.target.files[0];
+            // alert(3)
+            var fd = new FormData();
+            fd.append("file", file);
+            // alert(2)
+            $.ajax({
+                url: "/api/bpm/form/load",
+                type: "POST",
+                dataType:"json",
+                data: fd,
+                processData: false,  // 告诉jQuery不要去处理发送的数据
+                contentType: false,   // 告诉jQuery不要去设置Content-Type请求头
+                success: function (msg) {
+                    if(!msg.success){
+                        layer.alert("导入失败，请检查导入文件是否正确")
+                        return
+                    }
+                    layer.alert("共导入分类" + msg.data.cat + "条，表单" + msg.data.form + "条", function () {
+                        location.reload()
+                    })
+                }
+            });
+            // console.log(file)
+        }).appendTo("body").hide().click();//.remove();
+    });
 
 </script>

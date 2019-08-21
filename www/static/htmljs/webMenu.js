@@ -818,6 +818,9 @@ var _menu = [
                             remoteApi.apiRoleDelUsers,
                             remoteApi.apiRoleAddUsers
                         ]
+                    },
+                    {
+
                     }
                 ]
             },
@@ -1243,6 +1246,10 @@ doIfDev(function () {
         {
             name:"流程管理",
             children: [
+                {
+                    name:"部门管理",
+                    href: "./htmlsrc/bpm/org/list.html"
+                },
                 {
                     name: "表单设计",
                     href: "/htmlsrc/bpm/form/cat.html"
