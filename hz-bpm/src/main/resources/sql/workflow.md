@@ -18,16 +18,46 @@ where
 order by ooo desc
 fetch first 20 rows only
 
-
-查找部门人员
+查找节点人员-新版
 ===
-WITH RPL (ID,parent_id) AS 
-(
-  SELECT ID,parent_id FROM t_org WHERE ID=#did# and type = 'DEPARTMENT'
-  UNION ALL 
-  SELECT child.id,child.parent_id FROM RPL parent,t_org child WHERE parent.id=child.parent_id and child.type = 'DEPARTMENT'
+select distinct uid, uname,utname from (
+--角色授權
+select uid,uname,utname from t_org_user where otype = 'ROLE' and oid in(#join(rids)#)
+union all
+--人員授權
+select id,username,true_name from t_user where id in (#join(uids)#)
+union all
+--部門授權
+select  u.id as uid,u.username as uname,u.true_name as utname
+from t_user_dep uo 
+inner join t_user u on uo.uid = u.id
+where uo.type = 'USER' and did in (#join(dids)#)
 )
-select uid,uname,utname,pname from t_org_user where pid in (select id from RPL) order by pname asc
+where 1 = 1
+--自动选择流程发起人
+@if(has(self)){
+    and uid = #uid#
+@}
+--自动选择当前部门主管
+@if(has(ms)){
+    and uid in (
+        select uid from t_user_dep where type = 'MANAGER' and did in (select did from t_user_dep where type = 'USER' and uid = #uid#)
+    )
+@}
+--自动选择当前部门上级主管
+@if(has(tms0)){
+    and uid in (
+        --上级主管领导
+        select uid from t_user_dep where type = 'TOP_MANAGER0' and did in (select did from t_user_dep where type = 'USER' and uid = #uid#)
+        union all
+        --上级部门的主管领导
+        select uid from t_user_dep where type = 'MANAGER' and did in (
+            select parent_id from t_org where did in (select did from t_user_dep where type = 'USER' and uid = #uid#)
+        ) 
+    )
+@}
+
+
 
 查找部门人员-新版关联
 ===
@@ -35,3 +65,6 @@ select u.true_name as utname,u.username as uname, u.id as uid, uo.type
 from t_user_dep uo 
 inner join t_user u on uo.uid = u.id
 where uo.did = #id#
+@if(!isEmpty(type)){
+and uo.type = #type#
+@}

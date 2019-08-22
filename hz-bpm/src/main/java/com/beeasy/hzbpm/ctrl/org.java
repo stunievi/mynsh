@@ -103,7 +103,7 @@ public class org {
 
     public Object dus(String id){
         return Result.ok(
-                sqlManager.select("workflow.查找部门人员", Obj.class, o("did", id))
+                sqlManager.select("workflow.查找部门人员-新版关联", Obj.class, o("id", id, "type", "USER"))
         );
     }
 
@@ -186,22 +186,22 @@ public class org {
     }
 
 
-    public Object getUserByDept(String[] pid, String type){
-        if(null == pid){
-            return Result.ok();
-        }
-        switch (type) {
-            case "d":
-                List<String> pids = Arrays.asList(pid);
-                String id = pids.stream().map(p -> "'" + p + "'").collect(Collectors.joining(","));
-                return Result.ok(sqlManager.execute(new SQLReady(String.format("select * from t_org_user where pid in (%s)",pids.isEmpty() ? "-1": id)),Obj.class));
-            case "r":
-                List<String> rids = Arrays.asList(pid);
-                String rid = rids.stream().map(r -> "'" + r + "'").collect(Collectors.joining(","));
-                return Result.ok(sqlManager.execute(new SQLReady(String.format("select  id as uid,true_name as utname,acc_code as uname from t_user u where 1 = 1 and exists(select 1 from t_user_org where uid = u.id and oid in (%s)) ",rids.isEmpty() ? "-1": rid)),Obj.class));
-                default:
-                    return Result.ok();
-
-        }
-    }
+//    public Object getUserByDept(String[] pid, String type){
+//        if(null == pid){
+//            return Result.ok();
+//        }
+//        switch (type) {
+//            case "d":
+//                List<String> pids = Arrays.asList(pid);
+//                String id = pids.stream().map(p -> "'" + p + "'").collect(Collectors.joining(","));
+//                return Result.ok(sqlManager.execute(new SQLReady(String.format("select * from t_org_user where pid in (%s)",pids.isEmpty() ? "-1": id)),Obj.class));
+//            case "r":
+//                List<String> rids = Arrays.asList(pid);
+//                String rid = rids.stream().map(r -> "'" + r + "'").collect(Collectors.joining(","));
+//                return Result.ok(sqlManager.execute(new SQLReady(String.format("select  id as uid,true_name as utname,acc_code as uname from t_user u where 1 = 1 and exists(select 1 from t_user_org where uid = u.id and oid in (%s)) ",rids.isEmpty() ? "-1": rid)),Obj.class));
+//                default:
+//                    return Result.ok();
+//
+//        }
+//    }
 }

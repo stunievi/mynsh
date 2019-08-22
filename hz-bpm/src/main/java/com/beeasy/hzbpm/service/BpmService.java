@@ -51,8 +51,7 @@ import java.util.stream.Stream;
 import static com.beeasy.hzbpm.bean.Data.userCache;
 import static com.beeasy.hzbpm.bean.MongoService.db;
 import static com.github.llyb120.nami.ext.beetlsql.BeetlSql.sqlManager;
-import static com.github.llyb120.nami.json.Json.a;
-import static com.github.llyb120.nami.json.Json.o;
+import static com.github.llyb120.nami.json.Json.*;
 import static com.github.llyb120.nami.server.Vars.$request;
 
 public class BpmService {
@@ -950,15 +949,28 @@ public class BpmService {
                     Obj params = o(
                             "uid", uid,
                             "uids", target.uids.isEmpty() ? a(-1) : target.uids,
-                            "qids", target.qids.isEmpty() ? a(-1) : target.qids,
+//                            "qids", target.qids.isEmpty() ? a(-1) : target.qids,
                             "rids", target.rids.isEmpty() ? a(-1) : target.rids,
                             "dids", target.dids.isEmpty() ? a(-1) : target.dids
                     );
-                    //只保留本部门
-                    if(target.departmentFirst){
-                        params.put("dep", 1);
+
+                    params.put("uid", uid);
+                    //自动选择流程发起人
+                    if(StrUtil.equals(target.chooseRule, "publisher")){
+                        params.put("self", true);
                     }
-                    List<Obj> dls = sqlManager.select("workflow.查找节点处理人员", Obj.class, params);
+                    //自动选择本部门主管(暂时只处理当前提交的步骤）
+                    if(StrUtil.equals(target.chooseRule, "self_manager")){
+                        params.put("ms", true);
+                    }
+                    if(StrUtil.equals(target.chooseRule, "top_manager")){
+                        params.put("tms0", true);
+                    }
+                    //只保留本部门
+//                    if(target.departmentFirst){
+//                        params.put("dep", 1);
+//                    }
+                    List<Obj> dls = sqlManager.select("workflow.查找节点人员-新版", Obj.class, params);
                     return o(
                             "nodeId", target.id,
                             "nodeName", target.name,
