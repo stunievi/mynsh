@@ -43,7 +43,7 @@ public class TestBpmn {
     @Test
     public void test2() throws InterruptedException {
         Nami.dev();;
-        Notice.sendSystem(Arrays.asList("522"), "oh shit");
+        Notice.sendSystem(Arrays.asList("522"), "oh shit","");
 
         Thread.sleep(10000);
     }

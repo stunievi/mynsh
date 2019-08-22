@@ -36,7 +36,7 @@ where uo.type = 'USER' and did in (#join(dids)#)
 where 1 = 1
 --自动选择流程发起人
 @if(has(self)){
-    and uid = #uid#
+    and uid = #self#
 @}
 --自动选择当前部门主管
 @if(has(ms)){
@@ -55,6 +55,13 @@ where 1 = 1
             select parent_id from t_org where did in (select did from t_user_dep where type = 'USER' and uid = #uid#)
         ) 
     )
+@}
+--自动选择上级分管领导
+@if(has(tms1)){
+    and uid in (
+        --上级主管领导
+        select uid from t_user_dep where type = 'TOP_MANAGER1' and did in (select did from t_user_dep where type = 'USER' and uid = #uid#)
+        ) 
 @}
 fetch first 20 rows only
 

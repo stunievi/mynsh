@@ -56,9 +56,9 @@
         <tr>
 
             <td>
-                <div class="bg" id="{{item.uid}}">
+                <div class="bg" id="{{item.uid}}" style="text-align: center;">
                     &nbsp;
-                    {{item.uname}}
+                    {{item.utname}}
                 </div>
             </td>
         </tr>
@@ -90,10 +90,14 @@
     var tmpl = template.compile($("#user").html())
 
 
-    $.get("/api/bpm/workflow/logList", {id:id}, function (msg) {
-        $("#ulist").html(tmpl({
-            data: msg.data
-        }));
+    // $.get("/api/bpm/workflow/getNextDealers", {id:id}, function (msg) {
+        if(opener.app.nodes[0].dealers){
+            console.log(opener.app.nodes[0].dealers)
+            $("#ulist").html(tmpl({
+                // data: msg.data.next[0].dealers
+                data: opener.app.nodes[0].dealers
+            }));
+        }
         // $('input:radio:first').attr('checked', 'checked');
 
         if("" != zbr && zbr){
@@ -110,7 +114,7 @@
             $('#table1 .bg').each(function() {
                 console.log($(this).attr("id"))
                 if($(this).attr("id") == i){
-                    $(this).css('background-color', '#337ab7');
+                    $(this).css('background-color', '#409eff');
                 }
             });
 
@@ -118,11 +122,11 @@
 
 
         $('#table1 .bg').click(function(){
-            if ($(this).css('background-color') === 'rgb(51, 122, 183)') {
+            if ($(this).css('background-color') === 'rgb(64, 158, 255)') {
                 opener.Vue.delete(opener.app.agent, $(this).attr("id"))
                 $(this).css('background-color', 'white');
             } else {
-                $(this).css('background-color', '#337ab7');
+                $(this).css('background-color', '#409eff');
                 opener.Vue.set(opener.app.agent, $(this).attr("id"), $(this).text().trim())
                 // ids[] = $(this).text().trim();
                 // ids.push($(this).attr("id"))
@@ -145,7 +149,7 @@
         // });
 
         $("#content").removeClass("hide");
-    },"json")
+    // },"json")
 
     var submitFn = function(){
         submit();

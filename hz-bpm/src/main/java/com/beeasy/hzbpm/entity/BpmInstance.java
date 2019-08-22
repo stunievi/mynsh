@@ -76,6 +76,9 @@ public class BpmInstance {
         //提交时间
         public Date time;
 
+        public Date startTime;
+        public Date endTime;
+
         //提交人
         public String uid;
         public String uname;

@@ -230,7 +230,9 @@
                 }
                 $("#maxTimeout").val(maxTimeout[0])
             }
-            Vue.set(this, "smart", opener.bpmData.nodes[nodeId].intelligence)
+            if(opener.bpmData.nodes[nodeId].intelligence && !$.isEmptyObject(opener.bpmData.nodes[nodeId].intelligence)){
+                Vue.set(this, "smart", opener.bpmData.nodes[nodeId].intelligence)
+            }
         }
     });
 

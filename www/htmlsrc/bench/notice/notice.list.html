@@ -51,7 +51,11 @@
     <script type="text/html" id="toolbar">
         <div class="layui-toolbar">
         <span id="exportSpan_z" value="{{d.id}}"></span>
-            <a href="javascript:;" class="btn btn-default" tab-href="/htmlsrc/bench/notice/notice.show.html?id={{d.id}}">查看</a>
+            {{# if(d.type == '流程消息'){ }}
+            <a class="btn btn-default btn-show" href="javascript:;" data-id="{{JSON.parse(d.bindData).id}}">查看</a>
+            {{# }else{ }}
+                <a href="javascript:;" class="btn btn-default" tab-href="/htmlsrc/bench/notice/notice.show.html?id={{d.id}}">查看</a>
+            {{# } }}
             {{# if(d.type == '任务通知'){ }}
             <button type="button" class="btn btn-default" tab-href="/htmlsrc/workFlow/nodeStates.html?id={{JSON.parse(d.bindData).taskId}}">查看任务</button>
             {{# } }}
@@ -89,6 +93,14 @@
                 }
             }));
         });
+
+        $(document).on("click", ".btn-show", function () {
+            var id = $(this).data("id");
+            openPubPage("deal", id);
+        })
+        function openPubPage(type, id) {
+            window.open("../../bpm/ins/ins.pub.html?type="+type+"&id=" + id, "dealtask", "left=100, top=100, width=800, height=600");
+        }
 
         onInfront();
 
