@@ -69,7 +69,9 @@ public class BpmModel {
 
 
         //smart
-//        public String
+        public String filterRule;
+        public String chooseRule;
+        public String targetRule;
     }
 
     /**

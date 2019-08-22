@@ -150,6 +150,9 @@
         methods:{
             save(){
                 console.log(this.$refs.smart.getData())
+
+                var nodeId = location.search.match(/id=([^&]+)/)[1]
+                opener.bpmData.nodes[nodeId].intelligence = this.$refs.smart.getData();
             }
         },
         mounted(){
@@ -216,7 +219,9 @@
                 }
                 $("#maxTimeout").val(maxTimeout[0])
             }
+        // Vue.set(data(),this.$refs.smart.getData(),opener.bpmData.nodes[nodeId].intelligence);
         }
     });
+
 </script>
 

@@ -64,6 +64,7 @@
         ds:[],
         ps:[]
     };
+    var nodeId = location.search.match(/id=([^&]+)/)[1]
     //还原页面
     $(function () {
         selectp("q", opener.bpmData.nodes[nodeId].permission.qs, opener.bpmData.nodes[nodeId].permission.qids);
