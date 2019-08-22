@@ -162,9 +162,9 @@
         },
         methods:{
             save(){
-                // console.log(this.smart)
-                opener.bpmData.nodes[this.nodeId].intelligence = this.smart;
-                //this.smart = xxxx;
+
+                opener.bpmData.nodes[this.nodeId].intelligence = JSON.parse(JSON.stringify(this.smart));
+                window.close();
             }
         },
         mounted(){
