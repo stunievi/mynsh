@@ -5,7 +5,7 @@ case when r1.uid = #uid# then 1000
 when r1.otype = 'ROLE' then 100
 when r1.pid = r2.pid then 10
 else 0
-end as ooo
+end as ooo查找部门人员-新版关联
 
 from t_org_user r1 
 left join t_org_user r2 on r2.uid = #uid# and r2.pid is not null 
@@ -31,7 +31,7 @@ select uid,uname,utname,pname from t_org_user where pid in (select id from RPL) 
 
 查找部门人员-新版关联
 ===
-select u.true_name as utname,u.username as uname, u.id as uid
+select u.true_name as utname,u.username as uname, u.id as uid, u.phone
 from t_user_dep uo 
 inner join t_user u on uo.uid = u.id
 where uo.did = #id#

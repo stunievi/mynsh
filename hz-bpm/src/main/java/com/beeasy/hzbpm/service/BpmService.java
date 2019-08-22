@@ -795,6 +795,13 @@ public class BpmService {
         unames.add(getUserName(uid));
         currentNode.put("unames", unames);
         JSONArray currentNodes = new JSONArray();
+
+        Map<String,String> mainUsers = new HashMap<>();
+        Map<String,String> supportUsers = new HashMap<>();
+        mainUsers.put(uid,getUserName(uid));
+        currentNode.put("mainUsers", mainUsers);
+        currentNode.put("supportUsers", supportUsers);
+
         currentNodes.add(currentNode);
 
         MongoCollection<Document> collection = db.getCollection("bpmInstance");
@@ -1151,6 +1158,7 @@ public class BpmService {
 //            error("请选择下一步骤操作人员");
 //        }
         String nextUid = (String) body.get("uids");
+
         if(nextNodeId.get(0).startsWith("EndEvent")){
             Obj state = o();
             state.put("state", "已办结");
@@ -1195,6 +1203,18 @@ public class BpmService {
             error("此处理人无权限处理任务！");
         }
 
+        Map<String, String> mainUsers = new HashMap<>();
+        Map<String, String> supportUsers = new HashMap<>();
+        //经办人
+        List<String> agentList = (List<String>) body.get("agent");
+        if(null != agentList && !agentList.isEmpty()){
+            for(String agent : agentList){
+                supportUsers.put(agent, getUserName(agent));
+            }
+        }
+
+        mainUsers.put(nextUid,getUserName(nextUid));
+
         BpmInstance.CurrentNode currentNode = new BpmInstance.CurrentNode();
         currentNode.nodeId = nextNode.id;
         List<String> uids = new ArrayList<>();
@@ -1205,7 +1225,8 @@ public class BpmService {
         unames.add(uName);
         currentNode.unames = unames;
         currentNode.nodeName = nextNode.name;
-
+        currentNode.mainUsers = mainUsers;
+        currentNode.supportUsers = supportUsers;
 
         // 得到下一节点超时提醒配置信息
         BpmModel.TimeoutSet timeoutSet = bpmService.ins.bpmModel.nodes.get(nextNode.id).timeoutSet;
