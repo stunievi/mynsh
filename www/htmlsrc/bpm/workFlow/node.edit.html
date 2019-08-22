@@ -162,9 +162,9 @@
         },
         methods:{
             save(){
-                console.log(this.smart)
-                var nodeId = location.search.match(/id=([^&]+)/)[1]
-                opener.bpmData.nodes[nodeId].intelligence = this.$refs.smart.getData();
+
+                opener.bpmData.nodes[this.nodeId].intelligence = JSON.parse(JSON.stringify(this.smart));
+                window.close();
             }
         },
         mounted(){
@@ -231,7 +231,9 @@
                 }
                 $("#maxTimeout").val(maxTimeout[0])
             }
-        // Vue.set(data(),this.$refs.smart.getData(),opener.bpmData.nodes[nodeId].intelligence);
+
+            //var nodeId = location.search.match(/id=([^&]+)/)[1];
+            Vue.set(this, "smart", opener.bpmData.nodes[nodeId].intelligence)
         }
     });
 

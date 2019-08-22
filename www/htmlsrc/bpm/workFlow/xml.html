@@ -495,6 +495,7 @@ return
                 //     window.sbpmData.nodes[sourceRef] = (window.bpmData.nodes[sourceRef]);
                 // })
             });
+            // 网关节点
             $.each(exList, function(i) {
                 var nextEvent = [];
                 var node = {};
@@ -583,9 +584,8 @@ return
                             window.bpmData.nodes[sourceRef].intelligence = {};
                         }
                         var intelligen;
-                        if(window.bpmData.nodes[sourceRef].intelligence.length){
-                            console.log(">>",window.bpmData.nodes[sourceRef].intelligence.length)
-                            intelligen = JSON.parse(window.bpmData.nodes[sourceRef].intelligence);
+                        if(window.bpmData.nodes[sourceRef].intelligence){
+                            intelligen =window.bpmData.nodes[sourceRef].intelligence;
                             filterRule = intelligen.filterRule;
                             chooseRule = intelligen.chooseRule;
                             targetRule = intelligen.targetRule;
@@ -860,12 +860,12 @@ return
                     window.bpmData.nodes[_taskId].intelligence = {};
                 }
                 var intelligen;
-                if(window.bpmData.nodes[_taskId].intelligence.length){
-                console.log(">>",window.bpmData.nodes[_taskId].intelligence.length)
-                    intelligen = JSON.parse(window.bpmData.nodes[_taskId].intelligence);
+                if(window.bpmData.nodes[_taskId].intelligence){
+                    intelligen =window.bpmData.nodes[_taskId].intelligence;
                     filterRule = intelligen.filterRule;
                     chooseRule = intelligen.chooseRule;
                     targetRule = intelligen.targetRule;
+                    // intelligen = JSON.parse(window.bpmData.nodes[_taskId].intelligence);
                 }
                 // var s = {"filterRule":"all","chooseRule":"none","targetRule":"Task_1rtduak"};
                 // for(var item in intelligen){
@@ -1135,6 +1135,7 @@ return
     })
 
 
+    // 获取所有节点
     function getNode() {
         var nodeMap = {};
         bpmnModeler.saveXML({ format: true }, function(err, xml) {
