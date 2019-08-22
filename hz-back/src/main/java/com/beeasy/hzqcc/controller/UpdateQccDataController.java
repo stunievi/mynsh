@@ -10,7 +10,6 @@ import com.beeasy.hzback.modules.system.service.NoticeService2;
 import com.beeasy.mscommon.Result;
 import com.beeasy.mscommon.filter.AuthFilter;
 import com.beeasy.mscommon.util.U;
-import netscape.javascript.JSObject;
 import org.apache.activemq.BlobMessage;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.beetl.sql.core.SQLManager;

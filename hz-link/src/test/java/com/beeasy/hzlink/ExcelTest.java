@@ -12,9 +12,7 @@ import org.jxls.transform.poi.PoiTransformer;
 import org.jxls.util.JxlsHelper;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import static com.github.llyb120.nami.core.Json.a;
 import static com.github.llyb120.nami.core.Json.o;
@@ -235,7 +233,7 @@ public class ExcelTest {
 //        JSONArray departments = JSONObject.parseArray("[{\"name\":\"d\",\"chief\":{\"name\":\"a\"},\"headcount\":\"s\",\"link\":\"www\",\"staff\":[{\"name\":\"a\"}]},{\"name\":\"dd\",\"chief\":{\"name\":\"a\"},\"headcount\":\"s\",\"link\":\"www\",\"staff\":[{\"name\":\"a\"}]}]");
         JSONArray eachData = jsonObject.getJSONObject("Result").getJSONArray("eachData");
 
-        try (FileInputStream is = new FileInputStream("D:/mynsh/mynsh/hz-link/src/main/resources/excel/t.xlsx")) {
+        try (FileInputStream is = new FileInputStream("D:\\java projects\\hznsh\\hz-link\\src\\main\\resources\\excel\\repay_report.xlsx")) {
                 OutputStream os = new FileOutputStream(new File("D:/mynsh/mynsh/hz-link/src/main/resources/excel/test.xlsx"));
                 Context context = PoiTransformer.createInitialContext();
                 context.putVar("eachData", eachData);
@@ -255,6 +253,64 @@ public class ExcelTest {
             fileOut.close();
 
             fis.close();
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+    private HashMap getUser(String name, String sex, double payment, int mergerRows){
+        HashMap user = new HashMap();
+        user.put("name", name);
+        user.put("sex", sex);
+        user.put("mergerRows", mergerRows);
+        user.put("payment", payment);
+        return user;
+    }
+
+    @Test
+    public void test3() throws FileNotFoundException {
+
+        try (
+                FileInputStream is = new FileInputStream("D:\\java projects\\hznsh\\hz-link\\src\\main\\resources\\excel\\test_m.xlsx")
+        ) {
+            OutputStream os = new FileOutputStream(new File("D:\\java projects\\hznsh\\hz-link\\src\\main\\resources\\excel\\test.xlsx"));
+
+            JSONArray eachData = JSONObject.parseArray("[{\"sheetName\":\"还款账户信息\",\"dataList\":[{\"accId\":\"accIdxxx\",\"accList\":[{\"cusName\":\"1xx\"},{\"cusName\":\"2xx\"}]},{\"accId\":\"accId2xxx\",\"accList\":[{\"cusName\":\"221xx\"},{\"cusName\":\"222xx\"}]}]}]");
+
+
+            Context context = PoiTransformer.createInitialContext();
+            context.putVar("eachData", eachData);
+
+
+            List<String> sheetNames = new ArrayList<>();
+            sheetNames.add("还款账户信息");
+            context.putVar("sheetNames", sheetNames);
+
+//            Map<String , Object> myFunction = new HashMap<String , Object>();
+
+//            myFunction.put("mg", new ExcelTest());
+
+//            context.putVar("eachData", eachData);
+//                context.putVar("sheetNames", jsonObject.getJSONObject("Result").getJSONArray("sheetNames")
+//            );
+            JxlsHelper.getInstance().setUseFastFormulaProcessor(false).setDeleteTemplateSheet(true).processTemplate(is, os, context);
+//
+//            FileInputStream fis = new FileInputStream("D:/mynsh/mynsh/hz-link/src/main/resources/excel/test.xlsx");
+//            XSSFWorkbook wb = new XSSFWorkbook(fis);
+//
+//            //删除Sheet
+//            wb.removeSheetAt(wb.getSheetIndex("template"));
+//
+//            FileOutputStream fileOut = new FileOutputStream("D:/mynsh/mynsh/hz-link/src/main/resources/excel/test.xlsx");
+//            wb.write(fileOut);
+//            fileOut.flush();
+//            fileOut.close();
+//
+//            fis.close();
 
 
         } catch (IOException e) {

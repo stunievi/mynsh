@@ -230,7 +230,7 @@
                 }
                 $("#maxTimeout").val(maxTimeout[0])
             }
-        // Vue.set(data(),this.$refs.smart.getData(),opener.bpmData.nodes[nodeId].intelligence);
+            Vue.set(this, "smart", opener.bpmData.nodes[nodeId].intelligence)
         }
     });
 

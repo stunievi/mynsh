@@ -19,6 +19,7 @@ import org.jxls.common.Context;
 import org.jxls.util.JxlsHelper;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -303,5 +304,83 @@ public class FileController {
         return null;
     }
 
+    // 贷款余额不足
+    public MultipartFile repayExport() throws IOException {
+        String fileName = "贷款余额不足.xlsx";
+        JSONArray eachData = new JSONArray();
+        //
+        JSONObject cusObj = new JSONObject();
+        cusObj.put("sheetName", "客户信息");
+        List<JSONObject> cusList = sqlManager.select("accloan.repay_cus_list", JSONObject.class, null);
+        cusObj.put("dataList", cusList);
+        eachData.add(cusObj);
+        //
+        List<JSONObject> cusAccList = new ArrayList<>();
+        List<JSONObject> accLoanList = new ArrayList<>();
+        for(JSONObject cus : cusList){
+            JSONObject cusAcc = new JSONObject();
+            String cusId = cus.getString("cus_id");
+            String cusName = cus.getString("cus_name");
+            String certCode = cus.getString("cert_code");
+            cusAcc.put("cusId", cusId);
+            cusAcc.put("cusName", cusName);
+            cusAcc.put("certCode", certCode);
+            List<JSONObject> cusAccDataList = sqlManager.select("accloan.repay_acct_info", JSONObject.class, cus);
+            cusAcc.put("subList", cusAccDataList);
+            cusAccList.add(cusAcc);
+
+
+            for(JSONObject acc : cusAccDataList){
+                JSONObject loan = new JSONObject();
+                loan.put("cusId", cusId);
+                loan.put("cusName", cusName);
+                loan.put("certCode", certCode);
+                loan.put("repaymentAccount", acc.getString("repayment_account"));
+                List<JSONObject> accLoanDataList = sqlManager.select("accloan.repay_loan_acct_info", JSONObject.class, acc);
+                loan.put("subList", accLoanDataList);
+                accLoanList.add(loan);
+            }
+
+        }
+        JSONObject accObj = new JSONObject();
+        accObj.put("sheetName", "还款账户信息");
+        accObj.put("dataList", cusAccList);
+        eachData.add(accObj);
+
+        JSONObject loanObj = new JSONObject();
+        loanObj.put("sheetName", "贷款台账信息");
+        loanObj.put("dataList", accLoanList);
+        eachData.add(loanObj);
+
+        File temp = File.createTempFile("repayExport", ".xls");
+        try(
+                var is = new ClassPathResource("excel/a.xlsx").getStream();
+                var fos = new FileOutputStream(temp);
+        ){
+            var context = new Context();
+            context.putVar("eachData", eachData);
+            List<String> sheetNames = new ArrayList<>();
+            sheetNames.add("客户信息");
+            sheetNames.add("还款账户信息");
+            sheetNames.add("贷款台账信息");
+            context.putVar("sheetNames", sheetNames);
+            JxlsHelper.getInstance().setUseFastFormulaProcessor(false).processTemplate(is, fos, context);
+        }
+        try {
+            var fis = new FileInputStream(temp);
+            XSSFWorkbook wb = new XSSFWorkbook(fis);
+            //删除模板Sheet
+            wb.removeSheetAt(wb.getSheetIndex("template"));
+            FileOutputStream fileOut = new FileOutputStream(temp);
+            wb.write(fileOut);
+            fileOut.flush();
+            fileOut.close();
+            fis.close();
+            return new MultipartFile(fileName, temp, true);
+        }catch (Exception e){
+            System.out.println(e);
+        }
+        return null;
+    }
 
 }

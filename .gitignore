@@ -36,6 +36,7 @@ build
 ### 企查查数据 ###
 /load-qcc/src/main/resources/qcc/txt/
 /load-qcc/src/main/resources/qcc/zip/
+/load-qcc/src/main/resources/qcc/*
 
 */__MACOSX
 __MACOSX/*
@@ -43,3 +44,4 @@ test/*
 */test
 /pom.xml
 *.rar
+/jxls-deomo

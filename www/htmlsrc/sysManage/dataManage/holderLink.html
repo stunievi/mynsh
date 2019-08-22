@@ -35,14 +35,14 @@
 <!--取数规则模板-->
 <script type="text/html" id="touchRuleForm">
     <div class="col-xs-12" style="margin-top:10px;">
-        <div>
-            <input type="checkbox" value="11" name="tRule">全部</input>
-        </div>
+        <!--<div>-->
+            <!--<input type="checkbox" value="11" name="tRule">全部</input>-->
+        <!--</div>-->
         <div style="padding: 5px 10px 10px 0px">
             {{each rules value index}}
             <span class="rule_z">
-                        <input type="checkbox" value="{{index}}" name="tRule">{{value}}</input>
-                    </span>
+                <input type="checkbox" value="{{index}}" name="tRule">{{value}}</input>
+            </span>
             <br/>
             {{/each}}
         </div>
@@ -52,14 +52,14 @@
 <script>
     var _html = template("touchRuleForm",{
         rules: {
-            "12.1": "12.1-股东明细",
+            // "12.1": "12.1-股东明细",
             "12.2": "12.2-企业股东关联自然人",
             "12.3": "12.3-企业股东关联的企业股东",
             "12.4": "12.4-企业股东关联的控股公司",
             "12.5": "12.5-自然人股东关联企业"
         }
     });
-    var dataFlag = "02";
+
     var activeIndex = true;
     $("#myTabs li").click(function () {
         if($(this).hasClass("active")){
@@ -89,7 +89,7 @@
             { label:'关联人名称', prop:'RELATED_NAME' },
             { label:'关联类型', prop:'LINK_RULE', type:"select", vals:[
                     { name: '--请选择--', val: ''},
-                    {val:"12.1", name:"12.1-股东明细"},
+                    // {val:"12.1", name:"12.1-股东明细"},
                     {val:"12.2", name:"12.2-企业股东关联自然人"},
                     {val:"12.3", name:"12.3-企业股东关联的企业股东"},
                     {val:"12.4", name:"12.4-企业股东关联的控股公司"},
@@ -109,7 +109,7 @@
     laytableRender({
         showIndex: true,
         cellMinWidth: 110,
-        url: "/link/LinkController/list2",
+        url: remoteOrigin + "/link/LinkController/list2",
         cols: [ [
             {title:'关联人名称', field:'RELATED_NAME' },
             {title:'关联类型', field:'LINK_RULE' },
@@ -122,7 +122,7 @@
     });
 
     eventBind('#touchRule', function(that){
-        layer.confirm(_html,{
+        var touchRuleIndex = layer.confirm(_html,{
             btn:["确定","取消"]
         },function () {
             var data = $('input:checkbox[name="tRule"]:checked').map(function () {
@@ -172,9 +172,21 @@
         });
     });
     $("#btn-export2").click(function () {
-        var str =$('[name=form-search]').serialize();
-        location.href = remoteOrigin + "/link/FileController/groupCusListExport?"+str;
+        formRequest({
+            url: remoteOrigin + "/api/report/export/diy/holderLink",
+            data: {
+                head: [[
+                    {"field":"number","title":"序号"},
+                    {"field":"relatedName","title":"关联人名称"}
+                ]],
+                query: $.unserialize($('[name=form-search]').ghostsf_serialize())
+            }
+        });
     });
+    // $("#btn-export2").click(function () {
+    //     var str =$('[name=form-search]').serialize();
+    //     location.href = remoteOrigin + "/link/FileController/groupCusListExport?"+str;
+    // });
 </script>
 </body>
 </html>

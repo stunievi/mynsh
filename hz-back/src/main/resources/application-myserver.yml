@@ -14,8 +14,10 @@ multipul:
     - name: main
       driver: com.ibm.db2.jcc.DB2Driver
       url: jdbc:db2://47.94.97.138:50000/test
+#      url: jdbc:db2://192.168.11.241:50000/fzsys
       username: db2inst1
       password: db2inst1
+#      password: db2inst1@123
       alias: fzsys_hy
 #      name: h2
 #        driver: com.ibm.db2.jcc.DB2Driver
