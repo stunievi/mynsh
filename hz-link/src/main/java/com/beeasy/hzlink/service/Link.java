@@ -721,6 +721,9 @@ public class Link {
         if (detail == null) {
             return;
         }
+        HashSet<String> personNames = new HashSet();
+        String operName = detail.getStr("OperName");
+        personNames.add(operName);
         var batch = a();
         batch.add(new Link111(){
             {
@@ -730,7 +733,7 @@ public class Link {
                 setLink_type("法人");
                 setOrigin_name(compName);
                 setLink_left(compName);
-                setLink_right(detail.getStr("OperName"));
+                setLink_right(operName);
             }
         });
 
@@ -738,6 +741,8 @@ public class Link {
         var ps = detail.getArr("Employees");
         for (Obj obj : ps.toObjList()) {
             if(obj.getStr("Job","").contains("董事")){
+                String name = obj.getStr("Name");
+                personNames.add(name);
                 batch.add(new Link111(){
                     {
                         setLink_rule("12.2");
@@ -746,7 +751,7 @@ public class Link {
                         setLink_type("董事");
                         setOrigin_name(compName);
                         setLink_left(compName);
-                        setLink_right(obj.getStr("Name"));
+                        setLink_right(name);
                     }
                 });
             }
@@ -758,6 +763,8 @@ public class Link {
             try {
                 var p = new BigDecimal(obj.getStr("StockPercent").replaceAll("%", ""));
                 if (p.floatValue() >= 25) {
+                    String stockName = obj.getStr("StockName");
+                    personNames.add(stockName);
                     batch.add(new Link111(){{
                         setLink_rule("12.2");
                         setIs_company(1);
@@ -765,7 +772,7 @@ public class Link {
                         setLink_type("自然人股东");
                         setOrigin_name(compName);
                         setLink_left(compName);
-                        setLink_right(obj.getStr("StockName"));
+                        setLink_right(stockName);
                         setStock_percent(p);
                     }});
                 }
@@ -780,6 +787,40 @@ public class Link {
                 .andEq(Link111::getOrigin_name, compName)
                 .delete();
             sqlManager.insertBatch(Link111.class, batch);
+
+            sqlManager.lambdaQuery(RelatedPartyList.class)
+                    .andEq(RelatedPartyList::getLink_rule, "12.2")
+                    .andEq(RelatedPartyList::getData_flag,"01")
+                    .andEq(RelatedPartyList::getRelated_name, compName)
+                    .delete();
+
+            for(String name : personNames){
+                List<Link111> arr = sqlManager.lambdaQuery(Link111.class)
+                    .andEq(Link111::getLink_rule, "12.2")
+                    .andEq(Link111::getOrigin_name, compName)
+                    .andEq(Link111::getLink_right, name)
+                    .select();
+
+                String linkType = "";
+                BigDecimal stockPercent = new BigDecimal(0);
+                for(Link111 item : arr){
+                    linkType += item.getLink_type() + "、";
+                    if("自然人股东".equals(item.getLink_type())){
+                        stockPercent = item.getStock_percent();
+                    }
+                }
+
+                RelatedPartyList data = new RelatedPartyList();
+                data.setAdd_time(new Date());
+                data.setRelated_name(name);
+                data.setData_flag("01");
+                data.setLink_rule("12.2");
+                data.setLink_info(compName);
+                data.setRemark_1("企业股东的"+linkType);
+                data.setRemark_2(detail.getStr("Address"));
+                data.setRemark_3(stockPercent.toString());
+                sqlManager.insert(data, true);
+            }
         }
 
     }
@@ -791,6 +832,7 @@ public class Link {
             return;
         }
         var batch = a();
+        var batch2 = a();
         for (Obj obj : detail.getArr("Partners").toObjList()) {
             if(!obj.getStr("StockType","").equals("企业法人")){
                 continue;
@@ -799,6 +841,7 @@ public class Link {
             try {
                 var p = new BigDecimal(obj.getStr("StockPercent").replaceAll("%", ""));
                 if (p.floatValue() >= 25) {
+                    String name = obj.getStr("Name");
                     batch.add(new Link111(){{
                         setLink_rule("12.3");
                         setIs_company(1);
@@ -806,9 +849,18 @@ public class Link {
                         setLink_type("企业股东");
                         setOrigin_name(compName);
                         setLink_left(compName);
-                        setLink_right(obj.getStr("Name"));
+                        setLink_right(name);
                         setStock_percent(p);
                     }}) ;
+
+                    batch2.add(new RelatedPartyList(){{
+                        setRelated_name(name);
+                        setLink_info(compName);
+                        setLink_rule("12.3");
+                        setData_flag("01");
+                        setRemark_1("企业股东的企业股东（25%及以上）");
+                        setRemark_3(p.toString());
+                    }});
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -822,6 +874,13 @@ public class Link {
                 .andEq(Link111::getOrigin_name, compName)
                 .delete();
             sqlManager.insertBatch(Link111.class, batch);
+
+            sqlManager.lambdaQuery(RelatedPartyList.class)
+                .andEq(RelatedPartyList::getLink_rule, "12.3")
+                .andEq(RelatedPartyList::getRelated_name, compName)
+                .andEq(RelatedPartyList::getData_flag, "01")
+                .delete();
+            sqlManager.insertBatch(RelatedPartyList.class, batch2);
         }
 
     }
@@ -829,6 +888,7 @@ public class Link {
     public static void do12_4(String compName){
         var page = 1;
         var batch = a();
+        var batch2 = a();
         while(true){
             var holdings = getHoldingCompany(compName, page++);
             if (holdings == null) {
@@ -837,6 +897,7 @@ public class Link {
             for (Obj names : holdings.getArr("Names").toObjList()) {
                 try {
                     var percent = new BigDecimal(names.getStr("PercentTotal", "").replace("%", ""));
+                    String name = names.getStr("Name");
                     if (percent.floatValue() >= 25) {
                         Link111 link111 = new Link111();
                         link111.setId(IdUtil.objectId());
@@ -848,6 +909,16 @@ public class Link {
                         link111.setIs_company(1);
                         link111.setStock_percent(percent);
                         batch.add(link111);
+
+                        batch2.add(new RelatedPartyList(){{
+                            setRelated_name(name);
+                            setLink_info(compName);
+                            setLink_rule("12.4");
+                            setData_flag("01");
+                            setRemark_1("企业股东控股（25%及以上）的企业");
+                            setRemark_3(percent.toString());
+                        }});
+
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -860,33 +931,46 @@ public class Link {
                 .andEq(Link111::getLink_rule, "12.4")
                 .delete();
             sqlManager.insertBatch(Link111.class, batch);
+
+            sqlManager.lambdaQuery(RelatedPartyList.class)
+                .andEq(RelatedPartyList::getLink_rule, "12.4")
+                .andEq(RelatedPartyList::getRelated_name, compName)
+                .andEq(RelatedPartyList::getData_flag, "01")
+                .delete();
+            sqlManager.insertBatch(RelatedPartyList.class, batch2);
         }
     }
 
     public static void do12_5(String partners, String IDCard){
-        var lists = sqlManager.lambdaQuery(CusCom.class).andEq(CusCom::getLegal_name, partners).andEq(CusCom::getLegal_cert_code, IDCard).select();
+        // 担任法人公司列表
+        var lists = sqlManager.lambdaQuery(CusCom.class)
+                .andEq(CusCom::getLegal_name, partners)
+                .andEq(CusCom::getLegal_cert_code, IDCard)
+                .select();
         if(null == lists || lists.isEmpty()){
-            // 判断是否是关联方数据中的关联人
-            var linkList = sqlManager.lambdaQuery(Link111.class).andEq(Link111::getLink_right, IDCard + "|"+partners).select();
-            if(null == linkList || linkList.isEmpty()){
-                return;
-            }else{
-                for(Link111 link: linkList){
-                    String company = link.getLink_left();
-                    save12_5(company);
-                }
-            }
+            // TODO::判断是否是关联方数据中的关联人
+//            var linkList = sqlManager.lambdaQuery(Link111.class).andEq(Link111::getLink_right, IDCard + "|"+partners).select();
+//            if(null == linkList || linkList.isEmpty()){
+//                return;
+//            }else{
+//                for(Link111 link: linkList){
+//                    String company = link.getLink_left();
+//                    save12_5(company);
+//                }
+//            }
         }else{
             for(CusCom list : lists){
                 String company = list.getCus_name();
-                save12_5(company);
+                save12_5(partners, IDCard, company);
             }
         }
 
     }
 
     // 12_5规则 查询法人、自然人股东、董事并保存
-    private static void save12_5(String compName){
+    private static void save12_5(String partners, String IDCard, String compName){
+        String originName = partners + "|" + IDCard;
+        String linkType = "担任法人";
         //企业基本信息
         var detail = getCompanyDetail(compName);
         if (detail == null) {
@@ -899,49 +983,53 @@ public class Link {
                 setIs_company(1);
                 setId(IdUtil.objectId());
                 setLink_type("法人");
-                setOrigin_name(compName);
+                setOrigin_name(originName);
                 setLink_left(compName);
-                setLink_right(detail.getStr("OperName"));
+                setLink_right(partners);
             }
         });
 
         //主要人员
         var ps = detail.getArr("Employees");
         for (Obj obj : ps.toObjList()) {
-            if(obj.getStr("Job","").contains("董事")){
+            if(obj.getStr("Job","").contains("董事") && partners.equals(obj.getStr("Name"))){
                 batch.add(new Link111(){
                     {
                         setLink_rule("12.5");
                         setIs_company(1);
                         setId(IdUtil.objectId());
                         setLink_type("董事");
-                        setOrigin_name(compName);
+                        setOrigin_name(originName);
                         setLink_left(compName);
-                        setLink_right(obj.getStr("Name"));
+                        setLink_right(partners);
                     }
                 });
+                linkType += "/担任董事";
+                break;
             }
         }
 
+        BigDecimal stockPercent = new BigDecimal(0);
+        // 股东
         var dps = detail.getArr("Partners");
         for (Obj obj : dps.toObjList()) {
             //算不出来的一概忽略
-            try {
-                var p = new BigDecimal(obj.getStr("StockPercent").replaceAll("%", ""));
-                if (p.floatValue() >= 25) {
-                    batch.add(new Link111(){{
-                        setLink_rule("12.5");
-                        setIs_company(1);
-                        setId(IdUtil.objectId());
-                        setLink_type("自然人股东");
-                        setOrigin_name(compName);
-                        setLink_left(compName);
-                        setLink_right(obj.getStr("StockName"));
-                        setStock_percent(p);
-                    }});
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
+            var p = new BigDecimal(obj.getStr("StockPercent").replaceAll("%", ""));
+            if (p.floatValue() >= 25 && "自然人股东".equals(obj.getStr("StockType"))
+            && partners.equals(obj.getStr("StockName"))) {
+                batch.add(new Link111(){{
+                    setLink_rule("12.5");
+                    setIs_company(1);
+                    setId(IdUtil.objectId());
+                    setLink_type("自然人股东");
+                    setOrigin_name(originName);
+                    setLink_left(compName);
+                    setLink_right(partners);
+                    setStock_percent(p);
+                }});
+                stockPercent = p;
+                linkType += "/担任股东(25%及以上)";
+                break;
             }
         }
 
@@ -951,6 +1039,23 @@ public class Link {
                     .andEq(Link111::getOrigin_name, compName)
                     .delete();
             sqlManager.insertBatch(Link111.class, batch);
+
+            sqlManager.lambdaQuery(RelatedPartyList.class)
+                    .andEq(RelatedPartyList::getLink_rule, "12.5")
+                    .andEq(RelatedPartyList::getCert_code, IDCard)
+                    .andEq(RelatedPartyList::getData_flag, "01")
+                    .delete();
+            RelatedPartyList data = new RelatedPartyList();
+            data.setAdd_time(new Date());
+            data.setLink_info(partners);
+            data.setRelated_name(compName);
+            data.setCert_code(IDCard);
+            data.setData_flag("01");
+            data.setLink_rule("12.5");
+            data.setRemark_1("自然人股东"+linkType+"的公司");
+            data.setRemark_2(detail.getStr("Address"));
+            data.setRemark_3(stockPercent.toString());
+            sqlManager.insert(data, true);
         }
     }
 

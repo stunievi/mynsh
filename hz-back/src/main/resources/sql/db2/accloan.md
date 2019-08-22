@@ -1591,3 +1591,65 @@ from T_RELATED_PARTY_LIST rp where 1=1
 @if(isNotEmpty(linkRule)){
     and link_rule like #'%' + linkRule + '%'#
 @}
+
+repay_cus
+===
+--查找客户列表
+with pp as
+(select p1.cus_id,p1.cus_name,p1.CERT_TYPE,p1.PSN_CERT_CODE,p1.ENT_CERT_CODE,c1.REPAYMENT_ACCOUNT from RPT_M_RPT_SLS_ACCT as p1 left join CTR_LOAN_CONT as c1 on c1.CONT_NO = p1.CONT_NO where p1.GL_CLASS not like '0%' and p1.ACCOUNT_STATUS = 1)
+select distinct cus_id,cus_name,CERT_TYPE,case when (PSN_CERT_CODE=''or PSN_CERT_CODE is null) then ENT_CERT_CODE else PSN_CERT_CODE end as cert_code from pp FETCH FIRST 1000 ROWS ONLY
+
+repay_pe_payment_account
+===
+--查找所有还款账户信息
+with pp as
+(select p1.cus_id,c1.REPAYMENT_ACCOUNT from RPT_M_RPT_SLS_ACCT as p1 left join CTR_LOAN_CONT as c1 on c1.CONT_NO = p1.CONT_NO where p1.GL_CLASS not like '0%' and p1.ACCOUNT_STATUS = 1)
+select distinct pp.REPAYMENT_ACCOUNT,pp.cus_id,i1.CURR_BAL from pp left join INVM i1 on i1.ACCT_NO = pp.REPAYMENT_ACCOUNT FETCH FIRST 1000 ROWS ONLY
+
+repay_loan
+===
+--查找贷款台账信息
+with pp as
+(select p1.cus_id,p1.cus_name,p1.LOAN_ACCOUNT,substr(p1.LOAN_ACCOUNT,1,16)as LOAN_ACCOUNT_16,p1.CONT_NO,c1.REPAYMENT_ACCOUNT from RPT_M_RPT_SLS_ACCT as p1 left join CTR_LOAN_CONT as c1 on c1.CONT_NO = p1.CONT_NO where  p1.GL_CLASS not like '0%' and p1.ACCOUNT_STATUS = 1)
+select pp.cus_id,pp.cus_name,pp.LOAN_ACCOUNT_16,pp.CONT_NO,a1.account_class,substr(a1.account_class,1,4) as account_class_4,b1.ACT_TYPE,b1.STAT,b1.REPAY_FREQ,b1.INT_REPAY_FREQ,b1.REPAY_DAY,b1.LOAN_REPAY,b1.INT_ACCR,b1.INT_INCR,b1.REPAY_SCHED,b1.SRC_SYS_DATE,b1.DUE_AMT,b2.NEXT_DUE_DATE,b2. ACTL_ADDAPPRV_AMT 
+from pp 
+left join ACC_LOAN a1 on a1.LOAN_ACCOUNT = pp.LOAN_ACCOUNT 
+left join borm b1 on pp.LOAN_ACCOUNT_16 =b1.MEMB_NO 
+left join bois b2 on pp.LOAN_ACCOUNT_16 =b2.MEMB_NO
+FETCH FIRST 1000 ROWS ONLY
+
+repay_cus_list
+===
+select 
+@pageTag(){
+ *
+@}
+from T_REPAY_CUS_LIST
+where 1=1
+@if(isNotEmpty(CUS_NAME)){
+    and CUS_NAME like #'%' + CUS_NAME + '%'#
+@}
+@if(isNotEmpty(CERT_CODE)){
+    and CERT_CODE like #'%' + CERT_CODE + '%'#
+@}
+@if(isNotEmpty(CUS_ID)){
+    and CUS_ID like #'%' + CUS_ID + '%'#
+@}
+@if(isNotEmpty(ENOUGH_REPAY)){
+    and ENOUGH_REPAY = #ENOUGH_REPAY#
+@}
+@pageIgnoreTag(){
+    order by CUS_ID desc
+@}
+
+repay_cus_arr
+===
+select * from T_REPAY_CUS_LIST where 1=1
+
+repay_acct_info
+===
+select * from T_REPAY_ACCT_INFO where CUS_ID = #cusId#
+
+repay_loan_acct_info
+===
+select * from T_LOAN_ACCT_INFO where REPAYMENT_ACCOUNT = #repaymentAccount#

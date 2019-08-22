@@ -76,7 +76,7 @@ public class QccDataController {
                     getOriginQccService.saveErrLog("更新企查查数据时，"+companyName+":指令为空");
                     return;
                 }
-                if(command.contains("07")){
+                if(command.contains("07") || command.contains("97")){
                     // 获取董监高信息
                     companyName = companyData.getString("Content2");
                     userName = companyData.getString("Content1");
@@ -137,24 +137,28 @@ public class QccDataController {
                         getOriginQccService.ECI_GetDetailsByName(reqQccParam, extParam);
                     }
                     if(command.contains("99")){
-                        // 工商信息
+                        // 工商信息，通过董监高
                         reqQccParam.setSign("99");
                         getOriginQccService.ECI_GetDetailsByName(reqQccParam, extParam);
                     }
                     if(command.contains("98")){
-                        // 工商信息
+                        // 工商信息，通过对外投资穿
                         reqQccParam.setSign("98");
                         getOriginQccService.ECI_GetDetailsByName(reqQccParam, extParam);
                     }
                     if(command.contains("07")){
                         // 企业董监高， 解构后返还关联公司名单！！！
                         reqQccParam.setSign("07");
+//                        getOriginQccService.ECISeniorPerson_GetList(reqQccParam, extParam);
                         getOriginQccService.CIAEmployeeV4_GetStockRelationInfo(reqQccParam, extParam);
                     }
                     if(command.contains("08")){
                         // 对外投资穿透
                         reqQccParam.setSign("08");
                         getOriginQccService.ECIInvestmentThrough_GetInfo(reqQccParam, extParam);
+                    }
+                    if(command.contains("97")){
+                        getOriginQccService.ECISeniorPerson_GetList(reqQccParam, extParam);
                     }
                 }
 
@@ -217,7 +221,7 @@ public class QccDataController {
                 jmsMessagingTemplate.convertAndSend(infosResMqTopic, resObj.toJSONString());
                 getOriginQccService.saveErrLog("指令："+extParam.getCommandId()+",获取企查查数据部分失败！");
             }
-
+            
             // 响应日志，发送zip包后数据将会删除
             MongoCollection<Document> collResLog = mongoService2.getCollection("Response_Log");
             FindIterable<Document> resLogIterable = collResLog.find(Filters.eq("requestId", extParam.getCommandId()));

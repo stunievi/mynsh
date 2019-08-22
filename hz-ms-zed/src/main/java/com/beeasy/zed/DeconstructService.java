@@ -2241,6 +2241,7 @@ public class DeconstructService extends AbstractService {
         String sign = getParam(url, "sign");
         JSONObject originData = object.getJSONObject("OriginData");
         JSONObject originRes = originData.getJSONObject("Result");
+        JSONArray originResArr = originData.getJSONArray("Result");
         if (S.neq(originData.getString("Status"), "200")) {
             return;
         }
@@ -2318,6 +2319,22 @@ public class DeconstructService extends AbstractService {
                     ));
                 }
             }
+
+            /**
+             * @Author gotomars
+             * @Description 企业人员董监高信息(新版)
+             * @Date 16:04 2019/8/13
+             **/
+//            for(Object item : originResArr){
+//                JSONObject linkCom = (JSONObject) item;
+//                synchronized(transferItems) {
+//                    transferItems.add(C.newMap(
+//                            "Content1", linkCom.getString("Name"),
+//                            "Sign", "99"
+//                    ));
+//                }
+//            }
+
         }else if("08".equals(sign)){
             // 投资穿透
             String fullName = getParam(url, "searchKey");
