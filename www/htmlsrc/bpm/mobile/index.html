@@ -178,6 +178,12 @@
         }
     }
 
+    function androidDownload(files,str,map) {
+        if (typeof android != "undefined") {
+            android.download(files,str,map);
+        }
+    }
+
 </script>
 
 <!--#include file="./form.html"-->
@@ -187,7 +193,7 @@
 <script>
     const routes = [
         {path: "/:type/:id", component: InsList, meta: {keepAlive: false}},
-        {name: "form", path: "/show/:type/:id/:flag", component: Form, meta: {keepAlive: true}},
+        {name: "form", path: "/show/:type/:id/:flag/:uid", component: Form, meta: {keepAlive: true}},
         {name: "next", path: "/next/:type/:id", component: Next, meta: {keepAlive: false}},
         {name: "sign", path: "/sign", component: Sign, meta: {keepAlive: false}},
     ];

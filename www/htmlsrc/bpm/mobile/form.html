@@ -3,6 +3,12 @@
         width: 100%;
     }
 
+    .mint-actionsheet-list {
+        max-height: 300px;
+        overflow: auto;
+    }
+
+
     .my-icon-button {
         width: 30px;
         height: 30px;
@@ -40,21 +46,50 @@
         </div>
 
 
-        <div>
-            <div v-for="(upload,index) in upload_list">
-                <mt-cell :title="upload">
+        <!--                <div>-->
+        <!--                    <div v-for="(upload,index) in files">-->
+        <!--                        <mt-cell :title="upload.name" v-if="upload.action == 'upload'" @click.native="popupWindows(index)">-->
+        <!--                            &lt;!&ndash;                    <mt-button height="40" type="default" @click="download(index)" size="small">下载</mt-button>&ndash;&gt;-->
+        <!--                            &lt;!&ndash;                    <mt-button height="40" v-if="upload.creator == uid" type="default" @click="delUpload(index)"&ndash;&gt;-->
+        <!--                            &lt;!&ndash;                               size="small" style="margin-left: 15px;">删除&ndash;&gt;-->
+        <!--                            &lt;!&ndash;                    </mt-button>&ndash;&gt;-->
+        <!--                        </mt-cell>-->
+        <!--                    </div>-->
+        <!--                </div>-->
 
-                    <mt-button height="40" type="default" @click="delUpload(index)" size="small">下载</mt-button>
-                    <mt-button height="40" type="default" @click="delUpload(index)" size="small">删除</mt-button>
+
+        <div>
+            <div v-for="(upload,index) in files">
+                <mt-cell :title="upload.name" v-if="upload.action == 'upload'">
+                    <mt-button height="40" type="default" @click="download(index)" size="small">下载</mt-button>
+                    <mt-button height="40" v-if="upload.creator == uid" type="default" @click="delUpload(index)"
+                               size="small" style="margin-left: 15px;">删除
+                    </mt-button>
                 </mt-cell>
             </div>
         </div>
 
 
+<!--        <mt-popup-->
+<!--                v-model="download_upload"-->
+<!--                style="text-align: center; padding-bottom: 20px;width: 50%;height: 40px;">-->
+<!--            <mt-button height="40" type="default" @click="download(index)" size="primary" style="text-align: center;">-->
+<!--                下载-->
+<!--            </mt-button>-->
+<!--            <mt-button height="40" v-if="upload.creator == uid" type="primary" @click="delUpload(caozuo_index)"-->
+<!--                       size="small" style="margin-left: 15px;">删除-->
+<!--            </mt-button>-->
+<!--        </mt-popup>-->
+
+
         <div style="text-align: center; padding-top: 30px" v-if="fields.length">
-            <mt-button type="primary" @click="allowUpload()" size="small" v-if="allow_upload">上传</mt-button>
+            <mt-button type="primary" @click="allowUpload()" size="small" v-if="allow_upload"
+                       style="margin-right: 15px;">上传
+            </mt-button>
             <mt-button type="primary" @click="submit(false)" style="margin-right: 15px;" size="small">保存</mt-button>
             <mt-button type="primary" @click="submit(true)" size="small">提交</mt-button>
+            <!--            <mt-button type="primary" @click="testClick()" size="small">testClick</mt-button>-->
+
         </div>
 
         <mt-actionsheet
@@ -149,18 +184,27 @@
                 signKey: "",
 
                 chooseUserVisible: false,
+
+                download_upload: false,
+                caozuo_index: "",
                 slots: [],
                 next: [],
 
                 files: [],
                 allow_upload: false,
-                upload_list: [],
-                flow_id: ""
+                // upload_list: [],
+                flow_id: "",
+                // new_upload_files: [],
+                uid: ""
+                // old_files:[]
             }
         },
         methods: {
             getUrl() {
                 return './ins.form.html?type=deal&id=' + this.$route.params.id + "&uid=1"
+            }, popupWindows(index) {
+                this.download_upload = true;
+                this.caozuo_index = index;
             },
             sign(v) {
                 console.log("vvvvvvvvv", v);
@@ -267,18 +311,31 @@
                     url = "/api/bpm/workflow/createIns";
                 } else {
                     url = "/api/bpm/workflow/saveIns";
-                };
+                }
 
                 if (params.type != 'pub' && gonext) {
                     this.getDealers();
                     return
                 }
+                // let jiaoji_new_upload_files = []
+                // if(this.new_upload_files.length > 0){
+                //     this.new_upload_files.map(e =>{
+                //         this.files.map(ma =>{
+                //             if(e.id === ma.id){
+                //                 jiaoji_new_upload_files.push(e)
+                //             }
+                //         })
+                //     })
+                // }
                 var data = {
                     id: params.id,
                     data: this.attrs,
                     mode: params.type,
                     files: this.files
+                    // files: jiaoji_new_upload_files.length > 0 ? jiaoji_new_upload_files : this.new_upload_files
                 }
+
+
                 $.ajax({
                     url: url, //"/api/bpm/workflow/createIns",
                     type: "post",
@@ -292,7 +349,9 @@
                             return showMsg(msg.errMessage)
                         }
 
-                        if (params.type == 'pub') {
+                        if (!gonext) {
+                            showMsg("保存成功");
+                        } else if (params.type == 'pub') {
                             showMsg("发布成功");
                             this.flow_id = msg.data;
                             this.getDealers(msg.data);
@@ -304,14 +363,28 @@
                             //         type: "deal"
                             //     }
                             // });
-                        } else if (!gonext) {
-                            showMsg("保存成功");
                         } else {
                             this.getDealers();
                         }
                     }
                 });
             },
+            // testClick(){
+            //     let old_files = this.old_files;
+            //     let flow_files =   JSON.parse(JSON.stringify( this.files));
+            //     console.log(JSON.stringify(flow_files) + "我就是要提交的");
+            //     console.log(JSON.stringify(old_files) + "我就是老的数据");
+            //       flow_files.map((folw,index) =>{
+            //         console.log(folw+"ddddddddddd");
+            //         old_files.map(old =>{
+            //             if(folw.id == old.id &&  folw.action == "upload"){
+            //                 // this.$set(new_files[index], `action`, "delete");
+            //                 // flow_files.splice(index,1);
+            //             }
+            //         })
+            //     });
+            //     console.log( JSON.stringify(flow_files)+"flow_filesflow_filesflow_filesflow_files");
+            // },
             load() {
                 this.chooseUserVisible = false;
                 var params = this.$route.params;
@@ -341,18 +414,25 @@
                         .map(e => {
                                 msg.data.allFields[e]
                                 if (msg.data.allFields[e].leipiplugins === "select") {
-                                    t.attrs[msg.data.allFields[e].title] = msg.data.allFields[e].values[msg.data.allFields[e].size];
+                                    if(t.attrs[msg.data.allFields[e].title] === ''){
+                                        t.attrs[msg.data.allFields[e].title] = msg.data.allFields[e].defaultValue;
+                                    }
                                 }
                             }
                         )
 
                     if (typeof (msg.data.files) != "undefined") {
                         this.files = msg.data.files;
-                        for (let i = 0; i < msg.data.files.length; i++) {
-                            let path = msg.data.files[i].id;
-                            path = path.slice(path.lastIndexOf("/") + 1, path.length)
-                            this.upload_list.push(path)
-                        }
+                        // this.old_files =  JSON.parse( JSON.stringify(msg.data.files));
+                        // for (let i = 0; i < msg.data.files.length; i++) {
+                        //     let path = msg.data.files[i].id;
+                        //     path = path.slice(path.lastIndexOf("/") + 1, path.length)
+                        //     const map = {
+                        //         path: msg.data.files[i].name,
+                        //         creator: msg.data.files[i].creator
+                        //     }
+                        //     this.upload_list.push(map)
+                        // }
                     }
                 }, "json");
             },
@@ -360,8 +440,12 @@
                 upload();
             },
             delUpload(index) {
-                this.upload_list.splice(index, 1);
+                // this.$set(this.files[index], `action`, "delete");
+                // this.upload_list.splice(index, 1);
                 this.files.splice(index, 1);
+            },
+            download(index) {
+                androidDownload(this.files[index].toString(), JSON.stringify(this.files[index]), this.files[index]);
             },
             getDealers(id) {
                 let next_id = "";
@@ -376,7 +460,10 @@
                     headers: {
                         "Content-Type": "application/json"
                     },
-                    data: JSON.stringify({id: typeof (id) != "undefined" ? id : this.$route.params.id, data: this.attrs}),
+                    data: JSON.stringify({
+                        id: typeof (id) != "undefined" ? id : this.$route.params.id,
+                        data: this.attrs
+                    }),
                     success: (msg) => {
                         if (!msg.success) {
                             showMsg(msg.errMessage);
@@ -420,6 +507,9 @@
                 }
             },
             flow() {
+
+                showMsg(JSON.stringify(this.files)+"this.filesthis.files");
+
                 var name = this.$refs.picker.getSlotValue(0);
                 for (let i = 0; i < this.next.length; i++) {
                     if (this.next[i].nodeName == name) {
@@ -479,6 +569,7 @@
             }
         },
         mounted() {
+            this.uid = this.$route.params.uid;
             this.load()
             eventBus.$on('sign_ok', (url) => {        //赋值给首页的附近医院数据模型
                 Vue.set(this.attrs, this.signKey, url) //; "[img]/api/bpm/workflow/download?path=" + (url));
@@ -486,7 +577,12 @@
             eventBus.$on('upload_files', (file, fileName) => {
                 let file_to_json = JSON.parse(file)
                 this.files.push(file_to_json)
-                this.upload_list.push(fileName);
+                // this.new_upload_files.push(file_to_json);
+                // const map = {
+                //     path: file_to_json.name,
+                //     creator: this.uid
+                // }
+                // this.upload_list.push(map);
             })
         }
     });
