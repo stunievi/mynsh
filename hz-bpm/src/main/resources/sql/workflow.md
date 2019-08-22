@@ -62,7 +62,7 @@ fetch first 20 rows only
 
 查找部门人员-新版关联
 ===
-select u.true_name as utname,u.username as uname, u.id as uid, u.phone
+select u.true_name as utname,u.username as uname, u.id as uid, u.phone, uo.type
 from t_user_dep uo 
 inner join t_user u on uo.uid = u.id
 where uo.did = #id#
