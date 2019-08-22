@@ -709,6 +709,7 @@ public class workflow {
                         "bpmName", 1,
                         "lastModifyTime", 1,
                         "currentNodes", 1,
+                        "bpmModel.listFields", 1,
                         "state", 1
                 )),
                 o("$sort", o("lastModifyTime", -1)),
@@ -748,6 +749,25 @@ public class workflow {
         pq.setList(list);
         pq.setTotalRow(count);
         return Result.ok(pq);
+    }
+
+
+    // 获取表单字段
+    public Object getFields(String id) {
+        MongoCollection<Document> collection = db.getCollection("workflow");
+        Arr workflows = collection.aggregate(a(
+                o("$match", o("_id", new ObjectId(id))),
+                o(
+                    "$project", o(
+                            "_id", o(
+                                    "$toString", "$_id"
+                            ),
+                            "arrangementData.listFields", 1
+                    )
+                )
+        ).toBson()).into(a());
+
+        return Result.ok(workflows);
     }
     /***********************************/
 

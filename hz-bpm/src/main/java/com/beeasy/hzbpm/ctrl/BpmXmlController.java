@@ -97,8 +97,6 @@ public class BpmXmlController {
                 jsonArray.add(object);
             }
         }*/
-        System.out.println("json:"+jsonArray);
-
 
         /*doc.put("b_xml",xml);
         doc.put("b_name",next());

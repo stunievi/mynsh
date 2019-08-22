@@ -9,5 +9,5 @@ public class ReqQccParam {
     String companyName;
     String userName;
     String keyNo;
-    String sign;
+    String sign = "";
 }

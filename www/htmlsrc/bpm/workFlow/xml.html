@@ -97,7 +97,7 @@
                         </div>
 
                     </div>
-                    <div class="col-xs-12 text-center" style="padding:20px 0;">
+                    <div class="col-xs-12 text-center" style="padding:20px 0;display: none">
                         <button type="button" href="javascript:;" class="btn btn-info" id="nextStep" style="margin-right: 10px;">
                             下一步
                         </button>
@@ -495,6 +495,7 @@ return
                 //     window.sbpmData.nodes[sourceRef] = (window.bpmData.nodes[sourceRef]);
                 // })
             });
+            // 网关节点
             $.each(exList, function(i) {
                 var nextEvent = [];
                 var node = {};
@@ -507,6 +508,8 @@ return
                 var dids = [];
                 var conList;
                 var taskName = "";
+
+
                 if(undefined ==  window.bpmData.nodes[sourceRef]){
                 }else{
                     allFields = window.bpmData.nodes[sourceRef].fields.all_fields;
@@ -559,6 +562,9 @@ return
                 var rids = [];
                 var dids = [];
                 var taskName = "";
+                var filterRule = "";
+                var chooseRule = "";
+                var targetRule = "";
                 // var nextNodes = [];
                 // var node = {};
                 if(undefined ==  window.bpmData.nodes[sourceRef]){
@@ -573,6 +579,19 @@ return
                         qids =arrToStr(window.bpmData.nodes[sourceRef].permission.qids);
                         rids =arrToStr(window.bpmData.nodes[sourceRef].permission.rids);
                         dids =arrToStr(window.bpmData.nodes[sourceRef].permission.dids);
+                        if(window.bpmData.nodes[sourceRef].intelligence ){
+                        }else{
+                            window.bpmData.nodes[sourceRef].intelligence = {     filterRule:"all",
+                                chooseRule:"none",
+                                targetRule: ""};
+                        }
+                        var intelligen;
+                        if(window.bpmData.nodes[sourceRef].intelligence){
+                            intelligen =window.bpmData.nodes[sourceRef].intelligence;
+                            filterRule = intelligen.filterRule;
+                            chooseRule = intelligen.chooseRule;
+                            targetRule = intelligen.targetRule;
+                        }
                         taskName = taskNameMap[sourceRef];
                         // var conList = window.bpmData.nodes[sourceRef].condition;
                         // var _expression = preorderZheng(conList,"and");
@@ -581,7 +600,7 @@ return
                         // nextNodes.push(node);
                     }
                 }
-                _eventMap[sourceRef] = {"id":sourceRef,"name":taskName,"allFields":allFields,"requiredFields":requiredFields,"uids":pids,"qids":qids,"rids":rids,"dids":dids,"nextNodes":[]}
+                _eventMap[sourceRef] = {"id":sourceRef,"name":taskName,"allFields":allFields,"requiredFields":requiredFields,"uids":pids,"qids":qids,"rids":rids,"dids":dids,"nextNodes":[],"filterRule":filterRule,"chooseRule":chooseRule,"targetRule":targetRule}
                 window.sbpmData.nodes[sourceRef] = (window.bpmData.nodes[sourceRef]);
                 // window.sbpmData.lines[sourceRef] = (window.bpmData.lines[sourceRef]);
             })
@@ -814,6 +833,9 @@ return
         var taskName = "";
         var isInArr = 0;    // 用于判断节点必填字段是否在填写字段中
         var expression = "";// 条件表达式
+        var filterRule = "";
+        var chooseRule = "";
+        var targetRule = "";
         if(undefined ==  window.bpmData.nodes[_taskId]){
 
         }else{
@@ -827,7 +849,6 @@ return
                         isInArr = i;
                     }
                 })
-                console.log(requiredFields,allFields)
 
                 // 可以处理的人的ID
                 pids = arrToStr(window.bpmData.nodes[_taskId].permission.pids);
@@ -836,13 +857,33 @@ return
                 rids =arrToStr(window.bpmData.nodes[_taskId].permission.rids);
                 dids =arrToStr(window.bpmData.nodes[_taskId].permission.dids);
 
+                if(window.bpmData.nodes[_taskId].intelligence ){
+                }else{
+                    window.bpmData.nodes[_taskId].intelligence = {          filterRule:"all",
+                        chooseRule:"none",
+                        targetRule: ""
+                    };
+                }
+                var intelligen;
+                if(window.bpmData.nodes[_taskId].intelligence){
+                    intelligen =window.bpmData.nodes[_taskId].intelligence;
+                    filterRule = intelligen.filterRule;
+                    chooseRule = intelligen.chooseRule;
+                    targetRule = intelligen.targetRule;
+                    // intelligen = JSON.parse(window.bpmData.nodes[_taskId].intelligence);
+                }
+                // var s = {"filterRule":"all","chooseRule":"none","targetRule":"Task_1rtduak"};
+                // for(var item in intelligen){
+                //     console.log("------",intelligen[item])
+                // }
+
+
                 var arr = window.bpmData.nodes[_taskId].quanxian || [];
 
                 var allowUpload = arr.indexOf("allowUpload") > -1;
                 var allowDownload = arr.indexOf("allowDownload") > -1;
                 var allowBack = arr.indexOf("allowBack") > -1;
                 var departmentFirst = arr.indexOf("departmentFirst") > -1;
-                console.log("---===",window.bpmData.nodes[_taskId].quanxian)
 
                 timeout = window.bpmData.nodes[_taskId].timeoutSet.timeout;
                 maxTimeout = window.bpmData.nodes[_taskId].timeoutSet.maxTimeout;
@@ -903,7 +944,7 @@ return
             ex.push({_taskId,targetRef});
             exList[_taskId] = ex;
         }else{
-            _eventMap[_taskId] = {"id":_taskId,"name":taskName,"allFields":allFields,"requiredFields":requiredFields,"uids":pids,"qids":qids,"rids":rids,"dids":dids,"nextNodes":nextNodes,"timeoutSet":timeoutSet,"allowUpload":allowUpload,"allowDownload":allowDownload,"allowBack":allowBack,"departmentFirst":departmentFirst}
+            _eventMap[_taskId] = {"id":_taskId,"name":taskName,"allFields":allFields,"requiredFields":requiredFields,"uids":pids,"qids":qids,"rids":rids,"dids":dids,"nextNodes":nextNodes,"timeoutSet":timeoutSet,"allowUpload":allowUpload,"allowDownload":allowDownload,"allowBack":allowBack,"departmentFirst":departmentFirst,"filterRule":filterRule,"chooseRule":chooseRule,"targetRule":targetRule}
         }
 
         window.sbpmData.nodes[_taskId] = (window.bpmData.nodes[_taskId]);
@@ -1022,7 +1063,15 @@ return
                 maxTimeout:"0",
             },
             // allowUpload:false,
-            quanxian:[]
+            quanxian:[],
+            intelligence:{
+                filterRule:"all",
+                chooseRule:"none",
+                targetRule: ""
+            }
+            // filterRule:"",
+            // chooseRule:"",
+            // targetRule:""
         };
     }
 
@@ -1049,6 +1098,12 @@ return
                 var id = $(this).attr("data-element-id");
                 openConfigPage(id, "dealers")
             }},
+            m6: {
+                name:"智能选人", icon: "fa-filter",callback: function () {
+                    var id = $(this).attr("data-element-id");
+                    openConfigPage(id, "smart")
+                }
+            },
             m2: {name: "填写字段", icon:"fa-pencil-square-o", callback: function(key, opt){
                 var id = $(this).attr("data-element-id");
                 openConfigPage(id, "fields");
@@ -1086,6 +1141,37 @@ return
             }
         }
     })
+
+
+    // 获取所有节点
+    function getNode() {
+        var nodeMap = {};
+        bpmnModeler.saveXML({ format: true }, function(err, xml) {
+            if (err) {
+                return console.error('could not save BPMN 2.0 diagram', err);
+            }
+            var _xml = $.parseXML(xml);
+            $(_xml).find('process').each(function(){
+                var _startEvent = $(this).children('startEvent');
+                var _task = $(this).children('task,exclusiveGateway');
+                var _endEvent = $(this).children('endEvent');
+
+                var _startId = _startEvent.attr("id");
+                var _startName = _startEvent.attr("name");
+                nodeMap[_startId] = _startName;
+
+                var _endId = _endEvent.attr("id");
+                var _endName = _endEvent.attr("name");
+                _task.each(function () {
+                    var _taskId = $(this).attr("id");
+                    var _taskName = $(this).attr("name");
+                    nodeMap[_taskId] = _taskName;
+                })
+                nodeMap[_endId] = _endName;
+            })
+        })
+        return nodeMap;
+    }
 
 
 </script>

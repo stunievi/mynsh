@@ -194,7 +194,8 @@
                 <tr>
                     <td width="150">提醒指定步骤经办人：</td>
                     <td>
-                        <textarea readonly name="" v-model="reUserName" id="reUserName" cols="50" rows="3"></textarea>
+                        <textarea readonly cols="50" rows="3">{{remindAgentfn}}</textarea>
+                        <!--<textarea readonly name="" v-model="reUserName" id="reUserName" cols="50" rows="3"></textarea>-->
                     </td>
                     <td style="padding-left: 1px">
                         <a href="javascript:;"id="selectUser" @click="selectUser()">选择</a>
@@ -342,10 +343,14 @@
             },
             reUserName:[],
             agent:{},   //下一步骤 经办人
+            remindAgent:{},   //提醒指定经办人
         },
         computed:{
             agentfn: function(){
                 return Object.values(this.agent).join(",")
+            },
+            remindAgentfn: function(){
+                return Object.values(this.remindAgent).join(",")
             },
             changeMessage: function () {
                     if(this.data.nodeIds[0] && this.data.nodeIds[0].indexOf("EndEvent") != -1){
@@ -383,7 +388,13 @@
                     agent.push(i);
                 })
                 d.agent = agent;        //下一步骤 经办人
-                d.reUser = window.users;    // 提醒指定步骤经办人
+                // d.reUser = window.users;    // 提醒指定步骤经办人
+                // 提醒指定步骤经办人
+                var remindAgent = [];
+                $.each(app.$data.remindAgent,function (i, item) {
+                    remindAgent.push(i);
+                })
+                d.reUser = remindAgent;
 
                 $.ajax({
                     url: "/api/bpm/workflow/nextApprover",
@@ -423,8 +434,11 @@
             cleanUser:function () {
                 app.$data.reUserName = [];
                 window.users = [];
+                app.$data.remindAgent = {};
             },
             sel:function () {
+                layer.msg("开发中");
+                return;
                  window.open("./next.select.html?id=" + id+"&sponsor="+window.sponsor, "userSelect", "top=100, left=100, width=500, height=300")
                 // console.log(win)
                 // win.document.body.onload = function(){

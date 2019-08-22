@@ -16,6 +16,10 @@ public class DateUtil {
         long days = startDate.until(endDate, ChronoUnit.DAYS);
         return days;
     }
+    public static int betweenDay(Date startDate, Date endDate){
+        int days = (int) ((startDate.getTime() - endDate.getTime()) / (1000*3600*24));
+        return days;
+    }
 
     /**
      * Date 转 LocalDate

@@ -5,10 +5,10 @@ var _menu = [
         name:'工作台',
         icon: '<span class="glyphicon glyphicon-align-left" aria-hidden="true"></span>&nbsp',
         children:[
-            {
-                name: "还款余额不足",
-                href: "/htmlsrc/postLoanManage/insufficientBalance.html"
-            },
+            // {
+            //     name: "还款余额不足",
+            //     href: "/htmlsrc/postLoanManage/insufficientBalance.html"
+            // },
             {
                 id: "menu-mybench-bench",
                 name: '我的工作台',
@@ -185,6 +185,10 @@ var _menu = [
         name: '贷后管理',
         icon: '<span class="glyphicon glyphicon-align-left" aria-hidden="true"></span>&nbsp;',
         children: [
+            {
+                name: "还款余额不足",
+                href: "/htmlsrc/postLoanManage/insufficientBalance.html"
+            },
             {
                 name: "指派/移交",
                 href: "/htmlsrc/taskManage/taskTransfer.html?workFlow="+encodeURI(enumWorkFlowModel.postLoanTask),
@@ -706,12 +710,12 @@ var _menu = [
                         href: '/htmlsrc/sysManage/dataManage/dataMaintain.html',
                         api: []
                     },
+                    // {
+                    //     name: '资本净额维护',
+                    //     href: '/htmlsrc/sysManage/dataManage/netCapital.html',
+                    //     api: []
+                    // },
                     {
-                        name: '资本净额维护',
-                        href: '/htmlsrc/sysManage/dataManage/netCapital.html',
-                        api: []
-                    }
-                    ,{
                         name: '关联方清单维护',
                         href: '/htmlsrc/sysManage/dataManage/linkList.html',
                         api: []
@@ -730,15 +734,6 @@ var _menu = [
                         name: "股东关联维护",
                         href: "/htmlsrc/sysManage/dataManage/holderLink.html"
                     }
-                    // {
-                    //     name: "股东关联维护",
-                    //     href:""
-                    // },
-                    // {
-                    //     name: "关联方日志查询",
-                    //     href:""
-                    // }
-
                     /*,{
                         name: '触发',
                         href: '/htmlsrc/sysManage/dataManage/touchRule.html',

@@ -54,4 +54,8 @@ public class QccUtil {
             ));
         }
     }
+
+    public static String getData(String url){
+        return getData(url, C.newMap());
+    }
 }

@@ -57,15 +57,16 @@
 </head>
 <body>
 <div id="content">
-    <table width="100%" height="100%">
-        <tr>
-            <td width="200">
-                <div id="fix"></div>
-                <div id="jstree_demo" style="height: 100%;overflow: auto">
+<!--    <table width="100%" height="100%">-->
+<!--        <tr>-->
+<!--            <td width="200">-->
+    <div style="display: flex; flex-direction: row">
+
+                <div id="jstree_demo" style="height: 100%;">
                 </div>
-            </td>
-            <td valign="top">
-                <div class="col-xs-12">
+<!--            </td>-->
+<!--            <td valign="top">-->
+                <div class="" style="flex:1; overflow:auto; margin-left: 10px">
                     <div class="bs-example bs-example-tabs" data-example-id="togglable-tabs">
 
                         <a class="btn btn-sm btn-danger batchDelete hide" href="javascript:;" style="float:right;">批量删除</a>
@@ -91,9 +92,10 @@
                 <div id="dataList">
 
                 </div>
-            </td>
-        </tr>
-    </table>
+    </div>
+<!--            </td>-->
+<!--        </tr>-->
+<!--    </table>-->
     <div class="batch-operation" style="display: none">
         <a class="btn btn-success pub" href="javascript:;" >发起新流程</a>
 <!--        <div class="btn-group">-->
@@ -435,95 +437,126 @@
         //     return;
         // }
 
-        var fields = decodeURI(getParam("fields"));
-        // fields = JSON.parse(fields);
-        console.log(fields)
+
+
+        var fields = [];
+        // $.get("/api/bpm/workflow/getFields", {
+        //     id: id
+        // }, function (msg)  {
+        //     if (msg.success) {
+        //         fields = [];
+        //         fields = msg.data[0].arrangementData.listFields;
+        //         console.log(fields)
+        //
+        //     }
+        // }, "json");
+
         var cols = [];
-        cols.push({checkbox: true})
-        cols.push({
-            title:"流程ID",
-            field:"id",
-        })
-        // $.each(fields, function (i,v) {
-        //     cols.push({
-        //         title: v,
-        //         field: v
-        //     })
-        // });
-        cols.push({
-            title:"任务状态",
-            field:"state"
-        })
-        cols.push({
-            title:"当前经办人",
-            field:"uName",
-        })
-        cols.push({
-            title:"创建时间",
-            field:"createTime",
-        })
-        cols.push({
-            title:"上次提交时间",
-            field:"lastModifyTime",
-        })
-        cols.push({
-            title: "操作", formatter: function (value,row, index) {
-                return tmpl({
-                    d: row
+
+        $.ajax({
+            type:"get",
+            url:"/api/bpm/workflow/getFields?id="+id,
+            success:function(data){
+                if (data.success && data.data[0]) {
+
+                    fields = data.data[0].arrangementData.listFields;
+                }
+                cols.push({checkbox: true})
+                cols.push({
+                    title:"流程ID",
+                    field:"id",
+                })
+
+                $.each(fields, function (i,v) {
+                    cols.push({
+                        title: v,
+                        field: v
+                    })
+                });
+                cols.push({
+                    title:"任务状态",
+                    field:"state"
+                })
+                cols.push({
+                    title:"当前经办人",
+                    field:"uName",
+                })
+                cols.push({
+                    title:"创建时间",
+                    field:"createTime",
+                })
+                cols.push({
+                    title:"上次提交时间",
+                    field:"lastModifyTime",
+                })
+                cols.push({
+                    title: "操作", formatter: function (value,row, index) {
+                        return tmpl({
+                            d: row
+                        })
+                    }
+                })
+
+                //销毁表格
+                $("#"+type+"-taskList").bootstrapTable("destroy");
+                $("#"+type+"-taskList").bootstrapTable({
+                    columns:[
+                        // {
+                        //     title:"ID",
+                        //     field:"id"
+                        // },
+                        cols
+                        // { checkbox: true},
+                        // { field: 'id', title: "流程ID" },
+                        // { field: 'bpmName', title: "流程名称" },
+                        // { field: 'createTime',title: "流程发起时间" },
+                        // { field: 'pubUName',title: "流程发起人" },
+                        // { field: 'state', title: "流程状态" },
+                        // { field: 'uName',title: "当前经办人" },
+                        // // { field: 'lastModifyTime',title: "上次提交时间" },
+                        // { title: "操作", formatter: function (value,row, index) {
+                        //     return tmpl({
+                        //         d: row
+                        //     })
+                        //     } },
+                    ],
+                    pagination: true,
+                    sidePagination: "server",
+                    ajax: function(params){
+                        params.data.id = id;
+                        params.data.type = type;
+                        // console.log("params:",params)
+                        var url = "/api/bpm/workflow/getInsList";
+                        //换算分页
+                        var data = params.data;
+                        data.size = data.limit;
+                        data.page = (data.offset / data.limit) + 1;
+                        $.get(url + '?' + $.param(params.data)).then(function (res) {
+                            // console.log(res);
+                            if(!res.success){
+                                //
+                                layer.msg("请求失败！")
+                            }
+                            // if(res.data.list[0].bpmModel.listFields){
+                            //     fields = res.data.list[0].bpmModel.listFields;
+                            //     console.log(fields)
+                            //
+                            // }
+                            params.success({
+                                rows: res.data.list,
+                                total: res.data.totalRow,
+                            })
+                            if(res.data.list[0] && res.data.list[0].del){
+                                $(".batchDelete").removeClass("hide")
+                            }
+                        },"json")
+                    }
                 })
             }
-        })
+        });
 
-        //销毁表格
-        $("#"+type+"-taskList").bootstrapTable("destroy");
-        $("#"+type+"-taskList").bootstrapTable({
-            columns:[
-                // {
-                //     title:"ID",
-                //     field:"id"
-                // },
-                cols
-                // { checkbox: true},
-                // { field: 'id', title: "流程ID" },
-                // { field: 'bpmName', title: "流程名称" },
-                // { field: 'createTime',title: "流程发起时间" },
-                // { field: 'pubUName',title: "流程发起人" },
-                // { field: 'state', title: "流程状态" },
-                // { field: 'uName',title: "当前经办人" },
-                // // { field: 'lastModifyTime',title: "上次提交时间" },
-                // { title: "操作", formatter: function (value,row, index) {
-                //     return tmpl({
-                //         d: row
-                //     })
-                //     } },
-            ],
-            pagination: true,
-            sidePagination: "server",
-            ajax: function(params){
-                params.data.id = id;
-                params.data.type = type;
-                // console.log("params:",params)
-                var url = "/api/bpm/workflow/getInsList";
-                //换算分页
-                var data = params.data;
-                data.size = data.limit;
-                data.page = (data.offset / data.limit) + 1;
-                $.get(url + '?' + $.param(params.data)).then(function (res) {
-                    // console.log(res);
-                    if(!res.success){
-                        //
-                        layer.msg("请求失败！")
-                    }
-                    params.success({
-                        rows: res.data.list,
-                        total: res.data.totalRow,
-                    })
-                    if(res.data.list[0] && res.data.list[0].del){
-                        $(".batchDelete").removeClass("hide")
-                    }
-                },"json")
-            }
-        })
+
+
     }
 
     $('#myTabsBpm a').click(function(){

@@ -37,6 +37,9 @@
         .fa-file-o{
             color: #00a0e8;
         }
+        .manager-box{
+            display: flex; flex-direction: row; align-items: center
+        }
     </style>
     <link rel="stylesheet" href="../lib/font/css/font-awesome.css">
     <link rel="stylesheet" href="../lib/bootstrap-3.3.7-dist/css/bootstrap.min.css">
@@ -62,6 +65,36 @@
                     </td>
                 </tr>
                 <tr>
+                    <td colspan="100" >
+                        <div class="manager-box">
+                            <span>部门主管：</span>
+                            <input class="form-control" type="text" readonly style="background: #eee; flex:1" :value="managers">
+                            <a href="javascript:;" style="margin-left: 10px;margin-right: 10px;" @click="addUser('ms')">添加</a>
+                            <a href="javascript:;" @click="clearUsers('ms')">清空</a>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="100">
+                        <div class="manager-box">
+                            <span>上级主管领导：</span>
+                            <input class="form-control" type="text" readonly style="background: #eee; flex:1" :value="topManagers0">
+                            <a href="javascript:;" style="margin-left: 10px;margin-right: 10px;" @click="addUser('tms0')">添加</a>
+                            <a href="javascript:;" @click="clearUsers('tms0')">清空</a>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="100">
+                        <div class="manager-box">
+                            <span>上级分管领导：</span>
+                            <input class="form-control" type="text" readonly style="background: #eee; flex:1" :value="topManagers1">
+                            <a href="javascript:;" style="margin-left: 10px;margin-right: 10px;" @click="addUser('tms1')">添加</a>
+                            <a href="javascript:;" @click="clearUsers('tms1')">清空</a>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
                     <td colspan="100" valign="top" style="vertical-align: top">
                         描述：
                         <textarea class="form-control" v-model="data.info" rows="5"></textarea>
@@ -72,8 +105,11 @@
             <p>人员</p>
             <div style="display: flex; flex-direction: row; align-items: flex-end">
                 <textarea :value="users" class="form-control" name="" id="" rows="5" readonly style="background: #eee; flex:1">{{users}}</textarea>
-                <a href="javascript:;" @click="addUser()">添加</a>
-                <a href="">清空</a>
+                <a href="javascript:;" @click="addUser('us')" style="margin-right: 10px;margin-left: 10px;">添加</a>
+                <a href="javascript:;" @click="clearUsers('us')">清空</a>
+            </div>
+            <div style="text-align: center; padding-top: 10px;">
+                <a href="javascript:;" class="btn btn-primary" @click="save">保存</a>
             </div>
         </div>
     </div>
@@ -95,21 +131,56 @@
             }
         },
         computed: {
+            managers(){
+                return Object.values(this.data.ms || {}).join(",");
+            },
+            topManagers0(){
+                return Object.values(this.data.tms0 || {}).join(",");
+            },
+            topManagers1(){
+                return Object.values(this.data.tms1 || {}).join(",");
+            },
             users: function () {
-                if(this.data.selected){
-                    return Object.values(this.data.selected).join(",");
-                }
-                return "";
+                return Object.values(this.data.us || {}).join(",");
             }
         },
         methods:{
-            addUser:function(){
+            save: function(){
                 var t = this;
-                window.onChooseInit = function(selected){
-                    return t.data.selected || {};
+                var pid = this.data.parent_id;
+                $.post("/api/bpm/org/save", JSON.stringify(this.data), function (msg) {
+                    if(!msg.success){
+                       return layer.msg(msg.errMessage);
+                    }
+                    for(var i in msg.data){
+                        t.data[i] = msg.data[i];
+                    }
+
+                    var ins = $("#jstree_demo").jstree()
+                    var node = ins.get_node(msg.data.id);
+                    msg.data.text = msg.data.name;
+                    if(!node){
+                        var par = ins.get_node(pid);
+                        if(par){
+                            ins.create_node(par, msg.data);
+                        }
+                    } else {
+                        ins.set_text(node, msg.data.text);
+                    }
+
+                    layer.msg("保存成功")
+                },"json");
+            },
+            clearUsers: function(key){
+                this.data[key] = {}
+            },
+            addUser:function(key){
+                var t = this;
+                window.onChooseInit = function(){
+                    return t.data[key] || {};
                 };
                 window.onChooseCallback = function(selected){
-                    Vue.set(t.data, "selected", selected);
+                    Vue.set(t.data, key, selected);
                 }
                 window.open("./choose.html", "choose-user", "left=100, top=100, width=500, height=400, location=no, resizable=no")
 
@@ -147,80 +218,64 @@
                             'select_node': false,
                             'items': function (node) {
                                 var menu = {};
-                                if(node.type == 'cat' || node.type == 'home'){
-                                    menu.createCat = {
-                                        "label": "添加分类",
-                                        "action": function(obj){
-                                            // if(node.parents.length >= 2){
-                                            //     layer.msg("最多只支持1级分类");
-                                            //     return;
-                                            // }
-                                            layer.load(0, {time: 5000});
-                                            $.get("/api/bpm/cat/formAdd", {pid: node.original.id || node.original.id,type:"0"}, function (msg) {
-                                                layer.closeAll()
-                                                if(!msg.success) return;
-                                                msg = msg.data;
-                                                console.log(msg)
-                                                ins.create_node(node, msg);
-                                                ins.open_node(node);
-                                            },"json")
-                                        },
-                                    }
-                                } else {
-                                }
-                                if(node.type == 'cat'){
-                                    menu.createForm = {
-                                        label: "添加表单",
-                                        action: function () {
-                                            var frame = $("#form-edit");
-                                            frame.data("id", "")
-                                                .attr("src", "../form/form.add.html?pid=" + node.original.id + "&v=" + Math.random())
-                                                .show()
+                                menu.createDep = {
+                                    "label": "添加部门",
+                                    "action": function(obj){
+                                        t.data = {
+                                            parent_id: node.id
                                         }
-                                    }
-                                    menu.rename = {
-                                        "label": "重命名",
-                                        "action": function(obj) {
-                                            if(node.id == 'top'){
-                                                layer.msg("顶级分类无法编辑");
-                                                return;
-                                            }
-                                            $("#jstree_demo").jstree().edit(node);
-                                        }
-                                    }
+                                        // if(node.parents.length >= 2){
+                                        //     layer.msg("最多只支持1级分类");
+                                        //     return;
+                                        // }
+                                        // layer.load(0, {time: 5000});
+                                        // $.get("/api/bpm/cat/formAdd", {pid: node.original.id || node.original.id,type:"0"}, function (msg) {
+                                        //     layer.closeAll()
+                                        //     if(!msg.success) return;
+                                        //     msg = msg.data;
+                                        //     console.log(msg)
+                                        //     ins.create_node(node, msg);
+                                        //     ins.open_node(node);
+                                        // },"json")
+                                    },
                                 }
+                                // if(node.type == 'cat' || node.type == 'home'){
+                                // } else {
+                                // }
+                                // if(node.type == 'cat'){
+                                //     menu.createForm = {
+                                //         label: "添加表单",
+                                //         action: function () {
+                                //             var frame = $("#form-edit");
+                                //             frame.data("id", "")
+                                //                 .attr("src", "../form/form.add.html?pid=" + node.original.id + "&v=" + Math.random())
+                                //                 .show()
+                                //         }
+                                //     }
+                                //     menu.rename = {
+                                //         "label": "重命名",
+                                //         "action": function(obj) {
+                                //             if(node.id == 'top'){
+                                //                 layer.msg("顶级分类无法编辑");
+                                //                 return;
+                                //             }
+                                //             $("#jstree_demo").jstree().edit(node);
+                                //         }
+                                //     }
+                                // }
                                 if(node.type != 'home'){
-                                    if(node.type == "form"){
-                                        menu.copy = {
-                                            label: "复制",
-                                            action: function () {
-                                                var id = node.id;
-                                                console.log(node)
-                                                $.get("/api/bpm/form/copy", {id:id}, function (msg) {
-                                                    if(!msg.success) return;
-                                                    ins.create_node(ins.get_node(node.parent), msg.data)
-                                                },"json");
-                                            }
-                                        }
-                                    }
                                     menu.delete = {
                                         "label": "删除",
                                         "action": function() {
-                                            if(node.id == 'top'){
-                                                layer.msg("顶级分类无法删除");
-                                                return;
-                                            }
-                                            if(node.type == 'cat'){
-                                                if(node.children.length){
-                                                    return layer.msg("该分类下还有内容，无法删除")
-                                                }
-                                                ins.delete_node(node);
-                                                $.get("/api/bpm/cat/delete", {id: node.original.id})
-                                            }
-                                            if(node.type == "form"){
-                                                ins.delete_node(node);
-                                                $.get("/api/bpm/form/delete", {id: node.original.id})
-                                            }
+                                            layer.confirm("确定删除？", function (index) {
+                                                layer.close(index);
+                                                $.get("/api/bpm/org/del",{id:node.id}, function (msg) {
+                                                    if(!msg.success){
+                                                        return layer.msg(msg.errMessage)
+                                                    }
+                                                    $("#jstree_demo").jstree().delete_node(node);
+                                                },"json");
+                                            });
                                         }
                                     }
                                 }
@@ -287,8 +342,16 @@
                         if(!id){
                             return
                         }
+                        layer.load(2);
                         $.get("/api/bpm/org/one", {id: id}, function (msg) {
-                            Vue.set(t, "data", msg.data||{});
+                            layer.closeAll()
+                            var data = msg.data || {}
+                            // data.selected = {};
+                            // data.ms = {};
+                            // (data.us || []) .forEach(function (e) {
+                            //     data.selected[e.uid] = e.utname
+                            // });
+                            Vue.set(t, "data", data);
                         }, "json");
 
                     }).on("move_node.jstree", function (e,d) {

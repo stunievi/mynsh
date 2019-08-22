@@ -70,7 +70,7 @@ public class TestWorkflow {
 
     @Test
     public void test04_() throws InterruptedException {
-        Notice.sendSystem("522", "你今天吃饭了吗");
+        Notice.sendSystem("522", "你今天吃饭了吗","");
         Thread.sleep(10000);
     }
 

@@ -40,24 +40,22 @@
             </div>
         </div>
     </div>
+    <!--<span class="i-msg">-->
+                        <!--{{item.msg}}-->
+                    <!--</span>-->
 </body>
 </html>
 <script type="text/html" id="user">
 
-    <table width="100%">
+    <table width="100%" id="table1">
     {{each data item index}}
         <tr>
-            <td>
-                <label>
-                    <input type="checkbox" class="select-user" name="person" value="{{item.uid}}">
-                    <span class="bg">
+            <td  style="text-align: center">
+                    <div class="bg" id="{{item.uid}}" style="text-align: center;">
+                        &nbsp;
                         {{item.uname}}
-                    </span>
-                    <span class="i-msg">
-                        {{item.msg}}
-                    </span>
+                    </div>
 
-                </label>
             </td>
         </tr>
     {{/each}}
@@ -81,17 +79,43 @@
 </script>
 <script>
     var id = getParam("id");
+    var ids = opener.app.remindAgent;
     var tmpl = template.compile($("#user").html())
     $.get("/api/bpm/workflow/logList", {id:id}, function (msg) {
-        $("#ulist").html(tmpl({
-            data: msg.data
-        }));
+        if(msg.success){
+            $("#ulist").html(tmpl({
+                data: msg.data
+            }));
 
-        $.each(opener.app.users || [],function(i,item){
-            $("input[name='person'][value="+item+"]").attr("checked","checked");
+            $.each(ids || {},function (i, item) {
 
-        });
-        $("#content").removeClass("hide");
+                $('#table1 .bg').each(function() {
+                    if($(this).attr("id") == i){
+                        $(this).css('background-color', '#409eff');
+                    }
+                });
+
+            })
+
+
+            $('#table1 .bg').click(function(){
+                if ($(this).css('background-color') === 'rgb(64, 158, 255)') {
+                    opener.Vue.delete(opener.app.remindAgent, $(this).attr("id"))
+                    $(this).css('background-color', 'white');
+                } else {
+                    $(this).css('background-color', '#409eff');
+                    opener.Vue.set(opener.app.remindAgent, $(this).attr("id"), $(this).text().trim())
+                }
+
+            });
+
+
+            // $.each(opener.app.users || [],function(i,item){
+            //     $("input[name='person'][value="+item+"]").attr("checked","checked");
+            //
+            // });
+            $("#content").removeClass("hide");
+        }
 
     },"json")
 

@@ -5,7 +5,7 @@
     }
 </style>
 <table id="permission" style="margin-left: 10px;margin-right: 10px;">
-    <tr>
+    <tr style="display: none">
         <td valign="top" width="80">岗位</td>
         <td>
             <textarea readonly name="" id="qs" cols="50" rows="5"></textarea>
@@ -18,7 +18,7 @@
         </td>
     </tr>
     <tr>
-        <td valign="top">角色</td>
+        <td valign="top" width="80">角色</td>
         <td>
             <textarea readonly name="" id="rs" cols="50" rows="5"></textarea>
         </td>
@@ -64,6 +64,7 @@
         ds:[],
         ps:[]
     };
+    var nodeId = location.search.match(/id=([^&]+)/)[1]
     //还原页面
     $(function () {
         selectp("q", opener.bpmData.nodes[nodeId].permission.qs, opener.bpmData.nodes[nodeId].permission.qids);
@@ -95,7 +96,21 @@
         if(type != 'p'){
             window.open("/htmlsrc/bpm/workFlow/selectQ.html?type=" + type +"&id=" + nodeId, "set" + type, "left=300, top=100, width=500, height=500, location=no");
         } else {
-            window.open("/htmlsrc/bpm/workFlow/selectP.html?type=p&id=" + nodeId, "set" + type, "left=300, top=80, width=700, height=550, location=no");
+            //已选
+            window.onChooseInit = function(){
+                var obj = {};
+                var pids = opener.bpmData.nodes[nodeId].permission["pids"]
+                var id = opener.bpmData.nodes[nodeId].permission["ps"]
+                $.each(pids, function (i,v) {
+                    obj[v] = id[i]
+                })
+                return obj;
+            };
+            window.onChooseCallback = function(selected){
+                selectp("p",Object.values(selected), Object.keys(selected) )
+            }
+            // window.open("/htmlsrc/bpm/workFlow/selectP.html?type=p&id=" + nodeId, "set" + type, "left=300, top=80, width=700, height=550, location=no");
+            window.open("../org/choose.html", "choose-user", "left=100, top=100, width=500, height=400, location=no, resizable=no")
         }
     });
 

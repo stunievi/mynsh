@@ -7,6 +7,7 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.ZipUtil;
+import cn.hutool.script.ScriptUtil;
 import com.beeasy.hzbpm.bean.Log;
 import com.beeasy.hzbpm.filter.Auth;
 import com.beeasy.hzbpm.util.Result;
@@ -44,7 +45,11 @@ public class form {
      * @return
      * @throws IOException
      */
-    public Object load(MultipartFile file) throws IOException {
+    public Object load(MultipartFile file, String type) throws IOException {
+        if(null == type){
+            return  Result.error("请求错误，类型为空");
+        }
+
         //解压
         File temp = File.createTempFile("123",".zip");
         File tempdir = new File(temp.getParentFile(), StrUtil.uuid());
@@ -52,9 +57,8 @@ public class form {
             tempdir.mkdirs();
             file.transferTo(temp);
             ZipUtil.unzip(temp.getAbsolutePath(), tempdir.getAbsolutePath());
-
-                int ccount = 0;
-                int fcount = 0;
+            int ccount = 0;
+            int fcount = 0;
             for (File listFile : tempdir.listFiles()) {
                 UpdateResult ret;
                 if(listFile.getName().equals("cat")){
@@ -65,18 +69,21 @@ public class form {
                         ccount++;
                     }
 
-                } else if(listFile.getName().equals("form")){
+                } else if(listFile.getName().equals(type)){
                     List<Document> cats = ObjectUtil.unserialize(FileUtil.readBytes(listFile));
-                    MongoCollection<Document> catcol = db.getCollection("form");
+                    MongoCollection<Document> catcol = db.getCollection(type);
                     for (Document cat : cats) {
                         ret = catcol.replaceOne(Filters.eq("_id", cat.getObjectId("_id")), cat, new ReplaceOptions().upsert(true));
                         fcount += 1;
                     }
                 }
+//                else {
+//                    return Result.error("请检查导入文件");
+//                }
             }
             return Result.ok(o(
                     "cat", ccount,
-                    "form", fcount
+                    type, fcount
             ));
         } catch (Exception e){
             e.printStackTrace();
@@ -95,28 +102,47 @@ public class form {
      * @return
      * @throws IOException
      */
-    public Object export(String[] ids) throws IOException {
+    public Object export(String[] ids,String type) throws IOException {
+        if(null == type){
+            return  Result.error("请求错误，类型为空");
+        }
+
         List<ObjectId> oids = Stream.of(ids).map(e -> new ObjectId(e)).collect(Collectors.toList());
         MongoCollection<Document> catcol = db.getCollection("cat");
         Arr cats = catcol.find(Filters.in("_id", oids)).into(a());
-        MongoCollection<Document> formcol = db.getCollection("form");
+        MongoCollection<Document> formcol = db.getCollection(type);
         Arr forms = formcol.find(Filters.in("_id",oids)).into(a());
         File temp = File.createTempFile("123","456");
         temp.deleteOnExit();
-        temp = ZipUtil.zip(temp, new String[]{"cat", "form"}, new InputStream[]{
+        temp = ZipUtil.zip(temp, new String[]{"cat", type}, new InputStream[]{
             new ByteArrayInputStream(ObjectUtil.serialize(cats)),
             new ByteArrayInputStream(ObjectUtil.serialize(forms)),
         });
         return new MultipartFile("export-" + DateUtil.now() + ".data", temp, true);
     }
 
-    public Object listex(){
+    public Object listex(String type){
+        if(null == type){
+            return  Result.error("请求错误，类型为空");
+        }
+        String tp = "";
+        String text = "";
+        switch (type){
+            case "form":
+                tp = "0";
+                text = "$$item.name";
+                break;
+            case "workflow":
+                tp = "1";
+                text = "$$item.modelName";
+                break;
+        }
         MongoCollection<Document> collection = db.getCollection("cat");
         Arr cats = collection.aggregate(a(
-                o("$match", o("type", "0")),
+                o("$match", o("type", tp)),
                 o(
                         "$lookup", o(
-                                "from", "form",
+                                "from", type,
                                 "localField", "_id",
                                 "foreignField", "pid",
                                 "as", "children"
@@ -138,7 +164,7 @@ public class form {
                                                 "as", "item",
                                                 "in", o(
                                                         "id", o("$toString", "$$item._id"),
-                                                        "text", "$$item.name",
+                                                        "text", text,
                                                         "type", "form"
                                                 )
                                         )

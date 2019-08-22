@@ -122,12 +122,14 @@ public class GetOriginQccService {
             if(list.size()>0){
                 String name = list.get(0);
                 reqQccParam.setUserName(name);
+//                ECISeniorPerson_GetList(reqQccParam,extParam);
                 CIAEmployeeV4_GetStockRelationInfo(reqQccParam, extParam);
             }
         }else{
             for(String personName : persons){
                 if(null != personName && !personName.isEmpty()){
                     reqQccParam.setUserName(personName);
+//                    ECISeniorPerson_GetList(reqQccParam,extParam);
                     CIAEmployeeV4_GetStockRelationInfo(reqQccParam, extParam);
                 }
             }
@@ -574,6 +576,21 @@ public class GetOriginQccService {
                 "sign", reqQccParam.getSign()
         );
         getDetailData("CIAEmployeeV4_GetStockRelationInfo", query, extParam);
+    }
+
+    // 企业人员董监高信息(新版)
+    public void ECISeniorPerson_GetList(
+            ReqQccParam reqQccParam,
+            LoadQccDataExtParm extParam
+    ){
+        Map query = C.newMap(
+                "searchKey", reqQccParam.getCompanyName(),
+                "personName", reqQccParam.getUserName(),
+                "sign", reqQccParam.getSign(),
+                "pageIndex", 1,
+                "pageSize", 10
+        );
+        getDataList2("ECISeniorPerson_GetList",query,"",extParam);
     }
 
     // 历史工商信息

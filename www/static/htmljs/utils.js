@@ -749,8 +749,8 @@ function laytableRender(options, undefined){
                 }
                 , data: data
                 , success: function (res) {
-                    var rows = ((res.code || res.success) && res.data) ? (res.data.content || res.data.list || res.data) : (res.rows || []);
-                    var total = ((res.code || res.success) && res.data) ? (res.data.totalElements || res.data.totalRow || res.data.length) : (res.total || 0);
+                    var rows = ((res.code!="" || res.success) && res.data!="") ? (res.data.content || res.data.list || res.data) : (res.rows || []);
+                    var total = ((res.code!="" || res.success) && res.data!="") ? (res.data.totalElements || res.data.totalRow || res.data.length) : (res.total || 0);
                     var ret = usepage ? {
                         rows: rows
                         , total: total
