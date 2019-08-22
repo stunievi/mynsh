@@ -17,7 +17,7 @@
             </select>
             <p>说明:通过自动选人规则，是流程经办人通过指定的规则智能选择。默认设置为:不能自动选择。注意，请同时设置好经办权限，自动选择规则才能生效</p>
         </div>
-        <div v-if="data.chooseRule != 'none'">
+        <div v-if="data.chooseRule != 'none' && data.chooseRule != 'publisher'">
             <h6>部门针对对象</h6>
             <select class="form-control" v-model="data.targetRule">
                 <option :value="i" v-for="(v,i) in opener.getNode()">{{nodeId == i ? "当前步骤" : v}}</option>

@@ -162,9 +162,9 @@
         },
         methods:{
             save(){
-                console.log(this.smart)
-                var nodeId = location.search.match(/id=([^&]+)/)[1]
-                opener.bpmData.nodes[nodeId].intelligence = this.$refs.smart.getData();
+                // console.log(this.smart)
+                opener.bpmData.nodes[this.nodeId].intelligence = this.smart;
+                //this.smart = xxxx;
             }
         },
         mounted(){
