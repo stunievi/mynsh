@@ -33589,21 +33589,21 @@
 	  }
 
 	  // console.log(businessObject)
-        if(businessObject.$type == 'bpmn:Task' || businessObject.$type == 'bpmn:StartEvent' || businessObject.$type == 'bpmn:EndEvent'){
-            assign(actions, {
-                'BindingForms': {
-                    group: 'connect',
-                    className: 'bpmn-icon-lane-insert-above',
-                    title: "设置节点",//translate('Binding Forms'),
-                    action: {
-                        click: function (e) {
-                            console.log(arguments)
-                            bd(e,businessObject)
-                        }
-                    }
-                }
-            });
-        }
+      //   if(businessObject.$type == 'bpmn:Task' || businessObject.$type == 'bpmn:StartEvent' || businessObject.$type == 'bpmn:EndEvent'){
+      //       assign(actions, {
+      //           'BindingForms': {
+      //               group: 'connect',
+      //               className: 'bpmn-icon-lane-insert-above',
+      //               title: "设置节点",//translate('Binding Forms'),
+      //               action: {
+      //                   click: function (e) {
+      //                       console.log(arguments)
+      //                       bd(e,businessObject)
+      //                   }
+      //               }
+      //           }
+      //       });
+      //   }
 
 
 	  return actions;
@@ -41882,6 +41882,8 @@
 	    return null;
 	  }
 
+
+
 	  if (!is$1(connection, 'bpmn:DataAssociation')) {
 
 	    if (canConnectMessageFlow(source, target)) {
@@ -41912,6 +41914,11 @@
 	      type: 'bpmn:Association'
 	    };
 	  }
+
+
+        if(source && target && /startevent/i.test(target.id) ){
+            return { type: 'bpmn:SequenceFlow' };
+        }
 
 	  return false;
 	}

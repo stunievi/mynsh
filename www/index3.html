@@ -537,21 +537,21 @@
     //render left menu
     (function () {
 
-        $.when($.get("/api/bpm/workflow/menu"), $.get(remoteOrigin + "/api/auto/user/getMyMethods")).then(function (a,b) {
-            var msg = a[0].data;
-            $.each(menu, function (i,v) {
-                if(v.name == '任务管理'){
-                    v.children = v.children.concat(msg || [])
-                    // v.children.push(msg||[]);
-                    // $.each(msg||[], function (ii,vv) {
-                    //     v.children.push({
-                    //         name: vv.modelName,
-                    //         href: "./htmlsrc/bpm/ins/ins.list.html?id=" + vv._id + "&fields=" + encodeURI(JSON.stringify(vv.listFields||[]))
-                    //     })
-                    // });
-                    console.log(v.children)
-                }
-            });
+        $.when($.get(remoteOrigin + "/api/auto/user/getMyMethods")).then(function (b) {
+            // var msg = a[0].data;
+            // $.each(menu, function (i,v) {
+            //     if(v.name == '任务管理'){
+            //         v.children = v.children.concat(msg || [])
+            //         // v.children.push(msg||[]);
+            //         // $.each(msg||[], function (ii,vv) {
+            //         //     v.children.push({
+            //         //         name: vv.modelName,
+            //         //         href: "./htmlsrc/bpm/ins/ins.list.html?id=" + vv._id + "&fields=" + encodeURI(JSON.stringify(vv.listFields||[]))
+            //         //     })
+            //         // });
+            //         console.log(v.children)
+            //     }
+            // });
 
             var html = template.render($("#menu-tmpl").html(),{
                 data: menu,
@@ -565,7 +565,7 @@
             jQuery("#jquery-accordion-menu").jqueryAccordionMenu();
 
 
-            var whitelist = b[0].data;
+            var whitelist = b.data;
             console.log(whitelist)
             if(whitelist.indexOf("_all_") > -1){
                 $("#demo-list li").show();
@@ -581,7 +581,7 @@
                 }
             });
 
-            $("li[data-id*=任务管理]").show();
+            // $("li[data-id*=任务管理]").show();
             // $("li[data-id=任务管理]").show();
         });
 

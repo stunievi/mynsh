@@ -27,11 +27,11 @@
                     <div class="events-body">
                         <div>
                             {{each log.attrs v i}}
-                            <p>{{i}}：{{v}}</p>
+                            <p><span>{{i}}<span>：<span class="value">{{v}}</span></p>
                             {{/each}}
-                            <div>
-                                <a href="javascript:;">回溯</a>
-                            </div>
+<!--                            <div>-->
+<!--                                <a href="javascript:;">回溯</a>-->
+<!--                            </div>-->
                         </div>
 <!--                        <div class="row" style="display: block;">-->
 <!--                            <div class="col-md-6 pull-left">-->
@@ -97,11 +97,62 @@
                     ret[d.Format("yyyy-MM-dd")] = item;
                     v.time = d.Format("HH:mm:ss");
                     item.push(v);
+
+                    // $.each(v.attrs||[], function (i,v) {
+                    //     if(v){
+                    //         if(/^\[img\]/.test(v)){
+                    //             v = v
+                    //         }
+                    //     }
+                    // }) ;
                 });
                 console.log(ret)
                 $("#timeline").html(tmpl({
                     logs: ret
                 }));
+
+                $(".value:contains([img])").each(function () {
+                    var t = $(this);
+                    var text = t.html();
+                    text = text.replace(/^\[img\]/,"");
+                    t.replaceWith(
+                        // $("<a>")
+                        //     .attr({
+                        //         href: text,
+                        //         target: "_blank"
+                        //     })
+                        //     .append(
+                                $("<img>").attr({
+                                    src: text,
+                                    width: 80,
+                                    height:80
+                                }).css({
+                                    border: "1px solid #ddd",
+                                    background: "#fff"
+                                }).click(function () {
+                                    layer.photos({
+                                        photos: {
+                                            "title": "签名", //相册标题
+                                            "id": 123, //相册id
+                                            "start": 0, //初始显示的图片序号，默认0
+                                            "data":[
+                                                {
+                                                    "alt":"",
+                                                    "pid":"66",
+                                                    "src": text,
+                                                    "thumb": text
+                                                }
+
+                                            ]
+                                        }
+                                        ,anim: 5 //0-6的选择，指定弹出图片动画类型，默认随机（请注意，3.0之前的版本用shift参数）
+                                    });
+                                })
+                            // ))
+                    );
+                    // console.log(t)
+                });
+
                 $('.VivaTimeline').vivaTimeline({
                     carousel: false,
                     carouselTime: 3000

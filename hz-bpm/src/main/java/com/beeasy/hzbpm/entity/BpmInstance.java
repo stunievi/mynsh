@@ -12,6 +12,9 @@ public class BpmInstance {
     //任务ID
     public ObjectId _id;
 
+    //给人看的ID
+    public String id;
+
     //任务状态
     public String state;
 
@@ -42,6 +45,7 @@ public class BpmInstance {
 
     public List<CurrentNode> currentNodes;
 
+
     //所有的属性集中在这里,直接初始化好,每当有人提交数据时，更新这个字段
     /**
      * {
@@ -53,10 +57,12 @@ public class BpmInstance {
      */
     public Map<String,Object> attrs;
 
+//    public List<AddonFile> files;
 
     //数据提交历史（记录）
     public List<DataLog> logs;
 
+//    public List<HandleLog> handleLogs;
 
     public static class DataLog{
         public ObjectId id;
@@ -74,17 +80,32 @@ public class BpmInstance {
         public String uid;
         public String uname;
 
+        //日志类型
+        public String type;
+
         //...
         //提交人是以什么身份进行提交的（当时这个节点的授权）
 
         //当时这个人提交的所有数据
         public Map<String,Object> attrs;
+
+        public List<AddonFile> files;
     }
 
+//    public static class HandleLog{
+//        public String nodeId;
+//        public String nodeName;
+//        public String uid;
+//        public String uname;
+//        public Date startDate;
+//        public Date endDate;
+//    }
 
     public static class CurrentNode{
         //当前节点的ID
         public String nodeId;
+        public String nodeName;
+
         //提交到该节点上的信息，通常是节点名
         public String msg;
 
@@ -101,5 +122,13 @@ public class BpmInstance {
         // 最大超时提醒时间
         public Date maxTimeout;
 
+    }
+
+
+    public static class AddonFile{
+        public String id;
+        public String name;
+        public String creator;
+        public String action;
     }
 }

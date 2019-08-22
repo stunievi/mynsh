@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>导出</title>
+    <link rel="stylesheet" href="../../../static/htmljs/jstree/themes/default/style.css">
+    <script src="../lib/jquery/jquery.js"></script>
+    <script src="../../../static/htmljs/jstree/jstree.js"></script>
+    <script src="../lib/layer/layer.js"></script>
+    <link rel="stylesheet" href="../lib/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+    <script src="../lib/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="../lib/bootstrap-3.3.7-dist/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="../lib/font/css/font-awesome.min.css">
+</head>
+<body>
+<div style="padding: 10px;">
+    <div id="jstree_demo" style=" overflow: auto; flex:1; max-height: 500px;">
+
+    </div>
+    <div style="text-align: center; padding-top: 10px;">
+        <a href="javascript:;" class="btn btn-sm btn-primary" id="export">导出</a>
+    </div>
+</div>
+</body>
+</html>
+<script>
+    var type = location.search.match(/type=([^&]+)/)[1];
+    $.get("/api/bpm/form/listex", {type:type},function (msg) {
+        if(!msg.success){
+            return
+        }
+        $('#jstree_demo').jstree({
+            "core" : {
+                "animation" : 0,
+                "check_callback" : true,
+                "themes" : { "stripes" : true },
+                'data' : msg.data || []
+            },
+            "plugins":[
+                // "state",
+                // "dnd",
+                // "types",
+                "wholerow","checkbox"
+            ]
+        });
+    });
+
+
+    jQuery.download = function(url, data, method){ // 获得url和data
+        if( url && data ){
+            // data 是 string 或者 array/object
+            data = typeof data == 'string' ? data : jQuery.param(data); // 把参数组装成 form的 input
+            var inputs = '';
+            jQuery.each(data.split('&'), function(){
+                var pair = this.split('=');
+                inputs+='<input type="hidden" name="'+ pair[0] +'" value="'+ pair[1] +'" />';
+            }); // request发送请求
+            jQuery('<form action="'+ url +'" method="'+ (method||'post') +'">'+inputs+'</form>').appendTo('body').submit().remove();
+        };
+    };
+
+    $("#export").click(function () {
+        var ins =   $('#jstree_demo').jstree();
+        var ids = ins.get_checked()
+        if(ids.length == 0){
+            return layer.msg("请选择要导出的对象");
+        }
+
+        $.download("/api/bpm/form/export", {ids: ids.join(","),type:type});
+        // window.close()
+        // $.ajax({
+        //     type:"post",
+        //     url:"/api/bpm/form/export",
+        //     dataType:"json",
+        //     headers:{
+        //         "Content-Type": "application/json"
+        //     },
+        //     success: function(){
+        //
+        //     }
+        // });
+    });
+</script>

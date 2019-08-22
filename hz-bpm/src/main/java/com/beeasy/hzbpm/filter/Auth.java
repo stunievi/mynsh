@@ -10,6 +10,8 @@ import com.github.llyb120.nami.core.AopInvoke;
 import com.github.llyb120.nami.core.R;
 import com.github.llyb120.nami.json.Obj;
 import com.github.llyb120.nami.server.Cookie;
+import com.github.llyb120.nami.server.Request;
+import com.github.llyb120.nami.server.Response;
 import org.beetl.sql.core.SQLReady;
 
 import java.util.List;
@@ -26,21 +28,26 @@ public class Auth {
         }
     };
 
-    public Object around(AopInvoke invoke, Cookie cookie, Obj headers) throws Exception {
-        uids.set(-1l);
-        String token = cookie.get("authorization");
-        if(StrUtil.isBlank(token)){
-            token = headers.s("HZToken");
+    public Object around(AopInvoke invoke, Cookie cookie, Obj headers, Request request) throws Exception {
+        if(!request.path.contains("download")){
+            uids.set(-1l);
+            String token = cookie.get("authorization");
+            if(StrUtil.isBlank(token)){
+                token = headers.s("HZToken");
+            }
+            if(StrUtil.isBlank(token)){
+                token = headers.s("Token");
+            }
+            if (StrUtil.isBlank(token)) {
+                return R.fail();
+            }
+            token = URLUtil.decode(token);
+            List<Obj> objs = sqlManager.execute(new SQLReady(String.format("select user_id from t_user_token where token = '%s' fetch first 1 rows only", token)), Obj.class);
+            if(objs.size() == 0){
+                return Result.error("没有登录");
+            }
+            uids.set((objs.get(0).l("user_id")));
         }
-        if (StrUtil.isBlank(token)) {
-            return R.fail();
-        }
-        token = URLUtil.decode(token);
-        List<Obj> objs = sqlManager.execute(new SQLReady(String.format("select user_id from t_user_token where token = '%s' fetch first 1 rows only", token)), Obj.class);
-        if(objs.size() == 0){
-            return Result.error("没有登录");
-        }
-        uids.set((objs.get(0).l("user_id")));
         try{
             return invoke.call();
         } catch (Exception e){

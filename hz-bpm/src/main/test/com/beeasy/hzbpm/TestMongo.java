@@ -1,5 +1,6 @@
 package com.beeasy.hzbpm;
 
+import com.beeasy.hzbpm.service.BpmService;
 import com.github.llyb120.nami.core.Nami;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -14,6 +15,7 @@ public class TestMongo {
 
     @Test
     public void test(){
+        BpmService.getIncrementId();
 //        var doc = new Document();
 //        doc.put("a","b");
 //        db.getCollection("fuck").inserton

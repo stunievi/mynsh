@@ -1,0 +1,149 @@
+<style>
+    #sign{
+        display: flex;
+        flex-direction: column;
+        background: #fff;
+    }
+</style>
+<script type="text/html" id="sign-tmpl">
+    <div class="full" id="sign">
+        <div ref="canvasHW" id="canvas-wrap" style="display: flex; flex: 1">
+            <canvas ref="canvas" @touchstart='touchStart' @touchmove='touchMove' @touchend='touchEnd' style="background: #ccc">
+            </canvas>
+        </div>
+        <div style="text-align: center; padding-top: 20px;padding-bottom: 20px;">
+            <mt-button type="primary" @click="back()" style="margin-right: 15px;" size="small">返回</mt-button>
+            <mt-button type="primary" @click="clear()" style="margin-right: 15px;" size="small">重置</mt-button>
+            <mt-button type="primary" @click="save()" size="small">保存</mt-button>
+        </div>
+    </div>
+</script>
+<script>
+    const Sign = Vue.component("Sign", {
+        template:$("#sign-tmpl").html(),
+        props:{
+           url: String
+        },
+        data(){
+            return {
+                stageInfo:'',
+                imgUrl:'',
+                client: {},
+                points: [],
+                canvasTxt: null,
+                startX: 0,
+                startY: 0,
+                moveY: 0,
+                moveX: 0,
+                endY: 0,
+                endX: 0,
+                w: null,
+                h: null,
+                isDown: false,
+                isViewAutograph: this.$route.query.isViews > 0,
+                contractSuccess: this.$route.query.contractSuccess
+            }
+        },
+        methods:{
+            clear(){
+                this.canvasTxt.clearRect(0, 0, this.$refs.canvas.width, this.$refs.canvas.height)
+                this.points = []
+            },
+            save(){
+                this.imgUrl=this.$refs.canvas.toDataURL();
+                $.ajax({
+                    url: "/api/bpm/workflow/uploadImage",
+                    type:"post",
+                    dataType:"json",
+                    headers:{
+                        "Content-Type": "application/json"
+                    },
+                    data:JSON.stringify({base64: this.imgUrl}),
+                    success: (msg) => {
+                        eventBus.$emit('sign_ok', msg.data);
+                    },
+                });
+
+                // console.log(this.$refs.canvas.toDataURL())
+            },
+            //mobile
+            touchStart(ev) {
+                ev = ev || event
+                ev.preventDefault()
+                if (ev.touches.length == 1) {
+                    let obj = {
+                        x: ev.targetTouches[0].clientX,
+                        y: ev.targetTouches[0].clientY,
+                    }
+                    this.startX = obj.x
+                    this.startY = obj.y
+                    this.canvasTxt.beginPath()
+                    this.canvasTxt.moveTo(this.startX, this.startY)
+                    this.canvasTxt.lineTo(obj.x, obj.y)
+                    this.canvasTxt.stroke()
+                    this.canvasTxt.closePath()
+                    this.points.push(obj)
+                }
+            },
+            touchMove(ev) {
+                ev = ev || event
+                ev.preventDefault()
+                if (ev.touches.length == 1) {
+                    let obj = {
+                        x: ev.targetTouches[0].clientX - this.stageInfo.left,
+                        y: ev.targetTouches[0].clientY - this.stageInfo.top
+                    }
+                    this.moveY = obj.y
+                    this.moveX = obj.x
+                    this.canvasTxt.beginPath()
+                    this.canvasTxt.moveTo(this.startX, this.startY)
+                    this.canvasTxt.lineTo(obj.x, obj.y)
+                    this.canvasTxt.stroke()
+                    this.canvasTxt.closePath()
+                    this.startY = obj.y
+                    this.startX = obj.x
+                    this.points.push(obj)
+                }
+            },
+            touchEnd(ev) {
+                ev = ev || event
+                ev.preventDefault()
+                if (ev.touches.length == 1) {
+                    let obj = {
+                        x: ev.targetTouches[0].clientX - this.stageInfo.left,
+                        y: ev.targetTouches[0].clientY - this.stageInfo.top
+                    }
+                    this.canvasTxt.beginPath()
+                    this.canvasTxt.moveTo(this.startX, this.startY)
+                    this.canvasTxt.lineTo(obj.x, obj.y)
+                    this.canvasTxt.stroke()
+                    this.canvasTxt.closePath()
+                    this.points.push(obj)
+                }
+            },
+
+            back(){
+                eventBus.$emit('sign_cancel');
+            }
+        },
+
+        mounted(){
+            var canvas = this.$refs.canvas;
+            canvas.height = $("#canvas-wrap").height();//this.$refs.canvasHW.offsetHeight;
+            canvas.width = $("#canvas-wrap").width();//this.$refs.canvasHW.offsetWidth
+            this.canvasTxt = canvas.getContext('2d')
+            this.stageInfo = canvas.getBoundingClientRect();
+
+            if(this.url && url.indexOf("sign.png") == -1){
+                var img = new Image();
+                img.onload = () => {
+                    console.log(img, canvas.width, canvas.height)
+                    this.canvasTxt.drawImage(img,0,0);
+                }
+                img.src = this.url;
+
+            }
+
+        }
+    });
+</script>

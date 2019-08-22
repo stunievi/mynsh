@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>选择人员</title>
+    <!--#include file="/htmlsrc/header.html" -->
+    <style>
+    </style>
+</head>
+<body>
+    <div id="content" class="hide">
+        <div style="width: 500px;margin: 0 auto;">
+            <ul id="ulist" style="height: 200px; overflow: auto;margin: 0 auto;">
+            </ul>
+            <div style="text-align: center; padding-top: 20px;">
+                <a href="javascript:;" id="submit">确定</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+<script type="text/html" id="ps">
+{{each data item index}}
+<li>
+    <label>
+        <input type="checkbox" name="person" value="{{item.uid}}">
+
+        &nbsp;
+        {{item.msg}}
+        &nbsp;
+        {{item.uname}}
+        &nbsp;
+
+    </label>
+</li>
+{{/each}}
+</script>
+<script>
+    // var id = getParam("id");
+    var id = "5d4b84d7c07cbc586a3843d3";
+    var tmpl = template.compile($("#ps").html())
+    $.get("/api/bpm/workflow/logList", {id:id}, function (msg) {
+        console.log(msg.data)
+        if(msg.success){
+
+        }
+
+        $("#ulist").html(tmpl({
+            data: msg.data
+        }));
+        console.log(msg.data,tmpl({
+            data: msg.data
+        }))
+        $('input:radio:first').attr('checked', 'checked');
+
+        $("#content").removeClass("hide");
+    },"json")
+
+    var submitFn = function(){
+        submit();
+    }
+
+    $("#submit").unbind("click",submitFn).bind("click",submitFn);
+
+    function submit() {
+        var person=$('input[name="person"]:checked').val();
+        var s=$('span[name="'+person+'"]').text();
+        window.opener.msgUser[person] = "2222";
+        alert(person)
+        // window.opener.userName = person;
+        // window.close();
+
+    }
+
+</script>

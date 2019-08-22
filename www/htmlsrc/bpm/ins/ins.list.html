@@ -6,16 +6,97 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
-    <!--#include file="/htmlsrc/header.html" -->
+    <link rel="stylesheet" href="../lib/css/style.css">
+    <script src="../lib/jquery/jquery.js"></script>
     <style>
         td{
             white-space: nowrap;
         }
+        html,body,#content{
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            margin: 0 !important;
+            padding: 0 !important;
+            box-sizing: border-box;
+        }
+        #content{
+            padding: 10px !important;
+            overflow: auto;
+        }
+        .layui-toolbar .btn {
+            padding: 1px 5px;
+            font-size: 12px;
+            line-height: 1.5;
+            border-radius: 3px;
+        }
+        /*.table-bordered{*/
+        /*    bottom: 0;*/
+        /*}*/
     </style>
+    <script src="../lib/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+    <script>
+        function getParam(name, url) {
+            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+            if(url){
+                var r = url.substr(1).match(reg);
+            }else{
+                var r = window.location.search.substr(1).match(reg);
+            }
+            if (r != null) return r[2];
+            return '';
+        }
+    </script>
+    <link rel="stylesheet" href="../lib/jstree/themes/default/style.min.css">
+    <script src="../lib/layer/layer.js"></script>
+    <link rel="stylesheet" href="../lib/bootstrap-table/bootstrap-table.min.css">
+    <script src="../lib/bootstrap-table/bootstrap-table.min.js"></script>
+    <script src="../lib/bootstrap-table/locale/bootstrap-table-zh-CN.js"></script>
+    <script src="../../../static/vendor/artTemplate/template-web.js"></script>
+    <script src="../lib/jstree/jstree.js"></script>
 </head>
 <body>
 <div id="content">
-    <div class="batch-operation">
+<!--    <table width="100%" height="100%">-->
+<!--        <tr>-->
+<!--            <td width="200">-->
+    <div style="display: flex; flex-direction: row">
+
+                <div id="jstree_demo" style="height: 100%;">
+                </div>
+<!--            </td>-->
+<!--            <td valign="top">-->
+                <div class="" style="flex:1; overflow:auto;">
+                    <div class="bs-example bs-example-tabs" data-example-id="togglable-tabs">
+
+                        <a class="btn btn-sm btn-danger batchDelete hide" href="javascript:;" style="float:right;">批量删除</a>
+                        <a class="btn btn-sm btn-success pub hide" href="javascript:;" style="float:right;margin-right: 5px">发起新流程</a>
+                        <ul id="myTabsBpm" class="nav nav-tabs" role="tablist" style="margin-bottom: 10px;">
+                            <li><a href="#todo" role="tab"  data-toggle="tab" aria-controls="todo" aria-expanded="true" onclick="initTable(window.id,'todo')">待处理任务</a></li>
+                            <li><a href="#processed" role="tab"  data-toggle="tab" aria-controls="processed" aria-expanded="true" onclick="initTable(window.id,'processed')">已处理的任务</a></li>
+                            <li><a href="#over" role="tab"  data-toggle="tab" aria-controls="over" aria-expanded="true" onclick="initTable(window.id,'over')">已办结的任务</a></li>
+                        </ul>
+                        <div id="myTabContentBpm" class="tab-content" style="min-height:120px;">
+                            <div role="tabpanel" class="tab-pane" id="todo" aria-labelledby="todo-tab">
+                                <table id="todo-taskList"> </table>
+                            </div>
+                            <div role="tabpanel" class="tab-pane" id="processed" aria-labelledby="processed-tab">
+                                <table id="processed-taskList"> </table>
+                            </div>
+                            <div role="tabpanel" class="tab-pane" id="over" aria-labelledby="over-tab">
+                                <table id="over-taskList"> </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="dataList">
+
+                </div>
+    </div>
+<!--            </td>-->
+<!--        </tr>-->
+<!--    </table>-->
+    <div class="batch-operation" style="display: none">
         <a class="btn btn-success pub" href="javascript:;" >发起新流程</a>
 <!--        <div class="btn-group">-->
 <!--            <button type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">更改启用状态<span class="caret"></span></button>-->
@@ -26,11 +107,42 @@
 <!--        </div>-->
     </div>
 
-    <div id="dataList"></div>
 </div>
+
 </body>
 </html>
 <script type="text/html" id="toolbar">
+    <div class="layui-toolbar">
+        <a class="btn btn-default btn-show" href="javascript:;" data-id="{{d._id}}">查看</a>
+        {{if d.edit}}
+        <a class="btn btn-default btn-edit btn-sm" href="javascript:;" data-id="{{d._id}}">编辑</a>
+        {{/if}}
+        {{if d.pause}}
+        <a class="btn btn-default btn-pause btn-sm" href="javascript:;" data-id="{{d._id}}">暂停</a>
+        {{/if}}
+
+        {{if d.resume}}
+        <a class="btn btn-default btn-resume btn-sm" href="javascript:;" data-id="{{d._id}}">恢复</a>
+        {{/if}}
+
+        {{if (d.forceEnd)}}
+        <a class="btn btn-default btn-forceEnd btn-sm" href="javascript:;" data-id="{{d._id}}">强制结束</a>
+        {{/if}}
+
+        {{if d.forceResume }}
+        <a class="btn btn-default btn-forceResume btn-sm" href="javascript:;" data-id="{{d._id}}">恢复</a>
+        {{/if}}
+
+        {{if d.urge }}
+        <a class="btn btn-default btn-urge btn-sm" href="javascript:;" data-id="{{d._id}}">催办</a>
+        {{/if}}
+
+        {{if d.del}}
+        <a class="btn btn-danger btn-delete btn-sm" href="javascript:;" data-id="{{d._id}}">删除</a>
+        {{/if}}
+    </div>
+</script>
+<script type="text/html" id="toolbar2">
     <div class="layui-toolbar">
         <!--<a class="btn btn-default handleSetMenu" href="javascript:;" data-id="{{d.id}}">功能权限</a>-->
         <!--<a class="btn btn-default" href="javascript:;" data-id="{{d.id}}" tab-title="设置岗位/角色" tab-href="/htmlsrc/sysManage/userManage/user.org.html?id={{d.id}}">岗位/角色</a>-->
@@ -60,21 +172,21 @@
         <a class="btn btn-default btn-urge" href="javascript:;" data-id="{{d._id}}">催办</a>
         {{#} }}
 
-        {{# if(d.urge){ }}
+        {{# if(d.del){ }}
         <a class="btn btn-danger btn-delete" href="javascript:;" data-id="{{d._id}}">删除</a>
         {{#} }}
         <!--<a class="btn btn-default handleShow" href="javascript:;" data-id="{{d.id}}" data-name="{{d.trueName}}">查看</a>-->
 <!--        <button class="btn btn-danger" delete-href="{{remoteOrigin}}/api/auto/user/delete?id={{d.id}}">删除</button>-->
     </div>
 </script>
-<script>
+<script type="text/plain">
     var id = getParam("id");
     var fields = decodeURI(getParam("fields"));
     fields = JSON.parse(fields);
     var cols = [];
     cols.push({
         title:"流程ID",
-        field:"_id",
+        field:"id",
     })
     $.each(fields, function (i,v) {
         cols.push({
@@ -204,4 +316,375 @@
     //         name: userName
     //     }
     // }));
+</script>
+
+<script>
+    $("#content").scroll(function () {
+        $("#jstree_demo").css("padding-top", $(this).scrollTop());//.height()
+    });
+
+    layer.load(0, {time:5000});
+    $.get("/api/bpm/workflow/modelList", function (msg) {
+        layer.closeAll();
+        if(!msg.success){
+            return
+        }
+        msg = msg.data;
+        // console.log(msg)
+        $('#jstree_demo').jstree({
+            "core" : {
+                "animation" : 0,
+                "check_callback" : true,
+                "themes" : { "stripes" : true },
+                'data' :[
+                    {
+                        'id' : 'root',
+                        'text' : '全部分类',
+                        "type":"home",
+                        'state' : { 'opened' : true, 'selected' : true },
+                        'children' : (msg)
+                    }
+                ]
+            },
+            "types" : {
+                "#":{
+                    icon: "glyphicon glyphicon-book",
+                    valid_children: ["cat"]
+                },
+                "home":{
+                    icon: "glyphicon glyphicon-book",
+                    valid_children: ["cat"]
+                },
+                "cat": {
+                    icon: "glyphicon glyphicon-book",
+                    valid_children:["form", "cat"]
+                },
+                "form": {
+                    icon:  "glyphicon glyphicon-file",
+                    valid_children:[]
+                }
+                // "#" : {
+                //     "max_children" : 1,
+                //     "max_depth" : 4,
+                //     "valid_children" : ["root"]
+                // },
+                // "root" : {
+                //     "icon" : "/static/3.3.8/assets/images/tree_icon.png",
+                //     "valid_children" : ["default"]
+                // },
+                // "default" : {
+                //     "valid_children" : ["default","file"]
+                // },
+                // "file" : {
+                //     "icon" : "glyphicon glyphicon-file",
+                //     "valid_children" : []
+                // }
+            },
+            "plugins" : [
+                "search",
+                // "state",
+                // "dnd",
+                "types", "wholerow"
+            ]
+        });
+
+        window.ins = $('#jstree_demo').jstree(true);
+        // setTimeout(function () {
+        //     var root = ins.get_node("root");
+        //     ins.open_all(root);
+        // },0)
+        //选中第一个节点
+        // loadFormList('top')
+
+        $("#jstree_demo").on("select_node.jstree", function (e,n) {
+            if(n.node.type != 'form'){
+                $(".pub").addClass("hide");
+                initTable(null,"todo")
+                window.currentTab = "todo";
+                return false;
+            }
+            // var frame = $("#form-edit");
+            // var did = frame.data("id");
+            // alert(did)
+            // if(n.node.original.type != 'form'){
+            //     $("#form-edit").hide()
+            //     return
+            // }
+            $(".pub").removeClass("hide");
+            window.id = n.node.original.id;
+            initTable(window.id,"todo")
+            var panelType =  getParam("panelType") || "todo";
+            $('#myTabsBpm a[href="#'+panelType+'"]').tab('show');
+            onInfront();
+            // if(did == id){
+            //     frame.show()
+            //     return;
+            // }
+            // frame.show()
+            //     .data("id", id)
+            //     .attr(attr"src", "../form/form.add.html?id=" + id + "&v=" + Math.random())
+        });
+    }, "json");
+</script>
+
+<script>
+    var tmpl = template.compile($('#toolbar').html())
+    // 记录选中
+    var last = null
+    function initTable(id, type){
+        last = arguments
+        // if(undefined == id){
+        //     return;
+        // }
+
+
+
+        var fields = [];
+        // $.get("/api/bpm/workflow/getFields", {
+        //     id: id
+        // }, function (msg)  {
+        //     if (msg.success) {
+        //         fields = [];
+        //         fields = msg.data[0].arrangementData.listFields;
+        //         console.log(fields)
+        //
+        //     }
+        // }, "json");
+
+        $.ajax({
+            type:"get",
+            url:"/api/bpm/workflow/getFields?id="+id,
+            async:false,
+            success:function(data){
+                if (data.success && data.data[0]) {
+
+                    fields = data.data[0].arrangementData.listFields;
+                }
+
+            }
+        });
+
+        var cols = [];
+        cols.push({checkbox: true})
+        cols.push({
+            title:"流程ID",
+            field:"id",
+        })
+
+        console.log("----",fields)
+
+        $.each(fields, function (i,v) {
+            cols.push({
+                title: v,
+                field: v
+            })
+        });
+        cols.push({
+            title:"任务状态",
+            field:"state"
+        })
+        cols.push({
+            title:"当前经办人",
+            field:"uName",
+        })
+        cols.push({
+            title:"创建时间",
+            field:"createTime",
+        })
+        cols.push({
+            title:"上次提交时间",
+            field:"lastModifyTime",
+        })
+        cols.push({
+            title: "操作", formatter: function (value,row, index) {
+                return tmpl({
+                    d: row
+                })
+            }
+        })
+
+        //销毁表格
+        $("#"+type+"-taskList").bootstrapTable("destroy");
+        $("#"+type+"-taskList").bootstrapTable({
+            columns:[
+                // {
+                //     title:"ID",
+                //     field:"id"
+                // },
+                cols
+                // { checkbox: true},
+                // { field: 'id', title: "流程ID" },
+                // { field: 'bpmName', title: "流程名称" },
+                // { field: 'createTime',title: "流程发起时间" },
+                // { field: 'pubUName',title: "流程发起人" },
+                // { field: 'state', title: "流程状态" },
+                // { field: 'uName',title: "当前经办人" },
+                // // { field: 'lastModifyTime',title: "上次提交时间" },
+                // { title: "操作", formatter: function (value,row, index) {
+                //     return tmpl({
+                //         d: row
+                //     })
+                //     } },
+            ],
+            pagination: true,
+            sidePagination: "server",
+            ajax: function(params){
+                params.data.id = id;
+                params.data.type = type;
+                // console.log("params:",params)
+                var url = "/api/bpm/workflow/getInsList";
+                //换算分页
+                var data = params.data;
+                data.size = data.limit;
+                data.page = (data.offset / data.limit) + 1;
+                $.get(url + '?' + $.param(params.data)).then(function (res) {
+                    // console.log(res);
+                    if(!res.success){
+                        //
+                        layer.msg("请求失败！")
+                    }
+                    // if(res.data.list[0].bpmModel.listFields){
+                    //     fields = res.data.list[0].bpmModel.listFields;
+                    //     console.log(fields)
+                    //
+                    // }
+                    params.success({
+                        rows: res.data.list,
+                        total: res.data.totalRow,
+                    })
+                    if(res.data.list[0] && res.data.list[0].del){
+                        $(".batchDelete").removeClass("hide")
+                    }
+                },"json")
+            }
+        })
+    }
+
+    $('#myTabsBpm a').click(function(){
+        window.currentTab = $(this).attr("href").substring(1);
+    })
+    var panelType =  getParam("panelType") || window.currentTab || "todo";
+    $('#myTabsBpm a[href="#'+panelType+'"]').tab('show');
+    onInfront();
+    function onInfront(){
+        initTable(window.id,"todo");
+        window.currentTab = "todo";
+    }
+
+    $(document).on("click", ".pub", function () {
+        if(undefined != window.id){
+            openPubPage("pub", window.id);
+        }
+        // window.open("./ins.pub.html?type=pub&id=" + id, "dealtask", "left=100, top=100, width=800, height=600");
+    });
+    $(document).on("click", ".batchDelete", function () {
+
+        var checkedItems = $('#'+window.currentTab+'-taskList').bootstrapTable('getSelections');
+        var ids = [];
+        $.each(checkedItems, function(index, item) {
+            ids.push(item._id);
+        });
+        console.log(ids)
+        if(!confirm("确定删除")){
+            return
+        }
+        layer.load(0, {time: 5000})
+        // $.get("/api/bpm/workflow/deleteInss",{ids:ids}, function (msg) {
+        //     location.reload();
+        // },"json");
+        $.ajax({
+            url: "/api/bpm/workflow/deleteInss",
+            type: "post",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            dataType: "json",
+            data: JSON.stringify({ids}),
+            success: function (msg) {
+                if(!msg.success){
+                    layer.msg(msg.errMessage)
+                    return
+                }
+                // location.reload();
+                initTable.apply(null, last);
+                layer.closeAll();
+            }
+        })
+    });
+    $(document).on("click", ".btn-show", function () {
+        var id = $(this).data("id");
+        openPubPage("deal", id);
+        // window.open("./ins.pub.html?type=deal&id=" + id, "dealtask", "left=100, top=100, width=800, height=600");
+    })
+    $(document).on("click", ".btn-edit", function () {
+        var id = $(this).data("id");
+        openPubPage("edit", id);
+        // window.open("./ins.pub.html?type=deal&id=" + id, "dealtask", "left=100, top=100, width=800, height=600");
+    })
+
+    $(document).on("click", ".btn-pause", function () {
+        var id = $(this).data("id");
+        layer.load(0, {time: 5000})
+        $.get("/api/bpm/workflow/pause",{id:id}, function () {
+            location.reload()
+        });
+    });
+
+    $(document).on("click", ".btn-resume", function () {
+        var id = $(this).data("id");
+        layer.load(0, {time: 5000})
+        $.get("/api/bpm/workflow/resume",{id:id}, function () {
+            location.reload()
+        });
+    });
+
+    $(document).on("click", ".btn-forceEnd", function () {
+        var id = $(this).data("id");
+        layer.load(0, {time: 5000})
+        $.get("/api/bpm/workflow/forceEnd",{id:id}, function () {
+            location.reload()
+        });
+    });
+
+    $(document).on("click", ".btn-forceResume", function () {
+        var id = $(this).data("id");
+        layer.load(0, {time: 5000})
+        $.get("/api/bpm/workflow/forceResume",{id:id}, function () {
+            location.reload()
+        });
+    });
+
+    $(document).on("click", ".btn-urge", function () {
+        var id = $(this).data("id");
+        layer.prompt({title: '填写催办内容', formType: 2}, function(text, index){
+            layer.close(index);
+            layer.load(0, {time: 5000})
+            $.get("/api/bpm/workflow/urge",{id:id, msg: text}, function (msg) {
+                layer.closeAll()
+                if(!msg.success){
+                    return layer.msg(msg.errMessage)
+                }
+                layer.msg("已向当前节点的处理人发送催办信息");
+            },"json");
+        });
+    });
+
+    $(document).on("click", ".btn-delete", function () {
+        var id = $(this).data("id");
+        if(!confirm("确定删除")){
+            return
+        }
+        layer.load(0, {time: 5000})
+        $.get("/api/bpm/workflow/deleteIns",{id:id}, function (msg) {
+            // location.reload();
+            // initTable(window.id,window.currentTab);
+            initTable.apply(null, last)
+            layer.closeAll();
+        },"json");
+    });
+
+    function openPubPage(type, id) {
+        window.open("./ins.pub.html?type="+type+"&id=" + id, "dealtask", "left=100, top=100, width=800, height=600");
+    }
+
 </script>

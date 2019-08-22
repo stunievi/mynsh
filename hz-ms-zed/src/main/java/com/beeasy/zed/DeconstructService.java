@@ -270,6 +270,8 @@ public class DeconstructService extends AbstractService {
         registerHandler("/CIAEmployeeV4/GetStockRelationInfo", service::GetStockRelationInfo);
         registerHandler("/HoldingCompany/GetHoldingCompany", service::GetHoldingCompany);
         registerHandler("/ECICompanyMap/GetStockAnalysisData", service::GetStockAnalysisData);
+        //新版董监高
+        registerHandler("/ECISeniorPerson/GetList", service::GetList);
 
 
         //消息坚挺
@@ -366,6 +368,60 @@ public class DeconstructService extends AbstractService {
         service.refreshTableDefination();
 
         System.out.println("deconstruct service boot success");
+    }
+
+    /**
+     * 企业人员董监高信息(新版)
+     * @param channelHandlerContext
+     * @param request
+     * @param json
+     */
+    private void GetList(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSON json) {
+        String compName = getQuery(request, "searchKey");
+        String name = getQuery(request, "personName");
+        changeField(json,
+                "+Area", new ValueGenerator() {
+                    @Override
+                    public Object call(JSONObject kv) {
+                        return JSON.toJSONString(kv.get("Area"));
+                    }
+                },
+                "+Industry", new ValueGenerator() {
+                    @Override
+                    public Object call(JSONObject kv) {
+                        return JSON.toJSONString(kv.get("Industry"));
+                    }
+                },
+                "+RelationList", new ValueGenerator() {
+                    @Override
+                    public Object call(JSONObject kv) {
+                        kv.put("rlist", kv.get("RelationList"));
+                        return JSON.toJSONString(kv.get("RelationList"));
+                    }
+                },
+                "+inner_company_name", compName,
+                "+inner_person_name", name
+        );
+        //子结构
+        JSONArray array = (JSONArray) json;
+        JSONArray fList = new JSONArray();
+        for (Object o : array) {
+            JSONObject obj = (JSONObject) o;
+            JSONArray list = obj.getJSONArray("RelationList");
+            if (list == null) {
+               continue;
+            }
+            changeField(list,
+                    "+INNER_PARENT_ID", obj.getString("inner_id"),
+                    "+inner_company_name", compName,
+                    "+inner_person_name", name
+                    );
+            fList.addAll(list);
+        }
+        doDelete("QCC_ECI_SENIOR_PERSON_RELATION", new String[]{"inner_company_name", "inner_person_name"}, new String[]{compName, name});
+        deconstruct(fList, "QCC_ECI_SENIOR_PERSON_RELATION", "");
+        doDelete("QCC_ECI_SENIOR_PERSON", new String[]{"inner_company_name", "inner_person_name"}, new String[]{compName, name});
+        deconstruct(json, "QCC_ECI_SENIOR_PERSON", "");
     }
 
     /**
@@ -2321,9 +2377,16 @@ public class DeconstructService extends AbstractService {
     ) throws InterruptedException, IOException {
         ExecutorService executor = Executors.newFixedThreadPool(16);
         final AtomicBoolean hasError = new AtomicBoolean(false);
-        JSONObject sourceReqObj = JSONObject.parseObject(sourceRequest);
+        JSONObject sourceReqObj = null;
+        String qualCusId = null;
+        try{
+            JSONObject.parseObject(sourceRequest);
+            qualCusId = sourceReqObj.getString("QualCusId");
+        } catch (Exception e){}
 
-        String qualCusId = sourceReqObj.getString("QualCusId");
+        if(StrUtil.isBlank(qualCusId)){
+            return;
+        }
         long uid = sourceReqObj.getLong("Uid");
 
         // 关联方名单
@@ -2914,7 +2977,10 @@ public class DeconstructService extends AbstractService {
 //            deconstructStep0(is, requestId);
 //            reqponse.progress = 1;
 //            deconstructStep1(requestId);
-            JSONObject jsonObject = JSONObject.parseObject(sourceRequest);
+            JSONObject jsonObject = null;
+            try{
+                jsonObject = JSONObject.parseObject(sourceRequest);
+            } catch (Exception e){}
 
             reqponse.progress = 2;
             //直接进行解压并解析

@@ -54,6 +54,30 @@
             </div>
         </div>
     </div>
+
+    <!--工作流-->
+
+    <div class="col-xs-12">
+        <div class="bs-example bs-example-tabs" data-example-id="togglable-tabs">
+            <ul id="myTabsBpm" class="nav nav-tabs" role="tablist" style="margin-bottom: 10px;">
+                <li><a href="#taskBpm1" role="tab"  data-toggle="tab" aria-controls="taskBpm1" aria-expanded="true" onclick="getTaskBpmList('taskBpm1')">待处理流程</a></li>
+                <li><a href="#taskBpm2" role="tab"  data-toggle="tab" aria-controls="taskBpm2" aria-expanded="true" onclick="getTaskBpmList('taskBpm2')">已处理的流程</a></li>
+                <li><a href="#taskBpm3" role="tab"  data-toggle="tab" aria-controls="taskBpm3" aria-expanded="true" onclick="getTaskBpmList('taskBpm3')">已办结的流程</a></li>
+            </ul>
+            <div id="myTabContentBpm" class="tab-content" style="min-height:120px;">
+                <div role="tabpanel" class="tab-pane" id="taskBpm1" aria-labelledby="taskBpm1-tab">
+                    <div id="taskBpm1-taskList"> </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="taskBpm2" aria-labelledby="taskBpm2-tab">
+                    <div id="taskBpm2-taskList"> </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="taskBpm3" aria-labelledby="taskBpm3-tab">
+                    <div id="taskBpm3-taskList"> </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="col-xs-6">
         <!-- 2017年度任务类型占比 -->
         <div class="panel panel-default">
@@ -98,6 +122,41 @@
 
     </div>
 </script>
+
+<!--bpm工作流-->
+<script type="text/html" id="toolbarBpm">
+    <div class="layui-toolbar">
+        <a class="btn btn-default btn-show" href="javascript:;" data-id="{{d._id}}">查看</a>
+        <!--{{# if(d.edit){ }}
+        <a class="btn btn-default btn-edit" href="javascript:;" data-id="{{d._id}}">编辑</a>
+        {{#} }}
+
+        {{# if(d.pause){ }}
+        <a class="btn btn-default btn-pause" href="javascript:;" data-id="{{d._id}}">暂停</a>
+        {{#} }}
+
+        {{# if(d.resume){ }}
+        <a class="btn btn-default btn-resume" href="javascript:;" data-id="{{d._id}}">恢复</a>
+        {{#} }}
+
+        {{# if(d.forceEnd){ }}
+        <a class="btn btn-default btn-forceEnd" href="javascript:;" data-id="{{d._id}}">强制结束</a>
+        {{#} }}
+
+        {{# if(d.forceResume){ }}
+        <a class="btn btn-default btn-forceResume" href="javascript:;" data-id="{{d._id}}">恢复</a>
+        {{#} }}
+
+        {{# if(d.urge){ }}
+        <a class="btn btn-default btn-urge" href="javascript:;" data-id="{{d._id}}">催办</a>
+        {{#} }}
+
+        {{# if(d.del){ }}
+        <a class="btn btn-danger btn-delete" href="javascript:;" data-id="{{d._id}}">删除</a>
+        {{#} }}-->
+    </div>
+</script>
+
 <script type="text/html" id="toolbar2">
     <div class="layui-toolbar">
         <a href="javascript:;" class="btn handleShow btn-default" tab-title="查看任务-{{d.id}}" tab-href="/htmlsrc/workFlow/nodeStates.html?id={{d.id}}">查看</a>
@@ -118,6 +177,81 @@
 <script type="text/html" id="_content">{{# return replaceNoticeContent(d)}}</script>
 <script type="text/html" id="_noticestate"> {{# return d.state == 'READ' ? "已读" : "未读"; }} </script>
 <script>
+
+    // bpm工作流
+    function getTaskBpmList(taskBpmType) {
+        window.tbType = taskBpmType;
+        var url = '';
+        var toolBarTmpl = "#toolbarBpm";
+        var cols = [];
+        var cols1 = [ //标题栏
+            { field: 'id', title: "流程ID" },
+            { field: 'bpmName', title: "流程名" },
+            { field: 'state', title: "流程状态" },
+            { field: 'uName',title: "当前经办人" },
+            { field: 'createTime',title: "创建时间" },
+            { field: 'lastModifyTime',title: "上次提交时间" }
+        ];
+
+        switch(taskBpmType)
+        {
+            // 待处理的任务
+            case 'taskBpm1':
+                toolBarTmpl = "#toolbarBpm";
+                cols = cols1;
+                url = remoteOrigin + "/api/bpm/workflow/getInsList?type=todo";
+                break;
+            // 已处理的任务
+            case 'taskBpm2':
+                toolBarTmpl = "#toolbarBpm";
+                cols = cols1;
+                url = remoteOrigin + "/api/bpm/workflow/getInsList?type=processed";
+                break
+            // 已完结的任务
+            case 'taskBpm3':
+                toolBarTmpl = "#toolbarBpm";
+                cols = cols1;
+                url = remoteOrigin + "/api/bpm/workflow/getInsList?type=over"
+                break
+        }
+        cols.push({ title: '操作', templet: toolBarTmpl});
+        if($('#' + taskBpmType + '-taskList table').length){
+            layuiTableReload(
+                {
+                    id: taskBpmType + '-taskList'
+                }
+            );
+            return;
+        }
+        laytableRender({
+            url: url,
+            currPage: getParam("page") || 1,
+            // where: {
+            //     id: id
+            // },
+            // loading: !auto,
+            // currPage: getParam(taskType+"page") || 1,
+            id: taskBpmType + '-taskList',
+            elem: '#' + taskBpmType + '-taskList',
+            cols: [
+                cols
+            ],
+            done: function(res, curr){
+                if(top.firstLoadingIndex){
+                    top.layer.close(top.firstLoadingIndex);
+                }
+            }
+            // , onRender: function () {
+            //     if(taskBpmType == 'taskType3'){
+            //         $('#' + taskType + '-taskList table').find("td:contains(不良资产主流程)").parent("tr").find("td").css({
+            //             color: "#4A89DC"
+            //             , fontFamily: "黑体"
+            //         })
+            //         // alert(123)
+            //     }
+            // }
+        })
+    }
     function getTaskList(taskType){
         window.ptype = taskType;
         // if(!auto){
@@ -265,9 +399,12 @@
     }
     var panelType = window.ptype = getParam("panelType") || "taskType3";
     $('#myTabs a[href="#'+panelType+'"]').tab('show');
+    var panelType2 = window.tbtype = getParam("panelType") || "taskBpm1";
+    $('#myTabsBpm a[href="#'+panelType2+'"]').tab('show');
     onInfront();
     function onInfront(){
         getTaskList(window.ptype);
+        getTaskBpmList(window.tbtype);
     }
 
     // 处理任务回调
@@ -410,6 +547,83 @@
             $('.manager').attr("style","display:block !important");
         }
     })
+
+    $(document).on("click", ".pub", function () {
+        openPubPage("pub", id);
+        // window.open("./ins.pub.html?type=pub&id=" + id, "dealtask", "left=100, top=100, width=800, height=600");
+    });
+    $(document).on("click", ".btn-show", function () {
+        var id = $(this).data("id");
+        openPubPage("deal", id);
+        // window.open("./ins.pub.html?type=deal&id=" + id, "dealtask", "left=100, top=100, width=800, height=600");
+    })
+    $(document).on("click", ".btn-edit", function () {
+        var id = $(this).data("id");
+        openPubPage("edit", id);
+        // window.open("./ins.pub.html?type=deal&id=" + id, "dealtask", "left=100, top=100, width=800, height=600");
+    })
+
+    $(document).on("click", ".btn-pause", function () {
+        var id = $(this).data("id");
+        loadTimeout()
+        $.get("/api/bpm/workflow/pause",{id:id}, function () {
+            location.reload()
+        });
+    });
+
+    $(document).on("click", ".btn-resume", function () {
+        var id = $(this).data("id");
+        loadTimeout()
+        $.get("/api/bpm/workflow/resume",{id:id}, function () {
+            location.reload()
+        });
+    });
+
+    $(document).on("click", ".btn-forceEnd", function () {
+        var id = $(this).data("id");
+        loadTimeout()
+        $.get("/api/bpm/workflow/forceEnd",{id:id}, function () {
+            location.reload()
+        });
+    });
+
+    $(document).on("click", ".btn-forceResume", function () {
+        var id = $(this).data("id");
+        loadTimeout()
+        $.get("/api/bpm/workflow/forceResume",{id:id}, function () {
+            location.reload()
+        });
+    });
+
+    $(document).on("click", ".btn-urge", function () {
+        var id = $(this).data("id");
+        layer.prompt({title: '填写催办内容', formType: 2}, function(text, index){
+            layer.close(index);
+            loadTimeout()
+            $.get("/api/bpm/workflow/urge",{id:id, msg: text}, function (msg) {
+                layer.closeAll()
+                if(!msg.success){
+                    return layer.msg(msg.errMessage)
+                }
+                layer.msg("已向当前节点的处理人发送催办信息");
+            },"json");
+        });
+    });
+
+    $(document).on("click", ".btn-delete", function () {
+        var id = $(this).data("id");
+        if(!confirm("确定删除")){
+            return
+        }
+        loadTimeout()
+        $.get("/api/bpm/workflow/deleteIns",{id:id}, function (msg) {
+            location.reload();
+        },"json");
+    });
+
+    function openPubPage(type, id) {
+        window.open("../bpm/ins/ins.pub.html?type="+type+"&id=" + id, "dealtask", "left=100, top=100, width=800, height=600");
+    }
 
 
 </script>

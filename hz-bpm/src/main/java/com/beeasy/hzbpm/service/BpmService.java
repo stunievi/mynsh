@@ -5,6 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.XmlUtil;
 import com.alibaba.fastjson.JSON;
 import com.beeasy.hzbpm.bean.JsEngine;
+import com.beeasy.hzbpm.bean.MessageSend;
 import com.beeasy.hzbpm.bean.Notice;
 import com.beeasy.hzbpm.entity.BpmInstance;
 import com.alibaba.fastjson.JSONArray;
@@ -22,6 +23,7 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.FindOneAndUpdateOptions;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
@@ -38,11 +40,15 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.sql.Struct;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import static com.beeasy.hzbpm.bean.Data.userCache;
 import static com.beeasy.hzbpm.bean.MongoService.db;
 import static com.github.llyb120.nami.ext.beetlsql.BeetlSql.sqlManager;
 import static com.github.llyb120.nami.json.Json.a;
@@ -65,11 +71,10 @@ public class BpmService {
     //BpmInstance
     public BpmInstance ins = null;
 
-    private Map<String,Obj> userCache = new HashMap<>();
 
     //    public long uid;
-    private BpmService() {
-    }
+//    private BpmService() {
+//    }
 
 
     public static BpmService ofModel(final String modelId) {
@@ -194,6 +199,65 @@ public class BpmService {
         return ofIns(data);
     }
 
+
+    /**
+     * 回退到上一节点
+     * @param uid
+     * @return
+     */
+    public boolean goBack(String uid){
+        if(!canGoBack(uid)){
+            error("无权回退任务");
+        }
+        //查找上一节点的ID
+        int i = ins.logs.size();
+        String nodeId = null;
+        String lastUid = null;
+        String lastUname = null;
+        // 当前节点
+        BpmModel.Node currNode = getCurrentNode(uid);
+        while(i-- > 0){
+            BpmInstance.DataLog log = ins.logs.get(i);
+            if(log.type.equals("submit") && !log.nodeId.equals(currNode.id)){
+                nodeId = log.nodeId;
+                lastUid = log.uid;
+                lastUname = log.uname;
+                break;
+            }
+        }
+        BpmModel.Node node = getNode(nodeId);
+        if (node == null) {
+            error("找不到要回退的节点");
+        }
+
+        // 当前节点
+        BpmInstance.CurrentNode currentNode = new BpmInstance.CurrentNode();
+        currentNode.nodeId = node.id;
+        currentNode.nodeName = node.name;
+        currentNode.uids = (List)a(lastUid);
+        currentNode.unames = (List)a(lastUname);
+
+
+        // 记录log，type为goBack
+        Obj update = o();
+        update.put("currentNodes", a(currentNode));
+        MongoCollection<Document> collection = db.getCollection("bpmInstance");
+        UpdateResult res = collection.updateOne(Filters.eq("_id", ins._id),o("$set", update,
+                "$push", o("logs", o(
+                        "id", new ObjectId(),
+                        "nodeId", node.id,
+                        "msg", String.format("从【%s】回退节点到【%s】",currNode.name,node.name),
+                        "time", new Date(),
+                        "uid", uid,
+                        "uname", getUserName(uid),
+                        "type", "goBack",
+                        "attrs",a()
+                ))).toBson()
+        );
+
+        return res.getModifiedCount()>0;
+    }
+
     public boolean forceResume(String uid){
         if(!canForceResume(uid)){
             error("无权强制恢复任务");
@@ -264,7 +328,7 @@ public class BpmService {
         }
         for (BpmInstance.CurrentNode currentNode : ins.currentNodes) {
             for (String s : currentNode.uids) {
-                Notice.sendSystem(s, "来自流程 %s 的催办消息: %s", ins._id.toString(), msg);
+                Notice.sendSystem(s, "来自流程 %s 的催办消息: %s", ins.id, msg);
             }
         }
     }
@@ -276,6 +340,52 @@ public class BpmService {
         MongoCollection<Document> collection = db.getCollection("bpmInstance");
         DeleteResult result = collection.deleteOne(Filters.eq("_id", ins._id));
         return result.getDeletedCount() > 0;
+    }
+
+    public boolean delete(String uid, Obj body){
+        if(!canDelete(uid)){
+            error("无权删除");
+        }
+        if(null == body){
+            error("请求错误");
+        }
+//        String [] idArr = (String[]) body.get("ids");
+//        List<String> ids = Arrays.asList(idArr);
+        List<String> ids = (List<String>) body.get("ids");
+        MongoCollection<Document> collection = db.getCollection("bpmInstance");
+
+        DeleteResult result = collection.deleteMany(Filters.in("_id",ids.stream().map(e ->new ObjectId(e)).toArray()));//.collect(Collectors.toList())));
+        return result.getDeletedCount() > 0;
+    }
+
+
+    public static Arr optimizeLogs(List<Map> logs){
+        Arr list = a();
+        for (Map log : logs) {
+            if(list.isEmpty()){
+                list.add(o(
+                    "startDate", log.get("date"),
+                    "endDate", null,
+                    "attrs", log.get("attrs"),
+                        "nodeId", log.get("nodeId"),
+                        "uid", log.get("uid"),
+                        "uname", log.get("uname")
+                ));
+            } else {
+                if(log.get("type").equals("save")){
+                    //取出上一个相同的，进行覆盖
+                    int i = list.size();
+                    while(i-- > 0){
+                        Obj item = (Obj) list.get(i);
+                        if(item.s("nodeId").equals(log.get("nodeId")) && item.s("uid").equals(log.get("uid"))){
+                            item.get("attrs", Obj.class).putAll((Map<? extends String, ?>) log.get("attrs"));
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return list;
     }
 
 //    public static BpmService ofIns(String id, Obj data, String uid){
@@ -340,7 +450,7 @@ public class BpmService {
      * @return
      */
     public boolean canSee(String uid) {
-        return ins.logs.stream()
+        return isSu(uid) || ins.logs.stream()
                 .anyMatch(e -> e.uid.equals(uid)) ||
                 ins.currentNodes.stream()
                 .anyMatch(e -> e.uids.contains(uid));
@@ -405,6 +515,34 @@ public class BpmService {
         return isSu(uid);
     }
 
+
+    /**
+     * 是否可以上传附件
+     * @param uid
+     * @return
+     */
+    public boolean canUpload(String uid){
+        BpmModel.Node node = getCurrentNode(uid);
+        if (node == null) {
+            return false;
+        }
+        return canDeal(uid, node.id) && node.allowUpload;
+    }
+
+
+    /**
+     * 是否可以回退
+     * @param uid
+     * @return
+     */
+    public boolean canGoBack(String uid){
+        BpmModel.Node node = getCurrentNode(uid);
+        if (node == null) {
+            return false;
+        }
+        return isRunning() && canDeal(uid, node.id) && node.allowBack;
+    }
+
     /**
      * 将任务更新到最新的状态
      *
@@ -439,7 +577,8 @@ public class BpmService {
                 "form", model.template,
                 "attrs", attrs,
                 "xml", xml,
-                "current", a(model.start)
+                "current", a(model.start),
+                "node", node
         );
     }
 
@@ -457,6 +596,22 @@ public class BpmService {
         BpmModel.Node currentNode = getCurrentNode(uid);
         //是否有权限查看
 
+        //回溯节点附件
+        List<String> needToDelete = new ArrayList<>();
+        List<BpmInstance.AddonFile> files = ins.logs.stream()
+                .filter(e -> e.files != null && e.files.size() > 0)
+                .flatMap(e -> e.files.stream())
+                .filter(e -> {
+                    if(StrUtil.equals(e.action, "delete")){
+                        needToDelete.add(e.id);
+                        return false;
+                    }
+                    return true;
+                })
+                .collect(Collectors.toList());
+
+        files.removeIf(e -> needToDelete.contains(e.id));
+
         Obj ret = o(
                 "allFields", model.fields,
                 "formFields", (null != currentNode) ? currentNode.allFields : a(),
@@ -465,7 +620,10 @@ public class BpmService {
                 "attrs", ins.attrs,
                 "xml", xml,
                 "current", null != currentNode ? a(currentNode.id) : getCurrentNodeIds(),
-                "deal", (null != currentNode && canDeal(uid, currentNode.id)) ? true : false
+                "deal", (null != currentNode && canDeal(uid, currentNode.id)) ? true : false,
+                "files", files,
+                "node", currentNode,
+                "allowBack", canGoBack(uid)
         );
         return ret;
     }
@@ -555,7 +713,7 @@ public class BpmService {
      * @param data
      * @return
      */
-    public Document createBpmInstance(String uid, Obj data) {
+    public Document createBpmInstance(String uid, Obj data, Arr files) {
         Map<String, Object> attrs = new HashMap<>();
         Map<String, Object> allAttrs = new HashMap<>();
         BpmService bpmService = this;
@@ -617,21 +775,32 @@ public class BpmService {
         dataLog.put("time", new Date());
         dataLog.put("uid", uid);
         dataLog.put("attrs", attrs);
+        if(!canUpload(uid)){
+            files = a();
+        }
+        dataLog.put("files", files);
         dataLog.put("uname", uName);
+        dataLog.put("type", "save");
+
         JSONArray logs = new JSONArray();
         logs.add(dataLog);
 
         JSONObject currentNode = new JSONObject();
         currentNode.put("nodeId", startNode.id);
+        currentNode.put("nodeName", startNode.name);
         JSONArray uids = new JSONArray();
         uids.add(uid);
         currentNode.put("uids", uids);
+        JSONArray unames = new JSONArray();
+        unames.add(getUserName(uid));
+        currentNode.put("unames", unames);
         JSONArray currentNodes = new JSONArray();
         currentNodes.add(currentNode);
 
         MongoCollection<Document> collection = db.getCollection("bpmInstance");
 //        BpmInstance ins = new BpmInstance();
         Obj obj = new Obj();
+        obj.put("id", getIncrementId());
         obj.put("state", "流转中");
         obj.put("bpmId", new ObjectId(modelId));
         obj.put("bpmName", bpmService.model.workflowName);
@@ -641,7 +810,18 @@ public class BpmService {
 //        obj.put("depName", deptName);
         obj.put("bpmModel", bpmService.model);
         obj.put("currentNodes", currentNodes);
+
+        //流程处理日志
+//        BpmInstance.HandleLog handleLog = new BpmInstance.HandleLog();
+//        handleLog.startDate = new Date();
+//        handleLog.nodeId = startNode.id;
+//        handleLog.nodeName = startNode.name;
+//        handleLog.uid = uid;
+//        handleLog.uname = uName;
+//        handleLog.nodeName
+//        obj.put("handleLogs", a(handleLog));
         obj.put("attrs", allAttrs);
+        //流程提交日志
         obj.put("logs", logs);
         obj.put("xml", xml);
         obj.put("createTime", new Date());
@@ -654,21 +834,35 @@ public class BpmService {
     }
 
     /**
+     * 获取当前节点信息
+     * @param uid
+     * @return
+     */
+    public BpmInstance.CurrentNode getCurrent(String uid){
+        //当前处理的节点
+        BpmInstance.CurrentNode currentNode = ins.currentNodes.stream()
+                .filter(e -> e.uids.contains(uid))
+                .findFirst()
+                .orElse(null);
+
+        return currentNode;
+    }
+
+    /**
      * 通过当前提交的属性查询下一个应该移交的节点
      *
      * @param uid   提交属性的人，必须是当前节点的经办人
      * @param attrs 提交到该任务上的属性
      * @return
      */
-    public BpmModel.Node getNextNode(String uid, Obj attrs) {
+    public List<BpmModel.Node> getNextNodes(String uid, Obj attrs) {
         //查找所有的属性
         Obj oldAttrs = new Obj(ins.attrs);
-        oldAttrs.putAll(attrs);
+        if (attrs != null) {
+            oldAttrs.putAll(attrs);
+        }
         //当前处理的节点
-        BpmInstance.CurrentNode currentNode = ins.currentNodes.stream()
-                .filter(e -> e.uids.contains(uid))
-                .findFirst()
-                .orElse(null);
+        BpmInstance.CurrentNode currentNode = getCurrent(uid);
         if (currentNode == null) {
             error("当前节点查询失败");
         }
@@ -677,25 +871,68 @@ public class BpmService {
         if (node == null) {
             error("当前节点查询失败");
         }
-        BpmModel.Node target = null;
-        for (BpmModel.NextNode nextNode : node.nextNodes) {
-            //如果表达式位空，则直接使用该节点
-            if(JsEngine.runExpression(oldAttrs, nextNode.expression)){
-                target = getNode(nextNode.node);
-                break;
+
+        List<BpmModel.Node> ret =  node.nextNodes.stream()
+                .filter(e -> JsEngine.runExpression(oldAttrs, e.expression))
+                .map(e -> getNode(e.node))
+                .collect(Collectors.toList());
+
+        int limit = 20;
+        while(ret.stream().anyMatch(e -> e.id.startsWith("ExclusiveGateway"))){
+            if(limit-- == 0){
+                error("似乎有错误的循环引用");
             }
-//            if (StrUtil.isBlank(nextNode.expression)) {
-//                target = getNode(nextNode.node);
-//                break;
-//            } else if (runExpression(nextNode.expression)) {
+            ret = ret.stream()
+                    .flatMap(e -> {
+                        if(e.id.startsWith("ExclusiveGateway")){
+                            return e.nextNodes.stream()
+                                    .filter(ee -> JsEngine.runExpression(oldAttrs, ee.expression))
+                                    .map(ee -> getNode(ee.node));
+                        } else {
+                            return Stream.of(e);
+                        }
+                    })
+                    .collect(Collectors.toList());
+        }
+
+//        BpmModel.Node target = null;
+//        if(node.nextNodes.size() == 0) {
+//            error("没有配置下一个流转的节点");
+//        } else {
+//            //优先判断有表达式的
+//            target = node.nextNodes.stream()
+//                    .sorted((a,b) -> getExpressionLevel(b.expression).compareTo(getExpressionLevel(a.expression)))
+//                    .filter(e -> JsEngine.runExpression(oldAttrs, e.expression))
+//                    .map(e -> getNode(e.node))
+//                    .findFirst()
+//                    .orElse(null);
+//        }
+//        for (BpmModel.NextNode nextNode : node.nextNodes) {
+//            //如果表达式位空，则直接使用该节点
+//            if(JsEngine.runExpression(oldAttrs, nextNode.expression)){
 //                target = getNode(nextNode.node);
 //                break;
 //            }
-        }
-        if (target == null) {
+////            if (StrUtil.isBlank(nextNode.expression)) {
+////                target = getNode(nextNode.node);
+////                break;
+////            } else if (runExpression(nextNode.expression)) {
+////                target = getNode(nextNode.node);
+////                break;
+////            }
+//        }
+        if (ret.isEmpty()) {
             error("找不到符合跳转条件的下一节点");
         }
-        return target;
+        return ret;
+    }
+
+    private Integer getExpressionLevel(String expression){
+        if(StrUtil.isNotBlank(expression)){
+            return 1;
+        } else {
+            return 0;
+        }
     }
 
     /**
@@ -706,22 +943,36 @@ public class BpmService {
      * @return
      */
     public List<Obj> getNextNodePersons(String uid, Obj attrs) {
-        BpmModel.Node target = getNextNode(uid, attrs);
+        List<BpmModel.Node> nodes = getNextNodes(uid, attrs);
         //查询这个节点所有命中的人
-        return sqlManager.select("workflow.查找节点处理人员", Obj.class, o(
-                "uid", uid,
-                "uids", target.uids.isEmpty() ? a(-1) : target.uids,
-                "qids", target.qids.isEmpty() ? a(-1) : target.qids,
-                "rids", target.rids.isEmpty() ? a(-1) : target.rids,
-                "dids", target.dids.isEmpty() ? a(-1) : target.dids
-        ));
+        return nodes.stream()
+                .map(target -> {
+                    Obj params = o(
+                            "uid", uid,
+                            "uids", target.uids.isEmpty() ? a(-1) : target.uids,
+                            "qids", target.qids.isEmpty() ? a(-1) : target.qids,
+                            "rids", target.rids.isEmpty() ? a(-1) : target.rids,
+                            "dids", target.dids.isEmpty() ? a(-1) : target.dids
+                    );
+                    //只保留本部门
+                    if(target.departmentFirst){
+                        params.put("dep", 1);
+                    }
+                    List<Obj> dls = sqlManager.select("workflow.查找节点处理人员", Obj.class, params);
+                    return o(
+                            "nodeId", target.id,
+                            "nodeName", target.name,
+                            "dealers", dls
+                    );
+                })
+                .collect(Collectors.toList());
     }
 
     /**
      * 保存节点数据
      * @param data
      */
-    public boolean saveIns(String uid, Obj data, boolean validate, String mode){
+    public boolean saveIns(String uid, Obj data, boolean validate, String mode, Arr files){
         //candeal
         //编辑模式，只验证是否有编辑权限
         if(mode.equals("edit")){
@@ -733,7 +984,11 @@ public class BpmService {
             error("用户没有权限处理任务");
         }
 
-        addMacroFields(uid, getCurrentNode(uid), data);
+        // 编辑不修改宏字段
+        if(!mode.equals("edit")){
+            addMacroFields(uid, getCurrentNode(uid), data);
+        }
+
         if(validate){
             validateAttrs(uid, getCurrentNode(uid), data);
         }
@@ -765,12 +1020,18 @@ public class BpmService {
         dataLog.uid = uid;
         dataLog.attrs = attrs;
         dataLog.uname = getUserName(uid);
+        if(canUpload(uid)){
+            files.clear();
+        }
+        dataLog.files = (List)files;
         if(mode.equalsIgnoreCase("edit")){
             dataLog.msg = "编辑流程";
+            dataLog.type = "edit";
         } else {
             if(StrUtil.isNotBlank(node.name)) {
                 dataLog.msg = String.format("提交【%s】", node.name);
             }
+            dataLog.type = "save";
         }
 
 //        bpmService.ins.logs.add(dataLog);
@@ -790,10 +1051,12 @@ public class BpmService {
 //                ),
                 "$push",o(
                         "logs", dataLog
-                ),
-                "$set", update
+                )
         );
 
+        if(update.size()>0){
+            set.put("$set", update);
+        }
         //更新数据库
         MongoCollection<Document> collection = db.getCollection("bpmInstance");
         UpdateResult res = collection.updateOne(Filters.eq("_id", bpmService.ins._id),set.toBson());
@@ -807,7 +1070,7 @@ public class BpmService {
      * @param uid
      * @param data
      */
-    public Object submitIns(String uid, Obj data) {
+    public Object submitIns(String uid, Obj data, Arr files) {
         Object bl;
 //        if (!canPub(uid)) {
 //            error("用户没有权限发布任务");
@@ -816,23 +1079,28 @@ public class BpmService {
         BpmService bpmService = this;
         String nodeId = bpmService.ins.currentNodes.get(0).nodeId;
 
-        bl = saveIns(uid, data, true, "deal");
+        bl = saveIns(uid, data, true, "deal", files);
 
-        BpmModel.Node nextNode = getNextNode(uid, data);
-
-        // 判断是否为结束节点
-        if(nextNode.id.equals(bpmService.ins.bpmModel.end)){
+        List<BpmModel.Node> nextNodes = getNextNodes(uid, data);
+        //有且只有一个是结束的时候，直接结束
+        if(nextNodes.size() == 1 && nextNodes.get(0).id.equals(bpmService.ins.bpmModel.end)){
             Obj state = o();
             state.put("state", "已办结");
-//            state.put("currentNodes", a(uid, nextNode.id));
+            state.put("currentNodes", a());
             MongoCollection<Document> collection = db.getCollection("bpmInstance");
             UpdateResult res = collection.updateOne(Filters.eq("_id", bpmService.ins._id),new Document("$set", state.toBson()));
 //            bl = res.getModifiedCount()>0;
             if(res.getModifiedCount()>0){
                 bl = "提交成功，该流程已结束！";
             }
-
         }
+//        多个的时候让用户选择往哪
+//        BpmModel.Node nextNode = getNextNode(uid, data);
+
+        // 判断是否为结束节点
+//        if(nextNode.id.equals(bpmService.ins.bpmModel.end)){
+//
+//        }
 //        if(bpmService.ins.bpmModel.end == bpmService.ins.currentNodes.get(0).nodeId){
 //            bl = "该流程已完结！";
 //        }
@@ -842,13 +1110,87 @@ public class BpmService {
     /**
      * 保存选取的下一步处理人
      * @param uid 提交人
-     * @param nextUid 下一步处理人
      */
-    public boolean nextApprover(String uid, String nextUid, Obj update){
+    public Object nextApprover(String uid, Obj update, Obj body, Obj data,Arr files){
+        if(body == null ){
+            error("下一步骤参数不能为空");
+        }
+        Object bl;
+
         BpmService bpmService = this;
 
+        boolean saveIns = saveIns(uid, data, true, "deal", files);
+        if(!saveIns){
+            error("数据保存错误");
+        }
+
+        List<BpmModel.Node> nextNodes1 = getNextNodes(uid, data);
+        //有且只有一个是结束的时候，直接结束
+        if(nextNodes1.size() == 1 && nextNodes1.get(0).id.equals(bpmService.ins.bpmModel.end)){
+            Obj state = o();
+            state.put("state", "已办结");
+            state.put("currentNodes", a());
+            MongoCollection<Document> collection = db.getCollection("bpmInstance");
+            UpdateResult res = collection.updateOne(Filters.eq("_id", bpmService.ins._id),new Document("$set", state.toBson()));
+//            bl = res.getModifiedCount()>0;
+            if(res.getModifiedCount()>0){
+                bl = "提交成功，该流程已结束！";
+                sendNotice(body);
+                return bl;
+            }
+        }
+
+        BpmModel.Node node = getCurrentNode(uid);
+
+        List<String> nextNodeId = (List<String>) body.get("nodeIds");
+        if(nextNodeId.size()==0 && nextNodeId.isEmpty()){
+            error("请选择下一节点");
+        }
+//        List<String> nextUidList = (List<String>) body.get("uids");
+//        if(nextUidList.size()<0){
+//            error("请选择下一步骤操作人员");
+//        }
+        String nextUid = (String) body.get("uids");
+        if(nextNodeId.get(0).startsWith("EndEvent")){
+            Obj state = o();
+            state.put("state", "已办结");
+            state.put("currentNodes", a());
+            MongoCollection<Document> collection = db.getCollection("bpmInstance");
+            UpdateResult res = collection.updateOne(Filters.eq("_id", bpmService.ins._id),o("$set", state.toBson(),
+                    "$push", o("logs", o(
+                            "id", new ObjectId(),
+                            "nodeId", nextNodeId.get(0),
+                            "msg", String.format("转交节点【%s】",node.name),
+                            "time", new Date(),
+                            "uid", uid,
+                            "uname", getUserName(uid),
+                            "type", "submit",
+                            "attrs",a()
+                    ))).toBson()
+            );
+            return res.getModifiedCount()>0;
+
+        }else{
+            if(StrUtil.isBlank(nextUid)){
+                error("请选择下一步骤操作人员");
+            }
+        }
+
+        String nodeId = nextNodeId.get(0);
+//        String nextUid = nextUidList.get(0);
+
+
+
+
         // 下一节点
-        BpmModel.Node nextNode = getNextNode(uid, o());
+        List<BpmModel.Node> nextNodes = getNextNodes(uid, o());
+        BpmModel.Node nextNode = nextNodes.stream()
+                .filter(e -> StrUtil.equals(e.id, nodeId))
+                .findFirst()
+                .orElse(null);
+        if (nextNode == null) {
+            error("无权跳转这个节点");
+        }
         if(!canDeal(nextUid, nextNode.id)){
             error("此处理人无权限处理任务！");
         }
@@ -862,6 +1204,7 @@ public class BpmService {
         String uName = getUserName(nextUid);
         unames.add(uName);
         currentNode.unames = unames;
+        currentNode.nodeName = nextNode.name;
 
 
         // 得到下一节点超时提醒配置信息
@@ -878,21 +1221,34 @@ public class BpmService {
         }
 
         update.put("currentNodes", a(currentNode));
-
         MongoCollection<Document> collection = db.getCollection("bpmInstance");
-
-        UpdateResult res = collection.updateOne(Filters.eq("_id", bpmService.ins._id),new Document("$set", update.toBson()));
+        UpdateResult res = collection.updateOne(Filters.eq("_id", bpmService.ins._id),o("$set", update,
+                "$push", o("logs", o(
+                            "id", new ObjectId(),
+                        "nodeId", node.id,
+                        "msg", String.format("从【%s】转交节点到【%s】",node.name,nextNode.name),
+                        "time", new Date(),
+                        "uid", uid,
+                        "uname", getUserName(uid),
+                        "type", "submit",
+                        "attrs",a()
+                        ))).toBson()
+        );
+        sendNotice(body);
 
         return res.getModifiedCount() > 0;
     }
 
 
     private LocalDateTime dateTime(String dateTime, LocalDateTime nowDateTime){
-        if(null == dateTime){
+        if(StrUtil.isBlank(dateTime)){
             return null;
         }
         String [] dateArr = dateTime.split("_");
         if(dateArr.length!=2){
+            return null;
+        }
+        if(dateArr[0].equals("0")){
             return null;
         }
         if(dateArr[1].equals("day")){
@@ -911,6 +1267,9 @@ public class BpmService {
      * @return
      */
     private Date toDate(LocalDateTime localDateTime){
+        if(null == localDateTime){
+            return null;
+        }
         ZoneId zoneId = ZoneId.systemDefault();
         ZonedDateTime zdt = localDateTime.atZone(zoneId);
 
@@ -924,39 +1283,45 @@ public class BpmService {
     }
 
 
-    private synchronized String getUserName(String uid){
-        Obj obj = initUserCache(uid);
-        if (!obj.containsKey("true_name")) {
-            String trueName = sqlManager.execute(new SQLReady("select true_name from t_user where id = ?", uid), Obj.class)
-                    .stream()
-                    .map(e -> e.s("true_name"))
-                    .findFirst()
-                    .orElse(null);
-            obj.put("true_name", trueName);
+    public String getUserName(String uid){
+        synchronized (userCache){
+            Obj obj = initUserCache(uid);
+            if (!obj.containsKey("true_name")) {
+                String trueName = sqlManager.execute(new SQLReady("select true_name from t_user where id = ?", uid), Obj.class)
+                        .stream()
+                        .map(e -> e.s("true_name"))
+                        .findFirst()
+                        .orElse(null);
+                obj.put("true_name", trueName);
+            }
+            return obj.s("true_name");
         }
-        return obj.s("true_name");
     }
 
-    private synchronized boolean isSu(String uid){
-        Obj obj = initUserCache(uid);
-        if(!obj.containsKey("is_su")){
-            Boolean su = sqlManager.execute(new SQLReady("select su from t_user where id = ?", uid), Obj.class)
-                    .stream()
-                    .map(e -> e.b("su"))
-                    .findFirst()
-                    .orElse(null);
-            obj.put("is_su", su != null && su.equals(true));
+    public boolean isSu(String uid){
+        synchronized (userCache){
+            Obj obj = initUserCache(uid);
+            if(!obj.containsKey("is_su")){
+                Boolean su = sqlManager.execute(new SQLReady("select su from t_user where id = ?", uid), Obj.class)
+                        .stream()
+                        .map(e -> e.b("su"))
+                        .findFirst()
+                        .orElse(null);
+                obj.put("is_su", su != null && su.equals(true));
+            }
+            return obj.b("is_su");
         }
-        return obj.b("is_su");
     }
 
-    private synchronized Obj initUserCache(String uid){
-        Obj obj = userCache.get(uid);
-        if (obj == null) {
-            obj = o();
-            userCache.put(uid, obj);
+    private Obj initUserCache(String uid){
+        synchronized (userCache){
+            Obj obj = userCache.get(uid);
+            if (obj == null) {
+                obj = o();
+                userCache.put(uid, obj);
+            }
+            return obj;
         }
-        return obj;
     }
 
 
@@ -967,6 +1332,9 @@ public class BpmService {
      * @return
      */
     public BpmModel.Node getNode(String nodeId) {
+        if (nodeId == null) {
+            return null;
+        }
         if (nodeId.equals("start")) {
             return model.nodes.get(model.start);
         } else if (nodeId.equals("end")) {
@@ -994,6 +1362,9 @@ public class BpmService {
     public BpmModel.Node getCurrentNode(String uid) {
         if(isFinished()){
             return getNode("end");
+        }
+        if (ins == null) {
+            return getNode("start");
         }
         String nodeId = ins.currentNodes.stream()
                 .filter(e -> e.uids.contains(uid))
@@ -1027,4 +1398,93 @@ public class BpmService {
                 .collect(Collectors.toList());
     }
 
+
+
+    public static String getIncrementId(){
+        MongoCollection<Document> col = db.getCollection("id");
+        Document doc = col.findOneAndUpdate(o().toBson(), o(
+                "$inc", o(
+                        "id", 1
+                )
+        ).toBson(), new FindOneAndUpdateOptions().upsert(true));
+        if (doc == null) {
+            return "1";
+        }
+        return doc.getInteger("id").toString();
+    }
+
+    /**
+     * 下一步节点发送通知
+     */
+    public void sendNotice(Obj body){
+        if(body.isEmpty() || null == body){
+            return;
+        }
+//        List<String> nextUidList = (List<String>) body.get("uids");
+//        if(nextUidList.size()<0){
+//            error("请选择下一步骤操作人员");
+//        }
+        String nextUid = (String) body.get("uids");
+
+        BpmService bpmService = this;
+        boolean nextStepNotice = (boolean) body.get("nextStepNotice");
+        boolean nextStepShort = (boolean) body.get("nextStepShort");
+        boolean startNotice = (boolean) body.get("startNotice");
+        boolean startShort = (boolean) body.get("startShort");
+        boolean allNotice = (boolean) body.get("allNotice");
+        boolean allShort = (boolean) body.get("allShort");
+        String message = (String) body.get("message");
+        List<String> reUser = (List<String>) body.get("reUser");
+
+        //发送消息人员
+        Set<String> sendUser = new HashSet<>();
+
+        if(null != reUser && !reUser.isEmpty()){
+            // 指定经办人
+            sendUser.addAll(reUser);
+        }
+
+        if(nextStepNotice && StrUtil.isNotBlank(nextUid)){
+            // 下一步骤
+            sendUser.add(nextUid);
+        }
+        if(startNotice && StrUtil.isNotBlank(bpmService.ins.pubUid)){
+            // 发起人
+            sendUser.add(bpmService.ins.pubUid);
+        }
+        if(allNotice){
+            // 全部经办人
+            List<BpmInstance.DataLog> logs = bpmService.ins.logs;
+            for(BpmInstance.DataLog list : logs){
+                sendUser.add(list.uid);
+            }
+        }
+        if(null != sendUser && sendUser.size()>0){
+            Notice.sendSystem(sendUser, message);
+        }
+//
+//        // 发送短信
+//        if(nextStepShort){
+//            MessageSend.send(getPhone(nextUid), message);
+//        }
+//        if(startShort){
+//            // 发起人
+//            MessageSend.send(getPhone(bpmService.ins.pubUid), message);
+//        }
+//        if(allShort){
+//            // 全部经办人
+//            List<BpmInstance.DataLog> logs = bpmService.ins.logs;
+//            for(BpmInstance.DataLog list : logs){
+//                MessageSend.send(getPhone(list.uid), message);
+//            }
+//        }
+    }
+
+//    private String getPhone(String uid){
+//        String phone = sqlManager.execute(new SQLReady("select phone from t_user where id = ?", uid), Obj.class).stream()
+//                .map(e -> e.s("phone"))
+//                .findFirst()
+//                .orElse(null);
+//        return phone;
+//    }
 }

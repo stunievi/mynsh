@@ -1121,4 +1121,13 @@ left join QCC_CMD_CANCEL_INFO ex3 on ex3.CM_ID = cm.inner_id
 where cm.inner_company_name = #fullName#
 
 
+新版董监高
+===
+select 
+@pageTag(){
+*
+@}
+from QCC_ECI_SENIOR_PERSON
+where inner_company_name = #fullName# and inner_person_name = #personName#
+
 

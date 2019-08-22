@@ -9,14 +9,23 @@
     <link rel="stylesheet" href="../../../static/htmljs/jstree/themes/default/style.css">
     <!--#include file="/htmlsrc/header.html" -->
     <script src="../../../static/htmljs/jstree/jstree.js"></script>
+    <link rel="stylesheet" href="../lib/bootstrap-3.3.7-dist/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="../lib/font/css/font-awesome.min.css">
 
 </head>
 <body>
 <div id="content" style="flex-direction: row; display: flex; justify-content: flex-start">
+    <div style="display: flex; flex-direction: column">
+        <div id="jstree_demo" style="width: 200px; overflow: auto;">
 
-    <div id="jstree_demo" style="width: 200px; overflow: auto;">
+        </div>
+        <div style="text-align: center; padding-bottom: 10px;position: fixed;bottom: 20px; left: 80px;">
+            <a class="btn btn-success btn-sm" href="javascript:;" id="export">导出</a>
+            <a class="btn btn-primary btn-sm" href="javascript:;" id="import">导入</a>
+        </div>
 
     </div>
+
     <!--<div class="batch-operation">
         <a type="button" class="btn btn-success handleAdd" href="javascript:;" tab-title="新增流程" >新增流程</a>
         <script>
@@ -31,6 +40,7 @@
 </html>
 <script id="toolbar" type="text/html">
     <div class="layui-toolbar">
+        <a class="btn btn-warning btn-mini copy" href="javascript:;" data-id="{{d._id}}" >复制</a>
         <a class="btn btn-warning btn-mini edit" href="javascript:;" data-id="{{d._id}}" >修改</a>
         <a class="btn btn-danger btn-mini del" data-id="{{d._id}}">删除</a>
     </div>
@@ -207,19 +217,61 @@
         addNavTab(id, "修改", "/htmlsrc/bpm/workFlow/xml.html?flag=1&&id=" + id)
     });
 
+    $(document).on("click", ".copy", function () {
+        var id =  $(this).data("id");
+        loadTimeout()
+        $.get("/api/bpm/workflow/copyBpm", {id:id}, function () {
+            layer.closeAll();
+            onInfront()
+        });
+        // addNavTab(id, "修改", "/htmlsrc/bpm/workFlow/xml.html?flag=1&&id=" + id)
+    });
+
     $(document).on("click", ".del", function () {
         var _id =  $(this).data("id");
         actConfirm(function(){
-            getRemoteData({
-                url: "/api/bpm/BpmXmlController/deleteBPMXML?_id="+_id,
-                callback: function(origin){
-                    alert(origin)
-                    /*layer.msg("删除成功");
-                    onInfront();*/
+            $.get(
+                "/api/bpm/BpmXmlController/deleteBPMXML?_id="+_id,
+                function(origin){
+                    // alert(origin)
+                    layer.msg("删除成功");
+                    onInfront();
                 }
-            })
+            )
         })
     })
+
+    $("#export").click(function () {
+        window.open("../com/export.html?type=workflow", "form-export", "left=100, top=100, width=500, height=400, location=no")
+    });
+
+    $("#import").click(function () {
+        $("<input type='file'>").change(function (e) {
+            // console.log(e.target.files)
+            var file = e.target.files[0];
+            var fd = new FormData();
+            fd.append("file", file);
+            fd.append("type", "workflow");
+            $.ajax({
+                url: "/api/bpm/form/load",
+                type: "POST",
+                dataType:"json",
+                data: fd,
+                processData: false,  // 告诉jQuery不要去处理发送的数据
+                contentType: false,   // 告诉jQuery不要去设置Content-Type请求头
+                success: function (msg) {
+                    if(!msg.success){
+                        layer.alert("导入失败，请检查导入文件是否正确")
+                        return
+                    }
+                    layer.alert("共导入分类" + msg.data.cat + "条，流程" + msg.data.workflow + "条", function () {
+                        location.reload()
+                    })
+                }
+            });
+            // console.log(file)
+        }).appendTo("body").hide().click();//.remove();
+    });
 
 
 </script>

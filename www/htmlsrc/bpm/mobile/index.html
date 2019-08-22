@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0"/>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/mint-ui/lib/style.css">
+    <!-- 先引入 Vue -->
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/mint-ui/lib/index.js"></script>
+    <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+    <style>
+        body { margin:0; }
+        /*#top{*/
+        /*    position: fixed;*/
+        /*    width: 100%;*/
+        /*    top: 0;*/
+        /*    left:0;*/
+        /*    height: 1.2rem;*/
+        /*}*/
+        /*#tab-body{*/
+        /*    padding-top: 1.2rem;*/
+        /*}*/
+        #app{
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        #tab-body{
+            overflow: auto;
+        }
+        .bpm-item{
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .mint-tab-container-item{
+            height: 100vh;
+        }
+        .bpm-empty{
+            margin-top: 30px;
+            text-align: center;
+            /*height: 100vh;*/
+        }
+        .full{
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .flex{
+            display: flex;
+        }
+        .flex-row{
+            flex-direction: row;
+            display: flex;
+        }
+        .flex-col{
+            flex-direction: column;
+            display: flex;
+        }
+        .flex-center{
+            justify-content: center;
+        }
+        .pl20{
+            padding-left: 10px;
+        }
+        .pt10{
+            padding-top: 10px;
+        }
+        .cgray{
+            color: #aaa;
+        }
+        .fz14{
+            font-size: 14px;
+        }
+        .fz15{
+            font-size: 15px;
+        }
+        /*#wait,#over,#end{*/
+        /*    flex:1;*/
+        /*}*/
+
+        #addTask{
+            position: absolute;
+            right: 20px;
+            bottom: 20px;
+        }
+        .mint-main-button{
+            color: rgb(255, 255, 255);
+            background-color: rgb(38, 162, 255);
+        }
+
+
+    </style>
+    <link rel="stylesheet" href="paper.css">
+</head>
+<body>
+
+
+<div id="app">
+    <router-view></router-view>
+</div>
+</body>
+<script>
+    $.ajaxSetup({
+        headers:{
+            "HZToken": getToken()
+        },
+        crossDomain: true,
+        cache: false
+    });
+
+    function getToken() {
+        if(typeof android != "undefined"){
+            return android.jsGetToken()
+        } else {
+            return "main|fdc9d371-f0e0-4fb6-8e65-0124d34c35ef";
+            // return "main|0eb217ab-a093-413e-a82e-4a57c6971e7d";
+            // return "main|f066eb20-09e4-4bd5-91a8-df9200c7699e";
+        }
+    }
+
+    function showMsg(str) {
+        if(typeof android != "undefined"){
+            android.showToast(str)
+        } else {
+            var instance = MINT.Toast(str);
+            setTimeout(() => {
+                instance.close();
+            }, 1500);
+        }
+    }
+
+    function startFragment(name,id, type, flag = "0") {
+        if(typeof android != "undefined") {
+            android.jsStartFragment(name,id,type, flag);
+        }
+    }
+
+    function onBack(name,id, type, flag = "0") {
+        if(typeof android != "undefined") {
+            android.onBack(name,id,type, flag);
+        }
+    }
+
+</script>
+
+<!--#include file="./form.html"-->
+<!--#include file="./list.html"-->
+<!--#include file="./sign.html"-->
+<!--#include file="./next.html"-->
+<script>
+    const routes  = [
+        {path: "/:type", component: InsList, meta:{keepAlive: false}},
+        {name: "form", path: "/show/:type/:id/:flag", component: Form, meta: {keepAlive: true}},
+        {name: "next", path: "/next/:type/:id", component: Next, meta: {keepAlive: false}},
+        {name: "sign", path: "/sign", component: Sign, meta: {keepAlive: false}},
+    ];
+
+    const router = new VueRouter({
+        routes // short for `routes: routes`
+    })
+
+    const eventBus = new Vue({});
+    const app = new Vue({
+        router
+    }).$mount("#app");
+</script>
+</html>

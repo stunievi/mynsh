@@ -24,7 +24,7 @@ import static com.github.llyb120.nami.server.Vars.$request;
 
 public class BpmXmlController {
 
-    public Result saveBPMXML(String xml, String name, String _id, Obj query, Obj bady){
+    public Result saveBPMXML(String xml, String name, String _id, Obj query, Obj body){
         /*if(null != name || "" != name){
             Bson filter = Filters.eq("b_name",name);
             mongoClient.getDatabase("hz-bpm").getCollection("workflow").deleteOne(filter);

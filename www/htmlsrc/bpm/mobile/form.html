@@ -1,0 +1,434 @@
+<style>
+    #form .mint-popup.mint-popup-bottom {
+        width: 100%;
+    }
+    .my-icon-button {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background-color: #26a2ff;
+        color: #fff;
+        line-height: 30px;
+        text-align: center;
+    }
+    .mint-cell-title{
+        white-space: nowrap;
+    }
+</style>
+<script id="form-tmpl" type="text/html">
+    <div class="full" id="form">
+        <div>
+            <div v-for="v in fields">
+                <mt-field :label="v.title" v-if="v.leipiplugins == 'text'" :placeholder="v.title" v-model="attrs[v.title]" ></mt-field>
+                <mt-cell v-if="v.leipiplugins == 'macros'" :title="v.title" :value="attrs[v.title]">
+                </mt-cell>
+                <mt-cell v-if="v.leipiplugins == 'select'" :title="v.title" is-link @click.native="select(v)" :value="attrs[v.title]">
+                </mt-cell>
+                <mt-field v-if="v.leipiplugins == 'textarea'" :label="v.title" :placeholder="v.title" type="textarea" rows="3"  v-model="attrs[v.title]"></mt-field>
+                <mt-cell v-if="v.leipiplugins == 'datetime'" :title="v.title" is-link @click.native="pickTime(v)" :value="attrs[v.title]">
+                </mt-cell>
+                <mt-cell v-if="v.leipiplugins == 'sign'" :title="v.title" @click.native="sign(v)">
+                    <img width="40" height="40" :src="formatSign(attrs[v.title])"  >
+                </mt-cell>
+            </div>
+        </div>
+
+        <div style="text-align: center; padding-top: 30px" v-if="fields.length">
+            <mt-button type="primary" @click="submit(false)" style="margin-right: 15px;" size="small">保存</mt-button>
+            <mt-button type="primary" @click="submit(true)" size="small">提交</mt-button>
+        </div>
+
+        <mt-actionsheet
+                :actions="selectOptions"
+                v-model="selectVisible">
+        </mt-actionsheet>
+
+        <mt-datetime-picker
+                v-if="timeType != ''"
+                @confirm="pickTimeOk"
+                ref="datePicker"
+                :type="timeType"
+                v-model="timeValue">
+        </mt-datetime-picker>
+
+        <mt-popup
+                v-model="popupVisible"
+                position="bottom">
+<!--            <mt-radio-->
+<!--                    v-if="popType == 'select'"-->
+<!--                    title="单选框列表"-->
+<!--                    v-model="value"-->
+<!--                    :options="selectOptions"-->
+<!--            >-->
+<!--            </mt-radio>-->
+        </mt-popup>
+
+
+        <mt-palette-button
+                content="详"
+                           direction="lt" class="pb" :radius="80" ref="target_1"
+                mainButtonStyle="color:#fff;background-color:#26a2ff;"
+                           style="right:20px;position:absolute;bottom: 20px; display: none">
+            <div class="my-icon-button indexicon icon-popup" @touchstart="sub_log(1)">单</div>
+            <div class="my-icon-button indexicon icon-popup" @touchstart="sub_log(2)">图</div>
+            <div class="my-icon-button indexicon icon-popup" @touchstart="sub_log(3)">历</div>
+        </mt-palette-button>
+
+        <mt-popup
+                v-model="chooseUserVisible"
+                position="bottom">
+            <mt-picker :slots="slots" ref="picker" @change="onValuesChange"></mt-picker>
+            <div style="text-align: center; padding-bottom: 20px;">
+                <mt-button style="width: 80%;" type="primary" @click="flow">确定</mt-button>
+            </div>
+        </mt-popup>
+
+        <Sign v-if="canSign" :url="formatSign(attrs[signKey])" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%;"></Sign>
+    </div>
+</script>
+
+<script>
+    Date.prototype.Format = function(fmt)
+    { //author: meizz
+        var o = {
+            "M+" : this.getMonth()+1,                 //月份
+            "d+" : this.getDate(),                    //日
+            "h+" : this.getHours(),                   //小时
+            "m+" : this.getMinutes(),                 //分
+            "s+" : this.getSeconds(),                 //秒
+            "q+" : Math.floor((this.getMonth()+3)/3), //季度
+            "S"  : this.getMilliseconds()             //毫秒
+        };
+        if(/(y+)/.test(fmt))
+            fmt=fmt.replace(RegExp.$1, (this.getFullYear()+"").substr(4 - RegExp.$1.length));
+        for(var k in o)
+            if(new RegExp("("+ k +")").test(fmt))
+                fmt = fmt.replace(RegExp.$1, (RegExp.$1.length==1) ? (o[k]) : (("00"+ o[k]).substr((""+ o[k]).length)));
+        return fmt;
+    }
+
+    const Form = Vue.component("Form", {
+        template:$("#form-tmpl").html(),
+        data(){
+            return {
+                fields: [],
+                attrs:{},
+                popType: "",
+                popupVisible: false,
+                selectVisible: false,
+                selectOptions:  [],
+                html: "",
+                value: "",
+                timeType:"",
+                timeValue:"",
+                timeKey: "",
+
+                type:"",
+                id:"",
+                deal: false,
+                canSign: false,
+                signKey: "",
+
+                chooseUserVisible: false,
+                slots:[],
+                next: []
+            }
+        },
+        methods:{
+            getUrl(){
+                return './ins.form.html?type=deal&id=' + this.$route.params.id + "&uid=1"
+            },
+
+            sign(v){
+                this.signKey = v.title
+                this.canSign = true;
+                // this.$router.push({
+                //     name: "sign",
+                //     params:{
+                //         title: v.title
+                //     }
+                // })
+            },
+
+            formatSign(file){
+                if(!file){
+                    return "../form/sign.png"
+                }
+                if(file.indexOf("[img]") == -1){
+                    return "/api/bpm/workflow/download?path=" + encodeURI(file);
+                } else {
+                    return file.replace("[img]", "");
+                }
+            },
+            sub_log(val) {
+                switch (val) {
+                    case 1:
+                        //dan
+                        startFragment("form", this.id, this.type)
+                        break;
+                    case 2:
+                        //to
+                        startFragment("canvas", this.id, this.type)
+                        break;
+                    case 3:
+                        //li
+                        startFragment("log", this.id, this.type)
+                        break;
+                }
+                console.log('sub_log', val);
+                this.$refs.target_1.collapse();
+            },
+            getDateType(v){
+                switch (v.orgformat) {
+                    case "日期":
+                        return "date";
+                    case "时间":
+                        return "time";
+                    default:
+                        return "datetime";
+                }
+            },
+            pickTime(v){
+                this.timeKey = v.title;
+                this.timeType = this.getDateType(v);
+                this.$nextTick(() => {
+                    this.$refs.datePicker.open();
+                })
+                // console.log(this.timeType)
+                 // this.$refs.datePicker.open();
+            },
+            pickTimeOk(v){
+                switch (this.timeType) {
+                    case "datetime":
+                        v = v.Format("yyyy-MM-dd hh:mm:ss");
+                        break
+
+                    case "time":
+                        v = v.Format("hh:mm:ss");
+                        break;
+
+                    case "date":
+                        v = v.Format("yyyy-MM-dd");
+                        break;
+                }
+                console.log(arguments, this.timeKey, this.timeValue, v)
+                Vue.set(this.attrs, this.timeKey, v);
+                // this.set(this.attrs, this.timeKey, v);
+                // this.attrs.set(this.timeKey, v);
+            },
+            select(v){
+                // this.popType = 'select'
+                // this.popupVisible = true;
+                console.log(v.values)
+                var t = this;
+                this.selectVisible = true;
+                this.selectOptions = v.values.map(e => {
+                    return {
+                        name: e,
+                        method() {
+                            t.attrs[v.title] = e;
+                        }
+                    }
+                })
+            },
+            submit(gonext){
+                var params = this.$route.params;
+                var url;
+                if(params.type == 'pub'){
+                    url = "/api/bpm/workflow/createIns";
+                } else {
+                    url = "/api/bpm/workflow/saveIns";
+                };
+
+                if(params.type != 'pub' && gonext){
+                    this.getDealers();
+                    return
+                }
+
+
+                var data = {
+                    id: params.id,
+                    data: this.attrs,
+                    mode: params.type,
+                    files: []
+                }
+
+                $.ajax({
+                    url: url, //"/api/bpm/workflow/createIns",
+                    type: "post",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    dataType: "json",
+                    data: JSON.stringify(data),
+                    success: msg => {
+                        if(!msg.success){
+                            return showMsg(msg.errMessage)
+                        }
+
+                        if(params.type == 'pub'){
+                            showMsg("发布成功");
+                            onBack("tab4", msg.data, "deal", "1");
+                            // this.$router.replace({
+                            //     name: "form",
+                            //     params:{
+                            //         id: msg.data,
+                            //         type: "deal"
+                            //     }
+                            // });
+                        } else if(!gonext){
+                            showMsg("保存成功");
+                        } else {
+                            this.getDealers();
+                        }
+                    }
+                });
+            },
+            load(){
+                console.log(this.$route)
+                this.chooseUserVisible = false;
+                var params = this.$route.params;
+                this.type = params.type;
+                this.id = params.id;
+                var url = "";
+                if(params.type == 'pub'){
+                    url = "/api/bpm/workflow/preparePub";
+                } else {
+                    url = "/api/bpm/workflow/getInsInfo";
+                }
+                $.get(url, {id:params.id}, (msg) => {
+                    if(!msg.success){
+                        return
+                    }
+                    this.deal = msg.data.deal;
+                    this.attrs = msg.data.attrs || {}
+                    this.fields = msg.data.formFields
+                        .map(e => msg.data.allFields[e])
+                        .filter(e => e)
+
+                },"json");
+            },
+            getDealers(){
+                console.log(this)
+                $.ajax({
+                    url: "/api/bpm/workflow/getNextDealers",
+                    type:"post",
+                    headers:{
+                        "Content-Type": "application/json"
+                    },
+                    data: JSON.stringify({id: this.$route.params.id, data: this.attrs}),
+                    success: (msg) => {
+                        if(!msg.success){
+                            showMsg(msg.errMessage);
+                            return;
+                        }
+                        this.next = msg.data.next;
+
+                        this.slots = [
+                            {
+                                flex: 1,
+                                values: (msg.data.next||[]).map(e => e.nodeName),
+                                className: 'slot1',
+                                textAlign: 'right'
+                            }, {
+                                divider: true,
+                                content: '-',
+                                className: 'slot2'
+                            },
+                            {
+                                flex: 1,
+                                values: [],
+                                className: 'slot3',
+                                textAlign: 'left'
+                            }
+                        ];
+
+                        this.chooseUserVisible = true;
+                        this.$nextTick(() => {
+                            this.onValuesChange(this.$refs.picker, [(this.next[0] || {}).nodeName])
+                        })
+                    }
+                })
+            },
+            onValuesChange(picker, e){
+                console.log(e)
+                for (let i = 0; i < this.next.length; i++) {
+                    if(this.next[i].nodeName == e[0]){
+                        picker.setSlotValues(1,(this.next[i].dealers||[])
+                            .map(e => e.utname + " " + e.uname)
+                        );
+                    }
+                }
+            },
+            flow(){
+                var name = this.$refs.picker.getSlotValue(0);
+                for (let i = 0; i < this.next.length; i++) {
+                    if(this.next[i].nodeName == name){
+                        var values = this.next[i].dealers || [];
+                        name = this.$refs.picker.getSlotValue(1);
+                        for (let j = 0; j < values.length; j++) {
+                            if(name == values[j].utname + " " + values[j].uname){
+                                $.ajax({
+                                    url: "/api/bpm/workflow/nextApprover",
+                                    type: "post",
+                                    headers: {
+                                        "Content-Type": "application/json"
+                                    },
+                                    dataType: "json",
+                                    data: JSON.stringify({
+                                        files:[],
+                                        data:this.attrs,
+                                        id: this.$route.params.id,
+                                        nodeIds: [this.next[i].nodeId],
+                                        uids: values[j].uid,
+                                        nextStepNotice: false,
+                                        nextStepShort: false,
+                                        startNotice: false,
+                                        startShort: false,
+                                        allNotice: false,
+                                        allShort: false,
+                                        message:""
+                                    }),
+                                    success: (msg) => {
+                                        if (!msg.success) {
+                                            return;
+                                        }
+                                        showMsg("提交成功");
+                                        onBack("tab4", this.$route.params.id, "deal", "0");
+                                        // this.load();
+                                        // if(d.nodeIds[0] && d.nodeIds[0].indexOf("EndEvent") != -1 ){
+                                        //     window.opener.layer.msg(msg.data);
+                                        // }else{
+                                        //     window.opener.layer.msg("提交成功！");
+                                        // }
+                                        // window.opener.load("deal", id);
+                                        // opener.type = "deal";
+                                        // opener.id = id;
+                                        // window.opener.scrollTo(0, 0);
+                                        // window.close();
+                                    }
+                                    // complete: function () {
+                                    //     layer.close
+                                    // }
+                                })
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        },
+        mounted(){
+            this.load()
+            eventBus.$on('sign_ok', (url) => {        //赋值给首页的附近医院数据模型
+                Vue.set(this.attrs, this.signKey, "[img]/api/bpm/workflow/download?path=" + (url));
+                this.canSign = false;
+            });
+
+            eventBus.$on("sign_cancel", data => {
+                this.canSign = false;
+            });
+        }
+    });
+</script>

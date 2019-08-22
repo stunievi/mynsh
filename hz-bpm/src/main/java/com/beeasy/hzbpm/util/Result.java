@@ -14,10 +14,11 @@ public class Result {
     }
 
     public static Result ok(){
-        Result ret = new Result();
-        ret.success = true;
-        ret.data = true;
-        return ret;
+        return ok(null);
+    }
+
+    public static Result error(){
+        return error(null);
     }
 
     public static Result error(String msg){

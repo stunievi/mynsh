@@ -1,0 +1,47 @@
+.gradle
+/build/
+!gradle/wrapper/gradle-wrapper.jar
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+.idea/**
+/out/
+.idea/*
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+
+target
+out
+build
+*.zip
+
+### 企查查数据 ###
+/load-qcc/src/main/resources/qcc/txt/
+/load-qcc/src/main/resources/qcc/zip/
+
+*/__MACOSX
+__MACOSX/*
+test/*
+*/test
+/pom.xml
+*.rar
+node_modules
+node_modules/**

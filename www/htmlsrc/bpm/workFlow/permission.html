@@ -1,91 +1,45 @@
-<style>
-    #permission textarea{
-        background: #eee;
-        border:1px solid #ddd;
-    }
-</style>
-<table id="permission">
-    <tr>
-        <td valign="top" width="80">岗位</td>
-        <td>
-            <textarea readonly name="" id="qs" cols="50" rows="5"></textarea>
-        </td>
-        <td>
-            <a href="javascript:;" class="btn btn-sm setq" id="setq">设置</a>
-        </td>
-    </tr>
-    <tr>
-        <td valign="top">角色</td>
-        <td>
-            <textarea readonly name="" id="rs" cols="50" rows="5"></textarea>
-        </td>
-        <td>
-            <a href="javascript:;" class="btn btn-sm" id="setr">设置</a>
-        </td>
-    </tr>
-    <tr>
-        <td valign="top">部门</td>
-        <td>
-            <textarea readonly name="" id="ds" cols="50" rows="5"></textarea>
-        </td>
-        <td>
-            <a href="javascript:;" class="btn btn-sm" id="setd">设置</a>
-        </td>
-    </tr>
-    <tr>
-        <td valign="top">人员</td>
-        <td>
-            <textarea readonly name="" id="ps" cols="50" rows="5"></textarea>
-        </td>
-        <td>
-            <a href="javascript:;" class="btn btn-sm" id="setp">设置</a>
-        </td>
-    </tr>
-</table>
-
-
+<div style="padding-left: 20px;">
+    <div class="checkbox">
+        <label>
+            <input name="permission" type="checkbox" value="allowUpload">
+            允许上传附件
+        </label>
+    </div>
+    <div class="checkbox" style="display: none">
+        <label>
+            <input name="permission" type="checkbox" value="allowDownload">
+            允许下载附件
+        </label>
+    </div>
+    <div class="checkbox" style="">
+        <label>
+            <input name="permission" type="checkbox" value="allowBack">
+            允许回退
+        </label>
+    </div>
+    <div class="checkbox" style="">
+        <label>
+            <input name="permission" type="checkbox" value="departmentFirst">
+            只保留部门相关人员
+        </label>
+    </div>
+</div>
 
 <script>
-    var ps = {
-        qs:[],
-        rs: [],
-        ds:[],
-        ps:[]
-    };
-    //还原页面
-    $(function () {
-        selectp("q", opener.bpmData.nodes[nodeId].permission.qs, opener.bpmData.nodes[nodeId].permission.qids);
-        selectp("r", opener.bpmData.nodes[nodeId].permission.rs, opener.bpmData.nodes[nodeId].permission.rids);
-        selectp("d", opener.bpmData.nodes[nodeId].permission.ds, opener.bpmData.nodes[nodeId].permission.dids);
-        selectp("p", opener.bpmData.nodes[nodeId].permission.ps, opener.bpmData.nodes[nodeId].permission.pids);
-    });
+    var nodeId = location.search.match(/id=([^&]+)/)[1]
+    opener.bpmData.nodes[nodeId].quanxian = opener.bpmData.nodes[nodeId].quanxian || [];
+    $("input[name='permission']").on('click',function(){
+        var arr_v = new Array();
+        $('input[name="permission"]:checked').each(function(){
+            // opener.bpmData.nodes[nodeId].allowUpload = true;
+            arr_v.push($(this).val());
+        });
+        opener.bpmData.nodes[nodeId].quanxian = arr_v;
 
-    function selectp(type, names, ids) {
-        console.log("Fuck", nodeId, ids)
-        ps[type+'s'] = names;
-        opener.bpmData.nodes[nodeId].permission[type + "s"] = names;
-        opener.bpmData.nodes[nodeId].permission[type + "ids"] = ids;
-        // var item = ps[type + 's'];
-        // var idex = item.indexOf(id);
-        // if(enable){
-        //     if(idex == -1){
-        //         item.push(id);
-        //     }
-        // } else {
-        //     if(idex > -1){
-        //         item.splice(idex,1);
-        //     }
-        // }
-        $("#"+type+"s").val(ps[type+'s'].join("\n"));
-    }
+    })
 
-    $("#setq,#setr,#setd,#setp").click(function () {
-        var type = $(this).attr("id").replace("set","");
-        var ps = $("#ps").val();
-        if(type != 'p'){
-            window.open("/htmlsrc/bpm/workFlow/selectQ.html?type=" + type +"&id=" + nodeId, "set" + type, "left=300, top=100, width=500, height=500, location=no");
-        } else {
-            window.open("/htmlsrc/bpm/workFlow/selectP.html?type=p&ps="+encodeURI(ps)+"&id=" + nodeId, "set" + type, "left=300, top=80, width=700, height=550, location=no");
-        }
+    $.each(opener.bpmData.nodes[nodeId].quanxian,function(i,item){
+        $("input[name='permission'][value="+item+"]").attr("checked","checked");
+
     });
 </script>

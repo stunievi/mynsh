@@ -1,0 +1,198 @@
+<style>
+    #ins-list .mint-popup.mint-popup-bottom {
+        width: 100%;
+    }
+</style>
+<script id="list-tmpl" type="text/html">
+    <div id="ins-list" class="full">
+                <div v-for="vv in list" class="bpm-item box6" v-if="list.length" @click="show(vv)">
+                    <div class="flex-row">
+                        <img class="face" src="./face.jpg" width="60" height="60" alt="">
+                        <div class="flex-col flex-center pl20">
+                            <div class="fz15">{{vv.pubUName}}【{{vv.bpmName}}】</div>
+                            <div class="fz14">{{vv.createTime}}</div>
+                        </div>
+                    </div>
+                    <div class="pt10 cgray fz14">
+                        <div>流水号：{{vv.id}}</div>
+                        <div>流程状态：{{vv.state}}</div>
+                        <div>当前经办人：{{vv.uName}}</div>
+                        <div>最后处理时间：{{vv.lastModifyTime}}</div>
+                    </div>
+                    <div class="box6_corner_lf"></div>
+                    <div class="box6_corner_rt"></div>
+                </div>
+                <!--                    <div slot="top" class="mint-loadmore-top">-->
+                <!--                        <span v-show="topStatus !== 'loading'" :class="{ 'rotate': topStatus === 'drop' }">↓</span>-->
+                <!--                        <span v-show="topStatus === 'loading'">Loading...</span>-->
+                <!--                    </div>-->
+                <!--                </mt-loadmore>-->
+                <div v-else class="bpm-empty">
+                    已经没有数据了
+                </div>
+
+
+        <mt-palette-button content="+" id="addTask" @click.native="addTask()">
+            <div class="my-icon-button"></div>
+        </mt-palette-button>
+
+
+        <mt-popup
+                v-model="popupVisible"
+                position="bottom">
+            <mt-picker :slots="slots" ref="picker" @change="onValuesChange"></mt-picker>
+            <div style="text-align: center; padding-bottom: 20px;">
+                <mt-button style="width: 80%;" type="primary" @click="pub">发布流程</mt-button>
+            </div>
+        </mt-popup>
+
+    </div>
+
+</script>
+
+<script>
+    const InsList = Vue.component("ins-list", {
+        template: $("#list-tmpl").html(),
+        data() {
+            return {
+                list:[],
+                items: [
+                    {
+                        id: "wait",
+                        title: "待处理",
+                        list: []
+                    },
+                    {
+                        id: "over",
+                        title: "已处理",
+                        list: []
+                    },
+                    {
+                        id: "end",
+                        title: "已办结",
+                        list: []
+                    }
+                ],
+                active: "wait",
+                showForm: false,
+                topStatus: '',
+                wrapperHeight: 0,
+                translate: 0,
+                moveTranslate: 0,
+
+                popupVisible: false,
+                slots: [],
+                models:{}
+            }
+        },
+        methods: {
+            handleClick: function () {
+                this.$toast('Hello world!')
+            },
+            loadTop: function () {
+                this.$refs.loadmore.onTopLoaded();
+            },
+            load(type = "todo") {
+                $.get("/api/bpm/workflow/getInsList", {
+                    type: type
+                }, (msg) => {
+                    if (msg.success) {
+                        this.list = msg.data.list;
+                        // this.items.forEach(e => {
+                        //     if (e.id == id) {
+                        //         e.list = msg.data.list
+                        //     }
+                        // });
+                    }
+                }, "json");
+            },
+            show(v) {
+                console.log(v.deal)
+                startFragment("tab4", v._id, "deal", v.deal ? "1" : "0");
+            },
+            addTask() {
+                this.popupVisible = true;
+                var keys = Object.keys(this.models)
+                var items = null;
+                this.slots = [
+                    {
+                        flex: 1,
+                        values: keys,
+                        className: 'slot1',
+                        textAlign: 'right'
+                    }, {
+                        divider: true,
+                        content: '-',
+                        className: 'slot2'
+                    }, {
+                        flex: 1,
+                        values: (() => {
+                            if(!keys.length) {
+                                return []
+                            } else {
+                                return (this.models[keys[0]].children || [])
+                                    .filter(e => e.type == 'form')
+                                    .map(e => e.text)
+                            }
+                        })(),
+                        className: 'slot3',
+                        textAlign: 'left'
+                    }
+                ];
+            },
+            onValuesChange(picker,e) {
+                if(!this.models[e[0]]){
+                    return
+                }
+                picker.setSlotValues(1,(this.models[e[0]].children||[])
+                    .filter(e => e.type == 'form')
+                    .map(e => e.text)
+                );
+            },
+            pub(){
+                var name = this.$refs.picker.getSlotValue(0);
+                console.log(name,this.models)
+                if(!this.models[name]){
+                    return
+                }
+                var values = this.models[name].children || [];
+                 name = this.$refs.picker.getSlotValue(1);
+                console.log(values)
+                for (var i = 0; i < values.length; i++) {
+                   if(values[i].text == name){
+                       var id = values[i].id;
+                       startFragment("tab4", id, "pub", "1");
+                       // this.$router.push({
+                       //     name:"form",
+                       //     params:{
+                       //         type:"pub",
+                       //         id:id
+                       //     }
+                       // })
+                      break
+                   }
+                }
+
+
+                //todo 需要有提示
+            }
+        },
+        mounted: function () {
+            // this.load("wait", "todo")
+            // this.load("over", "processed")
+            // this.load("end", "over")
+            this.load(this.$route.params.type)
+
+            //初始化流程
+            $.get("/api/bpm/workflow/modelList", (msg) => {
+                if(!msg.success){
+                    return
+                }
+                ;(msg.data || []).forEach(e => {
+                    this.models[e.text] = e;
+                });
+
+            }, "json");
+        }
+    });
+</script>

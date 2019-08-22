@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>转交下一步</title>
+    <link rel="stylesheet" href="../lib/css/style.css">
+    <link rel="stylesheet" href="../../../static/bpm/jquery.tags-revisited.css">
+    <link rel="stylesheet" href="../lib/css/ins.css">
+    <link rel="stylesheet" href="../lib/font/css/font-awesome.min.css">
+    <script>
+        function getParam(name, url) {
+            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+            if (url) {
+                var r = url.substr(1).match(reg);
+            } else {
+                var r = window.location.search.substr(1).match(reg);
+            }
+            if (r != null) return r[2];
+            return '';
+        }
+    </script>
+    <style>
+        .checked {
+            color: #0e90d2;
+        }
+
+        .fa-bell, .fa-envelope {
+            cursor: pointer;
+        }
+
+        .fa {
+            font-size: 18px;
+        }
+
+        body {
+            padding-left: 10px;
+            padding-right: 10px;
+            padding-top: 10px;
+        }
+
+        .next-step {
+            width: 200px;
+            height: 30px;
+            line-height: 30px;
+            padding-left: 10px;
+            vertical-align: middle;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .next-step input {
+            position: relative;
+            z-index: 2;
+        }
+
+        .bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            padding-left: 25px;
+        }
+
+        input:checked + .bg {
+            background: #337ab7;
+            color: white;
+        }
+
+    </style>
+    <script src="../lib/jquery/jquery.js"></script>
+    <script src="../lib/vue/vue.js"></script>
+    <script src="../lib/layer/layer.js"></script>
+</head>
+<body>
+<div id="app">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            当前步骤为[{{current.nodeName}}]
+            <font color="red">
+                <div self_type="self" style="display:inline;">{{current.unames.join(',')}}</div>
+                <div style="display:inline;">{{ins.state}}</div>
+            </font>
+        </div>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            请选择下一步骤
+        </div>
+        <div class="panel-body">
+            <table width="100%">
+                <tr>
+                    <td width="200" style=" " valign="top">
+                        <label class="next-step" v-for="v in nodes">
+                            <input type="checkbox" v-model="data.nodeIds" :value="v.nodeId" @change="onNodeChecked(v)">
+                            <div class="bg">
+                                {{v.nodeName}}
+                            </div>
+                        </label>
+                    </td>
+                    <td>
+                        <div style="margin-left: 20px;overflow: auto;min-height: 40px;max-height: 70px">主办人：
+                            <div v-for="v in nodes" v-if="data.nodeIds.length && data.nodeIds.indexOf(v.nodeId) > -1">
+                                <div v-for="vv in v.dealers">
+                                    <label>
+                                        <input type="radio" v-model="data.uids" :name="v.nodeId" :value="vv.uid">
+                                        {{vv.utname}} {{vv.uname}} {{vv.oname}}
+                                    </label>
+                                </div>
+                            </div>
+                            <!--<button id="chooseUser" class="btn btn-primary btn-sm">选择人员</button>-->
+                            <!--<div id="mainUser" class="tagsinput" style="width: auto; min-height: auto; height: auto;">主办人-->
+                            <!--</div>-->
+                        </div>
+                        <div style="margin-left: 20px;overflow: auto;min-height: 150px;max-height: 1px">
+                            <div >
+                                经办人：
+                                <textarea readonly cols="50" rows="3">{{agentfn}}</textarea>
+                            </div>
+                            <a href="javascript:;" id="sel" @click="sel()" class="btn btn-primary btn-sm">选择人员</a>
+                            <a href="javascript:;" id="clean-sel" @click="cleanSel()">清空</a>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!--    <div style="margin:5px;" id="work-choose-next">-->
+    <!--        <div class="work-prcs-title">请选择下一步骤</div>-->
+
+    <!--        &lt;!&ndash;<div style="display: flex; flex-direction: row">&ndash;&gt;-->
+    <!--            &lt;!&ndash;<ul id="selectTaskName" style="width: 150px;">&ndash;&gt;-->
+    <!--            &lt;!&ndash;<li class='selectedCss'>节点名</li>&ndash;&gt;-->
+    <!--            &lt;!&ndash;<li>节点2</li>&ndash;&gt;-->
+    <!--            &lt;!&ndash;</ul>&ndash;&gt;-->
+    <!--            &lt;!&ndash;<div style="flex: 1;">&ndash;&gt;-->
+    <!--                &lt;!&ndash;<button id="chooseUser" class="btn btn-primary">选择人员</button>&ndash;&gt;-->
+    <!--                &lt;!&ndash;<div id="mainUser" class="tagsinput" style="width: auto; min-height: auto; height: auto;">主办人&ndash;&gt;-->
+    <!--                &lt;!&ndash;</div>&ndash;&gt;-->
+    <!--            &lt;!&ndash;</div>&ndash;&gt;-->
+    <!--            &lt;!&ndash;<div style="flex: 2; background: pink;">12332131312312</div>&ndash;&gt;-->
+    <!--        &lt;!&ndash;</div>&ndash;&gt;-->
+
+    <!--        &lt;!&ndash;<div style="position: relative;">&ndash;&gt;-->
+    <!--            &lt;!&ndash;<div style="margin: 15px" class="work-main-left">&ndash;&gt;-->
+    <!--                &lt;!&ndash;<ul id="selectTaskName">&ndash;&gt;-->
+    <!--                    &lt;!&ndash;<li class='selectedCss'>节点名</li>&ndash;&gt;-->
+    <!--                    &lt;!&ndash;<li>节点2</li>&ndash;&gt;-->
+    <!--                &lt;!&ndash;</ul>&ndash;&gt;-->
+    <!--                &lt;!&ndash;&lt;!&ndash;<input type="checkbox" checked>节点&ndash;&gt;&ndash;&gt;-->
+    <!--            &lt;!&ndash;</div>&ndash;&gt;-->
+    <!--            &lt;!&ndash;<div class="work-prcs-content clearfix" class="work-main-right" style="position: absolute;left: 150px;top: 0;right: 0;">&ndash;&gt;-->
+    <!--                &lt;!&ndash;&lt;!&ndash;<div id="step"></div>&ndash;&gt;&ndash;&gt;-->
+    <!--                &lt;!&ndash;<button id="chooseUser" class="btn btn-primary">选择人员</button>&ndash;&gt;-->
+    <!--                &lt;!&ndash;<div id="mainUser" class="tagsinput" style="width: auto; min-height: auto; height: auto;">主办人&ndash;&gt;-->
+    <!--                &lt;!&ndash;</div>&ndash;&gt;-->
+    <!--            &lt;!&ndash;</div>&ndash;&gt;-->
+    <!--        &lt;!&ndash;</div>&ndash;&gt;-->
+
+    <!--    </div>-->
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            向以下人员发送事务提醒消息
+        </div>
+        <div class="panel-body">
+            <div class="work-msg-op-title">下一步骤：
+                <i class="fa fa-bell" :class="{checked: data.nextStepNotice}" aria-hidden="true" title="发送站内信"
+                   @click="data.nextStepNotice = !data.nextStepNotice"></i>
+                <i class="fa fa-envelope" :class="{checked: data.nextStepShort}" aria-hidden="true" title="发送短信"
+                   @click="data.nextStepShort = !data.nextStepShort"></i>
+            </div>
+            <div class="work-msg-op-title">发起人：
+                <i class="fa fa-bell" aria-hidden="true" title="发送站内信" :class="{checked: data.startNotice}"
+                   @click="data.startNotice = !data.startNotice"></i>
+                <i class="fa fa-envelope" aria-hidden="true" title="发送短信" :class="{checked: data.startShort}"
+                   @click="data.startShort = !data.startShort"></i>
+            </div>
+            <div class="work-msg-op-title">全部经办人：
+                <i class="fa fa-bell" aria-hidden="true" title="发送站内信" :class="{checked: data.allNotice}"
+                   @click="data.allNotice = !data.allNotice"></i>
+                <i class="fa fa-envelope" aria-hidden="true" title="发送短信" :class="{checked: data.allShort}"
+                   @click="data.allShort = !data.allShort"></i>
+            </div>
+
+            <hr style="clear: both; margin-top: 10px;margin-bottom: 10px;">
+
+            <table width="100%">
+                <tr>
+                    <td width="150">提醒指定步骤经办人：</td>
+                    <td>
+                        <textarea readonly name="" v-model="reUserName" id="reUserName" cols="50" rows="3"></textarea>
+                    </td>
+                    <td style="padding-left: 1px">
+                        <a href="javascript:;"id="selectUser" @click="selectUser()">选择</a>
+                        <a href="javascript:;" id="clean-select" @click="cleanUser()">清空</a>
+                    </td>
+                </tr>
+            </table>
+
+            <hr style="clear: both; margin-top: 10px;margin-bottom: 10px;">
+
+            <table width="100%">
+                <tr>
+                    <td width="80">
+                        提醒内容：
+                    </td>
+                    <td>
+                        <!--<input type="text" v-model="data.message" class="form-control input-sm" id="modelName"-->
+                               <!--name="modelName" :placeholder="'您有新的工作需要办理，流程id：' + ins.id + '，流程：' + ins.bpmName">-->
+                        <input type="text" v-model="data.message" class="form-control input-sm" id="modelName"
+                               name="modelName" :placeholder= "changeMessage">
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <!--    <div style="margin:5px;border: 1px solid #d0d0d0; margin-top: 15px;">-->
+    <!--        <div class="work-msg-title" style="border: 0; border-bottom: 1px solid #ddd">向以下人员发送事务提醒消息</div>-->
+    <!--        <div class="work-msg-content" style="display: block; border: 0; border-bottom: 1px solid #ddd;">-->
+    <!--            <div class="clearfix">-->
+    <!--                <div class="work-msg-op-title">下一步骤：-->
+    <!--                    <i class="fa fa-bell checked" aria-hidden="true" title="发送站内信"></i>-->
+    <!--                    <i class="fa fa-envelope" aria-hidden="true" title="发送短信"></i>-->
+    <!--                </div>-->
+    <!--                <div class="work-msg-op-title">发起人：-->
+    <!--                    <i class="fa fa-bell" aria-hidden="true" title="发送站内信"></i>-->
+    <!--                    <i class="fa fa-envelope" aria-hidden="true" title="发送短信"></i>-->
+    <!--                </div>-->
+    <!--                <div class="work-msg-op-title">全部经办人：-->
+    <!--                    <i class="fa fa-bell" aria-hidden="true" title="发送站内信"></i>-->
+    <!--                    <i class="fa fa-envelope" aria-hidden="true" title="发送短信"></i>-->
+    <!--                </div>-->
+    <!--            </div>-->
+    <!--        </div>-->
+    <!--        <div class="clearfix" style="margin-left: 15px">-->
+    <!--            提醒指定步骤经办人：-->
+    <!--            <button id="chooseMsg" class="btn btn-primary">选择人员</button>-->
+    <!--            <div id="msgUser" class="tagsinput" style="width: auto; min-height: auto; height: auto;">-->
+    <!--            </div>-->
+    <!--        </div>-->
+    <!--        <div class="work-msg-sms-block">-->
+    <!--            <label for="modelName" class="col-xs-3 text-left">-->
+    <!--                提醒内容：-->
+    <!--            </label>-->
+    <!--            <div class="col-xs-8" style="padding-right: 15px;-->
+    <!--                        padding-left: 15px; max-width:400px">-->
+    <!--                <input type="text" class="form-control input-sm" id="modelName" name="modelName" value="您有新的工作需要办理">-->
+
+    <!--            </div>-->
+    <!--        </div>-->
+    <!--    </div>-->
+    <div style="text-align: center; padding-top: 20px;">
+        <a href="javascript:;" id="submit" @click="submit()" class="btn btn-primary btn-sm">确定</a>
+    </div>
+</div>
+
+
+<!--<div id="content">-->
+<!--<div style="width: 500px;margin: 0 auto;">-->
+<!--<ul id="ulist" style="height: 200px; overflow: auto;margin: 0 auto;">-->
+<!--</ul>-->
+<!--<div style="text-align: center; padding-top: 20px;">-->
+<!--<a href="javascript:;" id="submit">确定</a>-->
+<!--</div>-->
+<!--</div>-->
+<!--</div>-->
+</body>
+</html>
+<script>
+    var id = getParam("id");
+    layer.load(0, {time: 5000})
+
+    function getData() {
+        try{
+            if (opener && opener.getData) {
+                return (opener.getData())
+            }
+        } catch (e) {
+        }
+        return {};
+    }
+
+
+    // window.userId = null;
+    // window.userName = null;
+    // window.msgUser = {};
+
+    // $("#chooseUser").click(function () {
+    //     var opener = window.open("./choose.html?id=" + id, "choosepersons", "top=100, left=100, width=500, height=300")
+    //     opener.onload = function () {
+    //         var _$ = document.querySelector.bind(opener.document);
+    //         _$('#submit').onclick = function (e) {
+    //             $("#mainUser").append("<span id='"+window.userId+"' class='tag'><span class='tag-text'>"+window.userId+"</span><button class='tag-remove' id='remove'></button></span>");
+    //         }
+    //     }
+    // })
+
+    // $("#chooseMsg").click(function () {
+    //     var opener = window.open("./msg.choose.html?id=" + id, "msgchoosepersons", "top=100, left=100, width=500, height=300")
+    //     opener.onload = function () {
+    //         var _$ = document.querySelector.bind(opener.document);
+    //         _$('#submit').onclick = function (e) {
+    //             for(var i in window.msgUser){
+    //                 alert(window.msgUser[i])
+    //             }
+    //
+    //             $("#msgUser").append("<span id='"+window.msgUser+"' class='tag'><span class='tag-text'>"+window.userId+"</span><button class='tag-remove' id='remove'></button></span>");
+    //         }
+    //     }
+    // });
+
+    // window.zuserId=[];
+    // window.zuserName=[];
+    window.sponsor = "";
+
+
+    var app = new Vue({
+        el: "#app",
+        data: {
+            nodes: [],
+            current: {
+                unames: []
+            },
+            ins: {},
+            data: {
+                id: id,
+                nodeIds: [],
+                uids: "",
+                nextStepNotice: true,
+                nextStepShort: false,
+                startNotice: false,
+                startShort: false,
+                allNotice: false,
+                allShort: false,
+                message: ""
+            },
+            reUserName:[],
+            agent:{},   //下一步骤 经办人
+        },
+        computed:{
+            agentfn: function(){
+                return Object.values(this.agent).join(",")
+            },
+            changeMessage: function () {
+                    if(this.data.nodeIds[0] && this.data.nodeIds[0].indexOf("EndEvent") != -1){
+                        return this.message = "您参与的流程已办结，流程id：" + this.ins.id + "，流程：" + this.ins.bpmName;
+
+                    }else{
+                        return this.message = "您有新的工作需要办理，流程id：" + this.ins.id + "，流程：" + this.ins.bpmName;
+                    }
+                return null;
+            }
+        },
+        methods: {
+            submit: function () {
+                var d = app.$data.data;
+                if (!d.message) {
+                    if(d.nodeIds[0] && d.nodeIds[0].indexOf("EndEvent") != -1){
+                        d.message = "您参与的流程已办结，流程id：" + app.$data.ins.id + "，流程：" + app.$data.ins.bpmName;
+                    }else{
+                        d.message = "您有新的工作需要办理，流程id：" + app.$data.ins.id + "，流程：" + app.$data.ins.bpmName;
+                    }
+                }
+                // if(d.uids == undefined || d.uids.length<0){
+                //     layer.msg("请选择下一步人员")
+                //     return;
+                // }
+
+                var _data = getData();
+                d.data = _data.data
+                d.files = _data.files
+
+                d.sponsor = window.sponsor;   // 主办人
+                // 下一步骤 经办人
+                var agent = [];
+                $.each(app.$data.agent,function (i, item) {
+                    agent.push(i);
+                })
+                d.agent = agent;        //下一步骤 经办人
+                d.reUser = window.users;    // 提醒指定步骤经办人
+
+                $.ajax({
+                    url: "/api/bpm/workflow/nextApprover",
+                    type: "post",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    dataType: "json",
+                    data: JSON.stringify(d),
+                    success: function (msg) {
+                        if (!msg.success) {
+                            layer.msg("提交失败！" + msg.errMessage);
+                            return;
+                        }
+                        if(d.nodeIds[0] && d.nodeIds[0].indexOf("EndEvent") != -1 ){
+                            window.opener.layer.msg(msg.data);
+                        }else{
+                            window.opener.layer.msg("提交成功！");
+                        }
+                        window.opener.load("deal", id);
+                        opener.type = "deal";
+                        opener.id = id;
+                        window.opener.scrollTo(0, 0);
+                        window.close();
+                    }
+                    // complete: function () {
+                    //     layer.close
+                    // }
+                })
+            },
+            onNodeChecked: function (item) {
+                this.data.nodeIds = [item.nodeId];
+            },
+            selectUser :function () {
+                window.open("./agent.select.html?id=" + id, "userSelect", "top=100, left=100, width=500, height=300")
+            },
+            cleanUser:function () {
+                app.$data.reUserName = [];
+                window.users = [];
+            },
+            sel:function () {
+                 window.open("./next.select.html?id=" + id+"&sponsor="+window.sponsor, "userSelect", "top=100, left=100, width=500, height=300")
+                // console.log(win)
+                // win.document.body.onload = function(){
+                //     win.abc()
+                // }
+            },
+            cleanSel:function(){
+                window.sponsor = "";
+                app.$data.agent = {};
+            }
+        },
+        mounted: function () {
+            var t = this;
+            $.ajax({
+                url: "/api/bpm/workflow/getNextDealers",
+                type:"post",
+                headers:{
+                    "Content-Type": "application/json"
+                },
+                data: JSON.stringify({id: id, data: getData().data}),
+                success: function (msg) {
+                    // $("#ulist").html(tmpl({
+                    //     data: msg.data
+                    // }));
+                    layer.closeAll();
+                    if (msg.success) {
+                        t.nodes = msg.data.next;
+                        t.current = msg.data.node;
+                        t.ins = msg.data.ins;
+
+                        if (t.nodes && t.nodes.length == 1) {
+                            // 操作数据就是操作视图
+                            t.data.nodeIds = [t.nodes[0].nodeId]
+                            t.data.uids = t.nodes[0].dealers[0].uid
+                        }
+                    } else {
+                        layer.msg(msg.errMessage)
+                    }
+                }
+            })
+        }
+    })
+
+
+
+</script>

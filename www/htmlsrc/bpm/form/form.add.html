@@ -141,7 +141,7 @@
                                 var attrs = getAttrs(select[0])
                                 data = attrs;
                                 data.values = []
-                                $(this).find("options").each(function () {
+                                $(this).find("option").each(function () {
                                     data.values.push($(this).val())
                                 });
                                 data.name = md5(data.title)
@@ -153,6 +153,7 @@
                             var items = $(this).find("input");
                             if(items.length > 0){
                                 data = getAttrs(this);
+                                data.values = [];
                                 items.each(function () {
                                     data.values.push($(this).val())
                                 });
@@ -357,7 +358,7 @@
                     leipiEditor.sync();/*同步内容*/
 
                     var data = {
-                        _id: $("[name=_id]").val(),
+                        id: $("[name=_id]").val(),
                         name: $("[name=name]").val(),
                         desc: $("[name=desc]").val(),
                         pid: pid
@@ -380,11 +381,14 @@
                                 layer.msg(msg.errMessage)
                                 return
                             }
-
-                            var id = (frameElement && frameElement.id);
-                            if(id){
-                                top.$("a[data-iframe=" + id + "]").next("i").click()
-                            }
+                            parent.onFormEdited(data.id ? "edit" : "add", msg.data);
+                            layer.msg("保存成功")
+                            // console.log(msg);
+                            //
+                            // var id = (frameElement && frameElement.id);
+                            // if(id){
+                            //     top.$("a[data-iframe=" + id + "]").next("i").click()
+                            // }
                         }
                     });
 

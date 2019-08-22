@@ -22,12 +22,12 @@ public class App {
 
     public static void main(String[] args) {
 
-        Param.AddRule((context, parameter) -> parameter.getName().startsWith("my_"), (context, parameter, defaultAction) -> {
-            if(parameter.getType().equals(TUser.class)){
-                context.query.put("id", 1);
-            }
-            return defaultAction.around(context, parameter, null);
-        });
+//        Param.AddRule((context, parameter) -> parameter.getName().startsWith("my_"), (context, parameter, defaultAction) -> {
+//            if(parameter.getType().equals(TUser.class)){
+//                context.query.put("id", 1);
+//            }
+//            return defaultAction.around(context, parameter, null);
+//        });
 
 
         var conf = "./config.json";

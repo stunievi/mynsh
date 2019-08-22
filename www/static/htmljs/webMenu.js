@@ -813,6 +813,9 @@ var _menu = [
                             remoteApi.apiRoleDelUsers,
                             remoteApi.apiRoleAddUsers
                         ]
+                    },
+                    {
+
                     }
                 ]
             },
@@ -1239,8 +1242,12 @@ doIfDev(function () {
             name:"流程管理",
             children: [
                 {
+                    name:"部门管理",
+                    href: "./htmlsrc/bpm/org/list.html"
+                },
+                {
                     name: "表单设计",
-                    href: "/htmlsrc/bpm/cat/cat.html"
+                    href: "/htmlsrc/bpm/form/cat.html"
                 },
                 // {
                 //     name:"表单配置",
@@ -1249,6 +1256,10 @@ doIfDev(function () {
                 {
                     name: "流程设计",
                     href: "/htmlsrc/bpm/workFlow/workFlowManage.html"
+                },
+                {
+                    name: "任务管理",
+                    href: "/htmlsrc/bpm/ins/ins.list.html"
                 }
                 // {
                 //     name: "发起流程",
@@ -1257,11 +1268,11 @@ doIfDev(function () {
             ]
         }
     )
-    _menu.push({
-        name:"任务管理",
-        children: [
-        ]
-    })
+    // _menu.push({
+    //     name:"任务管理",
+    //     children: [
+    //     ]
+    // })
 });
 
 Array.prototype.notempty = function(){

@@ -100,9 +100,25 @@ public class QccService extends AbstractService {
         registerRoute("/CIAEmployeeV4/GetStockRelationInfo", service::GetStockRelationInfo);
         registerRoute("/HoldingCompany/GetHoldingCompany", service::GetHoldingCompany);
         registerRoute("/ECICompanyMap/GetStockAnalysisData", service::GetStockAnalysisData);
+        registerRoute("/ECISeniorPerson/GetList", service::GetList);
         //附加的借口
         registerRoute("/interface/count", service::getInterfaceCount);
         registerRoute("/qccExportData/fengxian", service::exportQccDataFengxian);
+    }
+
+    private Object GetList(ChannelHandlerContext channelHandlerContext, FullHttpRequest request, JSONObject params) {
+        String compName = (String) params.getOrDefault("fullName", "");
+        String personName = (String) params.getOrDefault("personName", "");
+        //主体
+        JSONObject pg = pageQuery("qcc.新版董监高", params);
+        JSONArray array = pg.getJSONArray("list");
+        for (Object o : array) {
+            JSONObject obj = (JSONObject) o;
+            obj.put("Area", JSON.parse(obj.getString("Area")));
+            obj.put("Industry", JSON.parse(obj.getString("Industry")));
+            obj.put("RelationList", JSON.parse(obj.getString("RelationList")));
+        }
+        return pg;
     }
 
     /**

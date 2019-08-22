@@ -6,14 +6,13 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>发起任务</title>
-    <!--#include file="/htmlsrc/header.html" -->
-    <!--#include file="./ueditor.css.html" -->
+
+    <link rel="stylesheet" href="../lib/css/style.css">
+    <link rel="stylesheet" href="./ueditor.css">
 
     <script src="../../../static/vendor/jquery/jquery.js"></script>
     <script src="../../../static/htmljs/utils.js"></script>
 
-    <script src="../../../static/bpm/bpmn-viewer.js"></script>
-    <script src="/static/vendor/layui/layer/layer.js"></script>
     <style>
         .needs-discussion:not(.djs-connection) .djs-visual > :nth-child(1) {
             stroke: rgba(66, 180, 21, 0.7) !important; /* color elements as red */
@@ -32,7 +31,7 @@
         }
 
         #canvas {
-            width: 800px;
+            width: 100%;
             height: 800px;
         }
 
@@ -83,7 +82,6 @@
         /*    border: 0;*/
         /*}*/
     </style>
-    <script src="../../../static/htmljs/layer/layer.js"></script>
 
     <link rel="stylesheet" href="jquery.webui-popover.min.css">
     <script src="jquery.webui-popover.min.js"></script>
@@ -93,6 +91,12 @@
         window.type = getParam("type");
         window.id = getParam("id");
     </script>
+    <script src="../lib/bpm/bpmn-viewer.js"></script>
+    <script src="../lib/layer/layer.js"></script>
+    <script src="../lib/laydate/laydate.js"></script>
+    <link rel="stylesheet" href="../lib/web-uploader/webuploader.css">
+    <script src="../lib/web-uploader/webuploader.min.js"></script>
+    <script src="../lib/vue/vue.js"></script>
 </head>
 <body>
 <div id="panel" style="padding: 10px;">
@@ -110,19 +114,47 @@
                 // window.FormHtml = "";
 
             </script>
+            <!--startprint-->
             <div id="form-content">
             </div>
+            <!--endprint-->
 
+            <div id="file-app">
+                <div style="padding-bottom: 20px;" v-if="files.length">
+                    <div v-for="(v,i) in files" v-if="v.action != 'delete' || (v.resp && v.resp.action != 'delete')">
+                        {{v.name}}
+                        &nbsp;
+                        &nbsp;
+                        {{v.state}}
+                        {{v.percent}}
+                        <a href="javascript:;" @click="remove(i)" v-if="!v.creator || v.creator == uid">删除</a>
+                        <a :href="'/api/bpm/workflow/download?name=' + (v.name || v.resp.name) + '&path=' + (v.id || v.resp.id)" v-if="!v.uploading || v.state == '成功'">下载</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="print-s" style="display: none;text-align: center;">
+                <a class="btn btn-danger btn-sm" href="javascript:;" id="wPrint">打印</a>
+            </div>
             <div class="action" style="display: none;text-align: center;">
-                <a href="javascript:;" id="save">保存</a>
-                <a href="javascript:;" id="submit">提交</a>
+                <label class="btn btn-warning btn-sm" style="position:relative;overflow: hidden" id="upload">
+                    <div id="picker" style="width: 1px;height: 1px;position:absolute;left: -100px;top: -100px;">
+                    </div>
+                    上传
+                </label>
+                <a class="btn btn-danger btn-sm" href="javascript:;" id="goBack">回退</a>
+                <a class="btn btn-primary btn-sm" href="javascript:;" id="save">保存</a>
+                <a class="btn btn-primary btn-sm" href="javascript:;" id="submit">提交</a>
             </div>
         </div>
         <div id="canvas" class="__tab">
         </div>
-        <div class="__tab">
-            <!--#include file="./data.log.html" -->
+        <div class="__tab" id="dataLog">
+            <!--#include file="./data.log.html"-->
         </div>
+        <script>
+            // $("#dataLog").load("./data.log.html");
+        </script>
     </div>
 </div>
 
@@ -151,11 +183,15 @@
             var body = FormBody = $("#form-content")//$(iframe).contents().find("body");
             body.html(Data.form);
             //全部设为disabled
-            body.find("input[leipiplugins], textarea[leipiplugins], select[leipiplugins]").val("").prop("disabled", "disabled");
+            // body.find("input[leipiplugins]:not([type=radio]):not([type=checkbox]), textarea[leipiplugins]").val("").prop("disabled", "disabled");
+            //只有宏字段和日期被设置为空, 其余需要保留默认值
+            body.find("input[leipiplugins=macros], input[leipiplugins=datetime]").val("");
+            //设为disabled
+            body.find("input[leipiplugins], textarea[leipiplugins], select[leipiplugins]").prop("disabled", "disabled");
             //select默认选第一个
-            body.find("select[leipiplugins]").each(function () {
-                $(this).val($(this).find("option:first").val())
-            })
+            // body.find("select[leipiplugins]").each(function () {
+            //     $(this).val($(this).find("option:first").val())
+            // })
 
             //编辑模式
             if(type == 'edit'){
@@ -176,8 +212,7 @@
                     elem.prop("readonly","true")
 
                     ;(function (title, type) {
-                        layui.use("laydate",function () {
-                            layui.laydate.render({
+                            laydate.render({
                                 elem: "[leipiplugins=datetime][title="+title+"]"
                                 ,type: (function () {
                                     switch (type) {
@@ -191,7 +226,6 @@
                                             return "time";
                                     }
                                 })()
-                            });
                         })
                     })(elem[0].title, elem.attr("orgformat"));
                 }
@@ -222,7 +256,15 @@
                 if (field.leipiplugins == 'macros') {
                     t.prop("readonly", "true")
                 }
-                t.val(v)
+
+                if(t.is("[leipiplugins=sign]")){
+                    var matched = v.match(/^\[img\](.+)$/);
+                    if(matched){
+                        t.attr('src', matched[1])
+                    }
+                } else {
+                    t.val(v)
+                }
             });
 
             //必填字段标红
@@ -236,6 +278,46 @@
         // }
     };
 
+    // 子页面调用函数
+    function getData() {
+        var data = {};
+        $.each(Data.formFields || [], function (i, v) {
+            var key = v;
+            if(!Data.allFields[v]){
+                return
+            }
+            var elem = FormBody.find("[name=" + Data.allFields[v].name + "]");
+            var val;
+            if(elem.is("[leipiplugins=sign]")){
+                val = elem.attr("src");
+                if(val.indexOf("sign.png") > -1){
+                    val = "";
+                } else {
+                    val = "[img]" + val;
+                }
+            } else {
+                val = elem.val();
+            }
+            data[key] = val;
+        });
+
+        //提交所有这个节点上的文件
+        var _files = files.files
+            .filter(function (e) {
+                return !e.uploading;
+            })
+            .filter(function (e) {
+                return e.resp || e.action == "delete";
+            })
+            .map(function (e) {
+                return e.resp ? e.resp : e;
+            });
+        return ({
+            data: data,
+            files: _files
+        })
+    }
+
     function submit(gonext){
         var url = "";
         if(type == 'pub'){
@@ -247,17 +329,57 @@
                 url = "/api/bpm/workflow/saveIns";
             }
         }
-        var data = {};
-        $.each(Data.formFields || [], function (i, v) {
-            var key = v;
-            if(!Data.allFields[v]){
-                return
-            }
-            var val = FormBody.find("[name=" + Data.allFields[v].name + "]").val();
-            data[key] = val;
-        });
-        // console.log(Data.formFields,data)
+        var data = getData();
+        // $.each(Data.formFields || [], function (i, v) {
+        //     var key = v;
+        //     if(!Data.allFields[v]){
+        //         return
+        //     }
+        //     var elem = FormBody.find("[name=" + Data.allFields[v].name + "]");
+        //     var val;
+        //     if(elem.is("[leipiplugins=sign]")){
+        //         val = elem.attr("src");
+        //         if(val.indexOf("sign.png") > -1){
+        //             val = "";
+        //         } else {
+        //             val = "[img]" + val;
+        //         }
+        //     } else {
+        //         val = elem.val();
+        //     }
+        //     data[key] = val;
+        // });
+        // // console.log(Data.formFields,data)
+        //
+        // //提交所有这个节点上的文件
+        // var _files = files.files
+        //     .filter(function (e) {
+        //         return !e.uploading;
+        //     })
+        //     .filter(function (e) {
+        //         return e.resp || e.action == "delete";
+        //     })
+        //     .map(function (e) {
+        //         return e.resp ? e.resp : e;
+        //     });
+        var iWidth = "650";                         //弹出窗口的宽度;
+        var iHeight = "590";                        //弹出窗口的高度;
+        //window.screen.height获得屏幕的高，window.screen.width获得屏幕的宽
+        var iTop = (window.screen.height-30-iHeight)/2;       //获得窗口的垂直位置;
+        var iLeft = (window.screen.width-10-iWidth)/2;        //获得窗口的水平位置;
+        if(type != 'pub' && gonext){
+            // var da = JSON.stringify({
+            //     id: id,
+            //     data: data,
+            //     mode: type,
+            //     files: _files
+            // })
+            window.open("./ins.next.html?id=" + id, "nextpersons", "top="+iTop+", left="+iLeft+", width=670, height=570")
+            return;
+        }
 
+        data.id = id;
+        data.mode = type;
         $.ajax({
             url: url, //"/api/bpm/workflow/createIns",
             type:"post",
@@ -265,24 +387,25 @@
                 "Content-Type": "application/json"
             },
             dataType:"json",
-            data: JSON.stringify({
-                id: id,
-                data: data,
-                mode: type
-            }),
+            data: JSON.stringify(data),
             success: function (msg) {
                 if(!msg.success){
                     layer.msg(msg.errMessage)
                     return
                 }
 
-                window.opener.location.reload()
+                //app 没有opener
+                if(window.opener && window.opener.initTable){
+                    window.opener.initTable.apply(null, opener.last)
+                }
+
                 if(window.type == 'pub'){
                     // window.type = "deal";
                     // window.id = msg.data;
                     // load("deal", msg.data)
                     if(gonext){
-                        window.open("./choose.html?id=" + msg.data, "choosepersons", "top=100, left=100, width=500, height=300")
+                        // window.open("./choose.html?id=" + msg.data, "choosepersons", "top=100, left=100, width=500, height=300")
+                        window.open("./ins.next.html?id=" + msg.data, "nextpersons", "top="+iTop+", left="+iLeft+", width=670, height=570")
                     }
                     location.href = "./ins.pub.html?type=deal&id=" + msg.data
                     // else {
@@ -291,7 +414,8 @@
                 } else {
                     if(gonext){
                         if(msg.data.res == true){
-                            window.open("./choose.html?id=" + msg.data.id, "choosepersons", "top=100, left=100, width=500, height=300")
+                            // window.open("./choose.html?id=" + msg.data.id, "choosepersons", "top=100, left=100, width=500, height=300")
+                            window.open("./ins.next.html?id=" + msg.data.id, "nextpersons", "top="+iTop+", left="+iLeft+", width=670, height=570")
                         }else{
                             layer.msg(msg.data.res)
                             load(window.type, window.id)
@@ -310,6 +434,8 @@
 
     function load() {
         $(".action").hide();
+        $("#upload").hide();
+        $("#goBack").hide();
         $(".process").hide();
 
         // if(!type){
@@ -393,6 +519,10 @@
             });
 
             Data = msg.data;
+
+            if(msg.data.files && msg.data.files.length){
+                files.files = msg.data.files
+            }
             // FormHtml = msg.data.form;
             loadForm()
             // $("#iframe").attr("src", "./form.html?v=" + Math.random())
@@ -409,7 +539,16 @@
             } else {
                 if(type == 'deal'){
                     document.title = "查看任务";
+                    $(".print-s").show();
                 }
+            }
+
+            if(msg.data.allowBack){
+                $("#goBack").show();
+            }
+
+            if(msg.data.node && msg.data.node.allowUpload){
+                $("#upload").show();
             }
 
             if(type != "pub"){
@@ -450,7 +589,102 @@
     });
 
     $("#submit").click(function () {
+        // getData();
         submit(true);
+    });
+
+    $("#goBack").click(function () {
+        layer.confirm('确定回退？', function(index){
+            //do something
+            layer.close(index);
+            $.get("/api/bpm/workflow/goBack", {id: id}, function (msg) {
+                if(!msg.success){
+                    return layer.msg(msg.errMessage)
+                }
+                layer.msg("回退成功")
+                load();
+            },"json");
+        });
+    });
+
+
+    ;(function () {
+        //初始化webuploader
+        var uploader = WebUploader.create({
+            // swf文件路径
+            swf: '../lib/web-uploader/Uploader.swf',
+            // 文件接收服务端。
+            server: '/api/bpm/workflow/upload',
+            // 选择文件的按钮。可选。
+            // 内部根据当前运行是创建，可能是input元素，也可能是flash.
+            pick: '#picker',
+            // 不压缩image, 默认如果是jpeg，文件上传前会压缩一把再上传！
+            resize: false,
+            auto: true,
+            duplicate: true,
+            fileVal: "file"
+        }).on("uploadStart", function (file) {
+            file.percent = "0%";
+            file.state = '上传中';
+            file.uploading = true;
+            files.files.push(file);
+            // console.log(file)
+        }).on("uploadProgress", function (file,percentage ) {
+            file.percent = (percentage * 100).toFixed(0) + "%";
+        }).on("uploadSuccess", function (file,response) {
+            if(response.success){
+                file.state = "成功";
+                file.uploading = false;
+                file.resp = response.data;
+            } else {
+                file.state = "失败";
+            }
+        }).on("uploadError", function (file) {
+            file.state = "失败";
+        }).on("uploadComplete", function (file) {
+            file.percent = "";
+        });
+    })();
+
+    var files = new Vue({
+        el: "#file-app",
+        data:{
+            files: [],
+            uid: JSON.parse(localStorage.$user).id
+        },
+        methods: {
+            remove: function (i) {
+                var item = this.files[i];
+                //上传中直接再见
+                if(item.uploading){
+                    this.files.splice(i);
+                    return
+                }
+                if(item.resp){
+                    item.resp.action = "delete";
+                } else {
+                    item.action = "delete";
+                }
+            }
+        }
     })
 
+
+    $("#wPrint").click(function () {
+        wPrint();
+    });
+
+    function wPrint(){
+        bdhtml=window.document.body.innerHTML;//获取当前页的html代码
+        sprnstr="<!--startprint-->";//设置打印开始区域
+        eprnstr="<!--endprint-->";//设置打印结束区域
+        prnhtml=bdhtml.substring(bdhtml.indexOf(sprnstr)+17); //从开始代码向后取html
+        prnhtml=prnhtml.substring(0,prnhtml.indexOf(eprnstr));//从结束代码向前取html
+        window.document.body.innerHTML=prnhtml;
+        loadForm();
+        window.print();
+        location.reload()
+    }
 </script>
+
+

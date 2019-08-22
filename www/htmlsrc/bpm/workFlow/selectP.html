@@ -10,10 +10,13 @@
     <link rel="stylesheet" href="../../../static/htmljs/jstree/themes/default/style.css">
     <!--#include file="/htmlsrc/header.html" -->
     <script src="../../../static/htmljs/jstree/jstree.js"></script>
+    <link rel="stylesheet" href="../../../static/bpm/jquery.tags-revisited.css">
 
 </head>
 <body>
 <!--<input type="text" class="form-control input-sm" id="user" name="user" style="margin-top: 10px" readonly>-->
+<div id="userTag" class="tagsinput" style="width: auto; min-height: auto; height: auto;">
+</div>
 <div id="content"  style="flex-direction: row; display: flex; justify-content: flex-start">
     <!--<div class="selected"></div>-->
     <!--<div>-->
@@ -209,7 +212,7 @@
         });
     },"json");
     var ret = [];
-    var ids = []
+    var ids = [];
 
     //还原页面
     var pids = opener.opener.bpmData.nodes[nodeId].permission[type + "ids"]
@@ -221,18 +224,63 @@
         ret.push(v)
     })
 
+    if(ids.length == ret.length){
+        for(var i=0;i<ids.length;i++){
+            tagAppend(ids[i],ret[i]);
+        }
+    }
+
     $(document).on("click", ".edit", function () {
         var name =  $(this).data("name");
         var uid = $(this).data("id");
-        var us = $("#user").val();
-        var user ;
+        // var us = $("#user").val();
+        // var user ;
 
-        user = "" == us ? name : us +";" + name;
-        $("#user").val(user);
-        ret.push(name);
-        ids.push(uid + "")
+        // user = "" == us ? name : us +";" + name;
+        // $("#user").val(user);
+        // ret.push(name);
+        // ids.push(uid + "")
+
+
+        tagAppend(uid,name);
+        checkUser();
+
+    });
+
+
+    $("#userTag").on("click",".tag-remove",function(){
+        $(this).parent().remove();
+
+        checkUser();
+        // var action = $("#tag").find("[class='tag-text']").text();
+        // console.log(action)
         window.opener['selectp']("p", ret, ids);
 
     });
+
+    // 追加人员
+    function tagAppend(uid, name) {
+        // if($("#"+uid+"")){
+        //     alert(111)
+        // }
+        var isRepeat = $("#userTag").find("#"+uid+"");
+
+        // 根据id判断是否已经存在
+        if(isRepeat.length==0){
+            $(".tagsinput").append("<span id='"+uid+"' class='tag'><span class='tag-text'>"+name+"</span><button class='tag-remove' id='remove'></button></span>");
+        }
+
+    }
+
+    // 获取选择的人，传值
+    function checkUser() {
+        ret = [];
+        ids = [];
+        $("#userTag").find(".tag").each(function(){
+            ret.push(this.innerText);
+            ids.push(this.id + "")
+        })
+        window.opener['selectp']("p", ret, ids);
+    }
 
 </script>

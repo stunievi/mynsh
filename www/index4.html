@@ -1,0 +1,907 @@
+<!doctype html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>辅助管理系统</title>
+    <!--<link rel="stylesheet" href="/static/vendor/bootcss/css/bootstrap.min.css">-->
+    <!-- <link rel="stylesheet" href="../../../static/vendor/jqui/jquery-ui.css"> -->
+    <!--<link rel="stylesheet" href="/static/vendor/ztree/css/zTreeStyle/zTreeStyle.css" type="text/css">-->
+    <link rel="stylesheet" href="/static/htmljs/layui/css/layui.css">
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+    <link rel="stylesheet" href="/static/htmlcss/iframeWrap.css">
+    <link rel="stylesheet" href="/static/htmlcss/menu.css">
+    <link rel="stylesheet" href="/static/htmlcss/context.css">
+    <link rel="stylesheet" href="/static/vendor/jquery/megalist.css">
+    <link rel="stylesheet" href="/static/vendor/toastr/toastr.css">
+    <!--<link rel="stylesheet" href="/static/vendor/jquery/roll.css">-->
+    <script src="/static/vendor/jquery/jquery.js"></script>
+    <script src="/static/vendor/jquery/megalist.js"></script>
+    <!--<script src="/static/vendor/jquery/scrollbar.js"></script>-->
+    <!--<script src="/static/htmljs/jquery.lazyload.min.js"></script>-->
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+<!--    <script src="/static/htmljs/menu.js"></script>-->
+    <script src="/static/vendor/artTemplate/template-web.js"></script>
+    <script src="./static/htmljs/context.js"></script>
+    <script src="/static/htmljs/layui/layui.js"></script>
+    <script src="/static/vendor/toastr/toastr.js"></script>
+    <script src="/static/htmljs/md5.js"></script>
+    <script>
+        toastr.options.closeButton = true;
+        toastr.options.onclick = function () {
+            $("<button type='button' tab-href='/htmlsrc/bench/notice/notice.list.html' tab-title='查看消息' style='display: none;'>1</button>")
+                .appendTo("body")
+                .trigger("click")
+                .remove();
+        }
+    </script>
+
+    <script>
+        // var firstLoadingIndex = layer.load(1, {shade: [0.1, '#000']});
+    </script>
+    <style>
+        body{
+            overflow-x: hidden;
+        }
+        .navbar-nav li {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .navbar-nav > li:after {
+            position: absolute;
+            right: 0;
+            top: 10px;
+            width: 1px;
+            height: 30px;
+            background: rgba(255, 255, 255, .25);
+            content: '';
+        }
+
+        .navbar-nav > li:before {
+            position: absolute;
+            top: 10px;
+            left: 0;
+            width: 1px;
+            height: 30px;
+            display: block;
+            background: rgba(0, 0, 0, .2);
+            content: '';
+        }
+
+        .navbar-nav > li:first-child:before {
+            display: none;
+        }
+
+        .navbar-nav > li:last-child:after {
+            display: none;
+        }
+
+        .navbar-nav > li.active:before {
+            width: 500px;
+            height: 100px;
+            opacity: .5;
+        }
+
+        .nav-wrap {
+            background: url(/static/htmlImage/titlebar_blue_bg.png) repeat;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, .5);
+            /*background: url(/static/htmlImage/titlebar_blue_tile.png) repeat;*/
+        }
+
+        .gotomars-side-scroll {
+            /*background: url(/static/htmlImage/win_background.png) repeat;*/
+            background: #4A89DC;
+            box-shadow: 2px 0 5px rgba(0,0,0,.4);
+        }
+        .gotomars-side-scroll::-webkit-scrollbar{
+            width:0px;
+            opacity:0;
+            -webkit-overflow-scrolling: touch;
+        }
+        .gotmars-iframe-scroll{
+            padding-bottom: 40px;
+        }
+
+        #x-wrap-menu li a.curSelectedNode {
+            background: none;
+        }
+
+        html, body, #content-wrap, #table-frame, .gotmars-iframe-scroll, #tabs, #iframe-content-wrap {
+            width: 100%;
+            height: 100%;
+        }
+        .facebox{
+            text-align: center;
+            padding-top: 10px;
+        }
+        .facebox p{
+            font-size: 22px;
+            color:white;
+            text-shadow : rgba(255,255,255,0.5) 0 5px 6px, rgba(255,255,255,0.2) 1px 3px 3px;
+            -webkit-background-clip : text;
+            /*padding-bottom: 15px;*/
+            margin-bottom: 0;
+        }
+        .facebox b{
+            display: block;
+            margin-bottom: 10px;
+            margin-top: 8px;
+            /*padding-bottom: 15px;*/
+        }
+        .ln{
+            width: 100%;
+            border-top: 1px solid rgba(0,0,0,.2);
+            border-bottom: 1px solid rgba(255,255,255,.2);
+        }
+        .facebox img{
+            border-radius: 100%;
+        }
+        .facebox b{
+            color: white;
+        }
+        #demo-list{
+            margin-top: 15px;
+        }
+
+        .jquery-accordion-menu{
+            min-width: 200px;
+        }
+
+        .tab-content{
+            padding-top: 0;
+        }
+
+        /*im*/
+        .layui-layim-status .layim-menu-box,.layui-layim-remark,.layui-icon.layim-tool-skin, .layim-tool-face{
+            display: none !important;
+        }
+        .layui-layim-user{
+            color: white;
+        }
+        /*.layui-layim-list li span{*/
+        /*margin-top: 10px !important;*/
+        /*}*/
+
+        /*.blue.jquery-accordion-menu b{*/
+        /*font-size: 12px !important;*/
+        /*}*/
+
+        .closebtn{
+            display: block;
+            position: absolute;
+            right: -20px;
+            top: 50%;
+            margin-top: -15px;
+            width: 40px;
+            height: 40px;
+            border-radius: 100%;
+            cursor: pointer;
+            background: #4A89DC;
+            box-shadow: 2px 0 5px rgba(0,0,0,.4);
+            z-index: 1;
+            font-size: 20px;
+            line-height: 40px;
+            color:#fff;
+        }
+        .closebtn i{
+            display: none;
+            float: right;
+            margin-right: 3px;
+            font-weight: bold;
+            transition: transform 0.5s;
+        }
+        .route180{
+            transform: rotate(180deg);
+        }
+        #friend-box{
+            height: 100%;
+            border: 0 !important;
+        }
+        .layim-list-friend {
+            padding-top: 0 !important;
+            padding-bottom: 20px !important;
+        }
+        .layim-list-friend .layui-layim-list{
+            display: block;
+            height: 100%;
+        }
+        #friend-box ul{
+            display: block;
+        }
+        #demo-list{
+            /*overflow: hidden;*/
+        }
+        .user-bench-info .count-num{
+            display: table;
+            min-width: 30px;
+            position: absolute;
+            right: -18px;
+            top: -10px;
+            font-size: 11px;
+            font-weight: 800;
+            color: #555;
+            text-align: center;
+            line-height: 18px;
+            background: #f0f0f0;
+            border-radius: 100%;
+        }
+
+    </style>
+    <style>
+        .user-bench-info {
+            overflow: hidden;width: 100%;
+        }
+        .face-wrap {
+            padding: 10px;float:left;width: 50%;
+        }
+        .face-wrap img {
+            display: block;float:left;
+        }
+        .user-bench-info .right-wrap {
+            width: 50%;
+            float: left;
+            margin: 15px 0;
+        }
+        .user-bench-info .right-wrap .user-name {
+            color: #fff;
+            font-weight: bold;
+            display: block;
+            text-align: left;
+            margin-bottom: 10px;
+            padding-left: 10px;
+        }
+        .info-icon-wrap {
+            float: left;
+            width: 100%;
+            padding: 10px;
+        }
+        .info-icon-wrap span {
+            text-align:left;float:left;width: 50%;
+        }
+        .info-icon-wrap span a {
+            color: white;cursor:pointer;text-decoration:none;position: relative;
+        }
+        .info-icon-wrap .count-num {
+            position: absolute;
+        }
+
+    </style>
+    <!--<script src="static/vendor/bootcss/js/bootstrap.min.js"></script>-->
+</head>
+<body>
+<div id="content-wrap">
+    <table id="table-frame">
+        <tr>
+            <td class="leftbox" width="300" valign="top" style="position: relative;">
+                <div class="closebtn">
+                    <i class="layui-icon  glyphicon glyphicon-chevron-left">&#xe60c;</i>
+                </div>
+                <div class="gotomars-side-scroll pull-left scroll_wrap autobox" id="x-wrap-menu-wrap"
+                     style="height: 100%;position: relative;z-index: 1;overflow-x: hidden;overflow-y: auto;">
+
+                    <!--menu start-->
+                    <div id="jquery-accordion-menu" class="jquery-accordion-menu blue scroll_cont" style="">
+                    </div>
+                    <!--menu end-->
+
+                    <div class="scroll_bar" style="display: none;">
+                        <div class="scroll_slider"></div>
+                    </div>
+                </div>
+            </td>
+            <td width="100%" valign="top" id="rightbox">
+                <div class="gotmars-iframe-scroll autobox" style="overflow:hidden;padding-left:8px;padding-top:8px;">
+                    <div class="tabbable" id="tabs" style="border:none;">
+                        <!-- 页面标签列表 -->
+                        <ul class="nav nav-tabs" id="myTab" style="overflow: hidden;">
+                        </ul>
+                        <!-- 页面内容列表，和页面标签列表对应 -->
+                        <div class="tab-content" id="iframe-content-wrap">
+                        </div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+</div>
+<script src="../../../static/vendor/jqui/jquery-ui.min.js"></script>
+<script src="./static/htmljs/store.js"></script>
+<!-- HTML5 shim 和 Respond.js 是为了让 IE8 支持 HTML5 元素和媒体查询（media queries）功能 -->
+<!-- 警告：通过 file:// 协议（就是直接将 html 页面拖拽到浏览器中）访问页面时 Respond.js 不起作用 -->
+<!--[if lt IE 9]>
+<script src="/static/vendor/bootcss/js/html5shiv.min.js"></script>
+<script src="/static/vendor/bootcss/js/respond.min.js"></script>
+<![endif]-->
+<!--<script src="/static/vendor/bootcss/js/bootstrap.min.js"></script>-->
+<script src="/static/htmljs/global.config.js"></script>
+<script src="/static/htmljs/utils.js"></script>
+<script src="/static/vendor/ztree/js/jquery.ztree.core.js"></script>
+<!-- 菜单配置信息 -->
+<script src="/static/htmljs/webMenu.js"></script>
+<script src="/htmlsrc/infoManage/ext.js"></script>
+<script src="/static/htmljs/iframeNav.js"></script>
+<script>
+    context.init({preventDoubleContext: false});
+    // 默认打开页面
+    addNavTab("工作台.我的工作台", "我的工作台", '/htmlsrc/bench/myBenchhtml');
+
+    $("#side-start").click(function () {
+        $("#x-wrap-menu-wrap").width(169);
+        $("#x-wrap-menu").width(189);
+    })
+    $("#side-backward").click(function () {
+        var w = $("#x-wrap-menu-wrap").width();
+        if (w - 10 < 169) {
+            w = 169;
+        } else {
+            w -= 10;
+        }
+        $("#x-wrap-menu-wrap").width(w)
+        $("#x-wrap-menu").width(w + 20);
+    })
+
+    $("#side-forward").click(function () {
+        var w = $("#x-wrap-menu-wrap").width();
+        console.log(w)
+        if (w + 10 > 420) {
+            w = 420;
+        } else {
+            w += 10;
+        }
+        $("#x-wrap-menu-wrap").width(w + "px")
+        $("#x-wrap-menu").width(w + 20 + "px");
+    })
+
+    $("#side-stop").click(function () {
+        $("#x-wrap-menu-wrap").width(420);
+        $("#x-wrap-menu").width(440);
+    })
+    //    <a href="javascript:;" class=" glyphicon glyphicon-stop" id="side-stop" style="color: #faebcc"></a>
+    //            <a href="javascript:;" class="glyphicon glyphicon-backward" id="side-backward" style="color: #faebcc"></a>
+    //            <a href="javascript:;" class="glyphicon glyphicon-forward" id="side-forward" aria-hidden="true" style="color: #faebcc"></a>
+
+    var topCacheMenuAuthority = {};
+    // 当前用户信息
+    var topCacheUserInfo = {};
+    // 组织架构信息
+    var topCacheDepartment = [];
+    var topCacheDepartmentObj = {};
+    // 组织架构和岗位
+    var topCacheDepartmentAndQuarter = [];
+    // 所有用户
+    var topCacheUserList = [];
+    var topCacheUserObj = {};
+
+    getRemoteData({
+        url: remoteApi.apiUserIds + "?ids=" + $.cookie("userId"),
+        callback: function (origin) {
+            topCacheUserInfo = origin[0] || {};
+            // 用户权限
+            $("#navbar-user-name").html(topCacheUserInfo.trueName + "&nbsp;");
+            $("#user-face").attr("src", remoteApi.apiUserFace + (topCacheUserInfo.profile || {}).faceId);
+        }
+    })
+
+    $("img").error(function () {
+        $(this).attr("src", globalData.defaultImg);
+    })
+
+    setTimeout(function () {
+        // 获取组织架构信息
+        getRemoteData({
+            url: remoteApi.apiAlldepartment,
+            callback: function (origin) {
+                if (origin.length) {
+                    topCacheDepartment = origin;
+                    var stack = [];
+                    origin.forEach(function (item) {
+                        stack.push(item);
+                    })
+                    while (stack.length !== 0) {
+                        var dept = stack.shift();
+                        topCacheDepartmentObj[dept.id] = dept;
+                        if (dept.children.length !== 0) {
+                            dept.children.forEach(function (item) {
+                                stack.push(item);
+                            })
+                        }
+                    }
+                }
+            }
+        })
+        // 获取所有用户信息
+        getRemoteData({
+            url: remoteApi.apiNormalUsers,
+            callback: function (origin) {
+                var _obj = {};
+                origin.forEach(function (elem) {
+                    if (_obj[elem[0]]) {
+                        _obj[elem[0]].quarters.push(elem[4]);
+                    } else {
+                        _obj[elem[0]] = {
+                            id: elem[0],
+                            name: elem[1],
+                            phone: elem[2],
+                            face: elem[3], // 头像Id
+                            quarters: elem[4] ? [elem[4]] : [] // 岗位ids
+                        }
+                    }
+                });
+                topCacheUserObj = JSON.parse(JSON.stringify(_obj));
+                var arr = [];
+                for (var key in _obj) {
+                    if (!_obj.hasOwnProperty(key)) {
+                        continue;
+                    }
+                    arr.push(_obj[key]);
+                }
+                topCacheUserList = arr;
+            }
+        })
+    }, 5000);
+    // 退出登录
+    $("#handleOut").click(function () {
+        actConfirm(function () {
+            loginOut();
+        })
+    });
+    function loginClound() {
+        var user = store.get("$user");
+        // console.log(user)
+        $.ajax({
+            url: remoteApi.apiCloudLogin + "?username=" + user.cloudUsername + "&password=" + user.cloudPassword,
+            success: function (res) {
+                // $.cookie("remoteCloundToken", remoteCloundToken + res.sessionId, {path: "/"});
+            }
+        });
+    }
+
+    loginClound();
+
+    setInterval(function () {
+        loginClound();
+    }, 1000 * 60 * 5);
+
+</script>
+</body>
+</html>
+<style>
+    .hovermenu{
+        box-sizing: border-box;
+        position: fixed;
+        display: none;
+        left: 200px;
+        width: 300px;
+        background: #efefef;
+        border-right: 1px solid #ddd;
+        top: 0;
+        padding: 10px;
+        padding-bottom: 40px;
+        /*background: #4A89DC;*/
+        box-shadow: 2px 0 5px rgba(0,0,0,.4);
+        z-index: -1;
+        overflow-y: auto;
+    }
+    .toucharea{
+        position: absolute;
+        width: 60px;
+        height: 200px;
+        border-radius: 200px;
+        /*background: red;*/
+        right: -30px;
+        top: -80px;
+        display: none;
+        z-index: 2;
+    }
+    .d4{
+        /*margin-left: 110px;*/
+        float: left;
+        width: 0;
+        height: 0;
+        border-width: 10px;
+        border-style: solid;
+        border-color: transparent #efefef transparent transparent;
+        position: absolute;
+        top: 10px;
+        right: 0px;
+        display: none;
+        z-index: 3;
+    }
+    .menu-level-0:hover .hovermenu{
+        display: block !important;
+    }
+    .menu-level-0:hover .toucharea {
+        display: block;
+    }
+    .menu-level-0:hover .d4{
+        display: block;
+    }
+    .menu-level-1{
+        font-size: 14px;
+        clear: both;
+        padding-top: 20px;
+        padding-bottom: 10px;
+        /*padding-bottom: 20px;*/
+    }
+    .menu-level-1:first-child{
+        padding-top: 0;
+    }
+    .clickable{
+        color: #337ab7;
+        cursor: pointer;
+    }
+    .menu-level-2{
+        font-size: 12px;
+        float: left;
+        margin-right: 10px;
+        white-space: nowrap;
+        overflow: hidden;
+        padding-bottom: 5px;
+    }
+</style>
+<script type="text/html" id="menu-tmpl">
+    <div class="facebox">
+        <p>辅助管理系统</p>
+        <b style="font-size: 12px;font-weight: normal;">数据版本: <span>查询中...</span></b>
+        <div class="ln"></div>
+        <div class="user-bench-info">
+            <div class="face-wrap">
+                <img src="{{face}}" alt="" width="80" height="80" style="">
+            </div>
+            <div class="right-wrap">
+                <span class="user-name">{{uname}}</span>
+                <div class="info-icon-wrap">
+                    <span>
+                        <a tab-href="/htmlsrc/bench/notice/notice.list.html" tab-title='查看消息' tile="查看消息" tab-id='工作台.收件箱'>
+                            <span id="msgNum" class="count-num">0</span>
+                            <img src="static/htmlImage/msg-system.png" width="20" height="20"/>
+                        </a>
+                    </span>
+                    <span>
+                        <a tab-href="/htmlsrc/bench/myBench.html" tab-title='我的工作台' tile="我的工作台" tab-id='工作台.我的工作台'>
+                            <span id="gztNum" class="count-num">0</span>
+                            <img src="static/htmlImage/gongzuotai.png" width="20" height="20"/>
+                        </a>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="ln"></div>
+    </div>
+    <ul id="demo-list">
+        {{each data item1 idex1}}
+        {{if item1 && item1.name}}
+        {{set id = item1.name}}
+        <li data-id="{{id}}" style="display: none" class="menuitem menu-level-0">
+            <b href="#">{{item1.name}}</b>
+            {{if item1.children && item1.children.length}}
+            <div class="d4"></div>
+            <div class="toucharea"></div>
+            <div class="hovermenu" >
+                {{each item1.children item2 idex2}}
+                {{if item2 && item2.name}}
+                {{set id = item1.name + '.' + item2.name}}
+                {{set idex = idex1 + '-' + idex2}}
+                <p data-id="{{id}}" onclick="menuclick('{{id}}','{{item2.name}}','{{item2.href}}')" class="menu-item menu-level-1 {{item2.href ? 'clickable':''}}">{{item2.name}}</p>
+                <div></div>
+                {{if item2.children && item2.children.length}}
+                {{each item2.children item3 idex3}}
+                {{if item3 && item3.name}}
+                {{set id = item1.name + '.' + item2.name + '.' + item3.name}}
+                {{set idex = idex1 + '-' + idex2 + '-' + idex3}}
+                <span data-id="{{id}}" onclick="menuclick('{{id}}','{{item3.name}}','{{item3.href}}')" class="menu-item menu-level-2 {{item3.href ? 'clickable':''}}" >{{item3.name}}</span>
+                {{/if}}
+                {{/each}}
+                {{/if}}
+                {{/if}}
+                {{/each}}
+            </div>
+            {{/if}}
+        </li>
+        {{/if}}
+        {{/each}}
+    </ul>
+</script>
+
+<script>
+    //render left menu
+    (function () {
+        $.when($.get("/api/bpm/workflow/menu"), $.get(remoteOrigin + "/api/auto/user/getMyMethods")).then(function (a,b) {
+            var msg = a[0].data;
+            $.each(menu, function (i,v) {
+                if(v.name == '任务管理'){
+                    v.children = v.children.concat(msg || [])
+                    // v.children.push(msg||[]);
+                    // $.each(msg||[], function (ii,vv) {
+                    //     v.children.push({
+                    //         name: vv.modelName,
+                    //         href: "./htmlsrc/bpm/ins/ins.list.html?id=" + vv._id + "&fields=" + encodeURI(JSON.stringify(vv.listFields||[]))
+                    //     })
+                    // });
+                    console.log(v.children)
+                }
+            });
+
+            var html = template.render($("#menu-tmpl").html(),{
+                data: menu,
+                uid: $.cookie("userId"),
+                uname: $.cookie("userName"),
+                white: whitelist,
+                // face: "http://iph.href.lu/80x80"
+                face: "/file/avatar/" + $.cookie("userId") + ".jpg?v=" + Math.random()
+            });
+            $("#jquery-accordion-menu").html(html);
+
+            // var hms = $(".hovermenu");
+            // var timer = null;
+            // $("#demo-list").mouseover(function (e) {
+            //     console.log(e)
+            // });
+            
+            $(".menu-level-0").mouseenter(function () {
+                    var t = $(this);
+                    var hm = t.find(".hovermenu");
+                    hm.height($(window).height());
+            })
+                // .each(function () {
+            //     var t = $(this);
+            //     var hm = t.find(".hovermenu");
+            //     t.mouseenter(function () {
+            //         hm.height($(window).height());
+            //     });
+
+                // t.hover(function () {
+                //     var t = $(this);
+                //     hm.height($(window).height());
+                //     //没有则立刻显示
+                //     window.cubi = hms
+                //     if(timer){
+                //         clearTimeout(timer);
+                //         timer = null;
+                //     }
+                //
+                //     // console.log(hms.filter(":visible").length)
+                //     // if(!hms.filter(":visible").length){
+                //     //     hms.hide();
+                //     //     hm.show();
+                //     //     return
+                //     // }
+                //     // alert(3)
+                //     timer = setTimeout(function () {
+                //         // alert(2)
+                //         hms.hide();
+                //         hm.show();
+                //     },60);
+                //     // $(".hovermenu").height($(window).height())
+                // }, function () {
+                //     // hm.hide();
+                //     if(timer){
+                //         clearTimeout(timer);
+                //         timer = null;
+                //     }
+                //     timer = setTimeout(function () {
+                //         hms.hide()
+                //     },150);
+                // });
+            // });
+            // jQuery("#jquery-accordion-menu").jqueryAccordionMenu();
+
+
+            var whitelist = b[0].data;
+            console.log(whitelist)
+            if(whitelist.indexOf("_all_") > -1){
+                $("#demo-list .menuitem").show();
+                return
+            }
+            $("#demo-list .menuitem").each(function () {
+                var _this = $(this)
+                var id = $(this).data("id");
+                if(whitelist.indexOf(id) > -1){
+                    _this.show()
+                    //if a item has be showed, its parents must be showed!!
+                    _this.parents("#demo-list .menuitem").show()
+                    _this.prev("p.menuitem:first").show();
+                }
+            });
+
+            $("li[data-id*=任务管理]").show();
+            // $("li[data-id=任务管理]").show();
+        });
+
+        // getFetch("/api/bpm/workflow/menu", function (msg) {
+        //
+        // });
+        //
+        // getFetch(
+        //     remoteOrigin + "/api/auto/user/getMyMethods",
+        //     function (whitelist) {
+        //
+        //     }
+        // );
+
+    })();
+
+    function menuclick(id,name,href){
+        if(href){
+            addNavTab((id), name, href);
+        }
+        // console.log(id,name,href)
+    }
+    //left menu end
+
+    // $('[data-original]').lazyload({});
+
+    //method white-list
+
+
+
+    //fix iframe
+    // $(window).resize(function () {
+    //     alert($("iframe").eq(0).parent().height())
+    //     $("iframe").each(function () {
+    //         $(this).width($(this).parent().width())
+    //         $(this).height($(this).parent().height())
+    //     })
+    // });
+
+
+
+    //right clicked menu
+    $(document).on("mousedown","#myTab li[id*=tab-]",function (e) {
+        if(e.button == 1){
+            $(this).find("i").click();
+            return false;
+        }
+    });
+
+    context.attach(".facebox img",[
+        {
+            text: "个人设置"
+            ,action: function () {
+                $("#demo-list b:contains('个人设置')")[0].click();
+            }
+        }
+        ,{
+            text: "修改密码"
+            ,action: function () {
+                $("#demo-list b:contains('修改密码')")[0].click()
+            }
+        }
+        ,{
+            text: "退出登录"
+            ,action: function () {
+                loginOut()
+            }
+        }
+    ]);
+
+
+
+    // var holder = $("<div>")
+    //     .attr({
+    //         id: "rbtipholder"
+    //     })
+    //     .css({
+    //         position:"fixed"
+    //         , right: 10
+    //         , bottom: 20
+    //     })
+    //     .appendTo("body")
+    //
+    // layer.tips('消息系统正在初始化,请稍后', '#rbtipholder', {
+    //     tips: [1, '#0FA6D8'] //还可配置颜色
+    // });
+    // holder.remove();
+
+    // function onFaceError(t){
+    //     t.src = '/static/htmlImage/face.jpg';
+    // }
+
+    //fix iframe
+    (function () {
+        //pass ie11
+        // if(document.all){
+        $(window).resize(function () {
+            var h = $(window).height();
+            // $(".hovermenu").css("height", h);
+            $("td").each(function () {
+                $(this)
+                    .css("height", h);
+                $(this).find("#x-wrap-menu-wrap").css("height",h);
+                // var h = $(this).height();
+                // $(this).find(".autobox").css("height", h);
+                // .css("height", $(this).height());
+            })
+            $(".closebtn").css("top", h / 2)
+        }).trigger("resize")
+        // }
+
+        // new CusScrollBar({
+        //     contentSelector: '.scroll_cont', //滚动内容区
+        //     barSelector: '.scroll_bar', //滚动条
+        //     sliderSelector: '.scroll_slider' //滚动滑块
+        // });
+    })();
+
+    //first login
+    (function () {
+        var last = store.get("lastLogin");
+        if(null == last){
+            loginOut();
+            return;
+        }
+        var start = new Date(new Date(new Date().toLocaleDateString()).getTime());
+        if(parseInt(last) <= start){
+            loginOut();
+        }
+    })();
+
+    // mars
+    $.cookie('spec', getParam("spec"));
+
+    //系统数据版本
+    getFetch(remoteOrigin + "/api/auto/sysvar/getDataVersion", function (data) {
+        $('.facebox p').text(data.sysName);
+        $(".facebox b span").html(data.dataVersion);
+        document.title = (data.sysName);
+    })
+
+    $(".closebtn").click(function () {
+        $(".gotomars-side-scroll").toggle();
+        $(this).find("i").toggleClass("route180");
+        // $(window).trigger("resize");
+    });
+</script>
+<script>
+    //消息提醒
+    ;(function () {
+        var cache = {};
+        function msgnotice() {
+            var p1 =
+                getFetch(
+                    remoteOrigin + "/api/auto/sysnotice/getUList"
+                );
+            var p2 = getFetch(remoteOrigin + "/api/auto/wfins/getList?daichuli=1",{page:1,size:1})
+            $.when(p1,p2).then(function (a,b) {
+                var total = 0;
+                var data = a[0].data;
+                var count1 = Number(data.totalRow);
+                total += count1;
+                /*$.each(data.list || [], function (i,v) {
+                    if(cache[v.id]){
+                        return;
+                    }
+                    toastr.info(v.content, {
+                        closeButton:false
+                    });
+                    $(".toast-info:last").attr("data-id", v.id)
+                    cache[v.id] = 1;
+                });*/
+
+                data = b[0].data;
+                var count2 = Number(data.totalRow);
+                total += count2;
+                var e1 = $("li[data-id=工作台]");
+                e1.find('b:first .jquery-accordion-menu-label').remove();
+                e1.find("b:first").append($("<span class='jquery-accordion-menu-label'>"+total+"</span>"))
+                var e2 = $("li[data-id='工作台.我的工作台']")
+                e2.find('b:first .jquery-accordion-menu-label').remove();
+                e2.find("b:first").append($("<span class='jquery-accordion-menu-label'>"+count2+"</span>"))
+                var e3 = $("li[data-id='工作台.收件箱']")
+
+                e3.find('b:first .jquery-accordion-menu-label').remove();
+                e3.find("b:first").append($("<span class='jquery-accordion-menu-label'>"+count1+"</span>"))
+
+                $("#msgNum").show();
+                $("#msgNum").text(count1);
+                $("#gztNum").show();
+                $("#gztNum").text(count2);
+
+                console.log(count1,count2,total)
+            })
+        }
+        setInterval(msgnotice, location.origin.indexOf("localhost") > -1 ? 10000000000: 10000);
+        msgnotice();
+    })();
+</script>

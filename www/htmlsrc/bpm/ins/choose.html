@@ -27,9 +27,12 @@
 <li>
     <label>
         <input type="radio" name="person" value="{{item.uid}}">
+        <span name="ss" class="hide">{{item.utname}}</span>
 
         &nbsp;
         {{item.utname}}
+        &nbsp;
+        {{item.uname}}
         &nbsp;
         {{if item.otype == 'ROLE'}}
         {{item.oname}}
@@ -64,6 +67,12 @@
 
     function submit() {
         var person=$('input[name="person"]:checked').val();
+        var s=$('span[name="'+person+'"]').text();
+        window.opener.userId = person;
+        // window.opener.userName = person;
+        // window.close();
+
+
         $.ajax({
             url: "/api/bpm/workflow/nextApprover",
             type:"post",

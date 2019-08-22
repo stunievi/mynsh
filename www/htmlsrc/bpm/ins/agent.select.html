@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>选择人员</title>
+    <!--#include file="/htmlsrc/header.html" -->
+    <style>
+        .select-user input {
+            position: relative;
+            z-index: 2;
+        }
+        .bg {
+            /*position: absolute;*/
+            /*top: 0;*/
+            /*left: 0;*/
+            /*width: 100%;*/
+            /*height: 100%;*/
+            /*z-index: 1;*/
+            /*padding-left: 20px;*/
+        }
+
+        input:checked + .bg {
+            /*background: #337ab7;*/
+            /*color: white;*/
+        }
+    </style>
+</head>
+<body>
+    <div id="content" class="hide">
+        <div style="width: 500px;margin: 0 auto;">
+            <!--<ul id="ulist" style="height: 200px; overflow: auto;margin: 0 auto;">-->
+            <!--</ul>-->
+            <div id="ulist">
+            </div>
+            <div style="text-align: center; padding-top: 20px;">
+                <a href="javascript:;" id="submit">确定</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+<script type="text/html" id="user">
+
+    <table width="100%">
+    {{each data item index}}
+        <tr>
+            <td>
+                <label>
+                    <input type="checkbox" class="select-user" name="person" value="{{item.uid}}">
+                    <span class="bg">
+                        {{item.uname}}
+                    </span>
+                    <span class="i-msg">
+                        {{item.msg}}
+                    </span>
+
+                </label>
+            </td>
+        </tr>
+    {{/each}}
+    </table>
+
+
+<!--{{each data item index}}-->
+<!--<li>-->
+    <!--<label>-->
+        <!--<input type="checkbox" class="select-user" name="person" value="{{item.uid}}">-->
+        <!--<span name="ss" class="hide">{{item.utname}}</span>-->
+
+        <!--&nbsp;-->
+        <!--{{item.msg}}-->
+        <!--&nbsp;-->
+        <!--{{item.uname}}-->
+
+    <!--</label>-->
+<!--</li>-->
+<!--{{/each}}-->
+</script>
+<script>
+    var id = getParam("id");
+    var tmpl = template.compile($("#user").html())
+    $.get("/api/bpm/workflow/logList", {id:id}, function (msg) {
+        $("#ulist").html(tmpl({
+            data: msg.data
+        }));
+
+        $.each(opener.app.users || [],function(i,item){
+            $("input[name='person'][value="+item+"]").attr("checked","checked");
+
+        });
+        $("#content").removeClass("hide");
+
+    },"json")
+
+    var submitFn = function(){
+        submit();
+    }
+
+    $("#submit").unbind("click",submitFn).bind("click",submitFn);
+
+    function submit() {
+        var chk_value =[];
+        var chk_name =[];
+        $('input[name="person"]:checked').each(function(){
+            chk_value.push($(this).val());
+            chk_name.push($(this).next().html().trim());
+        });
+        opener.users = chk_value;
+        opener.app.reUserName = chk_name;
+        window.close();
+
+    }
+
+
+
+</script>
