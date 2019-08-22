@@ -80,6 +80,8 @@ public class BpmInstance {
         public String uid;
         public String uname;
 
+//        public Map<String,String> aaaa;
+
         //日志类型
         public String type;
 
@@ -112,6 +114,12 @@ public class BpmInstance {
         //当前正在处理这个节点的人
         public List<String> uids;
         public List<String> unames;
+
+        //主办人
+        public Map<String,String> mainUsers;
+        //经办人
+        public Map<String,String> supportUsers;
+
 
         // 当前时间
 //        public Date nowTime;
