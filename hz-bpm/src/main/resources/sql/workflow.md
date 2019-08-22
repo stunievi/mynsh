@@ -31,7 +31,7 @@ select uid,uname,utname,pname from t_org_user where pid in (select id from RPL) 
 
 查找部门人员-新版关联
 ===
-select u.true_name as utname,u.username as uname, u.id as uid
+select u.true_name as utname,u.username as uname, u.id as uid, uo.type
 from t_user_dep uo 
 inner join t_user u on uo.uid = u.id
 where uo.did = #id#

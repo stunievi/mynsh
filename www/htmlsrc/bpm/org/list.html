@@ -68,9 +68,9 @@
                     <td colspan="100" >
                         <div class="manager-box">
                             <span>部门主管：</span>
-                            <input class="form-control" type="text" readonly style="background: #eee; flex:1">
-                            <a href="">添加</a>
-                            <a href="">清空</a>
+                            <input class="form-control" type="text" readonly style="background: #eee; flex:1" :value="managers">
+                            <a href="javascript:;" style="margin-left: 10px;margin-right: 10px;" @click="addUser('ms')">添加</a>
+                            <a href="javascript:;" @click="clearUsers('ms')">清空</a>
                         </div>
                     </td>
                 </tr>
@@ -78,9 +78,9 @@
                     <td colspan="100">
                         <div class="manager-box">
                             <span>上级主管领导：</span>
-                            <input class="form-control" type="text" readonly style="background: #eee; flex:1">
-                            <a href="">添加</a>
-                            <a href="">清空</a>
+                            <input class="form-control" type="text" readonly style="background: #eee; flex:1" :value="topManagers0">
+                            <a href="javascript:;" style="margin-left: 10px;margin-right: 10px;" @click="addUser('tms0')">添加</a>
+                            <a href="javascript:;" @click="clearUsers('tms0')">清空</a>
                         </div>
                     </td>
                 </tr>
@@ -88,9 +88,9 @@
                     <td colspan="100">
                         <div class="manager-box">
                             <span>上级分管领导：</span>
-                            <input class="form-control" type="text" readonly style="background: #eee; flex:1">
-                            <a href="">添加</a>
-                            <a href="">清空</a>
+                            <input class="form-control" type="text" readonly style="background: #eee; flex:1" :value="topManagers1">
+                            <a href="javascript:;" style="margin-left: 10px;margin-right: 10px;" @click="addUser('tms1')">添加</a>
+                            <a href="javascript:;" @click="clearUsers('tms1')">清空</a>
                         </div>
                     </td>
                 </tr>
@@ -105,8 +105,8 @@
             <p>人员</p>
             <div style="display: flex; flex-direction: row; align-items: flex-end">
                 <textarea :value="users" class="form-control" name="" id="" rows="5" readonly style="background: #eee; flex:1">{{users}}</textarea>
-                <a href="javascript:;" @click="addUser()" style="margin-right: 10px;margin-left: 10px;">添加</a>
-                <a href="javascript:;" @click="clearUsers()">清空</a>
+                <a href="javascript:;" @click="addUser('us')" style="margin-right: 10px;margin-left: 10px;">添加</a>
+                <a href="javascript:;" @click="clearUsers('us')">清空</a>
             </div>
             <div style="text-align: center; padding-top: 10px;">
                 <a href="javascript:;" class="btn btn-primary" @click="save">保存</a>
@@ -131,11 +131,17 @@
             }
         },
         computed: {
+            managers(){
+                return Object.values(this.data.ms || {}).join(",");
+            },
+            topManagers0(){
+                return Object.values(this.data.tms0 || {}).join(",");
+            },
+            topManagers1(){
+                return Object.values(this.data.tms1 || {}).join(",");
+            },
             users: function () {
-                if(this.data.selected){
-                    return Object.values(this.data.selected).join(",");
-                }
-                return "";
+                return Object.values(this.data.us || {}).join(",");
             }
         },
         methods:{
@@ -165,16 +171,16 @@
                     layer.msg("保存成功")
                 },"json");
             },
-            clearUsers: function(){
-                this.data.selected = {}
+            clearUsers: function(key){
+                this.data[key] = {}
             },
-            addUser:function(){
+            addUser:function(key){
                 var t = this;
-                window.onChooseInit = function(selected){
-                    return t.data.selected || {};
+                window.onChooseInit = function(){
+                    return t.data[key] || {};
                 };
                 window.onChooseCallback = function(selected){
-                    Vue.set(t.data, "selected", selected);
+                    Vue.set(t.data, key, selected);
                 }
                 window.open("./choose.html", "choose-user", "left=100, top=100, width=500, height=400, location=no, resizable=no")
 
@@ -340,10 +346,11 @@
                         $.get("/api/bpm/org/one", {id: id}, function (msg) {
                             layer.closeAll()
                             var data = msg.data || {}
-                            data.selected = {};
-                            (data.us || []) .forEach(function (e) {
-                                data.selected[e.uid] = e.utname
-                            });
+                            // data.selected = {};
+                            // data.ms = {};
+                            // (data.us || []) .forEach(function (e) {
+                            //     data.selected[e.uid] = e.utname
+                            // });
                             Vue.set(t, "data", data);
                         }, "json");
 

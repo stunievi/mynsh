@@ -121,7 +121,7 @@
 
             <div id="file-app">
                 <div style="padding-bottom: 20px;" v-if="files.length">
-                    <div v-for="(v,i) in files" v-if="v.action != 'delete' || (v.resp && v.resp.action != 'delete')">
+                    <div v-for="(v,i) in files" v-if="v.action != 'delete' && (!v.resp || v.resp.action != 'delete')">
                         {{v.name}}
                         &nbsp;
                         &nbsp;
@@ -665,6 +665,7 @@
                 } else {
                     item.action = "delete";
                 }
+                console.log(item.action != 'delete' && (!item.resp || item.resp.action != 'delete'))
             }
         }
     })

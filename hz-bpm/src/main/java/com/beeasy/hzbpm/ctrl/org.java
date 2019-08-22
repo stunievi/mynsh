@@ -14,6 +14,7 @@ import org.beetl.sql.core.SQLReady;
 import org.bson.types.ObjectId;
 
 import java.sql.Struct;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -69,7 +70,34 @@ public class org {
         if (item == null) {
             return Result.ok(item);
         }
-        item.put("us", sqlManager.select("workflow.查找部门人员-新版关联", Obj.class, o("id", item.s("id"))));
+        List<Obj> users = sqlManager.select("workflow.查找部门人员-新版关联", Obj.class, o("id", item.s("id")));
+        Obj us = o();
+        Obj ms = o();
+        Obj tms0 = o();
+        Obj tms1 = o();
+        for (Obj user : users) {
+            switch (user.s("type")){
+                case "USER":
+                    us.put(user.s("uid"), user.s("utname"));
+                    break;
+
+                case"MANAGER":
+                    ms.put(user.s("uid"), user.s("utname"));
+                    break;
+
+                case "TOP_MANAGER0":
+                    tms0.put(user.s("uid"), user.s("utname"));
+                    break;
+
+                case "TOP_MANAGER1":
+                    tms1.put(user.s("uid"), user.s("utname"));
+                    break;
+            }
+        }
+        item.put("us",us);
+        item.put("ms",ms);
+        item.put("tms0",tms0);
+        item.put("tms1",tms1);
         return Result.ok(item);
     }
 
@@ -127,13 +155,22 @@ public class org {
                     ));
         }
         //处理保存的人
-        if($request.containsKey("selected")){
-            Obj o = $request.o("selected");
-            sqlManager.executeUpdate(new SQLReady("delete from t_user_dep where did = ?", body.id));
-            SQLBatchReady ready = new SQLBatchReady("insert into t_user_dep(did,uid)values(?,?)");
-            List<Object[]> args = o.keySet().stream()
-                    .map(e -> new Object[]{body.id, e})
-                    .collect(Collectors.toList());
+        List<Object[]> args = new ArrayList<>();
+        SQLBatchReady ready = new SQLBatchReady("insert into t_user_dep(did,uid,type)values(?,?,?)");
+        String[] types = {"USER", "MANAGER", "TOP_MANAGER0", "TOP_MANAGER1"};
+        String[] keys = {"us", "ms", "tms0", "tms1"};
+        int i = 0;
+        for (String type : types) {
+            String key = keys[i++];
+            if($request.containsKey(key)){
+                Obj o = $request.o(key);
+                args.addAll(o.keySet().stream()
+                        .map(e -> new Object[]{body.id, e, type})
+                        .collect(Collectors.toList()));
+            }
+        }
+        sqlManager.executeUpdate(new SQLReady("delete from t_user_dep where did = ?", body.id));
+        if(!args.isEmpty()){
             ready.setArgs(args);
             sqlManager.executeBatchUpdate(ready);
         }
