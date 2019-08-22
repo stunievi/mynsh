@@ -57,7 +57,7 @@
                 <div id="tab2" class="tab-pane">
                 </div>
                 <div id="tab8" class="tab-pane">
-                    <node-smart :node-id="nodeId" ref="smart"/>
+                    <node-smart :node-id="nodeId" :data="smart" ref="smart"/>
                 </div>
                 <div id="tab3" class="tab-pane">
                 </div>
@@ -145,12 +145,24 @@
     var app = new Vue({
         el:"#content",
         data:{
-            nodeId:""
+            nodeId:"",
+            smart:{
+                filterRule:"all",
+                chooseRule:"none",
+                targetRule: ""
+            },
+            // smarts: {
+                //nodeId: {
+
+                //     filterRule:"all",
+                //     chooseRule:"none",
+                //     targetRule: this.nodeId
+                //}
+            // }
         },
         methods:{
             save(){
-                console.log(this.$refs.smart.getData())
-
+                console.log(this.smart)
                 var nodeId = location.search.match(/id=([^&]+)/)[1]
                 opener.bpmData.nodes[nodeId].intelligence = this.$refs.smart.getData();
             }

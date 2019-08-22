@@ -28,23 +28,25 @@
 
 <script>
     var component = {
-        props:["nodeId"],
+        props:["nodeId", "data"],
         methods:{
-            getData(){
-                return JSON.stringify(this.data);
-            }
+            // getData(){
+            //     return JSON.stringify(this.data);
+            // }
         },
         data() {
             return {
-                data:{
-                    filterRule:"all",
-                    chooseRule:"none",
-                    targetRule: this.nodeId
-                }
+                // data:{
+                //     filterRule:"all",
+                //     chooseRule:"none",
+                //     targetRule: this.nodeId
+                // }
             }
         },
         mounted(){
-
+            if(!this.data.targetRule){
+                this.data.targetRule = this.nodeId
+            }
         }
     }
 </script>
