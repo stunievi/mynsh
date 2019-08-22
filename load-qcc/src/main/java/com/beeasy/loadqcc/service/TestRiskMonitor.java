@@ -6,7 +6,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.beeasy.loadqcc.config.MQConfig;
 import com.beeasy.loadqcc.utils.QccUtil;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOptions;
 import org.apache.activemq.command.ActiveMQQueue;
@@ -28,19 +27,27 @@ import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-public class RiskMonitorService {
+public class TestRiskMonitor {
 
-    @Autowired
     private JmsMessagingTemplate jmsMessagingTemplate;
 
-    @Autowired
     MongoService mongoService;
 
-    @Value("${loadQcc.riskTxtPath}")
     String LOAD_RISK_TXT_PATH;
 
-    @Value("${loadQcc.riskZipPath}")
     String LOAD_RISK_ZIP_PATH;
+
+    public TestRiskMonitor(
+            JmsMessagingTemplate jmsMessagingTemplate,
+            MongoService mongoService,
+            String textPath,
+            String zipPath
+    ){
+        this.jmsMessagingTemplate = jmsMessagingTemplate;
+        this.mongoService = mongoService;
+        this.LOAD_RISK_TXT_PATH = textPath;
+        this.LOAD_RISK_ZIP_PATH = zipPath;
+    }
 
     // 文件路径
     private File qccFileDataPath;
@@ -73,7 +80,7 @@ public class RiskMonitorService {
             "8", "主要人员",
             "9", "被执行人信息",
             "10", "失信被执行人",
-            "11", "裁判文书",
+            "11", "judgementDtl",
             "12", "法院公告",
             "13", "开庭公告",
             "14", "司法拍卖",
@@ -104,7 +111,7 @@ public class RiskMonitorService {
             "3"," 投资信息",
             "4"," 股权信息",
             "5"," 失信信息",
-            "6"," 被执行信息"
+            "6","zhixingDtl"
     );
 
     private void saveRiskBlockData(
@@ -124,7 +131,7 @@ public class RiskMonitorService {
     }
 
     // 获取企查查zip包，解压，返回zip包数据
-    public JSONObject unZipRiskData() throws NoSuchMethodException, IOException, IllegalAccessException, InvocationTargetException {
+    public void unZipRiskData() throws NoSuchMethodException, IOException, IllegalAccessException, InvocationTargetException {
         String downloadUrl = this.downloadUrl;
         String unzipPassword = this.unzipPassword;
 
@@ -132,32 +139,36 @@ public class RiskMonitorService {
         JSONObject zipData = new JSONObject();
 
         // 企业监控文件
-        JSONObject corpData = zipData.getJSONObject("corp");
+        JSONObject corpData = JSONObject.parseObject("{\"pushDate\":\"2018-11-20 09:00:00\",\"totalSize\":2,\"result\":[{\"id\":\"97c945cad5a84f17be9f8232bc279911\",\"corpKeyNo\":\"10ce0780ab7644008b73bc2120479d31\",\"corpName\":\"测试科技有限责任公司\",\"mainType\":\"so2\",\"mainTypeName\":\"司法诉讼\",\"type\":\"11\",\"typeName\":\"裁判文书\",\"category\":\"W\",\"categoryName\":\"警示信息\",\"beneficiaryKeyNo\":\"\",\"beneficiaryName\":\"\",\"changeWay\":\"1\",\"changeWayName\":\"新增\",\"beforeValue\":\"\",\"afterValue\":\"新增测试标题1\",\"changeDate\":\"2018-11-20\",\"detailId\":\"956a60c200b1b5c8051690142c1bad66\",\"extendValue1\":\"ms\",\"extendValue1Name\":\"民事\",\"extendValue2\":\"0\",\"extendValue2Name\":\"原告\"},{\"id\":\"97c945cad5a84f17be9f8232bc279911\",\"corpKeyNo\":\"10ce0780ab7644008b73bc2120479d31\",\"corpName\":\"测试科技有限责任公司\",\"mainType\":\"so2\",\"mainTypeName\":\"司法诉讼\",\"type\":\"11\",\"typeName\":\"裁判文书\",\"category\":\"W\",\"categoryName\":\"警示信息\",\"beneficiaryKeyNo\":\"\",\"beneficiaryName\":\"\",\"changeWay\":\"1\",\"changeWayName\":\"新增\",\"beforeValue\":\"\",\"afterValue\":\"新增测试标题2\",\"changeDate\":\"2018-11-20\",\"detailId\":\"956a60c200b1b5c8051690142c1bad11\",\"extendValue1\":\"xz\",\"extendValue1Name\":\"行政\",\"extendValue2\":\"0\",\"extendValue2Name\":\"原告\"}]}");
         JSONArray corpList = corpData.getJSONArray("result");
         // 人员监控文件
-        JSONObject personData = zipData.getJSONObject("person");
+        JSONObject personData = JSON.parseObject("{\"pushDate\":\"2018-11-20 09:00:00\",\"totalSize\":2,\"result\":[{\"id\":\"97c945cad5a84f17be9f8232bc279922\",\"personKeyNo\":\"p576b31ce27248d1293f3be15ec8ee11\",\"personName\":\"张三\",\"corpKeyNo\":\"10ce0780ab7644008b73bc2120479d31\",\"corpName\":\"测试科技有限责任公司\",\"mainType\":\"st2\",\"mainTypeName\":\"经营风险\",\"type\":\"6\",\"typeName\":\"被执行信息\",\"category\":\"W\",\"categoryName\":\"警示信息\",\"changeWay\":\"1\",\"changeWayName\":\"新增\",\"beforeValue\":\"\",\"afterValue\":\"（2017）粤03执恢300号\",\"changeDate\":\"2018-11-20\",\"detailId\":\"0dcd3297997d5fc6d4f70dc44c4dba011\"},{\"id\":\"97c945cad5a84f17be9f8232bc279922\",\"personKeyNo\":\"p576b31ce27248d1293f3be15ec8ee11\",\"personName\":\"张三\",\"corpKeyNo\":\"10ce0780ab7644008b73bc2120479d31\",\"corpName\":\"测试科技有限责任公司\",\"mainType\":\"st2\",\"mainTypeName\":\"经营风险\",\"type\":\"6\",\"typeName\":\"被执行信息\",\"category\":\"W\",\"categoryName\":\"警示信息\",\"changeWay\":\"1\",\"changeWayName\":\"新增\",\"beforeValue\":\"\",\"afterValue\":\"（2017）粤03执恢301号\",\"changeDate\":\"2018-11-20\",\"detailId\":\"0dcd3297997d5fc6d4f70dc44c4dba022\"}]}");
         JSONArray personList = personData.getJSONArray("result");
+        // 企业新闻舆情推送文件(推送数量限制请参考企查查专业版: 监控设置-推送设置)
+        JSONObject corpNewsData = JSONObject.parseObject("{\"pushDate\":\"2019-07-17 15:53:39\",\"totalSize\":10,\"result\":[{\"corpKeyNo\":\"60f83985cf442a0434e827c0445e7a1f\",\"corpName\":\"广州小鹏汽车科技有限公司\",\"extraInfo1\":\"\",\"extraInfo2\":\"\",\"impact\":\"negative\",\"impactDesc\":\"消极\",\"newsId\":\"1bf4d96115ce5a6058a0d5d69502e40d\",\"newsTagsDesc\":\"#小鹏汽车 ; #曹光植 ; #车主 ; #iCloud ; #Model X\",\"newsTagsList\":[\"小鹏汽车\",\"曹光植\",\"车主\",\"iCloud\",\"Model X\"],\"newsTypeDesc\":\"产品信息\",\"newsTypeList\":[\"5100\"],\"publishTime\":\"2019-07-16 23:49:46\",\"source\":\"百家号\",\"title\":\"特斯拉全系车型官方调价 小鹏汽车回应老车主维权\",\"url\":\"https://mbd.baidu.com/newspage/data/landingshare?context=%7B%22nid%22%3A%22news_9117635074386336775%22%2C%22sourceFrom%22%3A%22bjh%22%7D&type=news\"},{\"corpKeyNo\":\"6b242b475738f45a4dd180564d029aa9\",\"corpName\":\"华为技术有限公司\",\"extraInfo1\":\"\",\"extraInfo2\":\"\",\"impact\":\"positive\",\"impactDesc\":\"积极\",\"newsId\":\"544926a67a58b1d6d5e8d1047c1350b6\",\"newsTagsDesc\":\"#华为P30 Pro ; #华为mate20 ; #机型 ; #系统 ; #用户\",\"newsTagsList\":[\"华为P30 Pro\",\"华为mate20\",\"机型\",\"系统\",\"用户\"],\"newsTypeDesc\":\"产品信息\",\"newsTypeList\":[\"5100\"],\"publishTime\":\"2019-07-16 23:46:14\",\"source\":\"百家号\",\"title\":\"华为mate20升级EMUI9.1系统，增加7项功能，网友：再战两年\",\"url\":\"https://mbd.baidu.com/newspage/data/landingshare?context=%7B%22nid%22%3A%22news_9549784706569385148%22%2C%22sourceFrom%22%3A%22bjh%22%7D&type=news\"}]}");
+        JSONArray corpNewsList = personData.getJSONArray("result");
 
-        // 企业监控文件
+        writeFile(corpData.toJSONString());
+        writeFile(personData.toJSONString());
+
         MongoCollection<Document> coll = mongoService.getCollection("riskMonitor_corp.json");
         saveRiskBlockData(coll, corpData);
-        // 人员监控文件
         MongoCollection<Document> coll2 = mongoService.getCollection("riskMonitor_person.json");
         saveRiskBlockData(coll2,  personData);
-        // 企业新闻舆情推送文件(推送数量限制请参考企查查专业版: 监控设置-推送设置)
         MongoCollection<Document> coll3 = mongoService.getCollection("riskMonitor_corp_news.json");
-        saveRiskBlockData(coll3, zipData.getJSONObject("corp_news"));
+        saveRiskBlockData(coll3, corpNewsData);
 
-
-        invokeDtl(corpList);
-        invokeDtl(personList);
+        invokeDtl("corp", corpList);
+        invokeDtl("person", personList);
 
         this.zipData = zipData;
-        return zipData;
+
+        return;
     }
 
     // 循环列表获取详情
     public void invokeDtl(
+            String dtlType,
             JSONArray dataList
     ) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException {
         if(null == dataList || dataList.size() < 1){
@@ -169,9 +180,13 @@ public class RiskMonitorService {
             JSONObject dataItem = (JSONObject) item;
             // id String  监控记录唯一 ID
             String dataId = dataItem.getString("id");
-            String type = dataItem.getString("key");
-            JSONObject relationParam = new JSONObject();
-            String dtlApi = corpDtlApi.get(type);
+            String type = dataItem.getString("type");
+            String dtlApi = "";
+            if(dtlType.equals("corp")){
+                dtlApi = corpDtlApi.get(type);
+            }else if(dtlType.equals("person")){
+                dtlApi = (String) personDtlApi.get(type);
+            }
             if(S.notBlank(dtlApi)){
                 Method method = this.getClass().getDeclaredMethod(dtlApi, JSONObject.class);
                 JSONObject retData = (JSONObject) method.invoke(this, dataItem);
@@ -194,7 +209,6 @@ public class RiskMonitorService {
 
                 // 写入待压缩文件
                 writeFile(retData.toJSONString());
-
             }
         }
     }
@@ -281,8 +295,7 @@ public class RiskMonitorService {
         zipResData();
 
         ActiveMQQueue mqQueue = new ActiveMQQueue("qcc-deconstruct-request");
-
-        jmsMessagingTemplate.convertAndSend(mqQueue , __zip);
+        jmsMessagingTemplate.convertAndSend(mqQueue , new MQConfig.FileRequest(orderNo, orderNo, __zip));
 
     }
 
@@ -398,12 +411,30 @@ public class RiskMonitorService {
     public JSONObject zhixingDtl(
             JSONObject reqItemData
     ){
-        return getRiskRemoteData(
-                "https://pro.qichacha.com/api/corpdtl/riskMonitor/zhixingDtl",
-                C.newMap(
-                        "detailId", reqItemData.getString("detailId")
-                )
-        );
+        return  JSONObject.parseObject("{\n"
+                + "\t\"status\": \"200\",\n"
+                + "\t\"msg\": \"查询成功\",\n"
+                + "\t\"result\": {\n"
+                + "\t\t\"name\": \"宁夏宁丰餐饮服务有限公司\",\n"
+                + "\t\t\"orgNo\": \"22768302-9\",\n"
+                + "\t\t\"executeGov\": \"银川市兴庆区人民法院\",\n"
+                + "\t\t\"executeStatus\": \"全部未履行\",\n"
+                + "\t\t\"province\": \"宁夏\",\n"
+                + "\t\t\"executeNo\": \"（2016）银劳人仲裁字1403号\",\n"
+                + "\t\t\"lianDate\": \"2017-01-23\",\n"
+                + "\t\t\"anNo\": \"(2017)宁0104执756号\",\n"
+                + "\t\t\"executeUnite\": \"银川市劳动人事争议仲裁委员会\",\n"
+                + "\t\t\"publicDate\": \"2017-02-27\",\n"
+                + "\t\t\"actionRemark\": \"其他有履行能力而拒不履行生效法律文书确定义务的\",\n"
+                + "\t\t\"yiWu\": \"支付申请人工资12672元\"\n"
+                + "\t}\n"
+                + "}");
+//        return getRiskRemoteData(
+//                "https://pro.qichacha.com/api/corpdtl/riskMonitor/zhixingDtl",
+//                C.newMap(
+//                        "detailId", reqItemData.getString("detailId")
+//                )
+//        );
     }
 
     /**
@@ -460,12 +491,19 @@ public class RiskMonitorService {
     public JSONObject judgementDtl(
             JSONObject reqItemData
     ){
-        return getRiskRemoteData(
-                "https://pro.qichacha.com/api/corpdtl/riskMonitor/judgementDtl",
-                C.newMap(
-                        "detailId", reqItemData.getString("detailId")
-                )
-        );
+        return JSONObject.parseObject("{\n"
+                + "\t\"status\": \"200\",\n"
+                + "\t\"msg\": \"查询成功\",\n"
+                + "\t\"result\": {\n"
+                + "\t\t\"content\": \"内容\"\n"
+                + "\t}\n"
+                + "}");
+//        return getRiskRemoteData(
+//                "https://pro.qichacha.com/api/corpdtl/riskMonitor/judgementDtl",
+//                C.newMap(
+//                        "detailId", reqItemData.getString("detailId")
+//                )
+//        );
     }
 
     /**
@@ -669,4 +707,7 @@ public class RiskMonitorService {
         );
     }
 
+
+
 }
+

@@ -44,13 +44,6 @@ left join GRT_GUARANTEER as g2 on g2.GUARANTY_ID=g6.GUARANTY_ID
 where 
 1 = 1
     and p1.LOAN_ACCOUNT in (#join(loans)#)
-
-自然人股东
-===
-select s.* from T_SHARE_HOLDER_LIST s where 1=1
-and s.GD_TYPE = '自然人'
-and s.CERT_CODE <> ''
-and s.CERT_CODE is not null
     
 cun_cus_com
 ===

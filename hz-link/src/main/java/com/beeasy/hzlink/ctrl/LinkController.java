@@ -80,37 +80,42 @@ public class LinkController {
                         System.out.println("11.6");
                         Link.do11_6();
                     }
-
-                    if(ruleArr.contains("12.2")){
-                        System.out.println("12.2");
-                        Link.do12_2(name);
-                    }
-                    if(ruleArr.contains("12.3")){
-                        System.out.println("12.3");
-                        Link.do12_3(name);
-                    }
-                    if(ruleArr.contains("12.4")){
-                        System.out.println("12.4");
-                        Link.do12_4(name);
-                    }
                 });
             }catch (Exception e){
                 e.printStackTrace();
             }
         }
 
-        List<Obj> holderList = sqlManager.select("accloan.自然人股东", Obj.class, o());
+        List<Obj> holderList = sqlManager.select("accloan.1201", Obj.class, o());
         for (Obj obj : holderList) {
             try{
                 exec.submit(() -> {
                     var name = obj.getStr("cus_name");
                     var certCode = obj.getStr("cert_code");
+                    String gdType = obj.getStr("gd_type");
                     if(StrUtil.isEmpty(name) || StrUtil.isBlank(certCode)){
                         return;
                     }
-                    if(ruleArr.contains("12.5")){
-                        System.out.println("12.5");
-                        Link.do12_5(name, certCode);
+                    if(Arrays.asList("自然人","员工").contains(gdType)){
+                        // 自然人股东
+                        if(ruleArr.contains("12.5")){
+                            System.out.println("12.5");
+                            Link.do12_5(name, certCode);
+                        }
+                    }else if(Arrays.asList("法人").contains(gdType)){
+                        // 企业股东
+                        if(ruleArr.contains("12.2")){
+                            System.out.println("12.2");
+                            Link.do12_2(name);
+                        }
+                        if(ruleArr.contains("12.3")){
+                            System.out.println("12.3");
+                            Link.do12_3(name);
+                        }
+                        if(ruleArr.contains("12.4")){
+                            System.out.println("12.4");
+                            Link.do12_4(name);
+                        }
                     }
                 });
             }catch (Exception e){

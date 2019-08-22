@@ -710,12 +710,12 @@ var _menu = [
                         href: '/htmlsrc/sysManage/dataManage/dataMaintain.html',
                         api: []
                     },
+                    // {
+                    //     name: '资本净额维护',
+                    //     href: '/htmlsrc/sysManage/dataManage/netCapital.html',
+                    //     api: []
+                    // },
                     {
-                        name: '资本净额维护',
-                        href: '/htmlsrc/sysManage/dataManage/netCapital.html',
-                        api: []
-                    }
-                    ,{
                         name: '关联方清单维护',
                         href: '/htmlsrc/sysManage/dataManage/linkList.html',
                         api: []
@@ -734,15 +734,6 @@ var _menu = [
                         name: "股东关联维护",
                         href: "/htmlsrc/sysManage/dataManage/holderLink.html"
                     }
-                    // {
-                    //     name: "股东关联维护",
-                    //     href:""
-                    // },
-                    // {
-                    //     name: "关联方日志查询",
-                    //     href:""
-                    // }
-
                     /*,{
                         name: '触发',
                         href: '/htmlsrc/sysManage/dataManage/touchRule.html',
