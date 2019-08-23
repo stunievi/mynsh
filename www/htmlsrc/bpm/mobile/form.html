@@ -8,6 +8,16 @@
         overflow: auto;
     }
 
+    .mint-field .mint-cell-title {
+        min-width: 105px;
+        max-width: 200px;
+    }
+    .mint-cell-text{
+        max-width: 200px;
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 
     .my-icon-button {
         width: 30px;
@@ -19,9 +29,6 @@
         text-align: center;
     }
 
-    .mint-cell-title {
-        white-space: nowrap;
-    }
 </style>
 <script id="form-tmpl" type="text/html">
     <div class="full" id="form">
@@ -507,9 +514,6 @@
                 }
             },
             flow() {
-
-                showMsg(JSON.stringify(this.files)+"this.filesthis.files");
-
                 var name = this.$refs.picker.getSlotValue(0);
                 for (let i = 0; i < this.next.length; i++) {
                     if (this.next[i].nodeName == name) {
