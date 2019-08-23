@@ -24,7 +24,7 @@ public class Notice {
     public static void sendSystem(String uid, String msg, String id){
         Async.execute(() -> {
             String finalMsg = String.format(msg);
-            sqlManager.executeUpdate(new SQLReady("insert into T_SYSTEM_NOTICE(id,add_time,content,state,type,user_id,bind_data) values (?,?,?,?,?,?,?)", snowflake.nextId(), new Date(), finalMsg, "UNREAD", "BPM-MESSAGE", uid));
+            sqlManager.executeUpdate(new SQLReady("insert into T_SYSTEM_NOTICE(id,add_time,content,state,type,user_id,bind_data) values (?,?,?,?,?,?,?)", snowflake.nextId(), new Date(), finalMsg, "UNREAD", "BPM-MESSAGE", uid,Json.stringify(o("id", id))));
         });
     }
 

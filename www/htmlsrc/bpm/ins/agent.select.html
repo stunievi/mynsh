@@ -6,7 +6,8 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>选择人员</title>
-    <!--#include file="/htmlsrc/header.html" -->
+    <script src="../../../static/vendor/artTemplate/template-web.js"></script>
+    <script src="../lib/jquery/jquery.js"></script>
     <style>
         .select-user input {
             position: relative;
@@ -78,14 +79,21 @@
 <!--{{/each}}-->
 </script>
 <script>
-    var id = getParam("id");
+    var id = location.search.match(/id=([^&]+)/)[1];
+    // var id = getParam("id");
     var ids = opener.app.remindAgent;
     var tmpl = template.compile($("#user").html())
     $.get("/api/bpm/workflow/logList", {id:id}, function (msg) {
         if(msg.success){
-            $("#ulist").html(tmpl({
-                data: msg.data
-            }));
+            if(msg.data){
+                console.log(msg.data)
+
+
+                $("#ulist").html(tmpl({
+                    data: msg.data
+                }));
+
+            }
 
             $.each(ids || {},function (i, item) {
 
