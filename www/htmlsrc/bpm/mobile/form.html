@@ -2,6 +2,23 @@
     #form .mint-popup.mint-popup-bottom {
         width: 100%;
     }
+
+    .mint-actionsheet-list {
+        max-height: 300px;
+        overflow: auto;
+    }
+
+    .mint-field .mint-cell-title {
+        min-width: 105px;
+        max-width: 200px;
+    }
+    .mint-cell-text{
+        max-width: 200px;
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
     .my-icon-button {
         width: 30px;
         height: 30px;
@@ -11,31 +28,75 @@
         line-height: 30px;
         text-align: center;
     }
-    .mint-cell-title{
-        white-space: nowrap;
-    }
+
 </style>
 <script id="form-tmpl" type="text/html">
     <div class="full" id="form">
         <div>
             <div v-for="v in fields">
-                <mt-field :label="v.title" v-if="v.leipiplugins == 'text'" :placeholder="v.title" v-model="attrs[v.title]" ></mt-field>
+                <mt-field :label="v.title" v-if="v.leipiplugins == 'text'" :placeholder="v.title"
+                          v-model="attrs[v.title]"></mt-field>
                 <mt-cell v-if="v.leipiplugins == 'macros'" :title="v.title" :value="attrs[v.title]">
                 </mt-cell>
-                <mt-cell v-if="v.leipiplugins == 'select'" :title="v.title" is-link @click.native="select(v)" :value="attrs[v.title]">
+                <mt-cell v-if="v.leipiplugins == 'select'" :title="v.title" is-link @click.native="select(v)"
+                         :value="attrs[v.title]">
                 </mt-cell>
-                <mt-field v-if="v.leipiplugins == 'textarea'" :label="v.title" :placeholder="v.title" type="textarea" rows="3"  v-model="attrs[v.title]"></mt-field>
-                <mt-cell v-if="v.leipiplugins == 'datetime'" :title="v.title" is-link @click.native="pickTime(v)" :value="attrs[v.title]">
+                <mt-field v-if="v.leipiplugins == 'textarea'" :label="v.title" :placeholder="v.title" type="textarea"
+                          rows="3" v-model="attrs[v.title]"></mt-field>
+                <mt-cell v-if="v.leipiplugins == 'datetime'" :title="v.title" is-link @click.native="pickTime(v)"
+                         :value="attrs[v.title]">
                 </mt-cell>
                 <mt-cell v-if="v.leipiplugins == 'sign'" :title="v.title" @click.native="sign(v)">
-                    <img width="40" height="40" :src="formatSign(attrs[v.title])"  >
+                    <img width="40" height="40" :src="formatSign(attrs[v.title])">
                 </mt-cell>
             </div>
         </div>
 
+
+        <!--                <div>-->
+        <!--                    <div v-for="(upload,index) in files">-->
+        <!--                        <mt-cell :title="upload.name" v-if="upload.action == 'upload'" @click.native="popupWindows(index)">-->
+        <!--                            &lt;!&ndash;                    <mt-button height="40" type="default" @click="download(index)" size="small">下载</mt-button>&ndash;&gt;-->
+        <!--                            &lt;!&ndash;                    <mt-button height="40" v-if="upload.creator == uid" type="default" @click="delUpload(index)"&ndash;&gt;-->
+        <!--                            &lt;!&ndash;                               size="small" style="margin-left: 15px;">删除&ndash;&gt;-->
+        <!--                            &lt;!&ndash;                    </mt-button>&ndash;&gt;-->
+        <!--                        </mt-cell>-->
+        <!--                    </div>-->
+        <!--                </div>-->
+
+
+        <div>
+            <div v-for="(upload,index) in files">
+                <mt-cell :title="upload.name" v-if="upload.action == 'upload'">
+                    <mt-button height="40" type="default" @click="download(index)" size="small">下载</mt-button>
+                    <mt-button height="40" v-if="upload.creator == uid" type="default" @click="delUpload(index)"
+                               size="small" style="margin-left: 15px;">删除
+                    </mt-button>
+                </mt-cell>
+            </div>
+        </div>
+
+
+<!--        <mt-popup-->
+<!--                v-model="download_upload"-->
+<!--                style="text-align: center; padding-bottom: 20px;width: 50%;height: 40px;">-->
+<!--            <mt-button height="40" type="default" @click="download(index)" size="primary" style="text-align: center;">-->
+<!--                下载-->
+<!--            </mt-button>-->
+<!--            <mt-button height="40" v-if="upload.creator == uid" type="primary" @click="delUpload(caozuo_index)"-->
+<!--                       size="small" style="margin-left: 15px;">删除-->
+<!--            </mt-button>-->
+<!--        </mt-popup>-->
+
+
         <div style="text-align: center; padding-top: 30px" v-if="fields.length">
+            <mt-button type="primary" @click="allowUpload()" size="small" v-if="allow_upload"
+                       style="margin-right: 15px;">上传
+            </mt-button>
             <mt-button type="primary" @click="submit(false)" style="margin-right: 15px;" size="small">保存</mt-button>
             <mt-button type="primary" @click="submit(true)" size="small">提交</mt-button>
+            <!--            <mt-button type="primary" @click="testClick()" size="small">testClick</mt-button>-->
+
         </div>
 
         <mt-actionsheet
@@ -54,21 +115,21 @@
         <mt-popup
                 v-model="popupVisible"
                 position="bottom">
-<!--            <mt-radio-->
-<!--                    v-if="popType == 'select'"-->
-<!--                    title="单选框列表"-->
-<!--                    v-model="value"-->
-<!--                    :options="selectOptions"-->
-<!--            >-->
-<!--            </mt-radio>-->
+            <!--            <mt-radio-->
+            <!--                    v-if="popType == 'select'"-->
+            <!--                    title="单选框列表"-->
+            <!--                    v-model="value"-->
+            <!--                    :options="selectOptions"-->
+            <!--            >-->
+            <!--            </mt-radio>-->
         </mt-popup>
 
 
         <mt-palette-button
                 content="详"
-                           direction="lt" class="pb" :radius="80" ref="target_1"
+                direction="lt" class="pb" :radius="80" ref="target_1"
                 mainButtonStyle="color:#fff;background-color:#26a2ff;"
-                           style="right:20px;position:absolute;bottom: 20px; display: none">
+                style="right:20px;position:absolute;bottom: 20px; display: none">
             <div class="my-icon-button indexicon icon-popup" @touchstart="sub_log(1)">单</div>
             <div class="my-icon-button indexicon icon-popup" @touchstart="sub_log(2)">图</div>
             <div class="my-icon-button indexicon icon-popup" @touchstart="sub_log(3)">历</div>
@@ -83,65 +144,80 @@
             </div>
         </mt-popup>
 
-        <Sign v-if="canSign" :url="formatSign(attrs[signKey])" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%;"></Sign>
+        <Sign v-if="canSign" :url="formatSign(attrs[signKey])"
+              style="position: absolute; left: 0; top: 0; width: 100%; height: 100%;"></Sign>
     </div>
 </script>
 
 <script>
-    Date.prototype.Format = function(fmt)
-    { //author: meizz
+    Date.prototype.Format = function (fmt) { //author: meizz
         var o = {
-            "M+" : this.getMonth()+1,                 //月份
-            "d+" : this.getDate(),                    //日
-            "h+" : this.getHours(),                   //小时
-            "m+" : this.getMinutes(),                 //分
-            "s+" : this.getSeconds(),                 //秒
-            "q+" : Math.floor((this.getMonth()+3)/3), //季度
-            "S"  : this.getMilliseconds()             //毫秒
+            "M+": this.getMonth() + 1,                 //月份
+            "d+": this.getDate(),                    //日
+            "h+": this.getHours(),                   //小时
+            "m+": this.getMinutes(),                 //分
+            "s+": this.getSeconds(),                 //秒
+            "q+": Math.floor((this.getMonth() + 3) / 3), //季度
+            "S": this.getMilliseconds()             //毫秒
         };
-        if(/(y+)/.test(fmt))
-            fmt=fmt.replace(RegExp.$1, (this.getFullYear()+"").substr(4 - RegExp.$1.length));
-        for(var k in o)
-            if(new RegExp("("+ k +")").test(fmt))
-                fmt = fmt.replace(RegExp.$1, (RegExp.$1.length==1) ? (o[k]) : (("00"+ o[k]).substr((""+ o[k]).length)));
+        if (/(y+)/.test(fmt))
+            fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+        for (var k in o)
+            if (new RegExp("(" + k + ")").test(fmt))
+                fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
         return fmt;
     }
 
     const Form = Vue.component("Form", {
-        template:$("#form-tmpl").html(),
-        data(){
+        template: $("#form-tmpl").html(),
+        data() {
             return {
                 fields: [],
-                attrs:{},
+                attrs: {},
                 popType: "",
                 popupVisible: false,
                 selectVisible: false,
-                selectOptions:  [],
+                selectOptions: [],
                 html: "",
                 value: "",
-                timeType:"",
-                timeValue:"",
+                timeType: "",
+                timeValue: "",
                 timeKey: "",
 
-                type:"",
-                id:"",
+                type: "",
+                id: "",
                 deal: false,
                 canSign: false,
                 signKey: "",
 
                 chooseUserVisible: false,
-                slots:[],
-                next: []
+
+                download_upload: false,
+                caozuo_index: "",
+                slots: [],
+                next: [],
+
+                files: [],
+                allow_upload: false,
+                // upload_list: [],
+                flow_id: "",
+                // new_upload_files: [],
+                uid: ""
+                // old_files:[]
             }
         },
-        methods:{
-            getUrl(){
+        methods: {
+            getUrl() {
                 return './ins.form.html?type=deal&id=' + this.$route.params.id + "&uid=1"
+            }, popupWindows(index) {
+                this.download_upload = true;
+                this.caozuo_index = index;
             },
-
-            sign(v){
+            sign(v) {
+                console.log("vvvvvvvvv", v);
                 this.signKey = v.title
-                this.canSign = true;
+                uploadImg();
+                // this.canSign = true;
                 // this.$router.push({
                 //     name: "sign",
                 //     params:{
@@ -149,12 +225,11 @@
                 //     }
                 // })
             },
-
-            formatSign(file){
-                if(!file){
+            formatSign(file) {
+                if (!file) {
                     return "../form/sign.png"
                 }
-                if(file.indexOf("[img]") == -1){
+                if (file.indexOf("[img]") == -1) {
                     return "/api/bpm/workflow/download?path=" + encodeURI(file);
                 } else {
                     return file.replace("[img]", "");
@@ -175,10 +250,9 @@
                         startFragment("log", this.id, this.type)
                         break;
                 }
-                console.log('sub_log', val);
                 this.$refs.target_1.collapse();
             },
-            getDateType(v){
+            getDateType(v) {
                 switch (v.orgformat) {
                     case "日期":
                         return "date";
@@ -188,16 +262,18 @@
                         return "datetime";
                 }
             },
-            pickTime(v){
+            pickTime(v) {
                 this.timeKey = v.title;
                 this.timeType = this.getDateType(v);
+                if (this.timeValue === "") {
+                    this.timeValue = new Date();
+                }
                 this.$nextTick(() => {
                     this.$refs.datePicker.open();
                 })
-                // console.log(this.timeType)
-                 // this.$refs.datePicker.open();
+                // this.$refs.datePicker.open();
             },
-            pickTimeOk(v){
+            pickTimeOk(v) {
                 switch (this.timeType) {
                     case "datetime":
                         v = v.Format("yyyy-MM-dd hh:mm:ss");
@@ -211,15 +287,16 @@
                         v = v.Format("yyyy-MM-dd");
                         break;
                 }
-                console.log(arguments, this.timeKey, this.timeValue, v)
+                if (this.timeValue === "") {
+                    this.timeValue = new Date();
+                }
                 Vue.set(this.attrs, this.timeKey, v);
                 // this.set(this.attrs, this.timeKey, v);
                 // this.attrs.set(this.timeKey, v);
             },
-            select(v){
+            select(v) {
                 // this.popType = 'select'
                 // this.popupVisible = true;
-                console.log(v.values)
                 var t = this;
                 this.selectVisible = true;
                 this.selectOptions = v.values.map(e => {
@@ -231,27 +308,40 @@
                     }
                 })
             },
-            submit(gonext){
+            submit(gonext) {
+
                 var params = this.$route.params;
+                console.log(params.id);
+
                 var url;
-                if(params.type == 'pub'){
+                if (params.type == 'pub') {
                     url = "/api/bpm/workflow/createIns";
                 } else {
                     url = "/api/bpm/workflow/saveIns";
-                };
+                }
 
-                if(params.type != 'pub' && gonext){
+                if (params.type != 'pub' && gonext) {
                     this.getDealers();
                     return
                 }
-
-
+                // let jiaoji_new_upload_files = []
+                // if(this.new_upload_files.length > 0){
+                //     this.new_upload_files.map(e =>{
+                //         this.files.map(ma =>{
+                //             if(e.id === ma.id){
+                //                 jiaoji_new_upload_files.push(e)
+                //             }
+                //         })
+                //     })
+                // }
                 var data = {
                     id: params.id,
                     data: this.attrs,
                     mode: params.type,
-                    files: []
+                    files: this.files
+                    // files: jiaoji_new_upload_files.length > 0 ? jiaoji_new_upload_files : this.new_upload_files
                 }
+
 
                 $.ajax({
                     url: url, //"/api/bpm/workflow/createIns",
@@ -262,13 +352,17 @@
                     dataType: "json",
                     data: JSON.stringify(data),
                     success: msg => {
-                        if(!msg.success){
+                        if (!msg.success) {
                             return showMsg(msg.errMessage)
                         }
 
-                        if(params.type == 'pub'){
+                        if (!gonext) {
+                            showMsg("保存成功");
+                        } else if (params.type == 'pub') {
                             showMsg("发布成功");
-                            onBack("tab4", msg.data, "deal", "1");
+                            this.flow_id = msg.data;
+                            this.getDealers(msg.data);
+                            // onBack("tab4", msg.data, "deal", "1");
                             // this.$router.replace({
                             //     name: "form",
                             //     params:{
@@ -276,49 +370,109 @@
                             //         type: "deal"
                             //     }
                             // });
-                        } else if(!gonext){
-                            showMsg("保存成功");
                         } else {
                             this.getDealers();
                         }
                     }
                 });
             },
-            load(){
-                console.log(this.$route)
+            // testClick(){
+            //     let old_files = this.old_files;
+            //     let flow_files =   JSON.parse(JSON.stringify( this.files));
+            //     console.log(JSON.stringify(flow_files) + "我就是要提交的");
+            //     console.log(JSON.stringify(old_files) + "我就是老的数据");
+            //       flow_files.map((folw,index) =>{
+            //         console.log(folw+"ddddddddddd");
+            //         old_files.map(old =>{
+            //             if(folw.id == old.id &&  folw.action == "upload"){
+            //                 // this.$set(new_files[index], `action`, "delete");
+            //                 // flow_files.splice(index,1);
+            //             }
+            //         })
+            //     });
+            //     console.log( JSON.stringify(flow_files)+"flow_filesflow_filesflow_filesflow_files");
+            // },
+            load() {
                 this.chooseUserVisible = false;
                 var params = this.$route.params;
                 this.type = params.type;
                 this.id = params.id;
                 var url = "";
-                if(params.type == 'pub'){
+                if (params.type == 'pub') {
                     url = "/api/bpm/workflow/preparePub";
                 } else {
                     url = "/api/bpm/workflow/getInsInfo";
                 }
-                $.get(url, {id:params.id}, (msg) => {
-                    if(!msg.success){
+                $.get(url, {id: params.id}, (msg) => {
+                    if (!msg.success) {
                         return
                     }
+                    var t = this;
                     this.deal = msg.data.deal;
-                    this.attrs = msg.data.attrs || {}
+                    if (msg.data.node !== "null") {
+                        this.allow_upload = msg.data.node.allowUpload
+
+                    }
+                    this.attrs = msg.data.attrs || {};
                     this.fields = msg.data.formFields
                         .map(e => msg.data.allFields[e])
-                        .filter(e => e)
+                        .filter(e => e);
+                    msg.data.formFields
+                        .map(e => {
+                                msg.data.allFields[e]
+                                if (msg.data.allFields[e].leipiplugins === "select") {
+                                    if(t.attrs[msg.data.allFields[e].title] === ''){
+                                        t.attrs[msg.data.allFields[e].title] = msg.data.allFields[e].defaultValue;
+                                    }
+                                }
+                            }
+                        )
 
-                },"json");
+                    if (typeof (msg.data.files) != "undefined") {
+                        this.files = msg.data.files;
+                        // this.old_files =  JSON.parse( JSON.stringify(msg.data.files));
+                        // for (let i = 0; i < msg.data.files.length; i++) {
+                        //     let path = msg.data.files[i].id;
+                        //     path = path.slice(path.lastIndexOf("/") + 1, path.length)
+                        //     const map = {
+                        //         path: msg.data.files[i].name,
+                        //         creator: msg.data.files[i].creator
+                        //     }
+                        //     this.upload_list.push(map)
+                        // }
+                    }
+                }, "json");
             },
-            getDealers(){
-                console.log(this)
+            allowUpload() {
+                upload();
+            },
+            delUpload(index) {
+                // this.$set(this.files[index], `action`, "delete");
+                // this.upload_list.splice(index, 1);
+                this.files.splice(index, 1);
+            },
+            download(index) {
+                androidDownload(this.files[index].toString(), JSON.stringify(this.files[index]), this.files[index]);
+            },
+            getDealers(id) {
+                let next_id = "";
+                if (id !== "") {
+                    next_id = id;
+                } else {
+
+                }
                 $.ajax({
                     url: "/api/bpm/workflow/getNextDealers",
-                    type:"post",
-                    headers:{
+                    type: "post",
+                    headers: {
                         "Content-Type": "application/json"
                     },
-                    data: JSON.stringify({id: this.$route.params.id, data: this.attrs}),
+                    data: JSON.stringify({
+                        id: typeof (id) != "undefined" ? id : this.$route.params.id,
+                        data: this.attrs
+                    }),
                     success: (msg) => {
-                        if(!msg.success){
+                        if (!msg.success) {
                             showMsg(msg.errMessage);
                             return;
                         }
@@ -327,7 +481,7 @@
                         this.slots = [
                             {
                                 flex: 1,
-                                values: (msg.data.next||[]).map(e => e.nodeName),
+                                values: (msg.data.next || []).map(e => e.nodeName),
                                 className: 'slot1',
                                 textAlign: 'right'
                             }, {
@@ -350,24 +504,23 @@
                     }
                 })
             },
-            onValuesChange(picker, e){
-                console.log(e)
+            onValuesChange(picker, e) {
                 for (let i = 0; i < this.next.length; i++) {
-                    if(this.next[i].nodeName == e[0]){
-                        picker.setSlotValues(1,(this.next[i].dealers||[])
+                    if (this.next[i].nodeName == e[0]) {
+                        picker.setSlotValues(1, (this.next[i].dealers || [])
                             .map(e => e.utname + " " + e.uname)
                         );
                     }
                 }
             },
-            flow(){
+            flow() {
                 var name = this.$refs.picker.getSlotValue(0);
                 for (let i = 0; i < this.next.length; i++) {
-                    if(this.next[i].nodeName == name){
+                    if (this.next[i].nodeName == name) {
                         var values = this.next[i].dealers || [];
                         name = this.$refs.picker.getSlotValue(1);
                         for (let j = 0; j < values.length; j++) {
-                            if(name == values[j].utname + " " + values[j].uname){
+                            if (name == values[j].utname + " " + values[j].uname) {
                                 $.ajax({
                                     url: "/api/bpm/workflow/nextApprover",
                                     type: "post",
@@ -376,9 +529,9 @@
                                     },
                                     dataType: "json",
                                     data: JSON.stringify({
-                                        files:[],
-                                        data:this.attrs,
-                                        id: this.$route.params.id,
+                                        files: this.files,
+                                        data: this.attrs,
+                                        id: this.flow_id != "" ? this.flow_id : this.$route.params.id,
                                         nodeIds: [this.next[i].nodeId],
                                         uids: values[j].uid,
                                         nextStepNotice: false,
@@ -387,14 +540,14 @@
                                         startShort: false,
                                         allNotice: false,
                                         allShort: false,
-                                        message:""
+                                        message: ""
                                     }),
                                     success: (msg) => {
                                         if (!msg.success) {
                                             return;
                                         }
                                         showMsg("提交成功");
-                                        onBack("tab4", this.$route.params.id, "deal", "0");
+                                        onBack("tab4", this.flow_id != "" ? this.flow_id : this.$route.params.id, "deal", "0");
                                         // this.load();
                                         // if(d.nodeIds[0] && d.nodeIds[0].indexOf("EndEvent") != -1 ){
                                         //     window.opener.layer.msg(msg.data);
@@ -419,16 +572,28 @@
                 }
             }
         },
-        mounted(){
+        mounted() {
+            this.uid = this.$route.params.uid;
             this.load()
             eventBus.$on('sign_ok', (url) => {        //赋值给首页的附近医院数据模型
-                Vue.set(this.attrs, this.signKey, "[img]/api/bpm/workflow/download?path=" + (url));
-                this.canSign = false;
+                Vue.set(this.attrs, this.signKey, url) //; "[img]/api/bpm/workflow/download?path=" + (url));
             });
-
-            eventBus.$on("sign_cancel", data => {
-                this.canSign = false;
-            });
+            eventBus.$on('upload_files', (file, fileName) => {
+                let file_to_json = JSON.parse(file)
+                this.files.push(file_to_json)
+                // this.new_upload_files.push(file_to_json);
+                // const map = {
+                //     path: file_to_json.name,
+                //     creator: this.uid
+                // }
+                // this.upload_list.push(map);
+            })
         }
     });
+    window.showAlert = function (s) {
+        eventBus.$emit("sign_ok", s)
+    }
+    window.upload_files = function (file, fileName) {
+        eventBus.$emit("upload_files", file, fileName)
+    }
 </script>

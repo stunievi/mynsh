@@ -72,15 +72,34 @@
     <script src="right_menu.js"></script>
     <script src="../../../static/vendor/artTemplate/template-web.js"></script>
     <script>
-        window.type = getParam("type");
-        window.id = getParam("id");
-    </script>
+    window.type = getParam("type");
+    window.id = getParam("id");
+</script>
+
     <script src="../lib/bpm/bpmn-viewer.js"></script>
     <script src="../lib/layer/layer.js"></script>
     <script src="../lib/laydate/laydate.js"></script>
     <link rel="stylesheet" href="../lib/web-uploader/webuploader.css">
     <script src="../lib/web-uploader/webuploader.min.js"></script>
     <script src="../lib/vue/vue.js"></script>
+    <script>
+        $.ajaxSetup({
+            headers:{
+                "HZToken": getToken()
+            },
+            crossDomain: true,
+            cache: false
+        });
+
+        function getToken() {
+            if(typeof android != "undefined"){
+                return android.jsGetToken()
+            } else {
+                return "main|0eb217ab-a093-413e-a82e-4a57c6971e7d";
+                return "main|f066eb20-09e4-4bd5-91a8-df9200c7699e";
+            }
+        }
+    </script>
 </head>
 <body>
 <div id="panel" style="padding: 10px;">
@@ -109,6 +128,9 @@
 </body>
 </html>
 <script>
+
+
+
 
     $("#pbody > .__tab").show();
 
