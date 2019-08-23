@@ -1518,7 +1518,10 @@ public class BpmService {
             sendUser.addAll(reUser);
         }
 
-        if (nextStepNotice && StrUtil.isNotBlank(nextUid)) {
+//        if (nextStepNotice && StrUtil.isNotBlank(nextUid)) {
+
+        // 下一步骤不管是否选中都默认发送站内信
+        if (StrUtil.isNotBlank(nextUid)) {
             // 下一步骤
             sendUser.add(nextUid);
         }
