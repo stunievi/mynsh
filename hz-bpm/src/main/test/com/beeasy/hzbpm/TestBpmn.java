@@ -63,7 +63,7 @@ public class TestBpmn {
             uids.add(obj.s("uid"));
         }
 
-        SQLBatchReady ready = new SQLBatchReady("insert into t_user_dep(did,uid)values(?,?)");
+        SQLBatchReady ready = new SQLBatchReady("insert into t_user_dep(did,uid,type)values(?,?,?)");
         List<Object[]> args = new ArrayList<>();
         for (Map.Entry<String, Object> entry : cache.entrySet()) {
             //distinct
@@ -71,7 +71,7 @@ public class TestBpmn {
             uids = uids.stream()
             .distinct().collect(Collectors.toList());
             for (String uid : uids) {
-                args.add(new Object[]{entry.getKey(), uid});
+                args.add(new Object[]{entry.getKey(), uid, "USER"});
 //                ready.setArgs();
 //                sqlManager.executeBatchUpdate()
             }

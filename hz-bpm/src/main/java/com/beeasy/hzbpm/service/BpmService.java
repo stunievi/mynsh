@@ -1,12 +1,15 @@
 package com.beeasy.hzbpm.service;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.XmlUtil;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import com.beeasy.hzbpm.bean.JsEngine;
 import com.beeasy.hzbpm.bean.MessageSend;
 import com.beeasy.hzbpm.bean.Notice;
+import com.beeasy.hzbpm.entity.BpmData;
 import com.beeasy.hzbpm.entity.BpmInstance;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -40,6 +43,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.security.Permission;
 import java.sql.Struct;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -65,7 +69,7 @@ public class BpmService {
     private String formId;
 
     private Document arrangementData = null;
-    private Document bpmData = null;
+    private BpmData bpmData = null;
 
     //BpmInstance
     public BpmInstance ins = null;
@@ -92,12 +96,12 @@ public class BpmService {
         bpmService.modelId = modelId;
 
 
-        bpmService.bpmData = (Document) data.get("bpmData");
+        bpmService.bpmData = Json.cast(data.get("bpmData"), BpmData.class);
         bpmService.arrangementData = (Document) data.get("arrangementData");
         bpmService.model = Json.cast(data.get("arrangementData"), BpmModel.class);
         bpmService.xml = data.getString("xml");
         bpmService.formId = data.getObjectId("formId").toHexString();
-        bpmService.model = arrangementData(bpmService.bpmData, bpmService.model, bpmService.formId, bpmService.xml, bpmService.modelId);
+        bpmService.model = arrangementData(null, bpmService.model, bpmService.formId, bpmService.xml, bpmService.modelId);
         return bpmService;
     }
 
@@ -195,6 +199,65 @@ public class BpmService {
             error("无法找到ID为%s的流程", insId);
         }
         return ofIns(data);
+    }
+
+
+
+    public void checkModel(){
+
+        class Check{
+            //节点名
+            String nodeName;
+            //部门/岗位/人员
+            String type;
+            //原本应该是的名字
+            String shouldName;
+            //现在的名字
+            String nowName;
+
+            public Check(String nodeName, String type, String shouldName, String nowName) {
+                this.nodeName = nodeName;
+                this.type = type;
+                this.shouldName = shouldName;
+                this.nowName = nowName;
+            }
+        }
+
+//        BpmData map = Json.cast(bpmData.get("nodes"), BpmData.class);
+//        map.nodes.forEach((k,v) -> {
+//            v.
+//        });
+//        Document nodes = Json.get(bpmData, "nodes");
+//        for (String s : nodes.keySet()) {
+//            Document node = (Document) nodes.get(s);
+//            Document permission = (Document) node.get("permission");
+//            if (permission == null) {
+//                continue;
+//            }
+//            List<String> dids = permission.get
+//        }
+        Arr<Check> checks = a();
+        for (Map.Entry<String, BpmData.Node> entry : bpmData.nodes.entrySet()) {
+            BpmData.Node node = entry.getValue();
+            int i = 0;
+            for (String did : entry.getValue().permission.dids) {
+//                checks.add(new Check(node.name, "部门", ""));
+                i++;
+            }
+        }
+//        List<Check> checks = new ArrayList<>();
+//        //检查所有节点配置的人员是否还存在
+//        for (Map.Entry<String, BpmModel.Node> entry : model.nodes.entrySet()) {
+//            BpmModel.Node node = entry.getValue();
+//            //部门
+//            for (String did : node.dids) {
+//                checks.add(new Check(node.name, "部门", ""));
+//            }
+//            //角色
+//
+//            //人员
+//        }
+//        doc = Jsoup
     }
 
 
@@ -1073,8 +1136,7 @@ public class BpmService {
         if (canUpload(uid) && null != files) {
             //只保留自己上傳的文件
             dataLog.files = (List) files.stream()
-            .map(e -> (Obj)e)
-            .filter(e -> e.s("creator","").equals(uid))
+            .filter(e -> ((Obj)e).s("creator","").equals(uid))
             .collect(Collectors.toList());
         }
 
