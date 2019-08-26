@@ -170,7 +170,7 @@
         </div>
         <div class="panel-body">
             <div class="work-msg-op-title">下一步骤：
-                <i class="fa fa-bell" :class="{checked: data.nextStepNotice}" aria-hidden="true" title="发送站内信"
+                <i class="fa fa-bell" style="color: #337ab7;"aria-hidden="true" title="发送站内信"
                    @click="data.nextStepNotice = !data.nextStepNotice"></i>
                 <i class="fa fa-envelope" :class="{checked: data.nextStepShort}" aria-hidden="true" title="发送短信"
                    @click="data.nextStepShort = !data.nextStepShort"></i>
@@ -429,6 +429,8 @@
                 this.data.nodeIds = [item.nodeId];
             },
             selectUser :function () {
+                layer.msg("开发中");
+                return;
                 window.open("./agent.select.html?id=" + id, "userSelect", "top=100, left=100, width=500, height=300")
             },
             cleanUser:function () {
