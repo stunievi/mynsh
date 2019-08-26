@@ -651,7 +651,8 @@ public class BpmService {
                 "attrs", attrs,
                 "xml", xml,
                 "current", a(model.start),
-                "node", node
+                "node", node,
+                "deal", true
         );
     }
 
@@ -695,6 +696,7 @@ public class BpmService {
                 "current", null != currentNode ? a(currentNode.id) : getCurrentNodeIds(),
                 "deal", (null != currentNode && canDeal(uid, currentNode.id)) ? true : false,
                 "files", files,
+                "logs", ins.logs,
                 "node", currentNode,
                 "allowBack", canGoBack(uid)
         );
@@ -1127,6 +1129,7 @@ public class BpmService {
             dataLog.id = new ObjectId();
             dataLog.nodeId = nodeId;
             dataLog.startTime = new Date();
+            dataLog.endTime = new Date();
             dataLog.uid = uid;
             dataLog.uname = getUserName(uid);
         }
@@ -1287,6 +1290,8 @@ public class BpmService {
                             "nodeId", nextNodeId.get(0),
                             "msg", String.format("转交节点【%s】", node.name),
                             "time", new Date(),
+                            "startTime", new Date(),
+                            "endTime", new Date(),
                             "uid", uid,
                             "uname", getUserName(uid),
                             "type", "submit",

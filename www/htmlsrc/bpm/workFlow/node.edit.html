@@ -36,6 +36,7 @@
     <script src="fields.js"></script>
     <script src="../lib/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
     <script src="../lib/vue/vue.js"></script>
+    <script src="../lib/vue/vue-util.js"></script>
 </head>
 <body>
     <div id="content" style="display: flex; flex-direction: column; ">
@@ -122,23 +123,23 @@
 </body>
 </html>
 <script>
-    function loadComponent(name, src){
-        Vue.component(name, function (resolve,reject) {
-            $.get(src, function (html) {
-                html = $(html);
-                var script = html.filter("script");
-                var template = html.filter("template");
-                var style = html.filter("style");
-                script = "(function(){ " + script.html() + "; return component; })();";
-                var data = eval(script);
-                data.template = template.html();
-                resolve(data)
-                if(style.length){
-                    $("head").append(style)
-                }
-            });
-        });
-    }
+    // function loadComponent(name, src){
+    //     Vue.component(name, function (resolve,reject) {
+    //         $.get(src, function (html) {
+    //             html = $(html);
+    //             var script = html.filter("script");
+    //             var template = html.filter("template");
+    //             var style = html.filter("style");
+    //             script = "(function(){ " + script.html() + "; return component; })();";
+    //             var data = eval(script);
+    //             data.template = template.html();
+    //             resolve(data)
+    //             if(style.length){
+    //                 $("head").append(style)
+    //             }
+    //         });
+    //     });
+    // }
 
     loadComponent("node-smart", "./smart.html");
 

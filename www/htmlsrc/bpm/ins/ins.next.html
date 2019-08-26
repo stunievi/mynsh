@@ -279,8 +279,8 @@
 
     function getData() {
         try{
-            if (opener && opener.getData) {
-                return (opener.getData())
+            if (opener && opener.app) {
+                return (opener.app.getData())
             }
         } catch (e) {
         }
@@ -414,9 +414,14 @@
                         }else{
                             window.opener.layer.msg("提交成功！");
                         }
-                        window.opener.load("deal", id);
-                        opener.type = "deal";
-                        opener.id = id;
+                        if(opener.app){
+                            opener.app.type = 'deal';
+                            opener.app.id = id;
+                            opener.app.load();
+                        }
+                        // window.opener.load("deal", id);
+                        // opener.type = "deal";
+                        // opener.id = id;
                         window.opener.scrollTo(0, 0);
                         window.close();
                     }

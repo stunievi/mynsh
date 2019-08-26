@@ -1,0 +1,73 @@
+<template>
+<div class="canvas" ref="canvas" style="width: 100%;height: 100%;"></div>
+</template>
+<script>
+    var component = {
+        props:["data"],
+        watch:{
+            data: function (nv) {
+                console.log(nv)
+                if(!nv){
+                    return
+                }
+                if(!Object.keys(nv).length){
+                    return;
+                }
+                var t = this;
+                this.$nextTick(function () {
+                    t.init() 
+                });
+            }   
+        },
+        data: function () {
+           return {}
+        },
+        methods:{
+            init: function () {
+                var canvas = this.$refs.canvas;
+                var t = this;
+                canvas.innerHTML = "";
+                var bpmnViewer = new BpmnJS({
+                    container: '.canvas'
+                });
+                bpmnViewer.importXML(this.data.xml, function (err) {
+                    if (err) {
+                        return console.error('could not import BPMN 2.0 diagram', err);
+                    }
+
+                    // access viewer components
+                    var canvas = bpmnViewer.get('canvas');
+                    var overlays = bpmnViewer.get('overlays');
+
+
+                    // zoom to fit full viewport
+                    // canvas.zoom('fit-viewport');
+
+                    // attach an overlay to a node
+                    // overlays.add(msg.data.current, 'note', {
+                    //     position: {
+                    //         bottom: -10,
+                    //         right: 40
+                    //     },
+                    //     html: '<div class="diagram-note">当前位置</div>'
+                    // });
+
+                    // add marker
+                    $.each(t.data.current || [], function (i,v) {
+                        canvas.addMarker(v, 'needs-discussion');
+                    });
+
+                    // $('.djs-element.djs-shape[data-element-id]').contextMenu('myMenu1', {
+                    //     bindings: {
+                    //         'open': function(t) {
+                    //             var nodeId = $(t).attr("data-element-id");
+                    //             window.open("./data.log.page.html?nodeId=" + nodeId + "&id=" + id, "workflow-data-log", "top=100, left=200, width=550, height=600. location=no")
+                    //         }
+                    //     }
+                    // });
+
+                })
+            }
+        }
+    }
+</script>
