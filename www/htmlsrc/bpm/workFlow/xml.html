@@ -581,7 +581,9 @@ return
                         dids =arrToStr(window.bpmData.nodes[sourceRef].permission.dids);
                         if(window.bpmData.nodes[sourceRef].intelligence ){
                         }else{
-                            window.bpmData.nodes[sourceRef].intelligence = {};
+                            window.bpmData.nodes[sourceRef].intelligence = {     filterRule:"all",
+                                chooseRule:"none",
+                                targetRule: ""};
                         }
                         var intelligen;
                         if(window.bpmData.nodes[sourceRef].intelligence){
@@ -857,7 +859,10 @@ return
 
                 if(window.bpmData.nodes[_taskId].intelligence ){
                 }else{
-                    window.bpmData.nodes[_taskId].intelligence = {};
+                    window.bpmData.nodes[_taskId].intelligence = {          filterRule:"all",
+                        chooseRule:"none",
+                        targetRule: ""
+                    };
                 }
                 var intelligen;
                 if(window.bpmData.nodes[_taskId].intelligence){
@@ -1060,6 +1065,9 @@ return
             // allowUpload:false,
             quanxian:[],
             intelligence:{
+                filterRule:"all",
+                chooseRule:"none",
+                targetRule: ""
             }
             // filterRule:"",
             // chooseRule:"",
@@ -1154,12 +1162,12 @@ return
 
                 var _endId = _endEvent.attr("id");
                 var _endName = _endEvent.attr("name");
-                nodeMap[_endId] = _endName;
                 _task.each(function () {
                     var _taskId = $(this).attr("id");
                     var _taskName = $(this).attr("name");
                     nodeMap[_taskId] = _taskName;
                 })
+                nodeMap[_endId] = _endName;
             })
         })
         return nodeMap;

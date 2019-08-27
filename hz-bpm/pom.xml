@@ -119,7 +119,6 @@
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
             <version>1.12.1</version>
-            <scope>test</scope>
         </dependency>
 <!--        <dependency>-->
 <!--            <groupId>org.mongodb</groupId>-->

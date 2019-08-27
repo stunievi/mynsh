@@ -6,7 +6,9 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>选择人员</title>
-    <!--#include file="/htmlsrc/header.html" -->
+    <script src="../../../static/vendor/artTemplate/template-web.js"></script>
+    <script src="../lib/jquery/jquery.js"></script>
+    <script src="../lib/vue/vue.js"></script>
     <style>
         .select-user input {
             position: relative;
@@ -40,24 +42,42 @@
             </div>
         </div>
     </div>
+
+    <div id="myTabContentBpm" class="tab-content" style="min-height:120px;">
+        <div role="tabpanel" class="tab-pane active" id="taskBpm1" aria-labelledby="taskBpm1-tab">
+            <div class="ulist">
+                <div class="action item" @click="cancelAll(selected)">全部删除</div>
+                <div class="action item" :class="{selected: selected[v.uid]}" v-for="(v,i) in selected" @click="choose(v)">{{v}}</div>
+            </div>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="taskBpm2" aria-labelledby="taskBpm2-tab" style="">
+            <div style="display: flex; flex-direction: row; height: 100%;">
+                <div id="jstree_demo" style="overflow:auto;">
+                </div>
+                <div class="ulist">
+                    <div class="action item" @click="cancelAll(dus)">全部删除</div>
+                    <div class="action item" @click="chooseAll(dus)">全部选择</div>
+                    <div class="item" :class="{selected: selected[v.uid]}" v-for="v in dus" @click="choose(v)">{{v.utname}}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--<span class="i-msg">-->
+                        <!--{{item.msg}}-->
+                    <!--</span>-->
 </body>
 </html>
 <script type="text/html" id="user">
 
-    <table width="100%">
+    <table width="100%" id="table1">
     {{each data item index}}
         <tr>
-            <td>
-                <label>
-                    <input type="checkbox" class="select-user" name="person" value="{{item.uid}}">
-                    <span class="bg">
-                        {{item.uname}}
-                    </span>
-                    <span class="i-msg">
-                        {{item.msg}}
-                    </span>
+            <td  style="text-align: center">
+                    <div class="bg" id="{{index}}" style="text-align: center;">
+                        &nbsp;
+                        {{item}}
+                    </div>
 
-                </label>
             </td>
         </tr>
     {{/each}}
@@ -80,18 +100,53 @@
 <!--{{/each}}-->
 </script>
 <script>
-    var id = getParam("id");
+    var id = location.search.match(/id=([^&]+)/)[1];
+    // var id = getParam("id");
+    var ids = opener.app.remindAgent;
     var tmpl = template.compile($("#user").html())
     $.get("/api/bpm/workflow/logList", {id:id}, function (msg) {
-        $("#ulist").html(tmpl({
-            data: msg.data
-        }));
+        if(msg.success){
+            if(msg.data){
+                var item = {}
+                for(var i in msg.data){
+                    item[msg.data[i].uid] = msg.data[i].uname
+                }
 
-        $.each(opener.app.users || [],function(i,item){
-            $("input[name='person'][value="+item+"]").attr("checked","checked");
+                $("#ulist").html(tmpl({
+                    data: item
+                }));
 
-        });
-        $("#content").removeClass("hide");
+            }
+
+            $.each(ids || {},function (i, item) {
+
+                $('#table1 .bg').each(function() {
+                    if($(this).attr("id") == i){
+                        $(this).css('background-color', '#409eff');
+                    }
+                });
+
+            })
+
+
+            $('#table1 .bg').click(function(){
+                if ($(this).css('background-color') === 'rgb(64, 158, 255)') {
+                    opener.Vue.delete(opener.app.remindAgent, $(this).attr("id"))
+                    $(this).css('background-color', 'white');
+                } else {
+                    $(this).css('background-color', '#409eff');
+                    opener.Vue.set(opener.app.remindAgent, $(this).attr("id"), $(this).text().trim())
+                }
+
+            });
+
+
+            // $.each(opener.app.users || [],function(i,item){
+            //     $("input[name='person'][value="+item+"]").attr("checked","checked");
+            //
+            // });
+            $("#content").removeClass("hide");
+        }
 
     },"json")
 

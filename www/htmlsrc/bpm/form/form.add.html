@@ -141,6 +141,7 @@
                                 var attrs = getAttrs(select[0])
                                 data = attrs;
                                 data.values = []
+                                data.defaultValue = select.val()
                                 $(this).find("option").each(function () {
                                     data.values.push($(this).val())
                                 });

@@ -1,0 +1,153 @@
+<template>
+    <div class="form-content" ref="form" >
+    </div>
+</template>
+
+<script>
+    var component = {
+        props:["data","type"],
+        watch: {
+            data: function(nv){
+                if(!nv){
+                    return
+                }
+                if(!Object.keys(nv).length){
+                    return;
+                }
+                this.init()
+            }
+        },
+        data: function () {
+            return {}
+        },
+        methods: {
+            init: function () {
+                this.$refs.form.innerHTML = this.data.form;
+                var t = this;
+                var body = $(this.$refs.form);
+                //全部设为disabled
+                // body.find("input[leipiplugins]:not([type=radio]):not([type=checkbox]), textarea[leipiplugins]").val("").prop("disabled", "disabled");
+                //只有宏字段和日期被设置为空, 其余需要保留默认值
+                body.find("input[leipiplugins=macros], input[leipiplugins=datetime]").val("");
+                //设为disabled
+                body.find("input[leipiplugins], textarea[leipiplugins], select[leipiplugins]").prop("disabled", "disabled");
+                //select默认选第一个
+                // body.find("select[leipiplugins]").each(function () {
+                //     $(this).val($(this).find("option:first").val())
+                // })
+
+                //编辑模式
+                if(t.type == 'edit'){
+                    t.data.formFields = [];
+                    for(var i in t.data.allFields){
+                        t.data.formFields.push(i)
+                    }
+                }
+
+                //当前节点可编辑
+                $.each(t.data.formFields || [], function (i, v) {
+                    if(!t.data.allFields[v]){
+                        return
+                    }
+                    var elem = body.find("[name=" + t.data.allFields[v].name + "]");
+                    elem.removeProp("disabled").css("border", "1px solid blue")
+                    if(elem.is("[leipiplugins=datetime]")){
+                        elem.prop("readonly","true")
+
+                        ;(function (title, type) {
+                            laydate.render({
+                                elem: "[leipiplugins=datetime][title="+title+"]"
+                                ,type: (function () {
+                                    switch (type) {
+                                        case "日期" :
+                                            return "date";
+
+                                        case "日期+时间":
+                                            return "datetime";
+
+                                        case "时间":
+                                            return "time";
+                                    }
+                                })()
+                            })
+                        })(elem[0].title, elem.attr("orgformat"));
+                    }
+
+                    if(elem.is("[leipiplugins=sign]")){
+                        elem.click(function () {
+                            var id = $(this).attr("name");
+                            var src = $(this).attr("src");
+                            window.open("./sign.html?name=" + id + "&src=" + src, "bpm-sign", "left=100, top=100, width=500, height=500, location=no")
+                        });
+                    }
+                });
+
+                //必填字段标红
+                $.each(t.data.requiredFields || [], function (i, v) {
+                    body.find("[name=" + t.data.allFields[v].name + "]").removeProp("disabled").css("border-color", "red")
+                });
+
+                //select默认值
+                body.find("span[leipiplugins=select] select").each(function () {
+                    var name = $(this).attr("name");
+                    if(t.data.allFields[name]){
+                        $(this).val(t.data.allFields[name].defaultValue)
+                    }
+                });
+
+                //时间字段
+
+
+                //字段赋值
+                $.each(t.data.attrs || {}, function (i, v) {
+                    var field = t.data.allFields[i];
+                    if (!field) return
+                    var tt = body.find("[name=" + field.name + "]")
+                    if (field.leipiplugins == 'macros') {
+                        tt.prop("readonly", "true")
+                    }
+
+                    if(tt.is("[leipiplugins=sign]")){
+                        var matched = v.match(/^\[img\](.+)$/);
+                        if(matched){
+                            tt.attr('src', matched[1])
+                        }
+                    } else if(field.leipiplugins == 'select'){
+                        if(v){
+                            tt.val(v)
+                        }
+                    } else {
+                        tt.val(v)
+                    }
+
+                });
+            },
+
+            getData: function () {
+                var body = $(this.$refs.form);
+                var t = this;
+                var data = {}
+                $.each(this.data.formFields || [], function (i, v) {
+                    var key = v;
+                    if (!t.data.allFields[v]) {
+                        return
+                    }
+                    var elem = body.find("[name=" + t.data.allFields[v].name + "]");
+                    var val;
+                    if (elem.is("[leipiplugins=sign]")) {
+                        val = elem.attr("src");
+                        if (val.indexOf("sign.png") > -1) {
+                            val = "";
+                        } else {
+                            val = "[img]" + val;
+                        }
+                    } else {
+                        val = elem.val();
+                    }
+                    data[key] = val;
+                });
+                return data;
+            }
+        }
+    };
+</script>

@@ -1,0 +1,151 @@
+<template>
+<div class="timeline">
+    <div class="VivaTimeline">
+        <dl>
+            <template v-for="(item,index) in logs">
+                <dt>{{index}}</dt>
+                <dd :class="{'pos-left': i%2==0, 'pos-right': i%2 != 0}" class="clearfix" v-for="(log,i) in item">
+                    <div class="circ"></div>
+                    <div class="time">{{log.time}}</div>
+                    <div class="events">
+                        <div class="events-header">{{log.uname}} {{log.msg}}</div>
+                        <div class="events-body">
+                            <div>
+                                <p v-for="(v,i) in log.attrs"><span>{{i}}<span>：<span class="value">{{v}}</span></p>
+                                <template v-if="log.type == 'save'">
+                                    <div style="padding-top: 5px;">
+                                        <p style="color: cornflowerblue">
+                                            开始：{{log.startTime}}
+                                        </p>
+                                        <p style="color: cornflowerblue">
+                                            结束：{{log.endTime}}
+                                        </p>
+                                        <p style="color: cornflowerblue">
+                                            经过：{{timeReduce(log.endTime, log.startTime)}}
+                                        </p>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </dd>
+            </template>
+        </dl>
+    </div>
+</div>
+</template>
+
+<script>
+    Date.prototype.Format = function (fmt) { //author: meizz
+        var o = {
+            "M+": this.getMonth() + 1, //月份
+            "d+": this.getDate(), //日
+            "H+": this.getHours(), //小时
+            "m+": this.getMinutes(), //分
+            "s+": this.getSeconds(), //秒
+            "q+": Math.floor((this.getMonth() + 3) / 3), //季度
+            "S": this.getMilliseconds() //毫秒
+        };
+        if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+        for (var k in o)
+            if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+        return fmt;
+    }
+
+    var component = {
+        props:["data"],
+        watch: {
+            data: function (nv) {
+                if(!nv) return;
+                if(!Object.keys(nv).length) return;
+                var ret = {}
+                $.each(this.data.logs || [], function (i,v) {
+                    var d = new Date(v.time);
+                    var item = ret[d.Format("yyyy-MM-dd")] || [];
+                    ret[d.Format("yyyy-MM-dd")] = item;
+                    v.time = d.Format("HH:mm:ss");
+                    item.push(v);
+                });
+                this.logs = ret;
+                this.$nextTick(function () {
+                    $(".value:contains([img])").each(function () {
+                        var t = $(this);
+                        var text = t.html();
+                        text = text.replace(/^\[img\]/,"");
+                        t.replaceWith(
+                            // $("<a>")
+                            //     .attr({
+                            //         href: text,
+                            //         target: "_blank"
+                            //     })
+                            //     .append(
+                            $("<img>").attr({
+                                src: text,
+                                width: 80,
+                                height:80
+                            }).css({
+                                border: "1px solid #ddd",
+                                background: "#fff"
+                            }).click(function () {
+                                layer.photos({
+                                    photos: {
+                                        "title": "签名", //相册标题
+                                        "id": 123, //相册id
+                                        "start": 0, //初始显示的图片序号，默认0
+                                        "data":[
+                                            {
+                                                "alt":"",
+                                                "pid":"66",
+                                                "src": text,
+                                                "thumb": text
+                                            }
+
+                                        ]
+                                    }
+                                    ,anim: 5 //0-6的选择，指定弹出图片动画类型，默认随机（请注意，3.0之前的版本用shift参数）
+                                });
+                            })
+                            // ))
+                        );
+                        // console.log(t)
+                    });
+                });
+            }
+        },
+        data: function () {
+            return {
+                logs: {}
+            }
+        },
+        methods: {
+            timeReduce: function (n,o) {
+                var d = new Date(n).getTime() - new Date(o).getTime();
+                d /= 1000;
+                d = Math.floor(d);
+                var day = Math.floor(d / (24 * 3600));
+                var str = "";
+                if(day > 0){
+                    str += day + "天";
+                }
+                var hour = Math.floor((d % (24 * 3600)) / 3600);
+                if(hour > 0){
+                    str += hour + "时";
+                }
+                var minute = Math.floor((d % 60) / 60);
+                if(minute > 0){
+                    str += minute + "分";
+                }
+                var second = (d % 60);
+                if(second >= 0){
+                    str += second + "秒";
+                }
+                return str;
+            }
+        }
+
+    };
+</script>
+
+<style>
+    .VivaTimeline dl{position:relative;top:0;padding:20px 0;margin:0}.VivaTimeline dl:before{position:absolute;top:0;bottom:0;left:50%;z-index:100;width:2px;margin-left:-1px;content:'';background-color:#ccd1d9}.VivaTimeline dl dt{position:relative;top:30px;z-index:200;width:120px;padding:3px 5px;margin:0 auto 30px;font-weight:400;color:#fff;text-align:center;background-color:#aab2bd;border-radius:4px;-webkit-border-radius:4px;-moz-border-radius:4px}.VivaTimeline dl dd{position:relative;z-index:200}.VivaTimeline dl dd .circ{position:absolute;top:40px;left:50%;z-index:200;width:22px;height:22px;margin-left:-11px;background-color:#4fc1e9;border:4px solid #f5f7fa;border-radius:50%;-webkit-border-radius:50%;-moz-border-radius:50%}.VivaTimeline dl dd .time{position:absolute;top:31px;left:50%;display:inline-block;width:100px;padding:10px 20px;color:#4fc1e9}.VivaTimeline dl dd .events{position:relative;width:47%;padding:10px 0 0;margin-top:31px;background-color:#ccc;border-radius:4px;-webkit-border-radius:4px;-moz-border-radius:4px}.VivaTimeline dl dd .events:before{position:absolute;top:12px;width:0;height:0;content:'';border-style:solid;border-width:6px}.VivaTimeline dl dd .events .events-object{margin:0 auto}.VivaTimeline dl dd .events .events-header{min-height:30px;line-height:20px;text-align:center;font-size:16px;font-weight:700;cursor:pointer}.VivaTimeline dl dd .events .events-body{overflow:hidden;zoom:1;background-color:#eee;padding:10px}.VivaTimeline dl dd .events .events-body .row{display:none}.VivaTimeline dl dd .events .events-body .events-desc{text-indent:2em;padding:0 15px}.VivaTimeline dl dd .events .events-footer{text-align:center}.VivaTimeline dl dd .events .events-footer ol{list-style:none;margin:0 auto;padding:0}.VivaTimeline dl dd .events .events-footer ol li{background:#32b487;border-radius:5px;margin:10px;display:inline-block;width:10px;height:10px;cursor:pointer}.VivaTimeline dl dd .events .events-footer ol .active{transform:scale(2)}.VivaTimeline dl dd.pos-right .time{margin-left:-100px;text-align:right}.VivaTimeline dl dd.pos-right .events{float:right}.VivaTimeline dl dd.pos-right .events:before{left:-12px;border-color:transparent #ccc transparent transparent}.VivaTimeline dl dd.pos-left .time{margin-left:0;text-align:left}.VivaTimeline dl dd.pos-left .events{float:left}.VivaTimeline dl dd.pos-left .events:before{right:-12px;border-color:transparent transparent transparent #ccc}.VivaTimeline .carousel-indicators{bottom:0}@media screen and (max-width:767px){.VivaTimeline dl:before{left:90px}.VivaTimeline dl dt{margin:0 30px 30px}.VivaTimeline dl dd .circ{left:90px}.VivaTimeline dl dd .time{left:20px}.VivaTimeline dl dd.pos-left .time{padding:10px 0;margin-left:0;text-align:left}.VivaTimeline dl dd.pos-left .events{float:right;width:73%;margin-right:4%}.VivaTimeline dl dd.pos-left .events:before{left:-12px;border-color:transparent #ccc transparent transparent}.VivaTimeline dl dd.pos-right .time{padding:10px 0;margin-left:0;text-align:left}.VivaTimeline dl dd.pos-right .events{float:right;width:73%;margin-right:4%}}@media screen and (max-width:500px){.VivaTimeline dl dd.pos-left .events{float:right;width:63%;margin-right:4%}.VivaTimeline dl dd.pos-right .events{float:right;width:63%;margin-right:4%}}
+</style>

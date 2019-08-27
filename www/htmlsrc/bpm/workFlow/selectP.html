@@ -50,7 +50,7 @@
     $("#user").val(ps)
 
     loadTimeout()
-    $.get("/api/bpm/org/all",{type:"q"}, function (msg) {
+    $.get("/api/bpm/org/list",{type:"DEPARTMENT"}, function (msg) {
         layer.closeAll()
         msg = msg.data
         var timer = null;
@@ -101,26 +101,33 @@
                 return
             }
             loadTimeout();
-            $.ajax({
-                type:"post",
-                url:"/api/bpm/org/getUser",
-                data: JSON.stringify({"oid":n=='top'?undefined:n.node.original.id}),
-                headers:{
-                    "Content-Type": "application/json"
-                },
-                success:function(data){
+            // $.ajax({
+            //     type:"post",
+            //     url:"/api/bpm/org/one",
+            //     data: JSON.stringify({"id":n=='top'?undefined:n.node.id}),
+            //     headers:{
+            //         "Content-Type": "application/json"
+            //     },
+            //     success:function(data){
+            $.get("/api/bpm/org/one", {id: n=='top'?undefined:n.node.id}, function (data) {
+                    console.log(data.data)
                     layer.closeAll();
+                    if(data.data){
+                        data = data.data.us ||[];
+                    }else{
+                        data = []
+                    }
                     $("#dataList").empty()
                     laytableRender({
                         // url: remoteOrigin + "/api/bpm/form/list",
                         // currPage: getParam("page") || 1,
-                        data: data.data||[],
+                        data: data,
                         page:false,
                         cols: [
                             [
-                                {field:'id', title:'用户ID', align:"center" },
-                                {field:'name', title:'姓名', align:"center" },
-                                {field:'acc_code', title:'用户名', align:"center" },
+                                {field:'uid', title:'用户ID', align:"center" },
+                                {field:'utname', title:'姓名', align:"center" },
+                                {field:'uname', title:'用户名', align:"center" },
                                 {field:'phone', title:'电话', align:"center" },
                                 {title:'操作', templet: "#toolbar"}
                             ]
@@ -129,7 +136,7 @@
                             layCurrPage = curr;
                         }
                     });
-                }
+                // }
             });
 
 

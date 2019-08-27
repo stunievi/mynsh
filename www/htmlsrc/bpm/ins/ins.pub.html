@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="./ueditor.css">
 
     <script src="../../../static/vendor/jquery/jquery.js"></script>
-    <script src="../../../static/htmljs/utils.js"></script>
+<!--    <script src="../../../static/htmljs/utils.js"></script>-->
 
     <style>
         .needs-discussion:not(.djs-connection) .djs-visual > :nth-child(1) {
@@ -63,7 +63,7 @@
             display: none;
         }
 
-        body{
+        body {
             /*overflow: hidden;*/
         }
 
@@ -81,6 +81,13 @@
         /*    height: 100%;*/
         /*    border: 0;*/
         /*}*/
+        .active {
+            display: block !important;
+        }
+
+        [v-cloak] {
+            display: none !important;
+        }
     </style>
 
     <link rel="stylesheet" href="jquery.webui-popover.min.css">
@@ -88,8 +95,11 @@
     <script src="right_menu.js"></script>
     <script src="../../../static/vendor/artTemplate/template-web.js"></script>
     <script>
-        window.type = getParam("type");
-        window.id = getParam("id");
+        // window.type = getParam("type");
+        // window.id = getParam("id");
+
+        // window.Data = null;
+        // window.FormBody = null;
     </script>
     <script src="../lib/bpm/bpmn-viewer.js"></script>
     <script src="../lib/layer/layer.js"></script>
@@ -97,38 +107,30 @@
     <link rel="stylesheet" href="../lib/web-uploader/webuploader.css">
     <script src="../lib/web-uploader/webuploader.min.js"></script>
     <script src="../lib/vue/vue.js"></script>
+    <script src="../lib/vue/vue-util.js"></script>
 </head>
 <body>
-<div id="panel" style="padding: 10px;">
+<div id="app" style="padding: 10px;" v-cloak>
     <ul id="phead">
-        <li class="active">表单</li>
-        <li>流程图</li>
-        <li class="process">流程日志</li>
+        <li :class="{active: tabIndex == 0}" @click="tabIndex=0">表单</li>
+        <li :class="{active: tabIndex == 1}" @click="tabIndex=1">流程图</li>
+        <li :class="{active: tabIndex == 2}" @click="tabIndex=2" v-if="type != 'pub'">流程日志</li>
     </ul>
     <div id="pbody">
-        <div id="form" class="__tab" style="width: 740px; margin: 0 auto;">
-
-            <script>
-                window.Data = null;
-                window.FormBody = null;
-                // window.FormHtml = "";
-
-            </script>
-            <!--startprint-->
-            <div id="form-content">
-            </div>
-            <!--endprint-->
+        <div :class="{active: tabIndex == 0}" id="form" class="__tab" style="width: 740px; margin: 0 auto;">
+            <ins-form :data="data" :type="type" ref="form"></ins-form>
 
             <div id="file-app">
                 <div style="padding-bottom: 20px;" v-if="files.length">
-                    <div v-for="(v,i) in files" v-if="v.action != 'delete' || (v.resp && v.resp.action != 'delete')">
+                    <div v-for="(v,i) in files">
                         {{v.name}}
                         &nbsp;
                         &nbsp;
                         {{v.state}}
                         {{v.percent}}
                         <a href="javascript:;" @click="remove(i)" v-if="!v.creator || v.creator == uid">删除</a>
-                        <a :href="'/api/bpm/workflow/download?name=' + (v.name || v.resp.name) + '&path=' + (v.id || v.resp.id)" v-if="!v.uploading || v.state == '成功'">下载</a>
+                        <a :href="'/api/bpm/workflow/download?name=' + (v.name || v.resp.name) + '&path=' + (v.id || v.resp.id)"
+                           v-if="!v.uploading || v.state == '成功'">下载</a>
                     </div>
                 </div>
             </div>
@@ -136,31 +138,34 @@
             <div class="print-s" style="display: none;text-align: center;">
                 <a class="btn btn-danger btn-sm" href="javascript:;" id="wPrint">打印</a>
             </div>
-            <div class="action" style="display: none;text-align: center;">
-                <label class="btn btn-warning btn-sm" style="position:relative;overflow: hidden" id="upload">
+
+            <div class="action" style="text-align: center;">
+                <label v-show="data.node && data.node.allowUpload" class="btn btn-warning btn-sm"
+                       style="position:relative;overflow: hidden" id="upload">
                     <div id="picker" style="width: 1px;height: 1px;position:absolute;left: -100px;top: -100px;">
                     </div>
                     上传
                 </label>
-                <a class="btn btn-danger btn-sm" href="javascript:;" id="goBack">回退</a>
-                <a class="btn btn-primary btn-sm" href="javascript:;" id="save">保存</a>
-                <a class="btn btn-primary btn-sm" href="javascript:;" id="submit">提交</a>
+                <a class="btn btn-danger btn-sm" href="javascript:;" id="goBack" v-if="data.allowBack" @click="goBack()">回退</a>
+                <a class="btn btn-primary btn-sm" href="javascript:;" id="save" v-if="data.deal" @click="submit(false)">保存</a>
+                <a class="btn btn-primary btn-sm" href="javascript:;" id="submit" v-if="data.deal" @click="submit(true)">提交</a>
             </div>
         </div>
-        <div id="canvas" class="__tab">
+        <div :class="{active: tabIndex == 1}" id="canvas" class="__tab">
+            <ins-canvas :data="data"></ins-canvas>
         </div>
-        <div class="__tab" id="dataLog">
-            <!--#include file="./data.log.html"-->
+        <div :class="{active: tabIndex == 2}" id="dataLog" class="__tab" v-if="type != 'pub'">
+            <ins-log :data="data"></ins-log>
         </div>
-        <script>
-            // $("#dataLog").load("./data.log.html");
-        </script>
     </div>
 </div>
 
 <DIV class=contextMenu id=myMenu1 style="display: none;">
     <UL>
-        <LI id=open style="font-size: 12px;line-height: 20px;vertical-align: middle;"><IMG width="20px" height="20px" style="margin-top: -3px;margin-right: 5px;" src="his.png">提交历史</LI>
+        <LI id=open style="font-size: 12px;line-height: 20px;vertical-align: middle;"><IMG width="20px" height="20px"
+                                                                                           style="margin-top: -3px;margin-right: 5px;"
+                                                                                           src="his.png">提交历史
+        </LI>
     </UL>
 </DIV>
 
@@ -168,519 +173,230 @@
 </body>
 </html>
 <script>
+    loadComponent("ins-form", "./ins.form.html");
+    loadComponent("ins-canvas", "./ins.canvas.html");
+    loadComponent("ins-log", "./ins.log.html");
 
-
-    $("#phead li").click(function () {
-        $("#phead li").removeClass("active")
-        $(this).addClass("active");
-        var id = $(this).index();
-        $("#pbody > .__tab").hide().eq(id).show();
-    }).eq(0).click();
-
-
-    function loadForm() {
-        if(Data != null){
-            var body = FormBody = $("#form-content")//$(iframe).contents().find("body");
-            body.html(Data.form);
-            //全部设为disabled
-            // body.find("input[leipiplugins]:not([type=radio]):not([type=checkbox]), textarea[leipiplugins]").val("").prop("disabled", "disabled");
-            //只有宏字段和日期被设置为空, 其余需要保留默认值
-            body.find("input[leipiplugins=macros], input[leipiplugins=datetime]").val("");
-            //设为disabled
-            body.find("input[leipiplugins], textarea[leipiplugins], select[leipiplugins]").prop("disabled", "disabled");
-            //select默认选第一个
-            // body.find("select[leipiplugins]").each(function () {
-            //     $(this).val($(this).find("option:first").val())
-            // })
-
-            //编辑模式
-            if(type == 'edit'){
-                Data.formFields = [];
-                for(var i in Data.allFields){
-                    Data.formFields.push(i)
-                }
-            }
-
-            //当前节点可编辑
-            $.each(Data.formFields || [], function (i, v) {
-                if(!Data.allFields[v]){
-                    return
-                }
-                var elem = body.find("[name=" + Data.allFields[v].name + "]");
-                elem.removeProp("disabled").css("border", "1px solid blue")
-                if(elem.is("[leipiplugins=datetime]")){
-                    elem.prop("readonly","true")
-
-                    ;(function (title, type) {
-                            laydate.render({
-                                elem: "[leipiplugins=datetime][title="+title+"]"
-                                ,type: (function () {
-                                    switch (type) {
-                                        case "日期" :
-                                            return "date";
-
-                                        case "日期+时间":
-                                            return "datetime";
-
-                                        case "时间":
-                                            return "time";
-                                    }
-                                })()
-                        })
-                    })(elem[0].title, elem.attr("orgformat"));
-                }
-
-                if(elem.is("[leipiplugins=sign]")){
-                    elem.click(function () {
-                        var id = $(this).attr("name");
-                        var src = $(this).attr("src");
-                        window.open("./sign.html?name=" + id + "&src=" + src, "bpm-sign", "left=100, top=100, width=500, height=500, location=no")
-                    });
-                }
-            });
-
-            //必填字段标红
-            $.each(Data.requiredFields || [], function (i, v) {
-                body.find("[name=" + Data.allFields[v].name + "]").removeProp("disabled").css("border-color", "red")
-            });
-
-            //时间字段
-
-
-
-            //字段赋值
-            $.each(Data.attrs, function (i, v) {
-                var field = Data.allFields[i];
-                if (!field) return
-                var t = body.find("[name=" + field.name + "]")
-                if (field.leipiplugins == 'macros') {
-                    t.prop("readonly", "true")
-                }
-
-                if(t.is("[leipiplugins=sign]")){
-                    var matched = v.match(/^\[img\](.+)$/);
-                    if(matched){
-                        t.attr('src', matched[1])
-                    }
-                } else {
-                    t.val(v)
-                }
-            });
-
-            //必填字段标红
-        }
-        // console.log("fuck")
-        // if (iframe) {
-        //     var iframeWin = iframe.contentWindow || iframe.contentDocument.parentWindow;
-        //     if (iframeWin.document.body) {
-        //         iframe.height = iframeWin.document.documentElement.scrollHeight || iframeWin.document.body.scrollHeight;
-        //     }
-        // }
-    };
-
-    // 子页面调用函数
-    function getData() {
-        var data = {};
-        $.each(Data.formFields || [], function (i, v) {
-            var key = v;
-            if(!Data.allFields[v]){
-                return
-            }
-            var elem = FormBody.find("[name=" + Data.allFields[v].name + "]");
-            var val;
-            if(elem.is("[leipiplugins=sign]")){
-                val = elem.attr("src");
-                if(val.indexOf("sign.png") > -1){
-                    val = "";
-                } else {
-                    val = "[img]" + val;
-                }
-            } else {
-                val = elem.val();
-            }
-            data[key] = val;
-        });
-
-        //提交所有这个节点上的文件
-        var _files = files.files
-            .filter(function (e) {
-                return !e.uploading;
-            })
-            .filter(function (e) {
-                return e.resp || e.action == "delete";
-            })
-            .map(function (e) {
-                return e.resp ? e.resp : e;
-            });
-        return ({
-            data: data,
-            files: _files
-        })
-    }
-
-    function submit(gonext){
-        var url = "";
-        if(type == 'pub'){
-            url = "/api/bpm/workflow/createIns";
-        } else {
-            if(gonext){
-                url = "/api/bpm/workflow/subIns";
-            }else{
-                url = "/api/bpm/workflow/saveIns";
-            }
-        }
-        var data = getData();
-        // $.each(Data.formFields || [], function (i, v) {
-        //     var key = v;
-        //     if(!Data.allFields[v]){
-        //         return
-        //     }
-        //     var elem = FormBody.find("[name=" + Data.allFields[v].name + "]");
-        //     var val;
-        //     if(elem.is("[leipiplugins=sign]")){
-        //         val = elem.attr("src");
-        //         if(val.indexOf("sign.png") > -1){
-        //             val = "";
-        //         } else {
-        //             val = "[img]" + val;
-        //         }
-        //     } else {
-        //         val = elem.val();
-        //     }
-        //     data[key] = val;
-        // });
-        // // console.log(Data.formFields,data)
-        //
-        // //提交所有这个节点上的文件
-        // var _files = files.files
-        //     .filter(function (e) {
-        //         return !e.uploading;
-        //     })
-        //     .filter(function (e) {
-        //         return e.resp || e.action == "delete";
-        //     })
-        //     .map(function (e) {
-        //         return e.resp ? e.resp : e;
-        //     });
-        var iWidth = "650";                         //弹出窗口的宽度;
-        var iHeight = "590";                        //弹出窗口的高度;
-        //window.screen.height获得屏幕的高，window.screen.width获得屏幕的宽
-        var iTop = (window.screen.height-30-iHeight)/2;       //获得窗口的垂直位置;
-        var iLeft = (window.screen.width-10-iWidth)/2;        //获得窗口的水平位置;
-        if(type != 'pub' && gonext){
-            // var da = JSON.stringify({
-            //     id: id,
-            //     data: data,
-            //     mode: type,
-            //     files: _files
-            // })
-            window.open("./ins.next.html?id=" + id, "nextpersons", "top="+iTop+", left="+iLeft+", width=670, height=570")
-            return;
-        }
-
-        data.id = id;
-        data.mode = type;
-        $.ajax({
-            url: url, //"/api/bpm/workflow/createIns",
-            type:"post",
-            headers:{
-                "Content-Type": "application/json"
-            },
-            dataType:"json",
-            data: JSON.stringify(data),
-            success: function (msg) {
-                if(!msg.success){
-                    layer.msg(msg.errMessage)
-                    return
-                }
-
-                //app 没有opener
-                if(window.opener && window.opener.initTable){
-                    window.opener.initTable.apply(null, opener.last)
-                }
-
-                if(window.type == 'pub'){
-                    // window.type = "deal";
-                    // window.id = msg.data;
-                    // load("deal", msg.data)
-                    if(gonext){
-                        // window.open("./choose.html?id=" + msg.data, "choosepersons", "top=100, left=100, width=500, height=300")
-                        window.open("./ins.next.html?id=" + msg.data, "nextpersons", "top="+iTop+", left="+iLeft+", width=670, height=570")
-                    }
-                    location.href = "./ins.pub.html?type=deal&id=" + msg.data
-                    // else {
-                    //     window.close();
-                    // }
-                } else {
-                    if(gonext){
-                        if(msg.data.res == true){
-                            // window.open("./choose.html?id=" + msg.data.id, "choosepersons", "top=100, left=100, width=500, height=300")
-                            window.open("./ins.next.html?id=" + msg.data.id, "nextpersons", "top="+iTop+", left="+iLeft+", width=670, height=570")
-                        }else{
-                            layer.msg(msg.data.res)
-                            load(window.type, window.id)
-                        }
-                    }else{
-                        load()
-                        layer.msg("保存成功！")
-                    }
-                }
-
-            }
-        })
-
-        console.log(data)
-    }
-
-    function load() {
-        $(".action").hide();
-        $("#upload").hide();
-        $("#goBack").hide();
-        $(".process").hide();
-
-        // if(!type){
-        //     type = getParam("type");
-        //     window.type = type;
-        // }
-        // if(!id){
-        //     id = getParam("id");
-        //     window.id = id;
-        // }
-
-        // console.log(type,id)
-        // var id = getParam("id");
-        var layerIndex = layer.load(0, {
-            time: 5000
-        });
-
-        if(type == 'pub'){
-            document.title = "发布任务";
-        } else {
-            document.title = "处理任务";
-        }
-
-        var ajax = null;
-        if(window.type == 'pub'){
-            ajax =  $.get("/api/bpm/workflow/preparePub", {id: window.id});
-        } else {
-            ajax = $.get("/api/bpm/workflow/getInsInfo", {id: window.id});
-            loadLogs(window.id);
-        }
-
-        $.when(ajax).then(function (msg) {
-            layer.close(layerIndex);
-            if (!msg.success) {
-                layer.msg(msg.errMessage)
-                return;
-            }
-
-            //绘图
-            $("#canvas").empty();
-
-            var bpmnViewer = new BpmnJS({
-                container: '#canvas'
-            });
-            bpmnViewer.importXML(msg.data.xml, function (err) {
-                if (err) {
-                    return console.error('could not import BPMN 2.0 diagram', err);
-                }
-
-                // access viewer components
-                var canvas = bpmnViewer.get('canvas');
-                var overlays = bpmnViewer.get('overlays');
-
-
-                // zoom to fit full viewport
-                // canvas.zoom('fit-viewport');
-
-                // attach an overlay to a node
-                // overlays.add(msg.data.current, 'note', {
-                //     position: {
-                //         bottom: -10,
-                //         right: 40
-                //     },
-                //     html: '<div class="diagram-note">当前位置</div>'
-                // });
-
-                // add marker
-                $.each(msg.data.current || [], function (i,v) {
-                    canvas.addMarker(v, 'needs-discussion');
-                });
-
-                $('.djs-element.djs-shape[data-element-id]').contextMenu('myMenu1', {
-                    bindings: {
-                        'open': function(t) {
-                            var nodeId = $(t).attr("data-element-id");
-                            window.open("./data.log.page.html?nodeId=" + nodeId + "&id=" + id, "workflow-data-log", "top=100, left=200, width=550, height=600. location=no")
-                        }
-                    }
-                });
-
-            });
-
-            Data = msg.data;
-
-            if(msg.data.files && msg.data.files.length){
-                files.files = msg.data.files
-            }
-            // FormHtml = msg.data.form;
-            loadForm()
-            // $("#iframe").attr("src", "./form.html?v=" + Math.random())
-
-
-            //事件
-            if(type == 'pub'){
-                $(".action").show();
-            } else if((type == 'deal' && msg.data.deal) || (type == 'edit')){
-                $(".action").show();
-                if(type == 'edit'){
-                    $(".action #submit").hide();
-                }
-            } else {
-                if(type == 'deal'){
-                    document.title = "查看任务";
-                    $(".print-s").show();
-                }
-            }
-
-            if(msg.data.allowBack){
-                $("#goBack").show();
-            }
-
-            if(msg.data.node && msg.data.node.allowUpload){
-                $("#upload").show();
-            }
-
-            if(type != "pub"){
-                $(".process").show()
-            }
-        }, "json");
-    }
-
-
-
-    // $(document).on("click", ".djs-element.djs-shape[data-element-id]", function () {
-    //     if(type == 'pub'){
-    //         return;
-    //     }
-    //     var nodeId = $(this).attr("data-element-id");
-    //     window.open("./data.log.html?nodeId=" + nodeId + "&id=" + id, "workflow-data-log", "top=100, left=200, width=500, height=400. location=no")
-    //     pop = $(this),;
-    //     $(this).webuiPopover("destroy")
-    //         .webuiPopover({
-    //             title:"提交记录",
-    //             url:"./data.log.html",
-    //             trigger:"sticky",
-    //             type:"async",
-    //             dismissible: true,
-    //             closeable: true
-    //         });
-    // });
-    // $(document).on("mouseleave", ".djs-element.djs-shape[data-element-id]", function () {
-    //     $(".djs-element.djs-shape[data-element-id]").webuiPopover("destroy");
-    // })
-
-
-    //加载页面
-    load();
-
-    $("#save").click(function () {
-        submit(false);
-    });
-
-    $("#submit").click(function () {
-        // getData();
-        submit(true);
-    });
-
-    $("#goBack").click(function () {
-        layer.confirm('确定回退？', function(index){
-            //do something
-            layer.close(index);
-            $.get("/api/bpm/workflow/goBack", {id: id}, function (msg) {
-                if(!msg.success){
-                    return layer.msg(msg.errMessage)
-                }
-                layer.msg("回退成功")
-                load();
-            },"json");
-        });
-    });
-
-
-    ;(function () {
-        //初始化webuploader
-        var uploader = WebUploader.create({
-            // swf文件路径
-            swf: '../lib/web-uploader/Uploader.swf',
-            // 文件接收服务端。
-            server: '/api/bpm/workflow/upload',
-            // 选择文件的按钮。可选。
-            // 内部根据当前运行是创建，可能是input元素，也可能是flash.
-            pick: '#picker',
-            // 不压缩image, 默认如果是jpeg，文件上传前会压缩一把再上传！
-            resize: false,
-            auto: true,
-            duplicate: true,
-            fileVal: "file"
-        }).on("uploadStart", function (file) {
-            file.percent = "0%";
-            file.state = '上传中';
-            file.uploading = true;
-            files.files.push(file);
-            // console.log(file)
-        }).on("uploadProgress", function (file,percentage ) {
-            file.percent = (percentage * 100).toFixed(0) + "%";
-        }).on("uploadSuccess", function (file,response) {
-            if(response.success){
-                file.state = "成功";
-                file.uploading = false;
-                file.resp = response.data;
-            } else {
-                file.state = "失败";
-            }
-        }).on("uploadError", function (file) {
-            file.state = "失败";
-        }).on("uploadComplete", function (file) {
-            file.percent = "";
-        });
-    })();
-
-    var files = new Vue({
-        el: "#file-app",
-        data:{
+    var app = new Vue({
+        el: "#app",
+        data: {
+            data: {},
+            id: "",
+            type: "",
             files: [],
-            uid: JSON.parse(localStorage.$user).id
+            uid: JSON.parse(localStorage.$user).id,
+            tabIndex: 0
         },
         methods: {
             remove: function (i) {
-                var item = this.files[i];
-                //上传中直接再见
-                if(item.uploading){
-                    this.files.splice(i);
-                    return
-                }
-                if(item.resp){
-                    item.resp.action = "delete";
+                this.files.splice(i);
+            },
+            /**
+             * 初始化页面
+             */
+            load: function () {
+                this.id = getParam("id");
+                this.type = getParam("type");
+
+                if (this.type == 'pub') {
+                    document.title = "发布任务";
                 } else {
-                    item.action = "delete";
+                    document.title = "查看任务";
                 }
+
+                var ajax = null;
+                if (this.type == 'pub') {
+                    ajax = $.get("/api/bpm/workflow/preparePub", {id: this.id});
+                } else {
+                    ajax = $.get("/api/bpm/workflow/getInsInfo", {id: this.id});
+                    // loadLogs(window.id);
+                }
+
+                var t = this;
+                $.when(ajax).then(function (msg) {
+                    if (!msg.success) {
+                        return layer.msg(msg.errMessage);
+                    }
+
+                    t.data = msg.data;
+                });
+            },
+            /**
+             * 初始化文件上传
+             */
+            initUploader: function () {
+                var t = this;
+                //初始化webuploader
+                var uploader = WebUploader.create({
+                    // swf文件路径
+                    swf: '../lib/web-uploader/Uploader.swf',
+                    // 文件接收服务端。
+                    server: '/api/bpm/workflow/upload',
+                    // 选择文件的按钮。可选。
+                    // 内部根据当前运行是创建，可能是input元素，也可能是flash.
+                    pick: '#picker',
+                    // 不压缩image, 默认如果是jpeg，文件上传前会压缩一把再上传！
+                    resize: false,
+                    auto: true,
+                    duplicate: true,
+                    fileVal: "file"
+                }).on("uploadStart", function (file) {
+                    file.percent = "0%";
+                    file.state = '上传中';
+                    file.uploading = true;
+                    t.files.push(file);
+                    // console.log(file)
+                }).on("uploadProgress", function (file, percentage) {
+                    file.percent = (percentage * 100).toFixed(0) + "%";
+                }).on("uploadSuccess", function (file, response) {
+                    if (response.success) {
+                        file.state = "成功";
+                        file.uploading = false;
+                        file.resp = response.data;
+                    } else {
+                        file.state = "失败";
+                    }
+                }).on("uploadError", function (file) {
+                    file.state = "失败";
+                }).on("uploadComplete", function (file) {
+                    file.percent = "";
+                });
+            },
+
+            /**
+             * 获取数据
+             * @returns {{data: *, files: *}}
+             */
+            getData: function(){
+                var data = this.$refs.form.getData();
+                //提交所有这个节点上的文件
+                var _files = this.files
+                    .filter(function (e) {
+                        return !e.uploading;
+                    })
+                    // .filter(function (e) {
+                    //     return e.resp || e.action == "delete";
+                    // })
+                    .filter(function (e) {
+                        return !e.uploading;
+                    })
+                    .map(function (e) {
+                        return e.resp || e;
+                    });
+                return ({
+                    data: data,
+                    files: _files
+                })
+            },
+
+            /**
+             *  任务保存 提交
+             */
+            submit: function (gonext) {
+                var url = "";
+                if (this.type == 'pub') {
+                    url = "/api/bpm/workflow/createIns";
+                } else {
+                    if (gonext) {
+                        url = "/api/bpm/workflow/subIns";
+                    } else {
+                        url = "/api/bpm/workflow/saveIns";
+                    }
+                }
+                var data = this.getData();
+                var iWidth = "650";                         //弹出窗口的宽度;
+                var iHeight = "590";                        //弹出窗口的高度;
+                //window.screen.height获得屏幕的高，window.screen.width获得屏幕的宽
+                var iTop = (window.screen.height - 30 - iHeight) / 2;       //获得窗口的垂直位置;
+                var iLeft = (window.screen.width - 10 - iWidth) / 2;        //获得窗口的水平位置;
+                if (this.type != 'pub' && gonext) {
+                    window.open("./ins.next.html?id=" + this.id, "nextpersons", "top=" + iTop + ", left=" + iLeft + ", width=670, height=570")
+                    return;
+                }
+
+                data.id = this.id;
+                data.mode = this.type;
+                var t =this;
+
+                $.ajax({
+                    url: url, //"/api/bpm/workflow/createIns",
+                    type: "post",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    dataType: "json",
+                    data: JSON.stringify(data),
+                    success: function (msg) {
+                        if (!msg.success) {
+                            layer.msg(msg.errMessage)
+                            return
+                        }
+
+                        //app 没有opener
+                        if (window.opener && window.opener.initTable) {
+                            window.opener.initTable.apply(null, opener.last)
+                        }
+
+                        if (t.type == 'pub') {
+                            if (gonext) {
+                                window.open("./ins.next.html?id=" + msg.data, "nextpersons", "top=" + iTop + ", left=" + iLeft + ", width=670, height=570")
+                            }
+                            location.href = "./ins.pub.html?type=deal&id=" + msg.data
+                        } else {
+                            if (gonext) {
+                                if (msg.data.res == true) {
+                                    window.open("./ins.next.html?id=" + msg.data.id, "nextpersons", "top=" + iTop + ", left=" + iLeft + ", width=670, height=570")
+                                } else {
+                                    layer.msg(msg.data.res)
+                                    t.load()
+                                }
+                            } else {
+                                t.load()
+                                layer.msg("保存成功！")
+                            }
+                        }
+
+                    }
+                })
+            },
+
+            /**
+             * 任务回退
+             */
+            goBack: function () {
+                var t = this;
+                layer.confirm('确定回退？', function (index) {
+                    //do something
+                    layer.close(index);
+                    $.get("/api/bpm/workflow/goBack", {id: t.id}, function (msg) {
+                        if (!msg.success) {
+                            return layer.msg(msg.errMessage)
+                        }
+                        layer.msg("回退成功")
+                        t.load();
+                    }, "json");
+                });
             }
+        },
+        mounted: function () {
+            this.initUploader();
+            this.load()
         }
-    })
+    });
 
 
+    //todo: 郑郑需要改
     $("#wPrint").click(function () {
         wPrint();
     });
 
-    function wPrint(){
-        bdhtml=window.document.body.innerHTML;//获取当前页的html代码
-        sprnstr="<!--startprint-->";//设置打印开始区域
-        eprnstr="<!--endprint-->";//设置打印结束区域
-        prnhtml=bdhtml.substring(bdhtml.indexOf(sprnstr)+17); //从开始代码向后取html
-        prnhtml=prnhtml.substring(0,prnhtml.indexOf(eprnstr));//从结束代码向前取html
-        window.document.body.innerHTML=prnhtml;
+    function wPrint() {
+        bdhtml = window.document.body.innerHTML;//获取当前页的html代码
+        sprnstr = "<!--startprint-->";//设置打印开始区域
+        eprnstr = "<!--endprint-->";//设置打印结束区域
+        prnhtml = bdhtml.substring(bdhtml.indexOf(sprnstr) + 17); //从开始代码向后取html
+        prnhtml = prnhtml.substring(0, prnhtml.indexOf(eprnstr));//从结束代码向前取html
+        window.document.body.innerHTML = prnhtml;
         loadForm();
         window.print();
         location.reload()
