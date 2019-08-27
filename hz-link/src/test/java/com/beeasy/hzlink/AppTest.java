@@ -20,6 +20,8 @@ import org.junit.Test;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -63,9 +65,32 @@ public class AppTest {
         return;
     }
 
+    private static BigDecimal convertToMoney(String str) {
+        var sstr = str.replaceAll("人民币", "");
+        BigDecimal bg = null;
+        try {
+            if (sstr.contains("万")) {
+                sstr = sstr.replaceAll("万港?美?元?|\\s+", "");
+                bg = new BigDecimal(sstr);
+                bg = bg.multiply(new BigDecimal(10000)).setScale(4, RoundingMode.HALF_UP);
+            } else {
+                bg = new BigDecimal(sstr);
+            }
+            return bg;
+        }catch (Exception e){
+            return new BigDecimal(0);
+        }
+
+    }
 
     @Test
     public void test() {
+
+        var a = convertToMoney("120351.9164万元人民币").setScale(2, RoundingMode.HALF_UP);
+
+        var percent = convertToMoney("33.6万").divide(a).setScale(2, RoundingMode.HALF_UP);
+
+
 //        var a = sqlManager.execute(new SQLReady("values 1"), Obj.class);
 //        int d = 1;
 

@@ -412,29 +412,23 @@ public class TestRiskMonitor {
             JSONObject reqItemData
     ){
         return  JSONObject.parseObject("{\n"
-                + "\t\"status\": \"200\",\n"
-                + "\t\"msg\": \"查询成功\",\n"
-                + "\t\"result\": {\n"
-                + "\t\t\"name\": \"宁夏宁丰餐饮服务有限公司\",\n"
-                + "\t\t\"orgNo\": \"22768302-9\",\n"
-                + "\t\t\"executeGov\": \"银川市兴庆区人民法院\",\n"
-                + "\t\t\"executeStatus\": \"全部未履行\",\n"
-                + "\t\t\"province\": \"宁夏\",\n"
-                + "\t\t\"executeNo\": \"（2016）银劳人仲裁字1403号\",\n"
-                + "\t\t\"lianDate\": \"2017-01-23\",\n"
-                + "\t\t\"anNo\": \"(2017)宁0104执756号\",\n"
-                + "\t\t\"executeUnite\": \"银川市劳动人事争议仲裁委员会\",\n"
-                + "\t\t\"publicDate\": \"2017-02-27\",\n"
-                + "\t\t\"actionRemark\": \"其他有履行能力而拒不履行生效法律文书确定义务的\",\n"
-                + "\t\t\"yiWu\": \"支付申请人工资12672元\"\n"
-                + "\t}\n"
-                + "}");
-//        return getRiskRemoteData(
-//                "https://pro.qichacha.com/api/corpdtl/riskMonitor/zhixingDtl",
-//                C.newMap(
-//                        "detailId", reqItemData.getString("detailId")
-//                )
-//        );
+            + "\t\"status\": \"200\",\n"
+            + "\t\"msg\": \"查询成功\",\n"
+            + "\t\"result\": {\n"
+            + "\t\t\"name\": \"宁夏宁丰餐饮服务有限公司\",\n"
+            + "\t\t\"orgNo\": \"22768302-9\",\n"
+            + "\t\t\"executeGov\": \"银川市兴庆区人民法院\",\n"
+            + "\t\t\"executeStatus\": \"全部未履行\",\n"
+            + "\t\t\"province\": \"宁夏\",\n"
+            + "\t\t\"executeNo\": \"（2016）银劳人仲裁字1403号\",\n"
+            + "\t\t\"lianDate\": \"2017-01-23\",\n"
+            + "\t\t\"anNo\": \"(2017)宁0104执756号\",\n"
+            + "\t\t\"executeUnite\": \"银川市劳动人事争议仲裁委员会\",\n"
+            + "\t\t\"publicDate\": \"2017-02-27\",\n"
+            + "\t\t\"actionRemark\": \"其他有履行能力而拒不履行生效法律文书确定义务的\",\n"
+            + "\t\t\"yiWu\": \"支付申请人工资12672元\"\n"
+            + "\t}\n"
+            + "}");
     }
 
     /**

@@ -37,6 +37,7 @@ build
 /load-qcc/src/main/resources/qcc/txt/
 /load-qcc/src/main/resources/qcc/zip/
 /load-qcc/src/main/resources/qcc/*
+/load-qcc/src/main/resources/qccLoadData/*
 
 */__MACOSX
 __MACOSX/*
