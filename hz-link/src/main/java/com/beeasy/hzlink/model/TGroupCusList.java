@@ -16,7 +16,7 @@ public class TGroupCusList   {
 	/*
 	流水号
 	*/
-    @AssignID()
+    @AssignID(value = "simple")
 	private Long id ;
 	/*
 	证件号码

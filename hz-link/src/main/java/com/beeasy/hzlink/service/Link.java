@@ -11,11 +11,13 @@ import com.github.llyb120.nami.core.Arr;
 import com.github.llyb120.nami.core.Json;
 import com.github.llyb120.nami.core.Obj;
 import org.apache.poi.hssf.record.SaveRecalcRecord;
+import org.beetl.sql.core.query.LambdaQuery;
 import org.beetl.sql.ext.SnowflakeIDAutoGen;
 import org.beetl.sql.ext.SnowflakeIDWorker;
 import org.jxls.common.Size;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
@@ -65,12 +67,19 @@ public class Link {
             }
             //算不出来的一概忽略
             try {
-                var p = Float.parseFloat(obj.getStr("StockPercent").replaceAll("%", ""));
-                if (p >= 25) {
-                    arr.add(obj.getStr("StockName"));
+                var stockPercent = obj.getStr("StockPercent").replaceAll("%", "");
+                if(StrUtil.isNotBlank(stockPercent)){
+                    var p = Float.parseFloat(stockPercent);
+                    if (p >= 25) {
+                        arr.add(obj.getStr("StockName"));
+                    }
+                }else{
+                    System.out.println(compName + obj.getStr("StockName") + "|缺失股权比例");
                 }
             } catch (Exception e) {
+                System.out.println(JSONObject.toJSON(obj));
                 e.printStackTrace();
+                System.exit(1);
             }
         }
 
@@ -138,7 +147,7 @@ public class Link {
                     //算不出来的一概忽略
                     try {
                         var val = ciaForeignInvestments.getStr("SubConAmt");
-                        if (val.contains(",")) {
+                        if (val!=null && val.contains(",")) {
                             var items = StrUtil.splitTrim(val, ",");
                             var i = new BigDecimal(0);
                             for (String item : items) {
@@ -146,12 +155,20 @@ public class Link {
                             }
                             val = i.toString();
                         }
-                        var percent = convertToMoney(val + "万").divide(convertToMoney(ciaForeignInvestments.getStr("RegCap")));
-                        if (percent.floatValue() >= 0.25) {
-                            ret.add(a(ciaForeignInvestments.getStr("Name"), s, "自然人股东", percent.multiply(new BigDecimal(100))));
+                        var regCap = ciaForeignInvestments.getStr("RegCap");
+                        if(StrUtil.isNotBlank(val) && StrUtil.isNotBlank(regCap)){
+                            var percent = convertToMoney(val + "万").divide(convertToMoney(regCap), 2, RoundingMode.HALF_UP);
+                            if (percent.floatValue() >= 0.25) {
+                                ret.add(a(ciaForeignInvestments.getStr("Name"), s, "自然人股东", percent.multiply(new BigDecimal(100))));
+                            }
+                        }else{
+                            System.out.println(compName + ciaForeignInvestments.getStr("Name") + "|缺失股权比例计算数据");
                         }
                     } catch (Exception e) {
+                        System.out.println(JSONObject.toJSON(ciaForeignInvestments));
+                        System.out.println(convertToMoney(ciaForeignInvestments.getStr("RegCap")));
                         e.printStackTrace();
+                        System.exit(1);
                     }
                 }
             }
@@ -219,13 +236,16 @@ public class Link {
         });
 
         //整理数据
-//        sqlManager.lambdaQuery(Link111.class)
-//            .andEq(Link111::getOrigin_name, compName)
-//            .andEq(Link111::getLink_rule, "11.1")
-//            .delete();
+        sqlManager.lambdaQuery(Link111.class)
+            .andEq(Link111::getOrigin_name, compName)
+            .andEq(Link111::getLink_rule, "11.1")
+            .delete();
         var cache = o();
         var batch = a();
         for (Arr objects : ret.toArrList()) {
+            if(compName.equals(objects.getString(0))){
+                continue;
+            }
             var key = objects.getString(0) + objects.getString(1) + objects.getString(2);
             if (cache.containsKey(key)) {
                 continue;
@@ -246,16 +266,13 @@ public class Link {
         }
 //        sqlManager.insert(batch.get(0), true);
         sqlManager.insertBatch(Link111.class, batch);
-
-
     }
 
     public static void do11_2(String compNames) {
-        var str = HttpUtil.get(getUrl("/ECIV4/GetDetailsByName"), o("fullName", compNames));
-        var obj = Json.parseObject(str);
+        var obj = getCompanyDetail(compNames);
         var operName = "";
-        if(obj.getStr("Status", "500").equals("200")){
-            operName = obj.getObj("Result").getStr("OperName");
+        if(null != obj){
+            operName = obj.getStr("OperName");
         }
         if(!"".equals(operName)){
             CusCom cusCom = sqlManager.lambdaQuery(CusCom.class).andEq(CusCom::getCus_name,compNames).single();
@@ -278,7 +295,9 @@ public class Link {
                     String legalCertCode = cusCom.getLegal_cert_code();
 
                     // 检查是否有贷款
-                    List<Obj> prt = sqlManager.select("accloan.cun_cus_com", Obj.class, o("names", operName, "certCode",legalCertCode));
+                    Arr names = new Arr();
+                    names.add(operName);
+                    List<Obj> prt = sqlManager.select("accloan.cun_cus_indiv", Obj.class, o("names", names, "certCode",legalCertCode));
 
 //                    var p = sqlManager.lambdaQuery(RptMRptSlsAcct.class).andEq(RptMRptSlsAcct::getPsn_cert_code, legalCertCode).andEq(RptMRptSlsAcct::getCus_name, operName).select();
                     if(null != prt && !prt.isEmpty()){
@@ -290,6 +309,20 @@ public class Link {
                         link111.setLink_type("自然人");
                         link111.setLink_rule("11.2");
                         link111.setIs_company(1);
+
+                        TGroupCusList tGroupCusList = new TGroupCusList();
+                        tGroupCusList.setAdd_time(new Date());
+                        tGroupCusList.setCus_name(compNames);
+                        tGroupCusList.setCert_code("");
+                        tGroupCusList.setLink_name(operName);
+                        tGroupCusList.setLink_cert_code(legalCertCode);
+                        tGroupCusList.setLink_rule("11.2");
+                        tGroupCusList.setRemark_1("关联自然人有贷款");
+                        tGroupCusList.setRemark_2("");
+                        tGroupCusList.setRemark_3("");
+                        tGroupCusList.setData_flag("01");
+
+                        sqlManager.insert(tGroupCusList, true);
 
                         sqlManager.lambdaQuery(Link111.class)
                                 .andEq(Link111::getLink_rule, "11.2")
@@ -314,6 +347,7 @@ public class Link {
     public static void do11_3(String compName) {
         System.out.println("do11_3:" + compName);
         var batch = new ArrayList<Link111>();
+        var batch2 = new ArrayList<TGroupCusList>();
         var detail = getCompanyDetail(compName);
         if (detail == null) {
             return;
@@ -353,6 +387,20 @@ public class Link {
                                         link111.setIs_company(1);
                                         link111.setStock_percent(percent);
                                         batch.add(link111);
+
+                                        TGroupCusList tGroupCusList = new TGroupCusList();
+                                        tGroupCusList.setAdd_time(new Date());
+                                        tGroupCusList.setCus_name(compName);
+                                        tGroupCusList.setCert_code("");
+                                        tGroupCusList.setLink_name(names.getStr("Name"));
+                                        tGroupCusList.setLink_cert_code("");
+                                        tGroupCusList.setLink_rule("11.3");
+                                        tGroupCusList.setRemark_1("有共同关联的企业");
+                                        tGroupCusList.setRemark_2("");
+                                        tGroupCusList.setRemark_3("");
+                                        tGroupCusList.setData_flag("01");
+
+                                        batch2.add(tGroupCusList);
                                     }
                                 } catch (Exception e) {
                                     e.printStackTrace();
@@ -366,21 +414,31 @@ public class Link {
             }
         }
 
-        Set<String> names = batch.stream()
-                .map(e -> e.getLink_right())
-                .collect(Collectors.toSet());
-        var leftNames = hasLoan(names);
-        batch = (ArrayList<Link111>) batch
-                .stream()
-                .filter(e -> leftNames.contains(e.getLink_right()))
-                .collect(Collectors.toList());
+        if(!batch.isEmpty()){
+            Set<String> names = batch.stream()
+                    .map(e -> e.getLink_right())
+                    .collect(Collectors.toSet());
+            var leftNames = hasLoan(names);
+            batch = (ArrayList<Link111>) batch
+                    .stream()
+                    .filter(e -> leftNames.contains(e.getLink_right()))
+                    .collect(Collectors.toList());
+        }
+
 
         if (!batch.isEmpty()) {
             sqlManager.lambdaQuery(Link111.class)
                 .andEq(Link111::getLink_rule, "11.3")
                 .andEq(Link111::getOrigin_name, compName)
                 .delete();
+
+            System.out.println("do11_3:" + JSONObject.toJSONString(batch2));
             sqlManager.insertBatch(Link111.class, batch);
+//            sqlManager.insertBatch(Link111.class, batch2, true);
+            for(TGroupCusList item : batch2){
+                sqlManager.insert(item, true);
+            }
+
         }
 
 //            var list = sqlManager.lambdaQuery(QccHoldingCompanyNames.class)
@@ -439,17 +497,40 @@ public class Link {
                 link111.setOrigin_name(compName);
                 link111.setLink_left(compName);
                 link111.setLink_right(e);
-                link111.setLink_type("企业股东");
+                link111.setLink_type("关联企业有贷款");
                 link111.setIs_company(1);
                 return link111;
             })
             .collect(Collectors.toList());
+
+        var batch2 = names.toStrList().stream()
+            .map(e -> {
+                TGroupCusList tGroupCusList = new TGroupCusList();
+                tGroupCusList.setAdd_time(new Date());
+                tGroupCusList.setCus_name(compName);
+                tGroupCusList.setLink_name(e);
+                tGroupCusList.setLink_cert_code("");
+                tGroupCusList.setLink_rule("11.4");
+                tGroupCusList.setRemark_1("关联企业有贷款");
+                tGroupCusList.setRemark_2("");
+                tGroupCusList.setRemark_3("");
+                tGroupCusList.setData_flag("01");
+                return tGroupCusList;
+            })
+            .collect(Collectors.toList());
+
         if (batch.size() > 0) {
             sqlManager.lambdaQuery(Link111.class)
                 .andEq(Link111::getLink_rule, "11.4")
                 .andEq(Link111::getOrigin_name, compName)
                 .delete();
             sqlManager.insertBatch(Link111.class, batch);
+
+            for(TGroupCusList item : batch2){
+                sqlManager.insert(item, true);
+            }
+
+//            sqlManager.insertBatch(TGroupCusList.class, batch2, true);
         }
 
     }
@@ -568,39 +649,51 @@ public class Link {
     public static void do11_5(String compName) {
 
         Long start = System.currentTimeMillis();
-//        var batch = a();
-
         List<Obj> objs = sqlManager.select("accloan.11_5", Obj.class, o());
-        if(objs.size()>0){
-            sqlManager.lambdaQuery(TGroupCusList.class)
-                        .andEq(TGroupCusList::getLink_rule, "11.5")
-                        .delete();
-        }
+//        sqlManager.lambdaQuery(TGroupCusList.class)
+//            .andEq(TGroupCusList::getCus_name, compName)
+//            .andEq(TGroupCusList::getLink_rule, "11.5")
+//            .andEq(TGroupCusList::getData_flag, "01")
+//            .delete();
+        var batch = a();
         Date nowDdate = new Date();
         for (Obj list : objs) {
             String guarName = list.getStr("guar_name");
             String linkCertCode = list.getStr("cer_no");
-
             String cusName = list.getStr("cus_name");
             String certCode = list.getStr("cert_code");
-
-            var tGroupCusList = new TGroupCusList();
-            tGroupCusList.setId(IdUtil.createSnowflake(0,0).nextId());
+            TGroupCusList tGroupCusList = new TGroupCusList();
             tGroupCusList.setAdd_time(nowDdate);
             tGroupCusList.setCus_name(cusName);
             tGroupCusList.setCert_code(certCode);
             tGroupCusList.setLink_name(guarName);
             tGroupCusList.setLink_cert_code(linkCertCode);
             tGroupCusList.setLink_rule("11.5");
-            tGroupCusList.setRemark_1("担保关联");
+            tGroupCusList.setRemark_1("有共同的担保人");
             tGroupCusList.setRemark_2("");
             tGroupCusList.setRemark_3("");
             tGroupCusList.setData_flag("01");
+            try {
+                sqlManager.insert(tGroupCusList, true);
+            }catch (Exception e){
+                System.out.println(e.toString());
+                System.out.println(JSONObject.toJSON(tGroupCusList));
+            }
 
-            sqlManager.insert(tGroupCusList);
-//            batch.add(tGroupCusList);
-
+//            batch.add(new TGroupCusList(){{
+//                setAdd_time(nowDdate);
+//                setCus_name(cusName);
+//                setCert_code(certCode);
+//                setLink_name(guarName);
+//                setLink_cert_code(linkCertCode);
+//                setLink_rule("11.5");
+//                setRemark_1("有共同的担保人");
+//                setRemark_2("");
+//                setRemark_3("");
+//                setData_flag("01");
+//            }});
         }
+//        sqlManager.insertBatch(TGroupCusList.class, batch, true);
 
         /*var i = 0;
         var step = 1000;
@@ -658,26 +751,46 @@ public class Link {
 
         List<Obj> objList = sqlManager.select("accloan.11_6",Obj.class,o());
         var batch = a();
+        var batch2 = a();
         for (Obj list : objList) {
-            var link = new Link111() ;
+            var link = new Link111();
+            String certCode = list.getStr("cert_code");
+            String cerNo = list.getStr("cer_no");
+            String cusName = list.getStr("cus_name");
+            String guarName = list.getStr("guar_name");
+
             link.setId(IdUtil.objectId());
             link.setLink_rule("11.6");
-            link.setLink_left(list.getStr("cus_name"));
-            link.setOrigin_name(list.getStr("cus_name"));
-            link.setLink_right(list.getStr("guar_name"));
-            link.setLink_type("担保关联");
+            link.setLink_left(cusName);
+            link.setOrigin_name(cusName);
+            link.setLink_right(guarName);
+            link.setLink_type("担保人有贷款");
             link.setIs_company(1);
             batch.add(link);
+
+            batch2.add(new TGroupCusList(){{
+                setAdd_time(new Date());
+                setCus_name(cusName);
+                setCert_code(certCode);
+                setLink_name(guarName);
+                setLink_cert_code(cerNo);
+                setLink_rule("11.6");
+                setRemark_1("担保人有贷款");
+                setRemark_2("");
+                setRemark_3("");
+                setData_flag("01");
+            }});
+
             if(batch.isNotEmpty()){
                 sqlManager.lambdaQuery(Link111.class)
-                        .andEq(Link111::getLink_rule, "11.6")
-                        .andEq(Link111::getOrigin_name, list.getStr("cus_name"))
-                        .delete();
+                    .andEq(Link111::getLink_rule, "11.6")
+                    .andEq(Link111::getOrigin_name, list.getStr("cus_name"))
+                    .delete();
             }
         }
         if(batch.isNotEmpty()){
-
             sqlManager.insertBatch(Link111.class, batch);
+            sqlManager.insertBatch(TGroupCusList.class, batch2, true);
         }
         /*var diyas = sqlManager.lambdaQuery(Link111.class)
             .andEq(Link111::getLink_rule, "11.5.1")
@@ -788,12 +901,11 @@ public class Link {
                 .delete();
             sqlManager.insertBatch(Link111.class, batch);
 
-            sqlManager.lambdaQuery(RelatedPartyList.class)
-                    .andEq(RelatedPartyList::getLink_rule, "12.2")
-                    .andEq(RelatedPartyList::getData_flag,"01")
-                    .andEq(RelatedPartyList::getRelated_name, compName)
-                    .delete();
-
+//            sqlManager.lambdaQuery(RelatedPartyList.class)
+//                    .andEq(RelatedPartyList::getLink_rule, "12.2")
+//                    .andEq(RelatedPartyList::getData_flag,"01")
+//                    .andEq(RelatedPartyList::getRelated_name, compName)
+//                    .delete();
             for(String name : personNames){
                 List<Link111> arr = sqlManager.lambdaQuery(Link111.class)
                     .andEq(Link111::getLink_rule, "12.2")
@@ -1064,14 +1176,19 @@ public class Link {
      * @param names
      */
     private static Arr hasLoan(Collection<String> names) {
-        List<Obj> allows = sqlManager.select("accloan.cun_cus_com", Obj.class, o("names", names));
+        if(names.size() > 0){
+            List<Obj> allows = sqlManager.select("accloan.cun_cus_com", Obj.class, o("names", names));
 //        var allows = sqlManager.lambdaQuery(CusComList.class)
 //            .andIn(CusComList::getCus_name, names)
 //            .select();
-        return a(allows.stream()
-            .map(e -> e.getStr("cus_name"))
-            .toArray()
-        );
+            return a(allows.stream()
+                    .map(e -> e.getStr("cus_name"))
+                    .toArray()
+            );
+        }else{
+            return new Arr();
+        }
+
     }
 
     /**
@@ -1121,14 +1238,19 @@ public class Link {
     private static BigDecimal convertToMoney(String str) {
         var sstr = str.replaceAll("人民币", "");
         BigDecimal bg = null;
-        if (sstr.contains("万")) {
-            sstr = sstr.replaceAll("万港?美?元?|\\s+", "");
-            bg = new BigDecimal(sstr);
-            bg = bg.multiply(new BigDecimal(10000));
-        } else {
-            bg = new BigDecimal(sstr);
+        try {
+            if (sstr.contains("万")) {
+                sstr = sstr.replaceAll("万港?美?元?|\\s+", "");
+                bg = new BigDecimal(sstr);
+                bg = bg.multiply(new BigDecimal(10000));
+            } else {
+                bg = new BigDecimal(sstr);
+            }
+            return bg;
+        }catch (Exception e){
+            return new BigDecimal(0);
         }
-        return bg;
+
     }
 
     private static Obj getCompanyDetail(String compName){

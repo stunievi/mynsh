@@ -1,17 +1,23 @@
 package com.beeasy.hzback;
 
-        import org.apache.commons.codec.binary.Base64;
-        import org.junit.Test;
-        import sun.misc.BASE64Decoder;
-        import sun.misc.BASE64Encoder;
+import cn.hutool.core.io.FileUtil;
+import com.alibaba.fastjson.JSONObject;
+import org.apache.commons.codec.binary.Base64;
+import org.junit.Test;
 
-        import javax.crypto.Cipher;
-        import javax.crypto.SecretKey;
-        import javax.crypto.spec.IvParameterSpec;
-        import javax.crypto.spec.SecretKeySpec;
-        import java.io.UnsupportedEncodingException;
-        import java.security.Security;
-        import java.util.Arrays;
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+import java.io.*;
+import java.security.Security;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 //public class zip {
 //
@@ -87,7 +93,7 @@ public class zip {
             cipher.init(Cipher.ENCRYPT_MODE, skeySpec, ivParameterSpec);
 
             byte[] encrypted = cipher.doFinal(clearText);
-            return new BASE64Encoder().encode(encrypted);
+            return "";
         } catch (Exception ex) {
         }
         return null;
@@ -142,8 +148,49 @@ public class zip {
 
     @Test
     public void test(){
+
+        ScriptEngineManager manager = new ScriptEngineManager();
+        ScriptEngine se = manager.getEngineByName("js");
+        String str = "13>12&&'张三1'=='张三'";
+        boolean result;
+        try {
+            result = ( Boolean)se.eval(str);
+            System.out.println(result);
+        } catch (ScriptException e) {
+            e.printStackTrace();
+        }
+
         String res = decrypt(encrypt("sss", "sss"), "sss");
         System.out.println(res);
 
     }
+
+    @Test
+    public void readByZipFile() {
+        String str = FileUtil.readUtf8String("D:\\java projects\\hznsh\\load-qcc\\src\\main\\resources\\qccLoadData\\txt\\201908255f7f730923ca4c2e8007186abc52ced6\\corp.json");
+        JSONObject obj = JSONObject.parseObject(str);
+
+//            new ZipFile("D:\\java projects\\hznsh\\load-qcc\\src\\main\\resources\\qccLoadData\\zip\\201908255f7f730923ca4c2e8007186abc52ced6.zip", "dl68LxN0aXRAQTfvf5Z6".toCharArray()).extractAll( "D:\\java projects\\hznsh\\load-qcc\\src\\main\\resources\\qccLoadData\\txt\\");
+
+//            ZipFile zipFile = new ZipFile(new File("D:\\java projects\\hznsh\\load-qcc\\src\\main\\resources\\qccLoadData\\zip\\201908255f7f730923ca4c2e8007186abc52ced6.zip"));
+
+    }
+
+    public void readByZipInputStream() {
+        try {
+            ZipInputStream zipInputStream = new ZipInputStream(
+                    new FileInputStream("D:\\java projects\\hznsh\\load-qcc\\src\\main\\resources\\qccLoadData\\zip\\201908255f7f730923ca4c2e8007186abc52ced6.zip"));
+            ZipEntry zipEntry = null;
+            while ((zipEntry = zipInputStream.getNextEntry()) != null) {
+                String name = zipEntry.getName();
+                System.out.println(name);
+                byte[] b = new byte[1024];
+                zipInputStream.read(b);
+                System.out.println(new String(b));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

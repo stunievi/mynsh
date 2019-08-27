@@ -53,6 +53,7 @@ select
     ROW_NUMBER()OVER(ORDER BY id) as number, link.*
 @}
 from T_RELATED_PARTY_LIST link where 1=1
+and LINK_RULE like '%12.%'
 @if(isNotEmpty(RELATED_NAME)){
     and RELATED_NAME like #'%' + RELATED_NAME + '%'#
 @}

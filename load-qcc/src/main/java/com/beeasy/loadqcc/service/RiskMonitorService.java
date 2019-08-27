@@ -1,14 +1,18 @@
 package com.beeasy.loadqcc.service;
 
+import cn.hutool.core.io.FileUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.beeasy.loadqcc.config.MQConfig;
+import com.beeasy.loadqcc.utils.OkHttpUtil;
 import com.beeasy.loadqcc.utils.QccUtil;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOptions;
+import net.lingala.zip4j.ZipFile;
+import net.lingala.zip4j.exception.ZipException;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.bson.Document;
 import org.osgl.util.C;
@@ -38,9 +42,13 @@ public class RiskMonitorService {
 
     @Value("${loadQcc.riskTxtPath}")
     String LOAD_RISK_TXT_PATH;
-
     @Value("${loadQcc.riskZipPath}")
     String LOAD_RISK_ZIP_PATH;
+
+    @Value("${loadQcc.qccDataZipPath}")
+    String QCC_DATA_ZIP_PATH;
+    @Value("${loadQcc.qccDataTxtPath}")
+    String QCC_DATA_TXT_PATH;
 
     // 文件路径
     private File qccFileDataPath;
@@ -65,136 +73,141 @@ public class RiskMonitorService {
      * 融资动态详情 riskMonitor_getFinancingsGroupDtl
      */
     private static final C.Map<String, String> corpDtlApi = C.newMap(
-            "1", "受益人变更",
-            "4", "法定代表人",
-            "5", "注册资本",
-            "6", "经营状态",
-            "7", "股东",
-            "8", "主要人员",
-            "9", "被执行人信息",
-            "10", "失信被执行人",
-            "11", "裁判文书",
-            "12", "法院公告",
-            "13", "开庭公告",
-            "14", "司法拍卖",
-            "15", "行政处罚",
-            "16", "严重违法",
-            "17", "环保处罚",
-            "18", "股权出质",
-            "19", "动产抵押",
-            "20", "经营异常",
-            "21", "对外投资",
-            "22", "清算信息",
-            "23", "简易注销",
-            "24", "企业地址",
-            "25", "经营范围",
-            "26", "税收违法",
-            "27", "欠税公告",
-            "28", "融资动态",
-            "29", "大股东变更",
-            "30", "实际控制人变更",
-            "31", "司法协助",
-            "32", "送达公告",
-            "33", "招投标"
-    );
+            "1", "", // 受益人变更
+            "4", "", // 法定代表人
+            "5", "", // 注册资本
+            "6", "", // 经营状态
+            "7", "", // 股东
+            "8", "", // 主要人员
+            "9", "", // 被执行人信息
+            "10", "", // 失信被执行人
+            "11", "judgementDtl", // 裁判文书
+            "12", "", // 法院公告
+            "13", "", // 开庭公告
+            "14", "", // 司法拍卖
+            "15", "", // 行政处罚
+            "16", "", // 严重违法
+            "17", "", // 环保处罚
+            "18", "", // 股权出质
+            "19", "", // 动产抵押
+            "20", "", // 经营异常
+            "21", "", // 对外投资
+            "22", "", // 清算信息
+            "23", "", // 简易注销
+            "24", "", // 企业地址
+            "25", "", // 经营范围
+            "26", "", // 税收违法
+            "27", "", // 欠税公告
+            "28", "", // 融资动态
+            "29", "", // 大股东变更
+            "30", "", // 实际控制人变更
+            "31", "", // 司法协助
+            "32", "", // 送达公告
+            "33", "" // 招投标
+     );
 
     private static final Map personDtlApi = C.newMap(
-            "1", "法人信息",
-            "2"," 任职信息",
-            "3"," 投资信息",
-            "4"," 股权信息",
-            "5"," 失信信息",
-            "6"," 被执行信息"
+            "1", "", // 法人信息
+            "2", "", // 任职信息
+            "3", "", // 投资信息
+            "4", "", // 股权信息
+            "5", "", // 失信信息
+            "6", "zhixingDtl" // 被执行信息
     );
 
-    private void saveRiskBlockData(
-            MongoCollection coll,
-            JSONObject object
-    ){
+    // 获取zip包数据后，并读取json文件中数据
+    public void getZipFileData() throws ZipException {
         String orderNo = this.orderNo;
-        if(null == object){
-            return;
+        String unzipPassword = this.unzipPassword;
+        File fileZip = new File(QCC_DATA_ZIP_PATH + orderNo + ".zip");
+        // 解压
+        new ZipFile(fileZip, unzipPassword.toCharArray()).extractAll(QCC_DATA_TXT_PATH + "/" + orderNo);
+        // 读取json
+        JSONObject retData = new JSONObject();
+        List<String> blockNames = C.newList("corp", "person", "corp_news");
+        for(String name : blockNames){
+            File f = new File(name+".json");
+            if(f.exists()){
+                String fileStr = FileUtil.readUtf8String(f);
+                retData.put(name, JSONObject.parseObject(fileStr));
+            }
         }
-        object.put("orderNo", orderNo);
-        Document modifiers = new Document();
-        modifiers.append("$set", object);
-        UpdateOptions opt = new UpdateOptions();
-        opt.upsert(true);
-        coll.updateOne(Filters.eq("orderNo", orderNo), modifiers, opt);
+        this.zipData = retData;
+    }
+
+    // 保存数据块
+    private void saveRiskBlockData(){
+        JSONObject zipData = this.zipData;
+        String orderNo = this.orderNo;
+        for(Map.Entry<String, Object> entry : zipData.entrySet()){
+            JSONObject object = (JSONObject) entry.getValue();
+            String blockName = entry.getKey();
+            if(null != object){
+                MongoCollection<Document> coll = mongoService.getCollection("riskMonitor_"+blockName+".json");
+                object.put("orderNo", orderNo);
+                Document modifiers = new Document();
+                modifiers.append("$set", object);
+                UpdateOptions opt = new UpdateOptions();
+                opt.upsert(true);
+                coll.updateOne(Filters.eq("orderNo", orderNo), modifiers, opt);
+            }
+        }
     }
 
     // 获取企查查zip包，解压，返回zip包数据
-    public JSONObject unZipRiskData() throws NoSuchMethodException, IOException, IllegalAccessException, InvocationTargetException {
-        String downloadUrl = this.downloadUrl;
-        String unzipPassword = this.unzipPassword;
-
+    public void unZipRiskData() throws NoSuchMethodException, IOException, IllegalAccessException, InvocationTargetException {
         // TODO::
-        JSONObject zipData = new JSONObject();
-
-        // 企业监控文件
-        JSONObject corpData = zipData.getJSONObject("corp");
-        JSONArray corpList = corpData.getJSONArray("result");
-        // 人员监控文件
-        JSONObject personData = zipData.getJSONObject("person");
-        JSONArray personList = personData.getJSONArray("result");
-
-        // 企业监控文件
-        MongoCollection<Document> coll = mongoService.getCollection("riskMonitor_corp.json");
-        saveRiskBlockData(coll, corpData);
-        // 人员监控文件
-        MongoCollection<Document> coll2 = mongoService.getCollection("riskMonitor_person.json");
-        saveRiskBlockData(coll2,  personData);
-        // 企业新闻舆情推送文件(推送数量限制请参考企查查专业版: 监控设置-推送设置)
-        MongoCollection<Document> coll3 = mongoService.getCollection("riskMonitor_corp_news.json");
-        saveRiskBlockData(coll3, zipData.getJSONObject("corp_news"));
-
-
-        invokeDtl(corpList);
-        invokeDtl(personList);
-
-        this.zipData = zipData;
-        return zipData;
+        getZipFileData();
+        saveRiskBlockData();
+        invokeDtl();
     }
 
     // 循环列表获取详情
-    public void invokeDtl(
-            JSONArray dataList
-    ) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException {
-        if(null == dataList || dataList.size() < 1){
-            return;
-        }
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
-        String dateNowStr = sdf.format(new Date());
-        for(Object item : dataList){
-            JSONObject dataItem = (JSONObject) item;
-            // id String  监控记录唯一 ID
-            String dataId = dataItem.getString("id");
-            String type = dataItem.getString("key");
-            JSONObject relationParam = new JSONObject();
-            String dtlApi = corpDtlApi.get(type);
-            if(S.notBlank(dtlApi)){
-                Method method = this.getClass().getDeclaredMethod(dtlApi, JSONObject.class);
-                JSONObject retData = (JSONObject) method.invoke(this, dataItem);
-                if(null == retData){
-                    return;
+    public void invokeDtl() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException {
+        JSONObject zipData = this.zipData;
+        for(Map.Entry<String, Object> entry : zipData.entrySet()){
+            String blockName = entry.getKey();
+            JSONObject dataObj = (JSONObject) entry.getValue();
+            JSONArray dataList = dataObj.getJSONArray("result");
+            if(null == dataList || dataList.size() < 1){
+                continue;
+            }
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+            String dateNowStr = sdf.format(new Date());
+            for(Object item : dataList){
+                JSONObject dataItem = (JSONObject) item;
+                // id String  监控记录唯一 ID
+                String dataId = dataItem.getString("id");
+                String type = dataItem.getString("key");
+                String dtlApi = "";
+                if(blockName.equals("corp")){
+                    dtlApi = corpDtlApi.get(type);
+                }else if(blockName.equals("person")){
+                    dtlApi = (String) personDtlApi.get(type);
                 }
-                MongoCollection<Document> coll = mongoService.getCollection("riskMonitor_"+dtlApi);
-                retData.put("getDataTime", dateNowStr);
-                retData.put("id", dataId);
-                retData.put("orderNo", this.orderNo);
-                Document modifiers = new Document();
-                modifiers.append("$set", retData);
-                UpdateOptions opt = new UpdateOptions();
-                opt.upsert(true);
-                List filters = new ArrayList();
-                filters.add(Filters.eq("orderNo", this.orderNo));
-                filters.add(Filters.eq("id", dataId));
-                filters.add(Filters.eq("getDataTime", dateNowStr));
-                coll.updateOne(Filters.and(filters), modifiers, opt);
+                if(S.notBlank(dtlApi)){
+                    Method method = this.getClass().getDeclaredMethod(dtlApi, JSONObject.class);
+                    JSONObject retData = (JSONObject) method.invoke(this, dataItem);
+                    if(null == retData){
+                        return;
+                    }
+                    MongoCollection<Document> coll = mongoService.getCollection("riskMonitor_"+dtlApi);
+                    retData.put("getDataTime", dateNowStr);
+                    retData.put("id", dataId);
+                    retData.put("orderNo", this.orderNo);
+                    Document modifiers = new Document();
+                    modifiers.append("$set", retData);
+                    UpdateOptions opt = new UpdateOptions();
+                    opt.upsert(true);
+                    List filters = new ArrayList();
+                    filters.add(Filters.eq("orderNo", this.orderNo));
+                    filters.add(Filters.eq("id", dataId));
+                    filters.add(Filters.eq("getDataTime", dateNowStr));
+                    coll.updateOne(Filters.and(filters), modifiers, opt);
 
-                // 写入待压缩文件
-                writeFile(retData.toJSONString());
-
+                    // 写入待压缩文件
+                    writeFile(retData.toJSONString());
+                }
             }
         }
     }
@@ -235,13 +248,19 @@ public class RiskMonitorService {
     // 根据下载文件信息整理数据
     public void resRiskData(
             JSONObject reqData
-    ) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    ) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException {
         // 下载文件的url地址信息
-
-        this.orderNo = reqData.getString("orderNo");
-        this.downloadUrl = reqData.getString("downloadUrl");
+        String downloadUrl = reqData.getString("downloadUrl");
+        String orderNo = reqData.getString("orderNo");
+        this.orderNo = orderNo;
+        this.downloadUrl = downloadUrl;
         this.unzipPassword = reqData.getString("unzipPassword");
         // 解压获取zip内数据 - 详见，[风险监控接口.pdf](https://pro.qichacha.com/p/api/download?id=1P2ZH50CDMQFR9OCDMN4EDDI60A6PQ9T)
+
+        byte[] zipFileByte = OkHttpUtil.download(downloadUrl, C.newMap());
+        FileOutputStream fos = new FileOutputStream(QCC_DATA_ZIP_PATH + orderNo + ".zip");
+        fos.write(zipFileByte);
+        fos.close();
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         File filePath = new File(LOAD_RISK_TXT_PATH , sdf.format(new Date()));
