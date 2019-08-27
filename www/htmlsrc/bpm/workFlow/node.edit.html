@@ -56,9 +56,10 @@
                 <!--                1-->
                 <!--            </div>-->
                 <div id="tab2" class="tab-pane">
+                    <node-dealers :node-id="nodeId" :data="dealers"></node-dealers>
                 </div>
                 <div id="tab8" class="tab-pane">
-                    <node-smart :node-id="nodeId" :data="smart" ref="smart"/>
+                    <node-smart :node-id="nodeId" :data="smart" ref="smart"></node-smart>
                 </div>
                 <div id="tab3" class="tab-pane">
                 </div>
@@ -142,6 +143,7 @@
     // }
 
     loadComponent("node-smart", "./smart.html");
+    loadComponent("node-dealers", "./dealers.html");
 
     var app = new Vue({
         el:"#content",
@@ -152,6 +154,11 @@
                 chooseRule:"none",
                 targetRule: ""
             },
+            dealers:{
+                roles: {},
+                deps: {},
+                users: {}
+            }
             // smarts: {
                 //nodeId: {
 
@@ -185,7 +192,7 @@
 
             this.nodeId = nodeId;
 
-            $("#tab2").load("./dealers.html")
+            // $("#tab2").load("./dealers.html")
             $("#tab7").load("./permission.html")
 
             $("#tab3").fsSelector("all", opener.fields, opener.bpmData.nodes[nodeId].fields.all_fields)

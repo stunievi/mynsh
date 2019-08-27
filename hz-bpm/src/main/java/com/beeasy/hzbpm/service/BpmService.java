@@ -1,62 +1,41 @@
 package com.beeasy.hzbpm.service;
 
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.core.util.XmlUtil;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.TypeReference;
 import com.beeasy.hzbpm.bean.JsEngine;
-import com.beeasy.hzbpm.bean.MessageSend;
 import com.beeasy.hzbpm.bean.Notice;
 import com.beeasy.hzbpm.entity.BpmData;
 import com.beeasy.hzbpm.entity.BpmInstance;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.beeasy.hzbpm.entity.BpmModel;
 import com.beeasy.hzbpm.entity.FormEntity;
 import com.beeasy.hzbpm.exception.BpmException;
-import com.beeasy.hzbpm.filter.Auth;
-import com.beeasy.hzbpm.util.Result;
 import com.github.llyb120.nami.json.Arr;
 import com.github.llyb120.nami.json.Json;
 import com.github.llyb120.nami.json.Obj;
 import com.mongodb.BasicDBObject;
-import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.FindOneAndUpdateOptions;
-import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 import org.beetl.sql.core.SQLReady;
-import org.bson.BsonArray;
 import org.bson.Document;
-import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.security.Permission;
-import java.sql.Struct;
-import java.time.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.beeasy.hzbpm.bean.Data.userCache;
 import static com.beeasy.hzbpm.bean.MongoService.db;
 import static com.github.llyb120.nami.ext.beetlsql.BeetlSql.sqlManager;
-import static com.github.llyb120.nami.json.Json.*;
-import static com.github.llyb120.nami.server.Vars.$request;
+import static com.github.llyb120.nami.json.Json.a;
+import static com.github.llyb120.nami.json.Json.o;
 
 public class BpmService {
 
@@ -113,7 +92,7 @@ public class BpmService {
 
         BpmModel bpmModel = new BpmModel();
         bpmModel.template = bpmService.formEntity.template;
-        bpmModel.rendered = bpmService.formEntity.parse;
+//        bpmModel.rendered = bpmService.formEntity.parse;
         bpmModel.formId = new ObjectId(formId);
 //        bpmService.model.workflowName = (String) data.get("workflowName");
 
@@ -823,11 +802,13 @@ public class BpmService {
         for (Map.Entry<String, Map> field : fields.entrySet()) {
             allAttrs.put(field.getKey(), "");
         }
+        Arr attrsArr = a();
 
         List<String> allFields = startNode.allFields;
         for (String all : allFields) {
             allAttrs.put(all, data.get(all));
             attrs.put(all, data.get(all));
+            attrsArr.add(a(all, data.get(all)));
         }
 //        String deptName = "";
 //        long deptId = 0L;
@@ -843,43 +824,59 @@ public class BpmService {
 //            }
 //        }
 
-        JSONObject dataLog = new JSONObject();
-        dataLog.put("id", new ObjectId());
-        dataLog.put("nodeId", startNode.id);
-        dataLog.put("msg", startNode.name);
-        dataLog.put("time", new Date());
-        dataLog.put("startTime", new Date());
-        dataLog.put("endTime", new Date());
-        dataLog.put("uid", uid);
-        dataLog.put("attrs", attrs);
+        BpmInstance.DataLog dataLog = new BpmInstance.DataLog();
+        dataLog.id = new ObjectId();
+        dataLog.nodeId = startNode.id;
+        dataLog.nodeName = startNode.name;
+        dataLog.msg = startNode.name;
+        dataLog.time = dataLog.startTime = dataLog.endTime = new Date();
+        dataLog.uid = uid;
+//        dataLog.attrs = attrs;
+        dataLog.attributes = attrsArr;
+//        dataLog.put("id", new ObjectId());
+//        dataLog.put("nodeId", startNode.id);
+//        dataLog.put("msg", startNode.name);
+//        dataLog.put("time", new Date());
+//        dataLog.put("startTime", new Date());
+//        dataLog.put("endTime", new Date());
+//        dataLog.put("uid", uid);
+//        dataLog.put("attrs", attrs);
         if (!canUpload(uid)) {
             files = a();
         }
-        dataLog.put("files", files);
-        dataLog.put("uname", uName);
-        dataLog.put("type", "save");
+        dataLog.files = files;
+        dataLog.uname = uName;
+        dataLog.type = "save";
+//        dataLog.put("files", files);
+//        dataLog.put("uname", uName);
+//        dataLog.put("type", "save");
 
-        JSONArray logs = new JSONArray();
-        logs.add(dataLog);
 
-        JSONObject currentNode = new JSONObject();
-        currentNode.put("nodeId", startNode.id);
-        currentNode.put("nodeName", startNode.name);
-        JSONArray uids = new JSONArray();
-        uids.add(uid);
-        currentNode.put("uids", uids);
-        JSONArray unames = new JSONArray();
-        unames.add(getUserName(uid));
-        currentNode.put("unames", unames);
-        JSONArray currentNodes = new JSONArray();
+        BpmInstance.CurrentNode currentNode = new BpmInstance.CurrentNode();
+        currentNode.nodeId = startNode.id;
+        currentNode.nodeName = startNode.name;
+        currentNode.uids = a(uid);
+        currentNode.unames = a(uName);
+        currentNode.mainUsers = o(uid, uName);
+        currentNode.supportUsers = o();
+//        JSONObject currentNode = new JSONObject();
+//        currentNode.put("nodeId", startNode.id);
+//        currentNode.put("nodeName", startNode.name);
+//        JSONArray uids = new JSONArray();
+//        uids.add(uid);
+//        currentNode.put("uids", uids);
+//        JSONArray unames = new JSONArray();
+//        unames.add(getUserName(uid));
+//        currentNode.put("unames", unames);
+//        JSONArray currentNodes = new JSONArray();
 
-        Map<String, String> mainUsers = new HashMap<>();
-        Map<String, String> supportUsers = new HashMap<>();
-        mainUsers.put(uid, getUserName(uid));
-        currentNode.put("mainUsers", mainUsers);
-        currentNode.put("supportUsers", supportUsers);
+//        Map<String, String> mainUsers = new HashMap<>();
+//        Map<String, String> supportUsers = new HashMap<>();
+//        mainUsers.put(uid, getUserName(uid));
 
-        currentNodes.add(currentNode);
+//        currentNode.put("mainUsers", mainUsers);
+//        currentNode.put("supportUsers", supportUsers);
+//        currentNodes.add(currentNode);
 
         MongoCollection<Document> collection = db.getCollection("bpmInstance");
 //        BpmInstance ins = new BpmInstance();
@@ -893,7 +890,7 @@ public class BpmService {
 //        obj.put("depId", deptId);
 //        obj.put("depName", deptName);
         obj.put("bpmModel", bpmService.model);
-        obj.put("currentNodes", currentNodes);
+        obj.put("currentNodes", a(currentNode));
 
         //流程处理日志
 //        BpmInstance.HandleLog handleLog = new BpmInstance.HandleLog();
@@ -906,7 +903,7 @@ public class BpmService {
 //        obj.put("handleLogs", a(handleLog));
         obj.put("attrs", allAttrs);
         //流程提交日志
-        obj.put("logs", logs);
+        obj.put("logs", a(dataLog));
         obj.put("xml", xml);
         obj.put("createTime", new Date());
         obj.put("lastModifyTime", new Date());
@@ -1110,8 +1107,10 @@ public class BpmService {
             //一般模式下， 只处理允许处理的字段
             allFields = bpmService.ins.bpmModel.nodes.get(nodeId).allFields;
         }
+        Arr attributes = a();
         for (String all : allFields) {
             attrs.put(all, data.get(all));
+            attributes.add(a(all, data.get(all)));
         }
 
         BpmInstance.DataLog dataLog = null;//new BpmInstance.DataLog();
@@ -1128,6 +1127,7 @@ public class BpmService {
             dataLog = new BpmInstance.DataLog();
             dataLog.id = new ObjectId();
             dataLog.nodeId = nodeId;
+            dataLog.nodeName = node.name;
             dataLog.startTime = new Date();
             dataLog.endTime = new Date();
             dataLog.uid = uid;
@@ -1135,7 +1135,8 @@ public class BpmService {
         }
         dataLog.time = new Date();
 
-        dataLog.attrs = attrs;
+//        dataLog.attrs = attrs;
+        dataLog.attributes = attributes;
         if (canUpload(uid) && null != files) {
             //只保留自己上傳的文件
             dataLog.files = (List) files.stream()
@@ -1323,8 +1324,9 @@ public class BpmService {
             error("此处理人无权限处理任务！");
         }
 
-        Map<String, String> mainUsers = new HashMap<>();
-        Map<String, String> supportUsers = new HashMap<>();
+//        Map<String, String> mainUsers = new HashMap<>();
+//        Map<String, String> supportUsers = new HashMap<>();
+        Obj supportUsers = o();
         //经办人
         List<String> agentList = (List<String>) body.get("agent");
         if (null != agentList && !agentList.isEmpty()) {
@@ -1332,9 +1334,7 @@ public class BpmService {
                 supportUsers.put(agent, getUserName(agent));
             }
         }
-
-        mainUsers.put(nextUid, getUserName(nextUid));
-
+//        mainUsers.put(nextUid, getUserName(nextUid));
         BpmInstance.CurrentNode currentNode = new BpmInstance.CurrentNode();
         currentNode.nodeId = nextNode.id;
         List<String> uids = new ArrayList<>();
@@ -1345,7 +1345,7 @@ public class BpmService {
         unames.add(uName);
         currentNode.unames = unames;
         currentNode.nodeName = nextNode.name;
-        currentNode.mainUsers = mainUsers;
+        currentNode.mainUsers = o(nextUid, getUserName(nextUid));
         currentNode.supportUsers = supportUsers;
 
         // 得到下一节点超时提醒配置信息

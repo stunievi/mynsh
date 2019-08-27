@@ -1,5 +1,6 @@
 package com.beeasy.hzbpm.entity;
 
+import com.github.llyb120.nami.json.Arr;
 import com.github.llyb120.nami.json.Obj;
 import org.bson.types.ObjectId;
 
@@ -69,9 +70,11 @@ public class BpmInstance {
 
         //当时所在的节点ID
         public String nodeId;
+        public String nodeName;
 
         //提交到该节点上的信息，通常是节点名
         public String msg;
+
 
         //提交时间
         public Date time;
@@ -92,7 +95,9 @@ public class BpmInstance {
         //提交人是以什么身份进行提交的（当时这个节点的授权）
 
         //当时这个人提交的所有数据
-        public Map<String,Object> attrs;
+//        public Map<String,Object> attrs;
+        //新版数据
+        public Arr attributes;
 
         public List<AddonFile> files;
     }
@@ -119,9 +124,9 @@ public class BpmInstance {
         public List<String> unames;
 
         //主办人
-        public Map<String,String> mainUsers;
+        public Obj mainUsers;
         //经办人
-        public Map<String,String> supportUsers;
+        public Obj supportUsers;
 
 
         // 当前时间

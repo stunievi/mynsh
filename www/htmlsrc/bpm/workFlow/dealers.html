@@ -4,120 +4,115 @@
         border:1px solid #ddd;
     }
 </style>
-<table id="permission" style="margin-left: 10px;margin-right: 10px;">
-    <tr style="display: none">
-        <td valign="top" width="80">岗位</td>
-        <td>
-            <textarea readonly name="" id="qs" cols="50" rows="5"></textarea>
-        </td>
-        <td>
-            <a href="javascript:;" class="btn btn-sm setq" id="setq">设置</a>
-        </td>
-        <td style="padding-left: 1px;">
-            <a href="javascript:;" class="btn btn-sm" id="clean-q" value="q">清空</a>
-        </td>
-    </tr>
-    <tr>
-        <td valign="top" width="80">角色</td>
-        <td>
-            <textarea readonly name="" id="rs" cols="50" rows="5"></textarea>
-        </td>
-        <td>
-            <a href="javascript:;" class="btn btn-sm" id="setr">设置</a>
-        </td>
-        <td>
-            <a href="javascript:;" class="btn btn-sm setq" id="clean-r" value="r">清空</a>
-        </td>
-    </tr>
-    <tr>
-        <td valign="top">部门</td>
-        <td>
-            <textarea readonly name="" id="ds" cols="50" rows="5"></textarea>
-        </td>
-        <td>
-            <a href="javascript:;" class="btn btn-sm" id="setd">设置</a>
-        </td>
-        <td>
-            <a href="javascript:;" class="btn btn-sm" id="clean-d" value="d">清空</a>
-        </td>
-    </tr>
-    <tr>
-        <td valign="top">人员</td>
-        <td>
-            <textarea readonly name="" id="ps" cols="50" rows="5"></textarea>
-        </td>
-        <td>
-            <a href="javascript:;" class="btn btn-sm" id="setp">设置</a>
-        </td>
-        <td>
-            <a href="javascript:;" class="btn btn-sm" id="clean-p" value="p">清空</a>
-        </td>
-    </tr>
-</table>
-
-
+<template>
+    <table id="permission" style="margin-left: 10px;margin-right: 10px;">
+        <tr style="display: none">
+            <td valign="top" width="80">岗位</td>
+            <td>
+                <textarea readonly name="" id="qs" cols="50" rows="5"></textarea>
+            </td>
+            <td>
+                <a href="javascript:;" class="btn btn-sm setq" id="setq">设置</a>
+            </td>
+            <td style="padding-left: 1px;">
+                <a href="javascript:;" class="btn btn-sm" id="clean-q" value="q">清空</a>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" width="80">角色</td>
+            <td>
+                <textarea readonly name="" id="rs" cols="50" rows="5">{{_rs}}</textarea>
+            </td>
+            <td>
+                <a href="javascript:;" class="btn btn-sm" id="setr" @click="rs">设置</a>
+            </td>
+            <td>
+                <a href="javascript:;" class="btn btn-sm setq" id="clean-r" value="r" @click="clear('roles')">清空</a>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top">部门</td>
+            <td>
+                <textarea readonly name="" id="ds" cols="50" rows="5">{{_ds}}</textarea>
+            </td>
+            <td>
+                <a href="javascript:;" class="btn btn-sm" id="setd" @click="ds()">设置</a>
+            </td>
+            <td>
+                <a href="javascript:;" class="btn btn-sm" id="clean-d" value="d" @click="clear('deps')">清空</a>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top">人员</td>
+            <td>
+                <textarea readonly name="" id="ps" cols="50" rows="5">{{_us}}</textarea>
+            </td>
+            <td>
+                <a href="javascript:;" class="btn btn-sm" id="setp" @click="us">设置</a>
+            </td>
+            <td>
+                <a href="javascript:;" class="btn btn-sm" id="clean-p" value="p" @click="clear('users')">清空</a>
+            </td>
+        </tr>
+    </table>
+</template>
 
 <script>
-    var ps = {
-        qs:[],
-        rs: [],
-        ds:[],
-        ps:[]
-    };
-    var nodeId = location.search.match(/id=([^&]+)/)[1]
-    //还原页面
-    $(function () {
-        selectp("q", opener.bpmData.nodes[nodeId].permission.qs, opener.bpmData.nodes[nodeId].permission.qids);
-        selectp("r", opener.bpmData.nodes[nodeId].permission.rs, opener.bpmData.nodes[nodeId].permission.rids);
-        selectp("d", opener.bpmData.nodes[nodeId].permission.ds, opener.bpmData.nodes[nodeId].permission.dids);
-        selectp("p", opener.bpmData.nodes[nodeId].permission.ps, opener.bpmData.nodes[nodeId].permission.pids);
-    });
-
-    function selectp(type, names, ids) {
-        ps[type+'s'] = names;
-        opener.bpmData.nodes[nodeId].permission[type + "s"] = names;
-        opener.bpmData.nodes[nodeId].permission[type + "ids"] = ids;
-        // var item = ps[type + 's'];
-        // var idex = item.indexOf(id);
-        // if(enable){
-        //     if(idex == -1){
-        //         item.push(id);
-        //     }
-        // } else {
-        //     if(idex > -1){
-        //         item.splice(idex,1);
-        //     }
-        // }
-        $("#"+type+"s").val(ps[type+'s'].join("\n"));
-    }
-
-    $("#setq,#setr,#setd,#setp").click(function () {
-        var type = $(this).attr("id").replace("set","");
-        if(type != 'p'){
-            window.open("/htmlsrc/bpm/workFlow/selectQ.html?type=" + type +"&id=" + nodeId, "set" + type, "left=300, top=100, width=500, height=500, location=no");
-        } else {
-            //已选
-            window.onChooseInit = function(){
-                var obj = {};
-                var pids = opener.bpmData.nodes[nodeId].permission["pids"]
-                var id = opener.bpmData.nodes[nodeId].permission["ps"]
-                $.each(pids, function (i,v) {
-                    obj[v] = id[i]
-                })
-                return obj;
-            };
-            window.onChooseCallback = function(selected){
-                selectp("p",Object.values(selected), Object.keys(selected) )
+    var component = {
+        props: ["data", "nodeId"],
+        data(){
+            return {}
+        },
+        computed:{
+            _us(){
+                return Object.values(this.data.users).join(",");
+            },
+            _rs(){
+                return Object.values(this.data.roles).join(",");
+            },
+            _ds(){
+                return Object.values(this.data.deps).join(",");
             }
-            // window.open("/htmlsrc/bpm/workFlow/selectP.html?type=p&id=" + nodeId, "set" + type, "left=300, top=80, width=700, height=550, location=no");
-            window.open("../org/choose.html", "choose-user", "left=100, top=100, width=500, height=400, location=no, resizable=no")
-        }
-    });
+        },
+        methods:{
+            clear(key){
+                Vue.delete(this.data, key)
+            },
+            us(){
+                var t = this;
+                //已选
+                window.onChooseInit = function(){
+                    return t.data.users
+                };
+                window.onChooseCallback = function(selected){
+                    t.data.users = selected;
+                }
+                window.open("../org/choose.html", "choose-user", "left=100, top=100, width=500, height=400, location=no, resizable=no")
+            },
 
-    $("#clean-d,#clean-p,#clean-q,#clean-r").click(function () {
-        var type = $(this).attr("value");
-        opener.bpmData.nodes[nodeId].permission[type + "s"] = [];
-        opener.bpmData.nodes[nodeId].permission[type + "ids"] = [];
-        $("#"+type+"s").val("");
-    })
+            rs(){
+                var t = this;
+                //已选
+                window.onChooseInit = function(){
+                    return t.data.roles
+                };
+                window.onChooseCallback = function(selected){
+                    t.data.roles = selected;
+                }
+                window.open("../org/selectQ.html?type=r", "choose-user", "left=100, top=100, width=500, height=400, location=no, resizable=no")
+            },
+            ds(){
+                var t = this;
+                //已选
+                window.onChooseInit = function(){
+                    return t.data.deps
+                };
+                window.onChooseCallback = function(selected){
+                    t.data.deps = selected;
+                }
+                window.open("../org/selectQ.html?type=d", "choose-user", "left=100, top=100, width=500, height=400, location=no, resizable=no")
+            }
+        }
+    };
+
 </script>

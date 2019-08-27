@@ -115,6 +115,7 @@
         <li :class="{active: tabIndex == 0}" @click="tabIndex=0">表单</li>
         <li :class="{active: tabIndex == 1}" @click="tabIndex=1">流程图</li>
         <li :class="{active: tabIndex == 2}" @click="tabIndex=2" v-if="type != 'pub'">流程日志</li>
+        <li :class="{active: tabIndex == 3}" @click="tabIndex=3" v-if="type != 'pub'">流程统计</li>
     </ul>
     <div id="pbody">
         <div :class="{active: tabIndex == 0}" id="form" class="__tab" style="width: 740px; margin: 0 auto;">
@@ -157,6 +158,9 @@
         <div :class="{active: tabIndex == 2}" id="dataLog" class="__tab" v-if="type != 'pub'">
             <ins-log :data="data"></ins-log>
         </div>
+        <div :class="{active: tabIndex == 3}" class="__tab" v-if="type != 'pub'">
+            <ins-time :data="data"></ins-time>
+        </div>
     </div>
 </div>
 
@@ -176,6 +180,7 @@
     loadComponent("ins-form", "./ins.form.html");
     loadComponent("ins-canvas", "./ins.canvas.html");
     loadComponent("ins-log", "./ins.log.html");
+    loadComponent("ins-time", "./ins.time.html");
 
     var app = new Vue({
         el: "#app",

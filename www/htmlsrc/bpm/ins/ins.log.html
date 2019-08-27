@@ -11,7 +11,7 @@
                         <div class="events-header">{{log.uname}} {{log.msg}}</div>
                         <div class="events-body">
                             <div>
-                                <p v-for="(v,i) in log.attrs"><span>{{i}}<span>：<span class="value">{{v}}</span></p>
+                                <p v-for="(v,i) in log.attributes"><span>{{v[0]}}<span>：<span class="value">{{v[1]}}</span></p>
                                 <template v-if="log.type == 'save'">
                                     <div style="padding-top: 5px;">
                                         <p style="color: cornflowerblue">

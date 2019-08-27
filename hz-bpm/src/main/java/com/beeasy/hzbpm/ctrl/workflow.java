@@ -525,27 +525,17 @@ public class workflow {
                     }
                     switch (type){
                         case "todo":
-                            return a(o("currentNodes", o(
-                                                "$elemMatch", o(
-                                                        "uids",uid
-                                                )
-                                        )));
+                            return a(o("currentNodes.mainUsers." + uid, o("$exists", true)));
 
                         case "processed":
                             return a(
                                 o("logs.uid", uid),
-                                o("currentNodes", o(
-                                        "$not", o(
-                                                "$elemMatch", o(
-                                                        "uids", uid
-                                                )
-                                        )
-                                ))
+                                    o("currentNodes.mainUsers." + uid, o("$exists", false))
                             );
 
                         case "over":
                             return a(
-                                    "logs.uid", uid
+                                o("logs.uid", uid)
                             );
                     }
                     return undefined;
