@@ -405,20 +405,34 @@
                 if(!fromNode || !toNode){
                     return
                 }
+
+
                 //已经有配置条件
                 var expression = "";
                 if(bpmData.lines[id]){
                     //todo: 表达式转换
                     // expression =
+                    expression = expFn(bpmData.lines[id]);
                 }
-                fromNode.nextNodes = fromNode.nextNodes || [];
+                fromNode.nextNodes = [];
                 fromNode.nextNodes.push({
                     node: _to,
-                    //todo: 表达式转换
                     expression: expression
                 })
+
+
+                // var allFields = bpmData.nodes[_from].fields.all_fields;
+                // var requiredFields = bpmData.nodes[_from].fields.required_fields;
+                // requiredFields.forEach(function (item) {
+                //     var i = $.inArray(item,allFields);
+                //     if("-1" == i){
+                //         layer.msg("必填字段必须在填写字段中存在！")
+                //         return;
+                //     }
+                // })
             });
 
+            console.log(bpmData)
 
             //检查是否可以保存
             if(startCount > 1){
@@ -427,6 +441,45 @@
             if(endCount > 1){
 
             }
+
+
+            var modelName = $("#modelName").val();
+
+            var da = {
+                _id:id,
+                xml:xml,
+                pid:pid,
+                modelName:modelName,
+                bpmData:bpmData,
+            }
+            console.log("==",da)
+            if("" == modelName.trim()){
+                layer.msg("工作流名称不能为空！");
+                return;
+            }
+
+            $.ajax({
+                // url:"/api/bpm/workflow/saveWorkFlow",
+                url:"/api/bpm/BpmXmlController/saveBPMXML",
+                type:"post",
+                data: JSON.stringify(da),
+                headers:{
+                    "Content-Type": "application/json"
+                },
+                dataType: "json",
+                success:function(res){
+                    if(res.success){
+                        layer.msg("保存成功！")
+                        // layer.alert("保存成功！", { icon: 1, closeBtn: 0 }, function () {
+                        //     closeCurrentIframe();
+                        // } );
+                    }else{
+                        layer.alert("保存失败！"+res.errMessage, { icon: 2, closeBtn: 0 }, function () {
+                            layer.closeAll();
+                        } )
+                    }
+                }
+            });
 
 
 
@@ -892,7 +945,9 @@ return
         $.each(item, function (i,v) {
             //A 等于 B
             //calculate('A', '等于', 'B')
-            arr.push("getValue('"+v.field+"')" + conversion(v.op)+ "'"+v.value+"'")
+            // getValue('市场部同意与否')=='同意'
+            arr.push("calculate('"+v.field+"')," + "'"+v.op+"',"+ "'"+v.value+"'")
+            // arr.push("getValue('"+v.field+"')" + conversion(v.op)+ "'"+v.value+"'")
 
                // if(v.type == 'rule'){
                //     arr.push(conversion(v.text).replace(/\[(.+?)\]/g, "getValue('$1')"));
@@ -1099,6 +1154,37 @@ return
     //         }
     //     }
     // }
+
+    function expFn(lineId) {
+        var expression = "";
+        var conList;
+        if(undefined != lineId){
+            conList = lineId.conditions;
+            var expre = lineId.expression;
+            expre = (expre || "").replace(/and/gi, " && ").replace(/or/gi, " || ");
+            if("" == expre.trim()){
+                expression = preorderZheng(conList,"and",expre);
+            }else{
+                var arr = {};
+                var reg = /\d+/g;
+                var ms = expre.replace(/\[(.+?)\]/g, "$1").match(reg)
+                for(var m=0;m<ms.length;m++){
+                    if(undefined != conList[ms[m]-1]){
+                        arr[ms[m]] =("calculate('"+conList[ms[m]-1].field+"')," + "'"+conList[ms[m]-1].op+"',"+ "'"+conList[ms[m]-1].value+"'")
+
+                    }
+                }
+
+                for(var s=0;s<ms.length;s++){
+                    if(undefined != arr[ms[s]]){
+                        expre = expre.replace("["+ms[s]+"]",arr[ms[s]]);
+                    }
+                }
+                expression = "("+expre+")";
+            }
+        }
+        return expression;
+    }
 
     function conversion(str) {
         return (str || "")
