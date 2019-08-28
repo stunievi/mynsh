@@ -28,6 +28,7 @@
                 <div style="display: none;" id="tab4" class="tab-pane">
                 </div>
                 <div class="tab-pane" id="tab7">
+                    <node-permission :data="quanxian"></node-permission>
                 </div>
                 <div id="tab6" class="tab-pane">
                     <div class="col-xs-12 form-group " data-show="" style="margin-top: 20px;">
@@ -102,6 +103,7 @@
 
     loadComponent("node-smart", "./smart.html");
     loadComponent("node-dealers", "./dealers.html");
+    loadComponent("node-permission", "./permission.html");
 
     var component = ({
         data(){
@@ -122,7 +124,8 @@
                     roles: {},
                     deps: {},
                     users: {}
-                }
+                },
+                quanxian:[]
             }
         },
         methods:{
@@ -154,35 +157,36 @@
                 return
             }
 
-            if(opener.bpmData.nodes[nodeId]){
-                // console.log(opener.bpmData.nodes[nodeId])
-                for(var i in opener.bpmData.nodes[nodeId]){
-                    Vue.set(this, i, opener.bpmData.nodes[nodeId][i]);
-                }
+            //默认值
+            if(!opener.bpmData.nodes[nodeId]){
+                opener.bpmData.nodes[nodeId] = JSON.parse(JSON.stringify(this.$data));
             }
-
+            for(var i in opener.bpmData.nodes[nodeId]){
+                Vue.set(this, i, opener.bpmData.nodes[nodeId][i]);
+            }
+            console.log(this)
             this.nodeId = nodeId;
 
             // $("#tab2").load("./dealers.html")
-            $("#tab7").load("./permission.html")
+            // $("#tab7").load("./permission.html")
 
             $("#tab3").fsSelector("all", opener.fields, this.fields.all_fields)
             $("#tab5").fsSelector("required", opener.fields, this.fields.required_fields)
 
             //郑郑的粗鄙代码
-            getTimeoutSet()
+            // getTimeoutSet()
 
-            function getTimeoutSet(){
-                $('.timeout').change(function(e){
-                    var time = $("#timeout").val();
-                    var selectVal = $("#selectTime").val();
-                    opener.bpmData.nodes[nodeId].timeoutSet.timeout = time + "_" + selectVal;
-                });
-                $('.maxTimeout').change(function(e){
-                    var time = $("#maxTimeout").val();
-                    var selectVal = $("#selectMax").val();
-                    opener.bpmData.nodes[nodeId].timeoutSet.maxTimeout = time + "_" + selectVal;
-                });
+            // function getTimeoutSet(){
+            //     $('.timeout').change(function(e){
+            //         var time = $("#timeout").val();
+            //         var selectVal = $("#selectTime").val();
+            //         opener.bpmData.nodes[nodeId].timeoutSet.timeout = time + "_" + selectVal;
+            //     });
+            //     $('.maxTimeout').change(function(e){
+            //         var time = $("#maxTimeout").val();
+            //         var selectVal = $("#selectMax").val();
+            //         opener.bpmData.nodes[nodeId].timeoutSet.maxTimeout = time + "_" + selectVal;
+            //     });
                 // $(".maxTimeout").bind('input propertychange',function(){
                 //     var val = $(this).val();
                 //     var selectVal = $("#selectTime").val()
@@ -193,25 +197,25 @@
                 //     var selectVal = $("#selectMax").val()
                 //     opener.bpmData.nodes[nodeId].timeoutSet.maxTimeout = val + "_" + selectVal;
                 // })
-            }
+            // }
 
-            var timeout = opener.bpmData.nodes[nodeId].timeoutSet.timeout.split("_");
-            var maxTimeout = opener.bpmData.nodes[nodeId].timeoutSet.maxTimeout.split("_");
-            if(timeout.length>0){
-                if(timeout[0]==""){
-                    timeout[0] = "0";
-                }
-                $("#timeout").val(timeout[0])
-            }
-            if(maxTimeout.length>0){
-                if(maxTimeout[0]==""){
-                    maxTimeout[0] = "0";
-                }
-                $("#maxTimeout").val(maxTimeout[0])
-            }
-            if(opener.bpmData.nodes[nodeId].intelligence && !$.isEmptyObject(opener.bpmData.nodes[nodeId].intelligence)){
-                Vue.set(this, "smart", opener.bpmData.nodes[nodeId].intelligence)
-            }
+            // var timeout = opener.bpmData.nodes[nodeId].timeoutSet.timeout.split("_");
+            // var maxTimeout = opener.bpmData.nodes[nodeId].timeoutSet.maxTimeout.split("_");
+            // if(timeout.length>0){
+            //     if(timeout[0]==""){
+            //         timeout[0] = "0";
+            //     }
+            //     $("#timeout").val(timeout[0])
+            // }
+            // if(maxTimeout.length>0){
+            //     if(maxTimeout[0]==""){
+            //         maxTimeout[0] = "0";
+            //     }
+            //     $("#maxTimeout").val(maxTimeout[0])
+            // }
+            // if(opener.bpmData.nodes[nodeId].intelligence && !$.isEmptyObject(opener.bpmData.nodes[nodeId].intelligence)){
+            //     Vue.set(this, "smart", opener.bpmData.nodes[nodeId].intelligence)
+            // }
         }
     });
 
