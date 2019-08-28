@@ -6,6 +6,9 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>选择人员</title>
+    <link rel="stylesheet" href="../lib/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../lib/bootstrap-3.3.7-dist/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="../lib/css/style.css">
     <script src="../../../static/vendor/artTemplate/template-web.js"></script>
     <script src="../lib/jquery/jquery.js"></script>
     <script src="../lib/vue/vue.js"></script>
@@ -22,6 +25,15 @@
             /*height: 100%;*/
             /*z-index: 1;*/
             /*padding-left: 20px;*/
+        }
+        .selected{
+            background: #409eff;
+            color:white !important;
+        }
+
+        .action{
+            color: #333;
+            font-weight: bold;
         }
 
         input:checked + .bg {
@@ -104,6 +116,11 @@
     // var id = getParam("id");
     var ids = opener.app.remindAgent;
     var tmpl = template.compile($("#user").html())
+
+    var app =   new Vue({
+        el: "#app",
+        data:{}
+    })
     $.get("/api/bpm/workflow/logList", {id:id}, function (msg) {
         if(msg.success){
             if(msg.data){
