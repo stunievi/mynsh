@@ -28,7 +28,7 @@
                 <div style="display: none;" id="tab4" class="tab-pane">
                 </div>
                 <div class="tab-pane" id="tab7">
-                    <node-permission :data="quanxian"></node-permission>
+                    <node-permission :data="config"></node-permission>
                 </div>
                 <div id="tab6" class="tab-pane">
                     <div class="col-xs-12 form-group " data-show="" style="margin-top: 20px;">
@@ -125,7 +125,9 @@
                     deps: {},
                     users: {}
                 },
-                quanxian:[]
+                config: {
+                    permission: []
+                }
             }
         },
         methods:{

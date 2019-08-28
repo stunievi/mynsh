@@ -1,45 +1,53 @@
-<div style="padding-left: 20px;">
-    <div class="checkbox">
-        <label>
-            <input name="permission" type="checkbox" value="allowUpload">
-            允许上传附件
-        </label>
+<template>
+    <div style="padding-left: 20px;">
+        <div class="checkbox">
+            <label>
+                <input name="permission" type="checkbox" value="allowUpload" v-model="data.permission">
+                允许上传附件
+            </label>
+        </div>
+        <div class="checkbox" style="display: none">
+            <label>
+                <input name="permission" type="checkbox" value="allowDownload" v-model="data.permission">
+                允许下载附件
+            </label>
+        </div>
+        <div class="checkbox" style="">
+            <label>
+                <input name="permission" type="checkbox" value="allowBack" v-model="data.permission">
+                允许回退
+            </label>
+        </div>
+        <div class="checkbox" style="display: none">
+            <label>
+                <input name="permission" type="checkbox" value="departmentFirst" v-model="data.permission">
+                只保留部门相关人员
+            </label>
+        </div>
     </div>
-    <div class="checkbox" style="display: none">
-        <label>
-            <input name="permission" type="checkbox" value="allowDownload">
-            允许下载附件
-        </label>
-    </div>
-    <div class="checkbox" style="">
-        <label>
-            <input name="permission" type="checkbox" value="allowBack">
-            允许回退
-        </label>
-    </div>
-    <div class="checkbox" style="">
-        <label>
-            <input name="permission" type="checkbox" value="departmentFirst">
-            只保留部门相关人员
-        </label>
-    </div>
-</div>
+</template>
 
 <script>
-    var nodeId = location.search.match(/id=([^&]+)/)[1]
-    opener.bpmData.nodes[nodeId].quanxian = opener.bpmData.nodes[nodeId].quanxian || [];
-    $("input[name='permission']").on('click',function(){
-        var arr_v = new Array();
-        $('input[name="permission"]:checked').each(function(){
-            // opener.bpmData.nodes[nodeId].allowUpload = true;
-            arr_v.push($(this).val());
-        });
-        opener.bpmData.nodes[nodeId].quanxian = arr_v;
-
-    })
-
-    $.each(opener.bpmData.nodes[nodeId].quanxian,function(i,item){
-        $("input[name='permission'][value="+item+"]").attr("checked","checked");
-
-    });
+    var component = {
+        props:["data"],
+        data(){
+           return {}
+        }
+    }
+    // var nodeId = location.search.match(/id=([^&]+)/)[1]
+    // opener.bpmData.nodes[nodeId].data = opener.bpmData.nodes[nodeId].data || [];
+    // $("input[name='permission']").on('click',function(){
+    //     var arr_v = new Array();
+    //     $('input[name="permission"]:checked').each(function(){
+    //         // opener.bpmData.nodes[nodeId].allowUpload = true;
+    //         arr_v.push($(this).val());
+    //     });
+    //     opener.bpmData.nodes[nodeId].data = arr_v;
+    //
+    // })
+    //
+    // $.each(opener.bpmData.nodes[nodeId].data,function(i,item){
+    //     $("input[name='permission'][value="+item+"]").attr("checked","checked");
+    //
+    // });
 </script>
