@@ -2,10 +2,12 @@
     if (typeof $ == 'undefined') {
         return
     }
+    var _html = null;
     $.fn.extend({
         fsSelector: function (prefix, fs, values) {
             var t = this;
-            $.get("./fields_template.html", function (html) {
+            var callback = function (html) {
+                _html = html;
                 var tt = $(html);
                 t.html(tt.siblings(".selection-container"));
 
@@ -136,12 +138,17 @@
                     })
                     t.find(".arrow-btn.left").click()
                 }
+            };
 
-                // function stopFunc(e) {
-                //     e.stopPropagation ? e.stopPropagation() : e.cancelBubble = true;
-                // }
-            });
+            // function stopFunc(e) {
+            //     e.stopPropagation ? e.stopPropagation() : e.cancelBubble = true;
+            // }
 
+            if (_html) {
+                callback(_html)
+            } else {
+                $.get("./fields_template.html", callback);
+            }
             return this;
         }
     })
