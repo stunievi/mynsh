@@ -113,6 +113,7 @@
         }
 
         function showQs(pid) {
+            console.log(pid)
             $("#dataList").html("");
             getFetch(remoteOrigin + "/api/user/org/getQList", {pid: pid}, function (deptQuarters) {
                 console.log(deptQuarters)
