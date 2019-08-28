@@ -17,8 +17,6 @@ public class BpmModel {
     //表单的原始模板
     public String template;
 
-    //表单的展示模板
-//    public String rendered;
 
     //表单字段配置
     public Map<String, Map> fields;
@@ -35,7 +33,6 @@ public class BpmModel {
     public List<String> listFields;
 
 
-
     public static class Node{
         //节点ID
         public String id;
@@ -47,20 +44,22 @@ public class BpmModel {
         //必填的字段name
         public List<String> requiredFields;
 
-        //可以处理的人的ID
-        public List<String> uids;
+        public Dealer dealer;
 
-        //可以处理的组织架构ID
-        public List<String> qids;
-        public List<String> dids;
-        public List<String> rids;
+        //可以处理的人的ID
+//        public List<String> uids;
+//
+//        //可以处理的组织架构ID
+//        public List<String> qids;
+//        public List<String> dids;
+//        public List<String> rids;
 
 
         //节点跳转的方向
         public List<NextNode> nextNodes = new ArrayList<>();
 
         // 超时时间设置
-        public TimeoutSet timeoutSet;
+//        public TimeoutSet timeoutSet;
 
         public boolean allowUpload = false;
         public boolean allowDownload = false;
@@ -69,9 +68,19 @@ public class BpmModel {
 
 
         //smart
+        public Smart smart;
+    }
+
+    public static class Smart{
         public String filterRule;
         public String chooseRule;
         public String targetRule;
+    }
+
+    public static class Dealer{
+        Map<String,String> users;
+        Map<String,String> deps;
+        Map<String,String> roles;
     }
 
     /**
