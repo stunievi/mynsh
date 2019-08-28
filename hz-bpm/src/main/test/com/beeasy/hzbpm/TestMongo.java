@@ -77,6 +77,7 @@ public class TestMongo {
                 });
                 ((Map) entry.getValue()).put("dealers", obj);
                 ((Map) entry.getValue()).put("smart", ((Map) entry.getValue()).get("intelligence"));
+                ((Map) entry.getValue()).put("config", new Document("permission", ((Map) entry.getValue()).get("quanxian")));
             }
             ObjectId id = ((Document) wf).getObjectId("_id");
             db.getCollection("workflow").replaceOne(Filters.eq("_id", id), (Document)wf);
