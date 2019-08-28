@@ -889,6 +889,8 @@ return
         }
         var arr = [];
         $.each(item, function (i,v) {
+            //A 等于 B
+            //calculate('A', '等于', 'B')
             arr.push("getValue('"+v.field+"')" + conversion(v.op)+ "'"+v.value+"'")
 
                // if(v.type == 'rule'){
