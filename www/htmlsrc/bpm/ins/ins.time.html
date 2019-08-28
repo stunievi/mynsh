@@ -1,5 +1,7 @@
 <template>
+    <div class="chartbox" ref="chart">
 
+    </div>
 </template>
 
 <script>
@@ -7,6 +9,30 @@
         props:["data"],
         data: function () {
             return {}
+        },
+        watch: {
+            data: function (nv) {
+                var dom = this.$refs.chart;
+                $(window).trigger("resize");
+                var myChart = echarts.init(dom);
+                var arr = (this.data.logs || []).filter(function (e) {
+                    return e.type == 'save';
+                });
+                write(arr,myChart)
+            }
+        },
+        mounted: function () {
+            var t = this;
+           $(window).resize(function () {
+               var dom = t.$refs.chart
+               $(dom).width($(window).width() - 100 );
+               $(dom).height($(window).height() - 100);
+           });
         }
     }
 </script>
+
+<style>
+    .chartbox{
+    }
+</style>

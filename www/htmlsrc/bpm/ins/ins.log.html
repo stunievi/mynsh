@@ -12,19 +12,19 @@
                         <div class="events-body">
                             <div>
                                 <p v-for="(v,i) in log.attributes"><span>{{v[0]}}<span>：<span class="value">{{v[1]}}</span></p>
-                                <template v-if="log.type == 'save'">
-                                    <div style="padding-top: 5px;">
-                                        <p style="color: cornflowerblue">
-                                            开始：{{log.startTime}}
-                                        </p>
-                                        <p style="color: cornflowerblue">
-                                            结束：{{log.endTime}}
-                                        </p>
-                                        <p style="color: cornflowerblue">
-                                            经过：{{timeReduce(log.endTime, log.startTime)}}
-                                        </p>
-                                    </div>
-                                </template>
+<!--                                <template v-if="log.type == 'save'">-->
+<!--                                    <div style="padding-top: 5px;">-->
+<!--                                        <p style="color: cornflowerblue">-->
+<!--                                            开始：{{log.startTime}}-->
+<!--                                        </p>-->
+<!--                                        <p style="color: cornflowerblue">-->
+<!--                                            结束：{{log.endTime}}-->
+<!--                                        </p>-->
+<!--                                        <p style="color: cornflowerblue">-->
+<!--                                            经过：{{timeReduce(log.endTime, log.startTime)}}-->
+<!--                                        </p>-->
+<!--                                    </div>-->
+<!--                                </template>-->
                             </div>
                         </div>
                     </div>
