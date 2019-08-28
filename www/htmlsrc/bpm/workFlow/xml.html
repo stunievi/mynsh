@@ -57,6 +57,8 @@
     <link rel="stylesheet" href="../lib/font/css/font-awesome.min.css">
     <script src="../lib/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
     <script src="../lib/layer/layer.js"></script>
+    <script src="../lib/vue/vue.js"></script>
+    <script src="../lib/vue/vue-util.js"></script>
 
 </head>
 <body>
@@ -122,6 +124,10 @@
     </div>
 </div>
 
+<div id="app" style="display: none">
+    <node-edit ref="edit"></node-edit>
+</div>
+
 <script type="text/html" id="model_temp">
     <select class="form-control input-sm" id="selectForm">
         {{each formList value index}}
@@ -130,6 +136,17 @@
         {{/each}}
     </select>
 </script>
+<script>
+    loadComponent("node-edit", "./node.edit.component.html");
+    var app = new Vue({
+        el:"#app"
+    });
+
+    function getNodeEmptyData(){
+         return JSON.parse(JSON.stringify(app.$refs.edit.$data));
+    }
+
+</script>
 
 <script>
     window.form = null;
@@ -137,15 +154,16 @@
     // 用于配置页面赋值传值
     window.bpmData = {
         nodes:{},
-        lines:{}
+        lines:{},
+        listFields: []
     };
     // bpmData赋值，用于过滤无用节点
-    window.sbpmData = {
-        nodes:{},
-        lines:{}
-    };
+    // window.sbpmData = {
+    //     nodes:{},
+    //     lines:{}
+    // };
     // 表单字段list
-    var listFields = [];
+    // var listFields = [];
 
     var taskNameMap = {};   // 节点名称map
     var sequenceFlowMap = {};   // 流程线map，用于指示流程的流向
@@ -162,8 +180,7 @@
             $.each(msg.data.form.data ||[], function (i,v) {
                 fields.push(v.title)
             })
-            $("#tab3").fsSelector("list", fields, listFields)
-
+            $("#tab3").fsSelector("list", fields, bpmData.listFields)
 
         }, 'json')
     }
@@ -286,14 +303,17 @@
 
                         $("#modelName").val(obj.data.modelName);
 
-                        window.bpmData = obj.data.bpmData;
-                        for (var nodeId in bpmData.nodes) {
-                            bpmData.nodes[nodeId].timeoutSet = bpmData.nodes[nodeId].timeoutSet || {
-                                timeout:"0",
-                                maxTimeout:"0"
-                            }
+                        for(var i in obj.data.bpmData){
+                            window.bpmData[i] = obj.data.bpmData[i];
                         }
-                        listFields = obj.data.arrangementData.listFields;
+                        // window.bpmData = obj.data.bpmData;
+                        // for (var nodeId in bpmData.nodes) {
+                        //     bpmData.nodes[nodeId].timeoutSet = bpmData.nodes[nodeId].timeoutSet || {
+                        //         timeout:"0",
+                        //         maxTimeout:"0"
+                        //     }
+                        // }
+                        // listFields = obj.data.arrangementData.listFields;
 
                     }
 
@@ -335,6 +355,81 @@
             if (err) {
                 return console.error('could not save BPMN 2.0 diagram', err);
             }
+
+            var html = $(xml);
+            var process = html.find("process").eq(0);
+            //收录节点
+            var existIds = {};
+            var startCount = 0;
+            var endCount = 0;
+            process.find("task,exclusiveGateway,startEvent,endEvent").each(function(){
+                var t = $(this);
+                var id = t.attr("id");
+                var name = t.attr("name");
+                if(!bpmData.nodes[id]){
+                    bpmData.nodes[id] = getNodeEmptyData();
+                }
+                bpmData.nodes[id].name = name;
+                existIds[id] = 1;
+                bpmData.nodes[id].type = (function () {
+                    // console.log(t[0].tagName)
+                   switch (t[0].tagName) {
+                       case "STARTEVENT":
+                           startCount++;
+                           return "start";
+                       case "ENDEVENT":
+                           endCount++;
+                           return "end";
+                       case "TASK":
+                           return "task";
+                       case "EXCLUSIVEGATEWAY":
+                           return "soft";
+                   }
+                })();
+            });
+            //删除没再用的节点
+            var willDeleted = Object.keys(bpmData.nodes).filter(e => !existIds[e]);
+            willDeleted.forEach(e => delete bpmData.nodes[e]);
+
+            //收录线
+            process.find("sequenceFlow").each(function () {
+                var t = $(this);
+                var id = t.attr('id');
+                var name = t.attr('name');
+                var _from = t.attr("sourceRef");
+                var _to = t.attr("targetRef");
+                //找不到节点就不管了
+                var fromNode = bpmData.nodes[id][_from];
+                var toNode = bpmData.nodes[id][_to];
+                if(!fromNode || !toNode){
+                    return
+                }
+                //已经有配置条件
+                var expression = "";
+                if(bpmData.lines[id]){
+                    //todo: 表达式转换
+                    // expression =
+                }
+                fromNode.nextNodes = fromNode.nextNodes || [];
+                fromNode.nextNodes.push({
+                    node: _to,
+                    //todo: 表达式转换
+                    expression: expression
+                })
+            });
+
+
+            //检查是否可以保存
+            if(startCount > 1){
+
+            }
+            if(endCount > 1){
+
+            }
+
+
+
+            return;
             var _xml = $.parseXML(xml);
             var _eventMap = {};
             var _xmlMap = {};   // 最终整理的数据
@@ -635,16 +730,16 @@ return
                 //         }
                 //     }
                 // });
-                _xmlMap = {"formId":formId,"template":"","rendered":"","workflowName":modelName,"fields":null,"nodes":_eventMap,"start":startEvent,"end":endEvent,"listFields":listFields}
+                // _xmlMap = {"formId":formId,"template":"","rendered":"","workflowName":modelName,"fields":null,"nodes":_eventMap,"start":startEvent,"end":endEvent,"listFields":listFields}
 
                 var da = {
                     _id:id,
                     xml:xml,
                     pid:pid,
                     modelName:modelName,
-                    data:fulldata,
+                    // data:fulldata,
                     bpmData:sbpmData,
-                    arrangementData:_xmlMap
+                    // arrangementData:_xmlMap
                 }
 
                 $.ajax({
@@ -748,41 +843,41 @@ return
     }
 
     // 节点配置回调事件
-    function bd(e,obj) {
-        // 当前选中节点id
-        fulldata.taskId=obj.id;
-        var modelName = $("#modelName").val();
-        var form = $("#selectForm").val();
-        // bpmData.nodes[obj.id].name = obj.name;
-
-        bpmData.nodes[obj.id] = bpmData.nodes[obj.id] || {
-            fields:{
-                all_fields: [],
-                required_fields:[],
-            },
-            permission:{
-                //中文
-                ps: [],
-                qs: [],
-                ds: [],
-                rs: [],
-                //id
-                pids:[],
-                qids:[],
-                dids:[],
-                rids:[]
-            },
-            condition: [],
-            timeoutSet:{
-                timeout:"0",
-                maxTimeout:"0",
-            },
-            // allowUpload:false,
-            quanxian:[]
-        };
-        window.open("./node.edit.html?id=" + obj.id,"node_edit_" + obj.id, "left=200, top=100, width=800, height=500, location=no")
-
-    }
+    // function bd(e,obj) {
+    //     // 当前选中节点id
+    //     fulldata.taskId=obj.id;
+    //     var modelName = $("#modelName").val();
+    //     var form = $("#selectForm").val();
+    //     // bpmData.nodes[obj.id].name = obj.name;
+    //
+    //     bpmData.nodes[obj.id] = bpmData.nodes[obj.id] || {
+    //         fields:{
+    //             all_fields: [],
+    //             required_fields:[],
+    //         },
+    //         permission:{
+    //             //中文
+    //             ps: [],
+    //             qs: [],
+    //             ds: [],
+    //             rs: [],
+    //             //id
+    //             pids:[],
+    //             qids:[],
+    //             dids:[],
+    //             rids:[]
+    //         },
+    //         condition: [],
+    //         timeoutSet:{
+    //             timeout:"0",
+    //             maxTimeout:"0",
+    //         },
+    //         // allowUpload:false,
+    //         quanxian:[]
+    //     };
+    //     window.open("./node.edit.html?id=" + obj.id,"node_edit_" + obj.id, "left=200, top=100, width=800, height=500, location=no")
+    //
+    // }
 
     // var _expression = "";
     // var exp = "";
@@ -818,146 +913,146 @@ return
     }
 
     // 流程节点数据整理
-    function arrData(_taskId,targetRef, _eventMap, sequenceFlowId) {
-        var nextEvent = [];
-        var node = {};
-
-        var allFields =[];
-        var requiredFields = [];
-        var pids = [];
-        var qids = [];
-        var rids = [];
-        var dids = [];
-        var timeout = "";
-        var maxTimeout = "";
-        var taskName = "";
-        var isInArr = 0;    // 用于判断节点必填字段是否在填写字段中
-        var expression = "";// 条件表达式
-        var filterRule = "";
-        var chooseRule = "";
-        var targetRule = "";
-        if(undefined ==  window.bpmData.nodes[_taskId]){
-
-        }else{
-            if(window.bpmData.nodes[_taskId].fields){
-
-                allFields = window.bpmData.nodes[_taskId].fields.all_fields;
-                requiredFields = window.bpmData.nodes[_taskId].fields.required_fields;
-                requiredFields.forEach(function (item) {
-                    var i = $.inArray(item,allFields);
-                    if("-1" == i){
-                        isInArr = i;
-                    }
-                })
-
-                // 可以处理的人的ID
-                pids = arrToStr(window.bpmData.nodes[_taskId].permission.pids);
-                // 可以处理的组织架构ID
-                qids =arrToStr(window.bpmData.nodes[_taskId].permission.qids);
-                rids =arrToStr(window.bpmData.nodes[_taskId].permission.rids);
-                dids =arrToStr(window.bpmData.nodes[_taskId].permission.dids);
-
-                if(window.bpmData.nodes[_taskId].intelligence ){
-                }else{
-                    window.bpmData.nodes[_taskId].intelligence = {          filterRule:"all",
-                        chooseRule:"none",
-                        targetRule: ""
-                    };
-                }
-                var intelligen;
-                if(window.bpmData.nodes[_taskId].intelligence){
-                    intelligen =window.bpmData.nodes[_taskId].intelligence;
-                    filterRule = intelligen.filterRule;
-                    chooseRule = intelligen.chooseRule;
-                    targetRule = intelligen.targetRule;
-                    // intelligen = JSON.parse(window.bpmData.nodes[_taskId].intelligence);
-                }
-                // var s = {"filterRule":"all","chooseRule":"none","targetRule":"Task_1rtduak"};
-                // for(var item in intelligen){
-                //     console.log("------",intelligen[item])
-                // }
-
-
-                var arr = window.bpmData.nodes[_taskId].quanxian || [];
-
-                var allowUpload = arr.indexOf("allowUpload") > -1;
-                var allowDownload = arr.indexOf("allowDownload") > -1;
-                var allowBack = arr.indexOf("allowBack") > -1;
-                var departmentFirst = arr.indexOf("departmentFirst") > -1;
-
-                timeout = window.bpmData.nodes[_taskId].timeoutSet.timeout;
-                maxTimeout = window.bpmData.nodes[_taskId].timeoutSet.maxTimeout;
-                taskName = taskNameMap[_taskId];
-                var timeoutSet = {};
-
-
-                timeoutSet["timeout"] = timeout;
-                timeoutSet["maxTimeout"] = maxTimeout;
-                var conList;
-                if(undefined !=  window.bpmData.nodes[targetRef]){
-                    conList = window.bpmData.nodes[targetRef].condition;
-                }
-                if(undefined != window.bpmData.lines){
-                    if(undefined != window.bpmData.lines[sequenceFlowId]){
-                        conList = window.bpmData.lines[sequenceFlowId].conditions;
-                        var expre = window.bpmData.lines[sequenceFlowId].expression;
-                        expre = (expre || "").replace(/and/gi, " && ").replace(/or/gi, " || ");
-                        if("" == expre.trim()){
-                            expression = preorderZheng(conList,"and",expre);
-                            console.log("---",expression)
-                        }else{
-                            var arr = {};
-                            var reg = /\d+/g;
-                            var ms = expre.replace(/\[(.+?)\]/g, "$1").match(reg)
-                            for(var m=0;m<ms.length;m++){
-                                if(undefined != conList[ms[m]-1]){
-                                    arr[ms[m]] =("getValue('"+conList[ms[m]-1].field+"')" + conversion(conList[ms[m]-1].op)+ "'"+conList[ms[m]-1].value+"'")
-
-                                }
-                            }
-
-                            // [3] and [1] and [4]
-                            for(var s=0;s<ms.length;s++){
-
-                                if(undefined != arr[ms[s]]){
-                                    expre = expre.replace("["+ms[s]+"]",arr[ms[s]]);
-                                }
-                            }
-                            expression = "("+expre+")";
-                            console.log("----",expression)
-                        }
-
-                    }
-                }
-                // var _expression = preorderZheng(conList,"and");
-
-            }
-                node["node"] = targetRef;
-                node["expression"] = expression;
-                nextEvent.push(node)
-                var nextNodes = (_eventMap[_taskId] && _eventMap[_taskId].nextNodes) ? _eventMap[_taskId].nextNodes : [];
-                nextNodes.push(node);
-        }
-
-        var sr = _taskId.split("_");
-        if(sr.length>0 && "ExclusiveGateway777777777" == sr[0]){
-            ex.push({_taskId,targetRef});
-            exList[_taskId] = ex;
-        }else{
-            _eventMap[_taskId] = {"id":_taskId,"name":taskName,"allFields":allFields,"requiredFields":requiredFields,"uids":pids,"qids":qids,"rids":rids,"dids":dids,"nextNodes":nextNodes,"timeoutSet":timeoutSet,"allowUpload":allowUpload,"allowDownload":allowDownload,"allowBack":allowBack,"departmentFirst":departmentFirst,"filterRule":filterRule,"chooseRule":chooseRule,"targetRule":targetRule}
-        }
-
-        window.sbpmData.nodes[_taskId] = (window.bpmData.nodes[_taskId]);
-        if(window.bpmData.lines){
-            window.sbpmData.lines[sequenceFlowId] = (window.bpmData.lines[sequenceFlowId]);
-        }
-        if(isInArr == "-1"){
-            // isIn["flag"] = true;
-            throw true;
-            // return;
-        }
-        return _eventMap;
-    }
+    // function arrData(_taskId,targetRef, _eventMap, sequenceFlowId) {
+    //     var nextEvent = [];
+    //     var node = {};
+    //
+    //     var allFields =[];
+    //     var requiredFields = [];
+    //     var pids = [];
+    //     var qids = [];
+    //     var rids = [];
+    //     var dids = [];
+    //     var timeout = "";
+    //     var maxTimeout = "";
+    //     var taskName = "";
+    //     var isInArr = 0;    // 用于判断节点必填字段是否在填写字段中
+    //     var expression = "";// 条件表达式
+    //     var filterRule = "";
+    //     var chooseRule = "";
+    //     var targetRule = "";
+    //     if(undefined ==  window.bpmData.nodes[_taskId]){
+    //
+    //     }else{
+    //         if(window.bpmData.nodes[_taskId].fields){
+    //
+    //             allFields = window.bpmData.nodes[_taskId].fields.all_fields;
+    //             requiredFields = window.bpmData.nodes[_taskId].fields.required_fields;
+    //             requiredFields.forEach(function (item) {
+    //                 var i = $.inArray(item,allFields);
+    //                 if("-1" == i){
+    //                     isInArr = i;
+    //                 }
+    //             })
+    //
+    //             // 可以处理的人的ID
+    //             pids = arrToStr(window.bpmData.nodes[_taskId].permission.pids);
+    //             // 可以处理的组织架构ID
+    //             qids =arrToStr(window.bpmData.nodes[_taskId].permission.qids);
+    //             rids =arrToStr(window.bpmData.nodes[_taskId].permission.rids);
+    //             dids =arrToStr(window.bpmData.nodes[_taskId].permission.dids);
+    //
+    //             if(window.bpmData.nodes[_taskId].intelligence ){
+    //             }else{
+    //                 window.bpmData.nodes[_taskId].intelligence = {          filterRule:"all",
+    //                     chooseRule:"none",
+    //                     targetRule: ""
+    //                 };
+    //             }
+    //             var intelligen;
+    //             if(window.bpmData.nodes[_taskId].intelligence){
+    //                 intelligen =window.bpmData.nodes[_taskId].intelligence;
+    //                 filterRule = intelligen.filterRule;
+    //                 chooseRule = intelligen.chooseRule;
+    //                 targetRule = intelligen.targetRule;
+    //                 // intelligen = JSON.parse(window.bpmData.nodes[_taskId].intelligence);
+    //             }
+    //             // var s = {"filterRule":"all","chooseRule":"none","targetRule":"Task_1rtduak"};
+    //             // for(var item in intelligen){
+    //             //     console.log("------",intelligen[item])
+    //             // }
+    //
+    //
+    //             var arr = window.bpmData.nodes[_taskId].quanxian || [];
+    //
+    //             var allowUpload = arr.indexOf("allowUpload") > -1;
+    //             var allowDownload = arr.indexOf("allowDownload") > -1;
+    //             var allowBack = arr.indexOf("allowBack") > -1;
+    //             var departmentFirst = arr.indexOf("departmentFirst") > -1;
+    //
+    //             timeout = window.bpmData.nodes[_taskId].timeoutSet.timeout;
+    //             maxTimeout = window.bpmData.nodes[_taskId].timeoutSet.maxTimeout;
+    //             taskName = taskNameMap[_taskId];
+    //             var timeoutSet = {};
+    //
+    //
+    //             timeoutSet["timeout"] = timeout;
+    //             timeoutSet["maxTimeout"] = maxTimeout;
+    //             var conList;
+    //             if(undefined !=  window.bpmData.nodes[targetRef]){
+    //                 conList = window.bpmData.nodes[targetRef].condition;
+    //             }
+    //             if(undefined != window.bpmData.lines){
+    //                 if(undefined != window.bpmData.lines[sequenceFlowId]){
+    //                     conList = window.bpmData.lines[sequenceFlowId].conditions;
+    //                     var expre = window.bpmData.lines[sequenceFlowId].expression;
+    //                     expre = (expre || "").replace(/and/gi, " && ").replace(/or/gi, " || ");
+    //                     if("" == expre.trim()){
+    //                         expression = preorderZheng(conList,"and",expre);
+    //                         console.log("---",expression)
+    //                     }else{
+    //                         var arr = {};
+    //                         var reg = /\d+/g;
+    //                         var ms = expre.replace(/\[(.+?)\]/g, "$1").match(reg)
+    //                         for(var m=0;m<ms.length;m++){
+    //                             if(undefined != conList[ms[m]-1]){
+    //                                 arr[ms[m]] =("getValue('"+conList[ms[m]-1].field+"')" + conversion(conList[ms[m]-1].op)+ "'"+conList[ms[m]-1].value+"'")
+    //
+    //                             }
+    //                         }
+    //
+    //                         // [3] and [1] and [4]
+    //                         for(var s=0;s<ms.length;s++){
+    //
+    //                             if(undefined != arr[ms[s]]){
+    //                                 expre = expre.replace("["+ms[s]+"]",arr[ms[s]]);
+    //                             }
+    //                         }
+    //                         expression = "("+expre+")";
+    //                         console.log("----",expression)
+    //                     }
+    //
+    //                 }
+    //             }
+    //             // var _expression = preorderZheng(conList,"and");
+    //
+    //         }
+    //             node["node"] = targetRef;
+    //             node["expression"] = expression;
+    //             nextEvent.push(node)
+    //             var nextNodes = (_eventMap[_taskId] && _eventMap[_taskId].nextNodes) ? _eventMap[_taskId].nextNodes : [];
+    //             nextNodes.push(node);
+    //     }
+    //
+    //     var sr = _taskId.split("_");
+    //     if(sr.length>0 && "ExclusiveGateway777777777" == sr[0]){
+    //         ex.push({_taskId,targetRef});
+    //         exList[_taskId] = ex;
+    //     }else{
+    //         _eventMap[_taskId] = {"id":_taskId,"name":taskName,"allFields":allFields,"requiredFields":requiredFields,"uids":pids,"qids":qids,"rids":rids,"dids":dids,"nextNodes":nextNodes,"timeoutSet":timeoutSet,"allowUpload":allowUpload,"allowDownload":allowDownload,"allowBack":allowBack,"departmentFirst":departmentFirst,"filterRule":filterRule,"chooseRule":chooseRule,"targetRule":targetRule}
+    //     }
+    //
+    //     window.sbpmData.nodes[_taskId] = (window.bpmData.nodes[_taskId]);
+    //     if(window.bpmData.lines){
+    //         window.sbpmData.lines[sequenceFlowId] = (window.bpmData.lines[sequenceFlowId]);
+    //     }
+    //     if(isInArr == "-1"){
+    //         // isIn["flag"] = true;
+    //         throw true;
+    //         // return;
+    //     }
+    //     return _eventMap;
+    // }
 
     // function preorder(root,flag) {
     //     var text = root.text;
@@ -1039,41 +1134,41 @@ return
         // return str;
     }
     
-    function initVar(id) {
-        bpmData.nodes[id] = bpmData.nodes[id] || {
-            fields:{
-                all_fields: [],
-                required_fields:[],
-            },
-            permission:{
-                //中文
-                ps: [],
-                qs: [],
-                ds: [],
-                rs: [],
-                //id
-                pids:[],
-                qids:[],
-                dids:[],
-                rids:[]
-            },
-            condition: [],
-            timeoutSet:{
-                timeout:"0",
-                maxTimeout:"0",
-            },
-            // allowUpload:false,
-            quanxian:[],
-            intelligence:{
-                filterRule:"all",
-                chooseRule:"none",
-                targetRule: ""
-            }
-            // filterRule:"",
-            // chooseRule:"",
-            // targetRule:""
-        };
-    }
+    // function initVar(id) {
+    //     bpmData.nodes[id] = bpmData.nodes[id] || {
+    //         fields:{
+    //             all_fields: [],
+    //             required_fields:[],
+    //         },
+    //         permission:{
+    //             //中文
+    //             ps: [],
+    //             qs: [],
+    //             ds: [],
+    //             rs: [],
+    //             //id
+    //             pids:[],
+    //             qids:[],
+    //             dids:[],
+    //             rids:[]
+    //         },
+    //         condition: [],
+    //         timeoutSet:{
+    //             timeout:"0",
+    //             maxTimeout:"0",
+    //         },
+    //         // allowUpload:false,
+    //         quanxian:[],
+    //         intelligence:{
+    //             filterRule:"all",
+    //             chooseRule:"none",
+    //             targetRule: ""
+    //         }
+    //         // filterRule:"",
+    //         // chooseRule:"",
+    //         // targetRule:""
+    //     };
+    // }
 
 
 </script>
@@ -1146,7 +1241,7 @@ return
     // 获取所有节点
     function getNode() {
         var nodeMap = {};
-        bpmnModeler.saveXML({ format: true }, function(err, xml) {
+        bpmnModeler.saveXML({ format: false }, function(err, xml) {
             if (err) {
                 return console.error('could not save BPMN 2.0 diagram', err);
             }
