@@ -391,6 +391,7 @@
             var willDeleted = Object.keys(bpmData.nodes).filter(e => !existIds[e]);
             willDeleted.forEach(e => delete bpmData.nodes[e]);
 
+            console.log(bpmData.nodes)
             //收录线
             process.find("sequenceFlow").each(function () {
                 var t = $(this);
@@ -399,8 +400,8 @@
                 var _from = t.attr("sourceRef");
                 var _to = t.attr("targetRef");
                 //找不到节点就不管了
-                var fromNode = bpmData.nodes[id][_from];
-                var toNode = bpmData.nodes[id][_to];
+                var fromNode = bpmData.nodes[_from];
+                var toNode = bpmData.nodes[_to];
                 if(!fromNode || !toNode){
                     return
                 }
@@ -1218,7 +1219,6 @@ return
 
 <script>
     function openConfigPage(id,page){
-        initVar(id);
         window.open("./node.edit.html?id=" + id + "&page=" + page ,"node_edit_" + id, "left=200, top=100, width=800, height=500, location=no")
     }
 
