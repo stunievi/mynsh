@@ -90,7 +90,7 @@
                 <div class="" >全部经办人</div>
                 <div class="action item" @click="cancelAll(selected)">全部删除</div>
                 <div class="action item" @click="chooseAll(users)">全部添加</div>
-                <div class="action item" :class="{selected: selected[v.uid]}" v-for="v in users" @click="choose(v)">{{v}}</div>
+                <div class="action item" :class="{selected: selected[v.uid]}" v-for="(v,i) in users" @click="choose(v)">{{v.uname}}</div>
             </div>
         </div>
         <div role="tabpanel" class="tab-pane" id="select2" aria-labelledby="taskBpm2-tab" style="">
@@ -180,7 +180,7 @@
                 if(this.selected[v.uid]){
                     Vue.delete(this.selected, v.uid);
                 }  else {
-                    Vue.set(this.selected, v.uid, v.utname)
+                    Vue.set(this.selected, v.uid, v.uname)
                 }
                 console.log(this.selected)
                 // this.notify()
