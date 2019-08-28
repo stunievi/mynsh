@@ -404,11 +404,14 @@
                 if(!fromNode || !toNode){
                     return
                 }
+
+
                 //已经有配置条件
                 var expression = "";
                 if(bpmData.lines[id]){
                     //todo: 表达式转换
                     // expression =
+                    expression = expFn(bpmData.lines[id]);
                 }
                 fromNode.nextNodes = fromNode.nextNodes || [];
                 fromNode.nextNodes.push({
@@ -418,6 +421,7 @@
                 })
             });
 
+            console.log(bpmData)
 
             //检查是否可以保存
             if(startCount > 1){
@@ -891,7 +895,9 @@ return
         $.each(item, function (i,v) {
             //A 等于 B
             //calculate('A', '等于', 'B')
-            arr.push("getValue('"+v.field+"')" + conversion(v.op)+ "'"+v.value+"'")
+            // getValue('市场部同意与否')=='同意'
+            arr.push("calculate('"+v.field+"')" + v.op+ "'"+v.value+"'")
+            // arr.push("getValue('"+v.field+"')" + conversion(v.op)+ "'"+v.value+"'")
 
                // if(v.type == 'rule'){
                //     arr.push(conversion(v.text).replace(/\[(.+?)\]/g, "getValue('$1')"));
@@ -1098,6 +1104,37 @@ return
     //         }
     //     }
     // }
+
+    function expFn(lineId) {
+        var expression = "";
+        var conList;
+        if(undefined != lineId){
+            conList = lineId.conditions;
+            var expre = lineId.expression;
+            expre = (expre || "").replace(/and/gi, " && ").replace(/or/gi, " || ");
+            if("" == expre.trim()){
+                expression = preorderZheng(conList,"and",expre);
+            }else{
+                var arr = {};
+                var reg = /\d+/g;
+                var ms = expre.replace(/\[(.+?)\]/g, "$1").match(reg)
+                for(var m=0;m<ms.length;m++){
+                    if(undefined != conList[ms[m]-1]){
+                        arr[ms[m]] =("calculate('"+conList[ms[m]-1].field+"')" + conversion(conList[ms[m]-1].op)+ "'"+conList[ms[m]-1].value+"'")
+
+                    }
+                }
+
+                for(var s=0;s<ms.length;s++){
+                    if(undefined != arr[ms[s]]){
+                        expre = expre.replace("["+ms[s]+"]",arr[ms[s]]);
+                    }
+                }
+                expression = "("+expre+")";
+            }
+        }
+        return expression;
+    }
 
     function conversion(str) {
         return (str || "")
