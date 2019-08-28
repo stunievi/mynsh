@@ -459,22 +459,26 @@ public class BpmService {
      * @param nodeIds
      * @return
      */
-    public boolean canDeal(String uid, String... nodeIds) {
+    public boolean canDeal(String uid, String nodeIds) {
         if(ins != null && !isRunning()){
             return false;
         }
 //        if (!ins.state.equalsIgnoreCase("流转中")) {
 //            return false;
 //        }
-        List<Obj> list = sqlManager.execute(new SQLReady("select uid,oid,pid from t_org_user where uid = ?", uid), Obj.class);
-        for (String nodeId : nodeIds) {
-            BpmModel.Node node = getNode(nodeId);
-            if (list.stream().anyMatch(e -> {
-                return (node.qids).contains(e.s("oid")) || (node.rids).contains(e.s("oid")) || (node.dids).contains(e.s("pid")) || (node.uids).contains(e.s("uid"));
-            })) {
+        List<Obj> roles = sqlManager.execute(new SQLReady("select uid,oid from t_org_user where uid = ? where type = 'ROLE'", uid), Obj.class);
+        List<Obj> deps = sqlManager.execute(new SQLReady("select uid,did from t_user_dep where uid = ? ", uid), Obj.class);
+//        for (String nodeId : nodeIds) {
+            BpmModel.Node node = getNode(nodeIds);
+            if(roles.stream().anyMatch(e -> node.dealer.roles.containsKey(e.s("oid"))) || deps.stream().anyMatch(e -> node.dealer.deps.containsKey(e.s("did"))) || node.dealer.users.containsKey(uid)){
                 return true;
             }
-        }
+//            if (list.stream().anyMatch(e -> {
+//                return (node.qids).contains(e.s("oid")) || (node.rids).contains(e.s("oid")) || (node.dids).contains(e.s("pid")) || (node.uids).contains(e.s("uid"));
+//            })) {
+//                return true;
+//            }
+//        }
         return false;
     }
 
@@ -1031,25 +1035,25 @@ public class BpmService {
                 .map(target -> {
                     Obj params = o(
                             "uid", uid,
-                            "uids", target.uids.isEmpty() ? a(-1) : target.uids,
+                            "uids", target.dealer.users.isEmpty() ? a(-1) : target.dealer.users.keySet(),
 //                            "qids", target.qids.isEmpty() ? a(-1) : target.qids,
-                            "rids", target.rids.isEmpty() ? a(-1) : target.rids,
-                            "dids", target.dids.isEmpty() ? a(-1) : target.dids
+                            "rids", target.dealer.roles.isEmpty() ? a(-1) : target.dealer.roles.keySet(),
+                            "dids", target.dealer.deps.isEmpty() ? a(-1) : target.dealer.deps.keySet()
                     );
 
                     params.put("uid", uid);
                     //自动选择流程发起人
-                    if (StrUtil.equals(target.chooseRule, "publisher")) {
+                    if (StrUtil.equals(target.smart.chooseRule, "publisher")) {
                         params.put("self", ins.pubUid);
                     }
                     //自动选择本部门主管(暂时只处理当前提交的步骤）
-                    if (StrUtil.equals(target.chooseRule, "self_manager")) {
+                    if (StrUtil.equals(target.smart.chooseRule, "self_manager")) {
                         params.put("ms", true);
                     }
-                    if (StrUtil.equals(target.chooseRule, "top_manager")) {
+                    if (StrUtil.equals(target.smart.chooseRule, "top_manager")) {
                         params.put("tms0", true);
                     }
-                    if (StrUtil.equals(target.chooseRule, "top_manager1")) {
+                    if (StrUtil.equals(target.smart.chooseRule, "top_manager1")) {
                         params.put("tms1", true);
                     }
                     //只保留本部门
@@ -1349,17 +1353,17 @@ public class BpmService {
         currentNode.supportUsers = supportUsers;
 
         // 得到下一节点超时提醒配置信息
-        BpmModel.TimeoutSet timeoutSet = bpmService.ins.bpmModel.nodes.get(nextNode.id).timeoutSet;
-        if (timeoutSet != null) {
-            LocalDateTime nowTime = LocalDateTime.now();
-            LocalDateTime timeout = dateTime(timeoutSet.timeout, nowTime);
-            LocalDateTime maxTimeout = dateTime(timeoutSet.maxTimeout, timeout);
-
-//            Date nowDate = toDate(nowTime);
-//            currentNode.nowTime = nowDate;
-            currentNode.timeout = toDate(timeout);
-            currentNode.maxTimeout = toDate(maxTimeout);
-        }
+//        BpmModel.TimeoutSet timeoutSet = bpmService.ins.bpmModel.nodes.get(nextNode.id).timeoutSet;
+//        if (timeoutSet != null) {
+//            LocalDateTime nowTime = LocalDateTime.now();
+//            LocalDateTime timeout = dateTime(timeoutSet.timeout, nowTime);
+//            LocalDateTime maxTimeout = dateTime(timeoutSet.maxTimeout, timeout);
+//
+////            Date nowDate = toDate(nowTime);
+////            currentNode.nowTime = nowDate;
+//            currentNode.timeout = toDate(timeout);
+//            currentNode.maxTimeout = toDate(maxTimeout);
+//        }
 
         update.put("currentNodes", a(currentNode));
         MongoCollection<Document> collection = db.getCollection("bpmInstance");

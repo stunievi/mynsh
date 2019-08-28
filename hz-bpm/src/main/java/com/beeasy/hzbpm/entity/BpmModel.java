@@ -78,9 +78,9 @@ public class BpmModel {
     }
 
     public static class Dealer{
-        Map<String,String> users;
-        Map<String,String> deps;
-        Map<String,String> roles;
+        public Map<String,String> users;
+        public Map<String,String> deps;
+        public Map<String,String> roles;
     }
 
     /**
