@@ -38,7 +38,7 @@
     ],
     "ext": {
         "chakra" : "D:\\work\\easyshop\\easy-shop\\js",
-        "qcc-search-url": "http://localhost:8082"
+        "qcc-search-url": "http://150.0.100.8:8081"
     },
     "dev": true,
     "upload" : "d:/uploads"

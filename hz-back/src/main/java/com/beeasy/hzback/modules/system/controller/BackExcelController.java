@@ -102,10 +102,12 @@ public class BackExcelController {
                 file.transferTo(temp);
                 ThreadUtil.execAsync(() -> import_hl(uid, temp));
             }
+            return Result.ok();
         }catch (Exception e){
             e.printStackTrace();
+            return Result.error(e.toString());
         }
-        return Result.ok();
+
     }
 
     // 导入股东关联

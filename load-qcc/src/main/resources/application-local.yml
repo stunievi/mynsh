@@ -23,3 +23,5 @@ loadQcc:
   txtPath: D:\java projects\hznsh\load-qcc\src\main\resources\qcc\txt
   riskZipPath: D:\java projects\hznsh\load-qcc\src\main\resources\qcc\riskZip
   riskTxtPath: D:\java projects\hznsh\load-qcc\src\main\resources\qcc\riskTxt
+  qccDataZipPath: D:\java projects\hznsh\load-qcc\src\main\resources\qccLoadData\zip
+  qccDataTxtPath: D:\java projects\hznsh\load-qcc\src\main\resources\qccLoadData\txt

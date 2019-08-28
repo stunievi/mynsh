@@ -18,7 +18,7 @@ public class BpmModel {
     public String template;
 
     //表单的展示模板
-    public String rendered;
+//    public String rendered;
 
     //表单字段配置
     public Map<String, Map> fields;

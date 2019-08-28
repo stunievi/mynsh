@@ -25,6 +25,9 @@ where 1=1
 @if(isNotEmpty(DATA_FLAG)){
     and list.data_flag = #DATA_FLAG#
 @}
+@pageIgnoreTag(){
+   order by list.link_name
+@}
 
 search_holder_link
 ===
@@ -46,6 +49,9 @@ from T_RELATED_PARTY_LIST link where 1=1
 @}
 @if(isNotEmpty(DATA_FLAG)){
     and DATA_FLAG like #'%' + DATA_FLAG + '%'#
+@}
+@pageIgnoreTag(){
+   order by link_info
 @}
 
 查询资质客户关联方

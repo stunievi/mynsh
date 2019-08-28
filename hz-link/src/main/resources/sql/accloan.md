@@ -49,20 +49,40 @@ cun_cus_com
 ===
 select 
 p1.CUS_NAME
- from
+from
 (select a.*,row_number() over(partition by CUS_NAME order by CUS_NAME) rn from 
 (select p.* from RPT_M_RPT_SLS_ACCT p
 where 
 p.ACCOUNT_STATUS in ('1','6') 
 and p.GL_CLASS not like '0%'
-and CUST_TYPE like '2%') a) p1 
+and p.LOAN_ACCOUNT like '3002%') a) p1 
 left join t_dict d on d.name = 'CERT_TYPE' and d.v_key = p1.CERT_TYPE
 where rn = 1
 @if(has(names)){
-    and p1.cus_name in (#join(names)#)
+  and p1.cus_name in (#join(names)#)
 @}
 @if(has(certCode)){
-    and p1.psn_cert_code = #certCode#
+  and p1.ent_cert_code = #certCode#
+@}
+  
+cun_cus_indiv
+===
+select 
+p1.CUS_NAME
+from
+(select a.*,row_number() over(partition by CUS_NAME order by CUS_NAME) rn from 
+(select p.* from RPT_M_RPT_SLS_ACCT p
+where 
+p.ACCOUNT_STATUS in ('1','6') 
+and p.GL_CLASS not like '0%'
+and p.LOAN_ACCOUNT like '3001%') a) p1 
+left join t_dict d on d.name = 'CERT_TYPE' and d.v_key = p1.CERT_TYPE
+where rn = 1
+@if(has(names)){
+  and p1.cus_name in (#join(names)#)
+@}
+@if(has(certCode)){
+  and p1.psn_cert_code = #certCode#
 @}
 
 11_5

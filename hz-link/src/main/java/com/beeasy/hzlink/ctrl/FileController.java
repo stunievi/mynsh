@@ -219,6 +219,23 @@ public class FileController {
     }
 
     /**
+     * 股东关联列表列表导出
+     */
+    public MultipartFile holderLinkExport(Obj query){
+        List<Obj> lists = sqlManager.select("link.search_holder_link", Obj.class, query);
+        try {
+            return ExportUtil.toXls("股东关联.xlsx", new ClassPathResource("excel/股东关联.xlsx").getStream(), o(
+                    "values", lists
+            ));
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InvalidFormatException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
      * 企查查风险信息导出
      */
     public MultipartFile riskInfoExport(String cusId, String cusName, String certCode, String startTime, String endTime, Obj query){

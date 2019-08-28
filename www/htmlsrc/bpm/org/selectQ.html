@@ -26,18 +26,18 @@
 </body>
 </html>
 <script>
-    var nodeId = location.search.match(/id=(.+)&?/)[1]
+    // var nodeId = location.search.match(/id=(.+)&?/)[1]
 
     // var context = null;
     // function onPageRequest(ctx){
     //     context = ctx;
     // }
     var type = getParam("type");
-    if(!type) type = "q";
+    if(!type) type = "r";
 
-    loadTimeout()
+    // loadTimeout()
     $.get("/api/bpm/org/all",{type:type}, function (msg) {
-        layer.closeAll()
+        // layer.closeAll()
         msg = msg.data
         var timer = null;
         $("#search").keyup(function () {
@@ -137,7 +137,7 @@
         });
 
         if(opener && opener.onChooseInit){
-            $.each(opener.OnChooseInit() || {}, function (i,v) {
+            $.each(opener.onChooseInit() || {}, function (i,v) {
                 ins.select_node(i)
             })
         }
