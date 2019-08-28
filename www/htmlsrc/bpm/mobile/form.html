@@ -12,11 +12,16 @@
         min-width: 105px;
         max-width: 200px;
     }
-    .mint-cell-text{
+
+    .mint-cell-text {
         max-width: 200px;
         display: block;
         overflow: hidden;
         text-overflow: ellipsis;
+    }
+
+    .mint-cell-value {
+        max-width: 200px;
     }
 
     .my-icon-button {
@@ -77,21 +82,24 @@
         </div>
 
 
-<!--        <mt-popup-->
-<!--                v-model="download_upload"-->
-<!--                style="text-align: center; padding-bottom: 20px;width: 50%;height: 40px;">-->
-<!--            <mt-button height="40" type="default" @click="download(index)" size="primary" style="text-align: center;">-->
-<!--                下载-->
-<!--            </mt-button>-->
-<!--            <mt-button height="40" v-if="upload.creator == uid" type="primary" @click="delUpload(caozuo_index)"-->
-<!--                       size="small" style="margin-left: 15px;">删除-->
-<!--            </mt-button>-->
-<!--        </mt-popup>-->
+        <!--        <mt-popup-->
+        <!--                v-model="download_upload"-->
+        <!--                style="text-align: center; padding-bottom: 20px;width: 50%;height: 40px;">-->
+        <!--            <mt-button height="40" type="default" @click="download(index)" size="primary" style="text-align: center;">-->
+        <!--                下载-->
+        <!--            </mt-button>-->
+        <!--            <mt-button height="40" v-if="upload.creator == uid" type="primary" @click="delUpload(caozuo_index)"-->
+        <!--                       size="small" style="margin-left: 15px;">删除-->
+        <!--            </mt-button>-->
+        <!--        </mt-popup>-->
 
 
-        <div style="text-align: center; padding-top: 30px" v-if="fields.length">
+        <div style="text-align: center; padding-top: 30px" v-if="deal || fields.length">
             <mt-button type="primary" @click="allowUpload()" size="small" v-if="allow_upload"
                        style="margin-right: 15px;">上传
+            </mt-button>
+            <mt-button type="danger" @click="goBack()" size="small" v-if="allow_back"
+                       style="margin-right: 15px;">回退
             </mt-button>
             <mt-button type="primary" @click="submit(false)" style="margin-right: 15px;" size="small">保存</mt-button>
             <mt-button type="primary" @click="submit(true)" size="small">提交</mt-button>
@@ -134,6 +142,20 @@
             <div class="my-icon-button indexicon icon-popup" @touchstart="sub_log(2)">图</div>
             <div class="my-icon-button indexicon icon-popup" @touchstart="sub_log(3)">历</div>
         </mt-palette-button>
+
+
+        <mt-popup
+                v-model="goBackVisible">
+            <div style="width:225px;height:76px">
+                <h5 style="text-align: center;">是否回退？</h5>
+            </div>
+            <div style="text-align: center; padding-bottom: 20px;">
+                <mt-button type="default" @click="goBackFalse" size="small">取消</mt-button>
+                <mt-button type="primary" @click="goBackTrue" size="small">确定</mt-button>
+
+            </div>
+        </mt-popup>
+
 
         <mt-popup
                 v-model="chooseUserVisible"
@@ -202,7 +224,10 @@
                 // upload_list: [],
                 flow_id: "",
                 // new_upload_files: [],
-                uid: ""
+                uid: "",
+                ins: {},
+                allow_back: false,
+                goBackVisible: false
                 // old_files:[]
             }
         },
@@ -214,9 +239,11 @@
                 this.caozuo_index = index;
             },
             sign(v) {
-                console.log("vvvvvvvvv", v);
-                this.signKey = v.title
-                uploadImg();
+                this.signKey = v.title;
+                // $("body").focus();
+                setTimeout(function () {
+                    uploadImg();
+                }, 100);
                 // this.canSign = true;
                 // this.$router.push({
                 //     name: "sign",
@@ -359,7 +386,7 @@
                         if (!gonext) {
                             showMsg("保存成功");
                         } else if (params.type == 'pub') {
-                            showMsg("发布成功");
+                            // showMsg("发布成功");
                             this.flow_id = msg.data;
                             this.getDealers(msg.data);
                             // onBack("tab4", msg.data, "deal", "1");
@@ -409,8 +436,10 @@
                     }
                     var t = this;
                     this.deal = msg.data.deal;
-                    if (msg.data.node !== "null") {
+                    if (msg.data.node !== null) {
+                        console.log(msg.data.node, "msg.data.node");
                         this.allow_upload = msg.data.node.allowUpload
+                        this.allow_back = msg.data.node.allowBack;
 
                     }
                     this.attrs = msg.data.attrs || {};
@@ -421,7 +450,7 @@
                         .map(e => {
                                 msg.data.allFields[e]
                                 if (msg.data.allFields[e].leipiplugins === "select") {
-                                    if(t.attrs[msg.data.allFields[e].title] === ''){
+                                    if (t.attrs[msg.data.allFields[e].title] === '') {
                                         t.attrs[msg.data.allFields[e].title] = msg.data.allFields[e].defaultValue;
                                     }
                                 }
@@ -446,13 +475,24 @@
             allowUpload() {
                 upload();
             },
+            goBack() {
+                this.goBackVisible = true;
+            },
+            goBackTrue() {
+                $.get("/api/bpm/workflow/goBack", {id: this.$route.params.id}, "json").then(msg => {
+                    onBack();
+                    // this.goBackVisible = false;
+                })
+            }, goBackFalse() {
+                this.goBackVisible = false;
+            },
             delUpload(index) {
                 // this.$set(this.files[index], `action`, "delete");
                 // this.upload_list.splice(index, 1);
                 this.files.splice(index, 1);
             },
             download(index) {
-                androidDownload(this.files[index].toString(), JSON.stringify(this.files[index]), this.files[index]);
+                androidDownload( JSON.stringify(this.files[index]));
             },
             getDealers(id) {
                 let next_id = "";
@@ -477,6 +517,8 @@
                             return;
                         }
                         this.next = msg.data.next;
+                        this.ins = msg.data.ins;
+                        console.log(msg.data.ins + "xxxxxxxxxxxx");
 
                         this.slots = [
                             {
@@ -519,54 +561,69 @@
                     if (this.next[i].nodeName == name) {
                         var values = this.next[i].dealers || [];
                         name = this.$refs.picker.getSlotValue(1);
+                        let uid = "";
                         for (let j = 0; j < values.length; j++) {
                             if (name == values[j].utname + " " + values[j].uname) {
-                                $.ajax({
-                                    url: "/api/bpm/workflow/nextApprover",
-                                    type: "post",
-                                    headers: {
-                                        "Content-Type": "application/json"
-                                    },
-                                    dataType: "json",
-                                    data: JSON.stringify({
-                                        files: this.files,
-                                        data: this.attrs,
-                                        id: this.flow_id != "" ? this.flow_id : this.$route.params.id,
-                                        nodeIds: [this.next[i].nodeId],
-                                        uids: values[j].uid,
-                                        nextStepNotice: false,
-                                        nextStepShort: false,
-                                        startNotice: false,
-                                        startShort: false,
-                                        allNotice: false,
-                                        allShort: false,
-                                        message: ""
-                                    }),
-                                    success: (msg) => {
-                                        if (!msg.success) {
-                                            return;
-                                        }
-                                        showMsg("提交成功");
-                                        onBack("tab4", this.flow_id != "" ? this.flow_id : this.$route.params.id, "deal", "0");
-                                        // this.load();
-                                        // if(d.nodeIds[0] && d.nodeIds[0].indexOf("EndEvent") != -1 ){
-                                        //     window.opener.layer.msg(msg.data);
-                                        // }else{
-                                        //     window.opener.layer.msg("提交成功！");
-                                        // }
-                                        // window.opener.load("deal", id);
-                                        // opener.type = "deal";
-                                        // opener.id = id;
-                                        // window.opener.scrollTo(0, 0);
-                                        // window.close();
-                                    }
-                                    // complete: function () {
-                                    //     layer.close
-                                    // }
-                                })
+                                uid = values[j].uid
                                 break;
                             }
                         }
+
+                        var msg = ""
+                        if (this.next[i].nodeId && this.next[i].nodeId.indexOf("EndEvent") != -1) {
+                            msg = "您参与的流程已办结，流程id：" + this.ins.id + "，流程：" + this.ins.bpmName;
+                        } else {
+                            msg = "您参与的流程已办结，流程id：" + this.ins.id + "，流程：" + this.ins.bpmName;
+                        }
+
+                        $.ajax({
+                            url: "/api/bpm/workflow/nextApprover",
+                            type: "post",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            dataType: "json",
+                            data: JSON.stringify({
+                                files: this.files,
+                                data: this.attrs,
+                                id: this.flow_id != "" ? this.flow_id : this.$route.params.id,
+                                nodeIds: [this.next[i].nodeId],
+                                uids: uid,
+                                nextStepNotice: false,
+                                nextStepShort: false,
+                                startNotice: false,
+                                startShort: false,
+                                allNotice: false,
+                                allShort: false,
+                                message: msg
+                            }),
+                            success: (msg) => {
+                                if (!msg.success) {
+                                    showMsg(msg.errMessage);
+                                    return;
+                                }
+                                if (msg.data == true) {
+                                    showMsg("提交成功");
+                                } else {
+                                    showMsg(msg.data);
+                                }
+                                onBack("tab4", this.flow_id != "" ? this.flow_id : this.$route.params.id, "deal", "0");
+                                // this.load();
+                                // if(d.nodeIds[0] && d.nodeIds[0].indexOf("EndEvent") != -1 ){
+                                //     window.opener.layer.msg(msg.data);
+                                // }else{
+                                //     window.opener.layer.msg("提交成功！");
+                                // }
+                                // window.opener.load("deal", id);
+                                // opener.type = "deal";
+                                // opener.id = id;
+                                // window.opener.scrollTo(0, 0);
+                                // window.close();
+                            }
+                            // complete: function () {
+                            //     layer.close
+                            // }
+                        })
                         break;
                     }
                 }
