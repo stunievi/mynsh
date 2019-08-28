@@ -9,9 +9,12 @@
     <link rel="stylesheet" href="../lib/bootstrap-3.3.7-dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="../lib/bootstrap-3.3.7-dist/css/bootstrap-theme.min.css">
     <link rel="stylesheet" href="../lib/css/style.css">
-    <script src="../../../static/vendor/artTemplate/template-web.js"></script>
     <script src="../lib/jquery/jquery.js"></script>
+    <script src="../lib/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="../lib/jstree/themes/default/style.min.css">
     <script src="../lib/vue/vue.js"></script>
+
+    <script src="../../../static/vendor/artTemplate/template-web.js"></script>
     <style>
         .select-user input {
             position: relative;
@@ -25,6 +28,25 @@
             /*height: 100%;*/
             /*z-index: 1;*/
             /*padding-left: 20px;*/
+        }
+        #app{
+            display: flex;
+            flex-direction: column;
+        }
+        .ulist{
+            text-align: center;
+            flex: 1;
+            overflow: auto;
+            height: 100%;
+        }
+        .ulist .item{
+            width: 100%;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            color: #666;
         }
         .selected{
             background: #409eff;
@@ -43,37 +65,47 @@
     </style>
 </head>
 <body>
-    <div id="content" class="hide">
-        <div style="width: 500px;margin: 0 auto;">
-            <!--<ul id="ulist" style="height: 200px; overflow: auto;margin: 0 auto;">-->
-            <!--</ul>-->
-            <div id="ulist">
-            </div>
-            <div style="text-align: center; padding-top: 20px;">
-                <a href="javascript:;" id="submit">确定</a>
-            </div>
-        </div>
-    </div>
+<div id="app">
+    <ul id="myTabsBpm" class="nav nav-tabs" role="tablist" style="margin-bottom: 10px;">
+        <li class="active"><a href="#select1" class="" role="tab"  data-toggle="tab" aria-controls="taskBpm1" aria-expanded="true" >全部经办人</a></li>
+        <li><a href="#select2" role="tab"  data-toggle="tab" aria-controls="taskBpm3" aria-expanded="true" >按流程选择</a></li>
+    </ul>
+
+
+    <!--<div id="content" class="hide">-->
+        <!--<div style="width: 500px;margin: 0 auto;">-->
+            <!--&lt;!&ndash;<ul id="ulist" style="height: 200px; overflow: auto;margin: 0 auto;">&ndash;&gt;-->
+            <!--&lt;!&ndash;</ul>&ndash;&gt;-->
+            <!--<div id="ulist">-->
+            <!--</div>-->
+            <!--<div style="text-align: center; padding-top: 20px;">-->
+                <!--<a href="javascript:;" id="submit">确定</a>-->
+            <!--</div>-->
+        <!--</div>-->
+    <!--</div>-->
 
     <div id="myTabContentBpm" class="tab-content" style="min-height:120px;">
-        <div role="tabpanel" class="tab-pane active" id="taskBpm1" aria-labelledby="taskBpm1-tab">
+        <div role="tabpanel" class="tab-pane active" id="select1" aria-labelledby="taskBpm1-tab">
             <div class="ulist">
+                <div class="" >全部经办人</div>
                 <div class="action item" @click="cancelAll(selected)">全部删除</div>
-                <div class="action item" :class="{selected: selected[v.uid]}" v-for="(v,i) in selected" @click="choose(v)">{{v}}</div>
+                <div class="action item" @click="chooseAll(users)">全部添加</div>
+                <div class="action item" :class="{selected: selected[v.uid]}" v-for="v in users" @click="choose(v)">{{v}}</div>
             </div>
         </div>
-        <div role="tabpanel" class="tab-pane" id="taskBpm2" aria-labelledby="taskBpm2-tab" style="">
+        <div role="tabpanel" class="tab-pane" id="select2" aria-labelledby="taskBpm2-tab" style="">
             <div style="display: flex; flex-direction: row; height: 100%;">
                 <div id="jstree_demo" style="overflow:auto;">
                 </div>
                 <div class="ulist">
-                    <div class="action item" @click="cancelAll(dus)">全部删除</div>
-                    <div class="action item" @click="chooseAll(dus)">全部选择</div>
-                    <div class="item" :class="{selected: selected[v.uid]}" v-for="v in dus" @click="choose(v)">{{v.utname}}</div>
+                    <div class="action item" @click="cancelAll(selected)">全部删除</div>
+                    <div class="action item" @click="chooseAll(users)">全部添加</div>
+                    <div class="item" :class="{selected: selected[v.uid]}" v-for="v in users" @click="choose(v)">{{v.utname}}</div>
                 </div>
             </div>
         </div>
     </div>
+</div>
     <!--<span class="i-msg">-->
                         <!--{{item.msg}}-->
                     <!--</span>-->
@@ -117,74 +149,132 @@
     var ids = opener.app.remindAgent;
     var tmpl = template.compile($("#user").html())
 
-    var app =   new Vue({
+    var app = new Vue({
         el: "#app",
-        data:{}
-    })
-    $.get("/api/bpm/workflow/logList", {id:id}, function (msg) {
-        if(msg.success){
-            if(msg.data){
-                var item = {}
-                for(var i in msg.data){
-                    item[msg.data[i].uid] = msg.data[i].uname
+        data:{
+            users:[],
+            selected:{},
+        },
+        methods:{
+            chooseAll(items){
+                var t = this;
+                items.forEach(function (v) {
+                    console.log(v)
+                    Vue.set(t.selected, v.uid, v.uname)
+                })
+                // this.notify()
+            },
+            cancelAll(items){
+                if(items == this.selected){
+                    this.selected = {};
+                    // this.notify()
+                    return
                 }
+                var t = this;
+                items.forEach(function (v) {
+                    Vue.delete(t.selected, v.uid);
+                });
+                // this.notify()
+            },
+            choose: function (v) {
+                if(this.selected[v.uid]){
+                    Vue.delete(this.selected, v.uid);
+                }  else {
+                    Vue.set(this.selected, v.uid, v.utname)
+                }
+                console.log(this.selected)
+                // this.notify()
+            },
+            initUser: function(){
+                var t = this;
+                $.get("/api/bpm/workflow/logList", {id:id}, function (msg) {
+                    if(!msg.success){return}
 
-                $("#ulist").html(tmpl({
-                    data: item
-                }));
+                    if(msg.data.length){
+                        msg.data[0].state = {
+                            opened: true
+                        }
+                    }
 
+                    // var item = {}
+                    // for(var i in msg.data){
+                    //     item[msg.data[i].uid] = msg.data[i].uname
+                    // }
+                    t.users = msg.data
+
+                }, 'json')
             }
 
-            $.each(ids || {},function (i, item) {
-
-                $('#table1 .bg').each(function() {
-                    if($(this).attr("id") == i){
-                        $(this).css('background-color', '#409eff');
-                    }
-                });
-
-            })
-
-
-            $('#table1 .bg').click(function(){
-                if ($(this).css('background-color') === 'rgb(64, 158, 255)') {
-                    opener.Vue.delete(opener.app.remindAgent, $(this).attr("id"))
-                    $(this).css('background-color', 'white');
-                } else {
-                    $(this).css('background-color', '#409eff');
-                    opener.Vue.set(opener.app.remindAgent, $(this).attr("id"), $(this).text().trim())
-                }
-
-            });
-
-
-            // $.each(opener.app.users || [],function(i,item){
-            //     $("input[name='person'][value="+item+"]").attr("checked","checked");
-            //
-            // });
-            $("#content").removeClass("hide");
+        },
+        mounted: function(){
+            this.initUser()
         }
 
-    },"json")
-
-    var submitFn = function(){
-        submit();
-    }
-
-    $("#submit").unbind("click",submitFn).bind("click",submitFn);
-
-    function submit() {
-        var chk_value =[];
-        var chk_name =[];
-        $('input[name="person"]:checked').each(function(){
-            chk_value.push($(this).val());
-            chk_name.push($(this).next().html().trim());
-        });
-        opener.users = chk_value;
-        opener.app.reUserName = chk_name;
-        window.close();
-
-    }
+    })
+    // $.get("/api/bpm/workflow/logList", {id:id}, function (msg) {
+    //     if(msg.success){
+    //         if(msg.data){
+    //             var item = {}
+    //             for(var i in msg.data){
+    //                 item[msg.data[i].uid] = msg.data[i].uname
+    //             }
+    //
+    //             $("#ulist").html(tmpl({
+    //                 data: item
+    //             }));
+    //
+    //         }
+    //
+    //         $.each(ids || {},function (i, item) {
+    //
+    //             $('#table1 .bg').each(function() {
+    //                 if($(this).attr("id") == i){
+    //                     $(this).css('background-color', '#409eff');
+    //                 }
+    //             });
+    //
+    //         })
+    //
+    //
+    //         $('#table1 .bg').click(function(){
+    //             if ($(this).css('background-color') === 'rgb(64, 158, 255)') {
+    //                 opener.Vue.delete(opener.app.remindAgent, $(this).attr("id"))
+    //                 $(this).css('background-color', 'white');
+    //             } else {
+    //                 $(this).css('background-color', '#409eff');
+    //                 opener.Vue.set(opener.app.remindAgent, $(this).attr("id"), $(this).text().trim())
+    //             }
+    //
+    //         });
+    //
+    //
+    //         // $.each(opener.app.users || [],function(i,item){
+    //         //     $("input[name='person'][value="+item+"]").attr("checked","checked");
+    //         //
+    //         // });
+    //         $("#content").removeClass("hide");
+    //     }
+    //
+    // },"json")
+    //
+    // var submitFn = function(){
+    //     submit();
+    // }
+    //
+    // $("#submit").unbind("click",submitFn).bind("click",submitFn);
+    //
+    // function submit() {
+    //     var chk_value =[];
+    //     var chk_name =[];
+    //     $('input[name="person"]:checked').each(function(){
+    //         chk_value.push($(this).val());
+    //         chk_name.push($(this).next().html().trim());
+    //     });
+    //     opener.users = chk_value;
+    //     opener.app.reUserName = chk_name;
+    //     window.close();
+    //
+    // }
 
 
 
